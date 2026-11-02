@@ -31,6 +31,7 @@ NO VIDEO EVER: every file path here goes through shop_views.clean_snapshot().
 """
 import json
 import logging
+from urllib.parse import urlparse
 from datetime import timedelta
 
 from django.conf import settings
@@ -542,6 +543,11 @@ def imou_callback_url(app_id):
         getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), tok)
 
 
+# ShopCamera.compat keys the SERVER owns (never replaced by a gateway check)
+COMPAT_KEEP = ("cloud_last_alarm_ms", "imou_seen_ids", "imou_pic_host_refused",
+               "cloud_checked_at", "cloud_online_at", "siren_at")
+
+
 class ImouCallbackView(APIView):
     """POST shop/imou/callback/<token> — the Imou cloud pushes alarms here.
     Always answers 200 fast (except a wrong token → 404). One still per alarm
@@ -577,7 +583,24 @@ class ImouCallbackView(APIView):
             if cam is None:
                 out.append({"ignored": "unknown_camera"})
                 continue
-            ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now)
+            # cctv100: the Imou cloud re-sends a callback it thinks we missed
+            # (slow answer, network blip) — the same alarmId must not alert
+            # twice. Last 30 ids per camera; compat never holds secrets.
+            compat = dict(cam.compat or {})
+            aid = a["alarm_id"]
+            seen = list(compat.get("imou_seen_ids") or [])
+            if aid and aid in seen:
+                ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now)
+                out.append({"ignored": "duplicate"})
+                continue
+            if aid:
+                compat["imou_seen_ids"] = (seen + [aid])[-30:]
+            # honest diagnostics: a picture on a host outside our SSRF
+            # allow-list is NOT downloaded — remember the host (never the
+            # signed query) so the real-camera test shows it at once.
+            if a["pic"] and not IM.snapshot_url_allowed(a["pic"]):
+                compat["imou_pic_host_refused"] = (urlparse(a["pic"]).hostname or "")[:80]
+            ShopCamera.objects.filter(pk=cam.pk).update(last_seen=now, compat=compat)
             snap = None
             raw = None
             if a["pic"] and cam.site.snapshot_retention_days > 0:
@@ -839,7 +862,11 @@ class GatewayTaskResultView(APIView):
         cam = t.camera
         if cam is not None and t.action == "check":
             fields = ["compat"]
-            cam.compat = res
+            # cctv100: a fresh check result must not wipe the server's own
+            # bookkeeping (EZVIZ poll cursor -> 10 min of re-sent alarms,
+            # Imou duplicate guard, cloud online clock, siren cooldown)
+            keep = {k: v for k, v in (cam.compat or {}).items() if k in COMPAT_KEEP}
+            cam.compat = dict(res, **keep)
             if res["info"].get("rtsp_path"):
                 cam.source = SV.clean_source(dict(cam.source or {},
                                                   rtsp_path=res["info"]["rtsp_path"]))

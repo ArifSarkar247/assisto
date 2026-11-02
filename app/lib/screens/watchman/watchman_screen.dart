@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,6 +8,7 @@ import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
 import '../../cctvx/cctvx_source.dart';
+import 'camera_label.dart';
 import 'cash_guard_screen.dart';
 import 'cctvx_inbox.dart';
 import 'watchman_add_camera.dart';
@@ -606,6 +608,7 @@ class _EzvizSheetState extends State<_EzvizSheet> {
   bool _busy = false;
   String _msg = '';
   bool _ok = false;
+  bool _info = false; // _msg is a neutral note (paste result), not an error
 
   @override
   void dispose() {
@@ -614,11 +617,35 @@ class _EzvizSheetState extends State<_EzvizSheet> {
     super.dispose();
   }
 
+  Future<void> _pasteLabel() async {
+    final t = AppLocalizations.of(context);
+    ClipboardData? data;
+    try {
+      data = await Clipboard.getData(Clipboard.kTextPlain);
+    } catch (_) {
+      data = null;
+    }
+    final lab = parseCameraLabel(data?.text);
+    if (!mounted) return;
+    setState(() {
+      if (lab == null) {
+        _msg = t.wmPasteLabelNone;
+        _info = true;
+        return;
+      }
+      _info = true;
+      _serial.text = lab.serial;
+      if (lab.code.isNotEmpty) _code.text = lab.code;
+      _msg = lab.code.isNotEmpty ? t.wmPasteLabelBoth : t.wmPasteLabelSerial;
+    });
+  }
+
   Future<void> _link() async {
     final t = AppLocalizations.of(context);
     setState(() {
       _busy = true;
       _msg = '';
+      _info = false;
     });
     try {
       await widget.source.linkEzviz(widget.cameraId, _serial.text.trim(), _code.text.trim());
@@ -644,6 +671,17 @@ class _EzvizSheetState extends State<_EzvizSheet> {
           controller: _serial,
           decoration: InputDecoration(labelText: t.cgEzvizSerial, border: const OutlineInputBorder()),
         ),
+        // cctv100: the sticker's QR text (copied from the phone camera) fills both
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            key: const Key('ezPasteLabel'),
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _busy || _ok ? null : _pasteLabel,
+            icon: const Icon(Icons.qr_code_2_rounded),
+            label: Text(t.wmPasteLabel),
+          ),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: _code,
@@ -659,7 +697,7 @@ class _EzvizSheetState extends State<_EzvizSheet> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(_msg,
-                style: TextStyle(color: _ok ? null : Theme.of(context).colorScheme.error)),
+                style: TextStyle(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
           ),
       ]),
     );

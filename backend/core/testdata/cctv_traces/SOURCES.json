@@ -1,0 +1,14 @@
+{
+ "_note": "Protocol traces for CI (cctv100, 2 Nov 2026). STRUCTURE and field names follow the public vendor documents below; VALUES (serials, IPs, times, boxes) are synthetic. None of these were captured from a real camera yet - the owner's real-device run (owner_actions/CCTV_GAP_TO_100_BN.md section 4) replaces/adds captured traces.",
+ "hik_linedetection_acusense_ver20.xml": "Hikvision ISAPI Developer Guide (Event / HTTP Listening, EventNotificationAlert ver20 schema); AcuSense detectionTarget + TargetRect (0..1 floats, newer firmware)",
+ "hik_videoloss_heartbeat_ver10.xml": "Hikvision ISAPI: the periodic videoloss/inactive heartbeat older ver10 firmware posts to the alarm host",
+ "hik_shelteralarm_ver20.xml": "Hikvision ISAPI eventType shelteralarm = Video Tampering",
+ "hik_fielddetection_rect1000_ver20.xml": "Hikvision ISAPI intrusion (fielddetection) with TargetRect in 0..1000 ints (older smart-event firmware)",
+ "dahua_attach_videomotion.mime": "Dahua HTTP API v2.x eventManager.cgi?action=attach stream (multipart/x-mixed-replace; boundary=myboundary, text/plain Code=...;action=...;index=...)",
+ "dahua_attach_crossline_data.txt": "Dahua HTTP API v2.x attach with the IVS data={...} JSON block (Object.ObjectType, BoundingBox in the 0..8191 coordinate system); layout as printed in public integration logs (e.g. the open-source Home Assistant 'dahua' integration issues)",
+ "imou_callback_human.json": "Imou Open Platform message callback (setMessageCallback, msgType human, did/cid/time/alarmId/picurlArray) as used by the open-source imou_life Home Assistant integration",
+ "imou_callback_aiper.json": "Imou newer AI PTZ firmware: person alarm reported as msgType e_multiVideoAiPerArea",
+ "imou_callback_status_online.json": "Imou callback status message (online) - not an alarm",
+ "imou_callback_foreign_pic.json": "Imou alarm whose picture sits on a host outside our SSRF allow-list (hypothetical object-storage host) - must be refused and reported, not downloaded",
+ "ezviz_alarm_device_list.json": "EZVIZ Open Platform POST /api/lapp/alarm/device/list response (page/data/code/msg; alarmId, alarmType, alarmTime ms, channelNo, isEncrypt, alarmPicUrl, deviceSerial)"
+}

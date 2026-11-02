@@ -24,6 +24,11 @@ class ShopLiveScreen extends StatefulWidget {
   final String cameraName;
   const ShopLiveScreen({super.key, required this.cameraId, required this.cameraName});
 
+  /// cctv100: not live within this many seconds → an honest "no answer" (the
+  /// server gives the device 45 s; a phone that lost its own network would
+  /// otherwise spin until the 10-minute cap).
+  static const int connectTimeoutSeconds = 35;
+
   @override
   State<ShopLiveScreen> createState() => _ShopLiveScreenState();
 }
@@ -46,6 +51,11 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
   Timer? _poll;
   Timer? _tick;
   bool _ending = false;
+  // cctv100: when the session started, and how long the first frame took
+  // (shown to the owner — the real-device test measures it; target ≤ 10 s)
+  DateTime? _startedAt;
+  int? _firstFrameSecs;
+
 
   late final ApiClient _api;
 
@@ -64,8 +74,26 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     super.dispose();
   }
 
+  Future<void> _retry() async {
+    _poll?.cancel();
+    _tick?.cancel();
+    setState(() {
+      _phase = _Phase.starting;
+      _error = '';
+      _sid = null;
+      _after = 0;
+      _relayed = false;
+      _liveSince = null;
+      _charged = 0;
+      _ending = false;
+      _firstFrameSecs = null;
+    });
+    await _start();
+  }
+
   Future<void> _start() async {
     final t = AppLocalizations.of(context);
+    _startedAt = DateTime.now();
     Map<String, dynamic> s;
     try {
       s = await _api.shopLiveStart(widget.cameraId);
@@ -98,6 +126,9 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             setState(() {
               _phase = _Phase.live;
               _liveSince ??= DateTime.now();
+              _firstFrameSecs ??= _startedAt == null
+                  ? null
+                  : _liveSince!.difference(_startedAt!).inSeconds;
             });
           },
           onState: (st) {
@@ -155,6 +186,11 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
 
   void _onTick() {
     if (!mounted) return;
+    if (_phase == _Phase.connecting && _startedAt != null &&
+        DateTime.now().difference(_startedAt!).inSeconds >= ShopLiveScreen.connectTimeoutSeconds) {
+      _fail(AppLocalizations.of(context).shopLiveNoAnswer(fmtInt(context, ShopLiveScreen.connectTimeoutSeconds)));
+      return;
+    }
     setState(() => _left = (_left - 1).clamp(0, _maxSeconds));
     if (_left <= 0) _end();
     // check the selected ICE pair every 3 s; once relayed, latch it
@@ -224,7 +260,12 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               width: double.infinity,
               color: Colors.black,
               alignment: Alignment.center,
-              child: _videoArea(t, scheme),
+              // cctv100: messages + buttons scroll at 200% font (CI caught a
+              // 112-208 px overflow on the error state); the live video is
+              // not wrapped (it fills the box)
+              child: _phase == _Phase.live
+                  ? _videoArea(t, scheme)
+                  : SingleChildScrollView(child: _videoArea(t, scheme)),
             ),
           ),
           _bottomBar(t, scheme),
@@ -265,6 +306,23 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white70)),
             ],
+            const SizedBox(height: Gap.md),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center,
+                children: [
+              FilledButton.icon(
+                key: const Key('shopLiveAgain'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _retry,
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: Text(t.shopLiveOpen),
+              ),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.close),
+              ),
+            ]),
           ]),
         );
       case _Phase.error:
@@ -277,11 +335,23 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white, height: 1.4)),
             const SizedBox(height: Gap.md),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-              onPressed: () => Navigator.pop(context),
-              child: Text(t.close),
-            ),
+            // cctv100: never a dead end — try again right here, or close
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center,
+                children: [
+              FilledButton.icon(
+                key: const Key('shopLiveRetry'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _retry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(t.retry),
+              ),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
+                onPressed: () => Navigator.pop(context),
+                child: Text(t.close),
+              ),
+            ]),
           ]),
         );
     }
@@ -304,6 +374,12 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             Chip(
               avatar: const Icon(Icons.timer_rounded, size: 18),
               label: Text(t.shopLiveTimeLeft(_mmss(_left))),
+            ),
+          if (_phase == _Phase.live && _firstFrameSecs != null)
+            Chip(
+              key: const Key('shopLiveTook'),
+              avatar: const Icon(Icons.speed_rounded, size: 18),
+              label: Text(t.shopLiveTook(fmtInt(context, _firstFrameSecs!))),
             ),
         ]),
         const SizedBox(height: Gap.sm),

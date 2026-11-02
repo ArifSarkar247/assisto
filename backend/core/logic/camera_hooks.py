@@ -25,11 +25,14 @@ from email.policy import HTTP
 # vendor event code (lower-cased) -> family
 _INTRUSION = {
     # Hikvision
-    "linedetection", "fielddetection", "regionentrance",
+    "linedetection", "fielddetection", "regionentrance", "regionexiting",
     # Dahua
     "crosslinedetection", "crossregiondetection", "intrusion",
 }
-_MOTION = {"vmd", "videomotion", "motiondetection"}
+# Hikvision "PIR" (PIR-sensor models); Dahua SMD ("SmartMotionHuman" /
+# "SmartMotionVehicle", Dahua WizSense / Imou-on-LAN firmware)
+_MOTION = {"vmd", "videomotion", "motiondetection", "pir",
+           "smartmotionhuman", "smartmotionvehicle"}
 # someone covered / spray-painted / turned the lens (Hikvision "shelteralarm"
 # = Video Tampering, Dahua "VideoBlind") — the camera's own alarm
 _TAMPER = {"shelteralarm", "videotampering", "videoblind", "tamperdetection"}
@@ -163,6 +166,37 @@ def _dahua_from_obj(obj):
     }
 
 
+_DAHUA_BLOCK = re.compile(r"(?mi)^[ \t]*Code=")
+
+
+def _dahua_text_events(txt):
+    """Dahua eventManager text form, one event per "Code=..." block:
+
+      Code=CrossLineDetection;action=Start;index=0
+      Code=CrossLineDetection;action=Start;index=0;data={ ...multi-line JSON... }
+
+    Newer firmware appends `data={...}` (pretty-printed over many lines) with
+    the IVS Object (ObjectType, BoundingBox) — parsed so the cash-zone box
+    check works for Dahua too. A broken data block keeps the event, drops the box."""
+    starts = [m.start() for m in _DAHUA_BLOCK.finditer(txt)]
+    out = []
+    for i, st in enumerate(starts):
+        block = txt[st:starts[i + 1] if i + 1 < len(starts) else len(txt)].strip()
+        head, sep, rest = block.partition(";data=")
+        kv = {k.lower(): v.strip() for k, v in _DAHUA_KV.findall(head.splitlines()[0])}
+        if not kv.get("code"):
+            continue
+        if sep:
+            try:
+                data, _ = json.JSONDecoder().raw_decode(rest.strip())
+            except ValueError:
+                data = None
+            if isinstance(data, dict):
+                kv["Data"] = data
+        out.append(_dahua_from_obj(kv))
+    return out
+
+
 def parse_dahua(content_type, body):
     """-> list of {event, active, at, channel, image}. Empty when unparseable."""
     content_type = content_type or ""
@@ -191,10 +225,7 @@ def parse_dahua(content_type, body):
                 if isinstance(it, dict):
                     out.append(_dahua_from_obj(it))
         else:
-            for line in txt.splitlines():
-                kv = {k.lower(): v.strip() for k, v in _DAHUA_KV.findall(line)}
-                if kv.get("code"):
-                    out.append(_dahua_from_obj(kv))
+            out.extend(_dahua_text_events(txt))
     for ev in out:
         ev["image"] = image
     return out
@@ -242,7 +273,7 @@ def map_event(ev, zone_config, local_now):
     zc = zone_config if isinstance(zone_config, dict) else {}
     after = is_after_hours(zc.get("hours"), local_now)
     base = {"camera_rule": code, "source": "camera_webhook"}
-    if (ev.get("target") or "") in _HUMAN_TARGETS:
+    if (ev.get("target") or "") in _HUMAN_TARGETS or code == "smartmotionhuman":
         base["human"] = True              # the camera's own AI saw a person
     if code in _TAMPER:
         return ("camera_alarm", dict(base, tamper=True))

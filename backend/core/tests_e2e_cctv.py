@@ -264,7 +264,9 @@ class ImouCloudE2ETests(_Base):
         self.assertTrue(r.data["events"][0]["raised"])
         self.assertFalse(ShopEvent.objects.get().snapshot)         # no video kept
         ShopEvent.objects.all().delete()
-        r, get = self.callback(self.alarm(pic="https://169.254.169.254/latest/x.jpg"))
+        # a NEW alarm (Imou never re-uses an alarmId; a re-sent one is ignored)
+        r, get = self.callback(self.alarm(alarm_id="1003",
+                                          pic="https://169.254.169.254/latest/x.jpg"))
         get.assert_not_called()                                   # SSRF guard
         self.assertFalse(ShopEvent.objects.get().snapshot)
 
