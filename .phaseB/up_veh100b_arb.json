@@ -1,0 +1,18 @@
+{
+  "_comment": "veh100b: OBD engine-hot warning card (vehicle_obd_screen.dart) — shown when the tracker OBD or the Bluetooth ELM327 dongle reports coolant >= 105 °C (same threshold as the server push core.logic.vehicle_tracking.ENGINE_HOT_C). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_veh100b_arb.json",
+  "en": {
+    "vehEngineHotTitle": "Engine is hot",
+    "vehEngineHotBody": "Coolant {temp}. Stop somewhere safe, switch the engine off and check the coolant before you drive on.",
+    "@vehEngineHotBody": {
+      "placeholders": {
+        "temp": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "vehEngineHotTitle": "ইঞ্জিন গরম",
+    "vehEngineHotBody": "কুল্যান্ট {temp}। নিরাপদ জায়গায় থেমে ইঞ্জিন বন্ধ করুন, কুল্যান্ট দেখে তারপর চালান।"
+  }
+}
