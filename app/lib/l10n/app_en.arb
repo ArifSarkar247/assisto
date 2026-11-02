@@ -34878,5 +34878,6 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
 }

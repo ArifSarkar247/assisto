@@ -92,6 +92,15 @@ CATALOG = (
     # earn nothing), so flips both ways need a typed reason. OFF = the normal
     # plan gate (video needs Premium or a referral unlock).
     ("calls_free_testing", KIND_COST, "calls", True),
+    # sitev3: website go-live switch. ON (default) = the CLASSIC (current)
+    # lifeassisto.com; OFF = the new site v3 (web.views_site3) is live. The
+    # owner flips it in Owner Admin → Website; flipping back = one-tap rollback.
+    ("website_classic", KIND_FEATURE, "ops", True),
+    # sitev3: Play listing state on the website. ON (default) = detect it
+    # automatically (HTTP 200 vs 404, cached 1 h). OFF = owner override:
+    # website_play_public decides (ON = public, OFF = "Coming soon to Play").
+    ("website_play_auto", KIND_FEATURE, "ops", True),
+    ("website_play_public", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

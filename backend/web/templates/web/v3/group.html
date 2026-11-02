@@ -1,0 +1,34 @@
+{% extends "web/v3/base.html" %}
+{% block main %}
+<section class="ghead" aria-labelledby="g-h">
+  <div class="wrap">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="{{ U.home }}">Assisto</a> › <a href="{{ U.features }}">{{ C.nav_features }}</a> › <span aria-current="page">{{ group.name }}</span></nav>
+    <h1 id="g-h"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ group.icon }}"/></svg></span>{{ group.name }}</h1>
+    <p class="lead">{{ group.lead }}</p>
+    <ul class="toc" aria-label="{{ C.on_this_page }}">{% for f in group.features %}<li><a href="#{{ f.id }}">{{ f.title }}</a></li>{% endfor %}</ul>
+  </div>
+</section>
+<div class="wrap">
+  <div class="rows">{% for f in group.features %}{% if f.live and f.img %}
+    <section class="frow rv" id="{{ f.id }}" aria-labelledby="{{ f.id }}-h">
+      <div class="ft-txt">
+        <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ f.icon }}"/></svg></div>
+        <h2 id="{{ f.id }}-h">{{ f.title }}</h2>
+        {% if f.auto %}<p class="autoln"><span class="ab">{{ C.auto }}</span><span>{{ f.auto }}</span></p>{% endif %}
+        <p class="body">{{ f.body }}</p>
+        {% if f.ai %}<p class="mut">{{ C.ai_note }}</p>{% endif %}
+      </div>
+      {% include "web/v3/_shot.html" with s=f.img %}
+    </section>{% endif %}{% endfor %}
+  </div>
+  <div class="fgrid">{% for f in group.features %}{% if f.live and not f.img %}{% include "web/v3/_fcard.html" %}{% endif %}{% endfor %}</div>
+  {% if group.n_live < group.features|length %}
+  <h2 class="sub-h">{{ C.soon }}</h2>
+  <div class="fgrid">{% for f in group.features %}{% if not f.live %}{% include "web/v3/_fcard.html" %}{% endif %}{% endfor %}</div>
+  {% endif %}
+  <nav class="gnav" aria-label="{{ C.nav_features }}">
+    {% if prev_g %}<a href="{{ prev_g.url }}"><small>←</small>{{ prev_g.name }}</a>{% else %}<a href="{{ U.features }}"><small>←</small>{{ C.group_back }}</a>{% endif %}
+    {% if next_g %}<a href="{{ next_g.url }}" style="text-align:right"><small>→</small>{{ next_g.name }}</a>{% else %}<a href="{{ U.features }}" style="text-align:right"><small>→</small>{{ C.group_back }}</a>{% endif %}
+  </nav>
+</div>
+{% endblock %}

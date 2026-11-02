@@ -1,0 +1,9 @@
+{
+  "_comment": "sitev3 (website v3 go-live switch, AdminFlagState website_classic): label in the in-app owner Cost & feature flags screen. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_sitev3_arb.json",
+  "en": {
+    "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  },
+  "bn": {
+    "flagWebsiteClassic": "আগের ওয়েবসাইট (বন্ধ করলে নতুন সাইট v3 লাইভ)"
+  }
+}

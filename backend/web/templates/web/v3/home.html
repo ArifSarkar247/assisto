@@ -1,0 +1,52 @@
+{% extends "web/v3/base.html" %}
+{% block main %}
+<section class="hero" id="hero" aria-labelledby="hero-h">
+  <div class="wrap hero-in">
+    <div>
+      <span class="kick"><span class="dot" aria-hidden="true"></span>{{ C.hero_kicker }}</span>
+      <h1 id="hero-h">{{ C.hero_h1 }} <span class="g">{{ C.hero_h1_g }}</span></h1>
+      <p class="sub">{{ C.hero_sub }}</p>
+      <div class="hero-cta">{% include "web/v3/_get.html" with g=get.hero %}</div>
+      <p class="note">{{ C.hero_note }} · <a class="more-l" href="#features">{{ C.cta_features }} →</a></p>
+    </div>
+    <div class="hero-shot"><div class="hero-ph" data-rot>
+      <div class="track">{% for sl in slides %}<a class="slide{% if forloop.first %} on{% endif %}" href="{{ sl.w720 }}" data-zoom aria-label="{{ sl.alt }}"><img {% if forloop.first %}src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w"{% else %}data-src="{{ sl.w360 }}" data-srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" decoding="async"{% endif %} sizes="(max-width: 760px) 80vw, 276px" width="360" height="800" alt="{{ sl.alt }}"{% if forloop.first %} fetchpriority="high"{% endif %}></a>{% endfor %}</div>
+      <div class="dots">{% for sl in slides %}<button type="button" class="dot{% if forloop.first %} on{% endif %}" aria-label="{{ sl.alt }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}<button class="rot-btn" type="button" aria-label="{{ C.pause }}" aria-pressed="false"><svg class="i sm" aria-hidden="true"><use href="#i-pause"/></svg></button></div>
+    </div></div>
+  </div>
+</section>
+{% if auto_strip %}
+<section class="autos" aria-labelledby="autos-h">
+  <div class="wrap">
+    <h2 id="autos-h">{{ C.auto_strip_h }}</h2>
+    <ul class="auto-l">{% for a in auto_strip %}<li><span class="ab">{{ C.auto }}</span><span><b>{{ a.title }}</b><span class="t">{{ a.auto }}</span></span></li>{% endfor %}</ul>
+  </div>
+</section>
+{% endif %}
+<section class="sec" id="what" aria-labelledby="what-h">
+  <div class="wrap">
+    <span class="eyebrow">Assisto</span>
+    <h2 id="what-h">{{ C.what_h }}</h2>
+    <p class="lead">{{ C.what_lead }}</p>
+    <div class="what">{% for icon, h, b in C.what %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ icon }}"/></svg></div><h3>{{ h }}</h3><p>{{ b }}</p></article>{% endfor %}</div>
+  </div>
+</section>
+<section class="sec alt" id="features" aria-labelledby="features-h">
+  <div class="wrap">
+    <span class="eyebrow">{{ C.nav_features }}</span>
+    <h2 id="features-h">{{ C.groups_h }}</h2>
+    <p class="lead">{{ C.groups_lead }}</p>
+    <div class="groups">{% for g in groups %}
+      <article class="card gc rv" id="g-{{ g.id }}">
+        <h3><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg></span><a href="{{ g.url }}">{{ g.name }}</a></h3>
+        <p>{{ g.lead }}</p>
+        <ul>{% for f in g.features|slice:":4" %}<li><svg class="i" aria-hidden="true"><use href="#i-{{ f.icon }}"/></svg><span>{{ f.title }}{% if f.auto %} <span class="ab">{{ C.auto }}</span><br><em>{{ f.auto }}</em>{% elif not f.live %} <span class="soon">{{ C.soon }}</span>{% endif %}</span></li>{% endfor %}</ul>
+        <a class="more" href="{{ g.url }}">{{ C.see_all }}: {{ g.name }}<svg class="i sm" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </article>{% endfor %}
+    </div>
+  </div>
+</section>
+{% include "web/v3/_pricing.html" %}
+{% include "web/v3/_trust.html" %}
+{% include "web/v3/_faq.html" %}
+{% endblock %}

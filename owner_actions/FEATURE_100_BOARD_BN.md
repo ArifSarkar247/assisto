@@ -74,7 +74,7 @@
 | ১৯. বিজনেসের বাড়তি অংশ | ৪ | ৬০.৩ (moneybar; আগে ৫৭.৮) | ~৮ |
 | ২০. আসছে (তৈরি হয়নি) | ৪ | ১৫.২ | ~৪৫ |
 | ২১. Owner Admin (প্রতিটি পাতা) | ২২ | ৬৫.৫ | ~৮.১ |
-| ২২. ওয়েবসাইট (lifeassisto.com) | ৮ | ৬৮.৫ | ~২.৫ |
+| ২২. ওয়েবসাইট (lifeassisto.com) | ৯ | ৬৮.৯ (sitev3 +১ সারি) | ~২.৫ |
 | ২৩. সার্ভারের কাজ (cron, সার্ভিস) | ৬ | ৭১.৭ (moneybar; আগে ৫১.৫) | ~২.৯ |
 
 🚀 = লঞ্চ-জরুরি (মালিকের ক্রম D)। দিনের হিসাব একজন ডেভেলপারের, আনুমানিক; মালিকের চাবি/চুক্তি/হার্ডওয়্যারের অপেক্ষার সময় ধরা হয়নি।
@@ -518,7 +518,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | Vitals (Play crash/ANR) | **৬৬** | — | Owner Admin — প্রযোজ্য নয় | backend/web/owner/urls.py /owner/vitals*; web.tests_o2_owner_admin, tests_p2_owner | Play Console Vitals / Crashlytics · — | যাচাই বাকি (not yet benchmarked) |
 | ফিচার সুইচ (৯ শর্ত, Play আলাদা, রোলআউট) | **৭৩** | এই বোর্ডের ১২-শর্ত স্কোর ফিচার পাতায় দেখানো (এখন ৯ শর্ত) | Owner Admin — প্রযোজ্য নয় | backend/web/owner/urls.py /owner/features*; web.tests_o2_owner_admin, tests_p2_owner | Firebase Remote Config + Play Console (ভেতরের টুল) · — | এই বোর্ডের ১২-শর্ত স্কোর (আর সেরা-বিকল্প/ফাঁক) ফিচার-পাতায় নেই — এখন ৯ শর্ত (BEST_IN_CLASS_BN.md Owner Admin ফাঁক ৩) |
 
-## ২২. ওয়েবসাইট (lifeassisto.com) — গড় ৬৮.৫
+## ২২. ওয়েবসাইট (lifeassisto.com) — গড় ৬৮.৯ (sitev3 ৩ Nov: নতুন সারি 'ওয়েবসাইট v3' ৭০; আগে ৬৮.৫ / ৮ সারি)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
@@ -531,6 +531,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | app-ads.txt, robots, sitemap, assetlinks | **৭৬** | — | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | শেয়ার পাতা ও কার্ড (/cv, /scam, /festival, /made30, wrapped) | **৬২** | ছবি-কার্ডে বাংলা ফন্ট আসল ফোনে; অপব্যবহার সীমা | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | বুকিং পাতা (/b/<slug>, /b/m/<token>) | **৬৩** | বুকিং সুইচ বন্ধ; OTP-নির্ভর | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| নতুন: ওয়েবসাইট v3 (মালিকের চূড়ান্ত আদেশ ৩ Nov) — হিরো, 'নিজে থেকে' ব্যাজ, ৭ দলের নিজস্ব পাতা, CCTV দাম 'শীঘ্রই', bn/en, লাইভ-সুইচ + প্রিভিউ | **৭০** (sitev3; নতুন) | মালিকের OK বাকি (এখন শুধু /preview/, noindex); ডিপ্লয় বাকি; আসল ফোনে মালিকের দেখা বাকি; কয়েকটি ফিচারের (বাবল, চ্যানেল, দৈনিক ব্রিফ) আলাদা স্ক্রিনশট গ্যালারিতে নেই | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/site_v3.py, views_site3.py, templates/web/v3/; web.tests_site_v3; website.yml (Lighthouse মোবাইল+ডেস্কটপ, website-v3-preview) | Stripe / Linear (এক-অ্যাকসেন্ট, প্রতিটি ফিচারের পাতা) | লাইভ নয়; Lighthouse সংখ্যা STATUS-এ |
 
 ## ২৩. সার্ভারের কাজ (cron, সার্ভিস) — গড় ৭১.৭ (moneybar; আগে ৫১.৫)
 

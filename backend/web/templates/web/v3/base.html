@@ -1,0 +1,160 @@
+{% load site %}<!doctype html>
+<html lang="{{ C.html_lang }}" class="v3">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ title }}</title>
+<meta name="description" content="{{ desc }}">
+{% if preview %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
+<link rel="canonical" href="{{ seo.canonical }}">
+<link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
+<link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
+<link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#0B1020">
+{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% else %}<link rel="preload" href="{{ font_in.w400 }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ font_in.w700 }}" as="font" type="font/woff2" crossorigin>{% endif %}
+<link rel="icon" href="{% site_asset 'favicon.ico' %}" sizes="48x48">
+<link rel="icon" href="{% site_asset 'favicon.svg' %}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{% site_asset 'apple-touch-icon.png' %}" sizes="180x180">
+<link rel="manifest" href="/site.webmanifest{% if lang == 'en' %}?lang=en{% endif %}">
+<meta property="og:site_name" content="Assisto">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ desc }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:image" content="{{ og_image }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="{% if lang == 'en' %}en_US{% else %}bn_BD{% endif %}">
+<meta property="og:locale:alternate" content="{% if lang == 'en' %}bn_BD{% else %}en_US{% endif %}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ title }}">
+<meta name="twitter:description" content="{{ desc }}">
+<meta name="twitter:image" content="{{ og_image }}">
+<script type="application/ld+json">{{ jsonld|safe }}</script>
+{% include "web/v3/_css.html" %}
+</head>
+<body>
+<a class="skip" href="#main">{{ C.skip }}</a>
+{{ sprite }}
+{% if preview %}<div class="pv" role="note">{{ C.preview_banner }}</div>{% endif %}
+<header class="hd" id="top">
+  <div class="wrap hd-in">
+    <a class="logo" href="{{ U.home }}" aria-label="Assisto"><img src="{% site_asset 'logo-96.webp' %}" width="32" height="32" alt=""><span>Assisto</span></a>
+    <nav class="nav" aria-label="{{ C.menu }}">
+      <details class="dd">
+        <summary>{{ C.nav_features }}<svg class="i sm" aria-hidden="true"><use href="#i-arrow"/></svg></summary>
+        <div class="dd-p">
+          {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg><span>{{ g.name }}</span></a>{% endfor %}
+          <a class="dd-all" href="{{ U.features }}">{{ C.see_all }} →</a>
+        </div>
+      </details>
+      <a class="nl" href="{{ U.security }}">{{ C.nav_security }}</a>
+      <a class="nl" href="{{ U.help }}">{{ C.nav_help }}</a>
+      <a class="btn sm play-top" href="{% if dist.public %}{{ play.header }}{% else %}#download{% endif %}"{% if dist.public %} rel="noopener" data-play{% endif %}>{{ C.install_now }}</a>
+    </nav>
+    <a class="lang" href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}" aria-label="{{ C.lang_label }}">{{ C.lang_name }}</a>
+    <details class="mm">
+      <summary class="burger" aria-label="{{ C.menu }}"><span></span><span></span><span></span></summary>
+      <nav class="mm-p" aria-label="{{ C.menu }}">
+        <a href="{{ U.home }}"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg>{{ C.chip_home }}</a>
+        {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg>{{ g.name }}</a>{% endfor %}
+        <a href="{{ U.pricing }}"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg>{{ C.nav_pricing }}</a>
+        <a href="{{ U.security }}"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>{{ C.nav_security }}</a>
+        <a href="{{ U.help }}"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>{{ C.nav_help }}</a>
+        <a href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>{{ C.lang_name }}</a>
+        <div class="mm-get">{% include "web/v3/_get.html" with g=get.menu %}</div>
+      </nav>
+    </details>
+  </div>
+  <nav class="chips" aria-label="{{ C.chips_label }}"><div class="chips-in">{% for c in chips %}<a href="{{ c.href }}"{% if c.spy %} data-spy="{{ c.spy }}"{% endif %}{% if c.on %} class="on" aria-current="page"{% endif %}{% if c.play %} rel="noopener" data-play{% endif %}>{{ c.label }}</a>{% endfor %}</div></nav>
+</header>
+
+<main id="main">
+{% block main %}{% endblock %}
+<section class="cta-end" id="download">
+  <div class="wrap">
+    <h2>{{ C.cta_h }}</h2>
+    <p>{{ C.cta_p }}</p>
+    {% include "web/v3/_get.html" with g=get.footer full=True %}
+  </div>
+</section>
+</main>
+<footer class="ft">
+  <div class="wrap ft-in">
+    <div class="ft-col">
+      <a class="logo" href="{{ U.home }}"><img src="{% site_asset 'logo-96.webp' %}" width="28" height="28" alt="" loading="lazy"><span>Assisto</span></a>
+      <p class="mut">{{ C.not_emergency }}</p>
+    </div>
+    <div class="ft-col">
+      <h2 class="ft-h">{{ C.nav_features }}</h2>
+      <ul>{% for g in groups %}<li><a href="{{ g.url }}">{{ g.name }}</a></li>{% endfor %}</ul>
+    </div>
+    <div class="ft-col">
+      <h2 class="ft-h">Assisto</h2>
+      <ul>
+        <li><a href="{{ U.pricing }}">{{ C.nav_pricing }}</a></li>
+        <li><a href="{{ U.security }}">{{ C.nav_security }}</a></li>
+        <li><a href="{{ U.help }}">{{ C.f_help }}</a></li>
+        <li><a href="/privacy{{ U.q }}">{{ C.f_privacy }}</a></li>
+        <li><a href="/terms{{ U.q }}">{{ C.f_terms }}</a></li>
+        <li><a href="/delete-account{{ U.q }}">{{ C.f_delete }}</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h2 class="ft-h">{{ C.f_tools }}</h2>
+      <ul>{% for t in tools %}<li><a href="{{ t.path }}{{ U.q }}">{{ t.h }}</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="wrap ft-bot mut">© {% if lang == 'bn' %}২০২৬{% else %}2026{% endif %} {{ C.footer_company }} · {{ C.footer_made }} · <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></div>
+</footer>
+<dialog class="zv" id="zv" aria-label="{{ C.viewer }}"><button class="zv-x" type="button" aria-label="{{ C.close }}">×</button><img alt=""></dialog>
+<div class="pbar">{% include "web/v3/_get.html" with g=get.sticky_bar %}</div>
+<a class="totop" href="#top" aria-label="{{ C.to_top }}"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+<script>
+(function(){var d=document.documentElement;d.classList.add("js");
+var rm=matchMedia("(prefers-reduced-motion: reduce)").matches,IO="IntersectionObserver" in window;
+if(/Android/i.test(navigator.userAgent))document.querySelectorAll("a[data-play]").forEach(function(a){var u=new URL(a.href);var id=u.searchParams.get("id"),ref=u.searchParams.get("referrer");if(id)a.href="intent://details?id="+id+(ref?"&referrer="+encodeURIComponent(ref):"")+"#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url="+encodeURIComponent(u.href)+";end"});
+document.addEventListener("click",function(e){document.querySelectorAll("details.dd[open]").forEach(function(x){if(!x.contains(e.target))x.removeAttribute("open")});
+ var a=e.target.closest&&e.target.closest(".mm-p a");if(a){var m=document.querySelector("details.mm");if(m)m.removeAttribute("open")}});
+var mm=document.querySelector("details.mm");if(mm)mm.addEventListener("toggle",function(){d.classList.toggle("mm-open",mm.open)});
+var tt=document.querySelector(".totop"),tk=0;addEventListener("scroll",function(){if(tk)return;tk=1;requestAnimationFrame(function(){tk=0;tt.classList.toggle("show",scrollY>700)})},{passive:true});
+var chips=[].slice.call(document.querySelectorAll(".chips a[data-spy]"));
+if(IO&&chips.length){var cur=null,seen={};var so=new IntersectionObserver(function(es){es.forEach(function(e){seen[e.target.id]=e.isIntersecting});
+ var best=null;chips.forEach(function(c){if(seen[c.dataset.spy]&&!best)best=c});
+ if(best&&best!==cur){chips.forEach(function(c){c.classList.toggle("on",c===best)});cur=best;var r=best.parentNode;r.scrollTo({left:best.offsetLeft-r.clientWidth/2+best.clientWidth/2,behavior:rm?"auto":"smooth"})}},{rootMargin:"-40% 0px -55% 0px"});
+ chips.forEach(function(c){var t=document.getElementById(c.dataset.spy);if(t)so.observe(t)})}
+var ph=document.querySelector("[data-rot]");
+if(ph){var tr=ph.querySelector(".track"),sl=[].slice.call(ph.querySelectorAll(".slide")),dots=[].slice.call(ph.querySelectorAll(".dot")),k=0,tm=null,vis=true,paused=rm,btn=ph.querySelector(".rot-btn");
+ function swipe(){return tr.scrollWidth>tr.clientWidth+4}
+ function show(n,user){k=(n+sl.length)%sl.length;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k);if(i===k)x.setAttribute("aria-current","true");else x.removeAttribute("aria-current")});
+  if(swipe())tr.scrollTo({left:sl[k].offsetLeft-(tr.clientWidth-sl[k].clientWidth)/2,behavior:rm?"auto":"smooth"})}
+ function run(){clearInterval(tm);tm=null;if(!paused&&vis)tm=setInterval(function(){show(k+1)},3500)}
+ dots.forEach(function(x,i){x.addEventListener("click",function(){show(i,true);paused=true;btn.setAttribute("aria-pressed","true");run()})});
+ var st=0;tr.addEventListener("scroll",function(){if(!swipe())return;clearTimeout(st);st=setTimeout(function(){var c=tr.scrollLeft+tr.clientWidth/2,b=0,bd=1e9;sl.forEach(function(x,i){var dd=Math.abs(x.offsetLeft+x.clientWidth/2-c);if(dd<bd){bd=dd;b=i}});if(b!==k){k=b;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k)})}},90)},{passive:true});
+ tr.addEventListener("touchstart",function(){paused=true;if(btn)btn.setAttribute("aria-pressed","true");run()},{passive:true});
+ if(IO)new IntersectionObserver(function(es){vis=es[0].isIntersecting;run()}).observe(ph);
+ if(btn){btn.setAttribute("aria-pressed",paused?"true":"false");btn.addEventListener("click",function(){paused=!paused;btn.setAttribute("aria-pressed",paused?"true":"false");run()})}
+ function load(){sl.forEach(function(x){var i=x.querySelector("img");if(i&&i.dataset.src){i.srcset=i.dataset.srcset;i.src=i.dataset.src;delete i.dataset.src}})}
+ tr.addEventListener("touchstart",load,{passive:true});dots.forEach(function(x){x.addEventListener("click",load)});
+ addEventListener("load",function(){setTimeout(function(){load();run()},800)})}
+var zv=document.getElementById("zv");
+if(zv&&zv.showModal){var zi=zv.querySelector("img"),opener=null;
+ document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-zoom]");if(!a)return;e.preventDefault();opener=a;var im=a.querySelector("img");zi.src=a.href;zi.alt=im?im.alt:"";zv.showModal();history.pushState({zv:1},"")});
+ zv.querySelector(".zv-x").addEventListener("click",function(){zv.close()});
+ zv.addEventListener("click",function(e){if(e.target===zv)zv.close()});
+ zv.addEventListener("close",function(){if(history.state&&history.state.zv)history.back();if(opener)opener.focus()});
+ addEventListener("popstate",function(){if(zv.open)zv.close()})}
+if(!IO||rm){d.classList.add("rm");return}
+// reveal: only cards still BELOW the fold start hidden; anything that has
+// reached the viewport (or was scrolled past) is shown — never left blank.
+var pend=[].slice.call(document.querySelectorAll(".rv")).filter(function(el){return el.getBoundingClientRect().top>innerHeight});
+pend.forEach(function(el){el.classList.add("pre")});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})});
+pend.forEach(function(el){io.observe(el)});
+var rk=0;addEventListener("scroll",function(){if(rk)return;rk=1;requestAnimationFrame(function(){rk=0;pend=pend.filter(function(el){if(el.getBoundingClientRect().top<innerHeight){el.classList.add("in");return false}return true})})},{passive:true});
+})();
+</script>
+</body>
+</html>
