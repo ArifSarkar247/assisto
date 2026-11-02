@@ -97,10 +97,27 @@ def link_expiry(j):
     return (j.created_at or timezone.now()) + timedelta(hours=LINK_HOURS)
 
 
+def link_id(j):
+    """The id part signed into the watcher link: "<id>" for the first
+    generation (links shared before journey2 keep working), "<id>-<gen>"
+    after the traveller turned the link off and shared a new one."""
+    gen = int(getattr(j, "web_gen", 0) or 0)
+    return str(j.id) if gen <= 0 else "%s-%s" % (j.id, gen)
+
+
+def split_link_id(raw):
+    """("123-2") -> (123, 2); ("123") -> (123, 0); junk -> (None, None)."""
+    s = str(raw or "")
+    head, _, gen = s.partition("-")
+    if not head.isdigit() or (gen and not gen.isdigit()):
+        return None, None
+    return int(head), int(gen or 0)
+
+
 def web_token(j):
     if not j.pk:
         return ""
-    return SJ.make_web_token(j.id, link_expiry(j), settings.SECRET_KEY)
+    return SJ.make_web_token(link_id(j), link_expiry(j), settings.SECRET_KEY)
 
 
 def web_url(j):
@@ -205,6 +222,22 @@ def offroute(j, lat, lng):
     return d > thr, int(d), thr
 
 
+def progress(j, fx=None):
+    """journey2: straight-line distance left to a PINNED destination and a
+    rough remaining time (road factor x typical city speed for the mode).
+    {} when the destination has no pin or there is no fix — never a guess."""
+    from .logic import journey_dest as JD
+    dest = _pt(j.destination or {})
+    fx = fx if fx is not None else fix_of(j)
+    if dest is None or fx is None:
+        return {}
+    d = JD.distance_m(fx[0], fx[1], dest[0], dest[1])
+    if d is None:
+        return {}
+    mode = ((j.vehicle or {}).get("mode") or j.mode or "")
+    return {"distance_m": d, "rough_min": JD.rough_minutes(d, mode)}
+
+
 def near_destination(j, lat, lng, factor=2.0):
     dest = _pt(j.destination or {})
     if dest is None:
@@ -229,6 +262,12 @@ def event_text(kind, j, name, lang, p):
         eta = _hhmm(j.eta, lang)
         if eta:
             pl["body"] += pick(lang, " পৌঁছানোর সময়: %s।" % eta, " Expected by %s." % eta)
+        from .logic import journey_dest as JD
+        ride = JD.ride_line(p, lang) if (p.get("plate") or p.get("app")) else ""
+        if ride:
+            pl["body"] += pick(lang, " যানবাহন: %s।" % ride, " Ride: %s." % ride)
+        if p.get("driver_name"):
+            pl["body"] += pick(lang, " চালক: %s।" % p["driver_name"], " Driver: %s." % p["driver_name"])
         return pl["title"], pl["body"]
     if kind == "arrived":
         pl = SJ.arrived_payload(name, dest, lang=lang)
@@ -276,10 +315,18 @@ def event_text(kind, j, name, lang, p):
                      "%s entered their secret duress PIN. Check on them now, but don't give them away with a loud call.%s%s" % (
                     name, SJ._loc_line(loc, lang), link)))
     if kind == "vehicle":
-        pl = SJ.vehicle_payload(name, {"plate": p.get("plate"), "mode": p.get("mode") or ""}, lang=lang)
+        # journey2: the ride in ONE language (the raw mode code used to land
+        # in the Bangla push) + the driver's name when the traveller gave it
+        from .logic import journey_dest as JD
+        ride = JD.ride_line({"plate": p.get("plate"), "mode": p.get("mode"),
+                             "app": p.get("app")}, lang) or pick(lang, "অজানা", "unknown")
+        drv = str(p.get("driver_name") or "")
+        drv = pick(lang, " চালক: %s।" % drv, " Driver: %s." % drv) if drv else ""
         extra = pick(lang, " গাড়ির ছবি লাইভ পাতায় আছে।", " The ride photo is on the live page.") \
             if p.get("photo") else ""
-        return pl["title"], pl["body"] + extra + link
+        return (pick(lang, "যানবাহনের তথ্য", "Ride details shared"),
+                pick(lang, "%s-এর যানবাহন: %s।" % (name, ride),
+                     "%s's ride: %s." % (name, ride)) + drv + extra + link)
     return (pick(lang, "নিরাপদ যাত্রা", "Safe Journey"), name)
 
 
@@ -295,6 +342,23 @@ def watcher_users(j):
             continue
         u = member_peer_user(m)
         if u is None or u.pk == j.traveller_id or u.pk in seen:
+            continue
+        seen.add(u.pk)
+        out.append(u)
+    return out
+
+
+def close_family_users(j):
+    """The traveller's close family in My Circle (accepted, not blocked) —
+    the guardian journey's second escalation step."""
+    from .logic.circle import CLOSE_FAMILY
+    from .models import CircleMember
+    from .push import member_peer_user
+    out, seen = [], {j.traveller_id}
+    for m in CircleMember.objects.filter(user_id=j.traveller_id, state="accepted",
+                                         blocked=False, relation__in=CLOSE_FAMILY):
+        u = member_peer_user(m)
+        if u is None or u.pk in seen:
             continue
         seen.add(u.pk)
         out.append(u)
@@ -355,7 +419,10 @@ def deliver(ev):
             "lng": "" if p.get("lng") is None else p.get("lng")}
     urgent = ev.kind in URGENT
     n = 0
-    for u in watcher_users(j):
+    people = watcher_users(j)
+    if p.get("circle"):
+        people = people + [u for u in close_family_users(j) if u.pk not in {x.pk for x in people}]
+    for u in people:
         if not _rate_ok(u, ev.kind):
             continue
         name = push.seen_name(u, j.traveller)
@@ -479,8 +546,11 @@ def _sweep_journey(j, now, stats):
                 now - j.escalated_at >= timedelta(minutes=OVERDUE_REPEAT_MIN)))
         if due:
             n = j.escalations + 1
+            # guardian journey (owner idea 1): the requester first; from the
+            # second alert on, the traveller's close family in My Circle too
+            circle = n >= 2 and j.guardian_requests.exists()
             if emit(j, "overdue_alert", key="%s:%s" % (j.eta.isoformat() if j.eta else "", n),
-                    payload={"minutes": int(mins)}):
+                    payload={"minutes": int(mins), **({"circle": True} if circle else {})}):
                 stats["escalated"] += 1
             j.escalated_at, j.escalations = now, n
             j.save(update_fields=["escalated_at", "escalations"])
@@ -732,8 +802,11 @@ def sweep(now=None):
 
     def _sweep_family(now, stats):
         FA.sweep(now, stats)
-    for fn in (_sweep_retry, _sweep_wellness, _sweep_checkins, _sweep_routines,
-               _sweep_privacy, _sweep_family):
+    def _sweep_guardian(now, stats):
+        from . import guardian_journey as GJ
+        GJ.sweep(now, stats)
+    for fn in (_sweep_guardian, _sweep_retry, _sweep_wellness, _sweep_checkins,
+               _sweep_routines, _sweep_privacy, _sweep_family):
         try:
             fn(now, stats)
         except Exception as e:

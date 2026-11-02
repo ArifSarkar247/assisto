@@ -5,6 +5,7 @@ from . import views
 from . import media_sign
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_guardian as vg
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
@@ -482,6 +483,16 @@ urlpatterns = [
     path("journey/<int:pk>/stop", b61.JourneyStopView.as_view()),
     path("journey/<int:pk>/respond", b61.JourneyRespondView.as_view()),
     path("journey/<int:pk>/web-link", b61.JourneyWebLinkView.as_view()),
+    # journey2: turn shared links off, ride details mid-trip, destination
+    # from a pasted Maps link / place-name search, delete a saved place
+    path("journey/<int:pk>/web-link/revoke", b61.JourneyWebLinkRevokeView.as_view()),
+    path("journey/<int:pk>/ride", b61.JourneyRideView.as_view()),
+    path("journey/parse-link", b61.JourneyParseLinkView.as_view()),
+    path("journey/geocode", b61.JourneyGeocodeView.as_view()),
+    path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
+    # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
+    path("journey/requests", vg.JourneyRequestsView.as_view()),
+    path("journey/requests/<int:pk>/<str:action>", vg.JourneyRequestActionView.as_view()),
     path("journey/sos", b61.JourneySosView.as_view()),
     path("journey/duress-pin", b61.JourneyDuressPinView.as_view()),
     path("journey/nearest-help", b61.JourneyNearestHelpView.as_view()),

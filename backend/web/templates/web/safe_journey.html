@@ -60,6 +60,9 @@
     <div class="row" id="r-name" hidden><span id="name"></span></div>
     <div class="row" id="r-to" hidden><span>{{ T.to }}</span><span id="to"></span></div>
     <div class="row" id="r-eta" hidden><span>{{ T.eta }}</span><span id="eta"></span></div>
+    <div class="muted" id="r-etanote" hidden>{{ T.eta_note }}</div>
+    <div class="row" id="r-left" hidden><span>{{ T.left }}</span><span id="left"></span></div>
+    <div class="row" id="r-rough" hidden><span>{{ T.rough }}</span><span id="rough"></span></div>
     <div class="row" id="r-upd" hidden><span>{{ T.updated }}</span><span id="upd"></span></div>
     <div class="row" id="r-bat" hidden><span>{{ T.battery }}</span><span id="bat"></span></div>
     <div id="net" class="muted" hidden>{{ T.offline }}</div>
@@ -72,6 +75,8 @@
   </div>
   <div class="card" id="ridecard" hidden>
     <div class="row"><span>{{ T.ride }}</span><span id="ride"></span></div>
+    <div class="row" id="r-driver" hidden><span>{{ T.driver }}</span><span id="driver"></span></div>
+    <a class="btn primary" id="calldriver" href="#" hidden>{{ T.call_driver }}</a>
     <img class="photo" id="ridephoto" alt="{{ T.photo }}" hidden>
   </div>
   <div class="card" id="help" hidden>
@@ -111,7 +116,13 @@
       show("late", !!d.late && (st === "live" || st === "stale" || st === "lost" || st === "waiting"));
       show("r-name", !!d.name); txt("name", d.name || "");
       show("r-to", !!d.destination); txt("to", d.destination || "");
-      show("r-eta", !!d.eta && st !== "arrived" && st !== "ended"); txt("eta", hhmm(d.eta));
+      var running = st !== "arrived" && st !== "ended" && st !== "expired" && st !== "revoked";
+      show("r-eta", !!d.eta && running); txt("eta", hhmm(d.eta));
+      show("r-etanote", !!d.eta && running);
+      show("r-left", d.distance_m != null && running);
+      txt("left", d.distance_m != null ? T.left_v.replace("{d}", num((d.distance_m / 1000).toFixed(1))) : "");
+      show("r-rough", d.rough_min != null && running);
+      txt("rough", d.rough_min != null ? T.rough_v.replace("{m}", num(d.rough_min)) : "");
       var hasLoc = d.lat != null && d.lng != null;
       show("r-upd", hasLoc); txt("upd", hasLoc ? hhmm(d.at) + " (" + ago(d.age_s) + ")" : "");
       show("r-bat", d.battery != null); txt("bat", d.battery != null ? num(d.battery) + "%" : "");
@@ -123,14 +134,17 @@
         if (haveTiles) tiles(d.lat, d.lng);
       }
       var ride = d.ride || null; show("ridecard", !!ride);
-      if (ride) { txt("ride", [ride.mode, ride.plate].filter(Boolean).join(" · "));
+      if (ride) { txt("ride", ride.line || ride.plate || "");
+        show("r-driver", !!ride.driver_name); txt("driver", ride.driver_name || "");
+        var cd = document.getElementById("calldriver"); cd.hidden = !ride.driver_phone;
+        if (ride.driver_phone) cd.href = "tel:" + ride.driver_phone;
         var p = document.getElementById("ridephoto"); p.hidden = !ride.photo; if (ride.photo) p.src = ride.photo; }
       show("help", st === "sos" || st === "lost" || !!d.late);
       return st;
     }
     var state = render(B.data || {});
     function poll() {
-      if (state === "bad" || state === "expired" || state === "arrived" || state === "ended") return;
+      if (state === "bad" || state === "expired" || state === "arrived" || state === "ended" || state === "revoked") return;
       var x = new XMLHttpRequest(); x.open("GET", B.api + (bn ? "" : "?lang=en")); x.timeout = 15000;
       x.onload = function () { show("net", false);
         if (x.status === 429) return; try { state = render(JSON.parse(x.responseText)); } catch (e) {} };
