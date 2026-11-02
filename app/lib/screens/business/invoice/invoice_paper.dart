@@ -13,6 +13,7 @@
 // The layout is a list of measured blocks (pure apart from text measuring),
 // which the tests inspect: every block fits the paper width and each template
 // prints its own fields.
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -180,7 +181,7 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
           return;
         }
         for (var xx = x; xx < x + w; xx += 12) {
-          cv.drawLine(Offset(xx, yy), Offset((xx + 6).clamp(x, x + w), yy), p);
+          cv.drawLine(Offset(xx, yy), Offset(math.min(xx + 6, x + w), yy), p);
         }
       }
 
@@ -198,7 +199,7 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
     final vtp = _tp(value, sz, bw * 0.62, w: fw, align: TextAlign.right, c: vc ?? _black);
     final valueW = vtp.computeLineMetrics().fold<double>(
         0, (a, l) => l.width > a ? l.width : a);
-    final ltp = _tp(label, sz, (bw - valueW - 12).clamp(bw * 0.3, bw), w: fw, c: _black);
+    final ltp = _tp(label, sz, math.max(bw * 0.3, bw - valueW - 12), w: fw, c: _black);
     final h = (ltp.height > vtp.height ? ltp.height : vtp.height) + 3;
     final used = ltp.width + 12 + valueW;
     blocks.add(InvoiceBlock(kind, h, [label, value], used, (cv, x, y) {
@@ -231,18 +232,23 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
     // A4: brand band, shop left, title right
     final title = invoiceTitle(t, d);
     final ttp = _tp(title, st.title, w * 0.42, w: FontWeight.w700, align: TextAlign.right, c: brand);
-    final sub = d.calc.hasTax ? t.invMushak : (d.isService ? t.invSubFees : '');
-    final stp = sub.isEmpty ? null : _tp(sub, st.small, w * 0.42, align: TextAlign.right, c: muted);
+    final subs = [if (d.calc.hasTax) t.invMushak, if (d.isService) t.invSubFees];
+    final stps = [
+      for (final s in subs) _tp(s, st.small, w * 0.42, align: TextAlign.right, c: muted)
+    ];
     final shop = _tp(d.seller.name.isEmpty ? '—' : d.seller.name, st.big, w * 0.56,
         w: FontWeight.w700, maxLines: 2);
-    final rightH = ttp.height + (stp?.height ?? 0);
+    final rightH = stps.fold<double>(ttp.height, (a, p) => a + p.height);
     final h = (shop.height > rightH ? shop.height : rightH) + 8;
-    blocks.add(InvoiceBlock('header', h, [d.seller.name, title, if (sub.isNotEmpty) sub],
-        w, (cv, x, y) {
+    blocks.add(InvoiceBlock('header', h, [d.seller.name, title, ...subs], w, (cv, x, y) {
       cv.drawRect(Rect.fromLTWH(0, 0, paper.widthPx, 14), Paint()..color = brand);
       shop.paint(cv, Offset(x, y));
       ttp.paint(cv, Offset(x + w - w * 0.42, y));
-      stp?.paint(cv, Offset(x + w - w * 0.42, y + ttp.height));
+      var sy = y + ttp.height;
+      for (final p in stps) {
+        p.paint(cv, Offset(x + w - w * 0.42, sy));
+        sy += p.height;
+      }
     }));
   } else {
     if (d.template == 'fine_dining') rule(double_: true);
@@ -424,7 +430,7 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
     final sz = st.qr;
     final per = a4 ? qrs.length : 1;
     for (var i = 0; i < qrs.length; i += per) {
-      final group = qrs.sublist(i, (i + per).clamp(0, qrs.length));
+      final group = qrs.sublist(i, math.min(i + per, qrs.length));
       final caps = [
         for (final q in group)
           _tp(q.kind == 'verify' ? t.invQrVerify : t.invQrPay, st.small,
