@@ -227,6 +227,7 @@ const Map<String, String> kRouteFeature = {
   'booking': 'booking_bot',
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
+  'acct': 'accounting_v2', // acctui
   'offers': 'offers',
   'referral': 'referral',
   // retention1: owner screen + the customer's shop messages

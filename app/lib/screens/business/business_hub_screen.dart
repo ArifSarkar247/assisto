@@ -21,7 +21,7 @@ import 'quick_sell_screen.dart';
 import 'orders_screen.dart';
 import 'customers_screen.dart';
 import 'reports_screen.dart';
-import 'books_screen.dart'; // ledger
+import 'acct/acct_home_screen.dart'; // acctui
 import 'payments_screen.dart';
 import 'ai_assistant_screen.dart';
 import 'supplier_market_screen.dart';
@@ -389,12 +389,14 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               // ledger: double-entry books (flag accounting_v2, owner only)
               if (FeatureFlags.instance.isOn('accounting_v2')) ...[
                 const SizedBox(height: Gap.md),
+                // acctui: the accounting home (entry, reports, close, audit,
+                // export); the core's BooksScreen stays on route 'books'
                 _HubCard(
                   icon: Icons.menu_book_rounded,
                   tint: Brand.blue,
-                  title: t.lgrTitle,
-                  subtitle: t.lgrHubSub,
-                  onTap: () => _go(BooksScreen(businessId: bizId)),
+                  title: t.acuTitle,
+                  subtitle: t.acuHubSub,
+                  onTap: () => _go(AcctHomeScreen(businessId: bizId)),
                 ),
               ],
               const SizedBox(height: Gap.md),

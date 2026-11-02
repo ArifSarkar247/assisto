@@ -68,6 +68,12 @@ import 'package:assisto/screens/blood/blood_banks_screen.dart'; // blood
 import 'package:assisto/screens/blood/blood_verify_screen.dart'; // blood
 import 'fake_blood.dart'; // blood
 import 'package:assisto/screens/business/books_screen.dart'; // ledger
+import 'package:assisto/screens/business/acct/acct_home_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_entry_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_opening_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_reports_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_close_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_audit_screen.dart'; // acctui
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -668,6 +674,20 @@ Map<String, GallerySpec> gallerySpecs() {
     'books_pl': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.data, full: true), // ledger
     'books_empty': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.empty, full: true), // ledger
     'books_error': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.fail, full: false), // ledger
+    // acctui: accounting UI (flag accounting_v2)
+    'acct_home': (build: (_) => const AcctHomeScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'acct_home_empty': (build: (_) => const AcctHomeScreen(businessId: 1), mode: FakeMode.empty, full: true),
+    'acct_home_error': (build: (_) => const AcctHomeScreen(businessId: 1), mode: FakeMode.fail, full: false),
+    'acct_entry_sale': (build: (_) => const AcctEntryScreen(businessId: 1, kind: 'sale'), mode: FakeMode.data, full: true),
+    'acct_entry_expense': (build: (_) => const AcctEntryScreen(businessId: 1, kind: 'expense'), mode: FakeMode.data, full: true),
+    'acct_entry_money_in': (build: (_) => const AcctEntryScreen(businessId: 1, kind: 'money_in'), mode: FakeMode.data, full: true),
+    'acct_opening': (build: (_) => const AcctOpeningScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'acct_reports_pl': (build: (_) => const AcctReportsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'acct_reports_cf': (build: (_) => const AcctReportsScreen(businessId: 1, initialReport: 'cf'), mode: FakeMode.data, full: true),
+    'acct_reports_vat': (build: (_) => const AcctReportsScreen(businessId: 1, initialReport: 'vat'), mode: FakeMode.data, full: true),
+    'acct_reports_empty': (build: (_) => const AcctReportsScreen(businessId: 1), mode: FakeMode.empty, full: true),
+    'acct_close': (build: (_) => const AcctCloseScreen(businessId: 1), mode: FakeMode.data, full: false),
+    'acct_audit': (build: (_) => const AcctAuditScreen(businessId: 1), mode: FakeMode.data, full: true),
     'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
     'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),
     'blood_requests': (build: (_) => const BloodHubScreen(initialTab: 1), mode: FakeMode.data, full: true),
