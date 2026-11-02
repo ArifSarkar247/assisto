@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'package:provider/provider.dart';
@@ -96,6 +98,24 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   void initState() {
     super.initState();
     _load();
+    _probeOem();
+  }
+
+  // journey100b: read the phone's background rules once, early, so tapping
+  // Start never waits on the platform channel.
+  OemInfo? _oemInfo;
+  bool _bgGuided = false;
+
+  Future<void> _probeOem() async {
+    try {
+      final info = await (widget.oem ?? const ChannelOemGuideNative()).info();
+      final guided = await Settings.getBool(kJourneyBgGuidedKey, false);
+      if (!mounted) return;
+      _oemInfo = info;
+      _bgGuided = guided;
+    } catch (_) {
+      // best-effort: unknown phone -> no pre-start sheet
+    }
   }
 
   @override
@@ -294,14 +314,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   /// true = go ahead with the start; false = the user went to fix it (or
   /// closed the sheet) and will tap Start again.
   Future<bool> _bgReady(AppLocalizations t) async {
-    OemInfo? info;
-    try {
-      info = await (widget.oem ?? const ChannelOemGuideNative()).info();
-    } catch (_) {
-      info = null; // best-effort: unknown phone, start anyway
-    }
-    final guided = await Settings.getBool(kJourneyBgGuidedKey, false);
-    if (!journeyNeedsBgSetup(info, guidedBefore: guided) || !mounted) return true;
+    if (!journeyNeedsBgSetup(_oemInfo, guidedBefore: _bgGuided) || !mounted) return true;
     final pick = await showAppSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -341,6 +354,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => BatteryGuidanceScreen(native: widget.oem)));
       await Settings.setBool(kJourneyBgGuidedKey, true);
+      _bgGuided = true;
+      unawaited(_probeOem()); // the user may have changed the settings
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(t.j100bBgReady)));

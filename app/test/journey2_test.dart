@@ -288,6 +288,32 @@ void main() {
         'vehicle': {'plate': 'DHA-1', 'mode': 'cng'},
       };
 
+  testWidgets('journey100b: a Realme gets the battery-saver sheet BEFORE the trip', (tester) async {
+    final api = _Api()
+      ..circle = {
+        'results': [
+          {'id': 7, 'name': 'Mum', 'phone': '01711000002', 'state': 'accepted'},
+        ]
+      };
+    await _open(tester, api,
+        JourneyStartScreen(
+            oem: _Oem(const OemInfo(manufacturer: 'realme', brand: 'realme',
+                batteryOptIgnored: false, bgRestricted: false))));
+    await tester.tap(find.byKey(const ValueKey('j2_all')));
+    await _settle(tester, 3);
+    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_start'), skipOffstage: false));
+    await _settle(tester, 3);
+    await tester.tap(find.byKey(const ValueKey('j100_start')));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('j100b_bg_sheet')), findsOneWidget);
+    expect(find.text(en.j100bBgSheetTitle), findsOneWidget);
+    expect(api.posts('/journey/start'), isEmpty); // nothing started yet
+    await tester.tap(find.byKey(const ValueKey('j100b_bg_skip')));
+    await _settle(tester);
+    expect(api.posts('/journey/start').length, 1); // "Start anyway" starts it
+  });
+
   testWidgets('live: background card on a Xiaomi, none on near-stock', (tester) async {
     final t1 = tr();
     await _open(tester, _Api()..active = trip(),
