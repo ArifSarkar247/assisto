@@ -384,6 +384,61 @@ def clean_assistant_answer(text, lang="bn", actions=True, medical=True):
     return text, flags
 
 
+# --------------------------------------------------------------- money grounding (aibar)
+# The assistant chat must never present a taka amount it cannot back up. A
+# money figure ("৳1,200", "500 টাকা") that is not in the user's own message,
+# their data summary or the earlier turns (nor a simple sum / multiple of
+# those, see allowed_numbers) is UNGROUNDED:
+#   * strict (the question is about the user's OWN data — Brain level L1):
+#     the sentence carrying it is removed and one honest line is added;
+#   * otherwise (a general question, e.g. "how much is a Dhaka-Ctg bus
+#     ticket?"): the answer stays but carries one "estimate — verify" line.
+UNGROUNDED_MONEY_LINE = {
+    "bn": "আপনার খাতায় নেই এমন টাকার অঙ্ক আমি দেখাই না — সঠিক অঙ্কের জন্য "
+          "আপনার হিসাবের পাতা দেখুন বা খরচটি লিখে রাখুন।",
+    "en": "I don't show taka amounts that aren't in your records — check your money "
+          "page for the exact figure, or log the expense first.",
+}
+MONEY_ESTIMATE_LINE = {
+    "bn": "টাকার অঙ্কগুলো সাধারণ ধারণা, আপনার খাতা থেকে নয় — কাজে লাগানোর আগে যাচাই করে নিন।",
+    "en": "The taka amounts are general estimates, not from your records — please "
+          "verify before relying on them.",
+}
+
+
+def ungrounded_money(text, *sources, extra=()):
+    """Money values in `text` that no source supports (list of str)."""
+    return [p["value"] for p in ungrounded_numbers(text, *sources, extra=extra)
+            if p["type"] == "money"]
+
+
+def scrub_ungrounded_money(text, *sources, lang="bn", strict=True):
+    """-> (text, n_ungrounded). See the block comment above."""
+    if not text or not money_numbers(text):
+        return text, 0
+    bad = ungrounded_money(text, *sources)
+    if not bad:
+        return text, 0
+    key = "en" if lang == "en" else "bn"
+    if not strict:
+        line = MONEY_ESTIMATE_LINE[key]
+        if line in text:
+            return text, len(bad)
+        return (text.rstrip() + "\n\n" + line), len(bad)
+    kept = []
+    for s in _SENT_SPLIT.split(text):
+        if not s.strip():
+            continue
+        if money_numbers(s) and ungrounded_money(s, *sources):
+            continue
+        kept.append(s.strip())
+    line = UNGROUNDED_MONEY_LINE[key]
+    out = " ".join(kept).strip()
+    if line not in out:
+        out = (out + ("\n\n" if out else "") + line).strip()
+    return out, len(bad)
+
+
 # --------------------------------------------------------------- toxicity (AF-4)
 # Bangla + Banglish + English abuse / hate / threat / sexual lexicon with a
 # severity. Deterministic (no model, no network, 0 credits). Used on BOTH

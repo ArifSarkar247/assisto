@@ -940,7 +940,12 @@ class GrantAndPaidCountTests(PlayCase):
         with mock.patch.dict("os.environ", env):
             call_command("seed_play_reviewer", stdout=StringIO())
         g = EntitlementGrant.objects.get(source="play_reviewer")
-        self.assertEqual(g.plan, "premium")
+        # playall: Business so the reviewer reaches every declared feature
+        self.assertEqual(g.plan, "business")
+        from core.models import Reminder
+        # no medical-looking sample data for the Play reviewer
+        self.assertFalse(Reminder.objects.filter(user=g.user, title__icontains="doctor").exists())
+        self.assertTrue(Reminder.objects.filter(user=g.user).exists())
         self.assertFalse(PaidOrder.objects.exists())
 
 

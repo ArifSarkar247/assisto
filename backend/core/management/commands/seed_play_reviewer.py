@@ -7,7 +7,7 @@ Reads everything secret from the server environment (backend .env, never git):
   PLAY_REVIEWER_PEER_ID   optional: user id of a test account to add to My Circle
 
 Seeds realistic SAMPLE data only (no real person's data): reminders, notes,
-to-dos, a cash + bKash account with income/expenses, Premium for 1 year, and an
+to-dos, a cash + bKash account with income/expenses, Business (includes Premium) for 1 year, and an
 accepted My Circle connection with the test account.
 
     python manage.py seed_play_reviewer
@@ -54,7 +54,10 @@ class Command(BaseCommand):
         # system grant (EntitlementGrant source=play_reviewer), never a
         # payment and never revenue — tagged as such in Owner Admin.
         from core.payments import entitlement as E
-        E.owner_grant(user, plan="premium", until=now + timedelta(days=365),
+        # playall (8 Nov all-features launch): BUSINESS, not Premium, so the
+        # reviewer reaches Shop Box / CCTV and the business hub without an
+        # upgrade wall (every declared permission must be reachable).
+        E.owner_grant(user, plan="business", until=now + timedelta(days=365),
                       source="play_reviewer", actor=None,
                       reason="seed_play_reviewer: Google Play review demo account")
 
@@ -68,7 +71,8 @@ class Command(BaseCommand):
         day = now.replace(hour=9, minute=0, second=0, microsecond=0)
         for title, delta, notes in [
             ("Pay electricity bill", timedelta(days=1, hours=2), "DESCO prepaid meter"),
-            ("Doctor appointment", timedelta(days=3, hours=8), "Bring last prescription"),
+            # playall: no medical-looking sample data (medical is hidden in Play)
+            ("Parent-teacher meeting", timedelta(days=3, hours=8), "Bring the report card"),
             ("Call Mum", timedelta(hours=10), ""),
             ("Renew mobile data pack", timedelta(days=6), "10 GB monthly"),
         ]:
@@ -124,4 +128,4 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(
             f"{'created' if created else 'refreshed'} Play reviewer id={user.id}; "
-            f"premium until {user.plan_until.date()}; {peer_note}"))
+            f"business until {user.plan_until.date()}; {peer_note}"))

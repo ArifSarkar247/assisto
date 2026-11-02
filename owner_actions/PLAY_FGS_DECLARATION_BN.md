@@ -1,73 +1,96 @@
-# Play Console — Foreground service declaration (বিল্ড ২১৯ থেকে)
+# Play Console — Foreground service (FGS) ও Full-screen intent ঘোষণা (৮ Nov সব-ফিচার লঞ্চ)
 
-Play Console → **App content → Foreground service permissions**-এ দুটি টাইপ ঘোষণা করতে হবে: **Microphone, Location**। (**at100, ২৮ অক্টোবর:** Camera টাইপ আর নেই — নিচের ৩ নম্বর অংশ দেখুন।) প্রতিটির জন্য নিচের **ইংরেজি লেখা হুবহু কপি করে** বসান, আর প্রতিটির জন্য নিচের স্ক্রিপট অনুযায়ী ফোনে ~৩০ সেকেন্ডের একটা স্ক্রিন রেকর্ডিং করে (YouTube unlisted / Google Drive "anyone with link") লিংক দিন।
+**হালনাগাদ:** ২ Nov ২০২৬ (playall)। আগের সংস্করণে "Hey Assisto" ছিল, নিরাপদ যাত্রা ছিল না, আর লেখা ছিল "রিস্টার্টের পরে কোনো সার্ভিস নিজে চালু হয় না" — তিনটিই কোডের সাথে মিলত না। এখন কোড থেকে মিলিয়ে লেখা।
 
-**অ্যাপে যা বদলেছে (বিল্ড ২১৯):** প্রতিটি সার্ভিস **শুধু ব্যবহারকারী নিজে চালু করলে** শুরু হয়, চলার সময় একটা **স্থায়ী নোটিফিকেশন** থাকে যেটা ফিচারের নাম বলে, আর তাতে **বন্ধ করার বাটন** আছে; কাজ শেষ হলে নিজে বন্ধ হয়। ফোন রিস্টার্টের পর কোনো সার্ভিস নিজে নিজে শুরু হয় না।
+**কোথায়:** Play Console → Policy → **App content** → **Foreground service permissions**। দুটি টাইপ ঘোষণা করবেন: **Microphone** আর **Location**। **Camera নয়।** Play বিল্ডে আর কোনো FGS টাইপ নেই। CI এটা পাহারা দেয় (`android.yml`-এর Play ধাপ + `app/test/play_disclosure_guard_test.dart`)।
 
-| টাইপ | কোন ফিচার | নোটিফিকেশনের লেখা (ইংরেজি UI) | বন্ধ করার বাটন |
-|---|---|---|---|
-| Microphone | “Hey Assisto” ডাক | “Hey Assisto” is on — listening for the wake word | **Stop** |
-| Microphone + Location | Voice SOS | Voice SOS is on — listening for your SOS phrase | **Stop** |
-| Microphone | My Circle কল চলাকালীন (অ্যাপ থেকে বেরিয়ে গেলে) | Call with ‹নাম› | **End call** |
-| Location | Lost/Stolen সুরক্ষা | Lost/Stolen protection is on | **Turn off** (অ্যাপের সুরক্ষা পাতা খোলে; চোর যেন নোটিফিকেশন থেকে এক ট্যাপে বন্ধ করতে না পারে) |
+প্রতিটি টাইপের জন্য Google চায়:
+1. ফিচারের বিবরণ;
+2. থামলে বা দেরি হলে ব্যবহারকারীর কী ক্ষতি;
+3. একটা ভিডিও-লিংক (YouTube unlisted বা Google Drive "anyone with the link");
+4. use case বাছাই।
+
+নিচের **ইংরেজি লেখা হুবহু কপি করুন।**
+
+## Play বিল্ডে আসলে যে সার্ভিস আছে (CI-র তৈরি ম্যানিফেস্ট)
+
+| সার্ভিস (ম্যানিফেস্টে) | টাইপ | কোন ফিচার | কখন চালু হয় | নোটিফিকেশন ও বন্ধের বোতাম |
+|---|---|---|---|---|
+| `flutter_foreground_task` ForegroundService (`microphone\|location` ঘোষিত, চালুর সময় যেটা লাগে শুধু সেটা) | **Microphone + Location** | **ভয়েস SOS** | ব্যবহারকারী Voice SOS-এর সুইচ চালু করলে | "Voice SOS is on…" + **Stop** |
+| একই সার্ভিস | **Microphone** | **My Circle কল** চলার সময় অ্যাপ থেকে বেরোলে (`call_keepalive.dart:89`) | কল শুরু হলে, কল শেষে বন্ধ | "Call with ‹নাম›" + **End call** |
+| একই সার্ভিস | **Location** | **নিরাপদ যাত্রা** (`journey_tracker.dart:402`): প্রতি ৩০ সেকেন্ডে লোকেশন | ব্যবহারকারী যাত্রা শুরু করলে, অ্যাপ খোলা থাকা অবস্থায়। পৌঁছালে, Stop চাপলে বা সময় পেরোলে বন্ধ। | "Safe Journey is on" |
+| `AntiTheftService` | **Location** | **হারানো/চুরি সুরক্ষা** | ব্যবহারকারী Security PIN দিয়ে সুরক্ষা চালু করলে। চালু থাকা অবস্থায় অ্যাপ খুললে, অ্যাপ আপডেট হলে আর ফোন চালু হলে নিজে আবার চালু হয় (Android ৮–১৩)। Android ১৪+-এ ব্যাকগ্রাউন্ড থেকে চালু হয় না, তখন "ট্যাপ করে আবার চালু করুন" নোটিফিকেশন দেখায় (`RestartPolicy.kt`)। | "Lost/Stolen protection is on" + **Turn off** (অ্যাপের সুরক্ষা পাতা খোলে, PIN চায়) |
+| ~~`WakeWordService`~~ | ~~Microphone~~ | "Hey Assisto" | **Play বিল্ড থেকে সরানো (playall)।** কোনো বিল্ডেই ফিচার চালু নয় (`VaWake.shipped` = false)। | — ঘোষণা করবেন না |
+| ~~Camera FGS~~ | — | চোরের ছবি | at100-এ সরানো হয়েছে। ছবি ওঠে শুধু Assisto খোলা থাকলে, অ্যাপের ভেতরে ভুল Security PIN দিলে। | — ঘোষণা করবেন না। আগের Camera ঘোষণা থাকলে মুছে দিন। |
+| ~~`GeolocatorLocationService`~~ | — | (plugin-এর, আমরা ব্যবহার করি না) | ম্যানিফেস্ট থেকে সরানো | — |
+
+**ব্যাকগ্রাউন্ড লোকেশন:** `ACCESS_BACKGROUND_LOCATION` ম্যানিফেস্টে **নেই**। CI ধরলে বিল্ড ফেল করে। তাই Console-এ "Location permissions" (background) ফর্ম আসবে না।
+
+তবে Google-এর নিয়মে, যে FGS ব্যবহারকারীর কাজ শেষ হওয়ার পরেও লোকেশন নেয়, সেটাকে "ব্যাকগ্রাউন্ডের সমান" ধরা হতে পারে। **হারানো/চুরি সুরক্ষা ঠিক এমন।** তাই:
+- অ্যাপের ঘোষণা-পাতায় Google-এর চাওয়া শব্দগুলো আছে: "location" + "even when the app is closed or not in use" + সব ফিচারের নাম (`at100DiscLocBody2`, playall)।
+- **ঝুঁকি আছে।** নিচে "ঝুঁকি ও বিকল্প" দেখুন।
 
 ---
 
 ## ১. MICROPHONE (FOREGROUND_SERVICE_MICROPHONE)
 
-**Feature name / description (copy):**
-> Hands-free voice features the user turns on: (1) the “Hey Assisto” wake word, (2) Voice SOS, which listens for the user's own emergency phrase and sends an SOS alert with location to their family, and (3) keeping the microphone working during an ongoing Assisto voice/video call when the user switches to another app. Each runs only after the user switches it on (or starts a call), shows a persistent notification that names the feature with a Stop / End call button, and stops when the user turns it off or the call ends. Speech for the wake word and Voice SOS is processed on the device.
+**Use case বাছুন:** "Background audio access" / "Other", যেটা ফর্মে থাকে। বিবরণে দুটো কাজই লিখুন।
 
-**Why it must run in the foreground (copy):**
-> These features must hear the user while Assisto is not on screen: an emergency phrase or wake word can be spoken at any moment, and a call must keep its audio when the user opens another app. Android only allows microphone access from the background through a microphone foreground service, and the user sees it the whole time through the notification.
+**Feature description (copy):**
+> Two features the user turns on: (1) Voice SOS — while the user keeps it switched on, Assisto listens on the device for the user's own emergency phrase and, when it is heard, sends an SOS alert with the phone's location to the family members the user chose. Speech is converted to text on the device only; nothing is recorded or uploaded. (2) Ongoing My Circle voice/video calls — the microphone keeps working when the user switches to another app during a call. Each starts only from the user's own action (the Voice SOS switch, or starting/answering a call), shows a persistent notification naming the feature with a Stop / End call button, and stops when switched off or when the call ends.
 
-**Impact if deferred or interrupted (copy):**
-> The task cannot be deferred: a delayed Voice SOS means an emergency alert is not sent when the user is in danger; a paused call loses the user's voice mid-conversation; a deferred wake word simply does not respond. Each would fail the user at the moment they need it.
+**User impact if deferred or interrupted (copy):**
+> Neither task can be deferred. A paused Voice SOS means the user's emergency phrase is not heard and no alert reaches the family while the user is in danger. A paused call loses the user's voice in the middle of the conversation.
 
-**৩০ সেকেন্ডের রেকর্ডিং স্ক্রিপট (মাইক্রোফোন):**
-1. (০–৫ সে) ফোনের স্ক্রিন রেকর্ডার চালু করুন, Assisto খুলুন → মেনু → **Voice SOS**।
-2. (৫–১২ সে) সুইচ চালু করুন → মাইক্রোফোনের অনুমতি "Allow" → দেখান উপরে নোটিফিকেশন এসেছে।
-3. (১২–১৮ সে) হোম বাটন চাপুন, নোটিফিকেশন নামিয়ে দেখান: **"Voice SOS is on — listening for your SOS phrase"** আর **Stop** বাটন।
-4. (১৮–২৪ সে) **Stop** চাপুন → নোটিফিকেশন চলে যায়।
-5. (২৪–৩০ সে) Assisto → মেনু → **Assisto Voice** → “Hey Assisto” চালু → নোটিফিকেশন দেখান → **Stop** চাপুন।
-(কলের অংশ দেখাতে চাইলে: My Circle → একজনকে কল → হোম চাপুন → নোটিফিকেশনে **"Call with …"** ও **End call**।)
-
----
+**ভিডিও (৩০–৪৫ সেকেন্ড):**
+1. স্ক্রিন রেকর্ডার চালু → Assisto → মেনু → **Voice SOS**।
+2. সুইচ চালু → অ্যাপের নিজের ঘোষণা-পাতা দেখান ("…even when the app is closed or not in use…") → **Continue** → Android-এর মাইক্রোফোন অনুমতি **Allow** → লোকেশন **While using the app**।
+3. হোম বাটন চাপুন → নোটিফিকেশন নামিয়ে দেখান **"Voice SOS is on"** আর **Stop** → **Stop** চাপুন, নোটিফিকেশন চলে যায়।
+4. My Circle → একজনকে কল (দ্বিতীয় ফোন বা অ্যাকাউন্ট ধরে) → হোম চাপুন → নোটিফিকেশনে **"Call with …"** আর **End call** → End call।
 
 ## ২. LOCATION (FOREGROUND_SERVICE_LOCATION)
 
-**Feature name / description (copy):**
-> Personal safety features the user turns on: (1) Voice SOS — when the user's emergency phrase is heard, Assisto sends an SOS alert with the phone's current location to the family members the user chose; (2) Lost/Stolen protection — while the user keeps it switched on, Assisto watches for the phone being snatched, a SIM change or the phone going offline, and records the last location so the owner can find the phone. Both start only from the user's switch, show a persistent notification naming the feature with a Stop / Turn off button, and stop when switched off.
+**Use case বাছুন:** **"User-initiated location sharing"** (Google-এর তালিকায় আছে)। বিবরণে তিনটে ফিচারই লিখুন।
 
-**Why it must run in the foreground (copy):**
-> An emergency or a theft happens while the app is closed and the phone is in a pocket or in a thief's hand. The location must be read at that moment — Android only allows that from the background through a location foreground service, and the persistent notification keeps the user informed the whole time.
+**Feature description (copy):**
+> Personal-safety location features the user turns on: (1) Safe Journey — the user starts a journey and Assisto shares the phone's live location every 30 seconds with the people the user chose until the journey ends (arrival, Stop, or time-out), also with the screen off; (2) Voice SOS — when the user's emergency phrase is heard, the current location is sent with the SOS alert to the user's family; (3) Lost/Stolen phone protection — while the owner keeps it switched on (it needs the owner's Security PIN), Assisto reads the phone's location only for alerts to the owner's trusted contacts (phone snatched, SIM changed, phone offline, low battery) and for lost mode, and it receives the remote actions (lost mode, loud alarm, lock, lock-screen message) that the owner or those contacts send from another phone; the same switched-on service also offers optional, off-by-default safety triggers (an SOS button on its notification, an SOS after five quick power-button presses), each with a countdown the user can cancel. Every feature starts only from the user's own switch in the app, shows a persistent notification naming it with a Stop / Turn off button, and stops when switched off. The app never requests ACCESS_BACKGROUND_LOCATION; location is never sold or used for ads.
 
-**Impact if deferred or interrupted (copy):**
-> A deferred location means the family receives an SOS without knowing where the user is, and a stolen phone's last location is lost. These are safety-critical and cannot wait for the user to open the app.
+**User impact if deferred or interrupted (copy):**
+> These are safety features. If the service is deferred, the family following a Safe Journey loses the user's live position, an SOS arrives without a location, and a stolen phone's last location is lost — exactly when the user needs help.
 
-**৩০ সেকেন্ডের রেকর্ডিং স্ক্রিপট (লোকেশন):**
-1. (০–৫ সে) রেকর্ডার চালু → Assisto → মেনু → **Lost/Stolen** → **Always-on protection**।
-2. (৫–১২ সে) সুরক্ষা চালু করুন → লোকেশনের অনুমতি "Allow" দেখান।
-3. (১২–১৮ সে) হোম চাপুন → নোটিফিকেশন নামিয়ে দেখান: **"Lost/Stolen protection is on"** আর **Turn off** বাটন।
-4. (১৮–২৫ সে) **Turn off** চাপুন → অ্যাপের সুরক্ষা পাতা খোলে → সুইচ বন্ধ করুন → নোটিফিকেশন চলে যায়।
-5. (২৫–৩০ সে) মেনু → **Voice SOS** দেখান: এটাও চালু করলে "Microphone and location in use for voice SOS" লেখা আসে।
+**ভিডিও (৪৫–৬০ সেকেন্ড):**
+1. Assisto → মেনু → **Safe Journey** → গন্তব্য বাছুন → My Circle থেকে একজন বাছুন → **Start** → অ্যাপের ঘোষণা-পাতা ("…even when the app is closed…") → **Continue** → **While using the app**।
+2. হোম চাপুন → নোটিফিকেশন **"Safe Journey is on"** দেখান → অ্যাপে ফিরে **Stop** (বা "I've arrived") → নোটিফিকেশন চলে যায়।
+3. মেনু → **Lost/Stolen** → **Always-on protection** → চালু করুন → ঘোষণা-পাতা → Continue → অনুমতি → Security PIN।
+4. হোম চাপুন → নোটিফিকেশন **"Lost/Stolen protection is on"** আর **Turn off** দেখান → **Turn off** → অ্যাপের পাতা খোলে → PIN দিয়ে বন্ধ করুন।
 
----
+## ৩. Full-screen intent (USE_FULL_SCREEN_INTENT)
 
-**journey100 (Safe Journey):** LOCATION ঘোষণায় তৃতীয় ফিচার (3) Safe Journey যোগ করতে হবে — কপি-লেখা আর ভিডিওর ধাপ `owner_actions/SAFE_JOURNEY_100_BN.md`-এর **খ** অংশে।
+**কোথায়:** App content → **Full-screen intent**।
 
-## ৩. CAMERA — আর ঘোষণা করতে হবে না (at100, ২৮ অক্টোবর)
+**বাছুন:** শুধু **"Calling"** (making and receiving calls)।
 
-অ্যাপ থেকে **FOREGROUND_SERVICE_CAMERA অনুমতি আর ক্যামেরা ফোরগ্রাউন্ড-সার্ভিস টাইপ সরানো হয়েছে।** কারণ: Play-র নিয়মে ক্যামেরা টাইপ শুধু চলমান, ব্যবহারকারীর চোখের সামনে থাকা ক্যামেরা ব্যবহারের জন্য (যেমন ভিডিও কল); সারাদিন চালু একটা সার্ভিসে "কখনো একটা ছবি" এর মধ্যে পড়ে না, আর লক-স্ক্রিনে লুকিয়ে ছবি তোলা stalkerware-এর মতো দেখায়।
+**"Alarm" বাছবেন না।** কোডে full-screen ব্যবহার হয় শুধু ইনকামিং কলে: `push_notifier.dart:147` (`isCall`) আর `IncomingCall.kt:442`। SOS বা রিমাইন্ডার full-screen দেখায় না। রিমাইন্ডার চলে `setAlarmClock` আর সাধারণ নোটিফিকেশন দিয়ে।
 
-এখন "অনুপ্রবেশকারীর ছবি" **শুধু Assisto স্ক্রিনে খোলা থাকলে** তোলা হয়: অ্যাপের ভেতরে কয়েকবার ভুল সিকিউরিটি পিন দিলে, শাটার-শব্দসহ একটি সামনের ক্যামেরার ছবি। এর জন্য সাধারণ CAMERA অনুমতিই যথেষ্ট (Data safety-তে ক্যামেরার লাইন — `ANTITHEFT_PLAY_DECLARATION_BN.md`)।
+Android ১৪+-এ অনুমতি না থাকলে অ্যাপ একবার জানায়, আর Settings খুলে দেয়। অনুমতি না দিলেও কল বাজে, উচ্চ-প্রাধান্যের নোটিফিকেশন হিসেবে।
 
-**আপনার কাজ:** নতুন AAB আপলোডের পর Play Console → App content → Foreground service permissions → Camera ঘোষণাটি মুছে দিন (অ্যাপ আর এটা ব্যবহার করে না)।
+## ৪. Exact alarms
 
----
+- `SCHEDULE_EXACT_ALARM` আছে। এর জন্য Console ফর্ম লাগে না। ব্যবহারকারী নিজে "Alarms & reminders" দেন; না দিলে অ্যাপ সৎভাবে "সময় একটু এদিক-ওদিক হতে পারে" দেখায়।
+- `USE_EXACT_ALARM` (যেটা শুধু অ্যালার্ম-ঘড়ি বা ক্যালেন্ডার অ্যাপ পায়) **সরানো আছে**। CI পাহারা দেয়।
 
-## ৪. Full-screen intent (USE_FULL_SCREEN_INTENT) — আগের মতোই রাখা হয়েছে
-আপনি ঘোষণা করেছেন: **calls (making and receiving calls)**, pre-granted নয়। অ্যাপ এখন Android 14+-এ অনুমতি আছে কিনা দেখে; না থাকলে My Circle খুললে (বা প্রথম আসা কলের পরে) **একবার** পরিষ্কার একটা প্রশ্ন দেখায় যেটা সরাসরি Settings → Full screen notifications খোলে। অনুমতি না দিলেও কল বাজে — স্ক্রিনের উপরে উচ্চ-প্রাধান্যের কল নোটিফিকেশন হিসেবে (Accept/Decline সহ)।
+## ৫. ছবি ও ভিডিও (Photo & Video permissions)
 
-## ৫. ছবি/ভিডিও (Photo & Video permissions)
-READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, READ_EXTERNAL_STORAGE — **সব সরানো** (Play ও ওয়েবসাইট দুই বিল্ডেই)। সব জায়গায় ছবি/ভিডিও বাছাই এখন Android-এর **Photo Picker** দিয়ে, কোনো অনুমতি লাগে না। Play Console-এ Photo and video permissions ফর্মে আর কিছু ঘোষণা করতে হবে না — নতুন AAB আপলোডের পর পুরনো ঘোষণা মুছে দিন / "does not use" বেছে নিন।
+`READ_MEDIA_*` আর `READ_EXTERNAL_STORAGE` দুই বিল্ড থেকেই সরানো। সব ছবি বাছাই হয় Android-এর Photo Picker দিয়ে।
+
+Console-এ ফর্ম এলে "does not use" বাছুন।
+
+## ঝুঁকি ও বিকল্প (সৎভাবে)
+
+1. **হারানো/চুরি সুরক্ষা (সবচেয়ে ঝুঁকির):** Google-এর FGS তালিকায় "anti-theft" নামে আলাদা use case নেই। নিয়ম বলে, FGS শুরু হতে হবে ব্যবহারকারীর কাজ থেকে, আর কাজ শেষ হলেই থামতে হবে।
+   - আমাদের সুরক্ষা ব্যবহারকারী নিজে চালু করেন, কিন্তু সারাদিন চলে।
+   - রিভিউয়ার এটাকে ব্যাকগ্রাউন্ড লোকেশন ধরলে **পুরো রিলিজ আটকে যেতে পারে।**
+   - **তাই আগেই পরীক্ষা করুন:** ৩–৪ Nov-এর closed-testing রিলিজের সাথেই এই ঘোষণাগুলো জমা দিন। রিভিউয়ের ফল ৮ Nov-এর আগে জানা যাবে।
+   - **প্রত্যাখ্যান হলে:** Owner Admin → `anti_theft` → Play বন্ধ করুন, আর আমাকে বলুন। আমি Play বিল্ড থেকে `AntiTheftService` সরিয়ে দেব (`WakeWordService`-এর মতো, এক লাইনের কাজ)। বাকি ঘোষণা আগের মতোই থাকবে। ওয়েবসাইটের APK-তে চুরি-রোধ থাকবে।
+2. **ভয়েস SOS:** মাইক সারাক্ষণ শোনে, আর লোকেশন নেয় শুধু SOS পাঠানোর মুহূর্তে। এটা Google-এর "voice commands" ধরনের মধ্যে পড়ে। ঝুঁকি কম।
+3. **নিরাপদ যাত্রা:** Google-এর তালিকার "user-initiated location sharing"-এর সাথে হুবহু মেলে। ঝুঁকি কম।

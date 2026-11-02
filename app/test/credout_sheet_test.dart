@@ -514,7 +514,8 @@ class _CreditsApi extends FakeApi {
   final sent = <String>[];
 
   @override
-  Future<Map<String, dynamic>> agent(String text, {String? sessionId}) async {
+  Future<Map<String, dynamic>> agent(String text,
+      {String? sessionId, String? clientId}) async {
     sent.add(text);
     if (fails > 0) {
       fails--;

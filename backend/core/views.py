@@ -1565,6 +1565,21 @@ class AgentView(APIView):
                              "session_id": session_id, "message_id": message_id,
                              "ai_used": False, "ai_enabled": ai.key_present(),
                              "crisis": CG.log_detail(crisis)})
+        # aibar: a retry of the SAME typed message (client_id) replays the
+        # stored answer — never a second expense / reminder / charge.
+        from . import ai_chat_guard as G
+        cid = G.client_id(request)
+        if cid:
+            prev = _home_replay(u, cid)
+            if prev is not None:
+                return Response(prev)
+        wait = G.burst_retry_after(u, "home")
+        if wait:
+            resp = Response(G.rate_limited_body(lang, wait), status=429)
+            resp["Retry-After"] = str(wait)
+            return resp
+        # aibar: the user's own text is capped (parsing + AI) on every path
+        text, _text_cut = G.cap_text(text)
         p = agent_brain.parse(text, req_lang(request))
         from .i18n import is_play_flavour
         if is_play_flavour(request):
@@ -1576,6 +1591,7 @@ class AgentView(APIView):
         reply = ""
         ai_used = False
         brain_route = None
+        ai_meta = {}            # aibar: credits / balance / honest flags for this turn
 
         def ensure_account():
             acc = u.accounts.first()
@@ -1698,37 +1714,71 @@ class AgentView(APIView):
             # Cloud-AI path: a real question + a key present → let AI answer with
             # the user's data context. Brain is the no-key fallback (and the
             # honest L4 message is itself returned by Brain when AI is off).
+            unavailable = ""
             if intent == "question" and ai.available():
                 try:
                     ctx = brain.answer(u, text, lang)  # user-data context
+                    # aibar: the last few turns of THIS home conversation, so
+                    # "and last month?" follows the earlier question (bounded)
+                    hist = G.cap_history(_home_history(u, request.data.get("session_id")),
+                                         turns=6)
+                    gen_meta = {}
+                    summary = "-" if ctx.get("level") == "L4" else ctx["reply"]
+                    # aibar: the home question runs the SAME capped, priced
+                    # chat mode as the Assisto AI chat when the owner's
+                    # pricing-40 block is on (before: always the legacy path
+                    # = MAIN model for 1 credit, outside the 40 % rule).
+                    from .views_chat import _chat_mode
+                    mode = _chat_mode(request)
                     ai_reply, _ = ai.generate(
                         task=pick(lang,
                                   "ব্যবহারকারীর প্রশ্নের উত্তর দাও বাংলায়, সংক্ষেপে ও সত্যভাবে। "
                                   "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।",
                                   "Answer the user's question briefly and truthfully in English. "
                                   "The DATA below summarises their own data — treat only it as true."),
-                        data=f"Question: {text}\n\n{ctx['reply']}",
-                        tier="cheap", feature="agent_qa", max_tokens=400, user=u,
-                        pii=True)   # AF-2: question + own-data summary masked
+                        data=f"Question: {text}\n\n{summary}",
+                        tier="cheap", feature=("chat." + mode) if mode else "agent_qa",
+                        max_tokens=400, user=u, history=hist, out_meta=gen_meta,
+                        mode=mode, pii=True)   # AF-2: question + own-data summary masked
                     from . import ai_guard
                     reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
+                    reply, n_money = ai_guard.scrub_ungrounded_money(
+                        reply, text, ctx["reply"], [h["content"] for h in hist],
+                        lang=lang, strict=ctx.get("level") == "L1")
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
+                    ai_meta = {"credits": int(gen_meta.get("charged") or 0)}
+                    if mode == "quick" and not ai_meta["credits"]:
+                        ai_meta["free_quota"] = True
+                    bal = G.balance(u)
+                    if bal is not None:
+                        ai_meta["balance"] = bal
+                    if n_money:
+                        ai_meta["money_grounding"] = n_money
                 except ai.AIUnavailable as e:
+                    unavailable = e.reason or "queued"
                     from . import credits_out
                     if e.reason == "credits" and credits_out.supported(request):
                         # credout: never a silent downgrade — 402 + nothing
                         # saved, so the app keeps the text, opens the
                         # buy-credits sheet and re-sends it once.
                         from . import credits_out
+                        from .views_chat import _chat_mode, _mode_need
+                        m = _chat_mode(request)
                         return credits_out.response(
-                            u, lang, credits_out.need_for_tier(u, "cheap"))
+                            u, lang, _mode_need(m) if m else credits_out.need_for_tier(u, "cheap"))
                     ai_answered = False
             if not ai_answered:
                 res = brain.answer(u, text, lang)
                 reply = res["reply"]
                 cards = res.get("cards", [])
                 brain_route = res.get("route")
+                if unavailable:
+                    # aibar: keys exist but AI could not answer this turn —
+                    # say why, never "the owner hasn't added the key yet"
+                    ai_meta = {"ai_unavailable": unavailable, "credits": 0}
+                    if res.get("level") == "L4":
+                        reply = G.unavailable_line(unavailable, lang) or reply
             # ambiguous free text → offer a "Save as note" chip (never auto-saved)
             if intent == "ambiguous":
                 cards = list(cards) + [brain.save_note_card(text, lang)]
@@ -1753,15 +1803,71 @@ class AgentView(APIView):
         # the confirm contract — the app acts only on the user's own tap.
         from . import ai_guard
         cards = [ai_guard.mark_external(c) for c in cards]
+        if _text_cut:
+            ai_meta["text_cut"] = True
+        out = {"reply": reply, "cards": cards, "intent": intent,
+               "route": route,
+               "message_id": None,  # ai-report: report this answer
+               "ai_used": ai_used, "ai_enabled": ai.key_present(),
+               # aibar: credits actually taken for this turn (0 = free)
+               "credits": int(ai_meta.get("credits") or 0)}
+        for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota"):
+            if k in ai_meta:
+                out[k] = ai_meta[k]
         session_id, message_id = _persist_home_turn(
-            u, request.data.get("session_id"), text, reply, cards, intent, route)
-        return Response({"reply": reply, "cards": cards, "intent": intent,
-                         "route": route, "session_id": session_id,
-                         "message_id": message_id,  # ai-report: report this answer
-                         "ai_used": ai_used, "ai_enabled": ai.key_present()})
+            u, request.data.get("session_id"), text, reply, cards, intent, route,
+            client_id=cid, extra_meta=dict(ai_meta, ai_used=ai_used))
+        out["session_id"] = session_id
+        out["message_id"] = message_id
+        return Response(out)
 
 
-def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
+_HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut",
+                     "free_quota")
+
+
+def _home_history(user, session_id):
+    """Earlier turns of the user's own home conversation as [{role, content}]
+    (oldest first). Empty for a foreign / unknown session."""
+    from .models import ChatSession
+    try:
+        s = ChatSession.objects.filter(pk=session_id, user=user, source="home").first() \
+            if session_id else None
+    except (TypeError, ValueError):
+        s = None
+    if s is None:
+        return []
+    rows = list(s.messages.exclude(role="system").order_by("-created_at", "-id")[:12])
+    rows.reverse()
+    return [{"role": m.role, "content": m.text} for m in rows if (m.text or "").strip()]
+
+
+def _home_replay(user, cid):
+    """aibar: the stored response for a home-chat client_id already answered,
+    or None. Searched over the user's own home sessions only."""
+    from .models import ChatMessage
+    um = (ChatMessage.objects.filter(session__user=user, session__source="home",
+                                     role="user", meta__client_id=cid)
+          .order_by("id").first())
+    if um is None:
+        return None
+    asst = (ChatMessage.objects.filter(session=um.session, role="assistant", id__gt=um.id)
+            .order_by("id").first())
+    if asst is None:
+        return None
+    m = asst.meta or {}
+    out = {"reply": asst.text, "cards": m.get("cards", []), "intent": m.get("intent"),
+           "route": m.get("route"), "session_id": um.session_id, "message_id": asst.id,
+           "ai_used": bool(m.get("ai_used")), "ai_enabled": ai.key_present(),
+           "credits": int(m.get("credits") or 0), "replayed": True}
+    for k in _HOME_REPLAY_KEYS[1:]:
+        if k in m:
+            out[k] = m[k]
+    return out
+
+
+def _persist_home_turn(user, session_id, text, reply, cards, intent, route,
+                       client_id="", extra_meta=None):
     """Save one home-chat turn (user text + agent reply/cards) so the home
     conversation survives restarts and shows in the sidebar history. Reuses an
     existing home session of THIS user, else starts one. Never breaks the
@@ -1777,11 +1883,13 @@ def _persist_home_turn(user, session_id, text, reply, cards, intent, route):
             s = ChatSession(user=user, source="home")
             s.derive_title(text)
             s.save()
-        ChatMessage.objects.create(session=s, role="user", text=text)
+        ChatMessage.objects.create(session=s, role="user", text=text,
+                                   meta={"client_id": client_id} if client_id else {})
+        meta = {"source": "agent", "cards": cards, "intent": intent, "route": route}
+        for k, v in (extra_meta or {}).items():
+            meta.setdefault(k, v)
         am = ChatMessage.objects.create(
-            session=s, role="assistant", text=reply or "",
-            meta={"source": "agent", "cards": cards,
-                  "intent": intent, "route": route})
+            session=s, role="assistant", text=reply or "", meta=meta)
         s.save(update_fields=["updated_at"])
         return s.id, am.id
     except Exception:

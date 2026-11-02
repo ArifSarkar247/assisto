@@ -114,6 +114,10 @@ class AssistoRunView(APIView):
         if req["action"] == "ask":
             from . import ai_guard     # aieval: same cleanup as the home chat
             text, _flags = ai_guard.clean_assistant_answer(text, lang)
+            # aibar: a taka amount the question / chat did not contain is
+            # marked as an estimate (general question: never silently "fact")
+            text, _n = ai_guard.scrub_ungrounded_money(
+                text, req.get("question") or "", data or "", lang=lang, strict=False)
         request.user.refresh_from_db()
         after = _spendable(request.user)
         return Response({"ok": True, "action": req["action"],

@@ -26,6 +26,7 @@ import 'about_screen.dart';
 import 'subscriptions_screen.dart';
 import 'battery_guidance_screen.dart';
 import 'ring_checklist_screen.dart'; // ring-everywhere
+import 'missing/missing_optin_screen.dart'; // missing
 import 'in_progress_screen.dart';
 import 'legal_screen.dart';
 import 'messenger/admin_moderation_screen.dart';
@@ -61,6 +62,9 @@ import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/data_export.dart'; // framebar
+import '../play_update.dart'; // framebar
+import '../api.dart' show ApiException; // framebar
 import 'offers_screens.dart' show OffersSettingsScreen; // p2-money
 import '../feature_gates.dart' show kSourcePermissionsEnforced; // f6
 
@@ -72,39 +76,21 @@ const bool _kServerSwapWired = false;
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  /// framebar: the JSON export goes to the share sheet (Files / Drive /
+  /// email) — before, it sat in the app's private folder the user could
+  /// never open, behind a raw-JSON dialog.
   Future<void> _export(BuildContext context) async {
     final app = context.read<AppState>();
     final messenger = ScaffoldMessenger.of(context);
+    final t = AppLocalizations.of(context);
     try {
-      final raw = await app.api.exportRaw();
-      final dir = await getApplicationDocumentsDirectory();
-      final f = File('${dir.path}/assisto-export.json');
-      await f.writeAsString(raw);
-      if (!context.mounted) return;
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(AppLocalizations.of(context).exportDialogTitle),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: SelectableText(
-                raw.length > 4000 ? '${raw.substring(0, 4000)}…' : raw,
-                style: AType.labelSmall.copyWith(fontFamily: 'monospace'),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context).ok)),
-          ],
-        ),
-      );
-      messenger.showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).savedToPath(f.path))));
+      final ok = await DataExport.run(app.api.exportRaw,
+          subject: t.fbExportShareSubject);
+      messenger.showSnackBar(SnackBar(
+          content: Text(ok ? t.fbExportReady : t.fbExportShareFailed)));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).qaActionFailed)));
+      messenger.showSnackBar(SnackBar(
+          content: Text(e is ApiException ? t.qaActionFailed : t.otpErrNetwork)));
     }
   }
 
@@ -158,6 +144,10 @@ class SettingsScreen extends StatelessWidget {
     final app = context.watch<AppState>();
     final t = AppLocalizations.of(context);
     final u = app.user;
+    // framebar: Play's update prompt lives HERE (once per app run), never on
+    // the home screen. No-op off the Play build / when nothing is waiting.
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => PlayUpdate.promptIfAvailable());
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       bottomNavigationBar: const AdBannerSlot(screen: 'settings'),
@@ -377,6 +367,16 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.p2OffersSettingsSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
+          ),
+          // missing: nearby safety alerts opt-in (Missing person alert)
+          if (FeatureFlags.instance.isOn('missing_alert')) // feature-flags
+          ListTile(
+            key: const Key('settings-nearby-alerts'),
+            leading: const Icon(Icons.person_search_rounded),
+            title: Text(t.maOptinTitle),
+            subtitle: Text(t.maOptinSettingsSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const MissingOptinScreen())),
           ),
           if (FeatureFlags.instance.isOn('subscriptions')) // feature-flags
           ListTile(

@@ -53,6 +53,8 @@ const Map<String, bool> kFeatureDefaults = {
   'kid_school': true,
   // kidswatch: kids GPS watch + School Mode — OFF until the real-watch test.
   'kids_watch': false,
+  // missing: Missing person alert — OFF until the owner's two-phone test.
+  'missing_alert': false,
   'contacts': true,
   'voice_assistant': true,
   'documents': true,
@@ -204,6 +206,7 @@ const Map<String, String> kRouteFeature = {
   'vehicle_tracking': 'vehicle_tracking',
   'car_mode': 'vehicle_tracking',
   'kids_watch': 'kids_watch',
+  'missing_alert': 'missing_alert',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',

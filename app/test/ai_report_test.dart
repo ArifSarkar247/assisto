@@ -26,7 +26,8 @@ class _ReportApi extends FakeApi {
   int failWith = 0;
 
   @override
-  Future<Map<String, dynamic>> agent(String text, {String? sessionId}) async =>
+  Future<Map<String, dynamic>> agent(String text,
+          {String? sessionId, String? clientId}) async =>
       {'reply': 'Here is a rude AI answer.', 'cards': [], 'session_id': '5',
        'message_id': 77};
 

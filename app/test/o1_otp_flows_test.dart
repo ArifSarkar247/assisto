@@ -276,6 +276,7 @@ void main() {
     _tall(tester);
     final b = FakeOtpBackend();
     await tester.pumpWidget(_wrap(LoginScreen(otpBackend: b)));
+    await tester.pumpAndSettle(); // framebar: the button follows /otp/status
     await tester.tap(find.byKey(const Key('login-with-sms')));
     await tester.pumpAndSettle();
     expect(find.byType(OtpLoginScreen), findsOneWidget);

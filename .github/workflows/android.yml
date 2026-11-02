@@ -1101,6 +1101,21 @@ jobs:
           open(p, "w").write(s)
           print("Play manifest: BILLING permission kept (merged from in_app_purchase)")
           # ---- /pay1 ----
+          # ---- playall ---- declared-but-unused in the Play build: the "Hey
+          # Assisto" wake word is not shipped (VaWake.shipped needs the
+          # ASSISTO_WAKE_WORD dart-define, which no build passes), so its
+          # microphone foreground service must not be in the Play manifest (Play
+          # FGS review: every declared type needs a working, filmable feature).
+          # When the wake word ships, delete these lines AND pass the define.
+          s = open(p).read()
+          wake = ('<service android:name="com.assisto.assisto.voice.WakeWordService"'
+                  ' android:foregroundServiceType="microphone"'
+                  ' android:exported="false"/>')
+          assert wake in s, "WakeWordService declaration not found (manifest patch changed?)"
+          s = s.replace(wake, '')
+          open(p, "w").write(s)
+          print("Play manifest: WakeWordService removed (wake word not shipped)")
+          # ---- /playall ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
           #    versionCode = 10000 + run number: always above every website APK
@@ -1126,6 +1141,24 @@ jobs:
             fi
           done
           # ---- /play-perm ----
+          # ---- playall ---- 8 Nov all-features launch: nothing Play would need an
+          # extra (or impossible) declaration for may come back through a plugin
+          # merge. Keep in sync with app/test/play_disclosure_guard_test.dart and
+          # owner_actions/PLAY_PRODUCTION_CHECKLIST_8NOV_BN.md (step 4).
+          for P in ACCESS_BACKGROUND_LOCATION QUERY_ALL_PACKAGES SEND_SMS READ_SMS RECEIVE_SMS \
+                   READ_CALL_LOG WRITE_CALL_LOG PROCESS_OUTGOING_CALLS READ_PHONE_STATE READ_PHONE_NUMBERS \
+                   SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE FOREGROUND_SERVICE_CAMERA \
+                   USE_EXACT_ALARM MANAGE_EXTERNAL_STORAGE ACTIVITY_RECOGNITION REQUEST_DELETE_PACKAGES; do
+            if grep -a -q "android.permission.$P" /tmp/play-manifest.pb; then
+              echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
+            fi
+          done
+          for C in voice.WakeWordService GeolocatorLocationService; do
+            if grep -a -q "$C" /tmp/play-manifest.pb; then
+              echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
+            fi
+          done
+          # ---- /playall ----
           # ---- pay1 ---- Play Billing needs the BILLING permission in the bundle
           if ! grep -a -q com.android.vending.BILLING /tmp/play-manifest.pb; then
             echo "::error::com.android.vending.BILLING missing from the Play bundle manifest"; exit 1

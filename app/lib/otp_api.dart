@@ -98,9 +98,11 @@ const otpEmailPurposes = {
 abstract class OtpBackend {
   Future<OtpStatus> status();
   Future<OtpResult> request(String purpose, {String? phone});
-  Future<OtpResult> verify(String purpose, String code, {String? phone});
+  /// framebar: [email] = email-only identity (login / reset by email code).
+  Future<OtpResult> verify(String purpose, String code,
+      {String? phone, String? email});
   Future<({String token, AppUser user})?> loginWithProof(
-      String phone, String proof);
+      String phone, String proof, {String? email});
   Future<OtpResult> resetPassword(String phone, String proof, String password);
 
   // smsotp — email backup
@@ -147,17 +149,26 @@ class ApiOtpBackend implements OtpBackend {
       });
 
   @override
-  Future<OtpResult> verify(String purpose, String code, {String? phone}) =>
+  Future<OtpResult> verify(String purpose, String code,
+          {String? phone, String? email}) =>
       _post('/auth/otp/verify', {
         'purpose': purpose,
         'code': code,
         if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if ((phone == null || phone.isEmpty) &&
+            email != null &&
+            email.isNotEmpty)
+          'email': email,
       });
 
   @override
   Future<({String token, AppUser user})?> loginWithProof(
-      String phone, String proof) async {
-    final r = await _post('/auth/otp/login', {'phone': phone, 'otp_proof': proof});
+      String phone, String proof, {String? email}) async {
+    final r = await _post('/auth/otp/login', {
+      if (phone.isNotEmpty) 'phone': phone,
+      if (phone.isEmpty && email != null && email.isNotEmpty) 'email': email,
+      'otp_proof': proof,
+    });
     if (!r.ok || r.data['token'] == null || r.data['user'] is! Map) return null;
     return (
       token: r.data['token'] as String,

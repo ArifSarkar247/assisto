@@ -1,9 +1,7 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -17,6 +15,7 @@ import '../widgets/ladder_common.dart';
 import '../widgets/password_field.dart';
 import '../otp_api.dart';
 import 'otp/otp_verify_screen.dart';
+import '../services/data_export.dart'; // framebar
 import 'settings_screen.dart' show SupportScreen;
 
 /// Secure, Play-compliant "Delete my profile & all data".
@@ -165,16 +164,17 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
     try {
-      final raw = await _app.api.exportRaw();
-      final dir = await getApplicationDocumentsDirectory();
-      final f = File('${dir.path}/assisto-export.json');
-      await f.writeAsString(raw);
+      // framebar: share sheet (Files / Drive / email) — the old private-folder
+      // copy would have been deleted together with the app and the account.
+      final ok = await DataExport.run(_app.api.exportRaw,
+          subject: t.fbExportShareSubject);
       if (!mounted) return;
       setState(() {
-        _exportDownloaded = true; // optimistic — nudge stops showing.
+        _exportDownloaded = ok; // nudge stops once the share sheet opened
         _busy = false;
       });
-      messenger.showSnackBar(SnackBar(content: Text(t.savedToPath(f.path))));
+      messenger.showSnackBar(SnackBar(
+          content: Text(ok ? t.fbExportReady : t.fbExportShareFailed)));
     } catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -345,10 +345,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   Future<Position?> _bestEffortPosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      // playall: never PROMPT for location here (a security check or an
+      // account deletion is not a location feature): use it only when the
+      // user already granted it for another feature.
+      final perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return null;
@@ -454,6 +454,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 style: Theme.of(context).textTheme.bodySmall),
           ]),
         ],
+        const SizedBox(height: Gap.md),
+        // framebar: Play also needs a web path (lost phone / app removed).
+        Text(t.fbDeleteWebLine,
+            key: const Key('del-acct-web-line'),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: Gap.xl),
         _problemGuidance(t),
         const SizedBox(height: Gap.xl),

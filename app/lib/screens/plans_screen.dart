@@ -477,8 +477,12 @@ class _PlansScreenState extends State<PlansScreen> {
       const SizedBox(height: Gap.lg),
       PlansFaq(
         refundWindowHours: _credits?.refundWindowHours ?? 0,
-        annualPlan: annualRow,
-        monthlyPremium: premiumRow.isNotEmpty ? premiumRow.first : null,
+        // framebar: on the Play build every price on this page is Play's
+        // own — the FAQ's "save ৳X with annual" line is computed from the
+        // server's taka rows, so it is left out there (one price source).
+        annualPlan: _isPlay ? null : annualRow,
+        monthlyPremium:
+            (_isPlay || premiumRow.isEmpty) ? null : premiumRow.first,
       ),
       const SizedBox(height: Gap.xl),
     ]);

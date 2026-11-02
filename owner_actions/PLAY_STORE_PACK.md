@@ -6,6 +6,13 @@
 > Console answers are your legal declaration — read each line before you submit.
 > Items marked **[OWNER]** need facts only you know.
 
+> **⚠️ playall (2 Nov 2026) — 8 Nov ALL-features launch:** the store-listing
+> text in this file (22 Oct) is OUTDATED — do not paste it. Use
+> `PLAY_LISTING_8NOV_ALL_BN.md` (claims verified against the code) and, for
+> every declaration, `PLAY_PRODUCTION_CHECKLIST_8NOV_BN.md` (steps 3–4) and
+> `PLAY_FGS_DECLARATION_BN.md`. Lines below that contradicted the code were
+> corrected in place (marked *playall*).
+
 Public URLs the Play Console asks for (live once this branch is deployed):
 
 | Field | URL |
@@ -85,7 +92,7 @@ SAFETY
 • One-tap SOS that alerts your trusted contacts with your location.
 • Safe Journey: the people you choose can follow your trip until you arrive.
 • Optional hands-free voice SOS and a fake call to get out of uncomfortable situations.
-• Anti-theft for your phone: remote lock and alerts if it is lost (you switch it on; you can switch it off any time).
+• Anti-theft for your phone: alerts to your trusted contacts and, when you turn on device admin, a lock from another phone (you switch it on; you can switch it off any time). *(playall: remote lock exists — `RemoteCommands.kt` "lock" — only with device admin on; no remote wipe)*
 
 DOCUMENT VAULT AND PHOTO STUDIO
 • Keep passport, NID and licence details with expiry reminders.
@@ -166,7 +173,7 @@ Assisto ভয়েস
 • সেটিংস থেকে যেকোনো সময় অ্যাকাউন্ট ও সব ডেটা মুছুন, অথবা lifeassisto.com/delete-account থেকে অনুরোধ করুন।
 
 প্ল্যান
-• ফ্রি প্ল্যানে ঐচ্ছিক, নন-পার্সোনালাইজড বিজ্ঞাপন (SOS, নিরাপত্তা, পেমেন্ট বা কলের স্ক্রিনে কখনো নয়)। পেইড প্ল্যানে অ্যাপ খোলার বিজ্ঞাপন নেই, AI ক্রেডিট বেশি।
+• ফ্রি প্ল্যানে বিজ্ঞাপন থাকে (সম্মতি Google-এর ফর্মে; SOS, নিরাপত্তা, পেমেন্ট বা কলের স্ক্রিনে কখনো নয়)। Premium/Business প্ল্যানে কোনো বিজ্ঞাপন নেই, AI ক্রেডিট বেশি। *(playall: আগের "ঐচ্ছিক, নন-পার্সোনালাইজড" ভুল ছিল)*
 
 Assisto ১৮ বছর বা তার বেশি বয়সীদের জন্য। এটি চিকিৎসা, আইনি বা আর্থিক পরামর্শ দেয় না এবং জরুরি সেবার বিকল্প নয় — জরুরি প্রয়োজনে ৯৯৯-এ কল করুন।
 
@@ -271,9 +278,11 @@ General answers:
 
 Not declared because they never leave the phone (Play exempts on-device-only
 processing): Health Connect fitness data, wake-word audio, chat encryption keys.
-Audio: not collected — the app has no audio upload today (voice typing uses the
-phone's own speech service; calls are never recorded). If a voice-note or
-server transcription feature ships later, add "Audio — Voice or sound recordings".
+*playall:* Audio **IS collected** — My Circle voice notes are uploaded
+(end-to-end encrypted). (The transcription organiser stores only a
+reference + typed text, never audio bytes.) Declare "Audio — Voice or sound recordings: collected,
+optional, App functionality". Calls are never recorded; voice typing and
+Voice SOS stay on the phone. (Wake-word audio: the wake word is not shipped.)
 End-to-end encrypted personal/group text messages are also exempt (we cannot read them).
 
 | Data type (Play category) | Collected | Shared | Ephemeral | Required / optional | Purposes |
@@ -296,7 +305,7 @@ Financial info — Other financial info also covers remittance received, family 
 | Photos and videos — Photos / Videos | Yes | No | No | Optional | App functionality (vault, profile, status, Photo Studio, intruder photo, shop snapshots) |
 | Files and docs | Yes | No | No | Optional | App functionality (vault) |
 | Contacts | Yes | No | No | Optional | App functionality (personal CRM contacts you add; phonebook matching sends only salted hashes, non-users never stored) |
-| App activity — App interactions | Yes | No | No | Optional (consent) | Analytics |
+| App activity — App interactions | Yes | **Yes (AdMob)** *(playall: was "No" — ad impressions/clicks go to AdMob)* | No | Optional (consent) | Analytics, Advertising |
 | App activity — Other user-generated content (notes, reminders, posts) | Yes | No | No | Required to use those features | App functionality |
 | App info and performance — Crash logs | Yes | No | No | Required | App functionality (stability) |
 | App info and performance — Diagnostics (app version, platform) | Yes | No | No | Required | App functionality |
@@ -321,13 +330,13 @@ Each line matches `https://lifeassisto.com/privacy#permissions`.
 | Permission | Console form? | Justification to paste |
 |---|---|---|
 | `USE_FULL_SCREEN_INTENT` | **Yes** (App content → Full-screen intent) | "Assisto has voice and video calling between family members. Full-screen intent is used only to show the incoming-call screen when the phone is locked, so the call can be answered. It is never used for ads or other notifications." Category: **Calling**. |
-| `FOREGROUND_SERVICE_MICROPHONE` | **Yes** (App content → Foreground service permissions) | "Hands-free voice SOS and the optional 'Hey Assisto' wake word: the user switches it on; a persistent notification with Stop is shown while the microphone listens for the SOS phrase with the screen off. Wake-word audio is processed on device." Provide a short video: Settings → voice SOS → on → notification visible → Stop. |
-| `FOREGROUND_SERVICE_LOCATION` | **Yes** (same form) | "During an active SOS started by the user, the foreground service sends the user's location to their trusted contacts until the SOS ends; a persistent notification is shown." |
+| `FOREGROUND_SERVICE_MICROPHONE` | **Yes** (App content → Foreground service permissions) | *playall:* Voice SOS **and keeping an ongoing My Circle call's microphone alive** (`call_keepalive.dart:89`). NOT the wake word (not shipped; its service is removed from the Play AAB). Exact text + video: `PLAY_FGS_DECLARATION_BN.md` §1. |
+| `FOREGROUND_SERVICE_LOCATION` | **Yes** (same form) | *playall:* Safe Journey (live share every 30 s until the journey ends), Voice SOS, Lost/Stolen protection. Exact text + video: `PLAY_FGS_DECLARATION_BN.md` §2. |
 | Health Connect reads (`READ_STEPS`, `READ_HEART_RATE`, `READ_SLEEP`, `READ_ACTIVE_CALORIES_BURNED`) | **Yes** (Health Connect permissions declaration + Health apps form) | "Shown only on the Smartwatch & Fitness screen as today's and 7-day summaries. Read-only, never uploaded to our servers, never used for ads, never shared." Needs proposal C (privacy-policy activity) in the build. |
 | ~~`ACTIVITY_RECOGNITION`~~ | — | Removed 27 Oct (healthfit, least privilege): Health Connect reads do not need it. See PLAY_HEALTH_DECLARATION_BN.md. |
 | `READ_CONTACTS` | No form (not restricted) — prominent disclosure required (built: Contacts screen explanation before the OS prompt) | "Find which contacts use Assisto. Numbers are hashed on the device; only hashes are sent; non-users are never stored; read-only." |
 | `CALL_PHONE` | No form (not in the restricted call-log/SMS group) | "Places a call only after the user asks Assisto Voice to call someone and confirms." |
-| Device admin (`BIND_DEVICE_ADMIN`, policies force-lock, limit-password, reset-password, watch-login) | No form; reviewed under the Device and Network Abuse / Permissions policy | "Anti-theft: lock a lost phone remotely, require a screen lock, detect wrong unlock attempts. User enables it on Android's consent screen; no wipe; can be deactivated in Settings → Security → Device admin apps." See proposal D.1 — consider dropping the deprecated password policies. |
+| Device admin (`BIND_DEVICE_ADMIN`, policies **force-lock and watch-login only** — *playall:* limit-password/reset-password were removed at100, see `res/xml/device_admin.xml`) | No form; reviewed under the Device and Network Abuse / Permissions policy | "Anti-theft: lock a lost phone from another phone (owner or a trusted contact the owner chose) and detect wrong unlock attempts. User enables it after an in-app disclosure and Android's consent screen; no wipe; can be deactivated in Settings → Security → Device admin apps." Full text: `ANTITHEFT_PLAY_DECLARATION_BN.md` §1. |
 | `BLUETOOTH_CONNECT` (+ legacy ≤ Android 11) | No form | "Connects to the user's already-paired ELM327 OBD-II car dongle. No scanning, no location from Bluetooth." |
 | `CAMERA`, `RECORD_AUDIO`, location, photos/videos | No form | See privacy policy. No `ACCESS_BACKGROUND_LOCATION` is requested, so no background-location declaration is needed. |
 | `BIND_VOICE_INTERACTION` | No form | Optional default-assistant role chosen by the user in Android settings. |

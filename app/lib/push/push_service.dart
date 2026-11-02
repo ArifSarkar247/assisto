@@ -436,18 +436,24 @@ class PushService {
     } catch (_) {}
   }
 
-  /// Ask for POST_NOTIFICATIONS once per install — after sign-in, a little
-  /// after the home screen settled (never on the cold-start path).
+  /// framebar (permissions in context only): this used to fire Android's
+  /// bare POST_NOTIFICATIONS dialog 6 s after sign-in — usually in the
+  /// MIDDLE of onboarding, with no reason shown, and right next to the call
+  /// checklist asking for the same thing. The ask now happens only where the
+  /// reason is on screen: the call/SOS ring checklist after onboarding
+  /// (RingCheckGate), Notification settings, and the feature screens that
+  /// need it (e.g. Reminders' "turn on notifications" banner).
+  @visibleForTesting
+  static bool autoAskOnSignIn = false;
+
   Future<void> _maybeAskPermission() async {
+    if (!autoAskOnSignIn) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(_permAskedKey) == true) return;
       await Future<void>.delayed(const Duration(seconds: 6));
-      if (await Notifications.isEnabled()) {
-        await prefs.setBool(_permAskedKey, true);
-        return;
-      }
       await prefs.setBool(_permAskedKey, true);
+      if (await Notifications.isEnabled()) return;
       await Notifications.requestPermission();
     } catch (_) {}
   }

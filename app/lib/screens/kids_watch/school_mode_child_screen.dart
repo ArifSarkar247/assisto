@@ -13,6 +13,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'kw_recorder.dart';
 import 'school_plan_form.dart' show SchoolEventsSheet;
+import '../../widgets/permission_reason.dart';
 
 /// kidswatch — the CHILD's side of School Mode (route `school_mode`, never
 /// hidden by a flag: transparency and the one-tap stop must always work).
@@ -76,8 +77,7 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
     if (widget.locate != null) return widget.locate!();
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
         return null;
       }

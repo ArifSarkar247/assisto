@@ -8,6 +8,15 @@ Future<bool> isDownloaded() async {
   return info.installStatus == InstallStatus.downloaded;
 }
 
+/// framebar: a SILENT check — true when a newer version is on the tester's
+/// track (or already downloaded). Never shows any UI.
+Future<bool> updateAvailable() async {
+  final info = await InAppUpdate.checkForUpdate();
+  if (info.installStatus == InstallStatus.downloaded) return true;
+  return info.updateAvailability == UpdateAvailability.updateAvailable &&
+      info.flexibleUpdateAllowed;
+}
+
 /// Shows Play's own flexible-update prompt when a newer version is on the
 /// tester's track. Completes true once the download has finished.
 Future<bool> startFlexibleIfAvailable() async {
