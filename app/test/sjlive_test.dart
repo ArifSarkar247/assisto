@@ -313,7 +313,7 @@ void main() {
         ]
       };
       await tester.pumpWidget(const SizedBox());
-      await tester.pumpWidget(_app(api, const SjShareScreen(oem: _Oem())));
+      await tester.pumpWidget(_app(api, SjShareScreen(oem: const _Oem(), prepare: (_) async => true)));
       await _settle(tester);
       // nobody picked -> told, nothing sent
       await tester.ensureVisible(find.byKey(const ValueKey('sjl_share_start')));

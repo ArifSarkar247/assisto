@@ -101,7 +101,10 @@ Future<bool> sjPrepareLocation(BuildContext context, {OemGuideNative? oem}) asyn
 /// itself (never "late"); Stop any time on the live screen.
 class SjShareScreen extends StatefulWidget {
   final OemGuideNative? oem;
-  const SjShareScreen({super.key, this.oem});
+  /// Test seam: the permission + battery-saver step (default
+  /// [sjPrepareLocation]; widget tests have no location plugin).
+  final Future<bool> Function(BuildContext context)? prepare;
+  const SjShareScreen({super.key, this.oem, this.prepare});
   @override
   State<SjShareScreen> createState() => _SjShareScreenState();
 }
@@ -164,7 +167,9 @@ class _SjShareScreenState extends State<SjShareScreen> {
       }
       _minutes = m;
     }
-    if (!await sjPrepareLocation(context, oem: widget.oem) || !mounted) return;
+    final ready = await (widget.prepare?.call(context) ??
+        sjPrepareLocation(context, oem: widget.oem));
+    if (!ready || !mounted) return;
     setState(() => _starting = true);
     try {
       final api = context.read<AppState>().api;
