@@ -2,6 +2,7 @@ import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
+import 'money_digits.dart' show moneyDigitsFor;
 import '../l10n/app_localizations.dart';
 import '../screens/nearby_screen.dart';
 import '../services/action_feedback.dart'; // db1
@@ -115,12 +116,12 @@ class ChatCard extends StatelessWidget {
         border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(c['title'] ?? '',
+        Text(moneyDigitsFor(context, (c['title'] ?? '').toString()),
             style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
         if ((c['subtitle'] ?? '').toString().isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Text(c['subtitle'],
+            child: Text(moneyDigitsFor(context, c['subtitle'].toString()),
                 style:
                     TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.75))),
           ),
@@ -155,13 +156,13 @@ class ChatCard extends StatelessWidget {
           Icon(icon, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
-              child: Text(c['title'] ?? '',
+              child: Text(moneyDigitsFor(context, (c['title'] ?? '').toString()),
                   style: const TextStyle(fontWeight: FontWeight.w700))),
         ]),
         if ((c['subtitle'] ?? '').toString().isNotEmpty)
           Padding(
               padding: const EdgeInsets.only(top: 2, left: 26),
-              child: Text(c['subtitle'],
+              child: Text(moneyDigitsFor(context, c['subtitle'].toString()),
                   style: TextStyle(
                       fontSize: 12, color: scheme.onSurfaceVariant))),
         const SizedBox(height: Gap.sm),
