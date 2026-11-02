@@ -483,3 +483,18 @@ class AdminAlertsSeparateTests(GBase):
         self.assertFalse(any(a.get("type") == "disk_alert" for a in alerts))
         # a normal account never gets them at all
         self.assertFalse(NotifEvent.objects.filter(user=self.a, type="admin").exists())
+
+
+class StoredValuesFitTests(GBase):
+    """Reality flow 16b found it on PostgreSQL: an outcome longer than its
+    column made the one-tap stop answer 500 (SQLite never checks lengths)."""
+
+    def test_every_outcome_and_status_fits_its_column(self):
+        f_out = JourneyRequest._meta.get_field("outcome").max_length
+        f_st = JourneyRequest._meta.get_field("status").max_length
+        for v in ("stopped_by_traveller", "window_end", "not_answered", "not_started",
+                  "arrived", "cancelled", "ended"):
+            self.assertLessEqual(len(v), f_out, v)
+        for v in ("pending", "accepted", "active", "arrived", "ended", "expired",
+                  "declined", "cancelled"):
+            self.assertLessEqual(len(v), f_st, v)
