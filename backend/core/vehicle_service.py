@@ -22,6 +22,7 @@ from django.utils import timezone
 from .logic import vehicle_tracking as VT
 
 LOCAL_TZ = ZoneInfo("Asia/Dhaka")
+MAX_FIX_AGE_DAYS = 31        # older device times = invalid clock (veh100b)
 BILLING_PERIOD_DAYS = 30
 
 
@@ -64,6 +65,11 @@ def imei_valid(imei, protocol=None):
     ST-901 family) report a 10-digit DEVICE ID instead (printed on the label /
     returned by SMS), so for protocol 'h02' any 10-15 digit id is accepted."""
     if protocol == "h02" and imei.isdigit() and 10 <= len(imei) <= 15 \
+            and len(imei) != 15:
+        return True
+    # veh100b: JT808 terminals identify by an 11-12 digit "terminal phone"
+    # (often the IMEI's tail); the label may show either.
+    if protocol == "jt808" and imei.isdigit() and 10 <= len(imei) <= 15 \
             and len(imei) != 15:
         return True
     if len(imei) != 15 or not imei.isdigit():
@@ -251,6 +257,20 @@ def ingest(batch, now=None):
         # Idempotency: a tracker that never got our ACK (or a flaky link)
         # re-sends the same fix. One fix per (tracker, device time): skip any
         # `at` already stored or already seen in this batch.
+        # veh100b: device clock sanity BEFORE de-duplication — a tracker set
+        # to local time used to have every fix clamped to `now` and then
+        # de-duplicated away. Fixes older than the retention window (GPS
+        # week-rollover dates like 2006 / 2000-01-01) are dropped.
+        fixed_clock = []
+        for f in fixes:
+            if f.get("at") is not None:
+                at2, alert_state = VT.correct_clock(f["at"], now, alert_state)
+                if at2 < now - timedelta(days=MAX_FIX_AGE_DAYS):
+                    continue
+                if at2 != f["at"]:
+                    f = dict(f, at=at2)
+            fixed_clock.append(f)
+        fixes = fixed_clock
         ats = [f.get("at") for f in fixes if f.get("at") is not None]
         seen = set(VehiclePosition.objects.filter(tracker_id=tid, at__in=ats)
                    .values_list("at", flat=True)) if ats else set()
@@ -338,6 +358,13 @@ def ingest(batch, now=None):
             # cooldown on the EVENT time (a batch can hold minutes of fixes)
             decision, cap = VT.gate_alert(cap, a, min(a_at, now).astimezone(LOCAL_TZ),
                                           prefs)
+            # veh100b: stored points sent after an offline spell. The alert
+            # says WHEN it happened; only safety kinds still push (a late
+            # "left home" matters, a late overspeed is noise -> in-app).
+            if (now - a_at).total_seconds() > VT.LATE_S:
+                a["late_at"] = a_at.astimezone(LOCAL_TZ).strftime("%H:%M")
+                if decision == "push" and a.get("kind") not in VT.SAFETY_KINDS:
+                    decision = "inapp"
             gated.append((tt, a, decision))
         pending_alerts = [x for x in pending_alerts if x[0] is not t]
         delivered.extend(gated)

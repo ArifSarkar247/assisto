@@ -441,13 +441,13 @@ class GT06EndToEndTests(_TcpBase):
                 for p in path[:5]:
                     await dev.fix(p["lat"], p["lng"], p["speed_kmh"], p["ign"], p["at"])
                 junk = bytearray(gt06.status_packet(99))
-                junk[-3] ^= 0xFF                                  # break the CRC
+                junk[-3] ^= 0xFF          # break the CRC (veh100b: kept + flagged)
                 await dev.raw(bytes(junk))
                 await dev.heartbeat()
                 self.assertTrue(await self.wait(
                     lambda: dev.acks.count(gt06.P_STATUS) >= 2))
                 await asyncio.sleep(0.3)
-                self.assertGreaterEqual(srv.stats["bad_frames"], 1)
+                self.assertGreaterEqual(srv.stats["crc_mismatch"], 1)
                 self.assertEqual(srv.stats["rejected"], 1)
                 await dev.close()
             finally:

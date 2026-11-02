@@ -239,7 +239,7 @@ class TrackerListView(APIView):
             return R({"reason": "no_credits", "ok": False, "need": need,
                       "balance": int(request.user.ai_credits or 0)}, status=402)
         proto = d.get("protocol") if d.get("protocol") in ("gt06", "h02", "teltonika",
-                                                            "tk103") \
+                                                            "tk103", "jt808") \
             else "auto"
         t = existing or VehicleTracker(owner=request.user, imei=imei)
         t.name = str(d.get("name") or t.name or "")[:80]

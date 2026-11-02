@@ -3960,7 +3960,7 @@ class VehicleTracker(models.Model):
               ("expired", "expired"),       # pairing window passed, never connected
               ("disabled", "disabled")]     # unpaid / owner turned off
     PROTOCOLS = [("auto", "auto"), ("gt06", "gt06"), ("teltonika", "teltonika"),
-                 ("h02", "h02"), ("tk103", "tk103")]
+                 ("h02", "h02"), ("tk103", "tk103"), ("jt808", "jt808")]
     owner = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name="vehicle_trackers")
     vehicle_record = models.ForeignKey("PaCollectionItem", null=True, blank=True,

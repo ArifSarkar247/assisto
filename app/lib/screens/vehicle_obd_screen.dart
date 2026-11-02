@@ -18,6 +18,9 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// Honest limits shown on screen: many cars don't expose fuel level; only
 /// classic-Bluetooth dongles already paired in phone settings; reading codes
 /// never clears them.
+/// veh100b: same threshold as the server push (vehicle_tracking.ENGINE_HOT_C).
+const double kEngineHotC = 105;
+
 class VehicleObdScreen extends StatefulWidget {
   final int? trackerId;
 
@@ -153,6 +156,44 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
     );
   }
 
+  /// veh100b: big, plain warning when the coolant is at/over kEngineHotC
+  /// (TalkBack reads title + body as one message).
+  Widget _hotWarning(BuildContext context, num celsius) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final temp = tr.vehCelsius(vehNumStr(context, celsius));
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: '${tr.vehEngineHotTitle}. ${tr.vehEngineHotBody(temp)}',
+      child: ExcludeSemantics(
+        child: Container(
+          key: const Key('veh-engine-hot'),
+          margin: const EdgeInsets.only(bottom: Gap.sm),
+          padding: const EdgeInsets.all(Gap.md),
+          decoration: BoxDecoration(
+            color: scheme.errorContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer, size: 28),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr.vehEngineHotTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: scheme.onErrorContainer, fontWeight: FontWeight.w700)),
+                const SizedBox(height: Gap.xs),
+                Text(tr.vehEngineHotBody(temp),
+                    style: TextStyle(color: scheme.onErrorContainer, height: 1.35)),
+              ]),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
   Widget _dtcList(List<Map<String, dynamic>> dtc) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
@@ -214,6 +255,8 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                     Text(tr.vehObdTrackerNone,
                         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35))
                   else ...[
+                    if ((vehNum(obd['coolant_temp_c']) ?? 0) >= kEngineHotC)
+                      _hotWarning(context, vehNum(obd['coolant_temp_c'])!),
                     _metric(tr.vehCoolant,
                         obd['coolant_temp_c'] == null
                             ? null
@@ -267,6 +310,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 ],
                 if (bt != null) ...[
                   const SizedBox(height: Gap.sm),
+                  if ((bt.coolantC ?? 0) >= kEngineHotC) _hotWarning(context, bt.coolantC!),
                   _metric(
                       tr.vehCoolant,
                       bt.coolantC == null

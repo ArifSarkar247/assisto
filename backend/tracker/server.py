@@ -3,8 +3,10 @@ Assisto vehicle tracker server — standalone asyncio TCP service (v1-vehicle).
 
     python -m tracker --host 0.0.0.0 --port 5023
 
-Speaks Concox GT06, H02 text (Sinotrack ST-901 family), Coban TK103 / GPS103
-text (veh100), Teltonika Codec 8 / 8E (+ Codec 12 commands) and the kids-watch
+Speaks Concox GT06 (+ 4G 0xA0/0xA4 frames of JM-VL01 class devices, veh100b),
+H02 text AND binary (Sinotrack ST-901 family), Coban TK103 / GPS103
+text (veh100), JT/T 808 2013/2019 (veh100b; most 4G "relay" trackers),
+Teltonika Codec 8 / 8E (+ Codec 12 commands) and the kids-watch
 "3G" text protocol (SeTracker / Wonlex "[SG*", kidswatch) on ONE port; the
 protocol is detected from the first bytes of each connection. Kids watches
 have their own ORM side (core.kidswatch_service) and their own sessions,
@@ -38,7 +40,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from .protocols import gt06, h02, teltonika, tk103, watch
+from .protocols import gt06, h02, jt808, teltonika, tk103, watch
 
 log = logging.getLogger("assisto.tracker")
 
@@ -55,7 +57,7 @@ READ_CHUNK = 4096
 MAX_BUFFER = 32 * 1024
 WATCH_MAX_BUFFER = 256 * 1024   # a TK voice frame is up to ~30 KB escaped
 # Device alarms worth a push (vibration / displacement are stored, not pushed).
-ALERT_ALARMS = ("sos", "power_cut", "tamper", "low_battery")
+ALERT_ALARMS = ("sos", "power_cut", "tamper", "low_battery", "power_off")
 
 
 class Store:
@@ -116,6 +118,8 @@ class Session:
         self.writer = writer
         self.serial = 1
         self.inflight = None          # (cmd_id, sent_monotonic)
+        self.phone_hex = None         # JT808 terminal phone (BCD hex) for replies
+        self.v2019 = False
 
     def next_serial(self):
         self.serial = (self.serial + 1) & 0xFFFF
@@ -141,7 +145,12 @@ class TrackerServer:
         self._server = None
         self._tasks = []
         self._flush_lock = asyncio.Lock()
-        self.stats = {"frames": 0, "bad_frames": 0, "rejected": 0, "written": 0}
+        self.stats = {"frames": 0, "bad_frames": 0, "rejected": 0, "written": 0,
+                      "crc_mismatch": 0}
+        # veh100b: writer -> Session, so a handler that dies on a read error
+        # (socket reset, idle timeout) still unregisters ITS session and the
+        # command dispatcher never writes to a dead socket.
+        self._by_writer = {}
 
     # ---------------------------------------------------------------- config
     def _c(self, key, default):
@@ -266,6 +275,15 @@ class TrackerServer:
             elif s.proto == "tk103":
                 wire = tk103.server_command(s.imei, text)
                 flag = 0
+            elif s.proto == "jt808":
+                if cmd["kind"] == "set_interval":
+                    p = cmd.get("payload") or {}
+                    wire = jt808.params_command(s.phone_hex, s.next_serial(),
+                                                p.get("moving_s", 5), p.get("parked_s", 180),
+                                                s.v2019)
+                else:
+                    wire = jt808.text_command(s.phone_hex, s.next_serial(), text, s.v2019)
+                flag = 0
             else:
                 wire = teltonika.codec12_command(text)
                 flag = 0
@@ -285,7 +303,7 @@ class TrackerServer:
 
     @staticmethod
     def _command_text(proto, cmd):
-        mod = {"gt06": gt06, "h02": h02, "tk103": tk103}.get(proto, teltonika)
+        mod = {"gt06": gt06, "h02": h02, "tk103": tk103, "jt808": jt808}.get(proto, teltonika)
         if cmd["kind"] in mod.COMMANDS:
             return mod.COMMANDS[cmd["kind"]]
         if cmd["kind"] == "set_interval":
@@ -337,6 +355,8 @@ class TrackerServer:
                 session = await self._h02(reader, writer, first, ip)
             elif tk103.looks_like_tk103(first):
                 session = await self._tk103(reader, writer, first, ip)
+            elif jt808.looks_like_jt808(first):
+                session = await self._jt808(reader, writer, first, ip)
             elif watch.looks_like_watch(first):
                 session = await self._watch(reader, writer, first, ip)
             elif teltonika.looks_like_imei_frame(first):
@@ -354,8 +374,11 @@ class TrackerServer:
             if isinstance(session, WatchSession):
                 if self.wsessions.get(session.watch_id) is session:
                     self.wsessions.pop(session.watch_id, None)
-            elif session and self.sessions.get(session.tracker_id) is session:
-                self.sessions.pop(session.tracker_id, None)
+            else:
+                session = session or self._by_writer.get(id(writer))
+                if session and self.sessions.get(session.tracker_id) is session:
+                    self.sessions.pop(session.tracker_id, None)
+            self._by_writer.pop(id(writer), None)
             try:
                 writer.close()
             except Exception:
@@ -377,6 +400,7 @@ class TrackerServer:
                 pass
         s = Session(proto, tid, imei, writer)
         self.sessions[tid] = s
+        self._by_writer[id(writer)] = s
         self._buf(tid)               # so the next flush stamps last_seen_at
         return s
 
@@ -408,6 +432,8 @@ class TrackerServer:
                     self.stats["bad_frames"] += 1
                     continue
                 self.stats["frames"] += 1
+                if not pkt.get("crc_ok", True):
+                    self.stats["crc_mismatch"] += 1
                 if s is None:
                     if pkt["kind"] != "login":
                         return None          # must log in first
@@ -600,6 +626,66 @@ class TrackerServer:
                 for r in pkt["records"]:
                     self.add_fix(s.tracker_id, r)
                 writer.write(teltonika.ack(pkt["count"]))
+                await writer.drain()
+                if self.buffered >= BATCH_MAX:
+                    await self.flush()
+            if len(buf) > MAX_BUFFER:
+                return s
+            buf += await self._read(reader)
+
+    # ---- JT/T 808 (binary, 0x7E-delimited; register/auth/location/batch)
+    async def _jt808(self, reader, writer, buf, ip):
+        bucket = Bucket(self._c("max_packets_per_min", 240))
+        s = None
+        while True:
+            try:
+                frames, buf = jt808.split_frames(buf)
+            except jt808.FrameError:
+                self.stats["bad_frames"] += 1
+                return s
+            for fr in frames:
+                if not bucket.take():
+                    if bucket.dropped > 3 * self._c("max_packets_per_min", 240):
+                        await self._abuse(s, ip)
+                        return s
+                    continue
+                try:
+                    pkt = jt808.parse_frame(fr)
+                except jt808.FrameError:
+                    self.stats["bad_frames"] += 1
+                    continue
+                self.stats["frames"] += 1
+                if not pkt.get("checksum_ok", True):
+                    self.stats["crc_mismatch"] += 1
+                if s is None:
+                    tid, _reason = await self._connect(pkt["imei"], "jt808", ip)
+                    if tid is None:
+                        return None          # refused: no reply, close
+                    s = self._register("jt808", tid, pkt["imei"], writer)
+                    s.phone_hex, s.v2019 = pkt["phone_hex"], pkt["v2019"]
+                elif pkt["imei"] != s.imei:
+                    self.stats["bad_frames"] += 1     # never switch id mid-socket
+                    continue
+                k = pkt["kind"]
+                if k == "register":
+                    writer.write(jt808.register_response(pkt, s.next_serial(),
+                                                         "AS" + s.imei[-8:]))
+                elif k == "cmd_reply":
+                    # 0x0001: the terminal RECEIVED our 0x8300 / 0x8103 (no reply
+                    # to a reply). Engine-cut truth comes from status bit 10
+                    # (relay_cut) on the next fix.
+                    if s.inflight and pkt.get("reply_id") in (jt808.P_TEXT,
+                                                              jt808.P_SET_PARAMS):
+                        await self._reply(s, pkt["text"], jt808.reply_ok(pkt["result"]))
+                else:
+                    if k == "gps":
+                        self.add_fix(s.tracker_id, pkt["fix"])
+                    elif k == "gps_batch":
+                        for f in pkt["fixes"]:
+                            self.add_fix(s.tracker_id, f)
+                    else:
+                        self._buf(s.tracker_id)       # heartbeat / auth / other
+                    writer.write(jt808.general_response(pkt, s.next_serial()))
                 await writer.drain()
                 if self.buffered >= BATCH_MAX:
                     await self.flush()
