@@ -562,16 +562,22 @@ def end_request(req, state, by, at=None):
     return None
 
 
-def sweep(at=None, limit=300):
-    """Hourly (purge_deletions): expire requests + eligibility reminders."""
+def sweep(at=None, limit=300, reminders=True):
+    """Hourly (purge_deletions): expire requests + eligibility reminders.
+    List GETs call it with reminders=False (expiry only, cheap)."""
     from .models import BloodDonor, BloodRequest
     at = at or now()
     n = 0
     for r in BloodRequest.objects.filter(state__in=BloodRequest.LIVE, expires_at__lte=at)[:limit]:
         if end_request(r, "expired", "system", at) is None:
             n += 1
+    if not reminders:
+        return n
     day = timezone.localtime(at).date()
-    for d in (BloodDonor.objects.filter(enabled=True, last_donation__isnull=False)
+    shortest = min(list(BR.INTERVAL_DAYS.values()) + [BR.INTERVAL_DEFAULT])
+    for d in (BloodDonor.objects.filter(enabled=True, last_donation__isnull=False,
+                                        last_donation__lte=day - timedelta(days=shortest),
+                                        last_donation__gte=day - timedelta(days=shortest + 400))
               .select_related("user")[:5000]):
         nxt = BR.next_eligible(d.last_donation, d.sex)
         if nxt and nxt <= day and d.reminded_for != nxt and (day - nxt).days <= 7:
@@ -737,7 +743,8 @@ def _post(th, by_donor, text, at, notify_other=True):
     if notify_other:
         other = th.seeker if by_donor else th.donor
         notify(other, "message", "রক্তদাতা প্যানেলে নতুন বার্তা", "New message in Blood donors",
-               "অ্যাপে খুলে উত্তর দিন।", "Open the app to reply.", thread_id=th.id)
+               "অ্যাপে খুলে উত্তর দিন।", "Open the app to reply.", kind="reminder",
+               thread_id=th.id)
 
 
 def start_thread(seeker, donor_profile, text, at=None):
@@ -832,7 +839,7 @@ def circle(th, user, action):
         notify(th.donor, "circle_ask", "My Circle-এ যুক্ত হওয়ার অনুরোধ", "Request to join My Circle",
                "যিনি রক্ত খুঁজছেন তিনি আপনাকে My Circle-এ যুক্ত করতে চান। আপনি রাজি হলে তবেই হবে।",
                "The person looking for blood wants to add you to My Circle. Only if you agree.",
-               thread_id=th.id)
+               kind="reminder", thread_id=th.id)
         return None, {}
     if action in ("accept", "decline"):
         if s != "donor" or th.circle_ask != "asked":

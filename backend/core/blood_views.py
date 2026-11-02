@@ -202,7 +202,7 @@ class RequestsView(APIView):
         on = BP.flag_on(request.user)
         if not on:
             return R({"enabled": False, "mine": [], "near": []})
-        BP.sweep(limit=20)
+        BP.sweep(limit=20, reminders=False)
         from .models import BloodRequest
         u = request.user
         mine = [request_json(request, r, "requester")
