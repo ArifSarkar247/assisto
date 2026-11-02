@@ -16,6 +16,7 @@ import '../../train/train_api.dart';
 import '../../vehicle/veh_map.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
@@ -264,6 +265,12 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
   Future<void> _record() async {
     final rec = destVoiceRecorderFactory();
     if (!_recording) {
+      // Play: in-app disclosure before Android's microphone prompt
+      if (!await destVoiceMicGranted() &&
+          !await showPermissionReason(context, PermKind.mic)) {
+        return;
+      }
+      if (!mounted) return;
       final ok = await rec.start(_mode);
       if (!mounted) return;
       if (!ok) {

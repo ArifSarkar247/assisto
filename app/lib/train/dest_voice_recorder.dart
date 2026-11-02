@@ -28,6 +28,16 @@ Future<String> destVoicePath(TransportMode mode) async {
   return '${d.path}/${mode.name}.m4a';
 }
 
+/// Whether the microphone is already granted (the screen shows the in-app
+/// disclosure first when it is not). Tests swap this.
+Future<bool> Function() destVoiceMicGranted = () async {
+  try {
+    return (await Permission.microphone.status).isGranted;
+  } catch (_) {
+    return false; // no plugin (tests / unsupported): show the disclosure
+  }
+};
+
 class PluginDestVoiceRecorder implements DestVoiceRecorder {
   AudioRecorder? _r;
   AudioRecorder get _rec => _r ??= AudioRecorder();

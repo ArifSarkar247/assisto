@@ -62,6 +62,8 @@ const _allowed = <String, String>{
       'wake word: hidden (VaWake.shipped=false) + its own confirm dialog first',
   'lib/voice/va_actions.dart':
       'contacts: VaConfirmSheet.reason; phone: after the user confirmed Call now',
+  'lib/train/dest_voice_recorder.dart':
+      'destination alarm voice clip: dest_alarm_screen._record shows showPermissionReason(PermKind.mic) first',
   'lib/services/device_contacts_source.dart':
       'the contacts source; callers show C1Disclosure first (checked below)',
   'lib/screens/messenger/contacts_screen.dart':
