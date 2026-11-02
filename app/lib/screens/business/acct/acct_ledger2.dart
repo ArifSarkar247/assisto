@@ -32,7 +32,7 @@ String acctPct(BuildContext context, Object? bp) {
   return acctDigits(context, '$s%');
 }
 
-/// "7.5" / "৭.৫" / "7,5" -> basis points (750); null when not 0 < x < 100.
+/// "7.5" / Bangla-digit "7.5" / "7,5" -> basis points (750); null when not 0 < x < 100.
 int? parsePctToBp(String raw) {
   final b = StringBuffer();
   for (final r in raw.runes) {
