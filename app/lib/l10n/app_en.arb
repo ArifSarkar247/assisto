@@ -28042,5 +28042,9 @@
   "arBtPermAllow": "Continue",
   "arBtPermNotNow": "Not now",
   "arBtDenied": "Bluetooth earphones can't be used: the \"Nearby devices\" permission is off. The call works on the phone earpiece or speaker. You can allow it in Settings.",
-  "arOpenSettings": "Open settings"
+  "arOpenSettings": "Open settings",
+  "j2PlaceTheftSafe": "Safe place for anti-theft",
+  "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
+  "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
+  "j2PlaceLongPressEdit": "Long-press for options"
 }
