@@ -42,6 +42,7 @@ from .logic import missing_rules as MR
 log = logging.getLogger(__name__)
 
 FLAG = "blood_donors"
+DETAILS_STALE_DAYS = 180        # finish1: ask "still in <area>?" after this
 ROUTE = "blood_panel"
 
 
@@ -153,6 +154,12 @@ def donor_json(d, lang="bn"):
            "phone_public": d.phone_public, "email_public": d.email_public,
            "verified": bool(d.verified_at), "verification": verification_state(d.user)}
     out.update(eligibility(d))
+    # finish1 (push-area honesty): requests reach the donor by the area they
+    # SAVED (no background location). After DETAILS_STALE_DAYS without any
+    # change the app asks "still in <area>?" — one tap keeps it.
+    upd = d.updated_at or d.created_at
+    out["details_checked"] = upd.date().isoformat() if upd else None
+    out["details_stale"] = bool(upd and now() - upd > timedelta(days=DETAILS_STALE_DAYS))
     return out
 
 
@@ -223,6 +230,8 @@ def save_donor(user, body, at=None):
         d.enabled = want
     was_new = d.pk is None
     d.save()
+    if body.get("area_confirmed") is True and not was_new:
+        log_event("area_confirmed", None, user)     # finish1: "yes, still here"
     if was_new or "enabled" in body:
         log_event("donor_on" if d.enabled else "donor_off", None, user)
     return d, None, []
@@ -858,8 +867,47 @@ def my_threads(user):
 
 
 # ------------------------------------------------------------------ banks
-def banks(lang="bn"):
-    """Official / verified list only. Empty + source_pending today."""
-    src = BR.BANKS_SOURCE
-    return {"banks": list(BR.BLOOD_BANKS) if src else [],
-            "source": src, "source_pending": not src}
+def banks(lang="bn", district="", q="", lat=None, lng=None):
+    """Official / verified list only (finish1: imported by the owner from a
+    published, dated source — core/blood_banks.py). Empty + source_pending
+    until then; never an invented entry. Filters: district code, free text
+    (name / area / address); nearest first when the phone sends a coarse
+    point, else by district then name."""
+    from . import blood_banks as BB
+    data = BB.load()
+    src = data["source"]
+    if not src:
+        return {"banks": [], "source": None, "source_pending": True,
+                "districts": [], "total": 0}
+    rows = data["banks"]
+    have = sorted({r.get("district") for r in rows if r.get("district")})
+    code = str(district or "").strip().lower()
+    if code and MR.district(code):
+        rows = [r for r in rows if r.get("district") == code]
+    needle = str(q or "").strip().lower()[:60]
+    if needle:
+        rows = [r for r in rows if needle in " ".join(
+            str(r.get(k) or "") for k in ("name", "area", "address")).lower()]
+    la, ln = MR.coarse(lat), MR.coarse(lng)
+    out = []
+    for r in rows:
+        d = MR.district(r.get("district"))
+        row = dict(r, district_name=(d[2] if lang == "bn" else d[1]) if d else "")
+        if la is not None and ln is not None:
+            p = (r.get("lat"), r.get("lng")) if r.get("lat") is not None else (
+                MR.district_point(r.get("district")) or (None, None))
+            if p[0] is not None:
+                row["km"] = round(MR.haversine_km(la, ln, p[0], p[1]), 1)
+                row["km_from_district"] = r.get("lat") is None
+        out.append(row)
+    if la is not None and ln is not None:
+        out.sort(key=lambda r: (r.get("km") is None, r.get("km") or 0, r["name"].lower()))
+    else:
+        out.sort(key=lambda r: (r.get("district_name") or "", r["name"].lower()))
+    names = []
+    for c in have:
+        d = MR.district(c)
+        if d:
+            names.append({"code": c, "name": d[2] if lang == "bn" else d[1]})
+    return {"banks": out[:BR.MAX_LIST * 3], "source": src, "source_pending": False,
+            "districts": names, "total": len(out)}

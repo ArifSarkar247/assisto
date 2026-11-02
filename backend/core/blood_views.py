@@ -377,4 +377,6 @@ class BanksView(APIView):
     def get(self, request):
         if not BP.flag_on(request.user):
             return _off()
-        return R(BP.banks(_lang(request)))
+        g = request.query_params
+        return R(BP.banks(_lang(request), district=g.get("district", ""),
+                          q=g.get("q", ""), lat=g.get("lat"), lng=g.get("lng")))
