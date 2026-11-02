@@ -400,7 +400,7 @@ void main() {
 
   testWidgets('start form lists accepted circle members as watchers', (tester) async {
     // journey2: a taller form (intro + destination picker) — a tall phone
-    await tester.binding.setSurfaceSize(const Size(400, 1600));
+    await tester.binding.setSurfaceSize(const Size(400, 2200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     // plugin channels never answer in the test VM: location already allowed
     final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;

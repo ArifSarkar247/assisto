@@ -278,6 +278,9 @@ void main() {
       testWidgets('add-a-family-member button ($lang, dark)', (tester) async {
         final t = await _pump(tester, const JourneyStartScreen(),
             lang: lang, dark: true, mode: FakeMode.empty);
+        // journeymode: "How are you going?" sits above — scroll to watchers
+        await tester.scrollUntilVisible(find.text(t.journeyNoWatchers), 300,
+            scrollable: find.byType(Scrollable).first);
         expect(find.text(t.journeyNoWatchers), findsOneWidget);
         expect(find.byKey(const ValueKey('truth_journey_add_watcher')),
             findsOneWidget);
