@@ -90,6 +90,9 @@ class UiEditCodec implements PsEditCodec {
 
   @override
   Future<RgbaOut> decode(Uint8List encoded, {int? maxLong}) async {
+    // the studio's own BMP previews: read directly, alpha kept
+    final bmp = psDecodeBmp32(encoded);
+    if (bmp != null && (maxLong == null || math.max(bmp.w, bmp.h) <= maxLong)) return bmp;
     final buf = await ui.ImmutableBuffer.fromUint8List(encoded);
     final desc = await ui.ImageDescriptor.encoded(buf);
     int? tw, th;

@@ -296,7 +296,8 @@ Uint8List renderRecipePng(Uint8List rgba, int w, int h, List<PsStep> steps,
     ch = r.h;
   }
   if (mark != null) mark.compositeRows(cur, cw, 0, ch);
-  final png = PngStreamEncoder(cw, ch, extraChunks: extraChunks, level: level);
+  final png = PngStreamEncoder(cw, ch,
+      extraChunks: extraChunks, level: level, alpha: PngStreamEncoder.hasAlpha(cur));
   const band = 256;
   for (var y = 0; y < ch; y += band) {
     final y1 = math.min(ch, y + band);
@@ -604,8 +605,12 @@ Uint8List encodeBmp(Uint8List rgba, int w, int h) {
 /// PNG encoder fed with RGBA rows; "Up" filter + zlib (dart:io, native),
 /// RGB when the photo is opaque. [extraChunks] are inserted after IHDR.
 class PngStreamEncoder {
-  factory PngStreamEncoder(int w, int h, {List<int> extraChunks = const [], int level = 2}) =>
-      PngStreamEncoder._(w, h, extraChunks, level, _Collect());
+  /// [alpha] (photobar): decided by the caller who has seen every row (a
+  /// background-removed photo can be opaque in its first band); null = the
+  /// first band decides, as before.
+  factory PngStreamEncoder(int w, int h,
+          {List<int> extraChunks = const [], int level = 2, bool? alpha}) =>
+      PngStreamEncoder._(w, h, extraChunks, level, _Collect()).._alpha = alpha;
   PngStreamEncoder._(this.w, this.h, this.extraChunks, int level, this._sink)
       : _z = ZLibEncoder(level: level).startChunkedConversion(_sink);
 
@@ -647,6 +652,8 @@ class PngStreamEncoder {
       _rows++;
     }
   }
+
+  static bool hasAlpha(Uint8List rgba) => _hasAlpha(rgba);
 
   static bool _hasAlpha(Uint8List rgba) {
     for (var i = 3; i < rgba.length; i += 4) {

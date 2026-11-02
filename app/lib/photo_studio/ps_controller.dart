@@ -1330,6 +1330,10 @@ class PhotoStudioController extends ChangeNotifier {
     } else if (v.fullQuality) {
       // d1-photo tool / batch result: already full quality on the phone
       full = v.bytes;
+      // photobar: a BMP preview carries a removed background's alpha that
+      // Flutter's decoder would drop -> PNG first
+      final bmp = _isBmp(full) ? psDecodeBmp32(full) : null;
+      if (bmp != null) full = psEncodePng(bmp.rgba, bmp.w, bmp.h);
     } else if (pe != null && rec != null && (rec.ai || !(_versionAi[s.index] ?? false))) {
       // photoperf: the recorded recipe on the full-resolution original, in a
       // background isolate (progress + Cancel), the corner mark composited

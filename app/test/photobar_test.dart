@@ -231,6 +231,19 @@ void main() {
     });
   });
 
+  test('a removed background keeps its alpha through the BMP preview and the PNG', () {
+    final rgba = fillBackgroundRgba(_grid(6, 4), 6, 4, Uint8List(4), 2, 2, PsBg.transparent);
+    final back = psDecodeBmp32(encodeBmp(rgba, 6, 4))!;
+    expect((back.w, back.h), (6, 4));
+    expect(back.rgba, rgba);
+    final png = psEncodePng(rgba, 6, 4);
+    expect(png[25], 6); // colour type RGBA
+    final dec = psDecodePng(png)!;
+    expect(dec.rgba[3], 0);
+    // an opaque photo stays RGB
+    expect(psEncodePng(_grid(6, 4), 6, 4)[25], 2);
+  });
+
   test('an un-drawn overlay never silently disappears', () {
     expect(() => const OverlayStep([PsOverlay(text: 'x')]).apply(Uint8List(4), 1, 1),
         throwsStateError);

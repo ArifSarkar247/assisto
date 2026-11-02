@@ -709,6 +709,38 @@ int? psPngDpi(Uint8List png) {
   return null;
 }
 
+/// A 32-bit BMP (the studio's fast preview format) -> RGBA WITH its alpha
+/// (Flutter's decoder ignores BMP alpha, which would turn a removed
+/// background into the checkerboard). null = not such a BMP.
+RgbaOut? psDecodeBmp32(Uint8List b) {
+  if (b.length < 54 || b[0] != 0x42 || b[1] != 0x4D) return null;
+  final d = ByteData.sublistView(b);
+  final off = d.getUint32(10, Endian.little);
+  final w = d.getInt32(18, Endian.little), hRaw = d.getInt32(22, Endian.little);
+  if (d.getUint16(28, Endian.little) != 32 || d.getUint32(30, Endian.little) != 0) return null;
+  final h = hRaw.abs();
+  if (w <= 0 || h <= 0 || off + w * h * 4 > b.length) return null;
+  final out = Uint8List(w * h * 4);
+  for (var y = 0; y < h; y++) {
+    final row = hRaw < 0 ? y : h - 1 - y;
+    var s = off + row * w * 4, o = y * w * 4;
+    for (var x = 0; x < w; x++, s += 4, o += 4) {
+      out[o] = b[s + 2];
+      out[o + 1] = b[s + 1];
+      out[o + 2] = b[s];
+      out[o + 3] = b[s + 3];
+    }
+  }
+  return RgbaOut(out, w, h);
+}
+
+/// RGBA -> PNG (alpha kept when there is any).
+Uint8List psEncodePng(Uint8List rgba, int w, int h) {
+  final e = PngStreamEncoder(w, h, alpha: PngStreamEncoder.hasAlpha(rgba));
+  e.addRows(rgba, h);
+  return e.close();
+}
+
 /// RGBA of a PNG (the exported ID photo) — pure Dart, small images only.
 ({Uint8List rgba, int w, int h})? psDecodePng(Uint8List png) {
   final d = img.decodePng(png);
