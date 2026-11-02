@@ -6,6 +6,7 @@ from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
 from . import views_journey   # journey100
 from . import views_quote   # crm100
+from . import views_invoice   # invoices
 from . import views_vehicle_share   # veh100
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
@@ -78,6 +79,7 @@ urlpatterns = [
 
     # crm100: a shop's price quote — the customer accepts / declines (signed
     # link, no login, noindex, rate-limited, bn/en)
+    path("r/<str:token>", views_invoice.verify_page),   # invoices QR check
     path("q/<str:token>", views_quote.quote_page),
     path("qp/<str:token>", views_quote.proposal_page),
     # veh100: vehicle live-location share link (random token, expiring, revocable)

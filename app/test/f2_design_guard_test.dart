@@ -100,6 +100,7 @@ const _f2Screens = <String>[
 const _fontSizeAllow = <String>{
   'lib/screens/business/statement_pdf.dart',
   'lib/screens/business/acct/acct_report_pdf.dart', // acctui: PDF page painting
+  'lib/screens/business/invoice/invoice_paper.dart', // fixed-pixel paper canvas (printer dots)
   'lib/photo_studio/ps_export.dart',
   'lib/calls/call_avatar.dart',
 };
