@@ -1,0 +1,15 @@
+{
+ "_comment": "homeorder (explicit owner order 2 Nov): SOS + Train Discover defaults (first-run fallback copy), Sponsored label with the owner's Bangla spelling (new key), Blood donor home tile. All keys NEW.",
+ "en": {
+  "discoverSosBenefit": "One press sends help and your location to family and close people.",
+  "discoverTrainBenefit": "Where your train is now and when it arrives — live from passengers.",
+  "discoverSponsoredLabel": "Sponsored",
+  "hv2TileBloodDonor": "Blood donor"
+ },
+ "bn": {
+  "discoverSosBenefit": "এক চাপে পরিবার ও কাছের মানুষকে সাহায্যের খবর ও লোকেশন পাঠান।",
+  "discoverTrainBenefit": "আপনার ট্রেন এখন কোথায়, কখন পৌঁছাবে — যাত্রীদের লাইভ তথ্যে।",
+  "discoverSponsoredLabel": "স্পনসর্ড",
+  "hv2TileBloodDonor": "রক্তদাতা"
+ }
+}

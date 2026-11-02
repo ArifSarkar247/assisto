@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../ads/hero_ad.dart' show HomeAdGuard;
 import '../discover_api.dart';
+import '../feature_flags.dart';
 import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -61,9 +62,80 @@ class HomeSuggestions extends StatefulWidget {
   State<HomeSuggestions> createState() => _HomeSuggestionsState();
 }
 
+/// homeorder (owner 2 Nov 17:40): the route the SOS Discover card opens. ONE
+/// constant: when the Emergency hub (agent/emhub) lands, switch it to
+/// 'emergency_hub' here + `SOS_ROUTE` in backend core/logic/discover.py.
+const String kDiscoverSosRoute = 'emergency_hub';
+
+/// Cards a Sponsored / ad card may never sit right next to (SOS — old screen
+/// and new hub — and Blood donor). Mirror of PROTECTED_ROUTES on the server.
+const Set<String> kDiscoverProtectedRoutes = {
+  'emergency',
+  'emergency_hub',
+  'voice_sos',
+  'blood_panel',
+};
+
+bool _isAd(DiscoverItem c) => c.isSponsored || c.isAdmob;
+bool discoverProtected(DiscoverItem c) =>
+    !_isAd(c) && kDiscoverProtectedRoutes.contains(c.route);
+
+/// Owner rule (2 Nov): no Sponsored / ad card directly next to SOS or Blood
+/// donor — the same algorithm as the server's `separate_ads`, re-applied
+/// here because the app filters (routes, flags) and personalises AFTER the
+/// server ordered the list. Non-ad cards keep their order; an ad keeps its
+/// gap when allowed, else the nearest allowed gap (later first), else it is
+/// dropped.
+List<DiscoverItem> separateDiscoverAds(List<DiscoverItem> cards) {
+  final plain = [for (final c in cards) if (!_isAd(c)) c];
+  if (plain.length == cards.length) return List.of(cards);
+  final n = plain.length;
+  bool ok(int g) =>
+      !((g > 0 && discoverProtected(plain[g - 1])) ||
+          (g < n && discoverProtected(plain[g])));
+  final slots = <int, List<DiscoverItem>>{};
+  var seen = 0;
+  for (final c in cards) {
+    if (!_isAd(c)) {
+      seen++;
+      continue;
+    }
+    for (var d = 0; d <= n; d++) {
+      final pick = [seen + d, seen - d]
+          .where((x) => x >= 0 && x <= n && ok(x))
+          .firstOrNull;
+      if (pick != null) {
+        (slots[pick] ??= []).add(c);
+        break;
+      }
+    }
+  }
+  return [
+    for (var g = 0; g <= n; g++) ...[
+      ...?slots[g],
+      if (g < n) plain[g],
+    ],
+  ];
+}
+
 /// FIRST-RUN fallback only (no cache and no network yet). Mirrors the server
-/// seed (migrations 0049 + 0056) so the first launch looks the same either way.
+/// seed (migrations 0049 + 0056 + homeorder: SOS first, Train tracker second)
+/// so the first launch looks the same either way.
 const List<DiscoverItem> kDiscoverFallback = [
+  DiscoverItem(
+      key: 'sos',
+      type: DiscoverItem.feature,
+      icon: 'emergency',
+      route: kDiscoverSosRoute,
+      tTitle: _tSosTitle,
+      tDesc: _tSosBenefit),
+  DiscoverItem(
+      key: 'train_tracker',
+      type: DiscoverItem.feature,
+      icon: 'train',
+      route: 'train_tracker',
+      tTitle: _tTrainTitle,
+      tDesc: _tTrainBenefit),
   DiscoverItem(
       key: 'photo_enhance',
       type: DiscoverItem.feature,
@@ -137,6 +209,10 @@ const List<DiscoverItem> kDiscoverFallback = [
 ];
 
 // Top-level tear-offs so the fallback entries can stay `const`.
+String _tSosTitle(AppLocalizations t) => t.emergencySosBigButton;
+String _tSosBenefit(AppLocalizations t) => t.discoverSosBenefit;
+String _tTrainTitle(AppLocalizations t) => t.trTitle;
+String _tTrainBenefit(AppLocalizations t) => t.discoverTrainBenefit;
 // b2-badges: the card opens Photo Studio, so it is named Photo Studio
 // (server seed renamed by migration 0056).
 String _tEnhanceTitle(AppLocalizations t) => t.b2PhotoStudioTitle;
@@ -181,12 +257,19 @@ List<DiscoverItem> parseDiscoverItems(Object? raw) {
 /// h1-home: when AdMob is linked, an ADMOB card may only render while the home
 /// hero is NOT showing a native ad ([HomeAdGuard.heroShowing]) — one AdMob ad
 /// on home at a time. Today it never renders either way.
+///
+/// homeorder: a feature the owner / testers see only as a PREVIEW counts as
+/// off here (same rule as the home tiles), and the ad-placement rule
+/// ([separateDiscoverAds]) is re-applied on what is left.
 List<DiscoverItem> renderableDiscover(List<DiscoverItem> items) =>
-    items.where((c) {
+    separateDiscoverAds(items.where((c) {
       if (c.isAdmob) return false;
-      if (c.route.isNotEmpty) return ChatNav.routes.containsKey(c.route);
+      if (c.route.isNotEmpty) {
+        return ChatNav.routes.containsKey(c.route) &&
+            !FeatureFlags.instance.isPreviewRoute(c.route);
+      }
       return c.url.startsWith('https://');
-    }).toList();
+    }).toList());
 
 class _HomeSuggestionsState extends State<HomeSuggestions> {
   static const _openedKey = 'discover_opened_features';
@@ -301,16 +384,19 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   void _rebuild() {
     final list = renderableDiscover(_source ?? const []);
     // Feature slots get unopened-first ordering; other slots stay put.
-    final features = list.where((c) => c.type == DiscoverItem.feature).toList();
+    // homeorder: SOS / Blood donor keep the owner's position (SOS first).
+    bool movable(DiscoverItem c) =>
+        c.type == DiscoverItem.feature && !discoverProtected(c);
+    final features = list.where(movable).toList();
     final reordered = [
       ...features.where((c) => !_opened.contains(c.key)),
       ...features.where((c) => _opened.contains(c.key)),
     ];
     var fi = 0;
-    final out = [
+    final out = separateDiscoverAds([
       for (final c in list)
-        if (c.type == DiscoverItem.feature) reordered[fi++] else c,
-    ];
+        if (movable(c)) reordered[fi++] else c,
+    ]);
     if (!mounted) return;
     setState(() {
       _cards = out;
@@ -624,7 +710,7 @@ class DiscoverCardTile extends StatelessWidget {
                     _badge(t.discoverOurProducts, scheme.tertiary),
                     const SizedBox(height: Gap.xs),
                   ] else if (item.isSponsored) ...[
-                    _badge(t.discoverSponsored, scheme.secondary),
+                    _badge(t.discoverSponsoredLabel, scheme.secondary),
                     const SizedBox(height: Gap.xs),
                   ],
                   Text(
@@ -705,7 +791,7 @@ class DiscoverCardV2 extends StatelessWidget {
     final badge = item.isProduct
         ? t.discoverOurProducts
         : item.isSponsored
-            ? t.discoverSponsored
+            ? t.discoverSponsoredLabel
             : null;
     final icon = Icon(item.iconData,
         color: HomeV2Palette.onColor, size: HV2.glassIcon);

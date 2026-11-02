@@ -1,7 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_discover }}{% endblock %}
 {% block content %}
-<div class="bar"><a class="btn primary" href="/owner/discover/new">+ {{ T.new_card }}</a><p class="mut small">{{ T.discover_note }}</p></div>
+<div class="bar"><a class="btn primary" href="/owner/discover/new">+ {{ T.new_card }}</a><p class="mut small">{{ T.discover_note }}</p><p class="mut small" id="discover-order-rule">{{ T.discover_order_rule }}</p></div>
 <section class="card">
   <h2>{{ T.cards }}</h2>
   {% if cards %}

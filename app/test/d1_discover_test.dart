@@ -135,7 +135,7 @@ void main() {
     await _pump(tester, api);
     expect(api.gets.single, '/discover/cards?build=148');
     expect(find.text('Fresh market'), findsOneWidget);
-    expect(find.text(_t(tester).discoverSponsored), findsOneWidget);
+    expect(find.text(_t(tester).discoverSponsoredLabel), findsOneWidget);
     // ADMOB renders nothing: 3 renderable cards -> 3 page dots.
     expect(find.byType(AnimatedContainer), findsNWidgets(3));
     expect(api.tracked, [
@@ -176,7 +176,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final api = _Api()..fail = true;
     await _pump(tester, api);
-    expect(find.text(_t(tester).b2PhotoStudioTitle), findsOneWidget);
+    // homeorder (owner 2 Nov): SOS is the first default item
+    expect(find.text(_t(tester).emergencySosBigButton), findsOneWidget);
     // fallback cards carry no server id -> nothing is tracked
     expect(api.tracked, isEmpty);
     await _unmount(tester);

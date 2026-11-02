@@ -63,7 +63,7 @@ def _rule_row(c):
     return {"id": c.id, "type": c.type, "enabled": c.enabled,
             "start_at": c.start_at, "end_at": c.end_at,
             "audience": c.audience, "min_build": c.min_build,
-            "order": c.order, "obj": c}
+            "order": c.order, "route": c.route, "obj": c}
 
 
 def _image_url(c):
@@ -86,12 +86,35 @@ def app_payload(c):
     }
 
 
-def cards_for(segment, build, now=None, hero_ad=False):
+def route_checker(user=None, play=False):
+    """homeorder: route -> bool, True only when the route's feature flag is ON
+    for `user` (a preview-only feature counts as OFF, like the home tiles).
+    A route no flag owns is always allowed. Never raises (flags down -> allow;
+    the app filters by its own flags again)."""
+    try:
+        from . import feature_flags as FF
+        feats, preview = FF.resolve(user, play)
+        preview = set(preview)
+    except Exception:
+        return lambda route: True
+
+    def on(route):
+        key = FF.ROUTE_FEATURE.get(route)
+        if key is None:
+            return True
+        return bool(feats.get(key, True)) and key not in preview
+    return on
+
+
+def cards_for(segment, build, now=None, hero_ad=False, user=None, play=False):
+    """The cards one user sees. `user=None` = a plain (non-tester) user, so
+    the owner's preview shows exactly what the public gets."""
     from .models import DiscoverCard
     now = now or timezone.now()
     rows = [_rule_row(c) for c in DiscoverCard.objects.all()]
     return [r["obj"] for r in D.visible_cards(rows, segment, build, now,
-                                              hero_ad=hero_ad)]
+                                              hero_ad=hero_ad,
+                                              route_on=route_checker(user, play))]
 
 
 def _admin_payload(c, totals=None):
@@ -302,7 +325,9 @@ class DiscoverCardsView(APIView):
         build = _build_param(request.query_params.get("build"))
         # h1-home: ?hero_ad=1 while the home hero shows an AdMob native ad
         hero_ad = (request.query_params.get("hero_ad") or "") in ("1", "true")
-        cards = cards_for(seg, build, hero_ad=hero_ad)
+        from .i18n import is_play_flavour
+        cards = cards_for(seg, build, hero_ad=hero_ad, user=request.user,
+                          play=is_play_flavour(request))
         return Response({"cards": [app_payload(c) for c in cards],
                          "segment": seg})
 

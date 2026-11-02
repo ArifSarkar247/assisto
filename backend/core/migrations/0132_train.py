@@ -8,7 +8,11 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+<<<<<<<< HEAD:backend/core/migrations/0132_train.py
         ("core", "0131_theftalerts"),
+========
+        ("core", "0129_blood"),
+>>>>>>>> agent/homeorder:backend/core/migrations/0130_train.py
     ]
 
     operations = [

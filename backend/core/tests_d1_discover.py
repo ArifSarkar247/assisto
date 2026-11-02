@@ -153,15 +153,17 @@ class _Base(APITestCase):
 class SeedAndFeedTests(_Base):
     def test_seed_matches_old_hardcoded_list(self):
         cards = self.feed(self.free)
-        self.assertEqual([c["key"] for c in cards], SEED_KEYS)
+        # homeorder (owner 2 Nov): SOS first; Train tracker only while its
+        # flag is ON (OFF by default) — see tests_homeorder.py
+        self.assertEqual([c["key"] for c in cards], ["sos"] + SEED_KEYS)
         asal = next(c for c in cards if c["key"] == "asalify")
         self.assertEqual(asal["url"], "https://asalify.com")
         self.assertEqual(asal["label"], "our_products")
         axon = next(c for c in cards if c["key"] == "axon")
         self.assertEqual(axon["url"], "https://axonerpsoftware.com")
-        self.assertEqual(cards[0]["route"], "photo_enhance")
-        self.assertEqual(cards[0]["title"]["en"], "Photo Studio")  # b2-badges rename (0056)
-        self.assertTrue(cards[0]["title"]["bn"])
+        self.assertEqual(cards[1]["route"], "photo_enhance")
+        self.assertEqual(cards[1]["title"]["en"], "Photo Studio")  # b2-badges rename (0056)
+        self.assertTrue(cards[1]["title"]["bn"])
 
     def test_seed_copy_passes_safety(self):
         for c in DiscoverCard.objects.all():

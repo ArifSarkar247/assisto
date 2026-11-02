@@ -14,7 +14,14 @@ SERVER-ENFORCED RULES (the app never decides who sees what):
   * Premium and Business users NEVER receive ADMOB cards (no AdMob ads is a
     paid-plan benefit), whatever the card's audience says;
   * the ADMOB slot is for FREE users only, at most ONE, and only when no active
-    SPONSORED card is booked for that user (a sponsor always wins the slot).
+    SPONSORED card is booked for that user (a sponsor always wins the slot);
+  * homeorder (owner 2 Nov): a card whose in-app route belongs to a feature
+    flag that is OFF for this user is hidden (preview-only = off, so the
+    owner's home matches normal users');
+  * homeorder: a SPONSORED / ADMOB card is NEVER placed right next to the SOS
+    or Blood donor card — it moves to the nearest allowed slot, or is dropped
+    when no slot is allowed ([separate_ads]). The app applies the same rule
+    after its own filtering (home_suggestions.dart `separateDiscoverAds`).
 
 LABELS (not editable — derived from the type, so a sponsor can never hide it):
   OUR_PRODUCT -> "our_products",  SPONSORED -> "sponsored", others -> "".
@@ -36,6 +43,15 @@ ADMOB = "ADMOB"
 TYPES = (FEATURE, OUR_PRODUCT, SPONSORED, ADMOB)
 
 AUDIENCES = ("all", "free", "premium", "business")
+
+# homeorder (owner 2 Nov): the route the SOS Discover card opens. ONE constant
+# so the switch to the Emergency hub (agent/emhub, route `emergency_hub`) is a
+# one-line change here + kDiscoverSosRoute in the app.
+SOS_ROUTE = "emergency_hub"   # owner 2 Nov: SOS opens the Emergency hub
+BLOOD_ROUTE = "blood_panel"
+# Cards an ad may never sit next to (SOS — old screen and new hub — and Blood donor).
+PROTECTED_ROUTES = frozenset({"emergency", "emergency_hub", "voice_sos", BLOOD_ROUTE})
+AD_TYPES = (SPONSORED, ADMOB)
 SEGMENTS = ("free", "premium", "business")
 
 # In-app route keys the app can open (mirror of ChatNav.routes in
@@ -83,6 +99,7 @@ ICONS = (
     "directions_car", "security", "workspace_premium", "storefront",
     "account_tree", "campaign", "star", "local_offer", "shopping_bag",
     "favorite", "school", "health", "family", "money", "lightbulb",
+    "emergency", "train", "bloodtype",   # homeorder: SOS / Train / Blood donor
 )
 
 
@@ -118,11 +135,52 @@ def _audience_ok(card, segment):
     return aud == "all" or aud == segment
 
 
-def visible_cards(cards, segment, build, now, hero_ad=False):
+def is_protected(card):
+    return card.get("type") not in AD_TYPES and \
+        (card.get("route") or "") in PROTECTED_ROUTES
+
+
+def separate_ads(cards):
+    """Owner rule (2 Nov): no SPONSORED / ADMOB card directly next to an SOS
+    or Blood donor card. Non-ad cards keep their order; each ad keeps its gap
+    when allowed, else moves to the nearest allowed gap (later first), else is
+    dropped (never shown next to SOS). Returns a new list."""
+    plain = [c for c in cards if c.get("type") not in AD_TYPES]
+    if len(plain) == len(cards):
+        return list(cards)
+    n = len(plain)
+
+    def ok(g):   # gap g sits between plain[g-1] and plain[g]
+        return not ((g > 0 and is_protected(plain[g - 1])) or
+                    (g < n and is_protected(plain[g])))
+
+    slots = {}   # gap -> ads placed there, in order
+    seen_plain = 0
+    for c in cards:
+        if c.get("type") not in AD_TYPES:
+            seen_plain += 1
+            continue
+        g = seen_plain
+        for d in range(n + 1):
+            pick = next((x for x in (g + d, g - d) if 0 <= x <= n and ok(x)), None)
+            if pick is not None:
+                slots.setdefault(pick, []).append(c)
+                break
+    out = []
+    for g in range(n + 1):
+        out.extend(slots.get(g, []))
+        if g < n:
+            out.append(plain[g])
+    return out
+
+
+def visible_cards(cards, segment, build, now, hero_ad=False, route_on=None):
     """Filter + order `cards` (plain dicts) for one user. Returns a new list.
 
     `segment` ∈ free / premium / business (unknown -> free). `build` = the app
-    build number the client reported, or None. `now` = aware datetime."""
+    build number the client reported, or None. `now` = aware datetime.
+    `route_on(route) -> bool` (optional): False hides a card whose in-app
+    route's feature flag is off for this user."""
     segment = segment if segment in SEGMENTS else "free"
     paid = segment != "free"
     base = []
@@ -138,6 +196,8 @@ def visible_cards(cards, segment, build, now, hero_ad=False):
             continue
         if not _audience_ok(c, segment):
             continue
+        if route_on is not None and c.get("route") and not route_on(c["route"]):
+            continue
         base.append(c)
     base.sort(key=lambda c: (int(c.get("order") or 0), int(c.get("id") or 0)))
     has_sponsor = any(c.get("type") == SPONSORED for c in base)
@@ -150,7 +210,7 @@ def visible_cards(cards, segment, build, now, hero_ad=False):
                 continue
             admob_used = True
         out.append(c)
-    return out
+    return separate_ads(out)
 
 
 # --------------------------------------------------------------- safety check

@@ -237,13 +237,14 @@ void main() {
       final api = _TrackApi('en');
       await _pump(tester, _home(), api: api);
       expect(find.byType(DiscoverCardV2), findsWidgets);
-      expect(find.text('Photo Studio'), findsOneWidget); // server seed card 1
+      // homeorder (owner 2 Nov): SOS is the server's first default card
+      expect(find.byKey(const ValueKey('discover_v2_sos')), findsOneWidget);
       expect(api.tracked.map((e) => '${e['card_id']}:${e['event']}'),
-          contains('1:impression'));
-      await tester.tap(find.byKey(const ValueKey('discover_v2_photo_enhance')));
+          contains('20:impression'));
+      await tester.tap(find.byKey(const ValueKey('discover_v2_sos')));
       await tester.pump(const Duration(milliseconds: 100));
       expect(api.tracked.map((e) => '${e['card_id']}:${e['event']}'),
-          contains('1:click'));
+          contains('20:click'));
       await _unmount(tester);
     });
 
@@ -364,8 +365,11 @@ void main() {
     test('owner order, real routes, flag-hidden skipped + filled', () {
       // launch (owner 27 Oct): CCTV + Vehicle Tracking are ON by default ->
       // the owner's 11 exactly, nothing skipped
-      expect(HomeV2Shortcuts.defaults(), HomeV2Shortcuts.ownerOrder);
-      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
+      // (homeorder: Blood donor sits next to SOS in the owner order but its
+      // flag is OFF by default -> skipped honestly)
+      expect(HomeV2Shortcuts.defaults(),
+          [...HomeV2Shortcuts.ownerOrder]..remove('blood_panel'));
+      expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
       for (final r in HomeV2Shortcuts.defaults()) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
       }
@@ -382,7 +386,7 @@ void main() {
       // CCTV switched OFF by the owner -> skipped, the next real one fills
       FeatureFlags.instance.debugOverride = {'home_watchman': false};
       expect(HomeV2Shortcuts.defaults(), isNot(contains('watchman')));
-      expect(HomeV2Shortcuts.skippedDefaults(), ['watchman']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['watchman', 'blood_panel']);
       expect(HomeV2Shortcuts.defaults().last, 'reminders');
     });
 
