@@ -209,13 +209,13 @@ class HonestyTests(Base):
     def test_bubbles_channels_brief_show_real_screenshots(self):
         shots = {f["id"]: f["shot"] for f in V3.FEATURES["ai"] + V3.FEATURES["circle"]}
         self.assertEqual(shots["brief"], "daily_brief")
-        self.assertEqual(shots["bubbles"], "bbl2_install_day_on")
+        self.assertIsNone(shots["bubbles"])        # bbl2_install_day_on after agent/bubbles2 is on main
         self.assertEqual(shots["channels"], "chx_channel")
         set_flag("my_circle", True)
         set_flag("daily_brief", True)
         for lang in ("bn", "en"):
             html = self.c.get("/preview/features/circle?lang=%s" % lang).content.decode()
-            for n in ("bbl2_install_day_on", "chx_channel"):
+            for n in ("chx_channel",):
                 self.assertIn("shots3/%s_%s_360.webp" % (n, lang), html)
             html = self.c.get("/preview/features/ai?lang=%s" % lang).content.decode()
             self.assertIn("shots3/daily_brief_%s_360.webp" % lang, html)
@@ -375,8 +375,8 @@ class HeroOrder3NovTests(Base):
 
     def test_hero_slides_owner_order(self):
         self.assertEqual([n for n, _ in V3.HERO_SLIDES],
-                         ["c3_chat", "callpip_pip_window", "location_sharing", "emergency_hub", "wm_alerts",
-                          "acct_home", "inv_paper_80", "chat", "dest_alarm"])
+                         ["c3_chat", "callpip_pip_window", "gj_live_banner", "emergency_hub", "wm_alerts",
+                          "acct_home", "inv_paper_80", "home_v2_chat", "dest_alarm"])
         for lang in ("bn", "en"):
             html = self.c.get("/preview/?lang=%s" % lang).content.decode()
             hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
