@@ -1389,3 +1389,14 @@ urlpatterns += [
     path("missing-alerts/<int:pk>/tips", msv.TipsView.as_view()),
 ]
 # ---- /missing ----
+# ---- circlea ---- (My Circle A1: Family/Others, link previews, guardians)
+from . import views_circlea as cav  # noqa: E402
+urlpatterns += [
+    path("circle/<int:pk>/people-group", cav.CirclePeopleGroupView.as_view()),
+    path("guardians/mine", cav.GuardiansMineView.as_view()),
+    path("guardians/mine/<int:uid>/remove", cav.GuardianRemoveView.as_view()),
+    path("guardians/children", cav.GuardianChildrenView.as_view()),
+    path("links/preview", cav.LinkPreviewView.as_view()),
+    path("links/check", cav.LinkCheckView.as_view()),
+]
+# ---- /circlea ----

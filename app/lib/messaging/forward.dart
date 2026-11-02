@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 
 import '../api.dart';
 import '../crypto/e2e.dart';
@@ -24,8 +25,13 @@ class ForwardTarget {
   final int id;
   final String name;
   final String publicKey; // members only ('' = not published yet)
+  final String circleGroup; // circlea: family | others (members only)
   const ForwardTarget(
-      {required this.kind, required this.id, required this.name, this.publicKey = ''});
+      {required this.kind,
+      required this.id,
+      required this.name,
+      this.publicKey = '',
+      this.circleGroup = 'others'});
   bool get isGroup => kind == 'group';
 }
 
@@ -55,7 +61,8 @@ Future<List<ForwardTarget>> loadForwardTargets(ApiClient api) async {
           kind: 'member',
           id: _int(x['id']),
           name: '${x['name'] ?? ''}',
-          publicKey: '${x['public_key'] ?? ''}'));
+          publicKey: '${x['public_key'] ?? ''}',
+          circleGroup: circleGroupOf(x)));
     }
   } catch (e) {
     err = e;
@@ -105,8 +112,19 @@ Future<ForwardTarget?> pickForwardTarget(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.7),
         child: ListView(shrinkWrap: true, children: [
           ListTile(title: Text(t.c3ForwardTo, style: Theme.of(ctx).textTheme.titleMedium)),
-          if (people.isNotEmpty) header(ctx, t.contactsTitle),
-          for (final x in people) tile(ctx, x),
+          // circlea: Family first + chips/search over the people
+          if (people.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CirclePeopleList(
+                listKey: 'pick-forward',
+                rows: [
+                  for (var i = 0; i < people.length; i++)
+                    {'name': people[i].name, 'circle_group': people[i].circleGroup, 'i': i}
+                ],
+                rowBuilder: (_, r) => tile(ctx, people[r['i'] as int]),
+              ),
+            ),
           if (groups.isNotEmpty) header(ctx, t.msgrChipGroups),
           for (final x in groups) tile(ctx, x),
         ]),

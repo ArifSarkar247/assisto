@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'circle_people_filter.dart'; // circlea
 import 'package:provider/provider.dart';
 
 import '../famcare_api.dart';
@@ -197,19 +198,21 @@ class _CirclePickState extends State<_CirclePick> {
       body = Text(t.rnCircleNone,
           key: const ValueKey('rn-circle-none'), textAlign: TextAlign.center);
     } else {
-      body = Column(mainAxisSize: MainAxisSize.min, children: [
-        for (final r in _rows!)
-          ListTile(
-            key: ValueKey('rn-circle-${r['circle_id']}'),
-            leading: CircleAvatar(
-                child: Text(('${r['name'] ?? ''}'.trim().isEmpty
-                        ? '?'
-                        : '${r['name']}'.trim().characters.first)
-                    .toUpperCase())),
-            title: Text('${r['name'] ?? ''}'),
-            onTap: () => Navigator.pop(context, r),
-          ),
-      ]);
+      // circlea: chips (All / Family / Others) + search, Family first
+      body = CirclePeopleList(
+        rows: _rows!,
+        listKey: 'pick-reminder',
+        rowBuilder: (_, r) => ListTile(
+          key: ValueKey('rn-circle-${r['circle_id']}'),
+          leading: CircleAvatar(
+              child: Text(('${r['name'] ?? ''}'.trim().isEmpty
+                      ? '?'
+                      : '${r['name']}'.trim().characters.first)
+                  .toUpperCase())),
+          title: Text('${r['name'] ?? ''}'),
+          onTap: () => Navigator.pop(context, r),
+        ),
+      );
     }
     return Padding(
       padding: EdgeInsets.fromLTRB(

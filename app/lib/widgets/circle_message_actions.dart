@@ -8,7 +8,7 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// reply, react, copy, forward, star, pin, edit (own + in window), delete.
 /// Mirrors core/logic/circle_messaging.py semantics; the screen wires the
 /// callbacks. No Bangla literals here (labels via AppLocalizations).
-enum CircleMsgAction { reply, react, copy, forward, star, pin, edit, deleteMe, deleteEveryone, info, moreReactions }
+enum CircleMsgAction { reply, react, copy, forward, star, pin, edit, deleteMe, deleteEveryone, info, moreReactions, copyLink, openLink }
 
 /// A compact emoji strip shown above the long-press action sheet. The emoji are
 /// unicode graphemes (NOT Bangla text), allowed as quick-reaction tokens.
@@ -29,6 +29,8 @@ Future<CircleMsgAction?> showCircleMessageActions(
   List<String>? reactions, // cde-chat: the chat theme's own quick emoji
   // e-gaps: a view-once photo — no copy / forward / star / pin
   bool protectedContent = false,
+  // circlea: the message holds a link -> "Copy link" + "Open link"
+  bool hasLink = false,
 }) {
   final t = AppLocalizations.of(context);
   return showAppSheet<CircleMsgAction>(
@@ -72,6 +74,10 @@ Future<CircleMsgAction?> showCircleMessageActions(
           _tile(ctx, Icons.reply_rounded, t.circleActionReply, CircleMsgAction.reply),
           if (!protectedContent) ...[
             _tile(ctx, Icons.copy_rounded, t.copy, CircleMsgAction.copy),
+            if (hasLink) ...[
+              _tile(ctx, Icons.link_rounded, t.claCopyLink, CircleMsgAction.copyLink),
+              _tile(ctx, Icons.open_in_new_rounded, t.claOpenLink, CircleMsgAction.openLink),
+            ],
             _tile(ctx, Icons.forward_rounded, t.circleActionForward, CircleMsgAction.forward),
             _tile(ctx, isStarred ? Icons.star_rounded : Icons.star_border_rounded,
                 isStarred ? t.circleActionUnstar : t.circleActionStar, CircleMsgAction.star),

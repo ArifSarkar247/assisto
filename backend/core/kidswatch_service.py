@@ -141,7 +141,18 @@ def can_view_watch(user, w):
 
 
 def plan_watchers(plan):
-    return guardians(plan.owner, plan.watcher_ids)
+    """circlea: owner + chosen watchers + every other guardian of the child
+    (many-to-many guardianship, core.guardianship.alert_audience)."""
+    from . import guardianship
+    child = plan.child_user or (plan.watch.child_user if plan.watch_id else None)
+    return guardianship.alert_audience(plan.owner, plan.watcher_ids, child)
+
+
+def watch_audience(w):
+    """circlea: who hears about a watch — owner + its guardians + every other
+    guardian of the child wearing it (still-valid Circle peers only)."""
+    from . import guardianship
+    return guardianship.alert_audience(w.owner, w.guardian_ids, w.child_user)
 
 
 def can_view_plan(user, plan):
@@ -334,7 +345,7 @@ def watch_sos(w, lat=None, lng=None, now=None):
     st["sos_direct"] = key
     type(w).objects.filter(pk=w.pk).update(alert_state=st)
     w.alert_state = st
-    for u in guardians(w.owner, w.guardian_ids):
+    for u in watch_audience(w):
         if u.pk in reached:
             continue
         lang = push.user_lang(u)
@@ -399,7 +410,7 @@ def watch_alarm(w, alarm, lat=None, lng=None, now=None):
     meta = {"watch_id": w.id, "event": "alarm_" + alarm}
     if lat is not None:
         meta.update(lat=lat, lng=lng)
-    _send(guardians(w.owner, w.guardian_ids), tb, te, bb, be, meta,
+    _send(watch_audience(w), tb, te, bb, be, meta,
           high=alarm in ("fall", "alarm"))
     return alarm
 
@@ -714,7 +725,7 @@ def voice_up(watch_id, audio, now=None):
     meta = {"watch_id": w.id, "voice_id": note.id, "event": "voice"}
     if w.last_lat is not None:
         meta.update(lat=w.last_lat, lng=w.last_lng)
-    _send(guardians(w.owner, w.guardian_ids), "%s ভয়েস পাঠিয়েছে" % n,
+    _send(watch_audience(w), "%s ভয়েস পাঠিয়েছে" % n,
           "Voice message from %s" % n,
           "%s-এ পাঠানো। শুনতে ট্যাপ করুন।" % _clock(now, "bn"),
           "Sent at %s. Tap to listen." % _clock(now, "en"), meta, family_alert=False)

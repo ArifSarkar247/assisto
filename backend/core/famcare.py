@@ -85,13 +85,18 @@ def circle_candidates(user):
     from .models import FamilyMember
     linked = dict(FamilyMember.objects.filter(user=user, circle_member__isnull=False)
                   .values_list("circle_member_id", "id"))
+    from . import circle_family
+    gctx = circle_family.link_context(user)   # circlea: Family / Others
     out = []
     for m in _accepted_edges(user).order_by("name", "id"):
         out.append({
             "circle_id": m.id, "name": _edge_name(m), "relation": m.relation,
             "custom_label": m.custom_label, "phone": _edge_phone(m),
             "family_id": linked.get(m.id),
+            **circle_family.group_fields(m, gctx),
         })
+    # circlea: Family first (stable: name order kept inside each section)
+    out.sort(key=lambda r: 0 if r["circle_group"] == "family" else 1)
     return out
 
 

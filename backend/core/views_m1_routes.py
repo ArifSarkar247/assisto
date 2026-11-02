@@ -399,6 +399,8 @@ class CircleChatsView(APIView):
                                      disappearing_sec__gt=0)}
         from .views_m1_messenger import conversation_edge_map
         emap = conversation_edge_map(request.user, edges)  # srvperf
+        from . import circle_family
+        gctx = circle_family.link_context(request.user)  # circlea
         for m in edges:
             rows = visible_conversation(request.user, m, emap.get(m.id))
             if m.state != "accepted" and not rows:
@@ -413,7 +415,7 @@ class CircleChatsView(APIView):
             unread = B2.member_unread(request.user, m, rows)
             o = org.get(str(m.id), {})
             out.append({
-                "id": str(m.id), "member": _member_dict(m),
+                "id": str(m.id), "member": _member_dict(m, gctx),
                 "last_text": "",
                 "last": ({"id": last.id, "ciphertext": last.ciphertext,
                           "nonce": last.nonce, "scheme": last.scheme,

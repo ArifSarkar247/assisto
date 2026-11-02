@@ -33,6 +33,7 @@ import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
+import 'circlea_shots.dart'; // circlea
 import 'at100_shots.dart'; // at100
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
@@ -913,6 +914,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolishShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // wa-polish2: bubble grouping, composer mic + recording strip, Call info
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // circlea: links + E2E preview, safe-link warning, Family / Others picker, Guardians
+    for (final e in circleaShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // at100: remote switches (owner / offline / trusted), watched phones, intruder consent
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help

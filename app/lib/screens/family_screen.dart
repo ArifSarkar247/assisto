@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'circle_guardians_screen.dart'; // circlea
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -267,6 +268,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
           initialIndex: start < 0 ? 0 : start,
           child: Scaffold(
             appBar: AppBar(title: Text(t.familyCareTitle), actions: [
+              // circlea: many guardians — who sees me + children I look after
+              IconButton(
+                  key: const ValueKey('cga-tile'),
+                  tooltip: t.cgaTitle,
+                  icon: const Icon(Icons.supervisor_account_rounded),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const CircleGuardiansScreen()))),
               IconButton(
                   onPressed: _scamCheck,
                   icon: const Icon(Icons.shield_rounded),

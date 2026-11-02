@@ -1251,6 +1251,10 @@ class CircleMember(models.Model):
     # connect-flow: when this pair became connected (request accepted /
     # invite joined) -> the "You are now connected" line + chat-list order.
     connected_at = models.DateTimeField(null=True, blank=True)
+    # circlea: "family" | "others" | "" (= automatic: family relation or a
+    # family/guardian link -> Family). The user's own mark always wins; see
+    # core.logic.circle_family. Every people list / picker reads it.
+    circle_group = models.CharField(max_length=8, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

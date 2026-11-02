@@ -15,6 +15,9 @@ import '../crypto/key_service.dart';
 import '../crypto/history_reshare.dart'; // e2e-recover
 import '../crypto/identity_vault.dart'; // e2e-recover
 import '../crypto/plain_cache.dart'; // e2e-recover
+import '../messaging/link_open.dart'; // circlea
+import '../messaging/link_preview_client.dart'; // circlea
+import '../messaging/linkify.dart'; // circlea
 import '../crypto/ring_decrypt.dart'; // e2e-recover
 import '../l10n/app_localizations.dart';
 import '../messenger_chat_api.dart';
@@ -143,6 +146,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     with WidgetsBindingObserver {
   final _e2e = SoftwareE2E();
   final _input = TextEditingController();
+  // circlea: decrypted link previews by message id + the composer's draft
+  // preview (built on THIS phone; travels inside the encrypted message).
+  final Map<String, LinkPreviewData> _previews = {};
+  LinkPreviewData? _draftPreview;
+  String? _draftUrl; // the link the draft (or its pending fetch) is for
+  String? _dismissedUrl; // "remove preview" for this link
+  Timer? _previewDebounce;
   final _inputFocus = FocusNode(); // db1
   final _scroll = ScrollController();
 
@@ -260,6 +270,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     });
     _peerB64 = '${widget.member['public_key'] ?? ''}';
     Outbox.instance.changes.addListener(_onOutbox);
+    _input.addListener(_onDraftForPreview); // circlea
     _keySub = KeyService.instance.keyEvents.stream.listen(_onKeyEvent);
     // md1: media sends (progress ring) + the decrypted-file directory.
     MediaOutbox.instance.identity ??= () async => widget.identity;
@@ -368,6 +379,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
 
   @override
   void dispose() {
+    _previewDebounce?.cancel(); // circlea
+    _input.removeListener(_onDraftForPreview);
     unawaited(PlainCache.instance.persist()); // e2e-recover
     WidgetsBinding.instance.removeObserver(this);
     DecorStore.instance.revision.removeListener(_onDecor); // cde-chat
@@ -1145,6 +1158,16 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           }
         } else {
           text = pt;
+          // circlea: the sender's encrypted link preview (opaque to Assisto)
+          final lp = env['link_preview'];
+          if (lp is Map && '${lp['ciphertext'] ?? ''}'.isNotEmpty) {
+            try {
+              final lpt = RingDecrypt.openEnvelope(Map<String, dynamic>.from(lp),
+                  ring: _myRing, peerKeys: peers);
+              final d = LinkPreviewData.tryDecode(lpt);
+              if (d != null) _previews[mid] = d;
+            } catch (_) {}
+          }
         }
       } catch (_) {
         failed = true;
@@ -1232,7 +1255,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // Link preview is built HERE (sender device). We detect the URL locally;
     // the real title/thumbnail fetch + encryption is the integrator's device
     // task — the server never fetches a URL.
-    final firstUrl = _firstUrl(plain);
+    final firstUrl = firstLink(plain); // circlea: same rules as the bubble
+    final draftPv = (_draftPreview != null && _draftPreview!.url == firstUrl)
+        ? _draftPreview
+        : null;
+    if (draftPv != null) _previews[clientMsgId] = draftPv;
 
     // Optimistic local echo (decrypted locally — never shown as ciphertext),
     // marked pending until the relay confirms.
@@ -1250,6 +1277,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _sending = true;
       _messages = [..._messages, echo];
       _input.clear();
+      _draftPreview = null; // circlea
+      _draftUrl = null;
       _replyTo = null;
       _unreadAtOpen = 0; // WhatsApp: replying clears the unread divider
       _firstUnreadId = null;
@@ -1284,18 +1313,33 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       return;
     }
     final ct = _e2e.encrypt(self: widget.identity, recipientPublicKey: peer, plaintext: plain);
+    // circlea: the preview is encrypted for the peer exactly like the text —
+    // Assisto relays ciphertext only and never sees the URL.
+    Map<String, dynamic>? lpEnv;
+    if (draftPv != null) {
+      try {
+        lpEnv = _e2e
+            .encrypt(self: widget.identity, recipientPublicKey: peer,
+                plaintext: draftPv.encode())
+            .toEnvelopeFields();
+      } catch (_) {
+        lpEnv = null;
+      }
+    }
 
     try {
       final sent = await _api.postJson('/circle/$_memberId/messages', {
         'content_type': 'text',
         'client_msg_id': clientMsgId,
         if (replyId != null) 'reply_to': replyId,
-        if (firstUrl != null) 'has_link': true, // integrator attaches encrypted preview
+        if (firstUrl != null) 'has_link': true,
+        if (lpEnv != null) 'link_preview': lpEnv,
         ...ct.toEnvelopeFields(),
       });
       // Mark echo confirmed (no longer pending). x2-ticks: re-key it to the
       // SERVER id so live receipt.update events (by id) reach it at once.
       final sid = '${sent['id'] ?? ''}';
+      if (draftPv != null && sid.isNotEmpty) _previews[sid] = draftPv; // circlea
       // md2: the bubble stays until the poll holds its server copy
       _sentEchoes.track(sid.isEmpty ? clientMsgId : sid, clientMsgId);
       if (mounted) {
@@ -1507,9 +1551,23 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
   }
 
-  String? _firstUrl(String text) {
-    final m = RegExp(r'https?://[^\s<>"]+', caseSensitive: false).firstMatch(text);
-    return m?.group(0);
+  /// circlea: build the preview for the first link while the user types
+  /// (WhatsApp): debounced, on this phone only, opt-out in Settings.
+  void _onDraftForPreview() {
+    final url = firstLink(_input.text);
+    if (url == _draftUrl) return;
+    _draftUrl = url;
+    _previewDebounce?.cancel();
+    if (url == null || url == _dismissedUrl || _reqOut) {
+      if (_draftPreview != null) setState(() => _draftPreview = null);
+      return;
+    }
+    _previewDebounce = Timer(const Duration(milliseconds: 600), () async {
+      if (!await LinkPreviewPrefs.on()) return;
+      final d = await fetchLinkPreview(url);
+      if (!mounted || _draftUrl != url || url == _dismissedUrl) return;
+      setState(() => _draftPreview = d);
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -1560,6 +1618,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       onReact: (emoji) => _react(m, emoji),
       showInfo: m.mine && !m.pending,
       protectedContent: m.viewOnce, // e-gaps
+      hasLink: m.contentType == 'text' && firstLink(m.text) != null, // circlea
     );
     if (action == null || !mounted) return;
     switch (action) {
@@ -1606,6 +1665,20 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         break;
       case CircleMsgAction.deleteEveryone:
         await _confirmAndDelete(m, 'everyone');
+        break;
+      case CircleMsgAction.copyLink: // circlea
+        final link = firstLink(m.text);
+        if (link != null) {
+          await Clipboard.setData(ClipboardData(text: link));
+          if (mounted) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(_t.claLinkCopied)));
+          }
+        }
+        break;
+      case CircleMsgAction.openLink: // circlea
+        final link = firstLink(m.text);
+        if (link != null) await openLinkSafely(context, link);
         break;
     }
   }
@@ -2763,6 +2836,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                           final bubble0 = CircleBubble(
                             key: key,
                             msg: m,
+                            linkPreview: _previews[m.id], // circlea
                             // wa-polish2: WhatsApp grouping — same sender
                             // within a few minutes = tight, tail on the first
                             continued: continuesOlderRow<_ChatRow>(dated, ri,
@@ -3297,6 +3371,20 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Widget _composer(ColorScheme scheme) => SafeArea(
         top: false,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // circlea: the link preview that will go (encrypted) with the message
+          if (_draftPreview != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, 0),
+              child: LinkPreviewCard(
+                key: const Key('cla-draft-preview'),
+                data: _draftPreview!,
+                compact: true,
+                onClose: () => setState(() {
+                  _dismissedUrl = _draftPreview?.url;
+                  _draftPreview = null;
+                }),
+              ),
+            ),
           // p3: typing "@Assisto" offers the Assisto actions (never sent)
           if (_p3HintShown)
             AssistoMentionHint(onTap: () {

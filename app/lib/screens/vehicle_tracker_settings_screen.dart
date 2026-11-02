@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -263,8 +264,11 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
                 title: Text(tr.vehShareCanControl),
                 subtitle: Text(tr.vehShareCanControlBody),
               ),
-              for (final m in _members)
-                ListTile(
+              // circlea: Family first + chips/search
+              CirclePeopleList(
+                listKey: 'pick-vehicle',
+                rows: _members,
+                rowBuilder: (_, m) => ListTile(
                   key: ValueKey('veh-grant-${m['id']}'),
                   minTileHeight: 56,
                   contentPadding: EdgeInsets.zero,
@@ -273,6 +277,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => Navigator.pop(ctx, m['id'] as int),
                 ),
+              ),
             ],
           ]),
         ),
