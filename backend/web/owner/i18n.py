@@ -1829,3 +1829,19 @@ BN.update({
     "bld_none": "এখানে কিছু নেই।",
 })
 # ---- /blood ----
+# ---- channels: Owner Admin -> Channel reports ----
+EN.update({
+    "nav_channel_reports": "Channel reports",
+    "chr_intro": "Reports on channels, channel posts and communities. A severe report, or several people reporting, hides the item at once and it waits here. Remove = it leaves the directory and stays hidden; Restore = it is visible again. Community chats are end-to-end encrypted and never shown here.",
+    "chr_what": "What", "chr_reports": "Reports",
+    "chr_remove": "Remove", "chr_restore": "Restore",
+    "chr_none": "No channel reports here.",
+})
+BN.update({
+    "nav_channel_reports": "চ্যানেল রিপোর্ট",
+    "chr_intro": "চ্যানেল, চ্যানেলের পোস্ট আর কমিউনিটির বিরুদ্ধে রিপোর্ট। গুরুতর রিপোর্ট বা কয়েকজন রিপোর্ট করলে সাথে সাথে লুকিয়ে যায় এবং এখানে অপেক্ষা করে। সরান = ডিরেক্টরি থেকে চলে যায়, লুকানো থাকে; ফিরিয়ে দিন = আবার দেখা যায়। কমিউনিটির চ্যাট এনক্রিপ্টেড — এখানে কখনো দেখানো হয় না।",
+    "chr_what": "কী", "chr_reports": "রিপোর্ট",
+    "chr_remove": "সরান", "chr_restore": "ফিরিয়ে দিন",
+    "chr_none": "এখানে কোনো চ্যানেল রিপোর্ট নেই।",
+})
+# ---- /channels ----

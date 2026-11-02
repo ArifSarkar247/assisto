@@ -349,9 +349,9 @@ class ConnectionAndDiscoverTests(TestCase):
         pub = Channel.objects.create(owner=self.a, name="Dhaka News",
                                      handle="dn", category="news",
                                      language="bn", list_visibility="public",
-                                     follower_count=5)
+                                     is_public=True, follower_count=5)
         Channel.objects.create(owner=self.a, name="Dhaka Secret", handle="ds",
-                               list_visibility="private")
+                               list_visibility="public", is_public=False)
         j = self.cb.get("%s/channels/discover?q=Dhaka" % V).json()
         self.assertEqual([c["id"] for c in j["results"]], [pub.id])
         self.assertIn("news", j["categories"])

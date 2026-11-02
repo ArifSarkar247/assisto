@@ -578,6 +578,10 @@ urlpatterns = [
     path("channels/<int:pk>/verify/request",
          msg.ChannelVerifyRequestView.as_view()),
     path("channels/<int:pk>/share-link", msg.ChannelShareLinkView.as_view()),
+    # channels (2 Nov): open by link, block, new invite code
+    path("channels/resolve", msg.ChannelResolveView.as_view()),
+    path("channels/<int:pk>/block", msg.ChannelBlockView.as_view()),
+    path("channels/<int:pk>/invite/reset", msg.ChannelInviteResetView.as_view()),
     path("admin/channels/<int:pk>/verify/<slug:action>",
          msg.ChannelVerifyGrantView.as_view()),
 
@@ -1443,3 +1447,13 @@ urlpatterns += [
     path("train/<str:no>/chat/leave", trv.ChatLeaveView.as_view()),
 ]
 # ---- /train ----
+
+# ---- channels (2 Nov) ---- communities: my list, invite link, join by code
+from . import views_channels as chv  # noqa: E402
+urlpatterns += [
+    path("communities", chv.CommunitiesView.as_view()),
+    path("communities/preview", chv.CommunityPreviewView.as_view()),
+    path("communities/join", chv.CommunityJoinByCodeView.as_view()),
+    path("community/<int:pk>/invite", chv.CommunityInviteView.as_view()),
+]
+# ---- /channels ----
