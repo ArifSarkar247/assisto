@@ -67,7 +67,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
         _msg.text = s;
         _find();
       }
-    } catch (_) {/* clipboard unavailable: the user can long-press paste */}
+    } catch (_) {} // best-effort: clipboard unavailable; the user can long-press paste
   }
 
   void _find() => setState(_applyFind);

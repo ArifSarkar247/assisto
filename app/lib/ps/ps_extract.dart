@@ -37,29 +37,29 @@ final RegExp _waPrefix = RegExp(
 
 const _meetingWords = [
   'meeting', 'meet ', 'appointment', 'interview', 'call at',
-  'মিটিং', // miting
-  'বৈঠক', // boithok
-  'সাক্ষাৎ', // sakkhat
-  'দেখা করব', // dekha korbo
-  'অ্যাপয়েন্টমেন্ট', // appointment
-  'সভা', // sobha
+  '\u09ae\u09bf\u099f\u09bf\u0982', // miting
+  '\u09ac\u09c8\u09a0\u0995', // boithok
+  '\u09b8\u09be\u0995\u09cd\u09b7\u09be\u09ce', // sakkhat
+  '\u09a6\u09c7\u0996\u09be \u0995\u09b0\u09ac', // dekha korbo
+  '\u0985\u09cd\u09af\u09be\u09aa\u09af\u09bc\u09c7\u09a8\u09cd\u099f\u09ae\u09c7\u09a8\u09cd\u099f', // appointment
+  '\u09b8\u09ad\u09be', // sobha
 ];
 
 const _followWords = [
   'send', 'reply', 'let me know', 'quote', 'quotation', 'invoice', 'confirm',
   'follow up', 'follow-up', 'get back',
-  'জানাব', // janabo / janaben
-  'জানাও', // janao
-  'পাঠাবেন', // pathaben
-  'পাঠিয়ে', // pathiye
-  'দেবেন', // deben
-  'কোটেশন', // quotation
-  'উত্তর', // uttor
-  'ফলো', // follow
+  '\u099c\u09be\u09a8\u09be\u09ac', // janabo / janaben
+  '\u099c\u09be\u09a8\u09be\u0993', // janao
+  '\u09aa\u09be\u09a0\u09be\u09ac\u09c7\u09a8', // pathaben
+  '\u09aa\u09be\u09a0\u09bf\u09af\u09bc\u09c7', // pathiye
+  '\u09a6\u09c7\u09ac\u09c7\u09a8', // deben
+  '\u0995\u09cb\u099f\u09c7\u09b6\u09a8', // quotation
+  '\u0989\u09a4\u09cd\u09a4\u09b0', // uttor
+  '\u09ab\u09b2\u09cb', // follow
 ];
 
 String _fold(String s) =>
-    s.toLowerCase().replaceAll('য়', 'য়'); // ya + nukta
+    s.toLowerCase().replaceAll('\u09df', '\u09af\u09bc'); // ya + nukta
 
 PsKind psKindOf(String text) {
   final f = _fold(text);

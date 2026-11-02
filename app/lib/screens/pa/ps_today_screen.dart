@@ -102,7 +102,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
     try {
       await context.read<AppState>().api.updateItem('pa/followups', id,
           {'last_nudged_at': DateTime.now().toUtc().toIso8601String()});
-    } catch (_) {/* convenience only */}
+    } catch (_) {} // best-effort: the nudge time is a convenience; the chat already opened
   }
 
   @override

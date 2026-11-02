@@ -202,9 +202,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
       await context.read<AppState>().api.updateItem('pa/followups', id,
           {'last_nudged_at': DateTime.now().toUtc().toIso8601String()});
       await _load();
-    } catch (_) {
-      // the nudge time is a convenience; the chat itself already opened
-    }
+    } catch (_) {} // best-effort: the nudge time is a convenience; the chat already opened
   }
 
   Future<void> _apply(Map<String, dynamic> r, Map<String, dynamic> body, AppLocalizations tr) async {
