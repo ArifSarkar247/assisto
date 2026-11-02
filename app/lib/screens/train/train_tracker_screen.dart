@@ -546,24 +546,26 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.place_rounded),
             title: Text(trainStation(s, bn)),
-            subtitle: Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
-            // sjalarm: "Set alarm at this station" -> Destination Alarm, station filled
-            trailing: alarmOn
-                ? TextButton.icon(
-                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: const Icon(Icons.alarm_add_rounded),
-                    label: Text(t.sjaAlarmHere,
-                        semanticsLabel: t.sjaAlarmHereA11y(trainStation(s, bn))),
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => DestAlarmScreen(
-                                suggestedIds: [for (final x in stops) '${x['id']}'],
-                                suggested: stops,
-                                path: trainPath(v),
-                                initialStationId: '${s['id']}'))),
-                  )
-                : null,
+            // sjalarm: "Set alarm at this station" -> Destination Alarm, station
+            // filled (under the name, so it never squeezes the tile at 200 %)
+            subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
+              if (alarmOn)
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                      minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: Gap.xs)),
+                  icon: const Icon(Icons.alarm_add_rounded),
+                  label: Text(t.sjaAlarmHere, semanticsLabel: t.sjaAlarmHereA11y(trainStation(s, bn))),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DestAlarmScreen(
+                              suggestedIds: [for (final x in stops) '${x['id']}'],
+                              suggested: stops,
+                              path: trainPath(v),
+                              initialStationId: '${s['id']}'))),
+                ),
+            ]),
           ),
         const SizedBox(height: Gap.sm),
         if (tr['approved'] != true)
