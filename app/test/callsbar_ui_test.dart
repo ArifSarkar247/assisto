@@ -196,10 +196,18 @@ void main() {
             scale: 2));
         await tester.pump();
         expect(find.text(t.cbarGroupHonest), findsOneWidget);
-        expect(find.byKey(const Key('group-call-voice-2')), findsOneWidget);
-        expect(find.byKey(const Key('group-call-voice-3')), findsNothing);
+        // At 200% text the honest note fills the first screen: scroll to the
+        // rows (off-screen widgets are skipped by default finders).
+        await tester.scrollUntilVisible(
+            find.byKey(const Key('group-call-member-3')), 200,
+            scrollable: find.byType(Scrollable).first);
+        expect(find.byKey(const Key('group-call-voice-2'), skipOffstage: false),
+            findsOneWidget);
+        expect(find.byKey(const Key('group-call-voice-3'), skipOffstage: false),
+            findsNothing);
         expect(find.byKey(const Key('group-call-member-3')), findsOneWidget);
-        expect(find.byKey(const Key('group-call-member-1')), findsNothing,
+        expect(find.byKey(const Key('group-call-member-1'), skipOffstage: false),
+            findsNothing,
             reason: 'never call myself');
         await tester.ensureVisible(find.byKey(const Key('group-call-voice-2')));
         await tester.tap(find.byKey(const Key('group-call-voice-2')));

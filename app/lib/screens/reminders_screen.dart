@@ -610,7 +610,7 @@ class _ReminderCard extends StatelessWidget {
     final base = dateOnly
         ? DateFormat('d MMM', appDateLocale(context)).format(dt)
         : DateFormat('d MMM, h:mm a', appDateLocale(context)).format(dt);
-    // remhbar: in Bangla, the Bangla calendar day too ("· ২০ কার্তিক")
+    // remhbar: in Bangla, the Bangla calendar day too ("· 20 Kartik", in Bangla script)
     if (!t.localeName.startsWith('bn')) return base;
     return '$base · ${BanglaDate.of(dt).format(bn: true, withYear: false)}';
   }

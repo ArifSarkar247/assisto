@@ -14,7 +14,7 @@ import 'dart:ui' show Canvas, Color, Offset, Paint, RRect, Radius, Rect;
 import 'package:flutter/painting.dart';
 
 import '../../cctvx/mini_pdf.dart';
-import '../../theme.dart' show AFonts;
+import '../../theme.dart' show AFonts, PrintInk;
 
 class StatementPdfRow {
   final String date;
@@ -78,11 +78,11 @@ const double _rowMin = 54;
 const double _firstHeader = 300, _otherHeader = 110, _tableHead = 60;
 const double _footer = 70, _summary = 250;
 
-const _ink = Color(0xFF1B1B1F);
-const _muted = Color(0xFF5F5E66);
-const _line = Color(0xFFDADAE0);
-const _band = Color(0xFFF1F0F7);
-const _brand = Color(0xFF3D4BD6);
+const _ink = PrintInk.ink;
+const _muted = PrintInk.muted;
+const _line = PrintInk.line;
+const _band = PrintInk.band;
+const _brand = PrintInk.brand;
 
 TextPainter _tp(String s, double size,
     {FontWeight w = FontWeight.w400,
@@ -172,7 +172,7 @@ void _text(Canvas c, TextPainter tp, double x, double y) {
 void _drawPage(Canvas c, StatementPdfDoc d, List<int> rows,
     List<double> heights, int page, int pages) {
   c.drawRect(const Rect.fromLTWH(0, 0, pdfPageW, pdfPageH),
-      Paint()..color = const Color(0xFFFFFFFF));
+      Paint()..color = PrintInk.paper);
   var y = _m;
   final lp = Paint()
     ..color = _line
@@ -238,10 +238,10 @@ void _drawPage(Canvas c, StatementPdfDoc d, List<int> rows,
     cell(r.date, _m, _colDate, ry, size: 22, col: _muted, maxLines: 2);
     cell(r.details, xDetails, _colDetails, ry, maxLines: 3);
     if (r.gave.isNotEmpty) {
-      cell(r.gave, xGave, _colAmt, ry, right: true, col: const Color(0xFFB3261E));
+      cell(r.gave, xGave, _colAmt, ry, right: true, col: PrintInk.gave);
     }
     if (r.got.isNotEmpty) {
-      cell(r.got, xGot, _colAmt, ry, right: true, col: const Color(0xFF1B7F3B));
+      cell(r.got, xGot, _colAmt, ry, right: true, col: PrintInk.got);
     }
     cell(r.balance, xBal, _colAmt, ry, right: true, w: FontWeight.w600);
     y += h;
@@ -266,7 +266,7 @@ void _drawPage(Canvas c, StatementPdfDoc d, List<int> rows,
         right: true, w: FontWeight.w800, size: 44, col: _brand);
     y += 130;
     if (d.note != null && d.note!.isNotEmpty) {
-      cell(d.note!, _m, _w, y, col: const Color(0xFFB3261E), size: 22, maxLines: 2);
+      cell(d.note!, _m, _w, y, col: PrintInk.gave, size: 22, maxLines: 2);
     }
   }
 

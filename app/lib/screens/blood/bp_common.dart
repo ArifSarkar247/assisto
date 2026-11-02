@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../widgets/permission_reason.dart' show askLocationWithReason;
 
 /// blood (owner 2 Nov): shared bits of the Blood donor panel screens.
 
@@ -87,11 +88,12 @@ String bpStateLabel(AppLocalizations t, String state) {
 
 /// The phone's current position, or null (no permission / off / timeout).
 /// Never in the background; the caller rounds it to ~1 km before sending.
-Future<({double lat, double lng})?> bpLocate() async {
+/// Android's prompt only after the in-app reason (askLocationWithReason).
+Future<({double lat, double lng})?> bpLocate(BuildContext context) async {
   try {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
-    var perm = await Geolocator.checkPermission();
-    if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+    if (!context.mounted) return null;
+    final perm = await askLocationWithReason(context);
     if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
       return null;
     }

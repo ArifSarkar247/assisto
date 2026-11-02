@@ -9,7 +9,7 @@ import 'package:assisto/state.dart';
 
 final Map<String, Widget Function(String)> remhbarShots = {
   // "will it ring on time?" with the restart / Autostart line
-  'remhbar_delivery': (_) => const ReminderDeliverySheet(),
+  'remhbar_delivery': (_) => const Scaffold(body: ReminderDeliverySheet()),
   // a note changed on two phones: both copies kept + the honest strip
   'remhbar_notes_conflict': (_) => Builder(builder: (c) {
         c.read<AppState>().notes.conflicts = 1;

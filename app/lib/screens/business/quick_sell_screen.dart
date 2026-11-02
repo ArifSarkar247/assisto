@@ -8,6 +8,7 @@ import 'selling_common.dart';
 import 'sale_void_dialog.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../messaging/date_separators.dart' show localDigits; // bizbar
+import '../../services/action_feedback.dart' show showNeedInput;
 
 /// Quick sell (§3): tap a product → cart → qty / price → payment → done.
 ///
@@ -619,7 +620,10 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
 
   Future<void> _previewDiscount() async {
     final amt = parseTaka(_discount.text);
-    if (amt == null) return;
+    if (amt == null) {
+      showNeedInput(context); // empty/invalid amount: say so, never a dead tap
+      return;
+    }
     try {
       final res = await sellApi(context)
           .cartDiscountPreview(cart: widget.cart, amountTaka: amt);

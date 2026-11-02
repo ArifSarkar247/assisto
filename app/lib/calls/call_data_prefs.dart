@@ -37,7 +37,7 @@ class CallDataPrefs {
   }
 }
 
-/// "~1.4 MB" / "~৮৫০ KB" for [bytes] — digits are localized by the caller.
+/// "~1.4 MB" / "~850 KB" for [bytes] — digits are localized by the caller.
 String callDataAmount(int bytes) {
   if (bytes < 1024 * 1024) {
     final kb = (bytes / 1024).round();

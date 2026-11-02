@@ -1,4 +1,6 @@
-/// remhbar — the Bangla calendar (বঙ্গাব্দ) as used in Bangladesh: the
+import '../l10n/bangla_months.dart';
+
+/// remhbar — the Bangla calendar (Bangabda) as used in Bangladesh: the
 /// Bangla Academy's revised calendar (in force from 1426 / 2019).
 ///
 ///  * Pohela Boishakh (1 Boishakh) is ALWAYS 14 April.
@@ -20,20 +22,8 @@ class BanglaDate {
   final int month;
   final int day;
 
-  static const monthsBn = <String>[
-    'বৈশাখ', // Boishakh
-    'জ্যৈষ্ঠ', // Joishtho
-    'আষাঢ়', // Asharh
-    'শ্রাবণ', // Shrabon
-    'ভাদ্র', // Bhadro
-    'আশ্বিন', // Ashwin
-    'কার্তিক', // Kartik
-    'অগ্রহায়ণ', // Agrahayan
-    'পৌষ', // Poush
-    'মাঘ', // Magh
-    'ফাল্গুন', // Falgun
-    'চৈত্র', // Chaitra
-  ];
+  /// Bangla-script month names live with the locale data (lang gate).
+  static const monthsBn = banglaMonthsBn;
 
   static const monthsEn = <String>[
     'Boishakh', 'Joishtho', 'Asharh', 'Shrabon', 'Bhadro', 'Ashwin',
@@ -70,7 +60,7 @@ class BanglaDate {
     return b.toString();
   }
 
-  /// "১৭ কার্তিক ১৪৩৩" (bn) / "17 Kartik 1433" (en). [withYear] false drops
+  /// "17 Kartik 1433" in Bangla script + digits (bn) / "17 Kartik 1433" (en). [withYear] false drops
   /// the year.
   String format({required bool bn, bool withYear = true}) {
     final name = (bn ? monthsBn : monthsEn)[month - 1];
@@ -80,7 +70,8 @@ class BanglaDate {
   }
 }
 
-/// Bangla digits (০-৯) in [s] -> ASCII 0-9 (search: "500" finds "৫০০").
+/// Bangla digits (U+09E6-U+09EF) in [s] -> ASCII 0-9 (search: "500" finds
+/// the same number typed in Bangla digits).
 String asciiDigits(String s) {
   final b = StringBuffer();
   for (final r in s.runes) {

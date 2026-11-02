@@ -66,7 +66,7 @@ class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
 
   Future<void> _useHere() async {
     final t = AppLocalizations.of(context);
-    final p = await (widget.locate ?? bpLocate)();
+    final p = await (widget.locate ?? () => bpLocate(context))();
     if (!mounted) return;
     if (p == null) {
       _snack(t.bpLocationFailed);

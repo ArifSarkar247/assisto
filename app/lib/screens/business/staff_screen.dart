@@ -91,37 +91,12 @@ class _StaffScreenState extends State<StaffScreen> {
   }
 
   Future<void> _byNumber() async {
-    final t = AppLocalizations.of(context);
-    final ctrl = TextEditingController();
     final phone = await showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.fromLTRB(
-            Gap.lg, 0, Gap.lg, MediaQuery.of(ctx).viewInsets.bottom + Gap.lg),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(t.bbStaffByNumber, style: Theme.of(ctx).textTheme.titleMedium),
-          const SizedBox(height: Gap.md),
-          TextField(
-            key: const ValueKey('bb-staff-phone'),
-            controller: ctrl,
-            autofocus: true,
-            keyboardType: TextInputType.phone,
-            decoration: InputDecoration(
-                labelText: t.phone, prefixIcon: const Icon(Icons.call_rounded)),
-          ),
-          const SizedBox(height: Gap.md),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-                onPressed: () => Navigator.pop(ctx, ctrl.text),
-                child: Text(t.bbStaffAdd)),
-          ),
-        ]),
-      ),
+      builder: (ctx) => const _StaffNumberSheet(),
     );
-    ctrl.dispose();
     if (phone != null && mounted) await _add(phone);
   }
 
@@ -216,5 +191,52 @@ class _StaffScreenState extends State<StaffScreen> {
       );
     }
     return Scaffold(appBar: AppBar(title: Text(t.bbStaffTitle)), body: body);
+  }
+}
+
+/// The "add by number" sheet. It owns its controller, so the field is never
+/// rebuilt with a disposed controller while the sheet animates away.
+class _StaffNumberSheet extends StatefulWidget {
+  const _StaffNumberSheet();
+
+  @override
+  State<_StaffNumberSheet> createState() => _StaffNumberSheetState();
+}
+
+class _StaffNumberSheetState extends State<_StaffNumberSheet> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          Gap.lg, 0, Gap.lg, MediaQuery.of(context).viewInsets.bottom + Gap.lg),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(t.bbStaffByNumber, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: Gap.md),
+        TextField(
+          key: const ValueKey('bb-staff-phone'),
+          controller: _ctrl,
+          autofocus: true,
+          keyboardType: TextInputType.phone,
+          decoration: InputDecoration(
+              labelText: t.phone, prefixIcon: const Icon(Icons.call_rounded)),
+        ),
+        const SizedBox(height: Gap.md),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+              onPressed: () => Navigator.pop(context, _ctrl.text),
+              child: Text(t.bbStaffAdd)),
+        ),
+      ]),
+    );
   }
 }

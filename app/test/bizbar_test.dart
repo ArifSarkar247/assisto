@@ -112,7 +112,8 @@ Future<AppLocalizations> _pump(WidgetTester tester, Widget screen, _BzApi api,
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
       value: s, child: _app(screen, lang: lang, dark: dark)));
   if (settle) await tester.pumpAndSettle();
-  return AppLocalizations.of(tester.element(find.byWidget(screen)));
+  // lookup, not the screen's element: an entry screen may replace itself
+  return lookupAppLocalizations(Locale(lang));
 }
 
 const _biz = {'id': 1, 'name': 'Rahim Store', 'role': 'owner'};

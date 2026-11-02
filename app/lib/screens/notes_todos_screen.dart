@@ -95,7 +95,7 @@ class _NotesTabState extends State<_NotesTab> {
         if (a is Map) hay.write(' ${(a['title'] ?? '').toString().toLowerCase()}');
       }
     }
-    // remhbar: "500" finds "৫০০" and the other way round
+    // remhbar: "500" finds the same number in Bangla digits and the other way round
     final text = asciiDigits(hay.toString());
     return asciiDigits(q)
         .toLowerCase()

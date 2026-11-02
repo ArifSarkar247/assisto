@@ -142,7 +142,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
     final s = _summary ?? const {};
     final reconciled = s['reconciled'] == true;
     final lang = Localizations.localeOf(context).languageCode;
-    final zero = lang == 'bn' ? '৳০' : '৳0';
+    final zero = '৳${localDigits('0', lang)}';
     final autoLines = ((s['auto_lines'] ?? const []) as List)
         .whereType<Map>()
         .map((m) => m.cast<String, dynamic>())

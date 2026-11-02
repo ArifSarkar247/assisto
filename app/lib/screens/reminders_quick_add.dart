@@ -463,7 +463,7 @@ Future<void> editReminder(BuildContext context,
                     onPressed: () => setD(() => due = null),
                     icon: const Icon(Icons.clear_rounded)),
             ]),
-            // remhbar: the Bangla calendar date too (বঙ্গাব্দ, revised
+            // remhbar: the Bangla calendar date too (Bangabda, revised
             // Bangladesh calendar) — many people count bills/rent by it
             if (due != null)
               Padding(

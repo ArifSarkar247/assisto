@@ -1238,7 +1238,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     if (id.startsWith('list:')) return; // custom lists can vanish
     try {
       await (await SharedPreferences.getInstance()).setString(_kFilterKey, id);
-    } catch (_) {}
+    } catch (_) {} // best-effort: only remembers the last chip; the filter itself already applied
   }
 
   /// circlea: Family / Others chip with no chat — what it is for, how to
