@@ -821,10 +821,12 @@ class WatchTcpEndToEndTests(APITransactionTestCase):
                 dev = WatchDevice("8800000015", maker="3G")
                 await dev.connect("127.0.0.1", TCP_PORT)
                 self.assertTrue(await dev.link(battery=64))
+                # the pairing commands arrive one by one: wait for ALL of them
+                # (waiting only for UPLOAD then asserting the rest raced on CI)
                 self.assertTrue(await self._wait(lambda: any(
-                    c.startswith("UPLOAD,") for c in dev.commands)), dev.commands)
-                self.assertIn("LZ,1,6", dev.commands)
-                self.assertIn("PEDO,1", dev.commands)
+                    c.startswith("UPLOAD,") for c in dev.commands)
+                    and "LZ,1,6" in dev.commands and "PEDO,1" in dev.commands),
+                    dev.commands)
                 self.assertTrue(await self._wait(lambda: KidsWatchCommand.objects.filter(
                     watch_id=wid, state="acked").count() >= 4))
                 now = datetime.now(dtz.utc)

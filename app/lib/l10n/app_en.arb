@@ -28042,5 +28042,377 @@
   "arBtPermAllow": "Continue",
   "arBtPermNotNow": "Not now",
   "arBtDenied": "Bluetooth earphones can't be used: the \"Nearby devices\" permission is off. The call works on the phone earpiece or speaker. You can allow it in Settings.",
-  "arOpenSettings": "Open settings"
+  "arOpenSettings": "Open settings",
+  "saAddNumbersForSms": "Add emergency numbers (for the call and SMS steps)",
+  "@saAddNumbersForSms": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saAlertsAddFamily": "Add family in My Circle",
+  "@saAlertsAddFamily": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saAlertsHowTo": "How it works: 1) add your family in My Circle, 2) they install Assisto and accept, 3) your SOS then rings their phone even when Assisto is closed.",
+  "@saAlertsHowTo": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saExperimental": "Experimental",
+  "@saExperimental": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallBenefit": "If you fall and can't get up, your family is told with your location.",
+  "@saFallBenefit": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallCheckBody": "If you don't tap \"I'm OK\", your family will be alerted in {clock}.",
+  "@saFallCheckBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)",
+    "placeholders": {
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "saFallCheckSent": "The time is up — your family is being alerted. Tap \"I'm OK\" to tell them you are fine.",
+  "@saFallCheckSent": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallConsentAgree": "Turn on",
+  "@saFallConsentAgree": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallConsentBody": "While Always-on protection runs, the phone's motion sensor watches for a hard fall. It uses a little more battery. After a fall the phone asks \"Are you OK?\". If nobody answers in time, the family in your My Circle gets an alert with your location. Assisto never calls 999 by itself. This is experimental: a dropped phone may also ask, and a slow fall may be missed.",
+  "@saFallConsentBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallConsentTitle": "Turn on fall detection?",
+  "@saFallConsentTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallHow": "How it works: 1) keep Always-on protection on, 2) after a hard fall the phone asks \"Are you OK?\", 3) no answer = your family is alerted.",
+  "@saFallHow": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallLimits": "Honest limits: works only while Always-on protection is on; a phone dropped on a hard floor also asks \"Are you OK?\"; a slow slump to the floor or a fall followed by a lot of movement may not be noticed; not tested on real falls yet. Press SOS yourself whenever you can.",
+  "@saFallLimits": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallOkFailed": "Couldn't reach the server. Call your family to tell them you are fine.",
+  "@saFallOkFailed": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallOkSent": "Good. Nobody will be alerted.",
+  "@saFallOkSent": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallPendingOpen": "A fall was detected — tap here if you are OK",
+  "@saFallPendingOpen": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallPractice": "Practice: see what happens (nothing is sent)",
+  "@saFallPractice": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallPracticeBanner": "PRACTICE — nothing is sent",
+  "@saFallPracticeBanner": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallPracticeDone": "Practice finished. In a real fall your family is alerted if you don't answer.",
+  "@saFallPracticeDone": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallRowSub": "Experimental · for elders · asks \"Are you OK?\" first",
+  "@saFallRowSub": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallRowTitle": "Fall detection",
+  "@saFallRowTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallSwitch": "Fall detection",
+  "@saFallSwitch": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallSwitchSub": "Off. Turn on to alert family after a fall.",
+  "@saFallSwitchSub": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saFallTitle": "Fall detection (experimental)",
+  "@saFallTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saHoldHint": "Hold the button for 1 second to send SOS",
+  "@saHoldHint": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saHonestFooter": "These work only while Always-on protection is on (its notification is showing). They are free on every plan. No new permission is needed.",
+  "@saHonestFooter": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saKindFall": "Possible fall",
+  "@saKindFall": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadder999Body": "Still nobody has opened it. If you are in danger, call 999 now.",
+  "@saLadder999Body": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadder999Title": "No answer yet — call 999",
+  "@saLadder999Title": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderCall999": "Call 999",
+  "@saLadderCall999": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderCallPerson": "Call {name}",
+  "@saLadderCallPerson": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saLadderNoOneBody": "Send an SMS from your own SIM (the message and your location are ready — you tap Send), call someone, or call 999.",
+  "@saLadderNoOneBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderNoOneTitle": "Nobody could be alerted in the app",
+  "@saLadderNoOneTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderOfflineTitle": "No internet — send an SMS instead",
+  "@saLadderOfflineTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderRerungBody": "Nobody opened it in 2 minutes, so their phones were rung again. Call or SMS them now.",
+  "@saLadderRerungBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderRerungTitle": "Rung again — call them now",
+  "@saLadderRerungTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderResolvedBody": "Your family has been told you are safe.",
+  "@saLadderResolvedBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderResolvedTitle": "You are marked safe",
+  "@saLadderResolvedTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderSeenBody": "They know. Keep your phone with you.",
+  "@saLadderSeenBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderSeenTitle": "{seen} of {total} have seen your SOS",
+  "@saLadderSeenTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)",
+    "placeholders": {
+      "seen": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "saLadderSms": "Send SMS from my SIM ({count})",
+  "@saLadderSms": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "saLadderStepsTitle": "Next steps",
+  "@saLadderStepsTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderWaitingBody": "Their phones are ringing. If nobody opens it in 2 minutes, Assisto rings them again.",
+  "@saLadderWaitingBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLadderWaitingTitle": "SOS sent to {count} — waiting for someone to open it",
+  "@saLadderWaitingTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "saLocationFailed": "Couldn't get your location. Turn on location and try again.",
+  "@saLocationFailed": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLockBody": "An SOS button on the protection notification, usable from the lock screen. 10 seconds to cancel.",
+  "@saLockBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saLockTitle": "SOS from the lock screen",
+  "@saLockTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saMoreWaysBenefit": "Send SOS without opening Assisto — from the lock screen, with the power button, or automatically after a fall.",
+  "@saMoreWaysBenefit": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saMoreWaysSub": "Lock screen · power button · fall",
+  "@saMoreWaysSub": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saMoreWaysTitle": "More ways to send SOS",
+  "@saMoreWaysTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeedHelp": "I need help",
+  "@saNeedHelp": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeedsProtectionBody": "These run inside Always-on protection, so it must be on first.",
+  "@saNeedsProtectionBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeedsProtectionTitle": "Turn on Always-on protection first",
+  "@saNeedsProtectionTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeirNeedImei": "Type the 15-digit IMEI above first (dial *#06#).",
+  "@saNeirNeedImei": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeirSmsBody": "The government NEIR check is done by SMS: KYD and the IMEI to 16002. We prepare the SMS; you tap Send (normal SMS charge).",
+  "@saNeirSmsBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeirSmsButton": "Check with BTRC by SMS",
+  "@saNeirSmsButton": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNeirSmsTitle": "Check the IMEI with BTRC (NEIR)",
+  "@saNeirSmsTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNever999": "Assisto never calls 999 by itself.",
+  "@saNever999": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifArmBody": "Your family will be alerted with your location. Tap Cancel if this was a mistake.",
+  "@saNotifArmBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifArmTitle": "SOS in 10 seconds",
+  "@saNotifArmTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifCancel": "Cancel",
+  "@saNotifCancel": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifFallBody": "If you don't tap I'm OK, your family will be alerted with your location. Assisto never calls 999 by itself.",
+  "@saNotifFallBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifFallOk": "I'm OK",
+  "@saNotifFallOk": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifFallTitle": "Did you fall? Are you OK?",
+  "@saNotifFallTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifSentBody": "It goes the moment this phone has internet. Open Assisto to see who has seen it.",
+  "@saNotifSentBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifSentTitle": "SOS is going to your family",
+  "@saNotifSentTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saNotifSosAction": "SOS",
+  "@saNotifSosAction": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saOn": "On",
+  "@saOn": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saPickCircleEmpty": "Nobody in My Circle has a phone number yet. Add the number by hand.",
+  "@saPickCircleEmpty": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saPickCircleSub": "One tap — no typing. They are called or sent an SMS in an emergency.",
+  "@saPickCircleSub": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saPickCircleTitle": "Pick from My Circle",
+  "@saPickCircleTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saPowerBody": "Press the power button 5 times quickly. 10 seconds to cancel. If your phone has its own Emergency SOS on the same buttons (Samsung, Pixel), that one also runs.",
+  "@saPowerBody": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saPowerTitle": "Power button × 5",
+  "@saPowerTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecButton": "Record a 30-second motion sample (for testers)",
+  "@saRecButton": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecFallSoft": "A fall onto a mattress (practice)",
+  "@saRecFallSoft": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecGrab": "Someone grabs the phone from my hand (practice)",
+  "@saRecGrab": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecNeedsProtection": "Recording needs Always-on protection to be on.",
+  "@saRecNeedsProtection": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecNormal": "Normal life (walking, sitting, bus)",
+  "@saRecNormal": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecPickUp": "I pick up and use my phone",
+  "@saRecPickUp": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecRunning": "Recording… (30 seconds)",
+  "@saRecRunning": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecShareText": "Assisto motion sample for the fall / snatch test",
+  "@saRecShareText": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecStarted": "Recording for 30 seconds. Do the action now.",
+  "@saRecStarted": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecTitle": "What will you do?",
+  "@saRecTitle": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saRecWhat": "The sample helps measure false alarms. Only motion numbers are saved — no location, no sound, no photo. You choose whom to send it to.",
+  "@saRecWhat": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saSosExplainer": "Hold the button: after a short countdown (you can cancel) your family in My Circle gets a loud alert with your location — even with no emergency number saved. Then this screen shows who has seen it and the next steps.",
+  "@saSosExplainer": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saSosOfflineSms": "No internet — Assisto could not alert your family. Send the SMS below from your own SIM.",
+  "@saSosOfflineSms": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  },
+  "saTurnOnProtection": "Turn on Always-on protection",
+  "@saTurnOnProtection": {
+    "description": "sosat (SOS + anti-theft, 2 Nov)"
+  }
 }
