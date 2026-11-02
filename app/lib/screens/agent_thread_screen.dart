@@ -11,6 +11,7 @@ import '../widgets/chatnav.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/voice_input.dart';
 import '../widgets/ai_report.dart';
+import '../widgets/ai_turn_meta.dart'; // aibar
 
 /// own-device (owner 24 Oct): an /alerts row about the signed-in user's OWN
 /// protected phone (anti-theft, owner_id == me). The home urgent card never
@@ -38,6 +39,13 @@ class _Msg {
   /// as the greeting, "send failed" or "undone"). [id] = stored message id.
   final bool reportable;
   final String? id;
+
+  /// aibar: a user turn's idempotency id ("Send again" reuses it), whether it
+  /// failed to go out (+ why), and an answer's credit meta.
+  String? clientId;
+  bool failed = false;
+  Object? failCause;
+  Map<String, dynamic> meta = const {};
   _Msg(this.user, this.text,
       [this.cards = const [], this.photo, this.reportable = false, this.id]);
 }
@@ -136,13 +144,18 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     });
     if (widget.debugSeed != null) {
       for (final m in widget.debugSeed!) {
-        _msgs.add(_Msg(
+        final seeded = _Msg(
             m['user'] == true,
             (m['text'] ?? '').toString(),
             ((m['cards'] ?? []) as List).cast<Map<String, dynamic>>(),
             null,
             m['user'] != true && m['reportable'] != false,
-            m['id']?.toString()));
+            m['id']?.toString());
+        // aibar (gallery): a not-sent turn and an answer's credit meta
+        if (m['failed'] == true) seeded.failed = true;
+        final meta = m['meta'];
+        if (meta is Map) seeded.meta = meta.cast<String, dynamic>();
+        _msgs.add(seeded);
       }
       return; // previews don't poll
     }
@@ -293,17 +306,40 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     }
 
     _input.clear();
-    final mine = _Msg(true, text);
+    // aibar: one id per typed message — "Send again" reuses it, so a retry
+    // after a lost answer never logs the expense / reminder twice.
+    final mine = _Msg(true, text)..clientId = newChatClientId();
     setState(() {
       _msgs.add(mine);
       _sending = true;
     });
     _toBottom();
+    await _deliver(mine, creditsRetry);
+  }
+
+  /// aibar: "Send again" on a turn that did not go out.
+  Future<void> _retry(_Msg mine) async {
+    if (_sending || !mine.failed) return;
+    HapticFeedback.selectionClick();
+    setState(() {
+      mine.failed = false;
+      mine.failCause = null;
+      _msgs.remove(mine);
+      _msgs.add(mine);
+      _sending = true;
+    });
+    _toBottom();
+    await _deliver(mine, false);
+  }
+
+  Future<void> _deliver(_Msg mine, bool creditsRetry) async {
+    final text = mine.text;
     final app = context.read<AppState>();
     var outOfCredits = false;
     var creditsNeed = 0; // billapp: the server's 402 `need`
     try {
-      final r = await app.api.agent(text, sessionId: _sessionId);
+      final r = await app.api
+          .agent(text, sessionId: _sessionId, clientId: mine.clientId);
       final sid = r['session_id']?.toString();
       if (sid != null && sid.isNotEmpty && sid != _sessionId) {
         _sessionId = sid;
@@ -317,8 +353,18 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         return;
       }
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
-      setState(() => _msgs.add(_Msg(false, r['reply'] ?? '', cards, null,
-          true, r['message_id']?.toString())));
+      final answer = _Msg(false, r['reply'] ?? '', cards, null, true,
+          r['message_id']?.toString());
+      // aibar: a keyed-AI answer shows what it really cost
+      if (r['ai_used'] == true) {
+        answer.meta = {
+          'source': 'ai',
+          'credits': r['credits'] ?? 0,
+          if (r['balance'] != null) 'balance': r['balance'],
+          if (r['text_cut'] == true) 'text_cut': true,
+        };
+      }
+      setState(() => _msgs.add(answer));
       app.reminders.sync();
       app.txns.sync();
       app.loans.sync();
@@ -334,7 +380,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
           if (_input.text.trim().isEmpty) _input.text = text;
         });
       } else if (mounted) {
-        setState(() => _msgs.add(_Msg(false, t.sendFailed)));
+        // aibar: the text stays in its bubble with the honest reason and
+        // "Send again" (was: a generic notice and the text was lost)
+        setState(() {
+          mine.failed = true;
+          mine.failCause = e;
+        });
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -489,7 +540,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         alignment: Alignment.centerRight,
         child: Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-            child: bubble),
+            child: m.failed
+                ? Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                    bubble,
+                    FailedSendRow(
+                        cause: m.failCause,
+                        onRetry: _sending ? null : () => _retry(m)),
+                  ])
+                : bubble),
       );
     }
     // assistant: avatar + bubble (+ ai-report: long-press menu + flag)
@@ -506,9 +564,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         _logoMark(28),
         const SizedBox(width: Gap.sm),
         Flexible(
-            child: report == null
-                ? bubble
-                : AiAnswerLongPress(target: report, child: bubble)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          report == null
+              ? bubble
+              : AiAnswerLongPress(target: report, child: bubble),
+          if (AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
+        ])),
         if (report != null) AiReportButton(target: report),
       ]),
     );

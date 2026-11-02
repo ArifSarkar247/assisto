@@ -1,0 +1,39 @@
+{
+ "_comment": "aibar (launch group 6 AI assistant): per-message credit line, failed-send row with Send again. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_aibar_arb.json",
+ "en": {
+  "aibarCreditsUsed": "{n} credits used",
+  "@aibarCreditsUsed": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "aibarCreditsLeft": "{n} left",
+  "@aibarCreditsLeft": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "aibarFreeQuick": "Free quick answer (today's free quota)",
+  "aibarFreeAnswer": "Free — no credits used",
+  "aibarTextCut": "Your message was very long — only the first part was read.",
+  "aibarNotSent": "Not sent — your message is kept.",
+  "aibarNotSentOffline": "No internet — your message is kept. Send it again when you're online.",
+  "aibarNotSentServer": "Assisto's server had a problem — your message is kept. Try again in a moment.",
+  "aibarSendAgain": "Send again"
+ },
+ "bn": {
+  "aibarCreditsUsed": "{n} ক্রেডিট খরচ",
+  "aibarCreditsLeft": "বাকি {n}",
+  "aibarFreeQuick": "ফ্রি দ্রুত উত্তর (আজকের ফ্রি কোটা)",
+  "aibarFreeAnswer": "ফ্রি — কোনো ক্রেডিট কাটেনি",
+  "aibarTextCut": "আপনার লেখা খুব লম্বা ছিল — শুধু প্রথম অংশ পড়া হয়েছে।",
+  "aibarNotSent": "পাঠানো যায়নি — আপনার লেখা রাখা আছে।",
+  "aibarNotSentOffline": "নেট নেই — আপনার লেখা রাখা আছে। নেট এলে আবার পাঠান।",
+  "aibarNotSentServer": "Assisto-র সার্ভারে সমস্যা হয়েছে — আপনার লেখা রাখা আছে। একটু পরে আবার চেষ্টা করুন।",
+  "aibarSendAgain": "আবার পাঠান"
+ }
+}

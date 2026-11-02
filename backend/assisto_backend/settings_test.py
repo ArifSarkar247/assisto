@@ -47,3 +47,10 @@ CIRCLE_BLOB_X_ACCEL = False
 # antitheft2: no in-process escalation timer thread in tests (tests call
 # views_antitheft.escalate_due directly).
 ANTITHEFT_ESCALATE_TIMER = False
+
+# aibar: chat burst limits off in the shared suite (many tests send several
+# turns in a row); core/tests_aibar.py turns them on with override_settings.
+AI_CHAT_RATE_PER_MIN = 0
+AI_CHAT_RATE_PER_HOUR = 0
+AGENT_RATE_PER_MIN = 0
+AGENT_RATE_PER_HOUR = 0

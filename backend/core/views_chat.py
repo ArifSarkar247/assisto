@@ -43,6 +43,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import ai
+from . import ai_chat_guard as G
 from . import credits_out
 from .i18n import req_lang, pick
 from .logic import brain
@@ -166,18 +167,25 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
     # DATA the model may ground on, and as the Brain fallback itself.
     ctx = brain.answer(user, text, lang)
 
+    unavailable = ""
     if ai.available():
         try:
             requested_tier = "cheap"
-            ai_text = text
             summary = ctx["reply"]
+            # aibar: the user's own text is capped on EVERY path (before, only
+            # with the pricing-40 block on: a 50k paste cost ~৳24 for 1 credit)
+            # and the Brain's "needs a key" line is never sent as if it were
+            # the user's data.
+            limit = G.USER_TEXT_MAX
             if mode:
-                # pricing-40 (enabled only): cap the user's own text, and do
-                # not send the Brain's "needs a key" line as if it were data
                 cm = ai_cm()
-                ai_text = text[: int(cm.get("user_text_max_chars") or 4000)]
-                if ctx.get("level") == "L4":
-                    summary = "-"
+                limit = int(cm.get("user_text_max_chars") or G.USER_TEXT_MAX)
+            ai_text, _cut = G.cap_text(text, limit)
+            if ctx.get("level") == "L4":
+                summary = "-"
+            if not mode:
+                # legacy path (no pricing-40 caps): bound the context too
+                history = G.cap_history(history)
             meta_out = {}
             # AF-2 (maskall): the user's text, the Brain summary of their own
             # data and the earlier turns go to the provider MASKED (phones,
@@ -204,24 +212,27 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                     task=pick(lang, *CHAT_TASK),
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat", max_tokens=700,
-                    user=user, history=history, pii=vault)
+                    user=user, history=history, pii=vault, out_meta=meta_out)
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
             from . import ai_guard
             reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
+            # aibar: no invented taka amounts — a money figure that is not in
+            # the user's text, their data summary or the earlier turns is cut
+            # (own-data question) or marked as an estimate (general question).
+            reply, n_money = ai_guard.scrub_ungrounded_money(
+                reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
+                lang=lang, strict=ctx.get("level") == "L1")
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
-            from .logic import pricing
             eff = billing.effective_tier(user, requested_tier)
-            action = pricing.TIER_ACTION.get(eff, "ai_msg_cheap")
-            try:
-                credits = pricing.credits_for(action, 1, billing.cfg())
-            except Exception:
-                credits = 0
+            # aibar: the credits ACTUALLY taken for this answer (the router's
+            # charge result; family pool / free quick quota included) — not a
+            # re-computation from the price list.
+            credits = int(meta_out.get("charged") or 0)
             if mode:
-                credits = int(meta_out.get("charged") or 0)
                 tier_label = {"quick": "assisto-lite", "smart": "assisto",
                               "pro": "assisto-pro"}.get(mode, "assisto")
                 if meta_out.get("upgraded"):
@@ -235,8 +246,18 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 "credits": credits,
                 "cards": ctx.get("cards", []),
             }
+            bal = G.balance(user)
+            if bal is not None:
+                meta["balance"] = bal
+            if mode == "quick" and credits == 0:
+                meta["free_quota"] = True       # one of today's free quick answers
+            if _cut:
+                meta["text_cut"] = True
+            if n_money:
+                meta["money_grounding"] = n_money
             return reply, meta, ctx.get("cards", [])
         except ai.AIUnavailable as e:
+            unavailable = e.reason or "queued"
             # credout: out of credits is NOT degraded silently — the view
             # undoes the turn and answers 402 so the app can offer the
             # buy-credits sheet and re-send the same text.
@@ -256,10 +277,111 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
         "cards": ctx.get("cards", []),
     }
     reply = ctx["reply"]
+    if unavailable:
+        meta["ai_unavailable"] = unavailable
+        # aibar: keys exist but AI could not answer THIS turn — say why
+        # (limit / daily cap / providers down), never "no key yet".
+        if ctx.get("level") == "L4":
+            reply = G.unavailable_line(unavailable, lang) or reply
     if not (reply or "").strip():
         reply = brain._l4_needs_ai(lang)  # belt-and-braces: never empty
     return reply, meta, ctx.get("cards", [])
 
+
+
+# ---------------------------------------------------------------------------
+# aibar: idempotent turns + burst limit (shared by send / stream)
+# ---------------------------------------------------------------------------
+def _find_turn(session, cid):
+    """(user message, its assistant reply or None) for the app's client_id,
+    or (None, None) when this id was never seen in this session."""
+    if not cid:
+        return None, None
+    um = session.messages.filter(role="user", meta__client_id=cid).order_by("id").first()
+    if um is None:
+        return None, None
+    nxt = session.messages.filter(role="user", id__gt=um.id).order_by("id").first()
+    qs = session.messages.filter(role="assistant", id__gt=um.id)
+    if nxt is not None:
+        qs = qs.filter(id__lt=nxt.id)
+    return um, qs.order_by("id").first()
+
+
+def _in_progress(lang):
+    return Response({"ok": False, "code": "in_progress", "reason": "in_progress",
+                     "detail": pick(lang, "আগের পাঠানো উত্তরটি তৈরি হচ্ছে — এক মুহূর্ত।",
+                                    "Your earlier send is still being answered — one moment.")},
+                    status=status.HTTP_409_CONFLICT)
+
+
+def _gate(request, session, text, lang):
+    """Before a new turn: replay an already answered client_id, report one
+    still in flight, or refuse a burst. Returns (response | None, cid,
+    replay_assistant | None). A crisis message is never rate-limited."""
+    cid = G.client_id(request)
+    um, asst = _find_turn(session, cid)
+    if um is not None:
+        if asst is not None:
+            return None, cid, asst
+        return _in_progress(lang), cid, None
+    from .agentcore import crisis_guard as CG
+    if not CG.detect(text)["crisis"]:
+        wait = G.burst_retry_after(request.user, session.source or "ai")
+        if wait:
+            resp = Response(G.rate_limited_body(lang, wait),
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+            resp["Retry-After"] = str(wait)
+            return resp, cid, None
+    return None, cid, None
+
+
+def _send_payload(asst, replayed=False):
+    meta = asst.meta or {}
+    out = {
+        "message": _msg_row(asst),
+        "cards": meta.get("cards", []),
+        "ai_used": meta.get("source") == "ai",
+        "ai_enabled": ai.key_present(),
+    }
+    if replayed:
+        out["replayed"] = True
+    return out
+
+
+def _sse(reply, asst, cards, meta, replayed=False):
+    import json as _j
+
+    def gen():
+        # chunk the final text into SSE "token" events (~120 chars each).
+        step = 120
+        for i in range(0, len(reply), step):
+            piece = reply[i:i + step]
+            # aivoice: "chunk" is the key the app reads (it read only
+            # chunk/value, so a "text"-only token rendered as an EMPTY
+            # reply); "text" stays for older readers.
+            yield "event: token\ndata: " + _j.dumps(
+                {"chunk": piece, "text": piece}) + "\n\n"
+        done = {"message_id": asst.id, "cards": cards,
+                "ai_used": meta.get("source") == "ai",
+                "source": meta.get("source"),
+                # aivoice: the full reply too, so a client that missed a
+                # token still shows the whole answer.
+                "text": reply,
+                # aibar: credits taken / balance / honest flags per message
+                "meta": {k: meta[k] for k in _PUBLIC_META if k in meta}}
+        if replayed:
+            done["replayed"] = True
+        yield "event: done\ndata: " + _j.dumps(done) + "\n\n"
+
+    resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
+    resp["Cache-Control"] = "no-cache"
+    resp["X-Accel-Buffering"] = "no"
+    return resp
+
+
+# meta keys the app may read on a reply (never cost_usd internals beyond these)
+_PUBLIC_META = ("source", "model", "credits", "balance", "free_quota", "text_cut",
+                "money_grounding", "ai_unavailable", "level", "crisis")
 
 # ---------------------------------------------------------------------------
 # GET /chat/status — aivoice: is keyed AI usable right now? (honest no-key state)
@@ -372,8 +494,15 @@ class ChatSendView(APIView):
                 {"detail": pick(lang, "কিছু লিখুন।", "Type something.")},
                 status=status.HTTP_400_BAD_REQUEST)
 
+        stop, cid, replay = _gate(request, s, text, lang)
+        if stop is not None:
+            return stop
+        if replay is not None:       # aibar: same client_id -> same answer, no charge
+            return Response(_send_payload(replay, replayed=True))
+
         first = not s.messages.filter(role="user").exists()
-        user_msg = ChatMessage.objects.create(session=s, role="user", text=text)
+        user_msg = ChatMessage.objects.create(session=s, role="user", text=text,
+                                              meta={"client_id": cid} if cid else {})
         if first:
             s.derive_title(text)
 
@@ -421,8 +550,16 @@ class ChatStreamView(APIView):
                 {"detail": pick(lang, "কিছু লিখুন।", "Type something.")},
                 status=status.HTTP_400_BAD_REQUEST)
 
+        stop, cid, replay = _gate(request, s, text, lang)
+        if stop is not None:
+            return stop
+        if replay is not None:       # aibar: same client_id -> same answer, no charge
+            rm = replay.meta or {}
+            return _sse(replay.text, replay, rm.get("cards", []), rm, replayed=True)
+
         first = not s.messages.filter(role="user").exists()
-        user_msg = ChatMessage.objects.create(session=s, role="user", text=text)
+        user_msg = ChatMessage.objects.create(session=s, role="user", text=text,
+                                              meta={"client_id": cid} if cid else {})
         if first:
             s.derive_title(text)
         history = _history_for(s, upto_id=user_msg.id)
@@ -437,35 +574,32 @@ class ChatStreamView(APIView):
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()
-
-        def gen():
-            import json as _j
-            # chunk the final text into SSE "token" events (~120 chars each).
-            step = 120
-            for i in range(0, len(reply), step):
-                piece = reply[i:i + step]
-                # aivoice: "chunk" is the key the app reads (it read only
-                # chunk/value, so a "text"-only token rendered as an EMPTY
-                # reply); "text" stays for older readers.
-                yield "event: token\ndata: " + _j.dumps(
-                    {"chunk": piece, "text": piece}) + "\n\n"
-            done = {"message_id": asst.id, "cards": cards,
-                    "ai_used": meta.get("source") == "ai",
-                    "source": meta.get("source"),
-                    # aivoice: the full reply too, so a client that missed a
-                    # token still shows the whole answer.
-                    "text": reply}
-            yield "event: done\ndata: " + _j.dumps(done) + "\n\n"
-
-        resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
-        resp["Cache-Control"] = "no-cache"
-        resp["X-Accel-Buffering"] = "no"
-        return resp
+        # aibar honest limit: the reply is complete (and has passed every
+        # guard: action claims, medical, invented money) BEFORE the first
+        # token is sent — guarded text only, never raw provider tokens.
+        return _sse(reply, asst, cards, meta)
 
 
 # ---------------------------------------------------------------------------
 # POST /chat/sessions/<id>/regenerate  — re-answer the last user turn
 # ---------------------------------------------------------------------------
+def _regen_wait(user, session):
+    """Regenerates replace the reply (no new user turn), so they are counted
+    on the AI usage log: at most the chat's per-minute rate of AI chat calls
+    in the last minute."""
+    try:
+        from datetime import timedelta
+        from django.conf import settings as _s
+        from .models import AIUsage
+        per_min = int(getattr(_s, "AI_CHAT_RATE_PER_MIN", 10))
+        since = timezone.now() - timedelta(seconds=60)
+        n = AIUsage.objects.filter(user=user, created_at__gte=since,
+                                   feature__startswith="chat").count()
+        return 60 if per_min > 0 and n >= per_min else 0
+    except Exception:  # noqa: BLE001
+        return 0
+
+
 class ChatRegenerateView(APIView):
     """Re-answer the last user turn, replacing the last assistant message. An
     optional {edit} first replaces the last USER message text (edit+regenerate)."""
@@ -479,6 +613,15 @@ class ChatRegenerateView(APIView):
             return Response(
                 {"detail": pick(lang, "আগে একটি বার্তা পাঠান।", "Send a message first.")},
                 status=status.HTTP_400_BAD_REQUEST)
+        # aibar: regenerate is an AI call too — the same burst limit (counted
+        # on stored turns, so a regenerate loop is bounded by the hour cap of
+        # the chat's turns plus this check on recent AI answers).
+        wait = _regen_wait(u, s)
+        if wait:
+            resp = Response(G.rate_limited_body(lang, wait),
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+            resp["Retry-After"] = str(wait)
+            return resp
 
         edit = request.data.get("edit")
         old_text = last_user.text
