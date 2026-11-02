@@ -34,7 +34,11 @@ import '../widgets/permission_reason.dart';
 /// All strings via AppLocalizations. Bangla digits via the locale-digit helper
 /// (code points) so no Bangla literal lives in this file.
 class EmergencyScreen extends StatefulWidget {
-  const EmergencyScreen({super.key});
+  const EmergencyScreen({super.key, this.startAddContact = false});
+
+  /// emhub: opened from the Emergency hub's "add numbers" step after an SOS —
+  /// the My Circle picker opens as soon as the card has loaded.
+  final bool startAddContact;
   @override
   State<EmergencyScreen> createState() => _EmergencyScreenState();
 }
@@ -147,7 +151,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       // and empty state shows if we didn't.
     }
     if (mounted) setState(() => _loading = false);
+    if (mounted && widget.startAddContact && !_addOpened) {
+      _addOpened = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _addContact();
+      });
+    }
   }
+
+  bool _addOpened = false; // emhub: the picker opens once, not on every reload
 
   Future<void> _save() async {
     final t = AppLocalizations.of(context);

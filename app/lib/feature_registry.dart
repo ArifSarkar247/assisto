@@ -182,6 +182,7 @@ const Map<String, String> kRouteFeature = {
   'safety': 'safe_journey',
   'emergency': 'emergency',
   'voice_sos': 'emergency',
+  'emergency_hub': 'emergency',
   'scam': 'scam_check',
   'fall_detect': 'fall_detect',
   'lost_stolen': 'anti_theft',
