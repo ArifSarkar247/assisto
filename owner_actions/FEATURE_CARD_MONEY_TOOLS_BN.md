@@ -78,3 +78,12 @@
 6. **খরচ ভাগাভাগি / মেস / সমিতি / কাজের লোক** → "My Circle থেকে" বোতাম → ফোন খ-এর মানুষটা এক ট্যাপে নাম+নম্বরসহ আসে কিনা।
 7. **বাড়ি ভাড়া** → ইউনিট যোগ করে ভাড়ার দিন দিন → পরের মাসের সেই দিন সকালে নোটিফিকেশন (সময় এগিয়ে পরীক্ষা করা যায়)।
 8. **অফার** → নেট বন্ধ করে খুলুন → "আবার চেষ্টা" বোতাম আছে কিনা।
+
+## ৮. মালিকের এক ধাপ (সরকারি বাজারদর চালু করতে)
+
+`/etc/cron.d/assisto-app`-এ এই এক লাইন যোগ করুন (প্রতিদিন দুপুর ১:৪০-এ টিসিবির তালিকা আনে; না বসালে অ্যাপ সৎভাবে "এখনো আনা হয়নি" দেখায়):
+
+```
+40 13 * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-tcb-prices-fetch.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py tcb_prices_fetch >> /home/ubuntu/assisto/backend/logs/tcb_prices_fetch.log 2>&1
+```
+যাচাই: `cd /home/ubuntu/assisto/backend && ../.venv/bin/python manage.py tcb_prices_fetch` → `updated date=… items=69` এর মতো লাইন। (টিসিবির সাইটের সার্টিফিকেট-চেইন অসম্পূর্ণ — তাই শুধু তালিকা-পাতা যাচাই ছাড়া পড়া হয়, এক্সেল ফাইল নিজে TLS যাচাইসহ, নির্দিষ্ট হোস্ট থেকেই।)
