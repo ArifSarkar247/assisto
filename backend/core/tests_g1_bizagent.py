@@ -692,7 +692,10 @@ class CommentDmTests(G1Base):
 
 # ======================================================================= follow-ups / morning
 class FollowupMorningTests(G1Base):
-    def test_followup_once_inside_window_and_opt_out(self):
+    # bizauto: follow-ups now obey the shared night window when the seller set
+    # none — pin "daytime" so the test does not depend on the CI clock
+    @mock.patch("core.logic.msg_guard.in_quiet_hours", return_value=False)
+    def test_followup_once_inside_window_and_opt_out(self, _q):
         self.agent.followups_enabled = True
         self.agent.save()
         self.post_meta(mpayload("Panjabi order korbo", "fu1"))

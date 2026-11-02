@@ -62,9 +62,12 @@ def settings_for(business):
 
 def caps_for(business):
     s = settings_for(business)
-    return MG.effective_caps({"per_customer_day": s.per_customer_day,
+    caps = MG.effective_caps({"per_customer_day": s.per_customer_day,
                               "per_customer_week": s.per_customer_week,
                               "business_daily": s.business_daily}, server_max())
+    # bizauto: + ONE cap across every path (tagada / CRM SMS count too)
+    caps["all_per_customer_day"] = MG.all_cap(cfg())
+    return caps
 
 
 def flag_on(user, play=False):
@@ -671,7 +674,10 @@ def _send_sms(auto, ev, s, now):
     s.text = _text(auto, ev, lang, R.CH_SMS, link=stop_link(s.pk))
     parts = R.sms_segments(s.text)
     owner = auto.business.user
-    ch = billing.charge(owner, "sms", parts, note="retention sms")
+    from . import sms_service
+    floor = sms_service.min_credits_for(ad, parts)
+    ch = (billing.charge(owner, "sms", parts, note="retention sms", min_credits=floor) if floor
+          else billing.charge(owner, "sms", parts, note="retention sms"))
     if not ch["ok"]:
         s.status, s.reason = "blocked", ("insufficient_credits" if ch["reason"] == "insufficient"
                                          else ch["reason"])[:60]
@@ -686,9 +692,9 @@ def _send_sms(auto, ev, s, now):
         return
     s.status = "sent"
     try:
-        c = billing.cfg()
-        row = c["action_costs"].get("sms") or {}
-        billing.record_cost("sms", float(row.get("provider_cost", 0)) * c["usd_bdt"] * parts)
+        # bizauto: the gateway's REAL per-part cost (was the USD estimate)
+        from . import sms_service
+        billing.record_cost("sms", round(parts * sms_service.cost_per_part(ad), 4))
     except Exception:
         pass
 

@@ -257,6 +257,8 @@ _SMS_ERR = {
                              "Not enough credits — an SMS needs credits."),
     "opted_out": (409, "এই গ্রাহক মেসেজ বন্ধ করেছেন (STOP)।", "This customer opted out (STOP)."),
     "quiet_hours": (409, "রাত ৯টা থেকে সকাল ৯টা SMS পাঠানো হয় না।", "No SMS between 9 pm and 9 am."),
+    "customer_daily_cap": (429, "এই গ্রাহক আজ এই দোকান থেকে সর্বোচ্চ মেসেজ পেয়ে গেছেন — কাল আবার পাঠান।",
+                           "This customer already got today's maximum messages from this shop — try tomorrow."),
     "phone_daily_cap": (429, "এই গ্রাহককে আজ আর SMS পাঠানো যাবে না।",
                         "No more SMS to this customer today."),
     "business_daily_cap": (429, "আজকের ব্যবসার SMS সীমা শেষ।", "Today's business SMS limit is reached."),
@@ -357,7 +359,7 @@ class SendSmsView(CrmErrorMixin, APIView):
         if not _known(p):
             return _sms_err(request, "not_your_customer")
         lang = _lang(request)
-        final = SP.sms_text(scope, text, lang)
+        final = SP.sms_text(scope, text, lang, p.key or p.phone)
         q = SP.sms_quote(final)
         shown = request.data.get("credits")
         if shown is not None and C._int(shown, -1) != q["credits"]:

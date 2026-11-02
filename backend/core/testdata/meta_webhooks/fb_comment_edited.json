@@ -1,0 +1,9 @@
+{"object": "page", "entry": [{"id": "__PAGE__", "time": __NOW__, "changes": [{"field": "feed", "value": {
+  "from": {"id": "7712345678901234", "name": "Rahima Akter"},
+  "message": "Panjabi er dam koto? L size?",
+  "post_id": "__PAGE___123456789012345",
+  "comment_id": "123456789012345_987654321098765",
+  "created_time": __NOW__,
+  "item": "comment",
+  "parent_id": "__PAGE___123456789012345",
+  "verb": "edited"}}]}]}

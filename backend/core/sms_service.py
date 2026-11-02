@@ -84,6 +84,47 @@ def _cost_per_segment(ad, c):
     return float(c["default_cost_per_segment_bdt"])
 
 
+def cost_per_part(ad, c=None):
+    """bizauto: what ONE SMS part really costs us on this gateway (৳)."""
+    return _cost_per_segment(ad, c or cfg())
+
+
+def min_credits_for(ads, parts):
+    """bizauto: credits `parts` SMS parts must cost to keep the 40 % rule on
+    the MOST expensive gateway that may carry them (failover included). 0 =
+    the normal "sms" price already covers it (the usual case)."""
+    from .logic import sms_margin as SM
+    try:
+        from . import billing
+        full = billing.cfg()
+        c = full["sms"]
+        lst = ads if isinstance(ads, (list, tuple)) else [ads]
+        cost = max([_cost_per_segment(a, c) for a in lst if a is not None] or [0.0])
+        need = SM.credits_per_part(cost, SM.cheapest_bdt_per_credit(
+            full["plans"], full["topup_packs"], full["annual_discount_pct"]))
+        have = int((full["action_costs"].get("sms") or {}).get("credits") or 0)
+        return need * max(1, int(parts)) if need > have else 0
+    except Exception:  # noqa: BLE001 — unreadable = the configured price
+        return 0
+
+
+def _all_paths_guard(business, canon, now):
+    """bizauto: one cap across every business→customer path today
+    (retention / crmauto + tagada + CRM SMS) — Owner Admin -> Pricing ->
+    retention -> max_all_per_customer_day."""
+    from .logic import msg_guard as MG
+    from .logic import pricing as P
+    from .logic.business_selling import normalize_phone
+    try:
+        from . import billing
+        cap = MG.all_cap(P.retention_cfg(billing.get_config().data))
+        if MG.all_paths_sent_today(business.pk, normalize_phone(canon), now) >= cap:
+            return "customer_daily_cap"
+    except Exception:  # noqa: BLE001 — never block on a read failure
+        log.warning("sms_service: all-paths cap read failed")
+    return None
+
+
 def caps_for(purpose, c=None):
     c = c or cfg()
     p = _CAP_PREFIX[purpose]
@@ -186,7 +227,7 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
         if business is None:
             return _out(False, "business_required")
         user = user or business.user
-        why = _tagada_guard(business, canon, now)
+        why = _tagada_guard(business, canon, now) or _all_paths_guard(business, canon, now)
         if why:
             _record(purpose, canon, user, business, "blocked", why,
                     segments=si["segments"], encoding=si["encoding"])
@@ -202,7 +243,10 @@ def send_sms(to, text, purpose, *, user=None, business=None, secret="", now=None
     # tagada2: a prepaid send (SMS parts already taken) is never charged twice
     if purpose in _BUSINESS_PURPOSES and not prepaid:
         from . import billing
-        ch = billing.charge(user, "sms", qty=si["segments"], note=purpose + ".sms")
+        floor = min_credits_for(ads, si["segments"])
+        ch = (billing.charge(user, "sms", qty=si["segments"], note=purpose + ".sms",
+                             min_credits=floor) if floor
+              else billing.charge(user, "sms", qty=si["segments"], note=purpose + ".sms"))
         if not ch.get("ok"):
             reason = "insufficient_credits" if ch.get("reason") == "insufficient" \
                 else (ch.get("reason") or "charge_failed")

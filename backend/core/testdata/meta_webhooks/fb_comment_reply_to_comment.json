@@ -1,0 +1,11 @@
+{"object": "page", "entry": [{"id": "__PAGE__", "time": __NOW__, "changes": [{"field": "feed", "value": {
+  "from": {"id": "7712345678909999", "name": "Nusrat Jahan"},
+  "post": {"status_type": "added_photos", "is_published": true, "updated_time": "2026-11-03T04:12:00+0000",
+           "promotion_status": "inactive", "id": "__PAGE___123456789012345"},
+  "message": "Amaro Panjabi lagbe, price?",
+  "post_id": "__PAGE___123456789012345",
+  "comment_id": "123456789012345_987654321091111",
+  "created_time": __NOW__,
+  "item": "comment",
+  "parent_id": "123456789012345_987654321098765",
+  "verb": "add"}}]}]}

@@ -1617,6 +1617,12 @@ def handle_comment(ch, e):
                            meta={"comment_id": e.get("comment_id"), "post_id": e.get("post_id")})
     if not agent.comment_dm:
         return "comment_dm_off"
+    # bizauto: a person who said STOP (in Messenger / IG / an SMS link) gets
+    # no private reply to a comment either — saved for the seller's inbox only
+    from .logic import msg_guard as MG
+    uid = str(e.get("user_id") or "")
+    if t.opted_out or (uid and MG.is_opted_out(ch.business_id, "psid:" + uid)):
+        return "opted_out"
     # salesbar: until Meta grants the comment permissions (owner ticks them in
     # Owner Admin) the comment is only SAVED for the seller's inbox — no Graph
     # call that would fail, no "could not send" push

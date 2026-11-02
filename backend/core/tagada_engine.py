@@ -64,6 +64,8 @@ REASONS = {
     "opted_out": (409, "এই গ্রাহক মেসেজ বন্ধ করেছেন (STOP)।", "This customer opted out (STOP)."),
     "quiet_hours": (409, "রাত ৯টা থেকে সকাল ৯টা Assisto নিজে কিছু পাঠায় না — চাইলে WhatsApp দিয়ে পাঠান।",
                     "Assisto sends nothing itself between 9 pm and 9 am — use WhatsApp if you want."),
+    "customer_daily_cap": (429, "এই গ্রাহক আজ এই দোকান থেকে সর্বোচ্চ মেসেজ পেয়ে গেছেন — কাল আবার পাঠান।",
+                           "This customer already got today's maximum messages from this shop — try tomorrow."),
     "phone_daily_cap": (429, "এই গ্রাহককে আজ আর SMS পাঠানো যাবে না।",
                         "No more SMS to this customer today."),
     "business_daily_cap": (429, "আজকের ব্যবসার SMS সীমা শেষ।", "Today's business SMS limit is reached."),
@@ -237,6 +239,20 @@ def prefetch(prof, parties, now=None):
             "opted": opted}
 
 
+def sms_final(prof, canon, text):
+    """bizauto: what an Assisto (gateway) tagada SMS really carries — the
+    text + a signed one-tap STOP link (an SMS reply never reaches us, so
+    "reply STOP" would be a lie). Parts are counted on THIS text."""
+    from .logic import msg_guard as MG
+    from .logic.business_selling import normalize_phone
+    t = str(text or "")
+    if not t:
+        return t
+    lang = "bn" if any("\u0980" <= ch <= "\u09ff" for ch in t) else "en"
+    link = MG.stop_link(prof.pk, normalize_phone(canon)) if prof is not None else ""
+    return t + "\n" + MG.stop_footer(lang, "sms", link)
+
+
 def facts(prof, party, *, owner=True, text="", now=None, wallet=None, cust="?", pre=None):
     """Everything decide() needs for ONE customer, from the DB (or `pre`)."""
     from . import sms_segments, sms_service, sms_wallet
@@ -252,7 +268,7 @@ def facts(prof, party, *, owner=True, text="", now=None, wallet=None, cust="?", 
             cust = verified_user_for(canon)
         muted, blocked = pref(prof, cust)
         sent = sent_today(prof, phone_key(party), now)
-    parts = max(1, sms_segments.segments(text)) if text else 1
+    parts = max(1, sms_segments.segments(sms_final(prof, canon, text))) if text else 1
     w = wallet if wallet is not None else (sms_wallet.state(prof.user, now)
                                            if owner and prof.user_id else None)
     return {"canon": canon, "cust": cust, "assisto_user": cust is not None,
@@ -396,7 +412,8 @@ def send(prof, party, *, channel, owner, preset="polite", pay_hint=None, lang="b
     if res is None:
         unclaim(row)
         return reason_body("no_balance", lang, sms=sms_offer(prof, owner, now))
-    r = sms_service.send_sms(party.phone, text, "tagada", user=prof.user, business=prof,
+    r = sms_service.send_sms(party.phone, sms_final(prof, canon, text), "tagada",
+                             user=prof.user, business=prof,
                              now=now, prepaid=True)
     if not r["ok"]:
         sms_wallet.release(prof.user, res, now)

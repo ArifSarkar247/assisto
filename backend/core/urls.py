@@ -1105,9 +1105,13 @@ urlpatterns[:0] = [
 
 # ---- p1-bizagent ---- Business AI Agent (webhooks are public: signature = auth)
 from . import views_bizagent as p1  # noqa: E402
+from . import meta_deletion as _metadel  # noqa: E402
 urlpatterns += [
     path("bizagent/webhook/meta", p1.webhook_meta),
     path("bizagent/webhook/whatsapp", p1.webhook_whatsapp),
+    # bizauto: Meta App Review — Data Deletion Request Callback + status page
+    path("bizagent/meta/data-deletion", _metadel.data_deletion),
+    path("bizagent/meta/data-deletion/status", _metadel.data_deletion_status),
     path("bizagent/setup", p1.SetupView.as_view()),
     path("bizagent/settings", p1.SettingsView.as_view()),
     path("bizagent/channels", p1.ChannelsView.as_view()),

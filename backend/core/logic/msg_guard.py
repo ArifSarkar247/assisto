@@ -66,19 +66,66 @@ def local(now):
     return now.astimezone(DHAKA)
 
 
-def in_quiet_hours(now):
+# bizauto: the window is Owner-Admin editable (Pricing -> "retention":
+# quiet_start_hour 20-22, quiet_end_hour 8-10), so it ALWAYS covers at least
+# 22:00-08:00 Dhaka. Read lazily + cached a minute; any failure = defaults.
+QUIET_START_BOUNDS = (20, 22)
+QUIET_END_BOUNDS = (8, 10)
+_WIN_CACHE = {"win": None, "at": 0.0}
+_WIN_TTL_S = 60.0
+
+
+def quiet_window_from(cfg_block=None):
+    """(start_min, end_min) from a normalized pricing "retention" block,
+    clamped so the window always covers 22:00-08:00. Pure."""
+    b = cfg_block if isinstance(cfg_block, dict) else {}
+    sh = max(QUIET_START_BOUNDS[0], min(QUIET_START_BOUNDS[1],
+                                        _int(b.get("quiet_start_hour"), QUIET_START_MIN // 60)))
+    eh = max(QUIET_END_BOUNDS[0], min(QUIET_END_BOUNDS[1],
+                                      _int(b.get("quiet_end_hour"), QUIET_END_MIN // 60)))
+    return sh * 60, eh * 60
+
+
+def reset_window_cache():
+    _WIN_CACHE["win"], _WIN_CACHE["at"] = None, 0.0
+
+
+def quiet_window():
+    """The live (start_min, end_min). Never raises."""
+    import time
+    if _WIN_CACHE["win"] is not None and time.monotonic() - _WIN_CACHE["at"] < _WIN_TTL_S:
+        return _WIN_CACHE["win"]
+    try:
+        from .. import billing
+        win = quiet_window_from(billing.cfg().get("retention"))
+    except Exception:
+        return QUIET_START_MIN, QUIET_END_MIN
+    _WIN_CACHE["win"], _WIN_CACHE["at"] = win, time.monotonic()
+    return win
+
+
+def quiet_label(window=None):
+    """{"start": "21:00", "end": "09:00"} for the screens."""
+    a, b = window or quiet_window()
+    return {"start": "%02d:%02d" % (a // 60, a % 60), "end": "%02d:%02d" % (b // 60, b % 60)}
+
+
+def in_quiet_hours(now, window=None):
+    a, b = window or quiet_window()
     m = local(now)
     mod = m.hour * 60 + m.minute
-    return mod >= QUIET_START_MIN or mod < QUIET_END_MIN
+    return mod >= a or mod < b
 
 
-def next_allowed_at(now):
-    """`now` when outside quiet hours, else the next 09:00 Dhaka."""
-    if not in_quiet_hours(now):
+def next_allowed_at(now, window=None):
+    """`now` when outside quiet hours, else the next end of the window."""
+    win = window or quiet_window()
+    if not in_quiet_hours(now, win):
         return now
     m = local(now)
-    day = m.date() if m.hour < 9 else (m + timedelta(days=1)).date()
-    return datetime(day.year, day.month, day.day, 9, 0, tzinfo=DHAKA)
+    end_h, end_m = divmod(win[1], 60)
+    day = m.date() if (m.hour * 60 + m.minute) < win[1] else (m + timedelta(days=1)).date()
+    return datetime(day.year, day.month, day.day, end_h, end_m, tzinfo=DHAKA)
 
 
 def day_start(now):
@@ -132,7 +179,7 @@ def validate_owner_caps(owner_caps, server_max):
 
 # ===================================================================== decide
 def decide(*, opted_out, now, sent_customer_day, sent_customer_week,
-           sent_business_day, caps, transactional=False):
+           sent_business_day, caps, transactional=False, sent_all_day=None):
     """May ONE automated message go to this customer right now?
     reason ∈ ok | opted_out | quiet_hours | business_daily_cap |
     customer_daily_cap | customer_weekly_cap. retry_at = when it is worth
@@ -145,6 +192,10 @@ def decide(*, opted_out, now, sent_customer_day, sent_customer_week,
     if sent_business_day >= caps["business_daily"]:
         return Verdict(False, "business_daily_cap", tomorrow)
     if sent_customer_day >= caps["per_customer_day"]:
+        return Verdict(False, "customer_daily_cap", tomorrow)
+    # bizauto: EVERY business message to this customer today (retention +
+    # tagada / CRM SMS ...) under one more cap, when the caller counted them
+    if sent_all_day is not None and sent_all_day >= caps.get("all_per_customer_day", 10 ** 6):
         return Verdict(False, "customer_daily_cap", tomorrow)
     if not transactional and sent_customer_week >= caps["per_customer_week"]:
         return Verdict(False, "customer_weekly_cap", tomorrow)
@@ -305,7 +356,103 @@ def gate(business_id, key, *, now, caps, extra_day=0, extra_week=0,
     `opted_out_set` = opted_out_keys(business_id) precomputed for a batch."""
     d, w, b = sent_counts(business_id, key, now)
     out = (key in opted_out_set) if opted_out_set is not None else is_opted_out(business_id, key)
+    all_day = None
+    if "all_per_customer_day" in caps:
+        all_day = d + other_paths_sent_today(business_id, key, now) + extra_day
     return decide(opted_out=out, now=now,
                   sent_customer_day=d + extra_day, sent_customer_week=w + extra_week,
                   sent_business_day=b + extra_business, caps=caps,
-                  transactional=transactional)
+                  transactional=transactional, sent_all_day=all_day)
+
+
+# ===================================================================== bizauto
+# One cap across EVERY path a business reaches its customer by (retention /
+# crmauto sends + tagada / CRM Assisto SMS), and a signed STOP link that works
+# for any of them (an SMS reply never reaches us: one-way sender IDs).
+BUSINESS_SMS_PURPOSES = ("tagada", "crm")
+DEFAULT_ALL_PER_CUSTOMER_DAY = 2
+
+
+def all_cap(cfg_block=None):
+    """Owner-Admin "retention" -> max_all_per_customer_day (1-3)."""
+    b = cfg_block if isinstance(cfg_block, dict) else {}
+    return max(1, min(3, _int(b.get("max_all_per_customer_day"), DEFAULT_ALL_PER_CUSTOMER_DAY)))
+
+
+def _last10(key):
+    digits = "".join(ch for ch in str(key or "") if ch.isdigit())
+    return digits[-10:] if len(digits) >= 10 else ""
+
+
+def other_paths_sent_today(business_id, key, now):
+    """Business SMS (tagada / crm) actually sent to this customer today."""
+    from ..models import SmsLog
+    tail = _last10(key)
+    if not tail or str(key).startswith("psid:"):
+        return 0
+    return SmsLog.objects.filter(business_id=business_id, purpose__in=BUSINESS_SMS_PURPOSES,
+                                 status="sent", created_at__gte=day_start(now),
+                                 phone__endswith=tail).count()
+
+
+def all_paths_sent_today(business_id, key, now):
+    """Every business→customer message sent today, all paths."""
+    from ..models import RetentionSend
+    tail = _last10(key)
+    n = RetentionSend.objects.filter(business_id=business_id, status__in=SENT_STATES,
+                                     created_at__gte=day_start(now))
+    n = n.filter(audience_key=key).count()
+    return n + (other_paths_sent_today(business_id, key, now) if tail else 0)
+
+
+# ---- signed STOP link for any business message (no DB row needed) -----------
+def _b36(n):
+    chars, out = "0123456789abcdefghijklmnopqrstuvwxyz", ""
+    n = int(n)
+    while True:
+        n, r = divmod(n, 36)
+        out = chars[r] + out
+        if not n:
+            return out
+
+
+def _stop_sig(business_id, key):
+    import hashlib
+    import hmac
+    from django.conf import settings
+    k = (settings.SECRET_KEY + ":biz-stop").encode()
+    return hmac.new(k, ("%s|%s" % (business_id, key)).encode(), hashlib.sha256).hexdigest()[:10]
+
+
+def stop_token(business_id, key):
+    """'k<biz b36>x<phone b36>-<sig>' — only for phone keys (01XXXXXXXXX)."""
+    digits = "".join(ch for ch in str(key or "") if ch.isdigit())
+    if len(digits) != 11 or not digits.startswith("0"):
+        return ""
+    return "k%sx%s-%s" % (_b36(business_id), _b36(int(digits)), _stop_sig(business_id, digits))
+
+
+def parse_stop_token(token):
+    """(business_id, key) for a valid token, else None."""
+    import hmac
+    t = str(token or "")
+    if not t.startswith("k") or "-" not in t or "x" not in t:
+        return None
+    try:
+        body, sig = t[1:].split("-", 1)
+        b, p = body.split("x", 1)
+        biz, num = int(b, 36), int(p, 36)
+    except (ValueError, TypeError):
+        return None
+    key = "0%d" % num if num < 10 ** 10 else ""
+    if len(key) != 11 or not hmac.compare_digest(sig, _stop_sig(biz, key)):
+        return None
+    return biz, key
+
+
+def stop_link(business_id, key):
+    """Absolute stop URL (served by retention/u/<token>), '' when unknown."""
+    from django.conf import settings
+    tok = stop_token(business_id, key)
+    base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+    return "%s/api/v1/retention/u/%s" % (base, tok) if (tok and base) else ""

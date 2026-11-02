@@ -32,6 +32,7 @@ from . import payments_cfg as _PAY   # pay1
 from . import billing_cfg as _BILL   # billing-v2
 from . import bizagent as _BA        # p1-bizagent: seller plans
 from . import entitlements as _ENT   # plans-v2
+from . import sms_margin as _SMSM   # bizauto: SMS 40 % floor
 from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
 from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
@@ -127,7 +128,10 @@ _ACTION_DEFAULTS = {
     "video_min":           {"provider_cost": 0.002, "credits": 1},
     "remote_support_min":  {"provider_cost": 0.004, "credits": 2},
     "ivr_call":            {"provider_cost": 0.006, "credits": 3},
-    "sms":                 {"provider_cost": 0.002, "credits": 1},
+    # bizauto: 2 credits per SMS part — the 40 % rule on the cheapest credit
+    # (core/logic/sms_margin; normalize() lifts it further if the owner's SMS
+    # cost or credit prices ever need more, never lower).
+    "sms":                 {"provider_cost": 0.002, "credits": 2},
     "voice_clone":         {"provider_cost": 0.010, "credits": 5},
     "ai_sales":            {"provider_cost": 0.006, "credits": 3},
     # Shop loss-prevention (Part 4): Business includes 4 edge cameras; each
@@ -205,6 +209,13 @@ _RETENTION_DEFAULTS = {
     "attribution_days": 7,         # a purchase within N days counts for the message
     "max_automations": 10,         # per business
     "max_audience_scan": 5000,     # customers examined per automation per run
+    # bizauto: the shared message-safety knobs (core/logic/msg_guard) used by
+    # EVERY business→customer sender (retention, crmauto, tagada / CRM SMS,
+    # AI-sales follow-ups). Quiet window in Asia/Dhaka hours; the bounds keep
+    # it covering at least 22:00-08:00 whatever the owner types.
+    "quiet_start_hour": 21,        # nothing automated from this hour ...
+    "quiet_end_hour": 9,           # ... until this hour
+    "max_all_per_customer_day": 2, # ALL business messages to one customer / day
 }
 _RETENTION_BOUNDS = {
     "max_per_customer_day": (1, 1),
@@ -213,6 +224,9 @@ _RETENTION_BOUNDS = {
     "attribution_days": (1, 30),
     "max_automations": (1, 20),
     "max_audience_scan": (100, 20000),
+    "quiet_start_hour": (20, 22),
+    "quiet_end_hour": (8, 10),
+    "max_all_per_customer_day": (1, 3),
 }
 
 
@@ -819,15 +833,25 @@ def normalize(data):
                 "credits": max(0, _int(raw.get("credits"), 1)),
             }
 
+    annual_disc = max(0, min(90, _int(d.get("annual_discount_pct"),
+                                      base["annual_discount_pct"])))
+    usd_bdt = max(0.01, _num(d.get("usd_bdt"), base["usd_bdt"]))
+    sms_block = _norm_sms(d.get("sms"), base["sms"])
+    # bizauto: an SMS part can never be sold below the owner's 40 % rule
+    if "sms" in costs:
+        _cost = max(float(sms_block.get("default_cost_per_segment_bdt") or 0),
+                    costs["sms"]["provider_cost"] * usd_bdt)
+        costs["sms"]["credits"] = max(costs["sms"]["credits"], _SMSM.credits_per_part(
+            _cost, _SMSM.cheapest_bdt_per_credit(plans, packs, annual_disc)))
+
     return {
         "plans": plans,
         "topup_packs": packs,
-        "annual_discount_pct": max(0, min(90, _int(d.get("annual_discount_pct"),
-                                                   base["annual_discount_pct"]))),
+        "annual_discount_pct": annual_disc,
         "action_costs": costs,
         "margin": max(0.0, _num(d.get("margin"), base["margin"])),
         "credit_bdt": max(0.01, _num(d.get("credit_bdt"), base["credit_bdt"])),
-        "usd_bdt": max(0.01, _num(d.get("usd_bdt"), base["usd_bdt"])),
+        "usd_bdt": usd_bdt,
         "play_fee": max(0.0, min(0.95, _num(d.get("play_fee"), base["play_fee"]))),
         "gateway_fee": max(0.0, min(0.95, _num(d.get("gateway_fee"),
                                                base["gateway_fee"]))),
@@ -852,7 +876,7 @@ def normalize(data):
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "otp": _norm_otp(d.get("otp"), base["otp"]),
-        "sms": _norm_sms(d.get("sms"), base["sms"]),          # smsotp
+        "sms": sms_block,                                     # smsotp
         "email": _norm_email(d.get("email"), base["email"]),  # smsotp
         "vehicle": _norm_vehicle(d.get("vehicle"), base["vehicle"]),
         "photo_studio": _PS.normalize_cfg(d.get("photo_studio")),
