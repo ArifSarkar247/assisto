@@ -196,7 +196,7 @@ class FakeCctvTeam extends CctvTeamSource {
 
   @override
   Future<Map<String, dynamic>> watchReport(int postId, String reason, {bool block = false}) async {
-    reports.add('::');
+    reports.add('$postId:$reason:$block');
     return {'ok': true, 'hidden_for_all': false};
   }
 
