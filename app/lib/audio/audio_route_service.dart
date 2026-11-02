@@ -340,12 +340,17 @@ class AudioRouteService extends ChangeNotifier {
   /// lease to keep — Android sends media to the connected headset by itself.
   /// Only clears a stale call / mic session so it never plays on the
   /// earpiece. Never touches Android when nothing is open (the common case).
-  Future<void> preparePlayback(AudioUse use) => _serial(() async {
+  Future<void> preparePlayback(AudioUse use) {
+    // fast path (almost always): nothing open -> nothing to do, no queueing
+    // behind other route work, no platform call
+    if (inCall || !_commOpen) return Future<void>.value();
+    return _serial(() async {
         log.add('play:${use.name}');
         if (inCall || !_commOpen) return;
         if (_leases.values.any((x) => micUses.contains(x.use))) return;
         await _restoreNow();
       });
+  }
 
   Future<void> _release(AudioRouteLease l) => _serial(() async {
         _leases.remove(l.id);
@@ -385,8 +390,10 @@ class AudioRouteService extends ChangeNotifier {
   }
 
   Future<void> _openComm() async {
-    _watch();
-    if (_commOpen) return;
+    if (_commOpen) {
+      _watch();
+      return;
+    }
     _commOpen = true;
     await _markStale(true);
     try {
@@ -394,6 +401,9 @@ class AudioRouteService extends ChangeNotifier {
     } catch (e) {
       _err('begin', e);
     }
+    // after the first native answer: no event stream on a build/test
+    // without the native channel
+    _watch();
   }
 
   Future<void> _restoreNow() async {
@@ -429,12 +439,17 @@ class AudioRouteService extends ChangeNotifier {
     final now = {for (final o in outputs) o.route};
     final arrived = now.difference(before).where(isHeadset).toList();
     if (arrived.isNotEmpty) {
-      // a headset CONNECTED mid-call: it takes over (phone-dialer behaviour)
+      // a headset CONNECTED mid-call: it takes over (phone-dialer
+      // behaviour) — the one that just arrived, even over another headset
       log.add('connected:${arrived.map((r) => r.name).join(',')}');
-      userRoute = null;
       if (arrived.contains(AudioRoute.bluetooth)) {
         await _maybeAskBluetooth();
       }
+      final take = arrived.contains(AudioRoute.bluetooth) && !bluetoothDenied
+          ? AudioRoute.bluetooth
+          : arrived.firstWhere((r) => r != AudioRoute.bluetooth,
+              orElse: () => AudioRoute.bluetooth);
+      userRoute = take == AudioRoute.bluetooth && bluetoothDenied ? null : take;
     }
     final gone = before.difference(now).where(isHeadset).toList();
     if (gone.isNotEmpty) log.add('disconnected:${gone.map((r) => r.name).join(',')}');
@@ -545,11 +560,17 @@ class MethodChannelAudioRoutePlatform implements AudioRoutePlatform {
   bool get _android =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
+  /// null = not asked yet; false = no native channel (old build / tests).
+  bool? _native;
+
   Future<T?> _call<T>(String method, [Map<String, dynamic>? args]) async {
-    if (!_android) return null;
+    if (!_android || _native == false) return null;
     try {
-      return await _m.invokeMethod<T>(method, args);
+      final r = await _m.invokeMethod<T>(method, args);
+      _native = true;
+      return r;
     } on MissingPluginException {
+      _native = false;
       return null;
     } on PlatformException {
       return null;
@@ -601,7 +622,7 @@ class MethodChannelAudioRoutePlatform implements AudioRoutePlatform {
 
   @override
   Stream<void> get changes {
-    if (!_android) return const Stream<void>.empty();
+    if (!_android || _native != true) return const Stream<void>.empty();
     return _changes ??= _e
         .receiveBroadcastStream()
         .handleError((Object _) {})

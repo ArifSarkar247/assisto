@@ -47,7 +47,10 @@ void main() {
       expect(c.turnAvailable, isTrue);
       expect(s.eventLog, ['place:7:voice']);
       expect(m.log,
-          containsAllInOrder(['open:audio', 'speaker:false', 'peer', 'offer']));
+          containsAllInOrder(['open:audio', 'peer', 'offer']));
+      // audioroute (owner 28 Oct): the old forced 'speaker:false' after open
+      // pinned the earpiece over a connected Bluetooth/wired headset
+      expect(m.log.where((l) => l.startsWith('speaker:')), isEmpty);
       expect(m.ice!.last['urls'], ['turn:turn.example:3478?transport=udp']);
       expect(s.signals.first.$1, 'offer');
       expect(snd.log, isNot(contains('ringback')),
