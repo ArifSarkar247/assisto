@@ -35145,5 +35145,74 @@
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
   "cxatEvHealth": "Camera problem",
-  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)",
+  "astdTitle": "Account status",
+  "astdGoodTitle": "Your account is in good standing",
+  "astdGoodBody": "Nothing is limited. If our team ever limits something, you will see the reason here and can appeal in one tap.",
+  "astdBannedTitle": "This account is banned",
+  "astdBannedBody": "Our team closed this account for breaking the community rules. The reason is below. If you think this is a mistake, send an appeal.",
+  "astdSuspendedTitle": "This account is paused",
+  "astdSuspendedUntil": "Paused until {date}",
+  "@astdSuspendedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "astdSuspendedBody": "You can sign in again after this date. The reason is below. If you think this is a mistake, send an appeal.",
+  "astdLimitedTitle": "Some features are limited",
+  "astdLimitedBody": "Everything else works as usual. Each limit shows its reason and end date.",
+  "astdBlockedNote": "You cannot sign in right now. Your appeal reaches our team without signing in.",
+  "astdLimitsHead": "Limited now",
+  "astdHistoryHead": "Decisions on your account",
+  "astdLimitStrangerMsg": "Messaging people you are not connected with",
+  "astdLimitChannelPost": "Posting in channels",
+  "astdLimitCommunityJoin": "Joining communities",
+  "astdActWarn": "Warning",
+  "astdActRestrict": "Features limited",
+  "astdActSuspend": "Account paused",
+  "astdActBan": "Account banned",
+  "astdActRemoveContent": "Reported content removed",
+  "astdActForceLogout": "Signed out on all devices",
+  "astdActUnblock": "Account active again",
+  "astdActOther": "Decision",
+  "astdReason": "Reason: {reason}",
+  "@astdReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "astdUntil": "Until {date}",
+  "@astdUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "astdNoEnd": "Until our team lifts it",
+  "astdAppealBtn": "Appeal",
+  "astdAppealTitle": "Appeal this decision",
+  "astdAppealHelp": "Tell us in your own words why this decision is wrong. A person from our team reads every appeal and replies here.",
+  "astdAppealField": "Your appeal",
+  "astdAppealSend": "Send appeal",
+  "astdAppealTooShort": "Please write at least 10 characters.",
+  "astdAppealFailed": "The appeal could not be sent. Check the internet and try again.",
+  "astdAppealSent": "Appeal sent. You will see the answer on this page.",
+  "astdAppealOpen": "Appeal sent — waiting for our team",
+  "astdAppealUpheld": "Appeal answered — the decision stays",
+  "astdAppealLifted": "Appeal accepted — the decision was lifted",
+  "astdAppealAnswer": "Our answer: {note}",
+  "@astdAppealAnswer": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "astdLoadFailed": "Could not load your account status. Check the internet and try again.",
+  "astdRetry": "Try again"
 }
