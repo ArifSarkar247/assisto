@@ -179,7 +179,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
           children: [
             Text(widget.locationOnly ? t.sjlReqIntro : t.gjAskIntro,
                 style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
-            h(t.gjWho),
+            h(widget.locationOnly ? t.sjlReqWho : t.gjWho),
             if (widget.people.isEmpty) ...[
               Text(t.journeyNoWatchers),
               const SizedBox(height: Gap.sm),

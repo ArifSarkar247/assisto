@@ -307,9 +307,8 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
 
   Widget _liveBody(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text(t.sjlSubLive, style: AType.bodyLarge),
-      if (_active != null) ...[const SizedBox(height: Gap.sm), _activeBanner(t)],
-      const SizedBox(height: Gap.md),
+      // the card above already says what Live Location does
+      if (_active != null) ...[_activeBanner(t), const SizedBox(height: Gap.md)],
       _grid([
         _bigButton('sjl_btn_trip', Icons.route_rounded, t.sjlBtnTrip, t.sjlHintTrip,
             () => _go(const JourneyStartScreen())),
