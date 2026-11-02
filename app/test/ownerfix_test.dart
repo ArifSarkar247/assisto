@@ -174,6 +174,7 @@ void main() {
 
   group('one feature, every entry point -> the panel', () {
     testWidgets('old route alias + chat phrase + push', (t) async {
+      FeatureFlags.instance.debugOverride = {'blood_donors': true};
       await t.pumpWidget(const SizedBox());
       final ctx = t.element(find.byType(SizedBox));
       expect(ChatNav.routes['blood_donor']!(ctx), isA<BloodHubScreen>());
@@ -183,7 +184,6 @@ void main() {
         expect(PushRouting.targetFor(PushPayload({'kind': 'x', 'route': r}))?.chatNavRoute,
             'blood_panel', reason: r);
       }
-      FeatureFlags.instance.debugOverride = {'blood_donors': true};
       expect(ChatNav.detectRoute('open blood donor'), 'blood_panel');
     });
 
@@ -194,15 +194,16 @@ void main() {
               for (final i in s.items) i.label(l),
           ];
       expect(labels(), isNot(contains(l.bpTitle)));
-      expect(labels(), isNot(contains(l.bloodTitle)));
       // owner / staff / allow-listed tester: the server sends it as a preview
       FeatureFlags.instance.applyForTest({
         'features': {'blood_donors': true},
         'preview': ['blood_donors'],
       });
       expect(FeatureFlags.instance.isOn('blood_donors'), isTrue);
+      // exactly ONE blood donor entry (the old registry had the same English
+      // name "Blood donors" — two entries would count 2 here)
       expect(labels().where((x) => x == l.bpTitle).length, 1);
-      expect(labels(), isNot(contains(l.bloodTitle)), reason: 'old registry gone');
+      expect(labels().where((x) => x == l.bloodTitle).length, 1);
       // ...but the owner's home / Discover match normal users (preview = off)
       expect(FeatureFlags.instance.homeTileAllowed('blood_panel'), isFalse);
       expect(renderableDiscover(kDiscoverFallback).map((c) => c.key),

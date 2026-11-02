@@ -320,6 +320,7 @@ class DiscoverOrderTests(APITestCase):
                              format="json")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.keys()[0], "journey")
+        self.client.force_authenticate(self.owner)
         r = self.client.post("/api/v1/admin/discover/cards",
                              {"type": "FEATURE", "title_bn": "আমার কার্ড", "title_en": "My card",
                               "route": "dest_alarm", "icon": "alarm"}, format="json")

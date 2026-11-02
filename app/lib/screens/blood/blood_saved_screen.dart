@@ -11,6 +11,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/money_circle_pick.dart' show CirclePickButton;
 import 'bp_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// ownerfix (owner 3 Nov 02:55): "My saved donors" inside the ONE Blood donor
 /// panel. It replaces the old personal registry screen (removed): every donor
@@ -335,6 +336,7 @@ class _SavedFormState extends State<_SavedForm> {
               key: const ValueKey('bsv-name'),
               controller: _name,
               maxLength: 80,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.bsvName),
             ),
             Text(t.bsvGroup, style: text.titleSmall),
@@ -354,12 +356,14 @@ class _SavedFormState extends State<_SavedForm> {
               controller: _phone,
               keyboardType: TextInputType.phone,
               maxLength: 20,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.bsvPhone),
             ),
             TextField(
               key: const ValueKey('bsv-area'),
               controller: _area,
               maxLength: 60,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.bsvArea),
             ),
             Text(t.bsvLast, style: text.titleSmall),
