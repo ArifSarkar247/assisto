@@ -253,10 +253,14 @@ class InCallBubbleHost extends StatefulWidget {
     required this.onOpen,
     this.bus,
     this.resolve,
+    this.initiallyExpanded = false,
   });
 
   final Widget child;
   final bool enabled;
+
+  /// Gallery: start with the row of round photos open.
+  final bool initiallyExpanded;
   final void Function(String key) onOpen;
 
   /// Test seams.
@@ -274,7 +278,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
   Timer? _ttl;
   AppLifecycleListener? _life;
   bool _foreground = true;
-  bool _expanded = false;
+  late bool _expanded = widget.initiallyExpanded;
   bool _dragging = false;
   bool _globalOn = true;
   bool _hide = false;
