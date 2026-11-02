@@ -153,7 +153,11 @@ class _Base(APITestCase):
 class SeedAndFeedTests(_Base):
     def test_seed_matches_old_hardcoded_list(self):
         cards = self.feed(self.free)
-        self.assertEqual([c["key"] for c in cards], SEED_KEYS)
+        # later default cards (channels: circle_channels) are not part of
+        # the old hard-coded list
+        later = {"circle_channels"}
+        self.assertEqual([c["key"] for c in cards if c["key"] not in later],
+                         SEED_KEYS)
         asal = next(c for c in cards if c["key"] == "asalify")
         self.assertEqual(asal["url"], "https://asalify.com")
         self.assertEqual(asal["label"], "our_products")
