@@ -66,7 +66,7 @@ void main() {
       t = 0;
       final d = FallDetector();
       var f = feed(d, still(100, [0, kGravity, 0]));
-      f |= feed(d, still(4, [0, 1.0, 0])); // 80 ms
+      f |= feed(d, still(2, [0, 1.0, 0])); // 40 ms
       f |= feed(d, still(3, [0, 30.0, 0]));
       f |= feed(d, still(250, [0, 0, kGravity]));
       expect(f, isFalse);

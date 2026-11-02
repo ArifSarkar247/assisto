@@ -22,8 +22,8 @@ const double kGravity = 9.80665;
 /// MISSED; a person who moves a lot right after the fall is MISSED (they can
 /// press SOS themselves).
 class FallPolicy {
-  static const double freeFallMax = 0.5 * kGravity; // m/s²
-  static const int freeFallMinMs = 120;
+  static const double freeFallMax = 0.6 * kGravity; // m/s² (LFT ~0.6 g)
+  static const int freeFallMinMs = 80;
   static const double impactMin = 2.5 * kGravity;
   static const int impactWithinMs = 800; // after the free fall ends
   static const int settleMs = 1000; // bounce / roll after the impact

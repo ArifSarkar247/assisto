@@ -5,9 +5,10 @@
 // (screen, hour, charging, unlock moment, home Wi-Fi) and prints precision /
 // recall / false alarms per hour.
 //
-// Linear acceleration is derived from the raw trace like Android's own
-// example filter (gravity low-pass, alpha 0.8) — real phones use sensor
-// fusion (TYPE_LINEAR_ACCELERATION), so recorded traces may differ.
+// Linear acceleration is derived from the raw trace with a slow gravity
+// low-pass (alpha 0.98 at 50 Hz, ~1 s) — closer to what sensor fusion
+// (TYPE_LINEAR_ACCELERATION) gives than Android's alpha-0.8 doc example,
+// which eats a fifth of every grab spike. Recorded traces may still differ.
 // HONESTY: every trace today is `source=synthetic` (see gen_synthetic.py).
 import 'dart:math' as math;
 
@@ -28,7 +29,7 @@ bool runSnatch(Trace t) {
   int faceDownStillUntil = 0;
   var fired = false;
   for (final s in t.samples) {
-    const a = 0.8;
+    const a = 0.98;
     g = [a * g[0] + (1 - a) * s.x, a * g[1] + (1 - a) * s.y, a * g[2] + (1 - a) * s.z];
     final lx = s.x - g[0], ly = s.y - g[1], lz = s.z - g[2];
     final mag = math.sqrt(lx * lx + ly * ly + lz * lz);

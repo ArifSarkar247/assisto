@@ -102,8 +102,8 @@ class SafetyTriggers(private val svc: AntiTheftService, private val bg: Handler)
 
     private object Fall {
         const val G = 9.80665
-        const val FREE_FALL_MAX = 0.5 * G
-        const val FREE_FALL_MIN_MS = 120L
+        const val FREE_FALL_MAX = 0.6 * G
+        const val FREE_FALL_MIN_MS = 80L
         const val IMPACT_MIN = 2.5 * G
         const val IMPACT_WITHIN_MS = 800L
         const val SETTLE_MS = 1000L
