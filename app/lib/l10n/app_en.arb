@@ -34507,5 +34507,86 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "cescNoAutoPolice": "Assisto does not call the police for you. This opens your phone's dialer with 999 — you press call. Then a ready card with the address, time and camera photo opens to read out or send.",
+  "cescOpenDialer": "Open dialer",
+  "cescCardTitle": "Card for the police",
+  "cescCardSub": "Address, time and photo — read it out on the 999 call or send it",
+  "cescAddressMissing": "No address saved — add the place's address in Guard settings so it is on the card next time.",
+  "cescShareWarn": "This card has a camera photo — send it only to the police or people you trust.",
+  "cescCardShare": "Send card and photo",
+  "cescCopied": "Copied",
+  "cescCardCopy": "Copy the text",
+  "cescFeatSiren": "Siren",
+  "cescFeatLight": "White light",
+  "cescFeatVoice": "Recorded warning",
+  "cescFeatTalk": "Two-way talk",
+  "cescConfirmTitle": "Do it now?",
+  "cescConfirmLight": "The camera's light will switch on — people nearby will see it.",
+  "cescConfirmVoice": "Your warning will play loudly on the camera's speaker — people nearby will hear it.",
+  "cescDoIt": "Yes, do it",
+  "cescLightOn": "The light is on",
+  "cescVoicePlaying": "The warning was sent to the camera",
+  "cescLight": "Switch on the camera's white light",
+  "cescLightSub": "Stays on for {n} seconds, then switches off by itself",
+  "@cescLightSub": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cescVoice": "Bangla warning on the camera speaker",
+  "cescVoiceSub": "Your recorded warning plays on the camera",
+  "cescVoiceNeedClip": "First record a warning in your own voice — tap here",
+  "cescWhatCamCan": "What this camera can do",
+  "cescWhatCamCanSub": "Siren, light, warning, two-way talk — which ones it has",
+  "cescFeatYes": "Available",
+  "cescNotOnCam": "Not on this camera",
+  "cescWarnMicNo": "Recording needs the microphone",
+  "cescWarnSaved": "Warning saved",
+  "cescWarnTitle": "Warning in your own voice",
+  "cescWarnHave": "A recorded warning is saved ({s} seconds)",
+  "@cescWarnHave": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "cescWarnNone": "No warning recorded yet",
+  "cescWarnHow": "Read one of the lines below clearly (at most 20 seconds). You only need to record it once.",
+  "cescWarnStop": "Stop ({s})",
+  "@cescWarnStop": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "cescWarnRecord": "Start recording",
+  "cescWarnRedo": "Record again",
+  "cescWarnListen": "Listen",
+  "cescWarnSave": "Keep it",
+  "cescWarnDelete": "Delete",
+  "cescWarnPrivacy": "The recording is only for playing on this place's cameras — it is not used anywhere else.",
+  "cescDone": "Done",
+  "cesc999Tile": "999 + card for the police",
+  "cesc999TileSub": "Opens the dialer — you press call; makes a card with address, time and photo",
+  "cescCallSwitch": "Then an Assisto call",
+  "cescCallSwitchSub": "If nobody on the list opens it in time, their phones ring like a call (at most 2 rounds)",
+  "cescAddressTitle": "Address for the police card",
+  "cescAddressBody": "Goes on the 999 card with the alert time and photo, so you do not have to remember it in a hurry.",
+  "cescAddressLabel": "Address of this place",
+  "cescAddressHint": "e.g. House 12, Road 3, Mirpur 10, Dhaka",
+  "cescAddressSaved": "Address saved",
+  "cescWarnTile": "Warning in your own voice",
+  "cescWarnTileSub": "Record it once to play on a camera speaker",
+  "cescCallKicker": "CCTV alert — Assisto call",
+  "cescCallWhy": "Nobody has opened this alert yet. Look at the photo and decide.",
+  "cescCallNoPhoto": "No photo — open the alert to see more",
+  "cescCallPhotoLabel": "Camera photo of the alert",
+  "cescCallStopsNote": "When you open it, the calls to the others stop.",
+  "cescCallOpen": "Open the alert",
+  "cescCallLater": "Not now"
 }
