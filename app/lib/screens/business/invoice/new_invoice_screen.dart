@@ -14,7 +14,7 @@ import '../../../widgets/cv_empty.dart' show pickCirclePerson;
 import '../selling_common.dart' show showApiError;
 import 'invoice_api.dart';
 import 'invoice_doc.dart';
-import 'invoice_paper.dart' show extraLabel, templateLabel;
+import 'invoice_paper.dart' show extraLabel, paymentLabel, templateLabel;
 import 'invoice_screen.dart';
 
 /// Typed money ("1,250.50", Bangla digits ok) → poisha; null when invalid.
