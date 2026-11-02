@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'crm_advanced_api.dart';
 import '../../widgets/crm_rule_builder.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../feature_flags.dart' show FeatureFlags;
+import '../retention/retention_screen.dart';
 
 /// OWNER AUTOMATION RULES (CRM spec #11). The owner builds rules like
 /// "proposal sent + no reply in 3 days → create a follow-up task". Rules are
@@ -127,6 +129,22 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     if (_error != null) {
       return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
+    final link = _customerMsgsLink(t);
+    if (_rules.isEmpty && link != null) {
+      return ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        link,
+        SizedBox(
+          height: 360,
+          child: CrmStateView.empty(
+            icon: Icons.bolt_rounded,
+            title: t.crmNoRules,
+            message: t.crmNoRulesHint,
+            action: FilledButton.tonalIcon(
+                onPressed: () => _edit(null), icon: const Icon(Icons.add_rounded), label: Text(t.crmNewRule)),
+          ),
+        ),
+      ]);
+    }
     if (_rules.isEmpty) {
       return CrmStateView.empty(
         icon: Icons.bolt_rounded,
@@ -145,8 +163,27 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
         children: [
           NeedsKeyBanner(t.crmAutomationNote, icon: Icons.verified_user_rounded),
           const SizedBox(height: Gap.sm),
+          if (link != null) link,
           for (final r in _rules) _ruleCard(t, r),
         ],
+      ),
+    );
+  }
+
+  /// crmauto: the customer-facing automations (reorder, after-delivery
+  /// feedback, quote follow-up, win-back...) live in retention automation —
+  /// one tap from here, shown only when that feature is on for this user.
+  Widget? _customerMsgsLink(AppLocalizations t) {
+    if (!FeatureFlags.instance.isOn('retention_auto')) return null;
+    return Card(
+      child: ListTile(
+        key: const Key('crm-customer-msgs'),
+        minVerticalPadding: 12,
+        leading: const Icon(Icons.autorenew_rounded),
+        title: Text(t.crmAutoCustomerMsgsTitle),
+        subtitle: Text(t.crmAutoCustomerMsgsBody),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RetentionScreen())),
       ),
     );
   }

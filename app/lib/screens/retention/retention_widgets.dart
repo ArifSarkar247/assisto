@@ -9,7 +9,16 @@ import 'retention_source.dart';
 
 String rtLang(BuildContext context) => Localizations.localeOf(context).languageCode;
 
-const rtKinds = ['thanks_review', 'winback', 'khata_due', 'back_in_stock', 'birthday'];
+const rtKinds = [
+  'reorder',
+  'delivery_feedback',
+  'quote_followup',
+  'thanks_review',
+  'winback',
+  'khata_due',
+  'back_in_stock',
+  'birthday',
+];
 const rtChannels = ['in_app', 'whatsapp', 'messenger', 'sms'];
 
 IconData rtKindIcon(String kind) => switch (kind) {
@@ -18,6 +27,9 @@ IconData rtKindIcon(String kind) => switch (kind) {
       'khata_due' => Icons.menu_book_rounded,
       'back_in_stock' => Icons.inventory_2_outlined,
       'birthday' => Icons.cake_outlined,
+      'reorder' => Icons.replay_circle_filled_outlined,
+      'delivery_feedback' => Icons.star_rate_outlined,
+      'quote_followup' => Icons.request_quote_outlined,
       _ => Icons.autorenew_rounded,
     };
 
@@ -27,6 +39,9 @@ String rtKindTitle(AppLocalizations t, String kind) => switch (kind) {
       'khata_due' => t.rtKindKhata,
       'back_in_stock' => t.rtKindStock,
       'birthday' => t.rtKindBirthday,
+      'reorder' => t.crmAutoKindReorder,
+      'delivery_feedback' => t.crmAutoKindDelivery,
+      'quote_followup' => t.crmAutoKindQuote,
       _ => kind,
     };
 
@@ -36,6 +51,9 @@ String rtKindDesc(AppLocalizations t, String kind) => switch (kind) {
       'khata_due' => t.rtKindKhataDesc,
       'back_in_stock' => t.rtKindStockDesc,
       'birthday' => t.rtKindBirthdayDesc,
+      'reorder' => t.crmAutoKindReorderDesc,
+      'delivery_feedback' => t.crmAutoKindDeliveryDesc,
+      'quote_followup' => t.crmAutoKindQuoteDesc,
       _ => '',
     };
 
@@ -48,6 +66,9 @@ String rtKindWhen(AppLocalizations t, String lang, String kind, Map<String, dyna
     'khata_due' => t.rtKindKhataWhen(d('every_days', 14), d('min_due_taka', 100)),
     'back_in_stock' => t.rtKindStockWhen,
     'birthday' => t.rtKindBirthdayWhen,
+    'reorder' => t.crmAutoKindReorderWhen(d('min_purchases', 2), d('days_before', 1)),
+    'delivery_feedback' => t.crmAutoKindDeliveryWhen(d('days_after', 1)),
+    'quote_followup' => t.crmAutoKindQuoteWhen(d('days_after', 2)),
     _ => '',
   };
 }

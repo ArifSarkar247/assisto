@@ -1,0 +1,216 @@
+{
+  "_comment": "crmauto (CRM automation, owner Part 1 h): reorder / after-delivery feedback / quote follow-up rules, cost + daily-cap lines in the wizard preview, customer scores screen, activity log. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_crmauto_arb.json",
+  "en": {
+    "crmAutoKindReorder": "Reorder reminder",
+    "crmAutoKindReorderDesc": "When a customer usually rebuys an item (from their own purchase gap), ask if they need it again.",
+    "crmAutoKindReorderWhen": "At the customer's usual gap (after {count} or more purchases), {days} day(s) early",
+    "@crmAutoKindReorderWhen": {
+      "placeholders": {
+        "count": {
+          "type": "String"
+        },
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoKindDelivery": "After-delivery feedback",
+    "crmAutoKindDeliveryDesc": "After an online order is delivered, ask for a 1 to 5 rating. A 1 or 2 alerts you at once.",
+    "crmAutoKindDeliveryWhen": "{days} day(s) after delivery",
+    "@crmAutoKindDeliveryWhen": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoKindQuote": "Quote follow-up",
+    "crmAutoKindQuoteDesc": "If a price quote is not accepted, remind the customer once, with the link.",
+    "crmAutoKindQuoteWhen": "{days} day(s) after the quote, if not accepted",
+    "@crmAutoKindQuoteWhen": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoParamDailyCap": "Most messages from this rule per day",
+    "crmAutoParamMinPurchases": "Purchases needed to learn the habit",
+    "crmAutoParamDaysBefore": "Days before the usual date",
+    "crmAutoVarTotal": "Quote total",
+    "crmAutoVarLink": "Quote link",
+    "crmAutoTodayCap": "Today this rule can send {count} (limit {cap} a day)",
+    "@crmAutoTodayCap": {
+      "placeholders": {
+        "count": {
+          "type": "String"
+        },
+        "cap": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoCostFree": "Cost: free (0 credits)",
+    "crmAutoCostFreeInWindow": "Cost: free inside the customer's 24-hour chat window; outside it only an approved template goes. Your credits: {balance}",
+    "@crmAutoCostFreeInWindow": {
+      "placeholders": {
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoCostSms": "Cost: {per} credits a message ({parts} SMS parts). About {estimate} credits today. Your credits: {balance}",
+    "@crmAutoCostSms": {
+      "placeholders": {
+        "per": {
+          "type": "String"
+        },
+        "parts": {
+          "type": "String"
+        },
+        "estimate": {
+          "type": "String"
+        },
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoCostWa": "Cost: up to {per} credits a message (WhatsApp template; free inside 24 hours). About {estimate} credits today at most. Your credits: {balance}",
+    "@crmAutoCostWa": {
+      "placeholders": {
+        "per": {
+          "type": "String"
+        },
+        "estimate": {
+          "type": "String"
+        },
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoCostOther": "Cost: {per} credits a message. About {estimate} credits today. Your credits: {balance}",
+    "@crmAutoCostOther": {
+      "placeholders": {
+        "per": {
+          "type": "String"
+        },
+        "estimate": {
+          "type": "String"
+        },
+        "balance": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoTurnOnOnHelp": "On: it sends automatically at the set time, within your limits.",
+    "crmAutoTurnOnOffHelp": "Off: nothing is sent until you turn it on.",
+    "crmAutoRulesTitle": "How scores work",
+    "crmAutoRulesBody": "Every point comes from one rule below, using your own sales, khata and messages. {hot}+ = call first, {warm}+ = keep in touch.",
+    "@crmAutoRulesBody": {
+      "placeholders": {
+        "hot": {
+          "type": "String"
+        },
+        "warm": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoRulesNoAi": "No AI guess: if we do not know something, it scores 0.",
+    "crmAutoRulesSee": "See how scores work",
+    "crmAutoScoresTitle": "Customer scores",
+    "crmAutoScoresIntro": "Who to call first. Tap a customer to see why they got the score.",
+    "crmAutoScoresSearch": "Search name or phone",
+    "crmAutoScoresEmptyTitle": "No scores yet",
+    "crmAutoScoresNoMatch": "No customer matches this search",
+    "crmAutoScoresEmptyHow": "Scores come from sales with the customer's phone, khata dues and price quotes. Add the phone when you sell, and scores appear here.",
+    "crmAutoBandHot": "Hot",
+    "crmAutoBandWarm": "Warm",
+    "crmAutoBandCold": "Cold",
+    "crmAutoLeadTag": "Lead (not bought yet)",
+    "crmAutoDoNotMessage": "Do not message",
+    "crmAutoDoNotMessageBody": "This customer said STOP. No automation will message them.",
+    "crmAutoScoreA11y": "Score {score}, {band}",
+    "@crmAutoScoreA11y": {
+      "placeholders": {
+        "score": {
+          "type": "String"
+        },
+        "band": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoNoName": "No name",
+    "crmAutoWhyScore": "Why this score",
+    "crmAutoRuleWithValue": "{rule} ({value})",
+    "@crmAutoRuleWithValue": {
+      "placeholders": {
+        "rule": {
+          "type": "String"
+        },
+        "value": {
+          "type": "String"
+        }
+      }
+    },
+    "crmAutoAuditTitle": "Activity log",
+    "crmAutoAuditEmptyTitle": "Nothing here yet",
+    "crmAutoAuditEmptyHow": "Every time you turn a rule on or off, change it, or a rule sends messages, it is written here, so you always know what happened.",
+    "crmAutoAuditBack": "Back to automations",
+    "crmAutoCustomerMsgsTitle": "Automatic customer messages",
+    "crmAutoCustomerMsgsBody": "Reorder reminders, after-delivery feedback, quote follow-ups, win-back — each with preview, daily limits and its own on/off."
+  },
+  "bn": {
+    "crmAutoKindReorder": "আবার কেনার মনে করানো",
+    "crmAutoKindReorderDesc": "গ্রাহক যে জিনিস নিয়মিত কেনেন, তাঁর নিজের কেনার ফাঁক দেখে ঠিক সময়ে জিজ্ঞেস করে — আবার লাগবে?",
+    "crmAutoKindReorderWhen": "গ্রাহকের স্বাভাবিক ফাঁকে ({count} বা বেশি বার কেনার পর), {days} দিন আগে",
+    "crmAutoKindDelivery": "ডেলিভারির পর মতামত",
+    "crmAutoKindDeliveryDesc": "অনলাইন অর্ডার পৌঁছানোর পর ১ থেকে ৫ মতামত চায়। ১ বা ২ দিলে সাথে সাথে আপনাকে জানায়।",
+    "crmAutoKindDeliveryWhen": "ডেলিভারির {days} দিন পর",
+    "crmAutoKindQuote": "দামের প্রস্তাবের ফলো-আপ",
+    "crmAutoKindQuoteDesc": "দামের প্রস্তাব গ্রহণ না হলে গ্রাহককে একবার লিংকসহ মনে করায়।",
+    "crmAutoKindQuoteWhen": "প্রস্তাবের {days} দিন পর, গ্রহণ না হলে",
+    "crmAutoParamDailyCap": "এই নিয়মে দিনে সর্বোচ্চ মেসেজ",
+    "crmAutoParamMinPurchases": "অভ্যাস বুঝতে কত বার কেনা লাগবে",
+    "crmAutoParamDaysBefore": "স্বাভাবিক দিনের কত দিন আগে",
+    "crmAutoVarTotal": "প্রস্তাবের মোট দাম",
+    "crmAutoVarLink": "প্রস্তাবের লিংক",
+    "crmAutoTodayCap": "আজ এই নিয়ম {count}টি পাঠাতে পারবে (দিনে সীমা {cap})",
+    "crmAutoCostFree": "খরচ: ফ্রি (০ ক্রেডিট)",
+    "crmAutoCostFreeInWindow": "খরচ: গ্রাহকের ২৪ ঘণ্টার চ্যাটের মধ্যে ফ্রি; এর বাইরে শুধু অনুমোদিত টেমপ্লেট যায়। আপনার ক্রেডিট: {balance}",
+    "crmAutoCostSms": "খরচ: প্রতি মেসেজে {per} ক্রেডিট ({parts}টি SMS অংশ)। আজ আনুমানিক {estimate} ক্রেডিট। আপনার ক্রেডিট: {balance}",
+    "crmAutoCostWa": "খরচ: প্রতি মেসেজে সর্বোচ্চ {per} ক্রেডিট (WhatsApp টেমপ্লেট; ২৪ ঘণ্টার মধ্যে ফ্রি)। আজ সর্বোচ্চ আনুমানিক {estimate} ক্রেডিট। আপনার ক্রেডিট: {balance}",
+    "crmAutoCostOther": "খরচ: প্রতি মেসেজে {per} ক্রেডিট। আজ আনুমানিক {estimate} ক্রেডিট। আপনার ক্রেডিট: {balance}",
+    "crmAutoTurnOnOnHelp": "চালু: ঠিক সময়ে নিজে থেকে পাঠাবে, আপনার সীমার মধ্যে।",
+    "crmAutoTurnOnOffHelp": "বন্ধ: আপনি চালু না করা পর্যন্ত কিছুই যাবে না।",
+    "crmAutoRulesTitle": "স্কোর কীভাবে হয়",
+    "crmAutoRulesBody": "প্রতিটি নম্বর নিচের একটি নিয়ম থেকে আসে — আপনার নিজের বিক্রি, খাতা আর মেসেজ থেকে। {hot}+ = আগে ফোন করুন, {warm}+ = যোগাযোগ রাখুন।",
+    "crmAutoRulesNoAi": "AI-এর অনুমান নেই: যা জানা নেই তার নম্বর ০।",
+    "crmAutoRulesSee": "স্কোর কীভাবে হয় দেখুন",
+    "crmAutoScoresTitle": "গ্রাহকের স্কোর",
+    "crmAutoScoresIntro": "কাকে আগে ফোন করবেন। গ্রাহকে চাপুন — কেন এই স্কোর, দেখবেন।",
+    "crmAutoScoresSearch": "নাম বা ফোন খুঁজুন",
+    "crmAutoScoresEmptyTitle": "এখনো কোনো স্কোর নেই",
+    "crmAutoScoresNoMatch": "এই খোঁজে কোনো গ্রাহক নেই",
+    "crmAutoScoresEmptyHow": "স্কোর আসে গ্রাহকের ফোনসহ বিক্রি, খাতার বাকি আর দামের প্রস্তাব থেকে। বিক্রির সময় ফোন নম্বর দিন, স্কোর এখানে দেখাবে।",
+    "crmAutoBandHot": "সেরা",
+    "crmAutoBandWarm": "ভালো",
+    "crmAutoBandCold": "ঠান্ডা",
+    "crmAutoLeadTag": "লিড (এখনো কেনেননি)",
+    "crmAutoDoNotMessage": "মেসেজ নয়",
+    "crmAutoDoNotMessageBody": "এই গ্রাহক STOP বলেছেন। কোনো অটোমেশন তাঁকে মেসেজ পাঠাবে না।",
+    "crmAutoScoreA11y": "স্কোর {score}, {band}",
+    "crmAutoNoName": "নাম নেই",
+    "crmAutoWhyScore": "কেন এই স্কোর",
+    "crmAutoRuleWithValue": "{rule} ({value})",
+    "crmAutoAuditTitle": "কাজের খাতা",
+    "crmAutoAuditEmptyTitle": "এখনো কিছু নেই",
+    "crmAutoAuditEmptyHow": "নিয়ম চালু/বন্ধ করলে, বদলালে বা কোনো নিয়ম মেসেজ পাঠালে এখানে লেখা থাকে — কী হয়েছে সবসময় জানবেন।",
+    "crmAutoAuditBack": "অটোমেশনে ফিরুন",
+    "crmAutoCustomerMsgsTitle": "গ্রাহককে স্বয়ংক্রিয় মেসেজ",
+    "crmAutoCustomerMsgsBody": "আবার কেনার মনে করানো, ডেলিভারির পর মতামত, দামের প্রস্তাবের ফলো-আপ, হারানো গ্রাহক ফেরানো — প্রতিটির প্রিভিউ, দিনের সীমা আর আলাদা চালু/বন্ধ।"
+  }
+}

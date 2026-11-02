@@ -41,7 +41,8 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
   late int _hour = rtInt(widget.initial?['send_hour'], 11);
   late final Map<String, dynamic> _wa = Map<String, dynamic>.from(rtMap(widget.initial?['wa_template']));
   late final _waName = TextEditingController(text: (_wa['name'] ?? '').toString());
-  late bool _enabled = widget.initial == null ? true : widget.initial!['enabled'] == true;
+  // crmauto: a NEW rule starts OFF — nothing sends until the owner turns it on.
+  late bool _enabled = widget.initial == null ? false : widget.initial!['enabled'] == true;
   TextEditingController? _focused;
 
   Map<String, dynamic>? _preview;
@@ -255,7 +256,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
   List<Widget> _whatStep(AppLocalizations t) => [
         Text(t.rtWhatTitle, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        for (final k in rtKinds)
+        for (final k in rtKinds.where((k) => _kindSpecFor(k).isNotEmpty))
           Card(
             margin: const EdgeInsets.only(bottom: 8),
             shape: RoundedRectangleBorder(
@@ -281,12 +282,16 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
         'days_without' => t.rtParamDaysWithout,
         'min_due_taka' => t.rtParamMinDue,
         'every_days' => t.rtParamEvery,
+        'daily_cap' => t.crmAutoParamDailyCap,
+        'min_purchases' => t.crmAutoParamMinPurchases,
+        'days_before' => t.crmAutoParamDaysBefore,
         _ => p,
       };
 
   int _stepOf(String p) => switch (p) {
         'days_without' => 5,
         'min_due_taka' => 50,
+        'daily_cap' => 5,
         _ => 1,
       };
 
@@ -397,7 +402,26 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
         line(Icons.block_rounded, t.rtOptedOutCount(rtDigits(lang, rtInt(p['opted_out'])))),
       if (rtInt(p['no_phone']) > 0)
         line(Icons.phone_disabled_outlined, t.rtNoPhone(rtDigits(lang, rtInt(p['no_phone'])))),
+      if (p['daily_cap'] != null)
+        line(Icons.speed_rounded,
+            t.crmAutoTodayCap(rtDigits(lang, rtInt(p['will_send_today'])), rtDigits(lang, rtInt(p['daily_cap'])))),
+      if (p['cost'] is Map) line(Icons.toll_outlined, _costLine(t, lang, rtMap(p['cost']))),
     ];
+  }
+
+  /// crmauto: the credits a send costs on this channel, shown BEFORE turning on.
+  String _costLine(AppLocalizations t, String lang, Map<String, dynamic> c) {
+    final per = rtInt(c['per_message']);
+    final est = rtDigits(lang, rtInt(c['estimate']));
+    final bal = rtDigits(lang, rtInt(c['balance']));
+    if (per == 0) {
+      return c['basis'] == 'wa_template' ? t.crmAutoCostFreeInWindow(bal) : t.crmAutoCostFree;
+    }
+    return switch (c['basis']) {
+      'sms_parts' => t.crmAutoCostSms(rtDigits(lang, per), rtDigits(lang, rtInt(c['segments'], 1)), est, bal),
+      'wa_template' => t.crmAutoCostWa(rtDigits(lang, per), est, bal),
+      _ => t.crmAutoCostOther(rtDigits(lang, per), est, bal),
+    };
   }
 
   // ------------------------------------------------------------ step 2
@@ -407,6 +431,8 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
         'product' => t.rtVarProduct,
         'days' => t.rtVarDays,
         'due' => t.rtVarDue,
+        'total' => t.crmAutoVarTotal,
+        'link' => t.crmAutoVarLink,
         _ => v,
       };
 
@@ -419,8 +445,10 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
       'name': t.rtExampleName,
       'shop': shop.isNotEmpty ? shop : t.rtExampleShop,
       'product': t.rtExampleProduct,
-      'days': rtDigits(lang, rtInt(_params['days_without'], 45)),
+      'days': rtDigits(lang, _kind == 'reorder' ? 20 : rtInt(_params['days_without'], 45)),
       'due': rtDigits(lang, '1,250'),
+      'total': rtDigits(lang, '1,250'),
+      'link': 'https://lifeassisto.com/q/…',
     };
     final body = src.replaceAllMapped(RegExp(r'\{([a-zA-Z_]+)\}'), (m) => vals[m.group(1)] ?? '');
     final footer = switch (_channel) {
@@ -545,6 +573,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
         value: _enabled,
         onChanged: (v) => setState(() => _enabled = v),
         title: Text(t.rtTurnOn),
+        subtitle: Text(_enabled ? t.crmAutoTurnOnOnHelp : t.crmAutoTurnOnOffHelp),
         contentPadding: EdgeInsets.zero,
       ),
     ];

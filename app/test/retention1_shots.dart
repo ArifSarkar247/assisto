@@ -2,6 +2,7 @@
 // a11y guideline sweep + dead-button sweep) — Retention automation.
 import 'package:flutter/material.dart';
 
+import 'package:assisto/screens/retention/retention_crm.dart';
 import 'package:assisto/screens/retention/retention_inbox.dart';
 import 'package:assisto/screens/retention/retention_people.dart';
 import 'package:assisto/screens/retention/retention_results.dart';
@@ -45,4 +46,14 @@ final Map<String, Widget Function(String)> retention1Shots = {
       Scaffold(body: RetentionLimitsSheet(source: FakeRetention(), overview: _ov('data'))),
   'rt_inbox': (_) => RetentionInboxScreen(source: FakeRetention()),
   'rt_inbox_empty': (_) => RetentionInboxScreen(source: FakeRetention('inbox_empty')),
+  // crmauto
+  'rt_wizard_reorder': (_) => RetentionWizardScreen(
+      source: FakeRetention(),
+      overview: _ov('data'),
+      initial: {...FakeRetention.automation(), 'kind': 'reorder', 'params': {'min_purchases': 2, 'days_before': 1, 'daily_cap': 50}},
+      initialStep: 1),
+  'rt_scores': (_) => RetentionScoresScreen(source: FakeRetention()),
+  'rt_scores_empty': (_) => RetentionScoresScreen(source: FakeRetention('empty')),
+  'rt_audit': (_) => RetentionAuditScreen(source: FakeRetention()),
+  'rt_audit_empty': (_) => RetentionAuditScreen(source: FakeRetention('empty')),
 };

@@ -27,7 +27,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
-from django.db.models import Max, Q, Sum
+from django.db.models import Count, Max, Q, Sum
 from django.utils import timezone
 
 from .logic import msg_guard as MG
@@ -204,6 +204,106 @@ def _events(auto, now, limit):
                                 "notified": False} for a in asks if a.customer.phone_key]):
             a = by_id[int(ev["ref"].split(":")[1])]
             out.append(dict(ev, customer=a.customer, party=None, name=a.customer.name))
+    elif k == R.KIND_REORDER:
+        out += _reorder_events(biz, now, p, limit)
+    elif k == R.KIND_DELIVERY:
+        out += _delivery_events(biz, now, p, limit)
+    elif k == R.KIND_QUOTE:
+        out += _quote_events(biz, now, p, limit)
+    return out
+
+
+# ---- crmauto: reorder / delivery feedback / quote follow-up sources
+def _reorder_rows(biz, now, limit):
+    """[{key, product, purchases, customer}] per (customer, product) over the
+    last year — the shop's own sale lines, voided sales excluded."""
+    from .models import SaleLine
+    rows = {}
+    custs = {}
+    qs = (SaleLine.objects.filter(sale__in=_sales(biz).filter(
+        created_at__gte=now - timedelta(days=365)))
+        .select_related("sale", "sale__customer").order_by("-sale__created_at")[:limit * 10])
+    for ln in qs:
+        c = ln.sale.customer
+        name = (ln.product_name or "").strip()
+        if not c or not c.phone_key or not name:
+            continue
+        custs[c.phone_key] = c
+        r = rows.setdefault((c.phone_key, name.lower()),
+                            {"key": c.phone_key, "product": name, "purchases": []})
+        if all(sid != ln.sale.id for sid, _ in r["purchases"]):
+            r["purchases"].append((ln.sale.id, ln.sale.created_at))
+    return list(rows.values()), custs
+
+
+def _reorder_events(biz, now, p, limit):
+    rows, custs = _reorder_rows(biz, now, limit)
+    out = []
+    for ev in R.due_reorder(rows, now, p["min_purchases"], p["days_before"]):
+        c = custs[ev["key"]]
+        out.append(dict(ev, customer=c, party=None, name=c.name))
+    return out
+
+
+def _delivery_rows(biz, now, days_after, limit):
+    """Delivered online orders of this shop whose delivery (= the Sale the
+    delivery created) is inside the feedback window."""
+    from .models import Order
+    since = now - timedelta(days=days_after + 3)
+    out = []
+    for o in (Order.objects.filter(business=biz, status="delivered", sale__isnull=False,
+                                   sale__created_at__gte=since, sale__voided_at__isnull=True)
+              .select_related("sale", "sale__customer").order_by("-id")[:limit]):
+        key = (o.sale.customer.phone_key if o.sale.customer_id else "") or \
+            normalize_phone(o.customer_phone or "")
+        if not key:
+            continue
+        items = o.items if isinstance(o.items, list) else []
+        first = items[0] if items and isinstance(items[0], dict) else {}
+        out.append({"order_id": o.id, "key": key, "delivered_at": o.sale.created_at,
+                    "product": str(first.get("name") or "")[:80],
+                    "customer": o.sale.customer, "name": (o.customer_name or (
+                        o.sale.customer.name if o.sale.customer_id else ""))})
+    return out
+
+
+def _delivery_events(biz, now, p, limit):
+    rows = _delivery_rows(biz, now, p["days_after"], limit)
+    by_id = {r["order_id"]: r for r in rows}
+    out = []
+    for ev in R.due_delivery(rows, now, p["days_after"]):
+        r = by_id[int(ev["ref"].split(":")[1])]
+        out.append(dict(ev, customer=r["customer"], party=None, name=r["name"]))
+    return out
+
+
+def quote_link(q):
+    try:
+        from crm import shop_quote as SQ
+        return (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/") + SQ.public_path(q)
+    except Exception:
+        return ""
+
+
+def _open_quotes(biz, now, limit, since=None):
+    from crm.models import ShopQuote
+    qs = ShopQuote.objects.filter(business=biz, state__in=("issued", "viewed"),
+                                  valid_until__gt=now).exclude(phone_key="")
+    if since is not None:
+        qs = qs.filter(created_at__gte=since)
+    return list(qs.order_by("-created_at")[:limit])
+
+
+def _quote_events(biz, now, p, limit):
+    quotes = _open_quotes(biz, now, limit, since=now - timedelta(days=p["days_after"] + 3))
+    by_id = {q.id: q for q in quotes}
+    out = []
+    for ev in R.due_quote([{"quote_id": q.id, "key": q.phone_key, "created_at": q.created_at,
+                            "state": q.state, "valid_until": q.valid_until,
+                            "link": quote_link(q), "total_poisha": q.total_poisha}
+                           for q in quotes], now, p["days_after"]):
+        q = by_id[int(ev["ref"].split(":")[1])]
+        out.append(dict(ev, customer=None, party=None, name=q.customer_name))
     return out
 
 
@@ -216,7 +316,7 @@ def _in_stock(product):
         return False
 
 
-def _base_audience(auto, limit):
+def _base_audience(auto, limit, now=None):
     """(people, keys, no_phone) — everyone this kind could ever reach."""
     from .models import Customer, RetentionStockAsk
     biz = auto.business
@@ -236,6 +336,26 @@ def _base_audience(auto, limit):
         keys = set(Customer.objects.filter(_cust_q(biz), birthday__isnull=False)
                    .exclude(phone_key="").values_list("phone_key", flat=True)[:limit])
         no_phone = 0
+    elif k == R.KIND_REORDER:
+        p = R.normalize_params(k, auto.params)
+        rows, _ = _reorder_rows(biz, now or timezone.now(), limit)
+        keys = {r["key"] for r in rows
+                if len({MG.local(at).date() for _, at in r["purchases"]})
+                >= max(2, p["min_purchases"])}
+        no_phone = 0
+    elif k == R.KIND_DELIVERY:
+        from .models import Order
+        keys = set()
+        for o in (Order.objects.filter(business=biz, status="delivered")
+                  .select_related("sale__customer").order_by("-id")[:limit]):
+            key = (o.sale.customer.phone_key if o.sale_id and o.sale.customer_id else "") \
+                or normalize_phone(o.customer_phone or "")
+            if key:
+                keys.add(key)
+        no_phone = 0
+    elif k == R.KIND_QUOTE:
+        keys = {q.phone_key for q in _open_quotes(biz, now or timezone.now(), limit)}
+        no_phone = 0
     else:
         keys = set(RetentionStockAsk.objects.filter(business=biz, notified_at__isnull=True)
                    .values_list("customer__phone_key", flat=True)[:limit])
@@ -248,7 +368,7 @@ def preview(auto, now=None, lang="bn"):
     """Audience preview with honest counts + one rendered sample message."""
     now = now or timezone.now()
     limit = cfg()["max_audience_scan"]
-    keys, no_phone = _base_audience(auto, limit)
+    keys, no_phone = _base_audience(auto, limit, now)
     opted = MG.opted_out_keys(auto.business_id) & keys
     events = _events(auto, now, limit) if auto.kind in R.KINDS else []
     due_now = [e for e in events if e["key"] not in opted]
@@ -263,13 +383,62 @@ def preview(auto, now=None, lang="bn"):
     sample_text = R.compose(R.pick_template(lang, auto.template_bn, auto.template_en),
                             _values(auto, ev, lang), lang, auto.channel,
                             link=(_stop_base() + "…") if auto.channel == R.CH_SMS else "")
-    return {"audience": len(keys - opted), "opted_out": len(opted & keys),
+    p = R.normalize_params(auto.kind, auto.params)
+    sent_today = _sent_today(auto, now)
+    will_send = max(0, min(len(due_now), p["daily_cap"] - sent_today))
+    return {"cost": cost_estimate(auto, sample_text, will_send),
+            "daily_cap": p["daily_cap"], "sent_today": sent_today,
+            "will_send_today": will_send,
+            "audience": len(keys - opted), "opted_out": len(opted & keys),
             "no_phone": no_phone, "due_now": len(due_now),
             "on_assisto": on_assisto, "on_assisto_checked": min(300, len(keys - opted))
             if auto.channel == R.CH_IN_APP else None,
             "sample_names": [e["name"] for e in due_now[:3] if e.get("name")],
             "sample_text": sample_text, "quiet_now": MG.in_quiet_hours(now),
             "next_send_at": MG.next_allowed_at(now).isoformat()}
+
+
+def _sent_today(auto, now):
+    from .models import RetentionSend
+    if auto.pk is None:
+        return 0
+    return RetentionSend.objects.filter(automation=auto, status__in=MG.SENT_STATES,
+                                        created_at__gte=MG.day_start(now)).count()
+
+
+def cost_estimate(auto, sample_text, n):
+    """Credits per message on this channel (as billing will charge it) and
+    the estimate for `n` messages — shown BEFORE the owner turns it on.
+    WhatsApp: free-form inside the customer's 24 h window costs nothing;
+    outside it only an approved template goes, at Meta's price."""
+    from . import billing
+    try:
+        costs = billing.cfg().get("action_costs") or {}
+    except Exception:
+        costs = {}
+
+    def cr(action):
+        return int((costs.get(action) or {}).get("credits") or 0)
+    ch = auto.channel
+    if ch == R.CH_IN_APP:
+        per, basis = cr("retention_in_app"), "in_app"
+    elif ch == R.CH_SMS:
+        per, basis = cr("sms") * R.sms_segments(sample_text), "sms_parts"
+    elif ch == R.CH_WHATSAPP:
+        try:
+            from . import bizagent_service as BS
+            from .logic import bizagent as BZ
+            cat = (auto.wa_template or {}).get("category") or "marketing"
+            per = int(BZ.wa_charge_credits(cat, BS.full_cfg()))
+        except Exception:
+            per = 0
+        basis = "wa_template"      # upper bound: 0 when inside the 24 h window
+    else:
+        per, basis = 0, "messenger_24h"
+    owner = auto.business.user
+    return {"per_message": per, "basis": basis, "estimate": per * max(0, int(n)),
+            "balance": int(getattr(owner, "ai_credits", 0) or 0),
+            "segments": R.sms_segments(sample_text) if ch == R.CH_SMS else None}
 
 
 def _done_refs(auto, events):
@@ -290,6 +459,10 @@ def _values(auto, ev, lang):
         out["days"] = R._bn_digits(v["days"]) if lang != "en" else v["days"]
     if "due_poisha" in v:
         out["due"] = R.money_text(v["due_poisha"], lang)
+    if "total_poisha" in v:
+        out["total"] = R.money_text(v["total_poisha"], lang)
+    if "link" in v:
+        out["link"] = v["link"]
     return out
 
 
@@ -367,9 +540,13 @@ def run_automation(auto, now):
     events = _events(auto, now, cfg()["max_audience_scan"])
     done = set(_done_refs(auto, events))
     stopped = MG.opted_out_keys(auto.business_id) if events else set()
+    left = R.normalize_params(auto.kind, auto.params)["daily_cap"] - _sent_today(auto, now)
     for ev in events:
         if (ev["key"], ev["ref"]) in done or ev["key"] in stopped:
             continue
+        if left <= 0:
+            out["rule_cap"] = True
+            break
         v = MG.gate(auto.business_id, ev["key"], now=now, caps=caps, opted_out_set=stopped)
         if not v.ok:
             if v.reason == "business_daily_cap":
@@ -381,12 +558,17 @@ def run_automation(auto, now):
         done.add((ev["key"], ev["ref"]))
         if s.status in MG.SENT_STATES:
             out["sent"] += 1
+            left -= 1
         elif s.status == "blocked":
             out["blocked"] += 1
             if s.reason in ("insufficient_credits", "guard_over"):
                 break      # nothing more this tick; the owner is told in results
     auto.last_run_at = now
     auto.save(update_fields=["last_run_at"])
+    if out["sent"] or out["blocked"]:
+        audit(auto.business, None, "auto_run", {"id": auto.id, "kind": auto.kind,
+                                                "sent": out["sent"], "blocked": out["blocked"],
+                                                "rule_cap": bool(out.get("rule_cap"))})
     return out
 
 
@@ -627,6 +809,7 @@ def on_inbound(thread, text, now=None):
     if s is not None and not s.replied_at:
         s.replied_at, s.reply_text = now, (text or "")[:500]
         s.save(update_fields=["replied_at", "reply_text"])
+        record_feedback(s, text)
 
 
 # ===================================================================== results
@@ -742,3 +925,201 @@ def summary(auto):
             "replied": qs.filter(replied_at__isnull=False).count(),
             "purchases": qs.filter(purchase_sale__isnull=False).count(),
             "opted_out": qs.filter(opted_out_at__isnull=False).count()}
+
+
+# ===================================================================== crmauto: audit
+AUDIT_ACTIONS = ("auto_create", "auto_on", "auto_off", "auto_edit", "auto_delete",
+                 "caps_edit", "auto_run", "feedback", "opt_out_owner")
+
+
+def audit(business, actor, action, detail):
+    """One BizAuditLog row (never a message body or a full phone number)."""
+    from .models import BizAuditLog
+    try:
+        BizAuditLog.objects.create(business=business, actor=actor, action=action[:32],
+                                   detail=detail or {})
+    except Exception:
+        log.exception("retention audit failed")
+
+
+def _kind_label(kind, lang):
+    return {
+        R.KIND_THANKS: ("ধন্যবাদ ও রিভিউ", "Thanks & review"),
+        R.KIND_WINBACK: ("হারানো গ্রাহক ফেরানো", "Win-back"),
+        R.KIND_KHATA: ("বাকির মনে করানো", "Due reminder"),
+        R.KIND_STOCK: ("স্টক ফিরল", "Back in stock"),
+        R.KIND_BIRTHDAY: ("জন্মদিন", "Birthday"),
+        R.KIND_REORDER: ("আবার কেনার মনে করানো", "Reorder reminder"),
+        R.KIND_DELIVERY: ("ডেলিভারির পর মতামত", "After-delivery feedback"),
+        R.KIND_QUOTE: ("দামের প্রস্তাবের ফলো-আপ", "Quote follow-up"),
+    }.get(kind, (kind, kind))[1 if lang == "en" else 0]
+
+
+def _audit_text(row, lang):
+    d = row.detail or {}
+    en = lang == "en"
+    n = (lambda v: str(v)) if en else (lambda v: R._bn_digits(v))
+    name = d.get("name") or _kind_label(d.get("kind", ""), lang)
+    a = row.action
+    if a == "auto_create":
+        return ("Created rule: %s (off)" if en else "নিয়ম তৈরি: %s (বন্ধ)") % name
+    if a == "auto_on":
+        return ("Turned ON: %s" if en else "চালু করলেন: %s") % name
+    if a == "auto_off":
+        return ("Turned OFF: %s" if en else "বন্ধ করলেন: %s") % name
+    if a == "auto_edit":
+        return ("Edited: %s" if en else "বদলালেন: %s") % name
+    if a == "auto_delete":
+        return ("Deleted: %s" if en else "মুছলেন: %s") % name
+    if a == "caps_edit":
+        return ("Limits changed: %s/day per customer, %s/week, shop %s/day" if en else
+                "সীমা বদল: প্রতি গ্রাহক দিনে %s, সপ্তাহে %s, দোকান দিনে %s") % (
+            n(d.get("per_customer_day", "")), n(d.get("per_customer_week", "")),
+            n(d.get("business_daily", "")))
+    if a == "auto_run":
+        t = ("%s: sent %s, not sent %s" if en else "%s: পাঠানো %s, যায়নি %s") % (
+            name, n(d.get("sent", 0)), n(d.get("blocked", 0)))
+        if d.get("rule_cap"):
+            t += " — daily limit reached" if en else " — দিনের সীমা পূর্ণ"
+        return t
+    if a == "feedback":
+        return ("%s rated %s/5" if en else "%s মতামত দিলেন %s/৫") % (
+            d.get("customer") or ("Customer" if en else "গ্রাহক"), n(d.get("rating", "")))
+    if a == "opt_out_owner":
+        return ("Stopped messages to %s (owner)" if en else "%s-কে মেসেজ বন্ধ (মালিক)") % (
+            d.get("phone") or "")
+    return a
+
+
+def audit_rows(business, lang="bn", limit=100):
+    from .models import BizAuditLog
+    rows = (BizAuditLog.objects.filter(business=business, action__in=AUDIT_ACTIONS)
+            .select_related("actor").order_by("-created_at", "-id")[:max(1, min(300, limit))])
+    out = []
+    for r in rows:
+        who = getattr(r.actor, "name", "") if r.actor_id else ""
+        out.append({"id": r.id, "action": r.action, "at": r.created_at.isoformat(),
+                    "by": who or ("" if r.actor_id else ("Automatic" if lang == "en"
+                                                           else "স্বয়ংক্রিয়")),
+                    "text": _audit_text(r, lang)})
+    return out
+
+
+def audit_change(business, actor, before, after):
+    """Owner edit of one automation -> on / off / edit rows."""
+    d = {"id": after.id, "kind": after.kind, "name": after.name}
+    if before is None:
+        audit(business, actor, "auto_create", d)
+        if after.enabled:
+            audit(business, actor, "auto_on", d)
+        return
+    if bool(before.get("enabled")) != bool(after.enabled):
+        audit(business, actor, "auto_on" if after.enabled else "auto_off", d)
+    keys = ("params", "template_bn", "template_en", "channel", "send_hour", "name",
+            "wa_template")
+    if any(before.get(k) != getattr(after, k) for k in keys):
+        audit(business, actor, "auto_edit", d)
+
+
+# ===================================================================== crmauto: feedback
+def record_feedback(send, text, now=None):
+    """A reply to an after-delivery feedback message: a 1-5 rating is logged;
+    1-2 alerts the owner at once (call before it becomes a bad review)."""
+    try:
+        auto = send.automation
+    except Exception:
+        return None
+    if auto is None or auto.kind != R.KIND_DELIVERY:
+        return None
+    rating = R.parse_rating(text)
+    if rating is None:
+        return None
+    audit(send.business, None, "feedback",
+          {"send_id": send.pk, "rating": rating, "ref": send.ref_key,
+           "customer": (send.customer_name or "")[:60]})
+    if rating <= 2:
+        try:
+            from . import bizagent_service as BS
+            nm = send.customer_name or ""
+            BS.notify_seller(send.business, "unhappy_customer",
+                             "অখুশি গ্রাহক: %s (%s/৫) — এখনই ফোন করুন" % (nm, R._bn_digits(rating)),
+                             "Unhappy customer: %s (%s/5) — call now" % (nm, rating),
+                             (text or "")[:200], (text or "")[:200],
+                             data={"route": "retention_auto"})
+        except Exception:
+            log.exception("unhappy-customer alert failed")
+    return rating
+
+
+def ratings_by_key(business, keys=None, days=365):
+    """{audience_key: latest rating} from the feedback audit rows."""
+    from .models import BizAuditLog, RetentionSend
+    rows = list(BizAuditLog.objects.filter(
+        business=business, action="feedback",
+        created_at__gte=timezone.now() - timedelta(days=days)).order_by("created_at")
+        .values_list("detail", flat=True)[:5000])
+    ids = {int(d.get("send_id") or 0): int(d.get("rating") or 0) for d in rows
+           if isinstance(d, dict)}
+    keymap = dict(RetentionSend.objects.filter(pk__in=list(ids)).values_list("pk", "audience_key"))
+    out = {}
+    for sid, rating in ids.items():      # dict keeps insertion order = oldest first
+        k = keymap.get(sid)
+        if k and (keys is None or k in keys):
+            out[k] = rating
+    return out
+
+
+# ===================================================================== crmauto: score
+def scores(business, lang="bn", limit=50, q=""):
+    """Every customer (and open-quote lead) of this shop with a transparent
+    0-100 score and the rules behind it, best first."""
+    from .logic import customer_score as CS
+    from .models import Customer, Order, RetentionSend
+    now = timezone.now()
+    yr = now - timedelta(days=365)
+    scan = cfg()["max_audience_scan"]
+    agg = {}
+    for r in (_sales(business).filter(created_at__gte=yr).order_by().values("customer__phone_key")
+              .annotate(n=Count("id"), spend=Sum("total"), last=Max("created_at"))[:scan]):
+        agg[r["customer__phone_key"]] = r
+    people = {}
+    for c in (Customer.objects.filter(_cust_q(business)).exclude(phone_key="")
+              .order_by("-id")[:scan]):
+        people.setdefault(c.phone_key, {"name": c.name, "customer_id": c.id})
+    quotes = _open_quotes(business, now, scan)
+    open_q = {qq.phone_key for qq in quotes}
+    for qq in quotes:
+        people.setdefault(qq.phone_key, {"name": qq.customer_name, "customer_id": None})
+    if q:
+        ql = q.strip().lower()
+        qk = normalize_phone(q) or "\x00"
+        people = {k: v for k, v in people.items()
+                  if ql in (v["name"] or "").lower() or qk in k}
+    keys = set(people)
+    due = {key: d for _, key, d in _khata_due(business, scan)}
+    returns = {}
+    for ph in (Order.objects.filter(business=business, status__in=("returned", "cancelled"),
+                                    created_at__gte=yr).values_list("customer_phone", flat=True)[:scan]):
+        k = normalize_phone(ph or "")
+        if k:
+            returns[k] = returns.get(k, 0) + 1
+    replied = set(RetentionSend.objects.filter(business=business, replied_at__gte=now - timedelta(days=30))
+                  .values_list("audience_key", flat=True))
+    ratings = ratings_by_key(business, keys)
+    opted = MG.opted_out_keys(business.id)
+    out = []
+    for k, who in people.items():
+        a = agg.get(k)
+        sig = {"days_since_last": (now - a["last"]).days if a else None,
+               "purchases": a["n"] if a else 0, "spend_poisha": int(a["spend"] or 0) if a else 0,
+               "due_poisha": max(0, due.get(k, 0)), "returns": returns.get(k, 0),
+               "replied_recent": k in replied, "open_quote": k in open_q,
+               "last_rating": ratings.get(k), "opted_out": k in opted}
+        r = CS.score(sig, lang)
+        if not r["parts"] and not r["do_not_message"]:
+            continue          # nothing known about this person yet — no fake score
+        out.append(dict(r, key_masked=R.mask_phone(k), name=who["name"] or "",
+                        customer_id=who["customer_id"], lead=a is None))
+    out.sort(key=lambda x: (-x["score"], x["name"]))
+    return {"people": out[:max(1, min(200, limit))], "total": len(out),
+            "rule_book": CS.rule_book(lang)}

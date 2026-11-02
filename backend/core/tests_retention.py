@@ -131,7 +131,7 @@ class RetentionPureTests(SimpleTestCase):
                                "wa_template": {"name": "t", "category": "utility"},
                                "params": {"every_days": 1, "min_due_taka": "50"}})
         self.assertEqual(p, [])
-        self.assertEqual(clean["params"], {"min_due_taka": 50, "every_days": 7})   # clamped
+        self.assertEqual(clean["params"], {"min_due_taka": 50, "every_days": 7, "daily_cap": 50})   # clamped
         self.assertEqual(R.validate({"kind": "spam"})[1], ["bad_kind"])
 
     def test_sms_segments_and_money(self):
@@ -227,7 +227,7 @@ class EndToEndTests(_Base):
         self.assertEqual(r.data["automations"], [])
         self.assertEqual(r.data["caps"]["per_customer_week"], 2)
         self.assertIn("in_app", r.data["channels_ready"])
-        self.assertEqual(len(r.data["kinds"]), 5)
+        self.assertEqual(len(r.data["kinds"]), len(R.KINDS))
 
         self.sale(self.cust, DAY1 - timedelta(days=2, hours=2))
         # draft preview: honest count + rendered sample with STOP footer

@@ -65,6 +65,41 @@ class FakeRetention implements RetentionSource {
       'default_bn': 'Happy birthday {name} (bn)',
       'default_en': 'Happy birthday, {name}!',
     },
+    // crmauto
+    {
+      'kind': 'reorder',
+      'purpose': 'marketing',
+      'vars': ['name', 'shop', 'product', 'days'],
+      'params': {
+        'min_purchases': {'min': 2, 'max': 10, 'default': 2},
+        'days_before': {'min': 0, 'max': 7, 'default': 1},
+        'daily_cap': {'min': 1, 'max': 1000, 'default': 50},
+      },
+      'default_bn': '{name}, {product} again? (bn)',
+      'default_en': '{name}, you usually get {product} every {days} days — need it again?',
+    },
+    {
+      'kind': 'delivery_feedback',
+      'purpose': 'marketing',
+      'vars': ['name', 'shop', 'product'],
+      'params': {
+        'days_after': {'min': 0, 'max': 7, 'default': 1},
+        'daily_cap': {'min': 1, 'max': 1000, 'default': 50},
+      },
+      'default_bn': '{name}, rate 1-5 (bn)',
+      'default_en': '{name}, did the {product} reach you well? Reply 1 to 5.',
+    },
+    {
+      'kind': 'quote_followup',
+      'purpose': 'marketing',
+      'vars': ['name', 'shop', 'total', 'link'],
+      'params': {
+        'days_after': {'min': 1, 'max': 14, 'default': 2},
+        'daily_cap': {'min': 1, 'max': 1000, 'default': 50},
+      },
+      'default_bn': '{name}, quote {total} {link} (bn)',
+      'default_en': "{name}, {shop}'s price quote ({total}) is still held for you: {link}",
+    },
   ];
 
   static Map<String, dynamic> automation(
@@ -153,6 +188,12 @@ class FakeRetention implements RetentionSource {
       'sample_text': 'Karim, thank you!\nTap "Stop" to get no more messages.',
       'quiet_now': false,
       'next_send_at': '2026-10-27T09:00:00+06:00',
+      'daily_cap': 50,
+      'sent_today': 0,
+      'will_send_today': 3,
+      'cost': draft['channel'] == 'sms'
+          ? {'per_message': 2, 'basis': 'sms_parts', 'estimate': 6, 'balance': 120, 'segments': 2}
+          : {'per_message': 0, 'basis': 'in_app', 'estimate': 0, 'balance': 120, 'segments': null},
     };
   }
 
@@ -280,6 +321,77 @@ class FakeRetention implements RetentionSource {
   Future<Map<String, dynamic>> addOptOut(String phone) async {
     calls.add('optout:$phone');
     return {'ok': true, 'opted_out_count': 2};
+  }
+
+  // crmauto
+  @override
+  Future<Map<String, dynamic>> scores({String q = ''}) async {
+    calls.add('scores');
+    _fail();
+    final rules = {
+      'rules': [
+        {'id': 'recent_30', 'points': 30, 'text': 'Bought in the last 30 days'},
+        {'id': 'freq_3', 'points': 18, 'text': '3-4 purchases in a year'},
+        {'id': 'due', 'points': -10, 'text': 'Owes 100+ taka in the khata'},
+      ],
+      'bands': {'hot': 70, 'warm': 40, 'cold': 0},
+      'max': 100,
+    };
+    if (mode == 'empty' || q == 'zzz') return {'people': [], 'total': 0, 'rule_book': rules};
+    return {
+      'total': 2,
+      'rule_book': rules,
+      'people': [
+        {
+          'score': 78,
+          'band': 'hot',
+          'name': 'Karim',
+          'key_masked': '017•••••002',
+          'customer_id': 1,
+          'lead': false,
+          'do_not_message': false,
+          'parts': [
+            {'id': 'recent_30', 'points': 30, 'value': '12', 'rule': 'Bought in the last 30 days'},
+            {'id': 'freq_3', 'points': 18, 'value': '4', 'rule': '3-4 purchases in a year'},
+            {'id': 'spend_20k', 'points': 20, 'value': '24,000', 'rule': 'Spent 20,000+ taka in a year'},
+            {'id': 'replied', 'points': 10, 'value': '', 'rule': 'Replied to the shop in the last 30 days'},
+          ],
+        },
+        {
+          'score': 0,
+          'band': 'cold',
+          'name': '',
+          'key_masked': '018•••••771',
+          'customer_id': null,
+          'lead': true,
+          'do_not_message': true,
+          'parts': [
+            {'id': 'open_quote', 'points': 10, 'value': '', 'rule': 'Has an open price quote (interested)'},
+            {'id': 'due', 'points': -10, 'value': '500', 'rule': 'Owes 100+ taka in the khata'},
+          ],
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> audit() async {
+    calls.add('audit');
+    _fail();
+    if (mode == 'empty') return {'rows': []};
+    return {
+      'rows': [
+        {'id': 3, 'action': 'feedback', 'at': '2026-10-27T12:00:00+06:00', 'by': 'Automatic', 'text': 'Karim rated 2/5'},
+        {
+          'id': 2,
+          'action': 'auto_run',
+          'at': '2026-10-27T11:15:00+06:00',
+          'by': 'Automatic',
+          'text': 'Reorder reminder: sent 2, not sent 0 — daily limit reached'
+        },
+        {'id': 1, 'action': 'auto_on', 'at': '2026-10-27T10:00:00+06:00', 'by': 'Rina', 'text': 'Turned ON: Reorder reminder'},
+      ]
+    };
   }
 
   @override

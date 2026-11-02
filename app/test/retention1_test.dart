@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/screens/retention/retention_crm.dart';
 import 'package:assisto/screens/retention/retention_inbox.dart';
 import 'package:assisto/screens/retention/retention_screen.dart';
 import 'package:assisto/screens/retention/retention_wizard.dart';
@@ -104,7 +105,7 @@ void main() {
     await _tapText(tester, en.rtSave);
     expect(src.calls, contains('create'));
     expect(src.lastCreate!['kind'], 'winback');
-    expect(src.lastCreate!['enabled'], true);
+    expect(src.lastCreate!['enabled'], false); // crmauto: a new rule starts OFF
     expect(src.lastCreate!['channel'], 'in_app');
     expect((src.lastCreate!['params'] as Map)['days_without'], 45);
   });
@@ -253,6 +254,78 @@ void main() {
     await tester.pumpWidget(_app(RetentionInboxScreen(source: FakeRetention('off'))));
     await _settle(tester);
     expect(find.text(en.rtFeatureOffTitle), findsOneWidget);
+  });
+
+  // ------------------------------------------------------------ crmauto
+  testWidgets('crmauto: new kinds listed; reorder preview shows cost + daily limit; turn-on is explicit',
+      (tester) async {
+    _phone(tester, height: 2400);
+    final src = FakeRetention('empty');
+    await tester.pumpWidget(_app(RetentionScreen(source: src)));
+    await _settle(tester);
+    await _tapText(tester, en.rtCreateFirst);
+    expect(find.text(en.crmAutoKindDelivery), findsOneWidget);
+    expect(find.text(en.crmAutoKindQuote), findsOneWidget);
+    await _tapText(tester, en.crmAutoKindReorder);
+    await _tapText(tester, en.rtNext);
+    expect(find.text(en.crmAutoParamDailyCap), findsOneWidget);
+    expect(find.text(en.crmAutoCostFree), findsOneWidget);
+    expect(find.text(en.crmAutoTodayCap('3', '50')), findsOneWidget);
+    await _tapText(tester, en.rtNext);
+    await _tapText(tester, en.rtNext);
+    expect(find.text(en.crmAutoTurnOnOffHelp), findsOneWidget);
+    await tester.ensureVisible(find.byType(Switch).last);
+    await tester.tap(find.byType(Switch).last);
+    await _settle(tester);
+    expect(find.text(en.crmAutoTurnOnOnHelp), findsOneWidget);
+    await _tapText(tester, en.rtSave);
+    expect(src.lastCreate!['kind'], 'reorder');
+    expect(src.lastCreate!['enabled'], true);
+    expect((src.lastCreate!['params'] as Map)['daily_cap'], 50);
+  });
+
+  testWidgets('crmauto: scores explain every point; rule book; search empty; audit log', (tester) async {
+    _phone(tester, height: 1600);
+    final src = FakeRetention();
+    await tester.pumpWidget(_app(RetentionScoresScreen(source: src)));
+    await _settle(tester);
+    expect(find.text('Karim'), findsOneWidget);
+    expect(find.text(en.crmAutoBandHot), findsOneWidget);
+    await _tapText(tester, 'Karim');
+    expect(find.text(en.crmAutoWhyScore), findsOneWidget);
+    expect(find.text(en.crmAutoRuleWithValue('Bought in the last 30 days', '12')), findsOneWidget);
+    expect(find.text('+30'), findsWidgets);
+    // the STOP'd lead says so in plain words
+    expect(find.textContaining(en.crmAutoDoNotMessage), findsOneWidget);
+    await tester.tap(find.byTooltip(en.crmAutoRulesTitle));
+    await _settle(tester);
+    expect(find.text(en.crmAutoRulesNoAi), findsOneWidget);
+    expect(find.text('\u221210'), findsOneWidget);
+    await tester.pumpWidget(_app(RetentionScoresScreen(source: FakeRetention('empty'))));
+    await _settle(tester);
+    expect(find.text(en.crmAutoScoresEmptyTitle), findsOneWidget);
+    expect(find.text(en.crmAutoRulesSee), findsOneWidget);
+    await tester.pumpWidget(_app(RetentionAuditScreen(source: src)));
+    await _settle(tester);
+    expect(find.text('Turned ON: Reorder reminder'), findsOneWidget);
+    expect(find.textContaining('Rina'), findsOneWidget);
+    await tester.pumpWidget(_app(RetentionAuditScreen(source: FakeRetention('empty'))));
+    await _settle(tester);
+    expect(find.text(en.crmAutoAuditEmptyTitle), findsOneWidget);
+    expect(find.text(en.crmAutoAuditBack), findsOneWidget);
+  });
+
+  testWidgets('crmauto: retention list links scores + activity log', (tester) async {
+    _phone(tester, height: 2400);
+    final src = FakeRetention('data');
+    await tester.pumpWidget(_app(RetentionScreen(source: src, guide: false)));
+    await _settle(tester);
+    await _tapText(tester, en.crmAutoScoresTitle);
+    expect(src.calls, contains('scores'));
+    await tester.pageBack();
+    await _settle(tester);
+    await _tapText(tester, en.crmAutoAuditTitle);
+    expect(src.calls, contains('audit'));
   });
 
   for (final variant in [
