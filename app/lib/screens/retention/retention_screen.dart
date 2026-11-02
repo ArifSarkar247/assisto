@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../business/business_plans_screen.dart';
+import 'retention_crm.dart';
 import 'retention_people.dart';
 import 'retention_results.dart';
 import 'retention_source.dart';
@@ -252,6 +253,20 @@ class _RetentionScreenState extends State<RetentionScreen> {
                 label: Text(t.rtManageAsks),
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => RetentionStockAsksScreen(source: _src))),
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.leaderboard_outlined),
+                label: Text(t.crmAutoScoresTitle),
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => RetentionScoresScreen(source: _src))),
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.history_rounded),
+                label: Text(t.crmAutoAuditTitle),
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => RetentionAuditScreen(source: _src))),
               ),
             ]),
           ),
