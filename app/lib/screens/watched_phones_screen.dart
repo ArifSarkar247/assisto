@@ -234,7 +234,9 @@ class WatchedPhoneScreen extends StatelessWidget {
                 ),
               ),
             ),
-            if (id != null) RemoteSwitchesCard(phoneId: id),
+            // theftalerts: a nominee may VIEW the phone but has no switches
+            if (id != null && phone['can_command'] != false)
+              RemoteSwitchesCard(phoneId: id),
             if (id != null)
               Card(
                 child: ListTile(

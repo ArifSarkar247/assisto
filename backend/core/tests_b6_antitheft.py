@@ -185,8 +185,11 @@ class IngestionTests(_Base):
     def test_sim_change_alert_is_honest_about_number(self):
         self._ingest([{"id": "sim-1", "kind": "sim_change",
                        "data": {"state": "inserted", "carrier": "Robi", "v": 2}}])
-        self.assertFalse(NotifEvent.objects.filter(
-            user=self.owner, meta__antitheft_kind="sim_change").exists())
+        # theftalerts (owner 2 Nov): the owner gets an OWNER COPY of a SIM
+        # change (for his other devices; the protected phone drops it)
+        own = NotifEvent.objects.filter(
+            user=self.owner, meta__antitheft_kind="sim_change").get()
+        self.assertTrue(own.meta.get("owner_copy"))
         fa = NotifEvent.objects.filter(user=self.family,
                                         meta__antitheft_kind="sim_change").first()
         self.assertIsNotNone(fa)

@@ -1,0 +1,40 @@
+{
+  "_comment": "theftalerts (2 Nov): nominee switch for the three theft alerts, honest camera + reset limits, admin_off timeline label. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_theftalerts_arb.json",
+  "en": {
+    "taNomineeTitle": "Also alert my nominee",
+    "taNomineeBody": "Wrong unlock attempts, the intruder photo, a SIM change and someone turning protection off also go to your nominee. They can see this phone's status and photo, but cannot lock or ring it.",
+    "taNomineeReach": "{reachable} of {saved} nominees use Assisto and will get these alerts",
+    "@taNomineeReach": {
+      "description": "theftalerts: how many saved nominees have an Assisto account.",
+      "placeholders": {
+        "reachable": {
+          "type": "int",
+          "format": "decimalPattern"
+        },
+        "saved": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "taNomineeNone": "You have no nominee yet. Add a trusted person as your nominee so they are told too.",
+    "taNomineeAdd": "Add a nominee",
+    "taOwnerCopy": "You also get these alerts on your other signed-in phone or tablet (never on this phone).",
+    "taLimitCamera": "The intruder photo is taken only while Assisto is open, after wrong Security PINs typed in Assisto. Android and Google Play do not allow a hidden camera on the lock screen, so wrong screen-unlock attempts are sent as a count with the location.",
+    "taLimitUninstall": "No app may block its own uninstall. While protection is on, Android asks to turn off Assisto's device protection first; your trusted contacts are told at that moment.",
+    "taLimitReset": "If the phone is flashed or factory reset, Assisto is erased and can send nothing more. Your trusted contacts then get the 'stopped checking in' alert with the last location. Keep Google Find Hub on and a Google account on the phone (Factory Reset Protection).",
+    "taKindAdminOff": "Protection turn-off"
+  },
+  "bn": {
+    "taNomineeTitle": "আমার নমিনিকেও জানান",
+    "taNomineeBody": "ভুল আনলক চেষ্টা, অনুপ্রবেশকারীর ছবি, সিম বদল আর কেউ সুরক্ষা বন্ধ করলে — এগুলো আপনার নমিনির কাছেও যাবে। তিনি এই ফোনের অবস্থা ও ছবি দেখতে পারবেন, কিন্তু লক বা বাজাতে পারবেন না।",
+    "taNomineeReach": "{saved} জন নমিনির মধ্যে {reachable} জন Assisto ব্যবহার করেন, তাঁরা এই সতর্কতা পাবেন",
+    "taNomineeNone": "আপনার এখনো কোনো নমিনি নেই। একজন বিশ্বস্ত মানুষকে নমিনি করুন, তিনিও খবর পাবেন।",
+    "taNomineeAdd": "নমিনি যোগ করুন",
+    "taOwnerCopy": "আপনার অন্য যে ফোন বা ট্যাবে Assisto-তে লগইন আছে, সেখানেও আপনি এই সতর্কতা পাবেন (এই ফোনে নয়)।",
+    "taLimitCamera": "অনুপ্রবেশকারীর ছবি তোলা হয় শুধু Assisto খোলা থাকলে, Assisto-র ভেতরে ভুল সিকিউরিটি পিন দিলে। Android ও Google Play লক-স্ক্রিনে লুকানো ক্যামেরা চালাতে দেয় না, তাই ভুল স্ক্রিন-আনলক চেষ্টা লোকেশনসহ সংখ্যা হিসেবে পাঠানো হয়।",
+    "taLimitUninstall": "কোনো অ্যাপ নিজের আনইনস্টল আটকাতে পারে না। সুরক্ষা চালু থাকলে Android আগে Assisto-র ডিভাইস সুরক্ষা বন্ধ করতে বলে — ঠিক সেই মুহূর্তে আপনার বিশ্বস্ত মানুষদের জানানো হয়।",
+    "taLimitReset": "ফোন ফ্ল্যাশ বা ফ্যাক্টরি রিসেট করলে Assisto মুছে যায়, তারপর আর কিছু পাঠাতে পারে না। তখন বিশ্বস্ত মানুষেরা শেষ লোকেশনসহ 'ফোন থেকে আর তথ্য আসছে না' সতর্কতা পান। Google Find Hub চালু রাখুন আর ফোনে Google অ্যাকাউন্ট রাখুন (Factory Reset Protection)।",
+    "taKindAdminOff": "সুরক্ষা বন্ধের চেষ্টা"
+  }
+}

@@ -4837,6 +4837,10 @@ class AntiTheftEngine(models.Model):
     # the record (when consent was given) for the audit trail.
     intruder_consent_at = models.DateTimeField(null=True, blank=True)
     intruder_consent_v = models.PositiveSmallIntegerField(default=0)
+    # theftalerts: the three theft alerts (wrong unlock / intruder photo,
+    # SIM change, protection turn-off) also go to the owner's nominee(s)
+    # who have an Assisto account. Off by default; the owner's switch.
+    alert_nominee = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -4854,7 +4858,9 @@ class AntiTheftEvent(models.Model):
              # sosat: SOS from the lock screen / power button, experimental
              # fall (held for "Are you OK?") and its "I'm OK"
              ("sos_lockscreen", "sos_lockscreen"), ("sos_power", "sos_power"),
-             ("fall", "fall"), ("fall_ok", "fall_ok")]
+             ("fall", "fall"), ("fall_ok", "fall_ok"),
+             # theftalerts: device-admin turn-off requested / done
+             ("admin_off", "admin_off")]
     phone = models.ForeignKey(ProtectedPhone, on_delete=models.CASCADE,
                               related_name="engine_events")
     client_id = models.CharField(max_length=64)

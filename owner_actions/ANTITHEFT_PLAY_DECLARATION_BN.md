@@ -114,3 +114,24 @@ Encrypted in transit: **Yes**। Users can request deletion: **Yes**।
 > (3) The same user-enabled protection service also offers optional, off-by-default safety triggers: an SOS button on its notification (usable from the lock screen), an SOS after five quick power-button presses, and experimental fall detection from the motion sensor. Each first shows a countdown the user can cancel; then the user's own family contacts are alerted. The app never calls emergency numbers by itself.
 
 **Data safety:** পতন/SOS-এ লোকেশন আগের Location লাইনেই পড়ে (উদ্দেশ্য: Safety)। নতুন কোনো ডেটা টাইপ নেই।
+
+---
+
+## ৮. theftalerts (২ নভেম্বর) — তিনটি সতর্কতা: Play নিয়ম ধরে ধরে
+
+| পদ্ধতি | নতুন অনুমতি? | Play নিয়ম | সিদ্ধান্ত |
+|---|---|---|---|
+| ভুল স্ক্রিন-আনলক (পিন/প্যাটার্ন/পাসওয়ার্ড) — `DeviceAdminReceiver.onPasswordFailed` | **না** — `watch-login` আগে থেকেই ঘোষিত (§১) | Device Admin: ব্যবহারকারীর চালু করা চুরি-রোধ, প্রকাশ্য ঘোষণা আছে | রাখা; সংখ্যা পূর্ণ হলে লোকেশনসহ পুশ |
+| লক-স্ক্রিনে ইনট্রুডার ছবি | হতো `FOREGROUND_SERVICE_CAMERA` + ক্যামেরা FGS টাইপ | Android ১১+ ব্যাকগ্রাউন্ডে ক্যামেরা দেয় শুধু ক্যামেরা-টাইপ FGS-এ; Play-র FGS নিয়মে ক্যামেরা টাইপ শুধু ব্যবহারকারীর চালু করা, চলমান কাজে; লুকানো ছবি = stalkerware-ঝুঁকি। `USE_FULL_SCREEN_INTENT` দিয়ে লক-স্ক্রিনে পাতা খোলা = কল/অ্যালার্ম ছাড়া অন্য কাজে Play-র FSI নিয়ম ভঙ্গ | **তৈরি করা হয়নি** (মালিকের সিদ্ধান্ত-তালিকায় বিকল্প) |
+| অ্যাপের ভেতরে ভুল সিকিউরিটি পিনে ছবি | না (`CAMERA` আগে থেকে, অ্যাপ খোলা) | দৃশ্যমান অ্যাপ, শাটার-শব্দ, সম্মতি-পাতা | রাখা; এখন **পুশেই ছবি** — প্রতিটি প্রাপকের নিজের সই-করা ৬ ঘণ্টার https লিংক; সার্ভারে এনক্রিপ্ট; ৩০ দিনে মুছে যায় (এখন ফোন আর না এলেও ঘণ্টায় একবার মোছা হয়) |
+| SIM বদল — `getSimState(slot)`, `getSubscriptionIds(slot)`, `simOperator` | **না** — `READ_PHONE_STATE` নেই | — | রাখা (আগে থেকে) |
+| আনইনস্টল-চেষ্টা — `onDisableRequested` / `onDisabled` | **না** | Play আনইনস্টল আটকানো নিষেধ (Device and Network Abuse) — আমরা আটকাই না, শুধু টের পাই; সিস্টেমের ডায়ালগে সৎ লেখা | নতুন: সাথে সাথে সতর্কতা |
+
+**কাকে যায়:** বিশ্বস্ত মানুষ + মালিকের অন্য ডিভাইস (চুরি-হওয়া ফোনে নয়) + নমিনি (মালিক চালু করলে; শুধু দেখতে পারেন, লক/বাজানো নয়)।
+
+**Data safety:** নতুন ডেটা টাইপ নেই। Photos লাইনে "shared" এখনো **না** — প্রাপক মালিকের নিজের বাছাই করা মানুষ (user-initiated)।
+
+**Device Admin উত্তরে যোগ করার লাইন (কপি, §১-এর লেখার শেষে):**
+> When the user opens Android's screen to deactivate Assisto's device admin (the step Android requires before uninstalling while protection is on), Assisto does not block it; it only sends an alert to the trusted contacts the owner chose, and the system dialog says so.
+
+**স্টকারওয়্যার প্রশ্নের উত্তরে (§৫) কিছু বদলায় না** — ক্যামেরা এখনো শুধু অ্যাপ খোলা অবস্থায়।

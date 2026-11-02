@@ -342,6 +342,11 @@ def build_message(token, data, notification=None, priority="high", ttl_s=3600,
     if notification:
         msg["notification"] = {k: str(v) for k, v in notification.items()
                                if k in ("title", "body") and v is not None}
+        # theftalerts: a picture in the notification (FCM v1
+        # Notification.image) — https only; the phone fetches it itself.
+        img = notification.get("image")
+        if isinstance(img, str) and img.startswith("https://"):
+            msg["notification"]["image"] = img
         an = {}
         if android_channel:
             an["channel_id"] = android_channel
@@ -431,7 +436,7 @@ def seen_name(viewer, user, group=None):
 
 
 def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
-                 data=None, high_priority=False, data_only=False):
+                 data=None, high_priority=False, data_only=False, image=None):
     """Send `kind` to every registered device of `user`. Returns the number of
     devices that accepted it (0 when push is unavailable). Never raises."""
     try:
@@ -462,6 +467,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
                        lang=lang, channel=CHANNELS[kind],
                        sent_at=int(time.time()))
         notification = None if data_only else {"title": title, "body": body}
+        if notification is not None and image:
+            notification["image"] = image
         collapse = None
         if kind == "message" and payload.get("chat_id"):
             collapse = "chat-%s" % payload["chat_id"]
@@ -569,7 +576,7 @@ def _run_push(args, kwargs, close_old_connections):
 
 def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
                        data=None, high_priority=False, data_only=False,
-                       sync=None):
+                       sync=None, image=None):
     """Fire-and-forget push. The availability check runs inline (cheap) so with
     no credentials nothing is queued at all. sync=True (or settings.PUSH_SYNC)
     runs inline — used by tests. Never raises; returns True if queued/sent."""
@@ -579,6 +586,8 @@ def push_to_user_async(user, kind, title_bn, title_en, body_bn="", body_en="",
         args = (user, kind, title_bn, title_en, body_bn, body_en)
         kwargs = {"data": data, "high_priority": high_priority,
                   "data_only": data_only}
+        if image:
+            kwargs["image"] = image
         if sync is None:
             sync = bool(getattr(settings, "PUSH_SYNC", False))
         if sync:
