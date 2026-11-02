@@ -1666,6 +1666,22 @@ BN.update({
     "agb_note": "agent_core যাঁদের জন্য চালু, তাঁদের কত শতাংশ নিজে থেকে সংক্ষেপ ও হিসাব পাবেন (০–১০০)। ফ্ল্যাগের রোলআউটের একই হ্যাশ, তাই এই দল সবসময় ফ্ল্যাগের দলের ভেতরে। মালিক, স্টাফ ও টেস্টার তালিকা সবসময় পান; বাকিরা হাতে খুলে দেখতে পারেন। ১০ দিয়ে শুরু করুন, উপরের সংখ্যা এক দিন দেখে বাড়ান।",
     "agb_pct": "রোলআউট %",
 })
+EN.update({
+    "nav_train_schedule": "Train timetable",
+    "trs_intro": "The app shows every train's times as an estimate and says \"timetable not yet checked\" until you tick it here. Our times come from Wikipedia (Bangladesh Railway's 52nd timetable, January 2020) — many may have changed.",
+    "trs_how": "For each train: open the official Bangladesh Railway timetable (railway.gov.bd, or eticket.railway.gov.bd -> Train information), compare departure, arrival and the off day. Tick only if all three match, then Save. A wrong train: leave it unticked and tell the developers the right times. Every save is audited.",
+    "trs_done": "Checked", "trs_checked": "Checked", "trs_ok": "matches", "trs_no": "No.",
+    "trs_name": "Train", "trs_route": "Route", "trs_dep": "Departs", "trs_arr": "Arrives",
+    "trs_off": "Off day", "trs_source": "Source note",
+})
+BN.update({
+    "nav_train_schedule": "ট্রেনের সময়সূচি",
+    "trs_intro": "এখানে টিক না দেওয়া পর্যন্ত অ্যাপ প্রতিটি ট্রেনের সময় \"আনুমানিক\" দেখায় আর লেখে \"সময়সূচি যাচাই বাকি\"। আমাদের সময় উইকিপিডিয়া থেকে (বাংলাদেশ রেলওয়ের ৫২তম সময়সূচি, জানুয়ারি ২০২০) — অনেকগুলো বদলে থাকতে পারে।",
+    "trs_how": "প্রতিটি ট্রেন: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি খুলুন (railway.gov.bd, বা eticket.railway.gov.bd → Train information), ছাড়ার সময়, পৌঁছানোর সময় আর ছুটির দিন মেলান। তিনটিই মিললে তবেই টিক দিন, তারপর সংরক্ষণ। না মিললে টিক দেবেন না, ঠিক সময়টা ডেভেলপারকে জানান। প্রতিটি সংরক্ষণ অডিটে লেখা থাকে।",
+    "trs_done": "যাচাই হয়েছে", "trs_checked": "যাচাই", "trs_ok": "মিলেছে", "trs_no": "নং",
+    "trs_name": "ট্রেন", "trs_route": "পথ", "trs_dep": "ছাড়ে", "trs_arr": "পৌঁছায়",
+    "trs_off": "ছুটির দিন", "trs_source": "উৎসের নোট",
+})
 # ---- /flagprep ----
 # ---- /agent-proactive ----
 

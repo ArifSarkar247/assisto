@@ -211,3 +211,23 @@ class RetentionRunFlagOffTests(TestCase):
         ra.assert_not_called()
         self.assertIn("sent=0", out.getvalue())
         self.assertEqual(JobHeartbeat.objects.get(name="retention_run").last_rc, 0)
+
+
+# ====================================================================== train timetable check
+class TrainScheduleCheckTests(OwnerBase):
+    def test_owner_ticks_a_train_and_the_app_drops_the_unchecked_line(self):
+        from core import train_service as TS
+        cache.clear()
+        self.assertFalse(TS.search("701")[0]["approved"])               # honest default
+        self.ready()
+        r = self.c.get("/owner/train-schedule?lang=bn")
+        self.assertContains(r, "ট্রেনের সময়সূচি")
+        self.assertContains(r, 'value="701"')
+        r = self.post("/owner/train-schedule", {"checked": ["701", "99999"]})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(TS.checked_nos(), {"701"})                     # unknown dropped
+        self.assertTrue(TS.search("701")[0]["approved"])
+        self.assertTrue(OwnerAudit.objects.filter(action="train_schedule_checked", ok=True).exists())
+        self.post("/owner/train-schedule", {})                          # untick all
+        self.assertEqual(TS.checked_nos(), set())
+        self.assertContains(self.c.get("/owner/train-schedule?lang=en"), "Train timetable")

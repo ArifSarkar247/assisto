@@ -60,23 +60,72 @@ def _st(sid):
             "lat": s.get("lat"), "lng": s.get("lng")}
 
 
-def train_summary(t):
+# flagprep (2 Nov): the owner ticks "timetable checked" per train in Owner
+# Admin -> Train timetable (/owner/train-schedule) instead of editing the JSON
+# file. Stored in AdminFlagState key CHECKED_KEY ({"nos": [...]}); the file's
+# own "approved": true still counts. Unchecked trains keep the honest
+# "timetable not yet checked" line in the app.
+CHECKED_KEY = "train_schedule_checked"
+_CHECKED_CACHE = "train:checked:v1"
+
+
+def checked_nos():
+    from django.core.cache import cache
+    v = cache.get(_CHECKED_CACHE)
+    if v is None:
+        v = []
+        try:
+            from .models import AdminFlagState
+            row = AdminFlagState.objects.filter(key=CHECKED_KEY).first()
+            v = sorted({str(x) for x in ((row.state or {}).get("nos") or [])}) if row else []
+        except Exception:  # noqa: BLE001 — never break the train screen
+            v = []
+        cache.set(_CHECKED_CACHE, v, 60)
+    return set(v)
+
+
+def is_approved(t, checked=None):
+    if t.get("approved"):
+        return True
+    return str(t["no"]) in (checked_nos() if checked is None else checked)
+
+
+def save_checked(nos, actor=None):
+    """Owner Admin: the full set of checked train numbers. Unknown numbers are
+    dropped. Returns (before, after) sorted lists."""
+    from django.core.cache import cache
+    from .models import AdminFlagState
+    known = {t["no"] for t in TG.timetable()["trains"]}
+    after = sorted({str(n) for n in nos if str(n) in known})
+    row, _ = AdminFlagState.objects.get_or_create(key=CHECKED_KEY)
+    before = sorted((row.state or {}).get("nos") or [])
+    row.state = dict(row.state or {}, nos=after)
+    row.audit = ([{"by": getattr(actor, "pk", None), "at": timezone.now().isoformat(),
+                   "added": sorted(set(after) - set(before)),
+                   "removed": sorted(set(before) - set(after))}] + list(row.audit or []))[:100]
+    row.save(update_fields=["state", "audit", "updated_at"])
+    cache.delete(_CHECKED_CACHE)
+    return before, after
+
+
+def train_summary(t, checked=None):
     return {"no": t["no"], "name_bn": t["name_bn"], "from": _st(t["from"]),
             "to": _st(t["to"]), "dep": t["dep"], "arr": t["arr"],
             "off_days": t.get("off_days") or [], "km": t.get("km"),
-            "approved": bool(t.get("approved"))}
+            "approved": is_approved(t, checked)}
 
 
 def search(q):
     q = str(q or "").strip().lower()
     out = []
+    checked = checked_nos()
     for t in TG.timetable()["trains"]:
         names = [t["no"], t["name_bn"].lower()]
         for s in t["stops"]:
             st = TG.stations().get(s["st"]) or {}
             names += [st.get("bn", "").lower(), st.get("en", "").lower()]
         if not q or any(q in n for n in names if n):
-            out.append(train_summary(t))
+            out.append(train_summary(t, checked))
     return out[:60]
 
 
@@ -188,6 +237,8 @@ def live_view(t, service_date, user=None, now=None):
                   status__in=("active", "arrived"), last_fix_at__isnull=False)]
     live = TG.fuse(t, latest, now)
     est = TG.estimate(t, service_date, now)
+    if est is not None:
+        est["approved"] = is_approved(t)
     if live:
         live["delay_min"] = TG.delay_minutes(t, service_date, live["chainage_m"], now)
         live["next_stop"] = _st(TG.next_stop_after(t, live["chainage_m"])) \
