@@ -311,3 +311,33 @@ class DhakaReplayTests(GBase):
         jam = [(23.7570 - k * 0.0001, 90.3900) for k in range(50)]
         self.replay(jam, j, t0)
         self.assertEqual(self.events(j, "long_stop"), [])
+
+
+# --------------------------------------- 5. strict bn / en server texts
+class ServerTextLanguageTests(GBase):
+    """Every watcher push in Bangla has Bangla digits and no English words
+    (brand/PIN/SOS and links excepted); every English one has no Bangla."""
+    KINDS = [("started", {}), ("arrived", {}), ("extended", {"minutes": 15}),
+             ("low_battery", {"battery": 12}), ("overdue_alert", {"minutes": 25}),
+             ("ok_again", {}), ("off_route", {"meters": 3500}),
+             ("long_stop", {"minutes": 21}), ("signal_lost", {"minutes": 16}),
+             ("signal_lost", {"minutes": 16, "why": "battery", "battery": 4}),
+             ("signal_lost", {"minutes": 16, "why": "killed"}),
+             ("ended", {}), ("duress", {})]
+    ALLOWED = {"Assisto", "PIN", "SOS"}
+
+    def test_every_event_text_is_one_language(self):
+        import re
+        # a pin without a typed name: the user's own words are data, not UI
+        j, _ = self.start(eta_min=40, destination={"lat": 23.80, "lng": 90.40})
+        loc = {"lat": 23.7712, "lng": 90.3991, "url": "https://lifeassisto.com/j/x"}
+        for kind, p in self.KINDS:
+            payload = {**loc, **p}
+            tbn, bbn = JW.event_text(kind, j, "রিনা", "bn", payload)
+            ten, ben = JW.event_text(kind, j, "Rina", "en", payload)
+            bn = re.sub(r"https?://\S+", "", tbn + " " + bbn)
+            words = set(re.findall(r"[A-Za-z]+", bn)) - self.ALLOWED
+            self.assertEqual(words, set(), (kind, p, bn))
+            self.assertNotRegex(bn, r"[0-9]", (kind, p, bn))
+            en = re.sub(r"https?://\S+", "", ten + " " + ben)
+            self.assertNotRegex(en, r"[ঀ-৿]", (kind, p, en))
