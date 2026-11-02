@@ -168,7 +168,7 @@ class ModeAwareStopTests(TrainJourneyBase):
 
     def test_off_the_line_is_a_normal_stop(self):
         j, _ = self.start_train(eta_min=300)
-        ev = self.stand(j, 23.7806, 90.4070, 25)          # Gulshan: no rail, no station
+        ev = self.stand(j, 23.8069, 90.3687, 25)          # Mirpur 10: ~3 km from any rail line
         self.assertEqual(len(ev), 1)
         self.assertIsNone(ev[0].payload.get("dwell"))
 
