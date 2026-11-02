@@ -1,0 +1,279 @@
+{
+ "en": {
+  "rnAllLabels": "All",
+  "@rnAllLabels": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttach": "Attach from Vault",
+  "@rnAttach": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachEmpty": "Your Vault is empty — add a paper there first.",
+  "@rnAttachEmpty": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachOpen": "Open in Vault",
+  "@rnAttachOpen": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnAttachRemove": "Remove paper",
+  "@rnAttachRemove": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnCircleNone": "No one in My Circle yet — type a name instead.",
+  "@rnCircleNone": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColor": "Colour",
+  "@rnColor": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorBlue": "Blue",
+  "@rnColorBlue": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorGray": "Grey",
+  "@rnColorGray": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorGreen": "Green",
+  "@rnColorGreen": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorNone": "No colour",
+  "@rnColorNone": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorOrange": "Orange",
+  "@rnColorOrange": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorPurple": "Purple",
+  "@rnColorPurple": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorRed": "Red",
+  "@rnColorRed": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorTeal": "Teal",
+  "@rnColorTeal": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnColorYellow": "Yellow",
+  "@rnColorYellow": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnEveryN": "Every {n} {unit}",
+  "@rnEveryN": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "unit": {
+     "type": "String"
+    }
+   }
+  },
+  "rnFilterByLabel": "Show notes with this label",
+  "@rnFilterByLabel": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnFromCircle": "From My Circle",
+  "@rnFromCircle": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnGiveFamily": "Give a task to family",
+  "@rnGiveFamily": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnLoadFailed": "Couldn't load — check the internet and try again.",
+  "@rnLoadFailed": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesAddFirst": "Write your first note",
+  "@rnNotesAddFirst": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesBenefit": "Lists, ideas and papers — kept on this phone and in your account, even offline.",
+  "@rnNotesBenefit": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep1": "Tap the button, then write — or tap the mic and say it",
+  "@rnNotesStep1": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep2": "Add a checklist (rice, dal, oil) and tick items at the shop",
+  "@rnNotesStep2": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotesStep3": "Pin it, give it a colour or label, or send it to someone in My Circle",
+  "@rnNotesStep3": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotifDone": "Done",
+  "@rnNotifDone": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnNotifSnooze10": "Snooze 10 min",
+  "@rnNotifSnooze10": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemAddFirst": "Add your first reminder",
+  "@rnRemAddFirst": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemBenefit": "Write or say it in plain words — it rings on time, even with the app closed.",
+  "@rnRemBenefit": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep1": "Type in the box above, e.g. \"tomorrow 8am medicine\" — or tap the mic and say it",
+  "@rnRemStep1": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep2": "Check the time and repeat shown under it, then tap Add",
+  "@rnRemStep2": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnRemStep3": "When it rings, tap Done or Snooze 10 min right on the notification",
+  "@rnRemStep3": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShare": "Share",
+  "@rnShare": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareCircle": "Send to someone in My Circle",
+  "@rnShareCircle": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareCircleSub": "A copy lands in their notes. Vault papers stay private.",
+  "@rnShareCircleSub": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareNeedsSync": "Still saving — connect to the internet and try again.",
+  "@rnShareNeedsSync": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareOther": "Share as text (WhatsApp, SMS…)",
+  "@rnShareOther": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnShareSent": "Sent to {name}",
+  "@rnShareSent": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "rnSharedFrom": "From {name}",
+  "@rnSharedFrom": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "rnSnoozeEvening": "This evening, 7 pm",
+  "@rnSnoozeEvening": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnSyncRefused": "One item wasn't saved to your account: {msg}",
+  "@rnSyncRefused": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+   "placeholders": {
+    "msg": {
+     "type": "String"
+    }
+   }
+  },
+  "rnTodoRepeatNeedsDate": "A repeating task needs a date — today was set.",
+  "@rnTodoRepeatNeedsDate": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodoRepeated": "Done — it comes back on {date}",
+  "@rnTodoRepeated": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "rnTodosAddFirst": "Add your first task",
+  "@rnTodosAddFirst": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosBenefit": "Small jobs in one list — with a date, and regular ones come back by themselves.",
+  "@rnTodosBenefit": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep1": "Write the task, e.g. \"Pay electricity bill\"",
+  "@rnTodosStep1": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep2": "Set a date, and pick Repeat for monthly jobs",
+  "@rnTodosStep2": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  },
+  "rnTodosStep3": "Tick it when done — a repeating task comes back on its next date",
+  "@rnTodosStep3": {
+   "description": "remnotes (owner Reminders & Notes review 28 Oct)"
+  }
+ },
+ "bn": {
+  "rnAllLabels": "সব",
+  "rnAttach": "ভল্ট থেকে কাগজ জুড়ুন",
+  "rnAttachEmpty": "ভল্ট খালি — আগে সেখানে কাগজ রাখুন।",
+  "rnAttachOpen": "ভল্টে খুলুন",
+  "rnAttachRemove": "কাগজ সরান",
+  "rnCircleNone": "My Circle-এ এখনো কেউ নেই — নাম লিখে দিন।",
+  "rnColor": "রং",
+  "rnColorBlue": "নীল",
+  "rnColorGray": "ধূসর",
+  "rnColorGreen": "সবুজ",
+  "rnColorNone": "রং নেই",
+  "rnColorOrange": "কমলা",
+  "rnColorPurple": "বেগুনি",
+  "rnColorRed": "লাল",
+  "rnColorTeal": "নীলচে সবুজ",
+  "rnColorYellow": "হলুদ",
+  "rnEveryN": "প্রতি {n} {unit}",
+  "rnFilterByLabel": "এই লেবেলের নোট দেখুন",
+  "rnFromCircle": "My Circle থেকে",
+  "rnGiveFamily": "পরিবারকে কাজ দিন",
+  "rnLoadFailed": "লোড হয়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "rnNotesAddFirst": "প্রথম নোট লিখুন",
+  "rnNotesBenefit": "লিস্ট, দরকারি কথা, কাগজ — ফোনে ও অ্যাকাউন্টে থাকে, নেট ছাড়াও লেখা যায়।",
+  "rnNotesStep1": "বোতাম চাপুন, তারপর লিখুন — বা মাইক চেপে বলুন",
+  "rnNotesStep2": "চেকলিস্ট যোগ করুন (চাল, ডাল, তেল) — দোকানে টিক দিন",
+  "rnNotesStep3": "পিন করুন, রং বা লেবেল দিন, অথবা My Circle-এর কাউকে পাঠান",
+  "rnNotifDone": "হয়ে গেছে",
+  "rnNotifSnooze10": "১০ মিনিট পরে",
+  "rnRemAddFirst": "প্রথম রিমাইন্ডার যোগ করুন",
+  "rnRemBenefit": "মুখের ভাষায় লিখুন বা বলুন — অ্যাপ বন্ধ থাকলেও ঠিক সময়ে বাজবে।",
+  "rnRemStep1": "ওপরের ঘরে লিখুন, যেমন \"কাল সকাল ৮টায় ওষুধ\" — বা মাইক চেপে বলুন",
+  "rnRemStep2": "নিচে দেখানো সময় ও পুনরাবৃত্তি ঠিক আছে কি না দেখে \"যোগ\" চাপুন",
+  "rnRemStep3": "বাজলে নোটিফিকেশনেই \"হয়ে গেছে\" বা \"১০ মিনিট পরে\" চাপুন",
+  "rnShare": "শেয়ার",
+  "rnShareCircle": "My Circle-এর কাউকে পাঠান",
+  "rnShareCircleSub": "একটি কপি তাঁর নোটে যাবে। ভল্টের কাগজ গোপন থাকে।",
+  "rnShareNeedsSync": "এখনো সেভ হচ্ছে — ইন্টারনেট চালু করে আবার চেষ্টা করুন।",
+  "rnShareOther": "লেখা হিসেবে শেয়ার (WhatsApp, SMS…)",
+  "rnShareSent": "{name}-কে পাঠানো হয়েছে",
+  "rnSharedFrom": "{name} পাঠিয়েছেন",
+  "rnSnoozeEvening": "আজ সন্ধ্যা ৭টা",
+  "rnSyncRefused": "একটি জিনিস অ্যাকাউন্টে সেভ হয়নি: {msg}",
+  "rnTodoRepeatNeedsDate": "পুনরাবৃত্ত কাজে তারিখ লাগে — আজকের তারিখ দেওয়া হলো।",
+  "rnTodoRepeated": "হয়ে গেছে — আবার আসবে {date}",
+  "rnTodosAddFirst": "প্রথম কাজ যোগ করুন",
+  "rnTodosBenefit": "ছোট কাজগুলো এক তালিকায় — তারিখসহ, নিয়মিত কাজ নিজে নিজে আবার আসে।",
+  "rnTodosStep1": "কাজটা লিখুন, যেমন \"বিদ্যুৎ বিল দেওয়া\"",
+  "rnTodosStep2": "তারিখ দিন; মাসিক কাজে \"পুনরাবৃত্তি\" বাছুন",
+  "rnTodosStep3": "শেষ হলে টিক দিন — পুনরাবৃত্ত কাজ পরের তারিখে আবার আসে"
+ }
+}

@@ -561,8 +561,11 @@ RISK_BIG_ORDER = "big_order"
 RISK_APPROVE_ALL = "seller_approves_all"
 RISK_ABUSE = "abuse"              # AF-4: the customer wrote abuse / threat / hate / sexual text
 RISK_UNSAFE = "unsafe_reply"      # AF-4 / AF-2: the AI draft was toxic or carried a broken PII token
+RISK_SCAM = "suspected_scam"      # sales2: a scam / phishing message TO the page — never answered
+RISK_ORDER_CHANGE = "order_change"  # sales2: change / cancel a confirmed order — a person does it
 RISKS = (RISK_COMPLAINT, RISK_REFUND, RISK_BELOW_MIN, RISK_UNKNOWN_PRODUCT,
-         RISK_LOW_CONF, RISK_NUMBERS, RISK_BIG_ORDER, RISK_APPROVE_ALL, RISK_ABUSE, RISK_UNSAFE)
+         RISK_LOW_CONF, RISK_NUMBERS, RISK_BIG_ORDER, RISK_APPROVE_ALL, RISK_ABUSE, RISK_UNSAFE,
+         RISK_SCAM, RISK_ORDER_CHANGE)
 
 _HUMAN_Q = ("are you human", "are you a bot", "are you real", "bot naki", "robot",
             "মানুষ", "রোবট", "বট", "manush", "ai naki", "are you ai")
@@ -601,6 +604,10 @@ def holding_message(lang, reason, hours_text=""):
         RISK_BIG_ORDER: pick(lang, "বড় অর্ডারের জন্য দোকানের মালিক নিজে আপনাকে জানাবেন।",
                              "For a large order the shop owner will reply to you personally."),
         # AF-4: calm, fixed, never mirrors the customer's words
+        RISK_ORDER_CHANGE: pick(lang, "আপনার অর্ডার বদল/বাতিলের অনুরোধ দোকানের মালিককে জানানো হয়েছে — "
+                                      "তিনি দেখে নিশ্চিত করে জানাবেন।",
+                                "Your request to change/cancel the order has been passed to the shop "
+                                "owner — they will confirm it with you."),
         RISK_ABUSE: pick(lang, "আপনার অসুবিধার জন্য দুঃখিত। দোকানের একজনকে জানানো হয়েছে — তিনি শীঘ্রই আপনার সাথে কথা বলবেন।",
                          "Sorry for the trouble. Someone from the shop has been told and will talk to you shortly."),
     }
@@ -768,7 +775,12 @@ def extract_order(text, draft, catalog):
         if v:
             d["variant"] = v.get("vkey") or "%s/%s" % (v.get("size", ""), v.get("colour", ""))
             d["variant_label"] = " ".join(x for x in (v.get("size"), v.get("colour")) if x)
-    q = find_qty(t)
+    # sales2: the product's own name is not a quantity ("Three Piece nibo")
+    tq = t
+    for p in prods:
+        if p.get("name"):
+            tq = re.sub(re.escape(p["name"]), " ", tq, flags=re.IGNORECASE)
+    q = find_qty(tq)
     if q:
         d["qty"] = q
     ph = find_phone(t)
@@ -832,6 +844,8 @@ def sticky_lang(text, prev):
     if cur == "bn" or prev not in ("bn", "en") or prev == cur:
         return cur
     words = set(re.findall(r"[a-z']+", (text or "").lower()))
+    if len(words) <= 2:
+        return prev          # sales2: "thanks" / "ok" in a Bangla chat stays Bangla
     return cur if words & _EN_WORDS else prev
 
 

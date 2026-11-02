@@ -37,9 +37,54 @@ import 'ps_tools.dart' show blurBackgroundRgba;
 // =========================================================================
 /// Long edge of the editing proxy for this phone. [ramMb] = total RAM as
 /// Android reports it (a "2 GB" phone ~1900, a "3 GB" one ~2800); 0 =
-/// unknown (desktop/tests) -> the bigger proxy.
-int psProxyLong({required int ramMb, required bool lowRam}) =>
-    (lowRam || (ramMb > 0 && ramMb <= 3328)) ? 1600 : 2400;
+/// unknown (desktop/tests) -> the biggest proxy.
+///
+/// photoperf2: ≤ 2 GB (and Android "low RAM" devices) edit at 1280 px —
+/// 0.64x the pixels of 1600, so the edit preview fits the 800 ms bar on the
+/// 2 GB emulator (the screen is 720 px wide: 1280 is still ~1.8x what it
+/// shows). The look is the same (PSNR vs the 1600 px preview > 30 dB,
+/// test/photoperf2_test.dart) and the export is unchanged: it always runs
+/// the recipe on the full-resolution original.
+int psProxyLong({required int ramMb, required bool lowRam}) {
+  if (lowRam || (ramMb > 0 && ramMb <= psRam2GbMb)) return 1280;
+  if (ramMb > 0 && ramMb <= 3328) return 1600;
+  return 2400;
+}
+
+/// Total RAM (MB, as Android reports it) up to which a phone counts as a
+/// "2 GB" phone (2 GB phones report ~1800-1990 MB; 3 GB ones ~2700-2900).
+const int psRam2GbMb = 2304;
+
+/// photoperf2: strip height of the full-resolution export. The classic
+/// pipeline keeps 8 float planes of (strip + context) rows per worker: at
+/// 4000 px wide that is ~41 MB with 256-row strips, ~25 MB with 128 — on
+/// ≤ 3 GB phones the smaller strips (≈ +20 % strip work for −32 MB at 2
+/// workers). Measured on the 2 GB emulator: 64-row strips + 384-row bands
+/// (run 40681952225) gave studio delta +98 MB but an 8.7 s export; 128 +
+/// 512 is the balance (run in PERF_2GB_BN.md).
+int psExportStripRows({required int ramMb, required bool lowRam}) =>
+    (lowRam || (ramMb > 0 && ramMb <= 3328)) ? 128 : 256;
+
+/// photoperf2: rows per natively decoded band (~8 MB at 4000 px). Fewer,
+/// bigger bands = fewer native decodes (a PNG is decoded from its start for
+/// every band); see [psRegionBands] for the cap.
+int psRegionBandRows({required int ramMb, required bool lowRam}) => 512;
+
+/// photoperf2: rows per decoded band of the band-decoded export (a multiple
+/// of [stripRows]): ~512 rows (a 4000 px band = 8 MB) on every phone; at
+/// most [maxBands] bands so a PNG source (decoded from its start for every
+/// band) is not decoded too many times over.
+List<(int, int)> psRegionBands(int h, int stripRows, {int bandRows = 512, int maxBands = 8}) {
+  final strips = (h + stripRows - 1) ~/ stripRows;
+  var per = math.max(1, (bandRows + stripRows - 1) ~/ stripRows);
+  while ((strips + per - 1) ~/ per > maxBands) {
+    per++;
+  }
+  return [
+    for (var s = 0; s < strips; s += per)
+      (s * stripRows, math.min(h, (s + per) * stripRows)),
+  ];
+}
 
 /// The long edge every interactive step works at: the proxy, and for free
 /// users never more than the server's preview size (enhance AND tools).
@@ -708,6 +753,75 @@ class PsWorker {
     try {
       return await Future.wait([for (var i = 0; i < n; i++) _one<T>(jobs[i], (d, t) => report(i, d, t))],
           eagerError: true);
+    } catch (e) {
+      if (_isos.isNotEmpty) _killAll(); // one failed -> stop the others
+      if (_cancelled) throw const PsWorkCancelled();
+      rethrow;
+    } finally {
+      _running--;
+    }
+  }
+
+  /// photoperf2: [count] jobs, at most [parallel] at a time, each job MADE
+  /// just before it starts ([make] may wait, e.g. for the next band to be
+  /// decoded natively while the running bands are processed) — so only
+  /// [parallel] bands are in memory. Progress is the sum over the jobs, in
+  /// 1/1000. Any failure (in [make] or a job) or a cancel stops all of them.
+  Future<List<T>> runPool<T>(
+      int count, Future<T Function(void Function(int done, int total) progress)> Function(int i) make,
+      {int parallel = 2, void Function(int done, int total)? onProgress}) async {
+    _cancelled = false;
+    final part = List<double>.filled(count, 0);
+    void report(int i, int d, int t) {
+      part[i] = t <= 0 ? 0 : d / t;
+      if (onProgress != null) {
+        var sum = 0.0;
+        for (final v in part) {
+          sum += v;
+        }
+        onProgress((sum / count * 1000).round(), 1000);
+      }
+    }
+
+    final out = List<T?>.filled(count, null);
+    if (inline) {
+      for (var i = 0; i < count; i++) {
+        final job = await make(i);
+        if (_cancelled) throw const PsWorkCancelled();
+        out[i] = job((d, t) {
+          if (_cancelled) throw const PsWorkCancelled();
+          report(i, d, t);
+        });
+      }
+      return out.cast<T>();
+    }
+    _running++;
+    final active = <Future<void>>{};
+    Object? failure;
+    try {
+      for (var i = 0; i < count; i++) {
+        while (active.length >= math.max(1, parallel) && failure == null) {
+          await Future.any(active);
+        }
+        if (failure != null) break;
+        if (_cancelled) throw const PsWorkCancelled();
+        final job = await make(i);
+        if (_cancelled) throw const PsWorkCancelled();
+        late final Future<void> f;
+        // never fails itself (the error is kept in [failure]): no unhandled
+        // async errors from the jobs still running when one fails
+        f = _one<T>(job, (d, t) => report(i, d, t)).then((r) {
+          out[i] = r;
+        }, onError: (Object e) {
+          failure ??= e;
+        }).whenComplete(() => active.remove(f));
+        active.add(f);
+      }
+      while (active.isNotEmpty && failure == null) {
+        await Future.any(active);
+      }
+      if (failure != null) throw failure!;
+      return out.cast<T>();
     } catch (e) {
       if (_isos.isNotEmpty) _killAll(); // one failed -> stop the others
       if (_cancelled) throw const PsWorkCancelled();

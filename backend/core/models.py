@@ -262,6 +262,10 @@ class Reminder(models.Model):
     remind_before_min = models.IntegerField(default=0)
     done = models.BooleanField(default=False)
     source = models.CharField(max_length=8, default="manual")   # manual | ai
+    # remnotes: the app always had these two; the server dropped them, so the
+    # first sync wiped them (core/remnotes.py sanitises).
+    priority = models.CharField(max_length=8, default="none", blank=True)
+    category = models.CharField(max_length=40, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -276,6 +280,17 @@ class Note(models.Model):
     body = models.TextField(blank=True)
     pinned = models.BooleanField(default=False)
     source = models.CharField(max_length=8, default="manual")
+    # remnotes: checklist / tags / priority / due date / reminder link were
+    # app-only and wiped by the first sync; colour, vault attachments and
+    # "shared from" are new. Sanitised (never rejected) in core/remnotes.py.
+    checklist = models.JSONField(default=list, blank=True)   # [{text, done}]
+    tags = models.JSONField(default=list, blank=True)        # ["bazar", ...]
+    color = models.CharField(max_length=12, blank=True)      # palette key
+    priority = models.CharField(max_length=8, default="none", blank=True)
+    due_at = models.DateTimeField(null=True, blank=True)
+    attachments = models.JSONField(default=list, blank=True)  # [{doc_id, title}]
+    reminder_local_id = models.CharField(max_length=64, blank=True)
+    shared_from = models.JSONField(default=dict, blank=True)  # {user, name}
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -290,6 +305,9 @@ class Todo(models.Model):
     done = models.BooleanField(default=False)
     due_at = models.DateTimeField(null=True, blank=True)
     source = models.CharField(max_length=8, default="manual")
+    # remnotes: priority was app-only (wiped by sync); repeat is new.
+    priority = models.CharField(max_length=8, default="none", blank=True)
+    recurrence_rule = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

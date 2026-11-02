@@ -1073,6 +1073,7 @@ from . import views_bizagent_v2 as bv2  # noqa: E402
 urlpatterns += [
     path("bizagent/inbox", bv2.InboxView.as_view()),
     path("bizagent/threads/<int:pk>/read", bv2.ThreadReadView.as_view()),
+    path("bizagent/threads/<int:pk>/quick-replies", bv2.QuickRepliesView.as_view()),  # sales2
     path("bizagent/orders/<int:pk>/confirm", bv2.DraftConfirmView.as_view()),
     path("bizagent/orders/<int:pk>/cancel", bv2.DraftCancelView.as_view()),
     path("bizagent/audit", bv2.AuditView.as_view()),
