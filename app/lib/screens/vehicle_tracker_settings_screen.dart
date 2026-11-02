@@ -13,6 +13,7 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 import 'vehicle_fence_editor_screen.dart'; // veh100
 import '../widgets/cv_empty.dart';
 import 'messenger/messenger_home_screen.dart';
+import '../widgets/local_counter.dart';
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -190,6 +191,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             TextField(
                 controller: nameC,
                 maxLength: 40,
+                buildCounter: localCounter,
                 decoration: InputDecoration(labelText: tr.vehFenceName)),
             DropdownButtonFormField<int>(
               initialValue: radius,
@@ -381,6 +383,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           TextField(
             controller: _name,
             maxLength: 40,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: tr.vehNameLabel),
           ),
           section(tr.vehAlertsSection),
@@ -512,6 +515,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             controller: _odo,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             maxLength: 9,
+            buildCounter: localCounter,
             decoration: InputDecoration(
                 labelText: tr.v100OdoLabel, helperText: tr.v100OdoHelp, helperMaxLines: 3),
           ),

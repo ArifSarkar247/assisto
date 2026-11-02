@@ -19,6 +19,7 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 /// honest reasons (change given from a pocket, an unrecorded expense...).
 class ShopEodScreen extends StatefulWidget {
   final int siteId;
+import '../widgets/local_counter.dart';
   final String siteName;
   const ShopEodScreen({super.key, required this.siteId, this.siteName = ''});
 
@@ -177,6 +178,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     TextField(
                       controller: _note,
                       maxLength: 200,
+                      buildCounter: localCounter,
                       decoration: InputDecoration(
                           labelText: t.shopEodNote, border: const OutlineInputBorder()),
                     ),

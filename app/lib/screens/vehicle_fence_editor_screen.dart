@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../vehicle/route_canvas.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/veh_map.dart';
+import '../widgets/local_counter.dart';
 
 /// veh100: draw a POLYGON geofence by tapping its corners on the real map
 /// (3-50 points), name it and choose when to alert (entering, leaving or
@@ -126,6 +127,7 @@ class _VehicleFenceEditorScreenState extends State<VehicleFenceEditorScreen> {
                   TextField(
                     controller: _name,
                     maxLength: 40,
+                    buildCounter: localCounter,
                     decoration: InputDecoration(labelText: tr.vehFenceName),
                   ),
                   Text(tr.v100FenceWhen, style: Theme.of(context).textTheme.labelLarge),

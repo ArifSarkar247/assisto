@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'local_counter.dart';
 
 /// ai-report (Google Play AI-generated content policy): every AI answer the
 /// user sees can be reported / flagged from inside the app. Shared by the home
@@ -271,6 +272,7 @@ class _AiReportSheetState extends State<AiReportSheet> {
               minLines: 1,
               maxLines: 4,
               maxLength: 500,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                 labelText: t.aiReportNoteHint,
                 border: OutlineInputBorder(

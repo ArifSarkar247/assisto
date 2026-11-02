@@ -9,6 +9,7 @@ import '../../services/error_report.dart';
 import '../../theme.dart';
 import 'crm100_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// crm100 — "send from CRM" to ONE customer. The seller writes (or keeps)
 /// the text, then picks HOW, each with an honest state:
@@ -226,6 +227,7 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
               minLines: 3,
               maxLines: 6,
               maxLength: 600,
+              buildCounter: localCounter,
               textInputAction: TextInputAction.newline,
               decoration: InputDecoration(
                   labelText: t.c100MessageLabel, border: const OutlineInputBorder()),

@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'retention_people.dart';
 import 'retention_source.dart';
 import 'retention_widgets.dart';
+import '../../widgets/local_counter.dart';
 
 /// retention1 — create / edit ONE automation in four short steps:
 /// What (the moment) → Who (trigger + honest audience count) → Message
@@ -470,6 +471,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
             minLines: 3,
             maxLines: 6,
             maxLength: 400,
+            buildCounter: localCounter,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
                 labelText: label, border: const OutlineInputBorder(), alignLabelWithHint: true),
@@ -567,6 +569,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
       TextField(
         controller: _name,
         maxLength: 80,
+        buildCounter: localCounter,
         decoration: InputDecoration(labelText: t.rtName, border: const OutlineInputBorder()),
       ),
       SwitchListTile(

@@ -22,6 +22,7 @@ import 'location_card.dart';
 import 'share_payload.dart';
 import 'share_send.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// mc-media2 — the chat side of sharing a location / live location / contact
 /// card (1:1 and group). Pick → preview → seal on this phone → send.
@@ -253,6 +254,7 @@ class _LocationPreviewState extends State<_LocationPreview> {
               key: const Key('mc2-loc-label'),
               controller: _label,
               maxLength: 80,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                   hintText: t.mc2PlaceHint, border: const OutlineInputBorder()),
             ),

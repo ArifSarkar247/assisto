@@ -39,6 +39,7 @@ import '../widgets/local_digits.dart'; // lifebar
 /// ZERO Bangla literals — every string is an AppLocalizations getter.
 class VoiceMoodScreen extends StatefulWidget {
   const VoiceMoodScreen({super.key});
+import '../widgets/local_counter.dart';
   @override
   State<VoiceMoodScreen> createState() => _VoiceMoodScreenState();
 }
@@ -802,6 +803,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
               key: const Key('mood-note-field'),
               controller: _note,
               maxLength: 200,
+              buildCounter: localCounter,
               maxLines: 2,
               minLines: 1,
               textCapitalization: TextCapitalization.sentences,

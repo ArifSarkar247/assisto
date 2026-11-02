@@ -16,6 +16,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// missing (owner 2 Nov) — post a missing person alert. One screen, top to
 /// bottom: who (My Circle family / a Family entry / someone else in the
@@ -380,6 +381,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         key: const ValueKey('ma-name'),
         controller: _name,
         maxLength: 80,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maName, errorText: _err('name', t.maRequired), border: const OutlineInputBorder()),
       ),
@@ -403,6 +405,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         minLines: 2,
         maxLines: 5,
         maxLength: 500,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maDescription, helperText: t.maDescriptionHelp, border: const OutlineInputBorder()),
       ),
@@ -420,6 +423,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         key: const ValueKey('ma-area'),
         controller: _area,
         maxLength: 120,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maAreaLabel,
             helperText: t.maAreaHelp,

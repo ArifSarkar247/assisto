@@ -12,6 +12,7 @@ import '../../theme.dart';
 import '../../train/train_api.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../widgets/local_counter.dart';
 
 /// train: chat for passengers of the SAME train on the SAME date.
 ///  * nickname only — the server never sends a name, phone or user id, so
@@ -269,6 +270,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
           TextField(
             controller: _nick,
             maxLength: 20,
+            buildCounter: localCounter,
             decoration: InputDecoration(
                 labelText: t.trNickname,
                 helperText: t.trNickRule,

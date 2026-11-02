@@ -30,6 +30,7 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 ///   POST /circle/groups/<id>/report
 class CircleGroupInfoScreen extends StatefulWidget {
   final Map<String, dynamic> group;
+import '../widgets/local_counter.dart';
   final IdentityKeyPair identity;
   final List<Map<String, dynamic>> circleMembers;
   const CircleGroupInfoScreen({
@@ -123,11 +124,13 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
             TextField(
               controller: nameC,
               maxLength: 100,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: _t.circleGroupName),
             ),
             TextField(
               controller: descC,
               maxLength: 1000,
+              buildCounter: localCounter,
               maxLines: 3,
               minLines: 1,
               decoration:

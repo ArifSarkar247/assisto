@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// cctv1 first-time wizard: 1) home or shop → 2) gateway (old Android phone /
 /// Shop Box PC / existing PC) → 3) name → the place is created and the
@@ -159,6 +160,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
           TextField(
             controller: _name,
             maxLength: 60,
+            buildCounter: localCounter,
             decoration: InputDecoration(
               labelText: t.wmPlaceName,
               hintText: _kind == 'home' ? t.wmPlaceNameHomeHint : t.wmPlaceNameShopHint,

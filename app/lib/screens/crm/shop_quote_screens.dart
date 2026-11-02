@@ -16,6 +16,7 @@ import 'crm_common.dart';
 import 'crm_send_sheet.dart';
 import 'customer_history_screen.dart' show quoteStateLabel, payLabel;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// crm100 — price quotes from the shop's own catalog.
 /// The customer gets a link (no app, no login) to accept or decline; accept
@@ -538,6 +539,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
         TextField(
             controller: _note,
             maxLength: 300,
+            buildCounter: localCounter,
             maxLines: 2,
             decoration: InputDecoration(
                 labelText: t.c100NoteLabel, border: const OutlineInputBorder())),

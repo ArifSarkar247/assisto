@@ -11,6 +11,7 @@ import '../widgets/journey_api.dart';
 import '../widgets/journey_dest_sheets.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
 import 'messenger/messenger_home_screen.dart';
+import '../widgets/local_counter.dart';
 
 /// Owner idea 1 — ask to follow someone's trip: pick the person from My
 /// Circle (one tap), where (name or a pasted Maps link), the day and the time
@@ -269,6 +270,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                 key: const ValueKey('gj_note'),
                 controller: _note,
                 maxLength: 200,
+                buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.gjNote)),
             Text(t.gjRulesNote, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),

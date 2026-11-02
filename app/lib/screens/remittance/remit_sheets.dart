@@ -5,6 +5,7 @@ import '../../theme.dart';
 import 'remit_source.dart';
 import 'remit_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// budget-remittance bottom sheets: the family budget plan, one spending,
 /// the savings goal, a bill, the expected monthly money, and the My Circle
@@ -207,6 +208,7 @@ class _SpendSheetState extends State<_SpendSheet> {
         TextFormField(
           controller: _note,
           maxLength: 200,
+          buildCounter: localCounter,
           decoration: InputDecoration(labelText: t.rmtFieldNote),
         ),
       ],
@@ -302,6 +304,7 @@ class _GoalSheetState extends State<_GoalSheet> {
           key: const ValueKey('rmt_goal_title'),
           controller: _title,
           maxLength: 120,
+          buildCounter: localCounter,
           decoration: InputDecoration(labelText: t.rmtGoalName, hintText: t.rmtGoalNameHint),
         ),
         TextFormField(
@@ -364,6 +367,7 @@ class _BillSheetState extends State<_BillSheet> {
           key: const ValueKey('rmt_bill_name'),
           controller: _name,
           maxLength: 60,
+          buildCounter: localCounter,
           decoration: InputDecoration(labelText: t.rmtBillName, hintText: t.rmtBillNameHint),
           validator: (v) => (v ?? '').trim().isEmpty ? t.rmtErrBillName : null,
         ),
@@ -494,6 +498,7 @@ class _ExpectedSheetState extends State<_ExpectedSheet> {
           key: const ValueKey('rmt_exp_sender'),
           controller: _sender,
           maxLength: 80,
+          buildCounter: localCounter,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(labelText: t.rmtExpectedFrom),
         ),

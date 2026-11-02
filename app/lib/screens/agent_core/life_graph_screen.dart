@@ -14,6 +14,7 @@ import '../../widgets/offline_banner.dart';
 import 'agent_core_widgets.dart';
 import 'life_graph_source.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// agentmem (WP-MEMORY, flag `agent_core`): the agent's life-graph memory,
 /// opened from the "AI knows" page. Browse by type, edit, delete, delete all
@@ -685,16 +686,19 @@ class _FactEditorState extends State<_FactEditor> {
               key: const ValueKey('lg_field_label'),
               controller: _label,
               maxLength: 80,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.lgFieldLabel)),
           TextField(
               key: const ValueKey('lg_field_relation'),
               controller: _relation,
               maxLength: 40,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.lgFieldRelation)),
           TextField(
               key: const ValueKey('lg_field_value'),
               controller: _value,
               maxLength: 300,
+              buildCounter: localCounter,
               minLines: 1,
               maxLines: 4,
               decoration: InputDecoration(
@@ -704,6 +708,7 @@ class _FactEditorState extends State<_FactEditor> {
               key: const ValueKey('lg_field_when'),
               controller: _when,
               maxLength: 60,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.lgFieldWhen)),
           SwitchListTile(
             key: const ValueKey('lg_field_sensitive'),

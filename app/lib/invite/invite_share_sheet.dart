@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'invite_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/local_counter.dart';
 
 /// invite-join — the INVITER side: one sheet that makes a short link and
 /// sends it the way people in Bangladesh actually send things.
@@ -185,6 +186,7 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
               controller: _label,
               enabled: inv == null,
               maxLength: 60,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                   labelText: t.ijForWhom,
                   hintText: t.ijForWhomHint,

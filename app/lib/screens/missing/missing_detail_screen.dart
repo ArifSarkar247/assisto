@@ -15,6 +15,7 @@ import '../../widgets/success_share.dart';
 import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
 import 'missing_thread_screen.dart';
+import '../../widgets/local_counter.dart';
 
 /// missing (owner 2 Nov) — one alert. What each side sees:
 ///  * a nearby user: photo, name, age, last seen + AREA, description, the GD
@@ -351,6 +352,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               minLines: 3,
               maxLines: 6,
               maxLength: 600,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                 labelText: t.maTipHint,
                 border: const OutlineInputBorder(),
@@ -445,6 +447,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
             TextField(
               controller: note,
               maxLength: 300,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.maReportNote, border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.md),

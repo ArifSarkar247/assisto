@@ -9,6 +9,7 @@ import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// cctv1 camera onboarding + COMPATIBILITY CHECK. The phone cannot reach LAN
 /// cameras from the internet, so the GATEWAY runs the check (reachable? auth
@@ -354,6 +355,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         TextField(
           controller: _name,
           maxLength: 60,
+          buildCounter: localCounter,
           decoration: InputDecoration(
               labelText: t.wmCamName, hintText: t.wmCamNameHint, border: const OutlineInputBorder()),
         ),

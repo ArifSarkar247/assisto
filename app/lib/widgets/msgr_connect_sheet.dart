@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'local_counter.dart';
 
 /// The mandatory relationship + ONE optional note form shown before a personal
 /// connection request is sent. Mirrors the circle request vocabulary
@@ -168,6 +169,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
               minLines: 1,
               maxLines: 3,
               maxLength: 280,
+              buildCounter: localCounter,
               decoration: InputDecoration(hintText: t.msgrNoteHint),
             ),
             const SizedBox(height: Gap.sm),

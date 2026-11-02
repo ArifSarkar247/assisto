@@ -11,6 +11,7 @@ import '../widgets/skeleton.dart';
 import 'billing_api.dart';
 import 'billing_format.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/local_counter.dart';
 
 /// billapp — "Request a refund" (owner order 27 Oct, rules J/K).
 ///
@@ -361,6 +362,7 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
             key: const Key('refund-reason'),
             controller: _reason,
             maxLength: 500,
+            buildCounter: localCounter,
             minLines: 2,
             maxLines: 4,
             decoration: InputDecoration(

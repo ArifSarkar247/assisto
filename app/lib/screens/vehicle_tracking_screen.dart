@@ -24,6 +24,7 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 /// A phone or head unit alone cannot follow a parked car; we say so up front.
 class VehicleTrackingScreen extends StatefulWidget {
   const VehicleTrackingScreen({super.key});
+import '../widgets/local_counter.dart';
 
   @override
   State<VehicleTrackingScreen> createState() => _VehicleTrackingScreenState();
@@ -420,6 +421,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         controller: _imei,
         keyboardType: TextInputType.number,
         maxLength: 15,
+        buildCounter: localCounter,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(
             labelText: tr.vehImeiLabel,
@@ -430,6 +432,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       TextField(
         controller: _name,
         maxLength: 40,
+        buildCounter: localCounter,
         decoration: InputDecoration(labelText: tr.vehNameLabel),
       ),
       if (_vehicles.isNotEmpty) ...[
@@ -488,6 +491,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         controller: _sim,
         keyboardType: TextInputType.phone,
         maxLength: 14,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: tr.v100SimLabel, helperText: tr.v100SimHelp, helperMaxLines: 3),
       ),

@@ -7,6 +7,7 @@ import '../theme.dart';
 import 'app_sheet.dart';
 import 'journey_api.dart';
 import 'journey_ride.dart';
+import 'local_counter.dart';
 
 /// journey2 — the destination sheets of the Safe Journey start form:
 ///  * paste a Google Maps link (long or maps.app.goo.gl) or "23.78, 90.41";
@@ -333,6 +334,7 @@ class _SaveSheetState extends State<_SaveSheet> {
             key: const ValueKey('j2_place_name'),
             controller: _ctl,
             maxLength: 60,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.j2SavePlaceName),
           ),
           PlaceTheftSafeSwitch(

@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import 'chat_themes.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// What the user picked in the theme sheet.
 class ThemePick {
@@ -371,6 +372,7 @@ Future<String?> showNicknameEditor(BuildContext context, NickRow row) {
         controller: ctl,
         autofocus: true,
         maxLength: 40,
+        buildCounter: localCounter,
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(labelText: t.cdeNickEditHint),
         onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
@@ -411,6 +413,7 @@ Future<String?> showAiThemePrompt(BuildContext context, {required String credits
             controller: ctl,
             autofocus: true,
             maxLength: 200,
+            buildCounter: localCounter,
             minLines: 2,
             maxLines: 4,
             decoration: InputDecoration(

@@ -15,6 +15,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/where_to_buy.dart';
 import 'school_plan_form.dart';
+import '../../widgets/local_counter.dart';
 
 /// chipbuy (owner 2 Nov) — TRACKER CHIP on the child card: a small 4G GPS
 /// chip for a school bag or shoe. It is a vehicle-tracker device on our own
@@ -485,6 +486,7 @@ class _ChipPairSheetState extends State<ChipPairSheet> {
           key: const ValueKey('chip-name'),
           controller: _name,
           maxLength: 60,
+          buildCounter: localCounter,
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(labelText: t.kwChildName, border: const OutlineInputBorder()),
         ),
@@ -494,6 +496,7 @@ class _ChipPairSheetState extends State<ChipPairSheet> {
           controller: _imei,
           keyboardType: TextInputType.number,
           maxLength: 15,
+          buildCounter: localCounter,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
               labelText: t.chipImeiLabel,

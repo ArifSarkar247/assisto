@@ -12,6 +12,7 @@ import '../p3/story_privacy_sheet.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/local_counter.dart';
 
 /// Text backgrounds for a text story (white text on each is >= 4.5:1).
 const List<Color> kStoryBgs = [
@@ -293,6 +294,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
           TextField(
             controller: _caption,
             maxLength: 200,
+            buildCounter: localCounter,
             decoration: InputDecoration(hintText: t.p3CaptionHint, border: const OutlineInputBorder()),
           ),
           _footer(t, photo: true, enabled: p != null),

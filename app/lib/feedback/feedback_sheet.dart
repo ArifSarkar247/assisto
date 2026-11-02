@@ -15,6 +15,7 @@ import '../theme.dart';
 import 'feedback_api.dart';
 import 'feedback_capture.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/local_counter.dart';
 
 /// f1-founders: "Send feedback / report a problem".
 ///
@@ -258,6 +259,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
               minLines: 3,
               maxLines: 6,
               maxLength: 2000,
+              buildCounter: localCounter,
               textCapitalization: TextCapitalization.sentences,
               onChanged: (v) {
                 FeedbackDraft.note = v;

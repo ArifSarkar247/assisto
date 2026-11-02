@@ -13,6 +13,7 @@ import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
 import 'acct_common.dart';
+import '../../../widgets/local_counter.dart';
 
 /// acctui — MONTH CLOSE. Pick a finished month, see its profit and that the
 /// books balance, tick "I understand" and close: nothing can be entered on
@@ -158,6 +159,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 key: const ValueKey('acct-reopen-reason'),
                 controller: reason,
                 maxLength: 200,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.acuReopenReason, border: const OutlineInputBorder()),
                 onChanged: (_) => setSheet(() {}),

@@ -9,6 +9,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// Change number — a two-step flow: enter the NEW number, receive a code on it,
 /// confirm. The server migrates the circle + chats; the old number keeps the
@@ -197,6 +198,7 @@ class _MsgrSetChangeNumberScreenState
               autofocus: true,
               keyboardType: TextInputType.number,
               maxLength: 6,
+              buildCounter: localCounter,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: t.msgrSetChangeNumberCode,
@@ -211,6 +213,7 @@ class _MsgrSetChangeNumberScreenState
                 obscureText: true,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
+                buildCounter: localCounter,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: t.msgTwoStepCurrentPin,

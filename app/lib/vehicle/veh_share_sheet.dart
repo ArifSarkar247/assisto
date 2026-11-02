@@ -8,6 +8,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'veh_format.dart';
 import 'vehicle_api.dart';
+import '../widgets/local_counter.dart';
 
 /// veh100: share a vehicle's LIVE location as a link (lifeassisto.com/v/...).
 /// Anyone with the link sees only the current position (never the route
@@ -129,6 +130,7 @@ class _VehShareSheetState extends State<VehShareSheet> {
             TextField(
               controller: _label,
               maxLength: 40,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                   labelText: tr.v100ShareLabel, helperText: tr.v100ShareLabelHelp),
             ),
