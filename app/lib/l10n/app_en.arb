@@ -34554,5 +34554,192 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "lg2BillNo": "Supplier's bill / challan no. (optional)",
+  "lg2SupplierBin": "Supplier's BIN (optional)",
+  "lg2SupplierBinHelp": "For the Mushak-6.1 purchase register — VAT rebate needs the supplier's BIN and challan.",
+  "lg2HowReceived": "How did the money come?",
+  "lg2HowPaid": "How did you pay?",
+  "lg2CashboxTitle": "Sort cashbox money",
+  "lg2CashboxSub": "Say once what each hand-written cash in / out was — profit stays right",
+  "lg2CashboxWhy": "Hand-written cashbox money waits in 'not sorted yet' until you say what it was. Your choice adds a correcting entry; the original stays.",
+  "lg2CashboxPending": "{n} not sorted yet · {amount}",
+  "@lg2CashboxPending": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CashboxAllDone": "All cashbox money is sorted",
+  "lg2CashboxEmptyTitle": "No hand-written cash in / out yet",
+  "lg2CashboxEmptyHow": "When you write money in or out in the cashbox, it shows here — sort it once and your profit stays right. Open the cashbox and tap + to write one.",
+  "lg2OpenCashbox": "Open cashbox",
+  "lg2CashIn": "Money in",
+  "lg2CashOut": "Money out",
+  "lg2NotClassified": "not sorted yet",
+  "lg2CashInWhat": "What was this money?",
+  "lg2CashOutWhat": "What was this money spent on?",
+  "lg2ClassifyClear": "Undo — not sure yet",
+  "lg2ClassifyDone": "Sorted — the books are corrected",
+  "lg2ClassifyCleared": "Back to 'not sorted yet'",
+  "lg2VatRatesTitle": "VAT by product",
+  "lg2VatRatesSub": "Mark VAT-exempt products or a reduced rate from the NBR schedule",
+  "lg2VatRatesWhy": "Most products use your shop's VAT rate. Some goods are VAT-exempt (VAT & SD Act 2012, First Schedule) and some carry a reduced rate (Third Schedule). Check the current NBR schedule and set them here — the app never guesses a rate.",
+  "lg2VatShopRate": "Your shop's VAT rate: {rate} (from invoice settings)",
+  "@lg2VatShopRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2VatNotSeller": "Your shop is not set as a VAT seller yet (invoice settings: VAT mode + BIN). Product rates apply only once it is.",
+  "lg2VatSearch": "Search products",
+  "lg2VatNoProducts": "No products found",
+  "lg2VatNoProductsHow": "Add products in Business → Products; then set their VAT here.",
+  "lg2VatStandardAt": "Shop rate ({rate})",
+  "@lg2VatStandardAt": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2VatStandardSub": "The usual case",
+  "lg2VatExempt": "VAT-exempt",
+  "lg2VatExemptLaw": "Listed in the First Schedule of the VAT & SD Act 2012",
+  "lg2VatReduced": "Reduced rate",
+  "lg2VatReducedAt": "Reduced rate {rate}",
+  "@lg2VatReducedAt": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2VatReducedLaw": "You type the rate from the Third Schedule (NBR)",
+  "lg2VatRateLabel": "Reduced VAT rate",
+  "lg2VatRateHelp": "As written in the current NBR Third Schedule, e.g. 5 or 7.5",
+  "lg2VatRateBad": "Type a rate between 0 and 100",
+  "lg2VatNoteLabel": "Where in the law (optional)",
+  "lg2VatNoteHelp": "e.g. 'Third Schedule, serial 12' — helps your accountant",
+  "lg2VatFromToday": "Counts from today. Sales made earlier keep the VAT they were made with.",
+  "lg2VatSaved": "VAT saved for this product",
+  "lg2VatNote": "Help for filling Mushak-9.1 — Assisto does not file it. VAT on sales, VAT on purchases and VAT already paid to NBR are kept on separate lines.",
+  "lg2VatExemptSales": "VAT-exempt sales (no VAT)",
+  "lg2PurchaseRegister": "Purchase register (Mushak-6.1)",
+  "lg2YearHeading": "Close the year",
+  "lg2YearWhy": "At year end the year's profit moves into 'retained profit' and that year is locked. Use calendar year or the income-tax year (July–June).",
+  "lg2YearTax": "Income-tax year (July–June)",
+  "lg2YearCalendar": "Calendar year (January–December)",
+  "lg2YearCloseTitle": "Close the year ending {day}",
+  "@lg2YearCloseTitle": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2YearCloseExplain": "The year's income and expenses move into retained profit (one entry, nothing deleted) and the books lock up to that day. That year's profit & loss still shows the real numbers.",
+  "lg2YearCloseUnderstand": "I understand — reopening needs a written reason",
+  "lg2YearCloseButton": "Close the year",
+  "lg2YearClosedDone": "Year ending {day} closed — profit {profit} moved to retained profit",
+  "@lg2YearClosedDone": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "profit": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2YearClosedOn": "Year ending {day} is closed",
+  "@lg2YearClosedOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2YearReopenTitle": "Reopen the year ending {day}?",
+  "@lg2YearReopenTitle": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2YearReopenExplain": "The year-end entry is reversed (kept in the audit trail) and the year opens for changes. Write why — your accountant will see it.",
+  "lg2YearReopenedDone": "Year ending {day} is open again",
+  "@lg2YearReopenedDone": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostBanner": "Profit may be overstated: {n} sales ({amount}) were sold without a cost price. Add cost prices to fix it.",
+  "@lg2CostBanner": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostOpen": "See the products",
+  "lg2CostTitle": "Sold without a cost price",
+  "lg2CostExplain": "These sales counted a cost of ৳0, so their profit looks bigger than it is. Put the cost price on those old sales — only when you tap, only in open periods, and it is written in the audit trail.",
+  "lg2CostSold": "{n} times · {amount}",
+  "@lg2CostSold": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostType": "Cost price for one unit",
+  "lg2CostApplyKnown": "Use cost {amount} on these sales",
+  "@lg2CostApplyKnown": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostApplyTyped": "Save cost and use it on these sales",
+  "lg2CostNoProduct": "This line is not linked to a product — fix its cost from the sale itself.",
+  "lg2CostFixed": "{n} sales now carry the cost price",
+  "@lg2CostFixed": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostFixedSkipped": "{fixed} sales fixed; {skipped} are in a closed period and stay as they were",
+  "@lg2CostFixedSkipped": {
+    "placeholders": {
+      "fixed": {
+        "type": "String"
+      },
+      "skipped": {
+        "type": "String"
+      }
+    }
+  },
+  "lg2CostAllFixed": "All done — profit is honest now",
+  "invPmBank": "Bank",
+  "invHowPaid": "How did the client pay?",
+  "invPaidVia": "Paid"
 }
