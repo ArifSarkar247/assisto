@@ -100,7 +100,8 @@ void main() {
         scrollable: find.byType(Scrollable).first);
     await tester.tap(find.text(en.boCost));
     await _settle(tester);
-    expect(find.textContaining('margin 62%'), findsOneWidget);
+    expect(find.textContaining('7 credits (৳7)'), findsOneWidget);
+    expect(find.textContaining('margin'), findsNothing); // launchsweep: never our margin
     expect(find.textContaining('0 credits'), findsOneWidget);
   });
 
