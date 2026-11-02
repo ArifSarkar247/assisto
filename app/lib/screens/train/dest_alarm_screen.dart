@@ -149,18 +149,24 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       };
 
   Future<void> _pickMap() async {
+    final t = AppLocalizations.of(context);
     VehMapConfig cfg = const VehMapConfig();
     try {
       final r = await context.read<AppState>().api.trainConfig();
       if (r['map'] is Map) cfg = VehMapConfig.fromJson(Map<String, dynamic>.from(r['map'] as Map));
     } catch (_) {
-      // offline: the picker shows its own honest no-map state
+      // best-effort: offline -> no map; the snackbar below says so
+    }
+    if (!mounted) return;
+    if (!cfg.hasTiles) {
+      // the map picker only opens when map tiles are configured (journey2 rule)
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.trMapNoTiles)));
+      return;
     }
     if (!mounted) return;
     final p = await Navigator.push<({double lat, double lng})>(
         context, MaterialPageRoute(builder: (_) => JourneyMapPickScreen(config: cfg)));
     if (p == null || !mounted) return;
-    final t = AppLocalizations.of(context);
     setState(() => _target = DestTarget(t.trMapPlace, p.lat, p.lng));
   }
 

@@ -96,50 +96,70 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
     final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
     return Scaffold(
       appBar: AppBar(title: Text(t.trTitle)),
-      body: ListView(
-        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
-        children: [
-          TextField(
-            controller: _q,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search_rounded),
-              labelText: t.trSearchHint,
-              border: const OutlineInputBorder(),
-            ),
-            onChanged: (_) {
-              _deb?.cancel();
-              _deb = Timer(const Duration(milliseconds: 350), _load);
-            },
-          ),
-          const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            for (final d in const [-1, 0, 1])
-              ChoiceChip(
-                label: Text(d == -1 ? t.trYesterday : (d == 0 ? t.trToday : t.trTomorrow)),
-                selected: _day == d,
-                onSelected: (_) => setState(() => _day = d),
+      body: Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            TextField(
+              controller: _q,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded),
+                labelText: t.trSearchHint,
+                border: const OutlineInputBorder(),
               ),
-          ]),
-          if (alarmOn) ...[
+              onChanged: (_) {
+                _deb?.cancel();
+                _deb = Timer(const Duration(milliseconds: 350), _load);
+              },
+            ),
             const SizedBox(height: Gap.sm),
-            Card(
-              child: ListTile(
-                minVerticalPadding: Gap.md,
-                leading: const Icon(Icons.alarm_on_rounded),
-                title: Text(t.trAlarmTitle),
-                subtitle: Text(t.trAlarmCardSub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => const DestAlarmScreen())),
-              ),
-            ),
-          ],
-          const SizedBox(height: Gap.sm),
-          ..._results(t, bn),
-          const SizedBox(height: Gap.md),
-          Text(t.trDataNote, style: AType.bodySmall),
-        ],
-      ),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              for (final d in const [-1, 0, 1])
+                ChoiceChip(
+                  label: Text(d == -1 ? t.trYesterday : (d == 0 ? t.trToday : t.trTomorrow)),
+                  selected: _day == d,
+                  onSelected: (_) => setState(() => _day = d),
+                ),
+            ]),
+          ]),
+        ),
+        Expanded(
+          child: !_loading && !_failed && _trains.isEmpty
+              ? FamEmptyState(
+                  icon: Icons.train_rounded,
+                  title: t.trEmptyTitle,
+                  benefit: t.trEmptyBenefit,
+                  primaryLabel: t.trShowAll,
+                  primaryIcon: Icons.list_rounded,
+                  onPrimary: () {
+                    _q.clear();
+                    unawaited(_load());
+                  },
+                  steps: [t.trStep1, t.trStep2, t.trStep3],
+                )
+              : ListView(
+                  padding: withNavBarInset(
+                      context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xxl)),
+                  children: [
+                    if (alarmOn)
+                      Card(
+                        child: ListTile(
+                          minVerticalPadding: Gap.md,
+                          leading: const Icon(Icons.alarm_on_rounded),
+                          title: Text(t.trAlarmTitle),
+                          subtitle: Text(t.trAlarmCardSub),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => const DestAlarmScreen())),
+                        ),
+                      ),
+                    ..._results(t, bn),
+                    const SizedBox(height: Gap.md),
+                    Text(t.trDataNote, style: AType.bodySmall),
+                  ],
+                ),
+        ),
+      ]),
     );
   }
 
@@ -155,22 +175,6 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
           alignment: Alignment.centerLeft,
           child: FilledButton.icon(
               onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.trRetry)),
-        ),
-      ];
-    }
-    if (_trains.isEmpty) {
-      return [
-        FamEmptyState(
-          icon: Icons.train_rounded,
-          title: t.trEmptyTitle,
-          benefit: t.trEmptyBenefit,
-          primaryLabel: t.trShowAll,
-          primaryIcon: Icons.list_rounded,
-          onPrimary: () {
-            _q.clear();
-            unawaited(_load());
-          },
-          steps: [t.trStep1, t.trStep2, t.trStep3],
         ),
       ];
     }

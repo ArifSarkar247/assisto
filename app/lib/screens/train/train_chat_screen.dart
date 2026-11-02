@@ -45,6 +45,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
   @override
   void initState() {
     super.initState();
+    _text.addListener(_onText);
     unawaited(_load());
     unawaited(rootBundle
         .loadString('assets/train/emergency_words.json')
@@ -53,8 +54,15 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _load(quiet: true));
   }
 
+  bool _hasText = false;
+  void _onText() {
+    final h = _text.text.trim().isNotEmpty;
+    if (h != _hasText && mounted) setState(() => _hasText = h);
+  }
+
   @override
   void dispose() {
+    _text.removeListener(_onText);
     _poll?.cancel();
     _nick.dispose();
     _text.dispose();
@@ -334,7 +342,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
             tooltip: t.trSend,
             constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             icon: const Icon(Icons.send_rounded),
-            onPressed: _sending ? null : _send,
+            onPressed: _sending || !_hasText ? null : _send,
           ),
         ]),
       ),

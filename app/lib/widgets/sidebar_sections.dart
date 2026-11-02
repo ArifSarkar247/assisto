@@ -474,13 +474,13 @@ class SidebarSections {
           feature: 'train_tracker',
           (_) => const TrainTrackerScreen(),
           synonyms: ['train', 'rail', 'trainkothai', 'where is my train', 'tren',
-              'ট্রেন', 'রেল', '16318']),
+              'rel', '16318']),
       // train: destination alarm (offline geofence, loud on silent)
       SidebarItem(Icons.alarm_on_rounded, (t) => t.trAlarmTitle,
           feature: 'dest_alarm',
           (_) => const DestAlarmScreen(),
           synonyms: ['destination alarm', 'wake me', 'station alarm', 'stop alarm',
-              'গন্তব্য', 'অ্যালার্ম']),
+              'bus stop alarm', 'metro', 'launch', 'gonthobbo']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),
