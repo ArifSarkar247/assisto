@@ -11,6 +11,7 @@ import 'l10n/app_localizations.dart';
 import 'feedback/feedback_capture.dart';
 import 'alerts_fg.dart';
 import 'state.dart';
+import 'messaging/bubble_main.dart' show runBubbleApp; // bubbles
 import 'theme.dart';
 import 'updater.dart';
 import 'screens/always_on_protection_screen.dart'; // play-fgs
@@ -60,6 +61,12 @@ import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+
+/// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
+/// (messaging/BubbleActivity.kt getDartEntrypointFunctionName). One chat,
+/// read + reply — none of the start-up below (push, calls, sync, widgets).
+@pragma('vm:entry-point')
+void bubbleMain() => runBubbleApp();
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or

@@ -242,15 +242,17 @@ void main() {
     test('per-chat bubble list + global switch + hide content + sound channel', () async {
       SharedPreferences.setMockInitialValues({});
       expect(await MsgPrefs.bubblesOn(), isTrue);
-      expect(await MsgPrefs.isBubbleChat('member', 12), isFalse);
-      await MsgPrefs.setBubbleChat('member', 12, true);
-      await MsgPrefs.setBubbleChat('group', 3, true);
+      // bubbles (owner 2 Nov): every chat is ON by default
       expect(await MsgPrefs.isBubbleChat('member', 12), isTrue);
-      final p = await SharedPreferences.getInstance();
-      // the native BubbleHelper reads this exact plain string
-      expect(p.getString(MsgPrefs.kBubbleChats), 'group:3,member:12');
       await MsgPrefs.setBubbleChat('member', 12, false);
+      await MsgPrefs.setBubbleChat('group', 3, false);
       expect(await MsgPrefs.isBubbleChat('member', 12), isFalse);
+      final p = await SharedPreferences.getInstance();
+      // the native BubbleHelper reads this exact plain string (OFF list)
+      expect(p.getString(MsgPrefs.kBubbleOffChats), 'group:3,member:12');
+      await MsgPrefs.setBubbleChat('member', 12, true);
+      expect(await MsgPrefs.isBubbleChat('member', 12), isTrue);
+      expect(await MsgPrefs.isBubbleChat('group', 3), isFalse);
       await MsgPrefs.setBubblesOn(false);
       expect(await MsgPrefs.bubblesOn(), isFalse);
       expect(await MsgPrefs.hideContent(), isFalse);
