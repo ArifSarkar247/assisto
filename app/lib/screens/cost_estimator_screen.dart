@@ -7,6 +7,9 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart';
+import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/confirm_delete.dart'; // lifebar
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
 
@@ -56,7 +59,7 @@ int _toPoisha(String? taka) {
   return (v * 100).round();
 }
 
-String _takaStr(int poisha) {
+String _takaStrRaw(int poisha) {
   if (poisha < 0) poisha = 0;
   final whole = poisha ~/ 100;
   final frac = poisha % 100;
@@ -69,6 +72,15 @@ String _takaStr(int poisha) {
   return '৳$buf.${frac.toString().padLeft(2, '0')}';
 }
 
+/// lifebar: quantities may be decimal (2.5 kg, 1.5 days) — never truncated.
+double _toQty(String? value) {
+  final s = (value ?? '').replaceAll(',', '').trim();
+  if (s.isEmpty) return 0;
+  final v = double.tryParse(s);
+  if (v == null || v < 0) return 0;
+  return v;
+}
+
 int _toInt(String? value) {
   final s = (value ?? '').replaceAll(',', '').trim();
   if (s.isEmpty) return 0;
@@ -79,12 +91,12 @@ int _toInt(String? value) {
 
 class _Line {
   final String name;
-  final int qty;
+  final double qty;
   final int unitPoisha;
   final int minutesEach;
   const _Line(this.name, this.qty, this.unitPoisha, this.minutesEach);
-  int get costPoisha => qty * unitPoisha;
-  int get timeMinutes => qty * minutesEach;
+  int get costPoisha => (qty * unitPoisha).round();
+  int get timeMinutes => (qty * minutesEach).round();
 }
 
 class _Estimate {
@@ -164,7 +176,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
   }
 
   List<_Line> get _lines => _rows
-      .map((r) => _Line(r.name.text.trim(), _toInt(r.qty.text),
+      .map((r) => _Line(r.name.text.trim(), _toQty(r.qty.text),
           _toPoisha(r.unit.text), _toInt(r.minutes.text)))
       .toList();
 
@@ -221,7 +233,11 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
       if (_editingId != null) {
         await api.updateItem(_projectsPath, _editingId!, row);
       } else {
-        await api.createItem(_projectsPath, row);
+        // lifebar: keep editing the SAME project (Save twice = one row)
+        final created = await api.createItem(_projectsPath, row);
+        final nid = created['id'];
+        if (nid is int) _editingId = nid;
+        if (nid is String) _editingId = int.tryParse(nid);
       }
       await _load();
       if (!mounted) return;
@@ -252,6 +268,8 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
   Future<void> _deleteSaved(Map<String, dynamic> row) async {
     final id = row['id'] as int?;
     if (id == null) return;
+    if (!await confirmDelete(context, what: '${row['name'] ?? ''}')) return;
+    if (!mounted) return;
     try {
       await context.read<AppState>().api.deleteItem(_projectsPath, id);
       if (_editingId == id) _editingId = null;
@@ -265,14 +283,32 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
 
   Future<void> _copyTotals(_Estimate e) async {
     final txt = [
-      '${t.ceTotalCost}: ${_takaStr(e.totalPoisha)}',
+      '${t.ceTotalCost}: ${_taka(e.totalPoisha)}',
       '${t.ceTotalTime}: ${_durationText(e.totalMinutes)}',
-      '${t.ceBand}: ${_takaStr(e.lowPoisha)} – ${_takaStr(e.highPoisha)}',
+      '${t.ceBand}: ${_taka(e.lowPoisha)} – ${_taka(e.highPoisha)}',
     ].join('\n');
     await Clipboard.setData(ClipboardData(text: txt));
     if (!mounted) return;
     _toast(t.ceCopied);
   }
+
+  void _newEstimate() {
+    for (final r in _rows) {
+      r.dispose();
+    }
+    setState(() {
+      _rows
+        ..clear()
+        ..add(_Row());
+      _name.clear();
+      _contingency = 0;
+      _editingId = null;
+    });
+    _tabs.animateTo(0);
+  }
+
+  /// lifebar: money in the app language's digits (was always Latin).
+  String _taka(int poisha) => ld(context, _takaStrRaw(poisha));
 
   String _durationText(int minutes) {
     final days = minutes ~/ (24 * 60);
@@ -291,6 +327,15 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(t.ceTitle),
+        // lifebar: Save now keeps editing the same project, so starting a
+        // fresh estimate is an explicit action
+        actions: [
+          IconButton(
+            tooltip: t.lifebarCeNew,
+            icon: const Icon(Icons.note_add_rounded),
+            onPressed: _newEstimate,
+          ),
+        ],
         bottom: TabBar(
           controller: _tabs,
           tabs: [
@@ -319,7 +364,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
   Widget _estimateTab() {
     final e = _estimate(_lines, _contingency);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
       children: [
         const _HonestMarker(),
         const SizedBox(height: Gap.lg),
@@ -367,12 +412,12 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
 
         // totals
         _TotalsCard(
-          totalCost: _takaStr(e.totalPoisha),
-          subtotal: _takaStr(e.subtotalPoisha),
-          contingency: _takaStr(e.contingencyPoisha),
+          totalCost: _taka(e.totalPoisha),
+          subtotal: _taka(e.subtotalPoisha),
+          contingency: _taka(e.contingencyPoisha),
           contingencyPct: e.contingencyPct,
           totalTime: _durationText(e.totalMinutes),
-          band: '${_takaStr(e.lowPoisha)} – ${_takaStr(e.highPoisha)}',
+          band: '${_taka(e.lowPoisha)} – ${_taka(e.highPoisha)}',
           onCopy: () => _copyTotals(e),
           onSave: _saveProject,
         ),
@@ -412,7 +457,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         itemCount: _saved.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) {
@@ -421,7 +466,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
           final lines = comps
               .map((c) => _Line(
                   (c['name'] ?? '').toString(),
-                  _toInt(c['qty']?.toString()),
+                  _toQty(c['qty']?.toString()),
                   _toPoisha(c['unit_cost']?.toString()),
                   _toInt(c['minutes']?.toString())))
               .toList();
@@ -431,9 +476,9 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               title: Text((row['name'] ?? t.ceUntitled).toString(),
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                  maxLines: 2, overflow: TextOverflow.ellipsis),
               subtitle: Text(
-                  '${_takaStr(e.totalPoisha)} · ${t.ceComponentsCount(fmtInt(context, lines.length))}',
+                  '${_taka(e.totalPoisha)} · ${t.ceComponentsCount(fmtInt(context, lines.length))}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               onTap: () => _openSaved(row),
@@ -623,11 +668,15 @@ class _TotalsCard extends StatelessWidget {
                       color: scheme.onSurfaceVariant,
                       fontWeight: strong ? FontWeight.w800 : FontWeight.w500)),
             ),
-            Text(value,
-                style: (strong ? AType.titleMedium : AType.bodyMedium).copyWith(
-                    fontWeight: strong ? FontWeight.w800 : FontWeight.w600,
-                    fontFeatures: AFonts.tabular,
-                    color: strong ? scheme.primary : null)),
+            const SizedBox(width: Gap.sm),
+            Flexible(
+              child: Text(value,
+                  textAlign: TextAlign.end,
+                  style: (strong ? AType.titleMedium : AType.bodyMedium).copyWith(
+                      fontWeight: strong ? FontWeight.w800 : FontWeight.w600,
+                      fontFeatures: AFonts.tabular,
+                      color: strong ? scheme.primary : null)),
+            ),
           ]),
         );
     return Container(

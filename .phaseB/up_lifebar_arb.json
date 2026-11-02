@@ -1,0 +1,29 @@
+{
+  "_comment": "lifebar (board groups 17 daily life + 18 work): ALL keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_lifebar_arb.json",
+  "en": {
+    "lifebarExamMineTitle": "What we're watching for you",
+    "lifebarExamStopTitle": "Stop watching this result?",
+    "lifebarExamStop": "Stop watching",
+    "lifebarExamReady": "The result page changed — the result may be out. Open the official page and check with your roll.",
+    "lifebarExamChecking": "Our server checks this page every 6 hours, and every hour from result day. You'll get a notification when it changes.",
+    "lifebarExamReminderOnly": "No page link — only the result-day reminder on this phone.",
+    "lifebarExamOpenPage": "Open the page",
+    "lifebarExamSavedServer": "Saved. We'll watch the page and notify you when it changes.",
+    "lifebarExamStudentsNote": "For parents or teachers — keep several names and rolls on this phone, then check each one on the official site on result day. We never make up a result.",
+    "lifebarCeNew": "New estimate",
+    "lifebarDeleteConfirm": "Delete this?"
+  },
+  "bn": {
+    "lifebarExamMineTitle": "আপনার জন্য যা নজরে রাখছি",
+    "lifebarExamStopTitle": "এই ফলের নজরদারি বন্ধ করবেন?",
+    "lifebarExamStop": "নজরদারি বন্ধ",
+    "lifebarExamReady": "ফলের পাতা বদলেছে — ফল বেরিয়ে থাকতে পারে। অফিসিয়াল পাতা খুলে রোল দিয়ে দেখুন।",
+    "lifebarExamChecking": "আমাদের সার্ভার পাতাটি ৬ ঘণ্টা পরপর দেখে, ফলের দিন থেকে প্রতি ঘণ্টায়। পাতা বদলালেই নোটিফিকেশন পাবেন।",
+    "lifebarExamReminderOnly": "পাতার লিংক নেই — শুধু ফলের দিনে এই ফোনে রিমাইন্ডার।",
+    "lifebarExamOpenPage": "পাতা খুলুন",
+    "lifebarExamSavedServer": "সেভ হয়েছে। পাতাটি নজরে রাখব, বদলালেই জানাব।",
+    "lifebarExamStudentsNote": "অভিভাবক বা শিক্ষকের জন্য — কয়েকজনের নাম ও রোল এই ফোনে লিখে রাখুন, ফলের দিন প্রতিটি রোল অফিসিয়াল সাইটে দেখুন। আমরা কখনো ফল বানাই না।",
+    "lifebarCeNew": "নতুন হিসাব",
+    "lifebarDeleteConfirm": "এটি মুছে ফেলবেন?"
+  }
+}

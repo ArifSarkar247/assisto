@@ -14,6 +14,8 @@ import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../notifications.dart'; // f6
+import 'dart:convert' show jsonDecode, jsonEncode; // lifebar
+import 'package:shared_preferences/shared_preferences.dart'; // lifebar
 
 /// ADVANCED exam-result module (SPEC v2.1 §21) for BD board/university results
 /// (SSC / HSC / JSC / PSC / Dakhil / Alim …).
@@ -59,9 +61,83 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
   // multi-student watch
   final List<ExamStudent> _students = [ExamStudent()];
 
+  // lifebar: what the server is watching for me (GET /exam/watcher)
+  List<Map<String, dynamic>> _mine = const [];
+
+  /// lifebar: the multi-student list is kept on THIS phone (the server never
+  /// stored it — the note promised "kept" while it was dropped).
+  static const studentsPrefKey = 'exam_students_v1';
+
+  Future<void> _loadMine() async {
+    try {
+      final r = await context.read<AppState>().api.getJson('/exam/watcher');
+      final l = (r['watchers'] as List? ?? const [])
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
+      if (mounted) setState(() => _mine = l);
+    } catch (_) {
+      // offline: the section simply stays hidden; saving still reports errors
+    }
+  }
+
+  Future<void> _loadStudents() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final raw = p.getString(studentsPrefKey);
+      if (raw == null || raw.isEmpty) return;
+      final l = (jsonDecode(raw) as List)
+          .whereType<Map>()
+          .map((m) => ExamStudent(
+              label: '${m['label'] ?? ''}', roll: '${m['roll'] ?? ''}'))
+          .toList();
+      if (l.isNotEmpty && mounted) {
+        setState(() => _students
+          ..clear()
+          ..addAll(l));
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveStudents() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString(studentsPrefKey,
+          jsonEncode(_students.where((s) => !s.isBlank).map((s) => s.toJson()).toList()));
+    } catch (_) {}
+  }
+
+  Future<void> _deleteMine(Map<String, dynamic> w) async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(t.lifebarExamStopTitle),
+        content: Text('${w['label'] ?? ''}'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(t.lifebarExamStop)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await context.read<AppState>().api.deleteJson('/exam/watcher?id=${w['id']}');
+      await _loadMine();
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.saveFailed)));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadMine();
+      _loadStudents();
+    });
     // Live preview of the share card + GPA band as the user types.
     for (final c in [_name, _year, _cardRoll, _gpa, _grade, _label, _url, _roll, _reg]) {
       c.addListener(_onEdit);
@@ -135,7 +211,11 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
             DateTime(exp.year, exp.month, exp.day, 9));
       }
       messenger.showSnackBar(SnackBar(
-          content: Text(exp != null ? t.f6ExamWatcherSavedReminder : t.examWatcherSaved)));
+          content: Text(url.isNotEmpty
+              ? t.lifebarExamSavedServer
+              : (exp != null ? t.f6ExamWatcherSavedReminder : t.examWatcherSaved))));
+      await _saveStudents();
+      await _loadMine();
     } catch (_) {
       // f6: never "saved on this device" — nothing was saved.
       messenger.showSnackBar(SnackBar(content: Text(t.saveFailed)));
@@ -166,6 +246,13 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
+          // lifebar: what the server watches for me, with status + stop
+          if (_mine.isNotEmpty) ...[
+            _sectionTitle(t.lifebarExamMineTitle),
+            const SizedBox(height: Gap.sm),
+            for (final w in _mine) _mineTile(t, df, w),
+            const Divider(height: Gap.xl),
+          ],
           // ---- result-day watcher -------------------------------------
           _sectionTitle(t.examWatcherSection),
           const SizedBox(height: Gap.sm),
@@ -269,17 +356,21 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           // ---- multi-student watch ------------------------------------
           _sectionTitle(t.examStudentsSection),
           const SizedBox(height: Gap.xs),
-          Text(t.examStudentsNote,
+          Text(t.lifebarExamStudentsNote,
               style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           ExamStudentWatch(
             students: _students,
             onAdd: () => setState(() => _students.add(ExamStudent())),
-            onRemove: (i) => setState(() => _students.removeAt(i)),
+            onRemove: (i) {
+              setState(() => _students.removeAt(i));
+              _saveStudents();
+            },
             onChanged: (i, l, r) {
               _students[i].label = l;
               _students[i].roll = r;
               setState(() {});
+              _saveStudents();
             },
           ),
 
@@ -344,6 +435,54 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
             grade: _grade.text,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _mineTile(AppLocalizations t, DateFormat df, Map<String, dynamic> w) {
+    final ready = w['result_ready'] == true;
+    final checking = w['checking'] == true;
+    final exp = DateTime.tryParse('${w['expected_date'] ?? ''}');
+    final url = '${w['url'] ?? ''}';
+    final status = ready
+        ? t.lifebarExamReady
+        : (checking ? t.lifebarExamChecking : t.lifebarExamReminderOnly);
+    final label = '${w['label'] ?? ''}'.trim();
+    return Card(
+      margin: const EdgeInsets.only(bottom: Gap.sm),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(ready ? Icons.mark_email_unread_rounded : Icons.visibility_rounded,
+                color: ready ? Brand.success : Brand.blue),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(label.isEmpty ? t.examTitle : label,
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+                if (exp != null) Text(t.examExpectedOn(df.format(exp)), style: AType.bodySmall),
+                const SizedBox(height: Gap.xs),
+                Text(status, style: AType.bodyMedium),
+              ]),
+            ),
+            IconButton(
+              tooltip: t.lifebarExamStop,
+              icon: const Icon(Icons.delete_outline_rounded),
+              onPressed: () => _deleteMine(w),
+            ),
+          ]),
+          if (url.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: Text(t.lifebarExamOpenPage),
+                onPressed: () => openForUser(context, Uri.parse(url),
+                    where: 'exam.openMine', mode: LaunchMode.externalApplication),
+              ),
+            ),
+        ]),
       ),
     );
   }
