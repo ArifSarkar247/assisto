@@ -65,7 +65,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
           () => context.read<AppState>().api.fallPending();
       final r = await f();
       p = (r['pending'] as Map?)?.cast<String, dynamic>();
-    } catch (_) {}
+    } catch (_) {} // best-effort: no held fall known offline; the server still holds it
     if (!mounted) return;
     setState(() {
       _s = s;
@@ -101,7 +101,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
         await context.read<AppState>().saveProfile(
             {'fall_detect': on, 'fall_countdown_sec': _s!.fallWindowS});
       }
-    } catch (_) {} // best-effort profile copy; the phone setting above is the truth
+    } catch (_) {} // best-effort: profile copy only; the phone setting above is the truth
   }
 
   Future<bool> _confirm(String title, String body, String yes, IconData icon) async {

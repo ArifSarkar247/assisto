@@ -108,7 +108,7 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
     if (path.isEmpty || !File(path).existsSync()) return;
     try {
       await Share.shareXFiles([XFile(path)], text: t.saRecShareText);
-    } catch (_) {}
+    } catch (_) {} // best-effort: the file stays on the phone; sharing can be retried
   }
 
   @override

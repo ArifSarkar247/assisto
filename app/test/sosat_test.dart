@@ -86,6 +86,7 @@ Map<String, dynamic> _ladder(String stage, {int seen = 0}) => {
 Future<void> _hold(WidgetTester tester) async {
   final g = await tester.startGesture(
       tester.getCenter(find.byKey(const ValueKey('sosat-sos-hold'))));
+  await tester.pump(); // the hold ring's ticker starts on this frame
   await tester.pump(const Duration(milliseconds: EmergencySosPanel.holdMs + 100));
   await g.up();
   for (var i = 0; i < 8; i++) {

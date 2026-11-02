@@ -21,6 +21,7 @@ import 'package:assisto/models.dart';
 import 'package:assisto/screens/credits_screen.dart';
 import 'package:assisto/screens/plans_screen.dart';
 import 'package:assisto/state.dart';
+import 'package:assisto/feature_registry.dart' show kFeatureDefaults; // sosat
 import 'package:assisto/screens/fall_detect_screen.dart';
 import 'package:assisto/services/circle_media_gate.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
@@ -157,7 +158,10 @@ void main() {
     test('flags are off until the real engines ship', () {
       expect(VaWake.shipped, isFalse,
           reason: 'the wake-word branch flips this together with the engine');
-      expect(FallDetectScreen.engineShipped, isFalse);
+      // sosat: the fall engine shipped (experimental); the entry points
+      // stay behind the OFF-by-default fall_detect flag instead.
+      expect(FallDetectScreen.engineShipped, isTrue);
+      expect(kFeatureDefaults['fall_detect'], isFalse);
       expect(kCircleMediaStorageOn, isFalse);
     });
 

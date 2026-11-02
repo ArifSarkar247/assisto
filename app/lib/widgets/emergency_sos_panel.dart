@@ -68,6 +68,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
   bool _busy = false;
   bool _sent = false;
   bool _offline = false;
+  bool _justHeld = false; // the release after a completed hold is not a tap
   String? _smsBody;
   Timer? _buzz;
   late final AnimationController _hold = AnimationController(
@@ -76,6 +77,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
     ..addStatusListener((s) {
       if (s == AnimationStatus.completed) {
         _hold.value = 0;
+        _justHeld = true;
         _onSos();
       }
     });
@@ -183,6 +185,10 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
   }
 
   void _tap() {
+    if (_justHeld) {
+      _justHeld = false;
+      return;
+    }
     // TalkBack / Switch Access: a double-tap is the whole gesture.
     if (MediaQuery.accessibleNavigationOf(context)) {
       _onSos();
@@ -214,7 +220,12 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
             onTap: _busy ? null : _onSos,
             excludeSemantics: true,
             child: Listener(
-              onPointerDown: _busy ? null : (_) => _hold.forward(from: 0),
+              onPointerDown: _busy
+                  ? null
+                  : (_) {
+                      _justHeld = false;
+                      _hold.forward(from: 0);
+                    },
               onPointerUp: (_) {
                 if (_hold.status != AnimationStatus.completed) _hold.reset();
               },
