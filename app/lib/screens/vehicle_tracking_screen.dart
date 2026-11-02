@@ -16,6 +16,7 @@ import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_counter.dart';
 
 /// LIVE TRACKING — the list of paired hardware trackers (v1-vehicle).
 ///
@@ -24,7 +25,6 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 /// A phone or head unit alone cannot follow a parked car; we say so up front.
 class VehicleTrackingScreen extends StatefulWidget {
   const VehicleTrackingScreen({super.key});
-import '../widgets/local_counter.dart';
 
   @override
   State<VehicleTrackingScreen> createState() => _VehicleTrackingScreenState();

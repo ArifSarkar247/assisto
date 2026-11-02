@@ -10,6 +10,7 @@ import '../services/action_feedback.dart' show openForUser;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/local_counter.dart';
 
 /// VOICE MOOD SENSING — ADVANCED (#15, SPEC v2.1 §21).
 ///
@@ -39,7 +40,6 @@ import '../widgets/local_digits.dart'; // lifebar
 /// ZERO Bangla literals — every string is an AppLocalizations getter.
 class VoiceMoodScreen extends StatefulWidget {
   const VoiceMoodScreen({super.key});
-import '../widgets/local_counter.dart';
   @override
   State<VoiceMoodScreen> createState() => _VoiceMoodScreenState();
 }

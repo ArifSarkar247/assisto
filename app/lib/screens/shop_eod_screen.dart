@@ -11,6 +11,7 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart' show taka, fmtInt;
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_counter.dart';
 
 /// END-OF-DAY CASH CHECK. The owner counts the drawer; the server compares it
 /// with today's NON-voided Assisto POS cash sales (paid - change) + the opening
@@ -19,7 +20,6 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 /// honest reasons (change given from a pocket, an unrecorded expense...).
 class ShopEodScreen extends StatefulWidget {
   final int siteId;
-import '../widgets/local_counter.dart';
   final String siteName;
   const ShopEodScreen({super.key, required this.siteId, this.siteName = ''});
 
