@@ -725,3 +725,26 @@ class SetupApiTests(Base):
         self.assertEqual(Message.objects.count(), 0)
         self.assertEqual(S.process_pending(), 1)
         self.assertEqual(Message.objects.filter(direction="in").count(), 1)
+
+
+# ------------------------------------------------------------------ launch: AI-key-off honesty
+class SetupAiAvailableTests(Base):
+    """launch (8 Nov): the setup payload tells the app whether an AI provider
+    is live, so the agent switch never claims "the AI answers" without a key."""
+
+    def test_setup_reports_ai_available(self):
+        self.c.force_authenticate(self.user)
+        with mock.patch("core.ai.available", return_value=False):
+            r = self.c.get("/api/v1/bizagent/setup")
+        self.assertEqual(r.status_code, 200)
+        self.assertIs(r.data["ai_available"], False)
+        with mock.patch("core.ai.available", return_value=True):
+            r = self.c.get("/api/v1/bizagent/setup")
+        self.assertIs(r.data["ai_available"], True)
+
+    def test_setup_ai_check_error_counts_as_off(self):
+        self.c.force_authenticate(self.user)
+        with mock.patch("core.ai.available", side_effect=RuntimeError("boom")):
+            r = self.c.get("/api/v1/bizagent/setup")
+        self.assertEqual(r.status_code, 200)
+        self.assertIs(r.data["ai_available"], False)
