@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0130_chipbuy"),
+        ("core", "0131_chipbuy"),
     ]
 
     operations = [

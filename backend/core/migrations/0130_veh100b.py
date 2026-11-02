@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
     """veh100b: JT/T 808 tracker protocol choice (choices only, no data change)."""
 
     dependencies = [
-        ("core", "0124_placesafe"),
+        ("core", "0129_blood"),
     ]
 
     operations = [
