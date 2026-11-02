@@ -68,6 +68,19 @@ class JourneyModeController extends ChangeNotifier {
 
   TransportMode? get alarmMode => alarmModeFor(travel);
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners(); // async loads may end after the screen closed
+  }
+
   Future<void> init() async {
     travel = await loadTravelMode();
     await _loadAlarm();
