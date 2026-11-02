@@ -174,8 +174,9 @@ class InvoiceApiTests(APITestCase):
         r = self.client.post("/api/v1/business/invoices", {
             "buyer": {"name": "ABC Ltd"}, "extras": {"case_ref": "CR-12", "bogus": "x"},
             "lines": [{"desc": "Consultation", "qty": 2, "unit": 500000}],
-            "paid": 100000}, format="json")
+            "paid": 100000, "payment_method": "bkash"}, format="json")
         self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.data["payment_method"], "bkash")
         self.assertEqual(r.data["number"], "SV-0001")
         self.assertEqual(r.data["extras"], {"case_ref": "CR-12"})
         self.assertEqual((r.data["calc"]["vat"], r.data["calc"]["total"]),

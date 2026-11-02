@@ -365,5 +365,34 @@ void main() {
       // opens the paper
       expect(find.byKey(const ValueKey('inv-share-pdf')), findsOneWidget);
     });
+    testWidgets('new service invoice: method chips default cash, send bKash, paper says Paid',
+        (tester) async {
+      final api = _InvApi();
+      await _pump(tester, const NewInvoiceScreen(businessId: 1), api);
+      final list = find.byType(Scrollable).first;
+      await tester.enterText(find.byKey(const ValueKey('inv-client-name')), 'ABC Ltd');
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-line-desc-0')), 200,
+          scrollable: list);
+      await tester.enterText(find.byKey(const ValueKey('inv-line-desc-0')), 'Consultation');
+      await tester.enterText(find.byKey(const ValueKey('inv-line-unit-0')), '500');
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-method-bkash')), 200,
+          scrollable: list);
+      expect(tester.widget<ChoiceChip>(find.byKey(const ValueKey('inv-method-cash'))).selected,
+          isTrue);
+      expect(tester.getSize(find.byKey(const ValueKey('inv-method-bkash'))).height,
+          greaterThanOrEqualTo(48));
+      await tester.tap(find.byKey(const ValueKey('inv-method-bkash')));
+      await tester.pump();
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-create')), 300,
+          scrollable: list);
+      await tester.tap(find.byKey(const ValueKey('inv-create')));
+      await tester.pumpAndSettle();
+      expect(api.posts['/business/invoices']!['payment_method'], 'bkash');
+    });
+
+    test('paymentLabel covers bank and falls back to the code', () {
+      expect(InvoiceDoc.fromJson({...fakeSaleInvoice(), 'payment_method': 'bank'}).paymentMethod,
+          'bank');
+    });
   });
 }

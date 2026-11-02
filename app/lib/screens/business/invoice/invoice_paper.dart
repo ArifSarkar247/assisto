@@ -96,6 +96,7 @@ String paymentLabel(AppLocalizations t, String code) => switch (code) {
       'cash' => t.invPmCash,
       'bkash' => t.invPmBkash,
       'nagad' => t.invPmNagad,
+      'bank' => t.invPmBank,
       'due' => t.invPmDue,
       _ => code,
     };
@@ -280,7 +281,7 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
     (t.invNo, d.number),
     if (d.issuedAt != null)
       (t.invDateL, '${invDate(d.issuedAt!, lang)}  ${invTime(d.issuedAt!, lang)}'),
-    if (d.paymentMethod.isNotEmpty) (t.invPayBy, paymentLabel(t, d.paymentMethod)),
+    if (d.paymentMethod.isNotEmpty) (t.invPaidVia, paymentLabel(t, d.paymentMethod)),
     for (final k in templateFields[d.template] ?? const <String>[])
       if ((d.extras[k] ?? '').isNotEmpty) (extraLabel(t, k), d.extras[k]!),
   ];

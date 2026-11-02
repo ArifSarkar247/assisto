@@ -56,6 +56,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   String _template = 'service';
   bool _vatReady = false;
   bool _noVat = false;
+  String _method = 'cash'; // how the client paid (cash | bkash | nagad | bank)
   bool _busy = false;
   final _name = TextEditingController(),
       _phone = TextEditingController(),
@@ -203,6 +204,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         'lines': lines,
         'discount': disc,
         'paid': paid,
+        'payment_method': _method,
         'no_vat': _noVat,
         'note': _note.text.trim(),
       }, businessId: widget.businessId);
@@ -312,6 +314,19 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           const SizedBox(height: Gap.sm),
           _tf(_discount, t.invDiscountTk, kb: money, prefix: '৳ '),
           _tf(_paid, t.invPaidTk, kb: money, prefix: '৳ '),
+          Text(t.invHowPaid, style: tt.titleSmall),
+          const SizedBox(height: Gap.sm),
+          Wrap(key: const ValueKey('inv-method'), spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            for (final m in const ['cash', 'bkash', 'nagad', 'bank'])
+              ChoiceChip(
+                key: ValueKey('inv-method-$m'),
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                label: Text(paymentLabel(t, m)),
+                selected: _method == m,
+                onSelected: (_) => setState(() => _method = m),
+              ),
+          ]),
+          const SizedBox(height: Gap.md),
           if (_vatReady)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,

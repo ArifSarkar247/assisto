@@ -1,0 +1,13 @@
+{
+ "_comment": "invmethod: payment-method picker on the service invoice + 'Paid: bKash' on the paper. All keys NEW.",
+ "en": {
+  "invPmBank": "Bank",
+  "invHowPaid": "How did the client pay?",
+  "invPaidVia": "Paid"
+ },
+ "bn": {
+  "invPmBank": "ব্যাংক",
+  "invHowPaid": "ক্লায়েন্ট কীভাবে পরিশোধ করলেন?",
+  "invPaidVia": "পরিশোধ"
+ }
+}

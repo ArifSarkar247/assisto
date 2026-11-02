@@ -117,6 +117,9 @@ def _sale_for(prof, pk):
             .select_related("customer").first())
 
 
+PAY_METHODS = ("cash", "bkash", "nagad", "bank")  # ledger2 money accounts
+
+
 def sale_invoice(prof, s, settings):
     """A POS Sale → invoice dict (pure apart from the serial count)."""
     from .models import Sale
@@ -264,7 +267,10 @@ class ManualInvoicesView(APIView):
                 "extras": IC.clean_extras(template, d.get("extras")),
                 "lines": [dict(l, amount=l["qty"] * l["unit"]) for l in lines],
                 "calc": calc, "paid": paid, "change": 0,
-                "due": calc["total"] - paid, "payment_method": "",
+                "due": calc["total"] - paid,
+                "payment_method": (d.get("payment_method")
+                                   if d.get("payment_method") in PAY_METHODS else "cash")
+                if paid else "",
                 "note": IC._clip(d.get("note"), 300),
                 "cancelled": False, "cancel_reason": "", "consistent": True,
                 "payment_link": settings["payment_link"],
