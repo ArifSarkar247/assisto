@@ -189,6 +189,13 @@ void main() {
           reason: 'a bubble engine must not steal the main app channel');
       expect(c, contains('"attachBubble"'));
       expect(c, contains('"openInApp"'));
+      // notifs' ONE native builder carries the bubble layer too
+      final n = _src('$_kt/MessageNotifier.kt');
+      expect(n, contains('BubbleHelper.decorate(ctx, b, s.kind, s.chatId, s.title'));
+      expect(n, contains('hasShortcut = s.canReply && s.title != "Assisto"'));
+      // and the Dart-drawn one asks for its bubble at once (UI isolate)
+      expect(_src('lib/messaging/msg_notify.dart'),
+          contains('MsgNative.attachBubble('));
     });
     test('manifest: embeddable resizable document activity, no overlay perm', () {
       final y = _src('../.github/workflows/android.yml');
