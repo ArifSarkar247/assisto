@@ -109,6 +109,9 @@ class _BooksScreenState extends State<BooksScreen> {
     }
   }
 
+  bool get _hasData =>
+      !_loading && _error == null && _tb != null && ((_tb!['rows'] as List?) ?? const []).isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -127,7 +130,9 @@ class _BooksScreenState extends State<BooksScreen> {
                   : const Icon(Icons.sync_rounded),
             ),
           ],
-          bottom: TabBar(isScrollable: true, tabs: [
+          // tabs only when there is something to switch between (never a
+          // dead tab bar over the empty / error state)
+          bottom: !_hasData ? null : TabBar(isScrollable: true, tabs: [
             Tab(text: t.lgrTabPl),
             Tab(text: t.lgrTabBs),
             Tab(text: t.lgrTabTb),
