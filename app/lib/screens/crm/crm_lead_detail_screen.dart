@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/money_digits.dart';
 import 'crm_common.dart';
 import '../../plans_v2/plans_v2.dart';
 import '../../plans_v2/upgrade_sheet.dart';
@@ -336,7 +337,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               leading: Icon(_kindIcon(a['kind']), size: 18),
               title: Text(a['subject']?.toString().isNotEmpty == true ? a['subject'] : (a['kind_display'] ?? '')),
               subtitle: (a['body'] ?? '').toString().isNotEmpty ? Text(a['body']) : null,
-              trailing: Text((a['created_at'] ?? '').toString().split('T').first,
+              trailing: Text(crmDate(context, (a['created_at'] ?? '').toString().split('T').first),
                   style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           for (final m in msgs)
@@ -477,7 +478,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
-        child: Text('$k: $v', style: AType.bodySmall),
+        child: Text(moneyDigitsFor(context, '$k: $v'), style: AType.bodySmall),
       );
 
   Widget _sectionTitle(String s) => Padding(

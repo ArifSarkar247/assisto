@@ -381,13 +381,13 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${r['label'] ?? ''}',
+                          Text(moneyDigitsFor(context, '${r['label'] ?? ''}'),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style:
                                   const TextStyle(fontWeight: FontWeight.w700)),
                           if ('${r['tenant_name'] ?? ''}'.isNotEmpty)
-                            Text('${r['tenant_name']}',
+                            Text(moneyDigitsFor(context, '${r['tenant_name']}'),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AType.bodySmall.copyWith(color: Theme.of(context)
@@ -542,13 +542,13 @@ class _UnitCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${data['label'] ?? ''}',
+                      Text(moneyDigitsFor(context, '${data['label'] ?? ''}'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
                               const TextStyle(fontWeight: FontWeight.w700)),
                       if ('${data['tenant_name'] ?? ''}'.isNotEmpty)
-                        Text('${data['tenant_name']}',
+                        Text(moneyDigitsFor(context, '${data['tenant_name']}'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),

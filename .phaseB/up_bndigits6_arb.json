@@ -1,0 +1,13 @@
+{
+  "examWatchSummaryD": [
+    "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।",
+    "Watching results for {count} student(s). Results are only ever shown on the official site."
+  ],
+  "@examWatchSummaryD": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
+}

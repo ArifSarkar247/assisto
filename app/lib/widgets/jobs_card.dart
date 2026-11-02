@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
 import 'subs_common.dart' show fmtInt;
+import 'local_digits.dart' show ld;
 
 /// A single job row for the Discover / Saved lists — match score, title/company,
 /// quick facts (location · type · salary) and a bookmark toggle. Taps open the
@@ -62,7 +63,7 @@ class JobsCard extends StatelessWidget {
                         : scheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(score > 0 ? '$score' : '—',
+              child: Text(score > 0 ? ld(context, score) : '—',
                   style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'money_digits.dart';
 
 /// Multi-student result watch (SPEC v2.1 §21, ADVANCED) — for a parent or a
 /// teacher tracking several students at once.
@@ -78,7 +79,7 @@ class ExamStudentWatch extends StatelessWidget {
                 size: 16, color: scheme.onSecondaryContainer),
             const SizedBox(width: Gap.xs),
             Expanded(
-              child: Text(t.examWatchSummary(count),
+              child: Text(t.examWatchSummaryD(moneyDigitsFor(context, '$count')),
                   style: TextStyle(
                       fontSize: 12,
                       height: 1.35,
