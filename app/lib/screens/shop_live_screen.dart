@@ -260,7 +260,12 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               width: double.infinity,
               color: Colors.black,
               alignment: Alignment.center,
-              child: _videoArea(t, scheme),
+              // cctv100: messages + buttons scroll at 200% font (CI caught a
+              // 112-208 px overflow on the error state); the live video is
+              // not wrapped (it fills the box)
+              child: _phase == _Phase.live
+                  ? _videoArea(t, scheme)
+                  : SingleChildScrollView(child: _videoArea(t, scheme)),
             ),
           ),
           _bottomBar(t, scheme),
