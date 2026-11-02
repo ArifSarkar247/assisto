@@ -316,7 +316,7 @@ def ezviz_sd_check(cam, client, serial, now):
     if now.timestamp() - last < CR.SD_CHECK_EVERY_S:
         return None
     try:
-        rows = client.storage_status(serial)
+        rows = client.sd_status(serial)   # shared with cctv_evidence.sd_health
     except Exception:
         return None
     v = CR.ezviz_sd_state(rows)

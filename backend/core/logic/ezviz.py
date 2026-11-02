@@ -173,6 +173,8 @@ class EzvizClient:
         formattingRate}] (status 0 normal, 1 error, 2 not formatted,
         3 formatting). EZVIZ does not report the card SIZE here."""
         data = self.call("/api/lapp/device/format/status", {"deviceSerial": serial})
+        if isinstance(data, dict):        # cctvalerts: tolerate a wrapped list
+            data = data.get("storageStatus") or data.get("list") or []
         return data if isinstance(data, list) else []
 
     def playback_hls(self, serial, channel, start_str, stop_str):
@@ -195,18 +197,6 @@ def sd_state(rows):
     st = str((rows[0] or {}).get("status", ""))
     return {"0": "ok", "1": "error", "2": "unformatted",
             "3": "formatting"}.get(st, "unknown")
-
-
-    def storage_status(self, serial):
-        """cctvalerts: /api/lapp/device/format/status -> [{index, name,
-        status (0 normal, 1 storage error, 2 not formatted, 3 formatting),
-        formattingRate}] (EZVIZ open-platform "storage medium status";
-        not yet verified on a real EZVIZ camera)."""
-        data = self.call("/api/lapp/device/format/status",
-                         {"deviceSerial": serial})
-        if isinstance(data, dict):
-            data = data.get("storageStatus") or data.get("list") or []
-        return data if isinstance(data, list) else []
 
 
 def parse_alarm(row):
