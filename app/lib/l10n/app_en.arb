@@ -28485,5 +28485,175 @@
   "cvvDriversStep3": "On the vehicle, choose who is driving now.",
   "cvvShareWhoTitle": "Who can see this vehicle?",
   "cvvShareTapName": "Tap a name to share. Turn the switch on first to also let them stop/restore the engine.",
-  "cvvH02Picked": "10-digit ID — that is a Sinotrack, so we picked Sinotrack for you."
+  "cvvH02Picked": "10-digit ID — that is a Sinotrack, so we picked Sinotrack for you.",
+  "cfaAll": "All",
+  "@cfaAll": {
+    "description": "People filter chip: everyone"
+  },
+  "cfaFamily": "Family",
+  "@cfaFamily": {
+    "description": "People filter chip / section: family"
+  },
+  "cfaChipFamily": "My family",
+  "@cfaChipFamily": {
+    "description": "Chat-list filter chip: chats with people marked Family"
+  },
+  "cfaOthers": "Others",
+  "@cfaOthers": {
+    "description": "People filter chip / section: everyone who is not family"
+  },
+  "cfaSearchPeople": "Search by name or number",
+  "cfaNoMatch": "No one matches that search.",
+  "cfaNoFamilyYet": "No one is marked as Family yet. Family comes first in SOS and in every list.",
+  "cfaNoOthersYet": "Everyone here is Family.",
+  "cfaHowToMark": "To mark someone: My Circle chats, hold a chat, then tap Family or others.",
+  "cfaShowEveryone": "Show everyone",
+  "cfaNoFamilyChats": "No family chats here yet",
+  "cfaNoOthersChats": "No chats with others here yet",
+  "cfaFamilyBenefit": "Keep family separate from everyone else: family comes first in SOS, alerts and every people list.",
+  "cfaHowToMarkChat": "Hold a chat and tap \"Family or others\" to move a person.",
+  "cfaShowAllChats": "Show all chats",
+  "cfaMarkMenu": "Family or others",
+  "@cfaMarkMenu": {
+    "description": "Chat/person menu item that opens the Family / Others choice"
+  },
+  "cfaMarkTitle": "Where does {name} belong?",
+  "@cfaMarkTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cfaMarkWhy": "Family comes first in SOS, alerts and every people list. Only you see this choice.",
+  "cfaAutomatic": "Automatic",
+  "cfaAutomaticSub": "Decided from the relation you set (mother, brother …)",
+  "cfaMarkedAs": "Moved to {group}",
+  "@cfaMarkedAs": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "cfaMarkFailed": "Could not save — check the internet and try again.",
+  "claLinkWarnTitle": "Check this link before opening",
+  "claLinkBadTitle": "This link may be a trap",
+  "claLinkGoesTo": "It really goes to: {host}",
+  "@claLinkGoesTo": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "claReasonLookalike": "It looks like {brand} but is not the real {brand} website. Never type your PIN or OTP here.",
+  "@claReasonLookalike": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "claReasonPunycode": "The address uses look-alike letters.",
+  "claReasonIp": "The address is only a number, not a website name.",
+  "claReasonShortener": "Short link — it hides the real website.",
+  "claReasonHttp": "Not secure (no https) — others on the network can see what you type.",
+  "claReasonTld": "Unusual web address ending, often used by scams.",
+  "claReasonUserinfo": "The address hides its real destination behind an @.",
+  "claReasonSafeBrowsing": "Google Safe Browsing lists this website as dangerous.",
+  "claReasonScheme": "This is not a normal web link.",
+  "claLinkCheckedOnPhone": "Checked before opening. In chats the link never leaves your phone.",
+  "claGoBack": "Go back",
+  "claOpenAnyway": "Open anyway",
+  "claCopyLink": "Copy link",
+  "claOpenLink": "Open link",
+  "claLinkCopied": "Link copied",
+  "claCantOpen": "Could not open the link",
+  "claLinkPreviewsSetting": "Link previews",
+  "claLinkPreviewsSettingSub": "Your phone fetches the title and picture before sending; they go inside the encrypted message.",
+  "cgaTitle": "Guardians",
+  "cgaWhoSeesMe": "Who can see me",
+  "cgaMyChildren": "Children I look after",
+  "cgaNobodySeesMe": "Nobody can see your location or school mode now.",
+  "cgaKidsEmptyBenefit": "Both parents (and grandparents) can look after the same child — everyone gets the alerts.",
+  "cgaKidsEmptyHow": "Start with a trip: ask to follow your child's way to school. They agree on their own phone.",
+  "cgaKidsStart": "Ask to follow a trip",
+  "cgaSrcWatch": "Kids watch",
+  "cgaSrcSchool": "School mode",
+  "cgaSrcJourney": "Trip",
+  "cgaWatchOnlyOwner": "The watch was set up by {name} — only they can change who sees it.",
+  "@cgaWatchOnlyOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemove": "Remove",
+  "cgaRemoveTitle": "Remove {name}?",
+  "@cgaRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveBody": "{name} will stop seeing your school mode and trips at once and will be told. You can add them again later.",
+  "@cgaRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveYes": "Yes, remove",
+  "cgaRemoved": "{name} was removed",
+  "@cgaRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemovedButWatch": "{name} was removed. The watch stays — ask {owner} to change it.",
+  "@cgaRemovedButWatch": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemoveFailed": "Could not remove — check the internet and try again.",
+  "cgaLoadFailed": "Could not load. Check the internet.",
+  "cgaOnlyYou": "Only you look after this child.",
+  "cgaAddCoGuardianHow": "To add the other parent: in School mode or the kids watch, tick them under \"Who else sees\".",
+  "cgaAlsoWatching": "Also looking after: {names}",
+  "@cgaAlsoWatching": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaFree": "Always free. Every guardian gets the safety alerts.",
+  "cgaSeenBy": "Seen by: {names}",
+  "@cgaSeenBy": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaSetUpBy": "Set up by {name} (you can see it, only they can change it)",
+  "@cgaSetUpBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
