@@ -318,32 +318,43 @@ void main() {
       expect(bar, findsOneWidget);
       final barRect = t.getRect(bar);
       expect(barRect.bottom, lessThanOrEqualTo(760 - 48 + 0.5)); // clear of the nav bar
-      Future<void> check(String key) async {
-        final f = find.byKey(ValueKey(key));
-        expect(f, findsOneWidget);
+      Future<void> check(List<String> keys) async {
+        // the list is lazy: at 200% text the card starts below the fold
+        Finder? hit;
+        for (var i = 0; i < 40 && hit == null; i++) {
+          for (final k in keys) {
+            final f = find.byKey(ValueKey(k));
+            if (f.evaluate().isNotEmpty) hit = f;
+          }
+          if (hit == null) {
+            await t.drag(find.byType(ListView).hitTestable().first, const Offset(0, -150));
+            await t.pumpAndSettle();
+          }
+        }
+        expect(hit, isNotNull, reason: 'none of $keys built');
+        final f = hit!;
+        final key = (f.evaluate().first.widget.key as ValueKey).value;
         await t.ensureVisible(f);
         await t.pumpAndSettle();
         final r = t.getRect(f);
         expect(r.overlaps(barRect), isFalse, reason: '$key under the request bar: $r vs $barRect');
         expect(r.bottom, lessThanOrEqualTo(barRect.top + 0.5));
         // the centre of the empty-state button really receives the tap
-        final hit = t.hitTestOnBinding(r.center);
+        final res = t.hitTestOnBinding(r.center);
         final target = t.renderObject(f);
-        expect(hit.path.any((e) => identical(e.target, target) ||
+        expect(res.path.any((e) => identical(e.target, target) ||
             (e.target is RenderObject && _isDescendant(e.target as RenderObject, target))), isTrue,
             reason: '$key is covered');
       }
       // find tab: before a search "use my location"; after an empty search
       // (the owner's case) the big "জরুরি রক্তের অনুরোধ" button
-      await check(find.byKey(const ValueKey('bp-nodonor-cta')).evaluate().isNotEmpty
-          ? 'bp-nodonor-cta'
-          : 'bp-find-cta');
+      await check(['bp-nodonor-cta', 'bp-find-cta']);
       await _tap(t, 'bp-tab-requests');
       await t.pumpAndSettle();
-      await check('bp-req-empty-cta');
+      await check(['bp-req-empty-cta']);
       await _tap(t, 'bp-tab-me');
       await t.pumpAndSettle();
-      await check('bp-become');
+      await check(['bp-become']);
       expect(t.takeException(), isNull);
     });
   }
