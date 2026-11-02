@@ -104,6 +104,7 @@ def meetings_section(slots, now_local):
             tb += " ⚠ অন্য মিটিং-এর সাথে %s মিনিট সময় মিলে যায়" % bn(clash_with[idx])
             te += " ⚠ overlaps another slot by %d min" % clash_with[idx]
         lines.append(_line(tb, te, "schedule", s.get("id"),
+                           title=str(s.get("title") or ""), place=place,
                            start=st.isoformat(), people=ppl,
                            circle_ids=_circle_ids(s), circle=_circle(s),
                            done=SCH.clean_status(s.get("status")) == SCH.STATUS_DONE,
@@ -173,7 +174,7 @@ def followups_section(followups, now_local, tz=timezone.utc):
         lines.append(_line(
             "%s — %s (%s)%s" % (who, title, wb, "" if waiting else " · এবার আপনার পালা"),
             "%s — %s (%s)%s" % (who, title, we, "" if waiting else " · your move"),
-            "followup", f.get("id"), state=state, counterpart=who,
+            "followup", f.get("id"), state=state, counterpart=who, title=title,
             circle_ids=_circle_ids(f), circle=_circle(f)))
     return lines
 

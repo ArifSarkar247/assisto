@@ -120,6 +120,11 @@ class CircleChatScreen extends StatefulWidget {
   /// bubbles: shown inside the floating bubble window (own light engine):
   /// calls are replaced by "Open in Assisto" (calls run in the full app).
   final bool bubble;
+
+  /// pssec: Personal Secretary opens the chat with a ready draft (meeting
+  /// invite / follow-up reminder). Only fills the composer — the user reads
+  /// it and taps Send; nothing is sent by itself.
+  final String? initialText;
   const CircleChatScreen({
     super.key,
     required this.member,
@@ -127,6 +132,7 @@ class CircleChatScreen extends StatefulWidget {
     this.forwarding,
     this.quickReply = false,
     this.bubble = false,
+    this.initialText,
   });
 
   @override
@@ -259,6 +265,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   @override
   void initState() {
     super.initState();
+    final draft = widget.initialText; // pssec
+    if (draft != null && draft.isNotEmpty) _input.text = draft;
     WidgetsBinding.instance.addObserver(this);
     // c3-msg: this chat is on screen → its notifications stop ringing, the
     // badges clear now, presence/typing go live.
