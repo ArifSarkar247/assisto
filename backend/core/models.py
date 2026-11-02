@@ -7297,3 +7297,152 @@ class MissingEvent(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["actor", "kind", "at"], name="core_missev_actor_idx")]
 # ---- /missing ----
+
+
+# ---- blood ---- (owner 2 Nov: Blood donor panel; flag blood_donors, OFF)
+class BloodDonor(models.Model):
+    """A user who OPTED IN (separate consent) to be found as a blood donor.
+    The Family card's blood group (phone-only) is NEVER copied here. Only a
+    COARSE area is kept: a district / area name and a point rounded to
+    ~1 km. Phone + e-mail stay private unless the donor makes them public."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="blood_donor")
+    enabled = models.BooleanField(default=False, db_index=True)
+    consent_at = models.DateTimeField(null=True, blank=True)
+    consent_version = models.PositiveSmallIntegerField(default=0)
+    blood_group = models.CharField(max_length=4, blank=True, default="")
+    sex = models.CharField(max_length=1, blank=True, default="")      # m | f (interval)
+    last_donation = models.DateField(null=True, blank=True)
+    available = models.BooleanField(default=True)                     # pause without leaving
+    district = models.CharField(max_length=24, blank=True, default="")
+    area_text = models.CharField(max_length=60, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    phone_public = models.BooleanField(default=False)
+    email_public = models.BooleanField(default=False)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    reminded_for = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["enabled", "blood_group"], name="core_blooddonor_grp_idx")]
+
+
+class BloodRequest(models.Model):
+    """An urgent blood request. Hospital + area only (no phone / address);
+    contact goes through the app. Auto-expires after needed-by."""
+    LIVE = ("active", "hidden")
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_requests")
+    blood_group = models.CharField(max_length=4)
+    units = models.PositiveSmallIntegerField(default=1)
+    hospital = models.CharField(max_length=120)
+    area_text = models.CharField(max_length=60, blank=True, default="")
+    district = models.CharField(max_length=24, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    radius_km = models.PositiveSmallIntegerField(default=5)
+    needed_by = models.DateTimeField()
+    note = models.CharField(max_length=300, blank=True, default="")
+    state = models.CharField(max_length=10, default="active", db_index=True)
+    hidden_from = models.CharField(max_length=10, blank=True, default="")
+    pushed = models.PositiveIntegerField(default=0)
+    listed = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class BloodRecipient(models.Model):
+    """One row per (request, donor) — who was pushed / listed, and the
+    donor's answer (can | cannot | withdrawn | donated)."""
+    request = models.ForeignKey(BloodRequest, on_delete=models.CASCADE, related_name="recipients")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_recipient_rows")
+    source = models.CharField(max_length=12, default="push")
+    pushed_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    response = models.CharField(max_length=10, blank=True, default="")
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["request", "user"],
+                                               name="core_blood_recipient_once")]
+
+
+class BloodReport(models.Model):
+    request = models.ForeignKey(BloodRequest, on_delete=models.CASCADE, related_name="reports")
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    reason = models.CharField(max_length=12, default="other")
+    note = models.CharField(max_length=300, blank=True, default="")
+    counted = models.BooleanField(default=True)
+    status = models.CharField(max_length=10, default="open")   # open|upheld|dismissed
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        constraints = [models.UniqueConstraint(fields=["request", "reporter"],
+                                               name="core_blood_report_once")]
+
+
+class BloodThread(models.Model):
+    """A private in-app conversation between a donor and a seeker — no phone
+    numbers are exchanged by the app. My Circle only by the donor's choice."""
+    donor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_threads_donor")
+    seeker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_threads_seeker")
+    request = models.ForeignKey(BloodRequest, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="threads")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_at = models.DateTimeField(default=timezone.now)
+    donor_unread = models.PositiveIntegerField(default=0)
+    seeker_unread = models.PositiveIntegerField(default=0)
+    blocked_by = models.CharField(max_length=8, blank=True, default="")   # donor | seeker
+    circle_ask = models.CharField(max_length=10, blank=True, default="")  # asked|accepted|declined
+
+    class Meta:
+        ordering = ["-last_at"]
+        constraints = [models.UniqueConstraint(fields=["donor", "seeker"],
+                                               name="core_blood_thread_pair")]
+
+
+class BloodMessage(models.Model):
+    thread = models.ForeignKey(BloodThread, on_delete=models.CASCADE, related_name="messages")
+    by_donor = models.BooleanField(default=False)
+    text = models.CharField(max_length=600)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["id"]
+
+
+class BloodVerification(models.Model):
+    """A donation-slip photo for the 'verified donor' badge. Seen ONLY in
+    Owner Admin; the FILE is deleted as soon as it is reviewed."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blood_verifications")
+    photo = models.FileField(upload_to="blood_slips/", blank=True, default="")
+    state = models.CharField(max_length=10, default="pending", db_index=True)
+    note = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class BloodEvent(models.Model):
+    """Abuse / audit log of the blood panel (consent, requests, reports,
+    auto-hide, admin actions, verification reviews, photo deletions)."""
+    request = models.ForeignKey(BloodRequest, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="events")
+    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    kind = models.CharField(max_length=24)
+    meta = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["actor", "kind", "at"], name="core_bloodev_actor_idx")]
+# ---- /blood ----

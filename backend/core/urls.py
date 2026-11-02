@@ -1386,3 +1386,26 @@ urlpatterns += [
     path("missing-alerts/<int:pk>/tips", msv.TipsView.as_view()),
 ]
 # ---- /missing ----
+
+# ---- blood ---- (owner 2 Nov: Blood donor panel; flag blood_donors, OFF)
+from . import blood_views as bdv  # noqa: E402
+urlpatterns += [
+    path("blood-panel/config", bdv.ConfigView.as_view()),
+    path("blood-panel/me", bdv.MeView.as_view()),
+    path("blood-panel/me/donated", bdv.DonatedView.as_view()),
+    path("blood-panel/me/verify", bdv.VerifyView.as_view()),
+    path("blood-panel/donors", bdv.DonorsView.as_view()),
+    path("blood-panel/donors/<int:pk>/message", bdv.DonorMessageView.as_view()),
+    path("blood-panel/requests", bdv.RequestsView.as_view()),
+    path("blood-panel/requests/<int:pk>", bdv.RequestDetailView.as_view()),
+    path("blood-panel/requests/<int:pk>/respond", bdv.RespondView.as_view()),
+    path("blood-panel/requests/<int:pk>/found", bdv.FoundView.as_view()),
+    path("blood-panel/requests/<int:pk>/close", bdv.CloseView.as_view()),
+    path("blood-panel/requests/<int:pk>/report", bdv.ReportView.as_view()),
+    path("blood-panel/threads", bdv.ThreadsView.as_view()),
+    path("blood-panel/threads/<int:pk>", bdv.ThreadView.as_view()),
+    path("blood-panel/threads/<int:pk>/block", bdv.ThreadBlockView.as_view()),
+    path("blood-panel/threads/<int:pk>/circle", bdv.ThreadCircleView.as_view()),
+    path("blood-panel/banks", bdv.BanksView.as_view()),
+]
+# ---- /blood ----

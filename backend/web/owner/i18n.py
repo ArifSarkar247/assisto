@@ -1742,3 +1742,34 @@ BN.update({
     "mis_none": "এখানে কিছু নেই।",
 })
 # ---- /missing ----
+
+# ---- blood: Owner Admin -> Blood donors ----
+EN.update({
+    "nav_blood": "Blood donors",
+    "bld_intro": "Urgent blood requests and donor verification. A request hides itself after 3 independent fake reports and waits here. Restore it, or remove it (with a 90-day posting ban when it was fake or blood selling). Slip photos are only for the verified badge: they are deleted the moment you approve or reject.",
+    "bld_t_review": "Needs review", "bld_t_active": "Active", "bld_t_slips": "Slips to check",
+    "bld_t_donors": "Listed donors", "bld_f_ended": "Ended",
+    "bld_group": "Group", "bld_hospital": "Hospital / area", "bld_requester": "Requested by",
+    "bld_reach": "Pushed / listed", "bld_reports": "Reports", "bld_can": "can donate",
+    "bld_not_counted": "not counted", "bld_hide": "Hide", "bld_restore": "Restore",
+    "bld_close": "Close", "bld_remove": "Remove", "bld_remove_ban": "Remove + 90-day ban",
+    "bld_slip_note": "Check that the slip shows a real donation (blood bank / hospital, date). Approve gives the badge; either way the photo is deleted.",
+    "bld_donor": "Donor", "bld_photo": "Slip photo", "bld_note": "Note (optional)",
+    "bld_approve": "Approve badge", "bld_reject": "Reject",
+    "bld_none": "Nothing here.",
+})
+BN.update({
+    "nav_blood": "রক্তদাতা",
+    "bld_intro": "জরুরি রক্তের অনুরোধ ও দাতা যাচাই। ৩টি আলাদা মানুষের 'ভুয়া' রিপোর্ট এলে অনুরোধ নিজে লুকিয়ে যায় এবং এখানে অপেক্ষা করে। ফিরিয়ে দিন, অথবা সরান (ভুয়া বা রক্ত বিক্রি হলে ৯০ দিন পোস্ট নিষেধসহ)। স্লিপের ছবি শুধু যাচাই-ব্যাজের জন্য: অনুমোদন বা বাতিল করার সাথে সাথে মুছে যায়।",
+    "bld_t_review": "পর্যালোচনা দরকার", "bld_t_active": "চালু", "bld_t_slips": "যাচাইয়ের স্লিপ",
+    "bld_t_donors": "তালিকার দাতা", "bld_f_ended": "শেষ হয়েছে",
+    "bld_group": "গ্রুপ", "bld_hospital": "হাসপাতাল / এলাকা", "bld_requester": "যিনি চেয়েছেন",
+    "bld_reach": "push / তালিকায়", "bld_reports": "রিপোর্ট", "bld_can": "দিতে রাজি",
+    "bld_not_counted": "গোনা হয়নি", "bld_hide": "লুকান", "bld_restore": "ফিরিয়ে দিন",
+    "bld_close": "বন্ধ করুন", "bld_remove": "সরান", "bld_remove_ban": "সরান + ৯০ দিন নিষেধ",
+    "bld_slip_note": "দেখুন স্লিপে আসল রক্তদান আছে কি না (ব্লাড ব্যাংক / হাসপাতাল, তারিখ)। অনুমোদন করলে ব্যাজ; যেকোনো ক্ষেত্রে ছবি মুছে যায়।",
+    "bld_donor": "দাতা", "bld_photo": "স্লিপের ছবি", "bld_note": "নোট (ইচ্ছা হলে)",
+    "bld_approve": "ব্যাজ দিন", "bld_reject": "বাতিল",
+    "bld_none": "এখানে কিছু নেই।",
+})
+# ---- /blood ----
