@@ -54,6 +54,8 @@ Future<void> _settle(WidgetTester tester, [int n = 12]) async {
   }
 }
 
+Finder get _outer => find.byType(Scrollable).first;
+
 late AppLocalizations en;
 late AppLocalizations bn;
 
@@ -76,7 +78,9 @@ void main() {
     await tester.pumpWidget(_app(MktEngineScreen(source: f)));
     await _settle(tester);
     expect(find.text(en.mktWelcomeTitle), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(en.mktHonestLine), 200, scrollable: _outer);
     expect(find.text(en.mktHonestLine), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(en.mktStart), -200, scrollable: _outer);
     await tester.tap(find.text(en.mktStart));
     await _settle(tester);
     // step 1: single choice required
@@ -110,29 +114,35 @@ void main() {
     await tester.pumpWidget(_app(MktEngineScreen(source: f)));
     await _settle(tester);
     expect(find.textContaining('৳350'), findsWidgets);
+    await tester.scrollUntilVisible(find.text(en.mktPublishPending), 200, scrollable: _outer);
     expect(find.text(en.mktPublishPending), findsOneWidget);   // approved post, Meta not approved
     expect(find.text(en.mktPublishFb), findsNothing);           // never a dead "post" button
+    await tester.scrollUntilVisible(find.text(en.mktFactsTitle), -200, scrollable: _outer);
     await tester.tap(find.text(en.mktFactsTitle));
     await _settle(tester);
     expect(find.text('Miniket rice 5 kg × 12'), findsOneWidget);
     // approve the calendar
+    await tester.scrollUntilVisible(find.text(en.mktApprove), 200, scrollable: _outer);
     await tester.tap(find.text(en.mktApprove).first);
     await _settle(tester);
     expect(f.calls, contains('edit:calendar:approved'));
     // conversion: one follow-up on already, one ready to turn on
+    await tester.scrollUntilVisible(find.text(en.mktSecConversion), -200, scrollable: _outer);
     await tester.tap(find.text(en.mktSecConversion));
     await _settle(tester);
-    expect(find.text(en.mktFollowOn), findsOneWidget);
-    await tester.ensureVisible(find.text(en.mktFollowActivate));
+    await tester.scrollUntilVisible(find.text(en.mktFollowActivate), 200, scrollable: _outer);
     await tester.tap(find.text(en.mktFollowActivate));
     await _settle(tester);
     expect(f.calls, contains('activate:fu_thanks_review'));
     expect(find.text(en.mktActivated), findsOneWidget);
+    await tester.scrollUntilVisible(find.text(en.mktFollowOn), 200, scrollable: _outer);
+    expect(find.text(en.mktFollowOn), findsOneWidget);
   });
 
   testWidgets('no retention switch -> honest note, no activate button', (tester) async {
     await tester.pumpWidget(_app(MktEngineScreen(source: FakeMkt('noretention', false), initialSection: 'conversion')));
     await _settle(tester);
+    await tester.scrollUntilVisible(find.text(en.mktFollowNeedsRetention), 200, scrollable: _outer);
     expect(find.text(en.mktFollowNeedsRetention), findsOneWidget);
     expect(find.text(en.mktFollowActivate), findsNothing);
   });

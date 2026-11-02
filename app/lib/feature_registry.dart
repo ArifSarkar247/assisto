@@ -247,7 +247,8 @@ const Map<String, String> kRouteFeature = {
   // retention1: owner screen + the customer's shop messages
   'retention_auto': 'retention_auto',
   'retention_inbox': 'retention_auto',
-  'marketing_engine': 'marketing_engine', // mktengine
+  // mktengine: Marketing Engine v1
+  'marketing_engine': 'marketing_engine',
   'sales_agent': 'business_agent',
   'prepaid_meter': 'prepaid_meter',
   'contract': 'contract_analyzer',
