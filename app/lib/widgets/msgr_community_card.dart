@@ -46,7 +46,7 @@ class MsgrCommunityCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          child: Row(
+          child: LayoutBuilder(builder: (context, box) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _avatar(scheme),
@@ -90,13 +90,12 @@ class MsgrCommunityCard extends StatelessWidget {
                 // launchsweep: never wider than the text column; the
                 // button label wraps instead of pushing the row off screen.
                 ConstrainedBox(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                  constraints: BoxConstraints(maxWidth: box.maxWidth * 0.4),
                   child: trailing!,
                 ),
               ],
             ],
-          ),
+          )),
         ),
       ),
     );
