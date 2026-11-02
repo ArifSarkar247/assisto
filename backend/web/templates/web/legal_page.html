@@ -6,8 +6,8 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ seo.canonical }}">
 {% include "web/_og_image.html" %}{% endblock %}
+{% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
 {% block head %}
-<meta name="description" content="{{ page_desc }}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="{{ seo.canonical }}">
 <link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">

@@ -7,6 +7,7 @@
 <meta property="og:url" content="{{ seo.canonical }}">
 <meta property="og:locale" content="{% if lang == 'en' %}en_US{% else %}bn_BD{% endif %}">
 {% include "web/_og_image.html" %}{% endblock %}
+{% block description %}{% endblock %}
 {% block head %}{% include "web/_photo_seo.html" %}
 <style>
   table.sz{width:100%;border-collapse:collapse;font-size:14px}
