@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:assisto/calls/call_launch.dart';
 import 'package:assisto/cctvx/warn_recorder.dart';
@@ -154,6 +155,12 @@ void main() {
   group('999 + police card (C4)', () {
     testWidgets('asks first with the honest note, then the card', (tester) async {
       _phone(tester, height: 2000);
+      final dialed = <Uri>[];
+      police999Launch = (u) async {
+        dialed.add(u);
+        return true;
+      };
+      addTearDown(() => police999Launch = launchUrl);
       await tester.pumpWidget(_app(Scaffold(
           body: AlertActionsSheet(
               source: FakeCctvx(), eventId: 201, cash: FakeCashGuard(),
@@ -171,6 +178,7 @@ void main() {
       await _settle(tester);
       await tester.tap(find.text(en.cescOpenDialer));
       await _settle(tester, 20);
+      expect(dialed, [Uri(scheme: 'tel', path: '999')]);    // the dialer, not a call
       expect(find.text(en.cescCardTitle), findsOneWidget);
       expect(find.textContaining('House 12, Road 3'), findsOneWidget);
       expect(find.text(en.cescCardShare), findsOneWidget);

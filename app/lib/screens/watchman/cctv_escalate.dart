@@ -25,6 +25,9 @@ import 'watchman_widgets.dart';
 /// in AlertActionsSheet (cctvx).
 
 // ================================================================ C4
+/// The dialer opener (tests swap it). `tel:` opens the DIAL screen only.
+Future<bool> Function(Uri uri) police999Launch = launchUrl;
+
 /// 999: asks first (with the honest "Assisto does not call the police"),
 /// opens the phone's DIALER with 999 (the person presses call), then shows
 /// the ready police card (address, time, camera, snapshot) to read out or
@@ -52,11 +55,10 @@ Future<void> police999Flow(BuildContext context, CctvxSource source,
   );
   if (ok != true) return;
   final uri = Uri(scheme: 'tel', path: '999');
-  try {
-    await (launcher ?? launchUrl)(uri);
-  } catch (_) {
+  // the dialer opens on top; the card waits underneath (never blocks on it)
+  unawaited((launcher ?? police999Launch)(uri).then((_) {}, onError: (_) {
     // no dialer (tablet): the card below still helps
-  }
+  }));
   if (!context.mounted || police.isEmpty) return;
   await showAppSheet<void>(
     context: context,
@@ -288,8 +290,8 @@ class _DeterTilesState extends State<DeterTiles> {
       );
 }
 
-/// Per-camera table: siren / light / message / two-way talk — "আছে" or the
-/// honest reason ("এই ক্যামেরায় নেই …").
+/// Per-camera table: siren / light / message / two-way talk — available or
+/// the honest reason ("not on this camera ...").
 class CapabilityTable extends StatelessWidget {
   final Map<String, Map<String, dynamic>> rows;
   const CapabilityTable({super.key, required this.rows});
