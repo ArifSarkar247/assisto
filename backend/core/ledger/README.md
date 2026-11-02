@@ -95,7 +95,9 @@ other_income_total, net_profit, book}` — `row = {code, name, type, group, amou
 
 ### GET `balance-sheet?as_of=`
 `{as_of, assets: [row], total_assets, liabilities: [row], total_liabilities,
-equity: [row], profit_to_date, total_equity, total_liabilities_equity, balanced, book}`
+equity: [row], profit_to_date, total_equity, total_liabilities_equity, balanced,
+catalog_stock_value, book}` — `catalog_stock_value` = Σ stock × cost in the
+catalog now (compare with inventory 1200: the gap = stock to count/adjust).
 
 ### GET `cash-flow?from=&to=` (indirect method, IAS 7)
 `{from, to, net_profit, adjustments: [{key, name, amount}], operating,
@@ -106,7 +108,8 @@ net_change, opening_cash, closing_cash, reconciles, book}` — cash = 1010 +
 ### GET `vat?from=&to=` (VAT summary — supports Mushak-9.1, NOT a filing)
 `{from, to, output_vat, output_sd, input_vat, net_payable, sales_taxable,
 register: [{number, date, buyer, buyer_bin, taxable, sd, vat, total,
-source: invoice|sale}], vat_ready, book}` — `register` is the Mushak-6.2
+source: invoice|sale}], vat_ready, vat_periods: [{from, to|null, vat_bp, sd_bp}], book}`
+`input_vat` is 0 until purchases carry VAT (Phase 3). — `register` is the Mushak-6.2
 style sales register built from invoices (Mushak-6.3 data). Rates come from the
 shop's invoice settings, never hard-coded. Legal basis: VAT & SD Act 2012 and
 VAT & SD Rules 2016 (NBR, nbr.gov.bd / vat.gov.bd): Mushak-6.3 tax invoice
