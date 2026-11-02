@@ -48,7 +48,6 @@ const _launchPrefixes = <String>[
   'chx_', // channels + communities
   'callpip_', // call PiP / mini tile / call bar
   'bizops_', // biz brief card
-  'chat', 'ps_assistant', // home AI chat action cards (expense / reminder / approval)
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
