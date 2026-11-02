@@ -34878,5 +34878,45 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "bsvTitle": "My saved donors",
+  "bsvTileSub": "Your private list — only you see it. Donors from your old list are here.",
+  "bsvCount": "{n} saved · only you see this list",
+  "@bsvCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "bsvPrivate": "Private: nobody else sees this list, and nobody on it gets a notification.",
+  "bsvEmptyTitle": "Keep the blood donors you know in one place — call them in one tap when blood is needed.",
+  "bsvStep1": "Tap Add donor, or pick a person from My Circle.",
+  "bsvStep2": "Choose their blood group and when they last gave blood.",
+  "bsvStep3": "The list shows who can give now, who can give soon (exact days) and who is paused.",
+  "bsvAdd": "Add donor",
+  "bsvEditTitle": "Edit donor",
+  "bsvName": "Name",
+  "bsvGroup": "Blood group",
+  "bsvPhone": "Phone (optional)",
+  "bsvArea": "Area (optional)",
+  "bsvLast": "Last gave blood (optional)",
+  "bsvLastNone": "Not known",
+  "bsvPaused": "Paused (sick or travelling)",
+  "bsvFromOld": "From your old list",
+  "bsvDeleteAsk": "Remove {name} from your list?",
+  "@bsvDeleteAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bsvErrName": "Write a name.",
+  "bsvErrGroup": "Pick a blood group.",
+  "discoverLiveTitle": "Live Location",
+  "discoverLiveBenefit": "Family sees where you are and gets notified when you arrive.",
+  "discoverDestTitle": "Destination Alarm",
+  "discoverDestBenefit": "Wakes you before your stop, even without internet.",
+  "discoverBloodBenefit": "Find blood donors near you and send an urgent request — all in the app."
 }
