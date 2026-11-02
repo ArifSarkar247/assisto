@@ -81,7 +81,7 @@
 * শুরুতে দাতা কম থাকলে নাগাল কম; বয়স/ওজন/স্বাস্থ্য নিজে-ঘোষণা।
 
 ## ১০. প্রমাণ (CI)
-`backend/core/tests_blood.py` (সম্মতি, গোপনীয়তা, বিরতি + রিমাইন্ডার, খোঁজ, push-লক্ষ্য ও সীমা, সাড়া, থ্রেড, My Circle, রিপোর্ট → লুকানো → নিষেধ, মেয়াদ, স্লিপ মোছা, ব্লাড ব্যাংক সৎ-খালি, ফ্ল্যাগ) · `backend/web/tests_blood_owner.py` · `app/test/blood_panel_test.dart` (+ ২০০% বাংলা আলো/অন্ধকার) · গ্যালারি `blood_*` ১৩টি। CI রান আইডি: চূড়ান্ত রিপোর্টে।
+`backend/core/tests_blood.py` (সম্মতি, গোপনীয়তা, বিরতি + রিমাইন্ডার, খোঁজ, push-লক্ষ্য ও সীমা, সাড়া, থ্রেড, My Circle, রিপোর্ট → লুকানো → নিষেধ, মেয়াদ, স্লিপ মোছা, ব্লাড ব্যাংক সৎ-খালি, ফ্ল্যাগ) · `backend/web/tests_blood_owner.py` · `app/test/blood_panel_test.dart` (+ ২০০% বাংলা আলো/অন্ধকার) · গ্যালারি `blood_*` ১৩টি। **CI সবুজ:** checks রান 41409757474 (ci/blood-arb, ARB প্রয়োগ করা; backend + flutter-static + ৪ flutter শার্ড + স্ক্রিনশট)।
 
 ## ১১. ইন্টিগ্রেটরের নোট
 `0127_blood` দুই লিফের (`0124_placesafe`, `0126_missing`) উপর নির্ভর করে — নম্বর ঠিক করার সময় শুধু আসল লিফ রাখুন। `agent/missing` এই শাখায় merge করা (success_share পুনর্ব্যবহারের জন্য)। ARB: `.phaseB/up_blood_arb.json`।
