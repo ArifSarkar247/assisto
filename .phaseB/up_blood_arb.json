@@ -1,0 +1,1290 @@
+{
+ "en": {
+  "bpAboutKm": "about {km} km",
+  "@bpAboutKm": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "km": {
+     "type": "int"
+    }
+   }
+  },
+  "bpAgainOn": "Available again on {date}",
+  "@bpAgainOn": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "bpAreaHelp": "No house or road number, no phone number.",
+  "@bpAreaHelp": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaLabel": "Area / upazila (e.g. Mirpur 10)",
+  "@bpAreaLabel": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaTitle": "Your area",
+  "@bpAreaTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAreaWhy": "Only the area name and a rough point (about 1 km) are kept — never your address.",
+  "@bpAreaWhy": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpAskedBy": "Asked by {name}",
+  "@bpAskedBy": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "bpBack": "Go back",
+  "@bpBack": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBags": "Bags needed",
+  "@bpBags": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksFindDonors": "Find donors near you",
+  "@bpBanksFindDonors": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksPending": "No official blood bank list in the app yet — the source is pending",
+  "@bpBanksPending": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksSource": "Source: {name} · {date}",
+  "@bpBanksSource": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "bpBanksStep1": "We show blood banks only from an official list (DGHS / Red Crescent / Sandhani), with its date.",
+  "@bpBanksStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksStep2": "Until then, ask the hospital's own blood bank or transfusion department.",
+  "@bpBanksStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksStep3": "Find donors near you or post an urgent request.",
+  "@bpBanksStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBanksTitle": "Blood banks",
+  "@bpBanksTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBasicsCheck": "I am 18–60 years old, weigh at least 45 kg and I am healthy",
+  "@bpBasicsCheck": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeLead": "One donor can save up to three lives. Join free — you decide everything.",
+  "@bpBecomeLead": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep1": "Give your blood group, area and last donation date.",
+  "@bpBecomeStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep2": "Get a notification only when someone near you needs your group and you can give.",
+  "@bpBecomeStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeStep3": "Pause or leave any time. Your number stays private.",
+  "@bpBecomeStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBecomeTitle": "Become a blood donor",
+  "@bpBecomeTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlock": "Block",
+  "@bpBlock": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockBody": "Neither of you can send messages here any more.",
+  "@bpBlockBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockTitle": "Block this conversation?",
+  "@bpBlockTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpBlockedByMe": "You blocked this conversation",
+  "@bpBlockedByMe": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCall": "Call",
+  "@bpCall": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCallNote": "App calls work after you are in each other's My Circle — the donor decides.",
+  "@bpCallNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCanNow": "Can donate now",
+  "@bpCanNow": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCanSent": "The family has been told. Talk in the app.",
+  "@bpCanSent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCancel": "Cancel",
+  "@bpCancel": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCannotSent": "Okay — thank you for answering",
+  "@bpCannotSent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAccept": "Accept",
+  "@bpCircleAccept": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAccepted": "My Circle request accepted",
+  "@bpCircleAccepted": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAsk": "Ask to add to My Circle",
+  "@bpCircleAsk": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAskDonor": "This person asks to add you to My Circle (then you can call each other in the app). Only if you want.",
+  "@bpCircleAskDonor": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleAsked": "Asked — the donor decides",
+  "@bpCircleAsked": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleDecline": "No, thanks",
+  "@bpCircleDecline": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleDeclined": "The donor prefers to talk here only",
+  "@bpCircleDeclined": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleSent": "My Circle request sent — they accept it in My Circle",
+  "@bpCircleSent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCircleWaiting": "My Circle request waiting for the donor",
+  "@bpCircleWaiting": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpClose": "Close request",
+  "@bpClose": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCloseBody": "Donors who said they can will be told it is no longer needed.",
+  "@bpCloseBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpCloseTitle": "Close this request?",
+  "@bpCloseTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpClosed": "Request closed",
+  "@bpClosed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentBody": "Your blood group is health information. With your consent, other Assisto users can see your first name, blood group, area and whether you can donate now, and nearby people who need blood can send you notifications. You can pause or leave any time and your details are deleted.",
+  "@bpConsentBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentCheck": "I agree to be listed as a blood donor",
+  "@bpConsentCheck": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpConsentTitle": "Your consent",
+  "@bpConsentTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpContactTitle": "Who can contact you",
+  "@bpContactTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDistrict": "District",
+  "@bpDistrict": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedConfirmBody": "We will pause requests to you until you can give again, and remind you that day.",
+  "@bpDonatedConfirmBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedConfirmTitle": "Did you give blood today?",
+  "@bpDonatedConfirmTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedTag": "donated",
+  "@bpDonatedTag": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedThanks": "Thank you for giving blood!",
+  "@bpDonatedThanks": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpDonatedToday": "I donated today",
+  "@bpDonatedToday": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEdit": "Edit my donor details",
+  "@bpEdit": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEmailPublic": "Show my e-mail",
+  "@bpEmailPublic": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpEmailPublicSub": "Off by default.",
+  "@bpEmailPublicSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrAlready": "Already done.",
+  "@bpErrAlready": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrArea": "Pick your district or add a rough location.",
+  "@bpErrArea": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrAreaText": "Write only the area name — no house number or phone.",
+  "@bpErrAreaText": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrBanned": "Requests are paused for this account after a review.",
+  "@bpErrBanned": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrBlocked": "This conversation is blocked.",
+  "@bpErrBlocked": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrConsent": "Please tick both boxes to join.",
+  "@bpErrConsent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrFields": "Please check the marked fields.",
+  "@bpErrFields": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrGeneric": "Something went wrong. Please try again.",
+  "@bpErrGeneric": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrGroup": "Pick a blood group.",
+  "@bpErrGroup": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrHospital": "Write the hospital name (no phone number).",
+  "@bpErrHospital": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrIncompatible": "Your blood group does not match this request.",
+  "@bpErrIncompatible": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrLast": "Pick the date, or choose 'Never / don't remember'.",
+  "@bpErrLast": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNoContact": "Remove phone numbers / e-mails — donors answer in the app.",
+  "@bpErrNoContact": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotActive": "This request is no longer open.",
+  "@bpErrNotActive": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotAvailable": "This donor is not available right now.",
+  "@bpErrNotAvailable": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotDonor": "Join as a donor first.",
+  "@bpErrNotDonor": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrNotEligible": "It is too soon after your last donation.",
+  "@bpErrNotEligible": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrOff": "The blood donor panel is not open yet.",
+  "@bpErrOff": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrPhoto": "This photo could not be used. Try another.",
+  "@bpErrPhoto": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrRate": "Too many tries today. Please try again later.",
+  "@bpErrRate": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrReal": "Please confirm this is a real need.",
+  "@bpErrReal": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrTooManyActive": "You already have 2 open requests. Close one first.",
+  "@bpErrTooManyActive": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpErrTooManyReq": "You can post 3 urgent requests a day.",
+  "@bpErrTooManyReq": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindEmptyTitle": "Find a donor near you in a minute",
+  "@bpFindEmptyTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindLead": "Donors who agreed to be listed, near you. You see their area only — never an address.",
+  "@bpFindLead": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep1": "Pick the blood group.",
+  "@bpFindStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep2": "Tap 'Use where I am' or pick your district.",
+  "@bpFindStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFindStep3": "Message a donor in the app — their number stays private.",
+  "@bpFindStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFound": "Blood found",
+  "@bpFound": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundBody": "We will tell the donors who answered, and stop the request.",
+  "@bpFoundBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundCount": "{n} donors found",
+  "@bpFoundCount": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "n": {
+     "type": "int"
+    }
+   }
+  },
+  "bpFoundDone": "Thank God! Donors have been told.",
+  "@bpFoundDone": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundShareAsk": "Also share a thank-you (optional)",
+  "@bpFoundShareAsk": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundShareSub": "Only if your family agrees. You can edit the text first.",
+  "@bpFoundShareSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpFoundTitle": "Blood arranged?",
+  "@bpFoundTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupLabel": "Blood group {group}",
+  "@bpGroupLabel": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "group": {
+     "type": "String"
+    }
+   }
+  },
+  "bpGroupMine": "My blood group",
+  "@bpGroupMine": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupNeeded": "Blood group needed",
+  "@bpGroupNeeded": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupNotFamily": "Not copied from your Family card — chosen here, by you.",
+  "@bpGroupNotFamily": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpGroupPick": "Blood group needed",
+  "@bpGroupPick": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHere": "Use where I am (approximate)",
+  "@bpHere": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHereOn": "Near me (approximate)",
+  "@bpHereOn": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHiddenNote": "Several people reported this request, so it is hidden while the Assisto team reviews it.",
+  "@bpHiddenNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHospital": "Hospital name",
+  "@bpHospital": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpHospitalHelp": "Name only (e.g. Dhaka Medical College Hospital). No phone number.",
+  "@bpHospitalHelp": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpICan": "I can donate",
+  "@bpICan": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpICannot": "Can't this time",
+  "@bpICannot": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpIDonated": "I donated for this request",
+  "@bpIDonated": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpInHours": "In {h} hours",
+  "@bpInHours": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "h": {
+     "type": "int"
+    }
+   }
+  },
+  "bpIntervalNote": "Gap between whole-blood donations: {days} days (Bangladesh national guideline, 4 months).",
+  "@bpIntervalNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "days": {
+     "type": "int"
+    }
+   }
+  },
+  "bpJoin": "Join as a donor",
+  "@bpJoin": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpKm": "{n} km",
+  "@bpKm": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "n": {
+     "type": "int"
+    }
+   }
+  },
+  "bpLastDonation": "Last time you gave blood",
+  "@bpLastDonation": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLastOn": "Last donation: {date}",
+  "@bpLastOn": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "bpLaunchFailed": "Could not open the phone app.",
+  "@bpLaunchFailed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeave": "Leave the donor panel",
+  "@bpLeave": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveConfirmBody": "Your donor details are deleted and you will not get blood requests. You can join again later.",
+  "@bpLeaveConfirmBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveConfirmTitle": "Leave the donor panel?",
+  "@bpLeaveConfirmTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeaveSub": "Deletes your group, area and dates from the panel.",
+  "@bpLeaveSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLeft": "You left the donor panel",
+  "@bpLeft": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLess": "One less",
+  "@bpLess": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpListed": "You are listed as a donor",
+  "@bpListed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLoadFailed": "Could not load. Check the internet and try again.",
+  "@bpLoadFailed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpLocationFailed": "Location is off or not allowed. Pick your district instead.",
+  "@bpLocationFailed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessage": "Message",
+  "@bpMessage": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessageRequester": "Message the family",
+  "@bpMessageRequester": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMessages": "Messages",
+  "@bpMessages": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMine": "My requests",
+  "@bpMine": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMore": "One more",
+  "@bpMore": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgDefault": "Assalamu alaikum. We need blood urgently. Can you help?",
+  "@bpMsgDefault": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgLabel": "Write a message",
+  "@bpMsgLabel": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgPrivacy": "Your number is not shared. Share it yourself only if you want.",
+  "@bpMsgPrivacy": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpMsgTitle": "Message {name}",
+  "@bpMsgTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "bpNear": "Requests near you",
+  "@bpNear": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNearNeedsDonor": "Join as a donor to see and answer urgent requests near you.",
+  "@bpNearNeedsDonor": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNeededBy": "Needed by {when}",
+  "@bpNeededBy": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "bpNeededByTitle": "Needed by",
+  "@bpNeededByTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNeverDonated": "Never / don't remember",
+  "@bpNeverDonated": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonors": "No listed donor matches yet",
+  "@bpNoDonors": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep1": "Try a bigger distance (10 or 25 km).",
+  "@bpNoDonorsStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep2": "Post an urgent request — eligible donors nearby get a notification.",
+  "@bpNoDonorsStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoDonorsStep3": "Also ask your family and My Circle.",
+  "@bpNoDonorsStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoResponders": "Nobody answered this request.",
+  "@bpNoResponders": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoRespondersYet": "No answer yet. Donors get the notification now — also ask your family and My Circle.",
+  "@bpNoRespondersYet": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotCompatibleNote": "Your blood group cannot be given to this patient.",
+  "@bpNotCompatibleNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotDonorNote": "Join as a donor to answer requests.",
+  "@bpNotDonorNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNotEligibleNote": "It is too soon after your last donation — please rest this time.",
+  "@bpNotEligibleNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNote": "Note (optional)",
+  "@bpNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNoteHelp": "e.g. patient's ward or reason. No phone number.",
+  "@bpNoteHelp": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNowOnly": "Only donors who can give now",
+  "@bpNowOnly": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpNumberPrivate": "Number private — message in the app.",
+  "@bpNumberPrivate": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPause": "Pause (hide me for now)",
+  "@bpPause": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPauseSub": "Sick, travelling or busy? Pause — no notifications, not listed.",
+  "@bpPauseSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPaused": "Paused — not shown to others",
+  "@bpPaused": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPhonePublic": "Show my phone number",
+  "@bpPhonePublic": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPhonePublicSub": "Off: people message you in the app only (recommended).",
+  "@bpPhonePublicSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPickDate": "Pick the date",
+  "@bpPickDate": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPickTime": "Pick date and time",
+  "@bpPickTime": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPointSaved": "Rough location added (about 1 km)",
+  "@bpPointSaved": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPrivacyBody": "Others see only: first name, blood group, area name, rough distance, and whether you can donate now. Never your address or exact location. Your phone and e-mail stay private unless you make them public. Your Family card blood group is never used here.",
+  "@bpPrivacyBody": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpPrivacyTitle": "Your privacy",
+  "@bpPrivacyTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRadius": "Distance",
+  "@bpRadius": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReach": "Notified {pushed} donors · {listed} matched",
+  "@bpReach": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "pushed": {
+     "type": "int"
+    },
+    "listed": {
+     "type": "int"
+    }
+   }
+  },
+  "bpReachSub": "Only donors who can give now and whose group matches.",
+  "@bpReachSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReachTitle": "Notify donors within",
+  "@bpReachTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRealNeed": "This is a real need. I will never sell or buy blood.",
+  "@bpRealNeed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportFake": "Fake request",
+  "@bpReportFake": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportHarass": "Harassment",
+  "@bpReportHarass": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportNote": "Anything to add (optional)",
+  "@bpReportNote": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportOther": "Something else",
+  "@bpReportOther": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSelling": "Selling / buying blood or asking money",
+  "@bpReportSelling": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSend": "Send report",
+  "@bpReportSend": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSpam": "Spam",
+  "@bpReportSpam": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportSub": "After 3 people report it, it is hidden until the Assisto team checks.",
+  "@bpReportSub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReportTitle": "Report this request",
+  "@bpReportTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReported": "Thank you — reported",
+  "@bpReported": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqEmptyTitle": "Need blood? Reach eligible donors nearby in one minute",
+  "@bpReqEmptyTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqLead": "Takes about a minute. Donors answer in the app — no phone number or address is shown.",
+  "@bpReqLead": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep1": "Tap Urgent blood request and fill group, bags, hospital, time.",
+  "@bpReqStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep2": "Donors nearby who can give now get a notification.",
+  "@bpReqStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqStep3": "See who said 'I can donate' and talk in the app.",
+  "@bpReqStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpReqSubmit": "Send urgent request",
+  "@bpReqSubmit": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestCta": "Urgent blood request",
+  "@bpRequestCta": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestSent": "Request sent to donors nearby",
+  "@bpRequestSent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRequestTitle": "Blood request",
+  "@bpRequestTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResponders": "{n} can donate",
+  "@bpResponders": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "n": {
+     "type": "int"
+    }
+   }
+  },
+  "bpRespondersTitle": "Donors who can give",
+  "@bpRespondersTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResume": "List me again",
+  "@bpResume": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpResumeListing": "Show me again",
+  "@bpResumeListing": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpRetry": "Try again",
+  "@bpRetry": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSave": "Save",
+  "@bpSave": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSaved": "Saved",
+  "@bpSaved": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSend": "Send",
+  "@bpSend": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSetupLead": "Join the panel so people near you can find you when they need your blood group. This is separate from your Family card.",
+  "@bpSetupLead": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSex": "Sex (for the donation gap)",
+  "@bpSex": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexFemale": "Female",
+  "@bpSexFemale": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexMale": "Male",
+  "@bpSexMale": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexSkip": "Prefer not to say",
+  "@bpSexSkip": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSexWhy": "Used only to count when you can give again. Never shown.",
+  "@bpSexWhy": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpShareHeadline": "Blood found — thank you, donors",
+  "@bpShareHeadline": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpShareText": "Alhamdulillah, we found {group} blood in time for our patient. Heartfelt thanks to the donors who came forward. We used the Assisto app's blood donor panel.",
+  "@bpShareText": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "group": {
+     "type": "String"
+    }
+   }
+  },
+  "bpShareTitle": "Say thank you",
+  "@bpShareTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpSms": "SMS",
+  "@bpSms": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateActive": "Looking for donors",
+  "@bpStateActive": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateClosed": "Closed",
+  "@bpStateClosed": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateExpired": "Expired",
+  "@bpStateExpired": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateFound": "Blood found",
+  "@bpStateFound": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateHidden": "Under review",
+  "@bpStateHidden": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpStateRemoved": "Removed",
+  "@bpStateRemoved": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabFind": "Find donors",
+  "@bpTabFind": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabMe": "Me as donor",
+  "@bpTabMe": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTabRequests": "Requests",
+  "@bpTabRequests": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadAsDonor": "You are the donor",
+  "@bpThreadAsDonor": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadAsSeeker": "You are looking for blood",
+  "@bpThreadAsSeeker": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadEmpty": "No messages yet. Say hello and what you need.",
+  "@bpThreadEmpty": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsEmpty": "Your blood-panel messages will show here",
+  "@bpThreadsEmpty": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep1": "Find a donor and tap Message.",
+  "@bpThreadsStep1": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep2": "Or answer a request with 'I can donate'.",
+  "@bpThreadsStep2": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpThreadsStep3": "Numbers stay private on both sides.",
+  "@bpThreadsStep3": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpTitle": "Blood donors",
+  "@bpTitle": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUnblock": "Unblock",
+  "@bpUnblock": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUnits": "{group} · {units} bag(s)",
+  "@bpUnits": {
+   "description": "blood (owner 2 Nov): Blood donor panel",
+   "placeholders": {
+    "group": {
+     "type": "String"
+    },
+    "units": {
+     "type": "int"
+    }
+   }
+  },
+  "bpUsePoint": "Add my rough location (better distance)",
+  "@bpUsePoint": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpUsePointReq": "Use where I am now (approximate)",
+  "@bpUsePointReq": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerified": "Verified donor",
+  "@bpVerified": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyCamera": "Take photo",
+  "@bpVerifyCamera": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyCta": "Get the verified donor badge",
+  "@bpVerifyCta": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyGallery": "Choose from gallery",
+  "@bpVerifyGallery": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyLead": "Take a clear photo of a blood donation slip or card (from a blood bank or hospital) with your name and the date.",
+  "@bpVerifyLead": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyPending": "Slip sent — being checked",
+  "@bpVerifyPending": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyPrivacy": "Only the Assisto team sees this photo. It is deleted right after checking and is never shown to anyone else.",
+  "@bpVerifyPrivacy": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifyRejected": "Last slip could not be verified. You may send a clearer photo.",
+  "@bpVerifyRejected": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySend": "Send for checking",
+  "@bpVerifySend": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySent": "Sent — we will let you know",
+  "@bpVerifySent": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpVerifySub": "Send a photo of a donation slip. Only the Assisto team sees it; it is deleted after checking.",
+  "@bpVerifySub": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWhere": "Near where?",
+  "@bpWhere": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWhoGets": "Who gets it: donors who joined the panel, whose group can give to yours, who can donate by that time, and whose area is within the distance. Each donor gets at most 3 requests a day. The request ends by itself after the time passes.",
+  "@bpWhoGets": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWithdraw": "I can't make it any more",
+  "@bpWithdraw": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpWithdrawn": "Okay — the family will see you can't come",
+  "@bpWithdrawn": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpYouSaidCan": "You said you can donate",
+  "@bpYouSaidCan": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
+  "@bpYouSaidCanLong": {
+   "description": "blood (owner 2 Nov): Blood donor panel"
+  }
+ },
+ "bn": {
+  "bpAboutKm": "প্রায় {km} কিমি",
+  "bpAgainOn": "আবার দিতে পারবেন {date} থেকে",
+  "bpAreaHelp": "বাড়ি বা রোড নম্বর, ফোন নম্বর দেবেন না।",
+  "bpAreaLabel": "এলাকা / উপজেলা (যেমন মিরপুর ১০)",
+  "bpAreaTitle": "আপনার এলাকা",
+  "bpAreaWhy": "শুধু এলাকার নাম ও মোটামুটি জায়গা (প্রায় ১ কিমি) রাখা হয় — কখনো ঠিকানা নয়।",
+  "bpAskedBy": "অনুরোধ করেছেন {name}",
+  "bpBack": "ফিরে যান",
+  "bpBags": "কত ব্যাগ",
+  "bpBanksFindDonors": "কাছের দাতা খুঁজুন",
+  "bpBanksPending": "অ্যাপে এখনো সরকারি ব্লাড ব্যাংক তালিকা নেই — উৎসের অপেক্ষায়",
+  "bpBanksSource": "উৎস: {name} · {date}",
+  "bpBanksStep1": "আমরা শুধু সরকারি/স্বীকৃত তালিকা (DGHS / রেড ক্রিসেন্ট / সন্ধানী) থেকে তারিখসহ ব্লাড ব্যাংক দেখাব।",
+  "bpBanksStep2": "ততদিন হাসপাতালের নিজস্ব ব্লাড ব্যাংক বা ট্রান্সফিউশন বিভাগে জিজ্ঞেস করুন।",
+  "bpBanksStep3": "কাছের দাতা খুঁজুন বা জরুরি অনুরোধ দিন।",
+  "bpBanksTitle": "ব্লাড ব্যাংক",
+  "bpBasicsCheck": "আমার বয়স ১৮–৬০, ওজন অন্তত ৪৫ কেজি এবং আমি সুস্থ",
+  "bpBecomeLead": "একজন দাতা তিনটি পর্যন্ত জীবন বাঁচাতে পারেন। বিনামূল্যে যুক্ত হন — সব সিদ্ধান্ত আপনার।",
+  "bpBecomeStep1": "রক্তের গ্রুপ, এলাকা ও শেষ দানের তারিখ দিন।",
+  "bpBecomeStep2": "শুধু তখনই নোটিফিকেশন পাবেন যখন কাছে কারও আপনার গ্রুপ লাগবে আর আপনি দিতে পারবেন।",
+  "bpBecomeStep3": "যেকোনো সময় বিরতি বা বের হতে পারবেন। নম্বর গোপন থাকে।",
+  "bpBecomeTitle": "রক্তদাতা হন",
+  "bpBlock": "ব্লক",
+  "bpBlockBody": "এখানে আর কেউ বার্তা পাঠাতে পারবেন না।",
+  "bpBlockTitle": "এই কথোপকথন ব্লক করবেন?",
+  "bpBlockedByMe": "আপনি এই কথোপকথন ব্লক করেছেন",
+  "bpCall": "কল",
+  "bpCallNote": "একে অপরের My Circle-এ থাকলে অ্যাপে কল করা যায় — সিদ্ধান্ত দাতার।",
+  "bpCanNow": "এখন দিতে পারবেন",
+  "bpCanSent": "পরিবারকে জানানো হয়েছে। অ্যাপে কথা বলুন।",
+  "bpCancel": "বাতিল",
+  "bpCannotSent": "ঠিক আছে — সাড়া দেওয়ার জন্য ধন্যবাদ",
+  "bpCircleAccept": "রাজি",
+  "bpCircleAccepted": "My Circle অনুরোধে রাজি হয়েছেন",
+  "bpCircleAsk": "My Circle-এ যুক্ত করার অনুরোধ",
+  "bpCircleAskDonor": "ইনি আপনাকে My Circle-এ যুক্ত করতে চান (তাহলে অ্যাপে একে অপরকে কল করা যাবে)। শুধু আপনি চাইলে।",
+  "bpCircleAsked": "অনুরোধ গেছে — সিদ্ধান্ত দাতার",
+  "bpCircleDecline": "না, ধন্যবাদ",
+  "bpCircleDeclined": "দাতা শুধু এখানে কথা বলতে চান",
+  "bpCircleSent": "My Circle অনুরোধ গেছে — তাঁরা My Circle-এ গ্রহণ করবেন",
+  "bpCircleWaiting": "My Circle অনুরোধ দাতার সিদ্ধান্তের অপেক্ষায়",
+  "bpClose": "অনুরোধ বন্ধ করুন",
+  "bpCloseBody": "যাঁরা রাজি হয়েছিলেন তাঁদের জানানো হবে আর লাগবে না।",
+  "bpCloseTitle": "অনুরোধ বন্ধ করবেন?",
+  "bpClosed": "অনুরোধ বন্ধ হয়েছে",
+  "bpConsentBody": "রক্তের গ্রুপ স্বাস্থ্য-তথ্য। আপনার সম্মতিতে অন্য Assisto ব্যবহারকারীরা আপনার নামের প্রথম অংশ, রক্তের গ্রুপ, এলাকা ও এখন দিতে পারবেন কি না দেখবেন, আর কাছের যাঁদের রক্ত লাগবে তাঁরা আপনাকে নোটিফিকেশন পাঠাতে পারবেন। যেকোনো সময় বিরতি বা বের হতে পারবেন, তথ্য মুছে যাবে।",
+  "bpConsentCheck": "আমি রক্তদাতা হিসেবে তালিকায় থাকতে রাজি",
+  "bpConsentTitle": "আপনার সম্মতি",
+  "bpContactTitle": "কে যোগাযোগ করতে পারবে",
+  "bpDistrict": "জেলা",
+  "bpDonatedConfirmBody": "আবার দিতে পারার দিন পর্যন্ত আপনাকে অনুরোধ পাঠানো বন্ধ থাকবে, আর সেদিন মনে করিয়ে দেব।",
+  "bpDonatedConfirmTitle": "আজ কি রক্ত দিয়েছেন?",
+  "bpDonatedTag": "দিয়েছেন",
+  "bpDonatedThanks": "রক্ত দেওয়ার জন্য ধন্যবাদ!",
+  "bpDonatedToday": "আজ রক্ত দিয়েছি",
+  "bpEdit": "দাতার তথ্য বদলান",
+  "bpEmailPublic": "আমার ইমেইল দেখান",
+  "bpEmailPublicSub": "স্বাভাবিকভাবে বন্ধ।",
+  "bpErrAlready": "আগেই করা হয়েছে।",
+  "bpErrArea": "জেলা বাছুন বা মোটামুটি লোকেশন দিন।",
+  "bpErrAreaText": "শুধু এলাকার নাম লিখুন — বাড়ির নম্বর বা ফোন নয়।",
+  "bpErrBanned": "পর্যালোচনার পর এই অ্যাকাউন্টের অনুরোধ বন্ধ আছে।",
+  "bpErrBlocked": "এই কথোপকথন ব্লক করা।",
+  "bpErrConsent": "যুক্ত হতে দুটো ঘরেই টিক দিন।",
+  "bpErrFields": "চিহ্নিত ঘরগুলো দেখুন।",
+  "bpErrGeneric": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+  "bpErrGroup": "রক্তের গ্রুপ বাছুন।",
+  "bpErrHospital": "হাসপাতালের নাম লিখুন (ফোন নম্বর নয়)।",
+  "bpErrIncompatible": "আপনার গ্রুপ এই অনুরোধের সাথে মেলে না।",
+  "bpErrLast": "তারিখ বাছুন, অথবা 'কখনো দিইনি / মনে নেই' বাছুন।",
+  "bpErrNoContact": "ফোন নম্বর / ইমেইল মুছুন — দাতারা অ্যাপে সাড়া দেন।",
+  "bpErrNotActive": "এই অনুরোধ আর খোলা নেই।",
+  "bpErrNotAvailable": "এই দাতা এখন পাওয়া যাচ্ছে না।",
+  "bpErrNotDonor": "আগে দাতা হিসেবে যুক্ত হন।",
+  "bpErrNotEligible": "শেষ দানের পর এখনো যথেষ্ট সময় হয়নি।",
+  "bpErrOff": "রক্তদাতা প্যানেল এখনো চালু হয়নি।",
+  "bpErrPhoto": "এই ছবি ব্যবহার করা গেল না। আরেকটি দিন।",
+  "bpErrRate": "আজ অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করুন।",
+  "bpErrReal": "সত্যিকারের প্রয়োজন — নিশ্চিত করুন।",
+  "bpErrTooManyActive": "আপনার ২টি খোলা অনুরোধ আছে। আগে একটি বন্ধ করুন।",
+  "bpErrTooManyReq": "দিনে ৩টি জরুরি অনুরোধ দেওয়া যায়।",
+  "bpFindEmptyTitle": "এক মিনিটে কাছের রক্তদাতা খুঁজুন",
+  "bpFindLead": "যাঁরা নিজে রাজি হয়ে তালিকায় আছেন, আপনার কাছের দাতা। শুধু এলাকা দেখা যায় — কখনো ঠিকানা নয়।",
+  "bpFindStep1": "রক্তের গ্রুপ বাছুন।",
+  "bpFindStep2": "'আমি যেখানে আছি' চাপুন বা জেলা বাছুন।",
+  "bpFindStep3": "অ্যাপে দাতাকে বার্তা দিন — তাঁর নম্বর গোপন থাকে।",
+  "bpFound": "রক্ত পাওয়া গেছে",
+  "bpFoundBody": "যাঁরা সাড়া দিয়েছেন তাঁদের জানানো হবে, অনুরোধ বন্ধ হবে।",
+  "bpFoundCount": "{n} জন দাতা পাওয়া গেছে",
+  "bpFoundDone": "আলহামদুলিল্লাহ! দাতাদের জানানো হয়েছে।",
+  "bpFoundShareAsk": "ধন্যবাদ জানিয়ে শেয়ার করবেন (ইচ্ছা হলে)",
+  "bpFoundShareSub": "শুধু পরিবার রাজি হলে। আগে লেখা বদলাতে পারবেন।",
+  "bpFoundTitle": "রক্তের ব্যবস্থা হয়েছে?",
+  "bpGroupLabel": "রক্তের গ্রুপ {group}",
+  "bpGroupMine": "আমার রক্তের গ্রুপ",
+  "bpGroupNeeded": "কোন গ্রুপ লাগবে",
+  "bpGroupNotFamily": "ফ্যামিলি কার্ড থেকে নেওয়া হয় না — এখানে আপনি নিজে বাছেন।",
+  "bpGroupPick": "কোন গ্রুপের রক্ত",
+  "bpHere": "আমি যেখানে আছি (মোটামুটি)",
+  "bpHereOn": "আমার কাছে (মোটামুটি)",
+  "bpHiddenNote": "কয়েকজন রিপোর্ট করায় অনুরোধটি লুকানো আছে, Assisto টিম দেখছে।",
+  "bpHospital": "হাসপাতালের নাম",
+  "bpHospitalHelp": "শুধু নাম (যেমন ঢাকা মেডিকেল কলেজ হাসপাতাল)। ফোন নম্বর নয়।",
+  "bpICan": "আমি দিতে পারব",
+  "bpICannot": "এবার পারব না",
+  "bpIDonated": "এই অনুরোধে রক্ত দিয়েছি",
+  "bpInHours": "{h} ঘণ্টার মধ্যে",
+  "bpIntervalNote": "দুই দানের মধ্যে ফাঁক: {days} দিন (বাংলাদেশের জাতীয় নির্দেশিকা, ৪ মাস)।",
+  "bpJoin": "দাতা হিসেবে যুক্ত হন",
+  "bpKm": "{n} কিমি",
+  "bpLastDonation": "শেষ কবে রক্ত দিয়েছেন",
+  "bpLastOn": "শেষ দান: {date}",
+  "bpLaunchFailed": "ফোনের অ্যাপ খোলা গেল না।",
+  "bpLeave": "রক্তদাতা প্যানেল থেকে বের হন",
+  "bpLeaveConfirmBody": "আপনার দাতার তথ্য মুছে যাবে, রক্তের অনুরোধ আর আসবে না। পরে আবার যুক্ত হতে পারবেন।",
+  "bpLeaveConfirmTitle": "রক্তদাতা প্যানেল থেকে বের হবেন?",
+  "bpLeaveSub": "প্যানেল থেকে আপনার গ্রুপ, এলাকা ও তারিখ মুছে যায়।",
+  "bpLeft": "আপনি প্যানেল থেকে বের হয়েছেন",
+  "bpLess": "এক কম",
+  "bpListed": "আপনি দাতা হিসেবে তালিকায় আছেন",
+  "bpLoadFailed": "লোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "bpLocationFailed": "লোকেশন বন্ধ বা অনুমতি নেই। জেলা বাছুন।",
+  "bpMessage": "বার্তা দিন",
+  "bpMessageRequester": "পরিবারকে বার্তা দিন",
+  "bpMessages": "বার্তা",
+  "bpMine": "আমার অনুরোধ",
+  "bpMore": "এক বেশি",
+  "bpMsgDefault": "আসসালামু আলাইকুম। জরুরি রক্ত দরকার। আপনি কি সাহায্য করতে পারবেন?",
+  "bpMsgLabel": "বার্তা লিখুন",
+  "bpMsgPrivacy": "আপনার নম্বর দেখানো হয় না। চাইলে নিজে লিখে দিতে পারেন।",
+  "bpMsgTitle": "{name}-কে বার্তা",
+  "bpNear": "আপনার কাছের অনুরোধ",
+  "bpNearNeedsDonor": "কাছের জরুরি অনুরোধ দেখতে ও সাড়া দিতে দাতা হিসেবে যুক্ত হন।",
+  "bpNeededBy": "লাগবে {when}-এর মধ্যে",
+  "bpNeededByTitle": "কখনের মধ্যে লাগবে",
+  "bpNeverDonated": "কখনো দিইনি / মনে নেই",
+  "bpNoDonors": "এখনো মিলে যাওয়া কোনো দাতা তালিকায় নেই",
+  "bpNoDonorsStep1": "দূরত্ব বাড়ান (১০ বা ২৫ কিমি)।",
+  "bpNoDonorsStep2": "জরুরি অনুরোধ দিন — কাছের যাঁরা এখন দিতে পারেন তাঁরা নোটিফিকেশন পাবেন।",
+  "bpNoDonorsStep3": "পরিবার ও My Circle-কেও জানান।",
+  "bpNoResponders": "এই অনুরোধে কেউ সাড়া দেননি।",
+  "bpNoRespondersYet": "এখনো কেউ সাড়া দেননি। দাতারা নোটিফিকেশন পাচ্ছেন — পরিবার ও My Circle-কেও জানান।",
+  "bpNotCompatibleNote": "আপনার গ্রুপের রক্ত এই রোগীকে দেওয়া যাবে না।",
+  "bpNotDonorNote": "অনুরোধে সাড়া দিতে দাতা হিসেবে যুক্ত হন।",
+  "bpNotEligibleNote": "শেষ দানের পর এখনো যথেষ্ট সময় হয়নি — এবার বিশ্রাম নিন।",
+  "bpNote": "নোট (ইচ্ছা হলে)",
+  "bpNoteHelp": "যেমন রোগীর ওয়ার্ড বা কারণ। ফোন নম্বর নয়।",
+  "bpNowOnly": "শুধু যাঁরা এখন দিতে পারবেন",
+  "bpNumberPrivate": "নম্বর গোপন — অ্যাপে বার্তা দিন।",
+  "bpPause": "বিরতি (আপাতত লুকান)",
+  "bpPauseSub": "অসুস্থ, ভ্রমণে বা ব্যস্ত? বিরতি দিন — নোটিফিকেশন নেই, তালিকায় নেই।",
+  "bpPaused": "বিরতিতে — অন্যরা দেখছেন না",
+  "bpPhonePublic": "আমার ফোন নম্বর দেখান",
+  "bpPhonePublicSub": "বন্ধ থাকলে: মানুষ শুধু অ্যাপে বার্তা দেবেন (প্রস্তাবিত)।",
+  "bpPickDate": "তারিখ বাছুন",
+  "bpPickTime": "দিন ও সময় বাছুন",
+  "bpPointSaved": "মোটামুটি লোকেশন দেওয়া হয়েছে (প্রায় ১ কিমি)",
+  "bpPrivacyBody": "অন্যরা দেখেন শুধু: নামের প্রথম অংশ, রক্তের গ্রুপ, এলাকার নাম, মোটামুটি দূরত্ব, আর এখন দিতে পারবেন কি না। কখনো ঠিকানা বা সঠিক লোকেশন নয়। আপনি না চাইলে ফোন ও ইমেইল গোপন থাকে। ফ্যামিলি কার্ডের রক্তের গ্রুপ এখানে কখনো ব্যবহার হয় না।",
+  "bpPrivacyTitle": "আপনার গোপনীয়তা",
+  "bpRadius": "দূরত্ব",
+  "bpReach": "{pushed} জন দাতাকে জানানো হয়েছে · {listed} জন মিলেছে",
+  "bpReachSub": "শুধু যাঁরা এখন দিতে পারেন আর যাঁদের গ্রুপ মেলে।",
+  "bpReachTitle": "কত দূরের দাতাদের জানাবে",
+  "bpRealNeed": "এটি সত্যিকারের প্রয়োজন। আমি কখনো রক্ত বেচাকেনা করব না।",
+  "bpReportFake": "ভুয়া অনুরোধ",
+  "bpReportHarass": "হয়রানি",
+  "bpReportNote": "আর কিছু বলবেন (ইচ্ছা হলে)",
+  "bpReportOther": "অন্য কিছু",
+  "bpReportSelling": "রক্ত বেচাকেনা বা টাকা চাওয়া",
+  "bpReportSend": "রিপোর্ট পাঠান",
+  "bpReportSpam": "স্প্যাম",
+  "bpReportSub": "৩ জন রিপোর্ট করলে Assisto টিম দেখা পর্যন্ত লুকানো থাকে।",
+  "bpReportTitle": "এই অনুরোধ রিপোর্ট করুন",
+  "bpReported": "ধন্যবাদ — রিপোর্ট হয়েছে",
+  "bpReqEmptyTitle": "রক্ত দরকার? এক মিনিটে কাছের দাতাদের কাছে পৌঁছান",
+  "bpReqLead": "প্রায় এক মিনিট লাগে। দাতারা অ্যাপে সাড়া দেন — ফোন নম্বর বা ঠিকানা দেখানো হয় না।",
+  "bpReqStep1": "'জরুরি রক্তের অনুরোধ' চাপুন, গ্রুপ, ব্যাগ, হাসপাতাল, সময় দিন।",
+  "bpReqStep2": "কাছের যাঁরা এখন দিতে পারেন তাঁরা নোটিফিকেশন পান।",
+  "bpReqStep3": "কে 'আমি দিতে পারব' বলেছেন দেখুন, অ্যাপে কথা বলুন।",
+  "bpReqSubmit": "জরুরি অনুরোধ পাঠান",
+  "bpRequestCta": "জরুরি রক্তের অনুরোধ",
+  "bpRequestSent": "কাছের দাতাদের কাছে অনুরোধ গেছে",
+  "bpRequestTitle": "রক্তের অনুরোধ",
+  "bpResponders": "{n} জন দিতে রাজি",
+  "bpRespondersTitle": "যাঁরা দিতে রাজি",
+  "bpResume": "আবার তালিকায় দিন",
+  "bpResumeListing": "আবার দেখান",
+  "bpRetry": "আবার চেষ্টা",
+  "bpSave": "সেভ করুন",
+  "bpSaved": "সেভ হয়েছে",
+  "bpSend": "পাঠান",
+  "bpSetupLead": "যুক্ত হলে আপনার গ্রুপের রক্ত দরকার হলে কাছের মানুষ আপনাকে খুঁজে পাবেন। এটি ফ্যামিলি কার্ড থেকে আলাদা।",
+  "bpSex": "লিঙ্গ (দানের বিরতির জন্য)",
+  "bpSexFemale": "নারী",
+  "bpSexMale": "পুরুষ",
+  "bpSexSkip": "বলতে চাই না",
+  "bpSexWhy": "শুধু কবে আবার দিতে পারবেন তা গুনতে। কখনো দেখানো হয় না।",
+  "bpShareHeadline": "রক্ত পাওয়া গেছে — দাতাদের ধন্যবাদ",
+  "bpShareText": "আলহামদুলিল্লাহ, আমাদের রোগীর জন্য সময়মতো {group} রক্ত পাওয়া গেছে। যাঁরা এগিয়ে এসেছেন সেই রক্তদাতাদের অন্তর থেকে ধন্যবাদ। আমরা Assisto অ্যাপের রক্তদাতা প্যানেল ব্যবহার করেছি।",
+  "bpShareTitle": "ধন্যবাদ জানান",
+  "bpSms": "SMS",
+  "bpStateActive": "দাতা খোঁজা চলছে",
+  "bpStateClosed": "বন্ধ",
+  "bpStateExpired": "মেয়াদ শেষ",
+  "bpStateFound": "রক্ত পাওয়া গেছে",
+  "bpStateHidden": "পর্যালোচনায়",
+  "bpStateRemoved": "সরানো হয়েছে",
+  "bpTabFind": "দাতা খুঁজুন",
+  "bpTabMe": "আমি দাতা",
+  "bpTabRequests": "অনুরোধ",
+  "bpThreadAsDonor": "আপনি দাতা",
+  "bpThreadAsSeeker": "আপনি রক্ত খুঁজছেন",
+  "bpThreadEmpty": "এখনো কোনো বার্তা নেই। সালাম দিন, কী দরকার লিখুন।",
+  "bpThreadsEmpty": "রক্তদাতা প্যানেলের বার্তা এখানে দেখাবে",
+  "bpThreadsStep1": "দাতা খুঁজে 'বার্তা দিন' চাপুন।",
+  "bpThreadsStep2": "অথবা অনুরোধে 'আমি দিতে পারব' চাপুন।",
+  "bpThreadsStep3": "দুই পাশেই নম্বর গোপন থাকে।",
+  "bpTitle": "রক্তদাতা প্যানেল",
+  "bpUnblock": "আনব্লক",
+  "bpUnits": "{group} · {units} ব্যাগ",
+  "bpUsePoint": "মোটামুটি লোকেশন দিন (দূরত্ব ভালো মিলবে)",
+  "bpUsePointReq": "এখন যেখানে আছি (মোটামুটি)",
+  "bpVerified": "যাচাই করা দাতা",
+  "bpVerifyCamera": "ছবি তুলুন",
+  "bpVerifyCta": "যাচাই-করা দাতা ব্যাজ নিন",
+  "bpVerifyGallery": "গ্যালারি থেকে",
+  "bpVerifyLead": "রক্তদানের স্লিপ বা কার্ডের পরিষ্কার ছবি তুলুন (ব্লাড ব্যাংক বা হাসপাতালের), নাম ও তারিখ যেন দেখা যায়।",
+  "bpVerifyPending": "স্লিপ পাঠানো হয়েছে — যাচাই চলছে",
+  "bpVerifyPrivacy": "এই ছবি শুধু Assisto টিম দেখে। যাচাইয়ের সাথে সাথে মুছে যায়, আর কাউকে দেখানো হয় না।",
+  "bpVerifyRejected": "আগের স্লিপ যাচাই করা যায়নি। আরও পরিষ্কার ছবি দিতে পারেন।",
+  "bpVerifySend": "যাচাইয়ের জন্য পাঠান",
+  "bpVerifySent": "পাঠানো হয়েছে — জানিয়ে দেব",
+  "bpVerifySub": "রক্তদানের স্লিপের ছবি দিন। শুধু Assisto টিম দেখে; যাচাইয়ের পর মুছে যায়।",
+  "bpWhere": "কোথার কাছে?",
+  "bpWhoGets": "কারা পান: যাঁরা প্যানেলে যুক্ত, যাঁদের গ্রুপ থেকে আপনার গ্রুপে দেওয়া যায়, যাঁরা ওই সময়ের মধ্যে দিতে পারবেন, আর যাঁদের এলাকা দূরত্বের মধ্যে। একজন দাতা দিনে সর্বোচ্চ ৩টি অনুরোধ পান। সময় পার হলে অনুরোধ নিজে বন্ধ হয়।",
+  "bpWithdraw": "আর আসতে পারছি না",
+  "bpWithdrawn": "ঠিক আছে — পরিবার দেখবে আপনি আসতে পারছেন না",
+  "bpYouSaidCan": "আপনি দিতে রাজি বলেছেন",
+  "bpYouSaidCanLong": "আপনি দিতে রাজি বলেছেন। অ্যাপে পরিবারের সাথে কথা বলুন; আপনার নম্বর গোপন থাকে।"
+ }
+}

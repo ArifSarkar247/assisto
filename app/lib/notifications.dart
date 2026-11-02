@@ -97,10 +97,13 @@ class Notifications {
         importance: Importance.max, priority: Priority.high,
         category: AndroidNotificationCategory.reminder,
         actions: <AndroidNotificationAction>[
+          // remhbar: the OS dismisses the shown notification itself
+          // (cancelNotification) — Dart's plugin.cancel(id) would ALSO kill
+          // a daily/weekly alarm's future rings until the app was reopened.
           AndroidNotificationAction(actionDone, t.rnNotifDone,
-              cancelNotification: false, showsUserInterface: false),
+              cancelNotification: true, showsUserInterface: false),
           AndroidNotificationAction(actionSnooze, t.rnNotifSnooze10,
-              cancelNotification: false, showsUserInterface: false),
+              cancelNotification: true, showsUserInterface: false),
         ],
       ),
     );

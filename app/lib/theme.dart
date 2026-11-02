@@ -128,6 +128,21 @@ class CallInk {
   static const tileShadow = Color(0x66000000);
 }
 
+/// bizbar: ink for printed / PDF pages (the khata statement). Paper is
+/// always white, so these never follow the app theme; every text tone is
+/// >= 4.5:1 on [paper] and on [band].
+class PrintInk {
+  PrintInk._();
+  static const paper = Color(0xFFFFFFFF);
+  static const ink = Color(0xFF1B1B1F);
+  static const muted = Color(0xFF5F5E66);
+  static const line = Color(0xFFDADAE0);
+  static const band = Color(0xFFF1F0F7);
+  static const brand = Color(0xFF3D4BD6);
+  static const gave = Color(0xFFB3261E);
+  static const got = Color(0xFF1B7F3B);
+}
+
 /// 4/8-pt spacing scale. Use these instead of magic numbers.
 class Gap {
   Gap._();

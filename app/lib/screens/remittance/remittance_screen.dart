@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/voice_input.dart';
 import 'remit_entry_screen.dart';
 import 'remit_parser.dart';
@@ -48,7 +49,8 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   late final RemitSource _src =
       widget.source ?? ApiRemitSource(context.read<AppState>().api, app: context.read<AppState>());
   late final RemitQueue _queue = RemitQueue(_src);
-  late final DateTime _now = widget.now ?? DateTime.now();
+  // remhbud: Asia/Dhaka months (the server's) unless a test clock is given
+  late final DateTime _now = widget.now ?? rmDhakaNow();
   late final TabController _tabs = TabController(length: 3, vsync: this, initialIndex: widget.initialTab)
     ..addListener(_onTab);
   late String _month = rmMonthKey(_now);
@@ -266,7 +268,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   Future<void> _addSpend([String category = 'food']) async {
     final r = await showSpendSheet(context, category: category);
     if (r == null || !mounted) return;
-    final body = {...r, 'client_id': rmClientId(), 'date': rmIsoDay(DateTime.now())};
+    final body = {...r, 'client_id': rmClientId(), 'date': rmIsoDay(widget.now ?? rmDhakaNow())};
     await _run(() => _src.spend(body), ok: AppLocalizations.of(context).rmtSaved, queueBody: body, kind: 'spend');
   }
 
@@ -330,7 +332,9 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   }
 
   Future<void> _editExpected() async {
-    final r = await showExpectedSheet(context, rmMap(_card['expected']));
+    final members = await _circle();
+    if (!mounted) return;
+    final r = await showExpectedSheet(context, rmMap(_card['expected']), members: members);
     if (r == null || !mounted) return;
     await _run(() => _src.saveSettings(r), ok: AppLocalizations.of(context).rmtSaved);
   }
@@ -430,6 +434,124 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
               label: Text(t.rmtAddReceived),
             ),
       body: TabBarView(controller: _tabs, children: [_monthTab(t), _budgetTab(t), _yearTab(t)]),
+    );
+  }
+
+  bool get _monthEmpty =>
+      !_loading && _err == null && rmList(_card['entries']).isEmpty &&
+      !_queue.pendingEntries.any((e) => '${e['received_on'] ?? ''}'.startsWith(_month));
+
+  /// remhbud: an empty month = what the family gains + one big button + how.
+  Widget _monthEmptyCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final lang = rmLang(context);
+    final steps = [t.rhbMonthHow1, t.rhbMonthHow2, t.rhbMonthHow3];
+    return Padding(
+      key: const ValueKey('rhb_month_empty'),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(t.rhbMonthEmptyTitle(rmMonthLabel(context, _month)),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.xs),
+          Text(t.rhbMonthBenefit,
+              textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.md),
+          SizedBox(
+            height: 56,
+            child: FilledButton.icon(
+              key: const ValueKey('rhb_month_add'),
+              onPressed: () => _openEntry(),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(t.rmtAddReceived, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+          Card(
+            margin: EdgeInsets.zero,
+            color: scheme.surfaceContainerHighest,
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < steps.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        CircleAvatar(
+                          radius: 12,
+                          backgroundColor: scheme.primary,
+                          child: Text(rmDigits(lang, i + 1),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: scheme.onPrimary)),
+                        ),
+                        const SizedBox(width: Gap.sm),
+                        Expanded(child: Text(steps[i])),
+                      ]),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// remhbud: who sent how much — one bar per person, taka + share of the
+  /// total in whole percents that add up to 100 (server-computed from the
+  /// real entries). Shown for the month only when 2+ people sent money.
+  Widget _sharesCard(AppLocalizations t, String title, List<Map<String, dynamic>> rows, {Key? key}) {
+    final scheme = Theme.of(context).colorScheme;
+    final lang = rmLang(context);
+    return RmSection(
+      key: key,
+      title: title,
+      children: [
+        for (final r in rows)
+          Semantics(
+            label: t.rhbShareA11y(
+              '${r['name']}' == '?' ? t.rmtNoSender : '${r['name']}',
+              rmTaka(context, r['total']),
+              rmDigits(lang, r['pct'] ?? 0),
+              rmDigits(lang, r['count'] ?? 0),
+            ),
+            excludeSemantics: true,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    spacing: Gap.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text('${r['name']}' == '?' ? t.rmtNoSender : '${r['name']}',
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(rmTaka(context, r['total']), style: const TextStyle(fontFeatures: AFonts.tabular)),
+                      Text('${rmDigits(lang, r['pct'] ?? 0)}%',
+                          style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+                      Text(t.rmtTimesN(rmDigits(lang, r['count'] ?? 0)),
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                  const SizedBox(height: Gap.xxs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(Radii.pill),
+                    child: LinearProgressIndicator(
+                      value: ((num.tryParse('${r['pct'] ?? 0}') ?? 0) / 100).clamp(0.0, 1.0).toDouble(),
+                      minHeight: 8,
+                      color: scheme.primary,
+                      backgroundColor: scheme.surfaceContainerHighest,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -672,7 +794,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         await _load();
       },
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           if (_showGuide) RemitGuideCard(onClose: _closeGuide),
           _monthSwitcher(t),
@@ -721,12 +843,10 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                 ),
               ],
             ),
+          if (_err == null && rmList(_card['by_sender']).length >= 2)
+            _sharesCard(t, t.rhbWhoSentMonth, rmList(_card['by_sender']), key: const ValueKey('rhb_shares_month')),
+          if (_monthEmpty) _monthEmptyCard(t),
           if (_month == rmMonthKey(_now)) _quickCard(t),
-          if (_err == null && entries.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Text(t.rmtEmptyMonth, textAlign: TextAlign.center),
-            ),
           for (final e in entries) _entryTile(t, e),
         ],
       ),
@@ -969,7 +1089,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           _monthSwitcher(t),
           RmSection(
@@ -1042,7 +1162,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     return RefreshIndicator(
       onRefresh: _loadYear,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 120)),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, 0),
@@ -1133,17 +1253,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     ),
               ],
             ),
-            RmSection(
-              title: t.rmtBySender,
-              children: [
-                for (final s in rmList(y['by_sender']))
-                  _row(
-                    s['name'] == '?' ? t.rmtNoSender : '${s['name']}',
-                    rmTaka(context, s['total']),
-                    t.rmtTimesN(rmDigits(lang, s['count'] ?? 0)),
-                  ),
-              ],
-            ),
+            _sharesCard(t, t.rmtBySender, rmList(y['by_sender']), key: const ValueKey('rhb_shares_year')),
             RmSection(
               title: t.rmtByChannel,
               children: [

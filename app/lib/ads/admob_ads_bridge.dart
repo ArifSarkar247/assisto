@@ -28,7 +28,7 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
 
   @override
   Future<bool> showAppOpen(String unitId) async {
-    if (unitId.isEmpty || !await init()) return false;
+    if (!AdmobSdk.unitAllowed(unitId) || !await init()) return false;
     final done = Completer<bool>();
     try {
       await AppOpenAd.load(
@@ -79,7 +79,7 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
 
   @override
   Future<bool> showInterstitial(String unitId, {required String placement}) async {
-    if (unitId.isEmpty || !await init()) return false;
+    if (!AdmobSdk.unitAllowed(unitId) || !await init()) return false;
     final done = Completer<bool>();
     final loadedFrom = DateTime.now();
     try {
@@ -157,7 +157,9 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
 
   Future<RewardOutcome> _rewarded(String unitId,
       {ServerSideVerificationOptions? ssv}) async {
-    if (unitId.isEmpty || !await init()) return RewardOutcome.unavailable;
+    if (!AdmobSdk.unitAllowed(unitId) || !await init()) {
+      return RewardOutcome.unavailable;
+    }
     final done = Completer<RewardOutcome>();
     var earned = false;
     try {

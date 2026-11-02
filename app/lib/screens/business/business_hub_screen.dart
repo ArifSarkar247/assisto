@@ -1,4 +1,3 @@
-import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +34,10 @@ import '../crm/shop_quote_screens.dart'; // crm100
 import '../../services/action_feedback.dart'; // db1
 import '../../services/error_report.dart'; // db1
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import 'dart:async' show unawaited;
+import '../../services/khata_offline.dart' show KhataOffline; // bizbar
+import 'low_stock_card.dart'; // bizbar
+import 'staff_screen.dart'; // bizbar
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -70,13 +73,10 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
       final r = await context.read<AppState>().api.businessList();
       _businesses =
           ((r['businesses'] ?? []) as List).cast<Map<String, dynamic>>();
-      final selId = r['selected_id'];
-      _selected = _businesses.isEmpty
-          ? null
-          : _businesses.firstWhere(
-              (b) => b['id'] == selId,
-              orElse: () => _businesses.first,
-            );
+      _selected = pickBusiness(
+          _businesses, r['selected_id'], await rememberedBusinessId());
+      // bizbar: the khata shortcut opens offline from this saved copy
+      unawaited(KhataOffline.cachePut(KhataOffline.businessesKey, r));
     } catch (e) {
       _error = true;
       _failCause = e;
@@ -95,6 +95,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     final id = (b['id'] as num?)?.toInt();
     if (id == null) return;
     setState(() => _selected = b);
+    unawaited(rememberBusinessId(id));
     try {
       await context.read<AppState>().api.businessSelect(id);
     } catch (e) {
@@ -130,22 +131,15 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 _switch(b);
               },
             ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.add_business_rounded),
-            title: Text(t.businessAddAnother),
-            onTap: () {
-              Navigator.pop(ctx);
-              _openSetup(addMore: true);
-            },
-          ),
+          // bizbar: no "add another business" — one account owns ONE shop
+          // (the old entry renamed the existing shop instead of adding one).
           const SizedBox(height: Gap.sm),
         ]),
       ),
     );
   }
 
-  void _showSelling(int bizId) {
+  void _showSelling(int bizId, {bool isStaff = false}) {
     final t = AppLocalizations.of(context);
     showAppSheet(
       context: context,
@@ -176,6 +170,10 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               _go(ProductsScreen(businessId: bizId));
             },
           ),
+          // bizbar: online orders + the shop's payment numbers are the
+          // owner's (they read the owner's account; a staff phone opened an
+          // empty shop of its own)
+          if (!isStaff)
           ListTile(
             leading: const Icon(Icons.receipt_long_rounded),
             title: Text(t.sellOrders),
@@ -192,6 +190,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               _go(CustomersScreen(businessId: bizId));
             },
           ),
+          if (!isStaff)
           ListTile(
             leading: const Icon(Icons.qr_code_2_rounded),
             title: Text(t.sellPayments),
@@ -254,7 +253,6 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
 
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'business'),
       appBar: AppBar(
         title: Text(t.business),
         actions: [
@@ -297,20 +295,20 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                     icon: const Icon(Icons.unfold_more_rounded, size: 18),
                     label: Text(t.businessSwitch),
                     onPressed: _showSwitcher,
-                  )
-                else
-                  IconButton(
-                    tooltip: t.businessAddAnother,
-                    icon: const Icon(Icons.add_business_rounded),
-                    onPressed: () => _openSetup(addMore: true),
                   ),
               ]),
             ),
             const SizedBox(height: Gap.lg),
 
             // Net-position snapshot (receivable vs payable).
-            _NetPositionCard(businessId: bizId, isStaff: isStaff),
+            _NetPositionCard(
+                key: ValueKey('np-$bizId'), businessId: bizId, isStaff: isStaff),
             const SizedBox(height: Gap.lg),
+            // bizbar: products at or under their low-stock mark (hidden at 0)
+            LowStockCard(
+                key: ValueKey('ls-$bizId'),
+                businessId: bizId,
+                onOpen: () => _go(ProductsScreen(businessId: bizId, lowOnly: true))),
 
             Text(t.businessManage,
                 style: Theme.of(context).textTheme.titleMedium),
@@ -329,7 +327,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               tint: scheme.secondary,
               title: t.businessSelling,
               subtitle: t.businessSellingSub,
-              onTap: () => _showSelling(bizId),
+              onTap: () => _showSelling(bizId, isStaff: isStaff),
             ),
             const SizedBox(height: Gap.md),
             // crm100: one page per customer + price quotes with an accept link
@@ -356,6 +354,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               subtitle: t.businessCashboxSub,
               onTap: () => _go(CashboxScreen(business: biz)),
             ),
+            if (!isStaff) ...[
+              // bizbar: one shop, several phones (staff accounts)
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.badge_rounded,
+                tint: Brand.blue,
+                title: t.bbStaffTitle,
+                subtitle: t.bbStaffHubSub,
+                onTap: () => _go(StaffScreen(businessId: bizId)),
+              ),
+            ],
             if (!isStaff) ...[
               // tagada2: Assisto SMS balance (plan SMS + packs)
               const SizedBox(height: Gap.md),
@@ -484,7 +493,8 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
 class _NetPositionCard extends StatefulWidget {
   final int businessId;
   final bool isStaff;
-  const _NetPositionCard({required this.businessId, required this.isStaff});
+  const _NetPositionCard(
+      {super.key, required this.businessId, required this.isStaff});
   @override
   State<_NetPositionCard> createState() => _NetPositionCardState();
 }

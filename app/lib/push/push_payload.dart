@@ -41,6 +41,7 @@ class PushChannels {
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
     'doc_expiry': reminders, // vault100: a vault document expires soon
     'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
+    'budget_alert': alerts, // remhbud: an expense crossed 80% / 100% of a budget
   };
 }
 
@@ -196,6 +197,7 @@ class PushRouting {
     'kids_watch': 'kids_watch', // kidswatch: a parent (arrived / late / voice / alarm)
     'school_mode': 'school_mode', // kidswatch: the child (invite / are you OK?)
     'missing_alert': 'missing_alert', // missing: new / tip / found / I am safe / co-sign
+    'blood_panel': 'blood_panel', // blood: urgent request / responder / message / eligible again
     'business': 'business',
     'owner': 'analytics',
     'account/delete': 'account_delete', // dl1
@@ -204,6 +206,8 @@ class PushRouting {
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
     'vault': 'documents', // vault100: expiry push / PIN-reset notice
     'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
+    'watch_feed': 'watch_feed', // lifebar: a watcher saw a change
+    'exam': 'exam', // lifebar: the exam-result page changed
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -222,6 +226,7 @@ class PushRouting {
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
     'doc_expiry': 'documents', // vault100
     'dues': 'my_dues', // tagada2
+    'budget_alert': 'budget', // remhbud: opens the Budget page
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,

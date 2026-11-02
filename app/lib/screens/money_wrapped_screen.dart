@@ -10,6 +10,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/wrapped_cards.dart';
 import '../widgets/wrapped_share.dart';
 import 'money_common.dart';
+import 'money_screen.dart' show MoneyScreen; // moneybar
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/subs_common.dart' show fmtInt;
@@ -160,6 +161,18 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       title: t.wrappedEmptyTitle,
       // qa1: locale digits (the count had Latin digits in the Bangla UI)
       message: t.wrappedEmptyHint(fmtInt(context, need), fmtInt(context, have)),
+      // moneybar: the empty state was a dead end — one tap to the ledger
+      action: FilledButton.icon(
+        key: const ValueKey('mb-wrapped-add'),
+        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: () async {
+          await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const MoneyScreen()));
+          if (mounted) _load();
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: Text(t.mbWrappedAddTxn),
+      ),
     );
   }
 

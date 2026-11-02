@@ -26,11 +26,18 @@ enum PsTool {
   upscale4x('upscale4x'),
   denoise('denoise'),
   lowLight('low_light'),
-  bgBlur('bg_blur');
+  bgBlur('bg_blur'),
+  // photobar: the same on-device mask, background filled instead of blurred
+  bgWhite('bg_white'),
+  bgBlue('bg_blue'),
+  bgRemove('bg_remove');
 
   const PsTool(this.wire);
   final String wire;
   bool get usesAi => this == upscale2x || this == upscale4x;
+
+  /// Needs the background (U²-Net-p) mask model.
+  bool get usesMask => this == bgBlur || this == bgWhite || this == bgBlue || this == bgRemove;
 }
 
 /// Which tools this phone can run for THIS photo, and roughly how long.
@@ -57,7 +64,7 @@ class ToolsAvailability {
         PsTool.upscale2x => upscale2x,
         PsTool.upscale4x => upscale4x,
         PsTool.denoise || PsTool.lowLight => classic,
-        PsTool.bgBlur => bgBlur,
+        PsTool.bgBlur || PsTool.bgWhite || PsTool.bgBlue || PsTool.bgRemove => bgBlur,
       };
   bool get any => upscale2x || upscale4x || classic || bgBlur;
 }

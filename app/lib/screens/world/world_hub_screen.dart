@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -83,7 +84,7 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
           children: [
             Text(t.uwIntro,
                 style: Theme.of(context)

@@ -534,6 +534,8 @@ class PeopleView(APIView):
         from .models import CircleMember
         if not flag_on(request.user):
             return _off()
+        from . import circle_family   # circlea: Family / Others
+        gctx = circle_family.link_context(request.user)
         out, seen = [], set()
         for m in CircleMember.objects.filter(user=request.user, state="accepted",
                                              blocked=False, peer_user__isnull=False) \
@@ -542,7 +544,8 @@ class PeopleView(APIView):
                 continue
             seen.add(m.peer_user_id)
             out.append({"id": m.peer_user_id, "name": m.name or m.peer_user.name or "",
-                        "relation": m.relation})
+                        "relation": m.relation,
+                        **circle_family.group_fields(m, gctx)})
         return R({"people": out})
 
 
@@ -556,7 +559,16 @@ class PlanListView(APIView):
         now = timezone.now()
         mine = list(SchoolPlan.objects.filter(owner=request.user)
                     .select_related("owner", "child_user", "watch"))
-        return R({"plans": [_plan_json(p, request.user, now) for p in mine]})
+        # circlea: a co-guardian (watcher) sees the plans they watch too —
+        # read-only (mine=False); owners are my Circle peers.
+        from .models import CircleMember
+        peers = CircleMember.objects.filter(peer_user=request.user, state="accepted",
+                                            blocked=False).values_list("user_id", flat=True)
+        shared = [p for p in SchoolPlan.objects.filter(owner_id__in=list(peers))
+                  .select_related("owner", "child_user", "watch")[:200]
+                  if request.user.id in (p.watcher_ids or [])
+                  and KW.can_view_plan(request.user, p)]
+        return R({"plans": [_plan_json(p, request.user, now) for p in mine + shared]})
 
     def post(self, request):
         from .models import SchoolPlan, KidsWatch, User
@@ -692,7 +704,7 @@ class PlanActionView(APIView):
             p.accepted_at = p.accepted_at or now
             p.enabled = True
             p.save(update_fields=["accepted_at", "enabled", "updated_at"])
-            KW._send([p.owner], "স্কুল-মোড চালু হয়েছে", "School mode is on",
+            KW._send(KW.plan_watchers(p), "স্কুল-মোড চালু হয়েছে", "School mode is on",
                      "%s রাজি হয়েছে। স্কুল-মোড চালু।" % p.child_name,
                      "%s agreed. School mode is on." % p.child_name,
                      {"plan_id": p.id, "event": "accepted"}, family_alert=False)
@@ -703,7 +715,7 @@ class PlanActionView(APIView):
             p.enabled = False
             p.save(update_fields=["enabled", "updated_at"])
             if is_child:
-                KW._send([p.owner], "স্কুল-মোড বন্ধ করা হয়েছে", "School mode was turned off",
+                KW._send(KW.plan_watchers(p), "স্কুল-মোড বন্ধ করা হয়েছে", "School mode was turned off",
                          "%s স্কুল-মোড বন্ধ করেছে।" % p.child_name,
                          "%s turned School Mode off." % p.child_name,
                          {"plan_id": p.id, "event": "stopped_by_child"}, family_alert=False)

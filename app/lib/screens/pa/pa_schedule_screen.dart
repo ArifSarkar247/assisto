@@ -296,7 +296,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           if (_offline) ...[
             _OfflineBanner(text: t.paOffline),

@@ -83,6 +83,8 @@ const Map<String, String> _allowDead = {
   'md1_viewer|key=mv-': 'A: md1_shots.dart passes onSave/onShare: (_) {}; media_actions.dart wires MediaStore save + share sheet',
   'md1_recorder|key=md1-rec-': 'A: md1_shots.dart pins VoiceRecorderSheet as a static bottomSheet (no route to pop) with a fake recorder; md1_media_test proves Send returns the draft',
   'mr1_requests_list|TextButton "See all"':'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
+  'cbar_group_call_sheet|key=group-call-v': 'A: callsbar_shots.dart passes onCall: (_, __) {}; showGroupCallSheet pops and pushes CircleCallScreen (callsbar_ui_test proves the tap hands member + kind to onCall)',
+  'bb_low_stock_card|ListTile': 'A: spec passes LowStockCard(onOpen: () {}); the business hub wires it to the low-stock product list',
   'm3_new_chat|key=m3-new-': 'A: spec passes M3NewChatActions(onAdd: () {}, …); the real header in MessengerHome._openNewChat is wired',
   'b1_call_mini_bar|key=call-mini-bar': 'A: b1_calls_shots.dart has no app navigator (CallRuntime.start never ran); the bar re-opens the call through it in the app — b1_calls_test "Minimize hands the LIVE call…" proves the re-open',
   'cam_perm_*|Continue':'A: spec passes onPrimary: () {}; CameraPermissionGate wires the real request',
@@ -101,6 +103,7 @@ const Map<String, String> _allowDead = {
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',
   'famcare_card*|Share as image': 'B: same RepaintBoundary.toImage share as Money Wrapped (the text share beside it is swept)',
+  'admobump_ads_privacy_required|key=settings-ad-privacy': 'B: opens Google UMP\'s native privacy options form (no platform view in a widget test); ads_consent_ump_test proves the tap reaches showPrivacyOptionsForm and a withdrawal stops the next ad request',
 };
 
 /// Errors a widget test cannot avoid (no plugins, no network, no sqflite).

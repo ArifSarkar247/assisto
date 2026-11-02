@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -12,6 +11,7 @@ import 'money_trends_screen.dart';
 import 'money_networth_screen.dart';
 import 'money_loan_detail_screen.dart';
 import 'money_budget_screen.dart';
+import '../widgets/budget_sheets.dart' show showBudgetSheet, budgetCategoryChoices;
 import 'money_import_screen.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 
@@ -93,7 +93,6 @@ class _MoneyScreenState extends State<MoneyScreen> {
       length: 5,
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-        bottomNavigationBar: const AdBannerSlot(screen: 'money'),
         appBar: AppBar(
           title: Text(t.moduleMoney),
           actions: [
@@ -698,53 +697,21 @@ class _BudgetsTab extends StatelessWidget {
   final Map<String, dynamic>? summary;
   const _BudgetsTab({this.summary});
 
+  // remhbud: the same sheet as the Budget page (one-tap categories from the
+  // user's own expenses, Bangla digits, Save says what is missing) — the old
+  // dialog saved a budget with an empty limit and a free-typed category that
+  // often matched no expense.
   Future<void> _add(BuildContext context) async {
-    final t = AppLocalizations.of(context);
     final app = context.read<AppState>();
-    final cat = TextEditingController();
-    final lim = TextEditingController();
-    bool rollover = false;
-    final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => StatefulBuilder(
-            builder: (ctx, setD) => AlertDialog(
-                  scrollable: true, // insets: 200% text / keyboard
-                  title: Text(t.moneyNewBudget),
-                  content: Column(mainAxisSize: MainAxisSize.min, children: [
-                    TextField(
-                        controller: cat,
-                        decoration:
-                            InputDecoration(labelText: t.moneyFieldCategory)),
-                    const SizedBox(height: Gap.sm),
-                    TextField(
-                        controller: lim,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            labelText: t.moneyFieldMonthlyLimit)),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: rollover,
-                      title: Text(t.moneyRolloverToggle),
-                      subtitle: Text(t.moneyRolloverHint),
-                      onChanged: (v) => setD(() => rollover = v),
-                    ),
-                  ]),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text(t.cancel)),
-                    FilledButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(t.save)),
-                  ],
-                )));
-    if (ok == true && cat.text.trim().isNotEmpty) {
-      await app.budgets.add({
-        'category': cat.text.trim(),
-        'monthly_limit': lim.text.trim(),
-        'rollover': rollover,
-      });
-    }
+    final res = await showBudgetSheet(context,
+        choices: budgetCategoryChoices(app.txns.items.whereType<Map>(),
+            taken: [for (final b in app.budgets.items) '${b['data']['category'] ?? ''}']));
+    if (res == null) return;
+    await app.budgets.add({
+      'category': res.category,
+      'monthly_limit': res.monthlyLimit,
+      'rollover': res.rollover,
+    });
   }
 
   @override

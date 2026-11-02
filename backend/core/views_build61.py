@@ -418,7 +418,7 @@ class AdEventView(APIView):
         # caps / fraud log / exposure only — it NEVER credits anything
         # (AdMob: no compensation for viewing non-rewarded ads; ads check
         # 28 Oct). Only a Google-SSV-verified rewarded ad credits.
-        if kind in ("impression", "click", "paid"):
+        if kind in ("impression", "click", "paid", "exit"):
             from . import admob_service as AS
             code, body = AS.record_event(request.user, d)
             fmt = str(d.get("format", ""))[:14]

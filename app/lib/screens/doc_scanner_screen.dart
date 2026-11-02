@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +11,9 @@ import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import 'dart:io' show Directory, File; // lifebar
+import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// DOCUMENT SCANNER / organiser — ADVANCED, KEY-GATED OCR (#29, SPEC v2.1 §21).
 ///
@@ -88,6 +92,8 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.scanAfterSave);
     _search.dispose();
     super.dispose();
   }
@@ -133,7 +139,10 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
       if (!await showPermissionReason(context, PermKind.camera)) return null;
     }
     final x = await ImagePicker().pickImage(source: src, imageQuality: 70);
-    return x?.path; // local path handle — the organiser never reads it
+    if (x == null) return null;
+    // lifebar: the picker's cache file can be deleted by Android at any time —
+    // keep our own copy in the app's private folder (this phone only).
+    return keepDocScanCopy(x.path);
   }
 
   Future<void> _addOrEdit([Map<String, dynamic>? existing]) async {
@@ -222,8 +231,18 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 ),
                 if (imageRef != null) ...[
                   const SizedBox(height: Gap.xs),
-                  Text(t.dsImageAttached,
-                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.primary)),
+                  // lifebar: show the photo itself (it was never visible)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(Radii.sm),
+                    child: SizedBox(
+                      height: 140,
+                      width: double.infinity,
+                      child: DocScanPhoto(path: imageRef!, fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(height: Gap.xs),
+                  Text(t.lbDDocPhotoThisPhone,
+                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
                 ],
                 const SizedBox(height: Gap.lg),
                 // honest key-gated OCR seam
@@ -279,6 +298,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
       } else {
         await context.read<AppState>().api.createItem(_itemsPath, body);
       }
+      AdExit.taskDone(AdExitPlacement.scanAfterSave);
       await _load();
       if (mounted) _toast(t.dsSaved);
     } catch (_) {
@@ -352,17 +372,15 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           ),
         ),
       ),
-      SizedBox(
-        height: 44,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-          children: [
-            _filterChip('all', t.dsFilterAll, counts['total'] ?? 0),
-            for (final ty in _docTypes)
-              _filterChip(ty, _typeLabel(t, ty), counts[ty] ?? 0),
-          ],
-        ),
+      // lifebar: no fixed 44 px height — chips grow with 200% font
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+        child: Row(children: [
+          _filterChip('all', t.dsFilterAll, counts['total'] ?? 0),
+          for (final ty in _docTypes)
+            _filterChip(ty, _typeLabel(t, ty), counts[ty] ?? 0),
+        ]),
       ),
       const SizedBox(height: Gap.sm),
       Expanded(child: _list()),
@@ -375,7 +393,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
       child: FilterChip(
         selected: _filter == value,
         onSelected: (_) => setState(() => _filter = value),
-        label: Text(count > 0 ? '$label ($count)' : label),
+        label: Text(count > 0 ? '$label (${ld(context, count)})' : label),
       ),
     );
   }
@@ -399,12 +417,20 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
         icon: Icons.search_off_rounded,
         title: t.dsNoMatchTitle,
         message: t.dsNoMatchBody,
+        action: FilledButton.tonalIcon(
+          onPressed: () => setState(() {
+            _filter = 'all';
+            _search.clear();
+          }),
+          icon: const Icon(Icons.filter_alt_off_rounded, size: 18),
+          label: Text(t.lbDClearFilters),
+        ),
       );
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xxl)),
         itemCount: vis.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) => _tile(vis[i]),
@@ -412,20 +438,58 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     );
   }
 
+  void _viewPhoto(String path) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (ctx) => Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          title: Text(t.lbDDocViewPhoto),
+        ),
+        body: SafeArea(
+          child: InteractiveViewer(
+            maxScale: 5,
+            child: Center(child: DocScanPhoto(path: path, fit: BoxFit.contain)),
+          ),
+        ),
+      ),
+    ));
+  }
+
   Widget _tile(Map<String, dynamic> d) {
     final scheme = Theme.of(context).colorScheme;
     final type = normaliseType((d['doc_type'] ?? 'other').toString());
     final notes = (d['notes'] ?? '').toString().trim();
-    final hasImage = (d['image_ref'] ?? '').toString().trim().isNotEmpty;
+    final imagePath = (d['image_ref'] ?? '').toString().trim();
+    final hasImage = imagePath.isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
         onTap: () => _addOrEdit(d),
-        leading: CircleAvatar(
-          backgroundColor: scheme.secondaryContainer,
-          child: Icon(_typeIcon(type),
-              size: 20, color: scheme.onSecondaryContainer),
-        ),
+        // lifebar: a real thumbnail; tap it to see the whole photo
+        leading: hasImage
+            ? Semantics(
+                button: true,
+                label: t.lbDDocViewPhoto,
+                child: InkWell(
+                  onTap: () => _viewPhoto(imagePath),
+                  borderRadius: BorderRadius.circular(Radii.sm),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(Radii.sm),
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: DocScanPhoto(path: imagePath, fit: BoxFit.cover, small: true),
+                    ),
+                  ),
+                ),
+              )
+            : CircleAvatar(
+                backgroundColor: scheme.secondaryContainer,
+                child: Icon(_typeIcon(type),
+                    size: 20, color: scheme.onSecondaryContainer),
+              ),
         title: Text((d['title'] ?? '').toString(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -636,6 +700,56 @@ class _OcrSeamCard extends StatelessWidget {
           ]),
         ),
       ]),
+    );
+  }
+}
+
+
+/// lifebar: copy a picked photo into the app's private folder so it survives
+/// cache clean-up. Falls back to the picker path if the copy fails.
+Future<String> keepDocScanCopy(String pickedPath) async {
+  try {
+    final dir = await getApplicationDocumentsDirectory();
+    final folder = Directory('${dir.path}/docscan');
+    if (!await folder.exists()) await folder.create(recursive: true);
+    final ext = pickedPath.contains('.') ? pickedPath.substring(pickedPath.lastIndexOf('.')) : '.jpg';
+    final dest = '${folder.path}/${DateTime.now().millisecondsSinceEpoch}$ext';
+    await File(pickedPath).copy(dest);
+    return dest;
+  } catch (_) {
+    return pickedPath;
+  }
+}
+
+/// lifebar: the document photo, or an honest "not on this phone" tile (the
+/// list lives on the server; the photo only on the phone that took it).
+class DocScanPhoto extends StatelessWidget {
+  final String path;
+  final BoxFit fit;
+  final bool small;
+  const DocScanPhoto({super.key, required this.path, this.fit = BoxFit.cover, this.small = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Image.file(
+      File(path),
+      fit: fit,
+      cacheWidth: small ? 144 : null,
+      errorBuilder: (ctx, _, __) => Container(
+        color: scheme.surfaceContainerHighest,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(Gap.xs),
+        child: small
+            ? Icon(Icons.hide_image_outlined, color: scheme.onSurfaceVariant)
+            : Column(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.hide_image_outlined, color: scheme.onSurfaceVariant),
+                const SizedBox(height: Gap.xs),
+                Text(AppLocalizations.of(ctx).lbDDocPhotoMissing,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: scheme.onSurfaceVariant)),
+              ]),
+      ),
     );
   }
 }

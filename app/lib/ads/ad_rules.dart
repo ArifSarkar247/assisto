@@ -33,6 +33,19 @@ class AdIds {
   /// it; real units are only used once the server sends them.
   static const ownerAppId = 'ca-app-pub-2506398550427515~5116255919';
 
+  /// admobump (owner 2 Nov): REAL unit ids only in a RELEASE build. Debug /
+  /// profile builds always load Google's TEST units, even when the server
+  /// serves real ids (AdMob policy: never real ads on a development build).
+  /// `dart.vm.product` is Flutter's kReleaseMode (this file stays pure Dart).
+  /// Tests that cover the release path set this to true.
+  static bool realUnitsAllowed = const bool.fromEnvironment('dart.vm.product');
+
+  /// Google's public sample publisher (every TEST unit belongs to it).
+  static const testPublisher = 'ca-app-pub-3940256099942544';
+
+  /// true for one of Google's public TEST unit / app ids.
+  static bool isTestId(String id) => id.trim().startsWith(testPublisher);
+
   static String testUnit(AdKind k) => switch (k) {
         AdKind.appOpen => testAppOpen,
         AdKind.rewarded => testRewarded,
@@ -195,7 +208,12 @@ class AdConfig {
   String? unitFor(AdKind kind,
       {required String builtAppId, bool testMode = false}) {
     final real = _real(kind);
-    if (configured && real.isNotEmpty && appId == builtAppId) return real;
+    if (configured && real.isNotEmpty && appId == builtAppId) {
+      if (AdIds.realUnitsAllowed) return real;
+      // debug build: never the real unit. A rewarded ad on a test unit can
+      // never be SSV-verified (no credit) -> not offered at all.
+      return kind == AdKind.rewarded ? null : AdIds.testUnit(kind);
+    }
     return AdIds.testUnit(kind);
   }
 }
@@ -217,8 +235,11 @@ class AdRules {
   /// The floor for the app-open gap (owner-editable 1 h .. 24 h).
   static const minAppOpenGap = Duration(hours: 3); // owner 26 Oct
 
-  /// The floor for the interstitial gap (owner: max 1 per 5 minutes).
-  static const minInterstitialGap = Duration(minutes: 5);
+  /// The floor for the interstitial gap (OWNER ADS FINAL 2 Nov: >= 800 s).
+  static const minInterstitialGap = Duration(seconds: 800);
+
+  /// OWNER ADS FINAL (2 Nov): never more than 4 interstitials a day.
+  static const maxInterstitialsPerDay = 4;
 
   /// banners-everywhere (owner 26 Oct): a banner is refreshed no faster
   /// than once a minute (Google's own floor is 30 s). The AdMob console
@@ -245,6 +266,13 @@ class AdRules {
     // still contains 'chat' / 'messenger' / 'conversation'.
     'account', 'delete', 'privacy', 'pin', 'family', 'location', 'track',
     'kid', 'live', 'sign_up', 'language_pick',
+    // OWNER ADS FINAL (2 Nov) never list
+    'cctv', 'vehicle', 'missing', 'blood', 'train', 'destination',
+    // (credits: only the user-chosen REWARDED "watch to earn" stays —
+    // owner decision pending, see STATUS; no passive ad there)
+    'budget', 'money', 'prepaid', 'khata', 'business', 'sales',
+    'invoice', 'crm', 'quran', 'ramadan', 'calorie', 'food', 'health',
+    'medicine', 'reminder', 'note', 'todo', 'task', 'school', 'child',
   ];
 
   /// Allowlists (default-deny: anything else is blocked).

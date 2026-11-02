@@ -616,6 +616,27 @@ class PushService {
       _pending = (payload: p, action: action);
       return;
     }
+    // callsbar: the missed-call notification's "Call back" / "Message".
+    if (p.isMissedCall &&
+        (action == PushNotifier.actionCallBack ||
+            action == PushNotifier.actionMessage)) {
+      final edge = int.tryParse(p.chatId);
+      final nav = _nav?.currentState;
+      if (edge != null && action == PushNotifier.actionMessage) {
+        _openChat('member', edge);
+        return;
+      }
+      if (edge != null && nav != null) {
+        AppEntry.mark('call');
+        nav.push(MaterialPageRoute(
+            builder: (_) => CircleCallScreen(member: {
+                  'id': edge,
+                  'name': p.callerName,
+                  'photo_url': p.callerPhoto,
+                }, kind: p.isVideo ? 'video' : 'voice')));
+        return;
+      }
+    }
     // c3-msg: a message tap opens THAT chat (not just the hub).
     final chat = MsgPushHandler.chatOf(p);
     if (chat != null && action == null) {

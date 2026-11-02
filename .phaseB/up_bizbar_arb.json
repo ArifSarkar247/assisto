@@ -1,0 +1,375 @@
+{
+ "en": {
+  "bbCbHowTo": "Morning: set opening cash. Sales and dues collected come in by themselves. Night: count the drawer and tap close.",
+  "@bbCbHowTo": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCarried": "From yesterday's counted cash",
+  "@bbCbCarried": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbCount": "{n} entries",
+  "@bbCbCount": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbCbOtherIn": "Other cash in (written by hand)",
+  "@bbCbOtherIn": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbOtherOut": "Other cash out (written by hand)",
+  "@bbCbOtherOut": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbDuesHint": "Dues written in the khata are counted as cash. If someone paid by bKash or Nagad, add it as 'Cash out' so the drawer matches.",
+  "@bbCbDuesHint": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCbRecount": "Count again",
+  "@bbCbRecount": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockChip": "Low stock ({n})",
+  "@bbLowStockChip": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowStockNone": "No product is running low",
+  "@bbLowStockNone": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockHow": "A product shows here when its stock reaches its low-stock mark (set it when you edit the product).",
+  "@bbLowStockHow": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbShowAllProducts": "Show all products",
+  "@bbShowAllProducts": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowStockTitle": "{n} products are running low",
+  "@bbLowStockTitle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowStockSub": "Tap to see them and re-order in time",
+  "@bbLowStockSub": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbLowAfterSale": "Low stock: {items}",
+  "@bbLowAfterSale": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "items": {
+     "type": "String"
+    }
+   }
+  },
+  "bbLowAfterSaleItem": "{name} ({n} left)",
+  "@bbLowAfterSaleItem": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbDueNeedsCustomer": "For a sale on due, write the customer's name or phone — it goes to their khata page.",
+  "@bbDueNeedsCustomer": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPaidEmptyIsExact": "Leave empty if the customer paid the exact amount.",
+  "@bbPaidEmptyIsExact": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbDueWho": "Whose due is this?",
+  "@bbDueWho": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbItems": "{n} items",
+  "@bbItems": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfButton": "Send statement as PDF",
+  "@bbPdfButton": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleCustomer": "Customer account statement",
+  "@bbPdfTitleCustomer": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTitleSupplier": "Supplier account statement",
+  "@bbPdfTitleSupplier": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfMade": "Made on {when}",
+  "@bbPdfMade": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfDate": "Date",
+  "@bbPdfDate": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfDetails": "Details",
+  "@bbPdfDetails": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGave": "Due given",
+  "@bbPdfGave": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfGot": "Paid",
+  "@bbPdfGot": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupGot": "Goods on credit",
+  "@bbPdfSupGot": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfSupPaid": "Paid",
+  "@bbPdfSupPaid": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfBalance": "Balance",
+  "@bbPdfBalance": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfTotal": "Total",
+  "@bbPdfTotal": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfClosing": "Balance now",
+  "@bbPdfClosing": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPending": "{n} entries made offline are still waiting to sync and are not in this statement.",
+  "@bbPdfPending": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfSavedCopy": "Made from the copy saved on this phone ({when}) — no internet then.",
+  "@bbPdfSavedCopy": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfFooter": "For bookkeeping only. Assisto never holds or moves money.",
+  "@bbPdfFooter": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbPdfPage": "Page {p} of {n}",
+  "@bbPdfPage": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "p": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPdfShareText": "{name}, here is your account statement from {shop}.",
+  "@bbPdfShareText": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "shop": {
+     "type": "String"
+    }
+   }
+  },
+  "bbPartySavedOffline": "Saved on this phone — it goes to the server when you're online. You can write entries for them now.",
+  "@bbPartySavedOffline": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCrmDueTasks": "Tasks due",
+  "@bbCrmDueTasks": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupTitle": "Is my khata safe?",
+  "@bbBackupTitle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupServer": "Every entry is saved on Assisto's server, not only on this phone.",
+  "@bbBackupServer": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupNewPhone": "Lost or new phone? Log in with the same number — the whole khata comes back.",
+  "@bbBackupNewPhone": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupStaff": "One shop, several phones: add staff under Business → Staff — they write sales and dues but never see cost or the supplier book.",
+  "@bbBackupStaff": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupOffline": "No internet? Keep writing — entries wait on the phone and go up by themselves, never counted twice.",
+  "@bbBackupOffline": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupCopyHow": "Want your own copy too? This makes one spreadsheet of every customer, supplier and entry (opens in Excel or Google Sheets).",
+  "@bbBackupCopyHow": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupExport": "Share a copy of the whole khata",
+  "@bbBackupExport": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbBackupShareText": "My shop's khata (Assisto) — keep this copy safe.",
+  "@bbBackupShareText": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffTitle": "Staff (one shop, several phones)",
+  "@bbStaffTitle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffHubSub": "Let your staff sell and write dues from their own phone",
+  "@bbStaffHubSub": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffBenefit": "Your staff sell, take dues and run the cashbox from their own phone — everything lands in your one khata.",
+  "@bbStaffBenefit": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffHow": "1) They install Assisto and log in. 2) Add them here. 3) On their phone: Business → Switch shop → your shop. They never see cost, minimum price, profit or the supplier book.",
+  "@bbStaffHow": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffFromCircle": "Pick from My Circle",
+  "@bbStaffFromCircle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffByNumber": "Add by phone number",
+  "@bbStaffByNumber": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffAdd": "Add as staff",
+  "@bbStaffAdd": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffAdded": "Added. On their phone: Business → Switch shop.",
+  "@bbStaffAdded": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffNone": "No staff yet.",
+  "@bbStaffNone": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffPickTitle": "Who works in your shop?",
+  "@bbStaffPickTitle": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffRemove": "Remove",
+  "@bbStaffRemove": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbStaffRemoveQ": "Remove {name}?",
+  "@bbStaffRemoveQ": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "bbStaffRemoveBody": "They lose access to this shop at once. Their past sales stay in your khata.",
+  "@bbStaffRemoveBody": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  }
+ },
+ "bn": {
+  "bbCbHowTo": "সকালে শুরুর ক্যাশ লিখুন। দিনের বিক্রি আর বাকি আদায় নিজে থেকে যোগ হয়। রাতে ড্রয়ার গুনে 'দিন শেষ' চাপুন।",
+  "bbCbCarried": "গতকালের গোনা টাকা থেকে",
+  "bbCbCount": "{n}টি এন্ট্রি",
+  "bbCbOtherIn": "অন্য ক্যাশ ঢুকল (হাতে লেখা)",
+  "bbCbOtherOut": "অন্য ক্যাশ বের হলো (হাতে লেখা)",
+  "bbCbDuesHint": "খাতায় লেখা বাকি আদায় নগদ ধরা হয়েছে। কেউ bKash বা Nagad-এ দিলে সেটা 'ক্যাশ বের' দিয়ে লিখুন, তাহলে ড্রয়ার মিলবে।",
+  "bbCbRecount": "আবার গুনুন",
+  "bbLowStockChip": "স্টক কম ({n})",
+  "bbLowStockNone": "কোনো পণ্যের স্টক কম নেই",
+  "bbLowStockHow": "পণ্যের স্টক তার 'কম-স্টক' সীমায় নামলে এখানে দেখাবে (পণ্য এডিট করে সীমা ঠিক করুন)।",
+  "bbShowAllProducts": "সব পণ্য দেখুন",
+  "bbLowStockTitle": "{n}টি পণ্যের স্টক কম",
+  "bbLowStockSub": "দেখে সময়মতো মাল আনুন",
+  "bbLowAfterSale": "স্টক কম: {items}",
+  "bbLowAfterSaleItem": "{name} ({n}টি বাকি)",
+  "bbDueNeedsCustomer": "বাকিতে বিক্রিতে গ্রাহকের নাম বা ফোন লিখুন — বাকিটা তাঁর খাতার পাতায় যাবে।",
+  "bbPaidEmptyIsExact": "ঠিক যত দাম তত টাকা পেলে ঘরটা খালি রাখুন।",
+  "bbDueWho": "কার বাকি?",
+  "bbItems": "{n}টি পণ্য",
+  "bbPdfButton": "হিসাবের বিবরণী PDF পাঠান",
+  "bbPdfTitleCustomer": "গ্রাহকের হিসাবের বিবরণী",
+  "bbPdfTitleSupplier": "সাপ্লায়ারের হিসাবের বিবরণী",
+  "bbPdfMade": "তৈরি: {when}",
+  "bbPdfDate": "তারিখ",
+  "bbPdfDetails": "বিবরণ",
+  "bbPdfGave": "বাকি দিলাম",
+  "bbPdfGot": "জমা পেলাম",
+  "bbPdfSupGot": "বাকিতে মাল",
+  "bbPdfSupPaid": "টাকা দিলাম",
+  "bbPdfBalance": "ব্যালেন্স",
+  "bbPdfTotal": "মোট",
+  "bbPdfClosing": "এখন বাকি",
+  "bbPdfPending": "নেট ছাড়া লেখা {n}টি এন্ট্রি এখনো সিঙ্কের অপেক্ষায় — এই বিবরণীতে নেই।",
+  "bbPdfSavedCopy": "এই ফোনে সংরক্ষিত কপি থেকে তৈরি ({when}) — তখন নেট ছিল না।",
+  "bbPdfFooter": "শুধু হিসাব রাখার জন্য। Assisto কখনো টাকা রাখে না বা পাঠায় না।",
+  "bbPdfPage": "পাতা {p} / {n}",
+  "bbPdfShareText": "{name}, {shop} থেকে আপনার হিসাবের বিবরণী।",
+  "bbPartySavedOffline": "এই ফোনে রাখা হলো — নেট এলে সার্ভারে যাবে। এখনই এঁর এন্ট্রি লিখতে পারেন।",
+  "bbCrmDueTasks": "আজকের কাজ (সময় হয়েছে)",
+  "bbBackupTitle": "আমার খাতা কি নিরাপদ?",
+  "bbBackupServer": "প্রতিটি এন্ট্রি Assisto-র সার্ভারে রাখা থাকে, শুধু এই ফোনে নয়।",
+  "bbBackupNewPhone": "ফোন হারালে বা নতুন ফোনে? একই নম্বরে লগইন করুন — পুরো খাতা ফিরে আসবে।",
+  "bbBackupStaff": "এক দোকান, অনেক ফোন: বিজনেস → কর্মচারী থেকে যোগ করুন — তাঁরা বিক্রি আর বাকি লিখবেন, কেনা দাম বা সাপ্লায়ার খাতা দেখবেন না।",
+  "bbBackupOffline": "নেট নেই? লিখতে থাকুন — এন্ট্রি ফোনে অপেক্ষা করে, নেট এলে নিজে থেকে যায়, কখনো দুবার গোনা হয় না।",
+  "bbBackupCopyHow": "নিজের কাছেও একটা কপি চান? সব গ্রাহক, সাপ্লায়ার আর প্রতিটি এন্ট্রি নিয়ে একটা শিট তৈরি হবে (Excel বা Google Sheets-এ খোলে)।",
+  "bbBackupExport": "পুরো খাতার কপি শেয়ার করুন",
+  "bbBackupShareText": "আমার দোকানের খাতা (Assisto) — কপিটা যত্নে রাখুন।",
+  "bbStaffTitle": "কর্মচারী (এক দোকান, অনেক ফোন)",
+  "bbStaffHubSub": "কর্মচারী নিজের ফোন থেকে বিক্রি ও বাকি লিখবেন",
+  "bbStaffBenefit": "কর্মচারী নিজের ফোন থেকে বিক্রি, বাকি আর ক্যাশবক্স চালাবেন — সব আপনার একটাই খাতায় আসবে।",
+  "bbStaffHow": "১) তিনি Assisto ইনস্টল করে লগইন করবেন। ২) এখানে তাঁকে যোগ করুন। ৩) তাঁর ফোনে: বিজনেস → দোকান বদলান → আপনার দোকান। তিনি কেনা দাম, সর্বনিম্ন দাম, লাভ বা সাপ্লায়ার খাতা দেখবেন না।",
+  "bbStaffFromCircle": "My Circle থেকে বাছুন",
+  "bbStaffByNumber": "ফোন নম্বর দিয়ে যোগ",
+  "bbStaffAdd": "কর্মচারী হিসেবে যোগ করুন",
+  "bbStaffAdded": "যোগ হলো। তাঁর ফোনে: বিজনেস → দোকান বদলান।",
+  "bbStaffNone": "এখনো কোনো কর্মচারী নেই।",
+  "bbStaffPickTitle": "আপনার দোকানে কে কাজ করেন?",
+  "bbStaffRemove": "সরান",
+  "bbStaffRemoveQ": "{name}-কে সরাবেন?",
+  "bbStaffRemoveBody": "এখনই এই দোকানে তাঁর প্রবেশ বন্ধ হবে। আগের বিক্রি আপনার খাতায় থাকবে।"
+ }
+}

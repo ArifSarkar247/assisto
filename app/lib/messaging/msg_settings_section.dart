@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/msgr_set_tiles.dart';
 import 'msg_native.dart';
 import 'msg_prefs.dart';
+import 'link_preview_client.dart'; // circlea
 
 /// c3-msg — "On this phone" block of My Circle → Settings → Notifications:
 ///   * Hide message content in notifications (privacy; device-level)
@@ -21,6 +22,7 @@ class MsgDeviceNotifSection extends StatefulWidget {
 
 class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
   bool _hide = false;
+  bool _previews = true; // circlea
   bool _bubbles = true;
   bool _bubblesSupported = false;
 
@@ -34,8 +36,10 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
     final hide = await MsgPrefs.hideContent();
     final b = await MsgPrefs.bubblesOn();
     final sup = await MsgNative.bubblesSupported();
+    final pv = await LinkPreviewPrefs.on(); // circlea
     if (!mounted) return;
     setState(() {
+      _previews = pv;
       _hide = hide;
       _bubbles = b;
       _bubblesSupported = sup;
@@ -61,6 +65,18 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
           },
         ),
         const SoundPickTile(kind: SoundPickKind.message),
+        // circlea: previews are built on this phone and sent encrypted
+        SwitchListTile(
+          key: const Key('cla-link-previews'),
+          secondary: const Icon(Icons.link_rounded),
+          title: Text(t.claLinkPreviewsSetting),
+          subtitle: Text(t.claLinkPreviewsSettingSub),
+          value: _previews,
+          onChanged: (v) async {
+            setState(() => _previews = v);
+            await LinkPreviewPrefs.set(v);
+          },
+        ),
         if (_bubblesSupported) ...[
           SwitchListTile(
             key: const Key('c3-bubbles-global'),

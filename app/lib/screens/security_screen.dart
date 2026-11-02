@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -737,7 +738,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 spacing: Gap.sm,
                 runSpacing: Gap.xs,
                 children: [
-                  for (final m in cands)
+                  // circlea: Family first
+                  for (final m in [
+                    for (final (_, rs) in sectionPeople(
+                        [for (final c in cands) if (c is Map) c]))
+                      ...rs
+                  ])
                     ChoiceChip(
                       avatar: const Icon(Icons.person_outline_rounded, size: 18),
                       label: Text('${m['name'] ?? ''}'),

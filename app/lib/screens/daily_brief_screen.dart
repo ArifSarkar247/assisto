@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,7 @@ class DailyBriefScreen extends StatefulWidget {
 
 class _DailyBriefScreenState extends State<DailyBriefScreen>
     with SingleTickerProviderStateMixin {
+  final DateTime _openedAt = DateTime.now();
   late final TabController _tabs = TabController(length: 2, vsync: this);
 
   bool _loading = true;
@@ -56,6 +58,12 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
 
   @override
   void dispose() {
+    // read for >= 30 s = the brief was read
+    if (DateTime.now().difference(_openedAt) >= const Duration(seconds: 30)) {
+      AdExit.taskDone(AdExitPlacement.articleAfterRead);
+    }
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.articleAfterRead);
     _tabs.dispose();
     super.dispose();
   }

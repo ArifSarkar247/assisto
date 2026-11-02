@@ -42,7 +42,11 @@ class BudgetCard extends StatelessWidget {
   final Map<String, dynamic> line;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-  const BudgetCard({super.key, required this.line, this.onTap, this.onLongPress});
+
+  /// remhbud: the card heading when it is not the category (the drill-down
+  /// shows one card per MONTH — "October 2026", never a raw "2026-10").
+  final String? title;
+  const BudgetCard({super.key, required this.line, this.onTap, this.onLongPress, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +70,9 @@ class BudgetCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
-                child: Text(moneyCatLabel(t, line['category']),
+                child: Text(title ?? moneyCatLabel(t, line['category']),
                     style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                    maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
               if (rollover)
                 Padding(
@@ -76,13 +80,13 @@ class BudgetCard extends StatelessWidget {
                   child: Icon(Icons.autorenew_rounded, size: 14, color: scheme.secondary),
                 ),
               const SizedBox(width: Gap.sm),
-              Text('$pct%',
+              Text(pctOf(context, pct),
                   style: TextStyle(fontWeight: FontWeight.w700, color: color)),
             ]),
             const SizedBox(height: Gap.xs),
             Text(
                 t.budgetSpentOf(
-                    tkFmt(line['spent']), tkFmt(line['effective_limit'])),
+                    tkOf(context, line['spent']), tkOf(context, line['effective_limit'])),
                 style: TextStyle(
                     fontSize: 12, color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.sm),
@@ -102,7 +106,7 @@ class BudgetCard extends StatelessWidget {
                   const Icon(Icons.error_outline_rounded, size: 14, color: Brand.danger),
                   const SizedBox(width: Gap.xs),
                   Expanded(
-                    child: Text(t.budgetOverBy(tkFmt(line['over_by'])),
+                    child: Text(t.budgetOverBy(tkOf(context, line['over_by'])),
                         style: const TextStyle(
                             color: Brand.danger,
                             fontSize: 12,
@@ -128,7 +132,7 @@ class BudgetCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Text(
-                    '${t.budgetRemaining}: ${tkFmt(line['remaining'])}',
+                    '${t.budgetRemaining}: ${tkOf(context, line['remaining'])}',
                     style: TextStyle(
                         color: scheme.onSurfaceVariant, fontSize: 12)),
               ),
@@ -161,7 +165,7 @@ class BudgetTotalHeader extends StatelessWidget {
         Text(t.budgetTotalHeader,
             style: const TextStyle(color: Colors.white70)),
         const SizedBox(height: Gap.xs),
-        Text(t.budgetSpentOf(tkFmt(totals['spent']), tkFmt(totals['limit'])),
+        Text(t.budgetSpentOf(tkOf(context, totals['spent']), tkOf(context, totals['limit'])),
             style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -183,7 +187,7 @@ class BudgetTotalHeader extends StatelessWidget {
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(
-                  t.budgetUnbudgetedHint(tkFmt(totals['unbudgeted_spent'])),
+                  t.budgetUnbudgetedHint(tkOf(context, totals['unbudgeted_spent'])),
                   style: const TextStyle(color: Colors.white70, fontSize: 12)),
             ),
           ]),

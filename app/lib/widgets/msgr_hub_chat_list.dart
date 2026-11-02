@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // circlea
+import 'circle_people_filter.dart'; // circlea
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -140,6 +142,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     unawaited(DecorStore.instance.loadAll());
     // e-gaps: locked chats leave this list (folder at the top)
     ChatLockStore.instance.revision.addListener(_onRt);
+    unawaited(_loadFilter()); // circlea
     unawaited(ChatLockStore.instance.warm().then((_) => _onRt()));
     final api = _api;
     ChatLockAuth.clearChat = (k) => clearChatForLock(api, k);
@@ -309,6 +312,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         return c['favourite'] == true || c['is_favourite'] == true;
       case 'groups':
         return c['is_group'] == true || c['group'] == true;
+      // circlea: Family / Others (1:1 chats; the person's Circle group)
+      case 'family':
+        return !_isGroup(c) && isFamilyRow(_memberOf(c));
+      case 'others':
+        return !_isGroup(c) && !isFamilyRow(_memberOf(c));
       default:
         if (_filter.startsWith('list:')) {
           final id = _filter.substring(5);
@@ -664,6 +672,22 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
                   title: Text(t.c3MarkUnread),
                   onTap: () => go(ctx, () => _markUnread(c)),
                 ),
+              // circlea: Family / Others for this person
+              if (!group && _memberOf(c)['id'] != null)
+                ListTile(
+                  key: const Key('cfa-mark-chat'),
+                  leading: Icon(isFamilyRow(_memberOf(c))
+                      ? Icons.family_restroom_rounded
+                      : Icons.people_alt_rounded),
+                  title: Text(_t.cfaMarkMenu),
+                  subtitle: Text(groupLabel(_t, circleGroupOf(_memberOf(c)))),
+                  onTap: () => go(ctx, () async {
+                    final r = await markCircleGroup(context, _api, _memberOf(c));
+                    if (r != null && mounted) {
+                      setState(() => c['member'] = {..._memberOf(c), ...r});
+                    }
+                  }),
+                ),
               ListTile(
                 key: const Key('ca-favourite'),
                 leading: Icon(fav ? Icons.favorite_rounded : Icons.favorite_border_rounded),
@@ -1010,7 +1034,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       if (_foldedQuery().isNotEmpty && widget.identity != null) _searchMessagesRow(),
       Expanded(
         child: visible.isEmpty
-            ? (_isNoResults ? _noResults() : _empty())
+            ? (_isNoResults
+                ? _noResults()
+                : ((_filter == 'family' || _filter == 'others')
+                    ? _peopleFilterEmpty()
+                    : _empty()))
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView.separated(
@@ -1166,6 +1194,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       (id: 'unread', label: t.msgrChipUnread),
       (id: 'favourites', label: t.msgrChipFavourites),
       (id: 'groups', label: t.msgrChipGroups),
+      (id: 'family', label: t.cfaChipFamily), // circlea
+      (id: 'others', label: t.cfaOthers), // circlea
       for (final l in _lists)
         (id: 'list:${l['id']}', label: '${l['name'] ?? ''}'),
     ];
@@ -1178,14 +1208,84 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         for (var i = 0; i < chips.length; i++) ...[
           if (i > 0) const SizedBox(width: Gap.sm),
           ChoiceChip(
+            key: Key('msgr-chip-${chips[i].id}'),
             label: Text(chips[i].label,
                 maxLines: 1, overflow: TextOverflow.ellipsis),
             selected: _filter == chips[i].id,
-            onSelected: (_) => setState(() => _filter = chips[i].id),
+            onSelected: (_) {
+              setState(() => _filter = chips[i].id);
+              unawaited(_saveFilter(chips[i].id)); // circlea: remembered
+            },
           ),
         ],
       ]),
     );
+  }
+
+  // circlea: the chat-list chip is remembered on this phone
+  static const _kFilterKey = 'cfa_filter_chats';
+  Future<void> _loadFilter() async {
+    try {
+      final v = (await SharedPreferences.getInstance()).getString(_kFilterKey);
+      if (v != null && mounted && (v == 'family' || v == 'others' || v == 'all' ||
+          v == 'unread' || v == 'favourites' || v == 'groups')) {
+        setState(() => _filter = v);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveFilter(String id) async {
+    if (id.startsWith('list:')) return; // custom lists can vanish
+    try {
+      await (await SharedPreferences.getInstance()).setString(_kFilterKey, id);
+    } catch (_) {} // best-effort: only remembers the last chip; the filter itself already applied
+  }
+
+  /// circlea: Family / Others chip with no chat — what it is for, how to
+  /// mark someone, and one tap back to every chat (never a dead end).
+  Widget _peopleFilterEmpty() {
+    final scheme = Theme.of(context).colorScheme;
+    final t = _t;
+    final fam = _filter == 'family';
+    return ListView(key: const Key('cfa-chats-empty'), children: [
+      const SizedBox(height: Gap.xxxl),
+      Icon(fam ? Icons.family_restroom_rounded : Icons.people_alt_rounded,
+          size: 56, color: scheme.primary),
+      const SizedBox(height: Gap.md),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+        child: Text(fam ? t.cfaNoFamilyChats : t.cfaNoOthersChats,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.sm, Gap.xl, 0),
+        child: Text(t.cfaFamilyBenefit,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.sm, Gap.xl, 0),
+        child: Text(t.cfaHowToMarkChat,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, 0),
+        child: Center(
+          child: FilledButton.icon(
+            key: const Key('cfa-chats-show-all'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            onPressed: () {
+              setState(() => _filter = 'all');
+              unawaited(_saveFilter('all'));
+            },
+            icon: const Icon(Icons.forum_rounded),
+            label: Text(t.cfaShowAllChats),
+          ),
+        ),
+      ),
+    ]);
   }
 
   Widget _empty() {

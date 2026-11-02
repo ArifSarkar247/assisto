@@ -7,7 +7,14 @@
   line it should have (the /etc/cron.d/assisto-app style, user column
   ``ubuntu``). ``missing_cron()`` compares it with the installed crontab
   (``crontab -l`` + /etc/cron.d/*, read-only).
-* ``job_status()`` — ok / late / failing / stuck / waiting / not_scheduled.
+* ``job_status()`` — ok / late / failing / stuck / waiting / not_scheduled /
+  slow (last run longer than the job's ``max_s``) / double_run (more than one
+  installed cron line runs it — e.g. an old stand-alone line next to
+  ``minute_jobs``).
+* every cron line is bounded: ``flock -n`` (never overlaps itself) +
+  ``timeout -k 30 <kill_s>`` (a hung run is stopped; the heartbeat records the
+  kill as exit 143 so ops_watch tells the owner). ``render_cron_file()`` /
+  ``manage.py ops_cron_file`` print the full recommended /etc/cron.d file.
 * ``service_status()`` — ``systemctl show`` (read-only) for the units the app
   needs; a unit that is not installed on this box is "absent", never "down".
 * ``evaluate()`` — the alert state machine used by ``manage.py ops_watch``:
@@ -50,15 +57,34 @@ class Job:
     interval: int            # seconds between runs (from the cron schedule)
     schedule: str            # the cron time fields
     nice: str = "nice -n15"
-    lock: bool = False       # flock -n so a slow run never overlaps itself
+    lock: bool = True        # flock -n so a slow run never overlaps itself
     args: str = ""
     kind: str = "manage"     # manage | backup | restore_test
     grace: int = 0           # 0 = default_grace(interval)
     via: str = ""            # a wrapper command that also runs it (minute_jobs)
+    max_s: int = 0           # longest healthy run; 0 = default_max_s(interval)
 
     @property
     def grace_s(self):
         return self.grace or default_grace(self.interval)
+
+    @property
+    def max_runtime_s(self):
+        """A run longer than this is "slow" (ops_watch alerts the owner)."""
+        return self.max_s or default_max_s(self.interval)
+
+    @property
+    def kill_s(self):
+        """`timeout` in the cron line: a run this long is stopped."""
+        return kill_after(self.max_runtime_s)
+
+    def recommended_line(self):
+        """The line the owner should have installed. A job that rides
+        `manage.py minute_jobs` (via=minute_jobs) gets THAT line, never its
+        old stand-alone one (both installed = the job runs twice a minute)."""
+        if self.via == "minute_jobs":
+            return minute_jobs_cron_line()
+        return self.cron_line()
 
     def cron_line(self):
         if self.kind == "backup":
@@ -69,9 +95,10 @@ class Job:
                     % (self.schedule, APP, CRON_LOGS))
         lock = ("flock -n %s " % lock_path(self.name)) if self.lock else ""
         args = (" " + self.args) if self.args else ""
-        return ("%s ubuntu cd %s/backend && %s%s %s manage.py %s%s >> %s/%s.log 2>&1"
-                % (self.schedule, APP, lock, self.nice, PY, self.name, args, CRON_LOGS,
-                   self.name))
+        return ("%s ubuntu cd %s/backend && %stimeout -k 30 %d %s %s manage.py %s%s "
+                ">> %s/%s.log 2>&1"
+                % (self.schedule, APP, lock, self.kill_s, self.nice, PY, self.name, args,
+                   CRON_LOGS, self.name))
 
 
 def lock_path(name):
@@ -83,6 +110,17 @@ def default_grace(interval):
     """How long past its interval a job may be before it counts as late:
     one more interval, at least 5 min, at most 3 h (daily jobs: 27 h)."""
     return int(min(max(interval, 5 * MIN), 3 * HOUR))
+
+
+def default_max_s(interval):
+    """Longest healthy run: 85 % of the interval (a minute job 51 s, an hourly
+    job 51 min), at least 50 s, at most 3 h (daily / weekly / monthly jobs)."""
+    return int(min(max(interval * 0.85, 50), 3 * HOUR))
+
+
+def kill_after(max_s):
+    """Hard stop (cron `timeout`): twice the healthy limit, 2 min .. 4 h."""
+    return int(min(max(2 * max_s, 2 * MIN), 4 * HOUR))
 
 
 # Every scheduled job. Order = the order of the System health page.
@@ -124,7 +162,7 @@ JOBS = (
     Job("school_mode_tick", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet",
         via="minute_jobs"),
     Job("profit_guard_rollover", DAY, "5 0 * * *"),
-    Job("backup", DAY, "15 2 * * *", kind="backup"),
+    Job("backup", DAY, "15 2 * * *", kind="backup", max_s=2 * HOUR),
     Job("generate_briefings", DAY, "0 3 * * *", "nice -n15 ionice -c3"),
     Job("storage_recompute", DAY, "15 3 * * *"),
     Job("shop_prune_snapshots", DAY, "30 3 * * *"),
@@ -138,12 +176,47 @@ JOBS = (
     # AF-7: agent vault 30 days after a run, audit trail 12 months
     Job("agent_core_retention", DAY, "50 3 * * *", "nice -n15 ionice -c3", lock=True),
     # monthly backup-restore drill (owner order: "tested backup and restore")
-    Job("restore_test", 31 * DAY, "30 2 1 * *", kind="restore_test", grace=3 * DAY),
+    Job("restore_test", 31 * DAY, "30 2 1 * *", kind="restore_test", grace=3 * DAY,
+        max_s=2 * HOUR),
+    # cronbar (2 Nov): jobs that were scheduled (or meant to be) but had no
+    # heartbeat / no ops_watch row. Not installed live -> "not_scheduled" with
+    # the exact line, which is the honest state.
+    # remmeter: prepaid meter low pushes — installed live (15 * * * *)
+    Job("meter_low_alerts", HOUR, "15 * * * *", "nice -n15 ionice -c3"),
+    # agent-proactive: nudges + morning brief (flag agent_core; UNIQUE per trigger)
+    Job("agent_nudges", 15 * MIN, "*/15 * * * *", "nice -n10", args="--quiet"),
+    # agentmem: weekly suggestions (Sunday 23:00 Dhaka = 17:00 UTC)
+    Job("agent_memory_learn", 7 * DAY, "0 17 * * 0", "nice -n10", args="--quiet",
+        grace=DAY),
+    # probashi-plan: invites / lapsed seats; monthly reports on the 1st (Dhaka)
+    Job("probashi_daily", DAY, "10 4 * * *", "nice -n15 ionice -c3"),
+    # calls95: daily ring-delivery trend row (upsert)
+    Job("calls_delivery_snapshot", DAY, "10 0 * * *"),
+    # pricing-40: monthly real AI usage report to the owner (once per month)
+    Job("ai_usage_monthly", 31 * DAY, "10 4 1 * *", grace=3 * DAY),
+    # cashguard: EZVIZ alarm poll (does nothing until EZVIZ keys + a camera)
+    Job("ezviz_poll_alarms", MIN, "* * * * *"),
+    # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
+    Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
+        max_s=5 * MIN),
 )
 JOB_BY_NAME = {j.name: j for j in JOBS}
 # What `manage.py minute_jobs` runs, in order: (job name, call_command kwargs).
 MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("school_mode_tick", {"quiet": True}))
+
+
+MINUTE_JOB_NAMES = tuple(n for n, _ in MINUTE_JOBS)
+
+# The root service watchdog line (it lives in /etc/cron.d/assisto-watchdog).
+WATCHDOG_LINE = ("*/5 * * * * root systemctl is-active --quiet assisto || systemctl "
+                 "restart assisto; systemctl is-active --quiet coturn || systemctl "
+                 "restart coturn")
+
+
+WATCHDOG_FILE = "/etc/cron.d/assisto-watchdog"
+# jobs whose line lives in its own /etc/cron.d file (not assisto-app)
+OWN_FILES = {"backup": "/etc/cron.d/assisto-backup"}
 
 
 def minute_jobs_cron_line():
@@ -153,7 +226,8 @@ def minute_jobs_cron_line():
     return ("* * * * * ubuntu cd %s/backend && nice -n10 %s manage.py minute_jobs "
             "--log-dir %s >> %s/minute_jobs.log 2>&1" % (APP, PY, CRON_LOGS, CRON_LOGS))
 
-SERVICES = ("assisto", "assisto-tracker", "coturn", "postgresql", "nginx", "caddy")
+SERVICES = ("assisto", "assisto-tracker", "assisto-photo-worker", "coturn", "postgresql",
+            "nginx", "caddy")
 
 
 # ------------------------------------------------------------ heartbeats
@@ -191,14 +265,53 @@ def record_finish(name, rc, duration_ms, error=""):
         log.warning("ops_health: finish heartbeat %s failed (%s)", name, type(e).__name__)
 
 
+TERM_RC = 143          # what a SIGTERM (cron `timeout`) is recorded as
+KILLED_RCS = (124, 137, TERM_RC)
+
+
+def _term_to_exit(signum, frame):  # noqa: ARG001
+    raise SystemExit(TERM_RC)
+
+
+def _install_term_handler():
+    """While a tracked job runs in the main thread, SIGTERM (sent by the cron
+    line's `timeout`) becomes SystemExit(143) so the heartbeat records the
+    kill instead of staying "running" forever. Only replaces the DEFAULT
+    handler; returns the previous one (None = nothing changed)."""
+    try:
+        import signal
+        import threading
+        if threading.current_thread() is not threading.main_thread():
+            return None
+        prev = signal.getsignal(signal.SIGTERM)
+        if prev is not signal.SIG_DFL:
+            return None
+        signal.signal(signal.SIGTERM, _term_to_exit)
+        return prev
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _restore_term_handler(prev):
+    if prev is None:
+        return
+    try:
+        import signal
+        signal.signal(signal.SIGTERM, prev)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def track_job(name):
     """Decorator for ``Command.handle``: heartbeat around the run. The job's
-    own result / exception / SystemExit pass through unchanged."""
+    own result / exception / SystemExit pass through unchanged. The wrapper
+    carries ``ops_job = name`` (tests check every JOBS entry has it)."""
     def deco(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
             t0 = time.monotonic()
             record_start(name)
+            prev = _install_term_handler()
             rc, err = 0, ""
             try:
                 return fn(*args, **kwargs)
@@ -211,7 +324,11 @@ def track_job(name):
                 rc, err = 1, type(e).__name__
                 raise
             finally:
+                _restore_term_handler(prev)
+                if rc in KILLED_RCS:
+                    err = "stopped by the time limit (exit %s)" % rc
                 record_finish(name, rc, (time.monotonic() - t0) * 1000, err)
+        wrapper.ops_job = name
         return wrapper
     return deco
 
@@ -240,21 +357,110 @@ def installed_cron_text():
     return "\n".join(lines)
 
 
-def is_scheduled(job, cron_text):
+def _manage_pat(name):
+    return r"manage\.py\s+%s(?:\s|$)" % re.escape(name)
+
+
+def _job_pat(job, own_only=False):
     if job.kind == "backup":
-        pat = r"migration/backup\.sh"
-    elif job.kind == "restore_test":
-        pat = r"restore_test\.sh"
-    else:
-        names = [job.name] + ([job.via] if job.via else [])
-        pat = r"manage\.py\s+(?:%s)(?:\s|$)" % "|".join(re.escape(n) for n in names)
-    return re.search(pat, cron_text or "", re.M) is not None
+        return r"migration/backup\.sh"
+    if job.kind == "restore_test":
+        return r"restore_test\.sh"
+    names = [job.name] + ([job.via] if (job.via and not own_only) else [])
+    return r"manage\.py\s+(?:%s)(?:\s|$)" % "|".join(re.escape(n) for n in names)
+
+
+def is_scheduled(job, cron_text):
+    return re.search(_job_pat(job), cron_text or "", re.M) is not None
+
+
+def schedule_count(job, cron_text):
+    """How many installed (uncommented) lines run this job — its own line
+    plus the minute_jobs line for a via job. More than 1 = it runs twice."""
+    pat = re.compile(_job_pat(job))
+    return sum(1 for ln in (cron_text or "").splitlines() if pat.search(ln))
+
+
+def old_standalone_lines(cron_text):
+    """Uncommented stand-alone lines of jobs that must ride minute_jobs ->
+    [(job name, line)]. With the minute_jobs line also installed the job
+    runs twice a minute (the old #OFF lines must stay off / be deleted)."""
+    out = []
+    for j in JOBS:
+        if j.via != "minute_jobs":
+            continue
+        pat = re.compile(_job_pat(j, own_only=True))
+        out += [(j.name, ln) for ln in (cron_text or "").splitlines() if pat.search(ln)]
+    return out
+
+
+def unknown_scheduled(cron_text):
+    """manage.py commands in the installed cron that are NOT in JOBS (so no
+    ops_watch row): sorted names."""
+    known = {j.name for j in JOBS} | {"minute_jobs"}
+    found = set(re.findall(r"manage\.py\s+([A-Za-z0-9_]+)", cron_text or ""))
+    return sorted(found - known)
 
 
 def missing_cron(cron_text=None):
-    """Jobs with no installed cron line -> [(job, exact line to add)]."""
+    """Jobs with no installed cron line -> [(job, exact line to add)]. A via
+    job gets the minute_jobs line, never its old stand-alone one."""
     text = installed_cron_text() if cron_text is None else cron_text
-    return [(j, j.cron_line()) for j in JOBS if not is_scheduled(j, text)]
+    return [(j, j.recommended_line()) for j in JOBS if not is_scheduled(j, text)]
+
+
+CRON_FILE_HEADER = (
+    "# /etc/cron.d/assisto-app — generated by `manage.py ops_cron_file` from\n"
+    "# core/ops_health.JOBS (read-only renderer; it never installs anything).\n"
+    "# Every job: flock -n (never overlaps itself) + timeout (bounded runtime)\n"
+    "# + heartbeat (@track_job) watched by ops_watch every 5 minutes.\n")
+
+
+def render_cron_file():
+    """The full recommended /etc/cron.d/assisto-app text: the minute_jobs
+    line once (it runs every MINUTE_JOBS job), every other job's line in JOBS
+    order; the backup line and the root service watchdog are shown as
+    comments because they live in their own cron.d files. Pure text —
+    nothing is read or written."""
+    lines = [CRON_FILE_HEADER.rstrip("\n"),
+             "# per-minute jobs in one process: " + " ".join(MINUTE_JOB_NAMES),
+             minute_jobs_cron_line()]
+    for j in JOBS:
+        if j.via == "minute_jobs" or j.name in OWN_FILES:
+            continue
+        lines.append("# %s — every %s, healthy under %ss, stopped after %ss" % (
+            j.name, _every(j.interval), j.max_runtime_s, j.kill_s))
+        lines.append(j.cron_line())
+    # these live in their own /etc/cron.d files on the box — NOT repeated
+    # here (a copy in both files would run them twice)
+    for name, path in OWN_FILES.items():
+        lines.append("# %s: stays in %s — %s" % (name, path, JOB_BY_NAME[name].cron_line()))
+    lines.append("# service watchdog (root): stays in %s — %s" % (WATCHDOG_FILE, WATCHDOG_LINE))
+    return "\n".join(lines) + "\n"
+
+
+def _every(interval):
+    if interval >= 28 * DAY:
+        return "month"
+    if interval >= 7 * DAY:
+        return "week"
+    if interval >= DAY:
+        return "day"
+    if interval >= HOUR:
+        return "%d h" % (interval // HOUR)
+    return "%d min" % (interval // MIN)
+
+
+def cron_diff(cron_text):
+    """Recommended vs installed -> dict(missing=[(name, line)], double=[(name,
+    copies)], old_lines=[(name, line)], unknown=[names])."""
+    return {
+        "missing": [(j.name, line) for j, line in missing_cron(cron_text)],
+        "double": [(j.name, n) for j in JOBS
+                   for n in [schedule_count(j, cron_text)] if n > 1],
+        "old_lines": old_standalone_lines(cron_text),
+        "unknown": unknown_scheduled(cron_text),
+    }
 
 
 # ------------------------------------------------------------ job status
@@ -307,11 +513,12 @@ def restore_test_result(path=None):
 
 
 def job_status(job, hb=None, first_seen=None, now=None, scheduled=True,
-               backups=None, restore=None):
+               backups=None, restore=None, copies=1):
     """-> dict(status, detail, last_run, last_ok, rc, duration_ms, next_due).
 
     status: ok | late | failing | stuck | waiting (no heartbeat yet, still
-    inside the first grace period) | not_scheduled."""
+    inside the first grace period) | not_scheduled | double_run (``copies``
+    installed lines run it) | slow (last run longer than job.max_runtime_s)."""
     now = now or _now()
     last_run = getattr(hb, "last_finish", None) or getattr(hb, "last_start", None)
     last_ok = getattr(hb, "last_ok", None)
@@ -357,6 +564,11 @@ def job_status(job, hb=None, first_seen=None, now=None, scheduled=True,
         out.update(status="failing", detail="exit code %s%s" % (
             rc, (" (%s)" % hb.last_error) if getattr(hb, "last_error", "") else ""))
         return out
+    if copies and copies > 1:
+        out.update(status="double_run", detail=(
+            "%d installed cron lines run this job (expected 1) — it runs twice; "
+            "keep only: %s" % (copies, job.recommended_line())))
+        return out
     ref = last_ok or last_run
     if ref is None:
         start = first_seen or now
@@ -370,6 +582,11 @@ def job_status(job, hb=None, first_seen=None, now=None, scheduled=True,
         return out
     if now - ref > limit:
         out.update(status="late", detail="last successful run %s ago" % _ago(now - ref))
+        return out
+    dur = out["duration_ms"]
+    if dur and dur > job.max_runtime_s * 1000:
+        out.update(status="slow", detail="last run took %ds (limit %ds; stopped at %ds)"
+                   % (dur // 1000, job.max_runtime_s, job.kill_s))
     return out
 
 
@@ -382,7 +599,7 @@ def _ago(td):
     return "%d min" % max(1, s // MIN)
 
 
-BAD_JOB = ("late", "failing", "stuck", "not_scheduled")
+BAD_JOB = ("late", "failing", "stuck", "not_scheduled", "slow", "double_run")
 
 
 # ------------------------------------------------------------ services
@@ -452,15 +669,18 @@ def snapshot(now=None, cron_text=None, service_runner=None):
     jobs = []
     for j in JOBS:
         sched = is_scheduled(j, cron_text) if cron_known else True
+        copies = schedule_count(j, cron_text) if cron_known else 1
         st = job_status(j, hbs.get(j.name), seen.get("job:" + j.name), now,
-                        scheduled=sched, backups=backups, restore=restore)
-        st.update(name=j.name, interval=j.interval, scheduled=sched,
-                  cron_line=j.cron_line())
+                        scheduled=sched, backups=backups, restore=restore,
+                        copies=copies)
+        st.update(name=j.name, interval=j.interval, scheduled=sched, copies=copies,
+                  max_s=j.max_runtime_s, cron_line=j.recommended_line())
         jobs.append(st)
     services = [service_status(u, service_runner) for u in SERVICES]
     return {"now": now, "jobs": jobs, "services": services, "disk": disk_state(),
             "backups": backups, "offsite": offsite_state(), "restore": restore,
             "cron_known": cron_known,
+            "unknown_cron": unknown_scheduled(cron_text) if cron_known else [],
             "missing": [(j["name"], j["cron_line"]) for j in jobs if not j["scheduled"]]}
 
 
@@ -475,7 +695,9 @@ def checks_from(snap):
                                (" — " + j["detail"]) if j["detail"] else "")
         if j["status"] == "not_scheduled":
             detail += ". Add: " + j["cron_line"]
-        out.append(("job:" + j["name"], bad, detail[:300], 1))
+        # one slow run can be a blip: alert when two checks in a row see it
+        need = 2 if j["status"] == "slow" else 1
+        out.append(("job:" + j["name"], bad, detail[:300], need))
     for s in snap["services"]:
         if s["status"] == "absent":
             continue

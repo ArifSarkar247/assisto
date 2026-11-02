@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/circle_people_filter.dart'; // circlea
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -173,7 +174,8 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
               ),
             ],
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-              for (final p in widget.people)
+              for (final (_, rs) in sectionPeople(widget.people)) // circlea: Family first
+                for (final p in rs)
                 ChoiceChip(
                   key: ValueKey('gj_person_${p['member_id']}'),
                   label: Text('${p['name'] ?? ''}'),

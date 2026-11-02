@@ -104,6 +104,11 @@ def _lines_out(lines):
              "pct": ln["pct"], "state": ln["state"]} for ln in lines]
 
 
+def _senders_out(rows):
+    return [{"name": r["name"], "member_id": r["member_id"], "total": L.p2s(r["total_p"]),
+             "count": r["count"], "pct": r["pct"]} for r in rows]
+
+
 def _bills_out(bills, month):
     return [{**b, "paid": month in (b.get("paid_months") or [])} for b in bills]
 
@@ -132,6 +137,8 @@ def _month_card(user, month, lang, mark_alert=False):
         "month": month,
         "received": L.p2s(received), "count": len(entries),
         "entries": entries,
+        # remhbud: who sent how much this month (real entries only; % adds to 100)
+        "by_sender": _senders_out(L.sender_shares(entries)),
         "expected": {"taka": L.p2s(exp_p), "day": exp_day,
                      "sender": pd.get("expected_sender", ""), "status": status,
                      "due_date": L.due_date(month, exp_day).isoformat() if exp_day else None,
@@ -356,7 +363,8 @@ class ReportView(_Gated):
         if card["goal"]:
             goal = {"title": card["goal"]["title"], "target_p": to_poisha(card["goal"]["target"]),
                     "saved_p": to_poisha(card["goal"]["saved"])}
-        text = L.report_text(lang, month, to_poisha(card["received"]), card["count"], lines, goal)
+        text = L.report_text(lang, month, to_poisha(card["received"]), card["count"], lines, goal,
+                             senders=L.sender_shares(card["entries"]))
         return Response({"month": month, "lang": lang, "text": text,
                          "received": card["received"], "spent": card["plan"]["spent"],
                          "left": card["plan"]["left"]})
@@ -374,8 +382,10 @@ class YearView(_Gated):
         return Response({
             "year": year, "total": L.p2s(v["total_p"]), "count": v["count"],
             "months": [L.p2s(x) for x in v["months_p"]],
-            "by_sender": [{"name": r["name"], "total": L.p2s(r["total_p"]), "count": r["count"]}
-                          for r in v["by_sender"]],
+            # remhbud: one row per person (My Circle member or typed name) with
+            # the share of the year in whole percents that add up to 100
+            "by_sender": _senders_out(L.sender_shares(
+                [e for e in entries if str(e.get("received_on", ""))[:4] == str(year)])),
             "by_channel": [{"key": r["key"], "total": L.p2s(r["total_p"]), "count": r["count"]}
                            for r in v["by_channel"]],
             "savings": L.p2s(v["savings_p"]), "avg_month": L.p2s(v["avg_month_p"]),
@@ -395,14 +405,17 @@ class ExportView(_Gated):
         entries = S.decrypted_entries(request.user)
         p = S.profile(request.user)
         pd = S.profile_data(p)
+        entries.sort(key=lambda e: (e["received_on"], e["id"]))
         if fmt == "txt":
             out = [pick(lang, "Assisto — বাজেট ও রেমিট্যান্স (আপনার সব তথ্য)",
                         "Assisto — Budget and Remittance (all your data)"), ""]
             for e in entries:
-                out.append("%s  %s %s  x %s = %s  %s  %s  %s" % (
-                    e["received_on"], e["amount"], e["currency"], e["rate"],
-                    L.taka(lang, to_poisha(e["taka"])),
-                    L.label(lang, L.CHANNEL_LABELS, e["channel"]), e["sender_name"], e["note"]))
+                got = L.taka(lang, to_poisha(e["taka"]))
+                if e["currency"] != "BDT":   # remhbud: "x rate =" only when converted
+                    got = "%s %s x %s = %s" % (e["amount"], e["currency"], e["rate"], got)
+                out.append("  ".join(x for x in (
+                    e["received_on"], got, L.label(lang, L.CHANNEL_LABELS, e["channel"]),
+                    e["sender_name"], e["note"]) if x))
             out.append("")
             out.append(pick(lang, "প্রত্যাশিত মাসিক টাকা: ", "Expected each month: ")
                        + L.taka(lang, to_poisha(pd.get("expected_taka"))))
@@ -421,12 +434,20 @@ class ExportView(_Gated):
         w.writerow(["date", "amount", "currency", "rate", "taka", "channel", "sender", "note", "source"])
         for e in entries:
             w.writerow([e["received_on"], e["amount"], e["currency"], e["rate"], e["taka"],
-                        e["channel"], e["sender_name"], e["note"], e["source"]])
+                        e["channel"], _cell(e["sender_name"]), _cell(e["note"]), e["source"]])
         if request.query_params.get("as") == "json":
             return Response({"filename": "assisto-remittance.csv", "text": buf.getvalue()})
         resp = HttpResponse(buf.getvalue(), content_type="text/csv; charset=utf-8")
         resp["Content-Disposition"] = 'attachment; filename="assisto-remittance.csv"'
         return resp
+
+
+def _cell(v):
+    """remhbud: a typed name/note that starts like a formula (=, +, -, @) is
+    prefixed with ' so Excel / Sheets show it as text and never run it
+    (CSV injection)."""
+    s = str(v or "")
+    return "'" + s if s[:1] in ("=", "+", "-", "@", "\t", "\r") else s
 
 
 class DeleteAllView(_Gated):

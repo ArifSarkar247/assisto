@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -6,6 +7,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/official_prices.dart'; // moneybar: TCB official prices
 
 /// MARKET PRICE RADAR — ADVANCED (#34, SPEC v2.1 §21).
 ///
@@ -74,6 +76,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
   List<Map<String, dynamic>> _logs = [];
   bool _loading = true, _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
+  OfficialPrices? _official; // moneybar: null = could not load (card says so)
 
   @override
   void initState() {
@@ -87,12 +90,18 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       _error = false;
     });
     final api = context.read<AppState>().api;
+    // moneybar: the official list is best-effort and never blocks the radar
+    final official = api
+        .officialPrices()
+        .then<OfficialPrices?>(OfficialPrices.fromJson)
+        .catchError((Object _) => null);
     try {
       _logs = await api.listItems(_logsPath);
     } catch (e) {
       _error = true;
       _failCause = e;
     }
+    _official = await official;
     if (mounted) setState(() => _loading = false);
   }
 
@@ -147,6 +156,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -185,25 +195,32 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
               label: Text(tr.priceLogPrice),
             ),
       body: _logs.isEmpty
-          ? StateMessage(
-              icon: Icons.storefront_rounded,
-              title: tr.priceWelcomeTitle,
-              message: tr.priceWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _add(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.priceLogPrice),
-              ),
+          ? ListView(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              children: [
+                // moneybar: official TCB prices are useful before any own log
+                OfficialPricesCard(data: _official),
+                StateMessage(
+                  icon: Icons.storefront_rounded,
+                  title: tr.priceWelcomeTitle,
+                  message: tr.priceWelcomeBody,
+                  action: FilledButton.icon(
+                    onPressed: () => _add(),
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(tr.priceLogPrice),
+                  ),
+                ),
+              ],
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
               children: [
+                OfficialPricesCard(data: _official),
+                const SizedBox(height: Gap.md),
                 _manualNote(context, tr),
                 const SizedBox(height: Gap.md),
                 ...radar.items
                     .map((i) => _itemCard(context, tr, i, _add, _edit, _delete)),
-                const SizedBox(height: Gap.md),
-                _feedSeamCard(context, tr),
               ],
             ),
     );
@@ -268,8 +285,16 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
             _stat(context, tr.priceStatHigh, item.highDisplay),
             _stat(context, tr.priceStatLow, item.lowDisplay),
             _stat(context, tr.priceStatAvg, item.avgDisplay),
-            _stat(context, tr.priceStatLogs, item.count.toString()),
+            _stat(context, tr.priceStatLogs, moneyDigits(item.count.toString())),
           ]),
+          // moneybar: TCB's official Dhaka range for the same item, if any
+          if (_official?.match(item.item) case final OfficialItem o) ...[
+            const SizedBox(height: Gap.sm),
+            Text(mbOfficialLine(context, o),
+                key: ValueKey('mb-official-match-${item.item}'),
+                style: AType.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
+          ],
           if (item.mixedUnits) ...[
             const SizedBox(height: Gap.sm),
             Text(tr.priceMixedUnitsWarn,
@@ -283,7 +308,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
                     size: 18, color: scheme.onSurfaceVariant),
                 title: Text(l.priceDisplay,
                     style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text(_logSubtitle(tr, l)),
+                subtitle: Text(_logSubtitle(context, tr, l)),
                 trailing: PopupMenuButton<String>(
                   onSelected: (v) {
                     if (v == 'edit') onEdit(l.raw);
@@ -316,7 +341,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           Icon(up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
               size: 13, color: color),
           const SizedBox(width: 3),
-          Text('${item.changePct.abs().toStringAsFixed(1)}%',
+          Text(moneyDigits('${item.changePct.abs().toStringAsFixed(1)}%'),
               style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
         ]),
       ),
@@ -338,33 +363,11 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       ]),
     );
   }
-
-  Widget _feedSeamCard(BuildContext context, AppLocalizations tr) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(Icons.sensors_rounded, size: 20, color: scheme.primary),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: Text(tr.priceFeedSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
-            ),
-          ]),
-          const SizedBox(height: 6),
-          Text(tr.priceFeedSeamBody,
-              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
-        ]),
-      ),
-    );
-  }
 }
 
-String _logSubtitle(AppLocalizations tr, _RLog l) {
-  final date = l.date.isEmpty ? tr.priceNoDate : l.date;
+String _logSubtitle(BuildContext context, AppLocalizations tr, _RLog l) {
+  // moneybar: localized date with Bangla digits (was raw YYYY-MM-DD)
+  final date = l.date.isEmpty ? tr.priceNoDate : officialDate(context, l.date);
   if (l.market.isNotEmpty) {
     return tr.priceLogAtMarket(date, l.market);
   }
@@ -617,7 +620,7 @@ class _RMath {
     poisha = poisha.abs();
     final taka = poisha ~/ 100;
     final paisa = poisha % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   static double _pctChange(int? old, int newv) {

@@ -271,7 +271,28 @@ List<Map<String, dynamic>> rmList(Object? v) =>
 
 Map<String, dynamic> rmMap(Object? v) => v is Map ? v.cast<String, dynamic>() : <String, dynamic>{};
 
-double rmNum(Object? v) => double.tryParse('${v ?? ''}'.replaceAll(',', '')) ?? 0;
+double rmNum(Object? v) => double.tryParse(rmAscii('${v ?? ''}')) ?? 0;
+
+/// remhbud: a typed number -> plain ASCII for parsing and for the server
+/// (Bangla "5,000" -> "5000"): Bangla digits become 0-9, grouping commas go.
+String rmAscii(String s) {
+  final b = StringBuffer();
+  for (final c in s.trim().codeUnits) {
+    if (c >= 0x09E6 && c <= 0x09EF) {
+      b.writeCharCode(0x30 + c - 0x09E6);
+    } else if (c != 0x2C) {
+      b.writeCharCode(c);
+    }
+  }
+  return b.toString();
+}
+
+/// remhbud: "now" on the Asia/Dhaka wall clock (UTC+6, no DST) — the
+/// server's month boundaries — even if the phone's time zone is elsewhere.
+DateTime rmDhakaNow([DateTime? at]) {
+  final u = (at ?? DateTime.now()).toUtc().add(const Duration(hours: 6));
+  return DateTime(u.year, u.month, u.day, u.hour, u.minute, u.second);
+}
 
 String rmIsoDay(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

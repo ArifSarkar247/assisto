@@ -62,7 +62,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
           lossReason: lossReason);
       _load();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }
 

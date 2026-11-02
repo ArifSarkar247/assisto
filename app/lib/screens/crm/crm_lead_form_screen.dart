@@ -98,7 +98,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
       // plans-v2: view-only / contact limit -> the honest upgrade sheet
       if (await UpgradeSheet.handle(context, e)) return;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
       }
     }
   }
@@ -167,7 +167,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
       }
     }
   }

@@ -374,7 +374,7 @@ void main() {
       await tester.pumpWidget(_app(RemittanceScreen(source: f, now: _now)));
       await _settle(tester);
       expect(find.text(en.rmtGuideTitle), findsOneWidget);
-      expect(find.text(en.rmtEmptyMonth), findsOneWidget);
+      expect(find.byKey(const ValueKey('rhb_month_empty')), findsOneWidget); // remhbud: benefit + button + how-to
       await tester.tap(find.text(en.rmtGotIt));
       await _settle(tester);
       expect(find.text(en.rmtGuideTitle), findsNothing);
@@ -400,9 +400,11 @@ void main() {
       final f = FakeRemit('data');
       await tester.pumpWidget(_app(RemittanceScreen(source: f, guide: false, now: _now)));
       await _settle(tester);
-      expect(find.text('Karim'), findsOneWidget);
+      // remhbud: Karim is in "who sent this month" AND in the list
+      expect(find.text('Karim'), findsNWidgets(2));
       expect(find.textContaining(en.rmtForeignLine('500', 'SAR', '32.5')), findsOneWidget);
-      await tester.tap(find.text('Karim'));
+      await tester.ensureVisible(find.text('Karim').last);
+      await tester.tap(find.text('Karim').last);
       await _settle(tester);
       expect(find.text(en.rmtEditEntryTitle), findsOneWidget);
       expect(find.text(en.rmtDeleteEntry), findsOneWidget);

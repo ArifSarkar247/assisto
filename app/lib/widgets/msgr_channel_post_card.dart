@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'msgr_channel_common.dart';
+import '../messaging/channel_link.dart'; // circlea
+import '../messaging/link_open.dart'; // circlea
+import '../messaging/linkify.dart'; // circlea
 
 /// Assisto Messenger — a single CHANNEL POST card (Step 3).
 ///
@@ -82,8 +85,15 @@ class MsgrChannelPostCard extends StatelessWidget {
             if (text.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Text(text,
-                    style: Theme.of(context).textTheme.bodyLarge),
+                // circlea: links tappable, server safe-link check (not E2E)
+                child: LinkifiedText(text,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    serverCheck: (u) => channelLinkCheck(context, u)),
+              ),
+            if (kind != 'link' && firstLink(text) != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: ChannelLinkPreview(url: firstLink(text)!),
               ),
             _media(context, kind),
             if (kind == 'poll' && post['poll'] is Map)
@@ -121,7 +131,26 @@ class MsgrChannelPostCard extends StatelessWidget {
     if (kind == 'link') {
       final url = '${post['link_url'] ?? ''}';
       if (url.isEmpty) return const SizedBox.shrink();
-      return Container(
+      // circlea: tappable (safe-link check first) + the server-built preview
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        ChannelLinkPreview(url: url),
+        const SizedBox(height: Gap.xs),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            key: const Key('cla-channel-link'),
+            borderRadius: BorderRadius.circular(Radii.sm),
+            onTap: () => openLinkSafely(context, url,
+                serverCheck: (u) => channelLinkCheck(context, u)),
+            child: _linkBox(cs, url),
+          ),
+        ),
+      ]);
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _linkBox(ColorScheme cs, String url) => Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           color: cs.surfaceContainerHighest,
@@ -137,9 +166,6 @@ class MsgrChannelPostCard extends StatelessWidget {
           ],
         ),
       );
-    }
-    return const SizedBox.shrink();
-  }
 
   Widget _poll(BuildContext context, Map<String, dynamic> poll) {
     final t = AppLocalizations.of(context);

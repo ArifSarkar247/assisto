@@ -7,6 +7,8 @@ import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 import 'sale_void_dialog.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../messaging/date_separators.dart' show localDigits; // bizbar
+import '../../services/action_feedback.dart' show showNeedInput;
 
 /// Quick sell (§3): tap a product → cart → qty / price → payment → done.
 ///
@@ -146,8 +148,22 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       await _load();
       if (mounted) {
         final t = AppLocalizations.of(context);
+        // bizbar: the server says which items just ran low — it used to be
+        // dropped; now the seller hears it right after the sale
+        final low = ((res['low_stock'] ?? const []) as List)
+            .whereType<Map>()
+            .where((d) => d['low_stock'] == true)
+            .toList();
+        final lang = Localizations.localeOf(context).languageCode;
+        final lowText = low
+            .map((d) => t.bbLowAfterSaleItem('${d['product_name'] ?? ''}',
+                localDigits('${d['new_stock'] ?? 0}', lang)))
+            .join(', ');
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(t.biz_sale_done, style: const TextStyle(color: Colors.white)),
+          duration: Duration(seconds: low.isEmpty ? 4 : 8),
+          content: Text(
+              low.isEmpty ? t.biz_sale_done : '${t.biz_sale_done} · ${t.bbLowAfterSale(lowText)}',
+              style: const TextStyle(color: Colors.white)),
           backgroundColor: Brand.successFill,
         ));
       }
@@ -289,7 +305,8 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
             padding: const EdgeInsets.all(Gap.lg),
             child: Row(children: [
               Badge(
-                label: Text('$count'),
+                label: Text(localDigits(
+                    '$count', Localizations.localeOf(context).languageCode)),
                 child: const Icon(Icons.shopping_cart_rounded),
               ),
               const SizedBox(width: Gap.md),
@@ -433,7 +450,8 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
-        child: Text('$qty',
+        child: Text(
+            localDigits('$qty', Localizations.localeOf(context).languageCode),
             style: AType.titleMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
       ),
       IconButton.filledTonal(
@@ -468,7 +486,7 @@ class _VariantPicker extends StatelessWidget {
               (v['size'] ?? '').toString(),
               (v['colour'] ?? '').toString()
             ].where((s) => s.isNotEmpty).join(' / ')),
-            subtitle: Text('${t.biz_stock}: ${v['stock'] ?? 0}'),
+            subtitle: Text('${t.biz_stock}: ${localDigits('${v['stock'] ?? 0}', Localizations.localeOf(context).languageCode)}'),
             trailing: Text(
                 poishaOf(v['sell_price'] ?? v['price']).takaIn(context),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -562,10 +580,30 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
   int _discountClampNotice = 0; // 0 none, 1 clamped
   bool _busy = false;
 
-  int get _total => poishaOf(widget.cart['total'] ?? widget.cart['subtotal']);
+  final _custName = TextEditingController();
+  final _custPhone = TextEditingController();
+  // bizbar: the discount the server actually allows (clamped to the floor),
+  // for the text it was previewed with
+  int? _previewDisc;
+  String _previewFor = '';
+
+  int get _subtotal =>
+      poishaOf(widget.cart['subtotal'] ?? widget.cart['total']);
+  int get _disc {
+    if (_previewDisc != null && _previewFor == _discount.text) {
+      return _previewDisc!;
+    }
+    final v = parseTaka(_discount.text);
+    final d = v == null ? 0 : takaToPoisha(v);
+    return d.clamp(0, _subtotal);
+  }
+
+  int get _total => _subtotal - _disc;
   int get _paidPoisha {
+    if (_method == 'due') return 0;
     final v = parseTaka(_paid.text);
-    return v == null ? 0 : takaToPoisha(v);
+    // empty = exact cash (no need to type the total on every sale)
+    return v == null ? _total : takaToPoisha(v);
   }
 
   int get _change => (_paidPoisha - _total).clamp(0, 1 << 62);
@@ -575,17 +613,25 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
   void dispose() {
     _paid.dispose();
     _discount.dispose();
+    _custName.dispose();
+    _custPhone.dispose();
     super.dispose();
   }
 
   Future<void> _previewDiscount() async {
     final amt = parseTaka(_discount.text);
-    if (amt == null) return;
+    if (amt == null) {
+      showNeedInput(context); // empty/invalid amount: say so, never a dead tap
+      return;
+    }
     try {
       final res = await sellApi(context)
           .cartDiscountPreview(cart: widget.cart, amountTaka: amt);
-      setState(() => _discountClampNotice =
-          (res['discount_clamped'] == true) ? 1 : 0);
+      setState(() {
+        _discountClampNotice = (res['discount_clamped'] == true) ? 1 : 0;
+        _previewDisc = poishaOf(res['discount']);
+        _previewFor = _discount.text;
+      });
     } catch (e) {
       if (mounted) showApiError(context, e);
     }
@@ -598,6 +644,13 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
           .showSnackBar(SnackBar(content: Text(t.biz_short_payment)));
       return;
     }
+    if (_method == 'due' &&
+        _custName.text.trim().isEmpty &&
+        _custPhone.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.bbDueNeedsCustomer)));
+      return;
+    }
     setState(() => _busy = true);
     try {
       final disc = parseTaka(_discount.text);
@@ -607,6 +660,8 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
         paymentMethod: _method,
         paidTaka: _method == 'due' ? null : parseTaka(_paid.text),
         discountTaka: disc,
+        customerName: _method == 'due' ? _custName.text.trim() : null,
+        customerPhone: _method == 'due' ? _custPhone.text.trim() : null,
       );
       if (!mounted) return;
       // the host (navigator) context outlives this sheet, for the void dialog
@@ -724,7 +779,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
             MoneyField(
               controller: _discount,
               label: t.biz_discount,
-              onChanged: (_) => _discountClampNotice = 0,
+              onChanged: (_) => setState(() => _discountClampNotice = 0),
             ),
             TextButton(
                 onPressed: _previewDiscount, child: Text(t.biz_discount)),
@@ -749,11 +804,40 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 label: t.biz_paid,
                 onChanged: (_) => setState(() {}),
               ),
+            if (_method != 'due' && _paid.text.trim().isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(t.bbPaidEmptyIsExact,
+                    style: AType.bodySmall
+                        .copyWith(color: scheme.onSurfaceVariant)),
+              ),
+            if (_method == 'due') ...[
+              // bizbar: a due sale goes to THIS customer's khata page
+              Text(t.bbDueWho, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: Gap.sm),
+              TextField(
+                key: const ValueKey('bb-due-name'),
+                controller: _custName,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                    labelText: t.name,
+                    prefixIcon: const Icon(Icons.person_outline_rounded)),
+              ),
+              const SizedBox(height: Gap.sm),
+              TextField(
+                key: const ValueKey('bb-due-phone'),
+                controller: _custPhone,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                    labelText: t.phone,
+                    prefixIcon: const Icon(Icons.call_rounded)),
+              ),
+            ],
             const SizedBox(height: Gap.lg),
             SellCard(
               child: Column(children: [
-                MoneyRow(t.biz_subtotal,
-                    poishaOf(widget.cart['subtotal'] ?? widget.cart['total'])),
+                MoneyRow(t.biz_subtotal, _subtotal),
+                if (_disc > 0) MoneyRow(t.biz_discount, _disc),
                 const Divider(),
                 MoneyRow(t.biz_total, _total, strong: true),
                 if (_method != 'due')

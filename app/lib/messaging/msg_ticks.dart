@@ -56,7 +56,7 @@ IconData tickIcon(MsgTick t) {
 /// order 22 Oct: on the old brand-blue bubble a blue ✓✓ was invisible).
 /// WCAG (checked): light bubble #D9FDD3 — text #0B141A 16.8:1, grey ticks /
 /// time #5B6B63 5.1:1, read ticks #0E86D4 3.5:1; dark bubble #005C4B — text
-/// #E9EDEF 6.8:1, grey #AEBAC1 4.0:1, read #34B7F1 3.5:1. On plain surfaces
+/// #E9EDEF 6.8:1, grey #C0CACF 4.8:1 (small time text needs 4.5), read #34B7F1 3.5:1. On plain surfaces
 /// (chat list, group cards, Message info) read is #0E86D4 (3.9:1 on white)
 /// / #34B7F1 (8.2:1 on dark). Grey vs bright blue also differs in HUE, so the
 /// three states never look alike.
@@ -67,7 +67,7 @@ class MsgPalette {
   static const outLightMeta = Color(0xFF5B6B63);
   static const outDark = Color(0xFF005C4B);
   static const outDarkText = Color(0xFFE9EDEF);
-  static const outDarkMeta = Color(0xFFAEBAC1);
+  static const outDarkMeta = Color(0xFFC0CACF);
   static const readLight = Color(0xFF0E86D4);
   static const readDark = Color(0xFF34B7F1);
 

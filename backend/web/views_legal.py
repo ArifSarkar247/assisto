@@ -9,7 +9,7 @@ import os
 import re
 
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
@@ -75,40 +75,41 @@ APP_ADS_LINE = "google.com, {pub}, DIRECT, f08c47fec0942fa0"
 
 
 def admob_publisher_id():
-    """pub-XXXXXXXXXXXXXXXX or ''. Order: ADMOB_PUBLISHER_ID (settings/env) ->
-    the owner panel's AdMob integration (`publisher_id`, else derived from
-    the saved REAL App ID ca-app-pub-XXXXXXXXXXXXXXXX~NNNN). Google's public
-    test publisher is never served."""
-    cands = [getattr(settings, "ADMOB_PUBLISHER_ID", "") or os.getenv("ADMOB_PUBLISHER_ID", "")]
+    """pub-XXXXXXXXXXXXXXXX or ''. admobump (owner 2 Nov): ONLY from stored
+    config, never from git. Order: Owner Admin -> Integrations -> Google
+    AdMob `publisher_id` -> derived from the REAL App ID saved there
+    (ca-app-pub-XXXXXXXXXXXXXXXX~NNNN) -> ADMOB_PUBLISHER_ID (server env /
+    settings). Google's public test publisher is never served."""
+    cands = []
     try:
         from core import integrations
         cfg = integrations.get("admob") or {}
         cands += [cfg.get("publisher_id", ""), cfg.get("app_id", "")]
     except Exception:
         pass
+    cands.append(getattr(settings, "ADMOB_PUBLISHER_ID", "") or os.getenv("ADMOB_PUBLISHER_ID", ""))
     for raw in cands:
         m = _PUB_RE.search(str(raw or "").strip())
         if m and m.group(1) != "pub-3940256099942544":   # Google's sample/test publisher
             return m.group(1)
-    # admob (owner 25 Oct): Assisto's own AdMob account (the App ID in the
-    # APK manifest belongs to it), so the file is never empty.
-    from core.logic.ads import OWNER_PUBLISHER
-    return OWNER_PUBLISHER
+    return ""
 
 
 def app_ads_txt(request):
+    """lifeassisto.com/app-ads.txt (nginx proxies every path to Django).
+    text/plain, short cache. No publisher id stored -> 404 (not an empty
+    file), so AdMob reports "not found" instead of a silently empty list."""
     pub = admob_publisher_id()
-    if pub:
-        body = ("# app-ads.txt for lifeassisto.com (Assisto)\n"
-                + APP_ADS_LINE.format(pub=pub) + "\n")
-    else:
-        # Honest placeholder: comment lines only = a valid file that
-        # authorises no seller. AdMob shows "not verified" until the owner
-        # sets the publisher id; ads still serve meanwhile.
-        body = ("# app-ads.txt for lifeassisto.com (Assisto)\n"
-                "# AdMob publisher ID not configured yet.\n")
+    if not pub:
+        resp = HttpResponseNotFound("app-ads.txt: AdMob publisher ID not configured\n",
+                                    content_type="text/plain; charset=utf-8")
+        resp["Cache-Control"] = "no-store"
+        return resp
+    body = ("# app-ads.txt for lifeassisto.com (Assisto)\n"
+            + APP_ADS_LINE.format(pub=pub) + "\n")
     resp = HttpResponse(body, content_type="text/plain; charset=utf-8")
-    resp["Cache-Control"] = "public, max-age=3600"
+    # short: a publisher id changed in Owner Admin shows within 10 minutes
+    resp["Cache-Control"] = "public, max-age=600"
     return resp
 
 

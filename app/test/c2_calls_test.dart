@@ -282,7 +282,7 @@ void main() {
           containsAllInOrder(
               ['muted:true', 'speaker:false', 'camera:false', 'switch']));
       expect(s.signals.last.$1, 'media');
-      expect(s.signals.last.$2, {'camera': false, 'mic': false, 'video': true});
+      expect(s.signals.last.$2, {'camera': false, 'mic': false, 'video': true, 'low_data': false, 'net_paused': false});
       expect(c.frontCamera, isFalse);
       s.remoteSignal('media', {'camera': false});
       await settle();

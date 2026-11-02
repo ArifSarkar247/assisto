@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../widgets/circle_people_filter.dart'; // circlea
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -425,6 +426,18 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
     final scheme = Theme.of(context).colorScheme;
     final accepted = p['accepted'] == true;
     final enabled = p['enabled'] == true;
+    // circlea: a co-guardian sees the plan read-only (the parent who set it
+    // up edits / removes it); everyone sees who else watches.
+    final mine = p['mine'] != false;
+    final watchers = [
+      for (final w in (p['watchers'] as List? ?? const []))
+        if (w is Map && '${w['name'] ?? ''}'.trim().isNotEmpty) '${w['name']}'.trim()
+    ];
+    final owners = [
+      for (final w in (p['watchers'] as List? ?? const []))
+        if (w is Map && w['owner'] == true) '${w['name'] ?? ''}'.trim()
+    ];
+    final ownerName = owners.isEmpty ? '' : owners.first;
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
@@ -441,20 +454,33 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
               : (accepted ? t.kwPlanActivePhone : t.kwPlanWaitingChild),
               style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           if (enabled && accepted) _todayLine(t, p),
+          if (watchers.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Text(t.cgaSeenBy(watchers.join(', ')),
+                key: ValueKey('cga-plan-watchers-${p['id']}'),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+          if (!mine && ownerName.isNotEmpty) ...[
+            const SizedBox(height: Gap.xxs),
+            Text(t.cgaSetUpBy(ownerName),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            OutlinedButton.icon(
-                onPressed: () => _plan(p),
-                icon: const Icon(Icons.edit_rounded),
-                label: Text(t.kwEditSchoolMode)),
+            if (mine)
+              OutlinedButton.icon(
+                  onPressed: () => _plan(p),
+                  icon: const Icon(Icons.edit_rounded),
+                  label: Text(t.kwEditSchoolMode)),
             OutlinedButton.icon(
                 onPressed: () => showSchoolEvents(context, p),
                 icon: const Icon(Icons.history_rounded),
                 label: Text(t.kwHistory)),
-            TextButton.icon(
-                onPressed: () => _deletePlan(p),
-                icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
-                label: Text(t.kwRemove, style: TextStyle(color: scheme.error))),
+            if (mine)
+              TextButton.icon(
+                  onPressed: () => _deletePlan(p),
+                  icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
+                  label: Text(t.kwRemove, style: TextStyle(color: scheme.error))),
           ]),
         ]),
       ),
@@ -612,8 +638,11 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         if (_people.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
           Text(t.kwWhoElseSees, style: AType.titleSmall),
-          for (final p in _people)
-            CheckboxListTile(
+          // circlea: Family first + chips/search
+          CirclePeopleList(
+            listKey: 'pick-kidswatch',
+            rows: _people,
+            rowBuilder: (_, p) => CheckboxListTile(
               value: _guardians.contains(p['id']),
               title: Text('${p['name']}'),
               onChanged: (v) => setState(() {
@@ -624,6 +653,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
                 }
               }),
             ),
+          ),
         ],
         if (_error.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),

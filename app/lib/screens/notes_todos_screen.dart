@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
-import '../ads/ad_placements.dart' show AdMoments;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
@@ -12,6 +10,7 @@ import '../widgets/rem_notes.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/fam_empty.dart' show FamEmptyState; // remnotes
 import '../widgets/rn_bits.dart';
+import '../services/bangla_calendar.dart' show asciiDigits; // remhbar
 
 /// Advanced Notes + To-Do (#22, SPEC v2.1 §21).
 ///
@@ -33,7 +32,6 @@ class NotesTodosScreen extends StatelessWidget {
       initialIndex: initialIndex.clamp(0, 1),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-        bottomNavigationBar: const AdBannerSlot(screen: 'notes_todos'),
         appBar: AppBar(
           title: Text(t.notesTitle),
           bottom: TabBar(tabs: [
@@ -92,8 +90,14 @@ class _NotesTabState extends State<_NotesTab> {
         hay.write(' ${(c['text'] ?? '').toString().toLowerCase()}');
       }
     }
-    final text = hay.toString();
-    return q
+    if (d['attachments'] is List) {
+      for (final a in d['attachments'] as List) {
+        if (a is Map) hay.write(' ${(a['title'] ?? '').toString().toLowerCase()}');
+      }
+    }
+    // remhbar: "500" finds the same number in Bangla digits and the other way round
+    final text = asciiDigits(hay.toString());
+    return asciiDigits(q)
         .toLowerCase()
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
@@ -104,13 +108,14 @@ class _NotesTabState extends State<_NotesTab> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
-    final all = [...app.notes.items];
-    // pinned first, then most-recent-created (localId is time-prefixed) stable.
-    all.sort((a, b) {
-      final pa = (a['data']['pinned'] == true) ? 0 : 1;
-      final pb = (b['data']['pinned'] == true) ? 0 : 1;
-      return pa.compareTo(pb);
-    });
+    // pinned first, otherwise the repo's order (most recently changed).
+    // remhbar: List.sort is NOT stable — with 30+ notes the old one-key sort
+    // shuffled the unpinned notes on every rebuild. Two passes keep order.
+    bool pinnedOf(Map<String, dynamic> it) => it['data']['pinned'] == true;
+    final all = [
+      ...app.notes.items.where(pinnedOf),
+      ...app.notes.items.where((it) => !pinnedOf(it)),
+    ];
     // remnotes: every label in use, for the one-tap filter row
     final labels = <String>{
       for (final it in all)
@@ -136,6 +141,7 @@ class _NotesTabState extends State<_NotesTab> {
               child: const Icon(Icons.add_rounded)),
       body: Column(children: [
         SyncRefusalStrip(message: app.notes.refusal),
+        SyncConflictStrip(count: app.notes.conflicts), // remhbar
         if (all.isNotEmpty) _SearchBar(controller: _search, onChanged: (v) => setState(() => _query = v)),
         if (labels.isNotEmpty)
           // grows with the text size (200% never clips a chip)
@@ -528,9 +534,8 @@ class _TodoTile extends StatelessWidget {
         } else {
           app.todos.update(item, {'done': v ?? false});
         }
-        // admob: finishing a task (one-off or one round of a repeating one) is
-        // the single natural break here — one call site (Free only, capped)
-        if (v == true) AdMoments.report('task_done');
+        // OWNER ADS FINAL (2 Nov): notes / tasks are on the never list —
+        // finishing a task shows no ad
       },
       title: Text((d['title'] ?? '').toString(),
           style: done

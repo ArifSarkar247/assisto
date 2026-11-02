@@ -1,0 +1,127 @@
+{
+  "_comment": "remhbud (board group 13, budget & remittance): all keys NEW. Integrator: bin/arb_apply.py .phaseB/up_remhbud_arb.json",
+  "en": {
+    "rhbGoalWhy": "A goal turns this month's leftover money into real savings you can watch grow.",
+    "rhbGoalCreate": "Set a savings goal",
+    "rhbErrCategory": "Pick a category or type one.",
+    "rhbErrLimit": "Enter an amount more than 0.",
+    "rhbErrGoalTitle": "Write what you are saving for.",
+    "rhbCategoryOther": "Or type another category",
+    "rhbCategoryHelp": "Pick one you already use on expenses so the spending is counted.",
+    "rhbTemplateHow": "This is a guide only — nothing is created. Set a limit for each category with + on the Budget page.",
+    "rhbBudgetHow1": "Tap \"Add your first budget\" and pick a category, like Food.",
+    "rhbBudgetHow2": "Write the most you want to spend on it this month.",
+    "rhbBudgetHow3": "Write your expenses as usual — the bar fills from your real spending and turns orange at 80%.",
+    "rhbHistoryEmpty": "No budget in {month}",
+    "@rhbHistoryEmpty": {
+      "placeholders": {
+        "month": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbSuggestionUsed": "{category} budget set to {amount} a month",
+    "@rhbSuggestionUsed": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        },
+        "amount": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbPlanEmpty": "Suggestions come from your real spending. Write your expenses for a month or two and they will appear here.",
+    "rhbConvLine": "{amount} {currency} × {rate} = {taka}",
+    "@rhbConvLine": {
+      "placeholders": {
+        "amount": {
+          "type": "String"
+        },
+        "currency": {
+          "type": "String"
+        },
+        "rate": {
+          "type": "String"
+        },
+        "taka": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbConvYours": "You received {taka} — this amount is saved.",
+    "@rhbConvYours": {
+      "placeholders": {
+        "taka": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbConvEffective": "That is {rate} taka for each one.",
+    "@rhbConvEffective": {
+      "placeholders": {
+        "rate": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbConvHonest": "Uses the rate you typed from your receipt. We never fetch or show a live or official rate.",
+    "rhbMonthEmptyTitle": "Nothing written for {month} yet",
+    "@rhbMonthEmptyTitle": {
+      "placeholders": {
+        "month": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbMonthBenefit": "Write each money that comes from abroad and see who sent how much, where it went and what is left.",
+    "rhbMonthHow1": "Tap \"Money came\" (or say it in one line below).",
+    "rhbMonthHow2": "Write the amount, the rate you got and who sent it — pick them from My Circle.",
+    "rhbMonthHow3": "Write the family's spending on the Budget tab; the report for the sender fills in by itself.",
+    "rhbShareA11y": "{name}: {taka}, {pct} percent, {count} times",
+    "@rhbShareA11y": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "taka": {
+          "type": "String"
+        },
+        "pct": {
+          "type": "String"
+        },
+        "count": {
+          "type": "String"
+        }
+      }
+    },
+    "rhbWhoSentMonth": "Who sent how much this month"
+  },
+  "bn": {
+    "rhbGoalWhy": "লক্ষ্য ঠিক করলে মাসের বেঁচে যাওয়া টাকা আসল সঞ্চয় হয় — কতটা জমল চোখে দেখবেন।",
+    "rhbGoalCreate": "সঞ্চয়-লক্ষ্য ঠিক করুন",
+    "rhbErrCategory": "একটা খাত বেছে নিন বা লিখুন।",
+    "rhbErrLimit": "০-এর বেশি পরিমাণ লিখুন।",
+    "rhbErrGoalTitle": "কীসের জন্য জমাচ্ছেন লিখুন।",
+    "rhbCategoryOther": "অথবা অন্য খাতের নাম লিখুন",
+    "rhbCategoryHelp": "খরচ লেখার সময় যে খাত ব্যবহার করেন সেটাই বাছুন, তাহলে খরচ ঠিকমতো গোনা হবে।",
+    "rhbTemplateHow": "এটা শুধু একটা গাইড — নিজে থেকে কিছু তৈরি হয় না। বাজেট পাতায় + চেপে প্রতিটি খাতের সীমা দিন।",
+    "rhbBudgetHow1": "\"প্রথম বাজেট যোগ করুন\" চেপে একটা খাত বাছুন, যেমন খাবার।",
+    "rhbBudgetHow2": "এ মাসে ওই খাতে সর্বোচ্চ কত খরচ করতে চান লিখুন।",
+    "rhbBudgetHow3": "আগের মতো খরচ লিখুন — আপনার আসল খরচ থেকে দাগ ভরবে, ৮০%-এ কমলা হবে।",
+    "rhbHistoryEmpty": "{month}-এ কোনো বাজেট নেই",
+    "rhbSuggestionUsed": "{category} বাজেট মাসে {amount} ঠিক হলো",
+    "rhbPlanEmpty": "পরামর্শ আসে আপনার আসল খরচ থেকে। এক-দুই মাস খরচ লিখলে এখানে দেখা যাবে।",
+    "rhbConvLine": "{amount} {currency} × {rate} = {taka}",
+    "rhbConvYours": "আপনি পেয়েছেন {taka} — এই পরিমাণটাই রাখা হবে।",
+    "rhbConvEffective": "অর্থাৎ প্রতি এককে {rate} টাকা।",
+    "rhbConvHonest": "আপনার রসিদ থেকে লেখা রেট দিয়েই হিসাব। আমরা কোনো লাইভ বা সরকারি রেট আনি না, দেখাইও না।",
+    "rhbMonthEmptyTitle": "{month}-এ এখনো কিছু লেখা হয়নি",
+    "rhbMonthBenefit": "বিদেশ থেকে যত টাকা আসে লিখে রাখুন — কে কত পাঠাল, কোথায় গেল, কত হাতে আছে এক নজরে দেখবেন।",
+    "rhbMonthHow1": "\"টাকা এল\" চাপুন (অথবা নিচে এক লাইনে মুখে বলুন)।",
+    "rhbMonthHow2": "পরিমাণ, আপনি যে রেট পেয়েছেন আর কে পাঠাল লিখুন — মানুষটিকে আমার সার্কেল থেকে বাছুন।",
+    "rhbMonthHow3": "বাজেট ট্যাবে পরিবারের খরচ লিখুন; প্রেরকের রিপোর্ট নিজে থেকেই তৈরি হবে।",
+    "rhbShareA11y": "{name}: {taka}, {pct} শতাংশ, {count} বার",
+    "rhbWhoSentMonth": "এ মাসে কে কত পাঠাল"
+  }
+}

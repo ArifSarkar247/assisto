@@ -15,6 +15,15 @@ bool g1VisionReady = false;
 bool s2HandoffOpen = true;
 bool s2Handover = false;
 
+/// salesbar knobs: is Assisto's Meta app set up on the server, App Review
+/// state, did Meta grant comment replies, and the seller's next send error
+/// (null = sent).
+bool sbOwnChannels = true;
+String sbReview = 'approved';
+bool sbCommentsGranted = false;
+String? sbSendError;
+bool sbAuditEmpty = false;
+
 /// sales2: quick replies the server builds from the catalog (bn digits in bn,
 /// like the real rule-layer text after the app's digit pass).
 List<Map<String, dynamic>> s2QuickReplies(bool bn) => [
@@ -195,6 +204,11 @@ Map<String, dynamic> _setup(bool bn, FakeMode mode) {
       ],
     },
     'meta_ready': {'app': !empty, 'secret': !empty, 'verify_token': !empty},
+    // salesbar: the honest Meta state
+    'features': {'own_channels': sbOwnChannels, 'inbox': !empty, 'image_order': !empty,
+                 'vision': g1VisionReady, 'comments_fb': sbCommentsGranted, 'comments_ig': false},
+    'meta_access': {'review': sbReview, 'comments_fb': sbCommentsGranted, 'comments_ig': false,
+                    'human_agent': false},
     'pending_approvals': empty ? 0 : 2,
     'g1': {'vision_ready': g1VisionReady, 'voice_ready': false, 'vision_credits': 6,
            'voice_credits': 3, 'reply_credits': 3,
@@ -236,6 +250,24 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
   if (!path.startsWith('/bizagent/')) return null;
   final p = path.split('?').first;
   if (p == '/bizagent/setup') return _setup(bn, mode);
+  // salesbar: the shop's activity log (no message text, ever)
+  if (p == '/bizagent/audit') {
+    if (mode == FakeMode.empty || sbAuditEmpty) return {'audit': <Map<String, dynamic>>[]};
+    return {
+      'audit': [
+        {'id': 5, 'action': 'settings', 'thread_id': null, 'actor': true,
+         'detail': {'keys': ['tone']}, 'created_at': '2026-11-02T21:40:00+06:00'},
+        {'id': 4, 'action': 'opt_out', 'thread_id': 7, 'actor': false, 'detail': {},
+         'created_at': '2026-11-02T20:15:00+06:00'},
+        {'id': 3, 'action': 'takeover', 'thread_id': 7, 'actor': true, 'detail': {},
+         'created_at': '2026-11-02T19:05:00+06:00'},
+        {'id': 2, 'action': 'comment_held', 'thread_id': 9, 'actor': false,
+         'detail': {'reason': 'meta_permission'}, 'created_at': '2026-11-02T18:00:00+06:00'},
+        {'id': 1, 'action': 'some_future_action', 'thread_id': null, 'actor': false,
+         'detail': {}, 'created_at': '2026-11-02T17:00:00+06:00'},
+      ]
+    };
+  }
   if (p == '/bizagent/reports') {
     return {
       'today': {'orders': 7, 'revenue': '9840', 'messages': 64, 'ai_replies': 51,
@@ -366,6 +398,10 @@ Map<String, dynamic>? fakeBizAgentPost(String path, Map<String, dynamic> body, b
   if (path.endsWith('/reject')) return {'ok': true};
   if (path.endsWith('/handover')) return {'ok': true, 'handover': body['on'] == true};
   if (path.endsWith('/send')) {
+    if (sbSendError != null) {
+      return {'ok': false, 'message': {'id': 98, 'direction': 'out', 'text': body['text'],
+        'status': sbSendError == 'rate_limited' ? 'queued' : 'blocked', 'send_error': sbSendError}};
+    }
     return {'ok': true, 'message': {'id': 99, 'direction': 'out', 'text': body['text'], 'status': 'sent'}};
   }
   if (path == '/bizagent/plan/trial') return {'plan': 'trial', 'active': true};

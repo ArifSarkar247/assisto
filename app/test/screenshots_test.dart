@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'app_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/official_prices.dart'; // moneybar
 import 'package:assisto/reminders/exact_alarm_ui.dart' show ReminderDeliverySheet, ExactAlarmHooks; // remmeter
 import 'package:assisto/services/oem_guide.dart' show OemGuideNative, OemInfo, OemOpen; // remmeter
 import 'package:flutter/rendering.dart';
@@ -32,9 +33,11 @@ import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
+import 'circlea_shots.dart'; // circlea
 import 'at100_shots.dart'; // at100
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
+import 'callsbar_shots.dart'; // callsbar
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -56,6 +59,14 @@ import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_thread_screen.dart'; // missing
 import 'package:assisto/widgets/success_share.dart'; // missing
+import 'package:assisto/screens/blood/blood_hub_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_request_detail_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_request_form_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_donor_setup_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_thread_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_banks_screen.dart'; // blood
+import 'package:assisto/screens/blood/blood_verify_screen.dart'; // blood
+import 'fake_blood.dart'; // blood
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -224,6 +235,7 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'd1_photo_shots.dart'; // d1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
+import 'photobar_shots.dart'; // photobar
 import 'h1_home_shots.dart'; // h1-home
 import 'home_v2_shots.dart'; // home_v2
 import 'f1_shots.dart'; // f1-founders
@@ -233,6 +245,7 @@ import 'a1_shots.dart'; // a1-circle
 import 'p3_shots.dart'; // p3-circle
 import 'md1_shots.dart'; // md1
 import 'pay1_shots.dart'; // pay1
+import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
@@ -240,6 +253,8 @@ import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'booking1_shots.dart'; // booking1 booking bot
 import 'budrem_shots.dart'; // budrem Budget and Remittance
+import 'remhbar_shots.dart'; // remhbar Reminders & Notes launch bar
+import 'remhbud_shots.dart'; // remhbud Budget module + empty remittance month
 import 'retention1_shots.dart'; // retention1 Retention automation
 import 'p4_world_shots.dart'; // p4-world
 import 'c2_calls_shots.dart'; // c2-calls
@@ -259,6 +274,8 @@ import 'package:assisto/widgets/khata_free_promise.dart'; // ledger100
 import 'dart:convert' show jsonEncode; // ledger100
 import 'fake_khata.dart' show fakeKhataParties; // ledger100
 import 'package:assisto/screens/business/cashbox_screen.dart';
+import 'package:assisto/screens/business/low_stock_card.dart'; // bizbar
+import 'package:assisto/screens/business/staff_screen.dart'; // bizbar
 import 'package:assisto/screens/business/customers_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
 import 'package:assisto/screens/business/reports_screen.dart';
@@ -428,6 +445,7 @@ void galleryPrime(String name) {
     fakeMd1On = false;
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
+    admobumpPrime(name); // admobump: UMP state per shot
 }
 
 Map<String, GallerySpec> gallerySpecs() {
@@ -476,6 +494,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),
+    // moneybar: official TCB not fetched + no own logs; the official list page
+    'mb_price_radar_empty': (build: (_) => const PriceRadarScreen(), mode: FakeMode.empty, full: true),
+    'mb_official_list': (build: (_) => OfficialPricesScreen(data: OfficialPrices.fromJson(const {
+          'connected': true, 'date': '2026-11-01', 'markets': 'Mirpur-6, Malibagh',
+          'items': [
+            {'name': 'Rice (coarse)', 'unit': 'per kg', 'group': '', 'min': 50, 'max': 55, 'week_min': 50, 'week_max': 55},
+            {'name': 'Onion (local)', 'unit': 'per kg', 'group': 'Spices', 'min': 50, 'max': 60, 'week_min': 45, 'week_max': 50},
+          ]})), mode: FakeMode.data, full: true),
     'health_tl': (build: (_) => const HealthTimelineScreen(), mode: FakeMode.data, full: true),
     'wellness': (build: (_) => const WellnessTrackerScreen(), mode: FakeMode.data, full: true),
     'challenges': (build: (_) => const DailyChallengesScreen(), mode: FakeMode.data, full: true),
@@ -633,6 +659,23 @@ Map<String, GallerySpec> gallerySpecs() {
     'missing_post': (build: (_) => const MissingPostScreen(), mode: FakeMode.data, full: true),
     'missing_optin': (build: (_) => const MissingOptinScreen(), mode: FakeMode.data, full: true),
     'missing_thread': (build: (_) => const MissingThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
+    // blood (owner 2 Nov): Blood donor panel — find (donors near me), empty,
+    // error, requests, me (listed donor), my request (responders), a request
+    // near me (donor view), request form, become-a-donor (consent), thread,
+    // banks (source pending), verify
+    'blood_hub': (build: (_) => const BloodHubScreen(), mode: FakeMode.data, full: true),
+    'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
+    'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),
+    'blood_requests': (build: (_) => const BloodHubScreen(initialTab: 1), mode: FakeMode.data, full: true),
+    'blood_me': (build: (_) => const BloodHubScreen(initialTab: 2), mode: FakeMode.data, full: true),
+    'blood_me_empty': (build: (_) => const BloodHubScreen(initialTab: 2), mode: FakeMode.empty, full: true),
+    'blood_request_mine': (build: (_) => const BloodRequestDetailScreen(requestId: 31), mode: FakeMode.data, full: true),
+    'blood_request_near': (build: (_) => const BloodRequestDetailScreen(requestId: 41), mode: FakeMode.data, full: true),
+    'blood_request_form': (build: (l) => BloodRequestFormScreen(config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
+    'blood_setup': (build: (l) => BloodDonorSetupScreen(initial: const {'district': 'dhaka'}, config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
+    'blood_thread': (build: (_) => const BloodThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
+    'blood_banks': (build: (_) => const BloodBanksScreen(), mode: FakeMode.data, full: true),
+    'blood_verify': (build: (_) => const BloodVerifyScreen(), mode: FakeMode.data, full: true),
     'success_share': (build: (l) => SuccessShareScreen(
         title: l == 'bn' ? 'ধন্যবাদ জানান' : 'Say thank you',
         cardHeadline: l == 'bn' ? 'পাওয়া গেছে — সবাইকে ধন্যবাদ' : 'Found — thank you all',
@@ -736,6 +779,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in d1PhotoShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // photobar: editor + Bangladesh ID photo cards, crop / ID framer / filters / text / stickers
+    for (final e in photobarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     for (final e in b1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // b1-calls
     for (final e in callsAShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // calls-a
@@ -752,6 +797,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)
     for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // admobump: Settings -> Ads privacy (UMP required / not required)
+    for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
@@ -759,6 +806,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
     for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in budremShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // budrem
+    for (final e in remhbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // remhbar
+    for (final e in remhbudShots.entries) e.key: (build: e.value.build, mode: e.value.mode, full: true), // remhbud
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
@@ -787,6 +836,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
     'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
+    // bizbar: low-stock filter, due checkout (names the customer), hub card
+    'bb_staff': (build: (_) => const StaffScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'bb_staff_empty': (build: (_) => const StaffScreen(businessId: 1), mode: FakeMode.empty, full: true),
+    'bb_low_stock': (build: (_) => const ProductsScreen(businessId: 1, lowOnly: true), mode: FakeMode.data, full: true),
+    'bb_checkout': (build: (_) => const Scaffold(body: CheckoutSheet(cart: {'lines': [{'id': 1, 'product_id': 5, 'product_name': 'Soap', 'variant_key': '__base__', 'qty': 2, 'unit_price': 10000}], 'subtotal': 20000, 'total': 20000}, businessId: 1)), mode: FakeMode.data, full: true),
+    'bb_low_stock_card': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: [LowStockCard(businessId: 1, onOpen: () {})])), mode: FakeMode.data, full: false),
     'biz_reports': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_orders': (build: (_) => const OrdersScreen(), mode: FakeMode.data, full: true),
     'biz_payments': (build: (_) => const PaymentsScreen(), mode: FakeMode.data, full: true),
@@ -896,12 +951,16 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolishShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // wa-polish2: bubble grouping, composer mic + recording strip, Call info
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // circlea: links + E2E preview, safe-link warning, Family / Others picker, Guardians
+    for (final e in circleaShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // at100: remote switches (owner / offline / trusted), watched phones, intruder consent
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again
     for (final e in aibarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // callsbar: weak-network video call, rating, honest group call, low data
+    for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

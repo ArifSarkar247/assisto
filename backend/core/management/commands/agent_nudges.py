@@ -9,6 +9,7 @@ Crontab (every 15 minutes, low priority):
     */15 * * * *  cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-agent-nudges.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py agent_nudges --quiet >> /home/ubuntu/assisto/logs/agent_nudges.log 2>&1
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 from django.utils import timezone
 
 
@@ -21,6 +22,7 @@ class Command(BaseCommand):
         parser.add_argument("--user", type=int, default=0,
                             help="only this user id (still flag-gated)")
 
+    @track_job("agent_nudges")
     def handle(self, *args, **opts):
         from core.agentcore import proactive as P
         from core.models import User

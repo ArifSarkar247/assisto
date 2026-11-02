@@ -36,11 +36,11 @@ EmiResult emiSchedule(
   }
   final r = annualRatePct / 1200.0;
   double m;
-  double? perPrincipal, perInterest;
+  double? perInterest, flatInterest;
   if (mode == 'flat') {
     final totalInterest = principal * (annualRatePct / 100.0) * (months / 12.0);
     m = round2((principal + totalInterest) / months);
-    perPrincipal = principal / months;
+    flatInterest = totalInterest;
     perInterest = totalInterest / months;
   } else {
     if (r == 0) {
@@ -53,23 +53,28 @@ EmiResult emiSchedule(
   final schedule = <AmortRow>[];
   var bal = principal;
   var totalPay = 0.0;
+  var interestSoFar = 0.0;
   for (var i = 1; i <= months; i++) {
     double interestI, principalI, payI;
     if (mode == 'flat') {
+      // moneybar: pay exactly the shown EMI each month (principal = EMI −
+      // interest); the old per-part rounding over-collected ~1 paisa/month.
       interestI = round2(perInterest!);
-      principalI = round2(perPrincipal!);
+      principalI = m - interestI;
     } else {
       interestI = round2(bal * r);
       principalI = m - interestI;
     }
     if (i == months) {
       principalI = bal; // absorb rounding into the last period
+      if (mode == 'flat') interestI = round2(flatInterest! - interestSoFar);
       payI = round2(principalI + interestI);
     } else {
       payI = m;
     }
     bal = bal - principalI;
     totalPay += payI;
+    interestSoFar += interestI;
     schedule.add(AmortRow(i, round2(payI), round2(principalI), round2(interestI),
         round2(bal > 0 ? bal : 0)));
   }

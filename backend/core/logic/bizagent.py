@@ -1061,6 +1061,11 @@ def cfg_defaults():
         "ai_kill": False,              # stop ALL AI replies (manual still works)
         "low_stock_default": 3,
         "public_comment_reply": True,  # short public "sent to inbox" reply
+        # salesbar: what Meta has REALLY granted our app (owner ticks these in
+        # Owner Admin after App Review). Until then comment replies stay off
+        # (no dead switch, no failing Graph calls) and a human reply after
+        # 24 h is not sent with the HUMAN_AGENT tag.
+        "meta_access": dict(META_ACCESS_DEFAULTS),
     }
 
 
@@ -1103,7 +1108,67 @@ def cfg_normalize(raw):
                                              base["low_stock_default"]))),
         "public_comment_reply": _bool(raw.get("public_comment_reply"),
                                       base["public_comment_reply"]),
+        "meta_access": meta_access_normalize(raw.get("meta_access")),
     }
+
+
+# salesbar: Meta App Review state + granted permissions (honest app states)
+META_REVIEW_STATES = ("not_submitted", "submitted", "approved")
+META_ACCESS_DEFAULTS = {"review": "not_submitted", "comments_fb": False, "comments_ig": False,
+                        "human_agent": False}
+
+
+def meta_access_normalize(raw):
+    raw = raw if isinstance(raw, dict) else {}
+    out = dict(META_ACCESS_DEFAULTS)
+    if raw.get("review") in META_REVIEW_STATES:
+        out["review"] = raw["review"]
+    for k in ("comments_fb", "comments_ig", "human_agent"):
+        out[k] = _bool(raw.get(k), META_ACCESS_DEFAULTS[k])
+    return out
+
+
+def comments_granted(meta_access, channel):
+    """May the agent answer a post COMMENT on this channel? Facebook needs
+    pages_manage_engagement + pages_read_user_content, Instagram needs
+    instagram_manage_comments — the owner ticks them when Meta grants them."""
+    ma = meta_access_normalize(meta_access)
+    if channel == CH_MESSENGER:
+        return ma["comments_fb"]
+    if channel == CH_INSTAGRAM:
+        return ma["comments_ig"]
+    return False
+
+
+PRIVATE_REPLY_DAYS = 7        # Meta: one private reply, within 7 days of the comment
+HUMAN_AGENT_DAYS = 7          # Meta HUMAN_AGENT tag: a person may reply up to 7 days
+
+
+def private_reply_allowed(comment_ts, now_ts):
+    """Meta allows the private reply only within 7 days of the comment."""
+    if not comment_ts:
+        return True                 # unknown time = just arrived via webhook
+    return (now_ts - comment_ts) <= PRIVATE_REPLY_DAYS * 86400
+
+
+def human_agent_window(last_inbound_ts, now_ts):
+    """True between 24 h and 7 days after the customer's last message — the
+    span where only a PERSON may reply on Messenger/IG with the HUMAN_AGENT tag."""
+    if last_inbound_ts is None:
+        return False
+    age = now_ts - last_inbound_ts
+    return 24 * 3600 < age <= HUMAN_AGENT_DAYS * 86400
+
+
+# salesbar: Graph errors that are TEMPORARY (retry later), not a broken token
+# Messenger/IG: 4 app rate, 17 user rate, 32 page rate, 613 calls, 2 temp;
+# WhatsApp: 130429 throughput, 131056 pair rate, 80007 WABA rate, 131016 down.
+RATE_LIMIT_CODES = (2, 4, 17, 32, 613, 80006, 80007, 130429, 131016, 131056)
+
+
+def is_rate_limited(error_text):
+    m = re.search(r"\(code (\d+)\)", error_text or "")
+    return bool(m) and int(m.group(1)) in RATE_LIMIT_CODES
 
 
 def reply_cost_bdt(pricing_cfg):

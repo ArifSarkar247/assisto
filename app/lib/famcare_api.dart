@@ -29,12 +29,18 @@ extension FamCareApi on ApiClient {
   Future<Map<String, dynamic>> famTasks() => loadGuard(getJson('/family/reminders'));
 
   Future<Map<String, dynamic>> famAssignTask(
-          {required int memberId, required String title, DateTime? due, String notes = ''}) =>
+          {required int memberId,
+          required String title,
+          DateTime? due,
+          String notes = '',
+          String repeat = 'none'}) =>
       postJson('/family/reminders', {
         'member_id': memberId,
         'title': title,
         if (due != null) 'due_at': due.toIso8601String(),
         if (notes.isNotEmpty) 'notes': notes,
+        // remhbar: daily / weekly / monthly family task (needs a time)
+        if (due != null && repeat != 'none') 'repeat': repeat,
       });
 
   Future<Map<String, dynamic>> famCancelTask(int id) =>

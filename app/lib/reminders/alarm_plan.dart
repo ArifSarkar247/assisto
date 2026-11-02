@@ -52,10 +52,16 @@ class AlarmPlan {
     required this.body,
     this.repeat = AlarmRepeat.none,
     this.important = false,
-  });
+    String? baseKey,
+  }) : baseKey = baseKey ?? key;
 
-  /// Stable key: `rem-<serverId>` or `remloc-<localId>`.
+  /// Stable key: `rem-<serverId>` or `remloc-<localId>`; a look-ahead copy
+  /// (remhbar) adds `~1`, `~2`.
   final String key;
+
+  /// The reminder's own key (without the look-ahead suffix) — what the
+  /// notification's Done / Snooze buttons act on.
+  final String baseKey;
 
   /// Local wall-clock fire time (due_at minus remind_before_min).
   final DateTime at;
@@ -69,9 +75,11 @@ class AlarmPlan {
   /// Signature used by the ledger to decide "already scheduled exactly so".
   /// remnotes: `|a1` = the notification carries Done / Snooze buttons;
   /// changing it re-hands every alarm to the OS once after the update.
+  /// remhbar `|a2`: the buttons dismiss through the OS (cancelNotification),
+  /// so a daily alarm keeps its future rings after Done / Snooze.
   String sig(AlarmMode mode) =>
       '${at.millisecondsSinceEpoch}|${repeat.name}|${mode.name}|'
-      '${PushPayload.stableHash('$title\u0000$body')}|a1';
+      '${PushPayload.stableHash('$title\u0000$body')}|a2';
 }
 
 /// The notification id for a reminder key. Identical to the id the server
@@ -129,6 +137,16 @@ RecurrenceRule? ruleOfData(Map<String, dynamic> d) {
 /// other features schedule too). The soonest win.
 const int kMaxReminderAlarms = 64;
 
+/// remhbar: a repeat the OS cannot carry by itself (monthly, yearly,
+/// "every N days/weeks") used to have only its NEXT ring handed to Android —
+/// if the app was not opened before then, the one after never rang. Now the
+/// next [kLookAhead] rings after it are handed over too (keys `~1`, `~2`),
+/// so a monthly bill reminder keeps ringing for 3 months without opening
+/// the app (and the server push covers the rest when online).
+const int kLookAhead = 2;
+
+String lookAheadKey(String key, int i) => '$key~$i';
+
 /// The alarms the reminder list SHOULD have right now.
 List<AlarmPlan> planReminderAlarms(List<Map<String, dynamic>> items,
     {required DateTime now}) {
@@ -145,6 +163,7 @@ List<AlarmPlan> planReminderAlarms(List<Map<String, dynamic>> items,
     final rule = ruleOfData(d);
     DateTime? fire;
     var repeat = AlarmRepeat.none;
+    final extra = <DateTime>[];
     if (rule == null) {
       fire = anchor.subtract(lead);
       if (!fire.isAfter(now)) continue;
@@ -153,19 +172,45 @@ List<AlarmPlan> planReminderAlarms(List<Map<String, dynamic>> items,
       final occ = nextOccurrence(anchor, rule, after: now.add(lead));
       if (occ == null) continue;
       fire = occ.subtract(lead);
-      if (rule.interval <= 1 && lead == Duration.zero) {
+      // remhbar: "remind me 10 min before" on a daily/weekly reminder is
+      // still a fixed time each day/week, so the OS can repeat it by itself
+      // (it used to fall back to one ring per app-open).
+      if (rule.interval <= 1) {
         if (rule.freq == 'daily') repeat = AlarmRepeat.daily;
         if (rule.freq == 'weekly') repeat = AlarmRepeat.weekly;
       }
+      if (repeat == AlarmRepeat.none) {
+        var cur = occ;
+        for (var i = 0; i < kLookAhead; i++) {
+          final n = nextOccurrence(anchor, rule, after: cur);
+          if (n == null || !n.isAfter(cur)) break;
+          extra.add(n.subtract(lead));
+          cur = n;
+        }
+      }
     }
+    final key = reminderKeyOf(it);
+    final title = '${d['title'] ?? ''}'.trim();
+    final body = '${d['notes'] ?? ''}'.trim();
+    final important = '${d['priority'] ?? ''}' == 'high';
     out.add(AlarmPlan(
-      key: reminderKeyOf(it),
+      key: key,
       at: fire,
-      title: '${d['title'] ?? ''}'.trim(),
-      body: '${d['notes'] ?? ''}'.trim(),
+      title: title,
+      body: body,
       repeat: repeat,
-      important: '${d['priority'] ?? ''}' == 'high',
+      important: important,
     ));
+    for (var i = 0; i < extra.length; i++) {
+      out.add(AlarmPlan(
+        key: lookAheadKey(key, i + 1),
+        baseKey: key,
+        at: extra[i],
+        title: title,
+        body: body,
+        important: important,
+      ));
+    }
   }
   out.sort((a, b) => a.at.compareTo(b.at));
   return out.length > kMaxReminderAlarms
@@ -268,6 +313,50 @@ ReconcileOps diffAlarms({
     schedule.add(p);
   }
   return ReconcileOps(cancel, schedule);
+}
+
+/// remhbar: how many alarms we handed to the OS are GONE although their time
+/// has not come yet. Android drops every alarm of an app on Force stop, and
+/// several OEM "cleaners" / autostart blocks (Xiaomi, realme/OPPO, vivo,
+/// Tecno/Infinix) do the same after a restart. Reconcile puts them back the
+/// next time the app runs; this count lets the Delivery check say so
+/// honestly (local only). [pendingIds] null = unknown -> 0.
+int countLostAlarms({
+  required List<AlarmPlan> plans,
+  required Map<int, LedgerEntry> ledger,
+  required Set<int>? pendingIds,
+  required DateTime now,
+}) {
+  if (pendingIds == null) return 0;
+  final soon = now.millisecondsSinceEpoch + 60 * 1000;
+  var n = 0;
+  for (final p in plans) {
+    final e = ledger[p.id];
+    if (e == null || pendingIds.contains(p.id)) continue;
+    // a one-shot whose time passed simply rang; a native repeat stays
+    // pending for ever, so missing = lost
+    if (e.repeat != AlarmRepeat.none || e.at > soon) n++;
+  }
+  return n;
+}
+
+/// The ledger entry (and its alarm id) a server push for [key] at [fireMs]
+/// is about: the reminder's own alarm, or one of its look-ahead copies.
+(int, LedgerEntry?) ledgerEntryForPush(
+    Map<int, LedgerEntry> ledger, String key, int? fireMs) {
+  final id = alarmIdFor(key);
+  final own = ledger[id];
+  if (fireMs == null) return (id, own);
+  if (own != null &&
+      (own.repeat != AlarmRepeat.none || (own.at - fireMs).abs() <= 90 * 1000)) {
+    return (id, own);
+  }
+  for (var i = 1; i <= kLookAhead; i++) {
+    final lid = alarmIdFor(lookAheadKey(key, i));
+    final e = ledger[lid];
+    if (e != null && (e.at - fireMs).abs() <= 90 * 1000) return (lid, e);
+  }
+  return (id, own);
 }
 
 // ---------------------------------------------------------------- dedupe

@@ -730,7 +730,8 @@ from .models import Birthday, Appointment  # noqa: E402
 class BirthdaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Birthday
-        fields = ["id", "name", "date", "kind", "lead_days", "created_at"]
+        fields = ["id", "name", "date", "kind", "lead_days", "leads", "relation",
+                  "notes", "phone", "yearly", "created_at"]
         read_only_fields = ["id", "created_at"]
 
 

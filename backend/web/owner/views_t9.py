@@ -127,6 +127,16 @@ def calls(request):
         ]
     except Exception:
         ctx["ch"] = None
+    # callsbar: per-call quality (measured numbers + one-tap ratings), 7 days.
+    try:
+        from core import call_quality as CQ
+        cq = CQ.summary(7)
+        if cq is not None:
+            cq["issue_rows"] = [(T.get("cq_issue_" + k, k), v)
+                                for k, v in cq["issues"]]
+        ctx["cq"] = cq
+    except Exception:
+        ctx["cq"] = None
     # ring-everywhere: ring delivery success by phone brand / model / Android.
     try:
         from core import call_ack

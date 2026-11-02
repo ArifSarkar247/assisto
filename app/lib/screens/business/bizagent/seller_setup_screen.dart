@@ -10,6 +10,7 @@ import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart'
     show asciiDigits, baChannelIcon, baChannelLabel, baErrorText, bd;
 import 'package:assisto/widgets/app_sheet.dart';
+import 'agent_g1_screens.dart' show AgentBehaviourScreen;
 
 /// P1 — seller onboarding for the AI agent.
 ///
@@ -251,8 +252,24 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         const SizedBox(height: Gap.sm),
         for (final c in chans) _channelRow(t, c, kill['${c['kind']}'] == true),
         const SizedBox(height: Gap.sm),
-        // biz-v2: Page / WhatsApp connect only while the server's Meta app
-        // is configured (features.own_channels) — hidden, not "coming soon".
+        // salesbar: never a silent dead end — while Assisto's Meta app is
+        // not set up the seller reads why and gets a working path (website
+        // chat); once it is set up but App Review is pending, the honest limit.
+        if (((_s['features'] as Map?) ?? const {})['own_channels'] == false) ...[
+          BizNote(text: t.sbMetaNotReady, icon: Icons.hourglass_top_rounded),
+          const SizedBox(height: Gap.sm),
+          FilledButton.tonalIcon(
+            key: const Key('sbOpenWebsiteChat'),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AgentBehaviourScreen())),
+            icon: const Icon(Icons.language_rounded),
+            label: Text(t.sbUseWebsiteChat),
+          ),
+        ] else if ('${((_s['meta_access'] as Map?) ?? const {})['review'] ?? 'approved'}' !=
+            'approved') ...[
+          BizNote(text: t.sbMetaReviewPending, icon: Icons.hourglass_top_rounded),
+          const SizedBox(height: Gap.sm),
+        ],
         if (((_s['features'] as Map?) ?? const {})['own_channels'] != false)
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           for (final k in const ['messenger', 'instagram', 'whatsapp_cloud'])

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../services/bangla_calendar.dart' show BanglaDate; // remhbar
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -462,6 +463,21 @@ Future<void> editReminder(BuildContext context,
                     onPressed: () => setD(() => due = null),
                     icon: const Icon(Icons.clear_rounded)),
             ]),
+            // remhbar: the Bangla calendar date too (Bangabda, revised
+            // Bangladesh calendar) — many people count bills/rent by it
+            if (due != null)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    t.rhbBanglaDate(BanglaDate.of(due!)
+                        .format(bn: t.localeName.startsWith('bn'))),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                ),
+              ),
             const SizedBox(height: Gap.md),
             DropdownButtonFormField<String>(
               initialValue: freq,

@@ -361,6 +361,13 @@ class _FamMembersSectionState extends State<FamMembersSection> {
         subtitle: Text([
           who,
           if (when.isNotEmpty) when,
+          // remhbar: a repeating family task says so (and is never "done")
+          switch ('${x['repeat'] ?? 'none'}') {
+            'daily' => t.remRecurDaily,
+            'weekly' => t.remRecurWeekly,
+            'monthly' => t.remRecurMonthly,
+            _ => '',
+          },
           done ? t.fcTaskDone : t.fcTaskWaiting,
         ].where((s) => s.trim().isNotEmpty).join(' · ')),
         trailing: done
@@ -698,6 +705,7 @@ class _FamTaskFormState extends State<_FamTaskForm> {
   final _title = TextEditingController();
   int? _mid;
   DateTime? _due;
+  String _repeat = 'none'; // remhbar: none | daily | weekly | monthly
   bool _saving = false;
 
   List<Map<String, dynamic>> get _linked =>
@@ -741,7 +749,8 @@ class _FamTaskFormState extends State<_FamTaskForm> {
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
-      await context.read<AppState>().api.famAssignTask(memberId: _mid!, title: title, due: _due);
+      await context.read<AppState>().api.famAssignTask(
+          memberId: _mid!, title: title, due: _due, repeat: _repeat);
       if (!mounted) return;
       Navigator.pop(context, true);
       messenger.showSnackBar(SnackBar(content: Text(t.fcTaskSent)));
@@ -797,6 +806,27 @@ class _FamTaskFormState extends State<_FamTaskForm> {
                 ? t.fcTaskPickTime
                 : '${famDate(context, _due)} ${famDigits(context, TimeOfDay.fromDateTime(_due!).format(context))}'),
           ),
+          // remhbar: a repeating family task (Cozi-style chores) — rings for
+          // them every day / week / month; needs a time
+          if (_due != null) ...[
+            const SizedBox(height: Gap.sm),
+            Text(t.remRecurrence, style: TextStyle(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.xs),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              for (final (v, l) in [
+                ('none', t.remRecurNone),
+                ('daily', t.remRecurDaily),
+                ('weekly', t.remRecurWeekly),
+                ('monthly', t.remRecurMonthly),
+              ])
+                ChoiceChip(
+                  key: ValueKey('fc-task-repeat-$v'),
+                  label: Text(l),
+                  selected: _repeat == v,
+                  onSelected: (_) => setState(() => _repeat = v),
+                ),
+            ]),
+          ],
         ],
       ]),
     );

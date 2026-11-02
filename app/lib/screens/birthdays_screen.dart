@@ -102,6 +102,15 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         _error = false;
       });
       await _writeCache();
+      // remhbar: alerts used to be set ONLY when an occasion was saved — for
+      // that one year, and never on a new phone / after reinstall. Every
+      // successful load now (re)sets this month's upcoming ones (same ids,
+      // so nothing doubles).
+      if (mounted) {
+        for (final o in _upcoming) {
+          _scheduleBdayReminders(o);
+        }
+      }
     } catch (e) {
       if (!mounted) return;
       // Keep whatever we have (cache). Only hard-error if we have NOTHING.

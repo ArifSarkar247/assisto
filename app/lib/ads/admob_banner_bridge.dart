@@ -17,7 +17,9 @@ class AdmobBannerBridge implements BannerBridge {
   @override
   Future<BannerAdHandle?> load(String unitId,
       {required double width, required String placement}) async {
-    if (unitId.isEmpty || !await AdmobSdk.ensureReady()) return null;
+    if (!AdmobSdk.unitAllowed(unitId) || !await AdmobSdk.ensureReady()) {
+      return null;
+    }
     AdSize size = AdSize.banner;
     try {
       // banners-everywhere: anchored adaptive banner for the current

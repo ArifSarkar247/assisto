@@ -24,6 +24,61 @@ String tkSigned(dynamic v) {
   return s;
 }
 
+const _bnZero = 0x09E6;
+
+/// remhbud: digits in the UI language (Bangla digits in bn). No Bangla
+/// literal here — the language gate keeps Bangla text in the ARB files.
+String moneyLangDigits(String lang, Object v) {
+  final s = v.toString();
+  if (lang != 'bn') return s;
+  final b = StringBuffer();
+  for (final c in s.codeUnits) {
+    b.writeCharCode(c >= 0x30 && c <= 0x39 ? _bnZero + (c - 0x30) : c);
+  }
+  return b.toString();
+}
+
+/// remhbud: [v] with the UI language's digits.
+String moneyDigitsOf(BuildContext context, Object v) =>
+    moneyLangDigits(Localizations.localeOf(context).languageCode, v);
+
+/// remhbud: Taka in the UI digits — ৳1,23,456 in en, Bangla digits in bn.
+/// Same grouping/decimals as [tkFmt]; use this for anything on screen.
+String tkOf(BuildContext context, dynamic v) => moneyDigitsOf(context, tkFmt(v));
+
+/// remhbud: "85%" in the UI digits.
+String pctOf(BuildContext context, Object? p) =>
+    moneyDigitsOf(context, '${(p is num ? p : num.tryParse('${p ?? 0}') ?? 0).round()}%');
+
+/// remhbud: a typed amount -> plain ASCII (Bangla "5,000" -> "5000"), so a Bangla
+/// keyboard's digits are understood and the server always gets ASCII.
+String moneyAscii(String? s) {
+  final b = StringBuffer();
+  for (final c in (s ?? '').trim().codeUnits) {
+    if (c >= _bnZero && c <= _bnZero + 9) {
+      b.writeCharCode(0x30 + c - _bnZero);
+    } else if (c != 0x2C) {
+      b.writeCharCode(c);
+    }
+  }
+  return b.toString();
+}
+
+/// remhbud: lenient amount parse that also accepts Bangla digits/commas.
+double moneyParse(String? s) => double.tryParse(moneyAscii(s)) ?? 0;
+
+/// remhbud: "now" on the Asia/Dhaka wall clock (UTC+6, no DST), so month
+/// boundaries match the server's (settings.TIME_ZONE) even when the phone's
+/// own time zone is set elsewhere.
+DateTime dhakaNow([DateTime? at]) {
+  final u = (at ?? DateTime.now()).toUtc().add(const Duration(hours: 6));
+  return DateTime(u.year, u.month, u.day, u.hour, u.minute, u.second);
+}
+
+/// remhbud: 'YYYY-MM' for a date.
+String moneyMonthKey(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}';
+
 /// qa1: localized month for a server 'YYYY-MM' ("October 2026" / Bangla);
 /// anything else is returned unchanged.
 String moneyMonth(BuildContext context, dynamic ym) {
@@ -54,14 +109,16 @@ String moneyDay(BuildContext context, dynamic ymd) {
 /// the UI language; anything the user typed is shown as typed.
 String moneyCatLabel(AppLocalizations t, Object? raw) {
   final s = '${raw ?? ''}';
-  return switch (s) {
+  // remhbud: a key typed in another case ("Food") or the server's bucket for
+  // expenses with no category also shows in the UI language.
+  return switch (s.trim().toLowerCase()) {
     'food' => t.rmtCatFood,
     'rent' => t.rmtCatRent,
     'education' => t.rmtCatEducation,
     'health' => t.rmtCatMedicine,
     'savings' => t.rmtCatSavings,
     'loan' => t.rmtCatLoan,
-    'other' => t.rmtCatOther,
+    'other' || 'uncategorized' => t.rmtCatOther,
     _ => s,
   };
 }

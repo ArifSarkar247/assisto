@@ -29,11 +29,11 @@ class UnseenCategoryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return SizedBox(
-      height: 44,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+    // lifebar: intrinsic height so chips never clip at 200% font
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+      child: Row(
         children: [
           _chip(
             context,

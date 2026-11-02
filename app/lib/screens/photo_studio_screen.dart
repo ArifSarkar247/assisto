@@ -4,10 +4,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../photo_studio/ps_backend.dart';
 import '../photo_studio/ps_controller.dart';
+import '../photo_studio/ps_edit.dart';
 import '../photo_studio/ps_engines.dart';
 import '../photo_studio/ps_enhance.dart' show AiPlan, StudioEnhanceEngine;
 import '../photo_studio/ps_gate_sheet.dart';
@@ -21,6 +23,7 @@ import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/photo_compare.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_input.dart';
+import 'photo_edit_screens.dart';
 import 'plans_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -143,6 +146,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.photoAfterSave);
     WidgetsBinding.instance.removeObserver(this);
     _evictShown();
     _c.removeListener(_onChange);
@@ -181,6 +186,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         PsNotice.stillWorking => t.d1psStillWorking,
         PsNotice.reported => t.d1psReported,
         PsNotice.queuedBudget => t.pfQueuedBudget,
+        PsNotice.editFailed => t.psbEditFailed,
+        PsNotice.savedGallery => t.psbSavedGallery,
+        PsNotice.idTooBig => t.psbIdTooBig,
         PsNotice.refused || PsNotice.none => '',
       };
 
@@ -203,6 +211,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         PsTool.denoise => t.d1psToolDenoise,
         PsTool.lowLight => t.d1psToolLowLight,
         PsTool.bgBlur => t.d1psToolBgBlur,
+        PsTool.bgWhite => t.psbToolBgWhite,
+        PsTool.bgBlue => t.psbToolBgBlue,
+        PsTool.bgRemove => t.psbToolBgRemove,
       };
 
   IconData _toolIcon(PsTool tool) => switch (tool) {
@@ -211,6 +222,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         PsTool.denoise => Icons.grain_rounded,
         PsTool.lowLight => Icons.light_mode_rounded,
         PsTool.bgBlur => Icons.blur_on_rounded,
+        PsTool.bgWhite => Icons.format_color_fill_rounded,
+        PsTool.bgBlue => Icons.water_drop_rounded,
+        PsTool.bgRemove => Icons.layers_clear_rounded,
       };
 
   String _restoreLabel(AppLocalizations t, PsFeature f) => switch (f) {
@@ -356,6 +370,14 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           ],
           const SizedBox(height: Gap.lg),
           if (s != null) _exportCard(t),
+          // photobar: the everyday editor + Bangladesh ID photos (after the
+          // export card so the existing flow keeps its place)
+          if (s != null && !_c.webImport) ...[
+            const SizedBox(height: Gap.lg),
+            _editCard(t),
+            const SizedBox(height: Gap.lg),
+            _idCard(t),
+          ],
           const SizedBox(height: Gap.md),
           _footNotes(t),
         ],
@@ -676,8 +698,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               icon: const Icon(Icons.auto_awesome_rounded, size: 18),
               label: Text(t.d1psBatchEnhance),
             ),
-            for (final tool in const [PsTool.lowLight, PsTool.denoise, PsTool.bgBlur])
-              if (tool != PsTool.bgBlur || av.bgBlur)
+            for (final tool in const [PsTool.lowLight, PsTool.denoise, PsTool.bgBlur, PsTool.bgWhite])
+              if (!tool.usesMask || av.bgBlur)
                 OutlinedButton.icon(
                   key: Key('psBatch_${tool.wire}'),
                   onPressed: running || _c.busy ? null : () => _c.runBatch(tool: tool),
@@ -763,6 +785,11 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         const SizedBox(height: Gap.sm),
         Text(_c.config.providerReady ? t.psEmptyBody : t.psEmptyBodyNoPrompt,
             style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        const SizedBox(height: Gap.sm),
+        // photobar: say what people can make here (they did not know)
+        Text(t.psbHeroCan,
+            key: const Key('psbHeroCan'),
+            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.lg),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
@@ -781,6 +808,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           if (_c.enhance.ready)
             OutlinedButton.icon(
               key: const Key('psPickBatch'),
+              // a11y: primary on the tinted hero was 4.45:1 (as the camera button)
+              style: OutlinedButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
               onPressed: _c.busy ? null : _c.pickBatch,
               icon: const Icon(Icons.burst_mode_rounded),
               label: Text(t.d1psBatchButton),
@@ -1332,23 +1361,186 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             final cols = c.maxWidth >= 420 ? 5 : 3;
             final w = (c.maxWidth - Gap.sm * (cols - 1)) / cols;
             return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              // photobar: only exits this build really has (Wallpaper /
+              // Copy were dead buttons: "not in this version")
               for (final e in [
-                tile(ExportKind.save, Icons.download_rounded, t.psSave),
-                tile(ExportKind.share, Icons.share_rounded, t.psShare),
-                tile(ExportKind.wallpaper, Icons.wallpaper_rounded,
-                    t.psWallpaper),
-                tile(ExportKind.copy, Icons.copy_rounded, t.psCopy),
-                tile(ExportKind.openIn, Icons.open_in_new_rounded, t.psOpenIn),
+                (ExportKind.save, Icons.download_rounded, t.psSave),
+                (ExportKind.share, Icons.share_rounded, t.psShare),
+                (ExportKind.wallpaper, Icons.wallpaper_rounded, t.psWallpaper),
+                (ExportKind.copy, Icons.copy_rounded, t.psCopy),
+                (ExportKind.openIn, Icons.open_in_new_rounded, t.psOpenIn),
               ])
-                SizedBox(width: w, child: e),
+                if (_c.deps.sink.available(e.$1))
+                  SizedBox(width: w, child: tile(e.$1, e.$2, e.$3)),
             ]);
           }),
+          if (_c.currentId case final id?)
+            _infoLine(
+                Icons.description_rounded,
+                _c.session?.current.feature == 'id_sheet'
+                    ? t.psbIdFileSheet(fmtInt(context, id.dpi))
+                    : id.jpg
+                        ? t.psbIdFileJpg(fmtInt(context, id.pxW), fmtInt(context, id.pxH),
+                            fmtInt(context, id.maxKb))
+                        : t.psbIdFilePng(fmtInt(context, id.pxW), fmtInt(context, id.pxH),
+                            fmtInt(context, id.dpi))),
+          if (_c.deps.sink.available(ExportKind.save))
+            _infoLine(Icons.photo_library_outlined, t.psbSaveWhere),
           if (_c.free) ...[
             const SizedBox(height: Gap.sm),
             _costLine(t, _c.config.quote(PsFeature.enhanceHd)),
-            _infoLine(Icons.branding_watermark_rounded, t.psCornerNote),
+            _infoLine(Icons.branding_watermark_rounded,
+                _c.currentId != null ? t.psbIdNoMark : t.psCornerNote),
           ],
         ]);
+  }
+
+  // ------------------------------------------------------------------ photobar
+  Future<void> _openCrop() async {
+    final step = await Navigator.of(context).push<GeoStep>(
+        MaterialPageRoute(builder: (_) => PsCropScreen(bytes: _c.currentShown)));
+    if (step != null && !step.isIdentity) await _c.applyEdit([step]);
+  }
+
+  Future<void> _openFilters() async {
+    final step = await Navigator.of(context).push<FilterStep>(
+        MaterialPageRoute(builder: (_) => PsFilterScreen(bytes: _c.currentShown)));
+    if (step != null) await _c.applyEdit([step]);
+  }
+
+  Future<void> _openText({bool stickers = false}) async {
+    final step = await Navigator.of(context).push<OverlayStep>(MaterialPageRoute(
+        builder: (_) => PsTextScreen(bytes: _c.currentShown, stickers: stickers)));
+    if (step != null && step.items.isNotEmpty) await _c.applyEdit([step]);
+  }
+
+  Widget _editCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final busy = _c.busy;
+    Widget b(String key, IconData icon, String label, VoidCallback on) => OutlinedButton.icon(
+          key: Key(key),
+          onPressed: busy ? null : on,
+          icon: Icon(icon, size: 20),
+          label: Text(label),
+        );
+    return _card(icon: Icons.tune_rounded, title: t.psbEditTitle, children: [
+      Text(t.psbEditBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        b('psbOpenCrop', Icons.crop_rotate_rounded, t.psbCrop, _openCrop),
+        b('psbOpenFilters', Icons.filter_vintage_rounded, t.psbFilters, _openFilters),
+        b('psbOpenText', Icons.text_fields_rounded, t.psbText, _openText),
+        b('psbOpenStickers', Icons.emoji_emotions_rounded, t.psbStickers,
+            () => _openText(stickers: true)),
+      ]),
+    ]);
+  }
+
+  /// 1 = white, 2 = light blue, 0 = keep the background as it is.
+  int _idBg = 1;
+
+  String _idName(AppLocalizations t, String id) => switch (id) {
+        'passport_bd' => t.psbIdPassport,
+        'visa_bd' => t.psbIdVisaBd,
+        'visa_india' => t.psbIdVisaIndia,
+        'job_bd' => t.psbIdJob,
+        'stamp_bd' => t.psbIdStamp,
+        _ => id,
+      };
+
+  String _idLine(AppLocalizations t, PsIdPreset p) {
+    final parts = <String>[
+      if (p.printable) t.psbIdMm(fmtInt(context, p.wMm!.round()), fmtInt(context, p.hMm!.round())),
+      t.psbIdPx(fmtInt(context, p.pxW), fmtInt(context, p.pxH)),
+      if (p.jpg && p.maxKb > 0) t.psbIdKb(fmtInt(context, p.maxKb)),
+      switch (p.verified) {
+        'official_mission' => t.psbIdSrcMission,
+        'official_portal' => t.psbIdSrcPortal,
+        _ => t.psbIdSrcCommon,
+      },
+    ];
+    return parts.join(' · ');
+  }
+
+  Future<void> _openId(PsIdPreset p) async {
+    final t = AppLocalizations.of(context);
+    FaceBox? face;
+    try {
+      if (_c.deps.faces.available) {
+        final f = await _c.deps.faces.detect(_c.currentShown);
+        if (f.length == 1) face = f.first;
+      }
+    } catch (_) {} // best-effort: no face found = the framer starts centred
+    if (!mounted) return;
+    final step = await Navigator.of(context).push<GeoStep>(MaterialPageRoute(
+        builder: (_) => PsCropScreen(
+            bytes: _c.currentShown,
+            fixedAspect: p.aspect,
+            title: _idName(t, p.id),
+            face: face,
+            idHint: t.psbIdHint)));
+    if (step == null) return;
+    await _c.makeIdPhoto(p, step,
+        background: _c.tools.bgBlur && _idBg != 0 ? (_idBg == 2 ? PsBg.blue : PsBg.white) : null);
+  }
+
+  Widget _idCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final cur = _c.currentId;
+    final sheetDone = _c.session?.current.feature == 'id_sheet';
+    return _card(icon: Icons.badge_rounded, title: t.psbIdTitle, children: [
+      Text(t.psbIdBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.md),
+      if (_c.tools.bgBlur) ...[
+        Text(t.psbIdBgLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: Gap.xs),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<int>(
+            key: const Key('psbIdBg'),
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(value: 1, label: Text(t.psbIdBgWhite)),
+              ButtonSegment(value: 2, label: Text(t.psbIdBgBlue)),
+              ButtonSegment(value: 0, label: Text(t.psbIdBgKeep)),
+            ],
+            selected: {_idBg},
+            onSelectionChanged: (v) => setState(() => _idBg = v.first),
+          ),
+        ),
+      ] else
+        _infoLine(Icons.wb_sunny_outlined, t.psbIdNoMask),
+      const SizedBox(height: Gap.sm),
+      for (final p in _c.idPresets)
+        ListTile(
+          key: Key('psbId_${p.id}'),
+          contentPadding: EdgeInsets.zero,
+          minTileHeight: 56,
+          leading: Icon(p.jpg && !p.printable ? Icons.upload_file_rounded : Icons.portrait_rounded,
+              color: scheme.primary),
+          title: Text(_idName(t, p.id), style: const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: Text(_idLine(t, p)),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: _c.busy ? null : () => _openId(p),
+        ),
+      if (cur != null && cur.printable && !sheetDone) ...[
+        const SizedBox(height: Gap.sm),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.tonalIcon(
+            key: const Key('psbIdSheet'),
+            onPressed: _c.busy
+                ? null
+                : () => _c.applyEdit([const SheetStep()], id: cur, feature: 'id_sheet'),
+            icon: const Icon(Icons.grid_view_rounded),
+            label: Text(t.psbIdSheet(
+                fmtInt(context, const SheetStep().copies(cur.pxW, cur.pxH)))),
+          ),
+        ),
+      ],
+      _infoLine(Icons.info_outline_rounded, t.psbIdEpassport),
+      _infoLine(Icons.fact_check_outlined, t.psbIdCheck),
+    ]);
   }
 
   Widget _footNotes(AppLocalizations t) => Column(children: [
@@ -1388,7 +1580,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                   ? Icon(Icons.check_circle_rounded, color: AssistoTokens.of(context).success)
                   : null,
               onTap: () {
-                s.select(i);
+                _c.selectVersion(i);
                 Navigator.of(ctx).pop();
               },
             ),

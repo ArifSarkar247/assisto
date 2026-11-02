@@ -72,6 +72,10 @@ class _FakeConsent implements ConsentBridge {
     log.calls.add('consent.privacyForm');
     return formOk;
   }
+
+  // admobump: not logged (keeps the call-order expectations above)
+  @override
+  Future<UmpConsentStatus> consentStatus() async => UmpConsentStatus.obtained;
 }
 
 class _FakeAds implements AdsBridge {
@@ -306,7 +310,7 @@ void main() {
       await tester.pumpWidget(_host(_app(), const AdPrivacyTile()));
       await tester.pumpAndSettle();
       final t = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(t.l3AdPrivacyTitle), findsOneWidget);
+      expect(find.text(t.adsPrivacyTitle), findsOneWidget);
       await tester.tap(find.byKey(const Key('settings-ad-privacy')));
       await tester.pumpAndSettle();
       expect(log.calls.contains('consent.privacyForm'), isTrue);

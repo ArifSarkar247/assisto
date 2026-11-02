@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -60,8 +59,12 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       final dir = await getTemporaryDirectory();
       final f = File('${dir.path}/assisto-money-report.$fmt');
       await f.writeAsBytes(bytes, flush: true);
-      await Share.shareXFiles([XFile(f.path)]);
-      messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
+      final r = await Share.shareXFiles([XFile(f.path)]);
+      // remhbud: say "done" only when the phone confirms a target was chosen;
+      // closing the share sheet is not an export.
+      if (r.status == ShareResultStatus.success) {
+        messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
+      }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));
     }
@@ -72,7 +75,6 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'money_report'),
       appBar: AppBar(title: Text(t.moneyReportTitle), actions: [
         IconButton(
             tooltip: 'PDF',

@@ -45,10 +45,20 @@ def next_occurrence(anchor, rule, after=None):
     interval = max(1, int(rule.get("interval") or 1))
     h, mi = _tod_from_rule(rule, anchor)
 
+    # remhbar: a repeat never starts BEFORE its anchor ("from 1 Dec, every
+    # Monday" used to ring this Monday), and "every N days/weeks" stays in
+    # step with the anchor (it used to count from today, so "every 2 days"
+    # could ring on the wrong day). `floor` = the earliest a candidate may be.
+    floor = max(after, anchor - timedelta(seconds=1))
+
     if freq == "daily":
-        d = max(anchor.date(), after.date())
+        d = floor.date()
+        if interval > 1:
+            off = (d - anchor.date()).days % interval
+            if off:
+                d += timedelta(days=interval - off)
         cand = datetime(d.year, d.month, d.day, h, mi)
-        while cand <= after:
+        while cand <= floor:
             cand += timedelta(days=interval)
         return cand
 
@@ -56,12 +66,18 @@ def next_occurrence(anchor, rule, after=None):
         wd = rule.get("weekday")
         if wd is None:
             wd = anchor.weekday()
-        d = _next_weekday(after.date(), wd, allow_today=True)
+        d = _next_weekday(floor.date(), wd, allow_today=True)
+        if interval > 1:
+            first = _next_weekday(anchor.date(), wd, allow_today=True)
+            off = ((d - first).days // 7) % interval
+            if off:
+                d += timedelta(weeks=interval - off)
         cand = datetime(d.year, d.month, d.day, h, mi)
-        while cand <= after:
+        while cand <= floor:
             cand += timedelta(weeks=interval)
         return cand
 
+    after = floor
     if freq == "monthly":
         dom = rule.get("day_of_month") or anchor.day
         base = date(after.year, after.month, 1)

@@ -25,7 +25,7 @@ Future<T?> _sheet<T>(BuildContext context, Widget child) => showAppSheet<T>(
 String? _moneyRule(AppLocalizations t, String? v, {bool allowZero = false}) {
   final s = (v ?? '').trim();
   if (s.isEmpty) return allowZero ? null : t.rmtErrAmount;
-  final d = double.tryParse(s.replaceAll(',', ''));
+  final d = double.tryParse(rmAscii(s)); // remhbud: Bangla digits too
   if (d == null || d < 0 || (!allowZero && d == 0) || d > 100000000) return t.rmtErrAmount;
   return null;
 }
@@ -122,7 +122,7 @@ class _PlanSheetState extends State<_PlanSheet> {
       onSave: () {
         if (!(_form.currentState?.validate() ?? false)) return;
         Navigator.pop(context, {
-          for (final e in _c.entries) e.key: e.value.text.trim().isEmpty ? '0' : e.value.text.trim(),
+          for (final e in _c.entries) e.key: e.value.text.trim().isEmpty ? '0' : rmAscii(e.value.text),
         });
       },
       children: [
@@ -176,7 +176,7 @@ class _SpendSheetState extends State<_SpendSheet> {
       saveLabel: t.rmtSave,
       onSave: () {
         if (!(_form.currentState?.validate() ?? false)) return;
-        Navigator.pop(context, {'category': _cat, 'amount': _amount.text.trim(), 'note': _note.text.trim()});
+        Navigator.pop(context, {'category': _cat, 'amount': rmAscii(_amount.text), 'note': _note.text.trim()});
       },
       children: [
         Wrap(
@@ -246,7 +246,7 @@ class _AmountSheetState extends State<_AmountSheet> {
       saveLabel: t.rmtSave,
       onSave: () {
         if (!(_form.currentState?.validate() ?? false)) return;
-        Navigator.pop(context, _amount.text.trim());
+        Navigator.pop(context, rmAscii(_amount.text));
       },
       children: [
         TextFormField(
@@ -295,7 +295,7 @@ class _GoalSheetState extends State<_GoalSheet> {
       saveLabel: t.rmtSave,
       onSave: () {
         if (!(_form.currentState?.validate() ?? false)) return;
-        Navigator.pop(context, {'title': _title.text.trim(), 'target': _target.text.trim()});
+        Navigator.pop(context, {'title': _title.text.trim(), 'target': rmAscii(_target.text)});
       },
       children: [
         TextFormField(
@@ -354,8 +354,8 @@ class _BillSheetState extends State<_BillSheet> {
         if (!(_form.currentState?.validate() ?? false)) return;
         Navigator.pop(context, {
           'name': _name.text.trim(),
-          'amount': _amount.text.trim(),
-          'due_day': int.tryParse(_day.text.trim()) ?? 1,
+          'amount': rmAscii(_amount.text),
+          'due_day': int.tryParse(rmAscii(_day.text)) ?? 1,
           'category': _cat,
         });
       },
@@ -381,7 +381,7 @@ class _BillSheetState extends State<_BillSheet> {
           keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: t.rmtBillDueDay, helperText: t.rmtDayHelp),
           validator: (v) {
-            final d = int.tryParse((v ?? '').trim());
+            final d = int.tryParse(rmAscii(v ?? ''));
             return d == null || d < 1 || d > 31 ? t.rmtErrDay : null;
           },
         ),
@@ -405,12 +405,15 @@ class _BillSheetState extends State<_BillSheet> {
 }
 
 /// The money expected every month: {expected_taka, expected_day, expected_sender}.
-Future<Map<String, dynamic>?> showExpectedSheet(BuildContext context, Map<String, dynamic> expected) =>
-    _sheet(context, _ExpectedSheet(expected: expected));
+/// remhbud: [members] (My Circle) are one-tap chips for "who usually sends".
+Future<Map<String, dynamic>?> showExpectedSheet(BuildContext context, Map<String, dynamic> expected,
+        {List<Map<String, dynamic>> members = const []}) =>
+    _sheet(context, _ExpectedSheet(expected: expected, members: members));
 
 class _ExpectedSheet extends StatefulWidget {
   final Map<String, dynamic> expected;
-  const _ExpectedSheet({required this.expected});
+  final List<Map<String, dynamic>> members;
+  const _ExpectedSheet({required this.expected, this.members = const []});
   @override
   State<_ExpectedSheet> createState() => _ExpectedSheetState();
 }
@@ -444,8 +447,8 @@ class _ExpectedSheetState extends State<_ExpectedSheet> {
       onSave: () {
         if (!(_form.currentState?.validate() ?? false)) return;
         Navigator.pop(context, {
-          'expected_taka': _taka.text.trim().isEmpty ? '0' : _taka.text.trim(),
-          'expected_day': int.tryParse(_day.text.trim()) ?? 0,
+          'expected_taka': _taka.text.trim().isEmpty ? '0' : rmAscii(_taka.text),
+          'expected_day': int.tryParse(rmAscii(_day.text)) ?? 0,
           'expected_sender': _sender.text.trim(),
         });
       },
@@ -465,14 +468,33 @@ class _ExpectedSheetState extends State<_ExpectedSheet> {
           decoration: InputDecoration(labelText: t.rmtExpectedDay, helperText: t.rmtDayHelp),
           validator: (v) {
             if ((v ?? '').trim().isEmpty) return rmNum(_taka.text) > 0 ? t.rmtErrDay : null;
-            final d = int.tryParse((v ?? '').trim());
+            final d = int.tryParse(rmAscii(v ?? ''));
             return d == null || d < 1 || d > 31 ? t.rmtErrDay : null;
           },
         ),
         const SizedBox(height: Gap.sm),
+        if (widget.members.isNotEmpty)
+          Wrap(
+            spacing: Gap.sm,
+            runSpacing: Gap.xs,
+            children: [
+              for (final m in widget.members)
+                ChoiceChip(
+                  key: ValueKey('rmt_exp_m_${m['id']}'),
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  showCheckmark: false,
+                  avatar: const Icon(Icons.diversity_3, size: 18),
+                  label: Text('${m['name'] ?? ''}'),
+                  selected: _sender.text.trim() == '${m['name'] ?? ''}'.trim(),
+                  onSelected: (sel) => setState(() => _sender.text = sel ? '${m['name'] ?? ''}' : ''),
+                ),
+            ],
+          ),
         TextFormField(
+          key: const ValueKey('rmt_exp_sender'),
           controller: _sender,
           maxLength: 80,
+          onChanged: (_) => setState(() {}),
           decoration: InputDecoration(labelText: t.rmtExpectedFrom),
         ),
       ],

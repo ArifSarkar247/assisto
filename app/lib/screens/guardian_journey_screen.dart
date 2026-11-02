@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'circle_guardians_screen.dart'; // circlea
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -430,7 +431,16 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           ]);
     }
     return Scaffold(
-      appBar: AppBar(title: Text(t.gjTitle)),
+      appBar: AppBar(title: Text(t.gjTitle), actions: [
+            // circlea: every guardian who can see me + children I look after
+            IconButton(
+              key: const Key('cga-open'),
+              tooltip: t.cgaTitle,
+              icon: const Icon(Icons.supervisor_account_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const CircleGuardiansScreen())),
+            ),
+          ]),
       body: RefreshIndicator(onRefresh: _load, child: body),
     );
   }

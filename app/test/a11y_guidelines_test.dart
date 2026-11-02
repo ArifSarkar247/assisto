@@ -56,6 +56,10 @@ const Map<String, String> _allow = {
   // Not controls / not really obscured.
   '*|tap|flags: [isTextField, isMultiline, isReadOnly': 'SelectableText answer body: long-press selects text; it is reading text, not a button',
   'payment_ladder|contrast|label: "Snooze"': 'false positive: the last card\'s "Snooze" sits under the "Add a due" FAB at the 800 dp fold; the list scrolls it clear',
+  // circlea: a link INSIDE a sentence is as tall as the line (WCAG 2.5.8
+  // inline-target exception; WhatsApp/Telegram the same). The whole message
+  // stays reachable: long-press menu has Open link / Copy link (48 dp rows).
+  '*|tap|isLink': 'inline text link in a chat/channel sentence (WCAG 2.5.8 inline exception); Open/Copy link in the 48 dp message menu',
   // Text drawn over a live video frame cannot have a guaranteed background.
   'cde_call_swapped|contrast|': 'call canvas: timer/path/labels over the (fake) remote video frame; real video changes every frame',
 };

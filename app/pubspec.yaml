@@ -136,6 +136,11 @@ dependencies:
   # the Play build only (AppConfig.playStore). No ContentProvider, no permission.
   in_app_review: 2.0.10
   # ---- /missing ----
+  # ---- photobar ---- image (MIT, brendan-duncan): pure Dart, already in the
+  # tree transitively — pinned to the same version as the lock. Used only to
+  # write the ID-photo JPEG under a portal's KB limit (in an isolate).
+  image: 4.12.0
+  # ---- /photobar ----
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.
@@ -182,6 +187,19 @@ flutter:
           weight: 600
         - asset: assets/fonts/NotoSansBengali-Bold.ttf
           weight: 700
+    # photobar: Photo Studio text & sticker fonts (Bangla + Latin, SIL OFL
+    # 1.1, licences next to them). Used ONLY by the Photo Studio editor.
+    - family: HindSiliguri
+      fonts:
+        - asset: assets/fonts/HindSiliguri-SemiBold.ttf
+          weight: 600
+    - family: Galada
+      fonts:
+        - asset: assets/fonts/Galada-Regular.ttf
+    - family: Atma
+      fonts:
+        - asset: assets/fonts/Atma-SemiBold.ttf
+          weight: 600
 
 flutter_launcher_icons:
   android: true

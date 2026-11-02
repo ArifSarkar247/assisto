@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'local_digits.dart'; // lifebar
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -132,7 +133,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
     await _save();
   }
 
-  String _money(double v) => v.toStringAsFixed(2);
+  String _money(double v) => ld(context, v.toStringAsFixed(2)); // lifebar
 
   @override
   Widget build(BuildContext context) {

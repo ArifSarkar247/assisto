@@ -94,7 +94,14 @@ def record_event(user, data):
     now = timezone.now()
     _purge_old(now)
     kind, eid, pl = ev["kind"], ev["event_id"], ev["placement"]
-    if eid:
+    if kind == "exit":
+        # Ad impact: one aggregate count per user/placement/minute, only for
+        # an interstitial placement; stored as a row with fmt "exit"
+        if ev["format"] != "interstitial":
+            return 400, {"ok": False, "reason": "bad_format"}
+        if not _claim(A.dedupe_key(user.pk, pl, kind, A.minute_bucket(now))):
+            return 200, {"ok": True, "counted": False, "reason": "duplicate"}
+    elif eid:
         if kind == "click" and not _seen(A.dedupe_key(user.pk, pl, "impression", eid)):
             return 200, {"ok": True, "counted": False, "reason": "click_without_impression"}
         if not _claim(A.dedupe_key(user.pk, pl, kind, eid)):
@@ -104,7 +111,8 @@ def record_event(user, data):
             return 200, {"ok": True, "counted": False, "reason": "duplicate"}
     today = timezone.localdate()
     cur = ev["currency"] if kind == "paid" else ""
-    key = dict(date=today, placement=pl, fmt=ev["format"], currency=cur)
+    key = dict(date=today, placement=pl,
+               fmt="exit" if kind == "exit" else ev["format"], currency=cur)
     if kind == "click":
         # never more clicks than impressions (no row = no impression yet)
         n = AdPlacementStat.objects.filter(clicks__lt=F("impressions"), **key).update(
@@ -113,6 +121,7 @@ def record_event(user, data):
             return 200, {"ok": True, "counted": False, "reason": "clicks_capped"}
         return 200, {"ok": True, "counted": True}
     inc = {"impression": {"impressions": F("impressions") + 1},
+           "exit": {"impressions": F("impressions") + 1},
            "paid": {"paid_events": F("paid_events") + 1,
                     "revenue_micros": F("revenue_micros") + ev["value_micros"],
                     "precise_events": F("precise_events")

@@ -111,7 +111,6 @@ def emi_schedule(principal, annual_rate_pct, months, mode="reducing"):
     if mode == "flat":
         total_interest = (p * (annual / Decimal("100")) * (Decimal(n) / Decimal("12")))
         m = ((p + total_interest) / n).quantize(_CENT)
-        per_principal = (p / n)
         per_interest = (total_interest / n)
     else:
         if r == 0:
@@ -122,20 +121,26 @@ def emi_schedule(principal, annual_rate_pct, months, mode="reducing"):
     schedule = []
     bal = p
     total_pay = Decimal("0")
+    interest_so_far = Decimal("0")
     for i in range(1, n + 1):
         if mode == "flat":
+            # moneybar: principal = EMI - interest so the rows sum to the loan
+            # (old per-part rounding over-collected ~1 paisa a month).
             interest_i = per_interest.quantize(_CENT)
-            principal_i = per_principal.quantize(_CENT)
+            principal_i = (m - interest_i)
         else:
             interest_i = (bal * r).quantize(_CENT)
             principal_i = (m - interest_i)
         if i == n:  # absorb rounding into the final payment
             principal_i = bal
+            if mode == "flat":
+                interest_i = (total_interest - interest_so_far).quantize(_CENT)
             pay_i = (principal_i + interest_i).quantize(_CENT)
         else:
             pay_i = m
         bal = (bal - principal_i)
         total_pay += pay_i
+        interest_so_far += interest_i
         schedule.append({
             "month": i,
             "payment": _q(pay_i),

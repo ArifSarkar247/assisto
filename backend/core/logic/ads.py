@@ -37,7 +37,6 @@ TEST_PUBLISHER = "ca-app-pub-3940256099942544"
 # the APK manifest (required by the SDK and by app-ads.txt); the unit ids are
 # served by /ads/config only when `admob_real_ids` is on. A valid set saved in
 # Owner Admin -> Integrations -> AdMob overrides these.
-OWNER_PUBLISHER = "pub-2506398550427515"
 OWNER_APP_ID = "ca-app-pub-2506398550427515~5116255919"
 OWNER_UNITS = {
     "app_open": "ca-app-pub-2506398550427515/1193237050",
@@ -48,6 +47,21 @@ OWNER_UNITS = {
 }
 
 _APP_RE = re.compile(r"^ca-app-pub-\d{16}~\d{6,12}$")
+# admobump (owner 2 Nov): the Owner Admin -> Integrations -> AdMob
+# "Publisher ID" field; app-ads.txt is built ONLY from stored config (never a
+# publisher id in git).
+_PUBLISHER_RE = re.compile(r"^(?:ca-app-)?(pub-\d{16})$")
+TEST_PUBLISHER_ID = "pub-3940256099942544"
+
+
+def normalize_publisher_id(raw):
+    """'pub-XXXXXXXXXXXXXXXX' (16 digits) or '' when invalid. Accepts the
+    'ca-app-pub-…' spelling AdMob shows next to app ids; refuses Google's
+    public test publisher."""
+    m = _PUBLISHER_RE.match(str(raw or "").strip())
+    if not m or m.group(1) == TEST_PUBLISHER_ID:
+        return ""
+    return m.group(1)
 _UNIT_RE = re.compile(r"^ca-app-pub-\d{16}/\d{6,12}$")
 
 # integration field -> client unit key
@@ -87,6 +101,11 @@ BLOCKED_TOKENS = (
     "language_pick", "ring_check", "call", "chat", "messenger", "conversation",
     "lock", "vault", "remit", "account", "delete", "privacy", "pin", "family",
     "location", "track", "kid", "live",
+    # OWNER ADS FINAL (2 Nov) never list
+    "cctv", "vehicle", "missing", "blood", "train", "destination", "budget",
+    "money", "prepaid", "khata", "business", "sales", "invoice", "crm",
+    "quran", "ramadan", "calorie", "food", "health", "medicine", "reminder",
+    "note", "todo", "task", "school", "child",
 )
 BANNER_MIN_REFRESH_SEC = 60
 
@@ -105,18 +124,43 @@ REWARDED_SCREENS = ("credits", "photo_studio")
 # banners-everywhere (owner 26 Oct): one bottom banner on every normal
 # Free-user feature screen (mirrors AdPlacements.bannerScreens).
 BANNER_SCREENS = (
-    "saved_items", "dictionary", "health_tips",
-    "money", "budget", "money_report", "money_trends", "money_networth", "money_tax",
-    "reminders", "notes_todos", "birthdays", "meetings",
-    "jobs", "cv_builder", "business", "crm", "contract", "prepaid_meter",
-    "all_services", "guide", "nearby", "quick_tools", "medicine_db", "ramadan", "exam",
+    # OWNER ADS FINAL (2 Nov): no ad on money / budget, reminders, notes /
+    # tasks, health, CRM, business khata, prepaid meter or Ramadan pages
+    "saved_items", "dictionary", "birthdays", "meetings",
+    "jobs", "cv_builder", "contract",
+    "all_services", "guide", "nearby", "quick_tools", "exam",
     "photo_gallery", "circle_list", "settings",
 )
-INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
+# OWNER ADS FINAL (2 Nov): interstitials ONLY on the EXIT after a finished
+# task — the ONE registry (mirrors AdExitPlacement in ad_placements.dart).
+INTERSTITIAL_MOMENTS = (
+    "photo_after_save", "scan_after_save", "cv_after_download",
+    "lesson_after_finish", "interview_after_feedback", "student_after_practice",
+    "article_after_read", "job_after_apply", "plan_after_save",
+    "estimate_after_finish", "quick_tool_exit",
+)
+# pre-2-Nov ids (photo_saved / task_done): a stored list made only of these
+# means "the defaults" (task_done is on the never list now)
+LEGACY_INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
+INTERSTITIAL_MIN_GAP_SEC = 800
+INTERSTITIAL_MAX_PER_DAY = 4
 
 
 def _s(v):
     return str(v or "").strip()
+
+
+def interstitial_placements(stored):
+    """The exit placements switched on. None / a pre-2-Nov list made only of
+    legacy ids -> every registered placement; else only registered ids
+    (anything unknown is dropped — the server can narrow, never add)."""
+    if stored is None:
+        return list(INTERSTITIAL_MOMENTS)
+    parts = stored if isinstance(stored, (list, tuple)) else _s(stored).split(",")
+    names = [_s(p).lower() for p in parts if _s(p)]
+    if names and all(n in LEGACY_INTERSTITIAL_MOMENTS for n in names):
+        return list(INTERSTITIAL_MOMENTS)
+    return _csv(names, INTERSTITIAL_MOMENTS)
 
 
 def is_test_id(v):
@@ -229,20 +273,20 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     paid = bool(paid)
     real, app_id, units = serving_units(caps, admob_cfg, admob_working)
     gap = int(caps.get("appopen_min_gap_sec", 10800) or 0)
-    i_gap = int(caps.get("interstitial_min_gap_sec", 300) or 0)
+    i_gap = int(caps.get("interstitial_min_gap_sec", INTERSTITIAL_MIN_GAP_SEC) or 0)
 
     def on(key):
         return bool(caps.get(key, True)) and not paid
 
     app_open_cap = int(caps.get("appopen_daily_cap", 0) or 0)
-    inter_cap = int(caps.get("interstitial_daily_cap", 0) or 0)
+    inter_cap = min(INTERSTITIAL_MAX_PER_DAY,
+                    int(caps.get("interstitial_daily_cap", 0) or 0))
     rew_cap = int(caps.get("rewarded_daily_cap", 0) or 0)
     hero = bool(caps.get("hero_enabled", False)) and not paid
     # banners-everywhere: allowlist first, then the hard never-fence
     banner_screens = [b for b in _csv(caps.get("banner_screens", ",".join(BANNER_SCREENS)),
                                       BANNER_SCREENS) if not is_blocked_screen(b)]
-    moments = _csv(caps.get("interstitial_moments", ",".join(INTERSTITIAL_MOMENTS)),
-                   INTERSTITIAL_MOMENTS)
+    moments = interstitial_placements(caps.get("interstitial_moments"))
     placements = {
         "app_open": bool(flag_app_open) and on("place_app_open") and app_open_cap > 0,
         "native_home": hero,
@@ -271,7 +315,7 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "appopen_daily_cap": app_open_cap,
         "appopen_min_bg_sec": max(5, min(3600, int(caps.get("appopen_min_bg_sec", 30) or 30))),
         "rewarded_daily_cap": rew_cap,
-        "interstitial_min_gap_sec": max(300, i_gap),
+        "interstitial_min_gap_sec": max(INTERSTITIAL_MIN_GAP_SEC, i_gap),
         "interstitial_daily_cap": inter_cap,
         "banner_screens": banner_screens if placements["banner"] else [],
         # banners-everywhere: the app refreshes a banner no faster than this
@@ -310,7 +354,9 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
 
 # ------------------------------------------------------------ event logging
 # POST /ads/event {placement, format, kind: impression|click|paid, ...}
-EVENT_KINDS = ("impression", "click", "paid")
+# exit = Ad impact: the app went to the background right after an
+# interstitial closed (aggregate count only)
+EVENT_KINDS = ("impression", "click", "paid", "exit")
 FORMATS = ("app_open", "native", "banner", "interstitial", "rewarded")
 _PLACEMENT_RE = re.compile(r"^[a-z][a-z0-9_]{1,39}$")
 _CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
@@ -379,7 +425,13 @@ def placement_report(rows):
     revenue_micros, currency}] -> per-placement totals, highest revenue first.
     Revenue stays per currency (AdMob reports in the account currency)."""
     by = {}
+    exits = {}
     for r in rows or []:
+        if (r.get("format") or "") == "exit":
+            # Ad impact rows: `impressions` counts "app closed right after"
+            pl = r.get("placement") or ""
+            exits[pl] = exits.get(pl, 0) + int(r.get("impressions") or 0)
+            continue
         key = (r.get("placement") or "", r.get("format") or "")
         a = by.setdefault(key, {"placement": key[0], "format": key[1],
                                 "impressions": 0, "clicks": 0, "paid_events": 0,
@@ -396,8 +448,26 @@ def placement_report(rows):
                                       for c, m in sorted(a["revenue"].items())) or "—"
         a["ctr_pct"] = (round(100.0 * a["clicks"] / a["impressions"], 2)
                         if a["impressions"] else 0.0)
+        a["exits"] = exits.get(a["placement"], 0) if a["format"] == "interstitial" else 0
+        a["exit_pct"] = (round(100.0 * min(a["exits"], a["impressions"]) / a["impressions"], 1)
+                         if a["impressions"] else 0.0)
         out.append(a)
     out.sort(key=lambda a: (-sum(a["revenue"].values()), -a["impressions"], a["placement"]))
     return out
 
 
+def ad_impact(report):
+    """OWNER ADS FINAL (2 Nov) "Ad impact": EVERY registered interstitial
+    exit placement on its own row — impressions, estimated income (Google's
+    onPaidEvent values, per currency) and the share of ad views after which
+    the app was closed within seconds. `report` = placement_report(...)."""
+    by = {r["placement"]: r for r in report or [] if r.get("format") == "interstitial"}
+    out = []
+    for pid in INTERSTITIAL_MOMENTS:
+        r = by.get("interstitial_" + pid) or {}
+        out.append({"placement": pid,
+                    "impressions": int(r.get("impressions") or 0),
+                    "revenue_text": r.get("revenue_text") or "—",
+                    "exits": int(r.get("exits") or 0),
+                    "exit_pct": float(r.get("exit_pct") or 0.0)})
+    return out

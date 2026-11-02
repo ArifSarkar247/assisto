@@ -59,6 +59,20 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
     super.initState();
     _job = Map<String, dynamic>.from(widget.job);
     _loadLocal();
+    _checkAi();
+  }
+
+  /// lifebar: null = still checking; false = no AI right now (the tailor
+  /// button is disabled with an honest reason instead of a dead tap).
+  bool? _aiOk;
+
+  Future<void> _checkAi() async {
+    try {
+      final r = await context.read<AppState>().api.chatStatus();
+      if (mounted) setState(() => _aiOk = r['ai_available'] == true);
+    } catch (_) {
+      if (mounted) setState(() => _aiOk = false);
+    }
   }
 
   Future<void> _loadLocal() async {
@@ -121,7 +135,8 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
 
   // --- CV + cover letter (MOCK, key-gated) --------------------------------
   Future<void> _tailor(AppLocalizations tr, {bool creditsRetry = false}) async {
-    final id = (_job['id'] ?? 0) as int;
+    final rawId = _job['id'];
+    final id = rawId is int ? rawId : (rawId is num ? rawId.toInt() : int.tryParse('$rawId') ?? 0);
     if (id <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.jobsSampleTrackHint)));
       return;
@@ -148,18 +163,22 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
       showDialog(context: context, builder: (_) => AlertDialog(
         title: Text(tr.generated),
         content: SizedBox(width: double.maxFinite, child: SingleChildScrollView(
-          child: SelectableText('CV:\n$cv\n\n${tr.coverLetter}:\n$cover'))),
+          child: SelectableText('${tr.lbWJobsCvLabel}:\n$cv\n\n${tr.coverLetter}:\n$cover'))),
         actions: [
           TextButton(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: 'CV:\n$cv\n\nCover:\n$cover'));
+                Clipboard.setData(ClipboardData(text: '${tr.lbWJobsCvLabel}:\n$cv\n\n${tr.coverLetter}:\n$cover'));
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.copied)));
               },
               child: Text(tr.copy)),
           TextButton(onPressed: () => Navigator.pop(context), child: Text(tr.close)),
         ]));
     } catch (_) {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(tr.lbWJobsTailorFailed)));
+      }
     }
   }
 
@@ -290,13 +309,14 @@ class _JobsDetailSheetState extends State<JobsDetailSheet> {
         // AI tailoring (mock + key-gated)
         const SizedBox(height: Gap.md),
         FilledButton.tonalIcon(
-          onPressed: _busy ? null : () => _tailor(tr),
+          onPressed: (_busy || _aiOk != true) ? null : () => _tailor(tr),
           icon: _busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.auto_awesome_rounded),
           label: Text(tr.jobsTailorCvCover),
         ),
         Padding(padding: const EdgeInsets.only(top: 4, left: 4),
-            child: Text(tr.jobsTailorKeyNote, style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant))),
+            child: Text(_aiOk == false ? tr.lbWJobsAiOff : tr.lbWJobsTailorNote,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
         const SizedBox(height: Gap.lg),
 
         // interview prep checklist

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'circle_people_filter.dart'; // circlea
 import 'package:provider/provider.dart';
 
 import '../famcare_api.dart';
@@ -197,19 +198,21 @@ class _CirclePickState extends State<_CirclePick> {
       body = Text(t.rnCircleNone,
           key: const ValueKey('rn-circle-none'), textAlign: TextAlign.center);
     } else {
-      body = Column(mainAxisSize: MainAxisSize.min, children: [
-        for (final r in _rows!)
-          ListTile(
-            key: ValueKey('rn-circle-${r['circle_id']}'),
-            leading: CircleAvatar(
-                child: Text(('${r['name'] ?? ''}'.trim().isEmpty
-                        ? '?'
-                        : '${r['name']}'.trim().characters.first)
-                    .toUpperCase())),
-            title: Text('${r['name'] ?? ''}'),
-            onTap: () => Navigator.pop(context, r),
-          ),
-      ]);
+      // circlea: chips (All / Family / Others) + search, Family first
+      body = CirclePeopleList(
+        rows: _rows!,
+        listKey: 'pick-reminder',
+        rowBuilder: (_, r) => ListTile(
+          key: ValueKey('rn-circle-${r['circle_id']}'),
+          leading: CircleAvatar(
+              child: Text(('${r['name'] ?? ''}'.trim().isEmpty
+                      ? '?'
+                      : '${r['name']}'.trim().characters.first)
+                  .toUpperCase())),
+          title: Text('${r['name'] ?? ''}'),
+          onTap: () => Navigator.pop(context, r),
+        ),
+      );
     }
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -263,6 +266,39 @@ class SyncRefusalStrip extends StatelessWidget {
           Expanded(
               child: Text(t.rnSyncRefused(m),
                   style: TextStyle(color: scheme.onErrorContainer))),
+        ]),
+      ),
+    );
+  }
+}
+
+/// remhbar: the same note was changed on this phone (offline) AND on another
+/// phone — both versions are kept; this says so and how to tidy up.
+class SyncConflictStrip extends StatelessWidget {
+  const SyncConflictStrip({super.key, required this.count});
+  final int count;
+  @override
+  Widget build(BuildContext context) {
+    if (count <= 0) return const SizedBox.shrink();
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        key: const ValueKey('rn-sync-conflict'),
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+        padding: const EdgeInsets.all(Gap.sm),
+        decoration: BoxDecoration(
+            color: scheme.tertiaryContainer,
+            borderRadius: BorderRadius.circular(Radii.md)),
+        child: Row(children: [
+          Icon(Icons.call_split_rounded,
+              size: 18, color: scheme.onTertiaryContainer),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(t.rhbConflictStrip(t.rhbConflictTag),
+                  style: TextStyle(color: scheme.onTertiaryContainer))),
         ]),
       ),
     );

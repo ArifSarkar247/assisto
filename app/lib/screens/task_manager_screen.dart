@@ -121,6 +121,19 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       ..showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  /// lifebar: honest failure with a Retry that re-sends the same input.
+  void _notSaved(VoidCallback retry) {
+    if (!mounted) return;
+    final tr = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(
+        duration: const Duration(seconds: 8),
+        content: Text(tr.lbWTmNotSaved),
+        action: SnackBarAction(label: tr.retry, onPressed: retry),
+      ));
+  }
+
   // -------------------------------------------------- project CRUD
   Future<void> _saveProject(Project p) async {
     final api = context.read<AppState>().api;
@@ -135,8 +148,9 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       }
       _toast(tmStr(context, 'tmProjectSaved'));
     } catch (_) {
-      if (p.id == null) _projects = [..._projects, p];
-      _toast(tmStr(context, 'tmSavedOffline'));
+      // lifebar: never "saved offline" — nothing queues it. Keep the user's
+      // input in memory and offer Retry instead.
+      _notSaved(() => _saveProject(p));
     }
     await _writeCache();
     if (mounted) setState(() {});
@@ -178,8 +192,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       }
       _toast(tmStr(context, 'tmTaskSaved'));
     } catch (_) {
-      if (t.id == null) _tasks = [..._tasks, t];
-      _toast(tmStr(context, 'tmSavedOffline'));
+      // lifebar: honest — the edit/move did NOT happen; Retry keeps the input
+      _notSaved(() => _saveTask(t));
     }
     await _writeCache();
     if (mounted) setState(() {});
@@ -271,7 +285,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           if (_offline) _offlineBanner(),
           for (final p in _projects) ...[
@@ -789,7 +803,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
   Widget _listView() {
     final ordered = orderTasks(_filtered, _now);
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
       itemCount: ordered.length,
       separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
       itemBuilder: (_, i) => _TaskTile(
@@ -805,7 +819,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     final cols = boardColumns(_filtered, _now);
     return ListView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
       children: [
         for (final s in kBoardColumns)
           _BoardColumn(
@@ -884,8 +898,12 @@ class _BoardColumn extends StatelessWidget {
             Container(width: 10, height: 10,
                 decoration: BoxDecoration(color: tint, shape: BoxShape.circle)),
             const SizedBox(width: Gap.sm),
-            Text(statusLabel(context, status),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            Flexible(
+              child: Text(statusLabel(context, status),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
             const SizedBox(width: Gap.sm),
             Text(tmNum(context, tasks.length),
                 style: TextStyle(color: scheme.onSurfaceVariant)),

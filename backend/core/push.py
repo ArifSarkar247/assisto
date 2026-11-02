@@ -85,7 +85,11 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # customer (route my_dues), or the customer's reply to the shop
          # (route business/khata). A NOTIFICATION push; muted shops send none;
          # reminders max 1/customer/shop/day + quiet hours (tagada_engine).
-         "dues")
+         "dues",
+         # remhbud: a NEW expense crossed 80 % / 100 % of a budget category
+         # (core.budget_push: crossing only, quiet hours, max 3/day). A
+         # NOTIFICATION push with the category + percent only.
+         "budget_alert")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -106,7 +110,8 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "key_request": 86400, "key_ready": 86400, "message_request": 86400,
          "offer": 6 * 3600, "meter_low": 12 * 3600,
          "agent_nudge": 12 * 3600, "agent_approval": 86400,
-         "at_command": 3600, "doc_expiry": 12 * 3600, "dues": 86400}
+         "at_command": 3600, "doc_expiry": 12 * 3600, "dues": 86400,
+         "budget_alert": 12 * 3600}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -116,7 +121,8 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "message_request": "messages", "offer": "offers",
             "meter_low": "alerts",
             "agent_nudge": "alerts", "agent_approval": "alerts",
-            "at_command": "alerts", "doc_expiry": "reminders", "dues": "reminders"}
+            "at_command": "alerts", "doc_expiry": "reminders", "dues": "reminders",
+            "budget_alert": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 

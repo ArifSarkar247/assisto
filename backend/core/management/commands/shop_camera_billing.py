@@ -9,7 +9,8 @@ command debits `shop_extra_camera` credits for 30 more days. If the owner can't
 cover it, the camera is DISABLED (never silently kept running unpaid) and the
 owner gets an honest bn/en NotifEvent + push.
 
-Also sweeps stale live-view sessions. Idempotent; safe to run daily.
+Also sweeps stale live-view sessions. Idempotent; safe to run daily — and
+safe when two runs overlap (row lock + re-check per camera, cronbar).
 
 Crontab (daily 04:10, low priority):
 
@@ -60,6 +61,36 @@ def _notify_disabled(owner, cam, need):
         pass
 
 
+def _renew_one(owner, cam_pk, now, period):
+    """cronbar: charge ONE camera at most once per period, even when two runs
+    overlap (cron + a manual run): the row is locked and re-read inside one
+    transaction, so a second run sees the new billed_until and skips; the
+    debit and the new billed_until commit together.
+    -> None (not due any more) | ("renewed", credits, need) | ("disabled", 0, need)"""
+    from django.db import transaction
+    from core.models import ShopCamera
+    from core import shop_views as SV
+    with transaction.atomic():
+        cam = ShopCamera.objects.select_for_update().filter(pk=cam_pk, enabled=True).first()
+        if cam is None:
+            return None
+        due = cam.billed_until or (cam.created + period)
+        if due > now:
+            return None
+        need = SV._extra_camera_credits()
+        if need <= 0:
+            ShopCamera.objects.filter(pk=cam.pk).update(billed_until=now + period)
+            return ("renewed", 0, 0)
+        got = SV._debit_camera_credits(owner, need,
+                                       note="shop camera #%d monthly" % cam.id)
+        if got >= need:
+            ShopCamera.objects.filter(pk=cam.pk).update(
+                billed_until=max(due, now) + period)
+            return ("renewed", got, need)
+        ShopCamera.objects.filter(pk=cam.pk).update(enabled=False)
+        return ("disabled", 0, need)
+
+
 def run_billing(now=None):
     from core.models import ShopCamera, User
     from core import shop_views as SV
@@ -79,20 +110,14 @@ def run_billing(now=None):
             due = cam.billed_until or (cam.created + period)
             if due > now:
                 continue
-            need = SV._extra_camera_credits()
-            if need <= 0:
-                ShopCamera.objects.filter(pk=cam.pk).update(billed_until=now + period)
-                out["renewed"] += 1
-                continue
-            got = SV._debit_camera_credits(owner, need,
-                                           note="shop camera #%d monthly" % cam.id)
-            if got >= need:
-                ShopCamera.objects.filter(pk=cam.pk).update(
-                    billed_until=max(due, now) + period)
+            res = _renew_one(owner, cam.pk, now, period)
+            if res is None:
+                continue        # renewed / turned off by an overlapping run
+            kind, got, need = res
+            if kind == "renewed":
                 out["renewed"] += 1
                 out["credits"] += got
             else:
-                ShopCamera.objects.filter(pk=cam.pk).update(enabled=False)
                 _notify_disabled(owner, cam, need)
                 out["disabled"] += 1
     try:

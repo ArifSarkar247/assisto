@@ -7,6 +7,8 @@ import '../theme.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/local_digits.dart'; // lifebar
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// #70 SMARTWATCH & FITNESS — Health Connect bridge (SPEC: wearables).
 ///
@@ -250,7 +252,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
     );
   }
 
-  Widget _unavailable(AppLocalizations tr) => ListView(children: [
+  Widget _unavailable(AppLocalizations tr) => ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
         StateMessage(
           icon: Icons.watch_off_rounded,
           tint: Brand.purple,
@@ -268,7 +270,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         ),
       ]);
 
-  Widget _needsPermission(AppLocalizations tr) => ListView(children: [
+  Widget _needsPermission(AppLocalizations tr) => ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
         StateMessage(
           icon: Icons.watch_rounded,
           tint: Brand.blue,
@@ -302,7 +304,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xl)),
         children: [
           if (!hasAny)
             StateMessage(
@@ -415,9 +417,10 @@ class _Metric extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(height: Gap.sm),
-          Text(value,
+          // lifebar: Bangla digits; a big step count may wrap at 200% font
+          Text(ld(context, value),
               style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold, color: color),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis),
           Text(label,
               style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
@@ -464,8 +467,8 @@ class _StepsWeekCard extends StatelessWidget {
             summary.weekStepsTotal == 0
                 ? tr.swStepsWeekEmpty
                 : tr.swStepsWeekSummary(
-                    _fmtInt(summary.weekStepsTotal),
-                    _fmtInt(summary.weekStepsAvg)),
+                    ld(context, _fmtInt(summary.weekStepsTotal)),
+                    ld(context, _fmtInt(summary.weekStepsAvg))),
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),

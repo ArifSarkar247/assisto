@@ -283,7 +283,8 @@ def run_sweeps(now=None):
     out = {}
     from . import bizagent_guard as GD
     for name, fn in (("idle_handback", GD.sweep_idle_takeovers), ("resumed", resume_waiting), ("deferred", process_deferred),
-                     ("followups", run_followups), ("morning", run_morning)):
+                     ("followups", run_followups), ("morning", run_morning),
+                     ("rate_limited", lambda n: S().retry_rate_limited(n))):   # salesbar
         try:
             out[name] = fn(now)
         except Exception:  # noqa: BLE001 — one failing sweep never blocks the rest

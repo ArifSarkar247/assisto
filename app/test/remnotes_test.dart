@@ -229,7 +229,7 @@ void main() {
 
     test('every existing alarm is re-handed once (now carries the buttons)', () {
       final p = AlarmPlan(key: 'rem-1', at: DateTime(2030), title: 't', body: '');
-      expect(p.sig(AlarmMode.exact), endsWith('|a1'));
+      expect(p.sig(AlarmMode.exact), endsWith('|a2')); // remhbar: re-handed again
       expect(ReminderActions.keyOf('remalarm:rem-9'), 'rem-9');
       expect(ReminderActions.keyOf('{"kind":"reminder"}'), '');
       expect(ReminderActions.snoozeIdFor('rem-9'), isNot(alarmIdFor('rem-9')));

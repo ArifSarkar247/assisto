@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 // qa1: the insight engine builds Latin-digit strings; show them in the UI's digits.
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
+import 'money_common.dart' show moneyCatLabel; // moneybar
 
 /// AI SPENDING ADVICE — ADVANCED (#51, SPEC v2.1 §21).
 ///
@@ -44,6 +46,23 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// CURRENT-period total for the category; `budget` the user's own monthly
 /// limit; `previous` the previous-period total for the same category (all
 /// optional except amount). No live AI, no key needed to run the observations.
+/// moneybar: /money/trends categories -> the rows _SMath reads
+/// ({category, amount, previous}); only categories with spend.
+List<Map<String, dynamic>> spendLedgerRows(Map<String, dynamic>? t) {
+  final out = <Map<String, dynamic>>[];
+  for (final c in (t?['categories'] as List? ?? const [])) {
+    if (c is! Map) continue;
+    final cur = double.tryParse('${c['current'] ?? 0}') ?? 0;
+    if (cur <= 0) continue;
+    out.add({
+      'category': '${c['category'] ?? ''}',
+      'amount': '${c['current']}',
+      'previous': '${c['previous'] ?? ''}',
+    });
+  }
+  return out;
+}
+
 class SpendingAdviceScreen extends StatefulWidget {
   const SpendingAdviceScreen({super.key});
   @override
@@ -56,6 +75,10 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
   List<Map<String, dynamic>> _rows = [];
   bool _loading = true, _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
+  // moneybar: this month's REAL spend per category from the user's own money
+  // ledger (/money/trends) — no retyping. Empty when there is none / offline.
+  List<Map<String, dynamic>> _ledger = [];
+  bool _useLedger = true;
 
   @override
   void initState() {
@@ -69,14 +92,19 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       _error = false;
     });
     final api = context.read<AppState>().api;
+    final trends = api.moneyTrends().then<Map<String, dynamic>?>((v) => v)
+        .catchError((Object _) => null);
     try {
       _rows = await api.listItems(_notesPath);
     } catch (e) {
       _error = true;
       _failCause = e;
     }
+    _ledger = spendLedgerRows(await trends);
+    if (_ledger.isEmpty) _useLedger = false;
     if (mounted) setState(() => _loading = false);
   }
+
 
   void _toast(String msg) {
     ScaffoldMessenger.of(context)
@@ -129,6 +157,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -154,19 +183,44 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       );
     }
 
-    final result = _SMath.analyse(_rows);
+    final ledger = _useLedger && _ledger.isNotEmpty;
+    // ledger categories are keys (food, rent…) — show them in the UI language
+    final rows = ledger
+        ? [for (final r in _ledger) {...r, 'category': moneyCatLabel(tr, r['category'])}]
+        : _rows;
+    final result = _SMath.analyse(rows);
+    final sourceSwitch = _ledger.isEmpty
+        ? null
+        : Padding(
+            padding: const EdgeInsets.only(bottom: Gap.md),
+            child: SegmentedButton<bool>(
+              key: const ValueKey('mb-spend-source'),
+              segments: [
+                ButtonSegment(value: true, label: Text(tr.mbSpendFromLedger),
+                    icon: const Icon(Icons.account_balance_wallet_rounded)),
+                ButtonSegment(value: false, label: Text(tr.mbSpendTyped),
+                    icon: const Icon(Icons.edit_note_rounded)),
+              ],
+              selected: {ledger},
+              onSelectionChanged: (v) => setState(() => _useLedger = v.first),
+            ),
+          );
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.truthSpendTitle)),
-      floatingActionButton: _rows.isEmpty
+      floatingActionButton: (_rows.isEmpty || ledger)
           ? null
           : FloatingActionButton.extended(
               onPressed: _add,
               icon: const Icon(Icons.add_rounded),
               label: Text(tr.spendAddCategory),
             ),
-      body: _rows.isEmpty
-          ? StateMessage(
+      body: rows.isEmpty
+          ? ListView(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              children: [
+              if (sourceSwitch != null) sourceSwitch,
+              StateMessage(
               icon: Icons.insights_rounded,
               title: tr.spendWelcomeTitle,
               message: tr.spendWelcomeBody,
@@ -175,10 +229,18 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                 icon: const Icon(Icons.add_rounded),
                 label: Text(tr.spendAddCategory),
               ),
-            )
+            ),
+              ])
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
               children: [
+                if (sourceSwitch != null) sourceSwitch,
+                if (ledger) ...[
+                  Text(tr.mbSpendLedgerNote,
+                      style: AType.bodySmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: Gap.sm),
+                ],
                 // ALWAYS-ON honest disclaimer
                 _disclaimerCard(context, tr),
                 const SizedBox(height: Gap.md),
@@ -200,8 +262,8 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                           .titleMedium
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.sm),
-                  ...result.categories.map(
-                      (c) => _categoryCard(context, tr, c, _edit, _delete)),
+                  ...result.categories.map((c) => _categoryCard(
+                      context, tr, c, ledger ? null : _edit, ledger ? null : _delete)),
                   const SizedBox(height: Gap.md),
                   // key-gated AI seam — honest, never a fabricated narrative
                   _aiSeamCard(context, tr),
@@ -219,7 +281,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                           .titleMedium
                           ?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.sm),
-                  ..._rows.map((r) => _rawRowCard(context, tr, r, _edit, _delete)),
+                  ...rows.map((r) => _rawRowCard(context, tr, r, _edit, _delete)),
                 ],
               ],
             ),
@@ -308,8 +370,8 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
   }
 
   Widget _categoryCard(BuildContext context, AppLocalizations tr, _SCategory c,
-      Future<void> Function(Map<String, dynamic>) onEdit,
-      Future<void> Function(Map<String, dynamic>) onDelete) {
+      Future<void> Function(Map<String, dynamic>)? onEdit,
+      Future<void> Function(Map<String, dynamic>)? onDelete) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
@@ -323,6 +385,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             Text(notifLocalizeDigits(context, c.spentDisplay),
                 style: TextStyle(
                     fontWeight: FontWeight.w700, color: scheme.primary)),
+            if (onEdit != null && onDelete != null)
             PopupMenuButton<String>(
               onSelected: (v) {
                 if (v == 'edit') onEdit(c.raw);
@@ -674,7 +737,7 @@ class _SMath {
     poisha = poisha.abs();
     final taka = poisha ~/ 100;
     final paisa = poisha % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   static int _pct(int part, int whole) {

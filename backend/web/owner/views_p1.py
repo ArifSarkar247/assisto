@@ -88,11 +88,19 @@ def sellers(request):
             S.audit(request, request.owner, "bizagent.channel", "channel:%s" % ch.pk,
                     before=before, after={"enabled": ch.enabled, "_reason": reason})
             return done("/owner/sellers")
-        if action not in ("kill", "config"):
+        if action not in ("kill", "config", "meta"):
             raise Http404
         new = {}
         bad = []
-        if action == "kill":
+        if action == "meta":
+            # salesbar: what Meta has really granted (drives the seller app)
+            rev = request.POST.get("review", "")
+            new["meta_access"] = {
+                "review": rev if rev in BZ.META_REVIEW_STATES else sa["meta_access"]["review"],
+                "comments_fb": request.POST.get("comments_fb") == "on",
+                "comments_ig": request.POST.get("comments_ig") == "on",
+                "human_agent": request.POST.get("human_agent") == "on"}
+        elif action == "kill":
             new["kill"] = {k: request.POST.get("kill_" + k) == "on" for k in KINDS}
             new["ai_kill"] = request.POST.get("ai_kill") == "on"
         else:
@@ -151,6 +159,8 @@ def sellers(request):
         "sa": sa, "rows": _rows(cfg), "margin_rows": BZ.plan_margin_rows(cfg),
         "warn": warn, "kinds": KINDS, "wa_cats": WA_CATS,
         "kill_rows": [(k, sa["kill"].get(k)) for k in KINDS],
+        "meta_access": BZ.meta_access_normalize(sa.get("meta_access")),
+        "meta_review_rows": [(r, T["sl_meta_rev_" + r]) for r in BZ.META_REVIEW_STATES],
         "wa_rows": [(c, sa["wa_cost_bdt"].get(c)) for c in WA_CATS],
         "per_reply": round(BZ.reply_cost_bdt(cfg), 2),
         "webhook_meta": "https://api.lifeassisto.com/api/v1/bizagent/webhook/meta",

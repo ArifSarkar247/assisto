@@ -258,10 +258,15 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
   Widget build(BuildContext context) {
     final ad = _ad;
     // never next to an open keyboard; hidden tab = no banner
-    if (ad == null ||
-        !widget.enabled ||
-        MediaQuery.viewInsetsOf(context).bottom > 0) {
+    if (MediaQuery.viewInsetsOf(context).bottom > 0) {
       return const SizedBox.shrink();
+    }
+    if (ad == null || !widget.enabled) {
+      // lifebar: no banner (Premium / no fill) must still keep the system
+      // nav bar's space — a Scaffold with a bottomNavigationBar strips that
+      // inset from its body, so a 0-height slot let the last row sit under
+      // the 3-button bar.
+      return SizedBox(height: MediaQuery.paddingOf(context).bottom);
     }
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;

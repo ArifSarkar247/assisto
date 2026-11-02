@@ -20,6 +20,7 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
+from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import views_voice as voicev
@@ -192,6 +193,7 @@ urlpatterns = [
     path("nearby", views.nearby),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
+    path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
     path("guides", views.govt_guide),
     path("me/elderly", views.ElderlyModeView.as_view()),
     path("autopay/stop-all", views.autopay_stop_all),
@@ -234,6 +236,9 @@ urlpatterns = [
     path("business/khata/parties/<int:pk>/entries", bz.KhataEntryView.as_view()),
     path("business/khata/parties/<int:pk>/payment", bz.KhataPaymentView.as_view()),
     path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
+    path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
+    path("business/staff", bz.StaffView.as_view()),   # bizbar
+    path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar
     path("business/khata/tagada/single/<int:pk>", bz.TagadaSingleView.as_view()),
     path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
     path("business/khata/tagada/sms/<int:pk>", bz.TagadaSmsSendView.as_view()),   # smsotp
@@ -952,6 +957,7 @@ urlpatterns += [
     path("rt/send", c2calls.RtSendView.as_view()),
     path("circle/calls/incoming", c2calls.IncomingCallsView.as_view()),
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
+    path("circle/calls/<int:call_id>/quality", c2calls.CallQualityView.as_view()),  # callsbar
 ]
 # ---- /c2-calls ----
 # ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears
@@ -1386,3 +1392,37 @@ urlpatterns += [
     path("missing-alerts/<int:pk>/tips", msv.TipsView.as_view()),
 ]
 # ---- /missing ----
+# ---- circlea ---- (My Circle A1: Family/Others, link previews, guardians)
+from . import views_circlea as cav  # noqa: E402
+urlpatterns += [
+    path("circle/<int:pk>/people-group", cav.CirclePeopleGroupView.as_view()),
+    path("guardians/mine", cav.GuardiansMineView.as_view()),
+    path("guardians/mine/<int:uid>/remove", cav.GuardianRemoveView.as_view()),
+    path("guardians/children", cav.GuardianChildrenView.as_view()),
+    path("links/preview", cav.LinkPreviewView.as_view()),
+    path("links/check", cav.LinkCheckView.as_view()),
+]
+# ---- /circlea ----
+
+# ---- blood ---- (owner 2 Nov: Blood donor panel; flag blood_donors, OFF)
+from . import blood_views as bdv  # noqa: E402
+urlpatterns += [
+    path("blood-panel/config", bdv.ConfigView.as_view()),
+    path("blood-panel/me", bdv.MeView.as_view()),
+    path("blood-panel/me/donated", bdv.DonatedView.as_view()),
+    path("blood-panel/me/verify", bdv.VerifyView.as_view()),
+    path("blood-panel/donors", bdv.DonorsView.as_view()),
+    path("blood-panel/donors/<int:pk>/message", bdv.DonorMessageView.as_view()),
+    path("blood-panel/requests", bdv.RequestsView.as_view()),
+    path("blood-panel/requests/<int:pk>", bdv.RequestDetailView.as_view()),
+    path("blood-panel/requests/<int:pk>/respond", bdv.RespondView.as_view()),
+    path("blood-panel/requests/<int:pk>/found", bdv.FoundView.as_view()),
+    path("blood-panel/requests/<int:pk>/close", bdv.CloseView.as_view()),
+    path("blood-panel/requests/<int:pk>/report", bdv.ReportView.as_view()),
+    path("blood-panel/threads", bdv.ThreadsView.as_view()),
+    path("blood-panel/threads/<int:pk>", bdv.ThreadView.as_view()),
+    path("blood-panel/threads/<int:pk>/block", bdv.ThreadBlockView.as_view()),
+    path("blood-panel/threads/<int:pk>/circle", bdv.ThreadCircleView.as_view()),
+    path("blood-panel/banks", bdv.BanksView.as_view()),
+]
+# ---- /blood ----

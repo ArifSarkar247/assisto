@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// BLOG & SCRIPT WRITING — ADVANCED, KEY-GATED (#130, SPEC v2.1 §21).
 ///
@@ -86,6 +87,13 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
   void initState() {
     super.initState();
     _load();
+    // lifebar: a Bangla UI starts with Bangla drafts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _hasDraft) return;
+      if (Localizations.localeOf(context).languageCode == 'bn') {
+        setState(() => _lang = 'bn');
+      }
+    });
   }
 
   @override
@@ -123,7 +131,13 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
       return;
     }
     final d = assembleBlog(_format, _topic.text,
-        tone: _tone, length: _length, lang: _lang);
+        tone: _tone,
+        length: _length,
+        lang: _lang,
+        // lifebar: the language picker now changes the draft
+        bnPack: _lang == 'bn'
+            ? lookupAppLocalizations(const Locale('bn')).lbWBwBnPack
+            : null);
     setState(() {
       _body.text = d.text;
       _hasDraft = true;
@@ -229,7 +243,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
   Widget _composeTab() {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
       children: [
         _AiMarkerCard(),
         const SizedBox(height: Gap.lg),
@@ -274,10 +288,15 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           display: (v) => _langLabel(t, v),
           onSelect: (v) => setState(() => _lang = v),
         ),
+        if (_lang == 'banglish') ...[
+          const SizedBox(height: Gap.xs),
+          Text(t.lbWBwBanglishNote,
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        ],
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: _generate,
-          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+          icon: const Icon(Icons.edit_note_rounded, size: 18), // lifebar: template, not AI
           label: Text(_hasDraft ? t.bwRegenerate : t.bwGenerate),
         ),
         if (_hasDraft) ...[
@@ -359,7 +378,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         itemCount: _saved.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) {
@@ -545,10 +564,23 @@ class BlogDraft {
   String get aiFullRequires => 'anthropic';
 }
 
+/// lifebar: number of lines in the Bangla template pack (ARB lbWBwBnPack).
+const int kBlogBnPackLines = 43;
+
+/// [bnPack] (lifebar) — the Bangla template pack from the ARB, one template
+/// separated by `~~`, `@@` = topic (order: 5 hooks, 5 CTAs by tone; 6 section seeds
+/// heading/prompt; 6 script beats heading/prompt; caption heading/prompt,
+/// hashtags heading/prompt; 4 title leads blog/script/caption/outline; the
+/// "this topic" fallback). A malformed pack falls back to English.
 BlogDraft assembleBlog(String format, String topic,
     {String tone = 'informative',
     String length = 'medium',
-    String lang = 'en'}) {
+    String lang = 'en',
+    String? bnPack}) {
+  final pack = bnPack?.split('~~').map((l) => l.trim()).toList();
+  if (pack != null && pack.length == kBlogBnPackLines) {
+    return _assembleLocal(format, topic, tone, length, lang, pack);
+  }
   final tp = _cleanTopic(topic);
   final hook = _fill(_toneHook[tone] ?? _toneHook['informative']!, tp);
   final cta = _fill(_toneCta[tone] ?? _toneCta['informative']!, tp);
@@ -573,6 +605,57 @@ BlogDraft assembleBlog(String format, String topic,
     sections: sections,
     cta: cta,
     text: text,
+  );
+}
+
+BlogDraft _assembleLocal(String format, String topic, String tone,
+    String length, String lang, List<String> p) {
+  final words = topic.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+  final tp = words.isEmpty ? p[42] : words.join(' ');
+  String f(String x) => x.replaceAll('@@', tp);
+  final ti = _tones.indexOf(tone) < 0 ? 0 : _tones.indexOf(tone);
+  final hook = f(p[ti]);
+  final cta = f(p[5 + ti]);
+  final n = _lengthSections[length] ?? 3;
+  List<String> pair(int at) => [p[at], f(p[at + 1])];
+  List<List<String>> sections;
+  if (format == 'script') {
+    final beats = [for (var i = 0; i < 6; i++) pair(22 + i * 2)];
+    final middle = n < 1 ? 1 : n;
+    sections = [
+      beats[0],
+      beats[1],
+      ...beats.sublist(2, (2 + middle).clamp(2, beats.length - 1)),
+      beats.last,
+    ];
+  } else if (format == 'caption') {
+    sections = [pair(34), pair(36)];
+  } else {
+    final seeds = [for (var i = 0; i < 6; i++) pair(10 + i * 2)];
+    sections = seeds.sublist(0, n.clamp(1, seeds.length));
+  }
+  final lead = switch (format) {
+    'script' => p[39],
+    'caption' => p[40],
+    'outline' => p[41],
+    _ => p[38],
+  };
+  final lines = <String>['# $lead $tp', '', hook, ''];
+  for (final s in sections) {
+    lines.add('## ${s[0]}');
+    lines.add(s[1]);
+    lines.add('');
+  }
+  lines.add(cta);
+  return BlogDraft(
+    format: format,
+    tone: tone,
+    length: length,
+    lang: lang,
+    hook: hook,
+    sections: sections,
+    cta: cta,
+    text: lines.join('\n').trim(),
   );
 }
 

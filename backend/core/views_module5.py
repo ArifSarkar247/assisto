@@ -92,8 +92,13 @@ class BirthdaysView(APIView):
     def get(self, request):
         lang = req_lang(request)
         rows = Birthday.objects.filter(user=request.user)
+        # remhbar: every pre-reminder + relation/note/phone/yearly come back
+        # (they used to be dropped on save)
         occasions = [{"id": b.id, "name": b.name, "date": b.date.isoformat(),
-                      "kind": b.kind, "lead_days": b.lead_days} for b in rows]
+                      "kind": b.kind,
+                      "lead_days": list(b.leads) if b.leads else b.lead_days,
+                      "relation": b.relation, "notes": b.notes,
+                      "phone": b.phone, "yearly": b.yearly} for b in rows]
         return Response({
             "upcoming": bdays.upcoming(occasions),
             "all": occasions,
@@ -105,12 +110,18 @@ class BirthdaysView(APIView):
         d = bdays.parse_date(data.get("date"))
         if d is None:
             return Response({"error": "date_invalid"}, status=status.HTTP_400_BAD_REQUEST)
+        leads, single = bdays.clean_leads(data.get("lead_days"))
         b = Birthday.objects.create(
             user=request.user,
             name=str(data.get("name", "")).strip()[:120],
             date=d,
             kind=bdays._kind(data.get("kind", "birthday"))["id"],
-            lead_days=bdays.clamp_lead_days(data.get("lead_days", bdays.LEAD_DAYS_DEFAULT)),
+            lead_days=single,
+            leads=leads,
+            relation=str(data.get("relation") or "").strip()[:60],
+            notes=str(data.get("notes") or "").strip()[:500],
+            phone=str(data.get("phone") or "").strip()[:32],
+            yearly=data.get("yearly") is not False,
         )
         return Response(BirthdaySerializer(b).data, status=status.HTTP_201_CREATED)
 
@@ -223,8 +234,31 @@ class RamadanEidCardView(APIView):
 # ===========================================================================
 
 class ExamWatcherView(APIView):
+    # lifebar: list + delete so the phone can show what the server watches
+    def get(self, request):
+        rows = ExamWatcher.objects.filter(user=request.user)[:20]
+        return Response({"watchers": [{
+            "id": w.id, "label": w.label, "url": w.url,
+            "expected_date": w.expected_date.isoformat() if w.expected_date else None,
+            "roll": w.roll, "board": w.board, "exam": w.exam,
+            "result_ready": w.result_ready,
+            "checking": bool(w.url) and not w.result_ready,
+            "failures": w.consecutive_failures,
+        } for w in rows]})
+
+    def delete(self, request):
+        try:
+            wid = int(request.query_params.get("id", ""))
+        except (TypeError, ValueError):
+            return Response({"error": "id_required"}, status=status.HTTP_400_BAD_REQUEST)
+        n, _ = ExamWatcher.objects.filter(user=request.user, id=wid).delete()
+        return Response({"deleted": bool(n)},
+                        status=status.HTTP_200_OK if n else status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
         ok, data = exam.normalise_watcher(request.data or {})
+        if ok and ExamWatcher.objects.filter(user=request.user).count() >= 10:
+            ok, data = False, "limit"          # lifebar: polite cap per user
         if not ok:
             return Response({"error": data}, status=status.HTTP_400_BAD_REQUEST)
         exp = None
@@ -425,7 +459,7 @@ def x2_photo_v(photo):
     return hashlib.sha1(base.encode()).hexdigest()[:12]
 
 
-def _member_dict(m):
+def _member_dict(m, group_ctx=None):
     name, photo = _resolve_peer(m)
     return {
         "id": m.id, "name": name, "display_name": name, "photo": photo,
@@ -442,7 +476,16 @@ def _member_dict(m):
         "sharing": m.sharing or {},
         **_cde_fields(m),
         **_connect_fields(m),   # connect-flow: connected_at
+        **_group_fields(m, group_ctx),   # circlea: Family / Others
     }
+
+
+def _group_fields(m, ctx=None):
+    from . import circle_family
+    try:
+        return circle_family.group_fields(m, ctx)
+    except Exception:  # noqa: BLE001 — a listing never fails on the hint
+        return {"circle_group": "others", "circle_group_auto": True}
 
 
 def _connect_fields(m):
@@ -506,13 +549,15 @@ class CircleMembersView(APIView):
         # (incoming OR outgoing) must NOT appear here.
         rows = CircleMember.objects.filter(user=request.user, state="accepted")
         org = _organise_map(request.user)
+        from . import circle_family
+        gctx = circle_family.link_context(request.user)
         out = []
         from .models import MsgChatPref
         favs = set(MsgChatPref.objects.filter(
             user=request.user, chat_kind="member", favourite=True
         ).values_list("chat_id", flat=True))
         for m in rows:
-            d = _member_dict(m)
+            d = _member_dict(m, gctx)
             d.update(org.get(str(m.id), {
                 "pinned": False, "pin_at": None, "archived": False, "muted": False}))
             d["favourite"] = str(m.id) in favs
@@ -978,6 +1023,9 @@ class CircleMessagesView(APIView):
             "edited_at": x.edited_at.isoformat() if x.edited_at else None,
             "forwarded": x.forwarded,
             "forward_hops": x.forward_hops,
+            # circlea: the sender-built link preview, still ciphertext
+            # ({ciphertext, nonce, scheme, sender_key_id}) — never a URL.
+            "link_preview": x.link_preview or None,
             # md2: my phone swaps its local bubble for this row in place
             # (same client_msg_id) — no frame where the message is missing.
             "client_msg_id": x.client_msg_id if x.sender_id == uid else "",

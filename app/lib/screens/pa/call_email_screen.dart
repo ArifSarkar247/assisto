@@ -304,7 +304,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
+                  padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96)),
                   itemCount: list.length,
                   separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
                   itemBuilder: (_, i) => _card(list[i], tr, scheme),

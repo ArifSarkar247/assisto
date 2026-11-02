@@ -346,6 +346,7 @@ List<Destination> searchDestinations({
   TravelCat? cat,
   String query = '',
   bool Function(String id)? savedOnly,
+  String Function(Destination d)? extraHay, // lifebar: Bangla text to search
 }) {
   final q = query.trim().toLowerCase();
   return kDestinations.where((d) {
@@ -353,7 +354,7 @@ List<Destination> searchDestinations({
     if (division != null && d.division != division) return false;
     if (cat != null && d.cat != cat) return false;
     if (q.isNotEmpty) {
-      final hay = '${d.name} ${d.howToGet} ${d.nearby.join(' ')}'.toLowerCase();
+      final hay = '${d.name} ${d.howToGet} ${d.nearby.join(' ')} ${extraHay?.call(d) ?? ''}'.toLowerCase();
       if (!hay.contains(q)) return false;
     }
     return true;

@@ -50,6 +50,8 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
   final _dailyCap = TextEditingController();
   final _threadCap = TextEditingController();
   Map<String, dynamic> _aiToday = const {};
+  // salesbar: what Meta has granted (comment replies only after that)
+  Map<String, dynamic> _features = const {};
 
   @override
   void initState() {
@@ -98,6 +100,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
         _dailyCap.text = bd(context, s['daily_ai_cap'] ?? 300);
         _threadCap.text = bd(context, s['thread_daily_cap'] ?? 50);
         _aiToday = Map<String, dynamic>.from((setup['ai_today'] as Map?) ?? const {});
+        _features = Map<String, dynamic>.from((setup['features'] as Map?) ?? const {});
         _loading = false;
       });
     } catch (e) {
@@ -203,9 +206,13 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
     );
   }
 
+  bool get _commentsGranted =>
+      _features['comments_fb'] == true || _features['comments_ig'] == true;
+
   Widget _switch(String key, String title, String sub, {bool enabled = true}) => SwitchListTile(
         contentPadding: EdgeInsets.zero,
-        value: _s[key] == true,
+        // a switch that cannot work yet is shown OFF (and disabled), never "on"
+        value: enabled && _s[key] == true,
         title: Text(title),
         subtitle: Text(bd(context, sub)),
         onChanged: _busy || !enabled ? null : (v) => _save({key: v}),
@@ -390,7 +397,9 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
           _switch('voice_enabled', t.g1VoiceTitle,
               t.g1VoiceSub((_g1['voice_credits'] as num?)?.toInt() ?? 0)),
           if (!voiceReady) BizNote(text: t.g1VoiceNotReady, icon: Icons.key_off_rounded),
-          _switch('comment_dm', t.g1CommentTitle, t.g1CommentSub),
+          _switch('comment_dm', t.g1CommentTitle, t.g1CommentSub, enabled: _commentsGranted),
+          if (!_commentsGranted)
+            BizNote(text: t.sbCommentsWaitMeta, icon: Icons.hourglass_top_rounded),
           const SizedBox(height: Gap.sm),
           BizNote(text: t.g1PaymentNote, icon: Icons.verified_user_rounded),
         ]),

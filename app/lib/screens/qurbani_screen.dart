@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
 
 /// QURBANI & EID PLANNER — ADVANCED (#190, SPEC v2.1 §20).
 ///
@@ -435,7 +436,7 @@ class _AnimalTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tr.qurbaniSharesTakenOfTotal('$taken', '$total'),
+                  Text(tr.qurbaniSharesTakenOfTotal(ld(context, taken), ld(context, total)),
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -452,7 +453,7 @@ class _AnimalTab extends StatelessWidget {
                   const SizedBox(height: Gap.sm),
                   Text(
                     free > 0
-                        ? tr.qurbaniSharesFree('$free')
+                        ? tr.qurbaniSharesFree(ld(context, free))
                         : tr.qurbaniAllSharesTaken,
                     style: TextStyle(color: scheme.onSurfaceVariant),
                   ),
@@ -486,15 +487,15 @@ class _AnimalTab extends StatelessWidget {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: scheme.primaryContainer,
-                      child: Text('${p.shares}',
+                      child: Text(ld(context, p.shares),
                           style: TextStyle(
                               color: scheme.onPrimaryContainer,
                               fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
                     ),
                     title: Text(p.name),
-                    subtitle: Text(tr.qurbaniSharesCount('${p.shares}')),
+                    subtitle: Text(tr.qurbaniSharesCount(ld(context, p.shares))),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Text(p.costDisplay,
+                      Text(ld(context, p.costDisplay),
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       PopupMenuButton<String>(
                         onSelected: (v) {
@@ -527,7 +528,11 @@ class _AnimalTab extends StatelessWidget {
           Flexible(
               child: Text(k, style: TextStyle(color: scheme.onSurfaceVariant))),
           const SizedBox(width: Gap.sm),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Flexible(
+            child: Text(ld(context, v),
+                textAlign: TextAlign.end,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
         ],
       ),
     );
@@ -548,7 +553,7 @@ class _MeatTab extends StatelessWidget {
     final meat = summary.meatPlan;
     final totalG = summary.meatTotalG;
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
           color: scheme.surfaceContainerHighest,
@@ -566,7 +571,7 @@ class _MeatTab extends StatelessWidget {
           child: ListTile(
             title: Text(tr.qurbaniMeatTotal),
             trailing: Text(
-              totalG > 0 ? summary.meatTotalKgDisplay : tr.qurbaniMeatNotSet,
+              totalG > 0 ? tr.lbDKg(ld(context, summary.meatTotalKgDisplay)) : tr.qurbaniMeatNotSet,
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             onTap: onEdit,
@@ -589,7 +594,7 @@ class _MeatTab extends StatelessWidget {
                 child: ListTile(
                   leading: Icon(_meatIcon(m.part), color: scheme.primary),
                   title: Text(_meatPartLabel(tr, m.part)),
-                  trailing: Text(m.kgDisplay,
+                  trailing: Text(tr.lbDKg(ld(context, m.kgDisplay)),
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               )),
@@ -636,7 +641,7 @@ class _ChecklistTab extends StatelessWidget {
         : (100 * done.where(_checklistSteps.contains).length ~/
             _checklistSteps.length);
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
           child: Padding(
@@ -644,7 +649,7 @@ class _ChecklistTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tr.qurbaniChecklistProgress('$pct'),
+                Text(tr.qurbaniChecklistProgress(ld(context, pct)),
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -779,7 +784,8 @@ class _QMath {
   static String kg(int grams) {
     final kg = grams ~/ 1000;
     final g = grams % 1000;
-    return '${_group(kg)}.${(g ~/ 10).toString().padLeft(2, '0')} kg';
+    // lifebar: number only — the unit comes from the app language (lbDKg)
+    return '${_group(kg)}.${(g ~/ 10).toString().padLeft(2, '0')}';
   }
 
   // largest-remainder split of `total` by `weights`; sums EXACTLY to total.
@@ -971,7 +977,7 @@ Future<Map<String, dynamic>?> _planSheet(
                     value: totalShares,
                     items: [
                       for (var i = 1; i <= cap; i++)
-                        DropdownMenuItem(value: i, child: Text('$i')),
+                        DropdownMenuItem(value: i, child: Text(ld(context, i))),
                     ],
                     onChanged: (v) =>
                         setSheet(() => totalShares = v ?? totalShares),
@@ -1051,7 +1057,7 @@ Future<Map<String, dynamic>?> _participantSheet(
                 onPressed:
                     shares > 1 ? () => setSheet(() => shares--) : null,
               ),
-              Text('$shares',
+              Text(ld(ctx, shares),
                   style: AFonts.figures(Theme.of(ctx).textTheme.titleLarge)),
               IconButton(
                 tooltip: AppLocalizations.of(context).f2Increase,
@@ -1060,7 +1066,7 @@ Future<Map<String, dynamic>?> _participantSheet(
                     shares < free ? () => setSheet(() => shares++) : null,
               ),
             ]),
-            Text(tr.qurbaniSharesFree('$free'),
+            Text(tr.qurbaniSharesFree(ld(context, free)),
                 style: TextStyle(
                     color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
@@ -1112,7 +1118,7 @@ Future<Map<String, dynamic>?> _meatSheet(
                     tooltip: AppLocalizations.of(context).f2Decrease,
                     icon: const Icon(Icons.remove_circle_outline_rounded),
                     onPressed: val > 0 ? () => set(val - 1) : null),
-                Text('$val', style: AFonts.figures(Theme.of(ctx).textTheme.titleMedium)),
+                Text(ld(ctx, val), style: AFonts.figures(Theme.of(ctx).textTheme.titleMedium)),
                 IconButton(
                     tooltip: AppLocalizations.of(context).f2Increase,
                     icon: const Icon(Icons.add_circle_outline_rounded),

@@ -10,6 +10,7 @@ Cron (1st of the month, 04:10 Asia/Dhaka):
 import json
 
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 
 
 class Command(BaseCommand):
@@ -18,6 +19,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--no-alert", action="store_true")
 
+    @track_job("ai_usage_monthly")
     def handle(self, *a, **o):
         from core import ai_cost_alert as A
         out = A.monthly_report(notify=not o["no_alert"])

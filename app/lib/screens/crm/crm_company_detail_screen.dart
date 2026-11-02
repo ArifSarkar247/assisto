@@ -347,10 +347,8 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
 
   Future<void> _mail(String email) async {
     if (email.isEmpty) return;
-    try {
-      await launchUrl(Uri.parse('mailto:$email'),
-          mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    // bizbar: a phone with no mail app used to fail silently
+    await openForUser(context, Uri.parse('mailto:$email'), where: 'crm.mail');
   }
 
   String _industryLabel(AppLocalizations t, String? code) {

@@ -279,10 +279,10 @@ void main() {
       await settle();
       expect(s.signals.last.$1, 'media');
       expect(s.signals.last.$2,
-          {'camera': true, 'mic': false, 'video': true});
+          {'camera': true, 'mic': false, 'video': true, 'low_data': false, 'net_paused': false});
       await c.toggleCamera();
       expect(s.signals.last.$2,
-          {'camera': false, 'mic': false, 'video': true});
+          {'camera': false, 'mic': false, 'video': true, 'low_data': false, 'net_paused': false});
       s.remoteSignal('media', {'camera': false, 'mic': false, 'video': true});
       await settle();
       expect(c.remoteMicOn, isFalse);

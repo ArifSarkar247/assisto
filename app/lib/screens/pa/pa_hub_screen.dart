@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'pa_schedule_screen.dart';
 import 'visitor_filter_screen.dart';
 import 'liaison_screen.dart';
@@ -39,6 +40,7 @@ class PaHubScreen extends StatelessWidget {
     // The meeting brief (#104) is reached by selecting a meeting inside the
     // schedule (it needs a specific meeting), so it is not a standalone tile.
     final tools = <_PaTool>[
+      _PaTool.header(t.lbWPaGroupDaily),
       _PaTool(Icons.calendar_month_rounded, t.paScheduleTitle,
           (_) => const PaScheduleScreen()),
       _PaTool(Icons.how_to_reg_rounded, t.paVisTitle,
@@ -49,6 +51,7 @@ class PaHubScreen extends StatelessWidget {
           (_) => const PersonalTasksScreen()),
       _PaTool(Icons.admin_panel_settings_rounded, t.paDelegateTitle,
           (_) => const DelegateAccessScreen()),
+      _PaTool.header(t.lbWPaGroupOffice),
       // Key-gated layer (§14 #106/107/109/110/112/113/114) — deterministic mock
       // with honest "connect a key" seams; works fully with no key.
       _PaTool(Icons.contact_phone_rounded, t.paCeTitle,
@@ -65,6 +68,7 @@ class PaHubScreen extends StatelessWidget {
           (_) => const ExpenseVoucherScreen()),
       _PaTool(Icons.insert_chart_rounded, t.paResearchTitle,
           (_) => const ResearchPrepScreen()),
+      _PaTool.header(t.lbWPaGroupCompany),
       // Corporate tier (§14 #116-120).
       _PaTool(Icons.dashboard_customize_rounded, t.paBoardTitle,
           (_) => const BoardPackScreen()),
@@ -76,6 +80,7 @@ class PaHubScreen extends StatelessWidget {
           (_) => const BizTravelEventsScreen()),
       _PaTool(Icons.account_tree_rounded, t.paProjTitle,
           (_) => const ProjectTrackingScreen()),
+      _PaTool.header(t.lbWPaGroupPublic),
       // Celebrity / star tier (§14 #121-125).
       _PaTool(Icons.handshake_rounded, t.starDealsTitle,
           (_) => const StarDealsScreen()),
@@ -92,18 +97,31 @@ class PaHubScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(t.sidebarPersonalSecretary)),
       body: ListView.separated(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         itemCount: tools.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
         itemBuilder: (context, i) {
           final tool = tools[i];
+          final b = tool.build;
+          if (b == null) {
+            // lifebar: group header (22 flat tiles were hard to scan)
+            return Padding(
+              padding: EdgeInsets.only(top: i == 0 ? 0 : Gap.md, left: Gap.xs),
+              child: Semantics(
+                header: true,
+                child: Text(tool.label,
+                    style: AType.titleSmall.copyWith(
+                        color: cs.primary, fontWeight: FontWeight.w700)),
+              ),
+            );
+          }
           return Material(
             color: cs.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(Radii.md),
             child: InkWell(
               borderRadius: BorderRadius.circular(Radii.md),
               onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: tool.build)),
+                  .push(MaterialPageRoute(builder: b)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: Gap.md, vertical: Gap.md),
@@ -141,6 +159,9 @@ class PaHubScreen extends StatelessWidget {
 class _PaTool {
   final IconData icon;
   final String label;
-  final WidgetBuilder build;
+  final WidgetBuilder? build; // null = a group header
   const _PaTool(this.icon, this.label, this.build);
+  const _PaTool.header(this.label)
+      : icon = Icons.label_rounded,
+        build = null;
 }

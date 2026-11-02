@@ -35,11 +35,14 @@ class JourneyRequestsView(APIView):
         out = JourneyRequest.objects.filter(requester=me).select_related(
             "requester", "traveller", "journey")
         people = []
+        from . import circle_family   # circlea: Family / Others
+        gctx = circle_family.link_context(me)
         for m in CircleMember.objects.filter(user=me, state="accepted", blocked=False,
                                              peer_user__isnull=False).select_related("peer_user"):
             people.append({"member_id": m.id, "name": m.name or GJ._name(me, m.peer_user),
                            "relation": m.relation,
-                           "child": GJ.is_child_pair(me, m.peer_user)})
+                           "child": GJ.is_child_pair(me, m.peer_user),
+                           **circle_family.group_fields(m, gctx)})
         return Response({
             "incoming": [GJ.as_dict(r, me, lang) for r in inc.filter(status__in=live)[:20]],
             "outgoing": [GJ.as_dict(r, me, lang) for r in out.filter(status__in=live)[:20]],
@@ -135,11 +138,12 @@ class JourneyRequestActionView(APIView):
             elif action == "cancel":
                 if req.status not in GJ.LIVE:
                     return _bad("not_active", status.HTTP_409_CONFLICT)
+                others = GJ.others_live(req)   # circlea: honest if a co-guardian is live
                 GJ.finish(req, "cancelled", now, by="requester")
                 rn = GJ._name(req.traveller, req.requester)
+                sbn, sen = GJ.still_watching_texts(req, others)
                 GJ.notify(req.traveller, req, "cancelled", "%s অনুরোধ তুলে নিয়েছেন" % rn,
-                          "%s cancelled the request" % rn,
-                          "আর কেউ আপনার যাত্রা দেখছেন না।", "Nobody is following your trip now.")
+                          "%s cancelled the request" % rn, sbn, sen)
             else:
                 return _bad("unknown_action", status.HTTP_404_NOT_FOUND)
         req.refresh_from_db()

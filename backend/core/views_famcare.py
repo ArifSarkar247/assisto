@@ -98,7 +98,8 @@ class FamilyTasksView(APIView):
         except (TypeError, ValueError):
             return refuse(request, "not_found")
         r, err = FC.assign_reminder(request.user, mid, d.get("title"),
-                                    _due(d.get("due_at")), d.get("notes") or "")
+                                    _due(d.get("due_at")), d.get("notes") or "",
+                                    repeat=d.get("repeat"))
         if err:
             return refuse(request, err)
         return Response({"ok": True, "task": FC.task_dict(r, request.user)},

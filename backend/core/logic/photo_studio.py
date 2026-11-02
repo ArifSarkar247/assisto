@@ -100,12 +100,50 @@ BEAUTY_FORBIDDEN = ("face_reshape", "jaw", "cheeks", "eye_size", "nose",
                     "lips", "skin_tone_change", "skin_lighten", "age_change",
                     "gender_change", "look_like")
 
-# Bangladesh photo sizes (mm @ 300 dpi), white background.
+# Bangladesh photo sizes — photobar (2 Nov): every preset carries its SOURCE
+# and how sure we are; the app shows "check with the office before you
+# submit". The old passport 40x50 mm matched no source and was removed.
+#   w_mm/h_mm  print size (None = a digital-upload preset, pixels only)
+#   px_w/px_h  exact output pixels (300 dpi for print presets)
+#   fmt        'png' (print) | 'jpg' (portal upload); max_kb = portal limit
+#   verified   'official_mission' | 'official_portal' | 'common_practice'
 BD_PHOTO_SIZES = {
-    "passport_bd": {"w_mm": 40, "h_mm": 50, "bg": "#FFFFFF"},   # e-passport
-    "visa_bd": {"w_mm": 50, "h_mm": 50, "bg": "#FFFFFF"},       # 2x2 in visa
-    "stamp_bd": {"w_mm": 19, "h_mm": 25, "bg": "#FFFFFF"},      # stamp size
+    "passport_bd": {"w_mm": 45, "h_mm": 55, "px_w": 531, "px_h": 650, "dpi": 300,
+                    "bg": "#FFFFFF", "fmt": "png", "max_kb": 0,
+                    "verified": "official_mission",
+                    "source": "https://www.bhclondon.org.uk/mrp-documents-preparation-fee-for-application",
+                    "note": "MRP / hand-in 'passport size': 55x45 mm, white background "
+                            "(Bangladesh High Commission London). The e-passport needs no photo: "
+                            "it is taken at the passport office."},
+    "visa_bd": {"w_mm": 35, "h_mm": 45, "px_w": 413, "px_h": 531, "dpi": 300,
+                "bg": "#FFFFFF", "fmt": "png", "max_kb": 0,
+                "verified": "official_portal",
+                "source": "https://dip.portal.gov.bd",
+                "note": "Bangladesh visa form: colour photo 45x35 mm, white background (DIP)."},
+    "visa_india": {"w_mm": 51, "h_mm": 51, "px_w": 602, "px_h": 602, "dpi": 300,
+                   "bg": "#FFFFFF", "fmt": "jpg", "max_kb": 1000,
+                   "verified": "official_portal",
+                   "source": "https://indianvisaonline.gov.in/visa/",
+                   "note": "Indian visa: 2x2 inch square, white background; online upload "
+                           "JPEG, at least 350x350 px, at most 1 MB."},
+    "job_bd": {"w_mm": None, "h_mm": None, "px_w": 300, "px_h": 300, "dpi": 300,
+               "bg": "#FFFFFF", "fmt": "jpg", "max_kb": 100,
+               "verified": "common_practice",
+               "source": "https://alljobs.teletalk.com.bd",
+               "note": "Government job applications (Teletalk): photo 300x300 px JPG, "
+                       "up to 100 KB — check each circular."},
+    "stamp_bd": {"w_mm": 19, "h_mm": 25, "px_w": 224, "px_h": 295, "dpi": 300,
+                 "bg": "#FFFFFF", "fmt": "png", "max_kb": 0,
+                 "verified": "common_practice", "source": "",
+                 "note": "Stamp size as studios print it; no official source."},
 }
+ID_VERIFIED = ("official_mission", "official_portal", "common_practice")
+
+
+def mm_to_px(mm, dpi=300):
+    """Print millimetres -> pixels at [dpi] (rounded)."""
+    return int(round(float(mm) / 25.4 * dpi))
+
 
 STRENGTHS = ("light", "natural", "strong")
 DEFAULT_STRENGTH = "natural"

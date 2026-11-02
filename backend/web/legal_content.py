@@ -387,7 +387,7 @@ PERMISSIONS = [
         "revoke": ("Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন (Ads) → বিজ্ঞাপন আইডি মুছুন বা রিসেট করুন; "
                    "অ্যাপের সেটিংস → \"বিজ্ঞাপনের গোপনীয়তা\" থেকেও সম্মতি বদলাতে পারেন (যেখানে দেখায়)।",
                    "Android Settings → Privacy → Ads → delete or reset the Advertising ID; you can also change "
-                   "your consent in the app's Settings → \"Ad privacy choices\" (where shown)."),
+                   "your consent in the app's Settings → \"Ads privacy\" (where shown)."),
     },
 ]
 
@@ -515,7 +515,7 @@ PRIVACY = [
          ("Discover-এ \"স্পনসরড\" কার্ড সব প্ল্যানে দেখা যেতে পারে এবং সবসময় \"স্পনসরড\" লেখা থাকে।",
           "\"Sponsored\" cards in Discover can appear on every plan and are always labelled \"Sponsored\"."),
          ("<b>যেভাবে বন্ধ/বদল করবেন:</b> Android সেটিংস → গোপনীয়তা → বিজ্ঞাপন (Ads) → বিজ্ঞাপন আইডি মুছুন বা রিসেট করুন; অ্যাপের সেটিংস → \"বিজ্ঞাপনের গোপনীয়তা\" থেকে সম্মতি বদলান (যেখানে আইন অনুযায়ী দেখায়); অথবা প্রিমিয়াম/বিজনেস প্ল্যানে কোনো বিজ্ঞাপনই নেই।",
-          "<b>How to opt out or change:</b> Android Settings → Privacy → Ads → delete or reset your Advertising ID; change your consent in the app's Settings → \"Ad privacy choices\" (shown where the law requires it); or use Premium/Business, which have no ads at all."))),
+          "<b>How to opt out or change:</b> Android Settings → Privacy → Ads → delete or reset your Advertising ID; change your consent in the app's Settings → \"Ads privacy\" (shown where the law requires it); or use Premium/Business, which have no ads at all."))),
     S("sharing", "কার সাথে তথ্য শেয়ার হয়", "Who we share information with",
       P("আমরা কাউকে আপনার তথ্য বিক্রি করি না, ভাড়াও দিই না। তথ্য শুধু এই ক্ষেত্রে যায়:",
         "We never sell or rent your information. It only goes to:"),

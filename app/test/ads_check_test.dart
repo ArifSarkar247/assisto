@@ -135,7 +135,9 @@ void main() {
     final native = <String>{};
     setUpAll(() {
       final slot = RegExp(r"AdBannerSlot\(\s*screen:\s*'([a-z_]+)'");
-      final moment = RegExp(r"AdMoments\.report\(\s*'([a-z_]+)'");
+      // OWNER ADS FINAL (2 Nov): interstitials only via the exit registry
+      final moment =
+          RegExp(r'AdExit\.(?:taskDone|maybeShow)\(\s*AdExitPlacement\.(\w+)');
       for (final f in _dartFiles()) {
         final rel = _rel(f);
         final src = _stripComments(f.readAsStringSync());
@@ -188,21 +190,14 @@ void main() {
       expect(bad, isEmpty, reason: bad.join('\n'));
     });
 
-    test('banner_money is the My Account tracker, never a payment screen', () {
-      expect(banners['money'], ['lib/screens/money_screen.dart']);
-      final src = File('lib/screens/money_screen.dart').readAsStringSync();
-      expect(src.contains('My Account'), isTrue);
-      // the tracker opens no payment / checkout flow of its own
-      for (final s in [
-        'CheckoutSheet',
-        'checkout_sheet.dart',
-        'PaywallSheet',
-        'CreditsOut',
-        'store_billing.dart',
-        'play_billing',
-        'payments_api.dart',
-      ]) {
-        expect(src.contains(s), isFalse, reason: 'money_screen.dart uses $s');
+    test('OWNER ADS FINAL: money / budget / reminders / notes / health / CRM / '
+        'khata / prepaid / Ramadan pages carry no banner any more', () {
+      for (final k in ['money', 'budget', 'money_report', 'money_trends',
+          'money_networth', 'money_tax', 'reminders', 'notes_todos',
+          'health_tips', 'medicine_db', 'crm', 'business', 'prepaid_meter',
+          'ramadan']) {
+        expect(banners.containsKey(k), isFalse, reason: k);
+        expect(AdPlacements.bannerScreens.contains(k), isFalse, reason: k);
       }
     });
 
@@ -222,15 +217,21 @@ void main() {
       ]) {
         if (!File(f).existsSync()) continue;
         final s = _stripComments(File(f).readAsStringSync());
-        expect(RegExp(r'AdBannerSlot\(|SponsoredPostSlot\(|HomeHero\(|AdMoments\.report\(')
+        expect(RegExp(r'AdBannerSlot\(|SponsoredPostSlot\(|HomeHero\(|AdExit\.')
             .hasMatch(s), isFalse, reason: '$f must carry no ad');
       }
     });
 
-    test('interstitials only at the two natural breaks', () {
-      expect(moments.keys.toSet(), AdPlacements.interstitialMoments.keys.toSet());
-      expect(moments['photo_saved'], ['lib/photo_studio/ps_controller.dart']);
-      expect(moments['task_done'], ['lib/screens/notes_todos_screen.dart']);
+    test('interstitials only through registered exit placements', () {
+      final names = AdExitPlacement.values.map((p) => p.name).toSet();
+      expect(names.containsAll(moments.keys), isTrue, reason: '${moments.keys}');
+      expect(moments['photoAfterSave'], containsAll([
+        'lib/photo_studio/ps_controller.dart',
+        'lib/screens/photo_studio_screen.dart',
+      ]));
+      // notes / tasks are on the never list now
+      expect(moments.values.expand((e) => e),
+          isNot(contains('lib/screens/notes_todos_screen.dart')));
     });
 
     test('rewarded is user-chosen and only where the owner allows it', () {
