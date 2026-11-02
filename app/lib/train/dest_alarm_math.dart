@@ -25,14 +25,27 @@ class ModeSpec {
 
 const Map<TransportMode, ModeSpec> kModeSpecs = {
   TransportMode.cityBus: ModeSpec(10, 10, 5000, gentleBeforeM: 200),
-  TransportMode.longBus: ModeSpec(2000, 500, 20000, readyAtM: 10000, readyMinTripM: 30000),
+  // sjalarm (3 Nov): minimum 100 m so the owner's presets (100/300/500 m,
+  // 1 km) work in every mode
+  TransportMode.longBus: ModeSpec(2000, 100, 20000, readyAtM: 10000, readyMinTripM: 30000),
   // train: rings when the train LEAVES the station before yours; this
   // distance is only the GPS fallback
-  TransportMode.train: ModeSpec(2000, 500, 20000),
+  TransportMode.train: ModeSpec(2000, 100, 20000),
   // metro: counts stations + time (no GPS needed); distance not used
   TransportMode.metro: ModeSpec(0, 0, 0),
-  TransportMode.launch: ModeSpec(2000, 500, 20000, readyAtM: 10000, readyMinTripM: 30000),
+  TransportMode.launch: ModeSpec(2000, 100, 20000, readyAtM: 10000, readyMinTripM: 30000),
 };
+
+/// sjalarm: the owner's one-tap presets (plus each mode's default) — "Custom"
+/// opens the slider.
+const List<int> kPresetM = [100, 300, 500, 1000];
+
+/// The preset chips for [m]: its default first, then the owner's presets.
+List<int> presetsFor(TransportMode m) {
+  final s = kModeSpecs[m]!;
+  if (s.maxM == 0) return const [];
+  return [s.defaultM, for (final p in kPresetM) if (p != s.defaultM && p >= s.minM && p <= s.maxM) p];
+}
 
 int clampFor(TransportMode m, int metres) {
   final s = kModeSpecs[m]!;

@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 
+import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../train/dest_alarm_decide.dart';
 import '../../train/dest_alarm_math.dart';
 import '../../train/dest_alarm_service.dart';
 import '../../train/dest_alarm_sound.dart';
@@ -15,9 +17,11 @@ import '../../train/dest_voice_recorder.dart';
 import '../../train/train_api.dart';
 import '../../vehicle/veh_map.dart';
 import '../../widgets/app_sheet.dart';
+import '../../widgets/cv_empty.dart' show pickCirclePerson;
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
+import 'trip_recorder_screen.dart';
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
 /// Pick how you travel (city bus / long bus / train / Dhaka Metro / launch),
@@ -33,18 +37,36 @@ class DestAlarmScreen extends StatefulWidget {
   /// before yours (journeymode), also stations it only passes.
   final List<List<double>> path;
 
+  /// sjalarm: "Set alarm at this station" (Train Tracker) — this stop of
+  /// [suggested] is already picked when the screen opens.
+  final String? initialStationId;
+
   /// Test seams: places without the asset bundle.
   static List<DestStation>? debugStations, debugBusStops;
   static List<MetroStation>? debugMetro;
 
   const DestAlarmScreen(
-      {super.key, this.suggestedIds = const [], this.suggested = const [], this.path = const []});
+      {super.key,
+      this.suggestedIds = const [],
+      this.suggested = const [],
+      this.path = const [],
+      this.initialStationId});
 
   @override
   State<DestAlarmScreen> createState() => _DestAlarmScreenState();
 }
 
 const String _kSavedKey = 'dest_alarm_saved_places';
+
+/// sjalarm: the people told "arrived" (remembered on the phone).
+const String _kNotifyKey = 'dest_alarm_notify_people';
+
+/// The owner-only trip recorder: hidden for everybody except the owner /
+/// staff / Owner Admin allow-list (a server "preview" of `trip_recorder`).
+bool tripRecorderVisible() {
+  final f = FeatureFlags.instance;
+  return f.isOn('trip_recorder') && f.isPreview('trip_recorder');
+}
 
 /// The alarm's words in the UI language — ONE builder for the standalone
 /// alarm and the alarm inside Safe Journey (journeymode).
@@ -78,6 +100,10 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
   AlertPrefs _alerts = const AlertPrefs();
   int _metroFrom = 0, _metroTo = 1;
   bool _recording = false;
+
+  /// sjalarm: "Custom" open (slider) / family notice.
+  bool _custom = false, _notify = false;
+  List<({int id, String name})> _people = const [];
 
   DestAlarmController get _c => DestAlarmController.I;
 
@@ -135,7 +161,70 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       _saved = saved;
       _metroTo = metro.length > 1 ? metro.length - 1 : 0;
     });
+    var people = const <({int id, String name})>[];
+    var notify = false;
+    try {
+      final raw = await Settings.getString(_kNotifyKey);
+      if (raw != null && raw.isNotEmpty) {
+        final j = jsonDecode(raw) as Map<String, dynamic>;
+        notify = j['on'] == true;
+        people = [
+          for (final p in (j['people'] as List? ?? const []))
+            if (p is Map && p['id'] is num) (id: (p['id'] as num).toInt(), name: '${p['name'] ?? ''}')
+        ];
+      }
+    } catch (_) {
+      people = const []; // best-effort: nobody picked
+    }
+    if (!mounted) return;
+    setState(() {
+      _people = people;
+      _notify = notify && people.isNotEmpty;
+    });
     await _loadMode(_mode);
+    _pickInitialStation();
+  }
+
+  /// "Set alarm at this station" from the Train Tracker.
+  void _pickInitialStation() {
+    final id = widget.initialStationId;
+    if (id == null || !mounted || _mode != TransportMode.train) return;
+    final stops = _trainStops();
+    final i = stops.indexWhere((s) => s.id == id);
+    if (i < 0) return;
+    final st = stops[i];
+    final pv = prevStationOnPath(widget.path, _stations, st, listedStops: stops);
+    setState(() {
+      _target = DestTarget(st.name(_bn), st.lat, st.lng);
+      _prev = pv == null ? null : DestTarget(pv.name(_bn), pv.lat, pv.lng);
+    });
+  }
+
+  List<DestStation> _trainStops() => [
+        for (final m in widget.suggested)
+          if (m['lat'] is num && m['lng'] is num)
+            DestStation('${m['id']}', '${m['en'] ?? ''}', '${m['bn'] ?? ''}',
+                (m['lat'] as num).toDouble(), (m['lng'] as num).toDouble())
+      ];
+
+  Future<void> _saveNotify() => Settings.setString(
+      _kNotifyKey,
+      jsonEncode({
+        'on': _notify,
+        'people': [for (final p in _people) {'id': p.id, 'name': p.name}]
+      }));
+
+  Future<void> _addPerson() async {
+    final t = AppLocalizations.of(context);
+    final row = await pickCirclePerson(context, title: t.sjaPickPerson);
+    if (row == null || !mounted) return;
+    final id = (row['circle_id'] as num?)?.toInt();
+    if (id == null || _people.any((p) => p.id == id)) return;
+    setState(() {
+      _people = [..._people, (id: id, name: '${row['name'] ?? ''}')];
+      _notify = true;
+    });
+    await _saveNotify();
   }
 
   Future<void> _loadMode(TransportMode m) async {
@@ -145,6 +234,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       _mode = m;
       _setM = setM;
       _alerts = alerts;
+      _custom = !presetsFor(m).contains(setM);
       _target = null;
       _prev = null;
       _q.clear();
@@ -248,6 +338,16 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
   Future<void> _start() async {
     final t = AppLocalizations.of(context);
     await _remember();
+    final ids = _notify ? [for (final p in _people) p.id] : const <int>[];
+    if (ids.isNotEmpty) {
+      final api = context.read<AppState>().api;
+      // only after "I am awake" — the alarm itself never uses the network
+      DestAlarmController.arrivedNotifier = (plan) async {
+        final r = await api.postJson('/train/alarm/arrived',
+            {'stop': plan.target.name, 'circle_ids': plan.notifyCircleIds});
+        return r['ok'] == true;
+      };
+    }
     if (_mode == TransportMode.metro) {
       if (_metro.length < 2 || _metroFrom == _metroTo) return;
       final to = _metro[_metroTo];
@@ -261,7 +361,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
               metro: _metro,
               metroFrom: _metroFrom,
               metroTo: _metroTo,
-              metroLeftAt: DateTime.now()),
+              metroLeftAt: DateTime.now(),
+              notifyCircleIds: ids),
           _texts(t, tg.name));
       return;
     }
@@ -273,7 +374,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
             target: tg,
             setM: clampFor(_mode, _setM),
             alerts: _alerts,
-            prevStation: _mode == TransportMode.train ? _prev : null),
+            prevStation: _mode == TransportMode.train ? _prev : null,
+            notifyCircleIds: ids),
         _texts(t, tg.name));
   }
 
@@ -326,7 +428,15 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     final t = AppLocalizations.of(context);
     final s = _c.value;
     return Scaffold(
-      appBar: AppBar(title: Text(t.trAlarmTitle)),
+      appBar: AppBar(title: Text(t.trAlarmTitle), actions: [
+        if (tripRecorderVisible())
+          IconButton(
+            tooltip: t.sjaRecorderTitle,
+            icon: const Icon(Icons.route_rounded),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => const TripRecorderScreen())),
+          ),
+      ]),
       body: s.phase == DestAlarmPhase.off ? _setup(t) : _running(t, s),
     );
   }
@@ -348,6 +458,17 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           ),
           if (s.distanceM != null)
             Text(_dist(t, s.distanceM!), textAlign: TextAlign.center, style: AType.titleLarge),
+          if (s.reason == RingReason.eta)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: Text(t.sjaRangBySpeed, textAlign: TextAlign.center, style: AType.bodyMedium),
+            ),
+          if (s.snoozedUntil != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: Text(_d(t.sjaSnoozed(_hm(s.snoozedUntil!))),
+                  textAlign: TextAlign.center, style: AType.titleSmall),
+            ),
           const Spacer(),
           FilledButton.icon(
             style: FilledButton.styleFrom(
@@ -359,6 +480,14 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
             label: Text(t.trImAwake),
             onPressed: () => _c.confirmAwake(),
           ),
+          const SizedBox(height: Gap.md),
+          if (s.snoozedUntil == null)
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+              icon: const Icon(Icons.snooze_rounded),
+              label: Text(t.sjaSnooze),
+              onPressed: () => _c.snooze(),
+            ),
           const SizedBox(height: Gap.xl),
         ]),
       );
@@ -391,6 +520,9 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
               style: AType.bodyLarge),
         if (!metro && s.accuracyM != null && s.accuracyM! > p.setM)
           Text(t.trNeverLate, style: AType.bodySmall),
+        if (!metro && s.speedMps >= kStillMps)
+          Text(_d(t.sjaSpeedNow((s.speedMps * 3.6).round().toString())), style: AType.bodyMedium),
+        if (!metro) Text(t.sjaGpsNote, style: AType.bodySmall),
         if (!metro && s.locationOff)
           Text(t.trAlarmLocationOff, style: AType.bodyMedium.copyWith(color: cs.error)),
         if (!metro) Text(_d(t.trAlarmInterval('${s.interval.inSeconds}')), style: AType.bodySmall),
@@ -452,17 +584,30 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
 
   Widget _setup(AppLocalizations t) {
     final spec = kModeSpecs[_mode]!;
-    final trainStops = [
-      for (final m in widget.suggested)
-        if (m['lat'] is num && m['lng'] is num)
-          DestStation('${m['id']}', '${m['en'] ?? ''}', '${m['bn'] ?? ''}',
-              (m['lat'] as num).toDouble(), (m['lng'] as num).toDouble())
-    ];
+    final trainStops = _trainStops();
+    final sent = _c.value.arrivedSent;
     final fromTrain = _mode == TransportMode.train && trainStops.isNotEmpty && _q.text.trim().isEmpty;
     final list = fromTrain ? trainStops : searchStations(_placesForMode(), _q.text, limit: 30);
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
       children: [
+        if (sent != null)
+          Card(
+            color: sent
+                ? Theme.of(context).colorScheme.secondaryContainer
+                : Theme.of(context).colorScheme.errorContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(sent ? t.sjaArrivedSent : t.sjaArrivedFailed,
+                    style: AType.bodyMedium.copyWith(
+                        color: sent
+                            ? Theme.of(context).colorScheme.onSecondaryContainer
+                            : Theme.of(context).colorScheme.onErrorContainer)),
+              ),
+            ),
+          ),
         Text(t.trAlarmBenefit, style: AType.bodyMedium),
         const SizedBox(height: Gap.md),
         Text(t.trHowTravel, style: AType.titleSmall),
@@ -544,6 +689,29 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           const SizedBox(height: Gap.md),
           Text(_mode == TransportMode.train ? t.trTrainFallbackDist : t.trAlarmRadius,
               style: AType.titleSmall),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            for (final m in presetsFor(_mode))
+              ChoiceChip(
+                label: Text(m == spec.defaultM
+                    ? t.sjaPresetDefault(_dist(t, m.toDouble()))
+                    : _dist(t, m.toDouble())),
+                selected: !_custom && _setM == m,
+                onSelected: (_) {
+                  setState(() {
+                    _setM = m;
+                    _custom = false;
+                  });
+                  unawaited(_remember());
+                },
+              ),
+            ChoiceChip(
+              avatar: const Icon(Icons.tune_rounded, size: 18),
+              label: Text(t.sjaCustom),
+              selected: _custom,
+              onSelected: (_) => setState(() => _custom = true),
+            ),
+          ]),
+          if (_custom) ...[
           Text(_dist(t, _setM.toDouble()), style: AType.titleMedium),
           Slider(
             value: _setM.toDouble().clamp(spec.minM.toDouble(), spec.maxM.toDouble()),
@@ -555,9 +723,13 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
             onChanged: (v) => setState(() => _setM = v.round()),
             onChangeEnd: (_) => _remember(),
           ),
+          ],
+          Text(t.sjaGpsNote, style: AType.bodySmall),
         ],
         const SizedBox(height: Gap.md),
         ..._alertControls(t),
+        const SizedBox(height: Gap.md),
+        ..._familyControls(t),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
@@ -611,6 +783,45 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         Text(t.trMetroSame, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
     ];
   }
+
+  /// Optional: tell chosen My Circle people "arrived" after "I am awake".
+  List<Widget> _familyControls(AppLocalizations t) => [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(t.sjaNotifyFamily),
+          subtitle: Text(t.sjaNotifyFamilySub),
+          value: _notify,
+          onChanged: (v) async {
+            if (v && _people.isEmpty) {
+              await _addPerson();
+              return;
+            }
+            setState(() => _notify = v);
+            await _saveNotify();
+          },
+        ),
+        if (_notify)
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            for (final p in _people)
+              InputChip(
+                avatar: const Icon(Icons.person_rounded, size: 18),
+                label: Text(p.name),
+                deleteButtonTooltipMessage: t.trDelete,
+                onDeleted: () async {
+                  setState(() {
+                    _people = [for (final x in _people) if (x.id != p.id) x];
+                    if (_people.isEmpty) _notify = false;
+                  });
+                  await _saveNotify();
+                },
+              ),
+            ActionChip(
+              avatar: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+              label: Text(t.sjaAddPerson),
+              onPressed: _addPerson,
+            ),
+          ]),
+      ];
 
   List<Widget> _alertControls(AppLocalizations t) {
     Widget sw(AlertKind k, String title, String sub) => SwitchListTile(
