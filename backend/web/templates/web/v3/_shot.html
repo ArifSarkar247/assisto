@@ -1,0 +1,1 @@
+<div class="ph{% if small %} s{% endif %}"><img src="{{ s.w360 }}" srcset="{{ s.w360 }} 360w, {{ s.w720 }} 720w" sizes="(max-width: 760px) 72vw, 300px" width="360" height="800" alt="{{ s.alt }}"{% if s.eager %} fetchpriority="high"{% else %} loading="lazy" decoding="async"{% endif %}></div>

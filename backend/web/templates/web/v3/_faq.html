@@ -1,0 +1,6 @@
+<section class="sec" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    {% if page == 'help' %}<h1 id="faq-h" class="h1s">{{ C.f_help }}</h1>{% else %}<span class="eyebrow">{{ C.nav_faq }}</span><h2 id="faq-h">{{ C.faq_h }}</h2>{% endif %}
+    <div class="faq">{% for r in faq %}<details><summary>{{ r.q }}</summary><p>{{ r.a }}</p></details>{% endfor %}</div>
+  </div>
+</section>

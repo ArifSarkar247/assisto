@@ -1831,3 +1831,30 @@ BN.update({
     "bld_none": "এখানে কিছু নেই।",
 })
 # ---- /blood ----
+
+# ---- sitev3 ---- Owner Admin → Website (go-live switch for website v3)
+EN.update({
+    "nav_website": "Website",
+    "ws_title": "Website v3 — go live / roll back",
+    "ws_now": "Live now:",
+    "ws_live_new": "NEW site (v3)",
+    "ws_live_old": "current site (v3 not live)",
+    "ws_golive": "Go live with the new site",
+    "ws_rollback": "Roll back to the previous site",
+    "ws_note": "One tap. Visitors get the change on their next page load (pages are not cached). Every flip is in the audit log.",
+    "ws_preview": "Preview (any time, hidden from Google)",
+    "ws_preview_note": "Open these on your phone to review the new site before going live. They are never indexed by search engines.",
+})
+BN.update({
+    "nav_website": "ওয়েবসাইট",
+    "ws_title": "ওয়েবসাইট v3 — লাইভ করুন / আগেরটায় ফিরুন",
+    "ws_now": "এখন লাইভ:",
+    "ws_live_new": "নতুন সাইট (v3)",
+    "ws_live_old": "আগের সাইট (v3 লাইভ নয়)",
+    "ws_golive": "নতুন সাইট লাইভ করুন",
+    "ws_rollback": "আগের সাইটে ফিরে যান",
+    "ws_note": "এক চাপেই। দর্শকেরা পরের বার পাতা খুললেই বদল দেখেন (পাতা ক্যাশ হয় না)। প্রতিটি বদল অডিট লগে থাকে।",
+    "ws_preview": "প্রিভিউ (যেকোনো সময়, Google-এ আসে না)",
+    "ws_preview_note": "লাইভ করার আগে ফোনে এগুলো খুলে নতুন সাইট দেখে নিন। সার্চ ইঞ্জিনে কখনো আসে না।",
+})
+# ---- /sitev3 ----

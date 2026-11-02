@@ -27,7 +27,7 @@ from . import site_content as SC
 from .views import _ctx, _lang, _site
 
 ASSET_DIR = Path(__file__).resolve().parent / "site_assets"
-_ASSET_RE = re.compile(r"^(?:shots/)?[a-z0-9][a-z0-9_\-]*\.(png|webp|avif|svg|ico|woff2|jpg|txt)$")
+_ASSET_RE = re.compile(r"^(?:shots3?/)?[a-z0-9][a-z0-9_\-]*\.(png|webp|avif|svg|ico|woff2|jpg|txt)$")
 _TYPES = {"png": "image/png", "webp": "image/webp", "avif": "image/avif",
           "svg": "image/svg+xml", "ico": "image/x-icon", "woff2": "font/woff2",
           "jpg": "image/jpeg", "txt": "text/plain; charset=utf-8"}

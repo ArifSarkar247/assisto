@@ -1,0 +1,9 @@
+{% extends "web/v3/base.html" %}
+{% block main %}{% include "web/v3/_faq.html" %}
+<section class="sec alt"><div class="wrap"><h2>{{ C.more_h }}</h2>
+<div class="trust">
+  <article class="card"><h3>{{ C.f_delete }}</h3><p><a href="/delete-account{{ U.q }}">lifeassisto.com/delete-account</a></p></article>
+  <article class="card"><h3>{{ C.f_privacy }}</h3><p><a href="/privacy{{ U.q }}">lifeassisto.com/privacy</a></p></article>
+  <article class="card"><h3>Email</h3><p><a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></p></article>
+</div></div></section>
+{% endblock %}

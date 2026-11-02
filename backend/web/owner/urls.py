@@ -24,6 +24,7 @@ from . import views_agent as AGR     # agent-core
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_blood as BLD     # blood
+from . import views_site3 as WS3     # sitev3: website go-live switch
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -108,6 +109,7 @@ urlpatterns = [
     path("vitals", PV1.vitals),                                  # play-vitals
     path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
     path("features", FF1.features),                              # feature-flags
+    path("website", WS3.website),                                # sitev3
     path("ai", AIRT.ai_page),                                     # ai-router
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report

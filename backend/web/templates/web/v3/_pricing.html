@@ -1,0 +1,22 @@
+<section class="sec" id="pricing" aria-labelledby="pricing-h">
+  <div class="wrap">
+    {% if page == 'pricing' %}<h1 id="pricing-h" class="h1s">{{ C.pricing_h }}</h1>{% else %}<span class="eyebrow">{{ C.nav_pricing }}</span><h2 id="pricing-h">{{ C.pricing_h }}</h2>{% endif %}
+    <p class="lead">{{ C.pricing_lead }}</p>
+    {% if plans %}
+    <div class="plans">
+      {% for p in plans %}<article class="card plan rv"><{% if page == 'pricing' %}h2{% else %}h3{% endif %}>{{ p.name }}</{% if page == 'pricing' %}h2{% else %}h3{% endif %}>
+        <div class="price">{% if p.free %}{{ C.free }}{% else %}{{ p.price }}<small>{{ C.per_month }}</small>{% endif %}</div>
+        {% if p.desc %}<p class="mut">{{ p.desc }}</p>{% endif %}
+        {% if p.benefits %}<ul>{% for b in p.benefits %}<li>{{ b }}</li>{% endfor %}</ul>{% endif %}
+      </article>{% endfor %}
+    </div>
+    {% if plans_yearly %}<{% if page == 'pricing' %}h2{% else %}h3{% endif %} class="sub-h">{{ C.yearly }}</{% if page == 'pricing' %}h2{% else %}h3{% endif %}>
+    <div class="plans">{% for p in plans_yearly %}<article class="card plan"><{% if page == 'pricing' %}h2{% else %}h3{% endif %}>{{ p.name }}</{% if page == 'pricing' %}h2{% else %}h3{% endif %}><div class="price">{{ p.price }}<small>{{ C.per_year }}</small></div></article>{% endfor %}</div>{% endif %}
+    {% else %}<p class="mut">{{ C.no_plans }}</p>{% endif %}
+    <article class="card cctv rv" id="cctv-plans">
+      <{% if page == 'pricing' %}h2{% else %}h3{% endif %}><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg>{{ C.cctv_plans_h }} <span class="soon">{{ C.soon }}</span></{% if page == 'pricing' %}h2{% else %}h3{% endif %}>
+      <p class="mut">{{ C.cctv_plans_note }}</p>
+      <ul>{% for l in cctv_plan %}<li>{{ l }}</li>{% endfor %}</ul>
+    </article>
+  </div>
+</section>

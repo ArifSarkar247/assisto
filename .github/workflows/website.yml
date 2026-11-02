@@ -4,13 +4,24 @@
 #  2. Lighthouse CI on the main pages; fails under 95 in performance,
 #     accessibility, best practices or SEO -> artifact website-lighthouse
 #  3. the website Django tests (web.tests_website + legal + tools pages)
-# Runs only on ci/website* pushes (and by hand). Never deploys anything.
+#  4. sitev3: the AFTER server runs with the website v3 go-live switch ON
+#     (only in this throwaway CI database), so Lighthouse (mobile AND desktop,
+#     bn + en, home + a feature page) and the screenshots judge the new site;
+#     owner review shots of the noindex /preview/ (desktop + mobile x bn/en)
+#     -> artifact website-v3-preview. Manual run with shots_run_id = a checks
+#     run id: rebuilds site_assets/shots3 from its shots-* gallery artifacts
+#     (tools/website/site_shots.py) -> artifact website-shots3 to commit.
+# Runs only on ci/website* and ci/sitev3* pushes (and by hand). Never deploys anything.
 name: website
 
 on:
   push:
-    branches: ['ci/website*']
+    branches: ['ci/website*', 'ci/sitev3*']
   workflow_dispatch:
+    inputs:
+      shots_run_id:
+        description: 'checks.yml run id whose shots-* artifacts refresh site_assets/shots3 (optional)'
+        required: false
 
 concurrency:
   group: website-${{ github.ref }}
@@ -18,6 +29,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   site:
@@ -49,15 +61,38 @@ jobs:
             cp tools/website/ci_settings.py "$DIR/assisto_backend/settings_webci.py"
             export WEBCI_DB=$RUNNER_TEMP/$side.sqlite3 WEBCI_SITE=http://127.0.0.1:$PORT
             (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
+            if [ $side = after ]; then
+              # sitev3: go-live switch ON in this CI-only database
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_v3=True); r.save(); print('website_v3 ON')")
+            fi
             (cd "$DIR" && nohup python manage.py runserver 127.0.0.1:$PORT --noreload --insecure \
                --settings=assisto_backend.settings_webci > "$RUNNER_TEMP/$side.log" 2>&1 &)
           done
           for PORT in 8000 8001; do
             for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:$PORT/robots.txt" && break; sleep 1; done
           done
-          for p in / /?lang=en /pricing /security /help /get /cv /delete-account /app-ads.txt /site.webmanifest /favicon.ico; do
+          for p in / /?lang=en /pricing /security /help /features /features/safety /preview/ /preview/features/cctv /get /cv /delete-account /app-ads.txt /site.webmanifest /favicon.ico; do
             echo "after $p -> $(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$p")"
           done
+
+      - name: site shots present (every screenshot the v3 site uses, bn + en)
+        run: python tools/website/site_shots.py --check
+
+      - name: refresh site_assets/shots3 from a checks run (manual)
+        if: github.event.inputs.shots_run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/gallery"
+          gh run download "${{ github.event.inputs.shots_run_id }}" -p 'shots-*' -D "$RUNNER_TEMP/gallery"
+          python -m pip install -q Pillow==11.3.0
+          python tools/website/site_shots.py "$RUNNER_TEMP/gallery"
+      - uses: actions/upload-artifact@v4
+        if: github.event.inputs.shots_run_id != ''
+        with:
+          name: website-shots3
+          path: backend/web/site_assets/shots3
 
       - name: screenshots (before + after)
         run: |
@@ -68,6 +103,8 @@ jobs:
           cp "$GITHUB_WORKSPACE/tools/website/shots.mjs" .
           node shots.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/before"
           node shots.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/after"
+          cp "$GITHUB_WORKSPACE/tools/website/shots_v3.mjs" .
+          node shots_v3.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/v3"
       - uses: actions/upload-artifact@v4
         with:
           name: website-before
@@ -76,27 +113,41 @@ jobs:
         with:
           name: website-after
           path: ${{ runner.temp }}/shots/after
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-v3-preview
+          path: ${{ runner.temp }}/shots/v3
 
       - name: Lighthouse CI (fails under 95)
         if: always()
         run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc.json
+      - name: Lighthouse CI desktop (fails under 95)
+        if: always()
+        run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc-desktop.json
       - name: Lighthouse scores
         if: always()
         run: |
           if [ -f lhci-report/manifest.json ]; then
+            echo "### mobile" | tee -a "$GITHUB_STEP_SUMMARY"
             python tools/website/lh_summary.py lhci-report/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f lhci-report-desktop/manifest.json ]; then
+            echo "### desktop" | tee -a "$GITHUB_STEP_SUMMARY"
+            python tools/website/lh_summary.py lhci-report-desktop/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
           fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: website-lighthouse
-          path: lhci-report
+          path: |
+            lhci-report
+            lhci-report-desktop
       - name: website Django tests
         if: always()
         working-directory: backend
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test web.tests_website web.tests_l1_launch web.tests --settings=assisto_backend.settings_test --noinput
+          python manage.py test web.tests_site_v3 web.tests_website web.tests_l1_launch web.tests web.tests_dl1_owner --settings=assisto_backend.settings_test --noinput
       - name: server logs
         if: failure()
         run: tail -n 60 "$RUNNER_TEMP/after.log" "$RUNNER_TEMP/before.log" || true

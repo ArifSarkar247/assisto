@@ -1,0 +1,21 @@
+{% extends "web/v3/base.html" %}
+{% block main %}
+<section class="ghead" aria-labelledby="f-h">
+  <div class="wrap">
+    <h1 id="f-h">{{ C.groups_h }}</h1>
+    <p class="lead">{{ C.groups_lead }}</p>
+    <ul class="toc" aria-label="{{ C.on_this_page }}">{% for g in groups %}<li><a href="{{ g.url }}">{{ g.name }}</a></li>{% endfor %}</ul>
+  </div>
+</section>
+<section class="sec alt">
+  <div class="wrap">
+    <div class="groups">{% for g in groups %}
+      <article class="card gc rv">
+        <h2 class="h3"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg></span><a href="{{ g.url }}">{{ g.name }}</a></h2>
+        <p>{{ g.lead }}</p>
+        <ul>{% for f in g.features %}<li><svg class="i" aria-hidden="true"><use href="#i-{{ f.icon }}"/></svg><span><a href="{{ g.url }}#{{ f.id }}">{{ f.title }}</a>{% if f.auto %} <span class="ab">{{ C.auto }}</span>{% elif not f.live %} <span class="soon">{{ C.soon }}</span>{% endif %}</span></li>{% endfor %}</ul>
+      </article>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_website }}{% endblock %}
+{% block content %}
+<section class="card" id="switch"><h2>{{ T.ws_title }}</h2>
+  <p><b>{{ T.ws_now }}</b>
+  {% if live %}<span class="pill ok">{{ T.ws_live_new }}</span>{% else %}<span class="pill off">{{ T.ws_live_old }}</span>{% endif %}</p>
+  {% if problems %}<p class="err">{{ problems|join:", " }}</p>{% endif %}
+  <form method="post" class="inline">{% include "owner/_csrf.html" %}
+    {% if live %}<input type="hidden" name="action" value="rollback"><button class="btn ghost">{{ T.ws_rollback }}</button>
+    {% else %}<input type="hidden" name="action" value="golive"><button class="btn">{{ T.ws_golive }}</button>{% endif %}
+  </form>
+  <p class="mut small">{{ T.ws_note }}</p>
+</section>
+<section class="card"><h2>{{ T.ws_preview }}</h2>
+  <p class="mut small">{{ T.ws_preview_note }}</p>
+  <ul>{% for bn, en in previews %}<li><a href="{{ bn }}" target="_blank" rel="noopener">{{ bn }}</a> · <a href="{{ en }}" target="_blank" rel="noopener">{{ en }}</a></li>{% endfor %}</ul>
+</section>
+{% endblock %}

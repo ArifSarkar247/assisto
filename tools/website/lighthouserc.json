@@ -4,6 +4,8 @@
       "url": [
         "http://127.0.0.1:8000/",
         "http://127.0.0.1:8000/?lang=en",
+        "http://127.0.0.1:8000/features/safety",
+        "http://127.0.0.1:8000/features/safety?lang=en",
         "http://127.0.0.1:8000/pricing",
         "http://127.0.0.1:8000/security",
         "http://127.0.0.1:8000/help",

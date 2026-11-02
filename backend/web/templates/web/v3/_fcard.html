@@ -1,0 +1,6 @@
+<article class="card fc rv{% if not f.live %} is-soon{% endif %}" id="{{ f.id }}">
+  <div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ f.icon }}"/></svg></div>
+  <h3>{{ f.title }}</h3>
+  {% if f.auto %}<p class="autoln"><span class="ab">{{ C.auto }}</span><span>{{ f.auto }}</span></p>{% elif not f.live %}<p class="autoln"><span class="soon">{{ C.soon }}</span></p>{% endif %}
+  <p>{{ f.body }}</p>
+</article>

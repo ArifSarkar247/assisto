@@ -10,12 +10,22 @@ from . import views_invoice   # invoices
 from . import views_vehicle_share   # veh100
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
+from . import views_site3  # sitev3: website v3 behind the go-live switch
 
 urlpatterns = [
-    path("", views_site.home),               # website: was views.landing (tools list, now a section)
-    path("pricing", views_site.pricing),
-    path("security", views_site.security),
-    path("help", views_site.help_page),
+    # sitev3: the go-live switch picks the current site (OFF) or v3 (ON)
+    path("", views_site3.home),
+    path("pricing", views_site3.pricing),
+    path("security", views_site3.security),
+    path("help", views_site3.help_page),
+    path("features", views_site3.features_index),
+    path("features/<str:gid>", views_site3.feature_group),
+    path("preview/", views_site3.preview),                       # noindex review
+    path("preview/features", views_site3.preview, {"page": "features"}),
+    path("preview/features/<str:gid>", views_site3.preview_group),
+    path("preview/pricing", views_site3.preview, {"page": "pricing"}),
+    path("preview/security", views_site3.preview, {"page": "security"}),
+    path("preview/help", views_site3.preview, {"page": "help"}),
     path("site/<path:name>", views_site.site_asset),
     path("favicon.ico", views_site.favicon_ico),
     path("apple-touch-icon.png", views_site.apple_touch_icon),
