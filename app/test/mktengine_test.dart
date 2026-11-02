@@ -123,6 +123,8 @@ void main() {
     expect(find.text('Miniket rice 5 kg × 12'), findsOneWidget);
     // approve the calendar
     await tester.scrollUntilVisible(find.text(en.mktApprove), 200, scrollable: _outer);
+    await tester.ensureVisible(find.text(en.mktApprove).first);
+    await _settle(tester);
     await tester.tap(find.text(en.mktApprove).first);
     await _settle(tester);
     expect(f.calls, contains('edit:calendar:approved'));
@@ -131,6 +133,8 @@ void main() {
     await tester.tap(find.text(en.mktSecConversion));
     await _settle(tester);
     await tester.scrollUntilVisible(find.text(en.mktFollowActivate), 200, scrollable: _outer);
+    await tester.ensureVisible(find.text(en.mktFollowActivate));
+    await _settle(tester);
     await tester.tap(find.text(en.mktFollowActivate));
     await _settle(tester);
     expect(f.calls, contains('activate:fu_thanks_review'));
