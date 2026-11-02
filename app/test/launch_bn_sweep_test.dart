@@ -38,6 +38,7 @@ const _launchPrefixes = <String>[
   'inv_', // invoices
   'rt_', // CRM automation (retention1)
   'chx_', // channels + communities
+  'cact_', // cctvactivity: CCTV activity brain (3 Nov)
   'callpip_', // call PiP / mini tile / call bar
   'bizops_', // biz brief card
 ];
