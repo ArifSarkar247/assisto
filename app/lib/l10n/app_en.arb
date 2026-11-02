@@ -28497,5 +28497,1095 @@
   "at100DiscLocBody2": "Assisto collects location data to enable Lost/Stolen protection: the alerts to your trusted contacts (grab, SIM change, offline, low battery) and lost mode, even when the app is closed or not in use, for as long as protection is on. A notification is always shown while protection runs. Location goes only to your account and the trusted contacts you chose, is kept for 24 hours (alerts 30 days), and is never sold or used for ads. Turn it off by switching protection off, or in Android Settings → Apps → Assisto → Permissions.\nNext, Android asks for the location permission.",
   "onbPermMicWhy2": "For voice typing, voice notes and calls with My Circle, and Voice SOS if you turn it on. Voice typing is not saved. Voice notes and calls go end-to-end encrypted only to the people you choose.",
   "onbPermLocWhy2": "For SOS, Safe Journey and finding nearby help, only when you use them. Safe Journey, Voice SOS and Lost/Stolen protection keep using location while the app is closed, only while you keep them on, with a notification showing.",
-  "trustE2eBody2": "Messages, photos, voice notes, videos and documents in My Circle are end-to-end encrypted: the server stores only the encrypted form and cannot read them. My Circle calls are encrypted in transit and are never recorded."
+  "trustE2eBody2": "Messages, photos, voice notes, videos and documents in My Circle are end-to-end encrypted: the server stores only the encrypted form and cannot read them. My Circle calls are encrypted in transit and are never recorded.",
+  "maAboutMeBody": "If you are safe, tap I am safe. The alert closes and your family only sees “said they are safe” — your location is never shared.",
+  "@maAboutMeBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAboutMeBodyChild": "If you are safe, tap I am safe and call home. Your family will know at once.",
+  "@maAboutMeBodyChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAboutMeTitle": "Your family posted a missing alert about you",
+  "@maAboutMeTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAboutMeTitleChild": "Your family is looking for you",
+  "@maAboutMeTitleChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAddGd": "Add police GD number",
+  "@maAddGd": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAddPhoto": "Add a recent photo",
+  "@maAddPhoto": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAge": "Age (years)",
+  "@maAge": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAgeAdult": "18 or older: a police GD number is needed",
+  "@maAgeAdult": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAgeChild": "Under 18: a child alert — a verified parent or guardian is needed",
+  "@maAgeChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAgoDays": "{n} days ago",
+  "@maAgoDays": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "maAgoHours": "{n} h ago",
+  "@maAgoHours": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "maAgoMin": "{n} min ago",
+  "@maAgoMin": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "maArea": "Area: {area}, {district}",
+  "@maArea": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "district": {
+        "type": "String"
+      }
+    }
+  },
+  "maAreaHelp": "An area or landmark, e.g. “Mirpur 10 bus stand”. Never a house address.",
+  "@maAreaHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAreaLabel": "Area last seen",
+  "@maAreaLabel": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCall999": "Call 999",
+  "@maCall999": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCancel": "Cancel",
+  "@maCancel": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChange": "Change",
+  "@maChange": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChangePhoto": "Change photo",
+  "@maChangePhoto": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChildBadge": "Child",
+  "@maChildBadge": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChildGdToggle": "I have a police GD number",
+  "@maChildGdToggle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChildSaidSafeFamily": "The child tapped “I am safe”. Call to make sure, then mark Found or close the alert.",
+  "@maChildSaidSafeFamily": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maClose": "Close the alert",
+  "@maClose": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCloseBody": "Use this if it was posted by mistake or is no longer needed. The photo is deleted and everyone who got it is told it is closed.",
+  "@maCloseBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCloseTitle": "Close this alert?",
+  "@maCloseTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maClosed": "Closed. The photo was deleted.",
+  "@maClosed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maConfirmFalse": "I understand a false alert is removed and logged, and posting can be blocked",
+  "@maConfirmFalse": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maConfirmFamily": "I am their family",
+  "@maConfirmFamily": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maConfirmNoAddress": "I did not write a house address or phone number",
+  "@maConfirmNoAddress": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignBody": "{poster} says {name} (age {age}) is missing. Confirm only if it is true — then the alert goes out.",
+  "@maCosignBody": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "poster": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "maCosignDeclined": "Not confirmed. The family has been told.",
+  "@maCosignDeclined": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignDone": "Confirmed. The alert is out.",
+  "@maCosignDone": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignNo": "Not true",
+  "@maCosignNo": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignTitle": "Please confirm a missing child alert",
+  "@maCosignTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignYes": "Yes, confirm",
+  "@maCosignYes": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maCosignerPick": "Family member who confirms",
+  "@maCosignerPick": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maDescription": "What they were wearing, height, marks",
+  "@maDescription": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maDescriptionHelp": "No phone numbers here — people contact you through the app.",
+  "@maDescriptionHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maDetailTitle": "Missing person",
+  "@maDetailTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maDialFailed": "Could not open the phone app. Dial 999 yourself.",
+  "@maDialFailed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maDistance": "about {km} km away",
+  "@maDistance": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "maDistrict": "District",
+  "@maDistrict": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maEmptyBody": "Post a photo and the area where they were last seen. Assisto users nearby who turned on safety alerts get a notification, and anyone who saw them can tell you privately in the app.",
+  "@maEmptyBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maEmptySteps": "1. Call 999 and file a GD at the police station.\n2. Post the alert here (area only, never your home address).\n3. Read tips in the app; mark Found as soon as they are safe — the photo is deleted at once.",
+  "@maEmptySteps": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maEmptyTitle": "If someone in your family goes missing",
+  "@maEmptyTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maEndedRecipient": "This alert has ended. Thank you for looking.",
+  "@maEndedRecipient": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrAddress": "That looks like a house address. Write only the area or a landmark.",
+  "@maErrAddress": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrAlready": "There is already a live alert for this person.",
+  "@maErrAlready": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrArea": "Choose your district or use your current area.",
+  "@maErrArea": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrBanned": "Posting is blocked on this account after a fake alert was removed.",
+  "@maErrBanned": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrCooling": "This person said they are safe in the last 7 days. A new police GD number is needed.",
+  "@maErrCooling": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrFields": "Some details are missing or not right.",
+  "@maErrFields": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGd": "Check the GD number and police station (e.g. 512 or 512/2026).",
+  "@maErrGd": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGdDate": "The GD date must be within the last 60 days.",
+  "@maErrGdDate": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGdReconfirm": "Type the same GD number and tick that the GD is still open.",
+  "@maErrGdReconfirm": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGeneric": "That did not work. Check the internet and try again.",
+  "@maErrGeneric": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrMaxRenew": "This alert cannot be renewed again. Post a new one if needed.",
+  "@maErrMaxRenew": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrNotActive": "This alert is not live any more.",
+  "@maErrNotActive": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrNotFamily": "Only family can post. Add them as family in My Circle (both must accept).",
+  "@maErrNotFamily": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrOff": "This is not available on your account yet.",
+  "@maErrOff": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrPhone": "Remove the phone number — people contact you through the app.",
+  "@maErrPhone": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrRate": "Too many in a short time. Try again later.",
+  "@maErrRate": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrTooEarly": "You can renew in the last 2 days.",
+  "@maErrTooEarly": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrTooMany": "You already have 2 live alerts. Close one first.",
+  "@maErrTooMany": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrTooManyPosts": "You posted 3 alerts in 30 days. Please contact Assisto support.",
+  "@maErrTooManyPosts": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maExpires": "Ends on {when}. You can renew in the last 2 days.",
+  "@maExpires": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "maFixFields": "Please fill the marked fields.",
+  "@maFixFields": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFound": "Found — they are safe",
+  "@maFound": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFoundConfirmBody": "The alert closes, the photo is deleted from Assisto at once, and everyone who got the alert is told “found” (no photo, no name).",
+  "@maFoundConfirmBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFoundConfirmTitle": "Mark as found?",
+  "@maFoundConfirmTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFoundDone": "Marked found. The photo was deleted.",
+  "@maFoundDone": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFoundShareAsk": "I want to share a thank-you",
+  "@maFoundShareAsk": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maFoundShareSub": "Only if you want. Ready text you can paste on Facebook; no photo unless you add one.",
+  "@maFoundShareSub": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdAdded": "GD added. The alert is out.",
+  "@maGdAdded": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdAdultWhy": "For an adult a police GD is required, so nobody can post a missing alert to find someone who left on purpose.",
+  "@maGdAdultWhy": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdDate": "GD date: {date}",
+  "@maGdDate": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "maGdHelp": "The General Diary (GD) number from the police station (or the online GD).",
+  "@maGdHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdLine": "Police GD: {thana} police station, no. {number}, {date}",
+  "@maGdLine": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "thana": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "maGdNumber": "GD number",
+  "@maGdNumber": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdNumberHelp": "For example 512 or 512/2026",
+  "@maGdNumberHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdSave": "Add GD and send",
+  "@maGdSave": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdThana": "Police station (thana)",
+  "@maGdThana": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdTitle": "Police GD",
+  "@maGdTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdUnverified": "GD number not verified — contact the police",
+  "@maGdUnverified": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianNeeds": "To stop fake child alerts, a second family member (husband/wife, parent or sibling in My Circle) confirms in the app — or add the police GD number.",
+  "@maGuardianNeeds": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianNoCosigner": "No family member in My Circle can confirm yet. Add the police GD number below.",
+  "@maGuardianNoCosigner": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianTitle": "Child alert: who confirms",
+  "@maGuardianTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianVerified": "Verified: your child confirmed you as parent in My Circle. The alert goes out at once.",
+  "@maGuardianVerified": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maHiddenFamily": "Some users reported this alert, so it is hidden while Assisto reviews it. Tips you already have stay.",
+  "@maHiddenFamily": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maIamSafe": "I am safe",
+  "@maIamSafe": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maLastSeen": "Last seen: {when}",
+  "@maLastSeen": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "maLastSeenShort": "{area}, {ago}",
+  "@maLastSeenShort": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "maLastSeenTitle": "When and where were they last seen?",
+  "@maLastSeenTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maLoadFailed": "Could not load. Check the internet and try again.",
+  "@maLoadFailed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maLocationFailed": "Could not get your location. Allow location for Assisto, or pick the district.",
+  "@maLocationFailed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maMine": "My alerts",
+  "@maMine": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maMyTips": "My messages with the family",
+  "@maMyTips": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maName": "Name",
+  "@maName": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maNameAge": "{name}, {age}",
+  "@maNameAge": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "age": {
+        "type": "String"
+      }
+    }
+  },
+  "maNear": "Alerts near you",
+  "@maNear": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maNoScreenshot": "Please do not screenshot or repost this photo outside Assisto. It is deleted when the alert ends.",
+  "@maNoScreenshot": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maNoScreenshotChild": "A child's photo: screenshots are blocked and it is never shown on the public web. It is deleted when the alert ends.",
+  "@maNoScreenshotChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOpen": "Open",
+  "@maOpen": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinDistrict": "Your district",
+  "@maOptinDistrict": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinIntro": "When a family posts a missing person alert near you, you get one notification with their photo and the area. If you saw them, you can tell the family privately.",
+  "@maOptinIntro": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOffBody": "Get a notification when a child or adult goes missing in your area.",
+  "@maOptinOffBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOffSaved": "Turned off. Your area was deleted.",
+  "@maOptinOffSaved": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOffTitle": "Help find missing people near you",
+  "@maOptinOffTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOn": "Nearby alerts are ON",
+  "@maOptinOn": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOnArea": "Area: {area}",
+  "@maOptinOnArea": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "maOptinOnNoArea": "Area: where you open Assisto",
+  "@maOptinOnNoArea": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOpen": "Also use where I am when I open Assisto",
+  "@maOptinOpen": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinOpenSub": "Only while the app is open, rounded to about 1 km, forgotten after 12 hours. Never in the background.",
+  "@maOptinOpenSub": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinPointHelp": "Only a point rounded to about 1 km is saved — never your exact address.",
+  "@maOptinPointHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinPointSet": "Area taken (rounded to about 1 km). Tap Save.",
+  "@maOptinPointSet": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinPointSetCta": "Use my current area (about 1 km)",
+  "@maOptinPointSetCta": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinPointUpdate": "Update my area from here (about 1 km)",
+  "@maOptinPointUpdate": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSave": "Save",
+  "@maOptinSave": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSaved": "Saved. You will get nearby alerts.",
+  "@maOptinSaved": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSettingsSub": "Missing person alerts near your area — off unless you turn it on",
+  "@maOptinSettingsSub": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSwitch": "Get nearby safety alerts",
+  "@maOptinSwitch": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSwitchOff": "Off — nothing about your area is kept",
+  "@maOptinSwitchOff": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinSwitchOn": "On — choose your area and save",
+  "@maOptinSwitchOn": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinTitle": "Nearby safety alerts",
+  "@maOptinTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinWhatWeKeep": "What Assisto keeps",
+  "@maOptinWhatWeKeep": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maOptinWhatWeKeepBody": "Your district and, if you chose it, one point rounded to about 1 km. Turning this off deletes both at once. Your area is never shown to anyone.",
+  "@maOptinWhatWeKeepBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPendingCosigner": "Waiting for {name} to confirm. Or add the police GD number to send it now.",
+  "@maPendingCosigner": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "maPendingNoCosigner": "This child alert has not gone out yet. Ask a second family member to confirm in the app, or add the police GD number.",
+  "@maPendingNoCosigner": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPhotoHelp": "Location data inside the photo is removed. The photo is deleted when the alert ends.",
+  "@maPhotoHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPost999Line": "Assisto does not inform the police. Please also call 999.",
+  "@maPost999Line": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostCta": "Post a missing alert",
+  "@maPostCta": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostIntro": "Call 999 first if they may be in danger. Then fill this in — it takes about 2 minutes.",
+  "@maPostIntro": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostSubmit": "Post the alert",
+  "@maPostSubmit": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostTitle": "Post a missing alert",
+  "@maPostTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPosted": "Alert posted. Nearby people are being notified.",
+  "@maPosted": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostedPending": "Saved. It goes out when your family member confirms (or you add a GD).",
+  "@maPostedPending": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRadius": "Alert sent within {km} km",
+  "@maRadius": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "maRadiusKm": "{km} km",
+  "@maRadiusKm": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "maRadiusTitle": "How far to alert",
+  "@maRadiusTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReach": "Notified: {pushed} nearby people · {listed} in the list · {family} family",
+  "@maReach": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "pushed": {
+        "type": "int"
+      },
+      "listed": {
+        "type": "int"
+      },
+      "family": {
+        "type": "int"
+      }
+    }
+  },
+  "maRelation": "How are they related to you?",
+  "@maRelation": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRelationHelp": "For example son, daughter, brother, father",
+  "@maRelationHelp": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRemovePhoto": "Remove photo",
+  "@maRemovePhoto": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRenew": "Renew for 7 more days",
+  "@maRenew": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRenewBody": "The alert stays on for {days} more days.",
+  "@maRenewBody": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "maRenewGdStill": "The police GD is still open",
+  "@maRenewGdStill": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRenewTitle": "Renew the alert",
+  "@maRenewTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRenewed": "Renewed for 7 days.",
+  "@maRenewed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepFake": "Fake or made up",
+  "@maRepFake": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepHarassment": "Someone is hunting this person (harassment)",
+  "@maRepHarassment": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepNotMissing": "I know this person is not missing",
+  "@maRepNotMissing": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepOther": "Something else",
+  "@maRepOther": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepSpam": "Spam or a scam",
+  "@maRepSpam": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRepWrongPhoto": "Wrong or stolen photo",
+  "@maRepWrongPhoto": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReport": "Report a fake post",
+  "@maReport": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReportBody": "After {n} people report it, the alert is hidden until Assisto reviews it.",
+  "@maReportBody": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "maReportNote": "Anything to add (optional)",
+  "@maReportNote": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReportSend": "Send report",
+  "@maReportSend": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReportSent": "Report sent. Thank you.",
+  "@maReportSent": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReportTitle": "Report this alert",
+  "@maReportTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maReported": "You reported this alert. Thank you.",
+  "@maReported": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRequired": "Required",
+  "@maRequired": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRetry": "Try again",
+  "@maRetry": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeAlreadySaid": "You already said you are safe. Your family has been told.",
+  "@maSafeAlreadySaid": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeConfirmAdult": "The alert closes for everyone. No location is sent. Your family cannot post a new alert about you for 7 days without a new police GD.",
+  "@maSafeConfirmAdult": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeConfirmChild": "Your family will get a message that you are safe. Please also call them.",
+  "@maSafeConfirmChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeConfirmTitle": "Tell your family you are safe?",
+  "@maSafeConfirmTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeFamilyLine": "They said in the app that they are safe. Assisto does not share where they are.",
+  "@maSafeFamilyLine": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeSent": "Done. The alert is closed and your family knows you are safe.",
+  "@maSafeSent": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeSentChild": "Your family has been told. Please call them.",
+  "@maSafeSentChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maShareHeadline": "Found — thank you all",
+  "@maShareHeadline": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSharePhotoChild": "For a child we suggest no photo and no name in public posts.",
+  "@maSharePhotoChild": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maShareText": "Alhamdulillah, {name} has been found safe near {area}. Thank you to everyone who looked and shared information. We used the Assisto app's missing person alert.",
+  "@maShareText": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "maShareTextChild": "Alhamdulillah, our child has been found safe near {area}. Thank you to everyone who looked and shared information. We used the Assisto app's missing person alert.",
+  "@maShareTextChild": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "maShareThanks": "Share a thank-you",
+  "@maShareThanks": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maShareTitle": "Say thank you",
+  "@maShareTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateActive": "Missing — alert is live",
+  "@maStateActive": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateChildSafe": "Live — the child tapped “I am safe”",
+  "@maStateChildSafe": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateClosed": "Closed by the family",
+  "@maStateClosed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateExpired": "Ended after 7 days",
+  "@maStateExpired": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateFound": "Found — thank you",
+  "@maStateFound": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateHidden": "Hidden while it is reviewed",
+  "@maStateHidden": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStatePending": "Waiting for a family member to confirm",
+  "@maStatePending": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateRemoved": "Removed after a review",
+  "@maStateRemoved": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maStateSafe": "Said they are safe",
+  "@maStateSafe": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadAnon": "This person chose not to share their name.",
+  "@maThreadAnon": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadClosed": "This alert has ended.",
+  "@maThreadClosed": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadFamily": "The family",
+  "@maThreadFamily": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadHint": "Write a message",
+  "@maThreadHint": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadPoint": "Sent with an area (about 1 km)",
+  "@maThreadPoint": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadShared": "This person agreed to share their name.",
+  "@maThreadShared": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maThreadSharedPhone": "This person agreed to share their name and number: {phone}",
+  "@maThreadSharedPhone": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "maThreadTipsterNote": "Only the family reads this.",
+  "@maThreadTipsterNote": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipAddLocation": "Add where I am now (about 1 km)",
+  "@maTipAddLocation": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipAddLocationSub": "Only if you are where you saw them.",
+  "@maTipAddLocationSub": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipCta": "I have information (private)",
+  "@maTipCta": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipHint": "Where and when did you see them?",
+  "@maTipHint": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipPrivate": "Only the family reads this. There are no public comments.",
+  "@maTipPrivate": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipSend": "Send",
+  "@maTipSend": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipSent": "Sent privately to the family.",
+  "@maTipSent": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipShareMe": "Show my name and phone number to the family",
+  "@maTipShareMe": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipShareMeOff": "Off — the family sees “Anonymous tipster”",
+  "@maTipShareMeOff": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipShareMeOn": "On — the family can call you back",
+  "@maTipShareMeOn": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipTitle": "Tell the family privately",
+  "@maTipTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipTooShort": "Write a few words first.",
+  "@maTipTooShort": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipUrgent999": "If they are in danger right now, call 999 first.",
+  "@maTipUrgent999": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipsButton": "Tips: {n} ({unread} new)",
+  "@maTipsButton": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "unread": {
+        "type": "int"
+      }
+    }
+  },
+  "maTipsNone": "No tips yet.",
+  "@maTipsNone": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipsPrivateNote": "Only you (and the family member who confirmed) can read these.",
+  "@maTipsPrivateNote": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipsTitle": "Private tips",
+  "@maTipsTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTipsUnread": "{n} new tips",
+  "@maTipsUnread": {
+    "description": "missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "maTitle": "Missing person alert",
+  "@maTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maTurnOn": "Turn on",
+  "@maTurnOn": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maUseHere": "I am near where they were last seen",
+  "@maUseHere": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maUseHereSub": "Uses this phone's area, rounded to about 1 km, to find nearby people.",
+  "@maUseHereSub": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maWho": "Who is missing?",
+  "@maWho": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maWhoCircleHint": "Family in My Circle appear here. If the missing person uses Assisto and is your family in My Circle, they can tap “I am safe”.",
+  "@maWhoCircleHint": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maWhoGetsBody": "Only Assisto users who turned on nearby safety alerts and whose chosen area (or where they opened Assisto in the last 12 hours) is inside the radius, plus your close family in My Circle. Assisto has no background location, so people who never opened the app nearby are not reached. Each person gets at most one notification per alert and 3 a day. There is no public page and no comments.",
+  "@maWhoGetsBody": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maWhoGetsTitle": "Who gets this alert",
+  "@maWhoGetsTitle": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maWhoOther": "Someone else in my family",
+  "@maWhoOther": {
+    "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "ssAddPhoto": "Add a photo from your phone",
+  "@ssAddPhoto": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssCopied": "Copied. Open Facebook and paste it.",
+  "@ssCopied": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssCopy": "Copy text",
+  "@ssCopy": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssDone": "Done",
+  "@ssDone": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssEditLabel": "Your message (you can change it)",
+  "@ssEditLabel": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssFooter": "Assisto · {link}",
+  "@ssFooter": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert",
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "ssNoPhotoDefault": "No photo is added unless you choose one.",
+  "@ssNoPhotoDefault": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssNoReward": "Share only if you want to. Nobody gets a reward for sharing or for a review.",
+  "@ssNoReward": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssPasteHint": "Paste it on Facebook (long-press, then Paste).",
+  "@ssPasteHint": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssPreview": "Image card preview",
+  "@ssPreview": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssRemovePhoto": "Remove the photo",
+  "@ssRemovePhoto": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssShareCard": "Share image card",
+  "@ssShareCard": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "ssShareFailed": "Could not make the image. The text is copied instead.",
+  "@ssShareFailed": {
+    "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  }
 }
