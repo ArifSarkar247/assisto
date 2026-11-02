@@ -137,7 +137,7 @@ class SyncedRepo extends ChangeNotifier {
   }
 
   Future<void> _keepConflictCopy(Map<String, dynamic> m) async {
-    final copy = {
+    final copy = <String, dynamic>{
       'localId': _newId(),
       'serverId': null,
       'data': conflictCopy(
