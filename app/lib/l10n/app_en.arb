@@ -35116,5 +35116,6 @@
       }
     }
   },
-  "sjlClose": "Close"
+  "sjlClose": "Close",
+  "sjlReqWho": "Whose location?"
 }
