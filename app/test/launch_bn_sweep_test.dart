@@ -64,6 +64,8 @@ const Map<String, String> _allow = {
   'acct_vat_rates*|digit|Soybean oil 1L': "the shop's own product name (user data)",
   'rt_*|english|"Karim"': 'fake customer name (user data)',
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
+  // Site shots: standard / brand names written the same in Bangla.
+  'cx_alert_actions|digit|SHA-256': 'hash standard name (SHA-256), never translated',
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
   'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
