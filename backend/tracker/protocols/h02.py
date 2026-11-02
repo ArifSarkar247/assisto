@@ -59,6 +59,11 @@ def _bin_len(buf: bytes):
     Devices send one record per TCP segment almost always; when several
     arrive together the next frame's first byte ('$' or '*') decides."""
     n = len(buf)
+    # two records of the SAME device back to back (TCP coalescing): the next
+    # '$' + identical id right after 32 bytes settles it
+    if n > BIN_SHORT and buf[BIN_SHORT:BIN_SHORT + 1] == BIN_START \
+            and buf[BIN_SHORT + 1:BIN_SHORT + 6] == buf[1:6]:
+        return BIN_SHORT
     if n in (BIN_SHORT, BIN_LONG_ID, BIN_LONG):
         return n
     for L in (BIN_SHORT, BIN_LONG, BIN_LONG_ID):
