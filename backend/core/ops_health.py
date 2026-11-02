@@ -205,11 +205,15 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
 
 MINUTE_JOB_NAMES = tuple(n for n, _ in MINUTE_JOBS)
 
-# The root service watchdog line that lives in /etc/cron.d/assisto-app (kept
-# by the renderer so a re-install never drops it).
+# The root service watchdog line (it lives in /etc/cron.d/assisto-watchdog).
 WATCHDOG_LINE = ("*/5 * * * * root systemctl is-active --quiet assisto || systemctl "
                  "restart assisto; systemctl is-active --quiet coturn || systemctl "
                  "restart coturn")
+
+
+WATCHDOG_FILE = "/etc/cron.d/assisto-watchdog"
+# jobs whose line lives in its own /etc/cron.d file (not assisto-app)
+OWN_FILES = {"backup": "/etc/cron.d/assisto-backup"}
 
 
 def minute_jobs_cron_line():
@@ -219,7 +223,8 @@ def minute_jobs_cron_line():
     return ("* * * * * ubuntu cd %s/backend && nice -n10 %s manage.py minute_jobs "
             "--log-dir %s >> %s/minute_jobs.log 2>&1" % (APP, PY, CRON_LOGS, CRON_LOGS))
 
-SERVICES = ("assisto", "assisto-tracker", "coturn", "postgresql", "nginx", "caddy")
+SERVICES = ("assisto", "assisto-tracker", "assisto-photo-worker", "coturn", "postgresql",
+            "nginx", "caddy")
 
 
 # ------------------------------------------------------------ heartbeats
@@ -411,19 +416,23 @@ CRON_FILE_HEADER = (
 def render_cron_file():
     """The full recommended /etc/cron.d/assisto-app text: the minute_jobs
     line once (it runs every MINUTE_JOBS job), every other job's line in JOBS
-    order, then the root service watchdog. Pure text — nothing is read or
-    written."""
+    order; the backup line and the root service watchdog are shown as
+    comments because they live in their own cron.d files. Pure text —
+    nothing is read or written."""
     lines = [CRON_FILE_HEADER.rstrip("\n"),
              "# per-minute jobs in one process: " + " ".join(MINUTE_JOB_NAMES),
              minute_jobs_cron_line()]
     for j in JOBS:
-        if j.via == "minute_jobs":
+        if j.via == "minute_jobs" or j.name in OWN_FILES:
             continue
         lines.append("# %s — every %s, healthy under %ss, stopped after %ss" % (
             j.name, _every(j.interval), j.max_runtime_s, j.kill_s))
         lines.append(j.cron_line())
-    lines.append("# service watchdog (root): restart the app / TURN if they stop")
-    lines.append(WATCHDOG_LINE)
+    # these live in their own /etc/cron.d files on the box — NOT repeated
+    # here (a copy in both files would run them twice)
+    for name, path in OWN_FILES.items():
+        lines.append("# %s: stays in %s — %s" % (name, path, JOB_BY_NAME[name].cron_line()))
+    lines.append("# service watchdog (root): stays in %s — %s" % (WATCHDOG_FILE, WATCHDOG_LINE))
     return "\n".join(lines) + "\n"
 
 

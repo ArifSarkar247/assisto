@@ -224,15 +224,21 @@ class BoundedRuntimeTests(TestCase):
 class RenderCronFileTests(TestCase):
     def test_file_has_every_job_once(self):
         text = H.render_cron_file()
+        cmds = [ln for ln in text.splitlines() if ln and not ln.startswith("#")]
         for j in H.JOBS:
             if j.via == "minute_jobs":
                 self.assertNotIn(j.cron_line(), text)
+            elif j.name in H.OWN_FILES:            # shown only as a comment
+                self.assertNotIn(j.cron_line(), cmds)
+                self.assertIn(H.OWN_FILES[j.name], text)
             else:
-                self.assertEqual(text.count(j.cron_line()), 1, j.name)
-        self.assertEqual(text.count(H.minute_jobs_cron_line()), 1)
-        self.assertIn(H.WATCHDOG_LINE, text)
-        cmds = [ln for ln in text.splitlines() if ln and not ln.startswith("#")]
-        # rendered = installed: nothing missing, nothing double
+                self.assertEqual(cmds.count(j.cron_line()), 1, j.name)
+        self.assertEqual(cmds.count(H.minute_jobs_cron_line()), 1)
+        self.assertNotIn(H.WATCHDOG_LINE, cmds)
+        self.assertIn(H.WATCHDOG_FILE, text)
+        # rendered assisto-app + the backup file = installed: nothing missing,
+        # nothing double
+        cmds.append(H.JOB_BY_NAME["backup"].cron_line())
         d = H.cron_diff("\n".join(cmds))
         self.assertEqual((d["missing"], d["double"], d["old_lines"], d["unknown"]),
                          ([], [], [], []))
@@ -374,3 +380,35 @@ class WatchersBudgetTests(TestCase):
             self.assertIn("left_for_next_run=1", out.getvalue())
             call_command("run_watchers", stdout=StringIO())
             self.assertEqual(chk.call_count, 1)
+
+
+# ------------------------------------------------------------ dead-man ping
+class DeadmanPingTests(TestCase):
+    def test_ping_only_when_configured_and_https(self):
+        from core.management.commands.ops_watch import deadman_ping
+
+        class Resp:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+        seen = []
+
+        def opener(url, timeout):
+            seen.append((url, timeout))
+            return Resp()
+        with mock.patch.dict(os.environ, {"OPS_DEADMAN_URL": ""}):
+            self.assertEqual(deadman_ping(opener=opener), "")
+        self.assertEqual(deadman_ping("http://x.example/p", opener=opener), "failed")
+        self.assertEqual(deadman_ping("https://hc-ping.com/abc", opener=opener), "ok")
+        self.assertEqual(seen, [("https://hc-ping.com/abc", 5)])
+
+        def boom(url, timeout):
+            raise OSError("down")
+        self.assertEqual(deadman_ping("https://hc-ping.com/abc", opener=boom), "failed")
+
+    def test_photo_worker_service_watched(self):
+        self.assertIn("assisto-photo-worker", H.SERVICES)
