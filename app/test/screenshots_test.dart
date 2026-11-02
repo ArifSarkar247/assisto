@@ -279,6 +279,7 @@ import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
+import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'booking1_shots.dart'; // booking1 booking bot
@@ -889,6 +890,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
+    for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in cctvxShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvx
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1

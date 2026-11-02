@@ -22,6 +22,8 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
 import '../../widgets/where_to_buy.dart'; // chipbuy
+import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
+import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -36,7 +38,10 @@ class WatchmanScreen extends StatefulWidget {
 
   /// Tests / gallery: force the first-run guide on (true) or off (false).
   final bool? guide;
-  const WatchmanScreen({super.key, this.source, this.guide});
+
+  /// cctvguard: tests / gallery inject "this month's use".
+  final Future<Map<String, dynamic>> Function()? usageLoader;
+  const WatchmanScreen({super.key, this.source, this.guide, this.usageLoader});
 
   @override
   State<WatchmanScreen> createState() => _WatchmanScreenState();
@@ -199,6 +204,10 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               onAddCamera: () => _addCamera(s),
               source: _src,
             ),
+          // cctvguard (order G): live traffic this month, per camera
+          // (an injected test source never reaches the network: tests pass usageLoader)
+          if (owned.isNotEmpty && (widget.usageLoader != null || widget.source == null))
+            CctvUsageCard(load: widget.usageLoader),
           if (owned.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -283,6 +292,12 @@ class _SiteCard extends StatelessWidget {
       case 'zones':
         await nav.push(MaterialPageRoute(
             builder: (_) => WatchmanZonesScreen(source: source, camera: cam)));
+      // cctvguard: Imou / EZVIZ cloud live — SD first, HD on tap, 5-min idle stop
+      case 'vlive':
+        await nav.push(MaterialPageRoute(
+            builder: (_) => VendorLiveScreen(
+                cameraId: (cam['id'] as num).toInt(),
+                cameraName: (cam['name'] ?? '').toString())));
       case 'check':
         await nav.push(MaterialPageRoute(
             builder: (_) => WatchmanAddCameraScreen(
@@ -568,6 +583,14 @@ class _CameraRow extends StatelessWidget {
             ],
           ]),
         ),
+        // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera
+        if (owner && (vendor == 'imou' || vendor == 'ezviz') && cam['cloud_alarms'] == true)
+          IconButton(
+            key: ValueKey('wm-vlive-${cam['id']}'),
+            tooltip: t.cgVendorLiveTitle,
+            icon: const Icon(Icons.live_tv_rounded),
+            onPressed: () => onAction('vlive'),
+          ),
         if (owner)
           PopupMenuButton<String>(
             tooltip: t.wmCameraMenu,

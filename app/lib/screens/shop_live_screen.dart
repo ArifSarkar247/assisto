@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../cctvguard/live_cost.dart'; // cctvguard: direct/relay badge + meter
 import '../l10n/app_localizations.dart';
 import '../shop_api.dart';
 import '../state.dart';
@@ -55,6 +56,13 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
   // (shown to the owner — the real-device test measures it; target ≤ 10 s)
   DateTime? _startedAt;
   int? _firstFrameSecs;
+  // cctvguard (order G): the selected path (same Wi-Fi / direct / relay),
+  // bytes so far (reported to the monthly meter every minute + at the end)
+  // and the server's honest allowance note (80 % / relay paused).
+  LivePath _path = LivePath.unknown;
+  int _bytes = 0;
+  String _trafficMsg = '';
+  int _reportedAt = 0;
 
 
   late final ApiClient _api;
@@ -87,6 +95,10 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
       _charged = 0;
       _ending = false;
       _firstFrameSecs = null;
+      _path = LivePath.unknown;
+      _bytes = 0;
+      _trafficMsg = '';
+      _reportedAt = 0;
     });
     await _start();
   }
@@ -109,6 +121,8 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     _left = _maxSeconds;
     _relayAllowed = s['relay_allowed'] == true;
     _relayPerMin = (s['relay_credits_per_min'] as num?)?.toInt() ?? 1;
+    final traffic = s['traffic'];
+    _trafficMsg = traffic is Map ? (traffic['message'] ?? '').toString() : '';
     final ice = ((s['ice']?['ice_servers'] ?? const []) as List)
         .whereType<Map>()
         .map((e) => e.cast<String, dynamic>())
@@ -193,15 +207,47 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     }
     setState(() => _left = (_left - 1).clamp(0, _maxSeconds));
     if (_left <= 0) _end();
-    // check the selected ICE pair every 3 s; once relayed, latch it
-    if (_left % 3 == 0 && !_relayed && _peer != null && _phase == _Phase.live) {
+    // check the selected ICE pair every 3 s: path badge + bytes; once
+    // relayed, latch it (cctvguard: same Wi-Fi / direct / relay)
+    if (_left % 3 == 0 && _peer != null && _phase == _Phase.live) {
       () async {
         try {
-          final r = await _peer.isRelayed() as bool;
-          if (r && mounted) setState(() => _relayed = true);
+          final info = (await _peer.pathInfo() as Map).cast<String, Object>();
+          final p = LiveCost.parse(info['path']);
+          final b = (info['bytes'] as num?)?.toInt() ?? 0;
+          if (!mounted) return;
+          setState(() {
+            if (p != LivePath.unknown) _path = p;
+            if (b > _bytes) _bytes = b;
+            if (p == LivePath.relay) _relayed = true;
+          });
+          _maybeReport();
         } catch (_) {}
       }();
     }
+  }
+
+  /// cctvguard: tell the meter every minute; the server stops a RELAYED view
+  /// once the monthly allowance is used (never a direct / same-Wi-Fi one,
+  /// never during an SOS).
+  Future<void> _maybeReport() async {
+    final sid = _sid;
+    final since = _liveSince;
+    if (sid == null || since == null || _ending) return;
+    final secs = DateTime.now().difference(since).inSeconds;
+    if (secs - _reportedAt < LiveCost.reportEverySeconds) return;
+    _reportedAt = secs;
+    try {
+      final r = await _api.shopLiveUsage(sid,
+          bytes: _bytes, seconds: secs, path: _relayed ? 'relay' : _path.name);
+      final msg = (r['message'] ?? '').toString();
+      if (!mounted) return;
+      if (r['stop'] == true) {
+        _fail(msg.isNotEmpty ? msg : AppLocalizations.of(context).cgRelayPaused);
+        return;
+      }
+      if (msg != _trafficMsg) setState(() => _trafficMsg = msg);
+    } catch (_) {} // the end report still carries the total
   }
 
   void _endedBy() {
@@ -234,7 +280,9 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     if (sid != null) {
       try {
         await _send('bye', const {});
-        final r = await _api.shopLiveEnd(sid, relayed: _relayed, seconds: secs);
+        final r = await _api.shopLiveEnd(sid,
+            relayed: _relayed, seconds: secs, bytes: _bytes,
+            path: _relayed ? 'relay' : _path.name);
         _charged = (r['charged_credits'] as num?)?.toInt() ?? 0;
       } catch (_) {} // best-effort: the server closes a silent session by timeout
     }
@@ -364,11 +412,14 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
-          if (_phase == _Phase.live)
+          if (_phase == _Phase.live && (_relayed || _path != LivePath.unknown))
             Chip(
-              avatar: Icon(_relayed ? Icons.cloud_sync_rounded : Icons.bolt_rounded,
+              key: const Key('shopLivePath'),
+              avatar: Icon(_relayed ? Icons.cloud_sync_rounded
+                  : _path == LivePath.lan ? Icons.wifi_rounded : Icons.bolt_rounded,
                   size: 18, color: _relayed ? scheme.tertiary : AssistoTokens.of(context).success),
-              label: Text(_relayed ? t.shopLiveRelayed : t.shopLiveP2p),
+              label: Text(_relayed ? t.cgPathRelay
+                  : _path == LivePath.lan ? t.cgPathLan : t.cgPathDirect),
             ),
           if (active)
             Chip(
@@ -390,6 +441,14 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
           textAlign: TextAlign.center,
           style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
         ),
+        if (_trafficMsg.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(_trafficMsg,
+                key: const Key('shopLiveTraffic'),
+                textAlign: TextAlign.center,
+                style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.35)),
+          ),
         Text(t.shopLiveNoRecording,
             textAlign: TextAlign.center,
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),

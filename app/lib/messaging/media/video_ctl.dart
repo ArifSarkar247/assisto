@@ -71,6 +71,9 @@ abstract class VideoCtl {
 
 typedef VideoCtlFactory = Future<VideoCtl> Function(File file);
 
+/// cctvguard: a network (HLS live) player — same lazy plugin load.
+typedef VideoNetFactory = Future<VideoCtl> Function(Uri url);
+
 class VideoCtls {
   VideoCtls._();
 
@@ -78,6 +81,12 @@ class VideoCtls {
   static VideoCtlFactory factory = (file) async {
     await vpi.loadLibrary();
     return vpi.RealVideoCtl(file);
+  };
+
+  /// cctvguard: Imou / EZVIZ cloud live (HLS). Tests swap this for a fake.
+  static VideoNetFactory networkFactory = (url) async {
+    await vpi.loadLibrary();
+    return vpi.RealVideoCtl.network(url);
   };
 
   /// Duration + size of a local clip (the sender side), or null. Loads the
