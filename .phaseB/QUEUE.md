@@ -25,7 +25,33 @@ BUSINESS
 12. h) CRM most automated: follow-ups, reorder reminders, win-back, after-delivery feedback, lead scoring; clear owner control (~8 h)
 13. i) AI sales agent replies in chats AND Facebook/Instagram comments; business AI agent for daily operations (Meta permissions in STATUS) (~10 h code; Meta App Review = owner)
 
-## 3) AFTER LAUNCH — owner PART 2, then PART 3 (in the given order; not received yet)
+## 3) AFTER LAUNCH — owner PART 2 (2 Nov), then PART 3 (below). Owner feature card first for each.
+- 2.1 DONE 2 Nov (b275): rename PA Secretary → Personal Secretary (PS) everywhere visible. Then PS for everyone (normal people → corporate bosses): schedule, meetings, info tracking, My Circle communication, reminders + follow-ups, daily brief; reading WhatsApp/other notifications ONLY with clear opt-in notification access to pick up dates/tasks (Play policy check; content stays on the phone where possible).
+- 2.2 CV Builder fully professional: photo, several templates, save, PDF, print, bn/en, ATS friendly. ASK OWNER what his "ads line" means before adding ads.
+- 2.3 Job Hunter: real jobs only from legal sources (employers posting in Assisto, official government circulars, partners with permission; no scraping against site terms); match to CV; one-tap apply only where allowed.
+- 2.4 Mock interview: job, viva, visa, university; voice answers; scoring + feedback; bn/en.
+- 2.5 Task manager: subtasks, priority, repeat, due, shared tasks (family + team), calendar view, voice add.
+- 2.6 Cost and time estimator really usable: real local prices where we have sources, clear assumptions.
+- 2.7 Quick tools: only tools people really use in Bangladesh, each one complete.
+- 2.8 Language Partner: English, Japanese, German, Korean, Chinese; basic → advanced; lessons, tests, exams; real IELTS prep (4 skills + band estimates); listen-and-repeat with voice pronunciation scoring (MUST).
+- 2.9 Food photo → calories with portion estimate, Bangladeshi foods (no extreme diet targets).
+- 2.10 AI daily planner from tasks, reminders, calendar, habits.
+
+## 4) AFTER PART 2 — owner PART 3 (2 Nov), in order. Owner feature card first for each.
+- 3.1 Home feed live + real: dollar rate, gold rate (official: Bangladesh Bank, BAJUS), football + cricket scores, nearby offers, mobile/internet package offers — licensed or official sources only. (Home frozen: needs explicit owner order at build time — this item IS that order for the feed content; layout changes still owner-confirmed.)
+- 3.2 Documents: add by typing, PIN recovery with face/fingerprint, free limit then a Premium suggestion.
+- 3.3 Service guide like a helpful person: step-by-step tutorials for government + daily services with official website links.
+- 3.4 Daily info and services really usable.
+- 3.5 Ramadan tracker complete (sehri/iftar by district, prayer times, fasting log, duas, zakat calculator, reminders) — DEADLINE: ready by January 2027.
+- 3.6 Quran Majid: Arabic, Bangla, English — licensed translations + audio only.
+- 3.7 Probashi corner really usable.
+- 3.8 Student corner: research what students need, build the best set.
+- 3.9 Travel Planner.
+- 3.10 Wedding and events: guest list, budget, vendors, invitations, day plan.
+- 3.11 Ride and Food really usable; plan only for our own platform later.
+- 3.12 Farmer mode: seasonal crop guides from official agriculture sources (DAE/BARI), livestock feeding by age + weight, vaccine reminders, daily market prices from official DAM data, listed farmers/livestock with contact by request.
+- 3.13 Unseen World / Unseen Bangladesh: licensed real sources only.
+- 3.14 My Circle community + channels: PLAN ONLY — owner will explain later.
 
 ---
 # Older backlog (ordered after the list above)
