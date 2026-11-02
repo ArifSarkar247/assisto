@@ -9,6 +9,7 @@ from . import views_guardian as vg
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
 from . import business_views as bz
+from . import account_mode as acctmode   # acctmode
 from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
@@ -91,6 +92,7 @@ urlpatterns = [
     path("vault/recovery/status", vaultrec.VaultRecoveryStatusView.as_view()),
     path("vault/recovery/verify", vaultrec.VaultRecoveryVerifyView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),
+    path("account-mode", acctmode.AccountModeView.as_view()),  # acctmode
     path("money/summary", views.MoneySummaryView.as_view()),
     path("money/trends", views.MoneyTrendsView.as_view()),
     path("money/networth", views.MoneyNetWorthView.as_view()),
