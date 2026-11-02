@@ -6,6 +6,9 @@ Rules for every item: Bangla feature card first (purpose, what exists, what is m
 - 8 Nov launch: switch list + entry-point leaks + AI-off honesty + Play production checklist — agent/launch, RUNNING.
 - Any owner phone-test bug report jumps here.
 
+## 0.5) OWNER PRIORITY 2 Nov 14:20 — CCTV, Vehicle tracking, Safe Journey (+ guardian journey + destination alarm) to 100 before launch, right after phone-test bugs
+- agent/cctv100, agent/veh100b, agent/journey100b RUNNING (gap tables *_GAP_TO_100_BN.md first, then close code gaps); destination alarm in agent/train. Never 100 without real-device proof.
+
 ## 1) OWNER FIRST PRIORITY (2 Nov)
 1. A1 My Circle: clickable links + preview + safe-link check; Family/Others everywhere + chips/search; many-to-many guardianship — agent/circlea, RUNNING (~8 h)
 2. A2 Missing person alert ("mun alert") + D found-share (reusable success_share) — agent/missing, RUNNING (~8 h)
