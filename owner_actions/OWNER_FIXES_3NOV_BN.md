@@ -34,4 +34,4 @@
 6. চ্যাটে লিখুন "রক্ত লাগবে" → প্যানেল খোলে। কোথাও বিজ্ঞাপন নেই।
 
 ## প্রমাণ (CI)
-ব্যাকএন্ড: `backend/core/tests_ownerfix.py` · অ্যাপ: `app/test/ownerfix_test.dart` · গ্যালারি ছবি (bn+en, আলো+অন্ধকার): `blood_saved`, `blood_saved_empty`, `blood_hub`, `home_v2_ownerfix`, `home_v2_all_services_ownerfix` (CI artifacts `shots-*`)।
+CI সবুজ: run 41528952360 (backend + flutter ৪ শার্ড, ARB সহ `ci/ownerfix-arb`)। ব্যাকএন্ড: `backend/core/tests_ownerfix.py` · অ্যাপ: `app/test/ownerfix_test.dart` · গ্যালারি ছবি (bn+en, আলো+অন্ধকার): `blood_saved`, `blood_saved_empty`, `blood_hub`, `home_v2_ownerfix`, `home_v2_all_services_ownerfix` (CI artifacts `shots-*`)।
