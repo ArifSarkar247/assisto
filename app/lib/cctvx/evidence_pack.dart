@@ -28,6 +28,8 @@ List<EvidenceFile> evidenceMedia({
   List<Uint8List> frames = const [],
   List<double> frameTimes = const [],
   DateTime? clipStart,
+  Uint8List? sdClip,
+  DateTime? sdClipStart,
 }) {
   final out = <EvidenceFile>[];
   if (photo != null && photo.isNotEmpty) out.add(EvidenceFile('photo.jpg', photo, at: alertAt));
@@ -38,6 +40,10 @@ List<EvidenceFile> evidenceMedia({
         : null;
     out.add(EvidenceFile('clip/frame_${(i + 1).toString().padLeft(3, '0')}.jpg', frames[i],
         at: at));
+  }
+  // cctvevidence: the 10-s clip the camera's SD card handed over (MPEG-TS)
+  if (sdClip != null && sdClip.isNotEmpty) {
+    out.add(EvidenceFile('clip/sd_clip_10s.ts', sdClip, at: sdClipStart));
   }
   return out;
 }
@@ -181,11 +187,14 @@ Uint8List assembleEvidencePack({
   required Uint8List manifest,
   required String letter,
   required DateTime now,
+  List<EvidenceFile> extra = const [],
 }) {
   final all = <EvidenceFile>[
     ...media,
     EvidenceFile('manifest.json', manifest),
     EvidenceFile('gd_letter.txt', Uint8List.fromList(utf8.encode(letter))),
+    // cctvevidence: e.g. the Bangla PDF (it quotes every file's SHA-256)
+    ...extra,
   ];
   final sums = Uint8List.fromList(utf8.encode(sha256Sums(all)));
   return storedZip([...all, EvidenceFile('SHA256SUMS.txt', sums)], when: now);

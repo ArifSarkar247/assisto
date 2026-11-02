@@ -18,4 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from core.cashguard_views import purge_clips
         n = purge_clips()
+        # cctvevidence (W7): SD-card clips past their 7 / 30 add-on days
+        from core.cctv_evidence import purge_sd_clips
+        n += purge_sd_clips()
         self.stdout.write("shop_clip_purge: removed %d clip(s)" % n)

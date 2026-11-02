@@ -690,6 +690,12 @@ def tick(now=None):
                     out["health"] = out.get("health", 0) + 1
         except Exception:
             log.exception("health stills failed for site %s", site.pk)
+    # cctvevidence (W7): due 10-s SD-card clip fetches (video add-on)
+    try:
+        from . import cctv_evidence as CE
+        out["sd_clips"] = CE.run_sd_clips(now)
+    except Exception:
+        log.exception("sd clips failed")
     return out
 
 
@@ -801,8 +807,9 @@ def actions_for(ev, role):
     clip = None
     try:
         c = ev.clip
-        clip = c.status if c.created + timedelta(seconds=CG.CLIP_TTL_S) > timezone.now() \
-            else "expired"
+        # cctvevidence: the clip's own expiry (24 h, or the add-on's days)
+        clip = c.status if (c.expires_at or c.created + timedelta(
+            seconds=CG.CLIP_TTL_S)) > timezone.now() else "expired"
     except Exception:
         clip = None
     return {"siren": dict(siren, allowed=role in ("owner", "escalated")),
@@ -978,8 +985,18 @@ class EventDetailView(_OwnerBase):
         row = SV._event_row(ev, request)
         if role in ("escalated", "shared"):
             row.pop("signals", None)
+        actions = actions_for(ev, role)
+        # cctvevidence (W7): the 10-s SD clip (video add-on) for the owner,
+        # allowed viewers and the escalation chain — never a shared-clip guest
+        if role in ("owner", "viewer", "escalated"):
+            try:
+                from . import cctv_evidence as CE
+                actions["sd_clip"] = CE.sd_clip_json(getattr(ev, "sd_clip", None),
+                                                     lang, request)
+            except Exception:
+                actions["sd_clip"] = None
         return Response({"event": row, "role": role, "site_name": ev.site.name,
-                         "actions": actions_for(ev, role),
+                         "actions": actions,
                          "opened_at": SV._iso(ev.opened_at)})
 
 
@@ -1255,6 +1272,13 @@ class ClipShareView(_OwnerBase):
                          "status": clip.status}, status=201 if fresh else 200)
 
 
+EVIDENCE_PRIVACY = (
+    "এই প্যাকে মানুষের ছবি ও ভিডিও আছে। শুধু পুলিশ বা আপনার আইনজীবীকে দিন — "
+    "সামাজিক মাধ্যমে বা গ্রুপে পোস্ট করবেন না; কাউকে দোষী বলবেন না।",
+    "This pack holds pictures and video of people. Give it only to the police or "
+    "your lawyer — do not post it on social media or in groups; do not accuse anyone.")
+
+
 class EventEvidenceView(_OwnerBase):
     """The FACTS for the evidence pack + a GD draft. The phone adds the photo
     and the clip frames it decrypted, hashes every file (SHA-256) and the
@@ -1267,8 +1291,12 @@ class EventEvidenceView(_OwnerBase):
         if (ev.signals or {}).get("nosale"):
             what_bn, what_en = CX.NOSALE_TITLE_BN.split(" — ")[0], CX.NOSALE_TITLE_EN.split(" — ")[0]
         local = _local(ev.created)
+        # cctvevidence (W7): the site's address goes into the letter + pack
+        addr = (getattr(site, "address", "") or "").strip()
+        shop = ", ".join(x for x in ((site.name or "").strip(), addr) if x)
         f = {"owner": getattr(site.owner, "name", "") or "",
-             "shop": site.name or "", "camera": (cam.name if cam else "") or "",
+             "shop": shop, "address": addr,
+             "camera": (cam.name if cam else "") or "",
              "when": local.strftime("%Y-%m-%d %H:%M:%S"),
              "event_id": ev.id, "kind_bn": what_bn, "kind_en": what_en,
              "files": 0, "manifest_sha256": "…"}
@@ -1281,8 +1309,15 @@ class EventEvidenceView(_OwnerBase):
         if ev is None or role != "owner":
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         f = self._facts(ev, lang)
-        return Response({"facts": {k: f[k] for k in ("shop", "camera", "when",
+        try:
+            from . import cctv_evidence as CE
+            sd = CE.sd_clip_json(getattr(ev, "sd_clip", None), lang, request)
+        except Exception:
+            sd = None
+        return Response({"facts": {k: f[k] for k in ("shop", "address", "camera", "when",
                                                      "event_id", "kind_bn", "kind_en")},
+                         "sd_clip": sd,
+                         "privacy_bn": EVIDENCE_PRIVACY[0], "privacy_en": EVIDENCE_PRIVACY[1],
                          "created": ev.created.isoformat(),
                          "last_at": SV._iso(ev.last_at or ev.created),
                          "confidence": ev.confidence, "type": ev.type,

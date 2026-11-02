@@ -159,6 +159,35 @@ class ImouClient:
             "channelId": str(channel_id)})
         return data.get("url") or ""
 
+    # ---- cctvevidence (W7): SD card (official Open API) ----
+    def sd_status(self, device_id):
+        """deviceSdcardStatus -> data.status: "empty" (no card) | "normal" |
+        "abnormal" | "recovering" (formatting)."""
+        data = self.call("deviceSdcardStatus", {"token": self.token(),
+                                                "deviceId": device_id}) or {}
+        return str(data.get("status") or "")
+
+    def sd_storage(self, device_id):
+        """deviceStorage -> {"totalBytes", "usedBytes"} of the SD card."""
+        return self.call("deviceStorage", {"token": self.token(),
+                                           "deviceId": device_id}) or {}
+
+    def local_records(self, device_id, channel_id, begin_str, end_str):
+        """queryLocalRecords: the SD-card recordings in the window (proves a
+        recording exists). The Open HTTP API has NO download of an SD
+        recording (playback needs the Imou SDK in the app), so no clip
+        bytes come from here — said honestly in the app."""
+        data = self.call("queryLocalRecords", {
+            "token": self.token(), "deviceId": device_id,
+            "channelId": str(channel_id), "beginTime": begin_str,
+            "endTime": end_str, "type": "All", "queryRange": "1-10"}) or {}
+        return data.get("records") or []
+
+
+def sd_state(status):
+    return {"normal": "ok", "abnormal": "error", "empty": "none",
+            "recovering": "formatting"}.get(str(status or "").lower(), "unknown")
+
 
 # ---------------------------------------------------------------- parsing
 _HUMAN_WORDS = ("human", "humanoid", "people", "person", "body",

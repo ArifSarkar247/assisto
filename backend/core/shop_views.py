@@ -613,6 +613,14 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     # store AT MOST the one small snapshot (only if retention allows it)
     if snapshot is not None and site.snapshot_retention_days > 0:
         ev.snapshot.save(snapshot.name, snapshot, save=True)
+    # cctvevidence (W7): a person alert on a camera with the video add-on
+    # queues ONE 10-s SD-card clip (fetched by the minute job). Never raises.
+    if not pending and cam is not None:
+        try:
+            from . import cctv_evidence as CE
+            CE.on_event(ev, now)
+        except Exception:
+            pass
 
     if pending:
         CXV.schedule_nosale(site, ev, now)
@@ -912,7 +920,7 @@ class ShopSitesView(APIView):
         from .models import ShopSite
         name = (request.data.get("name") or "").strip()[:120]
         retention = _coerce_retention(request.data.get("snapshot_retention_days"),
-                                      default=7)
+                                      default=7, max_days=_photo_max(None))
         s = ShopSite.objects.create(owner=request.user, name=name,
                                     snapshot_retention_days=retention)
         return Response(_site_row(s, reveal_token=True), status=201)
@@ -929,7 +937,7 @@ class ShopSiteDetailView(APIView):
         if "snapshot_retention_days" in request.data:
             s.snapshot_retention_days = _coerce_retention(
                 request.data.get("snapshot_retention_days"),
-                default=s.snapshot_retention_days)
+                default=s.snapshot_retention_days, max_days=_photo_max(s))
             changed.append("snapshot_retention_days")
         if "name" in request.data:
             s.name = (request.data.get("name") or "").strip()[:120]
@@ -1269,6 +1277,13 @@ def _site_row(s, reveal_token=False):
            "last_seen": _iso(s.last_seen), "online": is_online(s.last_seen),
            "kind": s.kind, "gateway": s.gateway,
            "created": s.created.isoformat()}
+    # cctvevidence: what the slider may offer + where the add-on lives
+    try:
+        from . import cctv_evidence as CE
+        row["photo_days_max"] = CE.site_photo_max(s)
+        row["addon_camera_id"] = CE.addon_camera_id(s)
+    except Exception:
+        row["photo_days_max"], row["addon_camera_id"] = 7, None
     if reveal_token:
         row["enrollment_token"] = s.enrollment_token
     return row
@@ -1355,12 +1370,22 @@ def _cash_fields(e):
             "away": bool(inputs.get("away")), "clip": clip}
 
 
-def _coerce_retention(v, default=7):
+def _coerce_retention(v, default=7, max_days=30):
     try:
         n = int(v)
     except (TypeError, ValueError):
         return default
-    return max(0, min(30, n))
+    return max(0, min(int(max_days), n))
+
+
+def _photo_max(site=None):
+    """cctvevidence: the most days the server KEEPS new photos — 7 on the
+    base plan, 30 when a camera of the site has the 30-day video add-on."""
+    try:
+        from . import cctv_evidence as CE
+        return CE.site_photo_max(site)
+    except Exception:
+        return 7
 
 
 def coerce_hours(v):

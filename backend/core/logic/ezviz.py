@@ -25,7 +25,9 @@ applied for by work order) — until then the server POLLS the alarm list once
 a minute (command ezviz_poll_alarms) for linked cameras only. Pictures the
 device encrypts (isEncrypt = 1, keyed by the verification code we never
 store) are NOT downloaded: the alert then carries no photo (honest).
-Video is never fetched.
+Video: never streamed through the server — EXCEPT (cctvevidence, W7) the
+10-s SD-card clip around a person alert for a camera with the paid video
+add-on (playback_hls, sub-stream, <= 900 KB), sealed in cctv_store.
 """
 import time
 from urllib.parse import urlparse
@@ -159,6 +161,35 @@ class EzvizClient:
         data = self.call("/api/lapp/device/capture",
                          {"deviceSerial": serial, "channelNo": int(channel)}) or {}
         return data.get("picUrl") or ""
+
+    # ---- cctvevidence (W7): SD card + playback (official Open API) ----
+    def sd_status(self, serial):
+        """/api/lapp/device/format/status -> [{index, name, status,
+        formattingRate}] (status 0 normal, 1 error, 2 not formatted,
+        3 formatting). EZVIZ does not report the card SIZE here."""
+        data = self.call("/api/lapp/device/format/status", {"deviceSerial": serial})
+        return data if isinstance(data, list) else []
+
+    def playback_hls(self, serial, channel, start_str, stop_str):
+        """/api/lapp/v2/live/address/get type=2 (the camera's LOCAL = SD-card
+        recording) protocol=2 (HLS), quality=2 (smooth / sub-stream) for the
+        window -> the HLS url ("" when none). Times "YYYY-MM-DD HH:MM:SS"
+        in the device's local time."""
+        data = self.call("/api/lapp/v2/live/address/get", {
+            "deviceSerial": serial, "channelNo": int(channel or 1),
+            "protocol": 2, "type": 2, "quality": 2, "expireTime": 300,
+            "startTime": start_str, "stopTime": stop_str}) or {}
+        url = data.get("url") if isinstance(data, dict) else ""
+        return url if isinstance(url, str) and _domain_ok(url) else ""
+
+
+def sd_state(rows):
+    """EZVIZ format-status rows -> one of cctv_video_addon.SD_STATES."""
+    if not rows:
+        return "none"
+    st = str((rows[0] or {}).get("status", ""))
+    return {"0": "ok", "1": "error", "2": "unformatted",
+            "3": "formatting"}.get(st, "unknown")
 
 
     def storage_status(self, serial):

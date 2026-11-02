@@ -343,7 +343,7 @@ class CashEventClipTests(_Base):
         self.assertEqual(clip.size, 5000)
         self.assertAlmostEqual((clip.expires_at - clip.created).total_seconds(),
                                24 * 3600, delta=5)
-        with open(clip.blob.path, "rb") as f:
+        with clip.blob.open("rb") as f:   # cctvevidence: sealed at rest
             self.assertEqual(f.read(), blob)
         self.assertEqual(self.upload(ref).data.get("duplicate"), True)
         # owner fetch: a signed link + ONLY my wrap

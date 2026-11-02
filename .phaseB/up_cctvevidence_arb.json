@@ -1,0 +1,189 @@
+{
+  "_comment": "cctvevidence (W7, CCTV evidence: recording screen, video add-on, SD health, evidence PDF + privacy warning). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_cctvevidence_arb.json",
+  "en": {
+    "cevTitle": "Recording & evidence",
+    "cevSdTitle": "SD card (24/7 recording)",
+    "cevSdDays": "Holds about {days} days of recording. When full, the oldest is overwritten.",
+    "@cevSdDays": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cevSdDaysUnknown": "This camera does not report how many days the card holds.",
+    "cevSdChecked": "Checked {time}",
+    "@cevSdChecked": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cevRefresh": "Check again",
+    "cevAddonTitle": "Video add-on",
+    "cevAddonWhat": "Keeps a 10-second clip from the camera's SD card for each person alert — up to 30 per camera per day. This is not 24/7 cloud recording.",
+    "cevAddonActive": "On — clips kept {days} days, paid until {until}",
+    "@cevAddonActive": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        },
+        "until": {
+          "type": "String"
+        }
+      }
+    },
+    "cevAddonOff": "Off — only alert photos are kept ({days} days)",
+    "@cevAddonOff": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cevTierLine": "Keep {days} days — {price} tk a month",
+    "@cevTierLine": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        },
+        "price": {
+          "type": "String"
+        }
+      }
+    },
+    "cevTierCredits": "{credits} credits for 30 days",
+    "@cevTierCredits": {
+      "placeholders": {
+        "credits": {
+          "type": "String"
+        }
+      }
+    },
+    "cevBuy": "Get",
+    "cevExtend": "Add a month",
+    "cevBuyConfirmTitle": "Get the video add-on?",
+    "cevBuyConfirmBody": "{credits} credits will be used for this camera for 30 days. Clips are kept {days} days, then deleted automatically.",
+    "@cevBuyConfirmBody": {
+      "placeholders": {
+        "credits": {
+          "type": "String"
+        },
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cevBought": "The video add-on is on.",
+    "cevClipsToday": "Clips today: {n} of {max}",
+    "@cevClipsToday": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        },
+        "max": {
+          "type": "String"
+        }
+      }
+    },
+    "cevClipSupportOk": "This camera can hand over SD-card clips through its maker's official API.",
+    "cevStorageNote": "Photos and clips are stored encrypted. Only you and the people you allow can see them — not Assisto staff.",
+    "cevAddressTitle": "Address for the evidence pack",
+    "cevAddressHint": "Full shop or home address (printed in the police GD)",
+    "cevAddressSave": "Save address",
+    "cevAddressSaved": "Address saved.",
+    "cevEvidenceSub": "Photo, clip, times, address, SHA-256 and a Bangla PDF — in one tap",
+    "cevPrivacyWarn": "This pack holds pictures and video of people. Give it only to the police or your lawyer — do not post it on social media or in groups, and do not accuse anyone.",
+    "cevSdClipPlay": "Watch the 10-second SD clip",
+    "cevSdClipPending": "Fetching the clip from the camera's SD card — within about 2 minutes",
+    "cevSdClipNone": "No clip for this alert — only the photo is kept",
+    "cevPdfTitle": "Evidence pack — alert no. {id}",
+    "@cevPdfTitle": {
+      "placeholders": {
+        "id": {
+          "type": "String"
+        }
+      }
+    },
+    "cevPdfShop": "Shop / home",
+    "cevPdfAddress": "Address",
+    "cevPdfCamera": "Camera",
+    "cevPdfWhen": "Time",
+    "cevPdfWhat": "What happened",
+    "cevPdfPhoto": "Alert photo",
+    "cevPdfFiles": "Files and their SHA-256 fingerprints",
+    "cevPdfHowCheck": "To check on any computer: sha256sum -c SHA256SUMS.txt (every line must say OK).",
+    "cevPdfLetter": "Draft General Diary (GD)",
+    "cevPdfFooter": "Made on this phone with the Assisto app — {time}",
+    "@cevPdfFooter": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cevSdClipReady": "Kept encrypted until {date}",
+    "@cevSdClipReady": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "cevRetentionCap": "Up to {days} days: the base plan keeps photos 7 days; the 30-day video add-on keeps them 30 days.",
+    "@cevRetentionCap": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cevRetentionAddonLink": "See the video add-on"
+  },
+  "bn": {
+    "cevTitle": "রেকর্ডিং ও প্রমাণ",
+    "cevSdTitle": "SD কার্ড (২৪ ঘণ্টা রেকর্ড)",
+    "cevSdDays": "আনুমানিক {days} দিনের রেকর্ড ধরে। কার্ড ভরে গেলে সবচেয়ে পুরনোটা মুছে নতুন লেখে।",
+    "cevSdDaysUnknown": "কার্ডে কত দিনের রেকর্ড ধরে, এই ক্যামেরা তা জানায় না।",
+    "cevSdChecked": "দেখা হয়েছে {time}",
+    "cevRefresh": "আবার দেখুন",
+    "cevAddonTitle": "ভিডিও অ্যাড-অন",
+    "cevAddonWhat": "প্রতিটি মানুষ-সতর্কতায় ক্যামেরার SD কার্ড থেকে ১০ সেকেন্ডের ক্লিপ রাখা হয় — ক্যামেরা প্রতি দিনে সর্বোচ্চ ৩০টি। এটা ২৪ ঘণ্টার ক্লাউড রেকর্ডিং নয়।",
+    "cevAddonActive": "চালু — ক্লিপ {days} দিন রাখা হয়, {until} পর্যন্ত দেওয়া",
+    "cevAddonOff": "চালু নেই — শুধু সতর্কতার ছবি রাখা হয় ({days} দিন)",
+    "cevTierLine": "{days} দিন রাখা — মাসে {price} টাকা",
+    "cevTierCredits": "৩০ দিনে {credits} ক্রেডিট",
+    "cevBuy": "নিন",
+    "cevExtend": "আরও এক মাস",
+    "cevBuyConfirmTitle": "ভিডিও অ্যাড-অন নেবেন?",
+    "cevBuyConfirmBody": "এই ক্যামেরার জন্য ৩০ দিনে {credits} ক্রেডিট কাটা হবে। ক্লিপ {days} দিন রাখা হবে, তারপর নিজে থেকেই মুছে যাবে।",
+    "cevBought": "ভিডিও অ্যাড-অন চালু হয়েছে।",
+    "cevClipsToday": "আজকের ক্লিপ: {max}টির মধ্যে {n}টি",
+    "cevClipSupportOk": "এই ক্যামেরা তার কোম্পানির অফিসিয়াল API দিয়ে SD-কার্ডের ক্লিপ দিতে পারে।",
+    "cevStorageNote": "ছবি ও ক্লিপ এনক্রিপ্ট করে রাখা হয়। শুধু আপনি ও আপনার অনুমতি দেওয়া মানুষ দেখতে পারেন — Assisto-র কর্মীরাও না।",
+    "cevAddressTitle": "প্রমাণ-প্যাকের ঠিকানা",
+    "cevAddressHint": "দোকান বা বাড়ির পুরো ঠিকানা (থানার জিডিতে ছাপা হবে)",
+    "cevAddressSave": "ঠিকানা রাখুন",
+    "cevAddressSaved": "ঠিকানা রাখা হয়েছে।",
+    "cevEvidenceSub": "ছবি, ক্লিপ, সময়, ঠিকানা, SHA-256 ও বাংলা PDF — এক ট্যাপে",
+    "cevPrivacyWarn": "এই প্যাকে মানুষের ছবি ও ভিডিও আছে। শুধু পুলিশ বা আপনার আইনজীবীকে দিন — সামাজিক মাধ্যমে বা গ্রুপে পোস্ট করবেন না, কাউকে দোষী বলবেন না।",
+    "cevSdClipPlay": "১০ সেকেন্ডের SD ক্লিপ দেখুন",
+    "cevSdClipPending": "ক্যামেরার SD কার্ড থেকে ক্লিপ আনা হচ্ছে — প্রায় ২ মিনিটের মধ্যে",
+    "cevSdClipNone": "এই সতর্কতার ক্লিপ নেই — শুধু ছবি রাখা হয়েছে",
+    "cevPdfTitle": "প্রমাণ-প্যাক — সতর্কতা নং {id}",
+    "cevPdfShop": "দোকান / বাড়ি",
+    "cevPdfAddress": "ঠিকানা",
+    "cevPdfCamera": "ক্যামেরা",
+    "cevPdfWhen": "সময়",
+    "cevPdfWhat": "কী ঘটেছে",
+    "cevPdfPhoto": "সতর্কতার ছবি",
+    "cevPdfFiles": "ফাইল ও তাদের SHA-256 আঙুলছাপ",
+    "cevPdfHowCheck": "যেকোনো কম্পিউটারে যাচাই: sha256sum -c SHA256SUMS.txt (প্রতিটি লাইনে OK আসতে হবে)।",
+    "cevPdfLetter": "সাধারণ ডায়েরির (জিডি) খসড়া",
+    "cevPdfFooter": "Assisto অ্যাপে এই ফোনে তৈরি — {time}",
+    "cevSdClipReady": "এনক্রিপ্ট করে রাখা — {date} পর্যন্ত",
+    "cevRetentionCap": "সর্বোচ্চ {days} দিন: বেস প্ল্যানে ছবি ৭ দিন রাখা হয়; ৩০ দিনের ভিডিও অ্যাড-অনে ৩০ দিন।",
+    "cevRetentionAddonLink": "ভিডিও অ্যাড-অন দেখুন"
+  }
+}

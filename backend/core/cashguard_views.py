@@ -77,6 +77,15 @@ def purge_clips(now=None):
     return n
 
 
+def _clip_ttl(ev, now):
+    """24 h — or the video add-on's 7 / 30 days (cctvevidence, W7)."""
+    try:
+        from . import cctv_evidence as CE
+        return CE.clip_ttl_s(ev.camera, CG.CLIP_TTL_S, now)
+    except Exception:
+        return CG.CLIP_TTL_S
+
+
 def _fresh(clip, now=None):
     """Lazy expiry: a clip past its window is deleted before anyone gets it."""
     if clip.status == "ready" and clip.expires_at <= (now or timezone.now()):
@@ -167,7 +176,7 @@ class ShopClipUploadView(APIView):
                         status=422, code="bad_digest")
         meta = dict(raw_meta, sha256=digest)
         clip = ShopEventClip(event=ev, meta=meta, size=len(raw), sha256=digest,
-                             expires_at=now + timedelta(seconds=CG.CLIP_TTL_S))
+                             expires_at=now + timedelta(seconds=_clip_ttl(ev, now)))
         clip.blob.save("e%d_%s.bin" % (ev.id, ref[:12]), ContentFile(raw), save=False)
         try:
             clip.save()
@@ -264,6 +273,20 @@ class EventClipViewedView(_OwnerBase):
             clip.save(update_fields=["meta", "viewed_at"])
             return Response({"ok": True, "deleted": False, "status": clip.status,
                              "kept_for": len(waiting)})
+        # cctvevidence (W7): with the paid video add-on the owner keeps the
+        # clip for the add-on's days (deleted by the lifecycle purge then).
+        try:
+            from . import cctv_evidence as CE
+            kept = clip.status == "ready" and ev.camera is not None and \
+                CE.active_addon(ev.camera) is not None
+        except Exception:
+            kept = False
+        if kept:
+            clip.meta = meta
+            clip.viewed_at = clip.viewed_at or timezone.now()
+            clip.save(update_fields=["viewed_at", "meta"])
+            return Response({"ok": True, "deleted": False, "status": clip.status,
+                             "kept_until": SV._iso(clip.expires_at)})
         if clip.status == "ready":
             clip.meta = meta
             clip.viewed_at = clip.viewed_at or timezone.now()

@@ -67,6 +67,18 @@ def serve_signed(request, name):
         raise Http404
     if not verify(name, request.GET.get("e"), request.GET.get("s")):
         raise Http404
+    # cctvevidence (W7): CCTV photos / clips are sealed objects (AES-GCM,
+    # S3 or encrypted local) — opened here, never streamed raw by nginx.
+    from .logic import cctv_store
+    if cctv_store.valid_name(name):
+        got = cctv_store.response_for(name)
+        if got is None:
+            raise Http404
+        resp = HttpResponse(got[0], content_type=got[1])
+        resp["Cache-Control"] = "private, max-age=3600"
+        resp["X-Content-Type-Options"] = "nosniff"
+        resp["X-Robots-Tag"] = "noindex, noimageindex, noarchive"
+        return resp
     root = os.path.realpath(settings.MEDIA_ROOT)
     path = os.path.realpath(os.path.join(root, name))
     if not path.startswith(root + os.sep) or not os.path.isfile(path):

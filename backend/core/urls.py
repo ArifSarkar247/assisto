@@ -761,6 +761,7 @@ urlpatterns += [
 ]
 # ---- cctvx ---- CCTV extras (owner 28 Oct)
 from . import cctvx_views as cx  # noqa: E402
+from . import cctv_evidence as cev  # noqa: E402  (cctvevidence W7)
 urlpatterns += [
     path("shop/sites/<int:pk>/guard", cx.GuardSettingsView.as_view()),
     path("shop/sites/<int:pk>/guard/report", cx.GuardReportView.as_view()),
@@ -773,6 +774,11 @@ urlpatterns += [
     path("shop/events/<int:pk>/share-targets", cx.ShareTargetsView.as_view()),
     path("shop/events/<int:pk>/clip/share", cx.ClipShareView.as_view()),
     path("shop/events/<int:pk>/evidence", cx.EventEvidenceView.as_view()),
+    # ---- cctvevidence (W7) ----
+    path("shop/cameras/<int:pk>/recording", cev.CameraRecordingView.as_view()),
+    path("shop/cameras/<int:pk>/video-addon", cev.CameraVideoAddonView.as_view()),
+    path("shop/sites/<int:pk>/address", cev.SiteAddressView.as_view()),
+    path("shop/events/<int:pk>/sd-clip", cev.EventSdClipView.as_view()),
 ]
 # ---- /cctv1 ----
 
