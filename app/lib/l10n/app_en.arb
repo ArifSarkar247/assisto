@@ -35145,5 +35145,51 @@
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
   "cxatEvHealth": "Camera problem",
-  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)",
+  "bzSafeTitle": "Rules every automatic message follows",
+  "bzSafeQuiet": "Quiet hours: nothing goes out from {start} to {end} (Dhaka time).",
+  "@bzSafeQuiet": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bzSafeAll": "One customer gets at most {n} messages a day from your shop — automations, due reminders and CRM SMS together.",
+  "@bzSafeAll": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzSafeStop": "Every message carries a one-tap Stop. A stop works at once for every automation of your shop.",
+  "bzSafeSms": "One SMS part costs {n} credits.",
+  "@bzSafeSms": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzStoppedOpen": "Customers who stopped messages ({n})",
+  "@bzStoppedOpen": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzStoppedTitle": "Stopped messages",
+  "bzStoppedBenefit": "People who said stop never get an automatic message from your shop again — this keeps your shop out of spam blocks.",
+  "bzStoppedEmpty": "Nobody has stopped your messages yet.",
+  "bzStoppedHowTo": "A customer stops with the link in an SMS, the Stop button in Assisto, or by writing STOP in a chat. If someone asks you in person, add their number below.",
+  "bzStoppedOnlyThey": "Only the customer can start messages again, by messaging your shop.",
+  "bzSrcSmsLink": "SMS stop link",
+  "bzSrcInApp": "Stop button in Assisto",
+  "bzSrcChat": "Wrote STOP in a chat",
+  "bzSrcOwner": "Added by you"
 }
