@@ -9,10 +9,25 @@
     "callpipReturn": "Return to call",
     "callpipCamPausedSelf": "You left Assisto, so your camera is paused. It turns back on when you come back.",
     "callpipCamPausedPeer": "{name} left the app for a moment. Video is paused, the call goes on.",
-    "@callpipCamPausedPeer": {"placeholders": {"name": {"type": "String"}}},
+    "@callpipCamPausedPeer": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
     "callpipSelfView": "Your camera",
     "callpipPipLabel": "Video call with {name}. Tap to open the full call",
-    "@callpipPipLabel": {"placeholders": {"name": {"type": "String"}}}
+    "@callpipPipLabel": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "callpipPipOff": "Picture-in-picture is off for Assisto: the video can't float when you leave the app. The call goes on.",
+    "callpipPipTurnOn": "Turn on",
+    "callpipPipLater": "Not now"
   },
   "bn": {
     "callpipMute": "মিউট",
@@ -24,6 +39,9 @@
     "callpipCamPausedSelf": "আপনি Assisto থেকে বের হয়েছেন, তাই আপনার ক্যামেরা থেমে আছে। ফিরলে নিজে থেকেই চালু হবে।",
     "callpipCamPausedPeer": "{name} একটু অন্য অ্যাপে গেছেন। ভিডিও থেমে আছে, কথা চলছে।",
     "callpipSelfView": "আপনার ক্যামেরা",
-    "callpipPipLabel": "{name}-এর সাথে ভিডিও কল। পুরো কল খুলতে ট্যাপ করুন"
+    "callpipPipLabel": "{name}-এর সাথে ভিডিও কল। পুরো কল খুলতে ট্যাপ করুন",
+    "callpipPipOff": "Assisto-র ছোট জানালা (PiP) বন্ধ: অ্যাপ থেকে বের হলে ভিডিও ভাসবে না। কথা চলবে।",
+    "callpipPipTurnOn": "চালু করুন",
+    "callpipPipLater": "এখন না"
   }
 }

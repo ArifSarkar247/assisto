@@ -1,6 +1,7 @@
 package com.assisto.assisto.calls
 
 import android.app.Activity
+import android.app.AppOpsManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,7 +12,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
+import android.net.Uri
 import android.os.Build
+import android.os.Process
+import android.provider.Settings
 import android.util.Rational
 
 /**
@@ -236,6 +240,41 @@ object CallPip {
         } catch (e: Throwable) {
             false
         }
+    }
+
+    /** Is picture-in-picture switched ON for Assisto (Settings -> Special
+     *  app access -> Picture-in-picture; some OEMs ship it off)? null = this
+     *  phone has no PiP at all (Android Go) or it can't tell. */
+    fun allowed(a: Activity?): Boolean? {
+        if (a == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
+        if (!supported(a)) return null
+        return try {
+            val ops = a.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+            val op = "android:picture_in_picture"
+            val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ops.unsafeCheckOpNoThrow(op, Process.myUid(), a.packageName)
+            } else {
+                @Suppress("DEPRECATION")
+                ops.checkOpNoThrow(op, Process.myUid(), a.packageName)
+            }
+            mode != AppOpsManager.MODE_IGNORED && mode != AppOpsManager.MODE_ERRORED
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
+    /** Opens Assisto's picture-in-picture switch (else the app's settings). */
+    fun openSettings(a: Activity?): Boolean {
+        if (a == null) return false
+        val uri = Uri.parse("package:" + a.packageName)
+        for (action in listOf("android.settings.PICTURE_IN_PICTURE_SETTINGS",
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS)) {
+            try {
+                a.startActivity(Intent(action, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                return true
+            } catch (ignored: Throwable) {}
+        }
+        return false
     }
 
     /** "Return to call" tapped (MainActivity.onNewIntent). */

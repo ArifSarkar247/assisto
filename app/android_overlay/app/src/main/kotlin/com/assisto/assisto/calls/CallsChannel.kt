@@ -166,6 +166,8 @@ object CallsChannel {
                             call.argument<List<Map<String, Any?>>>("actions")
                         )
                     )
+                    "pipAllowed" -> result.success(CallPip.allowed(activity))
+                    "openPipSettings" -> result.success(CallPip.openSettings(activity))
                     "leaveApp" -> result.success(
                         CallPip.leaveApp(activity, call.argument<Boolean>("pip") == true))
                     "decorateOngoing" -> result.success(

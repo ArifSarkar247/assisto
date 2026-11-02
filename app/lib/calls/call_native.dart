@@ -236,6 +236,19 @@ class CallNative {
   @visibleForTesting
   static void resetPipForTest() => _pipSig = null;
 
+  /// callpip: picture-in-picture switched ON for Assisto? (some phones
+  /// ship it off). null = no PiP on this phone / unknown -> no hint.
+  static Future<bool?> pipAllowed() async {
+    _ensureHandler();
+    return _invoke<bool>('pipAllowed');
+  }
+
+  /// callpip: opens Assisto's picture-in-picture switch in Settings.
+  static Future<bool> openPipSettings() async {
+    _ensureHandler();
+    return await _invoke<bool>('openPipSettings') == true;
+  }
+
   /// callpip: Back on Assisto's LAST screen during a call. [pip] = shrink
   /// the live video call into PiP; otherwise (or when PiP is not possible)
   /// Assisto goes to the background — never closes, the call keeps running.

@@ -200,3 +200,12 @@ bool showSelfInset(
         required bool pausedBg,
         required bool cameraUnavailable}) =>
     videoOn && cameraOn && !pausedBg && !cameraUnavailable;
+
+/// The honest "picture-in-picture is OFF for Assisto" line on a live video
+/// call (with a "Turn on" button that opens the switch). Never when the phone
+/// has no PiP at all (nothing to turn on -> no dead button) or unknown.
+bool showPipOffHint(
+        {required bool videoLive,
+        required bool? allowed,
+        required bool dismissed}) =>
+    videoLive && allowed == false && !dismissed;

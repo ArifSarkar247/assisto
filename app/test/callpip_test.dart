@@ -18,18 +18,25 @@ import 'package:assisto/calls/call_pip.dart';
 import 'package:assisto/calls/call_runtime.dart';
 import 'package:assisto/calls/call_video.dart';
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/screens/circle_call_screen.dart';
 
 import 'c2_calls_fakes.dart';
 
 /// every com.assisto/calls call: (method, args)
 final List<(String, Object?)> native = [];
+bool? pipAllowedAnswer = false;
 
 void _mock() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(const MethodChannel('com.assisto/calls'),
           (c) async {
     native.add((c.method, c.arguments));
-    if (c.method == 'setAutoPip' || c.method == 'leaveApp') return true;
+    if (c.method == 'setAutoPip' ||
+        c.method == 'leaveApp' ||
+        c.method == 'openPipSettings') {
+      return true;
+    }
+    if (c.method == 'pipAllowed') return pipAllowedAnswer;
     return null;
   });
 }
@@ -83,6 +90,7 @@ void main() {
 
   setUp(() {
     native.clear();
+    pipAllowedAnswer = false;
     _mock();
     CallRuntime.instance.resetForTest();
     CallNative.inPip.value = false;
@@ -229,6 +237,23 @@ void main() {
       expect(
           miniCallView(hasCall: true, ended: false, inPip: true, videoOn: true),
           const MiniCallView(pip: true));
+    });
+
+    test('"PiP is off" line only when it is really OFF (no dead "Turn on")',
+        () {
+      expect(
+          showPipOffHint(videoLive: true, allowed: false, dismissed: false),
+          isTrue);
+      expect(showPipOffHint(videoLive: true, allowed: null, dismissed: false),
+          isFalse,
+          reason: 'no PiP on this phone (Android Go) / unknown');
+      expect(showPipOffHint(videoLive: true, allowed: true, dismissed: false),
+          isFalse);
+      expect(showPipOffHint(videoLive: true, allowed: false, dismissed: true),
+          isFalse);
+      expect(
+          showPipOffHint(videoLive: false, allowed: false, dismissed: false),
+          isFalse);
     });
 
     test('self inset never shows a black / frozen box', () {
@@ -579,6 +604,77 @@ void main() {
           lang: 'bn'));
       expect(tester.takeException(), isNull);
       expect(find.byIcon(Icons.mic_off_rounded), findsOneWidget);
+    });
+  });
+
+  group('"PiP is off" line on the call screen', () {
+    for (final lang in ['en', 'bn']) {
+      testWidgets('Turn on opens the switch and re-checks; Not now hides it '
+          '($lang, 360 dp, 200 % text)', (tester) async {
+        tester.view.physicalSize = const Size(360, 800) * 3;
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final c = _live();
+        await tester.pumpWidget(MaterialApp(
+          locale: Locale(lang),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (ctx, child) => MediaQuery(
+              data: MediaQuery.of(ctx)
+                  .copyWith(textScaler: const TextScaler.linear(2)),
+              child: child!),
+          home: CircleCallScreen(
+              member: const {'id': 7, 'name': 'Nadia'},
+              kind: 'video',
+              controller: c,
+              surface: FakeSurface(),
+              previewPipOff: true),
+        ));
+        await tester.pump();
+        expect(find.byKey(const Key('call-pip-off')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        final t = lookupAppLocalizations(Locale(lang));
+        expect(find.text(t.callpipPipOff), findsOneWidget);
+        // Turn on -> Settings; back with PiP allowed -> the line goes
+        pipAllowedAnswer = true;
+        await tester.tap(find.byKey(const Key('call-pip-off-turn-on')));
+        await tester.pump(const Duration(seconds: 3));
+        expect(native.any((n) => n.$1 == 'openPipSettings'), isTrue);
+        expect(find.byKey(const Key('call-pip-off')), findsNothing);
+        pipAllowedAnswer = false;
+        await tester.pump(const Duration(seconds: 2));
+      });
+    }
+
+    testWidgets('Not now hides it for this call', (tester) async {
+      tester.view.physicalSize = const Size(360, 800) * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: CircleCallScreen(
+            member: const {'id': 7, 'name': 'Nadia'},
+            kind: 'video',
+            controller: _live(),
+            surface: FakeSurface(),
+            previewPipOff: true),
+      ));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('call-pip-off-later')));
+      await tester.pump();
+      expect(find.byKey(const Key('call-pip-off')), findsNothing);
+      await tester.pump(const Duration(seconds: 2));
     });
   });
 

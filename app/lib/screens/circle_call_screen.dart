@@ -16,6 +16,7 @@ import '../calls/call_rating.dart'; // callsbar
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
+import '../calls/call_pip.dart' show showPipOffHint; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
@@ -76,6 +77,9 @@ class CircleCallScreen extends StatefulWidget {
   /// preview controller (a live screen decides with [shouldAskCallRating]).
   final bool previewAskRating;
 
+  /// callpip gallery/tests: show the "picture-in-picture is off" line.
+  final bool previewPipOff;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -88,6 +92,7 @@ class CircleCallScreen extends StatefulWidget {
     this.previewSwapped = false,
     this.previewFullscreen = false,
     this.previewAskRating = false,
+    this.previewPipOff = false,
   });
 
   /// circle2 test seam: the video gate's navigation ('voice' | 'video' |
@@ -122,6 +127,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Timer? _ticker;
   Timer? _autoClose;
   bool _pip = false;
+
+  /// callpip: picture-in-picture switched off for Assisto in Settings
+  /// (null = not asked yet / no PiP on this phone).
+  late bool? _pipAllowed = widget.previewPipOff ? false : null;
+  bool _pipAsked = false;
+  bool _pipHintDismissed = false;
   bool _closed = false;
   late bool _full = widget.previewFullscreen; // cde-chat: double-tap
   bool _beginning = false;
@@ -367,6 +378,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       // gated on an async "PiP supported?" answer — that left auto-PiP OFF
       // after returning from the mini bar (owner bug 2 Nov).
       CallRuntime.instance.bindScreenCall(c, _surface);
+      if (!_pipAsked && c.videoOn && c.isLive) {
+        _pipAsked = true;
+        unawaited(CallNative.pipAllowed().then((v) {
+          if (mounted) setState(() => _pipAllowed = v);
+        }));
+      }
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
         if (c.merged && !_claimed) {
@@ -686,6 +703,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               : Stack(fit: StackFit.expand, children: [
                   if (dim != null) dim,
                   column,
+                  // callpip: over the video (never pushes the controls off
+                  // screen at 200 % text); scrolls if it is long
+                  if (live &&
+                      showPipOffHint(
+                          videoLive: _isVideo && (_owns || widget.previewPipOff),
+                          allowed: _pipAllowed,
+                          dismissed: _pipHintDismissed))
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: pad.top + 64,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxHeight: MediaQuery.sizeOf(context).height * 0.4),
+                        child: SingleChildScrollView(child: _pipOffBanner()),
+                      ),
+                    ),
                 ]),
         ),
       );
@@ -961,6 +995,60 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           child: Text(text,
               textAlign: TextAlign.center,
               style: AType.bodyMedium.copyWith(color: CallInk.text)),
+        ),
+      ),
+    );
+  }
+
+  /// callpip: honest line when picture-in-picture is OFF for Assisto (some
+  /// phones ship it off): the video can't float outside the app, the call
+  /// still goes on. "Turn on" opens the switch; checked again on return.
+  Widget _pipOffBanner() {
+    final t = _t;
+    return Padding(
+      key: const Key('call-pip-off'),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.xs),
+        decoration: BoxDecoration(
+          color: CallInk.notice,
+          borderRadius: BorderRadius.circular(Radii.lg),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(t.callpipPipOff,
+                style: AType.bodyMedium.copyWith(color: CallInk.text)),
+            Wrap(
+              alignment: WrapAlignment.end,
+              children: [
+                TextButton(
+                  key: const Key('call-pip-off-later'),
+                  style: TextButton.styleFrom(
+                      foregroundColor: CallInk.text,
+                      minimumSize: const Size(48, 48)),
+                  onPressed: () => setState(() => _pipHintDismissed = true),
+                  child: Text(t.callpipPipLater),
+                ),
+                TextButton(
+                  key: const Key('call-pip-off-turn-on'),
+                  style: TextButton.styleFrom(
+                      foregroundColor: CallInk.text,
+                      minimumSize: const Size(48, 48)),
+                  onPressed: () async {
+                    await CallNative.openPipSettings();
+                    // the user comes back from Settings: ask again
+                    await Future<void>.delayed(const Duration(seconds: 2));
+                    final v = await CallNative.pipAllowed();
+                    if (mounted) setState(() => _pipAllowed = v);
+                  },
+                  child: Text(t.callpipPipTurnOn,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

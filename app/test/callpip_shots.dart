@@ -129,6 +129,13 @@ final Map<String, Widget Function(String)> callpipShots = {
   'callpip_pip_peer_away': (l) =>
       PipSimulation(lang: l, away: true, controls: false),
   'callpip_call_peer_away': _peerAway,
+  'callpip_pip_off_hint': (l) => CircleCallScreen(
+      member: _m(l),
+      kind: 'video',
+      controller: previewController(
+          video: true, outgoing: true, phase: CallPhase.connected),
+      surface: FakeSurface(),
+      previewPipOff: true),
   'callpip_mini_tile_video': (l) => CallsADemo(lang: l),
   'callpip_call_bar_voice': (l) => CallsADemo(lang: l, video: false),
 };
