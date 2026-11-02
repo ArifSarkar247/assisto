@@ -94,10 +94,10 @@ QUESTIONS = (
      "bn": "কোথায় কোথায় আছেন / থাকতে চান?", "en": "Where are you (or want to be)?",
      "options": (
          _o("facebook", "Facebook পেজ", "Facebook Page"),
-         _o("instagram", "Instagram", "Instagram"),
-         _o("whatsapp", "WhatsApp", "WhatsApp"),
-         _o("tiktok", "TikTok", "TikTok"),
-         _o("youtube", "YouTube", "YouTube"),
+         _o("instagram", "Instagram (ছবি ও রিল)", "Instagram"),
+         _o("whatsapp", "WhatsApp (মেসেজ ও স্ট্যাটাস)", "WhatsApp"),
+         _o("tiktok", "TikTok (ছোট ভিডিও)", "TikTok"),
+         _o("youtube", "YouTube (ভিডিও)", "YouTube"),
          _o("in_store", "দোকানে (পোস্টার, ব্যানার)", "In the shop (posters, banners)"))},
     {"key": "tone", "type": "single", "required": True,
      "bn": "আপনার কথার ধরন কেমন হবে?", "en": "How should you sound?",
@@ -353,10 +353,11 @@ def _cta(answers, lang):
 
 def _hashtags(answers, facts, lang):
     tags = []
-    area = (answers.get("area") or "").split(",")[0].strip().replace(" ", "")
+    # digits dropped: a hashtag with Latin digits breaks the Bangla-digit rule
+    area = re.sub(r"[\s\d০-৯]", "", (answers.get("area") or "").split(",")[0])
     if area:
         tags.append("#" + area)
-    shop = (facts.get("shop") or "").replace(" ", "")
+    shop = re.sub(r"[\s\d০-৯]", "", facts.get("shop") or "")
     if shop:
         tags.append("#" + shop)
     tags.append("#" + {"grocery": "BazarList", "fashion": "BDFashion", "cosmetics": "BeautyBD",

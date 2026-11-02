@@ -225,7 +225,7 @@ class ApiTests(_Base):
         self.assertFalse(r.data["complete"])
         self.assertEqual(r.data["publish"]["reason"], "meta_review_pending")
         # half-way draft save, then generate refuses honestly
-        r = self.oc.put("/api/v1/mkt/profile", {"answers": {"area": "Mirpur"}, "partial": True},
+        r = self.oc.post("/api/v1/mkt/profile", {"answers": {"area": "Mirpur"}, "partial": True},
                         format="json")
         self.assertEqual(r.status_code, 200)
         self.assertFalse(r.data["complete"])

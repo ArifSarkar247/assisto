@@ -1,3 +1,4 @@
+import '../mktengine/mkt_engine_screen.dart'; // mktengine
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import '../../account_mode.dart' show AcctArea; // acctmode
@@ -411,6 +412,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                   title: t.acuTitle,
                   subtitle: t.acuHubSub,
                   onTap: () => _go(AcctHomeScreen(businessId: bizId)),
+                ),
+              ],
+              // mktengine: Marketing Engine v1 (flag marketing_engine)
+              if (FeatureFlags.instance.isOn('marketing_engine')) ...[
+                const SizedBox(height: Gap.md),
+                _HubCard(
+                  icon: Icons.campaign_rounded,
+                  tint: Brand.blue,
+                  title: t.mktTitle,
+                  subtitle: t.mktHubSub,
+                  onTap: () => _go(const MktEngineScreen()),
                 ),
               ],
               const SizedBox(height: Gap.md),

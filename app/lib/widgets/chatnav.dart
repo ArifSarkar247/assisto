@@ -54,6 +54,7 @@ import '../screens/remittance/remittance_screen.dart'; // budget-remittance
 import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
+import '../screens/mktengine/mkt_engine_screen.dart'; // mktengine
 import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
@@ -246,6 +247,8 @@ class ChatNav {
     // messages from shops (push / notification route 'retention_inbox').
     'retention_auto': (_) => const RetentionScreen(),
     'retention_inbox': (_) => const RetentionInboxScreen(),
+    // mktengine: Marketing Engine v1 (flag marketing_engine)
+    'marketing_engine': (_) => const MktEngineScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
@@ -468,6 +471,7 @@ class ChatNav {
     'books': ['balance sheet', 'trial balance', 'profit and loss', 'books of accounts'],
     'acct': ['accounting', 'accounts', 'cash flow', 'vat summary', 'mushak', 'opening balance', 'close month', 'audit trail', 'send to accountant'],
     'sales_agent': ['ai sales agent', 'sales agent', 'sales assistant'],
+    'marketing_engine': ['marketing engine', 'marketing plan', 'content calendar', 'post ideas', 'festival posts'], // mktengine
     'prepaid_meter': ['prepaid meter', 'electricity meter', 'meter recharge'],
     'contract': ['contract analyzer', 'contract scanner', 'check contract'],
     'my_dues': ['my dues', 'shop dues', 'what i owe', 'my baki'],

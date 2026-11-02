@@ -2,7 +2,7 @@
 
   GET    mkt                       overview: questions, saved answers, plan,
                                    real facts, publish + follow-up readiness
-  PUT    mkt/profile               save answers ({"answers": {...}, "partial": bool})
+  PUT|POST mkt/profile             save answers ({"answers": {...}, "partial": bool})
   POST   mkt/generate              build / rebuild the plan (approved items kept)
   PATCH  mkt/items/<id>            {"status": draft|approved|rejected, "body": "..."}
   POST   mkt/items/<id>/polish     AI personalise (credits; never adds numbers)
@@ -138,6 +138,8 @@ class ProfileView(_Owner):
             return _err(request, "questionnaire_incomplete" if problems[0].startswith("missing_")
                         else "bad_status", problems=problems)
         return Response({"answers": clean, "complete": M.is_complete(clean)})
+
+    post = put      # the app's ApiClient has no PUT helper
 
 
 class GenerateView(_Owner):

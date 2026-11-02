@@ -120,6 +120,8 @@ const Map<String, bool> kFeatureDefaults = {
   'referral': true,
   // retention1 (big-week H)
   'retention_auto': false,
+  // mktengine (owner P3-D): Marketing Engine v1
+  'marketing_engine': false,
   // plans-v2 (owner 27 Oct): Free / Premium / Business limits + trial
   'plans_v2': false,
   // probashi-plan (owner 27 Oct): expat family plan - hidden until 100.
@@ -245,6 +247,7 @@ const Map<String, String> kRouteFeature = {
   // retention1: owner screen + the customer's shop messages
   'retention_auto': 'retention_auto',
   'retention_inbox': 'retention_auto',
+  'marketing_engine': 'marketing_engine', // mktengine
   'sales_agent': 'business_agent',
   'prepaid_meter': 'prepaid_meter',
   'contract': 'contract_analyzer',

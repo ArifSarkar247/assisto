@@ -1,0 +1,347 @@
+{
+ "en": {
+  "mktTitle": "Marketing engine",
+  "@mktTitle": {
+   "description": "Marketing engine (mktengine): mktTitle"
+  },
+  "mktOffTitle": "Not available yet",
+  "@mktOffTitle": {
+   "description": "Marketing engine (mktengine): mktOffTitle"
+  },
+  "mktOffBody": "The marketing engine is being tested. It will appear here once it is ready.",
+  "@mktOffBody": {
+   "description": "Marketing engine (mktengine): mktOffBody"
+  },
+  "mktLoadErrorTitle": "Couldn't load",
+  "@mktLoadErrorTitle": {
+   "description": "Marketing engine (mktengine): mktLoadErrorTitle"
+  },
+  "mktLoadErrorBody": "Check the internet and try again.",
+  "@mktLoadErrorBody": {
+   "description": "Marketing engine (mktengine): mktLoadErrorBody"
+  },
+  "mktRetry": "Try again",
+  "@mktRetry": {
+   "description": "Marketing engine (mktengine): mktRetry"
+  },
+  "mktGenericError": "That did not work, please try again.",
+  "@mktGenericError": {
+   "description": "Marketing engine (mktengine): mktGenericError"
+  },
+  "mktWelcomeTitle": "Your own marketing team, in Bangla",
+  "@mktWelcomeTitle": {
+   "description": "Marketing engine (mktengine): mktWelcomeTitle"
+  },
+  "mktWelcomeBody": "Answer a few short questions. We build posts, a 30-day festival calendar, campaigns and customer follow-ups from your real products, prices and sales.",
+  "@mktWelcomeBody": {
+   "description": "Marketing engine (mktengine): mktWelcomeBody"
+  },
+  "mktStart": "Start (about 5 minutes)",
+  "@mktStart": {
+   "description": "Marketing engine (mktengine): mktStart"
+  },
+  "mktContinue": "Continue the questions",
+  "@mktContinue": {
+   "description": "Marketing engine (mktengine): mktContinue"
+  },
+  "mktHowTitle": "How it works",
+  "@mktHowTitle": {
+   "description": "Marketing engine (mktengine): mktHowTitle"
+  },
+  "mktHow1": "Tell us about your shop: customers, goals, budget, tone, offers.",
+  "@mktHow1": {
+   "description": "Marketing engine (mktengine): mktHow1"
+  },
+  "mktHow2": "Check every item and approve only what you like. Nothing goes out without your OK.",
+  "@mktHow2": {
+   "description": "Marketing engine (mktengine): mktHow2"
+  },
+  "mktHow3": "Copy or share posts; approved follow-ups go to your own customers with STOP and quiet hours.",
+  "@mktHow3": {
+   "description": "Marketing engine (mktengine): mktHow3"
+  },
+  "mktHonestLine": "We never invent sales numbers, reviews or testimonials. Lunar festival dates are marked as estimates.",
+  "@mktHonestLine": {
+   "description": "Marketing engine (mktengine): mktHonestLine"
+  },
+  "mktQuestionsTitle": "About your business",
+  "@mktQuestionsTitle": {
+   "description": "Marketing engine (mktengine): mktQuestionsTitle"
+  },
+  "mktStepOf": "Step {n} of {total}",
+  "@mktStepOf": {
+   "description": "Marketing engine (mktengine): mktStepOf",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "mktOptional": "Optional — you can skip this.",
+  "@mktOptional": {
+   "description": "Marketing engine (mktengine): mktOptional"
+  },
+  "mktPickMany": "Pick one or more.",
+  "@mktPickMany": {
+   "description": "Marketing engine (mktengine): mktPickMany"
+  },
+  "mktAnswerFirst": "Please answer this one first.",
+  "@mktAnswerFirst": {
+   "description": "Marketing engine (mktengine): mktAnswerFirst"
+  },
+  "mktNext": "Next",
+  "@mktNext": {
+   "description": "Marketing engine (mktengine): mktNext"
+  },
+  "mktBack": "Back",
+  "@mktBack": {
+   "description": "Marketing engine (mktengine): mktBack"
+  },
+  "mktCancel": "Cancel",
+  "@mktCancel": {
+   "description": "Marketing engine (mktengine): mktCancel"
+  },
+  "mktBuildPlan": "Build my plan",
+  "@mktBuildPlan": {
+   "description": "Marketing engine (mktengine): mktBuildPlan"
+  },
+  "mktBuildHint": "Your answers are saved. You can change them any time.",
+  "@mktBuildHint": {
+   "description": "Marketing engine (mktengine): mktBuildHint"
+  },
+  "mktApprovedCount": "Approved {done} of {total}",
+  "@mktApprovedCount": {
+   "description": "Marketing engine (mktengine): mktApprovedCount",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "mktFactsTitle": "Real numbers used",
+  "@mktFactsTitle": {
+   "description": "Marketing engine (mktengine): mktFactsTitle"
+  },
+  "mktFactsSub": "From your POS sales, catalog and CRM",
+  "@mktFactsSub": {
+   "description": "Marketing engine (mktengine): mktFactsSub"
+  },
+  "mktRebuild": "Rebuild with fresh numbers",
+  "@mktRebuild": {
+   "description": "Marketing engine (mktengine): mktRebuild"
+  },
+  "mktRebuilt": "Plan rebuilt. Your approved items stayed as they were.",
+  "@mktRebuilt": {
+   "description": "Marketing engine (mktengine): mktRebuilt"
+  },
+  "mktEditAnswers": "Change answers",
+  "@mktEditAnswers": {
+   "description": "Marketing engine (mktengine): mktEditAnswers"
+  },
+  "mktSecContent": "Content",
+  "@mktSecContent": {
+   "description": "Marketing engine (mktengine): mktSecContent"
+  },
+  "mktSecStrategy": "Strategy",
+  "@mktSecStrategy": {
+   "description": "Marketing engine (mktengine): mktSecStrategy"
+  },
+  "mktSecCampaign": "Campaigns",
+  "@mktSecCampaign": {
+   "description": "Marketing engine (mktengine): mktSecCampaign"
+  },
+  "mktSecConversion": "Follow-ups & sales",
+  "@mktSecConversion": {
+   "description": "Marketing engine (mktengine): mktSecConversion"
+  },
+  "mktStatusDraft": "Waiting for you",
+  "@mktStatusDraft": {
+   "description": "Marketing engine (mktengine): mktStatusDraft"
+  },
+  "mktStatusApproved": "Approved",
+  "@mktStatusApproved": {
+   "description": "Marketing engine (mktengine): mktStatusApproved"
+  },
+  "mktStatusRejected": "Not used",
+  "@mktStatusRejected": {
+   "description": "Marketing engine (mktengine): mktStatusRejected"
+  },
+  "mktEstimateBadge": "Estimate",
+  "@mktEstimateBadge": {
+   "description": "Marketing engine (mktengine): mktEstimateBadge"
+  },
+  "mktApprove": "Approve",
+  "@mktApprove": {
+   "description": "Marketing engine (mktengine): mktApprove"
+  },
+  "mktUnapprove": "Take back approval",
+  "@mktUnapprove": {
+   "description": "Marketing engine (mktengine): mktUnapprove"
+  },
+  "mktReject": "Don't use",
+  "@mktReject": {
+   "description": "Marketing engine (mktengine): mktReject"
+  },
+  "mktEdit": "Edit",
+  "@mktEdit": {
+   "description": "Marketing engine (mktengine): mktEdit"
+  },
+  "mktCopy": "Copy",
+  "@mktCopy": {
+   "description": "Marketing engine (mktengine): mktCopy"
+  },
+  "mktShare": "Share",
+  "@mktShare": {
+   "description": "Marketing engine (mktengine): mktShare"
+  },
+  "mktPolish": "Personalise with AI (uses credits)",
+  "@mktPolish": {
+   "description": "Marketing engine (mktengine): mktPolish"
+  },
+  "mktPolished": "Rewritten. Read it and approve again.",
+  "@mktPolished": {
+   "description": "Marketing engine (mktengine): mktPolished"
+  },
+  "mktPolishedNote": "AI-polished — prices and numbers were checked to be unchanged.",
+  "@mktPolishedNote": {
+   "description": "Marketing engine (mktengine): mktPolishedNote"
+  },
+  "mktCopied": "Copied. Paste it on your Page or in WhatsApp.",
+  "@mktCopied": {
+   "description": "Marketing engine (mktengine): mktCopied"
+  },
+  "mktEditTitle": "Edit the text",
+  "@mktEditTitle": {
+   "description": "Marketing engine (mktengine): mktEditTitle"
+  },
+  "mktEditHint": "Keep prices true to your catalog.",
+  "@mktEditHint": {
+   "description": "Marketing engine (mktengine): mktEditHint"
+  },
+  "mktSave": "Save",
+  "@mktSave": {
+   "description": "Marketing engine (mktengine): mktSave"
+  },
+  "mktUses": "Made from: {list}",
+  "@mktUses": {
+   "description": "Marketing engine (mktengine): mktUses",
+   "placeholders": {
+    "list": {
+     "type": "String"
+    }
+   }
+  },
+  "mktFollowActivate": "Turn on — really send to my customers",
+  "@mktFollowActivate": {
+   "description": "Marketing engine (mktengine): mktFollowActivate"
+  },
+  "mktActivated": "Turned on. It now runs in Retention automation, where you can switch it off.",
+  "@mktActivated": {
+   "description": "Marketing engine (mktengine): mktActivated"
+  },
+  "mktFollowOn": "On — sending through Retention automation (STOP, daily limits, no messages 9 pm–9 am).",
+  "@mktFollowOn": {
+   "description": "Marketing engine (mktengine): mktFollowOn"
+  },
+  "mktFollowNeedsRetention": "To send follow-ups, Retention automation must be switched on for your account. It is not on yet.",
+  "@mktFollowNeedsRetention": {
+   "description": "Marketing engine (mktengine): mktFollowNeedsRetention"
+  },
+  "mktFollowNeedsPlan": "Sending follow-ups needs the Business plan.",
+  "@mktFollowNeedsPlan": {
+   "description": "Marketing engine (mktengine): mktFollowNeedsPlan"
+  },
+  "mktPublishFb": "Post to my Facebook Page",
+  "@mktPublishFb": {
+   "description": "Marketing engine (mktengine): mktPublishFb"
+  },
+  "mktPublished": "Posted on your Facebook Page.",
+  "@mktPublished": {
+   "description": "Marketing engine (mktengine): mktPublished"
+  },
+  "mktPublishPending": "Direct posting to Facebook / Instagram starts once Meta approves it for Assisto. For now, copy or share and post it yourself.",
+  "@mktPublishPending": {
+   "description": "Marketing engine (mktengine): mktPublishPending"
+  },
+  "mktPublishNoPage": "Connect your Facebook Page in AI sales agent → Channels to post from here.",
+  "@mktPublishNoPage": {
+   "description": "Marketing engine (mktengine): mktPublishNoPage"
+  },
+  "mktHubSub": "Posts, festival calendar, campaigns and follow-ups from your real sales",
+  "@mktHubSub": {
+   "description": "Marketing engine (mktengine): business hub card subtitle"
+  }
+ },
+ "bn": {
+  "mktTitle": "মার্কেটিং ইঞ্জিন",
+  "mktOffTitle": "এখনো চালু হয়নি",
+  "mktOffBody": "মার্কেটিং ইঞ্জিন পরীক্ষা চলছে। তৈরি হলে এখানেই পাবেন।",
+  "mktLoadErrorTitle": "লোড হয়নি",
+  "mktLoadErrorBody": "ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "mktRetry": "আবার চেষ্টা করুন",
+  "mktGenericError": "ঠিক হয়নি, আবার চেষ্টা করুন।",
+  "mktWelcomeTitle": "বাংলায় আপনার নিজের মার্কেটিং দল",
+  "mktWelcomeBody": "কয়েকটা ছোট প্রশ্নের উত্তর দিন। আপনার আসল পণ্য, দাম আর বিক্রি দেখে আমরা বানিয়ে দেব পোস্ট, ৩০ দিনের উৎসব ক্যালেন্ডার, ক্যাম্পেইন আর গ্রাহকের ফলো-আপ।",
+  "mktStart": "শুরু করুন (৫ মিনিটের মতো)",
+  "mktContinue": "প্রশ্নগুলো চালিয়ে যান",
+  "mktHowTitle": "কীভাবে কাজ করে",
+  "mktHow1": "দোকানের কথা বলুন: গ্রাহক, লক্ষ্য, বাজেট, কথার ধরন, অফার।",
+  "mktHow2": "প্রতিটা আইটেম দেখে শুধু পছন্দেরগুলো অনুমোদন দিন। আপনার অনুমতি ছাড়া কিছুই যায় না।",
+  "mktHow3": "পোস্ট কপি বা শেয়ার করুন; অনুমোদিত ফলো-আপ যায় শুধু আপনার নিজের গ্রাহকদের কাছে, STOP আর রাতের নীরব সময় মেনে।",
+  "mktHonestLine": "আমরা কখনো বিক্রির সংখ্যা, রিভিউ বা প্রশংসা বানাই না। চাঁদের হিসাবের উৎসবের তারিখে 'আনুমানিক' লেখা থাকে।",
+  "mktQuestionsTitle": "আপনার ব্যবসার কথা",
+  "mktStepOf": "ধাপ {n} / {total}",
+  "mktOptional": "না দিলেও চলবে।",
+  "mktPickMany": "এক বা একাধিক বাছুন।",
+  "mktAnswerFirst": "আগে এই প্রশ্নের উত্তর দিন।",
+  "mktNext": "পরের ধাপ",
+  "mktBack": "আগের ধাপ",
+  "mktCancel": "বাতিল",
+  "mktBuildPlan": "প্ল্যান বানান",
+  "mktBuildHint": "আপনার উত্তর সংরক্ষিত থাকে। যেকোনো সময় বদলাতে পারবেন।",
+  "mktApprovedCount": "অনুমোদিত {done} / {total}",
+  "mktFactsTitle": "যে আসল সংখ্যা ব্যবহার হয়েছে",
+  "mktFactsSub": "আপনার বিক্রি, ক্যাটালগ আর CRM থেকে",
+  "mktRebuild": "নতুন সংখ্যা দিয়ে আবার বানান",
+  "mktRebuilt": "প্ল্যান আবার বানানো হলো। অনুমোদিত আইটেম যেমন ছিল তেমনই আছে।",
+  "mktEditAnswers": "উত্তর বদলান",
+  "mktSecContent": "কনটেন্ট",
+  "mktSecStrategy": "কৌশল",
+  "mktSecCampaign": "ক্যাম্পেইন",
+  "mktSecConversion": "ফলো-আপ ও বিক্রি",
+  "mktStatusDraft": "আপনার দেখার অপেক্ষায়",
+  "mktStatusApproved": "অনুমোদিত",
+  "mktStatusRejected": "বাদ দেওয়া",
+  "mktEstimateBadge": "অনুমান",
+  "mktApprove": "অনুমোদন দিন",
+  "mktUnapprove": "অনুমোদন তুলে নিন",
+  "mktReject": "বাদ দিন",
+  "mktEdit": "এডিট",
+  "mktCopy": "কপি",
+  "mktShare": "শেয়ার",
+  "mktPolish": "AI দিয়ে নিজের মতো করুন (ক্রেডিট লাগে)",
+  "mktPolished": "নতুন করে লেখা হলো। পড়ে আবার অনুমোদন দিন।",
+  "mktPolishedNote": "AI দিয়ে ঘষামাজা — দাম আর সংখ্যা যে বদলায়নি তা যাচাই করা হয়েছে।",
+  "mktCopied": "কপি হয়েছে। পেজে বা WhatsApp-এ পেস্ট করুন।",
+  "mktEditTitle": "লেখা বদলান",
+  "mktEditHint": "দাম ক্যাটালগের সাথে মিলিয়ে রাখুন।",
+  "mktSave": "সংরক্ষণ",
+  "mktUses": "যা থেকে তৈরি: {list}",
+  "mktFollowActivate": "চালু করুন — সত্যিই গ্রাহকদের পাঠাবে",
+  "mktActivated": "চালু হলো। এটা এখন রিটেনশন অটোমেশনে চলছে, সেখান থেকে বন্ধও করতে পারবেন।",
+  "mktFollowOn": "চালু — রিটেনশন অটোমেশন দিয়ে যাচ্ছে (STOP, দিনের সীমা, রাত ৯টা–সকাল ৯টা বন্ধ)।",
+  "mktFollowNeedsRetention": "ফলো-আপ পাঠাতে আপনার অ্যাকাউন্টে রিটেনশন অটোমেশন চালু থাকা দরকার। এখনো চালু হয়নি।",
+  "mktFollowNeedsPlan": "ফলো-আপ পাঠাতে বিজনেস প্ল্যান দরকার।",
+  "mktPublishFb": "আমার Facebook পেজে পোস্ট করুন",
+  "mktPublished": "আপনার Facebook পেজে পোস্ট হয়েছে।",
+  "mktPublishPending": "Facebook / Instagram-এ সরাসরি পোস্ট চালু হবে Meta Assisto-কে অনুমোদন দিলে। এখন কপি বা শেয়ার করে নিজে পোস্ট করুন।",
+  "mktPublishNoPage": "এখান থেকে পোস্ট করতে AI সেলস এজেন্ট → চ্যানেলে আপনার Facebook পেজ যুক্ত করুন।",
+  "mktHubSub": "আসল বিক্রি দেখে পোস্ট, উৎসবের ক্যালেন্ডার, ক্যাম্পেইন আর ফলো-আপ"
+ }
+}
