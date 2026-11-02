@@ -68,4 +68,10 @@ extension AcctApi on ApiClient {
 
   Future<Map<String, dynamic>> acctBalanceSheetAsOf(int? businessId, String asOf) =>
       getJson(_p('/business/books/balance-sheet', businessId, {'as_of': asOf}));
+
+  /// The core journal (50 entries a page, newest first) for the export.
+  Future<Map<String, dynamic>> acctJournal(int? businessId,
+          {required String from, required String to, int page = 1}) =>
+      getJson(_p('/business/books/journal', businessId,
+          {'from': from, 'to': to, 'page': '$page'}));
 }

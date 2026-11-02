@@ -267,7 +267,7 @@ def entry_lines(prof, end=None):
                                "debit", "credit")]
 
 
-AUDIT_ACTIONS = ("acct.lock", "acct.entry", "acct.void",
+AUDIT_ACTIONS = ("acct.lock", "acct.void",
                  "acct.opening", "acct.export")
 
 
