@@ -28,7 +28,10 @@ import 'journey_live_screen.dart';
 ///  * asked by me: status, live distance / last seen, cancel, the audit log.
 /// Free on every plan; no ads here.
 class GuardianJourneyScreen extends StatefulWidget {
-  const GuardianJourneyScreen({super.key});
+  /// sjlive: opened from Live Location's "Request Location" — the main
+  /// button asks for the person's location only (no destination).
+  final bool locationOnly;
+  const GuardianJourneyScreen({super.key, this.locationOnly = false});
   @override
   State<GuardianJourneyScreen> createState() => _GuardianJourneyScreenState();
 }
@@ -158,6 +161,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
 
   String _dest(AppLocalizations t, Map<String, dynamic> r) {
     final d = (r['destination'] as Map?) ?? const {};
+    if (d['share'] == true) return t.sjlNameLive; // sjlive: location only
     final n = '${d['name'] ?? ''}'.trim();
     return n.isEmpty ? t.journeyDestPinned : n;
   }
@@ -351,7 +355,8 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
   Future<void> _ask() async {
     final people = _list('people');
     final sent = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(builder: (_) => GuardianRequestScreen(people: people)));
+        MaterialPageRoute(builder: (_) => GuardianRequestScreen(
+            people: people, locationOnly: widget.locationOnly)));
     if (sent == true && mounted) await _load();
   }
 
@@ -410,8 +415,10 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
             FilledButton.icon(
               key: const ValueKey('gj_ask'),
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              icon: const Icon(Icons.add_location_alt_rounded),
-              label: Text(t.gjAskButton),
+              icon: Icon(widget.locationOnly
+                  ? Icons.person_pin_circle_rounded
+                  : Icons.add_location_alt_rounded),
+              label: Text(widget.locationOnly ? t.sjlReqAsk : t.gjAskButton),
               onPressed: _ask,
             ),
             const SizedBox(height: Gap.sm),
@@ -431,7 +438,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           ]);
     }
     return Scaffold(
-      appBar: AppBar(title: Text(t.gjTitle), actions: [
+      appBar: AppBar(title: Text(widget.locationOnly ? t.sjlBtnRequest : t.gjTitle), actions: [
             // circlea: every guardian who can see me + children I look after
             IconButton(
               key: const Key('cga-open'),

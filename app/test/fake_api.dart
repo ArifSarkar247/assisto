@@ -1421,6 +1421,21 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return const {}; // no active journey
     }
+    // sjlive: "Who is where now" (a share, a trip with SOS-free state, a
+    // school child) — test fixture only
+    if (path.startsWith('/journey/where-now')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'people': mode == FakeMode.empty ? const [] : [
+        {'kind': 'share', 'journey_id': 7, 'name': _bn ? 'আম্মু' : 'Ammu', 'status': 'active',
+         'sos': false, 'lat': 23.7806, 'lng': 90.4070, 'fix_age_s': 40, 'acc_m': 12,
+         'battery': 64, 'until': '2026-11-03T15:00:00Z'},
+        {'kind': 'trip', 'journey_id': 8, 'name': _bn ? 'রিনা' : 'Rina', 'status': 'active',
+         'sos': false, 'lat': 23.7461, 'lng': 90.3742, 'fix_age_s': 420, 'acc_m': 1600,
+         'battery': 21, 'destination': _bn ? 'বাসা' : 'Home'},
+        {'kind': 'school', 'plan_id': 1, 'name': _bn ? 'রাফি' : 'Rafi', 'status': 'at_school',
+         'sos': false, 'lat': null, 'lng': null, 'fix_age_s': null, 'acc_m': null},
+      ]};
+    }
     if (path.contains('/web-link')) {
       return {'url': 'https://assisto.app/j/tok', 'token': 'tok'};
     }

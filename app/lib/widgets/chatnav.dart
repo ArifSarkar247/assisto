@@ -85,7 +85,7 @@ import '../screens/watch_feed_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/business/bargain_rules_screen.dart';
 import '../screens/business/business_plans_screen.dart';
-import '../screens/journey_start_screen.dart';
+import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/journey_watch_screen.dart'; // journey100
 import '../screens/guardian_journey_screen.dart'; // owner idea 1
 import '../screens/journey_settings_screen.dart'; // journey100
@@ -299,7 +299,9 @@ class ChatNav {
     // and the Free-vs-Premium plans comparison. Also in the Business Hub.
     'bargain_rules': (_) => const BargainRulesScreen(),
     'business_plans': (_) => const BusinessPlansScreen(),
-    'journey': (_) => const JourneyStartScreen(),
+    // sjlive (owner 3 Nov): Safe Journey opens on its three cards, Live
+    // Location selected (a running trip/share still opens its live screen)
+    'journey': (_) => const SafeJourneyHubScreen(),
     // journey100: a watcher's push opens their watch list; a wellness
     // "Is everything OK?" push opens the safety settings (I'm fine).
     'journey_watch': (_) => const JourneyWatchScreen(),
@@ -432,7 +434,8 @@ class ChatNav {
         'negotiation rules'],
     'business_plans': ['business plans', 'business plan', 'free vs premium',
         'upgrade business', 'premium business', 'plan comparison'],
-    'journey': ['safe journey', 'journey', 'track me', 'live location'],
+    'journey': ['safe journey', 'journey', 'track me', 'live location',
+        'share location', 'request location', 'where are you', 'child school'],
     'referral': ['referral', 'refer', 'points', 'invite friend'],
     'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
     'circle_calls': ['call history', 'call log', 'circle calls'],

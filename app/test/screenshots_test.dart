@@ -55,6 +55,11 @@ import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import 'package:assisto/screens/safe_journey/sj_hub_screen.dart'; // sjlive
+import 'package:assisto/screens/safe_journey/sj_share_screen.dart'; // sjlive
+import 'package:assisto/screens/safe_journey/sj_child_school_screen.dart'; // sjlive
+import 'package:assisto/screens/guardian_request_screen.dart'; // sjlive
+import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
 import 'package:assisto/screens/train/train_chat_screen.dart'; // train
 import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
@@ -708,6 +713,17 @@ Map<String, GallerySpec> gallerySpecs() {
     'train_chat': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.data, full: true),
     'train_chat_join': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.empty, full: false),
     'dest_alarm': (build: (_) => const DestAlarmScreen(), mode: FakeMode.data, full: true),
+    // sjlive (owner 3 Nov): Safe Journey three cards (Live Location default),
+    // card 1's four buttons, Who is where now, real life; the four screens
+    'sjl_hub': (build: (_) => const _SjFlags(child: SafeJourneyHubScreen(oem: _ShotOem())), mode: FakeMode.data, full: true),
+    'sjl_hub_empty': (build: (_) => const SafeJourneyHubScreen(oem: _ShotOem()), mode: FakeMode.empty, full: true),
+    'sjl_share': (build: (_) => const SjShareScreen(oem: _ShotOem()), mode: FakeMode.data, full: true),
+    'sjl_school': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.data, full: true),
+    'sjl_school_empty': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.empty, full: true),
+    'sjl_request': (build: (l) => GuardianRequestScreen(locationOnly: true, people: [
+          {'member_id': 3, 'name': l == 'bn' ? 'আম্মু' : 'Ammu'},
+          {'member_id': 4, 'name': l == 'bn' ? 'রিনা' : 'Rina'},
+        ]), mode: FakeMode.data, full: true),
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
@@ -1258,4 +1274,34 @@ class _ShotOem implements OemGuideNative {
   Future<OemOpen> available(String step) async => OemOpen.none;
   @override
   Future<OemOpen> open(String step) async => OemOpen.none;
+}
+
+
+/// sjlive: show all three Safe Journey cards in the gallery (the alarm and
+/// train flags are the owner's to flip); restored when the shot is done.
+class _SjFlags extends StatefulWidget {
+  final Widget child;
+  const _SjFlags({required this.child});
+  @override
+  State<_SjFlags> createState() => _SjFlagsState();
+}
+
+class _SjFlagsState extends State<_SjFlags> {
+  Map<String, bool>? _was;
+  @override
+  void initState() {
+    super.initState();
+    _was = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {
+      ...?_was, 'dest_alarm': true, 'train_tracker': true};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _was;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

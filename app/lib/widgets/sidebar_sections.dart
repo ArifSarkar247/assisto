@@ -67,7 +67,7 @@ import '../screens/doctor_serial_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
 import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
-import '../screens/journey_start_screen.dart';
+import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/emergency_screen.dart';
 import '../screens/emergency_hub_screen.dart'; // emhub
 import '../screens/scam_screen.dart';
@@ -391,8 +391,9 @@ class SidebarSections {
           synonyms: ['nominee', 'access', 'inheritance']),
       SidebarItem(Icons.navigation_rounded, (t) => t.journeyHubTitle,
           feature: 'safe_journey',
-          (_) => const JourneyStartScreen(),
-          synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track']),
+          (_) => const SafeJourneyHubScreen(),
+          synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track',
+              'live location', 'share location', 'request location', 'child school']),
       // probashi-plan (flag probashi_plan, default OFF)
       SidebarItem(Icons.flight_takeoff_rounded, (t) => t.pbsTitle,
           feature: 'probashi_plan',
@@ -522,13 +523,13 @@ class SidebarSections {
           synonyms: ['missing', 'missing person', 'missing child', 'lost child',
               'nikhonj', 'amber alert', 'find person']),
       // train (owner priority C): crowd live trains + estimate + 16318 SMS + chat
-      SidebarItem(Icons.train_rounded, (t) => t.trTitle,
+      SidebarItem(Icons.train_rounded, (t) => t.sjlNameTrain, // sjlive: one name
           feature: 'train_tracker',
           (_) => const TrainTrackerScreen(),
           synonyms: ['train', 'rail', 'trainkothai', 'where is my train', 'tren',
               'rel', '16318']),
       // train: destination alarm (offline geofence, loud on silent)
-      SidebarItem(Icons.alarm_on_rounded, (t) => t.trAlarmTitle,
+      SidebarItem(Icons.alarm_on_rounded, (t) => t.sjlNameAlarm, // sjlive: one name
           feature: 'dest_alarm',
           (_) => const DestAlarmScreen(),
           synonyms: ['destination alarm', 'wake me', 'station alarm', 'stop alarm',

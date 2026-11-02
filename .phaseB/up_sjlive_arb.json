@@ -1,0 +1,341 @@
+{
+  "_comment": "sjlive: Safe Journey three-card layout + Live Location card. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_sjlive_arb.json",
+  "en": {
+    "sjlNameLive": "Live Location",
+    "sjlNameAlarm": "Destination Alarm",
+    "sjlNameTrain": "Train Tracker",
+    "sjlSubLive": "Family sees where you are and gets notified when you arrive.",
+    "sjlSubAlarm": "Wakes you before your stop, even without internet.",
+    "sjlSubTrain": "Where your train is now and when it arrives",
+    "sjlOpen": "Open {name}",
+    "@sjlOpen": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlBtnTrip": "My Trip",
+    "sjlBtnSchool": "Child School",
+    "sjlBtnRequest": "Request Location",
+    "sjlBtnShare": "Share for a While",
+    "sjlHintTrip": "Destination, arrival notice, late alert",
+    "sjlHintSchool": "Left home, reached school, back home",
+    "sjlHintRequest": "Ask where someone is — they must agree",
+    "sjlHintShare": "1 hour, 3 hours or your own time",
+    "sjlActiveTrip": "Your trip is being shared now",
+    "sjlActiveShare": "Your Live Location is being shared now",
+    "sjlActiveOpen": "Tap to see it or stop it",
+    "sjlWhereTitle": "Who is where now",
+    "sjlWhereEmptyTitle": "Nobody is sharing with you right now",
+    "sjlWhereEmptyBody": "When family share a trip, a while, or accept your request, they appear here with their place on the map.",
+    "sjlWhereEmptyHow": "How: tap Request Location, pick a person from My Circle and a time. They see it and choose.",
+    "sjlWhereError": "Could not load right now. Check the internet and try again.",
+    "sjlRetry": "Try again",
+    "sjlNoMapNote": "The map is not set up yet — tap the map button on a person to open their place in your maps app.",
+    "sjlOpenMaps": "Open in maps",
+    "sjlNoFixYet": "no location yet",
+    "sjlAgeNow": "updated just now",
+    "sjlAgeMin": "updated {n} min ago",
+    "@sjlAgeMin": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlAgeHour": "updated {n} h ago",
+    "@sjlAgeHour": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlM": "{n} m",
+    "@sjlM": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlKm": "{n} km",
+    "@sjlKm": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlAcc": "accurate to ± {v}",
+    "@sjlAcc": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "v": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlAccRough": "rough place, ± {v}",
+    "@sjlAccRough": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "v": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlBattery": "battery {n}%",
+    "@sjlBattery": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlRealTitle": "Works in real life",
+    "sjlRealBgTitle": "App closed or screen off",
+    "sjlRealBgBody": "While you share, a small notification keeps your location going even with the screen off. It stops when the share ends.",
+    "sjlRealBgOn": "On now — it keeps working with the screen off.",
+    "sjlRealOemTitle": "Phone battery saver",
+    "sjlRealOemNeeds": "This phone may stop Assisto in the background. Two quick steps fix it.",
+    "sjlRealOemOk": "This phone lets Assisto keep working.",
+    "sjlRealOemUnknown": "Some phones (Realme, Xiaomi, Oppo, Vivo, Samsung) stop apps to save battery. See the guide for your phone.",
+    "sjlRealOemOpen": "Open the battery guide",
+    "sjlRealOfflineTitle": "No internet",
+    "sjlRealOfflineBody": "Your places are saved on the phone and sent as soon as the internet is back.",
+    "sjlRealOfflineQueued": "{n} places waiting — they go when the internet is back.",
+    "@sjlRealOfflineQueued": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlRealAccTitle": "Honest accuracy",
+    "sjlRealAccLast": "Last place {a}.",
+    "@sjlRealAccLast": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "a": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlRealAccBody": "Outdoors GPS is usually 5–20 m; indoors it can be much rougher. We always show the real number.",
+    "sjlShareIntro": "The people you choose see where you are, live. It stops by itself at the end — or tap Stop sooner.",
+    "sjlShareHowLong": "How long?",
+    "sjlShareWho": "Who sees it?",
+    "sjlShareCustom": "Until a time…",
+    "sjlShareUntil": "Until {time}",
+    "@sjlShareUntil": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlShareBadTime": "Pick a time between 15 minutes and 24 hours from now.",
+    "sjlShareStart": "Share for {d}",
+    "@sjlShareStart": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "d": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlShareRules": "Never secret: your phone shows a notification the whole time. No late alerts — it just ends. SOS still works.",
+    "sjlHours": "{n} h",
+    "@sjlHours": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlReqIntro": "Ask someone in My Circle to share where they are for a while — in Bangladesh or abroad. They must accept, always see it on their phone and can stop any time. Nothing is ever secret.",
+    "sjlReqAsk": "Ask for location",
+    "sjlReqNowFor": "Now, for {d}",
+    "@sjlReqNowFor": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "d": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlReqPickTime": "Pick a time",
+    "sjlReqRules": "They are asked first. Sharing ends exactly at the end time, and they can stop it any time.",
+    "sjlSchoolAdd": "Add a child",
+    "sjlSchoolEmptyTitle": "Know your child reached school",
+    "sjlSchoolEmptyBody": "Both parents get a notice when your child leaves home, reaches school, leaves school and reaches home — and an alert if not at school by the time you set.",
+    "sjlSchoolHow": "How: add your child from My Circle, set home, school, school days and the alert time. Your child accepts once on their phone. It runs by itself while their phone shares Live Location (or with a kids watch); otherwise your child taps 'Leaving now' and 'Reached'.",
+    "sjlSchoolOnMe": "School Mode is on for you",
+    "sjlSchoolOnMeBody": "See who sees it, check in, or stop it",
+    "sjlWaitingChild": "Waiting for {name} to accept on their phone",
+    "@sjlWaitingChild": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlTodayHoliday": "Holiday today — no school alerts.",
+    "sjlNoSchoolToday": "No school today.",
+    "sjlStepLeftHome": "Left home",
+    "sjlStepAtSchool": "Reached school",
+    "sjlStepLeftSchool": "Left school",
+    "sjlStepHome": "Reached home",
+    "sjlAlertBy": "Alert if not at school by {time}",
+    "@sjlAlertBy": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlParents": "Also sees it: {names}",
+    "@sjlParents": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "names": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlHistory": "History",
+    "sjlEdit": "Edit",
+    "sjlHolidays": "Holidays",
+    "sjlHolidaysBody": "No alerts on these days. Past days are removed by themselves.",
+    "sjlHolidaysNone": "No holidays added.",
+    "sjlHolidayAdd": "Add a holiday",
+    "sjlRemove": "Remove",
+    "sjlGatePhoto": "School gate camera",
+    "sjlGateLink": "Link the school gate camera",
+    "sjlGateLinkBody": "Pick a CCTV camera you have in Assisto. Only its picture near your child's arrival or leaving time is shown.",
+    "sjlGateUnlink": "Remove the camera",
+    "sjlGateNone": "The camera kept no picture around that time.",
+    "sjlGateNotYet": "Not at school yet today.",
+    "sjlGateAt": "Picture taken at {time}",
+    "@sjlGateAt": {
+      "description": "sjlive (Safe Journey card 1, owner 3 Nov)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "sjlClose": "Close",
+    "sjlReqWho": "Whose location?"
+  },
+  "bn": {
+    "sjlNameLive": "লাইভ লোকেশন",
+    "sjlNameAlarm": "গন্তব্য অ্যালার্ম",
+    "sjlNameTrain": "ট্রেন ট্র্যাকার",
+    "sjlSubLive": "পরিবার দেখে আপনি কোথায় আছেন, আর পৌঁছালে খবর পায়।",
+    "sjlSubAlarm": "ইন্টারনেট ছাড়াও আপনার স্টপের আগে জাগিয়ে দেয়।",
+    "sjlSubTrain": "আপনার ট্রেন এখন কোথায় আর কখন পৌঁছাবে",
+    "sjlOpen": "{name} খুলুন",
+    "sjlBtnTrip": "আমার যাত্রা",
+    "sjlBtnSchool": "স্কুলে সন্তান",
+    "sjlBtnRequest": "লোকেশন চাওয়া",
+    "sjlBtnShare": "কিছুক্ষণ শেয়ার",
+    "sjlHintTrip": "গন্তব্য, পৌঁছানোর খবর, দেরির সতর্কতা",
+    "sjlHintSchool": "বাসা ছাড়া, স্কুলে পৌঁছানো, বাসায় ফেরা",
+    "sjlHintRequest": "কেউ কোথায় আছেন জানতে চান — তাঁকে রাজি হতে হবে",
+    "sjlHintShare": "১ ঘণ্টা, ৩ ঘণ্টা বা নিজের বাছাই করা সময়",
+    "sjlActiveTrip": "আপনার যাত্রা এখন শেয়ার হচ্ছে",
+    "sjlActiveShare": "আপনার লাইভ লোকেশন এখন শেয়ার হচ্ছে",
+    "sjlActiveOpen": "দেখতে বা বন্ধ করতে ট্যাপ করুন",
+    "sjlWhereTitle": "কে এখন কোথায়",
+    "sjlWhereEmptyTitle": "এখন কেউ আপনার সাথে লোকেশন শেয়ার করছেন না",
+    "sjlWhereEmptyBody": "পরিবারের কেউ যাত্রা বা কিছুক্ষণের শেয়ার চালু করলে, বা আপনার অনুরোধে রাজি হলে, তাঁরা এখানে ম্যাপসহ দেখা যাবেন।",
+    "sjlWhereEmptyHow": "কীভাবে: 'লোকেশন চাওয়া' চাপুন, My Circle থেকে একজন আর সময় বাছুন। তিনি দেখে রাজি হবেন বা না।",
+    "sjlWhereError": "এখন আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "sjlRetry": "আবার চেষ্টা করুন",
+    "sjlNoMapNote": "ম্যাপ এখনো চালু হয়নি — কারও জায়গা দেখতে তাঁর পাশের ম্যাপ বোতাম চাপুন, ফোনের ম্যাপ অ্যাপে খুলবে।",
+    "sjlOpenMaps": "ম্যাপে খুলুন",
+    "sjlNoFixYet": "এখনো লোকেশন আসেনি",
+    "sjlAgeNow": "এইমাত্র আপডেট",
+    "sjlAgeMin": "{n} মিনিট আগে আপডেট",
+    "sjlAgeHour": "{n} ঘণ্টা আগে আপডেট",
+    "sjlM": "{n} মিটার",
+    "sjlKm": "{n} কিমি",
+    "sjlAcc": "± {v} পর্যন্ত সঠিক",
+    "sjlAccRough": "আনুমানিক জায়গা, ± {v}",
+    "sjlBattery": "চার্জ {n}%",
+    "sjlRealTitle": "বাস্তবে যেভাবে কাজ করে",
+    "sjlRealBgTitle": "অ্যাপ বন্ধ বা স্ক্রিন বন্ধ",
+    "sjlRealBgBody": "শেয়ার চলাকালে একটি ছোট নোটিফিকেশন স্ক্রিন বন্ধ থাকলেও লোকেশন চালু রাখে। শেয়ার শেষ হলে বন্ধ হয়।",
+    "sjlRealBgOn": "এখন চালু — স্ক্রিন বন্ধেও কাজ করছে।",
+    "sjlRealOemTitle": "ফোনের ব্যাটারি সেভার",
+    "sjlRealOemNeeds": "এই ফোন পেছনে Assisto বন্ধ করে দিতে পারে। ছোট দুইটি ধাপে ঠিক হয়।",
+    "sjlRealOemOk": "এই ফোনে Assisto পেছনে চলতে পারে।",
+    "sjlRealOemUnknown": "কিছু ফোন (Realme, Xiaomi, Oppo, Vivo, Samsung) চার্জ বাঁচাতে অ্যাপ বন্ধ করে। আপনার ফোনের গাইড দেখুন।",
+    "sjlRealOemOpen": "ব্যাটারি গাইড খুলুন",
+    "sjlRealOfflineTitle": "ইন্টারনেট নেই",
+    "sjlRealOfflineBody": "আপনার জায়গাগুলো ফোনে জমা থাকে, ইন্টারনেট ফিরলেই পাঠানো হয়।",
+    "sjlRealOfflineQueued": "{n}টি জায়গা অপেক্ষায় — ইন্টারনেট ফিরলেই যাবে।",
+    "sjlRealAccTitle": "সৎ নির্ভুলতা",
+    "sjlRealAccLast": "শেষ জায়গা {a}।",
+    "sjlRealAccBody": "খোলা জায়গায় GPS সাধারণত ৫–২০ মিটার; ঘরের ভেতরে অনেক কম সঠিক হতে পারে। আমরা সবসময় আসল সংখ্যা দেখাই।",
+    "sjlShareIntro": "আপনি যাঁদের বাছবেন তাঁরা লাইভ দেখবেন আপনি কোথায়। সময় শেষে নিজে থেকে বন্ধ হবে — চাইলে আগেই বন্ধ করুন।",
+    "sjlShareHowLong": "কতক্ষণ?",
+    "sjlShareWho": "কে দেখবেন?",
+    "sjlShareCustom": "নির্দিষ্ট সময় পর্যন্ত…",
+    "sjlShareUntil": "{time} পর্যন্ত",
+    "sjlShareBadTime": "এখন থেকে ১৫ মিনিট থেকে ২৪ ঘণ্টার মধ্যে একটি সময় বাছুন।",
+    "sjlShareStart": "{d} শেয়ার করুন",
+    "sjlShareRules": "কখনো গোপন নয়: পুরো সময় আপনার ফোনে নোটিফিকেশন থাকবে। দেরির সতর্কতা নেই — সময় শেষে শুধু বন্ধ হয়। SOS চালু থাকে।",
+    "sjlHours": "{n} ঘণ্টা",
+    "sjlReqIntro": "My Circle-এর কাউকে কিছুক্ষণের জন্য তাঁর লোকেশন শেয়ার করতে বলুন — দেশে বা বিদেশে। তাঁকে রাজি হতে হবে, তাঁর ফোনে সবসময় দেখা যাবে, যেকোনো সময় বন্ধ করতে পারবেন। কিছুই গোপন নয়।",
+    "sjlReqAsk": "লোকেশন চান",
+    "sjlReqNowFor": "এখন থেকে {d}",
+    "sjlReqPickTime": "সময় বাছুন",
+    "sjlReqRules": "আগে তাঁকে জিজ্ঞেস করা হবে। শেষ সময়ে ঠিক বন্ধ হবে, আর তিনি যেকোনো সময় বন্ধ করতে পারবেন।",
+    "sjlSchoolAdd": "সন্তান যোগ করুন",
+    "sjlSchoolEmptyTitle": "সন্তান স্কুলে পৌঁছাল কি না জানুন",
+    "sjlSchoolEmptyBody": "সন্তান বাসা ছাড়লে, স্কুলে পৌঁছালে, স্কুল ছাড়লে আর বাসায় ফিরলে বাবা-মা দুজনেই খবর পাবেন — আর ঠিক করা সময়ে স্কুলে না পৌঁছালে সতর্কতা।",
+    "sjlSchoolHow": "কীভাবে: My Circle থেকে সন্তান বাছুন, বাসা, স্কুল, স্কুলের দিন আর সতর্কতার সময় দিন। সন্তান নিজের ফোনে একবার রাজি হবে। সন্তানের ফোনে লাইভ লোকেশন চললে (বা বাচ্চাদের ঘড়ি থাকলে) নিজে থেকে চলে; না হলে সন্তান 'এখন রওনা দিচ্ছি' আর 'পৌঁছেছি' চাপবে।",
+    "sjlSchoolOnMe": "আপনার জন্য স্কুল-মোড চালু",
+    "sjlSchoolOnMeBody": "কে দেখছেন দেখুন, জানান বা বন্ধ করুন",
+    "sjlWaitingChild": "{name} নিজের ফোনে রাজি হওয়ার অপেক্ষায়",
+    "sjlTodayHoliday": "আজ ছুটি — স্কুলের কোনো সতর্কতা নেই।",
+    "sjlNoSchoolToday": "আজ স্কুল নেই।",
+    "sjlStepLeftHome": "বাসা ছেড়েছে",
+    "sjlStepAtSchool": "স্কুলে পৌঁছেছে",
+    "sjlStepLeftSchool": "স্কুল ছেড়েছে",
+    "sjlStepHome": "বাসায় পৌঁছেছে",
+    "sjlAlertBy": "{time}-এর মধ্যে স্কুলে না পৌঁছালে সতর্কতা",
+    "sjlParents": "আরও দেখেন: {names}",
+    "sjlHistory": "ইতিহাস",
+    "sjlEdit": "বদলান",
+    "sjlHolidays": "ছুটির দিন",
+    "sjlHolidaysBody": "এই দিনগুলোতে কোনো সতর্কতা যাবে না। পেরিয়ে যাওয়া দিন নিজে থেকে মুছে যায়।",
+    "sjlHolidaysNone": "কোনো ছুটি যোগ করা হয়নি।",
+    "sjlHolidayAdd": "ছুটি যোগ করুন",
+    "sjlRemove": "সরান",
+    "sjlGatePhoto": "স্কুল গেটের ক্যামেরা",
+    "sjlGateLink": "স্কুল গেটের ক্যামেরা যুক্ত করুন",
+    "sjlGateLinkBody": "Assisto-তে থাকা একটি CCTV ক্যামেরা বাছুন। শুধু সন্তানের পৌঁছানো বা বের হওয়ার সময়ের কাছাকাছি ছবি দেখানো হবে।",
+    "sjlGateUnlink": "ক্যামেরা সরান",
+    "sjlGateNone": "ওই সময়ের কাছাকাছি ক্যামেরায় কোনো ছবি নেই।",
+    "sjlGateNotYet": "আজ এখনো স্কুলে পৌঁছায়নি।",
+    "sjlGateAt": "ছবির সময় {time}",
+    "sjlClose": "বন্ধ",
+    "sjlReqWho": "কার লোকেশন?"
+  }
+}

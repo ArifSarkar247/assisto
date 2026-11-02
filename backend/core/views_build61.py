@@ -1070,6 +1070,7 @@ class CircleMemberControlsView(APIView):
 # overdue / stop / route / signal / wellness every minute; core/journey_watch)
 # ===========================================================================
 from . import journey_watch as JW  # noqa: E402
+from . import sj_live as SL  # noqa: E402
 from .logic import journey_dest as JD  # noqa: E402
 
 
@@ -1120,6 +1121,9 @@ def _journey_dict(j, lang="bn", traveller=True):
         "vehicle": {**(JD.clean_vehicle(j.vehicle) or {}), "photo_url": _photo_url(j)} if (j.vehicle or j.vehicle_photo) else None,
         "web_link": JW.web_url(j) or None,
         "has_pin": JW._pt(j.destination or {}) is not None,
+        # sjlive: share-for-a-while + honest accuracy of the last fix
+        "share": SL.is_share(j),
+        "acc_m": SL.acc_of(j),
     }
     if j.status == "active":
         out.update(JW.progress(j))
@@ -1173,14 +1177,29 @@ class JourneyStartView(APIView):
             return Response({"detail": "daily_limit", "max": JW.DAILY_JOURNEY_CAP},
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
         dest = d.get("destination", {}) or {}
-        if not isinstance(dest, dict) or not (str(dest.get("name") or "").strip() or
-                                              dest.get("lat") is not None):
+        # sjlive: "Share for a while" — no destination, ends by itself
+        share_min = SL.share_minutes(d.get("share_minutes")) if d.get("share_minutes") not in (None, "") else None
+        if d.get("share_minutes") not in (None, "") and share_min is None:
+            return Response({"detail": "bad_share_minutes", "min": SL.SHARE_MIN_MIN,
+                             "max": SL.SHARE_MAX_MIN}, status=status.HTTP_400_BAD_REQUEST)
+        if share_min is not None:
+            if not wids:
+                return Response({"detail": "watcher_required"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            dest = SL.share_destination()
+        elif not isinstance(dest, dict) or not (str(dest.get("name") or "").strip() or
+                                                dest.get("lat") is not None):
             return Response({"detail": "destination_required"},
                             status=status.HTTP_400_BAD_REQUEST)
         eta = _parse_eta(d.get("eta"))
         grace = _int(d.get("overdue_grace_min"), 10, 0, 60)
         retention = _int(d.get("location_retention_hours"), 24, 0, 24 * 7)
         stop_min = _int(d.get("stop_alert_min"), 20, 0, 180)
+        if share_min is not None:
+            # a share is never "late" and a long stop is normal (home, office)
+            eta = now + timezone.timedelta(minutes=share_min)
+            grace, stop_min = 0, 0
+            retention = 0
         # one live journey at a time: an older active one is closed quietly
         # (journey100b: a parent following it moves to the new trip — never
         # dropped silently; see GJ.carry_over below)
@@ -1197,7 +1216,7 @@ class JourneyStartView(APIView):
             mode=(str(d.get("mode") or "").lower() if str(d.get("mode") or "").lower() in JD.MODES else ""),
             vehicle=JD.clean_vehicle(d.get("vehicle")),
             overdue_grace_min=grace,
-            route_deviation=bool(d.get("route_deviation_on")),
+            route_deviation=bool(d.get("route_deviation_on")) and share_min is None,
             planned_route=d.get("planned_route") if isinstance(d.get("planned_route"), list) else None,
             location_retention_hours=retention, stop_alert_min=stop_min,
             night=bool(d.get("night")),
@@ -1254,7 +1273,9 @@ def _fixes(d, j, now):
         # (Assisto swiped away; the foreground service sent it alone). Lets
         # the "no location" alert say the honest likely reason.
         src = str(p.get("src") or "")
-        out.append((at, lat, lng, b, src if src in ("app", "bg") else ""))
+        # sjlive: Android's own accuracy estimate (metres), shown honestly
+        out.append((at, lat, lng, b, src if src in ("app", "bg") else "",
+                    SL.clean_acc(p.get("acc"))))
     out.sort(key=lambda x: x[0])
     return out
 
@@ -1272,6 +1293,8 @@ class JourneyLocationView(APIView):
             # guardian journey (owner decision 2 Nov): never a fix past the
             # window end + the late tail, even between two sweeps
             GJ.enforce_hard_end(j, now)
+            # sjlive: a "share for a while" past its end takes no more fixes
+            SL.end_share(j, now)
         if SJ.journey_is_expired(_journey_pure(j), now) and j.status == "active":
             JW.expire(j)
         if j.status != "active":
@@ -1281,15 +1304,20 @@ class JourneyLocationView(APIView):
                              "accepted": 0, "overdue_state": j.status})
         fixes = _fixes(d, j, now)
         newest_known = JW.fix_of(j)
-        for at, lat, lng, b, src in fixes:
+        newest_acc = None
+        for at, lat, lng, b, src, acc in fixes:
             JourneyPoint.objects.create(journey=j, lat=lat, lng=lng, battery=b, at=at)
             JW.on_location(j, lat, lng, at, b, now=now)
             if newest_known is None or newest_known[2] is None or at >= newest_known[2]:
                 j.last_location = JW.location_row(j.last_location, lat, lng, at, b, src)
+                if acc is not None:
+                    j.last_location["acc"] = acc
                 newest_known = (lat, lng, at, b)
+                newest_acc = acc
         j.last_activity_at = now
         arrived = False
-        if newest_known is not None and fixes:
+        if (newest_known is not None and fixes and
+                SL.acc_ok_for_arrival(newest_acc, j.arrival_radius_m)):
             arrived, _dist = SJ.arrival_check(_journey_pure(j), newest_known[0], newest_known[1])
         j.lost_alerted_at = None if fixes else j.lost_alerted_at
         if arrived:
@@ -1297,6 +1325,8 @@ class JourneyLocationView(APIView):
         j.save()
         if arrived:
             GJ.on_journey_arrived(j, now)   # guardian journey: ends at once
+        if fixes:
+            SL.feed_school(request.user, fixes, now)   # sjlive: Child School from the phone
         state, mins = JW.overdue(j, now)
         b = fixes[-1][3] if fixes else None
         return Response({"ok": True, "status": j.status, "arrived": bool(arrived),
@@ -1728,6 +1758,8 @@ class JourneyWatchingView(APIView):
                 "fix_at": fx[2].isoformat() if fx and fx[2] else None,
                 "fix_age_s": int((now - fx[2]).total_seconds()) if fx and fx[2] else None,
                 "battery": fx[3] if fx else None,
+                "acc_m": SL.acc_of(j) if fx else None,
+                "share": SL.is_share(j),
                 "ride": JD.clean_vehicle(j.vehicle),
                 **(JW.progress(j, fx) if fx and j.status == "active" else {}),
                 **_lost_fields(j, fx, now),
@@ -1943,3 +1975,11 @@ class WellnessPingView(APIView):
         w.alert_sent_at = None
         w.save(update_fields=["last_activity_at", "prompt_sent_at", "alert_sent_at"])
         return Response({"ok": True})
+
+
+class JourneyWhereNowView(APIView):
+    """sjlive — GET /journey/where-now: "Who is where now" for the caller
+    (live trips / shares / location requests they watch + their School Mode
+    children's last known place). Location only while live."""
+    def get(self, request):
+        return Response({"people": SL.where_now(request.user)})

@@ -470,6 +470,18 @@ class PairingTests(_Base):
     def test_flag_off_hides_everything_but_child_controls(self):
         flag(False)
         self.assertEqual(self.c.get(V + "/kids-watch/watches").status_code, 403)
+        # sjlive (owner 3 Nov): Child School (a PHONE plan) is part of Safe
+        # Journey's Live Location card — open while safe_journey is on;
+        # watches and tracker chips stay behind kids_watch
+        self.assertEqual(self.c.post(V + "/school-mode/plans", {}, format="json")
+                         .status_code, 400)
+        self.assertEqual(self.c.post(V + "/school-mode/plans", dict(CFG, watch_id=1),
+                                     format="json").status_code, 403)
+        from core import feature_flags as FF
+        from core.models import FeatureFlag
+        FeatureFlag.objects.filter(key="safe_journey").update(enabled_all=False,
+                                                              enabled_play=False)
+        FF.invalidate()
         self.assertEqual(self.c.post(V + "/school-mode/plans", {}, format="json")
                          .status_code, 403)
         self.assertEqual(cl(self.child).get(V + "/school-mode/mine").status_code, 200)
