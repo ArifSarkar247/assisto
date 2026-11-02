@@ -934,8 +934,10 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     }
   }
 
-  Future<bool> _askBluetooth() async =>
-      mounted ? askNearbyDevicesForAudio(context) : false;
+  Future<bool> _askBluetooth() async {
+    if (!mounted) return false;
+    return askNearbyDevicesForAudio(context);
+  }
 
   IconData _routeIcon(AudioRoute r) => audioRouteIcon(r);
 
