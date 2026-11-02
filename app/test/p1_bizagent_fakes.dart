@@ -11,6 +11,71 @@ bool p1Connected = true;
 /// g1 gallery knob: is a vision provider connected on the server?
 bool g1VisionReady = false;
 
+/// sales2 knobs: thread 9's open handoff + who is replying there.
+bool s2HandoffOpen = true;
+bool s2Handover = false;
+
+/// sales2: quick replies the server builds from the catalog (bn digits in bn,
+/// like the real rule-layer text after the app's digit pass).
+List<Map<String, dynamic>> s2QuickReplies(bool bn) => [
+      {'kind': 'product', 'product_id': 1, 'name': bn ? 'সুতি পাঞ্জাবি' : 'Cotton panjabi',
+       'price': bn ? '১২০০' : '1200', 'in_stock': true, 'mentioned': true,
+       'text': bn
+           ? 'সুতি পাঞ্জাবি — দাম ৳১২০০, স্টকে আছে। সাইজ: M, L। অর্ডার করতে নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা লিখুন।'
+           : 'Cotton panjabi — ৳1200, in stock. Sizes: M, L. To order, send your name, mobile number and full address.'},
+      {'kind': 'product', 'product_id': 2, 'name': bn ? 'জামদানি শাড়ি' : 'Jamdani saree',
+       'price': bn ? '৪৫০০' : '4500', 'in_stock': false, 'mentioned': false,
+       'text': bn
+           ? 'জামদানি শাড়ি — দাম ৳৪৫০০। দুঃখিত, এটি এখন স্টকে নেই।'
+           : 'Jamdani saree — ৳4500. Sorry, it is out of stock right now.'},
+      {'kind': 'delivery',
+       'text': bn
+           ? 'ডেলিভারি চার্জ: ঢাকার ভিতরে ৳৬০, ঢাকার বাইরে ৳১২০।'
+           : 'Delivery charge: inside Dhaka ৳60, outside Dhaka ৳120.'},
+      {'kind': 'payment',
+       'text': bn
+           ? 'ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে টাকা দিন। কখনো কাউকে আপনার পিন বা OTP দেবেন না।'
+           : 'Cash on delivery — pay when you receive the parcel. Never share your PIN or OTP with anyone.'},
+    ];
+
+Map<String, dynamic> s2HandoffThread(bool bn) => {
+      'thread': {
+        'id': 9, 'channel': 'instagram', 'customer_name': bn ? 'রাশেদ' : 'Rashed',
+        'customer_phone': '', 'handover': s2Handover, 'reply_mode': s2Handover ? 'human' : 'ai',
+        'paused_until': null, 'paused_by': '', 'opted_out': false, 'status': 'attention',
+        'last_text': '', 'last_at': '2026-10-28T10:00:00+06:00', 'pending': 1,
+        'in_window': true, 'order_draft': {}, 'handback_at': null,
+        'handoff_card': !s2HandoffOpen
+            ? null
+            : {
+                'reason': 'complaint', 'want': 'complaint', 'sentiment': 'unhappy',
+                'pending': true, 'message_id': 31, 'status': 'pending_approval',
+                'items': const [], 'total': '', 'last_question': '',
+                'lines': {
+                  'bn': ['চান: অভিযোগ করছেন — সুতি পাঞ্জাবি × ১ (৳১২০০)',
+                         'শেষ প্রশ্ন: “পার্সেল এখনো আসেনি কেন?”',
+                         'কারণ: অভিযোগ / অসন্তুষ্ট গ্রাহক · মেজাজ: অসন্তুষ্ট'],
+                  'en': ['Wants: has a complaint — Cotton panjabi × 1 (৳1200)',
+                         'Last question: “Why has the parcel not come yet?”',
+                         'Why: complaint / unhappy customer · Mood: unhappy'],
+                },
+              },
+      },
+      'messages': [
+        {'id': 30, 'direction': 'in', 'kind': 'text', 'is_ai': false, 'status': 'received',
+         'source': '', 'rule': '', 'image_url': '', 'risk_reason': '', 'send_error': '',
+         'confidence': 0, 'created_at': '',
+         'text': bn ? 'পার্সেল এখনো আসেনি কেন?' : 'Why has the parcel not come yet?'},
+        // the per-message card rides on the row too — the app must NOT repeat it
+        {'id': 31, 'direction': 'out', 'kind': 'text', 'is_ai': true,
+         'status': 'pending_approval', 'source': 'ai', 'rule': '', 'image_url': '',
+         'risk_reason': 'complaint', 'send_error': '', 'confidence': 0.4, 'created_at': '',
+         'text': bn ? 'দুঃখিত, আমরা দেখছি।' : 'Sorry, we are checking.',
+         'handoff_card': {'reason': 'complaint', 'lines': {'bn': ['x'], 'en': ['x']}}},
+      ],
+      'orders': [],
+    };
+
 Map<String, dynamic> _g1ImageThread(bool bn) => {
       'thread': {
         'id': 7, 'channel': 'messenger', 'customer_name': bn ? 'সুমাইয়া' : 'Sumaiya',
@@ -231,6 +296,12 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
     };
   }
   if (p == '/bizagent/threads/7') return _g1ImageThread(bn);
+  // sales2: catalog quick replies (views_bizagent_v2.QuickRepliesView)
+  if (p.startsWith('/bizagent/threads/') && p.endsWith('/quick-replies')) {
+    return {'lang': bn ? 'bn' : 'en', 'replies': s2QuickReplies(bn)};
+  }
+  // sales2: a chat with an open handoff (bizagent_guard.open_handoff)
+  if (p == '/bizagent/threads/9') return s2HandoffThread(bn);
   if (p == '/bizagent/faqs') {
     return {'faqs': mode == FakeMode.empty ? [] : _faqs(bn), 'rules_enabled': true};
   }
@@ -274,6 +345,11 @@ Map<String, dynamic>? fakeBizAgentPost(String path, Map<String, dynamic> body, b
     return {'ok': true, 'settings': {...(_setup(bn, FakeMode.data)['settings'] as Map<String, dynamic>), ...body}};
   }
   if (path.endsWith('/mode')) {
+    // sales2: thread 9 follows the toggle; giving it back resolves the handoff
+    if (path == '/bizagent/threads/9/mode') {
+      s2Handover = body['mode'] == 'human';
+      if (body['mode'] == 'ai') s2HandoffOpen = false;
+    }
     return {'ok': true, 'reply_mode': body['mode'], 'handover': body['mode'] == 'human'};
   }
   if (path == '/bizagent/faqs/learn') return {'ok': true, 'suggested': 2};

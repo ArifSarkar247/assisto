@@ -36,8 +36,23 @@ String baRiskLabel(AppLocalizations t, String r) {
       return t.baRiskBigOrder;
     case 'seller_approves_all':
       return t.baRiskApproveAll;
-    default:
+    case 'low_confidence':
       return t.baRiskLowConf;
+    // sales2: every code the agent can hand over with gets its own label
+    case 'abuse':
+      return t.s2RiskAbuse;
+    case 'unsafe_reply':
+      return t.s2RiskUnsafe;
+    case 'suspected_scam':
+      return t.s2RiskScam;
+    case 'order_change':
+      return t.s2RiskOrderChange;
+    case 'daily_ai_cap':
+      return t.s2RiskAiCap;
+    case 'out_of_replies':
+      return t.s2RiskOutOfReplies;
+    default:
+      return t.s2RiskOther;
   }
 }
 

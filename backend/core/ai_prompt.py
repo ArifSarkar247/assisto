@@ -58,6 +58,16 @@ SAFETY = (
 )
 
 
+# AF-2 (maskall): added to the system prompt only when a masked request really
+# carries vault tokens.
+PII_TOKEN_NOTE = (
+    "Private values in this request (phone numbers, NID, account or card "
+    "numbers, e-mail addresses) are hidden as tokens like ⟦PHONE_1⟧, ⟦NID_1⟧, "
+    "⟦ACCT_1⟧ or ⟦EMAIL_1⟧. Where your answer needs such a value, write the "
+    "token exactly as given; never guess, change or invent a hidden value."
+)
+
+
 def system_prompt(extra=""):
     s = INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE + "\n" + SAFETY
     if extra:

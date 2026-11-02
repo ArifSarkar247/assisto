@@ -9,6 +9,8 @@ import '../widgets/reminders_nlp.dart';
 import 'reminders_screen.dart' show recurrenceLabel;
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/rn_bits.dart'; // remnotes
+import '../widgets/voice_input.dart' show VoiceDictation, VoiceMicButton;
 
 /// A single-line natural-language quick-add with a live parsed preview.
 /// Typing "every friday 8am jumma" shows a preview chip row (time, recurrence)
@@ -25,11 +27,27 @@ class QuickAddBar extends StatefulWidget {
 class _QuickAddBarState extends State<QuickAddBar> {
   final _c = TextEditingController();
   final _focus = FocusNode();
+  // remnotes: say it instead of typing (the phone's own speech-to-text)
+  final _voice = VoiceDictation();
+  String _last = '';
   ParsedReminder? _preview;
   Map<String, dynamic>? _link;
 
   @override
+  void initState() {
+    super.initState();
+    // dictation writes into the controller without onChanged: keep the
+    // preview live for spoken text too
+    _c.addListener(() {
+      if (_c.text == _last) return;
+      _last = _c.text;
+      if (mounted) _onChanged(_c.text);
+    });
+  }
+
+  @override
   void dispose() {
+    _voice.dispose();
     _c.dispose();
     _focus.dispose();
     super.dispose();
@@ -95,6 +113,8 @@ class _QuickAddBarState extends State<QuickAddBar> {
                   ),
                 ),
               ),
+              if (_c.text.isEmpty)
+                VoiceMicButton(voice: _voice, input: _c),
               if (_c.text.isNotEmpty)
                 FilledButton(
                   onPressed: _commit,
@@ -229,12 +249,35 @@ Future<Map<String, dynamic>?> pickLink(BuildContext context) async {
                   ),
               ],
             ),
+            // remnotes: a person comes from My Circle in one tap — never
+            // typed twice (typing stays for someone not in the Circle)
+            if (type == 'person') ...[
+              const SizedBox(height: Gap.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('rn-link-circle'),
+                  icon: const Icon(Icons.people_alt_rounded, size: 18),
+                  label: Text(t.rnFromCircle),
+                  onPressed: () async {
+                    final m = await pickCircleMember(ctx, title: t.rnFromCircle);
+                    if (m == null || !ctx.mounted) return;
+                    Navigator.pop(ctx, {
+                      'type': 'person',
+                      'id': m['circle_id'],
+                      'label': '${m['name'] ?? ''}',
+                      'source': 'circle',
+                    });
+                  },
+                ),
+              ),
+            ],
             const SizedBox(height: Gap.md),
             Row(children: [
               Expanded(
                 child: TextField(
                   controller: custom,
-                  autofocus: true,
+                  autofocus: type != 'person',
                   decoration: InputDecoration(hintText: t.remLinkCustomHint),
                   onSubmitted: (_) {
                     if (custom.text.trim().isEmpty) return;
@@ -303,10 +346,11 @@ String _intervalUnit(AppLocalizations t, String freq) {
   }
 }
 
-// 0=Mon..6=Sun -> locale weekday name (2024-01-01 was a Monday).
-String _weekdayLabel(int wd) {
+// 0=Mon..6=Sun -> weekday name in the APP's language (2024-01-01 was a
+// Monday). remnotes: it printed English names in Bangla mode.
+String _weekdayLabel(AppLocalizations t, int wd) {
   final ref = DateTime(2024, 1, 1).add(Duration(days: wd));
-  return DateFormat('EEEE').format(ref);
+  return DateFormat('EEEE', t.localeName).format(ref);
 }
 
 // ---------------------------------------------------------------- full editor
@@ -421,6 +465,7 @@ Future<void> editReminder(BuildContext context,
             const SizedBox(height: Gap.md),
             DropdownButtonFormField<String>(
               initialValue: freq,
+              isExpanded: true,
               decoration: InputDecoration(labelText: t.remRecurrence),
               items: [
                 DropdownMenuItem(value: 'none', child: Text(t.remRecurNone)),
@@ -440,15 +485,17 @@ Future<void> editReminder(BuildContext context,
               Row(children: [
                 Text(t.remEveryLabel),
                 const SizedBox(width: Gap.sm),
+                // remnotes: 72 dp clipped the number + arrow (5 px overflow)
                 SizedBox(
-                  width: 72,
+                  width: 96,
                   child: DropdownButtonFormField<int>(
                     initialValue: interval.clamp(1, 12),
                     isDense: true,
+                    isExpanded: true,
                     decoration: const InputDecoration(isDense: true),
                     items: [
                       for (var n = 1; n <= 12; n++)
-                        DropdownMenuItem(value: n, child: Text('$n')),
+                        DropdownMenuItem(value: n, child: Text(rnDigits(t, n))),
                     ],
                     onChanged: (v) => setD(() {
                       interval = v ?? 1;
@@ -464,11 +511,12 @@ Future<void> editReminder(BuildContext context,
             if (freq == 'weekly') ...[
               const SizedBox(height: Gap.sm),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: (weekday ?? ((due?.weekday ?? 1) - 1)).clamp(0, 6),
                 decoration: InputDecoration(labelText: t.remOnWeekday),
                 items: [
                   for (var wd = 0; wd < 7; wd++)
-                    DropdownMenuItem(value: wd, child: Text(_weekdayLabel(wd))),
+                    DropdownMenuItem(value: wd, child: Text(_weekdayLabel(t, wd))),
                 ],
                 onChanged: (v) => setD(() {
                   weekday = v;
@@ -480,11 +528,12 @@ Future<void> editReminder(BuildContext context,
             if (freq == 'monthly') ...[
               const SizedBox(height: Gap.sm),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: (dom ?? due?.day ?? 1).clamp(1, 31),
                 decoration: InputDecoration(labelText: t.remOnDayOfMonth),
                 items: [
                   for (var d = 1; d <= 31; d++)
-                    DropdownMenuItem(value: d, child: Text('$d')),
+                    DropdownMenuItem(value: d, child: Text(rnDigits(t, d))),
                 ],
                 onChanged: (v) => setD(() {
                   dom = v;

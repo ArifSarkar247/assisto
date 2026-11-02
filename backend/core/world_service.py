@@ -531,7 +531,8 @@ def web_answer(user, question, lang, now=None):
     try:
         text, llm_cost = ai.generate(task, data=data, tier="cheap", max_tokens=700,
                                      feature="world_web_answer", user=user,
-                                     extra_system=extra, charge_action="web_answer")
+                                     extra_system=extra, charge_action="web_answer",
+                                     pii=True)   # AF-2: question + snippets masked
     except ai.AIUnavailable as e:
         msg = {"credits": _msg(lang, "যথেষ্ট ক্রেডিট নেই।", "Not enough credits."),
                "user_limit": _msg(lang, "আজকের AI সীমা শেষ।", "Today's AI limit is reached."),
@@ -573,7 +574,8 @@ def hub_ai(user, hub_id, question, lang):
     full = task + " Reply in %s, short and practical." % ("Bangla" if lang == "bn" else "English")
     try:
         text, _cost = ai.generate(full, data=q, tier="cheap", max_tokens=700,
-                                  feature="world_" + hub_id, user=user)
+                                  feature="world_" + hub_id, user=user,
+                                  pii=True)   # AF-2: passport / NID / phone in a question
     except ai.AIUnavailable as e:
         return (402 if e.reason == "credits" else 503), {
             "ok": False, "reason": e.reason,

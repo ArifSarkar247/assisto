@@ -5,6 +5,9 @@ views_bizagent (p1) and views_bizagent_g1:
   GET  inbox?status=agent|owner|attention&channel=&q=&unread=1
                                  Business inbox across every connected channel
   POST threads/<id>/read         mark the chat read (opening it also does)
+  GET  threads/<id>/quick-replies?lang=bn|en
+                                 sales2: catalog price/stock cards + delivery +
+                                 payment lines (fills the composer, never sends)
   POST orders/<id>/confirm       owner confirms an image DRAFT order (stock −)
   POST orders/<id>/cancel        owner cancels a draft
   GET  audit                     recent agent/owner actions (owner only)
@@ -84,6 +87,22 @@ class DraftCancelView(APIView):
             return _err(lang, "এটি আর খসড়া অর্ডার নয়।", "This is no longer a draft order.",
                         status=409, code="not_draft")
         return Response({"ok": True, "status": o.status})
+
+
+class QuickRepliesView(APIView):
+    """sales2: catalog quick replies (price / stock cards, delivery, payment)
+    for one chat — the app fills the composer, the seller taps Send."""
+
+    def get(self, request, pk):
+        prof, role, a, bad = _ctx(request, owner=False)
+        if bad:
+            return bad
+        t = _thread(prof, pk)
+        if not t:
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        from . import bizagent_g1_service as G1S
+        lang = request.query_params.get("lang") or ""
+        return Response(G1S.quick_replies(t, lang=lang if lang in ("bn", "en") else None))
 
 
 class AuditView(APIView):

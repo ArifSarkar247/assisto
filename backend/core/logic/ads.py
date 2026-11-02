@@ -319,6 +319,30 @@ PRECISIONS = ("unknown", "estimated", "publisher_provided", "precise")
 MAX_PAID_MICROS = 50 * 1000000
 
 
+_EVENT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
+
+
+def clean_event_id(v):
+    """The app's per-ad-instance id (16 hex chars today) or '' (old builds /
+    junk). One loaded SDK ad object = one id: the server counts at most one
+    impression, one click and one paid value per id."""
+    v = _s(v)
+    return v if _EVENT_ID_RE.match(v) else ""
+
+
+def dedupe_key(user_id, placement, kind, event_id):
+    """sha256 of (user, placement, kind, ad instance id) — the server-side
+    dedupe key (no readable user or device id is stored)."""
+    import hashlib
+    raw = "%s|%s|%s|%s" % (user_id, placement, kind, event_id)
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def minute_bucket(now):
+    """Old builds send no ad id: their clicks dedupe per placement per minute."""
+    return "m" + now.strftime("%Y%m%d%H%M")
+
+
 def clean_event(d):
     """Validate one client ad event. (event_dict, None) or (None, reason)."""
     d = d if isinstance(d, dict) else {}
@@ -332,7 +356,8 @@ def clean_event(d):
     if not _PLACEMENT_RE.match(placement):
         return None, "bad_placement"
     out = {"kind": kind, "format": fmt, "placement": placement,
-           "value_micros": 0, "currency": "", "precision": ""}
+           "value_micros": 0, "currency": "", "precision": "",
+           "event_id": clean_event_id(d.get("ad_event_id"))}
     if kind == "paid":
         try:
             v = int(d.get("value_micros"))

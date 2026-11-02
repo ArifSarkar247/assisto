@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, PointerEvent;
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,6 +116,10 @@ class AdsService with WidgetsBindingObserver {
     } catch (_) {}
     AdTelemetry.sink = _report;
     AdMoments.sink = (m) => unawaited(maybeInterstitial(m));
+    try {
+      // the accidental-click guard needs every pointer-down
+      GestureBinding.instance.pointerRouter.addGlobalRoute(_onPointer);
+    } catch (_) {}
     try {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(_kSeen) != true) {
@@ -347,6 +352,10 @@ class AdsService with WidgetsBindingObserver {
     } finally {
       _showing = false;
     }
+  }
+
+  static void _onPointer(PointerEvent e) {
+    if (e is PointerDownEvent) AdTouchGuard.notePointerDown();
   }
 
   /// Fire-and-forget POST /ads/event for the tuning log.

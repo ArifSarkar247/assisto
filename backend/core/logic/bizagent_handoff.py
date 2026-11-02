@@ -37,6 +37,9 @@ REASON_LABEL = {
                     "abuse / threat — the AI stays quiet for a while"),
     BZ.RISK_UNSAFE: ("AI-এর উত্তর নিরাপদ ছিল না — পাঠানো হয়নি",
                      "the AI draft was not safe — not sent"),
+    BZ.RISK_SCAM: ("সম্ভাব্য প্রতারণা / ফিশিং — লিংকে ক্লিক করবেন না, কোনো কোড দেবেন না",
+                   "possible scam / phishing — don't click links or share any code"),
+    BZ.RISK_ORDER_CHANGE: ("অর্ডার বদল / বাতিল চান", "wants to change / cancel an order"),
     "daily_ai_cap": ("আজকের AI সীমা শেষ", "today's AI limit is used up"),
     "out_of_replies": ("AI উত্তরের কোটা শেষ", "out of AI replies"),
 }
@@ -133,6 +136,8 @@ def _want(customer_texts, draft, reason):
         return "complaint"
     if reason == BZ.RISK_BELOW_MIN:
         return "bargain"
+    if reason == BZ.RISK_ORDER_CHANGE:
+        return "order"
     if (draft or {}).get("active") or (draft or {}).get("state") == "awaiting_confirm" or \
             reason == BZ.RISK_BIG_ORDER:
         return "order"

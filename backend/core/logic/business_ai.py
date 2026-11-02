@@ -35,6 +35,7 @@ All user-facing strings are {bn, en}. The assistant replies in bn / Banglish /
 en matching the customer's input language (detect_lang()).
 =============================================================================
 """
+import re
 from decimal import Decimal, InvalidOperation
 
 # Optional reuse of sibling pure-logic (voice entry / notification matching).
@@ -113,9 +114,38 @@ def detect_lang(text):
         "diben", "deben", "dile ", "hobe", "taka te", "takay", "korben", "korbo",
         "koren", "bhai", "vaiya", "apu ", "naki", "dite paren", "kom ", "chai ",
     )
+    toks = re.findall(r"[a-z']+", low)
+    # sales2: an English sentence that happens to contain a marker ("I want to
+    # ORDER", "pay by BKASH", "DAMaged") is English: count English function
+    # words against whole Banglish words
+    en = sum(1 for w in toks if w in _EN_FUNC)
+    bl = sum(1 for w in toks if w in _BANGLISH_TOKENS or w in _BANGLISH_STRONG)
+    if en >= 2 and en > bl:
+        return "en"
     if any(m in low for m in banglish_markers):
         return "banglish"
+    # sales2: everyday Banglish WORDS (whole tokens only — "ase" must not hit
+    # "please", "ami" must not hit "Miami")
+    if set(toks) & _BANGLISH_TOKENS:
+        return "banglish"
     return "en"
+
+
+_EN_FUNC = {"i", "i'm", "you", "the", "a", "an", "is", "are", "was", "to", "my", "me", "want",
+            "can", "could", "how", "what", "please", "do", "does", "have", "has", "with", "for",
+            "of", "this", "it", "will", "would", "your", "where", "when", "which", "need", "send",
+            "give", "pay", "get", "there", "any", "and", "or", "if", "it's", "don't", "doesn't"}
+_BANGLISH_STRONG = {"koto", "kemon", "ache", "dam", "daam", "ki", "kivabe", "kobe", "lagbe",
+                    "nibo", "dibo", "diben", "deben", "hobe", "korbo", "korben", "koren", "naki",
+                    "kom", "ekta", "dorkar", "taka", "te", "er", "ta", "e"}
+
+
+_BANGLISH_TOKENS = {
+    "salam", "assalamu", "assalamualaikum", "walaikum", "dokan", "dokaner", "kothay", "kothai",
+    "kokhon", "khola", "jabe", "kharap", "nai", "hoye", "gelo", "apnader", "apnara", "apni",
+    "amar", "ami", "bolen", "thake", "korte", "kora", "ase", "koi", "vai", "bhaiya", "accha",
+    "thik", "dhonnobad", "lagbe", "pabo", "chai", "den", "din", "dao", "deya", "dewa", "newa",
+    "nite", "parbo", "hobena", "keno", "tumi", "apu", "bhai", "ekhon", "kalke", "ajke"}
 
 
 def reply_lang(text):
@@ -172,7 +202,8 @@ def default_mock_provider(prompt):
 def classify_intent(text):
     """Cheap rule-based intent for routing the mock/real provider."""
     low = _norm_digits((text or "").lower())
-    if any(w in low for w in ("hi", "hello", "assalamu", "আসসালাম", "হ্যালো", "নমস্কার", "salam")):
+    # sales2: whole words ("hi" inside "Shirt" / "Hilsa" is not a greeting)
+    if re.search(r"(?<![a-z])(?:hi|hello|assalamu\w*|salam)(?![a-z])|আসসালাম|হ্যালো|নমস্কার", low):
         if len(low.split()) <= 3:
             return "greeting"
     if any(w in low for w in ("where is my parcel", "parcel", "koi", "কোথায়", "track",

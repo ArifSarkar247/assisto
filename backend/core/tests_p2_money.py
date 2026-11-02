@@ -392,6 +392,11 @@ class OffersTests(_Base):
         r = self.client.post("/api/v1/offers/prefs", {"categories": ["mobile", "bogus"]},
                              format="json").json()
         self.assertEqual(r["categories"], ["mobile"])
+        # ads check 28 Oct: offer notifications are opt-in — the user turns them on
+        self.assertFalse(r["notifs_on"])
+        r = self.client.post("/api/v1/offers/prefs", {"notifs_on": True},
+                             format="json").json()
+        self.assertTrue(r["notifs_on"])
         self.assertEqual(r["notif_daily_cap"], 2)
         camps = [self.camp(placement="brand_offer", categories=["mobile"], name="C%d" % i)
                  for i in range(3)]
@@ -410,7 +415,8 @@ class OffersTests(_Base):
     def test_mute_notifs_off_premium(self):
         c = self.camp(placement="brand_offer", categories=["mobile"])
         for u in (self.free, self.prem):
-            OfferPrefs.objects.create(user=u, categories=["mobile"])
+            OfferPrefs.objects.create(user=u, categories=["mobile"], notifs_on=True,
+                                      notifs_opted_in_at=timezone.now())
         self.as_(self.free)
         self.client.post("/api/v1/offers/brands/%d/mute" % self.sp.id, {"muted": True},
                          format="json")

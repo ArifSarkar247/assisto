@@ -219,22 +219,97 @@ class ReminderSerializer(serializers.ModelSerializer):
         model = Reminder
         fields = ["id", "title", "notes", "due_at", "recurrence",
                   "recurrence_rule", "date_only", "link",
-                  "remind_before_min", "done", "source", "created_at", "updated_at"]
+                  "remind_before_min", "done", "source", "priority", "category",
+                  "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    # remnotes: priority / label were app-only and wiped by the first sync.
+    priority = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    category = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+    def validate_priority(self, value):
+        from . import remnotes as RN
+        return RN.clean_priority(value)
+
+    def validate_category(self, value):
+        return (value or "").strip()[:40]
+
+
+def _req_user(ser):
+    req = ser.context.get("request") if hasattr(ser, "context") else None
+    u = getattr(req, "user", None)
+    return u if getattr(u, "is_authenticated", False) else None
 
 
 class NoteSerializer(serializers.ModelSerializer):
+    """remnotes: checklist / tags / colour / priority / due date / vault
+    attachments / reminder link — sanitised (trimmed, never rejected) so an
+    offline write can never get stuck in the phone's queue."""
+    checklist = serializers.JSONField(required=False, allow_null=True)
+    tags = serializers.JSONField(required=False, allow_null=True)
+    attachments = serializers.JSONField(required=False, allow_null=True)
+    color = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    priority = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    reminder_local_id = serializers.CharField(required=False, allow_blank=True,
+                                              allow_null=True)
+    body = serializers.CharField(required=False, allow_blank=True, trim_whitespace=False)
+    title = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = Note
-        fields = ["id", "title", "body", "pinned", "source", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        fields = ["id", "title", "body", "pinned", "source", "checklist", "tags",
+                  "color", "priority", "due_at", "attachments", "reminder_local_id",
+                  "shared_from", "created_at", "updated_at"]
+        read_only_fields = ["id", "shared_from", "created_at", "updated_at"]
+
+    def validate_title(self, value):
+        return (value or "").strip()[:200]
+
+    def validate_body(self, value):
+        from . import remnotes as RN
+        return (value or "")[:RN.BODY_MAX]
+
+    def validate_checklist(self, value):
+        from . import remnotes as RN
+        return RN.clean_checklist(value)
+
+    def validate_tags(self, value):
+        from . import remnotes as RN
+        return RN.clean_tags(value)
+
+    def validate_color(self, value):
+        from . import remnotes as RN
+        return RN.clean_color(value)
+
+    def validate_priority(self, value):
+        from . import remnotes as RN
+        return RN.clean_priority(value)
+
+    def validate_attachments(self, value):
+        from . import remnotes as RN
+        return RN.clean_attachments(_req_user(self), value)
+
+    def validate_reminder_local_id(self, value):
+        return (value or "").strip()[:64]
 
 
 class TodoSerializer(serializers.ModelSerializer):
+    priority = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    recurrence_rule = serializers.JSONField(required=False, allow_null=True)
+
     class Meta:
         model = Todo
-        fields = ["id", "title", "done", "due_at", "source", "created_at", "updated_at"]
+        fields = ["id", "title", "done", "due_at", "source", "priority",
+                  "recurrence_rule", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate_priority(self, value):
+        from . import remnotes as RN
+        return RN.clean_priority(value)
+
+    def validate_recurrence_rule(self, value):
+        from . import remnotes as RN
+        return RN.clean_rule(value)
 
 
 class SourcePermissionSerializer(serializers.ModelSerializer):

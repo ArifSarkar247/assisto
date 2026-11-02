@@ -880,7 +880,8 @@ class TrackerAiSummaryView(APIView):
         try:
             text, _cost = ai.generate(task, data=json.dumps(base["facts"])[:4000],
                                       tier="cheap", max_tokens=250,
-                                      feature="vehicle_summary", user=request.user)
+                                      feature="vehicle_summary", user=request.user,
+                                      pii=True)   # AF-2: facts only, masked
             from . import ai_guard
             if ai_guard.accusations(text):
                 # aieval: never accuse anyone — the factual rule summary instead

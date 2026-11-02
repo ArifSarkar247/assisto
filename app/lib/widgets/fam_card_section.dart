@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../theme.dart';
-import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import '../security/secret_store.dart';
 import 'app_sheet.dart';
@@ -71,7 +70,6 @@ class _FamCardSectionState extends State<FamCardSection> {
   bool _dark = false;
   // Online (members known) the card renders at once; the saved emergency
   // info fills in when the phone store answers. Offline waits for the store.
-  late bool _loaded = widget.members != null;
   Map<String, dynamic> _data = {};
 
   @override
@@ -89,7 +87,7 @@ class _FamCardSectionState extends State<FamCardSection> {
 
   Future<void> _init() async {
     final d = await FamCardStore.load();
-    if (mounted) setState(() { _data = d; _loaded = true; });
+    if (mounted) setState(() => _data = d);
     final m = widget.members;
     if (m != null) await FamCardStore.cacheMembers(m);
   }
@@ -102,7 +100,10 @@ class _FamCardSectionState extends State<FamCardSection> {
 
   String _s(String k) => '${_data[k] ?? ''}'.trim();
 
-  String get _blood => kMedicalFeaturesAllowed ? _s('blood') : '';
+  // owner 28 Oct: blood group shows on every build (Play too) — optional,
+  // stored ONLY on this phone (SecretStore), never sent to our server; it
+  // leaves the phone only when the user shares the card. Medicine stays gated.
+  String get _blood => _s('blood');
 
   List<Map<String, String>> get _contacts => (_data['contacts'] as List? ?? const [])
       .whereType<Map>()
@@ -115,7 +116,9 @@ class _FamCardSectionState extends State<FamCardSection> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (!_loaded) return const Center(child: CircularProgressIndicator());
+    // never a spinner: until this phone's secure storage answers (it can hang
+    // on some OEM keystores) the card shows its empty state with the button,
+    // then fills in — no dead end, no timer.
     final members = _members;
     if (members.isEmpty && !_hasEmergency) {
       return FamEmptyState(
@@ -404,7 +407,7 @@ class _EmergencyFormState extends State<_EmergencyForm> {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Text(t.fcCardPrivacyNote, style: AType.bodySmall),
-        if (kMedicalFeaturesAllowed) ...[
+        ...[
           const SizedBox(height: Gap.md),
           Text(famLabel(context, 'famCardBlood'), style: AType.titleSmall),
           const SizedBox(height: Gap.xs),

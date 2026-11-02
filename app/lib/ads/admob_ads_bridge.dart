@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_placements.dart' show AdTouchGuard;
 import 'ad_telemetry.dart';
 import 'admob_sdk.dart';
 import 'ads_bridge.dart';
@@ -18,12 +19,12 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
   @override
   Future<bool> init() => AdmobSdk.ensureReady();
 
-  static OnPaidEventCallback _paid(String placement, String format) =>
-      (Ad ad, double micros, PrecisionType p, String currency) =>
-          AdTelemetry.paid(placement, format,
-              valueMicros: micros,
-              currency: currency,
-              precision: AdTelemetry.precisionName(p.name));
+  /// onPaidEvent -> this ad instance's tracker (once per instance).
+  static OnPaidEventCallback _paid(AdInstanceTracker tr) =>
+      (Ad ad, double micros, PrecisionType p, String currency) => tr.paid(
+          valueMicros: micros,
+          currency: currency,
+          precision: AdTelemetry.precisionName(p.name));
 
   @override
   Future<bool> showAppOpen(String unitId) async {
@@ -40,13 +41,16 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
               ad.dispose();
               return;
             }
-            ad.onPaidEvent = _paid('app_open', 'app_open');
+            // one tracker per ad object: 1 impression, <=1 click, 1 paid
+            final tr = AdTelemetry.track('app_open', 'app_open');
+            ad.onPaidEvent = _paid(tr);
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdShowedFullScreenContent: (_) {
+                tr.impression();
                 if (!done.isCompleted) done.complete(true);
               },
-              onAdImpression: (_) => AdTelemetry.impression('app_open', 'app_open'),
-              onAdClicked: (_) => AdTelemetry.click('app_open', 'app_open'),
+              onAdImpression: (_) => tr.impression(),
+              onAdClicked: (_) => tr.click(),
               onAdDismissedFullScreenContent: (a) => a.dispose(),
               onAdFailedToShowFullScreenContent: (a, _) {
                 a.dispose();
@@ -77,6 +81,7 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
   Future<bool> showInterstitial(String unitId, {required String placement}) async {
     if (unitId.isEmpty || !await init()) return false;
     final done = Completer<bool>();
+    final loadedFrom = DateTime.now();
     try {
       await InterstitialAd.load(
         adUnitId: unitId,
@@ -87,11 +92,13 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
               ad.dispose();
               return;
             }
-            ad.onPaidEvent = _paid(placement, 'interstitial');
+            final tr = AdTelemetry.track(placement, 'interstitial');
+            ad.onPaidEvent = _paid(tr);
             ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdImpression: (_) => AdTelemetry.impression(placement, 'interstitial'),
-              onAdClicked: (_) => AdTelemetry.click(placement, 'interstitial'),
+              onAdImpression: (_) => tr.impression(),
+              onAdClicked: (_) => tr.click(),
               onAdShowedFullScreenContent: (_) {
+                tr.impression();
                 if (!done.isCompleted) done.complete(true);
               },
               onAdDismissedFullScreenContent: (a) => a.dispose(),
@@ -100,11 +107,8 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
                 if (!done.isCompleted) done.complete(false);
               },
             );
-            try {
-              ad.show();
-            } catch (_) {
-              if (!done.isCompleted) done.complete(false);
-            }
+            // never under a finger that is still tapping (accidental clicks)
+            unawaited(_showWhenIdle(ad, done, loadedFrom));
           },
           onAdFailedToLoad: (_) {
             if (!done.isCompleted) done.complete(false);
@@ -119,6 +123,27 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
       if (!done.isCompleted) done.complete(false);
       return false;
     });
+  }
+
+  /// Shows [ad] once the screen has been untouched for [AdTouchGuard.quiet]
+  /// (at most [AdTouchGuard.maxWait] after the moment); otherwise no ad.
+  static Future<void> _showWhenIdle(
+      InterstitialAd ad, Completer<bool> done, DateTime since) async {
+    try {
+      while (!done.isCompleted) {
+        final wait = AdTouchGuard.waitFor(DateTime.now(), since);
+        if (wait == null) break;
+        if (wait == Duration.zero) {
+          ad.show();
+          return;
+        }
+        await Future<void>.delayed(wait);
+      }
+    } catch (_) {}
+    try {
+      ad.dispose();
+    } catch (_) {}
+    if (!done.isCompleted) done.complete(false);
   }
 
   @override
@@ -152,11 +177,12 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
                 await ad.setServerSideOptions(ssv);
               } catch (_) {}
             }
-            ad.onPaidEvent = _paid('rewarded_credits', 'rewarded');
+            final tr = AdTelemetry.track('rewarded_credits', 'rewarded');
+            ad.onPaidEvent = _paid(tr);
             ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdImpression: (_) =>
-                  AdTelemetry.impression('rewarded_credits', 'rewarded'),
-              onAdClicked: (_) => AdTelemetry.click('rewarded_credits', 'rewarded'),
+              onAdShowedFullScreenContent: (_) => tr.impression(),
+              onAdImpression: (_) => tr.impression(),
+              onAdClicked: (_) => tr.click(),
               onAdDismissedFullScreenContent: (a) {
                 a.dispose();
                 if (!done.isCompleted) {

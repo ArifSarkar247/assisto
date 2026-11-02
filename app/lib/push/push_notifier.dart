@@ -17,6 +17,7 @@ import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
 import '../reminders/alarm_plan.dart' show PushDecision;
 import '../reminders/reminder_alarms.dart' show ReminderAlarms;
+import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../services/own_device_guard.dart'; // grab-guard
 import '../messaging/msg_notify.dart';
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
@@ -433,6 +434,11 @@ void assistoNotificationBackground(NotificationResponse r) {
   } catch (e) {
     callLog('push_notifier#call4', e);
   }
+  // remnotes: Done / Snooze on a reminder alarm with the app closed.
+  if (ReminderActions.isOurs(r)) {
+    unawaited(_reminderActionBg(r));
+    return;
+  }
   // c3-msg: inline reply / mark as read (encrypt + send from this isolate).
   if (r.actionId == kActionReply || r.actionId == kActionRead) {
     unawaited(handleMsgNotificationAction(r));
@@ -449,5 +455,20 @@ void assistoNotificationBackground(NotificationResponse r) {
   if (r.actionId == PushNotifier.actionDecline && p.isCall) {
     unawaited(PushNotifier.declineCall(p.callId));
     unawaited(PushNotifier.cancelCall(p.callId));
+  }
+}
+
+/// remnotes: this isolate's own plugin (the UI isolate's is not here).
+Future<void> _reminderActionBg(NotificationResponse r) async {
+  try {
+    final p = FlutterLocalNotificationsPlugin();
+    await p.initialize(
+      const InitializationSettings(
+          android: AndroidInitializationSettings('@drawable/ic_stat_assisto')),
+      onDidReceiveBackgroundNotificationResponse: assistoNotificationBackground,
+    );
+    await ReminderActions.record(r, plugin: p);
+  } catch (e) {
+    callLog('push_notifier#rem1', e);
   }
 }

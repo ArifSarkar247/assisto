@@ -12,6 +12,7 @@ import io
 import json
 import os
 import shutil
+import atexit
 import tempfile
 from datetime import datetime, timedelta, timezone as dtz
 from unittest import mock
@@ -25,6 +26,7 @@ from core.logic import cash_guard as CG
 from core.models import User
 
 _MEDIA = tempfile.mkdtemp(prefix="cg-media-")
+atexit.register(shutil.rmtree, _MEDIA, True)
 FF_KEY = "home_watchman"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 VECTOR = os.path.join(ROOT, "tools", "cashguard", "clip_vector.json")
@@ -237,9 +239,11 @@ class BoxCheckTests(SimpleTestCase):
 class _Base(APITestCase):
     @classmethod
     def tearDownClass(cls):
+        # never wipe _MEDIA here: tests_cctvx imports the same folder and the
+        # --parallel workers share it after fork, so a class finishing in one
+        # worker deleted clips another worker was about to check (flaky
+        # tests_cctvx share test, 28 Oct). Removed once at process exit below.
         super().tearDownClass()
-        shutil.rmtree(_MEDIA, ignore_errors=True)
-        os.makedirs(_MEDIA, exist_ok=True)
 
     def setUp(self):
         from core import feature_flags as FF

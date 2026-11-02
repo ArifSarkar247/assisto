@@ -71,6 +71,12 @@ Future<void> savePendingOfferCats(List<String> cats) async {
   } catch (_) {} // best-effort: a local cache; the Settings screen saves to the server too
 }
 
+/// The server's opt-in explanation for [lang] ('bn' default, else 'en').
+String offerNotifNote(Map<String, dynamic> note, String lang) {
+  final v = note[lang == 'en' ? 'en' : 'bn'];
+  return v is String ? v.trim() : '';
+}
+
 Future<void> syncPendingOfferPrefs(SponsorBackend b) async {
   try {
     final p = await SharedPreferences.getInstance();
@@ -116,7 +122,12 @@ class OffersSettingsScreen extends StatefulWidget {
 class _OffersSettingsScreenState extends State<OffersSettingsScreen> {
   bool _loading = true, _failed = false;
   Set<String> _cats = {};
-  bool _notifs = true;
+  /// Brand-offer notifications are OPT-IN (ads check 28 Oct): OFF unless the
+  /// server says this user turned them on.
+  bool _notifs = false;
+
+  /// The server's explanation under the switch ({bn, en}).
+  Map<String, dynamic> _notifsNote = const {};
   String _division = '';
   int _cap = 2;
   bool _paid = false, _premiumGets = false;
@@ -145,7 +156,9 @@ class _OffersSettingsScreenState extends State<OffersSettingsScreen> {
       if (!mounted) return;
       setState(() {
         _cats = ((p['categories'] as List?) ?? const []).map((e) => '$e').toSet();
-        _notifs = p['notifs_on'] != false;
+        _notifs = p['notifs_on'] == true;
+        final note = p['notifs_note'];
+        _notifsNote = note is Map ? Map<String, dynamic>.from(note) : const {};
         _division = '${p['division'] ?? ''}';
         _cap = _i(p['notif_daily_cap']);
         _paid = p['paid'] == true;
@@ -241,6 +254,17 @@ class _OffersSettingsScreenState extends State<OffersSettingsScreen> {
                       _save({'notifs_on': v});
                     },
                   ),
+                  if (offerNotifNote(_notifsNote,
+                          Localizations.localeOf(context).languageCode)
+                      .isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: Gap.sm),
+                      child: Text(
+                          offerNotifNote(_notifsNote,
+                              Localizations.localeOf(context).languageCode),
+                          style: TextStyle(
+                              color: scheme.onSurfaceVariant, height: 1.4)),
+                    ),
                   const SizedBox(height: Gap.sm),
                   Text(t.p2OffersDivision, style: Theme.of(context).textTheme.titleSmall),
                   DropdownButton<String>(

@@ -71,6 +71,8 @@ def tailor_documents(user, jd, extra="", lang="bn"):
         f"ব্যবহারকারীর দক্ষতা/অভিজ্ঞতা: {skills}\n\nঅতিরিক্ত: {extra}\n\nচাকরি: {jd}",
         f"User's skills/experience: {skills}\n\nExtra: {extra}\n\nJob: {jd}")
     try:
+        # AF-2: CV + cover letter: the job text and the user's details go out
+        # masked; the documents come back with the real phone / e-mail
         cv, _ = ai.generate(
             task=pick(
                 lang,
@@ -79,13 +81,15 @@ def tailor_documents(user, jd, extra="", lang="bn"):
                 ("Using the skills/experience the user provided, write the main "
                  "body of a CV for this job as bullet points. Do not invent "
                  "anything they did not provide.")),
-            data=data, tier="medium", feature="jobs.cv", max_tokens=700, user=user)
+            data=data, tier="medium", feature="jobs.cv", max_tokens=700, user=user,
+            pii=True)
         cover, _ = ai.generate(
             task=pick(
                 lang,
                 "এই চাকরির জন্য একটি সংক্ষিপ্ত, আন্তরিক কভার লেটার লেখো (ব্যবহারকারীর তথ্যের মধ্যে থেকে)।",
                 "Write a short, sincere cover letter for this job, staying within the user's own information."),
-            data=data, tier="medium", feature="jobs.cover", max_tokens=500, user=user)
+            data=data, tier="medium", feature="jobs.cover", max_tokens=500, user=user,
+            pii=True)
         return {"cv_text": cv, "cover_letter": cover, "ai_used": True}
     except ai.AIUnavailable as e:
         return {"needs_key": e.reason == "no_key", "reason": e.reason}

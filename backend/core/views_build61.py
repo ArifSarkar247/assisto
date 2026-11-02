@@ -393,6 +393,11 @@ class CreditTopupConfirmView(APIView):
         return Response(res, status=code)
 
 
+def _json_scalar(v):
+    """v if it is a plain JSON scalar, else None (never an arbitrary object)."""
+    return v if v is None or isinstance(v, (bool, int, float, str)) else None
+
+
 class AdEventView(APIView):
     """POST /ads/event {kind, [ad_id], [device_id]} — an AdMob impression.
 
@@ -409,19 +414,27 @@ class AdEventView(APIView):
         kind = str(d.get("kind", ""))[:14]
         # admob (owner 25 Oct): the tuning log — {placement, format, kind:
         # impression|click|paid}. An impression of an app-open / native /
-        # interstitial ALSO goes through the old wallet path below (caps,
-        # fraud guard; credits only once REAL ids are on).
+        # interstitial ALSO goes through the old wallet path below for its
+        # caps / fraud log / exposure only — it NEVER credits anything
+        # (AdMob: no compensation for viewing non-rewarded ads; ads check
+        # 28 Oct). Only a Google-SSV-verified rewarded ad credits.
         if kind in ("impression", "click", "paid"):
             from . import admob_service as AS
             code, body = AS.record_event(request.user, d)
             fmt = str(d.get("format", ""))[:14]
-            if code == 200 and body.get("ok") and kind == "impression" and \
+            # only a COUNTED impression (never a duplicate of the same ad)
+            if code == 200 and body.get("ok") and body.get("counted") and \
+                    kind == "impression" and \
                     fmt in ("app_open", "native", "interstitial"):
                 try:
                     res = billing.ad_event(request.user, fmt,
                                            device_id=str(d.get("device_id", ""))[:64],
                                            ad_id=str(d.get("ad_id", ""))[:80])
-                    body["wallet"] = {k: res.get(k) for k in
+                    # only plain JSON scalars reach the response: a non-dict
+                    # (e.g. a test MagicMock) once sent DRF's JSON encoder
+                    # into an endless .tolist() chain that ate 5 GB
+                    res = res if isinstance(res, dict) else {}
+                    body["wallet"] = {k: _json_scalar(res.get(k)) for k in
                                       ("ok", "reason", "credited_credits")}
                     if res.get("reason") not in ("fraud", "bad_kind", "not_free"):
                         from . import sponsor_service as SS

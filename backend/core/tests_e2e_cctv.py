@@ -27,6 +27,7 @@ import json
 import os
 import shutil
 import sys
+import atexit
 import tempfile
 from unittest import mock
 
@@ -36,6 +37,7 @@ from rest_framework.test import APIClient, APITestCase
 from core.models import User
 
 _MEDIA = tempfile.mkdtemp(prefix="e2e-cctv-media-")
+atexit.register(shutil.rmtree, _MEDIA, True)
 FF_KEY = "home_watchman"
 
 
@@ -65,9 +67,9 @@ class _Resp:
 class _Base(APITestCase):
     @classmethod
     def tearDownClass(cls):
+        # never wipe the shared _MEDIA per class: --parallel workers share it
+        # after fork (flaky deletes, 28 Oct); removed once at process exit
         super().tearDownClass()
-        shutil.rmtree(_MEDIA, ignore_errors=True)
-        os.makedirs(_MEDIA, exist_ok=True)
 
     def setUp(self):
         self.owner = User.objects.create_user(name="Rahim", phone="01710003001",

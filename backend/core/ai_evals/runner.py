@@ -220,8 +220,14 @@ def run_llm_replay(fid, cfg=None):
         if fid in S.PII_MASKED:
             # AF-2: no raw phone / NID / account / e-mail in what the provider gets
             from ..agentcore import trust as _T
-            g["privacy"] = not _T.has_raw_pii(prompt_in)
-            g["pass"] = bool(g["pass"] and g["privacy"])
+            g["privacy"] = not _T.has_raw_pii(prompt_in, S.PII_KINDS.get(fid))
+            # maskall: the same request with a private line injected — masked
+            # and every value back on unmask; "pii_before" = the case's
+            # request carried raw PII before masking (the before number)
+            pr = S.pii_probe(fid, c)
+            g["privacy_injected"] = bool(pr["masked_ok"] and pr["roundtrip"])
+            g["pii_before"] = pr["raw_before"]
+            g["pass"] = bool(g["pass"] and g["privacy"] and g["privacy_injected"])
         usd, model, tin, tout = realistic_cost(klass, prompt_in, r["text"], req.get("max_tokens", 600),
                                                cfg, reference=r.get("source") == "reference")
         costs.append(usd)
@@ -264,6 +270,8 @@ def _llm_summary(fid, feat, cases, rows, neg, costs, toks_in, toks_out, ms_all, 
         "accuracy": rate("accuracy"), "grounding": rate("grounding"),
         "safety": rate("safety"), "language": rate("language"),
         "length": rate("length"), "action": rate("action"), "privacy": rate("privacy"),
+        "privacy_injected": rate("privacy_injected"),
+        "pii_cases_before": sum(1 for r in rows if r.get("pii_before")),
         "blocked_good": sum(1 for r in rows if r.get("blocked")),
         "negatives": len(neg),
         "negatives_caught": _rate([n["caught"] for n in neg]),
@@ -340,11 +348,13 @@ def run_llm_live(fid, budget_usd, limit=None, record=False, out=print):
             out("budget reached: spent $%.4f of $%.2f — stopping" % (spent(), budget_usd))
             break
         try:
+            # the live run masks exactly where the product masks
             text, _cost = ai.generate(req["task"], data=req.get("data", ""),
                                       tier=feat["tier"] if feat["tier"] in C.TIERS else "cheap",
                                       max_tokens=req.get("max_tokens", 600), feature=tag,
                                       user=None, extra_system=req.get("extra_system", ""),
-                                      history=req.get("history"), task_class=klass)
+                                      history=req.get("history"), task_class=klass,
+                                      pii=S._vault_for(fid) if fid in S.PII_MASKED else None)
         except ai.AIUnavailable as e:
             out("AI unavailable (%s) — stopping" % e.reason)
             break
@@ -458,19 +468,20 @@ def _lang_counts(cases):
 
 def scorecard_md(results, problems):
     lines = ["# AI eval scorecard", "",
-             "| feature | kind | cases | pass | grounding | safety | language | action | negatives caught | guard block | est. $/answer |",
-             "|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| feature | kind | cases | pass | grounding | safety | language | action | negatives caught | guard block | privacy | privacy (PII injected) | est. $/answer |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
 
     def f(v):
         return "-" if v is None else ("%.1f%%" % (100 * v))
     for r in results:
         if r["kind"] == "rule":
-            lines.append("| %s | rule | %d | %s (must %s, gaps %d) | - | - | - | - | - | - | 0 |" % (
+            lines.append("| %s | rule | %d | %s (must %s, gaps %d) | - | - | - | - | - | - | - | - | 0 |" % (
                 r["feature"], r["cases"], f(r["accuracy"]), f(r["must_pass"]), r["known_gaps"]))
         else:
-            lines.append("| %s | llm/%s | %d | %s | %s | %s | %s | %s | %s | %s | $%.5f |" % (
+            lines.append("| %s | llm/%s | %d | %s | %s | %s | %s | %s | %s | %s | %s | %s | $%.5f |" % (
                 r["feature"], ",".join(r["model_class"]), r["cases"], f(r["pass"]),
                 f(r["grounding"]), f(r["safety"]), f(r["language"]), f(r["action"]),
-                f(r["negatives_caught"]), f(r["guard_block_rate"]), r["cost_per_answer_usd"]))
+                f(r["negatives_caught"]), f(r["guard_block_rate"]), f(r.get("privacy")),
+                f(r.get("privacy_injected")), r["cost_per_answer_usd"]))
     lines += ["", "## Threshold problems", ""] + (["- " + p for p in problems] or ["none"])
     return "\n".join(lines) + "\n"

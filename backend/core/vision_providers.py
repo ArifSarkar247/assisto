@@ -96,7 +96,8 @@ def _claude(cfg, *, image_bytes, mime, system, question):
 def _openai(cfg, *, image_bytes, mime, system, question):
     rq = _http()
     model = (cfg.get("model") or DEFAULT_MODELS["vision_openai"]).strip()
-    body = {"model": model, "max_tokens": MAX_TOKENS,
+    # AF-13: store=False — never kept in the OpenAI dashboard log / evals
+    body = {"model": model, "max_tokens": MAX_TOKENS, "store": False,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": [

@@ -216,3 +216,37 @@ class AdMoments {
     }
   }
 }
+
+/// ACCIDENTAL-CLICK GUARD (ads check 28 Oct, AdMob "don't surprise users
+/// with interstitials"): an interstitial never pops up under a finger that
+/// is still tapping. AdsService feeds every pointer-down here; the
+/// interstitial bridge shows a loaded ad only once the screen has been
+/// untouched for [quiet] (waiting at most [maxWait], else no ad). Ticking
+/// several to-dos in a row therefore never lands a tap on an ad.
+class AdTouchGuard {
+  AdTouchGuard._();
+
+  static const quiet = Duration(milliseconds: 1500);
+  static const maxWait = Duration(seconds: 4);
+  static DateTime? _lastDown;
+
+  static void notePointerDown([DateTime? at]) => _lastDown = at ?? DateTime.now();
+
+  /// No touch for [quiet] before [now].
+  static bool idle(DateTime now) {
+    final d = _lastDown;
+    return d == null || now.difference(d) >= quiet;
+  }
+
+  /// How long to wait from [now] before the screen counts as idle (zero when
+  /// it already is), or null when that is beyond [maxWait] from [since].
+  static Duration? waitFor(DateTime now, DateTime since) {
+    final d = _lastDown;
+    if (d == null || now.difference(d) >= quiet) return Duration.zero;
+    final ready = d.add(quiet);
+    if (ready.difference(since) > maxWait) return null;
+    return ready.difference(now);
+  }
+
+  static void resetForTest() => _lastDown = null;
+}

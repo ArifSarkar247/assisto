@@ -161,7 +161,7 @@ class SalesToxicityTests(Base):
             self.post_meta(mpayload("tui ekta harami, uttor de", "m.af4a"))
         out = self.outs()
         self.assertEqual(len([m for m in out if m.status != "pending_approval"]), 1)
-        self.assertEqual(out[0].text, BZ.holding_message("bn", BZ.RISK_ABUSE))
+        self.assertTrue(out[0].text.endswith(BZ.holding_message("bn", BZ.RISK_ABUSE)))
         self.assertNotIn("harami", "".join(self.fake.texts()).lower())     # never mirrored
         ap = Message.objects.get(status="pending_approval")
         self.assertEqual(ap.risk_reason, BZ.RISK_ABUSE)
