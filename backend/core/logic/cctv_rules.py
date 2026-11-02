@@ -55,6 +55,7 @@ LOITER_NEED_S = 120       # owner order: loitering > 2 min at night
 NIGHT_DEFAULT = {"start": "22:00", "end": "06:00"}
 HEALTH_REFIRE_S = 6 * 3600   # the same camera-health problem: at most every 6 h
 MOVED_MIN_GAP_S = 120
+BAD_PERSIST_S = 60        # dark / covered must last >= 1 min (not a flicker)
 SD_CHECK_EVERY_S = 6 * 3600
 
 # support levels: yes = the vendor reports it; some = only some models;
@@ -386,7 +387,8 @@ def still_kind(mean, std):
 
 def assess_still(state, grid, mean, std, ir, ts):
     """One still (8x8 luminance grid, mean, std, ir=grey night picture) ->
-    (new_state, kind or None). Two bad stills in a row for dark/covered;
+    (new_state, kind or None). dark/covered: bad stills in a row spanning
+    >= BAD_PERSIST_S (a light flicker or the IR switch-over is not a problem);
     moved = two stills >= MOVED_MIN_GAP_S apart that match EACH OTHER
     (corr >= 0.7) but not the remembered scene (corr < 0.35) — a person
     walking through never does that. Day and IR scenes are remembered
@@ -395,10 +397,14 @@ def assess_still(state, grid, mean, std, ir, ts):
     kind = still_kind(mean, std)
     if kind:
         prev = st.get("bad")
-        st["bad"] = {"kind": kind, "ts": ts}
         st.pop("pending", None)
-        if prev and prev.get("kind") == kind and ts > float(prev.get("ts") or 0):
-            return st, kind
+        if prev and prev.get("kind") == kind:
+            first = float(prev.get("ts") or ts)
+            if ts - first >= BAD_PERSIST_S:
+                st["bad"] = {"kind": kind, "ts": ts}
+                return st, kind
+            return st, None              # keep the FIRST bad time
+        st["bad"] = {"kind": kind, "ts": ts}
         return st, None
     st.pop("bad", None)
     key = "ref_ir" if ir else "ref_day"

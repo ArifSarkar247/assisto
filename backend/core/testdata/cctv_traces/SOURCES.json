@@ -10,5 +10,15 @@
  "imou_callback_aiper.json": "Imou newer AI PTZ firmware: person alarm reported as msgType e_multiVideoAiPerArea",
  "imou_callback_status_online.json": "Imou callback status message (online) - not an alarm",
  "imou_callback_foreign_pic.json": "Imou alarm whose picture sits on a host outside our SSRF allow-list (hypothetical object-storage host) - must be refused and reported, not downloaded",
- "ezviz_alarm_device_list.json": "EZVIZ Open Platform POST /api/lapp/alarm/device/list response (page/data/code/msg; alarmId, alarmType, alarmTime ms, channelNo, isEncrypt, alarmPicUrl, deviceSerial)"
+ "ezviz_alarm_device_list.json": "EZVIZ Open Platform POST /api/lapp/alarm/device/list response (page/data/code/msg; alarmId, alarmType, alarmTime ms, channelNo, isEncrypt, alarmPicUrl, deviceSerial)",
+ "hik_scenechangedetection_ver20.xml": "Hikvision ISAPI eventType scenechangedetection (Scene Change Detection: the camera was moved / turned), same EventNotificationAlert ver20 envelope",
+ "hik_audioexception_ver20.xml": "Hikvision ISAPI eventType audioexception (Audio Exception Detection: sudden rise of sound intensity)",
+ "hik_diskerror_ver20.xml": "Hikvision ISAPI exception event diskerror (HDD / SD card error) posted to the alarm host",
+ "hik_linedetection_vehicle_ver20.xml": "Hikvision ISAPI linedetection with AcuSense detectionTarget vehicle (human/vehicle filter firmware)",
+ "dahua_wanderdetection_data.txt": "Dahua HTTP API eventManager attach: IVS WanderDetection (loitering rule) with the data={...} Object block (ObjectType Human)",
+ "dahua_health_sound_text.txt": "Dahua HTTP API eventManager text form, three codes from the public event list: StorageFailure, AudioMutation (sudden sound), SceneChange",
+ "imou_callback_sdcard_abnormal.json": "Imou Open Platform callback for an SD-card status change (msgType sdcardStatus); the status field name/value is our assumption - replace with the owner's real capture",
+ "imou_callback_vehicle_hypothetical.json": "HYPOTHETICAL Imou vehicle alarm following the e_multiVideoAi*Area naming of imou_callback_aiper.json - not documented publicly; replace with a real capture",
+ "ezviz_alarm_types.json": "EZVIZ Open Platform alarm/device/list rows with numeric alarmType codes from the public EZVIZ/Ys7 alarm-type table (10011 cover, 10013 line crossing, 10020 scene change, 10022 audio exception, 10027 loitering) plus text types; NOT verified on a real EZVIZ camera",
+ "ezviz_storage_status.json": "EZVIZ Open Platform /api/lapp/device/format/status response (storage medium status: 0 normal, 1 error, 2 not formatted, 3 formatting); NOT verified on a real EZVIZ camera"
 }

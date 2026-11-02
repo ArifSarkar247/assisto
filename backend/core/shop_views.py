@@ -536,11 +536,21 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     # bump that alert's count instead of a new alert + push.
     if cam is not None:
         since = now - timedelta(minutes=watchman_cfg("watchman_group_min", 10))
-        prev = (ShopEvent.objects.filter(camera=cam, type=decision["type"],
-                                         status="open")
-                .filter(models_Q(last_at__gte=since) |
-                        models_Q(last_at__isnull=True, created__gte=since))
-                .order_by("-created").first())
+        prev_qs = (ShopEvent.objects.filter(camera=cam, type=decision["type"],
+                                            status="open")
+                   .filter(models_Q(last_at__gte=since) |
+                           models_Q(last_at__isnull=True, created__gte=since))
+                   .order_by("-created"))
+        # cctvalerts: a "covered" alarm never hides inside an open "line"
+        # alert of the same type — group only alerts about the same kind
+        kind = (cam_event.get("signals") or {}).get("kind")
+        prev = None
+        for cand in prev_qs[:5]:
+            ck = (((cand.signals or {}).get("inputs") or {}).get("kind")
+                  if isinstance(cand.signals, dict) else None)
+            if ck == kind or (not kind and not ck):
+                prev = cand
+                break
         if prev is not None:
             ShopEvent.objects.filter(pk=prev.pk).update(
                 count=F_("count") + 1, last_at=now,
@@ -838,7 +848,9 @@ class ShopCameraHookView(APIView):
             if mapped is None:
                 continue
             etype, signals = mapped
-            recent = ShopEvent.objects.filter(
+            # cctvalerts: camera-health kinds are rate-limited per kind (6 h)
+            # in cctv_alerts.prepare — a scene change must not hide an SD error
+            recent = etype != "camera_health" and ShopEvent.objects.filter(
                 camera=cam, type__in=(etype, "after_hours", "motion"),
                 created__gte=now - timedelta(seconds=HOOK_DEDUPE_S)).exists()
             if recent:

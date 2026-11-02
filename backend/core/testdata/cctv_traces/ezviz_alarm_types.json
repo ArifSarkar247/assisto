@@ -1,0 +1,11 @@
+{"page": {"total": 7, "page": 0, "size": 10},
+ "data": [
+  {"alarmId": "t-1", "alarmName": "C8C(BD7654321)", "alarmType": 10011, "alarmTime": 1793727001000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-2", "alarmName": "C8C(BD7654321)", "alarmType": 10013, "alarmTime": 1793727002000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-3", "alarmName": "C8C(BD7654321)", "alarmType": 10020, "alarmTime": 1793727003000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-4", "alarmName": "C8C(BD7654321)", "alarmType": 10022, "alarmTime": 1793727004000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-5", "alarmName": "C8C(BD7654321)", "alarmType": 10027, "alarmTime": 1793727005000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-6", "alarmName": "Car park cam", "alarmType": "vehicle detection", "alarmTime": 1793727006000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""},
+  {"alarmId": "t-7", "alarmName": "C8C(BD7654321)", "alarmType": "pet detection", "alarmTime": 1793727007000, "channelNo": 1, "isEncrypt": 1, "deviceSerial": "BD7654321", "alarmPicUrl": ""}
+ ],
+ "code": "200", "msg": "Operation succeeded!"}
