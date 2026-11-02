@@ -24,6 +24,7 @@ Map<String, dynamic> fakeBloodMe({required bool bn, bool donor = true}) => donor
         'district_name': bn ? 'ঢাকা' : 'Dhaka', 'area_text': bn ? 'মিরপুর ১০' : 'Mirpur 10',
         'has_point': true, 'phone_public': false, 'email_public': false, 'verified': true,
         'verification': 'approved', 'eligible': true, 'next_date': _day(-20), 'interval_days': 120,
+        'details_checked': _day(-30), 'details_stale': false, // finish1
       }
     : {'enabled': false, 'consented': false};
 
@@ -126,3 +127,26 @@ Map<String, dynamic>? fakeBloodPost(String path, {required bool bn}) {
   }
   return {'ok': true, '_status': 200};
 }
+
+/// finish1: what the banks screen looks like AFTER the owner imports an
+/// official list. Gallery only — clearly labelled examples, never shipped.
+Map<String, dynamic> fakeBloodBanksExample(bool bn) => {
+      'source': {
+        'name': bn ? 'উদাহরণ তালিকা (পরীক্ষা)' : 'Example list (test)',
+        'url': 'https://example.gov.bd/blood',
+        'date': '2026-10-01',
+      },
+      'source_pending': false,
+      'districts': _districts(bn),
+      'total': 2,
+      'banks': [
+        {'name': bn ? 'উদাহরণ ব্লাড ব্যাংক ১' : 'Example blood bank 1', 'district': 'dhaka',
+          'district_name': bn ? 'ঢাকা' : 'Dhaka', 'area': bn ? 'শাহবাগ' : 'Shahbag',
+          'address': bn ? 'উদাহরণ সড়ক ১' : 'Example road 1', 'hours': bn ? '২৪ ঘণ্টা' : '24 hours',
+          'phone': '01700-000001', 'km': 2.4, 'km_from_district': false},
+        {'name': bn ? 'উদাহরণ ব্লাড ব্যাংক ২' : 'Example blood bank 2', 'district': 'chattogram',
+          'district_name': bn ? 'চট্টগ্রাম' : 'Chattogram', 'area': '',
+          'address': bn ? 'উদাহরণ সড়ক ২' : 'Example road 2', 'hours': '', 'phone': '',
+          'km': 214.0, 'km_from_district': true},
+      ],
+    };

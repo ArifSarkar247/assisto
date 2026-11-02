@@ -678,7 +678,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'blood_request_form': (build: (l) => BloodRequestFormScreen(config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
     'blood_setup': (build: (l) => BloodDonorSetupScreen(initial: const {'district': 'dhaka'}, config: fakeBloodGet('/blood-panel/config', bn: l == 'bn', empty: false)!), mode: FakeMode.data, full: true),
     'blood_thread': (build: (_) => const BloodThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
-    'blood_banks': (build: (_) => const BloodBanksScreen(), mode: FakeMode.data, full: true),
+    'blood_banks': (build: (_) {
+      bloodBanksLoaderOverride = null; // finish1: the real fake path (source pending)
+      return const BloodBanksScreen();
+    }, mode: FakeMode.data, full: true),
+    // finish1: after the owner imports an official list (example rows, gallery only)
+    'blood_banks_list': (build: (l) {
+      bloodBanksLoaderOverride = (_) async => fakeBloodBanksExample(l == 'bn');
+      return const BloodBanksScreen();
+    }, mode: FakeMode.data, full: true),
     'blood_verify': (build: (_) => const BloodVerifyScreen(), mode: FakeMode.data, full: true),
     // kidaudio (owner 2 Nov): Child emergency audio — parent + child cards + log, empty, error.
     'kid_audio': (build: (_) => const KidAudioScreen(), mode: FakeMode.data, full: true),

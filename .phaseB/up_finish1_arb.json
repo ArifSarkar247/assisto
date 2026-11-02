@@ -1,0 +1,94 @@
+{
+  "_comment": "finish1 (2 Nov): My Circle chip guardians, blood banks list, donor push-area honesty. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_finish1_arb.json",
+  "en": {
+    "cgaSrcChip": "Bag / shoe tracker",
+    "cgaChipOnlyOwner": "The tracker was set up by {name} — only they can change who sees it.",
+    "@cgaChipOnlyOwner": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "cgaRemovedButChip": "{name} was removed. The bag tracker stays — ask {owner} to change it.",
+    "@cgaRemovedButChip": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "owner": {
+          "type": "String"
+        }
+      }
+    },
+    "bpBanksCallFirst": "Lists can be out of date. Call before you go.",
+    "bpBanksOpenSource": "Open the source",
+    "bpBanksAllDistricts": "All districts",
+    "bpBanksSearch": "Search by name or area",
+    "bpBanksNearMe": "Near me",
+    "bpBanksCount": "{count} blood banks",
+    "@bpBanksCount": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        }
+      }
+    },
+    "bpBanksNoMatch": "No blood bank in this list matches.",
+    "bpBanksShowAll": "Show all",
+    "bpBanksKm": "{km} km away",
+    "@bpBanksKm": {
+      "placeholders": {
+        "km": {
+          "type": "String"
+        }
+      }
+    },
+    "bpBanksKmDistrict": "About {km} km (from the district centre)",
+    "@bpBanksKmDistrict": {
+      "placeholders": {
+        "km": {
+          "type": "String"
+        }
+      }
+    },
+    "bpPushAreaTitle": "Urgent requests reach you for",
+    "bpPushAreaPoint": "Around the point you saved (about 1 km).",
+    "bpPushAreaHonest": "We use the area you saved — not where your phone is now. If you move, update it.",
+    "bpPushAreaStale": "Last checked {date}. Are you still in this area?",
+    "@bpPushAreaStale": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "bpPushAreaStill": "Yes, still here",
+    "bpPushAreaUpdate": "Update area",
+    "bpPushAreaKept": "Thanks — your area is kept.",
+    "bpReachHonest": "Donors are matched by the area they saved, not by where their phone is right now."
+  },
+  "bn": {
+    "cgaSrcChip": "ব্যাগ / জুতার ট্র্যাকার",
+    "cgaChipOnlyOwner": "ট্র্যাকারটা {name} চালু করেছেন — কে দেখবেন, শুধু তিনিই বদলাতে পারেন।",
+    "cgaRemovedButChip": "{name}-কে সরানো হয়েছে। ব্যাগের ট্র্যাকারটা থাকছে — বদলাতে {owner}-কে বলুন।",
+    "bpBanksCallFirst": "তালিকা পুরনো হতে পারে। যাওয়ার আগে ফোন করে নিন।",
+    "bpBanksOpenSource": "উৎস খুলুন",
+    "bpBanksAllDistricts": "সব জেলা",
+    "bpBanksSearch": "নাম বা এলাকা দিয়ে খুঁজুন",
+    "bpBanksNearMe": "আমার কাছে",
+    "bpBanksCount": "{count}টি ব্লাড ব্যাংক",
+    "bpBanksNoMatch": "এই তালিকায় মেলে এমন কোনো ব্লাড ব্যাংক নেই।",
+    "bpBanksShowAll": "সব দেখুন",
+    "bpBanksKm": "{km} কিমি দূরে",
+    "bpBanksKmDistrict": "প্রায় {km} কিমি (জেলা-কেন্দ্র থেকে)",
+    "bpPushAreaTitle": "জরুরি অনুরোধ আপনার কাছে আসে এই এলাকার জন্য",
+    "bpPushAreaPoint": "আপনার রাখা বিন্দুর আশেপাশে (প্রায় ১ কিমি)।",
+    "bpPushAreaHonest": "আমরা আপনার রাখা এলাকা ধরি — ফোন এখন কোথায় তা নয়। অন্য জায়গায় গেলে এলাকা বদলে দিন।",
+    "bpPushAreaStale": "শেষ দেখা হয়েছে {date}। আপনি কি এখনো এই এলাকায় আছেন?",
+    "bpPushAreaStill": "হ্যাঁ, এখানেই আছি",
+    "bpPushAreaUpdate": "এলাকা বদলান",
+    "bpPushAreaKept": "ধন্যবাদ — আপনার এলাকা রাখা হলো।",
+    "bpReachHonest": "দাতাদের মেলানো হয় তাঁদের রাখা এলাকা ধরে, ফোন এখন কোথায় তা ধরে নয়।"
+  }
+}
