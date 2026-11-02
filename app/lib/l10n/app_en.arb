@@ -34507,5 +34507,52 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "cxatEntry": "Alert types",
+  "cxatEntrySub": "Person, vehicle, animal, line, loitering, covered camera, SD card, sound",
+  "cxatTitle": "Alert types — {name}",
+  "@cxatTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatIntro": "Choose which alerts this camera sends you. Where the camera cannot report something, it says “Not on this camera” — we never pretend.",
+  "cxatSeenHead": "What was seen",
+  "cxatHealthHead": "Camera health",
+  "cxatNight": "Night for loitering: {text} ({start}–{end})",
+  "@cxatNight": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatLineToday": "Line crossings today: {total} (A → B {ab}, B → A {ba})",
+  "@cxatLineToday": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "ab": {
+        "type": "String"
+      },
+      "ba": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatNoAi": "No AI looks at your pictures here — alerts come from the camera itself and Assisto's own simple rules.",
+  "cxatLoadFailed": "Could not load the alert types. Check the internet and try again.",
+  "cxatSaveFailed": "Could not save. Check the internet and try again.",
+  "cxatRetry": "Try again",
+  "cxatEvLoiter": "Someone stayed over 2 minutes at night",
+  "cxatEvHealth": "Camera problem"
 }
