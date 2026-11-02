@@ -1,0 +1,65 @@
+# ownershots (adminsafe, owner 3 Nov): Bangla (+ a few English) screenshots of
+# the Owner Admin Users / user detail / Appeals / Staff / reports pages in a
+# THROWAWAY CI database with fictional people, signed in with password + TOTP
+# by headless Chromium. Artifact: owner-admin-shots. Never deploys anything,
+# never touches the live server.
+name: ownershots
+
+on:
+  push:
+    branches: ['ci/adminsafe*']
+  workflow_dispatch:
+
+concurrency:
+  group: ownershots-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PW_VERSION: 1.48.2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m pip install -q -r backend/requirements.txt
+      - name: seed a throwaway database and start the server
+        run: |
+          set -e
+          cp tools/website/ci_settings.py backend/assisto_backend/settings_webci.py
+          cp tools/owner_shots/settings_ownershots.py backend/assisto_backend/settings_ownershots.py
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          export WEBCI_DB=$RUNNER_TEMP/owner.sqlite3 SHOTS_SEED_OUT=$RUNNER_TEMP/seed.json
+          cd backend
+          python manage.py migrate -v0 --settings=assisto_backend.settings_ownershots --noinput
+          python manage.py shell --settings=assisto_backend.settings_ownershots -c "exec(open('../tools/owner_shots/seed.py').read())"
+          nohup python manage.py runserver 127.0.0.1:8000 --noreload --insecure \
+            --settings=assisto_backend.settings_ownershots > "$RUNNER_TEMP/server.log" 2>&1 &
+          for i in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:8000/owner/login && break; sleep 1; done
+      - name: screenshots
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null && npm i -s playwright@$PW_VERSION
+          npx -y playwright@$PW_VERSION install --with-deps chromium >/dev/null
+          cp "$GITHUB_WORKSPACE/tools/owner_shots/shots.mjs" .
+          node shots.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots" "$RUNNER_TEMP/seed.json"
+      - name: server log on failure
+        if: failure()
+        run: tail -80 "$RUNNER_TEMP/server.log" || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owner-admin-shots
+          path: ${{ runner.temp }}/shots
