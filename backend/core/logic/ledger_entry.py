@@ -116,6 +116,12 @@ def validate(data, today, lock_date=None):
         if vat is None or vat < 0 or vat >= amount:
             return None, "bad_vat"
         out["vat"] = vat
+    if kind == "purchase":
+        # ledger2: Mushak-6.1 purchase register — the supplier's BIN and the
+        # bill (challan) number, both optional, typed by the owner
+        out["bill_no"] = str(data.get("bill_no") or "").strip()[:40]
+        out["supplier_bin"] = "".join(
+            c for c in str(data.get("supplier_bin") or "") if c.isdigit() or c == "-")[:20]
     if kind in ("sale", "due"):
         cost = _int(data.get("cost") or 0)
         if cost is None or cost < 0 or cost > MAX_AMOUNT:
@@ -211,46 +217,9 @@ def post_entry(e, linked=None):
     return L.make_entry("acct:%s" % e["client_id"], day, lines_for(e, amount), memo(e))
 
 
-# --------------------------------------------------------------------------
-# VAT detail (the core's summary nets VAT PAID to NBR into output VAT; this
-# one keeps it apart). `entry_lines`: [{entry, date, account, debit, credit}]
-# — one per journal line (reversals included: they net out in a period).
-# --------------------------------------------------------------------------
-def vat_summary(entry_lines, start, end):
-    """Output VAT (on sales — Mushak-6.3 invoices), input VAT (purchases),
-    VAT paid to NBR, net payable for the period. A summary for the owner and
-    the accountant; NOT a filed return (Mushak-9.1 is filed by the owner)."""
-    out_vat = in_vat = paid = sd = 0
-    taxable_sales = taxable_purchases = 0
-    n_sales = n_purchases = 0
-    by_entry = {}
-    for l in entry_lines:
-        if start <= l["date"] <= end:
-            by_entry.setdefault(l["entry"], []).append(l)
-    for ls in by_entry.values():
-        ov = sum(int(x["credit"]) - int(x["debit"]) for x in ls if x["account"] == OUTPUT_VAT)
-        iv = sum(int(x["debit"]) - int(x["credit"]) for x in ls if x["account"] == INPUT_VAT)
-        other = [x for x in ls if x["account"] not in CASH_CODES]
-        if other and all(x["account"] in (OUTPUT_VAT, SD) for x in other):
-            paid -= sum(int(x["credit"]) - int(x["debit"]) for x in other)
-            continue                   # paid to NBR (its reversal subtracts it again)
-        sd += sum(int(x["credit"]) - int(x["debit"]) for x in ls if x["account"] == SD)
-        if ov:
-            out_vat += ov
-            n_sales += 1 if ov > 0 else -1
-            taxable_sales += sum(int(x["credit"]) - int(x["debit"]) for x in ls
-                                 if L.ACC[x["account"]]["group"] == "sales")
-        if iv:
-            in_vat += iv
-            n_purchases += 1 if iv > 0 else -1
-            taxable_purchases += sum(int(x["debit"]) - int(x["credit"]) for x in ls
-                                     if x["account"] == L.INVENTORY)
-    return {"from": str(start), "to": str(end),
-            "output_vat": out_vat, "output_sd": sd, "input_vat": in_vat,
-            "net_payable": out_vat + sd - in_vat, "paid": paid,
-            "still_due": out_vat + sd - in_vat - paid,
-            "taxable_sales": taxable_sales, "taxable_purchases": taxable_purchases,
-            "sale_invoices": n_sales, "purchase_bills": n_purchases}
+# VAT detail: ledger2 made the CORE's summary keep VAT paid to NBR apart
+# (output / input / paid / payable) — one source of truth, this is an alias.
+vat_summary = L.vat_summary
 
 
 def period_range(kind, today, offset=0):

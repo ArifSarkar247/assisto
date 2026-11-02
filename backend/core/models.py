@@ -2167,6 +2167,9 @@ class KhataEntry(models.Model):
     client_id = models.CharField(max_length=64, blank=True, default="")
     version = models.PositiveIntegerField(default=1)
     edited_at = models.DateTimeField(null=True, blank=True)
+    # ledger2: how the money moved (cash | bkash | nagad | bank) so the books
+    # post to the right money account. '' = not picked (older rows) = cash.
+    method = models.CharField(max_length=8, blank=True, default="")
 
     class Meta:
         ordering = ["at", "id"]

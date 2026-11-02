@@ -93,10 +93,12 @@ extension BusinessKhataApi on ApiClient {
     bool notifyCustomer = false,
     String? clientId,
     int? businessId,
+    String method = '',
   }) =>
       postJson('/business/khata/parties/$partyId/entries', {
         if (businessId != null && businessId > 0) 'business': businessId,
         if (clientId != null) 'client_id': clientId,
+        if (method.isNotEmpty) 'method': method,
         'direction': direction,
         'amount': amountPoisha,
         'note': note,
@@ -113,10 +115,13 @@ extension BusinessKhataApi on ApiClient {
     String? atIso,
     String? clientId,
     int? businessId,
+    String method = '',
   }) =>
       postJson('/business/khata/parties/$partyId/payment', {
         if (businessId != null && businessId > 0) 'business': businessId,
         if (clientId != null) 'client_id': clientId,
+        // ledger2: how the money moved (cash | bkash | nagad | bank)
+        if (method.isNotEmpty) 'method': method,
         'amount': amountPoisha,
         'note': note,
         if (atIso != null) 'at': atIso,
@@ -193,6 +198,7 @@ extension BusinessKhataApi on ApiClient {
     int? amountPoisha,
     String? note,
     String? atIso,
+    String? method,
   }) =>
       postJson('/business/khata/entries/$entryId', {
         'business': businessId,
@@ -200,6 +206,7 @@ extension BusinessKhataApi on ApiClient {
         if (amountPoisha != null) 'amount': amountPoisha,
         if (note != null) 'note': note,
         if (atIso != null) 'at': atIso,
+        if (method != null && method.isNotEmpty) 'method': method,
       });
 
   /// ledger100: DELETE tagada/schedule/<id>.

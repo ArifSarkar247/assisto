@@ -17,6 +17,7 @@ import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import 'acct_common.dart';
 import 'acct_entry_screen.dart';
+import 'acct_ledger2.dart';
 import 'acct_report_model.dart';
 import 'acct_report_pdf.dart';
 import 'mini_xlsx.dart';
@@ -65,7 +66,14 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     final biz = widget.businessId;
     switch (report) {
       case 'pl':
-        return _api.booksProfitLoss(biz, from: from, to: to);
+        final pl = await _api.booksProfitLoss(biz, from: from, to: to);
+        try {
+          // ledger2: sales sold at cost price 0 overstate profit — say so
+          final gaps = await _api.acctCostGaps(biz, from: from, to: to);
+          return {...pl, 'cost_gaps': gaps};
+        } catch (_) {
+          return pl; // the warning is extra; the report stands alone
+        }
       case 'bs':
         return _api.acctBalanceSheetAsOf(biz, to);
       case 'tb':
@@ -73,14 +81,9 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
       case 'cf':
         return _api.booksCashFlow(biz, from: from, to: to);
       default:
-        // acctui detail (VAT paid kept apart) + the core's sales register
-        final v = await _api.acctVat(biz, from: from, to: to);
-        try {
-          final core = await _api.booksVat(biz, from: from, to: to);
-          return {...v, 'register': core['register'] ?? const [], 'vat_ready': core['vat_ready']};
-        } catch (_) {
-          return v; // the register is extra; the summary stands alone
-        }
+        // ledger2: ONE source — the core's VAT summary keeps output / input /
+        // paid / payable apart and carries both registers (6.1 + 6.2)
+        return _api.booksVat(biz, from: from, to: to);
     }
   }
 
@@ -266,8 +269,35 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     if (d == null) return const [];
     final r = _build(_report, d, _period);
     final empty = !r.rows.any((x) => (x.amount ?? 0) != 0 || (x.debit ?? 0) != 0 || (x.credit ?? 0) != 0);
+    final gaps = d['cost_gaps'];
     return [
       Text(r.period, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      if (r.id == 'pl' && gaps is Map)
+        AcctCostGapBanner(
+            gaps: gaps,
+            businessId: widget.businessId,
+            onFixed: () {
+              _cache.clear();
+              _load();
+            }),
+      if (r.id == 'vat')
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const ValueKey('acct-vat-rates'),
+            style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
+            onPressed: () async {
+              final changed = await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AcctVatRatesScreen(businessId: widget.businessId)));
+              if (changed == true && mounted) {
+                _cache.clear();
+                _load();
+              }
+            },
+            icon: const Icon(Icons.percent_rounded),
+            label: Text(t.lg2VatRatesTitle),
+          ),
+        ),
       if (r.balanced != null) _balanced(t, r.balanced!, cashFlow: r.id == 'cf'),
       if (empty) _empty(t) else ...r.rows.map((x) => _row(r, x)),
       if (r.footnote != null && !empty) ...[

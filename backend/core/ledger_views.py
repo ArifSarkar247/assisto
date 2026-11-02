@@ -254,7 +254,7 @@ class BooksCashFlowView(_Books):
         start, end = _range(request)
         if start > end:
             return _err(request, "bad_date")
-        cf = L.cash_flow(S.report_lines(prof, end), start, end)
+        cf = L.cash_flow(S.report_lines(prof, end, closing=False), start, end)
         lang = _lang(request)
         for a in cf["adjustments"]:
             a["name"] = a["name"][lang]
@@ -274,10 +274,14 @@ class BooksVatView(_Books):
         start, end = _range(request)
         if start > end:
             return _err(request, "bad_date")
-        v = L.vat_summary(S.report_lines(prof, end), start, end)
+        v = L.vat_summary(S.entry_lines(prof, end), start, end)
         b = LedgerBook.objects.filter(business=prof).first()
         periods = (b.vat_periods if b else []) or []
         v["register"] = S.invoice_register(prof, start, end, periods)
+        v["exempt_sales"] = sum(r.get("exempt") or 0 for r in v["register"])
+        from .ledger2_service import purchase_register
+        v["purchase_register"] = purchase_register(prof, start, end)
+        v["shop"] = prof.shop_name
         v["vat_ready"] = any(not p.get("to") for p in periods)
         v["vat_periods"] = periods
         v["book"] = _book_meta(prof)
@@ -306,7 +310,7 @@ class BooksProfitLossView(_Books):
         start, end = _range(request)
         if start > end:
             return _err(request, "bad_date")
-        pl = L.profit_and_loss(S.report_lines(prof, end), start, end)
+        pl = L.profit_and_loss(S.report_lines(prof, end, closing=False), start, end)
         lang = _lang(request)
         for k in ("sales", "discounts", "cogs", "operating_expenses", "other_income"):
             _named(pl[k], lang)

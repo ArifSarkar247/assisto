@@ -109,11 +109,27 @@ net_change, opening_cash, closing_cash, reconciles, book}` — cash = 1010 +
 `{from, to, output_vat, output_sd, input_vat, net_payable, sales_taxable,
 register: [{number, date, buyer, buyer_bin, taxable, sd, vat, total,
 source: invoice|sale}], vat_ready, vat_periods: [{from, to|null, vat_bp, sd_bp}], book}`
-`input_vat` is 0 until purchases carry VAT (Phase 3). — `register` is the Mushak-6.2
+ledger2 ADDED: `paid` (VAT deposited to NBR — an entry whose only non-money
+lines are 2100/2110), `still_due` = net_payable − paid, `taxable_sales`,
+`taxable_purchases`, `sale_invoices`, `purchase_bills`, `exempt_sales`,
+`purchase_register: [{date, supplier, supplier_bin, bill_no, value, vat, total,
+on_credit}]` (Mushak-6.1 data from purchase entries), register rows `exempt`.
+FIXED: `output_vat` no longer has VAT paid subtracted (it was netted before).
+`business/acct/vat` returns the same numbers (alias). — `register` is the Mushak-6.2
 style sales register built from invoices (Mushak-6.3 data). Rates come from the
 shop's invoice settings, never hard-coded. Legal basis: VAT & SD Act 2012 and
 VAT & SD Rules 2016 (NBR, nbr.gov.bd / vat.gov.bd): Mushak-6.3 tax invoice
 (rule 40), 6.1 purchase / 6.2 sales register, 9.1 monthly return.
+
+## ledger2 (phase 2)
+- khata entries carry `method` (cash|bkash|nagad|bank, '' = cash for old rows);
+  invoices' `payment_method` may be `bank` too.
+- per-product VAT: `business/acct/vat-rates` (exempt — VAT Act 2012 First
+  Schedule; reduced — rate the owner types from the Third Schedule), dated
+  history; only sales on/after `from` change.
+- `reclass:<cash_id>` entries (cashbox rows classified out of 2900 Suspense).
+- `yearclose:<end>` entries are the owner's (sync never touches them, like
+  `manual:`); P&L and cash flow leave them out, balance sheet / TB include them.
 
 ## Stability
 Field names above are frozen for acctui. New fields may be ADDED; nothing is

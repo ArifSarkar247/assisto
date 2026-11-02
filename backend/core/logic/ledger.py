@@ -104,7 +104,15 @@ CASH_CODES = ("1010", "1020", "1030", "1040")
 OPENING_EQ, RETAINED = "3030", "3100"
 SALES_POS, SALES_KHATA, DISCOUNT = "4010", "4020", "4050"
 COGS, OTHER_EXP = "5010", "6900"
-METHOD_ACCOUNT = {"cash": CASH, "bkash": BKASH, "nagad": NAGAD, "due": CASH}
+METHOD_ACCOUNT = {"cash": CASH, "bkash": BKASH, "nagad": NAGAD, "bank": BANK,
+                  "due": CASH}
+# ledger2: the money account a khata payment / invoice payment moved through.
+# '' (rows written before the picker existed) = cash, never re-guessed.
+PAY_METHODS = ("cash", "bkash", "nagad", "bank")
+
+
+def money_account(method):
+    return METHOD_ACCOUNT.get(method or "cash", CASH)
 
 # expense category -> account (keywords, bn + en, lower-case substring match)
 EXPENSE_KEYWORDS = (
@@ -233,7 +241,10 @@ def post_sale(s):
     cogs = max(int(s.get("cogs") or 0), 0)
     party = s.get("customer") or ""
     method = METHOD_ACCOUNT.get(s.get("payment_method") or "cash", CASH)
-    taxable, sd, vat = inclusive_tax(total, s.get("vat_bp"), s.get("sd_bp"))
+    if s.get("tax"):               # ledger2: per-product rates (sale_tax)
+        taxable, sd, vat = s["tax"][:3]
+    else:
+        taxable, sd, vat = inclusive_tax(total, s.get("vat_bp"), s.get("sd_bp"))
     lines = [line(method, debit=total - due),
              line(AR, debit=due, party=party),
              line(DISCOUNT, debit=disc),
@@ -278,13 +289,15 @@ def post_khata(k):
         lines = [line(AR, debit=amt, party=p), line(SALES_KHATA, credit=amt)]
         memo = _m("খাতায় বাকি — %s" % p, "Credit sale (khata) — %s" % p)
     elif book == "customer":
-        lines = [line(CASH, debit=amt), line(AR, credit=amt, party=p)]
+        lines = [line(money_account(k.get("method")), debit=amt),
+                 line(AR, credit=amt, party=p)]
         memo = _m("বাকি আদায় — %s" % p, "Due collected — %s" % p)
     elif d == "got":
         lines = [line(INVENTORY, debit=amt), line(AP, credit=amt, party=p)]
         memo = _m("সাপ্লায়ার থেকে মাল — %s" % p, "Goods from supplier — %s" % p)
     else:
-        lines = [line(AP, debit=amt, party=p), line(CASH, credit=amt)]
+        lines = [line(AP, debit=amt, party=p),
+                 line(money_account(k.get("method")), credit=amt)]
         memo = _m("সাপ্লায়ারকে টাকা — %s" % p, "Paid supplier — %s" % p)
     return make_entry("khata:%s" % k["id"], k["date"], lines, memo)
 
@@ -331,7 +344,7 @@ def post_invoice(inv):
     sd, vat = max(int(inv.get("sd") or 0), 0), max(int(inv.get("vat") or 0), 0)
     paid = min(max(int(inv.get("paid") or 0), 0), total)
     buyer = inv.get("buyer") or ""
-    method = METHOD_ACCOUNT.get(inv.get("payment_method") or "cash", CASH)
+    method = money_account(inv.get("payment_method"))
     no = inv.get("number") or inv["id"]
     return make_entry("invoice:%s" % inv["id"], inv["date"],
                       [line(method, debit=paid), line(AR, debit=total - paid, party=buyer),
@@ -454,6 +467,9 @@ def desired_postings(sales=(), khata=(), expenses=(), cash=(), opening=None,
 # --------------------------------------------------------------------------
 # sync plan
 # --------------------------------------------------------------------------
+OWNER_KEYS = ("manual:", "yearclose:")
+
+
 def open_day(day, lock_date):
     """The posting date: `day`, or the first day after the lock date."""
     if lock_date and day <= lock_date:
@@ -467,8 +483,9 @@ def plan_sync(desired, active, lock_date=None):
     Returns {'post': [posting], 'reverse': [{id, date, lines, source_key}],
     'unchanged': n}. Every posting date respects the lock date."""
     post, reverse, same = [], [], 0
-    # the owner's manual entries are not sync-owned: never reversed here
-    active = {k: v for k, v in active.items() if not k.startswith("manual:")}
+    # the owner's manual entries and year-end closings are not sync-owned:
+    # never reversed here
+    active = {k: v for k, v in active.items() if not k.startswith(OWNER_KEYS)}
     for key, act in active.items():
         want = desired.get(key)
         if want is not None and want["fingerprint"] == act["fingerprint"]:
@@ -632,15 +649,141 @@ def cash_flow(lines, start=None, end=None):
             "reconciles": opening + net == closing}
 
 
-def vat_summary(lines, start=None, end=None):
-    """Output VAT / SD / input VAT from the books for a period (Mushak-9.1
-    support figures — NOT a filing)."""
-    b = balances(lines, start, end)
-    out_vat, sd, inp = -b.get(OUTPUT_VAT, 0), -b.get(SD_PAYABLE, 0), b.get(INPUT_VAT, 0)
-    pl = profit_and_loss(lines, start, end)
+def vat_summary(entry_lines, start=None, end=None):
+    """VAT for a period from the books (Mushak-9.1 SUPPORT figures — NOT a
+    filing). ledger2: four separate lines, never netted into each other:
+      output_vat  VAT on sales (Mushak-6.3 invoices; a void's reversal lowers it)
+      input_vat   VAT on purchases (rebate, Mushak-6.1)
+      paid        VAT deposited to NBR (treasury challan) in the period
+      net_payable output + SD − input;  still_due = net_payable − paid
+    entry_lines: [{entry, date, account, debit, credit}] — one per journal
+    line; an entry whose only non-money lines are Output VAT / SD is a payment
+    to NBR (its reversal un-pays it). Lines without 'entry' form one group."""
+    out_vat = in_vat = paid = sd = 0
+    taxable_sales = taxable_purchases = 0
+    n_sales = n_purchases = 0
+    by_entry = {}
+    for l in entry_lines:
+        if _in(l["date"], start, end):
+            by_entry.setdefault(l.get("entry"), []).append(l)
+
+    def net(ls, code, sign):
+        return sign * sum(int(x["debit"]) - int(x["credit"]) for x in ls
+                          if x["account"] == code)
+    for ls in by_entry.values():
+        other = [x for x in ls if x["account"] not in CASH_CODES]
+        if other and all(x["account"] in (OUTPUT_VAT, SD_PAYABLE) for x in other):
+            paid += sum(int(x["debit"]) - int(x["credit"]) for x in other)
+            continue
+        ov, iv = net(ls, OUTPUT_VAT, -1), net(ls, INPUT_VAT, 1)
+        sd += net(ls, SD_PAYABLE, -1)
+        if ov:
+            out_vat += ov
+            n_sales += 1 if ov > 0 else -1
+            taxable_sales += sum(int(x["credit"]) - int(x["debit"]) for x in ls
+                                 if ACC[x["account"]]["group"] == "sales")
+        if iv:
+            in_vat += iv
+            n_purchases += 1 if iv > 0 else -1
+            taxable_purchases += net(ls, INVENTORY, 1)
+    net_payable = out_vat + sd - in_vat
     return {"from": str(start) if start else None, "to": str(end) if end else None,
-            "output_vat": out_vat, "output_sd": sd, "input_vat": inp,
-            "net_payable": out_vat + sd - inp, "sales_taxable": pl["net_sales"]}
+            "output_vat": out_vat, "output_sd": sd, "input_vat": in_vat,
+            "net_payable": net_payable, "paid": paid,
+            "still_due": net_payable - paid,
+            "taxable_sales": taxable_sales, "sales_taxable": taxable_sales,
+            "taxable_purchases": taxable_purchases,
+            "sale_invoices": n_sales, "purchase_bills": n_purchases}
+
+
+# --------------------------------------------------------------------------
+# ledger2 — per-product VAT, cashbox reclass, year-end close
+# --------------------------------------------------------------------------
+VAT_STANDARD, VAT_EXEMPT, VAT_REDUCED = "standard", "exempt", "reduced"
+
+
+def product_rate_on(history, day):
+    """The product's VAT treatment on `day`: (mode, vat_bp) from its history
+    [{from, mode, vat_bp}] (latest 'from' <= day wins), else standard."""
+    d, best = str(day), None
+    for h in history or ():
+        if h.get("from") and h["from"] <= d and (best is None or h["from"] >= best["from"]):
+            best = h
+    if not best or best.get("mode") not in (VAT_EXEMPT, VAT_REDUCED):
+        return VAT_STANDARD, None
+    return best["mode"], max(int(best.get("vat_bp") or 0), 0)
+
+
+def sale_tax(total, lines, vat_bp, sd_bp, treatments):
+    """Split a VAT-inclusive sale total by each line's VAT treatment.
+    lines: [{product_id, amount}] (amount = qty × unit price, pre-discount);
+    treatments: {product_id: (mode, vat_bp)} for lines NOT at the shop rate.
+    The charged total (after discount) is shared pro rata over the lines.
+    Standard lines: shop VAT + SD; reduced: the owner's rate, shop SD; exempt:
+    no VAT, no SD. Returns (taxable, sd, vat, exempt_value); exact sums."""
+    total = max(int(total or 0), 0)
+    gross = sum(max(int(l.get("amount") or 0), 0) for l in lines)
+    if not lines or gross <= 0:
+        t, s_, v = inclusive_tax(total, vat_bp, sd_bp)
+        return t, s_, v, 0
+    taxable = sd = vat = exempt = 0
+    left = total
+    for i, l in enumerate(lines):
+        amt = max(int(l.get("amount") or 0), 0)
+        share = left if i == len(lines) - 1 else div_round(total * amt, gross)
+        share = min(share, left)
+        left -= share
+        mode, rbp = treatments.get(l.get("product_id"), (VAT_STANDARD, None))
+        if mode == VAT_EXEMPT:
+            exempt += share
+            taxable += share
+            continue
+        t, s_, v = inclusive_tax(share, rbp if mode == VAT_REDUCED else vat_bp, sd_bp)
+        taxable, sd, vat = taxable + t, sd + s_, vat + v
+    return taxable, sd, vat, exempt
+
+
+# cashbox reclass: what a manual drawer row really was (owner picks once)
+RECLASS_IN = ("4010", "4100", "3010", "2300")            # sale, other income, capital, loan
+RECLASS_OUT = tuple(c[0] for c in CHART if c[2] == "operating") + \
+    ("1200", "3020", "2300")                              # expenses, stock, drawings, loan repaid
+
+
+def post_reclass(c, code):
+    """Move a manual cashbox row out of Suspense into `code`.
+    c: {id, date, kind 'in'|'out', amount, note}. Raises ValueError('bad_code')."""
+    allowed = RECLASS_IN if c.get("kind") == "in" else RECLASS_OUT
+    if code not in allowed:
+        raise ValueError("bad_code")
+    amt = max(int(c.get("amount") or 0), 0)
+    if c.get("kind") == "in":
+        lines = [line(SUSPENSE, debit=amt), line(code, credit=amt)]
+    else:
+        lines = [line(code, debit=amt), line(SUSPENSE, credit=amt)]
+    name = ACC[code]["name"]
+    return make_entry("reclass:%s" % c["id"], c["date"], lines,
+                      _m("ক্যাশবক্সের টাকা শ্রেণীকরণ → %s" % name["bn"],
+                         "Cashbox row classified → %s" % name["en"]))
+
+
+def year_close(lines, end):
+    """Closing entry for the year ending `end`: every income / expense balance
+    (cumulative to `end`, earlier closings included, so only what is still
+    open) moves to Retained earnings. None when there is nothing to close."""
+    b = balances(lines, None, end)
+    ls, profit = [], 0
+    for code in sorted(b):
+        if ACC[code]["type"] not in (INCOME, EXPENSE) or not b[code]:
+            continue
+        ls.append(line(code, debit=max(-b[code], 0), credit=max(b[code], 0)))
+        profit -= b[code]
+    ls.append(line(RETAINED, debit=max(-profit, 0), credit=max(profit, 0)))
+    e = make_entry("yearclose:%s" % end, end, ls,
+                   _m("বছর শেষে লাভ → সঞ্চিত মুনাফা (%s)" % end,
+                      "Year-end close: profit → retained earnings (%s)" % end))
+    if e is not None:
+        e["profit"] = profit
+    return e
 
 
 def accounts_payload():

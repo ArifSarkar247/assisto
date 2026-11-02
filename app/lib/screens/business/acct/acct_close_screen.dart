@@ -13,6 +13,7 @@ import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
 import 'acct_common.dart';
+import 'acct_ledger2.dart';
 
 /// acctui — MONTH CLOSE. Pick a finished month, see its profit and that the
 /// books balance, tick "I understand" and close: nothing can be entered on
@@ -287,6 +288,9 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
               ),
             ),
         ],
+        // ledger2: year-end close (income & expenses -> retained earnings)
+        const SizedBox(height: Gap.xl),
+        AcctYearCloseSection(businessId: widget.businessId, onChanged: _load),
       ],
     );
   }

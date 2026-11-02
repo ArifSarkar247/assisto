@@ -48,10 +48,14 @@ def gather_sources(prof):
             "discount": s.discount, "due": s.due, "payment_method": s.payment_method,
             "customer": (s.customer.name or s.customer.phone) if s.customer_id else "",
             "cogs": sum(max(l.cost_price, 0) * max(l.qty, 0) for l in s.lines.all()),
+            # ledger2: per-product VAT (only used when a product has a rate)
+            "lines": [{"product_id": l.product_id, "amount": l.qty * l.unit_price}
+                      for l in s.lines.all()],
             "void_date": _day(s.voided_at)})
     khata = [{"id": k.id, "date": _day(k.at), "book": k.party.book,
               "direction": k.direction, "amount": k.amount_poisha,
-              "party": k.party.name, "note": k.note}
+              "party": k.party.name, "note": k.note,
+              "method": getattr(k, "method", "") or ""}
              for k in KhataEntry.objects.filter(party__business=prof).select_related("party")]
     expenses = [{"id": x.id, "date": x.date, "amount": x.amount,
                  "category": x.category, "note": x.note}
@@ -91,6 +95,40 @@ def invoice_sources(prof):
                     "payment_method": d.get("payment_method") or "cash",
                     "cancelled": bool(d.get("cancelled"))})
     return out
+
+
+VAT_RATE_COLLECTION = "acct_vat_rate"
+
+
+def product_vat_rates(prof):
+    """{product_id: history} — the owner's per-product VAT treatment (exempt /
+    reduced rate he typed), PaCollectionItem rows, no migration."""
+    from .models import PaCollectionItem
+    rows = PaCollectionItem.objects.filter(user_id=prof.user_id, collection=VAT_RATE_COLLECTION,
+                                           data__business=prof.id)
+    return {int(r.data["product_id"]): r.data.get("history") or []
+            for r in rows if r.data.get("product_id")}
+
+
+def apply_sale_tax(s, periods, rates):
+    """Set s['tax'] when a product in this sale has its own VAT treatment on
+    the sale day (inside a VAT period only). Untouched sales keep the shop
+    rate — so their postings (fingerprints) never change."""
+    vat_bp, sd_bp = L.vat_rate_on(periods, s["date"])
+    s["exempt"] = 0
+    if not (vat_bp or sd_bp) or not rates:
+        return s
+    tr = {}
+    for l in s.get("lines") or ():
+        h = rates.get(l.get("product_id"))
+        if h:
+            mode, bp = L.product_rate_on(h, s["date"])
+            if mode != L.VAT_STANDARD:
+                tr[l["product_id"]] = (mode, bp)
+    if tr:
+        t = L.sale_tax(s["total"], s["lines"], vat_bp, sd_bp, tr)
+        s["tax"], s["exempt"] = t[:3], t[3]
+    return s
 
 
 def vat_settings(prof):
@@ -231,8 +269,10 @@ def sync_books(prof, user=None):
         opening = _opening(book, prof, src)
         book.vat_periods = update_vat_periods(book.vat_periods, vat_settings(prof),
                                               timezone.localdate())
+        rates = product_vat_rates(prof)
         for s in src["sales"]:
             s["vat_bp"], s["sd_bp"] = L.vat_rate_on(book.vat_periods, s["date"])
+            apply_sale_tax(s, book.vat_periods, rates)
         desired = L.desired_postings(src["sales"], src["khata"], src["expenses"],
                                      src["cash"], opening, src["invoices"],
                                      L.post_opening_balances(book.opening))
@@ -240,9 +280,13 @@ def sync_books(prof, user=None):
         # above): core.ledger_entry_service
         from .ledger_entry_service import extra_postings
         desired.update(extra_postings(prof, book))
+        # ledger2: cashbox rows the owner classified (reclass entries)
+        from .ledger2_service import reclass_postings
+        desired.update(reclass_postings(prof, src["cash"]))
         live = {}
         for je in JournalEntry.objects.filter(business=prof, status="posted") \
                 .exclude(source_key__startswith="manual:") \
+                .exclude(source_key__startswith="yearclose:") \
                 .prefetch_related("lines__account"):
             live[je.source_key] = {"id": je.id, "fingerprint": je.fingerprint,
                                    "date": je.date, "lines": _entry_lines(je)}
@@ -383,20 +427,25 @@ def invoice_register(prof, start, end, periods):
             continue
         rows.append({"number": i["number"], "date": str(i["date"]), "buyer": i["buyer"],
                      "buyer_bin": i["buyer_bin"], "taxable": i["total"] - i["sd"] - i["vat"],
-                     "sd": i["sd"], "vat": i["vat"], "total": i["total"], "source": "invoice"})
+                     "sd": i["sd"], "vat": i["vat"], "total": i["total"], "exempt": 0,
+                     "source": "invoice"})
+    rates = product_vat_rates(prof)
     for s in Sale.objects.filter(business=prof, voided_at__isnull=True) \
-            .select_related("customer"):
+            .select_related("customer").prefetch_related("lines"):
         d = _day(s.created_at)
         if not (start <= d <= end):
             continue
         vat_bp, sd_bp = L.vat_rate_on(periods, d)
         if not (vat_bp or sd_bp):
             continue
-        taxable, sd, vat = L.inclusive_tax(s.total, vat_bp, sd_bp)
+        src = apply_sale_tax({"date": d, "total": s.total, "lines": [
+            {"product_id": l.product_id, "amount": l.qty * l.unit_price}
+            for l in s.lines.all()]}, periods, rates)
+        taxable, sd, vat = src.get("tax") or L.inclusive_tax(s.total, vat_bp, sd_bp)
         rows.append({"number": "POS-%d" % s.id, "date": str(d),
                      "buyer": (s.customer.name if s.customer_id else ""), "buyer_bin": "",
                      "taxable": taxable, "sd": sd, "vat": vat, "total": s.total,
-                     "source": "sale"})
+                     "exempt": src.get("exempt") or 0, "source": "sale"})
     rows.sort(key=lambda r: (r["date"], r["number"]))
     return rows
 
@@ -412,13 +461,17 @@ def maybe_sync(prof, user=None, min_gap_s=30):
 
 
 # ------------------------------------------------------------------ reads
-def report_lines(prof, end=None):
+def report_lines(prof, end=None, closing=True):
     """Per-(account, day) sums of every journal line (reversals included —
-    an entry and its reversal net to zero, so history stays visible)."""
+    an entry and its reversal net to zero, so history stays visible).
+    closing=False leaves out year-end closing entries (ledger2) — P&L and
+    cash flow show the year's real income, not the zeroed-out accounts."""
     from .models import JournalLine
     qs = JournalLine.objects.filter(entry__business=prof)
     if end:
         qs = qs.filter(entry__date__lte=end)
+    if not closing:
+        qs = qs.exclude(entry__source_key__startswith="yearclose:")
     rows = qs.values("account__code", "entry__date").annotate(
         d=Sum("debit"), c=Sum("credit"))
     return [{"account": r["account__code"], "date": r["entry__date"],
@@ -437,3 +490,16 @@ def set_lock_date(prof, day, user):
                             detail={"business": prof.id, "from": str(old) if old else None,
                                     "to": str(day) if day else None})
     return book
+
+
+def entry_lines(prof, end=None):
+    """One row per journal line with its entry id (the VAT summary needs to
+    see each entry whole). ledger2: moved here from ledger_entry_service."""
+    from .models import JournalLine
+    qs = JournalLine.objects.filter(entry__business=prof)
+    if end:
+        qs = qs.filter(entry__date__lte=end)
+    return [{"entry": r["entry_id"], "date": r["entry__date"],
+             "account": r["account__code"], "debit": r["debit"], "credit": r["credit"]}
+            for r in qs.values("entry_id", "entry__date", "account__code",
+                               "debit", "credit")]

@@ -1566,9 +1566,17 @@ class _EntrySheetState extends State<_EntrySheet> {
   bool _notifyCustomer = false;
   bool _saving = false;
   String? _error;
+  // ledger2: how the money moved, so the business books post to the right
+  // account (cash / bKash / Nagad / bank). Only asked when money moves.
+  String _method = 'cash';
 
   bool get _isCustomer => widget.book == 'customer';
   bool get _isEdit => widget.edit != null;
+  bool get _movesMoney {
+    final e = widget.edit;
+    if (e == null) return !widget.isDue;
+    return '${e['direction'] ?? ''}' == (_isCustomer ? 'got' : 'gave');
+  }
 
   // Owner-POV direction mapping:
   //  customer + due      -> 'gave' (I gave goods on credit)
@@ -1589,6 +1597,8 @@ class _EntrySheetState extends State<_EntrySheet> {
       _amount.text = poishaToTaka(a).replaceAll('৳', '');
       _note.text = '${e['note'] ?? ''}';
       _at = DateTime.tryParse('${e['at'] ?? ''}')?.toLocal() ?? _at;
+      final m = '${e['method'] ?? ''}';
+      if (khataPayMethods.contains(m)) _method = m;
     }
   }
 
@@ -1624,6 +1634,7 @@ class _EntrySheetState extends State<_EntrySheet> {
       entryId: (widget.edit?['entry_id'] as num?)?.toInt(),
       baseVersion: (widget.edit?['version'] as num?)?.toInt(),
       createdAt: DateTime.now(),
+      method: _movesMoney ? _method : '',
     );
     final api = context.read<AppState>().api;
     if (widget.partyId < 0) {
@@ -1709,6 +1720,35 @@ class _EntrySheetState extends State<_EntrySheet> {
             decoration: InputDecoration(
                 labelText: t.entryAmount, prefixText: '৳ '),
           ),
+          if (_movesMoney) ...[
+            const SizedBox(height: Gap.md),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Semantics(
+                header: true,
+                child: Text(_isCustomer ? t.lg2HowReceived : t.lg2HowPaid,
+                    style: Theme.of(context).textTheme.titleSmall),
+              ),
+            ),
+            const SizedBox(height: Gap.sm),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Wrap(
+                key: const ValueKey('ldg-entry-method'),
+                spacing: Gap.sm,
+                runSpacing: Gap.sm,
+                children: [
+                  for (final m in khataPayMethods)
+                    ChoiceChip(
+                      key: ValueKey('ldg-method-$m'),
+                      label: Text(khataPayMethodLabel(t, m)),
+                      selected: _method == m,
+                      onSelected: (_) => setState(() => _method = m),
+                    ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: Gap.md),
           TextField(
             controller: _note,
@@ -1769,6 +1809,16 @@ class _EntrySheetState extends State<_EntrySheet> {
     );
   }
 }
+
+/// ledger2: the money accounts a khata payment can move through.
+const khataPayMethods = ['cash', 'bkash', 'nagad', 'bank'];
+
+String khataPayMethodLabel(AppLocalizations t, String m) => switch (m) {
+      'bkash' => t.acuAccBkash,
+      'nagad' => t.acuAccNagad,
+      'bank' => t.acuAccBank,
+      _ => t.acuAccCash,
+    };
 
 /// Gallery/preview access to the private entry sheet (screenshot harness).
 @visibleForTesting
