@@ -132,3 +132,53 @@ class TrainReportQueueTests(OwnerBase):
         it.refresh_from_db()
         self.assertEqual(it.queue_state, "resolved")
         self.assertTrue(OwnerAudit.objects.filter(action="channel_report.remove").exists())
+
+
+class MinorNoAdsTests(TestCase):
+    """Play Families / ads: a parent-declared child account gets no ads."""
+
+    def setUp(self):
+        from rest_framework.test import APIClient
+        self.kid = User.objects.create_user(name="Kid", phone="01788200001", password="x")
+        self.dad = User.objects.create_user(name="Dad", phone="01788200002", password="x")
+        for u in (self.kid, self.dad):
+            u.plan = "free"
+            u.trial_until = None
+            u.save()
+        self.api = APIClient()
+
+    def _cfg(self, u):
+        self.api.force_authenticate(u)
+        r = self.api.get("/api/v1/ads/config")
+        self.assertEqual(r.status_code, 200)
+        return r.data
+
+    def test_child_by_kid_audio_birth_year(self):
+        from django.utils import timezone
+        from core.guardianship import is_known_minor
+        from core.models import KidAudioConsent
+        self.assertTrue(self._cfg(self.kid)["ads_enabled"])
+        KidAudioConsent.objects.create(guardian=self.dad, child=self.kid,
+                                       birth_year=timezone.now().year - 12)
+        self.assertTrue(is_known_minor(self.kid))
+        d = self._cfg(self.kid)
+        self.assertFalse(d["ads_enabled"])
+        self.assertEqual(d["ads_off_reason"], "minor")
+        self.assertEqual(d["plan"], "free")
+        # the parent still has normal (Free) ads
+        self.assertFalse(is_known_minor(self.dad))
+        self.assertTrue(self._cfg(self.dad)["ads_enabled"])
+
+    def test_adult_birth_year_is_not_a_minor(self):
+        from django.utils import timezone
+        from core.guardianship import is_known_minor
+        from core.models import KidAudioConsent
+        KidAudioConsent.objects.create(guardian=self.dad, child=self.kid,
+                                       birth_year=timezone.now().year - 30)
+        self.assertFalse(is_known_minor(self.kid))
+
+    def test_errors_never_block(self):
+        from core.guardianship import is_known_minor
+        with mock.patch("core.models.KidAudioConsent.objects.filter",
+                        side_effect=RuntimeError("x")):
+            self.assertFalse(is_known_minor(self.kid))
