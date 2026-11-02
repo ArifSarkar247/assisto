@@ -136,25 +136,45 @@ class MsgrActionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // channels: icon + label as ONE wrapping text (no Row that can overflow
+    // when the card gives the chip a narrow slot / 200% text).
+    Widget content(Color c) => Text.rich(
+          TextSpan(children: [
+            WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(icon, size: 16, color: c),
+                )),
+            TextSpan(text: label),
+          ]),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        );
     if (muted) {
-      return Chip(
-        avatar: Icon(icon, size: 16, color: scheme.onSurfaceVariant),
-        label: Text(label),
-        labelStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-        backgroundColor: scheme.surfaceContainerHighest,
-        side: BorderSide.none,
-        visualDensity: VisualDensity.compact,
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(Radii.pill),
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+          child: content(scheme.onSurfaceVariant),
+        ),
       );
     }
-    return FilledButton.tonalIcon(
+    return FilledButton.tonal(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
       style: FilledButton.styleFrom(
         minimumSize: const Size(48, 48), // channels a11y: 48dp
         tapTargetSize: MaterialTapTargetSize.padded,
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
       ),
+      child: content(onPressed == null
+          ? scheme.onSurface.withValues(alpha: 0.38)
+          : scheme.onSecondaryContainer),
     );
   }
 }

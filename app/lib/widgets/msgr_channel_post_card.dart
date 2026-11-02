@@ -63,11 +63,15 @@ class MsgrChannelPostCard extends StatelessWidget {
                   if (pinned) ...[
                     Icon(Icons.push_pin_rounded, size: 16, color: cs.primary),
                     const SizedBox(width: Gap.xs),
-                    Text(t.channelPinned,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: cs.primary)),
+                    Flexible(
+                      child: Text(t.channelPinned,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(color: cs.primary)),
+                    ),
                   ],
                   const Spacer(),
                   if (onTogglePin != null)
