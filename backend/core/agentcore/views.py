@@ -282,9 +282,19 @@ class ApprovalView(_Gated):
 # The morning BUSINESS card (bizops): numbers from the shop's own rows, the
 # one-tap actions and the cost math. A tap starts a code-planned run
 # (0 credits); external steps still stop at the approval card.
+def _biz_on(request):
+    from . import tools as _TL
+    ctx = RN.Ctx(user=request.user, now=None, play=is_play_flavour(request))
+    if not _TL._flag(ctx, "business"):
+        from rest_framework.exceptions import PermissionDenied
+        raise PermissionDenied(detail={"error": "feature_off",
+                                       "detail": pick(req_lang(request), *_ERR["feature_off"])})
+
+
 class BizBriefView(_Gated):
     def get(self, request):
         from . import bizops as BZ
+        _biz_on(request)
         return Response(BZ.card(request.user, req_lang(request), play=is_play_flavour(request)))
 
 
@@ -292,6 +302,7 @@ class BizActView(_Gated):
     def post(self, request):
         from . import bizops as BZ
         lang = req_lang(request)
+        _biz_on(request)
         b = request.data if isinstance(request.data, dict) else {}
         try:
             text, steps = BZ.action_steps(str(b.get("kind") or ""), b)

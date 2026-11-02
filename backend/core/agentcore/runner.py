@@ -371,6 +371,15 @@ def _tick(run, ctx):
     if last is not None and last.state == "done":
         plan = T.unseal(last.result_sealed).get("plan") or {}
         tool_steps = [s for s in steps if s.kind == "tool" and s.no > last.no]
+        if plan.get("pre") and tool_steps and all(s.state in ("done", "failed", "rejected")
+                                                  for s in tool_steps):
+            # bizops: a code-fixed plan (card tap / no-AI answer) never falls
+            # back to a paid planner call — it ends with the tools' templates
+            # and an honest line for a step that could not run
+            from . import bizops as BZ
+            _finish(run, "done", BZ.failed_code(tool_steps),
+                    answer=BZ.pre_answer(run, tool_steps, ctx.lang))
+            return "stop"
         if plan.get("done") and tool_steps and all(s.state == "done" for s in tool_steps):
             _finish(run, "done", answer=_template_answer(run, _answer_steps(run, steps, tool_steps),
                                                          ctx.lang))

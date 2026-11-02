@@ -118,7 +118,7 @@ def preplan(run, steps, reason):
     like planner steps (approvals, prechecks, audit)."""
     from ..models import AgentStep
     vault = T.vault_of(run)
-    plan = {"v": 1, "steps": steps, "done": True, "answer": None}
+    plan = {"v": 1, "steps": steps, "done": True, "answer": None, "pre": reason}
     with transaction.atomic():
         p = AgentStep.objects.create(run=run, no=1, kind="plan", idem_key="ac:%d:1" % run.pk,
                                      state="done", credits=0, cost_usd=0,
@@ -282,3 +282,47 @@ def action_steps(kind, b):
         args = {"lead": str(b.get("lead") or "")[:160], "when": str(b.get("when") or "today")[:10]}
         return "%s — ফলো-আপ টাস্ক" % args["lead"], [{"tool": "crm.followup_task", "args": args}]
     raise ValueError("bad_input")
+
+
+# --------------------------------------------------------------- pre-planned endings
+_FAIL = {
+    "supplier_not_found": ("এই নামে আপনার সাপ্লায়ার খাতায় কেউ নেই — আগে সাপ্লায়ার যোগ করুন।",
+                           "No supplier with this name in your supplier book — add the supplier first."),
+    "supplier_required": ("কোন সাপ্লায়ারকে পাঠাবেন, বেছে নিন।", "Choose the supplier first."),
+    "ambiguous_supplier": ("এই নামে একাধিক সাপ্লায়ার — খাতায় নাম আলাদা করুন।",
+                           "More than one supplier has this name — make the names different."),
+    "product_not_found": ("একটি পণ্য আপনার ক্যাটালগে নেই।", "A product is not in your catalog."),
+    "ambiguous_product": ("একই নামে একাধিক পণ্য — ক্যাটালগে নাম আলাদা করুন।",
+                          "Two products share a name — make the names different in the catalog."),
+    "nothing_to_reorder": ("এখন আনার মতো কোনো পণ্য নেই।", "Nothing needs reordering now."),
+    "customer_not_found": ("এই নামে খাতায় কোনো গ্রাহক নেই।", "No customer with this name in your ledger."),
+    "ambiguous_customer": ("একই নামে একাধিক গ্রাহক — খাতা থেকে সরাসরি তাগাদা দিন।",
+                           "More than one customer has this name — send the reminder from the ledger."),
+    "lead_not_found": ("এই নামে আপনার CRM-এ কোনো লিড নেই।", "No lead with this name in your CRM."),
+    "ambiguous_lead": ("একই নামে একাধিক লিড — CRM থেকে টাস্ক দিন।",
+                       "More than one lead has this name — add the task from the CRM."),
+    "no_crm": ("আপনার CRM চালু নেই।", "You do not have a CRM yet."),
+    "no_business": ("আপনার কোনো ব্যবসার খাতা নেই।", "You have no business ledger yet."),
+    "rate_limited": ("এক ঘণ্টায় অনেকবার হয়েছে — একটু পরে আবার চেষ্টা করুন।",
+                     "Done too often this hour — try again a little later."),
+    "feature_off": ("এই ফিচারটি এখনো চালু হয়নি।", "This feature is not available yet."),
+}
+
+
+def failed_code(tool_steps):
+    for s in tool_steps:
+        if s.state == "failed":
+            return (s.error_code or "failed")[:40]
+    return ""
+
+
+def pre_answer(run, tool_steps, lang):
+    from . import runner as RN
+    from .tools import _pick
+    lines = [RN._template_answer(run, [s for s in tool_steps if s.state != "failed"], lang)]
+    for s in tool_steps:
+        if s.state == "failed":
+            bn, en = _FAIL.get(s.error_code, ("কাজটি করা যায়নি — কিছু পাঠানো হয়নি।",
+                                              "This could not be done — nothing was sent."))
+            lines.append(_pick(lang, bn, en))
+    return "\n".join(ln for ln in lines if ln)

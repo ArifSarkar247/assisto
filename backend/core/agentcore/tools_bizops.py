@@ -97,7 +97,6 @@ def _sales(ctx, start, end):
 
 
 def profit(ctx, a):
-    _need_flag(ctx, "business")
     period = a.get("period") or "today"
     if period not in PERIODS:
         raise ToolError("bad_period")
@@ -191,7 +190,6 @@ def running_out_items(ctx):
 
 
 def running_out(ctx, a):
-    _need_flag(ctx, "business")
     items = running_out_items(ctx)
     lim = int(a.get("limit") or 10)
     return {"count": len(items), "out_now": sum(1 for i in items if i["stock"] <= 0),
@@ -218,7 +216,6 @@ def running_out_sum(o, lang):
 
 # ------------------------------------------------------------------ biz.cash_check
 def cash_check(ctx, a):
-    _need_flag(ctx, "business")
     biz = _biz(ctx)
     which = a.get("day") or "yesterday"
     if which not in ("today", "yesterday"):
@@ -321,7 +318,6 @@ def followups_due(ctx, limit=3):
 
 # ------------------------------------------------------------------ biz.daily_brief
 def daily_brief(ctx, a):
-    _need_flag(ctx, "business")
     biz = _biz(ctx)
     y = profit(ctx, {"period": "yesterday"})
     t = profit(ctx, {"period": "today"})
