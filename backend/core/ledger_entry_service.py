@@ -224,18 +224,12 @@ def hints(prof):
 
 
 # ------------------------------------------------------------------ reports
-def entry_lines(prof, end=None):
-    from .models import JournalLine
-    qs = JournalLine.objects.filter(entry__business=prof)
-    if end:
-        qs = qs.filter(entry__date__lte=end)
-    return [{"entry": r["entry_id"], "date": r["entry__date"],
-             "account": r["account__code"], "debit": r["debit"], "credit": r["credit"]}
-            for r in qs.values("entry_id", "entry__date", "account__code",
-                               "debit", "credit")]
+entry_lines = S.entry_lines      # ledger2: one source (core.ledger_service)
 
 
-AUDIT_ACTIONS = ("acct.lock", "acct.void", "ledger.opening", "acct.export")
+AUDIT_ACTIONS = ("acct.lock", "acct.void", "ledger.opening", "acct.export",
+                 "acct.yearclose", "acct.yearopen", "acct.reclass", "acct.vatrate",
+                 "acct.costfix")
 
 
 def audit(prof, page=1, per=40):

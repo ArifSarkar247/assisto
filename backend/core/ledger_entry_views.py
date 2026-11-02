@@ -109,6 +109,7 @@ class AcctHintsView(_Books):
 
 class AcctVatView(_Books):
     def get(self, request):
+        # ledger2: the core's numbers (one source of truth); kept for old apps
         from .logic import ledger_entry as E
         prof, bad = self.biz(request)
         if bad:

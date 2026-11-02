@@ -1308,6 +1308,7 @@ def _entry_dicts(p):
     return [{"id": e.id, "direction": e.direction, "amount": e.amount_poisha,
              "note": e.note, "at": e.at.isoformat(), "version": e.version,
              "client_id": e.client_id, "editable": _entry_editable(e),
+             "method": e.method or "",
              "bill_photo_ref": e.bill_photo.url if e.bill_photo else None}
             for e in p.entries.all()]
 
@@ -1470,6 +1471,12 @@ def _client_id(request):
     return cid if re.fullmatch(r"[A-Za-z0-9_.:-]{6,64}", cid or "") else ""
 
 
+def _pay_method(raw):
+    """ledger2: cash | bkash | nagad | bank, else '' (= cash in the books)."""
+    m = str(raw or "").strip().lower()
+    return m if m in ("cash", "bkash", "nagad", "bank") else ""
+
+
 def _persist_entry(request, p, entry):
     """Create the KhataEntry once per client_id. Returns (obj, duplicate)."""
     from django.db import IntegrityError, transaction
@@ -1484,7 +1491,7 @@ def _persist_entry(request, p, entry):
             obj = KhataEntry.objects.create(
                 party=p, direction=entry["direction"], amount_poisha=entry["amount"],
                 note=(entry["note"] or "")[:200], at=_parse_at(request.data.get("at")),
-                client_id=cid)
+                client_id=cid, method=_pay_method(request.data.get("method")))
     except IntegrityError:
         ex = p.entries.filter(client_id=cid).first() if cid else None
         if ex is None:
@@ -1497,7 +1504,7 @@ def _entry_out(p, obj, lang, duplicate=False):
     bal = _party_balance(p)
     out = {"entry_id": obj.id, "id": obj.id, "client_id": obj.client_id,
            "version": obj.version, "duplicate": duplicate,
-           "at": obj.at.isoformat()}
+           "at": obj.at.isoformat(), "method": obj.method or ""}
     out.update(_balance_fields(bal, p.book, lang))
     return out
 
@@ -1594,9 +1601,12 @@ class KhataEntryEditView(APIView):
                 e.note = str(request.data.get("note") or "")[:200]
             if request.data.get("at"):
                 e.at = _parse_at(request.data.get("at"))
+            if "method" in request.data:
+                e.method = _pay_method(request.data.get("method"))
             e.version = e.version + 1
             e.edited_at = timezone.now()
-            e.save(update_fields=["amount_poisha", "note", "at", "version", "edited_at"])
+            e.save(update_fields=["amount_poisha", "note", "at", "version", "edited_at",
+                                  "method"])
         return Response(_entry_out(e.party, e, lang))
 
     patch = post

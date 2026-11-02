@@ -11,6 +11,7 @@ from . import views_p3_circle as p3c
 from . import business_views as bz
 from . import ledger_views as lgv
 from . import ledger_entry_views as lev  # acctui
+from . import ledger2_views as l2v  # ledger2
 from . import views_tagada2 as tg2   # tagada2
 from . import views_messenger as msg
 from . import views_security as secv
@@ -259,6 +260,14 @@ urlpatterns = [
     path("business/acct/audit", lev.AcctAuditView.as_view()),
     path("business/acct/export-log", lev.AcctExportLogView.as_view()),
     path("business/acct/lock", lev.AcctLockView.as_view()),
+    # ledger2: cashbox reclass / per-product VAT / year close / cost-0 sales
+    path("business/acct/cashbox", l2v.AcctCashboxView.as_view()),
+    path("business/acct/cashbox/<int:pk>/classify", l2v.AcctCashboxClassifyView.as_view()),
+    path("business/acct/vat-rates", l2v.AcctVatRatesView.as_view()),
+    path("business/acct/year-close", l2v.AcctYearCloseView.as_view()),
+    path("business/acct/year-reopen", l2v.AcctYearReopenView.as_view()),
+    path("business/acct/cost-gaps", l2v.AcctCostGapsView.as_view()),
+    path("business/acct/cost-gaps/apply", l2v.AcctCostApplyView.as_view()),
     path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
     path("business/staff", bz.StaffView.as_view()),   # bizbar
     path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar

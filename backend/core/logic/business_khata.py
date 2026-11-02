@@ -179,6 +179,7 @@ def party_statement(party, entries, book, lang="en"):
             "version": e.get("version"),
             "client_id": e.get("client_id") or "",
             "editable": e.get("editable", True),
+            "method": e.get("method") or "",          # ledger2
         })
     return {
         "book": book,
@@ -850,6 +851,7 @@ def statement_lines(stmt, book):
             "entry_id": r.get("entry_id"), "version": r.get("version"),
             "client_id": r.get("client_id") or "",
             "editable": bool(r.get("editable", True)),
+            "method": r.get("method") or "",               # ledger2
             "direction": r.get("direction"), "amount": r.get("amount"),
             "note": note, "at": r.get("at"),
             "at_display": day_label(r.get("at")),
