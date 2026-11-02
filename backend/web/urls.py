@@ -8,6 +8,7 @@ from . import views_journey   # journey100
 from . import views_quote   # crm100
 from . import views_invoice   # invoices
 from . import views_vehicle_share   # veh100
+from . import views_phonecam   # cctvphone
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
 
@@ -85,4 +86,6 @@ urlpatterns = [
     # veh100: vehicle live-location share link (random token, expiring, revocable)
     path("v/<str:token>/data", views_vehicle_share.share_data),
     path("v/<str:token>", views_vehicle_share.share_page),
+    # cctvphone: phone-camera pairing QR fallback (App Link opens the app)
+    path("pc/<str:code>", views_phonecam.pair_landing),
 ]

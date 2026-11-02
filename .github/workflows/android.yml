@@ -613,6 +613,23 @@ jobs:
               j = s.find('</activity>', i) if i != -1 else -1
               if j != -1:
                   s = s[:j] + invitelink + s[j:]
+          # ---- cctvphone ---- https://lifeassisto.com/pc/<CODE> (the phone-
+          # camera pairing QR, scanned by the old phone's own camera/Lens)
+          # opens the app on the camera-phone pairing screen, code filled.
+          pclink = (
+              '\n            <intent-filter android:autoVerify="true">'
+              '\n                <action android:name="android.intent.action.VIEW"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <category android:name="android.intent.category.BROWSABLE"/>'
+              '\n                <data android:scheme="https" android:host="lifeassisto.com"'
+              ' android:pathPrefix="/pc/"/>'
+              '\n            </intent-filter>\n        '
+          )
+          if 'android:pathPrefix="/pc/"' not in s:
+              i = s.find('android:name=".MainActivity"')
+              j = s.find('</activity>', i) if i != -1 else -1
+              if j != -1:
+                  s = s[:j] + pclink + s[j:]
           # ---- c3-msg ---- chat bubbles (Android 11+ Bubbles API): the bubble
           # expands this activity, so it must be embeddable + resizeable and
           # launch as its own document (several bubbles at once). Not

@@ -705,9 +705,18 @@ urlpatterns += [
     path("shop/live/pending", shopops.ShopLivePendingView.as_view()),
     path("shop/live/<int:pk>/signal", shopops.ShopLiveSignalView.as_view()),
     path("shop/live/<int:pk>/end", shopops.ShopLiveEndView.as_view()),
+    path("shop/live/<int:pk>/touch", shopops.ShopLiveTouchView.as_view()),
     path("business/sales/<int:pk>/void", salevoid.SaleVoidView.as_view()),
 ]
 # ---- /a2-cctv ----
+# ---- cctvphone ---- an old Android phone as an Assisto camera
+from . import phonecam_views as phonecam  # noqa: E402
+urlpatterns += [
+    path("shop/phonecam/pair", phonecam.PhoneCamPairView.as_view()),
+    path("shop/phonecam/claim", phonecam.PhoneCamClaimView.as_view()),
+    path("shop/phonecam/unbind", phonecam.PhoneCamUnbindView.as_view()),
+    path("shop/phonecam/<int:pk>", phonecam.PhoneCamSettingsView.as_view()),
+]
 
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
