@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../account_mode.dart'; // acctmode
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
@@ -137,8 +138,17 @@ class SidebarItem {
   /// (feature_registry.dart). Hidden flag -> no sidebar entry and no search
   /// hit. Null = a core entry that is never hidden by a flag.
   final String? feature;
+
+  /// acctmode: the accounts area this module belongs to (personal books or
+  /// business books). Null = shown in every accounts mode. The mode only
+  /// takes it off the MENU — search still finds it (see [SidebarSections]).
+  final AcctArea? area;
   const SidebarItem(this.icon, this.label, this.builder,
-      {this.synonyms = const [], this.medical = false, this.feature});
+      {this.synonyms = const [], this.medical = false, this.feature,
+      this.area});
+
+  /// Listed in the menu for the current accounts mode.
+  bool get inMode => AccountModeController.instance.shows(area);
 
   /// Visible in THIS build for THIS user (medical gate + feature flag).
   bool get visible =>
@@ -203,14 +213,25 @@ class SidebarSections {
   /// every [SidebarItem.medical] module is removed; feature-flags: every
   /// module whose server flag is off is removed too (an emptied section is
   /// dropped).
-  static List<SidebarSection> get all => [
-        for (final s in _all)
-          if (s.items.any((i) => i.visible))
-            s.items.every((i) => i.visible)
-                ? s
-                : SidebarSection(s.id, s.icon, s.title,
-                    [for (final i in s.items) if (i.visible) i]),
-      ];
+  /// acctmode: items outside the current accounts mode are left off the
+  /// menu too (never their data — see lib/account_mode.dart).
+  static List<SidebarSection> get all => _build(byMode: true);
+
+  /// Every visible module regardless of the accounts mode — what SEARCH uses,
+  /// so a mode never closes a door.
+  static List<SidebarSection> get allModes => _build(byMode: false);
+
+  static List<SidebarSection> _build({required bool byMode}) {
+    bool show(SidebarItem i) => i.visible && (!byMode || i.inMode);
+    return [
+      for (final s in _all)
+        if (s.items.any(show))
+          s.items.every(show)
+              ? s
+              : SidebarSection(s.id, s.icon, s.title,
+                  [for (final i in s.items) if (show(i)) i]),
+    ];
+  }
 
   static final List<SidebarSection> _all = [
     // ONE-ENTRY-PER-MODULE (OWNER UI FIX v2 §5): the Messenger hub ("My Circle")
@@ -255,6 +276,7 @@ class SidebarSections {
     SidebarSection('my_account', Icons.account_balance_wallet_rounded,
         (t) => t.sidebarMoney, [
       SidebarItem(Icons.account_balance_wallet_rounded, (t) => t.moduleMoney,
+          area: AcctArea.personal,
           feature: 'money',
           (_) => const MoneyScreen(),
           synonyms: ['account', 'finance', 'ledger', 'money', 'expense', 'income']),
@@ -266,6 +288,7 @@ class SidebarSections {
           synonyms: ['dues', 'baki', 'shop due', 'what i owe', 'khata', 'tagada']),
       // Advanced Budget module (feature #50, SPEC v2.1 §21).
       SidebarItem(Icons.pie_chart_outline_rounded, (t) => t.budgetTitle,
+          area: AcctArea.personal,
           feature: 'budget',
           (_) => const MoneyBudgetScreen(),
           synonyms: ['budget', 'limit', 'spending plan', 'rollover']),
@@ -282,15 +305,18 @@ class SidebarSections {
           synonyms: ['tax', 'zakat', 'nisab', 'income tax', 'nbr']),
       // Monthly Money Wrapped recap (feature #63).
       SidebarItem(Icons.auto_awesome_rounded, (t) => t.wrappedTitle,
+          area: AcctArea.personal,
           feature: 'money_wrapped',
           (_) => const MoneyWrappedScreen(),
           synonyms: ['wrapped', 'recap', 'monthly', 'summary', 'story']),
       // Money by voice — speak an expense/income, confirm, log (feature #62).
       SidebarItem(Icons.mic_none_rounded, (t) => t.mvoiceTitle,
+          area: AcctArea.personal,
           feature: 'money_voice',
           (_) => const MoneyVoiceScreen(),
           synonyms: ['voice', 'speak', 'say', 'mic', 'dictate']),
       SidebarItem(Icons.autorenew_rounded, (t) => t.subscriptions,
+          area: AcctArea.personal,
           feature: 'subscriptions',
           (_) => const SubscriptionsScreen(),
           synonyms: ['subscription', 'recurring', 'bill']),
@@ -332,11 +358,13 @@ class SidebarSections {
           (_) => const DomesticStaffScreen(),
           synonyms: ['staff', 'maid', 'driver', 'cook', 'salary', 'household']),
       SidebarItem(Icons.emoji_events_rounded, (t) => t.savechalTitle,
+          area: AcctArea.personal,
           feature: 'savings_challenge',
           (_) => const SavingsChallengeScreen(),
           synonyms: ['savings', 'challenge', 'save', '52 week', 'streak']),
       // #51 AI spending advice (key-gated mock) + #34 market price radar.
       SidebarItem(Icons.insights_rounded, (t) => t.truthSpendTitle, // truth: rule-based, not AI
+          area: AcctArea.personal,
           feature: 'spending_advice',
           (_) => const SpendingAdviceScreen(),
           synonyms: ['spending', 'advice', 'insights', 'ai money', 'analysis']),
@@ -753,21 +781,25 @@ class SidebarSections {
     SidebarSection('business', Icons.storefront_rounded,
         (t) => t.sidebarBusiness, [
       SidebarItem(Icons.storefront_rounded, (t) => t.business,
+          area: AcctArea.business,
           feature: 'business',
           (_) => const BusinessScreen(),
           synonyms: ['business', 'shop', 'store', 'orders']),
       SidebarItem(Icons.insights_rounded, (t) => t.crmTitle,
+          area: AcctArea.business,
           feature: 'crm',
           (_) => const CrmHomeScreen(),
           synonyms: ['crm', 'sales', 'leads', 'pipeline']),
       // booking-bot: the business' services, hours, link and bookings.
       SidebarItem(Icons.edit_calendar_rounded, (t) => t.bkgSidebarBiz,
+          area: AcctArea.business,
           feature: 'booking_bot',
           (_) => const BookingBizScreen(),
           synonyms: ['booking', 'appointment', 'slot', 'salon', 'chamber', 'serial', 'calendar']),
       // retention1: Retention automation for the shop owner (flag
       // retention_auto) and, for everyone, the messages shops sent them.
       SidebarItem(Icons.autorenew_rounded, (t) => t.rtTitle,
+          area: AcctArea.business,
           feature: 'retention_auto',
           (_) => const RetentionScreen(),
           synonyms: ['retention', 'automation', 'win back', 'winback', 'thank you',
@@ -786,7 +818,7 @@ class SidebarSections {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return all;
     final out = <SidebarSection>[];
-    for (final s in all) {
+    for (final s in allModes) {
       if (s.title(t).toLowerCase().contains(q)) {
         out.add(s);
         continue;

@@ -1,5 +1,7 @@
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
+import '../../account_mode.dart' show AcctArea; // acctmode
+import '../../widgets/account_mode_ui.dart' show AccountModeHiddenCard; // acctmode
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -270,6 +272,8 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
           children: [
             // plans-v2: a running trial shows its clear end date here too
             const PlansV2TrialBanner(),
+            // acctmode: reached while "Personal only" hides this from the menu.
+            const AccountModeHiddenCard(area: AcctArea.business),
             // Selected business + switcher.
             BrandBand(
               child: Row(children: [

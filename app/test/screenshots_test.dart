@@ -48,6 +48,8 @@ import 'package:assisto/screens/ai_chat_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/widgets/onb_first_win.dart';
 import 'package:assisto/widgets/onb_role.dart';
+import 'package:assisto/widgets/account_mode_ui.dart'; // acctmode
+import 'package:assisto/account_mode.dart' show AccountMode; // acctmode
 import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
@@ -745,6 +747,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'agent_studio': (build: (_) => const AgentStudioScreen(), mode: FakeMode.data, full: true),
     'battery_guidance': (build: (_) => const BatteryGuidanceScreen(), mode: FakeMode.data, full: true),
     'onboarding': (build: (_) => OnboardingScreen(onDone: () {}), mode: FakeMode.data, full: true),
+    // acctmode: accounts mode step + Settings sheet
+    'acct_mode_onb': (build: (_) => Scaffold(body: SafeArea(child: OnbAccountModeStep(selected: AccountMode.business, onPick: (_) {}))), mode: FakeMode.data, full: true),
+    'acct_mode_sheet': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => AccountModeSheet(api: c.read<AppState>().api)))), mode: FakeMode.data, full: true),
     'support': (build: (_) => const SupportScreen(), mode: FakeMode.data, full: true),
     // module 5 (P13+)
     'health_tips': (build: (_) => const HealthTipsScreen(), mode: FakeMode.data, full: true),

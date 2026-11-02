@@ -19,15 +19,31 @@ import 'journey_start_screen.dart';
 import 'business/khata_entry_screen.dart';
 import '../widgets/robo_id.dart';
 import 'offers_screens.dart' show OnbOffersStep; // p2-money
+import '../account_mode.dart'; // acctmode
+import '../widgets/account_mode_ui.dart' show OnbAccountModeStep; // acctmode
 
 /// launch: the onboarding pages, in order.
-enum OnbStep { lang, role, permissions, assistant, offers, firstWin, linkParent }
+enum OnbStep {
+  lang,
+  role,
+  acctMode,
+  permissions,
+  assistant,
+  offers,
+  firstWin,
+  linkParent
+}
 
 /// The pages for THIS user: the assistant / offers pages only while their
 /// features are on (FeatureFlags), so onboarding never shows a hidden feature.
 List<OnbStep> onboardingSteps() => [
       OnbStep.lang,
       OnbStep.role,
+      // acctmode: personal / business / both — only while both books exist
+      // (a hidden money or business feature never shows a dead choice).
+      if (FeatureFlags.instance.isOn('money') &&
+          FeatureFlags.instance.isOn('business'))
+        OnbStep.acctMode,
       OnbStep.permissions,
       if (FeatureFlags.instance.isOn('voice_assistant')) OnbStep.assistant,
       if (FeatureFlags.instance.isOn('offers')) OnbStep.offers,
@@ -41,6 +57,8 @@ List<OnbStep> onboardingSteps() => [
 /// FLOW (skippable + resumable, with progress dots):
 ///   0. Welcome + LANGUAGE   — pick bn/en up front (sets the app locale).
 ///   1. WHO ARE YOU          — self / elderly parent / family / business.
+///   1b. ACCOUNTS MODE      — personal / business / both (acctmode; only
+///                             while money + business are on).
 ///   2. PERMISSIONS, HONESTLY— every permission + exactly WHY (nothing granted).
 ///   3. FIRST WIN            — one REAL task, recommended per role (medicine /
 ///                             scan a bill / safe-journey / expense). Tapping a
@@ -80,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   OnbStep get _cur => _ids[_page.clamp(0, _steps - 1)];
 
   void _onFlags() {
-    if (!mounted || _page > 2) return;
+    if (!mounted || _page > _ids.indexOf(OnbStep.permissions)) return;
     final next = onboardingSteps();
     if (!listEquals(next, _ids)) setState(() => _ids = next);
   }
@@ -141,6 +159,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _next() async {
+    // acctmode: Next on the accounts step keeps the pre-selected choice.
+    if (_cur == OnbStep.acctMode) _acct ??= _defaultAcct;
     final n = (_page + 1).clamp(0, _steps - 1);
     await Settings.setString(_resumeKey, '$n');
     _pc.nextPage(duration: Motion.base, curve: Curves.easeOut);
@@ -157,7 +177,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (mounted) setState(() => _simpleHome = on);
   }
 
+  // acctmode: the accounts mode picked here (null = step never confirmed,
+  // e.g. Skip -> stays "both", nothing hidden). Pre-selected from the role.
+  AccountMode? _acct;
+  AccountMode get _defaultAcct =>
+      _role == OnbRole.business ? AccountMode.business : AccountMode.personal;
+
   Future<void> _finish() async {
+    if (_acct != null) {
+      // Saved locally at once; synced to the server (or on the next refresh).
+      AccountModeController.instance.set(_acct!,
+          api: context.read<AppState>().api, source: 'onboarding');
+    }
     if (_simpleHome) await EldersModeController.set(context, true);
     await Settings.setBool('onboarded', true);
     await Settings.setString(_resumeKey, '0');
@@ -219,6 +250,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPick: (r) => setState(() => _role = r),
                     simpleHome: _simpleHome,
                     onSimpleHome: _setSimpleHome),
+                if (_ids.contains(OnbStep.acctMode))
+                  OnbAccountModeStep(
+                      selected: _acct ?? _defaultAcct,
+                      onPick: (m) => setState(() => _acct = m)),
                 const OnbPermissions(),
                 // Part 3: set Assisto as the default digital assistant.
                 if (_ids.contains(OnbStep.assistant)) const VaOnboardingStep(),

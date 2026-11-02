@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../account_mode.dart' show AcctArea; // acctmode
+import '../widgets/account_mode_ui.dart' show AccountModeHiddenCard; // acctmode
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
@@ -171,6 +173,8 @@ class _OverviewTab extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // acctmode: reached while "Business only" hides this from the menu.
+        const AccountModeHiddenCard(area: AcctArea.personal),
         // Hero balance card
         Container(
           decoration: BoxDecoration(

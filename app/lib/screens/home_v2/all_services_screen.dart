@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
+import '../../account_mode.dart'; // acctmode
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/chatnav.dart';
@@ -23,6 +24,24 @@ class AllServicesScreen extends StatefulWidget {
 
 class _AllServicesScreenState extends State<AllServicesScreen> {
   String _q = '';
+
+  // acctmode: the accounts mode decides which money/business modules are
+  // listed (search still finds all); rebuild when it changes.
+  @override
+  void initState() {
+    super.initState();
+    AccountModeController.instance.addListener(_onMode);
+  }
+
+  @override
+  void dispose() {
+    AccountModeController.instance.removeListener(_onMode);
+    super.dispose();
+  }
+
+  void _onMode() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {

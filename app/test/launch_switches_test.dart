@@ -118,8 +118,9 @@ void main() {
   });
 
   group('onboarding pages follow their flags', () {
-    test('defaults: all 7 pages', () {
-      expect(onboardingSteps().length, 7);
+    test('defaults: all 8 pages (acctmode adds the accounts step)', () {
+      expect(onboardingSteps().length, 8);
+      expect(onboardingSteps()[2], OnbStep.acctMode);
     });
     test('voice + offers OFF: 5 pages, order kept', () {
       FeatureFlags.instance.debugOverride = {
@@ -129,6 +130,7 @@ void main() {
       expect(onboardingSteps(), [
         OnbStep.lang,
         OnbStep.role,
+        OnbStep.acctMode,
         OnbStep.permissions,
         OnbStep.firstWin,
         OnbStep.linkParent,
