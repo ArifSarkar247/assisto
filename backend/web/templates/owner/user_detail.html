@@ -1,5 +1,5 @@
 {% extends "owner/base.html" %}
-{% block heading %}#{{ u.id }} {{ u.name|default:u.username }}{% endblock %}
+{% block heading %}#{{ u.id }} {% if as_pii %}{{ u.name|default:u.username }}{% else %}{{ u.name|default:"—" }}{% endif %}{% endblock %}
 {% block content %}
 <p><a href="/owner/users">← {{ T.nav_users }}</a></p>
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}

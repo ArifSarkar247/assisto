@@ -376,8 +376,8 @@ def standing(user):
     restrictions, the last actions with their reasons, and appeal states."""
     from .models import AccountAction, AccountAppeal
     expire_if_due(user)
-    acts = list(AccountAction.objects.filter(user=user).exclude(
-        detail__auto=True)[:20])
+    acts = [a for a in AccountAction.objects.filter(user=user)[:30]
+            if not (a.detail or {}).get("auto")][:20]
     appeals = {}
     for ap in AccountAppeal.objects.filter(user=user, action__in=acts).order_by("created_at"):
         appeals[ap.action_id] = ap
