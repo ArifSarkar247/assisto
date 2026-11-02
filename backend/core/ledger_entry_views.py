@@ -14,6 +14,8 @@ for P&L / balance sheet / trial balance / lock. OWNER ONLY, like the books.
   GET  business/acct/vat?from=&to=              Mushak summary (not a return)
   GET  business/acct/audit?page=                who / when / what + reversals
   POST business/acct/export-log {what}          records an accountant export
+  POST business/acct/lock {lock_date|null, reason}  close / reopen a period;
+                                                 reopening needs a reason (audited)
 Money: integer poisha.
 """
 from django.utils import timezone
@@ -43,6 +45,10 @@ _ERR = {
     "need_party": ("কার সাথে — খাতা থেকে একজন বাছুন বা নাম লিখুন।",
                    "Who with — pick someone from the khata or type a name."),
     "not_found": ("এন্ট্রিটি পাওয়া যায়নি।", "That entry was not found."),
+    "future_lock": ("আজকের পরের তারিখ পর্যন্ত বই বন্ধ করা যায় না।",
+                    "You cannot close the books past today."),
+    "reason_required": ("আবার খোলার কারণ লিখুন (অন্তত ৫ অক্ষর) — অডিটে থাকবে।",
+                        "Write why you are reopening (at least 5 letters) — it goes in the audit trail."),
 }
 
 
@@ -68,7 +74,8 @@ class AcctEntriesView(_Books):
         except ValueError:
             before = None
         rows, more = ES.list_entries(prof, before=before)
-        return Response({"entries": rows, "has_more": more, "book": _book_meta(prof)})
+        return Response({"entries": rows, "has_more": more, "book": _book_meta(prof),
+                         "shop": prof.shop_name})
 
     def post(self, request):
         prof, bad = self.biz(request)
@@ -97,7 +104,7 @@ class AcctOpeningView(_Books):
         prof, bad = self.biz(request)
         if bad:
             return bad
-        return Response(ES.get_opening(prof))
+        return Response(dict(ES.get_opening(prof), shop=prof.shop_name))
 
     def post(self, request):
         prof, bad = self.biz(request)
@@ -121,6 +128,7 @@ class AcctCashFlowView(_Books):
             return _err(request, "bad_date")
         out = E.cash_flow(ES.entry_lines(prof, end), start, end)
         out["book"] = _book_meta(prof)
+        out["shop"] = prof.shop_name
         return Response(out)
 
 
@@ -136,6 +144,7 @@ class AcctVatView(_Books):
             return _err(request, "bad_date")
         out = E.vat_summary(ES.entry_lines(prof, end), start, end)
         out["book"] = _book_meta(prof)
+        out["shop"] = prof.shop_name
         return Response(out)
 
 
@@ -160,3 +169,29 @@ class AcctExportLogView(_Books):
             return bad
         ES.log_export(prof, request.user, request.data.get("what") or "")
         return Response({"ok": True})
+
+
+class AcctLockView(_Books):
+    """The core lock (core.ledger_service.set_lock_date) plus a REASON when
+    the books are reopened (lock moved earlier or cleared) — audited."""
+
+    def post(self, request):
+        from .models import LedgerBook
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        raw = request.data.get("lock_date")
+        day = L.parse_day(raw) if raw else None
+        if raw and day is None:
+            return _err(request, "bad_date")
+        if day and day >= timezone.localdate():
+            return _err(request, "future_lock")
+        book = LedgerBook.objects.filter(business=prof).first()
+        old = book.lock_date if book else None
+        reason = str(request.data.get("reason") or "").strip()[:200]
+        reopening = old is not None and (day is None or day < old)
+        if reopening and len(reason) < 5:
+            return _err(request, "reason_required")
+        S.set_lock_date(prof, day, request.user)
+        ES.log_lock(prof, request.user, old, day, reason)
+        return Response({"book": _book_meta(prof)})

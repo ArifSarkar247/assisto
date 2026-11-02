@@ -254,6 +254,7 @@ urlpatterns = [
     path("business/acct/vat", lev.AcctVatView.as_view()),
     path("business/acct/audit", lev.AcctAuditView.as_view()),
     path("business/acct/export-log", lev.AcctExportLogView.as_view()),
+    path("business/acct/lock", lev.AcctLockView.as_view()),
     path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
     path("business/staff", bz.StaffView.as_view()),   # bizbar
     path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar

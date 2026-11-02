@@ -267,7 +267,7 @@ def entry_lines(prof, end=None):
                                "debit", "credit")]
 
 
-AUDIT_ACTIONS = ("ledger.sync", "ledger.lock", "acct.entry", "acct.void",
+AUDIT_ACTIONS = ("acct.lock", "acct.entry", "acct.void",
                  "acct.opening", "acct.export")
 
 
@@ -315,3 +315,10 @@ def log_export(prof, user, what):
     from .models import AuditLog
     AuditLog.objects.create(user=user, action="acct.export",
                             detail={"business": prof.id, "what": str(what)[:60]})
+
+
+def log_lock(prof, user, old, new, reason):
+    from .models import AuditLog
+    AuditLog.objects.create(user=user, action="acct.lock", detail={
+        "business": prof.id, "from": str(old) if old else None,
+        "to": str(new) if new else None, "reason": reason})

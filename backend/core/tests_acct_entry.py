@@ -276,7 +276,25 @@ class AcctApiTests(TestCase):
         self.o.post("/api/v1/business/books/lock", {"lock_date": str(y)}, format="json")
         r = self.post(kind="sale", date=str(y))
         self.assertEqual(r.data["error"], "locked_period")
+        self.assertEqual(self.o.get("/api/v1/business/acct/entries").data["shop"], "Rahman Store")
         self.assertIn("locked", r.data["detail"])
+
+    def test_close_and_reopen_needs_a_reason(self):
+        S.sync_books(self.biz, self.owner)
+        y = timezone.localdate() - timedelta(days=1)
+        r = self.o.post("/api/v1/business/acct/lock", {"lock_date": str(y)}, format="json")
+        self.assertEqual(r.data["book"]["lock_date"], str(y))
+        self.assertEqual(self.o.post("/api/v1/business/acct/lock",
+                                     {"lock_date": str(timezone.localdate())},
+                                     format="json").data["error"], "future_lock")
+        r = self.o.post("/api/v1/business/acct/lock", {"lock_date": None}, format="json")
+        self.assertEqual(r.data["error"], "reason_required")
+        r = self.o.post("/api/v1/business/acct/lock",
+                        {"lock_date": None, "reason": "late supplier bill"}, format="json")
+        self.assertIsNone(r.data["book"]["lock_date"])
+        ev = self.o.get("/api/v1/business/acct/audit").data["events"]
+        self.assertEqual(ev[0]["action"], "acct.lock")
+        self.assertEqual(ev[0]["detail"]["reason"], "late supplier bill")
 
     def test_opening_wizard(self):
         self.post(kind="sale", amount=1000)
