@@ -1367,3 +1367,20 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----
+
+# ---- train ---- (owner priority C: Train Tracker; flag train_tracker, OFF)
+from . import train_views as trv  # noqa: E402
+urlpatterns += [
+    path("train/config", trv.ConfigView.as_view()),
+    path("train/search", trv.SearchView.as_view()),
+    path("train/share/<int:pk>/fixes", trv.ShareFixesView.as_view()),
+    path("train/share/<int:pk>/stop", trv.ShareStopView.as_view()),
+    path("train/chat/msg/<int:pk>/<str:action>", trv.MessageActionView.as_view()),
+    path("train/chat/request/<int:pk>/<str:action>", trv.RequestActView.as_view()),
+    path("train/<str:no>/live", trv.LiveView.as_view()),
+    path("train/<str:no>/share", trv.ShareStartView.as_view()),
+    path("train/<str:no>/chat", trv.ChatView.as_view()),
+    path("train/<str:no>/chat/join", trv.ChatJoinView.as_view()),
+    path("train/<str:no>/chat/leave", trv.ChatLeaveView.as_view()),
+]
+# ---- /train ----

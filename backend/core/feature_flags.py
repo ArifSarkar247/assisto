@@ -81,6 +81,11 @@ REGISTRY = (
     # (SeTracker / Wonlex) protocol + Child School Mode (watch = automatic,
     # phone = one big check-in button). OFF until the owner's real-watch test.
     ('kids_watch', 'family_safety', 'Kids watch & School Mode', 'বাচ্চাদের ঘড়ি ও স্কুল-মোড', False, ('kids_watch',)),
+    # train (owner priority C, 2 Nov): crowdsourced live trains + estimate +
+    # 16318 SMS + per-train chat; destination alarm (offline geofence). OFF
+    # until the owner's real-train two-phone test. Free, no ads.
+    ('train_tracker', 'daily_life', 'Train tracker', 'ট্রেন ট্র্যাকার', False, ('train_tracker',)),
+    ('dest_alarm', 'daily_life', 'Destination alarm', 'গন্তব্য অ্যালার্ম', False, ('dest_alarm',)),
     ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
     ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
