@@ -226,6 +226,7 @@ import 'a1_shots.dart'; // a1-circle
 import 'p3_shots.dart'; // p3-circle
 import 'md1_shots.dart'; // md1
 import 'pay1_shots.dart'; // pay1
+import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
@@ -421,6 +422,7 @@ void galleryPrime(String name) {
     fakeMd1On = false;
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
+    admobumpPrime(name); // admobump: UMP state per shot
 }
 
 Map<String, GallerySpec> gallerySpecs() {
@@ -723,6 +725,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in f1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // pay1: checkout sheet (Play first / gateway only / kill-switch / not set up)
     for (final e in pay1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // admobump: Settings -> Ads privacy (UMP required / not required)
+    for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
