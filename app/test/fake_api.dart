@@ -1642,6 +1642,17 @@ class FakeApi extends ApiClient {
         'counted_poisha': 700000, 'counted_display': _pair('৳7,000', '৳7,000'),
         'variance_poisha': 0, 'variance_display': _pair('৳0', '৳0'),
         'variance_status': _pair('মিলে গেছে', 'Balanced'),
+        // bizbar: the real server contract (khata.cashbox_close_view)
+        'opening_carried': true,
+        'manual_in_display': _pair('৳0', '৳0'),
+        'manual_out_display': _pair('৳1,200', '৳1,200'),
+        'auto_lines': [
+          {'key': 'cash_sales', 'kind': 'in', 'label': _pair('নগদ বিক্রি (দোকান)', 'Cash sales (shop)'),
+           'amount': 250000, 'amount_display': _pair('৳2,500', '৳2,500'), 'count': 7},
+          {'key': 'dues_collected', 'kind': 'in', 'label': _pair('বাকি আদায় (খাতা)', 'Dues collected (khata)'),
+           'amount': 70000, 'amount_display': _pair('৳700', '৳700'), 'count': 2},
+        ],
+        'share_text': _bn ? 'দিনের ক্যাশ — ড্রয়ারে থাকার কথা: ৳৭,০০০' : 'Cash close — should be in the drawer: ৳7,000',
         'entries': mode == FakeMode.empty ? const [] : [
           {'id': 1, 'kind': 'in', 'amount_display': _pair('৳3,200', '৳3,200'),
            'note': _bn ? 'নগদ বিক্রি' : 'Cash sales', 'at_display': _pair('সকাল ১০টা', '10:00 AM')},
@@ -1696,9 +1707,15 @@ class FakeApi extends ApiClient {
       ];
       return {'businesses': rows, 'profiles': rows, 'selected_id': 1, 'role': 'owner'};
     }
+    // bizbar: staff list
+    if (bare == 'business/staff') {
+      return {'staff': mode == FakeMode.empty ? const [] : [
+        {'id': 3, 'name': _bn ? 'রফিক' : 'Rafiq', 'phone_masked': '017•••••678', 'role': 'staff', 'active': true},
+      ], 'max': 10};
+    }
     // products
     if (bare == 'business/products/' || bare == 'business/products') {
-      return {'products': mode == FakeMode.empty ? const [] : _bizProducts(), 'role': 'owner'};
+      return {'products': mode == FakeMode.empty ? const [] : _bizProducts(), 'role': 'owner', 'low_stock_count': mode == FakeMode.empty ? 0 : 1};
     }
     if (RegExp(r'^business/products/\d+/?$').hasMatch(bare)) {
       return {..._bizProducts().first, 'role': 'owner'};
@@ -1760,7 +1777,7 @@ class FakeApi extends ApiClient {
     // cashbox
     if (RegExp(r'business/cashbox/[^/]+/entries$').hasMatch(bare)) {
       final day = bare.split('/')[2];
-      return {'entries': _bizCashbox(day)['entries']};
+      return {..._bizCashbox(day), 'entry_id': 3};
     }
     if (RegExp(r'^business/cashbox/[^/?]+$').hasMatch(bare)) {
       final day = bare.split('/')[2];

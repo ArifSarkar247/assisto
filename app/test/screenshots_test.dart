@@ -264,6 +264,8 @@ import 'package:assisto/widgets/khata_free_promise.dart'; // ledger100
 import 'dart:convert' show jsonEncode; // ledger100
 import 'fake_khata.dart' show fakeKhataParties; // ledger100
 import 'package:assisto/screens/business/cashbox_screen.dart';
+import 'package:assisto/screens/business/low_stock_card.dart'; // bizbar
+import 'package:assisto/screens/business/staff_screen.dart'; // bizbar
 import 'package:assisto/screens/business/customers_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
 import 'package:assisto/screens/business/reports_screen.dart';
@@ -805,6 +807,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'biz_cashbox': (build: (l) => CashboxScreen(business: {'id': 1, 'name': l == 'bn' ? 'আমার দোকান' : 'My Shop', 'role': 'owner'}), mode: FakeMode.data, full: true),
     'biz_customers': (build: (_) => const CustomersScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_quick_sell': (build: (_) => const QuickSellScreen(businessId: 1), mode: FakeMode.data, full: true),
+    // bizbar: low-stock filter, due checkout (names the customer), hub card
+    'bb_staff': (build: (_) => const StaffScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'bb_staff_empty': (build: (_) => const StaffScreen(businessId: 1), mode: FakeMode.empty, full: true),
+    'bb_low_stock': (build: (_) => const ProductsScreen(businessId: 1, lowOnly: true), mode: FakeMode.data, full: true),
+    'bb_checkout': (build: (_) => const Scaffold(body: CheckoutSheet(cart: {'lines': [{'id': 1, 'product_id': 5, 'product_name': 'Soap', 'variant_key': '__base__', 'qty': 2, 'unit_price': 10000}], 'subtotal': 20000, 'total': 20000}, businessId: 1)), mode: FakeMode.data, full: true),
+    'bb_low_stock_card': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: [LowStockCard(businessId: 1, onOpen: () {})])), mode: FakeMode.data, full: false),
     'biz_reports': (build: (_) => const ReportsScreen(businessId: 1), mode: FakeMode.data, full: true),
     'biz_orders': (build: (_) => const OrdersScreen(), mode: FakeMode.data, full: true),
     'biz_payments': (build: (_) => const PaymentsScreen(), mode: FakeMode.data, full: true),

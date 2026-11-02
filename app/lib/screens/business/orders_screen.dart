@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/error_kind.dart' show honestFailText; // bizbar
+import '../../messaging/date_separators.dart' show localDigits; // bizbar
+import '../../api.dart' show ApiException; // bizbar
 import 'selling_common.dart' show MoneyUiX;
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
@@ -88,7 +91,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     try {
       _orders = await api.ordersList();
     } catch (e) {
-      _error = e.toString();
+      _error = honestFailText(AppLocalizations.of(context), e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -135,7 +138,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         // name gets the full width; status/amount/COD wrap below it so a
         // long Bangla status never squeezes the customer's name to "…".
-        title: Text('#${o['id']} · ${o['customer_name'] ?? ''}',
+        title: Text('#${localDigits('${o['id']}', Localizations.localeOf(context).languageCode)} · ${o['customer_name'] ?? ''}',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -195,7 +198,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       _order = await api.order(widget.orderId);
       _parcel = await api.orderParcel(widget.orderId);
     } catch (e) {
-      _error = e.toString();
+      _error = honestFailText(AppLocalizations.of(context), e);
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -215,12 +218,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     try {
       final r = await api.orderAdvance(widget.orderId, target, courier: courier);
       _dirty = true;
-      if (r['courier_live'] == false && target == 'shipped') {
+      // bizbar: the server nests it under order / event
+      final live = r['courier_live'] ??
+          (r['order'] is Map ? (r['order'] as Map)['courier_live'] : null) ??
+          (r['event'] is Map ? (r['event'] as Map)['courier_live'] : null);
+      if (live == false && target == 'shipped') {
         _snack(tr.truthCourierManualNote);
       }
       await _load();
     } catch (e) {
-      _snack(e.toString());
+      _snack(e is ApiException && e.status != null && e.status! < 500 ? e.message : honestFailText(AppLocalizations.of(context), e));
     }
     if (mounted) setState(() => _busy = false);
   }
@@ -284,7 +291,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         if (!didPop) Navigator.of(context).pop(_dirty);
       },
       child: Scaffold(
-        appBar: AppBar(title: Text('#${widget.orderId}')),
+        appBar: AppBar(title: Text('#${localDigits('${widget.orderId}', Localizations.localeOf(context).languageCode)}')),
         body: _loading
             ? const SkeletonList()
             : _error != null
@@ -315,9 +322,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           Row(children: [
             BizStatusChip(label: statusChipLabel(tr, _status), color: statusColor(_status)),
           ]),
-          if (_parcel?['line'] != null) ...[
+          if ((_parcel?['message'] ?? _parcel?['line']) != null) ...[
             const SizedBox(height: Gap.sm),
-            Text((_parcel!['line']).toString(), style: const TextStyle(height: 1.4)),
+            Text((_parcel!['message'] ?? _parcel!['line']).toString(),
+                style: const TextStyle(height: 1.4)),
           ],
           if (_order['tracking'] != null && (_order['tracking']).toString().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -345,7 +353,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(children: [
                 Expanded(child: Text((it['name'] ?? '').toString())),
-                Text('×${it['qty'] ?? 1}'),
+                Text('×${localDigits('${it['qty'] ?? 1}', Localizations.localeOf(context).languageCode)}'),
                 const SizedBox(width: Gap.md),
                 Text(_takaFmt(context, it['price']), style: const TextStyle(fontWeight: FontWeight.w600)),
               ]),

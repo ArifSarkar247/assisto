@@ -53,8 +53,11 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
     final overdue = (d['overdue_next_steps'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final stuck = (d['stuck_deals'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final missing = (d['missing_next_step'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    // bizbar: due tasks came from the server but were never shown
+    final tasks = (d['due_tasks'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
-    final empty = high.isEmpty && fu.isEmpty && overdue.isEmpty && stuck.isEmpty && missing.isEmpty;
+    final empty = high.isEmpty && fu.isEmpty && overdue.isEmpty && stuck.isEmpty &&
+        missing.isEmpty && tasks.isEmpty;
     if (empty) {
       return RefreshIndicator(
         onRefresh: _load,
@@ -100,6 +103,22 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
                 subtitle: Text('${t.crmNextFollowUp}: ${_date(l['next_follow_up'])}'),
                 trailing: _inlineActions(t, l),
                 onTap: () => _openLead((l['id'] as num).toInt()),
+              ),
+            ),
+        ],
+        if (tasks.isNotEmpty) ...[
+          _header(t.bbCrmDueTasks, Icons.task_alt_rounded, AssistoTokens.of(context).warning),
+          for (final s in tasks)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.checklist_rounded),
+                title: Text('${s['subject'] ?? ''}'),
+                subtitle: Text([
+                  if ('${s['lead_name'] ?? ''}'.isNotEmpty) '${s['lead_name']}',
+                  '${t.crmDue}: ${_date(s['due_at'])}',
+                ].join(' · ')),
+                trailing: _inlineActions(t, s),
+                onTap: _leadIdOf(s) != null ? () => _openLead(_leadIdOf(s)!) : null,
               ),
             ),
         ],
@@ -160,7 +179,10 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
   /// deal-engine rows). Returns null when the row can't resolve to a lead — then
   /// the row stays non-tappable and shows no reschedule button.
   int? _leadIdOf(Map<String, dynamic> row) {
-    final v = row['id'] ?? row['lead_id'] ?? row['lead'];
+    // bizbar: deal/task rows now carry lead_id (a task's `id` is the TASK)
+    final v = row.containsKey('deal_id') || row.containsKey('subject')
+        ? (row['lead_id'] ?? row['lead'])
+        : (row['id'] ?? row['lead_id'] ?? row['lead']);
     return v is num ? v.toInt() : null;
   }
 

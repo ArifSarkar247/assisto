@@ -70,10 +70,14 @@ def resolve_business(request):
     profile (owner) is used. Rejects businesses the requester may not touch.
     """
     from .models import BusinessProfile, BusinessStaff
-    bid = request.query_params.get("business")
+    # bizbar: several app calls (cashbox, net position, schedules) send
+    # `business_id`; it was ignored, so a STAFF member's cashbox silently
+    # landed in an empty shop auto-created for them.
+    bid = (request.query_params.get("business")
+           or request.query_params.get("business_id"))
     if not bid and request.method in ("POST", "PUT", "PATCH", "DELETE"):
         try:
-            bid = request.data.get("business")
+            bid = request.data.get("business") or request.data.get("business_id")
         except Exception:
             bid = None
     if bid:
@@ -247,6 +251,30 @@ def _product_dict(p):
             "barcode": p.barcode, "description": p.description, "variants": vs}
 
 
+def _shop_products(prof):
+    """bizbar: the SHOP's catalog (owner's rows). Views used
+    request.user.products, so a staff member saw an empty catalog and every
+    staff cart add was a 404."""
+    from .models import Product
+    return Product.objects.filter(user_id=prof.user_id)
+
+
+def _product_out(p, role):
+    """_product_dict + the flat fields the app list reads (price/stock/
+    cost/min in POISHA from the base variant; stock summed), redacted."""
+    d = _product_dict(p)
+    vs = d["variants"] or [{}]
+    base = next((v for v in vs if v.get("key") == "__base__"), vs[0])
+    d.update({"price": int(base.get("sell_price") or 0),
+              "cost_price": int(base.get("cost_price") or 0),
+              "min_price": int(base.get("min_price") or 0),
+              "stock": sum(int(v.get("stock") or 0) for v in d["variants"]),
+              "low_stock_at": int(base.get("low_stock_at") or 3)})
+    d["low_stock"] = 0 < d["stock"] <= d["low_stock_at"]
+    d["out_of_stock"] = d["stock"] <= 0
+    return selling.redact_product(d, role)
+
+
 def _sale_record(s):
     """ORM Sale → the plain dict the reports/history pure fns consume."""
     return {
@@ -389,12 +417,21 @@ class ProductsView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        qs = request.user.products.all()
-        out = []
-        for p in qs:
-            d = _product_dict(p)
-            out.append(selling.redact_product(d, role))  # STAFF ROLE gate
-        return Response({"products": out, "role": role})
+        qs = _shop_products(prof).prefetch_related("variants")
+        q = (request.query_params.get("q") or "").strip()
+        if q:
+            from django.db.models import Q
+            qs = qs.filter(Q(name__icontains=q) | Q(sku__iexact=q)
+                           | Q(barcode=q) | Q(category__icontains=q))
+        cat = (request.query_params.get("category") or "").strip()
+        if cat:
+            qs = qs.filter(category=cat)
+        out = [_product_out(p, role) for p in qs]       # STAFF ROLE gate
+        if request.query_params.get("low") in ("1", "true"):
+            out = [d for d in out if d["stock"] <= d["low_stock_at"]]
+        return Response({"products": out, "role": role,
+                         "low_stock_count": sum(1 for d in out
+                                                if d["stock"] <= d["low_stock_at"])})
 
     def post(self, request):
         prof, role, bad = _require_business(request)
@@ -436,7 +473,7 @@ class ProductsView(APIView):
                 min_price=selling.poisha_to_taka(v["min_price"]),
                 stock=v["stock"], barcode=v["barcode"],
                 low_stock_at=v["low_stock_at"])
-        return Response(selling.redact_product(_product_dict(obj), role), status=201)
+        return Response(_product_out(obj, role), status=201)
 
 
 class ProductDetailView(APIView):
@@ -444,10 +481,10 @@ class ProductDetailView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        p = request.user.products.filter(pk=pk).first()
+        p = _shop_products(prof).filter(pk=pk).first()
         if not p:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
-        return Response(selling.redact_product(_product_dict(p), role))
+        return Response(_product_out(p, role))
 
     # m2-reality: the app's product EDIT posts here (was 405 -> edit never saved)
     def post(self, request, pk):
@@ -483,7 +520,20 @@ class ProductDetailView(APIView):
         p.min_price = selling.poisha_to_taka(base["min_price"])
         p.stock, p.low_stock_at = base["stock"], base["low_stock_at"]
         p.save()
-        return Response(selling.redact_product(_product_dict(p), role))
+        # bizbar: the list/till read the VARIANT rows (created with the
+        # product), so an edit of price/stock/cost/min never showed and the
+        # till kept selling at the old price. Keep the base row in step.
+        vrows = list(p.variants.all())
+        bv = next((v for v in vrows if v.vkey == "__base__"), None)
+        if bv is None and len(vrows) == 1:
+            bv = vrows[0]
+        if bv is not None:
+            bv.sell_price, bv.cost_price, bv.min_price = p.price, p.cost_price, p.min_price
+            bv.stock, bv.low_stock_at = p.stock, p.low_stock_at
+            bv.barcode = p.barcode
+            bv.save(update_fields=["sell_price", "cost_price", "min_price",
+                                   "stock", "low_stock_at", "barcode"])
+        return Response(_product_out(p, role))
 
     def delete(self, request, pk):
         prof, role, bad = _require_business(request)
@@ -560,6 +610,60 @@ def _below_min(lang):
                     status=422)
 
 
+def _stale_cart(lang):
+    return _err(lang, "কার্টের একটা পণ্য বদলে গেছে বা মুছে গেছে — কার্ট খালি করে আবার যোগ করুন।",
+                "An item in the cart changed or was removed — clear the cart and add it again.",
+                status=409, code="cart_stale")
+
+
+def _rehydrate_cart(prof, raw):
+    """bizbar: the cart is held by the phone, so NEVER trust its money
+    fields. Every line's name/sell/min/cost/stock is re-read from the shop's
+    catalog (by product id + variant key); only qty and the chosen unit price
+    come from the phone (a unit price under the DB minimum is refused by
+    checkout / cart_set_price). Lines whose product is gone (or an old cart
+    without product ids) make the cart stale. Returns (cart, stale)."""
+    cart = selling.normalize_cart(raw if isinstance(raw, dict) else None)
+    lines = [l for l in cart["lines"] if isinstance(l, dict)]
+    pids = {l.get("product_id") for l in lines}
+    if None in pids or "" in pids:
+        return cart, bool(lines)
+    prods = {p.id: _product_dict(p) for p in
+             _shop_products(prof).filter(pk__in=pids).prefetch_related("variants")}
+    for l in lines:
+        pd = prods.get(l.get("product_id"))
+        v = selling.get_variant(pd, key=l.get("variant_key")) if pd else None
+        if v is None:
+            return cart, True
+        try:
+            l["qty"] = max(1, int(l.get("qty") or 1))
+            l["unit_price"] = int(l.get("unit_price") or v["sell_price"])
+        except (TypeError, ValueError):
+            return cart, True
+        l["product_name"] = pd["name"]
+        l["variant_key"] = v["key"]
+        l["min_price"] = int(v["min_price"])
+        l["cost_price"] = int(v["cost_price"])
+        l["sell_price"] = int(v["sell_price"])
+        l["_stock"] = int(v["stock"])
+    cart["lines"] = lines
+    return cart, False
+
+
+def _cart_out(cart, role, discount=0):
+    """The cart the phone keeps: totals the app shows (it read `total` and
+    always got ৳0) + staff never sees cost/min on a line."""
+    out = dict(cart)
+    out["lines"] = [{k: v for k, v in l.items() if k != "_stock"}
+                    for l in cart["lines"]]
+    sub = selling.cart_subtotal(cart)
+    out["subtotal"] = sub
+    out["discount"] = int(discount or 0)
+    out["total"] = max(0, sub - int(discount or 0))
+    out["item_count"] = sum(int(l.get("qty") or 0) for l in cart["lines"])
+    return selling.redact_for_role(out, role)
+
+
 class CartAddView(APIView):
     """POST cart/add — MINIMUM PRICE gate: below-min → 422 below_min."""
     def post(self, request):
@@ -567,21 +671,28 @@ class CartAddView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = selling.normalize_cart(request.data.get("cart"))
-        p = request.user.products.filter(pk=request.data.get("product")).first()
+        cart, stale = _rehydrate_cart(prof, request.data.get("cart"))
+        if stale:
+            return _stale_cart(lang)
+        p = _shop_products(prof).filter(pk=request.data.get("product")).first()
         if not p:
             return _err(lang, "পণ্য পাওয়া যায়নি।", "Product not found.", status=404)
+        d = request.data
         cart, line, reason = selling.cart_add_line(
-            cart, _product_dict(p), variant_key=request.data.get("variant_key"),
-            qty=request.data.get("qty", 1),
-            price_override=request.data.get("price_override"),
+            cart, _product_dict(p), variant_key=d.get("variant_key"),
+            qty=d.get("qty", 1),
+            # the app sends unit_price (was ignored)
+            price_override=d.get("price_override") or d.get("unit_price"),
             size=request.data.get("size"), colour=request.data.get("colour"))
         if reason == selling.R_BELOW_MIN:
             return _below_min(lang)       # HARD GATE
         if line is None:
+            if reason in (selling.R_NO_STOCK, selling.R_LOW_STOCK):
+                return _err(lang, "স্টকে এতগুলো নেই।", "Not enough in stock.",
+                            status=422, code=reason)
             return _err(lang, "যোগ করা যায়নি।", "Could not add.", status=422,
                         code=reason)
-        return Response({"cart": cart,
+        return Response({"cart": _cart_out(cart, role),
                          "line": selling.redact_for_role(line, role)})
 
 
@@ -592,14 +703,20 @@ class CartSetPriceView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = selling.normalize_cart(request.data.get("cart"))
-        cart, reason = selling.cart_set_price(
-            cart, int(line_id), request.data.get("price"))
+        cart, stale = _rehydrate_cart(prof, request.data.get("cart"))
+        if stale:
+            return _stale_cart(lang)
+        d = request.data
+        price = d.get("unit_price") if d.get("unit_price") not in (None, "") else d.get("price")
+        if price in (None, ""):
+            return _err(lang, "দাম লিখুন।", "Enter a price.", status=422,
+                        code="no_price")
+        cart, reason = selling.cart_set_price(cart, int(line_id), price)
         if reason == selling.R_BELOW_MIN:
             return _below_min(lang)       # HARD GATE (line unchanged by pure fn)
         if reason != selling.R_OK:
             return _err(lang, "লাইন পাওয়া যায়নি।", "Line not found.", status=404)
-        return Response({"cart": cart})
+        return Response({"cart": _cart_out(cart, role)})
 
 
 class CartSetQtyView(APIView):
@@ -608,14 +725,20 @@ class CartSetQtyView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = selling.normalize_cart(request.data.get("cart"))
-        cart, reason = selling.cart_set_qty(
-            cart, int(line_id), request.data.get("qty"),
-            stock=request.data.get("stock"))
+        cart, stale = _rehydrate_cart(prof, request.data.get("cart"))
+        if stale:
+            return _stale_cart(lang)
+        line = next((l for l in cart["lines"] if l["id"] == int(line_id)), None)
+        stock = line.get("_stock") if line else None    # the DB stock, not the phone's
+        cart, reason = selling.cart_set_qty(cart, int(line_id),
+                                            request.data.get("qty"), stock=stock)
         if reason != selling.R_OK:
+            if reason == selling.R_LOW_STOCK:
+                return _err(lang, "স্টকে এতগুলো নেই।", "Not enough in stock.",
+                            status=422, code=reason)
             return _err(lang, "পরিবর্তন করা যায়নি।", "Could not update.",
                         status=422, code=reason)
-        return Response({"cart": cart})
+        return Response({"cart": _cart_out(cart, role)})
 
 
 class CartRemoveView(APIView):
@@ -624,11 +747,11 @@ class CartRemoveView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = selling.normalize_cart(request.data.get("cart"))
+        cart, _ = _rehydrate_cart(prof, request.data.get("cart"))
         cart, reason = selling.cart_remove_line(cart, int(line_id))
         if reason != selling.R_OK:
             return _err(lang, "লাইন পাওয়া যায়নি।", "Line not found.", status=404)
-        return Response({"cart": cart})
+        return Response({"cart": _cart_out(cart, role)})
 
 
 class CartRemovePostView(APIView):
@@ -640,11 +763,11 @@ class CartRemovePostView(APIView):
         if bad:
             return bad
         lang = req_lang(request)
-        cart = selling.normalize_cart(request.data.get("cart"))
+        cart, _ = _rehydrate_cart(prof, request.data.get("cart"))
         cart, reason = selling.cart_remove_line(cart, int(line_id))
         if reason != selling.R_OK:
             return _err(lang, "লাইন পাওয়া যায়নি।", "Line not found.", status=404)
-        return Response({"cart": cart})
+        return Response({"cart": _cart_out(cart, role)})
 
 
 class CartDiscountPreviewView(APIView):
@@ -653,9 +776,16 @@ class CartDiscountPreviewView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
-        cart = selling.normalize_cart(request.data.get("cart"))
-        eff, reason = selling.apply_cart_discount(cart, request.data.get("discount", 0))
-        return Response({"discount": eff,
+        cart, stale = _rehydrate_cart(prof, request.data.get("cart"))
+        if stale:
+            return _stale_cart(req_lang(request))
+        d = request.data
+        # the app sends `amount` (taka); `discount` kept for older callers
+        raw = d.get("discount") if d.get("discount") not in (None, "") else d.get("amount", 0)
+        eff, reason = selling.apply_cart_discount(cart, raw)
+        out = _cart_out(cart, role, discount=eff)
+        out["discount_clamped"] = reason == selling.R_BELOW_MIN
+        return Response({"cart": out, "discount": eff,
                          "discount_clamped": reason == selling.R_BELOW_MIN,
                          "reason": reason})
 
@@ -669,7 +799,29 @@ class CheckoutView(APIView):
             return bad
         lang = req_lang(request)
         d = request.data
-        cart = d.get("cart") or selling.new_cart()
+        cart, stale = _rehydrate_cart(prof, d.get("cart"))
+        if stale:
+            return _stale_cart(lang)
+        # HARD GATE on the DB minimum (the phone's min_price is ignored)
+        if any(l["unit_price"] < l["min_price"] for l in cart["lines"]):
+            return _below_min(lang)
+        need = {}
+        for l in cart["lines"]:
+            k = selling.line_stock_key(l)
+            need[k] = (need.get(k, (0, l["_stock"]))[0] + l["qty"], l["_stock"])
+        if any(q > st for q, st in need.values()):
+            return _err(lang, "স্টকে এতগুলো নেই।", "Not enough in stock.",
+                        status=422, code=selling.R_LOW_STOCK)
+        for l in cart["lines"]:
+            l.pop("_stock", None)
+        if d.get("payment_method") == selling.PAY_DUE and not (
+                (d.get("customer_phone") or "").strip()
+                or (d.get("customer_name") or "").strip()):
+            # bizbar: an unnamed due sale landed in ONE shared "Customer"
+            # khata page for every buyer — a due must say whose it is.
+            return _err(lang, "বাকিতে বিক্রির জন্য গ্রাহকের নাম বা ফোন দিন।",
+                        "A sale on due needs the customer's name or phone.",
+                        status=422, code="due_needs_customer")
 
         # resolve / create the customer (find_or_create mirrors the ORM table)
         from .models import Customer
@@ -678,12 +830,12 @@ class CheckoutView(APIView):
         phone = (d.get("customer_phone") or "").strip()
         if phone or d.get("customer_name"):
             key = selling.normalize_phone(phone)
-            cust_obj = (Customer.objects.filter(user=request.user, business=prof,
+            cust_obj = (Customer.objects.filter(user_id=prof.user_id, business=prof,
                                                 phone_key=key).first()
                         if key else None)
             if cust_obj is None:
                 cust_obj = Customer.objects.create(
-                    user=request.user, business=prof,
+                    user_id=prof.user_id, business=prof,
                     name=d.get("customer_name", ""), phone=phone, phone_key=key,
                     area=d.get("customer_area", ""))
             cust_dict = {"name": cust_obj.name, "phone": cust_obj.phone}
@@ -704,24 +856,34 @@ class CheckoutView(APIView):
 
         # persist the sale + lines (never a line below min — checkout guarantees it)
         from .models import Sale, SaleLine, ProductVariant
+        # the sale belongs to the SHOP (owner) — a staff sale was saved under
+        # the staff user and vanished from the owner's reports
         sale = Sale.objects.create(
-            user=request.user, business=prof, customer=cust_obj, staff=request.user,
+            user_id=prof.user_id, business=prof, customer=cust_obj, staff=request.user,
             subtotal=res["subtotal"], discount=res["discount"], total=res["total"],
             paid=res["paid"], change=res["change"], due=res["due"],
             profit=res["profit"], payment_method=res["payment_method"],
             discount_clamped=res["discount_clamped"])
         # resolve the catalog variants first so each SaleLine records the one
         # whose stock it decrements (a void restores exactly that).
+        # bizbar: resolve by (product, variant key). Every simple product's
+        # key is "__base__", so the old lookup by key alone decremented the
+        # FIRST product's stock for every sale.
         vobjs = {}
         vmap = {}
-        for vk in {l["variant_key"] for l in res["lines"]}:
-            v = ProductVariant.objects.filter(product__user=request.user,
-                                              vkey=vk).first()
-            if v:
-                vobjs[vk] = v
-                vmap[vk] = _variant_dict(v)
         for l in res["lines"]:
-            vobj = vobjs.get(l.get("variant_key"))
+            lk = selling.line_stock_key(l)
+            if lk in vobjs:
+                continue
+            v = (ProductVariant.objects.filter(product__user_id=prof.user_id,
+                                               product_id=l.get("product_id"),
+                                               vkey=l["variant_key"]).first()
+                 if l.get("product_id") else None)
+            if v:
+                vobjs[lk] = v
+                vmap[lk] = _variant_dict(v)
+        for l in res["lines"]:
+            vobj = vobjs.get(selling.line_stock_key(l))
             SaleLine.objects.create(
                 sale=sale, product_name=l["product_name"], size=l.get("size", ""),
                 colour=l.get("colour", ""), qty=l["qty"],
@@ -732,12 +894,20 @@ class CheckoutView(APIView):
 
         # apply stock decrements across the catalog variants
         decs = selling.apply_stock_decrements(vmap, res["stock_decrements"])
+        from django.db.models import F
         for dd in decs:
-            v = ProductVariant.objects.filter(product__user=request.user,
-                                              vkey=dd["variant_key"]).first()
+            v = vobjs.get(dd["variant_key"])
             if v:
-                v.stock = dd["new_stock"]
-                v.save(update_fields=["stock"])
+                # F(): two tills selling the last items at once both count
+                ProductVariant.objects.filter(pk=v.pk).update(
+                    stock=F("stock") - dd["qty"])
+                v.refresh_from_db(fields=["stock"])
+                dd["new_stock"] = v.stock
+                dd["low_stock"] = v.stock <= v.low_stock_at
+                dd["out_of_stock"] = v.stock <= 0
+                dd["product_name"] = v.product.name
+                if v.product.variants.count() == 1:     # keep Product.stock in step
+                    type(v.product).objects.filter(pk=v.product_id).update(stock=v.stock)
 
         # DUE-SALE → KHATA BRIDGE. A due (or partially-due) sale leaves a
         # receivable the owner must chase; selling.checkout does NOT touch the
@@ -876,9 +1046,24 @@ class CustomersView(APIView):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
+        from .models import Customer, Sale
+        from django.db.models import Sum
+        qs = Customer.objects.filter(user_id=prof.user_id, business=prof)
+        q = (request.query_params.get("q") or "").strip()
+        if q:
+            from django.db.models import Q
+            digits = "".join(ch for ch in khata.normalize_digits(q) if ch.isdigit())
+            cond = Q(name__icontains=q)
+            if len(digits) >= 3:
+                cond |= Q(phone_key__contains=digits[-10:])
+            qs = qs.filter(cond)
+        # bizbar: the list's dues column was dead (never sent) — one query
+        dues = dict(Sale.objects.filter(business=prof, voided_at__isnull=True,
+                                        customer__in=qs)
+                    .values_list("customer_id").annotate(d=Sum("due")))
         rows = [{"id": c.id, "name": c.name, "phone": c.phone, "area": c.area,
-                 "vip": c.vip} for c in
-                request.user.sale_customers.filter(business=prof)]
+                 "vip": c.vip, "dues_poisha": int(dues.get(c.id) or 0)}
+                for c in qs[:500]]
         return Response({"customers": rows})
 
 
@@ -899,13 +1084,13 @@ class CustomersView(APIView):
         key = selling.normalize_phone(phone) if phone else ""
         c = None
         if d.get("id"):
-            c = Customer.objects.filter(user=request.user, business=prof,
+            c = Customer.objects.filter(user_id=prof.user_id, business=prof,
                                         pk=d.get("id")).first()
         if c is None and key:
-            c = Customer.objects.filter(user=request.user, business=prof,
+            c = Customer.objects.filter(user_id=prof.user_id, business=prof,
                                         phone_key=key).first()
         if c is None:
-            c = Customer(user=request.user, business=prof)
+            c = Customer(user_id=prof.user_id, business=prof)
         c.name, c.phone, c.phone_key = name, phone, key
         c.address = str(d.get("address", "")).strip()
         c.area = str(d.get("area", "")).strip()[:80]
@@ -927,7 +1112,7 @@ class CustomerDedupeView(APIView):
             return guard
         rows = [{"name": c.name, "phone": c.phone, "address": c.address,
                  "area": c.area, "notes": c.notes, "vip": c.vip}
-                for c in request.user.sale_customers.filter(business=prof)]
+                for c in prof.user.sale_customers.filter(business=prof)]
         return Response({"customers": selling.dedupe_customers(rows)})
 
 
@@ -938,7 +1123,7 @@ class CustomerHistoryView(APIView):
             return bad
         from .models import Sale
         sales = [_sale_record(s) for s in
-                 Sale.objects.filter(user=request.user, business=prof)
+                 Sale.objects.filter(business=prof)
                  .prefetch_related("lines")]
         hist = selling.purchase_history(sales, phone)
         # a VOIDED sale stays in history (marked) but owes nothing
@@ -964,15 +1149,35 @@ class ReportsView(APIView):
             if gate:
                 return gate
         from .models import Sale, Expense
+        # bizbar: the report is for the CURRENT window (today / last 7 days /
+        # this month, Dhaka) and the SHOP (staff sales included) — it summed
+        # all-time rows of the requesting user only, and the app read flat
+        # keys the server never sent (always ৳0).
+        today = timezone.localdate()
+        start = (today if period == "daily" else
+                 today - timedelta(days=6) if period == "weekly" else
+                 today.replace(day=1))
+        start_dt = timezone.make_aware(datetime.combine(start, datetime.min.time()))
         sales = [_sale_record(s) for s in
-                 Sale.objects.filter(user=request.user, business=prof,
-                                     voided_at__isnull=True)   # VOID excluded
+                 Sale.objects.filter(business=prof, voided_at__isnull=True,
+                                     created_at__gte=start_dt)   # VOID excluded
                  .prefetch_related("lines")]
+        exp_rows = list(Expense.objects.filter(business=prof, date__gte=start))
         expenses = [{"amount": selling.poisha_to_taka(e.amount),
                      "date": e.date.isoformat(), "category": e.category}
-                    for e in Expense.objects.filter(user=request.user, business=prof)]
+                    for e in exp_rows]
         rep = selling.full_report(sales, expenses, period=period, lang=lang,
                                   role=role)   # STAFF ROLE gate baked into pure fn
+        total = sum(int(x.get("total", 0)) for x in sales)
+        flat = {"role": role, "from": start.isoformat(), "to": today.isoformat(),
+                "sales_total": total, "sale_count": len(sales),
+                "expenses": sum(int(e.amount) for e in exp_rows)}
+        if role != selling.ROLE_STAFF:
+            gross = sum(int(x.get("profit", 0)) for x in sales)
+            flat.update({"profit": gross, "net_profit": gross - flat["expenses"]})
+        rep.update(flat)
+        rep["sales_by_period"] = rep.pop("sales", {})
+        rep["sales"] = total
         return Response(rep)
 
 
@@ -1050,11 +1255,32 @@ class KhataPartiesView(APIView):
             return _err(lang, "নাম লিখুন।", "Enter a name.", status=422,
                         code="name_required")
         from .models import KhataParty
+        from .phone import canonical_phone
+        phone = str(request.data.get("phone") or "")[:40]
+        # bizbar: never a twin. The same phone in the same book is the same
+        # person (TallyKhata warns too), and a party queued offline is
+        # replayed with its client_id until the phone hears back — a replay
+        # after a lost answer returns the party already made.
+        canon = canonical_phone(phone) or ""
+        ex = None
+        if canon:
+            ex = prof.khata_parties.filter(book=book, phone_canon=canon,
+                                           archived=False).first()
+        cid = _client_id(request)
+        marker = "[cid:%s]" % cid if cid else ""
+        if ex is None and marker:
+            ex = prof.khata_parties.filter(book=book, note__contains=marker).first()
+        if ex is not None:
+            out = _party_row(ex, _party_balance(ex), lang)
+            out["existing"] = True
+            return Response(out, status=200)
         p = KhataParty.objects.create(
-            business=prof, book=book, name=name,
-            phone=str(request.data.get("phone") or "")[:40],
+            business=prof, book=book, name=name, phone=phone,
             area=str(request.data.get("area") or "")[:80],
-            note=str(request.data.get("note") or ""), vip=bool(request.data.get("vip")))
+            # the client_id rides in the (never shown) note so a replay
+            # finds this row — no schema change
+            note=(str(request.data.get("note") or "") + marker).strip(),
+            vip=bool(request.data.get("vip")))
         out = _party_row(p, 0, lang)
         return Response(out, status=201)
 
@@ -1084,6 +1310,113 @@ def _entry_dicts(p):
              "client_id": e.client_id, "editable": _entry_editable(e),
              "bill_photo_ref": e.bill_photo.url if e.bill_photo else None}
             for e in p.entries.all()]
+
+
+# ===========================================================================
+# bizbar — STAFF (one shop, several phones). The role model existed
+# (BusinessStaff + every staff redaction) but nothing could create a row, so
+# "staff accounts" were unreachable. Owner adds an Assisto user by number.
+# ===========================================================================
+
+def _staff_row(m):
+    from .phone import mask, canonical_phone
+    u = m.member
+    return {"id": m.id, "name": getattr(u, "name", "") or "",
+            "phone_masked": mask(canonical_phone(u.phone or "") or ""),
+            "role": m.role, "active": m.active,
+            "since": m.created_at.isoformat()}
+
+
+STAFF_MAX = 10
+
+
+class StaffView(APIView):
+    """GET staff (owner) / POST {phone} add an Assisto user as staff."""
+    def get(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        rows = [_staff_row(m) for m in prof.staff.filter(active=True)
+                .select_related("member").order_by("created_at")]
+        return Response({"staff": rows, "max": STAFF_MAX})
+
+    def post(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        from .models import BusinessStaff
+        from .phone import find_user, is_discoverable
+        u = find_user(str(request.data.get("phone") or ""))
+        if u is None or not is_discoverable(u):
+            return _err(lang,
+                        "এই নম্বরে Assisto অ্যাকাউন্ট পাওয়া যায়নি। আগে তাঁকে Assisto-তে যোগ দিতে বলুন, তারপর আবার যোগ করুন।",
+                        "No Assisto account on this number. Ask them to join Assisto first, then add them again.",
+                        status=404, code="staff_not_on_assisto")
+        if u.id == prof.user_id:
+            return _err(lang, "আপনি নিজেই মালিক।", "You are the owner.",
+                        status=422, code="staff_is_owner")
+        if prof.staff.filter(active=True).exclude(member=u).count() >= STAFF_MAX:
+            return _err(lang, "সর্বোচ্চ %d জন কর্মচারী।" % STAFF_MAX,
+                        "At most %d staff." % STAFF_MAX, status=422,
+                        code="staff_limit")
+        m, _ = BusinessStaff.objects.get_or_create(
+            business=prof, member=u, defaults={"role": "staff"})
+        if not m.active or m.role != "staff":
+            m.active, m.role = True, "staff"
+            m.save(update_fields=["active", "role"])
+        # no push: there is no business push kind yet — the owner's screen
+        # tells them where the shop appears (Business -> Switch shop)
+        return Response(_staff_row(m), status=201)
+
+
+class StaffRemoveView(APIView):
+    def post(self, request, pk):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        n = prof.staff.filter(pk=pk, active=True).update(active=False)
+        if not n:
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True})
+
+
+class KhataExportView(APIView):
+    """GET khata/export — bizbar: the owner's own copy of the WHOLE khata
+    (both books, every entry) as CSV text in JSON {filename, csv, parties,
+    entries}. Owner-only (the supplier book shows cost). Two queries."""
+    def get(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        parties = list(prof.khata_parties.filter(archived=False)
+                       .order_by("book", "name", "id")
+                       .prefetch_related("entries"))
+        rows = [{"book": p.book, "name": p.name, "phone": p.phone, "area": p.area,
+                 "entries": [{"direction": e.direction, "amount": e.amount_poisha,
+                              "note": e.note, "at": e.at.isoformat()}
+                             for e in p.entries.all()]}
+                for p in parties]
+        day = timezone.localdate().isoformat()
+        return Response({
+            "filename": "assisto-khata-%s.csv" % day,
+            "csv": khata.khata_export_csv(rows, lang),
+            "parties": len(rows),
+            "entries": sum(len(r["entries"]) for r in rows),
+        })
 
 
 class KhataStatementView(APIView):
@@ -1594,62 +1927,149 @@ class KhataStatementPdfView(APIView):
         return Response(data)
 
 
+def _cashbox_day(day):
+    """'YYYY-MM-DD' -> (date, aware start, aware end) in Dhaka time, or None."""
+    from datetime import date as _d, time as _t
+    try:
+        d = _d.fromisoformat(str(day))
+    except ValueError:
+        return None
+    start = timezone.make_aware(datetime.combine(d, _t.min),
+                                timezone.get_current_timezone())
+    return d, start, start + timedelta(days=1)
+
+
+def _cashbox_auto(prof, start, end):
+    """bizbar: money the shop already booked today elsewhere -> cash-close
+    lines (never typed twice). POS cash = paid − change of cash sales and the
+    paid part of due sales (bKash/Nagad sales are not drawer cash; voided
+    sales never count). Khata: customer payments got = in, supplier payments
+    gave = out. Expenses dated today = out."""
+    from django.db.models import Count, Sum
+    from .models import Expense, KhataEntry, Sale
+    sales = (Sale.objects.filter(business=prof, created_at__gte=start,
+                                 created_at__lt=end, voided_at__isnull=True,
+                                 payment_method__in=("cash", "due"))
+             .aggregate(paid=Sum("paid"), change=Sum("change"), n=Count("id")))
+    ke = KhataEntry.objects.filter(party__business=prof, at__gte=start, at__lt=end)
+    dues = ke.filter(party__book=khata.CUSTOMER, direction="got").aggregate(
+        s=Sum("amount_poisha"), n=Count("id"))
+    supp = ke.filter(party__book=khata.SUPPLIER, direction="gave").aggregate(
+        s=Sum("amount_poisha"), n=Count("id"))
+    exp = Expense.objects.filter(business=prof, date=start.date()).aggregate(
+        s=Sum("amount"), n=Count("id"))
+    return {
+        "cash_sales": max(0, (sales["paid"] or 0) - (sales["change"] or 0)),
+        "cash_sales_count": sales["n"] or 0,
+        "dues_collected": dues["s"] or 0, "dues_collected_count": dues["n"] or 0,
+        "supplier_paid": supp["s"] or 0, "supplier_paid_count": supp["n"] or 0,
+        "expenses": exp["s"] or 0, "expenses_count": exp["n"] or 0,
+    }
+
+
+def _cashbox_payload(request, prof, day, lang, cb=None):
+    """The cashbox screen's ONE contract (khata.cashbox_close_view) for a day.
+    No row yet -> the opening is carried from the last counted close."""
+    from .models import CashboxDay
+    d, start, end = _cashbox_day(day)
+    if cb is None:
+        cb = CashboxDay.objects.filter(business=prof, day=d).first()
+    carried = False
+    if cb is not None:
+        opening = cb.opening_poisha
+        entries = [{"id": e.id, "kind": e.kind, "amount": e.amount_poisha,
+                    "note": e.note, "ref": e.ref, "at": e.at.isoformat()}
+                   for e in cb.entries.all()]
+    else:
+        opening, entries = _carried_opening(prof, d), []
+        carried = opening > 0
+    out = khata.cashbox_close_view(
+        opening, entries, auto=_cashbox_auto(prof, start, end),
+        counted=cb.counted_poisha if cb is not None else None,
+        reconciled_at=(cb.reconciled_at.isoformat()
+                       if cb is not None and cb.reconciled_at else None),
+        opening_carried=carried)
+    out["day"] = d.isoformat()
+    out["share_text"] = khata.cashbox_share_text(
+        out, d.isoformat(), prof.shop_name or "", lang)
+    return out
+
+
+def _carried_opening(prof, d):
+    """Yesterday's counted cash is today's opening (TallyKhata-style)."""
+    from .models import CashboxDay
+    prev = (CashboxDay.objects.filter(business=prof, day__lt=d,
+                                      counted_poisha__isnull=False)
+            .order_by("-day").first())
+    return int(prev.counted_poisha) if prev is not None else 0
+
+
+def _cashbox_row(prof, d):
+    """get_or_create the day row; a NEW row starts from the carried opening."""
+    from .models import CashboxDay
+    cb = CashboxDay.objects.filter(business=prof, day=d).first()
+    if cb is None:
+        cb, _ = CashboxDay.objects.get_or_create(
+            business=prof, day=d,
+            defaults={"opening_poisha": _carried_opening(prof, d)})
+    return cb
+
+
+def _bad_day(lang):
+    return _err(lang, "তারিখ ভুল।", "bad day (YYYY-MM-DD)", status=400,
+                code="bad_day")
+
+
 class CashboxView(APIView):
-    """GET cashbox/<day> — summary (owner+staff)."""
+    """GET cashbox/<day> — the day-close payload (owner+staff)."""
     def get(self, request, day):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
         lang = req_lang(request)
-        from datetime import date as _d
-        try:
-            _d.fromisoformat(str(day))
-        except ValueError:   # a bad day used to 500 in the ORM filter
-            return Response({"detail": "bad day (YYYY-MM-DD)"},
-                            status=400)
-        from .models import CashboxDay
-        cb = CashboxDay.objects.filter(business=prof, day=day).first()
-        opening = cb.opening_poisha if cb else 0
-        entries = ([{"kind": e.kind, "amount": e.amount_poisha, "note": e.note,
-                     "ref": e.ref, "at": e.at.isoformat()}
-                    for e in cb.entries.all()] if cb else [])
-        out = khata.cashbox_summary(opening, entries, lang)
-        out["reconciled_at"] = cb.reconciled_at.isoformat() if cb and cb.reconciled_at else None
-        return Response(out)
+        if _cashbox_day(day) is None:   # a bad day used to 500 in the ORM filter
+            return _bad_day(lang)
+        return Response(_cashbox_payload(request, prof, day, lang))
 
 
 class CashboxOpeningView(APIView):
     """POST cashbox/<day>/opening {opening} — set the day's opening cash
-    (poisha) on the CashboxDay row, then return the fresh summary."""
+    (poisha), then return the fresh payload."""
     def post(self, request, day):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
         lang = req_lang(request)
+        dd = _cashbox_day(day)
+        if dd is None:
+            return _bad_day(lang)
         try:
             opening = int(request.data.get("opening") or 0)
         except (TypeError, ValueError):
-            return _err(lang, "ওপেনিং ভুল।", "Invalid opening amount.",
+            opening = -1
+        if opening < 0:
+            return _err(lang, "শুরুর ক্যাশ ভুল।", "Invalid opening amount.",
                         status=422, code="bad_opening")
-        from .models import CashboxDay
-        cb, _ = CashboxDay.objects.get_or_create(
-            business=prof, day=day, defaults={"opening_poisha": opening})
+        cb = _cashbox_row(prof, dd[0])
         if cb.opening_poisha != opening:
             cb.opening_poisha = opening
             cb.save(update_fields=["opening_poisha"])
-        entries = [{"kind": e.kind, "amount": e.amount_poisha, "note": e.note,
-                    "ref": e.ref, "at": e.at.isoformat()} for e in cb.entries.all()]
-        out = khata.cashbox_summary(cb.opening_poisha, entries, lang)
-        out["reconciled_at"] = cb.reconciled_at.isoformat() if cb.reconciled_at else None
-        return Response(out, status=201)
+        return Response(_cashbox_payload(request, prof, day, lang, cb=cb),
+                        status=201)
 
 
 class CashboxEntryView(APIView):
+    """POST cashbox/<day>/entries {kind, amount(poisha), note} — returns the
+    fresh payload + entry_id (the app replaces its screen state with it; it
+    used to get only {entry_id} and blanked the screen)."""
     def post(self, request, day):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
         lang = req_lang(request)
+        dd = _cashbox_day(day)
+        if dd is None:
+            return _bad_day(lang)
         try:
             e = khata.cash_entry(request.data.get("kind"),
                                  request.data.get("amount"),
@@ -1658,35 +2078,42 @@ class CashboxEntryView(APIView):
         except ValueError as ex:
             return _err(lang, "এন্ট্রি ভুল।", "Invalid entry.", status=422,
                         code="invalid_cash_entry", reason=str(ex))
-        from .models import CashboxDay, CashEntry
-        cb, _ = CashboxDay.objects.get_or_create(
-            business=prof, day=day,
-            defaults={"opening_poisha": request.data.get("opening", 0)})
+        from .models import CashEntry
+        cb = _cashbox_row(prof, dd[0])
         obj = CashEntry.objects.create(
-            day=cb, kind=e["kind"], amount_poisha=e["amount"], note=e["note"],
-            ref=e.get("ref", ""), at=timezone.now())
-        return Response({"entry_id": obj.id}, status=201)
+            day=cb, kind=e["kind"], amount_poisha=e["amount"],
+            note=(e["note"] or "")[:200], ref=(e.get("ref") or "")[:60],
+            at=timezone.now())
+        out = _cashbox_payload(request, prof, day, lang, cb=cb)
+        out["entry_id"] = obj.id
+        return Response(out, status=201)
 
 
 class CashboxReconcileView(APIView):
+    """POST cashbox/<day>/reconcile {counted} — the day close. Can be done
+    again (re-count); returns the payload with counted + variance."""
     def post(self, request, day):
         prof, role, bad = _require_business(request)
         if bad:
             return bad
         lang = req_lang(request)
-        from .models import CashboxDay
-        cb = CashboxDay.objects.filter(business=prof, day=day).first()
-        if not cb:
-            return _err(lang, "দিনটি পাওয়া যায়নি।", "Day not found.", status=404)
-        entries = [{"kind": e.kind, "amount": e.amount_poisha, "at": e.at.isoformat()}
-                   for e in cb.entries.all()]
-        res = khata.reconcile_cashbox(
-            cb.opening_poisha, entries, request.data.get("counted"),
-            now=_now_iso(), lang=lang)
-        cb.counted_poisha = res["counted"]
+        dd = _cashbox_day(day)
+        if dd is None:
+            return _bad_day(lang)
+        raw = request.data.get("counted")
+        counted = khata.to_poisha(raw) if isinstance(raw, str) else raw
+        try:
+            counted = int(counted)
+        except (TypeError, ValueError):
+            counted = -1
+        if counted < 0:
+            return _err(lang, "গোনা টাকা ভুল।", "Invalid counted amount.",
+                        status=422, code="bad_counted")
+        cb = _cashbox_row(prof, dd[0])
+        cb.counted_poisha = counted
         cb.reconciled_at = timezone.now()
         cb.save(update_fields=["counted_poisha", "reconciled_at"])
-        return Response(res)
+        return Response(_cashbox_payload(request, prof, day, lang, cb=cb))
 
 
 # ===========================================================================

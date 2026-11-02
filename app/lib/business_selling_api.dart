@@ -208,11 +208,18 @@ extension BusinessSellingApi on ApiClient {
     num? discountTaka,
     num? discountPercent,
     String? note,
+    String? customerName,
+    String? customerPhone,
   }) =>
       _postGuardMin('/business/sales/checkout', {
         'cart': cart,
         if (businessId != null) 'business': businessId,
         if (customerId != null) 'customer': customerId,
+        // bizbar: the server reads these (a due sale must name its buyer)
+        if (customerName != null && customerName.isNotEmpty)
+          'customer_name': customerName,
+        if (customerPhone != null && customerPhone.isNotEmpty)
+          'customer_phone': customerPhone,
         'payment_method': paymentMethod,
         if (paidTaka != null) 'paid': '$paidTaka',
         if (discountTaka != null) 'discount': '$discountTaka',

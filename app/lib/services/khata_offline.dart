@@ -36,7 +36,7 @@ class KhataOp {
   final int partyId;
   final String partyName;
   final String book; // customer | supplier
-  final String kind; // entry | payment | edit
+  final String kind; // entry | payment | edit | party (bizbar: a new party)
   final String direction; // gave | got  (entry only; payment derives it)
   final int amountPoisha;
   final String note;
@@ -47,6 +47,8 @@ class KhataOp {
   final String state; // pending | failed | conflict
   final String error; // server sentence for failed / conflict
   final int attempts;
+  final String phone; // party only
+  final String area; // party only
 
   const KhataOp({
     required this.cid,
@@ -65,14 +67,17 @@ class KhataOp {
     this.state = 'pending',
     this.error = '',
     this.attempts = 0,
+    this.phone = '',
+    this.area = '',
   });
 
   bool get isPending => state == 'pending';
+  bool get isParty => kind == 'party';
 
   /// Signed effect on the party balance (same rule as the server's
   /// khata._signed) — only for the "pending" estimate shown in the UI.
   int get signedDelta {
-    if (kind == 'edit') return 0; // shown as "edit pending", no estimate
+    if (kind == 'edit' || kind == 'party') return 0; // no money estimate
     final dir = kind == 'payment'
         ? (book == 'customer' ? 'got' : 'gave')
         : direction;
@@ -80,10 +85,12 @@ class KhataOp {
     return up ? amountPoisha : -amountPoisha;
   }
 
-  KhataOp copyWith({String? state, String? error, int? attempts}) => KhataOp(
+  KhataOp copyWith(
+          {String? state, String? error, int? attempts, int? partyId}) =>
+      KhataOp(
         cid: cid,
         bizId: bizId,
-        partyId: partyId,
+        partyId: partyId ?? this.partyId,
         partyName: partyName,
         book: book,
         kind: kind,
@@ -97,6 +104,8 @@ class KhataOp {
         state: state ?? this.state,
         error: error ?? this.error,
         attempts: attempts ?? this.attempts,
+        phone: phone,
+        area: area,
       );
 
   Map<String, dynamic> toJson() => {
@@ -116,6 +125,8 @@ class KhataOp {
         'state': state,
         'err': error,
         'tries': attempts,
+        if (phone.isNotEmpty) 'ph': phone,
+        if (area.isNotEmpty) 'ar': area,
       };
 
   static KhataOp? fromJson(Map<String, dynamic> j) {
@@ -142,6 +153,8 @@ class KhataOp {
       state: '${j['state'] ?? 'pending'}',
       error: '${j['err'] ?? ''}',
       attempts: i(j['tries']) ?? 0,
+      phone: '${j['ph'] ?? ''}',
+      area: '${j['ar'] ?? ''}',
     );
   }
 }
@@ -175,6 +188,16 @@ class KhataOffline {
     final r = List.generate(10, (_) => _rng.nextInt(36).toRadixString(36)).join();
     return 'kx-${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}-$r';
   }
+
+  /// bizbar: a party added with no internet gets a NEGATIVE id on this phone
+  /// until the server gives it a real one (entries queued for it follow).
+  static int newTempPartyId() => -(1 + _rng.nextInt(1 << 30));
+
+  /// Parties added offline for [bizId]/[book] that are not on the server yet.
+  static Future<List<KhataOp>> pendingParties(int bizId, String book) async =>
+      (await all())
+          .where((o) => o.isParty && o.bizId == bizId && o.book == book)
+          .toList();
 
   // ----------------------------------------------------------------- queue
   static Future<List<KhataOp>> all() async {
@@ -239,14 +262,31 @@ class KhataOffline {
   static Future<KhataSyncResult> _sync(ApiClient api) async {
     var synced = 0, failed = 0;
     var offline = false;
-    final ops = await all();
-    ops.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    for (final op in ops.where((o) => o.isPending).toList()) {
+    // bizbar: a new party goes first — its entries need its real id
+    final order = (await all()).where((o) => o.isPending).toList()
+      ..sort((a, b) => (a.isParty == b.isParty)
+          ? a.createdAt.compareTo(b.createdAt)
+          : (a.isParty ? -1 : 1));
+    for (final queued in order) {
       if (offline) break; // no point trying the rest this pass
+      // re-read: an earlier party op in this pass may have remapped its id
+      final cur = await all();
+      final at = cur.indexWhere((o) => o.cid == queued.cid);
+      if (at < 0) continue;
+      final op = cur[at];
+      if (!op.isParty && op.partyId < 0) continue; // its party isn't synced yet
       try {
-        await _send(api, op).timeout(requestTimeout);
+        final r = await _send(api, op).timeout(requestTimeout);
         final now = await all();
         now.removeWhere((o) => o.cid == op.cid);
+        final real = op.isParty ? (r['id'] as num?)?.toInt() : null;
+        if (real != null) {
+          for (var k = 0; k < now.length; k++) {
+            if (now[k].partyId == op.partyId) {
+              now[k] = now[k].copyWith(partyId: real);
+            }
+          }
+        }
         await _save(now);
         synced++;
       } catch (e) {
@@ -283,8 +323,17 @@ class KhataOffline {
   static Future<Map<String, dynamic>> _send(ApiClient api, KhataOp op,
       {bool notifyCustomer = false}) {
     switch (op.kind) {
+      case 'party':
+        return api.khataCreateParty(
+            businessId: op.bizId,
+            book: op.book,
+            name: op.partyName,
+            phone: op.phone,
+            area: op.area,
+            clientId: op.cid);
       case 'payment':
         return api.khataPayment(
+            businessId: op.bizId,
             partyId: op.partyId,
             amountPoisha: op.amountPoisha,
             note: op.note,
@@ -300,6 +349,7 @@ class KhataOffline {
             atIso: op.atIso.isEmpty ? null : op.atIso);
       default:
         return api.khataAddEntry(
+            businessId: op.bizId,
             partyId: op.partyId,
             direction: op.direction,
             amountPoisha: op.amountPoisha,
@@ -341,5 +391,7 @@ class KhataOffline {
   }
 
   static String partiesKey(int bizId, String book) => 'parties:$bizId:$book';
+  /// bizbar: the business list, so the khata shortcut opens offline.
+  static const businessesKey = 'businesses';
   static String statementKey(int partyId) => 'stmt:$partyId';
 }
