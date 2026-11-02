@@ -112,8 +112,45 @@ class PushNotifier {
         audioAttributesUsage: AudioAttributesUsage.notificationRingtone);
   }
 
+  /// theftalerts: a push's intruder photo link is drawn only when it is
+  /// our own signed engine-photo link over https (never any other URL).
+  static bool theftPhotoUrlOk(Object? u) {
+    final s = '${u ?? ''}';
+    final uri = Uri.tryParse(s);
+    return uri != null &&
+        uri.scheme == 'https' &&
+        uri.host.isNotEmpty &&
+        RegExp(r'/security/engine/event/\d+/photo$').hasMatch(uri.path) &&
+        uri.queryParameters.containsKey('s');
+  }
+
+  /// PURE: is [b] a JPEG of a sane size (the server caps photos at 2 MB)?
+  static bool looksLikeJpeg(Uint8List? b) =>
+      b != null &&
+      b.length > 4 &&
+      b.length <= 2 * 1024 * 1024 &&
+      b[0] == 0xFF &&
+      b[1] == 0xD8 &&
+      b[2] == 0xFF;
+
+  /// Fetch the intruder photo for an anti-theft push (≤ 5 s). null on any
+  /// problem — the text alert is then drawn without it. Never throws.
+  static Future<Uint8List?> _theftPhoto(Map<String, dynamic> data) async {
+    try {
+      final u = data['photo_url'];
+      if (!theftPhotoUrlOk(u)) return null;
+      final r = await http
+          .get(Uri.parse('$u'))
+          .timeout(const Duration(seconds: 5));
+      if (r.statusCode != 200) return null;
+      return looksLikeJpeg(r.bodyBytes) ? r.bodyBytes : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static NotificationDetails detailsFor(PushPayload p,
-      {String? ringtoneUri, Uint8List? largeIcon}) {
+      {String? ringtoneUri, Uint8List? largeIcon, Uint8List? bigPicture}) {
     final t = _t(p.lang);
     // x1-calls A3: the caller's photo as the large icon (ring + missed)
     final AndroidBitmap<Object>? icon =
@@ -194,6 +231,13 @@ class PushNotifier {
           channelDescription: ch.description,
           importance: ch.importance,
           priority: Priority.high,
+          // theftalerts: the intruder photo in the notification itself
+          styleInformation: bigPicture == null
+              ? null
+              : BigPictureStyleInformation(ByteArrayAndroidBitmap(bigPicture),
+                  largeIcon: ByteArrayAndroidBitmap(bigPicture),
+                  hideExpandedLargeIcon: true),
+          largeIcon: bigPicture == null ? null : ByteArrayAndroidBitmap(bigPicture),
           category: p.kind == 'message'
               ? AndroidNotificationCategory.message
               : (p.kind == 'reminder'
@@ -254,6 +298,10 @@ class PushNotifier {
             .load(p.callerPhoto, timeout: const Duration(milliseconds: 2500))
             .catchError((_) => null);
       }
+      // theftalerts: an anti-theft alert with an intruder photo link
+      final Uint8List? pic = OwnDeviceGuard.isAntitheft(p.data)
+          ? await _theftPhoto(p.data)
+          : null;
       var title = titleFor(p);
       var body = p.body;
       // e-gaps: a LOCKED chat's fallback notification shows no name / text
@@ -266,7 +314,7 @@ class PushNotifier {
       }
       await _plugin.show(p.notificationId, title,
           body.isEmpty ? null : body,
-          detailsFor(p, ringtoneUri: ring, largeIcon: face),
+          detailsFor(p, ringtoneUri: ring, largeIcon: face, bigPicture: pic),
           payload: p.encode());
     } catch (e) {
       if (kDebugMode) debugPrint('push show failed: $e');

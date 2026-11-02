@@ -1000,6 +1000,10 @@ class FakeApi extends ApiClient {
         'frozen': false,
         'lost_mode': false,
         'recent': const [],
+        // theftalerts: nominee switch + honest reach count
+        'alert_nominee': false,
+        'nominees_saved': on ? 2 : 0,
+        'nominees_reachable': on ? 1 : 0,
       };
     }
     if (path.startsWith('/security/engine/timeline')) {

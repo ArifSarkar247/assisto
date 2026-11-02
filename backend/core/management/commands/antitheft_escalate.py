@@ -25,6 +25,13 @@ class Command(BaseCommand):
         # module (DRF views/serializers, ~0.1 s CPU) just to get 0.
         from django.utils import timezone
         from core.models import AntiTheftEvent
+        # theftalerts: once an hour, delete events + encrypted intruder photos
+        # past the retention cap (also for phones that never check in again)
+        if timezone.now().minute == 7:
+            from core.views_antitheft import prune_expired
+            gone = prune_expired()
+            if gone:
+                self.stdout.write("antitheft_escalate: pruned=%d" % gone)
         if not AntiTheftEvent.objects.filter(kind__in=("snatch", "fall"), alerted=False,
                                              escalate_at__lte=timezone.now()).exists():
             return

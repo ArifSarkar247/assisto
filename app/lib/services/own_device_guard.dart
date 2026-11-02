@@ -1,4 +1,9 @@
+import 'dart:convert' show utf8;
+
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../device_id.dart';
 
 /// grab-guard (owner 25 Oct) — the owner's OWN phone never DISPLAYS an
 /// anti-theft / safety alert about itself ("Arif's phone: battery low / went
@@ -32,15 +37,43 @@ class OwnDeviceGuard {
   /// (owner_id == me, or phone_id one of his protected phones). The
   /// owner-only `test` kind is allowed through.
   static bool isOwn(Map<dynamic, dynamic> d,
-      {required int? me, Set<int> phoneIds = const {}}) {
+      {required int? me, Set<int> phoneIds = const {}, String? myDevHash}) {
     if (!isAntitheft(d)) return false;
     final kind = '${d['antitheft_kind'] ?? d['kind'] ?? ''}';
     if (kind == 'test') return false;
     if (d['own_device'] == true || '${d['own_device']}' == 'true') return true;
+    // theftalerts (owner 2 Nov): an OWNER COPY of a theft alert is meant for
+    // the owner's OTHER devices. Drop it only on the protected phone itself
+    // (its device hash starts with src_dev). Unknown either side -> drop
+    // (never show a theft alert on the phone it is about by mistake).
+    if ('${d['owner_copy'] ?? ''}' == '1' || d['owner_copy'] == true) {
+      final src = '${d['src_dev'] ?? ''}'.toLowerCase();
+      final mine = (myDevHash ?? '').toLowerCase();
+      if (src.length < srcDevLen || mine.isEmpty) return true;
+      return mine.startsWith(src);
+    }
     final o = _int(d['owner_id']);
     if (me != null && o != null && o == me) return true;
     final p = _int(d['phone_id']);
     return p != null && phoneIds.contains(p);
+  }
+
+  /// Prefix length of the protected phone's device hash in an owner copy
+  /// (backend core/logic/antitheft.py SRC_DEV_LEN).
+  static const srcDevLen = 16;
+
+  /// PURE: the server's AntiTheftEngine.device_hash for an X-Device-Id
+  /// (backend core/own_device.py device_hash: sha256("assisto-dev:" + id)).
+  static String devHashOf(String deviceId) => deviceId.isEmpty
+      ? ''
+      : sha256.convert(utf8.encode('assisto-dev:$deviceId')).toString();
+
+  static Future<String> _myDevHash() async {
+    try {
+      return devHashOf(await DeviceId.get());
+    } catch (_) {
+      return '';
+    }
   }
 
   /// Signed in / profile loaded: remember who this phone belongs to.
@@ -101,7 +134,11 @@ class OwnDeviceGuard {
     try {
       if (!isAntitheft(data)) return false;
       await _ensureLoaded();
-      return isOwn(data, me: _me, phoneIds: _phones);
+      final copy = '${data['owner_copy'] ?? ''}' == '1';
+      return isOwn(data,
+          me: _me,
+          phoneIds: _phones,
+          myDevHash: copy ? await _myDevHash() : null);
     } catch (_) {
       return false;
     }

@@ -43,6 +43,7 @@ class AssistoDeviceAdminReceiver : DeviceAdminReceiver() {
 
     override fun onDisabled(context: Context, intent: Intent) {
         super.onDisabled(context, intent)
+        reportAdminOff(context, "disabled")
         Toast.makeText(
             context,
             "Assisto device protection disabled",
@@ -91,7 +92,30 @@ class AssistoDeviceAdminReceiver : DeviceAdminReceiver() {
      * dialog. Keep it honest and short.
      */
     override fun onDisableRequested(context: Context, intent: Intent): CharSequence {
+        reportAdminOff(context, "requested")
         return "Turning this off removes lost/stolen protection and re-allows " +
-            "uninstalling Assisto."
+            "uninstalling Assisto. Your trusted contacts are told."
+    }
+
+    /**
+     * theftalerts — Play does not let an app BLOCK its uninstall. While this
+     * admin is active, Android makes the person turn it off first (Settings
+     * -> Device admin apps); that moment is the honest "uninstall attempt"
+     * signal. Queue an admin_off event (store-and-forward) and ask the engine
+     * to send it now. Only while protection is ON (engine token present).
+     * Server-side cooldown collapses requested+disabled into one alert.
+     * Fully crash-guarded: must never disturb the Settings screen.
+     */
+    private fun reportAdminOff(context: Context, state: String) {
+        try {
+            val prefs = context.getSharedPreferences(
+                "assisto_antitheft_engine", Context.MODE_PRIVATE)
+            if ((prefs.getString("token", "") ?: "").isBlank()) return
+            val now = System.currentTimeMillis()
+            AntiTheftQueue(context).add("adm-$state-$now", "admin_off", now,
+                null, null, null, JSONObject().put("state", state))
+            AntiTheftService.flush(context)
+        } catch (_: Throwable) {
+        }
     }
 }

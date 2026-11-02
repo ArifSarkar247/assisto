@@ -72,6 +72,7 @@ extension AntiTheftApi on ApiClient {
     bool? nightGuard,
     String? homeWifi,
     String? wifiHash,
+    bool? alertNominee, // theftalerts: theft alerts also to my nominee(s)
   }) =>
       postJsonRaw('/security/engine/settings', {
         'pin': pin,
@@ -84,6 +85,7 @@ extension AntiTheftApi on ApiClient {
         if (nightGuard != null) 'night_guard': nightGuard,
         if (homeWifi != null) 'home_wifi': homeWifi,
         if (wifiHash != null && wifiHash.isNotEmpty) 'wifi_hash': wifiHash,
+        if (alertNominee != null) 'alert_nominee': alertNominee,
       });
 
   /// GET security/engine/timeline[?phone_id] — owner or approved family only.

@@ -23,6 +23,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'phone_safety_screen.dart';
+import 'nominee_screen.dart'; // theftalerts
 import '../services/error_report.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -267,6 +268,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     bool? nightGuard,
     String? homeWifi,
     String? wifiHash,
+    bool? alertNominee,
   }) async {
     final tr = AppLocalizations.of(context);
     final pin = await const SecurityGuard().askPin(context, tr);
@@ -282,6 +284,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         nightGuard: nightGuard,
         homeWifi: homeWifi,
         wifiHash: wifiHash,
+        alertNominee: alertNominee,
       );
       IntruderSnap.after(resp); // at100: wrong PIN -> consented photo
       if (resp['reason'] == 'no_wifi') {
@@ -580,6 +583,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           const SizedBox(height: Gap.md),
           _alertMembersCard(tr),
           const SizedBox(height: Gap.md),
+          _nomineeCard(tr),
+          const SizedBox(height: Gap.md),
           _locationCard(tr),
           const SizedBox(height: Gap.md),
           _nightGuardCard(tr),
@@ -791,6 +796,65 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     );
   }
 
+  /// theftalerts: the three theft alerts can also reach the owner's
+  /// nominee(s) (view-only) — with an honest count of who really gets them,
+  /// and a one-tap way to add a nominee when there is none.
+  Widget _nomineeCard(AppLocalizations tr) {
+    final saved = (_state['nominees_saved'] as num?)?.toInt() ?? 0;
+    final reach = (_state['nominees_reachable'] as num?)?.toInt() ?? 0;
+    final on = _state['alert_nominee'] == true;
+    final text = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              key: const Key('ta-nominee-switch'),
+              value: on,
+              title: Text(tr.taNomineeTitle),
+              subtitle: Text(tr.taNomineeBody),
+              onChanged: _busy || saved == 0
+                  ? null
+                  : (v) => _saveSettings(alertNominee: v),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+              child: Text(
+                  saved == 0
+                      ? tr.taNomineeNone
+                      : tr.taNomineeReach(reach, saved),
+                  style: text.bodyMedium),
+            ),
+            if (saved == 0)
+              Padding(
+                padding: const EdgeInsets.all(Gap.sm),
+                child: FilledButton.icon(
+                  key: const Key('ta-nominee-add'),
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 48)),
+                  onPressed: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const NomineeScreen()));
+                    if (mounted) await _load();
+                  },
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
+                  label: Text(tr.taNomineeAdd, softWrap: true),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+              child: Text(tr.taOwnerCopy, style: text.bodySmall),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _timelineLink(AppLocalizations tr) => Card(
         child: ListTile(
           leading: const Icon(Icons.timeline_rounded),
@@ -826,7 +890,9 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             const SizedBox(height: Gap.xs),
             _bullet(tr.atLimitOffline),
             _bullet(canReadSimNumber ? tr.atLimitSimReadable : tr.atLimitSim),
-            _bullet(tr.atLimitCamera),
+            _bullet(tr.taLimitCamera), // theftalerts: honest, no lock-screen photo
+            _bullet(tr.taLimitUninstall),
+            _bullet(tr.taLimitReset),
             _bullet(tr.atLimitBattery),
             if (sdk != null)
               Padding(
@@ -930,6 +996,8 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
         return Icons.lock_outline_rounded;
       case 'went_dark':
         return Icons.visibility_off_rounded;
+      case 'admin_off': // theftalerts
+        return Icons.gpp_bad_rounded;
       default:
         return Icons.history_rounded;
     }
@@ -959,6 +1027,8 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
         return tr.atKindIntruder;
       case 'went_dark':
         return tr.atKindWentDark;
+      case 'admin_off': // theftalerts
+        return tr.taKindAdminOff;
       default:
         return kind;
     }

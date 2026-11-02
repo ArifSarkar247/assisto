@@ -36,13 +36,26 @@ EVENT_KINDS = {"snatch", "snatch_cleared", "sim_change", "offline", "online",
                "low_battery", "shutdown", "boot", "failed_unlock",
                "intruder_photo", "test",
                # sosat: SOS triggers + experimental fall (core/sos_triggers.py)
-               "sos_lockscreen", "sos_power", "fall", "fall_ok"}
+               "sos_lockscreen", "sos_power", "fall", "fall_ok",
+               # theftalerts: device-admin turn-off (the step Android needs
+               # before Assisto can be uninstalled while protection is on)
+               "admin_off"}
 # Kinds that are a theft SIGNAL (freeze Section-8 sensitive actions for 48h).
 SIGNAL_KINDS = {"snatch": "snatch", "sim_change": "sim_change"}
 # Kinds that never alert anyone (just stored for the timeline).
 SILENT_KINDS = {"online"}
 # Kinds that alert the OWNER only (never family).
 OWNER_ONLY_KINDS = {"test"}
+# theftalerts (owner 2 Nov): the three theft alerts ALSO reach the owner on
+# his OTHER signed-in devices (never the protected phone itself: the push
+# names that phone's device hash and the app drops it there) and the owner's
+# nominee(s) when he switched that on.
+OWNER_COPY_KINDS = {"failed_unlock", "intruder_photo", "sim_change", "admin_off"}
+NOMINEE_KINDS = OWNER_COPY_KINDS
+# The push's photo link is bound to one recipient and expires; the in-app
+# view mints fresh 10-minute links (PHOTO_LINK_TTL_S).
+PUSH_PHOTO_LINK_TTL_S = 6 * 3600
+SRC_DEV_LEN = 16
 
 # Battery-aware heartbeat policy the engine follows (minutes). Mirrored in
 # app/android_overlay/.../antitheft/HeartbeatPolicy.kt — keep in sync.
@@ -280,10 +293,10 @@ def _link_sig(event_id, viewer_id, exp):
     return hmac.new(key, msg, hashlib.sha256).hexdigest()[:40]
 
 
-def photo_link_params(event_id, viewer_id, now_ts=None):
+def photo_link_params(event_id, viewer_id, now_ts=None, ttl_s=None):
     import time
     now_ts = int(now_ts if now_ts is not None else time.time())
-    exp = now_ts + PHOTO_LINK_TTL_S
+    exp = now_ts + int(ttl_s if ttl_s else PHOTO_LINK_TTL_S)
     return {"v": int(viewer_id), "e": exp, "s": _link_sig(event_id, viewer_id, exp)}
 
 
@@ -298,6 +311,29 @@ def verify_photo_link(event_id, viewer_id, exp, sig, now_ts=None):
     if exp < int(now_ts if now_ts is not None else time.time()):
         return False
     return hmac.compare_digest(_link_sig(event_id, viewer_id, exp), str(sig or ""))
+
+
+def push_photo_url(base_url, event_id, params):
+    """Absolute https URL of one recipient's signed photo link for the push
+    (FCM notification image), else None — a plain-http / local base is never
+    put in a push (the phone would refuse it anyway). Pure."""
+    b = str(base_url or "").strip().rstrip("/")
+    if not b.startswith("https://") or not isinstance(params, dict):
+        return None
+    try:
+        qs = "v=%d&e=%d&s=%s" % (int(params["v"]), int(params["e"]),
+                                 str(params["s"]))
+        return "%s/api/v1/security/engine/event/%d/photo?%s" % (
+            b, int(event_id), qs)
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def src_dev(device_hash):
+    """The protected phone's device-hash prefix carried in an owner copy, so
+    the app on THAT phone drops it (mirrored in own_device_guard.dart)."""
+    h = str(device_hash or "").strip().lower()
+    return h[:SRC_DEV_LEN] if len(h) >= SRC_DEV_LEN else ""
 
 
 # --- alert wording (bn + en; "please check") -------------------------------
@@ -400,6 +436,30 @@ def alert_text(kind, owner_name, ev_at, data, lat, lng, battery, late, now,
         be = ("At %s the phone was restarted. If that was not expected, please "
               "check." % w)
         bb = "%s সময়ে ফোনটি রিস্টার্ট হয়েছে। এটা অপ্রত্যাশিত হলে একবার খোঁজ নিন।" % w
+    elif kind == "intruder_photo" and d.get("source") == "in_app_wrong_pin":
+        # theftalerts: the photo is taken inside Assisto (wrong Security PIN)
+        # — say so; it is NOT a screen-unlock attempt.
+        te = "Intruder photo from %s's phone" % name
+        tb = "%s-এর ফোন থেকে অনুপ্রবেশকারীর ছবি" % name
+        be = ("At %s someone typed a wrong Assisto Security PIN several times "
+              "and the front camera took this photo. Open Assisto > My lost "
+              "phone to see it. %s" % (w, loc_en))
+        bb = ("%s সময়ে কেউ কয়েকবার ভুল Assisto সিকিউরিটি পিন দিয়েছে, সামনের "
+              "ক্যামেরা এই ছবিটি তুলেছে। Assisto > আমার হারানো ফোন খুলে দেখুন। %s"
+              % (w, loc_bn))
+    elif kind == "admin_off":
+        done = str(d.get("state") or "") == "disabled"
+        te = "Protection is being turned off on %s's phone" % name
+        tb = "%s-এর ফোনে সুরক্ষা বন্ধ করা হচ্ছে" % name
+        be = ("At %s someone %s Assisto's device protection in the phone's "
+              "Settings. That is the step needed before Assisto can be "
+              "uninstalled. If this was not %s, please check. %s" % (
+                  w, "turned off" if done else "opened the screen to turn off",
+                  name, loc_en))
+        bb = ("%s সময়ে ফোনের সেটিংসে কেউ Assisto-র ডিভাইস সুরক্ষা %s। Assisto "
+              "আনইনস্টল করার আগে এটাই করতে হয়। এটা %s নিজে না করে থাকলে একবার "
+              "খোঁজ নিন। %s" % (w, "বন্ধ করেছে" if done else "বন্ধ করার পাতা খুলেছে",
+                               name, loc_bn))
     elif kind in ("failed_unlock", "intruder_photo"):
         n = d.get("count")
         n_en = ("%s wrong" % n) if n else "several wrong"

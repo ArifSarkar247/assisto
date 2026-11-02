@@ -104,16 +104,99 @@ def approved_family_users(phone):
     return out
 
 
+def nominee_users(phone, eng=None):
+    """theftalerts: the owner's nominee(s) (feature 36) who have an Assisto
+    account, when the owner switched "Also alert my nominee" on. They get the
+    three theft alerts and may VIEW the phone (status, timeline, photo) —
+    never the remote switches (role_for stays trusted-contacts only).
+    Never raises."""
+    try:
+        if eng is None:
+            eng = AntiTheftEngine.objects.filter(phone=phone).first()
+        if eng is None or not getattr(eng, "alert_nominee", False):
+            return []
+        from .models import Nominee
+        from .phone import find_user
+        out, seen = [], {phone.owner_id}
+        for n in Nominee.objects.filter(user_id=phone.owner_id).order_by(
+                "priority", "id")[:10]:
+            u = find_user(n.contact)
+            if u is not None and u.pk not in seen:
+                seen.add(u.pk)
+                out.append(u)
+        return out
+    except Exception:
+        return []
+
+
+def nominee_count(owner):
+    """(nominees saved, nominees with an Assisto account) for the settings
+    switch's honest line. Never raises."""
+    try:
+        from .models import Nominee
+        from .phone import find_user
+        rows = list(Nominee.objects.filter(user=owner)[:10])
+        return len(rows), sum(1 for n in rows if find_user(n.contact) is not None)
+    except Exception:
+        return 0, 0
+
+
 def can_view(phone, user):
     if user is None or not getattr(user, "is_authenticated", False):
         return False
     if phone.owner_id == user.id:
         return True
-    return any(u.pk == user.pk for u in approved_family_users(phone))
+    if any(u.pk == user.pk for u in approved_family_users(phone)):
+        return True
+    return any(u.pk == user.pk for u in nominee_users(phone))
+
+
+def _photo_url_for(event_id, user):
+    """theftalerts: this recipient's own signed, expiring photo link for the
+    push picture (None without a public https base)."""
+    if not event_id:
+        return None
+    try:
+        from django.conf import settings
+        return at.push_photo_url(
+            getattr(settings, "ASSISTO_BASE_URL", ""), event_id,
+            at.photo_link_params(event_id, user.pk,
+                                 ttl_s=at.PUSH_PHOTO_LINK_TTL_S))
+    except Exception:
+        return None
+
+
+def _owner_copy(phone, kind, te, be, tb, bb, meta, now, photo_event_id=None):
+    """theftalerts (owner 2 Nov): the owner ALSO gets the theft alert on his
+    OTHER devices. Data-only push carrying the protected phone's device-hash
+    prefix (src_dev): the app on the protected phone itself drops it
+    (own_device_guard.dart), every other device of the owner draws it — with
+    the photo. Returns 1 when queued. Never raises."""
+    from . import push
+    try:
+        owner = phone.owner
+        eng = AntiTheftEngine.objects.filter(phone=phone).first()
+        sd = at.src_dev(getattr(eng, "device_hash", "") if eng else "")
+        m = dict(meta)
+        m.update({"owner_copy": True, "src_dev": sd})
+        NotifEvent.objects.create(
+            user=owner, type="security", title_bn=tb[:200], title_en=te[:200],
+            body_bn=bb, body_en=be, route="security/lost-phone", meta=m, at=now)
+        data = {"alert_kind": "antitheft", "route": "security/lost-phone",
+                "phone_id": phone.id, "antitheft_kind": kind,
+                "owner_id": phone.owner_id, "owner_copy": "1", "src_dev": sd}
+        url = _photo_url_for(photo_event_id, owner)
+        if url:
+            data["photo_url"] = url
+        push.safe_push(owner, "family_alert", tb, te, bb, be, data=data,
+                       high_priority=True, data_only=True)
+        return 1
+    except Exception:
+        return 0
 
 
 def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
-           family_only=False):
+           family_only=False, photo_event_id=None):
     """ONE in-app record (a bilingual NotifEvent, type "security") + ONE FCM
     push per recipient: the owner and approved family ONLY. Never raises (an
     alert failure must not lose the stored event).
@@ -140,6 +223,10 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
         recips = [owner]
     else:
         recips = list(approved_family_users(phone))
+        # theftalerts: + the nominee(s), when the owner switched it on
+        if kind in at.NOMINEE_KINDS:
+            have = {u.pk for u in recips}
+            recips += [u for u in nominee_users(phone) if u.pk not in have]
     now = timezone.now()
     sent = 0
     seen = set()
@@ -164,16 +251,24 @@ def notify(phone, kind, te, be, tb, bb, meta=None, owner_only=False,
                 body_bn=bb, body_en=be, route=route,
                 meta=m, at=now)
             # antitheft2: HIGH priority (Doze-safe, delivered within seconds)
-            push.safe_push(u, "family_alert", tb, te, bb, be,
-                           data={"alert_kind": "antitheft", "route": route,
-                                 "phone_id": phone.id, "antitheft_kind": kind,
-                                 # grab-guard: the app drops pushes about
-                                 # its own phone (2nd line of defence)
-                                 "owner_id": phone.owner_id},
-                           high_priority=True)
+            data = {"alert_kind": "antitheft", "route": route,
+                    "phone_id": phone.id, "antitheft_kind": kind,
+                    # grab-guard: the app drops pushes about
+                    # its own phone (2nd line of defence)
+                    "owner_id": phone.owner_id}
+            # theftalerts: the intruder photo IN the push (system tray via
+            # FCM image; the open app draws it from data.photo_url)
+            img = _photo_url_for(photo_event_id, u)
+            if img:
+                data["photo_url"] = img
+            push.safe_push(u, "family_alert", tb, te, bb, be, data=data,
+                           high_priority=True, image=img)
             sent += 1
         except Exception:
             continue
+    if (not owner_only and not family_only and kind in at.OWNER_COPY_KINDS
+            and owner is not None and owner.pk not in seen):
+        _owner_copy(phone, kind, te, be, tb, bb, meta, now, photo_event_id)
     return sent
 
 
@@ -475,6 +570,33 @@ def prune_phone(phone, now=None):
     old.delete()
 
 
+PRUNE_BATCH = 500
+
+
+def prune_expired(now=None, limit=PRUNE_BATCH):
+    """theftalerts: the retention promise (events + encrypted intruder photos
+    deleted after EVENT_RETENTION_DAYS) also holds for a phone that never
+    checks in again (stolen, reset) — prune_phone only ran on ingest. Called
+    hourly from the antitheft_escalate cron. Bounded; returns rows deleted.
+    Never raises."""
+    try:
+        now = now or timezone.now()
+        cutoff = now - timedelta(days=at.EVENT_RETENTION_DAYS)
+        ids = list(AntiTheftEvent.objects.filter(at__lt=cutoff)
+                   .values_list("id", flat=True)[:limit])
+        if not ids:
+            return 0
+        for ev in AntiTheftEvent.objects.filter(id__in=ids).exclude(photo=""):
+            try:
+                ev.photo.delete(save=False)
+            except Exception:
+                pass
+        n, _ = AntiTheftEvent.objects.filter(id__in=ids).delete()
+        return n
+    except Exception:
+        return 0
+
+
 # --------------------------------------------------------------------------
 # owner endpoints
 # --------------------------------------------------------------------------
@@ -526,6 +648,10 @@ class EngineStateView(APIView):
             "needs_trusted_contact": not trusted_contacts(phone),
             "location": self._location(phone, eng),
             "night_guard": bool(eng.night_guard),
+            # theftalerts: nominee switch + an honest count of who can get it
+            "alert_nominee": bool(eng.alert_nominee),
+            "nominees_saved": nominee_count(request.user)[0],
+            "nominees_reachable": nominee_count(request.user)[1],
             "home_wifi_count": len([h for h in (eng.home_wifi or [])
                                     if at.wifi_hash_ok(h)]),
             "wifi_seen": bool(eng.last_wifi_hash and eng.last_wifi_at and
@@ -661,6 +787,9 @@ class EngineSettingsView(APIView):
             eng.alert_member_ids = ids
         # antitheft2: Night guard + the saved home Wi-Fi (hashes only)
         eng.night_guard = _bool(request.data.get("night_guard"), eng.night_guard)
+        # theftalerts: also alert my nominee(s) (theft alerts only)
+        eng.alert_nominee = _bool(request.data.get("alert_nominee"),
+                                  eng.alert_nominee)
         hw = str(request.data.get("home_wifi") or "")
         if hw == "clear":
             eng.home_wifi = []
@@ -886,7 +1015,9 @@ def _alert_new_events(phone, eng, new_events, now):
         meta = {"event_id": ev.id, "at": ev.at.isoformat(), "late": ev.late}
         meta.update(_loc_meta(loc))
         sent = notify(phone, kind, te, be, tb, bb, meta=meta,
-                      owner_only=kind in at.OWNER_ONLY_KINDS)
+                      owner_only=kind in at.OWNER_ONLY_KINDS,
+                      photo_event_id=(ev.id if kind == "intruder_photo"
+                                      and ev.photo else None))
         upd = {"alerted": True, "alerted_at": timezone.now(), "recipients": sent}
         if not sent and kind not in at.OWNER_ONLY_KINDS:
             d = dict(ev.data or {})
@@ -1354,7 +1485,7 @@ class EngineWatchingView(APIView):
             if phone.id in seen or not can_view(phone, me):
                 continue
             seen.add(phone.id)
-            out.append(self._brief(phone))
+            out.append(self._brief(phone, me))
         # phones where I am ticked into alert_member_ids
         for eng in AntiTheftEngine.objects.filter(enabled=True).select_related(
                 "phone", "phone__owner"):
@@ -1363,16 +1494,21 @@ class EngineWatchingView(APIView):
                 continue
             if can_view(phone, me):
                 seen.add(phone.id)
-                out.append(self._brief(phone))
+                out.append(self._brief(phone, me))
         return Response({"watching": out})
 
-    def _brief(self, phone):
+    def _brief(self, phone, me=None):
         from . import push
         dark = _went_dark_since(phone)
         eng = _engine(phone, create=False)
         out = {"phone_id": phone.id, "owner": push.display_name(phone.owner),
                "model": phone.model_name, "lost_mode": phone.lost_mode,
                "went_dark_at": dark.isoformat() if dark else None}
+        try:   # theftalerts: a nominee (view-only) gets no remote switches
+            from .views_at_remote import role_for
+            out["can_command"] = role_for(phone, me) is not None
+        except Exception:
+            out["can_command"] = False
         try:   # at100: honest presence for the trusted contact's list
             from .views_at_remote import presence
             p = presence(phone, eng)
