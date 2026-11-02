@@ -24,6 +24,7 @@ import 'package:assisto/screens/business/low_stock_card.dart';
 import 'package:assisto/screens/business/products_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
 import 'package:assisto/screens/business/statement_pdf.dart';
+import 'package:assisto/screens/business/staff_screen.dart';
 import 'package:assisto/services/khata_offline.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -40,12 +41,16 @@ class _BzApi extends FakeApi {
   bool cashboxDown = false;
   bool profilesDown = false;
   bool offline = false;
+  final staff = <Map<String, dynamic>>[];
   final posts = <String, List<Map<String, dynamic>>>{};
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     if (profilesDown && path.startsWith('/business/profiles')) {
       throw const SocketException('offline');
+    }
+    if (path.startsWith('/business/staff')) {
+      return {'staff': staff, 'max': 10};
     }
     return super.getJson(path);
   }
@@ -62,6 +67,11 @@ class _BzApi extends FakeApi {
     posts.putIfAbsent(path.split('?').first, () => []).add(body);
     if (path.split('?').first == '/business/khata/parties') {
       return {'id': 77, 'name': body['name'], 'book': body['book']};
+    }
+    if (path.split('?').first == '/business/staff') {
+      final row = {'id': 3, 'name': 'Rafiq', 'phone_masked': '017•••••678', 'role': 'staff'};
+      staff.add(row);
+      return row;
     }
     if (path.contains('/business/sales/checkout')) {
       return {'sale_id': 9, 'total': 20000, 'lines': const [], 'low_stock': const []};
@@ -337,6 +347,35 @@ void main() {
       expect(party['phone'], '01712345678');
       expect(api.posts['/business/khata/parties/77/entries']!.single['client_id'],
           'kx-entry-0001');
+    });
+  });
+
+  group('staff + backup', () {
+    testWidgets('staff: empty state explains, adds by number (bn)', (tester) async {
+      final api = _BzApi(lang: 'bn');
+      final t = await _pump(tester, const StaffScreen(businessId: 1), api, lang: 'bn');
+      expect(find.text(t.bbStaffBenefit), findsOneWidget);
+      expect(find.text(t.bbStaffNone), findsOneWidget);
+      expect(find.byKey(const ValueKey('bb-staff-circle')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('bb-staff-number')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('bb-staff-phone')), '01712345678');
+      await tester.tap(find.text(t.bbStaffAdd));
+      await tester.pumpAndSettle();
+      expect(api.posts['/business/staff']!.single['phone'], '01712345678');
+      expect(find.text('Rafiq'), findsOneWidget);
+      final h = tester.ensureSemantics();
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      h.dispose();
+    });
+
+    testWidgets('khata: "is my khata safe?" sheet opens from the app bar', (tester) async {
+      final t = await _pump(tester, const KhataScreen(business: _biz), _BzApi());
+      await tester.tap(find.byKey(const ValueKey('bb-backup')));
+      await tester.pumpAndSettle();
+      expect(find.text(t.bbBackupTitle), findsOneWidget);
+      expect(find.text(t.bbBackupNewPhone), findsOneWidget);
+      expect(find.byKey(const ValueKey('bb-backup-export')), findsOneWidget);
     });
   });
 }

@@ -1681,6 +1681,12 @@ class FakeApi extends ApiClient {
       ];
       return {'businesses': rows, 'profiles': rows, 'selected_id': 1, 'role': 'owner'};
     }
+    // bizbar: staff list
+    if (bare == 'business/staff') {
+      return {'staff': mode == FakeMode.empty ? const [] : [
+        {'id': 3, 'name': _bn ? 'রফিক' : 'Rafiq', 'phone_masked': '017•••••678', 'role': 'staff', 'active': true},
+      ], 'max': 10};
+    }
     // products
     if (bare == 'business/products/' || bare == 'business/products') {
       return {'products': mode == FakeMode.empty ? const [] : _bizProducts(), 'role': 'owner', 'low_stock_count': mode == FakeMode.empty ? 0 : 1};
