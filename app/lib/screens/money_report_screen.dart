@@ -60,8 +60,12 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       final dir = await getTemporaryDirectory();
       final f = File('${dir.path}/assisto-money-report.$fmt');
       await f.writeAsBytes(bytes, flush: true);
-      await Share.shareXFiles([XFile(f.path)]);
-      messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
+      final r = await Share.shareXFiles([XFile(f.path)]);
+      // remhbud: say "done" only when the phone confirms a target was chosen;
+      // closing the share sheet is not an export.
+      if (r.status == ShareResultStatus.success) {
+        messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
+      }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));
     }

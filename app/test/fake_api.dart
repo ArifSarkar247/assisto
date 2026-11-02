@@ -16,6 +16,7 @@ import 'fake_khata.dart'; // ledger100
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
 import 'fake_crm100.dart'; // crm100
 import 'at100_fakes.dart'; // at100
+import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1543,6 +1544,12 @@ class FakeApi extends ApiClient {
     if (kw != null) {
       if (mode == FakeMode.fail) _fail();
       return kw;
+    }
+    // remhbud: the Budget module (this month / history / plan / 50-30-20)
+    final rhb = fakeBudgetGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (rhb != null) {
+      if (mode == FakeMode.fail) _fail();
+      return rhb;
     }
     return super.getJson(path);
   }

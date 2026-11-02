@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -10,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/budget_card.dart';
 import '../widgets/budget_insights.dart';
 import '../widgets/budget_sheets.dart';
+import '../widgets/fam_empty.dart';
 import 'money_common.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -30,7 +30,14 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 class MoneyBudgetScreen extends StatefulWidget {
   /// When non-null/non-empty, opens the single-category drill-down.
   final String? category;
-  const MoneyBudgetScreen({super.key, this.category});
+
+  /// remhbud: "now" for the month list (tests pass a fixed clock); default is
+  /// the Asia/Dhaka wall clock so months match the server's.
+  final DateTime? now;
+
+  /// Which tab opens first (0 this month, 1 history, 2 plan).
+  final int initialTab;
+  const MoneyBudgetScreen({super.key, this.category, this.now, this.initialTab = 0});
   @override
   State<MoneyBudgetScreen> createState() => _MoneyBudgetScreenState();
 }
@@ -46,6 +53,7 @@ class _MoneyBudgetScreenState extends State<MoneyBudgetScreen> {
     }
     return DefaultTabController(
       length: 3,
+      initialIndex: widget.initialTab.clamp(0, 2),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
         bottomNavigationBar: const AdBannerSlot(screen: 'budget'),
@@ -62,10 +70,10 @@ class _MoneyBudgetScreenState extends State<MoneyBudgetScreen> {
             Tab(text: t.budgetTabPlan),
           ]),
         ),
-        body: const TabBarView(children: [
-          _ThisMonthTab(),
-          _HistoryTab(),
-          _PlanTab(),
+        body: TabBarView(children: [
+          const _ThisMonthTab(),
+          _HistoryTab(now: widget.now),
+          const _PlanTab(),
         ]),
       ),
     );
@@ -126,7 +134,11 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
         }
       }
     }
-    final res = await showBudgetSheet(context, initial: item?['data'] ?? line);
+    final res = await showBudgetSheet(context,
+        initial: item?['data'] ?? line,
+        choices: budgetCategoryChoices(
+            app.txns.items.whereType<Map>(),
+            taken: [for (final b in app.budgets.items) '${b['data']['category'] ?? ''}']));
     if (res == null) return;
     if (item != null) {
       await app.budgets.update(item,
@@ -165,6 +177,15 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
     }
   }
 
+  /// remhbud: "no savings goal" used to be a dead end on this page.
+  Future<void> _createGoal(BuildContext context) async {
+    final app = context.read<AppState>();
+    final g = await showGoalCreateSheet(context);
+    if (g == null) return;
+    await app.goals.add({'title': g.title, 'target_amount': g.target, 'saved_amount': '0'});
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -180,15 +201,24 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
     final hasGoal = app.goals.items.isNotEmpty;
 
     if (lines.isEmpty && app.budgets.items.isEmpty) {
+      // remhbud: benefit line + big button + how-to (the app-wide shape).
       return Scaffold(
-        body: StateMessage(
+        body: FamEmptyState(
+          key: const ValueKey('rhb_budget_empty'),
           icon: Icons.donut_large_rounded,
           title: t.budgetEmptyTitle,
-          message: t.budgetEmptyBody,
-          action: FilledButton.icon(
-              onPressed: () => _addOrEdit(context),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.budgetAddFirst)),
+          benefit: t.budgetEmptyBody,
+          primaryLabel: t.budgetAddFirst,
+          onPrimary: () => _addOrEdit(context),
+          steps: [t.rhbBudgetHow1, t.rhbBudgetHow2, t.rhbBudgetHow3],
+          header: _offline
+              ? Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.cloud_off_rounded),
+                    title: Text(t.budgetOffline),
+                  ),
+                )
+              : null,
         ),
       );
     }
@@ -247,6 +277,7 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
               result: _goalResult,
               hasGoal: hasGoal,
               onLink: hasGoal ? () => _linkGoal(context) : null,
+              onCreateGoal: () => _createGoal(context),
             ),
           ],
         ),
@@ -257,7 +288,8 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
 
 // ======================= HISTORY =======================
 class _HistoryTab extends StatefulWidget {
-  const _HistoryTab();
+  final DateTime? now;
+  const _HistoryTab({this.now});
   @override
   State<_HistoryTab> createState() => _HistoryTabState();
 }
@@ -271,15 +303,18 @@ class _HistoryTabState extends State<_HistoryTab> {
   @override
   void initState() {
     super.initState();
-    _month = DateFormat('yyyy-MM').format(DateTime.now());
+    _month = moneyMonthKey(_now);
     _load();
   }
 
+  // remhbud: Asia/Dhaka months (the server's), or the injected test clock.
+  DateTime get _now => widget.now ?? dhakaNow();
+
+  /// The last 6 months, newest first (DateTime(y, m - i, 1) rolls the year).
   List<String> _recentMonths() {
-    final now = DateTime.now();
+    final now = _now;
     return [
-      for (int i = 0; i < 6; i++)
-        DateFormat('yyyy-MM').format(DateTime(now.year, now.month - i, 1))
+      for (int i = 0; i < 6; i++) moneyMonthKey(DateTime(now.year, now.month - i, 1))
     ];
   }
 
@@ -308,16 +343,20 @@ class _HistoryTabState extends State<_HistoryTab> {
     return Column(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
-        child: SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
+        // remhbud: a scrolling Row (all 6 months built, height follows the
+        // text size — the fixed 40px row clipped chips at 200%)
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
             children: [
               for (final m in _recentMonths())
                 Padding(
                   padding: const EdgeInsets.only(right: Gap.sm),
                   child: ChoiceChip(
-                    label: Text(m),
+                    key: ValueKey('rhb_month_$m'),
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    // remhbud: "October 2026" in the UI language, not "2026-10"
+                    label: Text(moneyMonth(context, m)),
                     selected: _month == m,
                     onSelected: (_) {
                       setState(() => _month = m);
@@ -343,8 +382,15 @@ class _HistoryTabState extends State<_HistoryTab> {
                 : lines.isEmpty
                     ? StateMessage(
                         icon: Icons.history_rounded,
-                        title: t.budgetEmptyTitle,
+                        title: t.rhbHistoryEmpty(moneyMonth(context, _month)),
                         message: t.budgetEmptyBody,
+                        action: FilledButton.icon(
+                          key: const ValueKey('rhb_history_go'),
+                          style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+                          onPressed: () => DefaultTabController.of(context).animateTo(0),
+                          icon: const Icon(Icons.donut_large_rounded),
+                          label: Text(t.budgetTabThisMonth),
+                        ),
                       )
                     : RefreshIndicator(
                         onRefresh: _load,
@@ -404,6 +450,7 @@ class _PlanTabState extends State<_PlanTab> {
     final t = AppLocalizations.of(context);
     final cat = s['category']?.toString() ?? '';
     final limit = '${s['suggested_limit'] ?? ''}';
+    final done = t.rhbSuggestionUsed(moneyCatLabel(t, cat), tkOf(context, limit));
     Map<String, dynamic>? existing;
     for (final it in app.budgets.items) {
       if (it['data']['category'] == cat) {
@@ -417,7 +464,8 @@ class _PlanTabState extends State<_PlanTab> {
       await app.budgets
           .add({'category': cat, 'monthly_limit': limit, 'rollover': false});
     }
-    messenger.showSnackBar(SnackBar(content: Text(t.save)));
+    // remhbud: say WHAT was set (was a bare "Save" toast).
+    messenger.showSnackBar(SnackBar(content: Text(done)));
   }
 
   Future<void> _template(BuildContext context) async {
@@ -466,20 +514,20 @@ class _PlanTabState extends State<_PlanTab> {
             StateMessage(
               icon: Icons.insights_rounded,
               title: t.budgetPlanTitle,
-              message: t.budgetEmptyBody,
+              message: t.rhbPlanEmpty,
             )
           else
             for (final s in suggestions)
               Card(
                 child: ListTile(
-                  title: Text(s['category']?.toString() ?? ''),
+                  title: Text(moneyCatLabel(t, s['category'])),
                   subtitle: Text(
-                      '${t.budgetPlanAvg}: ${tkFmt(s['avg_spent'])}'),
+                      '${t.budgetPlanAvg}: ${tkOf(context, s['avg_spent'])}'),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(tkFmt(s['suggested_limit']),
+                      Text(tkOf(context, s['suggested_limit']),
                           style:
                               const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                       TextButton(
@@ -538,7 +586,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
         (_data?['months'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     final carry = dbl(_data?['carry_forward']);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category), actions: [
+      appBar: AppBar(title: Text(moneyCatLabel(t, widget.category)), actions: [
         IconButton(
             tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync_rounded)),
       ]),
@@ -547,7 +595,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
           : _failed
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  title: widget.category,
+                  title: moneyCatLabel(t, widget.category),
                   message: honestFailText(t, _failCause, otherwise: t.budgetOffline),
                   action:
                       FilledButton(onPressed: _load, child: Text(t.retry)),
@@ -569,7 +617,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                         title: Text(t.budgetCarryForward,
                             style: TextStyle(
                                 color: scheme.onSecondaryContainer)),
-                        trailing: Text(tkFmt(carry),
+                        trailing: Text(tkOf(context, carry),
                             style: TextStyle(fontFeatures: AFonts.tabular,
                                 fontWeight: FontWeight.bold,
                                 color: scheme.onSecondaryContainer)),
@@ -579,9 +627,11 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                   // one card per month; show the month as the card heading
                   for (final m in months)
                     BudgetCard(
+                      // remhbud: the month as the heading, in the UI language
+                      title: moneyMonth(context, m['month']),
                       line: {
                         ...m,
-                        'category': m['month'] ?? widget.category,
+                        'category': widget.category,
                         'rollover': rollover,
                       },
                     ),

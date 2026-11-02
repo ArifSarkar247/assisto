@@ -85,6 +85,7 @@ class FakeRemit implements RemitSource {
       'received': _received.toStringAsFixed(2),
       'count': entries.length,
       'entries': [for (final e in entries) if ('${e['month']}' == m) e],
+      'by_sender': fakeShares([for (final e in entries) if ('${e['month']}' == m) e]),
       'expected': mode == 'empty'
           ? {'taka': '0.00', 'day': 0, 'sender': '', 'status': 'none', 'due_date': null, 'alert_now': false}
           : {...expected, 'status': status, 'due_date': '$m-10', 'alert_now': mode == 'missing'},
@@ -260,8 +261,8 @@ class FakeRemit implements RemitSource {
       'months': ['30000.00', '28000.00', '31000.00', '30000.00', '29500.00', '45000.00', '30000.00',
         '30000.00', '20000.00', '36250.00', '0.00', '0.00'],
       'by_sender': [
-        {'name': 'Karim', 'total': '216250.00', 'count': 9},
-        {'name': 'Bhai', 'total': '96250.00', 'count': 5},
+        {'name': 'Karim', 'member_id': 7, 'total': '216250.00', 'count': 9, 'pct': 69},
+        {'name': 'Bhai', 'member_id': null, 'total': '96250.00', 'count': 5, 'pct': 31},
       ],
       'by_channel': [
         {'key': 'bank', 'total': '180000.00', 'count': 6},
@@ -326,6 +327,41 @@ class FakeRemit implements RemitSource {
   Future<String?> getPref(String key) async => prefs[key];
   @override
   Future<void> setPref(String key, String value) async => prefs[key] = value;
+}
+
+/// remhbud: the server's per-sender shares (core.logic.remittance
+/// .sender_shares) for the fake: one row per member id / typed name, biggest
+/// first, whole percents that add up to 100 (largest remainder).
+List<Map<String, dynamic>> fakeShares(List<Map<String, dynamic>> es) {
+  final g = <String, Map<String, dynamic>>{};
+  for (final e in es) {
+    final mid = e['sender_member_id'];
+    final name = '${e['sender_name'] ?? ''}'.trim();
+    final key = mid != null ? 'm$mid' : (name.isEmpty ? '?' : 'n${name.toLowerCase()}');
+    final r = g.putIfAbsent(key, () => {'name': name.isEmpty ? '?' : name, 'member_id': mid, 'p': 0, 'count': 0});
+    r['p'] = (r['p'] as int) + ((double.tryParse('${e['taka']}') ?? 0) * 100).round();
+    r['count'] = (r['count'] as int) + 1;
+  }
+  final rows = g.values.toList()..sort((a, b) => (b['p'] as int).compareTo(a['p'] as int));
+  final whole = rows.fold<int>(0, (s, r) => s + (r['p'] as int));
+  if (whole > 0) {
+    final base = [for (final r in rows) (r['p'] as int) * 100 ~/ whole];
+    final rem = [for (final r in rows) (r['p'] as int) * 100 % whole];
+    var left = 100 - base.fold<int>(0, (a, b) => a + b);
+    final order = List.generate(rows.length, (i) => i)..sort((a, b) => rem[b].compareTo(rem[a]));
+    for (final i in order) {
+      if (left-- <= 0) break;
+      base[i]++;
+    }
+    for (var i = 0; i < rows.length; i++) {
+      rows[i]['pct'] = base[i];
+    }
+  }
+  return [
+    for (final r in rows)
+      {'name': r['name'], 'member_id': r['member_id'], 'total': ((r['p'] as int) / 100).toStringAsFixed(2),
+        'count': r['count'], 'pct': r['pct'] ?? 0},
+  ];
 }
 
 /// Lets a pending future finish inside a widget test.

@@ -53,7 +53,10 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
   String _currency = 'BDT';
   String _channel = 'bkash';
   int? _memberId;
-  late DateTime _date = widget.now ?? DateTime.now();
+  late DateTime _date = _today;
+
+  // remhbud: the parent's clock, else the Asia/Dhaka wall clock.
+  DateTime get _today => widget.now ?? rmDhakaNow();
   bool _takaEdited = false;
   bool _busy = false;
   String? _err;
@@ -76,7 +79,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
       _name.text = '${e['sender_name'] ?? ''}';
       _memberId = int.tryParse('${e['sender_member_id'] ?? ''}');
       _note.text = '${e['note'] ?? ''}';
-      _date = DateTime.tryParse('${e['received_on'] ?? ''}') ?? (widget.now ?? DateTime.now());
+      _date = DateTime.tryParse('${e['received_on'] ?? ''}') ?? _today;
     }
     _members = widget.members ?? const [];
     _rate.addListener(_recalc);
@@ -157,17 +160,18 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
       context: context,
       initialDate: _date,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 1)),
+      lastDate: _today.add(const Duration(days: 1)),
     );
     if (d != null) setState(() => _date = d);
   }
 
   Map<String, dynamic> _body() => {
     'client_id': _clientId,
-    'amount': _amount.text.trim(),
+    // remhbud: Bangla-keyboard digits ("৫০০") reach the server as ASCII
+    'amount': rmAscii(_amount.text),
     'currency': _currency,
-    'rate': _currency == 'BDT' ? '' : _rate.text.trim(),
-    'taka': _currency == 'BDT' ? _amount.text.trim() : _taka.text.trim(),
+    'rate': _currency == 'BDT' ? '' : rmAscii(_rate.text),
+    'taka': _currency == 'BDT' ? rmAscii(_amount.text) : rmAscii(_taka.text),
     'channel': _channel,
     'sender_member_id': _memberId,
     'sender_name': _name.text.trim(),
@@ -344,6 +348,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                     return rmNum(v) <= 0 ? t.rmtErrAmount : null;
                   },
                 ),
+                _ConversionLine(amount: _amount, rate: _rate, taka: _taka, currency: _currency),
               ],
               const SizedBox(height: Gap.lg),
               Text(t.rmtFieldChannel, style: Theme.of(context).textTheme.titleSmall),
@@ -447,6 +452,55 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// remhbud: the sum the form is doing, in words the family can check —
+/// "500 Saudi riyal × 32.5 = ৳16,250" with Bangla digits and lakh commas in
+/// bn — plus, when the user typed a different taka amount, that THEIR amount
+/// is what is saved. The rate is always the one the user typed (from their
+/// receipt); we never fetch or show a "live" or "official" rate.
+class _ConversionLine extends StatelessWidget {
+  final TextEditingController amount, rate, taka;
+  final String currency;
+  const _ConversionLine({required this.amount, required this.rate, required this.taka, required this.currency});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([amount, rate, taka]),
+      builder: (context, _) {
+        final t = AppLocalizations.of(context);
+        final a = rmNum(amount.text), r = rmNum(rate.text), k = rmNum(taka.text);
+        if (a <= 0 || (r <= 0 && k <= 0)) return const SizedBox.shrink();
+        final scheme = Theme.of(context).colorScheme;
+        final calc = (a * r * 100).round() / 100;
+        final lines = <String>[
+          if (r > 0)
+            t.rhbConvLine(rmNumText(context, a), rmCurrency(t, currency), rmNumText(context, r), rmTaka(context, calc)),
+          if (k > 0 && (r <= 0 || (k - calc).abs() >= 0.01)) t.rhbConvYours(rmTaka(context, k)),
+          if (k > 0 && r <= 0) t.rhbConvEffective(rmNumText(context, (k / a * 10000).round() / 10000)),
+        ];
+        return Container(
+          key: const ValueKey('rhb_conv'),
+          margin: const EdgeInsets.only(top: Gap.sm),
+          padding: const EdgeInsets.all(Gap.md),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(Radii.md),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final l in lines)
+                Text(l, style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface, fontFeatures: AFonts.tabular)),
+              const SizedBox(height: Gap.xxs),
+              Text(t.rhbConvHonest, style: TextStyle(color: scheme.onSurfaceVariant)),
+            ],
+          ),
+        );
+      },
     );
   }
 }
