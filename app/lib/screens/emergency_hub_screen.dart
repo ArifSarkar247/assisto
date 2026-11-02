@@ -17,7 +17,7 @@ import 'emergency_screen.dart';
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
 
-/// emhub (owner order 2 Nov 17:40) — ONE "Emergency / জরুরি" hub, like Safe
+/// emhub (owner order 2 Nov 17:40) — ONE Emergency hub (Bangla title from the ARB), like Safe
 /// Journey is a hub. Route `emergency_hub` (flag `emergency`).
 ///
 /// Order = urgency: SOS send (the same sosat hold-to-send panel, biggest, at

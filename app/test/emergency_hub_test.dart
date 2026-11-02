@@ -356,7 +356,7 @@ void main() {
       final t = await AppLocalizations.delegate.load(const Locale('bn'));
       expect(find.textContaining(t.emhFamBlood('B+'), skipOffstage: false),
           findsOneWidget);
-      expect(find.textContaining(t.emhFamNumbers('২'), skipOffstage: false),
+      expect(find.textContaining(t.emhFamNumbers('\u09E8'), skipOffstage: false),
           findsOneWidget);
     });
 
