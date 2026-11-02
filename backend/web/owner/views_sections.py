@@ -678,6 +678,14 @@ def integrations(request):
                     if request.POST.get(k, "").strip()}
             if not data:
                 return done("/owner/integrations#i-%s" % slug, "nothing")
+            if slug == "admob" and "publisher_id" in data:
+                # admobump: lifeassisto.com/app-ads.txt is built from this —
+                # only a real pub-XXXXXXXXXXXXXXXX (16 digits) is stored
+                from core.logic.ads import normalize_publisher_id
+                pub = normalize_publisher_id(data["publisher_id"])
+                if not pub:
+                    return done("/owner/integrations#i-%s" % slug, "invalid")
+                data["publisher_id"] = pub
             try:
                 I.save(slug, data)
             except RuntimeError:

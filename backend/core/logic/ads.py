@@ -37,7 +37,6 @@ TEST_PUBLISHER = "ca-app-pub-3940256099942544"
 # the APK manifest (required by the SDK and by app-ads.txt); the unit ids are
 # served by /ads/config only when `admob_real_ids` is on. A valid set saved in
 # Owner Admin -> Integrations -> AdMob overrides these.
-OWNER_PUBLISHER = "pub-2506398550427515"
 OWNER_APP_ID = "ca-app-pub-2506398550427515~5116255919"
 OWNER_UNITS = {
     "app_open": "ca-app-pub-2506398550427515/1193237050",
@@ -48,6 +47,21 @@ OWNER_UNITS = {
 }
 
 _APP_RE = re.compile(r"^ca-app-pub-\d{16}~\d{6,12}$")
+# admobump (owner 2 Nov): the Owner Admin -> Integrations -> AdMob
+# "Publisher ID" field; app-ads.txt is built ONLY from stored config (never a
+# publisher id in git).
+_PUBLISHER_RE = re.compile(r"^(?:ca-app-)?(pub-\d{16})$")
+TEST_PUBLISHER_ID = "pub-3940256099942544"
+
+
+def normalize_publisher_id(raw):
+    """'pub-XXXXXXXXXXXXXXXX' (16 digits) or '' when invalid. Accepts the
+    'ca-app-pub-…' spelling AdMob shows next to app ids; refuses Google's
+    public test publisher."""
+    m = _PUBLISHER_RE.match(str(raw or "").strip())
+    if not m or m.group(1) == TEST_PUBLISHER_ID:
+        return ""
+    return m.group(1)
 _UNIT_RE = re.compile(r"^ca-app-pub-\d{16}/\d{6,12}$")
 
 # integration field -> client unit key

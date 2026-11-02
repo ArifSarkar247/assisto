@@ -376,10 +376,14 @@ class PublicPagesTests(SimpleTestCase):
     databases = "__all__"
 
     def test_app_ads_txt(self):
-        r = Client().get("/app-ads.txt")
+        # admobump (owner 2 Nov): built from the AdMob App ID / publisher id
+        # stored in Owner Admin -> Integrations, never from git
+        with mock.patch("core.integrations.get",
+                        return_value={"app_id": "ca-app-pub-2323232323232323~5116255919"}):
+            r = Client().get("/app-ads.txt")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r["Content-Type"].startswith("text/plain"))
-        self.assertIn("google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0",
+        self.assertIn("google.com, pub-2323232323232323, DIRECT, f08c47fec0942fa0",
                       r.content.decode())
 
     def test_privacy_mentions_ads_and_advertising_id_en_bn(self):
