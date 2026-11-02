@@ -3574,6 +3574,9 @@ class ShopEvent(models.Model):
         ("zone_intrusion", "restricted zone entered"),
         ("line_crossing", "entry line crossed"),
         ("camera_alarm", "camera's own alarm"),
+        # ---- cctvalerts (W3) ----
+        ("loitering", "loitering at night"),
+        ("camera_health", "camera covered / moved / dark / SD"),
     ]
     STATUS = [("open", "open"), ("checked", "checked"),
               ("false_alarm", "false alarm")]

@@ -226,7 +226,7 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                 WmPill(label: t.cgAwayPill, icon: Icons.directions_walk_rounded, color: wmBad()),
             ]),
             const SizedBox(height: 8),
-            Text(wmEventWhat(t, (e['type'] ?? '').toString()),
+            Text(wmEventWhatOf(t, e),
                 style: Theme.of(context).textTheme.titleMedium),
             if (cash)
               Padding(

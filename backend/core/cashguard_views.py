@@ -462,6 +462,8 @@ def poll_ezviz(client=None, now=None, getter=None):
     other source (camera_alarm, or a cash-zone event after the optional
     snapshot check). Returns the number of alarms ingested. Never raises."""
     from .logic import ezviz as EZ
+    from .logic import cctv_rules as CR
+    from . import cctv_alerts as CA
     from .models import ShopCamera
     if client is None:
         if not ezviz_on():
@@ -495,13 +497,25 @@ def poll_ezviz(client=None, now=None, getter=None):
                 raw = _fetch_ezviz_pic(a["pic"], getter)
                 if raw and not SV.looks_like_video(raw):
                     snap = SV._small_jpeg(raw, "ezviz%d.jpg" % cam.id)
+            cls = CR.classify_ezviz(row)
+            if a["human"] and not cls:
+                cls = {"kind": "person", "object": "person"}
             etype, sig = SV.vendor_alarm_event(
                 cam, raw if snap is not None else None,
-                {"human": a["human"], "vendor": "ezviz",
-                 "alarm_type": "human" if a["human"] else "motion"}, now)
+                dict({"human": a["human"], "vendor": "ezviz",
+                      "alarm_type": "human" if a["human"] else "motion"}, **cls), now)
+            etype = CA.vendor_type(etype, cls)
             SV._ingest_event(cam.site, cam, {"type": etype, "signals": sig,
                                              "at": a["at_ms"] / 1000.0}, now, snap)
             n += 1
+        # merge into the FRESH compat (cctvalerts state may have changed)
+        fresh = ShopCamera.objects.filter(pk=cam.pk).values_list(
+            "compat", flat=True).first() or {}
         ShopCamera.objects.filter(pk=cam.pk).update(
-            last_seen=now, compat=dict(cam.compat or {}, cloud_last_alarm_ms=newest))
+            last_seen=now, compat=dict(fresh, cloud_last_alarm_ms=newest))
+        # cctvalerts: SD-card health every few hours (storage status call)
+        try:
+            CA.ezviz_sd_check(cam, client, serial, now)
+        except Exception:
+            pass
     return n

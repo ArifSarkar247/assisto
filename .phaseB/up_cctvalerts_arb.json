@@ -1,0 +1,38 @@
+{
+  "_comment": "cctvalerts (W3 smart alert types, 3 Nov): per-camera alert-type switches screen + event labels. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_cctvalerts_arb.json",
+  "en": {
+    "cxatEntry": "Alert types",
+    "cxatEntrySub": "Person, vehicle, animal, line, loitering, covered camera, SD card, sound",
+    "cxatTitle": "Alert types — {name}",
+    "@cxatTitle": {"placeholders": {"name": {"type": "String"}}},
+    "cxatIntro": "Choose which alerts this camera sends you. Where the camera cannot report something, it says “Not on this camera” — we never pretend.",
+    "cxatSeenHead": "What was seen",
+    "cxatHealthHead": "Camera health",
+    "cxatNight": "Night for loitering: {text} ({start}–{end})",
+    "@cxatNight": {"placeholders": {"text": {"type": "String"}, "start": {"type": "String"}, "end": {"type": "String"}}},
+    "cxatLineToday": "Line crossings today: {total} (A → B {ab}, B → A {ba})",
+    "@cxatLineToday": {"placeholders": {"total": {"type": "String"}, "ab": {"type": "String"}, "ba": {"type": "String"}}},
+    "cxatNoAi": "No AI looks at your pictures here — alerts come from the camera itself and Assisto's own simple rules.",
+    "cxatLoadFailed": "Could not load the alert types. Check the internet and try again.",
+    "cxatSaveFailed": "Could not save. Check the internet and try again.",
+    "cxatRetry": "Try again",
+    "cxatEvLoiter": "Someone stayed over 2 minutes at night",
+    "cxatEvHealth": "Camera problem"
+  },
+  "bn": {
+    "cxatEntry": "সতর্কতার ধরন",
+    "cxatEntrySub": "মানুষ, গাড়ি, প্রাণী, রেখা পার, ঘোরাঘুরি, ঢাকা ক্যামেরা, SD কার্ড, শব্দ",
+    "cxatTitle": "সতর্কতার ধরন — {name}",
+    "cxatIntro": "এই ক্যামেরা থেকে কোন কোন সতর্কতা পাবেন বেছে নিন। যা ক্যামেরা নিজে জানাতে পারে না, সেখানে লেখা থাকে “এই ক্যামেরায় নেই” — আমরা ভান করি না।",
+    "cxatSeenHead": "কী দেখা গেল",
+    "cxatHealthHead": "ক্যামেরার অবস্থা",
+    "cxatNight": "ঘোরাঘুরির জন্য রাত: {text} ({start}–{end})",
+    "cxatLineToday": "আজ রেখা পার: {total} বার (ক → খ {ab}, খ → ক {ba})",
+    "cxatNoAi": "এখানে কোনো AI আপনার ছবি দেখে না — সতর্কতা আসে ক্যামেরা নিজে থেকে আর Assisto-র নিজের সহজ নিয়ম থেকে।",
+    "cxatLoadFailed": "সতর্কতার ধরন আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "cxatSaveFailed": "সংরক্ষণ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "cxatRetry": "আবার চেষ্টা করুন",
+    "cxatEvLoiter": "রাতে ২ মিনিটের বেশি কেউ ছিলেন",
+    "cxatEvHealth": "ক্যামেরায় সমস্যা"
+  }
+}

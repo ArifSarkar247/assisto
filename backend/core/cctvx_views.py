@@ -681,6 +681,15 @@ def tick(now=None):
             out["late"] += 1 if run_late(site, now) else 0
         except Exception:
             log.exception("guard tick failed for site %s", site.pk)
+        # cctvalerts (W3): a health still for cloud cameras (covered /
+        # moved / dark) when due — only while the owner keeps those on
+        try:
+            from . import cctv_alerts as CA
+            for cam in site.cameras.filter(enabled=True, vendor__in=("imou", "ezviz")):
+                if CA.health_still(cam, now, clients) is not None:
+                    out["health"] = out.get("health", 0) + 1
+        except Exception:
+            log.exception("health stills failed for site %s", site.pk)
     return out
 
 

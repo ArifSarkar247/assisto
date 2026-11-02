@@ -157,7 +157,7 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
               color: wmWarn(),
             ),
             const SizedBox(height: 8),
-            Text(e['nosale'] == true ? t.cxNoSaleTitle : wmEventWhat(t, (e['type'] ?? '').toString()),
+            Text(e['nosale'] == true ? t.cxNoSaleTitle : wmEventWhatOf(t, e),
                 style: Theme.of(context).textTheme.titleMedium),
             Text(t.cgDecideHint, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 2),

@@ -42,6 +42,9 @@ PERSON_DETECTED = "person_detected"
 ZONE_INTRUSION = "zone_intrusion"
 LINE_CROSSING = "line_crossing"
 CAMERA_ALARM = "camera_alarm"
+# ---- cctvalerts (W3) ----
+LOITERING = "loitering"          # a person present > 2 min at night
+CAMERA_HEALTH = "camera_health"  # covered / moved / dark / SD-card failure
 
 # POS kinds (mirrors ShopPosEvent.KINDS) used for correlation.
 POS_SALE = "sale"
@@ -71,7 +74,11 @@ META_KEYS = frozenset({"detector", "edge_version", "source", "camera_rule",
                        "alarm_type",
                        # cashguard: the clip reference and the owner-away
                        # state are context, never extra evidence
-                       "clip_ref", "away", "server_check"})
+                       "clip_ref", "away", "server_check",
+                       # cctvalerts: what the alert is about + counters are
+                       # context, never extra evidence
+                       "kind", "object", "direction", "seconds", "health_still",
+                       "vendor_native"})
 
 
 def _corroborations(extra):
@@ -264,6 +271,25 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
                                                 "armed_schedule"])
         return _result(True, etype, 0.35, ["camera_alarm", "armed_schedule"],
                        possible=True)
+
+    # ---- cctvalerts: LOITERING — the server's own rule (a person present
+    # on the same camera >= 2 min at night) or the camera's native rule.
+    # Night is part of the definition: never raised by day.
+    if etype == LOITERING:
+        if not extra.get("night"):
+            return _result(False, etype, 0.0, ["not_night"])
+        return _result(True, etype, 0.7, ["person", "loiter_2min", "night"])
+
+    # ---- cctvalerts: CAMERA HEALTH (covered / moved / dark / SD card) ----
+    # A problem with the camera itself, not a person: raised any time (the
+    # caller rate-limits it to once per kind per 6 h). A server-side still
+    # check is shown as "possible"; the camera's own report is not.
+    if etype == CAMERA_HEALTH:
+        kind = extra.get("kind") or "camera"
+        if extra.get("source") == "server_still":
+            return _result(True, etype, 0.5, ["camera_health", kind, "still_check"],
+                           possible=True)
+        return _result(True, etype, 0.7, ["camera_health", kind])
 
     # ---- plain MOTION during open hours: NOT an alert on its own ----
     # Camera-only sites log motion; it only escalates if the edge also flagged

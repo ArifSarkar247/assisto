@@ -1,0 +1,12 @@
+Code=WanderDetection;action=Start;index=0;data={
+   "Class" : "Normal",
+   "LocaleTime" : "2026-11-02 23:41:05",
+   "Name" : "Rule2",
+   "Object" : {
+      "BoundingBox" : [ 2000, 1800, 3100, 6000 ],
+      "ObjectID" : 611,
+      "ObjectType" : "Human"
+   },
+   "RuleId" : 2,
+   "UTC" : 1793727665
+}

@@ -155,7 +155,7 @@ def normalize_zone_config(raw, legacy=None):
 
     out = {}
     if isinstance(legacy, dict):
-        for k in ("hours", "restricted_zone"):
+        for k in ("hours", "restricted_zone", "alert_types"):
             if k in legacy:
                 out[k] = legacy[k]
     out.update({"v": SCHEMA_V, "zones": zones, "schedule": schedule,

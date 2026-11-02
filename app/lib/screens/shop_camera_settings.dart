@@ -9,6 +9,7 @@ import '../shop_api.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'shop_live_screen.dart';
+import 'watchman/camera_alert_types.dart';
 
 /// "Offline since …" / "Online" for a camera or site row (`online`,
 /// `last_seen` come from the server: heartbeat or camera webhook).
@@ -267,6 +268,8 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
               subtitle: Text(t.shopCamRestrictedHelp),
               onChanged: (v) => setState(() => _restricted = v),
             ),
+            // cctvalerts (W3): person / vehicle / line / covered / SD ... switches
+            CameraAlertTypesTile(cameraId: _id, cameraName: _name.text.trim()),
             const SizedBox(height: Gap.xs),
             Text(t.shopCamHours, style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
