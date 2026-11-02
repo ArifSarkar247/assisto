@@ -35145,5 +35145,254 @@
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
   "cxatEvHealth": "Camera problem",
-  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)",
+  "cactEntry": "Activity & daily summary",
+  "cactTitle": "Activity",
+  "cactTabSummary": "Summary",
+  "cactTabVisitors": "Visitor log",
+  "cactTabTimelapse": "Time-lapse",
+  "cactPrevDay": "Previous day",
+  "cactNextDay": "Next day",
+  "cactToday": "Today",
+  "cactSettings": "Activity settings",
+  "cactRole": "You can view; only the owner can change settings.",
+  "cactSummaryTitle": "The day in numbers",
+  "cactSummaryHint": "Yesterday's summary is sent to you every morning at {hour}:00.",
+  "@cactSummaryHint": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSummaryOff": "The morning summary is off (turn it on in settings).",
+  "cactOcTitle": "Shop opened / closed",
+  "cactOcLine": "Opened {open} · Closed {close}",
+  "@cactOcLine": {
+    "placeholders": {
+      "open": {
+        "type": "String"
+      },
+      "close": {
+        "type": "String"
+      }
+    }
+  },
+  "cactOcFromCamera": "From the camera (first and last person seen). Is it right?",
+  "cactOcConfirmed": "Confirmed by you",
+  "cactOcOk": "Correct",
+  "cactOcChange": "Change",
+  "cactOcNone": "No movement was seen on the shop cameras this day.",
+  "cactOcStillOpen": "Still open — last movement {time}",
+  "@cactOcStillOpen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactOcPickOpen": "Opening time",
+  "cactOcPickClose": "Closing time",
+  "cactSaved": "Saved",
+  "cactFootTitle": "Visitors next to sales",
+  "cactFootTotals": "{visitors} visitors · {sales} sales · conversion {conv}",
+  "@cactFootTotals": {
+    "placeholders": {
+      "visitors": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "conv": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootSrcLine": "Counted by the entry line on the camera.",
+  "cactFootSrcEstimate": "Estimate from person alerts (the same person within 1 minute counts once). Draw an entry line for an exact count.",
+  "cactFootPeak": "Busiest: {hours}",
+  "@cactFootPeak": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootRow": "{hour}: {visitors} visitors, {sales} sales",
+  "@cactFootRow": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "visitors": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootVisitors": "Visitors",
+  "cactFootSales": "Sales",
+  "cactNoSales": "No POS sales recorded this day.",
+  "cactFootEmptyTitle": "No visitors counted yet",
+  "cactFootEmptyBenefit": "See how many people come in each hour and how many buy — find your busiest hours.",
+  "cactFootStep1": "Turn on person (motion) detection in the camera's own app.",
+  "cactFootStep2": "Draw an entry line on the door camera (Zones and times).",
+  "cactFootStep3": "Sell through Assisto POS — sales appear here next to visitors.",
+  "cactWmTitle": "Watchman check",
+  "cactWmOffBody": "Every night hour, if no one moves on the watchman camera, you get an alert. If the camera is offline we say so — the watchman is never blamed for it.",
+  "cactWmTurnOn": "Turn on watchman check",
+  "cactWmTotals": "Seen {ok} h · not seen {miss} h · camera offline {unknown} h",
+  "@cactWmTotals": {
+    "placeholders": {
+      "ok": {
+        "type": "String"
+      },
+      "miss": {
+        "type": "String"
+      },
+      "unknown": {
+        "type": "String"
+      }
+    }
+  },
+  "cactWmOk": "Seen",
+  "cactWmMiss": "Not seen",
+  "cactWmUnknown": "Camera offline",
+  "cactWmNoneYet": "No night hour has been checked yet for this day.",
+  "cactHealthTitle": "Camera health",
+  "cactHealthOffline": "Offline {min} min",
+  "@cactHealthOffline": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cactHealthOn": "On all day",
+  "cactSdOk": "SD card OK",
+  "cactSdProblem": "SD card problem",
+  "cactSdNone": "No SD card",
+  "cactSdUnknown": "No SD status yet",
+  "cactLastPhoto": "Last photo {time}",
+  "@cactLastPhoto": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactNoPhoto": "No photo this day",
+  "cactVisSearch": "Search words, e.g. red shirt, gate, 19:",
+  "cactVisClear": "Clear search",
+  "cactVisAll": "All day",
+  "cactVisMorning": "Morning 6–12",
+  "cactVisAfternoon": "Afternoon 12–5",
+  "cactVisEvening": "Evening 5–10",
+  "cactVisNight": "Night 10–6",
+  "cactVisDay": "This day",
+  "cactVisWeek": "Last 7 days",
+  "cactVisAi": "AI description",
+  "cactVisTemplate": "Automatic text (not AI)",
+  "cactVisEmptyTitle": "No visitors in the log",
+  "cactVisEmptyBenefit": "Every person your camera alerts on is kept here with a photo and a short description — search by time or words.",
+  "cactVisStep1": "Set the guard schedule (Zones and times).",
+  "cactVisStep2": "To log daytime visitors too: schedule 'Always' plus quiet hours (no sound).",
+  "cactVisStep3": "Photos stay for the days you chose to keep them.",
+  "cactVisNoMatch": "Nothing matches “{q}”.",
+  "@cactVisNoMatch": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "cactVisMore": "Showing the latest 60. Narrow the search to see older ones.",
+  "cactTlTitle": "30-second time-lapse",
+  "cactTlBody": "{n} stored photos of this day. Your phone joins them into a short film — nothing is made on the server.",
+  "@cactTlBody": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cactTlNote": "A photo sequence, not full video.",
+  "cactTlMake": "Make time-lapse",
+  "cactTlMaking": "Making… {done} of {total} photos",
+  "@cactTlMaking": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cactTlShare": "Share",
+  "cactTlFailed": "Could not make the time-lapse. The photos may have expired.",
+  "cactTlEmptyTitle": "No photos for a time-lapse",
+  "cactTlEmptyBenefit": "See your whole day in 30 seconds — made from the photos your cameras stored.",
+  "cactTlStep1": "A photo is stored with each alert (photo keeping above 0 days).",
+  "cactTlStep2": "More alerts in the day = a fuller time-lapse.",
+  "cactTlLabel": "Time-lapse of {date}",
+  "@cactTlLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetBrief": "Morning summary",
+  "cactSetBriefSub": "Yesterday's visitors, sales, open/close, watchman and camera health — counts only, no AI cost.",
+  "cactSetBriefHour": "Send at {hour}:00",
+  "@cactSetBriefHour": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetEarlier": "Earlier",
+  "cactSetLater": "Later",
+  "cactSetShopCams": "Shop cameras (for open / close)",
+  "cactSetAllCams": "All cameras",
+  "cactSetWmFrom": "From {time}",
+  "@cactSetWmFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetWmTo": "Until {time}",
+  "@cactSetWmTo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetWmCams": "Watchman cameras",
+  "cactSetDir": "Which way is 'in' on the entry line",
+  "cactSetDirBoth": "Both ways (crossings ÷ 2)",
+  "cactSetDirAb": "A → B is in",
+  "cactSetDirBa": "B → A is in",
+  "cactSetAi": "AI descriptions of visitor photos",
+  "cactSetAiUsed": "This month: {used} of {cap}",
+  "@cactSetAiUsed": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetAiNoKey": "No AI key yet — automatic text is used (labelled).",
+  "cactSetSave": "Save"
 }
