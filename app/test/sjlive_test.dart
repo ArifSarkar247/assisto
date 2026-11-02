@@ -320,6 +320,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('sjl_share_start')));
       await _settle(tester, 5);
       expect(api.posts('/journey/start'), isEmpty);
+      // let the "pick someone" snack bar go so it never covers the button
+      ScaffoldMessenger.of(tester.element(find.byType(SjShareScreen))).removeCurrentSnackBar();
+      await _settle(tester, 5);
       await tester.tap(find.byKey(const ValueKey('sjl_share_180')));
       await tester.tap(find.byKey(const ValueKey('sjl_share_p_3')));
       await tester.pump();
