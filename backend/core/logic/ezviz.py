@@ -190,6 +190,19 @@ class EzvizClient:
         return url if isinstance(url, str) and _domain_ok(url) else ""
 
 
+    def live_address(self, serial, channel=1, hd=False, expire_s=600):
+        """cctvguard (order G): an HLS live address — quality 2 (fluent/SD)
+        by default, 1 (HD) only on tap; the address itself expires after
+        expire_s (min 30 s). /api/lapp/v2/live/address/get, protocol 2 = HLS."""
+        data = self.call("/api/lapp/v2/live/address/get", {
+            "deviceSerial": serial, "channelNo": int(channel), "protocol": 2,
+            "quality": 1 if hd else 2, "expireTime": max(30, int(expire_s))}) or {}
+        url = str(data.get("url") or "") if isinstance(data, dict) else ""
+        if not url or not _domain_ok(url):
+            raise EzvizError("no_stream")
+        return url
+
+
 def sd_state(rows):
     """EZVIZ format-status rows -> one of cctv_video_addon.SD_STATES."""
     if not rows:

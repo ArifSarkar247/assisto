@@ -708,6 +708,7 @@ urlpatterns = [
 # ---- a2-cctv ---- CCTV Part 4 round 2: camera settings, device heartbeat /
 # config / pair, EOD cash check, POS void, WebRTC live-view SIGNALING (no media).
 from . import shop_ops_views as shopops  # noqa: E402
+from . import cctv_traffic_views as cctvguard  # noqa: E402  (cctvguard)
 from . import sale_void_views as salevoid  # noqa: E402
 urlpatterns += [
     path("shop/cameras/<int:pk>", shopops.ShopCameraDetailView.as_view()),
@@ -720,6 +721,14 @@ urlpatterns += [
     path("shop/live/<int:pk>/signal", shopops.ShopLiveSignalView.as_view()),
     path("shop/live/<int:pk>/end", shopops.ShopLiveEndView.as_view()),
     path("shop/live/<int:pk>/touch", shopops.ShopLiveTouchView.as_view()),
+    # cctvguard (order G): traffic meter, relay cap, vendor live SD/HD + idle stop
+    path("shop/live/<int:pk>/usage", cctvguard.ShopLiveUsageView.as_view()),
+    path("cctv/usage", cctvguard.CctvUsageView.as_view()),
+    path("watchman/cameras/<int:pk>/vendor_live", cctvguard.VendorLiveStartView.as_view()),
+    path("watchman/cameras/<int:pk>/vendor_live/<str:vid>/touch",
+         cctvguard.VendorLiveTouchView.as_view()),
+    path("watchman/cameras/<int:pk>/vendor_live/<str:vid>/end",
+         cctvguard.VendorLiveEndView.as_view()),
     path("business/sales/<int:pk>/void", salevoid.SaleVoidView.as_view()),
 ]
 # ---- /a2-cctv ----

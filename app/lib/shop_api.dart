@@ -57,9 +57,33 @@ extension ShopOpsApi on ApiClient {
       getJson('/shop/live/$sessionId/signal?after=$after');
 
   Future<Map<String, dynamic>> shopLiveEnd(int sessionId,
-          {required bool relayed, required int seconds}) =>
-      postJson('/shop/live/$sessionId/end',
-          {'relayed': relayed, 'seconds': seconds});
+          {required bool relayed, required int seconds, int? bytes, String? path}) =>
+      postJson('/shop/live/$sessionId/end', {
+        'relayed': relayed,
+        'seconds': seconds,
+        if (bytes != null) 'bytes': bytes, // cctvguard: traffic meter
+        if (path != null) 'path': path,
+      });
+
+  /// cctvguard: cumulative bytes of this live view (getStats) — the answer
+  /// says whether the relay must stop (monthly allowance used up).
+  Future<Map<String, dynamic>> shopLiveUsage(int sessionId,
+          {required int bytes, required int seconds, required String path}) =>
+      postJson('/shop/live/$sessionId/usage',
+          {'bytes': bytes, 'seconds': seconds, 'path': path});
+
+  /// cctvguard: this month's live traffic per camera ("this month's use").
+  Future<Map<String, dynamic>> cctvUsage() => getJson('/cctv/usage');
+
+  /// cctvguard: Imou / EZVIZ cloud live (HLS) — SD unless [hd].
+  Future<Map<String, dynamic>> vendorLiveStart(int cameraId, {bool hd = false}) =>
+      postJson('/watchman/cameras/$cameraId/vendor_live', {'hd': hd});
+
+  Future<Map<String, dynamic>> vendorLiveTouch(int cameraId, String id) =>
+      postJson('/watchman/cameras/$cameraId/vendor_live/$id/touch', const {});
+
+  Future<Map<String, dynamic>> vendorLiveEnd(int cameraId, String id, int seconds) =>
+      postJson('/watchman/cameras/$cameraId/vendor_live/$id/end', {'seconds': seconds});
 
   /// cctvphone: the viewer touched the live screen (5-min idle stop).
   Future<Map<String, dynamic>> shopLiveTouch(int sessionId) =>

@@ -630,8 +630,17 @@ def _pending_for(site, cams, now):
 def _live_device_row(s):
     return {"id": s.id, "camera": s.camera_id, "camera_name": s.camera.name,
             "expires_at": s.expires_at.isoformat(),
-            "ice": ice_config("shopdev%d" % s.site_id,
-                              allow_relay=_relay_allowed(s.owner))}
+            "ice": ice_config(s.site.owner_id,     # cctvguard: coturn usage -> account
+                              allow_relay=_relay_allowed(s.owner) and _cap_allows(s))}
+
+
+def _cap_allows(s):
+    """cctvguard: the relay cap (only when the owner confirmed limits)."""
+    try:
+        from . import cctv_traffic as CT
+        return CT.session_relay_allowed(s)
+    except Exception:
+        return True
 
 
 def _relay_allowed(owner):
@@ -709,6 +718,14 @@ class ShopLiveStartView(APIView):
                                        ).update(status="ended", ended_at=now,
                                                 end_reason="replaced")
         relay_ok = _relay_allowed(request.user)
+        # cctvguard: monthly relay cap (P2P / LAN never capped, SOS never cut)
+        from . import cctv_traffic as CT
+        try:
+            cap = CT.relay_decision(request.user, cam.site.owner_id, now, lang)
+        except Exception:
+            cap = {"allow": True, "level": "off", "pct": 0, "message": "",
+                   "emergency": False}
+        relay_ok = relay_ok and cap["allow"]
         ice = ice_config(request.user.id, allow_relay=relay_ok)
         if ice.get("throttled"):
             return _err(lang, "সার্ভার এখন ব্যস্ত, একটু পরে আবার চেষ্টা করুন।",
@@ -717,7 +734,10 @@ class ShopLiveStartView(APIView):
         s = ShopLiveSession.objects.create(
             site=cam.site, camera=cam, owner=request.user,
             expires_at=now + timedelta(seconds=min(live_idle_s(), live_max_s())))
+        if cap.get("emergency"):
+            CT.mark_emergency(s.pk)
         out = _live_row(s)
+        out["traffic"] = {k: cap.get(k) for k in ("level", "pct", "message")}
         out.update({"ice": ice, "relay_allowed": relay_ok,
                     "relay_credits_per_min": relay_min_credits(),
                     "turn_configured": bool(ice.get("configured"))})
@@ -893,6 +913,13 @@ class ShopLiveEndView(_LiveBase):
                 charge = need
             if upd:
                 s.save(update_fields=sorted(upd))
+        if request.data.get("bytes") is not None:      # cctvguard meter
+            try:
+                from . import cctv_traffic as CT
+                CT.record_live(s, request.data.get("bytes"), secs,
+                               "relay" if relayed else request.data.get("path"), now)
+            except Exception:
+                log.exception("traffic meter (end) failed")
         charged = 0
         if charge:
             # pay what the balance covers; never block the end of a session

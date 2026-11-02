@@ -637,6 +637,12 @@ def run_once(state, now=None, probe=stun_probe, ss_text=None, log_lines=None,
         cid, kind = match_usage_to_call(u["user_id"], now)
         TurnRelayUsage.objects.create(at=now, user_id=u["user_id"], bytes_in=u["bytes_in"],
                                       bytes_out=u["bytes_out"], call_kind=kind, call_id=cid)
+        if cid is None and u["user_id"]:      # cctvguard: a relayed CCTV live view?
+            try:
+                from . import cctv_traffic as CT
+                CT.note_turn_usage(u["user_id"], u["bytes_out"], now)
+            except Exception:
+                pass
 
     keep = timezone.now() - timedelta(days=int(getattr(settings, "TURN_SAMPLE_KEEP_DAYS", 14)))
     TurnSample.objects.filter(at__lt=keep).delete()

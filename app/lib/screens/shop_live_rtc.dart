@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../audio/audio_route_service.dart';
+import '../cctvguard/live_cost.dart'; // cctvguard: prefer P2P/LAN, path + bytes
 
 /// The ONLY file that touches flutter_webrtc. Screens import it with
 /// `deferred as` and call `loadLibrary()` right before a live session, so no
@@ -20,6 +21,8 @@ class LivePeer {
   RTCRtpSender? _videoSender; // cctvphone: SD/HD switch
   final bool sender;
 
+  RelayCandidateHold? _hold; // cctvguard
+
   LivePeer._(this._pc, this._renderer, this.sender);
 
   /// [ice] = the server's `ice_servers` list (STUN, plus TURN only when the
@@ -30,6 +33,10 @@ class LivePeer {
     required void Function(Map<String, dynamic> candidate) onCandidate,
     void Function()? onRemoteVideo,
     void Function(String state)? onState,
+    // cctvguard (order G, prefer P2P + LAN): our relay candidates wait this
+    // long; a direct / same-Wi-Fi path that connects first means the relay
+    // is never offered. Zero = send everything at once.
+    Duration relayHold = const Duration(milliseconds: 1500),
   }) async {
     // audioroute: live sound follows the connected earphones; a stale call
     // mode is cleared first (never on the earpiece by accident)
@@ -44,15 +51,18 @@ class LivePeer {
       await renderer.initialize();
     }
     final peer = LivePeer._(pc, renderer, sender);
+    final hold = RelayCandidateHold(send: onCandidate, hold: relayHold);
+    peer._hold = hold;
     pc.onIceCandidate = (RTCIceCandidate c) {
       if (c.candidate == null) return;
-      onCandidate({
+      hold.offer({
         'candidate': c.candidate,
         'sdpMid': c.sdpMid,
         'sdpMLineIndex': c.sdpMLineIndex,
       });
     };
     pc.onConnectionState = (RTCPeerConnectionState s) {
+      if (s == RTCPeerConnectionState.RTCPeerConnectionStateConnected) hold.connected();
       onState?.call(s.name);
     };
     pc.onTrack = (RTCTrackEvent e) {
@@ -173,6 +183,31 @@ class LivePeer {
     return false;
   }
 
+  /// cctvguard: the selected pair's path ('lan' | 'direct' | 'relay' |
+  /// 'unknown') and the bytes it carried so far (sent + received), for the
+  /// "direct / relay" badge and the monthly traffic meter.
+  Future<Map<String, Object>> pathInfo() async {
+    final reports = await _pc.getStats();
+    final byId = <String, Map<dynamic, dynamic>>{};
+    for (final r in reports) {
+      byId[r.id] = r.values;
+    }
+    for (final r in reports) {
+      if (r.type != 'candidate-pair') continue;
+      final v = r.values;
+      final selected = v['selected'] == true ||
+          (v['nominated'] == true && v['state'] == 'succeeded');
+      if (!selected) continue;
+      final local = byId[v['localCandidateId']?.toString() ?? ''];
+      final remote = byId[v['remoteCandidateId']?.toString() ?? ''];
+      final path = LiveCost.pathOf(
+          local?['candidateType']?.toString(), remote?['candidateType']?.toString());
+      final bytes = ((v['bytesReceived'] as num?) ?? 0) + ((v['bytesSent'] as num?) ?? 0);
+      return {'path': path.name, 'bytes': bytes.toInt()};
+    }
+    return {'path': LivePath.unknown.name, 'bytes': 0};
+  }
+
   /// The remote video (owner side). Contain-fit so nothing is cropped.
   Widget view() {
     final r = _renderer;
@@ -181,6 +216,7 @@ class LivePeer {
   }
 
   Future<void> dispose() async {
+    _hold?.dispose();
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();

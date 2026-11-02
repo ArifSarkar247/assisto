@@ -14,6 +14,10 @@ import 'video_ctl.dart';
 class RealVideoCtl implements VideoCtl {
   RealVideoCtl(File file) : _c = VideoPlayerController.file(file);
 
+  /// cctvguard: a camera maker's cloud LIVE stream (HLS .m3u8 over https).
+  RealVideoCtl.network(Uri url)
+      : _c = VideoPlayerController.networkUrl(url, formatHint: VideoFormat.hls);
+
   final VideoPlayerController _c;
   final ValueNotifier<VideoCtlState> _state = ValueNotifier(const VideoCtlState());
   bool _disposed = false;
