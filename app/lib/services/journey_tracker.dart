@@ -8,6 +8,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
+import '../calls/call_keepalive.dart' show kCallHangupButton;
 import '../state.dart';
 
 /// journey100 — live location for the user's OWN active Safe Journey.
@@ -234,6 +235,12 @@ class JourneyTaskHandler extends TaskHandler {
     } catch (_) {
       // best-effort: kept in memory for the next tick
     }
+  }
+
+  /// kidaudio: the emergency-audio Stop shown on this notification.
+  @override
+  void onNotificationButtonPressed(String id) {
+    if (id == kCallHangupButton) FlutterForegroundTask.sendDataToMain(kCallHangupButton);
   }
 
   @override

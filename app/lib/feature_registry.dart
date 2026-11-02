@@ -60,6 +60,8 @@ const Map<String, bool> kFeatureDefaults = {
   // train: Train tracker + destination alarm — OFF until the real-train test.
   'train_tracker': false,
   'dest_alarm': false,
+  // kidaudio: child emergency audio — OFF until the owner's two-phone test.
+  'child_emergency_audio': false,
   'contacts': true,
   'voice_assistant': true,
   'documents': true,
@@ -215,6 +217,7 @@ const Map<String, String> kRouteFeature = {
   'blood_panel': 'blood_donors',
   'train_tracker': 'train_tracker',
   'dest_alarm': 'dest_alarm',
+  'kid_audio': 'child_emergency_audio',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',

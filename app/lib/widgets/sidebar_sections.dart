@@ -4,6 +4,7 @@ import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
 import '../screens/train/dest_alarm_screen.dart'; // train
 import '../screens/train/train_tracker_screen.dart'; // train
+import '../screens/kid_audio/kid_audio_screen.dart'; // kidaudio
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -496,6 +497,12 @@ class SidebarSections {
           (_) => const DestAlarmScreen(),
           synonyms: ['destination alarm', 'wake me', 'station alarm', 'stop alarm',
               'bus stop alarm', 'metro', 'launch', 'gonthobbo']),
+      // kidaudio (owner 2 Nov): child emergency audio (flag OFF).
+      SidebarItem(Icons.hearing_rounded, (t) => t.kauTitle,
+          feature: 'child_emergency_audio',
+          (_) => const KidAudioScreen(),
+          synonyms: ['emergency audio', 'listen child', 'child sos audio',
+              'hear my child', 'kid audio']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),

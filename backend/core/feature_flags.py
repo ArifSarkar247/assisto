@@ -94,6 +94,11 @@ REGISTRY = (
     # until the owner's real-train two-phone test. Free, no ads.
     ('train_tracker', 'daily_life', 'Train tracker', 'ট্রেন ট্র্যাকার', False, ('train_tracker',)),
     ('dest_alarm', 'daily_life', 'Destination alarm', 'গন্তব্য অ্যালার্ম', False, ('dest_alarm',)),
+    # kidaudio (owner 2 Nov PART 1 b): child emergency audio — only during an
+    # active emergency, verified parent, under-18 child, advance consent by
+    # both, visible notification, 3 min, audit both sides. OFF until the
+    # owner's two-phone test.
+    ('child_emergency_audio', 'family_safety', 'Child emergency audio', 'শিশুর জরুরি অডিও', False, ('kid_audio',)),
     ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
     ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
