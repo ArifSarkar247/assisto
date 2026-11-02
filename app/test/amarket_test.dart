@@ -36,10 +36,21 @@ Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = fa
       home: home,
     );
 
+Future<void> _vis(WidgetTester tester, Finder f) async {
+  await tester.ensureVisible(f);
+  await tester.pump(const Duration(milliseconds: 100));
+}
+
 Future<void> _settle(WidgetTester tester, [int n = 10]) async {
   for (var i = 0; i < n; i++) {
     await tester.pump(const Duration(milliseconds: 60));
   }
+}
+
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 2600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
 }
 
 class _OfflineSource extends FakeMarketSource {
@@ -93,11 +104,12 @@ void main() {
   });
 
   testWidgets('post a need: validation, then the body sent', (tester) async {
+    _tall(tester);
     final src = FakeMarketSource();
     final ov = await src.overview();
     await tester.pumpWidget(_app(MarketNeedForm(source: src, catalogue: ov)));
     await _settle(tester);
-    await tester.ensureVisible(find.byKey(const Key('amk-f-submit')));
+    await _vis(tester, find.byKey(const Key('amk-f-submit')));
     await tester.tap(find.byKey(const Key('amk-f-submit')));
     await _settle(tester);
     expect(find.byKey(const Key('amk-f-error')), findsOneWidget);
@@ -109,15 +121,15 @@ void main() {
     await _settle(tester);
     await tester.enterText(find.byKey(const Key('amk-f-title')), 'Miniket rice');
     await tester.enterText(find.byKey(const Key('amk-f-qty')), '25');
-    await tester.ensureVisible(find.byKey(const Key('amk-f-area')));
+    await _vis(tester, find.byKey(const Key('amk-f-area')));
     await tester.tap(find.byKey(const Key('amk-f-area')));
     await _settle(tester);
     await tester.tap(find.text('Mirpur').last);
     await _settle(tester);
-    await tester.ensureVisible(find.byKey(const Key('amk-f-group')));
+    await _vis(tester, find.byKey(const Key('amk-f-group')));
     await tester.tap(find.byKey(const Key('amk-f-group')));
     await _settle(tester);
-    await tester.ensureVisible(find.byKey(const Key('amk-f-submit')));
+    await _vis(tester, find.byKey(const Key('amk-f-submit')));
     await tester.tap(find.byKey(const Key('amk-f-submit')));
     await _settle(tester);
     expect(src.lastNeedBody, isNotNull);
@@ -129,6 +141,7 @@ void main() {
   });
 
   testWidgets('buyer: all offers shown, cheapest marked, accept opens chat', (tester) async {
+    _tall(tester);
     final src = FakeMarketSource();
     Map<String, dynamic>? opened;
     ConnectFlow.chatOverride = (ctx, m) async => opened = m;
@@ -140,7 +153,7 @@ void main() {
     expect(find.text('Lowest price'), findsWidgets);
     expect(find.text('Suggested'), findsOneWidget);
     expect(find.textContaining('Karim Traders'), findsWidgets);
-    await tester.ensureVisible(find.byKey(const Key('amk-accept-12')));
+    await _vis(tester, find.byKey(const Key('amk-accept-12')));
     await tester.tap(find.byKey(const Key('amk-accept-12')));
     await _settle(tester);
     expect(find.byKey(const Key('amk-accept-sheet')), findsOneWidget);
@@ -153,6 +166,7 @@ void main() {
   });
 
   testWidgets('seller: sealed offer form sends price, hours, notes', (tester) async {
+    _tall(tester);
     final src = FakeMarketSource();
     await tester.pumpWidget(_app(MarketNeedScreen(source: src, needId: 9)));
     await _settle(tester);
@@ -162,7 +176,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('amk-b-hours')), '24');
     await _settle(tester);
     expect(find.textContaining('৳3,040'), findsOneWidget); // 76 x 40 kg
-    await tester.ensureVisible(find.byKey(const Key('amk-b-send')));
+    await _vis(tester, find.byKey(const Key('amk-b-send')));
     await tester.tap(find.byKey(const Key('amk-b-send')));
     await _settle(tester);
     expect(src.calls, contains('bid:9'));
@@ -194,6 +208,7 @@ void main() {
   });
 
   testWidgets('deals: COD badge, chat, rate, report', (tester) async {
+    _tall(tester);
     final src = FakeMarketSource();
     ConnectFlow.chatOverride = (ctx, m) async {};
     await tester.pumpWidget(_app(MarketScreen(source: src, initialTab: 3)));
@@ -202,13 +217,13 @@ void main() {
     await tester.tap(find.byKey(const Key('amk-chat-21')));
     await _settle(tester);
     expect(src.calls, contains('chat:21'));
-    await tester.ensureVisible(find.text('Rate the seller'));
+    await _vis(tester, find.text('Rate the seller'));
     await tester.tap(find.text('Rate the seller'));
     await _settle(tester);
     await tester.tap(find.byKey(const Key('amk-star-5')));
     await _settle(tester);
     expect(src.calls, contains('deal:rate:22:5'));
-    await tester.ensureVisible(find.text('Report / block').first);
+    await _vis(tester, find.text('Report / block').first);
     await tester.tap(find.text('Report / block').first);
     await _settle(tester);
     await tester.tap(find.text('Scam or fraud'));
