@@ -112,19 +112,17 @@ class FailedSendRow extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
-          child: Text.rich(
-            TextSpan(children: [
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Icon(Icons.error_outline_rounded,
-                    size: 15, color: scheme.error),
-              ),
-              const TextSpan(text: ' '),
-              TextSpan(text: notSentText(t, cause)),
-            ]),
-            textAlign: TextAlign.end,
-            style: AType.labelSmall.copyWith(color: scheme.error),
-          ),
+          // the reason is its own plain Text (TalkBack + finders read it
+          // whole); the icon sits beside it
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.error_outline_rounded, size: 15, color: scheme.error),
+            const SizedBox(width: Gap.xs),
+            Flexible(
+              child: Text(notSentText(t, cause),
+                  textAlign: TextAlign.end,
+                  style: AType.labelSmall.copyWith(color: scheme.error)),
+            ),
+          ]),
         ),
         TextButton.icon(
           key: const ValueKey('aibar_send_again'),
