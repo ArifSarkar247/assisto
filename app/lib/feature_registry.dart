@@ -223,6 +223,7 @@ const Map<String, String> kRouteFeature = {
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',
+  'biz_brief': 'agent_core', // bizops (the server also needs `business`)
   'jobs': 'jobs',
   'cv': 'cv_builder',
   'resume': 'cv_builder',

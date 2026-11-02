@@ -74,6 +74,7 @@ import '../screens/nominee_screen.dart';
 import '../screens/crm_contacts_screen.dart';
 import '../screens/agent_core/agent_approvals_screen.dart'; // agent-core
 import '../screens/agent_core/agent_core_screen.dart'; // agent-core
+import '../screens/agent_core/biz_brief_screen.dart'; // bizops
 import '../screens/agent_studio_screen.dart';
 import '../screens/jobs_screen.dart';
 import '../screens/cv_builder_screen.dart';
@@ -279,6 +280,8 @@ class ChatNav {
     // the Approval inbox (also the `agent_approval` push target).
     'agent_core': (_) => const AgentCoreScreen(),
     'agent_approvals': (_) => const AgentApprovalsScreen(),
+    // bizops: the morning business card (agent_core + business flags)
+    'biz_brief': (_) => const BizBriefScreen(),
     'jobs': (_) => const JobsScreen(),
     'cv': (_) => const CvBuilderScreen(),
     'resume': (_) => const CvBuilderScreen(),
