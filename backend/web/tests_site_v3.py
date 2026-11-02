@@ -353,6 +353,56 @@ class NavigationAndPlayTests(Base):
             self.assertIn('class="rot-btn"', hero)        # pause control (WCAG 2.2.2)
 
 
+class HeroOrder3NovTests(Base):
+    """owner HERO + FIXES 3 Nov 03:30: exact hero text, 9 real slides in order,
+    the taka-sign font on every page, sticky Install bar after the hero."""
+
+    def test_hero_text_exact(self):
+        en = self.c.get("/preview/?lang=en").content.decode()
+        h1 = re.sub(r"<[^>]+>", "", re.search(r'<h1 id="hero-h">(.*?)</h1>', en, re.S).group(1))
+        self.assertEqual(" ".join(h1.split()),
+                         "Assisto: Chat, calls, AI assistant, safety and business, in one super app.")
+        self.assertIn('<p class="slogan">Many apps. One Assisto.</p>', en)
+        self.assertIn("Chat and call your people, share live location and SOS with family, watch your CCTV, "
+                      "run your shop&#x27;s accounts and invoices. Assisto&#x27;s AI reminds, alerts and keeps "
+                      "your books in order.", en)
+        self.assertIn("Does the work by itself", en)          # the chip above stays
+        bn = self.c.get("/preview/?lang=bn").content.decode()
+        h1 = re.sub(r"<[^>]+>", "", re.search(r'<h1 id="hero-h">(.*?)</h1>', bn, re.S).group(1)).strip()
+        self.assertTrue(h1.startswith("Assisto: "), h1)
+        self.assertIn("সুপার অ্যাপ", h1)
+        self.assertIn('<p class="slogan">অনেক অ্যাপ নয়, একটাই Assisto।</p>', bn)
+
+    def test_hero_slides_owner_order(self):
+        self.assertEqual([n for n, _ in V3.HERO_SLIDES],
+                         ["c3_chat", "callpip_pip_window", "location_sharing", "emergency_hub", "wm_alerts",
+                          "acct_home", "inv_paper_80", "chat", "dest_alarm"])
+        for lang in ("bn", "en"):
+            html = self.c.get("/preview/?lang=%s" % lang).content.decode()
+            hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
+            pos = [hero.find("shots3/%s_%s_360.webp" % (n, lang)) for n, _ in V3.HERO_SLIDES]
+            self.assertNotIn(-1, pos)
+            self.assertEqual(pos, sorted(pos))
+            self.assertEqual(hero.count('fetchpriority="high"'), 1)   # only slide 1 loads eagerly
+        for n, _ in V3.HERO_SLIDES:
+            self.assertIn(n, V3.shot_names())
+
+    def test_taka_font_on_every_page(self):
+        self.assertTrue((ASSETS / "taka.woff2").is_file())
+        self.assertIn("SIL Open Font License", (ASSETS / "OFL-HindSiliguri.txt").read_text())
+        for path in PREVIEW_PAGES + ["/", "/pricing?lang=en", "/delete-account", "/privacy"]:
+            html = self.c.get(path).content.decode()
+            self.assertRegex(html, r'font-family:"Taka3"[^}]*taka\.woff2[^}]*unicode-range:U\+09F3', path)
+            self.assertRegex(html, r'--font:"Taka3",', path)
+
+    def test_sticky_bar_waits_for_hero_install(self):
+        html = self.c.get("/preview/?lang=bn").content.decode()
+        self.assertIn('.js .pbar:not(.show){transform:translateY(110%);visibility:hidden}', html)
+        self.assertIn('document.querySelector("#hero .install")', html)
+        self.assertRegex(html, r"prefers-reduced-motion:reduce\)\{\.pbar,")
+        self.assertIn('class="btn install"', re.search(r'id="hero".*?</section>', html, re.S).group(0))
+
+
 class InstallAndApkTests(Base):
     def _apk(self, tmp):
         import hashlib

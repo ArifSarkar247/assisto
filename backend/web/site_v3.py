@@ -419,8 +419,10 @@ COPY = {
         "nav_features": "ফিচার", "nav_pricing": "দাম", "nav_security": "নিরাপত্তা", "nav_faq": "প্রশ্নোত্তর", "nav_help": "সাহায্য",
         "lang_name": "English", "lang_label": "Switch to English",
         "hero_kicker": "নিজে থেকেই কাজ করে",
-        "hero_h1": "আপনার AI সহকারী — দিন সামলায়, পরিবারকে নিরাপদ রাখে, ব্যবসা বাড়ায়।", "hero_h1_g": "নিজে থেকেই।",
-        "hero_sub": "বাংলা বা ইংরেজিতে লিখুন বা বলুন। Assisto রিমাইন্ডার বানায়, বাকির তাগাদা পাঠায়, বিপদে পরিবারকে জানায় আর দিনের হিসাব সাজায় — আপনি শুধু অনুমতি দেন।",
+        # owner HERO order 3 Nov 03:30 (exact meaning; "Assisto:" + colon kept)
+        "hero_h1": "Assisto: চ্যাট, কল, AI সহকারী, নিরাপত্তা আর ব্যবসা —", "hero_h1_g": "এক সুপার অ্যাপে।",
+        "hero_slogan": "অনেক অ্যাপ নয়, একটাই Assisto।",
+        "hero_sub": "আপনজনের সাথে চ্যাট ও কল করুন, পরিবারের সাথে লাইভ লোকেশন ও SOS শেয়ার করুন, আপনার CCTV দেখুন, দোকানের হিসাব ও ইনভয়েস চালান। Assisto-র AI মনে করিয়ে দেয়, সতর্ক করে আর হিসাব গুছিয়ে রাখে।",
         "cta_play": "Google Play থেকে নিন", "cta_features": "সব ফিচার দেখুন",
         "hero_note": "Android ৮ বা নতুন · ফ্রিতে শুরু · পরিবারের নিরাপত্তা সব প্ল্যানে ফ্রি",
         "auto": "নিজে থেকে", "auto_label": "স্বয়ংক্রিয়", "soon": "শীঘ্রই আসছে",
@@ -457,7 +459,10 @@ COPY = {
         "chip_safety": "নিরাপত্তা", "chip_cctv": "CCTV", "chip_business": "ব্যবসা", "chip_pricing": "দাম", "chip_download": "ডাউনলোড",
         "to_top": "উপরে যান", "pause": "স্ক্রিনশট চলা থামান বা চালান",
         "slide_chat": "কথা বলে রিমাইন্ডার ও খরচ", "slide_emergency_hub": "SOS ও জরুরি হাব",
-        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব",
+        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব ও খাতা",
+        "slide_c3_chat": "আমার সার্কেলে চ্যাট", "slide_callpip_pip_window": "ভিডিও কল, ছোট ভাসমান জানালায় (PiP)",
+        "slide_location_sharing": "লাইভ লোকেশন", "slide_inv_paper_80": "ইনভয়েস",
+        "slide_dest_alarm": "গন্তব্য অ্যালার্ম", "slide_ai": "AI সহকারী",
     },
     "en": {
         "html_lang": "en", "title": "Assisto — the AI assistant that does the work by itself",
@@ -466,8 +471,10 @@ COPY = {
         "nav_features": "Features", "nav_pricing": "Pricing", "nav_security": "Security", "nav_faq": "FAQ", "nav_help": "Help",
         "lang_name": "বাংলা", "lang_label": "বাংলায় দেখুন",
         "hero_kicker": "Does the work by itself",
-        "hero_h1": "Your AI assistant that runs your day, keeps your family safe and grows your business —", "hero_h1_g": "by itself.",
-        "hero_sub": "Type or speak in Bangla or English. Assisto sets the reminder, chases the due payment, alerts your family in trouble and lays out your day — you just approve.",
+        # owner HERO order 3 Nov 03:30 — EXACT text
+        "hero_h1": "Assisto: Chat, calls, AI assistant, safety and business,", "hero_h1_g": "in one super app.",
+        "hero_slogan": "Many apps. One Assisto.",
+        "hero_sub": "Chat and call your people, share live location and SOS with family, watch your CCTV, run your shop's accounts and invoices. Assisto's AI reminds, alerts and keeps your books in order.",
         "cta_play": "Get it on Google Play", "cta_features": "See every feature",
         "hero_note": "Android 8 or newer · Start free · Family safety free on every plan",
         "auto": "Auto", "auto_label": "Automatic", "soon": "Coming soon",
@@ -504,7 +511,10 @@ COPY = {
         "chip_safety": "Safety", "chip_cctv": "CCTV", "chip_business": "Business", "chip_pricing": "Pricing", "chip_download": "Download",
         "to_top": "Back to top", "pause": "Pause or play the screenshots",
         "slide_chat": "reminders and expenses by talking", "slide_emergency_hub": "SOS and emergency hub",
-        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts",
+        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts and khata",
+        "slide_c3_chat": "My Circle chat", "slide_callpip_pip_window": "video call in a small floating window (PiP)",
+        "slide_location_sharing": "Live Location", "slide_inv_paper_80": "invoice",
+        "slide_dest_alarm": "Destination Alarm", "slide_ai": "AI assistant",
     },
 }
 
@@ -603,9 +613,19 @@ def cctv_plan(lang):
     ]
 
 
+# hero auto-play, in the owner's order (HERO order 3 Nov 03:30): My Circle
+# chat, video call with PiP, Live Location, SOS + emergency hub, CCTV,
+# business accounts + khata, invoice, AI assistant, Destination Alarm.
+# (gallery spec, alt-text key) — real CI gallery shots only.
+HERO_SLIDES = (("c3_chat", "c3_chat"), ("callpip_pip_window", "callpip_pip_window"),
+               ("location_sharing", "location_sharing"), ("emergency_hub", "emergency_hub"),
+               ("wm_alerts", "wm_alerts"), ("acct_home", "acct_home"), ("inv_paper_80", "inv_paper_80"),
+               ("chat", "ai"), ("dest_alarm", "dest_alarm"))
+
+
 def shot_names():
     """Every screenshot the site uses (tools/website/site_shots.py manifest)."""
-    names = {"home_v2"}
+    names = {"home_v2"} | {n for n, _ in HERO_SLIDES}
     for feats in FEATURES.values():
         for f in feats:
             if f["shot"]:
