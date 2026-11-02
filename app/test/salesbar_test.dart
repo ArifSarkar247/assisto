@@ -32,8 +32,10 @@ AppState _state(FakeApi api, String lang) {
 }
 
 Future<AppLocalizations> _pump(WidgetTester tester, Widget home,
-    {String lang = 'en', double scale = 1.0}) async {
-  await tester.binding.setSurfaceSize(const Size(360, 7000));
+    {String lang = 'en', double scale = 1.0, Size size = const Size(360, 7000)}) async {
+  // tests that NAVIGATE use a short surface: the page-transition snapshot
+  // cannot rasterize a 7000-dp-tall screen
+  await tester.binding.setSurfaceSize(size);
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
     value: _state(FakeApi(mode: FakeMode.data, lang: lang), lang),
     child: MaterialApp(
@@ -78,7 +80,8 @@ void main() {
       testWidgets('$lang: Meta app not set up → reason + working website-chat button',
           (tester) async {
         sbOwnChannels = false;
-        final t = await _pump(tester, const SellerSetupScreen(), lang: lang);
+        final t = await _pump(tester, const SellerSetupScreen(), lang: lang,
+            size: const Size(360, 1600));
         expect(find.text(t.sbMetaNotReady), findsOneWidget);
         expect(find.text(t.baConnectX(t.baChMessenger)), findsNothing);
         final btn = find.byKey(const Key('sbOpenWebsiteChat'));
@@ -174,7 +177,8 @@ void main() {
     for (final lang in const ['en', 'bn']) {
       testWidgets('$lang: plain labels, unknown actions hidden, chat rows open the chat',
           (tester) async {
-        final t = await _pump(tester, const SellerActivityScreen(), lang: lang);
+        final t = await _pump(tester, const SellerActivityScreen(), lang: lang,
+            size: const Size(360, 1600));
         expect(find.text(t.sbActSettings), findsOneWidget);
         expect(find.text(t.sbActOptOut), findsOneWidget);
         expect(find.text(t.sbActTakeover), findsOneWidget);
@@ -195,7 +199,7 @@ void main() {
 
     testWidgets('empty: benefit + how-to + working setup button', (tester) async {
       sbAuditEmpty = true;
-      final t = await _pump(tester, const SellerActivityScreen());
+      final t = await _pump(tester, const SellerActivityScreen(), size: const Size(360, 1600));
       expect(find.text(t.sbActivityEmptyTitle), findsOneWidget);
       expect(find.textContaining(t.sbActivityEmptyBenefit), findsOneWidget);
       expect(find.textContaining(t.sbActivityEmptyHow), findsOneWidget);
