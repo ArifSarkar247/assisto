@@ -55,7 +55,7 @@ Future<void> psOpenChatWithDraft(BuildContext context,
   }
   if (member == null) {
     await Clipboard.setData(ClipboardData(text: text));
-    messenger.showSnackBar(SnackBar(content: Text(t.psNotInCircle(name))));
+    messenger.showSnackBar(SnackBar(content: Text(t.psecNotInCircle(name))));
     return;
   }
   final identity = await IdentityVault.instance.get();

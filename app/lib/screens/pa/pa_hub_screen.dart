@@ -25,6 +25,8 @@ import 'pr_press_screen.dart';
 import 'social_inbox_screen.dart';
 import 'shoot_logistics_screen.dart';
 import 'lifestyle_screen.dart';
+import 'ps_today_screen.dart'; // pssec
+import '../../feature_flags.dart'; // pssec
 
 /// PA Secretary Mode hub (SPEC v2.1 §14 / §4 Work group) — the single sidebar
 /// entry point for the six PA tools. Each tile reuses the destination screen's
@@ -40,6 +42,11 @@ class PaHubScreen extends StatelessWidget {
     // The meeting brief (#104) is reached by selecting a meeting inside the
     // schedule (it needs a specific meeting), so it is not a standalone tile.
     final tools = <_PaTool>[
+      // pssec: the Personal Secretary "Today" page leads (flag ps_secretary;
+      // hidden — never dead — while the flag is off).
+      if (FeatureFlags.instance.isOn('ps_secretary'))
+        _PaTool(Icons.wb_sunny_rounded, t.psecTodayTitle,
+            (_) => const PsTodayScreen()),
       _PaTool.header(t.lbWPaGroupDaily),
       _PaTool(Icons.calendar_month_rounded, t.paScheduleTitle,
           (_) => const PaScheduleScreen()),

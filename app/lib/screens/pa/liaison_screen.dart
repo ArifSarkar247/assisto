@@ -196,7 +196,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
     await psOpenChatWithDraft(context,
         circleId: p['id'] as int,
         name: '${p['name']}',
-        text: tr.psNudgeText('${p['name']}', '${r['title'] ?? ''}'));
+        text: tr.psecNudgeText('${p['name']}', '${r['title'] ?? ''}'));
     if (!mounted || id is! int) return;
     try {
       await context.read<AppState>().api.updateItem('pa/followups', id,
@@ -554,7 +554,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
                     style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                     onPressed: () => _remindInChat(r, p, tr),
                     icon: const Icon(Icons.chat_rounded, size: 18),
-                    label: Text(tr.psRemind('${p['name']}')),
+                    label: Text(tr.psecRemind('${p['name']}')),
                   ),
                 ),
               ),

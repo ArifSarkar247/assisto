@@ -319,6 +319,9 @@ import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/push/push_settings_screen.dart';
 import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'fake_api.dart';
+import 'fake_psec.dart' show kPsecShotMessage; // pssec
+import 'package:assisto/screens/pa/ps_today_screen.dart'; // pssec
+import 'package:assisto/screens/pa/ps_pickup_sheet.dart'; // pssec
 
 class _NoNet extends HttpOverrides {
   @override
@@ -544,6 +547,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'pa_schedule': (build: (_) => const PaScheduleScreen(), mode: FakeMode.data, full: true),
     'pa_visitor': (build: (_) => const VisitorFilterScreen(), mode: FakeMode.data, full: true),
     'pa_liaison': (build: (_) => const LiaisonScreen(), mode: FakeMode.data, full: true),
+    // pssec: Personal Secretary Today brief + pick-up from a pasted message
+    'psec_today': (build: (_) => const PsTodayScreen(), mode: FakeMode.data, full: true),
+    'psec_today_empty': (build: (_) => const PsTodayScreen(), mode: FakeMode.empty, full: true),
+    'psec_pickup': (build: (_) => Scaffold(body: SafeArea(child: PsPickupSheet(initialText: kPsecShotMessage, now: DateTime(2026, 11, 2, 10)))), mode: FakeMode.data, full: true),
     'pa_tasks': (build: (_) => const PersonalTasksScreen(), mode: FakeMode.data, full: true),
     'pa_delegate': (build: (_) => const DelegateAccessScreen(), mode: FakeMode.data, full: true),
     'msg_privacy': (build: (_) => const MsgrSetMessagePrivacyScreen(), mode: FakeMode.data, full: true),
