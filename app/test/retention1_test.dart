@@ -346,9 +346,9 @@ void main() {
     expect(src.calls, contains('optouts'));
     expect(find.text(en.bzStoppedTitle), findsOneWidget);
     expect(find.text('017•••••678'), findsOneWidget);
-    expect(find.textContaining(en.bzSrcSmsLink), findsOneWidget);
-    expect(find.textContaining(en.bzSrcInApp), findsOneWidget);
-    expect(find.textContaining(en.bzSrcChat), findsOneWidget);
+    expect(find.textContaining('${en.bzSrcSmsLink} · '), findsOneWidget);
+    expect(find.textContaining('${en.bzSrcInApp} · '), findsOneWidget);
+    expect(find.textContaining('${en.bzSrcChat} · '), findsOneWidget);
     expect(find.text(en.bzStoppedOnlyThey), findsOneWidget);
   });
 
