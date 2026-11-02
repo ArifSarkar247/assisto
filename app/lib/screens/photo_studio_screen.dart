@@ -342,13 +342,6 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               _enhanceCard(t),
               const SizedBox(height: Gap.lg)
             ],
-            // photobar: the everyday editor + Bangladesh ID photos
-            if (s != null) ...[
-              _editCard(t),
-              const SizedBox(height: Gap.lg),
-              _idCard(t),
-              const SizedBox(height: Gap.lg),
-            ],
             if (s != null && _c.tools.any) ...[
               _toolsCard(t),
               const SizedBox(height: Gap.lg)
@@ -374,6 +367,14 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           ],
           const SizedBox(height: Gap.lg),
           if (s != null) _exportCard(t),
+          // photobar: the everyday editor + Bangladesh ID photos (after the
+          // export card so the existing flow keeps its place)
+          if (s != null && !_c.webImport) ...[
+            const SizedBox(height: Gap.lg),
+            _editCard(t),
+            const SizedBox(height: Gap.lg),
+            _idCard(t),
+          ],
           const SizedBox(height: Gap.md),
           _footNotes(t),
         ],
@@ -804,6 +805,8 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           if (_c.enhance.ready)
             OutlinedButton.icon(
               key: const Key('psPickBatch'),
+              // a11y: primary on the tinted hero was 4.45:1 (as the camera button)
+              style: OutlinedButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
               onPressed: _c.busy ? null : _c.pickBatch,
               icon: const Icon(Icons.burst_mode_rounded),
               label: Text(t.d1psBatchButton),
@@ -1464,7 +1467,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         final f = await _c.deps.faces.detect(_c.currentShown);
         if (f.length == 1) face = f.first;
       }
-    } catch (_) {}
+    } catch (_) {} // best-effort: no face found = the framer starts centred
     if (!mounted) return;
     final step = await Navigator.of(context).push<GeoStep>(MaterialPageRoute(
         builder: (_) => PsCropScreen(

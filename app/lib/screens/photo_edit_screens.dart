@@ -369,12 +369,12 @@ class _CropPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final shade = Paint()..color = const Color(0x99000000);
+    final shade = Paint()..color = Colors.black.withValues(alpha: 0.6);
     final all = Path()..addRect(Offset.zero & size);
     final hole = Path()..addRect(r);
     canvas.drawPath(Path.combine(PathOperation.difference, all, hole), shade);
     final line = Paint()
-      ..color = const Color(0xCCFFFFFF)
+      ..color = Colors.white.withValues(alpha: 0.8)
       ..strokeWidth = 1;
     for (var i = 1; i < 3; i++) {
       canvas.drawLine(Offset(r.left + r.width * i / 3, r.top), Offset(r.left + r.width * i / 3, r.bottom), line);
@@ -396,7 +396,7 @@ class _CropPainter extends CustomPainter {
           width: r.width * 0.50,
           height: r.height * 0.56);
       canvas.drawOval(oval, Paint()
-        ..color = const Color(0xE6FFFFFF)
+        ..color = Colors.white.withValues(alpha: 0.9)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2);
     }
@@ -673,7 +673,9 @@ class _PsTextScreenState extends State<PsTextScreen> {
               if (s == null) return const Center(child: CircularProgressIndicator());
               final disp = _fit(Size(math.max(1.0, box.maxWidth - 2 * Gap.md), math.max(1.0, box.maxHeight - 2 * Gap.md)), s)
                   .shift(const Offset(Gap.md, Gap.md));
-              return GestureDetector(
+              return Semantics(
+                label: t.psbDragHint,
+                child: GestureDetector(
                 key: const Key('psbTextArea'),
                 behavior: HitTestBehavior.opaque,
                 onTapUp: (d) => setState(() {
@@ -703,6 +705,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
                     ),
                   ),
                 ]),
+                ),
               );
             }),
           ),
@@ -794,9 +797,8 @@ class _PsTextScreenState extends State<PsTextScreen> {
             ),
             alignment: Alignment.center,
             child: Text(psStickerText(t, s),
-                style: TextStyle(
+                style: (s.emoji ? AType.headlineSmall : AType.bodyLarge).copyWith(
                     fontFamily: s.emoji ? null : s.font,
-                    fontSize: s.emoji ? 24 : 16,
                     color: s.emoji ? null : Color(s.color))),
           ),
         ),

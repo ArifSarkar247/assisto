@@ -10,7 +10,10 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/painting.dart';
+
+import '../theme.dart' show AType;
 
 import 'ps_edit.dart';
 import 'ps_recipe.dart';
@@ -39,17 +42,20 @@ class PsOverlayLayout {
       : painter = TextPainter(
           text: TextSpan(
             text: o.text,
-            style: TextStyle(
-              fontFamily: o.font,
-              fontSize: math.max(4.0, fontPx),
-              height: 1.25,
-              fontWeight: o.font == 'Galada' ? FontWeight.w400 : FontWeight.w600,
-              color: Color(o.color),
-              shadows: o.bg == 0
-                  ? [Shadow(blurRadius: fontPx * 0.12, color: const Color(0xB3000000),
-                      offset: Offset(0, fontPx * 0.04))]
-                  : null,
-            ),
+            // the photo's own scale: the type scale's body size, scaled to
+            // a share of the photo (f2: no raw font-size literal)
+            style: AType.bodyMedium
+                .copyWith(
+                  fontFamily: o.font,
+                  height: 1.25,
+                  fontWeight: o.font == 'Galada' ? FontWeight.w400 : FontWeight.w600,
+                  color: Color(o.color),
+                  shadows: o.bg == 0
+                      ? [Shadow(blurRadius: fontPx * 0.12, color: Colors.black.withValues(alpha: 0.7),
+                          offset: Offset(0, fontPx * 0.04))]
+                      : null,
+                )
+                .apply(fontSizeFactor: math.max(4.0, fontPx) / AType.bodyMedium.fontSize!),
           ),
           textAlign: TextAlign.center,
           textDirection: TextDirection.ltr,
