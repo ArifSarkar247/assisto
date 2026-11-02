@@ -53,4 +53,4 @@
 
 ## ৮. প্রমাণ
 
-`backend/core/tests_bizops.py` · `app/test/bizops_test.dart` · গ্যালারি `bizops_*` · CI রান: রিপোর্টে।
+`backend/core/tests_bizops.py` · `app/test/bizops_test.dart` · গ্যালারি `bizops_*` (CI artifacts shots-*) · CI রান 41467987341 সব সবুজ (backend + flutter static + ৪ টেস্ট শার্ড), agent-eval 41462783274 সবুজ।
