@@ -31917,5 +31917,297 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "cgaSrcChip": "Bag / shoe tracker",
+  "cgaChipOnlyOwner": "The tracker was set up by {name} — only they can change who sees it.",
+  "@cgaChipOnlyOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemovedButChip": "{name} was removed. The bag tracker stays — ask {owner} to change it.",
+  "@cgaRemovedButChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBanksCallFirst": "Lists can be out of date. Call before you go.",
+  "bpBanksOpenSource": "Open the source",
+  "bpBanksAllDistricts": "All districts",
+  "bpBanksSearch": "Search by name or area",
+  "bpBanksNearMe": "Near me",
+  "bpBanksCount": "{count} blood banks",
+  "@bpBanksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bpBanksNoMatch": "No blood bank in this list matches.",
+  "bpBanksShowAll": "Show all",
+  "bpBanksKm": "{km} km away",
+  "@bpBanksKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBanksKmDistrict": "About {km} km (from the district centre)",
+  "@bpBanksKmDistrict": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "bpPushAreaTitle": "Urgent requests reach you for",
+  "bpPushAreaPoint": "Around the point you saved (about 1 km).",
+  "bpPushAreaHonest": "We use the area you saved — not where your phone is now. If you move, update it.",
+  "bpPushAreaStale": "Last checked {date}. Are you still in this area?",
+  "@bpPushAreaStale": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bpPushAreaStill": "Yes, still here",
+  "bpPushAreaUpdate": "Update area",
+  "bpPushAreaKept": "Thanks — your area is kept.",
+  "bpReachHonest": "Donors are matched by the area they saved, not by where their phone is right now.",
+  "bpListCounts": "{total} donors · {available} can donate now · {soon} soon",
+  "@bpListCounts": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "available": {
+        "type": "int"
+      },
+      "soon": {
+        "type": "int"
+      }
+    }
+  },
+  "bpDoctorDecides": "The hospital doctor makes the final decision on who can donate.",
+  "bpStPaused": "Paused by the donor",
+  "bpStLeft": "{left} days left",
+  "@bpStLeft": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpStToday": "Donated today · {left} days left",
+  "@bpStToday": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpStAgoLeft": "Donated {ago} days ago · {left} days left",
+  "@bpStAgoLeft": {
+    "placeholders": {
+      "ago": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpHelped": "You have helped {count} people",
+  "@bpHelped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bpIAmDonor": "I am a blood donor",
+  "bpIAmDonorOffSub": "Turn on to be found by people nearby who need blood. Your group is sent only with your consent.",
+  "bpShareAgreed": "Your yes is saved",
+  "bpShareBothAgreed": "Both sides agreed — you can share the thank-you card.",
+  "bpShareWaitDonor": "Waiting for the donor to agree. The card is shared only when both sides say yes.",
+  "bpShareWaitFamily": "Waiting for the family to agree. The card is shared only when both sides say yes.",
+  "bpShareAskFamily": "Share a thank-you card? It has no names, illness or hospital. The donor must agree too.",
+  "bpShareAskDonor": "The family may share a thank-you card (no names, illness or hospital). Only if you agree.",
+  "bpShareAgree": "I agree to share",
+  "kauTitle": "Child emergency audio",
+  "kauIntro": "If your child is in danger — they pressed SOS, or did not answer “Are you OK?” after a late trip — you can hear a few minutes around them, so you can send the right help. Never at other times, never in secret.",
+  "kauRulesTitle": "The rules",
+  "kauRules": "• Only during an active emergency: SOS, or no answer to “Are you OK?”.\n• Only a verified parent: in My Circle you chose “Child” and your child chose “Father” or “Mother”.\n• Only for children under 18, and both of you agree in advance.\n• At most 3 minutes each time, at most 3 times in one emergency.\n• The child's phone shows the call and the notice “Emergency: your parent is listening” with Stop, the whole time.\n• Both of you see every request in the log. Nothing is recorded.",
+  "kauParentSection": "Your children",
+  "kauChildSection": "Requests for you",
+  "kauEmptyBenefit": "Set this up together with your child before any emergency. First add your child in My Circle.",
+  "kauEmptyHow": "How: open My Circle, add your child and choose the relation “Child”. On their phone your child chooses “Father” or “Mother”. Then come back here.",
+  "kauOpenCircle": "Open My Circle",
+  "kauSetupTitle": "Set up for a child",
+  "kauBirthYear": "Child's birth year",
+  "kauPickChildYear": "Choose your child and their birth year.",
+  "kauWatch": "Kids watch (optional)",
+  "kauWatchNone": "No watch",
+  "kauWatchPhone": "Watch SIM number",
+  "kauWatchPhoneHelp": "The watch rings and shows your call on its screen. Add your number to the watch's SOS / family numbers so it accepts your call.",
+  "kauSave": "Save and ask my child",
+  "kauSaved": "Saved. Your child must now agree on their own phone.",
+  "kauStateWaiting": "Waiting for your child to agree",
+  "kauStateActive": "Ready. It works only during an emergency.",
+  "kauStateRevoked": "Turned off",
+  "kauStateAdult": "Stopped: only for children under 18",
+  "kauListen": "Listen now (emergency)",
+  "kauCallWatch": "Call the watch",
+  "kauListenHelp": "Works only during an active emergency. Your child's phone calls you and shows it on the screen.",
+  "kauListenSent": "{name}'s phone will call you now. Answer the call.",
+  "@kauListenSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauTurnOff": "Turn off",
+  "kauAskTitle": "{name} asks for emergency audio",
+  "@kauAskTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauAskBody": "Read the rules above. If you agree, confirm your birth year. You can turn it off any time.",
+  "kauConfirmYear": "Your birth year",
+  "kauAgree": "I agree",
+  "kauDecline": "No, I don't agree",
+  "kauLogTitle": "Log: who, when, how long",
+  "kauLogEmpty": "Nothing yet. Every request will show here, for the parent and for the child.",
+  "kauLogBy": "{name} asked to listen",
+  "@kauLogBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauSeconds": "{n} seconds",
+  "@kauSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "kauStRefused": "Refused",
+  "kauStRequested": "Asked",
+  "kauStLive": "Listening now",
+  "kauStEnded": "Ended",
+  "kauStMissed": "Did not start",
+  "kauStDialled": "Watch called",
+  "kauRNoEmergency": "There is no active emergency, so it was refused.",
+  "kauRAdult": "Only for children under 18.",
+  "kauRNotGuardian": "Only a parent confirmed on both sides in My Circle.",
+  "kauRNoConsent": "Both of you must agree in advance.",
+  "kauRCap": "The limit for this emergency is reached (3 times).",
+  "kauRBusy": "It is already in progress.",
+  "kauRNoWatch": "Add the child's watch and its SIM number first.",
+  "kauRFlag": "This is not switched on yet.",
+  "kauRYear": "The birth year does not match what your parent set.",
+  "kauRGeneric": "Could not do that. Please try again.",
+  "kauEndLimit": "3-minute limit",
+  "kauEndStopped": "Stopped",
+  "kauEndOver": "Emergency over",
+  "kauEndNotice": "The notification could not be shown, so audio did not start",
+  "kauEndCall": "Call ended",
+  "kauEndNotStarted": "The phone did not start in time",
+  "kauNoticeChannel": "Emergency audio",
+  "kauNoticeTitle": "Emergency: your parent is listening",
+  "kauNoticeText": "{name} is listening. At most 3 minutes. Tap Stop to end.",
+  "@kauNoticeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kauStop": "Stop",
+  "kauNoticeRestoreTitle": "Assisto safety is on",
+  "kauNoticeRestoreText": "Emergency audio has ended.",
+  "kauLoadFailed": "Could not load. Check the internet and try again.",
+  "kauRetry": "Try again",
+  "buyCctvTitle": "Where to buy a CCTV camera",
+  "buyVehicleTitle": "Where to buy a vehicle tracker",
+  "buyKidsWatchTitle": "Where to buy a kids GPS watch",
+  "buyChipTitle": "Where to buy a tracker chip",
+  "buySub": "asalifymart.com · opens in your browser",
+  "buyOpenFailed": "Could not open the browser. Visit asalifymart.com yourself.",
+  "chipAddTitle": "Add a tracker chip",
+  "chipAddSub": "A small 4G GPS chip for a school bag or shoe",
+  "chipKind": "Tracker chip (bag / shoe)",
+  "chipPairIntro": "Put a 4G data SIM in the chip and charge it. Type its IMEI, then send the setup SMS from your phone. Only you and the people you pick can see where it is.",
+  "chipImeiLabel": "IMEI (on the box or label)",
+  "chipImeiHelp": "15 digits. Some chips show a 10–12 digit ID instead — type what is printed.",
+  "chipErrImei": "Check the number — type the 15-digit IMEI (or the 10–12 digit ID) printed on the chip.",
+  "chipErrTaken": "This chip is already added by someone else.",
+  "chipErrIsVehicle": "This number is already your vehicle tracker. Use another chip.",
+  "chipErrLimit": "You can add up to 5 tracker chips.",
+  "chipSimOperator": "SIM in the chip",
+  "chipSimNumber": "Chip's SIM number (optional)",
+  "chipSimHelp": "With the number we can open your SMS app with the setup text ready.",
+  "chipChildOnApp": "Does the child use Assisto? (optional)",
+  "chipChildOnAppHelp": "If yes, their phone will show that the chip is on and who can see it.",
+  "chipChildNoApp": "No / no phone",
+  "chipFreeNote": "Free: location, battery and school alerts never cost credits. Location history is kept 48 hours.",
+  "chipWaiting": "Waiting for the chip to connect",
+  "chipPairHint": "Send the setup SMS to the chip's SIM to connect it.",
+  "chipNoLocationYet": "No location yet. The chip sends one when it sees GPS (outdoors works best).",
+  "chipBatteryUnknown": "Battery: not reported",
+  "chipBatteryLow": "Charge the chip tonight",
+  "chipWhoSees": "Who can see: {names}",
+  "@chipWhoSees": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "chipChildSeesNote": "The child's phone shows that this chip is on and who can see it.",
+  "chipHistory": "Last 48 hours",
+  "chipHistoryTitle": "Where {name}'s chip was",
+  "@chipHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chipHistoryNote": "Only you and the guardians you picked can see this. Points older than 48 hours are deleted.",
+  "chipHistoryEmpty": "No locations in the last 48 hours yet.",
+  "chipRemoveQ": "Remove this tracker chip?",
+  "chipRemoveBody": "Its location history is deleted and the chip stops reporting to Assisto.",
+  "chipFirstFix": "The chip is on the map now.",
+  "chipWornTitle": "A tracker chip is on for you",
+  "chipWornBody": "{owner} set it up. Who can see where the chip is: {names}. It shows the chip's place, not your phone's.",
+  "@chipWornBody": {
+    "placeholders": {
+      "owner": {
+        "type": "String"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "chipPlanIntro": "The chip tells you automatically: left home, reached school, left the school area early, and if your child is late.",
+  "chipPlanHonest": "A chip has no screen or button for the child. If its battery runs out you get a 'not responding' alert, and the last known place stays in the app."
 }
