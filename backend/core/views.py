@@ -1724,6 +1724,12 @@ class AgentView(APIView):
                                          turns=6)
                     gen_meta = {}
                     summary = "-" if ctx.get("level") == "L4" else ctx["reply"]
+                    # aibar: the home question runs the SAME capped, priced
+                    # chat mode as the Assisto AI chat when the owner's
+                    # pricing-40 block is on (before: always the legacy path
+                    # = MAIN model for 1 credit, outside the 40 % rule).
+                    from .views_chat import _chat_mode
+                    mode = _chat_mode(request)
                     ai_reply, _ = ai.generate(
                         task=pick(lang,
                                   "ব্যবহারকারীর প্রশ্নের উত্তর দাও বাংলায়, সংক্ষেপে ও সত্যভাবে। "
@@ -1731,9 +1737,9 @@ class AgentView(APIView):
                                   "Answer the user's question briefly and truthfully in English. "
                                   "The DATA below summarises their own data — treat only it as true."),
                         data=f"Question: {text}\n\n{summary}",
-                        tier="cheap", feature="agent_qa", max_tokens=400, user=u,
-                        history=hist, out_meta=gen_meta,
-                        pii=True)   # AF-2: question + own-data summary masked
+                        tier="cheap", feature=("chat." + mode) if mode else "agent_qa",
+                        max_tokens=400, user=u, history=hist, out_meta=gen_meta,
+                        mode=mode, pii=True)   # AF-2: question + own-data summary masked
                     from . import ai_guard
                     reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
                     reply, n_money = ai_guard.scrub_ungrounded_money(
@@ -1742,6 +1748,8 @@ class AgentView(APIView):
                     cards = ctx.get("cards", [])
                     ai_used = ai_answered = True
                     ai_meta = {"credits": int(gen_meta.get("charged") or 0)}
+                    if mode == "quick" and not ai_meta["credits"]:
+                        ai_meta["free_quota"] = True
                     bal = G.balance(u)
                     if bal is not None:
                         ai_meta["balance"] = bal
@@ -1755,8 +1763,10 @@ class AgentView(APIView):
                         # saved, so the app keeps the text, opens the
                         # buy-credits sheet and re-sends it once.
                         from . import credits_out
+                        from .views_chat import _chat_mode, _mode_need
+                        m = _chat_mode(request)
                         return credits_out.response(
-                            u, lang, credits_out.need_for_tier(u, "cheap"))
+                            u, lang, _mode_need(m) if m else credits_out.need_for_tier(u, "cheap"))
                     ai_answered = False
             if not ai_answered:
                 res = brain.answer(u, text, lang)
@@ -1801,7 +1811,7 @@ class AgentView(APIView):
                "ai_used": ai_used, "ai_enabled": ai.key_present(),
                # aibar: credits actually taken for this turn (0 = free)
                "credits": int(ai_meta.get("credits") or 0)}
-        for k in ("balance", "money_grounding", "ai_unavailable", "text_cut"):
+        for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota"):
             if k in ai_meta:
                 out[k] = ai_meta[k]
         session_id, message_id = _persist_home_turn(
@@ -1812,7 +1822,8 @@ class AgentView(APIView):
         return Response(out)
 
 
-_HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut")
+_HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut",
+                     "free_quota")
 
 
 def _home_history(user, session_id):

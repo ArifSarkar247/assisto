@@ -394,6 +394,41 @@ class HomeAgentTests(AiBase):
         self.assertEqual(r.json()["intent"], "crisis")
 
 
+# ------------------------------------------------------------------ home chat on the 40 % path
+class HomeAgentPricing40Tests(AiBase):
+    """With the owner's pricing-40 preset ON, the home question uses the same
+    capped chat modes as the Assisto AI chat (smart = Sonnet, 2 credits;
+    quick = free quota) — before it always ran the MAIN model for 1 credit."""
+
+    def setUp(self):
+        super().setUp()
+        out = io.StringIO()
+        call_command("apply_pricing_preset", "pricing_27oct", "--apply", "--backup-done",
+                     stdout=out)
+        self.assertIn("APPLIED", out.getvalue())
+
+    def test_default_smart_mode_model_and_real_credits(self):
+        before = self.balance()
+        r = self.c.post(f"{V}/agent", {"text": "what is the capital of France?"},
+                        format="json")
+        j = r.json()
+        self.assertTrue(j["ai_used"])
+        self.assertEqual(self.fake.calls[-1]["model"], "claude-sonnet-5-5")
+        self.assertEqual(j["credits"], before - self.balance())
+        self.assertEqual(j["credits"], 2)
+        u = AIUsage.objects.filter(user=self.u, ok=True).latest("id")
+        self.assertEqual(u.feature, "chat.smart")
+
+    def test_quick_mode_is_free_quota(self):
+        before = self.balance()
+        r = self.c.post(f"{V}/agent", {"text": "what is the capital of France?",
+                                        "mode": "quick"}, format="json")
+        j = r.json()
+        self.assertEqual((j["credits"], j.get("free_quota")), (0, True))
+        self.assertEqual(self.balance(), before)
+        self.assertEqual(self.fake.calls[-1]["model"], "claude-haiku-5-5")
+
+
 # ------------------------------------------------------------------ live smoke
 class LiveSmokeTests(TestCase):
     def setUp(self):

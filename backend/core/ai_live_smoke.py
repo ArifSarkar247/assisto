@@ -155,7 +155,8 @@ def run(budget_usd=DEFAULT_BUDGET_USD, log=None):
                 text, cost = ai.generate(
                     task=prompt, tier="cheap", feature="smoke", max_tokens=MAX_OUT,
                     user=None, task_class=c["klass"], mode=c["mode"],
-                    digits="bn" if c["lang"] == "bn" else None)
+                    digits="bn" if c["lang"] == "bn" else None,
+                    pii=True)          # AF-2: the same masking step as real calls
             row.update(ok=True, cost_usd=round(cost, 6), chars=len(text),
                        bangla=_bn_script(text) if c["lang"] == "bn" else None,
                        correct=any(w in text.lower() for w in expect),
