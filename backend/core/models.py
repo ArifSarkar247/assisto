@@ -3,6 +3,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager,
 )
 from django.utils import timezone
+from core.logic.cctv_store import vault_storage  # cctvevidence (W7)
 
 
 class UserManager(BaseUserManager):
@@ -3423,6 +3424,9 @@ class ShopSite(models.Model):
     # "closed_days", "shop_phone", "opened_on", "_state": {...}} — bounded by
     # core/logic/cctv_extras.py (normalize_settings); "_state" is server-only.
     guard = models.JSONField(default=dict, blank=True)
+    # ---- cctvevidence (W7) ---- the site's address, printed in the
+    # evidence pack / GD letter (owner-typed; never auto-located)
+    address = models.CharField(max_length=200, blank=True, default="")
 
     class Meta:
         ordering = ["-created"]
@@ -3482,7 +3486,8 @@ class ShopCamera(models.Model):
     compat = models.JSONField(default=dict, blank=True)
     # one small still from the compatibility check (zone-drawing background);
     # dropped when the site keeps no snapshots (retention 0). NEVER video.
-    preview = models.ImageField(upload_to="shop/preview/", null=True, blank=True)
+    preview = models.ImageField(upload_to="shop/preview/", null=True, blank=True,
+                                storage=vault_storage)   # cctvevidence: sealed
     # owner Correct/Wrong feedback -> bounded per-camera thresholds
     # {"person_conf", "motion_mult", "cooldown_s", "correct", "wrong"}
     tuning = models.JSONField(default=dict, blank=True)
@@ -3552,7 +3557,9 @@ class ShopEvent(models.Model):
     signals = models.JSONField(default=dict, blank=True)  # the combined inputs that fired
     confidence = models.FloatField(default=0.0)           # 0..1, always shown
     # the ONE small image we may keep. NO video field exists, ever.
-    snapshot = models.ImageField(upload_to="shop/", null=True, blank=True)
+    # cctvevidence (W7): sealed per object (AES-GCM) via core/logic/cctv_store
+    snapshot = models.ImageField(upload_to="shop/", null=True, blank=True,
+                                 storage=vault_storage)
     pos_matched = models.BooleanField(default=False)
     possible = models.BooleanField(default=False)   # low-confidence "possible" (lone pose)
     status = models.CharField(max_length=12, choices=STATUS, default="open")
@@ -3585,7 +3592,8 @@ class ShopEventClip(models.Model):
     STATUS = [("ready", "ready"), ("viewed", "viewed"), ("expired", "expired")]
     event = models.OneToOneField(ShopEvent, on_delete=models.CASCADE,
                                  related_name="clip")
-    blob = models.FileField(upload_to="shop/clip/", null=True, blank=True)
+    blob = models.FileField(upload_to="shop/clip/", null=True, blank=True,
+                            storage=vault_storage)   # cctvevidence: sealed at rest too
     meta = models.JSONField(default=dict, blank=True)   # public envelope only
     size = models.PositiveIntegerField(default=0)
     sha256 = models.CharField(max_length=64, blank=True, default="")
@@ -3597,6 +3605,57 @@ class ShopEventClip(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["status", "expires_at"])]
+
+
+class ShopVideoAddon(models.Model):
+    """cctvevidence (W7): the per-CAMERA video add-on — keeps a 10-s SD-card
+    clip per person alert (max 30 per camera per day) for 7 days (100 tk) or
+    30 days (150 tk) per camera per month. Rules + prices + the Play product
+    seam: core/logic/cctv_video_addon.py. `active_until` = paid through."""
+    TIERS = [("7d", "7 days"), ("30d", "30 days")]
+    camera = models.OneToOneField(ShopCamera, on_delete=models.CASCADE,
+                                  related_name="video_addon")
+    tier = models.CharField(max_length=4, choices=TIERS, default="7d")
+    active_until = models.DateTimeField(null=True, blank=True, db_index=True)
+    # "credits" | "play" | "trial" | "admin" — and the purchase reference
+    source = models.CharField(max_length=12, blank=True, default="")
+    ref = models.CharField(max_length=120, blank=True, default="")
+    auto_renew = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class ShopSdClip(models.Model):
+    """cctvevidence (W7): a 10-s clip around ONE person alert, fetched from
+    the camera's own SD card through the vendor's official cloud API (EZVIZ
+    local-playback address) and kept SEALED in cctv_store until
+    `expires_at` (7 / 30 days by add-on). Where the vendor API cannot hand
+    the recording over, the row says so honestly (status `unsupported` +
+    reason) — nothing is faked."""
+    STATUS = [("pending", "pending"), ("ready", "ready"),
+              ("unsupported", "unsupported"), ("failed", "failed"),
+              ("expired", "expired")]
+    event = models.OneToOneField(ShopEvent, on_delete=models.CASCADE,
+                                 related_name="sd_clip")
+    camera = models.ForeignKey(ShopCamera, on_delete=models.CASCADE,
+                               related_name="sd_clips")
+    status = models.CharField(max_length=12, choices=STATUS, default="pending",
+                              db_index=True)
+    reason = models.CharField(max_length=40, blank=True, default="")
+    name = models.CharField(max_length=200, blank=True, default="")  # cctv_store object
+    size = models.PositiveIntegerField(default=0)
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+    tries = models.PositiveSmallIntegerField(default=0)
+    due_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["camera", "-created"],
+                                name="shopsdclip_cam_created")]
 
 
 class ShopGuardTask(models.Model):

@@ -571,6 +571,14 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     # store AT MOST the one small snapshot (only if retention allows it)
     if snapshot is not None and site.snapshot_retention_days > 0:
         ev.snapshot.save(snapshot.name, snapshot, save=True)
+    # cctvevidence (W7): a person alert on a camera with the video add-on
+    # queues ONE 10-s SD-card clip (fetched by the minute job). Never raises.
+    if not pending and cam is not None:
+        try:
+            from . import cctv_evidence as CE
+            CE.on_event(ev, now)
+        except Exception:
+            pass
 
     if pending:
         CXV.schedule_nosale(site, ev, now)

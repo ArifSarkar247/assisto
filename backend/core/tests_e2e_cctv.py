@@ -211,7 +211,7 @@ class ImouCloudE2ETests(_Base):
         self.assertGreaterEqual(ev.confidence, 0.6)           # human, armed
         self.assertTrue(ev.snapshot)
         from PIL import Image
-        self.assertLessEqual(max(Image.open(ev.snapshot.path).size), 640)
+        self.assertLessEqual(max(Image.open(ev.snapshot.open("rb")).size), 640)
         self.assertEqual(FamilyAlert.objects.filter(kind="shop_guard").count(), 2)
         pushes = self.shop_pushes()
         self.assertEqual(len(pushes), 2)
@@ -327,7 +327,7 @@ class HikvisionDahuaE2ETests(_Base):
         self.assertTrue(ev.signals["inputs"].get("human"))
         self.assertTrue(ev.snapshot)
         from PIL import Image
-        self.assertLessEqual(max(Image.open(ev.snapshot.path).size), 640)
+        self.assertLessEqual(max(Image.open(ev.snapshot.open("rb")).size), 640)
         self.assertEqual(len(self.shop_pushes()), 2)               # owner + viewer
         again = self.hook("hikvision", tok, body, ct)
         self.assertTrue(again.data["events"][0]["dedupe"])

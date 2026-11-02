@@ -42,8 +42,12 @@ def prune(now=None):
     now = now or timezone.now()
     removed = 0
     # only events that still hold a snapshot are candidates
-    for ev in ShopEvent.objects.exclude(snapshot="").exclude(snapshot=None):
-        retention = int(ev.site.snapshot_retention_days or 0)
+    from core import cctv_evidence as CE
+    for ev in ShopEvent.objects.exclude(snapshot="").exclude(snapshot=None) \
+            .select_related("site", "camera"):
+        # cctvevidence (W7): base plan keeps photos at most 7 days (30 with
+        # the 30-day video add-on); the owner's own shorter setting wins.
+        retention = CE.photo_days_for(ev.site, ev.camera, now)
         cutoff = now - timedelta(days=retention)
         # retention 0 => cutoff == now => every snapshot is "older" => pruned.
         if ev.created <= cutoff or retention == 0:
@@ -62,6 +66,8 @@ def prune(now=None):
         removed += purge_clips(now)
     except Exception:
         pass
+    # cctvevidence: SD-card clips past their add-on days
+    removed += CE.purge_sd_clips(now)
     return removed
 
 

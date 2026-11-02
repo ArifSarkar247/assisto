@@ -148,7 +148,7 @@ class CameraHookViewTests(APITestCase):
         ev = ShopEvent.objects.get(camera=self.cam)
         self.assertEqual(ev.type, "after_hours")
         from PIL import Image
-        self.assertLessEqual(max(Image.open(ev.snapshot.path).size), 640)
+        self.assertLessEqual(max(Image.open(ev.snapshot.open("rb")).size), 640)
         alert = FamilyAlert.objects.get(user=self.owner, kind="shop_guard")
         self.assertIn("please check", alert.title.lower())
         self.assertNotIn("theft", (alert.title + alert.body).lower())

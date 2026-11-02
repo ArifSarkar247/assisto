@@ -298,7 +298,7 @@ class GatewayCheckTests(_Base):
         self.assertEqual(cam.compat["info"]["width"], 1920)
         self.assertTrue(cam.preview)
         from PIL import Image
-        self.assertLessEqual(max(Image.open(cam.preview.path).size), 640)
+        self.assertLessEqual(max(Image.open(cam.preview.open("rb")).size), 640)
         pv = self.client.get("/api/v1/shop/cameras/%d/preview" % cam.id)
         self.assertEqual(pv.status_code, 200)
         self.assertEqual(pv.data["source"], "check")
