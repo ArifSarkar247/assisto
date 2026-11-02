@@ -189,6 +189,14 @@ flutter:
           weight: 600
         - asset: assets/fonts/NotoSansBengali-Bold.ttf
           weight: 700
+    # sitelive (owner 3 Nov): the taka sign. Noto Sans Bengali's ৳ reads as a
+    # "b" (owner: "b500 Food"); AssistoTaka = Hind Siliguri SemiBold (OFL,
+    # licence in AssistoTaka-OFL.txt) subset to U+09F3 only, placed FIRST in
+    # AFonts.fallback so every ৳ in the app uses the clear form.
+    - family: AssistoTaka
+      fonts:
+        - asset: assets/fonts/AssistoTaka.ttf
+          weight: 600
     # photobar: Photo Studio text & sticker fonts (Bangla + Latin, SIL OFL
     # 1.1, licences next to them). Used ONLY by the Photo Studio editor.
     - family: HindSiliguri

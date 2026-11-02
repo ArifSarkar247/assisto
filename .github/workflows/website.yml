@@ -139,6 +139,17 @@ jobs:
           cp "$GITHUB_WORKSPACE/tools/website/clipcheck.mjs" "$GITHUB_WORKSPACE/tools/website/clipaudit.mjs" .
           node clipcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/before360" before || true
           node clipcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/clipcheck" v3
+      - name: live-check rules on the CI server (hero text + 9 slides, sticky bar after hero Install, taka font; 360/390/430/1280, bn + en)
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/pw"
+          cp "$GITHUB_WORKSPACE/tools/website/livecheck.mjs" .
+          node livecheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/livelocal" local
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-livelocal
+          path: ${{ runner.temp }}/shots/livelocal
       - uses: actions/upload-artifact@v4
         if: always()
         with:

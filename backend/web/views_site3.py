@@ -106,7 +106,7 @@ V3_WIDTHS = (360, 720)
 
 PLACEMENTS = ("hero", "chip_download", "sticky_bar", "footer", "header", "menu")
 GET_PLACES = ("hero", "sticky_bar", "footer", "menu")
-HERO_SLIDES = ("chat", "emergency_hub", "wm_alerts", "acct_home")
+HERO_SLIDES = tuple(n for n, _ in V3.HERO_SLIDES)  # order + names live in site_v3
 
 
 def play_links(lang):
@@ -191,10 +191,11 @@ def _render(request, page, preview, group=None, status=200):
         "play_url": SC.play_url(lang), "play": play,
         "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or play[p]),
                                   "place": p} for p in GET_PLACES},
-        "slides": [_shot(n, lang, C["shot_alt"] + C["slide_" + n], eager=(i == 0)) for i, n in enumerate(HERO_SLIDES)], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
+        "slides": [_shot(n, lang, C["shot_alt"] + C["slide_" + k], eager=(i == 0)) for i, (n, k) in enumerate(V3.HERO_SLIDES)], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
+        "font_taka": OLD.asset_url("taka.woff2"),  # sitelive: clear ৳ (Noto's reads as "b")
         "font_in": {"w%d" % w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
         "jsonld": V3.jsonld(lang, site, en_url if lang == "en" else bn_url, page,
                             faq if page in ("home", "help") else None, crumbs),
