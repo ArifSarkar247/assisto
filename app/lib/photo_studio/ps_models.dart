@@ -166,7 +166,12 @@ class PsConfig {
     this.limits = const {},
     this.usage = const {},
     this.enhanceCap = EnhanceCapability.none,
+    this.idSizes = const {},
   });
+
+  /// photobar: Bangladesh ID / passport / visa sizes from the server
+  /// (`bd_sizes`; the app keeps a built-in copy — PsIdPreset.resolve).
+  final Map<String, Map<String, dynamic>> idSizes;
 
   /// photo-final: what the server HD enhance really offers right now.
   final EnhanceCapability enhanceCap;
@@ -246,6 +251,13 @@ class PsConfig {
         for (final e in ((j['usage'] as Map?) ?? const {}).entries) '${e.key}': _i(e.value)
       },
       enhanceCap: EnhanceCapability.fromJson(j['enhance']),
+      idSizes: {
+        for (final e in ((j['bd_sizes'] as Map?) ?? const {}).entries)
+          if (e.value is Map)
+            '${e.key}': {
+              for (final f in (e.value as Map).entries) '${f.key}': f.value
+            },
+      },
     );
   }
 }

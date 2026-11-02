@@ -224,6 +224,7 @@ import 'package:assisto/screens/legal_screen.dart';
 import 'ps1_shots.dart'; // ps1-photo
 import 'd1_photo_shots.dart'; // d1-photo
 import 'w1_webphoto_shots.dart'; // w1-webphoto
+import 'photobar_shots.dart'; // photobar
 import 'h1_home_shots.dart'; // h1-home
 import 'home_v2_shots.dart'; // home_v2
 import 'f1_shots.dart'; // f1-founders
@@ -736,6 +737,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in d1PhotoShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // w1-webphoto: lifeassisto.com/photo deep link -> Photo Studio (gate kept)
     for (final e in w1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // photobar: editor + Bangladesh ID photo cards, crop / ID framer / filters / text / stickers
+    for (final e in photobarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in c2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // c2-calls
     for (final e in b1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // b1-calls
     for (final e in callsAShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // calls-a

@@ -30,6 +30,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../perf/low_ram.dart' show LowRamTuning;
 import 'ps_classic.dart';
+import 'ps_edit.dart' show BgFillStep, PsBg;
 import 'ps_engines.dart';
 import 'ps_export.dart' show MarkPainter;
 import 'ps_model.dart';
@@ -945,6 +946,9 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
           if (up2 != null) PsTool.upscale2x: up2.tiles * perf.msPerTile,
           if (up4 != null) PsTool.upscale4x: up4.tiles * perf.msPerTile,
           if (_segOffered) PsTool.bgBlur: perf.maskMs + 1200,
+          if (_segOffered) PsTool.bgWhite: perf.maskMs + 800,
+          if (_segOffered) PsTool.bgBlue: perf.maskMs + 800,
+          if (_segOffered) PsTool.bgRemove: perf.maskMs + 800,
         },
       );
     } catch (e) {
@@ -959,7 +963,7 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
       final a = await prepare();
       return a.ai == AiState.ready;
     }
-    if (tool != PsTool.bgBlur) return true;
+    if (!tool.usesMask) return true;
     if (!_segOffered) return false;
     if (_segPath != null) return true;
     try {
@@ -989,6 +993,12 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
               maxLongEdge: maxLongEdge);
         case PsTool.bgBlur:
           return await _runBlur(encoded, maxLongEdge: maxLongEdge);
+        case PsTool.bgWhite:
+          return await _runBlur(encoded, maxLongEdge: maxLongEdge, fill: PsBg.white);
+        case PsTool.bgBlue:
+          return await _runBlur(encoded, maxLongEdge: maxLongEdge, fill: PsBg.blue);
+        case PsTool.bgRemove:
+          return await _runBlur(encoded, maxLongEdge: maxLongEdge, fill: PsBg.transparent);
       }
     } on PsCancelled {
       rethrow;
@@ -1051,7 +1061,9 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
   /// Longest edge the blur composite works at (memory/time bound).
   static const blurMaxLong = 2048;
 
-  Future<Uint8List> _runBlur(Uint8List encoded, {int? maxLongEdge}) async {
+  /// [fill] (photobar): an ARGB colour (0 = transparent) replaces the
+  /// background instead of blurring it — same mask, same face guard.
+  Future<Uint8List> _runBlur(Uint8List encoded, {int? maxLongEdge, int? fill}) async {
     if (_segPath == null) throw const PhotoStudioFailure('tool', 'mask_model_missing');
     progress?.call(const PsProgress(PsStage.mask));
     final m = await native.segment(encoded: encoded, modelPath: _segPath!, side: model.segSide);
@@ -1078,7 +1090,10 @@ class StudioEnhanceEngine implements EnhanceEngine, PhotoToolEngine, PsProxyEngi
     progress?.call(const PsProgress(PsStage.classic));
     final cap = maxLongEdge == null ? blurMaxLong : math.min(blurMaxLong, maxLongEdge);
     final base = await codec.decode(encoded, maxLong: cap);
-    final r = await _run(base.rgba, base.w, base.h, [BlurStep(m.mask!, m.side)], PsStage.classic);
+    final PsStep step = fill == null
+        ? BlurStep(m.mask!, m.side)
+        : BgFillStep(m.mask!, m.side, fill, maxLong: blurMaxLong);
+    final r = await _run(base.rgba, base.w, base.h, [step], PsStage.classic);
     _checkCancel();
     final out = await _encodeOut(RgbaImage(r.rgba, r.w, r.h));
     _lastStep = r.steps.single;

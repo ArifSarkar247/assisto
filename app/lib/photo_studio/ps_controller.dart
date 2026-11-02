@@ -8,6 +8,8 @@ import '../ads/ad_placements.dart' show AdMoments;
 import '../perf/low_ram.dart' show LowRamTuning;
 import 'ps_ads.dart';
 import 'ps_backend.dart';
+import 'ps_edit.dart';
+import 'ps_edit_ui.dart';
 import 'ps_engines.dart';
 import 'ps_enhance.dart';
 import 'ps_export.dart';
@@ -100,6 +102,7 @@ class PsDeps {
     PhotoPicker? picker,
     PsReporter? reporter,
     MarkPainter mark = const UiMarkPainter(),
+    PsEditCodec edit = const UiEditCodec(),
   }) {
     final n = native ?? ChannelPhotoNative();
     final g = guard ?? IdentityGuard(landmarks: NativeLandmarks(n));
@@ -117,6 +120,7 @@ class PsDeps {
       renderer: renderer,
       picker: picker ?? ImagePickerPhotoPicker(),
       mark: mark,
+      edit: edit,
     );
   }
   PsDeps._({
@@ -132,6 +136,7 @@ class PsDeps {
     required this.picker,
     required this.reporter,
     required this.mark,
+    required this.edit,
   });
   final PsBackend backend;
   final PhotoAdBridge ads;
@@ -150,6 +155,9 @@ class PsDeps {
 
   /// d1-photo: every Photo Studio failure -> crash-report pipe (non-PII).
   final PsReporter reporter;
+
+  /// photobar: crop / filter / text / sticker / ID-size editor plumbing.
+  final PsEditCodec edit;
 }
 
 enum PsPhase { loading, entryAd, open, error }
@@ -216,6 +224,17 @@ enum PsNotice {
   /// photo-final: the job waits in the server queue for tomorrow's budget
   /// (nothing charged; the result appears when it has run).
   queuedBudget,
+
+  /// photobar: an edit (crop / filter / text / ID size) failed — nothing
+  /// was changed.
+  editFailed,
+
+  /// photobar: saved to the phone's gallery (Pictures/Assisto).
+  savedGallery,
+
+  /// photobar: the ID photo cannot be made small enough for the portal's
+  /// KB limit (never a file the portal will reject).
+  idTooBig,
 }
 
 class PhotoStudioController extends ChangeNotifier {
@@ -313,6 +332,7 @@ class PhotoStudioController extends ChangeNotifier {
     _jobOfVersion.clear();
     _creditPrice.clear();
     faceLockOf.clear();
+    idOf.clear();
     proxy = null;
     facesReady = null;
   }
@@ -862,7 +882,7 @@ class PhotoStudioController extends ChangeNotifier {
 
   Future<Uint8List> _runToolOn(PhotoToolEngine te, PsTool tool, Uint8List bytes,
       {int? maxLongEdge}) async {
-    if ((tool.usesAi && tools.needsUpscaleModel) || (tool == PsTool.bgBlur && tools.needsMaskModel)) {
+    if ((tool.usesAi && tools.needsUpscaleModel) || (tool.usesMask && tools.needsMaskModel)) {
       progress = const PsProgress(PsStage.download);
       _notify();
       if (!await te.prepareTool(tool)) {
@@ -1197,6 +1217,11 @@ class PhotoStudioController extends ChangeNotifier {
   // ------------------------------------------------------------------ export
   bool get canExport => session != null && session!.edited;
 
+  /// The last exported file (debug/test builds only) — tests check the
+  /// real bytes (300 DPI tag, JPEG size) without a platform sink.
+  @visibleForTesting
+  Uint8List? lastExportBytes;
+
   /// THE single exit: save / share / wallpaper / copy / open-in all land here.
   Future<void> export(ExportKind kind, GateUi ui) async {
     final s = session;
@@ -1234,20 +1259,36 @@ class PhotoStudioController extends ChangeNotifier {
       final g = await gate.unlock(job, kind, ui);
       if (!g.ok || g.grant == null) return _gateNotice(g);
       final grant = g.grant!;
+      // photobar: an ID / passport photo never carries the corner mark (an
+      // office would reject it); the gate above still applied in full.
+      final id = idOf[s.index];
       // full quality only now, after the gate
       final sw = Stopwatch()..start();
       final png = await _renderFull(s,
           resultUrl: grant.resultUrl,
-          cornerMark: grant.cornerMark,
+          cornerMark: grant.cornerMark && id == null,
           note: grant.aiNote.isEmpty ? 'Edited with Assisto' : grant.aiNote,
           generated: v.feature == 'generate');
       timings['export_ms'] = sw.elapsedMilliseconds;
       if (png == null) return _say(PsNotice.failed);
-      final name = 'assisto_${DateTime.now().millisecondsSinceEpoch}.png';
-      final d = await deps.sink.deliver(kind, png, name);
+      final stamp = DateTime.now().millisecondsSinceEpoch;
+      var file = png;
+      var name = 'assisto_$stamp.png';
+      if (id != null && id.jpg) {
+        // the portal upload: JPEG under its KB limit, or an honest "no"
+        final j = await deps.edit.jpegUnder(png, id.maxKb);
+        if (j == null) return _say(PsNotice.idTooBig);
+        file = j.bytes;
+        name = 'assisto_${id.id}_$stamp.jpg';
+      } else if (id != null) {
+        file = psPngWithDpi(png, id.dpi); // prints at the real mm size
+        name = 'assisto_${id.id}_$stamp.png';
+      }
+      lastExportBytes = kDebugMode ? file : null;
+      final d = await deps.sink.deliver(kind, file, name);
       // admob: a saved photo is a natural break (Free only, capped, never
       // within 5 min of another full-screen ad)
-      if (d == DeliverResult.done && kind == ExportKind.save) {
+      if ((d == DeliverResult.done || d == DeliverResult.gallery) && kind == ExportKind.save) {
         AdMoments.report('photo_saved');
       }
       _say(switch (d) {
@@ -1256,6 +1297,7 @@ class PhotoStudioController extends ChangeNotifier {
             : kind == ExportKind.openIn
                 ? PsNotice.opened
                 : PsNotice.saved,
+        DeliverResult.gallery => PsNotice.savedGallery,
         DeliverResult.unavailable => PsNotice.sinkUnavailable,
         DeliverResult.failed => PsNotice.failed,
       });
@@ -1288,13 +1330,25 @@ class PhotoStudioController extends ChangeNotifier {
     } else if (v.fullQuality) {
       // d1-photo tool / batch result: already full quality on the phone
       full = v.bytes;
+      // photobar: a BMP preview carries a removed background's alpha that
+      // Flutter's decoder would drop -> PNG first
+      final bmp = _isBmp(full) ? psDecodeBmp32(full) : null;
+      if (bmp != null) full = psEncodePng(bmp.rgba, bmp.w, bmp.h);
     } else if (pe != null && rec != null && (rec.ai || !(_versionAi[s.index] ?? false))) {
       // photoperf: the recorded recipe on the full-resolution original, in a
       // background isolate (progress + Cancel), the corner mark composited
       // there, the PNG written directly — same look as the preview
       progress = const PsProgress(PsStage.export, total: 1000);
       _notify();
-      return pe.renderExport(await rec.anchor(), rec.steps,
+      final anchor = await rec.anchor();
+      var steps = rec.steps;
+      if (steps.any((x) => x is OverlayStep)) {
+        // photobar: text / stickers drawn at the export's own size
+        final a = await _sizeOf(anchor) ?? psHeaderSize(anchor);
+        if (a == null) throw StateError('export size');
+        steps = await _drawOverlays(steps, a.w, a.h);
+      }
+      return pe.renderExport(anchor, steps,
           mark: cornerMark ? deps.mark : null, note: note, generated: generated);
     } else {
       final st = _versionStrength[s.index] ?? strength;
@@ -1401,6 +1455,108 @@ class PhotoStudioController extends ChangeNotifier {
     session?.redo();
     if (!disposed) notifyListeners();
   }
+
+  /// photobar: the history sheet — select a version AND tell the screen
+  /// (session.select alone changed nothing on screen, like Undo once did).
+  void selectVersion(int i) {
+    session?.select(i);
+    if (!disposed) notifyListeners();
+  }
+
+  // ------------------------------------------------------------------ photobar editor
+  /// The Bangladesh ID preset a version was cut to (drives the export:
+  /// 300 DPI PNG or the portal JPEG under its KB limit; no corner mark).
+  final Map<int, PsIdPreset> idOf = {};
+  PsIdPreset? get currentId => session == null ? null : idOf[session!.index];
+
+  /// ID presets (server values over the built-in copy).
+  List<PsIdPreset> get idPresets => PsIdPreset.resolve(config.idSizes);
+
+  /// Shown bytes of the current version (what the editors work on).
+  Uint8List get currentShown => session == null ? Uint8List(0) : shownBytes(session!.index);
+
+  /// Text / stickers drawn for the size each [OverlayStep] is applied at.
+  Future<List<PsStep>> _drawOverlays(List<PsStep> steps, int w, int h) async {
+    if (!steps.any((s) => s is OverlayStep)) return steps;
+    final out = <PsStep>[];
+    for (var i = 0; i < steps.length; i++) {
+      final st = steps[i];
+      if (st is OverlayStep) {
+        final sz = psStepsSize(w, h, steps.sublist(0, i));
+        out.add(PatchStep(await deps.edit.rasterize(st.items, sz.w, sz.h), sz.w, sz.h));
+      } else {
+        out.add(st);
+      }
+    }
+    return out;
+  }
+
+  /// Apply editor [steps] (crop/rotate, filter, text/stickers, ID size,
+  /// print sheet) to the CURRENT version: previewed on the editing copy now,
+  /// recorded in the recipe so the export re-runs them on the full-size
+  /// original after the gate (same code, same look). [id] = the version is
+  /// a Bangladesh ID photo of that preset.
+  Future<void> applyEdit(List<PsStep> steps, {PsIdPreset? id, String feature = 'edit'}) async {
+    final s = session;
+    if (s == null) return _say(PsNotice.needPhoto);
+    if (webImport) return _say(PsNotice.webImportNoEdit);
+    if (steps.isEmpty || busy) return;
+    busy = true;
+    progress = const PsProgress(PsStage.classic);
+    _notify();
+    try {
+      final sw = Stopwatch()..start();
+      final from = s.index;
+      final rec = _recipeFor(from);
+      final dec = await deps.edit.decode(_workOf(from));
+      final drawn = await _drawOverlays(steps, dec.w, dec.h);
+      final out = await deps.edit.run(dec.rgba, dec.w, dec.h, drawn);
+      final bytes = await deps.edit.encodePreview(out);
+      timings['edit_ms'] = sw.elapsedMilliseconds;
+      if (disposed || !identical(session, s)) return;
+      _Recipe? next;
+      var full = true; // no proxy engine: the preview IS the photo
+      if (_proxyEngine != null && rec != null) {
+        next = rec.thenAll(steps);
+        full = rec.atFull;
+      }
+      s.push(PhotoVersion(
+          bytes: bytes, feature: feature, previewOnly: config.free, fullQuality: full));
+      if (next != null) _recipeOf[s.index] = next;
+      _versionAi[s.index] = false;
+      final keep = id ?? idOf[from];
+      if (keep != null) idOf[s.index] = keep;
+      notice = PsNotice.none;
+      await _refreshToolsFor(s.index);
+    } catch (e) {
+      _report('edit', e);
+      _say(PsNotice.editFailed);
+    } finally {
+      busy = false;
+      progress = null;
+      _notify();
+    }
+  }
+
+  /// photobar: ID photo + optional plain background in one go — the
+  /// background tool first (when the mask model is offered; it can say "no
+  /// clear person" honestly), then the crop to the preset's exact pixels.
+  Future<void> makeIdPhoto(PsIdPreset preset, GeoStep crop, {int? background}) async {
+    if (background != null && tools.bgBlur) {
+      final before = session?.index;
+      await runTool(switch (background) {
+        PsBg.blue => PsTool.bgBlue,
+        PsBg.transparent => PsTool.bgRemove,
+        _ => PsTool.bgWhite,
+      });
+      // the background step failed (notice already shown): stop here
+      if (session?.index == before) return;
+    }
+    await applyEdit([
+      GeoStep(turns: crop.turns, flipH: crop.flipH, crop: crop.crop,
+          outW: preset.pxW, outH: preset.pxH),
+    ], id: preset, feature: 'id_photo');
+  }
 }
 
 /// photoperf: how one version is rendered at full size — [steps] applied to
@@ -1433,7 +1589,9 @@ class _Recipe {
 
   Future<Uint8List> anchor() async => anchorBytes ?? await anchorFn!();
 
-  _Recipe then(PsStep s) => anchorBytes != null
-      ? _Recipe(anchorBytes!, [...steps, s], atFull: atFull)
-      : _Recipe.lazy(anchorFn!, sizeBytes, steps: [...steps, s], ai: ai);
+  _Recipe then(PsStep s) => thenAll([s]);
+
+  _Recipe thenAll(List<PsStep> more) => anchorBytes != null
+      ? _Recipe(anchorBytes!, [...steps, ...more], atFull: atFull)
+      : _Recipe.lazy(anchorFn!, sizeBytes, steps: [...steps, ...more], ai: ai);
 }
