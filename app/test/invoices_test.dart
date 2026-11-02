@@ -292,8 +292,9 @@ void main() {
       expect(find.textContaining('ABC Traders Ltd'), findsOneWidget);
       expect(find.textContaining('Karim Mia'), findsOneWidget);
       expect(find.byKey(const ValueKey('inv-new')), findsOneWidget);
-      final e = await _pump(
-          tester, const InvoicesScreen(businessId: 1), FakeApi(mode: FakeMode.empty, lang: 'en'));
+      // a new key: the same screen type at the same spot would keep its state
+      final e = await _pump(tester, InvoicesScreen(key: UniqueKey(), businessId: 1),
+          FakeApi(mode: FakeMode.empty, lang: 'en'));
       expect(find.text(e.invHubEmptyTitle), findsOneWidget);
       expect(find.text(t.invHubNew), findsOneWidget);
     });
@@ -315,6 +316,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.posts.containsKey('/business/invoice/settings'), isFalse);
       expect(find.text(t.invSetFixFields), findsOneWidget);
+      // the snackbar would cover the save button
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold).first)).removeCurrentSnackBar();
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(bin, -200, scrollable: list);
       await tester.enterText(bin, '000123456-0101');
       await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-set-save')), 300,

@@ -84,7 +84,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
             '${s['bin'] ?? ''}'.replaceAll(RegExp(r'\D'), '').isNotEmpty;
       });
     } catch (_) {
-      // the form still works; the server applies the saved settings anyway
+      // best-effort: the form still works; the server applies the saved settings anyway
     }
   }
 

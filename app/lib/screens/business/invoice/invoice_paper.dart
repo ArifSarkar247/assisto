@@ -25,7 +25,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme.dart' show AFonts, PrintInk;
 import 'invoice_doc.dart';
 
-const _black = Color(0xFF000000);
+const _black = PrintInk.thermal;
 
 /// One measured piece of the paper.
 class InvoiceBlock {
@@ -459,7 +459,7 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
             painter.paint(cv, Size(sz, sz));
             cv.restore();
           } catch (_) {
-            // an unencodable link is simply not printed (never a broken QR)
+            // best-effort: an unencodable link is simply not printed (never a broken QR)
           }
           caps[j].paint(cv, Offset(a4 ? cx + 10 : x, y + sz + 6));
         }

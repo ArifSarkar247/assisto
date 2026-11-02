@@ -77,7 +77,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             _lang ??= st['lang'] as String;
           }
         } catch (_) {
-          // defaults are fine; the invoice itself loaded
+          // best-effort: default paper/language are fine; the invoice itself loaded
         }
       }
     } catch (e) {
@@ -305,7 +305,7 @@ class InvoicePreview extends StatelessWidget {
             decoration: BoxDecoration(
               color: PrintInk.paper,
               borderRadius: BorderRadius.circular(Radii.sm),
-              boxShadow: const [BoxShadow(blurRadius: 8, color: Color(0x33000000))],
+              boxShadow: const [BoxShadow(blurRadius: 8, color: PrintInk.shadow)],
             ),
             child: AspectRatio(
               aspectRatio: lay.width / lay.height,
