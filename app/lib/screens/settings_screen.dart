@@ -43,6 +43,7 @@ import '../push/push_settings_screen.dart';
 import '../widgets/storage_meter.dart';
 import 'messenger/moderation_policy_screen.dart';
 import 'messenger/messenger_profile_screen.dart';
+import 'blood/blood_donor_entry.dart'; // finish1
 import '../widgets/msgr_avatar.dart';
 // Wave-D batch-4: Action Center (replaces the old audit tile target) + Offline.
 import 'action_center_screen.dart';
@@ -208,6 +209,8 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          // finish1 (owner final 2 Nov): "I am a blood donor" (flag blood_donors)
+          const BloodDonorSwitchTile(),
           const Divider(),
           const SettingsLanguageSection(),
           const Divider(),

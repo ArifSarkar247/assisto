@@ -24,19 +24,28 @@ Map<String, dynamic> fakeBloodMe({required bool bn, bool donor = true}) => donor
         'district_name': bn ? 'ঢাকা' : 'Dhaka', 'area_text': bn ? 'মিরপুর ১০' : 'Mirpur 10',
         'has_point': true, 'phone_public': false, 'email_public': false, 'verified': true,
         'verification': 'approved', 'eligible': true, 'next_date': _day(-20), 'interval_days': 120,
+        'details_checked': _day(-30), 'details_stale': false, // finish1
       }
     : {'enabled': false, 'consented': false};
 
 List<Map<String, dynamic>> fakeBloodDonors(bool bn) => [
       {'id': 3, 'name': bn ? 'আকাশ' : 'Akash', 'blood_group': 'B+', 'area_text': bn ? 'কাজীপাড়া' : 'Kazipara',
        'district_name': bn ? 'ঢাকা' : 'Dhaka', 'km': 2, 'eligible': true, 'next_date': null,
-       'verified': true, 'phone': null, 'email': null},
+       'verified': true, 'phone': null, 'email': null, 'status': 'available', 'days_left': 0,
+       'donated_days_ago': 200},
       {'id': 4, 'name': bn ? 'নুসরাত' : 'Nusrat', 'blood_group': 'B+', 'area_text': bn ? 'পল্লবী' : 'Pallabi',
        'district_name': bn ? 'ঢাকা' : 'Dhaka', 'km': 3, 'eligible': true, 'next_date': null,
-       'verified': false, 'phone': '01711000000', 'email': null},
+       'verified': false, 'phone': '01711000000', 'email': null, 'status': 'available',
+       'days_left': 0, 'donated_days_ago': null},
       {'id': 5, 'name': bn ? 'রবিন' : 'Robin', 'blood_group': 'O-', 'area_text': bn ? 'আগারগাঁও' : 'Agargaon',
        'district_name': bn ? 'ঢাকা' : 'Dhaka', 'km': 5, 'eligible': false, 'next_date': _day(38),
-       'verified': false, 'phone': null, 'email': null},
+       'verified': false, 'phone': null, 'email': null, 'status': 'waiting', 'days_left': 38,
+       'donated_days_ago': 82},
+      // finish1 (owner final): a paused donor is shown as paused, never hidden
+      {'id': 6, 'name': bn ? 'সুমি' : 'Sumi', 'blood_group': 'B+', 'area_text': bn ? 'মিরপুর' : 'Mirpur',
+       'district_name': bn ? 'ঢাকা' : 'Dhaka', 'km': 1, 'eligible': true, 'next_date': null,
+       'verified': false, 'phone': null, 'email': null, 'status': 'paused', 'days_left': 0,
+       'donated_days_ago': null},
     ];
 
 Map<String, dynamic> fakeBloodRequest(int id, {required bool bn}) {
@@ -89,7 +98,10 @@ Map<String, dynamic>? fakeBloodGet(String path, {required bool bn, required bool
   if (p == '/blood-panel/me') return fakeBloodMe(bn: bn, donor: !empty);
   if (p == '/blood-panel/donors') {
     final d = empty ? const <Map<String, dynamic>>[] : fakeBloodDonors(bn);
-    return {'ok': true, 'donors': d, 'count': d.length};
+    return {'ok': true, 'donors': d, 'count': d.length,
+      'counts': {'total': d.length, 'available': d.where((x) => x['status'] == 'available').length,
+        'soon': d.where((x) => x['status'] == 'waiting').length,
+        'paused': d.where((x) => x['status'] == 'paused').length}};
   }
   if (p == '/blood-panel/requests') {
     return {
@@ -126,3 +138,26 @@ Map<String, dynamic>? fakeBloodPost(String path, {required bool bn}) {
   }
   return {'ok': true, '_status': 200};
 }
+
+/// finish1: what the banks screen looks like AFTER the owner imports an
+/// official list. Gallery only — clearly labelled examples, never shipped.
+Map<String, dynamic> fakeBloodBanksExample(bool bn) => {
+      'source': {
+        'name': bn ? 'উদাহরণ তালিকা (পরীক্ষা)' : 'Example list (test)',
+        'url': 'https://example.gov.bd/blood',
+        'date': '2026-10-01',
+      },
+      'source_pending': false,
+      'districts': _districts(bn),
+      'total': 2,
+      'banks': [
+        {'name': bn ? 'উদাহরণ ব্লাড ব্যাংক ১' : 'Example blood bank 1', 'district': 'dhaka',
+          'district_name': bn ? 'ঢাকা' : 'Dhaka', 'area': bn ? 'শাহবাগ' : 'Shahbag',
+          'address': bn ? 'উদাহরণ সড়ক ১' : 'Example road 1', 'hours': bn ? '২৪ ঘণ্টা' : '24 hours',
+          'phone': '01700-000001', 'km': 2.4, 'km_from_district': false},
+        {'name': bn ? 'উদাহরণ ব্লাড ব্যাংক ২' : 'Example blood bank 2', 'district': 'chattogram',
+          'district_name': bn ? 'চট্টগ্রাম' : 'Chattogram', 'area': '',
+          'address': bn ? 'উদাহরণ সড়ক ২' : 'Example road 2', 'hours': '', 'phone': '',
+          'km': 214.0, 'km_from_district': true},
+      ],
+    };

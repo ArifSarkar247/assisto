@@ -9,7 +9,6 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
-import 'blood_banks_screen.dart';
 import 'blood_donor_setup_screen.dart';
 import 'blood_request_detail_screen.dart';
 import 'blood_request_form_screen.dart';
@@ -53,7 +52,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
   // search
   String _group = '';
   int _radius = 5;
-  bool _nowOnly = false;
+  Map<String, dynamic> _counts = const {}; // finish1: total / now / soon
   String _district = '';
   ({double lat, double lng})? _here;
   bool _searching = false;
@@ -130,7 +129,6 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
     final q = <String, String>{
       if (_group.isNotEmpty) 'group': _group,
       'radius': '$_radius',
-      if (_nowOnly) 'eligible_only': '1',
       if (_here != null) ...{'lat': '${bpCoarse(_here!.lat)}', 'lng': '${bpCoarse(_here!.lng)}'},
       if (_here == null && _district.isNotEmpty) 'district': _district,
     };
@@ -139,6 +137,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       if (!mounted) return;
       setState(() {
         _donors = bpRows(r, 'donors');
+        _counts = bpMap(r['counts']);
         _searching = false;
         _searched = true;
       });
@@ -262,13 +261,8 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
                 .push(MaterialPageRoute(builder: (_) => const BloodThreadsScreen())),
             icon: const Icon(Icons.forum_outlined),
           ),
-          IconButton(
-            key: const ValueKey('bp-banks'),
-            tooltip: t.bpBanksTitle,
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const BloodBanksScreen())),
-            icon: const Icon(Icons.local_hospital_outlined),
-          ),
+          // finish1 (owner final 2 Nov): no blood bank list at launch — the
+          // section is hidden (the server import tool stays, unused).
         ],
         bottom: TabBar(
           controller: _tabs,
@@ -373,16 +367,8 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             },
           ),
         ]),
-        SwitchListTile(
-          key: const ValueKey('bp-now-only'),
-          contentPadding: EdgeInsets.zero,
-          title: Text(t.bpNowOnly),
-          value: _nowOnly,
-          onChanged: (v) {
-            setState(() => _nowOnly = v);
-            unawaited(_search());
-          },
-        ),
+        // finish1 (owner final): no "now only" filter — a donor is never
+        // hidden; the list is sorted (can donate now, nearest first).
         const SizedBox(height: Gap.sm),
         if (_searching) const Center(child: Padding(padding: EdgeInsets.all(Gap.lg), child: CircularProgressIndicator())),
         if (!_searching && !_searched)
@@ -406,9 +392,21 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             onCta: _newRequest,
           ),
         if (!_searching && _donors.isNotEmpty) ...[
-          Text(bpD(context, t.bpFoundCount(_donors.length)), style: text.titleSmall),
+          Semantics(
+            key: const ValueKey('bp-counts'),
+            liveRegion: true,
+            child: Text(
+                bpD(context, t.bpListCounts(
+                    (_counts['total'] as num?)?.toInt() ?? _donors.length,
+                    (_counts['available'] as num?)?.toInt() ?? 0,
+                    (_counts['soon'] as num?)?.toInt() ?? 0)),
+                style: text.titleSmall),
+          ),
           const SizedBox(height: Gap.sm),
           for (final d in _donors) _donorCard(context, d),
+          Text(t.bpDoctorDecides,
+              key: const ValueKey('bp-doctor-decides'),
+              style: text.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
         ],
         const SizedBox(height: Gap.lg),
         const BpPrivacyCard(),
@@ -441,7 +439,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
                 if (d['verified'] == true) const BpVerifiedChip(),
                 Text(bpD(context, area), style: TextStyle(color: s.onSurfaceVariant)),
                 const SizedBox(height: Gap.xs),
-                BpEligibility(eligible: d['eligible'] == true, nextDate: d['next_date'] as String?),
+                BpDonorStatus(donor: d),
               ]),
             ),
           ]),
@@ -604,6 +602,13 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             ]),
             const SizedBox(height: Gap.md),
             BpEligibility(eligible: me['eligible'] == true, nextDate: me['next_date'] as String?),
+            if (((me['helped'] as num?)?.toInt() ?? 0) > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(bpD(context, t.bpHelped((me['helped'] as num).toInt())),
+                    key: const ValueKey('bp-helped'),
+                    style: text.titleSmall),
+              ),
             if (me['last_donation'] != null)
               Text(t.bpLastOn(bpDate(context, me['last_donation'] as String?)),
                   style: text.bodySmall),
@@ -613,6 +618,8 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
           ]),
         ),
       ),
+      const SizedBox(height: Gap.md),
+      _pushAreaCard(context, me),
       const SizedBox(height: Gap.md),
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 52),
@@ -636,6 +643,74 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       const SizedBox(height: Gap.lg),
       const BpPrivacyCard(),
     ]);
+  }
+
+  /// finish1 (push-area honesty): urgent requests reach a donor by the area
+  /// they SAVED — never by where the phone is now (no background location).
+  /// Said plainly, with a one-tap "still here" after 180 quiet days.
+  Widget _pushAreaCard(BuildContext context, Map<String, dynamic> me) {
+    final t = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final stale = me['details_stale'] == true;
+    final area = [
+      if ('${me['area_text'] ?? ''}'.isNotEmpty) '${me['area_text']}',
+      if ('${me['district_name'] ?? ''}'.isNotEmpty) '${me['district_name']}',
+    ].join(' · ');
+    return Card(
+      key: const ValueKey('bp-push-area'),
+      margin: EdgeInsets.zero,
+      color: stale ? scheme.tertiaryContainer : null,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Icon(Icons.notifications_active_outlined,
+                color: stale ? scheme.onTertiaryContainer : scheme.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(t.bpPushAreaTitle, style: text.titleSmall)),
+          ]),
+          const SizedBox(height: Gap.xs),
+          Text(bpD(context, area.isEmpty ? '—' : area), style: text.titleMedium),
+          if (me['has_point'] == true) Text(t.bpPushAreaPoint, style: text.bodySmall),
+          const SizedBox(height: Gap.xs),
+          Text(t.bpPushAreaHonest, style: text.bodySmall),
+          if (stale) ...[
+            const SizedBox(height: Gap.sm),
+            Text(bpD(context, t.bpPushAreaStale(bpDate(context, me['details_checked'] as String?))),
+                style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+          ],
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if (stale)
+              FilledButton(
+                key: const ValueKey('bp-area-still'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _confirmArea,
+                child: Text(t.bpPushAreaStill),
+              ),
+            OutlinedButton(
+              key: const ValueKey('bp-area-update'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _becomeDonor,
+              child: Text(t.bpPushAreaUpdate),
+            ),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _confirmArea() async {
+    final t = AppLocalizations.of(context);
+    try {
+      final r = await _api.bpSaveMe({'area_confirmed': true});
+      if (!mounted) return;
+      _snack(r['ok'] == true ? t.bpPushAreaKept : bpReason(t, r['reason'] as String?));
+    } catch (_) {
+      if (mounted) _snack(t.bpErrGeneric);
+    }
+    unawaited(_load());
   }
 
   Widget _tile(IconData icon, String title, VoidCallback? onTap, String key, {String? sub}) => Card(

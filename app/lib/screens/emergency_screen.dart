@@ -19,6 +19,7 @@ import 'safety_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/permission_reason.dart';
+import 'blood/blood_donor_entry.dart'; // finish1
 
 /// ADVANCED Emergency + SOS screen.
 ///
@@ -513,6 +514,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       // play-nomed: the medical-record fields (blood group .. organ donor) are
       // edited only where medical features are allowed (not in Play). Their
       // stored values are kept untouched on save.
+      // finish1: being a blood donor is a separate choice with its own
+      // consent (flag blood_donors); the card's group stays on this phone.
+      const BloodDonorSwitchTile(),
       if (kMedicalFeaturesAllowed) ...[
         TextField(controller: _blood, decoration: dec(t.emergencyBloodGroup)),
         const SizedBox(height: Gap.sm),

@@ -128,14 +128,67 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
     if (yes != true || !mounted) return;
     final ok = await _act('found', const {}, t.bpFoundDone);
     if (!ok || !share || !mounted) return;
-    await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => SuccessShareScreen(
-        title: t.bpShareTitle,
-        cardHeadline: t.bpShareHeadline,
-        initialText: t.bpShareText('${_r['blood_group'] ?? ''}'),
-        allowPhoto: false,
-      ),
-    ));
+    await _agreeShare();
+  }
+
+  /// finish1 (owner final 2 Nov): the thank-you is shared only when BOTH
+  /// sides agree (the family + a donor who helped). No disease, no hospital.
+  Map<String, dynamic> get _share => bpMap(_r['share']);
+
+  Future<void> _agreeShare() async {
+    final t = AppLocalizations.of(context);
+    final ok = await _act('share', const {}, t.bpShareAgreed);
+    if (!ok || !mounted) return;
+    if (_share['can_share'] == true) await _openShare();
+  }
+
+  Future<void> _openShare() => Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => SuccessShareScreen(
+          title: AppLocalizations.of(context).bpShareTitle,
+          cardHeadline: AppLocalizations.of(context).bpShareHeadline,
+          initialText: AppLocalizations.of(context).bpShareText('${_r['blood_group'] ?? ''}'),
+          allowPhoto: false,
+        ),
+      ));
+
+  List<Widget> _shareBlock(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final sh = _share;
+    if (_r['state'] != 'fulfilled' || sh['possible'] != true) return const [];
+    final mine = _r['role'] == 'requester';
+    final String note;
+    if (sh['can_share'] == true) {
+      note = t.bpShareBothAgreed;
+    } else if (sh['me_ok'] == true) {
+      note = mine ? t.bpShareWaitDonor : t.bpShareWaitFamily;
+    } else {
+      note = mine ? t.bpShareAskFamily : t.bpShareAskDonor;
+    }
+    return [
+      const SizedBox(height: Gap.md),
+      Text(note, key: const ValueKey('bp-share-note')),
+      const SizedBox(height: Gap.sm),
+      if (sh['can_share'] == true)
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: OutlinedButton.icon(
+            key: const ValueKey('bp-share-again'),
+            onPressed: _openShare,
+            icon: const Icon(Icons.favorite_border_rounded),
+            label: Text(t.bpShareTitle),
+          ),
+        )
+      else if (sh['me_ok'] != true)
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: FilledButton.tonalIcon(
+            key: const ValueKey('bp-share-agree'),
+            onPressed: _busy ? null : _agreeShare,
+            icon: const Icon(Icons.favorite_rounded),
+            label: Text(t.bpShareAgree),
+          ),
+        ),
+    ];
   }
 
   Future<void> _close() async {
@@ -286,6 +339,7 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
         ),
         const SizedBox(height: Gap.md),
         if (mine) ..._requesterPart(context, live) else ..._donorPart(context, live),
+        ..._shareBlock(context),
       ],
     );
   }
@@ -341,23 +395,6 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
           ),
         ),
       ],
-      if (_r['state'] == 'fulfilled')
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: OutlinedButton.icon(
-            key: const ValueKey('bp-share-again'),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => SuccessShareScreen(
-                title: t.bpShareTitle,
-                cardHeadline: t.bpShareHeadline,
-                initialText: t.bpShareText('${_r['blood_group'] ?? ''}'),
-                allowPhoto: false,
-              ),
-            )),
-            icon: const Icon(Icons.favorite_border_rounded),
-            label: Text(t.bpShareTitle),
-          ),
-        ),
     ];
   }
 

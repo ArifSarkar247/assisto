@@ -77,6 +77,8 @@ def request_json(request, r, role, viewer=None):
            "created_at": _iso(r.created_at), "expires_at": _iso(r.expires_at),
            "closed_at": _iso(r.closed_at),
            "requester_name": BR.first_name(r.requester.name)}
+    if viewer is not None:
+        out["share"] = BP.share_state(r, viewer)        # both sides agree
     if role == "requester":
         out.update({"pushed": r.pushed, "listed": r.listed,
                     "responders": BP.responders(r, lang),
@@ -173,10 +175,10 @@ class DonorsView(APIView):
     def get(self, request):
         if not BP.flag_on(request.user):
             return _off()
-        rows, err = BP.search(request.user, request.query_params, _lang(request))
+        rows, counts, err = BP.search_full(request.user, request.query_params, _lang(request))
         if err:
             return _err(err)
-        return R({"ok": True, "donors": rows, "count": len(rows)})
+        return R({"ok": True, "donors": rows, "count": len(rows), "counts": counts})
 
 
 class DonorMessageView(APIView):
@@ -283,6 +285,22 @@ class CloseView(_EndView):
     state = "closed"
 
 
+class ShareAgreeView(APIView):
+    """POST: this side agrees to the public thank-you card (finish1)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if not BP.flag_on(request.user):
+            return _off()
+        r, err = _load(request, pk)
+        if err:
+            return err
+        e = BP.share_agree(r, request.user)
+        if e:
+            return _err(e)
+        return R({"ok": True, "share": BP.share_state(r, request.user)})
+
+
 class ReportView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -377,4 +395,6 @@ class BanksView(APIView):
     def get(self, request):
         if not BP.flag_on(request.user):
             return _off()
-        return R(BP.banks(_lang(request)))
+        g = request.query_params
+        return R(BP.banks(_lang(request), district=g.get("district", ""),
+                          q=g.get("q", ""), lat=g.get("lat"), lng=g.get("lng")))

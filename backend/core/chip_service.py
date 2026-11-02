@@ -11,8 +11,12 @@ device needs on top:
   * School Mode feed — a chip can drive a SchoolPlan exactly like a kids
     watch (left home / reached school / left the school area / late), via
     kidswatch_service.plan_fixes (the same state machine, no copy);
-  * audience = owner + guardians (VehicleAccessGrant kind='family'), each
-    re-checked as an accepted, unblocked Circle peer on every delivery;
+  * viewers = owner + guardians (VehicleAccessGrant kind='family'), each
+    re-checked as an accepted, unblocked Circle peer on every delivery
+    (core.guardianship.chip_guardians); ALERTS go to
+    guardianship.alert_audience — the viewers + every other guardian of the
+    child from any feature (the other parent's watch / school plan), exactly
+    like a kids watch alert (finish1);
   * the CHILD (if they have Assisto) sees that a chip is on and WHO can see
     it — never the location history (guardian only).
 
@@ -68,17 +72,29 @@ def battery_pct(voltage_level=None, battery_v=None):
 
 def guardian_users(t):
     """Guardians the owner chose that are STILL accepted, unblocked Circle
-    peers (someone who left the Circle stops getting the location at once)."""
-    from .views_vehicle import _grant_valid
-    out = []
-    for g in t.grants.filter(kind="family").select_related("grantee"):
-        if g.grantee_id != t.owner_id and _grant_valid(g, t.owner):
-            out.append(g.grantee)
-    return out
+    peers (someone who left the Circle stops getting the location at once).
+    One source of truth: core.guardianship.chip_guardians."""
+    from . import guardianship
+    return [u for u in guardianship.chip_guardians(t) if u.id != t.child_user_id]
 
 
 def viewers(t):
+    """Who may SEE the chip's location: owner + its valid guardians."""
     return [t.owner] + guardian_users(t)
+
+
+def alert_users(t):
+    """Who is TOLD about a chip alert: owner + its guardians + every other
+    guardian of the child (core.guardianship.alert_audience), never the
+    child. Falls back to the viewers if the lookup fails."""
+    from . import guardianship
+    try:
+        ids = [u.id for u in guardian_users(t)]
+        out = guardianship.alert_audience(t.owner, ids, t.child_user)
+        return out or viewers(t)
+    except Exception:  # noqa: BLE001 — an alert must never be lost
+        log.exception("chip alert_users %s failed", t.pk)
+        return viewers(t)
 
 
 def can_view(user, t):

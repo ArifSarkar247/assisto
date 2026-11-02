@@ -48,6 +48,8 @@ extension BloodPanelApi on ApiClient {
         return postJsonRaw('/blood-panel/requests/$id/close', body);
       case 'report':
         return postJsonRaw('/blood-panel/requests/$id/report', body);
+      case 'share': // finish1: this side agrees to the thank-you card
+        return postJsonRaw('/blood-panel/requests/$id/share', body);
     }
     throw ArgumentError.value(action, 'action');
   }
@@ -65,7 +67,11 @@ extension BloodPanelApi on ApiClient {
   Future<Map<String, dynamic>> bpCircle(int id, String action) =>
       postJsonRaw('/blood-panel/threads/$id/circle', {'action': action});
 
-  Future<Map<String, dynamic>> bpBanks() => getJson('/blood-panel/banks');
+  /// finish1: the official list (if the owner imported one) — optional
+  /// district / text filter, nearest first for a ~1 km point.
+  Future<Map<String, dynamic>> bpBanks([Map<String, String> q = const {}]) => getJson(q.isEmpty
+      ? '/blood-panel/banks'
+      : Uri(path: '/blood-panel/banks', queryParameters: q).toString());
 }
 
 /// Rows of a list field (defensive: anything not a map is skipped).

@@ -71,10 +71,9 @@ PHOTO_MAX_SIDE = 1600
 SITE_LINK = "https://lifeassisto.com"
 
 # Blood banks: ONLY from an official / verified published list, with source +
-# date. No licensed list is available offline today -> EMPTY + "source pending"
-# (never invented entries). Fill BLOOD_BANKS + BANKS_SOURCE together.
-BLOOD_BANKS: tuple = ()
-BANKS_SOURCE = None             # e.g. {"name": "DGHS ...", "url": "...", "date": "2026-..."}
+# date — the owner imports it (finish1): `manage.py import_blood_banks
+# <csv> --source-name --source-url --source-date` (core/blood_banks.py).
+# Until then the app shows EMPTY + "source pending" (never invented entries).
 
 
 def normalise_group(raw):

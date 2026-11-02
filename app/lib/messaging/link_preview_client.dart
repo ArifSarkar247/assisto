@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as imglib;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme.dart';
@@ -14,8 +16,11 @@ import 'link_open.dart';
 /// SENDER's phone (WhatsApp / Signal model). The URL never goes to Assisto:
 /// this phone fetches the page itself (http/https only, never a private /
 /// local address, 512 KB + 5 s caps, no cookies), reads the og:title /
-/// og:site_name / og:description / og:image, shrinks nothing it cannot
-/// (an image over [kMaxPreviewImage] bytes is simply left out) and the result
+/// og:site_name / og:description / og:image, and SHRINKS the picture on this
+/// phone (finish1: up to [kMaxPreviewImageDownload] is fetched, decoded in a
+/// background isolate, resized to [kPreviewImageSide] px and re-encoded as a
+/// JPEG of at most [kMaxPreviewImage] bytes — before, a bigger og:image was
+/// simply dropped, which was most news / YouTube / Facebook links). The result
 /// is ENCRYPTED with the message (CircleMessage.link_preview = {ciphertext,
 /// nonce, scheme, sender_key_id}). The receiver decrypts it — no fetch on the
 /// receiving phone, so opening a chat never pings a website.
@@ -24,6 +29,90 @@ import 'link_open.dart';
 
 const int kMaxPreviewHtml = 512 * 1024;
 const int kMaxPreviewImage = 48 * 1024;
+const int kMaxPreviewImageDownload = 1536 * 1024;
+const int kMaxPreviewImagePixels = 8000000; // decompression-bomb guard
+const int kPreviewImageSide = 400;
+
+/// finish1: make any preview picture fit [kMaxPreviewImage] (pure, testable;
+/// run through [compute] so the composer never stutters). Returns the bytes
+/// unchanged when they already fit, null when the picture cannot be read,
+/// is absurdly large, or cannot be squeezed under the cap.
+Uint8List? shrinkPreviewImage(Uint8List bytes) =>
+    shrinkPreviewImageTo((bytes, kMaxPreviewImage));
+
+/// [shrinkPreviewImage] with an explicit byte budget (a group preview is
+/// sealed once per member, so its picture gets a smaller share).
+Uint8List? shrinkPreviewImageTo((Uint8List, int) job) {
+  final (bytes, maxBytes) = job;
+  if (bytes.isEmpty || maxBytes <= 0) return null;
+  if (bytes.length <= maxBytes) return bytes;
+  try {
+    final dec = imglib.findDecoderForData(bytes);
+    if (dec == null) return null;
+    final info = dec.startDecode(bytes);
+    if (info == null || info.width <= 0 || info.height <= 0) return null;
+    if (info.width * info.height > kMaxPreviewImagePixels) return null;
+    var im = dec.decode(bytes, frame: 0); // a GIF: its first frame only
+    if (im == null) return null;
+    if (im.hasAlpha) {
+      // JPEG has no transparency: put the picture on white, not black
+      final bg = imglib.Image(width: im.width, height: im.height);
+      imglib.fill(bg, color: imglib.ColorRgb8(255, 255, 255));
+      imglib.compositeImage(bg, im);
+      im = bg;
+    }
+    var side = kPreviewImageSide;
+    for (var round = 0; round < 5; round++) {
+      final big = im.width >= im.height ? im.width : im.height;
+      final small = big > side
+          ? (im.width >= im.height
+              ? imglib.copyResize(im, width: side, interpolation: imglib.Interpolation.average)
+              : imglib.copyResize(im, height: side, interpolation: imglib.Interpolation.average))
+          : im;
+      for (final q in const [78, 64, 50]) {
+        final out = imglib.encodeJpg(small, quality: q);
+        if (out.length <= maxBytes) return out;
+      }
+      side = (side * 3) ~/ 4;
+    }
+  } catch (_) {}
+  return null;
+}
+
+/// finish1: GROUP previews. Every member gets the preview sealed to their own
+/// key (same fan-out as the text), so the picture's share shrinks with the
+/// group: [kGroupPreviewBudget] bytes in total, at most [kMaxPreviewImage]
+/// each; under [kMinGroupPreviewImage] the picture is left out (title + site
+/// still go).
+const int kGroupPreviewBudget = 160 * 1024;
+const int kMinGroupPreviewImage = 4 * 1024;
+
+int groupPreviewImageBudget(int recipients) {
+  if (recipients <= 0) return 0;
+  final share = kGroupPreviewBudget ~/ recipients;
+  if (share < kMinGroupPreviewImage) return 0;
+  return share > kMaxPreviewImage ? kMaxPreviewImage : share;
+}
+
+/// The preview to seal for a group of [recipients] (never throws).
+Future<LinkPreviewData> previewForGroup(LinkPreviewData d, int recipients) async {
+  final pic = d.image;
+  if (pic == null) return d;
+  final budget = groupPreviewImageBudget(recipients);
+  Uint8List? small;
+  if (budget > 0) {
+    try {
+      small = pic.length <= budget
+          ? pic
+          : await compute(shrinkPreviewImageTo, (pic, budget))
+              .timeout(const Duration(seconds: 6));
+    } catch (_) {
+      small = null;
+    }
+  }
+  return LinkPreviewData(
+      url: d.url, title: d.title, site: d.site, description: d.description, image: small);
+}
 
 class LinkPreviewData {
   final String url;
@@ -264,20 +353,23 @@ Future<LinkPreviewData?> fetchLinkPreview(String url) async {
     final html = utf8.decode(body, allowMalformed: true);
     final d = parsePreviewHtml(url, html);
     if (d == null) return null;
-    Uint8List? img;
+    Uint8List? pic;
     final iu = previewImageUrl(url, html);
     if (iu != null) {
       try {
-        final ib = await _get(c, Uri.parse(iu), kMaxPreviewImage,
+        final ib = await _get(c, Uri.parse(iu), kMaxPreviewImageDownload,
             (t) => t == 'image/jpeg' || t == 'image/png' || t == 'image/webp' || t == 'image/gif',
             truncateOk: false);
-        if (ib != null && ib.isNotEmpty && ib.length <= kMaxPreviewImage) {
-          img = Uint8List.fromList(ib);
+        if (ib != null && ib.isNotEmpty) {
+          final raw = Uint8List.fromList(ib);
+          pic = raw.length <= kMaxPreviewImage
+              ? raw
+              : await compute(shrinkPreviewImage, raw).timeout(const Duration(seconds: 6));
         }
       } catch (_) {}
     }
     return LinkPreviewData(
-        url: url, title: d.title, site: d.site, description: d.description, image: img);
+        url: url, title: d.title, site: d.site, description: d.description, image: pic);
   } catch (_) {
     return null;
   } finally {

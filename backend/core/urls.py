@@ -1451,6 +1451,7 @@ urlpatterns += [
     path("blood-panel/requests/<int:pk>/respond", bdv.RespondView.as_view()),
     path("blood-panel/requests/<int:pk>/found", bdv.FoundView.as_view()),
     path("blood-panel/requests/<int:pk>/close", bdv.CloseView.as_view()),
+    path("blood-panel/requests/<int:pk>/share", bdv.ShareAgreeView.as_view()),  # finish1
     path("blood-panel/requests/<int:pk>/report", bdv.ReportView.as_view()),
     path("blood-panel/threads", bdv.ThreadsView.as_view()),
     path("blood-panel/threads/<int:pk>", bdv.ThreadView.as_view()),
