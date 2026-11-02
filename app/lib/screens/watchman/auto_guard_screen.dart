@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
+import '../../widgets/permission_reason.dart';
 import '../shop_live_screen.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -120,15 +121,18 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     await _load();
   }
 
-  /// The ONE place the location permission is asked: right after "Yes".
+  /// The ONE place the location permission is asked: right after "Yes",
+  /// through the app's in-app reason first (Play disclosure).
   Future<void> _askLocationAndSync() async {
     try {
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.always || perm == LocationPermission.whileInUse) {
         await HomePresenceSync.maybeSend(null, source: _src, force: true);
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: consent is already saved; without location the member
+      // honestly shows as "Not known" and nothing is guessed
+    }
   }
 
   @override

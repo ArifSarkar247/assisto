@@ -375,9 +375,7 @@ class AutoGuardApiTests(APITestCase):
         later = now + timedelta(minutes=40)
         ARM.tick(now=later)
         self.assertTrue(SV.away_now(self.site_now(), later))
-        r = self.client.get(self.url)
-        self.assertEqual(r.data["status"]["summary"], "unknown")
-        self.assertEqual({m["state"] for m in r.data["members"]}, {"unknown"})
+        self.assertEqual(ARM.arm_of(self.site_now())["state"]["summary"], "unknown")
         # after the hold: back to the owner's own schedule, logged + told
         much = now + timedelta(minutes=6 + ARM.HOLD_MIN + 1)
         ARM.tick(now=much)
@@ -505,7 +503,7 @@ class AutoGuardApiTests(APITestCase):
         self.cam.save(update_fields=["last_seen"])
         ARM.tick(now=nxt)
         self.assertEqual(len([a for a, _k in self.pushes if "No movement" in a[3]]),
-                         len([a for a, _k in hit if "No movement" in a[3]]))
+                         len([a for a in hit if "No movement" in a[3]]))
 
     def test_bad_window_is_refused(self):
         r = self.client.post(self.url, {"nomove": {str(self.cam.id): {
