@@ -54,6 +54,10 @@ const double kStillMetres = 25;
 /// journey100b poor network: after the network comes back, send up to this
 /// many batches (100 fixes each) in one tick instead of one per 30 s.
 const int kMaxBatchesPerTick = 3;
+/// journey100b poor network: a send that hangs (2G edge, captive Wi-Fi) is
+/// given up after this, so the next wake-up still takes a fix — the plain
+/// HTTP client has no timeout and could block every tick for minutes.
+const Duration kSendTimeout = Duration(seconds: 20);
 
 class JourneyFix {
   final double lat, lng;
@@ -294,6 +298,7 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
     JourneyBatteryFn? battery,
     this.useService = true,
     DateTime Function()? clock,
+    this.sendTimeout = kSendTimeout,
   })  : _position = position ?? _defaultPosition,
         _battery = battery ?? readBatteryLevel,
         _clock = clock ?? DateTime.now,
@@ -305,6 +310,7 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
   final JourneyBatteryFn _battery;
   final DateTime Function() _clock;
   final bool useService;
+  final Duration sendTimeout;
   JourneySendFn? _send;
   Timer? _timer;
   bool _busy = false;
@@ -439,7 +445,8 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
       for (var i = 0; i < kMaxBatchesPerTick && _queue.items.isNotEmpty; i++) {
         final batch = _queue.items.take(100).toList();
         try {
-          r = await send(id, batch.map((f) => f.toJson()).toList());
+          r = await send(id, batch.map((f) => f.toJson()).toList())
+              .timeout(sendTimeout);
         } catch (_) {
           // offline / server down: keep the queue, say so on screen
           value = value.copyWith(net: JourneyNet.offline, queued: _queue.items.length);

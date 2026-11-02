@@ -2,6 +2,8 @@
 // test: battery-aware cadence, whole backlog sent when the network returns,
 // fix source ('app' / 'bg') for honest "no location" alerts, and a replayed
 // Dhaka trip with a dead zone where no fix is lost.
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/api.dart';
@@ -101,6 +103,35 @@ void main() {
     final back = batches.firstWhere((b) => b.length > 1);
     expect(back.length, 9);
     expect(sent.every((p) => p['src'] == 'app'), isTrue);
+    await tr.stop();
+  });
+
+  test('a hanging send (poor network) gives up, keeps the fix, next tick still runs',
+      () async {
+    var now = DateTime(2026, 11, 2, 18, 0);
+    var hang = true;
+    var lat = 23.70;
+    final sent = <int>[];
+    final tr = JourneyTracker(
+        useService: false,
+        clock: () => now,
+        sendTimeout: const Duration(milliseconds: 50),
+        position: () async => (lat: lat += 0.001, lng: 90.40),
+        battery: () async => 70);
+    await tr.start(7, (id, pts) {
+      if (hang) return Completer<Map<String, dynamic>>().future; // never answers
+      sent.add(pts.length);
+      return Future.value({'status': 'active'});
+    });
+    expect(tr.value.net, JourneyNet.offline);
+    now = now.add(const Duration(seconds: 30));
+    await tr.tick(); // not blocked by the hung request
+    expect(tr.value.queued, 2);
+    hang = false;
+    now = now.add(const Duration(seconds: 30));
+    await tr.tick();
+    expect(sent, [3]);
+    expect(tr.value.net, JourneyNet.ok);
     await tr.stop();
   });
 
