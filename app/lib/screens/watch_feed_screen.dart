@@ -74,7 +74,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
     try {
       final p = await SharedPreferences.getInstance();
       await p.setStringList(sourcesPrefKey, _enabled.map((s) => s.name).toList());
-    } catch (_) {}
+    } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
   }
 
   @override

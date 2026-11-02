@@ -104,7 +104,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
       final p = await SharedPreferences.getInstance();
       await p.setString(studentsPrefKey,
           jsonEncode(_students.where((s) => !s.isBlank).map((s) => s.toJson()).toList()));
-    } catch (_) {}
+    } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
   }
 
   Future<void> _deleteMine(Map<String, dynamic> w) async {

@@ -132,7 +132,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
     var items = <SavedQuick>[];
     try {
       items = await QuickStore.load();
-    } catch (_) {}
+    } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
     if (!mounted) return;
     await showAppSheet<void>(
       context: context,
@@ -189,7 +189,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
                             final next = items.where((e) => e.id != it.id).toList();
                             try {
                               await QuickStore.save(next);
-                            } catch (_) {}
+                            } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
                             setSheet(() => items = next);
                           },
                         ),
