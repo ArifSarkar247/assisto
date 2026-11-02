@@ -1,0 +1,106 @@
+// website.yml job `live` (sitelive, 3 Nov): READ-ONLY check of the LIVE
+// https://lifeassisto.com (v3 live since owner OK 3 Nov 03:06). Runs in CI
+// only (manual + nightly), never on the server, never a load test: one browser
+// context per (lang, width) so assets come from the browser cache; Install /
+// APK links are checked with HEAD only (the APK body is never downloaded).
+//
+// Fails on: HTTP != 200, console errors / page errors, clipped or covered
+// headings / screenshots (shared clipaudit.mjs), HTML without
+// `Cache-Control: no-cache` + ETag, a versioned asset (?v=) that is not
+// `immutable`, an Install / Play / APK link that does not answer 200 to HEAD,
+// or an in-page #anchor link whose target is missing.
+//   node livecheck.mjs https://lifeassisto.com <outDir>
+import { chromium } from 'playwright';
+import fs from 'node:fs';
+import { audit, covered } from './clipaudit.mjs';
+
+const [base, out] = process.argv.slice(2);
+const origin = new URL(base).origin;
+const groups = ['ai', 'circle', 'safety', 'cctv', 'business', 'work', 'daily'];
+const pages = [['home', '/'], ...groups.map(g => [`group_${g}`, `/features/${g}`]),
+  ['pricing', '/pricing'], ['security', '/security'], ['help', '/help']];
+fs.mkdirSync(out, { recursive: true });
+
+const report = { base, when: new Date().toISOString(), pages: [], links: {}, problems: [] };
+const fail = (where, msg) => { report.problems.push(`${where}: ${msg}`); console.log(`FAIL ${where}: ${msg}`); };
+const installLinks = new Map();   // href -> first page seen on
+
+const browser = await chromium.launch();
+// bare "/" (no ?lang) once: the default language must load too
+{
+  const ctx = await browser.newContext();
+  const p = await ctx.newPage();
+  const r = await p.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+  if (!r || r.status() !== 200) fail('/', `HTTP ${r ? r.status() : 'none'}`);
+  await ctx.close();
+}
+for (const lang of ['bn', 'en']) {
+  for (const width of [360, 1280]) {
+    const mobile = width < 600;
+    const ctx = await browser.newContext({ viewport: { width, height: mobile ? 800 : 900 },
+      deviceScaleFactor: mobile ? 2 : 1, isMobile: mobile, hasTouch: mobile, reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    let where = '';
+    const consoleErrs = [];
+    page.on('console', m => { if (m.type() === 'error') consoleErrs.push(m.text().slice(0, 200)); });
+    page.on('pageerror', e => consoleErrs.push('pageerror ' + String(e).slice(0, 200)));
+    page.on('requestfailed', rq => {
+      if (rq.url().startsWith(origin)) consoleErrs.push(`request failed ${rq.url()} ${rq.failure() && rq.failure().errorText}`);
+    });
+    page.on('response', res => {
+      const u = new URL(res.url());
+      if (u.origin !== origin || res.status() >= 300) return;
+      const cc = res.headers()['cache-control'] || '';
+      if (u.searchParams.has('v') && !/immutable/.test(cc)) fail(where, `asset not immutable: ${u.pathname} (${cc || 'no Cache-Control'})`);
+    });
+    for (const [name, path] of pages) {
+      where = `${lang} ${width} ${path}`;
+      consoleErrs.length = 0;
+      const url = `${base}${path}?lang=${lang}`;
+      const r = await page.goto(url, { waitUntil: 'networkidle' });
+      const status = r ? r.status() : 0;
+      const h = r ? r.headers() : {};
+      if (status !== 200) fail(where, `HTTP ${status}`);
+      if (!/no-cache/.test(h['cache-control'] || '')) fail(where, `HTML Cache-Control is "${h['cache-control'] || ''}" (want no-cache)`);
+      if (!h['etag']) fail(where, 'HTML has no ETag');
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 40)); }
+        await Promise.all([...document.images].filter(i => !i.complete).map(i => new Promise(r => { i.onload = i.onerror = r; })));
+        window.scrollTo(0, 0);
+      });
+      const clip = [...await page.evaluate(audit), ...await covered(page)];
+      for (const c of clip) fail(where, c);
+      for (const e of consoleErrs) fail(where, `console: ${e}`);
+      const links = await page.$$eval('a[data-play], a.install, a[href$=".apk"], a[href*=".apk?"]',
+        as => as.map(a => ({ href: a.href, raw: a.getAttribute('href') })));
+      for (const l of links) {
+        if (l.raw && l.raw.startsWith('#')) {
+          const ok = await page.evaluate(id => !!document.getElementById(id), l.raw.slice(1));
+          if (!ok) fail(where, `install link ${l.raw} points to a missing section`);
+        } else if (/^https?:/.test(l.href) && !installLinks.has(l.href)) {
+          installLinks.set(l.href, where);
+        }
+      }
+      report.pages.push({ lang, width, page: name, status, cache: h['cache-control'] || '', etag: !!h['etag'], clip: clip.length, console: consoleErrs.length });
+      await page.screenshot({ path: `${out}/${lang}_${mobile ? 'mobile360' : 'desktop'}_${name}.png`, fullPage: true });
+    }
+    await ctx.close();
+  }
+}
+await browser.close();
+
+// Install / Play / APK links: HEAD only, follow redirects, never the body.
+for (const [href, seen] of installLinks) {
+  let status = 0, err = '';
+  try {
+    const r = await fetch(href, { method: 'HEAD', redirect: 'follow' });
+    status = r.status;
+    report.links[href] = { status, type: r.headers.get('content-type'), length: r.headers.get('content-length') };
+  } catch (e) { err = String(e); report.links[href] = { error: err }; }
+  if (status !== 200) fail(seen, `install link ${href} -> ${status || err}`);
+}
+if (!installLinks.size) fail('site', 'no Install / Play / APK link found on any page');
+
+fs.writeFileSync(`${out}/livecheck.json`, JSON.stringify(report, null, 1));
+console.log(`live check ${base}: ${report.pages.length} page loads, ${installLinks.size} install link(s), ${report.problems.length} problem(s)`);
+if (report.problems.length) process.exit(1);
