@@ -161,6 +161,18 @@ class EzvizClient:
         return data.get("picUrl") or ""
 
 
+    def storage_status(self, serial):
+        """cctvalerts: /api/lapp/device/format/status -> [{index, name,
+        status (0 normal, 1 storage error, 2 not formatted, 3 formatting),
+        formattingRate}] (EZVIZ open-platform "storage medium status";
+        not yet verified on a real EZVIZ camera)."""
+        data = self.call("/api/lapp/device/format/status",
+                         {"deviceSerial": serial})
+        if isinstance(data, dict):
+            data = data.get("storageStatus") or data.get("list") or []
+        return data if isinstance(data, list) else []
+
+
 def parse_alarm(row):
     """One alarm-list row -> {serial, channel, human, alarm_id, at_ms, pic}
     or None. `pic` is None when the picture is device-encrypted."""

@@ -545,7 +545,9 @@ def imou_callback_url(app_id):
 
 # ShopCamera.compat keys the SERVER owns (never replaced by a gateway check)
 COMPAT_KEEP = ("cloud_last_alarm_ms", "imou_seen_ids", "imou_pic_host_refused",
-               "cloud_checked_at", "cloud_online_at", "siren_at")
+               "cloud_checked_at", "cloud_online_at", "siren_at",
+               # cctvalerts: alert-type state (seen kinds, loiter, stills, SD)
+               "alert_state")
 
 
 class ImouCallbackView(APIView):
@@ -572,7 +574,17 @@ class ImouCallbackView(APIView):
         msgs = body if isinstance(body, list) else [body]
         out = []
         now = timezone.now()
+        from . import cctv_alerts as CA
+        from .logic import cctv_rules as CR
         for m in msgs[:20]:
+            # cctvalerts: an SD-card status message is not an alarm, but a
+            # broken card is worth one camera-health alert
+            try:
+                if isinstance(m, dict) and CA.imou_status(m, now):
+                    out.append({"sd_status": True})
+                    continue
+            except Exception:
+                pass
             a = IM.parse_alarm(m)
             if a is None:
                 out.append({"ignored": "not_alarm"})
@@ -607,10 +619,12 @@ class ImouCallbackView(APIView):
                 raw = IM.fetch_snapshot(a["pic"])
                 if raw and not SV.looks_like_video(raw):
                     snap = SV._small_jpeg(raw, "imou%d.jpg" % cam.id)
+            cls = CR.classify_imou(m)
             etype, sig = SV.vendor_alarm_event(
                 cam, raw if snap is not None else None,
-                {"human": a["human"], "vendor": "imou",
-                 "alarm_type": "human" if a["human"] else "motion"}, now)
+                dict({"human": a["human"], "vendor": "imou",
+                      "alarm_type": "human" if a["human"] else "motion"}, **cls), now)
+            etype = CA.vendor_type(etype, cls)
             decision, ev = SV._ingest_event(
                 cam.site, cam, {"type": etype, "at": now.timestamp(),
                                 "signals": sig}, now, snap)

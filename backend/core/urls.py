@@ -711,12 +711,15 @@ urlpatterns += [
 
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
+from . import cctv_alerts  # noqa: E402  (cctvalerts)
 from . import cashguard_views as cg  # noqa: E402
 urlpatterns += [
     path("shop/watchman", wm.WatchmanOverviewView.as_view()),
     path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
     path("shop/cameras/<int:pk>/check", wm.CameraCheckView.as_view()),
     path("shop/cameras/<int:pk>/zones", wm.CameraZonesView.as_view()),
+    # cctvalerts (W3): per-camera alert-type switches + honest vendor support
+    path("shop/cameras/<int:pk>/alert-types", cctv_alerts.CameraAlertTypesView.as_view()),
     path("shop/cameras/<int:pk>/preview", wm.CameraPreviewView.as_view()),
     path("shop/cameras/<int:pk>/imou", wm.CameraImouView.as_view()),
     path("shop/sites/<int:pk>/discover", wm.SiteDiscoverView.as_view()),

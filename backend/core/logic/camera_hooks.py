@@ -163,6 +163,8 @@ def _dahua_from_obj(obj):
         "active": action in ("start", "pulse"),
         "at": data.get("LocaleTime") or data.get("UTC") or None,
         "channel": str(obj.get("Index", obj.get("index", ""))),
+        # cctvalerts: CrossLineDetection says which way (LeftToRight / ...)
+        "direction": str(data.get("Direction") or "").lower(),
     }
 
 
@@ -275,8 +277,22 @@ def map_event(ev, zone_config, local_now):
     base = {"camera_rule": code, "source": "camera_webhook"}
     if (ev.get("target") or "") in _HUMAN_TARGETS or code == "smartmotionhuman":
         base["human"] = True              # the camera's own AI saw a person
+    # cctvalerts (W3): what the alert is ABOUT (person / vehicle / animal /
+    # line / loiter / covered / moved / sd_fail / sound) — context only
+    from . import cctv_rules as CR
+    cls = CR.classify_hook(ev)
+    base.update(cls)
     if code in _TAMPER:
         return ("camera_alarm", dict(base, tamper=True))
+    if cls.get("kind") in ("moved", "sd_fail"):
+        return ("camera_health", dict(base, health=True))
+    if cls.get("kind") == "covered":       # defocus (blurred lens)
+        return ("camera_alarm", dict(base, tamper=True))
+    if cls.get("kind") in ("sound", "loiter") and code not in _INTRUSION \
+            and code not in _MOTION:
+        # the camera's own sound / loitering alarm: like any own alarm,
+        # counted only while the owner's schedule is armed
+        return ("camera_alarm", base)
     # cashguard SERVER CHECK (no model, no image decode): the camera's own
     # target box falls inside the owner's CASH zone -> a cash-zone event the
     # guard correlates with POS sales like the Shop Box one.

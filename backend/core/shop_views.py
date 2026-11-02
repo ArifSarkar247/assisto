@@ -274,6 +274,19 @@ def _alert_text(cam_name, ev):
         body_en = ("%s (confidence %d%%). Please check it yourself — it may "
                    "be nothing." % (what_en, pct))
         return title_bn, title_en, body_bn, body_en
+    # cctvalerts: say WHAT it is (vehicle / animal / line / sound / covered...)
+    kind = inputs.get("kind")
+    if kind:
+        from .logic import cctv_rules as CR
+        if kind in CR.WHAT:
+            what_bn = CR.what(kind, "bn", inputs.get("direction"))
+            what_en = CR.what(kind, "en", inputs.get("direction"))
+    if ev.type == "camera_health":
+        from .logic import cctv_rules as CR
+        body_bn = "%s। অনুগ্রহ করে নিজে দেখে নিন।" % what_bn
+        body_en = "%s. Please have a look yourself." % what_en
+        return (CR.health_title("bn", cam_name), CR.health_title("en", cam_name),
+                body_bn, body_en)
     title_bn = "সন্দেহজনক — একটু দেখে নিন: %s" % cam_name
     title_en = "Suspicious — please check: %s" % cam_name
     body_bn = ("%s (আত্মবিশ্বাস %s%%)। অনুগ্রহ করে নিজে দেখে নিশ্চিত করুন — "
@@ -364,6 +377,10 @@ EVENT_WORDS = {
                        "Someone entered a restricted area"),
     "line_crossing": ("প্রবেশ-রেখা পার হয়েছে", "The entry line was crossed"),
     "camera_alarm": ("ক্যামেরার নিজের সতর্কতা", "The camera's own alarm"),
+    # cctvalerts (W3)
+    "loitering": ("রাতে ২ মিনিটের বেশি সময় কেউ একই জায়গায় আছেন",
+                  "Someone has stayed in view for over 2 minutes at night"),
+    "camera_health": ("ক্যামেরায় সমস্যা দেখা যাচ্ছে", "The camera seems to have a problem"),
 }
 
 _BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
@@ -455,13 +472,28 @@ def _snapshot_refused(lang, why):
 
 
 def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
-                  clip_ref=""):
+                  clip_ref="", _rules=True):
     """Shared core of every device ingest (Shop Box POST + camera webhooks):
     run the pure combined-signal guard against recent POS rows; when it raises,
     persist ONE ShopEvent + at most one snapshot and notify the owner.
     `pos_rows` overrides the recent-window POS rows (the void/discount spike
     check passes TODAY's rows). Returns (decision, event_or_None)."""
     from .logic import watchman as WM
+    # cctvalerts (W3): alert TYPES — the owner's per-camera switches, the
+    # night loitering rule, dark / covered / moved from the event's still
+    extra_events = []
+    if _rules and cam is not None:
+        from . import cctv_alerts as CA
+        cam_event, extra_events, muted = CA.prepare(site, cam, cam_event, now, snapshot)
+        if muted:
+            return ({"raise": False, "type": cam_event.get("type"),
+                     "confidence": 0.0, "reason_signals": [muted],
+                     "possible": False, "pos_matched": False, "muted": muted}, None)
+        for xe in extra_events:
+            try:
+                _ingest_event(site, cam, xe, now, snapshot, _rules=False)
+            except Exception:
+                pass
     if pos_rows is None:
         pos_rows = _pos_rows_for(site, now, SG.DEFAULT_WINDOW_S)
     # cctv1: the ARMED state is the SERVER's (from the owner's schedule) — a
@@ -586,7 +618,8 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
 
 # cctvx: event types that prove movement at the site ("shop opened")
 CXV_MOVEMENT = ("motion", "person_detected", "zone_intrusion", "line_crossing",
-                "camera_alarm", "hand_in_cash_zone", "drawer_open", "pose_possible")
+                "camera_alarm", "hand_in_cash_zone", "drawer_open", "pose_possible",
+                "loitering")
 
 # event types that only count while the owner's schedule is ARMED (cctv1)
 WATCHMAN_ARMED_TYPES = ("motion", "person_detected", "zone_intrusion",
@@ -1271,8 +1304,22 @@ def _event_row(e, request):
             **_cash_fields(e),
             # cctvx
             "nosale": bool((e.signals or {}).get("nosale")),
+            # cctvalerts: what the alert is about (person / vehicle / ...)
+            **_kind_fields(e, request),
             "opened_at": _iso(getattr(e, "opened_at", None)),
             "created": e.created.isoformat()}
+
+
+def _kind_fields(e, request):
+    """cctvalerts: {kind, what} — `what` in the viewer's language."""
+    sig = e.signals if isinstance(e.signals, dict) else {}
+    inputs = sig.get("inputs") if isinstance(sig.get("inputs"), dict) else {}
+    kind = inputs.get("kind")
+    from .logic import cctv_rules as CR
+    if kind not in CR.WHAT:
+        return {"kind": None, "what": None}
+    lang = req_lang(request) if request is not None else "bn"
+    return {"kind": kind, "what": CR.what(kind, lang, inputs.get("direction"))}
 
 
 def _cash_fields(e):
