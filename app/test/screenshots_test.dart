@@ -829,6 +829,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // cctvveh: owner checklist — honest empty states with one big button + how-to
     'vehicles_empty': (build: (_) => const MyVehiclesScreen(), mode: FakeMode.empty, full: false),
     'veh_drivers_empty': (build: (_) => const VehicleDriversScreen(), mode: FakeMode.empty, full: false),
+    'shop_box_empty': (build: (_) => const ShopBoxScreen(), mode: FakeMode.empty, full: false),
+    'shop_cameras_empty': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.empty, full: false),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
     'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),
