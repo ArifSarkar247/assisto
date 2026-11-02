@@ -137,6 +137,26 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 
 **AI চাবি চালু হলে:** চ্যাট, ছবি আর লেখা AI provider-এর কাছে যায়। Google-এর নিয়মে এটা "service provider", তাই shared নয়। তবু AI-provider-এর চুক্তি (DPA) ঠিক রাখুন (`AI_PROVIDER_RETENTION_BN.md`)।
 
+### লঞ্চের আগে Data safety ফর্মে যা বদলাতে বা যোগ করতে হবে (মালিকের নির্দেশ, ২ Nov)
+
+**কলামের মানে:**
+- **আজ লাইভ?** — Play-তে এখন চালু, নাকি সুইচের পেছনে আসছে।
+- **৮ Nov আবেদনের আগে?** — production আবেদনের আগে Data safety-তে এই উত্তর থাকতেই হবে কিনা।
+
+**নিয়ম:** যে ফিচার Play-তে চালু থাকবে, তার উত্তর আবেদনের আগে ফর্মে থাকতেই হবে। যে ফিচার সুইচের পেছনে বন্ধ, সেটা চালু করার **আগের দিন** ফর্ম হালনাগাদ করুন। Play-র ফর্ম যেকোনো সময় বদলানো যায়, রিভিউ হয় পরের রিলিজের সাথে।
+
+| # | বিষয় | আজ লাইভ? | Data safety-তে উত্তর | ৮ Nov আবেদনের আগে? |
+|---|---|---|---|---|
+| ১ | **রক্তদাতা (opt-in)।** agent/blood যোগ করছে: রক্তের গ্রুপ কাছের অনুরোধকারীকে দেখায় **শুধু আলাদা সম্মতির পরে**, শুধু এলাকা দেখায়, ফোন/ইমেইল ডিফল্টে গোপন। | `blood_donor` সুইচ **চালু**। নতুন সম্মতি-ধাপ আসছে (agent/blood)। | **Health info: Collected = হ্যাঁ, Optional, App functionality।** ব্যবহারকারী নিজে বেছে অন্য ব্যবহারকারীকে দেখালে Google-এর নিয়মে সেটা "shared" নয় (user-initiated)। তাই **Shared = না**, তবে ব্যাখ্যায় লিখুন: "Blood group is shown to nearby requesters only if the donor separately agrees; area only; phone/email private by default." agent/blood মার্জ না হলে `blood_donor`-এর Play সুইচ বন্ধ রাখার কথা ভাবুন। | **হ্যাঁ।** সুইচ চালু, তাই Health info অবশ্যই। |
+| ২ | **শিশুর জরুরি অডিও** (পরিকল্পনা): সক্রিয় জরুরি অবস্থায় ফোনে FGS-দৃশ্যমান অডিও; যাচাই-করা অভিভাবক; আগে থেকে সম্মতি। ঘড়ি = অভিভাবকের সাধারণ কল, অটো-রিসিভ, কিন্তু বাজে আর স্ক্রিনে দেখায়। | **না, আসছে।** কোডে নেই। | চালুর সময়: **Audio → Voice or sound recordings: Collected = হ্যাঁ** (সার্ভার দিয়ে গেলে, লাইভ-স্ট্রিম হলেও Google "transmitted off device" = collected ধরে)। **Ephemeral = হ্যাঁ, শুধু যদি জমা না হয়।** জমা হলে ephemeral নয়, আর কতদিন থাকে লিখতে হবে। Shared = না (অভিভাবক = ব্যবহারকারীর নিজের বাছাই)। **নতুন FGS-ঘোষণাও লাগবে** (microphone, শিশুর ফোনে, ভিডিওসহ)। শিশু ব্যবহারকারী হলে Families নীতি প্রযোজ্য। | **না।** কিন্তু চালুর আগে Families + Target audience + FGS তিনটাই নতুন করে দিতে হবে। |
+| ৩ | **বাচ্চাদের ঘড়ি ও স্কুল-মোড** (লোকেশন, এনক্রিপ্টেড ভয়েস নোট, ১৪ দিনে মুছে যায়) | `kids_watch` **বন্ধ** (৮ Nov-এও বন্ধ, `LAUNCH_SWITCHES`) | চালুর সময়: Location (precise) Collected; Audio Collected (এনক্রিপ্টেড, ১৪ দিনে মোছে — ব্যাখ্যায় লিখুন); Shared = না। **সাথে Target audience-এ শিশু, আর Families নীতি।** | **না** (বন্ধ থাকলে)। চালু করলে আগে। |
+| ৪ | **লোকেশন** | **হ্যাঁ, লাইভ** | **Precise:** Collected, Optional, App functionality + Fraud prevention/security, Shared = না। সব **foreground** অনুমতি (`ACCESS_BACKGROUND_LOCATION` নেই)। চুরি-রোধ সার্ভিস: ব্যবহারকারী চালু করলে location-FGS, সতর্কবার্তা আর হারানো মোডে লোকেশন যায়, ২৪ ঘণ্টা (সতর্কবার্তা ৩০ দিন) রাখা হয়। ব্যাকগ্রাউন্ডের-সমান ধরা হতে পারে, ঘোষণা-পাতায় "even when the app is closed" লেখা আছে (ধাপ ৪, `PLAY_FGS_DECLARATION_BN.md`)। **Approximate:** AdMob (নিচে)। | **হ্যাঁ** |
+| ৫ | **বিজ্ঞাপন (AdMob)** | **হ্যাঁ, লাইভ** (Free প্ল্যান) | **Device or other IDs** (Ad ID), **App interactions**, **Diagnostics**, **Approximate location**: Collected = হ্যাঁ, **Shared = হ্যাঁ (Google/AdMob), উদ্দেশ্য Advertising** (+ Analytics)। সম্মতি Google UMP দিয়ে: সম্মতি না দিলে **নন-পার্সোনালাইজড** বিজ্ঞাপন। App content → Ads = **Yes**। Advertising ID = **Yes**। UMP সম্মতি, Settings → "Ads privacy" আর app-ads.txt যোগ করছে **agent/admobump** (এখানে কোড নয়, শুধু ডক)। | **হ্যাঁ** |
+
+**৮ Nov আবেদনের আগে Data safety-তে যা থাকতেই হবে:** ১ (রক্তদাতা: Health info), ৪ (লোকেশন), ৫ (বিজ্ঞাপন), আর ধাপ ৩-এর মূল টেবিলের সব সারি।
+
+**পরে, ফিচার চালুর আগে:** ২ (শিশুর জরুরি অডিও) আর ৩ (বাচ্চাদের ঘড়ি)। এ দুটোর জন্য Families নীতি আর Target audience বদলাতে হবে, তাই আলাদা সিদ্ধান্ত লাগবে।
+
 ## ধাপ ৪ — সব অনুমতি ও ঘোষণা: চূড়ান্ত উত্তর
 
 (Play বিল্ডের ম্যানিফেস্ট, CI-র তৈরি। W = `android.yml`-এর লাইন)

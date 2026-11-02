@@ -130,7 +130,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
           if (await Geolocator.checkPermission() == LocationPermission.denied) {
             await Geolocator.requestPermission();
           }
-        } catch (_) {}
+        } catch (_) {} // best-effort: Voice SOS still arms without location
         if (!mounted) return;
         // 3) Notification permission (Android 13+) — the FGS notification.
         await VoiceSosManager.instance.init(
