@@ -17,6 +17,7 @@ class LivePeer {
   final RTCPeerConnection _pc;
   final RTCVideoRenderer? _renderer; // owner (viewer) side
   MediaStream? _local; // device (sender) side
+  RTCRtpSender? _videoSender; // cctvphone: SD/HD switch
   final bool sender;
 
   LivePeer._(this._pc, this._renderer, this.sender);
@@ -64,36 +65,80 @@ class LivePeer {
   }
 
   /// Owner: a receive-only video offer (we never send the owner's camera/mic).
+  /// cctvphone: also receive-only AUDIO — a phone camera sends sound only
+  /// when the consent switch on THAT phone is on (else no audio track).
   Future<Map<String, dynamic>> createOffer() async {
     await _pc.addTransceiver(
       kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
       init: RTCRtpTransceiverInit(direction: TransceiverDirection.RecvOnly),
     );
+    try {
+      await _pc.addTransceiver(
+        kind: RTCRtpMediaType.RTCRtpMediaTypeAudio,
+        init: RTCRtpTransceiverInit(direction: TransceiverDirection.RecvOnly),
+      );
+    } catch (_) {} // video-only still works
+
     final offer = await _pc.createOffer({});
     await _pc.setLocalDescription(offer);
     return {'type': offer.type, 'sdp': offer.sdp};
   }
 
-  /// Device: open the back camera (video only, modest size) and answer.
-  Future<Map<String, dynamic>> answer(Map<String, dynamic> offer) async {
+  /// Device: open the back camera and answer. Video only unless [audio]
+  /// (cctvphone: the camera phone's own consent switch). [hdCapable] opens
+  /// the camera at 1280x720 so the viewer can switch to HD; the stream
+  /// still STARTS in SD (scaled down, capped bitrate — order G).
+  Future<Map<String, dynamic>> answer(Map<String, dynamic> offer,
+      {bool audio = false, bool hdCapable = false}) async {
     await _pc.setRemoteDescription(
         RTCSessionDescription(offer['sdp'] as String?, offer['type'] as String?));
-    final stream = await navigator.mediaDevices.getUserMedia({
-      'audio': false,
-      'video': {
-        'facingMode': 'environment',
-        'width': 640,
-        'height': 480,
-        'frameRate': 15,
-      },
-    });
+    Map<String, dynamic> video(int w, int h) =>
+        {'facingMode': 'environment', 'width': w, 'height': h, 'frameRate': 15};
+    MediaStream stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        'audio': audio,
+        'video': hdCapable ? video(1280, 720) : video(640, 480),
+      });
+    } catch (_) {
+      if (!hdCapable && !audio) rethrow;
+      // an old phone without 720p (or a refused mic): the safe default
+      stream = await navigator.mediaDevices
+          .getUserMedia({'audio': false, 'video': video(640, 480)});
+      hdCapable = false;
+    }
     _local = stream;
     for (final t in stream.getVideoTracks()) {
+      _videoSender = await _pc.addTrack(t, stream);
+    }
+    for (final t in stream.getAudioTracks()) {
       await _pc.addTrack(t, stream);
     }
+    if (hdCapable) await setHd(false);
     final ans = await _pc.createAnswer({});
     await _pc.setLocalDescription(ans);
     return {'type': ans.type, 'sdp': ans.sdp};
+  }
+
+  /// cctvphone: SD (half size, ~450 kbps) or HD (full size, ~1.5 Mbps) on
+  /// the SENDER. Best-effort: a phone that refuses keeps its current mode.
+  Future<bool> setHd(bool hd) async {
+    final snd = _videoSender;
+    if (snd == null) return false;
+    try {
+      final p = snd.parameters;
+      final enc = (p.encodings == null || p.encodings!.isEmpty)
+          ? [RTCRtpEncoding()]
+          : p.encodings!;
+      for (final e in enc) {
+        e.scaleResolutionDownBy = hd ? 1.0 : 2.0;
+        e.maxBitrate = hd ? 1500 * 1000 : 450 * 1000;
+      }
+      p.encodings = enc;
+      return await snd.setParameters(p);
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> setRemote(Map<String, dynamic> sdp) => _pc.setRemoteDescription(

@@ -129,10 +129,20 @@ def _site_overview(site, role, now):
     cams = []
     for c in site.cameras.all():
         cr = SV._camera_row(c)
+        # cctvphone: a phone camera's battery/charger/heat state + whether
+        # the family may open its live view (the owner's switch)
+        phone = c.vendor == "phone"
+        if phone:
+            src = c.source or {}
+            cr["health"] = src.get("health") or {}
+            cr["viewers_live"] = bool(src.get("viewers_live", True))
+            cr["source"] = {k: v for k, v in src.items() if k != "pair_sha"}
         if role != "owner":
             # viewers see status + names only
-            cr = {k: cr[k] for k in ("id", "name", "vendor", "online",
-                                     "last_seen", "enabled")}
+            keep = ("id", "name", "vendor", "online", "last_seen", "enabled")
+            if phone and cr.get("viewers_live"):
+                keep += ("live_capable", "health", "viewers_live")
+            cr = {k: cr[k] for k in keep}
         cams.append(cr)
     start = timezone.localtime(now).replace(hour=0, minute=0, second=0,
                                             microsecond=0)
