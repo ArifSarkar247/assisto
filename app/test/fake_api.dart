@@ -20,6 +20,7 @@ import 'fake_vehicle.dart';
 import 'fake_khata.dart'; // ledger100
 import 'p1_bizagent_fakes.dart'; // p1-bizagent
 import 'fake_crm100.dart'; // crm100
+import 'fake_invoices.dart'; // invoices
 import 'at100_fakes.dart'; // at100
 import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
 import 'fake_books.dart'; // ledger
@@ -975,6 +976,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final inv = fakeInvoiceGet(path, empty: mode == FakeMode.empty); // invoices
+    if (inv != null) {
+      if (mode == FakeMode.fail) _fail();
+      return inv;
+    }
     final c100 = fakeCrm100Get(path, empty: mode == FakeMode.empty); // crm100
     if (c100 != null) {
       if (mode == FakeMode.fail) _fail();

@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import media_sign
+from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
 from . import views_guardian as vg
@@ -227,6 +228,13 @@ urlpatterns = [
     path("business/sales/checkout", bz.CheckoutView.as_view()),
     path("business/sales/<int:pk>/receipt", bz.ReceiptView.as_view()),
     path("business/sales/<int:pk>/receipt.pdf", bz.ReceiptPdfView.as_view()),
+    # invoices — 58/80 mm + A4 invoice data, VAT, manual service invoices
+    path("business/sales/<int:pk>/invoice", invv.SaleInvoiceView.as_view()),
+    path("business/invoice/settings", invv.InvoiceSettingsView.as_view()),
+    path("business/invoices/sales", invv.InvoiceSalesView.as_view()),
+    path("business/invoices", invv.ManualInvoicesView.as_view()),
+    path("business/invoices/<int:pk>", invv.ManualInvoiceDetailView.as_view()),
+    path("business/invoices/<int:pk>/cancel", invv.ManualInvoiceCancelView.as_view()),
     path("business/customers", bz.CustomersView.as_view()),
     path("business/customers/dedupe", bz.CustomerDedupeView.as_view()),
     path("business/customers/<str:phone>/history", bz.CustomerHistoryView.as_view()),

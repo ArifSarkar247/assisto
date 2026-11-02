@@ -1,0 +1,31 @@
+{% extends "web/base.html" %}
+{% block title %}{{ B.title }}{% if shop %} — {{ shop }}{% endif %}{% endblock %}
+{% block og %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.ok{background:#e7f7ee;color:#0b5e3c;padding:14px;border-radius:12px;font-size:17px;font-weight:700}
+.no{background:#fdecea;color:#8a1c12;padding:14px;border-radius:12px;font-size:17px;font-weight:700}
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eef1f7;font-size:16px}
+.row b{text-align:right}
+.small{font-size:13px;color:#4a556e}
+</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ B.title }}</h1>
+  {% if state == "bad" %}<p class="no" role="alert">{{ B.bad }}</p>
+  {% elif state == "limited" %}<p role="alert">{{ B.limited }}</p>
+  {% else %}
+    {% if state == "cancelled" %}<p class="no" role="alert">{{ B.cancelled }}</p>
+    {% else %}<p class="ok" role="status">{{ B.ok }}</p>{% endif %}
+    <div class="row"><span>{{ B.shop }}</span><b>{{ shop }}</b></div>
+    {% if bin %}<div class="row"><span>{{ B.bin }}</span><b>{{ bin }}</b></div>{% endif %}
+    <div class="row"><span>{{ B.number }}</span><b>{{ number }}</b></div>
+    <div class="row"><span>{{ B.date }}</span><b>{{ date }}</b></div>
+    <div class="row"><span>{{ B.time }}</span><b>{{ time }}</b></div>
+    <div class="row"><span>{{ B.total }}</span><b>{{ total }}</b></div>
+    <p class="small">{{ B.check }}</p>
+    <p class="small"><a href="/r/{{ token }}?lang={{ other }}">{% if other == "en" %}English{% else %}বাংলা{% endif %}</a></p>
+  {% endif %}
+  <p class="small">{{ B.by }}</p>
+</div>
+{% endblock %}

@@ -141,6 +141,9 @@ class PrintInk {
   static const brand = Color(0xFF3D4BD6);
   static const gave = Color(0xFFB3261E);
   static const got = Color(0xFF1B7F3B);
+  // invoices: thermal printers print pure black only
+  static const thermal = Color(0xFF000000);
+  static const shadow = Color(0x33000000);
 }
 
 /// 4/8-pt spacing scale. Use these instead of magic numbers.

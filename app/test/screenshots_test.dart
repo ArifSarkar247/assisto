@@ -202,6 +202,12 @@ import 'package:assisto/screens/watch_feed_screen.dart';
 import 'package:assisto/screens/jobs_screen.dart';
 import 'package:assisto/screens/nominee_screen.dart';
 import 'package:assisto/screens/crm_contacts_screen.dart';
+import 'package:assisto/screens/business/invoice/invoice_doc.dart' show InvoicePaper;
+import 'package:assisto/screens/business/invoice/invoice_screen.dart';
+import 'package:assisto/screens/business/invoice/invoice_settings_screen.dart';
+import 'package:assisto/screens/business/invoice/invoices_screen.dart';
+import 'package:assisto/screens/business/invoice/new_invoice_screen.dart';
+import 'fake_invoices.dart';
 import 'package:assisto/screens/crm/crm_today_screen.dart';
 import 'package:assisto/screens/crm/crm_leads_screen.dart';
 import 'package:assisto/screens/crm/crm_pipeline_screen.dart';
@@ -939,6 +945,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'crm100_history_empty': (build: (_) => const CustomerHistoryScreen(target: CustomerTarget(phone: '01811111111')), mode: FakeMode.empty, full: false),
     'crm100_customers': (build: (_) => const CustomerListScreen(), mode: FakeMode.data, full: true),
     'crm100_customers_empty': (build: (_) => const CustomerListScreen(), mode: FakeMode.empty, full: false),
+    // invoices: hub, 80 mm / 58 mm / A4 paper, settings, new service invoice
+    'inv_hub': (build: (_) => const InvoicesScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'inv_hub_empty': (build: (_) => const InvoicesScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'inv_paper_80': (build: (_) => InvoiceScreen(initial: fakeSaleInvoice(), paper: InvoicePaper.mm80), mode: FakeMode.data, full: true),
+    'inv_paper_58_plain': (build: (_) => InvoiceScreen(initial: fakeSaleInvoice(template: 'cafe', vat: false, due: 10000), paper: InvoicePaper.mm58), mode: FakeMode.data, full: true),
+    'inv_paper_a4_lawyer': (build: (_) => InvoiceScreen(initial: {...fakeSaleInvoice(template: 'lawyer'), 'kind': 'manual', 'payment_method': ''}, paper: InvoicePaper.a4, lang: 'en'), mode: FakeMode.data, full: true),
+    'inv_settings': (build: (_) => const InvoiceSettingsScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'inv_new': (build: (_) => const NewInvoiceScreen(businessId: 1), mode: FakeMode.data, full: true),
     'crm100_quotes': (build: (_) => const ShopQuoteListScreen(), mode: FakeMode.data, full: true),
     'crm100_quote_builder': (build: (_) => const ShopQuoteBuilderScreen(customerName: 'Karim Mia', customerPhone: '01712345678'), mode: FakeMode.data, full: true),
     'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
