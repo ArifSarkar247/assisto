@@ -29,6 +29,7 @@ from collections import defaultdict
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 from django.utils import timezone
 
 from core import push
@@ -86,6 +87,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--state-file", default=None)
 
+    @track_job("meter_low_alerts")
     def handle(self, *args, **opts):
         if not push.is_available():
             self.stdout.write("meter_low_alerts: push unavailable (no key) - skipped")

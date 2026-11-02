@@ -14,18 +14,30 @@ from core.views import _build_alerts
 from core.ops_health import track_job  # ops-watch heartbeat
 
 
+MAX_USERS = 5000   # per run; the run must end well inside its 3 h limit
+
+
 class Command(BaseCommand):
     help = "Pre-generate tomorrow's morning briefing for active users."
 
     def add_arguments(self, parser):
         parser.add_argument("--days-active", type=int, default=14,
                             help="only users seen within N days")
+        parser.add_argument("--limit", type=int, default=MAX_USERS,
+                            help="at most N users per run (bounded runtime; cronbar)")
 
     @track_job("generate_briefings")
     def handle(self, *args, **opts):
         target = timezone.localdate() + timezone.timedelta(days=1)
         since = timezone.now() - timezone.timedelta(days=opts["days_active"])
-        users = User.objects.filter(last_login__gte=since) or User.objects.all()
+        # cronbar: `qs or User.objects.all()` loaded every user just to test
+        # truthiness; exists() asks the DB instead. Bounded per run (--limit):
+        # a user skipped tonight is made on the next run (exists() check).
+        users = User.objects.filter(last_login__gte=since)
+        if not users.exists():
+            users = User.objects.all()
+        limit = max(1, int(opts.get("limit") or MAX_USERS))
+        users = users.exclude(night_briefings__for_date=target).order_by("id")[:limit]
         made = skipped = 0
         for u in users:
             if NightBriefing.objects.filter(user=u, for_date=target).exists():

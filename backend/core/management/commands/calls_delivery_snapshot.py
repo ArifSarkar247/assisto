@@ -8,6 +8,7 @@ trend works without the cron; the cron keeps it complete on days nobody
 opens the page. Read-only on calls; writes only CallDeliveryDaily.
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 
 
 class Command(BaseCommand):
@@ -16,6 +17,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--days", type=int, default=30)
 
+    @track_job("calls_delivery_snapshot")
     def handle(self, *args, **opts):
         from core import call_ack
         n = call_ack.snapshot_days(max(1, min(int(opts["days"]), 90)))

@@ -8,6 +8,7 @@ Asia/Dhaka — add at deploy, NOT in git crontab):
 
 Does nothing while the probashi_plan flag is off for everyone."""
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 from django.utils import timezone
 
 from core import probashi_plan as PB
@@ -20,6 +21,7 @@ class Command(BaseCommand):
         parser.add_argument("--report", action="store_true",
                             help="build last month's reports now (idempotent)")
 
+    @track_job("probashi_daily")
     def handle(self, *args, **opts):
         now = timezone.now()
         out = PB.close_lapsed(now)

@@ -191,7 +191,8 @@ class CronTests(TestCase):
         self.assertEqual(
             H.JOB_BY_NAME["journey_sweep"].cron_line(),
             "* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n "
-            "/tmp/assisto-journey-sweep.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python "
+            "/tmp/assisto-journey-sweep.lock timeout -k 30 120 nice -n10 "
+            "/home/ubuntu/assisto/.venv/bin/python "
             "manage.py journey_sweep --quiet >> /home/ubuntu/assisto/backend/logs/journey_sweep.log 2>&1")
         self.assertIn("manage.py run_watchers", H.JOB_BY_NAME["run_watchers"].cron_line())
         self.assertIn("migration/backup.sh", H.JOB_BY_NAME["backup"].cron_line())
@@ -282,7 +283,10 @@ class OpsWatchCommandTests(TestCase):
         self.assertEqual(n.call_count, 1)
         subject, body = n.call_args[0]
         self.assertIn("journey_sweep: not_scheduled", body)
-        self.assertIn(H.JOB_BY_NAME["journey_sweep"].cron_line(), body)
+        # cronbar: a minute_jobs job is told to add the minute_jobs line,
+        # never its old stand-alone line (both = double run)
+        self.assertIn(H.minute_jobs_cron_line(), body)
+        self.assertNotIn(H.JOB_BY_NAME["journey_sweep"].cron_line(), body)
         n2, _ = self.run_cmd(cron)
         self.assertEqual(n2.call_count, 0)                        # deduped
         self.assertTrue(JobHeartbeat.objects.filter(name="ops_watch", last_rc=0).exists())
