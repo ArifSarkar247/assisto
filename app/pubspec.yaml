@@ -151,6 +151,8 @@ flutter:
   generate: true
   assets:
     - assets/branding/
+    # train: bundled OSM stations for the offline destination alarm (ODbL)
+    - assets/train/
   # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
   # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
   # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's

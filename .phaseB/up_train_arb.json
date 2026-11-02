@@ -1,0 +1,325 @@
+{
+ "_comment": "train (owner priority C): Train tracker + chat + destination alarm. All keys NEW (prefix tr).",
+ "en": {
+  "trTitle": "Train tracker",
+  "trSearchHint": "Train number, name or station",
+  "trYesterday": "Yesterday",
+  "trToday": "Today",
+  "trTomorrow": "Tomorrow",
+  "trAlarmTitle": "Destination alarm",
+  "trAlarmCardSub": "Wakes you before your stop — works without internet",
+  "trDataNote": "Times are estimates from the published timetable (Wikipedia, CC BY-SA) until checked; map © OpenStreetMap contributors (ODbL). Free, no ads.",
+  "trLoadFailed": "Couldn't load. Check the internet and try again.",
+  "trRetry": "Try again",
+  "trEmptyTitle": "No train found",
+  "trEmptyBenefit": "See where your train is now, or an honest estimate, and get woken before your stop.",
+  "trShowAll": "Show all trains",
+  "trStep1": "Search by train number (e.g. 701) or station",
+  "trStep2": "Open the train: live if a passenger shares, otherwise an estimate",
+  "trStep3": "On the train? Tap \"I am on this train\" to help everyone",
+  "trDepArr": "Leaves {dep} · arrives {arr}",
+  "@trDepArr": {
+   "placeholders": {
+    "dep": {
+     "type": "String"
+    },
+    "arr": {
+     "type": "String"
+    }
+   }
+  },
+  "trUnchecked": "Timetable not yet checked against the official one",
+  "trTrain": "Train",
+  "trShareTitle": "Share your location for this train?",
+  "trShareConsent": "Only while sharing is on. Others see the train's position and how many people share — never you. It stops by itself on arrival, at the end of the trip, or with one tap (also from the notification).",
+  "trShareStart": "Start sharing",
+  "trCancel": "Cancel",
+  "trShareNotifTitle": "Sharing the train's location",
+  "trShareNotifText": "Only while you are on this train. Tap Stop to end.",
+  "trStop": "Stop",
+  "trLiveLine": "{n} passengers sharing {delay}",
+  "@trLiveLine": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "delay": {
+     "type": "String"
+    }
+   }
+  },
+  "trLate": "· about {min} min late",
+  "@trLate": {
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "trOnTime": "· on time",
+  "trEstNotStarted": "Not started yet by the timetable",
+  "trEstArrived": "Should have arrived by the timetable",
+  "trEstRunning": "Position worked out from the timetable",
+  "trOffDay": "This train does not run on this day (weekly off day).",
+  "trModeLive": "LIVE",
+  "trModeEstimate": "ESTIMATE",
+  "trEstimateWhy": "Nobody on this train is sharing right now. Real delays are not included — send the official SMS for the railway's own answer.",
+  "trMapA11y": "Map of the train's route and position",
+  "trMapEmpty": "Map unavailable",
+  "trShareStop": "Stop sharing",
+  "trImOnTrain": "I am on this train",
+  "trShareCounts": "{ok} points accepted · {bad} rejected by the checks",
+  "@trShareCounts": {
+   "placeholders": {
+    "ok": {
+     "type": "String"
+    },
+    "bad": {
+     "type": "String"
+    }
+   }
+  },
+  "trSmsButton": "SMS \"{body}\" to {to}",
+  "@trSmsButton": {
+   "placeholders": {
+    "body": {
+     "type": "String"
+    },
+    "to": {
+     "type": "String"
+    }
+   }
+  },
+  "trSmsCost": "Official Bangladesh Railway SMS: about ৳{cost} from your balance. Your SMS app opens; you press Send.",
+  "@trSmsCost": {
+   "placeholders": {
+    "cost": {
+     "type": "String"
+    }
+   }
+  },
+  "trChat": "Train chat",
+  "trAlarmShort": "Wake me",
+  "trStopsTitle": "Stops (estimated times)",
+  "trEstShort": "est.",
+  "trSourceLine": "Sources: timetable from Wikipedia (CC BY-SA), map © OpenStreetMap contributors (ODbL).",
+  "trChatSlowDown": "Too many messages. Wait a minute.",
+  "trNickRule": "2–20 letters. No phone numbers or links.",
+  "trChatOver": "This trip's chat has ended.",
+  "trAddCircle": "Add to My Circle",
+  "trAddCircleSub": "Sends a request — they decide. Names and numbers are shared only if they accept.",
+  "trReport": "Report",
+  "trBlock": "Block",
+  "trBlockSub": "You won't see their messages or requests again",
+  "trRequestSent": "Request sent",
+  "trBlocked": "Blocked",
+  "trReported": "Reported. Thank you.",
+  "trLeave": "Leave chat",
+  "trEmergencyTitle": "Need help? Call now",
+  "trCall999": "Call 999",
+  "trCall131": "Rail hotline 131",
+  "trChatJoinTitle": "Chat with passengers of this train",
+  "trChatRules": "Only a nickname is shown — nobody can see your name, number or profile. The chat is deleted after the trip. Be kind; report or block anyone.",
+  "trNickname": "Nickname",
+  "trChatJoin": "Join the chat",
+  "trRequestFrom": "{nick} wants to add you to My Circle",
+  "@trRequestFrom": {
+   "placeholders": {
+    "nick": {
+     "type": "String"
+    }
+   }
+  },
+  "trRequestNote": "If you accept, you both see each other's name and number.",
+  "trAccept": "Accept",
+  "trDecline": "Decline",
+  "trChatEmpty": "No messages yet. Ask where the train is or share what you see.",
+  "trChatHint": "Message",
+  "trSend": "Send",
+  "trMsgMenuHint": "Report, block or add to My Circle",
+  "trYou": "You",
+  "trKm": "{n} km",
+  "@trKm": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "trMetres": "{n} m",
+  "@trMetres": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "trMapPlace": "Place on the map",
+  "trAlarmNotifTitle": "Destination alarm is on",
+  "trAlarmNotifText": "Wakes you near {place}. Tap Stop to turn off.",
+  "@trAlarmNotifText": {
+   "placeholders": {
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmSpoken": "Wake up! You are near {place}.",
+  "@trAlarmSpoken": {
+   "placeholders": {
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmRinging": "You are near {place}!",
+  "@trAlarmRinging": {
+   "placeholders": {
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmWatching": "Watching for {place}",
+  "@trAlarmWatching": {
+   "placeholders": {
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmDistance": "{dist} away · alarm at {radius}",
+  "@trAlarmDistance": {
+   "placeholders": {
+    "dist": {
+     "type": "String"
+    },
+    "radius": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmLocationOff": "Location is off or not allowed — the alarm can't see where you are.",
+  "trAlarmInterval": "Next GPS check in {s} s (slow when far, fast when near)",
+  "@trAlarmInterval": {
+   "placeholders": {
+    "s": {
+     "type": "String"
+    }
+   }
+  },
+  "trAlarmKeepOpen": "Keep Assisto open in recent apps so the alarm keeps working.",
+  "trAlarmStop": "Stop alarm",
+  "trAlarmOffline": "Works without internet: stations are on your phone and the distance is worked out on the phone. Loud even on silent, also in earphones.",
+  "trAlarmBenefit": "Sleep on the train or bus — we wake you before your stop.",
+  "trAlarmWhere": "Where should we wake you?",
+  "trChange": "Change",
+  "trStationSearch": "Search station",
+  "trPickOnMap": "Pick any place on the map",
+  "trAlarmRadius": "Ring when this close",
+  "trCustom": "Custom",
+  "trAlarmStart": "Start alarm",
+  "trOsmAttribution": "Stations © OpenStreetMap contributors (ODbL)."
+ },
+ "bn": {
+  "trTitle": "ট্রেন ট্র্যাকার",
+  "trSearchHint": "ট্রেনের নম্বর, নাম বা স্টেশন",
+  "trYesterday": "গতকাল",
+  "trToday": "আজ",
+  "trTomorrow": "আগামীকাল",
+  "trAlarmTitle": "গন্তব্য অ্যালার্ম",
+  "trAlarmCardSub": "স্টেশনের আগে জাগিয়ে দেয় — নেট ছাড়াই চলে",
+  "trDataNote": "যাচাই না হওয়া পর্যন্ত সময়গুলো প্রকাশিত সময়সূচি থেকে আনুমানিক (উইকিপিডিয়া, CC BY-SA); ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। বিনামূল্যে, বিজ্ঞাপন নেই।",
+  "trLoadFailed": "লোড হলো না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "trRetry": "আবার চেষ্টা করুন",
+  "trEmptyTitle": "কোনো ট্রেন পাওয়া যায়নি",
+  "trEmptyBenefit": "আপনার ট্রেন এখন কোথায় দেখুন, নয়তো সৎ আনুমানিক হিসাব — আর স্টেশনের আগে জেগে উঠুন।",
+  "trShowAll": "সব ট্রেন দেখুন",
+  "trStep1": "ট্রেনের নম্বর (যেমন ৭০১) বা স্টেশন লিখে খুঁজুন",
+  "trStep2": "ট্রেন খুলুন: কোনো যাত্রী শেয়ার করলে লাইভ, নইলে আনুমানিক",
+  "trStep3": "ট্রেনে আছেন? \"আমি এই ট্রেনে আছি\" চাপুন — সবার উপকার হবে",
+  "trDepArr": "ছাড়ে {dep} · পৌঁছায় {arr}",
+  "trUnchecked": "সময়সূচি এখনো অফিসিয়ালটার সাথে মেলানো হয়নি",
+  "trTrain": "ট্রেন",
+  "trShareTitle": "এই ট্রেনের জন্য আপনার লোকেশন শেয়ার করবেন?",
+  "trShareConsent": "শুধু শেয়ার চালু থাকা পর্যন্ত। অন্যরা দেখবেন ট্রেনের অবস্থান আর কতজন শেয়ার করছেন — আপনাকে কখনো না। পৌঁছালে, যাত্রা শেষে বা এক ট্যাপে (নোটিফিকেশন থেকেও) নিজেই বন্ধ হয়।",
+  "trShareStart": "শেয়ার শুরু করুন",
+  "trCancel": "বাতিল",
+  "trShareNotifTitle": "ট্রেনের লোকেশন শেয়ার হচ্ছে",
+  "trShareNotifText": "শুধু আপনি এই ট্রেনে থাকা পর্যন্ত। বন্ধ করতে থামুন চাপুন।",
+  "trStop": "থামুন",
+  "trLiveLine": "{n} জন যাত্রী শেয়ার করছেন {delay}",
+  "trLate": "· প্রায় {min} মিনিট দেরি",
+  "trOnTime": "· সময়মতো",
+  "trEstNotStarted": "সময়সূচি অনুযায়ী এখনো ছাড়েনি",
+  "trEstArrived": "সময়সূচি অনুযায়ী পৌঁছে যাওয়ার কথা",
+  "trEstRunning": "সময়সূচি থেকে হিসাব করা অবস্থান",
+  "trOffDay": "এই দিনে ট্রেনটি চলে না (সাপ্তাহিক ছুটি)।",
+  "trModeLive": "লাইভ",
+  "trModeEstimate": "আনুমানিক",
+  "trEstimateWhy": "এই ট্রেনের কেউ এখন শেয়ার করছেন না। আসল দেরি এখানে ধরা নেই — রেলের নিজের উত্তরের জন্য অফিসিয়াল SMS পাঠান।",
+  "trMapA11y": "ট্রেনের রুট ও অবস্থানের ম্যাপ",
+  "trMapEmpty": "ম্যাপ পাওয়া যাচ্ছে না",
+  "trShareStop": "শেয়ার বন্ধ করুন",
+  "trImOnTrain": "আমি এই ট্রেনে আছি",
+  "trShareCounts": "{ok}টি অবস্থান গৃহীত · {bad}টি যাচাইয়ে বাদ",
+  "trSmsButton": "\"{body}\" লিখে {to}-এ SMS",
+  "trSmsCost": "বাংলাদেশ রেলওয়ের অফিসিয়াল SMS: আপনার ব্যালান্স থেকে প্রায় ৳{cost}। আপনার SMS অ্যাপ খুলবে; পাঠান আপনি চাপবেন।",
+  "trChat": "ট্রেন চ্যাট",
+  "trAlarmShort": "জাগিয়ে দিন",
+  "trStopsTitle": "স্টেশন (আনুমানিক সময়)",
+  "trEstShort": "আনু.",
+  "trSourceLine": "উৎস: সময়সূচি উইকিপিডিয়া (CC BY-SA), ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)।",
+  "trChatSlowDown": "অনেক বেশি মেসেজ। এক মিনিট অপেক্ষা করুন।",
+  "trNickRule": "২–২০ অক্ষর। ফোন নম্বর বা লিংক নয়।",
+  "trChatOver": "এই যাত্রার চ্যাট শেষ হয়ে গেছে।",
+  "trAddCircle": "My Circle-এ যোগ করুন",
+  "trAddCircleSub": "অনুরোধ যায় — সিদ্ধান্ত তাঁর। রাজি হলে তবেই নাম ও নম্বর দেখা যাবে।",
+  "trReport": "রিপোর্ট",
+  "trBlock": "ব্লক",
+  "trBlockSub": "তাঁর মেসেজ বা অনুরোধ আর দেখবেন না",
+  "trRequestSent": "অনুরোধ পাঠানো হয়েছে",
+  "trBlocked": "ব্লক করা হয়েছে",
+  "trReported": "রিপোর্ট হয়েছে। ধন্যবাদ।",
+  "trLeave": "চ্যাট ছাড়ুন",
+  "trEmergencyTitle": "সাহায্য লাগবে? এখনই কল করুন",
+  "trCall999": "৯৯৯-এ কল",
+  "trCall131": "রেল হটলাইন ১৩১",
+  "trChatJoinTitle": "এই ট্রেনের যাত্রীদের সাথে চ্যাট",
+  "trChatRules": "শুধু ডাকনাম দেখা যায় — কেউ আপনার নাম, নম্বর বা প্রোফাইল দেখতে পারবে না। যাত্রার পর চ্যাট মুছে যায়। ভদ্র থাকুন; যে কাউকে রিপোর্ট বা ব্লক করতে পারেন।",
+  "trNickname": "ডাকনাম",
+  "trChatJoin": "চ্যাটে যোগ দিন",
+  "trRequestFrom": "{nick} আপনাকে My Circle-এ যোগ করতে চান",
+  "trRequestNote": "রাজি হলে দুজনেই দুজনের নাম ও নম্বর দেখবেন।",
+  "trAccept": "রাজি",
+  "trDecline": "না",
+  "trChatEmpty": "এখনো কোনো মেসেজ নেই। ট্রেন কোথায় জিজ্ঞেস করুন বা যা দেখছেন জানান।",
+  "trChatHint": "মেসেজ",
+  "trSend": "পাঠান",
+  "trMsgMenuHint": "রিপোর্ট, ব্লক বা My Circle-এ যোগ",
+  "trYou": "আপনি",
+  "trKm": "{n} কিমি",
+  "trMetres": "{n} মি",
+  "trMapPlace": "ম্যাপের জায়গা",
+  "trAlarmNotifTitle": "গন্তব্য অ্যালার্ম চালু",
+  "trAlarmNotifText": "{place}-এর কাছে জাগিয়ে দেবে। বন্ধ করতে থামুন চাপুন।",
+  "trAlarmSpoken": "জেগে উঠুন! আপনি {place}-এর কাছে চলে এসেছেন।",
+  "trAlarmRinging": "আপনি {place}-এর কাছে!",
+  "trAlarmWatching": "{place}-এর জন্য নজর রাখা হচ্ছে",
+  "trAlarmDistance": "{dist} দূরে · অ্যালার্ম বাজবে {radius}-এ",
+  "trAlarmLocationOff": "লোকেশন বন্ধ বা অনুমতি নেই — অ্যালার্ম আপনার অবস্থান দেখতে পাচ্ছে না।",
+  "trAlarmInterval": "পরের GPS দেখা {s} সেকেন্ড পরে (দূরে ধীরে, কাছে দ্রুত)",
+  "trAlarmKeepOpen": "অ্যালার্ম চালু রাখতে সাম্প্রতিক অ্যাপে Assisto রেখে দিন।",
+  "trAlarmStop": "অ্যালার্ম বন্ধ",
+  "trAlarmOffline": "নেট ছাড়াই চলে: স্টেশন আপনার ফোনেই আছে, দূরত্বও ফোনেই হিসাব হয়। সাইলেন্টেও জোরে বাজে, ইয়ারফোনেও।",
+  "trAlarmBenefit": "ট্রেনে বা বাসে ঘুমান — স্টেশনের আগে আমরা জাগিয়ে দেব।",
+  "trAlarmWhere": "কোথায় জাগাব?",
+  "trChange": "বদলান",
+  "trStationSearch": "স্টেশন খুঁজুন",
+  "trPickOnMap": "ম্যাপে যেকোনো জায়গা বাছুন",
+  "trAlarmRadius": "কত কাছে এলে বাজবে",
+  "trCustom": "নিজের মতো",
+  "trAlarmStart": "অ্যালার্ম চালু করুন",
+  "trOsmAttribution": "স্টেশন © OpenStreetMap অবদানকারীরা (ODbL)।"
+ }
+}

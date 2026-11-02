@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import '../screens/train/dest_alarm_screen.dart'; // train
+import '../screens/train/train_tracker_screen.dart'; // train
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -467,6 +469,18 @@ class SidebarSections {
           (_) => const KidsWatchScreen(),
           synonyms: ['kids watch', 'gps watch', 'smart watch', 'school mode',
               'child tracker', 'setracker']),
+      // train (owner priority C): crowd live trains + estimate + 16318 SMS + chat
+      SidebarItem(Icons.train_rounded, (t) => t.trTitle,
+          feature: 'train_tracker',
+          (_) => const TrainTrackerScreen(),
+          synonyms: ['train', 'rail', 'trainkothai', 'where is my train', 'tren',
+              'ট্রেন', 'রেল', '16318']),
+      // train: destination alarm (offline geofence, loud on silent)
+      SidebarItem(Icons.alarm_on_rounded, (t) => t.trAlarmTitle,
+          feature: 'dest_alarm',
+          (_) => const DestAlarmScreen(),
+          synonyms: ['destination alarm', 'wake me', 'station alarm', 'stop alarm',
+              'গন্তব্য', 'অ্যালার্ম']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),
