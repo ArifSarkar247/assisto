@@ -403,11 +403,17 @@ class _Call999 extends StatelessWidget {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(56),
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
-          textStyle: AType.titleLarge.copyWith(fontWeight: FontWeight.w800),
         ),
         onPressed: onTap,
         icon: const Icon(Icons.call_rounded),
-        label: Text(label, textAlign: TextAlign.center),
+        // The style goes on the Text (a ButtonStyle textStyle would drop the
+        // theme's font family — the gallery showed tofu boxes).
+        label: Text(label,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
       ),
       const SizedBox(height: Gap.xs),
       Text(sub,
