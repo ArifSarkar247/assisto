@@ -19,6 +19,7 @@ import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../voice/reply_speaker.dart'; // aivoice
 import '../voice/voice_loop.dart'; // aivoice
+import '../widgets/ai_turn_meta.dart'; // aibar
 
 /// Part 3 — Assisto AI: the ChatGPT-like full-history chat.
 ///
@@ -51,6 +52,16 @@ class _Msg {
   /// h1-home: an attached photo turn (this device only; never saved).
   final ChatPhotoRequest? photo;
 
+  /// aibar: the server's reply meta (credits taken, balance after, flags).
+  Map<String, dynamic> meta;
+
+  /// aibar: a user turn's idempotency id (reused by "Send again").
+  final String? clientId;
+
+  /// aibar: this user turn did not go out; [failCause] says why.
+  bool failed = false;
+  Object? failCause;
+
   // aivoice: [cards] is always a GROWABLE list — the reply paths fill it with
   // `cards..clear()..addAll(...)`, which threw on the old `const []` default
   // (every non-streamed reply failed into "Couldn't get a reply").
@@ -62,7 +73,10 @@ class _Msg {
     this.source,
     this.streaming = false,
     this.photo,
-  }) : cards = [...?cards];
+    Map<String, dynamic>? meta,
+    this.clientId,
+  })  : cards = [...?cards],
+        meta = {...?meta};
 
   bool get isBrain {
     final s = (source ?? '').toLowerCase();
@@ -80,6 +94,9 @@ class _Msg {
         'meta': {
           if (source != null) 'source': source,
           if (cards.isNotEmpty) 'cards': cards,
+          // aibar: the credit line survives in the offline copy
+          for (final k in const ['credits', 'balance', 'free_quota'])
+            if (meta.containsKey(k)) k: meta[k],
         },
       };
 }
@@ -289,6 +306,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                     as List)
                 .cast<Map<String, dynamic>>(),
             source: meta is Map ? meta['source']?.toString() : null,
+            meta: meta is Map ? meta.cast<String, dynamic>() : null,
           ));
         }
       });
@@ -327,6 +345,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             ]
           : null,
       source: meta is Map ? meta['source']?.toString() : null,
+      meta: meta is Map ? meta.cast<String, dynamic>() : null,
     );
   }
 
@@ -396,20 +415,56 @@ class _AiChatScreenState extends State<AiChatScreen>
     if (_voice.listening) await _voice.stop();
     _speaker.stop();
     _input.clear();
-    final mine = _Msg(user: true, text: text);
+    // aibar: one id per typed message — a resend reuses it (no double charge)
+    final mine = _Msg(user: true, text: text, clientId: newChatClientId());
     _pendingUser = mine;
     setState(() {
       _msgs.add(mine);
       _sending = true;
     });
     _toBottom();
+    await _deliver(mine, byVoice: byVoice);
+  }
 
+  /// aibar: "Send again" on a turn that did not go out — same text, same
+  /// client id, moved to the end of the thread (where the server puts it).
+  Future<void> _retry(_Msg mine) async {
+    if (_sending || !mine.failed) return;
+    HapticFeedback.selectionClick();
+    _speaker.stop();
+    setState(() {
+      mine.failed = false;
+      mine.failCause = null;
+      _msgs.remove(mine);
+      _msgs.add(mine);
+      _sending = true;
+    });
+    _pendingUser = mine;
+    _toBottom();
+    await _deliver(mine);
+  }
+
+  /// aibar: the turn did not go out — the text stays in its bubble with the
+  /// honest reason and "Send again"; no fake assistant notice.
+  void _markFailed(_Msg mine, Object? cause) {
+    if (!mounted) return;
+    setState(() {
+      mine.failed = true;
+      mine.failCause = cause;
+      _msgs.removeWhere((m) => !m.user && m.streaming);
+      _sending = false;
+    });
+    _toBottom();
+  }
+
+  Future<void> _deliver(_Msg mine, {bool byVoice = false}) async {
+    final text = mine.text;
     final session = await _ensureSession();
     if (session == null) {
-      _onSendError();
+      _markFailed(mine, null);
       return;
     }
-    await _streamOrSend(session.id, text);
+    await _streamOrSend(session.id, text, mine);
     if (!mounted) return;
     _offlineCopy = false;
     final answer = _lastAnswer();
@@ -437,7 +492,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   /// Try the SSE stream first (live tokens + Stop); if the stream can't start
   /// (not available / errors immediately), fall back to the non-stream /send
   /// with a typing indicator. Either way the reply is rendered honestly.
-  Future<void> _streamOrSend(String sessionId, String text) async {
+  Future<void> _streamOrSend(String sessionId, String text, _Msg mine) async {
     // Placeholder assistant bubble we fill as tokens arrive.
     final assistant = _Msg(user: false, text: '', streaming: true);
     setState(() => _msgs.add(assistant));
@@ -447,7 +502,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     Object? streamErr;
     final completer = Completer<bool>(); // true = finished via stream
     try {
-      _streamSub = _api.chatStream(sessionId, text).listen(
+      _streamSub = _api.chatStream(sessionId, text, clientId: mine.clientId).listen(
         (ev) {
           if (!mounted) return;
           if (ev['kind'] == 'token') {
@@ -467,6 +522,8 @@ class _AiChatScreenState extends State<AiChatScreen>
               assistant.cards
                 ..clear()
                 ..addAll(cards);
+              final meta = ev['meta'];
+              if (meta is Map) assistant.meta = meta.cast<String, dynamic>();
             });
             _applySource(assistant, ev['source'], ev['meta']);
           }
@@ -488,8 +545,14 @@ class _AiChatScreenState extends State<AiChatScreen>
           await _onCreditsOut(text);
           return;
         }
-        // Stream never produced anything usable — fall back to /send.
-        await _nonStreamSend(sessionId, text);
+        if (isRateLimited(streamErr)) {
+          _markFailed(mine, streamErr); // aibar: too fast — keep the text
+          return;
+        }
+        // Stream never produced anything usable — fall back to /send (the
+        // same client id: if the stream DID reach the server, /send replays
+        // that answer instead of answering + charging twice).
+        await _nonStreamSend(sessionId, text, mine);
         return;
       }
       setState(() {
@@ -500,18 +563,30 @@ class _AiChatScreenState extends State<AiChatScreen>
     } catch (_) {
       // Stream couldn't even start — honest fallback to /send.
       if (mounted) _msgs.remove(assistant);
-      await _nonStreamSend(sessionId, text);
+      await _nonStreamSend(sessionId, text, mine);
     } finally {
       _streamSub = null;
     }
   }
 
-  Future<void> _nonStreamSend(String sessionId, String text) async {
+  Future<void> _nonStreamSend(String sessionId, String text, _Msg mine) async {
     final assistant = _Msg(user: false, text: '', streaming: true);
     setState(() => _msgs.add(assistant));
     _toBottom();
     try {
-      final r = await _api.chatSend(sessionId, text);
+      // aibar: 409 = the server is still answering an earlier try of this
+      // same message — wait for it (its answer is replayed, charged once).
+      Map<String, dynamic>? got;
+      var tries = 0;
+      while (got == null) {
+        try {
+          got = await _api.chatSend(sessionId, text, clientId: mine.clientId);
+        } catch (e) {
+          if (!isTurnInProgress(e) || ++tries > 25 || !mounted) rethrow;
+          await Future<void>.delayed(const Duration(seconds: 2));
+        }
+      }
+      final r = got;
       if (!mounted) return;
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
       setState(() {
@@ -521,6 +596,8 @@ class _AiChatScreenState extends State<AiChatScreen>
         assistant.cards
           ..clear()
           ..addAll(cards);
+        final meta = r['meta'];
+        if (meta is Map) assistant.meta = meta.cast<String, dynamic>();
         _sending = false;
       });
       _applySource(assistant, r['source'], r['meta']);
@@ -529,7 +606,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     } catch (e) {
       if (mounted) _msgs.remove(assistant);
       if (isOutOfCredits(e)) return _onCreditsOut(text);
-      _onSendError(e);
+      _markFailed(mine, e);
     }
   }
 
@@ -579,6 +656,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         cards: assistant.cards,
         source: src,
         streaming: false,
+        meta: assistant.meta,
       );
     });
   }
@@ -1024,7 +1102,11 @@ class _AiChatScreenState extends State<AiChatScreen>
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               bubble,
-              if (isLastUserEditable)
+              if (m.failed)
+                FailedSendRow(
+                    cause: m.failCause,
+                    onRetry: _sending ? null : () => _retry(m)),
+              if (isLastUserEditable && !m.failed)
                 TextButton.icon(
                   onPressed: _editLastUser,
                   icon: const Icon(Icons.edit_rounded, size: 15),
@@ -1061,6 +1143,8 @@ class _AiChatScreenState extends State<AiChatScreen>
             report == null
                 ? bubble
                 : AiAnswerLongPress(target: report, child: bubble),
+            // aibar: what this answer really cost (credits + balance after)
+            if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),

@@ -223,10 +223,17 @@ class ApiClient {
 
   /// Home agent turn. [sessionId] keeps the home conversation in one saved
   /// thread (sidebar history); the reply carries the `session_id` to reuse.
-  Future<Map<String, dynamic>> agent(String text, {String? sessionId}) async {
+  /// aibar: [clientId] = one id per typed message; a resend with the same id
+  /// is answered from the server's stored turn (never logged twice).
+  Future<Map<String, dynamic>> agent(String text,
+      {String? sessionId, String? clientId}) async {
     final r = await _c.post(AppConfig.api('/agent'),
         headers: _headers(),
-        body: jsonEncode({'text': text, if (sessionId != null) 'session_id': sessionId}));
+        body: jsonEncode({
+          'text': text,
+          if (sessionId != null) 'session_id': sessionId,
+          if (clientId != null) 'client_id': clientId,
+        }));
     if (r.statusCode == 200) return jsonDecode(r.body) as Map<String, dynamic>;
     _fail(r);
   }
@@ -1538,9 +1545,11 @@ class ApiClient {
 
   /// POST chat/sessions/<id>/send {text} -> the assistant message
   /// {id, role:'assistant', text, meta, cards?}.
-  Future<Map<String, dynamic>> chatSend(String sessionId, String text) async =>
-      flattenChatReply(
-          await postJson('/chat/sessions/$sessionId/send', {'text': text}));
+  /// aibar: [clientId] makes a resend idempotent (one answer, one charge).
+  Future<Map<String, dynamic>> chatSend(String sessionId, String text,
+          {String? clientId}) async =>
+      flattenChatReply(await postJson('/chat/sessions/$sessionId/send',
+          {'text': text, if (clientId != null) 'client_id': clientId}));
 
   /// POST chat/sessions/<id>/regenerate {edit?} -> a new assistant message.
   /// Pass [edit] to resend an edited version of the last user message.
@@ -1625,26 +1634,35 @@ class ApiClient {
   ///
   /// Callers that can't stream should fall back to [chatSend]. The stream is
   /// cancellable by cancelling the StreamSubscription (we abort the request).
-  Stream<Map<String, dynamic>> chatStream(String sessionId, String text) async* {
+  Stream<Map<String, dynamic>> chatStream(String sessionId, String text,
+      {String? clientId}) async* {
     final req = http.Request(
         'POST', AppConfig.api('/chat/sessions/$sessionId/stream'));
     req.headers.addAll(_headers());
     req.headers['Accept'] = 'text/event-stream';
-    req.body = jsonEncode({'text': text});
+    req.body = jsonEncode(
+        {'text': text, if (clientId != null) 'client_id': clientId});
     final resp = await _c.send(req);
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
       // credout: keep the server's reason (402 'credits' opens the sheet).
       String? why;
       String msg = 'stream failed';
+      Map<String, dynamic>? body;
       try {
         final b = jsonDecode(await resp.stream.bytesToString());
         if (b is Map) {
+          body = b.cast<String, dynamic>();
           final w = b['reason'] ?? b['code'];
           if (w is String) why = w;
-          if (b['message'] is String) msg = b['message'] as String;
+          // aibar: a 429 / 409 carries its bn/en sentence in `detail`
+          if (b['message'] is String) {
+            msg = b['message'] as String;
+          } else if (b['detail'] is String) {
+            msg = b['detail'] as String;
+          }
         }
       } catch (_) {}
-      throw ApiException(msg, resp.statusCode, null, why);
+      throw ApiException(msg, resp.statusCode, null, why, body);
     }
     final lines = resp.stream
         .transform(utf8.decoder)

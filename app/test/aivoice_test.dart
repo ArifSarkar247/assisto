@@ -73,7 +73,8 @@ class _ChatApi extends FakeApi {
       {'id': 77, 'title': ''};
 
   @override
-  Stream<Map<String, dynamic>> chatStream(String sessionId, String text) async* {
+  Stream<Map<String, dynamic>> chatStream(String sessionId, String text,
+      {String? clientId}) async* {
     sends++;
     if (streamFails) throw Exception('no stream');
     // the SERVER's real token shape (chunk + text) — parsed by the app's own
@@ -85,7 +86,8 @@ class _ChatApi extends FakeApi {
   }
 
   @override
-  Future<Map<String, dynamic>> chatSend(String sessionId, String text) async =>
+  Future<Map<String, dynamic>> chatSend(String sessionId, String text,
+          {String? clientId}) async =>
       ApiClient.flattenChatReply({
         'message': {'id': 91, 'role': 'assistant', 'text': 'Sent answer.',
           'meta': {'source': 'brain', 'cards': []}},
