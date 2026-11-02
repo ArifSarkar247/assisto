@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/cv_empty.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vehicle_tracking_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -113,61 +114,16 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       }
       await _load();
       if (!mounted) return;
-      _toast(tr.vehiclesSaved);
-      await _offerReminders(result);
+      // cctvveh: the SERVER already pushes 30 / 7 / 1 days before every
+      // paper date (vehicle100.sweep_reminders) — the old "make a yearly
+      // reminder?" dialog per date (up to 4 in a row) made duplicates. One
+      // honest line instead.
+      final hasDate = const ['tax_token_expiry', 'fitness_expiry', 'insurance_expiry',
+              'route_permit_expiry']
+          .any((k) => (result[k] ?? '').toString().isNotEmpty);
+      _toast(hasDate ? tr.cvvVehSavedAutoRemind : tr.vehiclesSaved);
     } catch (_) {
       if (mounted) _toast(tr.vehiclesSaveFailed);
-    }
-  }
-
-  /// For each expiry date set on the vehicle, OFFER a yearly reminder. Reuses
-  /// the existing reminder-create path; fully best-effort (never blocks save).
-  Future<void> _offerReminders(Map<String, dynamic> data) async {
-    final tr = AppLocalizations.of(context);
-    final name = (data['name'] ?? '').toString().trim();
-    final fields = <String, String>{
-      'tax_token_expiry': tr.vehiclesTaxToken,
-      'fitness_expiry': tr.vehiclesFitness,
-      'insurance_expiry': tr.vehiclesInsurance,
-      'route_permit_expiry': tr.v100RoutePermit,
-    };
-    for (final entry in fields.entries) {
-      final iso = (data[entry.key] ?? '').toString();
-      if (iso.isEmpty) continue;
-      final due = DateTime.tryParse(iso);
-      if (due == null) continue;
-      if (!mounted) return;
-      final label = name.isEmpty
-          ? entry.value
-          : tr.vehiclesReminderTitle(entry.value, name);
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (dctx) => AlertDialog(
-          scrollable: true, // insets: 200% text / keyboard
-          title: Text(tr.vehiclesRemindTitle),
-          content: Text(tr.vehiclesRemindBody(label)),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(dctx, false),
-                child: Text(tr.vehiclesRemindSkip)),
-            FilledButton(
-                onPressed: () => Navigator.pop(dctx, true),
-                child: Text(tr.vehiclesRemindCreate)),
-          ],
-        ),
-      );
-      if (ok != true) continue;
-      try {
-        await context.read<AppState>().api.createItem('reminders', {
-          'title': label,
-          'due': DateTime(due.year, due.month, due.day, 9).toIso8601String(),
-          'kind': 'vehicle',
-          'recurrence': 'yearly',
-        });
-        if (mounted) _toast(tr.vehiclesReminderCreated);
-      } catch (_) {
-        if (mounted) _toast(tr.vehiclesReminderFailed);
-      }
     }
   }
 
@@ -258,16 +214,26 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     }
     if (_vehicles.isEmpty) {
       // empty state has its own CTA: no duplicate FAB
+      final tracking = FeatureFlags.instance.isOn('vehicle_tracking');
       return Scaffold(
-        body: StateMessage(
-          icon: Icons.directions_car_rounded,
-          title: tr.vehiclesEmptyTitle,
-          message: tr.vehiclesEmptyBody,
-          action: FilledButton.icon(
-            onPressed: () => _addOrEdit(),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(tr.vehiclesAdd),
-          ),
+        body: ListView(
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
+          children: [
+            CvEmptyBlock(
+              icon: Icons.directions_car_rounded,
+              title: tr.vehiclesEmptyTitle,
+              benefit: tr.vehiclesEmptyBody,
+              primaryLabel: tr.vehiclesAdd,
+              onPrimary: () => _addOrEdit(),
+              // a GPS tracker is a separate thing — say where it lives
+              secondaryLabel: tracking ? tr.cvvVehHaveTracker : null,
+              onSecondary: tracking
+                  ? () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const VehicleTrackingScreen()))
+                  : null,
+              steps: [tr.cvvVehListStep1, tr.cvvVehListStep2, tr.cvvVehListStep3],
+            ),
+          ],
         ),
       );
     }
@@ -280,7 +246,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           itemCount: _vehicles.length + 1,
           separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
           itemBuilder: (_, i) => i == 0
@@ -352,6 +318,22 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
             Text(tr.v100ServiceRulesN(
                     vehNumStr(context, (data['maintenance'] as List).length)),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+          // cctvveh: live tracking from the vehicle itself (was only a small
+          // icon in the app bar)
+          if (FeatureFlags.instance.isOn('vehicle_tracking')) ...[
+            const SizedBox(height: Gap.xs),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: ValueKey('veh-card-track-${v['id']}'),
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.gps_fixed_rounded),
+                label: Text(tr.vehTrackingTitle),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const VehicleTrackingScreen())),
+              ),
+            ),
           ],
         ]),
       ),

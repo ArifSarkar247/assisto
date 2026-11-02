@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
+import '../../widgets/app_sheet.dart';
+import '../../widgets/cv_empty.dart';
+import '../../widgets/fam_empty.dart' show famDigits;
 
 /// cctv1 FAMILY VIEWERS: up to 5 family members who get the same alerts and
 /// can see snapshots — read-only (no marking, no settings, no live view).
@@ -47,21 +50,37 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  Future<void> _add() async {
+  Future<void> _add([String? phone, String? name]) async {
     final t = AppLocalizations.of(context);
-    if (_phone.text.trim().isEmpty) return;
+    final number = (phone ?? _phone.text).trim();
+    if (number.isEmpty) return;
     setState(() {
       _adding = true;
       _addError = null;
     });
     try {
-      await widget.source.addViewer(widget.siteId, _phone.text.trim());
-      _phone.clear();
+      await widget.source.addViewer(widget.siteId, number);
+      if (phone == null) _phone.clear();
       await _load();
+      if (mounted && name != null && name.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.cvvViewerAdded(name))));
+      }
     } catch (e) {
       _addError = wmError(e) ?? t.wmGenericError;
     }
     if (mounted) setState(() => _adding = false);
+  }
+
+  /// cctvveh: family / manager picked from My Circle in ONE tap (the phone
+  /// comes from Circle — nobody types a number twice).
+  Future<void> _fromCircle() async {
+    final t = AppLocalizations.of(context);
+    final row = await pickCirclePerson(context,
+        title: t.cvvFromCircle,
+        subtitle: t.wmFamilyBody,
+        already: {for (final v in _rows) (v['phone'] ?? '').toString()});
+    if (row == null || !mounted) return;
+    await _add('${row['phone'] ?? ''}', '${row['name'] ?? ''}');
   }
 
   Future<void> _remove(Map<String, dynamic> v) async {
@@ -96,9 +115,32 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
       appBar: AppBar(title: Text(t.wmFamily)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 32), children: [
-              Text(t.wmFamilyBody),
-              const SizedBox(height: 12),
+          : ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)), children: [
+              if (_error == null && _rows.isEmpty)
+                CvEmptyBlock(
+                  compact: true,
+                  icon: Icons.family_restroom_rounded,
+                  title: t.cvvViewersEmptyTitle,
+                  benefit: t.cvvViewersEmptyBenefit,
+                  primaryIcon: Icons.group_add_rounded,
+                  primaryLabel: t.cvvFromCircle,
+                  onPrimary: _adding ? null : _fromCircle,
+                  steps: [t.cvvViewersStep1, t.cvvViewersStep2, t.cvvViewersStep3],
+                )
+              else ...[
+                Text(t.wmFamilyBody),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  key: const ValueKey('wm-viewers-circle'),
+                  style: FilledButton.styleFrom(minimumSize: const Size(48, 56)),
+                  icon: const Icon(Icons.group_add_rounded),
+                  label: Text(t.cvvFromCircle),
+                  onPressed: _adding ? null : _fromCircle,
+                ),
+              ],
+              const SizedBox(height: 16),
+              Text(t.cvvOrTypeNumber, style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: 8),
               TextField(
                 controller: _phone,
                 keyboardType: TextInputType.phone,
@@ -112,8 +154,8 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
               const SizedBox(height: 8),
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _phone,
-                builder: (_, v, __) => FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                builder: (_, v, __) => OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                   icon: _adding
                       ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.person_add_alt_1_rounded),
@@ -124,13 +166,12 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
               ),
               const Divider(height: 28),
               if (_error != null) Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
-              if (_error == null && _rows.isEmpty) Text(t.wmFamilyEmpty),
               for (final v in _rows)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
                   title: Text((v['name'] ?? '').toString().isEmpty ? t.wmFamilyNoName : v['name'].toString()),
-                  subtitle: Text((v['phone'] ?? '').toString()),
+                  subtitle: Text(famDigits(context, (v['phone'] ?? '').toString())),
                   trailing: IconButton(
                     tooltip: t.wmRemove,
                     icon: const Icon(Icons.person_remove_alt_1_outlined),

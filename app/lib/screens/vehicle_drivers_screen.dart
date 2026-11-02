@@ -8,6 +8,8 @@ import '../theme.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/cv_empty.dart';
+import '../widgets/fam_empty.dart' show famDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// veh100: the owner's drivers (name, phone, licence number + expiry — the
@@ -135,11 +137,14 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(tr.v100DriversTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _edit(),
-        icon: const Icon(Icons.person_add_alt_1_rounded),
-        label: Text(tr.v100DriverAdd),
-      ),
+      // cctvveh: empty → the big button in the empty state is the one CTA
+      floatingActionButton: (_loading || _error || _list.isEmpty)
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _edit(),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: Text(tr.v100DriverAdd),
+            ),
       body: _loading
           ? const SkeletonList()
           : _error
@@ -155,12 +160,14 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _load,
-                  child: ListView(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                  child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                       children: [
-                    Text(tr.v100DriversIntro,
-                        style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
-                    const SizedBox(height: Gap.md),
-                    if (widget.canAssign && widget.trackerId != null)
+                    if (_list.isNotEmpty) ...[
+                      Text(tr.v100DriversIntro,
+                          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
+                      const SizedBox(height: Gap.md),
+                    ],
+                    if (widget.canAssign && widget.trackerId != null && _list.isNotEmpty)
                       Card(
                         margin: EdgeInsets.zero,
                         child: RadioGroup<int?>(
@@ -184,14 +191,14 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
                         ),
                       ),
                     if (_list.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: Gap.lg),
-                        child: StateMessage(
-                          icon: Icons.badge_outlined,
-                          tint: scheme.primary,
-                          title: tr.v100DriversEmptyTitle,
-                          message: tr.v100DriversEmptyBody,
-                        ),
+                      CvEmptyBlock(
+                        icon: Icons.badge_outlined,
+                        title: tr.v100DriversEmptyTitle,
+                        benefit: tr.cvvDriversEmptyBenefit,
+                        primaryIcon: Icons.person_add_alt_1_rounded,
+                        primaryLabel: tr.v100DriverAdd,
+                        onPrimary: () => _edit(),
+                        steps: [tr.cvvDriversStep1, tr.cvvDriversStep2, tr.cvvDriversStep3],
                       )
                     else ...[
                       const SizedBox(height: Gap.md),
@@ -207,7 +214,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
     final days = exp == null ? null : DateUtils.dateOnly(exp)
         .difference(DateUtils.dateOnly(DateTime.now())).inDays;
     final sub = <String>[
-      if ('${d['phone'] ?? ''}'.trim().isNotEmpty) '${d['phone']}',
+      if ('${d['phone'] ?? ''}'.trim().isNotEmpty) famDigits(context, '${d['phone']}'),
       if (days != null)
         days < 0
             ? tr.v100LicenceExpired
@@ -274,6 +281,26 @@ class _DriverFormState extends State<_DriverForm> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(tr.v100DriverFormTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.sm),
+          // cctvveh: the driver is often already in My Circle — one tap fills
+          // the name and number (nobody is typed twice).
+          if ((widget.initial['name'] ?? '').toString().isEmpty) ...[
+            FilledButton.tonalIcon(
+              key: const ValueKey('veh-driver-circle'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.group_add_rounded),
+              label: Text(tr.cvvFromCircle),
+              onPressed: () async {
+                final row = await pickCirclePerson(context, title: tr.cvvFromCircle);
+                if (row == null || !mounted) return;
+                setState(() {
+                  _name.text = '${row['name'] ?? ''}';
+                  _phone.text = '${row['phone'] ?? ''}';
+                  _err = null;
+                });
+              },
+            ),
+            const SizedBox(height: Gap.sm),
+          ],
           TextField(controller: _name, maxLength: 60,
               decoration: InputDecoration(labelText: tr.v100DriverName, errorText: _err)),
           TextField(controller: _phone, maxLength: 20, keyboardType: TextInputType.phone,
@@ -359,7 +386,8 @@ class _DriverMonthSheetState extends State<_DriverMonthSheet> {
     final r = _r;
     final tot = vehMap(r?['totals']);
     final sc = vehInt(tot['score']);
-    return Padding(
+    // cctvveh: scrolls (200% text no longer cuts the month off)
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

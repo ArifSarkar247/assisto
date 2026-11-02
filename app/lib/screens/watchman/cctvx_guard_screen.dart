@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
+import '../messenger/messenger_home_screen.dart';
 
 /// cctvx — GUARD SETTINGS for one place (owner order 28 Oct): the no-sale
 /// drawer window (1-10 min, server-bounded), who gets an alert the owner has
@@ -113,7 +114,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
                 child: Text(t.wmRetry))),
       ]);
     } else {
-      body = ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
+      body = ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)), children: [
         _noSaleCard(t),
         _escalationCard(t),
         _offlineCard(t),
@@ -195,7 +196,25 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
       const SizedBox(height: 6),
       Text(t.cxEscalationBody),
       const SizedBox(height: 8),
-      if (circle.isEmpty) Text(t.cxEscalationNoCircle, style: Theme.of(context).textTheme.bodySmall),
+      if (circle.isEmpty) ...[
+        Text(t.cxEscalationNoCircle, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 8),
+        // cctvveh: never a dead end — add the manager / family to My Circle
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FilledButton.tonalIcon(
+            key: const ValueKey('cx-open-circle'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
+            label: Text(t.cvvOpenMyCircle),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const MessengerHomeScreen(startAdd: true)));
+              if (mounted) await _load();
+            },
+          ),
+        ),
+      ],
       for (var i = 0; i < chain.length; i++)
         ListTile(
           contentPadding: EdgeInsets.zero,

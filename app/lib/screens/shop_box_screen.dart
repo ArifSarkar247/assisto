@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/skeleton.dart';
+import '../widgets/cv_empty.dart';
 import 'credits_screen.dart';
 import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
@@ -300,10 +301,20 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
 
 Widget _noSiteState(BuildContext context) {
   final t = AppLocalizations.of(context);
-  return StateMessage(
-    icon: Icons.store_mall_directory_rounded,
-    title: t.shopBoxNoSiteTitle,
-    message: t.shopBoxNoSiteBody,
+  // cctvveh: never a dead end — one tap to the Shops tab
+  final tabs = DefaultTabController.maybeOf(context);
+  return ListView(
+    padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
+    children: [
+      CvEmptyBlock(
+        icon: Icons.store_mall_directory_rounded,
+        title: t.shopBoxNoSiteTitle,
+        benefit: t.shopBoxNoSiteBody,
+        primaryIcon: Icons.add_business_rounded,
+        primaryLabel: t.cvvShopGoSites,
+        onPrimary: tabs == null ? null : () => tabs.animateTo(0),
+      ),
+    ],
   );
 }
 
@@ -419,21 +430,20 @@ class _SitesTab extends StatelessWidget {
       );
     }
     if (sites.isEmpty) {
+      // cctvveh: ONE call to action (the FAB duplicated the button) + how-to
       return Scaffold(
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _createSite(context),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(t.shopBoxAddSite),
-        ),
-        body: StateMessage(
-          icon: Icons.storefront_rounded,
-          title: t.shopBoxSitesEmptyTitle,
-          message: t.shopBoxSitesEmptyBody,
-          action: FilledButton.icon(
-            onPressed: () => _createSite(context),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(t.shopBoxAddSite),
-          ),
+        body: ListView(
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
+          children: [
+            CvEmptyBlock(
+              icon: Icons.storefront_rounded,
+              title: t.shopBoxSitesEmptyTitle,
+              benefit: t.cvvShopSitesBenefit,
+              primaryLabel: t.shopBoxAddSite,
+              onPrimary: () => _createSite(context),
+              steps: [t.cvvShopSitesStep1, t.cvvShopSitesStep2, t.cvvShopSitesStep3],
+            ),
+          ],
         ),
       );
     }
@@ -885,11 +895,13 @@ class _CamerasTabState extends State<_CamerasTab> {
       );
     }
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addCamera,
-        icon: const Icon(Icons.add_a_photo_rounded),
-        label: Text(t.shopBoxAddCamera),
-      ),
+      floatingActionButton: _cameras.isEmpty
+          ? null // cctvveh: the empty state's big button is the one CTA
+          : FloatingActionButton.extended(
+              onPressed: _addCamera,
+              icon: const Icon(Icons.add_a_photo_rounded),
+              label: Text(t.shopBoxAddCamera),
+            ),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -919,13 +931,14 @@ class _CamerasTabState extends State<_CamerasTab> {
             ),
             const SizedBox(height: Gap.md),
             if (_cameras.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: Gap.xl),
-                child: StateMessage(
-                  icon: Icons.videocam_off_rounded,
-                  title: t.shopBoxCamerasEmptyTitle,
-                  message: t.shopBoxCamerasEmptyBody,
-                ),
+              CvEmptyBlock(
+                icon: Icons.videocam_off_rounded,
+                title: t.shopBoxCamerasEmptyTitle,
+                benefit: t.cvvNoCamBenefit,
+                primaryIcon: Icons.add_a_photo_rounded,
+                primaryLabel: t.shopBoxAddCamera,
+                onPrimary: _addCamera,
+                steps: [t.cvvNoCamStep1, t.cvvShopCamStep2, t.cvvShopCamStep3],
               )
             else
               for (final c in _cameras) ...[
@@ -1117,15 +1130,22 @@ class _AlertsTabState extends State<_AlertsTab> {
                 : RefreshIndicator(
                     onRefresh: _load,
                     child: _events.isEmpty
-                        ? ListView(children: [
-                            const SizedBox(height: Gap.xxl),
-                            StateMessage(
-                              icon: Icons.notifications_none_rounded,
-                              tint: AssistoTokens.of(context).success,
-                              title: t.shopBoxAlertsEmptyTitle,
-                              message: t.shopBoxAlertsEmptyBody,
-                            ),
-                          ])
+                        ? ListView(
+                            padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl)),
+                            children: [
+                              // cctvveh: benefit + a way on + how-to
+                              CvEmptyBlock(
+                                icon: Icons.notifications_none_rounded,
+                                title: t.shopBoxAlertsEmptyTitle,
+                                benefit: t.wmNoAlertsBody,
+                                primaryIcon: Icons.videocam_rounded,
+                                primaryLabel: t.cvvShopSeeCameras,
+                                onPrimary: DefaultTabController.maybeOf(context) == null
+                                    ? null
+                                    : () => DefaultTabController.of(context).animateTo(1),
+                                steps: [t.cvvAlertsStep1, t.cvvAlertsStep2, t.cvvAlertsStep3],
+                              ),
+                            ])
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(
                                 Gap.md, Gap.md, Gap.md, Gap.xxl),

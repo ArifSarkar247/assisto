@@ -23,6 +23,9 @@ class CashGuardScreen extends StatefulWidget {
   /// Open the zone editor of a camera (the cash zone is drawn there).
   final VoidCallback? onDrawZone;
 
+  /// cctvveh: no camera yet — the checklist's camera step opens "Add camera".
+  final VoidCallback? onAddCamera;
+
   /// cctvx (CCTV extras): guard settings, today's report, placement helper,
   /// privacy kit. Null = the card is not shown (older callers / tests).
   final CctvxSource? extras;
@@ -34,6 +37,7 @@ class CashGuardScreen extends StatefulWidget {
       required this.source,
       required this.siteId,
       this.onDrawZone,
+      this.onAddCamera,
       this.extras,
       this.watchman,
       this.cameras = const [],
@@ -177,7 +181,7 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     } else {
       body = RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
+        child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)), children: [
           _awayCard(t),
           if (widget.extras != null) _extrasCard(t),
           if (widget.extras != null) GuardReportCard(source: widget.extras!, siteId: widget.siteId),
@@ -305,23 +309,42 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     final keys = (s['clip_recipients'] as num?)?.toInt() ?? 0;
     Widget step(bool done, String text, {VoidCallback? onTap, String? action}) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(children: [
-            Icon(done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                color: done ? wmOk() : null),
+          // cctvveh: the action sits UNDER the text (a long label next to
+          // it overflowed at 360 dp / 200% text)
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                  color: done ? wmOk() : null),
+            ),
             const SizedBox(width: 10),
-            Expanded(child: Text(text)),
-            if (onTap != null && action != null)
-              TextButton(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                  onPressed: onTap,
-                  child: Text(action)),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(text),
+                if (onTap != null && action != null)
+                  TextButton(
+                      style: TextButton.styleFrom(
+                          minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                      onPressed: onTap,
+                      child: Text(action)),
+              ]),
+            ),
           ]),
         );
+    // cctvveh: every tick is the TRUTH (before: "camera added" was always
+    // ticked and "draw the cash area" never was).
+    final usedCams = (wmMap(_data['usage'])['cameras'] as num?)?.toInt() ?? 0;
+    final hasCam = widget.cameras.isNotEmpty || usedCams > 0;
+    final zoneDone = widget.cameras.any((c) => wmList(wmMap(c['zone_config'])['zones'])
+        .any((z) => z['type'] == 'cash'));
     return _card([
       Text(t.cgSetupTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 6),
-      step(false, t.cgSetupStepZone, onTap: widget.onDrawZone, action: t.cgDrawZone),
-      step(true, t.cgSetupStepCamera),
+      step(hasCam, hasCam ? t.cgSetupStepCamera : t.cvvCgStepCameraNone,
+          onTap: hasCam ? null : widget.onAddCamera, action: t.wmAddCamera),
+      step(zoneDone, zoneDone ? t.cvvCgStepZoneDone : t.cgSetupStepZone,
+          onTap: hasCam ? widget.onDrawZone : null,
+          action: zoneDone ? t.wmZonesSchedule : t.cgDrawZone),
       step(keys > 0, keys > 0 ? t.cgSetupStepKeyOk : t.cgSetupStepKeyMissing),
     ]);
   }

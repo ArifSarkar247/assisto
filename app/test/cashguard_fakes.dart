@@ -33,7 +33,7 @@ class FakeCashGuard implements CashGuardSource {
     return {
       'caps': {'tier': biz ? 'business' : 'free', 'cameras': biz ? 4 : 1,
                'alerts_day': biz ? 30 : 5, 'clips_day': biz ? 10 : 1, 'clip_kb': 900},
-      'usage': {'cameras': 1, 'clips_today': 0},
+      'usage': {'cameras': mode == 'nocam' ? 0 : 1, 'clips_today': 0}, // cctvveh: 'nocam'
       'sites': [
         {'site': 1, 'name': 'Mirpur shop', 'kind': 'shop', 'active': mode == 'away',
          'until': mode == 'away' ? '2026-10-28T18:00:00+06:00' : null,
