@@ -18,6 +18,8 @@ import 'messenger/messenger_home_screen.dart';
 import '../services/journey_tracker.dart' show kPhonesKey;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../services/oem_guide.dart';
+import 'battery_guidance_screen.dart';
 
 /// Start a Safe Journey: where to (saved Home/School/Office, current
 /// location, a pasted Google Maps link, place search when the server has a
@@ -41,8 +43,24 @@ List<Map<String, dynamic>> journeyWatcherRows(Object? r) {
       .toList();
 }
 
+/// journey100b (owner real trip 2 Nov: "No location" for 15 min): does this
+/// phone need the battery-saver / auto-start steps BEFORE the trip? Android
+/// says so (background restricted, or battery optimisation still on), or the
+/// brand is known to kill background apps (Xiaomi, Realme, Oppo, Vivo,
+/// Samsung…) and the user has not been through the guide yet. Pure.
+bool journeyNeedsBgSetup(OemInfo? i, {required bool guidedBefore}) {
+  if (i == null) return false; // unknown phone: never block the start
+  if (i.bgRestricted == true) return true;
+  if (i.batteryOptIgnored != true) return true;
+  return i.family != OemFamily.nearStock && !guidedBefore;
+}
+
+const String kJourneyBgGuidedKey = 'journey_bg_guided';
+
 class JourneyStartScreen extends StatefulWidget {
-  const JourneyStartScreen({super.key});
+  /// Native OEM bridge (tests pass a fake).
+  final OemGuideNative? oem;
+  const JourneyStartScreen({super.key, this.oem});
   @override
   State<JourneyStartScreen> createState() => _JourneyStartScreenState();
 }
@@ -273,6 +291,64 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         (_dest!['lng'] as num).toDouble());
   }
 
+  /// true = go ahead with the start; false = the user went to fix it (or
+  /// closed the sheet) and will tap Start again.
+  Future<bool> _bgReady(AppLocalizations t) async {
+    OemInfo? info;
+    try {
+      info = await (widget.oem ?? const ChannelOemGuideNative()).info();
+    } catch (_) {
+      info = null; // best-effort: unknown phone, start anyway
+    }
+    final guided = await Settings.getBool(kJourneyBgGuidedKey, false);
+    if (!journeyNeedsBgSetup(info, guidedBefore: guided) || !mounted) return true;
+    final pick = await showAppSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          key: const ValueKey('j100b_bg_sheet'),
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Icon(Icons.battery_alert_rounded, color: Brand.warnInk(ctx)),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                  child: Text(t.j100bBgSheetTitle,
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
+            ]),
+            const SizedBox(height: Gap.sm),
+            Text(t.j100bBgSheetBody, style: AType.bodyMedium),
+            const SizedBox(height: Gap.md),
+            FilledButton.icon(
+                key: const ValueKey('j100b_bg_fix'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                icon: const Icon(Icons.build_circle_rounded),
+                label: Text(t.j100bBgSheetFix),
+                onPressed: () => Navigator.pop(ctx, 'fix')),
+            const SizedBox(height: Gap.sm),
+            OutlinedButton(
+                key: const ValueKey('j100b_bg_skip'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.pop(ctx, 'start'),
+                child: Text(t.j100bBgSheetSkip)),
+          ]),
+        ),
+      ),
+    );
+    if (pick == 'start') return true;
+    if (pick == 'fix' && mounted) {
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => BatteryGuidanceScreen(native: widget.oem)));
+      await Settings.setBool(kJourneyBgGuidedKey, true);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.j100bBgReady)));
+      }
+    }
+    return false;
+  }
+
   Future<void> _start() async {
     final t = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -300,6 +376,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (_driverName.text.trim().isNotEmpty) 'driver_name': _driverName.text.trim(),
       if (_driverPhone.text.trim().isNotEmpty) 'driver_phone': _driverPhone.text.trim(),
     };
+    // journey100b: phones that kill background apps — fix it BEFORE the trip
+    if (!await _bgReady(t)) return;
+    if (!mounted) return;
     setState(() => _starting = true);
     // location for the live share (while-in-use only; the journey's own
     // foreground service keeps it going with the screen off)

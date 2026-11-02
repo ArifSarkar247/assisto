@@ -164,7 +164,7 @@ SPEED_MOVING_KMH = 2.0      # slower than this = standing (not a speed sample)
 OBS_WEIGHT = 0.7            # observed vs typical speed blend
 
 
-def observed_kmh(points):
+def observed_kmh(points, window_s=None):
     """Average speed along the path of [(lat, lng, at_datetime)], oldest
     first, over the last SPEED_WINDOW_S. GPS jumps are skipped. None when
     there is not enough movement data (< 3 fixes or < 3 minutes)."""
@@ -172,7 +172,8 @@ def observed_kmh(points):
     if len(pts) < 3:
         return None
     newest = pts[-1][2]
-    pts = [p for p in pts if (newest - p[2]).total_seconds() <= SPEED_WINDOW_S]
+    win = SPEED_WINDOW_S if window_s is None else window_s
+    pts = [p for p in pts if (newest - p[2]).total_seconds() <= win]
     if len(pts) < 3:
         return None
     span = (pts[-1][2] - pts[0][2]).total_seconds()

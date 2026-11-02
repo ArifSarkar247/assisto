@@ -46,13 +46,17 @@ class NotificationCentreScreen extends StatefulWidget {
 /// tab's badge (scope reminders / feed). Items stay bold until tapped one by
 /// one, and SOS / family alerts keep counting until handled (server rule).
 class _NotificationCentreScreenState extends State<NotificationCentreScreen>
-    with SingleTickerProviderStateMixin {
-  static const _scopes = ['reminders', 'feed'];
-  late final TabController _tabs = TabController(length: 2, vsync: this);
+    with TickerProviderStateMixin {
+  static const _scopes = ['reminders', 'feed', 'feed'];
+  late TabController _tabs = TabController(length: 2, vsync: this);
   final List<ValueNotifier<int>> _badges = [
     ValueNotifier<int>(0),
     ValueNotifier<int>(0),
+    ValueNotifier<int>(0),
   ];
+  /// journey100b (owner 2 Nov): server/ops alerts get their OWN Admin tab —
+  /// only owner admins ever receive such rows, so only they see the tab.
+  bool _admin = false;
   final Set<int> _cleared = {};
 
   @override
@@ -72,6 +76,18 @@ class _NotificationCentreScreenState extends State<NotificationCentreScreen>
     try {
       final j = await context.read<AppState>().api.notifFeed();
       if (!_cleared.contains(1)) _report(1, _asCount(j['badge']));
+      final hasAdmin = ((j['items'] as List?) ?? const [])
+          .any((e) => e is Map && e['type'] == 'admin');
+      if (hasAdmin && !_admin && mounted) {
+        final i = _tabs.index;
+        _tabs.removeListener(_onTab);
+        _tabs.dispose();
+        setState(() {
+          _admin = true;
+          _tabs = TabController(length: 3, vsync: this, initialIndex: i)
+            ..addListener(_onTab);
+        });
+      }
     } catch (_) {}
   }
 
@@ -120,6 +136,10 @@ class _NotificationCentreScreenState extends State<NotificationCentreScreen>
           tabs: [
             Tab(child: _TabLabel(t.notifTabReminders, _badges[0])),
             Tab(child: _TabLabel(t.notifTabNotifications, _badges[1])),
+            if (_admin)
+              Tab(
+                  key: const ValueKey('notif_tab_admin'),
+                  child: _TabLabel(t.j100bNotifTabAdmin, _badges[2])),
           ],
         ),
       ),
@@ -128,6 +148,7 @@ class _NotificationCentreScreenState extends State<NotificationCentreScreen>
         children: [
           _RemindersTab(onBadge: (n) => _report(0, n)),
           _FeedTab(onBadge: (n) => _report(1, n)),
+          if (_admin) const _FeedTab(adminOnly: true),
         ],
       ),
     );
@@ -472,7 +493,10 @@ class _Section extends StatelessWidget {
 
 class _FeedTab extends StatefulWidget {
   final ValueChanged<int>? onBadge;
-  const _FeedTab({this.onBadge});
+  /// true = the owner-only Admin tab (server/ops alerts); false = everything
+  /// else. The two never mix.
+  final bool adminOnly;
+  const _FeedTab({this.onBadge, this.adminOnly = false});
   @override
   State<_FeedTab> createState() => _FeedTabState();
 }
@@ -500,6 +524,7 @@ class _FeedTabState extends State<_FeedTab>
       ((j['items'] as List?) ?? const [])
           .whereType<Map>()
           .map(NotifEvent.fromJson)
+          .where((e) => e.admin == widget.adminOnly)
           .toList();
 
   Future<void> _load() async {

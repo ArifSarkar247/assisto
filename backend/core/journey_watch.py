@@ -292,11 +292,15 @@ def _dest(j, lang):
     return (j.destination or {}).get("name") or SJ.pick(lang, "গন্তব্য", "the destination")
 
 
-def event_text(kind, j, name, lang, p):
-    """(title, body) for a watcher-facing event in `lang` (strict bn / en)."""
+def event_text(kind, j, name, lang, p, links=True):
+    """(title, body) for a watcher-facing event in `lang` (strict bn / en).
+    links=False (journey100b, owner 2 Nov): no raw map / live-page URLs in the
+    text — the push carries them as data and the app shows "Open map" /
+    "Live view" buttons instead."""
     pick = SJ.pick
-    loc = {"lat": p.get("lat"), "lng": p.get("lng")} if p.get("lat") is not None else None
-    url = p.get("url") or ""
+    loc = ({"lat": p.get("lat"), "lng": p.get("lng")}
+           if (links and p.get("lat") is not None) else None)
+    url = (p.get("url") or "") if links else ""
     link = pick(lang, " লাইভ পাতা: %s" % url, " Live page: %s" % url) if url else ""
     dest = _dest(j, lang)
     if kind == "started":
@@ -332,6 +336,15 @@ def event_text(kind, j, name, lang, p):
     if kind == "off_route":
         pl = SJ.route_deviation_payload(name, _n(lang, p.get("meters", "")), loc, lang=lang)
         return pl["title"], pl["body"] + link
+    if kind == "long_stop" and p.get("jam"):
+        # owner real trip 2 Nov: a bus stuck in a jam on the highway is not
+        # "stopped somewhere" — say the likely, calm thing
+        m = _n(lang, p.get("minutes", ""))
+        return (pick(lang, "অনেকক্ষণ একই জায়গায় — হয়তো যানজটে", "Not moving for a while — maybe traffic"),
+                pick(lang, "%s প্রায় %s মিনিট ধরে রাস্তার একই জায়গায় আছেন — হয়তো যানজটে আটকে আছেন। চিন্তা হলে ফোন করুন।%s%s" % (
+                    name, m, SJ._loc_line(loc, lang), link),
+                     "%s has been at the same spot on the road for about %s min — maybe stuck in traffic. Call them if you're worried.%s%s" % (
+                    name, m, SJ._loc_line(loc, lang), link)))
     if kind == "long_stop":
         m = _n(lang, p.get("minutes", ""))
         return (pick(lang, "অনেকক্ষণ এক জায়গায় থেমে আছেন", "Stopped for a long time"),
@@ -348,17 +361,18 @@ def event_text(kind, j, name, lang, p):
                     name, m, b, SJ._loc_line(loc, lang), link)))
     if kind == "signal_lost" and p.get("why") == "killed":
         m = _n(lang, p.get("minutes", ""))
-        return (pick(lang, "লোকেশন আসছে না — ফোন অ্যাপ বন্ধ করেছে হয়তো", "No location — the phone may have stopped Assisto"),
-                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি। Assisto সরিয়ে দেওয়ার পর ফোনের ব্যাটারি-সেভার সম্ভবত লোকেশন বন্ধ করেছে (কিছু ফোন এমন করে)। ফোন করে খোঁজ নিন।%s%s" % (
+        return (pick(lang, "কিছুক্ষণ লোকেশন আসেনি", "No location for a while"),
+                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি — Assisto সরিয়ে দেওয়ার পর ফোনের ব্যাটারি-সেভার হয়তো লোকেশন থামিয়েছে। এটা সাধারণত বিপদ নয়; চিন্তা হলে ফোন করুন।%s%s" % (
                     m, name, SJ._loc_line(loc, lang), link),
-                     "No location from %s for %s min. Assisto was swiped away and the phone's battery saver has probably stopped location (some phones do this). Please call them.%s%s" % (
+                     "No location from %s for %s min — after Assisto was swiped away, the phone's battery saver has probably paused location. This is usually not danger; call them if you're worried.%s%s" % (
                     name, m, SJ._loc_line(loc, lang), link)))
     if kind == "signal_lost":
         m = _n(lang, p.get("minutes", ""))
-        return (pick(lang, "লোকেশন আসছে না", "No location coming in"),
-                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি (ফোন বন্ধ, চার্জ শেষ বা নেট নেই হতে পারে)।%s%s" % (
+        # owner real trip 2 Nov: honest and calm, not alarming
+        return (pick(lang, "কিছুক্ষণ লোকেশন আসেনি", "No location for a while"),
+                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি — ফোন হয়তো ব্যাটারি-সেভারে বা নেট নেই। এটা সাধারণত বিপদ নয়; চিন্তা হলে ফোন করুন।%s%s" % (
                     m, name, SJ._loc_line(loc, lang), link),
-                     "No location from %s for %s min (the phone may be off, flat or offline).%s%s" % (
+                     "No location from %s for %s min — the phone may be on battery saver or offline. This is usually not danger; call them if you're worried.%s%s" % (
                     name, m, SJ._loc_line(loc, lang), link)))
     if kind == "ended":
         return (pick(lang, "যাত্রা শেষ করা হয়েছে", "Journey ended"),
@@ -474,6 +488,8 @@ def deliver(ev):
             "lat": "" if p.get("lat") is None else p.get("lat"),
             "lng": "" if p.get("lng") is None else p.get("lng")}
     urgent = ev.kind in URGENT
+    if ev.kind == "signal_lost" or (ev.kind == "long_stop" and p.get("jam")):
+        urgent = False   # owner real trip 2 Nov: calm notice, not an alarm
     n = 0
     people = watcher_users(j)
     if p.get("circle"):
@@ -482,8 +498,8 @@ def deliver(ev):
         if not _rate_ok(u, ev.kind):
             continue
         name = push.seen_name(u, j.traveller)
-        tbn, bbn = event_text(ev.kind, j, name, "bn", p)
-        ten, ben = event_text(ev.kind, j, name, "en", p)
+        tbn, bbn = event_text(ev.kind, j, name, "bn", p, links=False)
+        ten, ben = event_text(ev.kind, j, name, "en", p, links=False)
         _notify(u, ev.kind, j, tbn, ten, bbn, ben, data, urgent,
                 high=urgent or ev.kind in ("started", "arrived"))
         n += 1
@@ -635,9 +651,14 @@ def _sweep_journey(j, now, stats):
         return   # a stale fix says nothing about stops or routes
     if (j.stop_alert_min or 0) > 0 and j.moved_at is not None:
         still = (now - j.moved_at).total_seconds() / 60.0
-        if (still >= j.stop_alert_min and not near_destination(j, lat, lng) and
+        # owner real trip 2 Nov (Gazipur): a bus in a jam is not "stopped" —
+        # on the road after vehicle speed -> a much later, calm notice
+        jam = still >= j.stop_alert_min and in_traffic(j, lat, lng)
+        limit = max(int(j.stop_alert_min), JAM_STOP_MIN) if jam else j.stop_alert_min
+        if (still >= limit and not near_destination(j, lat, lng) and
                 (j.stop_alerted_at is None or j.stop_alerted_at < j.moved_at)):
-            emit(j, "long_stop", key=j.moved_at.isoformat(), payload={"minutes": int(still)})
+            emit(j, "long_stop", key=j.moved_at.isoformat(),
+                 payload={"minutes": int(still), **({"jam": True} if jam else {})})
             j.stop_alerted_at = now
             j.save(update_fields=["stop_alerted_at"])
             stats["long_stop"] += 1
@@ -652,6 +673,38 @@ def _sweep_journey(j, now, stats):
             j.offroute_alerted_at = now
             j.save(update_fields=["offroute_alerted_at"])
             stats["off_route"] += 1
+
+
+JAM_STOP_MIN = 45            # stopped on the road after vehicle speed: wait this long
+JAM_VEHICLE_KMH = 12.0       # average speed before the stop that means "in a vehicle"
+JAM_LOOKBACK_S = 1800        # ...over the 30 minutes before it (a crawl first still counts)
+VEHICLE_MODES = ("bus", "car", "cng", "bike", "ride")
+
+
+def in_traffic(j, lat, lng):
+    """journey100b — True when the current stop looks like a traffic jam:
+    the traveller was moving at vehicle speed in the 10 minutes before the
+    stop began (or, with too few fixes, said they ride a vehicle) AND the
+    stop is on the planned route / origin->destination corridor (no
+    destination pin = unknown road = benefit of the doubt). A stop far off
+    the route, or after walking, is a real "stopped" (normal threshold)."""
+    from .models import JourneyPoint
+    from .logic import journey_dest as JD
+    if j.moved_at is None:
+        return False
+    since = j.moved_at - timedelta(seconds=JAM_LOOKBACK_S)
+    pts = list(JourneyPoint.objects.filter(journey=j, at__gte=since, at__lte=j.moved_at)
+               .order_by("at").values_list("lat", "lng", "at")[:120])
+    kmh = JD.observed_kmh(pts, window_s=JAM_LOOKBACK_S)
+    if kmh is not None:
+        fast = kmh >= JAM_VEHICLE_KMH
+    else:
+        mode = ((j.vehicle or {}).get("mode") or j.mode or "")
+        fast = mode in VEHICLE_MODES
+    if not fast:
+        return False
+    off, _d, _thr = offroute(j, lat, lng)
+    return not off
 
 
 def _confirmed_off(j, at):

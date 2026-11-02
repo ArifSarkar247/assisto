@@ -216,7 +216,9 @@ class LostReasonTests(GBase):
         self.post(j, lat=23.77, lng=90.39, battery=60, src="app")
         JW.sweep(now=timezone.now() + timedelta(minutes=JW.LOST_FIX_MIN + 1))
         self.assertNotIn("why", self.events(j, "signal_lost")[0].payload)
-        self.assertIn("may be off", self.lost_push()[0]["ben"])
+        self.assertIn("battery saver or offline", self.lost_push()[0]["ben"])
+        self.assertFalse(self.lost_push()[0]["high"])          # calm, not an alarm
+        self.assertNotIn("http", self.lost_push()[0]["ben"])  # buttons, not raw links
 
     def test_junk_src_is_ignored(self):
         j, _ = self.start(eta_min=120)
@@ -356,3 +358,128 @@ class WatchingViewReasonTests(GBase):
         self.assertEqual((w["why"], w["battery_last"]), ("killed", 41))
         self.assertIsNone(w["battery"])
         self.assertIn(w["eta_basis"], ("speed", "typical"))
+
+
+# ------------- 6. owner's real trip (2 Nov): jam on the Dhaka–Gazipur road
+ABDULLAHPUR = {"name": "Abdullahpur", "lat": 23.8795, "lng": 90.4003}
+GAZIPUR = {"name": "Gazipur", "lat": 24.0020, "lng": 90.4200}
+HIGHWAY = [(23.8795, 90.4003), (23.8900, 90.4040), (23.8990, 90.4070), (23.9200, 90.4000)]
+
+
+def _path(points, step_m=250):
+    """Interpolate a polyline every ~step_m metres (30 s apart = ~30 km/h)."""
+    from core.logic.safety import haversine_m
+    out = []
+    for a, b in zip(points, points[1:]):
+        n = max(1, int(haversine_m(a[0], a[1], b[0], b[1]) // step_m))
+        for k in range(n):
+            f = k / float(n)
+            out.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
+    out.append(points[-1])
+    return out
+
+
+class TrafficJamTests(GBase):
+    """Recorded-shape traces: a bus stuck in a jam on the highway vs a stop
+    at an unknown place off the route vs a stop after walking."""
+
+    def go(self, j, trace, t0, every_s=30):
+        at = t0
+        for lat, lng in trace:
+            self.ca.post("%s/journey/%d/location" % (V, j.id),
+                         {"points": [{"lat": lat, "lng": lng, "at": at.isoformat()}]},
+                         format="json")
+            JW.sweep(now=at + timedelta(seconds=5))
+            at += timedelta(seconds=every_s)
+        return at
+
+    def stand(self, j, spot, t0, minutes):
+        # GPS jitter of a few metres, one fix a minute
+        pts = [(spot[0] + (0.00002 if k % 2 else -0.00002), spot[1]) for k in range(minutes)]
+        return self.go(j, pts, t0, every_s=60)
+
+    def trip(self):
+        j, _ = self.start(eta_min=240, origin=ABDULLAHPUR, destination=GAZIPUR,
+                          stop_alert_min=20, mode="bus")
+        Journey.objects.filter(pk=j.pk).update(created_at=timezone.now() - timedelta(hours=3))
+        j.refresh_from_db()
+        return j, timezone.now() - timedelta(hours=2)
+
+    def test_jam_on_the_highway_is_not_a_stop_at_23_minutes(self):
+        j, t0 = self.trip()
+        t1 = self.go(j, _path(HIGHWAY), t0)                 # ~30 km/h for ~10 min
+        t2 = self.stand(j, HIGHWAY[-1], t1, 30)             # stuck 30 min on the road
+        self.assertEqual(self.events(j, "long_stop"), [])   # the owner's false alert: gone
+        self.stand(j, HIGHWAY[-1], t2, 17)                  # 47 min: calm notice
+        ev = self.events(j, "long_stop")
+        self.assertEqual(len(ev), 1)
+        self.assertTrue(ev[0].payload["jam"])
+        p = [c for c in self.spy.to(self.b) if c["data"].get("event") == "long_stop"][0]
+        self.assertIn("traffic", p["ben"])
+        self.assertIn("যানজটে", p["bbn"])
+        self.assertFalse(p["high"])
+        from core.models import FamilyAlert
+        self.assertFalse(FamilyAlert.objects.filter(user=self.b, kind="journey",
+                                                    payload__event="long_stop").exists())
+
+    def test_stop_at_an_unknown_place_off_the_route_still_alerts_at_20(self):
+        j, t0 = self.trip()
+        t1 = self.go(j, _path(HIGHWAY + [(23.9400, 90.4500)]), t0)   # turns 4 km off
+        self.stand(j, (23.9400, 90.4500), t1, 22)
+        ev = self.events(j, "long_stop")
+        self.assertEqual(len(ev), 1)
+        self.assertNotIn("jam", ev[0].payload)
+        p = [c for c in self.spy.to(self.b) if c["data"].get("event") == "long_stop"][0]
+        self.assertTrue(p["high"])
+
+    def test_stop_after_walking_on_the_route_alerts_at_20(self):
+        j, _ = self.start(eta_min=240, origin=ABDULLAHPUR, destination=GAZIPUR,
+                          stop_alert_min=20)
+        Journey.objects.filter(pk=j.pk).update(created_at=timezone.now() - timedelta(hours=3))
+        t0 = timezone.now() - timedelta(hours=2)
+        walk = _path(HIGHWAY[:2], step_m=40)                # ~5 km/h
+        t1 = self.go(j, walk, t0)
+        self.stand(j, HIGHWAY[1], t1, 22)
+        self.assertEqual(len(self.events(j, "long_stop")), 1)
+
+    def test_push_text_has_no_raw_links_but_data_has_them(self):
+        j, t0 = self.trip()
+        self.stand(j, HIGHWAY[0], t0, 1)
+        Journey.objects.filter(pk=j.pk).update(stop_alert_min=0)
+        JW.emit(Journey.objects.get(pk=j.pk), "low_battery", key="5",
+                payload={"battery": 5, "lat": 23.88, "lng": 90.40})
+        p = [c for c in self.spy.to(self.b) if c["data"].get("event") == "low_battery"][0]
+        self.assertNotIn("http", p["ben"] + p["bbn"])
+        self.assertTrue(p["data"]["url"].startswith("http"))
+        self.assertEqual(p["data"]["lat"], 23.88)
+
+
+class AdminAlertsSeparateTests(GBase):
+    """Owner 2 Nov: server/ops alerts (disk 80 %) never sit among family
+    alerts — only in the owner's Admin tab (type "admin")."""
+
+    def test_ops_alert_is_admin_only_and_never_a_family_alert(self):
+        from core import push
+        from core.models import FamilyAlert, NotifEvent
+        self.b.is_superuser = True
+        self.b.is_staff = True
+        self.b.save()
+        with mock.patch.object(push, "is_available", return_value=False):
+            push.notify_owner("Disk 80%", "Disk is 80% full")
+            push.notify_owner("Disk 80%", "Disk is 80% full")      # no duplicate row
+        rows = NotifEvent.objects.filter(type="admin", title_en="Disk 80%")
+        self.assertEqual(list(rows.values_list("user_id", flat=True)), [self.b.pk])
+        FamilyAlert.objects.create(user=self.b, kind="disk_alert", title="Disk",
+                                   body="full", payload={"source": "uptime_check"})
+        FamilyAlert.objects.create(user=self.b, kind="journey", title="Late",
+                                   body="Rina is late", payload={})
+        feed = self.cb.get("%s/notif/feed" % V).data["items"]
+        disk = [i for i in feed if (i.get("title") or {}).get("en") in ("Disk", "Disk 80%")]
+        self.assertTrue(disk)
+        self.assertTrue(all(i["type"] == "admin" for i in disk))
+        self.assertTrue(any(i["type"] != "admin" and (i.get("title") or {}).get("en") == "Late"
+                            for i in feed))
+        alerts = self.cb.get("%s/alerts" % V).data
+        self.assertFalse(any(a.get("type") == "disk_alert" for a in alerts))
+        # a normal account never gets them at all
+        self.assertFalse(NotifEvent.objects.filter(user=self.a, type="admin").exists())

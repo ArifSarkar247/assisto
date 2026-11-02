@@ -45,6 +45,13 @@ void registerSafeJourneyFlows() {
       final start = find.byKey(const ValueKey('j100_start'));
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 3);
+      // journey100b: the battery-saver sheet (phones that kill background
+      // apps) — on the emulator: "Start anyway"
+      final skip = find.byKey(const ValueKey('j100b_bg_skip'));
+      if (await f.appears(skip, seconds: 3)) {
+        await f.shot('bg_sheet');
+        await f.tap(skip, settleSeconds: 3);
+      }
       // our own reason dialog before Android's location prompt: "Not now"
       // (the journey still starts; the live screen then says location is off)
       final notNow = find.text(f.t.notNow);

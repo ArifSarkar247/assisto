@@ -676,6 +676,24 @@ def notify_owner(subject, body):
            "email_recipients": 0}
     try:
         owners = owner_admin_users()
+        # journey100b (owner 2 Nov): every owner alert is also a row in the
+        # notification centre's ADMIN tab (type "admin") — never a family alert
+        try:
+            from .models import NotifEvent
+            from django.utils import timezone as _tz
+            from datetime import timedelta as _td
+            since = _tz.now() - _td(minutes=10)
+            for u in owners:
+                # callers like disk_alert / play_vitals already wrote their row
+                if NotifEvent.objects.filter(user=u, type="admin", title_en=subject[:200],
+                                             at__gte=since).exists():
+                    continue
+                NotifEvent.objects.create(
+                    user=u, type="admin", title_bn=subject[:200], title_en=subject[:200],
+                    body_bn=body, body_en=body, route="owner",
+                    meta={"source": "ops_watch"}, at=_tz.now())
+        except Exception as e:
+            log.warning("push: notify_owner row failed %s", type(e).__name__)
         if is_available():
             out["push_available"] = True
             for u in owners:

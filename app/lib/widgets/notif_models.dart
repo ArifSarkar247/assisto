@@ -270,6 +270,9 @@ class NotifEvent {
   final Object? body; // {bn,en} | String
   final String? timeIso;
   final String? route;
+  /// owner-only server/ops alert (disk, uptime, cost guard): shown ONLY in the
+  /// Admin tab (owner admins), never mixed with family alerts.
+  final bool admin;
   bool seen;
 
   NotifEvent({
@@ -279,6 +282,7 @@ class NotifEvent {
     this.body,
     this.timeIso,
     this.route,
+    this.admin = false,
     this.seen = false,
   });
 
@@ -289,12 +293,14 @@ class NotifEvent {
         body: m['body'],
         timeIso: m['time'] as String?,
         route: m['route'] as String?,
+        admin: m['type'] == 'admin' || m['admin'] == true,
         seen: m['seen'] == true,
       );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'type': _typeKey(type),
+        if (admin) 'admin': true,
         'title': title,
         'body': body,
         'time': timeIso,

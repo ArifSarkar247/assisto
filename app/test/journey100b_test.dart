@@ -7,7 +7,12 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/api.dart';
+import 'package:assisto/push/push_notifier.dart';
+import 'package:assisto/push/push_payload.dart';
+import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/services/journey_tracker.dart';
+import 'package:assisto/services/oem_guide.dart';
+import 'package:assisto/widgets/notif_models.dart';
 import 'package:assisto/state.dart';
 
 JourneyFix _f(double lat, double lng, DateTime at) => JourneyFix(lat, lng, at, 80);
@@ -161,5 +166,49 @@ void main() {
     expect(batches, [100, 100, 51]);
     expect(tr.value.queued, 0);
     await tr.stop();
+  });
+
+  group('owner real trip 2 Nov', () {
+    OemInfo oem(String maker, {bool? opt, bool? restricted}) => OemInfo.fromMap({
+          'manufacturer': maker, 'brand': maker, 'model': 'x', 'sdkInt': 33,
+          'release': '13', 'rom': '', 'batteryOptIgnored': opt, 'bgRestricted': restricted,
+        });
+
+    test('pre-start battery-saver check: which phones get the 2-step sheet', () {
+      expect(journeyNeedsBgSetup(null, guidedBefore: false), isFalse); // unknown: never block
+      expect(journeyNeedsBgSetup(oem('realme', opt: true), guidedBefore: false), isTrue);
+      expect(journeyNeedsBgSetup(oem('realme', opt: true), guidedBefore: true), isFalse);
+      expect(journeyNeedsBgSetup(oem('Xiaomi', opt: false), guidedBefore: true), isTrue);
+      expect(journeyNeedsBgSetup(oem('samsung', opt: true, restricted: true), guidedBefore: true),
+          isTrue);
+      expect(journeyNeedsBgSetup(oem('Google', opt: true), guidedBefore: false), isFalse);
+    });
+
+    test('Safe Journey push buttons: Open map + Live view, real URLs only', () {
+      final d = {'kind': 'family_alert', 'journey_id': '9', 'lat': '23.88', 'lng': '90.4',
+                 'url': 'https://lifeassisto.com/j/abc'};
+      expect(PushNotifier.journeyActions(d),
+          [PushNotifier.actionJourneyMap, PushNotifier.actionJourneyLive]);
+      expect(PushNotifier.journeyActionUri(d, PushNotifier.actionJourneyMap).toString(),
+          'https://maps.google.com/?q=23.880000,90.400000');
+      expect(PushNotifier.journeyActionUri(d, PushNotifier.actionJourneyLive).toString(),
+          'https://lifeassisto.com/j/abc');
+      expect(PushNotifier.journeyActions({...d, 'lat': '', 'url': ''}), isEmpty);
+      expect(PushNotifier.journeyActions({...d, 'kind': 'message'}), isEmpty);
+      expect(PushNotifier.journeyActionUri(d, null), isNull);
+      final acts = PushNotifier.detailsFor(PushPayload({...d, 'title': 'x', 'body': 'y',
+              'lang': 'bn'}))
+          .android!
+          .actions!;
+      expect(acts.map((a) => a.id).toList(), ['j_map', 'j_live']);
+      expect(acts.map((a) => a.title).toList(), ['ম্যাপে দেখুন', 'লাইভ দেখুন']);
+    });
+
+    test('admin (server) alerts are flagged for their own tab', () {
+      expect(NotifEvent.fromJson({'id': 1, 'type': 'admin'}).admin, isTrue);
+      expect(NotifEvent.fromJson({'id': 2, 'type': 'safe_journey'}).admin, isFalse);
+      final back = NotifEvent.fromJson(NotifEvent.fromJson({'id': 1, 'type': 'admin'}).toJson());
+      expect(back.admin, isTrue);
+    });
   });
 }
