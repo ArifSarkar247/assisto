@@ -126,18 +126,15 @@ class BubbleAskPolicy {
     DateTime? lastAsk,
   }) {
     if (stage >= finalStage) return false;
-    switch (where) {
-      case BubbleAskWhere.onboarding:
-        return stage == 0;
-      case BubbleAskWhere.circleOpen:
-        // never asked (an update from an older build, or notifications were
-        // off on install day) or "Later" in onboarding → ask at this open
-        if (stage <= 1) return true;
-        // stage 2: once more, 3 days after the My Circle ask
-        final last = lastAsk;
-        if (last == null) return true;
-        return !now.isBefore(last.add(again));
-    }
+    if (where == BubbleAskWhere.onboarding) return stage == 0;
+    // circleOpen: never asked (an update from an older build, or
+    // notifications were off on install day) or "Later" in onboarding →
+    // ask at this open
+    if (stage <= 1) return true;
+    // stage 2: once more, 3 days after the My Circle ask
+    final last = lastAsk;
+    if (last == null) return true;
+    return !now.isBefore(last.add(again));
   }
 
   /// The stage after an ask was shown here.

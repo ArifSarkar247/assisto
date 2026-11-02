@@ -412,16 +412,21 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
   @override
   Widget build(BuildContext context) {
     final items = widget.enabled ? _visible : const <InCallBubble>[];
-    if (items.isEmpty) return widget.child;
+    // ALWAYS the same Stack with the call body first: the first bubble must
+    // never remount the call screen (video views, controls).
+    if (items.isEmpty) {
+      return Stack(fit: StackFit.expand, children: [widget.child]);
+    }
     final t = AppLocalizations.of(context);
     final pad = MediaQuery.paddingOf(context);
     final total = items.fold<int>(0, (s, b) => s + b.unread);
     final top = items.first;
+    final shown = items.length > 3 ? 3 : items.length;
     final stack = SizedBox(
       width: 70,
-      height: 62 + (items.length.clamp(1, 3) - 1) * 8,
+      height: 62.0 + (shown - 1) * 8.0,
       child: Stack(clipBehavior: Clip.none, children: [
-        for (var i = (items.length.clamp(1, 3)) - 1; i >= 0; i--)
+        for (var i = shown - 1; i >= 0; i--)
           Positioned(
             top: i * 8.0,
             right: 0,
@@ -452,7 +457,9 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
           left: 0,
           right: 0,
           top: pad.top + Gap.sm,
-          child: SizedBox(
+          child: Material(
+           type: MaterialType.transparency, // ink for the photos
+           child: SizedBox(
             height: 96,
             child: ListView(
               key: const Key('bbl2-call-row'),
@@ -484,6 +491,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
                   ),
               ],
             ),
+           ),
           ),
         ),
       ] else
