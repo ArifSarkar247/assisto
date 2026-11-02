@@ -127,8 +127,7 @@
 
 ## ৮. আপনার করণীয়
 ১. দোকানে ২ মিনিটের SMS যাচাই করে একটা "SeTracker" ঘড়ি কিনুন (ভালো হয় একটা 2G আর একটা 4G)।
-২. সার্ভারে cron লাইন যোগ করুন (প্রতি মিনিটে):
-   `* * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-school-mode-tick.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py school_mode_tick --quiet >> /home/ubuntu/assisto/logs/school_mode_tick.log 2>&1`
+২. ~~সার্ভারে cron লাইন যোগ করুন~~ — **আর লাগবে না** (২ Nov): `school_mode_tick` চালু `minute_jobs` লাইনে প্রতি মিনিটে চলে।
 ৩. Owner Admin → Features → `kids_watch` আপনার জন্য প্রিভিউতে আছে। ঘড়ি যুক্ত করে ১৫ মিনিট পরীক্ষা করুন: SOS, ভয়েস, স্কুলে পৌঁছানো।
 
 **সূত্র:** Traccar WatchProtocolDecoder / Encoder / FrameDecoder (github.com/traccar/traccar); 3g-elec "GPRS communication protocol" V1.7; Beesure SeTracker server protocol (4p-touch.com); findmykids.org SMS কমান্ড গাইড; Traccar ফোরাম (Q90 চলে; KT12 IP আটকানো); TBS News, ২০ অক্টোবর ২০২৬ (2G বন্ধের পরিকল্পনা); Bundesnetzagentur প্রেস বিজ্ঞপ্তি, ১৭ নভেম্বর ২০১৭; Norwegian Consumer Council, #WatchOut, অক্টোবর ২০১৭; BDstall (Q12-এর দাম)।
