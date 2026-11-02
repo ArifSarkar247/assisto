@@ -231,8 +231,12 @@ class _PsCropScreenState extends State<PsCropScreen> {
   String _aspectLabel(AppLocalizations t, double a) {
     if (a == -1) return t.psbAspectOriginal;
     if (a == 0) return t.psbAspectFree;
-    const names = {1.0: '1:1', 0.8: '4:5', 0.75: '3:4', 0.5625: '9:16', 1.7777777777777777: '16:9'};
-    return names[a] ?? a.toStringAsFixed(2);
+    if (a == 1) return '1:1';
+    if (a == 4 / 5) return '4:5';
+    if (a == 3 / 4) return '3:4';
+    if (a == 9 / 16) return '9:16';
+    if (a == 16 / 9) return '16:9';
+    return a.toStringAsFixed(2);
   }
 
   @override
@@ -248,7 +252,7 @@ class _PsCropScreenState extends State<PsCropScreen> {
             child: LayoutBuilder(builder: (context, box) {
               final ts = _turnedSize;
               if (ts == null) return const Center(child: CircularProgressIndicator());
-              final disp = _fit(Size(box.maxWidth, box.maxHeight).deflate(const EdgeInsets.all(Gap.lg)), ts)
+              final disp = _fit(Size(math.max(1.0, box.maxWidth - 2 * Gap.lg), math.max(1.0, box.maxHeight - 2 * Gap.lg)), ts)
                   .shift(const Offset(Gap.lg, Gap.lg));
               return GestureDetector(
                 key: const Key('psbCropArea'),
@@ -667,7 +671,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
             child: LayoutBuilder(builder: (context, box) {
               final s = _size.size;
               if (s == null) return const Center(child: CircularProgressIndicator());
-              final disp = _fit(Size(box.maxWidth, box.maxHeight).deflate(const EdgeInsets.all(Gap.md)), s)
+              final disp = _fit(Size(math.max(1.0, box.maxWidth - 2 * Gap.md), math.max(1.0, box.maxHeight - 2 * Gap.md)), s)
                   .shift(const Offset(Gap.md, Gap.md));
               return GestureDetector(
                 key: const Key('psbTextArea'),

@@ -16,6 +16,7 @@ import 'package:assisto/photo_studio/ps_edit.dart';
 import 'package:assisto/photo_studio/ps_engines.dart';
 import 'package:assisto/photo_studio/ps_native.dart';
 import 'package:assisto/photo_studio/ps_export.dart';
+import 'package:assisto/photo_studio/ps_models.dart';
 import 'package:assisto/photo_studio/ps_recipe.dart';
 import 'package:assisto/screens/photo_edit_screens.dart';
 import 'package:assisto/screens/photo_studio_screen.dart';
