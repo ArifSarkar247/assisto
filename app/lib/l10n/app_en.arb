@@ -35145,5 +35145,282 @@
   "cxatRetry": "Try again",
   "cxatEvLoiter": "Someone stayed over 2 minutes at night",
   "cxatEvHealth": "Camera problem",
-  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)",
+  "mktTitle": "Marketing engine",
+  "@mktTitle": {
+    "description": "Marketing engine (mktengine): mktTitle"
+  },
+  "mktOffTitle": "Not available yet",
+  "@mktOffTitle": {
+    "description": "Marketing engine (mktengine): mktOffTitle"
+  },
+  "mktOffBody": "The marketing engine is being tested. It will appear here once it is ready.",
+  "@mktOffBody": {
+    "description": "Marketing engine (mktengine): mktOffBody"
+  },
+  "mktLoadErrorTitle": "Couldn't load",
+  "@mktLoadErrorTitle": {
+    "description": "Marketing engine (mktengine): mktLoadErrorTitle"
+  },
+  "mktLoadErrorBody": "Check the internet and try again.",
+  "@mktLoadErrorBody": {
+    "description": "Marketing engine (mktengine): mktLoadErrorBody"
+  },
+  "mktRetry": "Try again",
+  "@mktRetry": {
+    "description": "Marketing engine (mktengine): mktRetry"
+  },
+  "mktGenericError": "That did not work, please try again.",
+  "@mktGenericError": {
+    "description": "Marketing engine (mktengine): mktGenericError"
+  },
+  "mktWelcomeTitle": "Your own marketing team, in Bangla",
+  "@mktWelcomeTitle": {
+    "description": "Marketing engine (mktengine): mktWelcomeTitle"
+  },
+  "mktWelcomeBody": "Answer a few short questions. We build posts, a 30-day festival calendar, campaigns and customer follow-ups from your real products, prices and sales.",
+  "@mktWelcomeBody": {
+    "description": "Marketing engine (mktengine): mktWelcomeBody"
+  },
+  "mktStart": "Start (about 5 minutes)",
+  "@mktStart": {
+    "description": "Marketing engine (mktengine): mktStart"
+  },
+  "mktContinue": "Continue the questions",
+  "@mktContinue": {
+    "description": "Marketing engine (mktengine): mktContinue"
+  },
+  "mktHowTitle": "How it works",
+  "@mktHowTitle": {
+    "description": "Marketing engine (mktengine): mktHowTitle"
+  },
+  "mktHow1": "Tell us about your shop: customers, goals, budget, tone, offers.",
+  "@mktHow1": {
+    "description": "Marketing engine (mktengine): mktHow1"
+  },
+  "mktHow2": "Check every item and approve only what you like. Nothing goes out without your OK.",
+  "@mktHow2": {
+    "description": "Marketing engine (mktengine): mktHow2"
+  },
+  "mktHow3": "Copy or share posts; approved follow-ups go to your own customers with STOP and quiet hours.",
+  "@mktHow3": {
+    "description": "Marketing engine (mktengine): mktHow3"
+  },
+  "mktHonestLine": "We never invent sales numbers, reviews or testimonials. Lunar festival dates are marked as estimates.",
+  "@mktHonestLine": {
+    "description": "Marketing engine (mktengine): mktHonestLine"
+  },
+  "mktQuestionsTitle": "About your business",
+  "@mktQuestionsTitle": {
+    "description": "Marketing engine (mktengine): mktQuestionsTitle"
+  },
+  "mktStepOf": "Step {n} of {total}",
+  "@mktStepOf": {
+    "description": "Marketing engine (mktengine): mktStepOf",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mktOptional": "Optional — you can skip this.",
+  "@mktOptional": {
+    "description": "Marketing engine (mktengine): mktOptional"
+  },
+  "mktPickMany": "Pick one or more.",
+  "@mktPickMany": {
+    "description": "Marketing engine (mktengine): mktPickMany"
+  },
+  "mktAnswerFirst": "Please answer this one first.",
+  "@mktAnswerFirst": {
+    "description": "Marketing engine (mktengine): mktAnswerFirst"
+  },
+  "mktNext": "Next",
+  "@mktNext": {
+    "description": "Marketing engine (mktengine): mktNext"
+  },
+  "mktBack": "Back",
+  "@mktBack": {
+    "description": "Marketing engine (mktengine): mktBack"
+  },
+  "mktCancel": "Cancel",
+  "@mktCancel": {
+    "description": "Marketing engine (mktengine): mktCancel"
+  },
+  "mktBuildPlan": "Build my plan",
+  "@mktBuildPlan": {
+    "description": "Marketing engine (mktengine): mktBuildPlan"
+  },
+  "mktBuildHint": "Your answers are saved. You can change them any time.",
+  "@mktBuildHint": {
+    "description": "Marketing engine (mktengine): mktBuildHint"
+  },
+  "mktApprovedCount": "Approved {done} of {total}",
+  "@mktApprovedCount": {
+    "description": "Marketing engine (mktengine): mktApprovedCount",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mktFactsTitle": "Real numbers used",
+  "@mktFactsTitle": {
+    "description": "Marketing engine (mktengine): mktFactsTitle"
+  },
+  "mktFactsSub": "From your POS sales, catalog and CRM",
+  "@mktFactsSub": {
+    "description": "Marketing engine (mktengine): mktFactsSub"
+  },
+  "mktRebuild": "Rebuild with fresh numbers",
+  "@mktRebuild": {
+    "description": "Marketing engine (mktengine): mktRebuild"
+  },
+  "mktRebuilt": "Plan rebuilt. Your approved items stayed as they were.",
+  "@mktRebuilt": {
+    "description": "Marketing engine (mktengine): mktRebuilt"
+  },
+  "mktEditAnswers": "Change answers",
+  "@mktEditAnswers": {
+    "description": "Marketing engine (mktengine): mktEditAnswers"
+  },
+  "mktSecContent": "Content",
+  "@mktSecContent": {
+    "description": "Marketing engine (mktengine): mktSecContent"
+  },
+  "mktSecStrategy": "Strategy",
+  "@mktSecStrategy": {
+    "description": "Marketing engine (mktengine): mktSecStrategy"
+  },
+  "mktSecCampaign": "Campaigns",
+  "@mktSecCampaign": {
+    "description": "Marketing engine (mktengine): mktSecCampaign"
+  },
+  "mktSecConversion": "Follow-ups & sales",
+  "@mktSecConversion": {
+    "description": "Marketing engine (mktengine): mktSecConversion"
+  },
+  "mktStatusDraft": "Waiting for you",
+  "@mktStatusDraft": {
+    "description": "Marketing engine (mktengine): mktStatusDraft"
+  },
+  "mktStatusApproved": "Approved",
+  "@mktStatusApproved": {
+    "description": "Marketing engine (mktengine): mktStatusApproved"
+  },
+  "mktStatusRejected": "Not used",
+  "@mktStatusRejected": {
+    "description": "Marketing engine (mktengine): mktStatusRejected"
+  },
+  "mktEstimateBadge": "Estimate",
+  "@mktEstimateBadge": {
+    "description": "Marketing engine (mktengine): mktEstimateBadge"
+  },
+  "mktApprove": "Approve",
+  "@mktApprove": {
+    "description": "Marketing engine (mktengine): mktApprove"
+  },
+  "mktUnapprove": "Take back approval",
+  "@mktUnapprove": {
+    "description": "Marketing engine (mktengine): mktUnapprove"
+  },
+  "mktReject": "Don't use",
+  "@mktReject": {
+    "description": "Marketing engine (mktengine): mktReject"
+  },
+  "mktEdit": "Edit",
+  "@mktEdit": {
+    "description": "Marketing engine (mktengine): mktEdit"
+  },
+  "mktCopy": "Copy",
+  "@mktCopy": {
+    "description": "Marketing engine (mktengine): mktCopy"
+  },
+  "mktShare": "Share",
+  "@mktShare": {
+    "description": "Marketing engine (mktengine): mktShare"
+  },
+  "mktPolish": "Personalise with AI (uses credits)",
+  "@mktPolish": {
+    "description": "Marketing engine (mktengine): mktPolish"
+  },
+  "mktPolished": "Rewritten. Read it and approve again.",
+  "@mktPolished": {
+    "description": "Marketing engine (mktengine): mktPolished"
+  },
+  "mktPolishedNote": "AI-polished — prices and numbers were checked to be unchanged.",
+  "@mktPolishedNote": {
+    "description": "Marketing engine (mktengine): mktPolishedNote"
+  },
+  "mktCopied": "Copied. Paste it on your Page or in WhatsApp.",
+  "@mktCopied": {
+    "description": "Marketing engine (mktengine): mktCopied"
+  },
+  "mktEditTitle": "Edit the text",
+  "@mktEditTitle": {
+    "description": "Marketing engine (mktengine): mktEditTitle"
+  },
+  "mktEditHint": "Keep prices true to your catalog.",
+  "@mktEditHint": {
+    "description": "Marketing engine (mktengine): mktEditHint"
+  },
+  "mktSave": "Save",
+  "@mktSave": {
+    "description": "Marketing engine (mktengine): mktSave"
+  },
+  "mktUses": "Made from: {list}",
+  "@mktUses": {
+    "description": "Marketing engine (mktengine): mktUses",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "mktFollowActivate": "Turn on — really send to my customers",
+  "@mktFollowActivate": {
+    "description": "Marketing engine (mktengine): mktFollowActivate"
+  },
+  "mktActivated": "Turned on. It now runs in Retention automation, where you can switch it off.",
+  "@mktActivated": {
+    "description": "Marketing engine (mktengine): mktActivated"
+  },
+  "mktFollowOn": "On — sending through Retention automation (STOP, daily limits, no messages 9 pm–9 am).",
+  "@mktFollowOn": {
+    "description": "Marketing engine (mktengine): mktFollowOn"
+  },
+  "mktFollowNeedsRetention": "To send follow-ups, Retention automation must be switched on for your account. It is not on yet.",
+  "@mktFollowNeedsRetention": {
+    "description": "Marketing engine (mktengine): mktFollowNeedsRetention"
+  },
+  "mktFollowNeedsPlan": "Sending follow-ups needs the Business plan.",
+  "@mktFollowNeedsPlan": {
+    "description": "Marketing engine (mktengine): mktFollowNeedsPlan"
+  },
+  "mktPublishFb": "Post to my Facebook Page",
+  "@mktPublishFb": {
+    "description": "Marketing engine (mktengine): mktPublishFb"
+  },
+  "mktPublished": "Posted on your Facebook Page.",
+  "@mktPublished": {
+    "description": "Marketing engine (mktengine): mktPublished"
+  },
+  "mktPublishPending": "Direct posting to Facebook / Instagram starts once Meta approves it for Assisto. For now, copy or share and post it yourself.",
+  "@mktPublishPending": {
+    "description": "Marketing engine (mktengine): mktPublishPending"
+  },
+  "mktPublishNoPage": "Connect your Facebook Page in AI sales agent → Channels to post from here.",
+  "@mktPublishNoPage": {
+    "description": "Marketing engine (mktengine): mktPublishNoPage"
+  },
+  "mktHubSub": "Posts, festival calendar, campaigns and follow-ups from your real sales",
+  "@mktHubSub": {
+    "description": "Marketing engine (mktengine): business hub card subtitle"
+  }
 }
