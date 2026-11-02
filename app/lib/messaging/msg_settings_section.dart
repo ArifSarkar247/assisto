@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../calls/call_sound_tiles.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/msgr_set_tiles.dart';
+import 'bubble_ask.dart'; // bubbles2
+import 'bubble_card.dart'; // bubbles2
 import 'msg_native.dart';
 import 'msg_prefs.dart';
 import 'date_separators.dart' show localDigits; // bubbles
@@ -87,8 +89,8 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
           SwitchListTile(
             key: const Key('c3-bubbles-global'),
             secondary: const Icon(Icons.bubble_chart_rounded),
-            title: Text(t.c3SetBubbles),
-            subtitle: Text(t.bblSetSub),
+            title: Text(t.bbl2SettingsTitle),
+            subtitle: Text(t.bbl2SetSub),
             value: _bubbles,
             onChanged: (v) async {
               setState(() => _bubbles = v);
@@ -112,20 +114,110 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
                 messenger?.showSnackBar(SnackBar(content: Text(t.bblAllOnDone)));
               },
             ),
-          ListTile(
-            leading: const Icon(Icons.open_in_new_rounded),
-            title: Text(t.c3SetBubblesSystem),
-            onTap: MsgNative.openBubbleSettings,
-          ),
+          // bubbles2 (point 6): what the PHONE allows, always with
+          // "Turn on" while it isn't on (Android: the user picks "All
+          // conversations can bubble" on the system page).
+          if (_bubbles) const BubbleStatusTile(),
         ] else if (_loaded && Theme.of(context).platform == TargetPlatform.android)
           // Android 10 and below: say so honestly instead of a dead switch.
           ListTile(
             key: const Key('bbl-unsupported'),
             leading: const Icon(Icons.info_outline_rounded),
-            title: Text(t.c3SetBubbles),
+            title: Text(t.bbl2SettingsTitle),
             subtitle: Text(t.bblUnsupported),
           ),
       ],
     );
+  }
+}
+
+/// bubbles2: the phone's bubble state in My Circle settings — "on" (tap:
+/// the system page to change it), an honest "this phone blocks bubbles",
+/// or "Turn on" (the card in a sheet). Re-checks when the app resumes.
+class BubbleStatusTile extends StatefulWidget {
+  const BubbleStatusTile({super.key, this.initial});
+  final BubbleStatus? initial;
+
+  @override
+  State<BubbleStatusTile> createState() => _BubbleStatusTileState();
+}
+
+class _BubbleStatusTileState extends State<BubbleStatusTile> {
+  BubbleStatus? _st;
+  AppLifecycleListener? _life;
+
+  @override
+  void initState() {
+    super.initState();
+    _st = widget.initial;
+    if (_st == null) _load();
+    _life = AppLifecycleListener(onResume: _load);
+  }
+
+  @override
+  void dispose() {
+    _life?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    final s = await BubbleAsk.status();
+    if (mounted) setState(() => _st = s);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final ready = _st?.ready ?? BubbleReady.unknown;
+    switch (ready) {
+      case BubbleReady.on:
+        return ListTile(
+          key: const Key('bbl2-set-on'),
+          leading: const Icon(Icons.check_circle_rounded),
+          title: Text(t.bbl2On),
+          subtitle: Text(t.c3SetBubblesSystem),
+          onTap: MsgNative.openBubbleSettings,
+        );
+      case BubbleReady.blocked:
+        return ListTile(
+          key: const Key('bbl2-set-blocked'),
+          leading: const Icon(Icons.info_outline_rounded),
+          title: Text(t.bbl2Blocked),
+        );
+      case BubbleReady.unsupported:
+        return const SizedBox.shrink();
+      default:
+        // 200 % text: the button sits under the text, never squeezed beside it
+        return Column(
+          key: const Key('bbl2-set-off'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.bubble_chart_outlined),
+              title: Text(t.bbl2SettingsOff),
+              subtitle: ready == BubbleReady.selectedOnly
+                  ? Text(t.bbl2SelectedOnly)
+                  : ready == BubbleReady.notifsOff
+                      ? Text(t.bbl2NotifsOff)
+                      : null,
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(72, 0, 16, 8),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FilledButton(
+                  key: const Key('bbl2-set-turn-on'),
+                  style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+                  onPressed: () async {
+                    await showBubbleCard(context, initial: _st);
+                    await _load();
+                  },
+                  child: Text(t.bbl2TurnOn),
+                ),
+              ),
+            ),
+          ],
+        );
+    }
   }
 }

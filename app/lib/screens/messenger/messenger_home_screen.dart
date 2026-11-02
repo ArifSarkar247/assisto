@@ -7,6 +7,7 @@ import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../ring_checklist_screen.dart'; // ring-everywhere banner
 import '../../messaging/unread_store.dart';
+import '../../messaging/bubble_card.dart' show maybeAskBubblesAtCircle; // bubbles2
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -87,8 +88,12 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     if (_tab == 3) CircleBadges.instance.markCallsSeen();
     _bootstrap();
     // play-fsi: once, ask to allow full-screen incoming calls (Android 14+)
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => FullScreenCallPrompt.maybeShow(context));
+    // bubbles2 (point 6): otherwise the "Later" re-ask for floating chat
+    // bubbles (first open, then once after 3 days) — never both at once.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final shown = await FullScreenCallPrompt.maybeShow(context);
+      if (!shown && mounted) await maybeAskBubblesAtCircle(context);
+    });
   }
 
   ApiClient get _api => context.read<AppState>().api;

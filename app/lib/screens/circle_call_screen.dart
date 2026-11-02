@@ -23,6 +23,9 @@ import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
 import '../calls/video_stage.dart'; // cde-chat
 import '../messaging/chat_decor/decor_store.dart';
+import '../api.dart' show ApiClient; // bubbles2
+import '../messaging/in_call_bubbles.dart'; // bubbles2
+import '../push/push_service.dart' show appNavigatorKey; // bubbles2
 import '../calls/webrtc_media.dart' deferred as rtc;
 import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
@@ -436,6 +439,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     if (!widget.outgoing) FullScreenCallPrompt.maybeShowAfterCall();
   }
 
+  /// bubbles2 (point 4): a bubble tapped during the call → the small chat
+  /// window over the call. A live call this screen owns first goes to the
+  /// mini tile (video) / call bar (audio) exactly like the ⌄ button — the
+  /// call keeps running and the audio route is never touched.
+  Future<void> _openBubbleChat(String key) async {
+    final others = List<InCallBubble>.of(InCallBubbles.instance.items.value);
+    ApiClient? api;
+    try {
+      api = context.read<AppState>().api;
+    } catch (_) {}
+    final c = _c;
+    if (c != null && c.isLive && _owns && !_handedOff) _handOff(c);
+    final ctx = appNavigatorKey.currentContext ?? (mounted ? context : null);
+    if (api == null || ctx == null || !ctx.mounted) return;
+    await showInCallChatSheet(ctx, api, key, others);
+  }
+
   /// Pops THIS route even while its PopScope still says "can't pop" (the
   /// scope only guards the system back gesture during a live call).
   void _popSelf() {
@@ -556,7 +576,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         },
         child: AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
-          child: _body(context),
+          // bubbles2 (point 4): My Circle messages as in-app bubbles over
+          // the call (system bubbles take over in PiP / other apps)
+          child: InCallBubbleHost(
+            enabled: !_pip && !(_c?.isEnded ?? false),
+            onOpen: _openBubbleChat,
+            child: _body(context),
+          ),
         ),
       );
 

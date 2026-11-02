@@ -61,12 +61,126 @@ object BubbleHelper {
             if (p.contains("flutter.c3_bubbles_on") && !p.getBoolean("flutter.c3_bubbles_on", true)) return false
             if (p.getBoolean("flutter.c3_msg_hide_content", false)) return false
             if (!hasShortcut) return false
+            // bubbles2: the Assisto call screen is on top and shows its own
+            // in-app bubble overlay (same look) — no duplicate system bubble.
+            // A TIME (not a flag) so a crash can never leave bubbles off.
+            if (inCallOverlay(p)) return false
             val off = (p.getString("flutter.c3_bubble_off_chats", "") ?: "")
                 .split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
             !off.contains(chatKey(kind, id))
         } catch (t: Throwable) {
             false
         }
+    }
+
+    /** bubbles2: `flutter.c3_call_overlay_until` (epoch ms, refreshed by the
+     *  call screen while it is visible) is still in the future. */
+    private fun inCallOverlay(p: android.content.SharedPreferences): Boolean = try {
+        val until = when (val v = p.all["flutter.c3_call_overlay_until"]) {
+            is Long -> v
+            is Int -> v.toLong()
+            is String -> v.toLongOrNull() ?: 0L
+            else -> 0L
+        }
+        until > System.currentTimeMillis()
+    } catch (t: Throwable) {
+        false
+    }
+
+    /**
+     * bubbles2: everything the "Turn on floating chat bubbles?" card needs,
+     * read honestly (never throws; unknown = null):
+     *   sdk, supported (11+), pref ("all" | "selected" | "none" | null —
+     *   getBubblePreference on 12+, areBubblesAllowed on 11 = all/none),
+     *   notifs (app notifications on), lowRam (Android turns bubbles off on
+     *   low-RAM / Go phones), page (the exact bubble settings page exists on
+     *   this phone — some brands remove it), phoneOn (the phone-wide bubble
+     *   switch, null when the brand hides it), maker.
+     */
+    fun status(context: Context): Map<String, Any?> {
+        val out = HashMap<String, Any?>()
+        out["sdk"] = Build.VERSION.SDK_INT
+        out["supported"] = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+        out["maker"] = (Build.MANUFACTURER ?: "").lowercase()
+        try {
+            val nm = context.getSystemService(NotificationManager::class.java)
+            out["notifs"] = nm?.areNotificationsEnabled()
+            out["pref"] = when {
+                nm == null -> null
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> when (nm.bubblePreference) {
+                    NotificationManager.BUBBLE_PREFERENCE_ALL -> "all"
+                    NotificationManager.BUBBLE_PREFERENCE_SELECTED -> "selected"
+                    else -> "none"
+                }
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                    @Suppress("DEPRECATION")
+                    if (nm.areBubblesAllowed()) "all" else "none"
+                }
+                else -> null
+            }
+        } catch (t: Throwable) {
+        }
+        try {
+            val am = context.getSystemService(android.app.ActivityManager::class.java)
+            out["lowRam"] = am?.isLowRamDevice ?: false
+        } catch (t: Throwable) {
+        }
+        try {
+            out["page"] = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                bubbleSettingsIntent(context).resolveActivity(context.packageManager) != null
+        } catch (t: Throwable) {
+        }
+        try {
+            val cr = context.contentResolver
+            val v = android.provider.Settings.Secure.getInt(cr, "notification_bubbles", -1)
+                .takeIf { it >= 0 }
+                ?: android.provider.Settings.Global.getInt(cr, "notification_bubbles", -1)
+            out["phoneOn"] = if (v < 0) null else v == 1
+        } catch (t: Throwable) {
+        }
+        return out
+    }
+
+    /** The exact "Bubbles" page for Assisto (Android 11+), else the app's
+     *  notification page. */
+    fun bubbleSettingsIntent(context: Context): Intent {
+        val i = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+                Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            else -> Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(android.net.Uri.parse("package:${context.packageName}"))
+        }
+        return i.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+
+    /**
+     * bubbles2: My Circle's top row — our OWN active conversation
+     * notifications ("c3chat:<kind>:<id>"), newest first: key, bubble (the
+     * system is showing it as a bubble right now: FLAG_BUBBLE), meta (it
+     * carries bubble metadata), at (post time). Never throws.
+     */
+    fun activeChats(context: Context): List<Map<String, Any?>> = try {
+        val nm = context.getSystemService(NotificationManager::class.java)
+        (nm?.activeNotifications ?: emptyArray())
+            .filter { (it.tag ?: "").startsWith("c3chat:") }
+            .sortedByDescending { it.postTime }
+            .map { sbn ->
+                val n = sbn.notification
+                val meta = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && n.bubbleMetadata != null
+                mapOf(
+                    "key" to (sbn.tag ?: "").removePrefix("c3chat:"),
+                    "bubble" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                        (n.flags and Notification.FLAG_BUBBLE) != 0),
+                    "meta" to meta,
+                    "at" to sbn.postTime,
+                )
+            }
+            .distinctBy { it["key"] }
+    } catch (t: Throwable) {
+        emptyList()
     }
 
     /** Called from the FCM service for every data push (any thread). */
