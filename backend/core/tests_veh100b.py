@@ -368,9 +368,10 @@ class IngestClockAndLateTests(_Setup, APITestCase):
                  for k in range(5)]
         n = VS.ingest({self.t.id: {"fixes": fixes, "status": {}}}, now=now)
         self.assertEqual(n, 5)                    # before veh100b: 1 (all clamped)
-        ats = sorted(VehiclePosition.objects.filter(tracker=self.t, at__gt=now - timedelta(
-            seconds=60)).values_list("at", flat=True))
-        self.assertEqual(len(ats), 5)
+        # (_Setup already stores 3 stopped fixes at now-30/-20/-10 s)
+        ats = sorted(VehiclePosition.objects.filter(
+            tracker=self.t, lat__gte=23.78 + 0.5e-4).values_list("at", flat=True))
+        self.assertEqual(len(ats), 4)            # k = 1..4 (k = 0 shares lat 23.78)
         self.assertLessEqual(ats[-1], now + timedelta(seconds=1))
         self.t.refresh_from_db()
         self.assertEqual(self.t.alert_state["clk_off"], 21600)
