@@ -275,7 +275,7 @@ def _privacy(lang):
              "anti-theft, family alert, call, chat, payment, sign-in or "
              "permission screens. Opt out or change: Android Settings → Privacy "
              "→ Ads → delete or reset the Advertising ID, or the app's Settings "
-             "→ \"Ad privacy choices\" (where shown)."),
+             "→ \"Ads privacy\" (where shown)."),
         _sec(lang, "পরিসংখ্যান", "Analytics",
              "ব্যবহারের পরিসংখ্যান বেনামি ও সম্মতিভিত্তিক — আপনি সেটিংস থেকে "
              "যেকোনো সময় বন্ধ করতে পারেন।",

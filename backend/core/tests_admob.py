@@ -391,7 +391,7 @@ class PublicPagesTests(SimpleTestCase):
         for s in ("Google AdMob", "Advertising ID", "com.google.android.gms.permission.AD_ID",
                   "Premium and Business plans have no ads", "non-personalised",
                   "Personalised vs non-personalised", "UMP", "US states",
-                  "Ad privacy choices", "Android Settings → Privacy → Ads", _web_legal.LAST_UPDATED):
+                  "Ads privacy", "Android Settings → Privacy → Ads", _web_legal.LAST_UPDATED):
             self.assertIn(s, en.replace("&#x27;", "'"), s)
         self.assertNotIn("shows no ads today", en)
         bn = Client().get("/privacy").content.decode()
