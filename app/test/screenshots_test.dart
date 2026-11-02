@@ -28,6 +28,7 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'fake_train.dart' show trainLive701; // sjalarm
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
@@ -63,6 +64,7 @@ import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
 import 'package:assisto/screens/train/train_chat_screen.dart'; // train
 import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
+import 'package:assisto/screens/train/trip_recorder_screen.dart'; // sjalarm
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/chip_widgets.dart'; // chipbuy
 import 'package:assisto/screens/missing/missing_hub_screen.dart'; // missing
@@ -724,6 +726,15 @@ Map<String, GallerySpec> gallerySpecs() {
           {'member_id': 3, 'name': l == 'bn' ? 'আম্মু' : 'Ammu'},
           {'member_id': 4, 'name': l == 'bn' ? 'রিনা' : 'Rina'},
         ]), mode: FakeMode.data, full: true),
+    // sjalarm: "Alarm here" from the train's stop list (station filled) + owner-only recorder
+    'dest_alarm_station': (
+      build: (_) => DestAlarmScreen(
+          suggested: [for (final x in trainLive701()['stops'] as List) Map<String, dynamic>.from(x as Map)],
+          initialStationId: 'n3'),
+      mode: FakeMode.data,
+      full: true
+    ),
+    'trip_recorder': (build: (_) => const TripRecorderScreen(), mode: FakeMode.empty, full: true),
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),

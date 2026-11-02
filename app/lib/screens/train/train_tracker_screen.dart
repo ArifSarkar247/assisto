@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../ads/ad_banner_slot.dart';
 import '../../api.dart';
 import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
@@ -54,6 +55,9 @@ class TrainTrackerScreen extends StatelessWidget {
     final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
     return Scaffold(
       appBar: AppBar(title: Text(t.trTitle)),
+      // owner fix 3 Nov: ONE adaptive banner, Free users only (the slot
+      // follows the central ad rules: child accounts, consent, Serve REAL)
+      bottomNavigationBar: const AdBannerSlot(screen: 'train_search'),
       body: TrainSearchPanel(
         leading: [
           if (alarmOn)
@@ -355,6 +359,10 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
     final v = _v;
     return Scaffold(
       appBar: AppBar(title: Text(_d('${t.trTrain} ${widget.no}'))),
+      // owner fix 3 Nov: ONE banner below the page (Scaffold lays the body,
+      // its map and the 999 / 131 buttons out ABOVE it — never covered);
+      // the 999 / 131 buttons sit high on the page, far from it
+      bottomNavigationBar: const AdBannerSlot(screen: 'train_detail'),
       body: v == null
           ? Center(
               child: _failed
@@ -479,6 +487,25 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
           padding: const EdgeInsets.only(top: Gap.xxs),
           child: Text(_d(t.trSmsCost('${sms['cost_bdt'] ?? 4}')), style: AType.bodySmall),
         ),
+        const SizedBox(height: Gap.md),
+        // sjalarm: 999 / 131 always one tap away (opens the dialer; you press call)
+        Text(t.trEmergencyTitle, key: const ValueKey('train_hotlines'), style: AType.titleSmall),
+        const SizedBox(height: Gap.xs),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+                minimumSize: const Size(48, 48), backgroundColor: cs.error, foregroundColor: cs.onError),
+            icon: const Icon(Icons.call_rounded),
+            label: Text(_d(t.trCall999)),
+            onPressed: () => launchUrl(trainTelUri('999')),
+          ),
+          FilledButton.tonalIcon(
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.train_rounded),
+            label: Text(_d(t.trCall131)),
+            onPressed: () => launchUrl(trainTelUri('131')),
+          ),
+        ]),
         const SizedBox(height: Gap.sm),
         Row(children: [
           Expanded(
@@ -519,7 +546,26 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.place_rounded),
             title: Text(trainStation(s, bn)),
-            trailing: Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
+            // sjalarm: "Set alarm at this station" -> Destination Alarm, station
+            // filled (under the name, so it never squeezes the tile at 200 %)
+            subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
+              if (alarmOn)
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                      minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: Gap.xs)),
+                  icon: const Icon(Icons.alarm_add_rounded),
+                  label: Text(t.sjaAlarmHere, semanticsLabel: t.sjaAlarmHereA11y(trainStation(s, bn))),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DestAlarmScreen(
+                              suggestedIds: [for (final x in stops) '${x['id']}'],
+                              suggested: stops,
+                              path: trainPath(v),
+                              initialStationId: '${s['id']}'))),
+                ),
+            ]),
           ),
         const SizedBox(height: Gap.sm),
         if (tr['approved'] != true)

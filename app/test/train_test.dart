@@ -131,7 +131,10 @@ void main() {
       expect(kModeSpecs[TransportMode.cityBus]!.minM, 10);
       expect(kModeSpecs[TransportMode.cityBus]!.maxM, 5000);
       expect(kModeSpecs[TransportMode.longBus]!.defaultM, 2000);
-      expect(kModeSpecs[TransportMode.longBus]!.minM, 500);
+      expect(kModeSpecs[TransportMode.longBus]!.minM, 100); // sjalarm: presets from 100 m
+      expect(presetsFor(TransportMode.cityBus), [10, 100, 300, 500, 1000]);
+      expect(presetsFor(TransportMode.longBus), [2000, 100, 300, 500, 1000]);
+      expect(presetsFor(TransportMode.metro), isEmpty);
       expect(kModeSpecs[TransportMode.longBus]!.maxM, 20000);
       expect(kModeSpecs[TransportMode.launch]!.defaultM, 2000);
       expect(clampFor(TransportMode.cityBus, 1), 10);

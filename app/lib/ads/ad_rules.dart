@@ -267,7 +267,9 @@ class AdRules {
     'account', 'delete', 'privacy', 'pin', 'family', 'location', 'track',
     'kid', 'live', 'sign_up', 'language_pick',
     // OWNER ADS FINAL (2 Nov) never list
-    'cctv', 'vehicle', 'missing', 'blood', 'train', 'destination',
+    // owner fix 3 Nov: 'train' left this fence — the train search / detail
+    // pages carry one banner; train chat stays fenced ('chat', 'train_chat')
+    'cctv', 'vehicle', 'missing', 'blood', 'train_chat', 'destination',
     // (credits: only the user-chosen REWARDED "watch to earn" stays —
     // owner decision pending, see STATUS; no passive ad there)
     'budget', 'money', 'prepaid', 'khata', 'business', 'sales',

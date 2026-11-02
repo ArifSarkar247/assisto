@@ -172,6 +172,10 @@ _A = {
                       "ট্রেন ২ নভেম্বর: যাত্রীদের লোকেশনে লাইভ ট্রেন (সার্ভারে রেললাইন/গতি/দিক/সময়সূচি যাচাই + মিলন), 'আনুমানিক' সময়সূচি, ১৬৩১৮ SMS, ডাকনামের ট্রেন-চ্যাট (অনুরোধে My Circle, রিপোর্ট, ব্লক, যাত্রার পর মুছে যায়, বিপদ-শব্দে ৯৯৯/১৩১); সার্ভার ও অ্যাপ টেস্ট; সময়সূচি মালিকের যাচাই বাকি; আসল ট্রেনে দুই-ফোন পরীক্ষা বাকি।"),
     "dest_alarm": ("?PP?P??FF", "hide", "train 2 Nov: destination alarm — offline on-device geofence (bundled OSM stations or any map place), 1 km / 500 m / 300 m / 100 m / custom, alarm stream (loud on silent) + Bangla voice, adaptive GPS interval, location foreground service only while on; real-phone test on a train pending; Play location-FGS declaration text ready.",
                    "ট্রেন ২ নভেম্বর: গন্তব্য অ্যালার্ম — নেট ছাড়া ফোনেই দূরত্বের হিসাব (স্টেশন বা ম্যাপের যেকোনো জায়গা), ১ কিমি/৫০০/৩০০/১০০ মি/নিজের মতো, সাইলেন্টেও জোরে + বাংলা ভয়েস, দূরে ধীর-কাছে দ্রুত GPS, শুধু চালু থাকলে লোকেশন সার্ভিস; আসল ট্রেনে পরীক্ষা বাকি; Play ঘোষণা লেখা তৈরি।"),
+    "trip_recorder": ("?PP?P?PFF", "hide", "sjalarm 3 Nov: owner-only GPS trip recorder (JSON+GPX on the phone, share / private upload to backend/private/trip_traces); never for users.",
+                      "sjalarm ৩ নভে: শুধু মালিকের GPS ট্রিপ রেকর্ডার (ফোনে JSON+GPX, শেয়ার / প্রাইভেট আপলোড); ব্যবহারকারীদের জন্য নয়।"),
+    "train_schedule_verified": ("?PP?P?PFF", "hide", "sjalarm 3 Nov: owner switch — ON for all only after the timetable is checked against the official one.",
+                                "sjalarm ৩ নভে: মালিকের সুইচ — অফিসিয়াল সময়সূচির সাথে মেলানোর পরেই সবার জন্য চালু।"),
     # ---- Upcoming (nothing built yet)
     "corporate_meetings": ("FFFFFFFFF", "hide", "~10%: not built (needs its own SFU server).", "~১০%: তৈরি হয়নি (আলাদা SFU সার্ভার লাগবে)।"),
     "remote_support": ("FFFFFFFFF", "hide", "~2%: design only.", "~২%: শুধু নকশা।"),

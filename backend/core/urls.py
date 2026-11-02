@@ -1523,6 +1523,8 @@ from . import train_views as trv  # noqa: E402
 urlpatterns += [
     path("train/config", trv.ConfigView.as_view()),
     path("train/search", trv.SearchView.as_view()),
+    path("train/alarm/arrived", trv.AlarmArrivedView.as_view()),   # sjalarm
+    path("train/trace", trv.TripTraceView.as_view()),              # sjalarm (owner-only)
     path("train/share/<int:pk>/fixes", trv.ShareFixesView.as_view()),
     path("train/share/<int:pk>/stop", trv.ShareStopView.as_view()),
     path("train/chat/msg/<int:pk>/<str:action>", trv.MessageActionView.as_view()),

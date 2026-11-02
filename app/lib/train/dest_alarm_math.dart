@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'dest_alarm_decide.dart';
+
 /// train: destination-alarm maths (owner final order 2 Nov) — pure, offline,
 /// unit-tested with fixed coordinates. The alarm rings BEFORE the vehicle
 /// reaches the stop. No network: stations / bus stops / metro order are
@@ -23,14 +25,27 @@ class ModeSpec {
 
 const Map<TransportMode, ModeSpec> kModeSpecs = {
   TransportMode.cityBus: ModeSpec(10, 10, 5000, gentleBeforeM: 200),
-  TransportMode.longBus: ModeSpec(2000, 500, 20000, readyAtM: 10000, readyMinTripM: 30000),
+  // sjalarm (3 Nov): minimum 100 m so the owner's presets (100/300/500 m,
+  // 1 km) work in every mode
+  TransportMode.longBus: ModeSpec(2000, 100, 20000, readyAtM: 10000, readyMinTripM: 30000),
   // train: rings when the train LEAVES the station before yours; this
   // distance is only the GPS fallback
-  TransportMode.train: ModeSpec(2000, 500, 20000),
+  TransportMode.train: ModeSpec(2000, 100, 20000),
   // metro: counts stations + time (no GPS needed); distance not used
   TransportMode.metro: ModeSpec(0, 0, 0),
-  TransportMode.launch: ModeSpec(2000, 500, 20000, readyAtM: 10000, readyMinTripM: 30000),
+  TransportMode.launch: ModeSpec(2000, 100, 20000, readyAtM: 10000, readyMinTripM: 30000),
 };
+
+/// sjalarm: the owner's one-tap presets (plus each mode's default) — "Custom"
+/// opens the slider.
+const List<int> kPresetM = [100, 300, 500, 1000];
+
+/// The preset chips for [m]: its default first, then the owner's presets.
+List<int> presetsFor(TransportMode m) {
+  final s = kModeSpecs[m]!;
+  if (s.maxM == 0) return const [];
+  return [s.defaultM, for (final p in kPresetM) if (p != s.defaultM && p >= s.minM && p <= s.maxM) p];
+}
 
 int clampFor(TransportMode m, int metres) {
   final s = kModeSpecs[m]!;
@@ -92,13 +107,24 @@ class DistanceWatch {
   final int setM;
   double? tripStartM;
   bool gentleDone = false, readyDone = false, rung = false;
+
+  /// sjalarm: why it rang (distance setting or the 45-second speed rule).
+  RingReason reason = RingReason.none;
+
+  /// The speed rule's seconds (0 = distance only — used by the CI replay to
+  /// prove the rule is what saves the fast-bus traces).
+  int etaS = kEtaRingS;
   DistanceWatch(this.mode, this.setM);
 
-  AlarmEvent update(double distanceM, double accuracyM) {
+  /// [speedMps] = SMOOTHED speed (SpeedSmoother); 0 = distance rule only.
+  AlarmEvent update(double distanceM, double accuracyM, {double speedMps = 0}) {
     tripStartM ??= distanceM;
     if (rung) return AlarmEvent.none;
-    if (neverLate(distanceM, accuracyM, setM)) {
+    final why = decideRing(
+        distanceM: distanceM, accuracyM: accuracyM, setM: setM, speedMps: speedMps, etaS: etaS);
+    if (why != RingReason.none) {
       rung = true;
+      reason = why;
       return AlarmEvent.ring;
     }
     final s = kModeSpecs[mode]!;
@@ -128,12 +154,16 @@ class TrainLegWatch {
   bool seenPrev = false, rung = false;
   TrainLegWatch(this.prevToTargetM, {this.fallbackM = 2000});
 
-  AlarmEvent update(double toPrevM, double toTargetM, double accuracyM) {
+  AlarmEvent update(double toPrevM, double toTargetM, double accuracyM, {double speedMps = 0}) {
     if (rung) return AlarmEvent.none;
     if (neverLate(toPrevM, accuracyM, atM)) seenPrev = true;
     final left = seenPrev && toPrevM - math.max(0.0, accuracyM) > leftM &&
         toTargetM < prevToTargetM;
-    if (left || neverLate(toTargetM, accuracyM, fallbackM)) {
+    // sjalarm: the 45-second speed rule also guards the train's own station
+    if (left ||
+        decideRing(
+                distanceM: toTargetM, accuracyM: accuracyM, setM: fallbackM, speedMps: speedMps) !=
+            RingReason.none) {
       rung = true;
       return AlarmEvent.ring;
     }
