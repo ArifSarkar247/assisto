@@ -293,6 +293,7 @@ void main() {
       ..circle = {
         'results': [
           {'id': 7, 'name': 'Mum', 'phone': '01711000002', 'state': 'accepted'},
+          {'id': 8, 'name': 'Dad', 'phone': '01711000003', 'state': 'accepted'},
         ]
       };
     await _open(tester, api,
