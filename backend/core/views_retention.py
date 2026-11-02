@@ -463,7 +463,7 @@ class InboxStopView(APIView):
 
 
 _PAGE = """<!doctype html><html lang="{lang}"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><link rel="icon" href="/favicon.ico">
 <style>body{{font-family:system-ui,sans-serif;max-width:32rem;margin:2rem auto;padding:0 1rem;
 line-height:1.6;color:#111;background:#fff}}button{{font-size:1.1rem;min-height:48px;padding:0 1.5rem;
 border-radius:8px;border:0;background:#C62839;color:#fff}}@media(prefers-color-scheme:dark){{

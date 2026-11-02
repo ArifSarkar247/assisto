@@ -1,0 +1,10 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
+{% block head %}{% include "web/_seo_head.html" %}{% endblock %}
+{% block style %}{% include "web/_site_css.html" %}{% endblock %}
+{% block main %}
+<section class="page-h"><div class="container"><h1>{{ C.pricing_h }}</h1><p>{{ C.pricing_sub }}</p></div></section>
+<section class="sec" style="padding-top:16px"><div class="container">{% include "web/_sec_pricing.html" with hl=2 %}</div></section>
+{% include "web/_sec_cta.html" %}
+{% endblock %}

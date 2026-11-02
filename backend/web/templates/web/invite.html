@@ -4,7 +4,7 @@
 <meta property="og:title" content="{% if lang == 'en' %}A friend invited you to Assisto{% else %}একজন বন্ধু আপনাকে Assisto-তে আমন্ত্রণ জানিয়েছেন{% endif %}">
 <meta property="og:description" content="{% if lang == 'en' %}AI assistant, reminders, money notes and family safety in one app.{% else %}AI সহকারী, রিমাইন্ডার, হিসাব ও পরিবারের নিরাপত্তা — এক অ্যাপে।{% endif %}">
 <meta property="og:type" content="website">
-{% endblock %}
+{% include "web/_og_image.html" %}{% endblock %}
 {% block head %}<meta name="robots" content="noindex">
 <style>.code{font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;background:#eef6ff;border-radius:12px;padding:12px;margin:10px 0;color:#0A1A3D}
 ol li{margin:6px 0}</style>{% endblock %}

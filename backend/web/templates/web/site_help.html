@@ -1,0 +1,17 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
+{% block head %}{% include "web/_seo_head.html" %}{% endblock %}
+{% block style %}{% include "web/_site_css.html" %}{% endblock %}
+{% block main %}
+<section class="page-h"><div class="container"><h1>{{ C.faq_h }}</h1><p>{{ C.help_lead }}</p></div></section>
+<section class="sec" style="padding-top:16px"><div class="container">
+  {% include "web/_sec_faq.html" with open_first=True %}
+  <div class="grid" style="margin-top:32px">
+    <div class="tile"><h2 style="font-size:19px">{{ C.help_delete_h }}</h2><p>{{ C.help_delete_body }}</p><p><a class="more-link" href="/delete-account{{ qlang }}">{{ C.delete }} →</a></p></div>
+    <div class="tile contact" id="contact"><h2 style="font-size:19px">{{ C.contact_h }}</h2><p>{{ C.contact_body }}</p><p><a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></p><p class="muted">{{ C.contact_app }}</p></div>
+  </div>
+  <p class="fineprint">{{ C.emergency }} {{ C.company_line }}</p>
+</div></section>
+{% include "web/_sec_cta.html" %}
+{% endblock %}

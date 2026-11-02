@@ -5,7 +5,7 @@
 <meta property="og:description" content="{{ page_desc }}">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ seo.canonical }}">
-{% endblock %}
+{% include "web/_og_image.html" %}{% endblock %}
 {% block head %}
 <meta name="description" content="{{ page_desc }}">
 <meta name="robots" content="index, follow">
@@ -15,22 +15,22 @@
 <link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
 <style>
   .legal h1{font-size:24px;margin:.3em 0 .1em}
-  .legal .upd{color:#5a6680;font-size:13px}
+  .legal .upd{color:var(--ink2);font-size:14px}
   .legal h2{font-size:18px;margin:0 0 8px;scroll-margin-top:12px}
   .legal p,.legal li{font-size:15px}
   .legal li{margin:4px 0}
-  .legal code{background:#eef2fb;border-radius:6px;padding:1px 5px;font-size:13px}
+  .legal code{background:var(--chip);border-radius:6px;padding:1px 5px;font-size:13px}
   .legal a{text-decoration:underline}
   .toc{columns:2 220px;column-gap:18px;padding-left:18px;margin:6px 0 0}
   .toc li{font-size:14px;break-inside:avoid}
-  .perm{border:1px solid #e2e7f2;border-radius:12px;padding:12px;margin:10px 0}
+  .perm{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
   .perm h3{font-size:16px;margin:0 0 2px}
-  .perm .pid{font-family:ui-monospace,monospace;font-size:11.5px;color:#5a6680;word-break:break-word}
+  .perm .pid{font-family:ui-monospace,monospace;font-size:12px;color:var(--ink2);word-break:break-word}
   .perm dl{margin:8px 0 0}
-  .perm dt{font-weight:700;font-size:13px;color:#14336E;margin-top:6px}
+  .perm dt{font-weight:700;font-size:14px;color:var(--brand-ink);margin-top:6px}
   .perm dd{margin:0;font-size:14.5px}
-  .ok{background:#e6f6ef;color:#0b5e4e;border-radius:12px;padding:12px;font-size:15px}
-  .fe{color:#a11;font-size:13px;margin-top:4px}
+  .ok{background:color-mix(in srgb,var(--brand2) 14%,var(--card));color:var(--ink);border-radius:12px;padding:12px;font-size:15px}
+  .fe{color:var(--errink);font-size:13px;margin-top:4px}
   .chk{display:flex;gap:10px;align-items:flex-start;font-weight:400}
   .chk input{margin-top:5px;width:18px;height:18px;flex:none}
   .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}

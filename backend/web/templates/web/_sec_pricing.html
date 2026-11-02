@@ -1,0 +1,17 @@
+{% if plans %}
+<div class="plans">
+{% for p in plans %}
+  <div class="plan" id="plan-{{ p.id }}">
+    <h{{ hl|default:3 }} class="pn">{{ p.name }}</h{{ hl|default:3 }}>
+    <div class="price">{% if p.free %}{{ C.free_label }}{% else %}{{ p.price }}<small>{{ C.per_mo }}</small>{% endif %}</div>
+    <p class="desc">{{ p.desc }}</p>
+    <ul>{% for b in p.benefits %}<li>{{ b }}</li>{% endfor %}</ul>
+    <div class="ads">{% if p.ads %}{{ C.ads_yes }}{% else %}{{ C.ads_no }}{% endif %}</div>
+  </div>
+{% endfor %}
+</div>
+{% if plans_yearly %}<p class="fineprint"><b>{{ C.pricing_yearly }}</b> {% for p in plans_yearly %}{{ p.name }} — {{ p.price }}{{ C.per_yr }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+{% else %}
+<p class="warn">{{ C.pricing_empty }}</p>
+{% endif %}
+<p class="fineprint">{{ C.pricing_note }} <a href="/premium{{ qlang }}">{{ C.pricing_web }}</a></p>

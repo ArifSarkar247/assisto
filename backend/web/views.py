@@ -235,8 +235,17 @@ UI = {
 
 
 # ---------------- landing ----------------
+def _icon_links():
+    from .views_site import asset_url
+    return ('<link rel="icon" href="%s" sizes="48x48"><link rel="icon" href="%s" type="image/svg+xml">'
+            '<link rel="apple-touch-icon" href="%s">' % (asset_url("favicon.ico"), asset_url("favicon.svg"),
+                                                         asset_url("apple-touch-icon.png")))
+
+
 def landing(request):
-    return render(request, "web/landing.html", _ctx(request))
+    # website (2 Nov): the home page moved to views_site.home (tools are a section there)
+    from .views_site import home
+    return home(request)
 
 
 def khata_free(request):
@@ -688,6 +697,7 @@ def circle_invite(request, token):
     html = f"""<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Assisto — My Circle</title>
+{_icon_links()}
 <style>body{{font-family:system-ui,sans-serif;max-width:560px;margin:auto;padding:24px;line-height:1.5}}
 a.b{{display:inline-block;background:#2563eb;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none}}
 code{{word-break:break-all;background:#f1f5f9;padding:6px;border-radius:6px;display:block}}</style></head><body>

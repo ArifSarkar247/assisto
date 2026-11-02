@@ -1,0 +1,85 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
+{% block head %}{% include "web/_seo_head.html" %}{% endblock %}
+{% block style %}{% include "web/_site_css.html" %}{% endblock %}
+{% block main %}
+<section class="hero">
+  <div class="container">
+    <div>
+      <span class="kicker">{{ C.hero_kicker }}</span>
+      <h1>{{ C.hero_h1 }}</h1>
+      <p class="sub">{{ C.hero_sub }}</p>
+      <div class="cta-row">
+        <a class="play" href="{{ play_url }}" rel="noopener"><img src="{{ badge }}" width="186" height="72" alt="{{ C.badge_alt }}"></a>
+        <a class="apk" href="/get{{ qlang }}">{{ C.apk_alt }}</a>
+      </div>
+      <p class="note">{{ C.hero_free }}</p>
+    </div>
+    <div class="visual">{% include "web/_shot.html" with name=hero_shot alt=C.shot_alt_home eager=True %}</div>
+  </div>
+</section>
+
+<section class="sec alt" id="features" aria-labelledby="features-h">
+  <div class="container">
+    <div class="sec-h"><h2 id="features-h">{{ C.features_h }}</h2><p>{{ C.features_sub }}</p></div>
+    {% for f in features %}
+    <article class="feat" id="{{ f.id }}">
+      <div>
+        <span class="kicker">{{ f.kicker }}</span>
+        <h3>{{ f.h }}</h3>
+        <p class="body">{{ f.body }}</p>
+        <ul class="checks">{% for p in f.points %}<li>{{ p }}</li>{% endfor %}</ul>
+        {% if f.link %}<a class="more-link" href="{{ f.link }}{{ qlang }}">{{ C.khata_free }} →</a>{% endif %}
+      </div>
+      <div class="shots">
+        {% include "web/_shot.html" with name=f.shot alt=f.alt small=f.shot2 %}
+        {% if f.shot2 %}{% include "web/_shot.html" with name=f.shot2 alt=f.alt2 small=True %}{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="sec" id="security" aria-labelledby="trust-h">
+  <div class="container">
+    <div class="sec-h"><h2 id="trust-h">{{ C.trust_h }}</h2></div>
+    {% include "web/_sec_trust.html" %}
+    <p><a class="more-link" href="/security{{ qlang }}">{{ C.trust_more }} →</a></p>
+  </div>
+</section>
+
+<section class="sec alt" id="pricing" aria-labelledby="pricing-h">
+  <div class="container">
+    <div class="sec-h"><h2 id="pricing-h">{{ C.pricing_h }}</h2><p>{{ C.pricing_sub }}</p></div>
+    {% include "web/_sec_pricing.html" %}
+  </div>
+</section>
+
+<section class="sec" id="tools" aria-labelledby="tools-h">
+  <div class="container">
+    <div class="sec-h"><h2 id="tools-h">{{ C.tools_h }}</h2><p>{{ C.tools_sub }}</p></div>
+    <div class="grid">
+      {% for t in tools %}<a class="tile" href="{{ t.path }}{{ qlang }}"><h3>{{ t.h }}</h3><p>{{ t.b }}</p></a>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="faq" aria-labelledby="faq-h">
+  <div class="container">
+    <div class="sec-h"><h2 id="faq-h">{{ C.faq_h }}</h2></div>
+    {% include "web/_sec_faq.html" %}
+    <p><a class="more-link" href="/help{{ qlang }}">{{ C.faq_more }} →</a></p>
+  </div>
+</section>
+
+{% include "web/_sec_cta.html" %}
+
+<section class="sec" id="contact" aria-labelledby="contact-h" style="padding-top:0">
+  <div class="container contact">
+    <h2 id="contact-h">{{ C.contact_h }}</h2>
+    <p>{{ C.contact_body }} <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></p>
+    <p class="muted">{{ C.contact_app }} {{ C.company_line }}</p>
+  </div>
+</section>
+{% endblock %}

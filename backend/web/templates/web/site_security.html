@@ -1,0 +1,18 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
+{% block head %}{% include "web/_seo_head.html" %}{% endblock %}
+{% block style %}{% include "web/_site_css.html" %}{% endblock %}
+{% block main %}
+<section class="page-h"><div class="container"><h1>{{ C.trust_h }}</h1><p>{{ C.security_lead }}</p></div></section>
+<section class="sec" style="padding-top:16px"><div class="container">
+  {% include "web/_sec_trust.html" with hl=2 %}
+  <h2 style="margin-top:40px">{{ C.security_never_h }}</h2>
+  <ul class="never">{% for n in trust.never %}<li>{{ n }}</li>{% endfor %}</ul>
+  <div class="grid" style="margin-top:36px">
+  {% for t in trust.more %}<div class="tile"><h3>{{ t.h }}</h3><p>{{ t.b }}</p></div>{% endfor %}
+  </div>
+  <p class="fineprint">{{ C.company_line }} <a href="/privacy{{ qlang }}">{{ C.privacy }}</a> · <a href="/delete-account{{ qlang }}">{{ C.delete }}</a> · <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></p>
+</div></section>
+{% include "web/_sec_cta.html" %}
+{% endblock %}

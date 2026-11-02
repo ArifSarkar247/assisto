@@ -4,7 +4,7 @@
 <meta property="og:title" content="{% if lang == 'en' %}{% if name %}{{ name }} invited you to My Circle{% else %}You're invited to My Circle{% endif %}{% else %}{% if name %}{{ name }} আপনাকে আমার সার্কেলে ডেকেছেন{% else %}আপনাকে আমার সার্কেলে ডাকা হয়েছে{% endif %}{% endif %}">
 <meta property="og:description" content="{% if lang == 'en' %}Chat, calls and family safety in one app.{% else %}চ্যাট, কল আর পরিবারের নিরাপত্তা — এক অ্যাপে।{% endif %}">
 <meta property="og:type" content="website">
-{% endblock %}
+{% include "web/_og_image.html" %}{% endblock %}
 {% block head %}<meta name="robots" content="noindex">
 <style>.av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#2563eb,#7c3aed);color:#fff;font-size:34px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:8px auto}
 .big{display:block;text-align:center;font-size:18px;padding:16px;min-height:48px;margin:10px 0}
