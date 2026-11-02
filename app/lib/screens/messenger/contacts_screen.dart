@@ -441,7 +441,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final id = await _identity();
     if (!mounted) return;
     if (id == null) {
-      _snack(_t.c1ChatOpenFailed);
+      _snack(_t.bbl2ChatOpenFailed); // bubbles2: no company name
       return;
     }
     await Navigator.of(context).push(MaterialPageRoute(

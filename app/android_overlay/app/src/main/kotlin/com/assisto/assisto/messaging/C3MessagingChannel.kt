@@ -26,7 +26,9 @@ import io.flutter.plugin.common.MethodChannel
  *   pickSound({current})   -> {uri, title} | null   phone's own sound picker
  *   bubblesSupported()     -> Bool                   Android 11+
  *   bubblesAllowed()       -> Bool?                  system bubble setting
- *   openBubbleSettings()   -> Bool
+ *   openBubbleSettings()   -> Bool                   the exact bubble page (11+)
+ *   bubbleStatus()         -> {sdk,supported,pref,notifs,lowRam,page,phoneOn,maker}
+ *   activeChats()          -> [{key,bubble,meta,at}] our active chat notifications
  *   takeLaunchChat()       -> "member:12" | null     (bubble / shortcut tap)
  *   inBubble()             -> Bool
  *   removeBubble({chat})   -> null                   drop the shortcut
@@ -71,6 +73,9 @@ object C3MessagingChannel {
                     "bubblesSupported" -> result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                     "bubblesAllowed" -> result.success(bubblesAllowed(activity))
                     "openBubbleSettings" -> result.success(openBubbleSettings(activity))
+                    // bubbles2: the turn-on card + My Circle's bubble row
+                    "bubbleStatus" -> result.success(BubbleHelper.status(activity))
+                    "activeChats" -> result.success(BubbleHelper.activeChats(activity))
                     "takeLaunchChat" -> {
                         val key = activity.intent?.getStringExtra(BubbleHelper.EXTRA_CHAT)
                         activity.intent?.removeExtra(BubbleHelper.EXTRA_CHAT)
@@ -352,16 +357,22 @@ object C3MessagingChannel {
 
     private fun openBubbleSettings(activity: Activity): Boolean {
         return try {
-            val i = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
-            } else {
-                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-            }.putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            activity.startActivity(i)
+            // bubbles2: the exact Assisto "Bubbles" page on Android 11+
+            // (ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS is API 30), where the
+            // user picks "All conversations can bubble" — no app can pick it.
+            activity.startActivity(BubbleHelper.bubbleSettingsIntent(activity))
             true
         } catch (t: Throwable) {
-            false
+            try {
+                activity.startActivity(
+                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+                true
+            } catch (t2: Throwable) {
+                false
+            }
         }
     }
 

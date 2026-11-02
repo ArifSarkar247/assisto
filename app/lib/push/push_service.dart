@@ -1,3 +1,4 @@
+import '../messaging/in_call_bubbles.dart' show InCallBubbles; // bubbles2
 import '../messaging/msg_push_done.dart'; // notifs
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
@@ -535,6 +536,15 @@ class PushService {
     // circle2: the in-app loop is on its 10 s quiet cadence outside My
     // Circle — a message push means badges / msg.new are waiting: poll now.
     if (chat != null) CallRuntime.instance.nudge();
+    // bubbles2 (point 4): during a call the call screen shows it as an
+    // in-app bubble (recorded only while that overlay is up)
+    if (chat != null &&
+        p.kind == 'message' &&
+        !MsgActiveChat.isOpen(chat.kind, chat.id)) {
+      InCallBubbles.instance.onMessage('${chat.kind}:${chat.id}',
+          name: '${data['sender_name'] ?? ''}',
+          msgId: '${data['message_id'] ?? ''}');
+    }
     if (chat != null && tok != null && tok.isNotEmpty) {
       if (MsgActiveChat.isOpen(chat.kind, chat.id)) {
         // notifs: no ring for the open chat — and no native fallback either

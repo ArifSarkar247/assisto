@@ -30,6 +30,8 @@ import '../messaging/msg_ticks.dart';
 import '../messaging/presence_label.dart';
 import '../messaging/receipt_bus.dart';
 import '../messaging/unread_store.dart';
+import '../messaging/msg_native.dart' show MsgNative; // bubbles2
+import 'bubble_chats_row.dart'; // bubbles2
 import '../realtime/realtime_channel.dart';
 import 'family_push_banner.dart'; // notifs
 import 'msgr_avatar.dart';
@@ -147,7 +149,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     unawaited(ChatLockStore.instance.warm().then((_) => _onRt()));
     final api = _api;
     ChatLockAuth.clearChat = (k) => clearChatForLock(api, k);
-    _life = AppLifecycleListener(onPause: () {
+    _life = AppLifecycleListener(onResume: _loadActive, onPause: () {
       ChatLockSession.end(); // the locked folder closes when the app leaves
       if (mounted && _showLocked) setState(() => _showLocked = false);
     });
@@ -196,6 +198,58 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
 
   void _onRt() {
     if (mounted) setState(() {});
+  }
+
+  // bubbles2 (point 5): our own active chat notifications (bubbles on
+  // screen), for the row of round photos at the top.
+  List<Map<String, dynamic>> _active = const [];
+
+  Future<void> _loadActive() async {
+    try {
+      final a = await MsgNative.activeChats();
+      if (!mounted || (a.isEmpty && _active.isEmpty)) return;
+      setState(() => _active = a);
+    } catch (_) {}
+  }
+
+  // No listener of its own: UnreadStore changes while this list builds
+  // (publishUnread) — the list's own rebuilds refresh the badges.
+  Widget _bubbleRow() {
+    if (_active.isEmpty) return const SizedBox.shrink();
+    final unread = UnreadStore.instance.perChat.value;
+    final byKey = <String, Map<String, dynamic>>{
+      for (final c in _chats)
+        if (!_isLocked(c) && !_isArchived(c)) _key(c): c,
+    };
+    final keys =
+        bubbleRowKeys(active: _active, unread: unread, known: byKey.keys.toSet());
+    if (keys.isEmpty) return const SizedBox.shrink();
+    final floating = {
+      for (final a in _active)
+        if (a['bubble'] == true) '${a['key']}'
+    };
+    return BubbleChatsRow(
+      entries: [
+        for (final k in keys)
+          () {
+            final c = byKey[k]!;
+            final m = _memberOf(c);
+            return BubbleRowEntry(
+              key: k,
+              name: _nameOf(c),
+              photo: _isGroup(c) ? '' : '${m['photo_link'] ?? m['photo'] ?? ''}',
+              photoV: '${m['photo_v'] ?? ''}',
+              group: _isGroup(c),
+              unread: unread[k] ?? 0,
+              floating: floating.contains(k),
+            );
+          }(),
+      ],
+      onOpen: (k) {
+        final c = byKey[k];
+        if (c != null) _openChat(c);
+      },
+    );
   }
 
   /// 'member:<edge id>' / 'group:<group id>' — the key shared with the
@@ -258,6 +312,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       await _loadPeerKeys(_chats);
       _previews.clear();
       _publishUnread();
+      unawaited(_loadActive()); // bubbles2 (never delays the list)
     } catch (e) {
       // Honest error + retry (no synthesised rows posing as real chats).
       _loadFailed = true;
@@ -1025,6 +1080,14 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
           padding: EdgeInsets.symmetric(horizontal: Gap.lg),
           child: FamilyPushBanner.messages(key: ValueKey('notifs-msg-off')),
         ),
+      // bubbles2 (point 5): the chats floating as bubbles / unread, in a
+      // row of round photos (hidden while searching / selecting / folders)
+      if (_active.isNotEmpty &&
+          !_selecting &&
+          !_showLocked &&
+          !_showArchived &&
+          _foldedQuery().isEmpty)
+        _bubbleRow(),
       if (_selecting) _selectionBar() else _searchBar(),
       if (_showLocked)
         _lockedHeader()
