@@ -175,7 +175,19 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
           // strip under the raised voice button) as bottom padding.
           final bottom = MediaQuery.paddingOf(context).bottom;
           final askBottom = bottom - HV2.voiceLift + 12;
-          return CustomScrollView(
+          // ownerfix (owner HOME LAYOUT 2 Nov: "Sponsored items never next to
+          // SOS or Blood donor"): when SOS / Blood donor sit in the grid's
+          // LAST row, the free-user native ad moves below the Ask card (the
+          // next non-emergency section) instead of right under that row.
+          // Nothing else on home moves.
+          const hero = HomeHero(
+              key: ValueKey('hv2_ad_slot'),
+              fallback: SizedBox.shrink(),
+              gapWhenShown: HV2.sectionGap,
+              availableHeight: HV2.adSlot);
+          return ValueListenableBuilder<bool>(
+            valueListenable: HomeV2Shortcuts.adBelowAsk,
+            builder: (context, adBelowAsk, _) => CustomScrollView(
             controller: _scroll,
             slivers: [
               SliverToBoxAdapter(
@@ -238,11 +250,7 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
                     // Free users only (server plan check in HeroAdRules), at
                     // most ONE native ad on home, labelled "Ad", never in the
                     // bottom bar. Renders nothing for Premium / Business.
-                    const HomeHero(
-                        key: ValueKey('hv2_ad_slot'),
-                        fallback: SizedBox.shrink(),
-                        gapWhenShown: HV2.sectionGap,
-                        availableHeight: HV2.adSlot),
+                    if (!adBelowAsk) hero,
                   ]),
                 ),
               ),
@@ -256,12 +264,17 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
                       askBottom > 12 ? askBottom : 12),
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: HomeV2AskCard(onOpen: _newChatOrResume),
+                    child: adBelowAsk
+                        ? Column(mainAxisSize: MainAxisSize.min, children: [
+                            HomeV2AskCard(onOpen: _newChatOrResume),
+                            hero,
+                          ])
+                        : HomeV2AskCard(onOpen: _newChatOrResume),
                   ),
                 ),
               ),
             ],
-          );
+          ));
         }),
       ),
     );

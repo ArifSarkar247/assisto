@@ -133,6 +133,16 @@ Future<void> _unmount(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
+/// ownerfix: a shortcut set whose LAST grid row has no SOS / Blood donor
+/// tile (4 or 3 columns, with or without the pinned My Circle tile), so the
+/// free-user ad keeps its normal place between the shortcuts and the Ask
+/// card. The owner default (SOS + Blood donor in the last row) is covered by
+/// the 'ad never next to SOS / Blood donor' tests below.
+const _adSafe = [
+  'emergency', 'family', 'journey', 'khata', 'crm', 'business',
+  'sales_agent', 'watchman', 'vehicle_tracking', 'prepaid_meter', 'money',
+];
+
 Widget _home(
     {bool free = false,
     CircleBadgeState? circle,
@@ -288,7 +298,7 @@ void main() {
     });
 
     testWidgets('Free: exactly one labelled ad; Premium: none', (tester) async {
-      await _pump(tester, _home(free: true));
+      await _pump(tester, _home(free: true, routes: _adSafe));
       await _settle(tester);
       expect(find.byKey(const ValueKey('fake-native-ad')), findsOneWidget);
       expect(find.text(_t(tester).h1AdLabel), findsOneWidget);
@@ -732,7 +742,7 @@ void main() {
       for (final dark in [false, true]) {
         testWidgets('compact ad: <= 110 dp, between shortcuts and Ask card, '
             'Remove-ads link outside the ad ($lang dark=$dark)', (tester) async {
-          final nav = await _pump(tester, _home(free: true),
+          final nav = await _pump(tester, _home(free: true, routes: _adSafe),
               lang: lang, dark: dark);
           await _settle(tester);
           final t = _t(tester);
@@ -783,7 +793,7 @@ void main() {
       for (final scale in [1.0, 2.0]) {
         testWidgets('compact ad -> Need help: one section gap ($lang x$scale)',
             (tester) async {
-          await _pump(tester, _home(free: true), lang: lang, scale: scale);
+          await _pump(tester, _home(free: true, routes: _adSafe), lang: lang, scale: scale);
           await _settle(tester);
           final ask = find.byKey(const ValueKey('hv2_ask'));
           await tester.scrollUntilVisible(ask, 200,
@@ -806,8 +816,70 @@ void main() {
       }
     }
 
+    // ownerfix (owner HOME LAYOUT 2 Nov): "Sponsored items never next to SOS
+    // or Blood donor". The owner default puts SOS + Blood donor in the grid's
+    // last row: the ad then sits below the Ask card, never right under them.
+    for (final blood in [false, true]) {
+      for (final scale in [1.0, 2.0]) {
+        testWidgets('ad never next to SOS / Blood donor (default, 360 dp, '
+            'x$scale, blood=$blood)', (tester) async {
+          FeatureFlags.instance.debugOverride = {
+            ...?FeatureFlags.instance.debugOverride,
+            'blood_donors': blood,
+          };
+          addTearDown(() => FeatureFlags.instance.debugOverride = null);
+          await _pump(tester, _home(free: true),
+              scale: scale, size: const Size(360, 2600));
+          await _settle(tester);
+          await tester.pump();
+          await _settle(tester);
+          expect(tester.takeException(), isNull);
+          final ad = find.byKey(const ValueKey('hero-ad-box'));
+          expect(ad, findsOneWidget, reason: 'the ad still shows (moved)');
+          final adRect = tester.getRect(find.byType(CompactAdFrame));
+          final ask = tester.getRect(find.byKey(const ValueKey('hv2_ask')));
+          final all = [
+            for (final e in find.byType(HomeV2Tile).evaluate())
+              (e.widget as HomeV2Tile).route,
+          ];
+          final prot = all.where(HomeV2Shortcuts.adProtectedTiles.contains).toList();
+          expect(prot, isNotEmpty);
+          Rect rectOf(String r) =>
+              tester.getRect(find.byKey(ValueKey('hv2_tile_$r')));
+          for (final p in prot) {
+            final r = rectOf(p);
+            // the ad is never above (Discover sits there) ...
+            expect(adRect.top, greaterThanOrEqualTo(r.bottom), reason: p);
+            // ... and never the next thing below: another grid row or the
+            // Ask card sits in between
+            final rowBetween = all.any((o) {
+              if (o == HomeQuickButtons.pinnedRoute) return false;
+              final tr = rectOf(o);
+              return tr.top >= r.bottom && tr.bottom <= adRect.top;
+            });
+            final askBetween = ask.top >= r.bottom && ask.bottom <= adRect.top;
+            expect(rowBetween || askBetween, isTrue, reason: 'ad right under $p');
+          }
+          await _unmount(tester);
+        });
+      }
+    }
+
+    test('protectedInLastRow: grid rows at 4 and 3 columns', () {
+      final d = ['circle', ..._adSafe];
+      expect(HomeV2Shortcuts.protectedInLastRow(d, 4), isFalse);
+      expect(HomeV2Shortcuts.protectedInLastRow(d, 3), isFalse);
+      final def = ['circle', ...HomeV2Shortcuts.ownerOrder.take(11)];
+      expect(HomeV2Shortcuts.protectedInLastRow(def, 4), isTrue);
+      expect(HomeV2Shortcuts.protectedInLastRow(['blood_panel', 'a', 'b', 'c', 'd'], 4),
+          isFalse);
+      expect(HomeV2Shortcuts.protectedInLastRow(['a', 'b', 'c', 'd', 'blood_panel'], 4),
+          isTrue);
+      expect(HomeV2Shortcuts.protectedInLastRow(const [], 4), isFalse);
+    });
+
     testWidgets('no fill -> the ad slot takes zero height', (tester) async {
-      await _pump(tester, _home(free: true, bridge: FakeHeroBridge(fill: false)));
+      await _pump(tester, _home(free: true, routes: _adSafe, bridge: FakeHeroBridge(fill: false)));
       await _settle(tester);
       expect(find.byKey(const ValueKey('hero-ad-box')), findsNothing);
       expect(tester.getSize(find.byKey(const ValueKey('hv2_ad_slot'))).height, 0);
@@ -817,7 +889,7 @@ void main() {
     testWidgets('compact ad at 200 % font: no overflow, grows sanely',
         (tester) async {
       // tall surface so the whole page (incl. the ad) is built at once
-      await _pump(tester, _home(free: true),
+      await _pump(tester, _home(free: true, routes: _adSafe),
           scale: 2.0, size: const Size(360, 2000));
       await _settle(tester);
       expect(tester.takeException(), isNull);
@@ -832,7 +904,7 @@ void main() {
     testWidgets('server home_native_size: large -> big card; unknown -> compact',
         (tester) async {
       final big = FakeHeroBridge();
-      await _pump(tester, _home(free: true, size: 'large', bridge: big));
+      await _pump(tester, _home(free: true, routes: _adSafe, size: 'large', bridge: big));
       await _settle(tester);
       expect(big.lastSize, HeroAdSize.large);
       expect(find.byKey(const ValueKey('fake-native-large')), findsOneWidget);
@@ -846,7 +918,7 @@ void main() {
       expect(find.text(_t(tester).h1AdLabel), findsOneWidget);
       await _unmount(tester);
       final odd = FakeHeroBridge();
-      await _pump(tester, _home(free: true, size: 'gigantic', bridge: odd));
+      await _pump(tester, _home(free: true, routes: _adSafe, size: 'gigantic', bridge: odd));
       await _settle(tester);
       expect(odd.lastSize, HeroAdSize.compact);
       expect(tester.getSize(find.byKey(const ValueKey('hero-ad-box'))).height,
@@ -974,7 +1046,7 @@ void main() {
       // a new day starts at zero
       expect(await HeroDailyCap.today(now: now.add(const Duration(days: 1))), 0);
       final b = FakeHeroBridge();
-      await _pump(tester, _home(free: true, bridge: b));
+      await _pump(tester, _home(free: true, routes: _adSafe, bridge: b));
       await _settle(tester);
       expect(b.loads, 0);
       expect(find.byKey(const ValueKey('hero-ad-box')), findsNothing);
