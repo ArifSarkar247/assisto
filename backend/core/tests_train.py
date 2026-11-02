@@ -13,6 +13,7 @@
     emergency words (bn / en / Banglish) -> 999 + 131, purge after the trip;
   * flag OFF -> 403, but stop-sharing and leave work with the flag OFF.
 """
+from datetime import datetime, timezone as dt_timezone
 import json
 from collections import Counter
 from datetime import date, timedelta
@@ -173,6 +174,12 @@ def _client(u):
 @mock.patch("core.train_views.flag_on", return_value=True)
 class ApiTests(TestCase):
     def setUp(self):
+        # Fixed clock (14:00 Dhaka — when these passed in the train run): chat posts are refused once the trip is
+        # over, so the real clock made these tests fail every afternoon.
+        p = mock.patch("django.utils.timezone.now",
+                       return_value=datetime(2026, 11, 2, 8, 0, tzinfo=dt_timezone.utc))
+        p.start()
+        self.addCleanup(p.stop)
         self.a, self.b, self.c = _user(1), _user(2), _user(3)
         self.day = TS.today().isoformat()
 
