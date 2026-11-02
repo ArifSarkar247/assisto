@@ -340,9 +340,6 @@ class BannerPacer {
   }
 }
 
-  }
-}
-
 /// ACCIDENTAL-CLICK GUARD (ads check 28 Oct, AdMob "don't surprise users
 /// with interstitials"): an interstitial never pops up under a finger that
 /// is still tapping. AdsService feeds every pointer-down here; the
