@@ -1372,4 +1372,8 @@ class _BrokenMedia implements CallMedia {
   Future<List<AudioRoute>> audioRoutes() async => const [];
   @override
   Future<void> setAudioRoute(AudioRoute r) async {}
+  @override
+  Stream<AudioRoute> get routeChanges => const Stream.empty();
+  @override
+  Future<void> setVideoMode(bool on) async {}
 }

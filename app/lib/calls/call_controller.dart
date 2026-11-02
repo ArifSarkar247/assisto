@@ -3,8 +3,11 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import '../api.dart' show ApiException;
+import '../audio/audio_route_service.dart' show AudioRoute, isHeadset;
 import '../services/error_kind.dart';
 import 'call_log.dart';
+
+export '../audio/audio_route_service.dart' show AudioRoute;
 
 /// REAL 1:1 call state machine (c2-calls). Pure Dart: media, signalling and
 /// sounds are injected, so it is unit-tested with fakes and driven in the app
@@ -133,9 +136,9 @@ class MediaStats {
   }
 }
 
-/// b1-calls: where the call audio plays. Ids match flutter_webrtc's
-/// audiooutput deviceIds (Twilio AudioSwitch kinds).
-enum AudioRoute { earpiece, speaker, bluetooth, wired }
+/// b1-calls: where the call audio plays ([AudioRoute] lives in
+/// lib/audio/audio_route_service.dart — the ONE app-wide route owner). Ids
+/// match flutter_webrtc's audiooutput deviceIds (Twilio AudioSwitch kinds).
 
 AudioRoute? audioRouteFromId(String id) => switch (id) {
       'earpiece' => AudioRoute.earpiece,
@@ -233,6 +236,15 @@ abstract class CallMedia {
   /// a phone). Empty = unknown (the screen then offers a plain toggle).
   Future<List<AudioRoute>> audioRoutes();
   Future<void> setAudioRoute(AudioRoute r);
+
+  /// audioroute: the route in use, every time it changes (a headset
+  /// connected / disconnected mid-call, the user's pick). The call goes on —
+  /// the peer connection is never touched by a route change.
+  Stream<AudioRoute> get routeChanges;
+
+  /// audioroute: the call switched voice <-> video (a video call prefers the
+  /// loudspeaker over the earpiece; a headset still wins).
+  Future<void> setVideoMode(bool on);
 }
 
 /// Server signalling + call events (ApiCallSignaling in the app).
@@ -399,6 +411,7 @@ class CallController extends ChangeNotifier {
   StreamSubscription<Map<String, dynamic>>? _evSub;
   StreamSubscription<Map<String, dynamic>>? _candSub;
   StreamSubscription<MediaLinkState>? _linkSub;
+  StreamSubscription<AudioRoute>? _routeSub;
   Timer? _statusTimer;
   Timer? _statsTimer;
   Timer? _reconnectTimer;
@@ -599,7 +612,10 @@ class CallController extends ChangeNotifier {
     await media.open(video: video);
     _afterOpen();
     if (await _endedDuringSetup()) return;
-    await media.setSpeaker(speakerOn);
+    // audioroute (owner 28 Oct): NO setSpeaker here. It forced the built-in
+    // earpiece over a connected Bluetooth / wired headset. The route service
+    // (opened by media.open) already picked headset > earpiece/speaker.
+    _watchRoute();
     await media.createPeer(_ice);
     if (await _endedDuringSetup()) return;
     _wireMedia();
@@ -664,7 +680,10 @@ class CallController extends ChangeNotifier {
     await media.open(video: video);
     _afterOpen();
     if (await _endedDuringSetup()) return;
-    await media.setSpeaker(speakerOn);
+    // audioroute (owner 28 Oct): NO setSpeaker here. It forced the built-in
+    // earpiece over a connected Bluetooth / wired headset. The route service
+    // (opened by media.open) already picked headset > earpiece/speaker.
+    _watchRoute();
     await media.createPeer(_ice);
     if (await _endedDuringSetup()) return;
     _wireMedia();
@@ -1078,7 +1097,15 @@ class CallController extends ChangeNotifier {
 
   Future<void> toggleSpeaker() async {
     speakerOn = !speakerOn;
-    route = speakerOn ? AudioRoute.speaker : AudioRoute.earpiece;
+    // speaker off -> back to the headset when one is connected
+    final headset = routes.where(isHeadset).toList();
+    route = speakerOn
+        ? AudioRoute.speaker
+        : (headset.contains(AudioRoute.bluetooth)
+            ? AudioRoute.bluetooth
+            : headset.isNotEmpty
+                ? headset.first
+                : AudioRoute.earpiece);
     notifyListeners();
     try {
       await media.setSpeaker(speakerOn);
@@ -1086,6 +1113,22 @@ class CallController extends ChangeNotifier {
       callLog('call_controller#7', e);
     }
     if (!videoOn) unawaited(sounds.setProximity(isLive && !speakerOn));
+  }
+
+  /// audioroute: the route service switched (headset connected or gone,
+  /// or a pick confirmed). Only the UI state follows — never the media.
+  void _watchRoute() {
+    _routeSub ??= media.routeChanges.listen((r) {
+      if (_disposed || isEnded) return;
+      if (route == r) return;
+      route = r;
+      speakerOn = r == AudioRoute.speaker;
+      log.add('route-changed:${r.name}');
+      if (!videoOn) {
+        unawaited(sounds.setProximity(isLive && r == AudioRoute.earpiece));
+      }
+      notifyListeners();
+    }, onError: (Object e) => callLog('call_controller#33', e));
   }
 
   /// b1: what the route picker offers right now (earpiece / speaker /
@@ -1329,6 +1372,11 @@ class CallController extends ChangeNotifier {
     videoOn = true;
     cameraOn = true;
     frontCamera = true;
+    try {
+      await media.setVideoMode(true);
+    } catch (e) {
+      callLog('call_controller#34', e);
+    }
     // a video call plays on the speaker (or the headset), like WhatsApp
     if (route == AudioRoute.earpiece) {
       speakerOn = true;
@@ -1401,6 +1449,11 @@ class CallController extends ChangeNotifier {
       await media.stopVideo();
     } catch (e) {
       callLog('call_controller#31', e);
+    }
+    try {
+      await media.setVideoMode(false);
+    } catch (e) {
+      callLog('call_controller#35', e);
     }
     log.add('video-mode:off');
     notifyListeners();
@@ -1479,8 +1532,10 @@ class CallController extends ChangeNotifier {
   Future<void> _closeMedia() async {
     await _candSub?.cancel();
     await _linkSub?.cancel();
+    await _routeSub?.cancel();
     _candSub = null;
     _linkSub = null;
+    _routeSub = null;
     try {
       await media.dispose();
     } catch (e) {
