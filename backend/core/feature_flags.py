@@ -151,6 +151,9 @@ REGISTRY = (
     ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans', 'khata')),
     ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
     ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ('sales_agent',)),
+    # ledger (owner Part 1 f, 2 Nov): double-entry books fed by POS / khata /
+    # expenses — trial balance, P&L, balance sheet. OFF until all 9 DoD checks.
+    ('accounting_v2', 'business', 'Business accounting (double-entry books)', 'ব্যবসার পূর্ণ হিসাব (ডাবল-এন্ট্রি খাতা)', False, ('books',)),
     ('booking_bot', 'business', 'Booking bot (appointments)', 'বুকিং বট (অ্যাপয়েন্টমেন্ট)', False, ('booking', 'my_bookings')),
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),

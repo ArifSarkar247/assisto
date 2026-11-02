@@ -107,6 +107,8 @@ const Map<String, bool> kFeatureDefaults = {
   'business': true,
   'crm': true,
   'business_agent': true,
+  // ledger (owner Part 1 f): double-entry business books
+  'accounting_v2': false,
   'booking_bot': false,
   'offers': true,
   'referral': true,
@@ -224,6 +226,7 @@ const Map<String, String> kRouteFeature = {
   'crm': 'crm',
   'booking': 'booking_bot',
   'my_bookings': 'booking_bot',
+  'books': 'accounting_v2',
   'offers': 'offers',
   'referral': 'referral',
   // retention1: owner screen + the customer's shop messages
