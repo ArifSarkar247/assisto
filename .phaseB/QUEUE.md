@@ -25,7 +25,17 @@ BUSINESS
 12. h) CRM most automated: follow-ups, reorder reminders, win-back, after-delivery feedback, lead scoring; clear owner control (~8 h)
 13. i) AI sales agent replies in chats AND Facebook/Instagram comments; business AI agent for daily operations (Meta permissions in STATUS) (~10 h code; Meta App Review = owner)
 
-## 3) AFTER LAUNCH — owner PART 2, then PART 3 (in the given order; not received yet)
+## 3) AFTER LAUNCH — owner PART 2 (2 Nov), then PART 3 (not received yet). Owner feature card first for each.
+- 2.1 DONE 2 Nov (b275): rename PA Secretary → Personal Secretary (PS) everywhere visible. Then PS for everyone (normal people → corporate bosses): schedule, meetings, info tracking, My Circle communication, reminders + follow-ups, daily brief; reading WhatsApp/other notifications ONLY with clear opt-in notification access to pick up dates/tasks (Play policy check; content stays on the phone where possible).
+- 2.2 CV Builder fully professional: photo, several templates, save, PDF, print, bn/en, ATS friendly. ASK OWNER what his "ads line" means before adding ads.
+- 2.3 Job Hunter: real jobs only from legal sources (employers posting in Assisto, official government circulars, partners with permission; no scraping against site terms); match to CV; one-tap apply only where allowed.
+- 2.4 Mock interview: job, viva, visa, university; voice answers; scoring + feedback; bn/en.
+- 2.5 Task manager: subtasks, priority, repeat, due, shared tasks (family + team), calendar view, voice add.
+- 2.6 Cost and time estimator really usable: real local prices where we have sources, clear assumptions.
+- 2.7 Quick tools: only tools people really use in Bangladesh, each one complete.
+- 2.8 Language Partner: English, Japanese, German, Korean, Chinese; basic → advanced; lessons, tests, exams; real IELTS prep (4 skills + band estimates); listen-and-repeat with voice pronunciation scoring (MUST).
+- 2.9 Food photo → calories with portion estimate, Bangladeshi foods (no extreme diet targets).
+- 2.10 AI daily planner from tasks, reminders, calendar, habits.
 
 ---
 # Older backlog (ordered after the list above)
