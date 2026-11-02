@@ -72,6 +72,9 @@ class DeviceRegisterView(APIView):
                         .order_by("-last_seen", "-id")
                         .values_list("id", flat=True)[:MAX_DEVICES])
             Device.objects.filter(user=user).exclude(id__in=keep).delete()
+        # adminsafe: a live token again -> no longer 'likely uninstalled'
+        from .admin_safety import note_token_registered
+        note_token_registered(user)
         # t1-ticks 1c: the peer-version banner reads User.app_version.
         from .views_t1_ticks import record_app_version
         record_app_version(user, app_version)

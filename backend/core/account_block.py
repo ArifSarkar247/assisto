@@ -11,8 +11,32 @@ BLOCKED_STATUSES = ("suspended", "banned")
 
 
 def is_blocked(user):
-    return bool(user is not None and
-                getattr(user, "account_status", "active") in BLOCKED_STATUSES)
+    if user is None:
+        return False
+    st = getattr(user, "account_status", "active")
+    if st == "suspended":
+        # adminsafe: a suspension for N days ends by itself
+        try:
+            from .admin_safety import expire_if_due
+            if expire_if_due(user):
+                return False
+        except Exception:
+            pass
+    return st in BLOCKED_STATUSES
+
+
+def blocked_payload(user, lang):
+    """adminsafe: the 403 body for a blocked sign-in — the reason, the end
+    date of a suspension and a short-lived appeal token, so the app can show
+    the reason and send an appeal without a session."""
+    body = {"reason": "account_blocked", "detail": blocked_message(lang)}
+    try:
+        from . import admin_safety as AS
+        body["standing"] = AS.standing(user)
+        body["appeal_token"] = AS.appeal_token(user)
+    except Exception:
+        pass
+    return body
 
 
 def blocked_message(lang):

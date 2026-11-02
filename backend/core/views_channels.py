@@ -81,6 +81,11 @@ class CommunityJoinByCodeView(APIView):
     20 join requests/hour per person."""
 
     def post(self, request):
+        # adminsafe: Owner Admin restriction (community_join) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "community_join")
+        if _denied is not None:
+            return _denied
         c = _by_code((request.data or {}).get("code"))
         if c is None:
             return _nf()

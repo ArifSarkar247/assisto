@@ -353,9 +353,14 @@ def _is_dead_token(code, js):
 def _drop_token(token):
     try:
         from .models import Device
+        uids = list(Device.objects.filter(push_token=token)
+                    .values_list("user_id", flat=True))
         n, _ = Device.objects.filter(push_token=token).delete()
         if n:
             log.info("push: removed %d dead device row(s)", n)
+            # adminsafe: last live token gone -> 'likely uninstalled'
+            from .admin_safety import note_token_dropped
+            note_token_dropped(uids)
     except Exception:
         pass
 

@@ -151,6 +151,11 @@ class ChatView(APIView):
         return R(TS.room(request.user, t["no"], d, after))
 
     def post(self, request, no):
+        # adminsafe: Owner Admin restriction (stranger_msg) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "stranger_msg")
+        if _denied is not None:
+            return _denied
         if not flag_on(request.user):
             return _off()
         t, d, err = _train_date(no, request.data.get("date"))

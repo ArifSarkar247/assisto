@@ -202,10 +202,9 @@ class OtpLoginView(APIView):
         if bad is not None:
             return bad
         canon = row.phone
-        from .account_block import is_blocked, blocked_message
+        from .account_block import is_blocked, blocked_payload
         if is_blocked(user):   # o2-admin: blocked accounts cannot sign in
-            return Response({"ok": False, "reason": "account_blocked",
-                             "detail": blocked_message(lang)},
+            return Response({"ok": False, **blocked_payload(user, lang)},
                             status=status.HTTP_403_FORBIDDEN)
         if canon and row.channel == "sms":   # only an SMS code proves the phone
             otp.mark_verified(user, canon)
@@ -369,6 +368,12 @@ class OtpEmailConfirmView(APIView):
             proof = otp.verify(None, "email_verify", data.get("code"), email=addr)
         except otp.OtpError as e:
             return _err(e, lang)
+        # adminsafe: a banned account's email cannot be attached again
+        from .admin_safety import banned_identity, banned_message
+        if banned_identity(email=addr):
+            return Response({"ok": False, "reason": "identity_banned",
+                             "detail": banned_message(lang)},
+                            status=status.HTTP_403_FORBIDDEN)
         row = otp.consume_proof_row(proof, "email_verify", email=addr)
         if row is None or otp.email_taken_by_other(request.user, addr):
             return _fail("bad_otp", lang, status.HTTP_400_BAD_REQUEST)
