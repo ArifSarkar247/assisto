@@ -1,0 +1,28 @@
+{
+  "en": {
+    "sbWindowClosed7d": "More than 7 days since the customer's last message. Meta allows no reply here until the customer writes again.",
+    "sbRateLimited": "Meta is busy right now. We will send it again by ourselves in about a minute.",
+    "sbCommentPermPending": "Replies to post comments are waiting for Meta's approval. For now, reply under the comment on Facebook or Instagram.",
+    "sbCommentTooOld": "This comment is older than 7 days. Meta allows no private reply to it.",
+    "sbCommentAlreadyReplied": "This comment already got its one private reply. Meta allows only one.",
+    "sbCommentNotFound": "No comment found to reply to in this chat.",
+    "sbOptedOut": "This customer wrote STOP. You cannot message them first. You can reply when they write again.",
+    "sbMetaNotReady": "Connecting your Facebook Page, Instagram or WhatsApp opens here as soon as Meta approves Assisto. Until then, your AI assistant can already answer customers on your website.",
+    "sbUseWebsiteChat": "Use website chat now",
+    "sbMetaReviewPending": "Meta is still reviewing Assisto. Until it approves, only a Page or number whose admin is added as a tester in Assisto's Meta app can be connected.",
+    "sbCommentsWaitMeta": "Comment replies switch on once Meta approves Assisto for comments. Until then, comments still show in your inbox."
+  },
+  "bn": {
+    "sbWindowClosed7d": "গ্রাহকের শেষ মেসেজের ৭ দিন পার হয়েছে। গ্রাহক আবার মেসেজ না করা পর্যন্ত Meta এখানে উত্তর পাঠাতে দেয় না।",
+    "sbRateLimited": "Meta এখন ব্যস্ত। প্রায় ১ মিনিট পরে আমরা নিজেই আবার পাঠাব।",
+    "sbCommentPermPending": "পোস্টের কমেন্টের উত্তর Meta-র অনুমোদনের অপেক্ষায়। আপাতত Facebook বা Instagram-এ কমেন্টের নিচে নিজে উত্তর দিন।",
+    "sbCommentTooOld": "এই কমেন্ট ৭ দিনের বেশি পুরোনো। Meta এতে গোপন উত্তর দিতে দেয় না।",
+    "sbCommentAlreadyReplied": "এই কমেন্টে একবার গোপন উত্তর দেওয়া হয়েছে। Meta একবারই দিতে দেয়।",
+    "sbCommentNotFound": "এই চ্যাটে উত্তর দেওয়ার মতো কোনো কমেন্ট পাওয়া যায়নি।",
+    "sbOptedOut": "এই গ্রাহক STOP লিখেছেন। আপনি নিজে থেকে মেসেজ পাঠাতে পারবেন না। গ্রাহক আবার লিখলে উত্তর দিতে পারবেন।",
+    "sbMetaNotReady": "Meta Assisto-কে অনুমোদন দিলেই এখানে আপনার Facebook পেজ, Instagram বা WhatsApp জোড়া যাবে। ততদিন আপনার AI সহকারী ওয়েবসাইটে গ্রাহকদের উত্তর দিতে পারে।",
+    "sbUseWebsiteChat": "এখনই ওয়েবসাইট চ্যাট চালু করুন",
+    "sbMetaReviewPending": "Meta এখনো Assisto যাচাই করছে। অনুমোদনের আগে শুধু সেই পেজ বা নম্বর জোড়া যাবে, যার অ্যাডমিনকে Assisto-র Meta app-এ টেস্টার হিসেবে যোগ করা হয়েছে।",
+    "sbCommentsWaitMeta": "Meta কমেন্টের জন্য Assisto-কে অনুমোদন দিলেই কমেন্টের উত্তর চালু হবে। ততদিন কমেন্টগুলো আপনার ইনবক্সে দেখা যাবে।"
+  }
+}
