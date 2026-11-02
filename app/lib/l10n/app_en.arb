@@ -34517,7 +34517,7 @@
   "bbl2NotYet": "Not on yet. On the settings page, choose “All conversations can bubble”.",
   "bbl2SelectedOnly": "Only the chats you picked can float. Choose “All conversations can bubble” so every chat can.",
   "bbl2PhoneSwitch": "Bubbles are switched off for the whole phone. Turn them on in Settings → Notifications → Bubbles, then choose “All conversations can bubble”.",
-  "bbl2Blocked": "This phone doesn't allow floating bubbles. Your messages will come as normal notifications.",
+  "bbl2Blocked": "This phone doesn't allow floating bubbles. Messages still arrive as normal notifications.",
   "bbl2NotifsOff": "Assisto's notifications are off. Turn them on first — bubbles come from notifications.",
   "bbl2Continue": "Continue",
   "bbl2SettingsTitle": "Floating chat bubbles",
