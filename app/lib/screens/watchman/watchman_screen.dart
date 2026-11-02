@@ -13,6 +13,7 @@ import '../../cctvx/cctvx_source.dart';
 import 'camera_label.dart';
 import 'cctv_recording_screen.dart';
 import 'cash_guard_screen.dart';
+import 'auto_guard_screen.dart'; // cctvarm
 import 'cctvx_inbox.dart';
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
@@ -618,6 +619,15 @@ class _SiteCard extends StatelessWidget {
                       .push(MaterialPageRoute(builder: (_) => const ShopBoxScreen())),
                 ),
             ],
+            // cctvarm: auto guard (owner settings / a member's own consent)
+            OutlinedButton.icon(
+              key: const ValueKey('wm-auto-guard'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.shield_moon_outlined),
+              label: Text(t.carmTitle),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
+            ),
           ]),
         ]),
       ),

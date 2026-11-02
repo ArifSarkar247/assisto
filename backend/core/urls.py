@@ -804,6 +804,15 @@ urlpatterns += [
     path("shop/sites/<int:pk>/warn-clip", cesc.WarnClipView.as_view()),
     path("shop/cameras/<int:pk>/deter", cesc.CameraDeterView.as_view()),
 ]
+# ---- cctvarm ---- auto guard: family away/home, shop closed, no-movement, SOS live
+from . import cctv_arm_views as carm  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/arm", carm.SiteArmView.as_view()),
+    path("shop/arm/mine", carm.MyArmView.as_view()),
+    path("shop/arm/consent", carm.ArmConsentView.as_view()),
+    path("shop/arm/presence", carm.ArmPresenceView.as_view()),
+    path("shop/arm/sos-live", carm.SosLiveView.as_view()),
+]
 # ---- /cctv1 ----
 
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus

@@ -202,6 +202,7 @@ class PushRouting {
     'business/shop-box': 'shop_box',
     'watchman': 'watchman', // cctv1
     'watchman/inbox': 'watchman_inbox', // cctvx: an alert passed to me / a shared clip
+    'watchman/sos_live': 'watchman_sos_live', // cctvarm: SOS at home -> home camera live
     'retention_inbox': 'retention_inbox', // retention1 (customer)
     'retention_auto': 'retention_auto', // retention1 (owner: a reply)
     'business/khata': 'khata', // ledger100: scheduled tagada nudge

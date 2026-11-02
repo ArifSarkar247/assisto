@@ -307,7 +307,16 @@ def sos(sender, lat=None, lng=None, duress=False, journey_id=None,
         ek = "j%s:%s" % (journey_id, ek)
     data = {"source": str(source or "")[:24], "journey_id": journey_id or "",
             "duress": bool(duress)}
-    return alert(sender, "sos", ek, payload=data, lat=lat, lng=lng, now=now)
+    out = alert(sender, "sos", ek, payload=data, lat=lat, lng=lng, now=now)
+    # cctvarm: SOS at Home -> allowed family may open the home camera live
+    # (after the SOS itself went out; never affects it)
+    if out.get("recipients") and not out.get("duplicate"):
+        try:
+            from .logic import cctv_arm as ARM
+            out["home_live"] = ARM.on_sos(sender, lat, lng, now)
+        except Exception:
+            pass
+    return out
 
 
 def sos_resolved(sender, now=None):
