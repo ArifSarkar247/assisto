@@ -23,6 +23,9 @@ class CashGuardScreen extends StatefulWidget {
   /// Open the zone editor of a camera (the cash zone is drawn there).
   final VoidCallback? onDrawZone;
 
+  /// cctvveh: no camera yet — the checklist's camera step opens "Add camera".
+  final VoidCallback? onAddCamera;
+
   /// cctvx (CCTV extras): guard settings, today's report, placement helper,
   /// privacy kit. Null = the card is not shown (older callers / tests).
   final CctvxSource? extras;
@@ -34,6 +37,7 @@ class CashGuardScreen extends StatefulWidget {
       required this.source,
       required this.siteId,
       this.onDrawZone,
+      this.onAddCamera,
       this.extras,
       this.watchman,
       this.cameras = const [],
@@ -177,7 +181,7 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     } else {
       body = RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
+        child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)), children: [
           _awayCard(t),
           if (widget.extras != null) _extrasCard(t),
           if (widget.extras != null) GuardReportCard(source: widget.extras!, siteId: widget.siteId),
@@ -317,11 +321,20 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
                   child: Text(action)),
           ]),
         );
+    // cctvveh: every tick is the TRUTH (before: "camera added" was always
+    // ticked and "draw the cash area" never was).
+    final usedCams = (wmMap(_data['usage'])['cameras'] as num?)?.toInt() ?? 0;
+    final hasCam = widget.cameras.isNotEmpty || usedCams > 0;
+    final zoneDone = widget.cameras.any((c) => wmList(wmMap(c['zone_config'])['zones'])
+        .any((z) => z['type'] == 'cash'));
     return _card([
       Text(t.cgSetupTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 6),
-      step(false, t.cgSetupStepZone, onTap: widget.onDrawZone, action: t.cgDrawZone),
-      step(true, t.cgSetupStepCamera),
+      step(hasCam, hasCam ? t.cgSetupStepCamera : t.cvvCgStepCameraNone,
+          onTap: hasCam ? null : widget.onAddCamera, action: t.wmAddCamera),
+      step(zoneDone, zoneDone ? t.cvvCgStepZoneDone : t.cgSetupStepZone,
+          onTap: hasCam ? widget.onDrawZone : null,
+          action: zoneDone ? t.wmZonesSchedule : t.cgDrawZone),
       step(keys > 0, keys > 0 ? t.cgSetupStepKeyOk : t.cgSetupStepKeyMissing),
     ]);
   }

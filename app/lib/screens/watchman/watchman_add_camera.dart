@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
+import 'package:assisto/widgets/app_sheet.dart';
 
 /// cctv1 camera onboarding + COMPATIBILITY CHECK. The phone cannot reach LAN
 /// cameras from the internet, so the GATEWAY runs the check (reachable? auth
@@ -222,6 +223,28 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     });
   }
 
+  /// cctvveh (setup < 2 min): picking a LAN brand opens the form AND starts
+  /// the Wi-Fi search at once — one camera found fills the address itself.
+  void _enterForm(String v) {
+    setState(() {
+      _vendor = v;
+      _user.text = v == 'tapo' ? '' : 'admin';
+      _stage = _Stage.form;
+    });
+    final lan = !_phoneGw && v != 'rtsp' && v != 'phone';
+    if (lan && _host.text.trim().isEmpty && !_scanning) _scan();
+  }
+
+  void _useFound(Map<String, dynamic> f) {
+    _host.text = (f['host'] ?? '').toString();
+    if (_name.text.trim().isEmpty) {
+      final model = [f['manufacturer'], f['model']]
+          .where((x) => x != null && x.toString().trim().isNotEmpty)
+          .join(' ');
+      if (model.isNotEmpty) _name.text = model;
+    }
+  }
+
   Future<void> _scan() async {
     final t = AppLocalizations.of(context);
     setState(() {
@@ -239,6 +262,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       _found = wmList(res['discovered']);
       if (task['status'] != 'done') _error = t.wmScanNoAnswer;
       if (task['status'] == 'done' && _found.isEmpty) _error = t.wmScanNone;
+      if (_found.length == 1 && _host.text.trim().isEmpty) _useFound(_found.first);
     } catch (e) {
       _error = wmError(e) ?? t.wmGenericError;
     }
@@ -266,7 +290,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     final included = (widget.limits['included_cameras'] as num?)?.toInt() ?? 0;
     final cost = (widget.limits['credits_per_extra_camera'] as num?)?.toInt() ?? 0;
     final days = (widget.limits['period_days'] as num?)?.toInt() ?? 30;
-    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 24)), children: [
       Text(t.wmPickBrand, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 4),
       Text(_phoneGw ? t.wmPickBrandPhoneGw : t.wmPickBrandPcGw),
@@ -277,11 +301,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
           leading: Icon(v == 'phone' ? Icons.phone_android_rounded : Icons.videocam_rounded),
           title: Text(wmVendorName(t, v)),
           trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => setState(() {
-            _vendor = v;
-            _user.text = v == 'tapo' ? '' : 'admin';
-            _stage = _Stage.form;
-          }),
+          onTap: () => _enterForm(v),
         ),
       if (_phoneGw) ...[
         const SizedBox(height: 8),
@@ -299,7 +319,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     final cloud = _phoneGw && _vendor == 'imou';
     final needsHost = !cloud && _vendor != 'rtsp' && _vendor != 'phone';
     final channelVendors = {'imou', 'dahua', 'hikvision'};
-    return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), children: [
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 24)), children: [
       Text(wmVendorName(t, _vendor), style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 6),
       Text(_vendorHelp(t)),
@@ -345,7 +365,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
             subtitle: Text([f['manufacturer'], f['model'], f['name']]
                 .where((x) => x != null && x.toString().isNotEmpty)
                 .join(' · ')),
-            onTap: () => setState(() => _host.text = (f['host'] ?? '').toString()),
+            onTap: () => setState(() => _useFound(f)),
           ),
         const SizedBox(height: 12),
       ],
@@ -481,7 +501,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     final steps = wmList(res['steps']);
     final info = wmMap(res['info']);
     final cam = _camera;
-    return ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 24)), children: [
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -565,7 +585,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
 
   Widget _done(AppLocalizations t, String title, String body) {
     final cam = _camera;
-    return ListView(padding: const EdgeInsets.all(24), children: [
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(24)), children: [
       Icon(Icons.check_circle_rounded, size: 56, color: wmOk()),
       const SizedBox(height: 12),
       Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),

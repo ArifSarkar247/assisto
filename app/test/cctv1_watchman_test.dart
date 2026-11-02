@@ -249,7 +249,12 @@ void main() {
     await tester.pumpWidget(_app(WatchmanViewersScreen(source: src, siteId: 1)));
     await _settle(tester);
     // the Add button stays disabled until a number is typed
-    expect(tester.widget<FilledButton>(find.byWidgetPredicate((w) => w is FilledButton)).onPressed, isNull);
+    expect(
+        tester
+            .widget<OutlinedButton>(find.ancestor(
+                of: find.text(en.wmFamilyAdd), matching: find.byWidgetPredicate((w) => w is OutlinedButton)))
+            .onPressed,
+        isNull);
     await tester.enterText(find.byType(TextField), '01799999999');
     await tester.pump();
     await tester.tap(find.text(en.wmFamilyAdd));

@@ -858,7 +858,12 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 icon: const Icon(Icons.block_rounded),
                 label: Text(tr.vehCutCta),
               ),
+            // cctvveh: with engine-cut OFF and the relay reported NORMAL,
+            // "Restore" did nothing useful; it stays when the flag is on, the
+            // relay is cut, or its state is unknown (cut by SMS / old app).
+            if (t['engine_cut_enabled'] == true || t['relay_cut'] != false)
             OutlinedButton.icon(
+              key: const ValueKey('veh-restore'),
               onPressed: (_sending || pending) ? null : () => _command('engine_restore'),
               icon: const Icon(Icons.restart_alt_rounded),
               label: Text(tr.vehRestoreCta),

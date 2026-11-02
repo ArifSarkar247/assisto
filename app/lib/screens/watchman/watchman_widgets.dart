@@ -113,18 +113,29 @@ class WatchmanGuideCard extends StatelessWidget {
 }
 
 /// Pairing: the site code (+ QR) and what to do on the chosen gateway.
-Future<void> showWatchmanPairSheet(BuildContext context, Map<String, dynamic> site) {
+/// [onNext] (first-run setup): the sheet ends in a big "Next: add a camera"
+/// button that closes it and calls [onNext] — never a dead end.
+Future<void> showWatchmanPairSheet(BuildContext context, Map<String, dynamic> site,
+    {VoidCallback? onNext}) {
   return showAppSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (ctx) => WatchmanPairSheet(site: site),
+    builder: (ctx) => WatchmanPairSheet(
+        site: site,
+        onNext: onNext == null
+            ? null
+            : () {
+                onNext();
+                Navigator.of(ctx).pop();
+              }),
   );
 }
 
 class WatchmanPairSheet extends StatelessWidget {
   final Map<String, dynamic> site;
-  const WatchmanPairSheet({super.key, required this.site});
+  final VoidCallback? onNext;
+  const WatchmanPairSheet({super.key, required this.site, this.onNext});
 
   @override
   Widget build(BuildContext context) {
@@ -186,6 +197,16 @@ class WatchmanPairSheet extends StatelessWidget {
           ],
           const SizedBox(height: 12),
           Text(t.wmPairSecretNote, style: Theme.of(context).textTheme.bodySmall),
+          if (onNext != null) ...[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              key: const ValueKey('wm-pair-next'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 56)),
+              icon: const Icon(Icons.add_a_photo_outlined),
+              label: Text(t.cvvPairNextAddCam),
+              onPressed: onNext,
+            ),
+          ],
         ],
       ),
     );

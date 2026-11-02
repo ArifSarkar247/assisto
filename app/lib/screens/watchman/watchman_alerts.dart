@@ -9,6 +9,8 @@ import 'cash_guard_clip.dart';
 import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import '../../widgets/app_sheet.dart';
+import '../../widgets/cv_empty.dart';
 
 /// cctv1 ALERTS: every alert reads "Suspicious — please check" (never an
 /// accusation), with its ONE snapshot, what was seen, how many times
@@ -24,13 +26,20 @@ class WatchmanAlertsScreen extends StatefulWidget {
 
   /// cctvx: alert actions (siren, call the shop, share, evidence, 999).
   final CctvxSource? extras;
+
+  /// cctvveh: does this place have a camera yet (empty-state wording), and
+  /// the first real step from an empty list (zones, or add a camera).
+  final bool hasCamera;
+  final VoidCallback? onSetup;
   const WatchmanAlertsScreen(
       {super.key,
       required this.source,
       required this.siteId,
       required this.owner,
       this.cash,
-      this.extras});
+      this.extras,
+      this.hasCamera = true,
+      this.onSetup});
 
   @override
   State<WatchmanAlertsScreen> createState() => _WatchmanAlertsScreenState();
@@ -139,7 +148,7 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     } else {
       body = RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
+        child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)), children: [
           if (!widget.owner)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
@@ -152,16 +161,16 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                 child: Text(t.wmHeldToday(wmDigits(lang, _held))),
               ),
             ),
+          // cctvveh: benefit + the first real step + how-to (owner)
           if (_events.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 48),
-              child: Column(children: [
-                Icon(Icons.verified_user_outlined, size: 56, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 12),
-                Text(t.wmNoAlertsTitle, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 6),
-                Text(t.wmNoAlertsBody, textAlign: TextAlign.center),
-              ]),
+            CvEmptyBlock(
+              icon: Icons.verified_user_outlined,
+              title: t.wmNoAlertsTitle,
+              benefit: widget.hasCamera ? t.wmNoAlertsBody : t.cvvAlertsEmptyNoCam,
+              primaryIcon: widget.hasCamera ? Icons.draw_rounded : Icons.add_a_photo_outlined,
+              primaryLabel: widget.hasCamera ? t.cvvAlertsPrimaryZones : t.wmAddCamera,
+              onPrimary: widget.owner ? widget.onSetup : null,
+              steps: widget.owner ? [t.cvvAlertsStep1, t.cvvAlertsStep2, t.cvvAlertsStep3] : const [],
             ),
           for (final e in _events) _alertCard(t, lang, e),
         ]),

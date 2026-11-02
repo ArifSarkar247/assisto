@@ -9,6 +9,8 @@ import 'cash_guard_clip.dart';
 import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import '../../widgets/app_sheet.dart';
+import '../../widgets/cv_empty.dart';
 
 /// cctvx — ALERTS PASSED TO ME: a shop owner did not open an alert in time
 /// and their chosen chain sent it to me, or they shared a clip with me (last
@@ -97,16 +99,18 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
     } else {
       body = RefreshIndicator(
         onRefresh: _load,
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
-          Text(t.cxInboxBody, style: Theme.of(context).textTheme.bodySmall),
+        child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)), children: [
+          if (_events.isNotEmpty) Text(t.cxInboxBody, style: Theme.of(context).textTheme.bodySmall),
+          // cctvveh: why it is empty, how alerts get here, and a way on
           if (_events.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 48),
-              child: Column(children: [
-                Icon(Icons.inbox_rounded, size: 56, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 12),
-                Text(t.cxInboxEmpty, textAlign: TextAlign.center),
-              ]),
+            CvEmptyBlock(
+              icon: Icons.inbox_rounded,
+              title: t.cvvInboxEmptyTitle,
+              benefit: t.cvvInboxEmptyBenefit,
+              primaryIcon: Icons.videocam_rounded,
+              primaryLabel: t.cvvInboxPrimary,
+              onPrimary: Navigator.of(context).canPop() ? () => Navigator.of(context).maybePop() : null,
+              steps: [t.cvvInboxStep1, t.cvvInboxStep2, t.cvvInboxStep3],
             ),
           for (final e in _events) _card(t, e),
         ]),

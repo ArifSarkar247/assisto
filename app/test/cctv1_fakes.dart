@@ -29,7 +29,8 @@ class FakeWatchman implements WatchmanSource {
         'zones_v2': true, 'cloud_alarms': false,
       };
 
-  Map<String, dynamic> _site(int id, String kind, String gateway, {bool online = true, String role = 'owner'}) => {
+  Map<String, dynamic> _site(int id, String kind, String gateway,
+          {bool online = true, String role = 'owner', bool cams = true}) => {
         'id': id, 'name': kind == 'home' ? 'Dhanmondi flat' : 'Mirpur shop', 'kind': kind,
         'gateway': gateway, 'role': role, 'snapshot_retention_days': 3,
         'enrollment_token': role == 'owner' ? 'PAIR-CODE-FAKE-1' : null,
@@ -40,8 +41,8 @@ class FakeWatchman implements WatchmanSource {
           'never_seen': false,
         },
         'cameras_list': [
-          cameraRow(),
-          if (kind == 'shop')
+          if (cams) cameraRow(),
+          if (cams && kind == 'shop')
             cameraRow(id: 12, name: 'Cash counter', vendor: 'hikvision', online: online,
                 compat: {'ok': false, 'steps': [{'key': 'auth', 'ok': false, 'code': 'auth_failed'}]}),
         ],
@@ -63,6 +64,8 @@ class FakeWatchman implements WatchmanSource {
       'empty' => <Map<String, dynamic>>[],
       'offline' => [_site(1, 'home', 'pc', online: false)],
       'viewer' => [_site(1, 'home', 'pc', role: 'viewer')],
+      // cctvveh: a place made, gateway paired, no camera yet
+      'nocam' => [_site(1, 'home', 'pc', cams: false)],
       _ => [_site(1, 'home', 'pc'), _site(2, 'shop', 'shopbox')],
     };
     return {

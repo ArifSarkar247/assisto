@@ -85,7 +85,17 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
                 ? null
                 : () {
                     if (_step < 2) {
-                      setState(() => _step++);
+                      setState(() {
+                        _step++;
+                        // cctvveh: the name is pre-filled ("My home" / "My
+                        // shop") — Create works without typing a word.
+                        if (_step == 2 &&
+                            (_name.text.trim().isEmpty ||
+                                _name.text == t.wmKindHome ||
+                                _name.text == t.cvvPlaceDefaultShop)) {
+                          _name.text = _kind == 'home' ? t.wmKindHome : t.cvvPlaceDefaultShop;
+                        }
+                      });
                     } else {
                       _create();
                     }
@@ -152,6 +162,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
             decoration: InputDecoration(
               labelText: t.wmPlaceName,
               hintText: _kind == 'home' ? t.wmPlaceNameHomeHint : t.wmPlaceNameShopHint,
+              helperText: t.cvvPlaceNameHelp,
               border: const OutlineInputBorder(),
             ),
           ),

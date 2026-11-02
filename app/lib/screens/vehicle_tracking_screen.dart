@@ -9,6 +9,7 @@ import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../vehicle/veh_setup.dart'; // veh100
 import '../widgets/skeleton.dart';
+import '../widgets/cv_empty.dart';
 import 'car_mode_screen.dart';
 import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
@@ -87,7 +88,8 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
           ),
         ],
       ),
-      floatingActionButton: _loading || _error
+      // cctvveh: when empty the big button in the empty state is the one CTA
+      floatingActionButton: _loading || _error || _trackers.isEmpty
           ? null
           : FloatingActionButton.extended(
               onPressed: _pair,
@@ -113,18 +115,19 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           _HonestCard(),
           const SizedBox(height: Gap.md),
           if (_trackers.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: Gap.xl),
-              child: StateMessage(
-                icon: Icons.gps_not_fixed_rounded,
-                title: tr.vehEmptyTitle,
-                message: tr.vehEmptyBody,
-              ),
+            CvEmptyBlock(
+              icon: Icons.gps_not_fixed_rounded,
+              title: tr.vehEmptyTitle,
+              benefit: tr.cvvVehEmptyBody,
+              primaryIcon: Icons.add_link_rounded,
+              primaryLabel: tr.vehPairCta,
+              onPrimary: _pair,
+              steps: [tr.cvvVehStep1, tr.cvvVehStep2, tr.cvvVehStep3],
             ),
           for (final t in _trackers) ...[
             _TrackerCard(t: t, onChanged: _load),
@@ -203,6 +206,7 @@ class _TrackerCard extends StatelessWidget {
         }
     }
     final shared = t['is_owner'] != true;
+    final setupAgain = !shared && (state == 'pending' || state == 'expired');
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
@@ -215,7 +219,14 @@ class _TrackerCard extends StatelessWidget {
                         builder: (_) => VehicleTrackerScreen(trackerId: t['id'] as int)));
                 onChanged();
               }
-            : null,
+            // cctvveh: a waiting / expired tracker was a dead tap — it now
+            // reopens the setup SMS steps (with "Try again" when expired).
+            : setupAgain
+                ? () async {
+                    await showVehSetupAgain(context, t);
+                    onChanged();
+                  }
+                : null,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -242,7 +253,7 @@ class _TrackerCard extends StatelessWidget {
                   label: Text(tr.vehSharedWithYou, maxLines: 1),
                   visualDensity: VisualDensity.compact,
                 ),
-              if (state == 'paired') const Icon(Icons.chevron_right_rounded),
+              if (state == 'paired' || setupAgain) const Icon(Icons.chevron_right_rounded),
             ]),
             if (state == 'pending' || state == 'expired') ...[
               const SizedBox(height: Gap.sm),
@@ -252,12 +263,45 @@ class _TrackerCard extends StatelessWidget {
                     : tr.vehExpiredBody,
                 style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35),
               ),
+              if (setupAgain)
+                Padding(
+                  padding: const EdgeInsets.only(top: Gap.xs),
+                  child: Text(state == 'pending' ? tr.cvvVehPendingTap : tr.cvvVehExpiredTap,
+                      style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+                ),
             ],
           ]),
         ),
       ),
     );
   }
+}
+
+/// The brand chip that matches a stored protocol (setup guide wording).
+String vehBrandForProtocol(String p) => switch (p) {
+      'h02' => 'sinotrack',
+      'gt06' => 'concox',
+      'tk103' => 'coban',
+      'teltonika' => 'teltonika',
+      _ => 'auto',
+    };
+
+/// cctvveh: reopen the SMS setup steps of a waiting / expired tracker.
+Future<void> showVehSetupAgain(BuildContext context, Map<String, dynamic> t) {
+  return showAppSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (ctx) => SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
+      child: VehSetupView(
+        tracker: t,
+        brand: vehBrandForProtocol('${t['protocol'] ?? 'auto'}'),
+        operator: 'gp',
+        onClose: () => Navigator.pop(ctx),
+      ),
+    ),
+  );
 }
 
 /// Bottom sheet: pair a tracker by IMEI (+ optional My Vehicles record).
@@ -279,6 +323,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
   int? _vehicleId;
   List<Map<String, dynamic>> _vehicles = [];
   bool _busy = false;
+  bool _inferred = false;
   String? _err;
   Map<String, dynamic>? _done;
 
@@ -298,6 +343,15 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
   Future<void> _submit() async {
     final tr = AppLocalizations.of(context);
     final imei = _imei.text.replaceAll(RegExp(r'\D'), '');
+    // cctvveh: a 10–14 digit id can only be a Sinotrack (H02) device id —
+    // pick it instead of failing "bad IMEI" and making the user guess.
+    if (_protocol == 'auto' && imei.length >= 10 && imei.length < 15) {
+      setState(() {
+        _brand = 'sinotrack';
+        _protocol = 'h02';
+        _inferred = true;
+      });
+    }
     // H02 (Sinotrack ST-901 family) trackers use a 10-digit device id.
     final ok = _protocol == 'h02' ? (imei.length >= 10 && imei.length <= 15) : imei.length == 15;
     if (!ok) {
@@ -437,6 +491,10 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       const SizedBox(height: Gap.md),
       Text(tr.vehMonthlyCost(vehNumStr(context, widget.monthCredits)),
           style: TextStyle(color: scheme.onSurfaceVariant)),
+      if (_inferred) ...[
+        const SizedBox(height: Gap.sm),
+        Text(tr.cvvH02Picked, style: TextStyle(color: scheme.primary)),
+      ],
       if (_err != null) ...[
         const SizedBox(height: Gap.sm),
         Text(_err!, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),

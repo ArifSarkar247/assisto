@@ -269,6 +269,7 @@ import 'package:assisto/screens/vehicle_tracking_screen.dart';
 import 'package:assisto/screens/vehicle_tracker_screen.dart';
 import 'package:assisto/screens/vehicle_tracker_settings_screen.dart';
 import 'package:assisto/screens/vehicle_obd_screen.dart';
+import 'package:assisto/screens/vehicle_drivers_screen.dart'; // cctvveh
 import 'package:assisto/screens/car_mode_screen.dart';
 import 'package:assisto/screens/fleet_dashboard_screen.dart';
 import 'package:assisto/vehicle/elm327.dart';
@@ -825,6 +826,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'veh_fleet_locked': (build: (_) => const FleetDashboardScreen(), mode: FakeMode.data, full: false),
     'veh_tracking_empty': (build: (_) => const VehicleTrackingScreen(), mode: FakeMode.empty, full: false),
     'veh_tracking_error': (build: (_) => const VehicleTrackingScreen(), mode: FakeMode.fail, full: false),
+    // cctvveh: owner checklist — honest empty states with one big button + how-to
+    'vehicles_empty': (build: (_) => const MyVehiclesScreen(), mode: FakeMode.empty, full: false),
+    'veh_drivers_empty': (build: (_) => const VehicleDriversScreen(), mode: FakeMode.empty, full: false),
     // state variants (single representative each)
     'subscriptions_empty': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.empty, full: false),
     'subscriptions_loading': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.slow, full: false),

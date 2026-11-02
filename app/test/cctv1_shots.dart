@@ -46,7 +46,27 @@ final Map<String, Widget Function(String)> cctv1Shots = {
                       'result': {'ok': false, 'code': 'gateway_no_answer'}}),
   'wm_zones': (_) => WatchmanZonesScreen(source: FakeWatchman(), camera: FakeWatchman.cameraRow()),
   'wm_alerts': (_) => WatchmanAlertsScreen(source: FakeWatchman(), siteId: 1, owner: true),
-  'wm_alerts_empty': (_) => WatchmanAlertsScreen(source: FakeWatchman('empty'), siteId: 1, owner: true),
+  // cctvveh: the empty list's big button opens the zone editor (no dead end)
+  'wm_alerts_empty': (_) => Builder(
+      builder: (ctx) => WatchmanAlertsScreen(
+          source: FakeWatchman('empty'), siteId: 1, owner: true,
+          onSetup: () => Navigator.of(ctx).push(MaterialPageRoute(
+              builder: (_) => WatchmanZonesScreen(source: FakeWatchman(), camera: FakeWatchman.cameraRow()))))),
+  'wm_alerts_empty_nocam': (_) => Builder(
+      builder: (ctx) => WatchmanAlertsScreen(
+          source: FakeWatchman('empty'), siteId: 1, owner: true, hasCamera: false,
+          onSetup: () => Navigator.of(ctx).push(MaterialPageRoute(
+              builder: (_) => WatchmanAddCameraScreen(
+                  source: FakeWatchman(), site: _site, limits: _limits, credits: 120))))),
+  'wm_site_nocam': (_) => WatchmanScreen(source: FakeWatchman('nocam'), guide: false),
+  'wm_viewers_empty': (_) => WatchmanViewersScreen(source: FakeWatchman('empty'), siteId: 1),
+  'wm_pair_sheet_next': (_) => Builder(
+      builder: (ctx) => Scaffold(
+          body: WatchmanPairSheet(
+              site: _site,
+              onNext: () => Navigator.of(ctx).push(MaterialPageRoute(
+                  builder: (_) => WatchmanAddCameraScreen(
+                      source: FakeWatchman(), site: _site, limits: _limits, credits: 120)))))),
   'wm_alerts_viewer': (_) => WatchmanAlertsScreen(source: FakeWatchman('viewer'), siteId: 1, owner: false),
   'wm_viewers': (_) => WatchmanViewersScreen(source: FakeWatchman(), siteId: 1),
   'wm_pair_sheet': (_) => Scaffold(body: WatchmanPairSheet(site: _site)),

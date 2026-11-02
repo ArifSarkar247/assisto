@@ -17,6 +17,8 @@ import 'watchman_viewers.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/cv_empty.dart';
+import '../shop_box_screen.dart';
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -98,7 +100,14 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
         builder: (_) => WatchmanSetupScreen(
             source: _src, canShop: _data['can_shop'] == true)));
     await _load();
-    if (site != null && mounted) await showWatchmanPairSheet(context, site);
+    if (site == null || !mounted) return;
+    // cctvveh: the pairing sheet ends in "Next: add a camera" (no dead end).
+    var next = false;
+    await showWatchmanPairSheet(context, site, onNext: () => next = true);
+    if (!next || !mounted) return;
+    final fresh = wmList(_data['sites']).firstWhere(
+        (s) => s['id'] == site['id'], orElse: () => site);
+    await _addCamera(fresh);
   }
 
   Future<void> _addCamera(Map<String, dynamic> site) async {
@@ -140,7 +149,18 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
   Widget _body(AppLocalizations t) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_featureOff) {
-      return _Message(icon: Icons.lock_clock_outlined, title: t.wmFeatureOffTitle, body: t.wmFeatureOffBody);
+      // cctvveh: honest + never a dead end
+      return _Message(
+        icon: Icons.lock_clock_outlined,
+        title: t.wmFeatureOffTitle,
+        body: '${t.wmFeatureOffBody}\n${t.cvvFeatureOffHow}',
+        action: Navigator.of(context).canPop()
+            ? FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
+                onPressed: () => Navigator.of(context).maybePop(),
+                child: Text(t.cvvGoBack))
+            : null,
+      );
     }
     if (_error != null) {
       return _Message(
@@ -158,7 +178,7 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 32),
+        padding: withNavBarInset(context, const EdgeInsets.only(bottom: 32)),
         children: [
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
@@ -219,7 +239,7 @@ class _Welcome extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(t.wmWelcomeTitle, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 6),
-        Text(t.wmWelcomeBody),
+        Text(t.cvvWelcomeBody),
         const SizedBox(height: 16),
         FilledButton.icon(
           style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
@@ -366,10 +386,22 @@ class _SiteCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall),
             ),
           const SizedBox(height: 8),
-          if (cams.isEmpty)
+          // cctvveh: a real empty state — benefit + big button + how-to
+          if (cams.isEmpty && _owner)
+            CvEmptyBlock(
+              compact: true,
+              icon: Icons.videocam_outlined,
+              title: t.cvvNoCamTitle,
+              benefit: t.cvvNoCamBenefit,
+              primaryIcon: Icons.add_a_photo_outlined,
+              primaryLabel: t.wmAddCamera,
+              onPrimary: onAddCamera,
+              steps: [t.cvvNoCamStep1, t.cvvNoCamStep2, t.cvvNoCamStep3],
+            ),
+          if (cams.isEmpty && !_owner)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text(_owner ? t.wmNoCamerasOwner : t.wmNoCamerasViewer),
+              child: Text(t.cvvNoCamViewer),
             ),
           for (final c in cams) _CameraRow(cam: c, owner: _owner, onAction: (a) => _cameraAction(context, a, c)),
           const Divider(height: 20),
@@ -380,7 +412,19 @@ class _SiteCard extends StatelessWidget {
               label: Text(open > 0 ? t.wmAlertsOpen(wmDigits(lang, open)) : t.wmAlerts),
               onPressed: () async {
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => WatchmanAlertsScreen(source: source, siteId: siteId, owner: _owner)));
+                    builder: (_) => WatchmanAlertsScreen(
+                        source: source,
+                        siteId: siteId,
+                        owner: _owner,
+                        hasCamera: cams.isNotEmpty,
+                        // empty alerts: the first real step (zones / a camera)
+                        onSetup: !_owner
+                            ? null
+                            : cams.isEmpty
+                                ? onAddCamera
+                                : () => Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) =>
+                                        WatchmanZonesScreen(source: source, camera: cams.first))))));
                 await onChanged();
               },
             ),
@@ -404,16 +448,24 @@ class _SiteCard extends StatelessWidget {
                                 ? null
                                 : () => Navigator.of(ctx).push(MaterialPageRoute(
                                     builder: (_) => WatchmanZonesScreen(source: source, camera: cams.first))),
+                            // cctvveh: no camera yet → the checklist offers "Add camera"
+                            onAddCamera: cams.isEmpty
+                                ? () {
+                                    Navigator.of(ctx).pop();
+                                    onAddCamera();
+                                  }
+                                : null,
                           )));
                   await onChanged();
                 },
               ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.add_a_photo_outlined),
-                label: Text(t.wmAddCamera),
-                onPressed: onAddCamera,
-              ),
+              if (cams.isNotEmpty) // empty: the big button above
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.add_a_photo_outlined),
+                  label: Text(t.wmAddCamera),
+                  onPressed: onAddCamera,
+                ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.link_rounded),
@@ -433,6 +485,17 @@ class _SiteCard extends StatelessWidget {
                 label: Text(t.wmNotice),
                 onPressed: () => showWatchmanNoticeSheet(context, notice),
               ),
+              // cctvveh: the same shop in Shop Box (POS, day-end, reports) —
+              // one tap instead of a second sidebar hunt.
+              if (!home)
+                OutlinedButton.icon(
+                  key: const ValueKey('wm-open-shopbox'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.storefront_rounded),
+                  label: Text(t.cvvOpenShopBox),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const ShopBoxScreen())),
+                ),
             ],
           ]),
         ]),

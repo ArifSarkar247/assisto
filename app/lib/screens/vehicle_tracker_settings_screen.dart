@@ -10,6 +10,8 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 import 'vehicle_fence_editor_screen.dart'; // veh100
+import '../widgets/cv_empty.dart';
+import 'messenger/messenger_home_screen.dart';
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -220,54 +222,65 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
         ]);
   }
 
+  /// cctvveh: share with a My Circle person in ONE tap (was: dialog →
+  /// dropdown → name → confirm). The control switch sits above the list;
+  /// with an empty Circle the sheet offers "Add someone to My Circle".
   Future<void> _addGrant() async {
     final tr = AppLocalizations.of(context);
-    if (_members.isEmpty) {
-      _snack(tr.vehNoCircleMembers);
-      return;
-    }
-    int? pick;
     var canCmd = false;
-    final ok = await showDialog<bool>(
+    final pick = await showAppSheet<int>(
       context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setD) => AlertDialog(
-          scrollable: true, // insets: 200% text / keyboard
-          title: Text(tr.vehShareTitle),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            DropdownButtonFormField<int>(
-              initialValue: pick,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: tr.vehShareWho),
-              items: [
-                for (final m in _members)
-                  DropdownMenuItem(
-                      value: m['id'] as int,
-                      child: Text('${m['name'] ?? ''}',
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-              ],
-              onChanged: (v) => setD(() => pick = v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              value: canCmd,
-              onChanged: (v) => setD(() => canCmd = v),
-              title: Text(tr.vehShareCanControl),
-              subtitle: Text(tr.vehShareCanControlBody),
-            ),
+        builder: (ctx, setD) => SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(tr.cvvShareWhoTitle,
+                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.sm),
+            if (_members.isEmpty)
+              CvEmptyBlock(
+                compact: true,
+                icon: Icons.group_add_rounded,
+                title: tr.cvvCircleEmptyTitle,
+                benefit: tr.cvvCircleEmptyBody,
+                primaryIcon: Icons.person_add_alt_1_rounded,
+                primaryLabel: tr.cvvOpenMyCircle,
+                onPrimary: () {
+                  Navigator.pop(ctx);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const MessengerHomeScreen(startAdd: true)));
+                },
+              )
+            else ...[
+              Text(tr.cvvShareTapName, style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+              SwitchListTile(
+                key: const ValueKey('veh-grant-control'),
+                contentPadding: EdgeInsets.zero,
+                value: canCmd,
+                onChanged: (v) => setD(() => canCmd = v),
+                title: Text(tr.vehShareCanControl),
+                subtitle: Text(tr.vehShareCanControlBody),
+              ),
+              for (final m in _members)
+                ListTile(
+                  key: ValueKey('veh-grant-${m['id']}'),
+                  minTileHeight: 56,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
+                  title: Text('${m['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.pop(ctx, m['id'] as int),
+                ),
+            ],
           ]),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-            FilledButton(
-                onPressed: pick == null ? null : () => Navigator.pop(ctx, true),
-                child: Text(tr.vehShareCta)),
-          ],
         ),
       ),
     );
-    if (ok != true || pick == null || !mounted) return;
+    if (pick == null || !mounted) return;
     try {
-      await context.read<AppState>().api.vehGrantFamily(_id, pick!, canCommand: canCmd);
+      await context.read<AppState>().api.vehGrantFamily(_id, pick, canCommand: canCmd);
       _loadPeople();
     } catch (e) {
       _snack(vehReasonText(tr, e));

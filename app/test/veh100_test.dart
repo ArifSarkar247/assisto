@@ -381,7 +381,8 @@ void main() {
       await _settle(tester, 12);
       expect(find.byKey(const ValueKey('veh-cut')), findsNothing);
       expect(find.text(en.v100ErrCutOff), findsOneWidget);
-      expect(find.text(en.vehRestoreCta), findsOneWidget); // restore always possible
+      // cctvveh: relay reported normal + flag off → no pointless Restore
+      expect(find.text(en.vehRestoreCta), findsNothing);
       expect(find.byKey(const ValueKey('veh-share')), findsOneWidget);
       expect(find.byKey(const ValueKey('veh-report')), findsOneWidget);
       expect(find.text(en.v100DriverNow('Karim')), findsOneWidget);
