@@ -37,19 +37,26 @@ extension MessengerChannelApi on ApiClient {
   /// POST /channels {name, handle, description?, category?, language?} -> the
   /// created channel (viewer becomes owner + first admin). `new_channel` raises
   /// name_required / handle_required -> 400.
+  ///
+  /// channels (2 Nov): [handle] is optional (the server makes one from the
+  /// name); [isPublic] true = listed in the Channels directory / search,
+  /// false = only people with the invite link. A minor's channel is always
+  /// private (`minor_private: true` in the answer).
   Future<Map<String, dynamic>> channelCreate({
     required String name,
-    required String handle,
+    String handle = '',
     String description = '',
     String category = '',
     String language = '',
+    bool isPublic = true,
   }) =>
       postJson('/channels', {
         'name': name,
-        'handle': handle,
+        if (handle.isNotEmpty) 'handle': handle,
         'description': description,
         if (category.isNotEmpty) 'category': category,
         if (language.isNotEmpty) 'language': language,
+        'is_public': isPublic,
       });
 
   // ========================= one channel (get / edit) =====================
@@ -60,7 +67,33 @@ extension MessengerChannelApi on ApiClient {
   /// A poll is {id, question, options:[String], multi, closed, tally:[int],
   /// total_votes, my_choices:[int]}. content_scheme is always
   /// `plaintext-moderatable-v1` — NOT E2E.
-  Future<Map<String, dynamic>> channelGet(int id) => getJson('/channels/$id');
+  Future<Map<String, dynamic>> channelGet(int id, {String code = ''}) =>
+      getJson(code.isEmpty
+          ? '/channels/$id'
+          : '/channels/$id?k=${Uri.encodeQueryComponent(code)}');
+
+  /// channels: GET /channels/resolve?handle=&k= -> {channel} — opens a shared
+  /// link (https://lifeassisto.com/ch/<handle>?k=<code>). 404 = wrong/old link
+  /// or a private channel without its code.
+  Future<Map<String, dynamic>> channelResolve(String handle,
+          {String code = ''}) =>
+      getJson('/channels/resolve?handle=${Uri.encodeQueryComponent(handle)}'
+          '${code.isEmpty ? '' : '&k=${Uri.encodeQueryComponent(code)}'}');
+
+  /// channels: POST /channels/<id>/block {blocked} — hide a channel from my
+  /// directory, stop following it and its notifications.
+  Future<Map<String, dynamic>> channelBlock(int id, {bool blocked = true}) =>
+      postJson('/channels/$id/block', {'blocked': blocked});
+
+  /// channels: POST /channels/<id>/invite/reset -> {url} a new private link
+  /// (the old one stops working). Owner/admins.
+  Future<Map<String, dynamic>> channelInviteReset(int id) =>
+      postJson('/channels/$id/invite/reset');
+
+  /// channels: PATCH /channels/<id> {is_public} — owner switches the channel
+  /// between "anyone can find it" and "link only".
+  Future<Map<String, dynamic>> channelSetPublic(int id, bool isPublic) =>
+      patchJson('/channels/$id', {'is_public': isPublic});
 
   /// POST /channels/<id> (edit; the backend whitelists via `sanitize_profile_edit`
   /// — `verified` / `verified_by` / `follower_count` are stripped server-side and
@@ -103,8 +136,9 @@ extension MessengerChannelApi on ApiClient {
   /// POST /channels/<id>/follow -> updated channel. Default follower visibility
   /// is `count_only` (set server-side); the UI can change it afterwards via
   /// [channelMyVisibility].
-  Future<Map<String, dynamic>> channelFollow(int id) =>
-      postJson('/channels/$id/follow');
+  /// channels: [code] = the private invite code from a shared link.
+  Future<Map<String, dynamic>> channelFollow(int id, {String code = ''}) =>
+      postJson('/channels/$id/follow', {if (code.isNotEmpty) 'k': code});
 
   /// POST /channels/<id>/unfollow -> updated channel.
   Future<Map<String, dynamic>> channelUnfollow(int id) =>

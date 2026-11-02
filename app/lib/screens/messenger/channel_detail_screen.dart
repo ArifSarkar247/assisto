@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
@@ -12,6 +11,7 @@ import '../../theme.dart';
 import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
+import '../../widgets/space_invite_sheet.dart'; // channels
 import 'channel_admin_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../ads/sponsor_widgets.dart' show SponsoredPostSlot; // p2-money
@@ -36,10 +36,14 @@ import '../../services/error_kind.dart' show honestFailText; // f6
 class ChannelDetailScreen extends StatefulWidget {
   final int channelId;
   final bool startAsAdmin;
+
+  /// channels: the private invite code from a shared link (empty = none).
+  final String inviteCode;
   const ChannelDetailScreen({
     super.key,
     required this.channelId,
     this.startAsAdmin = false,
+    this.inviteCode = '',
   });
   @override
   State<ChannelDetailScreen> createState() => _ChannelDetailScreenState();
@@ -50,6 +54,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   bool _backendReady = true;
   Object? _failCause; // f6: 5xx = our server, not the internet
   bool _loadError = false;
+  bool _notFound = false; // channels: wrong / old link or private
   Map<String, dynamic> _channel = {};
   List<Map<String, dynamic>> _posts = [];
   final _viewed = <int>{};
@@ -70,7 +75,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final j = await _api.channelGet(widget.channelId);
+      final j =
+          await _api.channelGet(widget.channelId, code: widget.inviteCode);
       _channel = (j['channel'] ?? {}).cast<String, dynamic>();
       _posts = ((j['posts'] ?? []) as List).cast<Map<String, dynamic>>();
       _backendReady = true;
@@ -80,6 +86,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       _failCause = e;
       _backendReady = true;
       _loadError = true;
+      _notFound = e.status == 404;
     } catch (_) {
       _backendReady = false;
       _loadError = false;
@@ -179,14 +186,60 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     }
   }
 
+  /// channels: link + QR + copy/share. Private channels: owner/admins only
+  /// (the link carries the invite code) — others get an honest line.
   Future<void> _share() async {
+    final t = _t;
     try {
       final j = await _api.channelShareLink(widget.channelId);
       final url = '${j['url'] ?? ''}';
-      if (url.isEmpty) return;
-      await Share.share(url);
+      if (url.isEmpty || !mounted) return;
+      final isPublic = j['is_public'] != false;
+      await showAppSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (_) => SpaceInviteSheet(
+          url: url,
+          title: t.chxShareChannelTitle,
+          note: isPublic ? t.chxSharePublicNote : t.chxSharePrivateNote,
+        ),
+      );
+    } on ApiException catch (e) {
+      _toast(e.status == 403 ? t.chxSharePrivateOnlyAdmins : t.channelActionFailed);
     } catch (_) {
-      _toast(_t.channelActionFailed);
+      _toast(t.channelActionFailed);
+    }
+  }
+
+  /// channels: block = gone from my directory, unfollowed, no notifications.
+  Future<void> _block() async {
+    final t = _t;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(t.chxBlockTitle),
+        content: Text(t.chxBlockBody('${_channel['name'] ?? ''}')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.channelCancel)),
+          FilledButton(
+            style: Brand.dangerButton(),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.chxBlock),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await _api.channelBlock(widget.channelId);
+      if (!mounted) return;
+      _toast(t.chxBlockedToast);
+      Navigator.of(context).pop();
+    } catch (_) {
+      _toast(t.channelActionFailed);
     }
   }
 
@@ -299,6 +352,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                   _unfollow();
                 case 'report':
                   _report();
+                case 'block':
+                  _block();
               }
             },
             itemBuilder: (_) => [
@@ -324,12 +379,23 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                 PopupMenuItem(
                     value: 'unfollow', child: Text(t.channelUnfollow)),
               PopupMenuItem(value: 'report', child: Text(t.channelReport)),
+              if (!_isAdmin)
+                PopupMenuItem(value: 'block', child: Text(t.chxBlock)),
             ],
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
+          : _notFound
+              ? ListView(children: [
+                  const SizedBox(height: Gap.xxl * 2),
+                  MsgrEmptyState(
+                    icon: Icons.link_off_rounded,
+                    title: t.chxNotFoundTitle,
+                    body: t.chxNotFoundBody,
+                  ),
+                ])
           : _loadError
               ? RefreshIndicator(onRefresh: _load, child: _errorRetry(t))
               : RefreshIndicator(onRefresh: _load, child: _body(t)),
@@ -497,7 +563,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     return FilledButton.icon(
       onPressed: () async {
         try {
-          final j = await _api.channelFollow(widget.channelId);
+          final j = await _api.channelFollow(widget.channelId,
+              code: widget.inviteCode);
           _channel = (j['channel'] ?? _channel).cast<String, dynamic>();
           _channel['my_following'] = true;
           if (mounted) {

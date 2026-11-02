@@ -34,6 +34,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   bool _backendReady = true;
   Object? _failCause; // f6: 5xx = our server, not the internet
   bool _loadError = false;
+  List<Map<String, dynamic>> _owned = []; // channels: mine (owner/admin)
   List<Map<String, dynamic>> _following = [];
   List<Map<String, dynamic>> _suggested = [];
   final _busy = <int>{};
@@ -56,6 +57,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     setState(() => _loading = true);
     try {
       final j = await _api.channelList();
+      _owned = ((j['owned'] ?? []) as List).cast<Map<String, dynamic>>();
       _following =
           ((j['following'] ?? []) as List).cast<Map<String, dynamic>>();
       _suggested =
@@ -66,11 +68,13 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       _failCause = e;
       _backendReady = true;
       _loadError = true;
+      _owned = [];
       _following = [];
       _suggested = [];
     } catch (_) {
       _backendReady = false;
       _loadError = false;
+      _owned = [];
       _following = [];
       _suggested = [];
     }
@@ -144,6 +148,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     );
     if (created == null) return;
     final id = (created['id'] as num?)?.toInt();
+    if (created['minor_private'] == true) _toast(_t.chxMinorPrivateToast);
     await _load();
     if (id != null && mounted) {
       Navigator.of(context).push(MaterialPageRoute(
@@ -183,8 +188,47 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     );
   }
 
+  void _openDirectory() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (_) => const DiscoverScreen()))
+      .then((_) => _load());
+
+  /// channels: the always-visible way in — search the Channels directory.
+  Widget _searchEntry(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      child: Material(
+        color: scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(Radii.lg),
+        child: InkWell(
+          key: const Key('chx-search-entry'),
+          borderRadius: BorderRadius.circular(Radii.lg),
+          onTap: _openDirectory,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Gap.lg, vertical: Gap.sm),
+              child: Row(children: [
+                Icon(Icons.search_rounded, color: scheme.onSurfaceVariant),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Text(t.chxSearchHint,
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _body(AppLocalizations t) {
-    if (_loadError && _following.isEmpty && _suggested.isEmpty) {
+    if (_loadError &&
+        _owned.isEmpty &&
+        _following.isEmpty &&
+        _suggested.isEmpty) {
       return ListView(
         children: [
           const SizedBox(height: Gap.xxl * 2),
@@ -201,27 +245,56 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         ],
       );
     }
-    if (_following.isEmpty && _suggested.isEmpty) {
+    if (_owned.isEmpty && _following.isEmpty && _suggested.isEmpty) {
       return ListView(
         children: [
-          const SizedBox(height: Gap.xxl * 2),
+          _searchEntry(t),
+          const SizedBox(height: Gap.xxl),
           MsgrEmptyState(
             icon: Icons.campaign_rounded,
             title: t.channelsEmptyTitle,
-            body: _backendReady
-                ? t.channelsEmptyBody
-                : t.checkInternetRetry,
-            action: FilledButton.icon(
-              onPressed: _create,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.channelCreate),
-            ),
+            body: _backendReady ? t.chxEmptyBody : t.checkInternetRetry,
+            action: Column(mainAxisSize: MainAxisSize.min, children: [
+              FilledButton.icon(
+                key: const Key('chx-empty-find'),
+                onPressed: _openDirectory,
+                icon: const Icon(Icons.search_rounded),
+                label: Text(t.chxFindChannels),
+              ),
+              const SizedBox(height: Gap.sm),
+              OutlinedButton.icon(
+                onPressed: _create,
+                icon: const Icon(Icons.add_rounded),
+                label: Text(t.channelCreate),
+              ),
+            ]),
           ),
         ],
       );
     }
     return ListView(
+      padding: const EdgeInsets.only(bottom: Gap.xxl * 2), // FAB clearance
       children: [
+        _searchEntry(t),
+        if (_owned.isNotEmpty) ...[
+          _sectionHeader(t.chxMyChannels),
+          for (final ch in _owned)
+            MsgrChannelTile(
+              channel: ch,
+              onTap: () => _openChannel(ch),
+              trailing: Tooltip(
+                message: ch['is_public'] == true
+                    ? t.chxPublicShort
+                    : t.chxPrivateShort,
+                child: Icon(
+                  ch['is_public'] == true
+                      ? Icons.public_rounded
+                      : Icons.lock_rounded,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+        ],
         if (_following.isNotEmpty) ...[
           _sectionHeader(t.channelFollowingSection),
           for (final ch in _following)
@@ -284,6 +357,7 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
   final _desc = TextEditingController();
   String _category = '';
   String _language = '';
+  bool _public = true; // channels: listed in the directory by default
   bool _saving = false;
 
   ApiClient get _api => context.read<AppState>().api;
@@ -298,9 +372,9 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
 
   Future<void> _submit() async {
     final t = AppLocalizations.of(context);
-    if (_name.text.trim().isEmpty || _handle.text.trim().isEmpty) {
+    if (_name.text.trim().isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(t.channelNameHandleRequired)));
+          .showSnackBar(SnackBar(content: Text(t.chxNameRequired)));
       return;
     }
     setState(() => _saving = true);
@@ -311,10 +385,22 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
         description: _desc.text.trim(),
         category: _category,
         language: _language,
+        isPublic: _public,
       );
       if (mounted) {
-        Navigator.of(context)
-            .pop((created['channel'] ?? created).cast<String, dynamic>());
+        // the top level carries id + minor_private (+ legacy flat keys)
+        Navigator.of(context).pop(created);
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        final t2 = AppLocalizations.of(context);
+        final msg = e.status == 429
+            ? t2.chxRateLimited
+            : e.message.contains('handle_taken')
+                ? t2.chxHandleTaken
+                : t2.channelActionFailed;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (_) {
       if (mounted) {
@@ -353,9 +439,10 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
             TextField(
               controller: _handle,
               decoration: InputDecoration(
-                labelText: t.channelHandle,
+                labelText: t.chxHandleOptional,
                 prefixText: '@',
-                helperText: t.channelHandleHint,
+                helperText: t.chxHandleOptionalHint,
+                helperMaxLines: 3,
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -373,6 +460,30 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
             _LanguageDropdown(
               value: _language,
               onChanged: (v) => setState(() => _language = v),
+            ),
+            const SizedBox(height: Gap.md),
+            // channels: who can find it (WhatsApp/Telegram: public by default).
+            Text(t.chxWhoCanFind,
+                style: Theme.of(context).textTheme.titleSmall),
+            RadioGroup<bool>(
+              groupValue: _public,
+              onChanged: (v) => setState(() => _public = v ?? true),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                RadioListTile<bool>(
+                  key: const Key('chx-create-public'),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(t.chxPublicTitle),
+                  subtitle: Text(t.chxPublicSub),
+                ),
+                RadioListTile<bool>(
+                  key: const Key('chx-create-private'),
+                  value: false,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(t.chxPrivateTitle),
+                  subtitle: Text(t.chxPrivateSub),
+                ),
+              ]),
             ),
             const SizedBox(height: Gap.xl),
             FilledButton(

@@ -26,7 +26,7 @@ import '../circle_group_list_screen.dart';
 import '../circle_status_screen.dart';
 import 'broadcast_lists_screen.dart';
 import 'channel_list_screen.dart';
-import 'community_list_screen.dart';
+import 'communities_home_screen.dart'; // channels
 import 'contacts_screen.dart';
 import 'discover_screen.dart';
 import 'linked_devices_screen.dart';
@@ -69,6 +69,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   final _e2e = SoftwareE2E();
 
   late int _tab;
+  final _communitiesKey = GlobalKey<CommunitiesHomeScreenState>(); // channels
   bool _loading = true;
   IdentityKeyPair? _identity;
   List<Map<String, dynamic>> _members = [];
@@ -227,7 +228,10 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
         _openNewGroup();
         break;
       case 'new_community':
-        setState(() => _tab = 2); // Community tab hosts the create flow.
+        // channels: the Communities tab hosts the create flow — open it now.
+        setState(() => _tab = 2);
+        WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _communitiesKey.currentState?.create());
         break;
       case 'broadcast':
         Navigator.of(context).push(MaterialPageRoute(
@@ -524,7 +528,8 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     if (_identity == null) {
       return _placeholder(Icons.groups_2_rounded, _t.c3KeysNotReady);
     }
-    return CommunityListScreen(identity: _identity!);
+    // channels: my communities + New community + join with a link/code.
+    return CommunitiesHomeScreen(key: _communitiesKey, identity: _identity!);
   }
 
   Widget _placeholder(IconData icon, String body) {

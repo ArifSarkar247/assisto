@@ -58,6 +58,8 @@ import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'invite/invite_link.dart'; // invite-join
+import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
+import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
 
@@ -295,6 +297,7 @@ class AssistoApp extends StatelessWidget {
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
               InviteRouter.route(s) ??
+              SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -341,6 +344,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           context,
           PlatformDispatcher.instance.defaultRouteName,
           (token) => WebPhotoLinkScreen(token: token));
+      // channels: cold-start channel / community link
+      SpaceLink.maybeOpenColdStart(
+          context,
+          PlatformDispatcher.instance.defaultRouteName,
+          (l) => SpaceLinkScreen(link: l));
     });
   }
 
@@ -588,6 +596,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         try {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => WebPhotoLinkScreen(token: webTok)));
+        } catch (_) {}
+      });
+    }
+    // channels: a channel / community link that arrived signed out.
+    final spaceLink = SpaceLink.pending;
+    if (spaceLink != null) {
+      SpaceLink.pending = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => SpaceLinkScreen(link: spaceLink)));
         } catch (_) {}
       });
     }
