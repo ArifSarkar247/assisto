@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../cctvx/activity_source.dart';
 import '../../cctvx/timelapse_gif.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/action_feedback.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import 'watchman_source.dart';
@@ -943,7 +944,8 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
         bytes.add(await widget.source.download(f['url'].toString()));
         labels.add((f['time'] ?? '').toString());
       } catch (_) {
-        // an expired / missing photo is skipped — never replaced by a fake
+        // best-effort: an expired / missing photo is skipped (never faked);
+        // if none load, the honest 'could not make' line shows below
       }
       if (mounted) setState(() => _done++);
     }
@@ -952,7 +954,7 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
       try {
         gif = await compute(buildTimelapseGif, <String, Object>{'frames': bytes, 'labels': labels});
       } catch (_) {
-        gif = null;
+        gif = null; // best-effort: _failed below shows the honest message
       }
     }
     if (!mounted) return;
@@ -968,11 +970,15 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
     if (gif == null) return;
     final t = AppLocalizations.of(context);
     final loc = MaterialLocalizations.of(context);
-    final dir = await getTemporaryDirectory();
-    final f = File('${dir.path}/assisto_timelapse_${_ymd(widget.date)}.gif');
-    await f.writeAsBytes(gif);
-    await Share.shareXFiles([XFile(f.path, mimeType: 'image/gif')],
-        text: t.cactTlLabel(loc.formatMediumDate(widget.date)));
+    try {
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/assisto_timelapse_${_ymd(widget.date)}.gif');
+      await f.writeAsBytes(gif);
+      await Share.shareXFiles([XFile(f.path, mimeType: 'image/gif')],
+          text: t.cactTlLabel(loc.formatMediumDate(widget.date)));
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'cctvActivity.shareTimelapse', e);
+    }
   }
 
   @override
