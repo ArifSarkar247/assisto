@@ -42,9 +42,29 @@ class ReminderActions {
 
   static String keyOf(String? payload) {
     final p = payload ?? '';
-    return p.startsWith(ReminderAlarms.payloadPrefix)
-        ? p.substring(ReminderAlarms.payloadPrefix.length)
-        : '';
+    if (!p.startsWith(ReminderAlarms.payloadPrefix)) return '';
+    final rest = p.substring(ReminderAlarms.payloadPrefix.length);
+    final nl = rest.indexOf('\n');
+    return nl < 0 ? rest : rest.substring(0, nl);
+  }
+
+  /// remhbar: the alarm's payload also carries its title + text, so
+  /// "Snooze" can set the stand-in alarm even though the OS has already
+  /// dismissed the notification (the buttons now dismiss natively).
+  /// Format: `remalarm:<key>\n["title","text"]`; old payloads = key only.
+  static String payloadFor(String key, String title, String body) =>
+      '${ReminderAlarms.payloadPrefix}$key\n${jsonEncode([title, body])}';
+
+  /// (title, text) from a payload, or null for an old key-only payload.
+  static (String, String)? textOf(String? payload) {
+    final p = payload ?? '';
+    final nl = p.indexOf('\n');
+    if (!p.startsWith(ReminderAlarms.payloadPrefix) || nl < 0) return null;
+    try {
+      final l = jsonDecode(p.substring(nl + 1));
+      if (l is List && l.length == 2) return ('${l[0] ?? ''}', '${l[1] ?? ''}');
+    } catch (_) {}
+    return null;
   }
 
   /// The stand-in alarm id for a snoozed reminder (never the real alarm's).
@@ -62,13 +82,20 @@ class ReminderActions {
     try {
       String title = '', body = '';
       if (a == snooze) {
-        final n = await _active(r.id, plugin);
-        title = n?.title ?? '';
-        body = n?.body ?? '';
+        final txt = textOf(r.payload);
+        if (txt != null) {
+          (title, body) = txt;
+        } else {
+          final n = await _active(r.id, plugin);
+          title = n?.title ?? '';
+          body = n?.body ?? '';
+        }
         final when = at.add(const Duration(minutes: snoozeMinutes));
         await _schedule(plugin, snoozeIdFor(key), title, body, when, key);
       }
-      if (r.id != null) await _cancel(plugin, r.id!);
+      // remhbar: no plugin.cancel(r.id) here — that also removed a daily /
+      // weekly alarm's NEXT rings (the OS already dismissed the shown
+      // notification: the buttons carry cancelNotification).
       final prefs = await SharedPreferences.getInstance();
       try {
         await prefs.reload();
@@ -197,20 +224,13 @@ class ReminderActions {
     return null;
   }
 
-  static Future<void> _cancel(FlutterLocalNotificationsPlugin? plugin, int id) async {
-    if (plugin == null) return Notifications.cancelId(id);
-    try {
-      await plugin.cancel(id);
-    } catch (_) {}
-  }
-
   static Future<void> _schedule(FlutterLocalNotificationsPlugin? plugin, int id,
       String title, String body, DateTime when, String key) async {
     if (plugin == null) {
       final exact = Notifications.exactAllowedCached ?? await Notifications.canScheduleExact();
       await Notifications.scheduleAlarm(id, title, body, when,
           mode: exact ? AlarmMode.exact : AlarmMode.inexact,
-          payload: '${ReminderAlarms.payloadPrefix}$key');
+          payload: payloadFor(key, title, body));
       return;
     }
     try {
@@ -221,7 +241,7 @@ class ReminderActions {
     } catch (_) {}
     await Notifications.scheduleAlarm(id, title, body, when,
         mode: AlarmMode.exact,
-        payload: '${ReminderAlarms.payloadPrefix}$key',
+        payload: payloadFor(key, title, body),
         plugin: plugin);
   }
 }

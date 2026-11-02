@@ -12,6 +12,8 @@ import '../screens/vault_screen.dart' show VaultScreen;
 import 'reminders_nlp.dart' show RecurrenceRule, nextOccurrence;
 import 'rn_bits.dart'; // remnotes
 import 'voice_input.dart' show VoiceDictation, VoiceMicButton;
+import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource; // remhbar
+import 'permission_reason.dart' show showPermissionReason, PermKind; // remhbar
 
 /// Advanced NOTES + TO-DO building blocks (#22, SPEC v2.1 §21).
 ///
@@ -496,6 +498,22 @@ Future<List<Map<String, dynamic>>?> pickVaultDocs(BuildContext context,
   );
 }
 
+/// remhbar: test seam for "photo into this note" — returns a picked image
+/// path (camera asks the camera reason first) or null.
+class NotePhotoHooks {
+  static Future<String?> Function(BuildContext context, ImageSource src) pick =
+      _pickReal;
+
+  static Future<String?> _pickReal(BuildContext context, ImageSource src) async {
+    if (src == ImageSource.camera &&
+        !await showPermissionReason(context, PermKind.camera)) {
+      return null;
+    }
+    final x = await ImagePicker().pickImage(source: src, imageQuality: 70);
+    return x?.path;
+  }
+}
+
 class _VaultPick extends StatefulWidget {
   const _VaultPick({required this.already});
   final Set<Object?> already;
@@ -506,7 +524,70 @@ class _VaultPick extends StatefulWidget {
 class _VaultPickState extends State<_VaultPick> {
   List<Map<String, dynamic>>? _docs;
   bool _failed = false;
+  bool _uploading = false;
   final Set<int> _on = {};
+
+  /// remhbar: a photo straight into the note — it is saved in the Vault
+  /// (the one encrypted place for papers; same rules, same delete) and
+  /// ticked here, so Keep's "add image" is one step, not a trip to Vault.
+  Future<void> _photo(ImageSource src) async {
+    final t = AppLocalizations.of(context);
+    final app = context.read<AppState>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final path = await NotePhotoHooks.pick(context, src);
+    if (path == null || !mounted) return;
+    setState(() => _uploading = true);
+    final before = {for (final d in _docs ?? const []) d['id']};
+    try {
+      await app.api.uploadDocument(
+          title: t.rhbNotePhotoTitle(
+              DateFormat('d MMM, h:mm a', appDateLocale(context))
+                  .format(DateTime.now())),
+          docType: 'other',
+          filePath: path);
+      final l = await app.api.listDocuments();
+      if (!mounted) return;
+      setState(() {
+        _docs = l;
+        for (final d in l) {
+          if (d['id'] is int && !before.contains(d['id'])) _on.add(d['id'] as int);
+        }
+        _uploading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _uploading = false);
+      messenger?.showSnackBar(SnackBar(content: Text(t.rhbNotePhotoFailed)));
+    }
+  }
+
+  Widget _photoButtons(AppLocalizations t) => Padding(
+        padding: const EdgeInsets.only(top: Gap.md),
+        child: _uploading
+            ? Row(children: [
+                const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: Text(t.rhbNotePhotoSaving)),
+              ])
+            : Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                OutlinedButton.icon(
+                  key: const ValueKey('rn-photo-camera'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => _photo(ImageSource.camera),
+                  icon: const Icon(Icons.photo_camera_rounded),
+                  label: Text(t.camera),
+                ),
+                OutlinedButton.icon(
+                  key: const ValueKey('rn-photo-gallery'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => _photo(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_rounded),
+                  label: Text(t.gallery),
+                ),
+              ]),
+      );
 
   @override
   void initState() {
@@ -586,6 +667,13 @@ class _VaultPickState extends State<_VaultPick> {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.md),
         body,
+        // remhbar: or a new photo, saved to the Vault and ticked here
+        if (!_failed && docs != null) ...[
+          const SizedBox(height: Gap.sm),
+          Text(t.rhbNotePhotoHint,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          _photoButtons(t),
+        ],
       ]),
     );
   }

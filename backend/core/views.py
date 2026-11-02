@@ -343,6 +343,39 @@ class NoteViewSet(SyncedViewSet):
     kind = "note"
     serializer_class = NoteSerializer
 
+    def update(self, request, *args, **kwargs):
+        """remhbar: an edit made offline must not silently wipe a newer edit
+        from another phone. The app sends `base_updated_at` (the server
+        time of the copy it edited); when the note changed on the server
+        after that, nothing is written — 409 with the server copy, and the
+        app keeps BOTH (its own text becomes a separate "conflict copy").
+        Old apps send no base: last write wins as before."""
+        base = request.data.get("base_updated_at") if hasattr(
+            request.data, "get") else None
+        if base:
+            from django.utils.dateparse import parse_datetime
+            try:
+                b = parse_datetime(str(base))
+            except (TypeError, ValueError):
+                b = None
+            if b is not None:
+                if timezone.is_naive(b):
+                    from datetime import timezone as _dtz
+                    b = b.replace(tzinfo=_dtz.utc)
+                inst = self.get_object()
+                if inst.updated_at and inst.updated_at > b + timedelta(seconds=1):
+                    lang = req_lang(request)
+                    return Response({
+                        "conflict": True, "reason": "conflict",
+                        "detail": pick(
+                            lang,
+                            "এই নোট অন্য ফোনে বদলানো হয়েছে — দুটো কপিই রাখা হলো।",
+                            "This note was changed on another phone — both "
+                            "copies are kept."),
+                        "server": self.get_serializer(inst).data,
+                    }, status=status.HTTP_409_CONFLICT)
+        return super().update(request, *args, **kwargs)
+
     @action(detail=True, methods=["post"], url_path="share")
     def share(self, request, pk=None):
         """remnotes: POST /notes/<id>/share {circle_id} — a copy to one

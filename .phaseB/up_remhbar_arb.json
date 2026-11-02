@@ -1,0 +1,74 @@
+{
+ "en": {
+  "rhbBanglaDate": "Bangla date: {date}",
+  "@rhbBanglaDate": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "rhbLostAlarms": "{count} reminder alarm(s) vanished from this phone before their time (a restart, Force stop or a battery cleaner) — Assisto put them back on {date}. Turn on Autostart in the battery guide so it does not happen again.",
+  "@rhbLostAlarms": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "rhbRestartOk": "After a restart, reminders set themselves again. Some phones (Xiaomi, realme, OPPO, vivo, Tecno, Infinix) need Autostart on for that — otherwise open Assisto once after a restart.",
+  "@rhbRestartOk": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictTag": "Edited on 2 phones",
+  "@rhbConflictTag": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictStrip": "A note was changed on this phone and on another phone at the same time — both versions are kept. This phone's copy has the label “{label}”: keep the one you want and delete the other.",
+  "@rhbConflictStrip": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+   "placeholders": {
+    "label": {
+     "type": "String"
+    }
+   }
+  },
+  "rhbNotePhotoTitle": "Note photo {when}",
+  "@rhbNotePhotoTitle": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "rhbNotePhotoFailed": "The photo could not be saved — check the internet and try again.",
+  "@rhbNotePhotoFailed": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoSaving": "Saving the photo in your Vault…",
+  "@rhbNotePhotoSaving": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoHint": "Or add a new photo — it is kept safely in your Vault and attached here.",
+  "@rhbNotePhotoHint": {
+   "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  }
+ },
+ "bn": {
+  "rhbBanglaDate": "বাংলা তারিখ: {date}",
+  "rhbLostAlarms": "এই ফোন থেকে {count}টি রিমাইন্ডার-অ্যালার্ম সময়ের আগেই হারিয়ে গিয়েছিল (রিস্টার্ট, Force stop বা ব্যাটারি-ক্লিনার) — {date}-এ Assisto আবার বসিয়েছে। আবার যেন না হয়, ব্যাটারি গাইড দেখে Autostart চালু করুন।",
+  "rhbRestartOk": "ফোন রিস্টার্ট হলে রিমাইন্ডার নিজে আবার বসে। কিছু ফোনে (Xiaomi, realme, OPPO, vivo, Tecno, Infinix) এর জন্য Autostart চালু থাকা লাগে — না হলে রিস্টার্টের পরে একবার Assisto খুলুন।",
+  "rhbConflictTag": "দুই ফোনে বদল",
+  "rhbConflictStrip": "একটি নোট এই ফোনে আর অন্য ফোনে একসাথে বদলানো হয়েছিল — দুটো কপিই রাখা হয়েছে। এই ফোনের কপিতে “{label}” লেবেল আছে: যেটা চান রাখুন, অন্যটা মুছুন।",
+  "rhbNotePhotoTitle": "নোটের ছবি {when}",
+  "rhbNotePhotoFailed": "ছবিটি রাখা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "rhbNotePhotoSaving": "ছবিটি আপনার ভল্টে রাখা হচ্ছে…",
+  "rhbNotePhotoHint": "অথবা নতুন ছবি দিন — ছবিটি আপনার ভল্টে নিরাপদে থাকবে আর এখানে জুড়ে যাবে।"
+ }
+}

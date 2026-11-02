@@ -126,6 +126,29 @@ def clamp_lead_days(n):
     return max(0, min(LEAD_DAYS_MAX, v))
 
 
+def clean_leads(raw):
+    """remhbar: the app sends every chosen pre-reminder as a LIST ([7, 1, 0]);
+    an old app sends one int. -> (sorted unique list, the single lead_days
+    kept for old readers = the largest)."""
+    if isinstance(raw, (list, tuple)):
+        vals = []
+        for x in list(raw)[:8]:
+            if isinstance(x, bool):
+                continue
+            try:
+                vals.append(clamp_lead_days(int(x)))
+            except (TypeError, ValueError):
+                continue
+        leads = sorted(set(vals), reverse=True)
+    elif raw is None or raw == "":
+        leads = [LEAD_DAYS_DEFAULT]
+    else:
+        leads = [clamp_lead_days(raw)]
+    if not leads:
+        leads = [LEAD_DAYS_DEFAULT]
+    return leads, max(leads)
+
+
 def reminder_dates(occasion_date, lead_days=LEAD_DAYS_DEFAULT, today=None):
     """Dates on which to remind for the NEXT occurrence: the lead-day(s) before
     PLUS the day itself. `lead_days` may be an int (single lead) or a list of

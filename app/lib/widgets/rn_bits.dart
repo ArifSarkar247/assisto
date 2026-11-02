@@ -271,3 +271,36 @@ class SyncRefusalStrip extends StatelessWidget {
     );
   }
 }
+
+/// remhbar: the same note was changed on this phone (offline) AND on another
+/// phone — both versions are kept; this says so and how to tidy up.
+class SyncConflictStrip extends StatelessWidget {
+  const SyncConflictStrip({super.key, required this.count});
+  final int count;
+  @override
+  Widget build(BuildContext context) {
+    if (count <= 0) return const SizedBox.shrink();
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        key: const ValueKey('rn-sync-conflict'),
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+        padding: const EdgeInsets.all(Gap.sm),
+        decoration: BoxDecoration(
+            color: scheme.tertiaryContainer,
+            borderRadius: BorderRadius.circular(Radii.md)),
+        child: Row(children: [
+          Icon(Icons.call_split_rounded,
+              size: 18, color: scheme.onTertiaryContainer),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(t.rhbConflictStrip(t.rhbConflictTag),
+                  style: TextStyle(color: scheme.onTertiaryContainer))),
+        ]),
+      ),
+    );
+  }
+}

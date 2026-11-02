@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'api.dart';
 import 'db.dart';
+import 'l10n/app_localizations.dart';
 
 /// Offline-first repository for a synced collection (reminders / notes / todos).
 /// Each in-memory item is a map: {localId, serverId, data: {...}, pendingOp}.
@@ -84,12 +86,86 @@ class SyncedRepo extends ChangeNotifier {
     return s >= 400 && s < 500 && s != 401 && s != 408;
   }
 
+  /// remhbar: notes kept as a second copy in the last sync because the same
+  /// note had ALSO been changed on another phone (0 = none). The Notes
+  /// screen says so honestly.
+  int conflicts = 0;
+
+  /// App language for the conflict copy's label (AppState sets it).
+  static String lang = 'bn';
+
+  /// remhbar: the body of a queued edit. Notes carry the server time of the
+  /// copy they were edited from, so the server can refuse to overwrite a
+  /// newer edit from another phone (409 conflict).
+  @visibleForTesting
+  static Map<String, dynamic> updateBody(String entity, Map<String, dynamic> data) {
+    final body = Map<String, dynamic>.from(data);
+    body.remove('base_updated_at');
+    if (entity == 'note') {
+      final base = data['updated_at'];
+      if (base is String && base.isNotEmpty) body['base_updated_at'] = base;
+    }
+    return body;
+  }
+
+  /// remhbar: this phone's version of a note that changed elsewhere too —
+  /// a NEW note (nothing is lost), labelled so the person can compare and
+  /// delete one. Server-only fields and the reminder link are dropped (the
+  /// link stays on the original; two notes must not drive one reminder).
+  @visibleForTesting
+  static Map<String, dynamic> conflictCopy(Map<String, dynamic> data, String label) {
+    final d = Map<String, dynamic>.from(data);
+    for (final k in const ['id', 'updated_at', 'created_at', 'shared_from',
+        'base_updated_at', 'reminder_local_id', 'source']) {
+      d.remove(k);
+    }
+    final tags = <String>[
+      if (d['tags'] is List) for (final x in d['tags'] as List) '$x',
+    ];
+    if (!tags.contains(label)) tags.add(label);
+    d['tags'] = tags;
+    return d;
+  }
+
+  static String _conflictLabel() {
+    try {
+      return lookupAppLocalizations(Locale(lang == 'en' ? 'en' : 'bn'))
+          .rhbConflictTag;
+    } catch (_) {
+      return 'Edited on 2 phones';
+    }
+  }
+
+  Future<void> _keepConflictCopy(Map<String, dynamic> m) async {
+    final copy = <String, dynamic>{
+      'localId': _newId(),
+      'serverId': null,
+      'data': conflictCopy(
+          Map<String, dynamic>.from(m['data'] as Map), _conflictLabel()),
+      'pendingOp': 'create',
+    };
+    await db.recUpsert(entity, _toRow(copy));
+    // the server's newer version replaces this row on the refresh below
+    m['pendingOp'] = 'none';
+    await db.recUpsert(entity, _toRow(m));
+    try {
+      final j = await api.createItem(
+          path, Map<String, dynamic>.from(copy['data'] as Map));
+      copy['serverId'] = j['id'];
+      copy['pendingOp'] = 'none';
+      await db.recUpsert(entity, _toRow(copy));
+    } catch (_) {
+      // stays queued as a create; the next sync sends it
+    }
+  }
+
   Future<void> sync() async {
     if (api.token == null || syncing) return;
     syncing = true;
     notifyListeners();
     try {
       String? refused;
+      var conflicted = 0;
       for (final row in await db.recPending(entity)) {
         final m = _fromRow(row);
         final op = m['pendingOp'];
@@ -100,8 +176,22 @@ class SyncedRepo extends ChangeNotifier {
             m['pendingOp'] = 'none';
             await db.recUpsert(entity, _toRow(m));
           } else if (op == 'update' && m['serverId'] != null) {
-            await api.updateItem(path, m['serverId'] as int, Map<String, dynamic>.from(m['data']));
+            try {
+              await api.updateItem(path, m['serverId'] as int,
+                  updateBody(entity, Map<String, dynamic>.from(m['data'])));
+            } on ApiException catch (e) {
+              if (entity == 'note' && e.status == 409 &&
+                  e.body?['conflict'] == true) {
+                await _keepConflictCopy(m);
+                conflicted++;
+                continue;
+              }
+              rethrow;
+            }
             m['pendingOp'] = 'none';
+            // remhbar: the server time moved on; until the refresh below
+            // brings the new one, the next edit carries no (stale) base
+            (m['data'] as Map).remove('updated_at');
             await db.recUpsert(entity, _toRow(m));
           } else if (op == 'delete' && m['serverId'] != null) {
             await api.deleteItem(path, m['serverId'] as int);
@@ -119,6 +209,7 @@ class SyncedRepo extends ChangeNotifier {
         }
       }
       refusal = refused;
+      conflicts = conflicted;
       final server = await api.listItems(path);
       final rows = server
           .map((j) => {

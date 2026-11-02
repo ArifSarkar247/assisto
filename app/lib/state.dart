@@ -185,6 +185,7 @@ class AppState extends ChangeNotifier {
     // remnotes: notification buttons in the app's language; Done / Snooze
     // tapped while the app was closed are applied first (guarded).
     Notifications.actionLang = locale?.languageCode == 'en' ? 'en' : 'bn';
+    SyncedRepo.lang = Notifications.actionLang; // remhbar
     unawaited(ReminderActions.applyTo(reminders.items, reminders.update)
         .catchError((_) => 0));
     ReminderAlarms.request(() => reminders.items);

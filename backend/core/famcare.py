@@ -210,8 +210,31 @@ def _name(u):
 
 
 # --------------------------------------------------------- shared reminders
-def assign_reminder(user, member_id, title, due_at=None, notes=""):
-    """(reminder, error). The reminder is created in the MEMBER's account."""
+FAMILY_REPEATS = ("daily", "weekly", "monthly")
+
+
+def family_repeat_rule(repeat, due_at):
+    """remhbar: a repeating family task ("Abba: pills every day at 9").
+    (recurrence, recurrence_rule) for the Reminder, in Dhaka wall time like
+    the app and push_due_reminders. Unknown / no time -> one-off."""
+    if repeat not in FAMILY_REPEATS or due_at is None:
+        return "none", {}
+    from zoneinfo import ZoneInfo
+    from django.conf import settings
+    local = due_at.astimezone(ZoneInfo(settings.TIME_ZONE or "Asia/Dhaka"))
+    rule = {"freq": repeat, "interval": 1,
+            "time": "%02d:%02d" % (local.hour, local.minute)}
+    if repeat == "weekly":
+        rule["weekday"] = local.weekday()
+    if repeat == "monthly":
+        rule["day_of_month"] = local.day
+    return repeat, rule
+
+
+def assign_reminder(user, member_id, title, due_at=None, notes="", repeat=None):
+    """(reminder, error). The reminder is created in the MEMBER's account.
+    remhbar: `repeat` (daily / weekly / monthly) makes it a repeating task;
+    it then rings for them at every occurrence (local alarm + server push)."""
     from .models import FamilyMember, Reminder
     fm = FamilyMember.objects.filter(user=user, pk=member_id) \
         .select_related("circle_member").first()
@@ -229,8 +252,10 @@ def assign_reminder(user, member_id, title, due_at=None, notes=""):
                                    link__from_user=user.pk).count()
     if sent >= TASKS_PER_PAIR_PER_DAY:
         return None, "rate_limited"
+    recurrence, rule = family_repeat_rule(repeat, due_at)
     r = Reminder.objects.create(
         user=to, title=title, notes=(notes or "")[:2000], due_at=due_at,
+        recurrence=recurrence, recurrence_rule=rule,
         link={"type": "family_task", "id": user.pk, "from_user": user.pk,
               "from_name": _name(user)[:80], "family_id": fm.id,
               "label": _name(user)[:80]},
@@ -250,6 +275,7 @@ def task_dict(r, viewer):
             "to_user": r.user_id, "to_name": _name(r.user),
             "family_id": link.get("family_id"),
             "mine": link.get("from_user") == viewer.pk,
+            "repeat": r.recurrence if r.recurrence in FAMILY_REPEATS else "none",
             "updated_at": r.updated_at.isoformat() if r.updated_at else None}
 
 

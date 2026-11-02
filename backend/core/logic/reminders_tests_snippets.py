@@ -491,6 +491,46 @@ def test_expense_date():
        and nlp.day_offset("গতকাল") == -1, "day_offset helper")
 
 
+# ======================================== remhbar: anchor + interval step
+def test_remhbar_every_n_days_keeps_step_with_anchor():
+    # every 2 days from Mon 2 Nov 08:00; asked on Tue 3 Nov 10:00 -> Wed 4 Nov
+    # (it used to count from "today" and answer Thu 5 Nov)
+    rule = {"freq": "daily", "interval": 2, "weekday": None,
+            "day_of_month": None, "month": None, "time": "08:00"}
+    anchor = datetime(2026, 11, 2, 8, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 3, 10, 0))
+    ok(nxt == datetime(2026, 11, 4, 8, 0), "every 2 days in step: %r" % nxt)
+    # and on an "on" day before the time -> that same day
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 6, 7, 0))
+    ok(nxt == datetime(2026, 11, 6, 8, 0), "every 2 days same day: %r" % nxt)
+
+
+def test_remhbar_every_n_weeks_keeps_step_with_anchor():
+    # every 2 weeks on Monday from Mon 2 Nov; asked Tue 3 Nov -> Mon 16 Nov
+    rule = {"freq": "weekly", "interval": 2, "weekday": 0,
+            "day_of_month": None, "month": None, "time": "09:00"}
+    anchor = datetime(2026, 11, 2, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 3, 10, 0))
+    ok(nxt == datetime(2026, 11, 16, 9, 0), "every 2 weeks: %r" % nxt)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 10, 10, 0))
+    ok(nxt == datetime(2026, 11, 16, 9, 0), "skip the off week: %r" % nxt)
+
+
+def test_remhbar_repeat_never_starts_before_anchor():
+    # "from Mon 7 Dec, every Monday" asked on Mon 2 Nov -> 7 Dec, not 9 Nov
+    rule = {"freq": "weekly", "interval": 1, "weekday": 0,
+            "day_of_month": None, "month": None, "time": "09:00"}
+    anchor = datetime(2026, 12, 7, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 2, 10, 0))
+    ok(nxt == datetime(2026, 12, 7, 9, 0), "weekly from anchor: %r" % nxt)
+    rule = {"freq": "monthly", "interval": 1, "weekday": None,
+            "day_of_month": 5, "month": None, "time": "09:00"}
+    anchor = datetime(2027, 1, 5, 9, 0)
+    nxt = eng.next_occurrence(anchor, rule, after=datetime(2026, 11, 2, 10, 0))
+    ok(nxt == datetime(2027, 1, 5, 9, 0), "monthly from anchor: %r" % nxt)
+
+
+
 def run():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("test_") and callable(v)]
