@@ -56,3 +56,62 @@ class GuardianChildrenView(APIView):
     def get(self, request):
         from . import guardianship
         return Response({"children": guardianship.children_of(request.user)})
+
+
+# ------------------------------------------------------------ link previews
+_LINK_CONTEXTS = ("channel",)
+_LINK_RATE = 120          # per user per hour (preview + check together)
+
+
+def _link_rate_ok(user):
+    from django.core.cache import cache
+    k = "lp:rate:%d" % user.id
+    n = cache.get(k, 0)
+    if n >= _LINK_RATE:
+        return False
+    cache.set(k, n + 1, 3600)
+    return True
+
+
+def _link_args(request):
+    d = request.data or {}
+    url = str(d.get("url") or "").strip()
+    ctx = str(d.get("context") or "").strip().lower()
+    if ctx not in _LINK_CONTEXTS:
+        # end-to-end-encrypted chats NEVER send a URL here: the sender's
+        # phone builds the preview inside the encrypted message.
+        return None, Response({"detail": "e2e_never"}, status=status.HTTP_400_BAD_REQUEST)
+    if not url or len(url) > 2048:
+        return None, Response({"detail": "bad_url"}, status=status.HTTP_400_BAD_REQUEST)
+    if not _link_rate_ok(request.user):
+        return None, Response({"detail": "rate"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+    return url, None
+
+
+class LinkPreviewView(APIView):
+    """POST /links/preview {url, context:'channel'} — SSRF-safe, cached."""
+
+    def post(self, request):
+        url, err = _link_args(request)
+        if err:
+            return err
+        from . import link_preview as LP
+        return Response(LP.cached_preview(url))
+
+
+class LinkCheckView(APIView):
+    """POST /links/check {url, context:'channel'} — heuristics + the real
+    destination of a shortener + Google Safe Browsing when configured."""
+
+    def post(self, request):
+        url, err = _link_args(request)
+        if err:
+            return err
+        from django.core.cache import cache
+        from . import link_preview as LP
+        k = LP.cache_key("ck", url)
+        hit = cache.get(k)
+        if hit is None:
+            hit = LP.check_link(url)
+            cache.set(k, hit, 6 * 3600)
+        return Response(hit)
