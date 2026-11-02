@@ -29667,5 +29667,28 @@
   "fbOtpIdInvalid": "Enter a Bangladeshi mobile number (01…) or an email address.",
   "@fbOtpIdInvalid": {
     "description": "framebar: fbOtpIdInvalid"
-  }
+  },
+  "aibarCreditsUsed": "{n} credits used",
+  "@aibarCreditsUsed": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aibarCreditsLeft": "{n} left",
+  "@aibarCreditsLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aibarFreeQuick": "Free quick answer (today's free quota)",
+  "aibarFreeAnswer": "Free — no credits used",
+  "aibarTextCut": "Your message was very long — only the first part was read.",
+  "aibarNotSent": "Not sent — your message is kept.",
+  "aibarNotSentOffline": "No internet — your message is kept. Send it again when you're online.",
+  "aibarNotSentServer": "Assisto's server had a problem — your message is kept. Try again in a moment.",
+  "aibarSendAgain": "Send again"
 }

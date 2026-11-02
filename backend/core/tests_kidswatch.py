@@ -23,6 +23,7 @@ import asyncio
 import base64
 import os
 import re
+import atexit
 import shutil
 import tempfile
 from datetime import datetime, timedelta, timezone as dtz
@@ -871,5 +872,7 @@ class WatchTcpEndToEndTests(APITransactionTestCase):
         self.assertEqual(w.interval_s, 1800)
 
 
-def tearDownModule():
-    shutil.rmtree(_MEDIA, ignore_errors=True)
+# Removed once at interpreter exit, NOT in tearDownModule: parallel test
+# workers share this directory (created before fork), and one worker's
+# tearDownModule deleted it under the others (voice note "gone" flake).
+atexit.register(shutil.rmtree, _MEDIA, True)
