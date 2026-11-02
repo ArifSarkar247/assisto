@@ -1,0 +1,30 @@
+{
+  "_comment": "website (owner 2 Nov 17:05): remove surveillance-sounding wording ('I'm watching', 'আমি দেখছি', 'নজর রাখছি') from app headlines. All keys NEW (old keys left in place, now unused). Integrator: bin/arb_apply.py .phaseB/up_website_arb.json",
+  "en": {
+    "watchFeed2": "Today's updates",
+    "watchFeedTitle2": "For you today",
+    "watchAllClearBody2": "Nothing needs you right now. Assisto keeps your reminders, money, subscriptions and family updates in order for you.",
+    "j100Following": "Trips I'm following",
+    "gjSeesYourTrip": "{name} can see your trip",
+    "@gjSeesYourTrip": {"placeholders": {"name": {"type": "Object"}}},
+    "journeyWhoKnows": "Who will know",
+    "gjBannerNote2": "Your screen always shows who can see this trip. The trip's path is deleted when it ends.",
+    "gjSchoolModeDesc2": "Your child accepts once. Their screen always shows that you can see their trips, and they can stop any single trip.",
+    "lifebarExamMineTitle2": "Results we'll tell you about",
+    "mlpStatusArmedBody2": "Assisto is protecting this phone and will report its location whenever it comes online.",
+    "atStateOnBody2": "A quiet background service is protecting your phone. A permanent notification shows while it runs."
+  },
+  "bn": {
+    "watchFeed2": "আজকের আপডেট",
+    "watchFeedTitle2": "আজ আপনার জন্য",
+    "watchAllClearBody2": "এখন আপনার কিছু করার নেই। Assisto আপনার রিমাইন্ডার, টাকা, সাবস্ক্রিপশন আর পরিবারের খবর গুছিয়ে রাখে।",
+    "j100Following": "যাঁদের যাত্রায় আমি সাথে আছি",
+    "gjSeesYourTrip": "{name} আপনার যাত্রা দেখতে পাচ্ছেন",
+    "journeyWhoKnows": "কে জানবে",
+    "gjBannerNote2": "এই যাত্রা কে দেখতে পান, তা আপনার স্ক্রিনে সবসময় লেখা থাকে। যাত্রা শেষে পথের লোকেশন মুছে যায়।",
+    "gjSchoolModeDesc2": "সন্তান একবার রাজি হবে। তার স্ক্রিনে সবসময় লেখা থাকবে যে আপনি তার যাত্রা দেখতে পান, আর যেকোনো দিনের যাত্রা সে বন্ধ করতে পারবে।",
+    "lifebarExamMineTitle2": "যে ফল এলে আপনাকে জানাব",
+    "mlpStatusArmedBody2": "Assisto এই ফোনটি সুরক্ষিত রাখছে এবং যখনই এটি অনলাইনে আসবে তখন অবস্থান জানাবে।",
+    "atStateOnBody2": "একটি নীরব ব্যাকগ্রাউন্ড সেবা আপনার ফোন সুরক্ষিত রাখছে। চালু থাকা অবস্থায় একটি স্থায়ী নোটিফিকেশন দেখা যাবে।"
+  }
+}

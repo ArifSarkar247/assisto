@@ -197,7 +197,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
             Expanded(
               child: Text(
                   st == 'active'
-                      ? t.gjWatchingYou(name)
+                      ? t.gjSeesYourTrip(name)
                       : (r['standing'] == true ? t.gjAskSchool(name) : t.gjAsk(name)),
                   style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
             ),
@@ -207,7 +207,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           if (note.isNotEmpty)
             Text('"$note"', style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: Gap.xs),
-          Text(st == 'pending' ? t.gjConsentNote : t.gjBannerNote,
+          Text(st == 'pending' ? t.gjConsentNote : t.gjBannerNote2,
               style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
           // owner decision 2 Nov: BEFORE accepting, say plainly that a late
           // trip stays on up to N minutes after the end time and stops at

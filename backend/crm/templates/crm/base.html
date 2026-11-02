@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ t.app_name }}{% block title %}{% endblock %}</title>
+{% include "web/_icons.html" with no_manifest=True %}
 <style>
 :root{
  --bg:#0a0c14;--panel:#12151e;--card:#171a24;--line:#242a3a;--fg:#e9ecf2;

@@ -1,0 +1,3 @@
+<div class="faq">
+{% for f in faq %}<details{% if forloop.first and open_first %} open{% endif %}><summary>{{ f.q }}</summary><p>{{ f.a }}</p></details>{% endfor %}
+</div>

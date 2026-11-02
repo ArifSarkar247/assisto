@@ -1,0 +1,102 @@
+# website (owner order 2 Nov): proof for lifeassisto.com.
+#  1. BEFORE (origin/main) and AFTER (this branch) full-page screenshots at
+#     390px and 1280px, light + dark -> artifacts website-before / website-after
+#  2. Lighthouse CI on the main pages; fails under 95 in performance,
+#     accessibility, best practices or SEO -> artifact website-lighthouse
+#  3. the website Django tests (web.tests_website + legal + tools pages)
+# Runs only on ci/website* pushes (and by hand). Never deploys anything.
+name: website
+
+on:
+  push:
+    branches: ['ci/website*']
+  workflow_dispatch:
+
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PW_VERSION: 1.48.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
+
+      - name: start AFTER (this branch) on :8000 and BEFORE (origin/main) on :8001
+        run: |
+          set -e
+          git worktree add -q "$RUNNER_TEMP/before" origin/main
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          for side in after before; do
+            if [ $side = after ]; then DIR=$PWD/backend; PORT=8000; else DIR=$RUNNER_TEMP/before/backend; PORT=8001; fi
+            cp tools/website/ci_settings.py "$DIR/assisto_backend/settings_webci.py"
+            export WEBCI_DB=$RUNNER_TEMP/$side.sqlite3 WEBCI_SITE=http://127.0.0.1:$PORT
+            (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
+            (cd "$DIR" && nohup python manage.py runserver 127.0.0.1:$PORT --noreload --insecure \
+               --settings=assisto_backend.settings_webci > "$RUNNER_TEMP/$side.log" 2>&1 &)
+          done
+          for PORT in 8000 8001; do
+            for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:$PORT/robots.txt" && break; sleep 1; done
+          done
+          for p in / /?lang=en /pricing /security /help /get /cv /delete-account /app-ads.txt /site.webmanifest /favicon.ico; do
+            echo "after $p -> $(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$p")"
+          done
+
+      - name: screenshots (before + after)
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null && npm i -s playwright@$PW_VERSION
+          npx -y playwright@$PW_VERSION install --with-deps chromium >/dev/null
+          cp "$GITHUB_WORKSPACE/tools/website/shots.mjs" .
+          node shots.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/before"
+          node shots.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/after"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-before
+          path: ${{ runner.temp }}/shots/before
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-after
+          path: ${{ runner.temp }}/shots/after
+
+      - name: Lighthouse CI (fails under 95)
+        if: always()
+        run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc.json
+      - name: Lighthouse scores
+        if: always()
+        run: |
+          if [ -f lhci-report/manifest.json ]; then
+            python tools/website/lh_summary.py lhci-report/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-lighthouse
+          path: lhci-report
+      - name: website Django tests
+        if: always()
+        working-directory: backend
+        run: |
+          export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python manage.py test web.tests_website web.tests_l1_launch web.tests --settings=assisto_backend.settings_test --noinput
+      - name: server logs
+        if: failure()
+        run: tail -n 60 "$RUNNER_TEMP/after.log" "$RUNNER_TEMP/before.log" || true

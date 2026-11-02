@@ -10,6 +10,7 @@
 {% endif %}
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/cv/card.png?s={{ score }}{% if lang == 'en' %}&lang=en{% endif %}">
 <meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 {% endblock %}
 {% block content %}
 <div class="card">

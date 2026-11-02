@@ -426,7 +426,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(t.watchFeedTitle),
+            Text(t.watchFeedTitle2),
             Text(t.watchFeedSubtitle,
                 style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400, color: scheme.onSurfaceVariant)),
           ],
@@ -498,7 +498,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
             icon: Icons.verified_rounded,
             tint: Brand.success,
             title: t.watchAllClearTitle,
-            message: '${t.watchAllClearBody}\n\n${t.lbDWatchEmptyHow}',
+            message: '${t.watchAllClearBody2}\n\n${t.lbDWatchEmptyHow}',
             action: FilledButton.tonalIcon(
               onPressed: _addUsdWatcher,
               icon: const Icon(Icons.add_alert_rounded),

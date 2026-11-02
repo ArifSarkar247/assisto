@@ -1,0 +1,5 @@
+<div class="phone{% if small %} sm{% endif %}"><picture>
+<source type="image/avif" srcset="/site/shots/{{ name }}_{{ lang|default:'bn' }}_300.avif 300w, /site/shots/{{ name }}_{{ lang|default:'bn' }}_600.avif 600w" sizes="(max-width: 640px) 62vw, 280px">
+<source type="image/webp" srcset="/site/shots/{{ name }}_{{ lang|default:'bn' }}_300.webp 300w, /site/shots/{{ name }}_{{ lang|default:'bn' }}_600.webp 600w" sizes="(max-width: 640px) 62vw, 280px">
+<img src="/site/shots/{{ name }}_{{ lang|default:'bn' }}_300.webp" width="300" height="667" alt="{{ alt }}" {% if eager %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %}>
+</picture></div>

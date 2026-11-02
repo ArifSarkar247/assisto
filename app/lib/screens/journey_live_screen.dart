@@ -109,7 +109,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     await _tr.start(
       widget.journeyId,
       (id, points) => api.journeyLocationBatch(id, points),
-      notifTitle: gName == null ? t.j100NotifTitle : t.gjWatchingYou(gName),
+      notifTitle: gName == null ? t.j100NotifTitle : t.gjSeesYourTrip(gName),
       notifText: gName == null ? t.j100NotifText : t.gjNotifText,
       serviceSession: api.token == null
           ? null
@@ -192,7 +192,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         Icon(Icons.visibility_rounded, color: warn),
         const SizedBox(width: Gap.sm),
         Expanded(
-          child: Text(t.gjWatchingYou('${g['name'] ?? ''}'),
+          child: Text(t.gjSeesYourTrip('${g['name'] ?? ''}'),
               style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
         ),
         TextButton(

@@ -114,7 +114,7 @@ def app_ads_txt(request):
 
 
 # ---------------------------------------------------------------- sitemap
-SITEMAP_PATHS = ["/", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
+SITEMAP_PATHS = ["/", "/pricing", "/security", "/help", "/khata-free", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
                  "/privacy", "/terms", "/delete-account", "/refund-policy"]
 
 

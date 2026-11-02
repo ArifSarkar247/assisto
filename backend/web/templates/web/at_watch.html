@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>{% if en %}{{ owner }}'s phone{% else %}{{ owner }}-এর ফোন{% endif %} · Assisto</title>
+{% include "web/_icons.html" with no_manifest=True %}
+<meta property="og:title" content="{% if en %}{{ owner }}'s phone{% else %}{{ owner }}-এর ফোন{% endif %} · Assisto">
+<meta property="og:type" content="website">
+{% include "web/_og_image.html" %}
 <style>
   :root{--bg:#f4f6fb;--card:#fff;--fg:#16203a;--muted:#4a5672;--accent:#0E7C66;--warn:#9a3b00;--line:#dfe4ee}
   @media (prefers-color-scheme: dark){:root{--bg:#0d1424;--card:#16203a;--fg:#eef2fa;--muted:#b9c3d8;--accent:#5fd3b8;--warn:#ffb38a;--line:#2a3654}}

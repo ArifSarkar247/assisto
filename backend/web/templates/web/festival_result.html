@@ -4,6 +4,7 @@
 <meta property="og:title" content="{{ title }} — Assisto">
 <meta property="og:description" content="{% if lang == 'en' %}Make a free festival card on Assisto.{% else %}ফ্রি উৎসবের কার্ড বানান Assisto-তে।{% endif %}">
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/festival/card.png?{{ q }}">
+<meta name="twitter:card" content="summary_large_image">
 {% endblock %}
 {% block content %}
 <div class="card" style="text-align:center">

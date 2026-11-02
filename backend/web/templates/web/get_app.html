@@ -1,4 +1,4 @@
-{% extends "web/base.html" %}
+{% extends "web/base.html" %}{% load site %}
 {% block title %}{% if lang == 'en' %}Get the Assisto app{% else %}Assisto অ্যাপ নিন{% endif %}{% endblock %}
 {% block head %}{% if photo_link %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block content %}
@@ -16,9 +16,14 @@
 </div>
 {% endif %}
 {% if lang == 'en' %}
-<h1>📱 Assisto app</h1>
+<h1>Get the Assisto app</h1>
 <div class="card">
-  <p>Install on your Android phone. Reminders, life ledger, document vault, family care — all in one place.</p>
+  <p>Assisto is on Google Play for Android 8 or newer — updates arrive automatically.</p>
+  <a class="play" href="https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=en" rel="noopener"><img src="{% site_asset 'google-play-badge-en.png' %}" width="186" height="72" alt="Get it on Google Play"></a>
+</div>
+<h2 style="font-size:19px">Or install the APK directly</h2>
+<div class="card">
+  <p>Chat, family safety, reminders, money and your shop khata — all in one place.</p>
   {% if apk.apk_url %}
     <a class="btn gold" href="{{ apk.apk_url }}">Download APK ({{ apk.version_name }})</a>
     <p class="muted" style="margin-top:10px">After downloading, open the file → allow "Install from this source" → install. Once installed, the app itself notifies you of updates.</p>
@@ -26,11 +31,16 @@
     <div class="warn">The app link will be added soon.</div>
   {% endif %}
 </div>
-<p style="text-align:center"><a href="/{{ qlang }}">← Back to tools</a></p>
+<p style="text-align:center"><a href="/{{ qlang }}">← Back to the home page</a></p>
 {% else %}
-<h1>📱 Assisto অ্যাপ</h1>
+<h1>Assisto অ্যাপ নিন</h1>
 <div class="card">
-  <p>Android ফোনে ইনস্টল করুন। রিমাইন্ডার, জীবনের হিসাব, ডকুমেন্ট ভল্ট, ফ্যামিলি কেয়ার — সব এক জায়গায়।</p>
+  <p>Assisto পাবেন Google Play-তে, Android ৮ বা নতুন ফোনে — আপডেট নিজে থেকেই আসে।</p>
+  <a class="play" href="https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=bn" rel="noopener"><img src="{% site_asset 'google-play-badge-bn.png' %}" width="186" height="72" alt="Google Play-তে পাবেন"></a>
+</div>
+<h2 style="font-size:19px">অথবা সরাসরি APK ইনস্টল করুন</h2>
+<div class="card">
+  <p>চ্যাট, পরিবারের নিরাপত্তা, রিমাইন্ডার, হিসাব আর দোকানের খাতা — সব এক জায়গায়।</p>
   {% if apk.apk_url %}
     <a class="btn gold" href="{{ apk.apk_url }}">APK ডাউনলোড ({{ apk.version_name }})</a>
     <p class="muted" style="margin-top:10px">ডাউনলোডের পর ফাইলটি খুলুন → "এই উৎস থেকে ইনস্টল" অনুমতি দিন → ইনস্টল। একবার ইনস্টল করলে অ্যাপই নতুন আপডেট জানাবে।</p>
@@ -38,6 +48,6 @@
     <div class="warn">অ্যাপের লিংক শিগগিরই যোগ হবে।</div>
   {% endif %}
 </div>
-<p style="text-align:center"><a href="/{{ qlang }}">← টুলে ফিরুন</a></p>
+<p style="text-align:center"><a href="/{{ qlang }}">← হোম পাতায় ফিরুন</a></p>
 {% endif %}
 {% endblock %}

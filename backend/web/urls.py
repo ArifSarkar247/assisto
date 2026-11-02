@@ -8,9 +8,17 @@ from . import views_journey   # journey100
 from . import views_quote   # crm100
 from . import views_vehicle_share   # veh100
 from . import views_at_watch   # antitheft2
+from . import views_site   # website (owner 2 Nov)
 
 urlpatterns = [
-    path("", views.landing),
+    path("", views_site.home),               # website: was views.landing (tools list, now a section)
+    path("pricing", views_site.pricing),
+    path("security", views_site.security),
+    path("help", views_site.help_page),
+    path("site/<path:name>", views_site.site_asset),
+    path("favicon.ico", views_site.favicon_ico),
+    path("apple-touch-icon.png", views_site.apple_touch_icon),
+    path("site.webmanifest", views_site.webmanifest),
     path("get", views.get_app),
     path("khata-free", views.khata_free),   # ledger100
     # antitheft2: a trusted contact's signed web view of a protected phone

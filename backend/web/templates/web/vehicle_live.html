@@ -7,6 +7,10 @@
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light dark">
 <title>{{ T.title }} · Assisto</title>
+{% include "web/_icons.html" with no_manifest=True %}
+<meta property="og:title" content="{{ T.title }} · Assisto">
+<meta property="og:type" content="website">
+{% include "web/_og_image.html" %}
 {% comment %}veh100: the vehicle live-location share page (web/views_vehicle_share.py). One
    language per page, no external script/CSS, no map library: tiles (when the
    owner configured MAP_TILE_URL) are laid out by the small script below.{% endcomment %}

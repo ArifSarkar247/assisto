@@ -207,7 +207,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                 key: const ValueKey('gj_school'),
                 contentPadding: EdgeInsets.zero,
                 title: Text(t.gjSchoolMode),
-                subtitle: Text(t.gjSchoolModeDesc),
+                subtitle: Text(t.gjSchoolModeDesc2),
                 value: _school,
                 onChanged: (v) => setState(() => _school = v),
               ),

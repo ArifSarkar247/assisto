@@ -1,6 +1,6 @@
 {% extends "web/base.html" %}
 {% block title %}{{ biz_name }} — {{ B.book }}{% endblock %}
-{% block og %}<meta property="og:title" content="{{ biz_name }} — {{ B.book }}">{% endblock %}
+{% block og %}<meta property="og:title" content="{{ biz_name }} — {{ B.book }}">{% include "web/_og_image.html" %}{% endblock %}
 {% block head %}<meta name="robots" content="noindex">
 <style>
   .opt{display:block;border:1px solid #dde3ef;border-radius:12px;padding:12px 14px;margin:8px 0;color:#16203a;min-height:48px}
