@@ -17,6 +17,7 @@ import '../widgets/elderly_mode.dart';
 import '../widgets/settings_language.dart';
 import '../widgets/settings_voice.dart';
 import '../widgets/settings_theme.dart';
+import '../widgets/account_mode_ui.dart' show AccountModeSettingsTile; // acctmode
 import '../widgets/settings_autonomy.dart';
 import '../widgets/founder_badge.dart';
 import '../feedback/feedback_sheet.dart';
@@ -215,6 +216,11 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           const SettingsThemeSection(),
           const Divider(),
+          // acctmode (owner 2 Nov): accounts mode personal / business / both —
+          // changes only which money/business modules the menu lists.
+          if (FeatureFlags.instance.isOn('money') &&
+              FeatureFlags.instance.isOn('business'))
+            const AccountModeSettingsTile(),
           // Elderly simple-mode toggle (SPEC §29). Sits near Appearance/Safety
           // (accessibility). Turning ON runs the parent-permission gate + an
           // enter confirm; OFF runs an exit confirm. Popping to root makes the

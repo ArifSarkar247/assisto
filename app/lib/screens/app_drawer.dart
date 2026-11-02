@@ -1,4 +1,5 @@
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
+import '../account_mode.dart'; // acctmode
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -53,8 +54,27 @@ class _AppDrawerState extends State<AppDrawer> {
   /// the app session). Defaults to collapsed.
   static final Set<String> _expanded = <String>{};
 
+  // acctmode: the accounts mode (personal / business / both) decides which
+  // money/business modules the menu lists; refreshed from the server once per
+  // drawer open (cached locally, so the menu is right at once).
+  @override
+  void initState() {
+    super.initState();
+    AccountModeController.instance.addListener(_onMode);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        AccountModeController.instance.refresh(context.read<AppState>().api);
+      }
+    });
+  }
+
+  void _onMode() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    AccountModeController.instance.removeListener(_onMode);
     _searchCtrl.dispose();
     super.dispose();
   }
