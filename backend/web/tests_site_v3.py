@@ -40,9 +40,20 @@ def set_flag(key, on):
     FF.invalidate()
 
 
+def no_network(test, public=True):
+    """The Play listing check never touches the network in tests."""
+    from django.core.cache import cache
+    cache.delete("sitev3:play_public")
+    p = mock.patch("web.site_v3_dist.fetch_play_status", return_value=public)
+    test.play_check = p.start()
+    test.addCleanup(p.stop)
+    test.addCleanup(cache.delete, "sitev3:play_public")
+
+
 class Base(TestCase):
     def setUp(self):
         FF.invalidate()
+        no_network(self)
         self.c = Client()
         p = mock.patch("core.plans.plans_public", return_value=PLANS)
         p.start()
@@ -284,16 +295,80 @@ class NavigationAndPlayTests(Base):
     def test_hero_plays_real_screens_in_the_chosen_language(self):
         for lang, other in (("bn", "en"), ("en", "bn")):
             html = self.c.get("/preview/?lang=%s" % lang).content.decode()
-            hero = re.search(r'data-rot>.*?</div>', html, re.S).group(0)
+            hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
             for n in VS3.HERO_SLIDES:
                 self.assertIn("shots3/%s_%s_360.webp" % (n, lang), hero)
                 self.assertNotIn("shots3/%s_%s_" % (n, other), hero)
             self.assertIn('class="rot-btn"', hero)        # pause control (WCAG 2.2.2)
 
 
+class InstallAndApkTests(Base):
+    def _apk(self, tmp):
+        import hashlib
+        import os
+        p = os.path.join(tmp, "assisto-part7-build321.apk")
+        with open(p, "wb") as f:
+            f.write(b"PK\x03\x04 fake apk bytes for the website test" * 1000)
+        return p, hashlib.sha256(open(p, "rb").read()).hexdigest()
+
+    def test_not_public_says_coming_soon_and_offers_the_apk(self):
+        import tempfile
+        from django.core.cache import cache
+        from django.test import override_settings
+        cache.delete("sitev3:play_public")
+        self.play_check.return_value = False
+        with tempfile.TemporaryDirectory() as tmp:
+            p, sha = self._apk(tmp)
+            with override_settings(WEBSITE_APK_FILE=p, WEBSITE_APK_URL=""):
+                html = self.c.get("/preview/?lang=en").content.decode()
+                self.assertIn("Coming soon to Play Store", html)
+                self.assertNotIn('class="badge"', html)            # no Play badge until public
+                self.assertIn('class="btn install" href="/download/apk"', html)
+                self.assertIn("Download APK directly", html)
+                self.assertIn(sha, html)                             # full SHA-256 in the download section
+                self.assertIn(sha[:12], html)
+                self.assertIn("1.0.321", html)
+                r = self.c.get("/download/apk")
+                self.assertEqual(r.status_code, 200)
+                self.assertEqual(r["Content-Type"], "application/vnd.android.package-archive")
+                import hashlib
+                self.assertEqual(hashlib.sha256(b"".join(r.streaming_content)).hexdigest(), sha)
+                bn = self.c.get("/preview/?lang=bn").content.decode()
+                self.assertIn("শীঘ্রই Play Store-এ আসছে", bn)
+                self.assertIn("১.০.৩২১", bn)                       # Bangla digits
+
+    def test_public_listing_shows_badge_and_install_to_play(self):
+        html = self.c.get("/preview/?lang=en").content.decode()
+        self.assertNotIn("Coming soon to Play Store", html)
+        hero = re.search(r'<div class="get get-hero">.*?</div>', html, re.S).group(0)
+        self.assertIn('class="badge"', hero)
+        self.assertIn("Install now", hero)
+        self.assertEqual(hero.count("utm_medium%3Dhero"), 2)       # badge + Install, same Play page
+        self.assertEqual(self.c.get("/download/apk").status_code, 404)   # no owner APK set
+
+    def test_play_check_is_cached_and_owner_can_override(self):
+        from web import site_v3_dist as DIST
+        self.c.get("/preview/")
+        self.c.get("/preview/?lang=bn")
+        self.assertEqual(self.play_check.call_count, 1)             # cached ~1 h
+        row, _ = AdminFlagState.objects.get_or_create(key="global")
+        row.state = dict(row.state or {}, website_play_auto=False, website_play_public=False)
+        row.save()
+        self.assertFalse(DIST.play_public())
+        self.assertIn("Coming soon to Play Store", self.c.get("/preview/?lang=en").content.decode())
+
+    def test_screenshots_never_cropped_by_css(self):
+        css = (Path(__file__).resolve().parent / "templates" / "web" / "v3" / "_css.html").read_text()
+        self.assertNotIn("object-fit:cover", css)
+        html = self.c.get("/preview/features/business?lang=en").content.decode()
+        self.assertIn("data-zoom", html)
+        self.assertIn('<dialog class="zv" id="zv"', html)
+
+
 class OwnerSwitchTests(OwnerBase):
     def setUp(self):
         super().setUp()
+        no_network(self)
         self.ready()
 
     def test_go_live_and_rollback_are_one_tap_and_audited(self):
@@ -309,6 +384,17 @@ class OwnerSwitchTests(OwnerBase):
         self.assertFalse(VS3.is_live())
         self.assertNotContains(Client().get("/"), V3_MARK)
         self.assertEqual(OwnerAudit.objects.filter(action="flag.flip").count(), 2)
+
+    def test_play_listing_override(self):
+        from web import site_v3_dist as DIST
+        self.assertEqual(DIST.play_mode(), "auto")
+        self.assertEqual(self.post("/owner/website", {"action": "play_hidden"}).status_code, 302)
+        self.assertEqual(DIST.play_mode(), "hidden")
+        self.assertFalse(DIST.play_public())
+        self.assertEqual(self.post("/owner/website", {"action": "play_public"}).status_code, 302)
+        self.assertTrue(DIST.play_public())
+        self.assertEqual(self.post("/owner/website", {"action": "play_auto"}).status_code, 302)
+        self.assertEqual(DIST.play_mode(), "auto")
 
     def test_bad_action_refused(self):
         r = self.post("/owner/website", {"action": "explode"})

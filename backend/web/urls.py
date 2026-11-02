@@ -21,6 +21,7 @@ urlpatterns = [
     path("features", views_site3.features_index),
     path("features/<str:gid>", views_site3.feature_group),
     path("preview/", views_site3.preview),                       # noindex review
+    path("download/apk", views_site3.download_apk),               # sitev3: owner-chosen APK
     path("preview/features", views_site3.preview, {"page": "features"}),
     path("preview/features/<str:gid>", views_site3.preview_group),
     path("preview/pricing", views_site3.preview, {"page": "pricing"}),
