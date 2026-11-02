@@ -1,0 +1,28 @@
+{
+  "_comment": "bubbles (owner 2 Nov part B): Android 11+ floating chat bubbles — bubble window states, settings (default ON for every chat). All keys NEW (c3SetBubblesSub changed meaning -> bblSetSub). Integrator: bin/arb_apply.py .phaseB/up_bubbles_arb.json",
+  "en": {
+    "bblOpenInApp": "Open in Assisto",
+    "bblOpening": "Opening the chat…",
+    "bblCantOpen": "Couldn't open this chat here",
+    "bblCantOpenHow": "Check the internet and try again, or open the chat in the full app.",
+    "bblSignedOut": "Sign in to Assisto first, then your chats can float as bubbles.",
+    "bblSetSub": "New My Circle messages float over other apps as a round bubble with the sender's photo. Tap to read and reply; drag down to close. On for every chat.",
+    "bblOffCount": "Bubbles are off for {count} chats",
+    "@bblOffCount": {"placeholders": {"count": {"type": "String"}}},
+    "bblAllOn": "Turn bubbles back on for all chats",
+    "bblAllOnDone": "Bubbles are on for every chat",
+    "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  },
+  "bn": {
+    "bblOpenInApp": "Assisto-তে খুলুন",
+    "bblOpening": "চ্যাট খুলছে…",
+    "bblCantOpen": "চ্যাটটা এখানে খোলা গেল না",
+    "bblCantOpenHow": "ইন্টারনেট দেখে আবার চেষ্টা করুন, বা পুরো অ্যাপে চ্যাটটা খুলুন।",
+    "bblSignedOut": "আগে Assisto-তে সাইন ইন করুন, তারপর চ্যাট বাবল হয়ে ভাসবে।",
+    "bblSetSub": "My Circle-এর নতুন মেসেজ অন্য অ্যাপের উপরে পাঠানোর মানুষের ছবিসহ গোল বাবল হয়ে ভাসবে। ট্যাপ করে পড়ুন ও উত্তর দিন; নিচে টেনে বন্ধ করুন। সব চ্যাটে চালু।",
+    "bblOffCount": "{count}টি চ্যাটে বাবল বন্ধ",
+    "bblAllOn": "সব চ্যাটে বাবল আবার চালু করুন",
+    "bblAllOnDone": "সব চ্যাটে বাবল চালু",
+    "bblUnsupported": "চ্যাট বাবলের জন্য Android ১১ বা নতুন লাগে। এই ফোনে মেসেজ সাধারণ নোটিফিকেশন হয়ে আসবে।"
+  }
+}

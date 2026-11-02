@@ -34858,5 +34858,25 @@
   "maSafeConfirmAdultV2": "The alert closes for everyone. No location is sent. Your family cannot post a new alert about you for 7 days without a new police GD.",
   "@maSafeConfirmAdultV2": {
     "description": "missing (owner 2 Nov): Missing person alert"
-  }
+  },
+  "notifsMsgOffTitle": "Message notifications are off",
+  "notifsMsgOffBody": "New My Circle messages won't show or ring on this phone. Turn notifications on so you see them even when Assisto is closed.",
+  "notifsMsgGuide": "Messages not arriving? Battery settings guide",
+  "bblOpenInApp": "Open in Assisto",
+  "bblOpening": "Opening the chat…",
+  "bblCantOpen": "Couldn't open this chat here",
+  "bblCantOpenHow": "Check the internet and try again, or open the chat in the full app.",
+  "bblSignedOut": "Sign in to Assisto first, then your chats can float as bubbles.",
+  "bblSetSub": "New My Circle messages float over other apps as a round bubble with the sender's photo. Tap to read and reply; drag down to close. On for every chat.",
+  "bblOffCount": "Bubbles are off for {count} chats",
+  "@bblOffCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bblAllOn": "Turn bubbles back on for all chats",
+  "bblAllOnDone": "Bubbles are on for every chat",
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
 }

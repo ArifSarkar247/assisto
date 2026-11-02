@@ -20,6 +20,7 @@ enum GroupMenuAction {
   addToFavourites,
   exportChat,
   lockChat, // e-gaps
+  bubble, // bubbles: per-chat "Show as bubble" (Android 11+)
   // ── calls ──
   sendCallLink,
   scheduleCall,
@@ -43,6 +44,7 @@ Future<GroupMenuAction?> showGroupMenuSheet(
   BuildContext context, {
   required bool isFavourite,
   bool locked = false, // e-gaps
+  bool? bubbleOn, // bubbles: null = hide the row (no bubbles on this phone)
 }) {
   final t = AppLocalizations.of(context);
   return showAppSheet<GroupMenuAction>(
@@ -84,6 +86,9 @@ Future<GroupMenuAction?> showGroupMenuSheet(
             _item(ctx, locked ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
                 locked ? t.eLockUnlockChat : t.eLockLockChat,
                 GroupMenuAction.lockChat),
+            if (bubbleOn != null)
+              _item(ctx, Icons.bubble_chart_rounded,
+                  bubbleOn ? t.c3BubbleOff : t.c3BubbleOn, GroupMenuAction.bubble),
             const Divider(height: 1),
             // callsbar: "Send call link" removed — the link opened no page
             // (/call/<token> has no handler): a dead button.

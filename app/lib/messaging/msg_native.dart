@@ -54,6 +54,16 @@ class MsgNative {
   static Future<void> removeBubble(String kind, int id) =>
       _call<void>('removeBubble', {'chat': '$kind:$id'});
 
+  /// bubbles: upgrade the conversation notification just drawn in THIS (UI)
+  /// isolate to a bubble at once (native re-checks every gate). Background
+  /// isolates have no channel — the FCM service schedules those itself.
+  static Future<void> attachBubble(String kind, int id, String name) =>
+      _call<bool>('attachBubble', {'kind': kind, 'id': id, 'name': name});
+
+  /// bubbles: from the bubble window, open this chat in the full app.
+  static Future<bool> openInApp(String kind, int id) async =>
+      (await _call<bool>('openInApp', {'chat': '$kind:$id'})) ?? false;
+
   // ---- md1: My Circle media -------------------------------------------------
 
   /// Is the active network metered (mobile data / metered Wi-Fi)?

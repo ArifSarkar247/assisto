@@ -29,9 +29,18 @@ import android.util.Log
  * BubbleMetadata → the system shows a floating round avatar; tapping it
  * opens [BubbleActivity] on that chat. Several chats = several bubbles.
  *
- * Gates: Android 11+, the global switch `flutter.c3_bubbles_on` (default on)
- * and the per-chat list `flutter.c3_bubble_chats` (FlutterSharedPreferences,
- * written by Dart MsgPrefs), plus the user's own system bubble setting.
+ * Gates ([shouldAttach], MIRRORED in Dart lib/messaging/bubble_policy.dart
+ * + tests — keep in step): Android 11+, the global switch
+ * `flutter.c3_bubbles_on` (default ON), the per-chat OFF list
+ * `flutter.c3_bubble_off_chats` (bubbles owner 2 Nov: every chat ON unless
+ * turned off), never in "hide message content" mode
+ * (`flutter.c3_msg_hide_content`) and never for a notification without a
+ * conversation shortcut (Dart leaves it out for LOCKED chats). Do Not
+ * Disturb, the phone's own bubble setting and drag-to-dismiss = Android.
+ * Icon = the sender's real photo (the notification's large icon, which Dart
+ * sets from the cached circle photo) as an adaptive bitmap; groups and
+ * no-photo chats get the person avatar. Dart also calls [attach] at once
+ * (method "attachBubble") after drawing in the UI isolate.
  * Everything is try/catch: a bubble failure never affects the notification.
  */
 object BubbleHelper {
@@ -43,13 +52,18 @@ object BubbleHelper {
     fun tagFor(kind: String, id: String) = "c3chat:${if (kind == "group") "group" else "member"}:$id"
     fun shortcutIdFor(kind: String, id: String) = "c3chat_${if (kind == "group") "group" else "member"}_$id"
 
-    fun enabledFor(context: Context, key: String): Boolean {
+    /** Mirror of BubblePolicy.shouldAttach (Dart). */
+    fun shouldAttach(context: Context, kind: String, id: String, hasShortcut: Boolean): Boolean {
         return try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+            if ((id.toIntOrNull() ?: 0) <= 0) return false
             val p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val global = if (p.contains("flutter.c3_bubbles_on")) p.getBoolean("flutter.c3_bubbles_on", true) else true
-            if (!global) return false
-            val chats = p.getString("flutter.c3_bubble_chats", "") ?: ""
-            chats.split(",").map { it.trim() }.contains(key)
+            if (p.contains("flutter.c3_bubbles_on") && !p.getBoolean("flutter.c3_bubbles_on", true)) return false
+            if (p.getBoolean("flutter.c3_msg_hide_content", false)) return false
+            if (!hasShortcut) return false
+            val off = (p.getString("flutter.c3_bubble_off_chats", "") ?: "")
+                .split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            !off.contains(chatKey(kind, id))
         } catch (t: Throwable) {
             false
         }
@@ -64,7 +78,8 @@ object BubbleHelper {
             val id = data["chat_id"]?.trim().orEmpty()
             if (id.isEmpty()) return
             val app = context.applicationContext
-            if (!enabledFor(app, chatKey(kind, id))) return
+            // cheap pre-check (the shortcut test runs once the notification exists)
+            if (!shouldAttach(app, kind, id, hasShortcut = true)) return
             val h = Handler(Looper.getMainLooper())
             var done = false
             for (d in DELAYS_MS) {
@@ -89,24 +104,16 @@ object BubbleHelper {
             val sbn = nm.activeNotifications.firstOrNull { it.tag == tag } ?: return false
             val n = sbn.notification
             if (n.bubbleMetadata != null) return true
+            // locked chat (no shortcut id from Dart) / hide-content / off
+            if (!shouldAttach(context, kind, id, hasShortcut = !n.shortcutId.isNullOrEmpty())) return true
             val title = (n.extras?.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)
                 ?: n.extras?.getCharSequence(Notification.EXTRA_TITLE))?.toString()
                 ?.takeIf { it.isNotBlank() } ?: fallbackName.ifBlank { "Assisto" }
             val scId = shortcutIdFor(kind, id)
-            val icon = avatarIcon(context)
+            val icon = (if (kind == "group") null else photoIcon(context, n.getLargeIcon()))
+                ?: avatarIcon(context)
             publishShortcut(context, scId, kind, id, title, icon)
-            val intent = Intent(context, BubbleActivity::class.java)
-                .setAction(Intent.ACTION_VIEW)
-                .putExtra(EXTRA_CHAT, chatKey(kind, id))
-            val pi = PendingIntent.getActivity(
-                context, id.hashCode() xor kind.hashCode(), intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-            )
-            val meta = Notification.BubbleMetadata.Builder(pi, icon)
-                .setDesiredHeight(640)
-                .setAutoExpandBubble(false)
-                .setSuppressNotification(false)
-                .build()
+            val meta = bubbleMeta(context, kind, id, icon)
             val rebuilt = Notification.Builder.recoverBuilder(context, n)
                 .setShortcutId(scId)
                 .setLocusId(LocusId(scId))
@@ -121,6 +128,46 @@ object BubbleHelper {
         }
     }
 
+    private fun bubbleMeta(context: Context, kind: String, id: String, icon: Icon): Notification.BubbleMetadata {
+        val intent = Intent(context, BubbleActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(EXTRA_CHAT, chatKey(kind, id))
+        val pi = PendingIntent.getActivity(
+            context, id.hashCode() xor kind.hashCode(), intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+        return Notification.BubbleMetadata.Builder(pi, icon)
+            .setDesiredHeight(640)
+            .setAutoExpandBubble(false)
+            .setSuppressNotification(false)
+            .build()
+    }
+
+    /**
+     * notifs' native builder (MessageNotifier.buildMessageNotification) calls
+     * this on its Notification.Builder before build(): the same gates as a
+     * Dart-drawn chat, so the native safety-net notification bubbles too.
+     * [hasShortcut] = false when the spec hides the name (locked / no
+     * preview) — then nothing is added. Never throws.
+     */
+    fun decorate(context: Context, b: Notification.Builder, kind: String, id: String,
+                 title: String, hasShortcut: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        try {
+            val k = if (kind == "group") "group" else "member"
+            if (!shouldAttach(context, k, id, hasShortcut)) return
+            if (!bubbleActivityDeclared(context)) return
+            val scId = shortcutIdFor(k, id)
+            val icon = avatarIcon(context)
+            publishShortcut(context, scId, k, id, title, icon)
+            b.setShortcutId(scId)
+                .setLocusId(LocusId(scId))
+                .setBubbleMetadata(bubbleMeta(context, k, id, icon))
+        } catch (t: Throwable) {
+            Log.w(TAG, "bubble decorate skipped: ${t.javaClass.simpleName}")
+        }
+    }
+
     private fun bubbleActivityDeclared(context: Context): Boolean = try {
         context.packageManager.getActivityInfo(
             android.content.ComponentName(context, BubbleActivity::class.java), 0
@@ -128,6 +175,26 @@ object BubbleHelper {
         true
     } catch (t: Throwable) {
         false
+    }
+
+    /** The sender photo as an ADAPTIVE bitmap (what bubbles expect): drawn
+     *  into the inner 72/108 safe zone on white, so the system's round mask
+     *  shows the whole (already circle-cropped) face. null = no photo. */
+    private fun photoIcon(context: Context, src: Icon?): Icon? {
+        if (src == null) return null
+        return try {
+            val d = src.loadDrawable(context) ?: return null
+            val size = 216
+            val inset = size * 18 / 108
+            val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+            val c = android.graphics.Canvas(bmp)
+            c.drawColor(android.graphics.Color.WHITE)
+            d.setBounds(inset, inset, size - inset, size - inset)
+            d.draw(c)
+            Icon.createWithAdaptiveBitmap(bmp)
+        } catch (t: Throwable) {
+            null
+        }
     }
 
     private fun avatarIcon(context: Context): Icon {
@@ -140,10 +207,7 @@ object BubbleHelper {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
         try {
             val sm = context.getSystemService(ShortcutManager::class.java) ?: return
-            val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                ?: Intent(Intent.ACTION_MAIN)
-            launch.action = Intent.ACTION_VIEW
-            launch.putExtra(EXTRA_CHAT, chatKey(kind, id))
+            val launch = appIntent(context, chatKey(kind, id))
             val person = Person.Builder().setName(title).setKey(scId).setIcon(icon).build()
             val sc = ShortcutInfo.Builder(context, scId)
                 .setShortLabel(title.take(24))
@@ -171,6 +235,29 @@ object BubbleHelper {
                 ?.removeLongLivedShortcuts(listOf(scId))
         } catch (t: Throwable) {
         }
+    }
+
+    /** The full app on one chat (shortcut tap, bubble "Open in Assisto"). */
+    fun appIntent(context: Context, key: String): Intent {
+        val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            ?: Intent(Intent.ACTION_MAIN).setPackage(context.packageName)
+        launch.action = Intent.ACTION_VIEW
+        launch.putExtra(EXTRA_CHAT, key)
+        return launch
+    }
+
+    /** bubbles: "Open in Assisto" from the bubble window → MainActivity
+     *  (warm: onNewIntent → Dart openChat; cold: takeLaunchChat). */
+    fun openInApp(context: Context, key: String): Boolean = try {
+        context.startActivity(
+            appIntent(context, key).addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
+        )
+        true
+    } catch (t: Throwable) {
+        false
     }
 
     const val EXTRA_CHAT = "c3_chat"

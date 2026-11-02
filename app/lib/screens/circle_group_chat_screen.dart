@@ -41,6 +41,8 @@ import '../messaging/echo_reconcile.dart'; // md2
 import '../messaging/disappear_sweep.dart'; // e-gaps
 import '../messaging/chat_actions.dart'; // chat-actions
 import '../messaging/chat_lock.dart'; // e-gaps
+import '../messaging/bubble_toggle.dart'; // bubbles
+import '../messaging/msg_native.dart'; // bubbles
 import '../messaging/forward.dart'; // md2
 import '../services/action_feedback.dart';
 import '../messaging/media/media_actions.dart'; // md1
@@ -113,11 +115,16 @@ class CircleGroupChatScreen extends StatefulWidget {
   final Map<String, dynamic> group;
   final IdentityKeyPair identity;
   final List<Map<String, dynamic>> circleMembers;
+
+  /// bubbles: inside the floating bubble window — calls are replaced by
+  /// "Open in Assisto" (calls run in the full app).
+  final bool bubble;
   const CircleGroupChatScreen({
     super.key,
     required this.group,
     required this.identity,
     this.circleMembers = const [],
+    this.bubble = false,
   });
 
   @override
@@ -193,6 +200,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     MsgActiveChat.current = _chatKey;
     UnreadStore.instance.clear(_chatKey);
     unawaited(FlnMsgSink().cancel('group', _gid));
+    unawaited(loadChatBubble('group', _gid).then((v) {
+      if (mounted) setState(() => _bubbleOn = v); // bubbles: default ON
+    }));
     _rt.acquire();
     _rt.states.addListener(_onRt);
     _scroll.addListener(_onScroll);
@@ -957,13 +967,21 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // GROUP CHAT ⋮ menu (group-flavoured mirror of the 1:1 chat ⋮). Every item
   // routes to a real handler below — no dead taps.
   // -------------------------------------------------------------------------
+  bool? _bubbleOn; // bubbles: null = no bubbles on this phone
+
   Future<void> _openMenu() async {
     final action =
         await showGroupMenuSheet(context,
             isFavourite: _isFavourite,
+            bubbleOn: _bubbleOn,
             locked: ChatLockStore.instance.isLockedSync(_chatKey));
     if (action == null || !mounted) return;
     switch (action) {
+      case GroupMenuAction.bubble:
+        final cur = _bubbleOn;
+        if (cur == null) return;
+        final next = await toggleChatBubble(context, 'group', _gid, cur);
+        if (mounted) setState(() => _bubbleOn = next);
       case GroupMenuAction.groupInfo:
         _openInfo();
       case GroupMenuAction.groupMedia:
@@ -1607,6 +1625,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               : null,
         ),
         actions: [
+          if (widget.bubble)
+            IconButton(
+              key: const Key('bbl-open-in-app'),
+              tooltip: _t.bblOpenInApp,
+              icon: const Icon(Icons.open_in_full_rounded),
+              onPressed: () => MsgNative.openInApp('group', _gid),
+            ),
+          if (!widget.bubble) ...[
           IconButton(
             tooltip: _t.circleGroupVoiceCall,
             icon: const Icon(Icons.call_rounded),
@@ -1617,6 +1643,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             icon: const Icon(Icons.videocam_rounded),
             onPressed: () => _call('video'),
           ),
+          ],
           IconButton(
             tooltip: _t.grpMenuMore,
             icon: const Icon(Icons.more_vert_rounded),

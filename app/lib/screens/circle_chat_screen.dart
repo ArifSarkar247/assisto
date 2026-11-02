@@ -43,7 +43,7 @@ import '../messaging/mc_version_gate.dart'; // t1-ticks
 import '../messaging/c3_api.dart';
 import '../messaging/msg_native.dart';
 import '../messaging/msg_notify.dart';
-import '../messaging/msg_prefs.dart';
+import '../messaging/bubble_toggle.dart'; // bubbles
 import '../messaging/msg_request_widgets.dart'; // mr1
 import '../messaging/connect_flow.dart'; // connect-flow
 import '../messaging/msg_widgets.dart';
@@ -116,12 +116,17 @@ class CircleChatScreen extends StatefulWidget {
   /// call-reply: opened from an incoming call's Reply — show the quick-reply
   /// sheet once the thread loaded (a preset goes through the normal [_send]).
   final bool quickReply;
+
+  /// bubbles: shown inside the floating bubble window (own light engine):
+  /// calls are replaced by "Open in Assisto" (calls run in the full app).
+  final bool bubble;
   const CircleChatScreen({
     super.key,
     required this.member,
     required this.identity,
     this.forwarding,
     this.quickReply = false,
+    this.bubble = false,
   });
 
   @override
@@ -993,39 +998,15 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _loadBubblePref() async {
     final id = _memberId;
     if (id == null) return;
-    if (!await MsgNative.bubblesSupported()) return;
-    final on = await MsgPrefs.isBubbleChat('member', id);
+    final on = await loadChatBubble('member', id); // bubbles: default ON
     if (mounted) setState(() => _bubbleOn = on);
   }
 
   Future<void> _toggleBubble() async {
     final id = _memberId;
     if (id == null || _bubbleOn == null) return;
-    final next = !_bubbleOn!;
-    await MsgPrefs.setBubbleChat('member', id, next);
-    if (!next) unawaited(MsgNative.removeBubble('member', id));
-    if (!mounted) return;
-    setState(() => _bubbleOn = next);
-    _toast(next ? _t.c3BubbleOnDone : _t.c3BubbleOffDone);
-    if (next && await MsgNative.bubblesAllowed() == false && mounted) {
-      final open = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          scrollable: true, // insets: 200% text / keyboard
-          title: Text(_t.c3BubbleAllowTitle),
-          content: Text(_t.c3BubbleAllowBody),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(_t.cancel)),
-            FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(_t.c3OpenSettings)),
-          ],
-        ),
-      );
-      if (open == true) await MsgNative.openBubbleSettings();
-    }
+    final next = await toggleChatBubble(context, 'member', id, _bubbleOn!);
+    if (mounted) setState(() => _bubbleOn = next);
   }
 
   /// Tap a quote → scroll to the original and flash it.
@@ -3104,7 +3085,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       actions: [
         // mr1: calls open the moment a message request is accepted — until
         // then there is nothing tappable for them (no dead buttons).
-        if (_callsOpen) ...[
+        if (widget.bubble && _memberId != null)
+          IconButton(
+            key: const Key('bbl-open-in-app'),
+            tooltip: _t.bblOpenInApp,
+            icon: const Icon(Icons.open_in_full_rounded),
+            onPressed: () => MsgNative.openInApp('member', _memberId!),
+          ),
+        if (_callsOpen && !widget.bubble) ...[
           IconButton(
             tooltip: _t.circleVideo,
             icon: const Icon(Icons.videocam_rounded),

@@ -30,6 +30,11 @@ import io.flutter.plugin.common.MethodChannel
  *   takeLaunchChat()       -> "member:12" | null     (bubble / shortcut tap)
  *   inBubble()             -> Bool
  *   removeBubble({chat})   -> null                   drop the shortcut
+ *   attachBubble({kind,id,name}) -> Bool             bubbles: upgrade the
+ *                             conversation notification Dart just drew (UI
+ *                             isolate; the FCM path schedules its own)
+ *   openInApp({chat})      -> Bool                   bubbles: the bubble's
+ *                             "Open in Assisto" → MainActivity on that chat
  *   md1 (My Circle E2E media; all lazy, nothing at launch):
  *   isMetered()            -> Bool?                  mobile data / metered Wi-Fi
  *   pickDocument({max})    -> {path,name,size,mime} | {error,size,name} | null
@@ -54,9 +59,11 @@ object C3MessagingChannel {
     private val main = Handler(Looper.getMainLooper())
     private var channel: MethodChannel? = null
 
-    fun register(activity: Activity, engine: FlutterEngine, inBubble: Boolean = false) {
+    /** bubbles: a bubble engine must never replace the MAIN app's channel
+     *  (MainActivity.onNewIntent → "openChat" went to the bubble before). */
+    fun register(activity: Activity, engine: FlutterEngine, inBubble: Boolean = false): MethodChannel {
         val ch = MethodChannel(engine.dartExecutor.binaryMessenger, NAME)
-        channel = ch
+        if (!inBubble) channel = ch
         ch.setMethodCallHandler { call, result ->
             try {
                 when (call.method) {
@@ -74,6 +81,22 @@ object C3MessagingChannel {
                         BubbleHelper.removeChat(activity, call.argument<String>("chat") ?: "")
                         result.success(null)
                     }
+                    "attachBubble" -> {
+                        val kind = if (call.argument<String>("kind") == "group") "group" else "member"
+                        val id = "${call.argument<Any>("id") ?: ""}"
+                        val name = call.argument<String>("name") ?: ""
+                        val app = activity.applicationContext
+                        // the notification may still be in flight: retry a little
+                        var done = false
+                        for (d in longArrayOf(150, 600, 1500)) {
+                            main.postDelayed({
+                                if (!done) done = BubbleHelper.attach(app, kind, id, name)
+                            }, d)
+                        }
+                        result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                    }
+                    "openInApp" -> result.success(
+                        BubbleHelper.openInApp(activity, call.argument<String>("chat") ?: ""))
                     "isMetered" -> result.success(isMetered(activity))
                     "pickDocument" -> pickDocument(
                         activity, (call.argument<Number>("max") ?: 0).toLong(), result)
@@ -90,13 +113,15 @@ object C3MessagingChannel {
                 result.success(null)
             }
         }
+        return ch
     }
 
-    fun onNewIntent(intent: Intent?) {
+    /** [target] = a bubble's own channel; default = the main app's. */
+    fun onNewIntent(intent: Intent?, target: MethodChannel? = null) {
         try {
             val key = intent?.getStringExtra(BubbleHelper.EXTRA_CHAT) ?: return
             intent.removeExtra(BubbleHelper.EXTRA_CHAT)
-            channel?.invokeMethod("openChat", key)
+            (target ?: channel)?.invokeMethod("openChat", key)
         } catch (t: Throwable) {
         }
     }

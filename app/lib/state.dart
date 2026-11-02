@@ -312,6 +312,28 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// bubbles (owner 2 Nov): the floating chat window's OWN engine needs only
+  /// language/theme prefs, the session token and who is signed in. No local
+  /// db, no sync, no background poller, never clears the session on a 401
+  /// (the main app owns all of that). Always finishes (loading=false).
+  Future<void> initLite() async {
+    try {
+      await _loadPrefs();
+    } catch (_) {}
+    try {
+      api.token = await SecretStore.instance.read('token');
+    } catch (_) {}
+    if (api.token != null) {
+      try {
+        user = await api.me();
+      } catch (_) {
+        online = false;
+      }
+    }
+    loading = false;
+    notifyListeners();
+  }
+
   // ---------- auth ----------
   Future<void> register({
     required String name,

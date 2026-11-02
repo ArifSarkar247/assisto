@@ -1025,6 +1025,21 @@ jobs:
             echo "R8 notification keep rules applied ($CONF)"
           fi
 
+      - name: Notification drawables survive resource shrinking (notifs)
+        working-directory: app
+        run: |
+          # notifs (2 Nov): c3_person_avatar was stripped from release APKs ->
+          # every My Circle message notification threw (IconCompat resId 0)
+          # and was swallowed. Drawables used BY NAME must be in the APK.
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          AAPT2=$(ls -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)
+          if [ -z "$AAPT2" ]; then echo "::warning::aapt2 not found; drawable check skipped"; exit 0; fi
+          "$AAPT2" dump resources "$REL" > /tmp/res_dump.txt
+          for d in ic_stat_assisto c3_person_avatar ic_pip_mic ic_pip_mic_off ic_pip_videocam ic_pip_videocam_off ic_pip_call_end; do
+            grep -q "drawable/$d\$" /tmp/res_dump.txt || { echo "::error::drawable/$d missing from the release APK (add it to res/raw/assisto_keep.xml)"; exit 1; }
+          done
+          echo "notification drawables present"
+
       - name: Build x86_64 RELEASE APK (emulator smoke test only — NOT shipped)
         working-directory: app
         run: |
