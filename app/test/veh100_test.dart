@@ -373,6 +373,59 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  // testkit (owner 2 Nov): the three NON-happy ends of "add a tracker" must be
+  // honest, each with a way forward - expired window (Try again), switched
+  // off for credits, and connected-but-no-fix-yet (not a fake position).
+  for (final c in [
+    ('expired', 'expired', null),
+    ('disabled', 'disabled', 'no_credits'),
+    ('connected, no fix yet', 'paired', null),
+  ]) {
+    testWidgets('VehSetupView end state: ${c.$1}', (tester) async {
+      _phone(tester, height: 3000);
+      final api = _Api()
+        ..state = c.$2
+        ..hasFix = false;
+      var retried = 0;
+      final t = api.tracker();
+      if (c.$3 != null) t['disabled_reason'] = c.$3;
+      await tester.pumpWidget(_app(
+          Scaffold(
+            body: SingleChildScrollView(
+              child: VehSetupView(
+                  tracker: t,
+                  brand: 'sinotrack',
+                  operator: 'gp',
+                  simNumber: '01711222333',
+                  retry: () async {
+                    retried++;
+                    return api.tracker()..['state'] = 'pending';
+                  },
+                  onClose: () {}),
+            ),
+          ),
+          api));
+      await _settle(tester);
+      if (c.$2 == 'expired') {
+        expect(find.text(en.v100SetupExpired), findsOneWidget);
+        expect(find.text(en.v100SetupExpiredBody), findsOneWidget);
+        await tester.tap(find.text(en.v100SetupRetry));
+        await _settle(tester);
+        expect(retried, 1);
+        expect(find.text(en.v100SetupWaiting), findsOneWidget);   // a fresh window
+      } else if (c.$2 == 'disabled') {
+        expect(find.text(en.v100SetupDisabled), findsOneWidget);
+        expect(find.text(en.vehErrNoCredits), findsOneWidget);
+      } else {
+        expect(find.text(en.v100SetupConnected), findsOneWidget);
+        expect(find.text(en.v100SetupWaitingFix), findsOneWidget);
+        expect(find.text(en.v100SetupFirstFix), findsNothing);    // no invented position
+      }
+      _noErrors(tester);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
   group('VehicleTrackerScreen', () {
     testWidgets('engine cut hidden while the flag is off (honest note)', (tester) async {
       _phone(tester, height: 4000);
