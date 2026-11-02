@@ -197,22 +197,31 @@ class _ScoreTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        leading: Semantics(
-          label: t.crmAutoScoreA11y(rtDigits(lang, score), label),
-          excludeSemantics: true,
-          child: Container(
-            constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(rtDigits(lang, score),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: fg, fontWeight: FontWeight.w800)),
-              Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg)),
+        // The badge sits in the title row (not `leading`, which ListTile caps
+        // at 48 dp tall) so it grows with 200% text.
+        title: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Semantics(
+            label: t.crmAutoScoreA11y(rtDigits(lang, score), label),
+            excludeSemantics: true,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text(rtDigits(lang, score),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: fg, fontWeight: FontWeight.w800)),
+                Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg)),
+              ]),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(name.isNotEmpty ? name : t.crmAutoNoName),
+              if (sub.isNotEmpty) Text(sub, style: Theme.of(context).textTheme.bodySmall),
             ]),
           ),
-        ),
-        title: Text(name.isNotEmpty ? name : t.crmAutoNoName),
-        subtitle: sub.isEmpty ? null : Text(sub),
+        ]),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         children: [
           Align(

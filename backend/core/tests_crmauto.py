@@ -59,7 +59,7 @@ class ReorderPureTests(SimpleTestCase):
         ev = R.due_reorder([a, b], DAY1, 2, 0)
         self.assertEqual(len(ev), 1)
         self.assertEqual(ev[0]["values"]["product"], "চাল")    # a tie keeps the first row
-        c = {"key": "018", "product": "দুধ", "purchases": self.buys(28, 21, 14)}
+        c = {"key": "018", "product": "দুধ", "purchases": self.buys(21, 14, 7)}
         keys = sorted(e["key"] for e in R.due_reorder([a, c], DAY1, 2, 0))
         self.assertEqual(keys, ["017", "018"])
 
