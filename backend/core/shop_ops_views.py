@@ -493,6 +493,18 @@ class ShopEodView(APIView):
         if opening < 0:
             opening = 0
         now = timezone.now()
+        # cctv100: the same count sent twice (double tap, or the app retrying
+        # after a dropped answer on a weak network) is ONE check — never a
+        # second "please check" alert to the family.
+        dup = ShopEodCheck.objects.filter(
+            site=s, day=timezone.localtime(now).date(), counted=counted,
+            opening_float=opening,
+            created__gte=now - timedelta(seconds=EOD_DUPLICATE_S)).order_by("-id").first()
+        if dup is not None:
+            out = _eod_row(dup)
+            out["duplicate"] = True
+            out["message"] = _eod_message(lang, dup.status)
+            return Response(out, status=200)
         cash, _n = todays_cash_sales(request.user, now,
                                      _poisha(request.data.get("business")))
         expected = cash + opening
@@ -516,17 +528,21 @@ class ShopEodView(APIView):
             note=(request.data.get("note") or "").strip()[:200], event=ev,
             created_by=request.user)
         out = _eod_row(row)
-        if status_v == "ok":
-            out["message"] = pick(lang, "ক্যাশ হিসাব মিলেছে।", "Cash count matches.")
-        elif status_v == "short":
-            out["message"] = pick(
-                lang, "ক্যাশ হিসাবের চেয়ে কম — অনুগ্রহ করে একটু দেখে নিন।",
-                "Cash is below the expected amount — please check.")
-        else:
-            out["message"] = pick(
-                lang, "ক্যাশ হিসাবের চেয়ে বেশি — অনুগ্রহ করে একটু দেখে নিন।",
-                "Cash is above the expected amount — please check.")
+        out["message"] = _eod_message(lang, status_v)
         return Response(out, status=201)
+
+
+EOD_DUPLICATE_S = 120
+
+
+def _eod_message(lang, status_v):
+    if status_v == "ok":
+        return pick(lang, "ক্যাশ হিসাব মিলেছে।", "Cash count matches.")
+    if status_v == "short":
+        return pick(lang, "ক্যাশ হিসাবের চেয়ে কম — অনুগ্রহ করে একটু দেখে নিন।",
+                    "Cash is below the expected amount — please check.")
+    return pick(lang, "ক্যাশ হিসাবের চেয়ে বেশি — অনুগ্রহ করে একটু দেখে নিন।",
+                "Cash is above the expected amount — please check.")
 
 
 # ===========================================================================

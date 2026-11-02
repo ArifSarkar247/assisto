@@ -1,0 +1,13 @@
+{
+  "_comment": "cctv100 (CCTV to 100): live view honest no-answer timeout + first-frame time. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_cctv100_arb.json",
+  "en": {
+    "shopLiveNoAnswer": "The shop device didn't answer in {seconds} seconds. Check that it is on and connected to the internet, then try again.",
+    "@shopLiveNoAnswer": {"placeholders": {"seconds": {"type": "String"}}},
+    "shopLiveTook": "Started in {seconds} s",
+    "@shopLiveTook": {"placeholders": {"seconds": {"type": "String"}}}
+  },
+  "bn": {
+    "shopLiveNoAnswer": "দোকানের ডিভাইস {seconds} সেকেন্ডে সাড়া দেয়নি। সেটি চালু আছে ও ইন্টারনেটে যুক্ত কিনা দেখে আবার চেষ্টা করুন।",
+    "shopLiveTook": "চালু হতে {seconds} সেকেন্ড"
+  }
+}
