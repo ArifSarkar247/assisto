@@ -86,6 +86,11 @@ class VoiceSosTaskHandler extends TaskHandler {
     _startListening();
   }
 
+  // audioroute: the documented SOS exception of AudioRouteService
+  // (AudioUse.sos) — this always-on listener runs in a background isolate and
+  // never opens Bluetooth SCO (an all-day SCO link would kill music quality
+  // and the earbuds' battery); it uses whatever mic Android gives it. SOS
+  // sirens play on STREAM_ALARM on the loudspeaker by design.
   void _startListening() {
     if (!_ready) return;
     try {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../audio/audio_route_service.dart';
 import '../../services/error_report.dart';
 
 /// md1 — inline voice-note playback. ONE player for the whole app (the next
@@ -133,6 +134,9 @@ class VoicePlayer {
         state.value = VoiceState(path: path, positionMs: s.positionMs, durationMs: s.durationMs);
         return true;
       }
+      // audioroute: plays in the connected earphones (never forced to the
+      // speaker / earpiece; a stale call mode is cleared first)
+      await AudioRouteService.instance.preparePlayback(AudioUse.voiceNotePlay);
       if (s.path == path && s.positionMs > 0) {
         state.value = VoiceState(path: path, playing: true, positionMs: s.positionMs, durationMs: s.durationMs);
         await b.resume();

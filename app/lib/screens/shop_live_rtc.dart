@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../audio/audio_route_service.dart';
+
 /// The ONLY file that touches flutter_webrtc. Screens import it with
 /// `deferred as` and call `loadLibrary()` right before a live session, so no
 /// WebRTC code (and no native PeerConnectionFactory) is touched at app launch.
@@ -28,6 +30,9 @@ class LivePeer {
     void Function()? onRemoteVideo,
     void Function(String state)? onState,
   }) async {
+    // audioroute: live sound follows the connected earphones; a stale call
+    // mode is cleared first (never on the earpiece by accident)
+    await AudioRouteService.instance.preparePlayback(AudioUse.media);
     final pc = await createPeerConnection({
       'iceServers': ice,
       'sdpSemantics': 'unified-plan',

@@ -295,6 +295,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // audioroute: ONE app-wide audio route owner ("com.assisto/audio_route"):
+        // Bluetooth / wired headsets for calls, voice notes and the assistant.
+        // Handler only — AudioManager is touched on the first Dart call.
+        try {
+            com.assisto.assisto.audio.AudioRouteChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // ---- p2-photo ---- Photo Studio: ML Kit faces + ONNX Runtime upscaler
         // ("com.assisto/photo_native") and FLAG_SECURE for free previews
         // ("com.assisto/photo_secure"). Handlers only — ML Kit / ORT are created

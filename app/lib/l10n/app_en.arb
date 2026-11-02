@@ -28029,5 +28029,18 @@
   "kwWithVoice": "Add a voice note",
   "@kwWithVoice": {
     "description": "kidswatch (owner idea 2, 28 Oct)"
-  }
+  },
+  "arRouteSheetTitle": "Play sound on",
+  "arRouteEarpiece": "Phone (earpiece)",
+  "arRouteSpeaker": "Speaker",
+  "arRouteBluetooth": "Bluetooth",
+  "arRouteWired": "Wired earphones",
+  "arRouteSelected": "Selected",
+  "arRouteButtonHint": "Choose where you hear the call",
+  "arBtPermTitle": "Use your Bluetooth earphones?",
+  "arBtPermBody": "To play calls and voice in your Bluetooth earphones or AirPods, Android asks for the \"Nearby devices\" permission. Assisto uses it only for your earphones — it never scans for or tracks other devices.",
+  "arBtPermAllow": "Continue",
+  "arBtPermNotNow": "Not now",
+  "arBtDenied": "Bluetooth earphones can't be used: the \"Nearby devices\" permission is off. The call works on the phone earpiece or speaker. You can allow it in Settings.",
+  "arOpenSettings": "Open settings"
 }

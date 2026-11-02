@@ -1,3 +1,4 @@
+import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -155,6 +156,12 @@ void main() {
       // update / reboot / permission change; guarded, after the first frame.
       unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
         try { appState.syncReminderAlarms(); } catch (_) {}
+      }));
+      // audioroute: app killed mid-call -> put the phone back to normal
+      // audio (music never stuck on the earpiece). Reads one pref; touches
+      // the native channel ONLY when that flag is set.
+      unawaited(Future<void>.delayed(const Duration(seconds: 6), () async {
+        try { await AudioRouteService.instance.recoverIfStale(); } catch (_) {}
       }));
       // e2-keys: publish the PUBLIC key on every start / login / accept and
       // run the outbox — pure Dart + HTTP, guarded, a few seconds after the

@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../audio/audio_route_service.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -60,10 +62,14 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
 
   @override
   void dispose() {
+    _mic.stop();
     _speech.cancel();
     _pulse.dispose();
     super.dispose();
   }
+
+  /// audioroute: the connected earphones' mic is used while listening.
+  final MicRouteHold _mic = MicRouteHold(AudioUse.assistantListen);
 
   Future<void> _startListening() async {
     HapticFeedback.selectionClick();
@@ -79,6 +85,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
           }
         },
         onError: (_) {
+          _mic.stop();
           if (mounted) setState(() => _phase = _Phase.error);
         },
       );
@@ -93,6 +100,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       _transcript = '';
       _drafts = [];
     });
+    _mic.start();
     await _speech.listen(
       onResult: (r) {
         if (mounted) setState(() => _transcript = r.recognizedWords);
@@ -102,6 +110,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
 
   void _finishListening() {
     _speech.stop();
+    _mic.stop();
     final text = _transcript.trim();
     if (text.isEmpty) {
       setState(() => _phase = _Phase.idle);

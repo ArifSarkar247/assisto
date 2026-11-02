@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../audio/audio_route_service.dart' show AudioRouteService;
+import '../audio/audio_route_sheet.dart';
 import '../calls/api_call_signaling.dart';
 import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
@@ -151,6 +153,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   @override
   void initState() {
     super.initState();
+    // audioroute: Android 12+ "Nearby devices" is asked (with a reason
+    // sheet) only when a Bluetooth headset is connected during a call.
+    AudioRouteService.instance.askBluetooth = _askBluetooth;
     CallNative.inPip.addListener(_onPip);
     CircleCallScreen.registerReopen();
     if (widget.controller != null && widget.resumed) {
@@ -401,6 +406,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
 
   @override
   void dispose() {
+    final ar = AudioRouteService.instance;
+    if (ar.askBluetooth == _askBluetooth) ar.askBluetooth = null;
     CallNative.inPip.removeListener(_onPip);
     _ticker?.cancel();
     _autoClose?.cancel();
@@ -934,19 +941,26 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     }
   }
 
-  IconData _routeIcon(AudioRoute r) => switch (r) {
-        AudioRoute.earpiece => Icons.phone_in_talk_rounded,
-        AudioRoute.speaker => Icons.volume_up_rounded,
-        AudioRoute.bluetooth => Icons.bluetooth_audio_rounded,
-        AudioRoute.wired => Icons.headphones_rounded,
-      };
+  Future<bool> _askBluetooth() async {
+    if (!mounted) return false;
+    return askNearbyDevicesForAudio(context);
+  }
 
-  String _routeLabel(AudioRoute r) => switch (r) {
-        AudioRoute.earpiece => _t.c2CallEarpiece,
-        AudioRoute.speaker => _t.circleCallSpeaker,
-        AudioRoute.bluetooth => _t.b1CallRouteBluetooth,
-        AudioRoute.wired => _t.b1CallRouteWired,
-      };
+  IconData _routeIcon(AudioRoute r) => audioRouteIcon(r);
+
+  /// audioroute: the route button names the Bluetooth device ("AirPods").
+  String _routeLabel(AudioRoute r) {
+    if (r == AudioRoute.bluetooth) {
+      final n = AudioRouteService.instance.bluetoothName;
+      if (n != null) return n;
+    }
+    return switch (r) {
+      AudioRoute.earpiece => _t.c2CallEarpiece,
+      AudioRoute.speaker => _t.circleCallSpeaker,
+      AudioRoute.bluetooth => _t.b1CallRouteBluetooth,
+      AudioRoute.wired => _t.b1CallRouteWired,
+    };
+  }
 
   /// b1: Bluetooth / wired headset connected -> a picker; otherwise the
   /// classic earpiece <-> speaker toggle.
@@ -959,27 +973,19 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       await c.toggleSpeaker();
       return;
     }
+    final ar = AudioRouteService.instance;
     final picked = await showAppSheet<AudioRoute>(
       context: context,
       showDragHandle: true,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
-              child: Text(_t.b1CallRouteTitle,
-                  style: Theme.of(ctx).textTheme.titleMedium),
-            ),
-            for (final r in routes)
-              ListTile(
-                key: Key('call-route-${r.name}'),
-                leading: Icon(_routeIcon(r)),
-                title: Text(_routeLabel(r)),
-                trailing: r == c.route ? const Icon(Icons.check_rounded) : null,
-                onTap: () => Navigator.of(ctx).pop(r),
-              ),
-          ],
+      // live: a headset connecting / disconnecting updates the open sheet
+      builder: (ctx) => ListenableBuilder(
+        listenable: Listenable.merge([c, ar]),
+        builder: (ctx, _) => AudioRouteSheet(
+          routes: c.routes,
+          active: c.route,
+          bluetoothName: ar.bluetoothName,
+          bluetoothDenied: ar.bluetoothDenied,
+          onPick: (r) => Navigator.of(ctx).pop(r),
         ),
       ),
     );
@@ -1437,4 +1443,8 @@ class _BrokenMedia implements CallMedia {
   Future<List<AudioRoute>> audioRoutes() async => const [];
   @override
   Future<void> setAudioRoute(AudioRoute r) async {}
+  @override
+  Stream<AudioRoute> get routeChanges => const Stream.empty();
+  @override
+  Future<void> setVideoMode(bool on) async {}
 }

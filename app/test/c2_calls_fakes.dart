@@ -99,6 +99,14 @@ class FakeCallMedia implements CallMedia {
 
   @override
   Future<void> setAudioRoute(AudioRoute r) async => log.add('route:${r.name}');
+
+  // ---- audioroute ----
+  /// emit a route change (a headset connected / disconnected mid-call).
+  final routeCtl = StreamController<AudioRoute>.broadcast();
+  @override
+  Stream<AudioRoute> get routeChanges => routeCtl.stream;
+  @override
+  Future<void> setVideoMode(bool on) async => log.add('video-mode:$on');
 }
 
 class FakeSignaling implements CallSignaling {

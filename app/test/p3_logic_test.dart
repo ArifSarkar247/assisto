@@ -265,8 +265,12 @@ void main() {
       expect(openSealed(e2e: e2e, me: nadia, senderKeys: [me.publicKey], row: rahimRow), isNull);
       // my self copy opens with my own key
       expect(openSealed(e2e: e2e, me: me, senderKeys: [me.publicKey], row: mine), isNotNull);
-      // nothing readable in the payload
-      expect(per.toString().contains('Eid'), isFalse);
+      // nothing readable in the payload. Check the whole phrase: a 3-letter
+      // fragment like 'Eid' turns up in random base64 ciphertext by chance
+      // (~1 run in 1000 — the old flake); 'Eid Mubarak' has a space, which
+      // base64 never contains, so only a real plaintext leak can match.
+      expect(per.toString().contains('Eid Mubarak'), isFalse);
+      expect(per.toString().contains('Mubarak'), isFalse);
     });
   });
 }

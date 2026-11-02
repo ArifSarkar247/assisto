@@ -11,6 +11,7 @@ import '../../messaging/media/media_prep.dart' show ensureMediaPermission;
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../audio/audio_route_service.dart';
 
 /// kidswatch — a short voice note. For a WATCH reply it records AMR-NB
 /// (8 kHz, the only format these watches play, max 15 s); for the phone
@@ -27,21 +28,40 @@ abstract class KwRecorder {
 class KwRecordPlugin implements KwRecorder {
   AudioRecorder? _r;
   AudioRecorder get _rec => _r ??= AudioRecorder();
+  // app-wide audio route: a connected headset's mic is used while recording
+  final MicRouteHold _mic = MicRouteHold(AudioUse.kidsWatchRecord);
 
   @override
-  Future<void> start(String path, {required bool amr}) => _rec.start(
-      amr
-          ? const RecordConfig(
-              encoder: AudioEncoder.amrNb, bitRate: 12200, sampleRate: 8000, numChannels: 1)
-          : const RecordConfig(
-              encoder: AudioEncoder.aacLc, bitRate: 32000, sampleRate: 22050, numChannels: 1),
-      path: path);
+  Future<void> start(String path, {required bool amr}) {
+    _mic.start();
+    return _rec.start(
+        amr
+            ? const RecordConfig(
+                encoder: AudioEncoder.amrNb, bitRate: 12200, sampleRate: 8000, numChannels: 1,
+                androidConfig: AndroidRecordConfig(manageBluetooth: false))
+            : const RecordConfig(
+                encoder: AudioEncoder.aacLc, bitRate: 32000, sampleRate: 22050, numChannels: 1,
+                androidConfig: AndroidRecordConfig(manageBluetooth: false)),
+        path: path);
+  }
+
   @override
-  Future<String?> stop() => _rec.stop();
+  Future<String?> stop() {
+    _mic.stop();
+    return _rec.stop();
+  }
+
   @override
-  Future<void> cancel() => _rec.cancel();
+  Future<void> cancel() {
+    _mic.stop();
+    return _rec.cancel();
+  }
+
   @override
-  Future<void> dispose() async => _r?.dispose();
+  Future<void> dispose() async {
+    _mic.stop();
+    await _r?.dispose();
+  }
 }
 
 /// Tests swap this.
@@ -50,7 +70,14 @@ KwRecorder Function() kwRecorderFactory = KwRecordPlugin.new;
 /// THE single place where kids-watch audio starts (integrator: wire the
 /// app-wide audio route service here). Plain playback / record only — no
 /// speakerphone / AudioManager route calls anywhere in this feature.
-Future<void> kwStartPlayback(String path) => VoicePlayer.instance.toggle(path);
+Future<void> kwStartPlayback(String path) async {
+  try {
+    await AudioRouteService.instance.preparePlayback(AudioUse.kidsWatchPlay);
+  } catch (_) {
+    // routing is best-effort; playback still works on the default route
+  }
+  await VoicePlayer.instance.toggle(path);
+}
 
 /// Recording counterpart of [kwStartPlayback] (same rule).
 Future<void> kwStartRecording(KwRecorder rec, String path, {required bool amr}) =>

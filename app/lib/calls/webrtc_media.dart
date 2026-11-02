@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../audio/audio_route_service.dart' as ar;
+import '../audio/webrtc_audio_fallback.dart';
 import 'call_controller.dart';
 import 'call_video.dart';
 import 'call_log.dart';
@@ -11,9 +13,11 @@ import 'call_log.dart';
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
 /// (and no native PeerConnectionFactory) is touched at app launch.
 ///
-/// Audio: Android "communication" mode (echo cancellation, earpiece by
-/// default, Bluetooth headsets routed by the plugin's audio switch). Speaker
-/// ON prefers a connected Bluetooth headset (WhatsApp behaviour).
+/// Audio (audioroute, owner 28 Oct): routing is owned by the ONE app-wide
+/// [ar.AudioRouteService] — communication mode, headset > earpiece (voice) /
+/// headset > speaker (video), live switch on connect / disconnect, restore on
+/// every end. This file never calls the plugin's routing helpers (CI guard
+/// test/audio_route_guard_test.dart).
 class WebRtcCallMedia implements CallMedia, CallVideoSurface {
   RTCPeerConnection? _pc;
   MediaStream? _local;
@@ -31,11 +35,16 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
   @override
   Stream<MediaLinkState> get linkState => _link.stream;
 
+  ar.AudioRouteService get _audio => ar.AudioRouteService.instance;
+
   @override
   Future<void> open({required bool video}) async {
+    // BEFORE getUserMedia: the mic must come from the headset too, and the
+    // plugin's own audio switch must be off before it would start.
     try {
-      await Helper.setAndroidAudioConfiguration(
-          AndroidAudioConfiguration.communication);
+      installWebrtcAudioFallback(_audio);
+      await _audio.beginCall(video: video);
+      if (!_audio.nativeOwner) await prepareWebrtcAudioFallback();
     } catch (e) {
       callLog('webrtc_media#1', e);
     }
@@ -174,23 +183,21 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
   @override
   Future<List<AudioRoute>> audioRoutes() async {
     final out = <AudioRoute>[];
-    for (final d in await Helper.audiooutputs) {
-      final r = audioRouteFromId(d.deviceId);
-      if (r != null && !out.contains(r)) out.add(r);
+    for (final o in _audio.outputs) {
+      if (!out.contains(o.route)) out.add(o.route);
     }
     out.sort((a, b) => a.index.compareTo(b.index));
     return out;
   }
 
   @override
-  Future<void> setAudioRoute(AudioRoute r) async {
-    if (r == AudioRoute.speaker) {
-      await Helper.setSpeakerphoneOn(true);
-    } else if (r == AudioRoute.earpiece) {
-      await Helper.setSpeakerphoneOn(false);
-    }
-    await Helper.selectAudioOutput(audioRouteId(r));
-  }
+  Future<void> setAudioRoute(AudioRoute r) => _audio.select(r);
+
+  @override
+  Stream<AudioRoute> get routeChanges => _audio.routeChanges;
+
+  @override
+  Future<void> setVideoMode(bool on) => _audio.setVideo(on);
 
   @override
   Future<void> createPeer(List<Map<String, dynamic>> iceServers) async {
@@ -315,13 +322,18 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
     if (t != null) await Helper.switchCamera(t);
   }
 
+  /// Speaker toggle: ON = loudspeaker; OFF = the headset when one is
+  /// connected (Bluetooth first), else the earpiece.
   @override
-  Future<void> setSpeaker(bool on) async {
-    if (on) {
-      await Helper.setSpeakerphoneOnButPreferBluetooth();
-    } else {
-      await Helper.setSpeakerphoneOn(false);
-    }
+  Future<void> setSpeaker(bool on) {
+    if (on) return _audio.select(AudioRoute.speaker);
+    final a = _audio;
+    final back = a.has(AudioRoute.bluetooth)
+        ? AudioRoute.bluetooth
+        : a.has(AudioRoute.wired)
+            ? AudioRoute.wired
+            : AudioRoute.earpiece;
+    return a.select(back);
   }
 
   @override
@@ -429,8 +441,10 @@ class WebRtcCallMedia implements CallMedia, CallVideoSurface {
       callLog('webrtc_media#5', e);
     }
     _renderersReady = false;
+    // every call-end path (hang-up, remote end, failure, timeout, setup
+    // aborted) ends here: back to normal audio, music never stuck.
     try {
-      await Helper.clearAndroidCommunicationDevice();
+      await _audio.endCall();
     } catch (e) {
       callLog('webrtc_media#6', e);
     }
