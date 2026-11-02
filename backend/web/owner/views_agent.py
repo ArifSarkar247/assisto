@@ -60,6 +60,7 @@ def agent_runs(request):
         "up": agg["up"] or 0, "down": agg["down"] or 0, "topics": topics, "errors": errors,
         "nudges": _nudge_stats(since),
         "obs": _obs(since), "obs_cfg": _obs_cfg(),
+        "brief_pct": _brief_pct(),
         "fb": _fb_stats(),
     }, nav="agent_runs")
 
@@ -100,6 +101,33 @@ def agent_obs_save(request):
         return done("/owner/agent-runs", "invalid")
     before, after = AO.save(clean, actor=request.owner)
     S.audit(request, request.owner, "agent_obs", "thresholds", before=before, after=after)
+    return done("/owner/agent-runs")
+
+
+def _brief_pct():
+    try:
+        from core.agentcore import proactive as P
+        return P.brief_rollout_pct()
+    except Exception:
+        return None
+
+
+@require_http_methods(["POST"])
+@owner_view()
+def agent_brief_rollout_save(request):
+    """flagprep: % of agent_core users who get the AUTOMATIC brief / recap
+    (OwnerAudit action agent_brief_rollout)."""
+    from core.agentcore import proactive as P
+    from . import security as S
+    from .base import done
+    pct = to_int(request.POST.get("pct"))
+    if pct is None or not 0 <= pct <= 100:
+        S.audit(request, request.owner, "agent_brief_rollout", "pct",
+                after={"rejected": str(request.POST.get("pct", ""))[:20]}, ok=False)
+        return done("/owner/agent-runs", "invalid")
+    before, after = P.save_brief_rollout(pct, actor=request.owner)
+    S.audit(request, request.owner, "agent_brief_rollout", "pct",
+            before={"pct": before}, after={"pct": after})
     return done("/owner/agent-runs")
 
 

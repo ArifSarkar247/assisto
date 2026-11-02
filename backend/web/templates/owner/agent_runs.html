@@ -36,6 +36,10 @@
 {% if topics %}<div class="card tbl"><table><thead><tr><th>{{ T.agr_topic }}</th><th>{{ T.agr_runs }}</th><th>{{ T.agr_success }}</th><th>{{ T.agr_credits }}</th><th>{{ T.agr_cost }}</th></tr></thead><tbody>
 {% for t in topics %}<tr><td>{{ t.topic|default:"general" }}</td><td>{{ t.n }}</td><td>{{ t.pct }}%</td><td>{{ t.credits|default:0 }}</td><td>${{ t.cost|default:0|floatformat:4 }}</td></tr>{% endfor %}
 </tbody></table></div>{% endif %}
+{% if brief_pct is not None %}<div class="card"><b>{{ T.agb_title }}</b>
+<form method="post" action="/owner/agent-runs/brief-rollout">{% include "owner/_csrf.html" %}
+<p><label>{{ T.agb_pct }} <input type="number" name="pct" min="0" max="100" value="{{ brief_pct }}"></label> <button class="btn">{{ T.save }}</button></p>
+<p class="mut small">{{ T.agb_note }}</p></form></div>{% endif %}
 {% if nudges %}<div class="card tbl"><b>{{ T.agn_title }}</b><p class="mut small">{{ T.agn_intro }}</p><table><thead><tr><th>{{ T.agn_trigger }}</th><th>{{ T.agn_n }}</th><th>{{ T.agn_sent }}</th><th>{{ T.agn_batched }}</th><th>{{ T.agn_opened }}</th><th>{{ T.agn_dismissed }}</th><th>{{ T.agn_opted }}</th></tr></thead><tbody>
 {% for t in nudges %}<tr><td>{{ t.trigger }}</td><td>{{ t.n }}</td><td>{{ t.sent }}</td><td>{{ t.batched }}</td><td>{{ t.opened }}</td><td>{{ t.dismissed }}</td><td>{{ t.opted_out }}</td></tr>{% endfor %}
 </tbody></table></div>{% endif %}

@@ -1,5 +1,6 @@
 """minutejobs — the per-minute jobs in ONE process: journey_sweep, then
-antitheft_escalate, then school_mode_tick (core.ops_health.MINUTE_JOBS).
+antitheft_escalate, school_mode_tick, ezviz_poll_alarms, agent_core_run
+(core.ops_health.MINUTE_JOBS).
 
 Why: each `manage.py <job>` process pays the Django start-up (~0.85 s CPU:
 352 model classes, psycopg, django.http) plus, unless skipped, the system
@@ -69,7 +70,7 @@ def job_lock(name):
 
 
 class Command(BaseCommand):
-    help = "Run the per-minute jobs (journey_sweep, antitheft_escalate) in one process."
+    help = "Run the per-minute jobs (core.ops_health.MINUTE_JOBS) in one process."
     requires_system_checks = []
 
     def add_arguments(self, parser):

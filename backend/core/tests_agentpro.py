@@ -45,6 +45,7 @@ class _Base(TestCase):
     def setUp(self):
         cache.clear()
         flags()
+        P.save_brief_rollout(100)   # flagprep: these tests are about content, not the cohort
         self.u = mkuser(1)
         self.sent = []
         p = mock.patch.object(P, "_push", side_effect=self._fake_push)

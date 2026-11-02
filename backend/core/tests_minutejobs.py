@@ -43,10 +43,10 @@ class MinuteJobsTests(_Base):
                            wraps=call_command) as cc:
             self.run_cmd()
         self.assertEqual([c.args[0] for c in cc.call_args_list],
-                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms"])
+                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "agent_core_run"])
         self.assertTrue(cc.call_args_list[0].kwargs["quiet"])
         # every job's heartbeat recorded OK, as from its own cron line
-        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick"):
+        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "agent_core_run"):
             hb = self.hb(name)
             self.assertIsNotNone(hb, name)
             self.assertEqual(hb.last_rc, 0)
@@ -172,7 +172,7 @@ class OpsWatchCronTests(TestCase):
             "/home/ubuntu/assisto/backend/logs >> /home/ubuntu/assisto/backend/logs/"
             "minute_jobs.log 2>&1")
         self.assertEqual(H.lock_path("journey_sweep"), "/tmp/assisto-journey-sweep.lock")
-        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms"])
+        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "agent_core_run"])
 
     def test_snapshot_no_false_not_scheduled(self):
         snap = H.snapshot(cron_text=H.minute_jobs_cron_line(),
@@ -193,7 +193,7 @@ class EveryMinuteCronSkipsChecksTests(SimpleTestCase):
 
     def test_every_minute_commands_skip_system_checks(self):
         import importlib
-        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "minute_jobs",
+        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "agent_core_run", "minute_jobs",
                      "push_due_reminders", "calls_sweep", "turn_monitor",
                      "bizagent_process"):
             mod = importlib.import_module("core.management.commands." + name)

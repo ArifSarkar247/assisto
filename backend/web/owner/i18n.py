@@ -1655,6 +1655,18 @@ BN.update({
     "agn_trigger": "ট্রিগার", "agn_n": "তৈরি", "agn_sent": "পুশ", "agn_batched": "ব্রিফে রাখা",
     "agn_opened": "খোলা", "agn_dismissed": "সরানো", "agn_opted": "বন্ধ করেছেন",
 })
+# ---- flagprep: automatic brief rollout ----
+EN.update({
+    "agb_title": "Automatic morning brief / evening recap — rollout",
+    "agb_note": "Percent of the users the agent_core flag is on for who get the AUTOMATIC brief and recap (0–100). Same hash as the flag's own rollout, so this group is always inside the flag group. Owner, staff and allow-listed testers always get it; everyone else can still open the brief by hand. Start at 10, raise after a day of watching the numbers above.",
+    "agb_pct": "Rollout %",
+})
+BN.update({
+    "agb_title": "স্বয়ংক্রিয় সকালের সংক্ষেপ / সন্ধ্যার হিসাব — রোলআউট",
+    "agb_note": "agent_core যাঁদের জন্য চালু, তাঁদের কত শতাংশ নিজে থেকে সংক্ষেপ ও হিসাব পাবেন (০–১০০)। ফ্ল্যাগের রোলআউটের একই হ্যাশ, তাই এই দল সবসময় ফ্ল্যাগের দলের ভেতরে। মালিক, স্টাফ ও টেস্টার তালিকা সবসময় পান; বাকিরা হাতে খুলে দেখতে পারেন। ১০ দিয়ে শুরু করুন, উপরের সংখ্যা এক দিন দেখে বাড়ান।",
+    "agb_pct": "রোলআউট %",
+})
+# ---- /flagprep ----
 # ---- /agent-proactive ----
 
 # ---- af-crisis: Owner Admin -> Crisis helplines ----
