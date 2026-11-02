@@ -165,7 +165,10 @@ void main() {
       // the map (and its zoom / attribution controls) lives INSIDE the
       // scrolling body, whose viewport ends above the banner — clipped there
       // (checked before scrolling: a lazy list drops rows scrolled away)
+      await t.scrollUntilVisible(find.byType(VehMap), 100, scrollable: find.byType(Scrollable).first);
+      await _settle(t);
       expect(find.ancestor(of: find.byType(VehMap), matching: find.byType(Scrollable)), findsWidgets);
+      expect(t.getRect(find.byType(VehMap)).top, lessThan(bannerTop));
       final viewport = t.getRect(find.byType(Scrollable).first);
       expect(viewport.bottom, lessThanOrEqualTo(bannerTop));
       // scroll so the hotlines sit at the very bottom of the body
