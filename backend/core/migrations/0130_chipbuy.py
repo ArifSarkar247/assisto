@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0125_missing"),
+        ("core", "0129_blood"),
     ]
 
     operations = [

@@ -60,6 +60,7 @@ import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'calls/kid_audio_child.dart'; // kidaudio
 
 void main() {
   // Nothing in startup may crash the app. Every Dart error — sync, async, or
@@ -480,6 +481,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // kidaudio: a granted emergency-audio session waiting for this phone
+      // (flag + server grant; visible notice first; never throws).
+      unawaited(KidAudioChild.maybeStart(app.api));
     }
     _resumeProtection();
   }
