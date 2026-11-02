@@ -28490,5 +28490,100 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "rhbGoalWhy": "A goal turns this month's leftover money into real savings you can watch grow.",
+  "rhbGoalCreate": "Set a savings goal",
+  "rhbErrCategory": "Pick a category or type one.",
+  "rhbErrLimit": "Enter an amount more than 0.",
+  "rhbErrGoalTitle": "Write what you are saving for.",
+  "rhbCategoryOther": "Or type another category",
+  "rhbCategoryHelp": "Pick one you already use on expenses so the spending is counted.",
+  "rhbTemplateHow": "This is a guide only — nothing is created. Set a limit for each category with + on the Budget page.",
+  "rhbBudgetHow1": "Tap \"Add your first budget\" and pick a category, like Food.",
+  "rhbBudgetHow2": "Write the most you want to spend on it this month.",
+  "rhbBudgetHow3": "Write your expenses as usual — the bar fills from your real spending and turns orange at 80%.",
+  "rhbHistoryEmpty": "No budget in {month}",
+  "@rhbHistoryEmpty": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbSuggestionUsed": "{category} budget set to {amount} a month",
+  "@rhbSuggestionUsed": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbPlanEmpty": "Suggestions come from your real spending. Write your expenses for a month or two and they will appear here.",
+  "rhbConvLine": "{amount} {currency} × {rate} = {taka}",
+  "@rhbConvLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "taka": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvYours": "You received {taka} — this amount is saved.",
+  "@rhbConvYours": {
+    "placeholders": {
+      "taka": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvEffective": "That is {rate} taka for each one.",
+  "@rhbConvEffective": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbConvHonest": "Uses the rate you typed from your receipt. We never fetch or show a live or official rate.",
+  "rhbMonthEmptyTitle": "Nothing written for {month} yet",
+  "@rhbMonthEmptyTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbMonthBenefit": "Write each money that comes from abroad and see who sent how much, where it went and what is left.",
+  "rhbMonthHow1": "Tap \"Money came\" (or say it in one line below).",
+  "rhbMonthHow2": "Write the amount, the rate you got and who sent it — pick them from My Circle.",
+  "rhbMonthHow3": "Write the family's spending on the Budget tab; the report for the sender fills in by itself.",
+  "rhbShareA11y": "{name}: {taka}, {pct} percent, {count} times",
+  "@rhbShareA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "taka": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbWhoSentMonth": "Who sent how much this month"
 }
