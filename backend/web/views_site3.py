@@ -139,7 +139,7 @@ def _render(request, page, preview, group=None, status=200):
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
-        "font_in": {w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
+        "font_in": {"w%d" % w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
         "jsonld": V3.jsonld(lang, site, en_url if lang == "en" else bn_url, page,
                             faq if page in ("home", "help") else None, crumbs),
         "year": 2026,

@@ -12,7 +12,7 @@
 <link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0B1020">
-{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% else %}<link rel="preload" href="{{ font_in.700 }}" as="font" type="font/woff2" crossorigin>{% endif %}
+{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% else %}<link rel="preload" href="{{ font_in.w700 }}" as="font" type="font/woff2" crossorigin>{% endif %}
 <link rel="icon" href="{% site_asset 'favicon.ico' %}" sizes="48x48">
 <link rel="icon" href="{% site_asset 'favicon.svg' %}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{% site_asset 'apple-touch-icon.png' %}" sizes="180x180">
@@ -64,7 +64,7 @@
   <div class="wrap">
     <h2>{{ C.cta_h }}</h2>
     <p>{{ C.cta_p }}</p>
-    <a class="badge" href="{{ play_url }}" rel="noopener"><img src="{{ badge }}" width="200" height="59" alt="{{ C.cta_play }}" loading="lazy" decoding="async"></a>
+    <a class="badge" href="{{ play_url }}" rel="noopener"><img src="{{ badge }}" width="200" height="77" alt="{{ C.cta_play }}" loading="lazy" decoding="async"></a>
   </div>
 </section>
 </main>
