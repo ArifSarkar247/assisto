@@ -48,6 +48,9 @@ import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
+import 'package:assisto/screens/train/train_chat_screen.dart'; // train
+import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
@@ -608,6 +611,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'famcare_card_empty': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.empty, full: false),
     'famcare_error': (build: (_) => const FamilyScreen(), mode: FakeMode.fail, full: false),
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
+    // train: tracker list / empty / error, live, estimate, chat, join, alarm setup
+    'train_list': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),
+    'train_list_empty': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.empty, full: false),
+    'train_list_error': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.fail, full: false),
+    'train_live': (build: (_) => const TrainLiveScreen(no: '701', date: '2026-11-03'), mode: FakeMode.data, full: true),
+    'train_estimate': (build: (_) => const TrainLiveScreen(no: '701', date: '2026-11-03'), mode: FakeMode.empty, full: true),
+    'train_chat': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.data, full: true),
+    'train_chat_join': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.empty, full: false),
+    'dest_alarm': (build: (_) => const DestAlarmScreen(), mode: FakeMode.data, full: true),
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),

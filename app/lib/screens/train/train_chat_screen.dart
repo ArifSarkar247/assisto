@@ -64,8 +64,10 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
       setState(() {
         _me = r['me'] is Map ? Map<String, dynamic>.from(r['me'] as Map) : null;
         if (full) _msgs.clear();
+        final seen = {for (final m in _msgs) m['id']};
         for (final m in (r['messages'] as List? ?? const [])) {
-          _msgs.add(Map<String, dynamic>.from(m as Map));
+          final mm = Map<String, dynamic>.from(m as Map);
+          if (seen.add(mm['id'])) _msgs.add(mm);
         }
         _reqs = [for (final x in (r['circle_requests'] as List? ?? const [])) Map<String, dynamic>.from(x as Map)];
         _emergency = _emergency || _msgs.any((m) => m['emergency'] == true);
