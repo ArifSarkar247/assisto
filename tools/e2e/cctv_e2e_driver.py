@@ -625,7 +625,13 @@ def run():
         engine.stop()
         engine_stopped = True
         from core.shop_views import VIDEO_EXTS, looks_like_video
+        from core.logic import cctv_store as CS
         bad_files, n_files, media_imgs = [], 0, 0
+        sealed_files, plain_cctv = 0, []
+
+        def rel_shop(path):
+            rel = os.path.relpath(path, str(settings.MEDIA_ROOT)).replace(os.sep, "/")
+            return rel.startswith("shop/")
         for root_dir in (settings.MEDIA_ROOT, os.environ.get("SHOPBOX_HOME", "")):
             for dp, _dn, fns in os.walk(root_dir or "/nonexistent"):
                 for fn in fns:
@@ -633,6 +639,15 @@ def run():
                     n_files += 1
                     with open(p, "rb") as fh:
                         head = fh.read(1024)
+                    # cctvevidence: CCTV media are sealed at rest (AES-GCM,
+                    # core/logic/cctv_store) — check what is INSIDE
+                    if root_dir == settings.MEDIA_ROOT and CS.is_sealed(head):
+                        sealed_files += 1
+                        rel = os.path.relpath(p, str(settings.MEDIA_ROOT)).replace(os.sep, "/")
+                        with open(p, "rb") as fh:
+                            head = CS.open_blob(fh.read(), rel)[:1024]
+                    elif root_dir == settings.MEDIA_ROOT and rel_shop(p):
+                        plain_cctv.append(p)
                     if fn.lower().endswith(VIDEO_EXTS) or looks_like_video(head):
                         bad_files.append(p)
                     if root_dir == settings.MEDIA_ROOT and head[:2] == b"\xff\xd8":
@@ -641,6 +656,9 @@ def run():
               % n_files, not bad_files, bad_files)
         check("server media holds only small stills (%d JPEGs)" % media_imgs,
               media_imgs >= 2)
+        check("cctvevidence: every CCTV file is sealed at rest (%d sealed, %d plain)"
+              % (sealed_files, len(plain_cctv)), sealed_files >= 2 and not plain_cctv,
+              plain_cctv[:5])
         out_left = len(engine.outbox)
         check("edge outbox drained (nothing stuck)", out_left == 0, out_left)
     except Abort:
