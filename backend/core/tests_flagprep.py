@@ -112,7 +112,7 @@ class BriefRolloutTests(TestCase):
         set_flag("agent_core", True)
         self.addCleanup(FF.invalidate)
         self.sent = []
-        p = mock.patch.object(P, "_push", side_effect=lambda u, n: self.sent.append(u.pk) or 1)
+        p = mock.patch.object(P, "_push", side_effect=lambda u, n: self.sent.append((u.pk, n.trigger)) or 1)
         p.start()
         self.addCleanup(p.stop)
         ai = mock.patch("core.ai.generate", side_effect=AssertionError("no AI in briefs"))
@@ -157,7 +157,7 @@ class BriefRolloutTests(TestCase):
         got = set(AgentNudge.objects.filter(trigger="brief_morning").values_list("user_id", flat=True))
         self.assertEqual(got, cohort)
         self.assertEqual(st["brief_rollout_wait"], len(users) - len(cohort))
-        self.assertEqual(set(self.sent), cohort)
+        self.assertEqual({pk for pk, t in self.sent if t == "brief_morning"}, cohort)
         # the owner raises it to 100 -> everyone else gets it on the next tick, no doubles
         P.save_brief_rollout(100)
         P.tick(now=morning(10, 8, 0), users=users)
