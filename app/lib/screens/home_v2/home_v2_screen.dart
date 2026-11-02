@@ -140,6 +140,8 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
     if (widget.debugBadges == null) _loadBadges();
   }
 
+  final _heroSlot = GlobalKey(debugLabel: 'hv2_hero_slot'); // ownerfix
+
   void _toTop() {
     if (_scroll.hasClients) {
       _scroll.animateTo(0, duration: Motion.slow, curve: Motion.curve);
@@ -180,11 +182,15 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
           // LAST row, the free-user native ad moves below the Ask card (the
           // next non-emergency section) instead of right under that row.
           // Nothing else on home moves.
-          const hero = HomeHero(
-              key: ValueKey('hv2_ad_slot'),
-              fallback: SizedBox.shrink(),
-              gapWhenShown: HV2.sectionGap,
-              availableHeight: HV2.adSlot);
+          // A GlobalKey: moving the slot keeps the SAME ad (no reload, no
+          // second request).
+          final hero = KeyedSubtree(
+              key: _heroSlot,
+              child: const HomeHero(
+                  key: ValueKey('hv2_ad_slot'),
+                  fallback: SizedBox.shrink(),
+                  gapWhenShown: HV2.sectionGap,
+                  availableHeight: HV2.adSlot));
           return ValueListenableBuilder<bool>(
             valueListenable: HomeV2Shortcuts.adBelowAsk,
             builder: (context, adBelowAsk, _) => CustomScrollView(
