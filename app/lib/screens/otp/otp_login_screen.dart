@@ -42,9 +42,15 @@ OtpBackend _defaultBackend(BuildContext context) =>
     ApiOtpBackend(context.read<AppState>().api);
 
 /// Sign in with a one-time SMS code. Password sign-in stays on LoginScreen.
+///
+/// framebar: [emailMode] = the SMS gateway is off but email codes work. The
+/// person types their phone number OR email and the code goes straight to
+/// the account's verified email (no "SMS not available" detour). The server
+/// answers neutrally (no account enumeration).
 class OtpLoginScreen extends StatefulWidget {
   final OtpBackend? backend;
-  const OtpLoginScreen({super.key, this.backend});
+  final bool emailMode;
+  const OtpLoginScreen({super.key, this.backend, this.emailMode = false});
 
   @override
   State<OtpLoginScreen> createState() => _OtpLoginScreenState();
@@ -63,9 +69,12 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
 
   Future<void> _go() async {
     final t = AppLocalizations.of(context);
-    final phone = _phone.text.trim();
-    if (!looksLikeBdMobile(phone)) {
-      setState(() => _error = t.otpPhoneInvalid);
+    final raw = _phone.text.trim();
+    final isEmail = widget.emailMode && looksLikeEmail(raw);
+    final phone = isEmail ? '' : raw;
+    if (!isEmail && !looksLikeBdMobile(phone)) {
+      setState(() =>
+          _error = widget.emailMode ? t.fbOtpIdInvalid : t.otpPhoneInvalid);
       return;
     }
     final backend = widget.backend ?? _defaultBackend(context);
@@ -78,14 +87,17 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
     final proof = await OtpVerifyScreen.run(context,
         backend: backend,
         purpose: 'login',
-        phone: phone,
-        title: t.otpLoginTitle);
+        phone: isEmail ? null : phone,
+        email: isEmail ? raw : null,
+        emailFirst: widget.emailMode,
+        title: widget.emailMode ? t.fbOtpEmailTitle : t.otpLoginTitle);
     if (!mounted) return;
     if (proof == null) {
       setState(() => _busy = false);
       return;
     }
-    final res = await backend.loginWithProof(phone, proof);
+    final res = await backend.loginWithProof(phone, proof,
+        email: isEmail ? raw : null);
     if (!mounted) return;
     if (res == null) {
       setState(() {
@@ -103,7 +115,8 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.otpLoginTitle)),
+      appBar: AppBar(
+          title: Text(widget.emailMode ? t.fbOtpEmailTitle : t.otpLoginTitle)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -113,24 +126,50 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(t.otpLoginIntro, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(widget.emailMode ? t.fbOtpEmailIntro : t.otpLoginIntro,
+                      style: Theme.of(context).textTheme.bodyLarge),
                   const SizedBox(height: 20),
-                  _PhoneField(
-                    controller: _phone,
-                    enabled: !_busy,
-                    errorText: _error,
-                    onChanged: (_) {
-                      if (_error != null) setState(() => _error = null);
-                    },
-                  ),
+                  if (widget.emailMode)
+                    TextField(
+                      key: const Key('otp-id'),
+                      controller: _phone,
+                      enabled: !_busy,
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: const [
+                        AutofillHints.email,
+                        AutofillHints.telephoneNumber
+                      ],
+                      onChanged: (_) {
+                        if (_error != null) setState(() => _error = null);
+                      },
+                      decoration: InputDecoration(
+                        labelText: t.phoneOrEmail,
+                        prefixIcon: const Icon(Icons.alternate_email_rounded),
+                        errorText: _error,
+                        errorMaxLines: 3,
+                      ),
+                    )
+                  else
+                    _PhoneField(
+                      controller: _phone,
+                      enabled: !_busy,
+                      errorText: _error,
+                      onChanged: (_) {
+                        if (_error != null) setState(() => _error = null);
+                      },
+                    ),
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     key: const Key('otp-send'),
                     onPressed: _busy ? null : _go,
-                    icon: const Icon(Icons.sms_rounded),
+                    icon: Icon(widget.emailMode
+                        ? Icons.email_rounded
+                        : Icons.sms_rounded),
                     label: Padding(
                       padding: const EdgeInsets.symmetric(vertical: Gap.md),
-                      child: Text(t.otpSendCode),
+                      child: Text(widget.emailMode
+                          ? t.fbOtpEmailSend
+                          : t.otpSendCode),
                     ),
                   ),
                 ],

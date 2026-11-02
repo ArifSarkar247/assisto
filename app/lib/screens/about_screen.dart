@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'
+    show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
@@ -9,6 +11,7 @@ import '../config.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'app_update_screen.dart';
+import '../play_update.dart'; // framebar
 
 /// Settings → About (the ONLY place the app version is shown — owner rule:
 /// nothing version-related on the home screen, sidebar, or anywhere visible).
@@ -126,10 +129,13 @@ class _AboutScreenState extends State<AboutScreen> {
             const SizedBox(height: Gap.lg),
             // l1-launch: the Play build updates through Google Play only.
             if (AppConfig.playStore)
-              Text(t.l1PlayUpdatesViaStore,
-                  style: Theme.of(context).textTheme.bodyMedium)
+              _playUpdateSection(t)
             else
               _updateSection(t),
+            const SizedBox(height: Gap.xl),
+            // framebar: licences + data credits (OSM ODbL etc.) — Play and
+            // the licences themselves require the notices to be reachable.
+            _licencesSection(t),
           ],
         ),
       ),
@@ -193,7 +199,11 @@ class _AboutScreenState extends State<AboutScreen> {
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
       child: Row(
         children: [
-          Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+          // framebar: at 200% font (Bangla, 360 dp) the label alone could
+          // be wider than the row -> it now wraps instead of overflowing.
+          Flexible(
+            child: Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
           const SizedBox(width: Gap.md),
           // QA a6: Spacer+Flexible split the row 50/50, so values floated in
           // the middle. Values now sit flush right.
@@ -208,6 +218,146 @@ class _AboutScreenState extends State<AboutScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  // ---- framebar: Play update on request (never a prompt on home) ----
+  PlayUpdateCheck? _playChk;
+  bool _playBusy = false;
+
+  Future<void> _checkPlay() async {
+    setState(() => _playBusy = true);
+    final r = await PlayUpdate.checkNow();
+    if (!mounted) return;
+    setState(() {
+      _playBusy = false;
+      _playChk = r;
+    });
+  }
+
+  Widget _playUpdateSection(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final note = switch (_playChk) {
+      PlayUpdateCheck.upToDate => t.fbPlayUpToDate,
+      PlayUpdateCheck.failed || PlayUpdateCheck.notPlay => t.fbPlayCheckFailed,
+      PlayUpdateCheck.started => t.fbPlayUpdateStarted,
+      null => null,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(t.l1PlayUpdatesViaStore,
+            style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: Gap.md),
+        OutlinedButton.icon(
+          key: const Key('about-play-update'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: _playBusy ? null : _checkPlay,
+          icon: _playBusy
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.system_update_rounded),
+          label: Text(t.fbPlayCheckButton),
+        ),
+        if (note != null) ...[
+          const SizedBox(height: Gap.sm),
+          Semantics(
+            liveRegion: true,
+            child: Text(note,
+                key: const Key('about-play-update-note'),
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ---- framebar: open-source licences + data & map credits ----
+  static bool _creditsRegistered = false;
+
+  /// The data credits also go into Flutter's licence page, next to every
+  /// package licence (and the Photo Studio model notices it registers).
+  static void registerDataLicences() {
+    if (_creditsRegistered) return;
+    _creditsRegistered = true;
+    try {
+      LicenseRegistry.addLicense(() => Stream.fromIterable(const [
+            LicenseEntryWithLineBreaks(['OpenStreetMap data'],
+                'Map data and nearby places: (c) OpenStreetMap contributors. '
+                'Available under the Open Database License (ODbL) 1.0: '
+                'https://opendatacommons.org/licenses/odbl/1-0/ - '
+                'https://www.openstreetmap.org/copyright'),
+            LicenseEntryWithLineBreaks(['Wikimedia Commons photos'],
+                'Place photos, where shown: Wikimedia Commons contributors, '
+                'CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0/). '
+                'The author and licence of each photo are named next to it.'),
+          ]));
+    } catch (_) {}
+  }
+
+  void _openLicences() {
+    registerDataLicences();
+    showLicensePage(
+      context: context,
+      applicationName: 'Assisto',
+      applicationVersion: _versionName,
+      applicationIcon: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset('assets/branding/new_logo.png',
+              width: 48, height: 48, fit: BoxFit.cover),
+        ),
+      ),
+    );
+  }
+
+  Widget _licencesSection(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    Widget line(IconData icon, String text) => Padding(
+          padding: const EdgeInsets.only(top: Gap.sm),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(text, style: AType.bodySmall)),
+          ]),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          key: const Key('about-data-credits'),
+          padding: const EdgeInsets.all(Gap.lg),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(Radii.lg),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.fbCreditsTitle,
+                  style: Theme.of(context).textTheme.titleSmall),
+              line(Icons.map_rounded, t.fbCreditOsm),
+              line(Icons.photo_library_rounded, t.fbCreditWiki),
+              line(Icons.auto_fix_high_rounded, t.fbCreditModels),
+              line(Icons.info_outline_rounded, t.fbCreditOther),
+            ],
+          ),
+        ),
+        const SizedBox(height: Gap.md),
+        ListTile(
+          key: const Key('about-licences'),
+          contentPadding: EdgeInsets.zero,
+          minTileHeight: 48,
+          leading: const Icon(Icons.description_rounded),
+          title: Text(t.fbLicencesTile),
+          subtitle: Text(t.fbLicencesSub),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: _openLicences,
+        ),
+      ],
     );
   }
 

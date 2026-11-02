@@ -574,6 +574,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     // ---- /o1-otp ----
+    // framebar: SMS off at launch -> honest email-code sign-in
+    'fb_login_email_code': (build: (_) => LoginScreen(otpBackend: FakeOtpBackend(smsEnabled: false, emailEnabled: true)), mode: FakeMode.data, full: true),
+    'fb_otp_email_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), emailMode: true), mode: FakeMode.data, full: true),
+    'fb_otp_email_sent': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), purpose: 'login', email: 'rahim@example.com', emailFirst: true, title: 'Assisto'), mode: FakeMode.data, full: true),
     'name_about': (build: (_) => const NameAboutScreen(), mode: FakeMode.data, full: true),
     'owner_analytics': (build: (_) => const OwnerAnalyticsScreen(), mode: FakeMode.data, full: true),
     'payment_ladder': (build: (_) => const PaymentLadderScreen(), mode: FakeMode.data, full: true),

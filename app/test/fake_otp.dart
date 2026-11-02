@@ -16,6 +16,7 @@ class FakeOtpBackend implements OtpBackend {
   String? lastPurpose;
   String? lastPhone;
   String? lastResetPassword;
+  String? lastVerifyEmail; // framebar
 
   FakeOtpBackend({
     this.smsEnabled = true,
@@ -31,7 +32,9 @@ class FakeOtpBackend implements OtpBackend {
   Future<OtpStatus> status() async {
     calls.add('status');
     return OtpStatus(
-        smsEnabled: smsEnabled, passwordOnlySignup: passwordOnlySignup);
+        smsEnabled: smsEnabled,
+        passwordOnlySignup: passwordOnlySignup,
+        emailEnabled: emailEnabled);
   }
 
   @override
@@ -59,8 +62,10 @@ class FakeOtpBackend implements OtpBackend {
   }
 
   @override
-  Future<OtpResult> verify(String purpose, String code, {String? phone}) async {
+  Future<OtpResult> verify(String purpose, String code,
+      {String? phone, String? email}) async {
     calls.add('verify:$purpose:$code');
+    lastVerifyEmail = email;
     if (code == goodCode) {
       return OtpResult.fromRaw({
         '_status': 200,
@@ -87,8 +92,10 @@ class FakeOtpBackend implements OtpBackend {
 
   @override
   Future<({String token, AppUser user})?> loginWithProof(
-      String phone, String proof) async {
-    calls.add('login:$phone:$proof');
+      String phone, String proof, {String? email}) async {
+    calls.add(email != null && email.isNotEmpty
+        ? 'login-email:$email:$proof'
+        : 'login:$phone:$proof');
     if (!loginSucceeds) return null;
     return (
       token: 'tok',

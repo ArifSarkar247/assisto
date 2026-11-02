@@ -11,7 +11,8 @@ import '../widgets/skeleton.dart';
 import '../widgets/support_widgets.dart';
 import 'legal_screen.dart';
 import '../services/action_feedback.dart'; // db1
-import '../services/error_kind.dart' show honestFailText; // qa2
+import '../services/error_kind.dart' show honestFailText, isServerFailure; // qa2
+import '../api.dart' show ApiException; // framebar
 
 /// IN-APP SUPPORT CENTER (#181, SPEC v2.1 §21, advanced).
 ///
@@ -127,7 +128,14 @@ class _GetHelpTabState extends State<_GetHelpTab> {
         _msg.clear();
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      // framebar: never a raw Dart/HTTP error in the help screen — the
+      // server's own (localized) refusal, else an honest "try again".
+      if (mounted) {
+        setState(() => _error = (e is ApiException && e.message.isNotEmpty &&
+                !isServerFailure(e))
+            ? e.message
+            : honestFailText(t, e, otherwise: t.otpErrNetwork));
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
