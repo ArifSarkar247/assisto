@@ -1,0 +1,13 @@
+{
+  "_comment": "notifs: My Circle message notifications-off banner (chat list). All keys NEW.",
+  "en": {
+    "notifsMsgOffTitle": "Message notifications are off",
+    "notifsMsgOffBody": "New My Circle messages won't show or ring on this phone. Turn notifications on so you see them even when Assisto is closed.",
+    "notifsMsgGuide": "Messages not arriving? Battery settings guide"
+  },
+  "bn": {
+    "notifsMsgOffTitle": "মেসেজের নোটিফিকেশন বন্ধ",
+    "notifsMsgOffBody": "মাই সার্কেলের নতুন মেসেজ এই ফোনে দেখাবে না, বাজবেও না। Assisto বন্ধ থাকলেও দেখতে নোটিফিকেশন চালু করুন।",
+    "notifsMsgGuide": "মেসেজ আসছে না? ব্যাটারি সেটিংস গাইড"
+  }
+}

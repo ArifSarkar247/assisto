@@ -81,6 +81,15 @@ class AssistoFcmService : FlutterFirebaseMessagingService() {
             Log.w(TAG, "native ring skipped: ${t.javaClass.simpleName}")
         }
         super.onMessageReceived(remoteMessage)
+        // notifs: a message notification must never be lost — if Dart draws
+        // nothing within a few seconds, draw "<sender>: নতুন মেসেজ" natively.
+        try {
+            com.assisto.assisto.messaging.MessageNotifier.onMessagePush(
+                applicationContext, remoteMessage.data
+            )
+        } catch (t: Throwable) {
+            Log.w(TAG, "message safety net skipped: ${t.javaClass.simpleName}")
+        }
         try {
             com.assisto.assisto.messaging.BubbleHelper.onMessagePush(
                 applicationContext, remoteMessage.data

@@ -260,6 +260,24 @@ class Notifications {
   /// returns true there. Fully guarded — never throws; on any query failure we
   /// assume enabled so we never nag a user we can't actually diagnose (e.g. in
   /// a test/gallery environment where the platform channel is absent).
+  /// notifs: app notifications on AND the user has not switched the
+  /// message channel ("messages" / the picked-sound one) to "off" in the
+  /// system settings. Errors -> true (never a banner we can't justify).
+  static Future<bool> messagesEnabled() async {
+    if (!await isEnabled()) return false;
+    try {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final chs = await android?.getNotificationChannels();
+      if (chs == null) return true;
+      final msg = chs.where((c) => c.id == 'messages' || c.id.startsWith('messages_'));
+      if (msg.isEmpty) return true; // not created yet -> created on first push
+      return msg.any((c) => c.importance != Importance.none);
+    } catch (_) {
+      return true;
+    }
+  }
+
   static Future<bool> isEnabled() async {
     try {
       final android = _plugin.resolvePlatformSpecificImplementation<
