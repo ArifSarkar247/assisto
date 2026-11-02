@@ -309,16 +309,26 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     final keys = (s['clip_recipients'] as num?)?.toInt() ?? 0;
     Widget step(bool done, String text, {VoidCallback? onTap, String? action}) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(children: [
-            Icon(done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                color: done ? wmOk() : null),
+          // cctvveh: the action sits UNDER the text (a long label next to
+          // it overflowed at 360 dp / 200% text)
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                  color: done ? wmOk() : null),
+            ),
             const SizedBox(width: 10),
-            Expanded(child: Text(text)),
-            if (onTap != null && action != null)
-              TextButton(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                  onPressed: onTap,
-                  child: Text(action)),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(text),
+                if (onTap != null && action != null)
+                  TextButton(
+                      style: TextButton.styleFrom(
+                          minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                      onPressed: onTap,
+                      child: Text(action)),
+              ]),
+            ),
           ]),
         );
     // cctvveh: every tick is the TRUTH (before: "camera added" was always
