@@ -99,7 +99,6 @@ class _RemindersScreenState extends State<RemindersScreen>
 
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'reminders'),
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [

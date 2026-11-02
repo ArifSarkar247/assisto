@@ -254,7 +254,6 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
 
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'business'),
       appBar: AppBar(
         title: Text(t.business),
         actions: [

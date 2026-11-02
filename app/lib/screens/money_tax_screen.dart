@@ -42,7 +42,6 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
       length: 3,
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-        bottomNavigationBar: const AdBannerSlot(screen: 'money_tax'),
         appBar: AppBar(
           title: Text(t.taxTitle),
           bottom: TabBar(

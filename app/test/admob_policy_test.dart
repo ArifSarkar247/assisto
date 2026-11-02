@@ -40,9 +40,9 @@ Map<String, dynamic> serverCfg({
   bool real = false,
   // banners-everywhere (owner 26 Oct): the server default = the app list
   List<String>? banner,
-  List<String> moments = const ['photo_saved', 'task_done'],
+  List<String>? moments,
   int appOpenCap = 6,
-  int interCap = 6,
+  int interCap = 4,
 }) {
   final paid = plan != 'free';
   return {
@@ -79,10 +79,12 @@ Map<String, dynamic> serverCfg({
     'appopen_min_gap_sec': 10800,
     'appopen_daily_cap': appOpenCap,
     'appopen_min_bg_sec': 30,
-    'interstitial_min_gap_sec': 300,
+    'interstitial_min_gap_sec': 800,
     'interstitial_daily_cap': interCap,
     'banner_screens': paid ? <String>[] : (banner ?? AdPlacements.bannerScreens.toList()),
-    'interstitial_moments': paid ? <String>[] : moments,
+    'interstitial_moments': paid
+        ? <String>[]
+        : (moments ?? [for (final p in AdExitPlacement.values) p.id]),
     'hero_enabled': !paid,
     'hero_start_muted': true,
     'hero_refresh_sec': 90,
@@ -185,7 +187,8 @@ void main() {
         expect(c.adsEnabled, isFalse);
         expect(AdPlacements.banner('dictionary', c, loggedIn: true).allowed, isFalse);
         expect(
-            AdPlacements.interstitial('task_done', c, loggedIn: true, now: DateTime(2026))
+            AdPlacements.interstitial('photo_after_save', c,
+                    loggedIn: true, now: DateTime(2026), firstUseDay: DateTime(2025))
                 .allowed,
             isFalse);
         for (final k in [AdKind.appOpen, AdKind.rewarded]) {
@@ -381,37 +384,45 @@ void main() {
   });
 
   // ------------------------------------------------------------- interstitial
-  group('interstitial at natural breaks', () {
-    test('moments, 5-minute gap, daily cap', () {
+  group('interstitial at exit placements', () {
+    test('placements, 800 s gap, daily cap', () {
       final c = cfg();
       final now = DateTime(2026, 10, 25, 12);
       AdDecision d(String m, {DateTime? last, int today = 0}) =>
           AdPlacements.interstitial(m, c,
-              loggedIn: true, now: now, lastFullScreenAt: last, shownToday: today);
-      expect(d('photo_saved').allowed, isTrue);
-      expect(d('task_done').allowed, isTrue);
+              loggedIn: true,
+              now: now,
+              lastFullScreenAt: last,
+              shownToday: today,
+              firstUseDay: DateTime(2026, 10, 1));
+      expect(d('photo_after_save').allowed, isTrue);
+      expect(d('scan_after_save').allowed, isTrue);
+      expect(d('photo_saved').reason, 'moment_not_allowed'); // old id
+      expect(d('task_done').reason, 'moment_not_allowed'); // never list now
       expect(d('screen_open').reason, 'moment_not_allowed');
       expect(d('sos_sent').reason, 'moment_not_allowed');
-      expect(d('task_done', last: now.subtract(const Duration(minutes: 4))).reason,
-          'too_soon');
-      expect(d('task_done', last: now.subtract(const Duration(minutes: 6))).allowed, isTrue);
-      expect(d('task_done', today: 6).reason, 'daily_cap');
+      expect(d('photo_after_save', last: now.subtract(const Duration(seconds: 799)))
+          .reason, 'too_soon');
+      expect(d('photo_after_save', last: now.subtract(const Duration(seconds: 800)))
+          .allowed, isTrue);
+      expect(d('photo_after_save', today: 4).reason, 'daily_cap');
     });
 
     testWidgets('service shows one, then respects the gap; reports to /ads/event',
         (tester) async {
+      SharedPreferences.setMockInitialValues({'ads_first_use_day': '2000-01-01'});
       final api = _AdsApi(serverCfg());
       final inter = _FakeFullScreen();
       AdsService.instance.interstitials = inter;
       AdsService.instance.attachForTest(_app(api));
-      expect(await AdsService.instance.maybeInterstitial('task_done'), isTrue);
-      expect(await AdsService.instance.maybeInterstitial('photo_saved'), isFalse);
-      expect(inter.interstitials, ['interstitial_task_done']);
-      AdTelemetry.paid('interstitial_task_done', 'interstitial',
+      expect(await AdsService.instance.maybeInterstitial('photo_after_save'), isTrue);
+      expect(await AdsService.instance.maybeInterstitial('scan_after_save'), isFalse);
+      expect(inter.interstitials, ['interstitial_photo_after_save']);
+      AdTelemetry.paid('interstitial_photo_after_save', 'interstitial',
           valueMicros: 1234, currency: 'usd', precision: 'precise');
       await tester.pump();
       final paid = api.posts.firstWhere((b) => b['kind'] == 'paid');
-      expect(paid['placement'], 'interstitial_task_done');
+      expect(paid['placement'], 'interstitial_photo_after_save');
       expect(paid['value_micros'], 1234);
       expect(paid['currency'], 'USD');
     });
@@ -420,7 +431,7 @@ void main() {
       final inter = _FakeFullScreen();
       AdsService.instance.interstitials = inter;
       AdsService.instance.attachForTest(_app(_AdsApi(serverCfg(plan: 'premium'))));
-      expect(await AdsService.instance.maybeInterstitial('task_done'), isFalse);
+      expect(await AdsService.instance.maybeInterstitial('photo_after_save'), isFalse);
       expect(inter.interstitials, isEmpty);
     });
   });

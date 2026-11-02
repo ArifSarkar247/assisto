@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -291,6 +292,8 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.scanAfterSave);
     _tabs.dispose();
     _title.dispose();
     _text.dispose();
@@ -355,6 +358,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
       } else {
         await api.createItem(_analysesPath, row);
       }
+      AdExit.taskDone(AdExitPlacement.scanAfterSave);
       await _load();
       if (!mounted) return;
       _toast(t.caSaved);

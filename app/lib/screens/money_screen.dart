@@ -93,7 +93,6 @@ class _MoneyScreenState extends State<MoneyScreen> {
       length: 5,
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-        bottomNavigationBar: const AdBannerSlot(screen: 'money'),
         appBar: AppBar(
           title: Text(t.moduleMoney),
           actions: [

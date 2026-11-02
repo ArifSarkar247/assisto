@@ -47,7 +47,6 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'money_networth'),
       appBar: AppBar(title: Text(t.moneyNetWorthTitle), actions: [
         IconButton(
             tooltip: AppLocalizations.of(context).refresh,onPressed: _load, icon: const Icon(Icons.sync_rounded)),

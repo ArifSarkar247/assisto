@@ -132,7 +132,6 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'medicine_db'),
       appBar: AppBar(
         title: Text(t.medicineDbTitle),
         bottom: TabBar(controller: _tabs, tabs: [

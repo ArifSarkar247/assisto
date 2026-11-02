@@ -72,7 +72,6 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'money_report'),
       appBar: AppBar(title: Text(t.moneyReportTitle), actions: [
         IconButton(
             tooltip: 'PDF',

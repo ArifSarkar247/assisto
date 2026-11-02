@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -57,6 +58,8 @@ class _GuideScreenState extends State<GuideScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.estimateAfterFinish);
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -112,6 +115,9 @@ class _GuideScreenState extends State<GuideScreen> {
       if (!_saved.remove(key)) _saved.add(key);
     });
     await Settings.setString(_bookmarkKey, _saved.join(','));
+    if (_saved.contains(key)) {
+      AdExit.taskDone(AdExitPlacement.estimateAfterFinish);
+    }
   }
 
   Future<void> _open(String url) async {

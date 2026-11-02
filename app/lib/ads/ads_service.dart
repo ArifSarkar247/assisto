@@ -45,8 +45,12 @@ import 'sponsor_widgets.dart' show SponsorAppOpenScreen;
 /// first (works without AdMob); AdMob fills an empty slot. The server
 /// decides (`/ads/slot`); the client mirror only saves a network call.
 ///
-/// INTERSTITIAL: natural breaks only ([AdMoments]: 'photo_saved',
-/// 'task_done'), >= 5 min after ANY full-screen ad, within the daily cap.
+/// INTERSTITIAL (OWNER ADS FINAL 2 Nov): only on the EXIT transition after a
+/// finished task ([AdExit] / [AdExitPlacement]), >= 800 s after ANY
+/// full-screen ad, max 4 a day, none on the first day of use, quick tools
+/// once a day. "Ad impact": when the app goes to the background within
+/// [exitWindow] of an interstitial closing, one aggregate `exit` event is
+/// sent for that placement (no personal data).
 class AdsService with WidgetsBindingObserver {
   AdsService._();
   static final AdsService instance = AdsService._();
@@ -103,6 +107,16 @@ class AdsService with WidgetsBindingObserver {
   static const _kFsLast = 'ads_fullscreen_last_ms';
   static const _kIDay = 'ads_inter_day';
   static const _kICount = 'ads_inter_count';
+  static const _kFirstUse = 'ads_first_use_day';
+  static const _kHere = 'ads_inter_here_';
+
+  /// Ad impact: backgrounded this soon after an interstitial closed counts
+  /// as "closed the app right after the ad".
+  static const exitWindow = Duration(seconds: 10);
+
+  /// The interstitial that is (or just was) on screen, for Ad impact.
+  String? _impactPlacement;
+  DateTime? _impactClosedAt;
 
   /// main.dart: the login screen is showing (logout, first sign-in...).
   void noteSignedOut() => _sawSignedOut = true;
@@ -115,16 +129,23 @@ class AdsService with WidgetsBindingObserver {
       WidgetsBinding.instance.addObserver(this);
     } catch (_) {}
     AdTelemetry.sink = _report;
-    AdMoments.sink = (m) => unawaited(maybeInterstitial(m));
+    AdExit.sink = (p) => unawaited(maybeInterstitial(p.id));
     try {
       // the accidental-click guard needs every pointer-down
       GestureBinding.instance.pointerRouter.addGlobalRoute(_onPointer);
     } catch (_) {}
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(_kSeen) != true) {
+      final seenBefore = prefs.getBool(_kSeen) == true;
+      if (!seenBefore) {
         _firstLaunchSession = true;
         await prefs.setBool(_kSeen, true);
+      }
+      // OWNER ADS FINAL: no interstitial on the first day of use. A user
+      // who already used the app before this build is past that day.
+      if (prefs.getString(_kFirstUse) == null) {
+        await prefs.setString(
+            _kFirstUse, seenBefore ? '2000-01-01' : _day(DateTime.now()));
       }
     } catch (_) {}
     // let the launch settle before any ads work (no UMP, no SDK before this)
@@ -145,7 +166,9 @@ class AdsService with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
       _pausedAt ??= DateTime.now();
+      noteImpactPause(DateTime.now());
     } else if (state == AppLifecycleState.resumed) {
+      noteImpactResume(DateTime.now());
       final at = _pausedAt;
       _pausedAt = null;
       final bg = at == null ? null : DateTime.now().difference(at);
@@ -313,9 +336,33 @@ class AdsService with WidgetsBindingObserver {
     await prefs.setInt(_kCount, count + 1);
   }
 
-  /// A natural break ([AdPlacements.interstitialMoments]) happened. Shows at
-  /// most one interstitial, >= the gap after ANY full-screen ad, within the
-  /// daily cap, Free users only, never over a forbidden screen. Never throws.
+  /// Ad impact: the app came back to the foreground — when an interstitial
+  /// was showing, this is the moment it closed.
+  @visibleForTesting
+  void noteImpactResume(DateTime now) {
+    if (_impactPlacement != null && _impactClosedAt == null) {
+      _impactClosedAt = now;
+    }
+  }
+
+  /// Ad impact: the app went to the background. Within [exitWindow] of the
+  /// interstitial closing -> one aggregate `exit` event for its placement.
+  @visibleForTesting
+  void noteImpactPause(DateTime now) {
+    final p = _impactPlacement;
+    final closed = _impactClosedAt;
+    if (p == null || closed == null) return; // the ad itself is showing
+    _impactPlacement = null;
+    _impactClosedAt = null;
+    if (now.difference(closed) <= exitWindow) {
+      _report(AdEventRecord(placement: p, format: 'interstitial', kind: 'exit'));
+    }
+  }
+
+  /// An EXIT placement ([AdExitPlacement.id]) fired after a finished task.
+  /// Shows at most one interstitial: Free users only, not on the first day
+  /// of use, >= 800 s after ANY full-screen ad, max 4 a day (quick tools
+  /// once a day), consent gate first (in the bridge). Never throws.
   Future<bool> maybeInterstitial(String moment) async {
     if (_showing) return false;
     final app = _app;
@@ -328,12 +375,18 @@ class AdsService with WidgetsBindingObserver {
       final today = _day(DateTime.now());
       final count =
           prefs.getString(_kIDay) == today ? (prefs.getInt(_kICount) ?? 0) : 0;
+      final hereRaw = prefs.getString('$_kHere$moment') ?? '';
+      final here = hereRaw.startsWith('$today|')
+          ? int.tryParse(hereRaw.substring(today.length + 1)) ?? 0
+          : 0;
       final d = AdPlacements.interstitial(moment, cfg,
           loggedIn: app.loggedIn,
           now: DateTime.now(),
           lastFullScreenAt:
               lastMs == null ? null : DateTime.fromMillisecondsSinceEpoch(lastMs),
-          shownToday: count);
+          shownToday: count,
+          shownTodayHere: here,
+          firstUseDay: DateTime.tryParse(prefs.getString(_kFirstUse) ?? ''));
       if (!d.allowed) return false;
       final unit = cfg.unitFor(AdKind.interstitial, builtAppId: builtAppId);
       if (unit == null) return false;
@@ -344,6 +397,9 @@ class AdsService with WidgetsBindingObserver {
         await prefs.setInt(_kFsLast, DateTime.now().millisecondsSinceEpoch);
         await prefs.setString(_kIDay, today);
         await prefs.setInt(_kICount, count + 1);
+        await prefs.setString('$_kHere$moment', '$today|${here + 1}');
+        _impactPlacement = 'interstitial_$moment';
+        _impactClosedAt = null;
       }
       return shown;
     } catch (e) {
@@ -508,7 +564,10 @@ class AdsService with WidgetsBindingObserver {
     rootScreen = 'home';
     debugNativeSuppressed = null;
     AdTelemetry.sink = null;
-    AdMoments.sink = null;
+    AdExit.sink = null;
+    AdExit.resetForTest();
+    _impactPlacement = null;
+    _impactClosedAt = null;
     bridge = createAdsBridge();
     interstitials = createInterstitialBridge();
   }

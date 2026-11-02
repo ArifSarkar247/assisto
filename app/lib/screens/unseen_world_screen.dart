@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -34,6 +35,7 @@ class UnseenWorldScreen extends StatefulWidget {
 }
 
 class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
+  final DateTime _openedAt = DateTime.now();
   static const _savedKey = 'unseen_wishlist';
   static const _cacheKey = 'unseen_saved_cache'; // offline cache of saved
   final _searchCtrl = TextEditingController();
@@ -58,6 +60,12 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
 
   @override
   void dispose() {
+    // read for >= 30 s (or shared / saved) = an article was read
+    if (DateTime.now().difference(_openedAt) >= const Duration(seconds: 30)) {
+      AdExit.taskDone(AdExitPlacement.articleAfterRead);
+    }
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.articleAfterRead);
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -199,6 +207,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       d.mapsUrl,
       '— Assisto',
     ].join('\n');
+    AdExit.taskDone(AdExitPlacement.articleAfterRead);
     try {
       await Share.share(text);
     } catch (_) {

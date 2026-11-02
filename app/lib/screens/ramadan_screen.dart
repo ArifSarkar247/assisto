@@ -146,7 +146,6 @@ class _RamadanScreenState extends State<RamadanScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'ramadan'),
       appBar: AppBar(title: Text(t.ramadanTitle), actions: [
         IconButton(
           tooltip: t.ramadanRefresh,

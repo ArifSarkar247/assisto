@@ -36,7 +36,7 @@ class AdEventRecord {
   /// app_open | native | banner | interstitial | rewarded
   final String format;
 
-  /// impression | click | paid
+  /// impression | click | paid | exit (Ad impact: app backgrounded right after an interstitial closed)
   final String kind;
 
   /// The ad instance's random id (one per loaded SDK ad object); '' only

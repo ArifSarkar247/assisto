@@ -159,7 +159,6 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.healthTipsTitle)),
       // admob: Free users only, allowlisted page, takes no space without a fill
-      bottomNavigationBar: const AdBannerSlot(screen: 'health_tips'),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [

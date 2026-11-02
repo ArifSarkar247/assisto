@@ -235,8 +235,11 @@ class AdRules {
   /// The floor for the app-open gap (owner-editable 1 h .. 24 h).
   static const minAppOpenGap = Duration(hours: 3); // owner 26 Oct
 
-  /// The floor for the interstitial gap (owner: max 1 per 5 minutes).
-  static const minInterstitialGap = Duration(minutes: 5);
+  /// The floor for the interstitial gap (OWNER ADS FINAL 2 Nov: >= 800 s).
+  static const minInterstitialGap = Duration(seconds: 800);
+
+  /// OWNER ADS FINAL (2 Nov): never more than 4 interstitials a day.
+  static const maxInterstitialsPerDay = 4;
 
   /// banners-everywhere (owner 26 Oct): a banner is refreshed no faster
   /// than once a minute (Google's own floor is 30 s). The AdMob console
@@ -263,6 +266,13 @@ class AdRules {
     // still contains 'chat' / 'messenger' / 'conversation'.
     'account', 'delete', 'privacy', 'pin', 'family', 'location', 'track',
     'kid', 'live', 'sign_up', 'language_pick',
+    // OWNER ADS FINAL (2 Nov) never list
+    'cctv', 'vehicle', 'missing', 'blood', 'train', 'destination',
+    // (credits: only the user-chosen REWARDED "watch to earn" stays —
+    // owner decision pending, see STATUS; no passive ad there)
+    'budget', 'money', 'prepaid', 'khata', 'business', 'sales',
+    'invoice', 'crm', 'quran', 'ramadan', 'calorie', 'food', 'health',
+    'medicine', 'reminder', 'note', 'todo', 'task', 'school', 'child',
   ];
 
   /// Allowlists (default-deny: anything else is blocked).

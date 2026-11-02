@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -80,6 +81,8 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.interviewAfterFeedback);
     _answer.dispose();
     super.dispose();
   }
@@ -132,6 +135,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
       _feedback = fb;
       if (!_asked.contains(q.id)) _asked.add(q.id);
     });
+    AdExit.taskDone(AdExitPlacement.interviewAfterFeedback);
   }
 
   Future<void> _saveSession(int selfScore) async {

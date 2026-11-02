@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -144,6 +145,8 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.estimateAfterFinish);
     _tabs.dispose();
     _name.dispose();
     for (final r in _rows) {
@@ -223,6 +226,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
       } else {
         await api.createItem(_projectsPath, row);
       }
+      AdExit.taskDone(AdExitPlacement.estimateAfterFinish);
       await _load();
       if (!mounted) return;
       _toast(t.ceSaved);

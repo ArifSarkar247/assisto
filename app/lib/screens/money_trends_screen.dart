@@ -48,7 +48,6 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'money_trends'),
       appBar: AppBar(title: Text(t.moneyTrendsTitle), actions: [
         IconButton(
             tooltip: t.moneyReportTitle,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -42,6 +43,8 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.quickToolExit);
     _input.dispose();
     super.dispose();
   }
@@ -130,6 +133,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
       _result = r;
       _translateNeedsKey = r.action == 'translate' && r.aiRequired;
     });
+    if (r.result.isNotEmpty) AdExit.taskDone(AdExitPlacement.quickToolExit);
   }
 
   Future<void> _copy() async {

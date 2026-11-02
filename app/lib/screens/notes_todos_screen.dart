@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
-import '../ads/ad_placements.dart' show AdMoments;
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
@@ -33,7 +32,6 @@ class NotesTodosScreen extends StatelessWidget {
       initialIndex: initialIndex.clamp(0, 1),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-        bottomNavigationBar: const AdBannerSlot(screen: 'notes_todos'),
         appBar: AppBar(
           title: Text(t.notesTitle),
           bottom: TabBar(tabs: [
@@ -528,9 +526,8 @@ class _TodoTile extends StatelessWidget {
         } else {
           app.todos.update(item, {'done': v ?? false});
         }
-        // admob: finishing a task (one-off or one round of a repeating one) is
-        // the single natural break here — one call site (Free only, capped)
-        if (v == true) AdMoments.report('task_done');
+        // OWNER ADS FINAL (2 Nov): notes / tasks are on the never list —
+        // finishing a task shows no ad
       },
       title: Text((d['title'] ?? '').toString(),
           style: done

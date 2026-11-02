@@ -129,7 +129,6 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
     final overview = _Meter.overview(_meters, (id) => _rechargesFor(id));
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
-      bottomNavigationBar: const AdBannerSlot(screen: 'prepaid_meter'),
       appBar: AppBar(title: Text(tr.meterTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addMeter,

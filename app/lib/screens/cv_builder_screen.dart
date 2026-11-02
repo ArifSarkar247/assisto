@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,6 +137,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
   @override
   void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.cvAfterDownload);
     for (final c in [_name, _headline, _phone, _email, _location]) {
       c.dispose();
     }
@@ -1001,6 +1004,7 @@ class _PreviewSheet extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: text));
+                    AdExit.taskDone(AdExitPlacement.cvAfterDownload);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context)
                         ..clearSnackBars()
@@ -1013,7 +1017,10 @@ class _PreviewSheet extends StatelessWidget {
               ),
               const SizedBox(width: Gap.sm),
               OutlinedButton.icon(
-                onPressed: () => Share.share(text, subject: t.cvTitle),
+                onPressed: () {
+                  AdExit.taskDone(AdExitPlacement.cvAfterDownload);
+                  Share.share(text, subject: t.cvTitle);
+                },
                 icon: const Icon(Icons.ios_share_rounded, size: 18),
                 label: Text(t.cvShare),
               ),

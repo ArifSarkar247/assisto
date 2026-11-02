@@ -1,3 +1,4 @@
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -97,6 +98,13 @@ String _catLabel(AppLocalizations tr, String c) {
 }
 
 class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
+
+  @override
+  void dispose() {
+    // OWNER ADS FINAL: leaving after a finished task -> exit placement
+    AdExit.maybeShow(AdExitPlacement.planAfterSave);
+    super.dispose();
+  }
   List<Map<String, dynamic>> _trips = [];
   bool _loading = true, _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
@@ -139,6 +147,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
       } else {
         await api.createItem(_tripsPath, result);
       }
+      AdExit.taskDone(AdExitPlacement.planAfterSave);
       await _load();
     } catch (_) {
       if (mounted) _toast(AppLocalizations.of(context).saveFailed);
