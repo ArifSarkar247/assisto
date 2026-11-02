@@ -96,8 +96,16 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
     }
   }
 
-  String _mmss(int s) =>
-      '${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}';
+  /// mm:ss in the user's digits (Bangla digits in Bangla).
+  String _mmss(int s) {
+    final v = '${(s ~/ 60).toString().padLeft(2, '0')}:${(s % 60).toString().padLeft(2, '0')}';
+    if (Localizations.localeOf(context).languageCode != 'bn') return v;
+    const bn = '০১২৩৪৫৬৭৮৯';
+    return v.split('').map((c) {
+      final d = c.codeUnitAt(0) - 48;
+      return d >= 0 && d <= 9 ? bn[d] : c;
+    }).join();
+  }
 
   @override
   Widget build(BuildContext context) {
