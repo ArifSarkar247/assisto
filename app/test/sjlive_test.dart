@@ -200,13 +200,14 @@ void main() {
         await tr.tick();
       }
       expect(tr.value.net, JourneyNet.offline);
-      expect(tr.value.queued, 4);
+      final waiting = tr.value.queued; // start() may take a first fix too
+      expect(waiting, greaterThanOrEqualTo(4));
       online = true;
       now = now.add(const Duration(seconds: 31));
       await tr.tick();
       expect(tr.value.queued, 0);
       final ats = sent.expand((b) => b).map((p) => '${p['at']}').toList();
-      expect(ats.length, 5);
+      expect(ats.length, waiting + 1);
       expect([...ats]..sort(), ats); // oldest first, nothing lost
       await tr.stop();
     });
@@ -311,6 +312,7 @@ void main() {
           {'id': 4, 'name': 'Abbu', 'state': 'accepted'},
         ]
       };
+      await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(_app(api, const SjShareScreen(oem: _Oem())));
       await _settle(tester);
       // nobody picked -> told, nothing sent
@@ -345,7 +347,8 @@ void main() {
       expect(find.text(en.sjlReqIntro), findsOneWidget); // never covert, said up front
       await tester.tap(find.byKey(const ValueKey('gj_person_3')));
       await tester.pump();
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('gj_send')), 200);
+      await tester.ensureVisible(find.byKey(const ValueKey('gj_send')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('gj_send')));
       await _settle(tester);
       final b = api.posts('/journey/requests').single.body;
@@ -417,6 +420,7 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const ValueKey('sjl_school_wait_5')), findsOneWidget);
       api.plans = [];
+      await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(_app(api, const SjChildSchoolScreen(), lang: 'bn'));
       await _settle(tester);
       expect(find.text(bn.sjlSchoolEmptyTitle), findsOneWidget);
