@@ -9,6 +9,7 @@ import '../../services/error_report.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'crm100_api.dart';
+import '../../widgets/local_counter.dart';
 
 /// crm100 — a message to several customers, done the only honest way: ONE
 /// card per customer, each with their own name filled in and their own
@@ -182,6 +183,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
         minLines: 3,
         maxLines: 6,
         maxLength: 600,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.c100MessageLabel,
             helperText: t.c100NameHint('{name}'),

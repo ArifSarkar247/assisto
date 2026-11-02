@@ -1,0 +1,147 @@
+{
+ "en": {
+  "maAddGdV2": "Add police GD number",
+  "@maAddGdV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maAgeAdultV2": "18 or older: a police GD number is needed",
+  "@maAgeAdultV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maChildGdToggleV2": "I have a police GD number",
+  "@maChildGdToggleV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maEmptyStepsV2": "1. Call 999 and file a GD at the police station.\n2. Post the alert here (area only, never your home address).\n3. Read tips in the app; mark Found as soon as they are safe — the photo is deleted at once.",
+  "@maEmptyStepsV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrCoolingV2": "This person said they are safe in the last 7 days. A new police GD number is needed.",
+  "@maErrCoolingV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGdV2": "Check the GD number and police station (e.g. 512 or 512/2026).",
+  "@maErrGdV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGdDateV2": "The GD date must be within the last 60 days.",
+  "@maErrGdDateV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maErrGdReconfirmV2": "Type the same GD number and tick that the GD is still open.",
+  "@maErrGdReconfirmV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdAddedV2": "GD added. The alert is out.",
+  "@maGdAddedV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdAdultWhyV2": "For an adult a police GD is required, so nobody can post a missing alert to find someone who left on purpose.",
+  "@maGdAdultWhyV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdDateV2": "GD date: {date}",
+  "@maGdDateV2": {
+   "description": "missing (owner 2 Nov): Missing person alert",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "maGdHelpV2": "The General Diary (GD) number from the police station (or the online GD).",
+  "@maGdHelpV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdLineV2": "Police GD: {thana} police station, no. {number}, {date}",
+  "@maGdLineV2": {
+   "description": "missing (owner 2 Nov): Missing person alert",
+   "placeholders": {
+    "thana": {
+     "type": "String"
+    },
+    "number": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "maGdNumberV2": "GD number",
+  "@maGdNumberV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdSaveV2": "Add GD and send",
+  "@maGdSaveV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdTitleV2": "Police GD",
+  "@maGdTitleV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGdUnverifiedV2": "GD number not verified — contact the police",
+  "@maGdUnverifiedV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianNeedsV2": "To stop fake child alerts, a second family member (husband/wife, parent or sibling in My Circle) confirms in the app — or add the police GD number.",
+  "@maGuardianNeedsV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maGuardianNoCosignerV2": "No family member in My Circle can confirm yet. Add the police GD number below.",
+  "@maGuardianNoCosignerV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPendingCosignerV2": "Waiting for {name} to confirm. Or add the police GD number to send it now.",
+  "@maPendingCosignerV2": {
+   "description": "missing (owner 2 Nov): Missing person alert",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "maPendingNoCosignerV2": "This child alert has not gone out yet. Ask a second family member to confirm in the app, or add the police GD number.",
+  "@maPendingNoCosignerV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maPostedPendingV2": "Saved. It goes out when your family member confirms (or you add a GD).",
+  "@maPostedPendingV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maRenewGdStillV2": "The police GD is still open",
+  "@maRenewGdStillV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  },
+  "maSafeConfirmAdultV2": "The alert closes for everyone. No location is sent. Your family cannot post a new alert about you for 7 days without a new police GD.",
+  "@maSafeConfirmAdultV2": {
+   "description": "missing (owner 2 Nov): Missing person alert"
+  }
+ },
+ "bn": {
+  "maAddGdV2": "পুলিশ জিডি নম্বর দিন",
+  "maAgeAdultV2": "১৮ বা বেশি: পুলিশ জিডি নম্বর লাগবে",
+  "maChildGdToggleV2": "আমার কাছে পুলিশ জিডি নম্বর আছে",
+  "maEmptyStepsV2": "১. ৯৯৯-এ ফোন করুন ও থানায় জিডি করুন।\n২. এখানে সতর্কতা দিন (শুধু এলাকা, বাসার ঠিকানা কখনো নয়)।\n৩. অ্যাপে তথ্যগুলো পড়ুন; নিরাপদে পাওয়া মাত্র 'পাওয়া গেছে' চাপুন — ছবি সাথে সাথে মুছে যায়।",
+  "maErrCoolingV2": "গত ৭ দিনে এই মানুষটি জানিয়েছেন তিনি নিরাপদ। নতুন পুলিশ জিডি নম্বর লাগবে।",
+  "maErrGdV2": "জিডি নম্বর ও থানা দেখুন (যেমন ৫১২ বা ৫১২/২০২৬)।",
+  "maErrGdDateV2": "জিডি-র তারিখ গত ৬০ দিনের মধ্যে হতে হবে।",
+  "maErrGdReconfirmV2": "একই জিডি নম্বর লিখুন আর জিডি এখনো চালু আছে টিক দিন।",
+  "maGdAddedV2": "জিডি যোগ হয়েছে। সতর্কতা পাঠানো হয়েছে।",
+  "maGdAdultWhyV2": "প্রাপ্তবয়স্কের ক্ষেত্রে পুলিশ জিডি লাগবে, যাতে কেউ ইচ্ছে করে চলে যাওয়া মানুষকে খুঁজে বের করতে সতর্কতা ব্যবহার না করে।",
+  "maGdDateV2": "জিডি-র তারিখ: {date}",
+  "maGdHelpV2": "থানা থেকে পাওয়া সাধারণ ডায়েরি (জিডি) নম্বর (অথবা অনলাইন জিডি)।",
+  "maGdLineV2": "পুলিশ জিডি: {thana} থানা, নং {number}, {date}",
+  "maGdNumberV2": "জিডি নম্বর",
+  "maGdSaveV2": "জিডি দিয়ে পাঠান",
+  "maGdTitleV2": "পুলিশ জিডি",
+  "maGdUnverifiedV2": "জিডি নম্বর যাচাই করা হয়নি — পুলিশের সাথে যোগাযোগ",
+  "maGuardianNeedsV2": "ভুয়া শিশু-সতর্কতা ঠেকাতে পরিবারের আরেকজন (My Circle-এ স্বামী/স্ত্রী, বাবা-মা বা ভাইবোন) অ্যাপে নিশ্চিত করবেন — অথবা পুলিশ জিডি নম্বর দিন।",
+  "maGuardianNoCosignerV2": "My Circle-এ নিশ্চিত করার মতো পরিবারের কেউ এখনো নেই। নিচে পুলিশ জিডি নম্বর দিন।",
+  "maPendingCosignerV2": "{name}-এর নিশ্চিত করার অপেক্ষায়। অথবা এখনই পাঠাতে পুলিশ জিডি নম্বর দিন।",
+  "maPendingNoCosignerV2": "শিশুর এই সতর্কতা এখনো পাঠানো হয়নি। পরিবারের আরেকজনকে অ্যাপে নিশ্চিত করতে বলুন, অথবা পুলিশ জিডি নম্বর দিন।",
+  "maPostedPendingV2": "সেভ হয়েছে। পরিবারের সদস্য নিশ্চিত করলে (বা জিডি দিলে) পাঠানো হবে।",
+  "maRenewGdStillV2": "পুলিশ জিডি এখনো চালু আছে",
+  "maSafeConfirmAdultV2": "সবার জন্য সতর্কতা বন্ধ হবে। কোনো লোকেশন পাঠানো হয় না। নতুন পুলিশ জিডি ছাড়া ৭ দিন আপনার নামে নতুন সতর্কতা দেওয়া যাবে না।"
+ }
+}

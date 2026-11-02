@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'local_counter.dart';
 
 /// Result of the group-create sheet.
 class CircleGroupDraft {
@@ -80,6 +81,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
             TextField(
               controller: _name,
               maxLength: 100,
+              buildCounter: localCounter,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: t.circleGroupName,
@@ -89,6 +91,7 @@ class _CircleGroupCreateSheetState extends State<_CircleGroupCreateSheet> {
             TextField(
               controller: _desc,
               maxLength: 1000,
+              buildCounter: localCounter,
               maxLines: 3,
               minLines: 1,
               decoration: InputDecoration(

@@ -102,13 +102,13 @@ Map<String, dynamic> boCardJson({bool bn = false, String mode = 'data'}) {
       'lines': bn
           ? [
               'এই কার্ড: AI ডাকা হয়নি — ০ ক্রেডিট, খরচ ৳০ (সব সংখ্যা আপনার খাতা থেকে)',
-              'নিজের ভাষায় প্রশ্ন (AI): ৭ ক্রেডিট (৳৭) — আমাদের খরচ ~৳২.৬৪, লাভ ৬২%',
-              'SMS তাগাদা (প্রতি SMS): ১ ক্রেডিট (৳১) — আমাদের খরচ ~৳০.২৪, লাভ ৭৬%',
+              'নিজের ভাষায় প্রশ্ন (AI): ৭ ক্রেডিট (৳৭)',
+              'SMS তাগাদা (প্রতি SMS): ১ ক্রেডিট (৳১)',
             ]
           : [
               'This card: no AI call — 0 credits, ৳0 cost (every number from your books)',
-              'A free-text question (AI): 7 credits (৳7) — our cost ~৳2.64, margin 62%',
-              'SMS due reminder (per SMS): 1 credits (৳1) — our cost ~৳0.24, margin 76%',
+              'A free-text question (AI): 7 credits (৳7)',
+              'SMS due reminder (per SMS): 1 credit (৳1)',
             ],
     },
     'ai_used': false,

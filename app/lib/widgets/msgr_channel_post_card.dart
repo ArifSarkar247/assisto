@@ -65,8 +65,6 @@ class MsgrChannelPostCard extends StatelessWidget {
                     const SizedBox(width: Gap.xs),
                     Flexible(
                       child: Text(t.channelPinned,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context)
                               .textTheme
                               .labelMedium
@@ -209,7 +207,8 @@ class MsgrChannelPostCard extends StatelessWidget {
             multi: multi,
           ),
         const SizedBox(height: Gap.xs),
-        Row(
+        Wrap( // launchsweep: wraps at a big font
+          spacing: Gap.sm,
           children: [
             Text(
               msgrLocalizeDigits(t.channelPollVotes(total.toString()), bn),
@@ -219,7 +218,6 @@ class MsgrChannelPostCard extends StatelessWidget {
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
             if (closed) ...[
-              const SizedBox(width: Gap.sm),
               Text('· ${t.channelPollClosed}',
                   style: Theme.of(context)
                       .textTheme
@@ -255,7 +253,7 @@ class MsgrChannelPostCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(Radii.sm),
               child: LinearProgressIndicator(
                 value: frac,
-                minHeight: 44,
+                minHeight: 48, // launchsweep: 48 dp vote target
                 backgroundColor: cs.surfaceContainerHighest,
                 color: mine
                     ? cs.primary.withValues(alpha: 0.35)
@@ -283,7 +281,7 @@ class MsgrChannelPostCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ),
-                    Text('${(frac * 100).round()}%',
+                    Text(msgrLocalizeDigits('${(frac * 100).round()}%', msgrIsBn(context)), // launchsweep
                         style: Theme.of(context).textTheme.labelLarge),
                   ],
                 ),
@@ -301,8 +299,7 @@ class MsgrChannelPostCard extends StatelessWidget {
         : <String, dynamic>{};
     final mine = '${post['my_reaction'] ?? ''}';
     return Wrap(
-      spacing: Gap.sm,
-      runSpacing: Gap.xs,
+      spacing: Gap.xs,
       children: [
         for (final emoji in msgrChannelReactions)
           _reactionChip(
@@ -323,13 +320,16 @@ class MsgrChannelPostCard extends StatelessWidget {
   }) {
     final bn = msgrIsBn(context);
     final cs = Theme.of(context).colorScheme;
+    // launchsweep: 48 dp touch target (the pill itself stays small).
     return InkWell(
       borderRadius: BorderRadius.circular(Radii.pill),
       onTap: onReact == null ? null : () => onReact!(emoji, !selected),
-      child: Container(
-        // channels a11y: 48dp tap target
-        constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-        alignment: Alignment.center,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+        child: Center(
+        widthFactor: 1,
+        heightFactor: 1,
+        child: Container(
         padding: const EdgeInsets.symmetric(
             horizontal: Gap.md, vertical: Gap.xs),
         decoration: BoxDecoration(
@@ -351,6 +351,8 @@ class MsgrChannelPostCard extends StatelessWidget {
                   style: Theme.of(context).textTheme.labelMedium),
             ],
           ],
+        ),
+      ),
         ),
       ),
     );

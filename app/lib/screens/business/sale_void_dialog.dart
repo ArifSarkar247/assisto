@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../shop_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_counter.dart';
 
 /// VOID a sale (a2-cctv). Owner any time; staff only for today's sale (the
 /// server enforces it). A reason is required. Stock is restored where the
@@ -67,6 +68,7 @@ class _SaleVoidDialogState extends State<SaleVoidDialog> {
             controller: _reason,
             autofocus: true,
             maxLength: 200,
+            buildCounter: localCounter,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
                 labelText: t.shopVoidReason,

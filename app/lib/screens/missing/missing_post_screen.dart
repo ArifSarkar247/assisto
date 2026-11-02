@@ -16,6 +16,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// missing (owner 2 Nov) — post a missing person alert. One screen, top to
 /// bottom: who (My Circle family / a Family entry / someone else in the
@@ -254,7 +255,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
       if (!mounted) return;
       setState(() => _busy = false);
       if (r['ok'] == true) {
-        _snack(r['needs'] == 'cosign' ? t.maPostedPending : t.maPosted);
+        _snack(r['needs'] == 'cosign' ? t.maPostedPendingV2 : t.maPosted);
         Navigator.of(context).maybePop(true);
         return;
       }
@@ -380,6 +381,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         key: const ValueKey('ma-name'),
         controller: _name,
         maxLength: 80,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maName, errorText: _err('name', t.maRequired), border: const OutlineInputBorder()),
       ),
@@ -392,7 +394,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
           LengthLimitingTextInputFormatter(3)],
         decoration: InputDecoration(
             labelText: t.maAge,
-            helperText: _ageVal == null ? null : (_isChild ? t.maAgeChild : t.maAgeAdult),
+            helperText: _ageVal == null ? null : (_isChild ? t.maAgeChild : t.maAgeAdultV2),
             errorText: _err('age', t.maRequired),
             border: const OutlineInputBorder()),
       ),
@@ -403,6 +405,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         minLines: 2,
         maxLines: 5,
         maxLength: 500,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maDescription, helperText: t.maDescriptionHelp, border: const OutlineInputBorder()),
       ),
@@ -420,6 +423,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         key: const ValueKey('ma-area'),
         controller: _area,
         maxLength: 120,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.maAreaLabel,
             helperText: t.maAreaHelp,
@@ -469,11 +473,11 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.maGuardianTitle, style: text.titleSmall),
               gap(Gap.xs),
-              Text(verifiedParent ? t.maGuardianVerified : t.maGuardianNeeds),
+              Text(verifiedParent ? t.maGuardianVerified : t.maGuardianNeedsV2),
               if (!verifiedParent) ...[
                 gap(Gap.sm),
                 if (cosigners.isEmpty)
-                  Text(t.maGuardianNoCosigner, style: text.bodySmall)
+                  Text(t.maGuardianNoCosignerV2, style: text.bodySmall)
                 else
                   DropdownButtonFormField<int>(
                     key: const ValueKey('ma-cosigner'),
@@ -491,7 +495,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
                   contentPadding: EdgeInsets.zero,
                   value: _childGd,
                   onChanged: (v) => setState(() => _childGd = v),
-                  title: Text(t.maChildGdToggle),
+                  title: Text(t.maChildGdToggleV2),
                 ),
               ],
             ]),
@@ -548,19 +552,19 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
     final s = Theme.of(context).colorScheme;
     final loc = MaterialLocalizations.of(context);
     return [
-      Text(t.maGdTitle, style: Theme.of(context).textTheme.titleSmall),
+      Text(t.maGdTitleV2, style: Theme.of(context).textTheme.titleSmall),
       const SizedBox(height: Gap.xs),
-      Text(adult ? t.maGdAdultWhy : t.maGdHelp, style: Theme.of(context).textTheme.bodySmall),
+      Text(adult ? t.maGdAdultWhyV2 : t.maGdHelpV2, style: Theme.of(context).textTheme.bodySmall),
       const SizedBox(height: Gap.xs),
-      Text(t.maGdUnverified, style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+      Text(t.maGdUnverifiedV2, style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
       const SizedBox(height: Gap.sm),
       TextField(
         key: const ValueKey('ma-gd-number'),
         controller: _gdNum,
         decoration: InputDecoration(
-            labelText: t.maGdNumber,
+            labelText: t.maGdNumberV2,
             helperText: t.maGdNumberHelp,
-            errorText: _err('gd_number', t.maErrGd),
+            errorText: _err('gd_number', t.maErrGdV2),
             border: const OutlineInputBorder()),
       ),
       const SizedBox(height: Gap.sm),
@@ -574,10 +578,10 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
       OutlinedButton.icon(
         onPressed: _pickGdDate,
         icon: const Icon(Icons.event_rounded),
-        label: Text(maD(context, t.maGdDate(loc.formatMediumDate(_gdDate)))),
+        label: Text(maD(context, t.maGdDateV2(loc.formatMediumDate(_gdDate)))),
       ),
       if (_bad.contains('gd_date'))
-        Text(t.maErrGdDate, style: TextStyle(color: s.error)),
+        Text(t.maErrGdDateV2, style: TextStyle(color: s.error)),
       const SizedBox(height: Gap.md),
     ];
   }

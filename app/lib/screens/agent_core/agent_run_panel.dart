@@ -11,6 +11,7 @@ import '../../theme.dart';
 import 'agent_core_push.dart';
 import 'agent_core_source.dart';
 import 'agent_core_widgets.dart';
+import '../../widgets/local_counter.dart';
 
 /// agent-core WP-APP: one run, live — the plan as steps with their real
 /// server status (polled), approval cards for steps that need the user's OK,
@@ -468,6 +469,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
           key: const ValueKey('ac_fb_note'),
           controller: _note,
           maxLength: 300,
+          buildCounter: localCounter,
           minLines: 1,
           maxLines: 3,
           decoration: InputDecoration(

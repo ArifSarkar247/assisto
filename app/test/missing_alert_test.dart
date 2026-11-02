@@ -166,7 +166,7 @@ void main() {
     expect(find.text(l.maAboutMeTitle), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('ma-safe')));
     await t.pumpAndSettle();
-    expect(find.text(l.maSafeConfirmAdult), findsOneWidget);
+    expect(find.text(l.maSafeConfirmAdultV2), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('ma-safe-confirm')));
     await t.pumpAndSettle();
     final p = api.posts.single;
@@ -183,7 +183,7 @@ void main() {
         MissingDetailScreen(alertId: 11, secure: _NoSecure(), locate: () async => (lat: 23.8069, lng: 90.3687)),
         api));
     await t.pumpAndSettle();
-    expect(find.text(l.maGdUnverified), findsOneWidget);
+    expect(find.text(l.maGdUnverifiedV2), findsOneWidget);
     expect(find.byKey(const ValueKey('ma-999')), findsOneWidget);
     expect(find.text(l.maNoScreenshot), findsNothing); // no photo in the fake
     await t.tap(find.byKey(const ValueKey('ma-tip')));
@@ -258,8 +258,8 @@ void main() {
     await t.enterText(find.byKey(const ValueKey('ma-name')), 'Karim');
     await t.enterText(find.byKey(const ValueKey('ma-age')), '34');
     await t.pumpAndSettle();
-    expect(find.text(l.maAgeAdult), findsOneWidget);
-    expect(find.text(l.maGdUnverified), findsOneWidget);
+    expect(find.text(l.maAgeAdultV2), findsOneWidget);
+    expect(find.text(l.maGdUnverifiedV2), findsOneWidget);
     await t.enterText(find.byKey(const ValueKey('ma-area')), 'Gabtoli bus terminal');
     await t.enterText(find.byKey(const ValueKey('ma-gd-number')), 'hello');
     await t.enterText(find.byKey(const ValueKey('ma-gd-thana')), 'Mirpur');
@@ -271,7 +271,7 @@ void main() {
     await t.tap(find.byKey(const ValueKey('ma-submit')));
     await t.pumpAndSettle();
     expect(api.posts, isEmpty);
-    expect(find.text(l.maErrGd), findsWidgets);
+    expect(find.text(l.maErrGdV2), findsWidgets);
     await t.enterText(find.byKey(const ValueKey('ma-gd-number')), 'GD 512 / 2026');
     await t.ensureVisible(find.byKey(const ValueKey('ma-submit')));
     await t.tap(find.byKey(const ValueKey('ma-submit')));
@@ -293,7 +293,7 @@ void main() {
     await t.enterText(find.byKey(const ValueKey('ma-age')), '9');
     await t.pumpAndSettle();
     expect(find.text(l.maGuardianTitle), findsOneWidget);
-    expect(find.text(l.maGuardianNeeds), findsOneWidget);
+    expect(find.text(l.maGuardianNeedsV2), findsOneWidget);
     expect(find.byKey(const ValueKey('ma-cosigner')), findsOneWidget);
     expect(find.byKey(const ValueKey('ma-gd-number')), findsNothing);
   });

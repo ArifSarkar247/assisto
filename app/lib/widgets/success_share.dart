@@ -11,6 +11,7 @@ import '../services/review_prompt.dart';
 import '../theme.dart';
 import 'app_sheet.dart';
 import 'wrapped_share.dart';
+import 'local_counter.dart';
 
 /// REUSABLE success sharing (owner 2 Nov) — first for "missing person FOUND",
 /// next for the blood-donor "blood found" flow. Opened ONLY after the person
@@ -158,6 +159,7 @@ class _SuccessShareScreenState extends State<SuccessShareScreen> {
             minLines: 4,
             maxLines: 10,
             maxLength: 1200,
+            buildCounter: localCounter,
             decoration: InputDecoration(
               labelText: t.ssEditLabel,
               border: const OutlineInputBorder(),

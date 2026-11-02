@@ -298,7 +298,10 @@ class BriefTests(_Base):
         self.assertGreaterEqual(c["plan"]["margin_pct"], 40)
         self.assertGreater(c["plan"]["price_bdt"], c["plan"]["cost_bdt"])
         self.assertEqual(len(c["lines"]), 3)
-        self.assertIn("লাভ", c["lines"][1])
+        # launchsweep: the user-facing lines never show our cost or margin.
+        for ln in c["lines"] + BZ.cost_block("en")["lines"]:
+            for word in ("লাভ", "খরচ ~", "margin", "our cost"):
+                self.assertNotIn(word, ln)
 
     def test_empty_shop_card(self):
         u = _user(5)

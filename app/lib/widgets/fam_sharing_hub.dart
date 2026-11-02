@@ -17,6 +17,7 @@ import 'fam_empty.dart';
 import 'fam_members_section.dart' show famInCircle;
 import 'fam_share_section.dart';
 import 'skeleton.dart';
+import 'local_counter.dart';
 
 /// famcare (owner decision 3, 28 Oct) — the Sharing tab is three things a
 /// family shares: the SHOPPING LIST (anyone in the family adds and ticks),
@@ -397,6 +398,7 @@ class _FamDocsPaneState extends State<FamDocsPane> {
             obscureText: true,
             keyboardType: TextInputType.number,
             maxLength: VaultLock.maxPin,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.fcDocsPinLabel, errorText: err),
           ),
           actions: [

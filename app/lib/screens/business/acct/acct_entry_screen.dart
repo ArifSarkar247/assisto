@@ -10,6 +10,7 @@ import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../business_common.dart' show pair;
 import 'acct_common.dart';
 import 'acct_party_sheet.dart';
+import '../../../widgets/local_counter.dart';
 
 /// acctui — the ONE simple entry screen. The owner says what happened in
 /// plain words (sale / purchase / expense / due / money in / money out /
@@ -375,6 +376,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
               TextField(
                 controller: _note,
                 maxLength: 160,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.acuNote, hintText: t.acuNoteHint, border: const OutlineInputBorder()),
               ),

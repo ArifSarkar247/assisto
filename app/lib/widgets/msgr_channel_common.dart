@@ -147,17 +147,20 @@ class MsgrChannelTile extends StatelessWidget {
       contentPadding:
           const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
       leading: MsgrChannelAvatar(name: name),
-      title: Row(
-        children: [
-          Flexible(
-            child: Text(name,
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
+      // launchsweep: one text line with the badge inline, so a narrow title
+      // (big font + Follow button) ellipsizes instead of overflowing.
+      title: Text.rich(
+        TextSpan(children: [
+          TextSpan(text: name),
           if (verified) ...[
-            const SizedBox(width: Gap.xs),
-            const MsgrVerifiedBadge(),
+            const TextSpan(text: ' '),
+            const WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: MsgrVerifiedBadge()),
           ],
-        ],
+        ]),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: trailing,

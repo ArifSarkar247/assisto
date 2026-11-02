@@ -10,6 +10,7 @@ import '../services/action_feedback.dart' show openForUser;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/local_counter.dart';
 
 /// VOICE MOOD SENSING — ADVANCED (#15, SPEC v2.1 §21).
 ///
@@ -802,6 +803,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
               key: const Key('mood-note-field'),
               controller: _note,
               maxLength: 200,
+              buildCounter: localCounter,
               maxLines: 2,
               minLines: 1,
               textCapitalization: TextCapitalization.sentences,

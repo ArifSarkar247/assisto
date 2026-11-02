@@ -10,6 +10,7 @@ import '../../messenger_channel_api.dart';
 import '../../messenger_community_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_community_card.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -190,7 +191,7 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
           MsgrCommunityCard(
             name: '${c['name'] ?? ''}',
             description: '${c['description'] ?? ''}',
-            countLabel: t.communityMemberCount('${c['member_count'] ?? 0}'),
+            countLabel: t.communityMemberCount(notifLocalizeDigits(context, '${c['member_count'] ?? 0}')),
             badge: c['viewer_role'] == 'admin'
                 ? Text(t.chxYouAreAdmin,
                     style: TextStyle(
@@ -554,7 +555,7 @@ class _SpaceLinkScreenState extends State<SpaceLinkScreen> {
               style: TextStyle(color: scheme.onSurfaceVariant)),
         ],
         const SizedBox(height: Gap.sm),
-        Text(t.communityMemberCount('${_c['member_count'] ?? 0}'),
+        Text(t.communityMemberCount(notifLocalizeDigits(context, '${_c['member_count'] ?? 0}')),
             textAlign: TextAlign.center,
             style: TextStyle(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.xl),

@@ -20,6 +20,7 @@ import '../theme.dart';
 import 'invite_api.dart';
 import 'invite_link.dart';
 import 'invite_router.dart';
+import '../widgets/local_counter.dart';
 
 /// invite-join — "Join <name>'s circle" (owner order 27 Oct, gap #7).
 ///
@@ -396,6 +397,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         textInputAction: TextInputAction.next,
         textCapitalization: TextCapitalization.words,
         maxLength: 60,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: t.ijNameLabel, prefixIcon: const Icon(Icons.person_rounded)),
       ),

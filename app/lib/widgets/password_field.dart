@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import 'local_counter.dart';
 
 /// A password / PIN text field that starts obscured and adds a trailing
 /// show/hide "eye" toggle. Drop-in replacement for a `TextField` that had
@@ -80,6 +81,7 @@ class _ObscureTextFieldState extends State<ObscureTextField> {
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
       maxLength: widget.maxLength,
+      buildCounter: localCounter,
       autofocus: widget.autofocus,
       enabled: widget.enabled,
       inputFormatters: widget.inputFormatters,

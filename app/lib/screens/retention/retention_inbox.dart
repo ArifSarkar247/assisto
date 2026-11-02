@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import 'retention_source.dart';
 import 'retention_widgets.dart';
+import '../../widgets/local_counter.dart';
 
 /// retention1 — the CUSTOMER side: automatic messages from shops this person
 /// buys from (thank-you, due reminder, back in stock, birthday...). Every
@@ -200,6 +201,7 @@ class _ReplyDialogState extends State<_ReplyDialog> {
         controller: _c,
         autofocus: true,
         maxLength: 500,
+        buildCounter: localCounter,
         minLines: 2,
         maxLines: 5,
         decoration: InputDecoration(labelText: t.rtReplyHint, border: const OutlineInputBorder()),

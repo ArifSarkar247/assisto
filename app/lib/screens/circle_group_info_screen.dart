@@ -11,6 +11,7 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_member_tile.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_counter.dart';
 
 /// Group info / settings (M2 item 7). Shows group name/photo/description, the
 /// member roster with roles, and admin controls: add members (circle-only),
@@ -123,11 +124,13 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
             TextField(
               controller: nameC,
               maxLength: 100,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: _t.circleGroupName),
             ),
             TextField(
               controller: descC,
               maxLength: 1000,
+              buildCounter: localCounter,
               maxLines: 3,
               minLines: 1,
               decoration:

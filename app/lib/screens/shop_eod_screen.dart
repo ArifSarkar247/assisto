@@ -11,6 +11,7 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart' show taka, fmtInt;
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_counter.dart';
 
 /// END-OF-DAY CASH CHECK. The owner counts the drawer; the server compares it
 /// with today's NON-voided Assisto POS cash sales (paid - change) + the opening
@@ -177,6 +178,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     TextField(
                       controller: _note,
                       maxLength: 200,
+                      buildCounter: localCounter,
                       decoration: InputDecoration(
                           labelText: t.shopEodNote, border: const OutlineInputBorder()),
                     ),

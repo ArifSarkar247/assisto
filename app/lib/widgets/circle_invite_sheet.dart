@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'circle_relation.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'local_counter.dart';
 
 /// The result of the invite composer: the chosen relationship (mandatory) + an
 /// optional family sub-type (never required) + how the invite is delivered.
@@ -158,6 +159,7 @@ class _InviteComposerState extends State<_InviteComposer> {
             TextField(
               controller: _note,
               maxLength: 200,
+              buildCounter: localCounter,
               maxLines: 2,
               minLines: 1,
               decoration: InputDecoration(

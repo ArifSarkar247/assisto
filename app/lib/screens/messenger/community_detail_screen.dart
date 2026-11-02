@@ -9,6 +9,7 @@ import '../../messenger_community_api.dart';
 import '../../messenger_group_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 import '../../widgets/msgr_community_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
 import '../../widgets/space_invite_sheet.dart'; // channels
@@ -604,7 +605,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         name: '${g['name'] ?? ''}',
         description: '${g['description'] ?? ''}',
         photoRef: g['photo_ref']?.toString(),
-        countLabel: _t.communityMemberCount('${g['member_count'] ?? 0}'),
+        countLabel: _t.communityMemberCount(notifLocalizeDigits(context, '${g['member_count'] ?? 0}')),
         trailing: state == 'requested'
             ? MsgrActionChip(
                 label: _t.communityRequested,
@@ -627,7 +628,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
       name: '${g['name'] ?? ''}',
       description: '${g['description'] ?? ''}',
       photoRef: g['photo_ref']?.toString(),
-      countLabel: _t.communityMemberCount('$count'),
+      countLabel: _t.communityMemberCount(notifLocalizeDigits(context, '$count')),
       badge: announcementsOnly
           ? Row(
               mainAxisSize: MainAxisSize.min,
@@ -635,10 +636,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 Icon(Icons.campaign_rounded,
                     size: 13, color: Theme.of(context).colorScheme.tertiary),
                 const SizedBox(width: 4),
-                Flexible(
+                Flexible( // launchsweep: wraps at a big font
                   child: Text(_t.communityAdminsPostOnly,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
                           fontSize: 11,

@@ -6,6 +6,7 @@ import '../../theme.dart';
 import 'remit_parser.dart';
 import 'remit_source.dart';
 import 'remit_widgets.dart';
+import '../../widgets/local_counter.dart';
 
 /// What the entry screen returns: saved online, queued offline, or deleted.
 enum RemitSaved { online, queued, deleted }
@@ -399,6 +400,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                 key: const ValueKey('rmt_sender'),
                 controller: _name,
                 maxLength: 80,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                   labelText: _members.isEmpty ? t.rmtFieldSenderName : t.rmtFieldSenderOther,
                   helperText: _members.isEmpty ? t.rmtFieldSenderHelp : null,
@@ -423,6 +425,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                 key: const ValueKey('rmt_note'),
                 controller: _note,
                 maxLength: 200,
+                buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.rmtFieldNote),
               ),
               if (_err != null)

@@ -18,6 +18,7 @@ import 'agent_history_screen.dart';
 import 'agent_run_panel.dart';
 import 'biz_brief_screen.dart';
 import '../../feature_flags.dart';
+import '../../widgets/local_counter.dart';
 
 /// agent-core WP-APP: the hidden Assisto Agent screen (flag `agent_core`,
 /// default OFF — reachable only through the flag-gated ChatNav route /
@@ -308,6 +309,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
             minLines: 2,
             maxLines: 6,
             maxLength: 1000,
+            buildCounter: localCounter,
             textInputAction: TextInputAction.newline,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(

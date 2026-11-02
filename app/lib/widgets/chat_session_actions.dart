@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'local_counter.dart';
 
 /// Shared rename / delete dialogs + ordering for saved chat sessions (home +
 /// Assisto AI). Used by the Assisto AI chats page ([AssistoChatsScreen]);
@@ -106,6 +107,7 @@ class _RenameDialogState extends State<_RenameDialog> {
         controller: _ctrl,
         autofocus: true,
         maxLength: 120,
+        buildCounter: localCounter,
         decoration: InputDecoration(hintText: t.aichatRenameHint),
         onSubmitted: (v) => Navigator.pop(context, v),
       ),

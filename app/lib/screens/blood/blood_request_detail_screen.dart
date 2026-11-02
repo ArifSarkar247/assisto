@@ -12,6 +12,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/success_share.dart';
 import 'blood_thread_screen.dart';
 import 'bp_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// blood (owner 2 Nov) — one urgent request, by role.
 ///  * requester: reach (pushed / listed), the donors who said "I can donate"
@@ -230,6 +231,7 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
               TextField(
                 controller: note,
                 maxLength: 300,
+                buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.bpReportNote, border: const OutlineInputBorder()),
               ),
               ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),

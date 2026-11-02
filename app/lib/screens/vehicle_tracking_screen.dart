@@ -16,6 +16,7 @@ import 'fleet_dashboard_screen.dart';
 import 'vehicle_tracker_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_counter.dart';
 
 /// LIVE TRACKING — the list of paired hardware trackers (v1-vehicle).
 ///
@@ -420,6 +421,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         controller: _imei,
         keyboardType: TextInputType.number,
         maxLength: 15,
+        buildCounter: localCounter,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(
             labelText: tr.vehImeiLabel,
@@ -430,6 +432,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       TextField(
         controller: _name,
         maxLength: 40,
+        buildCounter: localCounter,
         decoration: InputDecoration(labelText: tr.vehNameLabel),
       ),
       if (_vehicles.isNotEmpty) ...[
@@ -488,6 +491,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
         controller: _sim,
         keyboardType: TextInputType.phone,
         maxLength: 14,
+        buildCounter: localCounter,
         decoration: InputDecoration(
             labelText: tr.v100SimLabel, helperText: tr.v100SimHelp, helperMaxLines: 3),
       ),

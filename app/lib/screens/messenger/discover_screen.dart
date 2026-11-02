@@ -147,7 +147,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 hintText: t.discoverSearchHint,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: IconButton(
-                    tooltip: t.discoverSearchHint,
+                    tooltip: t.search,
                     icon: const Icon(Icons.arrow_forward_rounded),
                     onPressed: _search),
               ),

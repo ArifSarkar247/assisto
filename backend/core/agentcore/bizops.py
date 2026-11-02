@@ -208,11 +208,12 @@ def cost_block(lang):
     from .tools import _cnt, _pick, _tk
 
     def ln(p, bn_what, en_what):
-        return _pick(lang, "%s: %s ক্রেডিট (%s) — আমাদের খরচ ~%s, লাভ %s%%" % (
-            bn_what, _cnt(p["credits"], lang), _tk(p["price_bdt"], lang), _tk(p["cost_bdt"], lang),
-            _cnt(p["margin_pct"], lang)),
-            "%s: %d credits (%s) — our cost ~%s, margin %d%%" % (
-            en_what, p["credits"], _tk(p["price_bdt"], "en"), _tk(p["cost_bdt"], "en"), p["margin_pct"]))
+        # launchsweep: the customer sees the price only; our cost and margin
+        # (40 % rule) stay in the dict for Owner Admin / tests, never on screen.
+        return _pick(lang, "%s: %s ক্রেডিট (%s)" % (
+            bn_what, _cnt(p["credits"], lang), _tk(p["price_bdt"], lang)),
+            "%s: %d credit%s (%s)" % (en_what, p["credits"], "" if p["credits"] == 1 else "s",
+                                     _tk(p["price_bdt"], "en")))
     lines = [_pick(lang, "এই কার্ড: AI ডাকা হয়নি — ০ ক্রেডিট, খরচ ৳০ (সব সংখ্যা আপনার খাতা থেকে)",
                    "This card: no AI call — 0 credits, ৳0 cost (every number from your books)"),
              ln(plan, "নিজের ভাষায় প্রশ্ন (AI)", "A free-text question (AI)"),

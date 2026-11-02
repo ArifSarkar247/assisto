@@ -36,6 +36,9 @@ class MsgrCommunityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // launchsweep: at a big font the action button moves under the text
+    // (beside it, it squeezed the name off a 360 dp screen).
+    final big = MediaQuery.textScalerOf(context).scale(10) > 13;
     return Card(
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
       clipBehavior: Clip.antiAlias,
@@ -43,7 +46,7 @@ class MsgrCommunityCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          child: Row(
+          child: LayoutBuilder(builder: (context, box) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _avatar(scheme),
@@ -75,20 +78,24 @@ class MsgrCommunityCard extends StatelessWidget {
                           style: text.labelSmall
                               ?.copyWith(color: scheme.onSurfaceVariant)),
                     ],
+                    if (big && trailing != null) ...[
+                      const SizedBox(height: Gap.sm),
+                      trailing!,
+                    ],
                   ],
                 ),
               ),
-              if (trailing != null) ...[
+              if (!big && trailing != null) ...[
                 const SizedBox(width: Gap.sm),
-                // channels: cap so long labels / 200% text wrap, not overflow
+                // launchsweep: never wider than the text column; the
+                // button label wraps instead of pushing the row off screen.
                 ConstrainedBox(
-                  constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.38),
+                  constraints: BoxConstraints(maxWidth: box.maxWidth * 0.4),
                   child: trailing!,
                 ),
               ],
             ],
-          ),
+          )),
         ),
       ),
     );
@@ -136,45 +143,25 @@ class MsgrActionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // channels: icon + label as ONE wrapping text (no Row that can overflow
-    // when the card gives the chip a narrow slot / 200% text).
-    Widget content(Color c) => Text.rich(
-          TextSpan(children: [
-            WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Icon(icon, size: 16, color: c),
-                )),
-            TextSpan(text: label),
-          ]),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        );
     if (muted) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(Radii.pill),
-        ),
-        child: DefaultTextStyle.merge(
-          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-          child: content(scheme.onSurfaceVariant),
-        ),
+      return Chip(
+        avatar: Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+        label: Text(label),
+        labelStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+        backgroundColor: scheme.surfaceContainerHighest,
+        side: BorderSide.none,
+        visualDensity: VisualDensity.compact,
       );
     }
-    return FilledButton.tonal(
+    return FilledButton.tonalIcon(
       onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(label),
       style: FilledButton.styleFrom(
-        minimumSize: const Size(48, 48), // channels a11y: 48dp
+        minimumSize: const Size(48, 48), // launchsweep: 48 dp target
         tapTargetSize: MaterialTapTargetSize.padded,
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
       ),
-      child: content(onPressed == null
-          ? scheme.onSurface.withValues(alpha: 0.38)
-          : scheme.onSecondaryContainer),
     );
   }
 }

@@ -541,7 +541,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
 
   Widget _followRow(AppLocalizations t) {
     if (_following) {
-      // channels: Wrap — the two buttons stack at 200% / long Bangla labels
+      // launchsweep: Wrap, so a big font puts the second button below.
       return Wrap(
         spacing: Gap.sm,
         runSpacing: Gap.sm,

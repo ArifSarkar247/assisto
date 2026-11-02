@@ -149,9 +149,22 @@ void main() {
           testWidgets('${e.key} $lang x${v.$1} dark=${v.$2} lays out', (tester) async {
             await tester.binding.setSurfaceSize(const Size(400, 860));
             addTearDown(() => tester.binding.setSurfaceSize(null));
-            await tester.pumpWidget(
-                _wrap(e.value(), lang: lang, scale: v.$1, dark: v.$2));
-            await _settle(tester);
+            // launchsweep: name the overflowing widget (file:line), not just
+            // "RenderFlex overflowed".
+            final where = <String>[];
+            final orig = FlutterError.onError;
+            FlutterError.onError = (d) {
+              where.add('${d.exceptionAsString().split('\n').first} '
+                  '${RegExp(r'lib/[A-Za-z0-9_/]+\.dart:\d+').firstMatch(d.toString())?.group(0) ?? ''}');
+            };
+            try {
+              await tester.pumpWidget(
+                  _wrap(e.value(), lang: lang, scale: v.$1, dark: v.$2));
+              await _settle(tester);
+            } finally {
+              FlutterError.onError = orig;
+            }
+            expect(where, isEmpty);
             expect(tester.takeException(), isNull);
           });
         }

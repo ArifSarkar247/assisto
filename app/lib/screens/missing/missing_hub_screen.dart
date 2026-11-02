@@ -95,7 +95,7 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.maSafeConfirmTitle, style: Theme.of(ctx).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
-          Text(child ? t.maSafeConfirmChild : t.maSafeConfirmAdult),
+          Text(child ? t.maSafeConfirmChild : t.maSafeConfirmAdultV2),
           const SizedBox(height: Gap.lg),
           ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
             child: FilledButton(
@@ -299,7 +299,7 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
           ),
         ),
         const SizedBox(height: Gap.md),
-        Text(maD(context, t.maEmptySteps), style: text.bodySmall),
+        Text(maD(context, t.maEmptyStepsV2), style: text.bodySmall),
       ]),
     );
   }

@@ -1,4 +1,5 @@
 import '../../../l10n/app_localizations.dart';
+import '../../../messaging/date_separators.dart' show localDigits; // launchsweep
 import 'mini_xlsx.dart';
 
 /// acctui — ONE shape for every report, so the screen, the PDF, the Excel
@@ -196,8 +197,8 @@ AcctReport journalReport(AppLocalizations t, List<Map> entries, String period) =
       colB: t.acuRepCredit,
       rows: [
         for (final e in entries) ...[
-          AcctReportRow('#${e['number']} · ${e['date']} · ${e['memo'] ?? ''}'
-              '${e['status'] == 'reversed' ? ' (${t.acuAuditReversed})' : e['status'] == 'reversal' ? ' (${t.acuAuditReversal})' : ''}',
+          AcctReportRow(localDigits('#${e['number']} · ${e['date']} · ${e['memo'] ?? ''}', t.localeName) // launchsweep
+              + (e['status'] == 'reversed' ? ' (${t.acuAuditReversed})' : e['status'] == 'reversal' ? ' (${t.acuAuditReversal})' : ''),
               style: AcctRowStyle.heading),
           for (final l in _l(e['lines']))
             AcctReportRow('${l['name']}${'${l['party'] ?? ''}'.isEmpty ? '' : ' — ${l['party']}'}',

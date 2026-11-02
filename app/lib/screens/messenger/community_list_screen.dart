@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_community_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 import '../../widgets/msgr_community_card.dart';
 import 'community_detail_screen.dart';
 
@@ -188,7 +189,7 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
       name: '${g['name'] ?? ''}',
       description: '${g['description'] ?? ''}',
       photoRef: g['photo_ref']?.toString(),
-      countLabel: _t.communityMemberCount('$count'),
+      countLabel: _t.communityMemberCount(notifLocalizeDigits(context, '$count')),
       badge: isAnnouncements
           ? _badge(_t.communityAnnouncementsGroup, Icons.campaign_rounded)
           : null,

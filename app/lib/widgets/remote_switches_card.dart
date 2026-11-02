@@ -12,6 +12,7 @@ import '../services/action_feedback.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import 'local_counter.dart';
 
 typedef RemoteLoad = Future<Map<String, dynamic>> Function();
 typedef RemoteSend = Future<Map<String, dynamic>> Function(String kind,
@@ -248,6 +249,7 @@ class _RemoteSwitchesCardState extends State<RemoteSwitchesCard> {
                   controller: msgC,
                   maxLines: 3,
                   maxLength: 300,
+                  buildCounter: localCounter,
                   decoration: InputDecoration(
                       labelText: tr.at100MsgLabel, hintText: tr.at100MsgHint),
                 ),
@@ -256,6 +258,7 @@ class _RemoteSwitchesCardState extends State<RemoteSwitchesCard> {
                   controller: telC,
                   keyboardType: TextInputType.phone,
                   maxLength: 40,
+                  buildCounter: localCounter,
                   decoration: InputDecoration(labelText: tr.at100ContactLabel),
                 ),
                 if (err != null)

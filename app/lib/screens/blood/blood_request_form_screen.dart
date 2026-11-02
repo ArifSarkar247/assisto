@@ -7,6 +7,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// blood (owner 2 Nov) — urgent blood request (about 1 minute): group,
 /// bags, hospital, area, needed-by, radius, optional note. No phone number
@@ -174,6 +175,7 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
             key: const ValueKey('bp-req-hospital'),
             controller: _hospital,
             maxLength: 120,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.bpHospital, helperText: t.bpHospitalHelp,
                 helperMaxLines: 2, border: const OutlineInputBorder()),
           ),
@@ -195,6 +197,7 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
             key: const ValueKey('bp-req-area'),
             controller: _area,
             maxLength: 60,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.bpAreaLabel, border: const OutlineInputBorder()),
           ),
           Align(
@@ -252,6 +255,7 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
             key: const ValueKey('bp-req-note'),
             controller: _note,
             maxLength: 300,
+            buildCounter: localCounter,
             minLines: 2,
             maxLines: 4,
             decoration: InputDecoration(labelText: t.bpNote, helperText: t.bpNoteHelp,

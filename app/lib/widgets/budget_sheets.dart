@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../screens/money_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'local_counter.dart';
 
 /// Input sheets for the BUDGET module (#50): the add/edit budget dialog and the
 /// 50-30-20 template sheet. These are PRESENTATIONAL — they collect values and
@@ -140,6 +141,7 @@ class _BudgetSheetState extends State<_BudgetSheet> {
             key: const ValueKey('rhb_cat_custom'),
             controller: _custom,
             maxLength: 40,
+            buildCounter: localCounter,
             onChanged: (_) => setState(() => _catErr = null),
             decoration: InputDecoration(
               labelText: widget.choices.isEmpty ? t.budgetFieldCategory : t.rhbCategoryOther,
@@ -385,6 +387,7 @@ class _GoalSheetState extends State<_GoalSheet> {
           key: const ValueKey('rhb_goal_title'),
           controller: _title,
           maxLength: 80,
+          buildCounter: localCounter,
           decoration: InputDecoration(
               labelText: t.moneyFieldGoalPurpose, errorText: _titleErr, errorMaxLines: 2),
         ),

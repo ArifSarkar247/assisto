@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import 'camera_draw_canvas.dart';
 import 'camera_send_sheet.dart';
+import '../../widgets/local_counter.dart';
 
 /// Preview + edit the captured/picked media, then SEND it.
 ///
@@ -128,6 +129,7 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
           controller: controller,
           autofocus: true,
           maxLength: 80,
+          buildCounter: localCounter,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(hintText: t.camTextHint),
         ),

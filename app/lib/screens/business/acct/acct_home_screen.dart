@@ -17,6 +17,7 @@ import 'acct_entry_screen.dart';
 import 'acct_ledger2.dart';
 import 'acct_opening_screen.dart';
 import 'acct_reports_screen.dart';
+import '../../../widgets/local_counter.dart';
 
 /// acctui — the accounting home (route 'acct', flag `accounting_v2`, owner
 /// only). Big plain-word buttons for what happened today, entries waiting
@@ -451,6 +452,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               TextField(
                 controller: reason,
                 maxLength: 160,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.acuVoidReason, border: const OutlineInputBorder()),
               ),

@@ -7,6 +7,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// blood (owner 2 Nov) — become / edit a donor. The SEPARATE consent lives
 /// here (the Family card's blood group is never read): what others see, what
@@ -208,6 +209,7 @@ class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
             key: const ValueKey('bp-setup-area'),
             controller: _area,
             maxLength: 60,
+            buildCounter: localCounter,
             decoration: InputDecoration(
                 labelText: t.bpAreaLabel, helperText: t.bpAreaHelp, helperMaxLines: 3,
                 border: const OutlineInputBorder()),

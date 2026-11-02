@@ -15,6 +15,7 @@ import '../../widgets/success_share.dart';
 import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
 import 'missing_thread_screen.dart';
+import '../../widgets/local_counter.dart';
 
 /// missing (owner 2 Nov) — one alert. What each side sees:
 ///  * a nearby user: photo, name, age, last seen + AREA, description, the GD
@@ -221,13 +222,13 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               TextField(
                 key: const ValueKey('ma-renew-gd'),
                 controller: gd,
-                decoration: InputDecoration(labelText: t.maGdNumber, border: const OutlineInputBorder()),
+                decoration: InputDecoration(labelText: t.maGdNumberV2, border: const OutlineInputBorder()),
               ),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: still,
                 onChanged: (v) => setS(() => still = v == true),
-                title: Text(t.maRenewGdStill),
+                title: Text(t.maRenewGdStillV2),
               ),
             ],
             const SizedBox(height: Gap.md),
@@ -257,7 +258,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       builder: (ctx) => _GdSheet(),
     );
     if (res == null || !mounted) return;
-    await _act('gd', res, t.maGdAdded);
+    await _act('gd', res, t.maGdAddedV2);
   }
 
   Future<void> _tips() async {
@@ -351,6 +352,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               minLines: 3,
               maxLines: 6,
               maxLength: 600,
+              buildCounter: localCounter,
               decoration: InputDecoration(
                 labelText: t.maTipHint,
                 border: const OutlineInputBorder(),
@@ -445,6 +447,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
             TextField(
               controller: note,
               maxLength: 300,
+              buildCounter: localCounter,
               decoration: InputDecoration(labelText: t.maReportNote, border: const OutlineInputBorder()),
             ),
             const SizedBox(height: Gap.md),
@@ -529,17 +532,17 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(maD(context, t.maGdLine('${gd['thana'] ?? ''}', '${gd['number'] ?? ''}',
+              Text(maD(context, t.maGdLineV2('${gd['thana'] ?? ''}', '${gd['number'] ?? ''}',
                   maWhen(context, gd['date'] as String?).split(',').first))),
               const SizedBox(height: Gap.xs),
-              Text(t.maGdUnverified, key: const ValueKey('ma-gd-unverified'),
+              Text(t.maGdUnverifiedV2, key: const ValueKey('ma-gd-unverified'),
                   style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
             ]),
           ),
         ),
       ] else if (live && _a['is_child'] != true) ...[
         const SizedBox(height: Gap.md),
-        Text(t.maGdUnverified, style: TextStyle(color: s.error)),
+        Text(t.maGdUnverifiedV2, style: TextStyle(color: s.error)),
       ],
       const SizedBox(height: Gap.lg),
       ..._actions(context, live),
@@ -565,13 +568,13 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       case 'family':
         if (_state == 'pending') {
           final asked = (_a['cosign_asked'] is Map) ? '${(_a['cosign_asked'] as Map)['name'] ?? ''}' : '';
-          out.add(Text(asked.isEmpty ? t.maPendingNoCosigner : t.maPendingCosigner(asked)));
+          out.add(Text(asked.isEmpty ? t.maPendingNoCosignerV2 : t.maPendingCosignerV2(asked)));
           out.add(const SizedBox(height: Gap.sm));
           out.add(big(FilledButton.icon(
               key: const ValueKey('ma-add-gd'),
               onPressed: _busy ? null : _addGd,
               icon: const Icon(Icons.local_police_rounded),
-              label: Text(t.maAddGd))));
+              label: Text(t.maAddGdV2))));
         }
         if (_state == 'active' || _state == 'hidden') {
           out.add(Text(maD(context, t.maReach(_a['pushed'] as int? ?? 0, _a['listed'] as int? ?? 0,
@@ -702,13 +705,13 @@ class _GdSheetState extends State<_GdSheet> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(t.maGdTitle, style: Theme.of(context).textTheme.titleMedium),
+        Text(t.maGdTitleV2, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.xs),
-        Text(t.maGdHelp, style: Theme.of(context).textTheme.bodySmall),
+        Text(t.maGdHelpV2, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: Gap.md),
         TextField(
           controller: _num,
-          decoration: InputDecoration(labelText: t.maGdNumber, errorText: _err, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: t.maGdNumberV2, errorText: _err, border: const OutlineInputBorder()),
         ),
         const SizedBox(height: Gap.sm),
         TextField(
@@ -726,7 +729,7 @@ class _GdSheetState extends State<_GdSheet> {
             if (d != null) setState(() => _date = d);
           },
           icon: const Icon(Icons.event_rounded),
-          label: Text(maD(context, t.maGdDate(loc.formatMediumDate(_date)))),
+          label: Text(maD(context, t.maGdDateV2(loc.formatMediumDate(_date)))),
         ),
         const SizedBox(height: Gap.md),
         ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
@@ -734,7 +737,7 @@ class _GdSheetState extends State<_GdSheet> {
             onPressed: () {
               final n = maCleanGd(_num.text);
               if (n == null || _thana.text.trim().length < 2) {
-                setState(() => _err = t.maErrGd);
+                setState(() => _err = t.maErrGdV2);
                 return;
               }
               Navigator.pop(context, {
@@ -743,7 +746,7 @@ class _GdSheetState extends State<_GdSheet> {
                 'gd_date': _date.toIso8601String().substring(0, 10),
               });
             },
-            child: Text(t.maGdSave),
+            child: Text(t.maGdSaveV2),
           ),
         ),
       ]),

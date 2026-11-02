@@ -27,6 +27,7 @@ import 'assisto_card_view.dart' show p3When, p3Taka;
 import 'assisto_intent.dart';
 import 'p3_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/local_counter.dart';
 
 /// What the chat screen hands the Assisto sheet. Everything here is LOCAL:
 /// the decrypted text never leaves the phone unless the user runs an AI
@@ -584,6 +585,7 @@ class _AssistoAiSheetState extends State<AssistoAiSheet> {
         maxLines: 4,
         minLines: 2,
         maxLength: 500,
+        buildCounter: localCounter,
         onChanged: (_) => setState(() {}),
         decoration: InputDecoration(hintText: t.p3AskHint, border: const OutlineInputBorder()),
       ));
@@ -819,6 +821,7 @@ class _ReminderComposerState extends State<ReminderComposer> {
               TextField(
                 controller: _title,
                 maxLength: 120,
+                buildCounter: localCounter,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                     labelText: t.p3ReminderWhat, border: const OutlineInputBorder()),
@@ -973,6 +976,7 @@ class _SplitComposerState extends State<SplitComposer> {
               TextField(
                 controller: _title,
                 maxLength: 80,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.p3SplitWhat,
                     hintText: t.p3SplitDefaultTitle,
@@ -1090,6 +1094,7 @@ class _ListComposerState extends State<ListComposer> {
               TextField(
                 controller: _title,
                 maxLength: 60,
+                buildCounter: localCounter,
                 decoration: InputDecoration(
                     labelText: t.p3ListTitle,
                     hintText: t.p3ListDefaultTitle,

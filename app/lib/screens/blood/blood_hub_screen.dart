@@ -16,6 +16,7 @@ import 'blood_thread_screen.dart';
 import 'blood_threads_screen.dart';
 import 'blood_verify_screen.dart';
 import 'bp_common.dart';
+import '../../widgets/local_counter.dart';
 
 /// blood (owner 2 Nov) — Blood donor panel hub (route `blood_panel`, flag
 /// `blood_donors`). Three tabs:
@@ -217,6 +218,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             minLines: 2,
             maxLines: 5,
             maxLength: 600,
+            buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.bpMsgLabel, border: const OutlineInputBorder()),
           ),
           const SizedBox(height: Gap.sm),
