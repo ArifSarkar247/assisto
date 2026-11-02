@@ -8,7 +8,7 @@ import '../state.dart';
 import 'ads_service.dart';
 import 'consent.dart';
 
-/// Settings -> "বিজ্ঞাপনের গোপনীয়তা / Ads privacy" (L3 + admobump, Google UMP).
+/// Settings -> "Ads privacy" row (L3 + admobump, Google UMP).
 ///
 ///  * UMP says the privacy-options entry point is REQUIRED (EEA/UK/CH, US
 ///    states once the owner publishes that message): a tappable row that

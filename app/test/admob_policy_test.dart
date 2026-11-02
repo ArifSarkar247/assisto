@@ -144,7 +144,7 @@ void main() {
       }
       expect(c.appOpenMinGap, const Duration(hours: 3));
       expect(c.appOpenDailyCap, 6);
-      expect(c.interstitialMinGap, const Duration(minutes: 5));
+      expect(c.interstitialMinGap, const Duration(seconds: 800));
       expect(c.bannerScreens, AdPlacements.bannerScreens);
       expect(c.rewardedEnabled, isFalse, reason: 'SSV cannot verify test units');
       expect(c.personalized, isFalse);
