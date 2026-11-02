@@ -147,7 +147,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
     } catch (e) {
       if (mounted) {
         showApiError(context, e);
-        final f = e is ApiException ? e.body?['fields'] : null;
+        final f = (e is ApiException) ? e.body?['fields'] : null;
         final keys = f is List ? f.map((x) => '$x').toList() : <String>[];
         if (keys.contains('bin')) keys.add('bin_required');
         setState(() => _badFields = keys);
