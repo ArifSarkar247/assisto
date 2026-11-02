@@ -91,6 +91,52 @@ Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required 
             ],
     };
   }
+  // chipbuy: one paired chip (low battery, School Mode) + one waiting chip
+  // with no battery report; 'worn' = the signed-in child's view.
+  if (path == '/kids-watch/chips') {
+    return {
+      'history_hours': 48,
+      'protocols': const ['gt06', 'h02', 'tk103', 'teltonika'],
+      'worn': empty
+          ? const []
+          : [
+              {'id': 7, 'kind': 'chip', 'state': 'paired', 'owner_name': abba,
+               'watchers': [abba, ammu], 'battery': 64},
+            ],
+      'chips': empty
+          ? const []
+          : [
+              {
+                'id': 7, 'kind': 'chip', 'child_name': rafi, 'imei_tail': '3456',
+                'protocol': 'gt06', 'state': 'paired', 'mine': true, 'online': true,
+                'last_seen_at': _ago(1), 'pair_expires_at': null,
+                'battery': 15, 'battery_low': true,
+                'live': {'lat': 23.7811, 'lng': 90.4142, 'at': _ago(3), 'source': 'gps'},
+                'school_plan_id': null, 'child_has_app': true,
+                'guardians': [{'id': 2, 'name': ammu}],
+                'imei': '865920051234563', 'child_user_id': 3,
+              },
+              {
+                'id': 8, 'kind': 'chip', 'child_name': rina, 'imei_tail': '0007',
+                'protocol': 'auto', 'state': 'pending', 'mine': true, 'online': false,
+                'last_seen_at': null, 'pair_expires_at': DateTime.now().toUtc()
+                    .add(const Duration(minutes: 8)).toIso8601String(),
+                'battery': null, 'battery_low': false, 'live': null,
+                'school_plan_id': null, 'child_has_app': false, 'guardians': const [],
+                'imei': '865920060000007', 'child_user_id': null,
+              },
+            ],
+    };
+  }
+  if (path.startsWith('/kids-watch/chips/') && path.contains('/history')) {
+    return {
+      'history_hours': 48,
+      'points': empty ? const [] : [
+        {'at': _ago(40), 'lat': 23.7808, 'lng': 90.4130},
+        {'at': _ago(10), 'lat': 23.7811, 'lng': 90.4142},
+      ],
+    };
+  }
   if (path == '/school-mode/mine') {
     return {
       'plans': empty

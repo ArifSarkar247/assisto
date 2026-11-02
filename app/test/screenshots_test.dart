@@ -50,6 +50,7 @@ import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
+import 'package:assisto/screens/kids_watch/chip_widgets.dart'; // chipbuy
 import 'package:assisto/screens/missing/missing_hub_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_detail_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
@@ -622,6 +623,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
+    // chipbuy: add a tracker chip (bag / shoe) + "where to buy" link
+    'chip_pair': (build: (_) => const Scaffold(body: ChipPairSheet()), mode: FakeMode.data, full: true),
     // missing (owner 2 Nov): Missing person alert — hub, empty, error, a nearby
     // alert (recipient), my alert (family), post form, opt-in, tip thread,
     // the reusable success-share screen

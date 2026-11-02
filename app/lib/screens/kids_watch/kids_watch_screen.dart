@@ -14,6 +14,8 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/fam_empty.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../widgets/where_to_buy.dart';
+import 'chip_widgets.dart';
 import 'kw_recorder.dart';
 import 'school_plan_form.dart';
 
@@ -41,6 +43,9 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
   List<Map<String, dynamic>> _watches = const [];
   List<Map<String, dynamic>> _plans = const [];
   Map<String, dynamic> _cfg = const {};
+  // chipbuy: tracker chips (bag / shoe) + chips the signed-in CHILD carries
+  List<Map<String, dynamic>> _chips = const [];
+  List<Map<String, dynamic>> _worn = const [];
 
   @override
   void initState() {
@@ -55,8 +60,15 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
     });
     try {
       final r = await Future.wait([_api.kwWatches(), _api.smPlans(), _api.kwConfig()]);
+      // a chip list failure never hides the watches (shown as empty)
+      Map<String, dynamic> chips = const {};
+      try {
+        chips = await _api.chipList();
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
+        _chips = kwRows(chips, 'chips');
+        _worn = kwRows(chips, 'worn');
         _watches = kwRows(r[0], 'watches');
         _plans = kwRows(r[1], 'plans');
         _cfg = r[2];
@@ -92,6 +104,20 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
     );
     if (ok == true) await _load();
   }
+
+  Future<void> _addChip() async {
+    // the chip exists as soon as the form is sent: reload however it closed
+    await showAppSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const ChipPairSheet(),
+    );
+    if (mounted) await _load();
+  }
+
+  bool get _nothing =>
+      _watches.isEmpty && _plans.isEmpty && _chips.isEmpty && _worn.isEmpty;
 
   Future<void> _addPhonePlan() async {
     final ok = await showSchoolPlanForm(context);
@@ -212,7 +238,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.kwTitle)),
-      floatingActionButton: (_watches.isEmpty && _plans.isEmpty) || _loading || _failed
+      floatingActionButton: _nothing || _loading || _failed
           ? null
           : FloatingActionButton.extended(
               heroTag: 'kw-fab',
@@ -241,8 +267,16 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
           subtitle: Text(t.kwAddPhonePlanSub),
           onTap: () => Navigator.pop(ctx, 'phone'),
         ),
+        ListTile(
+          key: const ValueKey('kw-add-chip'),
+          leading: const Icon(Icons.backpack_rounded),
+          title: Text(t.chipAddTitle),
+          subtitle: Text(t.chipAddSub),
+          onTap: () => Navigator.pop(ctx, 'chip'),
+        ),
       ]),
     );
+    if (pick == 'chip') await _addChip();
     if (pick == 'watch') await _addWatch();
     if (pick == 'phone') await _addPhonePlan();
   }
@@ -262,7 +296,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
         ),
       );
     }
-    if (_watches.isEmpty && _plans.isEmpty) {
+    if (_nothing) {
       return FamEmptyState(
         icon: Icons.watch_rounded,
         title: t.kwEmptyTitle,
@@ -274,6 +308,19 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
         onSecondary: _addPhonePlan,
         steps: [t.kwStep1, t.kwStep2, t.kwStep3, t.kwStep4],
         header: _HonestCard(),
+        footer: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SizedBox(
+            height: 48,
+            child: OutlinedButton.icon(
+              key: const ValueKey('kw-empty-chip'),
+              onPressed: _addChip,
+              icon: const Icon(Icons.backpack_rounded),
+              label: Text(t.chipAddTitle, textAlign: TextAlign.center),
+            ),
+          ),
+          const WhereToBuyLink(product: BuyProduct.kidsWatch),
+          const WhereToBuyLink(product: BuyProduct.chip),
+        ]),
       );
     }
     final phonePlans = _plans.where((p) => p['mode'] == 'phone').toList();
@@ -282,8 +329,18 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
+          for (final w in _worn) ChipWornCard(worn: w),
           _HonestCard(),
           for (final w in _watches) _watchCard(t, w),
+          for (final c in _chips)
+            ChipCard(
+              chip: c,
+              plan: c['school_plan_id'] == null
+                  ? null
+                  : _plans.firstWhere((p) => p['id'] == c['school_plan_id'],
+                      orElse: () => <String, dynamic>{}),
+              onChanged: _load,
+            ),
           if (phonePlans.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.md, Gap.xs, Gap.xs),
@@ -582,7 +639,8 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         Text(t.kwAddWatch, style: AType.titleLarge),
         const SizedBox(height: Gap.xs),
         Text(t.kwPairIntro, style: AType.bodyMedium),
-        const SizedBox(height: Gap.md),
+        const WhereToBuyLink(product: BuyProduct.kidsWatch, dense: true),
+        const SizedBox(height: Gap.sm),
         TextField(
           controller: _name,
           textCapitalization: TextCapitalization.words,

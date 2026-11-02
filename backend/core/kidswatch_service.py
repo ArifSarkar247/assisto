@@ -610,6 +610,38 @@ def ingest(batch, now=None):
     return written
 
 
+def plan_fixes(plan, fixes, now=None):
+    """chipbuy: feed GPS fixes from a tracker CHIP (a VehicleTracker of kind
+    'chip') into its School Mode plan — the same state machine and the same
+    deliver_event as a watch. fixes: [{at, lat, lng, valid, blind}].
+    Returns the number of events delivered."""
+    now = now or timezone.now()
+    if plan is None or not plan.enabled or not plan.config or plan.accepted_at is None:
+        return 0
+    try:
+        cfg = SM.validate(plan.config)
+    except ValueError:
+        return 0
+    n = 0
+    for f in sorted(fixes or [], key=lambda f: f.get("at") or now):
+        at = f.get("at") or now
+        if at > now + timedelta(minutes=5):
+            at = now
+        if not f.get("valid", True) or f.get("lat") is None:
+            continue
+        if (now - at).total_seconds() > BLIND_MAX_AGE_S or f.get("blind"):
+            continue          # late re-sent points are history, not alerts
+        lat, lng = f["lat"], f["lng"]
+        day, evs = SM.on_fix(cfg, plan.day, at.astimezone(LOCAL_TZ), lat, lng, None, "gps")
+        plan.day = day
+        plan.last_known = {"lat": lat, "lng": lng, "at": at.isoformat(), "source": "gps"}
+        for ev in evs:
+            deliver_event(plan, ev, now, lat, lng)
+            n += 1
+    type(plan).objects.filter(pk=plan.pk).update(day=plan.day, last_known=plan.last_known)
+    return n
+
+
 # --------------------------------------------------------------- voice storage
 
 def _fernet():
@@ -940,7 +972,8 @@ def tick(now=None):
         except ValueError:
             continue
         try:
-            day, evs = SM.on_tick(cfg, plan.day, local, phone=plan.watch_id is None)
+            day, evs = SM.on_tick(cfg, plan.day, local,
+                                  phone=plan.watch_id is None and plan.chip_id is None)
             if day != plan.day:
                 SchoolPlan.objects.filter(pk=plan.pk).update(day=day)
                 plan.day = day
@@ -957,6 +990,9 @@ def tick(now=None):
     out["cmds_expired"] = expire_commands(now)
     out["pruned"] = KidsWatchPosition.objects.filter(
         at__lt=now - timedelta(days=RETENTION_DAYS)).delete()[0] if local.minute == 7 else 0
+    if local.minute == 7:
+        from . import chip_service      # chipbuy: chip history is kept 48 h
+        out["chip_pruned"] = chip_service.prune(now)
     renewed = 0
     for w in KidsWatch.objects.filter(state="paired", billed_until__lt=now,
                                       billed_until__gt=now - timedelta(days=2)) \

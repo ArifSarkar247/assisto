@@ -452,8 +452,9 @@ def _plan_json(p, user, now=None):
     local = now.astimezone(KW.LOCAL_TZ)
     day = p.day if (p.day or {}).get("date") == local.date().isoformat() else {}
     out = {"id": p.id, "child_name": p.child_name, "enabled": p.enabled,
-           "accepted": p.accepted_at is not None, "mode": "watch" if p.watch_id else "phone",
-           "watch_id": p.watch_id, "i_am_child": p.child_user_id == user.id,
+           "accepted": p.accepted_at is not None,
+           "mode": "watch" if p.watch_id else ("chip" if p.chip_id else "phone"),
+           "watch_id": p.watch_id, "chip_id": p.chip_id, "i_am_child": p.child_user_id == user.id,
            "mine": p.owner_id == user.id, "config": cfg,
            "watchers": _people(p.owner, p.watcher_ids),
            "today": {"state": day.get("state", "idle"),
@@ -574,8 +575,17 @@ class PlanListView(APIView):
             return R({"ok": False, "reason": str(e)}, status=400)
         if not cfg["home"] or not cfg["school"]:
             return R({"ok": False, "reason": "places_required"}, status=400)
-        watch, child = None, None
-        if d.get("watch_id"):
+        watch, child, chip = None, None, None
+        if d.get("chip_id"):
+            # chipbuy: a tracker chip drives the plan automatically, like a watch
+            from .models import VehicleTracker
+            chip = VehicleTracker.objects.filter(pk=d.get("chip_id"), owner=request.user,
+                                                 kind="chip").first()
+            if chip is None:
+                return R({"ok": False, "reason": "chip_not_found"}, status=400)
+            if SchoolPlan.objects.filter(chip=chip).exists():
+                return R({"ok": False, "reason": "chip_has_plan"}, status=409)
+        elif d.get("watch_id"):
             watch = KidsWatch.objects.filter(pk=d.get("watch_id"), owner=request.user).first()
             if watch is None:
                 return R({"ok": False, "reason": "watch_not_found"}, status=400)
@@ -589,17 +599,23 @@ class PlanListView(APIView):
         else:
             return R({"ok": False, "reason": "watch_or_child_required"}, status=400)
         name = str(d.get("child_name") or (watch.child_name if watch else "")
+                   or (chip.child_name if chip else "")
                    or (child.name if child else "")).strip()[:60]
         now = timezone.now()
         p = SchoolPlan.objects.create(
-            owner=request.user, watch=watch, child_user=child or (
-                watch.child_user if watch else None),
+            owner=request.user, watch=watch, chip=chip, child_user=child or (
+                watch.child_user if watch else (chip.child_user if chip else None)),
             child_name=name or "?", config=cfg,
             watcher_ids=KW.clean_guardians(request.user, d.get("watcher_ids")),
             # a watch plan runs at once (the parent set the watch up); a PHONE
             # plan waits until the child accepted it on their own phone
-            accepted_at=now if watch else None)
-        if child is not None and watch is None:
+            accepted_at=now if (watch or chip) else None)
+        if chip is not None:
+            # the chip's guardians are the plan's watchers (one audience)
+            from . import chip_service as CS
+            p.watcher_ids = [u.id for u in CS.guardian_users(chip)]
+            p.save(update_fields=["watcher_ids", "updated_at"])
+        if child is not None and watch is None and chip is None:
             KW._send([child], "স্কুল-মোডের অনুরোধ", "School mode request",
                      "%s আপনার জন্য স্কুল-মোড চালু করতে চান। দেখে রাজি হলে চালু হবে।"
                      % (request.user.name or ""),

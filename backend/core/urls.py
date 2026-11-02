@@ -1345,9 +1345,15 @@ urlpatterns += [
 # ---- /probashi-plan ----
 # ---- kidswatch ---- (owner idea 2: kids GPS watch + School Mode; flag kids_watch, OFF)
 from . import kidswatch_views as kwv  # noqa: E402
+from . import chip_views as chipv  # noqa: E402  (chipbuy)
 urlpatterns += [
     path("kids-watch/config", kwv.ConfigView.as_view()),
     path("kids-watch/watches", kwv.WatchListView.as_view()),
+    # chipbuy: tracker chip (bag / shoe) on the vehicle tracker server
+    path("kids-watch/chips", chipv.ChipListView.as_view()),
+    path("kids-watch/chips/<int:pk>", chipv.ChipDetailView.as_view()),
+    path("kids-watch/chips/<int:pk>/repair", chipv.ChipRepairView.as_view()),
+    path("kids-watch/chips/<int:pk>/history", chipv.ChipHistoryView.as_view()),
     path("kids-watch/watches/<int:pk>", kwv.WatchDetailView.as_view()),
     path("kids-watch/watches/<int:pk>/repair", kwv.WatchRepairView.as_view()),
     path("kids-watch/watches/<int:pk>/command", kwv.WatchCommandView.as_view()),

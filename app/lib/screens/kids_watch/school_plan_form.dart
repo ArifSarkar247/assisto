@@ -62,7 +62,12 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
   bool _busy = false;
   String _error = '';
 
-  bool get _isWatch => widget.watch != null || widget.plan?['mode'] == 'watch';
+  bool get _isWatch =>
+      widget.watch != null || widget.plan?['mode'] == 'watch' || widget.plan?['mode'] == 'chip';
+
+  /// chipbuy: a tracker chip drives the plan automatically like a watch,
+  /// but has no screen (no class mode).
+  bool get _isChip => widget.watch?['kind'] == 'chip' || widget.plan?['mode'] == 'chip';
   bool get _editing => widget.plan != null;
 
   @override
@@ -203,7 +208,7 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
       'home': _home,
       'school': _school,
       'watcher_ids': _watchers.toList(),
-      if (_isWatch) 'class_mode': _classMode,
+      if (_isWatch && !_isChip) 'class_mode': _classMode,
     };
     try {
       if (_editing) {
@@ -211,7 +216,8 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
       } else {
         await _api.smCreate({
           ...body,
-          if (widget.watch != null) 'watch_id': widget.watch!['id'],
+          if (widget.watch != null && !_isChip) 'watch_id': widget.watch!['id'],
+          if (widget.watch != null && _isChip) 'chip_id': widget.watch!['id'],
           if (widget.watch == null) 'child_user_id': _child,
         });
       }
@@ -245,7 +251,8 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(t.kwSchoolModeTitle, style: AType.titleLarge),
         const SizedBox(height: Gap.xs),
-        Text(_isWatch ? t.kwPlanWatchIntro : t.kwPlanPhoneIntro, style: AType.bodyMedium),
+        Text(_isChip ? t.chipPlanIntro : (_isWatch ? t.kwPlanWatchIntro : t.kwPlanPhoneIntro),
+            style: AType.bodyMedium),
         if (!_editing && !_isWatch) ...[
           const SizedBox(height: Gap.md),
           Text(t.kwWhichChild, style: AType.titleSmall),
@@ -327,7 +334,7 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
           ],
           onChanged: (v) => setState(() => _commute = v ?? _commute),
         ),
-        if (_isWatch)
+        if (_isWatch && !_isChip)
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _classMode,
@@ -335,7 +342,8 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
             subtitle: Text(t.kwClassModeSub),
             onChanged: (v) => setState(() => _classMode = v),
           ),
-        if (_people.isNotEmpty) ...[
+        // a chip plan alerts the chip's own guardians (one audience)
+        if (_people.isNotEmpty && !_isChip) ...[
           const SizedBox(height: Gap.sm),
           Text(t.kwWhoElseSees, style: AType.titleSmall),
           for (final p in _people.where((p) => p['id'] != _child))
@@ -352,7 +360,7 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
             ),
         ],
         const SizedBox(height: Gap.sm),
-        Text(_isWatch ? t.kwPlanWatchHonest : t.kwPlanPhoneHonest,
+        Text(_isChip ? t.chipPlanHonest : (_isWatch ? t.kwPlanWatchHonest : t.kwPlanPhoneHonest),
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         if (_error.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),

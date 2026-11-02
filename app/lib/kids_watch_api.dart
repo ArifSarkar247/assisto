@@ -81,6 +81,28 @@ extension KidsWatchApi on ApiClient {
 
   Future<Map<String, dynamic>> smEvents(int id) => getJson('/school-mode/plans/$id/events');
 
+  // chipbuy: tracker chip (school bag / shoe) on the vehicle tracker server.
+  Future<Map<String, dynamic>> chipList() => getJson('/kids-watch/chips');
+  Future<Map<String, dynamic>> chipPair(
+          {required String imei,
+          required String childName,
+          String protocol = 'auto',
+          List<int> guardianIds = const [],
+          int? childUserId}) =>
+      postJson('/kids-watch/chips', {
+        'imei': imei,
+        'child_name': childName,
+        'protocol': protocol,
+        'guardian_ids': guardianIds,
+        if (childUserId != null) 'child_user_id': childUserId,
+      });
+  Future<Map<String, dynamic>> chipUpdate(int id, Map<String, dynamic> body) =>
+      patchJson('/kids-watch/chips/$id', body);
+  Future<Map<String, dynamic>> chipRemove(int id) => deleteJson('/kids-watch/chips/$id');
+  Future<Map<String, dynamic>> chipRepair(int id) => postJson('/kids-watch/chips/$id/repair');
+  Future<Map<String, dynamic>> chipHistory(int id, {int hours = 24}) =>
+      getJson('/kids-watch/chips/$id/history?hours=$hours');
+
   Future<Map<String, dynamic>> smClearHistory(int id) =>
       postJson('/school-mode/plans/$id/events/clear');
 }
