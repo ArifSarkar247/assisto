@@ -54,6 +54,7 @@ import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/missing/missing_hub_screen.dart'; // missing
+import 'package:assisto/screens/kid_audio/kid_audio_screen.dart'; // kidaudio
 import 'package:assisto/screens/missing/missing_detail_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
@@ -676,6 +677,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'blood_thread': (build: (_) => const BloodThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
     'blood_banks': (build: (_) => const BloodBanksScreen(), mode: FakeMode.data, full: true),
     'blood_verify': (build: (_) => const BloodVerifyScreen(), mode: FakeMode.data, full: true),
+    // kidaudio (owner 2 Nov): Child emergency audio — parent + child cards + log, empty, error.
+    'kid_audio': (build: (_) => const KidAudioScreen(), mode: FakeMode.data, full: true),
+    'kid_audio_empty': (build: (_) => const KidAudioScreen(), mode: FakeMode.empty, full: true),
+    'kid_audio_error': (build: (_) => const KidAudioScreen(), mode: FakeMode.fail, full: false),
     'success_share': (build: (l) => SuccessShareScreen(
         title: l == 'bn' ? 'ধন্যবাদ জানান' : 'Say thank you',
         cardHeadline: l == 'bn' ? 'পাওয়া গেছে — সবাইকে ধন্যবাদ' : 'Found — thank you all',

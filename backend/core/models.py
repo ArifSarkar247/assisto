@@ -7492,3 +7492,59 @@ class BloodEvent(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["actor", "kind", "at"], name="core_bloodev_actor_idx")]
 # ---- /blood ----
+
+
+# ---- kidaudio ---- (owner 2 Nov, PART 1 b: child emergency audio; flag
+# child_emergency_audio, OFF). Rules: core/kid_audio.py.
+class KidAudioConsent(models.Model):
+    """The advance consent for ONE guardian -> child pair. Usable only when
+    BOTH sides agreed (parent_ok_at AND child_ok_at), the parent declared the
+    child's birth year (under 18, re-checked on every request), the child
+    confirmed that year on their own phone, and nobody revoked it. Any change
+    of terms by the parent clears the child's agreement."""
+    guardian = models.ForeignKey(User, on_delete=models.CASCADE, related_name="kid_audio_as_guardian")
+    child = models.ForeignKey(User, on_delete=models.CASCADE, related_name="kid_audio_as_child")
+    birth_year = models.PositiveSmallIntegerField()
+    parent_ok_at = models.DateTimeField(null=True, blank=True)
+    child_ok_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked_by = models.CharField(max_length=8, blank=True, default="")   # guardian|child
+    watch = models.ForeignKey("KidsWatch", null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    watch_phone = models.CharField(max_length=20, blank=True, default="")  # the watch SIM
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["guardian", "child"],
+                                               name="uniq_kidaudio_pair")]
+
+
+class KidAudioSession(models.Model):
+    """One listen request = one audit row (granted OR refused). Both the
+    guardian and the child see every row (who, when, how long, why refused).
+    status: refused | requested | live | ended | missed (child phone never started in time) | dialled (watch:
+    a normal GSM call from the parent's own phone; length not known)."""
+    consent = models.ForeignKey(KidAudioConsent, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="sessions")
+    guardian = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    child = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    channel = models.CharField(max_length=6, default="phone")          # phone|watch
+    status = models.CharField(max_length=10, default="requested")
+    reason = models.CharField(max_length=24, blank=True, default="")    # refusal / end reason
+    emergency_kind = models.CharField(max_length=16, blank=True, default="")
+    emergency_ref = models.CharField(max_length=80, blank=True, default="")
+    limit_s = models.PositiveIntegerField(default=180)
+    call = models.ForeignKey("CallRecord", null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    notice_shown = models.BooleanField(default=False)   # child phone showed the FGS notice
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    ended_by = models.CharField(max_length=8, blank=True, default="")   # guardian|child|server
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["child", "status"], name="kidaudio_child_st"),
+                   models.Index(fields=["guardian", "created_at"], name="kidaudio_guard_at")]
+# ---- /kidaudio ----

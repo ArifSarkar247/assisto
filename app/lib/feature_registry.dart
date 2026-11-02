@@ -57,6 +57,8 @@ const Map<String, bool> kFeatureDefaults = {
   'missing_alert': false,
   // blood: Blood donor panel — OFF until the owner's two-phone test.
   'blood_donors': false,
+  // kidaudio: child emergency audio — OFF until the owner's two-phone test.
+  'child_emergency_audio': false,
   'contacts': true,
   'voice_assistant': true,
   'documents': true,
@@ -210,6 +212,7 @@ const Map<String, String> kRouteFeature = {
   'kids_watch': 'kids_watch',
   'missing_alert': 'missing_alert',
   'blood_panel': 'blood_donors',
+  'kid_audio': 'child_emergency_audio',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',
   'agent_approvals': 'agent_core',

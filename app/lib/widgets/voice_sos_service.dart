@@ -5,6 +5,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../calls/call_keepalive.dart' show kCallHangupButton;
 import '../state.dart';
 import 'voice_sos_config.dart';
 import 'journey_api.dart';
@@ -146,6 +147,11 @@ class VoiceSosTaskHandler extends TaskHandler {
   /// right there (Play foreground-service policy: the user can always stop).
   @override
   void onNotificationButtonPressed(String id) {
+    // kidaudio: the emergency-audio Stop shown on this notification
+    if (id == kCallHangupButton) {
+      FlutterForegroundTask.sendDataToMain(kCallHangupButton);
+      return;
+    }
     if (id != kVoiceSosStopButton) return;
     try {
       VoiceSosConfig.setEnabled(false);

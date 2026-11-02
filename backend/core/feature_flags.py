@@ -89,6 +89,11 @@ REGISTRY = (
     # coarse area), urgent requests pushed to eligible donors nearby, private
     # in-app contact, verified badge. Free forever. OFF until the two-phone test.
     ('blood_donors', 'family_safety', 'Blood donor panel', 'রক্তদাতা প্যানেল', False, ('blood_panel',)),
+    # kidaudio (owner 2 Nov PART 1 b): child emergency audio — only during an
+    # active emergency, verified parent, under-18 child, advance consent by
+    # both, visible notification, 3 min, audit both sides. OFF until the
+    # owner's two-phone test.
+    ('child_emergency_audio', 'family_safety', 'Child emergency audio', 'শিশুর জরুরি অডিও', False, ('kid_audio',)),
     ('contacts', 'contacts', 'Contacts', 'কন্টাক্টস', True, ('contacts',)),
     ('voice_assistant', 'daily_life', 'Assisto Voice', 'অ্যাসিস্টো ভয়েস', True, ('voice_assistant', 'voice_settings')),
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),

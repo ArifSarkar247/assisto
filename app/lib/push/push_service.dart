@@ -16,6 +16,7 @@ import '../calls/call_launch.dart'; // calls-a
 import '../calls/ring_checklist.dart';
 import '../calls/call_reply.dart';
 import '../calls/call_runtime.dart';
+import '../calls/kid_audio_child.dart'; // kidaudio
 import '../config.dart';
 import '../notifications.dart';
 import '../state.dart';
@@ -507,6 +508,12 @@ class PushService {
     if (p.isCall) {
       CallRuntime.instance.onPushRing(p);
       return;
+    }
+    // kidaudio: a parent's emergency "listen" while Assisto is open -> the
+    // visible notice + the ordinary call start now (server re-checks all).
+    if ('${data['route'] ?? ''}' == 'kid_audio' && '${data['event'] ?? ''}' == 'listen') {
+      final api = _app?.api;
+      if (api != null) unawaited(KidAudioChild.maybeStart(api));
     }
     // c3-msg: messages → on-device MessagingStyle (skipped for the chat that
     // is open on screen — it polls and marks seen itself).
