@@ -8,7 +8,7 @@
 //    says what is missing (was a silent dead button);
 //  * the 50-30-20 sheet: no dead "Apply" — an honest guide with Close;
 //  * no savings goal -> a real button (was a dead end);
-//  * Remittance: empty month = benefit + big button + how-to (no second FAB),
+//  * Remittance: empty month = benefit + big button + how-to ,
 //    who sent how much this month / this year with % that add up to 100,
 //    the honest conversion line (the rate the user typed, never a live rate),
 //    My Circle chips for "who usually sends";
@@ -309,6 +309,8 @@ void main() {
       expect(find.byKey(const ValueKey('rhb_month_2026-02')), findsNothing); // never the future
       expect(find.text('January 2026'), findsOneWidget);
       expect(find.text('2026-01'), findsNothing);
+      await tester.ensureVisible(find.byKey(const ValueKey('rhb_month_2025-12')));
+      await _settle(tester, 4);
       await tester.tap(find.byKey(const ValueKey('rhb_month_2025-12')));
       await _settle(tester, 8);
       expect(tester.widget<ChoiceChip>(find.byKey(const ValueKey('rhb_month_2025-12'))).selected, isTrue);
@@ -352,24 +354,16 @@ void main() {
   });
 
   group('remittance', () {
-    testWidgets('empty month: benefit + big button + how-to, and no second FAB', (tester) async {
+    testWidgets('empty month: benefit + big button + how-to', (tester) async {
       _phone(tester, height: 2000);
       await tester.pumpWidget(_app(RemittanceScreen(source: FakeRemit('empty'), guide: false, now: _now), lang: 'bn'));
       await _settle(tester);
       expect(find.byKey(const ValueKey('rhb_month_empty')), findsOneWidget);
       expect(find.text(bn.rhbMonthBenefit), findsOneWidget);
       expect(find.text(bn.rhbMonthHow2), findsOneWidget);
-      expect(find.byKey(const ValueKey('rmt_add')), findsNothing);
       await tester.tap(find.byKey(const ValueKey('rhb_month_add')));
       await _settle(tester);
       expect(find.text(bn.rmtAddEntryTitle), findsOneWidget);
-    });
-
-    testWidgets('the FAB comes back on the other tabs of an empty month', (tester) async {
-      _phone(tester, height: 2000);
-      await tester.pumpWidget(_app(RemittanceScreen(source: FakeRemit('empty'), guide: false, now: _now, initialTab: 1)));
-      await _settle(tester);
-      expect(find.byKey(const ValueKey('rmt_add')), findsOneWidget);
     });
 
     testWidgets('who sent how much this month: taka + % that add up to 100', (tester) async {

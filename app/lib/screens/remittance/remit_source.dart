@@ -274,7 +274,7 @@ Map<String, dynamic> rmMap(Object? v) => v is Map ? v.cast<String, dynamic>() : 
 double rmNum(Object? v) => double.tryParse(rmAscii('${v ?? ''}')) ?? 0;
 
 /// remhbud: a typed number -> plain ASCII for parsing and for the server
-/// ("৫,০০০" -> "5000"): Bangla digits become 0-9, grouping commas go.
+/// (Bangla "5,000" -> "5000"): Bangla digits become 0-9, grouping commas go.
 String rmAscii(String s) {
   final b = StringBuffer();
   for (final c in s.trim().codeUnits) {

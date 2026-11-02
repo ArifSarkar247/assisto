@@ -225,6 +225,7 @@ class _ThisMonthTabState extends State<_ThisMonthTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+          tooltip: t.budgetNew, // remhbud: TalkBack name
           onPressed: () => _addOrEdit(context), child: const Icon(Icons.add_rounded)),
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -518,21 +519,32 @@ class _PlanTabState extends State<_PlanTab> {
             )
           else
             for (final s in suggestions)
+              // remhbud: a wrapping card — the old ListTile squeezed the
+              // amount + button into a 56px trailing slot (overflow at any
+              // text size with a Bangla label).
               Card(
-                child: ListTile(
-                  title: Text(moneyCatLabel(t, s['category'])),
-                  subtitle: Text(
-                      '${t.budgetPlanAvg}: ${tkOf(context, s['avg_spent'])}'),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                child: Padding(
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(tkOf(context, s['suggested_limit']),
-                          style:
-                              const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
-                      TextButton(
-                          onPressed: () => _useSuggestion(context, s),
-                          child: Text(t.budgetPlanUse)),
+                      Text(moneyCatLabel(t, s['category']),
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                      Text('${t.budgetPlanAvg}: ${tkOf(context, s['avg_spent'])}'),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: Gap.sm,
+                        children: [
+                          Text(tkOf(context, s['suggested_limit']),
+                              style: const TextStyle(
+                                  fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, fontSize: 18)),
+                          TextButton(
+                              style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
+                              onPressed: () => _useSuggestion(context, s),
+                              child: Text(t.budgetPlanUse)),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -604,8 +616,10 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                   Row(children: [
                     Icon(rollover ? Icons.autorenew_rounded : Icons.block_rounded, size: 18),
                     const SizedBox(width: Gap.sm),
-                    Text(rollover ? t.budgetRolloverOn : t.budgetRolloverOff,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Expanded( // remhbud: wraps at 200% instead of overflowing
+                      child: Text(rollover ? t.budgetRolloverOn : t.budgetRolloverOff,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                    ),
                   ]),
                   const SizedBox(height: Gap.md),
                   if (rollover)

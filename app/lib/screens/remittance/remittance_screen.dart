@@ -78,7 +78,6 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   }
 
   void _onTab() {
-    if (mounted) setState(() {}); // the FAB hides on an empty Month tab
     if (_tabs.index == 2 && _yearData == null && !_yearLoading && _yearErr == null) _loadYear();
   }
 
@@ -426,9 +425,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
           ],
         ),
       ),
-      // remhbud: one primary action — on an empty Month tab the big button in
-      // the empty state IS "Money came", so no second FAB on top of it.
-      floatingActionButton: _err != null && rmStatus(_err!) == 403 || (_tabs.index == 0 && _monthEmpty)
+      floatingActionButton: _err != null && rmStatus(_err!) == 403
           ? null
           : FloatingActionButton.extended(
               key: const ValueKey('rmt_add'),

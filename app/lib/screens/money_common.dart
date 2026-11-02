@@ -50,7 +50,7 @@ String tkOf(BuildContext context, dynamic v) => moneyDigitsOf(context, tkFmt(v))
 String pctOf(BuildContext context, Object? p) =>
     moneyDigitsOf(context, '${(p is num ? p : num.tryParse('${p ?? 0}') ?? 0).round()}%');
 
-/// remhbud: a typed amount -> plain ASCII ("৫,০০০" -> "5000"), so a Bangla
+/// remhbud: a typed amount -> plain ASCII (Bangla "5,000" -> "5000"), so a Bangla
 /// keyboard's digits are understood and the server always gets ASCII.
 String moneyAscii(String? s) {
   final b = StringBuffer();

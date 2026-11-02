@@ -167,7 +167,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
 
   Map<String, dynamic> _body() => {
     'client_id': _clientId,
-    // remhbud: Bangla-keyboard digits ("৫০০") reach the server as ASCII
+    // remhbud: Bangla-keyboard digits reach the server as ASCII
     'amount': rmAscii(_amount.text),
     'currency': _currency,
     'rate': _currency == 'BDT' ? '' : rmAscii(_rate.text),
