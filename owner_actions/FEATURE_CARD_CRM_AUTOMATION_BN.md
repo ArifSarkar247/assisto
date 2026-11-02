@@ -80,3 +80,9 @@
 * সার্ভার: `backend/core/logic/retention.py` (নতুন ৩ নিয়ম, প্রতি-নিয়ম সীমা), `backend/core/logic/customer_score.py` (স্কোর), `backend/core/retention_service.py` (রান, খরচ, অডিট, মতামত), `backend/core/views_retention.py` (`retention/scores`, `retention/audit`)।
 * টেস্ট: `backend/core/tests_crmauto.py`।
 * CI রান: §৯-এ।
+
+## ৯. CI প্রমাণ
+
+* `checks` রান **41439870415** — সব সবুজ (backend + flutter-test ৪ শার্ড + flutter-static), ARB প্রয়োগ করা শাখা `ci/crmauto-arb`।
+* গ্যালারি স্ক্রিনশট (রান 41439870415-এর shots-* আর্টিফ্যাক্ট): rt_wizard_reorder, rt_scores, rt_scores_empty, rt_audit, rt_audit_empty — বাংলা/ইংরেজি, ডার্ক, ২০০% লেখায় ওভারফ্লো নেই।
+* আগের রান 41435061298 ব্যর্থ ছিল (স্কোর ব্যাজ ২০০% লেখায় ৩০px কাটা; একটি টেস্টের তারিখ) — ঠিক করা হয়েছে।
