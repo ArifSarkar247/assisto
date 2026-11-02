@@ -181,8 +181,9 @@ void main() {
       )));
       await _hold(tester);
       expect(find.text('No internet — send an SMS instead'), findsOneWidget);
-      final sms = tester.widget<FilledButton>(find.descendant(
-          of: find.byKey(const ValueKey('sosat-sms')), matching: find.byType(FilledButton)).first);
+      // offline: the SMS step is the FILLED (primary) button
+      final sms = tester.widget<ButtonStyleButton>(find.byKey(const ValueKey('sosat-sms')));
+      expect(sms, isA<FilledButton>());
       expect(sms.onPressed, isNotNull);
     });
   });
