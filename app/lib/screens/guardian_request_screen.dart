@@ -253,12 +253,12 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
             h(t.gjWhen),
             if (widget.locationOnly) ...[
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-                for (final h in const [1, 3])
+                for (final hr in const [1, 3])
                   ChoiceChip(
-                    key: ValueKey('sjl_req_${h}h'),
-                    label: Text(t.sjlReqNowFor(t.sjlHours(_digits(h)))),
-                    selected: _quickH == h,
-                    onSelected: (_) => setState(() => _quickH = h),
+                    key: ValueKey('sjl_req_${hr}h'),
+                    label: Text(t.sjlReqNowFor(t.sjlHours(_digits(hr)))),
+                    selected: _quickH == hr,
+                    onSelected: (_) => setState(() => _quickH = hr),
                   ),
                 ChoiceChip(
                   key: const ValueKey('sjl_req_window'),

@@ -71,7 +71,7 @@ const _removed = ['jobs', 'lost_stolen', 'budget', 'contract'];
 /// The screen each default must really open (no placeholder).
 const _screens = {
   'family': 'FamilyScreen',
-  'journey': 'JourneyStartScreen',
+  'journey': 'SafeJourneyHubScreen', // sjlive: three cards, Live Location first
   'khata': 'KhataEntryScreen',
   'crm': 'CrmHomeScreen',
   'business': 'BusinessScreen',
