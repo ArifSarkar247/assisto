@@ -8,7 +8,7 @@ import 'package:assisto/screens/agent_core/biz_brief_source.dart';
 import 'agent_core_fakes.dart';
 
 Map<String, dynamic> boCardJson({bool bn = false, String mode = 'data'}) {
-  final data = mode == 'data';
+  final data = mode == 'data' || mode == 'no_supplier';
   return {
     'date': '2026-11-02',
     'has_business': mode != 'no_business',

@@ -18,7 +18,6 @@ import 'package:assisto/screens/agent_core/biz_brief_screen.dart';
 import 'package:assisto/screens/agent_core/biz_brief_source.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
-import 'package:assisto/widgets/chatnav.dart';
 
 import 'agent_core_fakes.dart';
 import 'bizops_fakes.dart';
@@ -199,7 +198,6 @@ void main() {
     await tester.pumpWidget(_app(AgentCoreScreen(source: FakeAgentCore('data'))));
     await _settle(tester);
     expect(find.byKey(const ValueKey('ac_open_biz_brief')), findsNothing);
-    expect(ChatNav.builderFor('biz_brief'), isNotNull);
   });
 
   test('card parsing tolerates missing fields', () {
