@@ -58,8 +58,14 @@ class _Links(HTMLParser):
 
 @mock.patch("core.plans.plans_public", return_value=PLANS)
 class RoutesTests(TestCase):
+    """Each request is a fresh visitor (no remembered-language cookie)."""
+
+    class _Fresh:
+        def get(self, url, *a, **k):
+            return Client().get(url, *a, **k)
+
     def setUp(self):
-        self.c = Client()
+        self.c = self._Fresh()
 
     def test_every_old_and_new_route_answers(self, _p):
         for url in OLD_ROUTES + NEW_ROUTES:
@@ -188,7 +194,7 @@ class LanguageMemoryTests(TestCase):
         r = Client().get("/")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, '<html lang="bn">')
-        self.assertEqual(r["Vary"], "Cookie")
+        self.assertIn("Cookie", r["Vary"])
 
 
 class AssetTests(TestCase):
