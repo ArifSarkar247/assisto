@@ -425,7 +425,7 @@ def x2_photo_v(photo):
     return hashlib.sha1(base.encode()).hexdigest()[:12]
 
 
-def _member_dict(m):
+def _member_dict(m, group_ctx=None):
     name, photo = _resolve_peer(m)
     return {
         "id": m.id, "name": name, "display_name": name, "photo": photo,
@@ -442,7 +442,16 @@ def _member_dict(m):
         "sharing": m.sharing or {},
         **_cde_fields(m),
         **_connect_fields(m),   # connect-flow: connected_at
+        **_group_fields(m, group_ctx),   # circlea: Family / Others
     }
+
+
+def _group_fields(m, ctx=None):
+    from . import circle_family
+    try:
+        return circle_family.group_fields(m, ctx)
+    except Exception:  # noqa: BLE001 — a listing never fails on the hint
+        return {"circle_group": "others", "circle_group_auto": True}
 
 
 def _connect_fields(m):
@@ -506,13 +515,15 @@ class CircleMembersView(APIView):
         # (incoming OR outgoing) must NOT appear here.
         rows = CircleMember.objects.filter(user=request.user, state="accepted")
         org = _organise_map(request.user)
+        from . import circle_family
+        gctx = circle_family.link_context(request.user)
         out = []
         from .models import MsgChatPref
         favs = set(MsgChatPref.objects.filter(
             user=request.user, chat_kind="member", favourite=True
         ).values_list("chat_id", flat=True))
         for m in rows:
-            d = _member_dict(m)
+            d = _member_dict(m, gctx)
             d.update(org.get(str(m.id), {
                 "pinned": False, "pin_at": None, "archived": False, "muted": False}))
             d["favourite"] = str(m.id) in favs

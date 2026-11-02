@@ -1367,3 +1367,9 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----
+# ---- circlea ---- (My Circle A1: Family/Others, link previews, guardians)
+from . import views_circlea as cav  # noqa: E402
+urlpatterns += [
+    path("circle/<int:pk>/people-group", cav.CirclePeopleGroupView.as_view()),
+]
+# ---- /circlea ----
