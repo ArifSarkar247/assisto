@@ -635,11 +635,15 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 Icon(Icons.campaign_rounded,
                     size: 13, color: Theme.of(context).colorScheme.tertiary),
                 const SizedBox(width: 4),
-                Text(_t.communityAdminsPostOnly,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600)),
+                Flexible(
+                  child: Text(_t.communityAdminsPostOnly,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600)),
+                ),
               ],
             )
           : null,

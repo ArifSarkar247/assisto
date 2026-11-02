@@ -323,6 +323,9 @@ class MsgrChannelPostCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(Radii.pill),
       onTap: onReact == null ? null : () => onReact!(emoji, !selected),
       child: Container(
+        // channels a11y: 48dp tap target
+        constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+        alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(
             horizontal: Gap.md, vertical: Gap.xs),
         decoration: BoxDecoration(
