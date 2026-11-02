@@ -28490,5 +28490,124 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "mbTcbTitle": "Official market prices (TCB, Dhaka)",
+  "mbTcbFresh": "Government price list of {date}: {count} items, lowest–highest retail price in Dhaka markets. Compare before you buy.",
+  "@mbTcbFresh": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbStale": "TCB has not published a new list since {date} — these prices may be old.",
+  "@mbTcbStale": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbNotConnected": "Today's government price list has not been fetched yet, so we show no official prices — we never make one up. Open TCB's own page to check.",
+  "mbTcbSeeAll": "See all prices",
+  "mbTcbOpenSite": "Open TCB's page",
+  "mbTcbWeekUp": "up {pct}% this week",
+  "@mbTcbWeekUp": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbWeekDown": "down {pct}% this week",
+  "@mbTcbWeekDown": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbSourceLine": "Source: Trading Corporation of Bangladesh (TCB), daily retail price list of {date}. Prices in taka, lowest–highest.",
+  "@mbTcbSourceLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbMarkets": "Markets surveyed: {markets}",
+  "@mbTcbMarkets": {
+    "placeholders": {
+      "markets": {
+        "type": "String"
+      }
+    }
+  },
+  "mbTcbSearch": "Search an item (rice, onion, oil…)",
+  "mbTcbNoMatch": "No item with that name in today's TCB list.",
+  "mbTcbMatchLine": "Govt. price (TCB, Dhaka): {range} {unit} — {name}",
+  "@mbTcbMatchLine": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mbSpendFromLedger": "My ledger (this month)",
+  "mbSpendTyped": "Typed by me",
+  "mbSpendLedgerNote": "Worked out from the expenses you already wrote in Money this month — nothing to type again. Change a number in Money and it changes here.",
+  "mbOffersFailedBody": "Offers could not load — check the internet and try again. Your choices are safe.",
+  "mbOffersEmptyBody": "Pick the kinds of things you buy (mobile, grocery, fashion…) — you'll see only those offers, at most a few a day. You can mute any brand.",
+  "mbOffersPickInterests": "Choose what I like",
+  "mbTaxNewYearTitle": "2026-27 tax rates are not in this calculator yet",
+  "mbTaxNewYearBody": "Returns filed now (deadline usually 30 November) use the 2026-27 rates, which changed. This estimate uses the 2024-25 / 2025-26 rates, so it can be wrong for this year. Check NBR's official circular before you file.",
+  "mbTaxOpenCircular": "Open NBR circular 2026-27",
+  "mbZakatPerVori": "Prices per vori (bhori)",
+  "mbZakatPerVoriSub": "Jewellers and BAJUS quote per vori. 1 vori = 11.664 g — we convert.",
+  "mbZakatGoldPerVori": "Gold price per vori",
+  "mbZakatSilverPerVori": "Silver price per vori",
+  "mbZakatBajusLink": "Today's gold and silver price (BAJUS)",
+  "mbZakatNisabMissing": "Nisab is empty, so this shows 2.5% of everything — zakat may not be due at all. Find today's nisab in Tax & Zakat (from the silver or gold price) and type it here.",
+  "mbZakatBelowNisab": "Your net wealth is below nisab — no zakat is due on it.",
+  "mbFinBbRate": "Today's official rate (Bangladesh Bank)",
+  "mbWrappedAddTxn": "Write an expense or income",
+  "mbRentDueTitle": "Rent due today: {unit}",
+  "@mbRentDueTitle": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "mbRentDueBody": "Collect this month's rent from {name}, then record it in Assisto.",
+  "@mbRentDueBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mbRentDueBodyNoName": "Collect this month's rent, then record it in Assisto.",
+  "mbRentDueDay": "Rent due day (reminder)",
+  "mbRentDueDayHelp": "We remind you at 9 am that day each month. If the month is already paid in full, we skip it.",
+  "mbRentDueDayNone": "No reminder",
+  "mbRentDueDayN": "Day {day} of the month",
+  "@mbRentDueDayN": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "mbCirclePick": "Pick from My Circle",
+  "mbCirclePickSub": "Name and number come in one tap — nothing to type twice."
 }
