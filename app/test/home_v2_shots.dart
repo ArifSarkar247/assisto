@@ -64,6 +64,14 @@ final Map<String, Widget Function(String)> homeV2Shots = {
   // Discover = SOS, Train tracker, ...; shortcuts = ... SOS, Blood donor.
   'home_v2_homeorder': (_) => _FlagsOn(
       const {'train_tracker': true, 'blood_donors': true}, homeV2Shot()),
+  // ownerfix (owner 3 Nov): Discover = SOS, Train, Live Location, Destination
+  // Alarm, Blood donor ...; SOS tile -> Emergency hub, Blood donor next to it.
+  'home_v2_ownerfix': (_) => _FlagsOn(const {
+        'train_tracker': true, 'dest_alarm': true, 'blood_donors': true,
+      }, homeV2Shot()),
+  'home_v2_all_services_ownerfix': (_) => _FlagsOn(const {
+        'train_tracker': true, 'dest_alarm': true, 'blood_donors': true,
+      }, const AllServicesScreen()),
   'home_v2_free_ad': (_) => homeV2Shot(free: true),
   'home_v2_all_services': (_) => const AllServicesScreen(),
   'home_v2_chat': (_) => const AssistoChatScreen(fresh: true),
