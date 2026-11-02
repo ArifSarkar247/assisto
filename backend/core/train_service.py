@@ -305,7 +305,54 @@ def report(user, msg, reason="other"):
     msg.reporters = rep
     msg.hidden = len(rep) >= TC.HIDE_AFTER_REPORTS
     msg.save(update_fields=["reporters", "hidden"])
+    _queue_for_owner(user, msg, reason)
     return "ok"
+
+
+def _queue_for_owner(user, msg, reason):
+    """playaudit2 (Play UGC policy): a train-chat report also lands in the
+    owner's moderation queue (Owner Admin -> Channel reports, kind "person")
+    so a human reviews it — the reported text rides along as the snapshot
+    (the room itself is public to that train and deleted after the trip).
+    Best-effort: a queue hiccup never fails the user's report."""
+    try:
+        with transaction.atomic():  # savepoint: never poisons the caller
+            from .logic import msg_moderation as mmod
+            from .models import ModerationItem, ModerationReport
+            cats = mmod.normalize_categories([reason]) or [mmod.R_OTHER]
+            tid = str(msg.member.user_id)
+            ModerationReport.objects.create(
+                reporter=user, target_kind=mmod.T_PERSON, target_id=tid,
+                categories=cats, valid=True,
+                note=("train %s %s" % (msg.train_no, msg.service_date))[:200],
+                snapshot=[{"text": (msg.text or "")[:500], "msg_id": msg.id}],
+                snapshot_source="train_chat")
+            severe = mmod.is_severe(cats)
+            item = ModerationItem.objects.filter(
+                target_kind=mmod.T_PERSON, target_id=tid).exclude(
+                queue_state=mmod.Q_RESOLVED).order_by("-opened_at").first()
+            if item is None:
+                built = mmod.build_queue_item(None, mmod.T_PERSON, tid, cats, severe,
+                                              mmod.STATUS_VISIBLE)
+                ModerationItem.objects.create(
+                    target_kind=mmod.T_PERSON, target_id=tid,
+                    categories=built["categories"], severe=built["severe"],
+                    content_status=built["content_status"],
+                    queue_state=built["queue_state"],
+                    legal_retention=built["legal_retention"], report_count=1)
+            else:
+                b = mmod.bump_queue_item(
+                    {"report_count": item.report_count, "categories": item.categories,
+                     "legal_retention": item.legal_retention, "severe": item.severe,
+                     "queue_state": item.queue_state}, severe=severe, categories=cats)
+                for k in ("report_count", "categories", "legal_retention", "severe",
+                          "queue_state"):
+                    setattr(item, k, b[k])
+                item.save()
+    except Exception:  # noqa: BLE001
+        import logging
+        logging.getLogger(__name__).warning("train report -> moderation queue failed",
+                                            exc_info=True)
 
 
 def block(user, msg):

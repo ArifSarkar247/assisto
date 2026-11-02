@@ -6,7 +6,7 @@
 {% if rows %}
 <div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.chr_what }}</th><th>{{ T.chr_reports }}</th><th>{{ T.air_reason }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
 {% for r in rows %}<tr><td>#{{ r.id }}{% if r.severe %} <span class="pill spons">!</span>{% endif %}</td><td>{{ r.opened_at|date:"Y-m-d H:i" }}</td>
-<td><b>{{ r.target_kind }}</b> · {{ r.label }}</td><td>{{ r.report_count }}</td><td>{{ r.categories|join:", " }}</td><td>{{ r.content_status }}</td>
+<td><b>{{ r.target_kind }}</b> · {{ r.label }}{% if r.user_link %} · <a href="{{ r.user_link }}">{{ T.users|default:"user" }} ›</a>{% endif %}</td><td>{{ r.report_count }}</td><td>{{ r.categories|join:", " }}</td><td>{{ r.content_status }}</td>
 <td>{% if st == 'open' %}<form method="post" action="/owner/channel-reports/{{ r.id }}/act" class="inline">{% include "owner/_csrf.html" %}<input name="reason" placeholder="{{ T.note }}" maxlength="300"><button class="btn primary" name="action" value="remove">{{ T.chr_remove }}</button><button class="btn ghost" name="action" value="restore">{{ T.chr_restore }}</button></form>{% else %}{{ r.decision }}{% endif %}</td></tr>{% endfor %}
 </tbody></table></div>
 {% else %}<p class="empty">{{ T.chr_none }}</p>{% endif %}

@@ -26,7 +26,10 @@ import 'package:assisto/widgets/permission_reason.dart';
 /// A runtime-permission request (Android shows its own prompt).
 final _ask = RegExp(r'Geolocator\.requestPermission\(|'
     r'Permission\.(location|locationWhenInUse|locationAlways|microphone|camera|contacts|phone|bluetoothConnect|sms)\.request\(\)|'
-    r'\]\.request\(\)|requestAuthorization\(|_source\.request\(\)|src\.request\(\)|\bp\.request\(\)');
+    r'\]\.request\(\)|requestAuthorization\(|_source\.request\(\)|src\.request\(\)|\bp\.request\(\)|'
+    // playaudit2: implicit asks — WebRTC getUserMedia and the camera plugin
+    // prompt Android for mic/camera on their own; camera_screen's gate.
+    r'getUserMedia\(|CameraController\(|_perms\.request\(\)');
 
 /// In-app disclosures that may come right before an ask.
 const _markers = [
@@ -68,6 +71,16 @@ const _allowed = <String, String>{
       'the contacts source; callers show C1Disclosure first (checked below)',
   'lib/screens/messenger/contacts_screen.dart':
       '_allow() runs only from the C1 disclosure stage (CmStage.disclosure)',
+  // playaudit2 — implicit mic/camera prompts, each in context:
+  'lib/calls/webrtc_media.dart':
+      'calls: only after the user started/answered a call (Android prompt in context); '
+          'child emergency audio opens it only after its visible notice (kid_audio_child.dart)',
+  'lib/screens/shop_live_rtc.dart':
+      'Shop Box live view: the box phone sits on the open Shop Box screen the owner set up',
+  'lib/screens/shop_box_mode_screen.dart':
+      'Shop Box mode: the camera opens only after the user pressed Start on that screen',
+  'lib/screens/camera/camera_screen.dart':
+      'camera: the CameraPermissionGate explain state comes first; the controller starts only when granted',
 };
 
 List<File> _dartFiles(String dir) => Directory(dir)
@@ -265,6 +278,45 @@ void main() {
     });
   });
 
+  group('foreground services: Dart starts only declared types', () {
+    test('every ForegroundServiceTypes.* used in lib/ is microphone or location', () {
+      final used = <String>{};
+      final starters = <String>{};
+      for (final f in _dartFiles('lib')) {
+        final src = f.readAsStringSync();
+        for (final m in RegExp(r'ForegroundServiceTypes\.([a-zA-Z]+)').allMatches(src)) {
+          used.add(m.group(1)!);
+          starters.add(f.path.replaceAll('\\', '/'));
+        }
+      }
+      expect(used.difference({'microphone', 'location'}), isEmpty,
+          reason: 'a new FGS type needs the manifest, a Play Console declaration '
+              '(owner_actions/PLAY_FGS_DECLARATION_BN.md) and a video first');
+      // each starter is described in the Play FGS declaration
+      expect(starters, containsAll(<String>[
+        'lib/widgets/voice_sos_service.dart',
+        'lib/calls/call_keepalive.dart',
+        'lib/services/journey_tracker.dart',
+        'lib/train/train_fgs.dart',
+      ]));
+      expect(starters.difference({
+        'lib/widgets/voice_sos_service.dart',
+        'lib/calls/call_keepalive.dart',
+        'lib/services/journey_tracker.dart',
+        'lib/train/train_fgs.dart',
+      }), isEmpty, reason: 'new FGS starter: add it to PLAY_FGS_DECLARATION_BN.md + this list');
+    });
+
+    test('child emergency audio: visible notice before the call', () {
+      final k = File('lib/calls/kid_audio_child.dart').readAsStringSync();
+      expect(k, contains('kauNoticeTitle'));
+      final notice = k.indexOf('await showNotice(texts(name)');
+      expect(notice, greaterThan(0));
+      expect(notice, lessThan(k.indexOf("'notice_shown': true")));
+      expect(k.indexOf("'notice_shown': true"), lessThan(k.indexOf('await openCall(')));
+    });
+  });
+
   group('Play manifest: declared == used', () {
     final ci = File('../.github/workflows/android.yml').readAsStringSync();
     final play = ci.substring(ci.indexOf('Build + sign release AAB (Google Play)'));
@@ -315,6 +367,16 @@ void main() {
       ]) {
         expect(requested.contains(p), isFalse, reason: p);
       }
+      // playaudit2: every foreground-service type in the generated manifest
+      // is one we declare in Play Console (mic + location), and every
+      // FOREGROUND_SERVICE_* permission matches one of them.
+      final types = RegExp(r'foregroundServiceType="([a-zA-Z|]+)"')
+          .allMatches(ci)
+          .expand((m) => m.group(1)!.split('|'))
+          .toSet();
+      expect(types, {'microphone', 'location'});
+      final fgsPerms = requested.where((p) => p.startsWith('FOREGROUND_SERVICE_')).toSet();
+      expect(fgsPerms, {'FOREGROUND_SERVICE_MICROPHONE', 'FOREGROUND_SERVICE_LOCATION'});
       // the foreground-service types we DO declare (Play FGS form): mic + location
       expect(requested, containsAll(<String>[
         'FOREGROUND_SERVICE_MICROPHONE',
