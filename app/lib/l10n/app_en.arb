@@ -32366,5 +32366,8 @@
   "j100bBgReady": "Done? Tap Start journey again.",
   "@j100bBgReady": {
     "description": "Snackbar after returning from the battery guide."
-  }
+  },
+  "notifsMsgOffTitle": "Message notifications are off",
+  "notifsMsgOffBody": "New My Circle messages won't show or ring on this phone. Turn notifications on so you see them even when Assisto is closed.",
+  "notifsMsgGuide": "Messages not arriving? Battery settings guide"
 }
