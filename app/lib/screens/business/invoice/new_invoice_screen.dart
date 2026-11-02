@@ -20,7 +20,7 @@ import 'invoice_screen.dart';
 /// Typed money ("1,250.50", Bangla digits ok) → poisha; null when invalid.
 int? typedPoisha(String raw) {
   final s = raw.trim().replaceAll(',', '').replaceAllMapped(
-      RegExp('[০-৯]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
+      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
   if (s.isEmpty) return 0;
   final v = double.tryParse(s);
   if (v == null || v < 0) return null;
@@ -29,7 +29,7 @@ int? typedPoisha(String raw) {
 
 int? typedQty(String raw) {
   final s = raw.trim().replaceAllMapped(
-      RegExp('[০-৯]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
+      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
   final v = int.tryParse(s.isEmpty ? '1' : s);
   return (v == null || v <= 0) ? null : v;
 }

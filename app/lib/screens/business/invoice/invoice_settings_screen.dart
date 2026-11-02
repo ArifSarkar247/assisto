@@ -15,10 +15,10 @@ import 'invoice_api.dart';
 import 'invoice_doc.dart';
 import 'invoice_paper.dart' show templateLabel;
 
-/// "15", "7.5", "০৭.৫" → basis points (null when not a number).
+/// "15", "7.5", Bangla-digit → basis points (null when not a number).
 int? percentToBp(String raw) {
   final s = raw.trim().replaceAllMapped(
-      RegExp('[০-৯]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
+      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
   if (s.isEmpty) return 0;
   final v = double.tryParse(s);
   if (v == null || v < 0) return null;
