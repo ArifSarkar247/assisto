@@ -1367,3 +1367,22 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----
+# ---- missing ---- (owner 2 Nov: Missing person alert; flag missing_alert, OFF)
+from . import missing_views as msv  # noqa: E402
+urlpatterns += [
+    path("missing-alerts", msv.ListCreateView.as_view()),
+    path("missing-alerts/config", msv.ConfigView.as_view()),
+    path("missing-alerts/nearby", msv.NearbyPrefView.as_view()),
+    path("missing-alerts/where-i-am", msv.WhereIAmView.as_view()),
+    path("missing-alerts/tips/<int:tid>", msv.ThreadView.as_view()),
+    path("missing-alerts/<int:pk>", msv.DetailView.as_view()),
+    path("missing-alerts/<int:pk>/found", msv.FoundView.as_view()),
+    path("missing-alerts/<int:pk>/close", msv.CloseView.as_view()),
+    path("missing-alerts/<int:pk>/renew", msv.RenewView.as_view()),
+    path("missing-alerts/<int:pk>/gd", msv.GdView.as_view()),
+    path("missing-alerts/<int:pk>/cosign", msv.CosignView.as_view()),
+    path("missing-alerts/<int:pk>/safe", msv.SafeView.as_view()),
+    path("missing-alerts/<int:pk>/report", msv.ReportView.as_view()),
+    path("missing-alerts/<int:pk>/tips", msv.TipsView.as_view()),
+]
+# ---- /missing ----
