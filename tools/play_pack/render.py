@@ -123,6 +123,10 @@ def fit(text, weight, size, min_size, max_w, max_lines):
     while size >= min_size:
         t = Type(weight, size)
         lines = wrap(t, text, max_w)
+        if len(lines) == 2:   # balance two lines (no one-word orphan line)
+            words = text.split(" ")
+            splits = [(" ".join(words[:i]), " ".join(words[i:])) for i in range(1, len(words))]
+            lines = list(min(splits, key=lambda ab: max(t.width(ab[0]), t.width(ab[1]))))
         if len(lines) <= max_lines and all(t.width(ln) <= max_w for ln in lines):
             return t, lines
         size -= 2
