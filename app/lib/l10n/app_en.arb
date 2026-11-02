@@ -29587,5 +29587,85 @@
   "ssShareFailed": "Could not make the image. The text is copied instead.",
   "@ssShareFailed": {
     "description": "success_share (reusable): missing (owner 2 Nov): Missing person alert"
+  },
+  "fbExportShareSubject": "My Assisto data",
+  "@fbExportShareSubject": {
+    "description": "framebar: fbExportShareSubject"
+  },
+  "fbExportReady": "Your data file is ready. Choose where to keep it: Files, Drive or email.",
+  "@fbExportReady": {
+    "description": "framebar: fbExportReady"
+  },
+  "fbExportShareFailed": "Couldn't open the share menu. Please try again.",
+  "@fbExportShareFailed": {
+    "description": "framebar: fbExportShareFailed"
+  },
+  "fbDeleteWebLine": "Lost your phone or removed the app? You can also ask to delete your account on the web: lifeassisto.com/delete-account",
+  "@fbDeleteWebLine": {
+    "description": "framebar: fbDeleteWebLine"
+  },
+  "fbPlayCheckButton": "Check for update on Google Play",
+  "@fbPlayCheckButton": {
+    "description": "framebar: fbPlayCheckButton"
+  },
+  "fbPlayUpToDate": "You have the latest version from Google Play.",
+  "@fbPlayUpToDate": {
+    "description": "framebar: fbPlayUpToDate"
+  },
+  "fbPlayCheckFailed": "Couldn't reach Google Play right now. Please try again later.",
+  "@fbPlayCheckFailed": {
+    "description": "framebar: fbPlayCheckFailed"
+  },
+  "fbPlayUpdateStarted": "Google Play is updating Assisto. It installs when you leave the app.",
+  "@fbPlayUpdateStarted": {
+    "description": "framebar: fbPlayUpdateStarted"
+  },
+  "fbCreditsTitle": "Data and map credits",
+  "@fbCreditsTitle": {
+    "description": "framebar: fbCreditsTitle"
+  },
+  "fbCreditOsm": "Map data and nearby places: © OpenStreetMap contributors, under the Open Database Licence (ODbL).",
+  "@fbCreditOsm": {
+    "description": "framebar: fbCreditOsm"
+  },
+  "fbCreditWiki": "Place photos, where shown: Wikimedia Commons, CC BY-SA. The author is named next to each photo.",
+  "@fbCreditWiki": {
+    "description": "framebar: fbCreditWiki"
+  },
+  "fbCreditModels": "Photo Studio AI uses the Real-ESRGAN (BSD-3-Clause) and U²-Net (Apache-2.0) models. Full notices are in Open-source licences.",
+  "@fbCreditModels": {
+    "description": "framebar: fbCreditModels"
+  },
+  "fbCreditOther": "Other sources are named on the screen that uses them.",
+  "@fbCreditOther": {
+    "description": "framebar: fbCreditOther"
+  },
+  "fbLicencesTile": "Open-source licences",
+  "@fbLicencesTile": {
+    "description": "framebar: fbLicencesTile"
+  },
+  "fbLicencesSub": "The free software and data Assisto is built with",
+  "@fbLicencesSub": {
+    "description": "framebar: fbLicencesSub"
+  },
+  "fbLoginWithEmailCode": "Sign in with a code by email",
+  "@fbLoginWithEmailCode": {
+    "description": "framebar: fbLoginWithEmailCode"
+  },
+  "fbOtpEmailTitle": "Sign in with an email code",
+  "@fbOtpEmailTitle": {
+    "description": "framebar: fbOtpEmailTitle"
+  },
+  "fbOtpEmailIntro": "SMS codes are not available yet. Enter your phone number or email. If your account has a verified email, we'll send a 6-digit code there.",
+  "@fbOtpEmailIntro": {
+    "description": "framebar: fbOtpEmailIntro"
+  },
+  "fbOtpEmailSend": "Email me a code",
+  "@fbOtpEmailSend": {
+    "description": "framebar: fbOtpEmailSend"
+  },
+  "fbOtpIdInvalid": "Enter a Bangladeshi mobile number (01…) or an email address.",
+  "@fbOtpIdInvalid": {
+    "description": "framebar: fbOtpIdInvalid"
   }
 }
