@@ -52,7 +52,9 @@ INT_SETTINGS = {
     "late_min": (30, (10, 180)),       # "not opened yet" after opening time
 }
 BOOL_SETTINGS = {"nosale_on": True, "offline_on": True, "late_on": True,
-                 "opened_on": True}
+                 "opened_on": True,
+                 # cctvescalate C3: after the chain, ring it as an Assisto call
+                 "escalate_call": True}
 MAX_CHAIN = 3
 _PHONE_RE = re.compile(r"^\+?[0-9]{3,15}$")
 
@@ -60,7 +62,8 @@ _PHONE_RE = re.compile(r"^\+?[0-9]{3,15}$")
 def default_settings():
     out = {k: v[0] for k, v in INT_SETTINGS.items()}
     out.update(BOOL_SETTINGS)
-    out.update({"escalation": [], "closed_days": [], "shop_phone": ""})
+    out.update({"escalation": [], "closed_days": [], "shop_phone": "",
+                "address": ""})     # cctvescalate C4: for the 999 card
     return out
 
 
@@ -109,7 +112,12 @@ def settings_of(guard):
                                      and 0 <= x <= 6})
     ph = clean_phone(g.get("shop_phone"))
     out["shop_phone"] = ph or ""
+    out["address"] = _clean_address(g.get("address"))
     return out
+
+
+def _clean_address(v):
+    return re.sub(r"\s+", " ", str(v or "")).strip()[:200]
 
 
 class SettingsError(ValueError):
@@ -165,10 +173,14 @@ def apply_settings(guard, body, allowed_uids):
         if ph is None:
             raise SettingsError("bad_phone")
         g["shop_phone"] = ph
-    # store the bounded form (plus the untouched server state)
+    if "address" in body:
+        g["address"] = _clean_address(body["address"])
+    # store the bounded form (plus the untouched server state + the owner's
+    # recorded warning clip, cctvescalate C5)
     clean = settings_of(g)
-    if "_state" in g:
-        clean["_state"] = g["_state"]
+    for k in ("_state", "_warn"):
+        if k in g:
+            clean[k] = g[k]
     return clean
 
 

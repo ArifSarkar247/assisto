@@ -749,6 +749,13 @@ urlpatterns += [
     path("shop/events/<int:pk>/clip/share", cx.ClipShareView.as_view()),
     path("shop/events/<int:pk>/evidence", cx.EventEvidenceView.as_view()),
 ]
+# ---- cctvescalate ---- CCTV escalation plus (owner CCTV order 3 Nov, C3-C6)
+from . import cctv_escalate_views as cesc  # noqa: E402
+urlpatterns += [
+    path("shop/events/<int:pk>/deter", cesc.EventDeterView.as_view()),
+    path("shop/sites/<int:pk>/warn-clip", cesc.WarnClipView.as_view()),
+    path("shop/cameras/<int:pk>/deter", cesc.CameraDeterView.as_view()),
+]
 # ---- /cctv1 ----
 
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus
