@@ -731,6 +731,13 @@ urlpatterns += [
     path("shop/phonecam/<int:pk>", phonecam.PhoneCamSettingsView.as_view()),
 ]
 
+# ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)
+from . import cctv_plan_views as cpv  # noqa: E402
+urlpatterns += [
+    path("shop/cctv-plan", cpv.CctvPlanView.as_view()),
+    path("shop/cctv-plan/addon-cameras", cpv.CctvPlanAddonCamerasView.as_view()),
+]
+
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
 from . import cctv_alerts  # noqa: E402  (cctvalerts)

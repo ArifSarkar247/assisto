@@ -8,6 +8,7 @@
   4. per-user Profit Guard (cost this month > paid this month)
   5. pricing-40: real AI cost per credit vs the safe level (owner alert only)
   6. pricing-40: Play-verify every NEW sku (sold only while ACTIVE in Play)
+  7. cctvprice: CCTV plan unpaid-end steps (notice -> unbind -> keep -> delete)
 Each step saves a BillingReport (Owner Admin -> Payments -> Billing reports).
 
 Cron (Asia/Dhaka), on the Assisto box — owner adds it to /etc/cron.d/assisto-app:
@@ -23,6 +24,13 @@ def _verify():
     return {"checked": out["checked"], "verified": out["verified"]}
 
 
+def _cctv_lifecycle():
+    """cctvprice: CCTV plan ended unpaid -> notices, unbind, keep 30 days,
+    delete (core/cctv_plan_service.py)."""
+    from core import cctv_plan_service as CPS
+    return CPS.lifecycle_sweep()
+
+
 class Command(BaseCommand):
     help = "Daily: voided poll, reconcile, credits verify, per-user profit guard."
 
@@ -34,7 +42,8 @@ class Command(BaseCommand):
                  ("credits_verify", RC.credits_verify),
                  ("profit_guard", RC.profit_guard_users),
                  ("ai_cost_per_credit", ai_cost_alert.check),
-                 ("play_sku_verify", _verify))
+                 ("play_sku_verify", _verify),
+                 ("cctv_plan_lifecycle", _cctv_lifecycle))
         for name, fn in steps:
             try:
                 out = fn()

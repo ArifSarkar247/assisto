@@ -407,6 +407,13 @@ def sync_subscription(token, user=None, now=None, c=None):
     line = max(items, key=lambda i: _ts(i.get("expiryTime")) or now)
     product_id = str(line.get("productId") or "")
     base_plan = str((line.get("offerDetails") or {}).get("basePlanId") or "")
+    # cctvprice: the CCTV plan / video add-on products (camera count = base
+    # plan) are mirrored by the CCTV service — same token binding, ack,
+    # revenue and refund path, but no app plan (PlanPeriod) and no credits
+    from .. import cctv_plan_service as _CPS
+    if _CPS.is_cctv_product(product_id):
+        return _CPS.sync_from_play(js, token, line, product_id, base_plan,
+                                   user=user, now=now, c=c)
     sku = catalog.sku_for_play(product_id, base_plan)
     if not sku or not sku.endswith(("_monthly", "_yearly")):
         raise PlayError("unknown_product", 400)
@@ -529,8 +536,8 @@ def sub_status(user, now=None):
     gone = _replaced_hashes(user)
     for pp in PlayPurchase.objects.filter(user=user, kind="sub", revoked=False,
                                           state__in=tuple(_STATUS)).order_by("-updated_at"):
-        if pp.token_hash in gone:
-            continue
+        if pp.token_hash in gone or pp.sku.startswith("cctv"):
+            continue        # cctvprice: the CCTV plan has its own status
         st = _STATUS[pp.state]
         if st in ("active", "canceled", "grace") and not (pp.expires_at and pp.expires_at > now):
             continue

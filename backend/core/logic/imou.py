@@ -111,6 +111,13 @@ class ImouClient:
                                         "deviceId": device_id,
                                         "code": safety_code})
 
+    def unbind_device(self, device_id):
+        """cctvprice: release a device from OUR developer account (official
+        open API `unBindDevice`) when the CCTV plan ended unpaid. The user
+        can bind it again in the Imou Life app (or in Assisto after paying)."""
+        return self.call("unBindDevice", {"token": self.token(),
+                                          "deviceId": device_id})
+
     def device_online(self, device_id):
         """Succeeds only when THIS account can see the device."""
         return self.call("deviceOnline", {"token": self.token(),
