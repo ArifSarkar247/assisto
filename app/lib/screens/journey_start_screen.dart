@@ -464,7 +464,6 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               Semantics(
                 label: jPlaceLabel(t, p),
                 hint: t.j2PlaceLongPressEdit,
-                onLongPress: () => _editPlace(p),
                 child: GestureDetector(
                   onLongPress: () => _editPlace(p),
                   child: ActionChip(
