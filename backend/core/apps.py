@@ -16,3 +16,7 @@ class CoreConfig(AppConfig):
         # account deletion cascade) removes its ciphertext file.
         from . import circle_blobs
         circle_blobs.connect()
+        # remhbud: a phone notification when a new expense crosses 80 % /
+        # 100 % of a budget category (crossing only; quiet hours; capped).
+        from . import budget_push
+        budget_push.connect()

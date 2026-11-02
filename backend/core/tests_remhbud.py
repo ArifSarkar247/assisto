@@ -139,3 +139,75 @@ class BudgetAlertTests(_Api):
                                             "amount": "50"}, format="json")
         # spending in another category: no Transport alert
         self.assertFalse([a for a in _build_alerts(self.u, "bn") if a["type"] == "budget"])
+
+
+class BudgetPushTests(TestCase):
+    """remhbud: a NEW expense that crosses 80 % / 100 % of a budget category
+    notifies once per crossing — fixed clock, never the real time."""
+
+    def setUp(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        from django.core.cache import cache
+        from core.models import Account
+        cache.clear()
+        self.u = User.objects.create_user(name="Rahim", phone="01710000301", password="pw")
+        self.acc = Account.objects.create(user=self.u, name="Cash")
+        Budget.objects.create(user=self.u, category="food", monthly_limit=1000)
+        self.noon = datetime(2026, 10, 20, 12, 0, tzinfo=ZoneInfo("Asia/Dhaka"))
+
+    def spend(self, amount, day=20, month=10, category="food", at=None):
+        from datetime import date
+        from unittest import mock
+        from core.models import Transaction
+        with mock.patch("core.budget_push.timezone.now", return_value=at or self.noon), \
+                mock.patch("core.push.push_to_user_async", return_value=True) as p:
+            Transaction.objects.create(user=self.u, account=self.acc, kind="expense", amount=amount,
+                                       category=category, date=date(2026, month, day))
+        return p.call_args_list
+
+    def test_near_then_over_once_each(self):
+        self.assertEqual(self.spend(700), [])                  # 70 %: nothing
+        calls = self.spend(150)                                # 85 %: near
+        self.assertEqual(len(calls), 1)
+        args, kw = calls[0]
+        self.assertEqual(args[1], "budget_alert")
+        self.assertEqual(args[2], "বাজেটের সীমার কাছে: খাবার")
+        self.assertIn("৮৫%", args[4])
+        self.assertEqual(kw["data"]["route"], "budget")
+        self.assertEqual(self.spend(100), [])                  # 95 %: still near, silent
+        calls = self.spend(100)                                # 105 %: over
+        self.assertEqual(calls[0][0][3], "Over budget: Food")
+        self.assertIn("105%", calls[0][0][5])
+        self.assertEqual(self.spend(500), [])                  # 155 %: already over
+
+    def test_jump_straight_over_is_one_over(self):
+        calls = self.spend(1200)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][0][2], "বাজেট পার হয়েছে: খাবার")
+
+    def test_back_dated_quiet_hours_other_category_income(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        self.assertEqual(self.spend(900, month=9), [])         # last month: never rings
+        night = datetime(2026, 10, 20, 23, 30, tzinfo=ZoneInfo("Asia/Dhaka"))
+        self.assertEqual(self.spend(900, at=night), [])        # quiet hours
+        self.assertEqual(self.spend(5000, category="Transport"), [])   # no budget there
+        from core import budget_push
+        from core.models import Transaction
+        t = Transaction(user=self.u, account=self.acc, kind="income", amount=5000,
+                        category="food", date=self.noon.date())
+        self.assertIsNone(budget_push.check(t, now=self.noon))
+
+    def test_daily_cap(self):
+        from core.models import Budget as B
+        for i in range(5):
+            B.objects.create(user=self.u, category="c%d" % i, monthly_limit=10)
+        sent = sum(len(self.spend(50, category="c%d" % i)) for i in range(5))
+        self.assertEqual(sent, 3)
+
+    def test_kind_registered_everywhere(self):
+        from core import push
+        self.assertIn("budget_alert", push.KINDS)
+        self.assertEqual(push.CHANNELS["budget_alert"], "alerts")
+        self.assertIn("budget_alert", push.TTL_S)

@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/screens/money_budget_screen.dart';
 import 'package:assisto/screens/money_common.dart';
 import 'package:assisto/screens/remittance/remit_entry_screen.dart';
@@ -138,6 +139,15 @@ void main() {
       expect(budgetCategoryChoices(txns, taken: ['rent']),
           ['Transport', 'Food', 'education', 'health', 'loan', 'other']);
       expect(budgetCategoryChoices(const []), kBudgetFamilyKeys);
+    });
+  });
+
+  group('budget push', () {
+    test('a budget_alert push is a known kind on the alerts channel and opens the Budget page', () {
+      final p = PushPayload.fromData({'kind': 'budget_alert', 'route': 'budget', 'category': 'food', 'level': 'over'});
+      expect(p.isKnownKind, isTrue);
+      expect(PushChannels.byKind['budget_alert'], PushChannels.alerts);
+      expect(PushRouting.targetFor(p)?.chatNavRoute, 'budget');
     });
   });
 
