@@ -320,6 +320,9 @@ class WebRtcCallMedia
           RTCRtpEncoding(
               active: true,
               maxBitrate: plan.audioMaxBps,
+              // video-only fields stay unset for the audio sender
+              numTemporalLayers: null,
+              scaleResolutionDownBy: null,
               // voice first when the uplink is tight (video yields)
               priority: RTCPriorityType.high,
               networkPriority: RTCPriorityType.high)

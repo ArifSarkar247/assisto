@@ -550,6 +550,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         c != null &&
         c.isLive &&
         c.remoteCameraOn &&
+        // callsbar: their video is paused for the network -> the avatar,
+        // never a frozen last frame
+        !c.remoteVideoPausedNet &&
         surface != null &&
         surface.hasRemoteVideo.value;
     if (_pip) {
