@@ -1,0 +1,169 @@
+{
+  "_comment": "cctvescalate (owner CCTV order 3 Nov, C3-C6): CCTV alarm call page, 999 + police card, camera light / recorded warning, capability table, guard-settings address + call switch. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_cctvescalate_arb.json",
+  "en": {
+    "cescNoAutoPolice": "Assisto does not call the police for you. This opens your phone's dialer with 999 — you press call. Then a ready card with the address, time and camera photo opens to read out or send.",
+    "cescOpenDialer": "Open dialer",
+    "cescCardTitle": "Card for the police",
+    "cescCardSub": "Address, time and photo — read it out on the 999 call or send it",
+    "cescAddressMissing": "No address saved — add the place's address in Guard settings so it is on the card next time.",
+    "cescShareWarn": "This card has a camera photo — send it only to the police or people you trust.",
+    "cescCardShare": "Send card and photo",
+    "cescCopied": "Copied",
+    "cescCardCopy": "Copy the text",
+    "cescFeatSiren": "Siren",
+    "cescFeatLight": "White light",
+    "cescFeatVoice": "Recorded warning",
+    "cescFeatTalk": "Two-way talk",
+    "cescConfirmTitle": "Do it now?",
+    "cescConfirmLight": "The camera's light will switch on — people nearby will see it.",
+    "cescConfirmVoice": "Your warning will play loudly on the camera's speaker — people nearby will hear it.",
+    "cescDoIt": "Yes, do it",
+    "cescLightOn": "The light is on",
+    "cescVoicePlaying": "The warning was sent to the camera",
+    "cescLight": "Switch on the camera's white light",
+    "cescLightSub": "Stays on for {n} seconds, then switches off by itself",
+    "@cescLightSub": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "cescVoice": "Bangla warning on the camera speaker",
+    "cescVoiceSub": "Your recorded warning plays on the camera",
+    "cescVoiceNeedClip": "First record a warning in your own voice — tap here",
+    "cescWhatCamCan": "What this camera can do",
+    "cescWhatCamCanSub": "Siren, light, warning, two-way talk — which ones it has",
+    "cescFeatYes": "Available",
+    "cescNotOnCam": "Not on this camera",
+    "cescWarnMicNo": "Recording needs the microphone",
+    "cescWarnSaved": "Warning saved",
+    "cescWarnTitle": "Warning in your own voice",
+    "cescWarnHave": "A recorded warning is saved ({s} seconds)",
+    "@cescWarnHave": {
+      "placeholders": {
+        "s": {
+          "type": "String"
+        }
+      }
+    },
+    "cescWarnNone": "No warning recorded yet",
+    "cescWarnHow": "Read one of the lines below clearly (at most 20 seconds). You only need to record it once.",
+    "cescWarnStop": "Stop ({s})",
+    "@cescWarnStop": {
+      "placeholders": {
+        "s": {
+          "type": "String"
+        }
+      }
+    },
+    "cescWarnRecord": "Start recording",
+    "cescWarnRedo": "Record again",
+    "cescWarnListen": "Listen",
+    "cescWarnSave": "Keep it",
+    "cescWarnDelete": "Delete",
+    "cescWarnPrivacy": "The recording is only for playing on this place's cameras — it is not used anywhere else.",
+    "cescDone": "Done",
+    "cesc999Tile": "999 + card for the police",
+    "cesc999TileSub": "Opens the dialer — you press call; makes a card with address, time and photo",
+    "cescCallSwitch": "Then an Assisto call",
+    "cescCallSwitchSub": "If nobody on the list opens it in time, their phones ring like a call (at most 2 rounds)",
+    "cescAddressTitle": "Address for the police card",
+    "cescAddressBody": "Goes on the 999 card with the alert time and photo, so you do not have to remember it in a hurry.",
+    "cescAddressLabel": "Address of this place",
+    "cescAddressHint": "e.g. House 12, Road 3, Mirpur 10, Dhaka",
+    "cescAddressSaved": "Address saved",
+    "cescWarnTile": "Warning in your own voice",
+    "cescWarnTileSub": "Record it once to play on a camera speaker",
+    "cescCallKicker": "CCTV alert — Assisto call",
+    "cescCallWhy": "Nobody has opened this alert yet. Look at the photo and decide.",
+    "cescCallNoPhoto": "No photo — open the alert to see more",
+    "cescCallPhotoLabel": "Camera photo of the alert",
+    "cescCallStopsNote": "When you open it, the calls to the others stop.",
+    "cescCallOpen": "Open the alert",
+    "cescCallLater": "Not now"
+  },
+  "bn": {
+    "cescNoAutoPolice": "Assisto নিজে পুলিশকে কল করে না। এতে আপনার ফোনের ডায়ালারে ৯৯৯ খুলবে — কল বাটন আপনি চাপবেন। তারপর ঠিকানা, সময় ও ক্যামেরার ছবিসহ একটি তৈরি কার্ড খুলবে, পড়ে শোনাতে বা পাঠাতে পারবেন।",
+    "cescOpenDialer": "ডায়ালার খুলুন",
+    "cescCardTitle": "পুলিশের জন্য কার্ড",
+    "cescCardSub": "ঠিকানা, সময় ও ছবি — ৯৯৯-এ কথা বলার সময় পড়ুন বা পাঠান",
+    "cescAddressMissing": "ঠিকানা দেওয়া নেই — গার্ড সেটিংসে জায়গার ঠিকানা লিখে রাখুন, পরের বার কার্ডে থাকবে।",
+    "cescShareWarn": "এই কার্ডে ক্যামেরার ছবি আছে — শুধু পুলিশ বা বিশ্বস্ত মানুষকে পাঠান।",
+    "cescCardShare": "কার্ড ও ছবি পাঠান",
+    "cescCopied": "কপি হয়েছে",
+    "cescCardCopy": "লেখা কপি করুন",
+    "cescFeatSiren": "সাইরেন",
+    "cescFeatLight": "সাদা আলো",
+    "cescFeatVoice": "রেকর্ড করা সতর্কবার্তা",
+    "cescFeatTalk": "দুই দিকে কথা",
+    "cescConfirmTitle": "এখনই চালাবেন?",
+    "cescConfirmLight": "ক্যামেরার আলো জ্বলবে — আশপাশের মানুষ দেখতে পাবেন।",
+    "cescConfirmVoice": "ক্যামেরার স্পিকারে আপনার বার্তা জোরে বাজবে — আশপাশের মানুষ শুনবেন।",
+    "cescDoIt": "হ্যাঁ, চালান",
+    "cescLightOn": "আলো জ্বলেছে",
+    "cescVoicePlaying": "বার্তা ক্যামেরায় পাঠানো হয়েছে",
+    "cescLight": "ক্যামেরার সাদা আলো জ্বালান",
+    "cescLightSub": "{n} সেকেন্ড জ্বলবে, তারপর নিজে নিভে যাবে",
+    "@cescLightSub": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "cescVoice": "ক্যামেরার স্পিকারে বাংলা সতর্কবার্তা",
+    "cescVoiceSub": "আপনার রেকর্ড করা বার্তা ক্যামেরায় বাজবে",
+    "cescVoiceNeedClip": "আগে নিজের কণ্ঠে একটি বার্তা রেকর্ড করুন — এখানে ট্যাপ করুন",
+    "cescWhatCamCan": "এই ক্যামেরা কী পারে",
+    "cescWhatCamCanSub": "সাইরেন, আলো, বার্তা, দুই দিকে কথা — কোনটি আছে",
+    "cescFeatYes": "আছে",
+    "cescNotOnCam": "এই ক্যামেরায় নেই",
+    "cescWarnMicNo": "রেকর্ড করতে মাইক্রোফোন লাগবে",
+    "cescWarnSaved": "বার্তা রাখা হয়েছে",
+    "cescWarnTitle": "নিজের কণ্ঠে সতর্কবার্তা",
+    "cescWarnHave": "রেকর্ড করা বার্তা আছে ({s} সেকেন্ড)",
+    "@cescWarnHave": {
+      "placeholders": {
+        "s": {
+          "type": "String"
+        }
+      }
+    },
+    "cescWarnNone": "এখনো কোনো বার্তা রেকর্ড করা হয়নি",
+    "cescWarnHow": "নিচের একটি লাইন পরিষ্কার করে পড়ুন (সর্বোচ্চ ২০ সেকেন্ড)। একবার রেকর্ড করলেই হবে।",
+    "cescWarnStop": "থামান ({s})",
+    "@cescWarnStop": {
+      "placeholders": {
+        "s": {
+          "type": "String"
+        }
+      }
+    },
+    "cescWarnRecord": "রেকর্ড শুরু করুন",
+    "cescWarnRedo": "আবার রেকর্ড করুন",
+    "cescWarnListen": "শুনুন",
+    "cescWarnSave": "রেখে দিন",
+    "cescWarnDelete": "মুছে দিন",
+    "cescWarnPrivacy": "রেকর্ডটি শুধু এই জায়গার ক্যামেরায় বাজানোর জন্য — অন্য কোথাও ব্যবহার হয় না।",
+    "cescDone": "শেষ",
+    "cesc999Tile": "৯৯৯ + পুলিশের জন্য কার্ড",
+    "cesc999TileSub": "ডায়ালার খোলে — কল আপনি দেবেন; ঠিকানা, সময় ও ছবির কার্ড তৈরি হয়",
+    "cescCallSwitch": "তারপর Assisto কল",
+    "cescCallSwitchSub": "তালিকার কেউ সময়মতো না খুললে তাঁদের ফোনে কলের মতো বাজবে (সর্বোচ্চ ২ বার)",
+    "cescAddressTitle": "পুলিশের কার্ডের ঠিকানা",
+    "cescAddressBody": "সতর্কতার সময় ও ছবির সাথে ৯৯৯ কার্ডে যাবে — তাড়াহুড়োয় মনে করতে হবে না।",
+    "cescAddressLabel": "এই জায়গার ঠিকানা",
+    "cescAddressHint": "যেমন: বাড়ি ১২, রোড ৩, মিরপুর ১০, ঢাকা",
+    "cescAddressSaved": "ঠিকানা রাখা হয়েছে",
+    "cescWarnTile": "নিজের কণ্ঠে সতর্কবার্তা",
+    "cescWarnTileSub": "ক্যামেরার স্পিকারে বাজানোর জন্য একবার রেকর্ড করুন",
+    "cescCallKicker": "সিসিটিভি সতর্কতা — Assisto কল",
+    "cescCallWhy": "এখনো কেউ সতর্কতাটি খোলেননি। ছবি দেখে সিদ্ধান্ত নিন।",
+    "cescCallNoPhoto": "ছবি নেই — আরও দেখতে সতর্কতা খুলুন",
+    "cescCallPhotoLabel": "সতর্কতার ক্যামেরা-ছবি",
+    "cescCallStopsNote": "আপনি খুললেই অন্যদের কাছে কল যাওয়া থেমে যাবে।",
+    "cescCallOpen": "সতর্কতা খুলুন",
+    "cescCallLater": "এখন না"
+  }
+}

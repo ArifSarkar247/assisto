@@ -56,6 +56,9 @@ enum AudioUse {
   /// train: the user's own voice clip for the destination alarm (kept on the
   /// phone only; recorded with the headset mic when one is connected).
   destVoiceRecord,
+  /// cctvescalate: the owner's recorded warning for the camera speaker
+  /// (recorded with the headset mic when one is connected).
+  cctvWarnRecord,
 }
 
 /// Uses that need the HEADSET MICROPHONE: a Bluetooth mic only works in
@@ -67,6 +70,7 @@ const Set<AudioUse> micUses = {
   AudioUse.assistantListen,
   AudioUse.kidsWatchRecord,
   AudioUse.destVoiceRecord,
+  AudioUse.cctvWarnRecord,
 };
 
 /// One output the phone can use right now.
@@ -197,6 +201,7 @@ class AudioRouteService extends ChangeNotifier {
     // train: destination alarm (STREAM_ALARM tone + on-device Bangla TTS)
     'lib/train/dest_alarm_sound.dart': AudioUse.destAlarm,
     'lib/train/dest_voice_recorder.dart': AudioUse.destVoiceRecord,
+    'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
   };
 
 

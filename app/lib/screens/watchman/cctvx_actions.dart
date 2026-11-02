@@ -10,11 +10,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../cashguard/cashguard_source.dart';
 import '../../cashguard/clip_crypto.dart';
 import '../../cctvx/cctvx_source.dart';
+import '../../cctvx/escalate_source.dart';
 import '../../cctvx/evidence_pack.dart';
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
+import 'cctv_escalate.dart';
 
 /// cctvx — ACTIONS FROM AN ALERT (owner order 28 Oct): sound the camera's
 /// siren (only where a documented API exists — Imou cloud, Hikvision on the
@@ -29,8 +31,16 @@ class AlertActionsSheet extends StatefulWidget {
 
   /// Tests / gallery: skip the network and show these actions.
   final Map<String, dynamic>? preview;
+
+  /// cctvescalate: light / recorded warning (null -> from [source]).
+  final EscalateSource? escalate;
   const AlertActionsSheet(
-      {super.key, required this.source, required this.eventId, this.cash, this.preview});
+      {super.key,
+      required this.source,
+      required this.eventId,
+      this.cash,
+      this.preview,
+      this.escalate});
 
   static Future<void> show(BuildContext context, CctvxSource source, int eventId,
           {CashGuardSource? cash}) =>
@@ -122,6 +132,10 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
     if (ok == true) await _call('999');
   }
 
+  /// cctvescalate C4: dialer (never automatic) + the police card.
+  Future<void> _police(Map<String, dynamic> police) =>
+      police999Flow(context, widget.source, police);
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -155,6 +169,11 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
             sub: siren['supported'] == true ? t.cxSirenSub : (why ?? t.cxSirenNotSupported),
             onTap: (siren['supported'] == true && !_busy) ? _siren : null,
           ),
+        if (wmMap(a['deter']).isNotEmpty)
+          DeterTiles(
+              escalate: widget.escalate ?? escalateFor(widget.source),
+              eventId: widget.eventId,
+              deter: wmMap(a['deter'])),
         _action(
           icon: Icons.call_rounded,
           label: t.cxCallShop,
@@ -182,10 +201,12 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
           ),
         _action(
           icon: Icons.local_police_rounded,
-          label: t.cx999,
-          sub: t.cx999Sub,
+          label: wmMap(a['police']).isEmpty ? t.cx999 : t.cesc999Tile,
+          sub: wmMap(a['police']).isEmpty ? t.cx999Sub : t.cesc999TileSub,
           danger: true,
-          onTap: _call999,
+          onTap: wmMap(a['police']).isEmpty
+              ? _call999
+              : () => _police(wmMap(a['police'])),
         ),
       ]);
     }

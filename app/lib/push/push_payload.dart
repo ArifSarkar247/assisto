@@ -99,6 +99,12 @@ class PushPayload {
 
   bool get isKnownKind => PushChannels.byKind.containsKey(kind);
   bool get isCall => kind == 'call';
+
+  /// cctvescalate C3: a CCTV ALARM ring (same call push, never a voice
+  /// line) — the alert's event id, or null for a normal call.
+  int? get cctvEventId =>
+      isCall ? int.tryParse(_s('cctv_event_id')) : null;
+  bool get isCctvAlarmCall => cctvEventId != null;
   bool get isCallCancel => kind == 'call_cancel';
   bool get isMissedCall => kind == 'missed_call'; // c2-calls
   bool get isSos => kind == 'sos';

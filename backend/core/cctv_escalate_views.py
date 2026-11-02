@@ -162,7 +162,7 @@ def actions_extra(ev, role):
     if cam is not None:
         warn = (site.guard or {}).get("_warn") or {}
         out["deter"] = {
-            "camera_id": cam.id,
+            "camera_id": cam.id, "site_id": site.id,
             "allowed": role in ("owner", "escalated"),
             "table_bn": deter_table(cam, site, "bn"),
             "table_en": deter_table(cam, site, "en"),
