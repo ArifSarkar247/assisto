@@ -322,7 +322,8 @@ class AudioRouteService extends ChangeNotifier {
         } catch (e) {
           _err('present', e);
         }
-        if (!bt) return;
+        // no Bluetooth (or not allowed): the phone / wired mic works as is
+        if (!bt || bluetoothDenied) return;
         await _openComm();
         await _refresh();
         await _apply('mic');

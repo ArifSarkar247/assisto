@@ -187,7 +187,10 @@ object AudioRouteChannel {
             if (Build.VERSION.SDK_INT >= 31) {
                 a.availableCommunicationDevices
             } else {
-                a.getDevices(AudioManager.GET_DEVICES_OUTPUTS).toList()
+                // A2DP-only devices (a Bluetooth speaker without a mic /
+                // HFP) can't carry a call: only the SCO port counts
+                a.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+                    .filter { it.type != AudioDeviceInfo.TYPE_BLUETOOTH_A2DP }
             }
         } catch (_: Throwable) { emptyList() }
     }
@@ -195,7 +198,7 @@ object AudioRouteChannel {
     private fun outputs(): List<Map<String, Any?>> {
         val out = ArrayList<Map<String, Any?>>()
         val seen = HashSet<String>()
-        // a BT headset appears twice before API 31 (A2DP + SCO): prefer SCO
+        // SCO first (the call-capable Bluetooth port)
         val list = candidates().sortedBy { if (it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) 0 else 1 }
         for (d in list) {
             val k = kindOf(d) ?: continue
@@ -357,9 +360,8 @@ object AudioRouteChannel {
     }
 
     private fun btPresent(): Boolean {
-        val a = audio() ?: return false
         return try {
-            a.getDevices(AudioManager.GET_DEVICES_OUTPUTS).any { kindOf(it) == "bluetooth" }
+            candidates().any { kindOf(it) == "bluetooth" }
         } catch (_: Throwable) { false }
     }
 
