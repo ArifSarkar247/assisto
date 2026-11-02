@@ -28490,5 +28490,64 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "rhbBanglaDate": "Bangla date: {date}",
+  "@rhbBanglaDate": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbLostAlarms": "{count} reminder alarm(s) vanished from this phone before their time (a restart, Force stop or a battery cleaner) — Assisto put them back on {date}. Turn on Autostart in the battery guide so it does not happen again.",
+  "@rhbLostAlarms": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbRestartOk": "After a restart, reminders set themselves again. Some phones (Xiaomi, realme, OPPO, vivo, Tecno, Infinix) need Autostart on for that — otherwise open Assisto once after a restart.",
+  "@rhbRestartOk": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictTag": "Edited on 2 phones",
+  "@rhbConflictTag": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbConflictStrip": "A note was changed on this phone and on another phone at the same time — both versions are kept. This phone's copy has the label “{label}”: keep the one you want and delete the other.",
+  "@rhbConflictStrip": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbNotePhotoTitle": "Note photo {when}",
+  "@rhbNotePhotoTitle": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "rhbNotePhotoFailed": "The photo could not be saved — check the internet and try again.",
+  "@rhbNotePhotoFailed": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoSaving": "Saving the photo in your Vault…",
+  "@rhbNotePhotoSaving": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  },
+  "rhbNotePhotoHint": "Or add a new photo — it is kept safely in your Vault and attached here.",
+  "@rhbNotePhotoHint": {
+    "description": "remhbar (Reminders & Notes launch bar, 2 Nov)"
+  }
 }
