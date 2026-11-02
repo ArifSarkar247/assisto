@@ -182,7 +182,11 @@ class IngestTests(_Base):
         self.assertTrue(all(c["data"]["route"] == "kids_watch" for c in got))
         self.assertIn("Rina", got[0]["ten"])
         self.assertNotIn("engine", got[0]["ben"].lower())
-        self.assertFalse([c for c in self.spy.calls if c["user"] in (self.child.id, self.x.id)])
+        # the child only ever gets the "chip is on + who sees" notice; the
+        # stranger gets nothing
+        self.assertFalse([c for c in self.spy.calls if c["user"] == self.x.id])
+        self.assertEqual([c["data"].get("event") for c in self.spy.calls
+                          if c["user"] == self.child.id], ["chip_on"])
 
     def test_battery_from_volts(self):
         self.assertEqual(CS.battery_pct(None, 4.2), 100)

@@ -64,7 +64,9 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
       Map<String, dynamic> chips = const {};
       try {
         chips = await _api.chipList();
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: chips are optional here; watches + plans still show
+      }
       if (!mounted) return;
       setState(() {
         _chips = kwRows(chips, 'chips');
