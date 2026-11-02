@@ -31917,5 +31917,77 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
+  },
+  "j100bWhyKilled": "Assisto was swiped away and the phone's battery saver probably stopped location. Please call them.",
+  "@j100bWhyKilled": {
+    "description": "Watcher card: no location for 15+ min and the last fix came from the background service."
+  },
+  "j100bWhyBattery": "Battery was {n}% last time — the phone may have died. This is the last known place.",
+  "@j100bWhyBattery": {
+    "description": "Watcher card: no location and last known battery very low.",
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "j100bBatteryLast": "Battery {n}% (last known)",
+  "@j100bBatteryLast": {
+    "description": "Watcher card: battery from an older fix (the background service cannot read it).",
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "j100bRoughSpeed": "About {m} min left at their speed in the last 10 min (not traffic data)",
+  "@j100bRoughSpeed": {
+    "description": "Watcher card: rough time left from the traveller's own recent speed.",
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "j100bRoughTypical": "About {m} min left at a typical speed (not traffic data)",
+  "@j100bRoughTypical": {
+    "description": "Watcher card: rough time left from a typical city speed for the mode.",
+    "placeholders": {
+      "m": {
+        "type": "Object"
+      }
+    }
+  },
+  "j100bNotifTabAdmin": "Admin",
+  "@j100bNotifTabAdmin": {
+    "description": "Notification centre: owner-only tab for server/ops alerts (disk, uptime, cost guard). Never shown to normal users."
+  },
+  "j100bActMap": "Open map",
+  "@j100bActMap": {
+    "description": "Safe Journey notification button: open the last location in a map app."
+  },
+  "j100bActLive": "Live view",
+  "@j100bActLive": {
+    "description": "Safe Journey notification button: open the live watcher page."
+  },
+  "j100bBgSheetTitle": "This phone may stop sharing during the trip",
+  "@j100bBgSheetTitle": {
+    "description": "Before a Safe Journey starts: the phone's battery saver / auto-start rules can pause location."
+  },
+  "j100bBgSheetBody": "Phones like Xiaomi, Realme, Oppo, Vivo and Samsung can pause Assisto in the background to save battery. Then your people see \"no location\" for a while. Two quick steps (battery saver off for Assisto, allow auto-start) keep your trip live.",
+  "@j100bBgSheetBody": {
+    "description": "Body of the pre-start battery-saver sheet."
+  },
+  "j100bBgSheetFix": "Fix it now (2 steps)",
+  "@j100bBgSheetFix": {
+    "description": "Opens the phone-specific battery / auto-start guide."
+  },
+  "j100bBgSheetSkip": "Start anyway",
+  "@j100bBgSheetSkip": {
+    "description": "Starts the journey without changing phone settings."
+  },
+  "j100bBgReady": "Done? Tap Start journey again.",
+  "@j100bBgReady": {
+    "description": "Snackbar after returning from the battery guide."
   }
 }
