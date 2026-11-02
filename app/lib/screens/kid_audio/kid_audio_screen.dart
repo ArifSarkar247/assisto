@@ -120,6 +120,7 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() {
       _loading = true;
       _failed = false;
