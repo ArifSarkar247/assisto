@@ -48,6 +48,7 @@ const Map<String, String> _allow = {
   'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
   'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',
   'chip_pair|digit|ST-90': 'tracker model name printed on the box (Sinotrack ST-901/906)',
+  'chip_pair|digit|TK103': 'tracker model name printed on the box (Coban TK103)',
   // Place / product / customer names are the user's (or OpenStreetMap's) data.
   'dest_alarm|digit|Bus': 'bus stop names from OpenStreetMap (no Bangla name tag), data not UI',
   'dest_alarm|digit|Road': 'same: OpenStreetMap stop name',

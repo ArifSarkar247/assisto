@@ -87,7 +87,13 @@ class MsgrCommunityCard extends StatelessWidget {
               ),
               if (!big && trailing != null) ...[
                 const SizedBox(width: Gap.sm),
-                trailing!,
+                // launchsweep: never wider than the text column; the
+                // button label wraps instead of pushing the row off screen.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                  child: trailing!,
+                ),
               ],
             ],
           ),
@@ -153,7 +159,6 @@ class MsgrActionChip extends StatelessWidget {
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: FilledButton.styleFrom(
-        visualDensity: VisualDensity.compact,
         minimumSize: const Size(48, 48), // launchsweep: 48 dp target
         tapTargetSize: MaterialTapTargetSize.padded,
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
