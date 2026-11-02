@@ -66,7 +66,8 @@
           "type": "String"
         }
       }
-    }
+    },
+    "chxLinkInvalid": "That isn't a channel or community link — check it and try again"
   },
   "bn": {
     "chxAddGroup": "গ্রুপ যোগ করুন",
@@ -127,6 +128,7 @@
     "chxStarterGroupsSub": "ইচ্ছা হলে — সদস্যরা এক ট্যাপে এগুলোতে যোগ দেবেন।",
     "chxWaitingApproval": "অনুমতির অপেক্ষায়",
     "chxWhoCanFind": "কারা খুঁজে পাবেন",
-    "chxYouAreAdmin": "আপনি অ্যাডমিন"
+    "chxYouAreAdmin": "আপনি অ্যাডমিন",
+    "chxLinkInvalid": "এটি চ্যানেল বা কমিউনিটির লিংক নয় — দেখে আবার চেষ্টা করুন"
   }
 }

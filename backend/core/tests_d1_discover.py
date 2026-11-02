@@ -153,9 +153,17 @@ class _Base(APITestCase):
 class SeedAndFeedTests(_Base):
     def test_seed_matches_old_hardcoded_list(self):
         cards = self.feed(self.free)
+<<<<<<< HEAD
         # homeorder (owner 2 Nov): SOS first; Train tracker only while its
         # flag is ON (OFF by default) — see tests_homeorder.py
         self.assertEqual([c["key"] for c in cards], ["sos"] + SEED_KEYS)
+=======
+        # later default cards (channels: circle_channels) are not part of
+        # the old hard-coded list
+        later = {"circle_channels"}
+        self.assertEqual([c["key"] for c in cards if c["key"] not in later],
+                         SEED_KEYS)
+>>>>>>> agent/channels
         asal = next(c for c in cards if c["key"] == "asalify")
         self.assertEqual(asal["url"], "https://asalify.com")
         self.assertEqual(asal["label"], "our_products")

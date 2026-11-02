@@ -33859,5 +33859,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "chxLinkInvalid": "That isn't a channel or community link — check it and try again"
 }
