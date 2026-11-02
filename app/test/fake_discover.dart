@@ -10,7 +10,8 @@ Map<String, dynamic>? fakeDiscoverGet(String path, bool bn, String mode) {
     throw ApiException(bn ? 'সংযোগ করা গেল না' : 'Could not connect', 503);
   }
   if (path.startsWith('/discover/cards')) {
-    // The server seed (same look as the built-in list) — home shots unchanged.
+    // The server seed (same look as the built-in list). homeorder: SOS first,
+    // Train tracker second (shown only while its flag is ON).
     return {'segment': 'premium', 'cards': mode == 'empty' ? [] : _seed()};
   }
   if (path == '/admin/discover/meta') {
@@ -28,7 +29,8 @@ Map<String, dynamic>? fakeDiscoverGet(String path, bool bn, String mode) {
     final free = path.contains('segment=free');
     return {
       'segment': free ? 'free' : 'premium',
-      'cards': [if (free) _sponsoredApp(), ..._seed().take(3)],
+      // homeorder: the server never puts an ad next to SOS (first) -> sponsor after
+      'cards': [..._seed().take(3), if (free) _sponsoredApp()],
     };
   }
   if (RegExp(r'^/admin/discover/cards/\d+/report').hasMatch(path)) {
@@ -68,6 +70,12 @@ List<Map<String, dynamic>> _seed() {
         'title': {'bn': tbn, 'en': ten}, 'description': {'bn': dbn, 'en': den},
         'icon': icon, 'image_url': '', 'route': route, 'url': url};
   return [
+    c(20, 'sos', 'FEATURE', 'emergency', 'emergency', '', 'জরুরি SOS', 'Emergency SOS',
+        'এক চাপে পরিবার ও কাছের মানুষকে সাহায্যের খবর ও লোকেশন পাঠান।',
+        'One press sends help and your location to family and close people.'),
+    c(21, 'train_tracker', 'FEATURE', 'train', 'train_tracker', '', 'ট্রেন ট্র্যাকার', 'Train tracker',
+        'আপনার ট্রেন এখন কোথায়, কখন পৌঁছাবে — যাত্রীদের লাইভ তথ্যে।',
+        'Where your train is now and when it arrives — live from passengers.'),
     c(1, 'photo_enhance', 'FEATURE', 'auto_fix_high', 'photo_enhance', '', 'ফটো স্টুডিও', 'Photo Studio',
         'যেকোনো ছবি কয়েক সেকেন্ডে পরিষ্কার ও উজ্জ্বল করুন।', 'Sharpen and brighten any photo in seconds.'),
     c(2, 'phone_safety', 'FEATURE', 'phonelink_lock', 'phone_safety', '', 'চুরি-প্রতিরোধ', 'Anti-theft',

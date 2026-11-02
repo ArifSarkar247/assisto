@@ -3,6 +3,7 @@
 // catalogue, the AI chat screen and the shortcut picker.
 import 'package:flutter/material.dart';
 
+import 'package:assisto/feature_flags.dart';
 import 'package:assisto/home_api.dart';
 import 'package:assisto/screens/home_v2/all_services_screen.dart';
 import 'package:assisto/screens/home_v2/assisto_chat_screen.dart';
@@ -28,8 +29,41 @@ Widget homeV2Shot({bool free = false, String? size, DateTime? now}) {
   );
 }
 
+/// homeorder: flags ON only while this shot is mounted (cleared on dispose so
+/// no other gallery shot sees them).
+class _FlagsOn extends StatefulWidget {
+  final Map<String, bool> flags;
+  final Widget child;
+  const _FlagsOn(this.flags, this.child);
+  @override
+  State<_FlagsOn> createState() => _FlagsOnState();
+}
+
+class _FlagsOnState extends State<_FlagsOn> {
+  Map<String, bool>? _before;
+  @override
+  void initState() {
+    super.initState();
+    _before = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {...?_before, ...widget.flags};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _before;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 final Map<String, Widget Function(String)> homeV2Shots = {
   'home_v2': (_) => homeV2Shot(),
+  // homeorder (owner 2 Nov): Train tracker + Blood donor switched ON ->
+  // Discover = SOS, Train tracker, ...; shortcuts = ... SOS, Blood donor.
+  'home_v2_homeorder': (_) => _FlagsOn(
+      const {'train_tracker': true, 'blood_donors': true}, homeV2Shot()),
   'home_v2_free_ad': (_) => homeV2Shot(free: true),
   'home_v2_all_services': (_) => const AllServicesScreen(),
   'home_v2_chat': (_) => const AssistoChatScreen(fresh: true),

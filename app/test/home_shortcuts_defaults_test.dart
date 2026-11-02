@@ -48,6 +48,24 @@ const _newDefault = [
   'money',
 ];
 
+/// homeorder (owner order 2 Nov): Blood donor right next to SOS in the
+/// owner order; flag blood_donors is OFF by default, so the shown default is
+/// still [_newDefault] until the owner switches it on.
+const _ownerOrder = [
+  'family',
+  'journey',
+  'khata',
+  'crm',
+  'business',
+  'sales_agent',
+  'watchman',
+  'vehicle_tracking',
+  'prepaid_meter',
+  'emergency',
+  'blood_panel',
+  'money',
+];
+
 const _removed = ['jobs', 'lost_stolen', 'budget', 'contract'];
 
 /// The screen each default must really open (no placeholder).
@@ -154,10 +172,10 @@ void main() {
   group('the new default set', () {
     test('owner order + 2 picks, exactly the 11 slots, My Circle not in it',
         () {
-      expect(HomeV2Shortcuts.ownerOrder, _newDefault);
+      expect(HomeV2Shortcuts.ownerOrder, _ownerOrder);
       expect(HomeV2Shortcuts.max, 11);
       expect(HomeV2Shortcuts.defaults(), _newDefault);
-      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
       for (final r in _removed) {
         expect(HomeV2Shortcuts.defaults(), isNot(contains(r)), reason: r);
       }
@@ -200,6 +218,20 @@ void main() {
       expect(l(en, 'business'), 'Business Accounts');
     });
 
+    test('homeorder: Blood donor ON -> right next to SOS, still 11 slots',
+        () {
+      FeatureFlags.instance.debugOverride = {'blood_donors': true};
+      final d = HomeV2Shortcuts.defaults();
+      expect(d.length, 11);
+      expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
+      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
+      // My Circle stays pinned outside the 11; money moves to Edit / All
+      // services (still pinnable)
+      expect(d, isNot(contains('circle')));
+      expect(HomeV2Shortcuts.catalog.map((s) => s.route),
+          containsAll(['money', 'blood_panel']));
+    });
+
     test('the 4 removed ones stay in Edit shortcuts', () {
       final cat = HomeV2Shortcuts.catalog.map((s) => s.route).toList();
       for (final r in [..._removed, ..._newDefault]) {
@@ -216,7 +248,7 @@ void main() {
       expect(d, isNot(contains('crm')));
       expect(d.length, 11);
       expect(d.last, 'reminders');
-      expect(HomeV2Shortcuts.skippedDefaults(), ['crm']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['crm', 'blood_panel']);
       // business off hides the ledger too (same flag) -> two fills
       FeatureFlags.instance.debugOverride = {'business': false};
       d = HomeV2Shortcuts.defaults();
@@ -243,7 +275,7 @@ void main() {
   group('migration', () {
     test('new install: new set, version stored', () async {
       expect(await HomeV2Shortcuts.load(), _newDefault);
-      expect(await _get(HomeV2Shortcuts.versionKey), '2');
+      expect(await _get(HomeV2Shortcuts.versionKey), '3');
     });
 
     test('never edited (no saved set) on an old build: new set', () async {
@@ -300,6 +332,24 @@ void main() {
       expect(await HomeV2Shortcuts.load(), _newDefault);
     });
 
+    test('homeorder: the 28 Oct default saved unchanged -> new set', () async {
+      FeatureFlags.instance.debugOverride = {'blood_donors': true};
+      await _prefs({
+        HomeV2Shortcuts.versionKey: '2',
+        HomeV2Shortcuts.prefsKey: jsonEncode(_newDefault),
+      });
+      final d = await HomeV2Shortcuts.load();
+      expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
+      expect(await _get(HomeV2Shortcuts.versionKey), '3');
+      // but a user who changed the 28 Oct set keeps theirs
+      final mine = [..._newDefault.reversed];
+      await _prefs({
+        HomeV2Shortcuts.versionKey: '2',
+        HomeV2Shortcuts.prefsKey: jsonEncode(mine),
+      });
+      expect(await HomeV2Shortcuts.load(), mine);
+    });
+
     test('edited sets are kept exactly', () async {
       final edited = <List<String>>[
         // reordered old default
@@ -337,7 +387,7 @@ void main() {
     test('runs ONCE: after it, a saved old-default set is the user\'s choice',
         () async {
       expect(await HomeV2Shortcuts.load(), _newDefault);
-      expect(await _get(HomeV2Shortcuts.versionKey), '2');
+      expect(await _get(HomeV2Shortcuts.versionKey), '3');
       // the user later deliberately picks exactly the old 11 and saves
       await HomeV2Shortcuts.save(HomeV2Shortcuts.legacyOwnerOrder);
       expect(await HomeV2Shortcuts.load(), HomeV2Shortcuts.legacyOwnerOrder);

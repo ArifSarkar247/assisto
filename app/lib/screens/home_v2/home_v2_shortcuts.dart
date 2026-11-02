@@ -53,6 +53,25 @@ class HomeV2Shortcuts {
     'prepaid_meter',
     // agent picks (28 Oct): launch feature #4 (family SOS) + daily money
     'emergency',
+    // homeorder (owner order 2 Nov): Blood donor right next to SOS; shown
+    // only while flag blood_donors is ON (skipped otherwise, like any tile).
+    'blood_panel',
+    'money',
+  ];
+
+  /// The 28 Oct default (builds up to 282) — used ONLY to recognise a saved
+  /// set that is exactly that default. Never shown.
+  static const v2OwnerOrder = [
+    'family',
+    'journey',
+    'khata',
+    'crm',
+    'business',
+    'sales_agent',
+    'watchman',
+    'vehicle_tracking',
+    'prepaid_meter',
+    'emergency',
     'money',
   ];
 
@@ -87,8 +106,8 @@ class HomeV2Shortcuts {
   ];
 
   /// Bumped whenever [ownerOrder] changes; [migrateDefaults] runs once per
-  /// version. 2 = the 28 Oct set.
-  static const defaultsVersion = 2;
+  /// version. 2 = the 28 Oct set, 3 = + Blood donor next to SOS (2 Nov).
+  static const defaultsVersion = 3;
   static const versionKey = 'home_quick_v2_defaults_ver';
 
   /// Next real features, in order, for a skipped default slot.
@@ -125,6 +144,8 @@ class HomeV2Shortcuts {
         'prepaid_meter', Icons.electric_meter_outlined, (t) => t.hv2TileMeter),
     QuickShortcut('emergency', Icons.emergency_outlined,
         (t) => t.emergencySosBigButton),
+    QuickShortcut(
+        'blood_panel', Icons.bloodtype_outlined, (t) => t.hv2TileBloodDonor),
     QuickShortcut('money', Icons.account_balance_wallet_outlined,
         (t) => t.moduleMoney),
     QuickShortcut('jobs', Icons.work_outline_rounded, (t) => t.hv2TileJobs),
@@ -245,15 +266,22 @@ class HomeV2Shortcuts {
   /// flag-off ones skipped (order kept), then the old fill pool's
   /// replacements (order kept). A set the user changed in any way (removed
   /// or added a tile, reordered, saved fewer than [max]) is not.
-  static bool isLegacyDefault(List<String> s) {
+  ///
+  /// homeorder: the 28 Oct default ([v2OwnerOrder] + [fillPool]) counts as an
+  /// old default too, so those users get Blood donor next to SOS.
+  static bool isLegacyDefault(List<String> s) =>
+      _isDefaultOf(s, legacyOwnerOrder, legacyFillPool) ||
+      _isDefaultOf(s, v2OwnerOrder, fillPool);
+
+  static bool _isDefaultOf(
+      List<String> s, List<String> order, List<String> pool) {
     if (s.length != max || s.toSet().length != s.length) return false;
     var k = 0;
-    while (k < s.length && legacyOwnerOrder.contains(s[k])) {
+    while (k < s.length && order.contains(s[k])) {
       k++;
     }
     if (k == 0) return false;
-    return _inOrder(s.sublist(0, k), legacyOwnerOrder) &&
-        _inOrder(s.sublist(k), legacyFillPool);
+    return _inOrder(s.sublist(0, k), order) && _inOrder(s.sublist(k), pool);
   }
 
   /// A saved OLD-home six that is exactly the old home's default: its
