@@ -211,7 +211,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
       ]);
     }
     return Scaffold(
-      appBar: AppBar(title: Text(t.j100Watching)),
+      appBar: AppBar(title: Text(t.j100Following)),
       body: RefreshIndicator(onRefresh: _load, child: body),
     );
   }

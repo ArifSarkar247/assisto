@@ -137,7 +137,7 @@ void main() {
   testWidgets('running: who is watching + one-tap stop (no PIN)', (tester) async {
     final api = _Api()..data = {..._Api().data, 'incoming': [_req('active')]};
     await _open(tester, api, const GuardianJourneyScreen());
-    expect(find.text(en.gjWatchingYou('Baba')), findsOneWidget);
+    expect(find.text(en.gjSeesYourTrip('Baba')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('gj_stop_1')));
     await _settle(tester);
     expect(api.posts.containsKey('/journey/requests/1/stop'), isTrue);
@@ -212,7 +212,7 @@ void main() {
     final tr = JourneyTracker(
         useService: false, position: () async => (lat: 23.7, lng: 90.4), battery: () async => 80);
     await _open(tester, api, JourneyLiveScreen(journeyId: 9, tracker: tr), lang: 'bn');
-    expect(find.text(bn.gjWatchingYou('Baba')), findsOneWidget);
+    expect(find.text(bn.gjSeesYourTrip('Baba')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('gj_banner_stop')));
     await _settle(tester);
     expect(api.posts.containsKey('/journey/requests/1/stop'), isTrue);   // no PIN asked

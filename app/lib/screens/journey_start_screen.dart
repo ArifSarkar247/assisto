@@ -438,7 +438,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         IconButton(
             key: const ValueKey('j100_watching'),
             icon: const Icon(Icons.visibility_rounded),
-            tooltip: t.j100Watching,
+            tooltip: t.j100Following,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneyWatchScreen(fromStart: true)))),
         IconButton(
@@ -561,7 +561,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         const Divider(height: 28),
 
         Row(children: [
-          Expanded(child: _h(t.journeyWatchersSection)),
+          Expanded(child: _h(t.journeyWhoKnows)),
           if (ids.length > 1)
             TextButton(
                 key: const ValueKey('j2_all'),

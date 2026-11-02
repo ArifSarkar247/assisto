@@ -615,7 +615,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         : (degraded ? tr.atStateDegraded : tr.atStateOn);
     final body = !on
         ? tr.atStateOffBody
-        : (degraded ? tr.atStateDegradedBody : tr.atStateOnBody);
+        : (degraded ? tr.atStateDegradedBody : tr.atStateOnBody2);
     return Card(
       color: bg,
       child: Padding(

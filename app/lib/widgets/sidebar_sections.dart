@@ -551,7 +551,7 @@ class SidebarSections {
           feature: 'ramadan',
           (_) => const RamadanScreen(),
           synonyms: ['prayer', 'ramadan', 'namaz', 'roza']),
-      SidebarItem(Icons.radar_rounded, (t) => t.watchFeed,
+      SidebarItem(Icons.radar_rounded, (t) => t.watchFeed2,
           feature: 'watch_feed',
           (_) => const WatchFeedScreen(),
           synonyms: ['watch', 'feed', 'alerts']),

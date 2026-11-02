@@ -248,7 +248,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
         children: [
           // lifebar: what the server watches for me, with status + stop
           if (_mine.isNotEmpty) ...[
-            _sectionTitle(t.lifebarExamMineTitle),
+            _sectionTitle(t.lifebarExamMineTitle2),
             const SizedBox(height: Gap.sm),
             for (final w in _mine) _mineTile(t, df, w),
             const Divider(height: Gap.xl),

@@ -232,7 +232,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
     final wentDark = _data['went_dark_at'];
 
     final title = armed ? t.mlpStatusArmed : t.mlpStatusNotArmed;
-    final body = armed ? t.mlpStatusArmedBody : t.mlpStatusNotArmedBody;
+    final body = armed ? t.mlpStatusArmedBody2 : t.mlpStatusNotArmedBody;
     final fg = armed ? Brand.success : Brand.warning;
 
     return Card(
