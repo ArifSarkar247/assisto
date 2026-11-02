@@ -89,3 +89,9 @@
 * রিপোর্ট বিদ্যমান `ModerationReport/ModerationItem`-এ (`mkt_need`, `mkt_bid`, `mkt_seller`)।
 
 উৎস (দেখা ২–৩ Nov ২০২৬): teachers.gov.bd/blog/details/851333 (BangladeshExport RFQ খবর, যাচাই বাকি), eximnext.com buy-lead, blog.bikroy.com (নিরাপত্তা গাইড), thedailystar.net/node/1307005; বাকি উৎস `ASSISTO_MARKET_PLAN_BN.md`-এ।
+
+## ৯. প্রমাণ (CI)
+
+* CI `checks` রান **41541571357** (শাখা `ci/amarket-arb`, ARB প্রয়োগ করে): backend (৬,৮০০+ টেস্ট, `core.tests_amarket` + `web.tests_amarket_owner` সহ), flutter-static, flutter-test ৪ ভাগ — **সব সবুজ**। আগের রান 41535520468-এ দুটি রেজিস্ট্রি টেস্ট আর counter-গার্ড ধরা পড়েছিল, ঠিক করা হয়েছে।
+* স্ক্রিনশট: আর্টিফ্যাক্ট `shots-0` (রান 41541571357) — `amk_needs`, `amk_needs_empty`, `amk_group`, `amk_sell_apply`, `amk_sell_feed`, `amk_deals`, `amk_offers`, `amk_bid` × বাংলা/ইংরেজি × লাইট/ডার্ক (৩২টি)। ছবিতে নমুনা-ডেটা ইংরেজিতে (টেস্ট fixture); আসল সার্ভার বাংলায় কারণ লেখে।
+* **আসল ফোনে প্রমাণ: নেই।**
