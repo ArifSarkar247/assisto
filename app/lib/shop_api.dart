@@ -61,6 +61,10 @@ extension ShopOpsApi on ApiClient {
       postJson('/shop/live/$sessionId/end',
           {'relayed': relayed, 'seconds': seconds});
 
+  /// cctvphone: the viewer touched the live screen (5-min idle stop).
+  Future<Map<String, dynamic>> shopLiveTouch(int sessionId) =>
+      postJson('/shop/live/$sessionId/touch', const {});
+
   Future<Map<String, dynamic>> shopVoidSale(int saleId, String reason) =>
       postJson('/business/sales/$saleId/void', {'reason': reason});
 }
@@ -114,13 +118,20 @@ class ShopDeviceClient {
 
   Future<DeviceReply> pairCheck() => _post('/shop/pair/check', const {});
 
-  Future<DeviceReply> heartbeat({List<String> caps = const ['live'], String version = ''}) =>
+  /// cctvphone: a phone camera adds [health] {level, charging, temp_c, dark}
+  /// — the server pushes charger / battery / heat / dark warnings.
+  Future<DeviceReply> heartbeat(
+          {List<String> caps = const ['live'], String version = '', Map<String, dynamic>? health}) =>
       _post('/shop/heartbeat', {
         if (cameraId != null) 'camera_ids': [cameraId],
         'caps': caps,
         'platform': 'android',
         'version': version,
+        if (health != null) 'health': health,
       });
+
+  /// cctvphone: a phone camera removes itself (the plan slot is freed).
+  Future<DeviceReply> phoneCamUnbind() => _post('/shop/phonecam/unbind', const {});
 
   Future<DeviceReply> config() => _get('/shop/config');
 

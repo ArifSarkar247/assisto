@@ -41,7 +41,9 @@ SPIKE_BASELINE_DAYS = 14
 LIVE_PENDING_TIMEOUT_S = 45        # device must answer within this
 LIVE_MAX_MESSAGES = 300
 LIVE_MAX_PAYLOAD_BYTES = 16 * 1024
-LIVE_KINDS = ("offer", "answer", "candidate", "bye")
+LIVE_KINDS = ("offer", "answer", "candidate", "bye",
+              # cctvphone: the viewer's SD/HD choice ({"hd": bool})
+              "quality")
 
 
 def _shop_cfg():
@@ -58,6 +60,21 @@ def eod_tolerance():
 
 def live_max_s():
     return int(_shop_cfg().get("live_max_session_s", 600))
+
+
+def live_idle_s():
+    """cctvphone (owner order G): a live view stops after this many seconds
+    without a touch on the viewer's screen (POST shop/live/<id>/touch)."""
+    from .logic import phonecam as PC
+    return max(30, int(_shop_cfg().get("live_idle_s", PC.LIVE_IDLE_S)))
+
+
+def live_max_per_account():
+    """cctvphone (owner order G): at most this many live views at once per
+    camera-owner account (all cameras, all viewers) — enforced here."""
+    from .logic import phonecam as PC
+    return max(1, int(_shop_cfg().get("live_max_per_account",
+                                      PC.LIVE_MAX_PER_ACCOUNT)))
 
 
 def relay_min_credits():
@@ -329,6 +346,11 @@ class ShopHeartbeatView(APIView):
             pass
         except Exception:
             log.exception("motion note failed")
+        # cctvphone: a phone camera reports battery / charger / heat / dark
+        if isinstance(d.get("health"), dict):
+            from . import phonecam_views as PCV
+            for c in cams:
+                PCV.note_health(c, d.get("health"), now)
         _sweep_live(now)
         cfg = device_config(site, cam)
         from . import watchman_views as WV
@@ -619,7 +641,8 @@ def _relay_allowed(owner):
 def _live_row(s, side=None, after=0):
     out = {"id": s.id, "camera": s.camera_id, "status": s.status,
            "expires_at": s.expires_at.isoformat(),
-           "max_seconds": live_max_s(), "relayed": s.relayed,
+           "max_seconds": live_max_s(), "idle_seconds": live_idle_s(),
+           "relayed": s.relayed,
            "seconds": s.seconds, "charged_credits": s.charged_credits,
            "end_reason": s.end_reason}
     if side is not None:
@@ -640,6 +663,17 @@ class ShopLiveStartView(APIView):
                                         site__owner=request.user).select_related(
             "site").first()
         if cam is None:
+            # cctvphone: a family viewer the owner allowed may watch a PHONE
+            # camera live (owner switch `viewers_live`, default OFF)
+            from . import phonecam_views as PCV
+            cam = ShopCamera.objects.filter(
+                pk=_poisha(request.data.get("camera")), vendor="phone",
+                site__viewers__user=request.user).select_related("site").first()
+            if cam is not None and not PCV.viewers_live(cam):
+                return _err(lang, "মালিক এই ক্যামেরার লাইভ দেখা শুধু নিজের জন্য রেখেছেন।",
+                            "The owner keeps live view of this camera to themselves.",
+                            status=403, code="viewer_live_off")
+        if cam is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         now = timezone.now()
         if not cam.enabled:
@@ -658,6 +692,18 @@ class ShopLiveStartView(APIView):
                 "This camera's device does not support live view yet.",
                 status=409, code="live_unsupported")
         _sweep_live(now)
+        # cctvphone (order G): max N live views at once per camera-owner
+        # account; the session this request replaces does not count.
+        others = ShopLiveSession.objects.filter(
+            site__owner_id=cam.site.owner_id, status__in=("pending", "active"),
+            expires_at__gt=now).exclude(camera=cam).count()
+        if others >= live_max_per_account():
+            n = live_max_per_account()
+            return _err(lang,
+                        "একসাথে %s টির বেশি লাইভ দেখা যায় না। আগে অন্য লাইভটি বন্ধ করুন।"
+                        % SV._bn_digits(n),
+                        "At most %d live views at once. Close another live view first." % n,
+                        status=429, code="live_limit", limit=n)
         # one live session per camera: close any earlier one of this owner
         ShopLiveSession.objects.filter(camera=cam, status__in=("pending", "active")
                                        ).update(status="ended", ended_at=now,
@@ -670,7 +716,7 @@ class ShopLiveStartView(APIView):
                         status=503, code="throttled")
         s = ShopLiveSession.objects.create(
             site=cam.site, camera=cam, owner=request.user,
-            expires_at=now + timedelta(seconds=live_max_s()))
+            expires_at=now + timedelta(seconds=min(live_idle_s(), live_max_s())))
         out = _live_row(s)
         out.update({"ice": ice, "relay_allowed": relay_ok,
                     "relay_credits_per_min": relay_min_credits(),
@@ -779,6 +825,33 @@ class ShopLiveSignalView(_LiveBase):
                 upd += ["status", "answered_at"]
             s.save(update_fields=upd)
         return Response({"ok": True, "seq": s.seq, "status": s.status})
+
+
+class ShopLiveTouchView(_LiveBase):
+    """POST shop/live/<id>/touch — the viewer touched the live screen: keep
+    the session for live_idle_s() more, never past the hard cap from start.
+    Without touches the session expires on its own (order G: 5 minutes)."""
+    def post(self, request, pk):
+        from .models import ShopLiveSession
+        from .logic import phonecam as PC
+        lang = req_lang(request)
+        s, side = _session_side(request, pk)
+        if s is None or side != "owner":
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        now = timezone.now()
+        _sweep_live(now)
+        s.refresh_from_db()
+        if s.status not in ("pending", "active"):
+            return _err(lang, "সেশন শেষ হয়ে গেছে।", "This session has ended.",
+                        status=410, code="session_closed", status_now=s.status)
+        from datetime import datetime, timezone as dtz
+        exp = PC.idle_expiry(s.created.timestamp(), now.timestamp(),
+                             live_max_s(), live_idle_s())
+        new = datetime.fromtimestamp(exp, tz=dtz.utc)
+        if new > s.expires_at:
+            ShopLiveSession.objects.filter(pk=s.pk).update(expires_at=new)
+            s.expires_at = new
+        return Response(_live_row(s))
 
 
 class ShopLiveEndView(_LiveBase):

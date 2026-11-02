@@ -22,6 +22,11 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
 import '../../widgets/where_to_buy.dart'; // chipbuy
+import '../../feature_flags.dart'; // cctvphone
+import '../../phonecam/phone_camera_screen.dart'; // cctvphone
+import '../../phonecam/phonecam_api.dart'; // cctvphone
+import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
+import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -209,6 +214,19 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
                 onPressed: _startSetup,
               ),
             ),
+          // cctvphone: on the OLD phone — become a camera (code / QR link)
+          if (pcOn())
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: OutlinedButton.icon(
+              key: const ValueKey('wm-phonecam-this'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.videocam_outlined),
+              label: Text(t.pcThisPhoneButton),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const PhoneCameraScreen())),
+            ),
+          ),
         ],
       ),
     );
@@ -280,6 +298,39 @@ class _SiteCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final nav = Navigator.of(context);
     switch (action) {
+      // cctvphone: live view of a phone camera (owner or an allowed viewer)
+      case 'live':
+        await nav.push(MaterialPageRoute(
+            builder: (_) => ShopLiveScreen(
+                cameraId: (cam['id'] as num).toInt(),
+                cameraName: (cam['name'] ?? '').toString())));
+      case 'viewers_live':
+        // order I: OFF by default; turning it on says plainly who will see
+        final turnOn = cam['viewers_live'] != true;
+        if (turnOn) {
+          final ok = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              scrollable: true,
+              title: Text(t.pcViewersLive),
+              content: Text(t.pcViewersLiveConfirm),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+                FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.pcViewersLiveAllow)),
+              ],
+            ),
+          );
+          if (ok != true || !context.mounted) return;
+        }
+        try {
+          await context.read<AppState>().api.phoneCamSettings(
+              (cam['id'] as num).toInt(), {'viewers_live': turnOn});
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(wmError(e) ?? t.wmGenericError)));
+          }
+        }
       case 'zones':
         await nav.push(MaterialPageRoute(
             builder: (_) => WatchmanZonesScreen(source: source, camera: cam)));
@@ -406,6 +457,18 @@ class _SiteCard extends StatelessWidget {
               onPrimary: onAddCamera,
               steps: [t.cvvNoCamStep1, t.cvvNoCamStep2, t.cvvNoCamStep3],
             ),
+          // cctvphone: the cheapest start — an old phone in a drawer
+          if (cams.isEmpty && _owner && pcOn())
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: OutlinedButton.icon(
+                key: const ValueKey('wm-phonecam-pair-empty'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.phone_android_rounded),
+                label: Text(t.pcOwnerButton),
+                onPressed: () => showPhoneCamPairSheet(context, siteId, onPaired: onChanged),
+              ),
+            ),
           if (cams.isEmpty && _owner) const WhereToBuyLink(product: BuyProduct.cctv),
           if (cams.isEmpty && !_owner)
             Padding(
@@ -474,6 +537,14 @@ class _SiteCard extends StatelessWidget {
                   icon: const Icon(Icons.add_a_photo_outlined),
                   label: Text(t.wmAddCamera),
                   onPressed: onAddCamera,
+                ),
+              if (cams.isNotEmpty && pcOn()) // cctvphone
+                OutlinedButton.icon(
+                  key: const ValueKey('wm-phonecam-pair'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.phone_android_rounded),
+                  label: Text(t.pcOwnerButton),
+                  onPressed: () => showPhoneCamPairSheet(context, siteId, onPaired: onChanged),
                 ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -562,18 +633,37 @@ class _CameraRow extends StatelessWidget {
             const SizedBox(height: 2),
             Text('${wmVendorName(t, vendor)} · ${shopSeenLabel(t, context, cam)}',
                 style: Theme.of(context).textTheme.bodySmall),
+            if (vendor == 'phone' && wmMap(cam['health']).isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: PhoneCamHealthPill(health: wmMap(cam['health'])),
+              ),
             if (owner) ...[
               const SizedBox(height: 4),
               WmPill(label: checkLabel, icon: checkIcon, color: checkColor),
             ],
           ]),
         ),
+        // cctvphone: one-tap live view of a phone camera
+        if (vendor == 'phone' && cam['online'] == true && cam['live_capable'] == true &&
+            (owner || cam['viewers_live'] == true))
+          IconButton(
+            key: ValueKey('wm-live-${cam['id']}'),
+            tooltip: t.pcLive,
+            icon: const Icon(Icons.live_tv_rounded),
+            onPressed: () => onAction('live'),
+          ),
         if (owner)
           PopupMenuButton<String>(
             tooltip: t.wmCameraMenu,
             onSelected: onAction,
             itemBuilder: (_) => [
               PopupMenuItem(value: 'zones', child: Text(t.wmZonesSchedule)),
+              if (vendor == 'phone')
+                CheckedPopupMenuItem(
+                    value: 'viewers_live',
+                    checked: cam['viewers_live'] == true,
+                    child: Text(t.pcViewersLive)),
               if (vendor != 'phone') PopupMenuItem(value: 'check', child: Text(t.wmCheckAgain)),
               if (vendor == 'hikvision' || vendor == 'dahua')
                 PopupMenuItem(value: 'push', child: Text(t.shopHookTitle)),
@@ -710,3 +800,36 @@ class _EzvizSheetState extends State<_EzvizSheet> {
     );
   }
 }
+
+
+/// cctvphone: battery / charger / heat / dark of a phone camera, honest and
+/// readable (icon + words, never colour alone).
+class PhoneCamHealthPill extends StatelessWidget {
+  final Map<String, dynamic> health;
+  const PhoneCamHealthPill({super.key, required this.health});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final lang = wmLang(context);
+    final lvl = health['level'];
+    final charging = health['charging'];
+    final temp = health['temp_c'];
+    final parts = <String>[
+      if (lvl is num) t.pcBattery(wmDigits(lang, lvl.round())),
+      if (charging == true) t.pcCharging,
+      if (charging == false) t.pcWarnUnplugged,
+      if (temp is num && temp >= 45) t.pcWarnHot,
+      if (health['dark'] == true) t.pcWarnDark,
+    ];
+    final bad = charging == false || (temp is num && temp >= 45) || health['dark'] == true;
+    return WmPill(
+      label: parts.join(' · '),
+      icon: charging == true ? Icons.battery_charging_full_rounded : Icons.battery_alert_rounded,
+      color: bad ? wmWarn() : wmOk(),
+    );
+  }
+}
+
+/// cctvphone: phone-as-camera sits behind the CCTV switch `cctv_watchman`.
+bool pcOn() => FeatureFlags.instance.isOn('cctv_watchman');

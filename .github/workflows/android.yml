@@ -614,9 +614,10 @@ jobs:
               if j != -1:
                   s = s[:j] + invitelink + s[j:]
           # ---- channels ---- https://lifeassisto.com/ch/<handle>[?k=] (channel)
-          # and /cm/<code> (community invite) open the app on it (same
+          # and /cm/<code> (community invite), plus cctvphone /pc/<CODE> (phone-camera
+          # pairing QR) open the app on it (same
           # verified host/assetlinks); without the app the web page -> Play.
-          for _pp in ("/ch/", "/cm/"):
+          for _pp in ("/ch/", "/cm/", "/pc/"):
               spacelink = (
                   '\n            <intent-filter android:autoVerify="true">'
                   '\n                <action android:name="android.intent.action.VIEW"/>'

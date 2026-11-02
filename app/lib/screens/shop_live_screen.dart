@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,12 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
   // (shown to the owner — the real-device test measures it; target ≤ 10 s)
   DateTime? _startedAt;
   int? _firstFrameSecs;
+  // cctvphone (order G): the live view stops after `idle_seconds` without a
+  // touch (server-enforced; a touch is sent at most every 15 s), SD by
+  // default, HD only on tap.
+  int _idle = 600;
+  DateTime? _lastTouchSent;
+  bool _hd = false;
 
 
   late final ApiClient _api;
@@ -106,7 +113,8 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     }
     _sid = (s['id'] as num?)?.toInt();
     _maxSeconds = (s['max_seconds'] as num?)?.toInt() ?? 600;
-    _left = _maxSeconds;
+    _idle = (s['idle_seconds'] as num?)?.toInt() ?? _maxSeconds;
+    _left = math.min(_idle, _maxSeconds);
     _relayAllowed = s['relay_allowed'] == true;
     _relayPerMin = (s['relay_credits_per_min'] as num?)?.toInt() ?? 1;
     final ice = ((s['ice']?['ice_servers'] ?? const []) as List)
@@ -204,6 +212,26 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
     }
   }
 
+  /// cctvphone: any touch on the screen keeps the live view going.
+  void _touch() {
+    final sid = _sid;
+    if (sid == null || _ending || _phase == _Phase.ended || _phase == _Phase.error) return;
+    final now = DateTime.now();
+    if (_lastTouchSent != null && now.difference(_lastTouchSent!).inSeconds < 15) return;
+    _lastTouchSent = now;
+    final hardLeft = _startedAt == null
+        ? _maxSeconds
+        : _maxSeconds - now.difference(_startedAt!).inSeconds;
+    setState(() => _left = math.min(_idle, hardLeft).clamp(0, _maxSeconds));
+    unawaited(_api.shopLiveTouch(sid).then((_) {}, onError: (_) {}));
+  }
+
+  void _setHd(bool hd) {
+    setState(() => _hd = hd);
+    unawaited(_send('quality', {'hd': hd}));
+    _touch();
+  }
+
   void _endedBy() {
     if (_phase == _Phase.ended) return;
     _end();
@@ -253,7 +281,10 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
         title: Text(widget.cameraName.isEmpty ? t.shopLiveTitle : widget.cameraName,
             maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
-      body: SafeArea(
+      body: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) => _touch(),
+        child: SafeArea(
         child: Column(children: [
           Expanded(
             child: Container(
@@ -270,6 +301,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
           ),
           _bottomBar(t, scheme),
         ]),
+      ),
       ),
     );
   }
@@ -375,6 +407,14 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               avatar: const Icon(Icons.timer_rounded, size: 18),
               label: Text(t.shopLiveTimeLeft(_mmss(_left))),
             ),
+          if (_phase == _Phase.live)
+            FilterChip(
+              key: const Key('shopLiveHd'),
+              avatar: const Icon(Icons.hd_rounded, size: 18),
+              label: Text(_hd ? t.pcLiveHdOn : t.pcLiveSdOn),
+              selected: _hd,
+              onSelected: _setHd,
+            ),
           if (_phase == _Phase.live && _firstFrameSecs != null)
             Chip(
               key: const Key('shopLiveTook'),
@@ -390,6 +430,11 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
           textAlign: TextAlign.center,
           style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
         ),
+        if (active && _idle < _maxSeconds)
+          Text(t.pcLiveIdleNote(fmtInt(context, (_idle / 60).round())),
+              key: const Key('shopLiveIdleNote'),
+              textAlign: TextAlign.center,
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
         Text(t.shopLiveNoRecording,
             textAlign: TextAlign.center,
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),

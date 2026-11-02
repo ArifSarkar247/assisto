@@ -1,0 +1,297 @@
+{
+  "_comment": "cctvphone (owner CCTV order 3 Nov, part A — old phone as an Assisto camera). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_cctvphone_arb.json",
+  "en": {
+    "pcTitle": "Phone as camera",
+    "pcIntroTitle": "Turn this old phone into a camera",
+    "pcIntroBody": "Point it at your door or shop, keep it plugged in. When a person comes, the owner gets a photo alert, can watch live, and is warned if the charger comes out or the phone gets hot.",
+    "pcPairHereTitle": "Connect to the owner",
+    "pcPairHereHelp": "On the owner's phone: Assisto → Watchman → \"Use an old phone as a camera\". Scan that QR with this phone's camera, or type the code here.",
+    "pcCodeLabel": "Code from the owner's phone",
+    "pcCodeInvalid": "This code is not right. Check the code on the owner's phone.",
+    "pcOffline": "No internet right now. Connect to Wi-Fi or mobile data and try again.",
+    "pcNameLabel": "Camera name (optional)",
+    "pcNameHint": "e.g. Front door",
+    "pcClaim": "Connect as a camera",
+    "pcTrustTitle": "Privacy and trust",
+    "pcTrustBody": "Only the owner and the family members they allow can see this camera. Sound is off unless you switch it on here. Video clips stay on this phone. Put a notice where people are filmed, and never film inside a room someone uses privately.",
+    "pcUnnamed": "Phone camera",
+    "pcPairedTo": "Camera of: {site}",
+    "@pcPairedTo": {
+      "placeholders": {
+        "site": {
+          "type": "String"
+        }
+      }
+    },
+    "pcStart": "Start camera",
+    "pcStartHelp": "Keep this phone plugged in with Assisto open on this screen. The screen goes dark to save power; tap it to see the status.",
+    "pcAudioTitle": "Record sound too",
+    "pcAudioBody": "Off by default. Turn on only if everyone filmed knows sound is recorded.",
+    "pcClipsTitle": "Clips on this phone",
+    "pcClipsLine": "{n} clips · {mb} MB of {cap} MB",
+    "@pcClipsLine": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        },
+        "mb": {
+          "type": "String"
+        },
+        "cap": {
+          "type": "String"
+        }
+      }
+    },
+    "pcCapMb": "{n} MB",
+    "@pcCapMb": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcClipsDelete": "Delete all clips",
+    "pcClipsHelp": "Each alert keeps a 10-second clip here only. When the space is full, the oldest clip is deleted first.",
+    "pcGuideTitle": "For best results",
+    "pcGuideBody": "Keep it plugged in, out of direct sun, with Wi-Fi on. Point it at the entrance from a little above head height. Remove a thick phone case so it does not get hot.",
+    "pcUnbind": "Remove this phone as a camera",
+    "pcUnbindTitle": "Remove this camera?",
+    "pcUnbindBody": "The owner will no longer see this phone. Clips already on this phone stay until you delete them.",
+    "pcMicDenied": "Microphone permission is off, so sound stays off.",
+    "pcRemovedByOwner": "The owner removed this camera. Connect again with a new code if needed.",
+    "pcStarting": "Starting the camera…",
+    "pcWatching": "Watching for people",
+    "pcLiveNow": "Someone is watching live",
+    "pcNotifTitle": "Assisto camera is on",
+    "pcNotifBody": "This phone is working as a camera. Open Assisto to stop.",
+    "pcNotifChannel": "Phone camera running",
+    "pcRecordingBanner": "This phone is a camera — recording video",
+    "pcRecordingBannerAudio": "This phone is a camera — recording video and sound",
+    "pcServerOk": "Connected to Assisto",
+    "pcServerOffline": "Not connected — check the internet",
+    "pcModelOn": "Person check on this phone: on",
+    "pcModelOff": "Person check not available — alerts on any movement",
+    "pcAlertsSent": "Alerts sent: {n}",
+    "@pcAlertsSent": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcWarnUnplugged": "Charger unplugged",
+    "pcWarnLow": "Battery below 20%",
+    "pcWarnHot": "Phone is very hot",
+    "pcWarnDark": "Camera covered or dark",
+    "pcStop": "Stop camera",
+    "pcTapToShow": "Tap anywhere to show status",
+    "pcOwnerButton": "Use an old phone as a camera",
+    "pcThisPhoneButton": "Use this phone as a camera",
+    "pcPairTitle": "Make an old phone your camera",
+    "pcPairBenefit": "No new camera to buy: an old Android phone watches your door, sends photo alerts and opens live.",
+    "pcQrA11y": "QR code to connect the old phone",
+    "pcOrTypeCode": "Or type this code on the old phone",
+    "pcCopyCode": "Copy code",
+    "pcCodeValid": "Code works for {time} more, once",
+    "@pcCodeValid": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "pcStepsTitle": "On the old phone",
+    "pcStep1": "Install Assisto and keep it charging.",
+    "pcStep2": "Scan this QR with its camera, or open Assisto → Watchman → \"Use this phone as a camera\" and type the code.",
+    "pcStep3": "Tap \"Start camera\" there. It shows up here at once.",
+    "pcExtraCameraNote": "Your plan's cameras are used up: this phone camera uses {n} credits a month, like any extra camera.",
+    "@pcExtraCameraNote": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcWaiting": "Waiting for the old phone…",
+    "pcPairDone": "{name} is connected",
+    "@pcPairDone": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "pcPairDoneNext": "Tap \"Start camera\" on that phone. Set when it guards in Zones & schedule.",
+    "pcDone": "Done",
+    "pcLive": "Watch live",
+    "pcViewersLive": "Family may watch live",
+    "pcBattery": "Battery {n}%",
+    "@pcBattery": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcCharging": "Charging",
+    "pcLiveSdOn": "SD · tap for HD",
+    "pcLiveHdOn": "HD on",
+    "pcLiveIdleNote": "Live stops after {n} minutes without a touch, to save data.",
+    "@pcLiveIdleNote": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcViewersLiveConfirm": "The family members you added under Family will be able to watch this camera live. You can turn it off any time.",
+    "pcViewersLiveAllow": "Allow"
+  },
+  "bn": {
+    "pcTitle": "ফোনকে ক্যামেরা বানান",
+    "pcIntroTitle": "এই পুরনো ফোনকে ক্যামেরা বানান",
+    "pcIntroBody": "দরজা বা দোকানের দিকে রাখুন, চার্জে লাগিয়ে রাখুন। কেউ এলে মালিক ছবিসহ সতর্কতা পাবেন, লাইভ দেখতে পারবেন, আর চার্জার খুলে গেলে বা ফোন গরম হলে জানতে পারবেন।",
+    "pcPairHereTitle": "মালিকের সাথে যুক্ত করুন",
+    "pcPairHereHelp": "মালিকের ফোনে: Assisto → পাহারাদার → \"পুরনো ফোনকে ক্যামেরা বানান\"। ওই QR এই ফোনের ক্যামেরা দিয়ে স্ক্যান করুন, অথবা কোডটি এখানে লিখুন।",
+    "pcCodeLabel": "মালিকের ফোনে দেখানো কোড",
+    "pcCodeInvalid": "কোডটি ঠিক নয়। মালিকের ফোনের কোডটি আবার দেখুন।",
+    "pcOffline": "এখন ইন্টারনেট নেই। Wi-Fi বা মোবাইল ডেটা চালু করে আবার চেষ্টা করুন।",
+    "pcNameLabel": "ক্যামেরার নাম (ইচ্ছা হলে)",
+    "pcNameHint": "যেমন: সামনের দরজা",
+    "pcClaim": "ক্যামেরা হিসেবে যুক্ত করুন",
+    "pcTrustTitle": "গোপনীয়তা ও বিশ্বাস",
+    "pcTrustBody": "শুধু মালিক আর তিনি যাদের অনুমতি দেন সেই পরিবারের মানুষ এই ক্যামেরা দেখতে পারেন। আপনি এখানে চালু না করলে শব্দ বন্ধ থাকে। ভিডিও ক্লিপ এই ফোনেই থাকে। যেখানে মানুষ ভিডিও হয় সেখানে নোটিশ দিন, কারও ব্যক্তিগত ঘরের ভেতরে কখনো ভিডিও করবেন না।",
+    "pcUnnamed": "ফোন ক্যামেরা",
+    "pcPairedTo": "যার ক্যামেরা: {site}",
+    "@pcPairedTo": {
+      "placeholders": {
+        "site": {
+          "type": "String"
+        }
+      }
+    },
+    "pcStart": "ক্যামেরা চালু করুন",
+    "pcStartHelp": "এই ফোন চার্জে লাগিয়ে এই পাতায় Assisto খোলা রাখুন। বিদ্যুৎ বাঁচাতে স্ক্রিন কালো হয়ে যাবে; অবস্থা দেখতে স্ক্রিনে চাপুন।",
+    "pcAudioTitle": "শব্দও রেকর্ড করুন",
+    "pcAudioBody": "ডিফল্টে বন্ধ। যাদের ভিডিও হচ্ছে তারা সবাই জানলে তবেই চালু করুন।",
+    "pcClipsTitle": "এই ফোনে রাখা ক্লিপ",
+    "pcClipsLine": "{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB",
+    "@pcClipsLine": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        },
+        "cap": {
+          "type": "String"
+        },
+        "mb": {
+          "type": "String"
+        }
+      }
+    },
+    "pcCapMb": "{n} MB",
+    "@pcCapMb": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcClipsDelete": "সব ক্লিপ মুছুন",
+    "pcClipsHelp": "প্রতিটি সতর্কতার ১০ সেকেন্ডের ক্লিপ শুধু এখানেই থাকে। জায়গা ভরে গেলে সবচেয়ে পুরনো ক্লিপ আগে মুছে যায়।",
+    "pcGuideTitle": "ভালো ফলের জন্য",
+    "pcGuideBody": "চার্জে লাগিয়ে রাখুন, সরাসরি রোদে নয়, Wi-Fi চালু রাখুন। মাথার একটু উপর থেকে ঢোকার পথের দিকে রাখুন। মোটা কভার খুলে রাখুন যাতে গরম না হয়।",
+    "pcUnbind": "এই ফোনকে ক্যামেরা থেকে সরান",
+    "pcUnbindTitle": "ক্যামেরাটি সরাবেন?",
+    "pcUnbindBody": "মালিক আর এই ফোন দেখতে পাবেন না। এই ফোনে রাখা ক্লিপ আপনি না মোছা পর্যন্ত থাকবে।",
+    "pcMicDenied": "মাইক্রোফোনের অনুমতি বন্ধ, তাই শব্দ বন্ধ থাকবে।",
+    "pcRemovedByOwner": "মালিক এই ক্যামেরা সরিয়ে দিয়েছেন। দরকার হলে নতুন কোড দিয়ে আবার যুক্ত করুন।",
+    "pcStarting": "ক্যামেরা চালু হচ্ছে…",
+    "pcWatching": "মানুষ এলে খেয়াল রাখছে",
+    "pcLiveNow": "কেউ এখন লাইভ দেখছেন",
+    "pcNotifTitle": "Assisto ক্যামেরা চালু",
+    "pcNotifBody": "এই ফোন এখন ক্যামেরা হিসেবে কাজ করছে। বন্ধ করতে Assisto খুলুন।",
+    "pcNotifChannel": "ফোন ক্যামেরা চলছে",
+    "pcRecordingBanner": "এই ফোন এখন ক্যামেরা — ভিডিও রেকর্ড হচ্ছে",
+    "pcRecordingBannerAudio": "এই ফোন এখন ক্যামেরা — ভিডিও ও শব্দ রেকর্ড হচ্ছে",
+    "pcServerOk": "Assisto-র সাথে যুক্ত",
+    "pcServerOffline": "যুক্ত নেই — ইন্টারনেট দেখুন",
+    "pcModelOn": "এই ফোনেই মানুষ-চেনা: চালু",
+    "pcModelOff": "মানুষ-চেনা নেই — যেকোনো নড়াচড়ায় সতর্কতা",
+    "pcAlertsSent": "পাঠানো সতর্কতা: {n}",
+    "@pcAlertsSent": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcWarnUnplugged": "চার্জার খুলে গেছে",
+    "pcWarnLow": "ব্যাটারি ২০%-এর নিচে",
+    "pcWarnHot": "ফোন খুব গরম",
+    "pcWarnDark": "ক্যামেরা ঢাকা বা অন্ধকার",
+    "pcStop": "ক্যামেরা বন্ধ করুন",
+    "pcTapToShow": "অবস্থা দেখতে যেকোনো জায়গায় চাপুন",
+    "pcOwnerButton": "পুরনো ফোনকে ক্যামেরা বানান",
+    "pcThisPhoneButton": "এই ফোনকে ক্যামেরা বানান",
+    "pcPairTitle": "পুরনো ফোনকে আপনার ক্যামেরা বানান",
+    "pcPairBenefit": "নতুন ক্যামেরা কিনতে হবে না: পুরনো Android ফোন দরজায় নজর রাখবে, ছবিসহ সতর্কতা দেবে, লাইভ দেখাবে।",
+    "pcQrA11y": "পুরনো ফোন যুক্ত করার QR কোড",
+    "pcOrTypeCode": "অথবা পুরনো ফোনে এই কোডটি লিখুন",
+    "pcCopyCode": "কোড কপি করুন",
+    "pcCodeValid": "কোডটি আরও {time} চলবে, একবারই",
+    "@pcCodeValid": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "pcStepsTitle": "পুরনো ফোনে",
+    "pcStep1": "Assisto ইনস্টল করে চার্জে লাগান।",
+    "pcStep2": "ফোনের ক্যামেরা দিয়ে এই QR স্ক্যান করুন, অথবা Assisto → পাহারাদার → \"এই ফোনকে ক্যামেরা বানান\" খুলে কোড লিখুন।",
+    "pcStep3": "ওখানে \"ক্যামেরা চালু করুন\" চাপুন। সাথে সাথে এখানে দেখাবে।",
+    "pcExtraCameraNote": "আপনার প্ল্যানের ক্যামেরা শেষ: অন্য যেকোনো বাড়তি ক্যামেরার মতো এই ফোন ক্যামেরায় মাসে {n} ক্রেডিট লাগবে।",
+    "@pcExtraCameraNote": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcWaiting": "পুরনো ফোনের অপেক্ষায়…",
+    "pcPairDone": "{name} যুক্ত হয়েছে",
+    "@pcPairDone": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "pcPairDoneNext": "ওই ফোনে \"ক্যামেরা চালু করুন\" চাপুন। কখন পাহারা দেবে তা \"জোন ও সময়সূচি\"-তে ঠিক করুন।",
+    "pcDone": "ঠিক আছে",
+    "pcLive": "লাইভ দেখুন",
+    "pcViewersLive": "পরিবার লাইভ দেখতে পারবে",
+    "pcBattery": "ব্যাটারি {n}%",
+    "@pcBattery": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcCharging": "চার্জ হচ্ছে",
+    "pcLiveSdOn": "SD · HD-র জন্য চাপুন",
+    "pcLiveHdOn": "HD চালু",
+    "pcLiveIdleNote": "ডেটা বাঁচাতে {n} মিনিট স্ক্রিন না ছুঁলে লাইভ বন্ধ হবে।",
+    "@pcLiveIdleNote": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "pcViewersLiveConfirm": "\"পরিবার\"-এ যোগ করা মানুষেরা এই ক্যামেরা লাইভ দেখতে পারবেন। যেকোনো সময় বন্ধ করতে পারবেন।",
+    "pcViewersLiveAllow": "অনুমতি দিন"
+  }
+}
