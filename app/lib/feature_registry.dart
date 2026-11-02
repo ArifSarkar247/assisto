@@ -155,6 +155,8 @@ const Map<String, String> kRouteFeature = {
   'circle': 'my_circle',
   'circle_add': 'my_circle',
   'messages': 'my_circle',
+  'channels': 'my_circle', // channels (2 Nov)
+  'communities': 'my_circle', // channels (2 Nov)
   'groups': 'my_circle',
   'status': 'my_circle',
   'circle_privacy': 'my_circle',

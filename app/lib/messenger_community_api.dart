@@ -28,15 +28,19 @@ extension MessengerCommunityApi on ApiClient {
   /// POST /community/create -> new_community
   /// body: {name, description, photo_ref?}
   /// -> {community, announcements_group, member}
+  /// channels (2 Nov): [groups] = starter topic groups (max 5, open join);
+  /// the answer carries `invite_url` (https://lifeassisto.com/cm/<code>).
   Future<Map<String, dynamic>> communityCreate(
     String name, {
     String description = '',
     String? photoRef,
+    List<String> groups = const [],
   }) =>
       postJson('/community/create', {
         'name': name,
         'description': description,
         if (photoRef != null) 'photo_ref': photoRef,
+        if (groups.isNotEmpty) 'groups': groups,
       });
 
   /// POST /community/<id>/group/create -> new_community_group
@@ -194,4 +198,28 @@ extension MessengerCommunityApi on ApiClient {
   /// until a message request is accepted / the relationship is connected).
   Future<Map<String, dynamic>> communityCall(String recipientId) =>
       postJson('/community/call', {'recipient_id': recipientId});
+
+  // ---- channels (2 Nov): find + join communities ----
+
+  /// GET /communities -> {results:[{id, name, description, viewer_role,
+  /// member_count, group_count, invite_url?}], requested:[{id, name}]}.
+  Future<Map<String, dynamic>> communitiesMine() => getJson('/communities');
+
+  /// GET /communities/preview?code= -> {id, name, description, member_count,
+  /// group_count, state: member|requested|none}. 404 = wrong / old link.
+  Future<Map<String, dynamic>> communityPreview(String code) =>
+      getJson('/communities/preview?code=${Uri.encodeQueryComponent(code)}');
+
+  /// POST /communities/join {code} -> {state: requested|member, id, name}.
+  /// An admin approves every new member.
+  Future<Map<String, dynamic>> communityJoinByCode(String code) =>
+      postJson('/communities/join', {'code': code});
+
+  /// GET /community/<id>/invite -> {url, code} (admins only).
+  Future<Map<String, dynamic>> communityInvite(String communityId) =>
+      getJson('/community/$communityId/invite');
+
+  /// POST /community/<id>/invite -> a NEW link; the old one stops working.
+  Future<Map<String, dynamic>> communityInviteReset(String communityId) =>
+      postJson('/community/$communityId/invite');
 }

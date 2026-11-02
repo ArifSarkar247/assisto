@@ -18,6 +18,7 @@ from . import views_pv1 as PV1       # play-vitals
 from . import views_ff1 as FF1       # feature-flags
 from . import views_bill2 as B2      # billing-v2
 from . import views_air as AIR       # ai-report
+from . import views_chrep as CHREP   # channels
 from . import views_ai as AIRT       # ai-router
 from . import views_ops as OPS       # ops-watch
 from . import views_agent as AGR     # agent-core
@@ -112,6 +113,8 @@ urlpatterns = [
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report
+    path("channel-reports", CHREP.channel_reports),                      # channels
+    path("channel-reports/<int:pk>/act", CHREP.channel_report_act),      # channels
     path("system", OPS.system_health),                           # ops-watch
     path("vitals/crash-rate", OPS.crash_rate_page),              # ops-watch
     path("agent-runs", AGR.agent_runs),                          # agent-core

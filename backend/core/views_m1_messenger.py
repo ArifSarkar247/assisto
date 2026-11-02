@@ -882,9 +882,11 @@ class CommunityLeaveView(APIView):
                 return Response({"ok": False, "left": False, "allowed": False,
                                  "reason": "promote_before_leaving",
                                  "group_id": m.group_id})
+        from . import channels_service as CS
         for m in mine:
             m.status = "left"
             m.save(update_fields=["status"])
+            CS.mirror_member(m.group, request.user.id, m.role, "left")
         return Response({"ok": True, "left": True, "allowed": True,
                          "groups_left": len(mine)})
 

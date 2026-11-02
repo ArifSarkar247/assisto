@@ -262,6 +262,10 @@ class ChatNav {
     'circle_add': (_) => const MessengerHomeScreen(startAdd: true),
     // Messenger hub (Step 3): Chats · Updates · Communities · Calls.
     'messages': (_) => const MessengerHomeScreen(),
+    // channels (2 Nov): My Circle -> Channels / Communities tabs (Discover
+    // card "Channels & communities", channel-post + community pushes).
+    'channels': (_) => const MessengerHomeScreen(initialTab: 1),
+    'communities': (_) => const MessengerHomeScreen(initialTab: 2),
     'notifications': (_) => const NotificationCentreScreen(),
     // M2: Groups + Status live inside the Circle hub (they need the loaded
     // on-device identity + members-with-public_key), so chat-open lands there.

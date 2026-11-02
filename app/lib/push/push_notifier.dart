@@ -15,6 +15,7 @@ import '../calls/call_sound_prefs.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'push_payload.dart';
+import 'channel_post_notification.dart'; // channels
 import '../reminders/alarm_plan.dart' show PushDecision;
 import '../reminders/reminder_alarms.dart' show ReminderAlarms;
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
@@ -356,6 +357,12 @@ class PushNotifier {
           : null;
       var title = titleFor(p);
       var body = p.body;
+      if (p.kind == 'channel_post') {
+        // channels: one small display function (see the file's note)
+        final c = channelPostNotificationContent(p);
+        title = c.title;
+        body = c.body;
+      }
       // e-gaps: a LOCKED chat's fallback notification shows no name / text
       final chat = MsgPushHandler.chatOf(p);
       if (chat != null &&

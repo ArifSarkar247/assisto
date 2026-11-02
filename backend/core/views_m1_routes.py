@@ -763,28 +763,28 @@ class ConnectionRequestsView(_CRCreate):
 
 class ChannelDiscoverView(APIView):
     """GET /channels/discover?q=&category=&language= -> {results, suggested,
-    categories}. ONLY public-listed channels of active owners. `suggested` is
-    popularity (+ the viewer's app language) — never contacts or messages."""
+    categories}. channels (2 Nov): the DIRECTORY = channels marked public
+    (is_public) and not hidden/removed by moderation, of active adult owners,
+    minus channels the viewer blocked. Search by name / @handle / topic;
+    sorted by follower count. `suggested` is popularity (+ the viewer's app
+    language) — never contacts or messages."""
 
     def get(self, request):
+        from . import channels_service as CS
         from .logic import msg_channel as mch
-        from .models import Channel, ChannelFollower
-        from .views_messenger import _channel_dict
+        from .models import ChannelFollower
         qp = request.query_params
         q = str(qp.get("q", "")).strip()[:80]
         cat = str(qp.get("category", "")).strip()[:20]
         lang = str(qp.get("language", "")).strip()[:8]
-        base = Channel.objects.filter(list_visibility="public",
-                                      owner__is_active=True).exclude(
-            owner__account_status__in=["suspended", "banned"])
-        following = set(ChannelFollower.objects.filter(user=request.user)
-                        .values_list("channel_id", flat=True))
+        me = request.user
+        blocked = CS.blocked_ids(me)
+        base = CS.directory_qs().exclude(pk__in=blocked)
+        follows = {f.channel_id: f for f in ChannelFollower.objects.filter(user=me)}
 
         def ser(ch):
-            d = _channel_dict(ch)
-            d["id"] = ch.id
-            d["following"] = ch.id in following
-            return d
+            return CS.channel_view(ch, me, follower=follows.get(ch.id),
+                                   with_follow=False)
         results = []
         if q or cat or lang:
             qs = base
@@ -796,14 +796,16 @@ class ChannelDiscoverView(APIView):
                 qs = qs.filter(category=cat)
             if lang:
                 qs = qs.filter(language=lang)
-            results = [ser(c) for c in qs.order_by("-follower_count", "-id")[:50]]
-        my_lang = getattr(request.user, "language", "bn")
-        sug = list(base.filter(language=my_lang).order_by("-follower_count")[:10])
-        if len(sug) < 10:
+            results = [ser(c) for c in CS.drop_minor_owned(
+                list(qs.order_by("-follower_count", "-id")[:60]))[:50]]
+        my_lang = getattr(me, "language", "bn")
+        sug = list(base.filter(language=my_lang).order_by("-follower_count")[:12])
+        if len(sug) < 12:
             sug += list(base.exclude(pk__in=[c.pk for c in sug])
-                        .order_by("-follower_count")[:10 - len(sug)])
+                        .order_by("-follower_count")[:12 - len(sug)])
+        sug = [c for c in CS.drop_minor_owned(sug)
+               if c.id not in follows and c.owner_id != me.id][:10]
         return Response({"results": results,
-                         "suggested": [ser(c) for c in sug
-                                       if c.id not in following],
+                         "suggested": [ser(c) for c in sug],
                          "categories": [c if isinstance(c, str) else c[0]
                                         for c in mch.CATEGORIES]})

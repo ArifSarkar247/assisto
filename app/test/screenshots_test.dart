@@ -84,6 +84,13 @@ import 'package:assisto/screens/business/acct/acct_audit_screen.dart'; // acctui
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
+import 'package:assisto/screens/messenger/channel_list_screen.dart' show ChannelListScreen; // channels
+import 'package:assisto/screens/messenger/channel_detail_screen.dart' show ChannelDetailScreen; // channels
+import 'package:assisto/screens/messenger/discover_screen.dart' show DiscoverScreen; // channels
+import 'package:assisto/screens/messenger/community_detail_screen.dart' show CommunityDetailScreen; // channels
+import 'package:assisto/screens/messenger/communities_home_screen.dart'; // channels
+import 'package:assisto/invite/space_link.dart'; // channels
+import 'package:assisto/widgets/space_invite_sheet.dart'; // channels
 import 'package:assisto/screens/messenger/messenger_home_screen.dart';
 import 'package:assisto/screens/messenger/messenger_settings_screen.dart';
 import 'package:assisto/screens/messenger/contact_info_screen.dart';
@@ -476,6 +483,16 @@ Map<String, GallerySpec> gallerySpecs() {
     // WhatsApp-style list (On Assisto first, Invite for the rest).
     'c1_contacts_disclosure': (build: (_) { SharedPreferences.setMockInitialValues({}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
     'c1_contacts_synced': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
+    // channels (2 Nov): My Circle channels + communities others can find.
+    'chx_channels': (build: (_) => const ChannelListScreen(), mode: FakeMode.data, full: true),
+    'chx_channels_empty': (build: (_) => const ChannelListScreen(), mode: FakeMode.empty, full: true),
+    'chx_directory': (build: (_) => const DiscoverScreen(), mode: FakeMode.data, full: true),
+    'chx_channel': (build: (_) => const ChannelDetailScreen(channelId: 11), mode: FakeMode.data, full: true),
+    'chx_share': (build: (l) => Scaffold(body: Builder(builder: (ctx) => SpaceInviteSheet(url: 'https://lifeassisto.com/ch/dhaka_bazar', title: AppLocalizations.of(ctx).chxShareChannelTitle, note: AppLocalizations.of(ctx).chxSharePublicNote))), mode: FakeMode.data, full: true),
+    'chx_communities': (build: (_) => CommunitiesHomeScreen(identity: _identity), mode: FakeMode.data, full: true),
+    'chx_communities_empty': (build: (_) => CommunitiesHomeScreen(identity: _identity), mode: FakeMode.empty, full: true),
+    'chx_community': (build: (l) => CommunityDetailScreen(community: <String, dynamic>{'id': 31, 'name': l == 'bn' ? 'মিরপুর ১০ প্রতিবেশী' : 'Mirpur 10 neighbours', 'viewer_role': 'admin', 'description': l == 'bn' ? 'ব্লক সি — বাজার, নিরাপত্তা, পানি-বিদ্যুৎ' : 'Block C — market, security, utilities'}, identity: _identity), mode: FakeMode.data, full: true),
+    'chx_join_link': (build: (_) => SpaceLinkScreen(link: SpaceLink.parse('https://lifeassisto.com/cm/k7m2p9q4rt')!), mode: FakeMode.data, full: true),
     // m3-circle: My Circle like WhatsApp — Add flow states, New chat, Requests.
     'm3_add_circle': (build: (_) => const M3AddToCircleScreen(), mode: FakeMode.data, full: true),
     'm3_add_found': (build: (_) => const M3AddToCircleScreen(initialNumber: '+880 1711-000777'), mode: FakeMode.data, full: true),

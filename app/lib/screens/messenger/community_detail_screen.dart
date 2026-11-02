@@ -11,6 +11,9 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_community_card.dart';
 import '../../widgets/msgr_mod_report_sheet.dart';
+import '../../widgets/space_invite_sheet.dart'; // channels
+import '../../messaging/chat_opener.dart'; // channels: open a group chat
+import 'package:assisto/widgets/app_sheet.dart';
 import 'community_members_screen.dart';
 import 'community_message_requests_screen.dart';
 import 'community_settings_screen.dart';
@@ -62,7 +65,10 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
   String get _cid => '${widget.community['id']}';
-  bool get _isAdmin => widget.community['viewer_role'] == 'admin';
+  // channels: the server's answer wins over the map we were opened with.
+  String? _role;
+  bool get _isAdmin => (_role ?? widget.community['viewer_role']) == 'admin';
+  final _busy = <String>{};
 
   Future<void> _load() async {
     if (mounted) setState(() => _loading = true);
@@ -72,7 +78,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           ((r['joined'] ?? const []) as List).cast<Map<String, dynamic>>();
       final joinable =
           ((r['joinable'] ?? const []) as List).cast<Map<String, dynamic>>();
-      final all = [...joined, ...joinable];
+      final requested =
+          ((r['requested'] ?? const []) as List).cast<Map<String, dynamic>>();
+      // channels: remember my state per group (open chat / join / waiting).
+      for (final g in joined) {
+        g['_state'] = 'joined';
+      }
+      for (final g in joinable) {
+        g['_state'] = 'joinable';
+      }
+      for (final g in requested) {
+        g['_state'] = 'requested';
+      }
+      if (r['viewer_role'] != null) _role = '${r['viewer_role']}';
+      final all = [...joined, ...requested, ...joinable];
       _announcements = all.firstWhere(
         (g) => '${g['kind'] ?? ''}' == 'announcements',
         orElse: () => <String, dynamic>{},
@@ -311,6 +330,118 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
     }
   }
 
+  /// channels: admins share the invite link + QR (joining asks an admin).
+  Future<void> _invite() async {
+    final t = _t;
+    try {
+      final j = await _api.communityInvite(_cid);
+      final url = '${j['url'] ?? ''}';
+      if (url.isEmpty || !mounted) return;
+      await showAppSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (sheetCtx) => SpaceInviteSheet(
+          url: url,
+          title: t.chxInviteCommunityTitle,
+          note: t.chxInviteCommunityNote,
+          extra: TextButton.icon(
+            onPressed: () async {
+              Navigator.of(sheetCtx).pop();
+              try {
+                await _api.communityInviteReset(_cid);
+                _toast(t.chxNewLinkToast);
+              } catch (_) {
+                _toast(t.communityActionFailed);
+              }
+            },
+            icon: const Icon(Icons.autorenew_rounded),
+            label: Text(t.chxNewLink),
+          ),
+        ),
+      );
+    } catch (_) {
+      _toast(t.communityActionFailed);
+    }
+  }
+
+  /// channels: admins add a topic group (open join or ask-first).
+  Future<void> _addGroup() async {
+    final t = _t;
+    final name = TextEditingController();
+    bool open = true;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          scrollable: true,
+          title: Text(t.chxAddGroup),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(
+              key: const Key('chx-group-name'),
+              controller: name,
+              autofocus: true,
+              decoration: InputDecoration(labelText: t.chxGroupName),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: open,
+              onChanged: (v) => setD(() => open = v),
+              title: Text(t.chxGroupOpenJoin),
+              subtitle: Text(open ? t.chxGroupOpenSub : t.chxGroupAskSub),
+            ),
+          ]),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(_t.cancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(t.chxCreate)),
+          ],
+        ),
+      ),
+    );
+    final n = name.text.trim();
+    name.dispose();
+    if (ok != true || n.isEmpty) return;
+    try {
+      await _api.communityGroupCreate(_cid,
+          name: n, joinMode: open ? 'open' : 'request');
+      await _load();
+    } catch (_) {
+      _toast(t.communityActionFailed);
+    }
+  }
+
+  Future<void> _joinGroup(Map<String, dynamic> g) async {
+    final t = _t;
+    final gid = '${g['id']}';
+    setState(() => _busy.add(gid));
+    try {
+      final r = await _api.communityGroupJoin(gid);
+      _toast('${r['action']}' == 'joined'
+          ? t.communityJoinedNow
+          : t.communityRequestSent);
+      await _load();
+    } on ApiException catch (e) {
+      _toast(e.status == 429 ? t.chxRateLimited : t.communityActionFailed);
+    } catch (_) {
+      _toast(t.communityActionFailed);
+    } finally {
+      if (mounted) setState(() => _busy.remove(gid));
+    }
+  }
+
+  /// A joined group opens its real (end-to-end encrypted) group chat.
+  Future<void> _openGroupChat(Map<String, dynamic> g) async {
+    final cg = (g['circle_group_id'] as num?)?.toInt();
+    if (cg == null) {
+      _toast(_t.communityActionFailed);
+      return;
+    }
+    await ChatOpener.open(Navigator.of(context), _api, 'group', cg);
+  }
+
   Future<void> _report() async {
     await MsgrReportSheet.show(
       context,
@@ -347,10 +478,18 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   _leave();
                 case 'report':
                   _report();
+                case 'invite':
+                  _invite();
+                case 'add_group':
+                  _addGroup();
               }
             },
             itemBuilder: (_) => [
               PopupMenuItem(value: 'info', child: Text(_t.communityInfo)),
+              if (_isAdmin)
+                PopupMenuItem(value: 'invite', child: Text(_t.chxInviteLink)),
+              if (_isAdmin)
+                PopupMenuItem(value: 'add_group', child: Text(_t.chxAddGroup)),
               PopupMenuItem(
                   value: 'members', child: Text(_t.communityMembersTitle)),
               // The server does not deliver or push community posts yet, so
@@ -458,10 +597,33 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   }
 
   Widget _groupCard(Map<String, dynamic> g, {bool announcements = false}) {
+    final state = '${g['_state'] ?? 'joined'}';
+    if (state != 'joined') {
+      final openJoin = '${g['join_mode'] ?? 'request'}' == 'open';
+      return MsgrCommunityCard(
+        name: '${g['name'] ?? ''}',
+        description: '${g['description'] ?? ''}',
+        photoRef: g['photo_ref']?.toString(),
+        countLabel: _t.communityMemberCount('${g['member_count'] ?? 0}'),
+        trailing: state == 'requested'
+            ? MsgrActionChip(
+                label: _t.communityRequested,
+                icon: Icons.hourglass_empty_rounded,
+                muted: true)
+            : MsgrActionChip(
+                label: openJoin ? _t.communityJoin : _t.communityRequestToJoin,
+                icon: openJoin ? Icons.add_rounded : Icons.outgoing_mail,
+                onPressed: _busy.contains('${g['id']}')
+                    ? null
+                    : () => _joinGroup(g),
+              ),
+      );
+    }
     final count = g['member_count'] ?? 0;
     final announcementsOnly =
         announcements || g['announcements_only'] == true;
     return MsgrCommunityCard(
+      onTap: () => _openGroupChat(g),
       name: '${g['name'] ?? ''}',
       description: '${g['description'] ?? ''}',
       photoRef: g['photo_ref']?.toString(),

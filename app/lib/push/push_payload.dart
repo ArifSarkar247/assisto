@@ -42,6 +42,8 @@ class PushChannels {
     'doc_expiry': reminders, // vault100: a vault document expires soon
     'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
     'budget_alert': alerts, // remhbud: an expense crossed 80% / 100% of a budget
+    'channel_post': messages, // channels: a new post in a followed channel
+    'community_join': messages, // channels: join request / approved
   };
 }
 
@@ -127,6 +129,9 @@ class PushPayload {
       key = 'msgreq-${_s('sender_id')}';
     } else if (kind == 'message' && chatId.isNotEmpty) {
       key = 'chat-${_s('chat_kind')}-$chatId';
+    } else if (kind == 'channel_post' && _s('channel_id').isNotEmpty) {
+      // channels: ONE notification per channel (the newest post replaces it)
+      key = 'chpost-${_s('channel_id')}';
     } else if (kind == 'agent_approval' && _s('approval_id').isNotEmpty) {
       // agent-core: one notification per approval (Reject removes it)
       key = 'agentap-${_s('approval_id')}';
@@ -209,6 +214,8 @@ class PushRouting {
     'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
     'watch_feed': 'watch_feed', // lifebar: a watcher saw a change
     'exam': 'exam', // lifebar: the exam-result page changed
+    'channels': 'channels', // channels: a new channel post
+    'communities': 'communities', // channels: community join request
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -228,6 +235,8 @@ class PushRouting {
     'doc_expiry': 'documents', // vault100
     'dues': 'my_dues', // tagada2
     'budget_alert': 'budget', // remhbud: opens the Budget page
+    'channel_post': 'channels', // channels: My Circle -> Channels
+    'community_join': 'communities', // channels: My Circle -> Communities
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,

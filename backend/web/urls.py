@@ -9,6 +9,7 @@ from . import views_quote   # crm100
 from . import views_vehicle_share   # veh100
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
+from . import views_channels_web   # channels
 
 urlpatterns = [
     path("", views_site.home),               # website: was views.landing (tools list, now a section)
@@ -71,6 +72,9 @@ urlpatterns = [
 
     # m3-circle: My Circle invite link landing (QR / share / SMS)
     path("i/<str:token>", views.circle_invite),
+    # channels (2 Nov): shared channel / community links (App Link fallback)
+    path("ch/<str:handle>", views_channels_web.channel_link),
+    path("cm/<str:code>", views_channels_web.community_link),
 
     # journey100: Safe Journey watcher page (signed expiring token, noindex)
     path("j/<str:token>/data", views_journey.watch_data),

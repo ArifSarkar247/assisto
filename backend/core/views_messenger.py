@@ -483,9 +483,14 @@ class CommunityCreateView(APIView):
     creator admin). PUBLIC communities require the owner switch."""
 
     def post(self, request):
+        from . import channels_service as CS
         data = request.data or {}
         if data.get("is_public") and not request.user.public_surfaces_enabled:
             return _forbidden("public_surfaces_disabled")
+        if str(data.get("name", "")).strip() and not CS.rate_ok(
+                request.user, "cmcreate", CS.COMMUNITIES_PER_DAY, 86400):
+            return Response({"detail": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
         try:
             c_row, ann_row, creator_row = mcom.new_community(
                 community_id=None, creator_id=request.user.id,
@@ -498,7 +503,8 @@ class CommunityCreateView(APIView):
             creator=request.user, name=c_row["name"],
             description=c_row["description"],
             photo_ref=c_row["photo_ref"] or "",
-            is_public=bool(data.get("is_public", False)))
+            is_public=bool(data.get("is_public", False)),
+            invite_code=CS.new_code(Community))
         ann = CommunityGroup.objects.create(
             community=community, creator=request.user, kind="announcements",
             name=ann_row["name"], join_mode="request",
@@ -506,10 +512,23 @@ class CommunityCreateView(APIView):
         CommunityMember.objects.create(
             community=community, group=ann, member=request.user,
             role="admin", status="active")
-        return Response({"id": community.id, "name": community.name,
-                         "announcements_group_id": ann.id,
-                         "is_public": community.is_public},
-                        status=status.HTTP_201_CREATED)
+        CS.ensure_circle_group(ann)   # channels: real (E2E) announcements chat
+        # channels: optional starter topic groups {groups: ["Bazar", ...]}
+        for gname in list(data.get("groups") or [])[:5]:
+            gname = str(gname or "").strip()[:100]
+            if not gname:
+                continue
+            g = CommunityGroup.objects.create(
+                community=community, creator=request.user, kind="topic",
+                name=gname, join_mode="open")
+            CommunityMember.objects.create(
+                community=community, group=g, member=request.user,
+                role="admin", status="active")
+            CS.ensure_circle_group(g)
+        out = CS.community_view(community, request.user, "admin")
+        out.update({"announcements_group_id": ann.id,
+                    "community": dict(out)})
+        return Response(out, status=status.HTTP_201_CREATED)
 
 
 class CommunityGroupCreateView(APIView):
@@ -542,7 +561,10 @@ class CommunityGroupCreateView(APIView):
         CommunityMember.objects.create(
             community=community, group=group, member=request.user,
             role="admin", status="active")
+        from . import channels_service as CS
+        cg = CS.ensure_circle_group(group)
         return Response({"id": group.id, "name": group.name,
+                         "circle_group_id": cg.id if cg else None,
                          "kind": group.kind, "join_mode": group.join_mode},
                         status=status.HTTP_201_CREATED)
 
@@ -592,12 +614,23 @@ class CommunityGroupsListView(APIView):
     """GET /api/community/<id>/groups -> partition_groups for the caller."""
 
     def get(self, request, pk):
+        from . import channels_service as CS
         community = Community.objects.filter(pk=pk).first()
         if community is None:
             return _notfound()
+        my_role = CS.community_role(community, request.user)
+        if my_role is None and not community.is_public:
+            return _notfound()   # private: members only (join via link)
         groups = list(community.groups.all())
+        counts = dict(CommunityMember.objects.filter(
+            community=community, status="active").values("group_id")
+            .annotate(n=dj_models.Count("id")).values_list("group_id", "n"))
         all_rows = [{"id": g.id, "name": g.name, "kind": g.kind,
-                     "join_mode": g.join_mode, "size_limit": g.size_limit}
+                     "join_mode": g.join_mode, "size_limit": g.size_limit,
+                     "description": g.description, "rules": g.rules,
+                     "announcements_only": g.announcements_only,
+                     "member_count": counts.get(g.id, 0),
+                     "circle_group_id": g.circle_group_id}
                     for g in groups]
         active = list(CommunityMember.objects.filter(
             community=community, member=request.user, status="active"
@@ -606,6 +639,24 @@ class CommunityGroupsListView(APIView):
             group__community=community, requester=request.user, state="pending"
         ).values_list("group_id", flat=True))
         out = mcom.partition_groups(all_rows, active, pending)
+        # channels: joinable rows keep the full card fields (count, rules...).
+        by_id = {r["id"]: r for r in all_rows}
+        out["joinable"] = [dict(by_id.get(r["id"], {}), **r)
+                           for r in out["joinable"]]
+        out["community"] = CS.community_view(community, request.user, my_role)
+        out["viewer_role"] = my_role
+        if my_role == "admin":
+            reqs = (CommunityJoinRequest.objects.filter(
+                group__community=community, state="pending")
+                .select_related("requester", "group").order_by("created_at"))
+            out["join_requests"] = [{
+                "id": r.id, "group_id": r.group_id, "group_name": r.group.name,
+                "requester_id": r.requester_id,
+                "requester_name": (r.requester.name or "").strip()
+                or r.requester.username,
+                "created_at": r.created_at.isoformat()} for r in reqs[:100]]
+        else:
+            out["join_requests"] = []
         # m1-messenger: the viewer's community alert switch (⋮ Notifications).
         from .views_m1_messenger import community_notifications_muted
         out["notifications_muted"] = community_notifications_muted(
@@ -618,12 +669,23 @@ class CommunityGroupJoinView(APIView):
     request=create a JoinRequest)."""
 
     def post(self, request, pk):
+        from . import channels_service as CS
         group = CommunityGroup.objects.filter(pk=pk).first()
         if group is None:
             return _notfound()
+        # channels: topic groups are for community members; outsiders first
+        # join the community (link / invite -> admin approval).
+        in_community = CS.community_role(group.community, request.user) is not None
+        if not in_community and (group.kind != "announcements"
+                                 and not group.community.is_public):
+            return _forbidden("join_community_first")
         size = CommunityMember.objects.filter(group=group, status="active").count()
         already = CommunityMember.objects.filter(
             group=group, member=request.user, status="active").exists()
+        if not already and not CS.rate_ok(request.user, "cmjoin",
+                                          CS.JOINS_PER_HOUR, 3600):
+            return Response({"detail": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
         has_pending = CommunityJoinRequest.objects.filter(
             group=group, requester=request.user, state="pending").exists()
         decision = mcom.request_to_join(
@@ -632,12 +694,18 @@ class CommunityGroupJoinView(APIView):
         if not decision["allowed"]:
             return _badreq(decision["reason"])
         if decision["action"] == "joined":
-            CommunityMember.objects.get_or_create(
+            m, _ = CommunityMember.objects.get_or_create(
                 community=group.community, group=group, member=request.user,
                 defaults={"role": "member", "status": "active"})
-            return Response({"action": "joined", "group_id": group.id})
+            if m.status != "active":
+                m.status = "active"
+                m.save(update_fields=["status"])
+            CS.mirror_member(group, request.user.id, m.role)
+            return Response({"action": "joined", "group_id": group.id,
+                             "circle_group_id": group.circle_group_id})
         jr = CommunityJoinRequest.objects.create(
             group=group, requester=request.user, state="pending")
+        CS.notify_join_request(group, request.user)
         return Response({"action": "requested", "request_id": jr.id},
                         status=status.HTTP_201_CREATED)
 
@@ -665,9 +733,15 @@ class CommunityJoinRequestActView(APIView):
         jr.state = new_state
         jr.save(update_fields=["state"])
         if new_state == mcom.JOIN_APPROVED:
-            CommunityMember.objects.get_or_create(
+            from . import channels_service as CS
+            m, _ = CommunityMember.objects.get_or_create(
                 community=group.community, group=group, member=jr.requester,
                 defaults={"role": "member", "status": "active"})
+            if m.status != "active":
+                m.status = "active"
+                m.save(update_fields=["status"])
+            CS.mirror_member(group, jr.requester_id, m.role)
+            CS.notify_join_approved(group, jr.requester)
         return Response({"id": jr.id, "state": jr.state})
 
 
@@ -693,6 +767,8 @@ class CommunityMemberRemoveView(APIView):
             return _forbidden(gate["reason"])
         target.status = "removed"
         target.save(update_fields=["status"])
+        from . import channels_service as CS
+        CS.mirror_member(group, int(uid), target.role, "removed")
         return Response({"ok": True, "removed": int(uid)})
 
 
@@ -955,22 +1031,62 @@ def _followers_roster(ch):
             for f in ch.followers.all()}
 
 
+def _cs():
+    from . import channels_service as CS
+    return CS
+
+
+def _ch_payload(ch, user, **extra):
+    """channels: flat legacy keys + `channel` (what the app reads)."""
+    v = _cs().channel_view(ch, user)
+    out = dict(v)
+    out["channel"] = v
+    out.update(extra)
+    return out
+
+
 class ChannelsView(APIView):
-    """GET /channels -> my channels + followed. POST /channels -> new_channel.
-    PUBLIC (public list_visibility) channels require the owner switch."""
+    """GET /channels -> {owned, following, suggested} (client shape: id,
+    is_owner, is_admin, my_following, ...). POST /channels -> new channel.
+    channels (2 Nov): new channels are PUBLIC (listed in the directory) unless
+    the creator picks private or is a minor; @handle is optional (made from
+    the name); 5 new channels per day per person."""
 
     def get(self, request):
-        owned = [_channel_dict(c) for c in Channel.objects.filter(owner=request.user)]
-        following = [_channel_dict(f.channel) for f in
-                     ChannelFollower.objects.filter(user=request.user).select_related("channel")]
-        return Response({"owned": owned, "following": following})
+        CS = _cs()
+        me = request.user
+        blocked = CS.blocked_ids(me)
+        follows = {f.channel_id: f for f in
+                   ChannelFollower.objects.filter(user=me).select_related("channel")}
+        admin_of = set(ChannelAdmin.objects.filter(user=me)
+                       .values_list("channel_id", flat=True))
+        owned_qs = Channel.objects.filter(
+            dj_models.Q(owner=me) | dj_models.Q(pk__in=admin_of)).distinct()
+        owned = [CS.channel_view(c, me, follower=follows.get(c.id),
+                                 blocked=blocked, with_follow=False)
+                 for c in owned_qs]
+        owned_ids = {c["id"] for c in owned}
+        following = [CS.channel_view(f.channel, me, follower=f, blocked=blocked)
+                     for cid, f in follows.items() if cid not in owned_ids
+                     and f.channel.content_status != "removed"]
+        sug_qs = (CS.directory_qs().exclude(pk__in=list(follows) + list(blocked))
+                  .exclude(owner=me).order_by("-follower_count", "-id")[:15])
+        suggested = [CS.channel_view(c, me, with_follow=False)
+                     for c in CS.drop_minor_owned(list(sug_qs))[:10]]
+        return Response({"owned": owned, "following": following,
+                         "suggested": suggested})
 
     def post(self, request):
+        CS = _cs()
         data = request.data or {}
+        name = str(data.get("name", "")).strip()
+        handle = str(data.get("handle", "")).strip()
+        if name and not mch.sanitize_handle(handle):
+            handle = CS.auto_handle(name)
         try:
             row = mch.new_channel(
                 channel_id=None, owner_id=request.user.id,
-                name=str(data.get("name", "")), handle=str(data.get("handle", "")),
+                name=name, handle=handle,
                 description=str(data.get("description", "")),
                 category=data.get("category", "other"),
                 language=data.get("language", "other"),
@@ -979,42 +1095,91 @@ class ChannelsView(APIView):
             return _badreq(str(e))
         if Channel.objects.filter(handle=row["handle"]).exists():
             return _badreq("handle_taken")
+        if not CS.rate_ok(request.user, "chcreate", CS.CHANNELS_PER_DAY, 86400):
+            return Response({"detail": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        want_public = data.get("is_public", True) not in (False, "false", "0", 0)
+        minor = CS.is_minor(request.user)
         ch = Channel.objects.create(
             owner=request.user, name=row["name"], handle=row["handle"],
             description=row["description"], category=row["category"],
             language=row["language"], photo_ref=row["photo_ref"] or "",
-            list_visibility=row["list_visibility"])   # starts PRIVATE
-        return Response(_channel_dict(ch), status=status.HTTP_201_CREATED)
+            list_visibility=row["list_visibility"],   # follower LIST private
+            is_public=bool(want_public and not minor),
+            invite_code=CS.new_code(Channel))
+        return Response(_ch_payload(ch, request.user,
+                                    minor_private=bool(want_public and minor)),
+                        status=status.HTTP_201_CREATED)
+
+
+class ChannelResolveView(APIView):
+    """GET /channels/resolve?handle=&k= (or ?id=) -> {channel} when the viewer
+    may see it (public, member, or the private invite code). 404 otherwise —
+    a private channel never leaks without its code."""
+
+    def get(self, request):
+        CS = _cs()
+        qp = request.query_params
+        handle = mch.sanitize_handle(str(qp.get("handle", "")))
+        ch = None
+        if handle:
+            ch = Channel.objects.filter(handle=handle).first()
+        elif str(qp.get("id", "")).isdigit():
+            ch = Channel.objects.filter(pk=int(qp["id"])).first()
+        if ch is None or not CS.can_view(ch, request.user, qp.get("k", "")):
+            return _notfound()
+        return Response(_ch_payload(ch, request.user))
 
 
 class ChannelDetailView(APIView):
-    """GET /channels/<id>. PATCH /channels/<id> -> sanitize_profile_edit (verified/
-    follower_count/owner can NEVER be smuggled through)."""
+    """GET /channels/<id>[?k=] -> {channel, posts, can_publish} + flat keys.
+    PATCH -> sanitize_profile_edit (+ is_public, owner only; never for a
+    minor). verified/follower_count/owner can NEVER be smuggled through."""
 
     def get(self, request, pk):
+        CS = _cs()
         ch = Channel.objects.filter(pk=pk).first()
-        if ch is None:
+        if ch is None or not CS.can_view(ch, request.user,
+                                         request.query_params.get("k", "")):
             return _notfound()
-        return Response(_channel_dict(ch))
+        posts = (ch.posts.filter(deleted=False)
+                 .exclude(content_status__in=["hidden", "removed"])
+                 .order_by("-pinned", "-created_at")[:50])
+        v = CS.channel_view(ch, request.user)
+        return Response(_ch_payload(
+            ch, request.user, posts=[CS.post_dict(p) for p in posts],
+            can_publish=v["can_publish"]))
 
     def patch(self, request, pk):
+        CS = _cs()
         ch = Channel.objects.filter(pk=pk).first()
         if ch is None:
             return _notfound()
         if mch.role_of(_channel_dict(ch), request.user.id) not in (
                 mch.ROLE_OWNER, mch.ROLE_ADMIN):
             return _forbidden("edit_denied")
-        clean = mch.sanitize_profile_edit(request.data or {})
+        data = request.data or {}
+        clean = mch.sanitize_profile_edit(data)
         for k in ("name", "handle", "description", "category", "language",
                   "photo_ref"):
             if k in clean:
-                setattr(ch, k if k != "photo_ref" else "photo_ref",
-                        clean[k] if clean[k] is not None else "")
+                setattr(ch, k, clean[k] if clean[k] is not None else "")
         if "handle" in clean and clean["handle"] and \
                 Channel.objects.filter(handle=clean["handle"]).exclude(pk=ch.pk).exists():
             return _badreq("handle_taken")
+        if "is_public" in data:
+            if ch.owner_id != request.user.id:
+                return _forbidden("owner_only")
+            pub = data.get("is_public") not in (False, "false", "0", 0)
+            if pub and CS.is_minor(request.user):
+                return _forbidden("minor_private_only")
+            ch.is_public = pub
+        if not ch.invite_code:
+            ch.invite_code = CS.new_code(Channel)
         ch.save()
-        return Response(_channel_dict(ch))
+        return Response(_ch_payload(ch, request.user))
+
+    post = patch   # the app's edit helper may POST to the same path
 
 
 class ChannelAdminsView(APIView):
@@ -1059,20 +1224,31 @@ class ChannelAdminsView(APIView):
 
 
 class ChannelFollowView(APIView):
-    """POST /channels/<id>/follow -> follow (default count_only; invisible until
-    opt-in) and keep follower_count == COUNT(followers)."""
+    """POST /channels/<id>/follow {k?} -> follow (default count_only; invisible
+    until opt-in) and keep follower_count == COUNT(followers). A private
+    channel needs its invite code; 60 follows/hour; following a channel you
+    blocked un-blocks it."""
 
     def post(self, request, pk):
+        CS = _cs()
+        from .models import ChannelBlock
         ch = Channel.objects.filter(pk=pk).first()
-        if ch is None:
+        k = str((request.data or {}).get("k", "") or
+                request.query_params.get("k", ""))
+        if ch is None or not CS.can_view(ch, request.user, k):
             return _notfound()
+        if not ChannelFollower.objects.filter(channel=ch, user=request.user).exists():
+            if not CS.rate_ok(request.user, "chfollow", CS.FOLLOWS_PER_HOUR, 3600):
+                return Response({"detail": "rate_limited"},
+                                status=status.HTTP_429_TOO_MANY_REQUESTS)
+        ChannelBlock.objects.filter(channel=ch, user=request.user).delete()
         ChannelFollower.objects.get_or_create(
             channel=ch, user=request.user,
             defaults={"visibility": mch.VIS_DEFAULT})   # count_only
         ch.follower_count = ch.followers.count()
         ch.save(update_fields=["follower_count"])
-        return Response({"following": True, "follower_count": ch.follower_count,
-                         "visibility": mch.VIS_DEFAULT})
+        return Response(_ch_payload(ch, request.user, following=True,
+                                    visibility=mch.VIS_DEFAULT))
 
 
 class ChannelUnfollowView(APIView):
@@ -1083,17 +1259,19 @@ class ChannelUnfollowView(APIView):
         ChannelFollower.objects.filter(channel=ch, user=request.user).delete()
         ch.follower_count = ch.followers.count()
         ch.save(update_fields=["follower_count"])
-        return Response({"following": False, "follower_count": ch.follower_count})
+        return Response(_ch_payload(ch, request.user, following=False))
 
 
 class ChannelMuteView(APIView):
+    """POST /channels/<id>/mute {muted} — per-channel push mute."""
+
     def post(self, request, pk):
         f = ChannelFollower.objects.filter(channel_id=pk, user=request.user).first()
         if f is None:
             return _notfound("not following")
         f.muted = bool((request.data or {}).get("muted", True))
         f.save(update_fields=["muted"])
-        return Response({"muted": f.muted})
+        return Response(_ch_payload(f.channel, request.user, muted=f.muted))
 
 
 class ChannelMyVisibilityView(APIView):
@@ -1108,7 +1286,48 @@ class ChannelMyVisibilityView(APIView):
                                           (request.data or {}).get("visibility"))
         f.visibility = rec["visibility"]
         f.save(update_fields=["visibility"])
-        return Response({"visibility": f.visibility})
+        return Response(_ch_payload(f.channel, request.user,
+                                    visibility=f.visibility))
+
+
+class ChannelBlockView(APIView):
+    """POST /channels/<id>/block {blocked=true} -> the channel disappears from
+    my directory/suggestions, I stop following it and get no more pushes.
+    {blocked=false} un-blocks."""
+
+    def post(self, request, pk):
+        from .models import ChannelBlock
+        ch = Channel.objects.filter(pk=pk).first()
+        if ch is None:
+            return _notfound()
+        if ch.owner_id == request.user.id:
+            return _badreq("own_channel")
+        blocked = (request.data or {}).get("blocked", True) not in (
+            False, "false", "0", 0)
+        if blocked:
+            ChannelBlock.objects.get_or_create(channel=ch, user=request.user)
+            ChannelFollower.objects.filter(channel=ch, user=request.user).delete()
+            ch.follower_count = ch.followers.count()
+            ch.save(update_fields=["follower_count"])
+        else:
+            ChannelBlock.objects.filter(channel=ch, user=request.user).delete()
+        return Response({"blocked": blocked, "channel_id": ch.id})
+
+
+class ChannelInviteResetView(APIView):
+    """POST /channels/<id>/invite/reset -> a NEW private invite code (owner/
+    admin); the old link stops working (existing followers stay)."""
+
+    def post(self, request, pk):
+        CS = _cs()
+        ch = Channel.objects.filter(pk=pk).first()
+        if ch is None:
+            return _notfound()
+        if CS.role(ch, request.user) not in ("owner", "admin"):
+            return _forbidden("admins_only")
+        ch.invite_code = CS.new_code(Channel)
+        ch.save(update_fields=["invite_code"])
+        return Response({"url": CS.channel_link(ch), "is_public": ch.is_public})
 
 
 class ChannelListVisibilityView(APIView):
@@ -1120,8 +1339,9 @@ class ChannelListVisibilityView(APIView):
         if ch is None:
             return _notfound()
         vis = (request.data or {}).get("visibility")
-        if vis == mch.LIST_PUBLIC and not request.user.public_surfaces_enabled:
-            return _forbidden("public_surfaces_disabled")
+        # channels (2 Nov): no longer behind the owner's public_surfaces switch
+        # (nobody had it, so the control always failed). Safe: a follower is
+        # count_only by default and only appears after choosing "show".
         chd, ok, reason = mch.set_list_visibility(_channel_dict(ch),
                                                   request.user.id, vis)
         if not ok:
@@ -1161,20 +1381,29 @@ class ChannelPostsView(APIView):
 
     def get(self, request, pk):
         ch = Channel.objects.filter(pk=pk).first()
-        if ch is None:
+        if ch is None or not _cs().can_view(ch, request.user,
+                                            request.query_params.get("k", "")):
             return _notfound()
         posts = ch.posts.filter(deleted=False).exclude(
             content_status__in=["hidden", "removed"])
         return Response({"results": [self._post_dict(p) for p in posts]})
 
     def post(self, request, pk):
+        CS = _cs()
         ch = Channel.objects.filter(pk=pk).first()
         if ch is None:
             return _notfound()
         data = request.data or {}
         if data.get("e2e") is True:
             return _badreq("channel_post_must_not_be_e2e")
+        if ch.content_status == "removed":
+            return _forbidden("channel_removed")
         chd = _channel_dict(ch)
+        if mch.can_publish(mch.role_of(chd, request.user.id)) and \
+                not CS.rate_ok(request.user, "chpost%d" % ch.id,
+                               CS.POSTS_PER_DAY, 86400):
+            return Response({"detail": "rate_limited"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
         post, ok, reason = mch.new_post(
             post_id=None, channel=chd, author_id=request.user.id,
             kind=data.get("kind", "text"), text=str(data.get("text", "")),
@@ -1189,7 +1418,11 @@ class ChannelPostsView(APIView):
             e2e=False, content_scheme=post["content_scheme"],
             text=post["text"], media_refs=post["media_refs"],
             link_url=post["link_url"] or "")
-        return Response(self._post_dict(row), status=status.HTTP_201_CREATED)
+        # channels (2 Nov): followers (not muted / blocked) get a push.
+        notified = CS.notify_post(ch, row, request.user)
+        out = self._post_dict(row)
+        out["notified"] = notified
+        return Response(out, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def _post_dict(p):
@@ -1396,7 +1629,21 @@ class ChannelShareLinkView(APIView):
         ch = Channel.objects.filter(pk=pk).first()
         if ch is None:
             return _notfound()
-        return Response({"link": mch.make_share_link(_channel_dict(ch))})
+        # channels (2 Nov): a real https link (App Link opens the app, else the
+        # web page -> Play). Private channels: only owner/admins get the link
+        # (it carries the invite code).
+        CS = _cs()
+        r = CS.role(ch, request.user)
+        if not ch.is_public and r not in ("owner", "admin"):
+            return _forbidden("private_channel")
+        if not ch.invite_code:
+            ch.invite_code = CS.new_code(Channel)
+            ch.save(update_fields=["invite_code"])
+        url = CS.channel_link(ch)
+        return Response({"url": url, "link": url, "handle": ch.handle,
+                         "name": ch.name, "is_public": ch.is_public,
+                         "app_link": mch.make_share_link(_channel_dict(ch)),
+                         "play_url": CS.play_url()})
 
 
 # ===========================================================================
@@ -1417,9 +1664,9 @@ def _apply_status_to_target(kind, tid, new_status):
     if kind == mmod.T_POST:
         ChannelPost.objects.filter(pk=tid).update(content_status=new_status)
     elif kind == mmod.T_CHANNEL:
-        # channels have no status column; hide == set list private is not apt, so
-        # we leave the authoritative state on the ModerationItem only.
-        pass
+        # channels (2 Nov): hidden/removed channels leave the directory.
+        if str(tid).isdigit():
+            Channel.objects.filter(pk=int(tid)).update(content_status=new_status)
 
 
 class ModerationReportView(APIView):

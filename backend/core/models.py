@@ -2437,6 +2437,10 @@ class Community(models.Model):
     description = models.TextField(blank=True, default="")
     photo_ref = models.CharField(max_length=256, blank=True, default="")
     is_public = models.BooleanField(default=False)   # gated by owner switch
+    # channels (2 Nov): join-by-link code (https://lifeassisto.com/cm/<code>);
+    # joining with it always asks an admin first (CommunityJoinRequest).
+    invite_code = models.CharField(max_length=16, blank=True, default="",
+                                   db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2460,6 +2464,11 @@ class CommunityGroup(models.Model):
     size_limit = models.IntegerField(default=256)
     announcements_only = models.BooleanField(default=False)
     rules = models.TextField(blank=True, default="")
+    # channels (2 Nov): the E2E group chat behind this community group (the
+    # existing My Circle group engine; members mirrored on join/leave).
+    circle_group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                                     on_delete=models.SET_NULL,
+                                     related_name="community_groups")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2551,10 +2560,31 @@ class Channel(models.Model):
                                     related_name="channels_verified")  # operator
     verification_state = models.CharField(max_length=10, choices=VERIF, default="none")
     follower_count = models.IntegerField(default=0)              # == COUNT(followers)
+    # channels (2 Nov): DIRECTORY listing (is_public) is separate from the
+    # follower-LIST privacy above. Private channels open only with the invite
+    # code (https://lifeassisto.com/ch/<handle>?k=<code>). content_status is
+    # set by moderation (hidden/removed channels leave the directory).
+    is_public = models.BooleanField(default=False)
+    invite_code = models.CharField(max_length=16, blank=True, default="",
+                                   db_index=True)
+    content_status = models.CharField(max_length=10, default="visible")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class ChannelBlock(models.Model):
+    """channels (2 Nov): a viewer blocked a channel — it never shows in their
+    directory/suggestions again, they stop following it and get no pushes."""
+    channel = models.ForeignKey("Channel", on_delete=models.CASCADE,
+                                related_name="blocks")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="channel_blocks")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("channel", "user")]
 
 
 class ChannelAdmin(models.Model):

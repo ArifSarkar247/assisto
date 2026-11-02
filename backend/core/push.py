@@ -89,7 +89,14 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # remhbud: a NEW expense crossed 80 % / 100 % of a budget category
          # (core.budget_push: crossing only, quiet hours, max 3/day). A
          # NOTIFICATION push with the category + percent only.
-         "budget_alert")
+         "budget_alert",
+         # channels (2 Nov): a new post in a channel the user follows (not
+         # muted) — a NOTIFICATION push (tray draws it on every build): title
+         # = channel name, body = short preview. Opens the channel.
+         "channel_post",
+         # channels (2 Nov): someone asked to join your community (admins) /
+         # your join request was approved (requester). Opens Communities.
+         "community_join")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -111,7 +118,8 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "offer": 6 * 3600, "meter_low": 12 * 3600,
          "agent_nudge": 12 * 3600, "agent_approval": 86400,
          "at_command": 3600, "doc_expiry": 12 * 3600, "dues": 86400,
-         "budget_alert": 12 * 3600}
+         "budget_alert": 12 * 3600, "channel_post": 86400,
+         "community_join": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -122,7 +130,8 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "meter_low": "alerts",
             "agent_nudge": "alerts", "agent_approval": "alerts",
             "at_command": "alerts", "doc_expiry": "reminders", "dues": "reminders",
-            "budget_alert": "alerts"}
+            "budget_alert": "alerts", "channel_post": "messages",
+            "community_join": "messages"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -478,6 +487,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             collapse = kind   # one pending per device is enough
         elif kind in ("call", "call_cancel") and payload.get("call_id"):
             collapse = "call-%s" % payload["call_id"]
+        elif kind == "channel_post" and payload.get("channel_id"):
+            collapse = "chpost-%s" % payload["channel_id"]   # newest per channel
         elif kind == "agent_approval" and payload.get("approval_id"):
             collapse = "agentap-%s" % payload["approval_id"]
         sent = 0
