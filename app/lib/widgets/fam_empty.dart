@@ -20,6 +20,7 @@ class FamEmptyState extends StatelessWidget {
     this.secondaryLabel,
     this.onSecondary,
     this.header,
+    this.footer,
   });
 
   final IconData icon;
@@ -34,6 +35,10 @@ class FamEmptyState extends StatelessWidget {
 
   /// Optional widget above the state (e.g. the Family tab's alerts entry).
   final Widget? header;
+
+  /// Extra content under the steps (e.g. a second device type, a "where to
+  /// buy" link). chipbuy.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +125,10 @@ class FamEmptyState extends StatelessWidget {
               ]),
             ),
           ),
+        ],
+        if (footer != null) ...[
+          const SizedBox(height: Gap.md),
+          footer!,
         ],
       ],
     );

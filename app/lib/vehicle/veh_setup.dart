@@ -56,6 +56,12 @@ class VehSetupView extends StatefulWidget {
   final String operator;
   final String simNumber;
   final VoidCallback onClose;
+
+  /// chipbuy: a tracker CHIP re-opens its pairing window through its own
+  /// endpoint (never the paid vehicle pairing) and says "child", not
+  /// "vehicle", on the first fix.
+  final Future<Map<String, dynamic>> Function()? retry;
+  final String? firstFixText;
   const VehSetupView({
     super.key,
     required this.tracker,
@@ -63,6 +69,8 @@ class VehSetupView extends StatefulWidget {
     required this.operator,
     this.simNumber = '',
     required this.onClose,
+    this.retry,
+    this.firstFixText,
   });
 
   @override
@@ -128,8 +136,11 @@ class _VehSetupViewState extends State<VehSetupView> {
     final tr = AppLocalizations.of(context);
     setState(() => _retrying = true);
     try {
-      final r = await context.read<AppState>().api.vehPair('${_t['imei'] ?? ''}',
-          name: '${_t['name'] ?? ''}', protocol: '${_t['protocol'] ?? 'auto'}');
+      final again = widget.retry;
+      final r = again != null
+          ? {'tracker': await again()}
+          : await context.read<AppState>().api.vehPair('${_t['imei'] ?? ''}',
+              name: '${_t['name'] ?? ''}', protocol: '${_t['protocol'] ?? 'auto'}');
       if (mounted) setState(() => _t = vehMap(r['tracker']));
       _poll?.cancel();
       _poll = Timer.periodic(const Duration(seconds: 5), (_) => _check());
@@ -177,7 +188,7 @@ class _VehSetupViewState extends State<VehSetupView> {
       tint = Brand.success;
       title = tr.v100SetupFirstFix;
       body = _tookToConnect == null
-          ? tr.v100SetupFirstFixBody
+          ? (widget.firstFixText ?? tr.v100SetupFirstFixBody)
           : tr.v100SetupTook(_mmss(context, _tookToConnect!));
     } else if (paired) {
       icon = Icons.satellite_alt_rounded;

@@ -199,9 +199,11 @@ class TrackerListView(APIView):
         now = timezone.now()
         cfg = VS.vcfg()
         own = list(VehicleTracker.objects.filter(owner=request.user)
+                   .exclude(kind="chip")      # chipbuy: chips live on the child card
                    .select_related("vehicle_record"))
         shared = []
         for t in VehicleTracker.objects.filter(grants__grantee=request.user) \
+                .exclude(kind="chip") \
                 .select_related("owner", "vehicle_record").distinct():
             acc = access_for(request.user, t)
             if acc["view"]:
@@ -223,6 +225,8 @@ class TrackerListView(APIView):
         if existing is not None and existing.owner_id != request.user.id:
             VS.audit(existing, "pair_conflict", actor=request.user)
             return R({"reason": "imei_taken", "ok": False}, status=409)
+        if existing is not None and existing.kind == "chip":
+            return R({"reason": "imei_is_chip", "ok": False}, status=409)  # chipbuy
         rec = None
         if d.get("vehicle_record_id"):
             rec = PaCollectionItem.objects.filter(
@@ -968,7 +972,7 @@ class FleetDashboardView(APIView):
         local_midnight = now.astimezone(VS.LOCAL_TZ).replace(
             hour=0, minute=0, second=0, microsecond=0)
         rows = []
-        cand = list(VehicleTracker.objects.filter(owner=request.user)[:100])
+        cand = list(VehicleTracker.objects.filter(owner=request.user).exclude(kind="chip")[:100])
         for t in VehicleTracker.objects.filter(grants__grantee=request.user,
                                                grants__kind="fleet").distinct()[:100]:
             if access_for(request.user, t)["view"]:
