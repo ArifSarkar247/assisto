@@ -9,11 +9,34 @@ system (systemctl show, crontab -l, /etc/cron.d).
   */5 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-ops-watch.lock nice -n15 /home/ubuntu/assisto/.venv/bin/python manage.py ops_watch >> /home/ubuntu/assisto/backend/logs/ops_watch.log 2>&1
 
 --dry-run: print the checks, change nothing, alert nobody.
+OPS_DEADMAN_URL (backend/.env, optional): an https Healthchecks.io / Cronitor
+ping URL hit after every real run, so an outside service notices when
+ops_watch itself stops (cronbar).
 """
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from core.ops_health import track_job
+
+
+def deadman_ping(url=None, opener=None):
+    """cronbar: "who watches the watcher". When OPS_DEADMAN_URL is set (an
+    https Healthchecks.io / Cronitor ping URL, in backend/.env), every
+    finished ops_watch run pings it; if the pings stop (cron daemon dead,
+    box down, ops_watch crashing) THAT service emails / texts the owner.
+    -> "ok" | "failed" | "" (not configured). Never raises; 5 s timeout."""
+    import os
+    url = url if url is not None else os.getenv("OPS_DEADMAN_URL", "").strip()
+    if not url:
+        return ""
+    if not url.startswith("https://"):
+        return "failed"
+    try:
+        import urllib.request
+        with (opener or urllib.request.urlopen)(url, timeout=5) as r:
+            return "ok" if 200 <= getattr(r, "status", 200) < 300 else "failed"
+    except Exception:  # noqa: BLE001 — the watch itself never fails on this
+        return "failed"
 
 
 class Command(BaseCommand):
@@ -50,6 +73,7 @@ class Command(BaseCommand):
         if msg:
             from core.push import notify_owner
             sent = notify_owner(*msg)
-        self.stdout.write("%s ops_watch checks=%d bad=%d new=%d remind=%d recovered=%d%s" % (
+        pinged = deadman_ping()
+        self.stdout.write("%s ops_watch checks=%d bad=%d new=%d remind=%d recovered=%d%s%s" % (
             stamp, len(checks), len(bad), len(new_bad), len(remind), len(recovered),
-            (" sent=%s" % sent) if sent else ""))
+            (" sent=%s" % sent) if sent else "", (" deadman=%s" % pinged) if pinged else ""))
