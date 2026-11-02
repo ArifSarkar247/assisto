@@ -34637,5 +34637,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cevRetentionCap": "Up to {days} days: the base plan keeps photos 7 days; the 30-day video add-on keeps them 30 days.",
+  "@cevRetentionCap": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cevRetentionAddonLink": "See the video add-on"
 }
