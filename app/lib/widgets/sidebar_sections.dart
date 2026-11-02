@@ -729,7 +729,7 @@ class SidebarSections {
       // PA Secretary — SPEC §14 / §4. Section 14 core (schedule, meeting brief,
       // visitor filter, liaison, personal tasks, delegate access) now ships, so
       // this opens the PA hub.
-      SidebarItem(Icons.support_agent_rounded, (t) => t.sidebarPaSecretary,
+      SidebarItem(Icons.support_agent_rounded, (t) => t.sidebarPersonalSecretary,
           feature: 'pa_secretary',
           (_) => const PaHubScreen(),
           synonyms: ['pa', 'secretary', 'personal assistant', 'pa mode']),

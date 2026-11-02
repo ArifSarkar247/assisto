@@ -28485,5 +28485,6 @@
   "cvvDriversStep3": "On the vehicle, choose who is driving now.",
   "cvvShareWhoTitle": "Who can see this vehicle?",
   "cvvShareTapName": "Tap a name to share. Turn the switch on first to also let them stop/restore the engine.",
-  "cvvH02Picked": "10-digit ID — that is a Sinotrack, so we picked Sinotrack for you."
+  "cvvH02Picked": "10-digit ID — that is a Sinotrack, so we picked Sinotrack for you.",
+  "sidebarPersonalSecretary": "Personal Secretary (PS)"
 }

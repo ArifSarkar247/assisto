@@ -18588,5 +18588,6 @@
   "cvvDriversStep3": "গাড়ির পাতায় এখন কে চালাচ্ছেন বেছে দিন।",
   "cvvShareWhoTitle": "কে এই গাড়ি দেখতে পাবেন?",
   "cvvShareTapName": "নামে ট্যাপ করলেই শেয়ার। ইঞ্জিন বন্ধ/চালুর অনুমতিও দিতে চাইলে আগে সুইচটি চালু করুন।",
-  "cvvH02Picked": "১০ অঙ্কের ID — এটা Sinotrack, তাই আমরা Sinotrack বেছে দিয়েছি।"
+  "cvvH02Picked": "১০ অঙ্কের ID — এটা Sinotrack, তাই আমরা Sinotrack বেছে দিয়েছি।",
+  "sidebarPersonalSecretary": "পার্সোনাল সেক্রেটারি (পিএস)"
 }

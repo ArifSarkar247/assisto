@@ -90,7 +90,7 @@ class PaHubScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.sidebarPaSecretary)),
+      appBar: AppBar(title: Text(t.sidebarPersonalSecretary)),
       body: ListView.separated(
         padding: const EdgeInsets.all(Gap.md),
         itemCount: tools.length,
