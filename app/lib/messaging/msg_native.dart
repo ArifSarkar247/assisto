@@ -30,23 +30,6 @@ class MsgNative {
   static Future<bool> openBubbleSettings() async =>
       (await _call<bool>('openBubbleSettings')) ?? false;
 
-  /// bubbles2: the raw facts for the "Turn on floating chat bubbles?" card
-  /// (see BubbleStatus.fromMap); null when the native side is missing.
-  static Future<Map<String, dynamic>?> bubbleStatus() async {
-    final r = await _call<Map<Object?, Object?>>('bubbleStatus');
-    return r?.map((k, v) => MapEntry('$k', v));
-  }
-
-  /// bubbles2: our own active My Circle chat notifications, newest first:
-  /// [{key: "member:12", bubble: showing as a bubble now, meta, at}].
-  static Future<List<Map<String, dynamic>>> activeChats() async {
-    final r = await _call<List<Object?>>('activeChats');
-    return (r ?? const [])
-        .whereType<Map<Object?, Object?>>()
-        .map((m) => m.map((k, v) => MapEntry('$k', v)))
-        .toList();
-  }
-
   /// The chat a bubble / conversation shortcut / notification asked to open,
   /// as "member:12" / "group:3" (consumed once), or null.
   static Future<String?> takeLaunchChat() => _call<String>('takeLaunchChat');

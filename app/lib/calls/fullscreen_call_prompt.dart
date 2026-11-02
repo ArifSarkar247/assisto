@@ -27,18 +27,13 @@ class FullScreenCallPrompt {
   }
 
   /// From a screen that is on top (My Circle).
-  /// Returns true when the prompt was shown (bubbles2: My Circle then asks
-  /// nothing else on this visit — one permission per screen).
-  static Future<bool> maybeShow(BuildContext context) async {
+  static Future<void> maybeShow(BuildContext context) async {
     try {
-      if (!await _needed() || !context.mounted) return false;
+      if (!await _needed() || !context.mounted) return;
       await Settings.setBool(kShown, true);
-      if (!context.mounted) return false;
+      if (!context.mounted) return;
       await _dialog(context);
-      return true;
-    } catch (_) {
-      return false;
-    }
+    } catch (_) {}
   }
 
   /// After an incoming call screen closed: use the app navigator.

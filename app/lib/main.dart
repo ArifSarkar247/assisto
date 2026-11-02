@@ -1,4 +1,3 @@
-import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
@@ -631,11 +630,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     // ring-everywhere: that guide now lives inside the call ring checklist
     // (notifications + full-screen + the same OEM steps), shown once when
     // something is missing.
-    // bubbles2: right after it (the notification permission), the ONE
-    // optional "Turn on floating chat bubbles?" step (Android 11+ only).
     RingCheckGate.schedule(
-        context, () => const RingChecklistScreen(firstRun: true),
-        then: maybeAskBubblesOnInstallDay);
+        context, () => const RingChecklistScreen(firstRun: true));
     // Only resolve the home swap once we're past login + onboarding, so the
     // normal startup flow is never disturbed.
     _resolveElderly();

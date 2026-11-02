@@ -105,7 +105,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
       case 'maps_geocoding':
         return t.flagMapsGeocoding;
       case 'messenger_public':
-        return t.bbl2FlagPublic; // bubbles2: no company name
+        return t.flagMessengerPublic;
       case 'business_crm':
         return t.flagBusinessCrm;
       case 'family_sharing':

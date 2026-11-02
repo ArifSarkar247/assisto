@@ -88,7 +88,7 @@ String cmLabel(BuildContext c, String key) {
     case 'cmInviteCardTitle':
       return t.cmInviteCardTitle;
     case 'cmInviteCardBody':
-      return t.bbl2InviteCardBody; // bubbles2: no company name
+      return t.cmInviteCardBody;
     case 'cmInviteCardReferralNote':
       return t.cmInviteCardReferralNote;
     case 'cmInviteCardSeeReferral':

@@ -301,12 +301,7 @@ class RingCheckGate {
   @visibleForTesting
   static void resetForTest() => _scheduled = false;
 
-  /// [then] (bubbles2): runs after the checklist closed — or at once when
-  /// nothing was missing — while the root route is still on top: the
-  /// install-day "Turn on floating chat bubbles?" step comes right after the
-  /// notification permission, one permission per screen.
-  static void schedule(BuildContext context, Widget Function() screen,
-      {Future<void> Function(NavigatorState nav)? then}) {
+  static void schedule(BuildContext context, Widget Function() screen) {
     if (_scheduled) return;
     _scheduled = true;
     bool android;
@@ -333,16 +328,7 @@ class RingCheckGate {
         await nav.push(MaterialPageRoute(
             settings: const RouteSettings(name: 'ring_check_first_run'),
             builder: (_) => screen()));
-      } catch (_) {
-      } finally {
-        try {
-          if (then != null &&
-              nav.mounted &&
-              (route == null || route.isCurrent)) {
-            await then(nav);
-          }
-        } catch (_) {}
-      }
+      } catch (_) {}
     }));
   }
 }

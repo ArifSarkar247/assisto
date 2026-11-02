@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
-import 'bubble_ask.dart'; // bubbles2
-import 'bubble_card.dart'; // bubbles2
 import 'msg_native.dart';
 import 'msg_prefs.dart';
 
@@ -31,12 +29,23 @@ Future<bool> toggleChatBubble(
   if (!next) unawaited(MsgNative.removeBubble(kind, id));
   messenger?.showSnackBar(
       SnackBar(content: Text(next ? t.c3BubbleOnDone : t.c3BubbleOffDone)));
-  // bubbles2: turning it ON while the phone doesn't allow Assisto's
-  // bubbles → the same "Turn on floating chat bubbles?" card (Android keeps
-  // that choice; the user picks "All conversations can bubble").
-  if (next && context.mounted) {
-    final st = await BubbleAsk.status();
-    if (st.askable && context.mounted) await showBubbleCard(context, initial: st);
+  if (next && await MsgNative.bubblesAllowed() == false && context.mounted) {
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
+        title: Text(t.c3BubbleAllowTitle),
+        content: Text(t.c3BubbleAllowBody),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.c3OpenSettings)),
+        ],
+      ),
+    );
+    if (open == true) await MsgNative.openBubbleSettings();
   }
   return next;
 }

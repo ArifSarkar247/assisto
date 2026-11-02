@@ -614,7 +614,7 @@ class _MsgrSettingsSectionState extends State<_MsgrSettingsSection> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-          child: Text(t.bbl2SettingsCircleSection,
+          child: Text(t.settingsMsgrSection,
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
