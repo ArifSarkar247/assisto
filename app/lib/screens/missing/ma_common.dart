@@ -17,7 +17,7 @@ String maReason(AppLocalizations t, String? reason) {
     case 'invalid':
       return t.maErrFields;
     case 'gd_required':
-      return t.maErrGd;
+      return t.maErrGdV2;
     case 'not_family':
       return t.maErrNotFamily;
     case 'too_many_active':
@@ -27,7 +27,7 @@ String maReason(AppLocalizations t, String? reason) {
     case 'banned':
       return t.maErrBanned;
     case 'cooling':
-      return t.maErrCooling;
+      return t.maErrCoolingV2;
     case 'already_active':
       return t.maErrAlready;
     case 'rate_limited':
@@ -37,7 +37,7 @@ String maReason(AppLocalizations t, String? reason) {
     case 'too_early':
       return t.maErrTooEarly;
     case 'gd_reconfirm':
-      return t.maErrGdReconfirm;
+      return t.maErrGdReconfirmV2;
     case 'max_renewals':
       return t.maErrMaxRenew;
     case 'area_required':
