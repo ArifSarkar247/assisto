@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -81,7 +82,7 @@ class _WatchedPhonesScreenState extends State<WatchedPhonesScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _failed
-                ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                ? ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
                     const SizedBox(height: Gap.xxl),
                     Text(honestFailText(tr, _cause, otherwise: tr.at100LoadFailed),
                         textAlign: TextAlign.center),
@@ -95,7 +96,7 @@ class _WatchedPhonesScreenState extends State<WatchedPhonesScreen> {
                             child: Text(tr.retry))),
                   ])
                 : _phones.isEmpty
-                    ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                    ? ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
                         const SizedBox(height: Gap.xxl),
                         Icon(Icons.shield_outlined,
                             size: 56,
@@ -106,7 +107,7 @@ class _WatchedPhonesScreenState extends State<WatchedPhonesScreen> {
                             textAlign: TextAlign.center),
                       ])
                     : ListView(
-                        padding: const EdgeInsets.all(Gap.md),
+                        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
                         children: _phones
                             .map((p) => _PhoneTile(phone: p, onRefresh: _load))
                             .toList(),

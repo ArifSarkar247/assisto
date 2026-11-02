@@ -122,6 +122,30 @@ object AntiTheftChannel {
                     // at100: is a remote alarm ringing on this phone? / stop it
                     "alarmPlaying" -> result.success(RemoteAlarm.playing)
                     "alarmStop" -> { RemoteAlarm.stop(app); result.success(true) }
+                    // sosat: lock-screen SOS / power x5 / experimental fall
+                    "setSosTriggers" -> {
+                        val v = call.argument<Map<String, Any?>>("values") ?: emptyMap()
+                        SafetyTriggers.save(app, v)
+                        AntiTheftService.triggersChanged(app)
+                        result.success(true)
+                    }
+                    "fallOk" -> {
+                        try {
+                            if (AntiTheftService.running) app.startService(
+                                android.content.Intent(app, AntiTheftService::class.java)
+                                    .setAction(SafetyTriggers.ACTION_FALL_OK))
+                        } catch (_: Throwable) {}
+                        result.success(null)
+                    }
+                    "recordTrace" -> {
+                        val secs = call.argument<Int>("seconds") ?: 30
+                        val meta = HashMap<String, String>()
+                        (call.argument<Map<String, Any?>>("meta") ?: emptyMap()).forEach { (k, x) ->
+                            if (x != null) meta[k] = x.toString()
+                        }
+                        result.success(AntiTheftService.recordTrace(secs, meta))
+                    }
+                    "lastTrace" -> result.success(SafetyTriggers.lastTrace(app))
                     "configure" -> {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))

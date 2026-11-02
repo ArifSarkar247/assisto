@@ -1,6 +1,7 @@
 import 'dart:async';
 import '../theme.dart';
 import 'package:flutter/material.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits; // sosat
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
@@ -296,7 +297,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                       style: AType.headlineSmall.copyWith(color: Colors.white,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
-                  Text('$_remaining',
+                  Text(notifLocalizeDigits(context, '$_remaining'), // sosat: bn digits
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 80, // countdown hero digit, above the scale

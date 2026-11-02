@@ -78,6 +78,24 @@ class AntiTheftService : Service(), SensorEventListener {
         const val ACTION_RESTART = "com.assisto.assisto.antitheft.RESTART"
         // at100: the remote alarm notification's Stop button.
         const val ACTION_ALARM_STOP = "com.assisto.assisto.antitheft.ALARM_STOP"
+        // sosat: SOS trigger settings changed in the open app
+        const val ACTION_TRIGGERS_CHANGED = "com.assisto.assisto.antitheft.TRIGGERS_CHANGED"
+
+        /** sosat: from the open app (AntiTheftChannel). Never throws. */
+        fun triggersChanged(ctx: Context) {
+            try {
+                if (!running) return
+                ctx.startService(Intent(ctx, AntiTheftService::class.java)
+                    .setAction(ACTION_TRIGGERS_CHANGED))
+            } catch (_: Throwable) {}
+        }
+
+        /** sosat: record a sensor trace (protection must be running). */
+        fun recordTrace(seconds: Int, meta: Map<String, String>): Boolean = try {
+            val s = instance
+            if (s == null || !running) false
+            else s.triggers?.startRecording(seconds, meta) ?: false
+        } catch (_: Throwable) { false }
         private const val RESUME_NOTIF_ID = 8441
 
         @Volatile var running = false
@@ -510,6 +528,11 @@ class AntiTheftService : Service(), SensorEventListener {
 
     private var sensorMgr: SensorManager? = null
     private val snatch = SnatchDetector()
+    // sosat: lock-screen / power-button SOS + experimental fall detection
+    // (inside THIS service; nothing new runs in the background)
+    @Volatile private var triggers: SafetyTriggers? = null
+    private var snatchType = -1
+    private var rawRegistered = false
     private var lastSimReceiver: BroadcastReceiver? = null
     private var sysReceiver: BroadcastReceiver? = null
     @Volatile private var snatchGraceUntil = 0L
@@ -544,6 +567,13 @@ class AntiTheftService : Service(), SensorEventListener {
             if (intent?.action == ACTION_STOP) {
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            // sosat: notification buttons (SOS / Cancel / I'm OK)
+            if (running && triggers?.handle(intent) == true) return START_STICKY
+            if (intent?.action == ACTION_TRIGGERS_CHANGED && running) {
+                refreshRawSensor()
+                ensureForeground(allowCamera = false) // SOS button on/off
+                return START_STICKY
             }
             if (intent?.action == ACTION_ALARM_STOP) {
                 // at100: whoever holds the phone may stop the remote alarm
@@ -587,6 +617,8 @@ class AntiTheftService : Service(), SensorEventListener {
             if (intent?.action == ACTION_SNATCH) {
                 bg.post { onSnatchDetected() }
             }
+            // sosat: a notification button that (re)started the service
+            if (fresh) try { triggers?.handle(intent) } catch (_: Throwable) {}
         } catch (_: Throwable) {
             stopSelf()
         }
@@ -600,6 +632,7 @@ class AntiTheftService : Service(), SensorEventListener {
         worker = HandlerThread("assisto-antitheft").apply { start() }
         bg = Handler(worker.looper)
         queue = AntiTheftQueue(this)
+        try { triggers = SafetyTriggers(this, bg) } catch (_: Throwable) {}
         bg.post(heartbeatTick)
         // grab-guard: a grab still waiting from before a restart is sent when
         // its 60 s are up (or at once if they already are).
@@ -665,7 +698,12 @@ class AntiTheftService : Service(), SensorEventListener {
             .setContentText(notifBody)
             .setOngoing(true)
             .also { if (pi != null) it.setContentIntent(pi) }
+            .also { b -> SafetyTriggers.sosAction(this)?.let { b.addAction(it) } } // sosat
             .also { b -> offAction()?.let { b.addAction(it) } }
+            .also { b ->
+                // sosat: the SOS button must show on the lock screen
+                if (SafetyTriggers.lockOn(this)) b.setVisibility(Notification.VISIBILITY_PUBLIC)
+            }
             .build()
         val want = wantedTypes(allowCamera)
         // Try the location type, then (pre-Android-14 only, where types are
@@ -927,13 +965,14 @@ class AntiTheftService : Service(), SensorEventListener {
      *  sent at once with the last fix, the radio is about to go), its
      *  accuracy and fix time (data.acc / data.fix_at). */
     private fun capture(kind: String, data: JSONObject = JSONObject(),
-                        atMs: Long = System.currentTimeMillis()) {
+                        atMs: Long = System.currentTimeMillis(), id: String? = null) {
         if (!this::bg.isInitialized) return
         bg.post {
             try {
-                val cid = "$kind-" + UUID.randomUUID().toString().take(12)
+                val cid = id ?: ("$kind-" + UUID.randomUUID().toString().take(12))
                 val wantFresh = kind == "low_battery" || kind == "snatch" ||
-                    kind == "sim_change" || kind == "failed_unlock"
+                    kind == "sim_change" || kind == "failed_unlock" ||
+                    kind == "sos_lockscreen" || kind == "sos_power" || kind == "fall"
                 val fix = currentFix(if (wantFresh) 2 * 60_000L else 15 * 60_000L,
                     if (wantFresh) 8_000L else 0L)
                 if (fix != null) {
@@ -944,6 +983,28 @@ class AntiTheftService : Service(), SensorEventListener {
                 doHeartbeat()
             } catch (_: Throwable) {}
         }
+    }
+
+    /** sosat: an SOS trigger / fall event from SafetyTriggers (own id so
+     *  "I'm OK" can name the fall). Never throws. */
+    internal fun captureTrigger(kind: String, data: JSONObject, atMs: Long, id: String) {
+        try { capture(kind, data, atMs, id) } catch (_: Throwable) {}
+    }
+
+    /** sosat: (un)register the RAW accelerometer the fall detector and the
+     *  trace recorder need — only while one of them is on. */
+    internal fun refreshRawSensor() {
+        try {
+            val sm = sensorMgr ?: return
+            val want = triggers?.wantsRaw() == true && snatchType != Sensor.TYPE_ACCELEROMETER
+            val raw = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return
+            if (want && !rawRegistered) {
+                rawRegistered = sm.registerListener(this, raw, SensorManager.SENSOR_DELAY_GAME)
+            } else if (!want && rawRegistered) {
+                sm.unregisterListener(this, raw)
+                rawRegistered = false
+            }
+        } catch (_: Throwable) {}
     }
 
     /** true = the server answered (whatever it said); false = no network. */
@@ -1113,7 +1174,9 @@ class AntiTheftService : Service(), SensorEventListener {
                 ?: sensorMgr?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
             if (s != null) {
                 sensorMgr?.registerListener(this, s, SensorManager.SENSOR_DELAY_GAME)
+                snatchType = s.type
             }
+            refreshRawSensor() // sosat: fall detection / trace recorder
             // antitheft2: gravity tells "lying face-down" (cheap, low rate)
             sensorMgr?.getDefaultSensor(Sensor.TYPE_GRAVITY)?.let { g ->
                 sensorMgr?.registerListener(this, g, SensorManager.SENSOR_DELAY_NORMAL)
@@ -1134,6 +1197,17 @@ class AntiTheftService : Service(), SensorEventListener {
             if (event.sensor.type == Sensor.TYPE_GRAVITY) {
                 onGravity(event.values[2])
                 return
+            }
+            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                // sosat: fall / recorder see every raw sample (even while the
+                // protection screen is open — a fall is a fall)
+                try {
+                    triggers?.onRawAccel(event.values[0], event.values[1],
+                        event.values[2], System.currentTimeMillis())
+                } catch (_: Throwable) {}
+                // a raw sensor registered only for the fall detector must
+                // not feed the snatch detector twice
+                if (snatchType != Sensor.TYPE_ACCELEROMETER) return
             }
             if (snatchSuppressed()) { snatch.reset(); return }
             var x = event.values[0]; var y = event.values[1]; var z = event.values[2]
@@ -1354,11 +1428,15 @@ class AntiTheftService : Service(), SensorEventListener {
         when (i?.action) {
             // grab-guard: state only — never an event, never a network call
             Intent.ACTION_SCREEN_ON -> {
+                triggers?.onScreenToggle(System.currentTimeMillis()) // sosat
                 screenOn = true
                 unlockedNow = screenUnlocked() // no screen lock -> unlocked
                 if (unlockedNow) lastUnlockAt = System.currentTimeMillis()
             }
-            Intent.ACTION_SCREEN_OFF -> { screenOn = false; unlockedNow = false }
+            Intent.ACTION_SCREEN_OFF -> {
+                triggers?.onScreenToggle(System.currentTimeMillis()) // sosat
+                screenOn = false; unlockedNow = false
+            }
             Intent.ACTION_USER_PRESENT -> {
                 unlockedNow = true
                 lastUnlockAt = System.currentTimeMillis()

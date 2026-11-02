@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -90,7 +91,8 @@ class IntruderConsentScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
+              padding: withNavBarInset(
+                  context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

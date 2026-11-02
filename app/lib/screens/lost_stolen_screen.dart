@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
@@ -452,7 +453,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(Gap.md),
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
               children: [
                 _statusBanner(tr, scheme),
                 const SizedBox(height: Gap.md),

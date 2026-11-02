@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -318,7 +319,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.all(Gap.md),
+                    padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
                     children: [
                       if (_isFrozen) ...[
                         _frozenBanner(tr),

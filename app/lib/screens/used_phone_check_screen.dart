@@ -202,6 +202,24 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
     }
   }
 
+  /// sosat: BTRC NEIR check by SMS (KYD <IMEI> to 16002), user sends it.
+  Future<void> _neirSms() async {
+    final t = AppLocalizations.of(context);
+    final imei = _imei.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (imei.length != 15) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.saNeirNeedImei)));
+      return;
+    }
+    try {
+      await launchUrl(Uri.parse('sms:16002?body=${Uri.encodeComponent('KYD $imei')}'));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.saNeirNeedImei)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -341,6 +359,30 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             ),
             const SizedBox(height: Gap.md),
           ],
+          // sosat: the official BTRC NEIR check has no public API — it is an
+          // SMS ("KYD <IMEI>" to 16002). Prepared in the phone's own SMS app;
+          // the user taps send (normal operator SMS charge).
+          Card(
+            key: const ValueKey('sosat-neir-card'),
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(t.saNeirSmsTitle,
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: Gap.xs),
+                Text(t.saNeirSmsBody, style: AType.bodySmall),
+                const SizedBox(height: Gap.sm),
+                OutlinedButton.icon(
+                  key: const ValueKey('sosat-neir-sms'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  onPressed: _neirSms,
+                  icon: const Icon(Icons.sms_rounded),
+                  label: Text(t.saNeirSmsButton),
+                ),
+              ]),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
           // Cross-link: if it's the user's OWN phone that's lost/stolen.
           Align(
             alignment: Alignment.centerLeft,

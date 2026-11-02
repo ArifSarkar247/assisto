@@ -133,7 +133,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
 
   Widget _errorState(AppLocalizations t) {
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         const SizedBox(height: Gap.xxl),
         Icon(Icons.cloud_off_rounded,
@@ -153,7 +153,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
     final scheme = Theme.of(context).colorScheme;
     final lostMode = _data['lost_mode'] == true;
     return ListView(
-      padding: const EdgeInsets.all(Gap.md),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
       children: [
         Text(t.mlpSubtitle, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: Gap.md),

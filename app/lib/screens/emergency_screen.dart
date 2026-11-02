@@ -13,6 +13,8 @@ import '../widgets/emergency_helplines.dart';
 import '../widgets/emergency_first_aid.dart';
 import '../widgets/emergency_nearest_help.dart';
 import '../widgets/emergency_sos_panel.dart';
+import '../famcare_api.dart'; // sosat: pick emergency numbers from My Circle
+import '../widgets/circle_relation.dart';
 import 'safety_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
@@ -259,12 +261,44 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       final pos = await Geolocator.getCurrentPosition();
       await Share.share(t.sosShareText(
           'https://maps.google.com/?q=${pos.latitude},${pos.longitude}'));
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('$e')));
+    } catch (_) {
+      // sosat: never a raw (English) exception text on screen
+      messenger.showSnackBar(SnackBar(content: Text(t.saLocationFailed)));
     }
   }
 
+  /// sosat: emergency numbers come from My Circle in ONE tap (nobody is
+  /// typed twice); "Add by hand" stays for someone outside the circle. A
+  /// picked or typed number is SAVED at once (it used to need a separate
+  /// Save tap and was lost when the screen was left).
   Future<void> _addContact() async {
+    final t = AppLocalizations.of(context);
+    final picked = await showAppSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _CirclePickSheet(
+          already: {for (final c in _contacts) '${c['phone'] ?? ''}'.trim()}),
+    );
+    if (!mounted || picked == null) return;
+    if (picked['hand'] == true) {
+      await _addByHand();
+      return;
+    }
+    final phone = '${picked['phone'] ?? ''}'.trim();
+    if (phone.isEmpty || _contacts.any((c) => '${c['phone'] ?? ''}'.trim() == phone)) return;
+    setState(() {
+      _contacts.add({
+        'name': '${picked['name'] ?? ''}',
+        'phone': phone,
+        'relation': CircleRelation.labelFor(t, '${picked['relation'] ?? ''}',
+            custom: '${picked['custom_label'] ?? ''}'),
+      });
+    });
+    await _save();
+  }
+
+  Future<void> _addByHand() async {
     final t = AppLocalizations.of(context);
     final name = TextEditingController();
     final phone = TextEditingController();
@@ -303,8 +337,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           'phone': phone.text.trim(),
           'relation': rel.text.trim()
         });
-        _editing = true;
       });
+      await _save(); // sosat: saved at once
     }
   }
 
@@ -356,8 +390,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         EmergencySosPanel(
           contacts: _contacts,
           countdownSeconds: _sosCountdown,
-          onNoContact: () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(t.emergencyAddContactFirst))),
+          // sosat: SOS no longer needs a saved number (it goes to My
+          // Circle); after it, this adds numbers for the Call/SMS steps.
+          onNoContact: _addContact,
         ),
         const SizedBox(height: Gap.sm),
         // QA a6: side-by-side these wrapped to 3 lines in Bangla and the text
@@ -513,7 +548,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           child: ListTile(
             title: Text('${_contacts[i]['name'] ?? ''}'),
             subtitle:
-                Text('${_contacts[i]['phone']} · ${_contacts[i]['relation'] ?? ''}'),
+                Text('${_digits('${_contacts[i]['phone']}')} · ${_contacts[i]['relation'] ?? ''}'),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: [
               IconButton(tooltip: AppLocalizations.of(context).call,
                   icon: const Icon(Icons.call_rounded, color: Brand.success),
@@ -546,5 +581,104 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ),
       ]),
     ]);
+  }
+}
+
+
+/// sosat: My Circle members who have a phone number, one tap each.
+class _CirclePickSheet extends StatefulWidget {
+  const _CirclePickSheet({required this.already});
+  final Set<String> already;
+  @override
+  State<_CirclePickSheet> createState() => _CirclePickSheetState();
+}
+
+class _CirclePickSheetState extends State<_CirclePickSheet> {
+  List<Map<String, dynamic>>? _rows;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _failed = false);
+    try {
+      final r = await context.read<AppState>().api.famCirclePick();
+      if (!mounted) return;
+      setState(() => _rows = famPickRows(r)
+          .where((e) => '${e['phone'] ?? ''}'.trim().isNotEmpty)
+          .toList());
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    Widget body;
+    if (_failed) {
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(t.loadFailed, textAlign: TextAlign.center),
+        const SizedBox(height: Gap.md),
+        FilledButton.icon(
+            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
+      ]);
+    } else if (_rows == null) {
+      body = const Padding(
+          padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()));
+    } else if (_rows!.isEmpty) {
+      body = Text(t.saPickCircleEmpty,
+          key: const ValueKey('sosat-pick-empty'),
+          textAlign: TextAlign.center,
+          style: TextStyle(color: scheme.onSurfaceVariant));
+    } else {
+      body = Column(mainAxisSize: MainAxisSize.min, children: [
+        for (final r in _rows!)
+          ListTile(
+            key: ValueKey('sosat-pick-${r['circle_id']}'),
+            minTileHeight: 56,
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+                child: Text(('${r['name'] ?? ''}'.trim().isEmpty
+                        ? '?'
+                        : '${r['name']}'.trim()[0])
+                    .toUpperCase())),
+            title: Text('${r['name'] ?? ''}'),
+            subtitle: Text(CircleRelation.labelFor(t, '${r['relation'] ?? ''}',
+                custom: '${r['custom_label'] ?? ''}')),
+            trailing: widget.already.contains('${r['phone']}'.trim())
+                ? Semantics(
+                    label: t.fcAlreadyAdded,
+                    child: const Icon(Icons.check_circle_rounded, color: Brand.success))
+                : const Icon(Icons.add_circle_outline_rounded),
+            onTap: widget.already.contains('${r['phone']}'.trim())
+                ? null
+                : () => Navigator.pop(context, r),
+          ),
+      ]);
+    }
+    return AppSheetBody(
+      primary: SizedBox(
+        height: 48,
+        child: OutlinedButton.icon(
+            key: const ValueKey('sosat-pick-hand'),
+            onPressed: () => Navigator.pop(context, <String, dynamic>{'hand': true}),
+            icon: const Icon(Icons.person_add_alt_rounded),
+            label: Text(t.fcAddByHand)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(t.saPickCircleTitle,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: Gap.xs),
+        Text(t.saPickCircleSub, style: TextStyle(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.md),
+        body,
+      ]),
+    );
   }
 }
