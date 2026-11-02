@@ -9,6 +9,11 @@ import '../../widgets/ai_report.dart'; // ai-report
 import '../../widgets/skeleton.dart';
 import '../plans_screen.dart';
 
+/// launch (AI-key-off honesty): true when the server built this draft WITHOUT
+/// an AI provider (no key, budget pause, or out of credits) — `mock: true`
+/// from POST /business/ai/reply.
+bool isRuleDraft(Map<String, dynamic>? draft) => draft?['mock'] == true;
+
 /// The paid AI Sales Assistant console.
 ///
 /// - Inbox of chat threads from OFFICIAL channels only (WhatsApp Business Cloud
@@ -433,7 +438,12 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
   Widget _composer(AppLocalizations tr, ColorScheme scheme) {
     final needsHuman = _draft?['needs_human'] == true;
     final handoffReason = (_draft?['handoff_reason'] ?? '').toString();
-    final conf = (_draft?['confidence'] as num?)?.toDouble();
+    // launch (AI-key-off honesty): with no AI provider key the server drafts
+    // from the shop's own catalog / rules and says so (`mock: true`). Then
+    // nothing may look like an AI answer: no AI confidence, no "Edit AI
+    // draft" hint — an honest "instant answer from your data" note instead.
+    final ruleDraft = isRuleDraft(_draft);
+    final conf = ruleDraft ? null : (_draft?['confidence'] as num?)?.toDouble();
     return SafeArea(
       top: false,
       child: Padding(
@@ -453,6 +463,14 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
               text: _handoffText(tr, handoffReason),
               icon: Icons.priority_high_rounded,
               tint: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: Gap.sm),
+          ],
+          if (!_ownerTakeover && ruleDraft) ...[
+            BizNote(
+              key: const ValueKey('biz-ai-rule-draft'),
+              text: tr.g1ByRule,
+              icon: Icons.rule_rounded,
             ),
             const SizedBox(height: Gap.sm),
           ],
@@ -480,7 +498,9 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
             minLines: 1,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText: _ownerTakeover ? tr.bizTypeYourReply : tr.bizEditAiDraft,
+              hintText: _ownerTakeover || ruleDraft
+                  ? tr.bizTypeYourReply
+                  : tr.bizEditAiDraft,
             ),
           ),
           const SizedBox(height: Gap.sm),

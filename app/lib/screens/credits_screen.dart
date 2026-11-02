@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../state.dart';
+import '../feature_flags.dart' show FeatureFlags; // launch
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
@@ -555,7 +556,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
   Widget _costs(AppLocalizations t, ColorScheme scheme, CreditsState st) {
     final rows = [
       for (final e in st.actionCosts.entries)
-        if (e.value > 0 && costLabel(t, e.key) != null) (costLabel(t, e.key)!, e.value, e.key),
+        if (e.value > 0 &&
+            costLabel(t, e.key) != null &&
+            FeatureFlags.instance.isOn(costFeature(e.key))) // launch
+          (costLabel(t, e.key)!, e.value, e.key),
     ]..sort((a, b) => a.$2.compareTo(b.$2));
     if (rows.isEmpty) {
       return _strip(scheme, Icons.info_outline_rounded, t.billCostsEmpty,

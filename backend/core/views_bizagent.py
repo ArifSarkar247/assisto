@@ -194,7 +194,18 @@ class SetupView(APIView):
             "ai_today": {"used": GD.ai_calls_today(prof), "cap": a.daily_ai_cap},
             # plans-v2: may the AI agent run for this shop (owner's plan)?
             "plans_v2": _agent_entitled(prof),
+            # launch (AI-key-off honesty): no AI provider live -> the app says
+            # replies come from the shop's own data, never "the AI answers".
+            "ai_available": _ai_live(),
         })
+
+
+def _ai_live():
+    try:
+        from . import ai
+        return bool(ai.available())
+    except Exception:
+        return False
 
 
 def _agent_entitled(prof):

@@ -1,6 +1,8 @@
 import '../voice/va_onboarding_step.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../feature_flags.dart' show FeatureFlags; // launch
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -17,6 +19,21 @@ import 'journey_start_screen.dart';
 import 'business/khata_entry_screen.dart';
 import '../widgets/robo_id.dart';
 import 'offers_screens.dart' show OnbOffersStep; // p2-money
+
+/// launch: the onboarding pages, in order.
+enum OnbStep { lang, role, permissions, assistant, offers, firstWin, linkParent }
+
+/// The pages for THIS user: the assistant / offers pages only while their
+/// features are on (FeatureFlags), so onboarding never shows a hidden feature.
+List<OnbStep> onboardingSteps() => [
+      OnbStep.lang,
+      OnbStep.role,
+      OnbStep.permissions,
+      if (FeatureFlags.instance.isOn('voice_assistant')) OnbStep.assistant,
+      if (FeatureFlags.instance.isOn('offers')) OnbStep.offers,
+      OnbStep.firstWin,
+      OnbStep.linkParent,
+    ];
 
 /// First-run ADVANCED onboarding — a <60s "wow" that teaches the main features
 /// through a quick interactive flow (SPEC v2.1 §21).
@@ -53,8 +70,20 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _resumeKey = 'onb_step';
   // welcome+lang, who, perms, assistant (Part 3), offers (p2-money,
-  // optional), first-win, link-parent
-  static const _steps = 7;
+  // optional), first-win, link-parent.
+  // launch: the assistant / offers steps exist only while their features
+  // (`voice_assistant` / `offers`) are on — a switched-off feature never
+  // appears in onboarding. Fixed once the user is past the permissions step,
+  // so a late flag answer never shifts the page under them.
+  late List<OnbStep> _ids = onboardingSteps();
+  int get _steps => _ids.length;
+  OnbStep get _cur => _ids[_page.clamp(0, _steps - 1)];
+
+  void _onFlags() {
+    if (!mounted || _page > 2) return;
+    final next = onboardingSteps();
+    if (!listEquals(next, _ids)) setState(() => _ids = next);
+  }
 
   final _pc = PageController();
   int _page = 0;
@@ -64,11 +93,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
+    FeatureFlags.instance.addListener(_onFlags);
     _maybeResume();
   }
 
   @override
   void dispose() {
+    FeatureFlags.instance.removeListener(_onFlags);
     _pc.dispose();
     super.dispose();
   }
@@ -190,9 +221,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onSimpleHome: _setSimpleHome),
                 const OnbPermissions(),
                 // Part 3: set Assisto as the default digital assistant.
-                const VaOnboardingStep(),
+                if (_ids.contains(OnbStep.assistant)) const VaOnboardingStep(),
                 // p2-money: optional — pick offer categories or just Next
-                const OnbOffersStep(),
+                if (_ids.contains(OnbStep.offers)) const OnbOffersStep(),
                 OnbFirstWin(role: _role, onPick: _openWin),
                 OnbLinkParent(
                   ivrEnabled: widget.ivrEnabled,
@@ -223,10 +254,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // just offers "start chatting". Earlier steps advance with Next; the role
     // step requires a pick before Next lights up.
     // (page 3 = the Part 3 assistant step: plain Next, it is optional)
-    if (_page == 5) {
+    if (_cur == OnbStep.firstWin) {
       return TextButton(onPressed: _next, child: Text(t.onbMaybeLater));
     }
-    if (_page == 6) {
+    if (_cur == OnbStep.linkParent) {
       return TextButton(onPressed: _finish, child: Text(t.justStartChatting));
     }
     final canNext = _page != 1 || _role != null;

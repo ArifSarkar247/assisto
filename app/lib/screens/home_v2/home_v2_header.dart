@@ -64,7 +64,10 @@ class HomeV2Header extends StatelessWidget {
   final int notifUnseen;
   final int circleUnread;
   final VoidCallback onMenu;
-  final VoidCallback onPhotoStudio;
+  /// Null = Photo Studio is switched off for this user (launch: flag
+  /// `photo_studio`), so its header button is not shown — never a button
+  /// that opens a "not available" page.
+  final VoidCallback? onPhotoStudio;
   final VoidCallback onNotifications;
   final VoidCallback onCircle;
 
@@ -80,7 +83,7 @@ class HomeV2Header extends StatelessWidget {
     required this.notifUnseen,
     required this.circleUnread,
     required this.onMenu,
-    required this.onPhotoStudio,
+    this.onPhotoStudio,
     required this.onNotifications,
     required this.onCircle,
     this.now,
@@ -161,12 +164,13 @@ class HomeV2Header extends StatelessWidget {
                               letterSpacing: 0.2)),
                     ),
                   ),
-                  _GlassButton(
-                    key: const ValueKey('hv2_photo'),
-                    icon: Icons.auto_fix_high_outlined,
-                    label: t.b2PhotoStudioTitle,
-                    onTap: onPhotoStudio,
-                  ),
+                  if (onPhotoStudio != null)
+                    _GlassButton(
+                      key: const ValueKey('hv2_photo'),
+                      icon: Icons.auto_fix_high_outlined,
+                      label: t.b2PhotoStudioTitle,
+                      onTap: onPhotoStudio!,
+                    ),
                   _GlassButton(
                     key: const ValueKey('hv2_notif'),
                     icon: Icons.notifications_none_rounded,
