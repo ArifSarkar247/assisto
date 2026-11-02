@@ -227,7 +227,6 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
-            from .logic import pricing
             eff = billing.effective_tier(user, requested_tier)
             # aibar: the credits ACTUALLY taken for this answer (the router's
             # charge result; family pool / free quick quota included) — not a
