@@ -1,4 +1,5 @@
 import '../widgets/money_digits.dart'; // moneybar
+import '../widgets/money_circle_pick.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -639,6 +640,10 @@ class _PersonFormState extends State<_PersonForm> {
                       : tr.staffEditPerson,
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.lg),
+              if (widget.initial == null) ...[
+                CirclePickButton(name: _name, onPicked: () => setState(() {})),
+                const SizedBox(height: Gap.md),
+              ],
               TextField(
                 controller: _name,
                 autofocus: widget.initial == null,

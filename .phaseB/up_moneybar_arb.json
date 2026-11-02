@@ -89,7 +89,37 @@
     "mbZakatNisabMissing": "Nisab is empty, so this shows 2.5% of everything — zakat may not be due at all. Find today's nisab in Tax & Zakat (from the silver or gold price) and type it here.",
     "mbZakatBelowNisab": "Your net wealth is below nisab — no zakat is due on it.",
     "mbFinBbRate": "Today's official rate (Bangladesh Bank)",
-    "mbWrappedAddTxn": "Write an expense or income"
+    "mbWrappedAddTxn": "Write an expense or income",
+    "mbRentDueTitle": "Rent due today: {unit}",
+    "@mbRentDueTitle": {
+      "placeholders": {
+        "unit": {
+          "type": "String"
+        }
+      }
+    },
+    "mbRentDueBody": "Collect this month's rent from {name}, then record it in Assisto.",
+    "@mbRentDueBody": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "mbRentDueBodyNoName": "Collect this month's rent, then record it in Assisto.",
+    "mbRentDueDay": "Rent due day (reminder)",
+    "mbRentDueDayHelp": "We remind you at 9 am that day each month. If the month is already paid in full, we skip it.",
+    "mbRentDueDayNone": "No reminder",
+    "mbRentDueDayN": "Day {day} of the month",
+    "@mbRentDueDayN": {
+      "placeholders": {
+        "day": {
+          "type": "String"
+        }
+      }
+    },
+    "mbCirclePick": "Pick from My Circle",
+    "mbCirclePickSub": "Name and number come in one tap — nothing to type twice."
   },
   "bn": {
     "mbTcbTitle": "সরকারি বাজারদর (টিসিবি, ঢাকা)",
@@ -122,6 +152,15 @@
     "mbZakatNisabMissing": "নিসাব খালি, তাই এখানে সব সম্পদের ২.৫% দেখাচ্ছে — আসলে যাকাত ফরজ নাও হতে পারে। 'কর ও যাকাত' পাতায় রুপা বা সোনার দাম দিয়ে আজকের নিসাব বের করে এখানে লিখুন।",
     "mbZakatBelowNisab": "আপনার নিট সম্পদ নিসাবের কম — এর উপর যাকাত ফরজ নয়।",
     "mbFinBbRate": "আজকের সরকারি রেট (বাংলাদেশ ব্যাংক)",
-    "mbWrappedAddTxn": "খরচ বা আয় লিখুন"
+    "mbWrappedAddTxn": "খরচ বা আয় লিখুন",
+    "mbRentDueTitle": "আজ ভাড়ার দিন: {unit}",
+    "mbRentDueBody": "{name}-এর কাছ থেকে এ মাসের ভাড়া নিন, তারপর Assisto-তে লিখে রাখুন।",
+    "mbRentDueBodyNoName": "এ মাসের ভাড়া নিন, তারপর Assisto-তে লিখে রাখুন।",
+    "mbRentDueDay": "ভাড়ার দিন (রিমাইন্ডার)",
+    "mbRentDueDayHelp": "প্রতি মাসে সেই দিন সকাল ৯টায় মনে করিয়ে দেব। মাসের ভাড়া পুরো দেওয়া হয়ে গেলে সেই মাসে আর মনে করাব না।",
+    "mbRentDueDayNone": "রিমাইন্ডার নয়",
+    "mbRentDueDayN": "মাসের {day} তারিখ",
+    "mbCirclePick": "My Circle থেকে নিন",
+    "mbCirclePickSub": "এক ট্যাপে নাম ও নম্বর চলে আসবে — দুবার লিখতে হবে না।"
   }
 }

@@ -1,3 +1,4 @@
+import '../widgets/money_circle_pick.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -327,11 +328,15 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
       builder: (ctx) => AlertDialog(
         scrollable: true, // insets: 200% text / keyboard
         title: Text(t.samityAddMember),
-        content: TextField(
-          controller: nameCtl,
-          autofocus: true,
-          decoration: InputDecoration(labelText: t.samityMemberName),
-        ),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          CirclePickButton(name: nameCtl),
+          const SizedBox(height: Gap.md),
+          TextField(
+            controller: nameCtl,
+            autofocus: true,
+            decoration: InputDecoration(labelText: t.samityMemberName),
+          ),
+        ]),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx), child: Text(t.cancel)),

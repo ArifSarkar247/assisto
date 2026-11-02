@@ -34,3 +34,9 @@ String toBanglaDigits(String s) {
   }
   return b.toString();
 }
+
+/// Context-aware variant (no global flag needed).
+String moneyDigitsFor(BuildContext context, String s) =>
+    Localizations.maybeLocaleOf(context)?.languageCode == 'bn'
+        ? toBanglaDigits(s)
+        : s;

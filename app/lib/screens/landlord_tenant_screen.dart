@@ -7,6 +7,10 @@ import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../notifications.dart'; // moneybar: rent due-day reminder
+import '../widgets/money_circle_pick.dart'; // moneybar
+import '../widgets/money_digits.dart'; // moneybar
+import '../widgets/rent_reminder.dart'; // moneybar
 
 /// LANDLORD-TENANT rent tracker (Bariwala-Bharatiya, feature #185, SPEC v2.1
 /// section 20, built to the section 21 ADVANCED standard).
@@ -73,6 +77,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       _units = all[0];
       _payments = all[1];
       _offline = false;
+      _armReminders();
     } catch (e) {
       if (_units.isEmpty) {
         _error = true;
@@ -82,6 +87,32 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       }
     }
     if (mounted) setState(() => _loading = false);
+  }
+
+  /// moneybar: (re)arm each unit's due-day reminder — stable ids, so a
+  /// reload never doubles them; a unit without a due day gets none.
+  void _armReminders() {
+    try {
+      final t = AppLocalizations.of(context);
+      final now = DateTime.now();
+      for (final u in _units) {
+        final id = u['id'];
+        if (id == null) continue;
+        final when = rentNextReminder(u, _payments, now);
+        if (when == null) {
+          Notifications.cancel('rent-$id');
+          continue;
+        }
+        final who = '${u['tenant_name'] ?? ''}'.trim();
+        Notifications.schedule(
+            'rent-$id',
+            t.mbRentDueTitle('${u['label'] ?? ''}'),
+            who.isEmpty ? t.mbRentDueBodyNoName : t.mbRentDueBody(who),
+            when);
+      }
+    } catch (_) {
+      // best-effort only: reminders never block the screen
+    }
   }
 
   Future<void> _addOrEditUnit([Map<String, dynamic>? u]) async {
@@ -118,6 +149,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
       ),
     );
     if (ok != true || !mounted) return;
+    Notifications.cancel('rent-${u['id']}');
     await context.read<AppState>().api.deleteItem(kColRentUnit, u['id'] as int);
     await _load();
   }
@@ -609,6 +641,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
       text: widget.unit?['rent_poisha'] != null
           ? ((widget.unit!['rent_poisha'] as int) / 100).toStringAsFixed(2)
           : '');
+  late int? _dueDay = rentDueDay(widget.unit ?? const {});
   late List<Map<String, dynamic>> _utils = [
     for (final u in (widget.unit?['utilities'] as List? ?? const []))
       Map<String, dynamic>.from(u as Map),
@@ -647,6 +680,24 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
           TextField(
             controller: _tenant,
             decoration: InputDecoration(labelText: t.rentFieldTenant),
+          ),
+          const SizedBox(height: Gap.sm),
+          CirclePickButton(name: _tenant),
+          const SizedBox(height: Gap.md),
+          DropdownButtonFormField<int?>(
+            key: const ValueKey('mb-rent-due-day'),
+            initialValue: _dueDay,
+            isExpanded: true,
+            decoration: InputDecoration(
+                labelText: t.mbRentDueDay, helperText: t.mbRentDueDayHelp,
+                helperMaxLines: 3),
+            items: [
+              DropdownMenuItem<int?>(value: null, child: Text(t.mbRentDueDayNone)),
+              for (var d = 1; d <= 28; d++)
+                DropdownMenuItem<int?>(
+                    value: d, child: Text(t.mbRentDueDayN(moneyDigitsFor(context, '$d')))),
+            ],
+            onChanged: (v) => setState(() => _dueDay = v),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -690,6 +741,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
                         'label': _label.text.trim(),
                         'tenant_name': _tenant.text.trim(),
                         'rent_poisha': rentP,
+                        'due_day': _dueDay,
                         'active': true,
                         'utilities': _utils
                             .where((u) =>

@@ -1,4 +1,5 @@
 import '../widgets/money_digits.dart'; // moneybar
+import '../widgets/money_circle_pick.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -163,6 +164,8 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(tr.splitAddPerson, style: Theme.of(ctx).textTheme.titleLarge),
             const SizedBox(height: Gap.lg),
+            CirclePickButton(name: c),
+            const SizedBox(height: Gap.md),
             TextField(
               controller: c,
               autofocus: true,

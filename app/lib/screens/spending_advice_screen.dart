@@ -46,6 +46,23 @@ import 'money_common.dart' show moneyCatLabel; // moneybar
 /// CURRENT-period total for the category; `budget` the user's own monthly
 /// limit; `previous` the previous-period total for the same category (all
 /// optional except amount). No live AI, no key needed to run the observations.
+/// moneybar: /money/trends categories -> the rows _SMath reads
+/// ({category, amount, previous}); only categories with spend.
+List<Map<String, dynamic>> spendLedgerRows(Map<String, dynamic>? t) {
+  final out = <Map<String, dynamic>>[];
+  for (final c in (t?['categories'] as List? ?? const [])) {
+    if (c is! Map) continue;
+    final cur = double.tryParse('${c['current'] ?? 0}') ?? 0;
+    if (cur <= 0) continue;
+    out.add({
+      'category': '${c['category'] ?? ''}',
+      'amount': '${c['current']}',
+      'previous': '${c['previous'] ?? ''}',
+    });
+  }
+  return out;
+}
+
 class SpendingAdviceScreen extends StatefulWidget {
   const SpendingAdviceScreen({super.key});
   @override
@@ -83,27 +100,11 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
       _error = true;
       _failCause = e;
     }
-    _ledger = ledgerRowsFromTrends(await trends);
+    _ledger = spendLedgerRows(await trends);
     if (_ledger.isEmpty) _useLedger = false;
     if (mounted) setState(() => _loading = false);
   }
 
-  /// moneybar: /money/trends categories -> the rows _SMath reads
-  /// ({category, amount, previous}); only categories with spend.
-  static List<Map<String, dynamic>> ledgerRowsFromTrends(Map<String, dynamic>? t) {
-    final out = <Map<String, dynamic>>[];
-    for (final c in (t?['categories'] as List? ?? const [])) {
-      if (c is! Map) continue;
-      final cur = double.tryParse('${c['current'] ?? 0}') ?? 0;
-      if (cur <= 0) continue;
-      out.add({
-        'category': '${c['category'] ?? ''}',
-        'amount': '${c['current']}',
-        'previous': '${c['previous'] ?? ''}',
-      });
-    }
-    return out;
-  }
 
   void _toast(String msg) {
     ScaffoldMessenger.of(context)

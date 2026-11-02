@@ -1544,6 +1544,25 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return kw;
     }
+    // moneybar: TCB official prices (shape of GET /prices/official)
+    if (path == '/prices/official') {
+      if (mode == FakeMode.fail) _fail();
+      if (mode == FakeMode.empty) {
+        return {'connected': false, 'source': 'TCB', 'items': <Map<String, dynamic>>[]};
+      }
+      return {
+        'connected': true, 'stale': false, 'source': 'TCB', 'date': '2026-11-01',
+        'markets': _bn ? 'মিরপুর-৬, মালিবাগ, রামপুরা' : 'Mirpur-6, Malibagh, Rampura',
+        'items': [
+          {'name': _bn ? 'চাল (মোটা)' : 'Rice (coarse)', 'unit': _bn ? 'প্রতি কেজি' : 'per kg',
+           'group': '', 'min': 50, 'max': 55, 'week_min': 50, 'week_max': 55},
+          {'name': _bn ? 'পিঁয়াজ (দেশী)' : 'Onion (local)', 'unit': _bn ? 'প্রতি কেজি' : 'per kg',
+           'group': _bn ? 'মসলা' : 'Spices', 'min': 50, 'max': 60, 'week_min': 45, 'week_max': 50},
+          {'name': _bn ? 'ডিম (ফার্ম)' : 'Eggs (farm)', 'unit': _bn ? 'প্রতি হালি' : 'per 4',
+           'group': _bn ? 'বিবিধ' : 'Other', 'min': 45, 'max': 50, 'week_min': 47, 'week_max': 50},
+        ],
+      };
+    }
     return super.getJson(path);
   }
 
