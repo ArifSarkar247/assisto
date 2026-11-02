@@ -1018,8 +1018,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(t.callpipPipOff,
-                style: AType.bodyMedium.copyWith(color: CallInk.text)),
+            // short title + the buttons FIRST (reachable at 200 % text),
+            // the explanation after them
+            Text(t.callpipPipOffTitle,
+                style: AType.titleSmall.copyWith(
+                    color: CallInk.text, fontWeight: FontWeight.w700)),
             Wrap(
               alignment: WrapAlignment.end,
               children: [
@@ -1047,6 +1050,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: Gap.sm, bottom: Gap.xs),
+              child: Text(t.callpipPipOff,
+                  style: AType.bodySmall.copyWith(color: CallInk.text)),
             ),
           ],
         ),

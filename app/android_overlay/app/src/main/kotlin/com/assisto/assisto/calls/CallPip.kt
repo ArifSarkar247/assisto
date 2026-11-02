@@ -24,7 +24,7 @@ import android.util.Rational
  * window's shape, which buttons, the background-camera pause) is made in
  * Dart (app/lib/calls/call_pip.dart, tested in CI). Lazy: nothing is
  * created until Dart asks; every path is crash-guarded (false = not
- * possible on this phone). No SYSTEM_ALERT_WINDOW.
+ * possible on this phone). No overlay (draw-over-apps) permission.
  */
 object CallPip {
     private const val ACTION_PIP = "com.assisto.assisto.CALL_PIP_ACTION"

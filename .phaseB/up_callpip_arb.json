@@ -27,7 +27,8 @@
     },
     "callpipPipOff": "Picture-in-picture is off for Assisto: the video can't float when you leave the app. The call goes on.",
     "callpipPipTurnOn": "Turn on",
-    "callpipPipLater": "Not now"
+    "callpipPipLater": "Not now",
+    "callpipPipOffTitle": "Picture-in-picture is off"
   },
   "bn": {
     "callpipMute": "মিউট",
@@ -42,6 +43,7 @@
     "callpipPipLabel": "{name}-এর সাথে ভিডিও কল। পুরো কল খুলতে ট্যাপ করুন",
     "callpipPipOff": "Assisto-র ছোট জানালা (PiP) বন্ধ: অ্যাপ থেকে বের হলে ভিডিও ভাসবে না। কথা চলবে।",
     "callpipPipTurnOn": "চালু করুন",
-    "callpipPipLater": "এখন না"
+    "callpipPipLater": "এখন না",
+    "callpipPipOffTitle": "ছোট জানালা (PiP) বন্ধ"
   }
 }
