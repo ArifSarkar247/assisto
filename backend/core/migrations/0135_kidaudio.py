@@ -9,11 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-<<<<<<<< HEAD:backend/core/migrations/0135_kidaudio.py
         ("core", "0134_chipbuy"),
-========
-        ("core", "0129_blood"),
->>>>>>>> agent/finish1:backend/core/migrations/0130_kidaudio.py
     ]
 
     operations = [
