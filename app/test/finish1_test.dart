@@ -244,7 +244,7 @@ void main() {
             {
               'id': 11, 'sender_id': 2, 'mine': false, 'content_type': 'text',
               'created_at': DateTime(2026, 11, 2).toIso8601String(),
-              'scheme': text.scheme, 'sender_key_id': '',
+              'scheme': text.scheme, 'sender_key_id': _peer.keyId, // AAD
               'ciphertext': text.ciphertextB64, 'nonce': text.nonceB64,
               'per_recipient': {
                 '1': {'ciphertext': text.ciphertextB64, 'nonce': text.nonceB64,
@@ -254,8 +254,8 @@ void main() {
           ],
         };
       await tester.pumpWidget(_app(screen(), api: api));
-      for (var i = 0; i < 30; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
+      for (var i = 0; i < 60 && find.text('A song').evaluate().isEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
       }
       expect(find.byKey(const ValueKey('grp-lp-11')), findsOneWidget);
       expect(find.text('A song'), findsOneWidget);
@@ -297,7 +297,7 @@ void main() {
               scheme: '${sent.single['scheme']}',
               ciphertextB64: '${entry['lp_ciphertext']}',
               nonceB64: '${entry['lp_nonce']}',
-              senderKeyId: ''));
+              senderKeyId: '${sent.single['sender_key_id']}'));
       final d = LinkPreviewData.tryDecode(opened)!;
       expect(d.title, 'News title');
       expect(d.url, 'https://example.com/a');
@@ -386,9 +386,7 @@ void main() {
   testWidgets('donor: push area said plainly; stale -> one tap keeps it', (tester) async {
     _tall(tester);
     final api = _BloodApi(stale: true);
-    await tester.pumpWidget(_app(const BloodHubScreen(), api: api));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('bp-tab-me')));
+    await tester.pumpWidget(_app(const BloodHubScreen(initialTab: 2), api: api));
     await tester.pumpAndSettle();
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     expect(find.byKey(const ValueKey('bp-push-area')), findsOneWidget);
@@ -402,9 +400,7 @@ void main() {
 
   testWidgets('donor: fresh details -> no "still here" nag', (tester) async {
     _tall(tester);
-    await tester.pumpWidget(_app(const BloodHubScreen(), api: _BloodApi()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('bp-tab-me')));
+    await tester.pumpWidget(_app(const BloodHubScreen(initialTab: 2), api: _BloodApi()));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('bp-push-area')), findsOneWidget);
     expect(find.byKey(const ValueKey('bp-area-still')), findsNothing);

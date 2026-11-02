@@ -760,7 +760,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             (perRecipient['$id'] as Map<String, dynamic>)
               ..['lp_ciphertext'] = lp.ciphertextB64
               ..['lp_nonce'] = lp.nonceB64;
-          } catch (_) {} // the text still goes; only the card is skipped
+          } catch (_) {} // best-effort: the text still goes; only the card is skipped
         }
       } catch (_) {
         skipped++;
