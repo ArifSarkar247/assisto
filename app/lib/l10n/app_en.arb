@@ -34507,5 +34507,248 @@
   "boNoSupplier": "There is no supplier in your ledger yet. Add one in Khata → Suppliers, then try again.",
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
-  "boShareOther": "Share another way"
+  "boShareOther": "Share another way",
+  "cplTitle": "CCTV plan",
+  "cplEntryTitle": "CCTV plan and prices",
+  "cplEntrySub": "Price by camera count · 7-day free trial · video add-on",
+  "cplHowManyCameras": "How many cameras?",
+  "cplHowPriced": "{base} tk a month covers 2 cameras. Each extra camera is {extra} tk a month. Phone cameras count too.",
+  "@cplHowPriced": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "cplCamerasA11y": "{n} cameras",
+  "@cplCamerasA11y": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplMoreThan10": "More than 10",
+  "cplContactBody": "For more than 10 cameras we make a plan together with you. Write to us and we will reply.",
+  "cplContactButton": "Contact us",
+  "cplPerMonth": "{price} tk / month",
+  "@cplPerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPerYear": "{price} tk / year",
+  "@cplPerYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplYearlyMath": "12 months × {monthly} tk — no free months, no discount",
+  "@cplYearlyMath": {
+    "placeholders": {
+      "monthly": {
+        "type": "String"
+      }
+    }
+  },
+  "cplOneCameraNote": "1 camera uses the 2-camera base plan — add a second camera any time at no extra cost.",
+  "cplYearly": "Pay once a year",
+  "cplYearlySub": "Exactly 12 × the monthly price",
+  "cplTrialBadge": "7 days free — first time only",
+  "cplTrialOnlyBase": "The free trial is on the base plan (2 cameras, monthly). Start with it, then add cameras any time.",
+  "cplStartTrial": "Start 7 days free",
+  "cplTrialThen": "Then {price}. Cancel in Google Play before day 7 and you pay nothing.",
+  "@cplTrialThen": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplBuy": "Buy — {price}",
+  "@cplBuy": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplChange": "Change to {n} cameras — {price}",
+  "@cplChange": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplChangeNote": "The change starts at once. Google Play credits the unused days of your current plan.",
+  "cplPlayPrice": "Google Play price: {price}",
+  "@cplPlayPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplCurrent": "Your plan now",
+  "cplCurrentLine": "{n} cameras · {period}",
+  "@cplCurrentLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "cplMonthly": "monthly",
+  "cplYearlyWord": "yearly",
+  "cplRenews": "Renews on {date}",
+  "@cplRenews": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplEnds": "Ends on {date}",
+  "@cplEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplInTrial": "Free trial until {date}",
+  "@cplInTrial": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cplUsed": "{used} of {n} cameras in use",
+  "@cplUsed": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplOverBy": "{k} more cameras are on than your plan pays for. Raise the count or switch some off.",
+  "@cplOverBy": {
+    "placeholders": {
+      "k": {
+        "type": "String"
+      }
+    }
+  },
+  "cplNoPlan": "No CCTV plan yet",
+  "cplNoPlanBody": "Watch your home or shop from anywhere, get a photo alert when a person comes, and let your family see it too.",
+  "cplCurrentBadge": "This is your plan",
+  "cplManage": "Manage in Google Play",
+  "cplFixPayment": "Fix payment in Google Play",
+  "cplAddonTitle": "Video add-on (per camera)",
+  "cplAddonBody": "Keeps a 10-second SD-card clip of every person alert (up to 30 a day per camera). No 24/7 cloud recording — that stays on the SD card.",
+  "cplAddon7": "Keep 7 days — {price} tk per camera a month",
+  "@cplAddon7": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddon30": "Keep 30 days — {price} tk per camera a month",
+  "@cplAddon30": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonCameras": "Cameras with the add-on",
+  "cplLess": "One less",
+  "cplMore": "One more",
+  "cplAddonTotal": "Add-on total: {price} tk a month",
+  "@cplAddonTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonNeedsPlan": "Buy the CCTV plan first — the add-on works on top of it.",
+  "cplAddonBuy": "Add video — {price}",
+  "@cplAddonBuy": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonActive": "Video add-on on: {days} days on {n} cameras",
+  "@cplAddonActive": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplAddonPick": "Which cameras keep clips",
+  "cplCameraN": "Camera {n}",
+  "@cplCameraN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplUnpaidTitle": "If payment stops",
+  "cplSaleSoon": "Buying opens soon in the Google Play app. The prices above are final.",
+  "cplPlayOnly": "This plan is bought in the Assisto app from Google Play. Install Assisto from Google Play to buy it.",
+  "cplRestore": "Restore my plan",
+  "cplRestored": "{n} purchases restored",
+  "@cplRestored": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cplNothingToRestore": "No CCTV purchase found on this Google account.",
+  "cplDone": "Done — your CCTV plan is on.",
+  "cplPending": "Payment is being processed. The plan turns on as soon as Google confirms.",
+  "cplCancelled": "Cancelled — nothing was charged.",
+  "cplUnavailable": "Google Play could not open this plan right now. Please try again later.",
+  "cplFailed": "Something went wrong. Nothing extra was charged. Please try again.",
+  "cplLoadError": "Could not load the plan. Check the internet and try again.",
+  "cplRetry": "Try again",
+  "cplLimitsLine": "Live through our relay: {gb} GB per camera a month (same Wi-Fi and direct P2P are unlimited). AI photo checks: {ai} per camera a month.",
+  "@cplLimitsLine": {
+    "placeholders": {
+      "gb": {
+        "type": "String"
+      },
+      "ai": {
+        "type": "String"
+      }
+    }
+  }
 }
