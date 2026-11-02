@@ -203,14 +203,14 @@ class _SiteBlock extends StatelessWidget {
         else
           LayoutBuilder(builder: (context, c) {
             // two tiles on a phone, more on a tablet; tall enough for 200 % text
-            final cols = (c.maxWidth / 190).floor().clamp(1, 4);
+            final cols = (c.maxWidth / 160).floor().clamp(1, 4);
             return GridView.count(
               crossAxisCount: cols,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
-              childAspectRatio: 0.92 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
+              childAspectRatio: 0.82 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
               children: [for (final cam in cams) CctvTile(camera: cam, source: source, onTap: () => onOpen(cam))],
             );
           }),
@@ -337,6 +337,8 @@ class CctvStill extends StatelessWidget {
       image: source.image(url, width: width),
       fit: BoxFit.cover,
       gaplessPlayback: true,
+      // until the photo arrives: the camera placeholder, never an empty box
+      frameBuilder: (_, child, frame, sync) => (frame == null && !sync) ? ph : child,
       errorBuilder: (_, __, ___) => ph,
     );
   }
