@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../audio/audio_route_service.dart';
 import 'video_ctl.dart';
 
 /// mc-media2 — the REAL player (video_player 2.14.1 → media3 ExoPlayer on
@@ -53,6 +54,8 @@ class RealVideoCtl implements VideoCtl {
       if (v.isInitialized && v.duration > Duration.zero && v.position >= v.duration) {
         await _c.seekTo(Duration.zero);
       }
+      // audioroute: sound follows the connected earphones (never forced)
+      await AudioRouteService.instance.preparePlayback(AudioUse.media);
       await _c.play();
     } catch (e) {
       _state.value = _state.value.copyWith(error: '$e');

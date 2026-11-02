@@ -1124,6 +1124,7 @@ class CallController extends ChangeNotifier {
       route = r;
       speakerOn = r == AudioRoute.speaker;
       log.add('route-changed:${r.name}');
+      unawaited(refreshRoutes());
       if (!videoOn) {
         unawaited(sounds.setProximity(isLive && r == AudioRoute.earpiece));
       }

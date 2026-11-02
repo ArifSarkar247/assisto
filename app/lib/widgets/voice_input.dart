@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../audio/audio_route_service.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -161,7 +162,11 @@ class VoiceDictation extends ChangeNotifier {
   Future<void> toggle(BuildContext context, TextEditingController input) =>
       (listening || _starting) ? stop() : start(context, input);
 
+  /// audioroute: the assistant hears through the connected earphones' mic.
+  final MicRouteHold _mic = MicRouteHold(AudioUse.assistantListen);
+
   void _onStatus(String s) {
+    if (s == 'done' || s == 'notListening') _mic.stop();
     if ((s == 'done' || s == 'notListening') && listening) {
       listening = false;
       notifyListeners();
@@ -169,6 +174,7 @@ class VoiceDictation extends ChangeNotifier {
   }
 
   void _onError(SpeechRecognitionError e) {
+    _mic.stop();
     final wasListening = listening;
     listening = false;
     notifyListeners();
@@ -240,6 +246,7 @@ class VoiceDictation extends ChangeNotifier {
       listening = true;
       lastStartListened = true;
       notifyListeners();
+      _mic.start();
       await _speech.listen(
         onResult: (r) {
           final live = '$_base${r.recognizedWords}';
@@ -261,6 +268,7 @@ class VoiceDictation extends ChangeNotifier {
       _starting = false;
       if (_cancelPending) await stop();
     } catch (_) {
+      _mic.stop();
       listening = false;
       notifyListeners();
       if (context.mounted)
@@ -309,6 +317,7 @@ class VoiceDictation extends ChangeNotifier {
     try {
       await _speech.stop();
     } catch (_) {}
+    _mic.stop();
     if (listening) {
       listening = false;
       notifyListeners();
@@ -382,6 +391,7 @@ class VoiceDictation extends ChangeNotifier {
   @override
   void dispose() {
     // The engine is shared: only cancel OUR session, and drop our callbacks.
+    _mic.stop();
     try {
       if (listening) _speech.cancel();
       if (_speech.statusListener == _onStatus) {

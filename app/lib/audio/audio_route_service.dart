@@ -170,20 +170,20 @@ class AudioRouteService extends ChangeNotifier {
   /// here (checked by the CI guard together with a source scan).
   static const Map<String, AudioUse> registry = {
     'lib/calls/webrtc_media.dart': AudioUse.call,
-    'lib/calls/call_controller.dart': AudioUse.call,
+    'lib/audio/webrtc_audio_fallback.dart': AudioUse.call,
     'lib/messaging/media/voice_recorder_sheet.dart': AudioUse.voiceNoteRecord,
     'lib/messaging/media/voice_player.dart': AudioUse.voiceNotePlay,
     'lib/messaging/media/video_player_impl.dart': AudioUse.media,
-    'lib/messaging/media/video_ctl.dart': AudioUse.media,
+    'lib/screens/shop_live_rtc.dart': AudioUse.media,
+    'lib/voice/va_native.dart': AudioUse.assistantSpeak,
     'lib/widgets/voice_input.dart': AudioUse.assistantListen,
     'lib/widgets/voice_command_sheet.dart': AudioUse.assistantListen,
-    'lib/screens/ai_chat_screen.dart': AudioUse.assistantSpeak,
     'lib/screens/money_voice_screen.dart': AudioUse.assistantListen,
-    'lib/screens/circle_chat_screen.dart': AudioUse.voiceNotePlay,
-    'lib/screens/circle_group_chat_screen.dart': AudioUse.voiceNotePlay,
+    // SOS: the documented exception — the voice-SOS listener never moves
+    // audio, and sirens play on STREAM_ALARM on the loudspeaker by design.
     'lib/widgets/voice_sos_service.dart': AudioUse.sos,
-    'lib/widgets/voice_sos_config.dart': AudioUse.sos,
   };
+
 
   // ------------------------------------------------------------- state
   List<AudioOutput> outputs = const [];
@@ -334,6 +334,17 @@ class AudioRouteService extends ChangeNotifier {
     });
     return l;
   }
+
+  /// Playback (voice notes, read-aloud, videos, kids-watch messages): no
+  /// lease to keep — Android sends media to the connected headset by itself.
+  /// Only clears a stale call / mic session so it never plays on the
+  /// earpiece. Never touches Android when nothing is open (the common case).
+  Future<void> preparePlayback(AudioUse use) => _serial(() async {
+        log.add('play:${use.name}');
+        if (inCall || !_commOpen) return;
+        if (_leases.values.any((x) => micUses.contains(x.use))) return;
+        await _restoreNow();
+      });
 
   Future<void> _release(AudioRouteLease l) => _serial(() async {
         _leases.remove(l.id);
@@ -594,5 +605,45 @@ class MethodChannelAudioRoutePlatform implements AudioRoutePlatform {
         .receiveBroadcastStream()
         .handleError((Object _) {})
         .map<void>((_) {});
+  }
+}
+
+/// A microphone user's hold on the route service (speech recognisers, the
+/// wake word, kids-watch recording): [start] / [stop] are fire-and-forget,
+/// idempotent and race-safe, so wiring them never changes a screen's timing.
+/// While held and a Bluetooth headset is connected, the HEADSET mic is used.
+class MicRouteHold {
+  MicRouteHold(this.use, {AudioRouteService? service}) : _svc = service;
+  final AudioUse use;
+  final AudioRouteService? _svc;
+  AudioRouteLease? _lease;
+  int _gen = 0;
+  bool _want = false;
+
+  bool get held => _want;
+
+  void start() {
+    if (_want) return;
+    _want = true;
+    final gen = ++_gen;
+    unawaited(() async {
+      try {
+        final l = await (_svc ?? AudioRouteService.instance).acquire(use);
+        if (!_want || gen != _gen) {
+          await l.release();
+        } else {
+          _lease = l;
+        }
+      } catch (_) {}
+    }());
+  }
+
+  void stop() {
+    if (!_want) return;
+    _want = false;
+    _gen++;
+    final l = _lease;
+    _lease = null;
+    if (l != null) unawaited(l.release().catchError((Object _) {}));
   }
 }

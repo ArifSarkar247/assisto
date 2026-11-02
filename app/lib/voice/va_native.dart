@@ -1,3 +1,4 @@
+import '../audio/audio_route_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -44,8 +45,17 @@ class VaNative {
 
   /// Speak [text] in [lang] ('bn' | 'en'). Returns 'ok', 'no_voice' (engine has
   /// no voice for that language), 'no_engine', or null (native missing).
-  static Future<String?> speak(String text, String lang) =>
-      _call<String>('speak', {'text': text, 'lang': lang});
+  ///
+  /// audioroute: read-aloud (AI assistant, aivoice, Car Mode, hands-free
+  /// loop) plays on the media stream, so it follows the connected earphones;
+  /// a stale call / mic session is cleared first (never on the earpiece).
+  static Future<String?> speak(String text, String lang) async {
+    try {
+      await AudioRouteService.instance
+          .preparePlayback(AudioUse.assistantSpeak);
+    } catch (_) {}
+    return _call<String>('speak', {'text': text, 'lang': lang});
+  }
 
   static Future<void> stopSpeaking() => _call<void>('stopSpeaking');
 

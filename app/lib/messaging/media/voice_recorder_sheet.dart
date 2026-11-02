@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
+import '../../audio/audio_route_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../services/error_report.dart';
@@ -31,22 +32,69 @@ abstract class RecorderBackend {
   Future<void> dispose();
 }
 
+/// audioroute: the microphone comes from the connected earphones — the
+/// app-wide [AudioRouteService] opens Bluetooth SCO while recording (the
+/// plugin's own Bluetooth handling is OFF: one owner, and it would clear a
+/// live call's route when the note stops).
 class RecordPluginBackend implements RecorderBackend {
   final AudioRecorder _r = AudioRecorder();
+  AudioRouteLease? _lease;
+
+  Future<void> _release() async {
+    final l = _lease;
+    _lease = null;
+    try {
+      await l?.release();
+    } catch (_) {}
+  }
+
   @override
-  Future<void> start(String path) => _r.start(
-      const RecordConfig(
-          encoder: AudioEncoder.aacLc, bitRate: 32000, sampleRate: 22050, numChannels: 1),
-      path: path);
+  Future<void> start(String path) async {
+    try {
+      _lease ??=
+          await AudioRouteService.instance.acquire(AudioUse.voiceNoteRecord);
+    } catch (_) {}
+    try {
+      await _r.start(
+          const RecordConfig(
+              encoder: AudioEncoder.aacLc,
+              bitRate: 32000,
+              sampleRate: 22050,
+              numChannels: 1,
+              androidConfig: AndroidRecordConfig(manageBluetooth: false)),
+          path: path);
+    } catch (e) {
+      await _release();
+      rethrow;
+    }
+  }
+
   @override
-  Future<String?> stop() => _r.stop();
+  Future<String?> stop() async {
+    try {
+      return await _r.stop();
+    } finally {
+      await _release();
+    }
+  }
+
   @override
-  Future<void> cancel() => _r.cancel();
+  Future<void> cancel() async {
+    try {
+      await _r.cancel();
+    } finally {
+      await _release();
+    }
+  }
+
   @override
   Stream<double> amplitude() =>
       _r.onAmplitudeChanged(const Duration(milliseconds: 100)).map((a) => a.current);
   @override
-  Future<void> dispose() => _r.dispose();
+  Future<void> dispose() async {
+    await _release();
+    await _r.dispose();
+  }
 }
 
 RecorderBackend Function() recorderFactory = RecordPluginBackend.new;

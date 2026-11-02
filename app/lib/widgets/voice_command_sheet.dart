@@ -17,6 +17,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../audio/audio_route_service.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'permission_reason.dart';
@@ -64,10 +66,14 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
 
   @override
   void dispose() {
+    _mic.stop();
     _speech.cancel();
     _pulse.dispose();
     super.dispose();
   }
+
+  /// audioroute: the connected earphones' mic is used while listening.
+  final MicRouteHold _mic = MicRouteHold(AudioUse.assistantListen);
 
   Future<void> _startListening() async {
     HapticFeedback.selectionClick();
@@ -83,6 +89,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
           }
         },
         onError: (_) {
+          _mic.stop();
           if (mounted) setState(() => _phase = _Phase.error);
         },
       );
@@ -103,6 +110,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
     // transcribed. 'bn_BD' is passed when the app language is Bengali; if that
     // locale pack isn't installed the plugin safely falls back to the default.
     final localeId = t.localeName.startsWith('bn') ? 'bn_BD' : 'en_US';
+    _mic.start();
     await _speech.listen(
       onResult: (r) {
         if (mounted) setState(() => _transcript = r.recognizedWords);
@@ -113,6 +121,7 @@ class _VoiceCommandSheetState extends State<_VoiceCommandSheet>
 
   void _finishListening() {
     _speech.stop();
+    _mic.stop();
     final text = _transcript.trim();
     if (text.isEmpty) {
       setState(() => _phase = _Phase.idle);
