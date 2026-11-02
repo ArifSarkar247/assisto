@@ -166,14 +166,14 @@ void main() {
         return {'status': 'active', 'overdue_state': 'on_time'};
       });
       for (var i = 0; i < 3; i++) {
-        now = now.add(const Duration(seconds: 31));
+        now = now.add(const Duration(seconds: 91));
         await tr.tick();
       }
       expect(tr.value.net, JourneyNet.offline);
       expect(tr.value.queued, greaterThanOrEqualTo(3));
       expect(sent, isEmpty);
       online = true;
-      now = now.add(const Duration(seconds: 31));
+      now = now.add(const Duration(seconds: 91));
       await tr.tick();
       expect(tr.value.net, JourneyNet.ok);
       expect(tr.value.queued, 0);

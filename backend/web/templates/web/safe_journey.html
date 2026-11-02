@@ -57,6 +57,7 @@
   <div class="card" role="status" aria-live="polite">
     <div id="st" class="state"></div>
     <div id="late" class="late" hidden>{{ T.late }}</div>
+    <div id="why" class="late" hidden></div>
     <div class="row" id="r-name" hidden><span id="name"></span></div>
     <div class="row" id="r-to" hidden><span>{{ T.to }}</span><span id="to"></span></div>
     <div class="row" id="r-eta" hidden><span>{{ T.eta }}</span><span id="eta"></span></div>
@@ -122,10 +123,13 @@
       show("r-left", d.distance_m != null && running);
       txt("left", d.distance_m != null ? T.left_v.replace("{d}", num((d.distance_m / 1000).toFixed(1))) : "");
       show("r-rough", d.rough_min != null && running);
-      txt("rough", d.rough_min != null ? T.rough_v.replace("{m}", num(d.rough_min)) : "");
+      txt("rough", d.rough_min != null ? (d.eta_basis === "speed" ? T.rough_speed : T.rough_v).replace("{m}", num(d.rough_min)) : "");
+      var why = st === "lost" && d.why ? (d.why === "battery" ? T.why_battery.replace("{b}", num(d.why_battery)) : T.why_killed) : "";
+      show("why", !!why); txt("why", why);
       var hasLoc = d.lat != null && d.lng != null;
       show("r-upd", hasLoc); txt("upd", hasLoc ? hhmm(d.at) + " (" + ago(d.age_s) + ")" : "");
-      show("r-bat", d.battery != null); txt("bat", d.battery != null ? num(d.battery) + "%" : "");
+      show("r-bat", d.battery != null || d.battery_last != null);
+      txt("bat", d.battery != null ? num(d.battery) + "%" : (d.battery_last != null ? T.bat_last.replace("{b}", num(d.battery_last)) : ""));
       show("mapcard", hasLoc);
       if (hasLoc) {
         document.getElementById("gmaps").href = "https://www.google.com/maps/search/?api=1&query=" + d.lat + "," + d.lng;

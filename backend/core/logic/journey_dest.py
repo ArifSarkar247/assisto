@@ -155,6 +155,58 @@ def rough_minutes(dist_m, mode=""):
     return max(5, int(-(-mins // 5) * 5))
 
 
+# journey100b: ETA from the traveller's OWN recent speed (a jam makes it
+# longer, a clear road shorter) — still never "live traffic".
+SPEED_WINDOW_S = 600        # look at the last 10 minutes of fixes
+SPEED_MIN_SPAN_S = 180      # need at least 3 minutes of them
+SPEED_MAX_JUMP_KMH = 120    # a hop faster than this is a GPS jump: ignored
+SPEED_MOVING_KMH = 2.0      # slower than this = standing (not a speed sample)
+OBS_WEIGHT = 0.7            # observed vs typical speed blend
+
+
+def observed_kmh(points):
+    """Average speed along the path of [(lat, lng, at_datetime)], oldest
+    first, over the last SPEED_WINDOW_S. GPS jumps are skipped. None when
+    there is not enough movement data (< 3 fixes or < 3 minutes)."""
+    pts = [p for p in points if p and p[2] is not None]
+    if len(pts) < 3:
+        return None
+    newest = pts[-1][2]
+    pts = [p for p in pts if (newest - p[2]).total_seconds() <= SPEED_WINDOW_S]
+    if len(pts) < 3:
+        return None
+    span = (pts[-1][2] - pts[0][2]).total_seconds()
+    if span < SPEED_MIN_SPAN_S:
+        return None
+    dist, used = 0.0, 0.0
+    for a, b in zip(pts, pts[1:]):
+        dt = (b[2] - a[2]).total_seconds()
+        if dt <= 0:
+            continue
+        d = haversine_m(a[0], a[1], b[0], b[1])
+        if d / dt * 3.6 > SPEED_MAX_JUMP_KMH:
+            continue
+        dist += d
+        used += dt
+    if used < SPEED_MIN_SPAN_S:
+        return None
+    return dist / used * 3.6
+
+
+def eta_minutes(dist_m, mode="", kmh=None):
+    """(minutes, basis). basis 'speed' when the traveller's own recent speed
+    was used (blended with the typical one), else 'typical' (rough_minutes).
+    Rounded UP to 5, minimum 5 — never promises sooner than true."""
+    if dist_m is None or dist_m < 0:
+        return None, "typical"
+    if kmh is None or kmh < SPEED_MOVING_KMH:
+        return rough_minutes(dist_m, mode), "typical"
+    typical = MODE_KMH.get(mode or "", MODE_KMH[""])
+    v = OBS_WEIGHT * min(kmh, 60.0) + (1 - OBS_WEIGHT) * typical
+    mins = (dist_m * ROAD_FACTOR / 1000.0) / v * 60.0
+    return max(5, int(-(-mins // 5) * 5)), "speed"
+
+
 # ---------------------------------------------------------------- ride
 MODES = ("cng", "bike", "car", "rickshaw", "bus", "walk", "ride")
 RIDE_APPS = ("pathao", "uber", "obhai", "indrive", "other")

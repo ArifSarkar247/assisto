@@ -1237,7 +1237,11 @@ def _fixes(d, j, now):
             b = int(b) if b not in (None, "") else None
         except (TypeError, ValueError):
             b = None
-        out.append((at, lat, lng, b))
+        # journey100b: where the fix came from — "app" (Assisto open) or "bg"
+        # (Assisto swiped away; the foreground service sent it alone). Lets
+        # the "no location" alert say the honest likely reason.
+        src = str(p.get("src") or "")
+        out.append((at, lat, lng, b, src if src in ("app", "bg") else ""))
     out.sort(key=lambda x: x[0])
     return out
 
@@ -1264,11 +1268,11 @@ class JourneyLocationView(APIView):
                              "accepted": 0, "overdue_state": j.status})
         fixes = _fixes(d, j, now)
         newest_known = JW.fix_of(j)
-        for at, lat, lng, b in fixes:
+        for at, lat, lng, b, src in fixes:
             JourneyPoint.objects.create(journey=j, lat=lat, lng=lng, battery=b, at=at)
             JW.on_location(j, lat, lng, at, b, now=now)
             if newest_known is None or newest_known[2] is None or at >= newest_known[2]:
-                j.last_location = {"lat": lat, "lng": lng, "at": at.isoformat(), "battery": b}
+                j.last_location = JW.location_row(j.last_location, lat, lng, at, b, src)
                 newest_known = (lat, lng, at, b)
         j.last_activity_at = now
         arrived = False

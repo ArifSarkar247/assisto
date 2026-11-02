@@ -56,6 +56,10 @@ TXT = {
         "revoked": "যাত্রী এই লিংকটি বন্ধ করে দিয়েছেন। কোনো লোকেশন দেখানো হয় না।",
         "left": "গন্তব্য থেকে দূরত্ব", "left_v": "সোজা দূরত্বে প্রায় {d} কিমি",
         "rough": "আনুমানিক বাকি সময়", "rough_v": "প্রায় {m} মিনিট (সাধারণ গতিতে, ট্রাফিক নয়)",
+        "rough_speed": "প্রায় {m} মিনিট (গত ১০ মিনিটের আসল গতিতে, ট্রাফিক-তথ্য নয়)",
+        "why_killed": "Assisto সরিয়ে দেওয়ার পর ফোনের ব্যাটারি-সেভার সম্ভবত লোকেশন বন্ধ করেছে। ফোন করে খোঁজ নিন।",
+        "why_battery": "শেষবার চার্জ ছিল {b}% — ফোন বন্ধ হয়ে গিয়ে থাকতে পারে। নিচের জায়গাটাই শেষ জানা জায়গা।",
+        "bat_last": "{b}% (শেষ জানা)",
         "eta_note": "সময়টা যাত্রী নিজে দিয়েছেন।",
         "driver": "চালক", "call_driver": "চালককে কল করুন",
     },
@@ -80,6 +84,10 @@ TXT = {
         "revoked": "The traveller turned this link off. No location is shown.",
         "left": "Distance to destination", "left_v": "about {d} km in a straight line",
         "rough": "Rough time left", "rough_v": "about {m} min (typical speed, not live traffic)",
+        "rough_speed": "about {m} min (from their real speed over the last 10 min, not traffic data)",
+        "why_killed": "Assisto was swiped away and the phone's battery saver has probably stopped location. Please call them.",
+        "why_battery": "The battery was at {b}% last time — the phone may have died. The place below is the last known one.",
+        "bat_last": "{b}% (last known)",
         "eta_note": "The traveller set this time.",
         "driver": "Driver", "call_driver": "Call the driver",
     },
@@ -152,6 +160,17 @@ def public_state(token, now=None):
         out.update(state=state, lat=round(lat, 6), lng=round(lng, 6),
                    at=at.isoformat() if at else None, age_s=age, battery=batt)
         out.update(JW.progress(j, fx))
+        if batt is None:
+            last = (j.last_location or {}).get("battery_last")
+            if last is not None:
+                out["battery_last"] = last
+        if state == "lost":
+            # journey100b: the honest likely reason, not just "no location"
+            why, b = JW.lost_reason(j)
+            if why:
+                out["why"] = why
+                if b is not None:
+                    out["why_battery"] = b
     st, _m = JW.overdue(j, now)
     out["late"] = st in ("ask", "alert")
     v = JD.clean_vehicle(j.vehicle) or {}

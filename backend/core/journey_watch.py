@@ -49,6 +49,7 @@ OK_SNOOZE_MIN = 15            # "I'm OK" moves the deadline this far ahead
 NIGHT_GRACE_MIN = 7           # night routine: tighter grace (mirror of safety.py)
 FRESH_FIX_S = 120             # web page: a fix newer than this is "live"
 LOST_FIX_MIN = 15             # no fix for this long -> "signal lost" alert
+LOST_BATT_PCT = 5             # journey100b: at/below this the phone was probably flat
 MOVE_M = 60                   # moving more than this resets the stop clock
 OFFROUTE_REPEAT_MIN = 15
 OVERDUE_REPEAT_MIN = 15
@@ -157,6 +158,38 @@ def fix_of(j):
     return lat, lng, at, loc.get("battery")
 
 
+def location_row(prev, lat, lng, at, battery, src=""):
+    """journey100b: the stored last fix. A fix without battery (sent by the
+    background service, which cannot read it) keeps the last KNOWN battery
+    as `battery_last`, so a later "no location" alert can still say it."""
+    row = {"lat": lat, "lng": lng, "at": at.isoformat(), "battery": battery}
+    if src:
+        row["src"] = src
+    if battery is None:
+        prev = prev or {}
+        last = prev.get("battery") if prev.get("battery") is not None else prev.get("battery_last")
+        if last is not None:
+            row["battery_last"] = last
+    return row
+
+
+def lost_reason(j):
+    """journey100b — honest likely reason for "no location coming in":
+    'battery' (last known charge <= 5 %), 'killed' (Assisto was swiped away
+    and the phone then stopped the background service — battery savers on
+    some Realme/Xiaomi/Oppo phones do this), or '' (unknown: off/offline)."""
+    loc = j.last_location or {}
+    b = loc.get("battery") if loc.get("battery") is not None else loc.get("battery_last")
+    try:
+        if b is not None and int(b) <= LOST_BATT_PCT:
+            return "battery", int(b)
+    except (TypeError, ValueError):
+        pass
+    if loc.get("src") == "bg":
+        return "killed", None
+    return "", None
+
+
 def effective_grace(j):
     g = int(j.overdue_grace_min or 0)
     return min(g, NIGHT_GRACE_MIN) if j.night else g
@@ -235,7 +268,16 @@ def progress(j, fx=None):
     if d is None:
         return {}
     mode = ((j.vehicle or {}).get("mode") or j.mode or "")
-    return {"distance_m": d, "rough_min": JD.rough_minutes(d, mode)}
+    kmh = None
+    if getattr(j, "pk", None) and fx[2] is not None:
+        # journey100b: the traveller's own speed over the last 10 minutes
+        from .models import JourneyPoint
+        since = fx[2] - timedelta(seconds=JD.SPEED_WINDOW_S)
+        pts = list(JourneyPoint.objects.filter(journey=j, at__gte=since)
+                   .order_by("at").values_list("lat", "lng", "at")[:60])
+        kmh = JD.observed_kmh(pts)
+    mins, basis = JD.eta_minutes(d, mode, kmh)
+    return {"distance_m": d, "rough_min": mins, "eta_basis": basis}
 
 
 def near_destination(j, lat, lng, factor=2.0):
@@ -296,6 +338,20 @@ def event_text(kind, j, name, lang, p):
                 pick(lang, "%s প্রায় %s মিনিট ধরে এক জায়গায় থেমে আছেন।%s%s" % (
                     name, m, SJ._loc_line(loc, lang), link),
                      "%s has not moved for about %s min.%s%s" % (
+                    name, m, SJ._loc_line(loc, lang), link)))
+    if kind == "signal_lost" and p.get("why") == "battery":
+        m, b = _n(lang, p.get("minutes", "")), _n(lang, p.get("battery", ""))
+        return (pick(lang, "লোকেশন আসছে না — চার্জ শেষ হতে পারে", "No location — battery may be flat"),
+                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি। শেষবার চার্জ ছিল %s%%, তাই ফোন বন্ধ হয়ে গিয়ে থাকতে পারে। এটাই শেষ জানা জায়গা।%s%s" % (
+                    m, name, b, SJ._loc_line(loc, lang), link),
+                     "No location from %s for %s min. The battery was at %s%% last time, so the phone may have died. This is the last known place.%s%s" % (
+                    name, m, b, SJ._loc_line(loc, lang), link)))
+    if kind == "signal_lost" and p.get("why") == "killed":
+        m = _n(lang, p.get("minutes", ""))
+        return (pick(lang, "লোকেশন আসছে না — ফোন অ্যাপ বন্ধ করেছে হয়তো", "No location — the phone may have stopped Assisto"),
+                pick(lang, "%s মিনিট ধরে %s-এর ফোন থেকে লোকেশন আসেনি। Assisto সরিয়ে দেওয়ার পর ফোনের ব্যাটারি-সেভার সম্ভবত লোকেশন বন্ধ করেছে (কিছু ফোন এমন করে)। ফোন করে খোঁজ নিন।%s%s" % (
+                    m, name, SJ._loc_line(loc, lang), link),
+                     "No location from %s for %s min. Assisto was swiped away and the phone's battery saver has probably stopped location (some phones do this). Please call them.%s%s" % (
                     name, m, SJ._loc_line(loc, lang), link)))
     if kind == "signal_lost":
         m = _n(lang, p.get("minutes", ""))
@@ -568,8 +624,11 @@ def _sweep_journey(j, now, stats):
     age_min = (now - at).total_seconds() / 60.0 if at else 9999
     if age_min >= LOST_FIX_MIN:
         if j.lost_alerted_at is None or (at and j.lost_alerted_at < at):
+            why, batt = lost_reason(j)
             emit(j, "signal_lost", key=at.isoformat() if at else "x",
-                 payload={"minutes": int(age_min)})
+                 payload={"minutes": int(age_min),
+                          **({"why": why} if why else {}),
+                          **({"battery": batt} if batt is not None else {})})
             j.lost_alerted_at = now
             j.save(update_fields=["lost_alerted_at"])
             stats["lost"] += 1
@@ -584,6 +643,8 @@ def _sweep_journey(j, now, stats):
             stats["long_stop"] += 1
     if j.route_deviation:
         off, d, _thr = offroute(j, lat, lng)
+        if off and not _confirmed_off(j, at):
+            off = False      # journey100b: one GPS jump is not "off route"
         if off and (j.offroute_alerted_at is None or
                     now - j.offroute_alerted_at >= timedelta(minutes=OFFROUTE_REPEAT_MIN)):
             bucket = int(now.timestamp() // (OFFROUTE_REPEAT_MIN * 60))
@@ -591,6 +652,21 @@ def _sweep_journey(j, now, stats):
             j.offroute_alerted_at = now
             j.save(update_fields=["offroute_alerted_at"])
             stats["off_route"] += 1
+
+
+def _confirmed_off(j, at):
+    """journey100b — the fix before the newest must be off route too. A lone
+    GPS jump (tall buildings, under a flyover) was the main false alarm in
+    the replayed Dhaka traces; a real wrong turn stays off for > 30 s. With
+    only one fix so far there is nothing to confirm with: trust it."""
+    from .models import JourneyPoint
+    q = JourneyPoint.objects.filter(journey=j)
+    if at is not None:
+        q = q.filter(at__lt=at)
+    prev = q.order_by("-at").values_list("lat", "lng").first()
+    if prev is None:
+        return True
+    return offroute(j, prev[0], prev[1])[0]
 
 
 def expire(j):

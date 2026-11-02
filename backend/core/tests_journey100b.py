@@ -169,3 +169,145 @@ class ClearUrgentScopeTests(GBase):
         JW.clear_urgent(j)
         self.assertFalse(FamilyAlert.objects.filter(dismissed=False).exists())
 
+
+
+# ------------------------------------------------- 2. honest "no location"
+class LostReasonTests(GBase):
+    """When fixes stop, watchers get the LIKELY reason, never a guess
+    dressed as fact: flat battery, the phone killed Assisto in the
+    background, or (unknown) the generic line."""
+
+    def post(self, j, **p):
+        return self.ca.post("%s/journey/%d/location" % (V, j.id), p, format="json")
+
+    def lost_push(self):
+        return [c for c in self.spy.to(self.b) if c["data"].get("event") == "signal_lost"]
+
+    def test_flat_battery_reason(self):
+        j, _ = self.start(eta_min=120)
+        self.post(j, lat=23.77, lng=90.39, battery=4, src="app")
+        JW.sweep(now=timezone.now() + timedelta(minutes=JW.LOST_FIX_MIN + 1))
+        ev = self.events(j, "signal_lost")
+        self.assertEqual((ev[0].payload["why"], ev[0].payload["battery"]), ("battery", 4))
+        p = self.lost_push()[0]
+        self.assertIn("৪%", p["bbn"])                # Bangla digits in Bangla
+        self.assertIn("4%", p["ben"])
+        self.assertNotIn("4%", p["bbn"])            # never an English digit there
+
+    def test_killed_in_background_reason_and_last_known_battery(self):
+        j, _ = self.start(eta_min=120)
+        self.post(j, lat=23.77, lng=90.39, battery=50, src="app")
+        self.post(j, lat=23.771, lng=90.391, src="bg")     # service alone, no battery
+        j.refresh_from_db()
+        self.assertEqual(j.last_location["src"], "bg")
+        self.assertIsNone(j.last_location["battery"])
+        self.assertEqual(j.last_location["battery_last"], 50)
+        later = timezone.now() + timedelta(minutes=JW.LOST_FIX_MIN + 1)
+        JW.sweep(now=later)
+        self.assertEqual(self.events(j, "signal_lost")[0].payload["why"], "killed")
+        self.assertIn("battery saver", self.lost_push()[0]["ben"])
+        # the watcher page says it too, with the last KNOWN battery
+        from web.views_journey import public_state
+        d, _st = public_state(JW.web_token(j), now=later)
+        self.assertEqual((d["state"], d["why"], d["battery_last"]), ("lost", "killed", 50))
+
+    def test_unknown_reason_stays_generic(self):
+        j, _ = self.start(eta_min=120)
+        self.post(j, lat=23.77, lng=90.39, battery=60, src="app")
+        JW.sweep(now=timezone.now() + timedelta(minutes=JW.LOST_FIX_MIN + 1))
+        self.assertNotIn("why", self.events(j, "signal_lost")[0].payload)
+        self.assertIn("may be off", self.lost_push()[0]["ben"])
+
+    def test_junk_src_is_ignored(self):
+        j, _ = self.start(eta_min=120)
+        self.post(j, lat=23.77, lng=90.39, src="<script>")
+        j.refresh_from_db()
+        self.assertNotIn("src", j.last_location)
+
+
+# ------------------------------------------------- 3. ETA from real speed
+class SpeedEtaTests(GBase):
+    def test_observed_speed_ignores_gps_jumps(self):
+        from core.logic import journey_dest as JD
+        t = timezone.now()
+        pts = [(23.750 + k * 0.0005, 90.39, t + timedelta(seconds=30 * k)) for k in range(10)]
+        kmh = JD.observed_kmh(pts)
+        self.assertAlmostEqual(kmh, 6.7, delta=0.5)             # ~55 m / 30 s
+        jumpy = list(pts)
+        jumpy[4] = (23.80, 90.45, jumpy[4][2])                  # a 7 km jump
+        self.assertAlmostEqual(JD.observed_kmh(jumpy), kmh, delta=2.5)
+        self.assertIsNone(JD.observed_kmh(pts[:2]))             # too little data
+        self.assertEqual(JD.eta_minutes(5000, "cng", None)[1], "typical")
+        self.assertEqual(JD.eta_minutes(5000, "cng", 0.5)[1], "typical")   # standing
+
+    def test_jam_makes_the_time_longer_and_says_why(self):
+        j, _ = self.start(eta_min=120, mode="cng")
+        t = timezone.now() - timedelta(minutes=5)
+        pts = [{"lat": 23.7550 + k * 0.0004, "lng": 90.4000,
+                "at": (t + timedelta(seconds=30 * k)).isoformat()} for k in range(10)]
+        self.ca.post("%s/journey/%d/location" % (V, j.id), {"points": pts}, format="json")
+        from core.logic import journey_dest as JD
+        j.refresh_from_db()
+        p = JW.progress(j)
+        self.assertEqual(p["eta_basis"], "speed")
+        self.assertGreater(p["rough_min"], JD.rough_minutes(p["distance_m"], "cng"))
+        from web.views_journey import public_state
+        d, _st = public_state(JW.web_token(j))
+        self.assertEqual(d["eta_basis"], "speed")
+
+
+# ------------------------------- 4. replayed Dhaka trip: false-alarm count
+MIRPUR10 = {"name": "Mirpur 10", "lat": 23.8069, "lng": 90.3687}
+MOTIJHEEL = {"name": "Motijheel", "lat": 23.7330, "lng": 90.4172}
+ROAD = [(23.8069, 90.3687), (23.7781, 90.3800), (23.7650, 90.3890), (23.7570, 90.3900),
+        (23.7510, 90.3930), (23.7380, 90.3960), (23.7350, 90.4120), (23.7335, 90.4160)]
+
+
+def _trace(per_leg=6):
+    out = []
+    for a, b in zip(ROAD, ROAD[1:]):
+        for k in range(per_leg):
+            f = k / float(per_leg)
+            out.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
+    return out
+
+
+class DhakaReplayTests(GBase):
+    """A real road from Mirpur 10 to Motijheel (bends via Farmgate and
+    Shahbag), a fix every 30 s, swept after every fix like the minute cron.
+    Counts false alarms: off-route with the switch ON, plus one GPS jump."""
+
+    def replay(self, trace, j, t0):
+        for k, (lat, lng) in enumerate(trace):
+            at = t0 + timedelta(seconds=30 * k)
+            self.ca.post("%s/journey/%d/location" % (V, j.id),
+                         {"points": [{"lat": lat, "lng": lng, "at": at.isoformat()}]},
+                         format="json")
+            JW.sweep(now=at + timedelta(seconds=5))
+        return t0 + timedelta(seconds=30 * len(trace))
+
+    def test_no_false_off_route_on_the_real_road_even_with_a_gps_jump(self):
+        j, _ = self.start(eta_min=180, origin=MIRPUR10, destination=MOTIJHEEL,
+                          route_deviation_on=True)
+        trace = _trace()
+        trace[20:20] = [(23.80, 90.43)]                         # one multipath jump ~5 km
+        t0 = timezone.now() - timedelta(minutes=30)
+        self.replay(trace[:-3], j, t0)                          # stop before the pin
+        self.assertEqual(self.events(j, "off_route"), [])       # 0 false alarms
+        self.assertEqual(self.events(j, "long_stop"), [])
+
+    def test_a_real_wrong_turn_is_caught_within_two_fixes(self):
+        j, _ = self.start(eta_min=180, origin=MIRPUR10, destination=MOTIJHEEL,
+                          route_deviation_on=True)
+        t0 = timezone.now() - timedelta(minutes=30)
+        t1 = self.replay(_trace()[:10], j, t0)
+        self.replay([(23.80, 90.43), (23.801, 90.431)], j, t1)
+        self.assertEqual(len(self.events(j, "off_route")), 1)
+
+    def test_crawling_jam_is_not_a_long_stop(self):
+        j, _ = self.start(eta_min=180, origin=MIRPUR10, destination=MOTIJHEEL)
+        t0 = timezone.now() - timedelta(minutes=30)
+        # 25 minutes at ~1.3 km/h (11 m per 30 s) — Farmgate at rush hour
+        jam = [(23.7570 - k * 0.0001, 90.3900) for k in range(50)]
+        self.replay(jam, j, t0)
+        self.assertEqual(self.events(j, "long_stop"), [])
