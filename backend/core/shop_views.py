@@ -605,9 +605,11 @@ def away_now(site, now=None):
         return False
 
 
-def owner_caps(owner):
+def owner_caps(owner, include_cctv=True):
     """cashguard plan caps for a site OWNER: {tier, cameras, alerts_day,
-    clips_day, clip_kb}. The resource owner's plan counts, never a viewer's."""
+    clips_day, clip_kb}. The resource owner's plan counts, never a viewer's.
+    cctvprice: an active CCTV plan (Play) raises `cameras` to the plan's
+    camera count (never lowers what another plan already includes)."""
     from . import billing
     from .logic import cash_guard as CG
     try:
@@ -621,7 +623,22 @@ def owner_caps(owner):
         biz = int(c["limits"]["business_included_cameras"])
     except Exception:
         shop, biz = {}, 4
-    return CG.caps_for(tier, shop, biz)
+    caps = CG.caps_for(tier, shop, biz)
+    if include_cctv:
+        n = _cctv_plan_cameras(owner)
+        if n > caps["cameras"]:
+            caps = dict(caps, cameras=n)
+    return caps
+
+
+def _cctv_plan_cameras(user):
+    if user is None:
+        return 0
+    try:
+        from . import cctv_plan_service as CPS
+        return CPS.plan_cameras(user)
+    except Exception:
+        return 0
 
 
 def vendor_alarm_event(cam, raw_jpeg, signals, now):
@@ -937,6 +954,29 @@ class ShopCamerasView(APIView):
         # enabled cameras — the same ranking the monthly billing uses.
         existing = owner_enabled_cameras(request.user).count()
         charge_extra = existing >= included
+        # cctvprice: on the CCTV plan a camera beyond the plan's count is
+        # added by raising the count in the plan (up to 10; more = contact
+        # us) — never silently charged as credits
+        plan_n = _cctv_plan_cameras(request.user)
+        if plan_n and charge_extra:
+            from .logic import cctv_plan as CP
+            if plan_n >= CP.MAX_CAMERAS:
+                return _err(
+                    lang,
+                    "আপনার প্ল্যানে সর্বোচ্চ ১০টি ক্যামেরা। ১০-এর বেশি ক্যামেরার জন্য "
+                    "আমাদের সাথে যোগাযোগ করুন।",
+                    "Your plan has the maximum of 10 cameras. For more than 10, "
+                    "please contact us.",
+                    status=402, code="cctv_contact_us", included=included,
+                    used=existing)
+            return _err(
+                lang,
+                "আপনার প্ল্যানে %s টি ক্যামেরা, সবগুলো চালু আছে। নতুন ক্যামেরা যোগ "
+                "করতে প্ল্যানে ক্যামেরার সংখ্যা বাড়ান (প্রতি ক্যামেরা মাসে ২৫০ টাকা)।"
+                % CP.bn_num(plan_n),
+                "Your plan has %d cameras and all are in use. Raise the camera "
+                "count in your plan to add one (250 tk per camera per month)." % plan_n,
+                status=402, code="cctv_plan_full", included=included, used=existing)
         need = _extra_camera_credits() if charge_extra else 0
         if charge_extra and int(request.user.ai_credits or 0) < need:
             # honest, specific error — never silently add an unpaid camera.
@@ -1147,16 +1187,18 @@ def ShopCamera_kinds():
     return ShopCamera.KINDS
 
 
-def _included_cameras(user):
+def _included_cameras(user, include_cctv=True):
     """Cameras included free for this user's plan: Business includes
-    limits.business_included_cameras (default 4, admin-editable), others 0."""
+    limits.business_included_cameras (default 4, admin-editable), others 0.
+    cctvprice: an active CCTV plan includes its own camera count."""
     from . import plans, billing
     try:
         if plans.effective_plan(user) != "business":
             # cashguard (owner 28 Oct): Free includes 1 camera, Premium 2
             # (admin-editable shop knobs); more = credits, as before
-            return owner_caps(user)["cameras"]
-        return int(billing.cfg()["limits"]["business_included_cameras"])
+            return owner_caps(user, include_cctv=include_cctv)["cameras"]
+        n = int(billing.cfg()["limits"]["business_included_cameras"])
+        return max(n, _cctv_plan_cameras(user)) if include_cctv else n
     except Exception:
         return 0
 

@@ -137,6 +137,11 @@ class EzvizClient:
         return self.call("/api/lapp/device/add",
                          {"deviceSerial": serial, "validateCode": verification_code})
 
+    def delete_device(self, serial):
+        """cctvprice: release a device from OUR developer account (official
+        open API /api/lapp/device/delete) when the CCTV plan ended unpaid."""
+        return self.call("/api/lapp/device/delete", {"deviceSerial": serial})
+
     def alarms(self, serial, since_ms, until_ms, page_size=20):
         data = self.call("/api/lapp/alarm/device/list", {
             "deviceSerial": serial, "startTime": int(since_ms),

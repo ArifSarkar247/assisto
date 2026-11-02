@@ -709,6 +709,13 @@ urlpatterns += [
 ]
 # ---- /a2-cctv ----
 
+# ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)
+from . import cctv_plan_views as cpv  # noqa: E402
+urlpatterns += [
+    path("shop/cctv-plan", cpv.CctvPlanView.as_view()),
+    path("shop/cctv-plan/addon-cameras", cpv.CctvPlanAddonCamerasView.as_view()),
+]
+
 # ---- cctv1 ---- Home & shop watchman phase 1 (flag cctv_watchman)
 from . import watchman_views as wm  # noqa: E402
 from . import cashguard_views as cg  # noqa: E402

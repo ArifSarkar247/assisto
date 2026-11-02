@@ -156,6 +156,14 @@ def flags_flip(actor_id, flag, value, reason=""):
     return True, _FlagsBase._snapshot(row)
 
 
+def _cctv_profit(cfg):
+    try:
+        from .logic import cctv_plan as CP
+        return CP.profit_table(cfg.get("cctv_plan"))
+    except Exception:
+        return None
+
+
 class PricingConfigView(APIView):
     """Business Model (Build 1) — SERVER-SIDE PRICING config, OWNER-only (same
     superuser gate as /admin/integrations & /admin/flags).
@@ -183,7 +191,9 @@ class PricingConfigView(APIView):
         # a6: the pricing check — monthly + ANNUAL plan NET margins.
         return {"config": cfg, "audit": row.audit, "can_manage": True,
                 "margin_check": P.plan_margin_report(cfg),
-                "warnings": P.margin_warnings(cfg)}
+                "warnings": P.margin_warnings(cfg),
+                # cctvprice: per-tier worst-case profit after Play fee + VAT
+                "cctv_profit": _cctv_profit(cfg)}
 
     def get(self, request):
         if not self._owner(request):

@@ -35,6 +35,7 @@ from . import entitlements as _ENT   # plans-v2
 from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
 from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
+from . import cctv_plan as _CCTV     # cctvprice: CCTV plan (Play), cost guards
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -706,6 +707,7 @@ def DEFAULTS():
         "ai_user_daily_limit": 0,
         "referral": dict(_REFERRAL_DEFAULTS),
         "shop": dict(_SHOP_DEFAULTS),
+        "cctv_plan": _CCTV.defaults(),     # cctvprice
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
         "sms": dict(_SMS_DEFAULTS),        # smsotp
@@ -851,6 +853,7 @@ def normalize(data):
                                            base["ai_user_daily_limit"])),
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
+        "cctv_plan": _CCTV.normalize_cfg(d.get("cctv_plan")),   # cctvprice
         "otp": _norm_otp(d.get("otp"), base["otp"]),
         "sms": _norm_sms(d.get("sms"), base["sms"]),          # smsotp
         "email": _norm_email(d.get("email"), base["email"]),  # smsotp
@@ -1355,6 +1358,16 @@ def margin_warnings(cfg):
                         "applied_discount_pct": row.get("applied_discount_pct"),
                         "applied_price": row.get("applied_price"),
                         "price": row["price"]})
+    # cctvprice: an owner edit of the CCTV cost guards / assumptions that
+    # drops any camera tier or add-on below 40 % worst case is flagged here
+    try:
+        cp = _CCTV.profit_table((cfg or {}).get("cctv_plan"))
+        if not cp["ok"]:
+            out.append({"code": "cctv_below_40", "plan": "cctv", "period": "mo",
+                        "min_pct": cp["min_pct"],
+                        "per_camera_cost": cp["per_camera_cost"]})
+    except Exception:
+        pass
     return out
 
 
