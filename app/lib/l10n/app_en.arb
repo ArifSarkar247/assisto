@@ -33269,5 +33269,529 @@
   "acuOpeningLoans": "Loans you owed",
   "acuOpeningLoansHelp": "Bank, NGO or personal loans the shop still had to repay on the first day.",
   "acuCfReconciles": "Start + change = end: the money adds up",
-  "acuCfNotReconciles": "The money does not add up — please tell support"
+  "acuCfNotReconciles": "The money does not add up — please tell support",
+  "watchFeed2": "Today's updates",
+  "watchFeedTitle2": "For you today",
+  "watchAllClearBody2": "Nothing needs you right now. Assisto keeps your reminders, money, subscriptions and family updates in order for you.",
+  "j100Following": "Trips I'm following",
+  "gjSeesYourTrip": "{name} can see your trip",
+  "@gjSeesYourTrip": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "journeyWhoKnows": "Who will know",
+  "gjBannerNote2": "Your screen always shows who can see this trip. The trip's path is deleted when it ends.",
+  "gjSchoolModeDesc2": "Your child accepts once. Their screen always shows that you can see their trips, and they can stop any single trip.",
+  "lifebarExamMineTitle2": "Results we'll tell you about",
+  "mlpStatusArmedBody2": "Assisto is protecting this phone and will report its location whenever it comes online.",
+  "atStateOnBody2": "A quiet background service is protecting your phone. A permanent notification shows while it runs.",
+  "acmTitle": "Accounts mode",
+  "acmOnbTitle": "What will you keep accounts for?",
+  "acmOnbSub": "You can change this any time in Settings. Nothing is ever deleted.",
+  "acmPersonal": "Personal only",
+  "acmPersonalSub": "Daily income, expenses, budget and savings",
+  "acmBusiness": "Business only",
+  "acmBusinessSub": "Shop ledger (baki khata), sales, stock and customers",
+  "acmBoth": "Personal + business",
+  "acmBothSub": "Two separate books in one app — they never mix",
+  "acmSafeNote": "Changing this only changes your menu. Every entry stays, and you can switch back any time.",
+  "acmCountPersonal": "{n} personal entries",
+  "@acmCountPersonal": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acmCountBusiness": "{n} customers/suppliers, {p} products",
+  "@acmCountBusiness": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "p": {
+        "type": "String"
+      }
+    }
+  },
+  "acmWarnHide": "Kept, only removed from the menu: {what}. Find it any time with menu search.",
+  "@acmWarnHide": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "acmSaved": "Saved. All your entries are unchanged.",
+  "acmSavedOffline": "Saved on this phone. It will sync when you are online.",
+  "acmMatchesUse": "Matches what you use",
+  "acmTileSub": "{mode} · change any time, nothing is deleted",
+  "@acmTileSub": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "acmTileSuggest": "Suggested for you: {mode}",
+  "@acmTileSuggest": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "acmHiddenPersonal": "Personal accounts are hidden from your menu (Business only). Your entries are safe here.",
+  "acmHiddenBusiness": "Business is hidden from your menu (Personal only). Your entries are safe here.",
+  "acmShowAgain": "Show in menu again",
+  "crmAutoKindReorder": "Reorder reminder",
+  "crmAutoKindReorderDesc": "When a customer usually rebuys an item (from their own purchase gap), ask if they need it again.",
+  "crmAutoKindReorderWhen": "At the customer's usual gap (after {count} or more purchases), {days} day(s) early",
+  "@crmAutoKindReorderWhen": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoKindDelivery": "After-delivery feedback",
+  "crmAutoKindDeliveryDesc": "After an online order is delivered, ask for a 1 to 5 rating. A 1 or 2 alerts you at once.",
+  "crmAutoKindDeliveryWhen": "{days} day(s) after delivery",
+  "@crmAutoKindDeliveryWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoKindQuote": "Quote follow-up",
+  "crmAutoKindQuoteDesc": "If a price quote is not accepted, remind the customer once, with the link.",
+  "crmAutoKindQuoteWhen": "{days} day(s) after the quote, if not accepted",
+  "@crmAutoKindQuoteWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoParamDailyCap": "Most messages from this rule per day",
+  "crmAutoParamMinPurchases": "Purchases needed to learn the habit",
+  "crmAutoParamDaysBefore": "Days before the usual date",
+  "crmAutoVarTotal": "Quote total",
+  "crmAutoVarLink": "Quote link",
+  "crmAutoTodayCap": "Today this rule can send {count} (limit {cap} a day)",
+  "@crmAutoTodayCap": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostFree": "Cost: free (0 credits)",
+  "crmAutoCostFreeInWindow": "Cost: free inside the customer's 24-hour chat window; outside it only an approved template goes. Your credits: {balance}",
+  "@crmAutoCostFreeInWindow": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostSms": "Cost: {per} credits a message ({parts} SMS parts). About {estimate} credits today. Your credits: {balance}",
+  "@crmAutoCostSms": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "parts": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostWa": "Cost: up to {per} credits a message (WhatsApp template; free inside 24 hours). About {estimate} credits today at most. Your credits: {balance}",
+  "@crmAutoCostWa": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostOther": "Cost: {per} credits a message. About {estimate} credits today. Your credits: {balance}",
+  "@crmAutoCostOther": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoTurnOnOnHelp": "On: it sends automatically at the set time, within your limits.",
+  "crmAutoTurnOnOffHelp": "Off: nothing is sent until you turn it on.",
+  "crmAutoRulesTitle": "How scores work",
+  "crmAutoRulesBody": "Every point comes from one rule below, using your own sales, khata and messages. {hot}+ = call first, {warm}+ = keep in touch.",
+  "@crmAutoRulesBody": {
+    "placeholders": {
+      "hot": {
+        "type": "String"
+      },
+      "warm": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoRulesNoAi": "No AI guess: if we do not know something, it scores 0.",
+  "crmAutoRulesSee": "See how scores work",
+  "crmAutoScoresTitle": "Customer scores",
+  "crmAutoScoresIntro": "Who to call first. Tap a customer to see why they got the score.",
+  "crmAutoScoresSearch": "Search name or phone",
+  "crmAutoScoresEmptyTitle": "No scores yet",
+  "crmAutoScoresNoMatch": "No customer matches this search",
+  "crmAutoScoresEmptyHow": "Scores come from sales with the customer's phone, khata dues and price quotes. Add the phone when you sell, and scores appear here.",
+  "crmAutoBandHot": "Hot",
+  "crmAutoBandWarm": "Warm",
+  "crmAutoBandCold": "Cold",
+  "crmAutoLeadTag": "Lead (not bought yet)",
+  "crmAutoDoNotMessage": "Do not message",
+  "crmAutoDoNotMessageBody": "This customer said STOP. No automation will message them.",
+  "crmAutoScoreA11y": "Score {score}, {band}",
+  "@crmAutoScoreA11y": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoNoName": "No name",
+  "crmAutoWhyScore": "Why this score",
+  "crmAutoRuleWithValue": "{rule} ({value})",
+  "@crmAutoRuleWithValue": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoAuditTitle": "Activity log",
+  "crmAutoAuditEmptyTitle": "Nothing here yet",
+  "crmAutoAuditEmptyHow": "Every time you turn a rule on or off, change it, or a rule sends messages, it is written here, so you always know what happened.",
+  "crmAutoAuditBack": "Back to automations",
+  "crmAutoCustomerMsgsTitle": "Automatic customer messages",
+  "crmAutoCustomerMsgsBody": "Reorder reminders, after-delivery feedback, quote follow-ups, win-back — each with preview, daily limits and its own on/off.",
+  "emhTitle": "Emergency hub",
+  "emh999Button": "Call {number}",
+  "@emh999Button": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "emh999Sub": "Police · Fire service · Ambulance. Opens your dialer — you press call.",
+  "emhMoreHelp": "More help",
+  "emhHospital": "Nearest hospital",
+  "emhPolice": "Nearest police station",
+  "emhNearbySub": "Needs internet; the map source is shown. No internet? Call 999.",
+  "emhFamCard": "Family card",
+  "emhFamCardEmpty": "Add blood group and emergency numbers — opens without internet",
+  "emhFamBlood": "Blood group {group}",
+  "@emhFamBlood": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "emhFamNumbers": "{count} emergency numbers",
+  "@emhFamNumbers": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "emhOfflineOk": "opens without internet",
+  "emhBlood": "Blood needed",
+  "emhBloodSub": "Post an urgent request and find donors near you",
+  "emhMissing": "Missing person alert",
+  "emhMissingSub": "Tell people nearby with a photo; help with a GD",
+  "emhCrisis": "Crisis help",
+  "emhCrisisSub": "Only numbers checked by the Assisto team",
+  "emhCrisis999Label": "National emergency (police, ambulance, fire service)",
+  "emhCrisisOnly999": "Other helplines appear here once the team has checked them.",
+  "emhLost": "Lost or stolen phone",
+  "emhLostSub": "Lock it, sound an alarm, see where it is",
+  "emhFake": "Fake call",
+  "emhFakeSub": "Your phone rings in 15 seconds — a reason to walk away",
+  "emhOfflineNote": "No internet? SOS, 999, the family card, crisis numbers and the fake call still work.",
+  "cgaSrcChip": "Bag / shoe tracker",
+  "cgaChipOnlyOwner": "The tracker was set up by {name} — only they can change who sees it.",
+  "@cgaChipOnlyOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cgaRemovedButChip": "{name} was removed. The bag tracker stays — ask {owner} to change it.",
+  "@cgaRemovedButChip": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "owner": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBanksCallFirst": "Lists can be out of date. Call before you go.",
+  "bpBanksOpenSource": "Open the source",
+  "bpBanksAllDistricts": "All districts",
+  "bpBanksSearch": "Search by name or area",
+  "bpBanksNearMe": "Near me",
+  "bpBanksCount": "{count} blood banks",
+  "@bpBanksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bpBanksNoMatch": "No blood bank in this list matches.",
+  "bpBanksShowAll": "Show all",
+  "bpBanksKm": "{km} km away",
+  "@bpBanksKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "bpBanksKmDistrict": "About {km} km (from the district centre)",
+  "@bpBanksKmDistrict": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "bpPushAreaTitle": "Urgent requests reach you for",
+  "bpPushAreaPoint": "Around the point you saved (about 1 km).",
+  "bpPushAreaHonest": "We use the area you saved — not where your phone is now. If you move, update it.",
+  "bpPushAreaStale": "Last checked {date}. Are you still in this area?",
+  "@bpPushAreaStale": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bpPushAreaStill": "Yes, still here",
+  "bpPushAreaUpdate": "Update area",
+  "bpPushAreaKept": "Thanks — your area is kept.",
+  "bpReachHonest": "Donors are matched by the area they saved, not by where their phone is right now.",
+  "bpListCounts": "{total} donors · {available} can donate now · {soon} soon",
+  "@bpListCounts": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "available": {
+        "type": "int"
+      },
+      "soon": {
+        "type": "int"
+      }
+    }
+  },
+  "bpDoctorDecides": "The hospital doctor makes the final decision on who can donate.",
+  "bpStPaused": "Paused by the donor",
+  "bpStLeft": "{left} days left",
+  "@bpStLeft": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpStToday": "Donated today · {left} days left",
+  "@bpStToday": {
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpStAgoLeft": "Donated {ago} days ago · {left} days left",
+  "@bpStAgoLeft": {
+    "placeholders": {
+      "ago": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "bpHelped": "You have helped {count} people",
+  "@bpHelped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bpIAmDonor": "I am a blood donor",
+  "bpIAmDonorOffSub": "Turn on to be found by people nearby who need blood. Your group is sent only with your consent.",
+  "bpShareAgreed": "Your yes is saved",
+  "bpShareBothAgreed": "Both sides agreed — you can share the thank-you card.",
+  "bpShareWaitDonor": "Waiting for the donor to agree. The card is shared only when both sides say yes.",
+  "bpShareWaitFamily": "Waiting for the family to agree. The card is shared only when both sides say yes.",
+  "bpShareAskFamily": "Share a thank-you card? It has no names, illness or hospital. The donor must agree too.",
+  "bpShareAskDonor": "The family may share a thank-you card (no names, illness or hospital). Only if you agree.",
+  "bpShareAgree": "I agree to share",
+  "discoverSosBenefit": "One press sends help and your location to family and close people.",
+  "discoverTrainBenefit": "Where your train is now and when it arrives — live from passengers.",
+  "discoverSponsoredLabel": "Sponsored",
+  "hv2TileBloodDonor": "Blood donor",
+  "jmHowGoing": "How are you going?",
+  "jmHowGoingHelp": "One tap. We remember your last choice.",
+  "jmModeLocalBus": "Local bus",
+  "jmPickTrain": "Choose your train",
+  "jmPickTrainHelp": "Your family will see where the train is and when it may reach your station.",
+  "jmTrainTitle": "Train {no} · {name}",
+  "@jmTrainTitle": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jmGetOffAt": "Getting off at {station}",
+  "@jmGetOffAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmGetOffAtTime": "Getting off at {station} · around {time} (estimate)",
+  "@jmGetOffAtTime": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jmPickStationTitle": "Where do you get off?",
+  "jmPickStationHelp": "Times are timetable estimates.",
+  "jmAlarmSwitch": "Wake me before my stop",
+  "jmAlarmBus": "Rings {dist} before your stop",
+  "@jmAlarmBus": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmTrainPrev": "Rings when the train leaves {station}, the station before yours",
+  "@jmAlarmTrainPrev": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmTrainGps": "Rings {dist} before your station (by GPS)",
+  "@jmAlarmTrainGps": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "jmAlarmMetro": "Rings one station before yours. It counts stations, so it works underground too.",
+  "jmMetroFrom": "Getting on at",
+  "jmMetroTo": "Getting off at",
+  "jmMetroPick": "Choose both stations so the alarm can count.",
+  "jmAlarmNeedsPin": "To ring before your stop, choose the destination from a saved place or the map.",
+  "jmAlarmPhoneOnly": "The alarm runs on your phone, even without internet.",
+  "jmAlarmOnLive": "Destination alarm is on",
+  "jmAlarmRinging": "Your stop is next!",
+  "jmAlarmOff": "Turn the alarm off",
+  "jmBasisOwn": "Estimate from the traveller's own location on the train line",
+  "jmBasisLive": "Estimate from passengers sharing on this train",
+  "jmBasisTimetable": "Timetable estimate only",
+  "jmNextStation": "Next station: {station}",
+  "@jmNextStation": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmReachesAt": "May reach {station} around {time} (estimate)",
+  "@jmReachesAt": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "jmTrainLate": "About {min} min late",
+  "@jmTrainLate": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "jmTrainPassed": "The train has reached {station}",
+  "@jmTrainPassed": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "jmOpenTrain": "See the train"
 }
