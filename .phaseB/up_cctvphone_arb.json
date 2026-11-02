@@ -143,7 +143,9 @@
           "type": "String"
         }
       }
-    }
+    },
+    "pcViewersLiveConfirm": "The family members you added under Family will be able to watch this camera live. You can turn it off any time.",
+    "pcViewersLiveAllow": "Allow"
   },
   "bn": {
     "pcTitle": "ফোনকে ক্যামেরা বানান",
@@ -288,6 +290,8 @@
           "type": "String"
         }
       }
-    }
+    },
+    "pcViewersLiveConfirm": "\"পরিবার\"-এ যোগ করা মানুষেরা এই ক্যামেরা লাইভ দেখতে পারবেন। যেকোনো সময় বন্ধ করতে পারবেন।",
+    "pcViewersLiveAllow": "অনুমতি দিন"
   }
 }

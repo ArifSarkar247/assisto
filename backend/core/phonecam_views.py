@@ -72,7 +72,9 @@ def pair_nonce(site):
 
 
 def viewers_live(cam):
-    return bool((cam.source or {}).get("viewers_live", True))
+    # owner order I: only the owner and people they ALLOW — family live view
+    # of a phone camera is OFF until the owner turns it on per camera
+    return bool((cam.source or {}).get("viewers_live", False))
 
 
 def _phone_cam_row(cam):
@@ -197,7 +199,7 @@ class PhoneCamClaimView(APIView):
         cam = ShopCamera.objects.create(
             site=site, name=name, kind="shopbox", vendor="phone",
             zone_config=WM.default_zone_config(site.kind),
-            source={"pair_sha": sha, "viewers_live": True, "model": model,
+            source={"pair_sha": sha, "viewers_live": False, "model": model,
                     "paired_at": now.isoformat()},
             billed_until=(now + timedelta(days=SV.BILLING_PERIOD_DAYS)
                           if charged else None))

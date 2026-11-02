@@ -305,9 +305,26 @@ class _SiteCard extends StatelessWidget {
                 cameraId: (cam['id'] as num).toInt(),
                 cameraName: (cam['name'] ?? '').toString())));
       case 'viewers_live':
+        // order I: OFF by default; turning it on says plainly who will see
+        final turnOn = cam['viewers_live'] != true;
+        if (turnOn) {
+          final ok = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              scrollable: true,
+              title: Text(t.pcViewersLive),
+              content: Text(t.pcViewersLiveConfirm),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+                FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.pcViewersLiveAllow)),
+              ],
+            ),
+          );
+          if (ok != true || !context.mounted) return;
+        }
         try {
           await context.read<AppState>().api.phoneCamSettings(
-              (cam['id'] as num).toInt(), {'viewers_live': cam['viewers_live'] == false});
+              (cam['id'] as num).toInt(), {'viewers_live': turnOn});
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -645,7 +662,7 @@ class _CameraRow extends StatelessWidget {
               if (vendor == 'phone')
                 CheckedPopupMenuItem(
                     value: 'viewers_live',
-                    checked: cam['viewers_live'] != false,
+                    checked: cam['viewers_live'] == true,
                     child: Text(t.pcViewersLive)),
               if (vendor != 'phone') PopupMenuItem(value: 'check', child: Text(t.wmCheckAgain)),
               if (vendor == 'hikvision' || vendor == 'dahua')

@@ -135,7 +135,7 @@ def _site_overview(site, role, now):
         if phone:
             src = c.source or {}
             cr["health"] = src.get("health") or {}
-            cr["viewers_live"] = bool(src.get("viewers_live", True))
+            cr["viewers_live"] = bool(src.get("viewers_live", False))
             cr["source"] = {k: v for k, v in src.items() if k != "pair_sha"}
         if role != "owner":
             # viewers see status + names only

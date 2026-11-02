@@ -664,7 +664,7 @@ class ShopLiveStartView(APIView):
             "site").first()
         if cam is None:
             # cctvphone: a family viewer the owner allowed may watch a PHONE
-            # camera live (owner switch `viewers_live`, default on)
+            # camera live (owner switch `viewers_live`, default OFF)
             from . import phonecam_views as PCV
             cam = ShopCamera.objects.filter(
                 pk=_poisha(request.data.get("camera")), vendor="phone",

@@ -236,8 +236,17 @@ class LiveTests(_Base):
                         return_value={"throttled": False, "reason": ""}):
             return c.post("/api/v1/shop/live/start", {"camera": cam.id}, format="json")
 
-    def test_viewer_may_watch_unless_owner_switches_off(self):
+    def allow_family(self, cam, on=True):
+        r = self.client.patch("/api/v1/shop/phonecam/%d" % cam.id,
+                              {"viewers_live": on}, format="json")
+        self.assertEqual((r.status_code, r.data["viewers_live"]), (200, on))
+
+    def test_family_live_is_off_until_the_owner_allows_it(self):
         cam = self._phone()
+        r = self._start(cam, self.viewer)
+        self.assertEqual((r.status_code, r.data["error"]), (403, "viewer_live_off"))
+        self.assertEqual(self._start(cam).status_code, 201)     # owner always
+        self.allow_family(cam)
         r = self._start(cam, self.viewer)
         self.assertEqual(r.status_code, 201, r.data)
         self.assertEqual(r.data["idle_seconds"], PC.LIVE_IDLE_S)
@@ -250,6 +259,7 @@ class LiveTests(_Base):
 
     def test_max_two_live_views_per_account(self):
         cams = [self._phone() for _ in range(3)]
+        self.allow_family(cams[1])
         self.assertEqual(self._start(cams[0]).status_code, 201)
         self.assertEqual(self._start(cams[1], self.viewer).status_code, 201)
         r = self._start(cams[2])
@@ -300,6 +310,10 @@ class LiveTests(_Base):
         c.force_authenticate(self.viewer)
         r = c.get("/api/v1/shop/watchman")
         self.assertEqual(r.status_code, 200, r.data)
+        row = [x for s in r.data["sites"] for x in s["cameras_list"] if x["id"] == cam.id][0]
+        self.assertNotIn("live_capable", row)          # default OFF (order I)
+        self.allow_family(cam)
+        r = c.get("/api/v1/shop/watchman")
         rows = [x for s in r.data["sites"] for x in s["cameras_list"]
                 if x["id"] == cam.id]
         self.assertEqual(len(rows), 1)
