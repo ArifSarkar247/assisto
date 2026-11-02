@@ -26,6 +26,7 @@ import '../state.dart';
 import '../screens/delete_account_screen.dart';
 import '../widgets/chatnav.dart';
 import '../screens/circle_call_screen.dart';
+import '../screens/watchman/cctv_alarm_call_screen.dart'; // cctvescalate
 import 'incoming_call_screen.dart';
 import 'push_api.dart';
 import 'push_binding.dart';
@@ -508,6 +509,14 @@ class PushService {
     }
     // c2-calls: app open -> the full in-app incoming screen at once (rings
     // natively), not a heads-up notification.
+    // cctvescalate C3: a CCTV alarm ring while the app is open -> the alarm
+    // page at once (no voice line, no in-app call ring).
+    if (p.isCctvAlarmCall) {
+      CallLaunchRouter.instance.openWarm(
+          CallLaunch(action: CallLaunch.actionOpen, payload: p),
+          nav: _nav?.currentState);
+      return;
+    }
     if (p.isCall) {
       CallRuntime.instance.onPushRing(p);
       return;
@@ -693,6 +702,11 @@ class PushService {
     final nav = _nav?.currentState;
     if (target == null || nav == null) return;
     try {
+      if (target.openIncomingCall && p.isCctvAlarmCall) {
+        nav.push(MaterialPageRoute(
+            builder: (_) => CctvAlarmCallScreen(payload: p)));
+        return;
+      }
       if (target.openIncomingCall) {
         unawaited(PushNotifier.cancelCall(p.callId));
         final member = <String, dynamic>{

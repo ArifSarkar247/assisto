@@ -380,6 +380,10 @@ def run_escalate(task, now):
         logrows.append({"at": now.isoformat(), "stop": "opened"})
         task.state = dict(st, log=logrows)
         return "opened"
+    if st.get("phase") == "call":
+        # cctvescalate C3: the chain is rung again as Assisto calls
+        from . import cctv_escalate_views as CE
+        return CE.run_alarm_call(task, ev, now)
     chain = [int(u) for u in st.get("chain") or []]
     step = int(st.get("step") or 0)
     site = ev.site
@@ -389,7 +393,7 @@ def run_escalate(task, now):
         step += 1
     if step >= len(chain):
         task.state = dict(st, step=step, log=logrows)
-        return "end"
+        return _to_call_phase(task, site, now)
     if not take_cap(site, "escalations_day", now):
         logrows.append({"at": now.isoformat(), "stop": "cap"})
         task.state = dict(st, step=step, log=logrows)
@@ -420,7 +424,24 @@ def run_escalate(task, now):
     if step < len(chain):
         task.due_at = now + timedelta(minutes=settings_for(site)["escalate_min"])
         return "wait"
-    return "end"
+    return _to_call_phase(task, site, now)
+
+
+def _to_call_phase(task, site, now):
+    """cctvescalate C3: the notice chain is done and nobody opened the alert
+    -> after one more `escalate_min`, ring the chain as Assisto calls (owner
+    setting escalate_call, default on). "end" when off / nobody to call."""
+    s = settings_for(site)
+    st = dict(task.state or {})
+    if not s.get("escalate_call") or not st.get("chain"):
+        return "end"
+    from .logic import cctv_deter as CD
+    order = CD.call_order(st.get("chain") or [])
+    if not order:
+        return "end"
+    task.state = dict(st, phase="call", calls=order, ci=0, rung=[])
+    task.due_at = now + timedelta(minutes=s["escalate_min"])
+    return "wait"
 
 
 def nosale_feedback(ev, verdict):
@@ -456,8 +477,12 @@ def run_siren_off(task, now):
     if client is None:
         return "no_client"
     dev, _, ch = cam.vendor_ref.partition(":")
+    from .logic import cctv_deter as CD
     try:
-        client.siren(dev, ch or "0", on=False)
+        if st.get("action") == "light":      # cctvescalate C5: white light off
+            CD.imou_light(client, dev, ch or "0", on=False)
+        else:
+            CD.imou_siren(client, dev, ch or "0", on=False)
     except IM.ImouError:
         return "error"
     return "off"
@@ -791,6 +816,10 @@ def mark_opened(ev, user, now=None):
             t.state = st
             t.done = True
             t.save(update_fields=["state", "done"])
+            if st.get("rung"):
+                # cctvescalate C3: stop every alarm ring still on a phone
+                from . import cctv_escalate_views as CE
+                CE.cancel_rings(st.get("rung"))
     return ev.opened_at
 
 
@@ -816,7 +845,18 @@ def actions_for(ev, role):
             "call_shop": s["shop_phone"] or None,
             "emergency": "999",
             "share_clip": role == "owner" and clip in ("ready", "viewed"),
-            "evidence": role == "owner"}
+            "evidence": role == "owner",
+            # cctvescalate C4-C6: the 999 card, the deterrence table
+            **_escalate_actions(ev, role)}
+
+
+def _escalate_actions(ev, role):
+    try:
+        from . import cctv_escalate_views as CE
+        return CE.actions_extra(ev, role)
+    except Exception:
+        log.exception("escalate actions failed")
+        return {}
 
 
 # ================================================================ views
@@ -1109,9 +1149,14 @@ class EventSirenView(_OwnerBase):
                 bn, en = SIREN_ERRS["imou_off"]
                 return _err(lang, bn, en, status=503, code="imou_not_configured")
             dev, _, ch = cam.vendor_ref.partition(":")
+            from .logic import cctv_deter as CD
             try:
-                client.siren(dev, ch or "0", on=True)
+                CD.imou_siren(client, dev, ch or "0", on=True)
             except IM.ImouError as e:
+                if e.code in CD.IMOU_NOT_SUPPORTED:
+                    ShopCamera.objects.filter(pk=cam.pk).update(
+                        compat=CD.learn_no(dict(cam.compat or {}, siren_at=now.timestamp()),
+                                           "siren"))
                 bn, en = SIREN_ERRS["vendor_error"]
                 return _err(lang, bn, en, status=502, code="siren_failed",
                             vendor_code=e.code)

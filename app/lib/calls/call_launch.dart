@@ -6,6 +6,7 @@ import '../ads/app_open_gate.dart' show AppEntry;
 import '../push/incoming_call_screen.dart';
 import '../push/push_payload.dart';
 import '../screens/circle_call_screen.dart';
+import '../screens/watchman/cctv_alarm_call_screen.dart';
 import 'call_log.dart';
 import 'call_runtime.dart';
 
@@ -161,6 +162,13 @@ class CallLaunchRouter {
 
   /// The screen for [l] (call screen for Accept, ringing screen otherwise).
   Route<void> routeFor(CallLaunch l) {
+    // cctvescalate C3: a CCTV alarm ring opens the alert page (snapshot +
+    // "open the alert"), never a voice line — on tap, full-screen and Accept.
+    if (l.payload.isCctvAlarmCall) {
+      return instantCallRoute<void>(
+          (_) => CctvAlarmCallScreen(payload: l.payload),
+          name: ringRouteName);
+    }
     if (l.accept) {
       return instantCallRoute<void>(
           (_) => CircleCallScreen(

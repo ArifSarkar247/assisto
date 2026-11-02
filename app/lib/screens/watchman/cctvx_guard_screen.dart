@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../cctvx/cctvx_source.dart';
+import '../../cctvx/escalate_source.dart';
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
 import '../messenger/messenger_home_screen.dart';
+import 'cctv_escalate.dart';
 
 /// cctvx — GUARD SETTINGS for one place (owner order 28 Oct): the no-sale
 /// drawer window (1-10 min, server-bounded), who gets an alert the owner has
@@ -35,6 +37,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
   Map<String, dynamic> _s = {};
   bool _busy = false;
   final _phone = TextEditingController();
+  final _addr = TextEditingController(); // cctvescalate C4
   late Map<String, dynamic> _hours = Map.of(widget.hours);
 
   @override
@@ -46,6 +49,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
   @override
   void dispose() {
     _phone.dispose();
+    _addr.dispose();
     super.dispose();
   }
 
@@ -53,6 +57,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
     _d = d;
     _s = Map.of(wmMap(d['settings']));
     _phone.text = (_s['shop_phone'] ?? '').toString();
+    _addr.text = (_s['address'] ?? '').toString();
   }
 
   Future<void> _load() async {
@@ -120,6 +125,7 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
         _offlineCard(t),
         _hoursCard(t),
         _phoneCard(t),
+        _addressCard(t),
         _usageCard(t),
       ]);
     }
@@ -278,6 +284,64 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
         ),
       if (chain.isNotEmpty)
         _minutes('escalate_min', _i('escalate_min', 2), _b('escalate_min', [1, 10]), t.cxEscalationWait),
+      // cctvescalate C3: after the chain, ring it as an Assisto call
+      if (chain.isNotEmpty)
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: _s['escalate_call'] != false,
+          title: Text(t.cescCallSwitch),
+          subtitle: Text(t.cescCallSwitchSub),
+          onChanged: _busy ? null : (v) => _save({'escalate_call': v}),
+        ),
+    ]);
+  }
+
+  /// cctvescalate C4 + C5: the address for the 999 card; the owner's
+  /// recorded warning for the camera speaker.
+  Widget _addressCard(AppLocalizations t) {
+    final esc = escalateFor(widget.source);
+    return _card([
+      _title(Icons.local_police_rounded, t.cescAddressTitle),
+      const SizedBox(height: 6),
+      Text(t.cescAddressBody),
+      const SizedBox(height: 8),
+      TextField(
+        controller: _addr,
+        maxLength: 200,
+        minLines: 1,
+        maxLines: 3,
+        decoration: InputDecoration(
+            labelText: t.cescAddressLabel,
+            hintText: t.cescAddressHint,
+            border: const OutlineInputBorder()),
+      ),
+      Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: FilledButton(
+          style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+          onPressed: _busy
+              ? null
+              : () async {
+                  final ok = await _save({'address': _addr.text.trim()});
+                  if (ok && mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.cescAddressSaved)));
+                  }
+                },
+          child: Text(t.cxSave),
+        ),
+      ),
+      if (esc != null) ...[
+        const Divider(height: 24),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          minTileHeight: 56,
+          leading: const Icon(Icons.record_voice_over_rounded),
+          title: Text(t.cescWarnTile),
+          subtitle: Text(t.cescWarnTileSub),
+          onTap: () => WarnClipSheet.show(context, esc, widget.siteId),
+        ),
+      ],
     ]);
   }
 

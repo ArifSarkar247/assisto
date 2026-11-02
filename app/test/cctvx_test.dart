@@ -200,8 +200,9 @@ void main() {
       await tester.tap(find.text(en.cxOfflineSwitch));
       await _settle(tester);
       expect(src.saved.last, {'offline_on': false});
-      await tester.enterText(find.byType(TextField), '01811111111');
-      await tester.tap(find.widgetWithText(FilledButton, en.cxSave));
+      // cctvescalate: the address card below has its own field + Save
+      await tester.enterText(find.byType(TextField).first, '01811111111');
+      await tester.tap(find.widgetWithText(FilledButton, en.cxSave).first);
       await _settle(tester);
       expect(src.saved.last, {'shop_phone': '01811111111'});
       expect(find.text(en.cxPhoneSaved), findsOneWidget);

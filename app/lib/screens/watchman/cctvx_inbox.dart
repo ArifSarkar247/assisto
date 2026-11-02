@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +21,10 @@ import '../../widgets/cv_empty.dart';
 class GuardInboxScreen extends StatefulWidget {
   final CctvxSource? source;
   final CashGuardSource? cash;
-  const GuardInboxScreen({super.key, this.source, this.cash});
+
+  /// cctvescalate C3: opened from an alarm call -> this alert's actions at once.
+  final int? openEvent;
+  const GuardInboxScreen({super.key, this.source, this.cash, this.openEvent});
 
   @override
   State<GuardInboxScreen> createState() => _GuardInboxScreenState();
@@ -78,7 +83,14 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
       _error = wmError(e) ?? '';
     }
     if (mounted) setState(() => _loading = false);
+    final open = widget.openEvent;
+    if (open != null && !_openedOnce && mounted && _src != null) {
+      _openedOnce = true;
+      unawaited(AlertActionsSheet.show(context, _src!, open, cash: _cash));
+    }
   }
+
+  bool _openedOnce = false;
 
   @override
   Widget build(BuildContext context) {

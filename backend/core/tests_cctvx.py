@@ -572,15 +572,15 @@ class SirenTests(_X):
                                  {"camera_id": cam.id, "seconds": 10}, format="json")
             self.assertEqual(s.status_code, 200, s.data)
             self.assertEqual((s.data["route"], s.data["status"]), ("imou_cloud", "sounding"))
-            on = [p for m, p in calls if m == "setDeviceCameraStatus"]
-            self.assertEqual((on[0]["enableType"], on[0]["enable"], on[0]["deviceId"]),
-                             ("siren", True, "6E0ABC"))
+            # cctvescalate: Imou's official sirenStart / sirenStop first
+            on = [p for m, p in calls if m == "sirenStart"]
+            self.assertEqual((on[0]["deviceId"], on[0]["channels"]), ("6E0ABC", [0]))
             again = self.client.post("/api/v1/shop/events/%d/siren" % ev,
                                      {"camera_id": cam.id}, format="json")
             self.assertEqual(again.status_code, 429)
             self.tick(seconds=15)
-            off = [p for m, p in calls if m == "setDeviceCameraStatus"]
-            self.assertEqual(off[-1]["enable"], False)
+            off = [p for m, p in calls if m == "sirenStop"]
+            self.assertEqual(off[-1]["deviceId"], "6E0ABC")
 
     def test_ezviz_and_unknown_are_honest(self):
         r = self.client.post("/api/v1/shop/sites/%d/cameras" % self.site["id"],
