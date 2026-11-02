@@ -399,7 +399,7 @@ def assess_still(state, grid, mean, std, ir, ts):
         prev = st.get("bad")
         st.pop("pending", None)
         if prev and prev.get("kind") == kind:
-            first = float(prev.get("ts") or ts)
+            first = float(prev.get("ts", ts))
             if ts - first >= BAD_PERSIST_S:
                 st["bad"] = {"kind": kind, "ts": ts}
                 return st, kind
@@ -433,8 +433,11 @@ def assess_still(state, grid, mean, std, ir, ts):
 
 def health_due(last_fired, kind, ts, every=HEALTH_REFIRE_S):
     """May a camera-health alert of `kind` fire again? (6 h per kind)."""
+    last = (last_fired or {}).get(kind)
+    if last is None:
+        return True
     try:
-        return ts - float((last_fired or {}).get(kind) or 0) >= every
+        return ts - float(last) >= every
     except (TypeError, ValueError):
         return True
 
