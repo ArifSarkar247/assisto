@@ -53,6 +53,7 @@ const Map<String, String> _allow = {
   'dest_alarm|digit|Bus': 'bus stop names from OpenStreetMap (no Bangla name tag), data not UI',
   'dest_alarm|digit|Road': 'same: OpenStreetMap stop name',
   'bizops_card|digit|Tel 1L': "the shop's own product name (user data)",
+  'acct_vat_rates*|digit|Soybean oil 1L': "the shop's own product name (user data)",
   'rt_*|english|"Karim"': 'fake customer name (user data)',
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
   // Report account names arrive from the server in the request language

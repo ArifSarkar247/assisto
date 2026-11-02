@@ -406,6 +406,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                   key: const ValueKey('acct-bill-no'),
                   controller: _billNo,
                   maxLength: 40,
+                  buildCounter: localCounter,
                   decoration: InputDecoration(
                       labelText: t.lg2BillNo, border: const OutlineInputBorder()),
                 ),
@@ -413,6 +414,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                   key: const ValueKey('acct-supplier-bin'),
                   controller: _bin,
                   maxLength: 20,
+                  buildCounter: localCounter,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       labelText: t.lg2SupplierBin,
