@@ -20,6 +20,14 @@ Outputs:
   backend/core/data/train/rail_bd.json        simplified rail network (validation)
   backend/core/data/train/timetable_bd.json   trains, stops, route path
   app/assets/train/stations_bd.json           stations for the offline alarm
+  app/assets/train/bus_stops_bd.json          named city bus stops (OSM, ODbL):
+                                              Dhaka, Chattogram, Khulna, Rajshahi, Sylhet
+  app/assets/train/metro_dhaka.json           MRT Line 6 station ORDER (English
+                                              Wikipedia "MRT Line 6", CC BY-SA, revision
+                                              1364533770) + OSM coordinates; minutes
+                                              between stations are ESTIMATES from the
+                                              distance (DMTCL publishes no per-station
+                                              times we could cite) -> approved:false
 
 Usage:  python3 tools/train/build_train_data.py [--cache DIR]
 (--cache keeps the downloads so a re-run is offline.)
@@ -312,6 +320,73 @@ def off_days(text):
 
 
 # ------------------------------------------------------------ main
+Q_BUS = ('[out:json][timeout:180];('
+         'node["highway"="bus_stop"]["name"](23.65,90.30,23.92,90.50);'
+         'node["highway"="bus_stop"]["name"](22.20,91.70,22.45,91.90);'
+         'node["highway"="bus_stop"]["name"](22.75,89.48,22.88,89.60);'
+         'node["highway"="bus_stop"]["name"](24.33,88.55,24.40,88.67);'
+         'node["highway"="bus_stop"]["name"](24.85,91.82,24.93,91.92););out;')
+Q_METRO = ('[out:json][timeout:120];(node["railway"~"^(station|stop)$"]'
+           '["station"~"subway|light_rail|monorail"](23.65,90.30,23.92,90.47););out;')
+CITY_BOXES = {"dhaka": (23.65, 90.30, 23.92, 90.50), "chattogram": (22.20, 91.70, 22.45, 91.90),
+              "khulna": (22.75, 89.48, 22.88, 89.60), "rajshahi": (24.33, 88.55, 24.40, 88.67),
+              "sylhet": (24.85, 91.82, 24.93, 91.92)}
+# MRT Line 6 operational stations in order (Wikipedia "MRT Line 6", codes 6-21).
+METRO_ORDER = [
+    ("Uttara North", "উত্তরা উত্তর"), ("Uttara Center", "উত্তরা সেন্টার"),
+    ("Uttara South", "উত্তরা দক্ষিণ"), ("Pallabi", "পল্লবী"), ("Mirpur 11", "মিরপুর ১১"),
+    ("Mirpur 10", "মিরপুর ১০"), ("Kazipara", "কাজীপাড়া"), ("Shewrapara", "শেওড়াপাড়া"),
+    ("Agargaon", "আগারগাঁও"), ("Bijoy Sarani", "বিজয় সরণি"), ("Farmgate", "ফার্মগেট"),
+    ("Karwan Bazar", "কাওরান বাজার"), ("Shahbag", "শাহবাগ"),
+    ("Dhaka University", "ঢাকা বিশ্ববিদ্যালয়"), ("Bangladesh Secretariat", "বাংলাদেশ সচিবালয়"),
+    ("Motijheel", "মতিঝিল"),
+]
+METRO_ALIAS = {"Bijoy Sarani": "Bijoy Sarawni", "Shahbag": "Shahbagh"}
+METRO_KMH = 32.0      # assumed average between stations (estimate)
+METRO_DWELL_MIN = 0.5
+
+
+def build_bus_metro(cache):
+    bus = overpass(Q_BUS, cache, "osm_bus.json")
+    stops = []
+    for e in bus["elements"]:
+        t = e.get("tags", {})
+        name = (t.get("name") or "").split(";")[0].strip()
+        city = next((c for c, b in CITY_BOXES.items()
+                     if b[0] <= e["lat"] <= b[2] and b[1] <= e["lon"] <= b[3]), "")
+        if name:
+            stops.append({"id": "b%d" % e["id"], "en": t.get("name:en") or name,
+                          "bn": t.get("name:bn") or (name if re.search("[\u0980-\u09FF]", name) else ""),
+                          "city": city, "lat": round(e["lat"], 6), "lng": round(e["lon"], 6)})
+    with open(os.path.join(ROOT, "app/assets/train/bus_stops_bd.json"), "w") as fh:
+        json.dump({"_meta": {"source": "OpenStreetMap highway=bus_stop with a name",
+                             "licence": "ODbL 1.0 — © OpenStreetMap contributors",
+                             "osm_base": bus.get("osm3s", {}).get("timestamp_osm_base", ""),
+                             "cities": sorted(CITY_BOXES)},
+                   "stops": stops}, fh, ensure_ascii=False, separators=(",", ":"))
+    met = overpass(Q_METRO, cache, "osm_metro.json")
+    by = {(e["tags"].get("name:en") or e["tags"].get("name")): e for e in met["elements"]}
+    out = []
+    for en, bn in METRO_ORDER:
+        e = by.get(METRO_ALIAS.get(en, en))
+        if e is None:
+            raise SystemExit("metro station missing in OSM: " + en)
+        out.append({"en": en, "bn": bn, "lat": round(e["lat"], 6), "lng": round(e["lon"], 6)})
+    for a, b in zip(out, out[1:]):
+        km = hav((a["lat"], a["lng"]), (b["lat"], b["lng"])) / 1000.0
+        a["next_min"] = round(km / METRO_KMH * 60.0 + METRO_DWELL_MIN, 1)
+    with open(os.path.join(ROOT, "app/assets/train/metro_dhaka.json"), "w") as fh:
+        json.dump({"_meta": {
+            "line": "MRT Line 6 (Uttara North - Motijheel)",
+            "order_source": "English Wikipedia 'MRT Line 6 (Dhaka Metro Rail)', revision 1364533770 (CC BY-SA 4.0)",
+            "coords_source": "OpenStreetMap (ODbL)",
+            "times": "ESTIMATE: straight-line distance at %.0f km/h + %.1f min stop. DMTCL publishes no "
+                     "per-station times we could cite; owner to check with a stopwatch ride." % (
+                         METRO_KMH, METRO_DWELL_MIN),
+            "approved": False}, "stations": out}, fh, ensure_ascii=False, separators=(",", ":"))
+    return len(stops), len(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", default="")
@@ -535,6 +610,8 @@ def main():
                              "built": meta["built"]},
                    "stations": [dict(v, id=str(k)) for k, v in app_st.items()]},
                   fh, ensure_ascii=False, separators=(",", ":"))
+    nb, nm = build_bus_metro(cache)
+    print("bus_stops=%d metro=%d" % (nb, nm), file=sys.stderr)
     print("lines=%d trains=%d stations=%d app_stations=%d" % (
         len(lines), len(trains), len(stations), len(app_st)), file=sys.stderr)
 
