@@ -89,6 +89,7 @@ jobs:
           done
 
       - name: site shots present (every screenshot the v3 site uses, bn + en)
+        if: github.event.inputs.shots_run_id == ''
         run: python tools/website/site_shots.py --check
 
       - name: refresh site_assets/shots3 from a checks run (manual)
@@ -101,6 +102,7 @@ jobs:
           gh run download "${{ github.event.inputs.shots_run_id }}" -p 'shots-*' -D "$RUNNER_TEMP/gallery"
           python -m pip install -q Pillow==11.3.0
           python tools/website/site_shots.py "$RUNNER_TEMP/gallery"
+          python tools/website/site_shots.py --check
       - uses: actions/upload-artifact@v4
         if: github.event.inputs.shots_run_id != ''
         with:
