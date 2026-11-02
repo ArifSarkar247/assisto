@@ -43,18 +43,22 @@ final Map<String, Widget Function(String)> bubbles2Shots = {
   'bbl2_settings_turn_on': (l) => Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(child: BubbleStatusTile(initial: _st('none')))),
+  // the row opens a chat: in the gallery, a plain route named after it
   'bbl2_circle_row': (l) => Scaffold(
         appBar: AppBar(),
-        body: Column(children: [
-          BubbleChatsRow(
-            entries: const [
-              BubbleRowEntry(key: 'member:1', name: 'Rina', unread: 2, floating: true),
-              BubbleRowEntry(key: 'member:2', name: 'Karim', unread: 1, floating: true),
-              BubbleRowEntry(key: 'group:3', name: 'Family', group: true, unread: 5),
-            ],
-            onOpen: (_) {},
-          ),
-        ]),
+        body: Builder(
+          builder: (ctx) => Column(children: [
+            BubbleChatsRow(
+              entries: const [
+                BubbleRowEntry(key: 'member:1', name: 'Rina', unread: 2, floating: true),
+                BubbleRowEntry(key: 'member:2', name: 'Karim', unread: 1, floating: true),
+                BubbleRowEntry(key: 'group:3', name: 'Family', group: true, unread: 5),
+              ],
+              onOpen: (k) => Navigator.of(ctx).push(MaterialPageRoute<void>(
+                  builder: (_) => Scaffold(appBar: AppBar(title: Text(k))))),
+            ),
+          ]),
+        ),
       ),
   'bbl2_in_call_stack': (l) => _call(false),
   'bbl2_in_call_row': (l) => _call(true),

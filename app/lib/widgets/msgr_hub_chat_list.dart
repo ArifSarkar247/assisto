@@ -207,47 +207,50 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   Future<void> _loadActive() async {
     try {
       final a = await MsgNative.activeChats();
-      if (mounted) setState(() => _active = a);
+      if (!mounted || (a.isEmpty && _active.isEmpty)) return;
+      setState(() => _active = a);
     } catch (_) {}
   }
 
-  Widget _bubbleRow() => ValueListenableBuilder<Map<String, int>>(
-        valueListenable: UnreadStore.instance.perChat,
-        builder: (context, unread, _) {
-          final byKey = <String, Map<String, dynamic>>{
-            for (final c in _chats)
-              if (!_isLocked(c) && !_isArchived(c)) _key(c): c,
-          };
-          final keys = bubbleRowKeys(
-              active: _active, unread: unread, known: byKey.keys.toSet());
-          final floating = {
-            for (final a in _active)
-              if (a['bubble'] == true) '${a['key']}'
-          };
-          return BubbleChatsRow(
-            entries: [
-              for (final k in keys)
-                () {
-                  final c = byKey[k]!;
-                  final m = _memberOf(c);
-                  return BubbleRowEntry(
-                    key: k,
-                    name: _nameOf(c),
-                    photo: _isGroup(c) ? '' : '${m['photo_link'] ?? m['photo'] ?? ''}',
-                    photoV: '${m['photo_v'] ?? ''}',
-                    group: _isGroup(c),
-                    unread: unread[k] ?? 0,
-                    floating: floating.contains(k),
-                  );
-                }(),
-            ],
-            onOpen: (k) {
-              final c = byKey[k];
-              if (c != null) _openChat(c);
-            },
-          );
-        },
-      );
+  // No listener of its own: UnreadStore changes while this list builds
+  // (publishUnread) — the list's own rebuilds refresh the badges.
+  Widget _bubbleRow() {
+    if (_active.isEmpty) return const SizedBox.shrink();
+    final unread = UnreadStore.instance.perChat.value;
+    final byKey = <String, Map<String, dynamic>>{
+      for (final c in _chats)
+        if (!_isLocked(c) && !_isArchived(c)) _key(c): c,
+    };
+    final keys =
+        bubbleRowKeys(active: _active, unread: unread, known: byKey.keys.toSet());
+    if (keys.isEmpty) return const SizedBox.shrink();
+    final floating = {
+      for (final a in _active)
+        if (a['bubble'] == true) '${a['key']}'
+    };
+    return BubbleChatsRow(
+      entries: [
+        for (final k in keys)
+          () {
+            final c = byKey[k]!;
+            final m = _memberOf(c);
+            return BubbleRowEntry(
+              key: k,
+              name: _nameOf(c),
+              photo: _isGroup(c) ? '' : '${m['photo_link'] ?? m['photo'] ?? ''}',
+              photoV: '${m['photo_v'] ?? ''}',
+              group: _isGroup(c),
+              unread: unread[k] ?? 0,
+              floating: floating.contains(k),
+            );
+          }(),
+      ],
+      onOpen: (k) {
+        final c = byKey[k];
+        if (c != null) _openChat(c);
+      },
+    );
+  }
 
   /// 'member:<edge id>' / 'group:<group id>' — the key shared with the
   /// realtime channel, the unread store and the notifications.
@@ -1079,7 +1082,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
         ),
       // bubbles2 (point 5): the chats floating as bubbles / unread, in a
       // row of round photos (hidden while searching / selecting / folders)
-      if (!_selecting && !_showLocked && !_showArchived && _foldedQuery().isEmpty)
+      if (_active.isNotEmpty &&
+          !_selecting &&
+          !_showLocked &&
+          !_showArchived &&
+          _foldedQuery().isEmpty)
         _bubbleRow(),
       if (_selecting) _selectionBar() else _searchBar(),
       if (_showLocked)

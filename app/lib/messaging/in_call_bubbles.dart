@@ -213,7 +213,7 @@ class BubbleFace extends StatelessWidget {
               border: Border.all(color: scheme.surface, width: 2),
               boxShadow: const [
                 BoxShadow(
-                    color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 3))
+                    color: Colors.black38, blurRadius: 8, offset: Offset(0, 3))
               ],
             ),
             child: face,
@@ -454,7 +454,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
               key: const Key('bbl2-call-scrim'),
               behavior: HitTestBehavior.opaque,
               onTap: () => setState(() => _expanded = false),
-              child: const ColoredBox(color: Color(0x66000000)),
+              child: const ColoredBox(color: Colors.black45),
             ),
           ),
         ),
@@ -547,7 +547,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: cand.isEmpty
-                      ? const Color(0xAA000000)
+                      ? Colors.black54
                       : Theme.of(context).colorScheme.error,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
