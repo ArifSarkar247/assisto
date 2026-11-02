@@ -16,9 +16,28 @@ extension MissingAlertApi on ApiClient {
   Future<Map<String, dynamic>> maCreate(Map<String, dynamic> body) =>
       postJsonRaw('/missing-alerts', body);
 
+  /// One action on an alert. Literal paths (one per server route) so the
+  /// API contract test can resolve every call.
   Future<Map<String, dynamic>> maAct(int id, String action,
-          [Map<String, dynamic> body = const {}]) =>
-      postJsonRaw('/missing-alerts/$id/$action', body);
+      [Map<String, dynamic> body = const {}]) {
+    switch (action) {
+      case 'found':
+        return postJsonRaw('/missing-alerts/$id/found', body);
+      case 'close':
+        return postJsonRaw('/missing-alerts/$id/close', body);
+      case 'renew':
+        return postJsonRaw('/missing-alerts/$id/renew', body);
+      case 'gd':
+        return postJsonRaw('/missing-alerts/$id/gd', body);
+      case 'cosign':
+        return postJsonRaw('/missing-alerts/$id/cosign', body);
+      case 'safe':
+        return postJsonRaw('/missing-alerts/$id/safe', body);
+      case 'report':
+        return postJsonRaw('/missing-alerts/$id/report', body);
+    }
+    throw ArgumentError.value(action, 'action');
+  }
 
   Future<Map<String, dynamic>> maTips(int id) => getJson('/missing-alerts/$id/tips');
 
