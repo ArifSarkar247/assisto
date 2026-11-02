@@ -31917,5 +31917,64 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "acmTitle": "Accounts mode",
+  "acmOnbTitle": "What will you keep accounts for?",
+  "acmOnbSub": "You can change this any time in Settings. Nothing is ever deleted.",
+  "acmPersonal": "Personal only",
+  "acmPersonalSub": "Daily income, expenses, budget and savings",
+  "acmBusiness": "Business only",
+  "acmBusinessSub": "Shop ledger (baki khata), sales, stock and customers",
+  "acmBoth": "Personal + business",
+  "acmBothSub": "Two separate books in one app — they never mix",
+  "acmSafeNote": "Changing this only changes your menu. Every entry stays, and you can switch back any time.",
+  "acmCountPersonal": "{n} personal entries",
+  "@acmCountPersonal": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acmCountBusiness": "{n} customers/suppliers, {p} products",
+  "@acmCountBusiness": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "p": {
+        "type": "String"
+      }
+    }
+  },
+  "acmWarnHide": "Kept, only removed from the menu: {what}. Find it any time with menu search.",
+  "@acmWarnHide": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "acmSaved": "Saved. All your entries are unchanged.",
+  "acmSavedOffline": "Saved on this phone. It will sync when you are online.",
+  "acmMatchesUse": "Matches what you use",
+  "acmTileSub": "{mode} · change any time, nothing is deleted",
+  "@acmTileSub": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "acmTileSuggest": "Suggested for you: {mode}",
+  "@acmTileSuggest": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "acmHiddenPersonal": "Personal accounts are hidden from your menu (Business only). Your entries are safe here.",
+  "acmHiddenBusiness": "Business is hidden from your menu (Personal only). Your entries are safe here.",
+  "acmShowAgain": "Show in menu again"
 }
