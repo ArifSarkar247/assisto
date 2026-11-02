@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/error_kind.dart' show honestFailText; // bizbar
+import '../../messaging/date_separators.dart' show localDigits; // bizbar
 import '../../api.dart' show ApiException; // bizbar
 import 'selling_common.dart' show MoneyUiX;
 import 'package:provider/provider.dart';
@@ -137,7 +138,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         // name gets the full width; status/amount/COD wrap below it so a
         // long Bangla status never squeezes the customer's name to "…".
-        title: Text('#${o['id']} · ${o['customer_name'] ?? ''}',
+        title: Text('#${localDigits('${o['id']}', Localizations.localeOf(context).languageCode)} · ${o['customer_name'] ?? ''}',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -290,7 +291,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         if (!didPop) Navigator.of(context).pop(_dirty);
       },
       child: Scaffold(
-        appBar: AppBar(title: Text('#${widget.orderId}')),
+        appBar: AppBar(title: Text('#${localDigits('${widget.orderId}', Localizations.localeOf(context).languageCode)}')),
         body: _loading
             ? const SkeletonList()
             : _error != null
@@ -352,7 +353,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(children: [
                 Expanded(child: Text((it['name'] ?? '').toString())),
-                Text('×${it['qty'] ?? 1}'),
+                Text('×${localDigits('${it['qty'] ?? 1}', Localizations.localeOf(context).languageCode)}'),
                 const SizedBox(width: Gap.md),
                 Text(_takaFmt(context, it['price']), style: const TextStyle(fontWeight: FontWeight.w600)),
               ]),
