@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_rules.dart' show AdIds;
 import 'consent.dart';
 
 /// The ONE lazy Mobile Ads SDK init shared by every AdMob bridge (app-open,
@@ -15,6 +16,17 @@ import 'consent.dart';
 /// frame, for a Free user, and after Google UMP consent
 /// ([AdConsent.allowsAds]). Every call is try/caught: a failure means "no
 /// ad", never an error or a crash.
+///
+/// THE ONE CONSENT GATE (admobump, owner 2 Nov). Every file that loads an
+/// AdMob ad must, in this order:
+///   1. `AdmobSdk.unitAllowed(unitId)` — no real unit in a debug build;
+///   2. `await AdmobSdk.ensureReady()` — UMP update + form + canRequestAds;
+///   3. build its request ONLY with `AdmobSdk.request()` — which throws (=
+///      no ad) unless the gate passed in this session, and asks for
+///      non-personalised ads unless UMP says consent is not required.
+/// test/ads_consent_gate_guard_test.dart fails CI if any file under lib/
+/// creates an AdRequest, loads an ad, initialises the SDK or touches the
+/// UMP APIs outside this path.
 class AdmobSdk {
   AdmobSdk._();
 
@@ -63,8 +75,28 @@ class AdmobSdk {
     return _ready;
   }
 
-  /// The request every bridge uses.
-  static AdRequest request() => AdRequest(nonPersonalizedAds: !personalized);
+  /// false = do not load [unitId] (a REAL unit in a debug/profile build, or
+  /// empty). Google's public TEST units are always allowed.
+  static bool unitAllowed(String unitId) {
+    final u = unitId.trim();
+    if (u.isEmpty) return false;
+    return AdIds.realUnitsAllowed || AdIds.isTestId(u);
+  }
+
+  /// true when the next request would be personalised: the owner allows it
+  /// (Owner Admin -> Ads) AND UMP says no consent is needed in this region.
+  static bool get personalisedNow =>
+      personalized && AdConsent.instance.mayPersonalise;
+
+  /// The ONLY way to build an ad request. Throws [StateError] (every caller
+  /// is inside a try -> "no ad") when the consent gate has not passed in
+  /// this session — so an ad can never be requested before UMP.
+  static AdRequest request() {
+    if (!AdConsent.instance.canServe) {
+      throw StateError('ad request before the UMP consent gate');
+    }
+    return AdRequest(nonPersonalizedAds: !personalisedNow);
+  }
 
   @visibleForTesting
   static void resetForTest() {

@@ -1,0 +1,13 @@
+{
+  "_comment": "admobump (owner 2 Nov, Google UMP): Settings -> Ads privacy row (app/lib/ads/ad_privacy_tile.dart). All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_admobump_arb.json",
+  "en": {
+    "adsPrivacyTitle": "Ads privacy",
+    "adsPrivacySub": "See or change your ad consent choice (Google form)",
+    "adsPrivacyNotRequired": "No ad-consent form is needed in your region. Tap the ⓘ AdChoices icon on any ad to learn why you see it."
+  },
+  "bn": {
+    "adsPrivacyTitle": "বিজ্ঞাপনের গোপনীয়তা",
+    "adsPrivacySub": "বিজ্ঞাপনের সম্মতি দেখুন বা বদলান (Google-এর ফর্ম)",
+    "adsPrivacyNotRequired": "আপনার এলাকায় বিজ্ঞাপনের সম্মতি ফর্ম লাগে না। কোনো বিজ্ঞাপন কেন দেখছেন জানতে বিজ্ঞাপনের ⓘ AdChoices চিহ্নে চাপুন।"
+  }
+}

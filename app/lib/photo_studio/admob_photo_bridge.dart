@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../ads/ad_rules.dart' show AdIds;
 import '../ads/ad_telemetry.dart';
 import '../ads/admob_sdk.dart';
 import '../ads/ads_service.dart';
@@ -24,7 +25,9 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
   @override
   bool get linked {
     try {
-      return AdsService.instance.config.rewardedEnabled;
+      // debug build: real SSV units are never loaded -> not offered
+      return AdIds.realUnitsAllowed &&
+          AdsService.instance.config.rewardedEnabled;
     } catch (_) {
       return false;
     }
@@ -36,7 +39,9 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
   @override
   Future<RewardOutcome> showRewardedSsv(String unitId,
       {required String userId, required String customData}) async {
-    if (unitId.isEmpty || !linked || !await AdmobSdk.ensureReady()) {
+    if (!AdmobSdk.unitAllowed(unitId) ||
+        !linked ||
+        !await AdmobSdk.ensureReady()) {
       return RewardOutcome.unavailable;
     }
     final done = Completer<RewardOutcome>();

@@ -33,7 +33,7 @@ library;
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'ad_rules.dart' show AdRules;
+import 'ad_rules.dart' show AdIds, AdRules;
 
 /// Google's public sample native-advanced units.
 class HeroAdIds {
@@ -157,7 +157,10 @@ class HeroAdConfig {
   /// Google's TEST native unit (owner 25 Oct: ship with test ids).
   /// [testMode] is kept for old callers and no longer matters.
   String? unit({required String builtAppId, bool testMode = false}) {
-    if (configured && nativeUnit.isNotEmpty && appId == builtAppId) {
+    if (configured &&
+        nativeUnit.isNotEmpty &&
+        appId == builtAppId &&
+        AdIds.realUnitsAllowed) {
       return nativeUnit;
     }
     return HeroAdIds.testNative;
