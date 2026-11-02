@@ -8,3 +8,14 @@ abstract class CallVideoSurface {
   Widget localView({bool mirror = true});
   Widget remoteView();
 }
+
+/// callpip: the other person's video size (pixels) — the PiP window takes
+/// its shape. Optional: a surface without it gets the 9:16 default.
+abstract class VideoSizeSource {
+  /// null = not known yet (no frame decoded)
+  int? get remoteVideoWidth;
+  int? get remoteVideoHeight;
+
+  /// fires when the size may have changed (rotation, new stream)
+  Listenable get remoteSizeChanges;
+}

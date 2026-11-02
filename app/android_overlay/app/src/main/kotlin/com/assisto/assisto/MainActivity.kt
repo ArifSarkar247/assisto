@@ -119,6 +119,11 @@ class MainActivity : FlutterFragmentActivity() {
             com.assisto.assisto.calls.CallLaunch.deliverWarm(intent)
         } catch (e: Throwable) {
         }
+        // callpip: "Return to call" on the ongoing-call notification.
+        try {
+            com.assisto.assisto.calls.CallsChannel.onIntent(intent)
+        } catch (e: Throwable) {
+        }
         // c3-msg: conversation shortcut tapped while Assisto is running.
         try {
             com.assisto.assisto.messaging.C3MessagingChannel.onNewIntent(intent)

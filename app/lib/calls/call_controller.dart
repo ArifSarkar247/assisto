@@ -473,6 +473,10 @@ class CallController extends ChangeNotifier {
   /// The other phone paused ITS video because its network is weak.
   bool remoteVideoPausedNet = false;
 
+  /// callpip: the other person left their app (their camera is paused, the
+  /// call goes on) — the screen says so instead of a plain "camera off".
+  bool remoteAway = false;
+
   /// TURN-only (relay) ICE was forced after repeated failures.
   bool relayForced = false;
 
@@ -971,6 +975,7 @@ class CallController extends ChangeNotifier {
           remoteCameraOn = data['camera'] != false;
           remoteMicOn = data['mic'] != false;
           remoteVideoPausedNet = data['net_paused'] == true;
+          remoteAway = data['away'] == true; // callpip
           final rl = data['low_data'] == true;
           if (rl != remoteLowData) {
             final before = effectiveLowData;
@@ -1315,7 +1320,10 @@ class CallController extends ChangeNotifier {
       if (phase == CallPhase.connected) {
         netPolicy.lowData = effectiveLowData;
         final step = netPolicy.onSample(st,
-            sendingVideo: videoOn && cameraOn && !media.cameraUnavailable);
+            sendingVideo: videoOn &&
+                cameraOn &&
+                !cameraPausedBg &&
+                !media.cameraUnavailable);
         await _applyPlan(step.plan);
         if (step.paused) _notify(CallNotice.videoPausedNet);
         if (step.resumed) _notify(CallNotice.videoResumedNet);
@@ -1476,6 +1484,56 @@ class CallController extends ChangeNotifier {
     await _sendMediaState();
   }
 
+  // ------------------------------------- callpip: camera in the background
+  /// true while MY camera is released because Assisto went to the background
+  /// without picture-in-picture (Android blocks the camera there; Assisto has
+  /// no camera foreground service — Play policy). [cameraOn] (the user's own
+  /// choice) is untouched, so it comes back by itself.
+  bool cameraPausedBg = false;
+
+  /// [CallRuntime] calls this from the app lifecycle (decision:
+  /// call_pip.dart shouldPauseCameraBg / shouldResumeCameraBg).
+  Future<void> setBackgroundCameraPause(bool pause) async {
+    if (_disposed || isEnded) return;
+    if (pause == cameraPausedBg) return;
+    if (pause && (!videoOn || !cameraOn || media.cameraUnavailable)) return;
+    cameraPausedBg = pause;
+    log.add(pause ? 'camera-bg-pause' : 'camera-bg-resume');
+    notifyListeners();
+    if (pause) {
+      // first tell the other phone (avatar at once), then free the camera
+      await _sendMediaState();
+      try {
+        await media.stopVideo();
+      } catch (e) {
+        callLog('call_controller#pip1', e);
+      }
+      return;
+    }
+    // switched to voice or turned off meanwhile: nothing to re-open
+    if (!videoOn || !cameraOn || isEnded || _disposed) {
+      await _sendMediaState();
+      return;
+    }
+    if (await _openCamera()) {
+      if (!frontCamera) {
+        // startVideo opens the front camera; keep the user's back camera
+        try {
+          await media.switchCamera();
+        } catch (e) {
+          callLog('call_controller#pip2', e);
+          frontCamera = true;
+        }
+      }
+    } else {
+      // could not get the camera back: honest "camera off" (the user can
+      // tap the camera button to try again) — never a frozen frame
+      cameraOn = false;
+    }
+    if (!_disposed) notifyListeners();
+    await _sendMediaState();
+  }
+
   Future<void> switchCamera() async {
     if (!videoOn) return;
     try {
@@ -1513,7 +1571,9 @@ class CallController extends ChangeNotifier {
     if (id == null || isEnded) return;
     try {
       await signaling.signal(id, 'media', {
-        'camera': videoOn && cameraOn,
+        // callpip: a camera paused because I left Assisto is OFF for the
+        // other phone (it shows my avatar, never a frozen frame)
+        'camera': videoOn && cameraOn && !cameraPausedBg,
         'mic': !muted,
         'video': videoOn,
         // callsbar: low-data for both directions + "my video is paused for
@@ -1521,6 +1581,9 @@ class CallController extends ChangeNotifier {
         // picture). Old builds ignore both keys.
         'low_data': lowData,
         'net_paused': videoPausedForNet,
+        // callpip: I left Assisto (camera paused, back by itself). Sent
+        // only while true (old builds / exact-state readers unchanged).
+        if (cameraPausedBg) 'away': true,
       });
     } catch (e) {
       callLog('call_controller#18', e);

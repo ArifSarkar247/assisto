@@ -1,6 +1,7 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import 'call_log.dart';
+import 'call_native.dart'; // callpip
 
 /// play-fgs: id of the ongoing-call notification's "Hang up" button.
 const String kCallHangupButton = 'call_hangup';
@@ -65,16 +66,27 @@ class CallKeepAlive {
     required String text,
     String hangupLabel = 'Hang up',
     Future<void> Function()? onHangup,
+    String? returnLabel,
+    DateTime? since,
   }) async {
     if (onHangup != null) _onHangup = onHangup;
-    if (_ours || _busy) return;
+    if (_ours) {
+      // callpip: the call connected after the service started -> the
+      // notification gets its running timer (once)
+      if (since != null && _decoSince == null && _decoReturn != null) {
+        _decoSince = since;
+        await _decorate();
+      }
+      return;
+    }
+    if (_busy) return;
     _busy = true;
     _stopAsked = false;
     try {
       if (await FlutterForegroundTask.isRunningService) return; // SOS has it
       FlutterForegroundTask.init(
         androidNotificationOptions: AndroidNotificationOptions(
-          channelId: 'assisto_call_ongoing',
+          channelId: channelId,
           channelName: channelName,
           channelImportance: NotificationChannelImportance.LOW,
           priority: NotificationPriority.LOW,
@@ -103,6 +115,14 @@ class CallKeepAlive {
         FlutterForegroundTask.addTaskDataCallback(_onData);
       }
       _ours = r is ServiceRequestSuccess;
+      if (_ours && returnLabel != null) {
+        _decoTitle = title;
+        _decoText = text;
+        _decoReturn = returnLabel;
+        _decoEnd = hangupLabel;
+        _decoSince = since;
+        await _decorate();
+      }
       if (_ours && _stopAsked) {
         _busy = false;
         await stop();
@@ -113,6 +133,31 @@ class CallKeepAlive {
       _busy = false;
     }
   }
+
+  // callpip: "Return to call" + "End call" on OUR ongoing-call notification
+  static String? _decoTitle, _decoText, _decoReturn, _decoEnd;
+  static DateTime? _decoSince;
+
+  static Future<void> _decorate() async {
+    final ret = _decoReturn;
+    if (!_ours || ret == null) return;
+    try {
+      await CallNative.decorateOngoing(
+        id: serviceId,
+        channelId: channelId,
+        title: _decoTitle ?? '',
+        text: _decoText ?? '',
+        returnLabel: ret,
+        endLabel: _decoEnd ?? 'End call',
+        endButtonId: kCallHangupButton,
+        since: _decoSince,
+      );
+    } catch (e) {
+      callLog('keepalive#decorate', e);
+    }
+  }
+
+  static const String channelId = 'assisto_call_ongoing';
 
   /// kidaudio: when ANOTHER service's notification (voice SOS / journey)
   /// carried the emergency-audio notice + Stop, [listenHangup] wires its
@@ -146,6 +191,8 @@ class CallKeepAlive {
       }
     }
     if (_busy) _stopAsked = true;
+    _decoTitle = _decoText = _decoReturn = _decoEnd = null;
+    _decoSince = null;
     if (!_ours) return;
     _ours = false;
     try {

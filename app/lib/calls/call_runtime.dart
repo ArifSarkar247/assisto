@@ -13,6 +13,8 @@ import 'call_controller.dart';
 import 'call_launch.dart'; // calls-a
 import 'call_keepalive.dart';
 import 'call_native.dart';
+import 'call_pip.dart'; // callpip
+import '../l10n/app_localizations.dart';
 import 'call_sound_prefs.dart';
 import 'call_log.dart';
 import 'call_video.dart';
@@ -100,11 +102,7 @@ class CallRuntime with WidgetsBindingObserver {
       return;
     }
     _started = true;
-    try {
-      WidgetsBinding.instance.addObserver(this);
-    } catch (e) {
-      callLog('call_runtime#1', e);
-    }
+    _observe();
     app.addListener(_onApp);
     _onApp();
   }
@@ -159,6 +157,7 @@ class CallRuntime with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState s) {
+    _cameraForLifecycle(s); // callpip
     final t = _transport;
     if (t == null) return;
     if (s == AppLifecycleState.resumed) {
@@ -282,6 +281,12 @@ class CallRuntime with WidgetsBindingObserver {
     _setOngoing(o);
     acquireScreen(o, () => !o.controller.isEnded);
     if (o.controller.callId != null) activeCallId ??= o.controller.callId;
+    if (identical(_screenCall, o.controller)) {
+      _screenCall = null;
+      _screenSurface = null;
+    }
+    _observe();
+    _watchSize(o.surface);
     _syncPip(o);
     _watchPip();
   }
@@ -292,10 +297,7 @@ class CallRuntime with WidgetsBindingObserver {
   /// A minimized LIVE video call still shrinks into Android picture-in-
   /// picture when the user leaves Assisto (Home / Recents) — before calls-a
   /// minimizing switched auto-PiP off.
-  void _syncPip(OngoingCall o) {
-    final c = o.controller;
-    unawaited(CallNative.setAutoPip(c.videoOn && c.isLive && !c.isEnded));
-  }
+  void _syncPip(OngoingCall o) => syncPip();
 
   void _watchPip() {
     if (_pipWatched) return;
@@ -310,6 +312,10 @@ class CallRuntime with WidgetsBindingObserver {
   /// in the background instead — lifecycle not resumed — and the call goes
   /// on with its notification.
   void _onPipChanged() {
+    // callpip: the PiP window was closed (X) — the activity is no longer
+    // visible: the camera pauses (no lifecycle event follows it)
+    _cameraForLifecycle(
+        WidgetsBinding.instance.lifecycleState ?? AppLifecycleState.resumed);
     final now = CallNative.inPip.value;
     final was = _wasInPip;
     _wasInPip = now;
@@ -394,7 +400,7 @@ class CallRuntime with WidgetsBindingObserver {
     }
     unawaited(CallKeepAlive.stop());
     unawaited(CallNative.keepScreenOn(false));
-    unawaited(CallNative.setAutoPip(false));
+    syncPip(); // callpip: off (or the next live call's state)
     final c = o.controller;
     // let the end tone play, then free the controller
     Timer(const Duration(seconds: 2), () {
@@ -404,6 +410,192 @@ class CallRuntime with WidgetsBindingObserver {
         callLog('call_runtime#9', e);
       }
     });
+  }
+
+  // ------------------------------------- callpip: leaving the call screen
+  // Owner phone test 2 Nov: "Back / Home / Facebook during a video call
+  // makes the video disappear". The call screen and a minimized call both
+  // register their live call here; this runtime keeps Android's PiP state,
+  // the background-camera pause and Back on the last screen right for it.
+  // Decisions: call_pip.dart (CI-tested); native only executes.
+
+  CallController? _screenCall;
+  CallVideoSurface? _screenSurface;
+  bool _observing = false;
+  Listenable? _sizeSrc;
+
+  /// The live call right now: minimized, or owned by the open call screen.
+  CallController? get currentCall {
+    final o = ongoing.value;
+    if (o != null && !o.controller.isEnded) return o.controller;
+    final c = _screenCall;
+    return c == null || c.isEnded ? null : c;
+  }
+
+  CallVideoSurface? get _currentSurface {
+    final o = ongoing.value;
+    if (o != null && !o.controller.isEnded) return o.surface;
+    return _screenSurface;
+  }
+
+  /// The call screen OWNS [c] (call placed / accepted / taken back).
+  void bindScreenCall(CallController c, CallVideoSurface? s) {
+    if (!identical(_screenCall, c) || !identical(_screenSurface, s)) {
+      _screenCall = c;
+      _screenSurface = s;
+      _watchSize(s);
+    }
+    _observe();
+    _watchPip();
+    syncPip();
+  }
+
+  /// The call screen let go of [c] (closed, or handed it to the mini bar).
+  void unbindScreenCall(CallController c) {
+    if (!identical(_screenCall, c)) return;
+    _screenCall = null;
+    _screenSurface = null;
+    syncPip();
+  }
+
+  void _observe() {
+    if (!_observing) {
+      _observing = true;
+      try {
+        WidgetsBinding.instance.addObserver(this);
+      } catch (e) {
+        _observing = false;
+        callLog('call_runtime#1', e);
+      }
+    }
+    CallNative.onPipAction ??= onPipAction;
+    CallNative.onCallReturn ??= onCallReturn;
+  }
+
+  void _watchSize(CallVideoSurface? s) {
+    final Object? any = s;
+    final Listenable? src =
+        any is VideoSizeSource ? any.remoteSizeChanges : null;
+    if (identical(src, _sizeSrc)) return;
+    _sizeSrc?.removeListener(syncPip);
+    _sizeSrc = src;
+    src?.addListener(syncPip);
+  }
+
+  Map<String, String>? _pipLabels() {
+    try {
+      final ctx = _nav?.currentContext;
+      if (ctx == null) return null;
+      final t = Localizations.of<AppLocalizations>(ctx, AppLocalizations);
+      if (t == null) return null;
+      return {
+        'mute:0': t.callpipMute,
+        'mute:1': t.callpipUnmute,
+        'camera:1': t.callpipCameraOff,
+        'camera:0': t.callpipCameraOn,
+        'end:0': t.callpipEnd,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// The PiP state for the current call (sent only when it changed).
+  void syncPip() {
+    try {
+      final c = currentCall;
+      final s = _currentSurface;
+      final Object? any = s;
+      final VideoSizeSource? size = any is VideoSizeSource ? any : null;
+      final st = c == null
+          ? PipState.off
+          : pipStateFor(
+              videoOn: c.videoOn,
+              live: c.isLive,
+              ended: c.isEnded,
+              muted: c.muted,
+              cameraOn: c.cameraOn,
+              remoteW: size?.remoteVideoWidth,
+              remoteH: size?.remoteVideoHeight);
+      unawaited(CallNative.setPip(st, labels: _pipLabels()));
+      // the call ended (or became voice) while Android showed the PiP
+      // window: close it like WhatsApp — Assisto goes to the background
+      if (!st.auto && CallNative.inPip.value && (c == null || c.isEnded)) {
+        unawaited(CallNative.leaveApp(pip: false));
+      }
+    } catch (e) {
+      callLog('call_runtime#11', e);
+    }
+  }
+
+  /// A button inside the PiP window.
+  @visibleForTesting
+  void onPipAction(String id) {
+    final c = currentCall;
+    if (c == null) return;
+    switch (id) {
+      case 'mute':
+        unawaited(c.toggleMute());
+        break;
+      case 'camera':
+        unawaited(c.toggleCamera());
+        break;
+      case 'end':
+        unawaited(c.hangup());
+        break;
+    }
+  }
+
+  /// "Return to call" on the ongoing-call notification: a minimized call
+  /// opens full screen (a call screen already on top simply shows).
+  @visibleForTesting
+  void onCallReturn() {
+    if (ongoing.value != null) restoreOngoing();
+  }
+
+  void _cameraForLifecycle(AppLifecycleState s) {
+    try {
+      final c = currentCall;
+      if (c == null) return;
+      final inPip = CallNative.inPip.value;
+      if (shouldPauseCameraBg(
+          state: s,
+          inPip: inPip,
+          videoOn: c.videoOn,
+          cameraOn: c.cameraOn,
+          live: c.isLive)) {
+        unawaited(c.setBackgroundCameraPause(true));
+      } else if (shouldResumeCameraBg(
+          state: s, inPip: inPip, pausedBg: c.cameraPausedBg)) {
+        unawaited(c.setBackgroundCameraPause(false));
+      }
+    } catch (e) {
+      callLog('call_runtime#12', e);
+    }
+  }
+
+  /// Back on Assisto's LAST screen during a call. Flutter would finish the
+  /// activity (and the call with the engine): instead PiP for a live video
+  /// call, else Assisto goes to the background. Runs after the app's
+  /// Navigator (registered later), so any screen that can go back still
+  /// does.
+  @override
+  Future<bool> didPopRoute() async {
+    try {
+      final c = currentCall;
+      final act = rootBackAction(
+          callActive: c != null || callActive,
+          videoLive: c != null &&
+              wantAutoPip(videoOn: c.videoOn, live: c.isLive, ended: c.isEnded));
+      if (act == RootBackAction.none) return false;
+      final nav = _nav?.currentState;
+      if (nav != null && nav.canPop()) return false;
+      await CallNative.leaveApp(pip: act == RootBackAction.pip);
+      return true;
+    } catch (e) {
+      callLog('call_runtime#13', e);
+      return false;
+    }
   }
 
   /// FCM "call_signal" nudge (x1-calls): poll the real-time queue NOW.
@@ -496,6 +688,19 @@ class CallRuntime with WidgetsBindingObserver {
     ongoing.value = null;
     if (_pipWatched) CallNative.inPip.removeListener(_onPipChanged);
     _pipWatched = false;
+    _screenCall = null;
+    _screenSurface = null;
+    _sizeSrc?.removeListener(syncPip);
+    _sizeSrc = null;
+    if (_observing) {
+      try {
+        WidgetsBinding.instance.removeObserver(this);
+      } catch (_) {}
+      _observing = false;
+    }
+    CallNative.onPipAction = null;
+    CallNative.onCallReturn = null;
+    CallNative.resetPipForTest();
     _wasInPip = false;
     _screenOwner = null;
     _screenLive = null;
