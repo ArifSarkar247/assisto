@@ -277,6 +277,13 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       return DictStateView(
         icon: Icons.search_off_rounded,
         title: t.dictionaryNotFound('${r['query'] ?? _ctrl.text}'),
+        // lifebar: say why + one clear next step
+        body: t.lifebarDictNotFoundBody,
+        actionLabel: t.lifebarDictTryAgain,
+        onAction: () {
+          _ctrl.clear();
+          setState(() => _result = null);
+        },
       );
     }
     final sample = r['is_sample'] == true;

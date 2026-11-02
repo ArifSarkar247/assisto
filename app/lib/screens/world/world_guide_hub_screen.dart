@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
 import '../../chat_vision/chat_photo.dart';
@@ -172,7 +173,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     final sections = worldList(d['sections']);
     final photo = '${d['photo'] ?? ''}';
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
       children: [
         if (_fromCache) ...[
           UwNote(icon: Icons.offline_bolt_rounded, text: t.uwCachedCopy),

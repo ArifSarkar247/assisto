@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
@@ -345,12 +346,30 @@ class _NearbyScreenState extends State<NearbyScreen> {
         title: _showFav
             ? t.nearbyNoFavourites
             : (_query.isEmpty ? t.truthNearbyNoneNearby : t.nothingFound),
-        message: _showFav ? t.nearbyNoFavouritesHint : null,
+        message: _showFav
+            ? t.nearbyNoFavouritesHint
+            : (_query.isEmpty ? t.lifebarNearbyNoneHint : null),
+        // lifebar: never a dead end — clear the search, or look again
+        action: _showFav
+            ? null
+            : FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _query.isNotEmpty
+                    ? () {
+                        _searchCtrl.clear();
+                        setState(() => _query = '');
+                      }
+                    : _fetch,
+                icon: Icon(_query.isNotEmpty
+                    ? Icons.clear_rounded
+                    : Icons.refresh_rounded),
+                label: Text(_query.isNotEmpty ? t.lifebarClearSearch : t.retry),
+              ),
       );
     }
     final showAttribution = !_showFav && _attribution.isNotEmpty;
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg)),
       itemCount: items.length + (showAttribution ? 1 : 0),
       itemBuilder: (_, i) {
         if (i == items.length) {

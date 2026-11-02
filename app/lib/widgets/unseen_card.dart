@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'unseen_data.dart';
+import 'unseen_l10n.dart'; // lifebar
+import 'local_digits.dart'; // lifebar
 
 class UnseenCard extends StatelessWidget {
   final Destination dest;
@@ -42,8 +44,10 @@ class UnseenCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final meta = catMeta(dest.cat);
-    final cost = t.unseenCostRange(
-        _bdt(dest.approxCostLow), _bdt(dest.approxCostHigh));
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final tx = uwText(t, dest, bn); // lifebar: Bangla prose in a Bangla UI
+    final cost = t.unseenCostRange(toLocalDigits(_bdt(dest.approxCostLow), bn),
+        toLocalDigits(_bdt(dest.approxCostHigh), bn));
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -70,8 +74,8 @@ class UnseenCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(dest.name,
-                        maxLines: 1,
+                    Text(tx.name,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             color: Colors.white,
@@ -98,24 +102,21 @@ class UnseenCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (distanceMeters != null)
               _chipRow(scheme, Icons.near_me_rounded,
-                  t.unseenKmAway(_km(distanceMeters!))),
+                  t.unseenKmAway(toLocalDigits(_km(distanceMeters!), bn))),
             _fact(scheme, Icons.event_available_rounded, t.unseenBestSeason,
-                '${dest.bestTime}  ($seasonLabel)'),
+                '${tx.best}  ($seasonLabel)'),
             _fact(scheme, Icons.directions_bus_rounded, t.unseenHowToGet,
-                dest.howToGet),
+                tx.how),
             _fact(scheme, Icons.payments_rounded, t.unseenApproxCost, cost),
             if (dest.nearby.isNotEmpty)
               _fact(scheme, Icons.place_rounded, t.unseenNearby,
-                  dest.nearby.join(', ')),
-            _fact(scheme, Icons.lightbulb_outline_rounded, t.unseenTip, dest.tip),
+                  tx.near),
+            _fact(scheme, Icons.lightbulb_outline_rounded, t.unseenTip, tx.tip),
             const SizedBox(height: Gap.xs),
             // Honest source + photo credit.
             Text('${t.unseenSource}: ${dest.source.label}',
                 style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
-            if (dest.photoCredit.isNotEmpty)
-              Text(dest.photoCredit,
-                  style:
-                      TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+            // lifebar: no photo is shown, so no (English) photo credit line
           ]),
         ),
         OverflowBar(

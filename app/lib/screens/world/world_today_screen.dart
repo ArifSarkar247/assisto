@@ -234,7 +234,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     final city = worldMap(d['city']);
     final shown = _order.where(cards.containsKey).toList();
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
       children: [
         if (_fromCache) ...[
           UwNote(icon: Icons.offline_bolt_rounded, text: t.uwCachedCopy),
@@ -443,7 +443,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.xs),
               child: id == 'cricket'
-                  ? Text('${x['name']}\n${x['score']}  ${x['status']}')
+                  ? Text('${x['name']}\n${dg(x['score'] ?? '')}  ${x['status']}')
                   : Text(
                       '${x['home']} ${dg(x['score'] ?? '')} ${x['away']}  (${x['league']})'),
             ),

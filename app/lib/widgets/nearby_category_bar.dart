@@ -53,11 +53,11 @@ class NearbyCategoryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 44,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+    // lifebar: intrinsic height (no fixed 44 px) so chips never clip at 200%
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+      child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),

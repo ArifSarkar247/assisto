@@ -1,5 +1,6 @@
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -128,12 +129,14 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
         children: [
-          UwNote(
-              icon: Icons.shield_rounded,
-              text: '${d['safety'] ?? ''}',
-              warn: true),
+          // lifebar: never an empty warning box
+          if ('${d['safety'] ?? ''}'.trim().isNotEmpty)
+            UwNote(
+                icon: Icons.shield_rounded,
+                text: '${d['safety'] ?? ''}',
+                warn: true),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             ChoiceChip(
