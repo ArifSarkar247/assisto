@@ -443,39 +443,42 @@ class PsOverlay {
 /// The Bangla fonts bundled for text (all SIL OFL 1.1, in assets/fonts).
 const psFonts = <String>['NotoSansBengali', 'HindSiliguri', 'Galada', 'Atma'];
 
-/// Ready stickers: emoji (system emoji font) and Bangla greeting badges.
+/// Ready stickers: emoji (system emoji font) and greeting badges. A badge's
+/// words come from the app's language ([greeting] id -> the screen's
+/// localised text: Bangla in Bangla, "Eid Mubarak" in English).
 class PsSticker {
-  const PsSticker(this.text, {this.bg = 0, this.color = 0xFFFFFFFF, this.font = 'Galada'});
+  const PsSticker(this.text, {this.greeting, this.bg = 0, this.color = 0xFFFFFFFF, this.font = 'Galada'});
   final String text;
+  final String? greeting;
   final int bg, color;
   final String font;
-  bool get emoji => bg == 0;
+  bool get emoji => greeting == null;
 
   static const all = <PsSticker>[
-    PsSticker('ঈদ মোবারক', bg: 0xFF0F7B4F, color: 0xFFFFF4C2),
-    PsSticker('শুভ জন্মদিন', bg: 0xFFD6336C),
-    PsSticker('শুভ নববর্ষ', bg: 0xFFC92A2A, color: 0xFFFFF8E1),
-    PsSticker('অভিনন্দন', bg: 0xFF5F3DC4),
-    PsSticker('ভালোবাসা', bg: 0xFFE8590C),
-    PsSticker('শুভ বিবাহ', bg: 0xFFAE3EC9, color: 0xFFFFF0F6),
-    PsSticker('পূজার শুভেচ্ছা', bg: 0xFFF08C00, color: 0xFF3B0A00),
-    PsSticker('জয় বাংলা', bg: 0xFF006A4E, color: 0xFFFFFFFF),
-    PsSticker('❤️'),
-    PsSticker('🌙'),
-    PsSticker('⭐'),
-    PsSticker('🎉'),
-    PsSticker('🎂'),
-    PsSticker('🌸'),
-    PsSticker('😊'),
-    PsSticker('👍'),
-    PsSticker('🇧🇩'),
-    PsSticker('🕌'),
+    PsSticker('', greeting: 'eid', bg: 0xFF0F7B4F, color: 0xFFFFF4C2),
+    PsSticker('', greeting: 'birthday', bg: 0xFFD6336C),
+    PsSticker('', greeting: 'new_year', bg: 0xFFC92A2A, color: 0xFFFFF8E1),
+    PsSticker('', greeting: 'congrats', bg: 0xFF5F3DC4),
+    PsSticker('', greeting: 'love', bg: 0xFFE8590C),
+    PsSticker('', greeting: 'wedding', bg: 0xFFAE3EC9, color: 0xFFFFF0F6),
+    PsSticker('', greeting: 'puja', bg: 0xFFF08C00, color: 0xFF3B0A00),
+    PsSticker('', greeting: 'victory', bg: 0xFF006A4E),
+    PsSticker('\u2764\uFE0F'),
+    PsSticker('\u{1F319}'),
+    PsSticker('\u2B50'),
+    PsSticker('\u{1F389}'),
+    PsSticker('\u{1F382}'),
+    PsSticker('\u{1F338}'),
+    PsSticker('\u{1F60A}'),
+    PsSticker('\u{1F44D}'),
+    PsSticker('\u{1F1E7}\u{1F1E9}'),
+    PsSticker('\u{1F54C}'),
   ];
 }
 
 /// Text / stickers BEFORE they are drawn: the controller turns this into a
 /// [PatchStep] at the exact size it is applied to (preview or export) —
-/// Flutter's text engine shapes Bangla (যুক্তাক্ষর) correctly; this file
+/// Flutter's text engine shapes Bangla conjuncts correctly; this file
 /// cannot. Applying it un-drawn is a bug and fails loudly (never a file
 /// silently without the user's text).
 class OverlayStep extends PsPixelStep {

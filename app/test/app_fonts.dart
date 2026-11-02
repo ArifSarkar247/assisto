@@ -32,4 +32,8 @@ Future<void> loadAppFonts() async {
     await family('NotoSansBengali',
         [for (final w in weights) 'assets/fonts/NotoSansBengali-$w.ttf']);
   }
+  // photobar: Photo Studio text / sticker fonts
+  await family('HindSiliguri', ['assets/fonts/HindSiliguri-SemiBold.ttf']);
+  await family('Galada', ['assets/fonts/Galada-Regular.ttf']);
+  await family('Atma', ['assets/fonts/Atma-SemiBold.ttf']);
 }

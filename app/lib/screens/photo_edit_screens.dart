@@ -278,11 +278,10 @@ class _PsCropScreenState extends State<PsCropScreen> {
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
             ),
           if (!_id)
-            SizedBox(
-              height: 56,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+              child: Row(
                 children: [
                   for (final a in _aspects)
                     Padding(
@@ -450,11 +449,11 @@ class _PsFilterScreenState extends State<PsFilterScreen> {
               ),
             ),
           ),
-          SizedBox(
-            height: 124,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final f in PsFilter.all)
                   Padding(
@@ -544,8 +543,11 @@ class _PsFilterScreenState extends State<PsFilterScreen> {
 // Text & stickers
 // =========================================================================
 class PsTextScreen extends StatefulWidget {
-  const PsTextScreen({super.key, required this.bytes, this.stickers = false});
+  const PsTextScreen({super.key, required this.bytes, this.stickers = false, this.initial = const []});
   final Uint8List bytes;
+
+  /// Items already placed (gallery shots / re-open).
+  final List<PsOverlay> initial;
 
   /// Open on the sticker tab.
   final bool stickers;
@@ -556,6 +558,19 @@ class PsTextScreen extends StatefulWidget {
 const _textColors = <int>[
   0xFFFFFFFF, 0xFF111111, 0xFFFFD43B, 0xFFE03131, 0xFF006A4E, 0xFF1C7ED6, 0xFFF783AC,
 ];
+
+/// The words of a greeting sticker in the app's language.
+String psStickerText(AppLocalizations t, PsSticker s) => switch (s.greeting) {
+      'eid' => t.psbStkEid,
+      'birthday' => t.psbStkBirthday,
+      'new_year' => t.psbStkNewYear,
+      'congrats' => t.psbStkCongrats,
+      'love' => t.psbStkLove,
+      'wedding' => t.psbStkWedding,
+      'puja' => t.psbStkPuja,
+      'victory' => t.psbStkVictory,
+      _ => s.text,
+    };
 
 String psFontName(AppLocalizations t, String f) => switch (f) {
       'HindSiliguri' => t.psbFontHind,
@@ -568,7 +583,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
   late final _ShownSize _size = _ShownSize(widget.bytes, () {
     if (mounted) setState(() {});
   });
-  final List<PsOverlay> _items = [];
+  late final List<PsOverlay> _items = List.of(widget.initial);
   int? _sel;
   late bool _stickerTab = widget.stickers;
   final _text = TextEditingController();
@@ -589,11 +604,12 @@ class _PsTextScreenState extends State<PsTextScreen> {
     });
   }
 
-  void _addSticker(PsSticker s) {
+  void _addSticker(AppLocalizations t, PsSticker s) {
+    final text = psStickerText(t, s);
     setState(() {
       final n = _items.length;
       _items.add(PsOverlay(
-        text: s.text,
+        text: text,
         font: s.emoji ? 'NotoSansBengali' : s.font,
         color: s.color,
         bg: s.bg,
@@ -603,7 +619,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
         sticker: true,
       ));
       _sel = _items.length - 1;
-      _text.text = s.text;
+      _text.text = text;
     });
   }
 
@@ -715,7 +731,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
               child: SingleChildScrollView(
                 child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                   for (var i = 0; i < PsSticker.all.length; i++)
-                    _stickerButton(PsSticker.all[i], i),
+                    _stickerButton(t, PsSticker.all[i], i),
                 ]),
               ),
             )
@@ -758,13 +774,13 @@ class _PsTextScreenState extends State<PsTextScreen> {
     );
   }
 
-  Widget _stickerButton(PsSticker s, int i) => Semantics(
+  Widget _stickerButton(AppLocalizations t, PsSticker s, int i) => Semantics(
         button: true,
-        label: s.text,
+        label: psStickerText(t, s),
         child: InkWell(
           key: Key('psbSticker_$i'),
           borderRadius: BorderRadius.circular(Radii.md),
-          onTap: () => _addSticker(s),
+          onTap: () => _addSticker(t, s),
           child: Container(
             constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
@@ -773,7 +789,7 @@ class _PsTextScreenState extends State<PsTextScreen> {
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             alignment: Alignment.center,
-            child: Text(s.text,
+            child: Text(psStickerText(t, s),
                 style: TextStyle(
                     fontFamily: s.emoji ? null : s.font,
                     fontSize: s.emoji ? 24 : 16,
@@ -796,15 +812,15 @@ class _PsTextScreenState extends State<PsTextScreen> {
         onChanged: (v) => _edit((o) => o.copyWith(text: v)),
       ),
       const SizedBox(height: Gap.sm),
-      SizedBox(
-        height: 48,
-        child: ListView(scrollDirection: Axis.horizontal, children: [
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
           for (final f in psFonts)
             Padding(
               padding: const EdgeInsets.only(right: Gap.sm),
               child: ChoiceChip(
                 key: Key('psbFont_$f'),
-                label: Text('${psFontName(t, f)} · বাংলা', style: TextStyle(fontFamily: f)),
+                label: Text('${psFontName(t, f)} · ${t.psbFontSample}', style: TextStyle(fontFamily: f)),
                 selected: sel.font == f,
                 onSelected: (_) => _edit((o) => o.copyWith(font: f)),
               ),
@@ -812,9 +828,9 @@ class _PsTextScreenState extends State<PsTextScreen> {
         ]),
       ),
       const SizedBox(height: Gap.xs),
-      SizedBox(
-        height: 48,
-        child: ListView(scrollDirection: Axis.horizontal, children: [
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
           for (final c in _textColors)
             Semantics(
               button: true,
