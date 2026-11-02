@@ -242,21 +242,35 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
 
   Future<void> _addParty() async {
     final t = AppLocalizations.of(context);
-    final created = await showAppSheet<bool>(
+    final created = await showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => _AddPartySheet(
           businessId: widget.businessId, book: widget.book),
     );
-    if (created == true) {
+    if (created != null) {
       await _load();
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(t.khataPartyAdded)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                created == 'offline' ? t.bbPartySavedOffline : t.khataPartyAdded)));
       }
     }
   }
+
+  /// bizbar: parties added with no internet, shown until they sync.
+  List<Map<String, dynamic>> get _offlineParties => [
+        for (final o in _ops.where((o) => o.isParty))
+          {
+            'id': o.partyId,
+            'name': o.partyName,
+            'phone': o.phone,
+            'area': o.area,
+            'balance_poisha': 0,
+            'offline_new': true,
+          }
+      ];
 
   Future<void> _openParty(Map<String, dynamic> party) async {
     await Navigator.of(context).push(MaterialPageRoute(
@@ -319,9 +333,10 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
 
   List<Map<String, dynamic>> get _visible {
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return _parties;
+    final all = [..._offlineParties, ..._parties];
+    if (q.isEmpty) return all;
     final digits = q.replaceAll(RegExp(r'\D'), '');
-    return _parties.where((p) {
+    return all.where((p) {
       final name = '${p['name'] ?? ''}'.toLowerCase();
       final phone = '${p['phone'] ?? ''}'.replaceAll(RegExp(r'\D'), '');
       return name.contains(q) || (digits.isNotEmpty && phone.contains(digits));
@@ -361,10 +376,8 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
             )
           : FloatingActionButton(
               tooltip: _isCustomer ? t.khataAddCustomer : t.khataAddSupplier,
-              onPressed: _savedAt != null
-                  ? () => ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t.ldgAddPartyOnline)))
-                  : _addParty,
+              // bizbar: works offline too (queued, synced later)
+              onPressed: _addParty,
               child: const Icon(Icons.person_add_alt_1_rounded)),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -478,7 +491,7 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
                 ],
               ]),
             ),
-            if (_parties.isEmpty)
+            if (_parties.isEmpty && _offlineParties.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: StateMessage(
@@ -884,19 +897,53 @@ class _AddPartySheetState extends State<_AddPartySheet> {
 
   Future<void> _save() async {
     final name = _name.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      showNeedInput(context);
+      return;
+    }
     setState(() => _saving = true);
+    final cid = KhataOffline.newClientId();
     try {
-      await context.read<AppState>().api.khataCreateParty(
+      await context
+          .read<AppState>()
+          .api
+          .khataCreateParty(
             businessId: widget.businessId,
             book: widget.book,
             name: name,
             phone: _phone.text.trim(),
             area: _area.text.trim(),
             vip: _vip,
-          );
-      if (mounted) Navigator.pop(context, true);
-    } catch (e) {
+            clientId: cid,
+          )
+          .timeout(KhataOffline.requestTimeout);
+      if (mounted) Navigator.pop(context, 'saved');
+    } catch (first) {
+      if (!mounted) return;
+      Object e = first;
+      if (failKindOf(first) != FailKind.refused) {
+        // bizbar: no internet — keep the new party on this phone; it syncs
+        // (with the same id, never twice) and its entries follow it
+        try {
+          await KhataOffline.enqueue(KhataOp(
+            cid: cid,
+            bizId: widget.businessId,
+            partyId: KhataOffline.newTempPartyId(),
+            partyName: name,
+            book: widget.book,
+            kind: 'party',
+            amountPoisha: 0,
+            atIso: DateTime.now().toIso8601String(),
+            createdAt: DateTime.now(),
+            phone: _phone.text.trim(),
+            area: _area.text.trim(),
+          ));
+          if (mounted) Navigator.pop(context, 'offline');
+          return;
+        } catch (e2) {
+          e = e2;
+        }
+      }
       if (!mounted) return;
       setState(() => _saving = false);
       showActionFailed(context, 'khata.addParty', e); // ledger100: was silent
@@ -999,11 +1046,21 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
     if (mounted) setState(() => _ops = ops);
   }
 
+  /// bizbar: a party added offline (negative id) has no server page yet —
+  /// show its queued entries instead of an error.
+  bool get _isTemp => _partyId < 0;
+
   Future<void> _load({bool afterSync = false}) async {
     setState(() {
       _loading = _stmt == null;
       _fail = null;
     });
+    if (_isTemp) {
+      _stmt = const {'lines': []};
+      await _refreshOps();
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
     final api = context.read<AppState>().api;
     try {
       _stmt = await api.khataStatement(_partyId).timeout(KhataOffline.requestTimeout);
@@ -1210,27 +1267,27 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
       appBar: AppBar(
         title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
-          if (_isCustomer)
+          if (!_isTemp && _isCustomer)
             IconButton(
               tooltip: t.tagadaSendReminder,
               icon: const Icon(Icons.campaign_rounded),
               onPressed: _tagada,
             ),
-          if (_isCustomer)
+          if (!_isTemp && _isCustomer)
             IconButton(
               key: const ValueKey('tg2-party-chat'),
               tooltip: t.tg2Chat,
               icon: const Icon(Icons.forum_rounded),
               onPressed: _chat,
             ),
-          if (_isCustomer)
+          if (!_isTemp && _isCustomer)
             IconButton(
               key: const ValueKey('tg2-party-invite'),
               tooltip: t.tg2InvTitle,
               icon: const Icon(Icons.person_add_alt_1_rounded),
               onPressed: _invite,
             ),
-          if (_isCustomer && _isOwner)
+          if (!_isTemp && _isCustomer && _isOwner)
             IconButton(
               key: const ValueKey('ldg-schedule'),
               tooltip: t.ldgSchedAction,
@@ -1545,6 +1602,18 @@ class _EntrySheetState extends State<_EntrySheet> {
       createdAt: DateTime.now(),
     );
     final api = context.read<AppState>().api;
+    if (widget.partyId < 0) {
+      // bizbar: the party itself is still waiting to sync — queue behind it
+      try {
+        await KhataOffline.enqueue(op);
+        if (mounted) Navigator.pop(context, 'offline');
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _saving = false);
+        showActionFailed(context, 'khata.enqueue', e);
+      }
+      return;
+    }
     try {
       final r = await KhataOffline.sendNow(api, op,
           notifyCustomer: !_isEdit && widget.isDue && _isCustomer && _notifyCustomer);

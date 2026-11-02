@@ -211,6 +211,14 @@
      "type": "String"
     }
    }
+  },
+  "bbPartySavedOffline": "Saved on this phone — it goes to the server when you're online. You can write entries for them now.",
+  "@bbPartySavedOffline": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
+  },
+  "bbCrmDueTasks": "Tasks due",
+  "@bbCrmDueTasks": {
+   "description": "bizbar (business khata + CRM launch bar, 2 Nov)"
   }
  },
  "bn": {
@@ -250,6 +258,8 @@
   "bbPdfSavedCopy": "এই ফোনে সংরক্ষিত কপি থেকে তৈরি ({when}) — তখন নেট ছিল না।",
   "bbPdfFooter": "শুধু হিসাব রাখার জন্য। Assisto কখনো টাকা রাখে না বা পাঠায় না।",
   "bbPdfPage": "পাতা {p} / {n}",
-  "bbPdfShareText": "{name}, {shop} থেকে আপনার হিসাবের বিবরণী।"
+  "bbPdfShareText": "{name}, {shop} থেকে আপনার হিসাবের বিবরণী।",
+  "bbPartySavedOffline": "এই ফোনে রাখা হলো — নেট এলে সার্ভারে যাবে। এখনই এঁর এন্ট্রি লিখতে পারেন।",
+  "bbCrmDueTasks": "আজকের কাজ (সময় হয়েছে)"
  }
 }

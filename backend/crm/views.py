@@ -1311,10 +1311,30 @@ class TodayView(CrmErrorMixin, APIView):
             next_follow_up__isnull=False,
             next_follow_up__lte=today).exclude(
             status__in=["won", "lost"]).order_by("next_follow_up")
-            .values("id", "name", "company", "next_follow_up", "priority"))
+            .values("id", "name", "company", "next_follow_up", "priority",
+                    "phone", "whatsapp"))   # bizbar: call/WhatsApp buttons need them
         fu = cadence.due_followups(org, deals)
 
         stuck = pl.stuck_deals(deals)
+
+        # bizbar: deal rows carried only deal_id, so the app could not open
+        # them (dead rows). Add the deal's lead + its phone for one-tap call.
+        ids = {r.get("deal_id") for rows in (fu["overdue_next_steps"],
+                                             fu["missing_next_step"],
+                                             fu["due_tasks"], stuck)
+               for r in rows if r.get("deal_id")}
+        lead_of = {d["id"]: d for d in Deal.objects.filter(id__in=ids, org_id=org_id)
+                   .values("id", "lead_id", "lead__phone", "lead__whatsapp",
+                           "lead__name")}
+        for rows in (fu["overdue_next_steps"], fu["missing_next_step"],
+                     fu["due_tasks"], stuck):
+            for r in rows:
+                d = lead_of.get(r.get("deal_id"))
+                if d and d["lead_id"]:
+                    r.setdefault("lead_id", d["lead_id"])
+                    r.setdefault("phone", d["lead__phone"] or "")
+                    r.setdefault("whatsapp", d["lead__whatsapp"] or "")
+                    r.setdefault("lead_name", d["lead__name"] or "")
 
         return Response({
             "ok": True,
@@ -1979,7 +1999,7 @@ class LeaderboardView(CrmErrorMixin, APIView):
 
     def get(self, request):
         org_id = request.query_params.get("org")
-        _require_member(request.user, org_id)
+        me = _require_member(request.user, org_id)
         members = CrmMember.objects.filter(org_id=org_id).select_related("user")
         rows = []
         for m in members:
@@ -1994,6 +2014,11 @@ class LeaderboardView(CrmErrorMixin, APIView):
                 "deals_won": won.count(),
                 "won_amount": float(won.aggregate(s=Sum("value"))["s"] or 0)})
         ranked = lt.leaderboard(rows)
+        if not _can_manage(me):
+            # bizbar: a sales rep sees the activity race, not colleagues' money
+            # (the Dashboard already hides money from SALES)
+            ranked = [{k: v for k, v in r.items() if k != "won_amount"}
+                      for r in ranked]
         return Response({"ok": True, "rows": ranked})
 
 
@@ -2005,12 +2030,15 @@ class CommissionConfigView(CrmErrorMixin, APIView):
 
     def get(self, request):
         org_id = request.query_params.get("org")
-        _require_member(request.user, org_id)
+        me = _require_member(request.user, org_id)
         rule = CommissionRule.objects.filter(org_id=org_id).first()
         config = rule.as_config() if rule else {"kind": "none", "flat_pct": 0,
                                                 "tiers": [], "per_deal_bonus": 0}
         preview = []
-        for m in CrmMember.objects.filter(org_id=org_id).select_related("user"):
+        members = CrmMember.objects.filter(org_id=org_id).select_related("user")
+        if not _can_manage(me):
+            members = members.filter(id=me.id)   # bizbar: only their own payout
+        for m in members:
             won_qs = Deal.objects.filter(org_id=org_id, owner=m, state="won")
             won = float(won_qs.aggregate(s=Sum("value"))["s"] or 0)
             comm = lt.commission(won, config, deals_won=won_qs.count())

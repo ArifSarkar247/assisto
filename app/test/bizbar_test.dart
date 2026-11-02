@@ -39,6 +39,7 @@ class _BzApi extends FakeApi {
   _BzApi({super.lang = 'en'});
   bool cashboxDown = false;
   bool profilesDown = false;
+  bool offline = false;
   final posts = <String, List<Map<String, dynamic>>>{};
 
   @override
@@ -52,9 +53,15 @@ class _BzApi extends FakeApi {
   @override
   Future<Map<String, dynamic>> postJson(String path,
       [Map<String, dynamic> body = const {}]) async {
-    posts.putIfAbsent(path.split('?').first, () => []).add(body);
     if (cashboxDown && path.contains('/business/cashbox/')) {
       throw const SocketException('offline');
+    }
+    if (offline && path.contains('/business/khata')) {
+      throw const SocketException('offline');
+    }
+    posts.putIfAbsent(path.split('?').first, () => []).add(body);
+    if (path.split('?').first == '/business/khata/parties') {
+      return {'id': 77, 'name': body['name'], 'book': body['book']};
     }
     if (path.contains('/business/sales/checkout')) {
       return {'sale_id': 9, 'total': 20000, 'lines': const [], 'low_stock': const []};
@@ -298,6 +305,38 @@ void main() {
             k: (await SharedPreferences.getInstance()).get(k)!});
       await _pump(tester, const KhataEntryScreen(), api, prefs: raw);
       expect(find.byType(KhataScreen), findsOneWidget);
+    });
+  });
+
+  group('offline: a new customer + entries, synced in order', () {
+    test('party first, then its entries move to the real id', () async {
+      SharedPreferences.setMockInitialValues({});
+      final api = _BzApi()..offline = true;
+      final temp = KhataOffline.newTempPartyId();
+      expect(temp, lessThan(0));
+      await KhataOffline.enqueue(KhataOp(
+          cid: 'kx-party-0001', bizId: 1, partyId: temp, partyName: 'Rahim',
+          book: 'customer', kind: 'party', amountPoisha: 0,
+          atIso: '2026-11-02T10:00:00', createdAt: DateTime(2026, 11, 2, 10),
+          phone: '01712345678'));
+      await KhataOffline.enqueue(KhataOp(
+          cid: 'kx-entry-0001', bizId: 1, partyId: temp, partyName: 'Rahim',
+          book: 'customer', kind: 'entry', direction: 'gave', amountPoisha: 50000,
+          atIso: '2026-11-02T10:01:00', createdAt: DateTime(2026, 11, 2, 10, 1)));
+      expect((await KhataOffline.pendingParties(1, 'customer')).single.phone,
+          '01712345678');
+      var r = await KhataOffline.sync(api);
+      expect(r.offline, isTrue);
+      expect((await KhataOffline.all()).length, 2);
+      api.offline = false;
+      r = await KhataOffline.sync(api);
+      expect(r.synced, 2);
+      expect(await KhataOffline.all(), isEmpty);
+      final party = api.posts['/business/khata/parties']!.single;
+      expect(party['client_id'], 'kx-party-0001');
+      expect(party['phone'], '01712345678');
+      expect(api.posts['/business/khata/parties/77/entries']!.single['client_id'],
+          'kx-entry-0001');
     });
   });
 }

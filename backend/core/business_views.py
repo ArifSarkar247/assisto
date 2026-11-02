@@ -1255,11 +1255,32 @@ class KhataPartiesView(APIView):
             return _err(lang, "নাম লিখুন।", "Enter a name.", status=422,
                         code="name_required")
         from .models import KhataParty
+        from .phone import canonical_phone
+        phone = str(request.data.get("phone") or "")[:40]
+        # bizbar: never a twin. The same phone in the same book is the same
+        # person (TallyKhata warns too), and a party queued offline is
+        # replayed with its client_id until the phone hears back — a replay
+        # after a lost answer returns the party already made.
+        canon = canonical_phone(phone) or ""
+        ex = None
+        if canon:
+            ex = prof.khata_parties.filter(book=book, phone_canon=canon,
+                                           archived=False).first()
+        cid = _client_id(request)
+        marker = "[cid:%s]" % cid if cid else ""
+        if ex is None and marker:
+            ex = prof.khata_parties.filter(book=book, note__contains=marker).first()
+        if ex is not None:
+            out = _party_row(ex, _party_balance(ex), lang)
+            out["existing"] = True
+            return Response(out, status=200)
         p = KhataParty.objects.create(
-            business=prof, book=book, name=name,
-            phone=str(request.data.get("phone") or "")[:40],
+            business=prof, book=book, name=name, phone=phone,
             area=str(request.data.get("area") or "")[:80],
-            note=str(request.data.get("note") or ""), vip=bool(request.data.get("vip")))
+            # the client_id rides in the (never shown) note so a replay
+            # finds this row — no schema change
+            note=(str(request.data.get("note") or "") + marker).strip(),
+            vip=bool(request.data.get("vip")))
         out = _party_row(p, 0, lang)
         return Response(out, status=201)
 

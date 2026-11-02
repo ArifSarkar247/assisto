@@ -10,7 +10,9 @@ import '../widgets/contacts_model.dart';
 import '../widgets/contacts_sheets.dart';
 import 'messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import '../services/error_kind.dart' show serverFailText; // qa2
+import '../services/error_kind.dart' show FailKind, failKindOf, serverFailText; // qa2
+import '../services/action_feedback.dart' show showActionFailed; // bizbar
+import '../services/error_report.dart' show reportNonFatal; // bizbar
 
 /// Contacts (feature 24): the PERSONAL phonebook / relationship manager — the
 /// people in your life (family, friends, colleagues). Distinct from the Sales
@@ -87,8 +89,26 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       _error = false;
     });
     try {
-      final raw = await context.read<AppState>().api.listItems('contacts');
-      _all = raw.map(Contact.fromJson).toList();
+      final api = context.read<AppState>().api;
+      // bizbar: contacts added with no internet (no server id yet) are sent
+      // now — they used to vanish on this refresh after "saved offline"
+      final pending = _all.where((c) => c.id == null).toList();
+      final raw = await api.listItems('contacts');
+      var server = raw.map(Contact.fromJson).toList();
+      for (final c in pending) {
+        try {
+          final created = await api.createItem('contacts', c.toJson());
+          c.id = Contact.fromJson(created).id;
+          server = [...server, c];
+        } catch (e) {
+          if (failKindOf(e) == FailKind.refused) {
+            reportNonFatal('contacts.syncRefused', e); // best-effort: server said no
+          } else {
+            server = [...server, c]; // still offline-ish: keep it queued
+          }
+        }
+      }
+      _all = server;
       _offline = false;
       _error = false;
       await _writeCache(_all);
@@ -122,11 +142,16 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       }
       await _writeCache(_all);
       _toast(cStr(context, 'cContactSaved'));
-    } catch (_) {
-      // offline: keep it locally so the user isn't blocked.
-      if (c.id == null) _all = [..._all, c];
-      await _writeCache(_all);
-      _toast(cStr(context, 'cSavedOffline'));
+    } catch (e) {
+      if (c.id == null && failKindOf(e) != FailKind.refused) {
+        // offline: kept on this phone and sent on the next refresh (_load)
+        _all = [..._all, c];
+        await _writeCache(_all);
+        if (mounted) _toast(cStr(context, 'cSavedOffline'));
+      } else if (mounted) {
+        // a refusal (or an edit with no internet) is NOT saved — say so
+        showActionFailed(context, 'contacts.save', e);
+      }
     }
     if (mounted) setState(() {});
   }

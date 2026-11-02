@@ -335,3 +335,39 @@ class BusinessIdParamTests(APITestCase):
         self.assertEqual(r.status_code, 201, r.data)
         self.assertEqual(CashboxDay.objects.get().business_id, biz.id)
         self.assertFalse(BusinessProfile.objects.filter(user=staff).exists())
+
+
+class OfflinePartyTests(APITestCase):
+    """A party added with no internet is replayed with its client_id; the
+    server must answer with the SAME party, never a twin."""
+    def setUp(self):
+        self.owner = User.objects.create_user(name="Owner", phone="+8801999000511",
+                                              password="pw123456")
+        self.biz = BusinessProfile.objects.create(user=self.owner, shop_name="S")
+        self.client.force_authenticate(self.owner)
+
+    def post(self, **kw):
+        return self.client.post("/api/v1/business/khata/parties",
+                                dict({"book": "customer"}, **kw), format="json")
+
+    def test_replay_with_client_id_returns_the_same_party(self):
+        a = self.post(name="Rahim", client_id="kx-abc123-offline1")
+        b = self.post(name="Rahim", client_id="kx-abc123-offline1")
+        self.assertEqual(a.status_code, 201)
+        self.assertEqual(b.status_code, 200)
+        self.assertEqual(a.data["id"], b.data["id"])
+        self.assertTrue(b.data["existing"])
+        self.assertEqual(KhataParty.objects.filter(business=self.biz).count(), 1)
+
+    def test_same_phone_is_the_same_person_any_spelling(self):
+        a = self.post(name="Karim", phone="01712345678")
+        b = self.post(name="Karim bhai", phone="+880 1712-345678")
+        self.assertEqual(a.data["id"], b.data["id"])
+
+    def test_two_namesakes_without_phone_are_two_parties(self):
+        a = self.post(name="Rahim", client_id="kx-one-000001")
+        b = self.post(name="Rahim", client_id="kx-two-000002")
+        self.assertNotEqual(a.data["id"], b.data["id"])
+        # the marker never leaks into the app's rows
+        rows = self.client.get("/api/v1/business/khata/parties?book=customer").data["parties"]
+        self.assertFalse(any("cid:" in str(r) for r in rows))

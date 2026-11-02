@@ -69,7 +69,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         _load();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }
 
@@ -89,7 +89,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
       await CrmApi.of(context).proposalTransition((p['id'] as num).toInt(), to);
       _load();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }
 
@@ -293,7 +293,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
       }
     }
   }

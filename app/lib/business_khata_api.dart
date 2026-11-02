@@ -54,6 +54,7 @@ extension BusinessKhataApi on ApiClient {
     String area = '',
     String note = '',
     bool vip = false,
+    String? clientId,
   }) =>
       postJson('/business/khata/parties', {
         'business': businessId,
@@ -63,6 +64,9 @@ extension BusinessKhataApi on ApiClient {
         'area': area,
         'note': note,
         'vip': vip,
+        // bizbar: a party queued offline is replayed with the same id; the
+        // server returns the one it already made instead of a twin
+        if (clientId != null) 'client_id': clientId,
       });
 
   /// GET /business/khata/parties/<id>/statement -> {party, book, lines:[{at,
