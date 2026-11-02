@@ -46,6 +46,7 @@ ROUTE_KEYS = (
     "kids_watch", "school_mode",   # kidswatch: parent hub + the child's side
     "missing_alert",   # missing: Missing person alert (flag missing_alert)
     "blood_panel",     # blood: Blood donor panel (flag blood_donors)
+    "train_tracker", "dest_alarm",  # train: tracker + destination alarm
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",

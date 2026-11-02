@@ -94,3 +94,11 @@ Console-এ ফর্ম এলে "does not use" বাছুন।
    - **প্রত্যাখ্যান হলে:** Owner Admin → `anti_theft` → Play বন্ধ করুন, আর আমাকে বলুন। আমি Play বিল্ড থেকে `AntiTheftService` সরিয়ে দেব (`WakeWordService`-এর মতো, এক লাইনের কাজ)। বাকি ঘোষণা আগের মতোই থাকবে। ওয়েবসাইটের APK-তে চুরি-রোধ থাকবে।
 2. **ভয়েস SOS:** মাইক সারাক্ষণ শোনে, আর লোকেশন নেয় শুধু SOS পাঠানোর মুহূর্তে। এটা Google-এর "voice commands" ধরনের মধ্যে পড়ে। ঝুঁকি কম।
 3. **নিরাপদ যাত্রা:** Google-এর তালিকার "user-initiated location sharing"-এর সাথে হুবহু মেলে। ঝুঁকি কম।
+## ৫. ছবি/ভিডিও (Photo & Video permissions)
+READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, READ_EXTERNAL_STORAGE — **সব সরানো** (Play ও ওয়েবসাইট দুই বিল্ডেই)। সব জায়গায় ছবি/ভিডিও বাছাই এখন Android-এর **Photo Picker** দিয়ে, কোনো অনুমতি লাগে না। Play Console-এ Photo and video permissions ফর্মে আর কিছু ঘোষণা করতে হবে না — নতুন AAB আপলোডের পর পুরনো ঘোষণা মুছে দিন / "does not use" বেছে নিন।
+
+## ৬. ট্রেন ট্র্যাকার + গন্তব্য অ্যালার্ম — LOCATION (নতুন, ফ্ল্যাগ `train_tracker` / `dest_alarm`, এখন বন্ধ)
+নতুন অনুমতি লাগে না — একই `FOREGROUND_SERVICE_LOCATION` (flutter_foreground_task সার্ভিস, type `location`), শুধু নিচের দুই কাজের যেকোনোটা **চালু থাকলে**, অ্যাপ সামনে থাকা অবস্থায় শুরু হয়; নোটিফিকেশনে সবসময় "থামুন" বোতাম। `ACCESS_BACKGROUND_LOCATION` লাগে না।
+**Play Console-এ ইংরেজিতে যা লিখবেন (কপি করুন):**
+> Assisto uses a location foreground service only while the user has turned on (a) "I am on this train" sharing, which sends the passenger's location so other passengers see the train's position (stops automatically on arrival, at the end of the trip, or with one tap), or (b) a destination alarm, which checks on the device how close the user is to the stop they chose (bus, train, metro or launch) and wakes them before it. Both are started by the user from the foreground, show a persistent notification with a Stop button, and stop as soon as the task ends. Location is not collected at any other time.
+**ভিডিওর ধাপ (৩০–৪৫ সেকেন্ড, স্ক্রিন রেকর্ড):** ১) ড্রয়ার → ট্রেন ট্র্যাকার → একটি ট্রেন খুলুন → "আমি এই ট্রেনে আছি" → সম্মতির পাতা → শুরু; ২) নোটিফিকেশন টেনে "ট্রেনের লোকেশন শেয়ার হচ্ছে" + থামুন দেখান; ৩) থামুন চাপুন — নোটিফিকেশন চলে যায়; ৪) গন্তব্য অ্যালার্ম → স্টেশন বাছুন → ৫০০ মি → চালু; নোটিফিকেশন দেখান; ৫) "অ্যালার্ম বন্ধ" (বাজার সময় "আমি জেগে আছি") — নোটিফিকেশন চলে যায়।

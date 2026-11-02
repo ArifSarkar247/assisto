@@ -31917,5 +31917,382 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "shopLiveNoAnswer": "The shop device didn't answer in {seconds} seconds. Check that it is on and connected to the internet, then try again.",
+  "@shopLiveNoAnswer": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLiveTook": "Started in {seconds} s",
+  "@shopLiveTook": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "wmPasteLabel": "Paste from the label's QR code",
+  "wmPasteLabelNone": "No serial number found in the copied text. Scan the QR on the camera's label with your phone camera, copy the text, then try again — or type it from the label.",
+  "wmPasteLabelBoth": "Serial number and safety code filled from the label.",
+  "wmPasteLabelSerial": "Serial number filled. Type the safety code from the label.",
+  "vehEngineHotTitle": "Engine is hot",
+  "vehEngineHotBody": "Coolant {temp}. Stop somewhere safe, switch the engine off and check the coolant before you drive on.",
+  "@vehEngineHotBody": {
+    "placeholders": {
+      "temp": {
+        "type": "String"
+      }
+    }
+  },
+  "taNomineeTitle": "Also alert my nominee",
+  "taNomineeBody": "Wrong unlock attempts, the intruder photo, a SIM change and someone turning protection off also go to your nominee. They can see this phone's status and photo, but cannot lock or ring it.",
+  "taNomineeReach": "{reachable} of {saved} nominees use Assisto and will get these alerts",
+  "@taNomineeReach": {
+    "description": "theftalerts: how many saved nominees have an Assisto account.",
+    "placeholders": {
+      "reachable": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "saved": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "taNomineeNone": "You have no nominee yet. Add a trusted person as your nominee so they are told too.",
+  "taNomineeAdd": "Add a nominee",
+  "taOwnerCopy": "You also get these alerts on your other signed-in phone or tablet (never on this phone).",
+  "taLimitCamera": "The intruder photo is taken only while Assisto is open, after wrong Security PINs typed in Assisto. Android and Google Play do not allow a hidden camera on the lock screen, so wrong screen-unlock attempts are sent as a count with the location.",
+  "taLimitUninstall": "No app may block its own uninstall. While protection is on, Android asks to turn off Assisto's device protection first; your trusted contacts are told at that moment.",
+  "taLimitReset": "If the phone is flashed or factory reset, Assisto is erased and can send nothing more. Your trusted contacts then get the 'stopped checking in' alert with the last location. Keep Google Find Hub on and a Google account on the phone (Factory Reset Protection).",
+  "taKindAdminOff": "Protection turn-off",
+  "trTitle": "Train tracker",
+  "trSearchHint": "Train number, name or station",
+  "trYesterday": "Yesterday",
+  "trToday": "Today",
+  "trTomorrow": "Tomorrow",
+  "trAlarmTitle": "Destination alarm",
+  "trAlarmCardSub": "Wakes you before your stop — works without internet",
+  "trDataNote": "Times are estimates from the published timetable (Wikipedia, CC BY-SA) until checked; map © OpenStreetMap contributors (ODbL). Free, no ads.",
+  "trLoadFailed": "Couldn't load. Check the internet and try again.",
+  "trRetry": "Try again",
+  "trEmptyTitle": "No train found",
+  "trEmptyBenefit": "See where your train is now, or an honest estimate, and get woken before your stop.",
+  "trShowAll": "Show all trains",
+  "trStep1": "Search by train number (e.g. 701) or station",
+  "trStep2": "Open the train: live if a passenger shares, otherwise an estimate",
+  "trStep3": "On the train? Tap \"I am on this train\" to help everyone",
+  "trDepArr": "Leaves {dep} · arrives {arr}",
+  "@trDepArr": {
+    "placeholders": {
+      "dep": {
+        "type": "String"
+      },
+      "arr": {
+        "type": "String"
+      }
+    }
+  },
+  "trUnchecked": "Timetable not yet checked against the official one",
+  "trTrain": "Train",
+  "trShareTitle": "Share your location for this train?",
+  "trShareConsent": "Only while sharing is on. Others see the train's position and how many people share — never you. It stops by itself on arrival, at the end of the trip, or with one tap (also from the notification).",
+  "trShareStart": "Start sharing",
+  "trCancel": "Cancel",
+  "trShareNotifTitle": "Sharing the train's location",
+  "trShareNotifText": "Only while you are on this train. Tap Stop to end.",
+  "trStop": "Stop",
+  "trLiveLine": "{n} passengers sharing {delay}",
+  "@trLiveLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      }
+    }
+  },
+  "trLate": "· about {min} min late",
+  "@trLate": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "trOnTime": "· on time",
+  "trEstNotStarted": "Not started yet by the timetable",
+  "trEstArrived": "Should have arrived by the timetable",
+  "trEstRunning": "Position worked out from the timetable",
+  "trOffDay": "This train does not run on this day (weekly off day).",
+  "trModeLive": "LIVE",
+  "trModeEstimate": "ESTIMATE",
+  "trEstimateWhy": "Nobody on this train is sharing right now. Real delays are not included — send the official SMS for the railway's own answer.",
+  "trMapA11y": "Map of the train's route and position",
+  "trMapEmpty": "Map unavailable",
+  "trShareStop": "Stop sharing",
+  "trImOnTrain": "I am on this train",
+  "trShareCounts": "{ok} points accepted · {bad} rejected by the checks",
+  "@trShareCounts": {
+    "placeholders": {
+      "ok": {
+        "type": "String"
+      },
+      "bad": {
+        "type": "String"
+      }
+    }
+  },
+  "trSmsButton": "SMS \"{body}\" to {to}",
+  "@trSmsButton": {
+    "placeholders": {
+      "body": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "trSmsCost": "Official Bangladesh Railway SMS: about ৳{cost} from your balance. Your SMS app opens; you press Send.",
+  "@trSmsCost": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "trChat": "Train chat",
+  "trAlarmShort": "Wake me",
+  "trStopsTitle": "Stops (estimated times)",
+  "trEstShort": "est.",
+  "trSourceLine": "Sources: timetable from Wikipedia (CC BY-SA), map © OpenStreetMap contributors (ODbL).",
+  "trChatSlowDown": "Too many messages. Wait a minute.",
+  "trNickRule": "2–20 letters. No phone numbers or links.",
+  "trChatOver": "This trip's chat has ended.",
+  "trAddCircle": "Add to My Circle",
+  "trAddCircleSub": "Sends a request — they decide. Names and numbers are shared only if they accept.",
+  "trReport": "Report",
+  "trBlock": "Block",
+  "trBlockSub": "You won't see their messages or requests again",
+  "trRequestSent": "Request sent",
+  "trBlocked": "Blocked",
+  "trReported": "Reported. Thank you.",
+  "trLeave": "Leave chat",
+  "trEmergencyTitle": "Need help? Call now",
+  "trCall999": "Call 999",
+  "trCall131": "Rail hotline 131",
+  "trChatJoinTitle": "Chat with passengers of this train",
+  "trChatRules": "Only a nickname is shown — nobody can see your name, number or profile. The chat is deleted after the trip. Be kind; report or block anyone.",
+  "trNickname": "Nickname",
+  "trChatJoin": "Join the chat",
+  "trRequestFrom": "{nick} wants to add you to My Circle",
+  "@trRequestFrom": {
+    "placeholders": {
+      "nick": {
+        "type": "String"
+      }
+    }
+  },
+  "trRequestNote": "If you accept, you both see each other's name and number.",
+  "trAccept": "Accept",
+  "trDecline": "Decline",
+  "trChatEmpty": "No messages yet. Ask where the train is or share what you see.",
+  "trChatHint": "Message",
+  "trSend": "Send",
+  "trMsgMenuHint": "Report, block or add to My Circle",
+  "trYou": "You",
+  "trKm": "{n} km",
+  "@trKm": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "trMetres": "{n} m",
+  "@trMetres": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "trMapPlace": "Place on the map",
+  "trAlarmNotifTitle": "Destination alarm is on",
+  "trAlarmNotifText": "Wakes you near {place}. Tap Stop to turn off.",
+  "@trAlarmNotifText": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmSpoken": "Wake up! You are near {place}.",
+  "@trAlarmSpoken": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmRinging": "You are near {place}!",
+  "@trAlarmRinging": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmWatching": "Watching for {place}",
+  "@trAlarmWatching": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmDistance": "{dist} away · alarm at {radius}",
+  "@trAlarmDistance": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      },
+      "radius": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmLocationOff": "Location is off or not allowed — the alarm can't see where you are.",
+  "trAlarmInterval": "Next GPS check in {s} s (slow when far, fast when near)",
+  "@trAlarmInterval": {
+    "placeholders": {
+      "s": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmKeepOpen": "Keep Assisto open in recent apps so the alarm keeps working.",
+  "trAlarmStop": "Stop alarm",
+  "trAlarmOffline": "Works without internet: stations are on your phone and the distance is worked out on the phone. Loud even on silent, also in earphones.",
+  "trAlarmBenefit": "Sleep on the train or bus — we wake you before your stop.",
+  "trAlarmWhere": "Where should we wake you?",
+  "trChange": "Change",
+  "trStationSearch": "Search station",
+  "trPickOnMap": "Pick any place on the map",
+  "trAlarmRadius": "Ring when this close",
+  "trCustom": "Custom",
+  "trAlarmStart": "Start alarm",
+  "trOsmAttribution": "Stations © OpenStreetMap contributors (ODbL).",
+  "trModeCityBus": "City bus",
+  "trModeLongBus": "Long-distance bus",
+  "trModeTrain": "Train",
+  "trModeMetro": "Dhaka Metro",
+  "trModeLaunch": "Launch",
+  "trHowTravel": "How are you travelling?",
+  "trHelpCityBus": "Rings at the distance you set (from 10 m). A gentle buzz about 200 m before.",
+  "trHelpLongBus": "Rings at the distance you set (default 2 km). On trips over 30 km, a \"get ready\" about 10 km before.",
+  "trHelpTrain": "Rings when the train LEAVES the station before yours — your stop is next. If that can't be seen, it rings by distance.",
+  "trHelpMetro": "Rings when the train leaves the station before yours. Counts stations and time — no GPS needed.",
+  "trHelpLaunch": "Rings at the distance you set (default 2 km). On trips over 30 km, a \"get ready\" about 10 km before.",
+  "trStopName": "Stop name",
+  "trSaveStop": "Save this stop (on this phone)",
+  "trAlarmSpokenDist": "Wake up! {stop} is {dist} away.",
+  "@trAlarmSpokenDist": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "trAlarmReady": "Get ready. {stop} is about {dist} away.",
+  "@trAlarmReady": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "trMicDenied": "Microphone not allowed — the Bangla voice will be used.",
+  "trImAwake": "I'm awake",
+  "trMetroNow": "By the clock the train is at: {station}",
+  "@trMetroNow": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "trMetroRingAt": "Rings at about {time}",
+  "@trMetroRingAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trMetroNoGps": "Counting stations and time — works without GPS or internet.",
+  "trMetroResync": "The train is leaving a station now",
+  "trMetroResyncQ": "Which station is the train leaving now?",
+  "trNeverLate": "GPS is not precise right now, so the alarm will ring a little EARLY — never late.",
+  "trTrainNoPrev": "Station before yours unknown — rings by distance",
+  "trTrainPrev": "Rings when the train leaves {station}",
+  "@trTrainPrev": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "trBusStopSearch": "Search bus stop or your saved stops",
+  "trNoPlaces": "Nothing found. Pick the place on the map instead.",
+  "trTrainFallbackDist": "If the station before can't be seen, ring at",
+  "trPickFirst": "Choose where to get off first.",
+  "trMetroSource": "Station order: Wikipedia \"MRT Line 6\" (CC BY-SA); minutes between stations are estimates.",
+  "trMetroFrom": "Getting on at",
+  "trMetroTo": "Getting off at",
+  "trMetroSame": "Choose two different stations.",
+  "trAlertLastOn": "At least one alert must stay on",
+  "trAlertsTitle": "How should we wake you?",
+  "trAlertVoice": "Voice",
+  "trAlertVoiceSub": "Says the stop name and distance (in earphones too)",
+  "trAlertSound": "Alarm sound",
+  "trAlertSoundSub": "Your phone's alarm ringtone, loud even on silent",
+  "trAlertVibrate": "Vibration",
+  "trAlertVibrateSub": "Keeps vibrating until you tap \"I'm awake\"",
+  "trPersonalVoice": "Personal voice (optional)",
+  "trPersonalVoiceSub": "Record a short message in your own or a family member's voice. It stays on this phone only — never uploaded, no AI voice copying.",
+  "trRecord": "Record (up to 10 s)",
+  "trRecordStop": "Stop recording",
+  "trRecordAgain": "Record again",
+  "trPlay": "Play",
+  "trDelete": "Delete",
+  "trSpokenKm": "{n} kilometres",
+  "@trSpokenKm": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "trSpokenMetres": "{n} metres",
+  "@trSpokenMetres": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "trMapNoTiles": "The map isn't available right now. Pick a stop from the list instead."
 }

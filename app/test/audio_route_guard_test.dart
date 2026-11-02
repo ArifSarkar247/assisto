@@ -65,6 +65,8 @@ void main() {
         'MainActivity.kt': 'lost-phone siren: STREAM_ALARM to max volume',
         'antitheft/RemoteCommands.kt':
             'anti-theft siren: STREAM_ALARM to max, restored after',
+        'train/TrainAlarmChannel.kt':
+            'destination alarm: STREAM_ALARM to max, restored on stop',
       };
       const root = 'android_overlay/app/src/main/kotlin/com/assisto/assisto/';
       final hits = <String>[];

@@ -29,6 +29,8 @@ import '../screens/my_vehicles_screen.dart';
 import '../screens/vehicle_tracking_screen.dart';
 import '../screens/car_mode_screen.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import '../screens/train/dest_alarm_screen.dart'; // train
+import '../screens/train/train_tracker_screen.dart'; // train
 import '../screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
@@ -185,6 +187,8 @@ class ChatNav {
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle
     'car_mode': (_) => const CarModeScreen(), // v1-vehicle
     'kids_watch': (_) => const KidsWatchScreen(), // kidswatch (flag kids_watch)
+    'train_tracker': (_) => const TrainTrackerScreen(), // train (flag train_tracker)
+    'dest_alarm': (_) => const DestAlarmScreen(), // train (flag dest_alarm)
     'school_mode': (_) => const SchoolModeChildScreen(), // kidswatch: child side, never flag-hidden
     'missing_alert': (_) => const MissingHubScreen(), // missing (flag missing_alert)
     'blood_panel': (_) => const BloodHubScreen(), // blood (flag blood_donors)

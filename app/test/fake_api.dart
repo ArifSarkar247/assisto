@@ -1,4 +1,5 @@
 import 'fake_famcare.dart'; // famcare
+import 'fake_train.dart'; // train
 import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
@@ -1560,6 +1561,12 @@ class FakeApi extends ApiClient {
     if (fc != null) {
       if (mode == FakeMode.fail) _fail();
       return fc;
+    }
+    // train: Train tracker
+    final tr = fakeTrainGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (tr != null) {
+      if (mode == FakeMode.fail) _fail();
+      return tr;
     }
     // kidswatch: Kids watch + School Mode
     final kw = fakeKidsWatchGet(path, bn: _bn, empty: mode == FakeMode.empty);

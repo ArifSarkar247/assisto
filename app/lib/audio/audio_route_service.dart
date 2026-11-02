@@ -48,6 +48,14 @@ enum AudioUse {
   kidsWatchRecord,
   kidsWatchPlay,
   media,
+  /// train: destination alarm — like SOS a siren-style exception: the tone
+  /// and the Bangla voice play on STREAM_ALARM (loud on silent; Android also
+  /// sends alarms to connected earphones). The lease only clears a stale
+  /// call / mic session first so it never plays on the earpiece.
+  destAlarm,
+  /// train: the user's own voice clip for the destination alarm (kept on the
+  /// phone only; recorded with the headset mic when one is connected).
+  destVoiceRecord,
 }
 
 /// Uses that need the HEADSET MICROPHONE: a Bluetooth mic only works in
@@ -58,6 +66,7 @@ const Set<AudioUse> micUses = {
   AudioUse.voiceNoteRecord,
   AudioUse.assistantListen,
   AudioUse.kidsWatchRecord,
+  AudioUse.destVoiceRecord,
 };
 
 /// One output the phone can use right now.
@@ -185,6 +194,9 @@ class AudioRouteService extends ChangeNotifier {
     // kids watch: voice replies recorded with the headset mic when present
     // (playback goes through VoicePlayer, also registered above)
     'lib/screens/kids_watch/kw_recorder.dart': AudioUse.kidsWatchRecord,
+    // train: destination alarm (STREAM_ALARM tone + on-device Bangla TTS)
+    'lib/train/dest_alarm_sound.dart': AudioUse.destAlarm,
+    'lib/train/dest_voice_recorder.dart': AudioUse.destVoiceRecord,
   };
 
 

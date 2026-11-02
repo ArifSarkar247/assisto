@@ -14,7 +14,7 @@ Admin -> Pricing & plans -> limits), default 80, clamped 50..99.
 import shutil
 from datetime import datetime, timedelta, timezone as dt_tz
 
-DEFAULT_PCT = 80
+DEFAULT_PCT = 75   # owner 2 Nov: alert at 75%
 DEDUPE_HOURS = 6
 PATH = "/"
 

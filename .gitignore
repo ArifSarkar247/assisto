@@ -54,6 +54,7 @@ tools/*
 !tools/reality/
 !tools/wakeword/
 !tools/callproof/
+!tools/train/
 !tools/ticks_proof/
 !tools/photo_model/
 !tools/photo_eval/
