@@ -181,10 +181,12 @@ class FenceAndAlertLogicTests(TestCase):
         self.assertFalse(VT.point_in_polygon(SQUARE[:2], 23.785, 90.415))
         fence = {"id": "p", "name": "Office", "points": SQUARE, "alert": "exit"}
         cfg = {"geofences": [fence]}
+        # veh100b: 1.1 km per step needs minutes, not seconds (a 1.1 km move
+        # in 5 s is now rejected as a GPS jump)
         st, a = VT.evaluate_alerts({}, {"at": UT(), "lat": 23.795, "lng": 90.415}, cfg, 10)
-        st, a = VT.evaluate_alerts(st, {"at": UT(5), "lat": 23.785, "lng": 90.415}, cfg, 10)
+        st, a = VT.evaluate_alerts(st, {"at": UT(300), "lat": 23.785, "lng": 90.415}, cfg, 10)
         self.assertEqual(a, [])                      # enter muted (exit only)
-        st, a = VT.evaluate_alerts(st, {"at": UT(10), "lat": 23.795, "lng": 90.415}, cfg, 10)
+        st, a = VT.evaluate_alerts(st, {"at": UT(600), "lat": 23.795, "lng": 90.415}, cfg, 10)
         self.assertEqual([x["kind"] for x in a], ["geofence_exit"])
 
     def test_ignition_on_off_opt_in_and_no_double_at_night(self):

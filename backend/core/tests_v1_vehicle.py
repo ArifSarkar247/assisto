@@ -111,11 +111,16 @@ class GT06ProtocolTests(TestCase):
         self.assertTrue(f["valid"])
         self.assertEqual(f["at"], datetime(2011, 8, 29, 17, 46, 16, tzinfo=dtz.utc))
 
-    def test_bad_crc_rejected(self):
+    def test_bad_crc_flagged_not_dropped(self):
+        # veh100b: real clone devices send mismatching CRCs (Traccar never
+        # checks it); a structurally valid frame is kept and flagged.
         fr = bytearray.fromhex("78780D01012345678901234500018CDD0D0A")
         fr[-3] ^= 0xFF
-        with self.assertRaises(gt06.FrameError):
-            gt06.parse_frame(bytes(fr))
+        p = gt06.parse_frame(bytes(fr))
+        self.assertEqual(p["kind"], "login")
+        self.assertFalse(p["crc_ok"])
+        self.assertTrue(gt06.parse_frame(bytes.fromhex(
+            "78780D01012345678901234500018CDD0D0A"))["crc_ok"])
 
     def test_split_frames_partial_and_junk(self):
         a = gt06.login_packet(IMEI_A, 1)
@@ -722,7 +727,8 @@ class ServiceTests(_Base):
                              "radius_m": 200}]
         self.t.save()
         now = timezone.now()
-        fixes = [{"at": now - timedelta(seconds=10), "lat": 23.78, "lng": 90.41,
+        # veh100b: 2.2 km needs a realistic gap (10 s would be a GPS jump)
+        fixes = [{"at": now - timedelta(seconds=300), "lat": 23.78, "lng": 90.41,
                   "speed_kmh": 0, "valid": True},
                  {"at": now, "lat": 23.80, "lng": 90.41, "speed_kmh": 30, "valid": True,
                   "ignition": True, "obd": {"coolant_temp_c": 90}}]

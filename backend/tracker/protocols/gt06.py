@@ -52,12 +52,27 @@ P_CMD_REPLY_2 = 0x21
 P_TIME_REQ = 0x8A
 P_SERVER_CMD = 0x80
 P_HEARTBEAT_2 = 0x23
+P_ALARM_3 = 0x27          # 0x26 layout + extra bytes (Traccar MSG_GPS_LBS_STATUS_3)
 P_INFO = 0x94
+# veh100b: 4G (LTE Cat-1) Concox/Jimi devices — JM-VL01/VL02, GT06 4G clones.
+# Same frame + GPS block; the cell tower block grows (LAC 4 bytes, cell 8).
+P_GPS_LBS_4G = 0xA0
+P_ALARM_4G = 0xA4         # multi-fence alarm, 4G
 
-ACK_REQUIRED = {P_LOGIN, P_STATUS, P_ALARM, P_ALARM_2, P_HEARTBEAT_2}
+ACK_REQUIRED = {P_LOGIN, P_STATUS, P_ALARM, P_ALARM_2, P_ALARM_3, P_HEARTBEAT_2,
+                P_ALARM_4G}
 
 # Terminal-information byte, bits 5..3 (Concox GT06 protocol v1.8 §5.4).
 TERM_ALARMS = {4: "sos", 3: "low_battery", 2: "power_cut", 1: "vibration"}
+
+# veh100b: CRC is NOT a security check (anyone can compute it) and TCP already
+# guards the bytes. 12 of 188 frames recorded from real Concox/clone devices
+# (Traccar Gt06ProtocolDecoderTest — Traccar never checks this CRC) carry a
+# CRC that does not match; rejecting them would make such a tracker look
+# dead. So a frame whose length and stop bytes are consistent is accepted
+# and flagged crc_ok=False (the server counts them). The IMEI allowlist is
+# the real gate.
+STRICT_CRC = False
 
 MAX_FRAME = 1024          # a GT06 frame is ~40-100 bytes; anything bigger is junk
 
@@ -66,6 +81,10 @@ ALARMS = {
     0x00: "normal", 0x01: "sos", 0x02: "power_cut", 0x03: "vibration",
     0x04: "fence_in", 0x05: "fence_out", 0x06: "overspeed", 0x09: "displacement",
     0x0E: "low_battery", 0x13: "tamper",
+    # veh100b — from recorded device frames (Traccar Gt06ProtocolDecoderTest):
+    # 0x0C tamper (0x26 frame), 0x19 / 0x0F low battery (0xA4 / 0x27 frames),
+    # 0x11 power off (device switched off).
+    0x0C: "tamper", 0x0F: "low_battery", 0x19: "low_battery", 0x11: "power_off",
 }
 
 
@@ -123,12 +142,13 @@ def _check(frame: bytes):
         raise FrameError("bad_stop")
     body = frame[2:-4]            # len .. serial
     crc = struct.unpack(">H", frame[-4:-2])[0]
-    if crc_itu(body) != crc:
+    crc_ok = crc_itu(body) == crc
+    if not crc_ok and STRICT_CRC:
         raise FrameError("bad_crc")
     proto = frame[hdr]
     info = frame[hdr + 1:-6]
     serial = struct.unpack(">H", frame[-6:-4])[0]
-    return proto, info, serial
+    return proto, info, serial, crc_ok
 
 
 def _bcd_imei(b: bytes) -> str:
@@ -142,6 +162,18 @@ def _datetime(b: bytes):
         return datetime(2000 + yy, mm, dd, hh, mi, ss, tzinfo=timezone.utc)
     except ValueError:
         return None
+
+
+def _lbs(info: bytes, off: int, four_g=False) -> int:
+    """Skip one cell-tower block (MCC, MNC, LAC, cell id) and return the
+    offset after it. MNC is 2 bytes when MCC bit 15 is set; 4G frames
+    (0xA0 / 0xA4) carry a 4-byte LAC and an 8-byte cell id."""
+    if len(info) < off + 2:
+        return len(info)
+    mcc = struct.unpack(">H", info[off:off + 2])[0]
+    off += 2 + (2 if mcc & 0x8000 else 1)
+    off += (4 + 8) if four_g else (2 + 3)
+    return off
 
 
 def _gps(info: bytes, off: int):
@@ -183,18 +215,23 @@ def _status_byte(b: int):
 def parse_frame(frame: bytes) -> dict:
     """Decode ONE complete frame (from split_frames). Returns a dict with at
     least {kind, proto, serial, ack_required}. Raises FrameError."""
-    proto, info, serial = _check(frame)
-    out = {"proto": proto, "serial": serial,
+    proto, info, serial, crc_ok = _check(frame)
+    out = {"proto": proto, "serial": serial, "crc_ok": crc_ok,
            "ack_required": proto in ACK_REQUIRED}
     if proto == P_LOGIN:
         if len(info) < 8:
             raise FrameError("short_login")
         out.update(kind="login", imei=_bcd_imei(info[:8]))
-    elif proto in (P_GPS_LBS, P_GPS_LBS_2):
+    elif proto in (P_GPS_LBS, P_GPS_LBS_2, P_GPS_LBS_4G):
         fix, off = _gps(info, 0)
-        if proto == P_GPS_LBS_2 and len(info) >= off + 8 + 1:
-            # MCC2 MNC1 LAC2 CELL3 then ACC(1)
-            fix["ignition"] = bool(info[off + 8])
+        if proto in (P_GPS_LBS_2, P_GPS_LBS_4G):
+            # MCC2 MNC1(2 if MCC bit15) LAC2|4 CELL3|8, then ACC, upload mode,
+            # real-time(0) / re-upload(1) flag.
+            off = _lbs(info, off, four_g=proto == P_GPS_LBS_4G)
+            if len(info) >= off + 1:
+                fix["ignition"] = bool(info[off])
+            if len(info) >= off + 3 and info[off + 2] == 1:
+                fix["buffered"] = True     # stored while offline, sent late
         out.update(kind="gps", fix=fix)
     elif proto == P_STATUS:
         if len(info) < 1:
@@ -218,10 +255,14 @@ def parse_frame(frame: bytes) -> dict:
         out.update(kind="info", sub=sub)
         if sub == 0x00 and len(info) >= 3:
             out["ext_voltage_v"] = round(struct.unpack(">H", info[1:3])[0] / 100.0, 2)
-    elif proto in (P_ALARM, P_ALARM_2):
+    elif proto in (P_ALARM, P_ALARM_2, P_ALARM_3, P_ALARM_4G):
         fix, off = _gps(info, 0)
-        lbs_len = info[off] if len(info) > off else 0
-        off += max(lbs_len, 1)
+        # LBS length byte, then FIXED-size cell fields. Devices disagree on
+        # whether the length counts itself (recorded frames carry 0x08 AND
+        # 0x09 for the same 9 bytes), so the value is NOT used to skip —
+        # the same rule Traccar uses. (veh100b: the old "skip by length"
+        # read a real tamper frame as "vibration".)
+        off = _lbs(info, off + 1, four_g=proto == P_ALARM_4G)
         st = _status_byte(info[off]) if len(info) > off else {}
         alarm_b = info[off + 3] if len(info) > off + 3 else 0
         fix["ignition"] = st.get("ignition")
@@ -377,10 +418,32 @@ def reply_packet(server_flag: int, text: str, serial: int) -> bytes:
 
 def parse_server_command(frame: bytes):
     """Device-side decode of a 0x80 command -> (server_flag, text, serial)."""
-    proto, info, serial = _check(frame)
+    proto, info, serial, _ok = _check(frame)
     if proto != P_SERVER_CMD:
         raise FrameError("not_command")
     ln = info[0]
     flag = struct.unpack(">I", info[1:5])[0]
     text = info[5:1 + ln].decode("ascii", "replace")
     return flag, text, serial
+
+
+def gps4g_packet(at: datetime, lat: float, lng: float, speed_kmh: float,
+                 course: int, serial: int, ignition=True, realtime=True) -> bytes:
+    """0xA0 4G location (JM-VL01 class): GPS block + MCC/MNC + LAC(4) +
+    cell(8) + ACC + upload mode + real-time(0)/re-upload(1). veh100b."""
+    gps = gps_packet(at, lat, lng, speed_kmh, course, 0)[4:4 + 18]
+    info = gps + b"\x01\xd6\x01" + struct.pack(">I", 0x1F40) + struct.pack(">Q", 0x0A6F2401) \
+        + bytes([1 if ignition else 0, 0, 0 if realtime else 1])
+    return _build(P_GPS_LBS_4G, info, serial)
+
+
+def alarm4g_packet(at: datetime, lat: float, lng: float, speed_kmh: float,
+                   alarm: str, serial: int, ignition=True) -> bytes:
+    """0xA4 4G alarm: GPS + LBS length + MCC/MNC + LAC(4) + cell(8) +
+    terminal info + voltage + GSM + alarm + language + fence id. veh100b."""
+    gps = gps_packet(at, lat, lng, speed_kmh, 0, 0)[4:4 + 18]
+    code = {v: k for k, v in ALARMS.items()}.get(alarm, 0)
+    term = 0x40 | (0x02 if ignition else 0)
+    info = gps + bytes([16]) + b"\x01\xd6\x01" + struct.pack(">I", 0x1F40) \
+        + struct.pack(">Q", 0x0A6F2401) + bytes([term, 4, 4, code, 0x02, 0xFF])
+    return _build(P_ALARM_4G, info, serial)

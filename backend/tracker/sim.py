@@ -8,6 +8,7 @@ Used by the end-to-end test (core/tests_v1_vehicle.py) and by hand:
     python -m tracker.sim teltonika --imei 356307042441013 --port 15023
     python -m tracker.sim h02 --imei 9171234567 --port 15023
     python -m tracker.sim tk103 --imei 359586015829802 --port 15023
+    (JT808Device: JT/T 808 4G tracker — used by core/tests_veh100b.py)
     python -m tracker.sim watch --imei 8800000015 --port 15023   (kids watch)
 
 Each simulated device auto-answers server commands like real firmware does:
@@ -20,7 +21,7 @@ import asyncio
 import struct
 from datetime import datetime, timedelta, timezone
 
-from .protocols import gt06, h02, teltonika, tk103, watch
+from .protocols import gt06, h02, jt808, teltonika, tk103, watch
 
 
 class GT06Device:
@@ -92,6 +93,102 @@ class GT06Device:
                         if proto == gt06.P_LOGIN:
                             self._login_ok.set()
         except (ConnectionError, asyncio.CancelledError, gt06.FrameError):
+            return
+
+    async def close(self):
+        if self._task:
+            self._task.cancel()
+        if self.writer:
+            self.writer.close()
+
+
+class JT808Device:
+    """JT/T 808-2013 4G tracker (veh100b): register -> 0x8100 auth code ->
+    0x0102 auth, then 0x0200 / 0x0704 locations, 0x0002 heartbeats. Answers
+    0x8300 text (RELAY,1# / RELAY,0#) and 0x8103 params with 0x0001; after a
+    RELAY,1# its next fixes carry status bit 10 (oil circuit cut), like real
+    relay firmware."""
+
+    def __init__(self, terminal_id):
+        self.phone = terminal_id.rjust(12, "0")[-12:]
+        self.serial = 0
+        self.commands = []
+        self.acks = []                # terminal msg ids the platform acked
+        self.auth_code = None
+        self.relay_cut = False
+        self.reader = self.writer = None
+        self._task = None
+        self._reg = asyncio.Event()
+
+    def _ser(self):
+        self.serial = (self.serial + 1) & 0xFFFF
+        return self.serial
+
+    async def connect(self, host, port):
+        self.reader, self.writer = await asyncio.open_connection(host, port)
+        self._task = asyncio.create_task(self._listen())
+
+    async def raw(self, data: bytes):
+        self.writer.write(data)
+        await self.writer.drain()
+
+    async def register(self, timeout=5.0):
+        await self.raw(jt808.register_packet(self.phone, self._ser()))
+        try:
+            await asyncio.wait_for(self._reg.wait(), timeout)
+        except asyncio.TimeoutError:
+            return False
+        await self.raw(jt808.auth_packet(self.phone, self._ser(), self.auth_code))
+        return True
+
+    async def fix(self, lat, lng, speed_kmh, ignition=True, at=None, course=90,
+                  alarms=()):
+        at = at or datetime.now(timezone.utc)
+        await self.raw(jt808.location_packet(
+            self.phone, self._ser(), at=at, lat=lat, lng=lng, speed_kmh=speed_kmh,
+            course=course, ignition=ignition, alarms=alarms, relay_cut=self.relay_cut))
+
+    async def batch(self, points, ignition=True):
+        """0x0704 blind-area re-upload of stored points."""
+        items = b""
+        for p in points:
+            body = jt808.location_body(at=p["at"], lat=p["lat"], lng=p["lng"],
+                                       speed_kmh=p["speed_kmh"], course=90,
+                                       ignition=ignition)
+            items += struct.pack(">H", len(body)) + body
+        await self.raw(jt808.build(jt808.M_LOCATION_BATCH, self.phone, self._ser(),
+                                   struct.pack(">HB", len(points), 1) + items))
+
+    async def heartbeat(self):
+        await self.raw(jt808.build(jt808.M_HEARTBEAT, self.phone, self._ser()))
+
+    async def _listen(self):
+        buf = b""
+        try:
+            while True:
+                data = await self.reader.read(4096)
+                if not data:
+                    return
+                buf += data
+                frames, buf = jt808.split_frames(buf)
+                for fr in frames:
+                    mid, _tid, ser, body, _v, _ph, _ck = jt808.parse_header(fr)
+                    if mid == jt808.P_REGISTER_RESP:
+                        self.auth_code = body[3:].decode("ascii")
+                        self._reg.set()
+                    elif mid == jt808.P_GENERAL_RESP:
+                        self.acks.append(struct.unpack(">H", body[2:4])[0])
+                    elif mid in (jt808.P_TEXT, jt808.P_SET_PARAMS):
+                        text = body[1:].decode("ascii", "replace") \
+                            if mid == jt808.P_TEXT else "PARAMS"
+                        self.commands.append(text)
+                        if text.startswith("RELAY,1"):
+                            self.relay_cut = True
+                        elif text.startswith("RELAY,0"):
+                            self.relay_cut = False
+                        await self.raw(jt808.general_response_packet(
+                            self.phone, self._ser(), ser, mid, 0))
+        except (ConnectionError, asyncio.CancelledError, jt808.FrameError):
             return
 
     async def close(self):
