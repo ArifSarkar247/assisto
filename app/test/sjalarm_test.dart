@@ -370,14 +370,18 @@ void main() {
         await t.pumpWidget(_app(const DestAlarmScreen(), _Fake(), lang: 'bn', dark: dark, scale: 2));
         await t.pumpAndSettle();
         expect(t.takeException(), isNull);
-        final dir = await Directory.systemTemp.createTemp('trip');
-        addTearDown(() => dir.delete(recursive: true));
+        // no real file IO inside the widget test's fake clock: no folder =
+        // the honest empty state
         final oldRec = TripRecorder.I;
-        TripRecorder.I = TripRecorder(stream: () => const Stream.empty(), dir: () async => dir, useService: false);
+        TripRecorder.I = TripRecorder(
+            stream: () => const Stream.empty(),
+            dir: () async => throw const FileSystemException('no storage in tests'),
+            useService: false);
         addTearDown(() => TripRecorder.I = oldRec);
         await t.pumpWidget(_app(const TripRecorderScreen(), _Fake(), lang: 'bn', dark: dark, scale: 2));
-        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
         await t.pumpAndSettle();
+        final bnL = await AppLocalizations.delegate.load(const Locale('bn'));
+        expect(find.text(bnL.sjaRecEmpty), findsOneWidget);
         expect(t.takeException(), isNull);
       });
     }

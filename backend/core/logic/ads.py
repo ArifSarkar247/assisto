@@ -90,6 +90,7 @@ BLOCKED_SCREENS = (
     "chat_vault", "vault_pin", "checkout", "business_plans", "credits_topup",
     "sign_up", "password_reset", "language_pick", "ring_check",
     "account_security", "delete_account", "privacy",
+    "train_tracker", "train_chat",
 )
 # Hard token fence (same idea as AdRules.blockedTokens in the app): a banner
 # name containing one of these is dropped even if an owner types it.
@@ -102,7 +103,9 @@ BLOCKED_TOKENS = (
     "lock", "vault", "remit", "account", "delete", "privacy", "pin", "family",
     "location", "track", "kid", "live",
     # OWNER ADS FINAL (2 Nov) never list
-    "cctv", "vehicle", "missing", "blood", "train", "destination", "budget",
+    # owner fix 3 Nov (sjalarm): "train" left the fence — train search /
+    # detail carry one banner; the train chat stays fenced
+    "cctv", "vehicle", "missing", "blood", "train_chat", "destination", "budget",
     "money", "prepaid", "khata", "business", "sales", "invoice", "crm",
     "quran", "ramadan", "calorie", "food", "health", "medicine", "reminder",
     "note", "todo", "task", "school", "child",
@@ -130,6 +133,8 @@ BANNER_SCREENS = (
     "jobs", "cv_builder", "contract",
     "all_services", "guide", "nearby", "quick_tools", "exam",
     "photo_gallery", "circle_list", "settings",
+    # owner fix 3 Nov 02:55: Train Tracker search + detail (live map) only
+    "train_search", "train_detail",
 )
 # OWNER ADS FINAL (2 Nov): interstitials ONLY on the EXIT after a finished
 # task — the ONE registry (mirrors AdExitPlacement in ad_placements.dart).

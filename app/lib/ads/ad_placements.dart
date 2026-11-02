@@ -68,6 +68,11 @@ class AdPlacements {
     // the plain Settings list (never account security / password /
     // delete-account / permission sub-pages)
     'settings',
+    // OWNER FIX 3 Nov 02:55 (sjalarm): Train Tracker — the train SEARCH list
+    // and the train DETAIL page (it carries the live map) only. Never the
+    // train chat (fence: 'chat'), never Safe Journey's train picker, never
+    // the destination alarm (fence: 'destination'), no interstitial.
+    'train_search', 'train_detail',
   };
 
   /// Interstitial: the registered EXIT placements -> the screen they leave.
@@ -108,6 +113,8 @@ class AdPlacements {
     'crm', 'quran', 'ramadan', 'food_calories', 'health', 'health_tips',
     'medicine_db', 'reminders', 'notes_todos', 'task_manager', 'tasks',
     'school_mode', 'kids_watch', 'child',
+    // owner fix 3 Nov: train SEARCH / DETAIL carry a banner; its chat never
+    'train_chat',
   ];
 
   static Set<String> _allow(AdSurface slot) => switch (slot) {

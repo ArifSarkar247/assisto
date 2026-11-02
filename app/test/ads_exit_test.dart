@@ -232,7 +232,8 @@ void main() {
     // the owner's never list, as path tokens of lib/ files
     const never = [
       'sos', 'journey', 'family_alert', 'antitheft', 'anti_theft', 'cctv',
-      'vehicle', 'missing', 'blood', 'train_tracker', 'destination',
+      // owner fix 3 Nov: train search / detail carry one banner; chat never
+      'vehicle', 'missing', 'blood', 'train_chat', 'destination',
       'circle_chat', 'circle_call', 'circle_group_chat', '/calls/',
       'incoming_call', 'assisto_chat', 'ai_chat', 'payment', 'checkout',
       'budget', 'money', 'remit', 'prepaid', 'vault', 'khata', 'sales',
