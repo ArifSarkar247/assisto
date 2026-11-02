@@ -57,6 +57,7 @@ SEGMENTS = ("free", "premium", "business")
 # In-app route keys the app can open (mirror of ChatNav.routes in
 # app/lib/widgets/chatnav.dart — a test asserts they stay in lock-step).
 ROUTE_KEYS = (
+    "account_standing",   # adminsafe: Account status + appeal (ChatNav mirror)
     "emergency_hub",   # emhub: the Emergency hub (ChatNav mirror in lock-step)
     "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
     "my_dues",         # tagada2: the customer's My Dues (push tap target)
