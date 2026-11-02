@@ -177,10 +177,23 @@ void main() {
   testWidgets('purchase entry sends bill no. + supplier BIN (Mushak-6.1)', (t) async {
     tall(t);
     final api = _Fake();
-    await t.pumpWidget(_app(api, const AcctEntryScreen(businessId: 1, kind: 'purchase')));
+    await t.pumpWidget(_app(api, _Host(const AcctEntryScreen(businessId: 1, kind: 'purchase'),
+        (_) {})));
+    await t.tap(find.text('open'));
     await t.pumpAndSettle();
-    expect(find.byKey(const ValueKey('acct-bill-no')), findsOneWidget);
-    expect(find.byKey(const ValueKey('acct-supplier-bin')), findsOneWidget);
+    await t.enterText(find.byKey(const ValueKey('acct-amount')), '1150');
+    await t.tap(find.byKey(const ValueKey('acct-more'))); // optional details
+    await t.pumpAndSettle();
+    await t.enterText(find.byKey(const ValueKey('acct-bill-no')), 'CH-77');
+    await t.enterText(find.byKey(const ValueKey('acct-supplier-bin')), '000999888-0101');
+    await t.ensureVisible(find.byKey(const ValueKey('acct-save')));
+    await t.tap(find.byKey(const ValueKey('acct-save')));
+    await t.pumpAndSettle();
+    final (path, body) = api.posts.single;
+    expect(path, '/business/acct/entries');
+    expect(body['kind'], 'purchase');
+    expect(body['bill_no'], 'CH-77');
+    expect(body['supplier_bin'], '000999888-0101');
   });
 
   testWidgets('VAT by product: exempt / reduced shown; reduced needs a typed rate', (t) async {
