@@ -131,6 +131,6 @@
 ## ১০. প্রমাণ
 
 * টেস্ট: `backend/core/tests_salesbar.py` (নতুন), `backend/web/tests_salesbar_owner.py` (নতুন), `app/test/salesbar_test.dart` (নতুন); আগের `tests_p1_bizagent` / `tests_g1_bizagent`-এর কমেন্ট-টেস্টে এখন অনুমতি দেওয়া থাকে (নতুন নিয়ম)।
-* CI রান: (নিচে আপডেট)
+* CI রান: **41398698310** (ci/salesbar-arb, ARB সহ — backend ৫,৯৯৪+ টেস্ট, flutter-static, flutter-test ×৪ সব সবুজ); backend আগেও 41394655409-এ সবুজ। গ্যালারি একই রানের `shots-*` artifact-এ।
 * গ্যালারি: `sb_setup_meta_not_ready`, `sb_setup_review_pending`, `sb_activity_log` (CI artifact `shots-*`)।
 * migration: নেই (সব JSON কনফিগ ও আগের ঘরে)।
