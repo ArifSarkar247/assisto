@@ -264,15 +264,19 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
                       askBottom > 12 ? askBottom : 12),
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: adBelowAsk
-                        ? Column(mainAxisSize: MainAxisSize.min, children: [
-                            HomeV2AskCard(onOpen: _newChatOrResume),
-                            hero,
-                          ])
-                        : HomeV2AskCard(onOpen: _newChatOrResume),
+                    child: HomeV2AskCard(onOpen: _newChatOrResume),
                   ),
                 ),
               ),
+              // ownerfix: the ad after the Ask card (its own sliver: the
+              // fill-remaining sliver measures intrinsics, the ad cannot).
+              if (adBelowAsk)
+                SliverPadding(
+                  // clear of the bottom bar (Scaffold.extendBody)
+                  padding: EdgeInsets.fromLTRB(
+                      HV2.pagePad, 0, HV2.pagePad, bottom + HV2.sectionGap),
+                  sliver: SliverToBoxAdapter(child: hero),
+                ),
             ],
           ));
         }),
