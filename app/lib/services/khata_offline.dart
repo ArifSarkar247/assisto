@@ -49,6 +49,9 @@ class KhataOp {
   final int attempts;
   final String phone; // party only
   final String area; // party only
+  /// ledger2: how the money moved — cash | bkash | nagad | bank ('' = not
+  /// asked, the books treat it as cash). Payments and edits of payments.
+  final String method;
 
   const KhataOp({
     required this.cid,
@@ -69,6 +72,7 @@ class KhataOp {
     this.attempts = 0,
     this.phone = '',
     this.area = '',
+    this.method = '',
   });
 
   bool get isPending => state == 'pending';
@@ -106,6 +110,7 @@ class KhataOp {
         attempts: attempts ?? this.attempts,
         phone: phone,
         area: area,
+        method: method,
       );
 
   Map<String, dynamic> toJson() => {
@@ -127,6 +132,7 @@ class KhataOp {
         'tries': attempts,
         if (phone.isNotEmpty) 'ph': phone,
         if (area.isNotEmpty) 'ar': area,
+        if (method.isNotEmpty) 'pm': method,
       };
 
   static KhataOp? fromJson(Map<String, dynamic> j) {
@@ -155,6 +161,7 @@ class KhataOp {
       attempts: i(j['tries']) ?? 0,
       phone: '${j['ph'] ?? ''}',
       area: '${j['ar'] ?? ''}',
+      method: '${j['pm'] ?? ''}',
     );
   }
 }
@@ -338,7 +345,8 @@ class KhataOffline {
             amountPoisha: op.amountPoisha,
             note: op.note,
             atIso: op.atIso,
-            clientId: op.cid);
+            clientId: op.cid,
+            method: op.method);
       case 'edit':
         return api.khataEditEntry(
             businessId: op.bizId,
@@ -346,7 +354,8 @@ class KhataOffline {
             baseVersion: op.baseVersion ?? 1,
             amountPoisha: op.amountPoisha,
             note: op.note,
-            atIso: op.atIso.isEmpty ? null : op.atIso);
+            atIso: op.atIso.isEmpty ? null : op.atIso,
+            method: op.method.isEmpty ? null : op.method);
       default:
         return api.khataAddEntry(
             businessId: op.bizId,
@@ -356,7 +365,8 @@ class KhataOffline {
             note: op.note,
             atIso: op.atIso,
             notifyCustomer: notifyCustomer,
-            clientId: op.cid);
+            clientId: op.cid,
+            method: op.method);
     }
   }
 

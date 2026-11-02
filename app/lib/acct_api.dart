@@ -89,4 +89,45 @@ extension AcctApi on ApiClient {
           {required String from, required String to, int page = 1}) =>
       getJson(_p('/business/books/journal', businessId,
           {'from': from, 'to': to, 'page': '$page'}));
+
+  // ------------------------------------------------------------ ledger2
+  /// Manual cashbox rows + what each really was (reclass out of Suspense):
+  /// {rows: [{id, date, kind in|out, amount, note, code, name}],
+  /// unclassified, unclassified_amount, choices: {in: [...], out: [...]}}.
+  Future<Map<String, dynamic>> acctCashbox(int? businessId) =>
+      getJson(_p('/business/acct/cashbox', businessId));
+
+  /// code '' clears the choice. Never throws on 4xx (`_status`).
+  Future<Map<String, dynamic>> acctClassifyCash(int? businessId, int cashId, String code) =>
+      postJsonRaw('/business/acct/cashbox/$cashId/classify', _b(businessId, {'code': code}));
+
+  /// {shop_vat_bp, shop_sd_bp, vat_seller, custom, products: [{product_id,
+  /// name, category, mode standard|exempt|reduced, vat_bp, note, since}]}.
+  Future<Map<String, dynamic>> acctVatRates(int? businessId, {String q = ''}) =>
+      getJson(_p('/business/acct/vat-rates', businessId, {if (q.isNotEmpty) 'q': q}));
+
+  Future<Map<String, dynamic>> acctSetVatRate(int? businessId, Map<String, dynamic> body) =>
+      postJsonRaw('/business/acct/vat-rates', _b(businessId, body));
+
+  /// {closes: [{end, number, status, total}], suggestions: [{end, kind}], book}.
+  Future<Map<String, dynamic>> acctYearCloses(int? businessId) =>
+      getJson(_p('/business/acct/year-close', businessId));
+
+  Future<Map<String, dynamic>> acctCloseYear(int? businessId, String end) =>
+      postJsonRaw('/business/acct/year-close', _b(businessId, {'end': end}));
+
+  Future<Map<String, dynamic>> acctReopenYear(int? businessId, String end, String reason) =>
+      postJsonRaw('/business/acct/year-reopen', _b(businessId, {'end': end, 'reason': reason}));
+
+  /// Sales sold with cost price 0 (profit overstated): {sales, lines,
+  /// revenue, products: [{product_id, name, lines, qty, revenue, current_cost}]}.
+  Future<Map<String, dynamic>> acctCostGaps(int? businessId,
+          {String? from, String? to}) =>
+      getJson(_p('/business/acct/cost-gaps', businessId,
+          {if (from != null) 'from': from, if (to != null) 'to': to}));
+
+  /// {product_id, cost?} — cost in poisha (optional: the catalog's is used).
+  Future<Map<String, dynamic>> acctApplyCost(int? businessId, int productId, {int? cost}) =>
+      postJsonRaw('/business/acct/cost-gaps/apply',
+          _b(businessId, {'product_id': productId, if (cost != null) 'cost': cost}));
 }

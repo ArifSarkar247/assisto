@@ -63,18 +63,101 @@ Map<String, dynamic> _cashFlow(bool empty) => empty
         'opening_cash': 2650000, 'closing_cash': 2742000, 'reconciles': true, 'book': acctFakeBook,
       };
 
-/// The CORE's VAT (register from invoices).
+/// The CORE's VAT (ledger2: four separate lines — output / input / paid /
+/// payable — plus the sales register (6.2) and purchase register (6.1)).
 Map<String, dynamic> _coreVat(bool empty) => {
-      'output_vat': empty ? 0 : 15000, 'output_sd': 0, 'input_vat': 0,
-      'net_payable': empty ? 0 : 15000, 'sales_taxable': empty ? 0 : 210000,
+      ..._vat(empty),
+      'sales_taxable': empty ? 0 : 100000,
+      'exempt_sales': empty ? 0 : 23000,
       'register': empty
           ? <Map<String, dynamic>>[]
           : [
               {'number': 'INV-0007', 'date': '2026-11-01', 'buyer': 'Karim Traders',
                 'buyer_bin': '000123456-0101', 'taxable': 100000, 'sd': 0, 'vat': 15000,
-                'total': 115000, 'source': 'invoice'},
+                'total': 115000, 'exempt': 0, 'source': 'invoice'},
+            ],
+      'purchase_register': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'date': '2026-11-01', 'supplier': 'Akij Foods', 'supplier_bin': '000999888-0101',
+                'bill_no': 'CH-77', 'value': 40000, 'vat': 6000, 'total': 46000, 'on_credit': true},
             ],
       'vat_ready': true, 'vat_periods': <Map<String, dynamic>>[], 'book': acctFakeBook,
+    };
+
+// ---- ledger2 -------------------------------------------------------------
+Map<String, dynamic> _name(String bn, String en) => {'bn': bn, 'en': en};
+
+Map<String, dynamic> _cashbox(bool empty) => {
+      'rows': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'id': 31, 'date': '2026-11-02', 'kind': 'in', 'amount': 5000, 'note': 'change from bank',
+                'code': '', 'name': null},
+              {'id': 30, 'date': '2026-11-01', 'kind': 'out', 'amount': 12000, 'note': 'tea for staff',
+                'code': '', 'name': null},
+              {'id': 29, 'date': '2026-10-30', 'kind': 'out', 'amount': 20000, 'note': 'took home',
+                'code': '3020', 'name': _name('মালিকের উত্তোলন', "Owner's drawings")},
+            ],
+      'unclassified': empty ? 0 : 2,
+      'unclassified_amount': empty ? 0 : 17000,
+      'choices': {
+        'in': [
+          {'code': '4010', 'name': _name('বিক্রি — দোকান', 'Sales — shop (POS)')},
+          {'code': '4100', 'name': _name('অন্যান্য আয়', 'Other income')},
+          {'code': '3010', 'name': _name('মালিকের মূলধন', "Owner's capital")},
+          {'code': '2300', 'name': _name('ঋণ', 'Loans payable')},
+        ],
+        'out': [
+          {'code': '6010', 'name': _name('দোকান ভাড়া', 'Rent')},
+          {'code': '6100', 'name': _name('আপ্যায়ন ও খাবার', 'Food & entertainment')},
+          {'code': '6900', 'name': _name('অন্যান্য খরচ', 'Other expenses')},
+          {'code': '1200', 'name': _name('মজুদ মাল', 'Inventory (stock)')},
+          {'code': '3020', 'name': _name('মালিকের উত্তোলন', "Owner's drawings")},
+        ],
+      },
+      'book': acctFakeBook,
+    };
+
+Map<String, dynamic> _vatRates(bool empty) => {
+      'shop_vat_bp': empty ? 0 : 1500, 'shop_sd_bp': 0, 'vat_seller': !empty,
+      'custom': empty ? 0 : 2,
+      'products': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'product_id': 1, 'name': 'Rice (miniket)', 'category': 'Grocery', 'mode': 'exempt',
+                'vat_bp': 0, 'note': 'First Schedule', 'since': '2026-11-01'},
+              {'product_id': 2, 'name': 'Soybean oil 1L', 'category': 'Grocery', 'mode': 'reduced',
+                'vat_bp': 500, 'note': 'Third Schedule', 'since': '2026-11-01'},
+              {'product_id': 3, 'name': 'Biscuits', 'category': 'Snacks', 'mode': 'standard',
+                'vat_bp': null, 'note': '', 'since': null},
+            ],
+    };
+
+Map<String, dynamic> _yearClose(bool empty) => {
+      'closes': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'end': '2025-12-31', 'number': 40, 'status': 'posted', 'total': 3700000,
+                'memo': _name('বছর শেষে লাভ', 'Year-end close')},
+            ],
+      'suggestions': [
+        {'end': '2026-06-30', 'kind': 'tax'},
+        if (empty) {'end': '2025-12-31', 'kind': 'calendar'},
+      ],
+      'book': acctFakeBook,
+    };
+
+Map<String, dynamic> _costGaps(bool empty) => {
+      'sales': empty ? 0 : 3, 'lines': empty ? 0 : 4, 'revenue': empty ? 0 : 64000,
+      'products': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'product_id': 2, 'name': 'Soybean oil 1L', 'lines': 3, 'qty': 3, 'revenue': 54000,
+                'current_cost': 15000, 'last_sold': '2026-11-01'},
+              {'product_id': 3, 'name': 'Biscuits', 'lines': 1, 'qty': 1, 'revenue': 10000,
+                'current_cost': 0, 'last_sold': '2026-11-02'},
+            ],
     };
 
 Map<String, dynamic> _vat(bool empty) => {
@@ -149,6 +232,14 @@ Map<String, dynamic>? fakeAcctGet(String path, {bool empty = false}) {
       return _vat(empty);
     case '/business/acct/audit':
       return _audit(empty);
+    case '/business/acct/cashbox':
+      return _cashbox(empty);
+    case '/business/acct/vat-rates':
+      return _vatRates(empty);
+    case '/business/acct/year-close':
+      return _yearClose(empty);
+    case '/business/acct/cost-gaps':
+      return _costGaps(empty);
   }
   return const {};
 }
@@ -166,6 +257,21 @@ Map<String, dynamic>? fakeAcctPost(String path, Map<String, dynamic> body) {
   if (p.endsWith('/void')) return {'_status': 200, 'entry': {'void': {'at': 'now'}}};
   if (p == 'business/acct/lock') {
     return {'_status': 200, 'book': {...acctFakeBook, 'lock_date': body['lock_date']}};
+  }
+  if (p.endsWith('/classify')) return {'_status': 200, 'code': body['code'], 'book': acctFakeBook};
+  if (p == 'business/acct/vat-rates') {
+    return {'_status': 200, 'product_id': body['product_id'], 'mode': body['mode'],
+      'vat_bp': body['vat_bp'], 'since': '2026-11-02'};
+  }
+  if (p == 'business/acct/year-close') {
+    return {'_status': 201, 'end': body['end'], 'number': 41, 'profit': 3700000,
+      'lock_date': body['end'], 'book': acctFakeBook};
+  }
+  if (p == 'business/acct/year-reopen') {
+    return {'_status': 200, 'end': body['end'], 'lock_date': null, 'book': acctFakeBook};
+  }
+  if (p == 'business/acct/cost-gaps/apply') {
+    return {'_status': 200, 'product_id': body['product_id'], 'fixed': 3, 'skipped_locked': 0};
   }
   return {'_status': 200, 'ok': true};
 }

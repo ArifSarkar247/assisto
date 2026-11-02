@@ -79,6 +79,7 @@ import 'package:assisto/screens/business/acct/acct_opening_screen.dart'; // acct
 import 'package:assisto/screens/business/acct/acct_reports_screen.dart'; // acctui
 import 'package:assisto/screens/business/acct/acct_close_screen.dart'; // acctui
 import 'package:assisto/screens/business/acct/acct_audit_screen.dart'; // acctui
+import 'package:assisto/screens/business/acct/acct_ledger2.dart'; // ledger2
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -703,6 +704,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'acct_reports_vat': (build: (_) => const AcctReportsScreen(businessId: 1, initialReport: 'vat'), mode: FakeMode.data, full: true),
     'acct_reports_empty': (build: (_) => const AcctReportsScreen(businessId: 1), mode: FakeMode.empty, full: true),
     'acct_close': (build: (_) => const AcctCloseScreen(businessId: 1), mode: FakeMode.data, full: false),
+    // ledger2: cashbox reclass, per-product VAT, year close, cost-0 warning, purchase bill fields
+    'acct_cashbox': (build: (_) => const AcctCashboxScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'acct_cashbox_empty': (build: (_) => const AcctCashboxScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'acct_vat_rates': (build: (_) => const AcctVatRatesScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'acct_vat_rates_empty': (build: (_) => const AcctVatRatesScreen(businessId: 1), mode: FakeMode.empty, full: false),
+    'acct_close_year': (build: (_) => const AcctCloseScreen(businessId: 1), mode: FakeMode.data, full: true),
+    'acct_entry_purchase': (build: (_) => const AcctEntryScreen(businessId: 1, kind: 'purchase'), mode: FakeMode.data, full: true),
+    'sheet_acct_cost_gaps': (build: (_) => const Scaffold(body: SafeArea(child: AcctCostGapsSheet(businessId: 1, gaps: {'sales': 3, 'lines': 4, 'revenue': 64000, 'products': [{'product_id': 2, 'name': 'Soybean oil 1L', 'lines': 3, 'qty': 3, 'revenue': 54000, 'current_cost': 15000}, {'product_id': 3, 'name': 'Biscuits', 'lines': 1, 'qty': 1, 'revenue': 10000, 'current_cost': 0}]}))), mode: FakeMode.data, full: true),
     'acct_audit': (build: (_) => const AcctAuditScreen(businessId: 1), mode: FakeMode.data, full: true),
     'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
     'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),

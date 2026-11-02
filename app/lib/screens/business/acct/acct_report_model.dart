@@ -140,13 +140,15 @@ AcctReport vatReport(AppLocalizations t, Map<String, dynamic> v, String period,
       id: 'vat',
       title: t.acuRepVat,
       period: period,
-      footnote: t.acuRepVatNote,
+      footnote: t.lg2VatNote,
       rows: [
         AcctReportRow(t.acuRepVatSales(digits(v['sale_invoices'])), style: AcctRowStyle.heading),
         AcctReportRow(t.acuRepVatTaxableSales, amount: _i(v['taxable_sales']), style: AcctRowStyle.indent),
         AcctReportRow(t.acuRepVatOutput, amount: _i(v['output_vat']), style: AcctRowStyle.indent),
         if (_i(v['output_sd']) != 0)
           AcctReportRow(t.acuRepVatSd, amount: _i(v['output_sd']), style: AcctRowStyle.indent),
+        if (_i(v['exempt_sales']) != 0)
+          AcctReportRow(t.lg2VatExemptSales, amount: _i(v['exempt_sales']), style: AcctRowStyle.indent),
         AcctReportRow(t.acuRepVatPurchases(digits(v['purchase_bills'])), style: AcctRowStyle.heading),
         AcctReportRow(t.acuRepVatTaxablePurchases,
             amount: _i(v['taxable_purchases']), style: AcctRowStyle.indent),
@@ -163,6 +165,20 @@ AcctReport vatReport(AppLocalizations t, Map<String, dynamic> v, String period,
                   '${r['date'] ?? ''}',
                   if ('${r['buyer'] ?? ''}'.isNotEmpty) '${r['buyer']}',
                   if ('${r['buyer_bin'] ?? ''}'.isNotEmpty) 'BIN ${r['buyer_bin']}',
+                ].join(' · '),
+                amount: _i(r['vat']),
+                style: AcctRowStyle.indent),
+        ],
+        // ledger2: Mushak-6.1 purchase register (input VAT per supplier bill)
+        if (_l(v['purchase_register']).isNotEmpty) ...[
+          AcctReportRow(t.lg2PurchaseRegister, style: AcctRowStyle.heading),
+          for (final r in _l(v['purchase_register']))
+            AcctReportRow(
+                [
+                  if ('${r['bill_no'] ?? ''}'.isNotEmpty) '#${r['bill_no']}',
+                  '${r['date'] ?? ''}',
+                  if ('${r['supplier'] ?? ''}'.isNotEmpty) '${r['supplier']}',
+                  if ('${r['supplier_bin'] ?? ''}'.isNotEmpty) 'BIN ${r['supplier_bin']}',
                 ].join(' · '),
                 amount: _i(r['vat']),
                 style: AcctRowStyle.indent),

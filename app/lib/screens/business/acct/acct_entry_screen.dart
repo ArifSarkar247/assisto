@@ -42,6 +42,9 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
   final _note = TextEditingController();
   final _vat = TextEditingController();
   final _cost = TextEditingController();
+  // ledger2: Mushak-6.1 purchase register — supplier bill no. + BIN
+  final _billNo = TextEditingController();
+  final _bin = TextEditingController();
   final String _clientId = newAcctClientId();
   bool _saving = false;
   String? _error;
@@ -52,6 +55,8 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
     _note.dispose();
     _vat.dispose();
     _cost.dispose();
+    _billNo.dispose();
+    _bin.dispose();
     super.dispose();
   }
 
@@ -138,6 +143,8 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
       if (_kind == 'money_in' || _kind == 'money_out') 'purpose': _purpose,
       if (vat > 0) 'vat': vat,
       if (cost > 0) 'cost': cost,
+      if (_kind == 'purchase' && _billNo.text.trim().isNotEmpty) 'bill_no': _billNo.text.trim(),
+      if (_kind == 'purchase' && _bin.text.trim().isNotEmpty) 'supplier_bin': _bin.text.trim(),
       if (_party != null) ...{
         if (_party!['party_id'] != null) 'party_id': _party!['party_id'],
         'party_name': _party!['name'] ?? '',
@@ -389,6 +396,27 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                       onPressed: _vatAt15,
                       icon: const Icon(Icons.calculate_rounded),
                       label: Text(t.acuVat15)),
+                ),
+              ],
+              if (_kind == 'purchase') ...[
+                const SizedBox(height: Gap.sm),
+                TextField(
+                  key: const ValueKey('acct-bill-no'),
+                  controller: _billNo,
+                  maxLength: 40,
+                  decoration: InputDecoration(
+                      labelText: t.lg2BillNo, border: const OutlineInputBorder()),
+                ),
+                TextField(
+                  key: const ValueKey('acct-supplier-bin'),
+                  controller: _bin,
+                  maxLength: 20,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      labelText: t.lg2SupplierBin,
+                      helperText: t.lg2SupplierBinHelp,
+                      helperMaxLines: 3,
+                      border: const OutlineInputBorder()),
                 ),
               ],
               if (_kind == 'sale' || _kind == 'due') ...[

@@ -293,6 +293,10 @@ class Ledger2DbTests(ShopFixture):
                                      format="json").data["error"], "future_lock")
         listed = self.o.get("/api/v1/business/acct/year-close").data
         self.assertEqual(listed["closes"][0]["status"], "posted")
+        # the month lock cannot reopen a closed year (the closing entry stays)
+        m = self.o.post("/api/v1/business/acct/lock", {"lock_date": None,
+                                                       "reason": "fix a sale"}, format="json")
+        self.assertEqual((m.status_code, m.data["error"]), (409, "year_closed"))
         # reopening needs a written reason
         no = self.o.post("/api/v1/business/acct/year-reopen", {"end": str(end)}, format="json")
         self.assertEqual(no.data["error"], "reason_required")

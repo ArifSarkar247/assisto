@@ -14,6 +14,7 @@ import 'acct_audit_screen.dart';
 import 'acct_close_screen.dart';
 import 'acct_common.dart';
 import 'acct_entry_screen.dart';
+import 'acct_ledger2.dart';
 import 'acct_opening_screen.dart';
 import 'acct_reports_screen.dart';
 
@@ -267,6 +268,10 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
           () => _open(AcctReportsScreen(businessId: _biz)), 'acct-tool-reports'),
       tile(Icons.ios_share_rounded, t.acuExport, t.acuExportSub,
           () => _open(AcctReportsScreen(businessId: _biz, openExport: true)), 'acct-tool-export'),
+      tile(Icons.point_of_sale_rounded, t.lg2CashboxTitle, t.lg2CashboxSub,
+          () => _open(AcctCashboxScreen(businessId: _biz)), 'acct-tool-cashbox'),
+      tile(Icons.percent_rounded, t.lg2VatRatesTitle, t.lg2VatRatesSub,
+          () => _open(AcctVatRatesScreen(businessId: _biz)), 'acct-tool-vatrates'),
       tile(Icons.lock_clock_rounded, t.acuClose, t.acuCloseSub,
           () => _open(AcctCloseScreen(businessId: _biz)), 'acct-tool-close'),
       tile(Icons.fact_check_rounded, t.acuAudit, t.acuAuditSub,

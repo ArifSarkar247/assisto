@@ -49,6 +49,8 @@ _ERR = {
                     "You cannot close the books past today."),
     "reason_required": ("আবার খোলার কারণ লিখুন (অন্তত ৫ অক্ষর) — অডিটে থাকবে।",
                         "Write why you are reopening (at least 5 letters) — it goes in the audit trail."),
+    "year_closed": ("ওই বছর বন্ধ (বছর-শেষ এন্ট্রি আছে) — আগে বছরটি খুলুন।",
+                    "That year is closed (year-end entry) — reopen the year first."),
 }
 
 
@@ -168,6 +170,13 @@ class AcctLockView(_Books):
         reopening = old is not None and (day is None or day < old)
         if reopening and len(reason) < 5:
             return _err(request, "reason_required")
+        # ledger2: a closed YEAR reopens only through year-reopen (which
+        # reverses its closing entry) — never by moving the month lock
+        from .models import JournalEntry
+        closed = JournalEntry.objects.filter(business=prof, status="posted",
+                                             source_key__startswith="yearclose:")
+        if reopening and (closed.exists() if day is None else closed.filter(date__gt=day).exists()):
+            return _err(request, "year_closed", 409)
         S.set_lock_date(prof, day, request.user)
         ES.log_lock(prof, request.user, old, day, reason)
         return Response({"book": _book_meta(prof)})
