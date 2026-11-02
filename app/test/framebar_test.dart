@@ -22,6 +22,7 @@ import 'package:assisto/screens/about_screen.dart';
 import 'package:assisto/screens/login_screen.dart';
 import 'package:assisto/screens/otp/otp_login_screen.dart';
 import 'package:assisto/screens/plans_screen.dart';
+import 'package:assisto/screens/support_center_screen.dart';
 import 'package:assisto/services/data_export.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -36,6 +37,15 @@ class _OfflineApi extends FakeApi {
   @override
   Future<({String token, AppUser user})> login(
           {required String identifier, required String password}) async =>
+      throw const SocketException('Failed host lookup');
+}
+
+/// The help ticket cannot leave the phone (no internet).
+class _OfflineSupportApi extends FakeApi {
+  _OfflineSupportApi() : super(lang: 'en');
+  @override
+  Future<Map<String, dynamic>> createItem(
+          String path, Map<String, dynamic> body) async =>
       throw const SocketException('Failed host lookup');
 }
 
@@ -210,6 +220,21 @@ void main() {
       expect(find.text(t.fbOtpIdInvalid), findsOneWidget);
       expect(b.calls.where((c) => c.startsWith('email:')), isEmpty);
     });
+  });
+
+  testWidgets('help centre: offline send says "couldn\'t connect", no raw '
+      'error', (tester) async {
+    _tall(tester);
+    await tester.pumpWidget(
+        _wrap(const SupportCenterScreen(), api: _OfflineSupportApi()));
+    await tester.pumpAndSettle();
+    final t =
+        AppLocalizations.of(tester.element(find.byType(SupportCenterScreen)));
+    await tester.enterText(find.byType(TextField).first, 'The app is slow');
+    await tester.tap(find.text(t.supportSend));
+    await tester.pumpAndSettle();
+    expect(find.text(t.supportSendFailed(t.otpErrNetwork)), findsOneWidget);
+    expect(find.textContaining('SocketException'), findsNothing);
   });
 
   // ------------------------------------------------- permissions in context
