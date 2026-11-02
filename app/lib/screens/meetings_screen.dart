@@ -66,6 +66,14 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
       _appts =
           rows.map((r) => (r['data'] as Map<String, dynamic>?) ?? r).toList();
       _offline = false;
+      // remhbar: alerts were set only when a meeting was saved — a weekly
+      // meeting rang once, and a new phone / reinstall had none. Every
+      // successful load re-sets each meeting's next alerts (same ids).
+      if (mounted) {
+        for (final a in _appts) {
+          _syncReminders(a);
+        }
+      }
     } catch (_) {
       // Keep whatever we already had so the user isn't stranded; flag the state.
       if (_appts.isNotEmpty) {
