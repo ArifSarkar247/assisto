@@ -196,6 +196,9 @@ JOBS = (
     Job("ai_usage_monthly", 31 * DAY, "10 4 1 * *", grace=3 * DAY),
     # cashguard: EZVIZ alarm poll (does nothing until EZVIZ keys + a camera)
     Job("ezviz_poll_alarms", MIN, "* * * * *"),
+    # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
+    Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
+        max_s=5 * MIN),
 )
 JOB_BY_NAME = {j.name: j for j in JOBS}
 # What `manage.py minute_jobs` runs, in order: (job name, call_command kwargs).
