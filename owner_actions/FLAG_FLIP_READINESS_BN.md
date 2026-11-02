@@ -34,7 +34,7 @@
 | `kids_watch` | `school_mode_tick` | `minute_jobs`, প্রতি মিনিট; ঘড়ির সংযোগ `assisto-tracker` সার্ভিস (পোর্ট ৫০২৩) |
 | `agent_core` | `agent_core_run` (কর্মী) · `agent_nudges` (নাজ + সংক্ষেপ) · `agent_core_retention` · `agent_memory_learn` | `minute_jobs` (শেষে, ২০ সে.) · নিজের লাইন `*/15` · রোজ ০৩:৫০ · রবিবার ১৭:০০ UTC |
 | `fall_detect` | `antitheft_escalate` (ধরে রাখা পতন-সতর্কতা সময় শেষে পরিবারে) | `minute_jobs`, প্রতি মিনিট |
-| `pa_secretary` | `push_due_reminders` (মিটিং/ফলো-আপ রিমাইন্ডার) | নিজের লাইন, প্রতি মিনিট |
+| `pa_secretary` | `push_due_reminders` (রিমাইন্ডার) · PS অংশ সকালের সংক্ষেপে `agent_nudges` দিয়ে (agent_core চালু থাকলে) | নিজের লাইন, প্রতি মিনিট · নিজের লাইন `*/15` |
 
 ## ট্রেনের সময়সূচি যাচাই — আপনার ধাপ
 ১. Owner Admin → বাম মেনু **ট্রেনের সময়সূচি** (`/owner/train-schedule`) খুলুন — ৪১টি ট্রেন: নং, নাম, পথ, ছাড়ে, পৌঁছায়, ছুটির দিন।
