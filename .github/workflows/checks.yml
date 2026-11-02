@@ -77,7 +77,12 @@ jobs:
       - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
       - name: makemigrations --check
         working-directory: backend
-        run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
+        run: |
+          set +e
+          python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test > /tmp/mm.txt 2>&1
+          st=$?; tail -40 /tmp/mm.txt
+          if [ $st -ne 0 ]; then python ../.github/ci_annot.py tail /tmp/mm.txt; fi
+          exit $st
       - name: core crm web
         working-directory: backend
         # A throwaway Fernet key made fresh on every run (never a real secret):
@@ -85,7 +90,11 @@ jobs:
         # the server's secrets file, which CI does not (and must not) have.
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput
+          set +e
+          python manage.py test core crm web --settings=assisto_backend.settings_test --parallel 4 --noinput > /tmp/be.txt 2>&1
+          st=$?; tail -60 /tmp/be.txt
+          if [ $st -ne 0 ]; then python ../.github/ci_annot.py django /tmp/be.txt; fi
+          exit $st
 
   flutter-static:
     needs: changes
@@ -106,10 +115,20 @@ jobs:
         run: flutter pub get && flutter gen-l10n
       - name: analyze (errors fail; infos/warnings reported)
         working-directory: app
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos --no-fatal-warnings > /tmp/an.txt 2>&1
+          st=$?; tail -60 /tmp/an.txt
+          if [ $st -ne 0 ]; then python3 ../.github/ci_annot.py analyze /tmp/an.txt; fi
+          exit $st
       - name: lang gate
         working-directory: app
-        run: python3 tool/lang_gate.py
+        run: |
+          set +e
+          python3 tool/lang_gate.py > /tmp/lg.txt 2>&1
+          st=$?; tail -40 /tmp/lg.txt
+          if [ $st -ne 0 ]; then python3 ../.github/ci_annot.py tail /tmp/lg.txt; fi
+          exit $st
 
   flutter-test:
     needs: changes
@@ -136,7 +155,12 @@ jobs:
         working-directory: app
         env:
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
-        run: flutter test --no-pub --concurrency=2 --total-shards ${{ strategy.job-total }} --shard-index ${{ matrix.shard }}
+        run: |
+          set +e
+          flutter test --no-pub --reporter expanded --concurrency=2 --total-shards ${{ strategy.job-total }} --shard-index ${{ matrix.shard }} > /tmp/ft.txt 2>&1
+          st=$?; tail -80 /tmp/ft.txt
+          if [ $st -ne 0 ]; then python3 ../.github/ci_annot.py flutter /tmp/ft.txt; fi
+          exit $st
       # gallery screenshots (before/after proof for the owner) — whatever the
       # shard's screenshot tests wrote; nothing uploaded when none ran
       - name: upload screenshots
