@@ -157,7 +157,9 @@ def sales_by_hour(site, date_str):
                 kind="sale", at__gte=lo, at__lt=hi).values_list("kind", "amount", "at")[:5000]:
             h = _local(at).hour
             counts[h] += 1
-            amounts[h] += (amount or 0) / 100.0      # poisha -> taka
+            # the Assisto POS mirror (shop_ops_views.mirror_pos) stores
+            # Sale.total in TAKA (int), whatever the old model comment says
+            amounts[h] += float(amount or 0)
     except Exception:
         log.exception("sales by hour failed")
     return counts, amounts
