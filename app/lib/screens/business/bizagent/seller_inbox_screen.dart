@@ -25,6 +25,12 @@ class SellerInboxScreen extends StatefulWidget {
 }
 
 /// Status chip label for one chat (server: bizagent_guard.thread_status).
+/// launch (AI-key-off honesty): an agent reply that did NOT come from an AI
+/// provider — a fixed rule (`rule`) or the no-key / no-credit catalog
+/// fallback (`fallback`, core.bizagent_service). Never labelled "AI".
+bool isRuleReplySource(Object? source) =>
+    source == 'rule' || source == 'fallback';
+
 String bv2StatusLabel(AppLocalizations t, String s) {
   switch (s) {
     case 'owner':
@@ -816,7 +822,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     final image = '${m['image_url'] ?? ''}';
     if (out) {
       meta = m['is_ai'] == true
-          ? (m['source'] == 'rule' ? t.g1ByRule : t.baByAi)
+          ? (isRuleReplySource(m['source']) ? t.g1ByRule : t.baByAi)
           : t.baByYou;
       if (pending) meta = '${t.baAwaitingApproval} · ${baRiskLabel(t, '${m['risk_reason']}')}';
       if (status == 'rejected') meta = t.baRejected;

@@ -80,6 +80,12 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
       WidgetsBinding.instance.addPostFrameCallback((_) => _loadBadges());
     }
     BadgesBus.instance.tick.addListener(_onBadgesTick);
+    // launch: a fresh flag answer may hide / show the Photo Studio button.
+    FeatureFlags.instance.addListener(_onFlags);
+  }
+
+  void _onFlags() {
+    if (mounted) setState(() {});
   }
 
   void _onBadgesTick() {
@@ -90,6 +96,7 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
   void dispose() {
     HomeChatLink.unregister(_newChat);
     BadgesBus.instance.tick.removeListener(_onBadgesTick);
+    FeatureFlags.instance.removeListener(_onFlags);
     WidgetsBinding.instance.removeObserver(this);
     _scroll.dispose();
     super.dispose();
@@ -181,8 +188,13 @@ class _HomeV2ScreenState extends State<HomeV2Screen>
                     bottomPad:
                         HV2.headerPadBottom - (HV2.bodyOverlap - HV2.pagePad),
                     onMenu: () => _scaffold.currentState?.openDrawer(),
-                    onPhotoStudio: () =>
-                        _push(const PhotoStudioScreen(), name: 'photo_studio'),
+                    // launch: Photo Studio switched off -> no header button
+                    // (same rule as the home shortcut tiles).
+                    onPhotoStudio: FeatureFlags.instance
+                            .homeTileAllowed('photo_studio')
+                        ? () => _push(const PhotoStudioScreen(),
+                            name: 'photo_studio')
+                        : null,
                     onNotifications: () => _push(
                         const NotificationCentreScreen(),
                         name: 'notifications'),

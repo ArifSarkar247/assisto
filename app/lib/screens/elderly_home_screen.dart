@@ -394,16 +394,20 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               ),
             ],
           ),
-          const SizedBox(height: Gap.lg),
-          // Help spans full width.
-          ElderlyTile(
-            icon: Icons.help_outline_rounded,
-            label: t.elderlyTileHelp,
-            sublabel: t.elderlyTileHelpSub,
-            color: const Color(0xFF37474F),
-            wide: true,
-            onTap: () => _open('guide'),
-          ),
+          // Help spans full width. launch: it opens the Service guide, so it
+          // is shown only while that feature is on (never a dead tile).
+          if (ChatNav.routes.containsKey('guide')) ...[
+            const SizedBox(height: Gap.lg),
+            ElderlyTile(
+              key: const ValueKey('elderly_help_tile'),
+              icon: Icons.help_outline_rounded,
+              label: t.elderlyTileHelp,
+              sublabel: t.elderlyTileHelpSub,
+              color: const Color(0xFF37474F),
+              wide: true,
+              onTap: () => _open('guide'),
+            ),
+          ],
           const SizedBox(height: Gap.xl),
           _voiceButton(t),
         ],

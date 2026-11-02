@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../feature_flags.dart' show FeatureFlags; // launch
 import '../l10n/app_localizations.dart';
 import '../photo_studio/ps_backend.dart';
 import '../photo_studio/ps_controller.dart';
 import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/feature_unavailable.dart'; // launch
 import '../widgets/skeleton.dart';
 import 'photo_studio_screen.dart';
 
@@ -41,8 +43,13 @@ class _WebPhotoLinkScreenState extends State<WebPhotoLinkScreen> {
     _maybeStart();
   }
 
+  /// launch: Photo Studio switched off for this user -> the friendly notice;
+  /// the website photo is NOT claimed (the link keeps working once it is on).
+  static bool get studioOn =>
+      FeatureFlags.instance.routeAllowed('photo_studio');
+
   void _maybeStart() {
-    if (_started) return;
+    if (_started || !studioOn) return;
     final app = context.read<AppState>();
     if (app.loading) return; // rebuilt via watch() below
     if (!app.loggedIn) {
@@ -93,6 +100,7 @@ class _WebPhotoLinkScreenState extends State<WebPhotoLinkScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_started && !studioOn) return const FeatureUnavailableScreen();
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
     if (!_started && !app.loading) _maybeStart();

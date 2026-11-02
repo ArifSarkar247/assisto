@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../messaging/badges_bus.dart';
+import '../feature_flags.dart' show FeatureFlags; // launch
 import '../widgets/chatnav.dart';
 import '../widgets/circle_badges.dart';
 import '../widgets/home_badge_icon.dart';
@@ -161,6 +162,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         actions: [
           // OWNER-REQUESTED home entry: one-tap "Enhance photo" opens Photo
           // Studio (owner-approved change, 21 Oct: the old tool is removed).
+          // launch: hidden with the `photo_studio` flag (never a dead button).
+          if (FeatureFlags.instance.homeTileAllowed('photo_studio'))
           IconButton(
             icon: const Icon(Icons.auto_fix_high_outlined),
             tooltip: t.b2PhotoStudioTitle,

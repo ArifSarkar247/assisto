@@ -110,6 +110,23 @@ String? costLabel(AppLocalizations t, String code) => switch (code) {
       _ => null,
     };
 
+/// launch: the feature flag (feature_registry.dart) that owns an action-cost
+/// code. The credits price list shows a row only while its feature is on for
+/// this user — never a price for something they cannot open. Null = a core
+/// action (AI chat, web answer, SMS, voice-call alert) that is never hidden.
+String? costFeature(String code) {
+  if (code.startsWith('photo_')) return 'photo_studio';
+  return switch (code) {
+    'scan_ocr' => 'doc_scanner',
+    'video_min' => 'calls',
+    'ai_sales' => 'business_agent',
+    'shop_extra_camera' || 'shop_live_relay_min' => 'cctv_watchman',
+    'vehicle_tracking_month' => 'vehicle_tracking',
+    'remote_support_min' => 'remote_support',
+    _ => null,
+  };
+}
+
 /// Localized label for a usage/ledger action code (the ledger `note`).
 String actionLabel(AppLocalizations t, String code) {
   if (code.startsWith('photo:')) return t.creditsActionPhotoStudio;

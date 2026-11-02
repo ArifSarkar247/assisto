@@ -19,6 +19,15 @@ import 'approvals_screen.dart';
 import 'seller_inbox_screen.dart';
 import 'seller_setup_screen.dart';
 
+/// launch (AI-key-off honesty): the AI switch's subtitle. With the switch
+/// on but no AI provider live (server `ai_available: false`), replies come
+/// from the shop's own catalog / rules — say that, never "the AI answers".
+String baAiSwitchSub(AppLocalizations t, bool aiOn, Map setup) {
+  if (!aiOn) return t.baAiOffSub;
+  if (setup['ai_available'] == false) return '${t.aivNoKeyTitle} · ${t.g1ByRule}';
+  return t.baAiOnSub;
+}
+
 /// P1 — Assisto Business AI Agent: the seller's home for the agent.
 ///
 /// Plan / trial / replies left, AI on-off, channel status, the approval queue,
@@ -219,7 +228,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               contentPadding: EdgeInsets.zero,
               value: aiOn,
               title: Text(t.baAiSwitch),
-              subtitle: Text(aiOn ? t.baAiOnSub : t.baAiOffSub),
+              subtitle: Text(baAiSwitchSub(t, aiOn, _setup)),
               onChanged: _busy ? null : _toggleAi,
             ),
             const SizedBox(height: Gap.sm),

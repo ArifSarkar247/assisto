@@ -977,4 +977,34 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  // launch (8 Nov narrow production): Photo Studio may be switched off in
+  // Play; the header button must then disappear (home layout otherwise
+  // unchanged) — never a button that opens a "not available" page.
+  group('launch: header Photo Studio follows its flag', () {
+    testWidgets('ON -> button; OFF -> no button, notifications + circle stay',
+        (tester) async {
+      await _pump(tester, _home());
+      expect(find.byKey(const ValueKey('hv2_photo')), findsOneWidget);
+      await _unmount(tester);
+
+      FeatureFlags.instance.debugOverride = {'photo_studio': false};
+      await _pump(tester, _home());
+      expect(find.byKey(const ValueKey('hv2_photo')), findsNothing);
+      expect(find.byKey(const ValueKey('hv2_notif')), findsOneWidget);
+      expect(find.byKey(const ValueKey('hv2_circle')), findsOneWidget);
+      await _unmount(tester);
+    });
+
+    testWidgets('a preview-only Photo Studio is OFF on home (owner = users)',
+        (tester) async {
+      FeatureFlags.instance.applyForTest({
+        'features': {'photo_studio': true},
+        'preview': ['photo_studio'],
+      });
+      await _pump(tester, _home());
+      expect(find.byKey(const ValueKey('hv2_photo')), findsNothing);
+      await _unmount(tester);
+    });
+  });
 }
