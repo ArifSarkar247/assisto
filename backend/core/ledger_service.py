@@ -103,8 +103,11 @@ VAT_RATE_COLLECTION = "acct_vat_rate"
 def product_vat_rates(prof):
     """{product_id: history} — the owner's per-product VAT treatment (exempt /
     reduced rate he typed), PaCollectionItem rows, no migration."""
+    from .models import PaCollectionItem
+    rows = PaCollectionItem.objects.filter(user_id=prof.user_id, collection=VAT_RATE_COLLECTION,
+                                           data__business=prof.id)
     return {int(r.data["product_id"]): r.data.get("history") or []
-            for r in _biz_rows(prof, VAT_RATE_COLLECTION) if r.data.get("product_id")}
+            for r in rows if r.data.get("product_id")}
 
 
 def apply_sale_tax(s, periods, rates):
