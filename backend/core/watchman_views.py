@@ -124,10 +124,13 @@ def _gateway_state(site, now):
             "never_seen": site.last_seen is None}
 
 
-def _site_overview(site, role, now):
+def _site_overview(site, role, now, scope=None, team_role=None):
     row = SV._site_row(site, reveal_token=(role == "owner"))
     cams = []
     for c in site.cameras.all():
+        # cctvteam: a guard / limited viewer only sees their cameras
+        if scope is not None and c.id not in scope:
+            continue
         cr = SV._camera_row(c)
         # cctvphone: a phone camera's battery/charger/heat state + whether
         # the family may open its live view (the owner's switch)
@@ -146,11 +149,16 @@ def _site_overview(site, role, now):
         cams.append(cr)
     start = timezone.localtime(now).replace(hour=0, minute=0, second=0,
                                             microsecond=0)
+    evs = site.events.all()
+    if scope is not None:
+        evs = evs.filter(camera_id__in=list(scope))
+        row["cameras"] = len(cams)
     row.update({
         "role": role, "cameras_list": cams,
+        "team_role": team_role or role,
         "gateway_state": _gateway_state(site, now),
-        "open_alerts": site.events.filter(status="open", pending=False).count(),
-        "today_alerts": site.events.filter(created__gte=start).count(),
+        "open_alerts": evs.filter(status="open", pending=False).count(),
+        "today_alerts": evs.filter(created__gte=start).count(),
         "held_today": SV.held_today(site, now),
     })
     if role != "owner":
@@ -247,8 +255,11 @@ class WatchmanOverviewView(_OwnerBase):
         own = list(ShopSite.objects.filter(owner=request.user))
         viewed = list(ShopSite.objects.filter(viewers__user=request.user)
                       .exclude(owner=request.user).select_related("owner"))
-        sites = [_site_overview(s, "owner", now) for s in own] + \
-                [_site_overview(s, "viewer", now) for s in viewed]
+        from . import cctv_team_views as CTV
+        sites = [_site_overview(s, "owner", now) for s in own]
+        for s in viewed:
+            team_role, scope = CTV.scope_for(s, request.user)
+            sites.append(_site_overview(s, "viewer", now, scope, team_role))
         return Response({
             "feature_on": True, "sites": sites,
             "setup_needed": not own and not viewed,
@@ -675,7 +686,24 @@ class SiteViewersView(_OwnerBase):
         if s.viewers.count() >= MAX_VIEWERS:
             return _err(lang, "সর্বোচ্চ ৫ জন দেখতে পারেন।", "Up to 5 people can view.",
                         status=409, code="too_many_viewers")
+        # cctvteam: the role can be chosen while adding (family by default)
+        role, ids = "family", []
+        if "role" in request.data or "cameras" in request.data:
+            from .logic import cctv_team as CT
+            try:
+                role, ids = CT.clean_role(request.data.get("role"),
+                                          request.data.get("cameras"),
+                                          s.cameras.values_list("id", flat=True))
+            except CT.TeamError as e:
+                from . import cctv_team_views as CTV
+                return CTV._team_err(lang, e)
         v, created = ShopSiteViewer.objects.get_or_create(site=s, user=u)
+        if "role" in request.data or "cameras" in request.data:
+            v.role, v.cameras = role, ids
+        if "live_ok" in request.data:
+            v.live_ok = SV._coerce_bool(request.data.get("live_ok"))
+        if created or {"role", "cameras", "live_ok"} & set(request.data.keys()):
+            v.save(update_fields=["role", "cameras", "live_ok"])
         if created:
             try:
                 from . import push
@@ -705,8 +733,14 @@ class SiteViewerDeleteView(APIView):
 
 def _viewer_row(v):
     from .phone import mask
+    from .logic import cctv_team as CT
+    role = v.role if v.role in CT.ROLES else "family"
+    scope = CT.scope_of(role, v.cameras)
     return {"user_id": v.user_id, "name": getattr(v.user, "name", "") or "",
-            "phone": mask(v.user.phone or ""), "since": v.created.isoformat()}
+            "phone": mask(v.user.phone or ""), "since": v.created.isoformat(),
+            # cctvteam
+            "role": role, "cameras": sorted(scope or []),
+            "all_cameras": scope is None, "live_ok": bool(v.live_ok)}
 
 
 # ======================================================== DEVICE (gateway)

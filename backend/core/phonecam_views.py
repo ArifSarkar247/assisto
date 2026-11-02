@@ -295,7 +295,8 @@ _EVENT_TEXT = {
 def _recipients(site, cam=None):
     out = [site.owner]
     try:
-        out += [v.user for v in site.viewers.select_related("user")]
+        from . import cctv_team_views as CTV   # cctvteam: per-camera roles
+        out += CTV.viewer_users(site, getattr(cam, "id", None))
     except Exception:
         pass
     return out

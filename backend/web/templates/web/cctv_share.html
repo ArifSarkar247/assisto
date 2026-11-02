@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>{{ T.title }} · Assisto</title>
+{% include "web/_icons.html" with no_manifest=True %}
+{% comment %}cctvteam: the CCTV share-link page (web/views_cctv_share.py). One language per
+   page, no external script/CSS. Stills only, refreshed every 30 s.{% endcomment %}
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --ink:#14171f; --muted:#4b5563; --line:#dde3ea;
+          --ok:#146c2e; --warn:#8a4b00; --bad:#b3261e; --brand:#1d4ed8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#181c24; --ink:#eef1f6; --muted:#b4bccb; --line:#2b313d;
+            --ok:#7ddc96; --warn:#f2b968; --bad:#ff8a80; --brand:#93b4ff; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.5 -apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",Arial,sans-serif; }
+  header { background:linear-gradient(90deg,#0891b2,#1d4ed8,#7c3aed); color:#fff; padding:14px 16px; }
+  header b { font-size:18px; }
+  header a { color:#fff; float:right; font-size:14px; min-height:48px; display:inline-flex; align-items:center; }
+  main { max-width:960px; margin:0 auto; padding:14px 16px 32px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin:0 0 12px; }
+  .state { font-weight:700; font-size:18px; }
+  .active { color:var(--ok); } .expired,.revoked,.paused,.bad { color:var(--bad); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+  .cam h2 { font-size:17px; margin:0 0 6px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .pill { font-size:13px; padding:2px 10px; border-radius:999px; border:1px solid var(--line); }
+  .pill.online { color:var(--ok); } .pill.offline,.pill.never { color:var(--warn); } .pill.off { color:var(--bad); }
+  .cam img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:10px; background:#0b0e13; display:block; }
+  .muted { color:var(--muted); font-size:14px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><a href="{{ other_q|default:'?' }}" lang="{% if lang == 'en' %}bn{% else %}en{% endif %}">{{ T.other }}</a><b>{{ T.brand }}</b></header>
+<main>
+{% if limited %}
+  <div class="card"><p class="state bad">{{ T.limited }}</p></div>
+{% elif state == "bad" %}
+  <div class="card"><p class="state bad">{{ T.bad }}</p></div>
+{% else %}
+  <div class="card" role="status" aria-live="polite">
+    <div id="st" class="state"></div>
+    <div id="site"></div>
+    <div id="r-until" class="muted" hidden><span>{{ T.until }}: </span><b id="until"></b></div>
+    <div id="net" class="muted" hidden>{{ T.offline_net }}</div>
+  </div>
+  <div id="grid" class="grid"></div>
+  <p class="muted">{{ T.refresh }}</p>
+  <p class="muted">{{ T.noaudio }}</p>
+  <p class="muted">{{ T.privacy }}</p>
+  {{ boot|json_script:"boot" }}
+  <script>
+  (function () {
+    var B = JSON.parse(document.getElementById("boot").textContent), T = B.T;
+    var bn = B.lang === "bn";
+    function num(s) { s = String(s); return bn ? s.replace(/[0-9]/g, function (d) { return "০১২৩৪৫৬৭৮৯"[d]; }) : s; }
+    function hhmm(iso) { if (!iso) return ""; var d = new Date(iso);
+      return num(("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2)); }
+    function ago(iso) { if (!iso) return ""; var s = Math.max(0, Math.round((Date.now() - new Date(iso)) / 1000));
+      if (s < 90) return T.ago_s.replace("{n}", num(s));
+      if (s < 5400) return T.ago_m.replace("{n}", num(Math.round(s / 60)));
+      return T.ago_h.replace("{n}", num(Math.round(s / 3600))); }
+    function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls;
+      if (text != null) n.textContent = text; return n; }
+    function render(d) {
+      var st = d.state || "bad", s = document.getElementById("st");
+      s.className = "state " + st; s.textContent = T[st] || T.bad;
+      document.getElementById("site").textContent = d.site || "";
+      document.getElementById("r-until").hidden = !d.expires_at;
+      document.getElementById("until").textContent = hhmm(d.expires_at);
+      var g = document.getElementById("grid"); g.textContent = "";
+      (d.cameras || []).forEach(function (c) {
+        var card = el("div", "card cam"), h = el("h2");
+        h.appendChild(el("span", "", c.name || "#" + num(c.id)));
+        h.appendChild(el("span", "pill " + c.status, T[c.status] || ""));
+        card.appendChild(h);
+        if (c.has_still) {
+          var img = el("img"); img.alt = c.name || ""; img.loading = "lazy";
+          img.src = B.img + c.id + "?t=" + encodeURIComponent(c.still_at || Date.now());
+          card.appendChild(img);
+          card.appendChild(el("div", "muted", T.updated + ": " + hhmm(c.still_at) + (c.still_at ? " (" + ago(c.still_at) + ")" : "")));
+        } else {
+          card.appendChild(el("div", "muted", T.nophoto));
+        }
+        g.appendChild(card);
+      });
+      return st;
+    }
+    var state = render(B.data || {});
+    function poll() {
+      if (state !== "active") return;
+      var x = new XMLHttpRequest(); x.open("GET", B.api); x.timeout = 15000;
+      x.onload = function () { document.getElementById("net").hidden = true;
+        if (x.status === 429) return; try { state = render(JSON.parse(x.responseText)); } catch (e) {} };
+      x.onerror = x.ontimeout = function () { document.getElementById("net").hidden = false; };
+      x.send();
+    }
+    setInterval(poll, 30000);
+  })();
+  </script>
+{% endif %}
+</main>
+</body>
+</html>

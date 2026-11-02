@@ -774,6 +774,24 @@ urlpatterns += [
     path("shop/events/<int:pk>/clip/share", cx.ClipShareView.as_view()),
     path("shop/events/<int:pk>/evidence", cx.EventEvidenceView.as_view()),
 ]
+# ---- cctvteam (W11) ---- multi-site grid, roles, share links, access log,
+# private neighbourhood watch (flags cctv_watchman + home_watchman)
+from . import cctv_team_views as ctv  # noqa: E402
+urlpatterns += [
+    path("shop/grid", ctv.GridView.as_view()),
+    path("shop/cameras/<int:pk>/still", ctv.CameraStillView.as_view()),
+    path("shop/sites/<int:pk>/roles", ctv.ViewerRolesView.as_view()),
+    path("shop/sites/<int:pk>/viewers/<int:uid>/role", ctv.ViewerRoleView.as_view()),
+    path("shop/sites/<int:pk>/access-log", ctv.AccessLogView.as_view()),
+    path("shop/sites/<int:pk>/share-links", ctv.ShareLinksView.as_view()),
+    path("shop/share-links/<int:pk>/revoke", ctv.ShareLinkRevokeView.as_view()),
+    path("shop/watch/groups", ctv.WatchGroupsView.as_view()),
+    path("shop/watch/posts", ctv.WatchPostsView.as_view()),
+    path("shop/watch/posts/<int:pk>", ctv.WatchPostDeleteView.as_view()),
+    path("shop/watch/posts/<int:pk>/report", ctv.WatchReportView.as_view()),
+    path("shop/watch/block", ctv.WatchBlockView.as_view()),
+]
+# ---- /cctvteam ----
 # ---- /cctv1 ----
 
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus
