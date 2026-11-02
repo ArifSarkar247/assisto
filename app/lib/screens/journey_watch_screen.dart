@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../widgets/journey_mode_section.dart';
+import 'train/train_tracker_screen.dart' show TrainLiveScreen;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -145,6 +147,19 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
             Text(jRideLine(t, j['ride'] as Map), style: AType.bodyMedium),
           if (j['ride'] is Map && '${(j['ride'] as Map)['driver_name'] ?? ''}'.isNotEmpty)
             Text(t.j2Driver('${(j['ride'] as Map)['driver_name']}'), style: AType.bodyMedium),
+          // journeymode: where their train is (estimate, says so)
+          if (j['train'] is Map && j['status'] == 'active')
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+              child: JourneyTrainInfo(
+                  train: j['train'] as Map,
+                  onOpen: jmTrainOn
+                      ? () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => TrainLiveScreen(
+                              no: '${(j['train'] as Map)['no']}',
+                              date: '${(j['train'] as Map)['date']}')))
+                      : null),
+            ),
           if (j['battery'] != null)
             Text(t.j100Battery(jDigits(context, (j['battery'] as num).toInt())),
                 style: AType.bodySmall)

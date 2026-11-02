@@ -143,7 +143,8 @@ Future<void> _settle(WidgetTester tester, [int n = 15]) async {
 }
 
 Future<void> _open(WidgetTester tester, _Api api, Widget screen, {String lang = 'en'}) async {
-  await tester.binding.setSurfaceSize(const Size(400, 1600));
+  // journeymode: the start form gained "How are you going?" at the top
+  await tester.binding.setSurfaceSize(const Size(400, 2200));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(_app(api, lang: lang));
   unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => screen)));
@@ -465,6 +466,8 @@ void main() {
       tester.platformDispatcher.textScaleFactorTestValue = 2.0;
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       await _open(tester, api, const JourneyStartScreen(), lang: 'bn');
+      await tester.ensureVisible(find.byKey(const ValueKey('j2_place_3'), skipOffstage: false));
+      await _settle(tester, 3);
       await tester.longPress(find.byKey(const ValueKey('j2_place_3')));
       await _settle(tester, 8);
       expect(find.text(bn.j2PlaceTheftSafe), findsOneWidget);

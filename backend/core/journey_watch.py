@@ -198,7 +198,13 @@ def effective_grace(j):
 def overdue(j, now):
     """(state, minutes) from the pure state machine, with the night grace and
     the journey's own response window."""
-    d = {"status": j.status, "eta": j.eta,
+    eta = j.eta
+    if getattr(j, "vehicle", None) and (j.vehicle or {}).get("train") and j.status == "active":
+        # journeymode: the traveller's own fix shows their train running
+        # late -> the check waits for the train (estimate, capped)
+        from . import journey_mode as JM
+        eta = JM.train_late_eta(j, now) or eta
+    d = {"status": j.status, "eta": eta,
          "overdue_grace_min": effective_grace(j),
          "overdue_response_min": int(j.response_window_min or 10)}
     return SJ.overdue_state(d, now=now)
@@ -336,6 +342,10 @@ def event_text(kind, j, name, lang, p, links=True):
     if kind == "off_route":
         pl = SJ.route_deviation_payload(name, _n(lang, p.get("meters", "")), loc, lang=lang)
         return pl["title"], pl["body"] + link
+    if kind == "long_stop" and p.get("dwell"):
+        from . import journey_mode as JM
+        t, b = JM.dwell_text(p.get("dwell"), name, _n(lang, p.get("minutes", "")), lang)
+        return t, b + SJ._loc_line(loc, lang) + link
     if kind == "long_stop" and p.get("jam"):
         # owner real trip 2 Nov: a bus stuck in a jam on the highway is not
         # "stopped somewhere" — say the likely, calm thing
@@ -488,7 +498,7 @@ def deliver(ev):
             "lat": "" if p.get("lat") is None else p.get("lat"),
             "lng": "" if p.get("lng") is None else p.get("lng")}
     urgent = ev.kind in URGENT
-    if ev.kind == "signal_lost" or (ev.kind == "long_stop" and p.get("jam")):
+    if ev.kind == "signal_lost" or (ev.kind == "long_stop" and (p.get("jam") or p.get("dwell"))):
         urgent = False   # owner real trip 2 Nov: calm notice, not an alarm
     n = 0
     people = watcher_users(j)
@@ -653,12 +663,19 @@ def _sweep_journey(j, now, stats):
         still = (now - j.moved_at).total_seconds() / 60.0
         # owner real trip 2 Nov (Gazipur): a bus in a jam is not "stopped" —
         # on the road after vehicle speed -> a much later, calm notice
-        jam = still >= j.stop_alert_min and in_traffic(j, lat, lng)
-        limit = max(int(j.stop_alert_min), JAM_STOP_MIN) if jam else j.stop_alert_min
+        # journeymode: a train at a station / on its line, a metro, a launch
+        # at a ghat -> a later, calm notice by travel mode
+        from . import journey_mode as JM
+        dwell, limit = (JM.stop_rule(j, lat, lng) if still >= j.stop_alert_min
+                        else (None, j.stop_alert_min))
+        jam = dwell is None and still >= j.stop_alert_min and in_traffic(j, lat, lng)
+        if jam:
+            limit = max(int(j.stop_alert_min), JAM_STOP_MIN)
         if (still >= limit and not near_destination(j, lat, lng) and
                 (j.stop_alerted_at is None or j.stop_alerted_at < j.moved_at)):
             emit(j, "long_stop", key=j.moved_at.isoformat(),
-                 payload={"minutes": int(still), **({"jam": True} if jam else {})})
+                 payload={"minutes": int(still), **({"jam": True} if jam else {}),
+                          **({"dwell": dwell} if dwell else {})})
             j.stop_alerted_at = now
             j.save(update_fields=["stop_alerted_at"])
             stats["long_stop"] += 1
@@ -678,7 +695,7 @@ def _sweep_journey(j, now, stats):
 JAM_STOP_MIN = 45            # stopped on the road after vehicle speed: wait this long
 JAM_VEHICLE_KMH = 12.0       # average speed before the stop that means "in a vehicle"
 JAM_LOOKBACK_S = 1800        # ...over the 30 minutes before it (a crawl first still counts)
-VEHICLE_MODES = ("bus", "car", "cng", "bike", "ride")
+VEHICLE_MODES = ("bus", "local_bus", "long_bus", "car", "cng", "bike", "ride")
 
 
 def in_traffic(j, lat, lng):

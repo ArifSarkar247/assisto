@@ -134,7 +134,10 @@ def _place_name(s):
 ROAD_FACTOR = 1.35          # Dhaka roads vs the straight line (rough)
 # typical door-to-door city speeds, km/h (rough; never shown as live traffic)
 MODE_KMH = {"walk": 4.5, "rickshaw": 7.0, "bus": 10.0, "cng": 12.0,
-            "car": 12.0, "bike": 16.0, "ride": 12.0, "": 12.0}
+            "car": 12.0, "bike": 16.0, "ride": 12.0, "": 12.0,
+            # journeymode travel modes (rough, never live traffic)
+            "local_bus": 10.0, "long_bus": 35.0, "train": 40.0, "metro": 30.0,
+            "launch": 15.0}
 
 
 def distance_m(a_lat, a_lng, b_lat, b_lng):
@@ -209,13 +212,19 @@ def eta_minutes(dist_m, mode="", kmh=None):
 
 
 # ---------------------------------------------------------------- ride
-MODES = ("cng", "bike", "car", "rickshaw", "bus", "walk", "ride")
+MODES = ("cng", "bike", "car", "rickshaw", "bus", "walk", "ride",
+         # journeymode (owner 2 Nov): "How are you going?" chips
+         "local_bus", "long_bus", "train", "metro", "launch")
 RIDE_APPS = ("pathao", "uber", "obhai", "indrive", "other")
 
 
 MODE_LABEL = {"cng": ("সিএনজি", "CNG"), "bike": ("বাইক", "Bike"), "car": ("গাড়ি", "Car"),
               "rickshaw": ("রিকশা", "Rickshaw"), "bus": ("বাস", "Bus"),
-              "walk": ("হেঁটে", "Walking"), "ride": ("রাইড", "Ride")}
+              "walk": ("হেঁটে", "Walking"), "ride": ("রাইড", "Ride"),
+              "local_bus": ("লোকাল বাস", "Local bus"),
+              "long_bus": ("দূরপাল্লার বাস", "Long-distance bus"),
+              "train": ("ট্রেন", "Train"), "metro": ("মেট্রো", "Metro"),
+              "launch": ("লঞ্চ", "Launch")}
 APP_LABEL = {"pathao": ("পাঠাও", "Pathao"), "uber": ("উবার", "Uber"),
              "obhai": ("ওভাই", "Obhai"), "indrive": ("ইনড্রাইভ", "inDrive")}
 
@@ -233,8 +242,26 @@ def ride_line(v, lang="bn"):
     if lang == "bn":   # Bangladeshi plates are painted in Bangla digits
         plate = plate.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
     parts = [_lbl(MODE_LABEL, v.get("mode"), lang), _lbl(APP_LABEL, v.get("app"), lang),
-             plate]
+             plate, _train_words(v.get("train"), lang)]
     return " · ".join(p for p in parts if p)
+
+
+def _train_words(tr, lang):
+    """journeymode: '705 একতা এক্সপ্রেস → টাঙ্গাইল' for a linked train ('' when
+    none / unknown). Train names are Bangla in the timetable (both languages)."""
+    tr = clean_train(tr)
+    if not tr:
+        return ""
+    try:
+        from . import train_geo as TG
+        t = TG.train(tr["no"])
+        st = TG.stations().get(tr.get("to") or "") or {}
+    except Exception:
+        t, st = None, {}
+    no = tr["no"].translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else tr["no"]
+    words = "%s %s" % (no, t["name_bn"]) if t else no
+    to = st.get("bn") if lang == "bn" else st.get("en")
+    return "%s → %s" % (words, to) if to else words
 
 
 def _txt(v, n):
@@ -264,7 +291,27 @@ def clean_vehicle(d):
     note = _txt(d.get("note"), 120)
     if note:
         out["note"] = note
+    train = clean_train(d.get("train"))
+    if train:
+        out["train"] = train
     return out or None
+
+
+def clean_train(d):
+    """journeymode: the linked train {no, date, to?} — whitelisted, bounded,
+    or None (train number digits only, service date YYYY-MM-DD, the
+    traveller's station id from the train tracker's station list)."""
+    if not isinstance(d, dict):
+        return None
+    no = re.sub(r"\D", "", str(d.get("no") or ""))[:6]
+    date = str(d.get("date") or "").strip()[:10]
+    to = re.sub(r"[^A-Za-z0-9_\-]", "", str(d.get("to") or ""))[:40]
+    if not no or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        return None
+    out = {"no": no, "date": date}
+    if to:
+        out["to"] = to
+    return out
 
 
 # ------------------------------------------------------------ saved places

@@ -23,6 +23,10 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/oem_guide.dart';
 import 'battery_guidance_screen.dart';
+import '../train/journey_transit.dart';
+import '../widgets/journey_mode_section.dart';
+import 'train/dest_alarm_screen.dart' show destAlarmTexts;
+import 'train/journey_train_pick_screen.dart';
 
 /// Start a Safe Journey: where to (saved Home/School/Office, current
 /// location, a pasted Google Maps link, place search when the server has a
@@ -94,12 +98,38 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   bool _canSearch = false;
   VehMapConfig _map = const VehMapConfig();
   ({double lat, double lng})? _here; // last known, never prompts on open
+  // journeymode: "How are you going?" + train + destination alarm
+  final JourneyModeController _jm = JourneyModeController();
 
   @override
   void initState() {
     super.initState();
     _load();
     _probeOem();
+    unawaited(_jm.init().then((_) {
+      if (mounted && _jm.travel != null) setState(() => _mode = _jm.travel);
+      if (mounted && _jm.train != null) _applyTrain(_jm.train!);
+    }));
+  }
+
+  /// journeymode: the train tracker's picker -> train + "where do you get
+  /// off?" -> that station becomes the destination (pinned) and the
+  /// estimated arrival (+15 min slack) the ETA.
+  Future<void> _pickTrain() async {
+    final p = await pickJourneyTrain(context);
+    if (p == null || !mounted) return;
+    _applyTrain(p);
+  }
+
+  void _applyTrain(JourneyTrainPick p) {
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    _jm.setTrain(p);
+    _destName.text = p.station.name(bn);
+    _setDest('', p.station.lat, p.station.lng);
+    final at = p.stationAt;
+    if (at != null) {
+      setState(() => _eta = TimeOfDay.fromDateTime(at.add(const Duration(minutes: 15))));
+    }
   }
 
   // journey100b: read the phone's background rules once, early, so tapping
@@ -125,6 +155,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     _plate.dispose();
     _driverName.dispose();
     _driverPhone.dispose();
+    _jm.dispose();
     super.dispose();
   }
 
@@ -385,9 +416,11 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (_dest?['lat'] != null) 'lat': _dest!['lat'],
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
     };
+    final train = _mode == 'train' && jmTrainOn ? _jm.train?.toLink() : null;
     final ride = <String, dynamic>{
       if (_plate.text.trim().isNotEmpty) 'plate': _plate.text.trim(),
       if (_mode != null) 'mode': _mode,
+      if (train != null) 'train': train,
       if (_app != null) 'app': _app,
       if (_driverName.text.trim().isNotEmpty) 'driver_name': _driverName.text.trim(),
       if (_driverPhone.text.trim().isNotEmpty) 'driver_phone': _driverPhone.text.trim(),
@@ -431,6 +464,20 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           .join(',');
       await Settings.setString(kPhonesKey, phones);
       if (!mounted) return;
+      // journeymode: the destination alarm (on the phone only) for this trip
+      final plan = _jm.plan(
+          destName: '${dest['name']}',
+          destLat: (dest['lat'] as num?)?.toDouble(),
+          destLng: (dest['lng'] as num?)?.toDouble(),
+          bn: Localizations.localeOf(context).languageCode == 'bn');
+      if (plan != null && id != null) {
+        try {
+          await JourneyAlarmLink.I.arm(id, plan, destAlarmTexts(context, t, plan.target.name));
+        } catch (_) {
+          // best-effort: the journey itself is running; the alarm screen still works
+        }
+      }
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (_) => JourneyLiveScreen(journeyId: id ?? 0)));
     } catch (_) {
@@ -439,6 +486,22 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         setState(() => _starting = false);
       }
     }
+  }
+
+  Widget _modePicker() {
+    final lat = (_dest?['lat'] as num?)?.toDouble(), lng = (_dest?['lng'] as num?)?.toDouble();
+    if (_jm.travel == 'metro') {
+      _jm.guessMetro(hereLat: _here?.lat, hereLng: _here?.lng, destLat: lat, destLng: lng);
+    }
+    return JourneyModePicker(
+      c: _jm,
+      destPinned: _pinned,
+      destName: _destName.text.trim(),
+      destLat: lat,
+      destLng: lng,
+      onMode: (m) => setState(() => _mode = m),
+      onPickTrain: _pickTrain,
+    );
   }
 
   Widget _h(String s) => Padding(
@@ -554,6 +617,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         _intro(t, cs),
         const SizedBox(height: Gap.lg),
+        _modePicker(),
+        const Divider(height: 28),
         _h(t.journeyDestSection),
         if (_places.isNotEmpty)
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -720,7 +785,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           tilePadding: EdgeInsets.zero,
           title: Text(t.journeyRideSection),
           children: [
-            DropdownButtonFormField<String>(
+            KeyedSubtree(
+              key: ValueKey('j2_mode_sub_$_mode'),
+              child: DropdownButtonFormField<String>(
               key: const ValueKey('j2_mode'),
               initialValue: _mode,
               isExpanded: true,
@@ -730,7 +797,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                   DropdownMenuItem(value: m, child: Text(jModeLabel(t, m))),
               ],
               onChanged: (v) => setState(() => _mode = v),
-            ),
+            )),
             const SizedBox(height: Gap.sm),
             DropdownButtonFormField<String>(
               key: const ValueKey('j2_app'),

@@ -1,4 +1,7 @@
 import 'dart:async';
+import '../train/journey_transit.dart';
+import '../widgets/journey_mode_section.dart';
+import 'train/train_tracker_screen.dart' show TrainLiveScreen;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -319,6 +322,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
   void _closeWith(String? msg) {
     if (_closing) return;
     _closing = true;
+    // journeymode: the trip is over -> the alarm it armed goes off too
+    unawaited(JourneyAlarmLink.I.disarm(widget.journeyId));
     if (msg != null) _snack(msg);
     if (Navigator.canPop(context)) Navigator.pop(context);
   }
@@ -761,6 +766,17 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           const SizedBox(height: Gap.md),
         ],
         _statusCard(t, s),
+        // journeymode: the alarm this trip armed + where the train is
+        JourneyAlarmStatus(journeyId: widget.journeyId, link: JourneyAlarmLink.I),
+        if (_journey['train'] case final Map tr) ...[
+          const SizedBox(height: Gap.md),
+          JourneyTrainInfo(
+              train: tr,
+              onOpen: jmTrainOn
+                  ? () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: '${tr['date']}')))
+                  : null),
+        ],
         if (_bgRisk) ...[
           const SizedBox(height: Gap.md),
           _bgCard(t),

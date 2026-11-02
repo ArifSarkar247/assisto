@@ -1113,6 +1113,9 @@ def _journey_dict(j, lang="bn", traveller=True):
     }
     if j.status == "active":
         out.update(JW.progress(j))
+        # journeymode: the linked train (flag train_tracker; estimate, labelled)
+        if (j.vehicle or {}).get("train"):
+            out["train"] = _train_for_watcher(j, now)
     if traveller:
         out["pin_required"] = _pin_configured(j.traveller)
         # owner idea 1: the always-visible "<name> is watching — Stop" banner
@@ -1679,6 +1682,15 @@ def _lost_fields(j, fx, now):
     return out
 
 
+def _train_for_watcher(j, now):
+    """journeymode: where the traveller's train is (never fails the list)."""
+    try:
+        from . import journey_mode as JM
+        return JM.train_link(j, now)
+    except Exception:
+        return None
+
+
 class JourneyWatchingView(APIView):
     """GET /journey/watching — journeys the caller is a chosen watcher of
     (live, or ended within the privacy window). Location only while the trip
@@ -1709,6 +1721,8 @@ class JourneyWatchingView(APIView):
                 "ride": JD.clean_vehicle(j.vehicle),
                 **(JW.progress(j, fx) if fx and j.status == "active" else {}),
                 **_lost_fields(j, fx, now),
+                **({"train": _train_for_watcher(j, now)}
+                   if j.status == "active" and (j.vehicle or {}).get("train") else {}),
                 "url": JW.web_url(j)})
         return Response({"journeys": out})
 

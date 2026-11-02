@@ -29,17 +29,43 @@ class DestAlarmScreen extends StatefulWidget {
   final List<Map<String, dynamic>> suggested;
   final List<String> suggestedIds;
 
+  /// The train's own line ([[lat, lng], ...]) — finds the real station
+  /// before yours (journeymode), also stations it only passes.
+  final List<List<double>> path;
+
   /// Test seams: places without the asset bundle.
   static List<DestStation>? debugStations, debugBusStops;
   static List<MetroStation>? debugMetro;
 
-  const DestAlarmScreen({super.key, this.suggestedIds = const [], this.suggested = const []});
+  const DestAlarmScreen(
+      {super.key, this.suggestedIds = const [], this.suggested = const [], this.path = const []});
 
   @override
   State<DestAlarmScreen> createState() => _DestAlarmScreenState();
 }
 
 const String _kSavedKey = 'dest_alarm_saved_places';
+
+/// The alarm's words in the UI language — ONE builder for the standalone
+/// alarm and the alarm inside Safe Journey (journeymode).
+DestAlarmTexts destAlarmTexts(BuildContext context, AppLocalizations t, String targetName) {
+  final bn = Localizations.localeOf(context).languageCode == 'bn';
+  String d(String s) => notifLocalizeDigits(context, s);
+  String spokenDist(double m) {
+    final (km, n) = spokenDistanceParts(m);
+    return d(km ? t.trSpokenKm(n) : t.trSpokenMetres(n));
+  }
+
+  return DestAlarmTexts(
+    distance: spokenDist,
+    notifTitle: t.trAlarmNotifTitle,
+    notifText: t.trAlarmNotifText(targetName),
+    stop: t.trStop,
+    lang: bn ? 'bn' : 'en',
+    spoken: (stop, dist) => dist.isEmpty ? t.trAlarmSpoken(stop) : t.trAlarmSpokenDist(stop, dist),
+    ready: (stop, dist) => t.trAlarmReady(stop, dist),
+  );
+}
 
 class _DestAlarmScreenState extends State<DestAlarmScreen> {
   final _q = TextEditingController();
@@ -215,20 +241,9 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     });
   }
 
-  String _spokenDist(AppLocalizations t, double m) {
-    final (km, n) = spokenDistanceParts(m);
-    return _d(km ? t.trSpokenKm(n) : t.trSpokenMetres(n));
-  }
 
-  DestAlarmTexts _texts(AppLocalizations t, String targetName) => DestAlarmTexts(
-        distance: (m) => _spokenDist(t, m),
-        notifTitle: t.trAlarmNotifTitle,
-        notifText: t.trAlarmNotifText(targetName),
-        stop: t.trStop,
-        lang: _bn ? 'bn' : 'en',
-        spoken: (stop, dist) => dist.isEmpty ? t.trAlarmSpoken(stop) : t.trAlarmSpokenDist(stop, dist),
-        ready: (stop, dist) => t.trAlarmReady(stop, dist),
-      );
+  DestAlarmTexts _texts(AppLocalizations t, String targetName) =>
+      destAlarmTexts(context, t, targetName);
 
   Future<void> _start() async {
     final t = AppLocalizations.of(context);
@@ -519,9 +534,10 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                 title: Text(list[i].name(_bn)),
                 onTap: () => setState(() {
                   _target = DestTarget(list[i].name(_bn), list[i].lat, list[i].lng);
-                  _prev = fromTrain && i > 0
-                      ? DestTarget(list[i - 1].name(_bn), list[i - 1].lat, list[i - 1].lng)
+                  final pv = fromTrain
+                      ? prevStationOnPath(widget.path, _stations, list[i], listedStops: list)
                       : null;
+                  _prev = pv == null ? null : DestTarget(pv.name(_bn), pv.lat, pv.lng);
                 }),
               ),
           ],
