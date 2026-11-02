@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../services/action_feedback.dart'; // db1
+import 'permission_reason.dart';
 
 /// Nearest-help finder. Reuses the EXISTING /nearby provider (api.nearby) to
 /// list the closest hospital + police station, with one-tap directions and
@@ -38,10 +39,7 @@ class _EmergencyNearestHelpState extends State<EmergencyNearestHelp> {
         });
         return;
       }
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         setState(() {

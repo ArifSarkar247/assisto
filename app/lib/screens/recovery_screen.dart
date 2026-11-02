@@ -15,6 +15,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/permission_reason.dart';
 
 /// Anti-theft Batch 5 — Recovery help.
 ///
@@ -168,10 +169,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
   Future<Position?> _position() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return null;

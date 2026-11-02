@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../state.dart';
@@ -110,7 +111,9 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
     try {
       if (on) {
         // 1) Honest reason dialog BEFORE the OS prompt.
-        final wants = await showPermissionReason(context, PermKind.mic);
+        // playall: Voice SOS listens with the app closed and sends the
+        // location with the SOS — its own disclosure (mic + location).
+        final wants = await showPermissionReason(context, PermKind.voiceSos);
         if (!wants || !mounted) return;
         // 2) Request microphone.
         final mic = await Permission.microphone.request();
@@ -120,6 +123,15 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
           messenger.showSnackBar(SnackBar(content: Text(t.vsosMicDenied)));
           return;
         }
+        // 2b) playall: location for the SOS alert, asked NOW (the disclosure
+        // above covered it) so a real emergency never stops at a prompt.
+        // Best-effort: Voice SOS still works without it.
+        try {
+          if (await Geolocator.checkPermission() == LocationPermission.denied) {
+            await Geolocator.requestPermission();
+          }
+        } catch (_) {}
+        if (!mounted) return;
         // 3) Notification permission (Android 13+) — the FGS notification.
         await VoiceSosManager.instance.init(
           t.vsosNotifChannelName,

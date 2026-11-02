@@ -11,6 +11,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../../widgets/permission_reason.dart';
 
 /// kidswatch — create / edit a School Mode plan (full-screen form sheet).
 /// For a WATCH plan the child is the watch; for a PHONE plan the child is a
@@ -157,8 +158,7 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
   Future<Position?> _here() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
         return null;
       }

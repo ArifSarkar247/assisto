@@ -21,6 +21,7 @@ import '../services/action_feedback.dart'; // db1
 import '../feature_gates.dart' show kLostActionSwitchesWired; // f6
 import '../widgets/remote_switches_card.dart'; // at100
 import '../widgets/at_disclosure.dart'; // at100
+import '../widgets/permission_reason.dart';
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -274,10 +275,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
   Future<Position?> _position() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
+      final perm = await askLocationWithReason(context);
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
         return null;
