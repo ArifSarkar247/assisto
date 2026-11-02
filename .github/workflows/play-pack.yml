@@ -1,0 +1,67 @@
+# Play listing pack (owner order 3 Nov): text gate + framed store images.
+# Renders ONLY here (never on the server). Uses the newest integration
+# build's real gallery shots (checks.yml artifacts shots-*); falls back to
+# the website's committed copy of the same shots. Never calls any Play API.
+name: play-pack
+
+on:
+  push:
+    branches: ['ci/**']
+    paths:
+      - 'owner_actions/PLAY_LISTING_PACK/**'
+      - 'tools/play_pack/**'
+      - '.github/workflows/play-pack.yml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA'
+        required: true
+
+concurrency:
+  group: play-pack-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: text gate (limits + banned words)
+        run: python tools/play_pack/check_listing.py
+      - name: tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libraqm0 libfribidi0 libharfbuzz0b
+          python -m pip install -q Pillow==11.0.0 fonttools==4.55.0
+      - name: newest gallery shots (integration build artifacts)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          ID=$(gh run list -R "$GITHUB_REPOSITORY" --workflow checks.yml --status success --limit 60 \
+                 --json databaseId,headBranch -q '[.[] | select(.headBranch|test("^ci/b[0-9]+$"))][0].databaseId')
+          echo "gallery run: ${ID:-none}"
+          mkdir -p "$RUNNER_TEMP/shots"
+          if [ -n "$ID" ]; then
+            gh run download "$ID" -R "$GITHUB_REPOSITORY" -p 'shots-*' -D "$RUNNER_TEMP/shots" || echo "download failed — using website copies"
+          fi
+          echo "$ID" > "$RUNNER_TEMP/gallery_run.txt"
+          find "$RUNNER_TEMP/shots" -name '*_light.png' | wc -l
+      - name: render images
+        run: |
+          python tools/play_pack/render.py --shots "$RUNNER_TEMP/shots" --out "$RUNNER_TEMP/pack"
+          echo "gallery run: $(cat $RUNNER_TEMP/gallery_run.txt)" >> "$RUNNER_TEMP/pack/sources.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-listing-pack
+          path: ${{ runner.temp }}/pack
+          retention-days: 30

@@ -1,0 +1,38 @@
+{
+  "_about": "8 Play phone screenshots per language. shot = CI gallery name (app/test/screenshots_test.dart -> shots-* artifacts; fallback backend/web/site_assets/shots3). Rendered by tools/play_pack/render.py in CI only. Every feature here is live on lifeassisto.com (3 Nov).",
+  "size": [1080, 1920],
+  "slots": [
+    {"shot": "chat", "feature": "assistant",
+     "en": ["Many apps. One Assisto.", "Say it once: reminder and expense done"],
+     "bn": ["অনেক অ্যাপ নয়, একটাই Assisto।", "একবার বলুন: রিমাইন্ডার আর খরচ লেখা হয়ে যায়"]},
+    {"shot": "c3_chat_list", "feature": "chat",
+     "en": ["Encrypted chat with your people", "Photos, voice and files, locked on your phone"],
+     "bn": ["কাছের মানুষের সাথে এনক্রিপ্টেড চ্যাট", "ছবি, ভয়েস নোট আর ফাইল, আপনার ফোনেই লক করা"]},
+    {"shot": "c2_call_video_connected", "feature": "calls",
+     "en": ["Voice and video calls", "Encrypted and never recorded"],
+     "bn": ["ভয়েস ও ভিডিও কল", "এনক্রিপ্টেড, কখনো রেকর্ড হয় না"]},
+    {"shot": "callsa_float_video_chat", "feature": "pip",
+     "en": ["Keep chatting while on a call", "The video moves to a small floating window"],
+     "bn": ["কলে থেকেও চ্যাট চালিয়ে যান", "ভিডিও থাকে ছোট ভাসমান জানালায়"]},
+    {"shot": "emergency_hub", "feature": "sos",
+     "en": ["One tap SOS alerts your family", "Your location, 999 and help in one place"],
+     "bn": ["এক চাপে SOS, পরিবার সাথে সাথে জানে", "আপনার লোকেশন, ৯৯৯ আর সাহায্য এক জায়গায়"]},
+    {"shot": "shop_box", "feature": "shop_box",
+     "en": ["A spare phone becomes your shop camera", "Photo alerts, and no video leaves the shop"],
+     "bn": ["বাড়তি ফোনই দোকানের ক্যামেরা", "ছবিসহ সতর্কতা, ভিডিও দোকানের বাইরে যায় না"]},
+    {"shot": "biz_khata", "feature": "khata",
+     "en": ["A digital khata that chases dues", "Reminders go out on your schedule"],
+     "bn": ["ডিজিটাল খাতা, বাকির তাগাদা নিজে থেকে", "আপনার ঠিক করা সময়ে রিমাইন্ডার যায়"]},
+    {"shot": "inv_paper_80", "feature": "invoices",
+     "en": ["Thermal and A4 invoices in one tap", "In Bangla or English, with VAT and QR"],
+     "bn": ["এক চাপে থার্মাল ও A4 ইনভয়েস", "বাংলা বা ইংরেজিতে, VAT ও QR সহ"]}
+  ],
+  "feature_graphic": {
+    "en": ["Assisto: Chat, calls, AI assistant, safety and business, in one super app.", "Many apps. One Assisto."],
+    "bn": ["Assisto: চ্যাট, কল, AI সহকারী, নিরাপত্তা আর ব্যবসা — এক সুপার অ্যাপে।", "অনেক অ্যাপ নয়, একটাই Assisto।"]
+  },
+  "custom_order": {
+    "bangladesh": [7, 8, 6, 5, 1, 2, 3, 4],
+    "expat_gulf_malaysia": [3, 4, 2, 5, 6, 1, 7, 8]
+  }
+}
