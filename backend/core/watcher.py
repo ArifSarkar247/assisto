@@ -150,3 +150,85 @@ def due(w):
         return True
     age = (timezone.now() - w.last_checked).total_seconds() / 60.0
     return age >= w.interval_min
+
+
+# ---------------------------------------------------------------- lifebar
+# Board rows "Watch feed" + "Exam result": a hit used to sit silently in the
+# feed (nothing told the user) and ExamWatcher rows were never checked at all.
+# Now: every hit is pushed once (reminder channel, opens the Watch feed) and
+# exam-result pages are polled politely (6-hourly before the expected date,
+# hourly on/after it, stop 45 days after) — a change means "the result page
+# changed — the result may be out", never a fabricated result.
+
+EXAM_STOP_AFTER_DAYS = 45
+EXAM_MAX_FAILURES = 24
+
+
+def notify_hit(hit):
+    """Push one WatchHit to its owner. Never raises; returns devices sent."""
+    try:
+        from . import push
+        w = hit.watcher
+        return push.push_to_user(
+            w.user, "reminder",
+            title_bn=f"নজরদারি: {w.label}"[:80],
+            title_en=f"Watch: {w.label}"[:80],
+            body_bn=hit.summary, body_en=hit.summary,
+            data={"route": "watch_feed", "hit_id": str(hit.id)})
+    except Exception:
+        return 0
+
+
+def exam_due(ew, now=None):
+    """Is this exam watcher due on this (hourly) cron run?"""
+    from .logic import exam as exam_logic
+    now = now or timezone.localtime()
+    if not ew.url or ew.result_ready:
+        return False
+    if ew.consecutive_failures >= EXAM_MAX_FAILURES:
+        return False
+    if ew.expected_date:
+        days_past = (now.date() - ew.expected_date).days
+        if days_past > EXAM_STOP_AFTER_DAYS:
+            return False
+        if not exam_logic.is_result_day(ew.expected_date.isoformat(),
+                                        now.replace(tzinfo=None)):
+            return now.hour % 6 == 0          # sparse before result day
+    return True                                 # result day / no date: hourly
+
+
+def check_exam(ew):
+    """Poll one exam watcher's PUBLIC page. Returns True when it changed
+    (then result_ready is set and the user gets one push)."""
+    from .logic import exam as exam_logic
+    try:
+        html = _fetch(ew.url)
+    except Exception:
+        ew.consecutive_failures += 1
+        ew.save(update_fields=["consecutive_failures"])
+        return False
+    snap = hashlib.sha256(html.encode()).hexdigest()[:64]
+    first = not ew.last_snapshot
+    changed = (not first) and exam_logic.snapshot_changed(ew.last_snapshot, snap)
+    ew.last_snapshot = snap
+    ew.consecutive_failures = 0
+    fields = ["last_snapshot", "consecutive_failures"]
+    if changed:
+        ew.result_ready = True
+        fields.append("result_ready")
+    ew.save(update_fields=fields)
+    if changed:
+        try:
+            from . import push
+            lbl = ew.label or "Result"
+            push.push_to_user(
+                ew.user, "reminder",
+                title_bn=f"ফলের পাতা বদলেছে: {lbl}"[:80],
+                title_en=f"Result page changed: {lbl}"[:80],
+                body_bn="ফল বেরিয়ে থাকতে পারে — অফিসিয়াল পাতায় রোল দিয়ে দেখুন।",
+                body_en="The result may be out — check the official page with your roll.",
+                data={"route": "exam", "exam_watcher_id": str(ew.id)},
+                high_priority=True)
+        except Exception:
+            pass
+    return changed

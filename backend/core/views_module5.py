@@ -223,8 +223,31 @@ class RamadanEidCardView(APIView):
 # ===========================================================================
 
 class ExamWatcherView(APIView):
+    # lifebar: list + delete so the phone can show what the server watches
+    def get(self, request):
+        rows = ExamWatcher.objects.filter(user=request.user)[:20]
+        return Response({"watchers": [{
+            "id": w.id, "label": w.label, "url": w.url,
+            "expected_date": w.expected_date.isoformat() if w.expected_date else None,
+            "roll": w.roll, "board": w.board, "exam": w.exam,
+            "result_ready": w.result_ready,
+            "checking": bool(w.url) and not w.result_ready,
+            "failures": w.consecutive_failures,
+        } for w in rows]})
+
+    def delete(self, request):
+        try:
+            wid = int(request.query_params.get("id", ""))
+        except (TypeError, ValueError):
+            return Response({"error": "id_required"}, status=status.HTTP_400_BAD_REQUEST)
+        n, _ = ExamWatcher.objects.filter(user=request.user, id=wid).delete()
+        return Response({"deleted": bool(n)},
+                        status=status.HTTP_200_OK if n else status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
         ok, data = exam.normalise_watcher(request.data or {})
+        if ok and ExamWatcher.objects.filter(user=request.user).count() >= 10:
+            ok, data = False, "limit"          # lifebar: polite cap per user
         if not ok:
             return Response({"error": data}, status=status.HTTP_400_BAD_REQUEST)
         exp = None

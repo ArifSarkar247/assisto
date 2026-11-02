@@ -203,6 +203,8 @@ class PushRouting {
     'agent': 'agent_core', // agent-proactive nudge / brief -> the agent screen
     'vault': 'documents', // vault100: expiry push / PIN-reset notice
     'my_dues': 'my_dues', // tagada2: customer — a shop's reminder / message
+    'watch_feed': 'watch_feed', // lifebar: a watcher saw a change
+    'exam': 'exam', // lifebar: the exam-result page changed
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
