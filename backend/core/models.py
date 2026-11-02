@@ -7506,6 +7506,10 @@ class LedgerBook(models.Model):
     lock_date = models.DateField(null=True, blank=True)   # nothing posts on/before
     opening_inventory = models.BigIntegerField(null=True, blank=True)  # poisha, frozen
     opening_warning = models.JSONField(default=dict, blank=True)
+    # the owner's opening balances (POST business/books/opening), poisha
+    opening = models.JSONField(default=dict, blank=True)
+    # VAT history from the invoice settings: [{from, to|None, vat_bp, sd_bp}]
+    vat_periods = models.JSONField(default=list, blank=True)
     next_number = models.PositiveIntegerField(default=1)
     last_sync_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

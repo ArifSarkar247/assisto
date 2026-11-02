@@ -392,3 +392,235 @@ class LedgerApiTests(ShopFixture):
     def test_bad_range(self):
         r = self.o.get("/api/v1/business/books/profit-loss?from=2026-11-02&to=2026-10-01")
         self.assertEqual(r.data["error"], "bad_date")
+
+
+# ---------------------------------------------------------------------------
+# core v2 (owner priority 2 Nov 17:30): VAT, invoices, opening balances,
+# manual entries, reversals, cash flow, expense API, posting hook
+# ---------------------------------------------------------------------------
+class PureV2Tests(SimpleTestCase):
+    def test_inclusive_tax_is_exact_and_matches_invoice_rule(self):
+        for gross in (1, 99, 11500, 100000, 123457):
+            t, sd, v = L.inclusive_tax(gross, 1500, 0)
+            self.assertEqual(t + sd + v, gross)
+        self.assertEqual(L.inclusive_tax(11500, 1500), (10000, 0, 1500))
+        self.assertEqual(L.inclusive_tax(500, 0, 0), (500, 0, 0))
+        t, sd, v = L.inclusive_tax(12650, 1500, 1000)     # SD 10% then VAT 15%
+        self.assertEqual((t, sd, v), (10000, 1000, 1650))
+
+    def test_vat_sale_posts_output_vat_and_balances(self):
+        e = L.post_sale({"id": 1, "date": D, "total": 11500, "discount": 0, "due": 0,
+                         "payment_method": "cash", "cogs": 0, "vat_bp": 1500})
+        by = {l["account"]: l for l in e["lines"]}
+        self.assertEqual(by[L.SALES_POS]["credit"], 10000)
+        self.assertEqual(by[L.OUTPUT_VAT]["credit"], 1500)
+        self.assertTrue(_bal(e["lines"]))
+
+    def test_invoice_posting_and_cancel(self):
+        inv = {"id": 5, "date": D, "number": "SV-0005", "buyer": "Acme", "total": 12650,
+               "taxable": 10000, "sd": 1000, "vat": 1650, "paid": 5000}
+        e = L.post_invoice(inv)
+        by = {l["account"]: l for l in e["lines"]}
+        self.assertEqual(by[L.CASH]["debit"], 5000)
+        self.assertEqual(by[L.AR]["debit"], 7650)
+        self.assertEqual(by[L.SERVICE_INCOME]["credit"], 10000)
+        self.assertEqual(by[L.SD_PAYABLE]["credit"], 1000)
+        self.assertEqual(by[L.OUTPUT_VAT]["credit"], 1650)
+        self.assertIsNone(L.post_invoice(dict(inv, cancelled=True)))
+
+    def test_opening_balances_validate_and_balance(self):
+        self.assertEqual(L.clean_opening({"date": "x"})[1], "bad_date")
+        self.assertEqual(L.clean_opening({"date": "2026-10-01", "cash": -5})[1], "amount")
+        ob, err = L.clean_opening({"date": "2026-10-01", "cash": 50000, "bkash": 2000,
+                                   "inventory": 300000, "loans": 400000,
+                                   "receivables": [{"party": "Karim", "amount": 1000}],
+                                   "payables": [{"party": "Akij", "amount": 9000}]})
+        self.assertIsNone(err)
+        e = L.post_opening_balances(ob)
+        self.assertTrue(_bal(e["lines"]))
+        by = {l["account"]: l for l in e["lines"]}
+        # assets 353000 < liabilities 409000 -> opening equity is a DEBIT 56000
+        self.assertEqual(by[L.OPENING_EQ]["debit"], 56000)
+
+    def test_manual_entry_rules(self):
+        e = L.manual_entry(7, D, [{"code": "1010", "debit": 100000},
+                                  {"code": "3010", "credit": 100000}], "Capital")
+        self.assertEqual(e["source_key"], "manual:7")
+        with self.assertRaises(L.Unbalanced):
+            L.manual_entry(8, D, [{"code": "1010", "debit": 1}, {"code": "3010", "credit": 2}], "")
+        with self.assertRaises(ValueError):
+            L.manual_entry(9, D, [{"code": "9999", "debit": 1}, {"code": "3010", "credit": 1}], "")
+
+    def test_sync_never_reverses_manual_entries(self):
+        act = {"manual:3": {"id": 3, "fingerprint": "x", "date": D, "lines": []}}
+        self.assertEqual(L.plan_sync({}, act)["reverse"], [])
+
+    def test_cash_flow_reconciles(self):
+        es = [L.post_opening_balances(L.clean_opening({"date": str(D), "cash": 20000})[0]),
+              L.post_sale({"id": 1, "date": D + timedelta(days=1), "total": 100000,
+                           "discount": 0, "due": 30000, "payment_method": "cash", "cogs": 0}),
+              L.post_khata({"id": 1, "date": D + timedelta(days=1), "book": "supplier",
+                            "direction": "got", "amount": 40000, "party": "Akij", "note": ""}),
+              L.manual_entry(1, D + timedelta(days=2), [{"code": "1500", "debit": 15000},
+                                                        {"code": "1010", "credit": 15000}], "Fridge"),
+              L.manual_entry(2, D + timedelta(days=2), [{"code": "1040", "debit": 50000},
+                                                        {"code": "2300", "credit": 50000}], "Loan")]
+        lines = [dict(l, date=e["date"]) for e in es for l in e["lines"]]
+        cf = L.cash_flow(lines, D + timedelta(days=1), D + timedelta(days=3))
+        self.assertTrue(cf["reconciles"])
+        self.assertEqual(cf["opening_cash"], 20000)
+        self.assertEqual(cf["net_profit"], 100000)
+        # receivable +30000 and stock +40000 use cash; supplier credit -40000 gives it back
+        self.assertEqual(cf["operating"], 100000 - 30000 - 40000 + 40000)
+        self.assertEqual(cf["investing_total"], -15000)
+        self.assertEqual(cf["financing_total"], 50000)
+        self.assertEqual(cf["closing_cash"], 20000 + 70000 - 15000 + 50000)
+
+    def test_vat_summary(self):
+        e = L.post_sale({"id": 1, "date": D, "total": 11500, "discount": 0, "due": 0,
+                         "payment_method": "cash", "cogs": 0, "vat_bp": 1500})
+        v = L.vat_summary([dict(l, date=D) for l in e["lines"]])
+        self.assertEqual((v["output_vat"], v["net_payable"], v["sales_taxable"]),
+                         (1500, 1500, 10000))
+
+
+class VatPeriodTests(SimpleTestCase):
+    def test_open_change_stop(self):
+        d1, d2, d3 = date(2026, 10, 1), date(2026, 10, 10), date(2026, 10, 20)
+        p = S.update_vat_periods([], (0, 0), d1)
+        self.assertEqual(p, [])
+        p = S.update_vat_periods(p, (1500, 0), d1)
+        self.assertEqual(p, [{"vat_bp": 1500, "sd_bp": 0, "from": "2026-10-01", "to": None}])
+        self.assertEqual(S.update_vat_periods(p, (1500, 0), d2), p)     # unchanged
+        p = S.update_vat_periods(p, (750, 0), d2)                       # rate change
+        self.assertEqual(p[0]["to"], "2026-10-09")
+        self.assertEqual(p[1]["from"], "2026-10-10")
+        p = S.update_vat_periods(p, (0, 0), d3)                         # VAT stops
+        self.assertEqual(p[1]["to"], "2026-10-19")
+        self.assertEqual(L.vat_rate_on(p, date(2026, 10, 5)), (1500, 0))
+        self.assertEqual(L.vat_rate_on(p, date(2026, 10, 15)), (750, 0))
+        self.assertEqual(L.vat_rate_on(p, d3), (0, 0))
+
+
+class LedgerV2DbTests(ShopFixture):
+    def test_opening_balances_api_and_inventory_override(self):
+        S.sync_books(self.biz, self.owner)
+        r = self.o.post("/api/v1/business/books/opening", {
+            "date": str(timezone.localdate() - timedelta(days=30)), "cash": 20000,
+            "bank": 100000, "inventory": 700000,
+            "payables": [{"party": "Akij", "amount": 50000}]}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(r.data["opening"]["inventory"], 700000)
+        # the reconstructed opening stock was reversed, the owner's figure posted
+        self.assertTrue(JournalEntry.objects.filter(source_key="opening:inventory",
+                                                    status="reversed").exists())
+        self.assertEqual(self.bal(L.INVENTORY), 700000 + 200000 - 115000)
+        self.assertEqual(self.bal(L.BANK), 100000)
+        self.assert_books_balance()
+        self.assertEqual(self.o.get("/api/v1/business/books/opening").data["opening"]["bank"],
+                         100000)
+        bad = self.o.post("/api/v1/business/books/opening", {"date": "2026-10-01", "cash": -1},
+                          format="json")
+        self.assertEqual(bad.data["error"], "amount")
+
+    def test_manual_entry_reverse_and_lock(self):
+        r = self.o.post("/api/v1/business/books/journal", {
+            "memo": "Owner capital", "lines": [{"code": "1040", "debit": 500000},
+                                               {"code": "3010", "credit": 500000}]},
+            format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual(r.data["created_by"], "Rahman Store")
+        S.sync_books(self.biz, self.owner)
+        S.sync_books(self.biz, self.owner)                  # sync leaves it alone
+        self.assertEqual(JournalEntry.objects.get(pk=r.data["id"]).status, "posted")
+        self.assertEqual(self.bal(L.BANK), 500000)
+        bad = self.o.post("/api/v1/business/books/journal", {
+            "lines": [{"code": "1040", "debit": 5}, {"code": "3010", "credit": 4}]}, format="json")
+        self.assertEqual(bad.data["error"], "unbalanced")
+        rv = self.o.post("/api/v1/business/books/journal/%d/reverse" % r.data["id"],
+                         {"reason": "typo"}, format="json")
+        self.assertEqual(rv.status_code, 201)
+        self.assertEqual(rv.data["status"], "reversal")
+        self.assertEqual(self.bal(L.BANK), 0)
+        again = self.o.post("/api/v1/business/books/journal/%d/reverse" % r.data["id"], {},
+                            format="json")
+        self.assertEqual(again.status_code, 409)
+        y = timezone.localdate() - timedelta(days=1)
+        S.set_lock_date(self.biz, y, self.owner)
+        locked = self.o.post("/api/v1/business/books/journal", {
+            "date": str(y), "lines": [{"code": "1040", "debit": 5}, {"code": "3010", "credit": 5}]},
+            format="json")
+        self.assertEqual((locked.status_code, locked.data["error"]), (409, "locked"))
+        self.assert_books_balance()
+
+    def test_expense_api_posts_once(self):
+        r = self.o.post("/api/v1/business/books/expense",
+                        {"amount": 12000, "category": "বেতন"}, format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual(r.data["account"]["code"], "6020")
+        self.assertTrue(Expense.objects.filter(pk=r.data["id"], business=self.biz).exists())
+        self.assertEqual(JournalEntry.objects.filter(source_key="expense:%d" % r.data["id"]).count(), 1)
+        S.sync_books(self.biz, self.owner)
+        self.assertEqual(JournalEntry.objects.filter(source_key="expense:%d" % r.data["id"]).count(), 1)
+        self.assertEqual(self.o.post("/api/v1/business/books/expense", {"amount": 0},
+                                     format="json").data["error"], "amount")
+
+    def test_cash_flow_api_reconciles_on_shop(self):
+        r = self.o.get("/api/v1/business/books/cash-flow")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertTrue(r.data["reconciles"])
+        self.assertEqual(r.data["closing_cash"], 7000 + 55000)
+        self.assertEqual(r.data["net_profit"], 37000)
+
+    def _vat_on(self):
+        from core.models import PaCollectionItem
+        PaCollectionItem.objects.create(user=self.owner, collection=S.INVOICE_CFG, data={
+            "business_id": self.biz.id, "vat_mode": "inclusive", "bin": "000123456-0101",
+            "vat_bp": 1500, "sd_bp": 0})
+
+    def _invoice(self, cancelled=False):
+        from core.models import PaCollectionItem
+        return PaCollectionItem.objects.create(user=self.owner, collection=S.INVOICE_COLLECTION, data={
+            "business_id": self.biz.id, "number": "SV-0001",
+            "issued_at": timezone.localtime().isoformat(),
+            "buyer": {"name": "Acme Ltd", "bin": "1234567890123"},
+            "calc": {"total": 11500, "taxable": 10000, "sd": 0, "vat": 1500},
+            "paid": 5000, "cancelled": cancelled})
+
+    def test_vat_seller_books_output_vat_from_sales_and_invoices(self):
+        self._vat_on()
+        inv = self._invoice()
+        r = self.o.get("/api/v1/business/books/vat")
+        self.assertEqual(r.status_code, 200, r.content)
+        sales_vat = sum(L.inclusive_tax(t, 1500)[2] for t in (100000, 55000, 40000))
+        self.assertEqual(r.data["output_vat"], sales_vat + 1500)
+        self.assertTrue(r.data["vat_ready"])
+        nums = [x["number"] for x in r.data["register"]]
+        self.assertIn("SV-0001", nums)
+        self.assertNotIn("POS-%d" % self.s4.id, nums)          # voided sale out
+        self.assertEqual(len(nums), 4)
+        self.assert_books_balance()
+        self.assertEqual(self.bal(L.SERVICE_INCOME), -10000)
+        # cancelling the invoice reverses it — never deleted
+        inv.data = dict(inv.data, cancelled=True)
+        inv.save()
+        out = S.sync_books(self.biz, self.owner)
+        self.assertEqual(out["reversed"], 1)
+        self.assertEqual(self.bal(L.SERVICE_INCOME), 0)
+        self.assert_books_balance()
+
+    def test_pos_invoice_never_double_counted(self):
+        # a POS sale's invoice is the sale itself: only manual invoices post
+        S.sync_books(self.biz, self.owner)
+        self.assertFalse(JournalEntry.objects.filter(source_key__startswith="invoice:").exists())
+
+    def test_notify_change_hook(self):
+        self.assertEqual(S.notify_change(self.biz)["posted"], 13)
+        self.assertEqual(S.notify_change(self.biz)["posted"], 0)    # idempotent
+        flag(False)
+        self.assertIsNone(S.notify_change(self.biz))
+        self.assertIsNone(S.notify_change(None))
+
+    def test_balance_sheet_shows_catalog_stock_value(self):
+        r = self.o.get("/api/v1/business/books/balance-sheet")
+        self.assertEqual(r.data["catalog_stock_value"], 750000)

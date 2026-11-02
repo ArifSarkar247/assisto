@@ -245,6 +245,11 @@ urlpatterns = [
     path("business/books/profit-loss", lgv.BooksProfitLossView.as_view()),
     path("business/books/balance-sheet", lgv.BooksBalanceSheetView.as_view()),
     path("business/books/lock", lgv.BooksLockView.as_view()),
+    path("business/books/journal/<int:pk>/reverse", lgv.BooksReverseView.as_view()),
+    path("business/books/opening", lgv.BooksOpeningView.as_view()),
+    path("business/books/expense", lgv.BooksExpenseView.as_view()),
+    path("business/books/cash-flow", lgv.BooksCashFlowView.as_view()),
+    path("business/books/vat", lgv.BooksVatView.as_view()),
     path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
     path("business/staff", bz.StaffView.as_view()),   # bizbar
     path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar
