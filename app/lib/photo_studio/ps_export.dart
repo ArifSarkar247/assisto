@@ -8,6 +8,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../messaging/msg_native.dart' show MsgNative;
 import 'ps_ads.dart';
 import 'ps_backend.dart';
 import 'ps_models.dart';
@@ -290,7 +291,8 @@ class UiExportRenderer implements ExportRenderer {
 // =========================================================================
 // Where the file goes
 // =========================================================================
-enum DeliverResult { done, unavailable, failed }
+/// [gallery] = saved where the phone's Gallery shows it (Pictures/Assisto).
+enum DeliverResult { done, gallery, unavailable, failed }
 
 abstract class ExportSink {
   /// Whether [kind] works in this build (checked BEFORE the gate, so we
@@ -299,12 +301,24 @@ abstract class ExportSink {
   Future<DeliverResult> deliver(ExportKind kind, Uint8List png, String fileName);
 }
 
-/// In this build: Save writes to Assisto's own photo folder, Share uses the
-/// system sheet, Open-in hands the file to another app. Set-as-wallpaper and
-/// Copy-image need plugins that are in the native proposal — reported as
-/// unavailable (never faked).
+/// Save puts the file in the phone's GALLERY (MediaStore Pictures/Assisto,
+/// Android 10+, no storage permission — the shipped c3_messaging channel's
+/// `saveToPhone`); on Android 8–9 (or if MediaStore refuses) it falls back to
+/// Assisto's own folder and says so honestly. Share uses the system sheet,
+/// Open-in hands the file to another app. Set-as-wallpaper and Copy-image
+/// need native code that is not in this build — not offered (the screen
+/// hides them; never a dead button).
 class PlatformExportSink implements ExportSink {
-  const PlatformExportSink();
+  const PlatformExportSink({this.gallery = _msgSaveToPhone});
+
+  /// (path, mime, name) -> 'ok' | 'unsupported' | 'error'.
+  final Future<String> Function(String path, String mime, String name) gallery;
+
+  static Future<String> _msgSaveToPhone(String path, String mime, String name) =>
+      MsgNative.saveToPhone(path, mime, name);
+
+  static String mimeOf(String fileName) =>
+      fileName.toLowerCase().endsWith('.jpg') ? 'image/jpeg' : 'image/png';
 
   @override
   bool available(ExportKind kind) =>
@@ -330,14 +344,21 @@ class PlatformExportSink implements ExportSink {
     if (!available(kind)) return DeliverResult.unavailable;
     try {
       final f = await _write(png, fileName);
+      final mime = mimeOf(fileName);
       switch (kind) {
         case ExportKind.save:
-          return DeliverResult.done;
+          String r;
+          try {
+            r = await gallery(f.path, mime, fileName);
+          } catch (_) {
+            r = 'error';
+          }
+          return r == 'ok' ? DeliverResult.gallery : DeliverResult.done;
         case ExportKind.share:
-          await Share.shareXFiles([XFile(f.path, mimeType: 'image/png')]);
+          await Share.shareXFiles([XFile(f.path, mimeType: mime)]);
           return DeliverResult.done;
         case ExportKind.openIn:
-          final r = await OpenFilex.open(f.path, type: 'image/png');
+          final r = await OpenFilex.open(f.path, type: mime);
           return r.type == ResultType.done ? DeliverResult.done : DeliverResult.failed;
         default:
           return DeliverResult.unavailable;

@@ -1,0 +1,226 @@
+{
+  "_comment": "photobar (Photo Studio launch bar, 2 Nov): editor (crop/rotate, filters, Bangla text + stickers), background white/blue/remove, Bangladesh ID/passport/visa photos, gallery save. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_photobar_arb.json",
+  "en": {
+    "psbAddText": "Add text",
+    "psbApply": "Apply",
+    "psbAspectFree": "Free",
+    "psbAspectOriginal": "Original",
+    "psbColor": "Colour",
+    "psbCrop": "Crop & rotate",
+    "psbCropTitle": "Crop & rotate",
+    "psbDefaultText": "Your text",
+    "psbDelete": "Delete",
+    "psbDragHint": "Drag on the photo to move it. Tap another one to select it.",
+    "psbEditBody": "Crop, rotate, filters, Bangla text and stickers — on your phone, no internet needed. The original stays safe.",
+    "psbEditFailed": "That edit didn't work on this phone. Your photo is unchanged — please try again.",
+    "psbEditTitle": "Edit",
+    "psbFilterBw": "Black & white",
+    "psbFilterCool": "Cool",
+    "psbFilterDrama": "Drama",
+    "psbFilterEid": "Eid glow",
+    "psbFilterFade": "Fade",
+    "psbFilterGolden": "Golden hour",
+    "psbFilterOriginal": "Original",
+    "psbFilterSepia": "Sepia",
+    "psbFilterVivid": "Vivid",
+    "psbFilterWarm": "Warm",
+    "psbFilters": "Filters",
+    "psbFiltersTitle": "Filters",
+    "psbFlip": "Mirror",
+    "psbFontAtma": "Atma",
+    "psbFontGalada": "Galada",
+    "psbFontHind": "Hind Siliguri",
+    "psbFontNoto": "Noto Sans",
+    "psbHeroCan": "Also here: passport, visa and job-application photos in the right size, white background, crop, filters, Bangla text and stickers.",
+    "psbIdBgBlue": "Light blue",
+    "psbIdBgKeep": "Keep",
+    "psbIdBgLabel": "Background",
+    "psbIdBgWhite": "White",
+    "psbIdBody": "Pick the size, place your head in the oval, done. You get the exact pixels — print at a shop or upload.",
+    "psbIdCheck": "Sizes are from official sources where we found them. Rules change — check with the office before you submit.",
+    "psbIdEpassport": "E-passport: no photo needed — the passport office takes it.",
+    "psbIdFileJpg": "File: {w}×{h} px JPG, at most {kb} KB.",
+    "@psbIdFileJpg": {
+      "placeholders": {
+        "w": {
+          "type": "String"
+        },
+        "h": {
+          "type": "String"
+        },
+        "kb": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdFilePng": "File: {w}×{h} px PNG at {dpi} DPI — prints at the exact size.",
+    "@psbIdFilePng": {
+      "placeholders": {
+        "w": {
+          "type": "String"
+        },
+        "h": {
+          "type": "String"
+        },
+        "dpi": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdFileSheet": "File: 4×6 inch print sheet at {dpi} DPI — ask the shop for a 4R print at 100%.",
+    "@psbIdFileSheet": {
+      "placeholders": {
+        "dpi": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdHint": "Plain light wall, face straight, both ears visible, no smile with teeth. Keep your head inside the oval.",
+    "psbIdJob": "Govt job application (Teletalk)",
+    "psbIdKb": "JPG ≤ {kb} KB",
+    "@psbIdKb": {
+      "placeholders": {
+        "kb": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdMm": "{w}×{h} mm",
+    "@psbIdMm": {
+      "placeholders": {
+        "w": {
+          "type": "String"
+        },
+        "h": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdNoMark": "ID photos are saved without the corner mark.",
+    "psbIdNoMask": "Take the photo in front of a plain white wall — background change isn't available on this phone.",
+    "psbIdPassport": "Passport (MRP / passport size)",
+    "psbIdPx": "{w}×{h} px",
+    "@psbIdPx": {
+      "placeholders": {
+        "w": {
+          "type": "String"
+        },
+        "h": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdSheet": "Make a print sheet ({n} copies, 4×6 inch)",
+    "@psbIdSheet": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "psbIdSrcCommon": "common practice",
+    "psbIdSrcMission": "BD mission source",
+    "psbIdSrcPortal": "official portal",
+    "psbIdStamp": "Stamp size",
+    "psbIdTitle": "Passport & ID photo",
+    "psbIdTooBig": "This photo can't be made small enough for the portal's KB limit. Try a simpler background.",
+    "psbIdVisaBd": "Visa 35×45 (Bangladesh visa, many countries)",
+    "psbIdVisaIndia": "Indian visa (2×2 inch)",
+    "psbReset": "Reset",
+    "psbRotateLeft": "Rotate left",
+    "psbRotateRight": "Rotate right",
+    "psbSaveWhere": "Save puts the photo in your Gallery (Pictures › Assisto).",
+    "psbSavedGallery": "Saved to your Gallery (Pictures › Assisto).",
+    "psbSize": "Size",
+    "psbStickers": "Stickers",
+    "psbStickersTitle": "Stickers",
+    "psbStrength": "Strength",
+    "psbTabStickers": "Stickers",
+    "psbTabText": "Text",
+    "psbText": "Text",
+    "psbTextBox": "Box",
+    "psbTextLabel": "Text",
+    "psbTextTitle": "Text",
+    "psbToolBgBlue": "Light blue background",
+    "psbToolBgRemove": "Remove background",
+    "psbToolBgWhite": "White background"
+  },
+  "bn": {
+    "psbAddText": "লেখা যোগ করুন",
+    "psbApply": "প্রয়োগ করুন",
+    "psbAspectFree": "মুক্ত",
+    "psbAspectOriginal": "আসল মাপ",
+    "psbColor": "রং",
+    "psbCrop": "কাটা ও ঘোরানো",
+    "psbCropTitle": "কাটা ও ঘোরানো",
+    "psbDefaultText": "আপনার লেখা",
+    "psbDelete": "মুছুন",
+    "psbDragHint": "সরাতে ছবির উপর টানুন। অন্যটা বাছতে সেটায় ট্যাপ করুন।",
+    "psbEditBody": "কাটা, ঘোরানো, ফিল্টার, বাংলা লেখা ও স্টিকার — ফোনেই, নেট লাগে না। আসল ছবি অক্ষত থাকে।",
+    "psbEditFailed": "এই এডিটটা এই ফোনে হলো না। ছবি আগের মতোই আছে — আবার চেষ্টা করুন।",
+    "psbEditTitle": "সাজান",
+    "psbFilterBw": "সাদা-কালো",
+    "psbFilterCool": "ঠান্ডা",
+    "psbFilterDrama": "নাটকীয়",
+    "psbFilterEid": "ঈদের আভা",
+    "psbFilterFade": "ম্লান",
+    "psbFilterGolden": "সোনালি বিকেল",
+    "psbFilterOriginal": "আসল",
+    "psbFilterSepia": "পুরনো দিনের",
+    "psbFilterVivid": "উজ্জ্বল",
+    "psbFilterWarm": "উষ্ণ",
+    "psbFilters": "ফিল্টার",
+    "psbFiltersTitle": "ফিল্টার",
+    "psbFlip": "উল্টান",
+    "psbFontAtma": "আত্মা",
+    "psbFontGalada": "গালাডা",
+    "psbFontHind": "হিন্দ শিলিগুড়ি",
+    "psbFontNoto": "নোটো সান্স",
+    "psbHeroCan": "এখানে আরও পাবেন: সঠিক মাপের পাসপোর্ট, ভিসা ও চাকরির আবেদনের ছবি, সাদা ব্যাকগ্রাউন্ড, কাটা, ফিল্টার, বাংলা লেখা ও স্টিকার।",
+    "psbIdBgBlue": "হালকা নীল",
+    "psbIdBgKeep": "যেমন আছে",
+    "psbIdBgLabel": "ব্যাকগ্রাউন্ড",
+    "psbIdBgWhite": "সাদা",
+    "psbIdBody": "মাপ বাছুন, মাথা ডিম্বাকৃতির ভেতরে রাখুন, ব্যস। ঠিক মাপের ছবি পাবেন — দোকানে ছাপুন বা অনলাইনে জমা দিন।",
+    "psbIdCheck": "মাপগুলো যেখানে পেয়েছি সরকারি সূত্র থেকে নেওয়া। নিয়ম বদলায় — জমা দেওয়ার আগে অফিসে মিলিয়ে নিন।",
+    "psbIdEpassport": "ই-পাসপোর্ট: ছবি লাগে না — পাসপোর্ট অফিসেই তোলা হয়।",
+    "psbIdFileJpg": "ফাইল: {w}×{h} px JPG, সর্বোচ্চ {kb} KB।",
+    "psbIdFilePng": "ফাইল: {w}×{h} px PNG, {dpi} DPI — ঠিক মাপে ছাপা হবে।",
+    "psbIdFileSheet": "ফাইল: ৪×৬ ইঞ্চির প্রিন্ট শিট, {dpi} DPI — দোকানে ৪R সাইজে ১০০% ছাপতে বলুন।",
+    "psbIdHint": "সাদা/হালকা দেয়াল, মুখ সোজা, দুই কান দেখা যাবে, দাঁত দেখানো হাসি নয়। মাথা ডিম্বাকৃতির ভেতরে রাখুন।",
+    "psbIdJob": "সরকারি চাকরির আবেদন (টেলিটক)",
+    "psbIdKb": "JPG ≤ {kb} KB",
+    "psbIdMm": "{w}×{h} মিমি",
+    "psbIdNoMark": "আইডি ছবিতে কোণের চিহ্ন থাকে না।",
+    "psbIdNoMask": "সাদা দেয়ালের সামনে ছবি তুলুন — এই ফোনে ব্যাকগ্রাউন্ড বদল চলে না।",
+    "psbIdPassport": "পাসপোর্ট (MRP / পাসপোর্ট সাইজ)",
+    "psbIdPx": "{w}×{h} px",
+    "psbIdSheet": "প্রিন্ট শিট বানান ({n} কপি, ৪×৬ ইঞ্চি)",
+    "psbIdSrcCommon": "প্রচলিত মাপ",
+    "psbIdSrcMission": "দূতাবাসের সূত্র",
+    "psbIdSrcPortal": "সরকারি পোর্টাল",
+    "psbIdStamp": "স্ট্যাম্প সাইজ",
+    "psbIdTitle": "পাসপোর্ট ও আইডি ছবি",
+    "psbIdTooBig": "পোর্টালের KB সীমার মধ্যে এই ছবি ছোট করা গেল না। সাধারণ ব্যাকগ্রাউন্ডে আবার চেষ্টা করুন।",
+    "psbIdVisaBd": "ভিসা ৩৫×৪৫ (বাংলাদেশ ভিসা, অনেক দেশ)",
+    "psbIdVisaIndia": "ভারতীয় ভিসা (২×২ ইঞ্চি)",
+    "psbReset": "আগের মতো",
+    "psbRotateLeft": "বাঁয়ে ঘোরান",
+    "psbRotateRight": "ডানে ঘোরান",
+    "psbSaveWhere": "সেভ করলে ছবি গ্যালারিতে যায় (Pictures › Assisto)।",
+    "psbSavedGallery": "গ্যালারিতে সেভ হয়েছে (Pictures › Assisto)।",
+    "psbSize": "আকার",
+    "psbStickers": "স্টিকার",
+    "psbStickersTitle": "স্টিকার",
+    "psbStrength": "মাত্রা",
+    "psbTabStickers": "স্টিকার",
+    "psbTabText": "লেখা",
+    "psbText": "লেখা",
+    "psbTextBox": "বাক্স",
+    "psbTextLabel": "লেখা",
+    "psbTextTitle": "লেখা",
+    "psbToolBgBlue": "হালকা নীল ব্যাকগ্রাউন্ড",
+    "psbToolBgRemove": "ব্যাকগ্রাউন্ড মুছুন",
+    "psbToolBgWhite": "সাদা ব্যাকগ্রাউন্ড"
+  }
+}

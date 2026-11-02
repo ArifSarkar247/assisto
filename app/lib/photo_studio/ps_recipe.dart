@@ -171,6 +171,23 @@ class BlurStep extends PsStep {
   ({int w, int h}) outSize(int w, int h) => psFitSize(w, h, maxLong);
 }
 
+/// photobar: a pure-Dart pixel step (crop/rotate, colour filter, background
+/// fill, overlay patches, print sheet — ps_edit.dart). Everything it needs is
+/// in its fields (resolution-free: 0..1 rects, masks, patches made for the
+/// exact output size), so the proxy preview and the full-size export run the
+/// same code.
+abstract class PsPixelStep extends PsStep {
+  const PsPixelStep();
+  RgbaOut apply(Uint8List rgba, int w, int h);
+}
+
+/// Output of a [PsPixelStep].
+class RgbaOut {
+  const RgbaOut(this.rgba, this.w, this.h);
+  final Uint8List rgba;
+  final int w, h;
+}
+
 ({int w, int h}) psStepsSize(int w, int h, List<PsStep> steps) {
   var s = (w: w, h: h);
   for (final st in steps) {
@@ -213,6 +230,13 @@ RecipeOut applySteps(Uint8List rgba, int w, int h, List<PsStep> steps,
         ch = d.h;
       }
       cur = blurBackgroundRgba(cur, cw, ch, st.mask, st.side, st.side, strength: st.strength);
+      part(1, 1);
+      done.add(st);
+    } else if (st is PsPixelStep) {
+      final r = st.apply(cur, cw, ch);
+      cur = r.rgba;
+      cw = r.w;
+      ch = r.h;
       part(1, 1);
       done.add(st);
     } else {

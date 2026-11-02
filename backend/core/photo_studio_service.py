@@ -908,9 +908,9 @@ _TEMPLATES = (
     ("hd_portrait", "enhance_server", "", "HD portrait", "HD পোর্ট্রেট"),
     ("old_restore", "old_restore", "", "Old photo: restore + colour", "পুরোনো ছবি: ঠিক + রং"),
     ("passport_bd", "prompt_edit", "Make a Bangladesh passport photo: plain white background, "
-     "head and shoulders, centred, even soft light, 40x50 mm framing.", "Passport (BD)", "পাসপোর্ট (বাংলাদেশ)"),
+     "head and shoulders, centred, even soft light, 45x55 mm framing.", "Passport (BD)", "পাসপোর্ট (বাংলাদেশ)"),
     ("visa_bd", "prompt_edit", "Make a visa photo: plain white background, head and shoulders, "
-     "centred, even light, 2x2 inch framing.", "Visa photo", "ভিসা ছবি"),
+     "centred, even light, 35x45 mm framing.", "Visa photo", "ভিসা ছবি"),
     ("linkedin", "prompt_edit", "Professional profile photo: neat business attire, soft studio "
      "light, clean light-grey background.", "Professional / LinkedIn", "প্রফেশনাল / LinkedIn"),
     ("eid_outfit", "prompt_edit", "Dress the person in a modest, elegant Eid outfit "
