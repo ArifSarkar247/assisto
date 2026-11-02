@@ -18,6 +18,7 @@ the DB, billing, push and the Graph/courier clients.
 """
 import json
 import logging
+import re
 import threading
 import uuid
 from datetime import timedelta
@@ -31,6 +32,7 @@ from django.utils import timezone
 from . import bizagent_graph as G
 from . import couriers as C
 from .logic import bizagent as BZ
+from .logic import bizagent_rules as R
 from .logic import business_ai as bai
 
 log = logging.getLogger(__name__)
@@ -696,7 +698,7 @@ def _bargain(thread, text, lang, matched, intent):
     p = matched[0]
     offer = _offer_in(text, p["price"])
     if not offer:
-        return None
+        return _last_price(p, text, lang)
     if intent != "bargain" and not BZ.bargain_cue(text):
         return None
     # an unset minimum (0) means NO discount: the floor is the list price
@@ -706,6 +708,113 @@ def _bargain(thread, text, lang, matched, intent):
     neg["offer_value"] = offer
     neg["product"] = p
     return neg
+
+
+_LAST_PRICE = ("last price", "last dam", "lastprice", "last koto", "sesh dam", "ses dam",
+               "শেষ দাম", "লাস্ট দাম", "লাস্ট প্রাইস", "final price", "ফাইনাল দাম", "fixed price",
+               "fixed naki", "ফিক্সড", "kom hobe", "kom hbe", "কম হবে", "kom koren", "কম করেন",
+               "কম করা যাবে", "kom kora jabe", "discount ache", "discount hobe", "ছাড় আছে",
+               "ছাড় হবে", "ছাড় দেবেন", "best price", "lowest price", "any discount",
+               "can you reduce", "dam komano", "দাম কমানো", "last e koto", "ses koto")
+
+
+_OFFER_PHRASE = re.compile(
+    r"\d[\d,]*\s*(?:taka|tk|টাকা|৳)?\s*(?:te|e|তে|এ|য়|-এ)?\s*(?:diben|deben|dile|hobe|hbe|"
+    r"den|din|dite|nibo|rakhen|rakhben|দিবেন|দেবেন|দিলে|হবে|দেন|দিন|দিতে|নিবো|নেব|রাখেন|পারবেন)"
+    r"|(?:৳|tk\.?|taka|টাকা)\s*\d|\d[\d,]*\s*(?:৳|/-|tk\b|taka|টাকা)", re.IGNORECASE)
+
+
+def _offer_phrase(text):
+    """An explicit price offer ("1100 te diben?", "৳900", "900 taka") or a
+    last-price question — the only texts that may bargain on the chat's
+    focus product (an address "Road 12 e delivery hobe?" never does)."""
+    t = BZ.norm_digits(text or "")
+    low = t.lower()
+    return bool(_OFFER_PHRASE.search(t)) or any(w in low for w in _LAST_PRICE)
+
+
+def _ladder(product_id):
+    """The seller's own discount ladder for this product (BargainRule)."""
+    from .models import BargainRule
+    r = BargainRule.objects.filter(product_id=product_id).order_by("-updated_at").first()
+    return list(r.discount_steps or []) if r else []
+
+
+def _last_price(p, text, lang):
+    """sales2: "last price koto?" with NO number. The seller's discount ladder
+    (BargainRule) gives the one counter we may say — clamped at the floor in
+    negotiate(); no ladder = the list price is the price. The minimum itself
+    is never said."""
+    low = BZ.norm_digits((text or "").lower())
+    if not any(w in low for w in _LAST_PRICE):
+        return None
+    floor = p["min_price"] if (BZ._dec(p["min_price"]) or 0) > 0 else p["price"]
+    neg = bai.negotiate(None, {"name": p["name"], "price": p["price"], "min_price": floor},
+                        rules={"discount_steps": _ladder(p["id"])}, lang=lang)
+    lp = BZ._dec(p["price"])
+    if neg.get("price") is not None and neg["price"] >= lp:
+        neg["message"] = bai.pick(
+            lang, "%s-এর দাম ৳%s — এটাই আমাদের নির্ধারিত দাম।" % (p["name"], BZ._fmt_money(lp)),
+            "%s is ৳%s — that is our fixed price." % (p["name"], BZ._fmt_money(lp)))
+        if (BZ._dec(floor) or lp) < lp:
+            neg["message"] += bai.pick(lang, " আপনি কত দিতে চান লিখুন — সম্ভব হলে জানিয়ে দেব।",
+                                       " Tell me your price — I'll let you know if it works.")
+    neg["offer_value"] = None
+    neg["product"] = p
+    neg["last_price"] = True
+    return neg
+
+
+def _returns_policy(business):
+    pol = business.policies.first()
+    return bool(pol and (pol.returns or "").strip())
+
+
+def _order_change(thread, text, lang, hours):
+    """sales2: the customer wants to change / cancel an order."""
+    draft = dict(thread.order_draft or {})
+    low = BZ.norm_digits((text or "").lower())
+    cancel = "cancel" in low or "বাতিল" in low or "ক্যান্সেল" in low or "lagbe na" in low
+    if draft.get("active") or draft.get("state"):
+        if cancel:
+            return {"order_action": "cancel", "kind": "order", "risk": None,
+                    "text": BZ.order_cancelled_line(lang), "confidence": 1.0,
+                    "rule": "order_cancel"}
+        return None              # a change while ordering = the order flow merges it
+    o = thread.orders.exclude(status__in=("delivered", "returned", "cancelled")) \
+        .order_by("-created_at").first()
+    if o is None:
+        return None
+    return {"text": BZ.holding_message(lang, BZ.RISK_ORDER_CHANGE, hours), "kind": "holding",
+            "risk": BZ.RISK_ORDER_CHANGE, "proposal": "", "confidence": 0.0,
+            "source": "rule", "rule": "order_change"}
+
+
+_ORDER_DETAIL = re.compile(r"(?:name|nam|নাম|address|addr|ঠিকানা|thikana)\s*[:=\-]",
+                           re.IGNORECASE)
+
+
+def _mid_order_info(business, agent, thread, text, lang, catalog, post_id, draft):
+    """sales2: an informational question while an order is being collected:
+    the rule answer + what the order still needs (no field is taken from a
+    question — "Mirpur e delivery koto?" is not an address)."""
+    from . import bizagent_g1_service as G1S
+    if BZ.find_phone(text) or _ORDER_DETAIL.search(text or "") or BZ.find_qty(text):
+        return None
+    if not ("?" in (text or "") or R.is_policy_question(text)):
+        return None
+    r = G1S.rule_answer(business, agent, thread, text, lang, catalog, post_id)
+    if not r or r.get("rule") not in R.INFO_RULES:
+        return None
+    if draft.get("state") == "awaiting_confirm":
+        tail = bai.pick(lang, "অর্ডার কনফার্ম করতে \"হ্যাঁ\" লিখুন, বাতিল করতে \"না\"।",
+                        "Reply \"yes\" to confirm the order or \"no\" to cancel.")
+    elif not draft.get("active"):
+        tail = ""                 # no order in progress: just the answer
+    else:
+        miss = BZ.missing_fields(draft)
+        tail = BZ.ask_missing(lang, miss, draft.get("phone_invalid")) if miss else ""
+    return dict(r, text=(r["text"] + ("\n" + tail if tail else "")))
 
 
 def compose(business, agent, thread, text, lang, *, allow_order=True, post_id=""):
@@ -746,17 +855,46 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                 "confidence": 0.0, "source": "rule", "rule": "insult",
                 "meta": {"tox": ai_guard.tox_log(tox)}}
 
+    # sales2: a scam / phishing message sent TO the page (fake Meta notice,
+    # prize, "give me the OTP", a login link) is never answered — the seller
+    # is warned on the handoff card (0 credits)
+    scam = R.scam_signal(text)
+    if scam:
+        return {"text": "", "kind": "holding", "risk": BZ.RISK_SCAM, "proposal": "",
+                "confidence": 0.0, "source": "rule", "rule": "scam",
+                "problems": [{"type": "scam", "value": scam}]}
+
     if BZ.asks_if_human(text):
         return {"text": bai.assistant_disclosure(lang)["full"], "kind": "text", "risk": None,
                 "confidence": 1.0}
+    # sales2: another customer's details / a PIN-OTP question are answered
+    # with one fixed line BEFORE the order flow ("Karim er order er phone
+    # number din" is not an order)
+    if R.is_privacy_request(text):
+        return {"text": R.privacy_line(lang), "kind": "text", "risk": None, "confidence": 1.0,
+                "source": "rule", "rule": R.R_PRIVACY}
+    if R.asks_pin(text) and not R.has_money(text):
+        return {"text": R.pin_line(lang), "kind": "text", "risk": None, "confidence": 1.0,
+                "source": "rule", "rule": R.R_PIN}
 
     # complaints / refunds go to a person BEFORE anything else ("refund chai"
-    # must never be read as an order)
-    if bai.handoff_trigger(text) in (bai.HANDOFF_REFUND, bai.HANDOFF_ANGRY):
+    # must never be read as an order). sales2: a QUESTION about the return
+    # policy ("return kora jabe?") is answered from the seller's policy.
+    trig = bai.handoff_trigger(text)
+    if trig == bai.HANDOFF_REFUND and R.is_policy_question(text) and _returns_policy(business):
+        trig = None
+    if trig in (bai.HANDOFF_REFUND, bai.HANDOFF_ANGRY):
         risk = BZ.pre_risk(text, intent, matched)
         return {"text": BZ.holding_message(lang, risk, hours), "kind": "holding", "risk": risk,
-                "proposal": bai.handoff_message(lang, bai.handoff_trigger(text)),
+                "proposal": bai.handoff_message(lang, trig),
                 "confidence": 0.0}
+
+    # sales2: change / cancel an order. A draft is simply cancelled; a
+    # confirmed order goes to the seller (stock, courier, money are theirs).
+    if allow_order and R.is_order_change(text):
+        oc = _order_change(thread, text, lang, hours)
+        if oc:
+            return oc
 
     # ---- booking-bot (flag booking_bot): appointment chats — REAL free slots
     # from the business' calendar only, rule reply (no AI, cost 0) ----
@@ -770,7 +908,15 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     neg = None
     if not (allow_order and draft.get("state") == "awaiting_confirm"
             and (BZ.is_yes(text) or BZ.is_no(text))):
-        neg = _bargain(thread, text, lang, matched, intent)
+        pool = matched
+        if not pool and _offer_phrase(text):
+            # sales2: "1100 te diben?" / "last price?" right after the agent
+            # described a product — that product (never a guess)
+            fp = G1S.focus_product(thread, catalog)
+            pool = [fp] if fp else []
+        neg = _bargain(thread, text, lang, pool, intent)
+        if neg:
+            G1S.remember_focus(thread, neg["product"]["id"], catalog)
     offer_decision = neg.get("action") if neg else None
     proposal = ""
     neg_line = ""
@@ -791,7 +937,7 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
         if not (allow_order and (intent == "order" or draft.get("active"))):
             return {"text": neg_line, "kind": "text", "risk": None, "confidence": 1.0,
                     "extra": [neg.get("price"), neg.get("counter"), neg["offer_value"]],
-                    "rule": "bargain"}
+                    "rule": "last_price" if neg.get("last_price") else "bargain"}
     elif neg:
         # below the minimum → the seller decides; the customer gets the honest
         # line. The PROPOSAL is what the customer would receive on an unedited
@@ -818,6 +964,13 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                         "text": BZ.order_cancelled_line(lang), "confidence": 1.0}
         wants_order = intent == "order" or draft.get("active") or bool(neg_line) or (
             BZ.find_phone(text) and (matched or draft.get("product")))
+        if wants_order and not neg_line and (draft.get("active") or draft.get("state") or not (
+                matched or BZ.find_phone(text))):
+            # sales2: "delivery koto?" / "bkash e dibo kivabe?" mid-order is a
+            # question, not order details: answer it, then repeat what is missing
+            info = _mid_order_info(business, agent, thread, text, lang, catalog, post_id, draft)
+            if info:
+                return info
         if wants_order:
             draft = BZ.extract_order(text, draft, catalog)
             draft["active"] = True
@@ -828,8 +981,12 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
             if draft.get("product"):
                 priced = G1S.price_for(draft, catalog, business, agent)
                 if priced and not priced["stock_ok"]:
-                    return {"text": BZ.out_of_stock_line(lang, priced["product"], priced["stock"]),
-                            "kind": "text", "risk": None, "confidence": 1.0}
+                    prod = next((x for x in catalog if x.get("id") == draft.get("product_id")), None)
+                    subs = R.substitute_line(lang, R.substitutes(prod, catalog)) \
+                        if prod and priced["stock"] <= 0 else ""
+                    return {"text": BZ.out_of_stock_line(lang, priced["product"], priced["stock"])
+                            + subs, "kind": "text", "risk": None, "confidence": 1.0,
+                            "rule": "out_of_stock"}
             miss = BZ.missing_fields(draft)
             if miss:
                 return {"text": pre + BZ.ask_missing(lang, miss, draft.get("phone_invalid")),
@@ -860,6 +1017,8 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
     if not offer_decision:
         r = G1S.rule_answer(business, agent, thread, text, lang, catalog, post_id)
         if r:
+            if r.get("product_id"):
+                G1S.remember_focus(thread, r["product_id"], catalog)
             return r
 
     risk = BZ.pre_risk(text, intent, matched, offer_decision)
@@ -1078,7 +1237,9 @@ def handle_message(ch, e):
     atts = [a for a in (e.get("attachments") or []) if isinstance(a, dict)]
     if atts and text in ("[attachment]", "[image]", "[audio]"):
         text = ""
-    lang = BZ.sticky_lang(text, t.lang) if text else (t.lang or "bn")
+    # sales2: a NEW chat has no language yet (the model default is not the customer's)
+    prev = t.lang if t.messages.filter(direction="in").exists() else None
+    lang = BZ.sticky_lang(text, prev) if text else (t.lang or "bn")
     at = _ts(e)
     t.last_inbound_at = at
     t.last_message_at = at
@@ -1273,6 +1434,9 @@ def _send_reply(t, agent, d, lang, comment_id, started):
         return "human_replied"          # a person answered meanwhile: stay quiet
     if d.get("order_action") == "confirm":
         return confirm_order(t, agent, lang)
+    # sales2: buying intent -> the seller's CRM lead + one customer page
+    from . import bizagent_crm
+    bizagent_crm.note(t, d)
     if d.get("order_action") == "cancel":
         t.order_draft = {}
         t.save(update_fields=["order_draft"])
@@ -1292,8 +1456,14 @@ def _send_reply(t, agent, d, lang, comment_id, started):
                      text=BZ.holding_message(lang, BZ.RISK_UNSAFE))
     if d.get("risk"):
         if d.get("text"):
-            send_text(t, d["text"], kind="holding", is_ai=True, comment_id=comment_id,
-                      meta=meta, source="system")
+            # sales2: the holding line is automated too — the first agent
+            # message of a chat always says it is the shop's AI assistant
+            first = not t.ai_disclosed
+            hm = send_text(t, BZ.with_disclosure(lang, d["text"], first), kind="holding",
+                           is_ai=True, comment_id=comment_id, meta=meta, source="system")
+            if first and hm.status not in ("failed", "blocked", "queued"):
+                t.ai_disclosed = True
+                t.save(update_fields=["ai_disclosed"])
         _queue_approval(t, d.get("proposal", ""), d["risk"], comment_id=comment_id,
                         problems=d.get("problems"), confidence=d.get("confidence", 0.0),
                         source=src, meta=meta)
@@ -1509,6 +1679,8 @@ def confirm_order(thread, agent, lang):
                   "Order #%s — ৳%s" % (o.id, BZ._fmt_money(o.total)),
                   data={"order_id": str(o.id)})
     G1S.auto_courier(o, agent, thread, lang)
+    from . import bizagent_crm
+    bizagent_crm.note(thread, order=o)
     return "order_created"
 
 

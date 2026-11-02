@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'l10n/app_localizations.dart';
 import 'push/push_notifier.dart' show assistoNotificationBackground;
 import 'reminders/alarm_plan.dart' show AlarmMode, AlarmRepeat;
 
@@ -70,6 +72,40 @@ class Notifications {
     ),
   );
 
+  // remnotes: reminder alarms carry "Done" / "Snooze 10 min" buttons in the
+  // app's language (AppState sets it before each reconcile). Neither opens
+  // the app: they land in the background isolate when it is closed
+  // (reminders/reminder_actions.dart). Ids must match ReminderActions.
+  static String actionLang = 'bn';
+  static const reminderPayloadPrefix = 'remalarm:';
+  static const actionDone = 'rem_done';
+  static const actionSnooze = 'rem_snooze';
+
+  @visibleForTesting
+  static NotificationDetails detailsFor(String? payload) {
+    if (!(payload ?? '').startsWith(reminderPayloadPrefix)) return _details;
+    AppLocalizations t;
+    try {
+      t = lookupAppLocalizations(Locale(actionLang == 'en' ? 'en' : 'bn'));
+    } catch (_) {
+      t = lookupAppLocalizations(const Locale('en'));
+    }
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        'assisto_reminders', 'Reminders',
+        channelDescription: 'Assisto reminders',
+        importance: Importance.max, priority: Priority.high,
+        category: AndroidNotificationCategory.reminder,
+        actions: <AndroidNotificationAction>[
+          AndroidNotificationAction(actionDone, t.rnNotifDone,
+              cancelNotification: false, showsUserInterface: false),
+          AndroidNotificationAction(actionSnooze, t.rnNotifSnooze10,
+              cancelNotification: false, showsUserInterface: false),
+        ],
+      ),
+    );
+  }
+
   static int idFor(String localId) => localId.hashCode & 0x7fffffff;
 
   /// Whether local scheduling is up (false in tests / when init failed).
@@ -127,8 +163,12 @@ class Notifications {
       DateTime whenLocal,
       {AlarmMode mode = AlarmMode.exact,
       AlarmRepeat repeat = AlarmRepeat.none,
-      String? payload}) async {
-    if (!_ready) return null;
+      String? payload,
+      FlutterLocalNotificationsPlugin? plugin}) async {
+    // remnotes: [plugin] = the background isolate's own initialised plugin
+    // (a notification "Snooze" while the app is closed).
+    final pl = plugin ?? _plugin;
+    if (plugin == null && !_ready) return null;
     if (!whenLocal.isAfter(DateTime.now())) return null;
     final match = switch (repeat) {
       AlarmRepeat.daily => DateTimeComponents.time,
@@ -139,9 +179,9 @@ class Notifications {
         ? const [AlarmMode.inexact]
         : [mode, AlarmMode.inexact]) {
       try {
-        await _plugin.zonedSchedule(
+        await pl.zonedSchedule(
           id, title, body.isEmpty ? null : body,
-          tz.TZDateTime.from(whenLocal, tz.local), _details,
+          tz.TZDateTime.from(whenLocal, tz.local), detailsFor(payload),
           androidScheduleMode: _androidMode(m),
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,

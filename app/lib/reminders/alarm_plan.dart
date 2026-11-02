@@ -67,9 +67,11 @@ class AlarmPlan {
   int get id => alarmIdFor(key);
 
   /// Signature used by the ledger to decide "already scheduled exactly so".
+  /// remnotes: `|a1` = the notification carries Done / Snooze buttons;
+  /// changing it re-hands every alarm to the OS once after the update.
   String sig(AlarmMode mode) =>
       '${at.millisecondsSinceEpoch}|${repeat.name}|${mode.name}|'
-      '${PushPayload.stableHash('$title\u0000$body')}';
+      '${PushPayload.stableHash('$title\u0000$body')}|a1';
 }
 
 /// The notification id for a reminder key. Identical to the id the server

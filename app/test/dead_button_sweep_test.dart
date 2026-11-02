@@ -94,6 +94,8 @@ const Map<String, String> _allowDead = {
   'home_v2_free_ad|Install': 'A: fake native-ad template in h1_home_fakes.dart (home_v2 ad slot)',
   'push_settings|Open': 'A: spec uses probe: false, which disables the OS-settings calls',
   'reminders|tip:Sync': 'A: gallery repos keep the pre-stub ApiClient (no token) so sync() returns early; on device it syncs with a spinner',
+  'remnotes_reminders|tip:Sync': 'A: same Reminders screen as `reminders` (remnotes after-shot): no sqflite in the harness; on device it syncs with a spinner',
+  'remnotes_reminders_empty|tip:Sync': 'A: same Reminders screen as `reminders` (remnotes empty after-shot): on device it syncs with a spinner',
   // (B) needs real device machinery
   'c2_call_video_*|icon:0xf613': 'B: camera flip on the fake media stack; real flip is WebRTC (call-proof workflow)',
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
