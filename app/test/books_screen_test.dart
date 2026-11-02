@@ -104,6 +104,7 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Debits equal credits: the books balance'), findsOneWidget);
     expect(find.text('৳8,470'), findsNWidgets(2)); // total assets = total L + E
+    await t.ensureVisible(find.text('Trial balance'));
     await t.tap(find.text('Trial balance'));
     await t.pumpAndSettle();
     expect(find.text('৳10,770'), findsNWidgets(2));
@@ -149,6 +150,7 @@ void main() {
     await t.pumpAndSettle();
     expect(t.takeException(), isNull);
     for (final tab in ['Balance sheet', 'Trial balance']) {
+      await t.ensureVisible(find.text(tab));
       await t.tap(find.text(tab));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
