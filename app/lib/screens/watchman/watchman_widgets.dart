@@ -46,12 +46,21 @@ String wmVendorName(AppLocalizations t, String v) => switch (v) {
       _ => t.wmVendorOther,
     };
 
+/// cctvalerts: the server's own words for WHAT the alert is about (vehicle,
+/// animal, line A → B, covered camera ...) when it sent them, else by type.
+String wmEventWhatOf(AppLocalizations t, Map e) {
+  final w = (e['what'] ?? '').toString();
+  return w.isNotEmpty ? w : wmEventWhat(t, (e['type'] ?? '').toString());
+}
+
 /// What an alert is about, in plain words — never accusatory.
 String wmEventWhat(AppLocalizations t, String type) => switch (type) {
       'person_detected' => t.wmEvPerson,
       'zone_intrusion' => t.wmEvZone,
       'line_crossing' => t.wmEvLine,
       'camera_alarm' => t.wmEvCameraAlarm,
+      'loitering' => t.cxatEvLoiter,
+      'camera_health' => t.cxatEvHealth,
       'after_hours' => t.wmEvAfterHours,
       'hand_in_cash_zone' => t.wmEvCash,
       'drawer_open' => t.wmEvDrawer,

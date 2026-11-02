@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import 'camera_alert_types.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 
@@ -333,6 +334,15 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                     child: Text(t.wmTo(loc.formatTimeOfDay(_qEnd))),
                   ),
                 ]),
+              // cctvalerts (W3): which alert types this camera sends
+              const Divider(height: 28),
+              CameraAlertTypesTile(
+                cameraId: _camId,
+                cameraName: (widget.camera['name'] ?? '').toString(),
+                source: widget.source is ApiWatchmanSource
+                    ? ApiAlertTypesSource((widget.source as ApiWatchmanSource).api)
+                    : null,
+              ),
               if (((_tuning['correct'] as num?) ?? 0) + ((_tuning['wrong'] as num?) ?? 0) > 0) ...[
                 const Divider(height: 28),
                 Text(t.wmLearned(wmDigits(lang, (_tuning['correct'] as num?)?.toInt() ?? 0),
