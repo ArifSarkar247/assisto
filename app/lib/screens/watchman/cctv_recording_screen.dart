@@ -264,7 +264,8 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
               for (final tier in tiers)
                 Card(
                   margin: const EdgeInsets.only(bottom: 8),
-                  child: Padding(
+                  child: Container(
+                    width: double.infinity, // same width for both packages
                     padding: const EdgeInsets.all(12),
                     child: Wrap(
                       alignment: WrapAlignment.spaceBetween,
