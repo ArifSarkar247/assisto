@@ -170,6 +170,29 @@ def _removable(src):
     return src["kind"] in (SRC_SCHOOL, SRC_JOURNEY)
 
 
+def is_known_minor(user):
+    """playaudit2 (Play Families / ads policy): True when a parent has told
+    Assisto this account is a CHILD — an under-18 birth year in the child
+    emergency-audio consent, a child School Mode plan, a kids watch or a
+    tracker chip linked to this account. Such accounts get NO ads (not even
+    non-personalised). Errors -> False (never blocks anything else)."""
+    if not getattr(user, "is_authenticated", False):
+        return False
+    try:
+        from .kid_audio import is_minor
+        from .models import KidAudioConsent, KidsWatch, SchoolPlan, VehicleTracker
+        for y in KidAudioConsent.objects.filter(child=user).values_list(
+                "birth_year", flat=True):
+            if is_minor(y):
+                return True
+        return (SchoolPlan.objects.filter(child_user=user, enabled=True).exists()
+                or KidsWatch.objects.filter(child_user=user).exclude(
+                    state="disabled").exists()
+                or VehicleTracker.objects.filter(kind="chip", child_user=user).exists())
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def guardian_user_ids(child):
     if child is None:
         return set()

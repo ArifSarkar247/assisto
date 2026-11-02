@@ -19,6 +19,9 @@ class AdsConfigView(APIView):
         except Exception:
             plan = "free"
         paid = plan != "free"
+        # playaudit2: a parent-declared child account never sees ads
+        from .guardianship import is_known_minor
+        minor = (not paid) and is_known_minor(user)
         try:
             admob_cfg = integrations.get("admob")
             working = integrations.is_enabled("admob")
@@ -30,8 +33,12 @@ class AdsConfigView(APIView):
             hero_refresh = (c.get("home_hero") or {}).get("refresh_sec", 90)
         except Exception:
             caps, hero_refresh = {}, 90
-        return Response(A.client_config(
-            plan=plan, paid=paid, admob_cfg=admob_cfg, admob_working=working,
+        out = A.client_config(
+            plan=plan, paid=paid or minor, admob_cfg=admob_cfg, admob_working=working,
             flag_rewarded=billing.flag_on("ads_rewarded"),
             flag_app_open=billing.flag_on("ads_app_open"),
-            ad_caps=caps, hero_refresh=hero_refresh))
+            ad_caps=caps, hero_refresh=hero_refresh)
+        if minor:
+            out["ads_enabled"] = False
+            out["ads_off_reason"] = "minor"
+        return Response(out)

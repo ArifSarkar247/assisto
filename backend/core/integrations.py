@@ -10,6 +10,7 @@ in git/logs.
 """
 import os
 import json
+import re
 
 from django.utils import timezone
 
@@ -187,6 +188,24 @@ REGISTRY = {
                    _f("rtdn_sa_email", "RTDN push service-account ইমেইল", "RTDN push service-account email", secret=False),
                    _f("rtdn_token", "RTDN গোপন টোকেন (ঐচ্ছিক, ?token=)", "RTDN shared token (optional, ?token=)")],
         "test": "test_play_billing",
+    },
+    # playaudit2: Android App Links — lifeassisto.com/.well-known/assetlinks.json
+    # (web.views.assetlinks). Play re-signs the app with the Play APP SIGNING
+    # key, so its SHA-256 (not the upload key's) must be listed, or /photo/app,
+    # /i/, /ch/, /cm/ links open the browser instead of the app. Public value.
+    "android_app_links": {
+        "name": "Android App Links (assetlinks.json)",
+        "category": "Monetization",
+        "unlocks_bn": "lifeassisto.com/ch/…, /cm/…, /i/…, /photo/app লিংক সরাসরি অ্যাপে খোলে (ব্রাউজারে নয়)।",
+        "unlocks_en": "lifeassisto.com/ch/…, /cm/…, /i/…, /photo/app links open straight in the app (not the browser).",
+        "guide_bn": ["Play Console → Assisto → Test and release → Setup → App signing",
+                     "\"App signing key certificate\"-এর SHA-256 কপি করুন (Upload key-এরটা নয়) → নিচে পেস্ট → Save → Test",
+                     "ওয়েবসাইট APK-র কী-ও রাখতে চাইলে কমা দিয়ে দুটো দিন"],
+        "guide_en": ["Play Console → Assisto → Test and release → Setup → App signing",
+                     "Copy the SHA-256 of the \"App signing key certificate\" (not the upload key) → paste below → Save → Test",
+                     "To keep the website APK key too, give both, comma-separated"],
+        "fields": [_f("sha256_fingerprints", "SHA-256 (কমা দিয়ে একাধিক)", "SHA-256 fingerprints (comma-separated)", secret=False)],
+        "test": "test_android_app_links",
     },
     # pay1: EPS (Easy Payment System) hosted checkout — bKash / Nagad / cards
     "eps": {
@@ -1126,6 +1145,36 @@ def test_admob(cfg):
     from .logic import ads as _ads
     ok, why = _ads.validate_admob_ids(cfg)
     return ok, why
+
+
+# ---- playaudit2 ----
+_SHA256_FP = re.compile(r"^[0-9A-F]{2}(:[0-9A-F]{2}){31}$")
+
+
+def app_link_fingerprints(raw: str) -> list:
+    """Comma/space separated SHA-256 cert fingerprints -> normalised list
+    (upper-case AA:BB:… form; a bare 64-hex string gets its colons). Invalid
+    entries are dropped, duplicates removed, order kept."""
+    out = []
+    for x in re.split(r"[,\s]+", raw or ""):
+        x = x.strip().upper()
+        if re.fullmatch(r"[0-9A-F]{64}", x):
+            x = ":".join(x[i:i + 2] for i in range(0, 64, 2))
+        if _SHA256_FP.match(x) and x not in out:
+            out.append(x)
+    return out
+
+
+def test_android_app_links(cfg):
+    raw = cfg.get("sha256_fingerprints", "")
+    fps = app_link_fingerprints(raw)
+    bad = [x for x in re.split(r"[,\s]+", raw or "")
+           if x.strip() and not app_link_fingerprints(x)]
+    if not fps:
+        return (False, "SHA-256 ঠিক নয় (৩২ জোড়া হেক্স, যেমন AB:CD:…) / not a SHA-256 fingerprint")
+    if bad:
+        return (False, "কিছু মান ঠিক নয় / some values are not SHA-256 fingerprints")
+    return (True, "✓ %d fingerprint(s) — lifeassisto.com/.well-known/assetlinks.json" % len(fps))
 
 
 # ---- ps1-photo ----

@@ -3,7 +3,12 @@ channel posts and communities (core.views_messenger.ModerationReportView)
 wait here. Severe reports / many reporters already hid the item; the owner
 removes it (leaves the directory, posts hidden) or restores it. Channel
 posts are public plaintext, so a short excerpt is shown; community chats
-are E2E and never shown. Every action is audited."""
+are E2E and never shown. Every action is audited.
+playaudit2 (Play UGC policy): reports on PEOPLE (kind "person": train-chat
+reports, messenger/community person reports) wait here too. The train-chat
+text the reporter saw is shown (a public train room); E2E chats never are.
+"Remove" on a person hides all their train-chat messages; blocking the
+account is one click away on the user page (link in the row)."""
 from django.http import Http404
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -11,7 +16,7 @@ from django.views.decorators.http import require_http_methods
 from . import security as S
 from .base import done, owner_view, page
 
-KINDS = ("channel", "post", "community")
+KINDS = ("channel", "post", "community", "person")
 
 
 def _label(it):
@@ -23,6 +28,17 @@ def _label(it):
     if it.target_kind == "post":
         p = ChannelPost.objects.filter(pk=tid).select_related("channel").first()
         return ("@%s: %s" % (p.channel.handle, (p.text or p.kind)[:140])) if p else "—"
+    if it.target_kind == "person":
+        from core.models import ModerationReport, User
+        u = User.objects.filter(pk=tid).first()
+        who = ("%s (#%s)" % (u.name or "—", u.pk)) if u else "—"
+        r = (ModerationReport.objects.filter(
+            target_kind="person", target_id=str(tid),
+            snapshot_source="train_chat").order_by("-created_at").first())
+        if r and r.snapshot:
+            txt = str((r.snapshot[0] or {}).get("text", ""))[:140]
+            return "%s — %s: %s" % (who, r.note, txt)
+        return who
     c = Community.objects.filter(pk=tid).first()
     return c.name if c else "—"
 
@@ -38,6 +54,8 @@ def channel_reports(request):
     rows = list(qs.order_by("-severe", "-report_count", "-opened_at")[:100])
     for r in rows:
         r.label = _label(r)
+        r.user_link = ("/owner/users/%s" % r.target_id
+                       if r.target_kind == "person" and str(r.target_id).isdigit() else "")
     return page(request, "owner/channel_reports.html",
                 {"rows": rows, "st": st,
                  "n_open": ModerationItem.objects.filter(target_kind__in=KINDS)
@@ -71,6 +89,11 @@ def channel_report_act(request, pk):
     it.save(update_fields=["content_status", "queue_state", "decision",
                            "resolved_at"])
     _apply_status_to_target(it.target_kind, it.target_id, it.content_status)
+    if (it.target_kind == "person" and action == mmod.A_REMOVE
+            and str(it.target_id).isdigit()):
+        from core.models import TrainChatMessage
+        TrainChatMessage.objects.filter(
+            member__user_id=int(it.target_id)).update(hidden=True)
     ModerationAudit.objects.create(
         actor=request.owner, action=audit["action"],
         target_kind=audit["target_kind"], target_id=str(audit["target_id"]),

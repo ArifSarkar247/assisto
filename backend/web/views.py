@@ -494,19 +494,29 @@ def photo_app(request):
 
 
 def assetlinks(request):
-    """/.well-known/assetlinks.json for Android App Links (lifeassisto.com/photo/app).
-    Fingerprints come from ANDROID_CERT_SHA256 (comma-separated SHA-256 of the
-    release signing certificate — public, not a secret). Empty -> [] (honest:
-    links then open the browser page, which still offers the app)."""
+    """/.well-known/assetlinks.json for Android App Links (lifeassisto.com
+    /photo/app, /i/, /ch/, /cm/). playaudit2: fingerprints come from Owner
+    Admin -> Integrations -> "Android App Links" (the Play APP SIGNING key's
+    SHA-256, which only the owner can copy from Play Console) PLUS the legacy
+    ANDROID_CERT_SHA256 env/setting (the website APK's release key). Never
+    hard-coded; all are public, not secrets. None -> [] (honest: links then
+    open the web page, which still offers the app)."""
     import os
+    from core import integrations as _I
     raw = getattr(settings, "ANDROID_CERT_SHA256", "") or os.getenv("ANDROID_CERT_SHA256", "")
-    fps = [x.strip().upper() for x in raw.split(",") if x.strip()]
+    try:
+        owner_raw = (_I.get("android_app_links") or {}).get("sha256_fingerprints", "")
+    except Exception:  # noqa: BLE001 — a DB/Fernet hiccup must not 500 this file
+        owner_raw = ""
+    fps = _I.app_link_fingerprints(owner_raw + "," + raw)
     body = []
     if fps:
         body = [{"relation": ["delegate_permission/common.handle_all_urls"],
                  "target": {"namespace": "android_app", "package_name": APP_PACKAGE,
                             "sha256_cert_fingerprints": fps}}]
-    return HttpResponse(json.dumps(body), content_type="application/json")
+    resp = HttpResponse(json.dumps(body), content_type="application/json")
+    resp["Cache-Control"] = "public, max-age=300"
+    return resp
 
 
 # ---------------- W4: festival cards ----------------
