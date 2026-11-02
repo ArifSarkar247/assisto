@@ -10,7 +10,9 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/skeleton.dart';
 import '../widgets/cv_empty.dart';
+import '../cctvx/cctv_evidence_source.dart';
 import 'credits_screen.dart';
+import 'watchman/cctv_recording_screen.dart';
 import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
 import 'shop_camera_settings.dart';
@@ -344,7 +346,7 @@ class _SitesTab extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => const _SiteForm(),
+      builder: (_) => const ShopSiteForm(),
     );
     if (result == null) return;
     final api = context.read<AppState>().api;
@@ -373,19 +375,35 @@ class _SitesTab extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _SiteForm(
+      builder: (_) => ShopSiteForm(
         initialName: (site['name'] ?? '').toString(),
         initialRetention:
             (site['snapshot_retention_days'] ?? 7) as int,
+        // cctvevidence: never offer more days than the server keeps
+        maxDays: (site['photo_days_max'] as num?)?.toInt() ?? 7,
+        addonCameraId: (site['addon_camera_id'] as num?)?.toInt(),
       ),
     );
     if (result == null) return;
     final api = context.read<AppState>().api;
+    if (result['addon'] != null) {
+      // the reason line's link: the camera's Recording & evidence screen
+      if (!context.mounted) return;
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => CctvRecordingScreen(
+              source: ApiCctvEvidenceSource(api), cameraId: result['addon'] as int)));
+      await onReload();
+      return;
+    }
     try {
       final updated = await api.shopUpdateSite(
         site['id'] as int,
         name: (result['name'] ?? '').toString(),
-        retentionDays: (result['retention'] ?? 7) as int,
+        // only when the owner moved the slider: an older, longer setting is
+        // never cut down just by renaming the site
+        retentionDays: result['retention_changed'] == true
+            ? (result['retention'] ?? 7) as int
+            : null,
       );
       onToast(t.shopBoxSiteSaved);
       await onReload();
@@ -658,23 +676,32 @@ class _EnrollmentSheet extends StatelessWidget {
 }
 
 // ======================= SITE FORM =======================
-class _SiteForm extends StatefulWidget {
+class ShopSiteForm extends StatefulWidget {
   final String initialName;
   final int initialRetention;
-  const _SiteForm({this.initialName = '', this.initialRetention = 7});
+
+  /// cctvevidence: the most days the server keeps photos (7 base, 30 with
+  /// the 30-day video add-on) and the camera that sells the add-on.
+  final int maxDays;
+  final int? addonCameraId;
+  const ShopSiteForm(
+      {this.initialName = '', this.initialRetention = 7, this.maxDays = 7, this.addonCameraId});
   @override
-  State<_SiteForm> createState() => _SiteFormState();
+  State<ShopSiteForm> createState() => _ShopSiteFormState();
 }
 
-class _SiteFormState extends State<_SiteForm> {
+class _ShopSiteFormState extends State<ShopSiteForm> {
   late final TextEditingController _name;
   late double _retention;
+  bool _moved = false;
+
+  int get _max => widget.maxDays.clamp(1, 30);
 
   @override
   void initState() {
     super.initState();
     _name = TextEditingController(text: widget.initialName);
-    _retention = widget.initialRetention.clamp(0, 30).toDouble();
+    _retention = widget.initialRetention.clamp(0, _max).toDouble();
   }
 
   @override
@@ -718,11 +745,29 @@ class _SiteFormState extends State<_SiteForm> {
               Slider(
                 value: _retention,
                 min: 0,
-                max: 30,
-                divisions: 30,
-                label: days.toString(),
-                onChanged: (v) => setState(() => _retention = v),
+                max: _max.toDouble(),
+                divisions: _max,
+                label: fmtInt(context, days),
+                onChanged: (v) => setState(() {
+                  _retention = v;
+                  _moved = true;
+                }),
               ),
+              if (_max < 30) ...[
+                // cctvevidence: why the slider stops here + the way to 30
+                Text(t.cevRetentionCap(fmtInt(context, _max)),
+                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                if (widget.addonCameraId != null)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton(
+                      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                      onPressed: () =>
+                          Navigator.pop(context, {'addon': widget.addonCameraId}),
+                      child: Text(t.cevRetentionAddonLink),
+                    ),
+                  ),
+              ],
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Expanded(
@@ -736,6 +781,7 @@ class _SiteFormState extends State<_SiteForm> {
                     onPressed: () => Navigator.pop(context, {
                       'name': _name.text.trim(),
                       'retention': days,
+                      'retention_changed': _moved,
                     }),
                     child: Text(t.save),
                   ),

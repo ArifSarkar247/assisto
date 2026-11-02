@@ -15,6 +15,7 @@ import 'package:assisto/cctvx/evidence_pack.dart';
 import 'package:assisto/cctvx/evidence_pdf.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/screens/shop_box_screen.dart' show ShopSiteForm;
 import 'package:assisto/screens/watchman/cctv_recording_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -142,6 +143,73 @@ void main() {
       expect(pdf, isNotNull);
       expect(ascii.decode(pdf!.sublist(0, 5)), '%PDF-');
       expect(pdf!.length, greaterThan(1000));
+    });
+  });
+
+  group('shop box retention slider (never more than the server keeps)', () {
+    Future<Object?> openForm(WidgetTester tester, ShopSiteForm form, {String lang = 'en'}) async {
+      Object? result;
+      await tester.pumpWidget(_app(
+          Builder(
+              builder: (ctx) => Scaffold(
+                  body: Center(
+                      child: TextButton(
+                          onPressed: () async {
+                            result = await Navigator.of(ctx)
+                                .push(MaterialPageRoute(builder: (_) => Scaffold(body: form)));
+                          },
+                          child: const Text('open'))))),
+          lang: lang));
+      await tester.tap(find.text('open'));
+      await _settle(tester);
+      return result;
+    }
+
+    testWidgets('base plan: max 7, reason line + add-on link', (tester) async {
+      _phone(tester);
+      await openForm(tester,
+          const ShopSiteForm(initialName: 'Shop', initialRetention: 30, maxDays: 7, addonCameraId: 11));
+      final slider = tester.widget<Slider>(find.byType(Slider));
+      expect(slider.max, 7);
+      expect(slider.value, 7);                      // an older 30 is shown capped
+      expect(find.textContaining('Up to 7 days'), findsOneWidget);
+      expect(find.text('See the video add-on'), findsOneWidget);
+    });
+
+    testWidgets('the add-on link returns the camera to open', (tester) async {
+      _phone(tester);
+      Object? got;
+      await tester.pumpWidget(_app(Builder(
+          builder: (ctx) => Scaffold(
+              body: Center(
+                  child: TextButton(
+                      onPressed: () async {
+                        got = await Navigator.of(ctx).push(MaterialPageRoute(
+                            builder: (_) => const Scaffold(
+                                body: ShopSiteForm(maxDays: 7, addonCameraId: 11))));
+                      },
+                      child: const Text('open')))))));
+      await tester.tap(find.text('open'));
+      await _settle(tester);
+      await tester.ensureVisible(find.text('See the video add-on'));
+      await tester.tap(find.text('See the video add-on'));
+      await _settle(tester);
+      expect(got, {'addon': 11});
+    });
+
+    testWidgets('30-day add-on: max 30, no reason line', (tester) async {
+      _phone(tester);
+      await openForm(tester, const ShopSiteForm(initialRetention: 20, maxDays: 30, addonCameraId: 11));
+      expect(tester.widget<Slider>(find.byType(Slider)).max, 30);
+      expect(find.textContaining('Up to'), findsNothing);
+      expect(find.text('See the video add-on'), findsNothing);
+    });
+
+    testWidgets('Bangla digits in the reason line', (tester) async {
+      _phone(tester);
+      await openForm(tester, const ShopSiteForm(maxDays: 7), lang: 'bn');
+      expect(find.textContaining('সর্বোচ্চ ৭ দিন'), findsOneWidget);
+      expect(find.text('See the video add-on'), findsNothing);   // no camera yet
     });
   });
 

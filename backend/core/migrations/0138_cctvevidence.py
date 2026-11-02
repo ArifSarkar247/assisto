@@ -5,6 +5,7 @@
 # (plain legacy files are sealed on first access or by
 # `manage.py cctv_store_migrate`).
 import django.db.models.deletion
+import django.utils.timezone
 from django.db import migrations, models
 
 import core.logic.cctv_store
@@ -21,6 +22,13 @@ class Migration(migrations.Migration):
             model_name="shopsite",
             name="address",
             field=models.CharField(blank=True, default="", max_length=200),
+        ),
+        # every EXISTING site gets the migration time: its photos taken before
+        # keep the old (site-chosen, up to 30 days) rule — nothing retroactive
+        migrations.AddField(
+            model_name="shopsite",
+            name="retention_v2_since",
+            field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="shopcamera",

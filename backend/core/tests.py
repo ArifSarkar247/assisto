@@ -3973,7 +3973,9 @@ class ShopGuardTests(APITestCase):
         r = self.client.patch("/api/v1/shop/sites/%d" % self.site.id,
                               {"snapshot_retention_days": 99}, format="json")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.data["snapshot_retention_days"], 30)   # clamped
+        # cctvevidence: base plan keeps photos 7 days (30 with the add-on)
+        self.assertEqual(r.data["snapshot_retention_days"], 7)    # clamped
+        self.assertEqual(r.data["photo_days_max"], 7)
         r2 = self.client.patch("/api/v1/shop/sites/%d" % self.site.id,
                                {"snapshot_retention_days": -5}, format="json")
         self.assertEqual(r2.data["snapshot_retention_days"], 0)

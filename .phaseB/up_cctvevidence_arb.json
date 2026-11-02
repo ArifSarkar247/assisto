@@ -130,7 +130,16 @@
           "type": "String"
         }
       }
-    }
+    },
+    "cevRetentionCap": "Up to {days} days: the base plan keeps photos 7 days; the 30-day video add-on keeps them 30 days.",
+    "@cevRetentionCap": {
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cevRetentionAddonLink": "See the video add-on"
   },
   "bn": {
     "cevTitle": "রেকর্ডিং ও প্রমাণ",
@@ -173,6 +182,8 @@
     "cevPdfHowCheck": "যেকোনো কম্পিউটারে যাচাই: sha256sum -c SHA256SUMS.txt (প্রতিটি লাইনে OK আসতে হবে)।",
     "cevPdfLetter": "সাধারণ ডায়েরির (জিডি) খসড়া",
     "cevPdfFooter": "Assisto অ্যাপে এই ফোনে তৈরি — {time}",
-    "cevSdClipReady": "এনক্রিপ্ট করে রাখা — {date} পর্যন্ত"
+    "cevSdClipReady": "এনক্রিপ্ট করে রাখা — {date} পর্যন্ত",
+    "cevRetentionCap": "সর্বোচ্চ {days} দিন: বেস প্ল্যানে ছবি ৭ দিন রাখা হয়; ৩০ দিনের ভিডিও অ্যাড-অনে ৩০ দিন।",
+    "cevRetentionAddonLink": "ভিডিও অ্যাড-অন দেখুন"
   }
 }
