@@ -373,11 +373,13 @@ void main() {
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyWatchScreen())));
     await _settle(tester);
     expect(find.text(en.j100bRoughSpeed(35)), findsOneWidget);
-    await tester.scrollUntilVisible(find.text(en.j100bWhyKilled), 200);
+    await tester.scrollUntilVisible(find.text(en.j100bWhyKilled), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(find.text(en.j100bWhyKilled), findsOneWidget);
     expect(find.text(en.j100bRoughTypical(10)), findsOneWidget);
     expect(find.text(en.j100bBatteryLast(55)), findsOneWidget);
-    await tester.scrollUntilVisible(find.text(en.j100bWhyBattery(3)), 200);
+    await tester.scrollUntilVisible(find.text(en.j100bWhyBattery(3)), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(find.text(en.j100bWhyBattery(3)), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); // drop the 30 s refresh timer
   });
