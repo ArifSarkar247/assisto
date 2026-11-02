@@ -31917,5 +31917,62 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "lgrTitle": "Books",
+  "lgrHubSub": "Profit and loss, balance sheet and trial balance, filled in from your sales, khata and expenses",
+  "lgrTabPl": "Profit and loss",
+  "lgrTabBs": "Balance sheet",
+  "lgrTabTb": "Trial balance",
+  "lgrUpdate": "Update books",
+  "lgrUpdatedOk": "Books are up to date",
+  "lgrUpdateFailed": "Could not update the books. Please try again.",
+  "lgrEmptyTitle": "Your books fill themselves",
+  "lgrEmptyBody": "Every sale, khata entry and expense becomes a proper accounting entry, so you get a profit and loss statement and a balance sheet a bank will accept, without typing anything twice.",
+  "lgrEmptyHowTo": "How it works: 1. Sell from Quick sell or add a khata entry. 2. Come back here and tap Update books. 3. Read your profit, your stock value and what you owe.",
+  "lgrBalanced": "Debits equal credits: the books balance",
+  "lgrNotBalanced": "Debits and credits do not match. Please send us a report from Help.",
+  "lgrPeriodThisMonth": "This month",
+  "lgrPeriodLastMonth": "Last month",
+  "lgrPeriodThisYear": "This year",
+  "lgrPeriodRange": "{from} to {to}",
+  "@lgrPeriodRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "lgrAsOf": "As of {date}",
+  "@lgrAsOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lgrIncomeHeading": "Income",
+  "lgrDiscounts": "Less: discounts given",
+  "lgrNetSales": "Net sales",
+  "lgrCogs": "Less: cost of goods sold",
+  "lgrGrossProfit": "Gross profit",
+  "lgrOpex": "Operating expenses",
+  "lgrOtherIncome": "Other income",
+  "lgrNetProfit": "Net profit",
+  "lgrNetLoss": "Net loss",
+  "lgrAssets": "Assets",
+  "lgrLiabilities": "Liabilities",
+  "lgrEquity": "Owner's equity",
+  "lgrProfitToDate": "Profit to date (not yet closed)",
+  "lgrTotal": "Total",
+  "lgrTotalAssets": "Total assets",
+  "lgrTotalLiabEq": "Total liabilities and equity",
+  "lgrTotalDebit": "Total debit",
+  "lgrTotalCredit": "Total credit",
+  "lgrDebit": "debit",
+  "lgrCredit": "credit",
+  "lgrDebitShort": "Dr",
+  "lgrCreditShort": "Cr"
 }
