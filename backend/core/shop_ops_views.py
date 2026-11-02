@@ -529,6 +529,11 @@ class ShopEodView(APIView):
             created_by=request.user)
         out = _eod_row(row)
         out["message"] = _eod_message(lang, status_v)
+        # cctvarm: day-end done -> guard on until opening time (owner switch)
+        from .logic import cctv_arm as ARM
+        guard = ARM.on_day_closed(s, now)
+        if guard:
+            out["guard_on"] = guard[1] if lang == "en" else guard[0]
         return Response(out, status=201)
 
 
@@ -639,9 +644,17 @@ class ShopLiveStartView(APIView):
         cam = ShopCamera.objects.filter(pk=_poisha(request.data.get("camera")),
                                         site__owner=request.user).select_related(
             "site").first()
+        # cctvarm: an SOS at Home opens the home cameras to the allowed family
+        from .logic import cctv_arm as ARM
+        if cam is None:
+            cam = ARM.sos_camera(request.user, _poisha(request.data.get("camera")))
         if cam is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         now = timezone.now()
+        if ARM.privacy_blocks(cam.site, cam, now):
+            return _err(lang, "ঘরে কেউ আছেন — প্রাইভেসির জন্য এই ভিতরের ক্যামেরার লাইভ এখন বন্ধ।",
+                        "Someone is at home — for privacy, live view of this indoor "
+                        "camera is off right now.", status=423, code="privacy_home")
         if not cam.enabled:
             return _err(lang, "ক্যামেরাটি বন্ধ আছে।", "This camera is turned off.",
                         status=409, code="camera_disabled")

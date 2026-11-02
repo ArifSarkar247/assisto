@@ -470,6 +470,16 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     signals = dict(cam_event.get("signals") or {})
     signals.pop("armed", None)
     signals.pop("away", None)          # cashguard: the server's state only
+    # cctvarm: movement for the no-movement check; an INDOOR camera stays
+    # quiet while someone is at home (privacy, owner's switch)
+    if cam is not None:
+        from .logic import cctv_arm as ARM
+        if cam_event.get("type") in CXV_MOVEMENT:
+            ARM.note_motion(site, cam, now)
+        if ARM.privacy_blocks(site, cam, now):
+            return ({"raise": False, "type": cam_event.get("type"),
+                     "confidence": 0.0, "reason_signals": ["privacy_home"],
+                     "possible": False, "pos_matched": False}, None)
     quiet = False
     # cashguard OWNER-AWAY: every camera armed, quiet hours ignored, high
     # priority push (the alert text says "You are away — ...")
@@ -599,10 +609,14 @@ def away_now(site, now=None):
     from .logic import watchman as WM
     try:
         now = now or timezone.now()
-        return CG.away_active(site.away or {}, now, timezone.localtime(now),
-                              WM.is_armed)
+        if CG.away_active(site.away or {}, now, timezone.localtime(now),
+                          WM.is_armed):
+            return True
     except Exception:
         return False
+    # cctvarm: everyone left Home / the shop is closed -> armed like away mode
+    from .logic import cctv_arm as ARM
+    return ARM.auto_armed(site, now)
 
 
 def owner_caps(owner):

@@ -30,5 +30,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from core.cctvx_views import tick
         out = tick()
+        # cctvarm: family away/home, shop closed, no-movement (never raises)
+        from core.logic import cctv_arm
+        out["arm"] = cctv_arm.tick()
         if not options.get("quiet"):
             self.stdout.write("shop_guard_tick: " + json.dumps(out, sort_keys=True))
