@@ -121,6 +121,19 @@ jobs:
         working-directory: app
         run: flutter pub get
 
+      - name: Compile plugins against SDK 36 (in_app_review ships compileSdk 33)
+        # in_app_review 2.0.10 pins compileSdk 33, but its androidx.fragment
+        # 1.7.1 requires >= 34 -> checkReleaseAarMetadata failed (build 281).
+        # Raise ONLY the plugin's compileSdk in the pub cache; its minSdk and
+        # behaviour are unchanged.
+        run: |
+          set -e
+          for f in "$HOME"/.pub-cache/hosted/pub.dev/in_app_review-*/android/build.gradle*; do
+            [ -f "$f" ] || continue
+            sed -i -E 's/compileSdk(Version)?[ =]+[0-9]+/compileSdkVersion 36/' "$f"
+            grep -n "compileSdk" "$f"
+          done
+
       - name: Analyze (fail only on errors)
         working-directory: app
         run: |
