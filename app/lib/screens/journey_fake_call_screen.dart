@@ -3,6 +3,7 @@ import '../theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 
 /// Fake incoming call (item 9). After a user-chosen delay, a realistic
 /// full-screen call UI appears so the traveller can "take a call" to leave an
@@ -80,7 +81,7 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.phone_in_talk_rounded, color: Colors.white54, size: 48),
             const SizedBox(height: Gap.lg),
-            Text(t.fakeCallArmed(widget.delaySeconds),
+            Text(t.fakeCallArmed(notifLocalizeDigits(context, '${widget.delaySeconds}')),
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: Gap.lg),
             TextButton(

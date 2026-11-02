@@ -44,6 +44,20 @@ const _launchPrefixes = <String>[
 
 /// Reviewed exceptions. Keep it tiny and say why.
 const Map<String, String> _allow = {
+  // Paper size / device model trade names are written the same in Bangla.
+  'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
+  'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',
+  'chip_pair|digit|ST-90': 'tracker model name printed on the box (Sinotrack ST-901/906)',
+  // Place / product / customer names are the user's (or OpenStreetMap's) data.
+  'dest_alarm|digit|Bus': 'bus stop names from OpenStreetMap (no Bangla name tag), data not UI',
+  'dest_alarm|digit|Road': 'same: OpenStreetMap stop name',
+  'bizops_card|digit|Tel 1L': "the shop's own product name (user data)",
+  'rt_*|english|"Karim"': 'fake customer name (user data)',
+  'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
+  // Report account names arrive from the server in the request language
+  // (backend ledger._m); the gallery fake is English-only.
+  'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
+  'acct_reports_*|english|"Stock"': 'fake data: server sends the Bangla account name',
 };
 
 final _env = Platform.environment;
@@ -164,7 +178,9 @@ void main() {
         FlutterError.onError = (d) {
           final s = d.exceptionAsString();
           if (s.contains('overflowed by')) {
-            errs.add(s.split('\n').first);
+            final at = RegExp(r'lib/[A-Za-z0-9_/]+\.dart:\d+')
+                .firstMatch(d.toString())?.group(0);
+            errs.add('${s.split('\n').first}${at == null ? '' : ' at $at'}');
           } else {
             orig?.call(d);
           }

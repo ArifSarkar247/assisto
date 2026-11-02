@@ -189,7 +189,7 @@ class _ScoreTile extends StatelessWidget {
     final name = (person['name'] ?? '').toString();
     final parts = rtList(person['parts']);
     final sub = [
-      (person['key_masked'] ?? '').toString(),
+      rtDigits(rtLang(context), (person['key_masked'] ?? '').toString()), // launchsweep
       if (person['lead'] == true) t.crmAutoLeadTag,
       if (person['do_not_message'] == true) t.crmAutoDoNotMessage,
     ].where((s) => s.isNotEmpty).join(' · ');

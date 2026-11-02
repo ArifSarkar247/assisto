@@ -36,6 +36,9 @@ class MsgrCommunityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // launchsweep: at a big font the action button moves under the text
+    // (beside it, it squeezed the name off a 360 dp screen).
+    final big = MediaQuery.textScalerOf(context).scale(10) > 13;
     return Card(
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
       clipBehavior: Clip.antiAlias,
@@ -75,10 +78,14 @@ class MsgrCommunityCard extends StatelessWidget {
                           style: text.labelSmall
                               ?.copyWith(color: scheme.onSurfaceVariant)),
                     ],
+                    if (big && trailing != null) ...[
+                      const SizedBox(height: Gap.sm),
+                      trailing!,
+                    ],
                   ],
                 ),
               ),
-              if (trailing != null) ...[
+              if (!big && trailing != null) ...[
                 const SizedBox(width: Gap.sm),
                 trailing!,
               ],
@@ -147,6 +154,8 @@ class MsgrActionChip extends StatelessWidget {
       label: Text(label),
       style: FilledButton.styleFrom(
         visualDensity: VisualDensity.compact,
+        minimumSize: const Size(48, 48), // launchsweep: 48 dp target
+        tapTargetSize: MaterialTapTargetSize.padded,
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
       ),
     );

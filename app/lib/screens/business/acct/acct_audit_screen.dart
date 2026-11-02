@@ -214,7 +214,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ExpansionTile(
         shape: const Border(),
-        title: Text('#${acctDigits(context, je['number'])} · $memo',
+        title: Text('#${acctDigits(context, je['number'])} · ${acctDigits(context, memo)}',
             style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const SizedBox(height: Gap.xs),

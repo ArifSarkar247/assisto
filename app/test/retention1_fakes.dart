@@ -7,7 +7,9 @@ class FakeRetention implements RetentionSource {
   /// 'data' (two automations), 'empty' (first run), 'plan' (not Business),
   /// 'off' (flag hidden -> 403), 'fail' (network error), 'inbox_empty'.
   final String mode;
-  FakeRetention([this.mode = 'data']);
+  /// launchsweep: Bangla rows (the server answers in the request language).
+  final bool bn;
+  FakeRetention([this.mode = 'data', this.bn = false]);
 
   final List<String> calls = [];
   Map<String, dynamic>? lastCreate;
@@ -381,15 +383,15 @@ class FakeRetention implements RetentionSource {
     if (mode == 'empty') return {'rows': []};
     return {
       'rows': [
-        {'id': 3, 'action': 'feedback', 'at': '2026-10-27T12:00:00+06:00', 'by': 'Automatic', 'text': 'Karim rated 2/5'},
+        {'id': 3, 'action': 'feedback', 'at': '2026-10-27T12:00:00+06:00', 'by': bn ? 'স্বয়ংক্রিয়' : 'Automatic', 'text': bn ? 'করিম মতামত দিলেন ২/৫' : 'Karim rated 2/5'},
         {
           'id': 2,
           'action': 'auto_run',
           'at': '2026-10-27T11:15:00+06:00',
-          'by': 'Automatic',
-          'text': 'Reorder reminder: sent 2, not sent 0 — daily limit reached'
+          'by': bn ? 'স্বয়ংক্রিয়' : 'Automatic',
+          'text': bn ? 'আবার কেনার রিমাইন্ডার: পাঠানো ২, যায়নি ০ — দিনের সীমা পূর্ণ' : 'Reorder reminder: sent 2, not sent 0 — daily limit reached'
         },
-        {'id': 1, 'action': 'auto_on', 'at': '2026-10-27T10:00:00+06:00', 'by': 'Rina', 'text': 'Turned ON: Reorder reminder'},
+        {'id': 1, 'action': 'auto_on', 'at': '2026-10-27T10:00:00+06:00', 'by': bn ? 'রিনা' : 'Rina', 'text': bn ? 'চালু করলেন: আবার কেনার রিমাইন্ডার' : 'Turned ON: Reorder reminder'},
       ]
     };
   }

@@ -54,6 +54,6 @@ final Map<String, Widget Function(String)> retention1Shots = {
       initialStep: 1),
   'rt_scores': (_) => RetentionScoresScreen(source: FakeRetention()),
   'rt_scores_empty': (_) => RetentionScoresScreen(source: FakeRetention('empty')),
-  'rt_audit': (_) => RetentionAuditScreen(source: FakeRetention()),
+  'rt_audit': (l) => RetentionAuditScreen(source: FakeRetention('data', l == 'bn')),
   'rt_audit_empty': (_) => RetentionAuditScreen(source: FakeRetention('empty')),
 };
