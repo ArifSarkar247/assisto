@@ -26,7 +26,7 @@ import 'biz_brief_source.dart';
 /// One-tap actions start a code-planned agent run: a reminder / supplier
 /// reorder stops at the approval card (nothing leaves the phone before the
 /// owner's Approve); after approval WhatsApp opens with the ready message.
-/// Question chips ("আজ কত লাভ?") answer from one tool, free, with or without
+/// Question chips ("today's profit?") answer from one tool, free, with or without
 /// an AI key.
 class BizBriefScreen extends StatefulWidget {
   final BizBriefSource? source;
