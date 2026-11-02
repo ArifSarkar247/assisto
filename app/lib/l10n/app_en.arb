@@ -34878,5 +34878,271 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "psecTodayTitle": "Today's brief",
+  "psecPickupTitle": "Pick up a task from a message",
+  "psecAddMeeting": "Add a meeting",
+  "psecAddFollowup": "Add a follow-up",
+  "psecLoadFailed": "Couldn't load today's brief. Check the internet and try again.",
+  "psecEmptyBenefit": "Your secretary puts today's meetings, follow-ups and reminders on one page, so nothing slips.",
+  "psecEmptyHow": "Add a meeting and pick the people from My Circle, or paste a WhatsApp/SMS message to pick up a task.",
+  "psecGroundedNote": "Made only from what you saved. No AI, nothing made up.",
+  "psecDoneToast": "Marked done",
+  "psecTell": "Tell {name}",
+  "psecRemind": "Remind {name}",
+  "psecMarkDone": "Done",
+  "psecInviteText": "Hi {name}, letting you know: {title} — {when}. Please tell me if you can make it.",
+  "psecNudgeText": "Hi {name}, a gentle reminder about \"{title}\". Please let me know when you can. Thank you.",
+  "psecNotInCircle": "Couldn't open {name}'s chat. The message is copied, so you can paste it anywhere.",
+  "psecStaysOnPhone": "The message is read on this phone only. Only the task you add is saved.",
+  "psecPasteHint": "Paste the message here",
+  "psecPasteBtn": "Paste",
+  "psecFindBtn": "Find the task",
+  "psecFoundTitle": "Is this right?",
+  "psecKindMeeting": "Meeting",
+  "psecKindFollowup": "Follow-up",
+  "psecKindReminder": "Reminder",
+  "psecFieldTitle": "What",
+  "psecNoDateFound": "No date found. Pick one",
+  "psecPastWarn": "This date has already passed",
+  "psecPickDate": "Change",
+  "psecFieldWho": "Who",
+  "psecConfirmAdd": "Yes, add it",
+  "psecAdded": "Added to your secretary",
+  "@psecTell": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecRemind": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecNotInCircle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecInviteText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecNudgeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pcTitle": "Phone as camera",
+  "pcIntroTitle": "Turn this old phone into a camera",
+  "pcIntroBody": "Point it at your door or shop, keep it plugged in. When a person comes, the owner gets a photo alert, can watch live, and is warned if the charger comes out or the phone gets hot.",
+  "pcPairHereTitle": "Connect to the owner",
+  "pcPairHereHelp": "On the owner's phone: Assisto → Watchman → \"Use an old phone as a camera\". Scan that QR with this phone's camera, or type the code here.",
+  "pcCodeLabel": "Code from the owner's phone",
+  "pcCodeInvalid": "This code is not right. Check the code on the owner's phone.",
+  "pcOffline": "No internet right now. Connect to Wi-Fi or mobile data and try again.",
+  "pcNameLabel": "Camera name (optional)",
+  "pcNameHint": "e.g. Front door",
+  "pcClaim": "Connect as a camera",
+  "pcTrustTitle": "Privacy and trust",
+  "pcTrustBody": "Only the owner and the family members they allow can see this camera. Sound is off unless you switch it on here. Video clips stay on this phone. Put a notice where people are filmed, and never film inside a room someone uses privately.",
+  "pcUnnamed": "Phone camera",
+  "pcPairedTo": "Camera of: {site}",
+  "@pcPairedTo": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "pcStart": "Start camera",
+  "pcStartHelp": "Keep this phone plugged in with Assisto open on this screen. The screen goes dark to save power; tap it to see the status.",
+  "pcAudioTitle": "Record sound too",
+  "pcAudioBody": "Off by default. Turn on only if everyone filmed knows sound is recorded.",
+  "pcClipsTitle": "Clips on this phone",
+  "pcClipsLine": "{n} clips · {mb} MB of {cap} MB",
+  "@pcClipsLine": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pcCapMb": "{n} MB",
+  "@pcCapMb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pcClipsDelete": "Delete all clips",
+  "pcClipsHelp": "Each alert keeps a 10-second clip here only. When the space is full, the oldest clip is deleted first.",
+  "pcGuideTitle": "For best results",
+  "pcGuideBody": "Keep it plugged in, out of direct sun, with Wi-Fi on. Point it at the entrance from a little above head height. Remove a thick phone case so it does not get hot.",
+  "pcUnbind": "Remove this phone as a camera",
+  "pcUnbindTitle": "Remove this camera?",
+  "pcUnbindBody": "The owner will no longer see this phone. Clips already on this phone stay until you delete them.",
+  "pcMicDenied": "Microphone permission is off, so sound stays off.",
+  "pcRemovedByOwner": "The owner removed this camera. Connect again with a new code if needed.",
+  "pcStarting": "Starting the camera…",
+  "pcWatching": "Watching for people",
+  "pcLiveNow": "Someone is watching live",
+  "pcNotifTitle": "Assisto camera is on",
+  "pcNotifBody": "This phone is working as a camera. Open Assisto to stop.",
+  "pcNotifChannel": "Phone camera running",
+  "pcRecordingBanner": "This phone is a camera — recording video",
+  "pcRecordingBannerAudio": "This phone is a camera — recording video and sound",
+  "pcServerOk": "Connected to Assisto",
+  "pcServerOffline": "Not connected — check the internet",
+  "pcModelOn": "Person check on this phone: on",
+  "pcModelOff": "Person check not available — alerts on any movement",
+  "pcAlertsSent": "Alerts sent: {n}",
+  "@pcAlertsSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pcWarnUnplugged": "Charger unplugged",
+  "pcWarnLow": "Battery below 20%",
+  "pcWarnHot": "Phone is very hot",
+  "pcWarnDark": "Camera covered or dark",
+  "pcStop": "Stop camera",
+  "pcTapToShow": "Tap anywhere to show status",
+  "pcOwnerButton": "Use an old phone as a camera",
+  "pcThisPhoneButton": "Use this phone as a camera",
+  "pcPairTitle": "Make an old phone your camera",
+  "pcPairBenefit": "No new camera to buy: an old Android phone watches your door, sends photo alerts and opens live.",
+  "pcQrA11y": "QR code to connect the old phone",
+  "pcOrTypeCode": "Or type this code on the old phone",
+  "pcCopyCode": "Copy code",
+  "pcCodeValid": "Code works for {time} more, once",
+  "@pcCodeValid": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pcStepsTitle": "On the old phone",
+  "pcStep1": "Install Assisto and keep it charging.",
+  "pcStep2": "Scan this QR with its camera, or open Assisto → Watchman → \"Use this phone as a camera\" and type the code.",
+  "pcStep3": "Tap \"Start camera\" there. It shows up here at once.",
+  "pcExtraCameraNote": "Your plan's cameras are used up: this phone camera uses {n} credits a month, like any extra camera.",
+  "@pcExtraCameraNote": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pcWaiting": "Waiting for the old phone…",
+  "pcPairDone": "{name} is connected",
+  "@pcPairDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pcPairDoneNext": "Tap \"Start camera\" on that phone. Set when it guards in Zones & schedule.",
+  "pcDone": "Done",
+  "pcLive": "Watch live",
+  "pcViewersLive": "Family may watch live",
+  "pcBattery": "Battery {n}%",
+  "@pcBattery": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pcCharging": "Charging",
+  "pcLiveSdOn": "SD · tap for HD",
+  "pcLiveHdOn": "HD on",
+  "pcLiveIdleNote": "Live stops after {n} minutes without a touch, to save data.",
+  "@pcLiveIdleNote": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "pcViewersLiveConfirm": "The family members you added under Family will be able to watch this camera live. You can turn it off any time.",
+  "pcViewersLiveAllow": "Allow",
+  "cxatEntry": "Alert types",
+  "cxatEntrySub": "Person, vehicle, animal, line, loitering, covered camera, SD card, sound",
+  "cxatTitle": "Alert types — {name}",
+  "@cxatTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatIntro": "Choose which alerts this camera sends you. Where the camera cannot report something, it says “Not on this camera” — we never pretend.",
+  "cxatSeenHead": "What was seen",
+  "cxatHealthHead": "Camera health",
+  "cxatNight": "Night for loitering: {text} ({start}–{end})",
+  "@cxatNight": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatLineToday": "Line crossings today: {total} (A → B {ab}, B → A {ba})",
+  "@cxatLineToday": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "ab": {
+        "type": "String"
+      },
+      "ba": {
+        "type": "String"
+      }
+    }
+  },
+  "cxatNoAi": "No AI looks at your pictures here — alerts come from the camera itself and Assisto's own simple rules.",
+  "cxatLoadFailed": "Could not load the alert types. Check the internet and try again.",
+  "cxatSaveFailed": "Could not save. Check the internet and try again.",
+  "cxatRetry": "Try again",
+  "cxatEvLoiter": "Someone stayed over 2 minutes at night",
+  "cxatEvHealth": "Camera problem"
 }
