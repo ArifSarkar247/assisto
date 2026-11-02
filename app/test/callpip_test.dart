@@ -640,6 +640,15 @@ void main() {
         expect(tester.takeException(), isNull);
         final t = lookupAppLocalizations(Locale(lang));
         expect(find.text(t.callpipPipOff), findsOneWidget);
+        // launchsweep: the self-view tile never covers the hint's buttons
+        final self = find.byKey(const Key('call-self-view'));
+        if (self.evaluate().isNotEmpty) {
+          final tile = tester.getRect(self.first);
+          for (final k in ['call-pip-off-turn-on', 'call-pip-off-later']) {
+            expect(tile.overlaps(tester.getRect(find.byKey(Key(k)))), isFalse,
+                reason: '$k under the self-view tile');
+          }
+        }
         // Turn on -> Settings; back with PiP allowed -> the line goes
         pipAllowedAnswer = true;
         await tester.tap(find.byKey(const Key('call-pip-off-turn-on')));

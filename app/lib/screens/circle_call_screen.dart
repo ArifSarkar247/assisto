@@ -713,7 +713,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     Positioned(
                       left: 0,
                       right: 0,
-                      top: pad.top + 64,
+                      // launchsweep: below the self-view tile (it starts in
+                      // the top corner and hid the hint's buttons)
+                      top: pad.top + 64 + VideoStage.tileH + Gap.sm,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                             maxHeight: MediaQuery.sizeOf(context).height * 0.4),
