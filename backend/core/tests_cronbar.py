@@ -68,8 +68,10 @@ LIVE_2NOV = """
 
 # jobs added to JOBS on 2 Nov that are NOT installed live (honest not_scheduled)
 NOT_INSTALLED_2NOV = {"agent_nudges", "agent_memory_learn", "probashi_daily",
-                      "calls_delivery_snapshot", "ai_usage_monthly", "ezviz_poll_alarms",
+                      "calls_delivery_snapshot", "ai_usage_monthly",
                       "tcb_prices_fetch"}
+# ezviz_poll_alarms rides the minute_jobs line since 2 Nov (owner order), so
+# the live minute_jobs line already schedules it
 # commands that land from a sibling branch (agent/moneybar) at merge time; on
 # their own branch they are checked like every other job
 FROM_SIBLING_BRANCH = {"tcb_prices_fetch"}
@@ -259,7 +261,8 @@ class RenderCronFileTests(TestCase):
             call_command("ops_cron_file", "--diff", stdout=out)
         txt = out.getvalue()
         self.assertIn("MISSING (%d)" % len(NOT_INSTALLED_2NOV), txt)
-        self.assertIn("[ezviz_poll_alarms]", txt)
+        self.assertIn("[tcb_prices_fetch]", txt)
+        self.assertNotIn("[ezviz_poll_alarms]", txt)   # via minute_jobs
         self.assertIn("DOUBLE (0)", txt)
         self.assertIn("NOT IN JOBS (0)", txt)
         out = StringIO()

@@ -195,7 +195,7 @@ JOBS = (
     # pricing-40: monthly real AI usage report to the owner (once per month)
     Job("ai_usage_monthly", 31 * DAY, "10 4 1 * *", grace=3 * DAY),
     # cashguard: EZVIZ alarm poll (does nothing until EZVIZ keys + a camera)
-    Job("ezviz_poll_alarms", MIN, "* * * * *"),
+    Job("ezviz_poll_alarms", MIN, "* * * * *", via="minute_jobs"),   # owner 2 Nov: no own process
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -203,7 +203,9 @@ JOBS = (
 JOB_BY_NAME = {j.name: j for j in JOBS}
 # What `manage.py minute_jobs` runs, in order: (job name, call_command kwargs).
 MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
-               ("school_mode_tick", {"quiet": True}))
+               ("school_mode_tick", {"quiet": True}),
+               # owner 2 Nov: returns at once when EZVIZ is off / has no key
+               ("ezviz_poll_alarms", {}))
 
 
 MINUTE_JOB_NAMES = tuple(n for n, _ in MINUTE_JOBS)

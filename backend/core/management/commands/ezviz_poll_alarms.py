@@ -14,6 +14,7 @@ from core.ops_health import track_job
 
 class Command(BaseCommand):
     help = "Poll linked EZVIZ cameras for new alarms."
+    requires_system_checks = []   # per-minute job (runs inside minute_jobs)
 
     @track_job("ezviz_poll_alarms")
     def handle(self, *args, **options):
