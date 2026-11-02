@@ -300,7 +300,7 @@ class PosIntegrityTests(APITestCase):
                                                      "payment_method": "due"},
                              format="json")
         self.assertEqual(r.status_code, 422)
-        self.assertEqual(r.data.get("code"), "due_needs_customer")
+        self.assertEqual(r.data.get("error"), "due_needs_customer")
         r = self.client.post(B + "/sales/checkout",
                              {"cart": cart, "payment_method": "due",
                               "customer_name": "Karim", "customer_phone": "01712345678"},
@@ -319,7 +319,7 @@ class PosIntegrityTests(APITestCase):
                                                      "payment_method": "cash"},
                              format="json")
         self.assertEqual(r.status_code, 409)
-        self.assertEqual(r.data.get("code"), "cart_stale")
+        self.assertEqual(r.data.get("error"), "cart_stale")
 
 
 class BusinessIdParamTests(APITestCase):
@@ -417,7 +417,7 @@ class StaffTests(APITestCase):
         r = self.client.post("/api/v1/business/staff", {"phone": "01999000799"},
                              format="json")
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.data.get("code"), "staff_not_on_assisto")
+        self.assertEqual(r.data.get("error"), "staff_not_on_assisto")
         staff = User.objects.create_user(name="Rafiq", phone="+8801999000712",
                                          password="pw123456")
         r = self.client.post("/api/v1/business/staff", {"phone": "০১৯৯৯০০০৭১২"},
