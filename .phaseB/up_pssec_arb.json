@@ -1,0 +1,111 @@
+{
+  "_comment": "pssec (Personal Secretary, owner Part 2.1): Today brief, pick-up from a pasted message, My Circle tell/remind. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_pssec_arb.json",
+  "en": {
+    "psecTodayTitle": "Today's brief",
+    "psecPickupTitle": "Pick up a task from a message",
+    "psecAddMeeting": "Add a meeting",
+    "psecAddFollowup": "Add a follow-up",
+    "psecLoadFailed": "Couldn't load today's brief. Check the internet and try again.",
+    "psecEmptyBenefit": "Your secretary puts today's meetings, follow-ups and reminders on one page, so nothing slips.",
+    "psecEmptyHow": "Add a meeting and pick the people from My Circle, or paste a WhatsApp/SMS message to pick up a task.",
+    "psecGroundedNote": "Made only from what you saved. No AI, nothing made up.",
+    "psecDoneToast": "Marked done",
+    "psecTell": "Tell {name}",
+    "psecRemind": "Remind {name}",
+    "psecMarkDone": "Done",
+    "psecInviteText": "Hi {name}, letting you know: {title} — {when}. Please tell me if you can make it.",
+    "psecNudgeText": "Hi {name}, a gentle reminder about \"{title}\". Please let me know when you can. Thank you.",
+    "psecNotInCircle": "Couldn't open {name}'s chat. The message is copied, so you can paste it anywhere.",
+    "psecStaysOnPhone": "The message is read on this phone only. Only the task you add is saved.",
+    "psecPasteHint": "Paste the message here",
+    "psecPasteBtn": "Paste",
+    "psecFindBtn": "Find the task",
+    "psecFoundTitle": "Is this right?",
+    "psecKindMeeting": "Meeting",
+    "psecKindFollowup": "Follow-up",
+    "psecKindReminder": "Reminder",
+    "psecFieldTitle": "What",
+    "psecNoDateFound": "No date found. Pick one",
+    "psecPastWarn": "This date has already passed",
+    "psecPickDate": "Change",
+    "psecFieldWho": "Who",
+    "psecConfirmAdd": "Yes, add it",
+    "psecAdded": "Added to your secretary",
+    "@psecTell": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "@psecRemind": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "@psecNotInCircle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "@psecInviteText": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "title": {
+          "type": "String"
+        },
+        "when": {
+          "type": "String"
+        }
+      }
+    },
+    "@psecNudgeText": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        },
+        "title": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "psecTodayTitle": "আজকের ব্রিফ",
+    "psecPickupTitle": "মেসেজ থেকে কাজ তুলুন",
+    "psecAddMeeting": "মিটিং যোগ করুন",
+    "psecAddFollowup": "ফলো-আপ যোগ করুন",
+    "psecLoadFailed": "আজকের ব্রিফ আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "psecEmptyBenefit": "আজকের মিটিং, ফলো-আপ আর রিমাইন্ডার আপনার সেক্রেটারি এক পাতায় রাখবে — কিছু ভুলবেন না।",
+    "psecEmptyHow": "একটা মিটিং যোগ করে My Circle থেকে মানুষ বেছে নিন, অথবা WhatsApp/SMS-এর মেসেজ পেস্ট করে কাজ তুলে নিন।",
+    "psecGroundedNote": "শুধু আপনার সেভ করা তথ্য থেকে বানানো। AI নয়, কিছু বানানো নয়।",
+    "psecDoneToast": "শেষ হিসেবে রাখা হলো",
+    "psecTell": "{name}-কে জানান",
+    "psecRemind": "{name}-কে মনে করিয়ে দিন",
+    "psecMarkDone": "শেষ",
+    "psecInviteText": "{name}, একটা কথা জানাই: {title} — {when}। আসতে পারবেন কি না জানাবেন।",
+    "psecNudgeText": "{name}, \"{title}\" বিষয়টা নিয়ে একটু মনে করিয়ে দিচ্ছি। সুবিধামতো জানাবেন, ধন্যবাদ।",
+    "psecNotInCircle": "{name}-এর চ্যাট খোলা গেল না। মেসেজটা কপি হয়েছে — যেকোনো জায়গায় পেস্ট করে পাঠাতে পারেন।",
+    "psecStaysOnPhone": "মেসেজটা শুধু এই ফোনেই পড়া হয়। আপনি যে কাজটা যোগ করবেন শুধু সেটাই সেভ হয়।",
+    "psecPasteHint": "মেসেজটা এখানে পেস্ট করুন",
+    "psecPasteBtn": "পেস্ট",
+    "psecFindBtn": "কাজটা খুঁজুন",
+    "psecFoundTitle": "ঠিক আছে তো?",
+    "psecKindMeeting": "মিটিং",
+    "psecKindFollowup": "ফলো-আপ",
+    "psecKindReminder": "রিমাইন্ডার",
+    "psecFieldTitle": "কী",
+    "psecNoDateFound": "তারিখ পাওয়া যায়নি — বেছে নিন",
+    "psecPastWarn": "এই তারিখ পেরিয়ে গেছে",
+    "psecPickDate": "বদলান",
+    "psecFieldWho": "কার সাথে / কার কাছে",
+    "psecConfirmAdd": "হ্যাঁ, যোগ করুন",
+    "psecAdded": "পিএস-এ যোগ হয়েছে"
+  }
+}

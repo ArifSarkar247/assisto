@@ -7,6 +7,8 @@ import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../widgets/rn_bits.dart' show pickCircleMember; // pssec
+import '../../ps/ps_circle.dart'; // pssec
 
 /// PA Secretary Mode · Liaison & Follow-up — ADVANCED (#108, §14).
 ///
@@ -186,6 +188,21 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
       body['completed_at'] = null;
     }
     await _apply(r, body, tr);
+  }
+
+  Future<void> _remindInChat(
+      Map<String, dynamic> r, Map<String, dynamic> p, AppLocalizations tr) async {
+    final id = r['id'];
+    await psOpenChatWithDraft(context,
+        circleId: p['id'] as int,
+        name: '${p['name']}',
+        text: tr.psecNudgeText('${p['name']}', '${r['title'] ?? ''}'));
+    if (!mounted || id is! int) return;
+    try {
+      await context.read<AppState>().api.updateItem('pa/followups', id,
+          {'last_nudged_at': DateTime.now().toUtc().toIso8601String()});
+      await _load();
+    } catch (_) {} // best-effort: the nudge time is a convenience; the chat already opened
   }
 
   Future<void> _apply(Map<String, dynamic> r, Map<String, dynamic> body, AppLocalizations tr) async {
@@ -522,6 +539,23 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
               ],
             ),
           ]),
+          // pssec: chase a My Circle person in one tap — their encrypted
+          // chat opens with a polite reminder ready; the user taps Send.
+          if (status != _stDone)
+            for (final p in psCirclePeople(r['circle_people']))
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: ValueKey('ps-lia-remind-${p['id']}'),
+                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                    onPressed: () => _remindInChat(r, p, tr),
+                    icon: const Icon(Icons.chat_rounded, size: 18),
+                    label: Text(tr.psecRemind('${p['name']}')),
+                  ),
+                ),
+              ),
           if (status != _stDone)
             SizedBox(
               width: double.infinity,
@@ -587,10 +621,14 @@ class _FollowupFormState extends State<_FollowupForm> {
       ? (widget.existing?['nudge'] ?? 'off').toString()
       : 'off';
   DateTime? _due;
+  // pssec: the counterpart picked from My Circle (null = typed by hand)
+  Map<String, dynamic>? _person;
 
   @override
   void initState() {
     super.initState();
+    final cp = psCirclePeople(widget.existing?['circle_people']);
+    if (cp.isNotEmpty) _person = cp.first;
     final d = widget.existing?['due_at'];
     if (d != null) _due = DateTime.tryParse(d.toString())?.toLocal();
   }
@@ -639,10 +677,39 @@ class _FollowupFormState extends State<_FollowupForm> {
           const SizedBox(height: Gap.md),
           TextField(
             controller: _counterpart,
-            onChanged: (_) => setState(() {}),
+            onChanged: (v) => setState(() {
+              // pssec: a hand-typed different name is no longer the Circle person
+              if (_person != null && v.trim() != '${_person!['name']}') _person = null;
+            }),
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
                 labelText: tr.paLiaCounterpart, border: const OutlineInputBorder()),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const ValueKey('ps-lia-circle-pick'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: Icon(_person == null
+                  ? Icons.diversity_1_rounded
+                  : Icons.check_circle_rounded),
+              label: Text(_person == null ? tr.mbCirclePick : '${_person!['name']}'),
+              onPressed: () async {
+                final r = await pickCircleMember(context, title: tr.mbCirclePick);
+                if (r == null || !mounted) return;
+                final id = r['circle_id'] is int
+                    ? r['circle_id'] as int
+                    : int.tryParse('${r['circle_id']}');
+                if (id == null) return;
+                final name = '${r['name'] ?? ''}'.trim();
+                setState(() {
+                  _person = {'id': id, 'name': name};
+                  if (name.isNotEmpty) _counterpart.text = name;
+                  final ph = '${r['phone'] ?? ''}'.trim();
+                  if (_contact.text.trim().isEmpty && ph.isNotEmpty) _contact.text = ph;
+                });
+              },
+            ),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -708,6 +775,7 @@ class _FollowupFormState extends State<_FollowupForm> {
                           'counterpart': _counterpart.text.trim(),
                           'contact': _contact.text.trim(),
                           'nudge': _nudge,
+                          'circle_people': [if (_person != null) _person!],
                           if (_due != null) 'due_at': _due!.toUtc().toIso8601String(),
                           if (_due == null) 'due_at': null,
                         })

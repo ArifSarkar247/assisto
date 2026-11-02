@@ -1,5 +1,6 @@
 import 'fake_channels.dart'; // channels
 import 'fake_famcare.dart'; // famcare
+import 'fake_psec.dart'; // pssec
 import 'fake_train.dart'; // train
 import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
@@ -980,6 +981,11 @@ class FakeApi extends ApiClient {
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
       return inv;
+    }
+    final psec = fakePsecGet(path, mode == FakeMode.empty); // pssec
+    if (psec != null) {
+      if (mode == FakeMode.fail) _fail();
+      return psec;
     }
     final c100 = fakeCrm100Get(path, empty: mode == FakeMode.empty); // crm100
     if (c100 != null) {

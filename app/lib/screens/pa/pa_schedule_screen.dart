@@ -10,6 +10,8 @@ import '../../widgets/pa_engine.dart';
 import 'pa_meeting_brief_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
+import '../../widgets/rn_bits.dart' show pickCircleMember; // pssec
+import '../../ps/ps_circle.dart' show psCirclePeople; // pssec
 
 /// PA Secretary — SCHEDULE control (SPEC v2.1 §14 #103, ADVANCED §21).
 ///
@@ -838,11 +840,15 @@ class _SlotEditorState extends State<_SlotEditor> {
   late String _kind;
   late DateTime _start;
   late int _duration;
+  // pssec: people picked from My Circle (id + name) — one tap, never retyped;
+  // the PS Today page uses them to open each person's chat with an invite.
+  late List<Map<String, dynamic>> _circle;
 
   @override
   void initState() {
     super.initState();
     final e = widget.existing ?? {};
+    _circle = psCirclePeople(e['circle_people']);
     _title = TextEditingController(text: '${e['title'] ?? ''}');
     _place = TextEditingController(text: '${e['place'] ?? ''}');
     _people = TextEditingController(
@@ -885,19 +891,36 @@ class _SlotEditorState extends State<_SlotEditor> {
         _start = DateTime(_start.year, _start.month, _start.day, tm.hour, tm.minute));
   }
 
+  Future<void> _pickFromCircle() async {
+    final t = AppLocalizations.of(context);
+    final r = await pickCircleMember(context, title: t.mbCirclePick);
+    if (r == null || !mounted) return;
+    final id = r['circle_id'] is int ? r['circle_id'] as int : int.tryParse('${r['circle_id']}');
+    final name = '${r['name'] ?? ''}'.trim();
+    if (id == null || _circle.any((p) => p['id'] == id)) return;
+    setState(() => _circle.add({'id': id, 'name': name}));
+  }
+
   void _submit() {
     final t = AppLocalizations.of(context);
+    final typed = _people.text
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final people = [
+      ...typed,
+      for (final p in _circle)
+        if (!typed.contains(p['name']) && '${p['name']}'.isNotEmpty) '${p['name']}',
+    ];
     final payload = <String, dynamic>{
       'title': _title.text.trim(),
       'kind': _kind,
       'start': _start.toIso8601String(),
       'duration_min': _duration,
       'place': _place.text.trim(),
-      'people': _people.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList(),
+      'people': people,
+      'circle_people': _circle,
       'note': _note.text.trim(),
       'status': '${(widget.existing ?? const {})['status'] ?? kStatusConfirmed}',
     };
@@ -1002,6 +1025,28 @@ class _SlotEditorState extends State<_SlotEditor> {
                 labelText: t.paFieldPeople,
                 hintText: t.paFieldPeopleHint,
                 border: const OutlineInputBorder()),
+          ),
+          // pssec: add people from My Circle in one tap
+          const SizedBox(height: Gap.sm),
+          if (_circle.isNotEmpty)
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              for (final p in _circle)
+                InputChip(
+                  key: ValueKey('ps-slot-circle-${p['id']}'),
+                  avatar: const Icon(Icons.diversity_1_rounded, size: 18),
+                  label: Text('${p['name']}'),
+                  onDeleted: () => setState(() => _circle.remove(p)),
+                ),
+            ]),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const ValueKey('ps-slot-circle-pick'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _pickFromCircle,
+              icon: const Icon(Icons.diversity_1_rounded),
+              label: Text(t.mbCirclePick),
+            ),
           ),
           const SizedBox(height: Gap.md),
           TextField(

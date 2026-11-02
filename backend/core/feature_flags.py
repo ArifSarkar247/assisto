@@ -158,6 +158,9 @@ REGISTRY = (
     ('cv_builder', 'work', 'CV Builder', 'সিভি বিল্ডার', True, ('cv', 'resume')),
     ('ai_inbox', 'work', 'AI Inbox', 'AI ইনবক্স', True, ('inbox',)),
     ('pa_secretary', 'work', 'Personal Secretary (PS)', 'পার্সোনাল সেক্রেটারি (পিএস)', True, ()),
+    # pssec (owner Part 2.1, 2 Nov): PS Today brief, My Circle invites /
+    # follow-up nudges, pick up tasks from pasted messages. OFF until proven.
+    ('ps_secretary', 'work', 'PS: Today brief + pick-up', 'পিএস: আজকের ব্রিফ + কাজ তোলা', False, ()),
     ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans', 'khata')),
     ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
     ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ('sales_agent',)),

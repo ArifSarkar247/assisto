@@ -1526,3 +1526,10 @@ urlpatterns += [
     path("community/<int:pk>/invite", chv.CommunityInviteView.as_view()),
 ]
 # ---- /channels ----
+
+# ---- pssec ---- Personal Secretary Today brief (flag ps_secretary)
+from . import views_ps as psv  # noqa: E402
+urlpatterns += [
+    path("ps/today", psv.PsTodayView.as_view()),
+]
+# ---- /pssec ----
