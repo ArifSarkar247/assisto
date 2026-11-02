@@ -165,6 +165,10 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
             T.audit(run, "guard.secret", kind=why)
             _finish(run, "done", answer=MEM.tool_remember_sum({"refused": why}, lang))
             return run
+    # bizops: no AI key -> "আজ কত লাভ?" etc. are answered from ONE read tool
+    # (code-fixed plan, 0 credits, template answer — no invented number)
+    from . import bizops as BZ
+    BZ.no_ai_route(run, text, pair, channel, play)
     if inline:
         advance(run, lang=lang, play=play)
         run.refresh_from_db()

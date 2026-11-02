@@ -528,8 +528,9 @@ TOOLS = (
 
 # WP-TOOLS-A (personal) + WP-TOOLS-B (business) live in their own modules.
 from . import tools_business as _TB, tools_personal as _TPS   # noqa: E402
+from . import tools_bizops as _TBO   # noqa: E402  bizops: the daily business agent
 
-TOOLS = TOOLS + _TPS.TOOLS + _TB.TOOLS
+TOOLS = TOOLS + _TPS.TOOLS + _TB.TOOLS + _TBO.TOOLS
 
 # ------------------------------------------------------------------ memory (WP-MEMORY)
 # Life-graph tools (core/agentcore/memory.py). remember/update only ever
