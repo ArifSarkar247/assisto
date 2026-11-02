@@ -93,7 +93,10 @@ def _urls(base, lang):
 
 
 def _shot(name, lang, alt, eager=False):
-    if not name:
+    # sitelive: a shot not refreshed into site_assets yet is left out (icon
+    # card / fewer hero slides) — never a broken image on the live site;
+    # web.tests_site_v3 still fails CI until every shot is committed.
+    if not name or not (OLD.ASSET_DIR / "shots3" / ("%s_%s_360.webp" % (name, lang))).is_file():
         return None
     d = {"alt": alt, "eager": eager}
     for w in V3_WIDTHS:
@@ -191,7 +194,7 @@ def _render(request, page, preview, group=None, status=200):
         "play_url": SC.play_url(lang), "play": play,
         "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or play[p]),
                                   "place": p} for p in GET_PLACES},
-        "slides": [_shot(n, lang, C["shot_alt"] + C["slide_" + k], eager=(i == 0)) for i, (n, k) in enumerate(V3.HERO_SLIDES)], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
+        "slides": [s for s in (_shot(n, lang, C["shot_alt"] + C["slide_" + k]) for n, k in V3.HERO_SLIDES) if s], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
