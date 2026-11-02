@@ -31917,5 +31917,166 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "crmAutoKindReorder": "Reorder reminder",
+  "crmAutoKindReorderDesc": "When a customer usually rebuys an item (from their own purchase gap), ask if they need it again.",
+  "crmAutoKindReorderWhen": "At the customer's usual gap (after {count} or more purchases), {days} day(s) early",
+  "@crmAutoKindReorderWhen": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoKindDelivery": "After-delivery feedback",
+  "crmAutoKindDeliveryDesc": "After an online order is delivered, ask for a 1 to 5 rating. A 1 or 2 alerts you at once.",
+  "crmAutoKindDeliveryWhen": "{days} day(s) after delivery",
+  "@crmAutoKindDeliveryWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoKindQuote": "Quote follow-up",
+  "crmAutoKindQuoteDesc": "If a price quote is not accepted, remind the customer once, with the link.",
+  "crmAutoKindQuoteWhen": "{days} day(s) after the quote, if not accepted",
+  "@crmAutoKindQuoteWhen": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoParamDailyCap": "Most messages from this rule per day",
+  "crmAutoParamMinPurchases": "Purchases needed to learn the habit",
+  "crmAutoParamDaysBefore": "Days before the usual date",
+  "crmAutoVarTotal": "Quote total",
+  "crmAutoVarLink": "Quote link",
+  "crmAutoTodayCap": "Today this rule can send {count} (limit {cap} a day)",
+  "@crmAutoTodayCap": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostFree": "Cost: free (0 credits)",
+  "crmAutoCostFreeInWindow": "Cost: free inside the customer's 24-hour chat window; outside it only an approved template goes. Your credits: {balance}",
+  "@crmAutoCostFreeInWindow": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostSms": "Cost: {per} credits a message ({parts} SMS parts). About {estimate} credits today. Your credits: {balance}",
+  "@crmAutoCostSms": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "parts": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostWa": "Cost: up to {per} credits a message (WhatsApp template; free inside 24 hours). About {estimate} credits today at most. Your credits: {balance}",
+  "@crmAutoCostWa": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoCostOther": "Cost: {per} credits a message. About {estimate} credits today. Your credits: {balance}",
+  "@crmAutoCostOther": {
+    "placeholders": {
+      "per": {
+        "type": "String"
+      },
+      "estimate": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoTurnOnOnHelp": "On: it sends automatically at the set time, within your limits.",
+  "crmAutoTurnOnOffHelp": "Off: nothing is sent until you turn it on.",
+  "crmAutoRulesTitle": "How scores work",
+  "crmAutoRulesBody": "Every point comes from one rule below, using your own sales, khata and messages. {hot}+ = call first, {warm}+ = keep in touch.",
+  "@crmAutoRulesBody": {
+    "placeholders": {
+      "hot": {
+        "type": "String"
+      },
+      "warm": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoRulesNoAi": "No AI guess: if we do not know something, it scores 0.",
+  "crmAutoRulesSee": "See how scores work",
+  "crmAutoScoresTitle": "Customer scores",
+  "crmAutoScoresIntro": "Who to call first. Tap a customer to see why they got the score.",
+  "crmAutoScoresSearch": "Search name or phone",
+  "crmAutoScoresEmptyTitle": "No scores yet",
+  "crmAutoScoresNoMatch": "No customer matches this search",
+  "crmAutoScoresEmptyHow": "Scores come from sales with the customer's phone, khata dues and price quotes. Add the phone when you sell, and scores appear here.",
+  "crmAutoBandHot": "Hot",
+  "crmAutoBandWarm": "Warm",
+  "crmAutoBandCold": "Cold",
+  "crmAutoLeadTag": "Lead (not bought yet)",
+  "crmAutoDoNotMessage": "Do not message",
+  "crmAutoDoNotMessageBody": "This customer said STOP. No automation will message them.",
+  "crmAutoScoreA11y": "Score {score}, {band}",
+  "@crmAutoScoreA11y": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoNoName": "No name",
+  "crmAutoWhyScore": "Why this score",
+  "crmAutoRuleWithValue": "{rule} ({value})",
+  "@crmAutoRuleWithValue": {
+    "placeholders": {
+      "rule": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "crmAutoAuditTitle": "Activity log",
+  "crmAutoAuditEmptyTitle": "Nothing here yet",
+  "crmAutoAuditEmptyHow": "Every time you turn a rule on or off, change it, or a rule sends messages, it is written here, so you always know what happened.",
+  "crmAutoAuditBack": "Back to automations",
+  "crmAutoCustomerMsgsTitle": "Automatic customer messages",
+  "crmAutoCustomerMsgsBody": "Reorder reminders, after-delivery feedback, quote follow-ups, win-back — each with preview, daily limits and its own on/off."
 }
