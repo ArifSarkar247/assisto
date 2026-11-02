@@ -199,7 +199,11 @@ class _AboutScreenState extends State<AboutScreen> {
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
       child: Row(
         children: [
-          Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+          // framebar: at 200% font (Bangla, 360 dp) the label alone could
+          // be wider than the row -> it now wraps instead of overflowing.
+          Flexible(
+            child: Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
           const SizedBox(width: Gap.md),
           // QA a6: Spacer+Flexible split the row 50/50, so values floated in
           // the middle. Values now sit flush right.
