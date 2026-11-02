@@ -1,9 +1,10 @@
-"""ledger_entry_service.py — DB layer of the SIMPLE ENTRY screen, opening
-balances, audit trail, cash flow and VAT summary (acctui; flag accounting_v2).
+"""ledger_entry_service.py — DB layer of the SIMPLE ENTRY screen, the opening
+wizard's hints, the audit trail, VAT detail and close-with-reason (acctui;
+flag accounting_v2). Opening balances / cash flow / P&L / balance sheet are the
+CORE's (core.ledger_service, backend/core/ledger/README.md).
 
 Storage needs NO migration: entries live in the generic PaCollectionItem store
-(user = the business owner, collection 'acct_entry'; the opening balances are
-one 'acct_opening' row). Entries that touch a customer / supplier ALSO write
+(user = the business owner, collection 'acct_entry'). Entries that touch a customer / supplier ALSO write
 the khata row (so the khata balance, tagada and statements stay the one
 truth); an expense also writes core.Expense (so the existing business reports
 see it). Those rows carry the '[acct#<client_id>]' marker, which the core
@@ -22,7 +23,6 @@ from .logic import ledger as L
 from .logic import ledger_entry as E
 
 COL_ENTRY = "acct_entry"
-COL_OPENING = "acct_opening"
 
 
 def _items(prof, col):
@@ -37,7 +37,7 @@ def _marker(cid):
 
 # ------------------------------------------------------------------ postings
 def extra_postings(prof, book):
-    """{source_key: posting} for every simple entry + the opening balances.
+    """{source_key: posting} for every simple entry.
     Called by the core sync inside its transaction (book is row-locked)."""
     from .models import Expense, KhataEntry
     out = {}
@@ -62,9 +62,6 @@ def extra_postings(prof, book):
             p = None          # a corrupt row never blocks the whole books
         if p:
             out[p["source_key"]] = p
-    op = _items(prof, COL_OPENING).first()
-    if op and book.start_date:
-        out.update(E.post_opening(op.data.get("values") or {}, book.start_date))
     return out
 
 
@@ -209,50 +206,16 @@ def khata_totals(prof):
     return {"receivable": max(out["customer"], 0), "payable": max(out["supplier"], 0)}
 
 
-def get_opening(prof):
+def hints(prof):
+    """What the opening wizard shows next to its questions: the khata's dues
+    (already in the books — never typed twice), the books' start / lock day
+    and the reconstructed opening stock."""
     book = _book(prof)
-    op = _items(prof, COL_OPENING).first()
-    vals = (op.data.get("values") if op else None) or {}
-    return {"values": vals, "set": op is not None,
+    return {"khata": khata_totals(prof),
             "start_date": str(book.start_date) if book.start_date else None,
             "lock_date": str(book.lock_date) if book.lock_date else None,
-            "locked": bool(book.lock_date and book.start_date
-                           and book.start_date <= book.lock_date),
             "stock_estimate": book.opening_inventory,
-            "stock_warning": book.opening_warning or None,
-            "khata": khata_totals(prof)}
-
-
-def set_opening(prof, user, data):
-    from .models import AuditLog, LedgerBook, PaCollectionItem
-    book = _book(prof)
-    clean, err = E.validate_opening(data)
-    if err:
-        return None, err
-    with transaction.atomic():
-        book = LedgerBook.objects.select_for_update().get(pk=book.pk)
-        if book.lock_date and book.start_date and book.start_date <= book.lock_date:
-            return None, "locked_period"
-        stock = clean.pop("stock")
-        op = _items(prof, COL_OPENING).first()
-        doc = {"business": prof.id, "values": clean, "stock": stock, "by": user.id,
-               "at": timezone.now().isoformat()}
-        old = op.data if op else None
-        if op:
-            op.data = doc
-            op.save(update_fields=["data", "updated_at"])
-        else:
-            PaCollectionItem.objects.create(user=prof.user, collection=COL_OPENING, data=doc)
-        if stock is not None:
-            # the core's own frozen opening inventory, now the owner's count
-            book.opening_inventory = stock
-            book.opening_warning = {}
-            book.save(update_fields=["opening_inventory", "opening_warning"])
-        AuditLog.objects.create(user=user, action="acct.opening", detail={
-            "business": prof.id, "from": (old or {}).get("values"), "to": clean,
-            "stock": stock})
-    S.sync_books(prof, user)
-    return get_opening(prof), None
+            "shop": prof.shop_name}
 
 
 # ------------------------------------------------------------------ reports
@@ -267,8 +230,7 @@ def entry_lines(prof, end=None):
                                "debit", "credit")]
 
 
-AUDIT_ACTIONS = ("acct.lock", "acct.void",
-                 "acct.opening", "acct.export")
+AUDIT_ACTIONS = ("acct.lock", "acct.void", "ledger.opening", "acct.export")
 
 
 def audit(prof, page=1, per=40):

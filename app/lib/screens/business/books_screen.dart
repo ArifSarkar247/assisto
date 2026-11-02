@@ -265,10 +265,11 @@ class _BooksScreenState extends State<BooksScreen> {
 
   /// One label / amount row. Wraps (never clips) at 200% font.
   Widget _row(String label, Object? amount, {bool strong = false, bool indent = false}) {
-    final style = TextStyle(
-        fontWeight: strong ? FontWeight.w800 : FontWeight.w400,
-        fontSize: strong ? 16 : null,
-        height: 1.35);
+    final base = strong
+        ? Theme.of(context).textTheme.titleMedium
+        : Theme.of(context).textTheme.bodyMedium;
+    final style = (base ?? const TextStyle()).copyWith(
+        fontWeight: strong ? FontWeight.w800 : FontWeight.w400, height: 1.35);
     return Semantics(
       container: true,
       label: '$label, ${_money(amount)}',

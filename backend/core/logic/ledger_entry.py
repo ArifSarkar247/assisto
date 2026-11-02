@@ -22,11 +22,9 @@ never sees debit or credit.
             loan -> Loans payable (repaid), vat -> Output VAT (paid to NBR)
   transfer  টাকা সরালাম (cash -> bank ..)  Dr to-account / Cr from-account
 
-Opening balances (wizard): acctopen:<code> — Dr asset / Cr Opening balance
-equity (payable: Dr Opening balance equity / Cr Payable), dated the books'
-start day. Opening STOCK uses the core's own frozen opening inventory.
+Opening balances, cash flow: the CORE's (business/books/opening, cash-flow).
 
-Source keys: acct:<client_id>, acctopen:<code>. A voided entry posts nothing,
+Source key: acct:<client_id>. A voided entry posts nothing,
 so the core's sync reverses it (never deleted — audit trail). An entry linked
 to a khata row / expense row follows that row's CURRENT amount and day (the
 khata stays the one truth); the row gone = nothing posted.
@@ -42,14 +40,12 @@ ACCOUNTS = {"cash": "1010", "bkash": "1020", "nagad": "1030", "bank": "1040"}
 CASH_CODES = tuple(ACCOUNTS.values())
 INPUT_VAT, OUTPUT_VAT, LOANS = "1310", "2100", "2300"
 CAPITAL, DRAWINGS, OTHER_INCOME = "3010", "3020", "4100"
-FIXED = ("1500", "1510")
+SD = "2110"
 EXPENSE_CODES = tuple(c[0] for c in L.CHART if c[2] == "operating")
 IN_PURPOSES = {"customer": L.AR, "capital": CAPITAL, "loan": LOANS, "other": OTHER_INCOME}
 OUT_PURPOSES = {"supplier": L.AP, "drawings": DRAWINGS, "loan": LOANS, "vat": OUTPUT_VAT}
 PARTY_BOOK = {("due", None): "customer", ("money_in", "customer"): "customer",
               ("money_out", "supplier"): "supplier", ("purchase", "due"): "supplier"}
-OPENING_FIELDS = (("cash", "1010"), ("bkash", "1020"), ("nagad", "1030"),
-                  ("bank", "1040"), ("receivable", L.AR), ("payable", L.AP))
 MAX_AMOUNT = 10 ** 13        # 10 crore taka in poisha x 100 — typo guard
 MARKER = "[acct#%s]"
 
@@ -215,124 +211,16 @@ def post_entry(e, linked=None):
     return L.make_entry("acct:%s" % e["client_id"], day, lines_for(e, amount), memo(e))
 
 
-def post_opening(values, start):
-    """values: {cash, bkash, nagad, bank, receivable, payable} poisha ->
-    {source_key: posting} dated the books' start day."""
-    out = {}
-    for field, code in OPENING_FIELDS:
-        v = max(_int(values.get(field)) or 0, 0)
-        if not v:
-            continue
-        if code == L.AP:
-            ls = [L.line(L.OPENING_EQ, debit=v), L.line(code, credit=v)]
-        else:
-            ls = [L.line(code, debit=v), L.line(L.OPENING_EQ, credit=v)]
-        name = L.ACC[code]["name"]
-        e = L.make_entry("acctopen:%s" % code, start, ls,
-                         L._m("শুরুর ব্যালান্স — %s" % name["bn"],
-                              "Opening balance — %s" % name["en"]))
-        out[e["source_key"]] = e
-    return out
-
-
-def validate_opening(data):
-    """-> (clean {field: poisha, 'stock': poisha|None}, None) or (None, code)."""
-    out = {}
-    for field, _ in OPENING_FIELDS + (("stock", None),):
-        raw = data.get(field)
-        if raw in (None, ""):
-            out[field] = None if field == "stock" else 0
-            continue
-        v = _int(raw)
-        if v is None or v < 0 or v > MAX_AMOUNT:
-            return None, "bad_amount"
-        out[field] = v
-    return out, None
-
-
 # --------------------------------------------------------------------------
-# reports the core does not have yet: cash flow (direct) and VAT summary.
-# `entry_lines`: [{entry, date, source, account, debit, credit}] — one per
-# journal line (reversals included: they net to zero inside a period).
+# VAT detail (the core's summary nets VAT PAID to NBR into output VAT; this
+# one keeps it apart). `entry_lines`: [{entry, date, account, debit, credit}]
+# — one per journal line (reversals included: they net out in a period).
 # --------------------------------------------------------------------------
-def _cf_bucket(code):
-    a = L.ACC[code]
-    if code == L.OPENING_EQ:
-        return "opening"
-    if code in FIXED:
-        return "investing"
-    if a["type"] == L.EQUITY or code == LOANS:
-        return "financing"
-    return "operating"
-
-
-def _cf_line(code):
-    """Operating detail row for an account (plain words in the app)."""
-    a = L.ACC[code]
-    if code in (L.AR,) or a["group"] in ("sales",):
-        return "customers"
-    if code in (L.INVENTORY, L.AP, INPUT_VAT):
-        return "suppliers"
-    if code == OUTPUT_VAT:
-        return "vat"
-    if a["type"] == L.EXPENSE:
-        return "expenses"
-    if a["group"] == "other_income":
-        return "other_income"
-    return "other"
-
-
-def cash_flow(entry_lines, start, end):
-    """Direct-method cash flow over [start, end]. Every cash movement is
-    explained by the OTHER lines of the same entry (their credit - debit sums
-    to the entry's cash change), so operating + investing + financing +
-    opening == closing - opening cash exactly."""
-    by_entry = {}
-    opening_cash = 0
-    closing_cash = 0
-    for l in entry_lines:
-        d = l["date"]
-        delta = int(l["debit"]) - int(l["credit"])
-        if l["account"] in CASH_CODES:
-            if d < start:
-                opening_cash += delta
-            if d <= end:
-                closing_cash += delta
-        if start <= d <= end:
-            by_entry.setdefault(l["entry"], []).append(l)
-    ops = {k: 0 for k in ("customers", "suppliers", "expenses", "vat",
-                          "other_income", "other")}
-    totals = {"operating": 0, "investing": 0, "financing": 0, "opening": 0}
-    fin = {"capital": 0, "drawings": 0, "loans": 0}
-    for ls in by_entry.values():
-        if not any(x["account"] in CASH_CODES for x in ls):
-            continue
-        for x in ls:
-            if x["account"] in CASH_CODES:
-                continue          # transfers between money accounts net out
-            eff = int(x["credit"]) - int(x["debit"])
-            b = _cf_bucket(x["account"])
-            totals[b] += eff
-            if b == "operating":
-                ops[_cf_line(x["account"])] += eff
-            elif b == "financing":
-                key = {CAPITAL: "capital", DRAWINGS: "drawings"}.get(x["account"], "loans")
-                fin[key] += eff
-    net = totals["operating"] + totals["investing"] + totals["financing"]
-    return {"from": str(start), "to": str(end),
-            "opening_cash": opening_cash, "opening_balances": totals["opening"],
-            "operating": dict(ops, total=totals["operating"]),
-            "investing": {"total": totals["investing"]},
-            "financing": dict(fin, total=totals["financing"]),
-            "net_change": net, "closing_cash": closing_cash,
-            "balanced": opening_cash + totals["opening"] + net == closing_cash}
-
-
 def vat_summary(entry_lines, start, end):
     """Output VAT (on sales — Mushak-6.3 invoices), input VAT (purchases),
     VAT paid to NBR, net payable for the period. A summary for the owner and
     the accountant; NOT a filed return (Mushak-9.1 is filed by the owner)."""
-    out_vat = in_vat = paid = 0
+    out_vat = in_vat = paid = sd = 0
     taxable_sales = taxable_purchases = 0
     n_sales = n_purchases = 0
     by_entry = {}
@@ -343,9 +231,10 @@ def vat_summary(entry_lines, start, end):
         ov = sum(int(x["credit"]) - int(x["debit"]) for x in ls if x["account"] == OUTPUT_VAT)
         iv = sum(int(x["debit"]) - int(x["credit"]) for x in ls if x["account"] == INPUT_VAT)
         other = [x for x in ls if x["account"] not in CASH_CODES]
-        if ov and all(x["account"] == OUTPUT_VAT for x in other):
-            paid -= ov                 # Dr Output VAT / Cr money = paid to NBR
-            continue                   # (its reversal subtracts it again)
+        if other and all(x["account"] in (OUTPUT_VAT, SD) for x in other):
+            paid -= sum(int(x["credit"]) - int(x["debit"]) for x in other)
+            continue                   # paid to NBR (its reversal subtracts it again)
+        sd += sum(int(x["credit"]) - int(x["debit"]) for x in ls if x["account"] == SD)
         if ov:
             out_vat += ov
             n_sales += 1 if ov > 0 else -1
@@ -357,9 +246,9 @@ def vat_summary(entry_lines, start, end):
             taxable_purchases += sum(int(x["debit"]) - int(x["credit"]) for x in ls
                                      if x["account"] == L.INVENTORY)
     return {"from": str(start), "to": str(end),
-            "output_vat": out_vat, "input_vat": in_vat,
-            "net_payable": out_vat - in_vat, "paid": paid,
-            "still_due": out_vat - in_vat - paid,
+            "output_vat": out_vat, "output_sd": sd, "input_vat": in_vat,
+            "net_payable": out_vat + sd - in_vat, "paid": paid,
+            "still_due": out_vat + sd - in_vat - paid,
             "taxable_sales": taxable_sales, "taxable_purchases": taxable_purchases,
             "sale_invoices": n_sales, "purchase_bills": n_purchases}
 

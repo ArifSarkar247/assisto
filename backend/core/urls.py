@@ -246,11 +246,15 @@ urlpatterns = [
     path("business/books/profit-loss", lgv.BooksProfitLossView.as_view()),
     path("business/books/balance-sheet", lgv.BooksBalanceSheetView.as_view()),
     path("business/books/lock", lgv.BooksLockView.as_view()),
-    # acctui: simple entry / opening / cash flow / VAT / audit (ledger_entry_views)
+    path("business/books/journal/<int:pk>/reverse", lgv.BooksReverseView.as_view()),
+    path("business/books/opening", lgv.BooksOpeningView.as_view()),
+    path("business/books/expense", lgv.BooksExpenseView.as_view()),
+    path("business/books/cash-flow", lgv.BooksCashFlowView.as_view()),
+    path("business/books/vat", lgv.BooksVatView.as_view()),
+    # acctui: simple entry / opening hints / VAT detail / audit / close (ledger_entry_views)
     path("business/acct/entries", lev.AcctEntriesView.as_view()),
     path("business/acct/entries/<str:client_id>/void", lev.AcctVoidView.as_view()),
-    path("business/acct/opening", lev.AcctOpeningView.as_view()),
-    path("business/acct/cash-flow", lev.AcctCashFlowView.as_view()),
+    path("business/acct/hints", lev.AcctHintsView.as_view()),
     path("business/acct/vat", lev.AcctVatView.as_view()),
     path("business/acct/audit", lev.AcctAuditView.as_view()),
     path("business/acct/export-log", lev.AcctExportLogView.as_view()),

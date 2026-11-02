@@ -7,11 +7,11 @@ for P&L / balance sheet / trial balance / lock. OWNER ONLY, like the books.
   POST business/acct/entries                    {client_id, kind, amount, account,
                                                  ...} idempotent on client_id
   POST business/acct/entries/<client_id>/void   {reason}  reversal, never delete
-  GET  business/acct/opening                    opening balances + khata hints
-  POST business/acct/opening                    {cash, bkash, nagad, bank,
-                                                 receivable, payable, stock}
-  GET  business/acct/cash-flow?from=&to=        direct method, ties to the books
-  GET  business/acct/vat?from=&to=              Mushak summary (not a return)
+  GET  business/acct/hints                      opening wizard hints (khata dues,
+                                                 start / lock day, stock estimate)
+  GET  business/acct/vat?from=&to=              VAT detail: VAT paid to NBR kept
+                                                 apart, invoice / bill counts
+(opening balances, cash flow, P&L ... are the core's business/books/*)
   GET  business/acct/audit?page=                who / when / what + reversals
   POST business/acct/export-log {what}          records an accountant export
   POST business/acct/lock {lock_date|null, reason}  close / reopen a period;
@@ -99,37 +99,12 @@ class AcctVoidView(_Books):
         return Response({"entry": e})
 
 
-class AcctOpeningView(_Books):
+class AcctHintsView(_Books):
     def get(self, request):
         prof, bad = self.biz(request)
         if bad:
             return bad
-        return Response(dict(ES.get_opening(prof), shop=prof.shop_name))
-
-    def post(self, request):
-        prof, bad = self.biz(request)
-        if bad:
-            return bad
-        out, err = ES.set_opening(prof, request.user, request.data)
-        if err:
-            return _err(request, err)
-        return Response(out)
-
-
-class AcctCashFlowView(_Books):
-    def get(self, request):
-        from .logic import ledger_entry as E
-        prof, bad = self.biz(request)
-        if bad:
-            return bad
-        S.maybe_sync(prof, request.user)
-        start, end = _range(request)
-        if start > end:
-            return _err(request, "bad_date")
-        out = E.cash_flow(ES.entry_lines(prof, end), start, end)
-        out["book"] = _book_meta(prof)
-        out["shop"] = prof.shop_name
-        return Response(out)
+        return Response(ES.hints(prof))
 
 
 class AcctVatView(_Books):

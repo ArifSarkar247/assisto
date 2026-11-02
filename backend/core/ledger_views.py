@@ -10,6 +10,13 @@ Every endpoint answers 403 `feature_off` while the flag is off for the user.
   GET  business/books/balance-sheet?as_of=
   POST business/books/sync                      post what changed (idempotent)
   POST business/books/lock {lock_date|null}     close the books up to a day
+  POST business/books/journal                   owner's manual entry
+  POST business/books/journal/<id>/reverse      reversal (never a delete)
+  GET/POST business/books/opening               opening balances
+  POST business/books/expense                   simple-screen expense
+  GET  business/books/cash-flow?from=&to=       indirect method
+  GET  business/books/vat?from=&to=             VAT summary + sales register
+Full contract: backend/core/ledger/README.md.
 
 Report GETs sync first (at most every 30 s), so the books follow the shop's
 sales / khata / expenses with nothing typed twice. Money is integer poisha.
@@ -28,7 +35,19 @@ _ERR = {
     "bad_date": ("তারিখ ঠিক নেই (YYYY-MM-DD)।", "That date is not valid (YYYY-MM-DD)."),
     "future_lock": ("আজকের পরের তারিখ পর্যন্ত বই বন্ধ করা যায় না।",
                     "You cannot close the books past today."),
+    "locked": ("এই তারিখের হিসাব বন্ধ (লক) করা আছে। পরের তারিখ দিন বা লক সরান।",
+               "The books are closed (locked) for that date. Use a later date or unlock."),
+    "unbalanced": ("ডেবিট আর ক্রেডিট সমান হতে হবে।", "Debits and credits must be equal."),
+    "bad_account": ("হিসাবের কোড ঠিক নেই।", "That account code is not valid."),
+    "amount": ("টাকার পরিমাণ ঠিক নেই।", "That amount is not valid."),
+    "bad_body": ("তথ্য ঠিক নেই।", "That request is not valid."),
+    "not_found": ("পাওয়া যায়নি।", "Not found."),
+    "already_reversed": ("এই এন্ট্রি আগেই উল্টানো হয়েছে।", "This entry is already reversed."),
 }
+
+
+def _books_err(request, e):
+    return _err(request, e.code, e.status)
 
 
 def _err(request, code, status=400):
@@ -125,7 +144,11 @@ class BooksJournalView(_Books):
         except ValueError:
             page = 1
         lang = _lang(request)
-        qs = qs.order_by("-date", "-number").prefetch_related("lines__account")
+        src = (request.query_params.get("source") or "").strip()
+        if src:
+            qs = qs.filter(source_key__startswith=src[:40])
+        qs = qs.order_by("-date", "-number").select_related("created_by") \
+            .prefetch_related("lines__account")
         items = list(qs[(page - 1) * self.PAGE: page * self.PAGE + 1])
         out = []
         for je in items[:self.PAGE]:
@@ -135,12 +158,130 @@ class BooksJournalView(_Books):
                 "memo": je.memo_bn if lang == "bn" else je.memo_en, "total": je.total,
                 "reversal_of": je.reversal_of_id,
                 "created_at": je.created_at.isoformat(),
+                "created_by": (je.created_by.name if je.created_by_id else None),
                 "lines": [{"code": l.account.code,
                            "name": l.account.name_bn if lang == "bn" else l.account.name_en,
                            "debit": l.debit, "credit": l.credit, "party": l.party}
                           for l in je.lines.all()]})
         return Response({"entries": out, "page": page,
                          "has_more": len(items) > self.PAGE})
+
+    def post(self, request):
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        try:
+            je = S.create_manual(prof, request.data, request.user)
+        except S.BooksError as e:
+            return _books_err(request, e)
+        return Response(_entry_out(je, _lang(request)), status=201)
+
+
+def _entry_out(je, lang):
+    return {"id": je.id, "number": je.number, "date": str(je.date), "status": je.status,
+            "source": je.source_key, "late": je.late,
+            "memo": je.memo_bn if lang == "bn" else je.memo_en, "total": je.total,
+            "reversal_of": je.reversal_of_id, "created_at": je.created_at.isoformat(),
+            "created_by": (je.created_by.name if je.created_by_id else None),
+            "lines": [{"code": l.account.code,
+                       "name": l.account.name_bn if lang == "bn" else l.account.name_en,
+                       "debit": l.debit, "credit": l.credit, "party": l.party}
+                      for l in je.lines.select_related("account")]}
+
+
+class BooksReverseView(_Books):
+    def post(self, request, pk):
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        try:
+            je = S.reverse_entry(prof, pk, request.data.get("reason"), request.user)
+        except S.BooksError as e:
+            return _books_err(request, e)
+        return Response(_entry_out(je, _lang(request)), status=201)
+
+
+class BooksOpeningView(_Books):
+    def get(self, request):
+        from .models import LedgerBook
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        b = LedgerBook.objects.filter(business=prof).first()
+        return Response({"opening": (b.opening if b and b.opening else None),
+                         "book": _book_meta(prof)})
+
+    def post(self, request):
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        try:
+            ob = S.set_opening(prof, request.data, request.user)
+        except S.BooksError as e:
+            return _books_err(request, e)
+        return Response({"opening": ob, "book": _book_meta(prof)})
+
+
+class BooksExpenseView(_Books):
+    def post(self, request):
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        try:
+            x = S.create_expense(prof, request.data, request.user)
+        except S.BooksError as e:
+            return _books_err(request, e)
+        code = L.expense_account(x.category, x.note)
+        return Response({"id": x.id, "amount": x.amount, "category": x.category,
+                         "note": x.note, "date": str(x.date),
+                         "account": {"code": code, "name": L.ACC[code]["name"][_lang(request)]}},
+                        status=201)
+
+
+def _range(request):
+    today = timezone.localdate()
+    start = L.parse_day(request.query_params.get("from"), today.replace(day=1))
+    end = L.parse_day(request.query_params.get("to"), today)
+    return start, end
+
+
+class BooksCashFlowView(_Books):
+    def get(self, request):
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        S.maybe_sync(prof, request.user)
+        start, end = _range(request)
+        if start > end:
+            return _err(request, "bad_date")
+        cf = L.cash_flow(S.report_lines(prof, end), start, end)
+        lang = _lang(request)
+        for a in cf["adjustments"]:
+            a["name"] = a["name"][lang]
+        _named(cf["investing"], lang)
+        _named(cf["financing"], lang)
+        cf["book"] = _book_meta(prof)
+        return Response(cf)
+
+
+class BooksVatView(_Books):
+    def get(self, request):
+        from .models import LedgerBook
+        prof, bad = self.biz(request)
+        if bad:
+            return bad
+        S.maybe_sync(prof, request.user)
+        start, end = _range(request)
+        if start > end:
+            return _err(request, "bad_date")
+        v = L.vat_summary(S.report_lines(prof, end), start, end)
+        b = LedgerBook.objects.filter(business=prof).first()
+        periods = (b.vat_periods if b else []) or []
+        v["register"] = S.invoice_register(prof, start, end, periods)
+        v["vat_ready"] = any(not p.get("to") for p in periods)
+        v["vat_periods"] = periods
+        v["book"] = _book_meta(prof)
+        return Response(v)
 
 
 class BooksTrialBalanceView(_Books):
@@ -162,9 +303,7 @@ class BooksProfitLossView(_Books):
         if bad:
             return bad
         S.maybe_sync(prof, request.user)
-        today = timezone.localdate()
-        start = L.parse_day(request.query_params.get("from"), today.replace(day=1))
-        end = L.parse_day(request.query_params.get("to"), today)
+        start, end = _range(request)
         if start > end:
             return _err(request, "bad_date")
         pl = L.profit_and_loss(S.report_lines(prof, end), start, end)
@@ -183,6 +322,7 @@ class BooksBalanceSheetView(_Books):
         S.maybe_sync(prof, request.user)
         end = L.parse_day(request.query_params.get("as_of"), timezone.localdate())
         bs = L.balance_sheet(S.report_lines(prof, end), end)
+        bs["catalog_stock_value"] = S.stock_value_now(prof)   # counted vs books
         lang = _lang(request)
         for k in ("assets", "liabilities", "equity"):
             _named(bs[k], lang)

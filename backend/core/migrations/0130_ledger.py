@@ -21,6 +21,8 @@ class Migration(migrations.Migration):
                 ("lock_date", models.DateField(blank=True, null=True)),
                 ("opening_inventory", models.BigIntegerField(blank=True, null=True)),
                 ("opening_warning", models.JSONField(blank=True, default=dict)),
+                ("opening", models.JSONField(blank=True, default=dict)),
+                ("vat_periods", models.JSONField(blank=True, default=list)),
                 ("next_number", models.PositiveIntegerField(default=1)),
                 ("last_sync_at", models.DateTimeField(blank=True, null=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),

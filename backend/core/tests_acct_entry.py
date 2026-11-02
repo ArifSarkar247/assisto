@@ -112,15 +112,6 @@ class PureEntryTests(SimpleTestCase):
         self.assertIsNone(E.post_entry(e, {"gone": True}))
         self.assertIsNone(E.post_entry(dict(e, void={"at": "x"})))
 
-    def test_opening_postings(self):
-        out = E.post_opening({"cash": 5000, "bkash": 0, "payable": 2000, "receivable": 3000}, T)
-        self.assertEqual(set(out), {"acctopen:1010", "acctopen:2010", "acctopen:1100"})
-        self.assertEqual(_codes(out["acctopen:2010"]), {"3030": 2000, "2010": -2000})
-        lines = [dict(l, date=T) for p in out.values() for l in p["lines"]]
-        self.assertTrue(L.trial_balance(lines)["balanced"])
-        self.assertEqual(E.validate_opening({"cash": -1})[1], "bad_amount")
-        self.assertEqual(E.validate_opening({"cash": "500"})[0]["stock"], None)
-
     def _lines(self, entries):
         out = []
         for i, (d, p) in enumerate(entries):
@@ -128,32 +119,6 @@ class PureEntryTests(SimpleTestCase):
                 out.append({"entry": i, "date": d, "account": l["account"],
                             "debit": l["debit"], "credit": l["credit"]})
         return out
-
-    def test_cash_flow_ties_to_cash_balance(self):
-        y = T - timedelta(days=40)
-        ps = [(y, E.post_opening({"cash": 50000}, y)["acctopen:1010"])]
-        for kw in (dict(kind="sale", amount=30000, vat=0),
-                   dict(kind="purchase", amount=20000, client_id="abcdef13"),
-                   dict(kind="expense", amount=5000, category="6010", client_id="abcdef14"),
-                   dict(kind="money_in", purpose="capital", amount=10000, client_id="abcdef15"),
-                   dict(kind="money_out", purpose="drawings", amount=2000, client_id="abcdef16"),
-                   dict(kind="transfer", amount=7000, to_account="bkash", client_id="abcdef17")):
-            ps.append((T, E.post_entry(_v(**kw)[0])))
-        lines = self._lines(ps)
-        cf = E.cash_flow(lines, T.replace(day=1), T)
-        self.assertTrue(cf["balanced"])
-        self.assertEqual(cf["opening_cash"], 50000)
-        self.assertEqual(cf["operating"]["customers"], 30000)
-        self.assertEqual(cf["operating"]["suppliers"], -20000)
-        self.assertEqual(cf["operating"]["expenses"], -5000)
-        self.assertEqual(cf["financing"]["capital"], 10000)
-        self.assertEqual(cf["financing"]["drawings"], -2000)
-        self.assertEqual(cf["net_change"], 13000)          # transfer nets out
-        self.assertEqual(cf["closing_cash"], 63000)
-        # opening balance inside the window is shown apart, never as income
-        cf2 = E.cash_flow(lines, y, T)
-        self.assertEqual(cf2["opening_balances"], 50000)
-        self.assertTrue(cf2["balanced"])
 
     def test_vat_summary_with_payment_and_reversal(self):
         sale = E.post_entry(_v(kind="sale", amount=11500, vat=1500)[0])
@@ -296,46 +261,36 @@ class AcctApiTests(TestCase):
         self.assertEqual(ev[0]["action"], "acct.lock")
         self.assertEqual(ev[0]["detail"]["reason"], "late supplier bill")
 
-    def test_opening_wizard(self):
-        self.post(kind="sale", amount=1000)
-        r = self.o.get("/api/v1/business/acct/opening")
+    def test_hints_and_core_opening_balance_together(self):
+        self.post(kind="due", party_id=self.karim.id, amount=12000)
+        h = self.o.get("/api/v1/business/acct/hints").data
+        self.assertEqual(h["khata"]["receivable"], 12000)       # never typed twice
+        self.assertEqual(h["shop"], "Rahman Store")
+        start = h["start_date"]
+        r = self.o.post("/api/v1/business/books/opening",
+                        {"date": start, "cash": 50000, "bkash": 20000, "inventory": 300000,
+                         "payables": [{"party": "", "amount": 15000}]}, format="json")
         self.assertEqual(r.status_code, 200, r.content)
-        self.assertFalse(r.data["set"])
-        r = self.o.post("/api/v1/business/acct/opening",
-                        {"cash": 50000, "bkash": 20000, "payable": 15000, "stock": 300000},
-                        format="json")
-        self.assertEqual(r.status_code, 200, r.content)
-        self.assertTrue(r.data["set"])
-        self.assertEqual(LedgerBook.objects.get(business=self.biz).opening_inventory, 300000)
-        self.assertEqual(self.bal("1010"), 51000)
-        self.assertEqual(self.bal("1200"), 300000)
-        self.assertEqual(self.bal("2010"), -15000)
-        bs = self.o.get("/api/v1/business/books/balance-sheet").data
-        self.assertTrue(bs["balanced"])
-        # changed later: reversal + new, still balanced
-        self.o.post("/api/v1/business/acct/opening", {"cash": 40000}, format="json")
-        self.assertEqual(self.bal("1010"), 41000)
-        self.assertEqual(self.bal("1020"), 0)
+        self.post(kind="sale", account="bkash", amount=5000)
+        self.assertEqual(self.bal("1020"), 25000)
+        self.assertEqual(self.bal("1010"), 50000)
+        self.assertTrue(self.o.get("/api/v1/business/books/balance-sheet").data["balanced"])
         self.tb_ok()
-        book = LedgerBook.objects.get(business=self.biz)
-        book.lock_date = book.start_date
-        book.save()
-        r = self.o.post("/api/v1/business/acct/opening", {"cash": 1}, format="json")
-        self.assertEqual(r.data["error"], "locked_period")
 
-    def test_cash_flow_and_vat_api(self):
-        self.o.post("/api/v1/business/acct/opening", {"cash": 50000}, format="json")
+    def test_core_cash_flow_and_vat_detail(self):
+        today = str(timezone.localdate())
+        self.o.post("/api/v1/business/books/opening", {"date": today, "cash": 50000}, format="json")
         self.post(kind="sale", amount=23000, vat=3000)
         self.post(kind="purchase", amount=11500, vat=1500, account="bank")
         self.post(kind="money_out", purpose="vat", amount=1000)
-        r = self.o.get("/api/v1/business/acct/cash-flow")
-        self.assertEqual(r.status_code, 200, r.content)
-        self.assertTrue(r.data["balanced"])
-        cash_now = sum(self.bal(c) for c in E.CASH_CODES)
-        self.assertEqual(r.data["closing_cash"], cash_now)
+        self.post(kind="transfer", amount=4000, to_account="nagad")
+        cf = self.o.get("/api/v1/business/books/cash-flow").data
+        self.assertTrue(cf["reconciles"], cf)
+        self.assertEqual(cf["closing_cash"], sum(self.bal(c) for c in E.CASH_CODES))
         v = self.o.get("/api/v1/business/acct/vat").data
         self.assertEqual((v["output_vat"], v["input_vat"], v["paid"], v["still_due"]),
                          (3000, 1500, 1000, 500))
+        self.assertEqual((v["sale_invoices"], v["purchase_bills"]), (1, 1))
         self.assertEqual(self.o.get("/api/v1/business/acct/vat?from=2026-12-01&to=2026-11-01")
                          .data["error"], "bad_date")
 
