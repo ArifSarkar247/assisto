@@ -1,5 +1,5 @@
 """minutejobs — the per-minute jobs in ONE process: journey_sweep, then
-antitheft_escalate (core.ops_health.MINUTE_JOBS).
+antitheft_escalate, then school_mode_tick (core.ops_health.MINUTE_JOBS).
 
 Why: each `manage.py <job>` process pays the Django start-up (~0.85 s CPU:
 352 model classes, psycopg, django.http) plus, unless skipped, the system

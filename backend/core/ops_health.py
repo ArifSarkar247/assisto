@@ -121,7 +121,8 @@ JOBS = (
     # cctvx: no-sale checks, escalation steps, offline / late-opening checks
     Job("shop_guard_tick", MIN, "* * * * *", "nice -n10", lock=True),
     # kidswatch: school-mode late checks, watch battery plan, voice expiry
-    Job("school_mode_tick", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet"),
+    Job("school_mode_tick", MIN, "* * * * *", "nice -n10", lock=True, args="--quiet",
+        via="minute_jobs"),
     Job("profit_guard_rollover", DAY, "5 0 * * *"),
     Job("backup", DAY, "15 2 * * *", kind="backup"),
     Job("generate_briefings", DAY, "0 3 * * *", "nice -n15 ionice -c3"),
@@ -141,7 +142,8 @@ JOBS = (
 )
 JOB_BY_NAME = {j.name: j for j in JOBS}
 # What `manage.py minute_jobs` runs, in order: (job name, call_command kwargs).
-MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}))
+MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
+               ("school_mode_tick", {"quiet": True}))
 
 
 def minute_jobs_cron_line():
