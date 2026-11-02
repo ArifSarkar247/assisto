@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../notifications.dart';
 import 'alarm_plan.dart';
+import 'reminder_actions.dart' show ReminderActions; // remhbar
 
 /// remmeter — keeps the phone's reminder alarms in step with the reminder
 /// list (see alarm_plan.dart for what was wrong and the pure rules).
@@ -83,7 +84,8 @@ class ReminderAlarms {
         final want = modeFor(p, exactAllowed: exact);
         final used = await Notifications.scheduleAlarm(
             p.id, p.title, p.body, p.at,
-            mode: want, repeat: p.repeat, payload: '$payloadPrefix${p.baseKey}');
+            mode: want, repeat: p.repeat,
+            payload: ReminderActions.payloadFor(p.baseKey, p.title, p.body));
         if (used == null) {
           ledger.remove(p.id);
           continue;

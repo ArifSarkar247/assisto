@@ -17,9 +17,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/api.dart';
 import 'package:assisto/db.dart';
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/notifications.dart';
 import 'package:assisto/reminders/alarm_plan.dart';
 import 'package:assisto/reminders/exact_alarm_ui.dart';
 import 'package:assisto/reminders/reminder_alarms.dart';
+import 'package:assisto/reminders/reminder_actions.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show NotificationResponse, NotificationResponseType;
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/services/bangla_calendar.dart';
 import 'package:assisto/services/oem_guide.dart';
@@ -392,6 +396,27 @@ void main() {
       expect(
           ReminderAlarms.lastLost(prefs, now: DateTime(2026, 12, 5)), isNull);
     });
+  });
+
+  test('Done / Snooze buttons dismiss through the OS (daily rings survive)',
+      () {
+    final d = Notifications.detailsFor('remalarm:rem-1').android!;
+    expect(d.actions!.every((a) => a.cancelNotification), isTrue);
+    expect(d.actions!.every((a) => a.showsUserInterface == false), isTrue);
+    // the payload carries the text, so Snooze works after the OS dismissed it
+    final pl = ReminderActions.payloadFor('rem-7', 'ওষুধ\nরাত', 'খাওয়ার পরে');
+    expect(ReminderActions.keyOf(pl), 'rem-7');
+    expect(ReminderActions.textOf(pl), ('ওষুধ\nরাত', 'খাওয়ার পরে'));
+    expect(ReminderActions.isOurs(NotificationResponse(
+        notificationResponseType:
+            NotificationResponseType.selectedNotificationAction,
+        payload: pl)), isTrue);
+    // old key-only payloads still work
+    expect(ReminderActions.keyOf('remalarm:rem-9'), 'rem-9');
+    expect(ReminderActions.textOf('remalarm:rem-9'), isNull);
+    // every alarm is re-handed once so it carries the new buttons
+    final p = AlarmPlan(key: 'rem-1', at: DateTime(2030), title: 't', body: '');
+    expect(p.sig(AlarmMode.exact), endsWith('|a2'));
   });
 
   // ------------------------------------------------------------ calendar
