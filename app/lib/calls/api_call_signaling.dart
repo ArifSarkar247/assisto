@@ -2,11 +2,12 @@ import 'dart:async';
 
 import '../api.dart';
 import '../realtime/realtime_transport.dart';
+import '../services/error_kind.dart';
 import 'call_controller.dart';
 
 /// [CallSignaling] over our server: REST for place / events, and the shared
 /// real-time transport ([PollRealtimeTransport]) for call.state + call.signal.
-class ApiCallSignaling implements CallSignaling {
+class ApiCallSignaling implements CallSignaling, RealtimeHints {
   ApiCallSignaling(this.api, this.transport);
 
   final ApiClient api;
@@ -39,12 +40,43 @@ class ApiCallSignaling implements CallSignaling {
       api.postJson('/circle/calls/$callId/event',
           {'event': event, if (relayed != null) 'relayed': relayed});
 
+  /// circle2: waits before re-sending an ICE candidate whose POST never got
+  /// an answer (the network was switching). Tests pass zeros.
+  List<Duration> iceRetry = const [
+    Duration(milliseconds: 400),
+    Duration(milliseconds: 1200),
+  ];
+
+  /// circle2: a transient failure (no answer / 5xx / 429) worth a re-send.
+  static bool transient(Object e) {
+    if (e is ApiException) {
+      final s = e.status ?? 0;
+      return s == 0 || s == 429 || s >= 500;
+    }
+    return failKindOf(e) == FailKind.network;
+  }
+
   @override
   Future<void> signal(
       int callId, String kind, Map<String, dynamic> data) async {
+    final body = {'call_id': callId, 'kind': kind, 'data': data};
     try {
-      await transport
-          .send('call.signal', {'call_id': callId, 'kind': kind, 'data': data});
+      if (kind != 'ice') {
+        await transport.send('call.signal', body);
+        return;
+      }
+      // circle2: an ICE candidate sent while Wi-Fi <-> data is switching
+      // used to be lost on the first failed POST. Re-send it (a duplicate
+      // candidate is harmless; offers/answers are never re-sent).
+      for (var i = 0;; i++) {
+        try {
+          await transport.send('call.signal', body);
+          return;
+        } catch (e) {
+          if (i >= iceRetry.length || !transient(e)) rethrow;
+          await Future<void>.delayed(iceRetry[i]);
+        }
+      }
     } on ApiException catch (e) {
       // b1: the server's plan gate refused switching this call to video
       if (kind == 'video_request' && (e.status == 402 || e.status == 403)) {
@@ -95,5 +127,18 @@ class ApiCallSignaling implements CallSignaling {
     if (on == _fast) return;
     _fast = on;
     transport.setFast(on);
+  }
+
+  bool _steady = false;
+  @override
+  void setSteady(bool on) {
+    if (on == _steady) return;
+    _steady = on;
+    transport.setSteady(on);
+  }
+
+  @override
+  void networkChanged(String kind) {
+    unawaited(transport.networkChanged());
   }
 }

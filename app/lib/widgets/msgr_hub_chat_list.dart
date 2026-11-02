@@ -1221,6 +1221,14 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             ),
           ),
         ),
+      // circle2 (owner checklist): a short how-to under the big button
+      if (!archived)
+        Padding(
+          key: const Key('circle2-chats-empty-how'),
+          padding: const EdgeInsets.fromLTRB(Gap.xl, Gap.lg, Gap.xl, Gap.xl),
+          child: Text(t.circle2ChatsEmptyHow,
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.6)),
+        ),
     ]);
   }
 

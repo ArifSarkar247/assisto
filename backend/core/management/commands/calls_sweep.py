@@ -20,9 +20,13 @@ class Command(BaseCommand):
 
     @track_job("calls_sweep")
     def handle(self, *args, **opts):
-        from core.views_c2_calls import sweep_all
+        from core.views_c2_calls import prune_events, sweep_all
         out = sweep_all()
         n = sum(out.values())
         if n:
             self.stdout.write("calls_sweep: ended %d (%s)" % (
                 n, ", ".join("%s=%d" % kv for kv in sorted(out.items()))))
+        # circle2: old real-time rows of phones that stopped polling
+        gone = prune_events()
+        if gone:
+            self.stdout.write("calls_sweep: pruned %d old rt events" % gone)

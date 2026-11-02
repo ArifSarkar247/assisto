@@ -26,17 +26,30 @@ class ReceiptUpdate {
 ///     (ReceiptAck — no waiting for FCM) and [newMessages] so an open chat
 ///     refreshes now instead of at its next 7 s poll.
 ///
-/// SPEED: a sender waiting for ✓✓ / blue ✓✓ in an open chat asks for a fast
-/// poll window ([expect]) — the shared loop then polls every 0.5 s for
-/// [boostFor] after the last request (calls use the same switch), else it
-/// stays at its battery-friendly idle cadence.
+/// SPEED: a sender waiting for ✓✓ / blue ✓✓ in an open chat asks for a
+/// boost window ([expect]) — the shared loop then polls every 1 s
+/// (PollRealtimeTransport.setBoost) for [boostFor] after the last SEND, else
+/// it stays at its idle cadence (2.5 s while a My Circle screen is visible).
+///
+/// circle2 (owner: ~1,350 rt/events in 15 min from 3 phones): this used to
+/// be the CALL cadence (0.3 s) for 90 s, re-armed by every chat refresh while
+/// any of my messages was unread — an open chat whose peer was away polled
+/// ~3 times a second for as long as it stayed open. Now a send arms 20 s at
+/// 1 s; a re-check ([expect] with `fresh: false`: chat opened, receipt,
+/// refresh) arms at most ONE such window per [watchEvery] and never extends
+/// one.
 class ReceiptBus {
   ReceiptBus._();
   static final ReceiptBus instance = ReceiptBus._();
 
   static const topicReceipt = 'receipt.update';
   static const topicNew = 'msg.new';
-  static const boostFor = Duration(seconds: 90);
+  static const boostFor = Duration(seconds: 20);
+  static const watchEvery = Duration(minutes: 2);
+
+  @visibleForTesting
+  DateTime Function() clock = DateTime.now;
+  DateTime? _lastWatch;
 
   final _updates = StreamController<ReceiptUpdate>.broadcast();
   final _new = StreamController<String>.broadcast();
@@ -88,7 +101,14 @@ class ReceiptBus {
 
   /// "I'm waiting for ticks in an open chat": fast realtime polling for
   /// [boostFor] (extended by every call). Cheap no-op without a transport.
-  void expect() {
+  void expect({bool fresh = true}) {
+    if (!fresh) {
+      if (_fast) return; // a window is already open — never extend it
+      final now = clock();
+      final last = _lastWatch;
+      if (last != null && now.difference(last) < watchEvery) return;
+      _lastWatch = now;
+    }
     _boost?.cancel();
     if (!_fast) {
       _fast = true;
@@ -116,6 +136,8 @@ class ReceiptBus {
   @visibleForTesting
   void reset() {
     relax();
+    _lastWatch = null;
+    clock = DateTime.now;
     _sub?.cancel();
     _sub = null;
     _attached = null;
