@@ -44,7 +44,8 @@ class SystemHealthPageTests(OwnerBase):
         self.assertContains(r, "billing_daily")
         self.assertContains(r, "FAILING")
         self.assertContains(r, "Jobs with no cron line")
-        self.assertContains(r, escape(H.JOB_BY_NAME["antitheft_escalate"].cron_line()))
+        # cronbar: a minute_jobs job is told to add the minute_jobs line
+        self.assertContains(r, escape(H.JOB_BY_NAME["antitheft_escalate"].recommended_line()))
         self.assertContains(r, "coturn")
         r = self.get("/owner/system?lang=bn")
         self.assertContains(r, "সিস্টেমের অবস্থা")
