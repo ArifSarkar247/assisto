@@ -761,3 +761,16 @@ class PaItemSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         d = {k: v for k, v in (data or {}).items() if k != "id"}
         return {"data": d}
+
+    def update(self, instance, validated_data):
+        # pssec: a PATCH (partial) MERGES into the stored row. Before, PATCH
+        # {"status": "done"} from the follow-up tracker replaced the whole
+        # row and silently wiped its title / counterpart / due date.
+        d = validated_data.get("data", {})
+        if self.partial:
+            merged = dict(instance.data or {})
+            merged.update(d)
+            d = merged
+        instance.data = d
+        instance.save(update_fields=["data", "updated_at"])
+        return instance

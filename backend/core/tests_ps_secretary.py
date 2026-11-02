@@ -57,6 +57,9 @@ class PureBriefTests(SimpleTestCase):
         self.assertIn("4:00 pm", board["en"])
         self.assertIn("Rahim, Karim", board["bn"])
         self.assertEqual(board["circle_ids"], [7])     # junk ids dropped
+        b2 = PB.build([slot(9, 10, circle_people=[{"id": "3", "name": "Rahim"}, {"id": "z"}, "bad"])],
+                      [], [], NOW, tz=DHAKA)
+        self.assertEqual(b2["sections"][0]["lines"][0]["circle"], [{"id": 3, "name": "Rahim"}])
         self.assertEqual(b["counts"]["meetings"], 2)
 
     def test_clash_minutes_are_real(self):
@@ -172,3 +175,29 @@ class TodayApiTests(TestCase):
         self.assertIn("Bank", ps[0]["lines"][0]["en"])
         b = PR.build_brief(self.u, "brief_evening", timezone.now())
         self.assertNotIn("ps", [s["key"] for s in b["sections"]])
+
+
+class PaItemPatchMergeTests(TestCase):
+    """pssec bug fix: PATCH on a PA collection row must not wipe its fields."""
+    def setUp(self):
+        self.u = User.objects.create_user(name="PS Three", phone="01710000903", password="pw12345!")
+        self.c = APIClient()
+        self.c.force_authenticate(self.u)
+
+    def test_patch_status_keeps_title_and_counterpart(self):
+        r = self.c.post(V + "/pa/followups/", {"title": "Quote", "counterpart": "Karim",
+                                               "status": "waiting"}, format="json")
+        rid = r.json()["id"]
+        r = self.c.patch(V + "/pa/followups/%d/" % rid, {"status": "done"}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        row = self.c.get(V + "/pa/followups/%d/" % rid).json()
+        self.assertEqual(row["title"], "Quote")
+        self.assertEqual(row["counterpart"], "Karim")
+        self.assertEqual(row["status"], "done")
+
+    def test_put_still_replaces(self):
+        r = self.c.post(V + "/pa_schedule/", {"title": "A", "note": "x"}, format="json")
+        rid = r.json()["id"]
+        self.c.put(V + "/pa_schedule/%d/" % rid, {"title": "B"}, format="json")
+        row = self.c.get(V + "/pa_schedule/%d/" % rid).json()
+        self.assertEqual(row, {"id": rid, "title": "B"})

@@ -54,6 +54,19 @@ def _circle_ids(row):
     return out
 
 
+def _circle(row):
+    """My Circle people picked on the row: [{"id": int, "name": str}]."""
+    out = []
+    for p in (row.get("circle_people") or []):
+        if not isinstance(p, dict):
+            continue
+        try:
+            out.append({"id": int(p.get("id")), "name": str(p.get("name") or "").strip()})
+        except (TypeError, ValueError):
+            continue
+    return out[:8]
+
+
 def _line(bn_text, en_text, kind, rid, **extra):
     d = {"bn": bn_text, "en": en_text, "src": {"kind": kind, "id": rid}}
     d.update(extra)
@@ -92,7 +105,7 @@ def meetings_section(slots, now_local):
             te += " ⚠ overlaps another slot by %d min" % clash_with[idx]
         lines.append(_line(tb, te, "schedule", s.get("id"),
                            start=st.isoformat(), people=ppl,
-                           circle_ids=_circle_ids(s),
+                           circle_ids=_circle_ids(s), circle=_circle(s),
                            done=SCH.clean_status(s.get("status")) == SCH.STATUS_DONE,
                            clash=idx in clash_with))
     nxt = SCH.next_up(slots, now=now_local)
@@ -108,6 +121,8 @@ def meetings_section(slots, now_local):
                 mins = nxt["minutes_until"]
                 if mins < 60:
                     wb, we = "%s মিনিট পরে" % bn(mins), "in %d min" % mins
+                elif mins % 60 == 0:
+                    wb, we = "%s ঘণ্টা পরে" % bn(mins // 60), "in %dh" % (mins // 60)
                 else:
                     wb = "%s ঘণ্টা %s মিনিট পরে" % (bn(mins // 60), bn(mins % 60))
                     we = "in %dh %dm" % (mins // 60, mins % 60)
@@ -159,7 +174,7 @@ def followups_section(followups, now_local, tz=timezone.utc):
             "%s — %s (%s)%s" % (who, title, wb, "" if waiting else " · এবার আপনার পালা"),
             "%s — %s (%s)%s" % (who, title, we, "" if waiting else " · your move"),
             "followup", f.get("id"), state=state, counterpart=who,
-            circle_ids=_circle_ids(f)))
+            circle_ids=_circle_ids(f), circle=_circle(f)))
     return lines
 
 
