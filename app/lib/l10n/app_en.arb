@@ -31917,5 +31917,742 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "lgrTitle": "Books",
+  "lgrHubSub": "Profit and loss, balance sheet and trial balance, filled in from your sales, khata and expenses",
+  "lgrTabPl": "Profit and loss",
+  "lgrTabBs": "Balance sheet",
+  "lgrTabTb": "Trial balance",
+  "lgrUpdate": "Update books",
+  "lgrUpdatedOk": "Books are up to date",
+  "lgrUpdateFailed": "Could not update the books. Please try again.",
+  "lgrEmptyTitle": "Your books fill themselves",
+  "lgrEmptyBody": "Every sale, khata entry and expense becomes a proper accounting entry, so you get a profit and loss statement and a balance sheet a bank will accept, without typing anything twice.",
+  "lgrEmptyHowTo": "How it works: 1. Sell from Quick sell or add a khata entry. 2. Come back here and tap Update books. 3. Read your profit, your stock value and what you owe.",
+  "lgrBalanced": "Debits equal credits: the books balance",
+  "lgrNotBalanced": "Debits and credits do not match. Please send us a report from Help.",
+  "lgrPeriodThisMonth": "This month",
+  "lgrPeriodLastMonth": "Last month",
+  "lgrPeriodThisYear": "This year",
+  "lgrPeriodRange": "{from} to {to}",
+  "@lgrPeriodRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "lgrAsOf": "As of {date}",
+  "@lgrAsOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lgrIncomeHeading": "Income",
+  "lgrDiscounts": "Less: discounts given",
+  "lgrNetSales": "Net sales",
+  "lgrCogs": "Less: cost of goods sold",
+  "lgrGrossProfit": "Gross profit",
+  "lgrOpex": "Operating expenses",
+  "lgrOtherIncome": "Other income",
+  "lgrNetProfit": "Net profit",
+  "lgrNetLoss": "Net loss",
+  "lgrAssets": "Assets",
+  "lgrLiabilities": "Liabilities",
+  "lgrEquity": "Owner's equity",
+  "lgrProfitToDate": "Profit to date (not yet closed)",
+  "lgrTotal": "Total",
+  "lgrTotalAssets": "Total assets",
+  "lgrTotalLiabEq": "Total liabilities and equity",
+  "lgrTotalDebit": "Total debit",
+  "lgrTotalCredit": "Total credit",
+  "lgrDebit": "debit",
+  "lgrCredit": "credit",
+  "lgrDebitShort": "Dr",
+  "lgrCreditShort": "Cr",
+  "acuTitle": "Accounts",
+  "acuHubSub": "Write sales, purchases, expenses and dues in plain words — get profit and loss, balance sheet, VAT and an Excel for your accountant",
+  "acuNewEntry": "New entry",
+  "acuWhatHappened": "What happened?",
+  "acuWhatHappenedToday": "What happened today?",
+  "acuKindSale": "Sale",
+  "acuKindPurchase": "Purchase",
+  "acuKindExpense": "Expense",
+  "acuKindDue": "Due (on credit)",
+  "acuKindIn": "Money received",
+  "acuKindOut": "Money paid",
+  "acuKindTransfer": "Move money",
+  "acuKindTransferLong": "Move money between cash, bank, bKash, Nagad",
+  "acuKindSaleHint": "You sold something and got the money now.",
+  "acuKindPurchaseHint": "You bought stock to sell — paid now or on credit from the supplier.",
+  "acuKindExpenseHint": "Shop running costs: rent, salary, electricity, transport and so on.",
+  "acuKindDueHint": "A customer took goods and will pay later. It also goes into their khata.",
+  "acuKindInHint": "Money came in: a customer paid their due, you put in your own money, or took a loan.",
+  "acuKindOutHint": "Money went out: paid a supplier, took money for home, repaid a loan, or paid VAT.",
+  "acuKindTransferHint": "Your own money moved — for example cash deposited in the bank. Profit does not change.",
+  "acuAmount": "How much?",
+  "acuAccCash": "Cash in hand",
+  "acuAccBank": "Bank",
+  "acuAccBkash": "bKash",
+  "acuAccNagad": "Nagad",
+  "acuAccDue": "On credit",
+  "acuPaidHow": "How did you pay?",
+  "acuFromAccount": "From",
+  "acuToAccount": "To",
+  "acuMoneyCameTo": "Where did the money come?",
+  "acuMoneyWentFrom": "Where did the money go from?",
+  "acuWhatFor": "What was it for?",
+  "acuInCustomer": "A customer paid a due",
+  "acuInCapital": "My own money into the shop",
+  "acuInLoan": "Took a loan",
+  "acuInOther": "Other income",
+  "acuOutSupplier": "Paid a supplier",
+  "acuOutDrawings": "Took money for home",
+  "acuOutLoan": "Repaid a loan",
+  "acuOutVat": "Paid VAT to the government",
+  "acuExpenseKind": "What kind of expense?",
+  "acuExpRent": "Rent",
+  "acuExpSalary": "Salary and wages",
+  "acuExpUtility": "Electricity, gas, water",
+  "acuExpTransport": "Transport and delivery",
+  "acuExpPhone": "Phone and internet",
+  "acuExpAds": "Ads and promotion",
+  "acuExpRepair": "Repairs",
+  "acuExpCharges": "Bank and bKash charges",
+  "acuExpPackaging": "Packaging",
+  "acuExpFood": "Tea and food",
+  "acuExpFees": "Licence, fees and tax",
+  "acuExpOther": "Other",
+  "acuWhichCustomer": "Which customer?",
+  "acuWhichSupplier": "Which supplier?",
+  "acuPickParty": "Choose from khata, CRM or My Circle",
+  "acuPartyChosen": "{name} — tap to change",
+  "@acuPartyChosen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxTheAmount": "the amount",
+  "acuFxSomeone": "this person",
+  "acuFxSale": "{amount} comes into {account}. Your sales go up.",
+  "@acuFxSale": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxPurchase": "Your stock goes up by {amount}; {account} goes down by the same.",
+  "@acuFxPurchase": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxPurchaseDue": "Your stock goes up by {amount}; you will owe {party} that much (also in the supplier khata).",
+  "@acuFxPurchaseDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxExpense": "{amount} goes out of {account} and is taken off your profit.",
+  "@acuFxExpense": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxDue": "{party} will owe you {amount} more (also in their khata). Sales go up.",
+  "@acuFxDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxInCustomer": "{amount} comes into {account}; {party}'s due goes down.",
+  "@acuFxInCustomer": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      },
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxIn": "{amount} comes into {account}.",
+  "@acuFxIn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxOutSupplier": "{amount} goes out of {account}; what you owe {party} goes down.",
+  "@acuFxOutSupplier": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      },
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxOut": "{amount} goes out of {account}.",
+  "@acuFxOut": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "acuFxTransfer": "{amount} moves from {from} to {to}. Profit does not change.",
+  "@acuFxTransfer": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "acuMore": "More: date, note, VAT",
+  "acuDateToday": "Date: today",
+  "acuDate": "Date",
+  "acuChange": "Change",
+  "acuNote": "Note (optional)",
+  "acuNoteHint": "e.g. invoice number, what it was",
+  "acuVatAmount": "VAT in this amount (optional)",
+  "acuVatHelp": "Only if you issue or receive a VAT invoice (Mushak-6.3). It shows in the VAT summary.",
+  "acuVat15": "Fill 15% VAT (included in the price)",
+  "acuCost": "Buying cost of these goods (optional)",
+  "acuCostHelp": "Fill this to see the true profit on this sale.",
+  "acuSave": "Save",
+  "acuSaved": "Saved in your accounts",
+  "acuQueued": "No internet — kept on this phone. It will be sent once you are online.",
+  "acuSaveFailed": "Could not save. Please try again.",
+  "acuErrAmount": "Write the amount, for example 1250.",
+  "acuErrSameAccount": "Choose two different places.",
+  "acuErrParty": "Choose who this is with.",
+  "acuErrVat": "VAT must be less than the total amount.",
+  "acuErrCost": "The buying cost is not a valid amount.",
+  "acuPickCustomer": "Which customer?",
+  "acuPickSupplier": "Which supplier?",
+  "acuPickSearch": "Search name or phone, or type a new name",
+  "acuPickFromKhata": "Khata",
+  "acuPickFromCrm": "CRM",
+  "acuPickCircle": "My Circle",
+  "acuPickNew": "New: {name}",
+  "@acuPickNew": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acuPickNewSub": "Added to your khata too",
+  "acuPickLoadFailed": "Could not load the list. Type a name above, or try again.",
+  "acuPickKhataEmpty": "Nobody in this khata yet. Type a name above or pick from My Circle.",
+  "acuPickCrmEmpty": "No CRM contacts yet. Type a name above or pick from My Circle.",
+  "acuReports": "Reports",
+  "acuReportsSub": "Profit and loss, balance sheet, trial balance, cash flow, VAT",
+  "acuExport": "Send to accountant",
+  "acuExportSub": "Excel or PDF, through WhatsApp, email or any app",
+  "acuClose": "Close a month",
+  "acuCloseSub": "Lock a finished month so nobody changes it by mistake",
+  "acuAudit": "Audit trail",
+  "acuAuditSub": "Who wrote what, when — and every cancellation",
+  "acuOpening": "Opening balances",
+  "acuOpeningSub": "What the shop had on the first day",
+  "acuToolsHeading": "Reports and accountant",
+  "acuRecent": "Your recent entries",
+  "acuQueueWaiting": "{n} entries waiting on this phone (no internet)",
+  "@acuQueueWaiting": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuQueueSendNow": "Send now",
+  "acuQueueSent": "{n} entries sent",
+  "@acuQueueSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuQueueStillOffline": "Still no internet — they will go later",
+  "acuQueueDiscard": "Discard",
+  "acuOpeningCardTitle": "Start right: add your opening balances",
+  "acuOpeningCardBody": "Tell us how much cash, bank, bKash and stock you had. Then the balance sheet shows your real position.",
+  "acuOpeningStart": "Add opening balances",
+  "acuEmptyTitle": "Know your real profit, in plain words",
+  "acuEmptyBody": "Write what happened — a sale, a purchase, an expense. Your profit and loss, balance sheet and VAT are made for you. Shop sales and khata come in by themselves.",
+  "acuEmptyCta": "Write the first entry",
+  "acuEmptyHowTo": "How: 1) Tap Sale, Purchase or Expense. 2) Write the amount. 3) Choose cash, bank, bKash or Nagad. 4) Save. No internet? It waits on the phone.",
+  "acuVoided": "Cancelled",
+  "acuEnteredBy": "Entered by {name}",
+  "@acuEnteredBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acuVatLine": "VAT: {amount}",
+  "@acuVatLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "acuVoidedNote": "Cancelled. The books keep it with a reverse entry — nothing is deleted.",
+  "acuVoidExplain": "Wrong entry? Cancel it. The books add a reverse entry (nothing is deleted), and the khata row it made is removed.",
+  "acuVoidReason": "Why? (optional, saved in the audit trail)",
+  "acuVoidButton": "Cancel this entry",
+  "acuVoidDone": "Cancelled — reverse entry added",
+  "acuCancel": "Not now",
+  "acuStepOf": "Step {step} of {total}",
+  "@acuStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "acuBack": "Back",
+  "acuNext": "Next",
+  "acuOpeningSave": "Save opening balances",
+  "acuOpeningSaved": "Opening balances saved",
+  "acuOpeningLocked": "Your books from {date} are closed, so the opening balances cannot change. Reopen the month first (Close a month).",
+  "@acuOpeningLocked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuOpeningIntroTitle": "Where did the shop start?",
+  "acuOpeningIntroBody": "Your books start on {date}. Tell us what the shop had on that day: money in hand, bank, bKash, Nagad, dues and stock. Without this, the balance sheet only knows what happened after that day.",
+  "@acuOpeningIntroBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuOpeningIntroTip": "Not sure? Write your best guess. You can change it later until you close that month.",
+  "acuOpeningMoneyTitle": "Money you had",
+  "acuOpeningCashHelp": "Cash in the drawer and the shop on {date}.",
+  "@acuOpeningCashHelp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuOpeningBankHelp": "Balance in the shop's bank account(s).",
+  "acuOpeningMfsHelp": "Balance in the shop's mobile wallet (agent or personal used for the shop).",
+  "acuOpeningDuesTitle": "Dues",
+  "acuOpeningKhataHas": "Your khata already shows customers owe {receivable} and you owe suppliers {payable}. These are already in the books — do not write them again.",
+  "@acuOpeningKhataHas": {
+    "placeholders": {
+      "receivable": {
+        "type": "String"
+      },
+      "payable": {
+        "type": "String"
+      }
+    }
+  },
+  "acuOpeningReceivable": "Dues to collect (not in the khata)",
+  "acuOpeningReceivableHelp": "Money customers owed you on the first day that is NOT written in the khata.",
+  "acuOpeningPayable": "Dues to pay (not in the khata)",
+  "acuOpeningPayableHelp": "Money you owed suppliers on the first day that is NOT in the supplier khata.",
+  "acuOpeningStockTitle": "Stock (goods in the shop)",
+  "acuOpeningStockEstimate": "From your product list and sales we estimate {amount} at buying price. Leave it empty to keep this, or write your own count.",
+  "@acuOpeningStockEstimate": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "acuOpeningStock": "Stock value at buying price",
+  "acuOpeningStockHelp": "What all the goods in the shop cost you, on the first day.",
+  "acuOpeningStockKept": "Keep our estimate",
+  "acuOpeningReviewTitle": "Check and save",
+  "acuOpeningReviewNote": "On save, the books are updated and the balance sheet will show these. Every change is kept in the audit trail.",
+  "acuMonth": "Month",
+  "acuQuarter": "Quarter",
+  "acuYear": "Year",
+  "acuPrevPeriod": "Previous period",
+  "acuNextPeriod": "Next period",
+  "acuAsOf": "As of {date}",
+  "@acuAsOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuRange": "{from} to {to}",
+  "@acuRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "acuBalanced": "Debits equal credits — the books balance",
+  "acuNotBalanced": "The two sides do not match — please tell support",
+  "acuRepPl": "Profit and loss",
+  "acuRepBs": "Balance sheet",
+  "acuRepTb": "Trial balance",
+  "acuRepCf": "Cash flow",
+  "acuRepVat": "VAT summary",
+  "acuRepJournal": "Journal",
+  "acuRepPlWhat": "Did the shop make money in this period? Sales minus the cost of goods and expenses.",
+  "acuRepBsWhat": "What the shop owns and owes on the last day: money, stock, dues, loans and your capital.",
+  "acuRepTbWhat": "Every account's balance on the last day — your accountant checks that both sides are equal.",
+  "acuRepCfWhat": "Where money came from and where it went: cash, bank, bKash and Nagad together.",
+  "acuRepVatWhat": "VAT you collected on sales and paid on purchases, and what is left to pay (Mushak-9.1 help).",
+  "acuRepIncome": "Sales",
+  "acuRepDiscounts": "Discounts given",
+  "acuRepNetSales": "Net sales",
+  "acuRepCogs": "Cost of goods sold",
+  "acuRepGrossProfit": "Gross profit",
+  "acuRepOpex": "Expenses",
+  "acuRepOpexTotal": "Total expenses",
+  "acuRepOtherIncome": "Other income",
+  "acuRepNetProfit": "Net profit",
+  "acuRepNetLoss": "Net loss",
+  "acuRepAssets": "What the shop owns",
+  "acuRepTotalAssets": "Total assets",
+  "acuRepLiabilities": "What the shop owes",
+  "acuRepEquity": "Owner's share",
+  "acuRepProfitToDate": "Profit so far",
+  "acuRepTotal": "Total",
+  "acuRepTotalLiabEq": "Owes + owner's share",
+  "acuRepDebit": "Debit",
+  "acuRepCredit": "Credit",
+  "acuRepTbNote": "For your accountant: debit and credit totals must be equal.",
+  "acuRepCfOpening": "Money at the start",
+  "acuRepCfOperating": "From running the shop (profit, then what changed in dues, stock and VAT)",
+  "acuRepCfInvesting": "Furniture and equipment",
+  "acuRepCfFinancing": "Owner, loans and opening balances",
+  "acuRepCfNet": "Change in money",
+  "acuRepCfClosing": "Money at the end",
+  "acuRepCfNote": "Money = cash in hand + bank + bKash + Nagad. Moving money between them is not counted.",
+  "acuRepVatSales": "Sales with VAT ({n} invoices)",
+  "@acuRepVatSales": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuRepVatTaxableSales": "Sales value without VAT",
+  "acuRepVatOutput": "VAT collected (output)",
+  "acuRepVatPurchases": "Purchases with VAT ({n} bills)",
+  "@acuRepVatPurchases": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuRepVatTaxablePurchases": "Purchase value without VAT",
+  "acuRepVatInput": "VAT paid on purchases (input)",
+  "acuRepVatNet": "VAT payable (output − input)",
+  "acuRepVatPaid": "Already paid to the government",
+  "acuRepVatStillDue": "Still to pay",
+  "acuRepVatNote": "A summary to help fill Mushak-9.1 — Assisto does not file it. Only entries with VAT typed in are counted; shop (POS) sales have no VAT yet.",
+  "acuRepEmptyTitle": "Nothing in this period yet",
+  "acuRepEmptyBody": "Write a sale, purchase or expense, or pick another period above. Shop sales and khata entries also show here.",
+  "acuRepEmptyHowTo": "Tip: use Month, Quarter or Year and the arrows to look at earlier periods.",
+  "acuExportTitle": "Send to your accountant",
+  "acuExportBody": "For {period}. Choose a file, then pick WhatsApp, email or any app.",
+  "@acuExportBody": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "acuExportXlsx": "Excel file (.xlsx) — all reports",
+  "acuExportXlsxSub": "Profit and loss, balance sheet, trial balance, cash flow, VAT and the journal, one sheet each",
+  "acuExportPdf": "PDF (to print or show the bank)",
+  "acuExportPdfSub": "{report}, in the app's language",
+  "@acuExportPdfSub": {
+    "placeholders": {
+      "report": {
+        "type": "String"
+      }
+    }
+  },
+  "acuExportCsv": "CSV (opens in any spreadsheet)",
+  "acuExportCsvSub": "{report} only",
+  "@acuExportCsvSub": {
+    "placeholders": {
+      "report": {
+        "type": "String"
+      }
+    }
+  },
+  "acuExportShareText": "{shop} — accounts for {period}",
+  "@acuExportShareText": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "acuExportFailed": "Could not make the file. Check the internet and try again.",
+  "acuColAccount": "Account",
+  "acuColCode": "Code",
+  "acuColAmount": "Amount (Tk)",
+  "acuPdfMade": "Made on {date} with Assisto",
+  "@acuPdfMade": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuPdfPage": "Page {page} of {pages}",
+  "@acuPdfPage": {
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseNone": "No month is closed yet",
+  "acuClosedUpTo": "Closed up to {date}",
+  "@acuClosedUpTo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseWhy": "Closing a month locks it: nobody can add or change entries on or before its last day. A late change from the shop goes into the next open day, so the closed month's report never changes.",
+  "acuClosePick": "Choose a month to close",
+  "acuCloseNothing": "No finished month is open. Come back after this month ends.",
+  "acuCloseUpTo": "Locks everything up to {date}",
+  "@acuCloseUpTo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseConfirmTitle": "Close {month}?",
+  "@acuCloseConfirmTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseMonthProfit": "Net profit this month: {amount}",
+  "@acuCloseMonthProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseExplain": "After closing, nothing can be entered on or before {date}. You can reopen later, but you must write why — it is kept in the audit trail.",
+  "@acuCloseExplain": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuCloseUnderstood": "I have checked this month and understand",
+  "acuCloseConfirm": "Yes, close {month}",
+  "@acuCloseConfirm": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "acuClosedDone": "{month} is closed",
+  "@acuClosedDone": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "acuReopenButton": "Reopen the last closed month",
+  "acuReopenTitle": "Reopen {month}?",
+  "@acuReopenTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "acuReopenExplain": "Reopen only to fix a real mistake. Write the reason — your accountant will see it in the audit trail.",
+  "acuReopenReason": "Reason (at least 5 letters)",
+  "acuReopenedDone": "{month} is open again",
+  "@acuReopenedDone": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "acuAuditIntro": "Nothing in the books is ever deleted. A mistake is fixed with a reverse entry, and both stay here.",
+  "acuAuditActions": "Owner actions",
+  "acuAuditEntries": "All entries (newest first)",
+  "acuAuditLive": "In the books",
+  "acuAuditReversedBy": "Reversed by #{n}",
+  "@acuAuditReversedBy": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuAuditReversalOf": "Reverses #{n}",
+  "@acuAuditReversalOf": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "acuAuditReversed": "reversed",
+  "acuAuditReversal": "reverse entry",
+  "acuAuditRecordedAt": "Recorded {when}",
+  "@acuAuditRecordedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acuAuditLate": "Came after the month was closed — placed on the next open day",
+  "acuAuditForAccountant": "Details for the accountant",
+  "acuAuditEmptyTitle": "No entries yet",
+  "acuAuditEmptyBody": "Every sale, khata entry, expense and your own entries will be listed here with who and when.",
+  "acuAuditEmptyCta": "Go back and write an entry",
+  "acuShowMore": "Show more",
+  "acuSrcSale": "Shop sale",
+  "acuSrcSaleVoid": "Shop sale cancelled",
+  "acuSrcKhata": "Khata",
+  "acuSrcExpense": "Expense",
+  "acuSrcCash": "Cashbox",
+  "acuSrcAcct": "Your entry",
+  "acuSrcOpening": "Opening balance",
+  "acuEvClosed": "Closed the books up to {date}",
+  "@acuEvClosed": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acuEvReopenedAll": "Reopened the books",
+  "acuEvReason": "reason: {reason}",
+  "@acuEvReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "acuEvVoid": "Cancelled an entry",
+  "acuEvOpening": "Changed the opening balances",
+  "acuEvExport": "Exported {what} for the accountant",
+  "@acuEvExport": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "acuEvEntry": "{kind}: {amount}",
+  "@acuEvEntry": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "acuRepCfProfit": "Net profit",
+  "acuRepVatSd": "Supplementary duty collected",
+  "acuRepVatRegister": "Sales register (Mushak-6.2 style, from your invoices)",
+  "acuOpeningLoans": "Loans you owed",
+  "acuOpeningLoansHelp": "Bank, NGO or personal loans the shop still had to repay on the first day.",
+  "acuCfReconciles": "Start + change = end: the money adds up",
+  "acuCfNotReconciles": "The money does not add up — please tell support"
 }
