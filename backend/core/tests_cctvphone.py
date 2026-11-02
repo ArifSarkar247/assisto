@@ -288,3 +288,25 @@ class LiveTests(_Base):
         r = APIClient().get("/api/v1/shop/live/%d/signal?after=0" % sid,
                             HTTP_X_SHOP_TOKEN=cam.camera_token)
         self.assertEqual(r.data["messages"][-1]["kind"], "quality")
+
+    def test_watchman_overview_shows_health_and_live_to_allowed_viewer(self):
+        cam = self._phone()
+        APIClient().post("/api/v1/shop/heartbeat",
+                         {"camera_token": cam.camera_token, "caps": ["live"],
+                          "health": {"level": 77, "charging": True}}, format="json")
+        c = APIClient()
+        c.force_authenticate(self.viewer)
+        r = c.get("/api/v1/shop/watchman")
+        self.assertEqual(r.status_code, 200, r.data)
+        rows = [x for s in r.data["sites"] for x in s["cameras_list"]
+                if x["id"] == cam.id]
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0]["live_capable"])
+        self.assertEqual(rows[0]["health"]["level"], 77)
+        self.assertNotIn("source", rows[0])           # viewers never see setup data
+        # owner switches family live off -> the viewer row loses it
+        self.client.patch("/api/v1/shop/phonecam/%d" % cam.id,
+                          {"viewers_live": False}, format="json")
+        r = c.get("/api/v1/shop/watchman")
+        row = [x for s in r.data["sites"] for x in s["cameras_list"] if x["id"] == cam.id][0]
+        self.assertNotIn("live_capable", row)

@@ -22,6 +22,7 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
 import '../../widgets/where_to_buy.dart'; // chipbuy
+import '../../feature_flags.dart'; // cctvphone
 import '../../phonecam/phone_camera_screen.dart'; // cctvphone
 import '../../phonecam/phonecam_api.dart'; // cctvphone
 import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
@@ -214,6 +215,7 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               ),
             ),
           // cctvphone: on the OLD phone — become a camera (code / QR link)
+          if (pcOn())
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: OutlinedButton.icon(
@@ -439,7 +441,7 @@ class _SiteCard extends StatelessWidget {
               steps: [t.cvvNoCamStep1, t.cvvNoCamStep2, t.cvvNoCamStep3],
             ),
           // cctvphone: the cheapest start — an old phone in a drawer
-          if (cams.isEmpty && _owner)
+          if (cams.isEmpty && _owner && pcOn())
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: OutlinedButton.icon(
@@ -519,7 +521,7 @@ class _SiteCard extends StatelessWidget {
                   label: Text(t.wmAddCamera),
                   onPressed: onAddCamera,
                 ),
-              if (cams.isNotEmpty) // cctvphone
+              if (cams.isNotEmpty && pcOn()) // cctvphone
                 OutlinedButton.icon(
                   key: const ValueKey('wm-phonecam-pair'),
                   style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -811,3 +813,6 @@ class PhoneCamHealthPill extends StatelessWidget {
     );
   }
 }
+
+/// cctvphone: phone-as-camera sits behind the CCTV switch `cctv_watchman`.
+bool pcOn() => FeatureFlags.instance.isOn('cctv_watchman');

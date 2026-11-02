@@ -882,7 +882,13 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                     ),
                   ]),
                 ),
-                const Spacer(),
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                 if (_showControls) ...[
                   Text(_cameraName.isEmpty ? t.pcUnnamed : _cameraName,
                       textAlign: TextAlign.center,
@@ -918,8 +924,11 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                   ),
                 ] else
                   Text(t.pcTapToShow,
-                      textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF6B6B6B))),
-                const Spacer(),
+                      textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF8A8A8A))),
+                          ]),
+                    ),
+                  ),
+                ),
               ]),
             ),
           ),
