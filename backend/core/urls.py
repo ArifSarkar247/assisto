@@ -1340,6 +1340,8 @@ urlpatterns += [
     path("agent-core/runs/<int:pk>/feedback", acv.RunFeedbackView.as_view()),
     path("agent-core/approvals", acv.ApprovalsView.as_view()),
     path("agent-core/approvals/<int:pk>", acv.ApprovalView.as_view()),
+    path("agent-core/biz-brief", acv.BizBriefView.as_view()),        # bizops
+    path("agent-core/biz-brief/act", acv.BizActView.as_view()),      # bizops
 ]
 # ---- /agent-core ----
 

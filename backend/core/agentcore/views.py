@@ -102,7 +102,23 @@ def _run_out(run, lang, detail=False):
                        "risk": s.risk, "summary": vault.unmask(s.summary),
                        "credits": s.credits, "error": s.error_code}
                       for s in run.steps.order_by("no")]
+        # bizops: a message PREPARED for the owner to send himself (approved
+        # WhatsApp tagada / supplier reorder) — the app opens WhatsApp with it.
+        # Only the run owner ever sees this payload (_my_run / own approvals).
+        d["shares"] = _shares(run)
     return d
+
+
+def _shares(run):
+    from ..logic import business_khata as K
+    out = []
+    for s in run.steps.filter(kind="tool", state="done").order_by("no"):
+        r = (T.unseal(s.result_sealed) or {}).get("r") or {}
+        if r.get("prepared") and r.get("share_text"):
+            to = r.get("share_to") or ""
+            out.append({"tool": s.tool, "text": r["share_text"], "to": to,
+                        "url": K.wa_link(to, r["share_text"]) if to else ""})
+    return out
 
 
 def _partial(kind, value):
@@ -260,3 +276,39 @@ class ApprovalView(_Gated):
         ap, run = RN.decide(request.user, pk, str(b.get("decision") or ""), lang=lang,
                             play=is_play_flavour(request))
         return Response({"approval": _ap_out(ap, lang), "run": _run_out(run, lang, detail=True)})
+
+
+# ------------------------------------------------------------------ bizops
+# The morning BUSINESS card (bizops): numbers from the shop's own rows, the
+# one-tap actions and the cost math. A tap starts a code-planned run
+# (0 credits); external steps still stop at the approval card.
+def _biz_on(request):
+    from . import tools as _TL
+    ctx = RN.Ctx(user=request.user, now=None, play=is_play_flavour(request))
+    if not _TL._flag(ctx, "business"):
+        from rest_framework.exceptions import PermissionDenied
+        raise PermissionDenied(detail={"error": "feature_off",
+                                       "detail": pick(req_lang(request), *_ERR["feature_off"])})
+
+
+class BizBriefView(_Gated):
+    def get(self, request):
+        from . import bizops as BZ
+        _biz_on(request)
+        return Response(BZ.card(request.user, req_lang(request), play=is_play_flavour(request)))
+
+
+class BizActView(_Gated):
+    def post(self, request):
+        from . import bizops as BZ
+        lang = req_lang(request)
+        _biz_on(request)
+        b = request.data if isinstance(request.data, dict) else {}
+        try:
+            text, steps = BZ.action_steps(str(b.get("kind") or ""), b)
+            run = BZ.start_action(request.user, text, steps, lang=lang,
+                                  play=is_play_flavour(request),
+                                  client_id=str(b.get("client_id") or ""))
+        except (ValueError, TypeError):
+            raise RN.AgentError("bad_input")
+        return Response(_run_out(run, lang, detail=True), status=201)

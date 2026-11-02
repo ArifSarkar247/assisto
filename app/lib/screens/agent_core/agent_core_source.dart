@@ -159,6 +159,16 @@ class AcScope {
       notLine: _s(j['not_line']));
 }
 
+/// bizops: a message the server PREPARED for the owner to send himself
+/// (approved WhatsApp tagada / supplier reorder). `url` = wa.me link ('' when
+/// the number is not a BD mobile — then the plain share sheet).
+class AcShare {
+  final String tool, text, url;
+  const AcShare({required this.tool, required this.text, this.url = ''});
+  factory AcShare.fromJson(Map j) =>
+      AcShare(tool: _s(j['tool']), text: _s(j['text']), url: _s(j['url']));
+}
+
 class AcRun {
   final int id, credits, steps;
   final int? feedback;
@@ -168,6 +178,7 @@ class AcRun {
   final DateTime? createdAt, finishedAt;
   final List<AcStep> trail;
   final List<AcApproval> approvals;
+  final List<AcShare> shares;
   const AcRun(
       {required this.id,
       required this.state,
@@ -185,7 +196,8 @@ class AcRun {
       this.trail = const [],
       this.approvals = const [],
       this.scopeTitle = '',
-      this.scopes = const []});
+      this.scopes = const [],
+      this.shares = const []});
 
   factory AcRun.fromJson(Map<String, dynamic> j) => AcRun(
         id: _i(j['id']),
@@ -213,6 +225,10 @@ class AcRun {
         scopes: [
           for (final t in (j['topics'] as List? ?? const []))
             if (t is Map) AcScope.fromJson(t),
+        ],
+        shares: [
+          for (final x in (j['shares'] as List? ?? const []))
+            if (x is Map && '${x['text'] ?? ''}'.isNotEmpty) AcShare.fromJson(x),
         ],
       );
 

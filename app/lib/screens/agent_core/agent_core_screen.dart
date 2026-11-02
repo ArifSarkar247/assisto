@@ -16,6 +16,8 @@ import 'agent_core_source.dart';
 import 'agent_core_widgets.dart';
 import 'agent_history_screen.dart';
 import 'agent_run_panel.dart';
+import 'biz_brief_screen.dart';
+import '../../feature_flags.dart';
 
 /// agent-core WP-APP: the hidden Assisto Agent screen (flag `agent_core`,
 /// default OFF — reachable only through the flag-gated ChatNav route /
@@ -281,6 +283,25 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
         return [
           Text(t.acIntro, style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.lg),
+          // bizops: the shop owner's morning card (flag business; hidden when off)
+          if (FeatureFlags.instance.isOn('business')) ...[
+            Card(
+              color: s.secondaryContainer,
+              child: ListTile(
+                key: const ValueKey('ac_open_biz_brief'),
+                minVerticalPadding: Gap.md,
+                leading: Icon(Icons.storefront_rounded, color: s.onSecondaryContainer),
+                title: Text(t.boEntry,
+                    style: TextStyle(
+                        color: s.onSecondaryContainer, fontWeight: FontWeight.w600)),
+                subtitle: Text(t.boEntryBody, style: TextStyle(color: s.onSecondaryContainer)),
+                trailing: Icon(Icons.chevron_right_rounded, color: s.onSecondaryContainer),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => const BizBriefScreen())),
+              ),
+            ),
+            const SizedBox(height: Gap.lg),
+          ],
           TextField(
             key: const ValueKey('ac_goal_input'),
             controller: _input,
