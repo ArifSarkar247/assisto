@@ -1386,3 +1386,20 @@ urlpatterns += [
     path("missing-alerts/<int:pk>/tips", msv.TipsView.as_view()),
 ]
 # ---- /missing ----
+
+# ---- kidaudio ---- (owner 2 Nov PART 1 b: child emergency audio; flag
+# child_emergency_audio, OFF). Rules: core/kid_audio.py.
+from . import kid_audio as _kid_audio  # noqa: E402
+from . import kid_audio_views as kav  # noqa: E402
+_kid_audio.register()   # server-side time limit rides the rt/events poll
+urlpatterns += [
+    path("kid-audio/config", kav.ConfigView.as_view()),
+    path("kid-audio/consent", kav.ConsentView.as_view()),
+    path("kid-audio/consent/<int:pk>/agree", kav.ConsentAgreeView.as_view()),
+    path("kid-audio/consent/<int:pk>/revoke", kav.ConsentRevokeView.as_view()),
+    path("kid-audio/listen", kav.ListenView.as_view()),
+    path("kid-audio/pending", kav.PendingView.as_view()),
+    path("kid-audio/sessions/<int:pk>/event", kav.SessionEventView.as_view()),
+    path("kid-audio/log", kav.LogView.as_view()),
+]
+# ---- /kidaudio ----
