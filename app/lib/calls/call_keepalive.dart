@@ -44,6 +44,10 @@ class CallKeepAlive {
   static bool _stopAsked = false;
   static const int serviceId = 4711;
 
+  /// kidaudio: true while OUR ongoing-call notification is up (the child
+  /// emergency audio contract checks it before any audio starts).
+  static bool get isOurs => _ours;
+
   /// play-fgs: what the notification's Hang up button does (the call screen
   /// passes its own hang-up). Cleared on stop.
   static Future<void> Function()? _onHangup;
@@ -110,11 +114,37 @@ class CallKeepAlive {
     }
   }
 
+  /// kidaudio: when ANOTHER service's notification (voice SOS / journey)
+  /// carried the emergency-audio notice + Stop, [listenHangup] wires its
+  /// forwarded Stop here and [stop] puts that notification back.
+  static Future<void> Function()? _restoreForeign;
+
+  static void listenHangup(Future<void> Function() onHangup,
+      Future<void> Function() restore) {
+    _onHangup = onHangup;
+    _restoreForeign = restore;
+    try {
+      FlutterForegroundTask.removeTaskDataCallback(_onData);
+      FlutterForegroundTask.addTaskDataCallback(_onData);
+    } catch (e) {
+      callLog('keepalive#listen', e);
+    }
+  }
+
   static Future<void> stop() async {
     _onHangup = null;
     try {
       FlutterForegroundTask.removeTaskDataCallback(_onData);
     } catch (_) {}
+    final restore = _restoreForeign;
+    _restoreForeign = null;
+    if (restore != null) {
+      try {
+        await restore();
+      } catch (e) {
+        callLog('keepalive#restore', e);
+      }
+    }
     if (_busy) _stopAsked = true;
     if (!_ours) return;
     _ours = false;

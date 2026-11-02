@@ -1,0 +1,174 @@
+{
+  "_comment": "kidaudio (owner 2 Nov PART 1 b): child emergency audio. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_kidaudio_arb.json",
+  "en": {
+    "kauTitle": "Child emergency audio",
+    "kauIntro": "If your child is in danger — they pressed SOS, or did not answer “Are you OK?” after a late trip — you can hear a few minutes around them, so you can send the right help. Never at other times, never in secret.",
+    "kauRulesTitle": "The rules",
+    "kauRules": "• Only during an active emergency: SOS, or no answer to “Are you OK?”.\n• Only a verified parent: in My Circle you chose “Child” and your child chose “Father” or “Mother”.\n• Only for children under 18, and both of you agree in advance.\n• At most 3 minutes each time, at most 3 times in one emergency.\n• The child's phone shows the call and the notice “Emergency: your parent is listening” with Stop, the whole time.\n• Both of you see every request in the log. Nothing is recorded.",
+    "kauParentSection": "Your children",
+    "kauChildSection": "Requests for you",
+    "kauEmptyBenefit": "Set this up together with your child before any emergency. First add your child in My Circle.",
+    "kauEmptyHow": "How: open My Circle, add your child and choose the relation “Child”. On their phone your child chooses “Father” or “Mother”. Then come back here.",
+    "kauOpenCircle": "Open My Circle",
+    "kauSetupTitle": "Set up for a child",
+    "kauBirthYear": "Child's birth year",
+    "kauPickChildYear": "Choose your child and their birth year.",
+    "kauWatch": "Kids watch (optional)",
+    "kauWatchNone": "No watch",
+    "kauWatchPhone": "Watch SIM number",
+    "kauWatchPhoneHelp": "The watch rings and shows your call on its screen. Add your number to the watch's SOS / family numbers so it accepts your call.",
+    "kauSave": "Save and ask my child",
+    "kauSaved": "Saved. Your child must now agree on their own phone.",
+    "kauStateWaiting": "Waiting for your child to agree",
+    "kauStateActive": "Ready. It works only during an emergency.",
+    "kauStateRevoked": "Turned off",
+    "kauStateAdult": "Stopped: only for children under 18",
+    "kauListen": "Listen now (emergency)",
+    "kauCallWatch": "Call the watch",
+    "kauListenHelp": "Works only during an active emergency. Your child's phone calls you and shows it on the screen.",
+    "kauListenSent": "{name}'s phone will call you now. Answer the call.",
+    "@kauListenSent": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "kauTurnOff": "Turn off",
+    "kauAskTitle": "{name} asks for emergency audio",
+    "@kauAskTitle": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "kauAskBody": "Read the rules above. If you agree, confirm your birth year. You can turn it off any time.",
+    "kauConfirmYear": "Your birth year",
+    "kauAgree": "I agree",
+    "kauDecline": "No, I don't agree",
+    "kauLogTitle": "Log: who, when, how long",
+    "kauLogEmpty": "Nothing yet. Every request will show here, for the parent and for the child.",
+    "kauLogBy": "{name} asked to listen",
+    "@kauLogBy": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "kauSeconds": "{n} seconds",
+    "@kauSeconds": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "kauStRefused": "Refused",
+    "kauStRequested": "Asked",
+    "kauStLive": "Listening now",
+    "kauStEnded": "Ended",
+    "kauStMissed": "Did not start",
+    "kauStDialled": "Watch called",
+    "kauRNoEmergency": "There is no active emergency, so it was refused.",
+    "kauRAdult": "Only for children under 18.",
+    "kauRNotGuardian": "Only a parent confirmed on both sides in My Circle.",
+    "kauRNoConsent": "Both of you must agree in advance.",
+    "kauRCap": "The limit for this emergency is reached (3 times).",
+    "kauRBusy": "It is already in progress.",
+    "kauRNoWatch": "Add the child's watch and its SIM number first.",
+    "kauRFlag": "This is not switched on yet.",
+    "kauRYear": "The birth year does not match what your parent set.",
+    "kauRGeneric": "Could not do that. Please try again.",
+    "kauEndLimit": "3-minute limit",
+    "kauEndStopped": "Stopped",
+    "kauEndOver": "Emergency over",
+    "kauEndNotice": "The notification could not be shown, so audio did not start",
+    "kauEndCall": "Call ended",
+    "kauEndNotStarted": "The phone did not start in time",
+    "kauNoticeChannel": "Emergency audio",
+    "kauNoticeTitle": "Emergency: your parent is listening",
+    "kauNoticeText": "{name} is listening. At most 3 minutes. Tap Stop to end.",
+    "@kauNoticeText": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "kauStop": "Stop",
+    "kauNoticeRestoreTitle": "Assisto safety is on",
+    "kauNoticeRestoreText": "Emergency audio has ended.",
+    "kauLoadFailed": "Could not load. Check the internet and try again.",
+    "kauRetry": "Try again"
+  },
+  "bn": {
+    "kauTitle": "শিশুর জরুরি অডিও",
+    "kauIntro": "সন্তান বিপদে পড়লে — SOS চাপলে, বা দেরির পরে “ঠিক আছো?”-র উত্তর না দিলে — আপনি কয়েক মিনিট তার চারপাশের শব্দ শুনতে পারবেন, যাতে ঠিক সাহায্য পাঠাতে পারেন। অন্য সময় কখনো না, গোপনে কখনো না।",
+    "kauRulesTitle": "নিয়ম",
+    "kauRules": "• শুধু সক্রিয় জরুরি অবস্থায়: SOS, অথবা “ঠিক আছো?”-র উত্তর নেই।\n• শুধু যাচাই-করা বাবা/মা: আমার সার্কেলে আপনি “সন্তান” বেছেছেন আর সন্তান “বাবা” বা “মা” বেছেছে।\n• শুধু ১৮ বছরের কম বয়সী, আর দুজনেই আগে থেকে রাজি।\n• প্রতিবার সর্বোচ্চ ৩ মিনিট, এক জরুরি অবস্থায় সর্বোচ্চ ৩ বার।\n• সন্তানের ফোনে পুরো সময় কল আর নোটিফিকেশন “জরুরি অবস্থায় বাবা/মা শুনছেন” দেখায়, সাথে বন্ধ করার বোতাম।\n• প্রতিটি অনুরোধ দুজনেই খাতায় দেখেন। কিছু রেকর্ড হয় না।",
+    "kauParentSection": "আপনার সন্তান",
+    "kauChildSection": "আপনার জন্য অনুরোধ",
+    "kauEmptyBenefit": "বিপদের আগেই সন্তানের সাথে মিলে এটা চালু করে রাখুন। আগে সন্তানকে আমার সার্কেলে যোগ করুন।",
+    "kauEmptyHow": "যেভাবে: আমার সার্কেল খুলুন, সন্তানকে যোগ করে সম্পর্ক “সন্তান” বাছুন। সন্তান নিজের ফোনে “বাবা” বা “মা” বাছবে। তারপর এখানে ফিরে আসুন।",
+    "kauOpenCircle": "আমার সার্কেল খুলুন",
+    "kauSetupTitle": "সন্তানের জন্য চালু করুন",
+    "kauBirthYear": "সন্তানের জন্মসাল",
+    "kauPickChildYear": "সন্তান আর তার জন্মসাল বাছুন।",
+    "kauWatch": "বাচ্চাদের ঘড়ি (ঐচ্ছিক)",
+    "kauWatchNone": "ঘড়ি নেই",
+    "kauWatchPhone": "ঘড়ির সিম নম্বর",
+    "kauWatchPhoneHelp": "ঘড়ি বাজবে আর স্ক্রিনে আপনার কল দেখাবে। ঘড়ি যেন কল নেয়, তাই আপনার নম্বর ঘড়ির SOS / পরিবারের নম্বরে রাখুন।",
+    "kauSave": "সেভ করে সন্তানকে জিজ্ঞেস করুন",
+    "kauSaved": "সেভ হয়েছে। এখন সন্তানকে নিজের ফোনে রাজি হতে হবে।",
+    "kauStateWaiting": "সন্তানের সম্মতির অপেক্ষা",
+    "kauStateActive": "প্রস্তুত। শুধু জরুরি অবস্থায় কাজ করবে।",
+    "kauStateRevoked": "বন্ধ করা হয়েছে",
+    "kauStateAdult": "বন্ধ: শুধু ১৮ বছরের কম বয়সীদের জন্য",
+    "kauListen": "এখনই শুনুন (জরুরি)",
+    "kauCallWatch": "ঘড়িতে কল দিন",
+    "kauListenHelp": "শুধু সক্রিয় জরুরি অবস্থায় কাজ করে। সন্তানের ফোন আপনাকে কল দেবে আর স্ক্রিনে দেখাবে।",
+    "kauListenSent": "{name}-এর ফোন এখন আপনাকে কল দেবে। কলটা ধরুন।",
+    "kauTurnOff": "বন্ধ করুন",
+    "kauAskTitle": "{name} জরুরি অডিওর অনুমতি চাইছেন",
+    "kauAskBody": "ওপরের নিয়ম পড়ুন। রাজি হলে নিজের জন্মসাল নিশ্চিত করুন। যেকোনো সময় বন্ধ করতে পারবেন।",
+    "kauConfirmYear": "আপনার জন্মসাল",
+    "kauAgree": "আমি রাজি",
+    "kauDecline": "না, আমি রাজি নই",
+    "kauLogTitle": "খাতা: কে, কখন, কতক্ষণ",
+    "kauLogEmpty": "এখনো কিছু নেই। প্রতিটি অনুরোধ এখানে দেখাবে, বাবা/মা আর সন্তান দুজনের কাছেই।",
+    "kauLogBy": "{name} শুনতে চেয়েছেন",
+    "kauSeconds": "{n} সেকেন্ড",
+    "kauStRefused": "অনুমতি দেওয়া হয়নি",
+    "kauStRequested": "চাওয়া হয়েছে",
+    "kauStLive": "এখন শুনছেন",
+    "kauStEnded": "শেষ",
+    "kauStMissed": "শুরু হয়নি",
+    "kauStDialled": "ঘড়িতে কল দেওয়া হয়েছে",
+    "kauRNoEmergency": "কোনো সক্রিয় জরুরি অবস্থা নেই, তাই অনুমতি দেওয়া হয়নি।",
+    "kauRAdult": "শুধু ১৮ বছরের কম বয়সীদের জন্য।",
+    "kauRNotGuardian": "শুধু আমার সার্কেলে দুই দিক থেকে নিশ্চিত বাবা/মা।",
+    "kauRNoConsent": "দুজনকেই আগে থেকে রাজি হতে হবে।",
+    "kauRCap": "এই জরুরি অবস্থার সীমা শেষ (৩ বার)।",
+    "kauRBusy": "এটা এখন চলছে।",
+    "kauRNoWatch": "আগে সন্তানের ঘড়ি আর তার সিম নম্বর যোগ করুন।",
+    "kauRFlag": "এটা এখনো চালু করা হয়নি।",
+    "kauRYear": "জন্মসাল বাবা/মায়ের দেওয়া সালের সাথে মেলেনি।",
+    "kauRGeneric": "করা গেল না। আবার চেষ্টা করুন।",
+    "kauEndLimit": "৩ মিনিটের সীমা",
+    "kauEndStopped": "বন্ধ করা হয়েছে",
+    "kauEndOver": "জরুরি অবস্থা শেষ",
+    "kauEndNotice": "নোটিফিকেশন দেখানো যায়নি, তাই অডিও শুরু হয়নি",
+    "kauEndCall": "কল শেষ",
+    "kauEndNotStarted": "ফোন সময়মতো শুরু হয়নি",
+    "kauNoticeChannel": "জরুরি অডিও",
+    "kauNoticeTitle": "জরুরি অবস্থায় বাবা/মা শুনছেন",
+    "kauNoticeText": "{name} শুনছেন। সর্বোচ্চ ৩ মিনিট। শেষ করতে “বন্ধ করুন” চাপুন।",
+    "kauStop": "বন্ধ করুন",
+    "kauNoticeRestoreTitle": "Assisto সুরক্ষা চালু আছে",
+    "kauNoticeRestoreText": "জরুরি অডিও বন্ধ হয়েছে।",
+    "kauLoadFailed": "লোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "kauRetry": "আবার চেষ্টা করুন"
+  }
+}

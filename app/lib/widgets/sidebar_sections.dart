@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
+import '../screens/kid_audio/kid_audio_screen.dart'; // kidaudio
 
 import '../l10n/app_localizations.dart';
 // reminders & memory
@@ -474,6 +475,12 @@ class SidebarSections {
           (_) => const MissingHubScreen(),
           synonyms: ['missing', 'missing person', 'missing child', 'lost child',
               'nikhonj', 'amber alert', 'find person']),
+      // kidaudio (owner 2 Nov): child emergency audio (flag OFF).
+      SidebarItem(Icons.hearing_rounded, (t) => t.kauTitle,
+          feature: 'child_emergency_audio',
+          (_) => const KidAudioScreen(),
+          synonyms: ['emergency audio', 'listen child', 'child sos audio',
+              'hear my child', 'kid audio']),
       // #187 Doctor serial / appointment tracker.
       SidebarItem(Icons.medical_services_rounded, (t) => t.doctorSerialTitle,
           (_) => const DoctorSerialScreen(),
