@@ -252,7 +252,7 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
 
   Future<void> _addParty() async {
     final t = AppLocalizations.of(context);
-    final created = await showAppSheet<String>(
+    final created = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -260,12 +260,15 @@ class _BookTabState extends State<_BookTab> with WidgetsBindingObserver {
           businessId: widget.businessId, book: widget.book),
     );
     if (created != null) {
+      final offline = created['offline_new'] == true;
       await _load();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                created == 'offline' ? t.bbPartySavedOffline : t.khataPartyAdded)));
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text(offline ? t.bbPartySavedOffline : t.khataPartyAdded)));
+      // bizbar fast entry: straight to the new party's page, where the
+      // first due is one tap away (TallyKhata does the same)
+      await _openParty(created);
     }
   }
 
@@ -914,7 +917,7 @@ class _AddPartySheetState extends State<_AddPartySheet> {
     setState(() => _saving = true);
     final cid = KhataOffline.newClientId();
     try {
-      await context
+      final created = await context
           .read<AppState>()
           .api
           .khataCreateParty(
@@ -927,7 +930,7 @@ class _AddPartySheetState extends State<_AddPartySheet> {
             clientId: cid,
           )
           .timeout(KhataOffline.requestTimeout);
-      if (mounted) Navigator.pop(context, 'saved');
+      if (mounted) Navigator.pop(context, created);
     } catch (first) {
       if (!mounted) return;
       Object e = first;
@@ -935,10 +938,11 @@ class _AddPartySheetState extends State<_AddPartySheet> {
         // bizbar: no internet — keep the new party on this phone; it syncs
         // (with the same id, never twice) and its entries follow it
         try {
+          final temp = KhataOffline.newTempPartyId();
           await KhataOffline.enqueue(KhataOp(
             cid: cid,
             bizId: widget.businessId,
-            partyId: KhataOffline.newTempPartyId(),
+            partyId: temp,
             partyName: name,
             book: widget.book,
             kind: 'party',
@@ -948,7 +952,15 @@ class _AddPartySheetState extends State<_AddPartySheet> {
             phone: _phone.text.trim(),
             area: _area.text.trim(),
           ));
-          if (mounted) Navigator.pop(context, 'offline');
+          if (mounted) {
+            Navigator.pop(context, <String, dynamic>{
+              'id': temp,
+              'name': name,
+              'phone': _phone.text.trim(),
+              'balance_poisha': 0,
+              'offline_new': true,
+            });
+          }
           return;
         } catch (e2) {
           e = e2;
