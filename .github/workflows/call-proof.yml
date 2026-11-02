@@ -27,6 +27,10 @@ on:
         description: Audio time per call
         default: '30'
         required: true
+      shape:
+        description: "callsbar: shape the runner's network (netem, both ways via ifb) — none | 3g | edge | lossy4g"
+        default: none
+        required: true
 
 permissions:
   contents: read
@@ -48,6 +52,30 @@ jobs:
         run: |
           python -m pip install --upgrade pip==24.2
           pip install aiortc==1.9.0 aioice==0.10.2 av==12.3.0 requests==2.32.3
+      # callsbar: a poor network like a Bangladeshi phone on a bad day. Both
+      # directions are shaped (egress on eth0, ingress via ifb). Numbers:
+      #   3g      300 kbit/s, 150 ms +-40, 2 % loss
+      #   edge    120 kbit/s, 350 ms +-80, 5 % loss
+      #   lossy4g 4 Mbit/s,    60 ms +-20, 15 % loss
+      - name: Shape the network (${{ inputs.shape }})
+        if: inputs.shape != 'none'
+        run: |
+          set -eu
+          case "${{ inputs.shape }}" in
+            3g) N="delay 150ms 40ms loss 2% rate 300kbit" ;;
+            edge) N="delay 350ms 80ms loss 5% rate 120kbit" ;;
+            lossy4g) N="delay 60ms 20ms loss 15% rate 4mbit" ;;
+            *) echo "unknown shape"; exit 1 ;;
+          esac
+          DEV=$(ip route show default | awk '{print $5; exit}')
+          sudo modprobe ifb numifbs=1 || true
+          sudo ip link set dev ifb0 up
+          sudo tc qdisc add dev "$DEV" root netem $N
+          sudo tc qdisc add dev "$DEV" handle ffff: ingress
+          sudo tc filter add dev "$DEV" parent ffff: protocol all u32 match u32 0 0 action mirred egress redirect dev ifb0
+          sudo tc qdisc add dev ifb0 root netem $N
+          tc qdisc show
+          echo "### Network shaped: ${{ inputs.shape }} ($N, both ways)" >> "$GITHUB_STEP_SUMMARY"
       - name: Two-client call proof (live server + live TURN)
         env:
           API_BASE: ${{ inputs.api_base }}
