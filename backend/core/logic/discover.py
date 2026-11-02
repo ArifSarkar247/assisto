@@ -84,6 +84,7 @@ ROUTE_KEYS = (
     "offers",  # p2-money: brand offers feed
     "watchman",  # cctv1: Home & shop watchman
     "watchman_inbox",  # cctvx: alerts passed to me / clips shared with me
+    "watchman_sos_live",  # cctvarm: an SOS at home opened the home camera for me
     "booking", "my_bookings",  # booking-bot (flag booking_bot)
     "remittance",  # budget-remittance (flag budget_remittance)
     "probashi_plan",  # probashi-plan (flag probashi_plan)

@@ -56,6 +56,8 @@ void main() {
     await tester.pumpWidget(app(AutoGuardScreen(source: f, siteId: 1, onConsentYes: noop)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.byKey(const ValueKey('carm-add')), 200);
+    await tester.ensureVisible(find.byKey(const ValueKey('carm-add')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('carm-add')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Amma'));
@@ -70,10 +72,14 @@ void main() {
     await tester.pumpWidget(app(AutoGuardScreen(source: f, siteId: 1, onConsentYes: noop)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.byKey(const ValueKey('carm-closed')), 200);
+    await tester.ensureVisible(find.byKey(const ValueKey('carm-closed')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('carm-closed')));
     await tester.pumpAndSettle();
     expect(f.saves.last, {'closed_on': true});
     await tester.scrollUntilVisible(find.byKey(const ValueKey('carm-sos')), 200);
+    await tester.ensureVisible(find.byKey(const ValueKey('carm-sos')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('carm-sos')));
     await tester.pumpAndSettle();
     expect(f.saves.last, {'sos_live': false});
@@ -94,6 +100,8 @@ void main() {
     await tester.pumpWidget(app(AutoGuardScreen(source: f, siteId: 1, onConsentYes: noop)));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.byKey(const ValueKey('carm-add')), 200);
+    await tester.ensureVisible(find.byKey(const ValueKey('carm-add')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('carm-add')));
     await tester.pumpAndSettle();
     expect(find.text('No one in My Circle yet'), findsOneWidget);
