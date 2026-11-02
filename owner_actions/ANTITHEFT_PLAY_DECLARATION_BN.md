@@ -94,3 +94,23 @@ Encrypted in transit: **Yes**। Users can request deletion: **Yes**।
 2. Data safety → Photos (ঐচ্ছিক, security) আর App activity → Other actions যোগ/নিশ্চিত করুন।
 3. রিভিউ মেইল এলে ১ ও ৫ নম্বরের লেখা পাঠান।
 4. চুরি-রোধ Play-তে দেখানোর আগে `ANTITHEFT_100_BN.md`-এর দুই-ফোন পরীক্ষা পাস হতে হবে।
+
+---
+
+## ৭. sosat (২ নভেম্বর) — লক-স্ক্রিন SOS, পাওয়ার ×৫, পতন (পরীক্ষামূলক): Play-র দিক থেকে সৎ চেকলিস্ট
+
+| বিষয় | নতুন অনুমতি? | Play-তে কী করতে হবে |
+|---|---|---|
+| লক-স্ক্রিন SOS বোতাম (সুরক্ষার নোটিফিকেশনে) | **না** | কিছু না। নোটিফিকেশন লক-স্ক্রিনে "public" দেখায় (শুধু "সুরক্ষা চালু" + SOS বোতাম, ব্যক্তিগত তথ্য নেই) |
+| পাওয়ার বোতাম ×৫ | **না** (Accessibility নয় — আগে থেকে চলা সার্ভিস স্ক্রিন অন/অফ গোনে) | কিছু না |
+| পতন শনাক্ত (অ্যাক্সিলেরোমিটার, ~৫০ Hz) | **না** (৫০ Hz-এ `HIGH_SAMPLING_RATE_SENSORS` লাগে না) | FGS Location ঘোষণার বর্ণনায় এক লাইন যোগ করুন (নিচে কপি) — কারণ পতন শনাক্ত একই সার্ভিসের ভেতরে চলে; আলাদা "health" FGS টাইপ ঘোষণা করা হয়নি |
+| পতনের "আপনি ঠিক আছেন?" নোটিফিকেশন | **না** (`USE_FULL_SCREEN_INTENT` এই কাজে ব্যবহার হয় না; শুধু alarm-চ্যানেলের heads-up) | কিছু না |
+| SMS ধাপ (নেট না থাকলে) | **না** — `SEND_SMS` নেই; ফোনের নিজের SMS অ্যাপ খোলে, ব্যবহারকারী পাঠান চাপেন | কিছু না |
+| NEIR যাচাই (KYD → 16002) | **না** — একই ভাবে SMS অ্যাপ খোলে | কিছু না |
+| সেন্সর ট্রেস রেকর্ড (পরীক্ষকদের) | **না** — শুধু ৩০ সে. নড়াচড়ার সংখ্যা, ফোনেই ফাইল; ব্যবহারকারী নিজে শেয়ার করলে তবেই যায় | Data safety-তে কিছু বদল লাগে না (সার্ভারে যায় না) |
+| দূর থেকে মুছে ফেলা (wipe) | **চাওয়া হয়নি** | Android 14+-এ সাধারণ ডিভাইস-অ্যাডমিন অ্যাপের wipe-এ `MANAGE_DEVICE_POLICY_WIPE_DATA` লাগে (Play অ্যাপ পায় না), আর `wipe-data` নীতি যোগ করলে Device Admin রিভিউ-ঝুঁকি বাড়ে — পথ: Google Find Hub |
+
+**FGS Location বর্ণনায় যোগ করার লাইন (কপি):**
+> (3) The same user-enabled protection service also offers optional, off-by-default safety triggers: an SOS button on its notification (usable from the lock screen), an SOS after five quick power-button presses, and experimental fall detection from the motion sensor. Each first shows a countdown the user can cancel; then the user's own family contacts are alerted. The app never calls emergency numbers by itself.
+
+**Data safety:** পতন/SOS-এ লোকেশন আগের Location লাইনেই পড়ে (উদ্দেশ্য: Safety)। নতুন কোনো ডেটা টাইপ নেই।
