@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// (push/AssistoFcmService.kt → messaging/MessageNotifier.kt). It waits a few
 /// seconds; if Dart has neither drawn a notification for that chat nor
 /// recorded the message id here (chat open on screen, already read on another
-/// device, drawn by the plain fallback…), it draws "<sender>: নতুন মেসেজ"
+/// device, drawn by the plain fallback…), it draws "<sender>: New message" (in the push language)
 /// itself — so a cold, blocked or crashing Dart isolate (ColorOS / MIUI) can
 /// never lose a message notification.
 ///

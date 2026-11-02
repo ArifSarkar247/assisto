@@ -315,11 +315,11 @@ NotificationDetails msgNotificationDetails(MsgNotifModel m, AppLocalizations t,
     bool silent = false,
     String? peerIconPath,
     bool useIcons = true}) {
-  final AndroidIcon<Object>? avatar =
+  final avatar =
       useIcons ? const DrawableResourceAndroidIcon(kAvatarDrawable) : null;
   if (!useIcons) peerIconPath = null;
   // x2-ticks (A3): the contact's real (circle-cropped, cached) photo.
-  final AndroidIcon<Object>? peerIcon = peerIconPath == null
+  final peerIcon = peerIconPath == null
       ? avatar
       : BitmapFilePathAndroidIcon(peerIconPath);
   final me = Person(name: t.c3You, key: 'me', icon: avatar);
