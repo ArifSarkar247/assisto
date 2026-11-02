@@ -62,7 +62,7 @@ REGISTRY = (
     ('family', 'family_safety', 'Family', 'ফ্যামিলি', True, ('family',)),
     ('nominee', 'family_safety', 'Nominee access', 'নমিনি অ্যাক্সেস', True, ('nominee',)),
     ('safe_journey', 'family_safety', 'Safe Journey', 'নিরাপদ যাত্রা', True, ('journey', 'safety')),
-    ('emergency', 'family_safety', 'Emergency', 'ইমার্জেন্সি', True, ('emergency', 'voice_sos')),
+    ('emergency', 'family_safety', 'Emergency', 'ইমার্জেন্সি', True, ('emergency', 'voice_sos', 'emergency_hub')),
     ('scam_check', 'family_safety', 'Scam protection', 'প্রতারণা সুরক্ষা', True, ('scam',)),
     ('fall_detect', 'family_safety', 'Accident / fall detection', 'দুর্ঘটনা/পতন শনাক্তকরণ', False, ('fall_detect',)),
     ('anti_theft', 'family_safety', 'Anti-theft (lost phone, safety check-up, ownership, sell, used-phone check)', 'চুরি-রোধ (হারানো ফোন, নিরাপত্তা চেক-আপ, মালিকানা, বিক্রি, পুরনো ফোন যাচাই)', True, ('lost_stolen', 'my_lost_phone', 'watched_phones', 'recovery', 'phone_safety', 'security', 'sell_phone', 'used_phone_check')),

@@ -65,6 +65,7 @@ import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
 import '../screens/journey_start_screen.dart';
 import '../screens/emergency_screen.dart';
+import '../screens/emergency_hub_screen.dart'; // emhub
 import '../screens/scam_screen.dart';
 import '../screens/disaster_alerts_screen.dart';
 // contacts (own section per SPEC v2.1 §4; Profile moved to Settings per
@@ -366,6 +367,13 @@ class SidebarSections {
           feature: 'probashi_plan',
           (_) => const ProbashiPlanScreen(),
           synonyms: ['probashi', 'expat', 'abroad', 'family plan']),
+      // emhub (owner 2 Nov): the Emergency hub — every emergency tool on one
+      // screen; each one also keeps its own entry here.
+      SidebarItem(Icons.sos_rounded, (t) => t.emhTitle,
+          feature: 'emergency',
+          (_) => const EmergencyHubScreen(),
+          synonyms: ['emergency hub', 'sos', 'emergency', '999', 'help',
+              'joruri']),
       SidebarItem(Icons.emergency_rounded, (t) => t.moduleEmergency,
           feature: 'emergency',
           (_) => const EmergencyScreen(),

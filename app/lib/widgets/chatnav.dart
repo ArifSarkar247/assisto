@@ -12,6 +12,7 @@ import '../screens/vault_screen.dart';
 import '../screens/family_screen.dart';
 import '../screens/family_alerts_screen.dart'; // family100
 import '../screens/emergency_screen.dart';
+import '../screens/emergency_hub_screen.dart'; // emhub
 import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
 import '../screens/scam_screen.dart';
@@ -189,6 +190,9 @@ class ChatNav {
     'missing_alert': (_) => const MissingHubScreen(), // missing (flag missing_alert)
     'blood_panel': (_) => const BloodHubScreen(), // blood (flag blood_donors)
     'emergency': (_) => const EmergencyScreen(),
+    // emhub (owner 2 Nov): the one Emergency hub — SOS, 999, nearby help,
+    // family card, blood, missing, crisis help, lost phone, fake call.
+    'emergency_hub': (_) => const EmergencyHubScreen(),
     'plans': (_) => const PlansScreen(),
     'offers': (_) => const OffersFeedScreen(), // p2-money
     'scam': (_) => const ScamScreen(),

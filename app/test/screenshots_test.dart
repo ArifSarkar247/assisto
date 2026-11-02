@@ -168,6 +168,7 @@ import 'package:assisto/screens/vault_screen.dart';
 import 'package:assisto/screens/family_screen.dart';
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
+import 'package:assisto/screens/emergency_hub_screen.dart';
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
@@ -695,6 +696,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'remnotes_todos_empty': (build: (_) => const NotesTodosScreen(initialIndex: 1), mode: FakeMode.empty, full: true),
     'medicine_history': (build: (_) => const MedicineHistoryScreen(member: 'self'), mode: FakeMode.data, full: true),
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
+    // emhub: the Emergency hub (SOS first, 999, then the rest by urgency)
+    'emergency_hub': (build: (_) => const EmergencyHubScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
     // remmeter: delivery check + recharge paths (sheets shown as pages)
     'rem_check': (build: (_) {
