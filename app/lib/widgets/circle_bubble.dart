@@ -311,7 +311,9 @@ class CircleBubble extends StatelessWidget {
       return LinkifiedText(
         show,
         style: TextStyle(color: fg, height: 1.4),
-        linkColor: msg.mine ? fg : Theme.of(context).colorScheme.primary,
+        // same colour as the text + underline: always the bubble's
+        // WCAG-checked text contrast (a brand blue was not, on grey)
+        linkColor: fg,
       );
     }
     return Text(
