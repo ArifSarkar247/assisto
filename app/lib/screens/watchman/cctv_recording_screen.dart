@@ -259,18 +259,37 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
                 color: active ? wmOk() : wmWarn(),
               ),
               const SizedBox(height: 8),
+              // a Wrap, not a ListTile trailing: the button drops below the
+              // words at 200 % text instead of squeezing them
               for (final tier in tiers)
                 Card(
                   margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    minTileHeight: 64,
-                    title: Text(t.cevTierLine(
-                        wmDigits(lang, tier['days'] ?? 0), wmDigits(lang, tier['price_tk'] ?? 0))),
-                    subtitle: Text(t.cevTierCredits(wmDigits(lang, tier['credits'] ?? 0))),
-                    trailing: FilledButton(
-                      style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
-                      onPressed: _busy ? null : () => _buy(tier),
-                      child: Text(active && tier['tier'] == activeTier ? t.cevExtend : t.cevBuy),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(
+                              t.cevTierLine(wmDigits(lang, tier['days'] ?? 0),
+                                  wmDigits(lang, tier['price_tk'] ?? 0)),
+                              style: theme.textTheme.titleSmall),
+                          Text(t.cevTierCredits(wmDigits(lang, tier['credits'] ?? 0)),
+                              style: theme.textTheme.bodySmall),
+                        ]),
+                        FilledButton(
+                          style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+                          onPressed: _busy ? null : () => _buy(tier),
+                          child: Text(
+                              active && tier['tier'] == activeTier ? t.cevExtend : t.cevBuy),
+                        ),
+                      ],
                     ),
                   ),
                 ),

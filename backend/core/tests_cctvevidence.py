@@ -314,7 +314,9 @@ class AddonApiTests(_E):
         self.assertEqual(r.status_code, 201, r.data)
         self.assertTrue(r.data["addon"]["active"])
         self.assertEqual(r.data["addon"]["tier"], "30d")
-        self.assertEqual(r.data["addon"]["photo_days"], 7)              # site default 7
+        self.sobj.refresh_from_db()
+        self.assertEqual(r.data["addon"]["photo_days"],               # 30-day add-on
+                         min(self.sobj.snapshot_retention_days, 30))
         r = self.client.post("/api/v1/shop/cameras/%d/video-addon" % cid,
                              {"tier": "90d"}, format="json")
         self.assertEqual(r.status_code, 422)

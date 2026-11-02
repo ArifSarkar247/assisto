@@ -8,6 +8,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 
+import '../theme.dart' show PrintInk;
 import 'evidence_pack.dart';
 import 'mini_pdf.dart';
 
@@ -76,8 +77,8 @@ List<EvBlock> evidencePdfBlocks({
   return out;
 }
 
-const _ink = Color(0xFF111111);
-const _muted = Color(0xFF555555);
+const _ink = PrintInk.ink;
+const _muted = PrintInk.muted;
 
 TextPainter _tp(String s, double size, double width,
     {FontWeight weight = FontWeight.normal, Color c = _ink, String? family}) {
@@ -143,7 +144,7 @@ Future<Uint8List> buildEvidencePdf(List<EvBlock> blocks, {String pageLabel = ''}
   for (var p = 0; p < pages.length; p++) {
     final rec = ui.PictureRecorder();
     final c = Canvas(rec, const Rect.fromLTWH(0, 0, kEvPageW, kEvPageH));
-    c.drawRect(const Rect.fromLTWH(0, 0, kEvPageW, kEvPageH), Paint()..color = const Color(0xFFFFFFFF));
+    c.drawRect(const Rect.fromLTWH(0, 0, kEvPageW, kEvPageH), Paint()..color = PrintInk.paper);
     var y = kEvMargin;
     for (final i in pages[p]) {
       items[i].$2(c, y);

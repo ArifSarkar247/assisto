@@ -632,11 +632,17 @@ class NoVideoTests(_Base):
         ciphertext (ShopEventClip, deleted after 24 h / once watched)."""
         from core.models import (ShopEvent, ShopCamera, ShopGatewayTask,
                                  ShopSite, ShopEventClip)
+        # cctvevidence (owner CCTV order 3 Nov, D2): the PAID per-camera video
+        # add-on keeps ONE 10-s SD-card clip per person alert, sealed in
+        # cctv_store (ShopSdClip) — the only other clip relation allowed.
+        allowed_video = {ShopCamera: {"video_addon"}}
+        allowed_clip = {ShopEvent: {"clip", "sd_clip"}, ShopCamera: {"sd_clips"}}
         for m in (ShopEvent, ShopCamera, ShopGatewayTask, ShopSite):
             names = {f.name for f in m._meta.get_fields()}
-            self.assertFalse(any("video" in n for n in names), m)
+            self.assertEqual({n for n in names if "video" in n},
+                             allowed_video.get(m, set()), m)
             clipish = {n for n in names if "clip" in n}
-            self.assertEqual(clipish, {"clip"} if m is ShopEvent else set(), m)
+            self.assertEqual(clipish, allowed_clip.get(m, set()), m)
         self.assertEqual(ShopEvent._meta.get_field("clip").related_model, ShopEventClip)
         self.assertIn("expires_at", {f.name for f in ShopEventClip._meta.get_fields()})
 

@@ -488,7 +488,7 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
       extra.add(EvidenceFile('evidence_${lang == 'en' ? 'en' : 'bn'}.pdf',
           await buildEvidencePdf(blocks)));
     } catch (_) {
-      // the ZIP is still complete and verifiable without the PDF
+      // best-effort: the ZIP is still complete and verifiable without the PDF
     }
     final zip = assembleEvidencePack(
         media: media, manifest: manifest, letter: letter, now: now, extra: extra);
