@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
@@ -22,7 +21,8 @@ import 'call_log.dart';
 /// core/tests_kidaudio.py):
 ///  1. the server granted a session (active emergency, verified parent,
 ///     under-18 confirmed, consent by both) — this phone only ASKS;
-///  2. the VISIBLE foreground notification "জরুরি অবস্থায় বাবা/মা শুনছেন"
+///  2. the VISIBLE foreground notification (ARB kauNoticeTitle: "Emergency:
+///     your parent is listening")
 ///     + Stop goes up FIRST (the existing call keep-alive service; when voice
 ///     SOS already runs that service, its notification is switched to our
 ///     text). If it cannot be shown, nothing else happens: the server is told

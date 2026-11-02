@@ -45,6 +45,7 @@ ROUTE_KEYS = (
     "my_dues",         # tagada2: the customer's My Dues (push tap target)
     "kids_watch", "school_mode",   # kidswatch: parent hub + the child's side
     "missing_alert",   # missing: Missing person alert (flag missing_alert)
+    "kid_audio",       # kidaudio: Child emergency audio (flag child_emergency_audio)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",
