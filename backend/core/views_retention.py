@@ -18,6 +18,8 @@ OWNER (Business plan, shop owner only — staff get 403)
   GET/POST retention/stock-asks              who asked for which product
   DELETE retention/stock-asks/<id>
   POST   retention/opt-outs                  {phone} customer asked the owner to stop
+  GET    retention/scores?q=&limit=          crmauto: transparent customer score + rule book
+  GET    retention/audit?limit=              crmauto: who turned what on/off, runs, ratings
 CUSTOMER (any signed-in user who received a message)
   GET    retention/inbox                     messages from shops (marks delivered)
   POST   retention/inbox/<id>/reply          {text} (STOP text = stop)
@@ -148,7 +150,7 @@ def _catalog():
         c = R.CATALOG[k]
         out.append({"kind": k, "purpose": c["purpose"], "vars": list(c["vars"]),
                     "params": {p: {"min": lo, "max": hi, "default": d}
-                               for p, (lo, hi, d) in c["params"].items()},
+                               for p, (lo, hi, d) in dict(c["params"], **R.COMMON_PARAMS).items()},
                     "default_bn": R.DEFAULT_TEMPLATES[k][0],
                     "default_en": R.DEFAULT_TEMPLATES[k][1]})
     return out
@@ -191,6 +193,7 @@ class SettingsView(_Owner):
         for k, v in body.items():
             setattr(row, k, int(v))
         row.save()
+        S.audit(self.biz, request.user, "caps_edit", {k: getattr(row, k) for k in smax})
         return Response(_caps_payload(self.biz))
 
 
@@ -213,6 +216,7 @@ class AutomationsView(_Owner):
         if problems:
             return _err(request, problems[0], problems=problems)
         a = RetentionAutomation.objects.create(business=self.biz, **clean)
+        S.audit_change(self.biz, request.user, None, a)
         return Response(_auto_row(a), status=201)
 
 
@@ -242,15 +246,19 @@ class AutomationDetailView(_Owner):
         clean, problems = _validate(request, self.biz, merged)
         if problems:
             return _err(request, problems[0], problems=problems)
+        before = {k: getattr(a, k) for k in clean}
+        before["params"] = R.normalize_params(a.kind, a.params)
         for k, v in clean.items():
             setattr(a, k, v)
         a.save()
+        S.audit_change(self.biz, request.user, before, a)
         return Response(_auto_row(a))
 
     def delete(self, request, pk):
         a = self._get(pk)
         if a is None:
             return _err(request, "not_found", status=404)
+        S.audit(self.biz, request.user, "auto_delete", {"id": a.id, "kind": a.kind, "name": a.name})
         a.delete()
         return Response(status=204)
 
@@ -387,6 +395,7 @@ class OptOutsView(_Owner):
         if len(key) < 10:
             return _err(request, "bad_phone")
         MG.record_opt_out(self.biz.id, key, "owner")
+        S.audit(self.biz, request.user, "opt_out_owner", {"phone": R.mask_phone(key)})
         from .models import BizOptOut
         return Response({"ok": True, "opted_out_count":
                          BizOptOut.objects.filter(business=self.biz).count()})
@@ -440,6 +449,7 @@ class InboxReplyView(_Gated):
         if not s.read_at:
             s.read_at = now
         s.save(update_fields=["replied_at", "reply_text", "read_at"])
+        S.record_feedback(s, text)
         try:
             from . import bizagent_service as BS
             name = s.customer_name or getattr(request.user, "name", "")
@@ -510,3 +520,29 @@ class PublicStopView(APIView):
         return self._page(lang, pick(lang, "বন্ধ করা হয়েছে", "Stopped"),
                           pick(lang, "%s আর নিজে থেকে মেসেজ পাঠাবে না।" % shop,
                                "%s will not message you first again." % shop))
+
+
+# ---- crmauto: transparent customer score + audit log ----
+class ScoresView(_Owner):
+    need_plan = False      # reading your own customers is never paywalled
+
+    def get(self, request):
+        if not _rate_ok(request.user.id, "scores", PREVIEWS_PER_MIN):
+            return _err(request, "rate_limited", status=429)
+        try:
+            limit = int(request.query_params.get("limit") or 50)
+        except ValueError:
+            limit = 50
+        return Response(S.scores(self.biz, lang=req_lang(request), limit=limit,
+                                 q=(request.query_params.get("q") or "")[:60]))
+
+
+class AuditView(_Owner):
+    need_plan = False
+
+    def get(self, request):
+        try:
+            limit = int(request.query_params.get("limit") or 100)
+        except ValueError:
+            limit = 100
+        return Response({"rows": S.audit_rows(self.biz, lang=req_lang(request), limit=limit)})

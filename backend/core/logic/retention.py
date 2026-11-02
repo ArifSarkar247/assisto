@@ -11,6 +11,15 @@ automations to people who already bought / are in the khata / asked:
   khata_due      polite due-payment reminder (khata), every N days while due
   back_in_stock  a product a customer ASKED for is back in stock
   birthday       a wish on the birthday the customer gave the shop
+  reorder        (crmauto) "time to restock?" from the customer's OWN median
+                 gap between purchases of the same product (>= 2 purchases)
+  delivery_feedback (crmauto) "rate 1-5" N days after an online order was
+                 delivered; a 1-2 reply alerts the owner at once
+  quote_followup (crmauto) one reminder N days after a price quote the
+                 customer opened / got but did not accept (with the link)
+
+Every automation also carries `daily_cap` (max sends of THIS rule per Dhaka
+day), on top of the msg_guard per-customer and per-business caps.
 
 Audience is ALWAYS the business's own records — never a purchased list, never
 a stranger, no import endpoint exists. Caps / quiet hours / STOP / Meta rules
@@ -26,7 +35,17 @@ KIND_WINBACK = "winback"
 KIND_KHATA = "khata_due"
 KIND_STOCK = "back_in_stock"
 KIND_BIRTHDAY = "birthday"
-KINDS = (KIND_THANKS, KIND_WINBACK, KIND_KHATA, KIND_STOCK, KIND_BIRTHDAY)
+KIND_REORDER = "reorder"
+KIND_DELIVERY = "delivery_feedback"
+KIND_QUOTE = "quote_followup"
+KINDS = (KIND_THANKS, KIND_WINBACK, KIND_KHATA, KIND_STOCK, KIND_BIRTHDAY,
+         KIND_REORDER, KIND_DELIVERY, KIND_QUOTE)
+
+# Params every kind carries (owner control): the rule's own daily maximum.
+COMMON_PARAMS = {"daily_cap": (1, 1000, 50)}
+# reorder: buyers with a gap shorter than this are daily shoppers (no nudge);
+# longer than this is not a habit we can predict honestly.
+REORDER_GAP_MIN, REORDER_GAP_MAX = 3, 180
 
 CH_IN_APP = "in_app"
 CH_WHATSAPP = "whatsapp"
@@ -56,6 +75,18 @@ CATALOG = {
                  "vars": ("name", "shop", "product")},
     KIND_BIRTHDAY: {"purpose": MG.PURPOSE_MARKETING, "params": {},
                     "vars": ("name", "shop")},
+    # Meta: a "buy again" nudge and a feedback ask are promotional-adjacent —
+    # we file them as MARKETING (the stricter class) so a Utility template is
+    # never used for them.
+    KIND_REORDER: {"purpose": MG.PURPOSE_MARKETING,
+                   "params": {"min_purchases": (2, 10, 2), "days_before": (0, 7, 1)},
+                   "vars": ("name", "shop", "product", "days")},
+    KIND_DELIVERY: {"purpose": MG.PURPOSE_MARKETING,
+                    "params": {"days_after": (0, 7, 1)},
+                    "vars": ("name", "shop", "product")},
+    KIND_QUOTE: {"purpose": MG.PURPOSE_MARKETING,
+                 "params": {"days_after": (1, 14, 2)},
+                 "vars": ("name", "shop", "total", "link")},
 }
 
 DEFAULT_TEMPLATES = {
@@ -75,6 +106,18 @@ DEFAULT_TEMPLATES = {
                  "{name}, the {product} you asked for is back in stock at {shop}."),
     KIND_BIRTHDAY: ("শুভ জন্মদিন, {name}! {shop}-এর পক্ষ থেকে অনেক শুভেচ্ছা।",
                     "Happy birthday, {name}! Warm wishes from all of us at {shop}."),
+    KIND_REORDER: ("{name}, আপনি সাধারণত প্রতি {days} দিনে {product} নেন — আবার লাগবে? "
+                   "উত্তর দিলেই {shop} রেখে দেবে।",
+                   "{name}, you usually get {product} every {days} days — need it again? "
+                   "Reply and {shop} will keep it ready."),
+    KIND_DELIVERY: ("{name}, {shop}-এর {product} হাতে পেয়েছেন তো? কেমন লাগল ১ থেকে ৫ লিখে "
+                    "জানান (৫ = খুব ভালো)। কোনো সমস্যা থাকলে লিখুন, আমরা ঠিক করে দেব।",
+                    "{name}, did the {product} from {shop} reach you well? Reply 1 to 5 "
+                    "(5 = great). If anything is wrong, tell us and we will fix it."),
+    KIND_QUOTE: ("{name}, {shop}-এর দামের প্রস্তাব (৳{total}) এখনো আপনার জন্য রাখা আছে: {link} "
+                 "কোনো প্রশ্ন থাকলে উত্তর দিন।",
+                 "{name}, {shop}'s price quote (৳{total}) is still held for you: {link} "
+                 "Reply if you have any question."),
 }
 
 _VAR_RE = re.compile(r"\{([a-zA-Z_]+)\}")
@@ -90,7 +133,7 @@ def _int(v, fb):
 # ===================================================================== params / templates
 def normalize_params(kind, raw):
     """Clamp the trigger params of `kind` (unknown keys dropped)."""
-    spec = CATALOG[kind]["params"]
+    spec = dict(CATALOG[kind]["params"], **COMMON_PARAMS)
     r = raw if isinstance(raw, dict) else {}
     out = {}
     for k, (lo, hi, dflt) in spec.items():
@@ -270,6 +313,108 @@ def due_stock(asks):
     return [{"key": a["key"], "ref": "stock:%s" % a["ask_id"],
              "values": {"product": a.get("product") or ""}}
             for a in asks if a.get("in_stock") and not a.get("notified")]
+
+
+def _median(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    if not n:
+        return None
+    mid = n // 2
+    return xs[mid] if n % 2 else (xs[mid - 1] + xs[mid]) / 2.0
+
+
+def purchase_gap_days(dates):
+    """Median gap in whole days between the DISTINCT local purchase days in
+    `dates` (aware datetimes). None with fewer than 2 distinct days."""
+    days = sorted({MG.local(d).date() for d in dates})
+    if len(days) < 2:
+        return None
+    gaps = [(b - a).days for a, b in zip(days, days[1:])]
+    return int(round(_median(gaps)))
+
+
+def due_reorder(rows, now, min_purchases, days_before):
+    """rows: [{key, product, purchases: [(sale_id, at)]}] — one row per
+    (customer, product). Due from (last + gap - days_before) until
+    (last + 2 x gap) (after that it is a lapse — winback's job). At most ONE
+    event per customer (the most overdue product); ref = that last sale so
+    the same purchase never nudges twice."""
+    best = {}
+    for r in rows:
+        buys = sorted(r.get("purchases") or [], key=lambda x: x[1])
+        if len({MG.local(at).date() for _, at in buys}) < max(2, min_purchases):
+            continue
+        gap = purchase_gap_days([at for _, at in buys])
+        if gap is None or not REORDER_GAP_MIN <= gap <= REORDER_GAP_MAX:
+            continue
+        last_id, last_at = buys[-1]
+        start = last_at + timedelta(days=max(1, gap - days_before))
+        end = last_at + timedelta(days=2 * gap)
+        if not start <= now < end:
+            continue
+        over = (now - start).total_seconds()
+        if r["key"] not in best or over > best[r["key"]][0]:
+            best[r["key"]] = (over, {"key": r["key"], "ref": "ro:%s" % last_id,
+                                     "values": {"product": r.get("product") or "", "days": gap}})
+    return [ev for _, ev in best.values()]
+
+
+def due_delivery(orders, now, days_after):
+    """orders: [{order_id, key, delivered_at, product}] (status delivered).
+    Due `days_after` days after delivery, for 3 days (a cap may delay it)."""
+    out = []
+    for o in orders:
+        at = o.get("delivered_at")
+        if at is None:
+            continue
+        age = now - at
+        if timedelta(days=days_after) <= age < timedelta(days=days_after + 3):
+            out.append({"key": o["key"], "ref": "dl:%s" % o["order_id"],
+                        "values": {"product": o.get("product") or ""}})
+    return out
+
+
+def due_quote(quotes, now, days_after):
+    """quotes: [{quote_id, key, created_at, state, valid_until, link,
+    total_poisha}]. Open (issued/viewed), not expired, `days_after` days old,
+    for 3 days. One reminder per quote — never a chase."""
+    out = []
+    for q in quotes:
+        if q.get("state") not in ("issued", "viewed"):
+            continue
+        vu = q.get("valid_until")
+        if vu is not None and now >= vu:
+            continue
+        age = now - q["created_at"]
+        if timedelta(days=days_after) <= age < timedelta(days=days_after + 3):
+            out.append({"key": q["key"], "ref": "qf:%s" % q["quote_id"],
+                        "values": {"link": q.get("link") or "",
+                                   "total_poisha": int(q.get("total_poisha") or 0)}})
+    return out
+
+
+_RATING_WORDS = {"খুব খারাপ": 1, "খারাপ": 2, "মোটামুটি": 3, "ভালো": 4, "খুব ভালো": 5,
+                 "very bad": 1, "bad": 2, "ok": 3, "okay": 3, "good": 4, "great": 5,
+                 "excellent": 5}
+
+
+def parse_rating(text):
+    """A 1-5 rating from a customer's reply, or None. Accepts a leading digit
+    (Bangla or ASCII, e.g. "৪", "4/5", "5 ধন্যবাদ"), only stars (⭐⭐⭐), or one
+    plain word (খারাপ / good). Anything else is a free-text reply."""
+    t = (text or "").strip().lower()
+    if not t:
+        return None
+    t = "".join(str(ord(c) - 0x09E6) if "\u09e6" <= c <= "\u09ef" else c for c in t)
+    m = re.match(r"^([1-5])(?![0-9])", t)
+    if m:
+        return int(m.group(1))
+    stars = t.count("\u2b50") + t.count("\u2605")
+    if stars and not re.sub(r"[\u2b50\u2605\ufe0f\s]", "", t):
+        return min(5, stars)
+    w = re.sub(r"[।.!?,\s]+$", "", t).strip()
+    return _RATING_WORDS.get(w)
 
 
 # ===================================================================== attribution

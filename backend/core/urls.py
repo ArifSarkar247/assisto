@@ -1245,6 +1245,8 @@ urlpatterns += [
     path("retention/stock-asks", retv.StockAsksView.as_view()),
     path("retention/stock-asks/<int:pk>", retv.StockAskDetailView.as_view()),
     path("retention/opt-outs", retv.OptOutsView.as_view()),
+    path("retention/scores", retv.ScoresView.as_view()),
+    path("retention/audit", retv.AuditView.as_view()),
     path("retention/inbox", retv.InboxView.as_view()),
     path("retention/inbox/<int:pk>/reply", retv.InboxReplyView.as_view()),
     path("retention/inbox/<int:pk>/stop", retv.InboxStopView.as_view()),
