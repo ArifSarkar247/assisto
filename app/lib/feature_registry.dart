@@ -60,6 +60,8 @@ const Map<String, bool> kFeatureDefaults = {
   // train: Train tracker + destination alarm — OFF until the real-train test.
   'train_tracker': false,
   'dest_alarm': false,
+  'trip_recorder': false,
+  'train_schedule_verified': false,
   // kidaudio: child emergency audio — OFF until the owner's two-phone test.
   'child_emergency_audio': false,
   'contacts': true,

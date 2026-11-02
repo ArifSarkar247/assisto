@@ -94,6 +94,14 @@ REGISTRY = (
     # until the owner's real-train two-phone test. Free, no ads.
     ('train_tracker', 'daily_life', 'Train tracker', 'ট্রেন ট্র্যাকার', False, ('train_tracker',)),
     ('dest_alarm', 'daily_life', 'Destination alarm', 'গন্তব্য অ্যালার্ম', False, ('dest_alarm',)),
+    # sjalarm (owner Safe Journey order 3 Nov): OWNER-ONLY trip recorder —
+    # real GPS traces for the destination-alarm CI replay. Keep OFF for all;
+    # the owner / staff / allow-list see it as a preview. Owns no route.
+    ('trip_recorder', 'daily_life', 'Trip recorder (owner only)', 'ট্রিপ রেকর্ডার (শুধু মালিক)', False, ()),
+    # sjalarm: turn ON for all only after checking the train timetable against
+    # the official Bangladesh Railway one — removes "schedule not verified".
+    # Read as enabled_all (an owner preview never hides the label). No route.
+    ('train_schedule_verified', 'daily_life', 'Train schedule verified by owner', 'ট্রেনের সময়সূচি মালিক যাচাই করেছেন', False, ()),
     # kidaudio (owner 2 Nov PART 1 b): child emergency audio — only during an
     # active emergency, verified parent, under-18 child, advance consent by
     # both, visible notification, 3 min, audit both sides. OFF until the

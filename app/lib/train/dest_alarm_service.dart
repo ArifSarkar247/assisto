@@ -204,6 +204,7 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     DateTime Function()? clock,
     this.useService = true,
     this.repeatEvery = const Duration(seconds: 10),
+    this.snoozeFor = kSnooze,
   })  : _position = position ?? _gps,
         // a test that injects [position] gets it for both (no real GPS)
         _lowPower = lowPowerPosition ?? (position == null ? _gpsLow : position),
@@ -225,7 +226,7 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   final DestAlarmSound _sound;
   final DateTime Function() _clock;
   final bool useService;
-  final Duration repeatEvery;
+  final Duration repeatEvery, snoozeFor;
   Timer? _timer, _repeat, _snooze;
   DestEngine? _eng;
   SpeedSmoother _trainSpeed = SpeedSmoother();
@@ -446,8 +447,8 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _repeat?.cancel();
     _repeat = null;
     await _sound.stop();
-    value = value.copyWith(snoozedUntil: _clock().add(kSnooze));
-    _snooze = Timer(kSnooze, () {
+    value = value.copyWith(snoozedUntil: _clock().add(snoozeFor));
+    _snooze = Timer(snoozeFor, () {
       _snooze = null;
       if (value.phase == DestAlarmPhase.ringing) unawaited(_ring(_lastDist));
     });

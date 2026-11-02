@@ -519,9 +519,45 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.place_rounded),
             title: Text(trainStation(s, bn)),
-            trailing: Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
+            subtitle: Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
+            // sjalarm: "Set alarm at this station" -> Destination Alarm, station filled
+            trailing: alarmOn
+                ? TextButton.icon(
+                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                    icon: const Icon(Icons.alarm_add_rounded),
+                    label: Text(t.sjaAlarmHere,
+                        semanticsLabel: t.sjaAlarmHereA11y(trainStation(s, bn))),
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => DestAlarmScreen(
+                                suggestedIds: [for (final x in stops) '${x['id']}'],
+                                suggested: stops,
+                                path: trainPath(v),
+                                initialStationId: '${s['id']}'))),
+                  )
+                : null,
           ),
         const SizedBox(height: Gap.sm),
+        // sjalarm: 999 / 131 always one tap away (opens the dialer; you press call)
+        Text(t.trEmergencyTitle, style: AType.titleSmall),
+        const SizedBox(height: Gap.xs),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+                minimumSize: const Size(48, 48), backgroundColor: cs.error, foregroundColor: cs.onError),
+            icon: const Icon(Icons.call_rounded),
+            label: Text(_d(t.trCall999)),
+            onPressed: () => launchUrl(trainTelUri('999')),
+          ),
+          FilledButton.tonalIcon(
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.train_rounded),
+            label: Text(_d(t.trCall131)),
+            onPressed: () => launchUrl(trainTelUri('131')),
+          ),
+        ]),
+        const SizedBox(height: Gap.md),
         if (tr['approved'] != true)
           Text(t.trUnchecked, style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
         Text(t.trSourceLine, style: AType.bodySmall),

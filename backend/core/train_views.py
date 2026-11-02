@@ -14,6 +14,10 @@ leaving a chat are privacy controls and are NEVER flag-gated.
   POST /train/<no>/chat/leave {date}         (never gated)
   POST /train/chat/msg/<id>/report|block|circle
   POST /train/chat/request/<id>/accept|decline
+  POST /train/alarm/arrived {stop, circle_ids}   sjalarm: optional family notice
+                                                 after "I am awake" (flag dest_alarm)
+  GET  /train/trace                              sjalarm: my uploaded traces (owner-only)
+  POST /train/trace {name, trace}                sjalarm: owner-only private upload
 """
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -231,3 +235,43 @@ class RequestActView(APIView):
         if r != "ok":
             return _bad(r, 404)
         return R({"ok": True, "state": req.state})
+
+
+# ------------------------------------------------------------ sjalarm
+class AlarmArrivedView(APIView):
+    """The destination alarm rang and the traveller tapped "I am awake" with
+    "tell family when I arrive" on: notify ONLY the picked My Circle people."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from . import sjalarm as SJ
+        if not flag_on(request.user, "dest_alarm"):
+            return _off()
+        stats, why = SJ.notify_arrived(request.user, request.data.get("stop"),
+                                       request.data.get("circle_ids"))
+        if why:
+            return _bad(why)
+        return R({"ok": True, "recipients": stats.get("recipients", 0),
+                  "sent": stats.get("sent", 0), "held": stats.get("held", 0),
+                  "rate_limited": stats.get("rate_limited", 0)})
+
+
+class TripTraceView(APIView):
+    """OWNER-ONLY trip recorder upload (PROOF). Private storage; the uploader
+    only ever sees their own file names."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from . import sjalarm as SJ
+        if not SJ.can_record(request.user):
+            return _bad("not_allowed", 403)
+        return R({"ok": True, "traces": SJ.list_traces(request.user)})
+
+    def post(self, request):
+        from . import sjalarm as SJ
+        if not SJ.can_record(request.user):
+            return _bad("not_allowed", 403)
+        name, why = SJ.save_trace(request.user, request.data.get("trace"))
+        if why:
+            return _bad(why)
+        return R({"ok": True, "name": name})

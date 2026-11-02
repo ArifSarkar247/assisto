@@ -64,7 +64,13 @@ def train_summary(t):
     return {"no": t["no"], "name_bn": t["name_bn"], "from": _st(t["from"]),
             "to": _st(t["to"]), "dep": t["dep"], "arr": t["arr"],
             "off_days": t.get("off_days") or [], "km": t.get("km"),
-            "approved": bool(t.get("approved"))}
+            # sjalarm: or the owner's Owner Admin switch `train_schedule_verified`
+            "approved": bool(t.get("approved")) or _verified()}
+
+
+def _verified():
+    from .sjalarm import schedule_verified
+    return schedule_verified()
 
 
 def search(q):
@@ -84,7 +90,7 @@ def data_meta():
     m = TG.timetable()["_meta"]
     return {"trains_source": m.get("trains_source"), "geometry": m.get("geometry"),
             "osm_base": m.get("osm_base"), "built": m.get("built"),
-            "approval": m.get("approval")}
+            "approval": m.get("approval"), "schedule_verified": _verified()}
 
 
 # ------------------------------------------------------------ sharing
@@ -194,6 +200,7 @@ def live_view(t, service_date, user=None, now=None):
             if TG.next_stop_after(t, live["chainage_m"]) else None
     if est:
         est = dict(est, dep=est["dep"].isoformat(), arr=est["arr"].isoformat(),
+                   approved=bool(est.get("approved")) or _verified(),
                    next_stop=_st(est["next_stop"]) if est["next_stop"] else None)
     stops = []
     if rt is not None:

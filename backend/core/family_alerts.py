@@ -60,10 +60,13 @@ KINDS = {
     # sosat: experimental fall detection — no "I'm OK" within the window the
     # user chose. Full-screen like SOS (push kind "sos"), rings in quiet hours.
     "fall":            {"push": "sos", "route": "family/alerts", "urgent": True, "quiet_ok": True},
+    # sjalarm: the destination alarm rang and the traveller tapped "I am awake"
+    # with "tell family when I arrive" on — only the people they picked.
+    "dest_arrived":    {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
 }
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
             "wellness_alert": "high", "scam_report": "high", "crisis_support": "high",
-            "fall": "high"}
+            "fall": "high", "dest_arrived": "info"}
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
