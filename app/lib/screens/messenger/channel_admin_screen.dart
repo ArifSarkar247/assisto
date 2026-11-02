@@ -571,6 +571,10 @@ class _ProfileTabState extends State<_ProfileTab> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),
         if (isOwner) ...[
           const Divider(height: Gap.xxl),
+          // channels: public (in search) vs private (link only)
+          _DirectoryVisibility(
+              channel: widget.channel, onChanged: widget.onChanged),
+          const Divider(height: Gap.xxl),
           _FollowerListVisibility(
               channel: widget.channel, onChanged: widget.onChanged),
         ],
@@ -582,6 +586,87 @@ class _ProfileTabState extends State<_ProfileTab> {
 /// Owner control: make the follower LIST public or private. Private blocks
 /// enumeration (count-only followers are never shown regardless) but the count
 /// stays visible either way.
+/// channels (2 Nov): who can FIND the channel — public (Channels search +
+/// suggestions) or private (only with the invite link / QR). Owner only; a
+/// minor's channel stays private (server answers 403 minor_private_only).
+class _DirectoryVisibility extends StatefulWidget {
+  final Map<String, dynamic> channel;
+  final VoidCallback onChanged;
+  const _DirectoryVisibility({required this.channel, required this.onChanged});
+  @override
+  State<_DirectoryVisibility> createState() => _DirectoryVisibilityState();
+}
+
+class _DirectoryVisibilityState extends State<_DirectoryVisibility> {
+  late bool _public = widget.channel['is_public'] != false;
+  bool _busy = false;
+
+  Future<void> _set(bool v) async {
+    final t = AppLocalizations.of(context);
+    final before = _public;
+    setState(() {
+      _public = v;
+      _busy = true;
+    });
+    try {
+      await context
+          .read<AppState>()
+          .api
+          .channelSetPublic((widget.channel['id'] as num).toInt(), v);
+      widget.onChanged();
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _public = before);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(e.status == 403
+                ? t.chxMinorPrivateToast
+                : t.channelActionFailed)));
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _public = before);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.channelActionFailed)));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(t.chxWhoCanFind, style: Theme.of(context).textTheme.titleMedium),
+        RadioGroup<bool>(
+          groupValue: _public,
+          onChanged: (v) {
+            if (!_busy && v != null) _set(v);
+          },
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            RadioListTile<bool>(
+              key: const Key('chx-admin-public'),
+              contentPadding: EdgeInsets.zero,
+              value: true,
+              title: Text(t.chxPublicTitle),
+              subtitle: Text(t.chxPublicSub),
+            ),
+            RadioListTile<bool>(
+              key: const Key('chx-admin-private'),
+              contentPadding: EdgeInsets.zero,
+              value: false,
+              title: Text(t.chxPrivateTitle),
+              subtitle: Text(t.chxPrivateSub),
+            ),
+          ]),
+        ),
+      ],
+    );
+  }
+}
+
 class _FollowerListVisibility extends StatefulWidget {
   final Map<String, dynamic> channel;
   final VoidCallback onChanged;

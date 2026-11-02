@@ -1339,8 +1339,9 @@ class ChannelListVisibilityView(APIView):
         if ch is None:
             return _notfound()
         vis = (request.data or {}).get("visibility")
-        if vis == mch.LIST_PUBLIC and not request.user.public_surfaces_enabled:
-            return _forbidden("public_surfaces_disabled")
+        # channels (2 Nov): no longer behind the owner's public_surfaces switch
+        # (nobody had it, so the control always failed). Safe: a follower is
+        # count_only by default and only appears after choosing "show".
         chd, ok, reason = mch.set_list_visibility(_channel_dict(ch),
                                                   request.user.id, vis)
         if not ok:

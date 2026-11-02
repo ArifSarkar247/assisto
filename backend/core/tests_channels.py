@@ -100,6 +100,20 @@ class ChannelDirectoryTests(TestCase):
         s = self.ca.get("%s/channels/%d/share-link" % (V, cid)).json()
         self.assertTrue(s["url"].startswith("http"))
         self.assertIn("/ch/", s["url"])
+        # owner switches it to private -> leaves the directory; a non-owner
+        # cannot switch it back
+        r = self.ca.patch("%s/channels/%d" % (V, cid), {"is_public": False},
+                          format="json")
+        self.assertFalse(r.json()["channel"]["is_public"])
+        self.assertEqual(self.cb.get("%s/channels/discover" % V,
+                                     {"q": "bazar"}).json()["results"], [])
+        self.assertEqual(self.cb.patch("%s/channels/%d" % (V, cid),
+                                       {"is_public": True}, format="json"
+                                       ).status_code, 403)
+        # follower-list visibility no longer needs the owner switch
+        r = self.ca.post("%s/channels/%d/list-visibility" % (V, cid),
+                         {"visibility": "public"}, format="json")
+        self.assertEqual(r.status_code, 200)
 
     def test_private_channel_hidden_and_joinable_by_invite(self):
         ch = self.create(is_public=False, name="Family News")
