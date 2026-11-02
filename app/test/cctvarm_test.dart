@@ -60,7 +60,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('carm-add')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Amma'));
+    await tester.tap(find.widgetWithText(ListTile, 'Amma'));
     await tester.pumpAndSettle();
     expect(f.saves.last, {
       'invite': [4]
