@@ -26,6 +26,7 @@ from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_blood as BLD     # blood
 from . import views_site3 as WS3     # sitev3: website go-live switch
+from . import views_market as MKT     # amarket
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -117,6 +118,9 @@ urlpatterns = [
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report
     path("channel-reports", CHREP.channel_reports),                      # channels
     path("channel-reports/<int:pk>/act", CHREP.channel_report_act),      # channels
+    path("market", MKT.market),                                          # amarket
+    path("market/sellers/<int:pk>/act", MKT.market_seller_act),          # amarket
+    path("market/reports/<int:pk>/act", MKT.market_report_act),          # amarket
     path("system", OPS.system_health),                           # ops-watch
     path("vitals/crash-rate", OPS.crash_rate_page),              # ops-watch
     path("agent-runs", AGR.agent_runs),                          # agent-core

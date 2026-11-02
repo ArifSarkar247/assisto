@@ -1545,3 +1545,21 @@ urlpatterns += [
     path("ps/today", psv.PsTodayView.as_view()),
 ]
 # ---- /pssec ----
+
+# ---- amarket ---- Assisto Market v1 (flag assisto_market, default OFF)
+from . import views_market as mkv  # noqa: E402
+urlpatterns += [
+    path("market", mkv.OverviewView.as_view()),
+    path("market/needs", mkv.NeedsView.as_view()),
+    path("market/needs/<int:pk>", mkv.NeedDetailView.as_view()),
+    path("market/needs/<int:pk>/<str:action>", mkv.NeedActView.as_view()),
+    path("market/group", mkv.GroupFeedView.as_view()),
+    path("market/sell", mkv.SellView.as_view()),
+    path("market/seller", mkv.SellerApplyView.as_view()),
+    path("market/deals", mkv.DealsView.as_view()),
+    path("market/deals/<int:pk>/act", mkv.DealActView.as_view()),
+    path("market/deals/<int:pk>/chat", mkv.DealChatView.as_view()),
+    path("market/report", mkv.ReportView.as_view()),
+    path("market/block", mkv.BlockView.as_view()),
+]
+# ---- /amarket ----

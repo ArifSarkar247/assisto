@@ -115,7 +115,11 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          "channel_post",
          # channels (2 Nov): someone asked to join your community (admins) /
          # your join request was approved (requester). Opens Communities.
-         "community_join")
+         "community_join",
+         # amarket: Assisto Market — a new need for an approved seller, a new
+         # offer for the buyer, an accepted offer / group-buy deal. A
+         # NOTIFICATION push (tray draws it on every build). Opens Market.
+         "market")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -138,7 +142,7 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "agent_nudge": 12 * 3600, "agent_approval": 86400,
          "at_command": 3600, "doc_expiry": 12 * 3600, "dues": 86400,
          "budget_alert": 12 * 3600, "channel_post": 86400,
-         "community_join": 86400}
+         "community_join": 86400, "market": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -150,7 +154,7 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "agent_nudge": "alerts", "agent_approval": "alerts",
             "at_command": "alerts", "doc_expiry": "reminders", "dues": "reminders",
             "budget_alert": "alerts", "channel_post": "messages",
-            "community_join": "messages"}
+            "community_join": "messages", "market": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 

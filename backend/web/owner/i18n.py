@@ -1898,3 +1898,27 @@ BN.update({
     "ws_apk_note": "উৎস: সেটিং WEBSITE_APK_FILE (খালি = সর্বশেষ প্রকাশিত APK)। আকার ও SHA-256 এই ফাইল থেকেই হিসাব হয়।",
 })
 # ---- /sitev3 ----
+# ---- amarket: Owner Admin -> Market ----
+EN.update({
+    "nav_market": "Market",
+    "mkt_intro": "Assisto Market v1 (switch assisto_market). A seller needs a Business account AND your approval here — no documents are collected yet (your decision). Approve only shops you trust. Suspending withdraws their open offers at once. Reports on needs, offers and sellers wait below; 3 different reporters hide a need or offer automatically. Cash on delivery only; Assisto takes no money and no fee.",
+    "mkt_pending": "Waiting sellers", "mkt_approved": "Approved sellers",
+    "mkt_open_needs": "Open needs", "mkt_deals": "Deals / delivered",
+    "mkt_sellers": "Seller applications", "mkt_seller": "Seller",
+    "mkt_area": "Area", "mkt_categories": "Categories",
+    "mkt_approve": "Approve", "mkt_suspend": "Suspend", "mkt_reject": "Reject",
+    "mkt_no_sellers": "No sellers in this list.",
+    "mkt_reports": "Market reports", "mkt_no_reports": "No open Market reports.",
+})
+BN.update({
+    "nav_market": "মার্কেট",
+    "mkt_intro": "Assisto Market v1 (সুইচ assisto_market)। বিক্রেতা হতে Business অ্যাকাউন্ট আর এখানে আপনার অনুমোদন লাগে — এখনো কোনো কাগজ নেওয়া হয় না (আপনার সিদ্ধান্ত)। শুধু ভরসার দোকান অনুমোদন দিন। স্থগিত করলে তাঁর খোলা অফার সাথে সাথে বাতিল হয়। চাহিদা, অফার আর বিক্রেতার রিপোর্ট নিচে; ৩ জন আলাদা মানুষ রিপোর্ট করলে চাহিদা বা অফার নিজে থেকেই লুকায়। শুধু ক্যাশ অন ডেলিভারি; Assisto টাকা ধরে না, ফি নেয় না।",
+    "mkt_pending": "অপেক্ষায় বিক্রেতা", "mkt_approved": "অনুমোদিত বিক্রেতা",
+    "mkt_open_needs": "খোলা চাহিদা", "mkt_deals": "ডিল / ডেলিভার",
+    "mkt_sellers": "বিক্রেতার আবেদন", "mkt_seller": "বিক্রেতা",
+    "mkt_area": "এলাকা", "mkt_categories": "ক্যাটাগরি",
+    "mkt_approve": "অনুমোদন", "mkt_suspend": "স্থগিত", "mkt_reject": "বাতিল",
+    "mkt_no_sellers": "এই তালিকায় কোনো বিক্রেতা নেই।",
+    "mkt_reports": "মার্কেট রিপোর্ট", "mkt_no_reports": "কোনো খোলা মার্কেট রিপোর্ট নেই।",
+})
+# ---- /amarket ----
