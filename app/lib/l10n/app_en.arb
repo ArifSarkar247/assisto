@@ -26950,5 +26950,38 @@
         "type": "String"
       }
     }
+  },
+  "circle2VideoWhoPays": "Only you, the caller, need Premium — {name} pays nothing.",
+  "@circle2VideoWhoPays": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "circle2VoiceInstead": "Voice call instead — free",
+  "@circle2VoiceInstead": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyBenefit": "Voice calls to your circle are free and ad-free — they ring even when the other phone's app is closed.",
+  "@circle2CallsEmptyBenefit": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyCta": "Call someone in My Circle",
+  "@circle2CallsEmptyCta": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2CallsEmptyHow": "1. Tap the button above, or open a chat\n2. Tap the phone icon at the top\n3. Missed calls show here with a call-back button",
+  "@circle2CallsEmptyHow": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2QueuedOffline": "No connection — your message will send by itself when you're back online.",
+  "@circle2QueuedOffline": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
+  },
+  "circle2ChatsEmptyHow": "1. Tap \"Add to My Circle\" and enter their number\n2. They accept your request\n3. Chat and call — free, no ads",
+  "@circle2ChatsEmptyHow": {
+    "description": "circle2 (My Circle chat + calls review 28 Oct)"
   }
 }
