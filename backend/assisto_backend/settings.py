@@ -47,6 +47,12 @@ AI_ENABLED = bool(AI_API_KEY)
 AI_PROVIDER = os.getenv("AI_PROVIDER", "anthropic")
 AI_DAILY_BUDGET_USD = float(os.getenv("AI_DAILY_BUDGET_USD", "5"))   # kill-switch
 AI_USER_DAILY_LIMIT = int(os.getenv("AI_USER_DAILY_LIMIT", "40"))    # per-user/day calls
+# aibar: per-user burst limits on chat turns (counted on stored turns, so the
+# same on every worker). Assisto AI chat / home chat. 0 = off.
+AI_CHAT_RATE_PER_MIN = int(os.getenv("AI_CHAT_RATE_PER_MIN", "10"))
+AI_CHAT_RATE_PER_HOUR = int(os.getenv("AI_CHAT_RATE_PER_HOUR", "150"))
+AGENT_RATE_PER_MIN = int(os.getenv("AGENT_RATE_PER_MIN", "20"))
+AGENT_RATE_PER_HOUR = int(os.getenv("AGENT_RATE_PER_HOUR", "300"))
 
 # Self-hosted WebRTC (Step 6 M3): coturn TURN/STUN. Credentials are minted
 # server-side from TURN_STATIC_SECRET (shared with /etc/turnserver.conf).
