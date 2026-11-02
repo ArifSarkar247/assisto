@@ -49,6 +49,12 @@ import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
+import 'package:assisto/screens/missing/missing_hub_screen.dart'; // missing
+import 'package:assisto/screens/missing/missing_detail_screen.dart'; // missing
+import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
+import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
+import 'package:assisto/screens/missing/missing_thread_screen.dart'; // missing
+import 'package:assisto/widgets/success_share.dart'; // missing
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -611,6 +617,24 @@ Map<String, GallerySpec> gallerySpecs() {
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
+    // missing (owner 2 Nov): Missing person alert — hub, empty, error, a nearby
+    // alert (recipient), my alert (family), post form, opt-in, tip thread,
+    // the reusable success-share screen
+    'missing_hub': (build: (_) => const MissingHubScreen(), mode: FakeMode.data, full: true),
+    'missing_hub_empty': (build: (_) => const MissingHubScreen(), mode: FakeMode.empty, full: true),
+    'missing_hub_error': (build: (_) => const MissingHubScreen(), mode: FakeMode.fail, full: false),
+    'missing_detail_near': (build: (_) => const MissingDetailScreen(alertId: 11), mode: FakeMode.data, full: true),
+    'missing_detail_mine': (build: (_) => const MissingDetailScreen(alertId: 21), mode: FakeMode.data, full: true),
+    'missing_post': (build: (_) => const MissingPostScreen(), mode: FakeMode.data, full: true),
+    'missing_optin': (build: (_) => const MissingOptinScreen(), mode: FakeMode.data, full: true),
+    'missing_thread': (build: (_) => const MissingThreadScreen(threadId: 7), mode: FakeMode.data, full: true),
+    'success_share': (build: (l) => SuccessShareScreen(
+        title: l == 'bn' ? 'ধন্যবাদ জানান' : 'Say thank you',
+        cardHeadline: l == 'bn' ? 'পাওয়া গেছে — সবাইকে ধন্যবাদ' : 'Found — thank you all',
+        initialText: l == 'bn'
+            ? 'আলহামদুলিল্লাহ, আমাদের সন্তানকে মিরপুর ১০-এর কাছে নিরাপদে পাওয়া গেছে। যাঁরা খুঁজেছেন আর তথ্য দিয়েছেন, সবাইকে অনেক ধন্যবাদ।'
+            : 'Alhamdulillah, our child has been found safe near Mirpur 10. Thank you to everyone who looked and shared information.'),
+        mode: FakeMode.data, full: true),
     'school_mode_child': (build: (_) => const SchoolModeChildScreen(), mode: FakeMode.data, full: true),
     'school_mode_child_empty': (build: (_) => const SchoolModeChildScreen(), mode: FakeMode.empty, full: false),
     // remnotes (owner Reminders & Notes review 28 Oct): before = 'reminders' /

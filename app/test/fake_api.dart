@@ -1,5 +1,6 @@
 import 'fake_famcare.dart'; // famcare
 import 'fake_kidswatch.dart'; // kidswatch
+import 'fake_missing.dart'; // missing
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -1544,6 +1545,12 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return kw;
     }
+    // missing: Missing person alert
+    final ma = fakeMissingGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (ma != null) {
+      if (mode == FakeMode.fail) _fail();
+      return ma;
+    }
     return super.getJson(path);
   }
 
@@ -1890,6 +1897,8 @@ class FakeApi extends ApiClient {
     final p = (path.startsWith('/') ? path.substring(1) : path).split('?').first;
     final kh = fakeKhataPost(p, body, bn: _bn); // ledger100
     if (kh != null) return kh;
+    final ma = fakeMissingPost(path, bn: _bn); // missing
+    if (ma != null) return ma;
     return super.postJsonRaw(path, body);
   }
 

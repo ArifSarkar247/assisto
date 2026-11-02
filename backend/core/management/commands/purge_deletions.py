@@ -70,6 +70,15 @@ class Command(BaseCommand):
                 user.delete()  # cascades all data + the deletion_request row
             purged += 1
         if not dry:
+            # missing (owner 2 Nov): expire missing-person alerts (7 days) and
+            # delete their photos — rides this hourly job (no new cron line).
+            try:
+                from core import missing_alert
+                n = missing_alert.sweep()
+                if n:
+                    self.stdout.write(f"missing alerts expired: {n}")
+            except Exception as e:  # never blocks the account purge
+                self.stdout.write(f"missing sweep failed: {type(e).__name__}")
             self.stdout.write(self.style.SUCCESS(f"purged {purged} account(s)"))
         else:
             self.stdout.write(f"[dry-run] {due.count()} account(s) due")

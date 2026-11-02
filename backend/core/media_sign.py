@@ -79,4 +79,7 @@ def serve_signed(request, name):
         resp = FileResponse(open(path, "rb"), content_type=ctype)
     resp["Cache-Control"] = "private, max-age=3600"
     resp["X-Content-Type-Options"] = "nosniff"
+    # missing (owner 2 Nov): private media is never indexed / archived by a
+    # search engine (missing children's photos above all).
+    resp["X-Robots-Tag"] = "noindex, noimageindex, noarchive"
     return resp
