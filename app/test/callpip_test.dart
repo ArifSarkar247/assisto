@@ -305,7 +305,7 @@ void main() {
       expect(_media(c).log.last, 'start-video');
       final back = _lastMediaSignal(c);
       expect(back['camera'], isTrue);
-      expect(back['away'], isFalse);
+      expect(back['away'], isNull, reason: 'sent only while away');
     });
 
     test('back camera stays the back camera after the resume', () async {

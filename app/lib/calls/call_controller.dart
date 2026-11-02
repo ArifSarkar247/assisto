@@ -1581,8 +1581,9 @@ class CallController extends ChangeNotifier {
         // picture). Old builds ignore both keys.
         'low_data': lowData,
         'net_paused': videoPausedForNet,
-        // callpip: I left Assisto (camera paused, back by itself)
-        'away': cameraPausedBg,
+        // callpip: I left Assisto (camera paused, back by itself). Sent
+        // only while true (old builds / exact-state readers unchanged).
+        if (cameraPausedBg) 'away': true,
       });
     } catch (e) {
       callLog('call_controller#18', e);
