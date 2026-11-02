@@ -614,6 +614,8 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         ),
       ),
       const SizedBox(height: Gap.md),
+      _pushAreaCard(context, me),
+      const SizedBox(height: Gap.md),
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 52),
         child: FilledButton.icon(
@@ -636,6 +638,74 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       const SizedBox(height: Gap.lg),
       const BpPrivacyCard(),
     ]);
+  }
+
+  /// finish1 (push-area honesty): urgent requests reach a donor by the area
+  /// they SAVED — never by where the phone is now (no background location).
+  /// Said plainly, with a one-tap "still here" after 180 quiet days.
+  Widget _pushAreaCard(BuildContext context, Map<String, dynamic> me) {
+    final t = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final stale = me['details_stale'] == true;
+    final area = [
+      if ('${me['area_text'] ?? ''}'.isNotEmpty) '${me['area_text']}',
+      if ('${me['district_name'] ?? ''}'.isNotEmpty) '${me['district_name']}',
+    ].join(' · ');
+    return Card(
+      key: const ValueKey('bp-push-area'),
+      margin: EdgeInsets.zero,
+      color: stale ? scheme.tertiaryContainer : null,
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Icon(Icons.notifications_active_outlined,
+                color: stale ? scheme.onTertiaryContainer : scheme.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(t.bpPushAreaTitle, style: text.titleSmall)),
+          ]),
+          const SizedBox(height: Gap.xs),
+          Text(bpD(context, area.isEmpty ? '—' : area), style: text.titleMedium),
+          if (me['has_point'] == true) Text(t.bpPushAreaPoint, style: text.bodySmall),
+          const SizedBox(height: Gap.xs),
+          Text(t.bpPushAreaHonest, style: text.bodySmall),
+          if (stale) ...[
+            const SizedBox(height: Gap.sm),
+            Text(bpD(context, t.bpPushAreaStale(bpDate(context, me['details_checked'] as String?))),
+                style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+          ],
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if (stale)
+              FilledButton(
+                key: const ValueKey('bp-area-still'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _confirmArea,
+                child: Text(t.bpPushAreaStill),
+              ),
+            OutlinedButton(
+              key: const ValueKey('bp-area-update'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _becomeDonor,
+              child: Text(t.bpPushAreaUpdate),
+            ),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _confirmArea() async {
+    final t = AppLocalizations.of(context);
+    try {
+      final r = await _api.bpSaveMe({'area_confirmed': true});
+      if (!mounted) return;
+      _snack(r['ok'] == true ? t.bpPushAreaKept : bpReason(t, r['reason'] as String?));
+    } catch (_) {
+      if (mounted) _snack(t.bpErrGeneric);
+    }
+    unawaited(_load());
   }
 
   Widget _tile(IconData icon, String title, VoidCallback? onTap, String key, {String? sub}) => Card(

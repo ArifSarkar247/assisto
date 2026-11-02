@@ -234,6 +234,9 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
           const SizedBox(height: Gap.md),
           Text(t.bpReachTitle, style: text.titleSmall),
           Text(t.bpReachSub, style: text.bodySmall),
+          // finish1 (push-area honesty): matched by the donor's SAVED area
+          Text(t.bpReachHonest,
+              key: const ValueKey('bp-reach-honest'), style: text.bodySmall),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             for (final r in radii)
