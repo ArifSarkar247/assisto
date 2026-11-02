@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0120_remnotes"),
+        ("core", "0121_journey2"),
     ]
 
     operations = [
