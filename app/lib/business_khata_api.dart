@@ -73,8 +73,11 @@ extension BusinessKhataApi on ApiClient {
   /// particulars, debit_poisha, credit_poisha, balance_poisha, *_display{bn,en}}],
   /// opening_display{bn,en}, closing_display{bn,en}, totals{...}}. Fed by the
   /// pure party_statement fn. Supplier party owner-only.
-  Future<Map<String, dynamic>> khataStatement(int partyId) =>
-      getJson('/business/khata/parties/$partyId/statement');
+  /// bizbar: [businessId] tells the server WHICH shop (a staff phone's own
+  /// default shop is not the one it works for — the call 404'd for staff).
+  Future<Map<String, dynamic>> khataStatement(int partyId, {int? businessId}) =>
+      getJson('/business/khata/parties/$partyId/statement'
+          '${businessId != null ? '?business=$businessId' : ''}');
 
   /// POST /business/khata/parties/<id>/entries -> {entry, balance_poisha,
   /// balance_display{bn,en}, balance_status{bn,en}, entry_added_message{bn,en}?}.
@@ -89,8 +92,10 @@ extension BusinessKhataApi on ApiClient {
     String? atIso,
     bool notifyCustomer = false,
     String? clientId,
+    int? businessId,
   }) =>
       postJson('/business/khata/parties/$partyId/entries', {
+        if (businessId != null && businessId > 0) 'business': businessId,
         if (clientId != null) 'client_id': clientId,
         'direction': direction,
         'amount': amountPoisha,
@@ -107,8 +112,10 @@ extension BusinessKhataApi on ApiClient {
     String note = '',
     String? atIso,
     String? clientId,
+    int? businessId,
   }) =>
       postJson('/business/khata/parties/$partyId/payment', {
+        if (businessId != null && businessId > 0) 'business': businessId,
         if (clientId != null) 'client_id': clientId,
         'amount': amountPoisha,
         'note': note,
@@ -264,6 +271,11 @@ extension BusinessKhataApi on ApiClient {
   /// packs_on_sale, packs:[{sku, parts, price_bdt, on_sale, play_product_id}]}.
   Future<Map<String, dynamic>> smsBalance(int businessId) =>
       getJson('/business/sms/balance?business=$businessId');
+
+  /// bizbar: GET /business/khata/export -> {filename, csv, parties, entries}
+  /// — the owner's own copy of the whole khata (owner-only).
+  Future<Map<String, dynamic>> khataExport(int businessId) =>
+      getJson('/business/khata/export?business=$businessId');
 
   // ======================= cashbox (plan §2) ============================
 

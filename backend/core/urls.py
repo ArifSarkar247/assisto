@@ -234,6 +234,9 @@ urlpatterns = [
     path("business/khata/parties/<int:pk>/entries", bz.KhataEntryView.as_view()),
     path("business/khata/parties/<int:pk>/payment", bz.KhataPaymentView.as_view()),
     path("business/khata/net-position", bz.KhataNetPositionView.as_view()),
+    path("business/khata/export", bz.KhataExportView.as_view()),   # bizbar
+    path("business/staff", bz.StaffView.as_view()),   # bizbar
+    path("business/staff/<int:pk>/remove", bz.StaffRemoveView.as_view()),   # bizbar
     path("business/khata/tagada/single/<int:pk>", bz.TagadaSingleView.as_view()),
     path("business/khata/tagada/bulk", bz.TagadaBulkView.as_view()),
     path("business/khata/tagada/sms/<int:pk>", bz.TagadaSmsSendView.as_view()),   # smsotp

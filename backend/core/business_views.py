@@ -1312,6 +1312,113 @@ def _entry_dicts(p):
             for e in p.entries.all()]
 
 
+# ===========================================================================
+# bizbar — STAFF (one shop, several phones). The role model existed
+# (BusinessStaff + every staff redaction) but nothing could create a row, so
+# "staff accounts" were unreachable. Owner adds an Assisto user by number.
+# ===========================================================================
+
+def _staff_row(m):
+    from .phone import mask, canonical_phone
+    u = m.member
+    return {"id": m.id, "name": getattr(u, "name", "") or "",
+            "phone_masked": mask(canonical_phone(u.phone or "") or ""),
+            "role": m.role, "active": m.active,
+            "since": m.created_at.isoformat()}
+
+
+STAFF_MAX = 10
+
+
+class StaffView(APIView):
+    """GET staff (owner) / POST {phone} add an Assisto user as staff."""
+    def get(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        rows = [_staff_row(m) for m in prof.staff.filter(active=True)
+                .select_related("member").order_by("created_at")]
+        return Response({"staff": rows, "max": STAFF_MAX})
+
+    def post(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        from .models import BusinessStaff
+        from .phone import find_user, is_discoverable
+        u = find_user(str(request.data.get("phone") or ""))
+        if u is None or not is_discoverable(u):
+            return _err(lang,
+                        "এই নম্বরে Assisto অ্যাকাউন্ট পাওয়া যায়নি। আগে তাঁকে Assisto-তে যোগ দিতে বলুন, তারপর আবার যোগ করুন।",
+                        "No Assisto account on this number. Ask them to join Assisto first, then add them again.",
+                        status=404, code="staff_not_on_assisto")
+        if u.id == prof.user_id:
+            return _err(lang, "আপনি নিজেই মালিক।", "You are the owner.",
+                        status=422, code="staff_is_owner")
+        if prof.staff.filter(active=True).exclude(member=u).count() >= STAFF_MAX:
+            return _err(lang, "সর্বোচ্চ %d জন কর্মচারী।" % STAFF_MAX,
+                        "At most %d staff." % STAFF_MAX, status=422,
+                        code="staff_limit")
+        m, _ = BusinessStaff.objects.get_or_create(
+            business=prof, member=u, defaults={"role": "staff"})
+        if not m.active or m.role != "staff":
+            m.active, m.role = True, "staff"
+            m.save(update_fields=["active", "role"])
+        # no push: there is no business push kind yet — the owner's screen
+        # tells them where the shop appears (Business -> Switch shop)
+        return Response(_staff_row(m), status=201)
+
+
+class StaffRemoveView(APIView):
+    def post(self, request, pk):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        n = prof.staff.filter(pk=pk, active=True).update(active=False)
+        if not n:
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True})
+
+
+class KhataExportView(APIView):
+    """GET khata/export — bizbar: the owner's own copy of the WHOLE khata
+    (both books, every entry) as CSV text in JSON {filename, csv, parties,
+    entries}. Owner-only (the supplier book shows cost). Two queries."""
+    def get(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        guard = _owner_only(request, role)
+        if guard:
+            return guard
+        lang = req_lang(request)
+        parties = list(prof.khata_parties.filter(archived=False)
+                       .order_by("book", "name", "id")
+                       .prefetch_related("entries"))
+        rows = [{"book": p.book, "name": p.name, "phone": p.phone, "area": p.area,
+                 "entries": [{"direction": e.direction, "amount": e.amount_poisha,
+                              "note": e.note, "at": e.at.isoformat()}
+                             for e in p.entries.all()]}
+                for p in parties]
+        day = timezone.localdate().isoformat()
+        return Response({
+            "filename": "assisto-khata-%s.csv" % day,
+            "csv": khata.khata_export_csv(rows, lang),
+            "parties": len(rows),
+            "entries": sum(len(r["entries"]) for r in rows),
+        })
+
+
 class KhataStatementView(APIView):
     def get(self, request, pk):
         prof, role, bad = _require_business(request)

@@ -28,6 +28,7 @@ import '../../services/error_kind.dart'
 import '../../services/khata_offline.dart'; // ledger100
 import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
 import 'statement_pdf.dart'; // bizbar
+import 'khata_backup_sheet.dart'; // bizbar
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
 /// supplier payables. The supplier tab is hidden for staff (they must
@@ -70,6 +71,15 @@ class _KhataScreenState extends State<KhataScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.khataTitle),
+          actions: [
+            // bizbar: is my khata safe? + the owner's own spreadsheet copy
+            IconButton(
+              key: const ValueKey('bb-backup'),
+              tooltip: t.bbBackupTitle,
+              icon: const Icon(Icons.backup_rounded),
+              onPressed: () => showKhataBackupSheet(context, businessId: _bizId),
+            ),
+          ],
           bottom: TabBar(
               // large font: scroll instead of cutting "Customers (Dues)"
               isScrollable: MediaQuery.textScalerOf(context).scale(10) > 11.5,
@@ -1063,7 +1073,9 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
     }
     final api = context.read<AppState>().api;
     try {
-      _stmt = await api.khataStatement(_partyId).timeout(KhataOffline.requestTimeout);
+      _stmt = await api
+          .khataStatement(_partyId, businessId: _bizId)
+          .timeout(KhataOffline.requestTimeout);
       _savedAt = null;
       unawaited(KhataOffline.cachePut(KhataOffline.statementKey(_partyId), _stmt!));
     } catch (e) {

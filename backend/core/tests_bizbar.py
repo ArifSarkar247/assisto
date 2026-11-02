@@ -371,3 +371,75 @@ class OfflinePartyTests(APITestCase):
         # the marker never leaks into the app's rows
         rows = self.client.get("/api/v1/business/khata/parties?book=customer").data["parties"]
         self.assertFalse(any("cid:" in str(r) for r in rows))
+
+
+class KhataExportTests(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(name="Owner", phone="+8801999000611",
+                                              password="pw123456")
+        self.biz = BusinessProfile.objects.create(user=self.owner, shop_name="S")
+        self.client.force_authenticate(self.owner)
+
+    def test_whole_khata_as_csv_bangla_and_safe(self):
+        c = KhataParty.objects.create(business=self.biz, book="customer",
+                                      name="Karim", phone="01712345678")
+        s = KhataParty.objects.create(business=self.biz, book="supplier", name="Mill")
+        now = timezone.now()
+        KhataEntry.objects.create(party=c, direction="gave", amount_poisha=150000,
+                                  note="=HYPERLINK(1)", at=now)
+        KhataEntry.objects.create(party=c, direction="got", amount_poisha=50000, at=now)
+        KhataEntry.objects.create(party=s, direction="got", amount_poisha=90000, at=now)
+        r = self.client.get("/api/v1/business/khata/export", HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual((r.data["parties"], r.data["entries"]), (2, 3))
+        csv = r.data["csv"]
+        self.assertIn("গ্রাহক,Karim,01712345678,,1000.00", csv)
+        self.assertIn("সাপ্লায়ার,Mill", csv)
+        self.assertIn("'=HYPERLINK(1)", csv)          # never a live formula
+        self.assertTrue(r.data["filename"].endswith(".csv"))
+
+    def test_staff_cannot_export(self):
+        staff = User.objects.create_user(name="T", phone="+8801999000612", password="pw123456")
+        BusinessStaff.objects.create(business=self.biz, member=staff, role="staff")
+        self.client.force_authenticate(staff)
+        r = self.client.get("/api/v1/business/khata/export?business=%d" % self.biz.id)
+        self.assertEqual(r.status_code, 403)
+
+
+class StaffTests(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(name="Owner", phone="+8801999000711",
+                                              password="pw123456")
+        self.biz = BusinessProfile.objects.create(user=self.owner, shop_name="S")
+        self.client.force_authenticate(self.owner)
+
+    def test_add_list_remove_staff_and_staff_sees_the_shop(self):
+        r = self.client.post("/api/v1/business/staff", {"phone": "01999000799"},
+                             format="json")
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.data.get("code"), "staff_not_on_assisto")
+        staff = User.objects.create_user(name="Rafiq", phone="+8801999000712",
+                                         password="pw123456")
+        r = self.client.post("/api/v1/business/staff", {"phone": "০১৯৯৯০০০৭১২"},
+                             format="json")
+        self.assertEqual(r.status_code, 201, r.data)
+        self.assertNotIn("712", r.data["phone_masked"][:-3])     # masked
+        sid = r.data["id"]
+        self.assertEqual(len(self.client.get("/api/v1/business/staff").data["staff"]), 1)
+        # the staff phone now lists the shop with role staff
+        self.client.force_authenticate(staff)
+        rows = self.client.get("/api/v1/business/profiles").data["businesses"]
+        self.assertTrue(any(b["id"] == self.biz.id and b["role"] == "staff" for b in rows))
+        self.assertEqual(self.client.get("/api/v1/business/staff?business=%d" % self.biz.id)
+                         .status_code, 403)                    # staff can't manage staff
+        self.client.force_authenticate(self.owner)
+        self.assertEqual(self.client.post("/api/v1/business/staff/%d/remove" % sid)
+                         .status_code, 200)
+        self.client.force_authenticate(staff)
+        r = self.client.get("/api/v1/business/cashbox/%s?business=%d" % (today(), self.biz.id))
+        self.assertEqual(r.status_code, 403)                   # access gone
+
+    def test_owner_cannot_add_self(self):
+        r = self.client.post("/api/v1/business/staff", {"phone": "01999000711"},
+                             format="json")
+        self.assertEqual(r.status_code, 422)

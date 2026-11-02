@@ -333,6 +333,7 @@ class KhataOffline {
             clientId: op.cid);
       case 'payment':
         return api.khataPayment(
+            businessId: op.bizId,
             partyId: op.partyId,
             amountPoisha: op.amountPoisha,
             note: op.note,
@@ -348,6 +349,7 @@ class KhataOffline {
             atIso: op.atIso.isEmpty ? null : op.atIso);
       default:
         return api.khataAddEntry(
+            businessId: op.bizId,
             partyId: op.partyId,
             direction: op.direction,
             amountPoisha: op.amountPoisha,

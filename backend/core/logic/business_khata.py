@@ -879,3 +879,56 @@ def next_fire_at(next_at, interval_days, now):
         missed = int((now - nxt) / step) + 1
         nxt = nxt + step * missed
     return nxt
+
+
+# ---------------------------------------------------------------------------
+# bizbar — the whole khata as ONE spreadsheet (CSV, opens in Excel / Google
+# Sheets with Bangla intact thanks to the UTF-8 BOM the app writes). The
+# owner's own backup copy; the server copy stays the source of truth.
+# ---------------------------------------------------------------------------
+
+def _csv_cell(v):
+    s = "" if v is None else str(v)
+    # spreadsheet formula injection: a cell starting with = + - @ is text
+    if s[:1] in ("=", "+", "-", "@") and not s.lstrip("-").replace(".", "", 1).isdigit():
+        s = "'" + s
+    if any(ch in s for ch in (",", '"', "\n", "\r")):
+        s = '"' + s.replace('"', '""') + '"'
+    return s
+
+
+def khata_export_csv(parties, lang="bn"):
+    """parties: [{book, name, phone, area, entries:[{direction, amount, note,
+    at}]}] -> CSV text: a balance summary, a blank line, then every entry in
+    date order with the running balance. Amounts as plain taka (2 decimals)
+    so a spreadsheet can add them up."""
+    bn = lang == "bn"
+    book_label = {CUSTOMER: "গ্রাহক" if bn else "Customer",
+                  SUPPLIER: "সাপ্লায়ার" if bn else "Supplier"}
+    rows = [["খাতা", "নাম", "ফোন", "এলাকা", "এখন বাকি/দেনা (৳)", "অবস্থা"] if bn else
+            ["Book", "Name", "Phone", "Area", "Balance now (Tk)", "Status"]]
+    for p in parties:
+        bal = running_balance(p.get("entries") or [], p["book"])
+        rows.append([book_label.get(p["book"], p["book"]), p.get("name"),
+                     p.get("phone"), p.get("area"), taka_str(bal),
+                     balance_status(bal, p["book"])["bn" if bn else "en"]])
+    rows.append([])
+    rows.append(["খাতা", "নাম", "তারিখ", "ধরন", "টাকা (৳)", "নোট", "পরের ব্যালেন্স (৳)"]
+                if bn else
+                ["Book", "Name", "Date", "Type", "Amount (Tk)", "Note", "Balance after (Tk)"])
+    for p in parties:
+        bal = 0
+        for e in _sorted(p.get("entries") or []):
+            d = _signed(e, p["book"])
+            bal += d
+            if p["book"] == CUSTOMER:
+                what = ("বাকি দিলাম" if bn else "Gave on credit") if d > 0 else \
+                       ("টাকা পেলাম" if bn else "Payment received")
+            else:
+                what = ("বাকিতে মাল নিলাম" if bn else "Goods on credit") if d > 0 else \
+                       ("টাকা দিলাম" if bn else "Payment made")
+            rows.append([book_label.get(p["book"], p["book"]), p.get("name"),
+                         str(e.get("at") or "")[:10], what,
+                         taka_str(to_poisha(e.get("amount"))), e.get("note") or "",
+                         taka_str(bal)])
+    return "\r\n".join(",".join(_csv_cell(c) for c in r) for r in rows) + "\r\n"

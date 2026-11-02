@@ -38,6 +38,7 @@ import '../../services/error_kind.dart' show honestFailText; // qa2
 import 'dart:async' show unawaited;
 import '../../services/khata_offline.dart' show KhataOffline; // bizbar
 import 'low_stock_card.dart'; // bizbar
+import 'staff_screen.dart'; // bizbar
 
 /// Business HUB — the new home for Assisto Business v2 (replaces the old
 /// name/price/stock business screen). Shows the selected business, a switcher
@@ -355,6 +356,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               subtitle: t.businessCashboxSub,
               onTap: () => _go(CashboxScreen(business: biz)),
             ),
+            if (!isStaff) ...[
+              // bizbar: one shop, several phones (staff accounts)
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.badge_rounded,
+                tint: Brand.blue,
+                title: t.bbStaffTitle,
+                subtitle: t.bbStaffHubSub,
+                onTap: () => _go(StaffScreen(businessId: bizId)),
+              ),
+            ],
             if (!isStaff) ...[
               // tagada2: Assisto SMS balance (plan SMS + packs)
               const SizedBox(height: Gap.md),
