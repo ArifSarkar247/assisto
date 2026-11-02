@@ -1567,6 +1567,10 @@ class SavedPlace(models.Model):
     name = models.CharField(max_length=160, blank=True, default="")
     lat = models.FloatField(null=True, blank=True)
     lng = models.FloatField(null=True, blank=True)
+    # owner decision 2 Nov: a saved place is an anti-theft SAFE place (theft
+    # alerts / sensitive actions are softer there) only when this is on.
+    # Home: on by default; School / Office / others: off until switched on.
+    theft_safe = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

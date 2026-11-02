@@ -1243,6 +1243,11 @@ class JourneyLocationView(APIView):
             return _nf()
         d = request.data or {}
         now = timezone.now()
+        from . import guardian_journey as GJ
+        if j.status == "active":
+            # guardian journey (owner decision 2 Nov): never a fix past the
+            # window end + the late tail, even between two sweeps
+            GJ.enforce_hard_end(j, now)
         if SJ.journey_is_expired(_journey_pure(j), now) and j.status == "active":
             JW.expire(j)
         if j.status != "active":
@@ -1266,6 +1271,8 @@ class JourneyLocationView(APIView):
         if arrived:
             JW.on_arrived(j, now)
         j.save()
+        if arrived:
+            GJ.on_journey_arrived(j, now)   # guardian journey: ends at once
         state, mins = JW.overdue(j, now)
         b = fixes[-1][3] if fixes else None
         return Response({"ok": True, "status": j.status, "arrived": bool(arrived),
@@ -1283,6 +1290,8 @@ class JourneyArrivedView(APIView):
         if j.status == "active":
             JW.on_arrived(j)
             j.save()
+            from . import guardian_journey as GJ
+            GJ.on_journey_arrived(j)        # guardian journey: ends at once
         return Response({"ok": True, "status": j.status})
 
 
@@ -1357,6 +1366,11 @@ class JourneyStopView(APIView):
             if was_active:
                 JW.emit(j, "ended")
             JW.clear_urgent(j)
+            if was_active:
+                # guardian journey: the same one-tap stop — ends at once,
+                # path deleted, the requester told
+                from . import guardian_journey as GJ
+                GJ.on_journey_stopped(j, now)
         # identical answer for cancel and duress (an onlooker sees no difference)
         return Response({"ok": True, "outcome": "cancel", "status": "stopped"})
 
@@ -1706,7 +1720,16 @@ class JourneyNearestHelpView(APIView):
 
 def _place_dict(p):
     return {"id": p.id, "label": p.label, "kind": JD.place_kind(p.label),
-            "name": p.name, "lat": p.lat, "lng": p.lng}
+            "name": p.name, "lat": p.lat, "lng": p.lng,
+            "theft_safe": bool(p.theft_safe)}
+
+
+def _theft_safe_arg(d):
+    """placesafe: the optional 'theft_safe' switch -> True / False / None
+    (not given). Only real booleans count — a stray string never turns an
+    anti-theft safe place on."""
+    v = (d or {}).get("theft_safe")
+    return v if isinstance(v, bool) else None
 
 
 class SavedPlacesView(APIView):
@@ -1724,23 +1747,43 @@ class SavedPlacesView(APIView):
         if err:
             return Response({"detail": err}, status=status.HTTP_400_BAD_REQUEST)
         mine = SavedPlace.objects.filter(user=request.user)
+        safe = _theft_safe_arg(request.data)
         if place["kind"] in ("home", "school", "office"):
             old = [p for p in mine if JD.place_kind(p.label) == place["kind"]]
             if old:
                 p = old[0]
                 p.label, p.name, p.lat, p.lng = place["kind"], place["name"], place["lat"], place["lng"]
-                p.save(update_fields=["label", "name", "lat", "lng"])
+                if safe is not None:
+                    p.theft_safe = safe
+                p.save(update_fields=["label", "name", "lat", "lng", "theft_safe"])
                 for extra in old[1:]:
                     extra.delete()
                 return Response({"ok": True, "replaced": True, **_place_dict(p)})
         if mine.count() >= JD.MAX_PLACES:
             return Response({"detail": "limit"}, status=status.HTTP_400_BAD_REQUEST)
+        # placesafe (owner decision 2 Nov): only Home is an anti-theft safe
+        # place by default; every other place is off until switched on
         p = SavedPlace.objects.create(user=request.user, label=place["label"][:40],
-                                      name=place["name"][:160], lat=place["lat"], lng=place["lng"])
+                                      name=place["name"][:160], lat=place["lat"], lng=place["lng"],
+                                      theft_safe=(place["kind"] == "home") if safe is None else safe)
         return Response({"ok": True, **_place_dict(p)}, status=status.HTTP_201_CREATED)
 
 
 class SavedPlaceDetailView(APIView):
+    def patch(self, request, pk):
+        """placesafe: PATCH /journey/places/<id> {theft_safe: true|false} —
+        the "Safe place for anti-theft" switch. Journey destinations are not
+        affected (every saved place stays a destination)."""
+        p = SavedPlace.objects.filter(user=request.user, pk=pk).first()
+        if p is None:
+            return _nf()
+        safe = _theft_safe_arg(request.data)
+        if safe is None:
+            return Response({"detail": "theft_safe_required"}, status=status.HTTP_400_BAD_REQUEST)
+        p.theft_safe = safe
+        p.save(update_fields=["theft_safe"])
+        return Response({"ok": True, **_place_dict(p)})
+
     def delete(self, request, pk):
         n, _ = SavedPlace.objects.filter(user=request.user, pk=pk).delete()
         if not n:

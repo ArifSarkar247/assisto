@@ -27,12 +27,15 @@ TRANSFER_ACTIONS = {"sell_transfer"}
 
 def is_trusted_location(user, lat, lng):
     """True only if (lat,lng) is within TRUSTED_RADIUS_M of one of the user's
-    SavedPlaces. Missing coordinates -> False (the SAFER default: no fix means
+    anti-theft SAFE places — saved places with theft_safe on (owner decision
+    2 Nov: Home by default; School / Office / others only when the user
+    switches them on). Journey destinations still use every saved place.
+    Missing coordinates -> False (the SAFER default: no fix means
     we cannot prove the user is home, so we treat it as untrusted)."""
     if lat is None or lng is None:
         return False
     from core.models import SavedPlace
-    for p in SavedPlace.objects.filter(user=user):
+    for p in SavedPlace.objects.filter(user=user, theft_safe=True):
         if p.lat is None or p.lng is None:
             continue
         if haversine_m(lat, lng, p.lat, p.lng) <= TRUSTED_RADIUS_M:
