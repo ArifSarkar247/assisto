@@ -309,7 +309,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       await _loadPeerKeys(_chats);
       _previews.clear();
       _publishUnread();
-      await _loadActive(); // bubbles2
+      unawaited(_loadActive()); // bubbles2 (never delays the list)
     } catch (e) {
       // Honest error + retry (no synthesised rows posing as real chats).
       _loadFailed = true;

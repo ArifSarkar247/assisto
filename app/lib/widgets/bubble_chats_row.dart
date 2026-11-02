@@ -7,8 +7,8 @@ import '../theme.dart';
 
 /// bubbles2 (owner FINAL bubbles order, point 5) — at the top of My Circle,
 /// one row of round photos for the chats that have a floating bubble right
-/// now (our own active conversation notifications, read from Android) or
-/// unread messages; tap opens that chat. Hidden when there are none.
+/// now (our own active conversation notifications, read from Android), with
+/// their unread counts; tap opens that chat. Hidden when there are none.
 
 @immutable
 class BubbleRowEntry {
@@ -33,10 +33,12 @@ class BubbleRowEntry {
   final bool floating;
 }
 
-/// The order (pinned by tests): chats with an active notification first,
-/// newest first (those are the bubbles on screen); then other unread chats,
-/// most unread first. Only chats in [known] (the visible, unlocked list),
-/// each once, at most [max].
+/// The order (pinned by tests): the chats with an active conversation
+/// notification right now (= the bubbles on screen), newest first. Only
+/// chats in [known] (the visible, unlocked list), each once, at most [max].
+/// [unread] only feeds the badges — an unread chat without a live
+/// notification is already at the top of the list below, so the row never
+/// duplicates the list (and stays hidden when nothing floats).
 List<String> bubbleRowKeys({
   required List<Map<String, dynamic>> active,
   required Map<String, int> unread,
@@ -48,11 +50,6 @@ List<String> bubbleRowKeys({
     final k = '${a['key'] ?? ''}';
     if (known.contains(k) && !out.contains(k)) out.add(k);
   }
-  final rest = unread.entries
-      .where((e) => e.value > 0 && known.contains(e.key) && !out.contains(e.key))
-      .toList()
-    ..sort((a, b) => b.value.compareTo(a.value));
-  out.addAll(rest.map((e) => e.key));
   return out.take(max).toList(growable: false);
 }
 
