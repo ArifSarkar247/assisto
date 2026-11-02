@@ -1,3 +1,35 @@
+# ▶ OWNER BACKLOG ORDER (2 Nov) — WORK STRICTLY IN THIS ORDER
+Rules for every item: Bangla feature card first (purpose, what exists, what is missing and why, how it helps people, bugs, best competitor) → build to beat that competitor with real data + proof → never ship half done → new things behind a flag until proven → existing features never hidden to avoid work → 40% profit rule → server-load rule (CI only; no new agents when load is high). Daily Bangla progress in STATUS with queue position + estimated hours. Hours = agent wall-clock estimates.
+
+## 0) ALWAYS FIRST — owner phone-test bugs + launch blockers
+- Owner decisions 2 Nov: guardian +45 min on consent screen, stop at once; saved places ≠ anti-theft safe places (Home only by default) — agent/jdec, RUNNING.
+- 8 Nov launch: switch list + entry-point leaks + AI-off honesty + Play production checklist — agent/launch, RUNNING.
+- Any owner phone-test bug report jumps here.
+
+## 1) OWNER FIRST PRIORITY (2 Nov)
+1. A1 My Circle: clickable links + preview + safe-link check; Family/Others everywhere + chips/search; many-to-many guardianship — agent/circlea, RUNNING (~8 h)
+2. A2 Missing person alert ("mun alert") + D found-share (reusable success_share) — agent/missing, RUNNING (~8 h)
+3. B Blood donor panel + urgent requests + D blood-found share — agent/blood, NEXT (~8 h)
+4. C Train tracker (crowdsourced, timetable estimate, 16318 SMS) + train chat + destination alarm — agent/train, NEXT (~12 h)
+
+## 2) PART 1 — BEFORE LAUNCH (owner 2 Nov)
+SAFETY
+5. a) Lost/stolen phone: intruder selfie after repeated wrong PIN/pattern → push with photo to owner + nominee; SIM-change alert; uninstall-attempt alert; Play-policy check of the method; honest note: flash/factory reset wipes the app (~6 h)
+6. b) Child emergency audio: ONLY active emergency (child SOS, or late alert + no answer to "are you OK"), verified parent, confirmed under-18 device, consent in advance, few minutes/session, full audit log, never adults, never normal times; phone shows Android FGS notification. WATCH side needs owner decision (silent MONITOR is blocked by our guard) — see STATUS (~8 h)
+7. c) Mini 4G GPS tracker chip (school bag / shoe) on the vehicle tracker server, shown on the child card (~5 h)
+8. d) "Where to buy" external link to asalifymart.com on CCTV, vehicle tracker, kids watch, tracker chip pages (link only; never touch Asalify) (~1 h, bundle with 7)
+BUSINESS
+9. e) Accounts onboarding: personal only / business only / both; switch later any direction without losing entries (~6 h)
+10. f) Business accounting at listed-company quality: ledger, trial balance, P&L, balance sheet, cash flow, VAT, period close, audit trail, export (~3 days)
+11. g) Invoices: thermal 58 mm + 80 mm + A4; templates by business type (cafe, restaurant, fine dining, e-commerce, retail, electronics showroom) + service providers (lawyer, VAT/tax, any service); bn/en, VAT lines, QR (~10 h)
+12. h) CRM most automated: follow-ups, reorder reminders, win-back, after-delivery feedback, lead scoring; clear owner control (~8 h)
+13. i) AI sales agent replies in chats AND Facebook/Instagram comments; business AI agent for daily operations (Meta permissions in STATUS) (~10 h code; Meta App Review = owner)
+
+## 3) AFTER LAUNCH — owner PART 2, then PART 3 (in the given order; not received yet)
+
+---
+# Older backlog (ordered after the list above)
+
 ## 🧠 OWNER ORDER 28 Oct — ONE BRAIN, THREE PRODUCTS (verbatim)
 OWNER ORDER 28 Oct, ONE BRAIN, THREE PRODUCTS. 1) AGENT CORE must match or beat Salesforce Agentforce part by part: reasoning engine that plans steps, grounding only on the user and business real data, topics as sub-agents with typed actions, trust layer (masking, injection blocking, guardrails, approvals, human handover). In AGENT_CORE_DESIGN_BN.md add a table Agentforce part vs ours vs gap, and close every gap before launch where possible. 2) ASSISTO MARKETING ENGINE (benchmark mengoengine.com, HubSpot Breeze, Jasper; own name and design, never copy): business questionnaire, Bangla content calendar with Bangladesh festivals, posts, captions, video scripts, growth plan and funnel, lead nurturing flows on WhatsApp and Messenger that hand over to the sales agent, review and one-tap deploy, page posting via Meta API with owner approval, learns from REAL sales in CRM, khata and agent chats, reports which content brought orders. 3) ASSISTO MARKET reverse auction plus group buying per the existing queue spec. NOW: write MARKETING_ENGINE_PLAN_BN.md and finish ASSISTO_MARKET_PLAN_BN.md with competitor teardown, screens, costs inside the 40 percent rule, legal checks, phases. BUILD ORDER: Agent Core and AI sales agent to world best first; Marketing Engine build starts right after launch-critical rows reach 95, flag OFF until it passes the bar; Market after that, when enough verified Business sellers exist. Report in Bangla in STATUS. Quality rules unchanged.
 NEXT-UP (when load allows): (a) docs agent: Agentforce-vs-ours table in AGENT_CORE_DESIGN_BN.md + gap-closing work packages; (b) docs agent: MARKETING_ENGINE_PLAN_BN.md + finish ASSISTO_MARKET_PLAN_BN.md; (c) then build agents to close Agent Core / AI sales gaps.
