@@ -15,9 +15,14 @@ import java.util.Locale
  * train: destination-alarm sound "com.assisto/train_alarm" — the documented
  * siren-style exception (like SOS) allowed by test/audio_route_guard_test.dart:
  *
- *   start(volumeMax: Boolean) -> Boolean   looping alarm tone on STREAM_ALARM /
- *                                          USAGE_ALARM (loud on silent; Android
- *                                          also plays alarms in connected earphones)
+ *   start(sound, vibrate)     -> Boolean   alarm volume to max; looping alarm tone
+ *                                          on STREAM_ALARM / USAGE_ALARM when sound
+ *                                          (loud on silent; Android also plays
+ *                                          alarms in connected earphones) and a
+ *                                          repeating vibration when vibrate
+ *   playClip(path)            -> Boolean   the user's OWN recorded voice clip (a
+ *                                          local file) once, on USAGE_ALARM
+ *   vibrateOnce()             -> Boolean   one gentle pulse (city-bus pre-alert)
  *   speak(text, lang)         -> Boolean   on-device TextToSpeech on USAGE_ALARM
  *                                          (Bangla "bn-BD" when installed, else English)
  *   stop()                    -> Boolean   stops tone + speech and restores volume
@@ -29,6 +34,7 @@ import java.util.Locale
 object TrainAlarmChannel {
     private const val NAME = "com.assisto/train_alarm"
     private var player: MediaPlayer? = null
+    private var clip: MediaPlayer? = null
     private var tts: TextToSpeech? = null
     private var ttsReady = false
     private var savedVolume: Int? = null
@@ -37,7 +43,11 @@ object TrainAlarmChannel {
         val app = context.applicationContext
         MethodChannel(messenger, NAME).setMethodCallHandler { call, result ->
             when (call.method) {
-                "start" -> result.success(start(app, call.argument<Boolean>("volumeMax") ?: true))
+                "start" -> result.success(
+                    start(app, call.argument<Boolean>("sound") ?: false, call.argument<Boolean>("vibrate") ?: true)
+                )
+                "playClip" -> result.success(playClip(app, call.argument<String>("path") ?: ""))
+                "vibrateOnce" -> result.success(vibrate(app, longArrayOf(0, 180), -1))
                 "speak" -> result.success(
                     speak(app, call.argument<String>("text") ?: "", call.argument<String>("lang") ?: "bn")
                 )
@@ -52,14 +62,46 @@ object TrainAlarmChannel {
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
-    private fun start(app: Context, volumeMax: Boolean): Boolean {
+    private fun vibrate(app: Context, pattern: LongArray, repeat: Int): Boolean {
+        return try {
+            @Suppress("DEPRECATION")
+            val v = app.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator ?: return false
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                v.vibrate(android.os.VibrationEffect.createWaveform(pattern, repeat), alarmAttrs())
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(pattern, repeat)
+            }
+            true
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    private fun playClip(app: Context, path: String): Boolean {
+        if (path.isBlank()) return false
+        return try {
+            clip?.release()
+            clip = MediaPlayer().apply {
+                setAudioAttributes(alarmAttrs())
+                setDataSource(path)
+                prepare()
+                start()
+            }
+            true
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    private fun start(app: Context, sound: Boolean, vib: Boolean): Boolean {
         return try {
             stopTone()
             val am = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            if (volumeMax) {
-                if (savedVolume == null) savedVolume = am.getStreamVolume(AudioManager.STREAM_ALARM)
-                am.setStreamVolume(AudioManager.STREAM_ALARM, am.getStreamMaxVolume(AudioManager.STREAM_ALARM), 0)
-            }
+            if (savedVolume == null) savedVolume = am.getStreamVolume(AudioManager.STREAM_ALARM)
+            am.setStreamVolume(AudioManager.STREAM_ALARM, am.getStreamMaxVolume(AudioManager.STREAM_ALARM), 0)
+            if (vib) vibrate(app, longArrayOf(0, 700, 500), 0)
+            if (!sound) return true
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
                 ?: return false
@@ -122,6 +164,12 @@ object TrainAlarmChannel {
         return try {
             stopTone()
             try { tts?.stop() } catch (_: Throwable) {}
+            try { clip?.release() } catch (_: Throwable) {}
+            clip = null
+            try {
+                @Suppress("DEPRECATION")
+                (app.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator)?.cancel()
+            } catch (_: Throwable) {}
             val v = savedVolume
             if (v != null) {
                 val am = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
