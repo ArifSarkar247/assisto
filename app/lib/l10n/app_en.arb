@@ -32703,10 +32703,10 @@
   "acuFxDue": "{party} will owe you {amount} more (also in their khata). Sales go up.",
   "@acuFxDue": {
     "placeholders": {
-      "amount": {
+      "party": {
         "type": "String"
       },
-      "party": {
+      "amount": {
         "type": "String"
       }
     }

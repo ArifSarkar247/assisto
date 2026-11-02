@@ -76,7 +76,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
           from: acctIso(DateTime(end.year, end.month, 1)), to: acctIso(end));
       tb = await _api.acctTrialBalanceAsOf(widget.businessId, acctIso(end));
     } catch (_) {
-      // the summary is a help, not a gate: close still works without it
+      // best-effort: the summary is a help, not a gate — close still works without it
     }
     if (!mounted) return;
     setState(() => _busy = false);
@@ -245,6 +245,11 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: OutlinedButton.icon(
+                    // on the primaryContainer card: onPrimaryContainer keeps
+                    // >= 4.5:1 (the default primary was 3.62:1 in dark)
+                    style: OutlinedButton.styleFrom(
+                        foregroundColor: scheme.onPrimaryContainer,
+                        side: BorderSide(color: scheme.onPrimaryContainer)),
                     key: const ValueKey('acct-reopen'),
                     onPressed: _busy ? null : _reopen,
                     icon: const Icon(Icons.lock_open_rounded),

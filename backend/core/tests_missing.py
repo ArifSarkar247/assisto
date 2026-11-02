@@ -6,6 +6,7 @@ auto-hide -> Owner Admin, private tips, posting limits, flag gating."""
 import base64
 import io
 import os
+import atexit
 import shutil
 import tempfile
 from datetime import timedelta
@@ -55,14 +56,14 @@ def link(a, b, rel_ab, rel_ba):
     CircleMember.objects.create(user=b, peer_user=a, name=a.name, relation=rel_ba, state="accepted")
 
 
+# removed once at exit, not per class: parallel workers share _TMP (a
+# per-class rmtree deleted it under another worker -> FileNotFoundError)
+atexit.register(shutil.rmtree, _TMP, True)
+
+
 @override_settings(MEDIA_ROOT=_TMP, PUSH_SYNC=True)
 class Base(TestCase):
     n = 0
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_TMP, ignore_errors=True)
 
     def mk(self, name, days_old=30):
         Base.n += 1

@@ -195,7 +195,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
       case 'expense':
         return t.acuFxExpense(amt, acc);
       case 'due':
-        return t.acuFxDue(amt, who);
+        return t.acuFxDue(who, amt);
       case 'money_in':
         return _purposeIn == 'customer' ? t.acuFxInCustomer(amt, acc, who) : t.acuFxIn(amt, acc);
       case 'money_out':
