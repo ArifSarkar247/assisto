@@ -33813,5 +33813,79 @@
   },
   "bblAllOn": "Turn bubbles back on for all chats",
   "bblAllOnDone": "Bubbles are on for every chat",
-  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications."
+  "bblUnsupported": "Chat bubbles need Android 11 or newer. On this phone, messages come as normal notifications.",
+  "psecTodayTitle": "Today's brief",
+  "psecPickupTitle": "Pick up a task from a message",
+  "psecAddMeeting": "Add a meeting",
+  "psecAddFollowup": "Add a follow-up",
+  "psecLoadFailed": "Couldn't load today's brief. Check the internet and try again.",
+  "psecEmptyBenefit": "Your secretary puts today's meetings, follow-ups and reminders on one page, so nothing slips.",
+  "psecEmptyHow": "Add a meeting and pick the people from My Circle, or paste a WhatsApp/SMS message to pick up a task.",
+  "psecGroundedNote": "Made only from what you saved. No AI, nothing made up.",
+  "psecDoneToast": "Marked done",
+  "psecTell": "Tell {name}",
+  "psecRemind": "Remind {name}",
+  "psecMarkDone": "Done",
+  "psecInviteText": "Hi {name}, letting you know: {title} — {when}. Please tell me if you can make it.",
+  "psecNudgeText": "Hi {name}, a gentle reminder about \"{title}\". Please let me know when you can. Thank you.",
+  "psecNotInCircle": "Couldn't open {name}'s chat. The message is copied, so you can paste it anywhere.",
+  "psecStaysOnPhone": "The message is read on this phone only. Only the task you add is saved.",
+  "psecPasteHint": "Paste the message here",
+  "psecPasteBtn": "Paste",
+  "psecFindBtn": "Find the task",
+  "psecFoundTitle": "Is this right?",
+  "psecKindMeeting": "Meeting",
+  "psecKindFollowup": "Follow-up",
+  "psecKindReminder": "Reminder",
+  "psecFieldTitle": "What",
+  "psecNoDateFound": "No date found. Pick one",
+  "psecPastWarn": "This date has already passed",
+  "psecPickDate": "Change",
+  "psecFieldWho": "Who",
+  "psecConfirmAdd": "Yes, add it",
+  "psecAdded": "Added to your secretary",
+  "@psecTell": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecRemind": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecNotInCircle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecInviteText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@psecNudgeText": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }
