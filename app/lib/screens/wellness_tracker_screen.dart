@@ -8,6 +8,7 @@ import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
 
 /// WATER / SLEEP / DIET TRACKER — ADVANCED (#71, SPEC v2.1 §10).
 ///
@@ -113,7 +114,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
       return Scaffold(
         bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.wellTitle)),
-        body: ListView(children: [
+        body: ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
           StateMessage(
             icon: Icons.favorite_outline_rounded,
             tint: Brand.blue,
@@ -148,7 +149,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           children: [
             _TodayCard(view: today),
             const SizedBox(height: Gap.md),
@@ -286,7 +287,7 @@ class _Ring extends StatelessWidget {
         ]),
       ),
       const SizedBox(height: Gap.sm),
-      Text(valueLabel,
+      Text(ld(context, valueLabel),
           textAlign: TextAlign.center,
           style: const TextStyle(fontWeight: FontWeight.w700)),
       Text(caption,
@@ -358,12 +359,12 @@ class _StreakCard extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: Gap.xs),
-          Text(tr.wellDaysCount(current),
+          Text(ld(context, tr.wellDaysCount(current)),
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
                   ?.copyWith(fontWeight: FontWeight.bold, color: color)),
-          Text(tr.wellBestStreak(best),
+          Text(ld(context, tr.wellBestStreak(best)),
               style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),
@@ -394,7 +395,7 @@ class _TrendCard extends StatelessWidget {
             trend.loggedDays == 0
                 ? tr.wellTrendEmpty
                 : tr.wellTrendAverages(/* (sleep, water) */
-                    _fmt(trend.avgSleep), _fmt(trend.avgWater)),
+                    ld(context, _fmt(trend.avgSleep)), ld(context, _fmt(trend.avgWater))),
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: Gap.md),
@@ -427,7 +428,7 @@ class _TrendCard extends StatelessWidget {
       Container(width: 9, height: 9, decoration: BoxDecoration(
           color: c, borderRadius: BorderRadius.circular(3))),
       const SizedBox(width: 5),
-      Text('$metric · $text',
+      Text(ld(context, '$metric · $text'),
           style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ]);
   }
@@ -722,7 +723,7 @@ class _StepperRow extends StatelessWidget {
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-          Text(valueLabel,
+          Text(ld(context, valueLabel),
               style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ]),
       ),
@@ -752,7 +753,7 @@ class _GoalRow extends StatelessWidget {
       padding: const EdgeInsets.only(left: 36),
       child: Row(children: [
         Expanded(
-          child: Text('$label · $valueLabel',
+          child: Text(ld(context, '$label · $valueLabel'),
               style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ),
         IconButton(

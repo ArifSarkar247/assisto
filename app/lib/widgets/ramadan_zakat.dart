@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'local_digits.dart'; // lifebar
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -59,7 +60,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
     });
   }
 
-  String _money(double v) => v.toStringAsFixed(2);
+  String _money(double v) => ld(context, v.toStringAsFixed(2)); // lifebar
 
   @override
   Widget build(BuildContext context) {

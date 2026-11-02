@@ -48,22 +48,11 @@ class _JobsFilterSheetState extends State<JobsFilterSheet> {
     super.dispose();
   }
 
-  String _catLabel(AppLocalizations tr, String k) => {
-        'it': tr.jobsCatIt, 'accounts': tr.jobsCatAccounts, 'sales': tr.jobsCatSales,
-        'ngo': tr.jobsCatNgo, 'garments': tr.jobsCatGarments,
-        'education': tr.jobsCatEducation, 'engineering': tr.jobsCatEngineering,
-        'health': tr.jobsCatHealth, 'gov': tr.jobsCatGov, 'other': tr.jobsCatOther,
-      }[k]!;
+  String _catLabel(AppLocalizations tr, String k) => jobsCatLabel(tr, k);
 
-  String _typeLabel(AppLocalizations tr, String k) => {
-        'full_time': tr.jobsTypeFullTime, 'part_time': tr.jobsTypePartTime,
-        'contract': tr.jobsTypeContract, 'remote': tr.jobsTypeRemote,
-        'internship': tr.jobsTypeInternship,
-      }[k]!;
+  String _typeLabel(AppLocalizations tr, String k) => jobsTypeLabel(tr, k);
 
-  String _expLabel(AppLocalizations tr, String k) => {
-        'entry': tr.jobsExpEntry, 'mid': tr.jobsExpMid, 'senior': tr.jobsExpSenior,
-      }[k]!;
+  String _expLabel(AppLocalizations tr, String k) => jobsExpLabel(tr, k);
 
   @override
   Widget build(BuildContext context) {
@@ -161,3 +150,22 @@ class _JobsFilterSheetState extends State<JobsFilterSheet> {
             style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
       );
 }
+
+
+/// lifebar: shared label helpers (the add-job form uses them too).
+String jobsCatLabel(AppLocalizations tr, String k) => {
+      'it': tr.jobsCatIt, 'accounts': tr.jobsCatAccounts, 'sales': tr.jobsCatSales,
+      'ngo': tr.jobsCatNgo, 'garments': tr.jobsCatGarments,
+      'education': tr.jobsCatEducation, 'engineering': tr.jobsCatEngineering,
+      'health': tr.jobsCatHealth, 'gov': tr.jobsCatGov, 'other': tr.jobsCatOther,
+    }[k] ?? k;
+
+String jobsTypeLabel(AppLocalizations tr, String k) => {
+      'full_time': tr.jobsTypeFullTime, 'part_time': tr.jobsTypePartTime,
+      'contract': tr.jobsTypeContract, 'remote': tr.jobsTypeRemote,
+      'internship': tr.jobsTypeInternship,
+    }[k] ?? k;
+
+String jobsExpLabel(AppLocalizations tr, String k) => {
+      'entry': tr.jobsExpEntry, 'mid': tr.jobsExpMid, 'senior': tr.jobsExpSenior,
+    }[k] ?? k;

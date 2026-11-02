@@ -207,7 +207,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           _privacyNote(tr, scheme),
           const SizedBox(height: Gap.md),
@@ -299,7 +299,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           for (final k in keys) ...[
             _sectionLabel(k.isEmpty ? tr.lifestyleTopicGeneral : k, scheme),
@@ -343,7 +343,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           for (final s in _slots)
             if (buckets[s]!.isNotEmpty) ...[
@@ -372,7 +372,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _welcome(AppLocalizations tr, IconData icon, String title, String body,
           String kind, bool withPrivacy) =>
       ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const SizedBox(height: Gap.xl),
           StateMessage(

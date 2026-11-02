@@ -252,7 +252,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   const _OcrSeamCard(),
                   const SizedBox(height: Gap.sm),
@@ -466,7 +466,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
       body: _loading
           ? const SkeletonList()
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
                 // total + status banner
                 Container(

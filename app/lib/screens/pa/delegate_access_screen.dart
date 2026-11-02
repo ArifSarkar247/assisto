@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
@@ -278,7 +279,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     final scopes = _scopes ?? defaultScopes();
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
       children: [
         Container(
           padding: const EdgeInsets.all(Gap.md),
@@ -329,7 +330,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
     final summary = summarizeAudit(_audit);
     final scheme = Theme.of(context).colorScheme;
     return ListView.separated(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       itemCount: _audit.length + 1,
       separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
       itemBuilder: (_, i) {

@@ -6,6 +6,9 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
+import '../widgets/confirm_delete.dart'; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// MOCK INTERVIEW — ADVANCED, KEY-GATED (#131, SPEC v2.1 §21).
 ///
@@ -71,6 +74,11 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
   final TextEditingController _answer = TextEditingController();
   _Feedback? _feedback;
   bool _showOutline = false;
+  // lifebar: questions skipped with "Next" (rotation only — not "practised")
+  final List<String> _skipped = [];
+  // lifebar: ONE saved session per answered question (score taps update it)
+  int? _savedId;
+  int? _savedScore;
 
   @override
   void initState() {
@@ -106,6 +114,9 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
     setState(() {
       _category = c;
       _asked.clear();
+      _skipped.clear();
+      _savedId = null;
+      _savedScore = null;
       _feedback = null;
       _showOutline = false;
       _answer.clear();
@@ -117,19 +128,31 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
     final c = _category;
     if (c == null) return;
     setState(() {
+      final cur = _current?.id;
+      // lifebar: "Next" used to return the SAME question when no feedback
+      // was asked for (only feedback marked a question as asked).
+      if (cur != null && !_asked.contains(cur) && !_skipped.contains(cur)) {
+        _skipped.add(cur);
+      }
       _feedback = null;
       _showOutline = false;
+      _savedId = null;
+      _savedScore = null;
       _answer.clear();
-      _current = _MiEngine.nextQuestion(c, _asked);
+      final id = miNextAfter(c, [..._asked, ..._skipped], cur);
+      _current = id == null ? null : _Question(id, c);
     });
   }
 
   void _getFeedback() {
     final q = _current;
     if (q == null) return;
-    final fb = _MiEngine.feedback(q.id, _answer.text);
+    final fb = _MiEngine.feedback(q.id, _answer.text,
+        miParseKwBank(AppLocalizations.of(context).lbWMiKwBank));
     setState(() {
       _feedback = fb;
+      _savedId = null; // a new answer = a new session row
+      _savedScore = null;
       if (!_asked.contains(q.id)) _asked.add(q.id);
     });
   }
@@ -139,17 +162,25 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
     final q = _current;
     final fb = _feedback;
     if (q == null || fb == null) return;
+    final row = {
+      'category': _category,
+      'question_id': q.id,
+      'answer': _answer.text.trim(),
+      'level': fb.level,
+      'words': fb.words,
+      'coverage': fb.coverage,
+      'self_score': selfScore,
+      'date': _today(),
+    };
     try {
-      await context.read<AppState>().api.createItem(_sessionsPath, {
-        'category': _category,
-        'question_id': q.id,
-        'answer': _answer.text.trim(),
-        'level': fb.level,
-        'words': fb.words,
-        'coverage': fb.coverage,
-        'self_score': selfScore,
-        'date': _today(),
-      });
+      final api = context.read<AppState>().api;
+      if (_savedId != null) {
+        await api.updateItem(_sessionsPath, _savedId!, row);
+      } else {
+        final r = await api.createItem(_sessionsPath, row);
+        _savedId = miSafeId(r['id']);
+      }
+      if (mounted) setState(() => _savedScore = selfScore);
       await _load();
       if (mounted) _toast(tr.miSessionSaved);
     } catch (_) {
@@ -201,7 +232,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           children: [
             _ProgressHeader(category: _category!, asked: _asked),
             const SizedBox(height: Gap.md),
@@ -232,6 +263,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
                 _FeedbackCard(
                   feedback: _feedback!,
                   onSave: _saveSession,
+                  savedScore: _savedScore,
                 ),
                 const SizedBox(height: Gap.md),
               ],
@@ -263,7 +295,7 @@ class _CategoryPicker extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         if (sessions.isEmpty) ...[
           const SizedBox(height: Gap.lg),
@@ -341,11 +373,12 @@ class _ProgressHeader extends StatelessWidget {
                   Text(_catLabel(tr, category),
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
-                  Text(tr.miProgressLabel(p.done, p.total),
+                  Text(tr.miProgressLabel(ld(context, p.done), ld(context, p.total)),
                       style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
                 ]),
           ),
-          Text('${p.percent}%',
+          const SizedBox(width: Gap.sm),
+          Text(ld(context, '${p.percent}%'),
               style: AType.titleLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: Brand.blue)),
         ]),
       ),
@@ -407,7 +440,9 @@ class _AnswerField extends StatelessWidget {
 class _FeedbackCard extends StatelessWidget {
   final _Feedback feedback;
   final void Function(int selfScore) onSave;
-  const _FeedbackCard({required this.feedback, required this.onSave});
+  final int? savedScore;
+  const _FeedbackCard(
+      {required this.feedback, required this.onSave, this.savedScore});
 
   @override
   Widget build(BuildContext context) {
@@ -415,19 +450,23 @@ class _FeedbackCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final c = _levelColor(feedback.level);
     final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final kwBank = miParseKwBank(tr.lbWMiKwBank);
     return Card(
       color: c.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(Icons.rate_review_rounded, color: c),
-            const SizedBox(width: Gap.sm),
-            Text(tr.miFeedbackTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-            const Spacer(),
-            _levelChip(context, feedback.level),
-          ]),
+          // lifebar: wraps at 200% font instead of overflowing
+          Wrap(
+              spacing: Gap.sm,
+              runSpacing: Gap.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Icon(Icons.rate_review_rounded, color: c),
+                Text(tr.miFeedbackTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                _levelChip(context, feedback.level),
+              ]),
           const SizedBox(height: Gap.sm),
           // honest marker: rule-based, not an AI grade
           Row(children: [
@@ -440,9 +479,10 @@ class _FeedbackCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            _stat(context, Icons.notes_rounded, tr.miWordsCount(feedback.words)),
+            _stat(context, Icons.notes_rounded,
+                tr.miWordsCount(ld(context, feedback.words))),
             _stat(context, Icons.key_rounded,
-                tr.miCoveragePct((feedback.coverage * 100).round())),
+                tr.miCoveragePct(ld(context, (feedback.coverage * 100).round()))),
           ]),
           const SizedBox(height: Gap.md),
           for (final t in feedback.tips)
@@ -461,7 +501,8 @@ class _FeedbackCard extends StatelessWidget {
             Wrap(spacing: 6, runSpacing: 6, children: [
               for (final k in feedback.missing)
                 Chip(
-                  label: Text(k, style: AType.labelSmall),
+                  // lifebar: the keyword in the UI language (bn bank)
+                  label: Text(bn ? miKwLabel(kwBank, k) : k, style: AType.labelSmall),
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -475,15 +516,33 @@ class _FeedbackCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 for (var i = 1; i <= 5; i++)
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(44, 44),
-                        padding: EdgeInsets.zero),
-                    onPressed: () => onSave(i),
-                    child: Text('$i'),
-                  ),
+                  i == savedScore
+                      ? FilledButton(
+                          style: FilledButton.styleFrom(
+                              minimumSize: const Size(48, 48),
+                              padding: EdgeInsets.zero),
+                          onPressed: () => onSave(i),
+                          child: Text(ld(context, i)),
+                        )
+                      : OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(48, 48),
+                              padding: EdgeInsets.zero),
+                          onPressed: () => onSave(i),
+                          child: Text(ld(context, i)),
+                        ),
               ]),
-          if (bn) const SizedBox.shrink(),
+          if (savedScore != null) ...[
+            const SizedBox(height: Gap.xs),
+            Row(children: [
+              const Icon(Icons.check_circle_rounded, size: 16, color: Brand.success),
+              const SizedBox(width: Gap.xs),
+              Expanded(
+                child: Text(tr.lbWMiSaved(ld(context, savedScore)),
+                    style: AType.bodySmall),
+              ),
+            ]),
+          ],
         ]),
       ),
     );
@@ -628,7 +687,7 @@ class _HistorySection extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final sorted = [...sessions]..sort((a, b) =>
-        ((b['id'] ?? 0) as int).compareTo((a['id'] ?? 0) as int));
+        (miSafeId(b['id']) ?? 0).compareTo(miSafeId(a['id']) ?? 0));
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(tr.miHistoryTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: Gap.sm),
@@ -646,8 +705,8 @@ class _HistorySection extends StatelessWidget {
             leading: Icon(Icons.history_rounded, color: scheme.primary),
             title: Text(_catLabel(tr, s['category'] as String?)),
             subtitle: Text([
-              (s['date'] ?? '').toString(),
-              if (s['self_score'] != null) '★ ${s['self_score']}/5',
+              ld(context, (s['date'] ?? '').toString()),
+              if (s['self_score'] != null) ld(context, '★ ${s['self_score']}/5'),
               if (s['level'] != null)
                 _levelShort(tr, s['level'] as String?),
             ].where((e) => e.isNotEmpty).join('  ·  ')),
@@ -655,13 +714,23 @@ class _HistorySection extends StatelessWidget {
               icon: const Icon(Icons.delete_outline_rounded, size: 20),
               tooltip: tr.delete,
               onPressed: () async {
-                final id = s['id'];
-                if (id is int) {
+                final id = miSafeId(s['id']);
+                if (id == null) return;
+                if (!await confirmDelete(context,
+                    what: _catLabel(tr, s['category'] as String?))) {
+                  return;
+                }
+                if (!context.mounted) return;
+                final messenger = ScaffoldMessenger.of(context);
+                try {
                   await context
                       .read<AppState>()
                       .api
                       .deleteItem(_sessionsPath, id);
                   onDeleted();
+                } catch (_) {
+                  messenger.showSnackBar(
+                      SnackBar(content: Text(tr.lbWMiDeleteFailed)));
                 }
               },
             ),
@@ -881,7 +950,8 @@ class _MiEngine {
     return _Question(q.id, q.category);
   }
 
-  static _Feedback feedback(String questionId, String answer) {
+  static _Feedback feedback(String questionId, String answer,
+      [Map<String, List<String>> kw = const {}]) {
     _BankItem? q;
     for (final b in bank) {
       if (b.id == questionId) {
@@ -907,8 +977,11 @@ class _MiEngine {
     }
 
     final hints = q.keywords;
-    final matched = hints.where((k) => low.contains(k)).toList();
-    final missing = hints.where((k) => !low.contains(k)).toList();
+    // lifebar: a keyword counts when the English word OR any Bangla variant
+    // from the bank (lbWMiKwBank) appears — Bangla answers used to score 0.
+    bool hit(String k) => miKwHit(kw, k, low);
+    final matched = hints.where(hit).toList();
+    final missing = hints.where((k) => !hit(k)).toList();
     final coverage = hints.isEmpty ? 0.0 : matched.length / hints.length;
     final breaks =
         '.!?।'.split('').fold<int>(0, (a, c) => a + low.split(c).length - 1);
@@ -949,4 +1022,71 @@ class _MiEngine {
     return _MiProgress(
         done, total, total == 0 ? 0 : (100 * done / total).round());
   }
+}
+
+
+// ======================= lifebar: pure helpers (tested) =======================
+
+/// "keyword=variant1|variant2;..." -> {keyword: [variants]}. A missing or
+/// malformed bank (the English value is "-") gives an empty map.
+Map<String, List<String>> miParseKwBank(String raw) {
+  final out = <String, List<String>>{};
+  for (final part in raw.split(';')) {
+    final i = part.indexOf('=');
+    if (i <= 0) continue;
+    final k = part.substring(0, i).trim();
+    final vs = part
+        .substring(i + 1)
+        .split('|')
+        .map((v) => v.trim())
+        .where((v) => v.isNotEmpty)
+        .toList();
+    if (k.isNotEmpty && vs.isNotEmpty) out[k] = vs;
+  }
+  return out;
+}
+
+/// Does [lowAnswer] mention keyword [k] (English) or one of its variants?
+bool miKwHit(Map<String, List<String>> kw, String k, String lowAnswer) {
+  if (lowAnswer.contains(k)) return true;
+  for (final v in kw[k] ?? const <String>[]) {
+    if (lowAnswer.contains(v.toLowerCase())) return true;
+  }
+  return false;
+}
+
+/// Display label for keyword [k] (first variant, else the keyword itself).
+String miKwLabel(Map<String, List<String>> kw, String k) {
+  final l = kw[k];
+  return (l == null || l.isEmpty) ? k : l.first;
+}
+
+/// Next question id in [category] that is not in [seen]; when every question
+/// was seen, the one after [currentId] (wrap) so "Next" always moves.
+String? miNextAfter(String category, List<String> seen, String? currentId) {
+  final pool = _MiEngine.bank.where((q) => q.category == category).toList();
+  if (pool.isEmpty) return null;
+  final s = seen.toSet();
+  if (currentId != null) s.add(currentId);
+  for (final q in pool) {
+    if (!s.contains(q.id)) return q.id;
+  }
+  final i = pool.indexWhere((q) => q.id == currentId);
+  return pool[(i + 1) % pool.length].id;
+}
+
+/// Coverage (0..1) and missing English keywords for an answer — the same
+/// rubric the screen shows.
+({double coverage, List<String> missing}) miCoverage(
+    String questionId, String answer, Map<String, List<String>> kw) {
+  final f = _MiEngine.feedback(questionId, answer, kw);
+  return (coverage: f.coverage, missing: f.missing);
+}
+
+/// Server ids may come back as int, num or String.
+int? miSafeId(Object? v) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v);
+  return null;
 }

@@ -15,6 +15,8 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/watch_hide_store.dart'; // f6
+import 'package:shared_preferences/shared_preferences.dart'; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// WATCH FEED (ADVANCED) — the user's single "what needs me now" digest.
 ///
@@ -52,10 +54,35 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
   /// mark-done/taken calls already persist to the backend.
   final Set<String> _dismissed = {};
 
+  /// lifebar: the personalise choice survives leaving the screen.
+  static const sourcesPrefKey = 'watch_feed_sources_v1';
+
+  Future<void> _loadSources() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final l = p.getStringList(sourcesPrefKey);
+      if (l == null) return;
+      final next = WatchSource.values.where((s) => l.contains(s.name)).toSet()
+        ..retainAll(watchSourcesAvailable());
+      _enabled
+        ..clear()
+        ..addAll(next);
+    } catch (_) {}
+  }
+
+  Future<void> _saveSources() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setStringList(sourcesPrefKey, _enabled.map((s) => s.name).toList());
+    } catch (_) {}
+  }
+
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadSources().whenComplete(() {
+      if (mounted) _load();
+    });
   }
 
   ApiClient get _api => context.read<AppState>().api;
@@ -345,15 +372,22 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
 
   Future<void> _addUsdWatcher() async {
     final t = AppLocalizations.of(context);
+    // lifebar: one USD->BDT alert is enough — a second tap never duplicates
+    if (_watchers.any((w) => '${w['kind']}' == 'usd_bdt')) {
+      _snack(t.lbDWatchUsdExists);
+      return;
+    }
     try {
       await _api.createItem('watchers', {
         'kind': 'usd_bdt',
-        'label': t.watchSourceWatchers,
+        'label': t.lbDWatchUsdLabel,
         'interval_min': 360,
       });
       await _load();
+      _snack(t.lbDWatchUsdAdded);
     } catch (e) {
-      _snack('$e');
+      // lifebar: an honest sentence, never a raw exception
+      _snack(honestFailText(t, e, otherwise: t.saveFailed));
     }
   }
 
@@ -370,6 +404,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
               ..clear()
               ..addAll(next);
           });
+          _saveSources();
         },
       ),
     ).then((_) => _load());
@@ -455,15 +490,19 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
     final hasWatchers = _watchers.isNotEmpty;
     if (visible.isEmpty && !hasWatchers) {
       // Honest empty — scrollable so pull-to-refresh still works.
+      // lifebar: no fixed height (overflowed at 200% font) + a real next step
       return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.only(top: Gap.xl, bottom: 96)),
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            child: StateMessage(
-              icon: Icons.verified_rounded,
-              tint: Brand.success,
-              title: t.watchAllClearTitle,
-              message: t.watchAllClearBody,
+          StateMessage(
+            icon: Icons.verified_rounded,
+            tint: Brand.success,
+            title: t.watchAllClearTitle,
+            message: '${t.watchAllClearBody}\n\n${t.lbDWatchEmptyHow}',
+            action: FilledButton.tonalIcon(
+              onPressed: _addUsdWatcher,
+              icon: const Icon(Icons.add_alert_rounded),
+              label: Text(t.qa1WatchAddRateAlert),
             ),
           ),
         ],
@@ -479,7 +518,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
 
     return ListView(
       // bottom room so the floating action never covers the last card
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
       children: [
         Text(t.watchSummaryLine(
           _n(needs.length),
@@ -593,9 +632,9 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
               leading: Icon(watchSourceIcon(WatchSource.watchers)),
               title: Text((w['label'] ?? w['kind'] ?? '').toString()),
               subtitle: Text(() {
-                final v = w['last_value']?.toString() ?? '';
+                final v = ld(context, w['last_value']?.toString() ?? '');
                 final at = DateTime.tryParse(w['last_checked'] ?? '');
-                return at != null ? '$v · ${fmt.format(at.toLocal())}' : v;
+                return at != null ? '$v · ${ld(context, fmt.format(at.toLocal()))}' : v;
               }()),
               trailing: IconButton(
                 tooltip: t.watchRemoveWatcher,

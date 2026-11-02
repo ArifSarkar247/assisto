@@ -195,7 +195,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   const _BookingSeamCard(),
                   const SizedBox(height: Gap.sm),
@@ -376,7 +376,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 40),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 40)),
                 children: [
                   const _BookingSeamCard(),
                   const SizedBox(height: Gap.lg),

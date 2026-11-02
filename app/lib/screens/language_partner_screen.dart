@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
 
 /// LANGUAGE-LEARNING PARTNER — ADVANCED, KEY-GATED (#132, SPEC v2.1 §21).
 ///
@@ -194,7 +195,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
           children: [
             _DirectionToggle(
               direction: _direction,
@@ -239,7 +240,7 @@ class _DeckPicker extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final today = _todayDay();
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         if (progress.isEmpty) ...[
           const SizedBox(height: Gap.lg),
@@ -275,10 +276,10 @@ class _DeckPicker extends StatelessWidget {
                       Icon(_deckIcon(d), color: scheme.onPrimaryContainer),
                 ),
                 title: Text(_deckLabel(tr, d)),
-                subtitle: Text(tr.lpDeckProgress(dp.started, dp.total)),
+                subtitle: Text(ld(context, tr.lpDeckProgress(dp.started, dp.total))),
                 trailing: due > 0
                     ? Chip(
-                        label: Text('$due',
+                        label: Text(ld(context, due),
                             style: AType.bodySmall),
                         backgroundColor: Brand.blue.withValues(alpha: 0.15),
                         visualDensity: VisualDensity.compact,
@@ -581,10 +582,17 @@ class _QuizScreenState extends State<_QuizScreen> {
     if (qs.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.lpQuiz)),
+        // lifebar: honest — the deck has too few cards for a quiz (it said
+        // "deck done"), plus a way back
         body: StateMessage(
           icon: Icons.quiz_rounded,
           title: tr.lpQuiz,
-          message: tr.lpDeckDone,
+          message: tr.lbDQuizTooFew,
+          action: FilledButton.tonalIcon(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.style_rounded),
+            label: Text(tr.lbDQuizBackToCards),
+          ),
         ),
       );
     }
@@ -603,13 +611,13 @@ class _QuizScreenState extends State<_QuizScreen> {
                   size: 56,
                   color: g.percent >= 70 ? Brand.success : scheme.primary),
               const SizedBox(height: Gap.md),
-              Text(tr.lpQuizScore(g.correct, g.total),
+              Text(ld(context, tr.lpQuizScore(g.correct, g.total)),
                   style: Theme.of(context)
                       .textTheme
                       .headlineSmall
                       ?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
-              Text('${g.percent}%',
+              Text(ld(context, '${g.percent}%'),
                   style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700,
                       color: g.percent >= 70 ? Brand.success : Brand.blue)),
               if (g.wrongCardIds.isNotEmpty) ...[
@@ -633,7 +641,7 @@ class _QuizScreenState extends State<_QuizScreen> {
     final answered = _picked != null;
     return Scaffold(
       appBar: AppBar(
-          title: Text('${tr.lpQuiz}  ${_index + 1}/${qs.length}')),
+          title: Text(ld(context, '${tr.lpQuiz}  ${_index + 1}/${qs.length}'))),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [

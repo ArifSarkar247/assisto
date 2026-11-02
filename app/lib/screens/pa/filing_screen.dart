@@ -193,7 +193,7 @@ class _FilingScreenState extends State<FilingScreen> {
   }
 
   Widget _welcome(AppLocalizations tr) => ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           StateMessage(
             icon: Icons.folder_copy_rounded,

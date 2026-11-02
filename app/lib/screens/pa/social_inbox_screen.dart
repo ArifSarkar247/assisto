@@ -7,6 +7,8 @@ import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../feature_gates.dart' show kShowKeySeams; // lifebar
+import '../../widgets/local_digits.dart'; // lifebar
 
 /// PA Secretary Mode · CELEBRITY tier — Unified social inbox / DM triage
 /// (#123, §14).
@@ -231,12 +233,15 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      // lifebar: the "connect Instagram/Facebook keys in Integrations" seam
+      // is staff-only, like every other PA seam.
       appBar: AppBar(title: Text(tr.socialInboxTitle), actions: [
-        IconButton(
-          tooltip: tr.socialInboxConnectTitle,
-          icon: const Icon(Icons.link_rounded),
-          onPressed: () => _showConnect(tr),
-        ),
+        if (kShowKeySeams)
+          IconButton(
+            tooltip: tr.socialInboxConnectTitle,
+            icon: const Icon(Icons.link_rounded),
+            onPressed: () => _showConnect(tr),
+          ),
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _loading ? null : () => _addOrEdit(tr),
@@ -263,7 +268,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
   }
 
   Widget _welcome(AppLocalizations tr) => ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const SizedBox(height: Gap.xl),
           StateMessage(
@@ -277,7 +282,13 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             ),
           ),
           const SizedBox(height: Gap.lg),
-          _connectSeamCard(tr, Theme.of(context).colorScheme),
+          if (kShowKeySeams)
+            _connectSeamCard(tr, Theme.of(context).colorScheme)
+          else
+            Text(tr.lbWPaSocialManual,
+                textAlign: TextAlign.center,
+                style: AType.bodySmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
       );
 
@@ -308,9 +319,9 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
         child: Row(children: [
-          _stat(Icons.mark_email_unread_rounded, tr.socialInboxStatOpen('$_openCount'), scheme),
+          _stat(Icons.mark_email_unread_rounded, tr.socialInboxStatOpen(ld(context, _openCount)), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.priority_high_rounded, tr.socialInboxStatUrgent('$_urgentCount'),
+          _stat(Icons.priority_high_rounded, tr.socialInboxStatUrgent(ld(context, _urgentCount)),
               scheme, tint: _urgentCount > 0 ? scheme.error : null),
         ]),
       ),
@@ -334,7 +345,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
+                  padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96)),
                   itemCount: list.length,
                   separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
                   itemBuilder: (_, i) => _card(list[i], tr, scheme),

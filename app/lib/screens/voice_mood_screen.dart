@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart' show openForUser;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/local_digits.dart'; // lifebar
 
 /// VOICE MOOD SENSING — ADVANCED (#15, SPEC v2.1 §21).
 ///
@@ -250,7 +251,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
               ),
             ])
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
               children: [
                 _TodayCard(row: todayRow),
                 const SizedBox(height: Gap.md),
@@ -850,7 +851,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 divisions: 5,
                 label: _energy == 0
                     ? tr.moodEnergyUnrated
-                    : _energy.toString(),
+                    : ld(context, _energy),
                 onChanged: (v) => setState(() => _energy = v.round()),
               ),
               Text(tr.moodVoicePrivacy,
@@ -916,7 +917,7 @@ class _MoodChoice extends StatelessWidget {
             const SizedBox(height: Gap.xxs),
             Text(label,
                 textAlign: TextAlign.center,
-                maxLines: 1,
+                maxLines: 2, // lifebar: was clipped at 200% font
                 overflow: TextOverflow.ellipsis,
                 style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? Brand.purple : scheme.onSurfaceVariant)),
           ]),

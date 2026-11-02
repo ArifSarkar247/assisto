@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
+import 'local_digits.dart'; // lifebar
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -85,7 +86,7 @@ class _RamadanCountdownState extends State<RamadanCountdown> {
             style: TextStyle(
                 color: color, fontWeight: FontWeight.w600, fontSize: 13)),
         const SizedBox(height: 2),
-        Text(value,
+        Text(ld(context, value),
             style: TextStyle(
                 color: color,
                 fontSize: 36,
@@ -103,7 +104,7 @@ class _RamadanCountdownState extends State<RamadanCountdown> {
   Widget _mini(String label, String value, Color color) {
     return Column(children: [
       Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-      Text(value,
+      Text(ld(context, value),
           style: TextStyle(
               color: color,
               fontWeight: FontWeight.w600,

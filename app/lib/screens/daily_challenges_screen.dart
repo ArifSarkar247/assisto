@@ -6,6 +6,10 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/chal_bank.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
+import 'package:intl/intl.dart' show DateFormat; // lifebar
+import '../widgets/bn_day_periods.dart' show appDateLocale; // lifebar
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// DAILY CHALLENGES / QUIZ — ADVANCED (#173, §21).
 ///
@@ -126,14 +130,16 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
           IconButton(
             icon: const Icon(Icons.history_rounded),
             tooltip: tr.chalHistory,
-            onPressed: _progress.isEmpty ? null : _openHistory,
+            // lifebar: never a silently disabled button — the history page
+            // explains itself when empty
+            onPressed: _openHistory,
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
           children: [
             // first-use welcome banner (only before anything is done)
             if (summary.totalCompleted == 0) _WelcomeBanner(),
@@ -144,6 +150,11 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                 icon: Icons.event_busy_rounded,
                 title: tr.chalNoneTitle,
                 message: tr.chalNoneBody,
+                action: FilledButton.tonalIcon(
+                  onPressed: _load,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(tr.retry),
+                ),
               )
             else
               _TodayCard(
@@ -261,7 +272,7 @@ class _StatsStrip extends StatelessWidget {
         child: Column(children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: Gap.xs),
-          Text(value,
+          Text(ld(context, value),
               style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: Gap.xxs),
           Text(label,
@@ -495,7 +506,7 @@ class _HistoryScreen extends StatelessWidget {
               message: tr.chalHistoryEmptyBody,
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
               children: [
                 for (final r in rows)
                   () {
@@ -519,8 +530,15 @@ class _HistoryScreen extends StatelessWidget {
                         title: Text(
                             item?.question ?? (r['item_id'] ?? '').toString(),
                             maxLines: 2, overflow: TextOverflow.ellipsis),
-                        subtitle: Text((r['date'] ?? '').toString()),
-                        trailing: Text('+${r['points'] ?? 0}',
+                        subtitle: Text(() {
+                          // lifebar: "2 Nov 2026" in the app language
+                          final raw = (r['date'] ?? '').toString();
+                          final d = DateTime.tryParse(raw);
+                          return d == null
+                              ? raw
+                              : DateFormat('d MMM yyyy', appDateLocale(context)).format(d);
+                        }()),
+                        trailing: Text(ld(context, '+${r['points'] ?? 0}'),
                             style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: Brand.warning)),
