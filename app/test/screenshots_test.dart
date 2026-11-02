@@ -748,7 +748,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'battery_guidance': (build: (_) => const BatteryGuidanceScreen(), mode: FakeMode.data, full: true),
     'onboarding': (build: (_) => OnboardingScreen(onDone: () {}), mode: FakeMode.data, full: true),
     // acctmode: accounts mode step + Settings sheet
-    'acct_mode_onb': (build: (_) => Scaffold(body: SafeArea(child: OnbAccountModeStep(selected: AccountMode.business, onPick: (_) {}))), mode: FakeMode.data, full: true),
+    'acct_mode_onb': (build: (_) { var sel = AccountMode.business; return Scaffold(body: SafeArea(child: StatefulBuilder(builder: (c, set) => OnbAccountModeStep(selected: sel, onPick: (m) => set(() => sel = m))))); }, mode: FakeMode.data, full: true),
     'acct_mode_sheet': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => AccountModeSheet(api: c.read<AppState>().api)))), mode: FakeMode.data, full: true),
     'support': (build: (_) => const SupportScreen(), mode: FakeMode.data, full: true),
     // module 5 (P13+)
