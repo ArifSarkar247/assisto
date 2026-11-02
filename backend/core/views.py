@@ -1411,13 +1411,18 @@ def _build_alerts(user, lang="bn"):
     month_exp = {}
     for t in user.txns.filter(date__year=today.year, date__month=today.month, kind="expense"):
         month_exp[t.category or ""] = month_exp.get(t.category or "", Decimal("0")) + t.amount
+    from .logic import remittance as _rl
     for b in user.budgets.all():
         spent = month_exp.get(b.category, Decimal("0"))
         if b.monthly_limit and spent >= b.monthly_limit:
             pct = int(spent / b.monthly_limit * 100)
+            # remhbud: the category in the user's language (a family key like
+            # "food" was shown raw) and Bangla digits in bn
+            key = (b.category or "").strip().lower()
+            cat = _rl.label(lang, _rl.CATEGORY_LABELS, key) if key in _rl.CATEGORY_LABELS else b.category
             alerts.append({"type": "budget",
-                           "text": pick(lang, f"'{b.category}' বাজেট শেষ ({pct}%)।",
-                                        f"'{b.category}' budget is used up ({pct}%)."),
+                           "text": pick(lang, f"'{cat}' বাজেট শেষ ({_rl.digits('bn', pct)}%)।",
+                                        f"'{cat}' budget is used up ({pct}%)."),
                            "severity": "med"})
     return alerts
 

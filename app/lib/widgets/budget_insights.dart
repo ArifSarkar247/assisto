@@ -15,14 +15,16 @@ class BudgetInsights extends StatelessWidget {
   final List<Map<String, dynamic>> insights;
   const BudgetInsights({super.key, required this.insights});
 
-  String _text(AppLocalizations t, Map<String, dynamic> i) {
-    final cat = i['category']?.toString() ?? '';
-    final pct = (i['pct'] as num?)?.toInt() ?? 0;
+  String _text(BuildContext context, AppLocalizations t, Map<String, dynamic> i) {
+    // remhbud: the category in the UI language ("food" -> Bangla in bn) and
+    // the percent in the UI digits.
+    final cat = moneyCatLabel(t, i['category']);
+    final pct = moneyDigitsOf(context, (i['pct'] as num?)?.toInt() ?? 0);
     switch (i['code']) {
       case 'over':
-        return t.budgetInsightOver(cat, '$pct');
+        return t.budgetInsightOver(cat, pct);
       case 'near':
-        return t.budgetInsightNear(cat, '$pct');
+        return t.budgetInsightNear(cat, pct);
       default:
         return t.budgetInsightOnTrack;
     }
@@ -64,7 +66,7 @@ class BudgetInsights extends StatelessWidget {
             dense: true,
             leading: Icon(_icon(i['code']?.toString()),
                 color: _color(i['code']?.toString())),
-            title: Text(_text(t, i)),
+            title: Text(_text(context, t, i)),
           ),
         ),
     ]);
@@ -78,8 +80,11 @@ class BudgetGoalLinkCard extends StatelessWidget {
   final Map<String, dynamic>? result; // null until linked / previewed
   final bool hasGoal;
   final VoidCallback? onLink;
+
+  /// remhbud: with no goal yet, a real way out (was a dead-end line).
+  final VoidCallback? onCreateGoal;
   const BudgetGoalLinkCard(
-      {super.key, this.result, required this.hasGoal, this.onLink});
+      {super.key, this.result, required this.hasGoal, this.onLink, this.onCreateGoal});
 
   @override
   Widget build(BuildContext context) {
@@ -87,10 +92,31 @@ class BudgetGoalLinkCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     if (!hasGoal) {
       return Card(
-        child: ListTile(
-          leading: const Icon(Icons.savings_rounded),
-          title: Text(t.budgetGoalLinkTitle),
-          subtitle: Text(t.budgetGoalLinkNone),
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              const Icon(Icons.savings_rounded),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(t.budgetGoalLinkTitle,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ]),
+            const SizedBox(height: Gap.xs),
+            Text(t.budgetGoalLinkNone),
+            Text(t.rhbGoalWhy),
+            if (onCreateGoal != null) ...[
+              const SizedBox(height: Gap.sm),
+              FilledButton.tonalIcon(
+                key: const ValueKey('rhb_goal_create'),
+                style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+                onPressed: onCreateGoal,
+                icon: const Icon(Icons.flag_outlined),
+                label: Text(t.rhbGoalCreate),
+              ),
+            ],
+          ]),
         ),
       );
     }
@@ -116,7 +142,7 @@ class BudgetGoalLinkCard extends StatelessWidget {
               reached
                   ? t.budgetGoalReached
                   : t.budgetGoalLinkBody(
-                      tkFmt(result?['contribution'] ?? '0')),
+                      tkOf(context, result?['contribution'] ?? '0')),
               style: TextStyle(color: scheme.onSecondaryContainer)),
           if (result != null) ...[
             const SizedBox(height: Gap.sm),

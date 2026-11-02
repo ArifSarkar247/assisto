@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import 'remit_sheets.dart';
 import 'remit_source.dart';
 import 'remit_widgets.dart';
@@ -104,7 +105,7 @@ class _RemitReportScreenState extends State<RemitReportScreen> {
           : _err != null
           ? rmErrorView(context, _err!, _load)
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxxl),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxxl)),
               children: [
                 Text(rmMonthLabel(context, widget.month), style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: Gap.sm),

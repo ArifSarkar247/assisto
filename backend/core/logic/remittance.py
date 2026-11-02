@@ -247,10 +247,53 @@ def year_view(entries, year, savings_p_by_month):
     }
 
 
-def report_text(lang, month, received_p, count, lines, goal=None):
+def shares_pct(totals):
+    """Whole-number percents for `totals` (poisha) that ALWAYS add up to 100
+    (largest remainder), so a family never sees 33 + 33 + 33 = 99. All zero
+    -> all 0."""
+    whole = sum(totals)
+    if whole <= 0:
+        return [0 for _ in totals]
+    raw = [t * 100 for t in totals]
+    base = [r // whole for r in raw]
+    left = 100 - sum(base)
+    order = sorted(range(len(totals)), key=lambda i: (-(raw[i] % whole), i))
+    for i in order[:left]:
+        base[i] += 1
+    return base
+
+
+def sender_shares(entries):
+    """remhbud: who sent how much — one row per SENDER from real entries:
+    the My Circle member when one was picked (so a renamed or re-typed name
+    is still one person), else the typed name (case/space-insensitive), else
+    "?" (no sender written). Rows: {name, member_id, total_p, count, pct},
+    biggest first; pct adds up to exactly 100."""
+    groups = {}
+    for e in entries:
+        mid = e.get("sender_member_id")
+        name = (e.get("sender_name") or "").strip()
+        key = ("m", str(mid)) if mid not in (None, "") else (
+            ("n", " ".join(name.lower().split())) if name else ("?", ""))
+        g = groups.get(key)
+        if g is None:
+            g = groups[key] = {"name": name or "?", "member_id": mid if key[0] == "m" else None,
+                               "total_p": 0, "count": 0}
+        elif g["name"] == "?" and name:
+            g["name"] = name
+        g["total_p"] += to_poisha(e.get("taka"))
+        g["count"] += 1
+    rows = sorted(groups.values(), key=lambda r: (-r["total_p"], r["name"]))
+    for r, pct in zip(rows, shares_pct([r["total_p"] for r in rows])):
+        r["pct"] = pct
+    return rows
+
+
+def report_text(lang, month, received_p, count, lines, goal=None, senders=None):
     """The plain monthly summary the user may share with the sender (only when
     they tap Share). `lines` = plan_vs_actual output; goal = {title,
-    target_p, saved_p} or None."""
+    target_p, saved_p} or None; senders = sender_shares() rows — listed only
+    when 2 or more people sent money this month (remhbud)."""
     bn = lang == "bn"
     out = []
     out.append(("%s-এর হিসাব" if bn else "Family budget — %s") % month_label(lang, month))
@@ -259,6 +302,11 @@ def report_text(lang, month, received_p, count, lines, goal=None):
     else:
         out.append("Received: %s (%d %s)" % (taka(lang, received_p), count,
                                               "time" if count == 1 else "times"))
+    if senders and len(senders) >= 2:
+        out.append("কে কত পাঠাল:" if bn else "Who sent it:")
+        for r in senders:
+            who = r["name"] if r["name"] != "?" else ("নাম লেখা নেই" if bn else "No name written")
+            out.append("• %s: %s (%s%%)" % (who, taka(lang, r["total_p"]), digits(lang, r["pct"])))
     spent = [ln for ln in lines if ln["actual_p"] > 0]
     total = sum(ln["actual_p"] for ln in lines)
     if spent:

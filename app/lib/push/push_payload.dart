@@ -41,6 +41,7 @@ class PushChannels {
     'agent_nudge': alerts, // agent-proactive (Agent Core nudge / brief)
     'doc_expiry': reminders, // vault100: a vault document expires soon
     'dues': reminders, // tagada2: a shop's reminder / message (My Dues)
+    'budget_alert': alerts, // remhbud: an expense crossed 80% / 100% of a budget
   };
 }
 
@@ -224,6 +225,7 @@ class PushRouting {
     'agent_nudge': 'agent_core', // agent-proactive (flag-gated route)
     'doc_expiry': 'documents', // vault100
     'dues': 'my_dues', // tagada2
+    'budget_alert': 'budget', // remhbud: opens the Budget page
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,
