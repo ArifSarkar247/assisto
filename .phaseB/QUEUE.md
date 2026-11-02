@@ -102,3 +102,6 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - Agent Core (Part 2 of 27 Oct order): owner_actions/AGENT_CORE_DESIGN_BN.md; flag agent_core OFF; AI keys: owner adds
 - Billing hardening (owner_actions/BILLING_ORDER_27OCT.md), call bugs (b287 done), home frozen (v2; v6 behind home_v2)
 - Daily: STATUS_FOR_OWNER.md top = short Bangla summary; 3 Bangla lines per published build
+
+## OWNER ADMIN SUPPORT/SAFETY/STATS (3 Nov 04:22) — after CCTV P1
+Full text: owner_actions/OWNER_ADMIN_SUPPORT_ORDER_3NOV.md. Agent: adminsafe (running).
