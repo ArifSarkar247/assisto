@@ -5,6 +5,7 @@ import '../../business_khata_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messaging/date_separators.dart' show localDigits;
 import '../../payments/checkout_sheet.dart';
+import '../../payments/payments_api.dart' show payFlavour; // framebar
 import '../../services/error_kind.dart' show honestFailText;
 import '../../services/error_report.dart';
 import '../../state.dart';
@@ -219,7 +220,9 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.tg2BalPackRow(_d(parts)),
                   style: Theme.of(context).textTheme.titleSmall),
-              if (price > 0)
+              // framebar: Play build -> the price shown is Play's own, in
+              // the checkout sheet; never the server's taka number here.
+              if (price > 0 && payFlavour() != 'play')
                 Text('৳${_d(price)}',
                     style: AType.bodyMedium
                         .copyWith(fontFeatures: AFonts.tabular)),

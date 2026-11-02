@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../api.dart' show ApiException; // framebar
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import 'password_reset_screen.dart';
@@ -28,6 +29,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _phone = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+
+  /// framebar: which one-time-code sign-in the server can do right now
+  /// (SMS / email / none) — decides the honest button under the form.
+  OtpStatus? _otp;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOtp();
+  }
+
+  Future<void> _loadOtp() async {
+    try {
+      final b = widget.otpBackend ?? ApiOtpBackend(context.read<AppState>().api);
+      final st = await b.status();
+      if (mounted) setState(() => _otp = st);
+    } catch (_) {}
+  }
+
+  /// framebar: never show a raw Dart/HTTP error (English, even in Bangla
+  /// mode). Server errors carry the server's localized text; anything else
+  /// is a connection problem.
+  String _errorText(Object e) {
+    final t = AppLocalizations.of(context);
+    if (e is String) return e;
+    if (e is ApiException) {
+      return e.message.trim().isEmpty ? t.qaActionFailed : e.message;
+    }
+    return t.otpErrNetwork;
+  }
 
   @override
   void dispose() {
@@ -91,7 +122,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = _errorText(e));
+      // offline at first paint: the OTP button may have been hidden
+      if (_otp == null || (!_otp!.smsEnabled && !_otp!.emailEnabled)) {
+        _loadOtp();
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -165,8 +200,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 12),
-                    Text(_error!,
-                        style: const TextStyle(color: Colors.red)),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(_error!,
+                          key: const Key('login-error'),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.error)),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   RoboId(id: 'tl_login_submit',
@@ -201,7 +241,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               builder: (_) => const PasswordResetScreen())),
                       child: Text(t.resetForgotLink),
                     ),
-                  if (!_register)
+                  // framebar: honest one-time-code sign-in — SMS only when
+                  // the gateway is live; email codes when SMS is off; no
+                  // button at all when neither can send (never a dead end).
+                  if (!_register && (_otp?.smsEnabled ?? false))
                     TextButton.icon(
                       key: const Key('login-with-sms'),
                       onPressed: _busy
@@ -211,6 +254,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   OtpLoginScreen(backend: widget.otpBackend))),
                       icon: const Icon(Icons.sms_rounded, size: 18),
                       label: Text(t.otpLoginWithSms),
+                    )
+                  else if (!_register && (_otp?.emailEnabled ?? false))
+                    TextButton.icon(
+                      key: const Key('login-with-email-code'),
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => OtpLoginScreen(
+                                  backend: widget.otpBackend,
+                                  emailMode: true))),
+                      icon: const Icon(Icons.email_rounded, size: 18),
+                      label: Text(t.fbLoginWithEmailCode),
                     ),
                 ],
               ),

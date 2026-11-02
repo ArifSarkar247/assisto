@@ -26,6 +26,14 @@ class OtpVerifyScreen extends StatefulWidget {
   final String title;
   final String? intro;
 
+  /// framebar: email-only identity (login / reset when SMS is off and the
+  /// person typed their email instead of a phone number).
+  final String? email;
+
+  /// framebar: send the FIRST code by email (SMS gateway off) instead of
+  /// trying SMS and showing the "SMS not available" card first.
+  final bool emailFirst;
+
   const OtpVerifyScreen({
     super.key,
     required this.backend,
@@ -33,6 +41,8 @@ class OtpVerifyScreen extends StatefulWidget {
     required this.title,
     this.phone,
     this.intro,
+    this.email,
+    this.emailFirst = false,
   });
 
   /// Push the step; resolves to the proof or null.
@@ -43,6 +53,8 @@ class OtpVerifyScreen extends StatefulWidget {
     required String title,
     String? phone,
     String? intro,
+    String? email,
+    bool emailFirst = false,
   }) =>
       Navigator.of(context).push<String>(MaterialPageRoute(
           builder: (_) => OtpVerifyScreen(
@@ -50,7 +62,9 @@ class OtpVerifyScreen extends StatefulWidget {
               purpose: purpose,
               phone: phone,
               title: title,
-              intro: intro)));
+              intro: intro,
+              email: email,
+              emailFirst: emailFirst)));
 
   @override
   State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
@@ -76,7 +90,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
     super.initState();
     // Localizations aren't readable until after initState -> first frame.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _send();
+      if (!mounted) return;
+      if (widget.emailFirst && _emailPurpose) {
+        _emailAvailable = true;
+        _sendEmail();
+      } else {
+        _send();
+      }
     });
   }
 
@@ -191,7 +211,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       _error = null;
     });
     final r =
-        await widget.backend.requestEmail(widget.purpose, phone: widget.phone);
+        await widget.backend.requestEmail(widget.purpose,
+            phone: widget.phone, email: widget.email);
     if (!mounted) return;
     setState(() => _busy = false);
     if (r.ok) {
@@ -227,7 +248,8 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       _busy = true;
       _error = null;
     });
-    final r = await widget.backend.verify(widget.purpose, code, phone: widget.phone);
+    final r = await widget.backend
+        .verify(widget.purpose, code, phone: widget.phone, email: widget.email);
     if (!mounted) return;
     if (r.ok && r.proof != null) {
       Navigator.of(context).pop(r.proof);
