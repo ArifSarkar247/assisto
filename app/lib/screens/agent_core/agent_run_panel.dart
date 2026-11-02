@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
@@ -322,6 +324,27 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
               style: TextStyle(color: s.onPrimaryContainer, height: 1.45)),
         ),
       ],
+      // ---- bizops: a prepared message the owner sends himself (no dead end)
+      if (r.state == 'done')
+        for (final sh in r.shares) ...[
+          const SizedBox(height: Gap.md),
+          if (sh.url.isNotEmpty)
+            FilledButton.icon(
+              key: ValueKey('ac_share_wa_${sh.tool}'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => launchUrl(Uri.parse(sh.url), mode: LaunchMode.externalApplication),
+              icon: const Icon(Icons.send_rounded),
+              label: Text(t.boOpenWhatsApp),
+            ),
+          const SizedBox(height: Gap.xs),
+          OutlinedButton.icon(
+            key: ValueKey('ac_share_other_${sh.tool}'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => Share.share(sh.text),
+            icon: const Icon(Icons.ios_share_rounded),
+            label: Text(t.boShareOther),
+          ),
+        ],
       if (r.sources.isNotEmpty) ...[
         const SizedBox(height: Gap.md),
         Semantics(header: true, child: Text(t.acSourcesTitle, style: tt.titleSmall)),
