@@ -537,8 +537,8 @@ class _PlanTabState extends State<_PlanTab> {
                         spacing: Gap.sm,
                         children: [
                           Text(tkOf(context, s['suggested_limit']),
-                              style: const TextStyle(
-                                  fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, fontSize: 18)),
+                              style: AType.titleMedium.copyWith(
+                                  fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                           TextButton(
                               style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
                               onPressed: () => _useSuggestion(context, s),
