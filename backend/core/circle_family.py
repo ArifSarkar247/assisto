@@ -15,18 +15,23 @@ from .logic import circle_family as CF
 
 
 def _guardian_link_ids(user):
-    """Circle edges of `user` that already guard / watch one of the user's
-    children (kids watch guardians, school-mode watchers) -> Family."""
-    ids = set()
+    """Circle EDGE ids of `user` whose peer already guards / watches one of
+    the user's children (kids watch guardian_ids, school-mode watcher_ids —
+    both hold USER ids) or with whom the user shares a guardianship
+    (core.guardianship) -> Family."""
+    uids = set()
     try:
-        from .models import KidsWatch, SchoolPlan
+        from .models import CircleMember, KidsWatch, SchoolPlan
         for g in KidsWatch.objects.filter(owner=user).values_list("guardian_ids", flat=True):
-            ids.update(int(x) for x in (g or []) if str(x).isdigit())
+            uids.update(int(x) for x in (g or []) if str(x).isdigit())
         for w in SchoolPlan.objects.filter(owner=user).values_list("watcher_ids", flat=True):
-            ids.update(int(x) for x in (w or []) if str(x).isdigit())
+            uids.update(int(x) for x in (w or []) if str(x).isdigit())
+        if not uids:
+            return set()
+        return set(CircleMember.objects.filter(user=user, peer_user_id__in=uids)
+                   .values_list("id", flat=True))
     except Exception:  # noqa: BLE001 — a listing never fails on a hint
-        pass
-    return ids
+        return set()
 
 
 def link_context(user):

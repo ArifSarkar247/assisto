@@ -135,11 +135,12 @@ class JourneyRequestActionView(APIView):
             elif action == "cancel":
                 if req.status not in GJ.LIVE:
                     return _bad("not_active", status.HTTP_409_CONFLICT)
+                others = GJ.others_live(req)   # circlea: honest if a co-guardian is live
                 GJ.finish(req, "cancelled", now, by="requester")
                 rn = GJ._name(req.traveller, req.requester)
+                sbn, sen = GJ.still_watching_texts(req, others)
                 GJ.notify(req.traveller, req, "cancelled", "%s অনুরোধ তুলে নিয়েছেন" % rn,
-                          "%s cancelled the request" % rn,
-                          "আর কেউ আপনার যাত্রা দেখছেন না।", "Nobody is following your trip now.")
+                          "%s cancelled the request" % rn, sbn, sen)
             else:
                 return _bad("unknown_action", status.HTTP_404_NOT_FOUND)
         req.refresh_from_db()

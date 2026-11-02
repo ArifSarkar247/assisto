@@ -1371,5 +1371,8 @@ urlpatterns += [
 from . import views_circlea as cav  # noqa: E402
 urlpatterns += [
     path("circle/<int:pk>/people-group", cav.CirclePeopleGroupView.as_view()),
+    path("guardians/mine", cav.GuardiansMineView.as_view()),
+    path("guardians/mine/<int:uid>/remove", cav.GuardianRemoveView.as_view()),
+    path("guardians/children", cav.GuardianChildrenView.as_view()),
 ]
 # ---- /circlea ----

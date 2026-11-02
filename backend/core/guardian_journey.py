@@ -282,16 +282,34 @@ def start_trip(req, now=None):
     member = edge(req.traveller, req.requester)
     if member is None:
         return None, "not_in_circle"
+    from .models import JourneyRequest
+    shared = None
     for old in Journey.objects.filter(traveller=req.traveller, status="active"):
+        # circlea (many guardians): another guardian's LIVE trip of the same
+        # child is JOINED (one location share, every guardian watching) —
+        # never stopped under the first parent's feet.
+        if shared is None and JourneyRequest.objects.filter(
+                journey=old, status="active").exclude(pk=req.pk).exists():
+            shared = old
+            continue
         old.status, old.stopped_at = "stopped", now
         old.expires_at = JW.ended_expiry(old, now)
         old.save(update_fields=["status", "stopped_at", "expires_at"])
-    j = Journey.objects.create(
-        traveller=req.traveller, destination=dict(req.destination or {}), eta=end,
-        status="active", overdue_grace_min=10, location_retention_hours=0,
-        stop_alert_min=20, expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
-        last_activity_at=now, moved_at=now)
-    JourneyWatcher.objects.create(journey=j, member=member)
+    if shared is not None:
+        j = shared
+        tail = end + timedelta(minutes=HARD_TAIL_MIN + 30)
+        if j.eta is None or j.eta < end:
+            j.eta = end
+        if j.expires_at is None or j.expires_at < tail:
+            j.expires_at = tail
+        j.save(update_fields=["eta", "expires_at"])
+    else:
+        j = Journey.objects.create(
+            traveller=req.traveller, destination=dict(req.destination or {}), eta=end,
+            status="active", overdue_grace_min=10, location_retention_hours=0,
+            stop_alert_min=20, expires_at=end + timedelta(minutes=HARD_TAIL_MIN + 30),
+            last_activity_at=now, moved_at=now)
+    JourneyWatcher.objects.get_or_create(journey=j, member=member)
     req.journey, req.status, req.started_at, req.ended_at = j, "active", now, None
     req.arrived_at, req.outcome = None, ""
     add_log(req, "traveller", "started", now)
@@ -321,7 +339,15 @@ def finish(req, outcome, now=None, by=""):
     now = now or _now()
     j = req.journey
     if j is not None and j.status == "active":
-        _close_journey(j, now)
+        if others_live(req):
+            # circlea: another guardian still follows this trip — only this
+            # guardian stops seeing it.
+            from .models import JourneyWatcher
+            member = edge(req.traveller, req.requester)
+            if member is not None:
+                JourneyWatcher.objects.filter(journey=j, member=member).delete()
+        else:
+            _close_journey(j, now)
     req.ended_at, req.outcome = now, outcome
     if outcome == "arrived" and req.arrived_at is None:
         req.arrived_at = now
@@ -331,17 +357,37 @@ def finish(req, outcome, now=None, by=""):
     req.save()
 
 
+def others_live(req):
+    """Other ACTIVE guardian requests sharing req's live trip."""
+    from .models import JourneyRequest
+    if req.journey_id is None:
+        return []
+    return list(JourneyRequest.objects.filter(journey_id=req.journey_id, status="active")
+                .exclude(pk=req.pk).select_related("requester"))
+
+
+def still_watching_texts(req, others):
+    """(bn, en) for the traveller after one guardian stopped: honest about who
+    still sees the trip (never "nobody" while a co-guardian is live)."""
+    if not others:
+        return ("আর কেউ আপনার লোকেশন দেখছেন না।", "Nobody is seeing your location now.")
+    names = ", ".join(_name(req.traveller, o.requester) for o in others)
+    return ("%s এখনও আপনার যাত্রা দেখছেন — চাইলে সেটাও বন্ধ করুন।" % names,
+            "%s can still see your trip — stop that too if you want." % names)
+
+
 def stop_by_traveller(req, now=None):
     now = now or _now()
+    others = others_live(req)
     finish(req, "stopped_by_traveller", now, by="traveller")
+    sbn, sen = still_watching_texts(req, others)
     tn = _name(req.requester, req.traveller)
     notify(req.requester, req, "stopped",
            "%s যাত্রা দেখা বন্ধ করেছেন" % tn, "%s stopped sharing the trip" % tn,
            "%s নিজে শেয়ার বন্ধ করেছেন। চাইলে ফোন করে খোঁজ নিন।" % tn,
            "%s turned sharing off. Call them if you are worried." % tn, high=True)
     notify(req.traveller, req, "stopped_self",
-           "যাত্রা শেয়ার বন্ধ হয়েছে", "Trip sharing is off",
-           "আর কেউ আপনার লোকেশন দেখছেন না।", "Nobody is seeing your location now.")
+           "যাত্রা শেয়ার বন্ধ হয়েছে", "Trip sharing is off", sbn, sen)
 
 
 # --------------------------------------------------------------- sweep
