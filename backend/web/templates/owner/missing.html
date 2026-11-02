@@ -1,0 +1,32 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_missing }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.mis_intro }}</p>
+<div class="tiles">{% for k, n in tiles %}<a class="tile" href="?status={% if k == 'reports' %}review{% else %}{{ k }}{% endif %}"><span>{% if k == 'review' %}{{ T.mis_t_review }}{% elif k == 'active' %}{{ T.mis_t_active }}{% elif k == 'pending' %}{{ T.mis_t_pending }}{% else %}{{ T.mis_t_reports }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<form method="get" class="inline card">
+  <label>{{ T.status }}<select name="status">{% for f in filters %}<option value="{{ f }}" {% if f == st %}selected{% endif %}>{% if f == 'review' %}{{ T.mis_t_review }}{% elif f == 'active' %}{{ T.mis_t_active }}{% elif f == 'pending' %}{{ T.mis_t_pending }}{% elif f == 'ended' %}{{ T.mis_f_ended }}{% else %}{{ T.all }}{% endif %}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <span class="mut small">{{ total }}</span>
+</form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.mis_person }}</th><th>{{ T.mis_area }}</th><th>{{ T.mis_gate }}</th><th>{{ T.mis_poster }}</th><th>{{ T.mis_reach }}</th><th>{{ T.mis_reports }}</th><th></th></tr></thead><tbody>
+{% for a in rows %}<tr><td>#{{ a.id }}</td><td>{{ a.created_at|date:"Y-m-d H:i" }}</td>
+<td><span class="pill {% if a.state == 'hidden' %}spons{% elif a.state == 'active' %}ok{% endif %}">{{ a.state }}</span></td>
+<td>{% if a.photo_link %}<a href="{{ a.photo_link }}" target="_blank" rel="noopener noreferrer">{{ T.mis_photo }}</a> · {% endif %}{{ a.name }}, {{ a.age }}{% if a.is_child %} · <b>{{ T.mis_child }}</b>{% endif %}<details><summary>{{ a.description|truncatechars:60 }}</summary><p class="pre">{{ a.description }}</p></details></td>
+<td>{{ a.area_text }} · {{ a.district }} · {{ a.radius_km }} km</td>
+<td>{{ a.basis|default:"—" }}{% if a.gd_number %}<br><span class="small">GD {{ a.gd_number }} · {{ a.gd_thana }} · {{ a.gd_date|date:"Y-m-d" }}</span><br><span class="small mut">{{ T.mis_gd_unverified }}</span>{% endif %}</td>
+<td><a href="/owner/users/{{ a.poster_id }}">#{{ a.poster_id }} {{ a.poster.name|default:"" }}</a></td>
+<td>{{ a.pushed }} / {{ a.listed }} · {{ T.mis_tips }} {{ a.n_tips }}</td>
+<td>{{ a.n_reports }}{% for r in a.report_rows %}<div class="small">{{ r.reason }} · #{{ r.reporter_id }}{% if not r.counted %} ({{ T.mis_not_counted }}){% endif %} · {{ r.status }}{% if r.note %} — {{ r.note }}{% endif %}</div>{% endfor %}</td>
+<td>
+<form method="post" action="/owner/missing/{{ a.id }}/act">{% include "owner/_csrf.html" %}<input type="hidden" name="status" value="{{ st }}">
+{% if a.state == 'active' %}<button class="btn ghost" name="action" value="hide">{{ T.mis_hide }}</button>{% endif %}
+{% if a.state == 'hidden' %}<button class="btn primary" name="action" value="restore">{{ T.mis_restore }}</button>{% endif %}
+{% if a.state == 'active' or a.state == 'hidden' or a.state == 'pending' %}<button class="btn ghost" name="action" value="close">{{ T.mis_close }}</button>
+<button class="btn ghost" name="action" value="remove">{{ T.mis_remove }}</button>
+<button class="btn danger" name="action" value="remove_ban">{{ T.mis_remove_ban }}</button>{% endif %}
+</form></td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.mis_none }}</p>{% endif %}
+{% endblock %}

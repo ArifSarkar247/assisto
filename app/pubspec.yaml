@@ -130,6 +130,12 @@ dependencies:
   video_player: 2.14.1
   video_player_android: 2.12.2
   # ---- /mc-media2 ----
+  # ---- missing ---- Google Play In-App Review (BSD-3, britannio). Exact pin,
+  # >= 2 weeks old. LAZY: only lib/services/review_prompt_impl.dart imports
+  # it, as a DEFERRED library loaded after a family shares "found" thanks, in
+  # the Play build only (AppConfig.playStore). No ContentProvider, no permission.
+  in_app_review: 2.0.10
+  # ---- /missing ----
   # workmanager REMOVED — its androidx.work startup ContentProvider crashed on
   # launch (ColorOS/Realme) and background exec is throttled there anyway.
   # Family alerts now poll on app open/resume (see AppState). FCM later.

@@ -1715,3 +1715,30 @@ BN.update({
     "agf_exported": "এক্সপোর্ট হয়েছে", "agf_not_exported": "এক্সপোর্টের অপেক্ষায়",
 })
 # ---- /af-12 ----
+
+# ---- missing: Owner Admin -> Missing alerts ----
+EN.update({
+    "nav_missing": "Missing alerts",
+    "mis_intro": "Missing-person alerts posted by families. An alert hides itself after 3 independent fake-post reports and waits here for you. Restore it, or remove it (with a 90-day posting ban when it was fake on purpose). GD numbers are only format-checked — nobody has verified them with the police. The photo is deleted when an alert ends.",
+    "mis_t_review": "Needs review", "mis_t_active": "Active", "mis_t_pending": "Waiting for co-signer",
+    "mis_t_reports": "Open reports", "mis_f_ended": "Ended",
+    "mis_person": "Missing person", "mis_area": "Area", "mis_gate": "Gate", "mis_poster": "Posted by",
+    "mis_reach": "Pushed / listed", "mis_reports": "Reports", "mis_photo": "Photo", "mis_child": "child",
+    "mis_gd_unverified": "GD number not verified", "mis_tips": "tips",
+    "mis_not_counted": "not counted", "mis_hide": "Hide", "mis_restore": "Restore",
+    "mis_close": "Close", "mis_remove": "Remove", "mis_remove_ban": "Remove + 90-day ban",
+    "mis_none": "Nothing here.",
+})
+BN.update({
+    "nav_missing": "নিখোঁজ সতর্কতা",
+    "mis_intro": "পরিবারের দেওয়া নিখোঁজ সতর্কতা। ৩টি আলাদা মানুষের 'ভুয়া পোস্ট' রিপোর্ট এলে সতর্কতা নিজে লুকিয়ে যায় এবং এখানে আপনার অপেক্ষায় থাকে। ফিরিয়ে দিন, অথবা সরান (ইচ্ছে করে ভুয়া হলে ৯০ দিন পোস্ট নিষেধসহ)। GD নম্বর শুধু ধরন মিলিয়ে দেখা — পুলিশের সাথে কেউ যাচাই করেনি। সতর্কতা শেষ হলে ছবি মুছে যায়।",
+    "mis_t_review": "পর্যালোচনা দরকার", "mis_t_active": "চালু", "mis_t_pending": "সহ-অভিভাবকের অপেক্ষায়",
+    "mis_t_reports": "খোলা রিপোর্ট", "mis_f_ended": "শেষ হয়েছে",
+    "mis_person": "নিখোঁজ মানুষ", "mis_area": "এলাকা", "mis_gate": "যাচাইয়ের ধরন", "mis_poster": "যিনি দিয়েছেন",
+    "mis_reach": "push / তালিকায়", "mis_reports": "রিপোর্ট", "mis_photo": "ছবি", "mis_child": "শিশু",
+    "mis_gd_unverified": "GD নম্বর যাচাই করা হয়নি", "mis_tips": "তথ্য",
+    "mis_not_counted": "গোনা হয়নি", "mis_hide": "লুকান", "mis_restore": "ফিরিয়ে দিন",
+    "mis_close": "বন্ধ করুন", "mis_remove": "সরান", "mis_remove_ban": "সরান + ৯০ দিন নিষেধ",
+    "mis_none": "এখানে কিছু নেই।",
+})
+# ---- /missing ----

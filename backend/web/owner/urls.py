@@ -22,6 +22,7 @@ from . import views_ai as AIRT       # ai-router
 from . import views_ops as OPS       # ops-watch
 from . import views_agent as AGR     # agent-core
 from . import views_crisis as CRH    # af-crisis
+from . import views_missing as MIS   # missing
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -119,4 +120,6 @@ urlpatterns = [
     path("agent-runs/<int:pk>", AGR.agent_run_detail),           # agent-core
     path("crisis-helplines", CRH.crisis_helplines),                # af-crisis
     path("crisis-helplines/<str:key>", CRH.crisis_helpline_save),  # af-crisis
+    path("missing", MIS.missing),                                  # missing
+    path("missing/<int:pk>/act", MIS.missing_action),              # missing
 ]

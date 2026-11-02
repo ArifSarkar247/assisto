@@ -7153,3 +7153,147 @@ class SchoolEvent(models.Model):
         ordering = ["-at"]
         indexes = [models.Index(fields=["plan", "at"], name="core_schoolev_plan_at_idx")]
 # ---- /kidswatch ----
+
+
+# ---- missing ---- Missing person alert ("নিখোঁজ সতর্কতা", owner 2 Nov; flag
+# missing_alert OFF). A family member posts a coarse last-seen AREA (never a
+# home address); verified gates (adult = police GD number, child = verified
+# guardian); pushes only to users who OPTED IN to nearby safety alerts; tips
+# go privately to the family; the missing adult can say "I am safe" without
+# sharing any location; the photo is deleted when the alert ends.
+class MissingAlert(models.Model):
+    STATES = ("pending", "active", "found", "safe", "closed", "expired", "hidden", "removed")
+    LIVE = ("pending", "active", "hidden")
+    poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="missing_alerts")
+    subject_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                     related_name="missing_about_me")
+    family_member = models.ForeignKey(FamilyMember, null=True, blank=True,
+                                      on_delete=models.SET_NULL, related_name="+")
+    relation = models.CharField(max_length=20, blank=True, default="")
+    name = models.CharField(max_length=80)
+    age = models.PositiveSmallIntegerField(default=0)
+    is_child = models.BooleanField(default=False)
+    description = models.CharField(max_length=500, blank=True, default="")
+    last_seen_at = models.DateTimeField()
+    area_text = models.CharField(max_length=120)
+    district = models.CharField(max_length=24, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)     # coarse (2 decimals)
+    lng = models.FloatField(null=True, blank=True)
+    radius_km = models.PositiveSmallIntegerField(default=10)
+    photo = models.FileField(upload_to="missing/", blank=True, default="")
+    gd_number = models.CharField(max_length=40, blank=True, default="")
+    gd_thana = models.CharField(max_length=80, blank=True, default="")
+    gd_date = models.DateField(null=True, blank=True)
+    basis = models.CharField(max_length=16, blank=True, default="")   # circle_mutual|cosigned|gd
+    cosigner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="missing_cosigned")
+    cosign_asked = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                     related_name="+")
+    state = models.CharField(max_length=10, default="pending", db_index=True)
+    hidden_from = models.CharField(max_length=10, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    activated_at = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    closed_by = models.CharField(max_length=12, blank=True, default="")
+    renewals = models.PositiveSmallIntegerField(default=0)
+    safe_said_at = models.DateTimeField(null=True, blank=True)
+    share_agreed = models.BooleanField(default=False)
+    pushed = models.PositiveIntegerField(default=0)
+    listed = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class MissingRecipient(models.Model):
+    """One row per (alert, user): at most ONE nearby push per alert per user."""
+    alert = models.ForeignKey(MissingAlert, on_delete=models.CASCADE, related_name="recipients")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    source = models.CharField(max_length=12, default="home_area")   # home_area|recent|family
+    pushed_at = models.DateTimeField(null=True, blank=True)
+    end_pushed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["alert", "user"],
+                                               name="core_missing_recipient_once")]
+        indexes = [models.Index(fields=["user", "created_at"], name="core_missrec_user_at_idx")]
+
+
+class MissingTipThread(models.Model):
+    """A PRIVATE tip thread between one tipster and the family. The family
+    sees the tipster's name only when share_identity is on."""
+    alert = models.ForeignKey(MissingAlert, on_delete=models.CASCADE, related_name="tips")
+    tipster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    share_identity = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_at = models.DateTimeField(default=timezone.now)
+    family_unread = models.PositiveSmallIntegerField(default=0)
+    tipster_unread = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-last_at"]
+        constraints = [models.UniqueConstraint(fields=["alert", "tipster"],
+                                               name="core_missing_tip_once")]
+
+
+class MissingTipMessage(models.Model):
+    thread = models.ForeignKey(MissingTipThread, on_delete=models.CASCADE, related_name="messages")
+    by_family = models.BooleanField(default=False)
+    text = models.CharField(max_length=600)
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["at", "id"]
+
+
+class MissingReport(models.Model):
+    REASONS = ("fake", "not_missing", "wrong_photo", "harassment", "spam", "other")
+    alert = models.ForeignKey(MissingAlert, on_delete=models.CASCADE, related_name="reports")
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    reason = models.CharField(max_length=16, default="fake")
+    note = models.CharField(max_length=300, blank=True, default="")
+    counted = models.BooleanField(default=True)   # an "independent" report
+    status = models.CharField(max_length=10, default="open")   # open|upheld|dismissed
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        constraints = [models.UniqueConstraint(fields=["alert", "reporter"],
+                                               name="core_missing_report_once")]
+
+
+class NearbyAlertPref(models.Model):
+    """Opt-in to nearby safety alerts. Only a COARSE area is stored: a
+    district and/or a point rounded to ~1 km; the 'where I am' point is sent
+    only while the app is open (never in the background) and ages out."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="nearby_alert_pref")
+    enabled = models.BooleanField(default=False)
+    district = models.CharField(max_length=24, blank=True, default="")
+    home_lat = models.FloatField(null=True, blank=True)
+    home_lng = models.FloatField(null=True, blank=True)
+    use_open_location = models.BooleanField(default=False)
+    open_lat = models.FloatField(null=True, blank=True)
+    open_lng = models.FloatField(null=True, blank=True)
+    open_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class MissingEvent(models.Model):
+    """Abuse / audit log for missing alerts (create, gates refused, reports,
+    auto-hide, admin actions, I-am-safe, photo deletions, posting bans)."""
+    alert = models.ForeignKey(MissingAlert, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="events")
+    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    kind = models.CharField(max_length=24)
+    meta = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["actor", "kind", "at"], name="core_missev_actor_idx")]
+# ---- /missing ----
