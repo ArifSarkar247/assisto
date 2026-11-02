@@ -132,10 +132,13 @@ def deny_response(request, row):
     lang = req_lang(request)
     bn, en = _DENY.get(row.kind, _DENY["stranger_msg"])
     reason = row.action.reason if row.action_id and row.action else ""
-    return Response({"detail": "account_restricted", "reason": "account_restricted",
+    msg = en if lang == "en" else bn
+    # `detail` is the human sentence (every app build shows `detail` as the
+    # error text); `reason` is the machine code.
+    return Response({"detail": msg, "reason": "account_restricted",
                      "kind": row.kind, "until": row.until.isoformat() if row.until else None,
                      "admin_reason": reason, "route": "account_standing",
-                     "message": en if lang == "en" else bn},
+                     "message": msg},
                     status=status.HTTP_403_FORBIDDEN)
 
 
