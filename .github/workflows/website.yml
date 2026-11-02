@@ -11,6 +11,12 @@
 #     -> artifact website-v3-preview. Manual run with shots_run_id = a checks
 #     run id: rebuilds site_assets/shots3 from its shots-* gallery artifacts
 #     (tools/website/site_shots.py) -> artifact website-shots3 to commit.
+#  5. job `live` (sitelive, 3 Nov — v3 is LIVE): nightly + manual (live=true)
+#     READ-ONLY check of https://lifeassisto.com at 360 px + desktop, bn + en
+#     (tools/website/livecheck.mjs): HTTP 200, no console errors, no clipped
+#     titles/screenshots, Install/APK links answer HEAD 200 (APK body never
+#     downloaded), HTML no-cache + ETag, ?v= assets immutable; one Lighthouse
+#     run per URL -> artifact website-live. A handful of GETs, never a load test.
 # Runs only on ci/website* and ci/sitev3* pushes (and by hand). Never deploys anything.
 name: website
 
@@ -22,6 +28,12 @@ on:
       shots_run_id:
         description: 'checks.yml run id whose shots-* artifacts refresh site_assets/shots3 (optional)'
         required: false
+      live:
+        description: 'only check the LIVE https://lifeassisto.com (read-only)'
+        type: boolean
+        default: false
+  schedule:
+    - cron: '40 21 * * *'   # 03:40 BD, nightly live check
 
 concurrency:
   group: website-${{ github.ref }}
@@ -33,6 +45,7 @@ permissions:
 
 jobs:
   site:
+    if: github.event_name != 'schedule' && github.event.inputs.live != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
@@ -123,7 +136,7 @@ jobs:
         run: |
           set -e
           cd "$RUNNER_TEMP/pw"
-          cp "$GITHUB_WORKSPACE/tools/website/clipcheck.mjs" .
+          cp "$GITHUB_WORKSPACE/tools/website/clipcheck.mjs" "$GITHUB_WORKSPACE/tools/website/clipaudit.mjs" .
           node clipcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/before360" before || true
           node clipcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/clipcheck" v3
       - uses: actions/upload-artifact@v4
@@ -170,3 +183,40 @@ jobs:
       - name: server logs
         if: failure()
         run: tail -n 60 "$RUNNER_TEMP/after.log" "$RUNNER_TEMP/before.log" || true
+
+  live:
+    if: github.event_name == 'schedule' || github.event.inputs.live == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PW_VERSION: 1.48.2
+      LIVE: https://lifeassisto.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: live check (read-only GETs; HEAD for install/APK links)
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null && npm i -s playwright@$PW_VERSION
+          npx -y playwright@$PW_VERSION install --with-deps chromium >/dev/null
+          cp "$GITHUB_WORKSPACE/tools/website/livecheck.mjs" "$GITHUB_WORKSPACE/tools/website/clipaudit.mjs" .
+          node livecheck.mjs "$LIVE" "$RUNNER_TEMP/live"
+      - name: Lighthouse on the live site (1 run per URL; performance = warn, network from the runner)
+        if: always()
+        run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc-live.json
+      - name: Lighthouse scores (live)
+        if: always()
+        run: |
+          if [ -f lhci-report-live/manifest.json ]; then
+            echo "### live" | tee -a "$GITHUB_STEP_SUMMARY"
+            python3 tools/website/lh_summary.py lhci-report-live/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
+            cp -r lhci-report-live "$RUNNER_TEMP/live/" || true
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-live
+          path: ${{ runner.temp }}/live

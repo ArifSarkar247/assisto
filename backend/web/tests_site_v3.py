@@ -178,6 +178,48 @@ class HonestyTests(Base):
         for w in (400, 600, 700):
             self.assertTrue((ASSETS / ("inter-%d.woff2" % w)).is_file())
 
+    def test_bn_site_shots_guarded_by_launch_bn_sweep(self):
+        """sitelive: the bn sweep (app/test/launch_bn_sweep_test.dart) reads
+        site_shot_sources.json; it must list exactly the site's shots, and a
+        shot on the sweep's failure list must block the refresh."""
+        import importlib.util
+        root = Path(__file__).resolve().parents[2]
+        src = json.loads((root / "backend" / "web" / "site_shot_sources.json").read_text())
+        self.assertEqual(src["names"], V3.shot_names(),
+                         "run: python tools/website/site_shots.py --sources")
+        sweep = (root / "app" / "test" / "launch_bn_sweep_test.dart").read_text()
+        self.assertIn("site_shot_sources.json", sweep)
+        self.assertIn("launch_bn_sweep_failures.json", sweep)
+        spec = importlib.util.spec_from_file_location("site_shots", root / "tools" / "website" / "site_shots.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        name = V3.shot_names()[0]
+        self.assertEqual(mod.blocked(V3.shot_names(), {name: ['digit: "12:30"'], "not_on_site": ["x"]}), [name])
+        self.assertEqual(mod.blocked(V3.shot_names(), {}), [])
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            self.assertIsNone(mod.sweep_failures(d))           # no list = no proof
+            self.assertEqual(mod.refresh(d), 1)
+            for shard, fails in (("shots-0", {}), ("shots-1", {name: ['digit: "5"']})):
+                Path(d, shard).mkdir()
+                Path(d, shard, mod.FAILS).write_text(json.dumps({"failures": fails}))
+            self.assertEqual(mod.refresh(d), 1)                  # a site shot failed in bn
+            self.assertEqual(list(mod.sweep_failures(d)), [name])
+
+    def test_bubbles_channels_brief_show_real_screenshots(self):
+        shots = {f["id"]: f["shot"] for f in V3.FEATURES["ai"] + V3.FEATURES["circle"]}
+        self.assertEqual(shots["brief"], "daily_brief")
+        self.assertEqual(shots["bubbles"], "bbl2_install_day_on")
+        self.assertEqual(shots["channels"], "chx_channel")
+        set_flag("my_circle", True)
+        set_flag("daily_brief", True)
+        for lang in ("bn", "en"):
+            html = self.c.get("/preview/features/circle?lang=%s" % lang).content.decode()
+            for n in ("bbl2_install_day_on", "chx_channel"):
+                self.assertIn("shots3/%s_%s_360.webp" % (n, lang), html)
+            html = self.c.get("/preview/features/ai?lang=%s" % lang).content.decode()
+            self.assertIn("shots3/daily_brief_%s_360.webp" % lang, html)
+
     def test_jsonld_is_valid(self):
         for path in ("/preview/", "/preview/features/business?lang=en"):
             html = self.c.get(path).content.decode()
