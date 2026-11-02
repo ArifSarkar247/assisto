@@ -1551,9 +1551,9 @@ urlpatterns += [
     path("mkt", mktv.OverviewView.as_view()),
     path("mkt/profile", mktv.ProfileView.as_view()),
     path("mkt/generate", mktv.GenerateView.as_view()),
-    path("mkt/items/<slug:item_id>", mktv.ItemView.as_view()),
-    path("mkt/items/<slug:item_id>/polish", mktv.PolishView.as_view()),
-    path("mkt/items/<slug:item_id>/activate", mktv.ActivateView.as_view()),
-    path("mkt/items/<slug:item_id>/publish", mktv.PublishView.as_view()),
+    path("mkt/items/<str:item_id>", mktv.ItemView.as_view()),
+    path("mkt/items/<str:item_id>/polish", mktv.PolishView.as_view()),
+    path("mkt/items/<str:item_id>/activate", mktv.ActivateView.as_view()),
+    path("mkt/items/<str:item_id>/publish", mktv.PublishView.as_view()),
 ]
 # ---- /mktengine ----

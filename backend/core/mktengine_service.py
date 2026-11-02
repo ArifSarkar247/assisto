@@ -102,14 +102,14 @@ def facts_for(business, now=None):
     sales = Sale.objects.filter(_biz_q(business), voided_at__isnull=True, created_at__gte=since)
     agg = sales.aggregate(n=Count("id"), total=Sum("total"))
     lines = (SaleLine.objects.filter(sale__in=sales)
-             .values("product_name").annotate(qty=Sum("qty"), rev=Sum(F("qty") * F("unit_price")))
-             .order_by("-qty", "-rev")[:5])
+             .values("product_name").annotate(n_qty=Sum("qty"), rev=Sum(F("qty") * F("unit_price")))
+             .order_by("-n_qty", "-rev")[:5])
     products = list(Product.objects.filter(_biz_q(business)).order_by("name")[:500])
     by_name = {p.name: p for p in products}
     top = []
     for r in lines:
         p = by_name.get(r["product_name"])
-        top.append({"name": r["product_name"], "qty": int(r["qty"] or 0),
+        top.append({"name": r["product_name"], "qty": int(r["n_qty"] or 0),
                     "revenue": int(r["rev"] or 0) / 100.0,
                     "price": float(p.price) if p is not None and p.price else 0,
                     "description": (p.description or "")[:160] if p is not None else ""})
