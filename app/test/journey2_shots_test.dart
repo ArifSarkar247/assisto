@@ -28,7 +28,15 @@ import 'package:assisto/services/oem_guide.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
+import 'package:assisto/feature_flags.dart';
+import 'package:assisto/train/dest_alarm_math.dart';
+import 'package:assisto/train/dest_alarm_service.dart';
+import 'package:assisto/train/dest_alarm_sound.dart';
+import 'package:assisto/train/journey_transit.dart';
+import 'package:assisto/widgets/journey_mode_section.dart';
+
 import 'app_fonts.dart';
+import 'fake_train.dart';
 
 final _out = Platform.environment['ASSISTO_SHOT_DIR'];
 
@@ -55,7 +63,7 @@ class _ShotApi extends ApiClient {
     if (path.startsWith('/journey/geocode')) {
       return {'available': false, 'results': const []};
     }
-    return {};
+    return fakeTrainGet(path, bn: false, empty: false) ?? {}; // journeymode
   }
 
   @override
@@ -123,8 +131,9 @@ class _Spec {
   final bool pushed; // opened over a dummy home (live screen pops on end)
   final Size size;
   final Future<void> Function(WidgetTester t)? act; // e.g. tap a saved place
+  final Future<void> Function()? prep; // journeymode: flags / remembered mode / alarm
   const _Spec(this.api, this.screen,
-      {this.pushed = false, this.size = const Size(360, 800), this.act});
+      {this.pushed = false, this.size = const Size(360, 800), this.act, this.prep});
 }
 
 JourneyTracker? _liveTracker;
@@ -238,12 +247,151 @@ final Map<String, _Spec> _specs = {
           },
         ],
       () => const JourneyWatchScreen()),
+  // ---- journeymode: train + destination alarm inside Safe Journey
+  'jm_start_bus': _Spec(
+      (l) => _ShotApi()
+        ..circle = {
+          'results': [
+            {'id': 7, 'name': _n(l, 'আম্মু', 'Mum'), 'phone': '01711000002', 'state': 'accepted'},
+          ]
+        }
+        ..places = [
+          {'id': 1, 'label': 'office', 'name': _n(l, 'অফিস', 'Office'), 'lat': 23.75, 'lng': 90.39},
+        ],
+      () => const JourneyStartScreen(),
+      size: const Size(360, 1700),
+      prep: () => _jmPrep('long_bus'),
+      act: (t) async {
+        final chip = find.byKey(const ValueKey('j2_place_1'));
+        if (chip.evaluate().isNotEmpty) await t.tap(chip);
+      }),
+  'jm_start_train': _Spec(
+      (l) => _ShotApi()
+        ..circle = {
+          'results': [
+            {'id': 7, 'name': _n(l, 'আম্মু', 'Mum'), 'phone': '01711000002', 'state': 'accepted'},
+          ]
+        },
+      () => const JourneyStartScreen(),
+      size: const Size(360, 1700),
+      prep: () => _jmPrep('train', train: true)),
+  'jm_live_train': _Spec((l) => _ShotApi()..active = _trainTrip(l), () {
+    _liveTracker = JourneyTracker(
+        useService: false,
+        position: () async => (lat: 23.30, lng: 91.05),
+        battery: () async => 71);
+    return JourneyLiveScreen(journeyId: 5, tracker: _liveTracker, oem: const _Oem());
+  }, pushed: true, size: const Size(360, 1500), prep: () => _jmPrep('train', armM: 40000)),
+  'jm_live_ringing': _Spec((l) => _ShotApi()..active = _trainTrip(l), () {
+    _liveTracker = JourneyTracker(
+        useService: false,
+        position: () async => (lat: 23.84, lng: 90.41),
+        battery: () async => 71);
+    return JourneyLiveScreen(journeyId: 5, tracker: _liveTracker, oem: const _Oem());
+  }, pushed: true, size: const Size(360, 1500), prep: () => _jmPrep('train', armM: 0)),
+  'jm_watch_train': _Spec(
+      (l) => _ShotApi()
+        ..watching = [
+          {
+            'id': 1, 'name': _n(l, 'রিনা', 'Rina'), 'status': 'active', 'sos': false,
+            'destination': _n(l, 'ঢাকা বিমানবন্দর', 'Dhaka Airport'), 'lat': 23.30, 'lng': 91.05,
+            'fix_age_s': 30, 'battery': 71, 'url': 'https://lifeassisto.com/j/1',
+            'eta': DateTime.now().add(const Duration(minutes: 140)).toIso8601String(),
+            'ride': {'mode': 'train'},
+            'train': _trainBlock(),
+          },
+        ],
+      () => const JourneyWatchScreen(),
+      size: const Size(360, 1000),
+      prep: () => _jmPrep(null)),
 };
+
+// ---- journeymode helpers (fake train 701 from fake_train.dart)
+Map<String, dynamic> _trainBlock() => {
+      'no': '701', 'name_bn': 'সুবর্ণ এক্সপ্রেস', 'date': '2026-11-03', 'basis': 'own',
+      'label': 'estimate', 'lat': 23.30, 'lng': 91.05,
+      'next_stop': {'id': 'n3', 'bn': 'ঢাকা বিমানবন্দর', 'en': 'Dhaka Airport Railway Station'},
+      'to': {'id': 'n3', 'bn': 'ঢাকা বিমানবন্দর', 'en': 'Dhaka Airport Railway Station'},
+      'to_eta': DateTime.now().add(const Duration(minutes: 125)).toUtc().toIso8601String(),
+      'delay_min': 18, 'passed': false,
+    };
+
+Map<String, dynamic> _trainTrip(String lang) => {
+      ..._activeTrip(lang),
+      'mode': 'train',
+      'destination': {
+        'name': _n(lang, 'ঢাকা বিমানবন্দর', 'Dhaka Airport Railway Station'),
+        'lat': 23.85207, 'lng': 90.40838,
+      },
+      'vehicle': {'mode': 'train', 'train': {'no': '701', 'date': '2026-11-03', 'to': 'n3'}},
+      'train': _trainBlock(),
+    };
+
+class _ShotSound implements DestAlarmSound {
+  @override
+  Future<bool> start({required bool sound, required bool vibrate}) async => true;
+  @override
+  Future<bool> playClip(String path) async => true;
+  @override
+  Future<bool> vibrateOnce() async => true;
+  @override
+  Future<bool> speak(String text, String lang) async => true;
+  @override
+  Future<void> stop() async {}
+}
+
+JourneyAlarmLink? _oldLink;
+
+Future<void> _jmPrep(String? travel, {bool train = false, double? armM}) async {
+  FeatureFlags.instance.debugOverride = {'train_tracker': true, 'dest_alarm': true};
+  JourneyModeController.debugStations = const [];
+  JourneyModeController.debugMetro = const [];
+  if (travel != null) await Settings.setString(kTravelModeKey, travel);
+  if (train) {
+    final live = trainLive701();
+    final stops = trainStops(live);
+    JourneyModeController.debugTrain = JourneyTrainPick(
+        no: '701', nameBn: 'সুবর্ণ এক্সপ্রেস', date: '2026-11-03', station: stops[1],
+        stationAt: DateTime.now().add(const Duration(minutes: 125)),
+        stops: stops, path: const []);
+  }
+  if (armM != null) {
+    // the alarm this trip armed: far (watching) or at the stop (ringing)
+    const bia = DestTarget('Dhaka Airport', 23.85207, 90.40838);
+    final c = DestAlarmController(
+        position: () async => DestFix(bia.lat + armM / 111320.0, bia.lng, accuracy: 10),
+        battery: () async => 71,
+        sound: _ShotSound(),
+        useService: false,
+        repeatEvery: const Duration(hours: 1));
+    _oldLink = JourneyAlarmLink.I;
+    JourneyAlarmLink.I = JourneyAlarmLink(controller: c);
+    await JourneyAlarmLink.I.arm(
+        5,
+        const DestPlan(mode: TransportMode.train, target: bia, setM: 2000),
+        DestAlarmTexts(
+            distance: (m) => '', notifTitle: '', notifText: '', stop: '', lang: 'en',
+            spoken: (a, b) => '', ready: (a, b) => ''));
+  }
+}
+
+Future<void> _jmCleanup() async {
+  FeatureFlags.instance.debugOverride = null;
+  JourneyModeController.debugTrain = null;
+  JourneyModeController.debugStations = null;
+  JourneyModeController.debugMetro = null;
+  if (_oldLink != null) {
+    await JourneyAlarmLink.I.c.stop();
+    JourneyAlarmLink.I = _oldLink!;
+    _oldLink = null;
+  }
+}
 
 Future<void> _shoot(WidgetTester tester, String name, _Spec spec, String lang,
     Brightness b, double scale) async {
   SharedPreferences.setMockInitialValues({});
   Settings.resetForTest();
+  if (spec.prep != null) await tester.runAsync(spec.prep!);
   final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   m.setMockMethodCallHandler(const MethodChannel('flutter.baseflow.com/geolocator'),
       (call) async => call.method == 'checkPermission' ? 2 : null);
@@ -312,6 +460,7 @@ Future<void> _shoot(WidgetTester tester, String name, _Spec spec, String lang,
   }
   await _liveTracker?.stop();
   _liveTracker = null;
+  await _jmCleanup();
   await tester.pumpWidget(const SizedBox()); // drop refresh timers
   expect(err, isNull);
 }

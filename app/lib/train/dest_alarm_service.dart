@@ -188,8 +188,10 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _texts = texts;
     _dw = null;
     _tw = null;
-    if (plan.mode == TransportMode.train && plan.prevStation != null) {
-      final p = plan.prevStation!;
+    final pv = plan.prevStation;
+    if (plan.mode == TransportMode.train && pv != null &&
+        trainLegUsable(pv.lat, pv.lng, plan.target.lat, plan.target.lng)) {
+      final p = pv;
       _tw = TrainLegWatch(haversineM(p.lat, p.lng, plan.target.lat, plan.target.lng),
           fallbackM: plan.setM);
     } else if (plan.mode != TransportMode.metro) {

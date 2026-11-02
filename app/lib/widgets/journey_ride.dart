@@ -48,6 +48,8 @@ double jDistanceM(double lat1, double lng1, double lat2, double lng2) {
 const double kRoadFactor = 1.35;
 const Map<String, double> kModeKmh = {
   'walk': 4.5, 'rickshaw': 7, 'bus': 10, 'cng': 12, 'car': 12, 'bike': 16, 'ride': 12,
+  // journeymode travel modes (rough, never live traffic)
+  'local_bus': 10, 'long_bus': 35, 'train': 40, 'metro': 30, 'launch': 15,
 };
 
 /// Rough minutes for a straight-line distance, rounded UP to 5 (never
@@ -60,7 +62,11 @@ int jRoughMinutes(double metres, String? mode) {
 }
 
 /// Ride modes the server accepts (core.logic.journey_dest.MODES).
-const kJourneyModes = ['cng', 'bike', 'car', 'rickshaw', 'bus', 'walk', 'ride'];
+const kJourneyModes = [
+  'cng', 'bike', 'car', 'rickshaw', 'bus', 'walk', 'ride',
+  // journeymode: the "How are you going?" chips
+  'local_bus', 'long_bus', 'train', 'metro', 'launch',
+];
 const kRideApps = ['pathao', 'uber', 'obhai', 'indrive', 'other'];
 
 String jModeLabel(AppLocalizations t, String? mode) => switch (mode) {
@@ -71,6 +77,11 @@ String jModeLabel(AppLocalizations t, String? mode) => switch (mode) {
       'bus' => t.journeyModeBus,
       'walk' => t.journeyModeWalk,
       'ride' => t.j2ModeRide,
+      'local_bus' => t.jmModeLocalBus,
+      'long_bus' => t.trModeLongBus,
+      'train' => t.trModeTrain,
+      'metro' => t.trModeMetro,
+      'launch' => t.trModeLaunch,
       _ => '',
     };
 

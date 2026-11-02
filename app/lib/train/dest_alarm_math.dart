@@ -288,3 +288,72 @@ List<DestStation> searchStations(List<DestStation> all, String q,
   }
   return (false, '${(m / 10).round() * 10}');
 }
+
+// ------------------------------------------------------------ train legs
+/// journeymode: the "station before yours" rule only makes sense for one
+/// leg. Many timetables list few stops (Chattogram -> Kamalapur has none in
+/// between): then the previous LISTED stop may be 300 km back and "the train
+/// left it" would ring at the start. Beyond this the GPS distance rule is
+/// used instead.
+const double kTrainLegMaxM = 40000;
+
+/// Is [prev] usable as "the station before yours" for [target]?
+bool trainLegUsable(double prevLat, double prevLng, double targetLat, double targetLng) {
+  final d = haversineM(prevLat, prevLng, targetLat, targetLng);
+  return d > 300 && d <= kTrainLegMaxM;
+}
+
+/// Metres along a polyline [path] ([[lat, lng], ...]) to the point nearest
+/// (lat, lng), and that point's distance from the line: (chainage, offset).
+(double, double) projectOnPath(List<List<double>> path, double lat, double lng) {
+  var best = double.infinity, ch = 0.0, cum = 0.0;
+  for (var i = 0; i + 1 < path.length; i++) {
+    final a = path[i], b = path[i + 1];
+    final seg = haversineM(a[0], a[1], b[0], b[1]);
+    // local flat projection (metres) around a
+    final kx = 111320.0 * math.cos(a[0] * math.pi / 180), ky = 110540.0;
+    final bx = (b[1] - a[1]) * kx, by = (b[0] - a[0]) * ky;
+    final px = (lng - a[1]) * kx, py = (lat - a[0]) * ky;
+    final len2 = bx * bx + by * by;
+    final t = len2 == 0 ? 0.0 : ((px * bx + py * by) / len2).clamp(0.0, 1.0);
+    final dx = px - t * bx, dy = py - t * by;
+    final off = math.sqrt(dx * dx + dy * dy);
+    if (off < best) {
+      best = off;
+      ch = cum + t * seg;
+    }
+    cum += seg;
+  }
+  return (ch, best);
+}
+
+/// journeymode: the real station just before [target] on the train's own
+/// line — from the full bundled station list (stations the train only
+/// passes count too: "leaves" = passes), within [kTrainLegMaxM]. Falls back
+/// to the previous LISTED stop when that one is a usable leg, else null
+/// (then the GPS distance rule rings).
+DestStation? prevStationOnPath(
+    List<List<double>> path, List<DestStation> stations, DestStation target,
+    {List<DestStation> listedStops = const [], double onLineM = 400}) {
+  if (path.length >= 2) {
+    final (tch, _) = projectOnPath(path, target.lat, target.lng);
+    DestStation? best;
+    var bestCh = -1.0;
+    for (final s in stations) {
+      if (s.id == target.id) continue;
+      final (ch, off) = projectOnPath(path, s.lat, s.lng);
+      if (off > onLineM || ch >= tch - 300 || ch < tch - kTrainLegMaxM) continue;
+      if (ch > bestCh) {
+        bestCh = ch;
+        best = s;
+      }
+    }
+    if (best != null) return best;
+  }
+  final i = listedStops.indexWhere((s) => s.id == target.id);
+  if (i > 0) {
+    final p = listedStops[i - 1];
+    if (trainLegUsable(p.lat, p.lng, target.lat, target.lng)) return p;
+  }
+  return null;
+}

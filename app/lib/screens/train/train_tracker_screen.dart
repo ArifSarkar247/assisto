@@ -38,14 +38,63 @@ String trainStation(Map? s, bool bn) {
   return bn && b.isNotEmpty ? b : (e.isNotEmpty ? e : b);
 }
 
-class TrainTrackerScreen extends StatefulWidget {
+/// The train's own line from a /train/<no>/live answer: [[lat, lng], ...].
+List<List<double>> trainPath(Map<String, dynamic>? v) => [
+      for (final p in (v?['path'] as List? ?? const []))
+        if (p is List && p.length >= 2 && p[0] is num && p[1] is num)
+          [(p[0] as num).toDouble(), (p[1] as num).toDouble()]
+    ];
+
+class TrainTrackerScreen extends StatelessWidget {
   const TrainTrackerScreen({super.key});
 
   @override
-  State<TrainTrackerScreen> createState() => _TrainTrackerScreenState();
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
+    return Scaffold(
+      appBar: AppBar(title: Text(t.trTitle)),
+      body: TrainSearchPanel(
+        leading: [
+          if (alarmOn)
+            Card(
+              child: ListTile(
+                minVerticalPadding: Gap.md,
+                leading: const Icon(Icons.alarm_on_rounded),
+                title: Text(t.trAlarmTitle),
+                subtitle: Text(t.trAlarmCardSub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => const DestAlarmScreen())),
+              ),
+            ),
+        ],
+        trailing: [
+          const SizedBox(height: Gap.md),
+          Text(t.trDataNote, style: AType.bodySmall),
+        ],
+        onPick: (tr, date) => Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: date))),
+      ),
+    );
+  }
 }
 
-class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
+/// Find a train (search + yesterday / today / tomorrow) — ONE picker for the
+/// Train tracker and for Safe Journey's "I'm going by train" (journeymode).
+class TrainSearchPanel extends StatefulWidget {
+  final List<Widget> leading, trailing;
+  final void Function(Map<String, dynamic> train, String date) onPick;
+  const TrainSearchPanel(
+      {super.key, required this.onPick, this.leading = const [], this.trailing = const []});
+
+  @override
+  State<TrainSearchPanel> createState() => _TrainSearchPanelState();
+}
+
+class _TrainSearchPanelState extends State<TrainSearchPanel> {
   ApiClient get _api => context.read<AppState>().api;
   final _q = TextEditingController();
   Timer? _deb;
@@ -93,10 +142,7 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final bn = Localizations.localeOf(context).languageCode == 'bn';
-    final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
-    return Scaffold(
-      appBar: AppBar(title: Text(t.trTitle)),
-      body: Column(children: [
+    return Column(children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -141,26 +187,13 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
                   padding: withNavBarInset(
                       context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xxl)),
                   children: [
-                    if (alarmOn)
-                      Card(
-                        child: ListTile(
-                          minVerticalPadding: Gap.md,
-                          leading: const Icon(Icons.alarm_on_rounded),
-                          title: Text(t.trAlarmTitle),
-                          subtitle: Text(t.trAlarmCardSub),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () => Navigator.push(context,
-                              MaterialPageRoute(builder: (_) => const DestAlarmScreen())),
-                        ),
-                      ),
+                    ...widget.leading,
                     ..._results(t, bn),
-                    const SizedBox(height: Gap.md),
-                    Text(t.trDataNote, style: AType.bodySmall),
+                    ...widget.trailing,
                   ],
                 ),
         ),
-      ]),
-    );
+      ]);
   }
 
   List<Widget> _results(AppLocalizations t, bool bn) {
@@ -186,10 +219,7 @@ class _TrainTrackerScreenState extends State<TrainTrackerScreen> {
     final route = '${trainStation(tr['from'] as Map?, bn)} → ${trainStation(tr['to'] as Map?, bn)}';
     return Card(
       child: InkWell(
-        onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: _date))),
+        onTap: () => widget.onPick(tr, _date),
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -475,7 +505,8 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
                     MaterialPageRoute(
                         builder: (_) => DestAlarmScreen(
                             suggestedIds: [for (final s in stops) '${s['id']}'],
-                            suggested: stops))),
+                            suggested: stops,
+                            path: trainPath(v)))),
               ),
             ),
           ],
