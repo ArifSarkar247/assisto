@@ -167,8 +167,10 @@ def apply_settings(guard, body, allowed_uids):
         g["shop_phone"] = ph
     # store the bounded form (plus the untouched server state)
     clean = settings_of(g)
-    if "_state" in g:
-        clean["_state"] = g["_state"]
+    # server state + cctvactivity's own block are never touched here
+    for k in ("_state", "_activity"):
+        if k in g:
+            clean[k] = g[k]
     return clean
 
 
