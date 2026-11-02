@@ -33269,5 +33269,33 @@
   "acuOpeningLoans": "Loans you owed",
   "acuOpeningLoansHelp": "Bank, NGO or personal loans the shop still had to repay on the first day.",
   "acuCfReconciles": "Start + change = end: the money adds up",
-  "acuCfNotReconciles": "The money does not add up — please tell support"
+  "acuCfNotReconciles": "The money does not add up — please tell support",
+  "callpipMute": "Mute",
+  "callpipUnmute": "Unmute",
+  "callpipCameraOff": "Turn camera off",
+  "callpipCameraOn": "Turn camera on",
+  "callpipEnd": "End call",
+  "callpipReturn": "Return to call",
+  "callpipCamPausedSelf": "You left Assisto, so your camera is paused. It turns back on when you come back.",
+  "callpipCamPausedPeer": "{name} left the app for a moment. Video is paused, the call goes on.",
+  "@callpipCamPausedPeer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "callpipSelfView": "Your camera",
+  "callpipPipLabel": "Video call with {name}. Tap to open the full call",
+  "@callpipPipLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "callpipPipOff": "Picture-in-picture is off for Assisto: the video can't float when you leave the app. The call goes on.",
+  "callpipPipTurnOn": "Turn on",
+  "callpipPipLater": "Not now",
+  "callpipPipOffTitle": "Picture-in-picture is off"
 }

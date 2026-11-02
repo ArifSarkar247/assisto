@@ -20225,5 +20225,19 @@
   "acuOpeningLoans": "আপনার ঋণ",
   "acuOpeningLoansHelp": "প্রথম দিনে দোকানের যে ব্যাংক, এনজিও বা ব্যক্তিগত ঋণ শোধ বাকি ছিল।",
   "acuCfReconciles": "শুরু + পরিবর্তন = শেষ: টাকার হিসাব মিলেছে",
-  "acuCfNotReconciles": "টাকার হিসাব মেলেনি — সাপোর্টকে জানান"
+  "acuCfNotReconciles": "টাকার হিসাব মেলেনি — সাপোর্টকে জানান",
+  "callpipMute": "মিউট",
+  "callpipUnmute": "মিউট বন্ধ",
+  "callpipCameraOff": "ক্যামেরা বন্ধ",
+  "callpipCameraOn": "ক্যামেরা চালু",
+  "callpipEnd": "কল কাটুন",
+  "callpipReturn": "কলে ফিরুন",
+  "callpipCamPausedSelf": "আপনি Assisto থেকে বের হয়েছেন, তাই আপনার ক্যামেরা থেমে আছে। ফিরলে নিজে থেকেই চালু হবে।",
+  "callpipCamPausedPeer": "{name} একটু অন্য অ্যাপে গেছেন। ভিডিও থেমে আছে, কথা চলছে।",
+  "callpipSelfView": "আপনার ক্যামেরা",
+  "callpipPipLabel": "{name}-এর সাথে ভিডিও কল। পুরো কল খুলতে ট্যাপ করুন",
+  "callpipPipOff": "Assisto-র ছোট জানালা (PiP) বন্ধ: অ্যাপ থেকে বের হলে ভিডিও ভাসবে না। কথা চলবে।",
+  "callpipPipTurnOn": "চালু করুন",
+  "callpipPipLater": "এখন না",
+  "callpipPipOffTitle": "ছোট জানালা (PiP) বন্ধ"
 }
