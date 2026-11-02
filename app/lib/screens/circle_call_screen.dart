@@ -15,6 +15,8 @@ import '../calls/call_data_prefs.dart'; // callsbar
 import '../calls/call_rating.dart'; // callsbar
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
+import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
+import '../calls/call_pip.dart' show showPipOffHint; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
@@ -75,6 +77,9 @@ class CircleCallScreen extends StatefulWidget {
   /// preview controller (a live screen decides with [shouldAskCallRating]).
   final bool previewAskRating;
 
+  /// callpip gallery/tests: show the "picture-in-picture is off" line.
+  final bool previewPipOff;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -87,6 +92,7 @@ class CircleCallScreen extends StatefulWidget {
     this.previewSwapped = false,
     this.previewFullscreen = false,
     this.previewAskRating = false,
+    this.previewPipOff = false,
   });
 
   /// circle2 test seam: the video gate's navigation ('voice' | 'video' |
@@ -121,7 +127,12 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Timer? _ticker;
   Timer? _autoClose;
   bool _pip = false;
-  bool _pipSupported = false;
+
+  /// callpip: picture-in-picture switched off for Assisto in Settings
+  /// (null = not asked yet / no PiP on this phone).
+  late bool? _pipAllowed = widget.previewPipOff ? false : null;
+  bool _pipAsked = false;
+  bool _pipHintDismissed = false;
   bool _closed = false;
   late bool _full = widget.previewFullscreen; // cde-chat: double-tap
   bool _beginning = false;
@@ -172,9 +183,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       CallRuntime.instance.acquireScreen(this, _screenLive);
       _noticeSeq = widget.controller!.noticeSeq; // no stale notice
       _attach(widget.controller!, widget.surface, initial: true);
-      unawaited(CallNative.pipSupported().then((v) {
-        if (mounted) setState(() => _pipSupported = v);
-      }));
       WidgetsBinding.instance.addPostFrameCallback((_) => _onChange());
     } else if (widget.controller != null) {
       _attach(widget.controller!, widget.surface, initial: true);
@@ -291,9 +299,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     );
     _attach(c, media is CallVideoSurface ? media as CallVideoSurface : null);
     if (_startsVideo) unawaited(CallNative.keepScreenOn(true));
-    unawaited(CallNative.pipSupported().then((v) {
-      if (mounted) setState(() => _pipSupported = v);
-    }));
     await c.start();
   }
 
@@ -342,6 +347,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _handedOff = true;
     _owns = false;
     c.removeListener(_onChange);
+    CallRuntime.instance.unbindScreenCall(c); // callpip: minimize() takes it
     CallRuntime.instance.releaseScreen(this);
     // calls-a: a locked phone goes back to its lock screen (the call keeps
     // running) — the app underneath never shows over the keyguard.
@@ -366,8 +372,18 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         _screenOnSent = screenOn;
         unawaited(CallNative.keepScreenOn(screenOn));
       }
-      unawaited(
-          CallNative.setAutoPip(_pipSupported && c.videoOn && c.isLive));
+      // callpip: the runtime keeps Android's PiP state (auto-enter on Home /
+      // Recents / another app, the window's shape + buttons), the background
+      // camera pause and Back on the last screen right for this call. Never
+      // gated on an async "PiP supported?" answer — that left auto-PiP OFF
+      // after returning from the mini bar (owner bug 2 Nov).
+      CallRuntime.instance.bindScreenCall(c, _surface);
+      if (!_pipAsked && c.videoOn && c.isLive) {
+        _pipAsked = true;
+        unawaited(CallNative.pipAllowed().then((v) {
+          if (mounted) setState(() => _pipAllowed = v);
+        }));
+      }
       if (c.callId != null && !c.isEnded) {
         CallRuntime.instance.activeCallId = c.callId;
         if (c.merged && !_claimed) {
@@ -384,8 +400,11 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             title: t.c2CallOngoingTitle(_name),
             text: t.c2CallOngoingText,
             hangupLabel: t.c2CallHangup,
+            returnLabel: t.callpipReturn, // callpip
+            since: c.connectedAt,
             onHangup: () async {
-              final cc = _c;
+              // callpip: the CURRENT live call (it may be minimized by now)
+              final cc = CallRuntime.instance.currentCall ?? _c;
               if (cc != null) await cc.hangup();
             }));
       }
@@ -447,7 +466,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       super.dispose();
       return;
     }
-    if (_owns) unawaited(CallNative.setAutoPip(false));
+    if (_owns && c != null) CallRuntime.instance.unbindScreenCall(c);
     if (c != null) {
       c.removeListener(_onChange);
       if (_owns) {
@@ -474,6 +493,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _autoClose?.cancel();
     _autoClose = null;
     setState(() => _c = null);
+    if (old != null) CallRuntime.instance.unbindScreenCall(old); // callpip
     if (_owns) old?.dispose();
     _owns = true;
     _outgoing = true; // "Call again" always places a NEW call
@@ -555,20 +575,18 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         !c.remoteVideoPausedNet &&
         surface != null &&
         surface.hasRemoteVideo.value;
-    if (_pip) {
+    if (_pip && c != null) {
+      // callpip: the same PiP layout as a minimized call — their video
+      // large, my camera small in the corner, avatar when paused
       return Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            Center(child: remoteVideo ? surface.remoteView() : _avatar(40)),
-            if (c != null && c.isLive && !c.remoteMicOn)
-              const Positioned(
-                left: Gap.sm,
-                bottom: Gap.sm,
-                child: Icon(Icons.mic_off_rounded, color: CallInk.text, size: 20),
-              ),
-          ],
+        backgroundColor: Brand.ink,
+        body: CallPipLayout(
+          key: const Key('call-screen-pip'),
+          controller: c,
+          surface: surface,
+          name: _name,
+          photoUrl: _photo,
+          photoVersion: _photoV,
         ),
       );
     }
@@ -661,7 +679,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
         body: VideoStage(
           key: const Key('call-video-stage'),
           remote: remoteVideo ? surface.remoteView() : gradient,
-          local: c.cameraOn
+          local: c.cameraOn && !c.cameraPausedBg
               ? surface.localView(mirror: c.frontCamera)
               : Center(
                   key: const Key('call-self-camera-off'),
@@ -685,6 +703,23 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
               : Stack(fit: StackFit.expand, children: [
                   if (dim != null) dim,
                   column,
+                  // callpip: over the video (never pushes the controls off
+                  // screen at 200 % text); scrolls if it is long
+                  if (live &&
+                      showPipOffHint(
+                          videoLive: _isVideo && (_owns || widget.previewPipOff),
+                          allowed: _pipAllowed,
+                          dismissed: _pipHintDismissed))
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: pad.top + 64,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxHeight: MediaQuery.sizeOf(context).height * 0.4),
+                        child: SingleChildScrollView(child: _pipOffBanner()),
+                      ),
+                    ),
                 ]),
         ),
       );
@@ -883,8 +918,14 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live && _isVideo && !c.remoteCameraOn)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: _badge(Icons.videocam_off_rounded,
-                  t.c2CallRemoteCameraOff, const Key('call-remote-camera-off')),
+              child: _badge(
+                  Icons.videocam_off_rounded,
+                  // callpip: they left their app for a moment (honest, not
+                  // "camera off")
+                  c.remoteAway
+                      ? t.callpipCamPausedPeer(_name)
+                      : t.c2CallRemoteCameraOff,
+                  const Key('call-remote-camera-off')),
             ),
           if (live && !c.remoteMicOn)
             Padding(
@@ -954,6 +995,68 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           child: Text(text,
               textAlign: TextAlign.center,
               style: AType.bodyMedium.copyWith(color: CallInk.text)),
+        ),
+      ),
+    );
+  }
+
+  /// callpip: honest line when picture-in-picture is OFF for Assisto (some
+  /// phones ship it off): the video can't float outside the app, the call
+  /// still goes on. "Turn on" opens the switch; checked again on return.
+  Widget _pipOffBanner() {
+    final t = _t;
+    return Padding(
+      key: const Key('call-pip-off'),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.xs),
+        decoration: BoxDecoration(
+          color: CallInk.notice,
+          borderRadius: BorderRadius.circular(Radii.lg),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // short title + the buttons FIRST (reachable at 200 % text),
+            // the explanation after them
+            Text(t.callpipPipOffTitle,
+                style: AType.titleSmall.copyWith(
+                    color: CallInk.text, fontWeight: FontWeight.w700)),
+            Wrap(
+              alignment: WrapAlignment.end,
+              children: [
+                TextButton(
+                  key: const Key('call-pip-off-later'),
+                  style: TextButton.styleFrom(
+                      foregroundColor: CallInk.text,
+                      minimumSize: const Size(48, 48)),
+                  onPressed: () => setState(() => _pipHintDismissed = true),
+                  child: Text(t.callpipPipLater),
+                ),
+                TextButton(
+                  key: const Key('call-pip-off-turn-on'),
+                  style: TextButton.styleFrom(
+                      foregroundColor: CallInk.text,
+                      minimumSize: const Size(48, 48)),
+                  onPressed: () async {
+                    await CallNative.openPipSettings();
+                    // the user comes back from Settings: ask again
+                    await Future<void>.delayed(const Duration(seconds: 2));
+                    final v = await CallNative.pipAllowed();
+                    if (mounted) setState(() => _pipAllowed = v);
+                  },
+                  child: Text(t.callpipPipTurnOn,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: Gap.sm, bottom: Gap.xs),
+              child: Text(t.callpipPipOff,
+                  style: AType.bodySmall.copyWith(color: CallInk.text)),
+            ),
+          ],
         ),
       ),
     );

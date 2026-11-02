@@ -117,6 +117,12 @@ object CallsChannel {
         this.activity = activity
         val ch = MethodChannel(messenger, CHANNEL)
         channel = ch
+        // callpip: a button inside the PiP window -> Dart (mute/camera/end)
+        CallPip.onAction = { id ->
+            main.post {
+                try { channel?.invokeMethod("pipAction", id) } catch (ignored: Throwable) {}
+            }
+        }
         ch.setMethodCallHandler { call, result ->
             try {
                 when (call.method) {
@@ -150,13 +156,24 @@ object CallsChannel {
                     "enterPip" -> result.success(
                         enterPip(call.argument<Int>("w") ?: 9, call.argument<Int>("h") ?: 16)
                     )
+                    // callpip: auto-enter + shape + PiP buttons (decided in Dart)
                     "setAutoPip" -> result.success(
-                        setAutoPip(
+                        CallPip.set(
+                            activity,
                             call.argument<Boolean>("on") == true,
                             call.argument<Int>("w") ?: 9,
-                            call.argument<Int>("h") ?: 16
+                            call.argument<Int>("h") ?: 16,
+                            call.argument<List<Map<String, Any?>>>("actions")
                         )
                     )
+                    "pipAllowed" -> result.success(CallPip.allowed(activity))
+                    "openPipSettings" -> result.success(CallPip.openSettings(activity))
+                    "leaveApp" -> result.success(
+                        CallPip.leaveApp(activity, call.argument<Boolean>("pip") == true))
+                    "decorateOngoing" -> result.success(
+                        CallPip.decorateOngoing(ctx(),
+                            (call.arguments as? Map<*, *>)?.entries
+                                ?.associate { "${it.key}" to it.value } ?: emptyMap()))
                     "watchNetwork" -> result.success(watchNetwork(call.argument<Boolean>("on") == true))
                     // ring-everywhere (native ring + Telecom + checklist)
                     "setNativeConfig" -> {
@@ -471,58 +488,6 @@ object CallsChannel {
         }
     }
 
-    // b1-calls: auto picture-in-picture while a VIDEO call is live. Dart turns
-    // it on only for a connected video call and off again when it ends.
-    @Volatile private var autoPip = false
-    private var pipW = 9
-    private var pipH = 16
-    private var leaveHintHooked = false
-
-    /** API 31+: PictureInPictureParams.setAutoEnterEnabled (the home gesture
-     *  shrinks the call into PiP). API 26-30: the activity's user-leave-hint
-     *  listener (androidx.activity, looked up by reflection so an old
-     *  androidx can never break the build or crash) enters PiP on Home.
-     *  Every path is guarded; false = not available on this phone. */
-    private fun setAutoPip(on: Boolean, w: Int, h: Int): Boolean {
-        autoPip = on
-        pipW = w.coerceIn(1, 100)
-        pipH = h.coerceIn(1, 100)
-        val a = activity ?: return false
-        if (!pipSupported()) return false
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                a.setPictureInPictureParams(
-                    PictureInPictureParams.Builder()
-                        .setAspectRatio(Rational(pipW, pipH))
-                        .setAutoEnterEnabled(on)
-                        // video content: no seamless resize (no stretched frame)
-                        .setSeamlessResizeEnabled(!on)
-                        .build()
-                )
-            } else {
-                hookLeaveHint(a)
-            }
-            true
-        } catch (e: Throwable) {
-            false
-        }
-    }
-
-    private fun hookLeaveHint(a: Activity) {
-        if (leaveHintHooked) return
-        // calls-a: MainActivity forwards onUserLeaveHint itself (no reflection)
-        if (a is com.assisto.assisto.MainActivity) return
-        try {
-            val m = a.javaClass.getMethod("addOnUserLeaveHintListener", Runnable::class.java)
-            m.invoke(a, Runnable {
-                try {
-                    if (autoPip) enterPip(pipW, pipH)
-                } catch (ignored: Throwable) {}
-            })
-            leaveHintHooked = true
-        } catch (ignored: Throwable) {}
-    }
-
     // ------------------------------------------------- network switch watch
     // calls-presence: Wi-Fi <-> mobile data during a call. The callback is
     // registered ONLY while a call screen listens (lazy) and every step is
@@ -599,7 +564,17 @@ object CallsChannel {
      *  uses setAutoEnterEnabled instead (smoother, no flash). */
     fun onUserLeaveHint() {
         try {
-            if (autoPip && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) enterPip(pipW, pipH)
+            CallPip.onUserLeaveHint(activity)
+        } catch (ignored: Throwable) {}
+    }
+
+    /** callpip: "Return to call" on the ongoing-call notification. */
+    fun onIntent(i: android.content.Intent?) {
+        try {
+            if (!CallPip.isReturn(i)) return
+            main.post {
+                try { channel?.invokeMethod("callReturn", true) } catch (ignored: Throwable) {}
+            }
         } catch (ignored: Throwable) {}
     }
 
@@ -611,7 +586,7 @@ object CallsChannel {
     }
 
     fun release() {
-        autoPip = false
+        try { CallPip.release() } catch (ignored: Throwable) {}
         try { watchNetwork(false) } catch (ignored: Throwable) {}
         stopTone()
         stopRingtone()

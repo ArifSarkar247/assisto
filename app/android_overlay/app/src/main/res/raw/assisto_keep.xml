@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Drawables referenced only BY NAME (Dart flutter_local_notifications /
-     getIdentifier): keep them when release resource shrinking runs.
+     getIdentifier, CallPip.kt PiP buttons): keep them when release resource
+     shrinking runs.
      notifs (2 Nov): c3_person_avatar was stripped from release builds since
      c3-msg (22 Oct) -> getIdentifier()==0 -> IconCompat threw -> EVERY My
      Circle message notification failed silently. CI (android.yml) now fails
      the build if any of these is missing from the APK. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_stat_assisto,@drawable/c3_person_avatar" />
+    tools:keep="@drawable/ic_stat_assisto,@drawable/c3_person_avatar,@drawable/ic_pip_mic,@drawable/ic_pip_mic_off,@drawable/ic_pip_videocam,@drawable/ic_pip_videocam_off,@drawable/ic_pip_call_end" />

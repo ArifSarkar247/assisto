@@ -9,7 +9,9 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'call_avatar.dart';
 import 'call_controller.dart';
 import 'call_native.dart';
+import 'call_pip.dart'; // callpip
 import 'call_runtime.dart';
+import 'call_video.dart';
 
 /// b1-calls + calls-a: WhatsApp-style "use Assisto during a call".
 /// Wraps the whole app (MaterialApp.builder), so it is on EVERY screen —
@@ -41,10 +43,14 @@ class CallMiniBarHost extends StatelessWidget {
               if (surface != null) surface.hasRemoteVideo,
             ]),
             builder: (context, _) {
-              final ended = o.controller.isEnded;
-              final pip = !ended && CallNative.inPip.value;
-              final float = !ended && !pip && o.controller.videoOn;
-              return _frame(context, ended ? null : o, float, pip);
+              // callpip: one tested decision (call_pip.dart miniCallView)
+              final v = miniCallView(
+                  hasCall: true,
+                  ended: o.controller.isEnded,
+                  inPip: CallNative.inPip.value,
+                  videoOn: o.controller.videoOn);
+              final none = !v.bar && !v.pip;
+              return _frame(context, none ? null : o, v.tile, v.pip);
             },
           );
         },
@@ -89,32 +95,108 @@ class CallPipView extends StatelessWidget {
   final OngoingCall call;
 
   @override
+  Widget build(BuildContext context) => CallPipLayout(
+        key: const Key('call-pip-view'),
+        controller: call.controller,
+        surface: call.surface,
+        name: call.name,
+        photoUrl: '${call.member['photo_url'] ?? call.member['photo'] ?? ''}',
+        photoVersion: '${call.member['photo_v'] ?? ''}',
+      );
+}
+
+/// callpip: what the Android PiP window shows (WhatsApp / Messenger
+/// layout): the other person's video LARGE, my camera as a small inset in
+/// the corner, their avatar when their camera is off / paused (never a
+/// frozen frame), a mic-off mark when they muted. The PiP window's own
+/// buttons (mute / camera / end) are native RemoteActions; tapping the window
+/// opens the full call (Android). Used by the call screen AND a minimized
+/// call, so both look the same.
+class CallPipLayout extends StatelessWidget {
+  const CallPipLayout({
+    super.key,
+    required this.controller,
+    required this.surface,
+    required this.name,
+    this.photoUrl = '',
+    this.photoVersion = '',
+  });
+  final CallController controller;
+  final CallVideoSurface? surface;
+  final String name;
+  final String photoUrl;
+  final String photoVersion;
+
+  @override
   Widget build(BuildContext context) {
-    final c = call.controller;
-    final s = call.surface;
-    final remote =
-        s != null && c.isLive && c.remoteCameraOn && s.hasRemoteVideo.value;
-    return ColoredBox(
-      key: const Key('call-pip-view'),
-      color: Brand.ink,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Center(
-            child: remote
-                ? s.remoteView()
-                : CallAvatar(
-                    name: call.name,
-                    photoUrl: '${call.member['photo_url'] ?? ''}',
-                    radius: 32),
-          ),
-          if (c.isLive && !c.remoteMicOn)
-            const Positioned(
-              left: Gap.sm,
-              bottom: Gap.sm,
-              child: Icon(Icons.mic_off_rounded, color: CallInk.text, size: 20),
-            ),
-        ],
+    final c = controller;
+    final s = surface;
+    final t = AppLocalizations.of(context);
+    final remote = s != null &&
+        c.isLive &&
+        c.remoteCameraOn &&
+        !c.remoteVideoPausedNet &&
+        s.hasRemoteVideo.value;
+    final self = s != null &&
+        c.isLive &&
+        showSelfInset(
+            videoOn: c.videoOn,
+            cameraOn: c.cameraOn,
+            pausedBg: c.cameraPausedBg,
+            cameraUnavailable: c.media.cameraUnavailable);
+    return Semantics(
+      label: t.callpipPipLabel(name),
+      container: true,
+      child: ColoredBox(
+        color: Brand.ink,
+        child: LayoutBuilder(builder: (context, box) {
+          // the inset scales with the (tiny, resizable) PiP window
+          final iw = (box.maxWidth * 0.3).clamp(28.0, 120.0);
+          final ih = iw * 4 / 3;
+          final avatarR = (box.biggest.shortestSide * 0.22).clamp(16.0, 40.0);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Center(
+                child: remote
+                    ? s.remoteView()
+                    : CallAvatar(
+                        name: name,
+                        photoUrl: photoUrl,
+                        version: photoVersion,
+                        radius: avatarR),
+              ),
+              if (self)
+                Positioned(
+                  key: const Key('call-pip-self'),
+                  right: Gap.xs,
+                  bottom: Gap.xs,
+                  width: iw,
+                  height: ih,
+                  child: Semantics(
+                    label: t.callpipSelfView,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(Radii.sm),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: CallInk.glassHigh),
+                          borderRadius: BorderRadius.circular(Radii.sm),
+                        ),
+                        child: s.localView(mirror: c.frontCamera),
+                      ),
+                    ),
+                  ),
+                ),
+              if (c.isLive && !c.remoteMicOn)
+                const Positioned(
+                  left: Gap.sm,
+                  bottom: Gap.sm,
+                  child: Icon(Icons.mic_off_rounded,
+                      color: CallInk.text, size: 20),
+                ),
+            ],
+          );
+        }),
       ),
     );
   }
