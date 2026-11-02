@@ -28490,5 +28490,14 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "vehEngineHotTitle": "Engine is hot",
+  "vehEngineHotBody": "Coolant {temp}. Stop somewhere safe, switch the engine off and check the coolant before you drive on.",
+  "@vehEngineHotBody": {
+    "placeholders": {
+      "temp": {
+        "type": "String"
+      }
+    }
+  }
 }
