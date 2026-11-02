@@ -31,3 +31,9 @@ Life360 ও TallyKhata-র ওয়েবসাইট: পরিষ্কার
 3. WhatsApp-এ লিংক পাঠান → অন্য ফোনে Assisto লোগোসহ কার্ড দেখা যায়?
 4. ফোন ডার্ক মোডে → পাতা অন্ধকার, লেখা পড়া যায়?
 5. lifeassisto.com/delete-account আর /app-ads.txt খোলে?
+
+## ৭. প্রমাণ (২ Nov)
+* CI `website.yml` run **41439525492** সবুজ: Lighthouse মোবাইল (perf/a11y/best/SEO) — হোম বাংলা ৯৬/১০০/১০০/১০০, হোম ইংরেজি ৯৮/১০০/১০০/১০০, /pricing /security /help ১০০ সব, /get ১০০/৯৫/১০০/১০০, /delete-account ৯৯/১০০/১০০/১০০।
+* আগে/পরে স্ক্রিনশট (৩৯০ ও ১২৮০ px, লাইট ও ডার্ক): আর্টিফ্যাক্ট `website-before`, `website-after`।
+* অ্যাপের "আমি দেখছি / I'm watching" ধরনের ১১টি লেখা নতুন key-তে বদলানো (`.phaseB/up_website_arb.json`)।
+* বাকি: লাইভে ডিপ্লয় (ইন্টিগ্রেটর), তারপর মালিকের ৬ নম্বর অংশের পরীক্ষা।
