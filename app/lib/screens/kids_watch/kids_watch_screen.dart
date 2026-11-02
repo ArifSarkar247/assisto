@@ -732,7 +732,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
     try {
       final r = await _api.kwVoiceList(_id);
       if (mounted) setState(() => _notes = kwRows(r, 'notes'));
-    } catch (_) {}
+    } catch (_) {} // best-effort: a refresh; the list keeps its last rows (send errors are shown)
     if (mounted) setState(() => _loading = false);
   }
 

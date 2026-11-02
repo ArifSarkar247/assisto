@@ -232,10 +232,12 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
         if (asked)
           FilledButton.icon(
             style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(64), backgroundColor: Brand.danger),
+                minimumSize: const Size.fromHeight(64),
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError),
             onPressed: _busy ? null : () => _checkin(p, 'ok'),
             icon: const Icon(Icons.favorite_rounded),
-            label: Text(t.kwImOk, style: AType.titleMedium),
+            label: Text(t.kwImOk, style: AType.titleMedium.copyWith(color: scheme.onError)),
           ),
         if (asked) const SizedBox(height: Gap.sm),
         FilledButton.icon(

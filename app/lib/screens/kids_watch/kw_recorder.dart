@@ -125,7 +125,7 @@ class _KwRecorderSheetState extends State<KwRecorderSheet> {
       final f = File(p ?? _path);
       if (await f.exists()) {
         bytes = await f.readAsBytes();
-        unawaited(f.delete().then((_) {}, onError: (_) {}));
+        unawaited(f.delete().then((_) {}, onError: (_) {})); // best-effort: temp file cleanup
       }
     } catch (_) {
       bytes = null;
@@ -145,7 +145,7 @@ class _KwRecorderSheetState extends State<KwRecorderSheet> {
     _tick?.cancel();
     try {
       await _rec?.cancel();
-    } catch (_) {}
+    } catch (_) {} // best-effort: the user discarded; nothing to save
     if (mounted) Navigator.of(context).pop();
   }
 

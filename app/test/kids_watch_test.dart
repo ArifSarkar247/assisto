@@ -84,6 +84,13 @@ Widget _app(Widget child, ApiClient api,
   );
 }
 
+/// A tall phone, so every card of the lazy lists is built.
+void _tall(WidgetTester t) {
+  t.view.physicalSize = const Size(1080, 5400);
+  t.view.devicePixelRatio = 2.5;
+  addTearDown(t.view.reset);
+}
+
 bool _listenFree(_Fake f) => f.posts.every((p) =>
     !p.$1.toLowerCase().contains('monitor') &&
     !p.$2.values.any((v) => '$v'.toLowerCase().contains('monitor')));
@@ -96,6 +103,7 @@ void main() {
 
   testWidgets('parent hub: honest card, safety-only watch, locate = the only command kind',
       (t) async {
+    _tall(t);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final api = _Fake();
     await t.pumpWidget(_app(const KidsWatchScreen(), api));
@@ -119,6 +127,7 @@ void main() {
 
   testWidgets('empty: benefit + add watch validates the code, then SMS steps (no listen)',
       (t) async {
+    _tall(t);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final api = _Fake(empty: true);
     await t.pumpWidget(_app(const KidsWatchScreen(), api));
@@ -148,6 +157,7 @@ void main() {
 
   testWidgets('child: who sees it, big button sends the moment location, I am OK, stop',
       (t) async {
+    _tall(t);
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final api = _Fake();
     await t.pumpWidget(_app(
