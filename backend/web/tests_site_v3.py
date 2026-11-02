@@ -199,6 +199,15 @@ class CacheTests(Base):
         self.assertEqual(r["Cache-Control"], "no-cache")
         self.assertIn("ETag", r)
 
+    def test_html_is_gzipped_when_accepted(self):
+        import gzip
+        plain = self.c.get("/preview/?lang=en")
+        z = self.c.get("/preview/?lang=en", HTTP_ACCEPT_ENCODING="gzip, br")
+        self.assertEqual(z["Content-Encoding"], "gzip")
+        self.assertIn("Accept-Encoding", z["Vary"])
+        self.assertEqual(gzip.decompress(z.content), plain.content)
+        self.assertEqual(z["ETag"], plain["ETag"])
+
     def test_assets_are_hashed_and_immutable(self):
         html = self.c.get("/preview/?lang=en").content.decode()
         html = re.sub(r'<script type="application/ld\+json">.*?</script>', "", html, flags=re.S)

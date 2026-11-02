@@ -10,7 +10,7 @@
       <p class="note">{{ C.hero_note }} · <a class="more-l" href="#features">{{ C.cta_features }} →</a></p>
     </div>
     <div class="hero-shot"><div class="hero-ph" data-rot>
-      <div class="track">{% for sl in slides %}<a class="slide{% if forloop.first %} on{% endif %}" href="{{ sl.w720 }}" data-zoom aria-label="{{ sl.alt }}"><img src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" sizes="(max-width: 760px) 80vw, 276px" width="360" height="800" alt="{{ sl.alt }}"{% if forloop.first %} fetchpriority="high"{% else %} loading="lazy" decoding="async"{% endif %}></a>{% endfor %}</div>
+      <div class="track">{% for sl in slides %}<a class="slide{% if forloop.first %} on{% endif %}" href="{{ sl.w720 }}" data-zoom aria-label="{{ sl.alt }}"><img {% if forloop.first %}src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w"{% else %}data-src="{{ sl.w360 }}" data-srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" decoding="async"{% endif %} sizes="(max-width: 760px) 80vw, 276px" width="360" height="800" alt="{{ sl.alt }}"{% if forloop.first %} fetchpriority="high"{% endif %}></a>{% endfor %}</div>
       <div class="dots">{% for sl in slides %}<button type="button" class="dot{% if forloop.first %} on{% endif %}" aria-label="{{ sl.alt }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}<button class="rot-btn" type="button" aria-label="{{ C.pause }}" aria-pressed="false"><svg class="i sm" aria-hidden="true"><use href="#i-pause"/></svg></button></div>
     </div></div>
   </div>
