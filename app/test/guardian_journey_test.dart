@@ -54,6 +54,8 @@ Map<String, dynamic> _req(String status, {bool inWindow = false, bool standing =
       'window_end': DateTime.now().add(const Duration(hours: 6)).toIso8601String(),
       'standing': standing, 'schedule': const {}, 'in_window': inWindow,
       'journey_id': status == 'active' ? 9 : null, 'log': const [],
+      'late_tail_min': 45,
+      'late_note': 'If you are late, it stays on for up to 45 minutes after the end time.',
     };
 
 final _nav = GlobalKey<NavigatorState>();
@@ -113,6 +115,10 @@ void main() {
     await _open(tester, api, const GuardianJourneyScreen());
     expect(find.text(en.gjAsk('Baba')), findsOneWidget);
     expect(find.text(en.gjConsentNote), findsOneWidget);
+    // jdec: the late tail is said BEFORE accepting, in the server's words
+    expect(find.byKey(const ValueKey('gj_late_note_1')), findsOneWidget);
+    expect(find.text('If you are late, it stays on for up to 45 minutes after the end time.'),
+        findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('gj_accept_1')));
     await _settle(tester);
     expect(api.posts.containsKey('/journey/requests/1/accept'), isTrue);

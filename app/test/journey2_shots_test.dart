@@ -98,6 +98,11 @@ Map<String, dynamic> _gj(String l, int id, String status, String name) => {
       'window_end': DateTime(2026, 10, 29, 21).toIso8601String(),
       'standing': false, 'schedule': const {}, 'in_window': false,
       'journey_id': null, 'log': const [],
+      // jdec: the server's own consent line about the late tail (HARD_TAIL_MIN)
+      'late_tail_min': 45,
+      'late_note': _n(l,
+          "দেরি হলে, সময় শেষের পর সর্বোচ্চ ৪৫ মিনিট পর্যন্ত চালু থাকবে, যাতে 'ঠিক আছো?' জিজ্ঞাসা করা যায়। পৌঁছালে বা 'বন্ধ' চাপলে সঙ্গে সঙ্গে বন্ধ হবে।",
+          "If you're late, it stays on for up to 45 minutes after the end time, so the 'Are you OK?' check can run. It stops at once when you arrive or tap Stop."),
     };
 
 class _Oem implements OemGuideNative {
@@ -163,6 +168,21 @@ final Map<String, _Spec> _specs = {
       act: (t) async {
         final chip = find.byKey(const ValueKey('j2_place_1'));
         if (chip.evaluate().isNotEmpty) await t.tap(chip);
+      }),
+  // jdec: long-press a saved place -> its "Safe place for anti-theft" switch
+  'j2_place_edit': _Spec(
+      (l) => _ShotApi()
+        ..places = [
+          {'id': 1, 'label': 'home', 'name': _n(l, 'বাসা', 'Home'), 'lat': 23.78, 'lng': 90.40,
+            'theft_safe': true},
+          {'id': 2, 'label': 'school', 'name': _n(l, 'স্কুল', 'School'), 'lat': 23.75, 'lng': 90.39,
+            'theft_safe': false},
+        ],
+      () => const JourneyStartScreen(),
+      size: const Size(360, 1000),
+      act: (t) async {
+        final chip = find.byKey(const ValueKey('j2_place_2'));
+        if (chip.evaluate().isNotEmpty) await t.longPress(chip);
       }),
   'gj_list': _Spec((l) => _ShotApi()
     ..requests = {

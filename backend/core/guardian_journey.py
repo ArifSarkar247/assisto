@@ -236,6 +236,17 @@ def request_texts(req, lang, name):
                 _dest(req, lang), _hhmm(s, lang), _hhmm(e, lang))))
 
 
+def late_note(lang):
+    """The consent line about the late tail (bn uses Bangla digits)."""
+    return pick(lang,
+                "দেরি হলে, সময় শেষের পর সর্বোচ্চ %s মিনিট পর্যন্ত চালু থাকবে, যাতে "
+                "'ঠিক আছো?' জিজ্ঞাসা করা যায়। পৌঁছালে বা 'বন্ধ' চাপলে সঙ্গে সঙ্গে বন্ধ হবে।"
+                % JW.bn_num(HARD_TAIL_MIN),
+                "If you're late, it stays on for up to %s minutes after the end time, "
+                "so the 'Are you OK?' check can run. It stops at once when you arrive "
+                "or tap Stop." % HARD_TAIL_MIN)
+
+
 def as_dict(req, viewer, lang="bn"):
     mine = viewer.pk == req.requester_id
     other = req.traveller if mine else req.requester
@@ -257,6 +268,12 @@ def as_dict(req, viewer, lang="bn"):
         "arrived_at": req.arrived_at.isoformat() if req.arrived_at else None,
         "ended_at": req.ended_at.isoformat() if req.ended_at else None,
         "log": list(req.log or [])[-20:],
+        # owner decision 2 Nov: the consent screen says, BEFORE accepting, that
+        # a late trip stays on up to HARD_TAIL_MIN after the end time and
+        # stops at once on arrival / Stop. The number is this module's own
+        # constant (the one the sweep uses) — the app never hard-codes it.
+        "late_tail_min": HARD_TAIL_MIN,
+        "late_note": late_note(lang),
     }
     if mine and live:
         fx = JW.fix_of(j)
@@ -322,6 +339,13 @@ def finish(req, outcome, now=None, by=""):
     j = req.journey
     if j is not None and j.status == "active":
         _close_journey(j, now)
+    elif j is not None and not j.sos_active and (j.last_location or j.points.exists()):
+        # already arrived / stopped by the Safe Journey screen: the path goes
+        # NOW (retention 0 h), not on the next privacy sweep
+        if j.expires_at is None or j.expires_at > now:
+            j.expires_at = now
+            j.save(update_fields=["expires_at"])
+        JW.expire(j)
     req.ended_at, req.outcome = now, outcome
     if outcome == "arrived" and req.arrived_at is None:
         req.arrived_at = now
@@ -342,6 +366,78 @@ def stop_by_traveller(req, now=None):
     notify(req.traveller, req, "stopped_self",
            "যাত্রা শেয়ার বন্ধ হয়েছে", "Trip sharing is off",
            "আর কেউ আপনার লোকেশন দেখছেন না।", "Nobody is seeing your location now.")
+
+
+# ------------------------------------------- stop at once (decision 2 Nov)
+def active_request(j):
+    """The live guardian request riding on journey j (or None)."""
+    if j is None or not getattr(j, "pk", None):
+        return None
+    return (j.guardian_requests.filter(status="active")
+            .select_related("requester", "traveller", "journey").first())
+
+
+def hard_end(req, j=None):
+    """The moment nothing may run past: the window end of the trip that
+    started + HARD_TAIL_MIN. Fixed at the start — "I'm OK" / extend move the
+    journey's eta for the late check but never this."""
+    occ = occurrence(req, req.started_at) if req.started_at else None
+    end = occ[1] if occ else ((j.eta if j is not None else None) or req.window_end)
+    return end + timedelta(minutes=HARD_TAIL_MIN)
+
+
+def on_journey_arrived(j, now=None):
+    """Arrival on a guardian journey (geofence or "I've arrived") ends the
+    request AT ONCE: server state, path deleted, no more location accepted.
+    The requester already got the "arrived" notice from journey_watch.emit.
+    Call AFTER the journey row is saved. True when a request was ended."""
+    now = now or _now()
+    req = active_request(j)
+    if req is None:
+        return False
+    req.journey = j
+    req.arrived_at = j.stopped_at or now
+    finish(req, "arrived", now, by="traveller")
+    return True
+
+
+def on_journey_stopped(j, now=None):
+    """The traveller stopped the trip from the Safe Journey screen: same as
+    the one-tap Stop on the request — ends at once, requester told."""
+    now = now or _now()
+    req = active_request(j)
+    if req is None:
+        return False
+    req.journey = j
+    stop_by_traveller(req, now)
+    return True
+
+
+def auto_end(req, now):
+    """The hard end: stop, delete the path, tell both sides."""
+    finish(req, "window_end", now)
+    rn = _name(req.traveller, req.requester)
+    notify(req.traveller, req, "auto_end", "যাত্রা শেয়ার নিজে থেকে বন্ধ হয়েছে",
+           "Trip sharing ended by itself",
+           "সময় শেষ, তাই %s আর আপনার লোকেশন দেখছেন না। পথের লোকেশন মুছে ফেলা হয়েছে।" % rn,
+           "The window is over, so %s no longer sees your location. The trip's path was deleted." % rn)
+    tn = _name(req.requester, req.traveller)
+    notify(req.requester, req, "auto_end", "সময় শেষ — শেয়ার বন্ধ", "Window over — sharing stopped",
+           "%s-এর যাত্রা শেয়ার সময় শেষে বন্ধ হয়েছে।" % tn,
+           "%s's trip sharing stopped at the end of the window." % tn)
+
+
+def enforce_hard_end(j, now=None):
+    """Called by the location view before it accepts a fix: past end+45 a
+    guardian journey ends there and then (the sweep runs once a minute; a
+    fix must never slip in between). True when it was ended."""
+    now = now or _now()
+    req = active_request(j)
+    if req is None or now < hard_end(req, j):
+        return False
+    req.journey = j
+    auto_end(req, now)
+    return True
 
 
 # --------------------------------------------------------------- sweep
@@ -422,17 +518,7 @@ def sweep(now=None, stats=None):
                    "You did not answer, so %s got your last location. Open the app if you're OK." % rn,
                    high=True)
             bump("req_escalation_notice")
-        end = j.eta or req.window_end
-        if now >= end + timedelta(minutes=HARD_TAIL_MIN):
-            finish(req, "window_end", now)
-            rn = _name(req.traveller, req.requester)
-            notify(req.traveller, req, "auto_end", "যাত্রা শেয়ার নিজে থেকে বন্ধ হয়েছে",
-                   "Trip sharing ended by itself",
-                   "সময় শেষ, তাই %s আর আপনার লোকেশন দেখছেন না। পথের লোকেশন মুছে ফেলা হয়েছে।" % rn,
-                   "The window is over, so %s no longer sees your location. The trip's path was deleted." % rn)
-            tn = _name(req.requester, req.traveller)
-            notify(req.requester, req, "auto_end", "সময় শেষ — শেয়ার বন্ধ", "Window over — sharing stopped",
-                   "%s-এর যাত্রা শেয়ার সময় শেষে বন্ধ হয়েছে।" % tn,
-                   "%s's trip sharing stopped at the end of the window." % tn)
+        if now >= hard_end(req, j):
+            auto_end(req, now)
             bump("req_auto_end")
     return stats

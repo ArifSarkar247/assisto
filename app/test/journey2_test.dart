@@ -82,6 +82,18 @@ class _Api extends ApiClient {
     return {'ok': true};
   }
 
+  bool patchFails = false;
+
+  @override
+  Future<Map<String, dynamic>> patchJson(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    hits.add(_Hit('PATCH', path, body));
+    if (patchFails) throw ApiException('offline', 0);
+    final id = int.tryParse(path.split('/').last);
+    final row = places.firstWhere((p) => p['id'] == id, orElse: () => {'id': id});
+    return {...row, ...body, 'ok': true};
+  }
+
   List<_Hit> posts(String suffix) =>
       hits.where((h) => h.method == 'POST' && h.path.endsWith(suffix)).toList();
 }
@@ -344,5 +356,92 @@ void main() {
     expect(find.text(bn.j2ToGo(jKm(ctx, 2400))), findsOneWidget);
     expect(find.text('${bn.j2ModeBike} · ${bn.j2AppPathao} · DHA-${jDigits(ctx, 9)}'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
+  });
+
+  // jdec (owner decision 2 Nov): saved places vs anti-theft safe places
+  group('placesafe', () {
+    testWidgets('save sheet: Home on by default, School/Office off; the switch goes to the server',
+        (tester) async {
+      final api = _Api()
+        ..places = [
+          {'id': 1, 'label': 'home', 'kind': 'home', 'name': 'Home', 'lat': 23.8, 'lng': 90.4,
+            'theft_safe': true},
+        ];
+      await _open(tester, api, const JourneyStartScreen());
+      await tester.tap(find.byKey(const ValueKey('j2_place_1')));
+      await _settle(tester, 3);
+      await tester.ensureVisible(find.byKey(const ValueKey('j2_save_place')));
+      await tester.tap(find.byKey(const ValueKey('j2_save_place')));
+      await _settle(tester, 8);
+      Switch sw() => tester.widget<Switch>(find.descendant(
+          of: find.byKey(const ValueKey('j2_place_theft_safe')), matching: find.byType(Switch)));
+      // the first free kind is School -> off
+      expect(sw().value, isFalse);
+      expect(find.text(en.j2PlaceTheftSafe), findsOneWidget);
+      expect(find.text(en.j2PlaceTheftSafeNote), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('j2_kind_home')));
+      await _settle(tester, 3);
+      expect(sw().value, isTrue);
+      await tester.tap(find.byKey(const ValueKey('j2_kind_office')));
+      await _settle(tester, 3);
+      expect(sw().value, isFalse);
+      // 48 dp touch target + TalkBack name
+      expect(tester.getSize(find.byKey(const ValueKey('j2_place_theft_safe'))).height,
+          greaterThanOrEqualTo(48));
+      final h = tester.ensureSemantics();
+      await tester.pump();
+      expect(find.bySemanticsLabel(RegExp(RegExp.escape(en.j2PlaceTheftSafe))), findsWidgets);
+      h.dispose();
+      await tester.tap(find.byKey(const ValueKey('j2_place_theft_safe')));
+      await _settle(tester, 3);
+      expect(sw().value, isTrue);
+      await tester.tap(find.byKey(const ValueKey('j2_place_save')));
+      await _settle(tester, 8);
+      final b = api.posts('/journey/places').single.body;
+      expect((b['kind'], b['theft_safe']), ('office', true));
+    });
+
+    testWidgets('long-press a place: switch saves at once, puts back on failure, Remove still asks',
+        (tester) async {
+      final api = _Api()
+        ..places = [
+          {'id': 2, 'label': 'school', 'kind': 'school', 'name': 'School', 'lat': 23.7,
+            'lng': 90.4, 'theft_safe': false},
+        ];
+      await _open(tester, api, const JourneyStartScreen());
+      await tester.longPress(find.byKey(const ValueKey('j2_place_2')));
+      await _settle(tester, 8);
+      Switch sw() => tester.widget<Switch>(find.descendant(
+          of: find.byKey(const ValueKey('j2_place_theft_safe')), matching: find.byType(Switch)));
+      expect(sw().value, isFalse);
+      await tester.tap(find.byKey(const ValueKey('j2_place_theft_safe')));
+      await _settle(tester, 6);
+      expect(sw().value, isTrue);
+      final p = api.hits.where((h) => h.method == 'PATCH').single;
+      expect((p.path, p.body['theft_safe']), ('/journey/places/2', true));
+      api.patchFails = true;
+      await tester.tap(find.byKey(const ValueKey('j2_place_theft_safe')));
+      await _settle(tester, 6);
+      expect(sw().value, isTrue); // the server said no: put back
+      expect(find.text(en.j2PlaceTheftSafeFailed), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('j2_place_remove')));
+      await _settle(tester, 8);
+      expect(find.byKey(const ValueKey('j2_place_remove_ok')), findsOneWidget);
+    });
+
+    testWidgets('200% font: the switch row wraps, nothing overflows', (tester) async {
+      final api = _Api()
+        ..places = [
+          {'id': 3, 'label': 'office', 'kind': 'office', 'name': 'Office', 'lat': 23.7,
+            'lng': 90.4, 'theft_safe': false},
+        ];
+      tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await _open(tester, api, const JourneyStartScreen(), lang: 'bn');
+      await tester.longPress(find.byKey(const ValueKey('j2_place_3')));
+      await _settle(tester, 8);
+      expect(find.text(bn.j2PlaceTheftSafe), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

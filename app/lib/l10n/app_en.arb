@@ -28486,5 +28486,9 @@
   "cvvShareWhoTitle": "Who can see this vehicle?",
   "cvvShareTapName": "Tap a name to share. Turn the switch on first to also let them stop/restore the engine.",
   "cvvH02Picked": "10-digit ID — that is a Sinotrack, so we picked Sinotrack for you.",
-  "sidebarPersonalSecretary": "Personal Secretary (PS)"
+  "sidebarPersonalSecretary": "Personal Secretary (PS)",
+  "j2PlaceTheftSafe": "Safe place for anti-theft",
+  "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
+  "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
+  "j2PlaceLongPressEdit": "Long-press for options"
 }

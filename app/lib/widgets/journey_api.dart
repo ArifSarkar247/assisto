@@ -215,6 +215,12 @@ extension JourneyApi on ApiClient {
   /// journey2: DELETE /journey/places/<id>
   Future<void> deleteSavedPlace(int id) => deleteJson('/journey/places/$id');
 
+  /// placesafe (owner decision 2 Nov): the "Safe place for anti-theft"
+  /// switch of one saved place. PATCH /journey/places/<id> {theft_safe}
+  /// -> the saved row. Journey destinations are not affected.
+  Future<Map<String, dynamic>> setSavedPlaceTheftSafe(int id, bool on) =>
+      patchJson('/journey/places/$id', {'theft_safe': on});
+
   // ---- journey2: destination picker, ride details, link off -------------
 
   /// Coordinates from a pasted Google Maps link (long or maps.app.goo.gl),

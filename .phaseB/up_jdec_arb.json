@@ -1,0 +1,15 @@
+{
+ "_comment": "jdec (owner decisions 2 Nov): saved place 'Safe place for anti-theft' switch (save sheet + long-press place sheet in Safe Journey start). All keys NEW; j2PlaceLongPress (old 'Long-press to remove') is no longer used by the start screen — j2PlaceLongPressEdit replaces it. The guardian consent late-tail line needs NO key: the server sends it (late_note) from its own HARD_TAIL_MIN.",
+ "en": {
+  "j2PlaceTheftSafe": "Safe place for anti-theft",
+  "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
+  "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
+  "j2PlaceLongPressEdit": "Long-press for options"
+ },
+ "bn": {
+  "j2PlaceTheftSafe": "চুরি-রোধে নিরাপদ জায়গা",
+  "j2PlaceTheftSafeNote": "এখানে চুরি-রোধ নরম থাকে: সুরক্ষা বন্ধ করার মতো কাজ নিরাপত্তা-অপেক্ষা ছাড়াই সঙ্গে সঙ্গে হয়। শুধু ভরসার জায়গায় চালু করুন।",
+  "j2PlaceTheftSafeFailed": "বদলানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "j2PlaceLongPressEdit": "আরও অপশনের জন্য চেপে ধরুন"
+ }
+}

@@ -208,6 +208,22 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           const SizedBox(height: Gap.xs),
           Text(st == 'pending' ? t.gjConsentNote : t.gjBannerNote,
               style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+          // owner decision 2 Nov: BEFORE accepting, say plainly that a late
+          // trip stays on up to N minutes after the end time and stops at
+          // once on arrival / Stop. The server writes this line (bn digits in
+          // Bangla) from the same constant its sweep uses — no copy here.
+          if (st == 'pending' && '${r['late_note'] ?? ''}'.trim().isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.schedule_rounded, size: 18, color: cs.onSurfaceVariant),
+              const SizedBox(width: Gap.xs),
+              Expanded(
+                child: Text('${r['late_note']}'.trim(),
+                    key: ValueKey('gj_late_note_$id'),
+                    style: AType.bodySmall.copyWith(color: cs.onSurface)),
+              ),
+            ]),
+          ],
           const SizedBox(height: Gap.sm),
           if (st == 'pending')
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

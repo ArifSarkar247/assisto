@@ -554,7 +554,8 @@ class SensitiveActionProofTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         ProtectedPhone.objects.create(owner=self.user,
                                       security_pin_hash=make_password(self.PIN))
-        SavedPlace.objects.create(user=self.user, label="Home", lat=23.80, lng=90.40)
+        SavedPlace.objects.create(user=self.user, label="Home", lat=23.80, lng=90.40,
+                                  theft_safe=True)
 
     def _proof(self, purpose):
         r = self.client.post("/api/v1/auth/otp/request", {"purpose": purpose}, format="json")

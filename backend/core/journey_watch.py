@@ -792,8 +792,14 @@ def sweep(now=None):
     from .models import Journey
     now = now or timezone.now()
     stats = Counter()
+    from . import guardian_journey as GJ
     for j in Journey.objects.filter(status="active").select_related("traveller"):
         try:
+            # guardian journey past window end + late tail: it ends here,
+            # before any other check could alert (owner decision 2 Nov)
+            if GJ.enforce_hard_end(j, now):
+                stats["req_auto_end"] += 1
+                continue
             _sweep_journey(j, now, stats)
         except Exception as e:
             stats["errors"] += 1
