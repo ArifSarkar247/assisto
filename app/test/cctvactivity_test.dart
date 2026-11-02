@@ -33,6 +33,12 @@ Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = fa
       home: home,
     );
 
+Future<void> _tab(WidgetTester tester, String label) async {
+  await tester.ensureVisible(find.text(label));
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.tap(find.text(label));
+}
+
 Future<void> _settle(WidgetTester tester, [int n = 12]) async {
   for (var i = 0; i < n; i++) {
     await tester.pump(const Duration(milliseconds: 60));
@@ -113,11 +119,11 @@ void main() {
     expect(find.text('No visitors counted yet'), findsOneWidget);
     expect(find.textContaining('Draw an entry line'), findsOneWidget);
     expect(find.text('No movement was seen on the shop cameras this day.'), findsOneWidget);
-    await tester.tap(find.text('Visitor log'));
+    await _tab(tester, 'Visitor log');
     await _settle(tester);
     expect(find.text('No visitors in the log'), findsOneWidget);
     expect(find.textContaining("schedule 'Always'"), findsOneWidget);
-    await tester.tap(find.text('Time-lapse'));
+    await _tab(tester, 'Time-lapse');
     await _settle(tester);
     expect(find.text('No photos for a time-lapse'), findsOneWidget);
   });
@@ -127,8 +133,8 @@ void main() {
     final f = FakeActivity('fail');
     await tester.pumpWidget(_app(_screen(f)));
     await _settle(tester);
-    expect(find.text('Retry'), findsWidgets);
-    await tester.tap(find.text('Retry').first);
+    expect(find.text('Try again'), findsWidgets);
+    await tester.tap(find.text('Try again').first);
     await _settle(tester);
     expect(f.loads, 2);
   });
@@ -196,12 +202,13 @@ void main() {
       await tester.pumpWidget(_app(_screen(FakeActivity('data', lang: 'bn')), lang: 'bn', scale: 2.0, dark: dark));
       await _settle(tester);
       expect(tester.takeException(), isNull);
-      await tester.tap(find.text('ভিজিটর লগ'));
+      await _tab(tester, 'ভিজিটর লগ');
       await _settle(tester);
       expect(tester.takeException(), isNull);
-      await tester.tap(find.text('টাইম-ল্যাপ্স'));
+      await _tab(tester, 'টাইম-ল্যাপ্স');
       await _settle(tester);
       expect(tester.takeException(), isNull);
+      expect(find.text('টাইম-ল্যাপ্স বানান'), findsOneWidget);
     });
   }
 

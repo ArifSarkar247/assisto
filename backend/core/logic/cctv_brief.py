@@ -198,13 +198,13 @@ def observe(act, cfg, cam_id, etype, sig, local_dt, ts):
     sig = sig if isinstance(sig, dict) else {}
     if sig.get("health_still") or etype == "camera_health":
         return act
-    date = local_dt.date().isoformat()
-    h = local_dt.hour
-    d = day_rec(act, date)
     movement = etype in MOVEMENT_TYPES
     person = is_person(etype, sig)
     if not (movement or person):
         return act
+    date = local_dt.date().isoformat()
+    h = local_dt.hour
+    d = day_rec(act, date)
     d["m"][h] += 1
     line = etype == "line_crossing" or sig.get("kind") == "line"
     if line and person:
