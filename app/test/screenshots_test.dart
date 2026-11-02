@@ -67,6 +67,7 @@ import 'package:assisto/screens/blood/blood_thread_screen.dart'; // blood
 import 'package:assisto/screens/blood/blood_banks_screen.dart'; // blood
 import 'package:assisto/screens/blood/blood_verify_screen.dart'; // blood
 import 'fake_blood.dart'; // blood
+import 'package:assisto/screens/business/books_screen.dart'; // ledger
 import 'package:assisto/screens/smartwatch_screen.dart';
 import 'package:assisto/screens/assisto_chats_screen.dart';
 import 'package:assisto/widgets/settings_voice.dart';
@@ -664,6 +665,9 @@ Map<String, GallerySpec> gallerySpecs() {
     // near me (donor view), request form, become-a-donor (consent), thread,
     // banks (source pending), verify
     'blood_hub': (build: (_) => const BloodHubScreen(), mode: FakeMode.data, full: true),
+    'books_pl': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.data, full: true), // ledger
+    'books_empty': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.empty, full: true), // ledger
+    'books_error': (build: (_) => const BooksScreen(businessId: 1), mode: FakeMode.fail, full: false), // ledger
     'blood_hub_empty': (build: (_) => const BloodHubScreen(), mode: FakeMode.empty, full: true),
     'blood_hub_error': (build: (_) => const BloodHubScreen(), mode: FakeMode.fail, full: false),
     'blood_requests': (build: (_) => const BloodHubScreen(initialTab: 1), mode: FakeMode.data, full: true),
