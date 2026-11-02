@@ -450,9 +450,11 @@ class ApprovalTests(_Base):
         with mock.patch("core.sms_service.send_sms") as send:
             run = BZ.start_action(self.u, text, steps, lang="bn")
             send.assert_not_called()
-            AgentApproval.objects.filter(run=run).update(status="rejected")
-            RN.advance(run, lang="bn")
+            ap = AgentApproval.objects.get(run=run)
+            ap, run = RN.decide(self.u, ap.pk, "reject", lang="bn")
             send.assert_not_called()
+        self.assertEqual(run.state, "done")
+        self.assertEqual(SmsLog.objects.filter(user=self.u).count(), 0)
 
     def test_card_runs_cost_nothing_and_skip_the_ai_run_cap(self):
         for i in range(RN.LIMITS["free"]["runs_per_day"] + 2):
