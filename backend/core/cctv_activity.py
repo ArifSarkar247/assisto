@@ -686,7 +686,7 @@ class VisitorLogView(_Base):
 
 
 class TimelapseView(_Base):
-    MAX_FRAMES = 120
+    MAX_FRAMES = 60          # the phone encodes each frame; ~0.5 s each
 
     def get(self, request, pk):
         from . import shop_views as SV
