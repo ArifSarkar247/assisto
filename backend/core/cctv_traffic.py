@@ -113,6 +113,8 @@ def emergency_active(viewer, owner_id, now=None):
             .filter(Q(sender_id=vid) | Q(sender_id=owner_id) | Q(recipient_id=vid))
             .values_list("sender_id", "created_at"))
         for sender_id, at in rows:
+            if sender_id is None:
+                continue
             if not FamilyAlertDelivery.objects.filter(
                     sender_id=sender_id, kind="sos_resolved", created_at__gte=at).exists():
                 return True
