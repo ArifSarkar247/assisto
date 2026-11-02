@@ -30,7 +30,7 @@ ASSETS = Path(__file__).resolve().parent / "site_assets"
 
 def set_live(value):
     row, _ = AdminFlagState.objects.get_or_create(key="global")
-    row.state = dict(row.state or {}, website_v3=value)
+    row.state = dict(row.state or {}, website_classic=not value)
     row.save()
 
 
@@ -190,6 +190,7 @@ class CacheTests(Base):
 
     def test_assets_are_hashed_and_immutable(self):
         html = self.c.get("/preview/?lang=en").content.decode()
+        html = re.sub(r'<script type="application/ld\+json">.*?</script>', "", html, flags=re.S)
         urls = set(re.findall(r'(/site/[^"\s,)]+)', html))
         self.assertTrue(any("shots3/" in u for u in urls))
         for u in urls:
@@ -239,6 +240,55 @@ class LanguageTests(Base):
         self.assertIn('href="/preview/features/safety?lang=en"', bn)
         en = self.c.get("/preview/features/safety?lang=en").content.decode()
         self.assertIn('href="/preview/features/safety?lang=bn"', en)
+
+
+class NavigationAndPlayTests(Base):
+    def test_play_buttons_open_our_details_page_with_placement_referrer(self):
+        wf = (Path(__file__).resolve().parents[2] / ".github" / "workflows" / "android.yml").read_text()
+        m = re.search(r"flutter create --project-name (\S+) --org (\S+)", wf)
+        self.assertIsNotNone(m)
+        application_id = "%s.%s" % (m.group(2), m.group(1))
+        self.assertNotRegex(wf, r"applicationId\s*=?\s*['\"]")   # no override elsewhere
+        from web import site_content as SC
+        self.assertEqual(SC.PLAY_ID, application_id)
+        html = self.c.get("/preview/?lang=en").content.decode()
+        self.assertNotIn("/store/search", html)
+        for place in ("hero", "chip_download", "sticky_bar", "footer"):
+            self.assertIn("store/apps/details?id=%s&amp;hl=en&amp;referrer=utm_source%%3Dwebsite%%26utm_medium%%3D%s"
+                          % (application_id, place), html, place)
+        self.assertIn("intent://details?id=", html)          # Android rewrite
+        self.assertIn("S.browser_fallback_url=", html)
+        self.assertIn("package=com.android.vending", html)
+
+    def test_chips_menu_bottom_bar_back_to_top(self):
+        html = self.c.get("/preview/?lang=en").content.decode()
+        chips = re.search(r'<nav class="chips".*?</nav>', html, re.S).group(0)
+        labels = re.findall(r">([^<>]+)</a>", chips)
+        self.assertEqual(labels, ["Home", "AI Assistant", "My Circle", "Safety", "CCTV", "Business", "Pricing", "Download"])
+        for anchor in ("#hero", "#g-ai", "#g-circle", "#g-safety", "#g-cctv", "#g-business", "#pricing"):
+            self.assertIn('href="%s"' % anchor, chips)
+            self.assertIn('id="%s"' % anchor[1:], html)
+        menu = re.search(r'<nav class="mm-p".*?</nav>', html, re.S).group(0)
+        for g in V3.GROUP_IDS:
+            self.assertIn("/preview/features/%s" % g, menu)
+        for x in ("/preview/pricing", "/preview/security", "/preview/help", "?lang=bn", "details?id="):
+            self.assertIn(x, menu)
+        self.assertIn('class="pbar"', html)
+        self.assertIn('class="totop" href="#top"', html)
+        # on a group page the chips open pages and mark the current one
+        g = self.c.get("/preview/features/cctv?lang=en").content.decode()
+        chips = re.search(r'<nav class="chips".*?</nav>', g, re.S).group(0)
+        self.assertIn('href="/preview/features/ai?lang=en"', chips)
+        self.assertRegex(chips, r'href="/preview/features/cctv\?lang=en" class="on" aria-current="page"')
+
+    def test_hero_plays_real_screens_in_the_chosen_language(self):
+        for lang, other in (("bn", "en"), ("en", "bn")):
+            html = self.c.get("/preview/?lang=%s" % lang).content.decode()
+            hero = re.search(r'data-rot>.*?</div>', html, re.S).group(0)
+            for n in VS3.HERO_SLIDES:
+                self.assertIn("shots3/%s_%s_360.webp" % (n, lang), hero)
+                self.assertNotIn("shots3/%s_%s_" % (n, other), hero)
+            self.assertIn('class="rot-btn"', hero)        # pause control (WCAG 2.2.2)
 
 
 class OwnerSwitchTests(OwnerBase):

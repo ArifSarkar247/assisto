@@ -451,6 +451,11 @@ COPY = {
         "group_back": "সব ফিচার", "on_this_page": "এই পাতায়",
         "preview_banner": "প্রিভিউ — এই পাতা এখনো লাইভ নয়, সার্চ ইঞ্জিনে আসে না।",
         "ai_note": "AI ভুল করতে পারে — দরকারি তথ্য যাচাই করুন।",
+        "chips_label": "দ্রুত যান", "chip_home": "হোম", "chip_ai": "AI সহকারী", "chip_circle": "আমার সার্কেল",
+        "chip_safety": "নিরাপত্তা", "chip_cctv": "CCTV", "chip_business": "ব্যবসা", "chip_pricing": "দাম", "chip_download": "ডাউনলোড",
+        "to_top": "উপরে যান", "pause": "স্ক্রিনশট চলা থামান বা চালান",
+        "slide_chat": "কথা বলে রিমাইন্ডার ও খরচ", "slide_emergency_hub": "SOS ও জরুরি হাব",
+        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব",
     },
     "en": {
         "html_lang": "en", "title": "Assisto — the AI assistant that does the work by itself",
@@ -491,6 +496,11 @@ COPY = {
         "group_back": "All features", "on_this_page": "On this page",
         "preview_banner": "Preview — this page is not live yet and is hidden from search engines.",
         "ai_note": "AI can make mistakes — check important information.",
+        "chips_label": "Quick links", "chip_home": "Home", "chip_ai": "AI Assistant", "chip_circle": "My Circle",
+        "chip_safety": "Safety", "chip_cctv": "CCTV", "chip_business": "Business", "chip_pricing": "Pricing", "chip_download": "Download",
+        "to_top": "Back to top", "pause": "Pause or play the screenshots",
+        "slide_chat": "reminders and expenses by talking", "slide_emergency_hub": "SOS and emergency hub",
+        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts",
     },
 }
 
