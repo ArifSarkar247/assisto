@@ -114,7 +114,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           }
         }
       }
-    } catch (_) {/* a broken cache never blocks SOS */}
+    } catch (_) {/* best-effort: a broken cache never blocks SOS */}
     Map<String, dynamic> fam = const {};
     try {
       fam = await (widget.famCard ?? FamCardStore.load)();
@@ -163,7 +163,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           });
         }
       }
-    } catch (_) {/* corrupt cache: ignored, the server copy comes next */}
+    } catch (_) {/* best-effort: corrupt cache ignored, the server copy comes next */}
     if (!mounted) return;
     final ApiClient api;
     try {
@@ -184,7 +184,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
         _crisisLoaded = true;
       });
     } catch (_) {
-      // offline: keep the phone copy (or the 999-only fallback below)
+      // best-effort: offline keeps the phone copy (or the 999-only fallback)
       if (mounted) setState(() => _crisisLoaded = true);
     }
   }
