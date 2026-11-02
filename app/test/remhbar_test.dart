@@ -28,6 +28,8 @@ import 'package:assisto/sync_repo.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/reminders_nlp.dart';
 import 'package:assisto/widgets/rn_bits.dart';
+import 'package:assisto/widgets/rem_notes.dart' show pickVaultDocs, NotePhotoHooks;
+import 'package:image_picker/image_picker.dart' show ImageSource;
 
 Widget _app(Widget child, {String lang = 'en', AppState? s}) {
   final app = MaterialApp(
@@ -194,6 +196,31 @@ class _FamApi extends ApiClient {
       [Map<String, dynamic> body = const {}]) async {
     bodies.add({'_path': path, ...body});
     return {'ok': true, 'task': {'id': 3, 'repeat': body['repeat'] ?? 'none'}};
+  }
+}
+
+/// Vault: empty at first; an uploaded photo becomes doc 41.
+class _VaultApi extends ApiClient {
+  _VaultApi() {
+    token = 't';
+  }
+  final docs = <Map<String, dynamic>>[];
+  final uploads = <Map<String, String>>[];
+  bool fail = false;
+  @override
+  Future<List<Map<String, dynamic>>> listDocuments() async =>
+      [for (final d in docs) Map.of(d)];
+  @override
+  Future<void> uploadDocument({
+    required String title,
+    required String docType,
+    String? expiryDate,
+    String? note,
+    required String filePath,
+  }) async {
+    if (fail) throw ApiException('down', 503);
+    uploads.add({'title': title, 'type': docType, 'path': filePath});
+    docs.add({'id': 41, 'title': title, 'doc_type': docType});
   }
 }
 
@@ -498,6 +525,71 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       // the pure reader with a fixed clock (the sheet itself uses the phone's)
       expect(ReminderAlarms.lastLost(prefs, now: DateTime(2026, 11, 2))?.$1, 2);
+    });
+  });
+
+  // ------------------------------------------------------------ photo
+  group('photo straight into a note (saved in the Vault)', () {
+    for (final lang in ['en', 'bn']) {
+      testWidgets('empty Vault: take a photo -> uploaded, ticked, attached ($lang)',
+          (t) async {
+        final api = _VaultApi();
+        final s = AppState()
+          ..api = api
+          ..locale = Locale(lang)
+          ..loading = false;
+        ImageSource? asked;
+        NotePhotoHooks.pick = (_, src) async {
+          asked = src;
+          return '/tmp/note_photo.jpg';
+        };
+        List<Map<String, dynamic>>? got;
+        await t.pumpWidget(_app(
+            Builder(
+                builder: (c) => TextButton(
+                    onPressed: () async => got = await pickVaultDocs(c),
+                    child: const Text('open'))),
+            lang: lang,
+            s: s));
+        await t.tap(find.text('open'));
+        await t.pumpAndSettle();
+        final l = AppLocalizations.of(t.element(find.text('open')));
+        expect(find.byKey(const ValueKey('rn-vault-empty')), findsOneWidget);
+        expect(find.text(l.rhbNotePhotoHint), findsOneWidget);
+        await t.tap(find.byKey(const ValueKey('rn-photo-camera')));
+        await t.pumpAndSettle();
+        expect(asked, ImageSource.camera);
+        expect(api.uploads.single['type'], 'other');
+        expect(api.uploads.single['path'], '/tmp/note_photo.jpg');
+        await t.tap(find.byKey(const ValueKey('rn-vault-attach')));
+        await t.pumpAndSettle();
+        expect(got?.single['doc_id'], 41);
+        expect(t.takeException(), isNull);
+      });
+    }
+
+    testWidgets('upload fails -> honest message, nothing attached', (t) async {
+      final api = _VaultApi()..fail = true;
+      final s = AppState()
+        ..api = api
+        ..locale = const Locale('en')
+        ..loading = false;
+      NotePhotoHooks.pick = (_, __) async => '/tmp/x.jpg';
+      await t.pumpWidget(_app(
+          Builder(
+              builder: (c) => TextButton(
+                  onPressed: () => pickVaultDocs(c),
+                  child: const Text('open'))),
+          s: s));
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      final l = AppLocalizations.of(t.element(find.text('open')));
+      await t.tap(find.byKey(const ValueKey('rn-photo-gallery')));
+      await t.pumpAndSettle();
+      expect(find.text(l.rhbNotePhotoFailed), findsOneWidget);
+      final attach = t.widget<FilledButton>(
+          find.byKey(const ValueKey('rn-vault-attach')));
+      expect(attach.onPressed, isNull);
     });
   });
 
