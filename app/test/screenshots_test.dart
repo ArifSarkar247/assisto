@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'app_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:assisto/widgets/official_prices.dart'; // moneybar
 import 'package:assisto/reminders/exact_alarm_ui.dart' show ReminderDeliverySheet, ExactAlarmHooks; // remmeter
 import 'package:assisto/services/oem_guide.dart' show OemGuideNative, OemInfo, OemOpen; // remmeter
 import 'package:flutter/rendering.dart';
@@ -479,6 +480,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),
+    // moneybar: official TCB not fetched + no own logs; the official list page
+    'mb_price_radar_empty': (build: (_) => const PriceRadarScreen(), mode: FakeMode.empty, full: true),
+    'mb_official_list': (build: (_) => OfficialPricesScreen(data: OfficialPrices.fromJson(const {
+          'connected': true, 'date': '2026-11-01', 'markets': 'Mirpur-6, Malibagh',
+          'items': [
+            {'name': 'Rice (coarse)', 'unit': 'per kg', 'group': '', 'min': 50, 'max': 55, 'week_min': 50, 'week_max': 55},
+            {'name': 'Onion (local)', 'unit': 'per kg', 'group': 'Spices', 'min': 50, 'max': 60, 'week_min': 45, 'week_max': 50},
+          ]})), mode: FakeMode.data, full: true),
     'health_tl': (build: (_) => const HealthTimelineScreen(), mode: FakeMode.data, full: true),
     'wellness': (build: (_) => const WellnessTrackerScreen(), mode: FakeMode.data, full: true),
     'challenges': (build: (_) => const DailyChallengesScreen(), mode: FakeMode.data, full: true),

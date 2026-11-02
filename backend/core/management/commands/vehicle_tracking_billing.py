@@ -6,7 +6,8 @@ pairing). When that has passed, debit `vehicle_tracking_month` credits for 30
 more days. If the owner can't cover it, the tracker is DISABLED (the tracker
 server then refuses it — never silently kept running unpaid) and the owner
 gets an honest bn/en notification. Also marks never-connected pairings as
-expired and prunes old positions. Idempotent; safe to run daily.
+expired and prunes old positions. Idempotent; safe to run daily — and safe
+when two runs overlap (row lock + re-check per tracker, cronbar).
 
 Crontab (daily 04:20, low priority):
 
@@ -16,20 +17,47 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 
+def due_tracker_ids(now):
+    from core.models import VehicleTracker
+    return list(VehicleTracker.objects.filter(state="paired", billed_until__lt=now)
+                .order_by("id").values_list("id", flat=True))
+
+
+def _charge_one(tid, now):
+    """cronbar: charge ONE tracker at most once per month even when two runs
+    overlap: lock the row, re-check it is still paired + due, then debit and
+    extend (or pause) in the same transaction.
+    -> None (not due any more) | (True, tracker) | (False, tracker)"""
+    from django.db import transaction
+    from core.models import VehicleTracker
+    from core import vehicle_service as VS
+    with transaction.atomic():
+        t = (VehicleTracker.objects.select_for_update()
+             .filter(pk=tid, state="paired", billed_until__lt=now).first())
+        if t is None:
+            return None
+        if VS.charge_month(t, now):
+            VS.audit(t, "renewed")
+            return (True, t)
+        t.state, t.disabled_reason = "disabled", "no_credits"
+        t.save(update_fields=["state", "disabled_reason", "updated_at"])
+        VS.audit(t, "disabled_unpaid")
+        return (False, t)
+
+
 def run_billing(now=None):
     from core.models import VehicleTracker
     from core import vehicle_service as VS
     now = now or timezone.now()
     out = {"renewed": 0, "disabled": 0, "expired": 0, "pruned": 0}
-    for t in VehicleTracker.objects.filter(state="paired", billed_until__lt=now) \
-            .select_related("owner"):
-        if VS.charge_month(t, now):
+    for tid in due_tracker_ids(now):
+        res = _charge_one(tid, now)
+        if res is None:
+            continue            # renewed / paused by an overlapping run
+        ok, t = res
+        if ok:
             out["renewed"] += 1
-            VS.audit(t, "renewed")
         else:
-            t.state, t.disabled_reason = "disabled", "no_credits"
-            t.save(update_fields=["state", "disabled_reason", "updated_at"])
-            VS.audit(t, "disabled_unpaid")
             VS._send([t.owner], "ট্র্যাকিং বন্ধ হয়েছে", "Tracking paused",
                      "পরের মাসের ক্রেডিট যথেষ্ট না থাকায় %s-এর ট্র্যাকিং বন্ধ রাখা "
                      "হয়েছে। ক্রেডিট যোগ করে আবার চালু করুন।" % (VS._vehicle_name(t) or "গাড়ি"),

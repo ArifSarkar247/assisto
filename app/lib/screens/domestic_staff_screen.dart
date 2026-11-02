@@ -1,3 +1,5 @@
+import '../widgets/money_digits.dart'; // moneybar
+import '../widgets/money_circle_pick.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -119,6 +121,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -637,6 +640,10 @@ class _PersonFormState extends State<_PersonForm> {
                       : tr.staffEditPerson,
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.lg),
+              if (widget.initial == null) ...[
+                CirclePickButton(name: _name, onPicked: () => setState(() {})),
+                const SizedBox(height: Gap.md),
+              ],
               TextField(
                 controller: _name,
                 autofocus: widget.initial == null,
@@ -1000,7 +1007,7 @@ class _StaffMath {
     p = p.abs();
     final taka = p ~/ 100;
     final paisa = p % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   // ---- month helpers ----

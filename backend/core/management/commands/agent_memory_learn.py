@@ -13,6 +13,7 @@ Crontab (Sunday 23:00 Asia/Dhaka = 17:00 UTC, low priority):
     0 17 * * 0  cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-agent-memory.lock nice -n10 /home/ubuntu/assisto/.venv/bin/python manage.py agent_memory_learn --quiet >> /home/ubuntu/assisto/logs/agent_memory_learn.log 2>&1
 """
 from django.core.management.base import BaseCommand
+from core.ops_health import track_job  # ops-watch heartbeat (cronbar)
 from django.utils import timezone
 
 
@@ -25,6 +26,7 @@ class Command(BaseCommand):
         parser.add_argument("--force", action="store_true",
                             help="ignore the once-a-week guard (fingerprints still dedupe)")
 
+    @track_job("agent_memory_learn")
     def handle(self, *args, **opts):
         from core.agentcore import memory as MEM
         from core.models import User

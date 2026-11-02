@@ -13,6 +13,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/ladder_common.dart' show fmtInt;
+import '../widgets/skeleton.dart' show StateMessage; // moneybar
 
 /// p2-money: BRAND OFFERS BY INTEREST.
 ///  * Settings -> Offers & brands: favourite categories, offer notifications
@@ -332,6 +333,7 @@ class _OffersFeedScreenState extends State<OffersFeedScreen> {
   }
 
   Future<void> _load() async {
+    if (_failed) setState(() => _failed = false);
     try {
       final o = await _b.offersFeed();
       if (!mounted) return;
@@ -351,17 +353,36 @@ class _OffersFeedScreenState extends State<OffersFeedScreen> {
     final o = _offers;
     return Scaffold(
       appBar: AppBar(title: Text(t.p2OffersFeedTitle)),
+      // moneybar: failure + empty were dead ends (text only, no button)
       body: _failed
-          ? Center(child: Text(t.loadFailed))
+          ? StateMessage(
+              key: const ValueKey('mb-offers-failed'),
+              icon: Icons.cloud_off_rounded,
+              tint: scheme.error,
+              title: t.loadFailed,
+              message: t.mbOffersFailedBody,
+              action: FilledButton.tonalIcon(
+                onPressed: () {
+                  setState(() => _offers = null);
+                  _load();
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(t.retry),
+              ),
+            )
           : o == null
               ? const Center(child: CircularProgressIndicator())
               : o.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(Gap.xl),
-                        child: Text(t.p2OffersFeedEmpty,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: scheme.onSurfaceVariant)),
+                  ? StateMessage(
+                      key: const ValueKey('mb-offers-empty'),
+                      icon: Icons.local_offer_rounded,
+                      title: t.p2OffersFeedEmpty,
+                      message: t.mbOffersEmptyBody,
+                      action: FilledButton.icon(
+                        onPressed: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => OffersSettingsScreen(backend: widget.backend))),
+                        icon: const Icon(Icons.tune_rounded),
+                        label: Text(t.mbOffersPickInterests),
                       ),
                     )
                   : ListView(

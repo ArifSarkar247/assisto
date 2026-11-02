@@ -68,14 +68,14 @@
 | ১৩. বাজেট ও রেমিট্যান্স (হিসাব ও অর্থ) 🚀 | ৫ | ৭০ | ~৪.৫ |
 | ১৪. পেমেন্ট, প্ল্যান, ক্রেডিট ও বিজ্ঞাপন 🚀 | ১৯ | ৭০.৪ (framebar; আগে ৭০.১) | ~১৬ |
 | ১৫. অ্যাপের কাঠামো (শুরু, লগইন, হোম, সেটিংস) | ১৫ | ৬৮.৩ (framebar; আগে ৬৬.৪) | ~১২.৬ |
-| ১৬. অন্যান্য টাকার টুল | ১৩ | ৫৪.৩ | ~১২.৫ |
+| ১৬. অন্যান্য টাকার টুল | ১৩ | ৬৩.০ (moneybar; আগে ৫৪.৩) | ~১২.৫ |
 | ১৭. দৈনন্দিন জীবন | ২৫ | ৪৯.৯ | ~২৮.৮ |
 | ১৮. কাজ | ১০ | ৪৩ | ~১৭.৫ |
-| ১৯. বিজনেসের বাড়তি অংশ | ৪ | ৫৭.৮ | ~৮ |
+| ১৯. বিজনেসের বাড়তি অংশ | ৪ | ৬০.৩ (moneybar; আগে ৫৭.৮) | ~৮ |
 | ২০. আসছে (তৈরি হয়নি) | ৪ | ১৫.২ | ~৪৫ |
 | ২১. Owner Admin (প্রতিটি পাতা) | ২২ | ৬৫.৫ | ~৮.১ |
 | ২২. ওয়েবসাইট (lifeassisto.com) | ৮ | ৬৮.৫ | ~২.৫ |
-| ২৩. সার্ভারের কাজ (cron, সার্ভিস) | ৬ | ৫১.৫ | ~২.৯ |
+| ২৩. সার্ভারের কাজ (cron, সার্ভিস) | ৬ | ৭১.৭ (moneybar; আগে ৫১.৫) | ~২.৯ |
 
 🚀 = লঞ্চ-জরুরি (মালিকের ক্রম D)। দিনের হিসাব একজন ডেভেলপারের, আনুমানিক; মালিকের চাবি/চুক্তি/হার্ডওয়্যারের অপেক্ষার সময় ধরা হয়নি।
 
@@ -385,23 +385,23 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | অফলাইন পাতা ও নেট-নেই অবস্থা | **৫৭** (framebar; আগে ৫৬) | প্রতিটি লঞ্চ-জরুরি ফিচার এয়ারপ্লেন মোডে খোলার সুইপ (এখন নেই) — সবচেয়ে বড় অপ্রমাণিত শর্ত **framebar ২ Nov:** প্রথম পাতা (ভাষা, লগইন) নেট ছাড়া খোলে; লগইনে নেট-নেই বার্তা টেস্টে প্রমাণ। বাকি ফিচারের এয়ারপ্লেন-সুইপ এখনো নেই। | চালু (APK+Play) · দেখানো | ChatNav 'offline'; FEATURE_STATUS শর্ত ১; framebar: `test/framebar_test.dart`, `core/tests_framebar.py`, CI 41397148940; FEATURE_CARD_APP_FRAME_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | ক্র্যাশ রিপোর্ট ও Play Vitals | **৬৬** | ColorOS/Realme সহ শীর্ষ ৫ ব্র্যান্ডে Test Lab ম্যাট্রিক্স চালানো (all-android-phones নিয়ম) | সার্ভার — প্রযোজ্য নয় | web.tests_sc1_crash, tests_pv1_vitals; play_vitals_pull cron; R8 mapping আপলোড | Firebase Crashlytics · — | ব্র্যান্ড/Android-সংস্করণ অনুযায়ী ক্র্যাশ ফিল্টার নেই (ColorOS/Realme ঝুঁকি; BEST_IN_CLASS_BN.md Owner Admin ফাঁক ২) |
 
-## ১৬. অন্যান্য টাকার টুল — গড় ৫৪.৩
+## ১৬. অন্যান্য টাকার টুল — গড় ৬৩.০ (moneybar; আগে ৫৪.৩)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
-| কর ও যাকাত | **৫৯** | রিয়ালিটি ফ্লো; হিসাবের নিয়মের উৎস লেখা; ১০ মিনিটের পরীক্ষা | চালু (APK+Play) · দেখানো | FS: sweep A? (ফোনেই হিসাব) | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| টাকার রিক্যাপ (Wrapped) | **৫৭** | ডেটা কম থাকলে খালি অবস্থা; শেয়ার কার্ড (/wrapped/card.png) আসল ফোনে | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| সাবস্ক্রিপশন ট্র্যাকার | **৫৮** | রিয়ালিটি ফ্লো; নবায়নের আগের দিন রিমাইন্ডার | চালু (APK+Play) · দেখানো | FS: sweep A?; DEAD_BUTTONS (পরিশোধ ঠিক) | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| ফিন্যান্স টুল (ক্যালকুলেটর) | **৫৯** | উইজেট টেস্ট; সূত্র যাচাই | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| মেস ও ব্যাচেলর হিসাব | **৫৭** | দুই সদস্যে ভাগ-হিসাব রিয়ালিটি ফ্লো | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| খরচ ভাগাভাগি | **৫৭** | দুই অ্যাকাউন্টে ভাগ → নিষ্পত্তি ফ্লো | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| সমিতি | **৫৭** | রিয়ালিটি ফ্লো; 'টাকা রাখি না' লেখা আছে (kHoldsMoney=false) | চালু (APK+Play) · দেখানো | FS: sweep A?; samity_rent_common.dart | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| বাড়ি ভাড়া | **৫৭** | ভাড়াটিয়া-মালিক রিমাইন্ডার আসল সময়ে | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| কর ও যাকাত | **৬৬** (moneybar; আগে ৫৯) | moneybar: বাংলা অঙ্ক; নিসাব না দিলে সতর্কতা; ভরি→গ্রাম + BAJUS লিংক; ২০২৬-২৭ হার নেই বলে সৎ ব্যানার + NBR পরিপত্র। বাকি: ২০২৬-২৭ হার ও রেয়াতের নিয়ম সরকারি পাঠ থেকে বসানো; আসল ফোন | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | NBR e-Return ক্যালকুলেটর · Taxman BD | ২০২৬-২৭ হার নেই (সবচেয়ে বড় ফাঁক); রেয়াত নিয়ম যাচাই বাকি |
+| টাকার রিক্যাপ (Wrapped) | **৬০** (moneybar; আগে ৫৭) | moneybar: খালি অবস্থায় 'খরচ বা আয় লিখুন' বোতাম। বাকি: শেয়ার কার্ড আসল ফোনে | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Wallet (BudgetBakers) মাসিক রিপোর্ট | যাচাই বাকি (not yet benchmarked) |
+| সাবস্ক্রিপশন ট্র্যাকার | **৬০** (moneybar; আগে ৫৮) | আগের দিন সকাল ৯টার লোকাল রিমাইন্ডার আগেই আছে (বোর্ডের লেখা পুরোনো ছিল)। বাকি: দুই ফোনে প্রমাণ | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Bobby / Rocket Money | যাচাই বাকি (not yet benchmarked) |
+| ফিন্যান্স টুল (ক্যালকুলেটর) | **৭০** (moneybar; আগে ৫৯) | moneybar: সূত্রসহ রেফারেন্স টেস্ট (EMI ৮,৮৮৪.৮৮ / ২০,৭৫৮.৩৬ / ২৩,০৭২.৪৬, DPS ১২,৮০৯.৩৩ …) Dart + Python; বাংলা অঙ্ক; নিসাব-খালি সতর্কতা; বাংলাদেশ ব্যাংকের রেট লিংক। বাকি: আসল ফোন | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | ব্যাংকের EMI ক্যালকুলেটর · Groww | লাইভ রেট নেই (শুধু সরকারি লিংক) |
+| মেস ও ব্যাচেলর হিসাব | **৬১** (moneybar; আগে ৫৭) | moneybar: বাংলা অঙ্ক; My Circle থেকে সদস্য। বাকি: দুই সদস্যের দুই ফোনে একই হিসাব | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Mess Manager · Splitwise | অন্য সদস্য নিজের ফোনে দেখে না |
+| খরচ ভাগাভাগি | **৬১** (moneybar; আগে ৫৭) | moneybar: বাংলা অঙ্ক; My Circle থেকে মানুষ। বাকি: দুই অ্যাকাউন্টে ভাগ → নিষ্পত্তি | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Splitwise | অন্য পক্ষ নিজের ফোনে দেখে না (Splitwise পারে) |
+| সমিতি | **৬০** (moneybar; আগে ৫৭) | moneybar: My Circle থেকে সদস্য। বাকি: রিয়ালিটি ফ্লো | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | কাগজের খাতা · ROSCA অ্যাপ | যাচাই বাকি (not yet benchmarked) |
+| বাড়ি ভাড়া | **৬৪** (moneybar; আগে ৫৭) | moneybar: ভাড়ার দিন (১–২৮) → প্রতি মাসে সকাল ৯টায় লোকাল রিমাইন্ডার, পুরো পরিশোধ হলে বাদ; My Circle থেকে ভাড়াটিয়া। বাকি: ভাড়াটিয়ার ফোনে রসিদ | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Bari Bhara / Rentec | ভাড়াটিয়া নিজের ফোনে দেখে না |
 | প্রিপেইড মিটার | **৭৪** (আগে ৫৫) | remmeter: কোম্পানি বাছাই (৬ বিদ্যুৎ + ২ গ্যাস), মিটার নম্বর (ফরম্যাট অনুমান নয়), নিজের দৈনিক খরচের অনুমান, ব্যালান্স-কম push (সীমা + রাতে চুপ), যাচাই করা বিকাশ/নগদ পে-বিল ধাপ + *247#/*167#, গ্যাসে সৎ সতর্কতা, টোকেন খাতা (SMS পেস্ট)। বাকি: `meter_low_alerts` cron লাইন (মালিকের অনুমোদন); আসল ফোনে push ও বিকাশ খোলা; OCR (চাবি নেই) | চালু (APK+Play) · দেখানো | TOP10 §৯; remmeter: core.tests_remmeter, test/remmeter_test.dart, ফ্লো 20/21, REMINDERS_METER_100_BN.md | bKash Pay Bill · DESCO / NESCO / পল্লী বিদ্যুৎ অ্যাপ | ব্যালান্স-কম push, কোম্পানি বাছাই, যাচাই করা bKash/Nagad পে-বিল ধাপ ও টোকেন খাতা এখন আছে (remmeter; meter_low_alerts cron বসানো) — DESCO-তে কম-ব্যালান্স সতর্কতা নেই; DESCO এখনো ভালো: কোম্পানির আসল ব্যালান্স দেখায় (আমরা মিটার দূর থেকে পড়ি না, শুধু আনুমানিক); bKash অ্যাপের ভেতরেই রিচার্জ — আমরা শুধু ধাপ দেখাই |
-| গৃহকর্মী ও ড্রাইভার | **৫৭** | বেতন/ছুটি রিয়ালিটি ফ্লো | চালু (APK+Play) · দেখানো | FS: sweep A? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| সঞ্চয় চ্যালেঞ্জ | **৫৮** | রিয়ালিটি ফ্লো | চালু (APK+Play) · দেখানো | FS: sweep A?; DEAD_BUTTONS (ক্র্যাশ ঠিক) | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| এআই খরচ পর্যবেক্ষণ | **৪৫** (truth: আগে ৩৯) | চাবি ছাড়া নকল ফল — চাবি বা লুকানো। **truth ২৭ Oct:** নাম এখন "খরচের পর্যবেক্ষণ" (AI দাবি বাদ); চাবি-কার্ড লুকানো | চালু (APK+Play) · দেখানো | FS: sweep B? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| বাজার দাম রাডার | **৩৬** | আসল বাজারদামের উৎস নেই (TCB ইত্যাদি) — উৎস বা লুকানো | চালু (APK+Play) · দেখানো | FS: sweep B? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| গৃহকর্মী ও ড্রাইভার | **৬১** (moneybar; আগে ৫৭) | moneybar: বাংলা অঙ্ক; My Circle থেকে মানুষ। বাকি: বেতনের দিনের রিমাইন্ডার | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | কাগজের খাতা | যাচাই বাকি (not yet benchmarked) |
+| সঞ্চয় চ্যালেঞ্জ | **৬০** (moneybar; আগে ৫৮) | moneybar: বাংলা অঙ্ক। বাকি: রিয়ালিটি ফ্লো | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Qapital · Digit | যাচাই বাকি (not yet benchmarked) |
+| এআই খরচ পর্যবেক্ষণ | **৬০** (moneybar; আগে ৪৫) | moneybar: এই মাসের আসল খাতা (/money/trends) থেকে নিজে থেকে পর্যবেক্ষণ — আবার লিখতে হয় না; হাতে-লেখা বিকল্প থাকল। বাকি: বাজেট সীমা খাতা থেকে; আসল ফোন | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | Wallet (BudgetBakers) · bKash খরচের হিসাব | বাজেট-সীমা এখনো খাতার বাজেট থেকে আসে না |
+| বাজার দাম রাডার | **৬২** (moneybar; আগে ৩৬) | moneybar: টিসিবির সরকারি দৈনিক খুচরা দাম (এক্সেল) রোজ আনা — tcb_prices_fetch + GET /prices/official; রাডারে সরকারি কার্ড, পুরো তালিকা + খোঁজ, নিজের দামের পাশে সরকারি দাম; না আনা গেলে সৎ 'এখনো আনা হয়নি' + টিসিবির পাতা। বাকি: মালিকের cron লাইন (কার্ড §৮); আসল ফোন | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; core/tests_moneybar.py + test/moneybar_test.dart (CI 41403794757); FEATURE_CARD_MONEY_TOOLS_BN.md | TCB দৈনিক বাজারদর (সরকারি) · Chaldal দাম | শুধু ঢাকার দাম; cron না বসানো পর্যন্ত তালিকা খালি |
 
 ## ১৭. দৈনন্দিন জীবন — গড় ৪৯.৯
 
@@ -448,13 +448,13 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | পিএ সেক্রেটারি | **৪৭** (truth: আগে ৪১) | চাবি-নির্ভর/নকল অংশ আলাদা; ডেলিগেট অ্যাক্সেস দুই অ্যাকাউন্টে। **truth ২৭ Oct:** টেমপ্লেট খসড়াকে আর "AI-তৈরি" বলা হয় না; ১২টি চাবি-কার্ড লুকানো | চালু (APK+Play) · দেখানো | FS: sweep B? | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | এজেন্ট স্টুডিও (অটোমেশন) | **২২** | অটোমেশন কখনো চলে না (kAgentStudioRunsAutomations=false) | কোডে লুকানো (দেখা যায় না) | FS: agent_studio | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 
-## ১৯. বিজনেসের বাড়তি অংশ — গড় ৫৭.৮
+## ১৯. বিজনেসের বাড়তি অংশ — গড় ৬০.৩ (moneybar; আগে ৫৭.৮)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
-| অফার ও ব্র্যান্ড | **৪৬** | ~৪৫% (বড় সপ্তাহ G); রিয়ালিটি সুইপে নেই; স্পনসর ক্যাম্পেইন (Owner Admin) এর সাথে যুক্ত প্রমাণ | চালু (APK+Play) · দেখানো | FS: offers 1/9 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| বুকিং বট (অ্যাপয়েন্টমেন্ট, ওয়েব /b/<slug>) | **৬৫** | সুইচ বন্ধ; booking_reminders cron-এ নেই; OTP-নির্ভর (SMS চাবি নেই) | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | core.tests_booking_bot; BOOKING_BOT_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| রিটেনশন অটোমেশন + দোকানের মেসেজ ইনবক্স | **৬৪** | সুইচ বন্ধ; retention_run cron-এ নেই; SMS চাবি নেই | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | core.tests_retention, tests_rt2_rt_logging; RETENTION_AUTO_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| অফার ও ব্র্যান্ড | **৫২** (moneybar; আগে ৪৬) | moneybar: লোড ব্যর্থ হলে 'আবার চেষ্টা', খালি ফিডে লাভের লাইন + 'আমার পছন্দ বাছুন' বোতাম (আগে দুটোই বন্ধ গলি)। বাকি: স্পনসর ক্যাম্পেইনের সাথে আসল ফোনে প্রমাণ; রিয়ালিটি সুইপ | চালু (APK+Play) · দেখানো | শাখা agent/moneybar; CI 41403794757; test/moneybar_test.dart (offers) | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| বুকিং বট (অ্যাপয়েন্টমেন্ট, ওয়েব /b/<slug>) | **৬৭** (moneybar; আগে ৬৫) | সুইচ বন্ধ; booking_reminders এখন লাইভ cron-এ চলে (২ Nov read-only যাচাই) + ops_watch দেখে; OTP-নির্ভর (SMS চাবি নেই) | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | core.tests_booking_bot; BOOKING_BOT_BN.md; SERVER_JOBS_100_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| রিটেনশন অটোমেশন + দোকানের মেসেজ ইনবক্স | **৬৬** (moneybar; আগে ৬৪) | সুইচ বন্ধ; retention_run এখন লাইভ cron-এ চলে (২ Nov যাচাই) + ops_watch; SMS চাবি নেই | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | core.tests_retention, tests_rt2_rt_logging; RETENTION_AUTO_BN.md; SERVER_JOBS_100_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | CRM-এর সাথে কন্টাক্ট মেলানো (কন্টাক্টস মডিউল) | **৫৬** | RA-তে C (ফোনবুক); দুই ফোনে প্রমাণ | চালু (APK+Play) · দেখানো | RA 'Contacts on Assisto' = C | WhatsApp Business (লেবেল/নোট) · WhatsApp Business | গ্রাহকের এক-পাতার ইতিহাস নেই — খাতা, POS, AI-সেলস অর্ডার ও লিড তিন জায়গায় (BEST_IN_CLASS_BN.md CRM ফাঁক ১) |
 
 ## ২০. আসছে (তৈরি হয়নি) — গড় ১৫.২
@@ -506,16 +506,16 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | শেয়ার পাতা ও কার্ড (/cv, /scam, /festival, /made30, wrapped) | **৬২** | ছবি-কার্ডে বাংলা ফন্ট আসল ফোনে; অপব্যবহার সীমা | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | বুকিং পাতা (/b/<slug>, /b/m/<token>) | **৬৩** | বুকিং সুইচ বন্ধ; OTP-নির্ভর | ওয়েবসাইট — প্রযোজ্য নয় | backend/web/urls.py; web.tests, tests_l1_launch | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 
-## ২৩. সার্ভারের কাজ (cron, সার্ভিস) — গড় ৫১.৫
+## ২৩. সার্ভারের কাজ (cron, সার্ভিস) — গড় ৭১.৭ (moneybar; আগে ৫১.৫)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
-| cron.d-তে চলা কাজ (১৭টি: billing_daily, push_due_reminders, calls_sweep, purge_*, uptime_check …) | **৬১** | বোতাম/ভাষা প্রযোজ্য নয় তাই ঘাটতি; ব্যর্থ হলে মালিককে সতর্কতা (log ছাড়া কিছু নেই) যোগ | সার্ভার — প্রযোজ্য নয় | /etc/cron.d/assisto-app | UptimeRobot / Crashlytics velocity alert · — | ops_watch এখন cron/সার্ভিস ব্যর্থ হলে মালিককে push দেয় (২৮ Oct: ভল্ট cron না থাকা ধরেছে) — BEST_IN_CLASS_BN.md Owner Admin ফাঁক ১ বন্ধ; বাকি তুলনা যাচাই বাকি (not yet benchmarked) |
-| ubuntu-crontab-এ থাকা কাজ (bizagent_*, world_*) ও তিনটি দ্বিগুণ কাজ | **৫০** | দ্বিগুণ purge_disappearing/purge_l1_retention/uptime_check সরানো (মালিকের কমান্ড STATUS-এ) ও বাকিগুলো cron.d-তে আনা | সার্ভার — প্রযোজ্য নয় | crontab -l; STATUS 'cron যাচাই' | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| cron-এ নেই এমন কাজ (run_watchers, generate_briefings, booking_reminders, retention_run) | **২৩** | কখনো চলে না — ওয়াচ ফিড/পরীক্ষার ফল/দৈনিক ব্রিফ/বুকিং/রিটেনশন নিজে কাজ করে না; cron লাইন যোগ (মালিকের অনুমোদন) | সার্ভার — প্রযোজ্য নয় | core/management/commands/*; /etc/cron.d/assisto-app-এ নেই | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| সার্ভিস: assisto, photo-worker, tracker (:5023) | **৫৯** | সার্ভিস পড়ে গেলে নিজে চালু + মালিককে সতর্কতা প্রমাণ (watchdog আছে) | সার্ভার — প্রযোজ্য নয় | systemctl is-active = active ×৩; /etc/cron.d/assisto-watchdog | UptimeRobot / Crashlytics velocity alert · — | যাচাই বাকি (not yet benchmarked) |
-| ব্যাকআপ (রাতের DB) ও ডিস্ক গার্ড | **৫৫** | ব্যাকআপ থেকে রিস্টোর মহড়া (কখনো করা হয়নি বলে প্রমাণ নেই) | সার্ভার — প্রযোজ্য নয় | /etc/cron.d/assisto-backup; bin/disk_guard_daily.sh | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
-| Play-তে স্বয়ংক্রিয় আপলোড (internal track) | **৬১** | — | সার্ভার — প্রযোজ্য নয় | bin/play_release.sh; STATUS 10258 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| cron.d-তে চলা কাজ (১৭টি: billing_daily, push_due_reminders, calls_sweep, purge_*, uptime_check …) | **৮২** (moneybar; আগে ৬১) | সব JOBS-এ heartbeat + ops_watch, flock + timeout সহ প্রস্তাবিত লাইন, ধীর রান ধরা, shop_camera_billing দ্বিগুণ কাটা বন্ধ; বাকি: মালিক প্রস্তাবিত cron ফাইল বসাবেন (SERVER_JOBS ধাপ ৩) | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | Healthchecks.io · Cronitor · UptimeRobot | ops_watch এখন cron/সার্ভিস ব্যর্থ হলে মালিককে push দেয় (২৮ Oct: ভল্ট cron না থাকা ধরেছে) — BEST_IN_CLASS_BN.md Owner Admin ফাঁক ১ বন্ধ; বাকি তুলনা যাচাই বাকি (not yet benchmarked) |
+| ubuntu-crontab-এ থাকা কাজ (bizagent_*, world_*) ও তিনটি দ্বিগুণ কাজ | **৭৫** (moneybar; আগে ৫০) | পুরোনো journey_sweep/antitheft_escalate লাইন লাইভে আগেই '#OFF' — মুছে ফেলার সঠিক কমান্ড SERVER_JOBS-এ; ops_cron_file --diff দ্বিগুণ/পুরোনো লাইন ধরে; বাকি: মালিকের ধাপ | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| cron-এ নেই এমন কাজ (run_watchers, generate_briefings, booking_reminders, retention_run) | **৭০** (moneybar; আগে ২৩) | run_watchers, generate_briefings, booking_reminders, retention_run এখন লাইভ cron-এ আছে (২ Nov read-only যাচাই); meter_low_alerts ও tcb_prices_fetch JOBS-এ যোগ; বাকি: tcb_prices_fetch লাইন বসানো (মালিক) | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| সার্ভিস: assisto, photo-worker, tracker (:5023) | **৭০** (moneybar; আগে ৫৯) | ops_watch সার্ভিস পড়লে মালিককে push/ইমেইল; বাকি: 'পাহারাদারের পাহারা' healthchecks.io (মালিকের ধাপ ৫) | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | UptimeRobot / Crashlytics velocity alert · — | যাচাই বাকি (not yet benchmarked) |
+| ব্যাকআপ (রাতের DB) ও ডিস্ক গার্ড | **৬৮** (moneybar; আগে ৫৫) | মাসিক restore_test JOBS-এ, ফল System health-এ; বাকি: প্রথম রিস্টোর মহড়ার প্রমাণ | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| Play-তে স্বয়ংক্রিয় আপলোড (internal track) | **৬৫** (moneybar; আগে ৬১) | play_release.sh অপরিবর্তিত; heartbeat/সতর্কতা নথিতে; বাকি: আপলোড ব্যর্থতায় সতর্কতা | সার্ভার — প্রযোজ্য নয় | শাখা agent/moneybar (moneyops); core/tests_cronbar.py; SERVER_JOBS_100_BN.md; CI 41403794757 | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 
 ## লঞ্চ-জরুরি ফিচারের সবচেয়ে বড় ১৫টি ফাঁক — অগ্রাধিকার অনুযায়ী ঠিক করার তালিকা
 

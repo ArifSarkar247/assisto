@@ -1,3 +1,4 @@
+import '../widgets/money_digits.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -36,6 +37,7 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 3,
@@ -70,6 +72,14 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
 // ---------------------------------------------------------------------------
 // INCOME TAX estimator
 // ---------------------------------------------------------------------------
+
+/// moneybar: official sources (NBR = tax authority; BAJUS = the jewellers'
+/// association that sets the daily gold/silver price in Bangladesh).
+const String mbNbrCircularUrl =
+    'https://nbr.gov.bd/uploads/news-scroller/Aykor_Poripothro_2026-2027_BG_Press_Modify_Copy.pdf';
+const String mbBajusUrl = 'https://www.bajus.org/gold-price';
+/// 1 vori (bhori / tola) = 11.664 g.
+const double mbGramsPerVori = 11.664;
 
 class _IncomeTaxTab extends StatefulWidget {
   const _IncomeTaxTab();
@@ -155,6 +165,33 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
     final scheme = Theme.of(context).colorScheme;
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
       const TaxDisclaimerBanner(),
+      // moneybar: returns filed now are for AY 2026-27, whose rates are NOT
+      // in this calculator yet (not verified from NBR's own text) — say so.
+      Card(
+        key: const ValueKey('mb-tax-year-warning'),
+        color: scheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t.mbTaxNewYearTitle,
+                style: TextStyle(
+                    fontWeight: FontWeight.w800, color: scheme.onErrorContainer)),
+            const SizedBox(height: Gap.xs),
+            Text(t.mbTaxNewYearBody,
+                style: TextStyle(height: 1.4, color: scheme.onErrorContainer)),
+            const SizedBox(height: Gap.sm),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                  foregroundColor: scheme.onErrorContainer,
+                  side: BorderSide(color: scheme.onErrorContainer)),
+              onPressed: () => openExternal(context, mbNbrCircularUrl, t.taxLinkCopied),
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: Text(t.mbTaxOpenCircular),
+            ),
+          ]),
+        ),
+      ),
       if (_err != null) FinanceErrorBanner(_err!),
       TaxSectionTitle(t.taxYearLabel),
       DropdownButtonFormField<String>(
@@ -162,7 +199,7 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
         initialValue: _year,
         decoration: InputDecoration(labelText: t.taxYearLabel),
         items: tax.taxYears.keys
-            .map((y) => DropdownMenuItem(value: y, child: Text(y)))
+            .map((y) => DropdownMenuItem(value: y, child: Text(moneyDigits(y))))
             .toList(),
         onChanged: (v) => setState(() {
           _year = v ?? tax.defaultTaxYear;
@@ -364,6 +401,8 @@ class _ZakatTabState extends State<_ZakatTab> {
 
   tax.NisabResult? _nisab;
   bool _useSilverNisab = true; // silver nisab captures more wealth (lower)
+  // moneybar: BAJUS publishes prices per vori (bhori) — let people type that.
+  bool _perVori = true;
   tax.ZakatResult? _r;
 
   @override
@@ -379,9 +418,10 @@ class _ZakatTabState extends State<_ZakatTab> {
 
   void _calcNisab() {
     setState(() {
+      final div = _perVori ? mbGramsPerVori : 1.0;
       _nisab = tax.zakatNisab(
-        goldPricePerGram: parseNum(_goldPrice.text) ?? 0,
-        silverPricePerGram: parseNum(_silverPrice.text) ?? 0,
+        goldPricePerGram: (parseNum(_goldPrice.text) ?? 0) / div,
+        silverPricePerGram: (parseNum(_silverPrice.text) ?? 0) / div,
       );
     });
   }
@@ -420,14 +460,34 @@ class _ZakatTabState extends State<_ZakatTab> {
       Text(t.zakatNisabHint,
           style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
       const SizedBox(height: Gap.md),
+      SwitchListTile(
+        key: const ValueKey('mb-zakat-per-vori'),
+        contentPadding: EdgeInsets.zero,
+        value: _perVori,
+        title: Text(t.mbZakatPerVori),
+        subtitle: Text(t.mbZakatPerVoriSub),
+        onChanged: (v) => setState(() {
+          _perVori = v;
+          if (_nisab != null) _calcNisab();
+        }),
+      ),
       FinanceField(
           controller: _goldPrice,
-          label: t.zakatFieldGoldPricePerGram,
+          label: _perVori ? t.mbZakatGoldPerVori : t.zakatFieldGoldPricePerGram,
           icon: Icons.scale_rounded),
       FinanceField(
           controller: _silverPrice,
-          label: t.zakatFieldSilverPricePerGram,
+          label: _perVori ? t.mbZakatSilverPerVori : t.zakatFieldSilverPricePerGram,
           icon: Icons.scale_rounded),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => openExternal(context, mbBajusUrl, t.taxLinkCopied),
+          icon: const Icon(Icons.open_in_new_rounded, size: 18),
+          label: Text(t.mbZakatBajusLink),
+        ),
+      ),
       OutlinedButton(
           onPressed: _calcNisab, child: Text(t.zakatCalcNisab)),
       if (n != null) ...[
@@ -438,10 +498,10 @@ class _ZakatTabState extends State<_ZakatTab> {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(children: [
               FinanceResultRow(
-                  '${t.zakatNisabGold} (${tax.nisabGoldGrams}g)',
+                  '${t.zakatNisabGold} (${moneyDigits('${tax.nisabGoldGrams}')}g)',
                   fmtTaka(n.goldNisab)),
               FinanceResultRow(
-                  '${t.zakatNisabSilver} (${tax.nisabSilverGrams}g)',
+                  '${t.zakatNisabSilver} (${moneyDigits('${tax.nisabSilverGrams}')}g)',
                   fmtTaka(n.silverNisab)),
               const SizedBox(height: Gap.sm),
               SegmentedButton<bool>(
@@ -489,6 +549,7 @@ class _ZakatTabState extends State<_ZakatTab> {
                     child: Text(t.zakatNisabUnset,
                         style: TextStyle(color: AssistoTokens.of(context).warning)),
                   ),
+                if (r.nisabSet)
                 FinanceResultRow(
                     t.zakatResultAboveNisab,
                     r.aboveNisab ? t.zakatYes : t.zakatNo,

@@ -1,3 +1,5 @@
+import '../widgets/money_digits.dart'; // moneybar
+import '../widgets/money_circle_pick.dart'; // moneybar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -105,6 +107,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // moneybar: Bangla digits in bn
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -184,7 +187,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
   Future<void> _addMember() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final name = await _promptName(context, tr.messAddMember);
+    final name = await _promptName(context, tr.messAddMember, circle: true);
     if (name == null) return;
     final trimmed = name.trim();
     if (trimmed.isEmpty) return;
@@ -766,7 +769,8 @@ String _fmtTk(dynamic amount) =>
     _MessMath.fmtPoisha(_MessMath.toPoisha(amount).toDouble());
 
 // ---- name prompt + number prompt bottom sheets ----
-Future<String?> _promptName(BuildContext context, String title) async {
+Future<String?> _promptName(BuildContext context, String title,
+    {bool circle = false}) async {
   final tr = AppLocalizations.of(context);
   final c = TextEditingController();
   return showAppSheet<String>(
@@ -780,6 +784,10 @@ Future<String?> _promptName(BuildContext context, String title) async {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(title, style: Theme.of(ctx).textTheme.titleLarge),
           const SizedBox(height: Gap.lg),
+          if (circle) ...[
+            CirclePickButton(name: c),
+            const SizedBox(height: Gap.md),
+          ],
           TextField(
             controller: c,
             autofocus: true,
@@ -1043,7 +1051,7 @@ class _MessMath {
     p = p.abs();
     final taka = p ~/ 100;
     final paisa = p % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}');
   }
 
   static double _mealsOf(List<Map<String, dynamic>> meals, dynamic id) {
