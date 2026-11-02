@@ -282,8 +282,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             MsgrChannelTile(
               channel: ch,
               onTap: () => _openChannel(ch),
-              trailing: Tooltip(
-                message: ch['is_public'] == true
+              trailing: Semantics(
+                label: ch['is_public'] == true
                     ? t.chxPublicShort
                     : t.chxPrivateShort,
                 child: Icon(

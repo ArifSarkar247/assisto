@@ -1,3 +1,4 @@
+import 'fake_channels.dart'; // channels
 import 'fake_famcare.dart'; // famcare
 import 'fake_train.dart'; // train
 import 'fake_kidswatch.dart'; // kidswatch
@@ -975,6 +976,12 @@ class FakeApi extends ApiClient {
     if (c100 != null) {
       if (mode == FakeMode.fail) _fail();
       return c100;
+    }
+    // channels (2 Nov): directory / my channels / communities stubs
+    final chx = fakeChannelsGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (chx != null) {
+      if (mode == FakeMode.fail) _fail();
+      return chx;
     }
     // lifebar: what the server watches for me on the exam screen
     if (path == '/exam/watcher') {
@@ -1996,6 +2003,8 @@ class FakeApi extends ApiClient {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
+    final chxP = fakeChannelsPost(path, body); // channels
+    if (chxP != null) return chxP;
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
     if (p1P != null) return p1P;
     final khP = fakeKhataPost(
