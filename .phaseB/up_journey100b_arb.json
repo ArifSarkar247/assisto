@@ -1,0 +1,21 @@
+{
+  "en": {
+    "j100bWhyKilled": "Assisto was swiped away and the phone's battery saver probably stopped location. Please call them.",
+    "@j100bWhyKilled": {"description": "Watcher card: no location for 15+ min and the last fix came from the background service."},
+    "j100bWhyBattery": "Battery was {n}% last time — the phone may have died. This is the last known place.",
+    "@j100bWhyBattery": {"description": "Watcher card: no location and last known battery very low.", "placeholders": {"n": {"type": "Object"}}},
+    "j100bBatteryLast": "Battery {n}% (last known)",
+    "@j100bBatteryLast": {"description": "Watcher card: battery from an older fix (the background service cannot read it).", "placeholders": {"n": {"type": "Object"}}},
+    "j100bRoughSpeed": "About {m} min left at their speed in the last 10 min (not traffic data)",
+    "@j100bRoughSpeed": {"description": "Watcher card: rough time left from the traveller's own recent speed.", "placeholders": {"m": {"type": "Object"}}},
+    "j100bRoughTypical": "About {m} min left at a typical speed (not traffic data)",
+    "@j100bRoughTypical": {"description": "Watcher card: rough time left from a typical city speed for the mode.", "placeholders": {"m": {"type": "Object"}}}
+  },
+  "bn": {
+    "j100bWhyKilled": "Assisto সরিয়ে দেওয়ার পর ফোনের ব্যাটারি-সেভার সম্ভবত লোকেশন বন্ধ করেছে। ফোন করে খোঁজ নিন।",
+    "j100bWhyBattery": "শেষবার চার্জ ছিল {n}% — ফোন বন্ধ হয়ে গিয়ে থাকতে পারে। এটাই শেষ জানা জায়গা।",
+    "j100bBatteryLast": "চার্জ {n}% (শেষ জানা)",
+    "j100bRoughSpeed": "গত ১০ মিনিটের গতিতে আর প্রায় {m} মিনিট (ট্রাফিক-তথ্য নয়)",
+    "j100bRoughTypical": "সাধারণ গতিতে আর প্রায় {m} মিনিট (ট্রাফিক-তথ্য নয়)"
+  }
+}

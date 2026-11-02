@@ -1661,6 +1661,24 @@ class JourneyGeocodeView(APIView):
                                    near=near))
 
 
+def _lost_fields(j, fx, now):
+    """journey100b: last KNOWN battery (a background-service fix has none) and,
+    once no fix came for LOST_FIX_MIN, the honest likely reason."""
+    out = {}
+    if not fx:
+        return out
+    if fx[3] is None and (j.last_location or {}).get("battery_last") is not None:
+        out["battery_last"] = j.last_location["battery_last"]
+    if j.status == "active" and fx[2] is not None and \
+            (now - fx[2]).total_seconds() >= JW.LOST_FIX_MIN * 60:
+        why, b = JW.lost_reason(j)
+        if why:
+            out["why"] = why
+            if b is not None:
+                out["why_battery"] = b
+    return out
+
+
 class JourneyWatchingView(APIView):
     """GET /journey/watching — journeys the caller is a chosen watcher of
     (live, or ended within the privacy window). Location only while the trip
@@ -1690,6 +1708,7 @@ class JourneyWatchingView(APIView):
                 "battery": fx[3] if fx else None,
                 "ride": JD.clean_vehicle(j.vehicle),
                 **(JW.progress(j, fx) if fx and j.status == "active" else {}),
+                **_lost_fields(j, fx, now),
                 "url": JW.web_url(j)})
         return Response({"journeys": out})
 

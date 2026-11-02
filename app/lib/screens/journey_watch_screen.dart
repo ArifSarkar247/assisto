@@ -124,12 +124,32 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
           if (j['distance_m'] is num && j['status'] == 'active')
             Text(t.j2ToGo(jKm(context, j['distance_m'] as num)),
                 style: AType.bodyMedium),
+          // journey100b: rough time left — from their own recent speed when
+          // the server had enough fixes, else a typical speed (never traffic)
+          if (j['rough_min'] is num && j['status'] == 'active')
+            Text(
+                j['eta_basis'] == 'speed'
+                    ? t.j100bRoughSpeed(jDigits(context, (j['rough_min'] as num).toInt()))
+                    : t.j100bRoughTypical(jDigits(context, (j['rough_min'] as num).toInt())),
+                key: const ValueKey('j100b_rough'),
+                style: AType.bodyMedium),
+          // journey100b: the honest likely reason when no location comes in
+          if (j['why'] == 'killed' || j['why'] == 'battery')
+            Text(
+                j['why'] == 'battery'
+                    ? t.j100bWhyBattery(jDigits(context, (j['why_battery'] as num? ?? 0).toInt()))
+                    : t.j100bWhyKilled,
+                key: const ValueKey('j100b_why'),
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           if (j['ride'] is Map && jRideLine(t, j['ride'] as Map).isNotEmpty)
             Text(jRideLine(t, j['ride'] as Map), style: AType.bodyMedium),
           if (j['ride'] is Map && '${(j['ride'] as Map)['driver_name'] ?? ''}'.isNotEmpty)
             Text(t.j2Driver('${(j['ride'] as Map)['driver_name']}'), style: AType.bodyMedium),
           if (j['battery'] != null)
             Text(t.j100Battery(jDigits(context, (j['battery'] as num).toInt())),
+                style: AType.bodySmall)
+          else if (j['battery_last'] is num)
+            Text(t.j100bBatteryLast(jDigits(context, (j['battery_last'] as num).toInt())),
                 style: AType.bodySmall),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

@@ -341,3 +341,18 @@ class ServerTextLanguageTests(GBase):
             self.assertNotRegex(bn, r"[0-9]", (kind, p, bn))
             en = re.sub(r"https?://\S+", "", ten + " " + ben)
             self.assertNotRegex(en, r"[ঀ-৿]", (kind, p, en))
+
+
+class WatchingViewReasonTests(GBase):
+    def test_watcher_list_carries_reason_and_last_known_battery(self):
+        j, _ = self.start(eta_min=120)
+        old = timezone.now() - timedelta(minutes=JW.LOST_FIX_MIN + 5)
+        self.ca.post("%s/journey/%d/location" % (V, j.id), {"points": [
+            {"lat": 23.77, "lng": 90.39, "battery": 41, "src": "app",
+             "at": (old - timedelta(minutes=1)).isoformat()},
+            {"lat": 23.771, "lng": 90.391, "src": "bg", "at": old.isoformat()}]},
+            format="json")
+        w = self.cb.get("%s/journey/watching" % V).json()["journeys"][0]
+        self.assertEqual((w["why"], w["battery_last"]), ("killed", 41))
+        self.assertIsNone(w["battery"])
+        self.assertIn(w["eta_basis"], ("speed", "typical"))
