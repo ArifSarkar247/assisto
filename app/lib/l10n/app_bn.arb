@@ -20611,5 +20611,6 @@
   "boOpenKhata": "খাতা খুলুন",
   "boOpenWhatsApp": "WhatsApp খুলে পাঠান",
   "boShareOther": "অন্যভাবে পাঠান",
-  "flagWebsiteV3": "নতুন ওয়েবসাইট (v3) লাইভ"
+  "flagWebsiteV3": "নতুন ওয়েবসাইট (v3) লাইভ",
+  "flagWebsiteClassic": "আগের ওয়েবসাইট (বন্ধ করলে নতুন সাইট v3 লাইভ)"
 }

@@ -34508,5 +34508,6 @@
   "boOpenKhata": "Open Khata",
   "boOpenWhatsApp": "Open WhatsApp to send",
   "boShareOther": "Share another way",
-  "flagWebsiteV3": "New website (v3) live"
+  "flagWebsiteV3": "New website (v3) live",
+  "flagWebsiteClassic": "Classic website (turn OFF = new site v3 live)"
 }
