@@ -28490,5 +28490,8 @@
   "j2PlaceTheftSafe": "Safe place for anti-theft",
   "j2PlaceTheftSafeNote": "Anti-theft is softer here: protected changes (like turning protection off) happen at once instead of after the safety wait. Turn on only for places you trust.",
   "j2PlaceTheftSafeFailed": "Couldn't change it. Check the internet and try again.",
-  "j2PlaceLongPressEdit": "Long-press for options"
+  "j2PlaceLongPressEdit": "Long-press for options",
+  "adsPrivacyTitle": "Ads privacy",
+  "adsPrivacySub": "See or change your ad consent choice (Google form)",
+  "adsPrivacyNotRequired": "No ad-consent form is needed in your region. Tap the ⓘ AdChoices icon on any ad to learn why you see it."
 }
