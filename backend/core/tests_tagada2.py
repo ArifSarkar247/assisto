@@ -411,8 +411,11 @@ class MyDuesTests(APITestCase):
         self.assertIn("চাল ৫ কেজি", [e["note"] for e in d["entries"]])   # line notes: yes
         body = str(d)
         self.assertNotIn("PRIVATE", body)                           # party note never
-        self.assertNotIn("7777", body)                              # other customers never
-        self.assertNotIn("9999", body)
+        # other customers / other shops' books never: check the real amounts
+        # (raw poisha + bn/en display). A bare "9999"/"7777" substring also
+        # matched random timestamp microseconds (CI flake, 2 Nov).
+        for leaked in ("777700", "999900", "৭,৭৭৭", "৯,৯৯৯", "7,777", "9,999"):
+            self.assertNotIn(leaked, body)
 
     def test_unverified_sees_nothing(self, _p):
         u = User.objects.create_user(name="Imp", phone="+8801712345679", password="pw")
