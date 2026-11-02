@@ -338,6 +338,149 @@ def _parse_hhmm(s, default):
     return default
 
 
+# ----------------------------------------------------------------- veh100b robustness
+
+FENCE_MARGIN_M = 20.0       # a fence flips only this far past its edge (GPS wobble)
+JUMP_RESET_N = 3            # after this many rejected "jumps" the new place is real
+ENGINE_HOT_C = 105          # coolant (OBD / Teltonika IO 32) alert threshold
+FUEL_DROP_PCT = 10.0        # parked fuel-level fall that means "please check"
+FUEL_DROP_L = 5.0           # same, for trackers reporting litres (JT808 item 0x02)
+STALE_TOL_S = 60            # device clocks / batching jitter
+LATE_S = 900                # an event older than this when it reaches us is "late"
+CLOCK_TOL_S = 300
+
+
+def correct_clock(at, now, state):
+    """Device clock sanity (pure). Returns (at, state).
+
+    * A tracker someone set to LOCAL time (Concox `GMT,E,6#`, Sinotrack
+      timezone SMS) reports UTC+6 as if it were UTC: every fix lands ~6 h
+      in the future. Before veh100b such fixes were all clamped to "now" and
+      then de-duplicated away (one fix per batch survived). Now a skew close
+      to a whole half-hour (1-14 h) is learned as an offset (state
+      'clk_off') and removed from every later fix.
+    * A fix back at true UTC clears the learned offset (owner fixed it).
+    * Anything still in the future is clamped to now (as before)."""
+    st = state if state is not None else {}
+    off = int(st.get("clk_off") or 0)
+    skew = (at - now).total_seconds()
+    if off and abs(skew) <= CLOCK_TOL_S:
+        st.pop("clk_off", None)
+        off = 0
+    elif skew > CLOCK_TOL_S:
+        n = round(skew / 1800.0)
+        if 1 <= n <= 28 and abs(skew - n * 1800) <= CLOCK_TOL_S:
+            off = n * 1800
+            st["clk_off"] = off
+    if off:
+        at = at - timedelta(seconds=off)
+    if (at - now).total_seconds() > CLOCK_TOL_S:
+        at = now
+    return at, st
+
+
+def _is_stale(st, fix):
+    """A fix OLDER than the newest one already acted on (blind-area
+    re-upload / buffered points arriving after live ones). It is stored for
+    history but must not drive alert state (fences, routes, stops,
+    ignition) backwards."""
+    at = fix.get("at")
+    lt = st.get("lt")
+    return bool(lt is not None and hasattr(at, "timestamp")
+                and at.timestamp() < float(lt) - STALE_TOL_S)
+
+
+def _jump_rejected(st, fix):
+    """True when this fix implies > MAX_JUMP_KMH from the last accepted one
+    (multipath / cold-start GPS jump) — it must not flip geofences. After
+    JUMP_RESET_N rejections in a row the new place is accepted (the vehicle
+    really is there, e.g. after a long offline gap on a truck)."""
+    at = fix.get("at")
+    lp = st.get("lp")
+    ts = at.timestamp() if hasattr(at, "timestamp") else None
+    if lp and ts is not None:
+        dt = ts - float(lp[2])
+        d = haversine_m(float(lp[0]), float(lp[1]), fix["lat"], fix["lng"])
+        if dt > 0 and d / dt * 3.6 > MAX_JUMP_KMH and \
+                int(st.get("jump_n") or 0) < JUMP_RESET_N:
+            st["jump_n"] = int(st.get("jump_n") or 0) + 1
+            return True
+    st["jump_n"] = 0
+    if ts is not None:
+        st["lp"] = [fix["lat"], fix["lng"], ts]
+    return False
+
+
+def fence_state(fence, lat, lng, was):
+    """Inside / outside with a hysteresis band of FENCE_MARGIN_M (or 20 % of
+    a small circle's radius): inside the band the previous state holds, so a
+    parked car on the fence line never sends enter/exit/enter."""
+    now_in = inside_fence(fence, lat, lng)
+    if was is None or now_in == was:
+        return now_in
+    try:
+        if fence.get("points"):
+            pts = [(float(p[0]), float(p[1])) for p in fence["points"]]
+            edge = min(_seg_dist_m(lat, lng, pts[i], pts[(i + 1) % len(pts)])
+                       for i in range(len(pts)))
+            margin = FENCE_MARGIN_M
+        else:
+            r = float(fence.get("radius_m") or 200)
+            edge = abs(haversine_m(float(fence["lat"]), float(fence["lng"]), lat, lng) - r)
+            margin = min(FENCE_MARGIN_M, 0.2 * r)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return now_in
+    return now_in if edge >= margin else was
+
+
+def _eval_engine(st, fix, settings):
+    """veh100b: engine hot + parked fuel drop from OBD / CAN / JT808 data.
+    Fires only when the tracker actually reports the value."""
+    alerts = []
+    obd = fix.get("obd") or {}
+    hot_c = float(settings.get("engine_hot_c") or ENGINE_HOT_C)
+    c = obd.get("coolant_temp_c")
+    if isinstance(c, (int, float)):
+        if c >= hot_c:
+            st["hot_n"] = int(st.get("hot_n") or 0) + 1
+            if st["hot_n"] >= 2 and not st.get("hot_alerted"):
+                st["hot_alerted"] = True
+                alerts.append({"kind": "engine_hot", "temp_c": int(c),
+                               "lat": fix.get("lat"), "lng": fix.get("lng")})
+        else:
+            st["hot_n"] = 0
+            if c < hot_c - 10:
+                st["hot_alerted"] = False
+    for key, thr in (("fuel_level_pct", FUEL_DROP_PCT), ("fuel_l", FUEL_DROP_L)):
+        lvl = obd.get(key)
+        if not isinstance(lvl, (int, float)):
+            continue
+        moving = float(fix.get("speed_kmh") or 0) >= MOVING_KMH
+        slot = "fuel_" + key
+        if moving:
+            st.pop(slot, None)                  # driving uses fuel: re-baseline
+            st.pop(slot + "_n", None)
+            st.pop(slot + "_alerted", None)
+            continue
+        ref = st.get(slot)
+        if ref is None or lvl > ref:
+            st[slot] = lvl                      # parked baseline (refuel raises it)
+            st[slot + "_n"] = 0
+            continue
+        if ref - lvl >= thr:
+            st[slot + "_n"] = int(st.get(slot + "_n") or 0) + 1
+            # two readings in a row (one tilted-tank reading is noise)
+            if st[slot + "_n"] >= 2 and not st.get(slot + "_alerted"):
+                st[slot + "_alerted"] = True
+                alerts.append({"kind": "fuel_drop", "from": round(ref, 1),
+                               "to": round(lvl, 1),
+                               "unit": "pct" if key == "fuel_level_pct" else "l",
+                               "lat": fix.get("lat"), "lng": fix.get("lng")})
+        else:
+            st[slot + "_n"] = 0
+    return alerts
+
+
 def evaluate_alerts(state, fix, settings, local_hour):
     """Advance the per-vehicle alert state machine by one fix.
 
@@ -353,11 +496,20 @@ def evaluate_alerts(state, fix, settings, local_hour):
     st = dict(state or {})
     alerts = []
     fences_state = dict(st.get("fence") or {})
-    if fix.get("valid", True) and fix.get("lat") is not None:
-        for fence in settings.get("geofences") or []:
+    if _is_stale(st, fix):
+        return st, alerts
+    loc_ok = fix.get("valid", True) and fix.get("lat") is not None \
+        and fix.get("lng") is not None and not (fix["lat"] == 0 and fix["lng"] == 0)
+    if loc_ok and hasattr(fix.get("at"), "timestamp"):
+        st["lt"] = max(float(st.get("lt") or 0), fix["at"].timestamp())
+    # a GPS jump must not flip a geofence (single-fix rule); routes are
+    # already debounced over OFF_ROUTE_FIXES fixes, speed comes from the device
+    jumped = loc_ok and _jump_rejected(st, fix)
+    if loc_ok:
+        for fence in ([] if jumped else settings.get("geofences") or []):
             fid = str(fence.get("id"))
-            now_in = inside_fence(fence, fix["lat"], fix["lng"])
             was = fences_state.get(fid)
+            now_in = fence_state(fence, fix["lat"], fix["lng"], was)
             want = fence.get("alert") or "both"     # both | enter | exit
             if was is not None and was != now_in and (
                     want == "both" or want == ("enter" if now_in else "exit")):
@@ -386,6 +538,9 @@ def evaluate_alerts(state, fix, settings, local_hour):
                     st["over_alerted"] = False
 
         alerts.extend(_eval_stop(st, fix, settings))
+
+    if fix.get("obd"):
+        alerts.extend(_eval_engine(st, fix, settings))
 
     ign = fix.get("ignition")
     if ign is not None:
@@ -526,11 +681,11 @@ def silent_alert(state, last_seen_at, now, silent_min=30, was_moving=False):
 # Kinds that ALWAYS push (safety); everything else respects the owner's
 # quiet hours (in-app only during them). Per-kind cooldown in seconds.
 SAFETY_KINDS = ("device_alarm", "night_ignition", "geofence_exit", "off_route",
-                "tracker_silent")
+                "tracker_silent", "fuel_drop")
 COOLDOWN_S = {"overspeed": 600, "geofence_enter": 120, "geofence_exit": 120,
               "ignition_on": 300, "ignition_off": 300, "long_stop": 300,
               "off_route": 600, "night_ignition": 900, "device_alarm": 600,
-              "tracker_silent": 1800}
+              "tracker_silent": 1800, "engine_hot": 1800, "fuel_drop": 1800}
 DAILY_PUSH_CAP = 30      # pushes per tracker per local day (the rest: in-app)
 
 
@@ -837,12 +992,27 @@ def _bn(v):
 
 
 _ALARM_BN = {"sos": "SOS বোতাম", "power_cut": "ট্র্যাকারের বিদ্যুৎ বিচ্ছিন্ন",
+             "power_off": "ট্র্যাকার বন্ধ হয়ে গেছে",
              "tamper": "ট্র্যাকারে হাত দেওয়া হয়েছে", "low_battery": "ট্র্যাকারের ব্যাটারি কম"}
 _ALARM_EN = {"sos": "SOS button", "power_cut": "tracker power disconnected",
+             "power_off": "tracker switched off",
              "tamper": "tracker tampered", "low_battery": "tracker battery low"}
 
 
 def alert_text(alert, vehicle_name, lang="bn"):
+    """(title, body) for one alert. veh100b: an alert that reached us late
+    (tracker was offline and sent stored points) says WHEN it happened."""
+    title, body = _alert_text(alert, vehicle_name, lang)
+    when = alert.get("late_at")                 # "HH:MM" local, set by ingest
+    if when:
+        if lang == "bn":
+            body += " (ঘটনার সময় %s — ট্র্যাকারের নেট না থাকায় দেরিতে এসেছে।)" % _bn(when)
+        else:
+            body += " (Happened at %s — the tracker was offline, so this arrived late.)" % when
+    return title, body
+
+
+def _alert_text(alert, vehicle_name, lang="bn"):
     """(title, body) for one alert. Wording is 'please check', never blame."""
     k = alert["kind"]
     v = vehicle_name or ("আপনার গাড়ি" if lang == "bn" else "Your vehicle")
@@ -884,6 +1054,15 @@ def alert_text(alert, vehicle_name, lang="bn"):
                     "%s মিনিট ধরে ট্র্যাকার থেকে কোনো সংকেত আসেনি। ট্র্যাকার খুলে ফেলা, "
                     "বিদ্যুৎ বিচ্ছিন্ন, সিমে ডাটা নেই বা নেটওয়ার্ক না থাকতে পারে। দয়া করে দেখে নিন।"
                     % _bn(int(alert.get("minutes") or 0)))
+        if k == "engine_hot":
+            return ("%s-এর ইঞ্জিন গরম" % v,
+                    "ইঞ্জিনের তাপমাত্রা %s°C। নিরাপদ জায়গায় থেমে ইঞ্জিন বন্ধ করে "
+                    "কুল্যান্ট দেখে নিন।" % _bn(int(alert.get("temp_c") or 0)))
+        if k == "fuel_drop":
+            u = "%" if alert.get("unit") == "pct" else " লিটার"
+            return ("%s-এর তেল হঠাৎ কমেছে" % v,
+                    "গাড়ি থেমে থাকা অবস্থায় তেল %s%s থেকে %s%s হয়েছে। দয়া করে দেখে নিন।"
+                    % (_bn(alert.get("from")), u, _bn(alert.get("to")), u))
         if k == "device_alarm" and alert.get("source") == "voltage" \
                 and alert.get("alarm") == "power_cut":
             return ("%s: ট্র্যাকারের বিদ্যুৎ বিচ্ছিন্ন" % v,
@@ -927,6 +1106,15 @@ def alert_text(alert, vehicle_name, lang="bn"):
                 "No signal from the tracker for %d minutes. It may have been unplugged, "
                 "lost power, run out of SIM data or lost network. Please check."
                 % int(alert.get("minutes") or 0))
+    if k == "engine_hot":
+        return ("%s: engine hot" % v,
+                "Engine temperature is %d°C. Stop somewhere safe, switch off and "
+                "check the coolant." % int(alert.get("temp_c") or 0))
+    if k == "fuel_drop":
+        u = "%" if alert.get("unit") == "pct" else " L"
+        return ("%s: fuel dropped suddenly" % v,
+                "While parked, fuel went from %s%s to %s%s. Please check."
+                % (alert.get("from"), u, alert.get("to"), u))
     if k == "device_alarm" and alert.get("source") == "voltage" \
             and alert.get("alarm") == "power_cut":
         return ("%s: tracker power disconnected" % v,

@@ -905,6 +905,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'veh_settings_bottom': (build: (l) => VehicleTrackerSettingsScreen(tracker: {'id': 1, 'name': l == 'bn' ? 'পরিবারের গাড়ি' : 'Family car', 'live': {'lat': 23.79, 'lng': 90.41}, 'settings': {'speed_limit_kmh': 80, 'night_ignition_alert': true, 'night_start': '23:00', 'night_end': '05:00', 'moving_interval_s': 5, 'parked_interval_s': 180, 'geofences': [{'id': 'h', 'name': l == 'bn' ? 'বাসা' : 'Home', 'lat': 23.78, 'lng': 90.41, 'radius_m': 400}], 'cutoff_requires_approval': true, 'approver_member_id': 1}}), mode: FakeMode.data, full: true),
     'veh_pair_sheet': (build: (_) => const Scaffold(body: SafeArea(child: PairTrackerSheet(monthCredits: 50))), mode: FakeMode.data, full: true),
     'veh_obd_bottom': (build: (_) => const VehicleObdScreen(trackerId: 1, previewReading: ObdReading(coolantC: 88, batteryV: 12.4, rpm: 790, dtcs: ['P0301'])), mode: FakeMode.data, full: true),
+    // veh100b: engine-hot warning (dongle reading over 105 °C)
+    'veh_obd_hot': (build: (_) => const VehicleObdScreen(previewReading: ObdReading(coolantC: 112, batteryV: 12.1, rpm: 900)), mode: FakeMode.data, full: false),
     'veh_car_mode': (build: (_) => const CarModeScreen(), mode: FakeMode.data, full: true),
     'veh_fleet': (build: (_) => const FleetDashboardScreen(), mode: FakeMode.data, full: true),
     'veh_fleet_locked': (build: (_) => const FleetDashboardScreen(), mode: FakeMode.data, full: false),

@@ -41,18 +41,58 @@ class FrameError(ValueError):
     pass
 
 
+BIN_START = b"$"
+BIN_SHORT = 32       # '$' + 5-byte BCD id + time/date/lat/lng/speed/status ...
+BIN_LONG = 45        # same record with trailing extras (Traccar H02FrameDecoder)
+BIN_LONG_ID = 42     # 8-byte id variant (15-digit IMEI)
+
+
 def looks_like_h02(first: bytes) -> bool:
+    if first[:1] == BIN_START and len(first) >= 2:
+        # binary H02: BCD device id right after '$' (every nibble 0-9)
+        return all((b >> 4) < 10 and (b & 0x0F) < 10 for b in first[1:6])
     return first[:1] == START and first[1:3].isalpha()
 
 
+def _bin_len(buf: bytes):
+    """Length of the binary frame at buf[0] ('$'), or None = wait for more.
+    Devices send one record per TCP segment almost always; when several
+    arrive together the next frame's first byte ('$' or '*') decides."""
+    n = len(buf)
+    # two records of the SAME device back to back (TCP coalescing): the next
+    # '$' + identical id right after 32 bytes settles it
+    if n > BIN_SHORT and buf[BIN_SHORT:BIN_SHORT + 1] == BIN_START \
+            and buf[BIN_SHORT + 1:BIN_SHORT + 6] == buf[1:6]:
+        return BIN_SHORT
+    if n in (BIN_SHORT, BIN_LONG_ID, BIN_LONG):
+        return n
+    for L in (BIN_SHORT, BIN_LONG, BIN_LONG_ID):
+        if n > L and buf[L:L + 1] in (BIN_START, START):
+            return L
+    if n < BIN_LONG:
+        return None
+    return BIN_SHORT
+
+
 def split_frames(buf: bytes):
-    """(frames, rest). Junk before '*' is dropped; an over-long frame raises."""
+    """(frames, rest). Text '*...#' and binary '$...' frames (veh100b: many
+    H02 firmwares, incl. Sinotrack clones, report in binary). Junk before a
+    start byte is dropped; an over-long frame raises."""
     frames = []
     while True:
-        i = buf.find(START)
-        if i < 0:
+        i_t = buf.find(START)
+        i_b = buf.find(BIN_START)
+        cands = [x for x in (i_t, i_b) if x >= 0]
+        if not cands:
             return frames, b""
-        buf = buf[i:]
+        buf = buf[min(cands):]
+        if buf[:1] == BIN_START:
+            L = _bin_len(buf)
+            if L is None:
+                return frames, buf
+            frames.append(buf[:L])
+            buf = buf[L:]
+            continue
         j = buf.find(END)
         if j < 0:
             if len(buf) > MAX_FRAME:
@@ -64,18 +104,100 @@ def split_frames(buf: bytes):
         buf = buf[j + 1:]
 
 
+def _nibbles(b: bytes) -> str:
+    h = b.hex()
+    if not h.isdigit():
+        raise FrameError("bad_bcd")
+    return h
+
+
+def parse_binary(frame: bytes) -> dict:
+    """Binary H02 position (layout as Traccar H02ProtocolDecoder.decodeBinary):
+    '$', id (5 BCD bytes; 8 when the frame is 42 bytes), hhmmss, ddmmyy,
+    lat ddmm.mmmm (4 BCD bytes), battery (1), lng dddmm.mmmm + flags
+    nibble (5 bytes), speed (3 BCD digits, knots) + course (3 digits),
+    status (4 bytes, same bits as the text status word)."""
+    if frame[:1] != BIN_START or len(frame) < BIN_SHORT:
+        raise FrameError("short_bin")
+    o = 1
+    if len(frame) == BIN_LONG_ID:
+        imei = _nibbles(frame[1:9])[:15]
+        o = 9
+    else:
+        imei = _nibbles(frame[1:6])
+        o = 6
+    if len(frame) < o + 26:
+        raise FrameError("short_bin")
+    t = _nibbles(frame[o:o + 6])                     # hhmmss ddmmyy
+    lat_s = _nibbles(frame[o + 6:o + 10])            # ddmmmmmm
+    battery = frame[o + 10]
+    lng_b = frame[o + 11:o + 16]                     # dddmmmmm m+flags
+    lng_s = lng_b.hex()
+    flags = lng_b[4] & 0x0F
+    lng_digits = lng_s[:9]
+    if not (lng_digits.isdigit() and t.isdigit()):
+        raise FrameError("bad_bcd")
+    sp = frame[o + 16:o + 19].hex()                  # sss c cc (c = course)
+    if not sp.isdigit():
+        raise FrameError("bad_bcd")
+    status = int.from_bytes(frame[o + 19:o + 23], "big")
+    try:
+        at = datetime(2000 + int(t[10:12]), int(t[8:10]), int(t[6:8]),
+                      int(t[0:2]), int(t[2:4]), int(t[4:6]), tzinfo=timezone.utc)
+    except ValueError:
+        raise FrameError("bad_time")
+    lat = int(lat_s[:2]) + int(lat_s[2:]) / 10000.0 / 60.0
+    lng = int(lng_digits[:3]) + int(lng_digits[3:]) / 10000.0 / 60.0
+    if not flags & 0x04:
+        lat = -lat
+    if not flags & 0x08:
+        lng = -lng
+    if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        raise FrameError("bad_range")
+    knots = int(sp[:3])
+    course = int(sp[3:6]) % 360
+    alarms = status_alarms(status)
+    fix = {"at": at, "lat": round(lat, 6), "lng": round(lng, 6),
+           "speed_kmh": round(knots * KNOT_KMH, 1), "course": course,
+           "sats": 0, "valid": bool(flags & 0x02),
+           "ignition": bool(status & (1 << 10)), "alarms": alarms}
+    return {"kind": "gps", "imei": _imei(imei.lstrip("0") if len(imei) > 10 else imei),
+            "fix": fix, "status": status, "battery_pct": battery,
+            "alarm": "sos" if "sos" in alarms else None, "alarms": alarms,
+            "binary": True}
+
+
 def _coord(v: str, hemi: str, deg_digits: int) -> float:
-    if not v or "." not in v:
-        raise FrameError("bad_coord")
-    head, _ = v.split(".", 1)
-    if len(head) < deg_digits + 2:
-        raise FrameError("bad_coord")
-    deg = int(v[:len(head) - 2])
-    minutes = float(v[len(head) - 2:])
-    if minutes >= 60:
+    """ddmm.mmmm / dddmm.mmmm. veh100b, from recorded device frames (Traccar
+    H02ProtocolDecoderTest): firmwares drop leading zeros ("954.9490" =
+    9 deg 54.949 min), some send no dot ("37573392" = 37 deg 57.3392 min)
+    and a few sign both parts ("-23-35.3408")."""
+    v = (v or "").strip()
+    neg = False
+    if v.startswith("-") and v.count("-") == 2:
+        d, m = v[1:].split("-", 1)
+        try:
+            deg, minutes = int(d), float(m)
+        except ValueError:
+            raise FrameError("bad_coord")
+        neg = True
+    elif v.isdigit() and len(v) >= 7:
+        deg, minutes = int(v[:-6]), int(v[-6:]) / 10000.0
+    else:
+        if not v or "." not in v:
+            raise FrameError("bad_coord")
+        head, _ = v.split(".", 1)
+        if len(head) < 3 or not head.isdigit():
+            raise FrameError("bad_coord")
+        try:
+            deg = int(head[:-2])
+            minutes = float(v[len(head) - 2:])
+        except ValueError:
+            raise FrameError("bad_coord")
+    if minutes >= 60 or deg > (90 if deg_digits == 2 else 180):
         raise FrameError("bad_coord")
     out = deg + minutes / 60.0
-    if hemi in ("S", "W"):
+    if hemi in ("S", "W") or (neg and hemi not in ("N", "E")):
         out = -out
     elif hemi not in ("N", "E"):
         raise FrameError("bad_hemi")
@@ -90,6 +212,8 @@ def _imei(v: str) -> str:
 
 def parse_frame(frame: bytes) -> dict:
     """Decode one frame from split_frames. Returns {kind, imei, ...}."""
+    if frame[:1] == BIN_START:
+        return parse_binary(frame)
     try:
         text = frame.decode("ascii")
     except UnicodeDecodeError:
@@ -104,8 +228,20 @@ def parse_frame(frame: bytes) -> dict:
     imei = _imei(f[1])
     typ = f[2].upper()
     if typ in ("V1", "V2", "V19", "V6"):
-        if len(f) < 13:
+        if len(f) < 12:
             raise FrameError("short_v1")
+        if not f[3] and f[4].upper() == "V":
+            # no GPS time at all (cold start, no fix): alive, nothing to store
+            return {"kind": "heartbeat", "imei": imei}
+        # date = first 6-digit field after course; a few firmwares insert one
+        # extra field before it ("...,047,4,080918,EEE7FBDF").
+        di = next((i for i in range(11, min(len(f), 14))
+                   if len(f[i]) == 6 and f[i].isdigit()), None)
+        if di is None:
+            raise FrameError("bad_v1")
+        f = f[:11] + f[di:]
+        if len(f) < 13:
+            f = f + [""]                  # no status word: ignition/alarms unknown
         try:
             hh, mi, ss = int(f[3][0:2]), int(f[3][2:4]), int(f[3][4:6])
             dd, mo, yy = int(f[11][0:2]), int(f[11][2:4]), int(f[11][4:6])
@@ -226,3 +362,27 @@ def parse_server_command(frame: bytes):
     """Device-side decode -> (code, params list)."""
     f = frame.decode("ascii")[1:-1].split(",")
     return f[2], f[4:]
+
+
+def binary_packet(device_id: str, at: datetime, lat: float, lng: float,
+                  speed_kmh: float, course: int, status: int = 0xFFFFFBFF,
+                  valid=True, battery=6) -> bytes:
+    """Device side (sim/tests): a 32-byte binary H02 record ('$' frame).
+    status default = all alarms clear, ACC (bit 10) off."""
+    a = at.astimezone(timezone.utc)
+    alat, alng = abs(lat), abs(lng)
+    lat_d = int(alat)
+    lat_m = int(round((alat - lat_d) * 60 * 10000))
+    lng_d = int(alng)
+    lng_m = int(round((alng - lng_d) * 60 * 10000))
+    flags = (0x02 if valid else 0) | (0x04 if lat >= 0 else 0) | (0x08 if lng >= 0 else 0)
+    knots = int(round(speed_kmh / KNOT_KMH))
+    hexs = (device_id.rjust(10, "0")[-10:]
+            + a.strftime("%H%M%S%d%m%y")
+            + "%02d%06d" % (lat_d, lat_m)
+            + "%02x" % (battery & 0xFF)
+            + "%03d%05d%x" % (lng_d, lng_m, flags)
+            + "%03d%03d" % (knots, int(course) % 360)
+            + "%08x" % (status & 0xFFFFFFFF))
+    body = bytes.fromhex(hexs)
+    return (b"$" + body).ljust(BIN_SHORT, b"\x00")
