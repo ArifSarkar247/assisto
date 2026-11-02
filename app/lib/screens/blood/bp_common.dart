@@ -128,13 +128,18 @@ class BpGroupBadge extends StatelessWidget {
       label: AppLocalizations.of(context).bpGroupLabel(group),
       excludeSemantics: true,
       child: Container(
-        constraints: BoxConstraints(minWidth: size, minHeight: size),
+        width: size,
+        height: size,
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+        padding: const EdgeInsets.all(Gap.xs),
         decoration: BoxDecoration(color: s.errorContainer, shape: BoxShape.circle),
-        child: Text(group,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: s.onErrorContainer, fontWeight: FontWeight.w700)),
+        // fixed size (ListTile leading needs it); the text scales down at 200%
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(group,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: s.onErrorContainer, fontWeight: FontWeight.w700)),
+        ),
       ),
     );
   }
@@ -173,8 +178,10 @@ class BpVerifiedChip extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.verified_rounded, size: 18, color: s.primary),
       const SizedBox(width: Gap.xs),
-      Text(AppLocalizations.of(context).bpVerified,
-          style: TextStyle(color: s.primary, fontWeight: FontWeight.w600)),
+      Flexible(
+        child: Text(AppLocalizations.of(context).bpVerified,
+            style: TextStyle(color: s.primary, fontWeight: FontWeight.w600)),
+      ),
     ]);
   }
 }

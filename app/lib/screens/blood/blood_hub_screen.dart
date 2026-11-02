@@ -114,7 +114,9 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
           _cfg = c;
         });
       }
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) _snack(AppLocalizations.of(context).bpLoadFailed);
+    }
   }
 
   void _snack(String m) =>

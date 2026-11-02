@@ -138,13 +138,13 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text(l.bpFindEmptyTitle), findsOneWidget);
     expect(find.byKey(const ValueKey('bp-find-cta')), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('bp-tab-requests')));
+    await _tap(t, 'bp-tab-requests');
     await t.pumpAndSettle();
     expect(find.text(l.bpReqEmptyTitle), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('bp-tab-me')));
+    await _tap(t, 'bp-tab-me');
     await t.pumpAndSettle();
     expect(find.text(l.bpBecomeLead), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('bp-become')));
+    await _tap(t, 'bp-become');
     await t.pumpAndSettle();
     expect(find.byType(BloodDonorSetupScreen), findsOneWidget);
   });
@@ -292,7 +292,8 @@ void main() {
       for (final w in screens) {
         await t.pumpWidget(_app(w, _Fake(bn: true), lang: 'bn', dark: dark, scale: 2));
         await t.pumpAndSettle();
-        expect(t.takeException(), isNull);
+        final e = t.takeException();
+        if (e != null) fail('${w.runtimeType}: ${e is FlutterError ? e.toStringDeep() : e}');
       }
     });
   }

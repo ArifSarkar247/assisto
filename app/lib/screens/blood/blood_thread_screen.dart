@@ -37,6 +37,9 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
   @override
   void initState() {
     super.initState();
+    _ctrl.addListener(() {
+      if (mounted) setState(() {});
+    });
     unawaited(_load());
   }
 
@@ -317,7 +320,7 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
           IconButton(
             key: const ValueKey('bp-thread-send'),
             tooltip: t.bpSend,
-            onPressed: blocked || _sending ? null : _send,
+            onPressed: blocked || _sending || _ctrl.text.trim().isEmpty ? null : _send,
             icon: const Icon(Icons.send_rounded),
           ),
         ]),
