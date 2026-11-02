@@ -10,6 +10,8 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
+import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// CONTRACT / AGREEMENT ANALYZER (#30, SPEC v2.1 §8, ADVANCED).
 ///
@@ -434,7 +436,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
 
   Widget _analyzeTab() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
       children: [
         const _HonestMarker(),
         const SizedBox(height: Gap.lg),
@@ -609,7 +611,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         itemCount: _saved.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) {
@@ -717,7 +719,7 @@ class _CountChip extends StatelessWidget {
         color: color.withValues(alpha: dim ? 0.06 : 0.14),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
-      child: Text('$count · $label',
+      child: Text('${ld(context, count)} · $label',
           style: AType.bodySmall.copyWith(color: dim ? Theme.of(context).colorScheme.onSurfaceVariant : color,
               fontWeight: FontWeight.w700)),
     );

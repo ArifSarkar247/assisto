@@ -191,7 +191,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         itemCount: ordered.length + 1,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) {

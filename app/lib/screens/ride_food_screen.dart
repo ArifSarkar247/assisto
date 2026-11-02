@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData; // lifebar
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/ride_deeplink.dart';
@@ -89,6 +90,16 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
   // ---- actions -----------------------------------------------------------
   Future<void> _openRide(RideProvider p) async {
     final drop = _dest.text.trim();
+    // lifebar: Pathao's link cannot carry a destination and Uber only gets a
+    // name, so the typed place is copied — paste it in their app.
+    if (drop.isNotEmpty) {
+      await Clipboard.setData(ClipboardData(text: drop));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context).lifebarRideCopied)));
+    }
     final ok = await RideDeepLink.open(RideDeepLink.urlFor(p, drop: drop));
     if (!mounted) return;
     if (ok) {

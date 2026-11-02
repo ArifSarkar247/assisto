@@ -266,7 +266,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
         children: [
           if (sheets.length > 1) _sheetPicker(sheets, scheme),
           _headerCard(active, tr, scheme),

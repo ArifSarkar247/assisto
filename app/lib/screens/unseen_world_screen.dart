@@ -13,6 +13,9 @@ import '../widgets/permission_reason.dart';
 import '../widgets/unseen_data.dart';
 import '../widgets/unseen_card.dart';
 import '../widgets/unseen_filters.dart';
+import '../widgets/unseen_l10n.dart'; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// Unseen World — ADVANCED travel companion (launch gap F / Appendix #41).
 ///
@@ -191,6 +194,10 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         cat: _showWishlist ? null : _cat,
         query: _query,
         savedOnly: _showWishlist ? _saved.contains : null,
+        extraHay: (d) {
+          final x = uwText(AppLocalizations.of(context), d, true);
+          return '${x.name} ${x.how} ${x.near}';
+        },
       )..sort((a, b) {
           if (_pos == null) return 0;
           return (_distOf(a) ?? 1e12).compareTo(_distOf(b) ?? 1e12);
@@ -198,11 +205,13 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
 
   Future<void> _shareDest(Destination d) async {
     final t = AppLocalizations.of(context);
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final tx = uwText(t, d, bn); // lifebar
     final text = [
-      d.name,
-      '${t.unseenBestSeason}: ${d.bestTime}',
-      '${t.unseenHowToGet}: ${d.howToGet}',
-      '${t.unseenApproxCost}: ${t.unseenCostRange('${d.approxCostLow}', '${d.approxCostHigh}')}',
+      tx.name,
+      '${t.unseenBestSeason}: ${tx.best}',
+      '${t.unseenHowToGet}: ${tx.how}',
+      '${t.unseenApproxCost}: ${t.unseenCostRange(toLocalDigits('${d.approxCostLow}', bn), toLocalDigits('${d.approxCostHigh}', bn))}',
       '${t.unseenSource}: ${d.source.label}',
       d.mapsUrl,
       '— Assisto',
@@ -354,13 +363,28 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
       return StateMessage(
         icon: _showWishlist ? Icons.bookmark_border_rounded : Icons.search_off_rounded,
         title: _showWishlist ? t.unseenNoWishlist : t.nothingFound,
-        message: _showWishlist ? t.unseenNoWishlistHint : null,
+        message: _showWishlist ? t.unseenNoWishlistHint : t.lifebarUwNoMatchHint,
+        // lifebar: never a dead end
+        action: FilledButton.tonalIcon(
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () {
+            _searchCtrl.clear();
+            setState(() {
+              _query = '';
+              _cat = null;
+              _division = null;
+              _showWishlist = false;
+            });
+          },
+          icon: Icon(_showWishlist ? Icons.explore_rounded : Icons.filter_alt_off_rounded),
+          label: Text(_showWishlist ? t.lifebarUwBrowseAll : t.lifebarClearFilters),
+        ),
       );
     }
 
     final showExtras = !_showWishlist && _query.isEmpty && _cat == null;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg)),
       children: [
         if (showExtras && seasonal.isNotEmpty) ...[
           _sectionHeader(Icons.wb_sunny_rounded, t.unseenSeasonalNow),
@@ -410,6 +434,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
     final scheme = Theme.of(context).colorScheme;
     final meta = catMeta(trip.cat);
     final stops = trip.stops();
+    final bnUi = Localizations.localeOf(context).languageCode == 'bn'; // lifebar
     final (lo, hi) = trip.approxCost();
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
@@ -418,12 +443,12 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
           backgroundColor: meta.tint.withValues(alpha: 0.16),
           child: Icon(meta.icon, color: meta.tint, size: 20),
         ),
-        title: Text(stops.map((s) => s.name).join(' → '),
+        title: Text(stops.map((s) => uwText(t, s, bnUi).name).join(' → '),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(
-            '${t.unseenTripDays(trip.days)}  •  ${t.unseenApproxCost}: ${t.unseenCostRange('$lo', '$hi')}',
+            '${t.unseenTripDays(toLocalDigits('${trip.days}', bnUi))}  •  ${t.unseenApproxCost}: ${t.unseenCostRange(toLocalDigits('$lo', bnUi), toLocalDigits('$hi', bnUi))}',
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.md, Gap.sm),
         children: [
@@ -433,8 +458,8 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(catMeta(s.cat).icon,
                   size: 18, color: catMeta(s.cat).tint),
-              title: Text(s.name, style: AType.bodyMedium),
-              subtitle: Text('${s.bestTime}  •  ${s.source.label}',
+              title: Text(uwText(t, s, bnUi).name, style: AType.bodyMedium),
+              subtitle: Text('${uwText(t, s, bnUi).best}  •  ${s.source.label}',
                   style:
                       AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
             ),

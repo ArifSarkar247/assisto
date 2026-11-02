@@ -7,6 +7,9 @@ import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/probashi_reminders.dart'; // f6
+import 'dart:async' show Timer; // lifebar
+import 'package:shared_preferences/shared_preferences.dart'; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// PROBASHI CORNER — ADVANCED (#191, SPEC v2.1 §20) for Bangladeshis abroad.
 ///
@@ -59,14 +62,26 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
   List<Map<String, dynamic>> _docs = [];
   bool _loading = true, _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
-  // abroad UTC offset in minutes; default Gulf (+4:00) — editable, persisted
-  // in a tiny local preference-less field (lives for the session).
+  // abroad UTC offset in minutes; default Gulf (+4:00) — editable.
+  // lifebar: saved on this phone (it reset to +4:00 on every visit).
   int _abroadOffsetMin = 4 * 60;
+  static const offsetPrefKey = 'probashi_abroad_offset_min_v1';
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadOffset();
+  }
+
+  Future<void> _loadOffset() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final v = p.getInt(offsetPrefKey);
+      if (v != null && v >= -12 * 60 && v <= 14 * 60 && mounted) {
+        setState(() => _abroadOffsetMin = v);
+      }
+    } catch (_) {}
   }
 
   Future<void> _load() async {
@@ -268,6 +283,10 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
     final picked = await _offsetSheet(context, _abroadOffsetMin);
     if (picked != null && mounted) {
       setState(() => _abroadOffsetMin = picked);
+      try {
+        final p = await SharedPreferences.getInstance();
+        await p.setInt(offsetPrefKey, picked);
+      } catch (_) {}
     }
   }
 }
@@ -329,7 +348,7 @@ class _RemitTab extends StatelessWidget {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
                 // totals card
                 Card(
@@ -373,11 +392,11 @@ class _RemitTab extends StatelessWidget {
                         ),
                         title: Text(
                           tr.probashiSentReceived(
-                              r.amountDisplay, r.bdtDisplay),
+                              ld(context, r.amountDisplay), ld(context, r.bdtDisplay)),
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                         subtitle: Text(tr.probashiRateOnDate(/* (date, rate) */
-                            r.dateDisplay, r.rateDisplay)),
+                            ld(context, r.dateDisplay), ld(context, r.rateDisplay))),
                         trailing: PopupMenuButton<String>(
                           onSelected: (v) {
                             if (v == 'edit') onEdit(r.raw);
@@ -406,7 +425,11 @@ class _RemitTab extends StatelessWidget {
           Flexible(
               child: Text(k, style: TextStyle(color: scheme.onSurfaceVariant))),
           const SizedBox(width: Gap.sm),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Flexible(
+            child: Text(ld(context, v),
+                textAlign: TextAlign.end,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
         ],
       ),
     );
@@ -414,20 +437,45 @@ class _RemitTab extends StatelessWidget {
 }
 
 // ======================= CLOCK / TIMEZONE TAB =======================
-class _ClockTab extends StatelessWidget {
+class _ClockTab extends StatefulWidget {
   final int abroadOffsetMin;
   final VoidCallback onPickOffset;
   const _ClockTab(
       {required this.abroadOffsetMin, required this.onPickOffset});
 
   @override
+  State<_ClockTab> createState() => _ClockTabState();
+}
+
+class _ClockTabState extends State<_ClockTab> {
+  // lifebar: the two clocks tick (they were read once and froze)
+  Timer? _tick;
+
+  int get abroadOffsetMin => widget.abroadOffsetMin;
+  VoidCallback get onPickOffset => widget.onPickOffset;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final nowUtc = DateTime.now().toUtc(); // ONLY time input, read once.
+    final nowUtc = DateTime.now().toUtc(); // the only time input per tick
     final pair = _PMath.timezonePair(nowUtc, abroadOffsetMin);
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
           child: Padding(
@@ -466,7 +514,7 @@ class _ClockTab extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.public_rounded),
             title: Text(tr.probashiAbroadZone),
-            subtitle: Text(pair.abroadOffsetDisplay),
+            subtitle: Text(ld(context, pair.abroadOffsetDisplay)),
             trailing: FilledButton.tonal(
               onPressed: onPickOffset,
               child: Text(tr.probashiChangeZone),
@@ -481,8 +529,8 @@ class _ClockTab extends StatelessWidget {
 
   String _diffLabel(AppLocalizations tr, _PPair pair) {
     if (pair.ahead == 'same') return tr.probashiSameTime;
-    if (pair.ahead == 'home') return tr.probashiHomeAhead(pair.diffDisplay);
-    return tr.probashiHomeBehind(pair.diffDisplay);
+    if (pair.ahead == 'home') return tr.probashiHomeAhead(ld(context, pair.diffDisplay));
+    return tr.probashiHomeBehind(ld(context, pair.diffDisplay));
   }
 
   Widget _clock(
@@ -492,10 +540,13 @@ class _ClockTab extends StatelessWidget {
       Text(label,
           style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
       const SizedBox(height: Gap.xs),
-      Text(time,
-          style: AType.displaySmall.copyWith(fontWeight: FontWeight.w700)),
+      FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(ld(context, time),
+            style: AType.displaySmall.copyWith(fontWeight: FontWeight.w700)),
+      ),
       const SizedBox(height: Gap.xs),
-      Text(offset,
+      Text(ld(context, offset),
           style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
     ]);
   }
@@ -540,7 +591,7 @@ class _DocsTab extends StatelessWidget {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
                 Card(
                   child: Padding(
@@ -571,7 +622,7 @@ class _DocsTab extends StatelessWidget {
                               : d.label,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
-                        subtitle: Text(_statusLabel(tr, d)),
+                        subtitle: Text(_statusLabel(tr, d, Localizations.localeOf(context).languageCode == 'bn')),
                         trailing: PopupMenuButton<String>(
                           onSelected: (v) {
                             if (v == 'edit') onEdit(d.raw);
@@ -592,7 +643,7 @@ class _DocsTab extends StatelessWidget {
 
   Widget _count(BuildContext context, String label, int n, Color color) {
     return Column(children: [
-      Text('$n',
+      Text(ld(context, n),
           style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
       const SizedBox(height: Gap.xs),
       Text(label,
@@ -628,14 +679,14 @@ class _DocsTab extends StatelessWidget {
     }
   }
 
-  String _statusLabel(AppLocalizations tr, _PDoc d) {
+  String _statusLabel(AppLocalizations tr, _PDoc d, [bool bn = false]) {
     switch (d.status) {
       case 'expired':
-        return tr.probashiExpiredAgo('${-d.daysLeft}');
+        return tr.probashiExpiredAgo(toLocalDigits('${-d.daysLeft}', bn));
       case 'expiring':
-        return tr.probashiExpiresIn('${d.daysLeft}');
+        return tr.probashiExpiresIn(toLocalDigits('${d.daysLeft}', bn));
       case 'valid':
-        return tr.probashiValidDays('${d.daysLeft}');
+        return tr.probashiValidDays(toLocalDigits('${d.daysLeft}', bn));
       default:
         return tr.probashiNoExpiry;
     }
@@ -1105,6 +1156,29 @@ Future<Map<String, dynamic>?> _docSheet(
 }
 
 // Offset picker — common UTC offsets for Bangladeshi diaspora hubs.
+String? _zoneHint(AppLocalizations tr, int o) {
+  switch (o) {
+    case 0:
+      return tr.lbDZoneUk;
+    case 60:
+      return tr.lbDZoneEurope;
+    case 180:
+      return tr.lbDZoneSaudi;
+    case 240:
+      return tr.lbDZoneUae;
+    case 300:
+      return tr.lbDZoneMaldives;
+    case 360:
+      return tr.lbDZoneBd;
+    case 480:
+      return tr.lbDZoneMalaysia;
+    case 540:
+      return tr.lbDZoneJapan;
+    default:
+      return null;
+  }
+}
+
 Future<int?> _offsetSheet(BuildContext context, int current) async {
   final tr = AppLocalizations.of(context);
   // minutes offsets, ascending; labels are pure UTC strings (gate-exempt).
@@ -1145,7 +1219,9 @@ Future<int?> _offsetSheet(BuildContext context, int current) async {
                   RadioListTile<int>(
                     value: o,
                     groupValue: current,
-                    title: Text(_PMath.fmtOffset(o)),
+                    title: Text(ld(ctx, _PMath.fmtOffset(o))),
+                    // lifebar: name the countries — few people know their UTC offset
+                    subtitle: _zoneHint(tr, o) == null ? null : Text(_zoneHint(tr, o)!),
                     onChanged: (v) => Navigator.pop(ctx, v),
                   ),
               ],

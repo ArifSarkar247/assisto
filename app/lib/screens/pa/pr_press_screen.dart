@@ -219,7 +219,7 @@ class _PrPressScreenState extends State<PrPressScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           _rollupCard(tr, scheme),
           const SizedBox(height: Gap.md),
@@ -337,7 +337,7 @@ class _PrPressScreenState extends State<PrPressScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           if (upcoming.isNotEmpty) ...[
             _sectionLabel(tr.prPressUpcoming('${upcoming.length}'), scheme),
@@ -412,7 +412,7 @@ class _PrPressScreenState extends State<PrPressScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         itemCount: list.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
         itemBuilder: (_, i) {

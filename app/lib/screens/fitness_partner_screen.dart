@@ -7,6 +7,10 @@ import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/confirm_delete.dart'; // lifebar
+import 'package:intl/intl.dart' show DateFormat; // lifebar
+import '../widgets/bn_day_periods.dart' show appDateLocale; // lifebar
 
 /// FITNESS PARTNER — ADVANCED (#72, SPEC v2.1 §21).
 ///
@@ -235,7 +239,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           children: [
             _GoalHeadline(progress: p),
             const SizedBox(height: Gap.md),
@@ -260,11 +264,20 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
     final sorted = [..._workouts]..sort((a, b) =>
         (b['date'] ?? '').toString().compareTo((a['date'] ?? '').toString()));
     if (sorted.isEmpty) {
+      // lifebar: an empty list gets a real next step, not just a grey line
       return [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           child: Text(tr.fitNoWorkoutsYet,
               style: TextStyle(color: scheme.onSurfaceVariant)),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.tonalIcon(
+            onPressed: _logWorkout,
+            icon: const Icon(Icons.add_rounded),
+            label: Text(tr.fitLogWorkout),
+          ),
         ),
       ];
     }
@@ -277,15 +290,22 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
             leading:
                 Icon(_typeIcon(w['type'] as String?), color: scheme.primary),
             title: Text(_typeLabel(tr, w['type'] as String?)),
-            subtitle: Text(_workoutSubtitle(tr, w)),
+            subtitle: Text(ld(context, _workoutSubtitle(tr, w))),
             trailing: IconButton(
               icon: const Icon(Icons.delete_outline_rounded, size: 20),
               tooltip: tr.delete,
               onPressed: () async {
                 final id = w['id'];
                 if (id is int) {
-                  await context.read<AppState>().api.deleteItem(_workoutsPath, id);
-                  await _load();
+                  // lifebar: confirm + honest failure (was silent)
+                  if (!await confirmDelete(context, what: _typeLabel(tr, w['type'] as String?))) return;
+                  if (!mounted) return;
+                  try {
+                    await context.read<AppState>().api.deleteItem(_workoutsPath, id);
+                    await _load();
+                  } catch (_) {
+                    _toast(tr.saveFailed);
+                  }
                 }
               },
             ),
@@ -295,7 +315,10 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
   }
 
   String _workoutSubtitle(AppLocalizations tr, Map<String, dynamic> w) {
-    final parts = <String>[(w['date'] ?? '').toString()];
+    final raw = (w['date'] ?? '').toString();
+    final dt = DateTime.tryParse(raw);
+    // lifebar: "2 Nov" in the app language, not a raw ISO date
+    final parts = <String>[dt == null ? raw : DateFormat('d MMM', appDateLocale(context)).format(dt)];
     final mins = _FitMath.toInt(w['minutes']);
     if (mins > 0) parts.add(tr.fitMinutes(mins));
     final cal = _FitMath.numOrNull(w['calories']);
@@ -379,7 +402,7 @@ class _GoalHeadline extends StatelessWidget {
                 _statusChip(context, progress.status),
               ]),
               const SizedBox(height: Gap.sm),
-              Text(_headlineValue(tr),
+              Text(ld(context, _headlineValue(tr)),
                   style: AType.displaySmall.copyWith(fontWeight: FontWeight.bold,
                       color: scheme.onSurface)),
               const SizedBox(height: Gap.md),
@@ -393,7 +416,7 @@ class _GoalHeadline extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Gap.xs),
-              Text('${progress.percent}%',
+              Text(ld(context, '${progress.percent}%'),
                   style: TextStyle(fontWeight: FontWeight.w700, color: c)),
             ]),
       ),
@@ -793,9 +816,9 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 16, color: color),
         const SizedBox(height: Gap.xs),
-        Text(value,
+        Text(ld(context, value),
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis),
         Text(label,
             style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),

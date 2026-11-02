@@ -12,6 +12,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/confirm_delete.dart'; // lifebar
 
 /// CV / RESUME BUILDER — standalone, KEY-FREE (student & job-seeker front door).
 ///
@@ -219,6 +220,32 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       _experience.any((e) => !e.isEmpty) ||
       _skills.any((s) => s.trim().isNotEmpty);
 
+  /// lifebar: back with unsaved changes asks Save / Discard / Stay.
+  Future<void> _onPop(bool didPop, Object? _) async {
+    if (didPop) return;
+    final r = await showDialog<String>(
+      context: context,
+      builder: (c) => AlertDialog(
+        scrollable: true,
+        title: Text(t.lbWCvUnsavedTitle),
+        content: Text(t.lbWCvUnsavedBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, 'stay'), child: Text(t.cancel)),
+          TextButton(onPressed: () => Navigator.pop(c, 'discard'), child: Text(t.lbWCvDiscard)),
+          FilledButton(onPressed: () => Navigator.pop(c, 'save'), child: Text(t.save)),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (r == 'discard') {
+      setState(() => _dirty = false);
+      Navigator.of(context).pop();
+    } else if (r == 'save') {
+      await _save();
+      if (mounted && !_dirty) Navigator.of(context).pop();
+    }
+  }
+
   Future<void> _save() async {
     FocusScope.of(context).unfocus();
     setState(() => _saving = true);
@@ -340,7 +367,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       );
     }
 
-    return Scaffold(
+    return PopScope(
+      canPop: !_dirty,
+      onPopInvokedWithResult: _onPop,
+      child: Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       bottomNavigationBar: const AdBannerSlot(screen: 'cv_builder'),
       appBar: AppBar(
@@ -366,6 +396,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             )
           : null,
       body: (_hasAnyData || _started) ? _form() : _emptyState(),
+    ),
     );
   }
 
@@ -392,7 +423,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   Widget _form() {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
       children: [
         // --- contact header card ---
         _SectionCard(
@@ -442,10 +473,13 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                           _education[i].year
                         ].where((s) => s.trim().isNotEmpty).join(' · '),
                         onEdit: () => _editEducation(index: i),
-                        onDelete: () => setState(() {
-                          _education.removeAt(i);
-                          _dirty = true;
-                        }),
+                        onDelete: () async {
+                          if (!await confirmDelete(context, what: _education[i].degree)) return;
+                          setState(() {
+                            _education.removeAt(i);
+                            _dirty = true;
+                          });
+                        },
                       ),
                   ],
                 ),
@@ -472,10 +506,13 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                           _experience[i].dates
                         ].where((s) => s.trim().isNotEmpty).join(' · '),
                         onEdit: () => _editExperience(index: i),
-                        onDelete: () => setState(() {
-                          _experience.removeAt(i);
-                          _dirty = true;
-                        }),
+                        onDelete: () async {
+                          if (!await confirmDelete(context, what: _experience[i].title)) return;
+                          setState(() {
+                            _experience.removeAt(i);
+                            _dirty = true;
+                          });
+                        },
                       ),
                   ],
                 ),
@@ -497,11 +534,15 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     for (var i = 0; i < _skills.length; i++)
                       InputChip(
                         label: Text(_skills[i],
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        onDeleted: () => setState(() {
-                          _skills.removeAt(i);
-                          _dirty = true;
-                        }),
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
+                        onDeleted: () async {
+                          final sk = _skills[i];
+                          if (!await confirmDelete(context, what: sk)) return;
+                          setState(() {
+                            _skills.remove(sk);
+                            _dirty = true;
+                          });
+                        },
                       ),
                   ],
                 ),
@@ -575,7 +616,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(title,
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style:
                               const TextStyle(fontWeight: FontWeight.w700)),
@@ -722,7 +763,7 @@ class _SectionCard extends StatelessWidget {
                 Expanded(
                   child: Text(title,
                       style: Theme.of(context).textTheme.titleMedium,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                 ),
               ]),

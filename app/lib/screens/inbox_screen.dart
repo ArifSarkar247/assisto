@@ -10,6 +10,7 @@ import '../widgets/inbox_filter_bar.dart';
 import '../widgets/inbox_reply_sheet.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../feature_gates.dart' show kShowKeySeams; // lifebar
 
 /// AI Inbox (feature 22, SPEC v2.1 section 21 ADVANCED) - a unified SMART INBOX over
 /// email / notifications / messages with deterministic AI triage
@@ -143,9 +144,41 @@ class _InboxScreenState extends State<InboxScreen> {
     ));
   }
 
-  void _convertTask(InboxItem it) => _toast(AppLocalizations.of(context).inboxTaskCreated);
-  void _convertReminder(InboxItem it) =>
-      _toast(AppLocalizations.of(context).inboxReminderCreated);
+  // lifebar: these used to show "created" toasts and create NOTHING. Now
+  // they really add a to-do / a reminder (tomorrow 9 am) to the user's lists.
+  Future<void> _convertTask(InboxItem it) async {
+    final tr = AppLocalizations.of(context);
+    try {
+      await context.read<AppState>().todos.add({
+        'title': it.subject.trim().isEmpty ? it.sender : it.subject.trim(),
+        'priority': 'none',
+        'due_at': null,
+        'done': false,
+      });
+      _toast(tr.inboxTaskCreated);
+    } catch (_) {
+      _toast(tr.saveFailed);
+    }
+  }
+
+  Future<void> _convertReminder(InboxItem it) async {
+    final tr = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final due = DateTime(now.year, now.month, now.day + 1, 9);
+    try {
+      await context.read<AppState>().reminders.add({
+        'title': it.subject.trim().isEmpty ? it.sender : it.subject.trim(),
+        'notes': '',
+        'due_at': due.toUtc().toIso8601String(),
+        'done': false,
+        'recurrence': 'none',
+        'recurrence_rule': <String, dynamic>{},
+      });
+      _toast(tr.inboxReminderCreated);
+    } catch (_) {
+      _toast(tr.saveFailed);
+    }
+  }
 
   void _bulk(bool done) {
     final tr = AppLocalizations.of(context);
@@ -176,7 +209,8 @@ class _InboxScreenState extends State<InboxScreen> {
             ? tr.inboxSelectedCount(_selected.length)
             : tr.aiInbox),
         actions: [
-          if (!_loading && !_error)
+          // lifebar: no select button over an empty list
+          if (!_loading && !_error && (_selectMode || _visible.isNotEmpty))
             IconButton(
               tooltip: _selectMode ? tr.inboxCancelSelect : tr.inboxSelect,
               icon: Icon(_selectMode ? Icons.close_rounded : Icons.checklist_rounded),
@@ -204,7 +238,10 @@ class _InboxScreenState extends State<InboxScreen> {
       onRefresh: _load,
       child: Column(children: [
         // Honest account state: mock now, real email is key-gated.
-        _ConnectBanner(connected: _connected, tr: tr, scheme: scheme),
+        // lifebar: the "connect in Integrations" text is staff-only; users
+        // never see a step they cannot take.
+        if (_connected || kShowKeySeams)
+          _ConnectBanner(connected: _connected, tr: tr, scheme: scheme),
         InboxFilterBar(
           filter: _filter,
           counts: _counts,
@@ -214,10 +251,18 @@ class _InboxScreenState extends State<InboxScreen> {
         const Divider(height: 1),
         Expanded(
           child: visible.isEmpty
-              ? _EmptyState(tr: tr, connected: _connected, filtered: _filter.category != null ||
-                  _filter.source != null || _filter.needsReplyOnly)
+              // lifebar: scrollable so pull-to-refresh works when empty
+              ? LayoutBuilder(
+                  builder: (c, box) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: box.maxHeight),
+                          child: _EmptyState(tr: tr, connected: _connected, filtered: _filter.category != null ||
+                              _filter.source != null || _filter.needsReplyOnly),
+                        ),
+                      ))
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl),
+                  padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl)),
                   children: [
                     for (final it in visible)
                       // Superhuman-style swipe triage: swipe right = Done,
@@ -410,7 +455,9 @@ class _EmptyState extends StatelessWidget {
               style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(filtered ? tr.inboxTryAnotherFilter
-              : (connected ? tr.inboxAllClearHint : tr.realityInboxNotConnectedHint),
+              : (connected
+                  ? tr.inboxAllClearHint
+                  : (kShowKeySeams ? tr.realityInboxNotConnectedHint : tr.lbWInboxNotLive)),
               textAlign: TextAlign.center,
               style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]),

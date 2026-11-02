@@ -485,7 +485,7 @@ class _LedgerTab extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: onRefresh,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 100),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 100)),
           children: [
             _LedgerSummaryCard(summary: summary, money: money, digits: digits),
             const SizedBox(height: Gap.lg),
@@ -560,11 +560,14 @@ class _LedgerSummaryCard extends StatelessWidget {
   Widget _stat(BuildContext context, String value, String label, Color c) => Expanded(
         child: Column(
           children: [
-            Text(value,
+            // lifebar: money shrinks to fit instead of being cut at 200% font
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(value,
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: _title.copyWith(
                     fontWeight: FontWeight.bold, color: c, fontFeatures: AFonts.tabular)),
+            ),
             const SizedBox(height: Gap.xxs),
             Text(label, style: AType.bodyLarge),
           ],
@@ -652,7 +655,7 @@ class _RecordCard extends StatelessWidget {
         children: [
           Text(k, style: AType.bodyMedium),
           Text(v,
-              maxLines: 1,
+              maxLines: 2, // lifebar: wrap, never cut a taka figure
               overflow: TextOverflow.ellipsis,
               style: _body.copyWith(
                   fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
@@ -693,7 +696,7 @@ class _CalendarTab extends StatelessWidget {
     final now = DateTime.now();
     final seasons = FarmerEngine.calendar(now);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xl),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xl)),
       children: [
         Container(
           padding: const EdgeInsets.all(14),
@@ -839,7 +842,7 @@ class _LivestockTab extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: onRefresh,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 100),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 100)),
           children: [
             _LivestockSummaryCard(summary: summary, digits: digits),
             const SizedBox(height: Gap.lg),

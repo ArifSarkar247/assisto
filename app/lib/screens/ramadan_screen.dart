@@ -13,6 +13,8 @@ import '../widgets/ramadan_salami_tracker.dart';
 import '../widgets/ramadan_duas.dart';
 import '../widgets/ramadan_alarms.dart'; // f6
 import '../widgets/permission_reason.dart';
+import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 /// Ramadan mode (module-5 "Life"). Benchmarked vs a SAFE subset of Muslim Pro.
 ///
@@ -128,15 +130,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
   }
 
   // Mirror ramadan._shift_hhmm for the offset previews.
-  String _shift(String hhmm, int deltaMin) {
-    final parts = hhmm.split(':');
-    if (parts.length != 2) return hhmm;
-    final total = (int.parse(parts[0]) * 60 + int.parse(parts[1]) + deltaMin) %
-        (24 * 60);
-    final norm = (total + 24 * 60) % (24 * 60);
-    return '${(norm ~/ 60).toString().padLeft(2, '0')}:'
-        '${(norm % 60).toString().padLeft(2, '0')}';
-  }
+  String _shift(String hhmm, int deltaMin) => ramadanShiftHhmm(hhmm, deltaMin);
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +147,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(Gap.md),
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
               children: [
                 if (_error == 'location') _errorBox(t.ramadanLocationNeeded),
                 if (_error == 'fetch') _errorBox(t.ramadanFetchFailed),
@@ -219,7 +213,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         ),
       ]),
       const SizedBox(height: Gap.sm),
-      Text(t.ramadanMethodNote('${tm['method'] ?? 'karachi'}'),
+      Text(t.ramadanMethodNote(_methodName(t, '${tm['method'] ?? 'karachi'}')),
           style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.md),
 
@@ -238,7 +232,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         contentPadding: EdgeInsets.zero,
         secondary: const Icon(Icons.alarm_rounded),
         title: Text(t.ramadanSehriWake),
-        subtitle: Text(t.ramadanSehriWakeValue(_sehriPrewake, _shift(sehri, -_sehriPrewake))),
+        subtitle: Text(t.ramadanSehriWakeValue(ld(context, _sehriPrewake), ld(context, _shift(sehri, -_sehriPrewake)))),
         value: _sehriOn,
         onChanged: (v) {
           setState(() => _sehriOn = v);
@@ -250,7 +244,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         min: 10,
         max: 120,
         divisions: 11,
-        label: '$_sehriPrewake',
+        label: ld(context, _sehriPrewake),
         onChanged: (v) => setState(() => _sehriPrewake = v.round()),
         onChangeEnd: (_) => _syncAlarms(),
       ),
@@ -259,7 +253,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         contentPadding: EdgeInsets.zero,
         secondary: const Icon(Icons.notifications_active_rounded),
         title: Text(t.ramadanIftarAlert),
-        subtitle: Text(t.ramadanIftarAlertValue(_iftarPrealert, _shift(iftar, -_iftarPrealert))),
+        subtitle: Text(t.ramadanIftarAlertValue(ld(context, _iftarPrealert), ld(context, _shift(iftar, -_iftarPrealert)))),
         value: _iftarOn,
         onChanged: (v) {
           setState(() => _iftarOn = v);
@@ -271,7 +265,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         min: 0,
         max: 30,
         divisions: 6,
-        label: '$_iftarPrealert',
+        label: ld(context, _iftarPrealert),
         onChanged: (v) => setState(() => _iftarPrealert = v.round()),
         onChangeEnd: (_) => _syncAlarms(),
       ),
@@ -314,8 +308,11 @@ class _RamadanScreenState extends State<RamadanScreen> {
         const SizedBox(height: Gap.xs),
         Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.xxs),
-        Text(time,
-            style: AType.headlineMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(ld(context, time),
+              style: AType.headlineMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
+        ),
       ]),
     );
   }
@@ -324,11 +321,15 @@ class _RamadanScreenState extends State<RamadanScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label),
-        Text(time, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Flexible(child: Text(label)),
+        Text(ld(context, time), style: const TextStyle(fontWeight: FontWeight.w600)),
       ]),
     );
   }
+
+  /// lifebar: the server's method id ('karachi') named in the app language.
+  String _methodName(AppLocalizations t, String id) =>
+      id == 'karachi' ? t.lbDRamadanMethodKarachi : id;
 
   Widget _sectionTitle(String s) =>
       Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold));
@@ -352,4 +353,20 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ]),
     );
   }
+}
+
+
+/// lifebar: HH:MM shifted by [deltaMin] (wraps midnight). A missing or
+/// malformed time ('--:--' when the server left one out) is returned
+/// unchanged instead of crashing the screen (was int.parse -> red screen).
+String ramadanShiftHhmm(String hhmm, int deltaMin) {
+  final parts = hhmm.split(':');
+  if (parts.length != 2) return hhmm;
+  final h = int.tryParse(parts[0].trim());
+  final m = int.tryParse(parts[1].trim());
+  if (h == null || m == null) return hhmm;
+  final total = (h * 60 + m + deltaMin) % (24 * 60);
+  final norm = (total + 24 * 60) % (24 * 60);
+  return '${(norm ~/ 60).toString().padLeft(2, '0')}:'
+      '${(norm % 60).toString().padLeft(2, '0')}';
 }

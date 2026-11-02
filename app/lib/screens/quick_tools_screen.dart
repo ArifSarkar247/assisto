@@ -8,6 +8,9 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/quick_tools_engine.dart';
+import '../feature_gates.dart' show kShowKeySeams; // lifebar
+import '../widgets/confirm_delete.dart'; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// QUICK TOOLS (#17, SPEC v2.1 §6, built to ADVANCED §21).
@@ -118,6 +121,92 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
         'welcome': t.qtPhraseWelcome,
       };
 
+  /// lifebar: Bangla wrappers for Bangla input (`@@` = the user's text).
+  Map<String, String> _bnToneTemplates() => {
+        'polite': t.lbWQtTonePoliteBn,
+        'warmer': t.lbWQtToneWarmerBn,
+        'firmer': t.lbWQtToneFirmerBn,
+        'formal': t.lbWQtToneFormalBn,
+      };
+
+  /// lifebar: saved results used to be write-only — now listed here with
+  /// copy + delete.
+  Future<void> _openSaved() async {
+    var items = <SavedQuick>[];
+    try {
+      items = await QuickStore.load();
+    } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
+    if (!mounted) return;
+    await showAppSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setSheet) {
+        final tt = AppLocalizations.of(ctx);
+        if (items.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(Gap.lg),
+            child: StateMessage(
+              icon: Icons.bookmark_outline_rounded,
+              title: tt.lbWQtSavedEmptyTitle,
+              message: tt.lbWQtSavedEmptyBody,
+            ),
+          );
+        }
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * 0.8),
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+            children: [
+              Text(tt.lbWQtSavedTitle, style: AType.titleMedium),
+              const SizedBox(height: Gap.sm),
+              for (final it in items)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Gap.md),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(_actionLabel(it.action),
+                          style: AType.labelLarge.copyWith(fontWeight: FontWeight.w700)),
+                      if (DateTime.tryParse(it.savedAt) != null)
+                        Text(ld(ctx, it.savedAt.substring(0, 10)), style: AType.bodySmall),
+                      const SizedBox(height: Gap.xs),
+                      SelectableText(it.result),
+                      Wrap(spacing: Gap.sm, children: [
+                        TextButton.icon(
+                          icon: const Icon(Icons.copy_rounded, size: 18),
+                          label: Text(tt.copy),
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: it.result));
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text(tt.copied)));
+                            }
+                          },
+                        ),
+                        TextButton.icon(
+                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          label: Text(tt.delete),
+                          onPressed: () async {
+                            if (!await confirmDelete(ctx, what: it.result)) return;
+                            final next = items.where((e) => e.id != it.id).toList();
+                            try {
+                              await QuickStore.save(next);
+                            } catch (_) {} // best-effort: on-phone convenience copy; the screen already shows the change
+                            setSheet(() => items = next);
+                          },
+                        ),
+                      ]),
+                    ]),
+                  ),
+                ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
   void _run() {
     FocusScope.of(context).unfocus();
     final problems = validateQuick(_action, _input.text,
@@ -128,7 +217,10 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
       return;
     }
     final r = runQuick(_action, _input.text,
-        tone: _tone, direction: _direction, phraseTable: _phraseTable());
+        tone: _tone,
+        direction: _direction,
+        phraseTable: _phraseTable(),
+        toneTemplates: quickHasBangla(_input.text) ? _bnToneTemplates() : const {});
     setState(() {
       _result = r;
       _translateNeedsKey = r.action == 'translate' && r.aiRequired;
@@ -176,7 +268,13 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       bottomNavigationBar: const AdBannerSlot(screen: 'quick_tools'),
-      appBar: AppBar(title: Text(t.qtTitle)),
+      appBar: AppBar(title: Text(t.qtTitle), actions: [
+        IconButton(
+          tooltip: t.lbWQtSavedTitle,
+          icon: const Icon(Icons.bookmarks_outlined),
+          onPressed: _openSaved,
+        ),
+      ]),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
         children: [
@@ -257,16 +355,19 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
           const SizedBox(height: Gap.xl),
           FilledButton.icon(
             onPressed: _run,
-            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+            // lifebar: rule-based, so no AI sparkle
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
             label: Text(t.qtRun),
           ),
 
           if (_result != null) ...[
             const SizedBox(height: Gap.xl),
             if (_translateNeedsKey)
+              // lifebar: the "add a key in Integrations" text only for staff
+              // (kShowKeySeams); users get an honest, doable next step.
               _NeedsKeyCard(
-                title: t.qtTranslateNeedsKeyTitle,
-                body: t.qtTranslateNeedsKeyBody,
+                title: kShowKeySeams ? t.qtTranslateNeedsKeyTitle : t.lbWQtTranslateLimitTitle,
+                body: kShowKeySeams ? t.qtTranslateNeedsKeyBody : t.lbWQtTranslateLimitBody,
               )
             else ...[
               Text(t.qtResultLabel,
@@ -334,7 +435,7 @@ class _AiMarker extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.rule_rounded, size: 18, color: scheme.onTertiaryContainer),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -359,7 +460,7 @@ class _NeedsKeyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return StateMessage(
-      icon: Icons.key_rounded,
+      icon: kShowKeySeams ? Icons.key_rounded : Icons.translate_rounded,
       tint: Brand.warning,
       title: title,
       message: body,

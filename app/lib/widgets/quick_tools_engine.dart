@@ -74,6 +74,10 @@ const List<String> kQuickPhraseKeys = [
 String _clean(String? text) =>
     (text ?? '').trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).join(' ');
 
+/// lifebar: public for the screen — pick tone templates in the INPUT's
+/// language (Bangla input used to get English wrappers).
+bool quickHasBangla(String text) => _hasBangla(text);
+
 /// True if any character is in the Bengali Unicode block (U+0980–U+09FF).
 /// Codepoint comparison (no Bangla literal in this file).
 bool _hasBangla(String text) {
@@ -261,12 +265,23 @@ QuickResult translateQuick(String text,
   );
 }
 
-QuickResult changeToneQuick(String text, {String tone = 'polite'}) {
+/// [templates] (lifebar): tone -> wrapper in the input's language, with `@@`
+/// standing for the text (from the ARB, so no Bangla lives here). When a tone
+/// has no template the English skeleton applies.
+QuickResult changeToneQuick(String text,
+    {String tone = 'polite', Map<String, String> templates = const {}}) {
   text = _clean(text);
   final sents = _sentences(text);
   final shortLead = sents.isNotEmpty
       ? sents.first
       : text.split(RegExp(r'\s+')).take(12).join(' ');
+  final local = templates[tone];
+  if (local != null && local.contains('@@') && tone != 'shorter') {
+    return QuickResult(
+        action: 'change_tone',
+        source: text,
+        result: _clean(local.replaceAll('@@', text)));
+  }
   final wrap = _toneWrap[tone] ?? _toneWrap['polite']!;
   final result =
       _clean(wrap.replaceAll('{text}', text).replaceAll('{short}', shortLead));
@@ -289,7 +304,8 @@ QuickResult makeShareableQuick(String text) {
 QuickResult runQuick(String action, String text,
     {String tone = 'polite',
     String direction = 'auto',
-    Map<String, String> phraseTable = const {}}) {
+    Map<String, String> phraseTable = const {},
+    Map<String, String> toneTemplates = const {}}) {
   switch (action) {
     case 'summarise':
       return summariseQuick(text);
@@ -299,7 +315,7 @@ QuickResult runQuick(String action, String text,
       return translateQuick(text,
           direction: direction, phraseTable: phraseTable);
     case 'change_tone':
-      return changeToneQuick(text, tone: tone);
+      return changeToneQuick(text, tone: tone, templates: toneTemplates);
     default:
       return makeShareableQuick(text);
   }

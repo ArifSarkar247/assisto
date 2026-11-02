@@ -286,7 +286,7 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   _PortfolioCard(
                     total: projects.length,
@@ -700,7 +700,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 40),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 40)),
                 children: [
                   const _AiSeamCard(),
                   const SizedBox(height: Gap.lg),

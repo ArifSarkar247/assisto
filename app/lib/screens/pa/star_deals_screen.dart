@@ -275,7 +275,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           _pipelineCard(tr, scheme),
           const SizedBox(height: Gap.md),

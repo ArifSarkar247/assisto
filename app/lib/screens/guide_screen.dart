@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/guide_data.dart';
 import '../widgets/guide_service_card.dart';
 import '../widgets/guide_need_sheet.dart';
@@ -40,6 +41,7 @@ class _GuideScreenState extends State<GuideScreen> {
 
   GuideData? _data;
   bool _loading = true;
+  bool _needNet = false; // lifebar: first run offline in Bangla
   bool _error = false;
   bool _fromCache = false; // served from cache / fallback (not a fresh fetch)
   String _query = '';
@@ -76,6 +78,7 @@ class _GuideScreenState extends State<GuideScreen> {
     setState(() {
       _loading = true;
       _error = false;
+      _needNet = false;
     });
     try {
       final json = await context.read<AppState>().api.guides();
@@ -91,6 +94,13 @@ class _GuideScreenState extends State<GuideScreen> {
       if (cached != null && !cached.isEmpty) {
         _data = cached;
         _fromCache = true;
+      } else if (mounted &&
+          Localizations.localeOf(context).languageCode == 'bn') {
+        // lifebar: the bundled fallback is English-only — a Bangla user gets
+        // an honest "needs internet once" state instead of English guides.
+        _data = null;
+        _error = true;
+        _needNet = true;
       } else {
         _data = kGuideFallback;
         _fromCache = true;
@@ -165,8 +175,8 @@ class _GuideScreenState extends State<GuideScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
                   tint: scheme.error,
-                  title: tr.loadFailed,
-                  message: tr.guideErrorBody,
+                  title: _needNet ? tr.lifebarGuideNeedNetTitle : tr.loadFailed,
+                  message: _needNet ? tr.lifebarGuideNeedNetBody : tr.guideErrorBody,
                   action: FilledButton.tonalIcon(
                     onPressed: _load,
                     icon: const Icon(Icons.refresh_rounded),
@@ -206,11 +216,11 @@ class _GuideScreenState extends State<GuideScreen> {
         ),
       ),
       // ---- category chips ----
-      SizedBox(
-        height: 44,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+      // lifebar: no fixed 44 px height — chips grow with 200% font
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+        child: Row(
           children: [
             _chip(
               label: tr.guideAll,
@@ -261,7 +271,7 @@ class _GuideScreenState extends State<GuideScreen> {
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl),
+                  padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
                   children: [
                     // top-level verify disclaimer, always visible
                     _DisclaimerStrip(

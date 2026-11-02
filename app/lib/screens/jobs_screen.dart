@@ -12,6 +12,8 @@ import '../widgets/jobs_detail.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/subs_common.dart' show fmtInt;
 import '../feature_gates.dart' show kJobsFeedConnected; // f6
+import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
 ///   • Discover — curated sample feed + search/filters + salary insight, with an
@@ -86,36 +88,92 @@ class _JobsScreenState extends State<JobsScreen> {
     if (mounted) setState(() => _saved = s);
   }
 
+  /// lifebar: the form now captures the fields the filters and the salary
+  /// insight read (category, type, experience, location, monthly salary) —
+  /// before, any filter hid every user job. Errors are reported, never thrown.
   Future<void> _add(AppLocalizations tr) async {
     final title = TextEditingController();
     final company = TextEditingController();
+    final location = TextEditingController();
+    final salary = TextEditingController();
     final jd = TextEditingController();
+    String cat = '', type = '', exp = '';
+    bool titleMissing = false;
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(tr.addJob),
-        content: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: title, decoration: InputDecoration(labelText: tr.title)),
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setD) {
+        DropdownButtonFormField<String> dd(String label, String value,
+                List<String> keys, String Function(String) lbl, void Function(String) on) =>
+            DropdownButtonFormField<String>(
+              initialValue: value.isEmpty ? null : value,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: label),
+              items: [
+                for (final k in keys)
+                  DropdownMenuItem(value: k, child: Text(lbl(k), overflow: TextOverflow.ellipsis)),
+              ],
+              onChanged: (v) => setD(() => on(v ?? '')),
+            );
+        return AlertDialog(
+          scrollable: true,
+          title: Text(tr.addJob),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(
+                controller: title,
+                decoration: InputDecoration(
+                    labelText: tr.title,
+                    errorText: titleMissing ? tr.lbWJobsTitleRequired : null)),
             TextField(controller: company, decoration: InputDecoration(labelText: tr.company)),
+            dd(tr.jobsFilterCategory, cat, kCategories, (k) => jobsCatLabel(tr, k), (v) => cat = v),
+            dd(tr.jobsFilterType, type, kJobTypes, (k) => jobsTypeLabel(tr, k), (v) => type = v),
+            dd(tr.jobsFilterExperience, exp, kExperience, (k) => jobsExpLabel(tr, k), (v) => exp = v),
+            TextField(controller: location, decoration: InputDecoration(labelText: tr.lbWJobsLocation)),
+            TextField(
+                controller: salary,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    labelText: tr.lbWJobsSalary, helperText: tr.lbWJobsSalaryHelp, helperMaxLines: 2)),
             TextField(controller: jd, maxLines: 4, decoration: InputDecoration(labelText: tr.jobDescription)),
           ]),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.add)),
-        ],
-      ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
+            FilledButton(
+                onPressed: () {
+                  if (title.text.trim().isEmpty) {
+                    setD(() => titleMissing = true);
+                    return;
+                  }
+                  Navigator.pop(ctx, true);
+                },
+                child: Text(tr.add)),
+          ],
+        );
+      }),
     );
-    if (ok == true && title.text.trim().isNotEmpty) {
+    if (ok != true || !mounted) return;
+    final sal = int.tryParse(salary.text.replaceAll(RegExp(r'[^0-9]'), ''));
+    final messenger = ScaffoldMessenger.of(context);
+    try {
       await context.read<AppState>().api.createItem('jobs', {
         'title': title.text.trim(),
         'company': company.text.trim(),
         'jd': jd.text.trim(),
+        if (cat.isNotEmpty) 'category': cat,
+        if (type.isNotEmpty) 'job_type': type,
+        if (exp.isNotEmpty) 'experience': exp,
+        if (location.text.trim().isNotEmpty) 'location': location.text.trim(),
+        if (sal != null && sal > 0) 'salary': sal,
       });
+      messenger.showSnackBar(SnackBar(content: Text(tr.lbWJobsAdded)));
       await _load();
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(tr.lbWJobsAddFailed)));
     }
   }
+
+  /// lifebar: ids may come back as int, num or String.
+  static int _idOf(Object? v) =>
+      v is int ? v : (v is num ? v.toInt() : int.tryParse('$v') ?? 0);
 
   void _openFilters(AppLocalizations tr) async {
     final r = await JobsFilterSheet.show(context, _filter);
@@ -156,7 +214,7 @@ class _JobsScreenState extends State<JobsScreen> {
             IconButton(
               icon: Badge(
                 isLabelVisible: _filter.isActive,
-                label: Text('${_filter.activeCount}'),
+                label: Text(ld(context, _filter.activeCount)),
                 child: const Icon(Icons.tune_rounded),
               ),
               tooltip: tr.jobsFiltersTitle,
@@ -221,16 +279,31 @@ class _JobsScreenState extends State<JobsScreen> {
       if (insight != null) _salaryInsight(tr, scheme, insight),
       Expanded(
         child: list.isEmpty
-            ? StateMessage(
-                icon: Icons.search_off_rounded,
-                title: tr.jobsNoResultsTitle,
-                message: _filter.isActive || _search.text.isNotEmpty
-                    ? tr.jobsNoResultsFilterHint
-                    : tr.jobsNoResultsBody)
+            ? SingleChildScrollView(
+                child: StateMessage(
+                    icon: Icons.search_off_rounded,
+                    title: tr.jobsNoResultsTitle,
+                    message: _filter.isActive || _search.text.isNotEmpty
+                        ? tr.jobsNoResultsFilterHint
+                        : tr.lbWJobsDiscoverEmpty,
+                    // lifebar: a real next step, not just a line
+                    action: _filter.isActive || _search.text.isNotEmpty
+                        ? FilledButton.tonalIcon(
+                            onPressed: () => setState(() {
+                                  _filter = JobFilter();
+                                  _search.clear();
+                                }),
+                            icon: const Icon(Icons.filter_alt_off_rounded),
+                            label: Text(tr.lbWJobsClearFilters))
+                        : FilledButton.icon(
+                            onPressed: () => _add(tr),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(tr.addJob))),
+              )
             : RefreshIndicator(
                 onRefresh: _load,
                 child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 88),
+                  padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 88)),
                   itemCount: list.length,
                   itemBuilder: (_, i) {
                     final j = list[i];
@@ -240,7 +313,7 @@ class _JobsScreenState extends State<JobsScreen> {
                       saved: _saved.contains(id),
                       onToggleSave: () => _toggleSave(id),
                       onTap: () => JobsDetailSheet.show(context, j,
-                          isServerJob: (j['id'] ?? 0) as int > 0, onChanged: _load),
+                          isServerJob: _idOf(j['id']) > 0, onChanged: _load),
                     );
                   },
                 ),
@@ -297,14 +370,21 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget _savedTab(AppLocalizations tr, ColorScheme scheme) {
     final list = _savedList;
     if (list.isEmpty) {
-      return StateMessage(
-        icon: Icons.bookmark_border_rounded,
-        title: tr.jobsNoSavedTitle,
-        message: tr.jobsNoSavedBody,
+      return SingleChildScrollView(
+        child: StateMessage(
+          icon: Icons.bookmark_border_rounded,
+          title: tr.jobsNoSavedTitle,
+          message: tr.lbWJobsSavedEmpty,
+          action: Builder(
+              builder: (c) => FilledButton.tonalIcon(
+                  onPressed: () => DefaultTabController.of(c).animateTo(0),
+                  icon: const Icon(Icons.explore_rounded),
+                  label: Text(tr.jobsTabDiscover))),
+        ),
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88)),
       itemCount: list.length,
       itemBuilder: (_, i) {
         final j = list[i];
@@ -314,7 +394,7 @@ class _JobsScreenState extends State<JobsScreen> {
           saved: true,
           onToggleSave: () => _toggleSave(id),
           onTap: () => JobsDetailSheet.show(context, j,
-              isServerJob: (j['id'] ?? 0) as int > 0, onChanged: _load),
+              isServerJob: _idOf(j['id']) > 0, onChanged: _load),
         );
       },
     );
@@ -338,7 +418,7 @@ class _JobsScreenState extends State<JobsScreen> {
     }
     final order = [...kPipeline, kStageRejected, kStageWithdrawn];
     return ListView(
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88)),
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm, left: Gap.xs),
@@ -352,7 +432,7 @@ class _JobsScreenState extends State<JobsScreen> {
               child: Row(children: [
                 StageBadge(status: stage),
                 const SizedBox(width: Gap.sm),
-                Text('${byStage[stage]!.length}',
+                Text(ld(context, byStage[stage]!.length),
                     style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
               ]),
             ),

@@ -8,6 +8,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/student_gpa_engine.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/local_digits.dart'; // lifebar
 
 /// STUDENT CORNER — ADVANCED (#192, SPEC v2.1 §20).
 ///
@@ -219,11 +220,16 @@ class _RoutineTab extends StatelessWidget {
               icon: Icons.calendar_view_week_rounded,
               title: tr.studentRoutineEmptyTitle,
               message: tr.studentRoutineEmptyBody,
+              action: FilledButton.tonalIcon( // lifebar
+                onPressed: () => _edit(context, null),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(tr.studentAddPeriod),
+              ),
             )
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   for (final d in days) ...[
                     Padding(
@@ -250,7 +256,7 @@ class _RoutineTab extends StatelessWidget {
                           title: Text(
                               p.subject.isEmpty ? tr.studentUntitled : p.subject,
                               maxLines: 1, overflow: TextOverflow.ellipsis),
-                          subtitle: Text(_periodSub(tr, p)),
+                          subtitle: Text(ld(context, _periodSub(tr, p))),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_outline_rounded),
                             tooltip: tr.delete,
@@ -501,11 +507,16 @@ class _TrackerTab extends StatelessWidget {
               icon: Icons.assignment_rounded,
               title: tr.studentTrackerEmptyTitle,
               message: tr.studentTrackerEmptyBody,
+              action: FilledButton.tonalIcon( // lifebar
+                onPressed: () => _edit(context, null),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(tr.studentAddAssignment),
+              ),
             )
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   if (board.overdueCount > 0)
                     _overdueBanner(context, board.overdueCount),
@@ -539,7 +550,7 @@ class _TrackerTab extends StatelessWidget {
           Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: Text(tr.studentOverdueBanner(n),
+            child: Text(ld(context, tr.studentOverdueBanner(n)),
                 style: TextStyle(color: scheme.onErrorContainer)),
           ),
         ]),
@@ -619,7 +630,7 @@ class _TrackerCard extends StatelessWidget {
               color: color.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
-            child: Text(label,
+            child: Text(ld(context, label),
                 style: AType.bodySmall.copyWith(color: color, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: Gap.sm),
@@ -734,7 +745,7 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
           leading: const Icon(Icons.event_rounded),
           title: Text(_due == null
               ? tr.studentNoDue
-              : StudentEngine.isoDate(_due!)),
+              : ld(context, StudentEngine.isoDate(_due!))),
           trailing: _due == null
               ? null
               : IconButton(
@@ -808,7 +819,7 @@ class _CgpaTab extends StatelessWidget {
       body: RefreshIndicator(
         onRefresh: onChanged,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           children: [
             // headline CGPA card
             Card(
@@ -819,7 +830,7 @@ class _CgpaTab extends StatelessWidget {
                   Text(tr.studentCgpaLabel,
                       style: TextStyle(color: scheme.onPrimaryContainer)),
                   const SizedBox(height: Gap.xs),
-                  Text(r.honest ? '—' : r.cgpaDisplay,
+                  Text(r.honest ? '—' : ld(context, r.cgpaDisplay),
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
                           color: scheme.onPrimaryContainer,
                           fontWeight: FontWeight.w800)),
@@ -827,8 +838,8 @@ class _CgpaTab extends StatelessWidget {
                   Text(
                       r.honest
                           ? tr.studentCgpaNoGrade
-                          : tr.studentCreditsSummary(/* (band, credits) */
-                              _bandText(tr, r.classBand), _fmtNum(r.gradedCredits)),
+                          : ld(context, tr.studentCreditsSummary(/* (band, credits) */
+                              _bandText(tr, r.classBand), _fmtNum(r.gradedCredits))),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: scheme.onPrimaryContainer)),
                 ]),
@@ -840,6 +851,11 @@ class _CgpaTab extends StatelessWidget {
                 icon: Icons.calculate_rounded,
                 title: tr.studentCgpaEmptyTitle,
                 message: tr.studentCgpaEmptyBody,
+                action: FilledButton.tonalIcon( // lifebar
+                  onPressed: () => onAdd(context),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(tr.studentAddCourse),
+                ),
               )
             else ...[
               // transparent per-course contribution
@@ -850,11 +866,11 @@ class _CgpaTab extends StatelessWidget {
                     title: Text(
                         c.title.isEmpty ? tr.studentUntitled : c.title,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text(c.graded
+                    subtitle: Text(ld(context, c.graded
                         ? tr.studentCourseMath(/* (contribution, credit, letter, point) */
                             c.contributionDisplay, _fmtNum(c.credit),
                             c.letter, c.pointDisplay)
-                        : tr.studentCourseNoGrade(_fmtNum(c.credit))),
+                        : tr.studentCourseNoGrade(_fmtNum(c.credit)))),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       IconButton(
                         tooltip: AppLocalizations.of(context).edit,
@@ -905,8 +921,8 @@ class _CgpaTab extends StatelessWidget {
         Text(tr.studentFormulaTitle,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
-        Text(tr.studentFormulaBody(/* (cgpa, credits, quality) */ r.cgpaDisplay,
-            _fmtNum(r.gradedCredits), r.qualityPointsDisplay)),
+        Text(ld(context, tr.studentFormulaBody(/* (cgpa, credits, quality) */ r.cgpaDisplay,
+            _fmtNum(r.gradedCredits), r.qualityPointsDisplay))),
       ]),
     );
   }
@@ -1032,7 +1048,7 @@ class _CourseEditorState extends State<_CourseEditor> {
             for (final l in StudentEngine.letters)
               DropdownMenuItem(
                   value: l,
-                  child: Text('$l  ·  ${StudentEngine.pointForLetter(l)}')),
+                  child: Text(ld(context, '$l  ·  ${StudentEngine.pointForLetter(l)}'))),
           ],
           onChanged: (v) => setState(() => _letter = v),
         ),
@@ -1106,11 +1122,16 @@ class _GoalsTab extends StatelessWidget {
               icon: Icons.checklist_rtl_rounded,
               title: tr.studentGoalsEmptyTitle,
               message: tr.studentGoalsEmptyBody,
+              action: FilledButton.tonalIcon( // lifebar
+                onPressed: () => _add(context),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(tr.studentAddGoal),
+              ),
             )
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   Card(
                     child: Padding(
@@ -1119,10 +1140,10 @@ class _GoalsTab extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(tr.studentGoalProgress(p.done, p.total),
+                            Text(ld(context, tr.studentGoalProgress(p.done, p.total)),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w700)),
-                            Text('${p.percent}%',
+                            Text(ld(context, '${p.percent}%'),
                                 style:
                                     TextStyle(color: scheme.primary, fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
                           ],

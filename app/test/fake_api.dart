@@ -973,6 +973,22 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return c100;
     }
+    // lifebar: what the server watches for me on the exam screen
+    if (path == '/exam/watcher') {
+      if (mode == FakeMode.fail) _fail();
+      return {
+        'watchers': mode == FakeMode.empty
+            ? <Map<String, dynamic>>[]
+            : [
+                {'id': 1, 'label': 'SSC 2026', 'url': 'https://eboardresults.com/',
+                  'expected_date': '2026-11-20', 'roll': '123456', 'board': 'dhaka',
+                  'exam': 'ssc', 'result_ready': false, 'checking': true, 'failures': 0},
+                {'id': 2, 'label': 'HSC 2026', 'url': 'https://educationboardresults.gov.bd/',
+                  'expected_date': '2026-10-30', 'roll': '654321', 'board': 'dhaka',
+                  'exam': 'hsc', 'result_ready': true, 'checking': false, 'failures': 0},
+              ],
+      };
+    }
     if (path == '/account/delete/status') {
       return delPending
           ? {'state': 'pending', 'effective_at': '2026-10-29T10:00:00Z',

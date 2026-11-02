@@ -8,6 +8,9 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import 'package:intl/intl.dart' show DateFormat; // lifebar
+import '../widgets/bn_day_periods.dart' show appDateLocale; // lifebar
+import '../widgets/local_digits.dart'; // lifebar
 
 /// TRAVEL PLANNER — ADVANCED, KEY-GATED (#35, SPEC v2.1 §21).
 ///
@@ -191,7 +194,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   for (final t in _trips)
                     _TripCard(
@@ -277,7 +280,7 @@ class _TripCard extends StatelessWidget {
           children: [
             const SizedBox(height: Gap.xxs),
             if (start.isNotEmpty && end.isNotEmpty)
-              Text('$start → $end',
+              Text('${tvNiceDate(context, start)} → ${tvNiceDate(context, end)}',
                   style: TextStyle(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.xs),
             Wrap(spacing: Gap.sm, children: [
@@ -364,7 +367,7 @@ class _CountChip extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: tint),
       const SizedBox(width: 3),
-      Text(label,
+      Text(ld(context, label),
           style: AType.bodySmall.copyWith(color: tint, fontWeight: FontWeight.w600)),
     ]);
   }
@@ -569,13 +572,18 @@ class _ItineraryTab extends StatelessWidget {
                 icon: Icons.event_note_rounded,
                 title: tr.tvNoDaysTitle,
                 message: tr.tvNoDaysBody,
+                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
+                  onPressed: () => _editDay(context),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(tr.tvAddDay),
+                ),
               ),
             )
           else ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(
-                  tr.tvItinerarySummary(/* (activities, days) */ totalActivities, days.length),
+                  tr.tvItinerarySummary(/* (activities, days) */ ld(context, totalActivities), ld(context, days.length)),
                   style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontWeight: FontWeight.w600)),
@@ -616,7 +624,7 @@ class _DayCard extends StatelessWidget {
             CircleAvatar(
               radius: 16,
               backgroundColor: scheme.primaryContainer,
-              child: Text('${day['day'] ?? ''}',
+              child: Text(ld(context, day['day'] ?? ''),
                   style: TextStyle(
                       color: scheme.onPrimaryContainer,
                       fontWeight: FontWeight.w700)),
@@ -747,7 +755,7 @@ class _PackingTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: Gap.sm),
-              Text(tr.tvPackingProgress(checked, total),
+              Text(tr.tvPackingProgress(ld(context, checked), ld(context, total)),
                   style: const TextStyle(fontWeight: FontWeight.w600)),
             ]),
             const SizedBox(height: Gap.md),
@@ -759,6 +767,11 @@ class _PackingTab extends StatelessWidget {
                 icon: Icons.checklist_rounded,
                 title: tr.tvNoPackingTitle,
                 message: tr.tvNoPackingBody,
+                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
+                  onPressed: () => _add(context),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(tr.tvAddPacking),
+                ),
               ),
             )
           else
@@ -896,14 +909,14 @@ class _BudgetTab extends StatelessWidget {
                   Expanded(
                       child: _BudgetStat(
                           label: tr.tvBudgetEstimated,
-                          value: _fmtBdt(totEst))),
+                          value: ld(context, _fmtBdt(totEst)))),
                   Expanded(
                       child: _BudgetStat(
-                          label: tr.tvBudgetActual, value: _fmtBdt(totAct))),
+                          label: tr.tvBudgetActual, value: ld(context, _fmtBdt(totAct)))),
                   Expanded(
                       child: _BudgetStat(
                           label: tr.tvBudgetRemaining,
-                          value: _fmtBdt(totEst - totAct),
+                          value: ld(context, _fmtBdt(totEst - totAct)),
                           tint: overspent ? scheme.error : null)),
                 ]),
                 if (overspent) ...[
@@ -924,6 +937,11 @@ class _BudgetTab extends StatelessWidget {
                 icon: Icons.account_balance_wallet_rounded,
                 title: tr.tvNoBudgetTitle,
                 message: tr.tvNoBudgetBody,
+                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
+                  onPressed: () => _edit(context),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(tr.tvAddBudget),
+                ),
               ),
             )
           else
@@ -934,8 +952,8 @@ class _BudgetTab extends StatelessWidget {
                   onTap: () => _edit(context, r),
                   title: Text(_catLabel(tr, '${r['category'] ?? 'other'}')),
                   subtitle: Text(tr.tvBudgetLine(/* (actual, estimate) */
-                      _fmtBdt(_toPoisha(r['actual'])),
-                      _fmtBdt(_toPoisha(r['estimate'])))),
+                      ld(context, _fmtBdt(_toPoisha(r['actual']))),
+                      ld(context, _fmtBdt(_toPoisha(r['estimate']))))),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline_rounded),
                     tooltip: tr.delete,
@@ -1060,8 +1078,38 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
     super.dispose();
   }
 
+  Widget _dateButton(String label, TextEditingController c) {
+    final v = c.text.trim();
+    return OutlinedButton.icon(
+      icon: const Icon(Icons.calendar_today_rounded, size: 18),
+      label: Text(v.isEmpty ? label : '$label: ${tvNiceDate(context, v)}'),
+      onPressed: () async {
+        final now = DateTime.now();
+        final cur = DateTime.tryParse(v) ??
+            DateTime.tryParse(_start.text.trim()) ?? now;
+        final d = await showDatePicker(
+          context: context,
+          initialDate: cur,
+          firstDate: DateTime(now.year - 2),
+          lastDate: DateTime(now.year + 5),
+        );
+        if (d == null || !mounted) return;
+        setState(() => c.text =
+            '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}');
+      },
+    );
+  }
+
   void _save() {
     final tr = AppLocalizations.of(context);
+    final s0 = DateTime.tryParse(_start.text.trim());
+    final e0 = DateTime.tryParse(_end.text.trim());
+    if (s0 != null && e0 != null && e0.isBefore(s0)) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(tr.lbDTravelEndBeforeStart)));
+      return;
+    }
     if (_dest.text.trim().isEmpty) {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
@@ -1100,26 +1148,10 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
               border: const OutlineInputBorder()),
         ),
         const SizedBox(height: Gap.md),
-        Row(children: [
-          Expanded(
-            child: TextField(
-              controller: _start,
-              decoration: InputDecoration(
-                  labelText: tr.tvFieldStart,
-                  hintText: 'YYYY-MM-DD',
-                  border: const OutlineInputBorder()),
-            ),
-          ),
-          const SizedBox(width: Gap.sm),
-          Expanded(
-            child: TextField(
-              controller: _end,
-              decoration: InputDecoration(
-                  labelText: tr.tvFieldEnd,
-                  hintText: 'YYYY-MM-DD',
-                  border: const OutlineInputBorder()),
-            ),
-          ),
+        // lifebar: real date pickers (was free text "YYYY-MM-DD")
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          _dateButton(tr.tvFieldStart, _start),
+          _dateButton(tr.tvFieldEnd, _end),
         ]),
         const SizedBox(height: Gap.lg),
         Row(children: [
@@ -1453,4 +1485,13 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
       ]),
     );
   }
+}
+
+
+/// lifebar: an ISO date ("2026-11-20") shown as "20 Nov 2026" in the app
+/// language (Bangla digits/month in bn). Unparseable text is shown as-is.
+String tvNiceDate(BuildContext context, String iso) {
+  final d = DateTime.tryParse(iso.trim());
+  if (d == null) return ld(context, iso);
+  return ld(context, DateFormat('d MMM yyyy', appDateLocale(context)).format(d));
 }
