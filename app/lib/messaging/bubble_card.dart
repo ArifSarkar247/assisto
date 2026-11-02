@@ -224,7 +224,7 @@ class BubbleIllustration extends StatelessWidget {
             gradient: Brand.gradient,
             border: Border.all(color: scheme.surface, width: 3),
             boxShadow: const [
-              BoxShadow(color: Color(0x33000000), blurRadius: 8, offset: Offset(0, 3))
+              BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3))
             ],
           ),
           child: Icon(icon, color: Colors.white, size: size * 0.5),
