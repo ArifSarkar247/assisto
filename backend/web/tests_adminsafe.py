@@ -198,7 +198,8 @@ class ActionTests(Base):
         for url, body, kind in checks:
             r = api.post(url, body, format="json")
             self.assertEqual(r.status_code, 403, url)
-            self.assertEqual(r.json()["detail"], "account_restricted", url)
+            self.assertEqual(r.json()["reason"], "account_restricted", url)
+            self.assertIn("কমিউনিটি" if kind == "community_join" else "", r.json()["detail"])
             self.assertEqual(r.json()["kind"], kind)
             self.assertEqual(r.json()["admin_reason"], "Spam to strangers")
         # other users are not affected
