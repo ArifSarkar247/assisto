@@ -31917,5 +31917,51 @@
   "bpYouSaidCanLong": "You said you can donate. Talk to the family in the app; your number stays private.",
   "@bpYouSaidCanLong": {
     "description": "blood (owner 2 Nov): Blood donor panel"
-  }
+  },
+  "emhTitle": "Emergency hub",
+  "emh999Button": "Call {number}",
+  "@emh999Button": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "emh999Sub": "Police · Fire service · Ambulance. Opens your dialer — you press call.",
+  "emhMoreHelp": "More help",
+  "emhHospital": "Nearest hospital",
+  "emhPolice": "Nearest police station",
+  "emhNearbySub": "Needs internet; the map source is shown. No internet? Call 999.",
+  "emhFamCard": "Family card",
+  "emhFamCardEmpty": "Add blood group and emergency numbers — opens without internet",
+  "emhFamBlood": "Blood group {group}",
+  "@emhFamBlood": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "emhFamNumbers": "{count} emergency numbers",
+  "@emhFamNumbers": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "emhOfflineOk": "opens without internet",
+  "emhBlood": "Blood needed",
+  "emhBloodSub": "Post an urgent request and find donors near you",
+  "emhMissing": "Missing person alert",
+  "emhMissingSub": "Tell people nearby with a photo; help with a GD",
+  "emhCrisis": "Crisis help",
+  "emhCrisisSub": "Only numbers checked by the Assisto team",
+  "emhCrisis999Label": "National emergency (police, ambulance, fire service)",
+  "emhCrisisOnly999": "Other helplines appear here once the team has checked them.",
+  "emhLost": "Lost or stolen phone",
+  "emhLostSub": "Lock it, sound an alarm, see where it is",
+  "emhFake": "Fake call",
+  "emhFakeSub": "Your phone rings in 15 seconds — a reason to walk away",
+  "emhOfflineNote": "No internet? SOS, 999, the family card, crisis numbers and the fake call still work."
 }
