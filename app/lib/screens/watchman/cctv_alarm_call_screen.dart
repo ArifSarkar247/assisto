@@ -68,7 +68,7 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
     return Scaffold(
       backgroundColor: scheme.surface,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 16)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
@@ -90,7 +90,8 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
             const SizedBox(height: 4),
             Text(t.cescCallWhy),
             const SizedBox(height: 12),
-            Expanded(
+            AspectRatio(
+              aspectRatio: 4 / 3,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
