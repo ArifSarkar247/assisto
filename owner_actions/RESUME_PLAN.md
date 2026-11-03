@@ -1,8 +1,8 @@
 # RESUME PLAN — work paused by owner STOP ORDER (3 Nov 2026 21:15 BD, Claude usage 86%)
 
 Nothing is lost: every agent branch is committed and pushed; nothing half-merged into main.
-Live server = origin/main (build 304 + daily report) **plus a local merge of `agent/placesnew`** (Google Places key fix, live).
-⚠️ The next deploy MUST include `agent/placesnew` (it is inside `b301i`), otherwise the Places fix is rolled back.
+Live server = origin/main (build 304) **plus local merges of `agent/placesnew` (Places key fix) and `agent/ailang` (AI Part 1 server fixes: reply language, vision uses saved keys, instant refund, friendly text)** — server HEAD d0b6adf3.
+⚠️ The next deploy MUST include both (`placesnew` is in `b301i`; `ailang` is in `agent/aifinal`, which is based on b301i + ailang), otherwise these live fixes are rolled back.
 
 ## Exact first steps to resume (in order)
 1. Ask the owner for the current Claude usage % and the result of the new-key tests (Places "Test connection", Anthropic key).
