@@ -187,7 +187,7 @@ class HonestyGuardTests(TestCase):
     def test_quran_level_words_only(self):
         for lv, t in LC.QURAN_LEVEL.items():
             self.assertIn(t["en"], ("Qaida reading practice completed", "Nazera reading practice completed"))
-            self.assertIn(t["bn"], ("কায়দা সম্পন্ন", "নাযেরা পড়ার অনুশীলন সম্পন্ন"))
+            self.assertIn(t["bn"], ("কায়দা পড়ার অনুশীলন সম্পন্ন", "নাযেরা পড়ার অনুশীলন সম্পন্ন"))
         for course in ("quran_qaida", "quran_nazera"):
             for lang in ("en", "bn"):
                 self.assertEqual(_quran_bad(LC.COURSES[course][lang]), [])

@@ -30,6 +30,7 @@ Widget _app(Widget child, ApiClient api, {String lang = 'en', double scale = 1, 
   s.locale = Locale(lang);
   s.loading = false;
   return ChangeNotifierProvider<AppState>.value(
+    key: UniqueKey(), // every pump is a fresh screen (no state carried over)
     value: s,
     child: MaterialApp(
       locale: Locale(lang),
