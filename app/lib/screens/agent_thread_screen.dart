@@ -97,7 +97,12 @@ class AgentThreadScreen extends StatefulWidget {
       this.greeting,
       this.initialSend,
       this.heroBuilder,
-      this.photoPicker});
+      this.photoPicker,
+      this.starters = const []});
+
+  /// aifinal (owner AI chat history order 4 Nov 00:33): 3-4 starter questions
+  /// shown on an EMPTY chat (Assisto AI screen only; the home passes none).
+  final List<String> starters;
 
   /// SharedPreferences key of the home thread that survives restarts.
   static const sessionKey = 'home_session_id';
@@ -467,6 +472,21 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               ? block
               : hero(context, block, _inputFocus.hasFocus,
                   box.maxHeight.isFinite ? box.maxHeight - Gap.lg - Gap.md : 0),
+          if (widget.starters.isNotEmpty) ...[
+            const SizedBox(height: Gap.lg),
+            for (final q in widget.starters)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: OutlinedButton(
+                  key: ValueKey('starter-$q'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      alignment: Alignment.centerLeft),
+                  onPressed: _sending ? null : () => _send(q),
+                  child: Text(q),
+                ),
+              ),
+          ],
         ],
       ),
     );

@@ -146,6 +146,26 @@
   "voiceTranscribing": "Writing down what you said…",
   "@voiceTranscribing": {
    "description": "aifinal round 2 voice: server transcription in progress"
+  },
+  "aiChatsPanel": "Chats",
+  "@aiChatsPanel": {
+   "description": "aifinal chat history: side panel button (opens the chat list)"
+  },
+  "aiStarter1": "Plan a safe trip from Dhaka to Gazipur",
+  "@aiStarter1": {
+   "description": "aifinal chat history: starter question 1"
+  },
+  "aiStarter2": "Remind me to take my medicine at 9 pm",
+  "@aiStarter2": {
+   "description": "aifinal chat history: starter question 2"
+  },
+  "aiStarter3": "How much did I spend this month?",
+  "@aiStarter3": {
+   "description": "aifinal chat history: starter question 3"
+  },
+  "aiStarter4": "Write a polite message to my landlord",
+  "@aiStarter4": {
+   "description": "aifinal chat history: starter question 4"
   }
  },
  "bn": {
@@ -177,6 +197,11 @@
   "voiceLangEn": "ইং",
   "voiceLangSwitchA11y": "কণ্ঠের ভাষা: {lang}। বদলাতে দুবার চাপুন।",
   "voiceServerFailed": "কথাটি লেখা গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
-  "voiceTranscribing": "আপনার কথা লেখা হচ্ছে…"
+  "voiceTranscribing": "আপনার কথা লেখা হচ্ছে…",
+  "aiChatsPanel": "চ্যাটগুলো",
+  "aiStarter1": "ঢাকা থেকে গাজীপুর নিরাপদে যাওয়ার পরিকল্পনা করে দাও",
+  "aiStarter2": "রাত ৯টায় ওষুধ খাওয়ার কথা মনে করিয়ে দিও",
+  "aiStarter3": "এই মাসে আমার কত খরচ হয়েছে?",
+  "aiStarter4": "বাড়িওয়ালাকে একটি ভদ্র বার্তা লিখে দাও"
  }
 }
