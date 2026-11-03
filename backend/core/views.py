@@ -2470,6 +2470,10 @@ GENERIC_COLLECTIONS = [
     "proactive/dismissed", "area/posts", "doctor/appointments",
     # CV / resume builder — single per-user CV record (no migration; generic)
     "cv",
+    # p2career: Job Hunter saved searches {q, loc, last_run, last_count} and
+    # user-added LEGAL sources {kind: greenhouse|lever|rss|link, value, label}
+    # (read server-side only via career_service.fetch_source; links never read)
+    "career/searches", "career/sources",
     # Anti-theft "My Vehicles" — vehicle profile rows (type, reg/chassis/engine,
     # tax-token/fitness/insurance expiry). No migration; reuses PaCollectionItem.
     "vehicle/records",

@@ -1659,3 +1659,20 @@ urlpatterns += [
     path("account/appeal/blocked", safev.BlockedAppealView.as_view()),
 ]
 # ---- /adminsafe ----
+# ---- p2career ---- CV Builder / Job Hunter / Mock interview (flag career_plus)
+from . import views_career as careerv  # noqa: E402
+urlpatterns += [
+    path("career/status", careerv.CareerStatusView.as_view()),
+    path("career/cv/prefill", careerv.CvPrefillView.as_view()),
+    path("career/cv/ats", careerv.CvAtsView.as_view()),
+    path("career/cv/pdf", careerv.CvPdfView.as_view()),
+    path("career/cv/print-link", careerv.CvPrintLinkView.as_view()),
+    path("career/cv/print/<str:token>", careerv.cv_print_page),
+    path("career/cv/polish", careerv.CvPolishView.as_view()),
+    path("career/jobs/search", careerv.JobSearchView.as_view()),
+    path("career/jobs/sources/test", careerv.JobSourceTestView.as_view()),
+    path("career/jobs/deadline", careerv.JobDeadlineView.as_view()),
+    path("career/interview/roles", careerv.InterviewRolesView.as_view()),
+    path("career/interview/roles/<slug:role>", careerv.InterviewRolesView.as_view()),
+    path("career/interview/feedback", careerv.InterviewFeedbackView.as_view()),
+]
