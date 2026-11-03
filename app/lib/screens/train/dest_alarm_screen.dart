@@ -428,7 +428,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     final t = AppLocalizations.of(context);
     final s = _c.value;
     return Scaffold(
-      appBar: AppBar(title: Text(t.trAlarmTitle), actions: [
+      appBar: AppBar(title: Text(t.sjlNameAlarm), actions: [
         if (tripRecorderVisible())
           IconButton(
             tooltip: t.sjaRecorderTitle,

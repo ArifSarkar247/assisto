@@ -155,7 +155,7 @@ class _NeedsTab extends StatelessWidget {
           key: const Key('amk-needs-empty'),
           icon: Icons.campaign_rounded,
           title: t.amkNeedsEmptyTitle,
-          benefit: t.amkNeedsEmptyBenefit,
+          benefit: t.amkNeedsEmptyBenefit2,
           button: t.amkPostNeed,
           onPressed: () => onNew(),
           howTo: t.amkNeedsEmptyHow,

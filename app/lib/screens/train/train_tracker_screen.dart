@@ -54,7 +54,7 @@ class TrainTrackerScreen extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
     return Scaffold(
-      appBar: AppBar(title: Text(t.trTitle)),
+      appBar: AppBar(title: Text(t.sjlNameTrain)),
       // owner fix 3 Nov: ONE adaptive banner, Free users only (the slot
       // follows the central ad rules: child accounts, consent, Serve REAL)
       bottomNavigationBar: const AdBannerSlot(screen: 'train_search'),
@@ -65,7 +65,7 @@ class TrainTrackerScreen extends StatelessWidget {
               child: ListTile(
                 minVerticalPadding: Gap.md,
                 leading: const Icon(Icons.alarm_on_rounded),
-                title: Text(t.trAlarmTitle),
+                title: Text(t.sjlNameAlarm),
                 subtitle: Text(t.trAlarmCardSub),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.push(
@@ -75,7 +75,7 @@ class TrainTrackerScreen extends StatelessWidget {
         ],
         trailing: [
           const SizedBox(height: Gap.md),
-          Text(t.trDataNote, style: AType.bodySmall),
+          Text(t.trDataNote2, style: AType.bodySmall),
         ],
         onPick: (tr, date) => Navigator.push(
             context,
