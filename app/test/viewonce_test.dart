@@ -425,7 +425,7 @@ void main() {
       ])));
       expect(find.text(_en.circleVideo), findsOneWidget);
       expect(find.text(_en.vo1Voice), findsOneWidget);
-      expect(find.textContaining('Opened '), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^Opened \d')), findsOneWidget); // "Opened 10:42"
       expect(find.text(_en.vo1OpenedCount('2', '5')), findsOneWidget);
       expect(find.text(_en.vo1Expired), findsOneWidget);
       expect(find.byType(ViewOnceBadge), findsNWidgets(5));

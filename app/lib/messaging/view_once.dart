@@ -357,7 +357,8 @@ AppBar _voAppBar(BuildContext context, String title) {
       icon: const Icon(Icons.close_rounded),
       onPressed: () => Navigator.pop(context),
     ),
-    title: Text(title, style: const TextStyle(fontSize: 16)),
+    // white on black in both themes (the theme's title colour is dark)
+    title: Text(title, style: const TextStyle(fontSize: 16, color: Colors.white)),
   );
 }
 
