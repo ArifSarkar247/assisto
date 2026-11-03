@@ -323,12 +323,16 @@ void main() {
     await t.pumpAndSettle();
     expect(api.posts.last.$1, '/kids-watch/chips/7/find');
     expect(find.text(l.chipFindAsked), findsWidgets);
+    await t.pump(const Duration(seconds: 6));                  // snackbar gone
+    await t.pumpAndSettle();
     await t.ensureVisible(find.byKey(const ValueKey('chip-safe-place')));
     await t.tap(find.byKey(const ValueKey('chip-safe-place')));
     await t.pumpAndSettle();
     expect(api.patches.last.$1, '/kids-watch/chips/7');
     final add = (api.patches.last.$2['left_behind'] as Map)['safe_add'] as Map;
     expect(add['lat'], 23.7911);
+    await t.pump(const Duration(seconds: 6));
+    await t.pumpAndSettle();
     await t.ensureVisible(find.byKey(const ValueKey('chip-left-30')).first);
     await t.tap(find.byKey(const ValueKey('chip-left-30')).first);
     await t.pumpAndSettle();
