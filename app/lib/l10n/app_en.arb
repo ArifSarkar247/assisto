@@ -37806,5 +37806,13 @@
         "type": "String"
       }
     }
+  },
+  "lostsimIcWhen": "Only while Assisto is open on the screen: after several wrong PINs in a row inside Assisto (3 by default) — a Security PIN (for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off) or your Vault PIN. Never on the lock screen and never in the background.",
+  "@lostsimIcWhen": {
+    "description": "Intruder photo consent: when the photo is taken (v2 adds the Vault PIN)."
+  },
+  "lostsimIcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN and Vault PIN box says that a wrong PIN takes a photo.",
+  "@lostsimIcNotice": {
+    "description": "Intruder photo consent: it is never hidden (v2 adds the Vault PIN box)."
   }
 }
