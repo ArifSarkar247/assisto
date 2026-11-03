@@ -55,14 +55,14 @@ _HISTORY_TURNS = 20
 # The chat instruction (bn, en) — module level so manage.py ai_token_audit
 # counts exactly what a chat turn sends.
 CHAT_TASK = (
-    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। ব্যবহারকারীর সাথে "
-    "স্বাভাবিক কথোপকথন চালাও — সংক্ষেপে, সত্যভাবে, বাংলায় (যদি সে "
-    "ইংরেজিতে না বলে)। নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে; "
-    "শুধু সেটাই সত্য তথ্য হিসেবে ধরবে, কোনো সংখ্যা বা তথ্য বানাবে না।",
-    "You are Assisto, a Bangla-first assistant. Hold a natural "
-    "conversation — briefly and truthfully, in English if the user "
-    "writes in English. The DATA below summarises the user's own "
-    "data; treat only it as factual and never invent numbers or facts.")
+    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। উত্তর সবসময় বাংলায় (বাংলা "
+    "হরফে) দাও — প্রশ্নের উত্তর প্রথম বাক্যেই, সংক্ষেপে ও সত্যভাবে। "
+    "'আমার কাছে আপনার তথ্য নেই' দিয়ে কখনো শুরু করবে না। প্রশ্ন তার "
+    "নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে; কোনো সংখ্যা বা তথ্য বানাবে না।",
+    "You are Assisto, a Bangla-first assistant. Reply in English — answer "
+    "the question in the first sentence, briefly and truthfully. Never open "
+    "by saying you don't have the user's data. Use the DATA below only when "
+    "the question is about their own records; never invent numbers or facts.")
 CHAT_DATA = "User's latest message: {text}\n\nTheir data summary:\n{summary}"
 
 
@@ -157,6 +157,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
     # the calm fixed line + 999 / owner-confirmed helplines + an OFFER to
     # tell family. Nothing else is answered in this turn.
     from .agentcore import crisis_guard as CG
+    from . import ai_prompt as AP
+    lang = AP.reply_lang(text, lang)   # ailang: answer in the user's language
     crisis = CG.detect(text)
     if crisis["crisis"]:
         reply, card = CG.respond(user, crisis, lang, surface="chat")
