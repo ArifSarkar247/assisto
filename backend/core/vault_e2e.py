@@ -553,7 +553,9 @@ class VaultShareView(APIView):
         s.save()
         _log(request.user, "vault.share_create", id=s.id, doc=doc.id, hours=hours,
              max_opens=max_opens)
+        from .journey_watch import site
         return Response({"ok": True, "token": token, "path": f"/d/{token}",
+                         "url": f"{site()}/d/{token}",
                          "link": _share_row(s)}, status=status.HTTP_201_CREATED)
 
 

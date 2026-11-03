@@ -17,6 +17,11 @@ import '../services/error_kind.dart' show FailKind, failKindOf, honestFailText; 
 import '../otp_api.dart' show ApiOtpBackend, OtpBackend;
 import '../photo_studio/ps_engines.dart' show ChannelSecureScreen, SecureScreen;
 import '../vault/vault_api.dart';
+import '../vault/vault_e2e.dart';
+import '../vault/vault_e2e_api.dart';
+import '../vault/vault_e2e_screen.dart';
+import '../vault/vault_share_sheet.dart';
+import '../feature_flags.dart' show FeatureFlags;
 import '../vault/vault_lock.dart';
 import '../vault/vault_lock_view.dart';
 import '../vault/vault_offline.dart';
@@ -58,6 +63,11 @@ class _VaultScreenState extends State<VaultScreen> {
   VaultBackend get _backend =>
       _backendCache ??= widget.backend ?? ApiVaultBackend(context.read<AppState>().api);
   OtpBackend get _otp => widget.otpBackend ?? ApiOtpBackend(context.read<AppState>().api);
+  // p3docs: end-to-end lock (flag vault_e2e)
+  VaultE2EBackend? _e2eCache;
+  VaultE2EBackend get _e2eBackend =>
+      _e2eCache ??= ApiVaultE2EBackend(context.read<AppState>().api);
+  bool get _e2eFlag => FeatureFlags.instance.isOn('vault_e2e');
 
   _Gate _gateState = _Gate.checking;
   String? _gateNotice;
@@ -88,6 +98,7 @@ class _VaultScreenState extends State<VaultScreen> {
   @override
   void dispose() {
     widget.secure.disable();
+    VaultE2E.instance.lock(); // p3docs: the document key leaves memory with the vault
     super.dispose();
   }
 
@@ -128,7 +139,19 @@ class _VaultScreenState extends State<VaultScreen> {
       _error = false;
     });
     try {
-      _docs = await context.read<AppState>().api.listDocuments();
+      _docs = (await context.read<AppState>().api.listDocuments()).map(_unseal).toList();
+      if (_docs.any((d) => d['_e2e_locked'] == true)) {
+        // p3docs: a sealed document opened earlier on this phone keeps its
+        // saved (locally encrypted) details, so syncing never loses them.
+        final saved = await _savedCopies();
+        _docs = [
+          for (final d in _docs)
+            if (d['_e2e_locked'] == true && saved[d['id']]?.meta['_sealed'] is Map)
+              {...saved[d['id']]!.meta, 'id': d['id'], 'e2e': true}
+            else
+              d
+        ];
+      }
       _offlineMode = false;
       // keep the phone's copies in step (never blocks the list)
       // best-effort: syncWith never throws (every store call is caught inside);
@@ -165,6 +188,52 @@ class _VaultScreenState extends State<VaultScreen> {
     });
   }
 
+  /// p3docs: open a sealed document's box with the in-memory key. Locked
+  /// (key not on this phone yet) -> blank title + `_e2e_locked`.
+  Map<String, dynamic> _unseal(Map<String, dynamic> d) {
+    if (d['e2e'] != true) return d;
+    final det = d['details'];
+    final box = det is Map ? '${det['box'] ?? ''}' : '';
+    final meta = VaultE2E.instance.openDocBox(box);
+    if (meta == null) return {...d, 'title': '', 'details': <String, dynamic>{}, '_e2e_locked': true};
+    return {
+      ...d,
+      'title': '${meta['title'] ?? ''}',
+      'note': '${meta['note'] ?? ''}',
+      'details': meta['details'] is Map ? meta['details'] : <String, dynamic>{},
+      'expiry_date': d['expiry_date'] ?? meta['expiry'],
+      '_sealed': meta,
+    };
+  }
+
+  /// The document's real bytes: as-is for a normal document, decrypted on
+  /// the phone for a sealed one (null = locked / tampered).
+  Future<Uint8List?> _plainBytes(Map<String, dynamic> doc, List<int> bytes) async {
+    if (doc['e2e'] != true) return Uint8List.fromList(bytes);
+    final meta = doc['_sealed'];
+    if (meta is! Map) return null;
+    return VaultE2E.openDocFile(meta.cast<String, dynamic>(), bytes);
+  }
+
+  Future<void> _openE2E() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => VaultE2EScreen(lock: _lock, backend: _e2eBackend)));
+    if (mounted) _load();
+  }
+
+  Future<void> _shareLink(Map<String, dynamic> doc) async {
+    final id = doc['id'] as int;
+    await showVaultShareSheet(context,
+        docId: id,
+        title: '${doc['title'] ?? ''}',
+        backend: _e2eBackend,
+        loadPlain: () async {
+          if (doc['file_url'] == null) return null;
+          final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+          return _plainBytes(doc, bytes);
+        });
+  }
+
   Future<String?> _pickImage() async {
     final src = await showAppSheet<ImageSource>(
       context: context,
@@ -193,8 +262,11 @@ class _VaultScreenState extends State<VaultScreen> {
     return x?.path;
   }
 
-  Future<File?> _downloadFile(int id) async {
-    final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+  Future<File?> _downloadFile(Map<String, dynamic> doc) async {
+    final id = doc['id'] as int;
+    final raw = await context.read<AppState>().api.getBytes('/documents/$id/file');
+    final bytes = await _plainBytes(doc, raw); // p3docs: decrypt a sealed one
+    if (bytes == null) return null;
     final dir = await getTemporaryDirectory();
     final f = File('${dir.path}/vault_$id.jpg');
     await f.writeAsBytes(bytes);
@@ -214,7 +286,8 @@ class _VaultScreenState extends State<VaultScreen> {
     final nav = Navigator.of(context);
     final title = '${doc['title'] ?? ''}';
     if (_offlineIds.contains(id)) {
-      final bytes = await _offline.openFile(id);
+      final saved = await _offline.openFile(id);
+      final bytes = saved == null ? null : await _plainBytes(doc, saved);
       if (bytes != null) {
         nav.push(MaterialPageRoute(
             builder: (_) => VaultViewer(bytes: bytes, title: title, fromOfflineCopy: true)));
@@ -226,10 +299,15 @@ class _VaultScreenState extends State<VaultScreen> {
       return;
     }
     try {
-      final bytes = await context.read<AppState>().api.getBytes('/documents/$id/file');
+      final raw = await context.read<AppState>().api.getBytes('/documents/$id/file');
+      final bytes = await _plainBytes(doc, raw);
       if (!mounted) return;
+      if (bytes == null) {
+        _snack(t.vaultE2eLockedOpen);
+        return;
+      }
       nav.push(MaterialPageRoute(
-          builder: (_) => VaultViewer(bytes: Uint8List.fromList(bytes), title: title)));
+          builder: (_) => VaultViewer(bytes: bytes, title: title)));
     } catch (e) {
       _snack(failKindOf(e) == FailKind.network
           ? t.vaultNeedInternetOpen
@@ -273,7 +351,15 @@ class _VaultScreenState extends State<VaultScreen> {
   Future<void> _setAlerts(Map<String, dynamic> doc, bool on) async {
     final t = AppLocalizations.of(context);
     try {
-      await _backend.setExpiryAlerts(doc['id'] as int, on);
+      final meta = doc['_sealed'];
+      if (doc['e2e'] == true && meta is Map && meta['expiry'] != null) {
+        // p3docs: a sealed document's expiry date is on the server ONLY while
+        // its reminder is on; switching it off takes the date back off.
+        await context.read<AppState>().api.patchJson('/documents/${doc['id']}/',
+            {'expiry_alerts': on, 'expiry_date': on ? meta['expiry'] : null});
+      } else {
+        await _backend.setExpiryAlerts(doc['id'] as int, on);
+      }
       setState(() => doc['expiry_alerts'] = on);
     } catch (e) {
       _snack(failKindOf(e) == FailKind.network ? t.vaultNeedInternet : honestFailText(t, e));
@@ -323,6 +409,9 @@ class _VaultScreenState extends State<VaultScreen> {
     String type = 'nid';
     DateTime? expiry;
     String? filePath;
+    // p3docs: end-to-end lock this document (default ON once the lock is open)
+    final canSeal = _e2eFlag && VaultE2E.instance.unlocked;
+    var seal = canSeal;
     final details = <String, TextEditingController>{};
     final detailDates = <String, DateTime?>{};
 
@@ -427,6 +516,16 @@ class _VaultScreenState extends State<VaultScreen> {
             ),
             const SizedBox(height: 10),
             TextField(controller: free, decoration: InputDecoration(labelText: t.moneyFieldNoteOptional)),
+            if (canSeal)
+              SwitchListTile(
+                key: const Key('vault_seal_switch'),
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.enhanced_encryption_rounded),
+                title: Text(t.vaultE2eSealSwitch),
+                subtitle: Text(t.vaultE2eSealSwitchSub),
+                value: seal,
+                onChanged: (v) => setD(() => seal = v),
+              ),
           ])),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
@@ -448,7 +547,20 @@ class _VaultScreenState extends State<VaultScreen> {
       final noteStr = free.text.trim();
       try {
         final expiryStr = expiry != null ? DateFormat('yyyy-MM-dd').format(expiry!) : null;
-        if (filePath != null) {
+        if (seal && VaultE2E.instance.unlocked) {
+          // p3docs: sealed on THIS phone; the server gets ciphertext only.
+          final fp = filePath;
+          final bytes = fp == null ? null : await File(fp).readAsBytes();
+          final sealed = await VaultE2E.instance.sealDocument({
+            'title': title.text.trim(),
+            'note': noteStr,
+            'details': cleaned,
+            if (expiryStr != null) 'expiry': expiryStr,
+          }, file: bytes, mime: bytes == null ? null : sniffMime(bytes));
+          await _e2eBackend.uploadSealed(
+              docType: type, expiryDate: expiryStr, expiryAlerts: true,
+              box: sealed.box, file: sealed.file);
+        } else if (filePath != null) {
           await context.read<AppState>().api.uploadDocumentWithDetails(
               title: title.text.trim(), docType: type,
               expiryDate: expiryStr, details: cleaned, note: noteStr,
@@ -469,6 +581,10 @@ class _VaultScreenState extends State<VaultScreen> {
 
   // ------------------------------------------------------------------ detail sheet
   void _openDoc(Map<String, dynamic> doc) {
+    if (doc['_e2e_locked'] == true) {
+      _openE2E(); // p3docs: unlock first (recovery code / trusted person)
+      return;
+    }
     final t = AppLocalizations.of(context);
     final dt = vaultTypeOf(doc['doc_type']);
     final decoded = readDocDetails(doc);
@@ -489,6 +605,15 @@ class _VaultScreenState extends State<VaultScreen> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(dt.label(t), style: TextStyle(color: Colors.grey)),
+          if (doc['e2e'] == true)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Row(children: [
+                const Icon(Icons.enhanced_encryption_rounded, size: 18),
+                const SizedBox(width: Gap.xs),
+                Expanded(child: Text(t.vaultE2eBadgeLong, style: AType.bodySmall)),
+              ]),
+            ),
           if (dt.helpText(t) != null) ...[
             const SizedBox(height: Gap.md),
             Container(
@@ -569,6 +694,14 @@ class _VaultScreenState extends State<VaultScreen> {
                 key: const Key('vault_view'),
                 onPressed: () { Navigator.pop(ctx); _viewFile(doc); },
                 icon: const Icon(Icons.visibility_rounded), label: Text(t.view)),
+            if (_e2eFlag && doc['file_url'] != null)
+              FilledButton.tonalIcon(
+                key: const Key('vault_share_link'),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  if (_offlineMode) { _snack(t.vaultNeedInternet); } else { _shareLink(doc); }
+                },
+                icon: const Icon(Icons.add_link_rounded), label: Text(t.vaultShareLink)),
             FilledButton.tonalIcon(
               onPressed: () {
                 Navigator.pop(ctx);
@@ -667,7 +800,7 @@ class _VaultScreenState extends State<VaultScreen> {
           buf.writeln('${_fieldLabel(t, vaultTypeOf(doc['doc_type']), k)}: $v'));
       if (doc['expiry_date'] != null) buf.writeln('${t.vaultExpiryDate}: ${doc['expiry_date']}');
       if (doc['file_url'] != null) {
-        final f = await _downloadFile(doc['id']);
+        final f = await _downloadFile(doc);
         if (f != null) {
           await Share.shareXFiles([XFile(f.path)], text: buf.toString());
           return;
@@ -760,6 +893,27 @@ class _VaultScreenState extends State<VaultScreen> {
   }
 
   // ------------------------------------------------------------------ build
+  /// p3docs: the end-to-end lock's state at the top of the list.
+  Widget _e2eCard(AppLocalizations t) {
+    final locked = _docs.where((d) => d['_e2e_locked'] == true).length;
+    final on = VaultE2E.instance.unlocked;
+    return Card(
+      key: const Key('vault_e2e_card'),
+      child: ListTile(
+        minVerticalPadding: Gap.sm,
+        leading: Icon(locked > 0 ? Icons.lock_rounded : Icons.enhanced_encryption_rounded),
+        title: Text(locked > 0
+            ? t.vaultE2eLockedCount(fmtInt(context, locked))
+            : on
+                ? t.vaultE2eOnTitle
+                : t.vaultE2eTitle),
+        subtitle: Text(locked > 0 ? t.vaultE2eUnlockCode : (on ? t.vaultE2eBadgeLong : t.vaultE2eWhatShort)),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: _openE2E,
+      ),
+    );
+  }
+
   Widget _nudge(AppLocalizations t) => Card(
         key: const Key('vault_recovery_nudge'),
         color: Theme.of(context).colorScheme.secondaryContainer,
@@ -785,6 +939,8 @@ class _VaultScreenState extends State<VaultScreen> {
                   onPressed: () async {
                     final code = await _lock.newRecoveryCode();
                     if (code == null || !mounted) return;
+                    await syncE2ERecoveryCode(_e2eBackend, code); // p3docs
+                    if (!mounted) return;
                     await showVaultRecoveryCode(context, code);
                     _hasRecoveryCode = await _lock.hasRecoveryCode();
                     if (mounted) setState(() {});
@@ -856,7 +1012,14 @@ class _VaultScreenState extends State<VaultScreen> {
                   ? StateMessage(
                       icon: Icons.folder_open_rounded,
                       title: t.vaultEmptyTitle,
-                      message: t.vaultEmptyMessage)
+                      message: t.vaultEmptyMessage,
+                      action: _e2eFlag
+                          ? OutlinedButton.icon(
+                              key: const Key('vault_e2e_empty'),
+                              onPressed: _openE2E,
+                              icon: const Icon(Icons.enhanced_encryption_rounded),
+                              label: Text(t.vaultE2eTitle))
+                          : null)
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: ListView(
@@ -874,18 +1037,28 @@ class _VaultScreenState extends State<VaultScreen> {
                           ),
                         if (!_offlineMode && !_hasRecoveryCode && !_nudgeDismissed && !widget.previewUnlocked)
                           _nudge(t),
+                        if (_e2eFlag && !_offlineMode) _e2eCard(t),
                         for (final doc in filtered)
                           Card(child: ListTile(
                             minVerticalPadding: Gap.sm,
                             onTap: () => _openDoc(doc),
-                            leading: Icon(vaultTypeOf(doc['doc_type']).icon),
-                            title: Text(doc['title'] ?? ''),
+                            leading: Icon(doc['_e2e_locked'] == true
+                                ? Icons.lock_rounded
+                                : vaultTypeOf(doc['doc_type']).icon),
+                            title: Text(doc['_e2e_locked'] == true
+                                ? t.vaultE2eLockedTitle
+                                : '${doc['title'] ?? ''}'),
                             subtitle: Wrap(spacing: Gap.sm, runSpacing: Gap.xs,
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(vaultTypeOf(doc['doc_type']).label(t)),
                                 if (_expiryBadge(doc['expiry_date']) != null)
                                   _expiryBadge(doc['expiry_date'])!,
+                                if (doc['e2e'] == true)
+                                  Semantics(
+                                    label: t.vaultE2eBadge,
+                                    child: const Icon(Icons.enhanced_encryption_rounded, size: 18),
+                                  ),
                                 if (_offlineIds.contains(doc['id']))
                                   Semantics(
                                     label: t.vaultAvailableOffline,

@@ -133,6 +133,8 @@ const Map<String, bool> kFeatureDefaults = {
   'marketing': false,
   'retention': false,
   'booking': false,
+  // p3docs (3 Nov): Documents end-to-end lock + expiring share links.
+  'vault_e2e': false,
   // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
   'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.

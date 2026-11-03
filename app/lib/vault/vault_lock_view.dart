@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../messaging/chat_lock.dart' show ChatLockAuth;
 import '../theme.dart' show AType, Gap;
 import '../widgets/ladder_common.dart' show fmtInt;
+import 'vault_e2e.dart';
 import 'vault_lock.dart';
 
 enum VaultLockMode { set, enter }
@@ -101,6 +102,9 @@ class _VaultLockViewState extends State<VaultLockView> {
     final ok = await ChatLockAuth.biometric(t.vaultBioReason);
     if (!mounted) return;
     if (ok == true) {
+      // p3docs: the fingerprint also opens the end-to-end document key.
+      await _e2e(() => VaultE2E.instance.unlockWithBio());
+      if (!mounted) return;
       widget.onUnlocked();
     } else if (ok == null) {
       setState(() => _error = t.vaultBioUnavailable);
@@ -122,6 +126,8 @@ class _VaultLockViewState extends State<VaultLockView> {
       }
       setState(() => _busy = true);
       final ok = await widget.lock.setPin(pin);
+      // p3docs: a new PIN re-wraps the document key (when it is open).
+      if (ok) await _e2e(() => VaultE2E.instance.rewrapPin(pin));
       if (!mounted) return;
       setState(() => _busy = false);
       if (ok) {
@@ -151,10 +157,21 @@ class _VaultLockViewState extends State<VaultLockView> {
       };
     });
     if (r == PinCheck.ok) {
+      await _e2e(() async {
+        if (await VaultE2E.instance.isSetUp()) await VaultE2E.instance.unlockWithPin(pin);
+      });
+      if (!mounted) return;
       widget.onUnlocked();
     } else {
       _armTick();
     }
+  }
+
+  /// p3docs: the end-to-end key never blocks or crashes the vault lock.
+  Future<void> _e2e(Future<Object?> Function() run) async {
+    try {
+      await run().timeout(const Duration(seconds: 20));
+    } catch (_) {}
   }
 
   @override
