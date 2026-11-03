@@ -1,0 +1,8 @@
+{
+  "_format": "bizai pillar 4 clip test set. One entry per REAL recorded clip (the clip files stay on the tester's machine, never in git). truth = what really happens in the clip, seconds from the clip start. kinds: person, line, zone, loiter, cash, camera. alerts = what the system raised while the clip played (export from the alerts list), same clock.",
+  "clips": [
+    {"file": "shop_door_day_01.mp4", "camera": "front door", "light": "day",
+     "truth": [{"kind": "person", "at": 4.0}, {"kind": "line", "at": 6.5}],
+     "alerts": [{"type": "person_detected", "at": 5.1}, {"type": "line_crossing", "at": 7.0}]}
+  ]
+}

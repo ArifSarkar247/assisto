@@ -246,3 +246,63 @@ class ProcharTrackedView(APIView):
         if d is None:
             return _refuse(request, "not_found", 404)
         return Response(d)
+
+
+# ===================================================================== pillar 4: CCTV accuracy
+def _cctv_off(request):
+    return not FF.is_on("cctv_watchman", request.user, is_play_flavour(request))
+
+
+def _int(v):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+class CctvAccuracyView(APIView):
+    """GET bizai/cctv/accuracy?site=&days=30 — measured precision / recall
+    per alert kind from reviews (+ missed reports) and live test sessions."""
+    def get(self, request):
+        if _cctv_off(request):
+            return _refuse(request, "off", 404)
+        from . import bizai_cctv as C
+        days = max(1, min(_int(request.query_params.get("days")) or 30, 365))
+        return Response(C.accuracy(request.user, site_id=_int(request.query_params.get("site")),
+                                   days=days))
+
+
+class CctvMissedView(APIView):
+    """POST bizai/cctv/missed {site, kind, note?} — "it happened, no alert"."""
+    def post(self, request):
+        if _cctv_off(request):
+            return _refuse(request, "off", 404)
+        from . import bizai_cctv as C
+        r = C.report_missed(request.user, _int(request.data.get("site")),
+                            str(request.data.get("kind") or ""), request.data.get("note") or "")
+        if r is None:
+            return _refuse(request, "not_found", 404)
+        return Response({"ok": True, "id": r.pk}, status=201)
+
+
+class CctvTestView(APIView):
+    """POST bizai/cctv/test {site} → start · POST bizai/cctv/test/<id>/mark
+    {kind} → "this happened now" · POST bizai/cctv/test/<id>/stop → result."""
+    def post(self, request, pk=None, action=""):
+        if _cctv_off(request):
+            return _refuse(request, "off", 404)
+        from . import bizai_cctv as C
+        if pk is None:
+            r = C.start_test(request.user, _int(request.data.get("site")))
+        elif action == "mark":
+            r = C.mark_truth(request.user, pk, str(request.data.get("kind") or ""))
+        elif action == "stop":
+            r = C.stop_test(request.user, pk)
+        else:
+            r = None
+        if r is None:
+            return _refuse(request, "not_found", 404)
+        d = r.data or {}
+        return Response({"id": r.pk, "started": d.get("started"), "stopped": d.get("stopped"),
+                         "marks": len(d.get("truth") or []), "alerts": d.get("alerts"),
+                         "result": d.get("result")})
