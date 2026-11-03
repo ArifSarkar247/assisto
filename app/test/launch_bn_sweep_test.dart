@@ -15,6 +15,14 @@
 // New screens are covered automatically: add the gallery spec with one of
 // the prefixes below (or add the prefix). A finding fails unless it matches
 // the reviewed [_allow] list ("<screen>|<check>|<text in finding>").
+//
+// SITE SHOTS (sitelive, 3 Nov): every gallery shot lifeassisto.com shows
+// (../backend/web/site_shot_sources.json, kept equal to
+// web.site_v3.shot_names() by web.tests_site_v3) gets the bn `digit` check
+// too — a Bangla site screenshot must never show English digits. Every
+// failing screen name is written to $ASSISTO_SHOT_DIR/launch_bn_sweep_failures.json
+// (the shots-* artifacts), and tools/website/site_shots.py refuses to put a
+// shot from that failure list on the site.
 import 'dart:convert';
 import 'dart:io';
 
@@ -57,6 +65,8 @@ const Map<String, String> _allow = {
   'acct_vat_rates*|digit|Soybean oil 1L': "the shop's own product name (user data)",
   'rt_*|english|"Karim"': 'fake customer name (user data)',
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
+  // Site shots: standard / brand names written the same in Bangla.
+  'cx_alert_actions|digit|SHA-256': 'hash standard name (SHA-256), never translated',
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
   'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
@@ -129,13 +139,93 @@ final _ascii = RegExp(r'[0-9]');
 // URLs / app links / invite codes are not reading text.
 final _urlish = RegExp(r'(https?://|lifeassisto\.com|\.com/|www\.)');
 
+/// Gallery names of the screenshots on lifeassisto.com (site_shots.py writes
+/// the file; the Django site test keeps it equal to site_v3.shot_names()).
+List<String> _siteShots() {
+  try {
+    final m = jsonDecode(File('../backend/web/site_shot_sources.json')
+        .readAsStringSync()) as Map;
+    return [for (final n in m['names'] as List) '$n'];
+  } catch (_) {
+    return const [];
+  }
+}
+
+/// Screens with an open finding -> launch_bn_sweep_failures.json.
+final Map<String, List<String>> _failures = {};
+
+void _record(String name, Iterable<String> open) {
+  if (open.isEmpty) return;
+  _failures.putIfAbsent(name, () => []).addAll(open);
+}
+
+void _writeFailures() {
+  final dir = _env['ASSISTO_SHOT_DIR'];
+  if (dir == null || dir.isEmpty) return;
+  try {
+    Directory(dir).createSync(recursive: true);
+    File('$dir/launch_bn_sweep_failures.json').writeAsStringSync(
+        const JsonEncoder.withIndent(' ').convert({'failures': _failures}));
+  } catch (_) {}
+}
+
+/// bn texts with an ASCII digit (and, unless [digitsOnly], exact English app
+/// strings) that are not in [_allow].
+Set<String> _bnFindings(WidgetTester tester, String name,
+    {bool digitsOnly = false}) {
+  final open = <String>{};
+  for (final s in _texts(tester)) {
+    final one = s.replaceAll('\n', ' ');
+    if (_ascii.hasMatch(one) && !_urlish.hasMatch(one)) {
+      final d = 'digit: "$one"';
+      if (!_allowed(name, 'digit', d)) open.add(d);
+    }
+    if (!digitsOnly && _enStrings.contains(s)) {
+      final d = 'english: "$one"';
+      if (!_allowed(name, 'english', d)) open.add(d);
+    }
+  }
+  return open;
+}
+
 void main() {
   setUpAll(gallery.gallerySetUpAll);
+  tearDownAll(_writeFailures);
   final specs = gallery.gallerySpecs();
   final names = specs.keys
       .where((n) => _launchPrefixes.any(n.startsWith))
       .where((n) => _only == null || _only!.contains(n))
       .toList();
+  final site = _siteShots();
+
+  test('site shot sources are listed (the site digit guard is not silently empty)', () {
+    expect(site, isNotEmpty,
+        reason: '../backend/web/site_shot_sources.json missing or empty — run '
+            'python tools/website/site_shots.py --sources');
+  });
+
+  for (final name in site) {
+    final spec = specs[name];
+    testWidgets('site bn shot $name has Bangla digits', (tester) async {
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
+      await gallery.galleryPump(tester, name, 'bn', Brightness.light,
+          spec!.build('bn'), spec.mode, key: GlobalKey());
+      await tester.pump();
+      final open = _bnFindings(tester, name, digitsOnly: true);
+      _record(name, open);
+      if (spec.mode == FakeMode.slow) {
+        await tester.pump(const Duration(milliseconds: 1400));
+      }
+      await tester.pump(const Duration(seconds: 2));
+      expect(open.toList(), isEmpty,
+          reason: 'lifeassisto.com shows the bn gallery shot "$name" and it '
+              'has English digits. Fix the screen (localDigits / moneyDigits '
+              '…) — the site must not show it.');
+    },
+        // a site shot whose gallery spec lives on a branch not merged yet
+        skip: spec == null || (_only != null && !_only!.contains(name)));
+  }
 
   test('launch prefixes match gallery specs (guard is not silently empty)', () {
     for (final p in _launchPrefixes) {
@@ -153,18 +243,8 @@ void main() {
       await gallery.galleryPump(tester, name, 'bn', Brightness.light,
           spec.build('bn'), spec.mode, key: GlobalKey());
       await tester.pump();
-      final open = <String>{};
-      for (final s in _texts(tester)) {
-        final one = s.replaceAll('\n', ' ');
-        if (_ascii.hasMatch(one) && !_urlish.hasMatch(one)) {
-          final d = 'digit: "$one"';
-          if (!_allowed(name, 'digit', d)) open.add(d);
-        }
-        if (_enStrings.contains(s)) {
-          final d = 'english: "$one"';
-          if (!_allowed(name, 'english', d)) open.add(d);
-        }
-      }
+      final open = _bnFindings(tester, name);
+      _record(name, open);
       if (spec.mode == FakeMode.slow) {
         await tester.pump(const Duration(milliseconds: 1400));
       }

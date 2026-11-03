@@ -178,6 +178,48 @@ class HonestyTests(Base):
         for w in (400, 600, 700):
             self.assertTrue((ASSETS / ("inter-%d.woff2" % w)).is_file())
 
+    def test_bn_site_shots_guarded_by_launch_bn_sweep(self):
+        """sitelive: the bn sweep (app/test/launch_bn_sweep_test.dart) reads
+        site_shot_sources.json; it must list exactly the site's shots, and a
+        shot on the sweep's failure list must block the refresh."""
+        import importlib.util
+        root = Path(__file__).resolve().parents[2]
+        src = json.loads((root / "backend" / "web" / "site_shot_sources.json").read_text())
+        self.assertEqual(src["names"], V3.shot_names(),
+                         "run: python tools/website/site_shots.py --sources")
+        sweep = (root / "app" / "test" / "launch_bn_sweep_test.dart").read_text()
+        self.assertIn("site_shot_sources.json", sweep)
+        self.assertIn("launch_bn_sweep_failures.json", sweep)
+        spec = importlib.util.spec_from_file_location("site_shots", root / "tools" / "website" / "site_shots.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        name = V3.shot_names()[0]
+        self.assertEqual(mod.blocked(V3.shot_names(), {name: ['digit: "12:30"'], "not_on_site": ["x"]}), [name])
+        self.assertEqual(mod.blocked(V3.shot_names(), {}), [])
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            self.assertIsNone(mod.sweep_failures(d))           # no list = no proof
+            self.assertEqual(mod.refresh(d), 1)
+            for shard, fails in (("shots-0", {}), ("shots-1", {name: ['digit: "5"']})):
+                Path(d, shard).mkdir()
+                Path(d, shard, mod.FAILS).write_text(json.dumps({"failures": fails}))
+            self.assertEqual(mod.refresh(d), 1)                  # a site shot failed in bn
+            self.assertEqual(list(mod.sweep_failures(d)), [name])
+
+    def test_bubbles_channels_brief_show_real_screenshots(self):
+        shots = {f["id"]: f["shot"] for f in V3.FEATURES["ai"] + V3.FEATURES["circle"]}
+        self.assertEqual(shots["brief"], "daily_brief")
+        self.assertIsNone(shots["bubbles"])        # bbl2_install_day_on after agent/bubbles2 is on main
+        self.assertEqual(shots["channels"], "chx_channel")
+        set_flag("my_circle", True)
+        set_flag("daily_brief", True)
+        for lang in ("bn", "en"):
+            html = self.c.get("/preview/features/circle?lang=%s" % lang).content.decode()
+            for n in ("chx_channel",):
+                self.assertIn("shots3/%s_%s_360.webp" % (n, lang), html)
+            html = self.c.get("/preview/features/ai?lang=%s" % lang).content.decode()
+            self.assertIn("shots3/daily_brief_%s_360.webp" % lang, html)
+
     def test_jsonld_is_valid(self):
         for path in ("/preview/", "/preview/features/business?lang=en"):
             html = self.c.get(path).content.decode()
@@ -309,6 +351,56 @@ class NavigationAndPlayTests(Base):
                 self.assertIn("shots3/%s_%s_360.webp" % (n, lang), hero)
                 self.assertNotIn("shots3/%s_%s_" % (n, other), hero)
             self.assertIn('class="rot-btn"', hero)        # pause control (WCAG 2.2.2)
+
+
+class HeroOrder3NovTests(Base):
+    """owner HERO + FIXES 3 Nov 03:30: exact hero text, 9 real slides in order,
+    the taka-sign font on every page, sticky Install bar after the hero."""
+
+    def test_hero_text_exact(self):
+        en = self.c.get("/preview/?lang=en").content.decode()
+        h1 = re.sub(r"<[^>]+>", "", re.search(r'<h1 id="hero-h">(.*?)</h1>', en, re.S).group(1))
+        self.assertEqual(" ".join(h1.split()),
+                         "Assisto: Chat, calls, AI assistant, safety and business, in one super app.")
+        self.assertIn('<p class="slogan">Many apps. One Assisto.</p>', en)
+        self.assertIn("Chat and call your people, share live location and SOS with family, watch your CCTV, "
+                      "run your shop&#x27;s accounts and invoices. Assisto&#x27;s AI reminds, alerts and keeps "
+                      "your books in order.", en)
+        self.assertIn("Does the work by itself", en)          # the chip above stays
+        bn = self.c.get("/preview/?lang=bn").content.decode()
+        h1 = re.sub(r"<[^>]+>", "", re.search(r'<h1 id="hero-h">(.*?)</h1>', bn, re.S).group(1)).strip()
+        self.assertTrue(h1.startswith("Assisto: "), h1)
+        self.assertIn("সুপার অ্যাপ", h1)
+        self.assertIn('<p class="slogan">অনেক অ্যাপ নয়, একটাই Assisto।</p>', bn)
+
+    def test_hero_slides_owner_order(self):
+        self.assertEqual([n for n, _ in V3.HERO_SLIDES],
+                         ["c3_chat", "callpip_pip_window", "gj_live_banner", "emergency_hub", "wm_alerts",
+                          "acct_home", "inv_paper_80", "home_v2_chat", "dest_alarm"])
+        for lang in ("bn", "en"):
+            html = self.c.get("/preview/?lang=%s" % lang).content.decode()
+            hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
+            pos = [hero.find("shots3/%s_%s_360.webp" % (n, lang)) for n, _ in V3.HERO_SLIDES]
+            self.assertNotIn(-1, pos)
+            self.assertEqual(pos, sorted(pos))
+            self.assertEqual(hero.count('fetchpriority="high"'), 1)   # only slide 1 loads eagerly
+        for n, _ in V3.HERO_SLIDES:
+            self.assertIn(n, V3.shot_names())
+
+    def test_taka_font_on_every_page(self):
+        self.assertTrue((ASSETS / "taka.woff2").is_file())
+        self.assertIn("SIL Open Font License", (ASSETS / "OFL-HindSiliguri.txt").read_text())
+        for path in PREVIEW_PAGES + ["/", "/pricing?lang=en", "/delete-account", "/privacy"]:
+            html = self.c.get(path).content.decode()
+            self.assertRegex(html, r'font-family:"Taka3"[^}]*taka\.woff2[^}]*unicode-range:U\+09F3', path)
+            self.assertRegex(html, r'--font:"Taka3",', path)
+
+    def test_sticky_bar_waits_for_hero_install(self):
+        html = self.c.get("/preview/?lang=bn").content.decode()
+        self.assertIn('.js .pbar:not(.show){transform:translateY(110%);visibility:hidden}', html)
+        self.assertIn('document.querySelector("#hero .install")', html)
+        self.assertRegex(html, r"prefers-reduced-motion:reduce\)\{\.pbar,")
+        self.assertIn('class="btn install"', re.search(r'id="hero".*?</section>', html, re.S).group(0))
 
 
 class InstallAndApkTests(Base):
