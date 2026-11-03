@@ -137,7 +137,7 @@ class MoneyNotifParser {
   // ---- counterparty ----------------------------------------------------
   static final _phone = RegExp(r'(?<!\d)(01[3-9]\d{8})(?!\d)');
   static final _labelled = RegExp(
-      r'\b(?:sender|receiver|recipient|agent|merchant|biller|from|to|at)\b\s*[:]?\s*(?:a/c\s*[:]?\s*)?([A-Za-z][A-Za-z0-9 .&\x27-]{1,30}?)(?=\s*(?:[().,;]|\s(?:on|tk|bdt|trx|txn|ref|bal|fee|charge|successful|is|has|was|\d)|$))',
+      r'\b(?:sender|receiver|recipient|agent|merchant|biller|from|to|at)\b\s*[:]?\s*(?:a/c\s*[:]?\s*)?([A-Za-z][A-Za-z0-9 .&\x27-]{1,30}?)(?=\s*(?:[().,;]|\s(?:on|tk|bdt|trx|txn|ref|bal|fee|charge|amount|successful|is|has|was|\d)|$))',
       caseSensitive: false);
   static const _notNames = {
     'your', 'you', 'a', 'ac', 'account', 'the', 'bank', 'bkash', 'nagad', 'rocket',

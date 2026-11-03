@@ -53,7 +53,7 @@ class CallNoteUnderstand {
 
   // someone will pay ME (loan given / customer due)
   static final _theyOwe = RegExp(
-      r'will pay me|owes? me|will give me|pay me back|\bdebe\b|\bdibe\b|\bdiben\b|\bdeben\b|\bpabo\b|\bpaona\b|\bbaki\b'
+      r'will pay|will give|will send|owes? me|pay me back|\bdebe\b|\bdibe\b|\bdiben\b|\bdeben\b|\bpabo\b|\bpaona\b|\bbaki\b'
       r'|\u09A6\u09C7\u09AC\u09C7|\u09A6\u09BF\u09AC\u09C7|\u09A6\u09C7\u09AC\u09C7\u09A8|\u09A6\u09BF\u09AC\u09C7\u09A8|\u09AA\u09BE\u09AC\u09CB|\u09AA\u09BE\u09AC|\u09AA\u09BE\u0993\u09A8\u09BE|\u09AC\u09BE\u0995\u09BF|\u09AB\u09C7\u09B0\u09A4 \u09A6\u09C7\u09AC\u09C7',
       caseSensitive: false);
   // I must pay

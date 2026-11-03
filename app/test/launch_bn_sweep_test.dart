@@ -85,10 +85,15 @@ const _launchPrefixes = <String>[
   'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
   // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
   'circle_search', 'farmer',
+  'cmn_', // callmoney (4 Nov): after-call note + money from notifications
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
 const Map<String, String> _allow = {
+  // callmoney: a wallet TrxID and the wallet's own message are shown exactly as
+  // bKash / Nagad / the bank sent them, so the user can match them.
+  'cmn_review|digit|TrxID': 'wallet transaction id / original wallet message, shown verbatim',
+  'cmn_review|digit|TxnID': 'Nagad transaction id inside the original wallet message, shown verbatim',
   // p3faith: CC BY 3.0 requires the Tanzil notice VERBATIM (years, version).
   'quran_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   'quran_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',

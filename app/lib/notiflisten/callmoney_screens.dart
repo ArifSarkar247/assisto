@@ -554,7 +554,7 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
             ),
           ]),
           if ((p.counterparty ?? '').isNotEmpty)
-            Text(t.clnWith(p.counterparty!)),
+            Text(t.clnWith(moneyDigitsFor(context, p.counterparty!))),
           if (p.date != null) Text(_when(context, p.date!)),
           if (p.fee != null && p.fee! > 0) Text(t.clnFee(tkOf(context, p.fee))),
           if ((p.trxId ?? '').isNotEmpty) Text(t.clnTrx(p.trxId!)),
@@ -628,7 +628,9 @@ class CallNoteSheet extends StatefulWidget {
   final NotifLaunch launch;
   /// Tests: skip the network and use the on-device rules only.
   final bool offline;
-  const CallNoteSheet({super.key, required this.launch, this.offline = false});
+  /// Tests: records Confirm taps instead of writing the repos.
+  final Future<void> Function(CallNoteDraft d)? writer;
+  const CallNoteSheet({super.key, required this.launch, this.offline = false, this.writer});
   @override
   State<CallNoteSheet> createState() => _CallNoteSheetState();
 }
@@ -695,7 +697,7 @@ class _CallNoteSheetState extends State<CallNoteSheet> {
       note = t.clnPhoneRules;
     }
     if (drafts == null || drafts.isEmpty) {
-      drafts = CallNoteUnderstand.onDevice(text, now: dhakaNow());
+      drafts = CallNoteUnderstand.onDevice(text, now: DateTime.now());
     }
     if (!mounted) return;
     setState(() {
@@ -710,7 +712,11 @@ class _CallNoteSheetState extends State<CallNoteSheet> {
     final t = AppLocalizations.of(context);
     final app = context.read<AppState>();
     try {
-      switch (d.kind) {
+      final w = widget.writer;
+      if (w != null) {
+        await w(d);
+      } else {
+        switch (d.kind) {
         case CallNoteKind.reminder:
           await app.reminders.add(CallNoteSaver.reminderPayload(d));
           if (d.dueAt != null && !d.dateOnly && mounted) await maybeAskExactAlarms(context);
@@ -718,6 +724,7 @@ class _CallNoteSheetState extends State<CallNoteSheet> {
           await app.notes.add(CallNoteSaver.notePayload(d));
         case CallNoteKind.due:
           await app.loans.add(CallNoteSaver.duePayload(d, dhakaNow()));
+        }
       }
       if (!mounted) return;
       setState(() => _saved.add(d));
