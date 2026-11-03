@@ -256,6 +256,7 @@ class _AlbumSendPreviewState extends State<AlbumSendPreview> {
                 child: Semantics(
                   toggled: _hd,
                   button: true,
+                  label: _hd ? t.cmHdOnHint : t.cmHdOffHint,
                   child: InkWell(
                     key: const Key('cm-hd-toggle'),
                     borderRadius: BorderRadius.circular(Radii.pill),

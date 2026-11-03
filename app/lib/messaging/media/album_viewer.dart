@@ -146,7 +146,8 @@ class _ViewerPageState extends State<_ViewerPage> {
   void initState() {
     super.initState();
     _tc.addListener(() => widget.onZoom(_tc.value.getMaxScaleOnAxis() > 1.01));
-    _load();
+    _file = MediaCache.instance.cachedSync(widget.desc);
+    if (_file == null) unawaited(Future<void>.microtask(_load));
   }
 
   @override
@@ -156,7 +157,7 @@ class _ViewerPageState extends State<_ViewerPage> {
   }
 
   Future<void> _load() async {
-    setState(() => _failed = false);
+    if (_failed) setState(() => _failed = false);
     final d = widget.desc;
     final f = MediaCache.instance.cachedSync(d) ??
         await MediaCache.instance.cached(d) ??

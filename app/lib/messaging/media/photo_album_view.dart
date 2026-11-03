@@ -83,7 +83,6 @@ class PhotoAlbumView extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final lay = albumLayout(items.length);
     final w = size.width;
-    const gap = 2.0;
     return Semantics(
       container: true,
       label: items.length > 1
@@ -329,6 +328,7 @@ class _AlbumTileState extends State<AlbumTile> {
       bool video = false}) {
     final ms = widget.item.durationMs;
     return Semantics(
+      container: true,
       button: onTap != null,
       label: label,
       child: GestureDetector(
@@ -375,7 +375,7 @@ class _SoftPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
+          color: Colors.black.withValues(alpha: 0.6), // WCAG: white 11 sp over any photo
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Padding(

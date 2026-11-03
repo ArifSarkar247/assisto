@@ -2179,9 +2179,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                           _openFile(file, d); // straight to the player
                           return;
                         }
-                        final at = descs.indexOf(d);
+                        final pos = descs.indexOf(d);
                         unawaited(openAlbumViewer(context, descs,
-                            initialIndex: at < 0 ? 0 : at, onForward: (k) {
+                            initialIndex: pos < 0 ? 0 : pos, onForward: (k) {
                           final idx = items.indexWhere((x) => x.desc == descs[k]);
                           if (idx < 0) return;
                           Navigator.of(context).pop();
