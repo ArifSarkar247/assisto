@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
+import '../widgets/ai_markdown.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
@@ -1420,12 +1421,14 @@ class _AiChatScreenState extends State<AiChatScreen>
   // monospace surface; everything else is plain body text.
   Widget _assistantText(_Msg m, ColorScheme scheme) {
     if (m.text.isEmpty && !m.user) return const SizedBox.shrink();
-    if (m.user || !m.text.contains('```')) {
+    if (m.user) {
       return Text(m.text,
-          style: TextStyle(
-              color: m.user ? scheme.onPrimary : scheme.onSurface,
-              height: 1.45));
+          style: TextStyle(color: scheme.onPrimary, height: 1.45));
     }
+    // aifinal PART 1b: assistant prose renders as safe markdown.
+    Widget md(String s) => AiMarkdown(
+        text: s, color: scheme.onSurface, linkColor: scheme.primary);
+    if (!m.text.contains('```')) return md(m.text);
     // Split on fenced code blocks (``` ... ```), keeping text segments plain
     // and code segments in a mono surface.
     final parts = m.text.split('```');
@@ -1455,8 +1458,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               style: AType.bodyMedium.copyWith(fontFamily: 'monospace', height: 1.4)),
         ));
       } else {
-        widgets.add(Text(seg.trim(),
-            style: TextStyle(color: scheme.onSurface, height: 1.45)));
+        widgets.add(md(seg.trim()));
       }
     }
     return Column(
