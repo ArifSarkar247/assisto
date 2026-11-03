@@ -128,7 +128,10 @@ void main() {
     expect(find.textContaining('1 item(s) without a cited value'), findsOneWidget);
     expect(find.byKey(const Key('food-photo-not-ready')), findsOneWidget);
     expect(find.byKey(const Key('food-photo')), findsNothing);
-    expect(find.textContaining('Source: FCT Bangladesh 2013 · 01_0041'), findsWidgets);
+    final src = find.textContaining('Source: FCT Bangladesh 2013 · 01_0041');
+    await tester.scrollUntilVisible(src, 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(src, findsWidgets);
     expect(find.byKey(HealthDisclaimerBar.barKey), findsOneWidget);
   });
 
