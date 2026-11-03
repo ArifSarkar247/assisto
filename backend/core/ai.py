@@ -372,7 +372,9 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     u = resp.usage
     extra = {"cache_read": int(getattr(u, "cache_read_input_tokens", 0) or 0),
              "cache_write": int(getattr(u, "cache_creation_input_tokens", 0) or 0),
-             "model": getattr(resp, "model", "") or model}
+             "model": getattr(resp, "model", "") or model,
+             # aifinal round 3: the answer hit max_tokens (cut)
+             "truncated": getattr(resp, "stop_reason", "") == "max_tokens"}
     return text, int(u.input_tokens or 0), int(u.output_tokens or 0), extra
 
 
@@ -447,7 +449,9 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
     cached = int(u.get("cachedContentTokenCount", 0) or 0)
     itok = max(0, int(u.get("promptTokenCount", 0) or 0) - cached)
     otok = int(u.get("candidatesTokenCount", 0) or 0) + int(u.get("thoughtsTokenCount", 0) or 0)
-    return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model}
+    trunc = bool(cands) and str(cands[0].get("finishReason", "")).upper() == "MAX_TOKENS"
+    return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model,
+                              "truncated": trunc}
 
 
 # AF-13 provider retention hygiene: the request options each provider's API
@@ -476,7 +480,8 @@ def _call_openai(key, model, system, prompt, max_tokens, history=None):
     cached = int(((u.get("prompt_tokens_details") or {}).get("cached_tokens", 0)) or 0)
     itok = max(0, int(u.get("prompt_tokens", 0) or 0) - cached)
     return (msg.get("content") or ""), itok, int(u.get("completion_tokens", 0) or 0), \
-        {"cache_read": cached, "cache_write": 0, "model": model}
+        {"cache_read": cached, "cache_write": 0, "model": model,
+         "truncated": choices[0].get("finish_reason") == "length"}
 
 
 def _classify(e):
@@ -746,6 +751,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         try:
             out = fn(keys[name], model, system, prompt, max_tokens, history=history)
             text, itok, otok, cr, cw, used = _unpack(out, model)
+            truncated = bool(len(out) > 3 and isinstance(out[3], dict) and out[3].get("truncated"))
             text = P.normalize_output(text, digits)
             if not text:
                 raise ProviderError("empty")
@@ -775,7 +781,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged,
             level=(level or "")[:10])
         if isinstance(out_meta, dict):
-            out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded})
+            out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded,
+                             "truncated": truncated})
         try:
             from . import billing
             billing.record_ai_cost_usd(cost)     # Profit Guard (USD -> ৳ ledger)

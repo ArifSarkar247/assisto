@@ -1761,7 +1761,12 @@ class AgentView(APIView):
             # the user's data context. Brain is the no-key fallback (and the
             # honest L4 message is itself returned by Brain when AI is off).
             unavailable = ""
-            if intent == "question" and ai.available():
+            # aifinal round 4 (00:50) REAL CAUSE of "two brains": only
+            # intent == "question" reached the AI; "ambiguous" free text (a
+            # statement, an insult) went to the offline Brain and got its
+            # "needs the AI assistant (owner hasn't added the key)" line + a
+            # Save-as-note card. Now every chat message goes to the AI.
+            if intent in ("question", "ambiguous") and ai.available():
                 # aifinal round 2: the home question runs the SAME chat engine
                 # as Assisto AI (views_chat._produce_reply): answer level,
                 # photo memory, reply language, refund when the AI could not
@@ -1772,7 +1777,7 @@ class AgentView(APIView):
                 from . import credits_out
                 from . import views_chat as VC
                 hist = G.cap_history(_home_history(u, request.data.get("session_id")),
-                                     turns=6)
+                                     turns=21)   # aifinal round 4: full recent conversation (+ summary)
                 try:
                     reply, rmeta, rcards = VC._produce_reply(
                         u, None, text, lang, hist,
@@ -1797,7 +1802,8 @@ class AgentView(APIView):
                     if rmeta.get("ai_unavailable"):
                         ai_meta["ai_unavailable"] = rmeta["ai_unavailable"]
             if not ai_answered:
-                res = brain.answer(u, text, lang)
+                from . import ai_prompt as _AP
+                res = brain.answer(u, text, _AP.reply_lang(text, lang))
                 reply = res["reply"]
                 cards = res.get("cards", [])
                 brain_route = res.get("route")
@@ -1808,7 +1814,9 @@ class AgentView(APIView):
                     if res.get("level") == "L4":
                         reply = G.unavailable_line(unavailable, lang) or reply
             # ambiguous free text → offer a "Save as note" chip (never auto-saved)
-            if intent == "ambiguous":
+            # aifinal round 4: offer "Save as note" ONLY when the user asks to
+            # remember / save something (never for insults or random text)
+            if intent == "ambiguous" and _ASKS_TO_SAVE.search(text or ""):
                 cards = list(cards) + [brain.save_note_card(text, lang)]
         else:
             reply = pick(lang,
@@ -1858,6 +1866,12 @@ _HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", 
                      "ai_generated", "pro_topic", "safe_mode")
 
 
+import re as _re
+_ASKS_TO_SAVE = _re.compile(
+    r"\b(remember|save|note (?:this|it|down)|write (?:this|it) down|keep (?:this|it))\b|"
+    r"মনে রাখ|সেভ কর|সংরক্ষণ|নোট কর|লিখে রাখ|mone rakh|save koro|note koro", _re.I)
+
+
 def _home_history(user, session_id):
     """Earlier turns of the user's own home conversation as [{role, content}]
     (oldest first). Empty for a foreign / unknown session."""
@@ -1869,8 +1883,11 @@ def _home_history(user, session_id):
         s = None
     if s is None:
         return []
-    rows = list(s.messages.exclude(role="system").order_by("-created_at", "-id")[:12])
+    # aifinal round 4: the full recent conversation (was 12 rows / 6 turns)
+    from .views_chat import _HISTORY_TURNS, summarize_older
+    rows = list(s.messages.exclude(role="system").order_by("-created_at", "-id")[:_HISTORY_TURNS])
     rows.reverse()
+    older = summarize_older(s, keep=_HISTORY_TURNS)
     out = []
     for m in rows:
         if not (m.text or "").strip():
@@ -1880,7 +1897,9 @@ def _home_history(user, session_id):
         if pt:   # aifinal round 2: the photo stays in context (its description)
             c = c + "\n\n[Photo shared earlier in this chat — text seen in it]: " + pt
         out.append({"role": m.role, "content": c})
-    return out
+    if older and out and out[0]["role"] == "assistant":
+        older = older[:1]          # keep the turns alternating
+    return (older + out) if older else out
 
 
 def _home_replay(user, cid):

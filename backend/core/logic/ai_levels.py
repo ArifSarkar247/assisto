@@ -30,13 +30,13 @@ PROVIDERS = ("gemini", "anthropic", "openai")
 
 DEFAULT_LEVELS = {
     "normal": {"provider": "gemini", "model": "gemini-2.5-flash-lite",
-               "in_cap": 3000, "out_cap": 700, "max_chars": 2000, "history_turns": 4,
+               "in_cap": 6000, "out_cap": 1500, "max_chars": 2000, "history_turns": 12,
                "credits": 0, "per_day": 60},
     "better": {"provider": "anthropic", "model": "claude-haiku-5-5",
-               "in_cap": 4000, "out_cap": 800, "max_chars": 3000, "history_turns": 6,
+               "in_cap": 8000, "out_cap": 1800, "max_chars": 3000, "history_turns": 16,
                "credits": 0, "per_day": 40},
     "best": {"provider": "anthropic", "model": "claude-sonnet-5-5",
-             "in_cap": 6000, "out_cap": 1200, "max_chars": 4000, "history_turns": 8,
+             "in_cap": 12000, "out_cap": 2500, "max_chars": 4000, "history_turns": 20,
              "credits": 0, "per_day": 20},
 }
 # credits 0 = use the computed worst-case minimum

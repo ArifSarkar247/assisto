@@ -195,6 +195,7 @@ FREE_EXEMPT = {
     "w1_cv": "public website CV tips, per-IP rate limited, no account",
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
+    "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
 }
 
 

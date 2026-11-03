@@ -70,8 +70,9 @@ BUSINESS_REPLY_TASK = (
 # (source file, exact snippet) — PromptDriftTests asserts each is still there
 DRIFT = [
     ("core/views_chat.py", "কোনো সংখ্যা বা তথ্য বানাবে না।"),   # ailang: CHAT_TASK reworded
-    ("core/views_chat.py", "data; treat only it as factual and never invent numbers or facts."),
-    ("core/views.py", "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।"),
+    ("core/views_chat.py", "never invent numbers or facts."),
+    # aifinal round 2: the home question now uses the shared chat engine
+    ("core/views_chat.py", "সত্যভাবে ও সম্পূর্ণভাবে।"),
     ("core/views.py", "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।"),
     ("core/jobs.py", "মূল অংশ বুলেট পয়েন্টে লেখো। যা নেই তা বানাবে না।"),
     ("core/jobs.py", "Write a short, sincere cover letter for this job, staying within the user's own information."),

@@ -30,14 +30,14 @@ class LevelMathTests(TestCase):
         # cheapest credit sold = p200 (৳200 / 240) -> 0.2 ৳ of AI per credit at 40 %
         safe = round(200 / 240 * 0.24, 4)
         got = {k: AL.min_credits(LV[k], PRICES, 120.0, safe) for k in AL.LEVEL_IDS}
-        self.assertEqual(got, {"normal": 1, "better": 1, "best": 17})
+        self.assertEqual(got, {"normal": 1, "better": 2, "best": 33})
         for k in AL.LEVEL_IDS:
             n = got[k]
             self.assertGreaterEqual(AL.profit_pct(LV[k], n, PRICES, 120.0, 200 / 240), 40.0, k)
 
     def test_owner_price_never_below_minimum(self):
         row = dict(LV["best"], credits=3)
-        self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 17)
+        self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 33)
         row["credits"] = 25
         self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 25)
 
@@ -96,7 +96,7 @@ class GenerateLevelTests(TestCase):
         self.assertEqual(text, "ok")
         self.assertEqual(seen, ["claude-sonnet-5-5"])
         self.assertEqual(self.charges[0][2], True)        # bought credits only
-        self.assertGreaterEqual(self.charges[0][1], 17)
+        self.assertGreaterEqual(self.charges[0][1], 33)
         self.assertEqual(AIUsage.objects.latest("id").level, "best")
 
     def test_better_falls_back_to_cheaper_gemini_never_up(self):
