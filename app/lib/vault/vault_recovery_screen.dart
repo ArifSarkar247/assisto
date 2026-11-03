@@ -189,9 +189,9 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
     if (r == PinCheck.ok) {
       // p3docs: the same code re-opens the end-to-end document key (works
       // offline); the new PIN then re-wraps it (VaultLockView set mode).
-      try {
-        await VaultE2E.instance.unlockWithLocalRecovery(code);
-      } catch (_) {}
+      // Not awaited: it never holds the reset back (the user types the new
+      // PIN next, long after this finishes).
+      VaultE2E.instance.unlockWithLocalRecovery(code).catchError((_) => false); // best-effort: only re-opens sealed docs
     }
     if (!mounted) return;
     if (r == PinCheck.ok) {

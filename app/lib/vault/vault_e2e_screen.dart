@@ -11,6 +11,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../billing/billing_format.dart' show uiDigits;
 import '../crypto/e2e.dart' show IdentityKeyPair;
 import '../crypto/key_service.dart' show KeyService;
 import '../l10n/app_localizations.dart';
@@ -293,7 +294,9 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
   Future<void> _cancelHelp() async {
     try {
       await widget.backend.cancelHelp();
-    } catch (_) {}
+    } catch (_) {
+      _snack(AppLocalizations.of(context).vaultE2eFailed);
+    }
     _load();
   }
 
@@ -434,14 +437,7 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
     }
   }
 
-  String _localDigits(String s) {
-    if (Localizations.localeOf(context).languageCode != 'bn') return s;
-    const bn = '০১২৩৪৫৬৭৮৯';
-    return s.split('').map((c) {
-      final d = int.tryParse(c);
-      return d == null ? c : bn[d];
-    }).join();
-  }
+  String _localDigits(String s) => uiDigits(context, s);
 
   Widget? _requestCard(AppLocalizations t) {
     final r = _request;

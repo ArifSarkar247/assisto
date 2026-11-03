@@ -82,7 +82,7 @@ class _VaultShareSheetState extends State<VaultShareSheet> {
     try {
       final l = await widget.backend.shares(widget.docId);
       if (mounted) setState(() => _links = l);
-    } catch (_) {}
+    } catch (_) {} // best-effort: the list just stays as it was
   }
 
   String _hoursLabel(AppLocalizations t, int h) => switch (h) {
@@ -130,7 +130,9 @@ class _VaultShareSheetState extends State<VaultShareSheet> {
   Future<void> _revoke(Map<String, dynamic> l) async {
     try {
       await widget.backend.revokeShare((l['id'] as num).toInt());
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) setState(() => _error = AppLocalizations.of(context).vaultE2eFailed);
+    }
     _loadLinks();
   }
 

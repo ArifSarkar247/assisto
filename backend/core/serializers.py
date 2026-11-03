@@ -361,7 +361,14 @@ class DocumentSerializer(serializers.ModelSerializer):
             import json as _json
             try:
                 decoded = _json.loads(raw)
-                data = data.copy() if hasattr(data, "copy") else dict(data)
+                # p3docs: a PLAIN dict, not a QueryDict copy — DRF's JSONField
+                # str()s a value read from form input (QueryDict), which turned
+                # the decoded map into "{'k': ...}" -> "must be valid JSON" for
+                # every multipart upload that carried details.
+                if hasattr(data, "getlist"):
+                    data = {k: data.get(k) for k in data.keys()}
+                else:
+                    data = dict(data)
                 data["details"] = decoded
             except (ValueError, TypeError):
                 pass
