@@ -1087,13 +1087,16 @@ class _ListeningPage extends StatelessWidget {
             subtitle: Text(_loc(context, l, 'bn', 'en')),
             onTap: () async {
               final uri = Uri.tryParse('${l['url']}');
-              var ok = false;
-              if (uri != null && uri.scheme == 'https') {
-                try {
-                  ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-                } catch (_) {}
+              if (uri == null || uri.scheme != 'https') {
+                _toast(context, tr.ieltsOpenLinkFailed);
+                return;
               }
-              if (!ok && context.mounted) _toast(context, tr.ieltsOpenLinkFailed);
+              try {
+                final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                if (!ok && context.mounted) _toast(context, tr.ieltsOpenLinkFailed);
+              } catch (_) {
+                if (context.mounted) _toast(context, tr.ieltsOpenLinkFailed);
+              }
             },
           ),
         ),
