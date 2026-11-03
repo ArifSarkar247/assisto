@@ -270,7 +270,10 @@ Future<bool> ensureMediaPermission(BuildContext context, Permission p,
 // ---------------------------------------------------------------- pickers
 /// Pick (gallery) or take (camera) a photo and prepare it. null = cancelled.
 /// Throws a [MediaPickError] with an honest code on failure.
-Future<MediaDraft?> pickPhoto(BuildContext context, {required bool camera}) async {
+Future<MediaDraft?> pickPhoto(BuildContext context,
+    {required bool camera,
+    int maxEdge = kPhotoMaxEdge, // circlemedia: the album preview picks at HD
+    int quality = kPhotoQuality}) async {
   final t = AppLocalizations.of(context);
   if (camera) {
     final ok = await ensureMediaPermission(context, Permission.camera,
@@ -279,9 +282,9 @@ Future<MediaDraft?> pickPhoto(BuildContext context, {required bool camera}) asyn
   }
   final x = await ImagePicker().pickImage(
     source: camera ? ImageSource.camera : ImageSource.gallery,
-    maxWidth: kPhotoMaxEdge.toDouble(),
-    maxHeight: kPhotoMaxEdge.toDouble(),
-    imageQuality: kPhotoQuality,
+    maxWidth: maxEdge.toDouble(),
+    maxHeight: maxEdge.toDouble(),
+    imageQuality: quality,
     requestFullMetadata: false,
   );
   if (x == null) return null;

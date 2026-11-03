@@ -56,6 +56,8 @@ import '../messaging/media/media_actions.dart'; // md1
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
 import '../messaging/media/media_send.dart';
+import '../messaging/media/album.dart' show collapseAlbums; // circlemedia
+import '../messaging/media/album_viewer.dart'; // circlemedia
 import '../messaging/media/voice_hold_mic.dart'; // wa-polish2
 import '../messaging/media/media_store.dart';
 import '../messaging/presence_label.dart';
@@ -1949,6 +1951,24 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       }
       return;
     }
+    // circlemedia: gallery (many at once) / camera → album preview → album
+    if (kind == CircleAttachKind.gallery || kind == CircleAttachKind.camera) {
+      final jobs = await pickPreviewAndQueuePhotos(context, _api,
+          camera: kind == CircleAttachKind.camera,
+          chatKind: 'member',
+          chatId: id,
+          replyTo: _replyTo?.id);
+      if (jobs.isEmpty || !mounted) return;
+      final ids = {for (final j in jobs) j.id};
+      setState(() {
+        _mediaJobs = [..._mediaJobs.where((j) => !ids.contains(j.id)), ...jobs];
+        _replyTo = null;
+        _unreadAtOpen = 0;
+        _firstUnreadId = null;
+      });
+      _scrollToEnd();
+      return;
+    }
     // calls-presence: "recording audio…" for the other person while the
     // voice-note recorder really records
     final draft = await pickMediaDraft(context, _api, kind,
@@ -1994,6 +2014,22 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _firstUnreadId = null;
     });
     _scrollToEnd();
+  }
+
+  /// circlemedia: the full-screen viewer over a photo / album bubble
+  /// (swipe, zoom, save, forward).
+  void _openAlbum(List<CircleMessage> items, int index) {
+    final withMedia = [for (final m in items) if (m.media != null) m];
+    if (withMedia.isEmpty) return;
+    final at = withMedia.indexOf(items[index.clamp(0, items.length - 1)]);
+    unawaited(openAlbumViewer(context, [for (final m in withMedia) m.media!],
+        initialIndex: at < 0 ? 0 : at,
+        onForward: _reqIn
+            ? null
+            : (i) {
+                Navigator.of(context).pop();
+                unawaited(_startForward(withMedia[i]));
+              }));
   }
 
   /// md1: open a decrypted photo (viewer) or document (open / save / share).
@@ -2849,6 +2885,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                                 ? () => _openMedia(m)
                                 : null,
                             onOpenFile: _selecting ? null : _openFile,
+                            onOpenAlbum: _selecting ? null : _openAlbum, // circlemedia
                             onOpenViewOnce: (_selecting || m.media == null)
                                 ? null
                                 : () => _openViewOnce(m),
@@ -3258,7 +3295,27 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         final c = a.value.at.compareTo(b.value.at);
         return c != 0 ? c : a.key.compareTo(b.key);
       });
-    final chrono = indexed.map((e) => e.value).toList();
+    // circlemedia: the items of an album fold into ONE bubble
+    final chrono = collapseAlbums<_ChatRow>(indexed.map((e) => e.value).toList(),
+        albumOf: (r) {
+          final k = r.msg?.albumKey ?? '';
+          return k.isEmpty ? null : k;
+        },
+        indexOf: (r) => r.msg!.albumIndex,
+        merge: (rs) {
+          final first = rs.first.msg!;
+          return _ChatRow.msg(CircleMessage(
+            id: first.id, text: first.text, mine: first.mine,
+            // the album sits where its first item arrived
+            at: rs.map((r) => r.msg!.at).reduce((a, b) => a.isBefore(b) ? a : b),
+            status: first.status, replyToId: first.replyToId,
+            replyPreview: first.replyPreview, reactions: first.reactions,
+            forwarded: first.forwarded, forwardHops: first.forwardHops,
+            starred: first.starred, pinned: first.pinned, pending: first.pending,
+            contentType: first.contentType, media: first.media,
+            mediaJob: first.mediaJob, album: [for (final r in rs) r.msg!],
+          ));
+        });
     if (!searching && _firstUnreadId != null && _unreadAtOpen > 0) {
       final i = chrono.indexWhere((r) => r.msg?.id == _firstUnreadId);
       if (i >= 0) chrono.insert(i, _ChatRow.divider(chrono[i].at));

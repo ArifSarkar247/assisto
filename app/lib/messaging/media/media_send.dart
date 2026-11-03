@@ -9,10 +9,15 @@ import '../../services/error_report.dart';
 import '../../theme.dart';
 import '../../widgets/circle_attach_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
+import 'album.dart'; // circlemedia
+import 'album_send_preview.dart'; // circlemedia
 import 'media_descriptor.dart';
 import 'media_outbox.dart';
 import 'media_prep.dart';
+import 'multi_pick.dart'; // circlemedia
+import 'photo_prep.dart'; // circlemedia
 import 'video_prep.dart';
+import 'view_once_toggle.dart'; // circlemedia
 import 'voice_recorder_sheet.dart';
 
 /// md1 — the chat side of sending media: pick → (preview + caption) →
@@ -36,6 +41,7 @@ class MediaLimits {
   static const int _mb = 1024 * 1024;
   static int photo = 16 * _mb, voice = 16 * _mb, document = 25 * _mb, video = 32 * _mb;
   static bool _loaded = false;
+  static int photosPerSend = 30; // circlemedia
 
   static Future<void> load(ApiClient api) async {
     if (_loaded) return;
@@ -288,38 +294,9 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
               ),
               if (widget.allowViewOnce) ...[
                 const SizedBox(width: Gap.xs),
-                Tooltip(
-                  message: _viewOnce ? t.eVoOnHint : t.eVoToggle,
-                  child: Semantics(
-                    button: true,
-                    toggled: _viewOnce,
-                    label: t.eVoToggle,
-                    child: InkWell(
-                      key: const Key('e-vo-toggle'),
-                      customBorder: const CircleBorder(),
-                      onTap: () {
-                        setState(() => _viewOnce = !_viewOnce);
-                        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
-                            duration: const Duration(seconds: 2),
-                            content: Text(_viewOnce ? t.eVoOnHint : t.eVoOffHint)));
-                      },
-                      child: Container(
-                        width: kMinTap, // a11y1: was 44
-                        height: kMinTap,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _viewOnce ? Colors.white : Colors.white12,
-                        ),
-                        child: Text('1',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: _viewOnce ? Colors.black : Colors.white)),
-                      ),
-                    ),
-                  ),
-                ),
+                ViewOnceToggle( // circlemedia: shared with the album preview
+                    value: _viewOnce,
+                    onChanged: (v) => setState(() => _viewOnce = v)),
               ],
               const SizedBox(width: Gap.sm),
               IconButton.filled(
@@ -335,4 +312,158 @@ class _PhotoSendPreviewState extends State<PhotoSendPreview> {
       ]),
     );
   }
+}
+
+// ---------------------------------------------------------------- circlemedia
+/// circlemedia: gallery (up to [MediaLimits.photosPerSend] photos AND videos
+/// at once) or camera → the album preview (swipe, remove, crop, rotate, one
+/// caption, HD / Standard) → queued in the media outbox, one E2E message per
+/// item, grouped back into ONE album bubble on every phone.
+/// Returns the queued jobs ([] = cancelled / nothing usable).
+Future<List<MediaJob>> pickPreviewAndQueuePhotos(BuildContext context, ApiClient api,
+    {required bool camera,
+    required String chatKind,
+    required int chatId,
+    String? replyTo}) async {
+  final t = AppLocalizations.of(context);
+  await MediaLimits.load(api);
+  if (!context.mounted) return const [];
+  final limit = MediaLimits.photosPerSend.clamp(1, 100);
+  List<MediaDraft> drafts;
+  try {
+    if (camera) {
+      final d = await pickPhoto(context, camera: true, maxEdge: kHdEdge, quality: kHdQuality);
+      drafts = [if (d != null) d];
+    } else {
+      final r = await pickMultiDrafts(limit: limit, videoMax: MediaLimits.video);
+      if (r == null) return const [];
+      if (context.mounted) _multiNotes(context, r, limit);
+      drafts = r.drafts;
+    }
+  } on MediaPickError {
+    if (context.mounted) _toast(context, t.md1PickFailed);
+    return const [];
+  } catch (e) {
+    if (context.mounted) showActionFailed(context, 'cm_pick', e);
+    return const [];
+  }
+  drafts = _withinCaps(context, drafts);
+  if (drafts.isEmpty || !context.mounted) return const [];
+  final choice = await Navigator.of(context).push<AlbumSendChoice>(MaterialPageRoute(
+    fullscreenDialog: true,
+    builder: (_) => AlbumSendPreview(
+      drafts: drafts,
+      limit: limit,
+      // e-gaps: view-once is offered in 1:1 chats
+      allowViewOnce: chatKind == 'member',
+      onAddMore: (left) async {
+        try {
+          final r = await pickMultiDrafts(limit: left, videoMax: MediaLimits.video);
+          if (r == null) return const [];
+          if (context.mounted) _multiNotes(context, r, limit);
+          return context.mounted ? _withinCaps(context, r.drafts) : r.drafts;
+        } catch (e) {
+          reportNonFatal('cm_add_more', e);
+          return const [];
+        }
+      },
+    ),
+  ));
+  if (choice == null || choice.items.isEmpty) return const [];
+  try {
+    return await queueAlbumChoice(choice,
+        chatKind: chatKind, chatId: chatId, replyTo: replyTo);
+  } catch (e) {
+    if (context.mounted) showActionFailed(context, 'cm_queue', e);
+    return const [];
+  }
+}
+
+void _multiNotes(BuildContext context, MultiPickResult r, int limit) {
+  final t = AppLocalizations.of(context);
+  final lines = <String>[
+    if (r.overLimit > 0) t.cmLimitNote('$limit'),
+    if (r.tooBig > 0) t.cmVideoTooBig('${r.tooBig}', '${MediaLimits.video ~/ (1024 * 1024)}'),
+    if (r.failed > 0) t.cmSomeFailed('${r.failed}'),
+  ];
+  if (lines.isNotEmpty) _toast(context, notifLocalizeDigits(context, lines.join('\n')));
+}
+
+/// Drop (and delete) photos over the per-file cap; tell the user once.
+List<MediaDraft> _withinCaps(BuildContext context, List<MediaDraft> drafts) {
+  final keep = <MediaDraft>[];
+  var dropped = 0;
+  for (final d in drafts) {
+    if (d.size > MediaLimits.of(d.kind)) {
+      _deleteQuietly(d.path);
+      dropped++;
+    } else {
+      keep.add(d);
+    }
+  }
+  if (dropped > 0 && context.mounted) {
+    final t = AppLocalizations.of(context);
+    _toast(context,
+        t.md1TooBig(notifLocalizeDigits(context, '${MediaLimits.photo ~/ (1024 * 1024)}')));
+  }
+  return keep;
+}
+
+/// circlemedia: turn the preview's choice into outbox jobs. Two or more
+/// items share one album id (inside each E2E descriptor); the caption and
+/// the reply ride on the first item. Photo rotate / HD-or-Standard work is
+/// left to the outbox (background isolate), so Send returns at once.
+Future<List<MediaJob>> queueAlbumChoice(AlbumSendChoice c,
+    {required String chatKind,
+    required int chatId,
+    String? replyTo,
+    MediaOutbox? outbox}) async {
+  final box = outbox ?? MediaOutbox.instance;
+  final n = c.items.length;
+  final albumId = n > 1 ? newAlbumId() : null;
+  final stamp = newMediaId();
+  final base = DateTime.now();
+  final jobs = <MediaJob>[];
+  for (var i = 0; i < n; i++) {
+    final it = c.items[i];
+    final d = it.draft;
+    Map<String, dynamic>? prep;
+    int? w = d.width, h = d.height;
+    if (d.kind == 'photo') {
+      final spec = photoPrepSpec(turns: it.turns, hd: c.hd);
+      if (prepNeeded(spec, d.width, d.height)) {
+        prep = spec;
+        final s = preppedSize(d.width, d.height, turns: it.turns, hd: c.hd);
+        if (s != null) {
+          w = s.$1;
+          h = s.$2;
+        }
+      }
+    }
+    jobs.add(MediaJob(
+      id: n > 1 ? '$stamp-$i' : stamp,
+      chatKind: chatKind,
+      chatId: chatId,
+      kind: d.kind,
+      srcPath: d.path,
+      name: d.name,
+      mime: d.mime,
+      plainSize: d.size,
+      // a microsecond apart: the outbox keeps the album order
+      at: base.add(Duration(microseconds: i)),
+      width: w,
+      height: h,
+      durationMs: d.durationMs,
+      thumbB64: c.viewOnce ? '' : d.thumbB64,
+      caption: i == 0 ? c.caption.trim() : '',
+      replyTo: i == 0 ? replyTo : null,
+      viewOnce: c.viewOnce,
+      album: albumId == null ? null : AlbumRef(id: albumId, index: i, count: n),
+      prep: prep,
+    ));
+  }
+  for (final j in jobs) {
+    await box.add(j);
+  }
+  return jobs;
 }
