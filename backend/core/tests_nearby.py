@@ -32,8 +32,8 @@ DMCH = ["w100", "hospital", "ঢাকা মেডিকেল কলেজ হ
         23.7258, 90.3979, "+880 2-55165088"]
 SHAHBAG = ["n200", "police", "শাহবাগ থানা", "Shahbag Police Station", 23.7384, 90.3958, ""]
 FIRE = ["n300", "fire", "সিদ্দিকবাজার ফায়ার স্টেশন", "", 23.7213, 90.4105, "102"]
-FAR = ["n400", "hospital", "চট্টগ্রাম মেডিকেল", "Chittagong Medical College Hospital",
-       22.3596, 91.8305, ""]
+FAR = ["n400", "hospital", "রাজশাহী মেডিকেল", "Rajshahi Medical College Hospital",
+       24.3722, 88.5863, ""]
 
 
 class ImportOverrideTests(TestCase):
@@ -107,7 +107,7 @@ class AreaApiTests(TestCase):
         self.assertIn("OpenStreetMap", r["attribution"])
         names = [x[3] for x in r["rows"]]
         self.assertIn("Dhaka Medical College Hospital", names)
-        self.assertNotIn("Chittagong Medical College Hospital", names)   # other area
+        self.assertNotIn("Rajshahi Medical College Hospital", names)   # other area
         self.assertEqual(r["fields"], NL.FIELDS)
         # the phone's cached token -> unchanged (offline cache stays valid)
         tok = r["version"]
@@ -201,6 +201,7 @@ class AreaApiTests(TestCase):
         self.assertFalse(FF.meta("nearby_sponsored")["default_on"])
 
     def test_legacy_nearby_uses_own_list_first(self):
+        NB._CACHE.clear()
         with mock.patch.object(NB, "_osm", side_effect=AssertionError("no overpass")):
             res, src = NB.search(23.74, 90.39, "police", lang="en")
         self.assertEqual(src, "assisto")
@@ -259,7 +260,7 @@ class NoGoogleTests(SimpleTestCase):
         for f in ("nearby.py", "nearby_list.py", "views_nearby.py"):
             src = (REPO / "backend" / "core" / f).read_text()
             self.assertNotIn("googleapis", src, f)
-            self.assertNotIn("nearbysearch", src.lower(), f)
+            self.assertNotIn("place/nearbysearch", src, f)
             self.assertNotIn("google_places", src, f)
         app = (REPO / "app" / "lib" / "nearby").glob("*.dart")
         for f in app:

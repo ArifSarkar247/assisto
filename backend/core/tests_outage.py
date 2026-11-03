@@ -132,14 +132,16 @@ class MapsDown(_Base):
         self.assertEqual(r.json()["state"], "failed")
         self.assertTrue(r.json()["helplines"])           # 999 always there
 
-    def test_places_down_falls_back_to_osm(self):
+    def test_empty_own_list_falls_back_to_osm_never_google(self):
+        # nearby (owner 3 Nov): Google Places is never called, even with a
+        # key configured; an empty own list falls back to OSM Overpass.
         self.get.side_effect = None
         self.get.return_value = '{"elements": [{"lat": 23.71, "lon": 90.41, "tags": {"name": "Thana"}}]}'
-        with mock.patch("core.nearby._places", side_effect=OSError("places")), \
-                mock.patch("core.integrations.get", return_value={"api_key": "k"}), \
+        with mock.patch("core.integrations.get", return_value={"api_key": "k"}), \
                 mock.patch("core.integrations.is_enabled", return_value=True):
             r = cl(self.u).get(V + "/nearby", {"lat": 23.7, "lon": 90.4,
                                                "type": "police"})
+        self.assertFalse([c for c in self.get.call_args_list if "google" in str(c)])
         self.assertEqual(r.json()["source"], "osm")
         self.assertEqual(r.json()["places"][0]["name"], "Thana")
 

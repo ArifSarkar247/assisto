@@ -15,11 +15,10 @@ from rest_framework.response import Response
 
 from . import feature_flags as FF
 from . import nearby_list as NL
-from .i18n import pick
+from .i18n import pick, req_lang
 
 
 def _lang(request):
-    from .views import req_lang
     return req_lang(request)
 
 

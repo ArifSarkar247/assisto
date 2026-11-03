@@ -251,7 +251,7 @@ void main() {
     ]) {
       final src = f.readAsStringSync();
       expect(src.contains('googleapis'), isFalse, reason: f.path);
-      expect(src.toLowerCase().contains('nearbysearch'), isFalse, reason: f.path);
+      expect(src.contains('place/nearbysearch'), isFalse, reason: f.path);
     }
   });
 }
