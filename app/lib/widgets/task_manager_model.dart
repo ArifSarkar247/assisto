@@ -148,15 +148,52 @@ class Project {
   String name;
   String description;
   String color;
+  // p2plan: people this list is shared with (owner's row) / for a list
+  // shared WITH me: role 'member' + who shared it. Server-owned fields.
+  List<Map<String, dynamic>> people;
+  String role; // '' (my private list) | 'owner' | 'member'
+  String ownerName;
 
-  Project({this.id, this.name = '', this.description = '', this.color = ''});
+  Project(
+      {this.id,
+      this.name = '',
+      this.description = '',
+      this.color = '',
+      List<Map<String, dynamic>>? people,
+      this.role = '',
+      this.ownerName = ''})
+      : people = people ?? <Map<String, dynamic>>[];
 
-  factory Project.fromJson(Map<String, dynamic> j) => Project(
-        id: j['id'] is int ? j['id'] as int : int.tryParse('${j['id']}'),
-        name: (j['name'] ?? '').toString().trim().replaceAll(RegExp(r'\s+'), ' '),
-        description: (j['description'] ?? '').toString(),
-        color: (j['color'] ?? '').toString(),
-      );
+  /// Shared lists write through /tasks/lists/<id>/… so the server can
+  /// notify (assign / done) and spawn the next repeat.
+  bool get isShared => role == 'member' || sharedCount > 0;
+  int get sharedCount => people.where((p) => p['role'] == 'member').length;
+
+  factory Project.fromJson(Map<String, dynamic> j) {
+    final people = <Map<String, dynamic>>[];
+    final rawPeople = j['people'];
+    if (rawPeople is List) {
+      for (final p in rawPeople) {
+        if (p is Map) people.add(Map<String, dynamic>.from(p));
+      }
+    } else if (j['shared_with'] is List) {
+      for (final p in j['shared_with'] as List) {
+        if (p is Map) {
+          people.add({'uid': p['uid'], 'name': p['name'] ?? '', 'role': 'member'});
+        }
+      }
+    }
+    final owner = j['owner'];
+    return Project(
+      id: j['id'] is int ? j['id'] as int : int.tryParse('${j['id']}'),
+      name: (j['name'] ?? '').toString().trim().replaceAll(RegExp(r'\s+'), ' '),
+      description: (j['description'] ?? '').toString(),
+      color: (j['color'] ?? '').toString(),
+      people: people,
+      role: (j['role'] ?? (people.isNotEmpty ? 'owner' : '')).toString(),
+      ownerName: owner is Map ? '${owner['name'] ?? ''}' : '',
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'name': name.trim(),
@@ -177,6 +214,11 @@ class TaskItem {
   String priority;
   String due; // ISO-8601 or ''
   int progress; // 0..100
+  // p2plan
+  int? parentId; // subtask of this task (null = top level)
+  String repeat; // '' | daily | weekly | monthly
+  int estMin; // 0 = not estimated
+  int? assigneeUid; // a person on a SHARED list (server-checked)
 
   TaskItem({
     this.id,
@@ -188,6 +230,10 @@ class TaskItem {
     this.priority = kPriorityNormal,
     this.due = '',
     this.progress = 0,
+    this.parentId,
+    this.repeat = '',
+    this.estMin = 0,
+    this.assigneeUid,
   });
 
   factory TaskItem.fromJson(Map<String, dynamic> j) {
@@ -218,6 +264,10 @@ class TaskItem {
       priority: priority,
       due: (j['due'] ?? '').toString().trim(),
       progress: progress,
+      parentId: _posInt(j['parent_id']),
+      repeat: kRepeats.contains('${j['repeat'] ?? ''}') ? '${j['repeat']}' : '',
+      estMin: (_posInt(j['est_min']) ?? 0).clamp(0, kMaxEstMin),
+      assigneeUid: _posInt(j['assignee_uid']),
     );
   }
 
@@ -230,6 +280,10 @@ class TaskItem {
         'priority': priority,
         'due': due.trim(),
         'progress': status == kStatusDone ? 100 : progress,
+        'parent_id': parentId,
+        'repeat': repeat,
+        'est_min': estMin,
+        'assignee_uid': assigneeUid,
       };
 
   TaskItem copy() => TaskItem(
@@ -242,7 +296,91 @@ class TaskItem {
         priority: priority,
         due: due,
         progress: progress,
+        parentId: parentId,
+        repeat: repeat,
+        estMin: estMin,
+        assigneeUid: assigneeUid,
       );
+}
+
+int? _posInt(Object? v) {
+  final n = v is int ? v : int.tryParse('${v ?? ''}');
+  return (n != null && n > 0) ? n : null;
+}
+
+// ---------------------------------------------------------------------------
+// p2plan: subtasks + recurring (mirror of task_manager.py)
+// ---------------------------------------------------------------------------
+const kRepeatNone = '';
+const kRepeats = ['', 'daily', 'weekly', 'monthly'];
+const kMaxEstMin = 600;
+const kEstChoices = [15, 30, 60, 120];
+
+String repeatLabel(BuildContext c, String r) {
+  switch (r) {
+    case 'daily':
+      return tmStr(c, 'tmRepeatDaily');
+    case 'weekly':
+      return tmStr(c, 'tmRepeatWeekly');
+    case 'monthly':
+      return tmStr(c, 'tmRepeatMonthly');
+    default:
+      return tmStr(c, 'tmRepeatNone');
+  }
+}
+
+List<TaskItem> topLevel(List<TaskItem> tasks) =>
+    tasks.where((t) => t.parentId == null).toList();
+
+List<TaskItem> subtasksOf(List<TaskItem> tasks, int? parentId) => parentId == null
+    ? const []
+    : tasks.where((t) => t.parentId == parentId).toList();
+
+/// (done, total) of a task's steps; total 0 = no steps.
+(int, int) stepCount(List<TaskItem> tasks, int? parentId) {
+  final subs = subtasksOf(tasks, parentId);
+  return (subs.where((t) => t.status == kStatusDone).length, subs.length);
+}
+
+int _daysIn(int y, int m) => DateTime(y, m + 1, 0).day;
+
+/// Next due of a repeating task ('' when it does not repeat). Monthly keeps
+/// the day, clamped to the month's last day. Mirrors task_manager.next_due.
+String nextDue(String due, String repeat) {
+  final d = tmParseDue(due);
+  if (d == null || !['daily', 'weekly', 'monthly'].contains(repeat)) return '';
+  DateTime n;
+  if (repeat == 'daily') {
+    n = DateTime(d.year, d.month, d.day + 1, d.hour, d.minute);
+  } else if (repeat == 'weekly') {
+    n = DateTime(d.year, d.month, d.day + 7, d.hour, d.minute);
+  } else {
+    final y = d.month == 12 ? d.year + 1 : d.year;
+    final m = d.month == 12 ? 1 : d.month + 1;
+    n = DateTime(y, m, d.day > _daysIn(y, m) ? _daysIn(y, m) : d.day, d.hour, d.minute);
+  }
+  String two(int v) => v.toString().padLeft(2, '0');
+  return '${n.year}-${two(n.month)}-${two(n.day)}T${two(n.hour)}:${two(n.minute)}';
+}
+
+/// The new task to create when a repeating task is marked done (rolled past
+/// [now] so it is never born overdue), or null. Subtasks never repeat.
+TaskItem? spawnNext(TaskItem t, DateTime now) {
+  if (t.parentId != null || t.repeat.isEmpty) return null;
+  var nxt = nextDue(t.due, t.repeat);
+  var guard = 0;
+  while (nxt.isNotEmpty && guard < 400) {
+    final d = tmParseDue(nxt);
+    if (d == null || d.isAfter(now)) break;
+    nxt = nextDue(nxt, t.repeat);
+    guard++;
+  }
+  if (nxt.isEmpty) return null;
+  return t.copy()
+    ..id = null
+    ..status = kStatusTodo
+    ..progress = 0
+    ..due = nxt;
 }
 
 // ---------------------------------------------------------------------------
@@ -433,4 +571,42 @@ const Map<String, List<String>> _strings = {
   'tmPickDate': ['\u09A4\u09BE\u09B0\u09BF\u0996 \u09AC\u09C7\u099B\u09C7 \u09A8\u09BF\u09A8', 'Pick a date'],
   'tmSavedOffline': ['\u0985\u09AB\u09B2\u09BE\u0987\u09A8\u09C7 \u09B8\u0982\u09B0\u0995\u09CD\u09B7\u09BF\u09A4', 'Saved offline'],
   'tmOffline': ['\u0985\u09AB\u09B2\u09BE\u0987\u09A8 — \u09B8\u0982\u09B0\u0995\u09CD\u09B7\u09BF\u09A4 \u09A4\u09A5\u09CD\u09AF \u09A6\u09C7\u0996\u09BE\u09A8\u09CB \u09B9\u099A\u09CD\u099B\u09C7', 'Offline — showing saved data'],
+  // p2plan: subtasks, recurring, estimate, voice quick-add, My Circle sharing
+  'tmRepeat': ['\u09AA\u09C1\u09A8\u09B0\u09BE\u09AC\u09C3\u09A4\u09CD\u09A4\u09BF', 'Repeat'],
+  'tmRepeatNone': ['\u098F\u0995\u09AC\u09BE\u09B0', 'Once'],
+  'tmRepeatDaily': ['\u09AA\u09CD\u09B0\u09A4\u09BF\u09A6\u09BF\u09A8', 'Daily'],
+  'tmRepeatWeekly': ['\u09AA\u09CD\u09B0\u09A4\u09BF \u09B8\u09AA\u09CD\u09A4\u09BE\u09B9\u09C7', 'Weekly'],
+  'tmRepeatMonthly': ['\u09AA\u09CD\u09B0\u09A4\u09BF \u09AE\u09BE\u09B8\u09C7', 'Monthly'],
+  'tmRepeatNeedsDue': ['\u09AA\u09C1\u09A8\u09B0\u09BE\u09AC\u09C3\u09A4\u09CD\u09A4\u09BF\u09B0 \u099C\u09A8\u09CD\u09AF \u09B6\u09C7\u09B7 \u09A4\u09BE\u09B0\u09BF\u0996 \u09A6\u09BF\u09A8', 'Pick a due date for a repeating task'],
+  'tmNextAdded': ['\u09AA\u09B0\u09C7\u09B0 \u09AC\u09BE\u09B0\u09C7\u09B0 \u0995\u09BE\u099C \u09AF\u09CB\u0997 \u09B9\u09AF\u09BC\u09C7\u099B\u09C7', 'Next occurrence added'],
+  'tmEstimate': ['\u0995\u09A4 \u09B8\u09AE\u09AF\u09BC \u09B2\u09BE\u0997\u09AC\u09C7', 'Time needed'],
+  'tmEstNone': ['\u09AC\u09B2\u09BE \u09A8\u09C7\u0987', 'Not set'],
+  'tmMinutes': ['{n} \u09AE\u09BF\u09A8\u09BF\u099F', '{n} min'],
+  'tmSteps': ['\u09A7\u09BE\u09AA (\u09B8\u09BE\u09AC\u099F\u09BE\u09B8\u09CD\u0995)', 'Steps (subtasks)'],
+  'tmStepsCount': ['{n} \u09A7\u09BE\u09AA', '{n} steps'],
+  'tmAddStep': ['\u09A8\u09A4\u09C1\u09A8 \u09A7\u09BE\u09AA', 'Add a step'],
+  'tmAddStepHint': ['\u09AF\u09C7\u09AE\u09A8: \u09B0\u0982 \u0995\u09C7\u09A8\u09BE', 'e.g. Buy paint'],
+  'tmStepsAfterSave': ['\u0986\u0997\u09C7 \u0995\u09BE\u099C\u099F\u09BF \u09B8\u0982\u09B0\u0995\u09CD\u09B7\u09A3 \u0995\u09B0\u09C1\u09A8, \u09A4\u09BE\u09B0\u09AA\u09B0 \u09A7\u09BE\u09AA \u09AF\u09CB\u0997 \u0995\u09B0\u09C1\u09A8', 'Save the task first, then add steps'],
+  'tmQuickAdd': ['\u09AC\u09B2\u09C7 \u09AC\u09BE \u09B2\u09BF\u0996\u09C7 \u09AF\u09CB\u0997 \u0995\u09B0\u09C1\u09A8', 'Add by voice or text'],
+  'tmQuickAddHint': ['\u09AF\u09C7\u09AE\u09A8: \u0995\u09BE\u09B2 \u09AC\u09BF\u0995\u09C7\u09B2\u09C7 \u09AC\u09BF\u09A6\u09CD\u09AF\u09C1\u09CE \u09AC\u09BF\u09B2 \u09A6\u09BF\u09A4\u09C7 \u09B9\u09AC\u09C7, \u099C\u09B0\u09C1\u09B0\u09BF', 'e.g. Pay the electricity bill tomorrow afternoon, urgent'],
+  'tmQuickAddHelp': ['\u09AE\u09BE\u0987\u0995 \u099A\u09C7\u09AA\u09C7 \u09A7\u09B0\u09C7 \u09AC\u09B2\u09C1\u09A8\u0964 \u09A4\u09BE\u09B0\u09BF\u0996, \u09B8\u09AE\u09AF\u09BC, "\u09AA\u09CD\u09B0\u09A4\u09BF \u09B8\u09AA\u09CD\u09A4\u09BE\u09B9\u09C7" \u0986\u09B0 "\u099C\u09B0\u09C1\u09B0\u09BF" \u09A8\u09BF\u099C\u09C7 \u09A5\u09C7\u0995\u09C7 \u09AC\u09C1\u099D\u09C7 \u09AB\u09B0\u09CD\u09AE\u09C7 \u09AC\u09B8\u09AC\u09C7 \u2014 \u0986\u09AA\u09A8\u09BF \u09A6\u09C7\u0996\u09C7 \u09B8\u0982\u09B0\u0995\u09CD\u09B7\u09A3 \u0995\u09B0\u09AC\u09C7\u09A8\u0964', 'Hold the mic and speak. Date, time, "every week" and "urgent" are understood and filled in — you check and save.'],
+  'tmUnderstand': ['\u09AC\u09C1\u099D\u09C7 \u09A8\u09BF\u09A8', 'Fill the form'],
+  'tmShare': ['My Circle-\u098F \u09AD\u09BE\u0997 \u0995\u09B0\u09C1\u09A8', 'Share with My Circle'],
+  'tmShareTitle': ['\u0995\u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7 \u09A4\u09BE\u09B2\u09BF\u0995\u09BE \u09AD\u09BE\u0997 \u0995\u09B0\u09AC\u09C7\u09A8?', 'Share this list with'],
+  'tmShareSub': ['\u09A4\u09BE\u0981\u09B0\u09BE \u0995\u09BE\u099C \u09A6\u09C7\u0996\u09AC\u09C7\u09A8, \u09AF\u09CB\u0997 \u0993 \u09B6\u09C7\u09B7 \u0995\u09B0\u09A4\u09C7 \u09AA\u09BE\u09B0\u09AC\u09C7\u09A8; \u0995\u09BE\u099C \u09A6\u09BF\u09B2\u09C7 \u0993 \u09B6\u09C7\u09B7 \u09B9\u09B2\u09C7 \u09A8\u09CB\u099F\u09BF\u09AB\u09BF\u0995\u09C7\u09B6\u09A8 \u09AF\u09BE\u09AC\u09C7\u0964', 'They can see, add and finish tasks; assigning and finishing sends a notification.'],
+  'tmShared': ['\u09AD\u09BE\u0997 \u0995\u09B0\u09BE \u09B9\u09AF\u09BC\u09C7\u099B\u09C7', 'Shared'],
+  'tmSharedCount': ['{n} \u099C\u09A8\u09C7\u09B0 \u09B8\u09BE\u09A5\u09C7 \u09AD\u09BE\u0997 \u0995\u09B0\u09BE', 'Shared with {n}'],
+  'tmShareNotOnApp': ['\u098F\u0987 \u09AE\u09BE\u09A8\u09C1\u09B7\u099F\u09BF \u098F\u0996\u09A8\u09CB Assisto-\u09A4\u09C7 \u09A8\u09C7\u0987 \u2014 \u09AF\u09CB\u0997 \u09A6\u09BF\u09B2\u09C7 \u09AD\u09BE\u0997 \u0995\u09B0\u09BE \u09AF\u09BE\u09AC\u09C7', 'This person is not on Assisto yet — share once they join'],
+  'tmSharedWithMe': ['\u0986\u09AE\u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7 \u09AD\u09BE\u0997 \u0995\u09B0\u09BE', 'Shared with me'],
+  'tmSharedBy': ['{name} \u09AD\u09BE\u0997 \u0995\u09B0\u09C7\u099B\u09C7\u09A8', 'Shared by {name}'],
+  'tmLeave': ['\u09A4\u09BE\u09B2\u09BF\u0995\u09BE \u09A5\u09C7\u0995\u09C7 \u09AC\u09C7\u09B0\u09BF\u09AF\u09BC\u09C7 \u09AF\u09BE\u09A8', 'Leave this list'],
+  'tmLeaveQ': ['\u09A4\u09BE\u09B2\u09BF\u0995\u09BE \u09A5\u09C7\u0995\u09C7 \u09AC\u09C7\u09B0\u09BF\u09AF\u09BC\u09C7 \u09AF\u09BE\u09AC\u09C7\u09A8?', 'Leave this list?'],
+  'tmLeaveBody': ['\u0986\u09AC\u09BE\u09B0 \u09A6\u09C7\u0996\u09A4\u09C7 \u09B9\u09B2\u09C7 \u09AE\u09BE\u09B2\u09BF\u0995\u0995\u09C7 \u0986\u09AC\u09BE\u09B0 \u09AD\u09BE\u0997 \u0995\u09B0\u09A4\u09C7 \u09B9\u09AC\u09C7\u0964', 'The owner will have to share it again.'],
+  'tmRemovePerson': ['\u09A4\u09BE\u09B2\u09BF\u0995\u09BE \u09A5\u09C7\u0995\u09C7 \u09B8\u09B0\u09BE\u09A8', 'Remove from list'],
+  'tmPeople': ['\u09A4\u09BE\u09B2\u09BF\u0995\u09BE\u09B0 \u09AE\u09BE\u09A8\u09C1\u09B7', 'People on this list'],
+  'tmAssignTo': ['\u0995\u09BE\u0995\u09C7 \u09A6\u09C7\u09AC\u09C7\u09A8', 'Give to'],
+  'tmMe': ['\u0986\u09AE\u09BF', 'Me'],
+  'tmFromCircle': ['My Circle \u09A5\u09C7\u0995\u09C7 \u09AC\u09BE\u099B\u09C1\u09A8', 'Pick from My Circle'],
+  'tmNeedsInternet': ['\u09AD\u09BE\u0997 \u0995\u09B0\u09BE \u09A4\u09BE\u09B2\u09BF\u0995\u09BE \u09A6\u09C7\u0996\u09A4\u09C7 \u0987\u09A8\u09CD\u099F\u09BE\u09B0\u09A8\u09C7\u099F \u09B2\u09BE\u0997\u09C7', 'Shared lists need the internet'],
+  'tmOpenPlanner': ['\u0986\u099C\u0995\u09C7\u09B0 \u09AA\u09B0\u09BF\u0995\u09B2\u09CD\u09AA\u09A8\u09BE', 'Plan my day'],
 };

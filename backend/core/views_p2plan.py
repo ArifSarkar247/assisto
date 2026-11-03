@@ -109,15 +109,48 @@ def _project(pid):
     return PaCollectionItem.objects.filter(pk=pid, collection=PROJECTS).first()
 
 
+def _circle_uids(owner_id):
+    """Users the owner is still connected to (accepted, not blocked). A list
+    is shared only while the My Circle connection stands — so a hand-edited
+    `shared_with` (the owner's row is writable through the generic
+    collection) can never reach a stranger, and removing someone from My
+    Circle also takes them off every shared list."""
+    from .models import CircleMember
+    from .push import member_peer_user
+    out = set()
+    for e in CircleMember.objects.filter(user_id=owner_id, state="accepted", blocked=False) \
+            .select_related("peer_user")[:500]:
+        u = e.peer_user if e.peer_user_id else member_peer_user(e)
+        if u is not None:
+            out.add(u.id)
+    return out
+
+
 def _shared_with(proj):
+    raw = list((proj.data or {}).get("shared_with") or [])
+    memo = getattr(proj, "_p2_shared", None)
+    if memo is not None and memo[0] == raw:
+        return [dict(x) for x in memo[1]]
+    res = _shared_with_uncached(proj, raw)
+    proj._p2_shared = (raw, res)
+    return [dict(x) for x in res]
+
+
+def _shared_with_uncached(proj, raw):
     out = []
-    for s in (proj.data or {}).get("shared_with") or []:
+    for s in raw:
         try:
-            out.append({"uid": int(s.get("uid")), "name": str(s.get("name") or "")[:120],
+            uid = int(s.get("uid"))
+            if uid == proj.user_id:
+                continue
+            out.append({"uid": uid, "name": str(s.get("name") or "")[:120],
                         "circle_id": s.get("circle_id")})
         except (TypeError, ValueError, AttributeError):
             continue
-    return out
+    if not out:
+        return out
+    allowed = _circle_uids(proj.user_id)
+    return [s for s in out if s["uid"] in allowed][:MAX_SHARED]
 
 
 def _role(user, proj):

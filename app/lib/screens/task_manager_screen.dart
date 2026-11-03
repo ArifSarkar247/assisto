@@ -8,6 +8,11 @@ import '../widgets/skeleton.dart';
 import '../widgets/task_manager_model.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../feature_flags.dart' show FeatureFlags; // p2plan
+import '../widgets/rn_bits.dart' show pickCircleMember; // p2plan
+import '../widgets/voice_input.dart'; // p2plan: Bangla voice quick-add
+import '../widgets/reminders_nlp.dart' show parseReminder; // p2plan offline
+import 'day_planner_screen.dart'; // p2plan
 
 /// Task Manager (feature #21, SPEC v2.1 §21 ADVANCED).
 ///
@@ -39,6 +44,9 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
 
   List<Project> _projects = [];
   List<TaskItem> _tasks = [];
+  // p2plan: lists other people shared WITH me (+ their tasks, loaded on open)
+  List<Project> _sharedLists = [];
+  List<TaskItem> _sharedTasks = [];
   bool _loading = true, _error = false, _offline = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
@@ -84,7 +92,15 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       await Settings.setString(
         _cacheKey,
         jsonEncode({
-          'projects': _projects.map((p) => {'id': p.id, ...p.toJson()}).toList(),
+          'projects': _projects
+              .map((p) => {
+                    'id': p.id,
+                    ...p.toJson(),
+                    // p2plan: keep "shared" across an offline start
+                    'people': p.people,
+                    'role': p.role,
+                  })
+              .toList(),
           'tasks': _tasks.map((t) => {'id': t.id, ...t.toJson()}).toList(),
         }),
       );
@@ -111,8 +127,56 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
       _offline = true;
       if (_projects.isEmpty && _tasks.isEmpty) _error = true; _failCause = e;
     }
+    await _loadShared();
     if (mounted) setState(() => _loading = false);
   }
+
+  /// p2plan: lists shared with me. Not fatal — my own lists still show.
+  Future<void> _loadShared() async {
+    try {
+      final r = await context.read<AppState>().api.getJson('/tasks/shared');
+      final rows = (r['lists'] as List? ?? const [])
+          .whereType<Map>()
+          .map((m) => Project.fromJson(Map<String, dynamic>.from(m)))
+          .toList();
+      _sharedLists = rows;
+      // the cards show real progress: read each list (a few at most)
+      for (final p in rows.take(10)) {
+        try {
+          await _loadSharedTasks(p);
+        } catch (_) {/* that card shows its last known state */}
+      }
+    } catch (_) {/* offline / older server: section simply absent */}
+  }
+
+  Future<void> _loadSharedTasks(Project p) async {
+    final r = await context.read<AppState>().api.getJson('/tasks/lists/${p.id}');
+    final tasks = (r['tasks'] as List? ?? const [])
+        .whereType<Map>()
+        .map((m) => TaskItem.fromJson(Map<String, dynamic>.from(m)))
+        .toList();
+    final fresh = Project.fromJson(Map<String, dynamic>.from(r));
+    p.people = fresh.people;
+    p.role = fresh.role;
+    p.ownerName = fresh.ownerName;
+    if (p.role == 'member') {
+      _sharedTasks = [
+        ..._sharedTasks.where((t) => t.projectId != p.id),
+        ...tasks,
+      ];
+    } else {
+      _tasks = [..._tasks.where((t) => t.projectId != p.id), ...tasks];
+    }
+  }
+
+  Project? _projFor(int? id) {
+    for (final p in [..._projects, ..._sharedLists]) {
+      if (p.id == id) return p;
+    }
+    return null;
+  }
+
+  List<TaskItem> get _allTasks => [..._tasks, ..._sharedTasks];
 
   void _toast(String msg) {
     if (!mounted) return;
@@ -181,6 +245,14 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
   // -------------------------------------------------- task CRUD
   Future<void> _saveTask(TaskItem t) async {
     final api = context.read<AppState>().api;
+    final proj = _projFor(t.projectId);
+    if (proj != null && proj.isShared) return _saveShared(proj, t);
+    TaskItem? before;
+    for (final x in _tasks) {
+      if (x.id != null && x.id == t.id) before = x;
+    }
+    final becameDone = t.status == kStatusDone &&
+        (before == null || before.status != kStatusDone);
     try {
       if (t.id == null) {
         final created = await api.createItem(_taskPath, t.toJson());
@@ -191,6 +263,14 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         _tasks = [for (final x in _tasks) if (x.id == t.id) t else x];
       }
       _toast(tmStr(context, 'tmTaskSaved'));
+      // p2plan: a repeating task marked done brings its next occurrence
+      final nxt = becameDone ? spawnNext(t, _now) : null;
+      if (nxt != null) {
+        final created = await api.createItem(_taskPath, nxt.toJson());
+        nxt.id = TaskItem.fromJson(created).id;
+        _tasks = [..._tasks, nxt];
+        _toast(tmStr(context, 'tmNextAdded'));
+      }
     } catch (_) {
       // lifebar: honest — the edit/move did NOT happen; Retry keeps the input
       _notSaved(() => _saveTask(t));
@@ -199,15 +279,58 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     if (mounted) setState(() {});
   }
 
+  /// p2plan: a shared list writes through the server so the other people get
+  /// "assigned" / "done" notifications and repeats spawn there.
+  Future<void> _saveShared(Project p, TaskItem t) async {
+    final api = context.read<AppState>().api;
+    final member = p.role == 'member';
+    try {
+      final res = t.id == null
+          ? await api.postJson('/tasks/lists/${p.id}/tasks', t.toJson())
+          : await api.patchJson('/tasks/lists/${p.id}/tasks/${t.id}', t.toJson());
+      final saved = TaskItem.fromJson(res);
+      final spawned = res['spawned'] is Map
+          ? TaskItem.fromJson(Map<String, dynamic>.from(res['spawned'] as Map))
+          : null;
+      List<TaskItem> upd(List<TaskItem> l) => [
+            ...l.where((x) => x.id != saved.id),
+            saved,
+            if (spawned != null) spawned,
+          ];
+      if (member) {
+        _sharedTasks = upd(_sharedTasks);
+      } else {
+        _tasks = upd(_tasks);
+      }
+      _toast(tmStr(context, spawned != null ? 'tmNextAdded' : 'tmTaskSaved'));
+    } catch (_) {
+      _notSaved(() => _saveShared(p, t));
+    }
+    if (!member) await _writeCache();
+    if (mounted) setState(() {});
+  }
+
   Future<void> _deleteTask(TaskItem t) async {
     final api = context.read<AppState>().api;
+    final proj = _projFor(t.projectId);
+    final subs = subtasksOf(_allTasks, t.id);
     try {
-      if (t.id != null) await api.deleteItem(_taskPath, t.id!);
+      if (proj != null && proj.isShared) {
+        // the server removes the steps with their task
+        if (t.id != null) await api.deleteJson('/tasks/lists/${proj.id}/tasks/${t.id}');
+      } else {
+        for (final s in subs) {
+          if (s.id != null) await api.deleteItem(_taskPath, s.id!);
+        }
+        if (t.id != null) await api.deleteItem(_taskPath, t.id!);
+      }
     } catch (_) {
       _toast(AppLocalizations.of(context).grpActionFailed); // q1-seams
       return;
     }
-    _tasks = _tasks.where((x) => x.id != t.id).toList();
+    final gone = {t.id, ...subs.map((s) => s.id)};
+    _sharedTasks = _sharedTasks.where((x) => !gone.contains(x.id)).toList();
+    _tasks = _tasks.where((x) => !gone.contains(x.id)).toList();
     await _writeCache();
     _toast(tmStr(context, 'tmTaskDeleted'));
     if (mounted) setState(() {});
@@ -254,7 +377,15 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(tmStr(context, 'tmTitle'))),
+      appBar: AppBar(title: Text(tmStr(context, 'tmTitle')), actions: [
+        if (FeatureFlags.instance.isOn('ai_daily_planner'))
+          IconButton(
+            tooltip: tmStr(context, 'tmOpenPlanner'),
+            icon: const Icon(Icons.today_rounded),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const DayPlannerScreen())),
+          ),
+      ]),
       body: _body(),
       floatingActionButton: (!_loading && !_error && _projects.isNotEmpty)
           ? FloatingActionButton.extended(
@@ -281,23 +412,58 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         ),
       );
     }
-    if (_projects.isEmpty) return _welcome();
+    if (_projects.isEmpty && _sharedLists.isEmpty) return _welcome();
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           if (_offline) _offlineBanner(),
+          if (_projects.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.md),
+              child: FilledButton.icon(
+                onPressed: _openProjectEditor,
+                icon: const Icon(Icons.add_rounded),
+                label: Text(tmStr(context, 'tmCreateFirstProject')),
+              ),
+            ),
           for (final p in _projects) ...[
             _ProjectCard(
               project: p,
               summary: ProgressSummary.of(
-                  _tasks.where((t) => t.projectId == p.id).toList(), _now),
+                  topLevel(_tasks.where((t) => t.projectId == p.id).toList()), _now),
               onOpen: () => _openProject(p),
               onEdit: () => _openProjectEditor(existing: p),
               onDelete: () => _confirmDeleteProject(p),
+              onShare: () => _shareProject(p),
+              onPeople: p.sharedCount > 0 ? () => _openPeople(p) : null,
             ),
             const SizedBox(height: Gap.md),
+          ],
+          if (_sharedLists.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm),
+              child: Semantics(
+                header: true,
+                child: Text(tmStr(context, 'tmSharedWithMe'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+            ),
+            for (final p in _sharedLists) ...[
+              _ProjectCard(
+                project: p,
+                summary: ProgressSummary.of(
+                    topLevel(_sharedTasks.where((t) => t.projectId == p.id).toList()),
+                    _now),
+                onOpen: () => _openProject(p),
+                onLeave: () => _leaveList(p),
+              ),
+              const SizedBox(height: Gap.md),
+            ],
           ],
         ],
       ),
@@ -366,12 +532,25 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
 
   // -------------------------------------------------- navigation
   Future<void> _openProject(Project p) async {
+    if (p.isShared) {
+      // p2plan: shared lists are read fresh from the server (who is on it,
+      // what changed since) — honest message when offline.
+      try {
+        await _loadSharedTasks(p);
+      } catch (_) {
+        if (p.role == 'member') {
+          _toast(tmStr(context, 'tmNeedsInternet'));
+          return;
+        }
+      }
+      if (!mounted) return;
+    }
     await Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => _ProjectBoardScreen(
         project: p,
         // A live getter (not a snapshot): the parent reassigns `_tasks` on every
         // save/move, so the board must always read the CURRENT list.
-        tasksOf: () => _tasks,
+        tasksOf: () => _allTasks,
         onSaveTask: _saveTask,
         onMoveTask: _moveTask,
         onDeleteTask: (t) async {
@@ -383,6 +562,122 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
     ));
     // Returning from the board may have mutated tasks; reflect it.
     if (mounted) setState(() {});
+  }
+
+  // -------------------------------------------------- p2plan: sharing
+  Future<void> _shareProject(Project p) async {
+    if (p.id == null) return;
+    final picked = await pickCircleMember(context,
+        title: tmStr(context, 'tmShareTitle'),
+        subtitle: tmStr(context, 'tmShareSub'));
+    if (picked == null || !mounted) return;
+    try {
+      final r = await context.read<AppState>().api.postJson(
+          '/tasks/lists/${p.id}/share', {'circle_ids': [picked['circle_id']]});
+      final fresh = Project.fromJson({...r, 'id': p.id, 'role': 'owner'});
+      p.people = fresh.people;
+      p.role = 'owner';
+      final skipped = (r['skipped'] as List? ?? const []);
+      _toast(tmStr(context, skipped.isNotEmpty ? 'tmShareNotOnApp' : 'tmShared'));
+      await _writeCache();
+    } catch (_) {
+      _toast(AppLocalizations.of(context).grpActionFailed);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _unshare(Project p, int uid) async {
+    try {
+      final r = await context
+          .read<AppState>()
+          .api
+          .postJson('/tasks/lists/${p.id}/unshare', {'uid': uid});
+      p.people = Project.fromJson({...r, 'id': p.id}).people;
+      if (p.sharedCount == 0) p.role = '';
+      await _writeCache();
+    } catch (_) {
+      _toast(AppLocalizations.of(context).grpActionFailed);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _openPeople(Project p) async {
+    await showAppSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => ListView(
+          shrinkWrap: true,
+          padding: withNavBarInset(ctx, const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg)),
+          children: [
+            Text(tmStr(ctx, 'tmPeople'),
+                style: Theme.of(ctx)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.sm),
+            for (final m in p.people.where((x) => x['role'] == 'member'))
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.person_outline_rounded),
+                title: Text('${m['name'] ?? ''}'),
+                trailing: IconButton(
+                  tooltip: tmStr(ctx, 'tmRemovePerson'),
+                  icon: const Icon(Icons.person_remove_outlined),
+                  onPressed: () async {
+                    final uid = m['uid'] is int ? m['uid'] as int : int.tryParse('${m['uid']}');
+                    if (uid == null) return;
+                    await _unshare(p, uid);
+                    setSheet(() {});
+                  },
+                ),
+              ),
+            const SizedBox(height: Gap.sm),
+            OutlinedButton.icon(
+              onPressed: () async {
+                await _shareProject(p);
+                setSheet(() {});
+              },
+              icon: const Icon(Icons.group_add_outlined),
+              label: Text(tmStr(ctx, 'tmShare')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _leaveList(Project p) async {
+    final ok = await _confirmAction(tmStr(context, 'tmLeaveQ'), tmStr(context, 'tmLeaveBody'),
+        tmStr(context, 'tmLeave'));
+    if (!ok || !mounted) return;
+    try {
+      await context.read<AppState>().api.postJson('/tasks/lists/${p.id}/unshare', {});
+      _sharedLists = _sharedLists.where((x) => x.id != p.id).toList();
+      _sharedTasks = _sharedTasks.where((t) => t.projectId != p.id).toList();
+    } catch (_) {
+      _toast(AppLocalizations.of(context).grpActionFailed);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<bool> _confirmAction(String title, String body, String yes) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(tmStr(ctx, 'tmCancel'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(yes)),
+        ],
+      ),
+    );
+    return ok == true;
   }
 
   Future<void> _confirmDeleteProject(Project p) async {
@@ -408,13 +703,19 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
 class _ProjectCard extends StatelessWidget {
   final Project project;
   final ProgressSummary summary;
-  final VoidCallback onOpen, onEdit, onDelete;
+  final VoidCallback onOpen;
+  // p2plan: my list -> edit / delete / share (+ people); a list shared WITH
+  // me -> leave only.
+  final VoidCallback? onEdit, onDelete, onShare, onPeople, onLeave;
   const _ProjectCard({
     required this.project,
     required this.summary,
     required this.onOpen,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
+    this.onShare,
+    this.onPeople,
+    this.onLeave,
   });
 
   @override
@@ -438,11 +739,28 @@ class _ProjectCard extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700)),
               ),
               PopupMenuButton<String>(
-                onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
+                onSelected: (v) {
+                  final cb = {
+                    'edit': onEdit,
+                    'delete': onDelete,
+                    'share': onShare,
+                    'people': onPeople,
+                    'leave': onLeave,
+                  }[v];
+                  cb?.call();
+                },
                 itemBuilder: (_) => [
-                  PopupMenuItem(value: 'edit', child: Text(tmStr(context, 'tmEdit'))),
-                  PopupMenuItem(
-                      value: 'delete', child: Text(tmStr(context, 'tmDelete'))),
+                  if (onShare != null)
+                    PopupMenuItem(value: 'share', child: Text(tmStr(context, 'tmShare'))),
+                  if (onPeople != null)
+                    PopupMenuItem(value: 'people', child: Text(tmStr(context, 'tmPeople'))),
+                  if (onEdit != null)
+                    PopupMenuItem(value: 'edit', child: Text(tmStr(context, 'tmEdit'))),
+                  if (onDelete != null)
+                    PopupMenuItem(
+                        value: 'delete', child: Text(tmStr(context, 'tmDelete'))),
+                  if (onLeave != null)
+                    PopupMenuItem(value: 'leave', child: Text(tmStr(context, 'tmLeave'))),
                 ],
               ),
             ]),
@@ -478,6 +796,12 @@ class _ProjectCard extends StatelessWidget {
                 _pill(context, Icons.warning_amber_rounded,
                     tmStrNum(context, 'tmOverdueCount', summary.overdue),
                     Brand.danger),
+              if (project.role == 'member' && project.ownerName.isNotEmpty)
+                _pill(context, Icons.group_outlined,
+                    tmStrName(context, 'tmSharedBy', project.ownerName), null)
+              else if (project.sharedCount > 0)
+                _pill(context, Icons.group_outlined,
+                    tmStrNum(context, 'tmSharedCount', project.sharedCount), null),
             ]),
           ]),
         ),
@@ -490,7 +814,10 @@ class _ProjectCard extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: color),
       const SizedBox(width: Gap.xs),
-      Text(label, style: AType.bodySmall.copyWith(color: color)),
+      Flexible(
+          child: Text(label,
+              overflow: TextOverflow.ellipsis,
+              style: AType.bodySmall.copyWith(color: color))),
     ]);
   }
 }
@@ -608,8 +935,9 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
 
   DateTime get _now => DateTime.now();
 
-  List<TaskItem> get _projectTasks =>
-      widget.tasksOf().where((t) => t.projectId == widget.project.id).toList();
+  // p2plan: steps (subtasks) live inside their task, not on the board
+  List<TaskItem> get _projectTasks => topLevel(
+      widget.tasksOf().where((t) => t.projectId == widget.project.id).toList());
 
   List<TaskItem> get _filtered {
     var list = _projectTasks;
@@ -633,6 +961,11 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
       appBar: AppBar(
         title: Text(widget.project.name, overflow: TextOverflow.ellipsis),
         actions: [
+          IconButton(
+            tooltip: tmStr(context, 'tmQuickAdd'),
+            icon: const Icon(Icons.keyboard_voice_outlined),
+            onPressed: _quickAdd,
+          ),
           IconButton(
             tooltip: _board
                 ? tmStr(context, 'tmViewList')
@@ -809,6 +1142,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
       itemBuilder: (_, i) => _TaskTile(
         task: ordered[i],
         now: _now,
+        steps: stepCount(widget.tasksOf(), ordered[i].id),
         onTap: () => _openTaskEditor(existing: ordered[i]),
         onMove: (s) => widget.onMoveTask(ordered[i], s).then((_) => _refresh()),
       ),
@@ -825,6 +1159,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
           _BoardColumn(
             status: s,
             tasks: cols[s] ?? const [],
+            stepsOf: (t) => stepCount(widget.tasksOf(), t.id),
             now: _now,
             onTapTask: (t) => _openTaskEditor(existing: t),
             onMove: (t, to) => widget.onMoveTask(t, to).then((_) => _refresh()),
@@ -837,7 +1172,37 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     if (mounted) setState(() {});
   }
 
-  Future<void> _openTaskEditor({TaskItem? existing}) async {
+  /// p2plan: Bangla (or English) voice/text quick-add — the server parser
+  /// (same as reminders) with an offline fallback; opens the form pre-filled,
+  /// never saves on its own.
+  Future<void> _quickAdd() async {
+    final text = await showAppSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _QuickAddSheet(),
+    );
+    if (text == null || text.trim().isEmpty || !mounted) return;
+    final t = TaskItem(projectId: widget.project.id);
+    try {
+      final r = await context.read<AppState>().api.postJson('/tasks/parse', {'text': text});
+      t.title = '${r['title'] ?? text}'.trim();
+      t.due = '${r['due'] ?? ''}'.trim();
+      t.repeat = kRepeats.contains('${r['repeat'] ?? ''}') ? '${r['repeat']}' : '';
+      t.priority = kPriorities.contains('${r['priority']}') ? '${r['priority']}' : kPriorityNormal;
+    } catch (_) {
+      // offline: the on-device mirror of the same parser
+      final p = parseReminder(text);
+      t.title = p.cleanTitle.isNotEmpty ? p.cleanTitle : text.trim();
+      if (p.dateTime != null) t.due = p.dateTime!.toIso8601String();
+      final freq = p.recurrence?.freq ?? '';
+      t.repeat = kRepeats.contains(freq) && t.due.isNotEmpty ? freq : '';
+    }
+    if (!mounted) return;
+    await _openTaskEditor(prefill: t);
+  }
+
+  Future<void> _openTaskEditor({TaskItem? existing, TaskItem? prefill}) async {
     final names = assigneesOf(widget.tasksOf());
     final result = await showAppSheet<_TaskEditorResult>(
       context: context,
@@ -845,8 +1210,21 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
       showDragHandle: true,
       builder: (_) => _TaskEditor(
         existing: existing,
+        prefill: prefill,
         projectId: widget.project.id,
         knownAssignees: names,
+        people: widget.project.isShared ? widget.project.people : const [],
+        stepsOf: () => subtasksOf(widget.tasksOf(), existing?.id),
+        onAddStep: (title) async {
+          if (existing?.id == null) return;
+          await widget.onSaveTask(TaskItem(
+              projectId: widget.project.id, parentId: existing!.id, title: title));
+          _refresh();
+        },
+        onToggleStep: (st) async {
+          await widget.onMoveTask(st, st.status == kStatusDone ? kStatusTodo : kStatusDone);
+          _refresh();
+        },
       ),
     );
     if (result == null) return;
@@ -868,12 +1246,14 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
 class _BoardColumn extends StatelessWidget {
   final String status;
   final List<TaskItem> tasks;
+  final (int, int) Function(TaskItem) stepsOf;
   final DateTime now;
   final void Function(TaskItem) onTapTask;
   final void Function(TaskItem, String) onMove;
   const _BoardColumn({
     required this.status,
     required this.tasks,
+    required this.stepsOf,
     required this.now,
     required this.onTapTask,
     required this.onMove,
@@ -921,6 +1301,7 @@ class _BoardColumn extends StatelessWidget {
                   itemBuilder: (_, i) => _TaskTile(
                     task: tasks[i],
                     now: now,
+                    steps: stepsOf(tasks[i]),
                     compact: true,
                     onTap: () => onTapTask(tasks[i]),
                     onMove: (s) => onMove(tasks[i], s),
@@ -938,6 +1319,7 @@ class _BoardColumn extends StatelessWidget {
 class _TaskTile extends StatelessWidget {
   final TaskItem task;
   final DateTime now;
+  final (int, int) steps; // p2plan: (done, total) subtasks
   final bool compact;
   final VoidCallback onTap;
   final void Function(String) onMove;
@@ -946,6 +1328,7 @@ class _TaskTile extends StatelessWidget {
     required this.now,
     required this.onTap,
     required this.onMove,
+    this.steps = (0, 0),
     this.compact = false,
   });
 
@@ -1032,6 +1415,15 @@ class _TaskTile extends StatelessWidget {
               if (overdue)
                 _chip(context, Icons.warning_amber_rounded,
                     tmStr(context, 'tmOverdue'), Brand.danger),
+              if (steps.$2 > 0)
+                _chip(context, Icons.checklist_rounded,
+                    '${tmNum(context, steps.$1)}/${tmStrNum(context, 'tmStepsCount', steps.$2)}',
+                    steps.$1 == steps.$2 ? Brand.success : null),
+              if (task.repeat.isNotEmpty)
+                _chip(context, Icons.repeat_rounded, repeatLabel(context, task.repeat), null),
+              if (task.estMin > 0)
+                _chip(context, Icons.timer_outlined,
+                    tmStrNum(context, 'tmMinutes', task.estMin), null),
             ]),
           ]),
         ),
@@ -1082,31 +1474,50 @@ class _TaskEditorResult {
 
 class _TaskEditor extends StatefulWidget {
   final TaskItem? existing;
+  final TaskItem? prefill; // p2plan: from the voice/text quick-add
   final int? projectId;
   final List<String> knownAssignees;
-  const _TaskEditor({this.existing, this.projectId, required this.knownAssignees});
+  // p2plan: people on a SHARED list (uid + name); empty for a private list
+  final List<Map<String, dynamic>> people;
+  final List<TaskItem> Function() stepsOf;
+  final Future<void> Function(String title) onAddStep;
+  final Future<void> Function(TaskItem step) onToggleStep;
+  const _TaskEditor({
+    this.existing,
+    this.prefill,
+    this.projectId,
+    required this.knownAssignees,
+    this.people = const [],
+    required this.stepsOf,
+    required this.onAddStep,
+    required this.onToggleStep,
+  });
   @override
   State<_TaskEditor> createState() => _TaskEditorState();
 }
 
 class _TaskEditorState extends State<_TaskEditor> {
-  late final _title =
-      TextEditingController(text: widget.existing?.title ?? '');
-  late final _desc =
-      TextEditingController(text: widget.existing?.description ?? '');
-  late final _assignee =
-      TextEditingController(text: widget.existing?.assignee ?? '');
-  late String _status = widget.existing?.status ?? kStatusTodo;
-  late String _priority = widget.existing?.priority ?? kPriorityNormal;
-  late int _progress = widget.existing?.progress ?? 0;
-  late DateTime? _due = tmParseDue(widget.existing?.due ?? '');
-  String? _titleError;
+  late final TaskItem? _seed = widget.existing ?? widget.prefill;
+  late final _title = TextEditingController(text: _seed?.title ?? '');
+  late final _desc = TextEditingController(text: _seed?.description ?? '');
+  late final _assignee = TextEditingController(text: _seed?.assignee ?? '');
+  late String _status = _seed?.status ?? kStatusTodo;
+  late String _priority = _seed?.priority ?? kPriorityNormal;
+  late int _progress = _seed?.progress ?? 0;
+  late DateTime? _due = tmParseDue(_seed?.due ?? '');
+  late String _repeat = _seed?.repeat ?? kRepeatNone;
+  late int _estMin = _seed?.estMin ?? 0;
+  late int? _assigneeUid = _seed?.assigneeUid;
+  final _step = TextEditingController();
+  String? _titleError, _repeatError;
+  bool _stepBusy = false;
 
   @override
   void dispose() {
     _title.dispose();
     _desc.dispose();
     _assignee.dispose();
+    _step.dispose();
     super.dispose();
   }
 
@@ -1118,12 +1529,40 @@ class _TaskEditorState extends State<_TaskEditor> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null) setState(() => _due = picked);
+    // p2plan: keep a spoken/typed time of day when only the date changes
+    if (picked != null) {
+      setState(() {
+        _due = DateTime(picked.year, picked.month, picked.day, _due?.hour ?? 0,
+            _due?.minute ?? 0);
+        _repeatError = null;
+      });
+    }
+  }
+
+  Future<void> _pickFromCircle() async {
+    final m = await pickCircleMember(context, title: tmStr(context, 'tmFromCircle'));
+    if (m != null && mounted) {
+      setState(() => _assignee.text = '${m['name'] ?? ''}'.trim());
+    }
+  }
+
+  Future<void> _addStep() async {
+    final title = _step.text.trim();
+    if (title.isEmpty || _stepBusy) return;
+    setState(() => _stepBusy = true);
+    await widget.onAddStep(title);
+    if (!mounted) return;
+    _step.clear();
+    setState(() => _stepBusy = false);
   }
 
   void _submit() {
     if (_title.text.trim().isEmpty) {
       setState(() => _titleError = tmStr(context, 'tmTitleRequired'));
+      return;
+    }
+    if (_repeat.isNotEmpty && _due == null) {
+      setState(() => _repeatError = tmStr(context, 'tmRepeatNeedsDue'));
       return;
     }
     final t = widget.existing ?? TaskItem();
@@ -1135,8 +1574,12 @@ class _TaskEditorState extends State<_TaskEditor> {
     t.priority = _priority;
     t.due = _due == null
         ? ''
-        : DateTime(_due!.year, _due!.month, _due!.day).toIso8601String();
+        : DateTime(_due!.year, _due!.month, _due!.day, _due!.hour, _due!.minute)
+            .toIso8601String();
     t.progress = _status == kStatusDone ? 100 : _progress;
+    t.repeat = _repeat;
+    t.estMin = _estMin;
+    t.assigneeUid = widget.people.isEmpty ? null : _assigneeUid;
     Navigator.pop(context, _TaskEditorResult(task: t));
   }
 
@@ -1194,6 +1637,35 @@ class _TaskEditorState extends State<_TaskEditor> {
             ),
           ),
           const SizedBox(height: Gap.md),
+          if (widget.people.isNotEmpty) ...[
+            // p2plan: on a shared list you give a task to a PERSON on the
+            // list — they get a notification (server-checked).
+            _label(context, tmStr(context, 'tmAssignTo')),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                ChoiceChip(
+                  label: Text(tmStr(context, 'tmUnassigned')),
+                  selected: _assigneeUid == null,
+                  onSelected: (_) => setState(() {
+                    _assigneeUid = null;
+                    _assignee.text = '';
+                  }),
+                ),
+                for (final m in widget.people)
+                  if (m['uid'] != null)
+                    ChoiceChip(
+                      label: Text('${m['name'] ?? ''}', overflow: TextOverflow.ellipsis),
+                      selected: '$_assigneeUid' == '${m['uid']}',
+                      onSelected: (_) => setState(() {
+                        _assigneeUid =
+                            m['uid'] is int ? m['uid'] as int : int.tryParse('${m['uid']}');
+                        _assignee.text = '${m['name'] ?? ''}';
+                      }),
+                    ),
+              ]),
+            ),
+          ] else ...[
           TextField(
             controller: _assignee,
             textCapitalization: TextCapitalization.words,
@@ -1203,7 +1675,16 @@ class _TaskEditorState extends State<_TaskEditor> {
               border: const OutlineInputBorder(),
             ),
           ),
-          if (widget.knownAssignees.isNotEmpty) ...[
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: _pickFromCircle,
+              icon: const Icon(Icons.group_outlined),
+              label: Text(tmStr(context, 'tmFromCircle')),
+            ),
+          ),
+          ],
+          if (widget.people.isEmpty && widget.knownAssignees.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Align(
               alignment: AlignmentDirectional.centerStart,
@@ -1267,6 +1748,95 @@ class _TaskEditorState extends State<_TaskEditor> {
               ),
           ]),
           const SizedBox(height: Gap.md),
+          // p2plan: repeat
+          _label(context, tmStr(context, 'tmRepeat')),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              for (final r in kRepeats)
+                ChoiceChip(
+                  label: Text(repeatLabel(context, r)),
+                  selected: _repeat == r,
+                  onSelected: (_) => setState(() {
+                    _repeat = r;
+                    _repeatError = null;
+                  }),
+                ),
+            ]),
+          ),
+          if (_repeatError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(_repeatError!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ),
+          const SizedBox(height: Gap.md),
+          // p2plan: time needed (the daily planner uses it)
+          _label(context, tmStr(context, 'tmEstimate')),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              ChoiceChip(
+                label: Text(tmStr(context, 'tmEstNone')),
+                selected: _estMin == 0,
+                onSelected: (_) => setState(() => _estMin = 0),
+              ),
+              for (final m in kEstChoices)
+                ChoiceChip(
+                  label: Text(tmStrNum(context, 'tmMinutes', m)),
+                  selected: _estMin == m,
+                  onSelected: (_) => setState(() => _estMin = m),
+                ),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          // p2plan: steps (subtasks) — only a saved task can hold steps
+          if (widget.existing?.parentId == null) ...[
+            _label(context, tmStr(context, 'tmSteps')),
+            if (widget.existing?.id == null)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(tmStr(context, 'tmStepsAfterSave'),
+                    style: TextStyle(color: scheme.onSurfaceVariant)),
+              )
+            else ...[
+              for (final st in widget.stepsOf())
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: st.status == kStatusDone,
+                  title: Text(st.title,
+                      style: TextStyle(
+                          decoration: st.status == kStatusDone
+                              ? TextDecoration.lineThrough
+                              : null)),
+                  onChanged: (_) async {
+                    await widget.onToggleStep(st);
+                    if (mounted) setState(() {});
+                  },
+                ),
+              Row(children: [
+                Expanded(
+                  child: TextField(
+                    controller: _step,
+                    textCapitalization: TextCapitalization.sentences,
+                    onSubmitted: (_) => _addStep(),
+                    decoration: InputDecoration(
+                      labelText: tmStr(context, 'tmAddStep'),
+                      hintText: tmStr(context, 'tmAddStepHint'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: tmStr(context, 'tmAddStep'),
+                  onPressed: _stepBusy ? null : _addStep,
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                ),
+              ]),
+            ],
+            const SizedBox(height: Gap.md),
+          ],
           // progress (only meaningful while not done; done is pinned to 100)
           _label(context,
               '${tmStr(context, 'tmProgress')} · ${tmNum(context, _status == kStatusDone ? 100 : _progress)}%'),
@@ -1302,4 +1872,71 @@ class _TaskEditorState extends State<_TaskEditor> {
                   color: Theme.of(c).colorScheme.onSurfaceVariant)),
         ),
       );
+}
+
+
+// ===========================================================================
+// p2plan: voice / text quick-add sheet (Bangla first). Returns the phrase;
+// the board parses it and opens the pre-filled form — nothing auto-saves.
+// ===========================================================================
+class _QuickAddSheet extends StatefulWidget {
+  const _QuickAddSheet();
+  @override
+  State<_QuickAddSheet> createState() => _QuickAddSheetState();
+}
+
+class _QuickAddSheetState extends State<_QuickAddSheet> {
+  final _c = TextEditingController();
+  final _voice = VoiceDictation();
+
+  @override
+  void dispose() {
+    _voice.dispose();
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg,
+          Gap.lg + bottom + MediaQuery.of(context).padding.bottom),
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(tmStr(context, 'tmQuickAdd'),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          Text(tmStr(context, 'tmQuickAddHelp'),
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          const SizedBox(height: Gap.md),
+          TextField(
+            controller: _c,
+            autofocus: true,
+            minLines: 1,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: InputDecoration(
+              hintText: tmStr(context, 'tmQuickAddHint'),
+              border: const OutlineInputBorder(),
+              suffixIcon: VoiceMicButton(voice: _voice, input: _c),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Navigator.pop(context, _c.text),
+              icon: const Icon(Icons.auto_fix_high_rounded),
+              label: Text(tmStr(context, 'tmUnderstand')),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
 }

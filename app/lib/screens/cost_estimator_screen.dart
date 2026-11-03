@@ -10,7 +10,7 @@ import '../theme.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/local_digits.dart'; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
-import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
+import '../widgets/app_sheet.dart' show withNavBarInset, showAppSheet; // lifebar
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
 
@@ -223,6 +223,10 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
               'qty': r.qty.text.trim(),
               'unit_cost': r.unit.text.trim(),
               'minutes': r.minutes.text.trim(),
+              // p2plan: where the rate came from survives a save / reopen
+              if (r.src != null) 'rate_src': r.src,
+              if (r.ownerUnit != null) 'owner_unit': r.ownerUnit,
+              if (r.unitLabel.isNotEmpty) 'unit': r.unitLabel,
             })
         .toList();
     final row = {
@@ -311,6 +315,120 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
     _tabs.animateTo(0);
   }
 
+  // ------------------------------------------------- p2plan: templates
+  /// Ready templates for common BD jobs. Quantities come from the user's
+  /// answers; rates are the OWNER's (with source + date) or empty — never a
+  /// made-up market price.
+  Future<void> _pickTemplate() async {
+    List<Map<String, dynamic>> templates;
+    try {
+      final r = await context.read<AppState>().api.getJson('/estimate/templates');
+      templates = (r['templates'] as List? ?? const [])
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
+    } catch (_) {
+      if (mounted) _toast(t.p2CeTemplatesFailed);
+      return;
+    }
+    if (!mounted || templates.isEmpty) return;
+    final picked = await showAppSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => ListView(
+        shrinkWrap: true,
+        padding: withNavBarInset(ctx, const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg)),
+        children: [
+          Text(t.p2CeTemplates,
+              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: Gap.sm),
+          for (final tpl in templates)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(_tplIcon('${tpl['id']}')),
+              title: Text('${tpl['title'] ?? ''}'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.pop(ctx, tpl),
+            ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    final answers = await showAppSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _TemplateQuestions(template: picked),
+    );
+    if (answers == null || !mounted) return;
+    Map<String, dynamic> res;
+    try {
+      res = await context
+          .read<AppState>()
+          .api
+          .postJson('/estimate/templates/${picked['id']}', {'inputs': answers});
+    } catch (_) {
+      if (mounted) _toast(t.p2CeTemplatesFailed);
+      return;
+    }
+    if (!mounted) return;
+    if (_hasAnyData && !await _confirmReplace()) return;
+    final lines = (res['lines'] as List? ?? const []).whereType<Map>().toList();
+    for (final r in _rows) {
+      r.dispose();
+    }
+    setState(() {
+      _rows.clear();
+      for (final l in lines) {
+        final cost = l['unit_cost'];
+        _rows.add(_Row({
+          'name': l['name'],
+          'qty': '${l['qty'] ?? ''}',
+          'unit_cost': cost == null ? '' : _num(cost),
+          'minutes': l['minutes'] == null ? '' : '${l['minutes']}',
+          'rate_src': l['rate_src'],
+          'owner_unit': cost == null ? null : _num(cost),
+          'unit': l['unit'],
+        }));
+      }
+      if (_rows.isEmpty) _rows.add(_Row());
+      _name.text = '${res['title'] ?? ''}';
+      _editingId = null;
+    });
+    final note = '${res['note'] ?? ''}';
+    if (note.isNotEmpty) _toast(note);
+  }
+
+  String _num(Object v) {
+    final d = v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+    return d == d.roundToDouble() ? d.toInt().toString() : d.toString();
+  }
+
+  IconData _tplIcon(String id) => const {
+        'home': Icons.home_repair_service_rounded,
+        'event': Icons.celebration_rounded,
+        'travel': Icons.luggage_rounded,
+        'business': Icons.storefront_rounded,
+        'tutor': Icons.school_rounded,
+      }[id] ??
+      Icons.calculate_rounded;
+
+  Future<bool> _confirmReplace() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(t.p2CeReplaceQ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.p2CeReplace)),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
   /// lifebar: money in the app language's digits (was always Latin).
   String _taka(int poisha) => ld(context, _takaStrRaw(poisha));
 
@@ -334,6 +452,11 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         // lifebar: Save now keeps editing the same project, so starting a
         // fresh estimate is an explicit action
         actions: [
+          IconButton(
+            tooltip: t.p2CeTemplates,
+            icon: const Icon(Icons.dashboard_customize_rounded),
+            onPressed: _pickTemplate,
+          ),
           IconButton(
             tooltip: t.lifebarCeNew,
             icon: const Icon(Icons.note_add_rounded),
@@ -372,6 +495,19 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
       children: [
         const _HonestMarker(),
         const SizedBox(height: Gap.lg),
+        if (!_hasAnyData) ...[
+          // p2plan: most people don't know the lines a job needs — start
+          // from a BD job template (home repair, event, trip, shop, tutor)
+          SizedBox(
+            height: 52,
+            child: FilledButton.tonalIcon(
+              onPressed: _pickTemplate,
+              icon: const Icon(Icons.dashboard_customize_rounded),
+              label: Text(t.p2CeStartFromTemplate, textAlign: TextAlign.center),
+            ),
+          ),
+          const SizedBox(height: Gap.lg),
+        ],
         TextField(
           controller: _name,
           textInputAction: TextInputAction.next,
@@ -506,8 +642,17 @@ class _Row {
   final TextEditingController qty;
   final TextEditingController unit;
   final TextEditingController minutes;
+  // p2plan: template rows remember where their rate came from
+  final Map<String, dynamic>? src; // {kind: owner|none, source, date}
+  final String? ownerUnit; // the owner's rate as first filled in
+  final String unitLabel; // 'sq ft', 'plates' …
   _Row([Map<String, dynamic>? seed])
-      : name = TextEditingController(text: (seed?['name'] ?? '').toString()),
+      : src = seed?['rate_src'] is Map
+            ? Map<String, dynamic>.from(seed!['rate_src'] as Map)
+            : null,
+        ownerUnit = seed?['owner_unit']?.toString(),
+        unitLabel = (seed?['unit'] ?? '').toString(),
+        name = TextEditingController(text: (seed?['name'] ?? '').toString()),
         qty = TextEditingController(text: (seed?['qty'] ?? '').toString()),
         unit = TextEditingController(
             text: (seed?['unit_cost'] ?? '').toString()),
@@ -639,6 +784,103 @@ class _ComponentCard extends StatelessWidget {
             minF,
           ]);
         }),
+        if (row.src != null) _rateSource(context, t, scheme),
+      ]),
+    );
+  }
+
+  /// p2plan: every template line says where its rate came from.
+  Widget _rateSource(BuildContext context, AppLocalizations t, ColorScheme scheme) {
+    final src = row.src!;
+    final typed = row.unit.text.trim();
+    String text;
+    Color color = scheme.onSurfaceVariant;
+    IconData icon = Icons.person_outline_rounded;
+    if (src['kind'] == 'owner' && row.ownerUnit != null && typed == row.ownerUnit) {
+      text = t.p2CeRateOwner('${src['source'] ?? ''}', ld(context, '${src['date'] ?? ''}'));
+      icon = Icons.verified_outlined;
+    } else if (typed.isEmpty) {
+      text = t.p2CeRateNone;
+      color = Brand.warning;
+      icon = Icons.edit_note_rounded;
+    } else {
+      text = t.p2CeRateUser;
+    }
+    final unit = row.unitLabel.isEmpty ? '' : ' · ${row.unitLabel}';
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.sm),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: Gap.xs),
+        Expanded(
+            child: Text('$text$unit',
+                style: AType.bodySmall.copyWith(color: color, height: 1.35))),
+      ]),
+    );
+  }
+}
+
+/// p2plan: the template's questions (sq ft, guests, nights …) — numbers only.
+class _TemplateQuestions extends StatefulWidget {
+  final Map<String, dynamic> template;
+  const _TemplateQuestions({required this.template});
+  @override
+  State<_TemplateQuestions> createState() => _TemplateQuestionsState();
+}
+
+class _TemplateQuestionsState extends State<_TemplateQuestions> {
+  late final List<Map<String, dynamic>> _qs = (widget.template['questions'] as List? ?? const [])
+      .whereType<Map>()
+      .map((m) => Map<String, dynamic>.from(m))
+      .toList();
+  late final Map<String, TextEditingController> _c = {
+    for (final q in _qs)
+      '${q['key']}': TextEditingController(
+          text: (q['default'] ?? 0) == 0 ? '' : '${q['default']}'),
+  };
+
+  @override
+  void dispose() {
+    for (final c in _c.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return SingleChildScrollView(
+      padding: withNavBarInset(
+          context,
+          EdgeInsets.fromLTRB(
+              Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.of(context).viewInsets.bottom)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
+        Text('${widget.template['title'] ?? ''}',
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: Gap.xs),
+        Text(t.p2CeTemplateAnswers),
+        const SizedBox(height: Gap.md),
+        for (final q in _qs) ...[
+          TextField(
+            controller: _c['${q['key']}'],
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: '${q['label'] ?? ''}',
+              suffixText: '${q['unit'] ?? ''}',
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: Gap.md),
+        ],
+        FilledButton.icon(
+          onPressed: () => Navigator.pop(context, {
+            for (final e in _c.entries) e.key: int.tryParse(e.value.text.trim()) ?? 0,
+          }),
+          icon: const Icon(Icons.calculate_rounded),
+          label: Text(t.p2CeBuild),
+        ),
       ]),
     );
   }

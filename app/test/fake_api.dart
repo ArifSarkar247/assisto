@@ -1,6 +1,7 @@
 import 'fake_channels.dart'; // channels
 import 'fake_famcare.dart'; // famcare
 import 'fake_psec.dart'; // pssec
+import 'fake_p2plan.dart'; // p2plan
 import 'fake_train.dart'; // train
 import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
@@ -982,6 +983,11 @@ class FakeApi extends ApiClient {
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
       return inv;
+    }
+    final p2g = fakeP2planGet(path, empty: mode == FakeMode.empty, bn: _bn); // p2plan
+    if (p2g != null) {
+      if (mode == FakeMode.fail) _fail();
+      return p2g;
     }
     final psec = fakePsecGet(path, mode == FakeMode.empty); // pssec
     if (psec != null) {
@@ -2054,6 +2060,8 @@ class FakeApi extends ApiClient {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
+    final p2p = fakeP2planPost(path, body, bn: _bn); // p2plan
+    if (p2p != null) return p2p;
     final chxP = fakeChannelsPost(path, body); // channels
     if (chxP != null) return chxP;
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent

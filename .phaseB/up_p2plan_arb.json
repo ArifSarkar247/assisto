@@ -1,0 +1,69 @@
+{
+  "en": {
+    "p2DayPlanner": "AI daily planner",
+    "@p2DayPlanner": {
+      "description": "p2plan: sidebar label of the AI daily planner (Work section)"
+    },
+    "p2CeTemplates": "Ready templates",
+    "@p2CeTemplates": {
+      "description": "p2plan: estimator: templates button / sheet title"
+    },
+    "p2CeStartFromTemplate": "Start from a ready template (home repair, event, trip, shop, tutor)",
+    "@p2CeStartFromTemplate": {
+      "description": "p2plan: estimator: big start button"
+    },
+    "p2CeTemplateAnswers": "Answer a few questions — the lines and quantities fill in.",
+    "@p2CeTemplateAnswers": {
+      "description": "p2plan: estimator: template questions intro"
+    },
+    "p2CeBuild": "Build the estimate",
+    "@p2CeBuild": {
+      "description": "p2plan: estimator: build from template"
+    },
+    "p2CeReplaceQ": "Replace the lines you already typed?",
+    "@p2CeReplaceQ": {
+      "description": "p2plan: estimator: replace confirm"
+    },
+    "p2CeReplace": "Replace",
+    "@p2CeReplace": {
+      "description": "p2plan: estimator: replace button"
+    },
+    "p2CeRateOwner": "Owner-checked rate · {source} · {date}",
+    "@p2CeRateOwner": {
+      "description": "p2plan: estimator: rate source line",
+      "placeholders": {
+        "source": {
+          "type": "String"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "p2CeRateNone": "No rate yet — enter the price you know",
+    "@p2CeRateNone": {
+      "description": "p2plan: estimator: no owner rate"
+    },
+    "p2CeRateUser": "Your own rate",
+    "@p2CeRateUser": {
+      "description": "p2plan: estimator: user edited rate"
+    },
+    "p2CeTemplatesFailed": "Could not load the templates — check the internet and try again.",
+    "@p2CeTemplatesFailed": {
+      "description": "p2plan: estimator: templates load failed"
+    }
+  },
+  "bn": {
+    "p2DayPlanner": "AI দৈনিক পরিকল্পনা",
+    "p2CeTemplates": "তৈরি ছাঁচ",
+    "p2CeStartFromTemplate": "তৈরি ছাঁচ থেকে শুরু করুন (বাসা মেরামত, অনুষ্ঠান, ভ্রমণ, দোকান, টিউশনি)",
+    "p2CeTemplateAnswers": "কয়েকটি প্রশ্নের উত্তর দিন — লাইন ও পরিমাণ নিজে থেকে বসবে।",
+    "p2CeBuild": "হিসাব বানান",
+    "p2CeReplaceQ": "আগে লেখা লাইনগুলো বদলে দেবেন?",
+    "p2CeReplace": "বদলে দিন",
+    "p2CeRateOwner": "মালিকের যাচাই করা রেট · {source} · {date}",
+    "p2CeRateNone": "রেট নেই — আপনার জানা দাম লিখুন",
+    "p2CeRateUser": "আপনার নিজের রেট",
+    "p2CeTemplatesFailed": "ছাঁচ আনা যায়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।"
+  }
+}

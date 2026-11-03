@@ -401,3 +401,21 @@ class OwnerRatesPageTests(TestCase):
     def test_route_registered(self):
         from django.urls import resolve
         self.assertEqual(resolve("/owner/estimate-rates").func.__name__, "estimate_rates")
+
+
+class SharedListGuardTests(Base):
+    def test_hand_edited_shared_with_never_reaches_a_stranger(self):
+        d = dict(self.proj.data)
+        d["shared_with"] = [{"uid": self.x.id, "name": "X"}]      # via generic PATCH
+        self.proj.data = d
+        self.proj.save()
+        self.assertEqual(self.cx.get(f"{V}/tasks/lists/{self.proj.id}").status_code, 404)
+        r = self.ca.post(f"{V}/tasks/lists/{self.proj.id}/tasks",
+                         {"title": "spam", "assignee_uid": self.x.id}, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(self.spy.to(self.x), [])
+
+    def test_leaving_my_circle_ends_the_share(self):
+        self.share()
+        CircleMember.objects.filter(pk=self.ab.pk).update(state="declined")
+        self.assertEqual(self.cb.get(f"{V}/tasks/lists/{self.proj.id}").status_code, 404)

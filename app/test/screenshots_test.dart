@@ -153,6 +153,7 @@ import 'market_fake.dart'; // amarket
 import 'package:assisto/screens/student_corner_screen.dart';
 import 'package:assisto/screens/wedding_events_screen.dart';
 import 'package:assisto/screens/task_manager_screen.dart';
+import 'package:assisto/screens/day_planner_screen.dart'; // p2plan
 import 'package:assisto/screens/mess_accounting_screen.dart';
 import 'package:assisto/screens/expense_split_screen.dart';
 import 'package:assisto/screens/samity_screen.dart';
@@ -596,6 +597,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'student': (build: (_) => const StudentCornerScreen(), mode: FakeMode.data, full: true),
     'wedding': (build: (_) => const WeddingEventsScreen(), mode: FakeMode.data, full: true),
     'task_mgr': (build: (_) => const TaskManagerScreen(), mode: FakeMode.data, full: true),
+    // p2plan: AI daily planner (plan + honest empty day)
+    'dp_plan': (build: (_) => const DayPlannerScreen(), mode: FakeMode.data, full: true),
+    'dp_empty': (build: (_) => const DayPlannerScreen(), mode: FakeMode.empty, full: true),
     'mess_acct': (build: (_) => const MessAccountingScreen(), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
