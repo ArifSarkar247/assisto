@@ -37806,5 +37806,264 @@
         "type": "String"
       }
     }
-  }
+  },
+  "ieltsTitle": "IELTS practice",
+  "ieltsEntrySubtitle": "Speaking, writing, reading and pronunciation — with explanations",
+  "ieltsLoadError": "Could not load IELTS practice. Check the internet and try again.",
+  "ieltsStreak": "{n}-day practice streak",
+  "@ieltsStreak": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsStreakBest": "Best: {n} days",
+  "@ieltsStreakBest": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsStreakStart": "Practise today to start your streak",
+  "ieltsTodayDone": "Today's practice is done",
+  "ieltsPron": "Pronunciation check",
+  "ieltsPronSub": "Read a sentence aloud and see which words were clear — works offline",
+  "ieltsSpeaking": "Speaking",
+  "ieltsSpeakingSub": "Part 1, 2 (cue cards) and 3 — answer by voice",
+  "ieltsWriting": "Writing",
+  "ieltsWritingSub": "Task 1 letter and Task 2 essay with a checklist",
+  "ieltsReading": "Reading",
+  "ieltsReadingSub": "Original passages with True / False / Not Given",
+  "ieltsListening": "Listening",
+  "ieltsListeningSub": "Official free practice tests",
+  "ieltsVocab": "IELTS vocabulary",
+  "ieltsVocabSub": "Academic words that come back just before you forget",
+  "ieltsPronHow": "Pick a sentence, tap Record and read it aloud in English, then tap Check. Each word turns green (clear), amber (heard as another word) or red (missed).",
+  "ieltsTip": "Tip",
+  "ieltsRecord": "Record",
+  "ieltsStop": "Stop",
+  "ieltsHeardLabel": "What the phone heard",
+  "ieltsCheck": "Check",
+  "ieltsNothingHeard": "Nothing heard yet — tap Record and read the sentence.",
+  "ieltsPronScore": "{n}% of the words were recognised",
+  "@ieltsPronScore": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPronEstimate": "Estimate: how much of the sentence your phone's speech recogniser understood. It is not a sound-by-sound analysis and not an IELTS band.",
+  "ieltsWordOk": "Clear",
+  "ieltsWordSub": "Heard as another word",
+  "ieltsWordMiss": "Missed",
+  "ieltsHeardAs": "heard: {word}",
+  "@ieltsHeardAs": {
+    "placeholders": {
+      "word": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPartN": "Part {n}",
+  "@ieltsPartN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPart1Help": "Short questions about you and familiar topics (about 4–5 minutes in the test).",
+  "ieltsPart2Help": "A cue card: 1 minute to prepare, then speak for up to 2 minutes.",
+  "ieltsPart3Help": "Discussion questions linked to Part 2 — give reasons and examples.",
+  "ieltsYouShouldSay": "You should say:",
+  "ieltsPrepTimer": "Start 1-minute preparation",
+  "ieltsPrepLeft": "Preparation: {s} s left",
+  "@ieltsPrepLeft": {
+    "placeholders": {
+      "s": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsAnswerHint": "Tap Record and answer in English. Your words appear below; you can also type or fix them.",
+  "ieltsYourAnswer": "Your answer",
+  "ieltsGetFeedback": "Check my answer (free)",
+  "ieltsAiEstimate": "AI band estimate (uses AI credits)",
+  "ieltsAiTitle": "AI practice estimate",
+  "ieltsAiNotConnected": "The AI estimate is not connected yet. The checklist above works without it.",
+  "ieltsAiNoCredits": "Not enough AI credits for an estimate today. The checklist above is free.",
+  "ieltsAiBusy": "AI is busy right now. Please try again in a minute.",
+  "ieltsAiUnreadable": "The AI answer could not be read. Please try again.",
+  "ieltsAiCharged": "{n} AI credits used",
+  "@ieltsAiCharged": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsChecklistTitle": "{passed} of {total} checks passed",
+  "@ieltsChecklistTitle": {
+    "placeholders": {
+      "passed": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsOverall": "Overall",
+  "ieltsBandEstimate": "about band {band}",
+  "@ieltsBandEstimate": {
+    "placeholders": {
+      "band": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsNoBandText": "not judged from text — use the pronunciation check",
+  "ieltsCritTask": "Task achievement / response",
+  "ieltsCritCoherence": "Coherence and cohesion",
+  "ieltsCritLexical": "Vocabulary (lexical resource)",
+  "ieltsCritGrammar": "Grammar range and accuracy",
+  "ieltsCritFluency": "Fluency and coherence",
+  "ieltsCritPronunciation": "Pronunciation",
+  "ieltsFixes": "What to fix next",
+  "ieltsEmptyAnswer": "Write or say your answer first.",
+  "ieltsTask1": "Task 1 (letter)",
+  "ieltsTask2": "Task 2 (essay)",
+  "ieltsTask1Help": "General Training letter — at least 150 words, about 20 minutes.",
+  "ieltsTask2Help": "Essay — at least 250 words, about 40 minutes. Give your opinion with reasons and examples.",
+  "ieltsWriteHint": "Write your answer in English",
+  "ieltsWordCount": "{n} words · at least {min}",
+  "@ieltsWordCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsReadingOriginal": "These passages were written by Assisto for practice. They are not taken from any official test book.",
+  "ieltsQuestionsCount": "{n} questions",
+  "@ieltsQuestionsCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsTrue": "True (T)",
+  "ieltsFalse": "False (F)",
+  "ieltsNotGiven": "Not Given (NG)",
+  "ieltsSubmitAnswers": "Check answers",
+  "ieltsCorrectAnswer": "Answer: {answer}",
+  "@ieltsCorrectAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsScore": "{correct} of {total} correct",
+  "@ieltsScore": {
+    "placeholders": {
+      "correct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsTryAgain": "Try again",
+  "ieltsListeningBody": "Listening needs real exam-style recordings. We do not have licensed recordings yet, so practise with the official free tests below — they open in your browser.",
+  "ieltsOpenLinkFailed": "Could not open the link.",
+  "ieltsVocabHow": "Read the word, think of its meaning, then tap to check. Words you miss come back tomorrow; words you know come back later.",
+  "ieltsVocabDue": "{n} words to review today",
+  "@ieltsVocabDue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsVocabNoneDue": "All caught up for today — come back tomorrow.",
+  "ieltsShowMeaning": "Show meaning",
+  "ieltsBackToPractice": "Back to IELTS practice",
+  "learnPickLanguage": "Learn a language",
+  "learnPickLanguageSub": "Placement test, lessons, speaking practice for life abroad and timed practice tests.",
+  "learnCatalogFail": "Could not load the language courses. Check the internet and try again.",
+  "learnNotAdded": "Lessons for this language are not added yet.",
+  "learnPurposeKorea": "For work in Korea",
+  "learnPurposeJapan": "For work in Japan",
+  "learnPurposeGulf": "For work in the Gulf",
+  "learnPlacement": "Placement test",
+  "learnPlacementSub": "Find your starting level in a few minutes",
+  "learnPlacementHow": "Answer what you can — skip what you don't know. You get an estimated level and your weak areas.",
+  "learnLessons": "Lessons",
+  "learnLessonsSub": "From basic to advanced, with Bangla explanations",
+  "learnLessonsHow": "Read each line, then tap a sentence under 'Say it' to check your pronunciation.",
+  "learnSayIt": "Say it",
+  "learnScenarios": "Speaking for life abroad",
+  "learnScenariosSub": "Airport, workplace, doctor, renting, shopping — practise with AI by voice",
+  "learnScenariosHow": "Pick a situation. The AI plays the other person; answer by voice or typing. A short correction appears when something can be said better.",
+  "learnPronSub": "Read sentences aloud and see which words were clear",
+  "learnMock": "Timed practice tests",
+  "learnMockSub": "In the exam's format — estimated level and weak areas",
+  "learnMockHow": "Original practice questions in the exam's format. The clock runs while you answer.",
+  "learnMinutes": "{n} minutes",
+  "@learnMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnTimeLeft": "Time left",
+  "learnFinishTest": "Finish and see my level",
+  "learnTimedOut": "You went over the time limit — in the real exam you would have had less time.",
+  "learnYourLevel": "Estimated level: {level}",
+  "@learnYourLevel": {
+    "placeholders": {
+      "level": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnNoWeak": "No weak area found in this test.",
+  "learnWeak": "Practise more: {skills}",
+  "@learnWeak": {
+    "placeholders": {
+      "skills": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnSkillGrammar": "Grammar",
+  "learnSkillVocab": "Vocabulary",
+  "learnGoals": "Your goals",
+  "learnUseful": "Useful phrases",
+  "learnUsePhrase": "Put this phrase in the message box",
+  "learnTypeOrSpeak": "Speak or type your answer",
+  "learnSend": "Send",
+  "learnAiNotConnected": "AI practice partner is not connected yet. The phrases, lessons and tests work without it.",
+  "learnAiNoCredits": "Today's free AI practice is used up and there are not enough credits. Lessons and tests stay free.",
+  "learnAiLeft": "Free AI practice left today: {n}",
+  "@learnAiLeft": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnVoiceNoLang": "This phone has no speech recognition for this language. You can type instead, or add the language in Google voice typing settings.",
+  "learnProbashiTitle": "Learn the language for work abroad",
+  "learnProbashiSub": "Korean (EPS-TOPIK), Japanese, Gulf Arabic, English and more"
 }
