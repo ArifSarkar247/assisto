@@ -13,6 +13,8 @@ import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/confirm_delete.dart'; // lifebar
+import '../feature_flags.dart'; // p2career
+import 'career/cv_export_screen.dart'; // p2career
 
 /// CV / RESUME BUILDER — standalone, KEY-FREE (student & job-seeker front door).
 ///
@@ -420,11 +422,65 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     );
   }
 
+  // ---- p2career (flag career_plus) ----------------------------------------
+  bool get _careerPlus => FeatureFlags.instance.isOn('career_plus');
+
+  /// Fill only the EMPTY header fields from the user's own profile.
+  Future<void> _fillFromProfile() async {
+    try {
+      final p = await context.read<AppState>().api.getJson('/career/cv/prefill');
+      var n = 0;
+      for (final (c, k) in [(_name, 'name'), (_phone, 'phone'), (_email, 'email')]) {
+        final v = '${p[k] ?? ''}'.trim();
+        if (c.text.trim().isEmpty && v.isNotEmpty) {
+          c.text = v;
+          n++;
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _started = true;
+        if (n > 0) _dirty = true;
+      });
+      _toast(n > 0 ? t.crrFillProfileDone : t.crrFillProfileNothing);
+    } catch (e) {
+      if (mounted) _toast(honestFailText(t, e));
+    }
+  }
+
+  /// Save first (the export screen patches the same row), then open it; a
+  /// `true` result (AI polish applied) reloads the builder.
+  Future<void> _openExport() async {
+    if (_dirty || _recordId == null) await _save();
+    if (!mounted || _recordId == null || _dirty) {
+      if (mounted && _recordId == null) _toast(t.crrSaveFirst);
+      return;
+    }
+    final changed = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => CvExportScreen(recordId: _recordId!)));
+    if (changed == true && mounted) await _load();
+  }
+
+  Widget _careerBar() => Padding(
+        padding: const EdgeInsets.only(bottom: Gap.md),
+        child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          FilledButton.icon(
+              onPressed: _hasAnyData ? _openExport : null,
+              icon: const Icon(Icons.picture_as_pdf_rounded),
+              label: Text(t.crrCvExportAction)),
+          OutlinedButton.icon(
+              onPressed: _fillFromProfile,
+              icon: const Icon(Icons.person_pin_rounded),
+              label: Text(t.crrFillProfile)),
+        ]),
+      );
+
   Widget _form() {
     final scheme = Theme.of(context).colorScheme;
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
       children: [
+        if (_careerPlus) _careerBar(),
         // --- contact header card ---
         _SectionCard(
           icon: Icons.person_outline_rounded,

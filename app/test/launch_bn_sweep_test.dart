@@ -67,6 +67,7 @@ const _launchPrefixes = <String>[
   'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
+  'crr_', // p2career: CV export, Find jobs, role interview (3 Nov)
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.

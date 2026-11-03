@@ -148,6 +148,8 @@ _A = {
     "blog_writer": ("?F???P?FF", "hide", "Sweep B?: templates, AI key-gated.", "সুইপ B?: টেমপ্লেট, AI চাবি-নির্ভর।"),
     "jobs": ("?F???P?FF", "hide", "No official jobs feed (f6); only the user's own tracker.", "চাকরির সরকারি ফিড নেই (f6); শুধু নিজের তালিকা।"),
     "cv_builder": ("?P???P??F", "show", "Sweep B? (AI polish key-gated); manual CV works.", "সুইপ B? (AI ঘষামাজা চাবি-নির্ভর); হাতে সিভি বানানো কাজ করে।"),
+    "career_plus": ("?P??PP??F", "hide", "p2career: CV PDF (en) + print page (bn), BD formats, ATS check, AI polish via router; Careerjet + Greenhouse/Lever/RSS sources, saved searches, deadline reminders; role interview (8x6) + voice + rubric/AI feedback; CI tests; no real-phone run.",
+                    "p2career: সিভি PDF (ইংরেজি) + প্রিন্ট পাতা (বাংলা), দেশি ধাঁচ, ATS চেক, রাউটারে AI; Careerjet + Greenhouse/Lever/RSS উৎস, সেভ খোঁজ, শেষ-তারিখ রিমাইন্ডার; পদভিত্তিক ইন্টারভিউ + ভয়েস + রুব্রিক/AI; CI টেস্ট; আসল ফোনে চালানো হয়নি।"),
     "ai_inbox": ("?F???P?FF", "hide", "No mailbox connected: honest empty state only.", "কোনো মেইলবক্স যুক্ত নয়: শুধু খালি অবস্থা।"),
     "pa_secretary": ("?F???P?FF", "hide", "Sweep B?: key-gated / mock parts.", "সুইপ B?: চাবি-নির্ভর / নকল অংশ।"),
     "ps_secretary": ("?P??PP??F", "hide", "pssec: Today brief (meetings, follow-ups, reminders, bills), My Circle invites / nudges via the E2E chat, paste-to-pick-up parser on the phone; CI tests; no real-phone run; notification listener not built.",

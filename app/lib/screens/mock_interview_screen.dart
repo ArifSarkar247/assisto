@@ -10,6 +10,8 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart'; // p2career
+import 'career/interview_role_screen.dart'; // p2career
 
 /// MOCK INTERVIEW — ADVANCED, KEY-GATED (#131, SPEC v2.1 §21).
 ///
@@ -317,6 +319,22 @@ class _CategoryPicker extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.xl),
+        ],
+        // p2career: role-based practice with voice + feedback (flag career_plus)
+        if (FeatureFlags.instance.isOn('career_plus')) ...[
+          Card(
+            color: scheme.primaryContainer,
+            margin: const EdgeInsets.only(bottom: Gap.lg),
+            child: ListTile(
+              leading: Icon(Icons.badge_rounded, color: scheme.onPrimaryContainer),
+              title: Text(tr.crrRoleEntry,
+                  style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
+              subtitle: Text(tr.crrRoleEntrySub, style: TextStyle(color: scheme.onPrimaryContainer)),
+              trailing: Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const InterviewRoleScreen())),
+            ),
+          ),
         ],
         Text(tr.miPickCategory,
             style: Theme.of(context).textTheme.titleMedium),

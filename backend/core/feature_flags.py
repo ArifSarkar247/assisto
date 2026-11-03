@@ -165,6 +165,11 @@ REGISTRY = (
     ('blog_writer', 'work', 'Blog & script writing', 'ব্লগ ও স্ক্রিপ্ট লেখা', True, ()),
     ('jobs', 'work', 'Job hunter', 'জব হান্টার', True, ('jobs',)),
     ('cv_builder', 'work', 'CV Builder', 'সিভি বিল্ডার', True, ('cv', 'resume')),
+    # p2career (owner PART 2 rows 2.2-2.4, 3 Nov): CV PDF/print + formats +
+    # AI polish, Job Hunter legal sources (Careerjet API, Greenhouse/Lever/RSS
+    # the user adds) + saved searches + deadline reminders, role-based mock
+    # interview with voice + rubric/AI feedback. OFF until proven.
+    ('career_plus', 'work', 'Career tools: CV PDF, job sources, role interview', 'ক্যারিয়ার টুল: সিভি PDF, চাকরির উৎস, পদভিত্তিক ইন্টারভিউ', False, ()),
     ('ai_inbox', 'work', 'AI Inbox', 'AI ইনবক্স', True, ('inbox',)),
     ('pa_secretary', 'work', 'Personal Secretary (PS)', 'পার্সোনাল সেক্রেটারি (পিএস)', True, ()),
     # pssec (owner Part 2.1, 2 Nov): PS Today brief, My Circle invites /

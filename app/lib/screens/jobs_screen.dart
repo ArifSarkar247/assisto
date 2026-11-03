@@ -14,6 +14,8 @@ import '../widgets/subs_common.dart' show fmtInt;
 import '../feature_gates.dart' show kJobsFeedConnected; // f6
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart'; // p2career
+import 'career/job_find_screen.dart'; // p2career
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
 ///   • Discover — curated sample feed + search/filters + salary insight, with an
@@ -254,6 +256,38 @@ class _JobsScreenState extends State<JobsScreen> {
   }
 
   // ----- Discover ---------------------------------------------------------
+  Widget _findJobsCard(AppLocalizations tr, ColorScheme scheme) => Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.sm),
+        child: Material(
+          color: scheme.primaryContainer,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const JobFindScreen()));
+              if (mounted) await _load();
+            },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+                child: Row(children: [
+                  Icon(Icons.travel_explore_rounded, color: scheme.onPrimaryContainer),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(tr.crrJobsFindEntry,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600)),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      );
+
   Widget _discoverTab(AppLocalizations tr, ColorScheme scheme) {
     final list = _discover;
     final insight = salaryInsight(list, category: _filter.category);
@@ -275,7 +309,11 @@ class _JobsScreenState extends State<JobsScreen> {
           ),
         ),
       ),
-      if (!_feedConnected) _sourceBanner(tr, scheme),
+      // p2career: real jobs from legal sources (flag career_plus)
+      if (FeatureFlags.instance.isOn('career_plus'))
+        _findJobsCard(tr, scheme)
+      else if (!_feedConnected)
+        _sourceBanner(tr, scheme),
       if (insight != null) _salaryInsight(tr, scheme, insight),
       Expanded(
         child: list.isEmpty
