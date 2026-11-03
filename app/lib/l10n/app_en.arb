@@ -43056,5 +43056,87 @@
   "psAskStudio": "Edit in Photo Studio",
   "@psAskStudio": {
     "description": "aifinal PART 7: AI chat photo answer button to open Photo Studio with the same photo"
+  },
+  "aiPhotoCredits": "{n} credits used for this photo answer",
+  "@aiPhotoCredits": {
+    "description": "aifinal round 2: credits shown on the photo answer bubble",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ailvNameNormal": "Normal",
+  "@ailvNameNormal": {
+    "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBetter": "Better",
+  "@ailvNameBetter": {
+    "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBest": "Best",
+  "@ailvNameBest": {
+    "description": "aifinal: answer level name in the credit history"
+  },
+  "voiceLangBn": "BN",
+  "@voiceLangBn": {
+    "description": "aifinal round 2 voice: mic language switch: Bangla"
+  },
+  "voiceLangEn": "EN",
+  "@voiceLangEn": {
+    "description": "aifinal round 2 voice: mic language switch: English"
+  },
+  "voiceLangSwitchA11y": "Voice language: {lang}. Double tap to switch.",
+  "@voiceLangSwitchA11y": {
+    "description": "aifinal round 2 voice: TalkBack label of the mic language switch",
+    "placeholders": {
+      "lang": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceServerFailed": "Couldn't write that down — no credits were used. Please try again.",
+  "@voiceServerFailed": {
+    "description": "aifinal round 2 voice: server transcription failed"
+  },
+  "voiceTranscribing": "Writing down what you said…",
+  "@voiceTranscribing": {
+    "description": "aifinal round 2 voice: server transcription in progress"
+  },
+  "aiChatsPanel": "Chats",
+  "@aiChatsPanel": {
+    "description": "aifinal chat history: side panel button (opens the chat list)"
+  },
+  "aiStarter1": "Plan a safe trip from Dhaka to Gazipur",
+  "@aiStarter1": {
+    "description": "aifinal chat history: starter question 1"
+  },
+  "aiStarter2": "Remind me to take my medicine at 9 pm",
+  "@aiStarter2": {
+    "description": "aifinal chat history: starter question 2"
+  },
+  "aiStarter3": "How much did I spend this month?",
+  "@aiStarter3": {
+    "description": "aifinal chat history: starter question 3"
+  },
+  "aiStarter4": "Write a polite message to my landlord",
+  "@aiStarter4": {
+    "description": "aifinal chat history: starter question 4"
+  },
+  "aiContinue": "Continue",
+  "@aiContinue": {
+    "description": "aifinal round 3: continue a cut answer from where it stopped (free)"
+  },
+  "aiMoreDetail": "More detail",
+  "@aiMoreDetail": {
+    "description": "aifinal round 3: expand the last answer"
+  },
+  "aiCopy": "Copy",
+  "@aiCopy": {
+    "description": "aifinal round 3: copy the answer"
+  },
+  "aiCopied": "Copied",
+  "@aiCopied": {
+    "description": "aifinal round 3: snackbar after copy"
   }
 }
