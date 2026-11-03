@@ -123,7 +123,7 @@ class P3LifeTests(APITestCase):
         self.assertIn("Rina weds Karim", body)
         self.assertIn("Bou-bhat", body)
         self.assertIn("১৯:০০", body)
-        self.assertIn("৩", body)  # 1 guest + 2 = 3 confirmed
+        self.assertIn('<span class="lp-n">৩</span>', body)  # 1 + 2 confirmed
         self.assertNotIn("SECRETGUEST", body)
         self.assertNotIn("GIFTGIVER", body)
 

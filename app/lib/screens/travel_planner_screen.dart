@@ -11,6 +11,10 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 import 'package:intl/intl.dart' show DateFormat; // lifebar
 import '../widgets/bn_day_periods.dart' show appDateLocale; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
+import 'expense_split_screen.dart'; // p3life
+import 'life/life_common.dart'; // p3life
+import 'life/life_logic.dart' show tripSplitScope; // p3life
+import 'life/life_travel.dart'; // p3life
 
 /// TRAVEL PLANNER — ADVANCED, KEY-GATED (#35, SPEC v2.1 §21).
 ///
@@ -110,6 +114,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
   }
   List<Map<String, dynamic>> _trips = [];
   bool _loading = true, _error = false;
+  bool _offline = false; // p3life: showing the saved copy
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   @override
@@ -124,7 +129,9 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
       _error = false;
     });
     try {
-      _trips = await context.read<AppState>().api.listItems(_tripsPath);
+      final r = await LifeCache.list(context, _tripsPath); // p3life: offline copy
+      _trips = r.rows;
+      _offline = r.offline;
     } catch (e) {
       _error = true;
       _failCause = e;
@@ -182,7 +189,15 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(tr.tvTitle)),
+      appBar: AppBar(title: Text(tr.tvTitle), actions: [
+        // p3life: official tourism / transport sources (cited, opened only)
+        IconButton(
+          key: const ValueKey('tv-official'),
+          icon: const Icon(Icons.travel_explore_rounded),
+          tooltip: tr.p3lOfficialTitle,
+          onPressed: () => showTravelOfficialInfo(context),
+        ),
+      ]),
       // empty state has its own CTA: no duplicate FAB
       floatingActionButton: _trips.isEmpty ? null : FloatingActionButton.extended(
         onPressed: () => _openTripEditor(),
@@ -196,12 +211,13 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
               child: ListView(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
+                  if (_offline) const LifeOfflineBanner(), // p3life
                   for (final t in _trips)
                     _TripCard(
                       trip: t,
                       onOpen: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => _TripDetailScreen(trip: t),
+                          builder: (_) => TravelTripDetailScreen(trip: t),
                         ),
                       ),
                       onEdit: () => _openTripEditor(t),
@@ -374,18 +390,20 @@ class _CountChip extends StatelessWidget {
 }
 
 // ======================= trip detail (tabs) =======================
-class _TripDetailScreen extends StatefulWidget {
+/// p3life: public so the gallery can show a trip's tabs.
+class TravelTripDetailScreen extends StatefulWidget {
   final Map<String, dynamic> trip;
-  const _TripDetailScreen({required this.trip});
+  const TravelTripDetailScreen({super.key, required this.trip});
   @override
-  State<_TripDetailScreen> createState() => _TripDetailScreenState();
+  State<TravelTripDetailScreen> createState() => _TravelTripDetailScreenState();
 }
 
-class _TripDetailScreenState extends State<_TripDetailScreen> {
+class _TravelTripDetailScreenState extends State<TravelTripDetailScreen> {
   List<Map<String, dynamic>> _days = [];
   List<Map<String, dynamic>> _budget = [];
   List<Map<String, dynamic>> _packing = [];
   bool _loading = true, _error = false;
+  bool _offline = false; // p3life
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
 
   static const _daysPath = 'travel/days';
@@ -406,14 +424,17 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
       _error = false;
     });
     try {
-      final api = context.read<AppState>().api;
-      final days = await api.listItems(_daysPath);
-      final budget = await api.listItems(_budgetPath);
-      final packing = await api.listItems(_packingPath);
+      // p3life: each list keeps an offline copy on the phone
+      final days = await LifeCache.list(context, _daysPath);
+      if (!mounted) return;
+      final budget = await LifeCache.list(context, _budgetPath);
+      if (!mounted) return;
+      final packing = await LifeCache.list(context, _packingPath);
       bool mine(Map<String, dynamic> r) => r['trip_id'] == _tripId;
-      _days = days.where(mine).toList();
-      _budget = budget.where(mine).toList();
-      _packing = packing.where(mine).toList();
+      _days = days.rows.where(mine).toList();
+      _budget = budget.rows.where(mine).toList();
+      _packing = packing.rows.where(mine).toList();
+      _offline = days.offline || budget.offline || packing.offline;
     } catch (e) {
       _error = true;
       _failCause = e;
@@ -476,18 +497,34 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
         ),
       );
     }
+    final dest = '${widget.trip['destination'] ?? ''}';
     return DefaultTabController(
-      length: 3,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${widget.trip['destination'] ?? ''}'),
-          bottom: TabBar(tabs: [
+          title: Text(dest),
+          actions: [
+            // p3life: read-only link to a My Circle person (SMS) / any app
+            IconButton(
+              key: const ValueKey('tv-share'),
+              icon: const Icon(Icons.share_rounded),
+              tooltip: tr.p3lShareTitle,
+              onPressed: _tripId < 0
+                  ? null
+                  : () => shareLifeLink(context, kind: 'trip', id: _tripId, title: dest),
+            ),
+          ],
+          bottom: TabBar(isScrollable: true, tabs: [
             Tab(text: tr.tvTabItinerary),
+            Tab(text: tr.p3lTabTransport),
             Tab(text: tr.tvTabPacking),
             Tab(text: tr.tvTabBudget),
+            Tab(text: tr.p3lTabDocs),
           ]),
         ),
-        body: TabBarView(children: [
+        body: Column(children: [
+          if (_offline) const LifeOfflineBanner(),
+          Expanded(child: TabBarView(children: [
           _ItineraryTab(
             days: _days,
             onAddDay: (body) => _create(_daysPath, body),
@@ -495,6 +532,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
             onDeleteDay: (id) => _delete(_daysPath, id),
             trip: widget.trip,
           ),
+          TravelLegsTab(tripId: _tripId), // p3life
           _PackingTab(
             items: _packing,
             onAdd: (body) => _create(_packingPath, body),
@@ -506,7 +544,15 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
             onAdd: (body) => _create(_budgetPath, body),
             onUpdate: (id, body) => _update(_budgetPath, id, body),
             onDelete: (id) => _delete(_budgetPath, id),
+            // p3life: reuse the Expense-split screen, scoped to this trip
+            onSplit: _tripId < 0
+                ? null
+                : () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => ExpenseSplitScreen(
+                        scope: tripSplitScope(_tripId), title: dest))),
           ),
+          TravelDocsTab(tripId: _tripId, tripEnd: '${widget.trip['end'] ?? ''}'), // p3life
+        ])),
         ]),
       ),
     );
@@ -859,11 +905,13 @@ class _BudgetTab extends StatelessWidget {
   final void Function(Map<String, dynamic>) onAdd;
   final void Function(int, Map<String, dynamic>) onUpdate;
   final void Function(int) onDelete;
+  final VoidCallback? onSplit; // p3life
   const _BudgetTab(
       {required this.rows,
       required this.onAdd,
       required this.onUpdate,
-      required this.onDelete});
+      required this.onDelete,
+      this.onSplit});
 
   Future<void> _edit(BuildContext context,
       [Map<String, dynamic>? existing]) async {
@@ -899,6 +947,21 @@ class _BudgetTab extends StatelessWidget {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
+          if (onSplit != null) ...[
+            // p3life: split the trip's costs with travel mates
+            Card(
+              child: ListTile(
+                key: const ValueKey('tv-split'),
+                minTileHeight: 56,
+                leading: const Icon(Icons.call_split_rounded),
+                title: Text(tr.p3lSplitTitle),
+                subtitle: Text(tr.p3lSplitBody),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: onSplit,
+              ),
+            ),
+            const SizedBox(height: Gap.sm),
+          ],
           Card(
             color: (overspent ? scheme.errorContainer : scheme.primaryContainer)
                 .withValues(alpha: 0.35),

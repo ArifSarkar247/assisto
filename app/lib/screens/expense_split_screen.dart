@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import 'life/life_logic.dart' show inSplitScope; // p3life
 
 /// EXPENSE SPLITTING (Splitwise-style) — ADVANCED (#183, SPEC v2.1 §20).
 ///
@@ -31,7 +32,12 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 /// create/update/deleteItem on the same paths; each row round-trips as
 /// {id, ...data} through one flexible per-user JSON collection.
 class ExpenseSplitScreen extends StatefulWidget {
-  const ExpenseSplitScreen({super.key});
+  /// p3life: a scope keeps one group's people/expenses apart (e.g. a trip:
+  /// 'trip:12'); null = the general group (every row saved before scopes).
+  final String? scope;
+  /// p3life: shown under the title for a scoped group (e.g. the trip name).
+  final String? title;
+  const ExpenseSplitScreen({super.key, this.scope, this.title});
   @override
   State<ExpenseSplitScreen> createState() => _ExpenseSplitScreenState();
 }
@@ -64,8 +70,9 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
     try {
       final res = await Future.wait(
           [api.listItems(_peoplePath), api.listItems(_expensesPath)]);
-      _people = res[0];
-      _expenses = res[1];
+      // p3life: only this group's rows
+      _people = res[0].where((r) => inSplitScope(r, widget.scope)).toList();
+      _expenses = res[1].where((r) => inSplitScope(r, widget.scope)).toList();
     } catch (e) {
       _error = true;
       _failCause = e;
@@ -84,6 +91,17 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
     ..clearSnackBars()
     ..showSnackBar(SnackBar(content: Text(m)));
 
+  // p3life: a scoped group shows its name (e.g. the trip) under the title
+  Widget _title(AppLocalizations tr) {
+    final sub = (widget.title ?? '').trim();
+    if (sub.isEmpty) return Text(tr.splitTitle);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(tr.splitTitle),
+      Text(sub, style: Theme.of(context).textTheme.bodySmall,
+          maxLines: 1, overflow: TextOverflow.ellipsis),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     syncMoneyDigits(context); // moneybar: Bangla digits in bn
@@ -91,12 +109,12 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(
-          appBar: AppBar(title: Text(tr.splitTitle)),
+          appBar: AppBar(title: _title(tr)),
           body: const SkeletonList());
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.splitTitle)),
+        appBar: AppBar(title: _title(tr)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
           tint: scheme.error,
@@ -111,7 +129,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
     }
     if (_people.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(tr.splitTitle)),
+        appBar: AppBar(title: _title(tr)),
         body: StateMessage(
           icon: Icons.group_add_rounded,
           title: tr.splitWelcomeTitle,
@@ -128,7 +146,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(tr.splitTitle),
+          title: _title(tr),
           bottom: TabBar(tabs: [
             Tab(text: tr.splitTabPeople),
             Tab(text: tr.splitTabExpenses),
@@ -138,6 +156,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
         body: TabBarView(children: [
           _PeopleTab(people: _people, onAdd: _addPerson, onChanged: _load),
           _ExpensesTab(
+            scope: widget.scope,
             people: _people,
             expenses: _expenses,
             nameOf: _nameOf,
@@ -196,7 +215,10 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
       return;
     }
     try {
-      await api.createItem(_peoplePath, {'name': trimmed});
+      await api.createItem(_peoplePath, {
+        'name': trimmed,
+        if (widget.scope != null) 'scope': widget.scope, // p3life
+      });
       await _load();
       if (mounted) _toast(tr.splitSaved);
     } catch (_) {
@@ -294,8 +316,10 @@ class _ExpensesTab extends StatelessWidget {
   final List<Map<String, dynamic>> expenses;
   final String Function(dynamic) nameOf;
   final Future<void> Function() onChanged;
+  final String? scope; // p3life
   const _ExpensesTab(
-      {required this.people,
+      {this.scope,
+      required this.people,
       required this.expenses,
       required this.nameOf,
       required this.onChanged});
@@ -397,7 +421,8 @@ class _ExpensesTab extends StatelessWidget {
       if (existing != null && existing['id'] is int) {
         await api.updateItem(_expensesPath, existing['id'] as int, result);
       } else {
-        await api.createItem(_expensesPath, result);
+        await api.createItem(_expensesPath,
+            {...result, if (scope != null) 'scope': scope}); // p3life
       }
       await onChanged();
       messenger
