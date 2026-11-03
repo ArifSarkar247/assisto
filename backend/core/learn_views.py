@@ -88,6 +88,15 @@ def store_result(user, kind, lang, graded):
     return dict(rec, id=row.id)
 
 
+def cert_offer(user, lang, graded):
+    """learnwire: the signed certificate offer for a server-graded result
+    ({course, level, score, token}) or None. The app shows "Get my
+    certificate" only when this is present AND the learning_certificate
+    flag is on; the certificate itself is still issued by /learn/certs/claim."""
+    from . import learn_cert
+    return learn_cert.offer_for_result(user, lang, graded.get("level"), graded.get("score_pct"))
+
+
 def results_for(user):
     """Public seam for agent/learncert: the user's server-graded results."""
     from .models import PaCollectionItem
@@ -141,6 +150,7 @@ class LearnPlacementView(APIView):
             return _bad("no_answers")
         g = LP.grade_placement(p, answers)
         g["result"] = store_result(request.user, "placement", lang, g)
+        g["cert"] = cert_offer(request.user, lang, g)
         return R(dict(g, ok=True, estimate_label=LP.ESTIMATE_LABEL))
 
 
@@ -167,6 +177,7 @@ class LearnMockView(APIView):
         if not answers and not any(texts.values()):
             return _bad("no_answers")
         g["result"] = store_result(request.user, "mock", lang, g)
+        g["cert"] = cert_offer(request.user, lang, g)
         return R(dict(g, ok=True, estimate_label=LP.ESTIMATE_LABEL))
 
 

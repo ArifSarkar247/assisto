@@ -1911,6 +1911,71 @@
      "roman": "tfaDDal khamsiin"
     }
    ]
+  },
+  {
+   "id": "salary_rights",
+   "title_en": "Late salary and my passport (company office)",
+   "title_bn": "বেতন বাকি ও নিজের পাসপোর্ট (কোম্পানির অফিস)",
+   "ai_role": "You are a clerk in the company office (the sponsor's office) in a Gulf country. Short, polite Gulf Arabic; busy but not hostile. The learner says the salary is two months late, asks when it will be paid, asks for their own passport and mentions the labour office. Answer realistically (for example: the salary comes next week, the manager keeps the passports, come back tomorrow). Never threaten, never give legal advice. Example flow (adapt, do not read verbatim): you: ما استلمت الراتب من شهرين / them: إن شاء الله الأسبوع الجاي / you: متى بالضبط؟ / you: أبي جوازي لو سمحت / them: الجواز عند المدير / you: إذا ما في راتب أبي أشتكي في مكتب العمل",
+   "opening": "نعم، وش تبي؟",
+   "goals_en": [
+    "Say politely that your salary is two months late, ask when it will be paid, ask for your passport, and mention the labour office.",
+    "Say: I have not received my salary for two months",
+    "Say: When will the salary be paid?",
+    "Say: I want my passport, please",
+    "Say: I want to complain at the labour office"
+   ],
+   "goals_bn": [
+    "ভদ্রভাবে বলুন দুই মাস বেতন পাননি, কবে দেবে জিজ্ঞেস করুন, নিজের পাসপোর্ট চান, আর শ্রম অফিসের কথা বলুন।",
+    "বলুন: দুই মাস বেতন পাইনি",
+    "বলুন: বেতন কবে দেবেন?",
+    "বলুন: দয়া করে আমার পাসপোর্ট দিন",
+    "বলুন: আমি শ্রম অফিসে অভিযোগ করতে চাই"
+   ],
+   "useful": [
+    {
+     "target": "ما استلمت الراتب من شهرين",
+     "bn": "দুই মাস বেতন পাইনি",
+     "en": "I have not received my salary for two months",
+     "roman": "ma istalamt ar-raatib min shahreen"
+    },
+    {
+     "target": "متى ينزل الراتب؟",
+     "bn": "বেতন কবে দেবেন?",
+     "en": "When will the salary be paid?",
+     "roman": "mita yinzil ar-raatib?"
+    },
+    {
+     "target": "أبي جوازي لو سمحت",
+     "bn": "দয়া করে আমার পাসপোর্ট দিন",
+     "en": "I want my passport, please",
+     "roman": "abi jawaazi law samaHt"
+    },
+    {
+     "target": "هذا مو في العقد",
+     "bn": "এটা চুক্তিতে নেই",
+     "en": "This is not in the contract",
+     "roman": "haadha mu fil-'aqd"
+    },
+    {
+     "target": "مكتب العمل",
+     "bn": "শ্রম অফিস",
+     "en": "the labour office",
+     "roman": "maktab al-'amal"
+    },
+    {
+     "target": "أبي أشتكي في مكتب العمل",
+     "bn": "আমি শ্রম অফিসে অভিযোগ করতে চাই",
+     "en": "I want to complain at the labour office",
+     "roman": "abi ashtaki fi maktab al-'amal"
+    },
+    {
+     "target": "أبي أكلّم السفارة",
+     "bn": "দূতাবাসের সাথে কথা বলতে চাই",
+     "en": "I want to speak to the embassy",
+     "roman": "abi akallim as-safaara"
+    }
+   ]
   }
  ],
  "pron": [

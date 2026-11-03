@@ -46,7 +46,14 @@ LANGUAGES = [
 ]
 CODES = tuple(l["code"] for l in LANGUAGES)
 SKILLS = ("reading", "listening", "writing", "speaking", "grammar", "vocab")
+# The 5 default role-plays every pack is built around. learnwire: a pack may
+# ADD its own scenarios (e.g. Arabic salary / rights, German immigration
+# office) — any lowercase id, unique within the pack.
 SCENARIO_IDS = ("airport", "workplace", "doctor", "renting", "shopping")
+_SCENARIO_ID_RE = re.compile(r"^[a-z][a-z0-9_]{1,31}$")
+# Writing in these languages is counted in characters (no spaces between
+# words), not in space-separated words.
+CHAR_COUNT_LANGS = ("zh", "ja")
 WEAK_PCT = 60
 
 ESTIMATE_LABEL = {
@@ -102,8 +109,13 @@ def validate(pack):
         for it in les["items"]:
             _need(it.get("target") and it.get("bn") and it.get("en"),
                   f"lesson {les['id']}: item needs target + bn + en")
+    seen = set()
     for sc in pack.get("scenarios") or []:
-        _need(sc.get("id") in SCENARIO_IDS, f"scenario id {sc.get('id')}")
+        sid = sc.get("id")
+        _need(isinstance(sid, str) and (sid in SCENARIO_IDS or _SCENARIO_ID_RE.match(sid)),
+              f"scenario id {sid}")
+        _need(sid not in seen, f"scenario id {sid} repeated")
+        seen.add(sid)
         for k in ("title_en", "title_bn", "ai_role", "opening", "goals_en", "goals_bn"):
             _need(sc.get(k), f"scenario {sc['id']}: {k}")
     for p in pack.get("pron") or []:
@@ -235,6 +247,32 @@ def grade_placement(pack, answers):
             "rows": rows, "estimate": True}
 
 
+def count_unit(lang):
+    return "chars" if lang in CHAR_COUNT_LANGS else "words"
+
+
+def count_units(lang, text):
+    """Length of a writing answer: characters (letters/ideographs, no spaces
+    or punctuation) for Chinese / Japanese, else space-separated words."""
+    t = str(text or "")
+    if lang in CHAR_COUNT_LANGS:
+        return len(re.findall(r"\w", t))
+    return len(re.findall(r"\S+", t))
+
+
+def run_checks(checks, text):
+    """The pack's key-free checklist for an open answer: each check passes
+    when ANY of its phrases appears (case-insensitive). Not a grade."""
+    t = str(text or "").casefold()
+    out = []
+    for c in checks or []:
+        if not isinstance(c, dict):
+            continue
+        hit = any(str(w).casefold() in t for w in c.get("any") or [] if str(w))
+        out.append({"en": c.get("en", ""), "bn": c.get("bn", ""), "ok": bool(t) and hit})
+    return out
+
+
 def mock_test(pack, mock_id):
     return next((m for m in pack.get("mock") or [] if m["id"] == mock_id), None)
 
@@ -256,11 +294,13 @@ def grade_mock(pack, mock_id, answers, texts=None, seconds=None):
                              "total": len(r), "pct": round(100 * c / len(r))})
         for p in s.get("prompts") or []:
             t = str((texts or {}).get(p["id"]) or "")
-            n = len(re.findall(r"\S+", t))
+            n = count_units(pack.get("lang"), t)
             lo, hi = int(p.get("min_words") or 0), p.get("max_words")
             ok = n >= lo and (hi is None or n <= int(hi))
             open_rows.append({"id": p["id"], "section": s["id"], "skill": s["skill"],
-                              "words": n, "min_words": lo, "max_words": hi, "ok": ok})
+                              "words": n, "unit": count_unit(pack.get("lang")),
+                              "min_words": lo, "max_words": hi, "ok": ok,
+                              "checks": run_checks(p.get("checks"), t)})
     correct = sum(r["correct"] for r in rows)
     pct = round(100 * correct / len(rows)) if rows else 0
     level = m["bands"][0]["level"]

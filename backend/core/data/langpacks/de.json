@@ -1239,6 +1239,59 @@
      "en": "By card, please."
     }
    ]
+  },
+  {
+   "id": "immigration_office",
+   "title_en": "At the immigration office (Ausländerbehörde)",
+   "title_bn": "অভিবাসন অফিসে (Ausländerbehörde)",
+   "ai_role": "You are a clerk at a German Ausländerbehörde (immigration office). Clear, formal B1 German (Sie). The learner has an appointment to extend the residence permit. Ask for the passport, work contract, rental contract and a biometric photo; say one document is missing (e.g. the latest pay slips) and explain they get a Fiktionsbescheinigung while waiting. Never give legal advice beyond the steps. Example flow (adapt, do not read verbatim): you: Guten Tag, ich habe einen Termin. / them: Ihren Namen bitte. Worum geht es? / you: Ich möchte meinen Aufenthaltstitel verlängern. / them: Haben Sie Ihren Pass und den Arbeitsvertrag dabei? / you: Ja, hier sind mein Pass, mein Arbeitsvertrag und mein Mietvertrag. / you: Wie lange dauert das?",
+   "opening": "Guten Tag. Haben Sie einen Termin?",
+   "goals_en": [
+    "Say you have an appointment, ask to extend your residence permit, hand over your documents, and ask how long it takes.",
+    "Say: Good day, I have an appointment.",
+    "Say: I would like to extend my residence permit.",
+    "Say: Here are my passport, my work contract and my rental contract.",
+    "Say: How long does it take?"
+   ],
+   "goals_bn": [
+    "বলুন আপনার অ্যাপয়েন্টমেন্ট আছে, বসবাসের অনুমতি বাড়াতে চান, কাগজপত্র দিন, আর কত দিন লাগবে জিজ্ঞেস করুন।",
+    "বলুন: শুভ দিন, আমার অ্যাপয়েন্টমেন্ট আছে।",
+    "বলুন: আমি আমার বসবাসের অনুমতি (Aufenthaltstitel) বাড়াতে চাই।",
+    "বলুন: এই যে আমার পাসপোর্ট, কাজের চুক্তি আর ভাড়ার চুক্তি।",
+    "বলুন: কত দিন লাগবে?"
+   ],
+   "useful": [
+    {
+     "target": "Guten Tag, ich habe einen Termin.",
+     "bn": "শুভ দিন, আমার অ্যাপয়েন্টমেন্ট আছে।",
+     "en": "Good day, I have an appointment."
+    },
+    {
+     "target": "Ich möchte meinen Aufenthaltstitel verlängern.",
+     "bn": "আমি আমার বসবাসের অনুমতি বাড়াতে চাই।",
+     "en": "I would like to extend my residence permit."
+    },
+    {
+     "target": "Hier sind mein Pass, mein Arbeitsvertrag und mein Mietvertrag.",
+     "bn": "এই যে আমার পাসপোর্ট, কাজের চুক্তি আর ভাড়ার চুক্তি।",
+     "en": "Here are my passport, my work contract and my rental contract."
+    },
+    {
+     "target": "Welches Dokument fehlt noch?",
+     "bn": "আর কোন কাগজটা বাকি?",
+     "en": "Which document is still missing?"
+    },
+    {
+     "target": "Wie lange dauert das?",
+     "bn": "কত দিন লাগবে?",
+     "en": "How long does it take?"
+    },
+    {
+     "target": "die Fiktionsbescheinigung",
+     "bn": "অপেক্ষার সময়ের অস্থায়ী সনদ (Fiktionsbescheinigung)",
+     "en": "the temporary certificate while you wait (Fiktionsbescheinigung)"
+    }
+   ]
   }
  ],
  "pron": [

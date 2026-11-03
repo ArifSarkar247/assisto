@@ -134,7 +134,7 @@ void main() {
     expect(tr.lcDisclaimer, bn);
   });
 
-  testWidgets('Quran card: only "Qaida completed", never ijazah / Qari', (t) async {
+  testWidgets('Quran card: only "Qaida reading practice completed", never ijazah / Qari', (t) async {
     _tall(t);
     for (final lang in ['en', 'bn']) {
       await t.pumpWidget(const SizedBox());
@@ -144,7 +144,7 @@ void main() {
       for (final bad in ['ijazah', 'ইজাযাহ', 'qari', 'ক্বারী']) {
         expect(all.contains(bad), isFalse, reason: '$lang: $bad');
       }
-      if (lang == 'en') expect(find.text('Qaida completed'), findsOneWidget);
+      if (lang == 'en') expect(find.text('Qaida reading practice completed'), findsOneWidget);
     }
   });
 

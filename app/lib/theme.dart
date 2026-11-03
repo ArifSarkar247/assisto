@@ -217,7 +217,12 @@ class AFonts {
 
   /// The taka sign ৳ only (Hind Siliguri subset): Noto's ৳ reads as "b".
   static const taka = 'AssistoTaka';
-  static const fallback = <String>[taka, bangla];
+  /// learnwire: Language Partner scripts (Arabic, pinyin tone vowels, the
+  /// Chinese pack characters) — bundled so they never render as boxes.
+  static const arabic = 'AssistoArabic';
+  static const pinyin = 'AssistoPinyin';
+  static const cjk = 'AssistoCjk';
+  static const fallback = <String>[taka, bangla, pinyin, arabic, cjk];
 
   /// Tabular (fixed-width) figures for amounts, times and counters, so
   /// columns of numbers line up and live counters don't jitter.

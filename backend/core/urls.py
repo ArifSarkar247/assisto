@@ -1749,6 +1749,7 @@ urlpatterns += [
     path("learn/certs/<int:pk>", lcv.CertDetailView.as_view()),
     path("learn/certs/<int:pk>/pdf", lcv.CertPdfView.as_view()),
     path("learn/certs/<int:pk>/revoke", lcv.CertRevokeView.as_view()),
+    path("learn/quran/complete", lcv.QuranCompleteView.as_view()),  # learnwire
 ]
 # ---- /learncert ----
 # ---- p3life ---- read-only trip/event share links + guest RSVP links

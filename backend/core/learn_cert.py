@@ -28,7 +28,7 @@ Honesty rules (owner, enforced by core.tests_learncert):
   * exam names (IELTS, TOPIK, JLPT, Goethe, DELF, DELE, HSK) appear only as
     "<NAME>-style practice" / "<NAME>-ধাঁচের অনুশীলন" — never a logo, never a
     claimed official score;
-  * Quran certificates say only "Qaida completed" / "Nazera reading
+  * Quran certificates say only "Qaida / Nazera reading practice
     completed" — never an ijazah or a Qari title.
 """
 import datetime
@@ -74,7 +74,10 @@ COURSES = {
                      ("L1", "L2", "L3", "L4", "L5", "L6"), "TOPIK"),
     "lang_ja": _lang("lang_ja", "Japanese — Language Partner", "জাপানি — ভাষা শেখার সঙ্গী",
                      ("N5", "N4", "N3", "N2", "N1"), "JLPT"),
-    "lang_ar": _lang("lang_ar", "Arabic for work — Language Partner", "কাজের আরবি — ভাষা শেখার সঙ্গী"),
+    # learnwire: the Arabic pack is graded on its own "Work Arabic" ladder
+    # W1-W3 — labelled "Work Arabic level n", never an official exam level.
+    "lang_ar": _lang("lang_ar", "Arabic for work — Language Partner", "কাজের আরবি — ভাষা শেখার সঙ্গী",
+                     ("W1", "W2", "W3"), None),
     "lang_de": _lang("lang_de", "German — Language Partner", "জার্মান — ভাষা শেখার সঙ্গী"),
     "lang_fr": _lang("lang_fr", "French — Language Partner", "ফরাসি — ভাষা শেখার সঙ্গী"),
     "lang_es": _lang("lang_es", "Spanish — Language Partner", "স্প্যানিশ — ভাষা শেখার সঙ্গী"),
@@ -86,10 +89,17 @@ COURSES = {
                      "bn": "কুরআন পড়া শেখা — নাযেরা", "levels": ("nazera",), "style": None},
 }
 
+# Owner wording (3 Nov 11:45): only "Qaida / Nazera reading practice
+# completed" — never an ijazah, a Qari title or a score claim.
 QURAN_LEVEL = {
-    "qaida": {"en": "Qaida completed", "bn": "কায়দা সম্পন্ন"},
-    "nazera": {"en": "Nazera reading completed", "bn": "নাযেরা পড়া সম্পন্ন"},
+    "qaida": {"en": "Qaida reading practice completed", "bn": "কায়দা পড়ার অনুশীলন সম্পন্ন"},
+    "nazera": {"en": "Nazera reading practice completed", "bn": "নাযেরা পড়ার অনুশীলন সম্পন্ন"},
 }
+
+# learnwire: the Learn-to-read-Quran stage sets a course needs (the app's
+# kQlStages: Qaida = stages 1-7, Nazera = stages 8-9).
+QURAN_STAGES = {"quran_qaida": tuple(range(1, 8)), "quran_nazera": (8, 9)}
+QURAN_DONE = "learn_quran_done"
 
 _BN_RE = re.compile("[\u0980-\u09FF]")
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
@@ -103,12 +113,14 @@ TXT = {
            "completed": "completed practice in", "level": "Level", "score": "Score",
            "date": "Date", "code": "Verify code", "check": "Check it at",
            "estimated": "estimated", "practice": "Assisto practice",
-           "style": "%s-style practice", "level_n": "Level %s"},
+           "style": "%s-style practice", "level_n": "Level %s",
+           "work_n": "Work Arabic level %s"},
     "bn": {"title": "Assisto শেখার সনদ", "awarded": "এই মর্মে জানানো যাচ্ছে যে",
            "completed": "অনুশীলন শেষ করেছেন —", "level": "লেভেল", "score": "স্কোর",
            "date": "তারিখ", "code": "যাচাই কোড", "check": "যাচাই করুন",
            "estimated": "আনুমানিক", "practice": "Assisto অনুশীলন",
-           "style": "%s-ধাঁচের অনুশীলন", "level_n": "লেভেল %s"},
+           "style": "%s-ধাঁচের অনুশীলন", "level_n": "লেভেল %s",
+           "work_n": "কাজের আরবি লেভেল %s"},
 }
 
 
@@ -140,13 +152,15 @@ def course_title(course, lang):
 
 def level_text(course, level, lang):
     """The level line, e.g. "B1 · Assisto practice · estimated" or
-    "Qaida completed". Bangla gets Bangla digits."""
+    "Qaida reading practice completed". Bangla gets Bangla digits."""
     c = COURSES[course]
     if c["kind"] == "quran":
         return QURAN_LEVEL[level][lang]
     T = TXT[lang]
     if level in _CEFR:
         head = level
+    elif level[0] == "W":
+        head = T["work_n"] % level[1:]
     else:
         n = level[1:]
         head = (T["level_n"] % n) if level[0] in "LH" else level
@@ -282,6 +296,68 @@ def read_token(user, token):
     if not isinstance(d, dict) or d.get("u") != user.pk:
         raise CertError("bad_token")
     return d["c"], d["l"], d.get("s")
+
+
+# ---------------------------------------------------------------- learnwire
+
+def pack_level(lang, level):
+    """Language Partner pack level -> (course, certificate level), or None.
+    Chinese HSK1..HSK6 -> H1..H6 ("Level n (HSK-style practice)"); Arabic
+    W1..W3 -> work-Arabic levels; CEFR levels pass through."""
+    course = "lang_%s" % lang
+    c = COURSES.get(course)
+    if c is None or c["kind"] != "language":
+        return None
+    lv = str(level or "").strip().upper()
+    if lv.startswith("HSK") and lv[3:].isdigit():
+        lv = "H" + lv[3:]
+    return (course, lv) if lv in c["levels"] else None
+
+
+def offer_for_result(user, lang, level, score):
+    """{course, level, score, token} for a server-graded Language Partner
+    result, or None when the level has no certificate mapping."""
+    m = pack_level(lang, level)
+    if m is None:
+        return None
+    course, lv = m
+    try:
+        sc = _check_score(score)
+        return {"course": course, "level": lv, "score": sc,
+                "token": result_token(user, course, lv, sc)}
+    except CertError:
+        return None
+
+
+def record_quran_stages(user, course, stages, completed_on=None):
+    """Record that the learner finished every stage of a Quran course and
+    return the certificate offer. Progress lives on the phone, so the stage
+    set is the learner's own report: we only accept the COMPLETE set for the
+    course, keep one row per course (first completion date kept) and never
+    attach a score. Raises CertError("bad_course" / "bad_stages")."""
+    from .models import PaCollectionItem
+    need = QURAN_STAGES.get(course)
+    if need is None:
+        raise CertError("bad_course")
+    try:
+        got = sorted({int(x) for x in (stages or [])})
+    except (TypeError, ValueError):
+        raise CertError("bad_stages")
+    if got != list(need):
+        raise CertError("bad_stages")
+    day = str(completed_on or "")[:10]
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        day = timezone.localdate().isoformat()
+    row = PaCollectionItem.objects.filter(user=user, collection=QURAN_DONE,
+                                          data__course=course).first()
+    if row is None:
+        row = PaCollectionItem.objects.create(user=user, collection=QURAN_DONE, data={
+            "course": course, "stages": got, "completed_on": day,
+            "recorded_at": timezone.now().isoformat()})
+    level = COURSES[course]["levels"][0]
+    return {"course": course, "level": level, "score": None,
+            "completed_on": (row.data or {}).get("completed_on") or day,
+            "token": result_token(user, course, level, None)}
 
 
 def _rows(user=None):
