@@ -42,34 +42,23 @@
 <header class="hd" id="top">
   <div class="wrap hd-in">
     <a class="logo" href="{{ U.home }}" aria-label="Assisto"><img src="{% site_asset 'logo-96.webp' %}" width="32" height="32" alt=""><span>Assisto</span></a>
-    <nav class="nav" aria-label="{{ C.menu }}">
-      <details class="dd">
-        <summary>{{ C.nav_features }}<svg class="i sm" aria-hidden="true"><use href="#i-arrow"/></svg></summary>
-        <div class="dd-p">
-          {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg><span>{{ g.name }}</span></a>{% endfor %}
-          <a class="dd-all" href="{{ U.features }}">{{ C.see_all }} →</a>
-        </div>
-      </details>
-      <a class="nl" href="{{ U.security }}">{{ C.nav_security }}</a>
-      <a class="nl" href="{{ U.help }}">{{ C.nav_help }}</a>
-      <a class="btn sm play-top" href="{% if dist.public %}{{ play.header }}{% else %}#download{% endif %}"{% if dist.public %} rel="noopener" data-play{% endif %}>{{ C.install_now }}</a>
-    </nav>
+    <nav class="chips" aria-label="{{ C.chips_label }}"><div class="chips-in">{% for c in chips %}<a href="{{ c.href }}"{% if c.spy %} data-spy="{{ c.spy }}"{% endif %}{% if c.on %} class="on" aria-current="page"{% endif %}{% if c.play %} rel="noopener" data-play{% endif %}>{{ c.label }}</a>{% endfor %}</div></nav>
+    <a class="btn sm play-top" href="{% if dist.public %}{{ play.header }}{% else %}#download{% endif %}"{% if dist.public %} rel="noopener" data-play{% endif %}>{{ C.install_now }}</a>
     <a class="lang" href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}" aria-label="{{ C.lang_label }}">{{ C.lang_name }}</a>
-    <details class="mm">
-      <summary class="burger" aria-label="{{ C.menu }}"><span></span><span></span><span></span></summary>
-      <nav class="mm-p" aria-label="{{ C.menu }}">
-        <a href="{{ U.home }}"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg>{{ C.chip_home }}</a>
-        {% for g in groups %}<a href="{{ g.url }}"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg>{{ g.name }}</a>{% endfor %}
-        <a href="{{ U.pricing }}"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg>{{ C.nav_pricing }}</a>
-        <a href="{{ U.security }}"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>{{ C.nav_security }}</a>
-        <a href="{{ U.help }}"><svg class="i" aria-hidden="true"><use href="#i-message"/></svg>{{ C.nav_help }}</a>
-        <a href="{{ other_url }}" hreflang="{{ other }}" lang="{{ other }}"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>{{ C.lang_name }}</a>
-        <div class="mm-get">{% include "web/v3/_get.html" with g=get.menu %}</div>
-      </nav>
-    </details>
+    <a class="burger" href="#mm" role="button" aria-controls="mm" aria-expanded="false" aria-label="{{ C.menu }}"><span></span><span></span><span></span></a>
   </div>
-  <nav class="chips" aria-label="{{ C.chips_label }}"><div class="chips-in">{% for c in chips %}<a href="{{ c.href }}"{% if c.spy %} data-spy="{{ c.spy }}"{% endif %}{% if c.on %} class="on" aria-current="page"{% endif %}{% if c.play %} rel="noopener" data-play{% endif %}>{{ c.label }}</a>{% endfor %}</div></nav>
 </header>
+{# sitefix (owner 3 Nov 11:10): full-screen menu OUTSIDE the header — the
+   header's backdrop-filter made it the containing block of the old
+   position:fixed panel, so the panel was only header-high (only the X showed). #}
+<div class="mm" id="mm" role="dialog" aria-modal="true" aria-label="{{ C.menu }}">
+  <div class="mm-top"><a class="logo" href="{{ U.home }}" tabindex="-1" aria-hidden="true"><img src="{% site_asset 'logo-96.webp' %}" width="32" height="32" alt="" loading="lazy"><span>Assisto</span></a><a class="mm-x" href="#top" role="button" aria-label="{{ C.menu_close }}"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></a></div>
+  <nav class="mm-p" aria-label="{{ C.menu }}">
+    {% for r in menu %}<a href="{{ r.href }}"{% if r.on %} class="on" aria-current="page"{% endif %}{% if r.lang %} hreflang="{{ r.lang }}" lang="{{ r.lang }}"{% endif %}><svg class="i" aria-hidden="true"><use href="#i-{{ r.icon }}"/></svg>{{ r.label }}</a>
+    {% endfor %}
+  </nav>
+  <div class="mm-get"><a class="btn install" href="{{ get.menu.install }}"{% if dist.public %} rel="noopener" data-play{% endif %}><svg class="i sm" aria-hidden="true"><use href="#i-play"/></svg>{{ C.install_now }}</a>{% if dist.apk_url %}<a class="mm-apk" href="{{ dist.apk_url }}">{{ C.apk_link }}</a>{% endif %}</div>
+</div>
 
 <main id="main">
 {% block main %}{% endblock %}
@@ -116,34 +105,61 @@
 (function(){var d=document.documentElement;d.classList.add("js");
 var rm=matchMedia("(prefers-reduced-motion: reduce)").matches,IO="IntersectionObserver" in window;
 if(/Android/i.test(navigator.userAgent))document.querySelectorAll("a[data-play]").forEach(function(a){var u=new URL(a.href);var id=u.searchParams.get("id"),ref=u.searchParams.get("referrer");if(id)a.href="intent://details?id="+id+(ref?"&referrer="+encodeURIComponent(ref):"")+"#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url="+encodeURIComponent(u.href)+";end"});
-document.addEventListener("click",function(e){document.querySelectorAll("details.dd[open]").forEach(function(x){if(!x.contains(e.target))x.removeAttribute("open")});
- var a=e.target.closest&&e.target.closest(".mm-p a");if(a){var m=document.querySelector("details.mm");if(m)m.removeAttribute("open")}});
 // sticky Install bar: only after the hero Install button has scrolled out
 // of view (owner 3 Nov: never two Install buttons on the first screen);
 // pages without a hero show it at once.
 var pb=document.querySelector(".pbar"),hi=document.querySelector("#hero .install");
 if(pb){if(hi&&IO){new IntersectionObserver(function(es){var e=es[0];pb.classList.toggle("show",!e.isIntersecting&&e.boundingClientRect.top<0)}).observe(hi)}else pb.classList.add("show")}
-var mm=document.querySelector("details.mm");if(mm)mm.addEventListener("toggle",function(){d.classList.toggle("mm-open",mm.open)});
+// mobile menu (sitefix): button / X / Esc / Android Back close it; the page
+// behind cannot scroll while it is open. Without JS, #mm:target opens it.
+var mm=document.getElementById("mm"),mb=document.querySelector(".burger"),mOn=false;
+if(mm&&mb){var mx=mm.querySelector(".mm-x");
+ var mset=function(o,pop){if(o===mOn)return;mOn=o;d.classList.toggle("mm-open",o);mb.setAttribute("aria-expanded",o?"true":"false");
+  if(o){history.pushState({mm:1},"");mx.focus()}else{if(!pop&&history.state&&history.state.mm)history.back();mb.focus()}};
+ mb.addEventListener("click",function(e){e.preventDefault();mset(!mOn)});
+ mx.addEventListener("click",function(e){e.preventDefault();mset(false)});
+ mm.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest(".mm-p a,.mm-get a");if(a){mOn=false;d.classList.remove("mm-open");mb.setAttribute("aria-expanded","false")}});
+ document.addEventListener("keydown",function(e){if(mOn&&e.key==="Escape")mset(false)});
+ addEventListener("popstate",function(){if(mOn)mset(false,true)});
+ if(location.hash==="#mm")history.replaceState(null,"",location.pathname+location.search)}
 var tt=document.querySelector(".totop"),tk=0;addEventListener("scroll",function(){if(tk)return;tk=1;requestAnimationFrame(function(){tk=0;tt.classList.toggle("show",scrollY>700)})},{passive:true});
 var chips=[].slice.call(document.querySelectorAll(".chips a[data-spy]"));
 if(IO&&chips.length){var cur=null,seen={};var so=new IntersectionObserver(function(es){es.forEach(function(e){seen[e.target.id]=e.isIntersecting});
  var best=null;chips.forEach(function(c){if(seen[c.dataset.spy]&&!best)best=c});
  if(best&&best!==cur){chips.forEach(function(c){c.classList.toggle("on",c===best)});cur=best;var r=best.parentNode;r.scrollTo({left:best.offsetLeft-r.clientWidth/2+best.clientWidth/2,behavior:rm?"auto":"smooth"})}},{rootMargin:"-40% 0px -55% 0px"});
  chips.forEach(function(c){var t=document.getElementById(c.dataset.spy);if(t)so.observe(t)})}
+// hero screens (sitefix, owner 3 Nov 11:10): ONE screen at a time, mobile
+// and desktop alike; next every 4 s, swipe, dots, pause. A screen is shown
+// only once its image has loaded (the next one is preloaded) — never an
+// empty frame, never two screens on top of each other.
 var ph=document.querySelector("[data-rot]");
-if(ph){var tr=ph.querySelector(".track"),sl=[].slice.call(ph.querySelectorAll(".slide")),dots=[].slice.call(ph.querySelectorAll(".dot")),k=0,tm=null,vis=true,paused=rm,btn=ph.querySelector(".rot-btn");
- function swipe(){return tr.scrollWidth>tr.clientWidth+4}
- function show(n,user){k=(n+sl.length)%sl.length;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k);if(i===k)x.setAttribute("aria-current","true");else x.removeAttribute("aria-current")});
-  if(swipe())tr.scrollTo({left:sl[k].offsetLeft-(tr.clientWidth-sl[k].clientWidth)/2,behavior:rm?"auto":"smooth"})}
- function run(){clearInterval(tm);tm=null;if(!paused&&vis)tm=setInterval(function(){show(k+1)},3500)}
- dots.forEach(function(x,i){x.addEventListener("click",function(){show(i,true);paused=true;btn.setAttribute("aria-pressed","true");run()})});
- var st=0;tr.addEventListener("scroll",function(){if(!swipe())return;clearTimeout(st);st=setTimeout(function(){var c=tr.scrollLeft+tr.clientWidth/2,b=0,bd=1e9;sl.forEach(function(x,i){var dd=Math.abs(x.offsetLeft+x.clientWidth/2-c);if(dd<bd){bd=dd;b=i}});if(b!==k){k=b;sl.forEach(function(x,i){x.classList.toggle("on",i===k)});dots.forEach(function(x,i){x.classList.toggle("on",i===k)})}},90)},{passive:true});
- tr.addEventListener("touchstart",function(){paused=true;if(btn)btn.setAttribute("aria-pressed","true");run()},{passive:true});
+if(ph){var tr=ph.querySelector(".track"),vp=ph.querySelector(".rot-vp"),sl=[].slice.call(ph.querySelectorAll(".slide")),dots=[].slice.call(ph.querySelectorAll(".dot")),
+  cap=ph.querySelector(".rot-t"),pos=ph.querySelector(".rot-n"),btn=ph.querySelector(".rot-btn"),k=0,tm=null,vis=true,paused=rm,want=-1,N=sl.length;
+ var img=function(i){return sl[(i+N)%N].querySelector("img")};
+ var ready=function(i){var m=img(i);return m.complete&&m.naturalWidth>0&&!m.dataset.src};
+ var load=function(i){var m=img(i);if(m.dataset.src){m.srcset=m.dataset.srcset;m.src=m.dataset.src;delete m.dataset.src;delete m.dataset.srcset}return m};
+ var paint=function(n){k=n;tr.style.transform="translateX("+(-100*k)+"%)";
+  sl.forEach(function(x,i){x.classList.toggle("on",i===k);if(i===k)x.removeAttribute("aria-hidden");else x.setAttribute("aria-hidden","true");x.tabIndex=i===k?0:-1});
+  dots.forEach(function(x,i){x.classList.toggle("on",i===k);if(i===k)x.setAttribute("aria-current","true");else x.removeAttribute("aria-current")});
+  cap.textContent=sl[k].dataset.cap;pos.textContent=sl[k].dataset.pos;load((k+1)%N)};
+ var go=function(n){n=(n+N)%N;want=n;if(n===k)return;var m=load(n);
+  if(ready(n))paint(n);else{m.addEventListener("load",function(){if(want===n)paint(n)},{once:true});m.addEventListener("error",function(){if(want===n)go(n+1)},{once:true})}};
+ var run=function(){clearInterval(tm);tm=null;if(!paused&&vis&&!document.hidden)tm=setInterval(function(){go(k+1)},4000)};
+ var setP=function(p){paused=p;btn.setAttribute("aria-pressed",p?"true":"false");run()};
+ dots.forEach(function(x,i){x.addEventListener("click",function(){go(i);run()})});
+ btn.addEventListener("click",function(){setP(!paused)});
+ // swipe: horizontal drags only (touch-action: pan-y keeps vertical page scroll)
+ var x0=null,y0=0,dx=0,W=1;
+ vp.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;W=vp.clientWidth||1},{passive:true});
+ vp.addEventListener("pointermove",function(e){if(x0===null)return;dx=e.clientX-x0;if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(e.clientY-y0)){ph.classList.add("drag");load(k-1);tr.style.transform="translateX(calc("+(-100*k)+"% + "+dx+"px))"}},{passive:true});
+ var up=function(){if(x0===null)return;x0=null;ph.classList.remove("drag");var t=Math.abs(dx)>Math.min(60,W*.18);if(t){go(dx<0?k+1:k-1);if(want!==k)paint(k)}else paint(k);run()};
+ vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
+ vp.addEventListener("click",function(e){if(Math.abs(dx)>8){e.preventDefault();e.stopPropagation();dx=0}},true);
+ document.addEventListener("visibilitychange",run);
  if(IO)new IntersectionObserver(function(es){vis=es[0].isIntersecting;run()}).observe(ph);
- if(btn){btn.setAttribute("aria-pressed",paused?"true":"false");btn.addEventListener("click",function(){paused=!paused;btn.setAttribute("aria-pressed",paused?"true":"false");run()})}
- function load(){sl.forEach(function(x){var i=x.querySelector("img");if(i&&i.dataset.src){i.srcset=i.dataset.srcset;i.src=i.dataset.src;delete i.dataset.src}})}
- tr.addEventListener("touchstart",load,{passive:true});dots.forEach(function(x){x.addEventListener("click",load)});
- addEventListener("load",function(){setTimeout(function(){load();run()},800)})}
+ btn.setAttribute("aria-pressed",paused?"true":"false");
+ var start=function(){load(1);run()};
+ if(document.readyState==="complete")start();else addEventListener("load",start)}
 var zv=document.getElementById("zv");
 if(zv&&zv.showModal){var zi=zv.querySelector("img"),opener=null;
  document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-zoom]");if(!a)return;e.preventDefault();opener=a;var im=a.querySelector("img");zi.src=a.href;zi.alt=im?im.alt:"";zv.showModal();history.pushState({zv:1},"")});

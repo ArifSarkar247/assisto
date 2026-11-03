@@ -498,7 +498,7 @@ void galleryPrime(String name) {
     FakeApi.payLive = name.contains('_paylive'); // pay1 gallery stubs
     fakeM3On = name.startsWith('m3_'); // m3-circle gallery stubs
     fakeC3On = name.startsWith('c3_') || name == 'ps_circle_media'; // c3-msg gallery stubs
-    if (name == 'ps_circle_media') C3Fake.seedMediaCache(); // order5
+    if (name == 'ps_circle_media' || name == 'c3_circle_hero') C3Fake.seedMediaCache(); // order5 + sitefix
     fakeMr1On = name.startsWith('mr1_'); // mr1 gallery stubs
     fakeMd1On = false;
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
@@ -1099,6 +1099,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
     'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: Builder(builder: (ctx) => Text(AppLocalizations.of(ctx).sidebarMyCircle))), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
+    // sitefix: website hero — My Circle chat with live location, voice note, reached-safely card
+    'c3_circle_hero': (build: (l) => CircleChatScreen(member: C3Fake.memberHero(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),
     'ps_circle_media': (build: (l) => CircleChatScreen(member: C3Fake.memberMedia(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true), // order5
     'c3_msg_info': (build: (l) => Scaffold(appBar: AppBar(), body: Align(alignment: Alignment.bottomCenter, child: Material(elevation: 6, child: MessageInfoView(load: () async => C3Fake.info(l == 'bn'))))), mode: FakeMode.data, full: true),
     'c3_notif_settings': (build: (_) => const MsgrSetNotificationsScreen(), mode: FakeMode.data, full: true),

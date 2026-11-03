@@ -11,19 +11,12 @@
       <p class="note">{{ C.hero_note }} · <a class="more-l" href="#features">{{ C.cta_features }} →</a></p>
     </div>
     <div class="hero-shot"><div class="hero-ph" data-rot>
-      <div class="track">{% for sl in slides %}<a class="slide{% if forloop.first %} on{% endif %}" href="{{ sl.w720 }}" data-zoom aria-label="{{ sl.alt }}"><img {% if forloop.first %}src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w"{% else %}data-src="{{ sl.w360 }}" data-srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" decoding="async"{% endif %} sizes="(max-width: 760px) 80vw, 276px" width="360" height="800" alt="{{ sl.alt }}"{% if forloop.first %} fetchpriority="high"{% endif %}></a>{% endfor %}</div>
-      <div class="dots">{% for sl in slides %}<button type="button" class="dot{% if forloop.first %} on{% endif %}" aria-label="{{ sl.alt }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}<button class="rot-btn" type="button" aria-label="{{ C.pause }}" aria-pressed="false"><svg class="i sm" aria-hidden="true"><use href="#i-pause"/></svg></button></div>
+      <div class="rot-fr"><div class="rot-vp"><div class="track">{% for sl in slides %}<a class="slide{% if forloop.first %} on{% endif %}" href="{{ sl.w720 }}" data-zoom draggable="false" data-cap="{{ sl.cap }}" data-pos="{{ sl.pos }}" aria-label="{{ sl.alt }}"{% if not forloop.first %} aria-hidden="true" tabindex="-1"{% endif %}><img {% if forloop.first %}src="{{ sl.w360 }}" srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w"{% else %}data-src="{{ sl.w360 }}" data-srcset="{{ sl.w360 }} 360w, {{ sl.w720 }} 720w" decoding="async"{% endif %} sizes="(max-width: 760px) 82vw, 276px" width="360" height="800" alt="{{ sl.alt }}" draggable="false"{% if forloop.first %} fetchpriority="high"{% endif %}></a>{% endfor %}</div></div></div>
+      {% with s0=slides.0 %}<p class="rot-cap"><span class="rot-t">{{ s0.cap }}</span><span class="rot-n">{{ s0.pos }}</span></p>{% endwith %}
+      <div class="dots">{% for sl in slides %}<button type="button" class="dot{% if forloop.first %} on{% endif %}" aria-label="{{ sl.alt }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}<button class="rot-btn" type="button" aria-label="{{ C.pause }}" aria-pressed="false"><svg class="i sm ic-pause" aria-hidden="true"><use href="#i-pause"/></svg><svg class="i sm ic-play" aria-hidden="true"><use href="#i-play"/></svg></button></div>
     </div></div>
   </div>
 </section>
-{% if auto_strip %}
-<section class="autos" aria-labelledby="autos-h">
-  <div class="wrap">
-    <h2 id="autos-h">{{ C.auto_strip_h }}</h2>
-    <ul class="auto-l">{% for a in auto_strip %}<li><span class="ab">{{ C.auto }}</span><span><b>{{ a.title }}</b><span class="t">{{ a.auto }}</span></span></li>{% endfor %}</ul>
-  </div>
-</section>
-{% endif %}
 <section class="sec" id="what" aria-labelledby="what-h">
   <div class="wrap">
     <span class="eyebrow">Assisto</span>
@@ -32,6 +25,15 @@
     <div class="what">{% for icon, h, b in C.what %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ icon }}"/></svg></div><h3>{{ h }}</h3><p>{{ b }}</p></article>{% endfor %}</div>
   </div>
 </section>
+{# sitefix (owner 3 Nov 11:10): "What is Assisto" right after the hero dots #}
+{% if auto_strip %}
+<section class="autos" aria-labelledby="autos-h">
+  <div class="wrap">
+    <h2 id="autos-h">{{ C.auto_strip_h }}</h2>
+    <ul class="auto-l">{% for a in auto_strip %}<li><span class="ab">{{ C.auto }}</span><span><b>{{ a.title }}</b><span class="t">{{ a.auto }}</span></span></li>{% endfor %}</ul>
+  </div>
+</section>
+{% endif %}
 <section class="sec alt" id="features" aria-labelledby="features-h">
   <div class="wrap">
     <span class="eyebrow">{{ C.nav_features }}</span>
