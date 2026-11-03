@@ -123,11 +123,14 @@ WELCOME_KIND = "ai_welcome"
 def phone_verified(user):
     """The account's phone passed an SMS/e-mail OTP (a consumed challenge)."""
     try:
-        from .models import OtpChallenge
+        from .models import OtpChallenge, PhoneVerification
         from .phone import canonical_phone
         ph = canonical_phone(getattr(user, "phone", "") or "")
-        return bool(ph) and OtpChallenge.objects.filter(
-            phone=ph, consumed_at__isnull=False).exists()
+        if not ph:
+            return False
+        if PhoneVerification.objects.filter(user=user, phone=ph).exists():
+            return True
+        return OtpChallenge.objects.filter(phone=ph, consumed_at__isnull=False).exists()
     except Exception:  # noqa: BLE001 — fails closed (no grant)
         return False
 
