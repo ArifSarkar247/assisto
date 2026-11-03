@@ -118,6 +118,11 @@ var rm=matchMedia("(prefers-reduced-motion: reduce)").matches,IO="IntersectionOb
 if(/Android/i.test(navigator.userAgent))document.querySelectorAll("a[data-play]").forEach(function(a){var u=new URL(a.href);var id=u.searchParams.get("id"),ref=u.searchParams.get("referrer");if(id)a.href="intent://details?id="+id+(ref?"&referrer="+encodeURIComponent(ref):"")+"#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url="+encodeURIComponent(u.href)+";end"});
 document.addEventListener("click",function(e){document.querySelectorAll("details.dd[open]").forEach(function(x){if(!x.contains(e.target))x.removeAttribute("open")});
  var a=e.target.closest&&e.target.closest(".mm-p a");if(a){var m=document.querySelector("details.mm");if(m)m.removeAttribute("open")}});
+// sticky Install bar: only after the hero Install button has scrolled out
+// of view (owner 3 Nov: never two Install buttons on the first screen);
+// pages without a hero show it at once.
+var pb=document.querySelector(".pbar"),hi=document.querySelector("#hero .install");
+if(pb){if(hi&&IO){new IntersectionObserver(function(es){var e=es[0];pb.classList.toggle("show",!e.isIntersecting&&e.boundingClientRect.top<0)}).observe(hi)}else pb.classList.add("show")}
 var mm=document.querySelector("details.mm");if(mm)mm.addEventListener("toggle",function(){d.classList.toggle("mm-open",mm.open)});
 var tt=document.querySelector(".totop"),tk=0;addEventListener("scroll",function(){if(tk)return;tk=1;requestAnimationFrame(function(){tk=0;tt.classList.toggle("show",scrollY>700)})},{passive:true});
 var chips=[].slice.call(document.querySelectorAll(".chips a[data-spy]"));

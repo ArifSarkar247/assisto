@@ -89,7 +89,7 @@ def F(fid, icon, flags, shot, bn, en, auto=None, ai=False, soon=False):
 
 FEATURES = {
     "ai": [
-        F("assistant", "sparkle", (), "chat",
+        F("assistant", "sparkle", (), "home_v2_chat",  # "chat" once agent/aicardbn (Bangla digits on cards) is on main
           ("কথা বলে কাজ করান", "\"কাল ৮টায় মাকে ফোন\" বা \"দুপুরে ৫০০ খরচ\" — লিখুন বা বলুন, Assisto রিমাইন্ডার বা খরচ বানিয়ে দেয়। টাকা পাঠানোর মতো কাজে আগে আপনার অনুমতি নেয়।"),
           ("Get things done by talking", "Type or say \"call mum at 8 tomorrow\" or \"500 for lunch\" — Assisto makes the reminder or the expense. Anything like sending money waits for your OK."),
           auto=("একটা বাক্য থেকে নিজেই রিমাইন্ডার বা খরচের হিসাব বানায়", "Turns one sentence into a reminder or an expense by itself")),
@@ -100,7 +100,7 @@ FEATURES = {
         F("voice", "mic", ("voice_assistant",), "voice_assistant",
           ("Assisto ভয়েস", "মাইকে চাপ দিয়ে বলুন — কল, অ্যালার্ম, টর্চ, খরচ লেখা বা SOS। বাংলা ও ইংরেজি দুটোই বোঝে।"),
           ("Assisto Voice", "Tap the mic and speak — call, alarm, torch, log an expense or send SOS. Understands Bangla and English.")),
-        F("brief", "sunrise", ("daily_brief",), None,
+        F("brief", "sunrise", ("daily_brief",), "daily_brief",
           ("দৈনিক ব্রিফ", "সকালে এক নজরে আজকের দিন: বাকি বিল, রিমাইন্ডার আর জন্মদিন — কোনটা আগে, তা সাজানো।"),
           ("Daily brief", "Your day at a glance each morning: bills due, reminders and birthdays — sorted by what comes first."),
           auto=("প্রতিদিন সকালে নিজেই আপনার দিনের তালিকা সাজিয়ে দেয়", "Prepares your day's list by itself every morning")),
@@ -108,7 +108,7 @@ FEATURES = {
           ("আগে থেকেই মনে করিয়ে দেয়", "পাসপোর্টের মেয়াদ শেষ হচ্ছে, বাজেট ছাড়িয়ে যাচ্ছে — আপনার নিজের তথ্য দেখে সময়মতো জানায়, সাথে \"কেন\"।"),
           ("Nudges before it's late", "Passport about to expire, budget about to run over — it tells you in time from your own data, with a \"why\"."),
           auto=("আপনার তথ্য দেখে নিজেই জরুরি বিষয় তুলে ধরে", "Spots what is urgent in your own data by itself")),
-        F("memory", "brain", ("memory",), "ai_knowledge",
+        F("memory", "brain", ("memory",), None,  # bn shot shows English digits (bn sweep) -> was "ai_knowledge"
           ("AI যা জানে, আপনি দেখেন", "Assisto কী মনে রেখেছে তা একটা পাতায় দেখুন — যেকোনোটা মুছুন, বা AI-কে পুরো বাদ দিন।"),
           ("See what the AI knows", "One page shows everything Assisto remembers — delete any item, or keep it away from AI entirely.")),
         F("ps", "user-tie", ("pa_secretary",), "pa_hub",
@@ -136,13 +136,13 @@ FEATURES = {
         F("pip", "pip", ("calls",), "callsa_float_video_chat",
           ("কলের মধ্যেও অ্যাপ চালান (PiP)", "ভিডিও কল ছোট ভাসমান জানালায় চলে — চ্যাট করুন বা অন্য অ্যাপ খুলুন, কল কাটবে না।"),
           ("Keep using your phone on a call (PiP)", "The video call shrinks into a small floating window — chat or open another app, the call stays on.")),
-        F("bubbles", "bubble", ("my_circle",), None,
+        F("bubbles", "bubble", ("my_circle",), None,  # real shot "bbl2_install_day_on" once agent/bubbles2 is on main
           ("ভাসমান চ্যাট বাবল", "Android ১১ বা নতুন ফোনে নতুন মেসেজ ভাসমান বাবলে আসে — যেকোনো অ্যাপের ওপর থেকেই পড়ুন ও উত্তর দিন।"),
           ("Floating chat bubbles", "On Android 11 or newer, new messages arrive as floating bubbles — read and reply on top of any app.")),
         F("status", "circle-dot", ("my_circle",), "p3_story_viewer",
           ("স্ট্যাটাস", "দিনের ছবি বা লেখা শুধু আপনার সার্কেলের সাথে শেয়ার করুন; কে দেখবে, আপনি ঠিক করেন।"),
           ("Status", "Share a photo or a line from your day with your circle only; you choose who sees it.")),
-        F("channels", "megaphone", ("my_circle",), None,
+        F("channels", "megaphone", ("my_circle",), "chx_channel",
           ("চ্যানেল ও কমিউনিটি", "একসাথে অনেকের কাছে খবর পৌঁছান চ্যানেলে; এলাকা, অফিস বা পরিবারের গ্রুপগুলো একটা কমিউনিটিতে রাখুন।"),
           ("Channels and communities", "Reach many people at once with a channel; keep the groups of a neighbourhood, office or family together in a community.")),
     ],
@@ -191,7 +191,7 @@ FEATURES = {
           ("দুর্যোগ সতর্কতা", "সরকারি আবহাওয়া ও দুর্যোগ সতর্কতা আপনার আর পরিবারের এলাকার জন্য, সাথে প্রস্তুতির তালিকা।"),
           ("Disaster alerts", "Official weather and disaster warnings for your area and your family's, with a preparedness checklist."),
           auto=("পরিবারের এলাকায় সতর্কতা এলে নিজেই জানায়", "Tells you by itself when a warning hits your family's area")),
-        F("nominee", "key", ("nominee",), "nominee",
+        F("nominee", "key", ("nominee",), None,  # bn shot shows English digits (bn sweep) -> was "nominee"
           ("নমিনি অ্যাক্সেস", "দরকারি সময়ে পরিবারের বিশ্বস্ত কেউ যেন আপনার জরুরি তথ্য পান — আপনি ঠিক করেন কে, কী, কখন।"),
           ("Nominee access", "Make sure a trusted family member can reach your important information when it matters — you decide who, what and when.")),
         F("fall", "fall", ("fall_detect",), None,
@@ -235,7 +235,7 @@ FEATURES = {
           ("AI সেলস সহকারী", "আপনার নিজের পণ্য, দাম আর FAQ থেকে গ্রাহকের প্রশ্নের উত্তর দেয়; নিশ্চিত না হলে আপনাকে দেয়।"),
           ("AI sales assistant", "Answers customer questions from your own products, prices and FAQ; hands over to you when it isn't sure."),
           auto=("গ্রাহকের মেসেজের উত্তর নিজেই দেয়, অর্ডার নোট করে", "Replies to customer messages and notes the order by itself")),
-        F("crm", "users", ("crm",), "crm_lead_detail",
+        F("crm", "users", ("crm",), None,  # bn shot shows English digits (bn sweep) -> was "crm_lead_detail"
           ("CRM", "গ্রাহক, লিড, পাইপলাইন আর কোটেশন — কার সাথে কবে ফলো-আপ, ভুলে যাবেন না।"),
           ("CRM", "Customers, leads, pipeline and quotes — never miss whom to follow up and when.")),
         F("crm_auto", "repeat", ("retention_auto",), "rt_list",
@@ -261,7 +261,7 @@ FEATURES = {
         F("tasks", "check", ("task_manager",), None,
           ("টাস্ক ম্যানেজার", "প্রজেক্ট বানান, কাজ যোগ করুন, বোর্ডে এগোনো দেখুন।"),
           ("Task manager", "Create a project, add tasks and watch them move across the board.")),
-        F("jobs", "briefcase", ("jobs",), "jobs",
+        F("jobs", "briefcase", ("jobs",), None,  # bn shot shows English digits (bn sweep) -> was "jobs"
           ("জব হান্টার", "যে চাকরিগুলো পান, সংরক্ষণ করুন আর আবেদনের অবস্থা এক জায়গায় রাখুন।"),
           ("Job hunter", "Save the jobs you find and keep track of every application in one place.")),
         F("cv", "file", ("cv_builder",), None,
@@ -332,7 +332,7 @@ FEATURES = {
         F("samity", "users", ("samity",), None,
           ("সমিতি", "প্রতি কিস্তির জমা আর কার পালা — সবার কাছে স্বচ্ছ। Assisto টাকা রাখে না, শুধু হিসাব রাখে।"),
           ("Samity", "Each round's contributions and whose turn it is — clear to all. Assisto keeps the record, never the money.")),
-        F("rent", "building", ("house_rent",), "landlord",
+        F("rent", "building", ("house_rent",), None,  # bn shot shows English digits (bn sweep) -> was "landlord"
           ("বাড়ি ভাড়া", "প্রতিটি ফ্ল্যাটের ভাড়া, কে দিল, কার বাকি — মাস ধরে।"),
           ("House rent", "Rent per flat, who paid and who is behind — month by month.")),
         F("meter", "bolt", ("prepaid_meter",), "meter",
@@ -359,7 +359,7 @@ FEATURES = {
         F("guide", "compass", ("service_guide",), "guide",
           ("সেবা গাইড", "NID, পাসপোর্ট আর সরকারি সেবা ধাপে ধাপে — অফিসিয়াল লিংকসহ।"),
           ("Service guide", "NID, passport and government services step by step — with official links.")),
-        F("exam", "school", ("exam_result",), "exam",
+        F("exam", "school", ("exam_result",), None,  # bn shot shows English digits (bn sweep) -> was "exam"
           ("পরীক্ষার ফলাফল", "SSC, HSC-র ফলাফলের পাতা Assisto দেখে রাখে — বদলালেই জানায়।"),
           ("Exam results", "Assisto keeps an eye on the SSC or HSC result page — and tells you when it changes."),
           auto=("ফলাফলের পাতা বদলালে নিজেই নোটিফিকেশন দেয়", "Notifies you by itself when the result page changes")),
@@ -419,8 +419,10 @@ COPY = {
         "nav_features": "ফিচার", "nav_pricing": "দাম", "nav_security": "নিরাপত্তা", "nav_faq": "প্রশ্নোত্তর", "nav_help": "সাহায্য",
         "lang_name": "English", "lang_label": "Switch to English",
         "hero_kicker": "নিজে থেকেই কাজ করে",
-        "hero_h1": "আপনার AI সহকারী — দিন সামলায়, পরিবারকে নিরাপদ রাখে, ব্যবসা বাড়ায়।", "hero_h1_g": "নিজে থেকেই।",
-        "hero_sub": "বাংলা বা ইংরেজিতে লিখুন বা বলুন। Assisto রিমাইন্ডার বানায়, বাকির তাগাদা পাঠায়, বিপদে পরিবারকে জানায় আর দিনের হিসাব সাজায় — আপনি শুধু অনুমতি দেন।",
+        # owner HERO order 3 Nov 03:30 (exact meaning; "Assisto:" + colon kept)
+        "hero_h1": "Assisto: চ্যাট, কল, AI সহকারী, নিরাপত্তা আর ব্যবসা —", "hero_h1_g": "এক সুপার অ্যাপে।",
+        "hero_slogan": "অনেক অ্যাপ নয়, একটাই Assisto।",
+        "hero_sub": "আপনজনের সাথে চ্যাট ও কল করুন, পরিবারের সাথে লাইভ লোকেশন ও SOS শেয়ার করুন, আপনার CCTV দেখুন, দোকানের হিসাব ও ইনভয়েস চালান। Assisto-র AI মনে করিয়ে দেয়, সতর্ক করে আর হিসাব গুছিয়ে রাখে।",
         "cta_play": "Google Play থেকে নিন", "cta_features": "সব ফিচার দেখুন",
         "hero_note": "Android ৮ বা নতুন · ফ্রিতে শুরু · পরিবারের নিরাপত্তা সব প্ল্যানে ফ্রি",
         "auto": "নিজে থেকে", "auto_label": "স্বয়ংক্রিয়", "soon": "শীঘ্রই আসছে",
@@ -457,7 +459,10 @@ COPY = {
         "chip_safety": "নিরাপত্তা", "chip_cctv": "CCTV", "chip_business": "ব্যবসা", "chip_pricing": "দাম", "chip_download": "ডাউনলোড",
         "to_top": "উপরে যান", "pause": "স্ক্রিনশট চলা থামান বা চালান",
         "slide_chat": "কথা বলে রিমাইন্ডার ও খরচ", "slide_emergency_hub": "SOS ও জরুরি হাব",
-        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব",
+        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব ও খাতা",
+        "slide_c3_chat": "আমার সার্কেলে চ্যাট", "slide_callpip_pip_window": "ভিডিও কল, ছোট ভাসমান জানালায় (PiP)",
+        "slide_location_sharing": "লাইভ লোকেশন", "slide_inv_paper_80": "ইনভয়েস",
+        "slide_dest_alarm": "গন্তব্য অ্যালার্ম", "slide_ai": "AI সহকারী",
     },
     "en": {
         "html_lang": "en", "title": "Assisto — the AI assistant that does the work by itself",
@@ -466,8 +471,10 @@ COPY = {
         "nav_features": "Features", "nav_pricing": "Pricing", "nav_security": "Security", "nav_faq": "FAQ", "nav_help": "Help",
         "lang_name": "বাংলা", "lang_label": "বাংলায় দেখুন",
         "hero_kicker": "Does the work by itself",
-        "hero_h1": "Your AI assistant that runs your day, keeps your family safe and grows your business —", "hero_h1_g": "by itself.",
-        "hero_sub": "Type or speak in Bangla or English. Assisto sets the reminder, chases the due payment, alerts your family in trouble and lays out your day — you just approve.",
+        # owner HERO order 3 Nov 03:30 — EXACT text
+        "hero_h1": "Assisto: Chat, calls, AI assistant, safety and business,", "hero_h1_g": "in one super app.",
+        "hero_slogan": "Many apps. One Assisto.",
+        "hero_sub": "Chat and call your people, share live location and SOS with family, watch your CCTV, run your shop's accounts and invoices. Assisto's AI reminds, alerts and keeps your books in order.",
         "cta_play": "Get it on Google Play", "cta_features": "See every feature",
         "hero_note": "Android 8 or newer · Start free · Family safety free on every plan",
         "auto": "Auto", "auto_label": "Automatic", "soon": "Coming soon",
@@ -504,7 +511,10 @@ COPY = {
         "chip_safety": "Safety", "chip_cctv": "CCTV", "chip_business": "Business", "chip_pricing": "Pricing", "chip_download": "Download",
         "to_top": "Back to top", "pause": "Pause or play the screenshots",
         "slide_chat": "reminders and expenses by talking", "slide_emergency_hub": "SOS and emergency hub",
-        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts",
+        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts and khata",
+        "slide_c3_chat": "My Circle chat", "slide_callpip_pip_window": "video call in a small floating window (PiP)",
+        "slide_location_sharing": "Live Location", "slide_inv_paper_80": "invoice",
+        "slide_dest_alarm": "Destination Alarm", "slide_ai": "AI assistant",
     },
 }
 
@@ -603,9 +613,19 @@ def cctv_plan(lang):
     ]
 
 
+# hero auto-play, in the owner's order (HERO order 3 Nov 03:30): My Circle
+# chat, video call with PiP, Live Location, SOS + emergency hub, CCTV,
+# business accounts + khata, invoice, AI assistant, Destination Alarm.
+# (gallery spec, alt-text key) — real CI gallery shots only.
+HERO_SLIDES = (("c3_chat", "c3_chat"), ("callpip_pip_window", "callpip_pip_window"),
+               ("gj_live_banner", "location_sharing"), ("emergency_hub", "emergency_hub"),
+               ("wm_alerts", "wm_alerts"), ("acct_home", "acct_home"), ("inv_paper_80", "inv_paper_80"),
+               ("home_v2_chat", "ai"), ("dest_alarm", "dest_alarm"))  # "chat" after agent/aicardbn
+
+
 def shot_names():
     """Every screenshot the site uses (tools/website/site_shots.py manifest)."""
-    names = {"home_v2"}
+    names = {"home_v2"} | {n for n, _ in HERO_SLIDES}
     for feats in FEATURES.values():
         for f in feats:
             if f["shot"]:

@@ -32,6 +32,8 @@ Future<void> loadAppFonts() async {
     await family('NotoSansBengali',
         [for (final w in weights) 'assets/fonts/NotoSansBengali-$w.ttf']);
   }
+  // sitelive: the taka sign ৳ (first in AFonts.fallback)
+  await family('AssistoTaka', ['assets/fonts/AssistoTaka.ttf']);
   // photobar: Photo Studio text / sticker fonts
   await family('HindSiliguri', ['assets/fonts/HindSiliguri-SemiBold.ttf']);
   await family('Galada', ['assets/fonts/Galada-Regular.ttf']);

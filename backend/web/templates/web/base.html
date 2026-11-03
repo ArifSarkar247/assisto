@@ -11,6 +11,7 @@
 {% block og %}{% include "web/_og.html" %}{% endblock %}
 {% block head %}{% endblock %}
 <style>
+@font-face{font-family:"Taka3";font-style:normal;font-weight:400 800;font-display:swap;src:url({% site_asset 'taka.woff2' %}) format("woff2");unicode-range:U+09F3}
 @font-face{font-family:"Noto Sans Bengali Web";font-style:normal;font-weight:400 800;font-display:swap;
   src:url({% site_asset 'noto-sans-bengali-var.woff2' %}) format("woff2");
   unicode-range:U+0951-0952,U+0964-0965,U+0980-09FE,U+1CD0-1CF7,U+200C-200D,U+20B9,U+25CC,U+A8F1}
@@ -21,7 +22,7 @@
   --shadow:0 1px 2px rgba(15,26,46,.06),0 8px 24px rgba(15,26,46,.06);
   --grad:linear-gradient(135deg,#0552c4 0%,#05687a 55%,#066b45 100%);
   --radius:16px;--maxw:1120px;
-  --font:"Noto Sans Bengali Web",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans Bengali",sans-serif;
+  --font:"Taka3","Noto Sans Bengali Web",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans Bengali",sans-serif;
   color-scheme:light dark;
 }
 @media (prefers-color-scheme:dark){:root{
