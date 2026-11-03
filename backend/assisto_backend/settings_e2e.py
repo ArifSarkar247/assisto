@@ -1,36 +1,34 @@
-"""
-End-to-end harness settings (tools/e2e/*.sh). NEVER used in production.
+"""E2E-proof CI settings (e2eproof). Used ONLY by .github/workflows/e2e.yml.
 
-settings_test + a FILE sqlite DB (so `runserver` on a scratch port and the
-harness driver share one DB), a scratch MEDIA_ROOT, and FCM pointed at the
-local mock FCM server (tools/e2e/mock_fcm.py) with a throw-away service
-account the harness generates. Everything comes from E2E_* env vars set by the
-harness script; nothing here can reach the live Postgres, real FCM or the
-real media directory.
+settings_ci (throw-away DB, every paid key scrubbed, DEBUG off) PLUS the
+CI-only app `ci_e2e`, which swaps every third-party network seam for a
+deterministic fake so the 8 proof flows can run end to end on an emulator
+without spending money or touching a real service:
+
+  * AI chat + photo answers  -> core.ai._call_anthropic / core.vision_providers._claude
+  * SMS OTP                   -> a fixed test code, "sent" to an outbox file
+  * Google Places (Chandra)   -> core.maps_cost.HTTP
+  * push (FCM)                -> recorded in the outbox (guardian notified, Care Call ring)
+  * fake clock                -> POST /api/v1/ci-e2e/tick runs a server job at now+N min
+
+The outbox + tick endpoints exist ONLY under this settings module.
+ci_e2e refuses to load outside GitHub Actions (or ASSISTO_E2E_LOCAL=1) and
+against any database that is not the throw-away CI one.
 """
+import base64
+import hashlib
 import os
 
-from .settings_test import *  # noqa: F401,F403
+# Integrations are stored encrypted; settings_ci scrubs the real key. A
+# deterministic THROW-AWAY key (derived, not a secret) lets the seed and the
+# server process read the fake "anthropic" / "google_places" entries.
+os.environ["INTEGRATIONS_FERNET_KEY"] = base64.urlsafe_b64encode(
+    hashlib.sha256(b"assisto-ci-e2e-throwaway").digest()).decode()
 
-_E2E = os.environ.get("E2E_DIR") or "/tmp/assisto-e2e"
+from .settings_ci import *  # noqa: E402,F401,F403
+from .settings_ci import INSTALLED_APPS, BASE_DIR  # noqa: E402
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.environ.get("E2E_DB") or os.path.join(_E2E, "e2e.sqlite3"),
-        # scratch data: no fsync per write (the migrate step alone is ~100
-        # migrations); WAL lets runserver write while the driver reads
-        "OPTIONS": {"timeout": 30,
-                    "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=OFF;"},
-    }
-}
-MEDIA_ROOT = os.environ.get("E2E_MEDIA") or os.path.join(_E2E, "media")
-ASSISTO_BASE_URL = os.environ.get("E2E_BASE_URL", "http://127.0.0.1:18700")
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"]
-DEBUG = False
-
-# FCM v1 through the real code path, but to the local mock (tools/e2e/mock_fcm.py)
-FCM_SERVICE_ACCOUNT_FILE = os.environ.get("E2E_FCM_SA", "")
-FCM_TOKEN_URI = os.environ.get("E2E_FCM_TOKEN_URI", "")
-FCM_SEND_URL = os.environ.get("E2E_FCM_SEND_URL", "")
-PUSH_SYNC = True
+INSTALLED_APPS = list(INSTALLED_APPS) + ["ci_e2e.apps.CiE2EConfig"]
+ROOT_URLCONF = "ci_e2e.urls"
+E2E_OUTBOX = os.getenv("E2E_OUTBOX", str(BASE_DIR / "ci_e2e_outbox.jsonl"))
+E2E_TEST_OTP = os.getenv("E2E_TEST_OTP", "135790")   # fake CI-only code
