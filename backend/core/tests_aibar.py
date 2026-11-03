@@ -270,7 +270,8 @@ class HonestDegradeTests(AiBase):
         r = self.send(s, "what is the capital of France?")
         m = r.json()["message"]
         self.assertEqual(m["meta"]["ai_unavailable"], "queued")
-        self.assertIn("ক্রেডিট কাটা হয়নি", m["text"])
+        # ailang: an English question gets the English line
+        self.assertIn("no credits were taken", m["text"])
         self.assertEqual(self.balance(), before)        # refunded
 
     def test_english_line(self):
