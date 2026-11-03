@@ -58,13 +58,9 @@ NID, পাসপোর্ট, ট্রেড লাইসেন্স, গা�
 - নমিনির "মৃত্যু/নিষ্ক্রিয়তা" রিলিজে E2E কাগজ নমিনি পাবেন শুধু যদি তিনি বিশ্বস্ত মানুষ হিসেবে মোড়ক পেয়ে থাকেন।
 - আসল দুই ফোনে পরীক্ষা বাকি; ব্রাউজারে বড় (১০ MB) ফাইল খুলতে পুরোনো ফোনে কয়েক সেকেন্ড লাগতে পারে।
 
-## ৫ক. cron লাইন (ইন্টিগ্রেটর `/etc/cron.d/assisto`-তে যোগ করবেন)
+## ৫ক. মোছার কাজ
 
-মেয়াদ-শেষ/বন্ধ লিংকের সিফারটেক্সট মুছে ফেলে (লিংক খুললেও নিজে মোছে; এটা কেউ না খোলা লিংকের জন্য):
-
-```
-35 * * * * ubuntu cd /home/ubuntu/assisto/backend && flock -n /tmp/assisto-vault-share-purge.lock nice -n15 ionice -c3 /home/ubuntu/assisto/.venv/bin/python manage.py vault_share_purge --quiet >> /home/ubuntu/assisto/logs/vault_share_purge.log 2>&1
-```
+মেয়াদ-শেষ/বন্ধ লিংকের সিফারটেক্সট মোছে `vault_share_purge` — নতুন cron লাইন নয়, চলমান `minute_jobs`-এর ভেতরে প্রতি মিনিটে (ops_health MINUTE_JOBS)। লিংক খুললেও নিজে মোছে।
 
 মাইগ্রেশন: একটি, `0146_p3docs` (Document.e2e + ৩টি নতুন টেবিল; শুধু যোগ, কিছু বদলায় না) — ইন্টিগ্রেটর নম্বর ঠিক করবেন।
 
