@@ -188,7 +188,7 @@ class _AlbumTileState extends State<AlbumTile> {
 
   Widget _thumb() {
     final th = widget.item.thumb;
-    if (th == null) return const ColoredBox(color: Color(0xFF3A3F47));
+    if (th == null) return ColoredBox(color: Colors.grey.shade800);
     return ImageFiltered(
       imageFilter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Image.memory(th, fit: BoxFit.cover, gaplessPlayback: true),
@@ -336,7 +336,7 @@ class _AlbumTileState extends State<AlbumTile> {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Stack(fit: StackFit.expand, children: [
-          const ColoredBox(color: Color(0xFF2A2E35)),
+          const ColoredBox(color: Brand.ink),
           base,
           if (video && ms != null && ms > 0)
             Positioned(
