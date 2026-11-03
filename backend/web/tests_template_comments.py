@@ -35,7 +35,7 @@ def multiline_hash_comments(root):
 class TemplateCommentTests(TestCase):
     def test_no_multiline_hash_comments(self):
         bad = multiline_hash_comments(str(BACKEND))
-        self.assertEqual(bad, [], "multi-line {# #} comment renders as text; use {% comment %}: %s" % bad)
+        self.assertEqual(bad, [], "multi-line {# #} comment renders as text; use {%% comment %%}: %s" % bad)
 
     def test_detector_catches_multiline(self):
         import tempfile
