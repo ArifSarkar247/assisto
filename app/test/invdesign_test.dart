@@ -279,8 +279,8 @@ void main() {
       expect(body['template'], 'electronics');
       expect((body['lines'] as Map)['1'], {'serial': 'SN-CHG-77', 'warranty_m': 12});
       // switch the design on the preview
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-design-cafe')), -200,
-          scrollable: list);
+      await tester.ensureVisible(find.byKey(const ValueKey('inv-design-cafe')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('inv-design-cafe')));
       await tester.pumpAndSettle();
       final chip = tester.widget<ChoiceChip>(find.byKey(const ValueKey('inv-design-cafe')));

@@ -26,10 +26,10 @@ Future<Map<String, dynamic>?> showInvoiceDetailsSheet(BuildContext context, Invo
       builder: (ctx) => InvoiceDetailsSheet(doc: doc, businessId: businessId),
     );
 
-/// Digits typed in Bangla → int months (0 when blank, null when invalid).
+/// Digits typed in Bangla or Latin -> int months (0 when blank, null when invalid).
 int? typedMonths(String raw) {
   final s = raw.trim().replaceAllMapped(
-      RegExp('[০-৯]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
+      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
   if (s.isEmpty) return 0;
   final v = int.tryParse(s);
   return (v == null || v < 0 || v > 120) ? null : v;
