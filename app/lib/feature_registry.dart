@@ -94,7 +94,7 @@ const Map<String, bool> kFeatureDefaults = {
   'contract_analyzer': true,
   'language_partner': true,
   // p2lang: IELTS practice inside Language Partner — OFF until real-phone proof.
-  'ielts_prep': false,
+  'language_packs': false,
   'daily_brief': true,
   'doc_scanner': true,
   'transcription': true,

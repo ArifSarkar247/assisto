@@ -1,4 +1,4 @@
-"""p2lang — IELTS practice HTTP API (Language Partner, flag `ielts_prep`, OFF
+"""p2lang — IELTS practice HTTP API (Language Partner, flag `language_packs`, OFF
 until the owner's real-phone proof).
 
   GET  /ielts/content                 prompts, original passages, vocab, sentences, official links
@@ -24,7 +24,7 @@ from .i18n import pick, req_lang
 from .logic import ielts as IE
 
 R = Response
-FLAG = "ielts_prep"
+FLAG = "language_packs"
 MAX_TEXT = 6000
 
 

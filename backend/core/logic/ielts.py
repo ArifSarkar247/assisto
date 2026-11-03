@@ -1,6 +1,6 @@
 """
 ielts.py — the deterministic, key-free engine behind Assisto's IELTS practice
-(Language Partner, owner PART 2, flag `ielts_prep`).
+(Language Partner, owner PART 2, flag `language_packs`).
 
 PURE like language_partner.py: no Django, no DB, no network, no clock, no AI.
 The AI band-estimate layer lives in core/ielts_views.py and only runs when a
