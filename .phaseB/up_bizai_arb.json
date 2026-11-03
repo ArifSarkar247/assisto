@@ -411,6 +411,128 @@
      "type": "String"
     }
    }
+  },
+  "bizaiCamTitle": "How accurate is my CCTV?",
+  "@bizaiCamTitle": {
+   "description": "bizai: bizaiCamTitle"
+  },
+  "bizaiCamExplain": "Right = when it alerts, something really happened. Catches = when something happens, it alerts. Our goal is 90% for both, measured on at least 20 events.",
+  "@bizaiCamExplain": {
+   "description": "bizai: bizaiCamExplain"
+  },
+  "bizaiCamLine2": "Right {precision} · Catches {recall} · {events} events",
+  "@bizaiCamLine2": {
+   "description": "bizai: bizaiCamLine2",
+   "placeholders": {
+    "precision": {
+     "type": "String"
+    },
+    "recall": {
+     "type": "String"
+    },
+    "events": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamMeets": "Meets the 90% goal",
+  "@bizaiCamMeets": {
+   "description": "bizai: bizaiCamMeets"
+  },
+  "bizaiCamBelow": "Below 90%",
+  "@bizaiCamBelow": {
+   "description": "bizai: bizaiCamBelow"
+  },
+  "bizaiCamNotEnough": "Not enough yet",
+  "@bizaiCamNotEnough": {
+   "description": "bizai: bizaiCamNotEnough"
+  },
+  "bizaiCamNoData": "No measurements yet. Mark alerts Correct / Wrong, or run a live test below.",
+  "@bizaiCamNoData": {
+   "description": "bizai: bizaiCamNoData"
+  },
+  "bizaiCamLiveTitle": "Live test with your camera",
+  "@bizaiCamLiveTitle": {
+   "description": "bizai: bizaiCamLiveTitle"
+  },
+  "bizaiCamLiveHow": "Start, then do things in front of the camera and tap what you did at that moment. Stop when done — alerts within 30 seconds of a tap count as caught.",
+  "@bizaiCamLiveHow": {
+   "description": "bizai: bizaiCamLiveHow"
+  },
+  "bizaiCamPickSite": "Pick a shop in the Shops tab first.",
+  "@bizaiCamPickSite": {
+   "description": "bizai: bizaiCamPickSite"
+  },
+  "bizaiCamStart": "Start a test",
+  "@bizaiCamStart": {
+   "description": "bizai: bizaiCamStart"
+  },
+  "bizaiCamStop": "Stop and see the result",
+  "@bizaiCamStop": {
+   "description": "bizai: bizaiCamStop"
+  },
+  "bizaiCamMarks": "{count} things marked",
+  "@bizaiCamMarks": {
+   "description": "bizai: bizaiCamMarks",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamSessions": "Results from {count} tests",
+  "@bizaiCamSessions": {
+   "description": "bizai: bizaiCamSessions",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamReviewsTitle": "From your reviews",
+  "@bizaiCamReviewsTitle": {
+   "description": "bizai: bizaiCamReviewsTitle"
+  },
+  "bizaiCamUnreviewed": "{count} alerts not reviewed yet",
+  "@bizaiCamUnreviewed": {
+   "description": "bizai: bizaiCamUnreviewed",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamMissed": "Something happened but no alert came",
+  "@bizaiCamMissed": {
+   "description": "bizai: bizaiCamMissed"
+  },
+  "bizaiCamMissedDone": "Noted — it counts as a missed event",
+  "@bizaiCamMissedDone": {
+   "description": "bizai: bizaiCamMissedDone"
+  },
+  "bizaiCamPerson": "A person came",
+  "@bizaiCamPerson": {
+   "description": "bizai: bizaiCamPerson"
+  },
+  "bizaiCamLine": "Crossed the door line",
+  "@bizaiCamLine": {
+   "description": "bizai: bizaiCamLine"
+  },
+  "bizaiCamZone": "Entered a no-go area",
+  "@bizaiCamZone": {
+   "description": "bizai: bizaiCamZone"
+  },
+  "bizaiCamLoiter": "Stood around for long",
+  "@bizaiCamLoiter": {
+   "description": "bizai: bizaiCamLoiter"
+  },
+  "bizaiCamCash": "Hand at the cash box",
+  "@bizaiCamCash": {
+   "description": "bizai: bizaiCamCash"
+  },
+  "bizaiCamHealth": "Camera covered or moved",
+  "@bizaiCamHealth": {
+   "description": "bizai: bizaiCamHealth"
   }
  },
  "bn": {
@@ -500,6 +622,30 @@
   "bizaiPostsSoldTitle": "যে পোস্ট গ্রাহক এনেছে",
   "bizaiPostsSoldEmpty": "মার্কেটিং ইঞ্জিন থেকে পোস্ট শেয়ার করুন — তাতে নিজস্ব লিংক আর কোড থাকে, তাই সেই পোস্ট থেকে আসা চ্যাট আর অর্ডার এখানে দেখাবে।",
   "bizaiPostLine": "{chats}টি চ্যাট · {orders}টি অর্ডার",
-  "bizaiOutBestPost": "সেরা পোস্ট: {title} — {count}টি অর্ডার, {amount}"
+  "bizaiOutBestPost": "সেরা পোস্ট: {title} — {count}টি অর্ডার, {amount}",
+  "bizaiCamTitle": "আমার CCTV কতটা নির্ভুল?",
+  "bizaiCamExplain": "ঠিক = সতর্কতা এলে সত্যিই কিছু ঘটেছে। ধরে = কিছু ঘটলে সতর্কতা আসে। লক্ষ্য দুটোই ৯০%, অন্তত ২০টি ঘটনায় মেপে।",
+  "bizaiCamLine2": "ঠিক {precision} · ধরে {recall} · {events}টি ঘটনা",
+  "bizaiCamMeets": "৯০% লক্ষ্য পূরণ",
+  "bizaiCamBelow": "৯০%-এর নিচে",
+  "bizaiCamNotEnough": "এখনো যথেষ্ট নয়",
+  "bizaiCamNoData": "এখনো কোনো মাপ নেই। সতর্কতায় ঠিক / ভুল চিহ্ন দিন, বা নিচে সরাসরি পরীক্ষা চালান।",
+  "bizaiCamLiveTitle": "আপনার ক্যামেরায় সরাসরি পরীক্ষা",
+  "bizaiCamLiveHow": "শুরু করুন, তারপর ক্যামেরার সামনে কিছু করুন আর ঠিক তখন যা করলেন তাতে ট্যাপ করুন। শেষে থামান — ট্যাপের ৩০ সেকেন্ডের মধ্যে সতর্কতা এলে তা ধরা হয়েছে ধরা হবে।",
+  "bizaiCamPickSite": "আগে দোকান ট্যাবে একটি দোকান বেছে নিন।",
+  "bizaiCamStart": "পরীক্ষা শুরু করুন",
+  "bizaiCamStop": "থামিয়ে ফল দেখুন",
+  "bizaiCamMarks": "{count}টি ঘটনা চিহ্নিত",
+  "bizaiCamSessions": "{count}টি পরীক্ষার ফল",
+  "bizaiCamReviewsTitle": "আপনার যাচাই থেকে",
+  "bizaiCamUnreviewed": "{count}টি সতর্কতা এখনো যাচাই হয়নি",
+  "bizaiCamMissed": "কিছু ঘটেছিল কিন্তু সতর্কতা আসেনি",
+  "bizaiCamMissedDone": "লেখা হলো — এটি না-ধরা ঘটনা হিসেবে গোনা হবে",
+  "bizaiCamPerson": "একজন মানুষ এসেছেন",
+  "bizaiCamLine": "দরজার লাইন পার হয়েছেন",
+  "bizaiCamZone": "নিষিদ্ধ জায়গায় ঢুকেছেন",
+  "bizaiCamLoiter": "অনেকক্ষণ ঘোরাঘুরি",
+  "bizaiCamCash": "ক্যাশবাক্সে হাত",
+  "bizaiCamHealth": "ক্যামেরা ঢাকা বা সরানো"
  }
 }

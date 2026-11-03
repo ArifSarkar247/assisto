@@ -1,6 +1,7 @@
 // bizai: fake server for test/bizai_test.dart + gallery shots (bizai_shots.dart).
 // bn=true gives Bangla shop data (the launch Bangla sweep reads bn shots).
 import 'package:assisto/bizai/bizai_source.dart';
+import 'package:assisto/bizai/cctv_accuracy_screen.dart';
 import 'package:assisto/bizai/winback_screen.dart';
 
 const _discBn = 'এই দোকান উত্তর দিতে Assisto AI ব্যবহার করে। এখানের মেসেজ এন্ড-টু-এন্ড '
@@ -151,3 +152,44 @@ Map<String, dynamic> fakeWeekly({bool bn = false, bool empty = false}) => {
         'plan': [bn ? 'পোস্টের সেরা সময়: ২০:০০।' : 'Best time to post: 20:00.'],
       },
     };
+
+// bizai pillar 4 — CCTV accuracy fake
+class FakeCctvAcc implements CctvAccuracySource {
+  final List<String> calls = [];
+  int sessions = 0;
+  @override
+  Future<Map<String, dynamic>> accuracy(int? siteId) async => {
+        'reviews': {
+          'per_type': {
+            'person': {'tp': 8, 'fp': 2, 'fn': 1, 'precision': 0.8, 'recall': 0.889,
+                       'events': 11, 'enough': false, 'meets_target': false},
+          },
+          'unreviewed': 3,
+        },
+        'live_tests': {
+          'sessions': sessions,
+          'per_type': sessions == 0
+              ? {}
+              : {'person': {'tp': 19, 'fp': 1, 'fn': 1, 'precision': 0.95, 'recall': 0.95,
+                            'events': 21, 'enough': true, 'meets_target': true}},
+        },
+      };
+  @override
+  Future<Map<String, dynamic>> startTest(int siteId) async {
+    calls.add('start');
+    return {'id': 7};
+  }
+  @override
+  Future<Map<String, dynamic>> mark(int testId, String kind) async {
+    calls.add('mark:$kind');
+    return {'id': testId};
+  }
+  @override
+  Future<Map<String, dynamic>> stop(int testId) async {
+    calls.add('stop');
+    sessions = 1;
+    return {'id': testId};
+  }
+  @override
+  Future<void> missed(int siteId, String kind) async => calls.add('missed');
+}

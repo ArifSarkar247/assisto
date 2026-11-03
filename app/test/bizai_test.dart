@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assisto/bizai/bizai_source.dart';
+import 'package:assisto/bizai/cctv_accuracy_screen.dart';
 import 'package:assisto/bizai/my_shops_screen.dart';
 import 'package:assisto/bizai/outcome_card.dart';
 import 'package:assisto/bizai/shop_chat_screen.dart';
@@ -235,5 +236,30 @@ void main() {
     await tester.pumpWidget(_app(SingleChildScrollView(child: OutcomeCard(source: f))));
     await _settle(tester);
     expect(find.text('Best post: Post: Panjabi — 2 orders, \u09F32,400'), findsOneWidget);
+  });
+
+  testWidgets('cctv accuracy: measured, not-enough honesty, live test taps', (tester) async {
+    tester.view.physicalSize = const Size(800, 2600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final f = FakeCctvAcc();
+    await tester.pumpWidget(_app(CctvAccuracyScreen(siteId: 1, source: f)));
+    await _settle(tester);
+    expect(find.text('Right 80% · Catches 89% · 11 events'), findsOneWidget);
+    expect(find.text('Not enough yet'), findsOneWidget);
+    expect(find.text('3 alerts not reviewed yet'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-start')));
+    await _settle(tester);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-mark-person')));
+    await _settle(tester);
+    expect(find.text('1 things marked'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-stop')));
+    await _settle(tester);
+    expect(f.calls, ['start', 'mark:person', 'stop']);
+    expect(find.text('Results from 1 tests'), findsOneWidget);
+    expect(find.byIcon(Icons.verified_rounded), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-missed')));
+    await _settle(tester);
+    expect(f.calls.last, 'missed');
   });
 }

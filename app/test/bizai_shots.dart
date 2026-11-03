@@ -3,6 +3,7 @@
 // My shops, outcome card, shop-link card.
 import 'package:flutter/material.dart';
 
+import 'package:assisto/bizai/cctv_accuracy_screen.dart';
 import 'package:assisto/bizai/my_shops_screen.dart';
 import 'package:assisto/bizai/outcome_card.dart';
 import 'package:assisto/bizai/shop_chat_screen.dart';
@@ -29,4 +30,5 @@ final Map<String, Widget Function(String)> bizaiShots = {
   'bizai_weekly_report': (l) => WeeklyReportScreen(load: () async => fakeWeekly(bn: l == 'bn')),
   'bizai_weekly_empty': (l) =>
       WeeklyReportScreen(load: () async => fakeWeekly(bn: l == 'bn', empty: true)),
+  'bizai_cctv_accuracy': (l) => CctvAccuracyScreen(siteId: 1, source: FakeCctvAcc()),
 };
