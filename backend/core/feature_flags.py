@@ -147,7 +147,7 @@ REGISTRY = (
     # p2lang (owner PART 2, 3 Nov): IELTS practice inside Language Partner —
     # speaking/writing checklists + AI estimate (credits), original reading,
     # official listening links, pronunciation check. OFF until real-phone proof.
-    ('ielts_prep', 'daily_life', 'IELTS practice', 'IELTS প্রস্তুতি', False, ()),
+    ('language_packs', 'daily_life', 'Language courses (8 languages) + IELTS', 'ভাষা কোর্স (৮টি ভাষা) + IELTS', False, ()),
     ('daily_brief', 'daily_life', 'Daily brief', 'দৈনিক ব্রিফ', True, ()),
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
     ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),

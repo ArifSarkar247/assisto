@@ -4,13 +4,25 @@
 /// ALIGN_VECTORS == test/ielts_engine_test.dart.
 library;
 
-final RegExp _wordRe = RegExp(r"[a-z0-9']+");
+final RegExp _wordRe = RegExp(r"[\p{L}\p{M}\p{N}']+", unicode: true);
+final RegExp _cjk = RegExp(r'[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]', unicode: true);
 
-/// Lowercase word tokens (letters, digits, apostrophes) — same as ielts.words.
-List<String> ieltsWords(String? text) => _wordRe
-    .allMatches((text ?? '').toLowerCase().replaceAll('’', "'"))
-    .map((m) => m.group(0)!)
-    .toList();
+/// Lowercase word tokens (letters incl. marks, digits, apostrophes). For
+/// English this equals ielts.words on the server. Chinese/Japanese have no
+/// spaces, so their characters are compared one by one (language packs).
+List<String> ieltsWords(String? text) {
+  final out = <String>[];
+  final norm = (text ?? '').toLowerCase().replaceAll('\u2019', "'");
+  for (final m in _wordRe.allMatches(norm)) {
+    final w = m.group(0)!;
+    if (_cjk.hasMatch(w)) {
+      out.addAll(w.runes.map(String.fromCharCode));
+    } else {
+      out.add(w);
+    }
+  }
+  return out;
+}
 
 class AlignRow {
   final String word;

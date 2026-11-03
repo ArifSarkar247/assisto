@@ -62,6 +62,10 @@ class VoiceDictation extends ChangeNotifier {
   /// 'auto' (default), 'bn' or 'en' -- the Settings -> Voice choice.
   String mode;
 
+  /// p2lang: a language course listens in the language being learnt (e.g.
+  /// 'ko-KR'), overriding [mode]. Null = the normal bn/en behaviour.
+  final String? learnLocale;
+
   /// The language actually being listened in right now ('bn' / 'en').
   String activeLang = 'bn';
 
@@ -79,6 +83,7 @@ class VoiceDictation extends ChangeNotifier {
 
   VoiceDictation(
       {this.mode = 'auto',
+      this.learnLocale,
       @visibleForTesting SpeechToText? engine,
       @visibleForTesting Future<bool> Function(BuildContext context)? askReason,
       @visibleForTesting Future<bool> Function()? micDenied})
@@ -154,6 +159,22 @@ class VoiceDictation extends ChangeNotifier {
     }
     final en = resolveLocale(available, 'en');
     return en == null ? null : (lang: 'en', localeId: en);
+  }
+
+  /// p2lang: the engine's locale id for a course language ([want] like
+  /// 'ko-KR'): exact match first, then any locale of the same language; null
+  /// when the phone has no recogniser for it. Empty list = engine didn't say.
+  static String? resolveLearnLocale(List<String> available, String want) {
+    if (available.isEmpty) return want;
+    final w = want.replaceAll('-', '_').toLowerCase();
+    final lang = w.split('_').first;
+    String? sameLang;
+    for (final id in available) {
+      final n = id.replaceAll('-', '_').toLowerCase();
+      if (n == w) return id;
+      if (sameLang == null && (n == lang || n.startsWith('${lang}_'))) sameLang = id;
+    }
+    return sameLang;
   }
 
   /// Which language's "missing" message to show when [pickLocale] is null.
@@ -232,7 +253,15 @@ class VoiceDictation extends ChangeNotifier {
       // a very short hold: the finger was already up before the engine was
       // ready — never start an unwanted listening session.
       if (_cancelPending || !context.mounted) return;
-      final plan = pickLocale(_available, mode, bnRejected: _bnRejected);
+      final learn = learnLocale;
+      final learnId = learn == null ? null : resolveLearnLocale(_available, learn);
+      if (learn != null && learnId == null) {
+        _showMessage(context, t.learnVoiceNoLang, settings: false, help: true);
+        return;
+      }
+      final plan = learnId != null
+          ? (lang: learn!.split(RegExp('[-_]')).first, localeId: learnId)
+          : pickLocale(_available, mode, bnRejected: _bnRejected);
       if (plan == null) {
         _showMessage(context,
             missingLang(mode) == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,

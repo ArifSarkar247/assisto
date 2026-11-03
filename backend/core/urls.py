@@ -1660,12 +1660,21 @@ urlpatterns += [
 ]
 # ---- /adminsafe ----
 
-# ---- p2lang ---- IELTS practice inside Language Partner (flag ielts_prep)
+# ---- p2lang ---- IELTS practice inside Language Partner (flag language_packs)
 from . import ielts_views as ieltsv  # noqa: E402
 urlpatterns += [
     path("ielts/content", ieltsv.IeltsContentView.as_view()),
     path("ielts/writing/check", ieltsv.IeltsWritingCheckView.as_view()),
     path("ielts/speaking/check", ieltsv.IeltsSpeakingCheckView.as_view()),
     path("ielts/reading/grade", ieltsv.IeltsReadingGradeView.as_view()),
+]
+from . import learn_views as learnv  # noqa: E402
+urlpatterns += [
+    path("learn/catalog", learnv.LearnCatalogView.as_view()),
+    path("learn/results", learnv.LearnResultsView.as_view()),
+    path("learn/pack/<str:lang>", learnv.LearnPackView.as_view()),
+    path("learn/<str:lang>/placement", learnv.LearnPlacementView.as_view()),
+    path("learn/<str:lang>/mock", learnv.LearnMockView.as_view()),
+    path("learn/<str:lang>/roleplay", learnv.LearnRoleplayView.as_view()),
 ]
 # ---- /p2lang ----
