@@ -209,7 +209,7 @@ class HonestyTests(Base):
     def test_bubbles_channels_brief_show_real_screenshots(self):
         shots = {f["id"]: f["shot"] for f in V3.FEATURES["ai"] + V3.FEATURES["circle"]}
         self.assertEqual(shots["brief"], "daily_brief")
-        self.assertIsNone(shots["bubbles"])        # bbl2_install_day_on after agent/bubbles2 is on main
+        self.assertEqual(shots["bubbles"], "bbl2_install_day_on")
         self.assertEqual(shots["channels"], "chx_channel")
         set_flag("my_circle", True)
         set_flag("daily_brief", True)
@@ -411,6 +411,22 @@ class InstallAndApkTests(Base):
         with open(p, "wb") as f:
             f.write(b"PK\x03\x04 fake apk bytes for the website test" * 1000)
         return p, hashlib.sha256(open(p, "rb").read()).hexdigest()
+
+    def test_apk_version_comes_from_symlink_target_and_note_shown(self):
+        import os
+        import tempfile
+        from django.test import override_settings
+        from web import site_v3_dist as DIST
+        with tempfile.TemporaryDirectory() as tmp:
+            real, _ = self._apk(tmp)
+            link = os.path.join(tmp, "assisto-play.apk")
+            os.symlink(real, link)
+            with override_settings(WEBSITE_APK_FILE=link, WEBSITE_APK_URL=""):
+                self.assertEqual(DIST.apk_info()["version"], "1.0.321")
+                html = self.c.get("/preview/?lang=en").content.decode()
+                self.assertIn("Uninstall it once and install this one", html)
+                bn = self.c.get("/preview/?lang=bn").content.decode()
+                self.assertIn("আনইনস্টল করে এটি বসান", bn)
 
     def test_not_public_says_coming_soon_and_offers_the_apk(self):
         import tempfile

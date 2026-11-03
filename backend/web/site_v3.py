@@ -108,7 +108,7 @@ FEATURES = {
           ("আগে থেকেই মনে করিয়ে দেয়", "পাসপোর্টের মেয়াদ শেষ হচ্ছে, বাজেট ছাড়িয়ে যাচ্ছে — আপনার নিজের তথ্য দেখে সময়মতো জানায়, সাথে \"কেন\"।"),
           ("Nudges before it's late", "Passport about to expire, budget about to run over — it tells you in time from your own data, with a \"why\"."),
           auto=("আপনার তথ্য দেখে নিজেই জরুরি বিষয় তুলে ধরে", "Spots what is urgent in your own data by itself")),
-        F("memory", "brain", ("memory",), None,  # bn shot shows English digits (bn sweep) -> was "ai_knowledge"
+        F("memory", "brain", ("memory",), "ai_knowledge",
           ("AI যা জানে, আপনি দেখেন", "Assisto কী মনে রেখেছে তা একটা পাতায় দেখুন — যেকোনোটা মুছুন, বা AI-কে পুরো বাদ দিন।"),
           ("See what the AI knows", "One page shows everything Assisto remembers — delete any item, or keep it away from AI entirely.")),
         F("ps", "user-tie", ("pa_secretary",), "pa_hub",
@@ -136,7 +136,7 @@ FEATURES = {
         F("pip", "pip", ("calls",), "callsa_float_video_chat",
           ("কলের মধ্যেও অ্যাপ চালান (PiP)", "ভিডিও কল ছোট ভাসমান জানালায় চলে — চ্যাট করুন বা অন্য অ্যাপ খুলুন, কল কাটবে না।"),
           ("Keep using your phone on a call (PiP)", "The video call shrinks into a small floating window — chat or open another app, the call stays on.")),
-        F("bubbles", "bubble", ("my_circle",), None,  # real shot "bbl2_install_day_on" once agent/bubbles2 is on main
+        F("bubbles", "bubble", ("my_circle",), "bbl2_install_day_on",
           ("ভাসমান চ্যাট বাবল", "Android ১১ বা নতুন ফোনে নতুন মেসেজ ভাসমান বাবলে আসে — যেকোনো অ্যাপের ওপর থেকেই পড়ুন ও উত্তর দিন।"),
           ("Floating chat bubbles", "On Android 11 or newer, new messages arrive as floating bubbles — read and reply on top of any app.")),
         F("status", "circle-dot", ("my_circle",), "p3_story_viewer",
@@ -191,7 +191,7 @@ FEATURES = {
           ("দুর্যোগ সতর্কতা", "সরকারি আবহাওয়া ও দুর্যোগ সতর্কতা আপনার আর পরিবারের এলাকার জন্য, সাথে প্রস্তুতির তালিকা।"),
           ("Disaster alerts", "Official weather and disaster warnings for your area and your family's, with a preparedness checklist."),
           auto=("পরিবারের এলাকায় সতর্কতা এলে নিজেই জানায়", "Tells you by itself when a warning hits your family's area")),
-        F("nominee", "key", ("nominee",), None,  # bn shot shows English digits (bn sweep) -> was "nominee"
+        F("nominee", "key", ("nominee",), "nominee",
           ("নমিনি অ্যাক্সেস", "দরকারি সময়ে পরিবারের বিশ্বস্ত কেউ যেন আপনার জরুরি তথ্য পান — আপনি ঠিক করেন কে, কী, কখন।"),
           ("Nominee access", "Make sure a trusted family member can reach your important information when it matters — you decide who, what and when.")),
         F("fall", "fall", ("fall_detect",), None,
@@ -235,7 +235,7 @@ FEATURES = {
           ("AI সেলস সহকারী", "আপনার নিজের পণ্য, দাম আর FAQ থেকে গ্রাহকের প্রশ্নের উত্তর দেয়; নিশ্চিত না হলে আপনাকে দেয়।"),
           ("AI sales assistant", "Answers customer questions from your own products, prices and FAQ; hands over to you when it isn't sure."),
           auto=("গ্রাহকের মেসেজের উত্তর নিজেই দেয়, অর্ডার নোট করে", "Replies to customer messages and notes the order by itself")),
-        F("crm", "users", ("crm",), None,  # bn shot shows English digits (bn sweep) -> was "crm_lead_detail"
+        F("crm", "users", ("crm",), "crm_lead_detail",
           ("CRM", "গ্রাহক, লিড, পাইপলাইন আর কোটেশন — কার সাথে কবে ফলো-আপ, ভুলে যাবেন না।"),
           ("CRM", "Customers, leads, pipeline and quotes — never miss whom to follow up and when.")),
         F("crm_auto", "repeat", ("retention_auto",), "rt_list",
@@ -261,7 +261,7 @@ FEATURES = {
         F("tasks", "check", ("task_manager",), None,
           ("টাস্ক ম্যানেজার", "প্রজেক্ট বানান, কাজ যোগ করুন, বোর্ডে এগোনো দেখুন।"),
           ("Task manager", "Create a project, add tasks and watch them move across the board.")),
-        F("jobs", "briefcase", ("jobs",), None,  # bn shot shows English digits (bn sweep) -> was "jobs"
+        F("jobs", "briefcase", ("jobs",), "jobs",
           ("জব হান্টার", "যে চাকরিগুলো পান, সংরক্ষণ করুন আর আবেদনের অবস্থা এক জায়গায় রাখুন।"),
           ("Job hunter", "Save the jobs you find and keep track of every application in one place.")),
         F("cv", "file", ("cv_builder",), None,
@@ -332,7 +332,7 @@ FEATURES = {
         F("samity", "users", ("samity",), None,
           ("সমিতি", "প্রতি কিস্তির জমা আর কার পালা — সবার কাছে স্বচ্ছ। Assisto টাকা রাখে না, শুধু হিসাব রাখে।"),
           ("Samity", "Each round's contributions and whose turn it is — clear to all. Assisto keeps the record, never the money.")),
-        F("rent", "building", ("house_rent",), None,  # bn shot shows English digits (bn sweep) -> was "landlord"
+        F("rent", "building", ("house_rent",), "landlord",
           ("বাড়ি ভাড়া", "প্রতিটি ফ্ল্যাটের ভাড়া, কে দিল, কার বাকি — মাস ধরে।"),
           ("House rent", "Rent per flat, who paid and who is behind — month by month.")),
         F("meter", "bolt", ("prepaid_meter",), "meter",
@@ -359,7 +359,7 @@ FEATURES = {
         F("guide", "compass", ("service_guide",), "guide",
           ("সেবা গাইড", "NID, পাসপোর্ট আর সরকারি সেবা ধাপে ধাপে — অফিসিয়াল লিংকসহ।"),
           ("Service guide", "NID, passport and government services step by step — with official links.")),
-        F("exam", "school", ("exam_result",), None,  # bn shot shows English digits (bn sweep) -> was "exam"
+        F("exam", "school", ("exam_result",), "exam",
           ("পরীক্ষার ফলাফল", "SSC, HSC-র ফলাফলের পাতা Assisto দেখে রাখে — বদলালেই জানায়।"),
           ("Exam results", "Assisto keeps an eye on the SSC or HSC result page — and tells you when it changes."),
           auto=("ফলাফলের পাতা বদলালে নিজেই নোটিফিকেশন দেয়", "Notifies you by itself when the result page changes")),
@@ -454,6 +454,7 @@ COPY = {
         "preview_banner": "প্রিভিউ — এই পাতা এখনো লাইভ নয়, সার্চ ইঞ্জিনে আসে না।",
         "ai_note": "AI ভুল করতে পারে — দরকারি তথ্য যাচাই করুন।",
         "install_now": "ইনস্টল করুন", "viewer": "স্ক্রিনশট বড় করে দেখা", "play_soon": "শীঘ্রই Play Store-এ আসছে — এখনই সরাসরি APK থেকে ইনস্টল করুন।",
+        "apk_note": "আগে ওয়েবসাইটের পুরনো APK বসিয়ে থাকলে একবার আনইনস্টল করে এটি বসান — এরপর Play থেকেই আপডেট পাবেন।",
         "apk_link": "সরাসরি APK ডাউনলোড", "apk_version": "সংস্করণ", "apk_size": "আকার", "apk_date": "তারিখ",
         "chips_label": "দ্রুত যান", "chip_home": "হোম", "chip_ai": "AI সহকারী", "chip_circle": "আমার সার্কেল",
         "chip_safety": "নিরাপত্তা", "chip_cctv": "CCTV", "chip_business": "ব্যবসা", "chip_pricing": "দাম", "chip_download": "ডাউনলোড",
@@ -506,6 +507,7 @@ COPY = {
         "preview_banner": "Preview — this page is not live yet and is hidden from search engines.",
         "ai_note": "AI can make mistakes — check important information.",
         "install_now": "Install now", "viewer": "Screenshot viewer", "play_soon": "Coming soon to Play Store — install the APK directly now.",
+        "apk_note": "Installed an older APK from this website? Uninstall it once and install this one — after that you'll get updates from Play.",
         "apk_link": "Download APK directly", "apk_version": "Version", "apk_size": "Size", "apk_date": "Date",
         "chips_label": "Quick links", "chip_home": "Home", "chip_ai": "AI Assistant", "chip_circle": "My Circle",
         "chip_safety": "Safety", "chip_cctv": "CCTV", "chip_business": "Business", "chip_pricing": "Pricing", "chip_download": "Download",
