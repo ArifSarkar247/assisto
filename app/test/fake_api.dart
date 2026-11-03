@@ -10,6 +10,7 @@ import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
 import 'fake_kidaudio.dart'; // kidaudio
 import 'fake_learncert.dart'; // learncert
+import 'fake_p3life.dart'; // p3life
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -255,6 +256,8 @@ class FakeApi extends ApiClient {
     if (path == 'food/goal') return _maybe([{'id': 1, 'kcal': 1800}]);
     if (path == 'ielts/practice') return fakeIeltsPractice(empty: mode == FakeMode.empty); // p2lang
     if (path == 'ielts/vocab') return const []; // p2lang: every word due
+    final p3l = fakeP3LifeList(path, bn: _bn); // p3life
+    if (p3l != null) return _maybe(p3l);
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -2134,6 +2137,8 @@ class FakeApi extends ApiClient {
     if (path == '/career/interview/feedback') return fakeCareerFeedback(ai: body['ai'] == true); // p2career
     if (path == '/career/jobs/deadline') return {'reminders': ['2026-11-10T09:00:00+06:00']};
     if (path == '/career/cv/print-link') return {'url': 'https://lifeassisto.com/api/v1/career/cv/print/x', 'path': '/career/cv/print/x', 'expires_in': 1800};
+    final p3l = fakeP3LifePost(path); // p3life
+    if (p3l != null) return p3l;
     if (path == '/account/delete/preview') {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};

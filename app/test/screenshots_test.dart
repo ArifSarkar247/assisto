@@ -134,6 +134,9 @@ import 'package:assisto/screens/career/interview_role_screen.dart'; // p2career
 import 'package:assisto/screens/doc_scanner_screen.dart';
 import 'package:assisto/screens/transcription_screen.dart';
 import 'package:assisto/screens/travel_planner_screen.dart';
+import 'package:assisto/screens/life/life_travel.dart'; // p3life
+import 'package:assisto/screens/life/life_wedding.dart'; // p3life
+import 'package:assisto/screens/life/life_ride.dart'; // p3life
 import 'package:assisto/screens/contract_analyzer_screen.dart';
 import 'package:assisto/screens/cost_estimator_screen.dart';
 import 'package:assisto/screens/mock_interview_screen.dart';
@@ -595,6 +598,17 @@ Map<String, GallerySpec> gallerySpecs() {
     'doc_scan': (build: (_) => const DocScannerScreen(), mode: FakeMode.data, full: true),
     'transcribe': (build: (_) => const TranscriptionScreen(), mode: FakeMode.data, full: true),
     'travel': (build: (_) => const TravelPlannerScreen(), mode: FakeMode.data, full: true),
+    // p3life (owner PART 3, 3 Nov): travel / wedding / food additions
+    'p3l_trip': (build: (l) => TravelTripDetailScreen(trip: {'id': 1, 'destination': l == 'bn' ? 'শ্রীমঙ্গল' : 'Sreemangal', 'start': '2026-12-20', 'end': '2026-12-25'}), mode: FakeMode.data, full: true),
+    'p3l_legs': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabTransport)), body: const TravelLegsTab(tripId: 1))), mode: FakeMode.data, full: true),
+    'p3l_legs_empty': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabTransport)), body: const TravelLegsTab(tripId: 1))), mode: FakeMode.empty, full: true),
+    'p3l_docs': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabDocs)), body: TravelDocsTab(tripId: 1, tripEnd: _p3lIso(120)))), mode: FakeMode.data, full: true),
+    'p3l_wed_sched': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabSchedule)), body: const WeddingScheduleTab())), mode: FakeMode.data, full: true),
+    'p3l_wed_vendors': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabVendors)), body: const WeddingVendorsTab())), mode: FakeMode.data, full: true),
+    'p3l_wed_gifts': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).p3lTabGifts)), body: const WeddingGiftsTab())), mode: FakeMode.data, full: true),
+    'p3l_card': (build: (l) => InvitationCardScreen(event: {'title': l == 'bn' ? 'রিনা ও করিম' : 'Rina & Karim', 'event_date': '2026-12-12', 'venue': l == 'bn' ? 'সেনাকুঞ্জ, ঢাকা' : 'Senakunja, Dhaka'}), mode: FakeMode.data, full: true),
+    'p3l_food': (build: (_) => const FoodLogScreen(), mode: FakeMode.data, full: true),
+    'p3l_food_empty': (build: (_) => const FoodLogScreen(), mode: FakeMode.empty, full: true),
     'contract': (build: (_) => const ContractAnalyzerScreen(), mode: FakeMode.data, full: true),
     'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
     'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),
@@ -1599,4 +1613,9 @@ class _P3gTabShotState extends State<_P3gTabShot> {
     }
     return Scaffold(appBar: AppBar(title: Text(title)), body: body);
   }
+}
+// p3life: a date N days from today (gallery trip end for the documents tab)
+String _p3lIso(int days) {
+  final x = DateTime.now().add(Duration(days: days));
+  return '${x.year.toString().padLeft(4, '0')}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
 }

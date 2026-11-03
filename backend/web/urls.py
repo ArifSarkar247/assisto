@@ -16,6 +16,7 @@ from . import views_site   # website (owner 2 Nov)
 from . import views_channels_web   # channels
 from . import views_learncert   # learncert
 from . import views_site3  # sitev3: website v3 behind the go-live switch
+from . import views_lifeshare  # p3life
 
 urlpatterns = [
     # sitev3: the go-live switch picks the current site (OFF) or v3 (ON)
@@ -116,4 +117,7 @@ urlpatterns = [
     path("c/<str:token>/data", views_cctv_share.share_data),
     path("c/<str:token>/img/<int:cam>", views_cctv_share.share_image),
     path("c/<str:token>", views_cctv_share.share_page),
+    # p3life: read-only trip/event page + a guest's own RSVP page
+    path("p/<str:token>", views_lifeshare.plan_page),
+    path("rsvp/<str:token>", views_lifeshare.rsvp_page),
 ]

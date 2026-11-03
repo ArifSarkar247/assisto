@@ -1,0 +1,55 @@
+{% extends "web/base.html" %}
+{% block title %}{{ T.rsvp_h }}{% if v.title %} — {{ v.title }}{% endif %}{% endblock %}
+{% block og %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.ok{background:#e7f7ee;color:#0b5e3c;padding:12px;border-radius:12px;font-size:15px}
+.err{background:#fdecec;color:#8a1c1c;padding:12px;border-radius:12px;font-size:15px}
+.ch{display:flex;align-items:center;gap:10px;min-height:48px;font-size:17px}
+.ch input{width:24px;height:24px}
+input[type=number]{min-height:48px;font-size:17px;width:120px}
+.btn{min-height:48px}
+.lp-row{padding:8px 0;border-bottom:1px solid #e6eaf3}
+.small{font-size:13px;color:#4a556e}
+a.lang{display:inline-block;min-height:48px;line-height:48px}
+</style>{% endblock %}
+{% block content %}
+<p style="text-align:right"><a class="lang" href="{{ other_q|default:'?' }}">{{ T.other }}</a></p>
+{% if state == "limited" %}
+<div class="card" role="alert"><p>{{ T.limited }}</p></div>
+{% elif state == "bad" %}
+<div class="card" role="alert"><p>{{ T.bad }}</p></div>
+{% elif state == "revoked" %}
+<div class="card" role="status"><p>{{ T.revoked }}</p></div>
+{% else %}
+{% if saved %}<div class="ok" role="status">{{ T.saved }}</div>{% endif %}
+{% if error %}<div class="err" role="alert">{{ error }}</div>{% endif %}
+<div class="card">
+  <div class="small">{{ T.rsvp_h }}</div>
+  {% if v %}<h1>{{ v.title }}</h1>
+  {% if v.date %}<p>{{ T.date }}: <b>{{ v.date }}</b></p>{% endif %}
+  {% if v.venue %}<p>{{ T.venue }}: <b>{{ v.venue }}</b></p>{% endif %}{% endif %}
+  {% if guest %}<p>{{ T.dear }} {{ guest }},</p>{% endif %}
+</div>
+{% if v.schedule %}<div class="card"><h2>{{ T.schedule }}</h2>
+  {% for s in v.schedule %}<div class="lp-row"><b>{{ s.title }}</b>
+    <div class="small">{{ s.date_txt }}{% if s.time %} · {{ s.time_txt }}{% endif %}{% if s.place %} · {{ s.place }}{% endif %}</div></div>{% endfor %}
+</div>{% endif %}
+<div class="card">
+  {% if current %}<p class="small">{{ T.now }}: <b>{{ current_txt }}</b>. {{ T.change }}</p>{% endif %}
+  <form method="post" action="/rsvp/{{ token }}{{ qlang }}">{% csrf_token %}
+    <fieldset style="border:0;padding:0;margin:0"><legend><b>{{ T.q }}</b></legend>
+    <label class="ch"><input type="radio" name="answer" value="yes" {% if current == "yes" %}checked{% endif %}> {{ T.yes }}</label>
+    <label class="ch"><input type="radio" name="answer" value="maybe" {% if current == "maybe" %}checked{% endif %}> {{ T.maybe }}</label>
+    <label class="ch"><input type="radio" name="answer" value="no" {% if current == "no" %}checked{% endif %}> {{ T.no }}</label>
+    </fieldset>
+    <label for="pl">{{ T.plus }}</label><br>
+    <input type="number" id="pl" name="plus_ones" min="0" max="20" value="{{ plus }}" inputmode="numeric">
+    <p></p>
+    <button class="btn" type="submit">{{ T.send }}</button>
+  </form>
+</div>
+<p class="small">{{ T.privacy_rsvp }}</p>
+{% endif %}
+<p class="small">{{ T.by }}</p>
+{% endblock %}

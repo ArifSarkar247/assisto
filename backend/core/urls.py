@@ -1751,3 +1751,10 @@ urlpatterns += [
     path("learn/certs/<int:pk>/revoke", lcv.CertRevokeView.as_view()),
 ]
 # ---- /learncert ----
+# ---- p3life ---- read-only trip/event share links + guest RSVP links
+from . import views_lifeshare as lifesh  # noqa: E402
+urlpatterns += [
+    path("life/share", lifesh.LifeShareView.as_view()),
+    path("life/share/revoke", lifesh.LifeShareRevokeView.as_view()),
+]
+# ---- /p3life ----

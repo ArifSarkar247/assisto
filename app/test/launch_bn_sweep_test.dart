@@ -81,6 +81,7 @@ const _launchPrefixes = <String>[
   'ramadan', 'quran_',
   // quranread (3 Nov): learn to read Quran
   'quran_learn',
+  'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
@@ -133,6 +134,7 @@ const Map<String, String> _allow = {
   'carm_sos_live|english|"Home"': 'the place name the owner typed (user data)',
   'bbl2_circle_row|english|"Karim"': 'a contact name (user data)',
   'bbl2_circle_row|english|"Family"': 'a group name the user chose (user data)',
+  'p3l_docs|english|"NID"': 'the national ID card is called NID in Bangla too (printed on the card)',
 };
 
 final _env = Platform.environment;

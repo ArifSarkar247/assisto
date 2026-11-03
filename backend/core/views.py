@@ -2395,6 +2395,11 @@ GENERIC_COLLECTIONS = [
     "student/routine", "student/assignments", "student/courses", "student/goals",
     # #189 Wedding & events
     "wedding/event", "wedding/guests", "wedding/budget", "wedding/tasks",
+    # p3life: programme {title,date,time,place}; vendors {name,service,phone,
+    # quote,paid} (poisha); gifts {giver,phone,gift,amount,occasion,thanked}
+    "wedding/schedule", "wedding/vendors", "wedding/gifts",
+    # p3life: food order log {date, provider, what, amount (poisha)}
+    "food/orders",
     # #198 Security check-up
     "security/checklist",
     # #199 Farmer / village mode
@@ -2422,6 +2427,9 @@ GENERIC_COLLECTIONS = [
     # (key-gated AI itinerary / booking) — deterministic organisers, key-free.
     "transcribe/notes",
     "travel/trips", "travel/days", "travel/budget", "travel/packing",
+    # p3life: transport legs {trip_id, mode, from, to, date, time, ref, note}
+    # + travel documents {trip_id, kind, label, expiry, note}
+    "travel/legs", "travel/docs",
     # #130 Blog writer + #29 Doc scanner (key-gated AI/OCR mock)
     "blog/drafts", "docscan/items",
     # #17 Quick tools + #7 Daily brief (key-gated AI mock)

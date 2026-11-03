@@ -1,0 +1,56 @@
+{% extends "web/base.html" %}
+{% block title %}{% if kind == "trip" %}{{ T.trip }}{% elif kind == "event" %}{{ T.event }}{% else %}{{ T.brand }}{% endif %}{% if v.title %} — {{ v.title }}{% endif %}{% endblock %}
+{% block og %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.lp-h{margin:0 0 4px}.lp-s{color:#4a556e;font-size:15px}
+.lp-row{padding:10px 0;border-bottom:1px solid #e6eaf3}
+.lp-row:last-child{border-bottom:0}
+.lp-tag{display:inline-block;padding:2px 10px;border-radius:999px;background:#eef2fb;color:#16203a;font-size:13px;font-weight:600}
+.lp-n{font-size:22px;font-weight:800}
+.small{font-size:13px;color:#4a556e}
+a.lang{display:inline-block;min-height:48px;line-height:48px}
+</style>{% endblock %}
+{% block content %}
+<p style="text-align:right"><a class="lang" href="{{ other_q|default:'?' }}">{{ T.other }}</a></p>
+{% if state == "limited" %}
+<div class="card" role="alert"><p>{{ T.limited }}</p></div>
+{% elif state == "bad" %}
+<div class="card" role="alert"><p>{{ T.bad }}</p></div>
+{% elif state == "revoked" %}
+<div class="card" role="status"><p>{{ T.revoked }}</p></div>
+{% elif kind == "trip" %}
+<div class="card">
+  <div class="small">{{ T.trip }}</div>
+  <h1 class="lp-h">{{ v.title }}</h1>
+  {% if v.start %}<p class="lp-s">{{ v.start }}{% if v.end %} – {{ v.end }}{% endif %}</p>{% endif %}
+</div>
+{% if v.legs %}<div class="card"><h2>{{ T.legs }}</h2>
+  {% for l in v.legs %}<div class="lp-row"><span class="lp-tag">{{ l.mode_txt }}</span>
+    <b>{{ l.from }}{% if l.to %} → {{ l.to }}{% endif %}</b>
+    <div class="small">{{ l.date_txt }}{% if l.time %} · {{ l.time_txt }}{% endif %}{% if l.ref %} · {{ l.ref }}{% endif %}</div></div>{% endfor %}
+</div>{% endif %}
+<div class="card"><h2>{{ T.days }}</h2>
+  {% for d in v.days %}<div class="lp-row"><b>{{ T.day }} {{ d.day_txt }}{% if d.title %} — {{ d.title }}{% endif %}</b>
+    {% for a in d.activities %}<div class="small">{% if a.time %}{{ a.time }} · {% endif %}{{ a.what }}{% if a.place %} — {{ a.place }}{% endif %}</div>{% endfor %}
+  </div>{% empty %}<p class="small">{{ T.nodays }}</p>{% endfor %}
+</div>
+<p class="small">{{ T.privacy_trip }}</p>
+{% else %}
+<div class="card">
+  <div class="small">{{ T.event }}</div>
+  <h1 class="lp-h">{{ v.title }}</h1>
+  {% if v.date %}<p class="lp-s">{{ T.date }}: {{ v.date }}</p>{% endif %}
+  {% if v.venue %}<p class="lp-s">{{ T.venue }}: {{ v.venue }}</p>{% endif %}
+  <p><span class="lp-n">{{ v.confirmed }}</span> {{ T.people }} · {{ T.coming }}<br>
+  <span class="small">{{ v.expected }} {{ T.people }} · {{ T.expected }}</span></p>
+</div>
+<div class="card"><h2>{{ T.schedule }}</h2>
+  {% for s in v.schedule %}<div class="lp-row"><b>{{ s.title }}</b>
+    <div class="small">{{ s.date_txt }}{% if s.time %} · {{ s.time_txt }}{% endif %}{% if s.place %} · {{ s.place }}{% endif %}</div></div>
+  {% empty %}<p class="small">{{ T.noschedule }}</p>{% endfor %}
+</div>
+<p class="small">{{ T.privacy_event }}</p>
+{% endif %}
+<p class="small">{{ T.by }}</p>
+{% endblock %}
