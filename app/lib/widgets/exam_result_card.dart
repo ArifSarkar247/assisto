@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'exam_board_picker.dart';
+import 'money_digits.dart';
 
 /// A shareable, festival-style RESULT CARD (SPEC v2.1 §21, ADVANCED).
 ///
@@ -93,7 +94,7 @@ class ExamResultCard extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
-                _header(t),
+                moneyDigitsFor(context, _header(t)),
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -106,12 +107,12 @@ class ExamResultCard extends StatelessWidget {
             Text(t.examCardEmptyHint,
                 style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13))
           else ...[
-            _row(t.examFieldName, name),
-            _row(t.examFieldRoll, roll),
+            _row(t.examFieldName, moneyDigitsFor(context, name)),
+            _row(t.examFieldRoll, moneyDigitsFor(context, roll)),
             _row(t.examFieldBoard,
                 boardCode.isEmpty ? '' : ExamRefData.boardName(t, boardCode)),
-            _row(t.examFieldGpa, gpa),
-            _row(t.examFieldGrade, grade),
+            _row(t.examFieldGpa, moneyDigitsFor(context, gpa)),
+            _row(t.examFieldGrade, moneyDigitsFor(context, grade)),
           ],
           const SizedBox(height: Gap.sm),
           Text(t.examCardEnteredFootnote,

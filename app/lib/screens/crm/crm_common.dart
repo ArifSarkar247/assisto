@@ -405,7 +405,7 @@ class ScoreBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Text('$score',
+      child: Text(fmtInt(context, score),
           style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
     );
   }

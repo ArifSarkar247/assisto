@@ -64,6 +64,8 @@ const _launchPrefixes = <String>[
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
+  // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
+  'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
@@ -84,6 +86,10 @@ const Map<String, String> _allow = {
   '*|digit|SHA-256': 'hash standard name (SHA-256), never translated',
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
+  // bndigits6: names the user typed / the job board supplies (data, not UI).
+  'jobs|digit|Shop365': "a company's own name from the job board (data)",
+  'exam|digit|SSC 2026': "the watcher label the user typed (data)",
+  'exam|digit|HSC 2026': "the watcher label the user typed (data)",
   'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
   'acct_reports_*|english|"Stock"': 'fake data: server sends the Bangla account name',
   // launchsweep2 (3 Nov) — reviewed; each is user data or English-only

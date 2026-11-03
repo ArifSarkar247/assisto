@@ -6,6 +6,7 @@ import '../models.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/mem_privacy.dart';
+import '../widgets/money_digits.dart';
 import '../widgets/mem_widgets.dart';
 import '../widgets/skeleton.dart';
 
@@ -143,7 +144,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           Text(memCatLabel(t, c),
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(width: Gap.xs),
-          Text('($n)',
+          Text(moneyDigitsFor(context, '($n)'),
               style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ]),
       );
@@ -275,7 +276,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           ),
           const SizedBox(width: Gap.md),
           Expanded(child: Text(label)),
-          Text(value,
+          Text(moneyDigitsFor(ctx, value),
               style:
                   AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),

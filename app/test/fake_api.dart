@@ -257,7 +257,7 @@ class FakeApi extends ApiClient {
       if (path == 'rent_units') {
         return _maybe([
           for (var i = 1; i <= 6; i++)
-            {'id': i, 'label': '${_bn ? 'ফ্ল্যাট' : 'Flat'} ${i}A', 'tenant_name': _bn ? 'ভাড়াটিয়া $i' : 'Tenant $i', 'rent_poisha': 1500000, 'active': true},
+            {'id': i, 'label': _bn ? 'ফ্ল্যাট ${'১২৩৪৫৬'[i - 1]}ক' : 'Flat ${i}A', 'tenant_name': _bn ? 'ভাড়াটিয়া $i' : 'Tenant $i', 'rent_poisha': 1500000, 'active': true},
         ]);
       }
       return _maybe([

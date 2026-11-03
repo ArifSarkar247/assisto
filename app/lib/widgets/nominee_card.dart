@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'money_digits.dart';
 import 'nominee_scope_picker.dart';
 
 /// One trusted person in the list. Shows their name, relationship, priority,
@@ -108,7 +109,7 @@ class NomineeCard extends StatelessWidget {
                     [
                       _relationshipLabel(
                           tr, (nominee['relationship'] ?? 'family') as String),
-                      nominee['contact'],
+                      moneyDigitsFor(context, '${nominee['contact'] ?? ''}'),
                     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · '),
                     style: TextStyle(
                         fontSize: 13, color: scheme.onSurfaceVariant),
