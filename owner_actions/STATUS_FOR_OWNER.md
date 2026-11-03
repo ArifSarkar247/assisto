@@ -1,5 +1,11 @@
 # Assisto — মালিকের জন্য স্ট্যাটাস (নতুন আপডেট উপরে)
 
+## ✅ Google Places কি-র সমস্যা ঠিক, লাইভ (১৯:৫৫) — Owner Admin → Integrations → Google Places / Maps-এ আবার **Test connection** চাপুন: এখন Places API (New) ও Geocoding আলাদা আলাদা পরীক্ষা হয়, প্রতিটির ফল বা Google-এর আসল কারণ বাংলা ও ইংরেজিতে দেখাবে (কি কখনো দেখানো হয় না)।
+**কারণ:** পরীক্ষা ও Safe Journey খোঁজ পুরনো (legacy) Places সার্ভিস ডাকত, যা নতুন প্রজেক্টে চালু করা যায় না → REQUEST_DENIED। এখন দুটোই Places API (New); কাছের জায়গার পুরনো পেইড Nearby Search ডাক সরানো হয়েছে (আপনার ১৮:৫০ আদেশ); পুরো কোডে আর কোনো পুরনো Places/Directions/Distance Matrix ডাক নেই — CI পরীক্ষা ফিরে এলে ফেল করবে।
+**এই সার্ভার-কি (Owner Admin-এ যেটা দিয়েছেন):** Cloud Console → Credentials → কি → "Application restrictions" = **None** অথবা **IP addresses: 16.4.105.173** (Android app রাখলে সার্ভার থেকে কাজ করবে না); API restrictions: Places API (New), Geocoding API, Routes API।
+**"Assisto Android" কি (দ্বিতীয়টি) — কখন ও কোথায়:** এটি Owner Admin-এ নয়, অ্যাপের ভেতরে বসে, তাই GitHub-এ: repo → Settings → Secrets and variables → Actions → New secret, নাম `MAPS_ANDROID_KEY`, মান = সেই কি। এখনই দিন; পরের বিল্ড (ম্যাপ খরচের কাজসহ) থেকে অ্যাপে আসবে। Cloud Console-এ এই কি-র সীমা: Application restrictions = **Android apps** → Package name **com.assisto.assisto** + SHA-1 = Play Console → Test and release → App integrity → **App signing key certificate**-এর SHA-1 কপি করে বসান; API restrictions = শুধু **Maps SDK for Android**।
+
+
 ## 🚀 বিল্ড ৩০৪ সার্ভারে লাইভ, Play-তে তৈরি হচ্ছে (৩ Nov সন্ধ্যা ~৭:৫০) — My Circle আদেশ (১৬:৩০) দ্বিতীয় ভাগ, এতে আদেশের সব অংশ কোডে শেষ:
 - **একসাথে অনেক ছবি (D):** ৩০টি পর্যন্ত ছবি/ভিডিও এক অ্যালবামে; পাঠানোর আগে সোয়াইপ, বাদ দেওয়া, ক্রপ, ঘোরানো, এক ক্যাপশন, এইচডি/সাধারণ; প্রতিটির আলাদা অগ্রগতি, আবার চেষ্টা, নেট না থাকলে পরে নিজে যায়; সব end-to-end এনক্রিপ্টেড।
 - **ছবির বাবল (E):** মোটা কালো ফ্রেম নেই, ছবি কিনারা পর্যন্ত, সময় ছোট কালো পিলে; অ্যালবাম ২/৩/৪ গ্রিড, বেশি হলে +N; চাপলে সোয়াইপ, জুম, সেভ, ফরোয়ার্ড। (পুরনো অ্যাপে অ্যালবামের ছবি একে একে দেখায়।)
