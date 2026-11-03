@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -149,6 +151,9 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
         ),
       );
     }
+    // p3farm: icon+text tabs are a fixed 72dp by default and clipped the
+    // label at 200% font — grow with the text scale instead.
+    final tabH = math.max(72.0, 46 + MediaQuery.textScalerOf(context).scale(16) * 1.5);
     return DefaultTabController(
       length: 4,
       initialIndex: widget.initialTab.clamp(0, 3),
@@ -167,10 +172,10 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
             tabAlignment: TabAlignment.start,
             labelStyle: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
             tabs: [
-              Tab(icon: const Icon(Icons.support_agent_rounded, size: 26), text: t.farmTabHelp),
-              Tab(icon: const Icon(Icons.agriculture_rounded, size: 26), text: t.farmerTabLedger),
-              Tab(icon: const Icon(Icons.calendar_month_rounded, size: 26), text: t.farmerTabCalendar),
-              Tab(icon: const Icon(Icons.pets_rounded, size: 26), text: t.farmerTabLivestock),
+              Tab(height: tabH, icon: const Icon(Icons.support_agent_rounded, size: 26), text: t.farmTabHelp),
+              Tab(height: tabH, icon: const Icon(Icons.agriculture_rounded, size: 26), text: t.farmerTabLedger),
+              Tab(height: tabH, icon: const Icon(Icons.calendar_month_rounded, size: 26), text: t.farmerTabCalendar),
+              Tab(height: tabH, icon: const Icon(Icons.pets_rounded, size: 26), text: t.farmerTabLivestock),
             ],
           ),
         ),
