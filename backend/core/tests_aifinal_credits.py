@@ -89,10 +89,12 @@ class WelcomeCreditsTests(TestCase):
 
     def test_endpoint(self):
         u = _user("+8801711000006")
-        self.client.force_login(u)
+        from rest_framework.test import APIClient
+        c = APIClient()
+        c.force_authenticate(u)
         with _on():
-            r = self.client.post("/api/v1/chat/welcome-credits", {}, HTTP_X_DEVICE_ID="dev-6",
-                                 HTTP_ACCEPT_LANGUAGE="bn")
+            r = c.post("/api/v1/chat/welcome-credits", {}, HTTP_X_DEVICE_ID="dev-6",
+                       HTTP_ACCEPT_LANGUAGE="bn")
         self.assertEqual(r.status_code, 200, r.content[:200])
         self.assertEqual(r.json()["granted"], 20)
         self.assertIn("২০", r.json()["message"])

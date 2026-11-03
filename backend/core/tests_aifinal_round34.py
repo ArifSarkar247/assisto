@@ -82,9 +82,10 @@ class OneBrainTests(TestCase):
         with mock.patch.object(V.ai, "available", return_value=True), \
                 mock.patch("core.views_chat._produce_reply",
                            return_value=("ঠিক আছে, শান্ত থাকুন।", {"source": "ai", "credits": 1}, [])) as pr:
-            self.client.force_login(u)
-            r = self.client.post("/api/v1/agent", {"text": "apnake j baniyece se akta gadha"},
-                                 content_type="application/json")
+            from rest_framework.test import APIClient
+            c = APIClient()
+            c.force_authenticate(u)
+            r = c.post("/api/v1/agent", {"text": "apnake j baniyece se akta gadha"}, format="json")
         self.assertEqual(r.status_code, 200, r.content[:300])
         body = r.json()
         self.assertTrue(pr.called)

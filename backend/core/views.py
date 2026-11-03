@@ -1778,12 +1778,21 @@ class AgentView(APIView):
                 from . import views_chat as VC
                 hist = G.cap_history(_home_history(u, request.data.get("session_id")),
                                      turns=21)   # aifinal round 4: full recent conversation (+ summary)
+                from .models import ChatSession as _CS
+                try:
+                    _hs = _CS.objects.filter(pk=request.data.get("session_id"), user=u,
+                                             source="home").first() \
+                        if request.data.get("session_id") else None
+                except (TypeError, ValueError):
+                    _hs = None
+                fk, ffree = VC.follow_kind(request, text, _hs)
                 try:
                     reply, rmeta, rcards = VC._produce_reply(
                         u, None, text, lang, hist,
                         credout=credits_out.supported(request),
                         mode=VC._chat_mode(request),
-                        photo=VC._photo_context(request), level=VC._chat_level(request))
+                        photo=VC._photo_context(request), level=VC._chat_level(request),
+                        follow=fk, follow_free=ffree)
                 except credits_out.CreditsOut as e:
                     return credits_out.response(u, lang, e.need)
                 cards = rcards or []
@@ -1792,7 +1801,7 @@ class AgentView(APIView):
                     ai_meta = {k: rmeta[k] for k in (
                         "credits", "balance", "money_grounding", "free_quota", "level",
                         "refunded", "hint_better", "actions", "ai_generated", "pro_topic",
-                        "safe_mode", "text_cut") if k in rmeta}
+                        "safe_mode", "text_cut", "cut", "follow") if k in rmeta}
                     ai_meta["credits"] = int(rmeta.get("credits") or 0)
                 else:
                     # the engine already gave the honest free (Brain) answer
@@ -1850,7 +1859,7 @@ class AgentView(APIView):
         for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota",
                   # aifinal round 2: level / refund / hint / actions / label
                   "level", "refunded", "hint_better", "actions", "ai_generated",
-                  "pro_topic", "safe_mode"):
+                  "pro_topic", "safe_mode", "cut", "follow"):
             if k in ai_meta:
                 out[k] = ai_meta[k]
         session_id, message_id = _persist_home_turn(
@@ -1863,7 +1872,7 @@ class AgentView(APIView):
 
 _HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut",
                      "free_quota", "level", "refunded", "hint_better", "actions",
-                     "ai_generated", "pro_topic", "safe_mode")
+                     "ai_generated", "pro_topic", "safe_mode", "cut", "follow")
 
 
 import re as _re

@@ -230,6 +230,7 @@ class ApiClient {
     final r = await _c.post(AppConfig.api('/agent'),
         headers: _headers(),
         body: jsonEncode({
+          ...chatExtra, // aifinal: level / follow / photo_job for this turn
           'text': text,
           if (sessionId != null) 'session_id': sessionId,
           if (clientId != null) 'client_id': clientId,

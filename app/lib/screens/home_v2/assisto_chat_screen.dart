@@ -132,6 +132,7 @@ class _AssistoChatScreenState extends State<AssistoChatScreen> {
         fresh: _fresh,
         initialSend: _send,
         starters: _starters(t),
+        showLevels: true,
       ),
     );
   }

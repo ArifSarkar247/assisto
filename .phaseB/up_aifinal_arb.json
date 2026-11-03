@@ -166,6 +166,22 @@
   "aiStarter4": "Write a polite message to my landlord",
   "@aiStarter4": {
    "description": "aifinal chat history: starter question 4"
+  },
+  "aiContinue": "Continue",
+  "@aiContinue": {
+   "description": "aifinal round 3: continue a cut answer from where it stopped (free)"
+  },
+  "aiMoreDetail": "More detail",
+  "@aiMoreDetail": {
+   "description": "aifinal round 3: expand the last answer"
+  },
+  "aiCopy": "Copy",
+  "@aiCopy": {
+   "description": "aifinal round 3: copy the answer"
+  },
+  "aiCopied": "Copied",
+  "@aiCopied": {
+   "description": "aifinal round 3: snackbar after copy"
   }
  },
  "bn": {
@@ -202,6 +218,10 @@
   "aiStarter1": "ঢাকা থেকে গাজীপুর নিরাপদে যাওয়ার পরিকল্পনা করে দাও",
   "aiStarter2": "রাত ৯টায় ওষুধ খাওয়ার কথা মনে করিয়ে দিও",
   "aiStarter3": "এই মাসে আমার কত খরচ হয়েছে?",
-  "aiStarter4": "বাড়িওয়ালাকে একটি ভদ্র বার্তা লিখে দাও"
+  "aiStarter4": "বাড়িওয়ালাকে একটি ভদ্র বার্তা লিখে দাও",
+  "aiContinue": "চালিয়ে যাও",
+  "aiMoreDetail": "আরও বিস্তারিত",
+  "aiCopy": "কপি",
+  "aiCopied": "কপি হয়েছে"
  }
 }
