@@ -65,3 +65,10 @@
 ৫. রোল-প্লে "কারখানায় প্রথম দিন" → ২-৩ বার উত্তর দিন।
 ৬. EPS মক টেস্ট → টাইমার চলে কিনা, শেষে "আনুমানিক — Assisto অনুশীলন" লেখা ও দুর্বল দিক দেখায় কিনা।
 ৭. দ্বিতীয় ফোনে অন্য অ্যাকাউন্ট — প্রথম জনের অগ্রগতি দেখায় না কিনা।
+
+## ৮. কী তৈরি হলো (৩ Nov, ফাইলসহ)
+
+* প্যাক: `backend/core/data/langpacks/ko.json` — লেভেল টেস্ট ১৬, পাঠ ১৮ (হাঙ্গুল → TOPIK ৬), রোল-প্লে ৫, উচ্চারণ ১২, মক ৩ (EPS ধাঁচ রিডিং ২৫/৪০ মিনিট, TOPIK I, TOPIK II), `work_path` (BOESL পথ + অফিসিয়াল লিংক)।
+* ফোন-কণ্ঠে শোনা: `backend/core/data/langpacks_listening/ko.json` (১০ প্রশ্ন) + `backend/core/logic/listen_tts.py` + `backend/core/learn_listen_views.py` (`/learn/ko/listening`)।
+* অ্যাপ: `app/lib/screens/lang_work_path.dart` (প্রবাসী কর্নারের টাইল, পথের পাতা, শোনার অনুশীলন); নেটিভ TTS এখন কোরিয়ান কণ্ঠ বাছে (`AssistoVoiceChannel.kt`, কণ্ঠ না থাকলে ইনস্টলের প্রস্তাব)।
+* টেস্ট: `backend/core/tests_langkoja.py`, `app/test/lang_work_path_test.dart`; গ্যালারি `lk_*`।
