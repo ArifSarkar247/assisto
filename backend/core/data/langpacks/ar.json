@@ -85,10 +85,22 @@
     "text_bn": "সংখ্যাটি কত?\nخمسة",
     "tts_text": "خمسة",
     "options": [
+     "৩",
+     "৫",
+     "৮",
+     "১০"
+    ],
+    "options_en": [
      "3",
      "5",
      "8",
      "10"
+    ],
+    "options_bn": [
+     "৩",
+     "৫",
+     "৮",
+     "১০"
     ],
     "answer": 1,
     "explain_bn": "খামসা = পাঁচ।",
@@ -643,18 +655,16 @@
     {
      "kind": "vocab",
      "target": "٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩",
-     "bn": "আরবি অঙ্ক ০–৯ (দাম, বাস নম্বর, ফর্মে দেখবেন)",
-     "en": "Arabic-Indic digits 0-9 (on prices, buses, forms)",
-     "roman": "0 1 2 3 4 5 6 7 8 9",
+     "bn": "আরবি অঙ্ক ০ ১ ২ ৩ ৪ ৫ ৬ ৭ ৮ ৯ (দাম, বাস নম্বর, ফর্মে দেখবেন)",
+     "en": "Arabic-Indic digits 0 1 2 3 4 5 6 7 8 9 (on prices, buses, forms)",
      "note_bn": "উচ্চারণ: সিফর, ওয়াহিদ, ইসনাইন… · সাবধান: ٥ মানে ৫, ٠ মানে ০; ٦ মানে ৬, ٧ মানে ৭।",
      "note_en": "Careful: ٥ is 5 and ٠ is 0; ٦ is 6, ٧ is 7."
     },
     {
      "kind": "vocab",
      "target": "٩٦٦ ٥٠ ١٢٣ ٤٥٦٧",
-     "bn": "আরবি অঙ্কে লেখা একটা ফোন নম্বর",
-     "en": "A phone number written in Arabic digits",
-     "roman": "966 50 123 4567"
+     "bn": "আরবি অঙ্কে লেখা ফোন নম্বর: ৯৬৬ ৫০ ১২৩ ৪৫৬৭",
+     "en": "A phone number in Arabic digits: 966 50 123 4567"
     }
    ]
   },
@@ -2014,10 +2024,22 @@
        "text_bn": "দাম কত?\nعشرين ريال",
        "tts_text": "عشرين ريال",
        "options": [
+        "১০",
+        "২০",
+        "৫০",
+        "১০০"
+       ],
+       "options_en": [
         "10",
         "20",
         "50",
         "100"
+       ],
+       "options_bn": [
+        "১০",
+        "২০",
+        "৫০",
+        "১০০"
        ],
        "answer": 1,
        "explain_bn": "ইশরীন = বিশ।",
@@ -2266,10 +2288,22 @@
        "text_en": "Which number is this?\n٥٧",
        "text_bn": "এটা কোন সংখ্যা?\n٥٧",
        "options": [
+        "৫৭",
+        "৭৫",
+        "৫২",
+        "২৭"
+       ],
+       "options_en": [
         "57",
         "75",
         "52",
         "27"
+       ],
+       "options_bn": [
+        "৫৭",
+        "৭৫",
+        "৫২",
+        "২৭"
        ],
        "answer": 0,
        "explain_bn": "٥ = ৫, ٧ = ৭ → ৫৭।",
@@ -2284,10 +2318,22 @@
        "text_en": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
        "text_bn": "কফিলের বার্তা। কাল কাজ কয়টায়?\nبكرة الشغل الساعة ٧ الصبح",
        "options": [
+        "৬",
+        "৭",
+        "৮",
+        "৯"
+       ],
+       "options_en": [
         "6",
         "7",
         "8",
         "9"
+       ],
+       "options_bn": [
+        "৬",
+        "৭",
+        "৮",
+        "৯"
        ],
        "answer": 1,
        "explain_bn": "আস-সাআ ٧ = সাতটা।",

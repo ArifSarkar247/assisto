@@ -235,7 +235,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "妈  mā",
 "bn": "মা — টোন ১: উঁচু ও সমান",
 "en": "mother — tone 1: high, level",
-"roman": "mā (1st tone, high and flat)",
+"roman": "mā",
 "note_bn": "উচ্চারণ: মা (উঁচু, সমান)",
 "note_en": ""
 },
@@ -244,7 +244,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "麻  má",
 "bn": "শণ — টোন ২: প্রশ্নের মতো উঠে যায়",
 "en": "hemp — tone 2: rising, like a question",
-"roman": "má (2nd tone, rising)",
+"roman": "má",
 "note_bn": "উচ্চারণ: মা↗ (নিচ থেকে ওঠে)",
 "note_en": ""
 },
@@ -253,7 +253,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "马  mǎ",
 "bn": "ঘোড়া — টোন ৩: নেমে আবার ওঠে",
 "en": "horse — tone 3: falls then rises",
-"roman": "mǎ (3rd tone, dip and rise)",
+"roman": "mǎ",
 "note_bn": "উচ্চারণ: মা↘↗ (নেমে উঠে)",
 "note_en": ""
 },
@@ -262,7 +262,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "骂  mà",
 "bn": "বকা — টোন ৪: আদেশের মতো ঝটকায় নামে",
 "en": "to scold — tone 4: sharp fall, like a command",
-"roman": "mà (4th tone, sharp fall)",
+"roman": "mà",
 "note_bn": "উচ্চারণ: মা↘ (ঝটকা দিয়ে নামে)",
 "note_en": ""
 },
@@ -271,7 +271,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "你好  nǐ hǎo",
 "bn": "হ্যালো — পরপর দুই টোন ৩: প্রথমটি টোন ২ হয়ে যায়",
 "en": "hello — two 3rd tones: the first becomes rising",
-"roman": "nǐ hǎo → said ní hǎo",
+"roman": "nǐ hǎo → ní hǎo",
 "note_bn": "উচ্চারণ: নি হাও",
 "note_en": ""
 },
@@ -280,7 +280,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "不是  bú shì",
 "bn": "নয় — টোন ৪-এর আগে 不 হয় bú",
 "en": "is not — 不 changes to bú before tone 4",
-"roman": "bù → bú before a 4th tone",
+"roman": "bù → bú shì",
 "note_bn": "উচ্চারণ: বু শি",
 "note_en": ""
 },
@@ -289,7 +289,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "中国  Zhōngguó",
 "bn": "চীন — zh, ch, sh: জিভ পেছনে বাঁকিয়ে",
 "en": "China — zh, ch, sh: tongue curled back",
-"roman": "zh = 'j' with the tongue curled",
+"roman": "Zhōngguó",
 "note_bn": "উচ্চারণ: চোং-গুও",
 "note_en": ""
 },
@@ -298,7 +298,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "谢谢  xièxie",
 "bn": "ধন্যবাদ — x, q, j: ঠোঁট ছড়িয়ে",
 "en": "thank you — x, q, j: lips spread",
-"roman": "x = soft 'sh' with a smile",
+"roman": "xièxie",
 "note_bn": "উচ্চারণ: শিয়েশিয়ে",
 "note_en": ""
 },
@@ -307,7 +307,7 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "target": "去  qù",
 "bn": "যাওয়া — এখানে u আসলে ü (ঠোঁট গোল 'ই')",
 "en": "to go — the u here is ü (rounded 'ই')",
-"roman": "q = 'ch' with lips spread; ü after q is written u",
+"roman": "qù",
 "note_bn": "উচ্চারণ: চ্যু",
 "note_en": ""
 }
@@ -438,9 +438,19 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "text_bn": "কোন প্ল্যাটফর্ম?\nEl tren a Sevilla sale de la vía siete.",
 "tts_text": "El tren a Sevilla sale de la vía siete.",
 "options": [
+"৩",
+"৫",
+"৭"
+],
+"options_en": [
 "3",
 "5",
 "7"
+],
+"options_bn": [
+"৩",
+"৫",
+"৭"
 ]
 },
 {
@@ -965,10 +975,22 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "text_bn": "দাম কত?\nعشرين ريال",
 "tts_text": "عشرين ريال",
 "options": [
+"১০",
+"২০",
+"৫০",
+"১০০"
+],
+"options_en": [
 "10",
 "20",
 "50",
 "100"
+],
+"options_bn": [
+"১০",
+"২০",
+"৫০",
+"১০০"
 ]
 },
 {
@@ -1190,10 +1212,22 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "text_en": "Which number is this?\n٥٧",
 "text_bn": "এটা কোন সংখ্যা?\n٥٧",
 "options": [
+"৫৭",
+"৭৫",
+"৫২",
+"২৭"
+],
+"options_en": [
 "57",
 "75",
 "52",
 "27"
+],
+"options_bn": [
+"৫৭",
+"৭৫",
+"৫২",
+"২৭"
 ]
 },
 {
@@ -1205,10 +1239,22 @@ final Map<String, dynamic> _data = jsonDecode(r'''{
 "text_en": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
 "text_bn": "কফিলের বার্তা। কাল কাজ কয়টায়?\nبكرة الشغل الساعة ٧ الصبح",
 "options": [
+"৬",
+"৭",
+"৮",
+"৯"
+],
+"options_en": [
 "6",
 "7",
 "8",
 "9"
+],
+"options_bn": [
+"৬",
+"৭",
+"৮",
+"৯"
 ]
 },
 {

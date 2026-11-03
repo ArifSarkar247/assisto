@@ -51,7 +51,7 @@
     "text_bn": "সঠিক উত্তর বাছুন: 'Wie heißen Sie?'",
     "options": [
      "Ich heiße Rina.",
-     "Ich bin 25.",
+     "Ich bin fünfundzwanzig.",
      "Ich wohne in Dhaka.",
      "Danke, gut."
     ],
@@ -69,10 +69,22 @@
     "text_bn": "কোন সংখ্যা শুনলেন?\neinundzwanzig",
     "tts_text": "einundzwanzig",
     "options": [
+     "১২",
+     "২১",
+     "২০",
+     "২২"
+    ],
+    "options_en": [
      "12",
      "21",
      "20",
      "22"
+    ],
+    "options_bn": [
+     "১২",
+     "২১",
+     "২০",
+     "২২"
     ],
     "answer": 1,
     "explain_bn": "einundzwanzig = ২১।",

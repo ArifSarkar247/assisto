@@ -51,7 +51,7 @@
     "text_bn": "সঠিক উত্তর বাছুন: '¿Cómo se llama usted?'",
     "options": [
      "Me llamo Rina.",
-     "Tengo 25 años.",
+     "Tengo veinticinco años.",
      "Vivo en Dhaka.",
      "Muy bien, gracias."
     ],
@@ -1268,9 +1268,19 @@
        "text_bn": "কোন প্ল্যাটফর্ম?\nEl tren a Sevilla sale de la vía siete.",
        "tts_text": "El tren a Sevilla sale de la vía siete.",
        "options": [
+        "৩",
+        "৫",
+        "৭"
+       ],
+       "options_en": [
         "3",
         "5",
         "7"
+       ],
+       "options_bn": [
+        "৩",
+        "৫",
+        "৭"
        ],
        "answer": 2,
        "explain_bn": "'vía siete' = ৭ নম্বর।",

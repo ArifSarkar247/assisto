@@ -51,7 +51,7 @@
     "text_bn": "সঠিক উত্তর বাছুন: 'Comment vous appelez-vous ?'",
     "options": [
      "Je m'appelle Rina.",
-     "J'ai 25 ans.",
+     "J'ai vingt-cinq ans.",
      "J'habite à Dhaka.",
      "Très bien, merci."
     ],
@@ -69,10 +69,22 @@
     "text_bn": "কোন সংখ্যা?\nsoixante-dix",
     "tts_text": "soixante-dix",
     "options": [
+     "৬০",
+     "৭০",
+     "৮০",
+     "১৭"
+    ],
+    "options_en": [
      "60",
      "70",
      "80",
      "17"
+    ],
+    "options_bn": [
+     "৬০",
+     "৭০",
+     "৮০",
+     "১৭"
     ],
     "answer": 1,
     "explain_bn": "soixante-dix = ৭০ ('ষাট-দশ')।",
@@ -1269,9 +1281,19 @@
        "text_bn": "কোন প্ল্যাটফর্ম?\nLe train pour Lille part de la voie six.",
        "tts_text": "Le train pour Lille part de la voie six.",
        "options": [
+        "২",
+        "৪",
+        "৬"
+       ],
+       "options_en": [
         "2",
         "4",
         "6"
+       ],
+       "options_bn": [
+        "২",
+        "৪",
+        "৬"
        ],
        "answer": 2,
        "explain_bn": "'voie six' = ৬ নম্বর প্ল্যাটফর্ম।",
