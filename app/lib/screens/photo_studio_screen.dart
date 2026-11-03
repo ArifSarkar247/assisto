@@ -13,6 +13,7 @@ import '../photo_studio/ps_edit.dart';
 import '../photo_studio/ps_engines.dart';
 import '../photo_studio/ps_enhance.dart' show AiPlan, StudioEnhanceEngine;
 import '../photo_studio/ps_gate_sheet.dart';
+import '../photo_studio/ps_inapp_exits.dart'; // aileft
 import '../photo_studio/ps_models.dart';
 import '../photo_studio/ps_report.dart';
 import '../photo_studio/ps_tools.dart';
@@ -95,9 +96,22 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   final List<String> _turns = [];
   late final VoiceDictation _voice = VoiceDictation();
 
+  /// aileft: "Add to business catalog" shows only for a shop owner.
+  bool _hasCatalog = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      AppState? app;
+      try {
+        app = context.read<AppState>();
+      } catch (_) {}
+      if (app == null) return;
+      final has = await psHasCatalog(app.api);
+      if (mounted && has != _hasCatalog) setState(() => _hasCatalog = has);
+    });
     _ownsController = widget.controller == null;
     _c = widget.controller ??
         PhotoStudioController(widget.deps ??
@@ -1465,6 +1479,28 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               ])
                 if (_c.deps.sink.available(e.$1))
                   SizedBox(width: w, child: tile(e.$1, e.$2, e.$3)),
+              // aileft: in-app exits (same gate + full quality as Share)
+              SizedBox(
+                  width: w,
+                  child: _ExportTile(
+                      key: const Key('psExport_circle'),
+                      icon: Icons.forum_rounded,
+                      label: t.aileftSendCircle,
+                      enabled: enabled,
+                      available: true,
+                      onTap: () => psSendToCircle(context, _c,
+                          SheetGateUi(context, onPremium: _c.free ? _openPlans : null)))),
+              if (_hasCatalog)
+                SizedBox(
+                    width: w,
+                    child: _ExportTile(
+                        key: const Key('psExport_catalog'),
+                        icon: Icons.storefront_rounded,
+                        label: t.aileftAddCatalog,
+                        enabled: enabled,
+                        available: true,
+                        onTap: () => psAddToCatalog(context, _c,
+                            SheetGateUi(context, onPremium: _c.free ? _openPlans : null)))),
             ]);
           }),
           if (_c.currentId case final id?)

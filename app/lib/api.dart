@@ -1812,4 +1812,29 @@ class ApiClient {
   /// {stopped, credits, refunded, balance?, pending?}.
   Future<Map<String, dynamic>> chatStop(String clientId, int shownChars) =>
       postJson('/chat/stop', {'client_id': clientId, 'shown_chars': shownChars});
+
+  /// aileft: Photo Studio "Add to business catalog" — GET = does this user
+  /// run a shop (never creates one) + their products.
+  Future<Map<String, dynamic>> catalogPhotoState() => getJson('/business/products/photo');
+
+  /// aileft: POST the edited photo (multipart) onto one of my products
+  /// ([productId]) or as a NEW product ([name] + [price] in taka).
+  Future<Map<String, dynamic>> catalogAddPhoto(
+      {required List<int> bytes,
+      required String fileName,
+      int? productId,
+      String? name,
+      String? price}) async {
+    final req = http.MultipartRequest('POST', AppConfig.api('/business/products/photo'));
+    req.headers.addAll(_headers(json: false));
+    if (productId != null) req.fields['product_id'] = '$productId';
+    if (name != null) req.fields['name'] = name;
+    if (price != null) req.fields['price'] = price;
+    req.files.add(http.MultipartFile.fromBytes('photo', bytes, filename: fileName));
+    final r = await http.Response.fromStream(await _c.send(req));
+    if (r.statusCode == 200 || r.statusCode == 201) {
+      return jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
+  }
 }
