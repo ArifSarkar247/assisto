@@ -164,6 +164,166 @@
    "explain_bn": "미끄럽다 = পিছলা।",
    "explain_en": "The floor is slippery.",
    "say": "바닥이 미끄러우니까 뛰지 마세요."
+  },
+  {
+   "id": "kl11",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "내일은 무슨 날입니까?",
+   "options": [
+    "이사하는 날",
+    "쉬는 날",
+    "월급날",
+    "시험 날"
+   ],
+   "answer": 1,
+   "explain_bn": "쉬는 날 = ছুটির দিন।",
+   "explain_en": "Day off.",
+   "say": "내일은 쉬는 날이에요."
+  },
+  {
+   "id": "kl12",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "점심시간은 언제입니까?",
+   "options": [
+    "1시~2시",
+    "12시~2시",
+    "12시~1시",
+    "11시~12시"
+   ],
+   "answer": 2,
+   "explain_bn": "열두 시 = ১২টা, 한 시 = ১টা।",
+   "explain_en": "12 to 1.",
+   "say": "점심은 열두 시부터 한 시까지예요."
+  },
+  {
+   "id": "kl13",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "상자를 어디로 옮깁니까?",
+   "options": [
+    "식당",
+    "기숙사",
+    "사무실",
+    "창고"
+   ],
+   "answer": 3,
+   "explain_bn": "창고 = গুদাম।",
+   "explain_en": "Warehouse.",
+   "say": "이 상자를 창고로 옮겨 주세요."
+  },
+  {
+   "id": "kl14",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "여자는 어느 나라에서 왔습니까?",
+   "options": [
+    "방글라데시",
+    "네팔",
+    "베트남",
+    "한국"
+   ],
+   "answer": 0,
+   "explain_bn": "বাংলাদেশ।",
+   "explain_en": "Bangladesh.",
+   "say": "남자: 어디에서 왔어요? 여자: 방글라데시에서 왔어요."
+  },
+  {
+   "id": "kl15",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "무엇을 해야 합니까?",
+   "options": [
+    "안전화",
+    "귀마개",
+    "마스크",
+    "장갑"
+   ],
+   "answer": 1,
+   "explain_bn": "귀마개 = কানের প্লাগ।",
+   "explain_en": "Earplugs.",
+   "say": "기계 소리가 크니까 귀마개를 하세요."
+  },
+  {
+   "id": "kl16",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "얼마입니까?",
+   "options": [
+    "30,000원",
+    "13,000원",
+    "3,000원",
+    "300원"
+   ],
+   "answer": 2,
+   "explain_bn": "삼천 = ৩০০০।",
+   "explain_en": "3,000 won.",
+   "say": "여자: 이거 얼마예요? 남자: 삼천 원이에요."
+  },
+  {
+   "id": "kl17",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "버스는 몇 시에 출발합니까?",
+   "options": [
+    "7:00",
+    "8:30",
+    "11:30",
+    "7:30"
+   ],
+   "answer": 3,
+   "explain_bn": "일곱 시 반 = সাড়ে সাতটা।",
+   "explain_en": "7:30.",
+   "say": "버스는 공장 앞에서 일곱 시 반에 출발해요."
+  },
+  {
+   "id": "kl18",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "손을 다치면 어떻게 합니까?",
+   "options": [
+    "바로 말한다",
+    "참는다",
+    "집에 간다",
+    "계속 일한다"
+   ],
+   "answer": 0,
+   "explain_bn": "바로 = সঙ্গে সঙ্গে।",
+   "explain_en": "Tell at once.",
+   "say": "손을 다쳤으면 바로 말하세요."
+  },
+  {
+   "id": "kl19",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "잔업은 몇 시간입니까?",
+   "options": [
+    "없다",
+    "두 시간",
+    "한 시간",
+    "세 시간"
+   ],
+   "answer": 1,
+   "explain_bn": "두 시간 = দুই ঘণ্টা।",
+   "explain_en": "Two hours.",
+   "say": "남자: 오늘 잔업 있어요? 여자: 네, 두 시간 있어요."
+  },
+  {
+   "id": "kl20",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "주말에 식당은?",
+   "options": [
+    "24시간 한다",
+    "문을 닫는다",
+    "늦게 연다",
+    "일찍 연다"
+   ],
+   "answer": 1,
+   "explain_bn": "닫다 = বন্ধ করা।",
+   "explain_en": "Closed.",
+   "say": "주말에는 기숙사 식당이 문을 닫아요."
   }
  ]
 }
