@@ -1,11 +1,15 @@
 """aifinal (owner AI order 3 Nov 23:15, PART 3): the answer level the USER
 chooses above the AI chat input. Pure logic (no DB, no network).
 
-  Normal = Gemini 2.5 Flash (default)        Better = Claude Haiku 5.5
+  Normal = Gemini 3.5 Flash-Lite (default)   Better = Claude Haiku 5.5
   Best   = Claude Sonnet 5.5
 
 Prices (USD per 1M tokens, checked 3 Nov 2026 on the official pages):
-  * gemini-2.5-flash       in 0.30 / out 2.50   https://ai.google.dev/gemini-api/docs/pricing
+  * gemini-3.5-flash-lite  in 0.30 / out 2.50   https://aistudio.google.com/docs/pricing
+    (geminifix 4 Nov: gemini-2.5-flash is deprecated and no longer offered
+    to new keys — HTTP 404 live; 3.5-flash-lite is Google's named
+    replacement at the same price, see core/gemini_models.py)
+  * gemini-2.5-flash       in 0.30 / out 2.50   (the earlier Normal)
   * gemini-2.5-flash-lite  in 0.10 / out 0.40   (the earlier Normal)
                                                (now served at aistudio.google.com/docs/pricing)
   * claude-haiku-5-5       in 0.10 / out 0.50 / 5m cache write 0.125
@@ -31,7 +35,8 @@ PROVIDERS = ("gemini", "anthropic", "openai")
 
 DEFAULT_LEVELS = {
     # owner rebuild order 4 Nov 01:02: Normal = Gemini FLASH (not Flash-Lite)
-    "normal": {"provider": "gemini", "model": "gemini-2.5-flash",
+    # geminifix 4 Nov: gemini-2.5-flash -> its official replacement
+    "normal": {"provider": "gemini", "model": "gemini-3.5-flash-lite",
                "in_cap": 5000, "out_cap": 1500, "max_chars": 2000, "history_turns": 12,
                "credits": 0, "per_day": 60},
     "better": {"provider": "anthropic", "model": "claude-haiku-5-5",
@@ -71,7 +76,14 @@ def defaults():
             # https://ai.google.dev/gemini-api/docs/pricing). The worst-case
             # price is added to the answer's credits. OFF until the owner
             # accepts that price.
-            "web_on": False, "web_usd_per_prompt": 0.035}
+            "web_on": False, "web_usd_per_prompt": 0.035,
+            # geminifix: the one place for Gemini model ids (core/gemini_models.py)
+            "gemini_models": _gemini_defaults()}
+
+
+def _gemini_defaults():
+    from ..gemini_models import DEFAULTS
+    return dict(DEFAULTS)
 
 
 def _clampi(v, lo, hi, d):
@@ -126,6 +138,11 @@ def normalize(raw):
             out[k] = base[k]
     for k, (lo, hi) in TOP_BOUNDS.items():
         out[k] = _clampi(raw.get(k), lo, hi, base[k])
+    rg = raw.get("gemini_models") if isinstance(raw.get("gemini_models"), dict) else {}
+    out["gemini_models"] = {
+        k: (str(rg.get(k)).strip().lower() if _model_ok(str(rg.get(k) or "").strip())
+            and str(rg.get(k)).strip().lower().startswith("gemini") else v)
+        for k, v in base["gemini_models"].items()}
     return out
 
 
