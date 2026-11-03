@@ -10,6 +10,9 @@ import '../widgets/probashi_reminders.dart'; // f6
 import 'dart:async' show Timer; // lifebar
 import 'package:shared_preferences/shared_preferences.dart'; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart' show FeatureFlags; // p3guides
+import 'probashi/probashi_help_tab.dart'; // p3guides
+import '../widgets/chatnav.dart' show ChatNav; // p3guides
 
 /// PROBASHI CORNER — ADVANCED (#191, SPEC v2.1 §20) for Bangladeshis abroad.
 ///
@@ -146,16 +149,30 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.probashiLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
+          action: Column(mainAxisSize: MainAxisSize.min, children: [
+            FilledButton.tonalIcon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(tr.retry),
+            ),
+            // p3guides: SOS abroad never waits for the network.
+            if (FeatureFlags.instance.isOn('official_corners')) ...[
+              const SizedBox(height: Gap.sm),
+              OutlinedButton.icon(
+                key: const ValueKey('p3g-sos-offline'),
+                onPressed: () => ChatNav.push(context, 'emergency_hub'),
+                icon: const Icon(Icons.sos_rounded),
+                label: Text(tr.p3gSosButton),
+              ),
+            ],
+          ]),
         ),
       );
     }
+    // p3guides: official Help tab (helplines, welfare, real cost, SOS abroad)
+    final help = FeatureFlags.instance.isOn('official_corners');
     return DefaultTabController(
-      length: 3,
+      length: help ? 4 : 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(tr.probashiTitle),
@@ -165,6 +182,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
               Tab(text: tr.probashiTabRemit),
               Tab(text: tr.probashiTabClock),
               Tab(text: tr.probashiTabDocs),
+              if (help) Tab(text: tr.p3gTabHelp),
             ],
           ),
         ),
@@ -185,6 +203,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
             onEdit: _editDoc,
             onDelete: _deleteDoc,
           ),
+          if (help) const ProbashiHelpTab(),
         ]),
       ),
     );

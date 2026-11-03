@@ -9,6 +9,9 @@ import '../widgets/student_gpa_engine.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart' show FeatureFlags; // p3guides
+import 'student/study_timer_tab.dart'; // p3guides
+import 'student/student_official_tab.dart'; // p3guides
 
 /// STUDENT CORNER — ADVANCED (#192, SPEC v2.1 §20).
 ///
@@ -121,7 +124,11 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
         ),
       );
     }
-    if (_empty) {
+    // p3guides: with the official extras on, every tab (each has its own
+    // empty state) is reachable from the first visit — timer + official dates
+    // need no saved data.
+    final extras = FeatureFlags.instance.isOn('official_corners');
+    if (_empty && !extras) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.studentTitle)),
         body: StateMessage(
@@ -137,7 +144,7 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
       );
     }
     return DefaultTabController(
-      length: 4,
+      length: extras ? 6 : 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text(tr.studentTitle),
@@ -146,6 +153,8 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
             Tab(text: tr.studentTabTracker),
             Tab(text: tr.studentTabCgpa),
             Tab(text: tr.studentTabGoals),
+            if (extras) Tab(text: tr.p3gTabTimer),
+            if (extras) Tab(text: tr.p3gTabOfficial),
           ]),
         ),
         body: TabBarView(children: [
@@ -153,6 +162,8 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
           _TrackerTab(items: _assignments, onChanged: _load),
           _CgpaTab(courses: _courses, onChanged: _load, onAdd: _addCourse),
           _GoalsTab(goals: _goals, onChanged: _load),
+          if (extras) const StudyTimerTab(),
+          if (extras) StudentOfficialTab(onSaved: _load),
         ]),
       ),
     );
@@ -636,7 +647,11 @@ class _TrackerCard extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Flexible(
             child: Text(
-              status.kind == 'exam' ? tr.studentKindExam : tr.studentKindAssignment,
+              status.kind == 'exam'
+                  ? tr.studentKindExam
+                  : status.kind == 'deadline' // p3guides
+                      ? tr.p3gKindDeadline
+                      : tr.studentKindAssignment,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: scheme.onSurfaceVariant),
@@ -688,7 +703,7 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
     super.initState();
     final e = widget.existing;
     _title = TextEditingController(text: (e?['title'] ?? '').toString());
-    if (e?['kind'] == 'exam') _kind = 'exam';
+    if (e?['kind'] == 'exam' || e?['kind'] == 'deadline') _kind = e!['kind'] as String; // p3guides keeps deadlines
     _due = StudentEngine.parseDate(e?['due_date']);
   }
 
@@ -730,15 +745,23 @@ class _AssignmentEditorState extends State<_AssignmentEditor> {
           decoration: InputDecoration(labelText: tr.studentTitleLabel),
         ),
         const SizedBox(height: Gap.md),
-        SegmentedButton<String>(
-          segments: [
-            ButtonSegment(
-                value: 'assignment', label: Text(tr.studentKindAssignment)),
-            ButtonSegment(value: 'exam', label: Text(tr.studentKindExam)),
-          ],
-          selected: {_kind},
-          onSelectionChanged: (s) => setState(() => _kind = s.first),
-        ),
+        if (_kind == 'deadline') // p3guides: a saved official deadline
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Chip(
+                avatar: const Icon(Icons.event_rounded, size: 18),
+                label: Text(tr.p3gKindDeadline)),
+          )
+        else
+          SegmentedButton<String>(
+            segments: [
+              ButtonSegment(
+                  value: 'assignment', label: Text(tr.studentKindAssignment)),
+              ButtonSegment(value: 'exam', label: Text(tr.studentKindExam)),
+            ],
+            selected: {_kind},
+            onSelectionChanged: (s) => setState(() => _kind = s.first),
+          ),
         const SizedBox(height: Gap.md),
         ListTile(
           contentPadding: EdgeInsets.zero,

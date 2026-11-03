@@ -1,0 +1,304 @@
+{
+ "en": {
+  "p3gCall": "Call",
+  "@p3gCall": {
+   "description": "p3guides"
+  },
+  "p3gCallFailed": "Couldn't open the phone dialer.",
+  "@p3gCallFailed": {
+   "description": "p3guides"
+  },
+  "p3gDeadlineHow": "Read the last date on the official notice, then save it here — Assisto never guesses dates.",
+  "@p3gDeadlineHow": {
+   "description": "p3guides"
+  },
+  "p3gDeadlinePickDate": "Pick the last date",
+  "@p3gDeadlinePickDate": {
+   "description": "p3guides"
+  },
+  "p3gDeadlineSaved": "Saved — you'll find it in the Tracker.",
+  "@p3gDeadlineSaved": {
+   "description": "p3guides"
+  },
+  "p3gDeadlineTitleHint": "What is due? (e.g. scholarship form)",
+  "@p3gDeadlineTitleHint": {
+   "description": "p3guides"
+  },
+  "p3gDocsReady": "{done} of {total} ready — tick what you have (saved on this phone)",
+  "@p3gDocsReady": {
+   "description": "p3guides",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gFromCache": "Showing the copy saved on this phone (no internet).",
+  "@p3gFromCache": {
+   "description": "p3guides"
+  },
+  "p3gHelplines": "Official helplines",
+  "@p3gHelplines": {
+   "description": "p3guides"
+  },
+  "p3gKindDeadline": "Deadline",
+  "@p3gKindDeadline": {
+   "description": "p3guides"
+  },
+  "p3gLastChecked": "Last checked by Assisto: {date}",
+  "@p3gLastChecked": {
+   "description": "p3guides",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gLinksTitle": "Official sites",
+  "@p3gLinksTitle": {
+   "description": "p3guides"
+  },
+  "p3gNeedNetOnce": "Connect to the internet once to download the official information — after that it works offline.",
+  "@p3gNeedNetOnce": {
+   "description": "p3guides"
+  },
+  "p3gNoGuessedFee": "We show a fee number only when the government has published it and we could confirm it. Open the official fee page for today's fee.",
+  "@p3gNoGuessedFee": {
+   "description": "p3guides"
+  },
+  "p3gOfficialFeePage": "Official fee page",
+  "@p3gOfficialFeePage": {
+   "description": "p3guides"
+  },
+  "p3gOfficialSources": "Official sources",
+  "@p3gOfficialSources": {
+   "description": "p3guides"
+  },
+  "p3gOpenNctb": "Free textbooks (NCTB)",
+  "@p3gOpenNctb": {
+   "description": "p3guides"
+  },
+  "p3gPublishedFee": "Fee published by the government",
+  "@p3gPublishedFee": {
+   "description": "p3guides"
+  },
+  "p3gRemitAboveSdg": "Above the UN target of 3% — compare providers on the World Bank page.",
+  "@p3gRemitAboveSdg": {
+   "description": "p3guides"
+  },
+  "p3gRemitAmount": "Amount you sent (foreign currency)",
+  "@p3gRemitAmount": {
+   "description": "p3guides"
+  },
+  "p3gRemitBbRate": "Today's reference rate (Bangladesh Bank)",
+  "@p3gRemitBbRate": {
+   "description": "p3guides"
+  },
+  "p3gRemitBelowSdg": "Within the UN target of 3% — a good deal.",
+  "@p3gRemitBelowSdg": {
+   "description": "p3guides"
+  },
+  "p3gRemitCheck": "Check the real cost",
+  "@p3gRemitCheck": {
+   "description": "p3guides"
+  },
+  "p3gRemitFee": "Fee you paid (same currency)",
+  "@p3gRemitFee": {
+   "description": "p3guides"
+  },
+  "p3gRemitIncentive": "Sent through an official channel? The government's 2.5% incentive adds about Tk {amount}.",
+  "@p3gRemitIncentive": {
+   "description": "p3guides",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gRemitIntro": "Enter one transfer to see what it really cost you: the fee plus the exchange-rate margin.",
+  "@p3gRemitIntro": {
+   "description": "p3guides"
+  },
+  "p3gRemitInvalid": "Enter the amount and both rates as numbers above zero.",
+  "@p3gRemitInvalid": {
+   "description": "p3guides"
+  },
+  "p3gRemitRateGot": "Rate you got (Tk per unit)",
+  "@p3gRemitRateGot": {
+   "description": "p3guides"
+  },
+  "p3gRemitRateRef": "Today's reference rate (Tk per unit)",
+  "@p3gRemitRateRef": {
+   "description": "p3guides"
+  },
+  "p3gRemitResult": "Real cost: {pct}% of what you sent",
+  "@p3gRemitResult": {
+   "description": "p3guides",
+   "placeholders": {
+    "pct": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gRemitTitle": "Real cost of sending money",
+  "@p3gRemitTitle": {
+   "description": "p3guides"
+  },
+  "p3gRemitWorldBank": "Compare providers (World Bank)",
+  "@p3gRemitWorldBank": {
+   "description": "p3guides"
+  },
+  "p3gSafetyTips": "Stay safe abroad",
+  "@p3gSafetyTips": {
+   "description": "p3guides"
+  },
+  "p3gSaveDeadline": "Save a deadline",
+  "@p3gSaveDeadline": {
+   "description": "p3guides"
+  },
+  "p3gSosBody": "Open Assisto's emergency help to alert your family, then call the embassy or Probash-Bondhu.",
+  "@p3gSosBody": {
+   "description": "p3guides"
+  },
+  "p3gSosButton": "Open emergency help",
+  "@p3gSosButton": {
+   "description": "p3guides"
+  },
+  "p3gSosTitle": "In danger abroad?",
+  "@p3gSosTitle": {
+   "description": "p3guides"
+  },
+  "p3gTabHelp": "Help",
+  "@p3gTabHelp": {
+   "description": "p3guides"
+  },
+  "p3gTabOfficial": "Official dates",
+  "@p3gTabOfficial": {
+   "description": "p3guides"
+  },
+  "p3gTabTimer": "Study timer",
+  "@p3gTabTimer": {
+   "description": "p3guides"
+  },
+  "p3gTimerBreak": "{min} min break",
+  "@p3gTimerBreak": {
+   "description": "p3guides",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gTimerDone": "Session done — take a short break.",
+  "@p3gTimerDone": {
+   "description": "p3guides"
+  },
+  "p3gTimerFocus": "{min} min focus",
+  "@p3gTimerFocus": {
+   "description": "p3guides",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gTimerHint": "Works without internet. The timer runs while this screen is open.",
+  "@p3gTimerHint": {
+   "description": "p3guides"
+  },
+  "p3gTimerPause": "Pause",
+  "@p3gTimerPause": {
+   "description": "p3guides"
+  },
+  "p3gTimerResume": "Resume",
+  "@p3gTimerResume": {
+   "description": "p3guides"
+  },
+  "p3gTimerStart": "Start",
+  "@p3gTimerStart": {
+   "description": "p3guides"
+  },
+  "p3gTimerStop": "Stop and save",
+  "@p3gTimerStop": {
+   "description": "p3guides"
+  },
+  "p3gTimerToday": "Today: {min} min studied",
+  "@p3gTimerToday": {
+   "description": "p3guides",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gTimerWeek": "Last 7 days: {min} min",
+  "@p3gTimerWeek": {
+   "description": "p3guides",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "p3gWelfareTitle": "Wage Earners' Welfare Board support",
+  "@p3gWelfareTitle": {
+   "description": "p3guides"
+  }
+ },
+ "bn": {
+  "p3gCall": "কল করুন",
+  "p3gCallFailed": "ফোনের ডায়ালার খোলা গেল না।",
+  "p3gDeadlineHow": "অফিশিয়াল নোটিশে শেষ তারিখ দেখে এখানে সেভ করুন — Assisto কখনো তারিখ অনুমান করে না।",
+  "p3gDeadlinePickDate": "শেষ তারিখ বেছে নিন",
+  "p3gDeadlineSaved": "সেভ হয়েছে — ট্র্যাকারে পাবেন।",
+  "p3gDeadlineTitleHint": "কী জমা দিতে হবে? (যেমন বৃত্তির ফর্ম)",
+  "p3gDocsReady": "{total}টির মধ্যে {done}টি তৈরি — যা আছে টিক দিন (ফোনে সেভ থাকে)",
+  "p3gFromCache": "ফোনে সেভ করা কপি দেখাচ্ছি (ইন্টারনেট নেই)।",
+  "p3gHelplines": "সরকারি হেল্পলাইন",
+  "p3gKindDeadline": "শেষ তারিখ",
+  "p3gLastChecked": "Assisto শেষ যাচাই করেছে: {date}",
+  "p3gLinksTitle": "অফিশিয়াল সাইট",
+  "p3gNeedNetOnce": "অফিশিয়াল তথ্য নামাতে একবার ইন্টারনেট চালু করুন — এরপর নেট ছাড়াও দেখা যাবে।",
+  "p3gNoGuessedFee": "সরকার প্রকাশ করেছে ও আমরা নিশ্চিত হতে পেরেছি — শুধু তখনই ফি-র অঙ্ক দেখাই। আজকের ফি জানতে অফিশিয়াল ফি-পাতা খুলুন।",
+  "p3gOfficialFeePage": "অফিশিয়াল ফি-পাতা",
+  "p3gOfficialSources": "অফিশিয়াল সূত্র",
+  "p3gOpenNctb": "বিনামূল্যে পাঠ্যবই (এনসিটিবি)",
+  "p3gPublishedFee": "সরকারের প্রকাশিত ফি",
+  "p3gRemitAboveSdg": "জাতিসংঘের ৩% লক্ষ্যের বেশি — বিশ্বব্যাংকের পাতায় অন্য প্রতিষ্ঠানের সাথে তুলনা করুন।",
+  "p3gRemitAmount": "পাঠানো অঙ্ক (বিদেশি মুদ্রায়)",
+  "p3gRemitBbRate": "আজকের রেফারেন্স রেট (বাংলাদেশ ব্যাংক)",
+  "p3gRemitBelowSdg": "জাতিসংঘের ৩% লক্ষ্যের মধ্যে — ভালো খরচ।",
+  "p3gRemitCheck": "আসল খরচ দেখুন",
+  "p3gRemitFee": "যে ফি দিয়েছেন (একই মুদ্রায়)",
+  "p3gRemitIncentive": "বৈধ পথে পাঠালে সরকারের ২.৫% প্রণোদনা প্রায় ৳{amount} যোগ হয়।",
+  "p3gRemitIntro": "একটি পাঠানোর তথ্য দিন — ফি আর রেটের পার্থক্য মিলিয়ে আসল খরচ দেখুন।",
+  "p3gRemitInvalid": "অঙ্ক ও দুটো রেট শূন্যের বেশি সংখ্যায় লিখুন।",
+  "p3gRemitRateGot": "যে রেট পেয়েছেন (প্রতি একক টাকা)",
+  "p3gRemitRateRef": "আজকের রেফারেন্স রেট (প্রতি একক টাকা)",
+  "p3gRemitResult": "আসল খরচ: পাঠানো অঙ্কের {pct}%",
+  "p3gRemitTitle": "টাকা পাঠানোর আসল খরচ",
+  "p3gRemitWorldBank": "প্রতিষ্ঠান তুলনা (বিশ্বব্যাংক)",
+  "p3gSafetyTips": "বিদেশে নিরাপদ থাকুন",
+  "p3gSaveDeadline": "শেষ তারিখ সেভ করুন",
+  "p3gSosBody": "Assisto-র জরুরি সাহায্য খুলে পরিবারকে জানান, তারপর দূতাবাস বা প্রবাসবন্ধুতে কল করুন।",
+  "p3gSosButton": "জরুরি সাহায্য খুলুন",
+  "p3gSosTitle": "বিদেশে বিপদে?",
+  "p3gTabHelp": "সহায়তা",
+  "p3gTabOfficial": "অফিশিয়াল তারিখ",
+  "p3gTabTimer": "পড়ার টাইমার",
+  "p3gTimerBreak": "{min} মিনিট বিরতি",
+  "p3gTimerDone": "একটা সেশন শেষ — একটু বিরতি নিন।",
+  "p3gTimerFocus": "{min} মিনিট পড়া",
+  "p3gTimerHint": "ইন্টারনেট লাগে না। এই পাতা খোলা থাকা পর্যন্ত টাইমার চলে।",
+  "p3gTimerPause": "থামান",
+  "p3gTimerResume": "আবার চালু",
+  "p3gTimerStart": "শুরু করুন",
+  "p3gTimerStop": "শেষ করে সেভ",
+  "p3gTimerToday": "আজ পড়েছেন: {min} মিনিট",
+  "p3gTimerWeek": "গত ৭ দিন: {min} মিনিট",
+  "p3gWelfareTitle": "ওয়েজ আর্নার্স কল্যাণ বোর্ডের সহায়তা"
+ }
+}

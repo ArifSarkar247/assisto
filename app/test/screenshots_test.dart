@@ -358,6 +358,12 @@ import 'package:assisto/push/push_settings_screen.dart';
 import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'bizops_shots.dart'; // bizops
 import 'fake_api.dart';
+import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
+import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
+import 'package:assisto/widgets/guide_service_card.dart'; // p3guides
+import 'package:assisto/screens/probashi/probashi_help_tab.dart'; // p3guides
+import 'package:assisto/screens/student/study_timer_tab.dart'; // p3guides
+import 'package:assisto/screens/student/student_official_tab.dart'; // p3guides
 import 'fake_psec.dart' show kPsecShotMessage; // pssec
 import 'package:assisto/screens/pa/ps_today_screen.dart'; // pssec
 import 'package:assisto/screens/pa/ps_pickup_sheet.dart'; // pssec
@@ -892,6 +898,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'business': (build: (_) => const BusinessScreen(), mode: FakeMode.data, full: true),
     'inbox': (build: (_) => const InboxScreen(), mode: FakeMode.data, full: true),
     'guide': (build: (_) => const GuideScreen(), mode: FakeMode.data, full: true),
+    // p3guides (flag official_corners for the corner tabs): official fee
+    // table + ticked documents, Probashi Help, study timer, official dates.
+    'p3g_guide_card': (build: (_) => const _P3gGuideCardShot(), mode: FakeMode.data, full: true),
+    'p3g_probashi_help': (build: (_) => const _P3gTabShot(which: 'help'), mode: FakeMode.data, full: true),
+    'p3g_probashi_help_offline': (build: (_) => const _P3gTabShot(which: 'help'), mode: FakeMode.fail, full: true),
+    'p3g_timer': (build: (_) => const _P3gTabShot(which: 'timer'), mode: FakeMode.data, full: true),
+    'p3g_student_official': (build: (_) => const _P3gTabShot(which: 'official'), mode: FakeMode.data, full: true),
     'agent_studio': (build: (_) => const AgentStudioScreen(), mode: FakeMode.data, full: true),
     'battery_guidance': (build: (_) => const BatteryGuidanceScreen(), mode: FakeMode.data, full: true),
     'onboarding': (build: (_) => OnboardingScreen(onDone: () {}), mode: FakeMode.data, full: true),
@@ -1349,4 +1362,75 @@ class _SjFlagsState extends State<_SjFlags> {
 
   @override
   Widget build(BuildContext context) => widget.child;
+}
+
+
+/// p3guides: one expanded e-namjari card (published fee table, sources,
+/// last-checked date, 1 of 3 documents ticked).
+class _P3gGuideCardShot extends StatelessWidget {
+  const _P3gGuideCardShot();
+  @override
+  Widget build(BuildContext context) {
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    final svc = GuideService.fromJson(p3gFakeEmutation(bn));
+    return Scaffold(
+      appBar: AppBar(title: Text(svc.name)),
+      body: ListView(padding: const EdgeInsets.all(16), children: [
+        GuideServiceCard(
+          service: svc,
+          bookmarked: false,
+          onToggleBookmark: () {},
+          onOpenLink: (_) {},
+          onWhatDoINeed: () {},
+          initiallyExpanded: true,
+          checkedDocs: const {0},
+          onToggleDoc: (_) {},
+        ),
+      ]),
+    );
+  }
+}
+
+/// p3guides: the Probashi Help / Student Timer / Official tabs, with the
+/// official_corners switch on for the shot (restored afterwards).
+class _P3gTabShot extends StatefulWidget {
+  final String which;
+  const _P3gTabShot({required this.which});
+  @override
+  State<_P3gTabShot> createState() => _P3gTabShotState();
+}
+
+class _P3gTabShotState extends State<_P3gTabShot> {
+  Map<String, bool>? _was;
+  @override
+  void initState() {
+    super.initState();
+    _was = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {...?_was, 'official_corners': true};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _was;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    String title;
+    Widget body;
+    switch (widget.which) {
+      case 'help':
+        title = tr.p3gTabHelp;
+        body = const ProbashiHelpTab();
+      case 'timer':
+        title = tr.p3gTabTimer;
+        body = const StudyTimerTab();
+      default:
+        title = tr.p3gTabOfficial;
+        body = StudentOfficialTab(onSaved: () {});
+    }
+    return Scaffold(appBar: AppBar(title: Text(title)), body: body);
+  }
 }
