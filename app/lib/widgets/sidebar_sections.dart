@@ -100,6 +100,7 @@ import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_hub_screen.dart'; // p4-world
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
+import '../screens/quran_screen.dart'; // p3faith
 import '../screens/watch_feed_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
@@ -615,6 +616,12 @@ class SidebarSections {
           feature: 'ramadan',
           (_) => const RamadanScreen(),
           synonyms: ['prayer', 'ramadan', 'namaz', 'roza']),
+      // p3faith (flag quran, default OFF): offline Quran — Tanzil Arabic +
+      // Pickthall English; Bangla awaits a licence; no ads.
+      SidebarItem(Icons.menu_book_rounded, (t) => t.quranTitle,
+          feature: 'quran',
+          (_) => const QuranScreen(),
+          synonyms: ['quran', 'koran', 'surah', 'sura', 'ayat', 'tilawat']),
       SidebarItem(Icons.radar_rounded, (t) => t.watchFeed2,
           feature: 'watch_feed',
           (_) => const WatchFeedScreen(),

@@ -1,0 +1,20 @@
+Quran assets — sources and licences (verified 3 Nov 2026)
+
+quran-simple.txt.gz
+  Tanzil Quran Text (Simple, Version 1.1), Copyright (C) 2007-2026 Tanzil Project.
+  License: Creative Commons Attribution 3.0. https://tanzil.net/docs/text_license
+  Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
+  sha256 of the uncompressed file: b3638f5cf03e2b05e4000efc0e4b656aafb3cf6ed28f8770b6497c5b43c46089
+
+en.pickthall.txt.gz
+  The Meaning of the Glorious Koran (1930), Mohammed Marmaduke William Pickthall (d. 1936).
+  Public domain (BD life+60, UK life+70, US: 1930 publication, PD since 1 Jan 2026).
+  Digital text: Tanzil.net (en.pickthall, last update 4 Sep 2010), stored verbatim.
+  Owner decision pending: owner_actions/FEATURE_CARD_QURAN_BN.md section 6.
+  sha256 of the uncompressed file: 4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7
+
+quran_meta.json
+  Derived from Tanzil Quran metadata (quran-data.xml v1.0), (C) 2008-2009 Tanzil.info, license cc-by.
+
+Bangla translation: NOT included (Tanzil translations are non-commercial only; no
+licence from the translators/publishers yet). Audio: NOT included.

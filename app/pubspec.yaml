@@ -164,6 +164,8 @@ flutter:
     - assets/branding/
     # train: bundled OSM stations for the offline destination alarm (ODbL)
     - assets/train/
+    # p3faith: Tanzil Quran text (CC BY 3.0, verbatim) + Pickthall 1930 (PD)
+    - assets/quran/
   # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
   # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
   # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's

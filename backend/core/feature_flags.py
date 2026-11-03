@@ -123,6 +123,10 @@ REGISTRY = (
     ('unseen_bangladesh', 'daily_life', 'Unseen Bangladesh', 'অদেখা বাংলাদেশ', True, ('unseen',)),
     ('dictionary', 'daily_life', 'Dictionary', 'অভিধান', True, ('dictionary',)),
     ('ramadan', 'daily_life', 'Ramadan mode', 'রমজান মোড', True, ('ramadan',)),
+    # p3faith (owner PART 3, 3 Nov): offline Quran — Tanzil Arabic (CC BY 3.0,
+    # verbatim) + Pickthall 1930 English (public domain); Bangla waits for a
+    # licence. Hidden until the owner's licence decision + phone check.
+    ('quran', 'daily_life', 'Quran', 'কুরআন', False, ('quran',)),
     ('watch_feed', 'daily_life', 'Watch feed', 'ওয়াচ ফিড', True, ('watch_feed',)),
     ('exam_result', 'daily_life', 'Exam result', 'পরীক্ষার ফলাফল', True, ('exam',)),
     ('photo_studio', 'daily_life', 'Photo Studio', 'ফটো স্টুডিও', True, ('photo_studio', 'photo_enhance')),

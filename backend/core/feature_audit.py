@@ -104,6 +104,8 @@ _A = {
     "dictionary": ("?F???P?FF", "hide", "Sweep B?: dictionary dataset not wired.", "সুইপ B?: অভিধানের ডেটা যুক্ত নয়।"),
     "ramadan": ("?P???P??F", "show", "Sweep B? key-gated parts hidden (f6); prayer times work.",
                 "সুইপ B? চাবি-নির্ভর অংশ লুকানো (f6); নামাজের সময় কাজ করে।"),
+    "quran": ("?P???F??F", "hide", "p3faith 3 Nov: offline Quran — Tanzil Arabic (CC BY 3.0, verbatim) + Pickthall 1930 English (public domain), sura list, search, bookmarks, last read, source & licence page; Bangla translation shown as awaiting licence; no audio; widget tests on CI; owner licence decision + phone check pending (FEATURE_CARD_QURAN_BN.md).",
+              "p3faith ৩ নভেম্বর: অফলাইন কুরআন — Tanzil আরবি (CC BY 3.0, হুবহু) + Pickthall ১৯৩০ ইংরেজি (পাবলিক ডোমেইন), সূরা তালিকা, খোঁজা, বুকমার্ক, শেষ পড়া, উৎস ও লাইসেন্স পাতা; বাংলা অনুবাদ লাইসেন্সের অপেক্ষায়; অডিও নেই; মালিকের লাইসেন্স সিদ্ধান্ত ও ফোনে পরীক্ষা বাকি।"),
     "watch_feed": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "exam_result": ("?P???P??F", "show", "Sweep A?; watcher fixed (f6).", "সুইপ A?; ওয়াচার ঠিক (f6)।"),
     "photo_studio": ("?P??PP??F", "show", "Profit Guard + credits/ads; not in the dead-button gallery.",

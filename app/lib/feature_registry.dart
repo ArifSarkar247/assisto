@@ -74,6 +74,8 @@ const Map<String, bool> kFeatureDefaults = {
   'unseen_bangladesh': true,
   'dictionary': true,
   'ramadan': true,
+  // p3faith: offline Quran (Tanzil Arabic + Pickthall) - OFF until the owner's licence decision.
+  'quran': false,
   'watch_feed': true,
   'exam_result': true,
   'photo_studio': true,
@@ -217,6 +219,7 @@ const Map<String, String> kRouteFeature = {
   'unseen': 'unseen_bangladesh',
   'dictionary': 'dictionary',
   'ramadan': 'ramadan',
+  'quran': 'quran',
   'watch_feed': 'watch_feed',
   'exam': 'exam_result',
   'photo_studio': 'photo_studio',
