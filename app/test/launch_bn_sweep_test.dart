@@ -60,6 +60,10 @@ const Map<String, String> _allow = {
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
+  // bndigits6: names the user typed / the job board supplies (data, not UI).
+  'jobs|digit|Shop365': "a company's own name from the job board (data)",
+  'exam|digit|SSC 2026': "the watcher label the user typed (data)",
+  'exam|digit|HSC 2026': "the watcher label the user typed (data)",
   'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
   'acct_reports_*|english|"Stock"': 'fake data: server sends the Bangla account name',
 };
