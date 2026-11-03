@@ -87,8 +87,8 @@ class FakeSound implements DestAlarmSound {
 
 bool _bn(String l) => l == 'bn';
 
-/// The setter's screen-3 data: a confirmed card at 9:02 and an amber
-/// "did not answer twice" card at 9:20 (Bangladesh time).
+/// The setter's screen-3 data, newest first: today's confirmed card at 9:02
+/// and yesterday's amber "did not answer twice" card at 9:20 (BD time).
 Map<String, dynamic> ccMine(String l, {bool location = true, bool invite = false, bool empty = false}) {
   if (empty) {
     return {'sent': [], 'received': [], 'links': [], 'invites': [], 'feed': [],
@@ -98,13 +98,13 @@ Map<String, dynamic> ccMine(String l, {bool location = true, bool invite = false
   final text = _bn(l) ? 'গ্যাসের ট্যাবলেটটা খাও' : 'Take your gas tablet';
   return {
     'feed': [
-      {'ring_id': 2, 'care_call_id': 1, 'kind': 'missed', 'at': '2026-11-04T03:20:00Z',
+      {'ring_id': 2, 'care_call_id': 1, 'kind': 'confirmed', 'at': '2026-11-04T03:02:00Z',
        'scheduled_at': '2026-11-04T03:00:00Z', 'receiver_id': 7, 'receiver_name': ammu,
-       'receiver_initial': _bn(l) ? 'আ' : 'A', 'text': text, 'misses': 2, 'edge_id': 11,
-       'can_see_location': location},
-      {'ring_id': 1, 'care_call_id': 1, 'kind': 'confirmed', 'at': '2026-11-03T03:02:00Z',
-       'scheduled_at': '2026-11-03T03:00:00Z', 'receiver_id': 7, 'receiver_name': ammu,
        'receiver_initial': _bn(l) ? 'আ' : 'A', 'text': text, 'misses': 0, 'edge_id': 11,
+       'can_see_location': location},
+      {'ring_id': 1, 'care_call_id': 1, 'kind': 'missed', 'at': '2026-11-03T03:20:00Z',
+       'scheduled_at': '2026-11-03T03:00:00Z', 'receiver_id': 7, 'receiver_name': ammu,
+       'receiver_initial': _bn(l) ? 'আ' : 'A', 'text': text, 'misses': 2, 'edge_id': 11,
        'can_see_location': location},
     ],
     'sent': [
