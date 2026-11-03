@@ -28,6 +28,7 @@ from . import views_famcare as famc  # famcare
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
+from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 
 router = DefaultRouter()
@@ -95,6 +96,17 @@ urlpatterns = [
     # vault100: forgotten-PIN recovery (verification only; the PIN stays on the phone)
     path("vault/recovery/status", vaultrec.VaultRecoveryStatusView.as_view()),
     path("vault/recovery/verify", vaultrec.VaultRecoveryVerifyView.as_view()),
+    # p3docs: end-to-end key wraps, trusted-person recovery, share links
+    path("vault/e2e/state", vaulte2e.VaultE2EStateView.as_view()),
+    path("vault/e2e/recovery", vaulte2e.VaultRecoveryWrapView.as_view()),
+    path("vault/e2e/helpers", vaulte2e.VaultHelperView.as_view()),
+    path("vault/e2e/helpers/<int:pk>", vaulte2e.VaultHelperDeleteView.as_view()),
+    path("vault/e2e/help/request", vaulte2e.VaultHelpRequestView.as_view()),
+    path("vault/e2e/help/cancel", vaulte2e.VaultHelpCancelView.as_view()),
+    path("vault/e2e/help/inbox", vaulte2e.VaultHelpInboxView.as_view()),
+    path("vault/e2e/help/<int:pk>/<str:action>", vaulte2e.VaultHelpDecideView.as_view()),
+    path("vault/share", vaulte2e.VaultShareView.as_view()),
+    path("vault/share/<int:pk>/revoke", vaulte2e.VaultShareRevokeView.as_view()),
     path("emergency", views.EmergencyCardView.as_view()),
     path("account-mode", acctmode.AccountModeView.as_view()),  # acctmode
     path("money/summary", views.MoneySummaryView.as_view()),

@@ -209,6 +209,11 @@ import 'package:assisto/screens/deletion_grace_screen.dart';
 import 'package:assisto/screens/in_progress_screen.dart';
 import 'package:assisto/screens/money_screen.dart';
 import 'package:assisto/screens/vault_screen.dart';
+import 'package:assisto/vault/vault_e2e.dart' show VaultE2E; // p3docs
+import 'package:assisto/vault/vault_e2e_screen.dart'; // p3docs
+import 'package:assisto/vault/vault_lock.dart' show MemoryKv, VaultLock; // p3docs
+import 'package:assisto/vault/vault_share_sheet.dart' show VaultShareSheet; // p3docs
+import 'p3docs_fakes.dart'; // p3docs
 import 'package:assisto/screens/family_screen.dart';
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
@@ -1181,6 +1186,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'subscriptions_error': (build: (_) => const SubscriptionsScreen(), mode: FakeMode.fail, full: false),
     'vault_empty': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.empty, full: false),
     'vault_error': (build: (_) => const VaultScreen(previewUnlocked: true), mode: FakeMode.fail, full: false),
+    // p3docs: Documents end-to-end lock (off / locked on a new phone) + share link
+    'vde2e_off': (build: (_) => VaultE2EScreen(lock: VaultLock(kv: MemoryKv()), backend: FakeE2E(), keyring: VaultE2E(kv: MemoryKv())), mode: FakeMode.data, full: true),
+    'vde2e_locked': (build: (_) => VaultE2EScreen(lock: VaultLock(kv: MemoryKv()), backend: FakeE2E({'ok': true, 'recovery_wrap': true, 'helpers': [{'id': 1, 'helper_name': 'Rahima'}], 'sealed_docs': 2, 'help_inbox': 0}), keyring: VaultE2E(kv: MemoryKv())), mode: FakeMode.data, full: true),
+    'vde2e_share': (build: (_) => Scaffold(body: VaultShareSheet(docId: 1, title: 'Passport', backend: FakeE2E(), loadPlain: () async => null)), mode: FakeMode.data, full: false),
     // ---- c3-msg ---- ticks, decrypted previews, typing, unread, presence
     'c3_chat_list': (build: (_) => Scaffold(appBar: AppBar(title: Builder(builder: (ctx) => Text(AppLocalizations.of(ctx).sidebarMyCircle))), body: MsgrHubChatList(identity: C3Fake.me, members: const [])), mode: FakeMode.data, full: true),
     'c3_chat': (build: (l) => CircleChatScreen(member: C3Fake.member(l == 'bn'), identity: C3Fake.me), mode: FakeMode.data, full: true),

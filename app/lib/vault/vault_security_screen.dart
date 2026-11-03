@@ -9,6 +9,8 @@ import '../messaging/chat_lock.dart' show ChatLockAuth;
 import '../theme.dart' show AType, Gap, Radii;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vault_api.dart';
+import 'vault_e2e.dart';
+import 'vault_e2e_api.dart';
 import 'vault_lock.dart';
 import 'vault_lock_view.dart';
 import 'vault_offline.dart';
@@ -104,6 +106,11 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
           .showSnackBar(SnackBar(content: Text(t.vaultPinSaveFailed)));
       return;
     }
+    final b = widget.backend;
+    if (b is ApiVaultBackend) {
+      await syncE2ERecoveryCode(ApiVaultE2EBackend(b.api), code); // p3docs
+    }
+    if (!mounted) return;
     await showVaultRecoveryCode(context, code);
     _load();
   }
@@ -129,6 +136,10 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
       }
     }
     await widget.lock.setBiometric(on);
+    // p3docs: the fingerprint also carries the end-to-end key (when open)
+    try {
+      if (!on || VaultE2E.instance.unlocked) await VaultE2E.instance.enableBio(on);
+    } catch (_) {} // best-effort: the PIN still opens the end-to-end key
     if (mounted) setState(() => _bio = on);
   }
 

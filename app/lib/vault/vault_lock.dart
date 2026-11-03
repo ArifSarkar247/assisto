@@ -244,6 +244,11 @@ class VaultLock {
     return ok ? formatCode(code) : null;
   }
 
+  /// p3docs: adopt a code made elsewhere (the end-to-end lock's recovery
+  /// code), so ONE code works for both the PIN reset and the documents.
+  Future<bool> setRecoveryCode(String code) async =>
+      kv.write(VaultSlots.recovery, await _seal(normalizeCode(code)));
+
   static String normalizeCode(String raw) =>
       raw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 

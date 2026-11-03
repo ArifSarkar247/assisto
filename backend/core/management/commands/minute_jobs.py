@@ -1,5 +1,5 @@
 """minutejobs — the per-minute jobs in ONE process: journey_sweep, then
-antitheft_escalate, school_mode_tick, ezviz_poll_alarms, agent_core_run
+antitheft_escalate, school_mode_tick, ezviz_poll_alarms, vault_share_purge, agent_core_run
 (core.ops_health.MINUTE_JOBS).
 
 Why: each `manage.py <job>` process pays the Django start-up (~0.85 s CPU:

@@ -24,6 +24,8 @@ _MSG = {
                   "The list is full — clear the bought items."),
     "forbidden": ("এই লিস্টে আপনার অনুমতি নেই।", "You can't use this list."),
     "no_members": ("অন্তত একজন সদস্য বাছুন।", "Pick at least one member."),
+    "e2e_doc": ("এন্ড-টু-এন্ড তালার কাগজ এভাবে শেয়ার হয় না — 'লিংকে দেখান' ব্যবহার করুন।",
+                "End-to-end locked documents can't be shared this way — use 'Show with a link'."),
 }
 
 _CODE = {"family_limit": status.HTTP_403_FORBIDDEN,

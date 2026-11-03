@@ -14,6 +14,7 @@ import '../otp_api.dart';
 import '../screens/otp/otp_verify_screen.dart';
 import '../theme.dart' show AType, Gap, Radii;
 import 'vault_api.dart';
+import 'vault_e2e.dart';
 import 'vault_lock.dart';
 import 'vault_lock_view.dart' show vaultFmtWait;
 
@@ -185,6 +186,13 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
     if (ok != true || code.trim().isEmpty || !mounted) return;
     setState(() => _busy = true);
     final r = await widget.lock.useRecoveryCode(code);
+    if (r == PinCheck.ok) {
+      // p3docs: the same code re-opens the end-to-end document key (works
+      // offline); the new PIN then re-wraps it (VaultLockView set mode).
+      // Not awaited: it never holds the reset back (the user types the new
+      // PIN next, long after this finishes).
+      VaultE2E.instance.unlockWithLocalRecovery(code).catchError((_) => false); // best-effort: only re-opens sealed docs
+    }
     if (!mounted) return;
     if (r == PinCheck.ok) {
       setState(() => _busy = false);

@@ -8,6 +8,7 @@ from . import views_journey   # journey100
 from . import views_quote   # crm100
 from . import views_invoice   # invoices
 from . import views_vehicle_share   # veh100
+from . import views_vault_share   # p3docs
 from . import views_phonecam   # cctvphone
 from . import views_cctv_share   # cctvteam
 from . import views_at_watch   # antitheft2
@@ -100,6 +101,9 @@ urlpatterns = [
     path("q/<str:token>", views_quote.quote_page),
     path("qp/<str:token>", views_quote.proposal_page),
     # veh100: vehicle live-location share link (random token, expiring, revocable)
+    # p3docs: a vault document's time-limited, end-to-end encrypted link
+    path("d/<str:token>/blob", views_vault_share.share_blob),
+    path("d/<str:token>", views_vault_share.share_page),
     path("v/<str:token>/data", views_vehicle_share.share_data),
     path("v/<str:token>", views_vehicle_share.share_page),
     # cctvphone: phone-camera pairing QR fallback (App Link opens the app)
