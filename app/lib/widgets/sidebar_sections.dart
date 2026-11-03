@@ -45,6 +45,7 @@ import '../screens/daily_challenges_screen.dart';
 import '../screens/saved_items_screen.dart';
 import '../screens/kid_school_screen.dart';
 import '../screens/fitness_partner_screen.dart';
+import '../screens/food_calories_screen.dart'; // p2food
 import '../screens/smartwatch_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
 import '../screens/cost_estimator_screen.dart';
@@ -691,6 +692,11 @@ class SidebarSections {
           feature: 'fitness',
           (_) => const FitnessPartnerScreen(),
           synonyms: ['fitness', 'workout', 'exercise', 'steps', 'gym']),
+      // p2food: food photo -> calories (cited table; flag food_calories).
+      SidebarItem(Icons.restaurant_rounded, (t) => t.foodTitle,
+          feature: 'food_calories',
+          (_) => const FoodCaloriesScreen(),
+          synonyms: ['food', 'calorie', 'calories', 'diet', 'meal', 'khabar', 'nutrition']),
       // #70 Smartwatch & fitness — Health Connect bridge (steps/HR/sleep/energy).
       SidebarItem(Icons.watch_rounded, (t) => t.swTitle,
           feature: 'smartwatch',

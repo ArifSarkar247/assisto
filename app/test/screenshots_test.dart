@@ -139,6 +139,7 @@ import 'package:assisto/screens/daily_challenges_screen.dart';
 import 'package:assisto/screens/saved_items_screen.dart';
 import 'package:assisto/screens/kid_school_screen.dart';
 import 'package:assisto/screens/fitness_partner_screen.dart';
+import 'package:assisto/screens/food_calories_screen.dart'; // p2food
 import 'package:assisto/screens/domestic_staff_screen.dart';
 import 'package:assisto/screens/savings_challenge_screen.dart';
 import 'package:assisto/screens/security_checkup_screen.dart';
@@ -576,6 +577,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'saved': (build: (_) => const SavedItemsScreen(), mode: FakeMode.data, full: true),
     'kid': (build: (_) => const KidSchoolScreen(), mode: FakeMode.data, full: true),
     'fitness': (build: (_) => const FitnessPartnerScreen(), mode: FakeMode.data, full: true),
+    // p2food: food photo -> calories (data / first-run empty / offline)
+    'food_cal': (build: (_) => const FoodCaloriesScreen(), mode: FakeMode.data, full: true),
+    'food_cal_empty': (build: (_) => const FoodCaloriesScreen(), mode: FakeMode.empty, full: true),
+    'food_cal_fail': (build: (_) => const FoodCaloriesScreen(), mode: FakeMode.fail, full: true),
     'staff': (build: (_) => const DomesticStaffScreen(), mode: FakeMode.data, full: true),
     'savings': (build: (_) => const SavingsChallengeScreen(), mode: FakeMode.data, full: true),
     'security': (build: (_) => const SecurityCheckupScreen(), mode: FakeMode.data, full: true),

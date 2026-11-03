@@ -1,4 +1,5 @@
 import 'fake_channels.dart'; // channels
+import 'fake_food.dart'; // p2food
 import 'fake_famcare.dart'; // famcare
 import 'fake_psec.dart'; // pssec
 import 'fake_train.dart'; // train
@@ -242,6 +243,9 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    // p2food: food calories log + goal
+    if (path == 'food/log') return _maybe(fakeFoodLog(DateTime.now()));
+    if (path == 'food/goal') return _maybe([{'id': 1, 'kcal': 1800}]);
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -953,6 +957,10 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
     if (path.startsWith('crm/')) return {'id': 99, ...body};
+    if (path.startsWith('food/')) { // p2food
+      if (mode == FakeMode.fail) _fail();
+      return {'id': 900 + body.length, ...body};
+    }
     // vault / scam / safety module endpoints (used via the ScamSafetyApi
     // extension: scamReportFamily, safetyCheckinStart, safetyCheckinArrived,
     // createDocumentWithDetails).
@@ -982,6 +990,11 @@ class FakeApi extends ApiClient {
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
       return inv;
+    }
+    final food = fakeFoodGet(path, bn: _bn); // p2food
+    if (food != null) {
+      if (mode == FakeMode.fail) _fail();
+      return food;
     }
     final psec = fakePsecGet(path, mode == FakeMode.empty); // pssec
     if (psec != null) {
@@ -2355,7 +2368,20 @@ class FakeApi extends ApiClient {
   }
 
   @override
+  Future<void> updateItem(String path, int id, Map<String, dynamic> body) async {
+    if (path.startsWith('food/')) { // p2food
+      if (mode == FakeMode.fail) _fail();
+      return;
+    }
+    return super.updateItem(path, id, body);
+  }
+
+  @override
   Future<void> deleteItem(String path, int id) async {
+    if (path.startsWith('food/')) { // p2food
+      if (mode == FakeMode.fail) _fail();
+      return;
+    }
     if (path.startsWith('business/') || path.startsWith('/business/')) {
       if (mode == FakeMode.fail) _fail();
       return; // business deletes succeed silently in the gallery

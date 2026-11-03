@@ -78,7 +78,7 @@ HINTS = [
      "src": "WHO Healthy diet fact sheet"},
     {"bn": "ডায়াবেটিস থাকলে খাবারের পরিকল্পনা ডাক্তার বা পুষ্টিবিদের সাথে ঠিক করুন।",
      "en": "If you have diabetes, plan meals with your doctor or dietitian.",
-     "src": "General advice"},
+     "src": "American Diabetes Association — Nutrition therapy"},
 ]
 
 GOAL_MIN, GOAL_MAX, GOAL_DEFAULT = 800, 5000, 2000

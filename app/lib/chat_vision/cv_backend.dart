@@ -74,6 +74,7 @@ class CvJob {
     this.adsVerified = 0,
     this.answer = '',
     this.medicine = false,
+    this.dishes = const [],
   });
   final int id;
   final String status;
@@ -82,6 +83,9 @@ class CvJob {
   final int adsVerified;
   final String answer;
   final bool medicine;
+
+  /// p2food (purpose 'food'): dish ids from the cited table, best first.
+  final List<String> dishes;
 
   bool get funded => status == 'funded' || status == 'running' || status == 'done';
   bool get done => status == 'done';
@@ -98,6 +102,10 @@ class CvJob {
       adsVerified: i(j['ads_verified']),
       answer: '${j['answer'] ?? ''}',
       medicine: j['medicine'] == true,
+      dishes: [
+        for (final d in (j['dishes'] is List ? j['dishes'] as List : const []))
+          if (d is Map && d['id'] != null) '${d['id']}',
+      ],
     );
   }
 }
@@ -129,7 +137,8 @@ class ApiCvBackend implements CvBackend {
   ApiCvBackend(this.api, {this.purpose = ''});
   final ApiClient api;
 
-  /// p4-world: '' (chat), 'crop' (Farmers hub) or 'rx' (Health hub). The
+  /// p4-world: '' (chat), 'crop' (Farmers hub), 'rx' (Health hub) or
+  /// 'food' (p2food: food calories). The
   /// server switches the safety prompt and appends the mandatory note.
   final String purpose;
 
