@@ -10,7 +10,7 @@ import '../quran_learn/qaida_model.dart';
 
 const List<QlStage> kQlStages = [
   QlStage(1, kCourseQaida, QlText("হরফ ও মাখরাজ", "Letters and makhraj"), QlText("২৯টি হরফ, নাম ও উচ্চারণের জায়গা", "The 29 letters, their names and where each sound comes from"), [
-    QlLesson("letters1", QlText("হরফ ১ (ا থেকে خ)", "Letters 1 (ا to خ)"), QlText("প্রতিটি হরফে ট্যাপ করে নাম আর কোথা থেকে আওয়াজ বের হয় (মাখরাজ) দেখুন। হরফের নাম জোরে বলুন — আরবি লেখা ডান থেকে বাঁয়ে পড়া হয়।", "Tap each letter to see its name and where its sound comes from (makhraj). Say the name aloud - Arabic is read from right to left."), [
+    QlLesson("letters1", QlText("হরফ ১ (আলিফ থেকে খা)", "Letters 1 (Alif to Kha)"), QlText("প্রতিটি হরফে ট্যাপ করে নাম আর কোথা থেকে আওয়াজ বের হয় (মাখরাজ) দেখুন। হরফের নাম জোরে বলুন — আরবি লেখা ডান থেকে বাঁয়ে পড়া হয়।", "Tap each letter to see its name and where its sound comes from (makhraj). Say the name aloud - Arabic is read from right to left."), [
       QlItem("l_alif", ar: "ا", say: QlText("আলিফ", "Alif"), note: QlText("মাখরাজ: মুখ ও গলার ফাঁকা জায়গা (জাওফ)। নিজের কোনো আওয়াজ নেই — যবর/যের/পেশ বা হামযা লাগলে পড়া যায়; যবরের পরে খালি আলিফ থাকলে আওয়াজ টেনে লম্বা হয় (মাদ্দ)।", "Makhraj: the empty space of mouth and throat (jawf). Has no sound of its own; it is read with a vowel mark or hamza. After a fatha a bare alif lengthens the sound (madd)."), check: "ألف"),
       QlItem("l_ba", ar: "ب", say: QlText("বা", "Ba"), note: QlText("মাখরাজ: দুই ঠোঁট। দুই ঠোঁটের ভেজা অংশ একসাথে চেপে ছেড়ে দিন — বাংলা \"ব\"-এর মতো, কিন্তু পরিষ্কার।", "Makhraj: the lips. Press the wet inner parts of both lips together and release, like a clear \"b\"."), check: "باء"),
       QlItem("l_ta", ar: "ت", say: QlText("তা", "Ta"), note: QlText("মাখরাজ: জিহ্বার আগা। জিহ্বার আগা উপরের সামনের দুই দাঁতের গোড়ায় লাগিয়ে হালকা \"ত\"।", "Makhraj: the tip of the tongue. Tongue tip on the roots of the upper front teeth; a light \"t\"."), check: "تاء"),
@@ -19,7 +19,7 @@ const List<QlStage> kQlStages = [
       QlItem("l_hha", ar: "ح", say: QlText("হা (হা-এ-হুত্তি)", "Ha (deep)"), note: QlText("মাখরাজ: গলার মাঝখান। গলার মাঝখান থেকে চাপা, ফিসফিসে \"হ\" — গলা একটু সরু করে বাতাস ছাড়ুন।", "Makhraj: the middle of the throat. From the middle of the throat: a breathy, narrowed \"h\"."), check: "حاء"),
       QlItem("l_kha", ar: "خ", say: QlText("খা", "Kha"), note: QlText("মাখরাজ: গলার উপরের অংশ (মুখের কাছে)। গলার উপরের অংশ থেকে খসখসে \"খ\" — মোটা আওয়াজ।", "Makhraj: the top of the throat (near the mouth). From the top of the throat: a rough \"kh\" - a heavy letter."), check: "خاء", heavy: true),
     ]),
-    QlLesson("letters2", QlText("হরফ ২ (د থেকে ص)", "Letters 2 (د to ص)"), QlText("ذ ز ظ — তিনটাই বাংলায় \"য\" মনে হয়, কিন্তু আওয়াজ আলাদা; ব্যাখ্যা মন দিয়ে পড়ুন।", "ذ ز ظ all sound like one Bangla letter, but they are different sounds - read each note carefully."), [
+    QlLesson("letters2", QlText("হরফ ২ (দাল থেকে সোয়াদ)", "Letters 2 (Dal to Sad)"), QlText("ذ ز ظ — তিনটাই বাংলায় \"য\" মনে হয়, কিন্তু আওয়াজ আলাদা; ব্যাখ্যা মন দিয়ে পড়ুন।", "ذ ز ظ all sound like one Bangla letter, but they are different sounds - read each note carefully."), [
       QlItem("l_dal", ar: "د", say: QlText("দাল", "Dal"), note: QlText("মাখরাজ: জিহ্বার আগা। জিহ্বার আগা উপরের সামনের দাঁতের গোড়ায় — হালকা \"দ\"।", "Makhraj: the tip of the tongue. Tongue tip on the roots of the upper front teeth - a light \"d\"."), check: "دال"),
       QlItem("l_dhal", ar: "ذ", say: QlText("যাল", "Dhal"), note: QlText("মাখরাজ: জিহ্বার আগা। জিহ্বার আগা উপরের সামনের দাঁতের মাথায় — ইংরেজি \"this\"-এর \"th\"; \"জ\" নয়।", "Makhraj: the tip of the tongue. Tongue tip on the edges of the upper front teeth - as \"th\" in \"this\"; not a \"j\"."), check: "ذال"),
       QlItem("l_ra", ar: "ر", say: QlText("রা", "Ra"), note: QlText("মাখরাজ: জিহ্বার আগা। জিহ্বার আগা উপরের মাড়ির কাছে — \"র\"; যবর/পেশ থাকলে মোটা, যের থাকলে চিকন।", "Makhraj: the tip of the tongue. Tongue tip near the upper gum - \"r\"; heavy with fatha or damma, light with kasra."), check: "راء"),
@@ -28,7 +28,7 @@ const List<QlStage> kQlStages = [
       QlItem("l_shin", ar: "ش", say: QlText("শীন", "Shin"), note: QlText("মাখরাজ: জিহ্বার মাঝখান ও উপরের তালু। জিহ্বার মাঝখান তালুর দিকে — \"শ\"।", "Makhraj: the middle of the tongue and the hard palate. Middle of the tongue towards the palate - \"sh\"."), check: "شين"),
       QlItem("l_sad", ar: "ص", say: QlText("সোয়াদ", "Sad"), note: QlText("মাখরাজ: জিহ্বার আগা। س-এর জায়গা থেকেই, কিন্তু মুখ ভরা মোটা \"স\"।", "Makhraj: the tip of the tongue. Same place as س but heavy - a full-mouth \"s\"."), check: "صاد", heavy: true),
     ]),
-    QlLesson("letters3", QlText("হরফ ৩ (ض থেকে ق)", "Letters 3 (ض to ق)"), QlText("\"মোটা\" চিহ্নের হরফগুলো (خ ص ض غ ط ق ظ) সবসময় মুখ ভরে মোটা করে পড়া হয়।", "Letters marked \"heavy\" (خ ص ض غ ط ق ظ) are always read with a full, heavy mouth."), [
+    QlLesson("letters3", QlText("হরফ ৩ (দোয়াদ থেকে ক্বাফ)", "Letters 3 (Dad to Qaf)"), QlText("\"মোটা\" চিহ্নের হরফগুলো (خ ص ض غ ط ق ظ) সবসময় মুখ ভরে মোটা করে পড়া হয়।", "Letters marked \"heavy\" (خ ص ض غ ط ق ظ) are always read with a full, heavy mouth."), [
       QlItem("l_dad", ar: "ض", say: QlText("দোয়াদ", "Dad"), note: QlText("মাখরাজ: জিহ্বার পাশ ও উপরের মাড়ির দাঁত। জিহ্বার পাশ উপরের মাড়ির দাঁতে লাগিয়ে — মোটা আওয়াজ; এটা শেখা কঠিন, শিক্ষকের কাছে শুনে নিন।", "Makhraj: the side of the tongue and the upper molars. Side of the tongue against the upper molars - heavy; hard to learn, hear it from a teacher."), check: "ضاد", heavy: true),
       QlItem("l_tta", ar: "ط", say: QlText("তোয়া", "Ta (heavy)"), note: QlText("মাখরাজ: জিহ্বার আগা। ت-এর জায়গা থেকেই, কিন্তু জিহ্বা উঁচু করে মোটা \"ত\"।", "Makhraj: the tip of the tongue. Same place as ت with the tongue raised - a heavy \"t\"."), check: "طاء", heavy: true),
       QlItem("l_zha", ar: "ظ", say: QlText("যোয়া", "Dha (heavy)"), note: QlText("মাখরাজ: জিহ্বার আগা। ذ-এর জায়গা থেকেই (জিহ্বার আগা দাঁতের মাথায়), কিন্তু মোটা।", "Makhraj: the tip of the tongue. Same place as ذ (tongue tip on the teeth edges) but heavy."), check: "ظاء", heavy: true),
@@ -37,7 +37,7 @@ const List<QlStage> kQlStages = [
       QlItem("l_fa", ar: "ف", say: QlText("ফা", "Fa"), note: QlText("মাখরাজ: দুই ঠোঁট। নিচের ঠোঁটের ভেতরের দিক উপরের সামনের দাঁতে লাগিয়ে — ইংরেজি \"f\"।", "Makhraj: the lips. Inner lower lip against the upper front teeth - an \"f\"."), check: "فاء"),
       QlItem("l_qaf", ar: "ق", say: QlText("ক্বাফ", "Qaf"), note: QlText("মাখরাজ: জিহ্বার গোড়া। জিহ্বার একেবারে গোড়া নরম তালুতে — গভীর, মোটা \"ক\"।", "Makhraj: the back of the tongue. The very back of the tongue against the soft palate - a deep, heavy \"q\"."), check: "قاف", heavy: true),
     ]),
-    QlLesson("letters4", QlText("হরফ ৪ (ك থেকে ي)", "Letters 4 (ك to ي)"), QlText("শেষ হরফগুলো। হামযা (ء) আলিফের মতো দেখালেও নিজে একটা হরফ।", "The last letters. Hamza (ء) is a letter of its own, even when it sits on an alif."), [
+    QlLesson("letters4", QlText("হরফ ৪ (কাফ থেকে ইয়া)", "Letters 4 (Kaf to Ya)"), QlText("শেষ হরফগুলো। হামযা (ء) আলিফের মতো দেখালেও নিজে একটা হরফ।", "The last letters. Hamza (ء) is a letter of its own, even when it sits on an alif."), [
       QlItem("l_kaf", ar: "ك", say: QlText("কাফ", "Kaf"), note: QlText("মাখরাজ: জিহ্বার গোড়া। জিহ্বার গোড়া, ق-এর একটু সামনে — হালকা \"ক\"।", "Makhraj: the back of the tongue. Back of the tongue, a little in front of ق - a light \"k\"."), check: "كاف"),
       QlItem("l_lam", ar: "ل", say: QlText("লাম", "Lam"), note: QlText("মাখরাজ: জিহ্বার আগা। জিহ্বার আগার দুই পাশ উপরের মাড়িতে — \"ল\"।", "Makhraj: the tip of the tongue. Edges of the tongue tip on the upper gum - \"l\"."), check: "لام"),
       QlItem("l_mim", ar: "م", say: QlText("মীম", "Mim"), note: QlText("মাখরাজ: দুই ঠোঁট। দুই ঠোঁটের শুকনো অংশ মিলিয়ে, নাক দিয়েও একটু আওয়াজ — \"ম\"।", "Makhraj: the lips. Dry parts of both lips together, with a little sound through the nose - \"m\"."), check: "ميم"),
@@ -49,7 +49,7 @@ const List<QlStage> kQlStages = [
     ]),
   ]),
   QlStage(2, kCourseQaida, QlText("হরকত (যবর, যের, পেশ)", "Harakat (fatha, kasra, damma)"), QlText("ছোট স্বরচিহ্ন দিয়ে পড়া", "Reading with the short vowel marks"), [
-    QlLesson("fatha", QlText("যবর ( ـَ )", "Fatha ( ـَ )"), QlText("হরফের উপরে ছোট বাঁকা দাগ = যবর। আওয়াজে \"আ\"-কার যোগ হয়: بَ = \"বা\"। খাটো করে, এক মাত্রায় পড়ুন।", "A small slanted stroke above = fatha. It adds a short \"a\": بَ = \"ba\". Keep it short (one count)."), [
+    QlLesson("fatha", QlText("যবর", "Fatha"), QlText("হরফের উপরে ছোট বাঁকা দাগ = যবর। আওয়াজে \"আ\"-কার যোগ হয়: بَ = \"বা\"। খাটো করে, এক মাত্রায় পড়ুন।", "A small slanted stroke above = fatha. It adds a short \"a\": بَ = \"ba\". Keep it short (one count)."), [
       QlItem("fa_alif", ar: "أَ", say: QlText("আ", "a")),
       QlItem("fa_ba", ar: "بَ", say: QlText("বা", "ba")),
       QlItem("fa_ta", ar: "تَ", say: QlText("তা", "ta")),
@@ -79,7 +79,7 @@ const List<QlStage> kQlStages = [
       QlItem("fa_ha", ar: "هَ", say: QlText("হা", "ha")),
       QlItem("fa_ya", ar: "يَ", say: QlText("ইয়া", "ya")),
     ]),
-    QlLesson("kasra", QlText("যের ( ـِ )", "Kasra ( ـِ )"), QlText("হরফের নিচে ছোট দাগ = যের। \"ই\"-কার: بِ = \"বি\"।", "A small stroke below = kasra. It adds a short \"i\": بِ = \"bi\"."), [
+    QlLesson("kasra", QlText("যের", "Kasra"), QlText("হরফের নিচে ছোট দাগ = যের। \"ই\"-কার: بِ = \"বি\"।", "A small stroke below = kasra. It adds a short \"i\": بِ = \"bi\"."), [
       QlItem("ka_alif", ar: "أِ", say: QlText("ই", "i")),
       QlItem("ka_ba", ar: "بِ", say: QlText("বি", "bi")),
       QlItem("ka_ta", ar: "تِ", say: QlText("তি", "ti")),
@@ -109,7 +109,7 @@ const List<QlStage> kQlStages = [
       QlItem("ka_ha", ar: "هِ", say: QlText("হি", "hi")),
       QlItem("ka_ya", ar: "يِ", say: QlText("ইয়ি", "yi")),
     ]),
-    QlLesson("damma", QlText("পেশ ( ـُ )", "Damma ( ـُ )"), QlText("হরফের উপরে ছোট \"و\"-এর মতো চিহ্ন = পেশ। \"উ\"-কার: بُ = \"বু\"। ঠোঁট একটু গোল করুন।", "A small و-like mark above = damma. It adds a short \"u\": بُ = \"bu\". Round the lips a little."), [
+    QlLesson("damma", QlText("পেশ", "Damma"), QlText("হরফের উপরে ছোট \"و\"-এর মতো চিহ্ন = পেশ। \"উ\"-কার: بُ = \"বু\"। ঠোঁট একটু গোল করুন।", "A small و-like mark above = damma. It adds a short \"u\": بُ = \"bu\". Round the lips a little."), [
       QlItem("da_alif", ar: "أُ", say: QlText("উ", "u")),
       QlItem("da_ba", ar: "بُ", say: QlText("বু", "bu")),
       QlItem("da_ta", ar: "تُ", say: QlText("তু", "tu")),
@@ -141,7 +141,7 @@ const List<QlStage> kQlStages = [
     ]),
   ]),
   QlStage(3, kCourseQaida, QlText("তানবীন", "Tanween"), QlText("দুই যবর, দুই যের, দুই পেশ", "Double vowel marks with an \"n\" sound"), [
-    QlLesson("fathatan", QlText("দুই যবর ( ـً )", "Fathatan ( ـً )"), QlText("দুই যবর = যবর + \"ন\"-এর আওয়াজ: بً = \"বান\"। এই \"ন\" লেখা থাকে না, কিন্তু পড়া হয় — একে তানবীন বলে।", "Two fathas = fatha + an \"n\" sound: بً = \"ban\". The \"n\" is not written but read - this is tanween."), [
+    QlLesson("fathatan", QlText("দুই যবর", "Fathatan"), QlText("দুই যবর = যবর + \"ন\"-এর আওয়াজ: بً = \"বান\"। এই \"ন\" লেখা থাকে না, কিন্তু পড়া হয় — একে তানবীন বলে।", "Two fathas = fatha + an \"n\" sound: بً = \"ban\". The \"n\" is not written but read - this is tanween."), [
       QlItem("ft_ba", ar: "بً", say: QlText("বান", "ban")),
       QlItem("ft_ta", ar: "تً", say: QlText("তান", "tan")),
       QlItem("ft_jim", ar: "جً", say: QlText("জান", "jan")),
@@ -157,7 +157,7 @@ const List<QlStage> kQlStages = [
       QlItem("ft_mim", ar: "مً", say: QlText("মান", "man")),
       QlItem("ft_nun", ar: "نً", say: QlText("নান", "nan")),
     ]),
-    QlLesson("kasratan", QlText("দুই যের ( ـٍ )", "Kasratan ( ـٍ )"), QlText("দুই যের = \"ইন\": بٍ = \"বিন\"।", "Two kasras = \"in\": بٍ = \"bin\"."), [
+    QlLesson("kasratan", QlText("দুই যের", "Kasratan"), QlText("দুই যের = \"ইন\": بٍ = \"বিন\"।", "Two kasras = \"in\": بٍ = \"bin\"."), [
       QlItem("kt_tha", ar: "ثٍ", say: QlText("ছিন", "thin")),
       QlItem("kt_hha", ar: "حٍ", say: QlText("হিন", "hin")),
       QlItem("kt_kha", ar: "خٍ", say: QlText("খিন", "khin"), heavy: true),
@@ -173,7 +173,7 @@ const List<QlStage> kQlStages = [
       QlItem("kt_ya", ar: "يٍ", say: QlText("ইয়িন", "yin")),
       QlItem("kt_hamza", ar: "أٍ", say: QlText("ইন", "’in")),
     ]),
-    QlLesson("dammatan", QlText("দুই পেশ ( ـٌ )", "Dammatan ( ـٌ )"), QlText("দুই পেশ = \"উন\": بٌ = \"বুন\"।", "Two dammas = \"un\": بٌ = \"bun\"."), [
+    QlLesson("dammatan", QlText("দুই পেশ", "Dammatan"), QlText("দুই পেশ = \"উন\": بٌ = \"বুন\"।", "Two dammas = \"un\": بٌ = \"bun\"."), [
       QlItem("dt_ba", ar: "بٌ", say: QlText("বুন", "bun")),
       QlItem("dt_ta", ar: "تٌ", say: QlText("তুন", "tun")),
       QlItem("dt_jim", ar: "جٌ", say: QlText("জুন", "jun")),
@@ -191,7 +191,7 @@ const List<QlStage> kQlStages = [
     ]),
   ]),
   QlStage(4, kCourseQaida, QlText("জযম (সুকুন)", "Jazm (sukun)"), QlText("স্বরহীন হরফ, ছোট শব্দ", "Letters without a vowel; short words"), [
-    QlLesson("sukun1", QlText("জযম ( ـْ ) ১", "Sukun ( ـْ ) 1"), QlText("হরফের উপরে ছোট গোল চিহ্ন = জযম (সুকুন)। ঐ হরফে কোনো স্বর নেই — আগের হরফের সাথে মিলে থেমে যায়: أَبْ = \"আব্\"।", "A small circle above = sukun. The letter has no vowel; it closes the syllable before it: أَبْ = \"ab\"."), [
+    QlLesson("sukun1", QlText("জযম ১", "Sukun 1"), QlText("হরফের উপরে ছোট গোল চিহ্ন = জযম (সুকুন)। ঐ হরফে কোনো স্বর নেই — আগের হরফের সাথে মিলে থেমে যায়: أَبْ = \"আব্\"।", "A small circle above = sukun. The letter has no vowel; it closes the syllable before it: أَبْ = \"ab\"."), [
       QlItem("sk_ba", ar: "أَبْ", say: QlText("আব্", "ab"), note: QlText("কলকলা হরফ: জযম থাকলে আওয়াজ একটু ধাক্কা দিয়ে ছাড়ুন।", "Qalqalah letter: with a sukun, release it with a slight bounce.")),
       QlItem("sk_ta", ar: "أَتْ", say: QlText("আত্", "at")),
       QlItem("sk_jim", ar: "أَجْ", say: QlText("আজ্", "aj"), note: QlText("কলকলা হরফ: জযম থাকলে আওয়াজ একটু ধাক্কা দিয়ে ছাড়ুন।", "Qalqalah letter: with a sukun, release it with a slight bounce.")),
@@ -223,7 +223,7 @@ const List<QlStage> kQlStages = [
     ]),
   ]),
   QlStage(5, kCourseQaida, QlText("তাশদীদ", "Tashdeed (shadda)"), QlText("দুবার পড়া হরফ, গুন্নাহ", "Doubled letters and ghunnah"), [
-    QlLesson("shadda1", QlText("তাশদীদ ( ـّ ) ১", "Shadda ( ـّ ) 1"), QlText("ছোট \"w\"-এর মতো চিহ্ন = তাশদীদ। হরফটা দুবার পড়া হয় — প্রথমবার জযম দিয়ে আগের হরফের সাথে, তারপর নিজের স্বরে: أَبَّ = \"আব্বা\"।", "A small w-like mark = shadda. The letter is read twice - once closing the syllable before, then with its own vowel: أَبَّ = \"abba\"."), [
+    QlLesson("shadda1", QlText("তাশদীদ ১", "Shadda 1"), QlText("ছোট \"w\"-এর মতো চিহ্ন = তাশদীদ। হরফটা দুবার পড়া হয় — প্রথমবার জযম দিয়ে আগের হরফের সাথে, তারপর নিজের স্বরে: أَبَّ = \"আব্বা\"।", "A small w-like mark = shadda. The letter is read twice - once closing the syllable before, then with its own vowel: أَبَّ = \"abba\"."), [
       QlItem("sh_ba", ar: "أَبَّ", say: QlText("আব্বা", "abba")),
       QlItem("sh_ta", ar: "أَتَّ", say: QlText("আত্তা", "atta")),
       QlItem("sh_jim", ar: "أَجَّ", say: QlText("আজ্জা", "ajja")),
@@ -267,7 +267,7 @@ const List<QlStage> kQlStages = [
       QlItem("ma_nun", ar: "نَا", say: QlText("না —", "naa")),
       QlItem("ma_ha", ar: "هَا", say: QlText("হা —", "haa")),
     ]),
-    QlLesson("madd2", QlText("মাদ্দ — ي ও و দিয়ে", "Madd - with ي and و"), QlText("যেরের পরে জযমহীন ي = \"ঈ\" টানা; পেশের পরে জযমহীন و = \"ঊ\" টানা — দুই মাত্রা।", "An unmarked ي after a kasra = long \"ee\"; an unmarked و after a damma = long \"oo\" - two counts."), [
+    QlLesson("madd2", QlText("মাদ্দ — ইয়া ও ওয়াও দিয়ে", "Madd - with Ya and Waw"), QlText("যেরের পরে জযমহীন ي = \"ঈ\" টানা; পেশের পরে জযমহীন و = \"ঊ\" টানা — দুই মাত্রা।", "An unmarked ي after a kasra = long \"ee\"; an unmarked و after a damma = long \"oo\" - two counts."), [
       QlItem("mi_ba", ar: "بِي", say: QlText("বী —", "bee")),
       QlItem("mu_ba", ar: "بُو", say: QlText("বূ —", "boo")),
       QlItem("mi_ta", ar: "تِي", say: QlText("তী —", "tee")),
@@ -315,7 +315,7 @@ const List<QlStage> kQlStages = [
       QlItem("ly_ain", ar: "عَيْ", say: QlText("আই", "‘ay")),
       QlItem("lw_ain", ar: "عَوْ", say: QlText("আও", "‘aw")),
     ]),
-    QlLesson("madd5", QlText("মাদ্দ চিহ্ন ( ـٓ ) — লম্বা টান", "The maddah sign ( ـٓ ) - long stretch"), QlText("মাদ্দের হরফের উপরে ঢেউ-চিহ্ন থাকলে সাধারণত ৪–৫ মাত্রা, আর পরে তাশদীদ/জযম থাকলে ৬ মাত্রা টানা হয়। উদাহরণগুলো কুরআন থেকে (রেফারেন্স দেওয়া)।", "A wavy sign over a madd letter usually means 4-5 counts, and 6 counts when a shadda/sukun follows. The examples are from the Quran (reference shown)."), [
+    QlLesson("madd5", QlText("মাদ্দ চিহ্ন — লম্বা টান", "The maddah sign - long stretch"), QlText("মাদ্দের হরফের উপরে ঢেউ-চিহ্ন থাকলে সাধারণত ৪–৫ মাত্রা, আর পরে তাশদীদ/জযম থাকলে ৬ মাত্রা টানা হয়। উদাহরণগুলো কুরআন থেকে (রেফারেন্স দেওয়া)।", "A wavy sign over a madd letter usually means 4-5 counts, and 6 counts when a shadda/sukun follows. The examples are from the Quran (reference shown)."), [
       QlItem("mx0", ref: QlRef(110, 1, 5, 5), say: QlText("জা — আ", "jaaa-a")),
       QlItem("mx1", ref: QlRef(1, 7, 8, 8), say: QlText("আদ্দোয়াল্লীন", "ad-daaal-leen")),
       QlItem("mx2", ref: QlRef(2, 4, 2, 2), say: QlText("বিমা —", "bimaaa")),
@@ -338,7 +338,7 @@ const List<QlStage> kQlStages = [
       QlItem("w1_10", ref: QlRef(108, 2, 0, 0), say: QlText("ফাসাল্লি", "fasalli")),
       QlItem("w1_11", ref: QlRef(114, 2, 0, 0), say: QlText("মালিকি", "maliki")),
     ]),
-    QlLesson("words2", QlText("শব্দ ২ — আলিফ-লাম (ٱلْ)", "Words 2 - the article ٱلْ"), QlText("শুরুর ٱ (হামযাতুল ওয়াসল) শব্দ দিয়ে পড়া শুরু করলে \"আ\" পড়া হয়, আগের শব্দের সাথে মিলিয়ে পড়লে পড়া হয় না। লাম চাঁদের হরফের আগে পড়া হয়, সূর্যের হরফের আগে পড়া হয় না।", "The opening ٱ (hamzat al-wasl) is read \"a\" when you start with the word and is silent when joined to the word before. The lam is read before moon letters and silent before sun letters."), [
+    QlLesson("words2", QlText("শব্দ ২ — আলিফ-লাম", "Words 2 - the article Al"), QlText("শুরুর ٱ (হামযাতুল ওয়াসল) শব্দ দিয়ে পড়া শুরু করলে \"আ\" পড়া হয়, আগের শব্দের সাথে মিলিয়ে পড়লে পড়া হয় না। লাম চাঁদের হরফের আগে পড়া হয়, সূর্যের হরফের আগে পড়া হয় না।", "The opening ٱ (hamzat al-wasl) is read \"a\" when you start with the word and is silent when joined to the word before. The lam is read before moon letters and silent before sun letters."), [
       QlItem("w2_0", ref: QlRef(1, 2, 0, 0), say: QlText("আলহামদু", "al-hamdu"), note: QlText("চাঁদের হরফ: ل পড়া হয় (জযমসহ) — \"আল\"।", "Moon letter: the ل is read (with sukun) - \"al\".")),
       QlItem("w2_1", ref: QlRef(113, 1, 7, 7), say: QlText("আলফালাক্বি", "al-falaqi"), note: QlText("চাঁদের হরফ: ل পড়া হয় (জযমসহ) — \"আল\"।", "Moon letter: the ل is read (with sukun) - \"al\".")),
       QlItem("w2_2", ref: QlRef(108, 1, 6, 6), say: QlText("আলকাওছারা", "al-kawthara"), note: QlText("চাঁদের হরফ: ل পড়া হয় (জযমসহ) — \"আল\"।", "Moon letter: the ل is read (with sukun) - \"al\".")),

@@ -193,19 +193,19 @@ def letter_items(chars):
 
 order = [l[0] for l in LETTERS]
 s1 = [
- lesson('letters1', ('হরফ ১ (ا থেকে خ)', 'Letters 1 (ا to خ)'),
+ lesson('letters1', ('হরফ ১ (আলিফ থেকে খা)', 'Letters 1 (Alif to Kha)'),
   ('প্রতিটি হরফে ট্যাপ করে নাম আর কোথা থেকে আওয়াজ বের হয় (মাখরাজ) দেখুন। হরফের নাম জোরে বলুন — আরবি লেখা ডান থেকে বাঁয়ে পড়া হয়।',
    'Tap each letter to see its name and where its sound comes from (makhraj). Say the name aloud - Arabic is read from right to left.'),
   letter_items(order[0:7])),
- lesson('letters2', ('হরফ ২ (د থেকে ص)', 'Letters 2 (د to ص)'),
+ lesson('letters2', ('হরফ ২ (দাল থেকে সোয়াদ)', 'Letters 2 (Dal to Sad)'),
   ('ذ ز ظ — তিনটাই বাংলায় "য" মনে হয়, কিন্তু আওয়াজ আলাদা; ব্যাখ্যা মন দিয়ে পড়ুন।',
    'ذ ز ظ all sound like one Bangla letter, but they are different sounds - read each note carefully.'),
   letter_items(order[7:14])),
- lesson('letters3', ('হরফ ৩ (ض থেকে ق)', 'Letters 3 (ض to ق)'),
+ lesson('letters3', ('হরফ ৩ (দোয়াদ থেকে ক্বাফ)', 'Letters 3 (Dad to Qaf)'),
   ('"মোটা" চিহ্নের হরফগুলো (خ ص ض غ ط ق ظ) সবসময় মুখ ভরে মোটা করে পড়া হয়।',
    'Letters marked "heavy" (خ ص ض غ ط ق ظ) are always read with a full, heavy mouth.'),
   letter_items(order[14:21])),
- lesson('letters4', ('হরফ ৪ (ك থেকে ي)', 'Letters 4 (ك to ي)'),
+ lesson('letters4', ('হরফ ৪ (কাফ থেকে ইয়া)', 'Letters 4 (Kaf to Ya)'),
   ('শেষ হরফগুলো। হামযা (ء) আলিফের মতো দেখালেও নিজে একটা হরফ।',
    'The last letters. Hamza (ء) is a letter of its own, even when it sits on an alif.'),
   letter_items(order[21:29])),
@@ -221,15 +221,15 @@ def harakah_items(mark, v, prefix):
                         say=(bn_syl(ch, v), en_syl(ch, v)), heavy=heavy_note(ch)))
     return res
 s2 = [
- lesson('fatha', ('যবর ( ـَ )', 'Fatha ( ـَ )'),
+ lesson('fatha', ('যবর', 'Fatha'),
   ('হরফের উপরে ছোট বাঁকা দাগ = যবর। আওয়াজে "আ"-কার যোগ হয়: بَ = "বা"। খাটো করে, এক মাত্রায় পড়ুন।',
    'A small slanted stroke above = fatha. It adds a short "a": بَ = "ba". Keep it short (one count).'),
   harakah_items(FA, 'a', 'fa')),
- lesson('kasra', ('যের ( ـِ )', 'Kasra ( ـِ )'),
+ lesson('kasra', ('যের', 'Kasra'),
   ('হরফের নিচে ছোট দাগ = যের। "ই"-কার: بِ = "বি"।',
    'A small stroke below = kasra. It adds a short "i": بِ = "bi".'),
   harakah_items(KA, 'i', 'ka')),
- lesson('damma', ('পেশ ( ـُ )', 'Damma ( ـُ )'),
+ lesson('damma', ('পেশ', 'Damma'),
   ('হরফের উপরে ছোট "و"-এর মতো চিহ্ন = পেশ। "উ"-কার: بُ = "বু"। ঠোঁট একটু গোল করুন।',
    'A small و-like mark above = damma. It adds a short "u": بُ = "bu". Round the lips a little.'),
   harakah_items(DA, 'u', 'da')),
@@ -247,14 +247,14 @@ def tanween_items(mark, v, prefix, chars):
 T14a = ['ب','ت','ج','د','ر','س','ص','ط','ف','ق','ك','ل','م','ن']
 T14b = ['ث','ح','خ','ذ','ز','ش','ض','ظ','ع','غ','و','ه','ي','ء']
 s3 = [
- lesson('fathatan', ('দুই যবর ( ـً )', 'Fathatan ( ـً )'),
+ lesson('fathatan', ('দুই যবর', 'Fathatan'),
   ('দুই যবর = যবর + "ন"-এর আওয়াজ: بً = "বান"। এই "ন" লেখা থাকে না, কিন্তু পড়া হয় — একে তানবীন বলে।',
    'Two fathas = fatha + an "n" sound: بً = "ban". The "n" is not written but read - this is tanween.'),
   tanween_items(FT, 'a', 'ft', T14a)),
- lesson('kasratan', ('দুই যের ( ـٍ )', 'Kasratan ( ـٍ )'),
+ lesson('kasratan', ('দুই যের', 'Kasratan'),
   ('দুই যের = "ইন": بٍ = "বিন"।', 'Two kasras = "in": بٍ = "bin".'),
   tanween_items(KT, 'i', 'kt', T14b)),
- lesson('dammatan', ('দুই পেশ ( ـٌ )', 'Dammatan ( ـٌ )'),
+ lesson('dammatan', ('দুই পেশ', 'Dammatan'),
   ('দুই পেশ = "উন": بٌ = "বুন"।', 'Two dammas = "un": بٌ = "bun".'),
   tanween_items(DT, 'u', 'dt', T14a)),
 ]
@@ -278,7 +278,7 @@ JW = [  # our own short practice syllables (common Arabic words)
  ('لَكُمْ','লাকুম্','lakum'), ('رَبْ','রাব্','rab'), ('عَبْدُ','আবদু','‘abdu'), ('يَوْمَ','ইয়াওমা','yawma'),
 ]
 s4 = [
- lesson('sukun1', ('জযম ( ـْ ) ১', 'Sukun ( ـْ ) 1'),
+ lesson('sukun1', ('জযম ১', 'Sukun 1'),
   ('হরফের উপরে ছোট গোল চিহ্ন = জযম (সুকুন)। ঐ হরফে কোনো স্বর নেই — আগের হরফের সাথে মিলে থেমে যায়: أَبْ = "আব্"।',
    'A small circle above = sukun. The letter has no vowel; it closes the syllable before it: أَبْ = "ab".'),
   sukun_items(SK_CH)),
@@ -309,7 +309,7 @@ def shadda3(ch):
                  say=(IND[v] + conj(ch) + MAT[v], {'a': 'a', 'i': 'i', 'u': 'u'}[v] + l[5] * 2 + v))
             for v, p, m in (('a', 'أَ', FA), ('i', 'إِ', KA), ('u', 'أُ', DA))]
 s5 = [
- lesson('shadda1', ('তাশদীদ ( ـّ ) ১', 'Shadda ( ـّ ) 1'),
+ lesson('shadda1', ('তাশদীদ ১', 'Shadda 1'),
   ('ছোট "w"-এর মতো চিহ্ন = তাশদীদ। হরফটা দুবার পড়া হয় — প্রথমবার জযম দিয়ে আগের হরফের সাথে, তারপর নিজের স্বরে: أَبَّ = "আব্বা"।',
    'A small w-like mark = shadda. The letter is read twice - once closing the syllable before, then with its own vowel: أَبَّ = "abba".'),
   shadda_items()),
@@ -352,7 +352,7 @@ s6 = [
   ('যবরের পরে খালি আলিফ থাকলে "আ" দুই মাত্রা টেনে পড়ুন (এক মাত্রা ≈ একটা আঙুল খোলার সময়): بَا = "বা —"।',
    'An empty alif after a fatha stretches the "a" to two counts (one count ≈ opening one finger): بَا = "baa".'),
   madd_a()),
- lesson('madd2', ('মাদ্দ — ي ও و দিয়ে', 'Madd - with ي and و'),
+ lesson('madd2', ('মাদ্দ — ইয়া ও ওয়াও দিয়ে', 'Madd - with Ya and Waw'),
   ('যেরের পরে জযমহীন ي = "ঈ" টানা; পেশের পরে জযমহীন و = "ঊ" টানা — দুই মাত্রা।',
    'An unmarked ي after a kasra = long "ee"; an unmarked و after a damma = long "oo" - two counts.'),
   madd_iu()),
@@ -364,7 +364,7 @@ s6 = [
   ('যবরের পরে জযমওয়ালা ي বা و = নরম, দ্রুত "আই" / "আও"; টানবেন না (থামার সময় ছাড়া)।',
    'A ي or و with sukun after a fatha = a soft, quick "ay" / "aw"; do not stretch it (except when stopping).'),
   leen()),
- lesson('madd5', ('মাদ্দ চিহ্ন ( ـٓ ) — লম্বা টান', 'The maddah sign ( ـٓ ) - long stretch'),
+ lesson('madd5', ('মাদ্দ চিহ্ন — লম্বা টান', 'The maddah sign - long stretch'),
   ('মাদ্দের হরফের উপরে ঢেউ-চিহ্ন থাকলে সাধারণত ৪–৫ মাত্রা, আর পরে তাশদীদ/জযম থাকলে ৬ মাত্রা টানা হয়। উদাহরণগুলো কুরআন থেকে (রেফারেন্স দেওয়া)।',
    'A wavy sign over a madd letter usually means 4-5 counts, and 6 counts when a shadda/sukun follows. The examples are from the Quran (reference shown).'),
   [item('mx%d' % i, ref=r, say=(b, e)) for i, (r, b, e) in enumerate(LONGM)]),
@@ -389,7 +389,7 @@ s7 = [
   ('এখন কুরআনের আসল শব্দ (লেখা Tanzil উসমানি পাঠ থেকে, নিচে সূরা:আয়াত)। আগে হরফে হরফে, তারপর একটানা পড়ুন। শব্দের শেষে থামলে শেষ স্বর বাদ দিয়ে জযম করে থামুন।',
    'Now real Quran words (text from the Tanzil Uthmani edition, sura:ayah shown). Spell first, then read in one go. When you stop at a word, drop its last vowel and stop with a sukun.'),
   [item('w1_%d' % i, ref=r, say=(b, e)) for i, (r, b, e) in enumerate(W1)]),
- lesson('words2', ('শব্দ ২ — আলিফ-লাম (ٱلْ)', 'Words 2 - the article ٱلْ'),
+ lesson('words2', ('শব্দ ২ — আলিফ-লাম', 'Words 2 - the article Al'),
   ('শুরুর ٱ (হামযাতুল ওয়াসল) শব্দ দিয়ে পড়া শুরু করলে "আ" পড়া হয়, আগের শব্দের সাথে মিলিয়ে পড়লে পড়া হয় না। লাম চাঁদের হরফের আগে পড়া হয়, সূর্যের হরফের আগে পড়া হয় না।',
    'The opening ٱ (hamzat al-wasl) is read "a" when you start with the word and is silent when joined to the word before. The lam is read before moon letters and silent before sun letters.'),
   [item('w2_%d' % i, ref=r, say=(b, e), note=NOTE_AL[k]) for i, (r, b, e, k) in enumerate(W2)]),
