@@ -1,16 +1,19 @@
-"""Part 3 — Assisto Voice server endpoints (a3-voice).
+"""Part 3 — Assisto Voice server endpoints (a3-voice, k1-wake).
 
-GET /api/v1/voice/config   -> optional "Hey/Hi Assisto" wake-word setup.
+GET /api/v1/voice/config   -> optional "Hey/Hi/Ok Assisto" wake-word setup.
+GET /api/v1/voice/wake-model/<name>
+                           -> one model file of the on-device wake word.
 GET /api/v1/voice/youtube?q=<song artist>
                            -> {available, video_id, title, channel}
 
-Wake word is key-gated: honestly OFF ("coming when the key is set") until the
-owner saves a Picovoice AccessKey and the keyword-file URL(s) on the
-Integrations page and the integration test marks it working. Detection runs on
-the phone (Porcupine, on-device); no audio ever reaches this server. A Picovoice
-AccessKey is designed to be embedded in client apps (scoped to the owner's
-account, metered per device), so returning it to a logged-in user is expected.
-It is never logged.
+Wake word (k1-wake): openWakeWord-style on-device detection with OUR OWN model
+(Picovoice was removed: its Free Tier ended 30 Jun 2026). The model files and a
+manifest.json (produced by .github/workflows/wakeword-train.yml) live in
+core/wakeword_models/ (override: settings.WAKEWORD_DIR). Until a trained,
+licence-cleared model is installed the config honestly says
+available=false / reason="model_pending" and the app shows "coming soon".
+Detection runs on the phone; no audio ever reaches this server — the server
+only hands out the model files (public, no user data).
 
 YouTube search uses the owner's YouTube Data API key SERVER-SIDE only (the key
 never goes to the app). Results are cached per query, and each user has an
@@ -18,40 +21,128 @@ admin-editable daily cap (pricing limits.voice_youtube_daily) because the free
 quota is 10,000 units/day and one search costs 100.
 """
 import json
+import os
+import re
 import urllib.parse
 import urllib.request
 
+from django.conf import settings
 from django.core.cache import cache
+from django.http import FileResponse, Http404
 from django.utils import timezone
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+# ---- k1-wake ----
+# Two feature back-ends (tools/wakeword/ww/features.py): openWakeWord's split
+# mel + embedding models, or one Google speech_embedding "e2e" model.
+_ROLE_SETS = ({"mel", "embed", "wake"}, {"e2e", "wake"})
+_ROLE_ORDER = ("mel", "embed", "e2e", "wake")
+_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,80}\.onnx$")
+_SHA_RE = re.compile(r"^[0-9a-f]{64}$")
+SENSITIVITY_DEFAULTS = {"low": 0.7, "normal": 0.5, "high": 0.3}
 
-def wake_config():
-    from . import integrations
-    cfg = integrations.get("picovoice") if integrations.is_enabled("picovoice") else {}
-    key = (cfg.get("access_key") or "").strip()
-    raw = (cfg.get("keyword_url") or "").strip()
-    urls = [u.strip() for u in raw.split(",") if u.strip()]
+
+def wake_dir():
+    return str(getattr(settings, "WAKEWORD_DIR", "") or
+               os.path.join(os.path.dirname(os.path.abspath(__file__)), "wakeword_models"))
+
+
+def load_manifest():
+    """The installed model manifest, validated; None when absent/invalid.
+
+    manifest.json = {"version": "2026.10.1", "engine": "openwakeword",
+      "licence_cleared": true, "frames": 16,
+      "feature_backend": "e2e"|"oww", "window_samples": 12400,
+      "files": [{"role": "mel"|"embed"|"e2e"|"wake", "name": "x.onnx", "sha256": "…", "size": n}],
+      "thresholds": {"low": .., "normal": .., "high": ..},
+      "eval": {...measured numbers from the CI evaluation...}}
+    """
+    p = os.path.join(wake_dir(), "manifest.json")
     try:
-        sens = float(cfg.get("sensitivity") or 0.6)
+        with open(p, encoding="utf-8") as f:
+            m = json.load(f)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(m, dict):
+        return None
+    files = m.get("files") or []
+    roles = {}
+    for e in files if isinstance(files, list) else []:
+        if not isinstance(e, dict):
+            return None
+        name, sha, role = str(e.get("name", "")), str(e.get("sha256", "")).lower(), e.get("role")
+        if role not in _ROLE_ORDER or not _NAME_RE.match(name) or not _SHA_RE.match(sha):
+            return None
+        if not os.path.isfile(os.path.join(wake_dir(), name)):
+            return None
+        roles[role] = {"role": role, "name": name, "sha256": sha,
+                       "size": int(e.get("size") or os.path.getsize(os.path.join(wake_dir(), name)))}
+    if set(roles) not in _ROLE_SETS:
+        return None
+    try:
+        window = int(m.get("window_samples") or 12400)
     except (TypeError, ValueError):
-        sens = 0.6
-    sens = min(0.95, max(0.1, sens))
-    available = bool(key) and bool(urls) and all(u.startswith("https://") for u in urls)
-    return {
-        "available": available,
-        "access_key": key if available else "",
-        "keyword_url": urls[0] if available else "",
-        "keyword_urls": urls if available else [],
-        "sensitivity": sens,
-        "engine": "porcupine",
-    }
+        return None
+    th = dict(SENSITIVITY_DEFAULTS)
+    for k, v in (m.get("thresholds") or {}).items():
+        if k in th:
+            try:
+                th[k] = min(0.99, max(0.01, float(v)))
+            except (TypeError, ValueError):
+                pass
+    try:
+        frames = int(m.get("frames") or 16)
+    except (TypeError, ValueError):
+        frames = 16
+    return {"version": str(m.get("version") or ""), "licence_cleared": m.get("licence_cleared") is True,
+            "files": [roles[r] for r in _ROLE_ORDER if r in roles], "thresholds": th,
+            "frames": min(64, max(4, frames)),
+            "feature_backend": "e2e" if "e2e" in roles else "oww",
+            "window_samples": min(48000, max(1280, window))}
+
+
+def wake_config(request=None):
+    m = load_manifest()
+    base = {"engine": "openwakeword", "phrases": ["Hey Assisto", "Hi Assisto", "Ok Assisto"]}
+    if not m:
+        return {**base, "available": False, "reason": "model_pending", "files": [],
+                "thresholds": dict(SENSITIVITY_DEFAULTS), "version": ""}
+    if not m["licence_cleared"]:
+        # Never hand out a model whose training inputs are not cleared for a
+        # commercial app (see .phaseB/MODEL_LICENSES.md).
+        return {**base, "available": False, "reason": "licence_pending", "files": [],
+                "thresholds": m["thresholds"], "version": m["version"]}
+    files = []
+    for e in m["files"]:
+        path = "/api/v1/voice/wake-model/" + e["name"]
+        url = request.build_absolute_uri(path) if request is not None else path
+        files.append({**e, "url": url})
+    return {**base, "available": True, "reason": "", "files": files,
+            "thresholds": m["thresholds"], "frames": m["frames"], "version": m["version"],
+            "feature_backend": m["feature_backend"], "window_samples": m["window_samples"]}
 
 
 class VoiceConfigView(APIView):
     def get(self, request):
-        return Response({"wake": wake_config()})
+        return Response({"wake": wake_config(request)})
+
+
+class WakeModelFileView(APIView):
+    """Model files are public (open model, no user data) and small; only the
+    names listed in the manifest can be fetched (no path traversal)."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, name):
+        m = load_manifest()
+        if not m or not m["licence_cleared"] or name not in {e["name"] for e in m["files"]}:
+            raise Http404
+        resp = FileResponse(open(os.path.join(wake_dir(), name), "rb"),
+                            content_type="application/octet-stream")
+        resp["Cache-Control"] = "public, max-age=86400"
+        return resp
 
 
 def youtube_search(key, q):

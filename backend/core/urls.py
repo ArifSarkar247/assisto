@@ -734,6 +734,8 @@ urlpatterns = [
     path("voice/config", voicev.VoiceConfigView.as_view()),
     path("voice/transcribe", voicev.VoiceTranscribeView.as_view()),  # aifinal round 2
     path("voice/youtube", voicev.VoiceYoutubeView.as_view()),
+    # ---- k1-wake ---- on-device "Hey Assisto" model files (public, manifest-listed)
+    path("voice/wake-model/<str:name>", voicev.WakeModelFileView.as_view()),
 ]
 
 # ---- a2-cctv ---- CCTV Part 4 round 2: camera settings, device heartbeat /

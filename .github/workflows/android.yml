@@ -418,11 +418,21 @@ jobs:
               '\n                <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>'
               '\n            </intent-filter>'
               '\n        </activity-alias>'
-              # Opt-in "Hey/Hi Assisto" wake word (never started at launch/boot;
-              # the Porcupine engine itself ships in stage 2, by reflection).
+              # ---- k1-wake ---- Opt-in "Hey/Hi/Ok Assisto" wake word (openWakeWord
+              # on ONNX Runtime). Never started at launch or from boot; the boot
+              # receiver only posts a one-tap "turn on again" notification
+              # (Android 14+ forbids a microphone FGS from BOOT_COMPLETED).
               '\n        <service android:name="com.assisto.assisto.voice.WakeWordService"'
               ' android:foregroundServiceType="microphone"'
-              ' android:exported="false"/>\n'
+              ' android:exported="false"/>'
+              '\n        <receiver android:name="com.assisto.assisto.voice.WakeBootReceiver"'
+              ' android:exported="false">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>'
+              '\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>'
+              '\n                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>'
+              '\n            </intent-filter>'
+              '\n        </receiver>\n'
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
@@ -802,6 +812,27 @@ jobs:
               print("desugaring enabled in", p)
           else:
               print("already enabled")
+          PY
+
+      # ---- k1-wake ---- ONNX Runtime for the on-device "Hey Assisto" wake word
+      # (WakeWordService/OwwEngine.kt). MIT licence; 1.23.2 native libs are
+      # 16 KB-page aligned (Play requirement, checked with readelf). Adds ~8 MB
+      # per ABI (arm64 / armeabi-v7a split by Play from the AAB). Proposal:
+      # .phaseB/proposals/k1-wake.md
+      - name: Add ONNX Runtime (k1-wake wake word)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          if "onnxruntime-android" not in s:
+              s += ('\n\ndependencies {\n    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")\n}\n'
+                    if is_kts else
+                    "\n\ndependencies {\n    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.23.2'\n}\n")
+              open(p, "w").write(s)
+              print("onnxruntime-android 1.23.2 added to", p)
           PY
 
       - name: Apply google-services Gradle plugin (only when Firebase config exists)
