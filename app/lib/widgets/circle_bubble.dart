@@ -10,6 +10,7 @@ import '../messaging/msg_ticks.dart';
 import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
+import '../messaging/media/photo_album_view.dart'; // circlemedia
 import '../messaging/view_once.dart';
 import '../messaging/share/share_flow.dart' show shareBubbleBody; // mc-media2
 import '../messaging/share/share_payload.dart' show decodeShare, kShareKinds;
@@ -55,6 +56,9 @@ class CircleMessage {
   /// whether the server deleted it unopened (14 days).
   final DateTime? viewOnceOpenedAt;
   final bool viewOnceExpired;
+  /// circlemedia: the members of an album, in album order, when this row
+  /// stands for a whole album (see messaging/media/album.dart); else empty.
+  final List<CircleMessage> album;
 
   const CircleMessage({
     required this.id,
@@ -82,6 +86,7 @@ class CircleMessage {
     this.viewOnceOpened = false,
     this.viewOnceOpenedAt, // viewonce
     this.viewOnceExpired = false,
+    this.album = const [], // circlemedia
   });
 
   CircleMessage copyWith({
@@ -95,6 +100,7 @@ class CircleMessage {
     String? text,
     String? replyPreview,
     bool? viewOnceOpened,
+    List<CircleMessage>? album, // circlemedia
   }) =>
       CircleMessage(
         id: id,
@@ -122,7 +128,18 @@ class CircleMessage {
         viewOnceOpened: viewOnceOpened ?? this.viewOnceOpened,
         viewOnceOpenedAt: viewOnceOpenedAt, // viewonce
         viewOnceExpired: viewOnceExpired,
+        album: album ?? this.album, // circlemedia
       );
+
+  /// circlemedia: the album key of this message ('' = not in an album).
+  String get albumKey {
+    final a = media?.album ?? mediaJob?.album;
+    if (a == null || viewOnce || deleted.isNotEmpty) return '';
+    return '${mine ? 'me' : 'them'}:${a.id}';
+  }
+
+  /// circlemedia: this message's place in its album.
+  int get albumIndex => media?.album?.index ?? mediaJob?.album?.index ?? 0;
 }
 
 /// wa-polish2: the bubble shape — the first bubble of a run has the "tail"
@@ -171,6 +188,10 @@ class CircleBubble extends StatelessWidget {
   /// tail; only the run's first bubble has the tail.
   final bool continued;
 
+  /// circlemedia: open the full-screen viewer on item [index] of the
+  /// photo / album bubble ([items] = the album's messages, or just this one).
+  final void Function(List<CircleMessage> items, int index)? onOpenAlbum;
+
   /// circlea: the decrypted link preview (built on the sender's phone and
   /// carried inside the E2E message); null = none.
   final LinkPreviewData? linkPreview;
@@ -186,7 +207,8 @@ class CircleBubble extends StatelessWidget {
       this.onOpenFile,
       this.onTapReply,
       this.highlighted = false,
-      this.onOpenViewOnce});
+      this.onOpenViewOnce,
+      this.onOpenAlbum}); // circlemedia
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +220,9 @@ class CircleBubble extends StatelessWidget {
     final bg = mine ? MsgPalette.outBubble(context) : scheme.surfaceContainerHighest;
     final fg = mine ? MsgPalette.outText(context) : scheme.onSurface;
     final deleted = msg.deleted == 'everyone';
+    // circlemedia: photos / videos / albums are edge-to-edge picture bubbles
+    final pics = deleted || msg.decryptFailed || msg.viewOnce ? null : photoItemsOf(msg);
+    if (pics != null) return _pictureBubble(context, t, scheme, pics, bg, fg);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 350),
@@ -262,6 +287,103 @@ class CircleBubble extends StatelessWidget {
       ),
     );
   }
+
+  /// circlemedia: the picture items of [m] (its album members, or itself),
+  /// or null when it is not a photo / video message.
+  static List<AlbumItem>? photoItemsOf(CircleMessage m) {
+    final members = m.album.isNotEmpty ? m.album : [m];
+    final out = <AlbumItem>[];
+    for (final x in members) {
+      final job = x.mediaJob;
+      if (job != null && job.control != null) return null; // a theme change
+      final kind = x.media?.kind ?? job?.kind;
+      if (kind != 'photo' && kind != 'video') return null;
+      if (x.viewOnce) return null;
+      out.add(AlbumItem(id: x.id, desc: job == null ? x.media : null, job: job));
+    }
+    return out;
+  }
+
+  Widget _pictureBubble(BuildContext context, AppLocalizations t, ColorScheme scheme,
+      List<AlbumItem> items, Color bg, Color fg) {
+    final mine = msg.mine;
+    final members = msg.album.isNotEmpty ? msg.album : [msg];
+    final caption = msg.text.trim();
+    final header = [
+      if (msg.forwarded) _forwardedLabel(context, t, mine, scheme),
+      if (msg.replyPreview != null) _replyPreview(context, mine, scheme),
+    ];
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 350),
+      color: highlighted ? scheme.primary.withValues(alpha: 0.18) : Colors.transparent,
+      child: Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: GestureDetector(
+          onLongPress: onLongPress,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(
+                Gap.sm, continued ? Gap.xxs / 2 : Gap.sm, Gap.sm, Gap.xxs / 2),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+            child: Column(
+              crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                PhotoBubbleShell(
+                  key: ValueKey('cm-bubble-${msg.id}'),
+                  items: items,
+                  bg: bg,
+                  fg: fg,
+                  header: header.isEmpty
+                      ? null
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: header),
+                  caption: caption.isEmpty
+                      ? null
+                      : LinkifiedText(caption,
+                          style: TextStyle(color: fg, height: 1.4), linkColor: fg),
+                  meta: PhotoMetaPill(children: _pillMeta(context)),
+                  onOpen: (i, file) {
+                    final open = onOpenAlbum;
+                    final single = members.length == 1 ? members.first.media : null;
+                    if (single != null && single.kind == 'video') {
+                      onOpenFile?.call(file, single); // straight to the player
+                    } else if (open != null) {
+                      open(members, i);
+                    } else if (members[i].media != null) {
+                      onOpenFile?.call(file, members[i].media!);
+                    }
+                  },
+                ),
+                if (msg.reactions.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: CircleReactionChips(counts: msg.reactions, onTap: onLongPress),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// circlemedia: time + ticks for the soft pill on the picture.
+  List<Widget> _pillMeta(BuildContext context) => [
+        if (msg.starred) ...[
+          const Icon(Icons.star_rounded, size: 12),
+          const SizedBox(width: 3),
+        ],
+        Text(DateFormat.Hm(Localizations.localeOf(context).languageCode).format(msg.at)),
+        if (msg.mine) ...[
+          const SizedBox(width: 3),
+          TickIcon(
+            tick: tickFrom(msg.status, pending: msg.pending),
+            baseColor: Colors.white,
+            size: 14,
+          ),
+        ],
+      ];
 
   Widget _retryLine(BuildContext context, AppLocalizations t, ColorScheme scheme) =>
       Semantics(

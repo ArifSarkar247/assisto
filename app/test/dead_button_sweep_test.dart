@@ -81,6 +81,9 @@ const Map<String, String> _allowDead = {
   'a1_header_last_seen|IconButton "tip:': 'A: a1_shots.dart header back/call icons use onPressed: () {}; the real chat header wires them',
   'md1_attach_sheet|key=attach-': 'A: md1_shots.dart renders CircleAttachGrid(onPick: (_) {}); the real sheet pops the kind and the chat runs the picker (md1_media_test / mr1_test cover it)',
   'md1_viewer|key=mv-': 'A: md1_shots.dart passes onSave/onShare: (_) {}; media_actions.dart wires MediaStore save + share sheet',
+  // circlemedia
+  'md1_cm_album_sending|key=cm-send-': 'A: circlemedia_shots.dart shows fixture jobs that are not in the outbox store, so cancel / retry find nothing; circlemedia_test + md1_media_test prove cancel / retry on real jobs',
+  'md1_cm_album_sending|key=cm-album-': 'A: same fixture jobs (album Retry / Remove); circlemedia_test covers the real outbox',
   'md1_recorder|key=md1-rec-': 'A: md1_shots.dart pins VoiceRecorderSheet as a static bottomSheet (no route to pop) with a fake recorder; md1_media_test proves Send returns the draft',
   'mr1_requests_list|TextButton "See all"':'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
   'cbar_group_call_sheet|key=group-call-v': 'A: callsbar_shots.dart passes onCall: (_, __) {}; showGroupCallSheet pops and pushes CircleCallScreen (callsbar_ui_test proves the tap hands member + kind to onCall)',

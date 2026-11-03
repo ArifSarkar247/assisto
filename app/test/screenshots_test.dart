@@ -355,6 +355,7 @@ import 'callpip_shots.dart'; // callpip
 import 'f3_shots.dart'; // f3-design
 import 'cde_shots.dart'; // cde-chat
 import 'e_gaps_shots.dart'; // e-gaps
+import 'circlemedia_shots.dart'; // circlemedia
 import 'package:assisto/screens/unseen_world_screen.dart';
 import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/business/business_hub_screen.dart';
@@ -1298,6 +1299,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in p3Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // md1: E2E media (attach sheet, bubbles, chat, viewer, preview, recorder)
     for (final e in md1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // circlemedia: edge-to-edge photo bubble, album layouts 1..6, album sending, preview, viewer
+    for (final e in circlemediaShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // p2-money: sponsor card, Sponsored post, offers, paywall
     for (final e in p2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // p5-growth: Invite friends + Founding seat + branded share sheet

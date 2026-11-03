@@ -7,9 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../crypto/e2e.dart';
 import '../../services/error_report.dart';
+import 'album.dart'; // circlemedia
 import 'media_api.dart';
 import 'media_descriptor.dart';
+import 'media_prep.dart' show tinyThumbB64, scrubJpeg; // circlemedia
 import 'media_store.dart';
+import 'photo_prep.dart'; // circlemedia
 
 /// md1 — one photo / voice note / document on its way out.
 ///
@@ -47,6 +50,15 @@ class MediaJob {
 
   /// e-gaps: a view-once photo (1:1) — no thumbnail, the sender keeps no copy.
   final bool viewOnce;
+
+  /// circlemedia: this item's place in an album (inside the E2E descriptor).
+  final AlbumRef? album;
+
+  /// circlemedia: photo work still to do on the phone before sealing
+  /// ({'rot': quarter turns, 'edge': max px, 'q': JPEG quality}); null = none.
+  /// Done in step 1 (background isolate), so Send is instant and a restart
+  /// resumes it.
+  Map<String, dynamic>? prep;
   // progress (persisted)
   String encPath;
   String keyB64, nonceB64, sha;
@@ -74,6 +86,8 @@ class MediaJob {
     this.replyTo,
     this.control,
     this.viewOnce = false,
+    this.album, // circlemedia
+    this.prep, // circlemedia
     this.encPath = '',
     this.keyB64 = '',
     this.nonceB64 = '',
@@ -85,6 +99,18 @@ class MediaJob {
   });
 
   bool get failed => state == 'failed';
+
+  /// circlemedia: the same job after its photo prep ran (new size / thumb).
+  MediaJob prepped(
+          {required int size, int? w, int? h, String? thumb, bool jpeg = false, String? src}) =>
+      MediaJob(
+        id: id, chatKind: chatKind, chatId: chatId, kind: kind, srcPath: src ?? srcPath,
+        name: jpeg ? '${name.contains('.') ? name.substring(0, name.lastIndexOf('.')) : name}.jpg' : name,
+        mime: jpeg ? 'image/jpeg' : mime, plainSize: size, at: at, width: w ?? width,
+        height: h ?? height, durationMs: durationMs, wave: wave,
+        thumbB64: thumb ?? thumbB64, caption: caption, replyTo: replyTo,
+        control: control, viewOnce: viewOnce, album: album, prep: null,
+        state: state, error: error);
 
   Map<String, dynamic> toJson() => {
         'id': id, 'ck': chatKind, 'chat': chatId, 'kind': kind, 'src': srcPath,
@@ -98,6 +124,8 @@ class MediaJob {
         if (replyTo != null) 'reply_to': replyTo,
         if (control != null) 'cc1': control,
         if (viewOnce) 'vo': 1,
+        if (album != null) 'alb': album!.toJson(), // circlemedia
+        if (prep != null) 'prep': prep, // circlemedia
         'at': at.toUtc().toIso8601String(),
         'enc': encPath, 'k': keyB64, 'n': nonceB64, 'sha': sha,
         'csize': cipherSize, 'ref': ref, 'state': state, 'err': error,
@@ -126,6 +154,8 @@ class MediaJob {
       replyTo: j['reply_to'] == null ? null : '${j['reply_to']}',
       control: (j['cc1'] as Map?)?.cast<String, dynamic>(),
       viewOnce: j['vo'] == 1,
+      album: AlbumRef.tryParse(j['alb']), // circlemedia
+      prep: (j['prep'] as Map?)?.cast<String, dynamic>(), // circlemedia
       at: DateTime.tryParse('${j['at'] ?? ''}')?.toLocal() ?? DateTime.now(),
       encPath: '${j['enc'] ?? ''}',
       keyB64: '${j['k'] ?? ''}',
@@ -155,6 +185,7 @@ class MediaJob {
         wave: wave,
         thumb: thumbB64.isEmpty ? null : base64Decode(thumbB64),
         caption: caption,
+        album: album, // circlemedia
       );
 }
 
@@ -386,6 +417,11 @@ class MediaOutbox {
   @visibleForTesting
   Future<MediaStep> process(MediaJob job) async {
     try {
+      // 0) circlemedia: rotate / HD-or-Standard on the phone, then seal
+      if (job.prep != null && job.encPath.isEmpty) {
+        job = await _runPrep(job);
+        if (_cancelled.contains(job.id)) return MediaStep.cancelled;
+      }
       // 1) seal on the phone
       if (job.encPath.isEmpty || !File(job.encPath).existsSync() || job.sha.isEmpty) {
         _setProgress(job.id, -1);
@@ -550,6 +586,48 @@ class MediaOutbox {
       _setProgress(job.id, null);
       return MediaStep.waiting;
     }
+  }
+}
+
+extension _CirclemediaPrep on MediaOutbox {
+  /// circlemedia: run a photo's pending prep (background isolate). A photo
+  /// the code can't read is sent as picked (already scrubbed) — never lost.
+  Future<MediaJob> _runPrep(MediaJob job) async {
+    final src = File(job.srcPath);
+    if (!src.existsSync()) return job; // step 1 reports it as missing
+    _setProgress(job.id, -1);
+    final p = job.prep!;
+    final out = await photoPrep(await src.readAsBytes(),
+        turns: (p['rot'] as num?)?.toInt() ?? 0,
+        maxEdge: (p['edge'] as num?)?.toInt() ?? kStdEdge,
+        quality: (p['q'] as num?)?.toInt() ?? kStdQuality);
+    MediaJob next;
+    if (out == null) {
+      next = job.prepped(size: src.lengthSync());
+    } else {
+      final bytes = scrubJpeg(out.bytes);
+      // a NEW file: the bubble's image cache never shows the old picture
+      final dst = File('${job.srcPath}-p.jpg');
+      await dst.writeAsBytes(bytes, flush: true);
+      final thumb = job.viewOnce ? '' : await tinyThumbB64(bytes);
+      next = job.prepped(
+          size: bytes.length, w: out.width, h: out.height,
+          thumb: thumb.isEmpty ? null : thumb, jpeg: true, src: dst.path);
+    }
+    if (_cancelled.contains(job.id)) {
+      // cancelled while it was being prepared: leave nothing behind
+      try {
+        if (next.srcPath != job.srcPath) File(next.srcPath).deleteSync();
+      } catch (_) {}
+      return job;
+    }
+    await _put(next); // saved first: a crash here never loses the photo
+    if (next.srcPath != job.srcPath) {
+      try {
+        src.deleteSync();
+      } catch (_) {}
+    }
+    return next;
   }
 }
 

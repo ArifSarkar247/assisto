@@ -1,0 +1,140 @@
+{
+ "en": {
+  "cmHd": "HD",
+  "@cmHd": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmStandard": "Standard",
+  "@cmStandard": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmHdOnHint": "HD quality: sharper photos, bigger files",
+  "@cmHdOnHint": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmHdOffHint": "Standard quality: smaller files, sends faster",
+  "@cmHdOffHint": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmRotate": "Rotate",
+  "@cmRotate": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmCrop": "Crop",
+  "@cmCrop": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmRemoveItem": "Remove this one",
+  "@cmRemoveItem": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmAddMore": "Add more",
+  "@cmAddMore": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmCountOf": "{index} of {total}",
+  "@cmCountOf": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "index": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "cmSendCount": "Send {count}",
+  "@cmSendCount": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cmLimitNote": "You can send up to {count} at once. The first {count} were added.",
+  "@cmLimitNote": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cmVideoTooBig": "{count} video(s) left out: larger than {mb} MB.",
+  "@cmVideoTooBig": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    },
+    "mb": {
+     "type": "String"
+    }
+   }
+  },
+  "cmSomeFailed": "{count} file(s) could not be opened.",
+  "@cmSomeFailed": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cmAlbumLabel": "Album, {count} photos and videos",
+  "@cmAlbumLabel": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cmAlbumSent": "{done} of {total} sent",
+  "@cmAlbumSent": {
+   "description": "circlemedia: multi-photo send / album bubble",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "cmEditFailed": "Could not edit this photo. It will be sent as it is.",
+  "@cmEditFailed": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmPlayVideo": "Play video",
+  "@cmPlayVideo": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "cmPhotoLoadFailed": "Could not load this photo. Tap to try again.",
+  "@cmPhotoLoadFailed": {
+   "description": "circlemedia: multi-photo send / album bubble"
+  }
+ },
+ "bn": {
+  "cmHd": "এইচডি",
+  "cmStandard": "সাধারণ",
+  "cmHdOnHint": "এইচডি মান: ছবি বেশি পরিষ্কার, ফাইল বড়",
+  "cmHdOffHint": "সাধারণ মান: ফাইল ছোট, দ্রুত যায়",
+  "cmRotate": "ঘোরান",
+  "cmCrop": "ক্রপ করুন",
+  "cmRemoveItem": "এটি বাদ দিন",
+  "cmAddMore": "আরও যোগ করুন",
+  "cmCountOf": "{total}টির মধ্যে {index}",
+  "cmSendCount": "{count}টি পাঠান",
+  "cmLimitNote": "একবারে সর্বোচ্চ {count}টি পাঠানো যায়। প্রথম {count}টি যোগ হয়েছে।",
+  "cmVideoTooBig": "{count}টি ভিডিও বাদ পড়েছে: {mb} MB-এর বেশি বড়।",
+  "cmSomeFailed": "{count}টি ফাইল খোলা যায়নি।",
+  "cmAlbumLabel": "অ্যালবাম, {count}টি ছবি ও ভিডিও",
+  "cmAlbumSent": "{total}টির মধ্যে {done}টি গেছে",
+  "cmEditFailed": "ছবিটি এডিট করা যায়নি। যেমন আছে তেমনই যাবে।",
+  "cmPlayVideo": "ভিডিও চালান",
+  "cmPhotoLoadFailed": "ছবিটি আনা যায়নি। আবার চেষ্টা করতে চাপুন।"
+ }
+}

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'album.dart'; // circlemedia
+
 /// md1 — what a My Circle media message carries INSIDE its E2E envelope.
 ///
 /// The JSON below is the PLAINTEXT of the normal per-recipient message
@@ -34,6 +36,9 @@ class MediaDescriptor {
   final Uint8List? thumb;
   final String caption;
 
+  /// circlemedia: this item's place in an album (null = a single item).
+  final AlbumRef? album;
+
   const MediaDescriptor({
     required this.kind,
     required this.ref,
@@ -50,6 +55,7 @@ class MediaDescriptor {
     this.wave = const [],
     this.thumb,
     this.caption = '',
+    this.album, // circlemedia
   });
 
   Map<String, dynamic> toJson() => {
@@ -69,6 +75,7 @@ class MediaDescriptor {
         if (wave.isNotEmpty) 'wave': wave,
         if (thumb != null) 'thumb': base64Encode(thumb!),
         if (caption.isNotEmpty) 'cap': caption,
+        if (album != null) 'alb': album!.toJson(), // circlemedia
       };
 
   /// The plaintext that goes through the per-recipient E2E encryption.
@@ -118,6 +125,7 @@ class MediaDescriptor {
         wave: wave.length > 128 ? wave.sublist(0, 128) : wave,
         thumb: thumb,
         caption: '${j['cap'] ?? ''}',
+        album: AlbumRef.tryParse(j['alb']), // circlemedia
       );
     } catch (_) {
       return null;

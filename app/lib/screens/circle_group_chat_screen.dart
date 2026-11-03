@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat; // circlemedia
 import '../p3/assisto_card.dart'; // p3
 import '../p3/assisto_card_view.dart';
 import '../p3/assisto_intent.dart';
@@ -51,6 +52,9 @@ import '../messaging/media/media_bubble.dart';
 import '../messaging/media/media_descriptor.dart';
 import '../messaging/media/media_outbox.dart';
 import '../messaging/media/media_send.dart';
+import '../messaging/media/album.dart'; // circlemedia
+import '../messaging/media/album_viewer.dart'; // circlemedia
+import '../messaging/media/photo_album_view.dart'; // circlemedia
 import '../messaging/media/voice_hold_mic.dart'; // wa-polish2
 import '../messaging/media/media_store.dart';
 import '../widgets/circle_attach_sheet.dart';
@@ -364,6 +368,21 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       // mc-media2: location / live location / contact card (inline E2E)
       final sent = await runShareAttach(context, kind, chatKind: 'group', chatId: _gid);
       if (sent != null && mounted) unawaited(_pollMessages());
+      return;
+    }
+    // circlemedia: gallery (many at once) / camera → album preview → album
+    if (kind == CircleAttachKind.gallery || kind == CircleAttachKind.camera) {
+      final jobs = await pickPreviewAndQueuePhotos(context, _api,
+          camera: kind == CircleAttachKind.camera,
+          chatKind: 'group',
+          chatId: _gid,
+          replyTo: _replyTo == null ? null : '${_replyTo!['id']}');
+      if (jobs.isEmpty || !mounted) return;
+      final ids = {for (final j in jobs) j.id};
+      setState(() {
+        _mediaJobs = [..._mediaJobs.where((j) => !ids.contains(j.id)), ...jobs];
+        _replyTo = null;
+      });
       return;
     }
     // calls-presence: "<name> is recording audio…" for the group
@@ -1953,7 +1972,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // at the end (= the top) on scroll-up, which keeps the position.
     final searching = _searching && _searchQuery.trim().isNotEmpty;
     final showDivider = !searching && _firstUnreadId != null && _unreadAtOpen > 0;
-    final rev = items.where((m) => !_p3Hidden(m)).toList().reversed.toList(); // p3
+    // circlemedia: the items of an album fold into ONE bubble
+    final rev = collapseAlbums<Map<String, dynamic>>(
+            items.where((m) => !_p3Hidden(m)).toList(), // p3
+            albumOf: _albumKeyOf,
+            indexOf: (m) => _albumRefOf(m)?.index ?? 0,
+            merge: (ms) => <String, dynamic>{...ms.first, 'cm_album': ms})
+        .reversed
+        .toList();
     // t1-ticks: date chips + floating date while scrolling, interleaved into
     // the newest-first rows; the E2E notice is the OLDEST item once the whole
     // history is loaded.
@@ -2099,6 +2125,134 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   DateTime? _runAt(Map<String, dynamic> msg) =>
       DateTime.tryParse('${msg['created_at'] ?? msg['at'] ?? ''}');
 
+  // ---------------------------------------------------------- circlemedia
+  AlbumRef? _albumRefOf(Map<String, dynamic> m) {
+    final job = m['md1_job'];
+    if (job is MediaJob) return job.album;
+    return _mediaOf(m)?.album;
+  }
+
+  String? _albumKeyOf(Map<String, dynamic> m) {
+    if ('${m['deleted'] ?? ''}'.isNotEmpty || m['view_once'] == true) return null;
+    final job = m['md1_job'];
+    if (job is MediaJob && (job.control != null || job.viewOnce)) return null;
+    final a = _albumRefOf(m);
+    if (a == null) return null;
+    return '${m['mine'] == true ? 'me' : 'u${m['sender_id'] ?? ''}'}:${a.id}';
+  }
+
+  /// The picture items of a message (its album, or itself); null when it
+  /// is not a photo / video message this phone can show.
+  List<AlbumItem>? _pictureItems(Map<String, dynamic> msg) {
+    if ('${msg['deleted'] ?? ''}' == 'everyone' || msg['view_once'] == true) return null;
+    final members = (msg['cm_album'] as List?)?.cast<Map<String, dynamic>>() ?? [msg];
+    final out = <AlbumItem>[];
+    for (final m in members) {
+      final job = m['md1_job'];
+      if (job is MediaJob) {
+        if (job.control != null || job.viewOnce) return null;
+        if (job.kind != 'photo' && job.kind != 'video') return null;
+        out.add(AlbumItem(id: job.id, job: job));
+        continue;
+      }
+      final d = _mediaOf(m);
+      if (d == null || (d.kind != 'photo' && d.kind != 'video')) return null;
+      if (_controlOf(m) != null) return null;
+      out.add(AlbumItem(id: '${m['id']}', desc: d));
+    }
+    return out;
+  }
+
+  Widget _pictureMessage(Map<String, dynamic> msg, List<AlbumItem> items,
+      {bool continued = false}) {
+    final scheme = Theme.of(context).colorScheme;
+    final mine = msg['mine'] == true;
+    final members = (msg['cm_album'] as List?)?.cast<Map<String, dynamic>>() ?? [msg];
+    final selected = _selecting && _selected.contains('${msg['id']}');
+    final job = msg['md1_job'];
+    final caption = (job is MediaJob ? job.caption : (_decryptForMe(msg) ?? '')).trim();
+    final header = <Widget>[
+      if (!continued && !mine)
+        Text(_senderName(msg),
+            key: ValueKey('wa2-sender-${msg['id']}'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: scheme.primary)),
+      if (msg['forwarded'] == true)
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.forward_rounded, size: 13, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.xs),
+          Text(
+              ((msg['forward_hops'] as int?) ?? 0) >= 5
+                  ? _t.circleForwardedMany
+                  : _t.circleForwarded,
+              style: AType.bodySmall.copyWith(
+                  fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+        ]),
+    ];
+    final at = _runAt(msg);
+    final descs = [for (final i in items) if (i.desc != null) i.desc!];
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: Padding(
+        padding: EdgeInsets.only(top: continued ? Gap.xxs / 2 : Gap.sm, bottom: Gap.xxs / 2),
+        child: GestureDetector(
+          onLongPress: _selecting || job is MediaJob ? null : () => _showActions(msg),
+          onTap: _selecting && job is! MediaJob ? () => _toggleSelect(msg) : null,
+          child: Column(
+            crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              PhotoBubbleShell(
+                key: ValueKey('cm-bubble-${msg['id']}'),
+                items: items,
+                bg: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                fg: scheme.onSurface,
+                header: header.isEmpty
+                    ? null
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: header),
+                caption: caption.isEmpty ? null : _highlightMentions(caption),
+                meta: PhotoMetaPill(children: [
+                  if (at != null)
+                    Text(DateFormat.Hm(Localizations.localeOf(context).languageCode)
+                        .format(at.toLocal())),
+                  if (mine && job is! MediaJob) ...[
+                    const SizedBox(width: 3),
+                    TickIcon(
+                        tick: tickFrom('${msg['status'] ?? 'sent'}'),
+                        baseColor: Colors.white,
+                        size: 14),
+                  ],
+                ]),
+                onOpen: _selecting
+                    ? null
+                    : (i, file) {
+                        final d = items[i].desc;
+                        if (d == null) return;
+                        if (items.length == 1 && d.kind == 'video') {
+                          _openFile(file, d); // straight to the player
+                          return;
+                        }
+                        final pos = descs.indexOf(d);
+                        unawaited(openAlbumViewer(context, descs,
+                            initialIndex: pos < 0 ? 0 : pos, onForward: (k) {
+                          final idx = items.indexWhere((x) => x.desc == descs[k]);
+                          if (idx < 0) return;
+                          Navigator.of(context).pop();
+                          unawaited(_forward(members[idx]));
+                        }));
+                      },
+              ),
+              _reactionRow(msg),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _messageItem(Map<String, dynamic> msg, {bool continued = false}) {
     final job = msg['md1_job'];
     // cde-chat: theme / nickname changes are centred system lines
@@ -2115,6 +2269,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   ? Icons.timer_rounded
                   : Icons.badge_rounded);
     }
+    // circlemedia: photos / videos / albums: edge-to-edge picture bubble
+    final pics = _pictureItems(msg);
+    if (pics != null) return _pictureMessage(msg, pics, continued: continued);
     if (job is MediaJob) {
       // md1: a send still on its way (progress ring + cancel / retry)
       return Align(
