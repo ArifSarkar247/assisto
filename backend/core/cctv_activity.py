@@ -331,6 +331,10 @@ def run_brief(site, now):
                          (a.__setitem__("brief", today) or True))
     if not claimed:
         return False
+    # a site set up today has no "yesterday": no summary (and no push) for it
+    created = getattr(site, "created", None)
+    if created is not None and _local(created).date().isoformat() > yday:
+        return False
     from . import cctvx_views as CXV
     views = {lg: day_view(site, yday, now, lg) for lg in ("bn", "en")}
     if not (views["bn"]["foot"]["visitors"] or views["bn"]["alerts"] or

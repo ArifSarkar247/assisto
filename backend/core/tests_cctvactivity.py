@@ -287,6 +287,15 @@ class ActivityApiTests(E2E._Base):
     def test_morning_summary_once_with_health(self):
         from core import cctv_activity as A
         from core.models import NotifEvent
+        from core.models import ShopSite
+        # a brand-new site gets no "yesterday" summary on its first morning
+        morning = timezone.localtime().replace(hour=9, minute=0, second=0, microsecond=0)
+        self.pushes.clear()
+        self.assertFalse(A.run_brief(self.s, morning))
+        self.assertEqual(self.shop_pushes(), [])
+        A.act_update(self.s, lambda a: a.pop("brief", None))
+        ShopSite.objects.filter(pk=self.s.pk).update(created=at(2026, 11, 1, 9, 0))
+        self.s.refresh_from_db()
         y = at(2026, 11, 2, 10, 0)
         self.obs(self.c1, "person_detected", y)
         self.event("person_detected", y)
