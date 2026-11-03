@@ -137,11 +137,15 @@ void main() {
     await t.tap(find.text('Check answers'));
     await t.pump();
     expect(find.text('Choose an answer for at least one question first.'), findsOneWidget);
+    // the snackbar would cover the option at the bottom edge
+    ScaffoldMessenger.of(t.element(find.byType(ListView))).clearSnackBars();
+    await t.pumpAndSettle();
     await t.scrollUntilVisible(find.text('물'), -200);
     await t.ensureVisible(find.text('물'));
     await t.pumpAndSettle();
     await t.tap(find.text('물'));
     await t.pump();
+    expect(find.text('Choose an answer for at least one question first.'), findsNothing);
     await t.scrollUntilVisible(find.text('Check answers'), 200);
     await t.ensureVisible(find.text('Check answers'));
     await t.pumpAndSettle();
