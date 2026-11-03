@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -17,6 +18,7 @@ import 'package:assisto/maps/maps_sdk.dart';
 import 'package:assisto/maps/place_search.dart';
 import 'package:assisto/maps/place_search_controller.dart';
 import 'package:assisto/maps/road_eta_button.dart';
+import 'package:assisto/state.dart' show Settings;
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/journey_dest_sheets.dart';
 
@@ -66,6 +68,11 @@ Widget _host(Widget child, {String lang = 'en'}) => MaterialApp(
     );
 
 void main() {
+  setUp(() {
+    // jsearch: the search keeps recent places in Settings
+    SharedPreferences.setMockInitialValues({});
+    Settings.resetForTest();
+  });
   tearDown(() {
     AddressResolver.debugPhone = null;
     MapsSdk.debugAvailable = null;
