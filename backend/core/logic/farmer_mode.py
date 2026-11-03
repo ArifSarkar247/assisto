@@ -348,3 +348,51 @@ def validate_livestock(row):
     if _num(row.get("count")) < 0:
         problems.append("count_negative")
     return problems
+
+
+# --------------------------------------------------------------------------- #
+# p3farm: per-crop calendar of the major Bangladeshi crops (sow / transplant /
+# harvest months + official source). Mirror of app/lib/widgets/
+# farmer_crop_data.dart kCropCalendar (lock-step test: core.tests_p3farm).
+# Sources: BRRI (rice), BJRI (jute), BARI (potato, mustard, vegetables),
+# BWMRI (wheat). BROAD month windows — area and variety shift them; the app
+# always adds "ask your Upazila Agriculture Officer / call 16123".
+# --------------------------------------------------------------------------- #
+
+KRISHI_CALL_CENTRE = "16123"
+
+MAJOR_CROPS = (
+    # (crop, sow/seedbed months, transplant months, harvest months, source)
+    ("aman_rice", (6, 7), (7, 8), (11, 12), "brri"),
+    ("boro_rice", (11, 12), (12, 1, 2), (4, 5), "brri"),
+    ("aus_rice", (3, 4), (4, 5), (7, 8), "brri"),
+    ("jute", (3, 4), (), (7, 8), "bjri"),
+    ("potato", (11, 12), (), (2, 3), "bari"),
+    ("wheat", (11, 12), (), (3,), "bwmri"),
+    ("mustard", (10, 11), (), (1, 2), "bari"),
+    ("winter_veg", (9, 10, 11), (), (12, 1, 2), "bari"),
+    ("summer_veg", (2, 3, 4), (), (5, 6, 7, 8), "bari"),
+)
+
+SOURCE_URLS = {
+    "brri": "https://brri.gov.bd",
+    "bjri": "https://bjri.gov.bd",
+    "bari": "https://bari.gov.bd",
+    "bwmri": "https://bwmri.gov.bd",
+}
+
+
+def crop_jobs(month):
+    """[{crop, jobs:[sow|transplant|harvest], source}] for crops with work in
+    `month` (1-12). Pure; an out-of-range month returns []."""
+    try:
+        m = int(month)
+    except (TypeError, ValueError):
+        return []
+    out = []
+    for crop, sow, tp, harvest, src in MAJOR_CROPS:
+        jobs = [j for j, months in (("sow", sow), ("transplant", tp),
+                                    ("harvest", harvest)) if m in months]
+        if jobs:
+            out.append({"crop": crop, "jobs": jobs, "source": src})
+    return out

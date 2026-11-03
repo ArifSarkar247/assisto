@@ -66,6 +66,7 @@ const _launchPrefixes = <String>[
   'amk_', // Market
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
+  'farm_', // p3farm: Farmer mode help / crop calendar / disease check
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
