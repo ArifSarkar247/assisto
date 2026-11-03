@@ -4,6 +4,7 @@ cron catches links nobody opens. Safe to run any time (idempotent)."""
 from django.core.management.base import BaseCommand
 
 from core import vault_e2e
+from core.ops_health import track_job
 
 
 class Command(BaseCommand):
@@ -13,6 +14,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--quiet", action="store_true")
 
+    @track_job("vault_share_purge")
     def handle(self, *args, **opts):
         total = 0
         while True:
