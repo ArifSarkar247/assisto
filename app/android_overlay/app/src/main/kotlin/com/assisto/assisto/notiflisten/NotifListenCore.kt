@@ -156,7 +156,7 @@ object NotifListenCore {
             val n = Notification.Builder(ctx, CH_CALL)
                 .setSmallIcon(icon(ctx))
                 .setContentTitle(s(ctx, "callTitle", "Call ended — anything to remember?"))
-                .setContentText(s(ctx, "callBody", "{app} call · speak or type").replace("{app}", app))
+                .setContentText(s(ctx, "callBody", "%APP% call · speak or type").replace("%APP%", app))
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
@@ -180,8 +180,8 @@ object NotifListenCore {
             channel(ctx, CH_MONEY, s(ctx, "chMoney", "Money from notifications"))
             val w = s(ctx, "w_$wallet", wallet)
             val amt = if (amount.isNullOrEmpty()) "" else digits(ctx, amount)
-            val title = s(ctx, "moneyTitle", "{wallet} {amount} — save to khata?")
-                .replace("{wallet}", w).replace("{amount}", if (amt.isEmpty()) "" else "৳$amt")
+            val title = s(ctx, "moneyTitle", "%WALLET% %AMOUNT% — save to khata?")
+                .replace("%WALLET%", w).replace("%AMOUNT%", if (amt.isEmpty()) "" else "৳$amt")
                 .replace("  ", " ").trim()
             val auto = prefs(ctx).getBoolean("money_auto", false)
             val body = if (auto) s(ctx, "moneyBodyAuto", "Saved to khata when you open Assisto")
@@ -209,6 +209,15 @@ object NotifListenCore {
 
     /** A first amount for the prompt only (Dart re-parses everything). */
     private val AMOUNT_RX = Regex("(?:tk|bdt|taka|৳)\\s*([\\d,০-৯]+(?:\\.\\d+)?)", RegexOption.IGNORE_CASE)
+
+    private val PROOF_RX = Regex("trx|txn|balance|\\bbal\\b|a/c|account|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8|\u09B9\u09BF\u09B8\u09BE\u09AC", RegexOption.IGNORE_CASE)
+    private val SECRET_RX = Regex("otp|verification|\\bcode\\b|\\bpin\\b|password|\u0995\u09CB\u09A1", RegexOption.IGNORE_CASE)
+
+    /** Cheap pre-filter: only something that looks like a real transaction
+     *  (an amount + a TrxID / balance / account line, never an OTP) is kept. */
+    fun looksLikeTxn(text: String): Boolean = try {
+        amountHint(text) != null && PROOF_RX.containsMatchIn(text) && !SECRET_RX.containsMatchIn(text)
+    } catch (_: Throwable) { false }
 
     fun amountHint(text: String): String? = try {
         val m = AMOUNT_RX.find(text)

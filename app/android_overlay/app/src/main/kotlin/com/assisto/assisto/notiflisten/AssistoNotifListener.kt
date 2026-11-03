@@ -171,7 +171,7 @@ class AssistoNotifListener : NotificationListenerService() {
         }
         val text = (ex.getCharSequence(Notification.EXTRA_BIG_TEXT)
             ?: ex.getCharSequence(Notification.EXTRA_TEXT))?.toString() ?: return
-        if (text.isBlank()) return
+        if (text.isBlank() || !NotifListenCore.looksLikeTxn(text)) return // OTP / promo: dropped, not stored
         val at = System.currentTimeMillis()
         val id = NotifListenCore.enqueue(ctx, wallet, kind, title, text, at)
         if (id > 0) NotifListenCore.postMoney(ctx, id, wallet, NotifListenCore.amountHint(text), at)

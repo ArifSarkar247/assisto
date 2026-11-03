@@ -67,6 +67,7 @@ import 'services/missing_nearby_sync.dart'; // missing
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
+import 'notiflisten/notif_listen_service.dart'; // callmoney
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
 /// (messaging/BubbleActivity.kt getDartEntrypointFunctionName). One chat,
@@ -351,6 +352,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeNotifOpen(); // play-fgs
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // callmoney: a tapped after-call / money prompt; auto-save (guarded)
+      unawaited(NotifListenService.maybeOpen(context));
       // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
       InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
       // cctvphone: cold-start phone-camera pairing link (/pc/<code>)
@@ -491,6 +494,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _resolveElderly();
       // Part 3: assist gesture / wake word while Assisto was in background.
       VaLaunch.maybeOpen(context);
+      unawaited(NotifListenService.maybeOpen(context)); // callmoney
     }
   }
 
