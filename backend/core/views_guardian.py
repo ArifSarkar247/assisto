@@ -10,7 +10,9 @@
   POST /journey/requests/<id>/stop       traveller, one tap, no PIN
   POST /journey/requests/<id>/cancel     requester (also turns child mode off)
 
-Free on every plan: nothing here touches billing (safety, SAFETY_EXEMPT).
+Free on every plan except (safeplans, switch `safe_plans`, default OFF) a
+one-off request = "live trip with ETA" (3 safety credits); SOS during a trip
+and the standing child school mode are never charged.
 Rules + sweeper: core/guardian_journey.py."""
 from django.db import transaction
 from rest_framework import status
@@ -68,9 +70,24 @@ class JourneyRequestsView(APIView):
                 requester=me, traveller=m.peer_user, standing=True,
                 status__in=GJ.LIVE).exists():
             return _bad("standing_exists")
-        req = JourneyRequest(requester=me, traveller=m.peer_user, **clean)
-        GJ.add_log(req, "requester", "asked", now)
-        req.save()
+        # safeplans: a one-off guardian request = "live trip with ETA" (3
+        # credits) only while the safe_plans switch is on; the standing child
+        # school mode is an AUTOMATIC school alert and is never charged.
+        from . import safe_plans as SPS
+        fee = {"ok": True, "charged": 0}
+        if not clean["standing"]:
+            fee = SPS.charge(me, "live_trip", child=m.peer_user)
+            if not fee["ok"]:
+                return Response({"detail": "safe_credits_out",
+                                 "sheet": SPS.out_payload(me, req_lang(request), fee.get("plan"))},
+                                status=status.HTTP_402_PAYMENT_REQUIRED)
+        try:
+            req = JourneyRequest(requester=me, traveller=m.peer_user, **clean)
+            GJ.add_log(req, "requester", "asked", now)
+            req.save()
+        except Exception:
+            SPS.refund_charge(me, fee)
+            raise
         rn = GJ._name(req.traveller, me)
         tbn, bbn = GJ.request_texts(req, "bn", rn)
         ten, ben = GJ.request_texts(req, "en", rn)

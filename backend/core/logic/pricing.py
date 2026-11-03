@@ -37,6 +37,7 @@ from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
 from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 from . import cctv_plan as _CCTV     # cctvprice: CCTV plan (Play), cost guards
+from . import safe_plans as _SAFE    # safeplans: Child / Safe Family / School Safe
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -726,6 +727,7 @@ def DEFAULTS():
         "referral": dict(_REFERRAL_DEFAULTS),
         "shop": dict(_SHOP_DEFAULTS),
         "cctv_plan": _CCTV.defaults(),     # cctvprice
+        "safe_plans": _SAFE.defaults(),    # safeplans
         # o1-otp: OTP limits (admin-editable)
         "otp": dict(_OTP_DEFAULTS),
         "sms": dict(_SMS_DEFAULTS),        # smsotp
@@ -882,6 +884,7 @@ def normalize(data):
         "referral": _norm_referral(d.get("referral"), base["referral"]),
         "shop": _norm_shop(d.get("shop"), base["shop"]),
         "cctv_plan": _CCTV.normalize_cfg(d.get("cctv_plan")),   # cctvprice
+        "safe_plans": _SAFE.normalize_cfg(d.get("safe_plans")),   # safeplans
         "otp": _norm_otp(d.get("otp"), base["otp"]),
         "sms": sms_block,                                     # smsotp
         "email": _norm_email(d.get("email"), base["email"]),  # smsotp
@@ -1301,6 +1304,8 @@ def validate_edit(data):
                 problems.append("price_negative")
     if "billing" in d:                       # billing-v2 bounds
         problems.extend(_BILL.problems(d.get("billing")))
+    if "safe_plans" in d:                    # safeplans bounds
+        problems.extend(_SAFE.problems(d.get("safe_plans")))
     if "home_quick_defaults" in d:
         problems.extend(HD.validate(d.get("home_quick_defaults")))
     if "plans_v2" in d:
@@ -1394,6 +1399,14 @@ def margin_warnings(cfg):
             out.append({"code": "cctv_below_40", "plan": "cctv", "period": "mo",
                         "min_pct": cp["min_pct"],
                         "per_camera_cost": cp["per_camera_cost"]})
+    except Exception:
+        pass
+    # safeplans: an owner edit that drops a safety plan below 40 % worst case
+    try:
+        sp = _SAFE.profit_table((cfg or {}).get("safe_plans"))
+        if not sp["ok"]:
+            out.append({"code": "safe_plans_below_40", "plan": ",".join(sp["fails"]),
+                        "period": "mo", "min_pct": sp["min_pct"]})
     except Exception:
         pass
     return out

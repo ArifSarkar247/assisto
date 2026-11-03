@@ -122,6 +122,7 @@ import '../screens/prepaid_meter_screen.dart';
 import '../screens/contract_analyzer_screen.dart';
 import '../screens/my_dues_screen.dart'; // tagada2
 import '../screens/market/market_screen.dart'; // amarket
+import '../safe_plans/safe_plans_screen.dart'; // safeplans
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -352,6 +353,7 @@ class ChatNav {
     'probashi_plan': (_) => const ProbashiPlanScreen(),
     // amarket (flag assisto_market): post a need, sealed offers, group-buy, COD deals.
     'market': (_) => const MarketScreen(),
+    'safe_plans': (_) => const SafePlansScreen(), // safeplans
     'tax': (_) => const MoneyTaxScreen(),
     'wrapped': (_) => const MoneyWrappedScreen(),
     'money_voice': (_) => const MoneyVoiceScreen(),

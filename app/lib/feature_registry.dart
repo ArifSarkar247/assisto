@@ -153,6 +153,8 @@ const Map<String, bool> kFeatureDefaults = {
   'booking': false,
   // p3docs (3 Nov): Documents end-to-end lock + expiring share links.
   'vault_e2e': false,
+  // safeplans (3 Nov): Child / Safe Family / School Safe plans.
+  'safe_plans': false,
   // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
   'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
@@ -274,6 +276,7 @@ const Map<String, String> kRouteFeature = {
   'crm': 'crm',
   'booking': 'booking_bot',
   'market': 'assisto_market',
+  'safe_plans': 'safe_plans', // safeplans
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
   'acct': 'accounting_v2', // acctui
