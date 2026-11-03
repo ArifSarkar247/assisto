@@ -6,6 +6,8 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from datetime import timedelta
+
 from django.utils import timezone
 
 from core import ai_chat_guard as G
@@ -41,7 +43,7 @@ class PhotoFollowUpTest(TestCase):
         self.assertEqual(VC._photo_context(self.req(self.u, "x")), "")
         self.assertEqual(VC._photo_context(self.req(self.u, 0)), "")
         PhotoStudioJob.objects.filter(pk=self.job.pk).update(
-            done_at=timezone.now() - timezone.timedelta(hours=7))
+            done_at=timezone.now() - timedelta(hours=7))
         self.assertEqual(VC._photo_context(self.req(self.u, self.job.pk)), "")
 
     def test_follow_up_sends_photo_text_and_never_cannot_see_rule(self):
