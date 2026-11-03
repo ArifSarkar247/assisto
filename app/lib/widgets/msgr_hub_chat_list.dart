@@ -417,7 +417,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             .where(_matchesFilter)
             .toList();
     if (q.isNotEmpty) {
-      // circlefam: nickname AND real name, relation ("মা"), phone (Bangla
+      // circlefam: nickname AND real name, relation label, phone (Bangla
       // or English digits) and the last message — decrypted on this phone,
       // the text never leaves it.
       list = list.where((c) {

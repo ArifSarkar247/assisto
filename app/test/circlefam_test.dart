@@ -270,14 +270,19 @@ void main() {
       await _settle(tester, 8);
       final btn = find.text(en.mktPublishFb);
       await tester.scrollUntilVisible(btn, 200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(btn);
+      // press the real button (its onPressed), independent of scroll offsets
+      void press() => tester
+          .widget<ButtonStyleButton>(find.ancestor(
+              of: btn, matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)))
+          .onPressed!();
+      press();
       await _settle(tester, 4);
       expect(find.text(en.cfPublishConfirmTitle), findsOneWidget);
       await tester.tap(find.byKey(const Key('cf-publish-no')));
       await _settle(tester, 4);
       expect(f.calls.where((c) => c.startsWith('publish:')), isEmpty);
 
-      await tester.tap(btn);
+      press();
       await _settle(tester, 4);
       await tester.tap(find.byKey(const Key('cf-publish-yes')));
       await _settle(tester, 6);
