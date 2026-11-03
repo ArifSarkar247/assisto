@@ -129,17 +129,21 @@ void main() {
   testWidgets('listening: check with no answer asks to choose; then grades with explanations', (t) async {
     await t.pumpWidget(_app(const ListeningPracticePage(lang: 'ko', title: 'EPS-TOPIK'), FakeApi(lang: 'en')));
     await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.text('Check answers'), 200);
+    await t.ensureVisible(find.text('Check answers'));
+    await t.pumpAndSettle();
     await t.tap(find.text('Check answers'));
     await t.pump();
     expect(find.text('Choose an answer for at least one question first.'), findsOneWidget);
-    await t.scrollUntilVisible(find.text('물'), -200);
+    await t.ensureVisible(find.text('물'));
+    await t.pumpAndSettle();
     await t.tap(find.text('물'));
     await t.pump();
-    await t.scrollUntilVisible(find.text('Check answers'), 200);
+    await t.ensureVisible(find.text('Check answers'));
+    await t.pumpAndSettle();
     await t.tap(find.text('Check answers'));
     await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.text('1 of 2 correct'), -300);
+    await t.drag(find.byType(ListView), const Offset(0, 3000));
+    await t.pumpAndSettle();
     expect(find.text('1 of 2 correct'), findsOneWidget);
     await t.scrollUntilVisible(find.text('Right answer: 안전모'), 200);
     expect(find.text('Right answer: 안전모'), findsOneWidget);

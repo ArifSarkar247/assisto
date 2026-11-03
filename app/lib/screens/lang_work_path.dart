@@ -334,11 +334,7 @@ class _ListeningPracticePageState extends State<ListeningPracticePage> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          _note(context, _loc(context, d, 'label_bn', 'label_en'), icon: Icons.record_voice_over_outlined),
-          const SizedBox(height: Gap.xs),
-          _note(context, tr.lkListenHow),
           if (_result != null) ...[
-            const SizedBox(height: Gap.md),
             Card(
               color: scheme.primaryContainer,
               margin: EdgeInsets.zero,
@@ -357,6 +353,10 @@ class _ListeningPracticePageState extends State<ListeningPracticePage> {
               ),
             ),
           ],
+          if (_result != null) const SizedBox(height: Gap.md),
+          _note(context, _loc(context, d, 'label_bn', 'label_en'), icon: Icons.record_voice_over_outlined),
+          const SizedBox(height: Gap.xs),
+          _note(context, tr.lkListenHow),
           const SizedBox(height: Gap.md),
           for (var i = 0; i < qs.length; i++) _question(context, i, qs[i], rows['${qs[i]['id']}']),
           const SizedBox(height: Gap.sm),
