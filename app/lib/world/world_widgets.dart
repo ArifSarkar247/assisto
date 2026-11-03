@@ -131,7 +131,10 @@ class UwSourceLine extends StatelessWidget {
     final when = uwWhen(context, updated);
     return InkWell(
       onTap: url.isEmpty ? null : () => uwOpen(context, url),
-      child: Padding(
+      child: Container(
+        // p3feed: a tappable source line keeps a 48 dp hit area (a11y)
+        constraints: BoxConstraints(minHeight: url.isEmpty ? 0 : 48),
+        alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(top: Gap.sm),
         child: Text(
           [t.uwSourceIs(source), if (when.isNotEmpty) t.uwUpdatedAt(when)]

@@ -1,7 +1,7 @@
 // p3feed (owner PART 3): Today feed from official sources only — Bangladesh
 // Bank's rate leads with an Official badge + date, other currencies are
 // labelled indicative, official notice links open, cards with no real data
-// sit under "Coming soon" with the honest reason, and an offline phone shows
+// sit under "Not connected yet" with the honest reason, and an offline phone shows
 // today's prayer times from the cached week.
 import 'dart:convert';
 
@@ -81,18 +81,18 @@ void main() {
     expect(tester.getSize(tile).height, greaterThanOrEqualTo(48));
   });
 
-  testWidgets('cards with no real data are under Coming soon with a reason',
+  testWidgets('cards with no real data are under Not connected yet with a reason',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(400, 3000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(_app(WorldTodayScreen(api: FakeWorldApi())));
     await tester.pumpAndSettle();
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('Not connected yet'), findsOneWidget);
     expect(
         find.text(
-            'Cricket live — comes when a licensed live-score source is connected'),
+            'Cricket live — not connected — no licensed source yet'),
         findsOneWidget);
-    expect(find.textContaining("waiting for today's official figure"),
+    expect(find.textContaining('official figure not entered yet'),
         findsOneWidget);
     expect(find.text('Cricket live'), findsNothing); // never a fake card
   });
@@ -134,6 +134,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('৳১২২.০০'), findsOneWidget);
     expect(find.text('অফিসিয়াল'), findsOneWidget);
-    expect(find.text('শিগগির আসছে'), findsOneWidget);
+    expect(find.text('এখনো সংযুক্ত নয়'), findsOneWidget);
   });
 }
