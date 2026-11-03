@@ -93,6 +93,8 @@ const Map<String, bool> kFeatureDefaults = {
   'daily_challenges': true,
   'contract_analyzer': true,
   'language_partner': true,
+  // p2lang: IELTS practice inside Language Partner — OFF until real-phone proof.
+  'ielts_prep': false,
   'daily_brief': true,
   'doc_scanner': true,
   'transcription': true,

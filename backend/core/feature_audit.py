@@ -129,6 +129,8 @@ _A = {
     "daily_challenges": ("?P???P??F", "show", "Sweep A?.", "সুইপ A?।"),
     "contract_analyzer": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "language_partner": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
+    "ielts_prep": ("?PP?P?P?F", "hide", "p2lang 3 Nov: IELTS speaking/writing key-free checklists + AI practice estimate (credits), original reading passages with Bangla explanations, official listening links, offline pronunciation check (word alignment), streak + academic vocab SR; real-phone test pending.",
+                   "p2lang ৩ নভেম্বর: IELTS স্পিকিং/রাইটিং চেকলিস্ট (চাবি ছাড়া) + AI অনুশীলন-অনুমান (ক্রেডিট), নিজস্ব রিডিং অনুচ্ছেদ ও বাংলা ব্যাখ্যা, অফিসিয়াল লিসেনিং লিংক, নেট ছাড়া উচ্চারণ যাচাই, streak + শব্দ পুনরাবৃত্তি; আসল ফোনে পরীক্ষা বাকি।"),
     "daily_brief": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "doc_scanner": ("?F???P?FF", "hide", "Sweep B?: OCR key-gated mock.", "সুইপ B?: OCR চাবি-নির্ভর নকল।"),
     "transcription": ("?F???P?FF", "hide", "Sweep B?: speech key-gated mock.", "সুইপ B?: কথা-থেকে-লেখা চাবি-নির্ভর নকল।"),

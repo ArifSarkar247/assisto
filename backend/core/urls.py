@@ -1659,3 +1659,13 @@ urlpatterns += [
     path("account/appeal/blocked", safev.BlockedAppealView.as_view()),
 ]
 # ---- /adminsafe ----
+
+# ---- p2lang ---- IELTS practice inside Language Partner (flag ielts_prep)
+from . import ielts_views as ieltsv  # noqa: E402
+urlpatterns += [
+    path("ielts/content", ieltsv.IeltsContentView.as_view()),
+    path("ielts/writing/check", ieltsv.IeltsWritingCheckView.as_view()),
+    path("ielts/speaking/check", ieltsv.IeltsSpeakingCheckView.as_view()),
+    path("ielts/reading/grade", ieltsv.IeltsReadingGradeView.as_view()),
+]
+# ---- /p2lang ----
