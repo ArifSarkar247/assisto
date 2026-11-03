@@ -261,9 +261,9 @@ String cardDesignLabel(AppLocalizations t, String k) => switch (k) {
 
 /// Fixed artwork palettes (the card is an image, the same in light/dark).
 ({Color bg, Color bg2, Color ink, Color accent}) _palette(String d) => switch (d) {
-      'rose' => (bg: const Color(0xFF6D0F2A), bg2: const Color(0xFF9B1B3F), ink: Colors.white, accent: const Color(0xFFF3C969)),
-      'holud' => (bg: const Color(0xFFFFE082), bg2: const Color(0xFFFFC107), ink: const Color(0xFF1B3A12), accent: const Color(0xFF2E7D32)),
-      _ => (bg: const Color(0xFFFFFBF2), bg2: const Color(0xFFF1E6CF), ink: const Color(0xFF14213D), accent: const Color(0xFF9C6B12)),
+      'rose' => (bg: InviteCardColors.roseBg, bg2: InviteCardColors.roseBg2, ink: Colors.white, accent: InviteCardColors.roseAccent),
+      'holud' => (bg: InviteCardColors.holudBg, bg2: InviteCardColors.holudBg2, ink: InviteCardColors.holudInk, accent: InviteCardColors.holudAccent),
+      _ => (bg: InviteCardColors.classicBg, bg2: InviteCardColors.classicBg2, ink: InviteCardColors.classicInk, accent: InviteCardColors.classicAccent),
     };
 
 class InvitationCardScreen extends StatefulWidget {

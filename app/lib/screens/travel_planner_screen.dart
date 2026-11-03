@@ -719,7 +719,7 @@ class _DayCard extends StatelessWidget {
                                   '${a['time'] ?? ''}'.trim().isNotEmpty)
                                 Text(
                                     [
-                                      '${a['time'] ?? ''}'.trim(),
+                                      ld(context, '${a['time'] ?? ''}'.trim()), // p3life: Bangla digits
                                       '${a['place'] ?? ''}'.trim(),
                                     ].where((e) => e.isNotEmpty).join(' · '),
                                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
