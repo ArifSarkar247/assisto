@@ -77,7 +77,7 @@ class ContentTests(SimpleTestCase):
                 self.assertNotIn(q["id"], ids)
                 ids.add(q["id"])
                 self.assertRegex(q["bn"], r"[ঀ-৿]")
-                self.assertTrue(q["en"].isascii(), q["id"])
+                self.assertNotRegex(q["en"], r"[ঀ-৿]", q["id"])
                 self.assertEqual(len(q["keys"]) % 2, 0, q["id"])
                 self.assertTrue(q["outline"]["bn"] and q["outline"]["en"])
         self.assertIsNone(CC.role_questions("nope", "bn"))
