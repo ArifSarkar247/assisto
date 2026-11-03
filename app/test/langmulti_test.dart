@@ -67,7 +67,8 @@ void main() {
     await t.pump(const Duration(milliseconds: 100)); // the mock clock ticks every second: no pumpAndSettle
     expect(find.textContaining('কোন প্ল্যাটফর্ম?'), findsOneWidget);
     // the writing box sits below the 12 questions (lazy list): scroll to it
-    await t.scrollUntilVisible(find.byType(TextField).first, 400, scrollable: find.byType(Scrollable).first);
+    await t.scrollUntilVisible(find.textContaining('বন্ধু Pablo-কে'), 400, scrollable: find.byType(Scrollable).first);
+    await t.pump(const Duration(milliseconds: 100));
     expect(find.byType(TextField), findsWidgets);
   });
 
