@@ -632,9 +632,6 @@ def guard_can(user, action, qty=1):
         return True, "unlimited"
     ensure_monthly_pool(user)
     need = pricing.credits_for(action, qty, cfg())
-    # aifinal PART 3: an AI answer level carries its own computed price
-    if exact is not None:
-        need = max(0, int(exact))
     if need <= 0:
         return True, "ok"          # unpriced/unknown action -> free, never block
 
