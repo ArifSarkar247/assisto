@@ -61,6 +61,9 @@ class CvController extends ChangeNotifier {
   CvConfig? config;
   bool configFailed = false;
   CvJob? job;
+
+  /// aifinal round 2: the chat the server saved this photo turn into.
+  String? chatSessionId;
   String message = '';
   String answer = '';
   bool insufficient = false;
@@ -226,6 +229,8 @@ class CvController extends ChangeNotifier {
             deviceLabels: reading.ok ? reading.labels : const [])
         .timeout(answerTimeout,
             onTimeout: () => const CvReply(504, {'ok': false, 'reason': 'timeout'}));
+    final sid = r.body['session_id'];
+    if (sid != null && '$sid'.isNotEmpty) chatSessionId = '$sid';
     if (r.status == 422) {
       message = r.message;
       return _set(CvPhase.refused);

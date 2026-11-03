@@ -530,7 +530,18 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   // ---------------- bubbles ----------------
   Widget _bubble(_Msg m) {
     final photo = m.photo;
-    if (photo != null) return ChatPhotoTurn(request: photo);
+    if (photo != null) {
+      // aifinal round 2: ONE direct answer bubble, saved into this chat
+      return ChatPhotoTurn(
+          request: photo,
+          direct: true,
+          sessionId: photo.sessionId ?? _sessionId ?? 'home:new',
+          onSession: (sid) {
+            if (_sessionId == sid) return;
+            _sessionId = sid;
+            Settings.setString(AgentThreadScreen.sessionKey, sid);
+          });
+    }
     final scheme = Theme.of(context).colorScheme;
     final bubble = Container(
       constraints:

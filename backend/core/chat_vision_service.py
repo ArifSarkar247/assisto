@@ -404,9 +404,9 @@ def answer(user, job, data, lang="bn"):
     billing.record_cost("ai", job.cost_bdt)
     UL.log_vision(user, slug, conf, cost_usd, (_time.monotonic() - t0) * 1000, True,
                   hops=hops, charged=job.credits_charged)
-    _save_to_chat(user, data.get("session_id"), job, question,
-                  dict(out, label_text=str(parsed.get("label_text") or "")), lang)
-    return 200, {"ok": True, "job": job_state(job, lang)}
+    sid = _save_to_chat(user, data.get("session_id"), job, question,
+                        dict(out, label_text=str(parsed.get("label_text") or "")), lang)
+    return 200, {"ok": True, "job": job_state(job, lang), **({"session_id": sid} if sid else {})}
 
 
 def _save_to_chat(user, session_id, job, question, out, lang):
@@ -416,12 +416,16 @@ def _save_to_chat(user, session_id, job, question, out, lang):
     image bytes) and the answer bubble shows the credits this photo really
     took (= the ledger row). Never raises."""
     if not session_id:
-        return
+        return None
     try:
         from .models import ChatMessage, ChatSession
-        s = ChatSession.objects.filter(id=session_id, user=user).first()
+        if session_id == "home:new":
+            # a photo is the first turn of a new home (Assisto AI) chat
+            s = ChatSession.objects.create(user=user, source="home")
+        else:
+            s = ChatSession.objects.filter(id=session_id, user=user).first()
         if s is None:
-            return
+            return None
         seen = (out.get("label_text") or "")[:800]
         q = question.strip() or pick(lang, "এই ছবিতে কী আছে?", "What is in this photo?")
         first = not s.messages.filter(role="user").exists()
@@ -435,5 +439,7 @@ def _save_to_chat(user, session_id, job, question, out, lang):
             "credits": int(job.credits_charged or 0) if job.funding in ("credits", "pool") else 0,
             "funding": job.funding, "balance": G.balance(user)})
         s.save()
+        return str(s.pk)
     except Exception:  # noqa: BLE001
         log.exception("chat_vision: could not save the photo turn to the chat")
+        return None

@@ -147,6 +147,7 @@ class ChatPhotoTurn extends StatefulWidget {
     this.controller,
     this.direct = false,
     this.sessionId,
+    this.onSession,
   });
   final ChatPhotoRequest request;
 
@@ -158,6 +159,10 @@ class ChatPhotoTurn extends StatefulWidget {
 
   /// The AI chat this photo belongs to (saved there as text for follow-ups).
   final String? sessionId;
+
+  /// Called once with the chat id the server saved the photo turn into
+  /// (a brand-new home chat gets its id here).
+  final ValueChanged<String>? onSession;
   final CvBackend? backend;
   final OnDeviceVision? onDevice;
   final PhotoAdBridge? ads;
@@ -204,6 +209,11 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
   void _noteDone() {
     if (c.phase == CvPhase.done && c.job != null) {
       widget.request.answeredJobId = c.job!.id;
+      final sid = c.chatSessionId;
+      if (sid != null && widget.request.sessionId != sid) {
+        widget.request.sessionId = sid;
+        widget.onSession?.call(sid);
+      }
     }
     // one step: pay from the plan pool or credits without a second tap (the
     // send itself is the request, like a text question)
