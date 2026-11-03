@@ -13,7 +13,7 @@ typedef PackBuyer = Future<Map<String, dynamic>> Function(String kind);
 /// cctvcap (owner decision 3 Nov 10:40) — the part of "this month's use"
 /// that is about the CAPS: AI photo checks used of the month's allowance,
 /// the 80 % / 100 % Bangla notices for relay and AI, the promise that SOS,
-/// alerts, photos and evidence never stop, and the one-tap "বাড়তি প্যাক".
+/// alerts, photos and evidence never stop, and the one-tap "extra pack" button.
 /// [cap] is the server's `cap` block of GET cctv/usage.
 class CctvCapSection extends StatelessWidget {
   final Map<String, dynamic> cap;
@@ -120,7 +120,7 @@ class CctvCapSection extends StatelessWidget {
 
 /// The two packs (relay +1 GB, AI +100) for THIS month, paid with credits.
 /// Pops with the server's fresh usage map after a successful buy. Not enough
-/// credits = an honest line + "ক্রেডিট নিন" (never a dead end).
+/// credits = an honest line + a "get credits" button (never a dead end).
 class ExtraPackSheet extends StatefulWidget {
   final Map<String, dynamic> cap;
   final PackBuyer buy;
