@@ -86,7 +86,7 @@ class MoneyNotifParser {
       r'(?:avl\.?\s*bal(?:ance)?|available\s*balance|balance|\bbal\b|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8)\s*(?:is)?\s*[:.]?\s*(?:tk\.?|bdt|৳)?\s*([\d,]+(?:\.\d+)?)',
       caseSensitive: false);
   static final _fee = RegExp(
-      r'(?:fee|charge|chrg|\u09AB\u09BF|\u099A\u09BE\u09B0\u09CD\u099C)\s*[:.]?\s*(?:tk\.?|bdt|৳)?\s*([\d,]+(?:\.\d+)?)',
+      r'(?:\bfee|\bcharge|\bchrg|\u09AB\u09BF|\u099A\u09BE\u09B0\u09CD\u099C)\s*[:.]?\s*(?:tk\.?|bdt|৳)?\s*([\d,]+(?:\.\d+)?)',
       caseSensitive: false);
   static final _account = RegExp(r'\ba/?c\b|account|\u09B9\u09BF\u09B8\u09BE\u09AC|\u0985\u09CD\u09AF\u09BE\u0995\u09BE\u0989\u09A8\u09CD\u099F',
       caseSensitive: false);

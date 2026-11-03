@@ -107,6 +107,12 @@ void main() {
       expect(p.balance, 18.5);
     });
 
+    test('"Recharge" is not a fee (owner-style regression)', () {
+      final p = MoneyNotifParser.parse('Mobile Recharge Tk 50.00 to 01711111111 successful. Balance Tk 950.00. TrxID 9RC1234ABC', wallet: 'bkash');
+      expect(p.amount, 50);
+      expect(p.fee, isNull);
+    });
+
     test('dates: dd/mm/yyyy, dd-MMM-yy pm, else the post time', () {
       expect(MoneyNotifParser.parse(_samples[0].text, wallet: 'bkash').date, DateTime(2026, 11, 3, 14, 22));
       expect(MoneyNotifParser.parse(_samples[16].text, wallet: 'rocket').date, DateTime(2026, 11, 3, 14, 22));
