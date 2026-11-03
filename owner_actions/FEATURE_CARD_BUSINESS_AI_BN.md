@@ -38,4 +38,4 @@ ManyChat / Meta Business AI (চ্যাট), HubSpot/Agentforce (CRM), Mengo E
 ৮. ক: Shop Box → ওপরের "আমার CCTV কতটা নির্ভুল?" → পরীক্ষা শুরু → ক্যামেরার সামনে দিয়ে হাঁটুন ও "একজন মানুষ এসেছেন" চাপুন → থামান → ফল।
 
 ## ৬. প্রমাণ
-CI রান: নিচে হালনাগাদ হবে (`ci/bizai-arb`)। আসল ফোন: বাকি।
+CI: checks রান 41731951515 (`ci/bizai-arb` d47626c6) সবুজ — backend + flutter-static + ৪টি flutter শার্ড; agent-eval 41725821628 সবুজ (সেলস পারসোনা ২০৭/২০৭)। গ্যালারি স্ক্রিনশট: একই রানের shots-* আর্টিফ্যাক্ট (`bizai_*`)। আসল ফোন: বাকি।
