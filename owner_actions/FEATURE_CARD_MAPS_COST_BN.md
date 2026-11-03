@@ -66,4 +66,4 @@ Google Maps-এর পেইড কল এমনভাবে চালানো 
 5. Owner Admin → ম্যাপ খরচ → আজকের কল বেড়েছে কিনা দেখুন; Geocoding-এর "প্রতি জনের দৈনিক সীমা" ০ করে ধাপ ২ আবার — ঠিকানার বদলে স্থানাঙ্ক + "Google Maps-এ খুলুন" দেখাবে।
 
 ## ৮. প্রমাণ
-* ব্যাকএন্ড টেস্ট: `backend/core/tests_mapscost.py`, `backend/web/tests_mapscost_owner.py`। CI রান: (নিচে যোগ হবে)
+* টেস্ট: `backend/core/tests_mapscost.py`, `backend/web/tests_mapscost_owner.py`, `app/test/mapscost_test.dart`। CI checks রান 41640866160: backend সবুজ, Flutter ৩০৯৭ পাস — একটি গার্ড (খালি catch) ঠিক করে আবার চালানো হয়েছে।
