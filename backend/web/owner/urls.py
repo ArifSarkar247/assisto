@@ -27,6 +27,7 @@ from . import views_train as TRS     # flagprep: train timetable check
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_blood as BLD     # blood
+from . import views_nearby as NBY    # nearby
 from . import views_site3 as WS3     # sitev3: website go-live switch
 from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
@@ -148,4 +149,9 @@ urlpatterns = [
     path("blood", BLD.blood),                                      # blood
     path("blood/<int:pk>/act", BLD.blood_action),                  # blood
     path("blood/slip/<int:pk>", BLD.blood_slip),                   # blood
+    path("nearby", NBY.nearby),                                    # nearby
+    path("nearby/add", NBY.nearby_add),                            # nearby
+    path("nearby/dataset", NBY.nearby_dataset),                    # nearby
+    path("nearby/<int:pk>", NBY.nearby_place),                     # nearby
+    path("nearby/report/<int:pk>", NBY.nearby_report),             # nearby
 ]

@@ -1887,6 +1887,58 @@ BN.update({
     "bld_none": "এখানে কিছু নেই।",
 })
 # ---- /blood ----
+# ---- nearby: Owner Admin -> Nearby list ----
+EN.update({
+    "nav_nearby": "Nearby list",
+    "nby_intro": "Assisto's own emergency list (hospital, clinic, pharmacy, police, fire, ambulance) from OpenStreetMap, refreshed monthly by GitHub Actions. Your edits and hides are kept through every refresh, and every change reaches all phones on their next open. Never Google data.",
+    "nby_t_reports": "Reports to review", "nby_t_places": "Places listed", "nby_t_datasets": "Countries",
+    "nby_tab_places": "Places", "nby_tab_reports": "Wrong-number reports", "nby_tab_datasets": "Countries & refresh",
+    "nby_search": "Name, phone, ID or OSM id", "nby_country": "Country", "nby_cat": "Category",
+    "nby_f_all": "All", "nby_f_edited": "Edited by you", "nby_f_hidden": "Hidden", "nby_f_admin": "Added by you",
+    "nby_f_biz": "Business listings", "nby_f_gone": "Gone from OSM", "nby_f_no_phone": "No phone",
+    "nby_name": "Name (local)", "nby_name_en": "Name (English)", "nby_phone": "Phone",
+    "nby_source": "Source", "nby_refreshed": "Last refresh", "nby_edited": "edited",
+    "nby_save": "Save", "nby_hide": "Hide", "nby_show": "Show again", "nby_reset": "Undo my edits",
+    "nby_add": "Add a place", "nby_add_biz": "Add a business listing (Sponsored)",
+    "nby_biz_user": "Business user ID", "nby_days": "Sponsored days",
+    "nby_biz_note": "Shown only in general nearby (food, shops, ATM, fuel) with a Sponsored label and only while the switch nearby_sponsored is on. Never in the emergency list.",
+    "nby_sponsor_off": "End Sponsored",
+    "nby_report_kind": "Report", "nby_suggested": "Suggested phone", "nby_fix": "Fix number",
+    "nby_hide_place": "Hide place", "nby_reject": "Reject",
+    "nby_records": "Records", "nby_version": "Version", "nby_size": "File size",
+    "nby_osm_time": "OSM data date", "nby_error": "Last error", "nby_on": "On", "nby_off": "Off",
+    "nby_turn_on": "Turn on", "nby_turn_off": "Turn off",
+    "nby_world": "Whole world (every other country the monthly job produced)",
+    "nby_world_note": "Rollout order: Bangladesh, then Saudi Arabia, UAE, Malaysia, Qatar, Oman, Kuwait, Singapore, Italy, UK, USA, then the world.",
+    "nby_last_check": "Last check for new files",
+    "nby_none": "Nothing here.",
+})
+BN.update({
+    "nav_nearby": "কাছেপিঠের তালিকা",
+    "nby_intro": "Assisto-র নিজের জরুরি তালিকা (হাসপাতাল, ক্লিনিক, ফার্মেসি, থানা, ফায়ার সার্ভিস, অ্যাম্বুলেন্স) — OpenStreetMap থেকে, GitHub Actions-এ প্রতি মাসে রিফ্রেশ। আপনার বদল ও লুকানো প্রতিটি রিফ্রেশেও থাকে, আর প্রতিটি বদল সব ফোনে পরেরবার খুললেই পৌঁছে যায়। কখনো Google-এর তথ্য নয়।",
+    "nby_t_reports": "রিভিউয়ের রিপোর্ট", "nby_t_places": "তালিকার জায়গা", "nby_t_datasets": "দেশ",
+    "nby_tab_places": "জায়গা", "nby_tab_reports": "ভুল নম্বরের রিপোর্ট", "nby_tab_datasets": "দেশ ও রিফ্রেশ",
+    "nby_search": "নাম, ফোন, ID বা OSM id", "nby_country": "দেশ", "nby_cat": "ধরন",
+    "nby_f_all": "সব", "nby_f_edited": "আপনার বদলানো", "nby_f_hidden": "লুকানো", "nby_f_admin": "আপনার যোগ করা",
+    "nby_f_biz": "ব্যবসার লিস্টিং", "nby_f_gone": "OSM থেকে সরে গেছে", "nby_f_no_phone": "ফোন নেই",
+    "nby_name": "নাম (স্থানীয়)", "nby_name_en": "নাম (ইংরেজি)", "nby_phone": "ফোন",
+    "nby_source": "সূত্র", "nby_refreshed": "শেষ রিফ্রেশ", "nby_edited": "বদলানো",
+    "nby_save": "সেভ", "nby_hide": "লুকান", "nby_show": "আবার দেখান", "nby_reset": "আমার বদল বাতিল",
+    "nby_add": "জায়গা যোগ করুন", "nby_add_biz": "ব্যবসার লিস্টিং যোগ (Sponsored)",
+    "nby_biz_user": "ব্যবসার ইউজার ID", "nby_days": "Sponsored কত দিন",
+    "nby_biz_note": "শুধু সাধারণ কাছেপিঠে (খাবার, দোকান, ATM, ফুয়েল) Sponsored লেবেলসহ দেখায়, আর শুধু nearby_sponsored সুইচ চালু থাকলে। জরুরি তালিকায় কখনো না।",
+    "nby_sponsor_off": "Sponsored বন্ধ",
+    "nby_report_kind": "রিপোর্ট", "nby_suggested": "প্রস্তাবিত ফোন", "nby_fix": "নম্বর ঠিক করুন",
+    "nby_hide_place": "জায়গা লুকান", "nby_reject": "বাতিল",
+    "nby_records": "রেকর্ড", "nby_version": "ভার্সন", "nby_size": "ফাইলের আকার",
+    "nby_osm_time": "OSM তথ্যের তারিখ", "nby_error": "শেষ সমস্যা", "nby_on": "চালু", "nby_off": "বন্ধ",
+    "nby_turn_on": "চালু করুন", "nby_turn_off": "বন্ধ করুন",
+    "nby_world": "সারা বিশ্ব (মাসিক কাজে তৈরি বাকি সব দেশ)",
+    "nby_world_note": "চালুর ক্রম: বাংলাদেশ, তারপর সৌদি আরব, আমিরাত, মালয়েশিয়া, কাতার, ওমান, কুয়েত, সিঙ্গাপুর, ইতালি, যুক্তরাজ্য, যুক্তরাষ্ট্র, তারপর সারা বিশ্ব।",
+    "nby_last_check": "নতুন ফাইলের শেষ খোঁজ",
+    "nby_none": "এখানে কিছু নেই।",
+})
+# ---- /nearby ----
 # ---- channels: Owner Admin -> Channel reports ----
 EN.update({
     "nav_channel_reports": "Channel reports",

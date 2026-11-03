@@ -1,0 +1,83 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_nearby }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.nby_intro }} <span class="mut">{{ attribution }}</span></p>
+<div class="tiles">{% for k, n in tiles %}<a class="tile" href="?tab={{ k }}"><span>{% if k == 'reports' %}{{ T.nby_t_reports }}{% elif k == 'places' %}{{ T.nby_t_places }}{% else %}{{ T.nby_t_datasets }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<div class="row">
+  <a class="btn {% if tab == 'places' %}primary{% else %}ghost{% endif %}" href="?tab=places">{{ T.nby_tab_places }}</a>
+  <a class="btn {% if tab == 'reports' %}primary{% else %}ghost{% endif %}" href="?tab=reports">{{ T.nby_tab_reports }}</a>
+  <a class="btn {% if tab == 'datasets' %}primary{% else %}ghost{% endif %}" href="?tab=datasets">{{ T.nby_tab_datasets }}</a>
+</div>
+{% if tab == 'places' %}
+<form method="get" class="inline card"><input type="hidden" name="tab" value="places">
+  <input name="q" value="{{ q }}" maxlength="80" placeholder="{{ T.nby_search }}">
+  <label>{{ T.nby_country }}<input name="cc" value="{{ cc }}" maxlength="2" size="3"></label>
+  <label>{{ T.nby_cat }}<select name="cat"><option value="">{{ T.nby_f_all }}</option>{% for c in cats %}<option value="{{ c }}" {% if c == cat %}selected{% endif %}>{{ c }}</option>{% endfor %}{% for c in gcats %}<option value="{{ c }}" {% if c == cat %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+  <select name="f">{% for x in filters %}<option value="{{ x }}" {% if x == f %}selected{% endif %}>{% if x == 'all' %}{{ T.nby_f_all }}{% elif x == 'edited' %}{{ T.nby_f_edited }}{% elif x == 'hidden' %}{{ T.nby_f_hidden }}{% elif x == 'admin' %}{{ T.nby_f_admin }}{% elif x == 'biz' %}{{ T.nby_f_biz }}{% elif x == 'gone' %}{{ T.nby_f_gone }}{% else %}{{ T.nby_f_no_phone }}{% endif %}</option>{% endfor %}</select>
+  <button class="btn ghost">{{ T.show }}</button> <span class="mut small">{{ total }}</span>
+</form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.nby_country }} · {{ T.nby_cat }}</th><th>{{ T.nby_name }} / {{ T.nby_name_en }} / {{ T.nby_phone }} / lat, lon</th><th>{{ T.nby_source }} · {{ T.nby_refreshed }}</th><th></th></tr></thead><tbody>
+{% for p in rows %}<tr><td>#{{ p.id }}</td>
+<td>{{ p.country }} · {{ p.category }}{% if p.hidden %} <span class="pill spons">{{ T.nby_f_hidden }}</span>{% endif %}{% if p.gone_upstream %} <span class="pill">{{ T.nby_f_gone }}</span>{% endif %}{% if p.n_open %} <a class="pill spons" href="?tab=reports">{{ p.n_open }} {{ T.nby_report_kind }}</a>{% endif %}</td>
+<td><form method="post" action="/owner/nearby/{{ p.id }}">{% include "owner/_csrf.html" %}<input type="hidden" name="back" value="{{ path }}?tab=places&q={{ q|urlencode }}&cc={{ cc }}&cat={{ cat }}&f={{ f }}&page={{ page_no }}">
+<input name="name" value="{{ p.e.name }}" maxlength="160" aria-label="{{ T.nby_name }}">
+<input name="name_en" value="{{ p.e.name_en }}" maxlength="160" aria-label="{{ T.nby_name_en }}">
+<input name="phone" value="{{ p.e.phone }}" maxlength="40" size="14" aria-label="{{ T.nby_phone }}">
+<input name="lat" value="{{ p.e.lat }}" size="9" aria-label="lat"><input name="lon" value="{{ p.e.lon }}" size="9" aria-label="lon">
+<button class="btn primary" name="action" value="save">{{ T.nby_save }}</button>
+{% if p.hidden %}<button class="btn ghost" name="action" value="show">{{ T.nby_show }}</button>{% else %}<button class="btn ghost" name="action" value="hide">{{ T.nby_hide }}</button>{% endif %}
+{% if p.edited_at %}<button class="btn ghost" name="action" value="reset">{{ T.nby_reset }}</button>{% endif %}
+{% if p.source == 'biz' and p.sponsored_until %}<button class="btn ghost" name="action" value="sponsor_off">{{ T.nby_sponsor_off }}</button>{% endif %}
+</form>{% if p.edited_at %}<div class="small mut">{{ T.nby_edited }} {{ p.edited_at|date:"Y-m-d H:i" }} · OSM: {{ p.name|default:"—" }} / {{ p.name_en|default:"—" }} / {{ p.phone|default:"—" }}</div>{% endif %}</td>
+<td>{{ p.source }}{% if p.src_id %} <a href="https://www.openstreetmap.org/{% if p.src_id.0 == 'n' %}node{% elif p.src_id.0 == 'w' %}way{% else %}relation{% endif %}/{{ p.src_id|slice:'1:' }}" target="_blank" rel="noopener noreferrer">{{ p.src_id }}</a>{% endif %}<div class="small">{{ p.refreshed_at|date:"Y-m-d" }}</div>{% if p.sponsored_until %}<div class="small">Sponsored → {{ p.sponsored_until|date:"Y-m-d" }}</div>{% endif %}</td>
+<td></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.nby_none }}</p>{% endif %}
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?tab=places&q={{ q|urlencode }}&cc={{ cc }}&cat={{ cat }}&f={{ f }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?tab=places&q={{ q|urlencode }}&cc={{ cc }}&cat={{ cat }}&f={{ f }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+<details class="card"><summary>{{ T.nby_add }}</summary>
+<form method="post" action="/owner/nearby/add" class="inline">{% include "owner/_csrf.html" %}
+<select name="category">{% for c in cats %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select>
+<input name="name" maxlength="160" placeholder="{{ T.nby_name }}" required>
+<input name="name_en" maxlength="160" placeholder="{{ T.nby_name_en }}">
+<input name="phone" maxlength="40" placeholder="{{ T.nby_phone }}">
+<input name="lat" placeholder="lat" size="9" required><input name="lon" placeholder="lon" size="9" required>
+<input name="country" maxlength="2" size="3" placeholder="BD">
+<button class="btn primary">{{ T.nby_add }}</button></form></details>
+<details class="card"><summary>{{ T.nby_add_biz }}</summary><p class="mut small">{{ T.nby_biz_note }}</p>
+<form method="post" action="/owner/nearby/add" class="inline">{% include "owner/_csrf.html" %}
+<select name="category">{% for c in gcats %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select>
+<input name="business_user" placeholder="{{ T.nby_biz_user }}" size="8" required>
+<input name="name" maxlength="160" placeholder="{{ T.nby_name }}" required>
+<input name="name_en" maxlength="160" placeholder="{{ T.nby_name_en }}">
+<input name="phone" maxlength="40" placeholder="{{ T.nby_phone }}">
+<input name="lat" placeholder="lat" size="9" required><input name="lon" placeholder="lon" size="9" required>
+<input name="sponsored_days" placeholder="{{ T.nby_days }}" size="5" value="30">
+<button class="btn primary">{{ T.nby_add_biz }}</button></form></details>
+{% elif tab == 'reports' %}
+{% if reports %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.nby_report_kind }}</th><th>{{ T.nby_name }} · {{ T.nby_phone }}</th><th>{{ T.nby_source }} · {{ T.nby_refreshed }}</th><th></th></tr></thead><tbody>
+{% for r in reports %}<tr><td>#{{ r.id }}</td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+<td>{{ r.kind }} · {{ r.status }}{% if r.note %}<div class="small">{{ r.note }}</div>{% endif %}</td>
+<td><a href="?tab=places&q={{ r.place_id }}">#{{ r.place_id }}</a> {{ r.place.country }} · {{ r.place.category }} · {{ r.e.name_en|default:r.e.name }} · <b>{{ r.e.phone|default:"—" }}</b></td>
+<td>{{ r.place.source }} {{ r.place.src_id }} · {{ r.place.refreshed_at|date:"Y-m-d" }}</td>
+<td>{% if r.status == 'open' %}<form method="post" action="/owner/nearby/report/{{ r.id }}">{% include "owner/_csrf.html" %}
+<input name="phone" value="{{ r.suggested_phone }}" maxlength="40" size="14" placeholder="{{ T.nby_suggested }}" aria-label="{{ T.nby_suggested }}">
+<button class="btn primary" name="action" value="fix">{{ T.nby_fix }}</button>
+<button class="btn ghost" name="action" value="hide">{{ T.nby_hide_place }}</button>
+<button class="btn ghost" name="action" value="reject">{{ T.nby_reject }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.nby_none }}</p>{% endif %}
+{% else %}
+<p class="mut small">{{ T.nby_world_note }}{% if meta %} · {{ T.nby_last_check }}: {{ meta.last_check_at|date:"Y-m-d H:i"|default:"—" }}{% if meta.last_error %} · {{ meta.last_error }}{% endif %}{% endif %}</p>
+<form method="post" action="/owner/nearby/dataset" class="inline card">{% include "owner/_csrf.html" %}<input type="hidden" name="key" value="WORLD">
+<b>{{ T.nby_world }}</b>: {% if world_on %}{{ T.nby_on }} <button class="btn ghost" name="on" value="0">{{ T.nby_turn_off }}</button>{% else %}{{ T.nby_off }} <button class="btn primary" name="on" value="1">{{ T.nby_turn_on }}</button>{% endif %}</form>
+{% if datasets %}
+<div class="card tbl"><table><thead><tr><th>{{ T.nby_country }}</th><th>{{ T.nby_records }}</th><th>{{ T.nby_version }}</th><th>{{ T.nby_refreshed }}</th><th>{{ T.nby_osm_time }}</th><th>{{ T.nby_size }}</th><th>{{ T.nby_error }}</th><th></th></tr></thead><tbody>
+{% for d in datasets %}<tr><td><b>{{ d.key }}</b>{% if not d.rollout %} <span class="mut small">world</span>{% endif %}</td><td>{{ d.records }} / {{ d.listed }}</td><td>{{ d.version }}</td>
+<td>{{ d.refreshed_at|date:"Y-m-d H:i"|default:"—" }}</td><td>{{ d.osm_timestamp|default:"—" }}</td><td>{{ d.bytes|filesizeformat }}</td><td class="small">{{ d.last_error|default:"" }}</td>
+<td><form method="post" action="/owner/nearby/dataset">{% include "owner/_csrf.html" %}<input type="hidden" name="key" value="{{ d.key }}">{% if d.enabled %}{{ T.nby_on }} <button class="btn ghost" name="on" value="0">{{ T.nby_turn_off }}</button>{% else %}{{ T.nby_off }} <button class="btn primary" name="on" value="1">{{ T.nby_turn_on }}</button>{% endif %}</form></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.nby_none }}</p>{% endif %}
+{% endif %}
+{% endblock %}

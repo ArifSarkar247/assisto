@@ -145,7 +145,7 @@ class EndpointTruthTests(TestCase):
         for t in ("hospital", "pharmacy", "atm", "police", "fire", "transport",
                   "fuel", "restaurant", "mosque", "govt"):
             self.assertIn(t, nearby._OSM_FILTER, t)
-            self.assertIn(t, nearby._PLACES_TYPE, t)
+            self.assertIn(t, nearby._TYPES, t)
         self.assertIn("lifeassisto.com", nearby._UA)
         seen = {}
 
