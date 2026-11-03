@@ -8524,3 +8524,92 @@ class CareCallRing(models.Model):
         unique_together = [("care_call", "slot")]
         ordering = ["-scheduled_at", "-id"]
 # ---- /carecall ----
+
+
+# ---- recovery ---- Account & security (owner order Part 8, 3 Nov 23:33):
+# per-device sign-in sessions, identity-change log with a "This was not me"
+# undo link, per-account security state (24 h rule, change lock, email
+# nudge), and the support recovery request (lost phone + no email).
+class DeviceSession(models.Model):
+    """One signed-in device. The raw key is given to the app ONCE (it is the
+    `Authorization: Token <key>` value); only its sha256 is stored. The old
+    single rest_framework Token keeps working for older builds."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="device_sessions")
+    key_hash = models.CharField(max_length=64, unique=True)
+    device_id = models.CharField(max_length=64, blank=True, default="")
+    device_name = models.CharField(max_length=80, blank=True, default="")
+    platform = models.CharField(max_length=16, blank=True, default="")
+    app_version = models.CharField(max_length=24, blank=True, default="")
+    ip = models.CharField(max_length=45, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
+    last_seen_at = models.DateTimeField(default=timezone.now)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoke_reason = models.CharField(max_length=24, blank=True, default="")
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "revoked_at"], name="core_devsess_user_rev_idx")]
+
+
+class AccountSecurityState(models.Model):
+    """Per-account security bookkeeping (one row, created lazily)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="security_state")
+    last_email_change_at = models.DateTimeField(null=True, blank=True)
+    last_phone_change_at = models.DateTimeField(null=True, blank=True)
+    identity_locked_until = models.DateTimeField(null=True, blank=True)
+    email_nudge_count = models.PositiveSmallIntegerField(default=0)
+    email_nudge_last_at = models.DateTimeField(null=True, blank=True)
+    password_changed_at = models.DateTimeField(null=True, blank=True)
+
+
+class IdentityChange(models.Model):
+    """An email or phone change. The OLD address/number got an alert with a
+    single-use "This was not me" link (hash stored) that reverts + locks."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="identity_changes")
+    kind = models.CharField(max_length=8)               # email | phone
+    old_value = models.CharField(max_length=254, blank=True, default="")
+    new_value = models.CharField(max_length=254, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
+    undo_hash = models.CharField(max_length=64, unique=True)
+    undo_expires_at = models.DateTimeField()
+    undone_at = models.DateTimeField(null=True, blank=True)
+    alert_sent = models.CharField(max_length=40, blank=True, default="")   # "email,sms,push"
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class RecoveryRequest(models.Model):
+    """Lost phone + no verified email: a support recovery request. Never
+    instant: a 48 h hold from creation, a human review in Owner Admin, and
+    (when chosen) a My Circle family member's confirmation. Reviewers see
+    match RESULTS only — never chats, photos, documents or the answers'
+    raw text beyond the typed name."""
+    STATES = ("pending", "approved", "rejected", "cancelled", "completed", "expired")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
+                             related_name="recovery_requests")
+    ref = models.CharField(max_length=12, unique=True)
+    secret_hash = models.CharField(max_length=64)
+    account_phone = models.CharField(max_length=24)
+    contact_phone = models.CharField(max_length=24)
+    typed_name = models.CharField(max_length=120, blank=True, default="")
+    proof = models.JSONField(default=dict, blank=True)     # match results only
+    score = models.PositiveSmallIntegerField(default=0)     # 0..100
+    family_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    family_state = models.CharField(max_length=10, default="none")  # none|pending|confirmed|denied
+    family_decided_at = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=10, default="pending")
+    hold_until = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    review_note = models.CharField(max_length=300, blank=True, default="")
+    completed_at = models.DateTimeField(null=True, blank=True)
+    ip = models.CharField(max_length=45, blank=True, default="")
+    device_id = models.CharField(max_length=64, blank=True, default="")
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["state", "id"], name="core_recreq_state_idx")]
+# ---- /recovery ----

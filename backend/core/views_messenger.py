@@ -1990,6 +1990,8 @@ class AdminUserActionView(APIView):
             try:
                 from rest_framework.authtoken.models import Token
                 Token.objects.filter(user=target).delete()
+                from .device_sessions import revoke_all   # recovery
+                revoke_all(target, reason="moderation")
             except Exception:
                 pass
         ModerationAudit.objects.create(

@@ -848,6 +848,8 @@ def user_detail(request, pk):
                 if reset:
                     from rest_framework.authtoken.models import Token
                     Token.objects.filter(user=u).delete()
+                    from core.device_sessions import revoke_all   # recovery
+                    revoke_all(u, reason="moderation")
                 ModerationAudit.objects.create(
                     actor=request.owner, action=audit_entry["action"],
                     target_kind=mmod.T_PERSON, target_id=str(u.id),

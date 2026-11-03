@@ -216,7 +216,8 @@ class InviteSignupView(APIView):
                 return _err(request, e.reason, e.status)
         # outside the atomic block: referral attribution uses its own rules
         IJ.attribute_referral(user, inviter, otp.device_id(request))
-        token, _ = Token.objects.get_or_create(user=user)
+        from .device_sessions import login_token   # recovery: per-device
+        token_key = login_token(user, request)
         from . import plans
         try:
             if plans.trial_on_signup():
@@ -227,7 +228,7 @@ class InviteSignupView(APIView):
         from .views import log
         log(user, "account.register", via="invite")
         body = _member_payload(mine, inviter, already)
-        body.update({"token": token.key,
+        body.update({"token": token_key,
                      "user": UserSerializer(user, context={"request": request}).data,
                      "has_password": False, "phone_verified": verified})
         return Response(body, status=status.HTTP_201_CREATED)

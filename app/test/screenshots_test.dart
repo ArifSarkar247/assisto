@@ -29,6 +29,9 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'fake_account_security.dart'; // recovery
+import 'package:assisto/screens/account_security_screen.dart'; // recovery
+import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
 import 'fake_train.dart' show trainLive701; // sjalarm
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
@@ -794,6 +797,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     // ---- /o1-otp ----
+    // recovery (owner Part 8): Account & security, forgot password, support recovery
+    'recov_account': (build: (_) => AccountSecurityScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_account_alerts': (build: (_) => AccountSecurityScreen(backend: FakeAccountSecurity(state: FakeAccountSecurity.sample(alerts: true, email: true)), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_password': (build: (_) => ChangePasswordScreen(backend: FakeAccountSecurity()), mode: FakeMode.data, full: true),
+    'recov_forgot': (build: (_) => ForgotPasswordScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_support_form': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore()), mode: FakeMode.data, full: true),
+    'recov_support_status': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore({'ref': 'AB12CD34', 'secret': 's', 'contact': '01611000004'})), mode: FakeMode.data, full: true),
+    // ---- /recovery ----
     // framebar: SMS off at launch -> honest email-code sign-in
     'fb_login_email_code': (build: (_) => LoginScreen(otpBackend: FakeOtpBackend(smsEnabled: false, emailEnabled: true)), mode: FakeMode.data, full: true),
     'fb_otp_email_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), emailMode: true), mode: FakeMode.data, full: true),

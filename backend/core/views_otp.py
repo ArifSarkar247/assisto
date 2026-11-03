@@ -208,10 +208,11 @@ class OtpLoginView(APIView):
                             status=status.HTTP_403_FORBIDDEN)
         if canon and row.channel == "sms":   # only an SMS code proves the phone
             otp.mark_verified(user, canon)
-        token, _ = Token.objects.get_or_create(user=user)
+        from .device_sessions import login_token   # recovery: per-device
+        token_key = login_token(user, request)
         _log(user, "account.login", method="otp", channel=row.channel)
         from .serializers import UserSerializer
-        return Response({"token": token.key,
+        return Response({"token": token_key,
                          "user": UserSerializer(user, context={"request": request}).data})
 
 
@@ -236,6 +237,10 @@ class OtpResetView(APIView):
         user.set_password(pw)
         user.save(update_fields=["password"])
         Token.objects.filter(user=user).delete()
+        from .device_sessions import revoke_all   # recovery: every device
+        revoke_all(user, reason="password_reset")
+        from . import account_recovery as AR
+        AR.note_password_changed(user)
         if row.phone and row.channel == "sms":
             otp.mark_verified(user, row.phone)
         _log(user, "account.password_reset", method="otp", channel=row.channel)
@@ -307,6 +312,14 @@ class OtpEmailRequestView(APIView):
             addr = email_sender.normalize_email(raw_email)
             if not addr:
                 return _fail("bad_email", lang, status.HTTP_400_BAD_REQUEST)
+            # recovery: a CHANGE of a verified email obeys the 24 h rule / lock
+            old_v = otp.verified_email(user)
+            if old_v and old_v != addr:
+                from . import account_recovery as AR
+                blk = AR.identity_block(user, "email")
+                if blk:
+                    return Response(AR.block_body(blk[0], blk[1], lang),
+                                    status=status.HTTP_409_CONFLICT)
             # an address another account owns: same answer, nothing sent
             kw.update(email=addr, target=addr,
                       send=not otp.email_taken_by_other(user, addr))
@@ -377,7 +390,21 @@ class OtpEmailConfirmView(APIView):
         row = otp.consume_proof_row(proof, "email_verify", email=addr)
         if row is None or otp.email_taken_by_other(request.user, addr):
             return _fail("bad_otp", lang, status.HTTP_400_BAD_REQUEST)
+        # recovery: changing a verified email -> 24 h rule, alert to the OLD
+        # address with a "This was not me" link; a first email ends the nudge.
+        from . import account_recovery as AR
+        old_v = otp.verified_email(request.user)
+        changing = bool(old_v and old_v != addr)
+        if changing:
+            blk = AR.identity_block(request.user, "email")
+            if blk:
+                return Response(AR.block_body(blk[0], blk[1], lang),
+                                status=status.HTTP_409_CONFLICT)
         otp.mark_email_verified(request.user, addr)
+        if changing:
+            AR.record_change(request.user, "email", old_v, addr, lang=lang)
+        elif not old_v:
+            AR.nudge_seen(request.user, "added")
         _log(request.user, "account.email_verified")
         return Response({"ok": True, "email": addr, "verified": True,
                          "message": otp.message("email_verified", lang)})

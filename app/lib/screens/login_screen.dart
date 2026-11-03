@@ -5,6 +5,7 @@ import '../api.dart' show ApiException; // framebar
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import 'password_reset_screen.dart';
+import 'account_recovery_screens.dart'; // recovery
 import '../otp_api.dart';
 import '../services/phone_canon.dart';
 import 'otp/otp_login_screen.dart';
@@ -244,8 +245,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       onPressed: _busy
                           ? null
+                          // recovery: choose SMS or verified email; lost
+                          // phone -> support recovery (email-link reset is
+                          // one tap further: "Use my email address")
                           : () => Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const PasswordResetScreen())),
+                              builder: (_) => const ForgotPasswordScreen())),
                       child: Text(t.resetForgotLink),
                     ),
                   // framebar: honest one-time-code sign-in — SMS only when

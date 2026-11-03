@@ -5,6 +5,7 @@ import 'feature_gates.dart' show kMedicalFeaturesAllowed;
 import 'crypto/e2e.dart';
 import 'models.dart';
 import 'services/own_device_guard.dart'; // grab-guard
+import 'diag/device_facts.dart'; // recovery
 
 class ApiException implements Exception {
   final String message;
@@ -64,6 +65,13 @@ class ApiClient {
         // phone itself (hashed install id, never a hardware id)
         if (AppConfig.deviceId != null && AppConfig.deviceId!.isNotEmpty)
           'X-Device-Id': AppConfig.deviceId!,
+        // recovery: this build understands per-device sessions — sign-in
+        // returns a token for THIS phone only (Account & security lists it
+        // and can sign it out). Older builds keep the single account token.
+        'X-Session-Mode': 'device',
+        if (DeviceFacts.label.isNotEmpty) 'X-Device-Name': DeviceFacts.label,
+        'X-Platform': 'android',
+        'X-App-Version': AppConfig.appVersionLabel,
       };
 
   Never _fail(http.Response r) {
@@ -129,6 +137,10 @@ class ApiClient {
     required String identifier,
     required String password,
   }) async {
+    // recovery: name this phone in the devices list (never throws, ≤3 s)
+    try {
+      await DeviceFacts.read();
+    } catch (_) {}
     final j = await _postJson(
         '/auth/login', {'identifier': identifier, 'password': password});
     return (token: j['token'] as String, user: AppUser.fromJson(j['user']));

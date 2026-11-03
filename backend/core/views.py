@@ -156,13 +156,14 @@ class RegisterView(APIView):
         user = ser.save()
         if canon:
             otp.mark_verified(user, canon)
-        token, _ = Token.objects.get_or_create(user=user)
+        from .device_sessions import login_token   # recovery: per-device
+        token_key = login_token(user, request)
         from . import plans
         if plans.trial_on_signup():   # p2-money: default OFF — trial button
             plans.start_trial(user)
         log(user, "account.register")
         return Response(
-            {"token": token.key, "user": UserSerializer(user).data},
+            {"token": token_key, "user": UserSerializer(user).data},
             status=status.HTTP_201_CREATED,
         )
 
@@ -192,14 +193,21 @@ class LoginView(APIView):
             # adminsafe: + reason, suspension end and an appeal token
             return Response(blocked_payload(user, req_lang(request)),
                             status=status.HTTP_403_FORBIDDEN)
-        token, _ = Token.objects.get_or_create(user=user)
+        from .device_sessions import login_token   # recovery: per-device
+        token_key = login_token(user, request)
         log(user, "account.login")
-        return Response({"token": token.key, "user": UserSerializer(user).data})
+        return Response({"token": token_key, "user": UserSerializer(user).data})
 
 
 class LogoutView(APIView):
     def post(self, request):
-        Token.objects.filter(user=request.user).delete()
+        # recovery: a per-device session signs out only THIS device; the
+        # legacy single Token (older builds) is dropped as before.
+        from . import device_sessions as DS
+        if DS.is_session(request.auth):
+            DS.revoke(request.auth, "logout")
+        else:
+            Token.objects.filter(user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
