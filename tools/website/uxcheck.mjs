@@ -129,8 +129,9 @@ for (const lang of ['bn', 'en']) {
     }
 
     // ---------------------------------------------------------- header / layout
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(300);
+    // html has scroll-behavior:smooth — jump, or the header is measured mid-scroll
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.waitForTimeout(500);
     const lay = await page.evaluate(() => {
       const r = s => { const e = document.querySelector(s); return e ? e.getBoundingClientRect() : null; };
       const shown = s => { const e = document.querySelector(s); if (!e) return false; const cs = getComputedStyle(e); const b = e.getBoundingClientRect(); return cs.display !== 'none' && cs.visibility !== 'hidden' && b.width > 0 && b.height > 0; };
