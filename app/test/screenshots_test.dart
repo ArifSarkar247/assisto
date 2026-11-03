@@ -36,6 +36,7 @@ import 'invite_shots.dart'; // invite-join
 import 'wa_polish_shots.dart'; // wa-polish
 import 'wa_polish2_shots.dart'; // wa-polish2
 import 'circlea_shots.dart'; // circlea
+import 'guardian2_shots.dart'; // guardian2
 import 'bubbles_shots.dart'; // bubbles
 import 'bubbles2_shots.dart'; // bubbles2
 import 'at100_shots.dart'; // at100
@@ -1311,6 +1312,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in waPolish2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // circlea: links + E2E preview, safe-link warning, Family / Others picker, Guardians
     for (final e in circleaShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // guardian2: two guardians — who sees me, approve, co-guardian, SOS responder
+    for (final e in guardian2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // bubbles: the floating chat bubble window (can't open / signed out)
     for (final e in bubblesShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // bubbles2: install-day bubbles step (+ on / phone blocks), settings Turn on, My Circle row, in-call bubbles

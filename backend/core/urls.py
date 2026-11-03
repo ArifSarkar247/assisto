@@ -1568,6 +1568,16 @@ urlpatterns += [
     path("links/check", cav.LinkCheckView.as_view()),
 ]
 # ---- /circlea ----
+# ---- guardian2 ---- (PART 6 two guardians: invite -> approve -> access)
+from . import views_guardian2 as g2v  # noqa: E402
+urlpatterns += [
+    path("guardians/links", g2v.GuardianLinksView.as_view()),
+    path("guardians/invites", g2v.GuardianInviteView.as_view()),
+    path("guardians/join", g2v.GuardianJoinView.as_view()),
+    path("guardians/links/<int:pk>/<str:action>", g2v.GuardianLinkActionView.as_view()),
+    path("family/alerts/<int:pk>/responding", g2v.SosRespondingView.as_view()),
+]
+# ---- /guardian2 ----
 
 # ---- blood ---- (owner 2 Nov: Blood donor panel; flag blood_donors, OFF)
 from . import blood_views as bdv  # noqa: E402

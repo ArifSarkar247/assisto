@@ -52,6 +52,7 @@ SRC_WATCH = "kids_watch"
 SRC_SCHOOL = "school_mode"
 SRC_JOURNEY = "journey"
 SRC_CHIP = "chip"
+SRC_LINK = "co_guardian"     # guardian2: approved second guardian
 CHILD_EDGE = "child"
 PARENT_EDGES = frozenset({"father", "mother", "parent"})
 JOURNEY_LIVE = ("pending", "accepted", "active")
@@ -59,8 +60,16 @@ JOURNEY_LIVE = ("pending", "accepted", "active")
 
 def _peer_ok(owner_id, user_id):
     from .models import CircleMember
-    return CircleMember.objects.filter(user_id=owner_id, peer_user_id=user_id,
-                                       state="accepted", blocked=False).exists()
+    if CircleMember.objects.filter(user_id=owner_id, peer_user_id=user_id,
+                                   state="accepted", blocked=False).exists():
+        return True
+    # guardian2: an APPROVED co-guardian of a child this owner set up counts
+    # as a valid peer for that owner's watch / plan (stops when removed).
+    try:
+        from . import guardian_links
+        return guardian_links.co_pair(owner_id, user_id)
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _edge(owner, peer):
@@ -134,34 +143,52 @@ def _links_for_child(child):
     out = []
     for w in KidsWatch.objects.filter(child_user=child).exclude(state="disabled"):
         out.append((w.owner_id, {"kind": SRC_WATCH, "ref": w.id, "role": "owner",
-                                 "owner_id": w.owner_id}))
+                                 "owner_id": w.owner_id,
+                                 "since": _iso(w.paired_at or w.created_at)}))
         for uid in _ids(w.guardian_ids):
             if uid != w.owner_id and _peer_ok(w.owner_id, uid):
                 out.append((uid, {"kind": SRC_WATCH, "ref": w.id, "role": "guardian",
-                                  "owner_id": w.owner_id}))
+                                  "owner_id": w.owner_id,
+                                  "since": _iso(w.paired_at or w.created_at)}))
     for p in SchoolPlan.objects.filter(child_user=child, enabled=True):
         if p.watch_id is None and p.accepted_at is None:
             continue           # a phone plan the child has not accepted yet
         out.append((p.owner_id, {"kind": SRC_SCHOOL, "ref": p.id, "role": "owner",
-                                 "owner_id": p.owner_id}))
+                                 "owner_id": p.owner_id,
+                                 "since": _iso(p.accepted_at or p.created_at)}))
         for uid in _ids(p.watcher_ids):
             if uid != p.owner_id and _peer_ok(p.owner_id, uid):
                 out.append((uid, {"kind": SRC_SCHOOL, "ref": p.id, "role": "guardian",
-                                  "owner_id": p.owner_id}))
+                                  "owner_id": p.owner_id,
+                                  "since": _iso(p.accepted_at or p.created_at)}))
     for r in JourneyRequest.objects.filter(traveller=child,
                                            status__in=("accepted", "active")):
         out.append((r.requester_id, {"kind": SRC_JOURNEY, "ref": r.id, "role": "owner",
                                      "owner_id": r.requester_id,
                                      "standing": bool(r.standing),
-                                     "live": r.status == "active"}))
+                                     "live": r.status == "active",
+                                     "since": _iso(r.created_at)}))
     for t in VehicleTracker.objects.filter(kind="chip", child_user=child) \
             .select_related("owner"):
         out.append((t.owner_id, {"kind": SRC_CHIP, "ref": t.id, "role": "owner",
-                                 "owner_id": t.owner_id}))
+                                 "owner_id": t.owner_id,
+                                 "since": _iso(getattr(t, "created_at", None))}))
         for u in chip_guardians(t):
             out.append((u.id, {"kind": SRC_CHIP, "ref": t.id, "role": "guardian",
-                               "owner_id": t.owner_id}))
+                               "owner_id": t.owner_id,
+                               "since": _iso(getattr(t, "created_at", None))}))
+    # guardian2: approved second guardians (invite code + existing guardian's OK)
+    from .models import GuardianLink
+    for gl in GuardianLink.objects.filter(child=child, state="approved",
+                                          guardian__isnull=False):
+        out.append((gl.guardian_id, {"kind": SRC_LINK, "ref": gl.id, "role": "guardian",
+                                     "owner_id": gl.decided_by_id or gl.invited_by_id,
+                                     "since": _iso(gl.approved_at)}))
     return [(uid, s) for uid, s in out if uid and uid != child.id]
+
+
+def _iso(dt):
+    return dt.isoformat() if dt else None
 
 
 def _removable(src):
@@ -219,6 +246,9 @@ def guardians_of(child):
     out = list(rows.values())
     for r in out:
         r["removable"] = any(s["removable"] for s in r["sources"])
+        # guardian2: "since when" = the earliest source (ISO strings sort)
+        r["since"] = min((s.get("since") for s in r["sources"] if s.get("since")),
+                         default=None)
     out.sort(key=lambda r: (r["name"] or "").lower())
     return out
 
@@ -239,6 +269,11 @@ def children_of(guardian):
     from .models import JourneyRequest, KidsWatch, SchoolPlan, User, VehicleTracker
     me = guardian.id
     owners = _peers_of(guardian) | {me}
+    try:   # guardian2: owners of the children I co-guard (approved link)
+        from . import guardian_links
+        owners |= set(guardian_links.plan_owner_ids(guardian))
+    except Exception:  # noqa: BLE001
+        pass
     kids = {}
 
     def add(key, name, child_id, src):
@@ -275,6 +310,11 @@ def children_of(guardian):
         key = "u%d" % t.child_user_id if t.child_user_id else "c%d" % t.id
         add(key, t.child_name, t.child_user_id,
             {"kind": SRC_CHIP, "ref": t.id, "role": "owner" if mine else "guardian"})
+    from .models import GuardianLink
+    for gl in GuardianLink.objects.filter(guardian=guardian, state="approved") \
+            .select_related("child"):
+        add("u%d" % gl.child_id, _name(guardian, gl.child), gl.child_id,
+            {"kind": SRC_LINK, "ref": gl.id, "role": "guardian"})
     child_ids = {k["child_user_id"] for k in kids.values() if k["child_user_id"]}
     cusers = {u.id: u for u in User.objects.filter(pk__in=child_ids)}
     for k in kids.values():
@@ -321,6 +361,14 @@ def _co_from_sources(viewer, sources):
 
 
 # ---------------------------------------------------------------- fan-out
+def _co_guardian(child_id, uid):
+    try:
+        from . import guardian_links
+        return guardian_links.is_approved(child_id, uid)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def alert_audience(owner, ids, child=None):
     """Who gets a child's safety alert: the feature's owner + its chosen
     guardians (still-valid peers of the owner) + EVERY other guardian of the
@@ -333,7 +381,8 @@ def alert_audience(owner, ids, child=None):
             want.append(u.id)
     if child is not None:
         for uid in sorted(guardian_user_ids(child)):
-            if uid not in want and (_peer_ok(child.id, uid) or _peer_ok(uid, child.id)):
+            if uid not in want and (_peer_ok(child.id, uid) or _peer_ok(uid, child.id)
+                                    or _co_guardian(child.id, uid)):
                 want.append(uid)
     if child is not None:
         want = [u for u in want if u != child.id]

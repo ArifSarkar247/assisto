@@ -112,7 +112,7 @@ class AdPlacements {
     'money', 'prepaid_meter', 'business_khata', 'khata', 'sales', 'invoice',
     'crm', 'quran', 'ramadan', 'food_calories', 'health', 'health_tips',
     'medicine_db', 'reminders', 'notes_todos', 'task_manager', 'tasks',
-    'school_mode', 'kids_watch', 'child',
+    'school_mode', 'kids_watch', 'child', 'guardians', // guardian2
     // owner fix 3 Nov: train SEARCH / DETAIL carry a banner; its chat never
     'train_chat',
     // ownerfix (owner 3 Nov): NO ads anywhere in blood donor — every screen

@@ -587,6 +587,12 @@ class PlanListView(APIView):
         from .models import CircleMember
         peers = CircleMember.objects.filter(peer_user=request.user, state="accepted",
                                             blocked=False).values_list("user_id", flat=True)
+        peers = list(peers)
+        try:   # guardian2: plans of children I co-guard (approved link)
+            from . import guardian_links
+            peers += guardian_links.plan_owner_ids(request.user)
+        except Exception:  # noqa: BLE001
+            pass
         shared = [p for p in SchoolPlan.objects.filter(owner_id__in=list(peers))
                   .select_related("owner", "child_user", "watch")[:200]
                   if request.user.id in (p.watcher_ids or [])

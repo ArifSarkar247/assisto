@@ -202,6 +202,21 @@ class _SosLadderCardState extends State<SosLadderCard> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(body, style: AType.bodyMedium),
+          // guardian2: "<name> is responding" — help is on the way
+          for (final r in ((_d?['responders'] as List?) ?? const []))
+            if (r is Map)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.sm),
+                child: Row(children: [
+                  const Icon(Icons.directions_run_rounded, color: Brand.successFill),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(t.g2IsResponding('${r['name'] ?? ''}'),
+                        key: ValueKey('g2-ladder-responder-${r['name']}'),
+                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+                  ),
+                ]),
+              ),
           if (rows.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             for (final r in rows) _person(t, r, scheme),

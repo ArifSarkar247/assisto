@@ -34,6 +34,11 @@ extension FamilyAlertsApi on ApiClient {
 
   Future<Map<String, dynamic>> familyAlertSeen(int id) =>
       postJson('/family/alerts/$id/seen');
+
+  /// guardian2: "I'm responding" on an SOS -> the other guardians and the
+  /// sender see "<name> is responding". Returns {responders:[{name, at, me}]}.
+  Future<Map<String, dynamic>> familySosResponding(int id) =>
+      postJson('/family/alerts/$id/responding');
 }
 
 /// A fresh id for one SOS press (time + a little entropy; no plugin).
