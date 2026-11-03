@@ -99,7 +99,8 @@ class _ShopChatScreenState extends State<ShopChatScreen> {
           ..addAll(bzList(s['messages']));
         _loading = false;
       });
-      _toEnd();
+      // first visit: stay at the top so the disclosure is read first
+      if (_msgs.isNotEmpty) _toEnd();
     } catch (e) {
       if (!mounted) return;
       setState(() {

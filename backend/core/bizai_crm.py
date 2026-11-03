@@ -190,7 +190,10 @@ def approve_ladder(business, actor, drafts=None, channel="in_app"):
         if a is None:
             a = RetentionAutomation(business=business, kind="winback")
         else:
-            before = RetentionAutomation.objects.get(pk=a.pk)
+            old = RetentionAutomation.objects.get(pk=a.pk)
+            before = {k: getattr(old, k) for k in ("enabled", "params", "template_bn",
+                                                    "template_en", "channel", "send_hour",
+                                                    "name", "wa_template")}
         a.name = LADDER_NAME[st]
         a.params = {"days_without": lo, "days_until": hi, "bizai_stage": st,
                     "daily_cap": int((a.params or {}).get("daily_cap") or 50)}

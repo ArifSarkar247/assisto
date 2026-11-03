@@ -193,3 +193,14 @@ class FakeCctvAcc implements CctvAccuracySource {
   @override
   Future<void> missed(int siteId, String kind) async => calls.add('missed');
 }
+
+/// bizai: fake_api.dart hook — the Business-home outcome card and the
+/// seller's shop-link card in the gallery (real-looking numbers, bn aware).
+Map<String, dynamic>? fakeBizaiGet(String path, {bool bn = false, bool empty = false}) {
+  if (path.startsWith('/bizai/outcomes')) {
+    final f = FakeBizai(bn: bn);
+    return empty ? {'empty': true, 'total_bdt': '0', 'rows': []} : f.out;
+  }
+  if (path.startsWith('/bizai/shop-link')) return FakeBizai(bn: bn).link;
+  return null;
+}

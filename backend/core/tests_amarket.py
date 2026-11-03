@@ -219,7 +219,8 @@ class MarketApiTests(TestCase):
         self.assertEqual(r.status_code, 200, r.content)
         deals = MarketDeal.objects.filter(need_id=nid)
         self.assertEqual(sorted((d.buyer.name, d.quantity, d.total, d.payment, d.fee) for d in deals),
-                         [("Buyer", 25, 187500, "cod", 0), ("Joiner", 15, 112500, "cod", 0)])
+                         # bizai (owner 4 Nov): the seller's group deal fee, 2 %
+                         [("Buyer", 25, 187500, "cod", 3750), ("Joiner", 15, 112500, "cod", 2250)])
         orders = Order.objects.filter(user=self.s2, channel="market")
         self.assertEqual(orders.count(), 2)
         self.assertTrue(all(o.payment == "cod" and o.status == "new" for o in orders))
