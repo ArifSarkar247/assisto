@@ -133,15 +133,25 @@ void main() {
     expect(find.byKey(const ValueKey('farm_call_16123')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('farm_dz_group_rice')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('farm_dz_sign_rice_blast')), 150,
+        scrollable: find.byType(Scrollable).first);
     await tester.tap(find.byKey(const ValueKey('farm_dz_sign_rice_blast')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('farm_dz_result_rice_blast')), 150,
+        scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const ValueKey('farm_dz_result_rice_blast')), findsOneWidget);
     expect(find.text('It may be: Blast'), findsOneWidget);
     // switching crop clears the old answer
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('farm_dz_group_potato')), -150,
+        scrollable: find.byType(Scrollable).first);
     await tester.tap(find.byKey(const ValueKey('farm_dz_group_potato')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('farm_dz_result_rice_blast')), findsNothing);
-    expect(find.byKey(const ValueKey('farm_dz_sign_potato_late_blight')), findsOneWidget);
+    expect(find.byKey(const ValueKey('farm_dz_sign_potato_late_blight'), skipOffstage: false),
+        findsOneWidget);
   });
 
   testWidgets('Disease: vision key connected -> photo card shown', (tester) async {
@@ -163,6 +173,10 @@ void main() {
         lang: 'bn',
         scale: 2));
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('farm_dz_result_gourd_fruit_fly')), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(tester.takeException(), isNull);
     expect(find.byKey(const ValueKey('farm_dz_result_gourd_fruit_fly')), findsOneWidget);
   });
