@@ -1,6 +1,8 @@
 // bizai: fake server for test/bizai_test.dart + gallery shots (bizai_shots.dart).
 // bn=true gives Bangla shop data (the launch Bangla sweep reads bn shots).
 import 'package:assisto/bizai/bizai_source.dart';
+import 'package:assisto/bizai/cctv_accuracy_screen.dart';
+import 'package:assisto/bizai/winback_screen.dart';
 
 const _discBn = 'এই দোকান উত্তর দিতে Assisto AI ব্যবহার করে। এখানের মেসেজ এন্ড-টু-এন্ড '
     'এনক্রিপ্টেড নয় — দোকান ও তার AI সহকারী দেখতে পান।';
@@ -94,3 +96,100 @@ class FakeBizai implements BizaiSource {
   }
 }
 
+
+// bizai pillar 2 — win-back fake
+class FakeWinback implements WinbackSource {
+  final bool bn;
+  FakeWinback({this.bn = false});
+  bool on = false;
+  Map<String, dynamic>? lastApprove;
+  int ai = 0;
+  List<Map<String, dynamic>> _stages() => [
+        for (final st in ['wb30', 'wb60', 'wb90'])
+          {'stage': st, 'enabled': on, 'audience': st == 'wb30' ? 4 : 0,
+           'draft': bn ? '{name}, অনেক দিন দেখা হয়নি! {shop}-এ আসুন।' : '{name}, we miss you at {shop}.'}
+      ];
+  @override
+  Future<Map<String, dynamic>> segments() async => {
+        'total': 6,
+        'segments': [
+          {'key': 'champion', 'count': 1, 'members': [
+            {'name': bn ? 'করিম' : 'Karim', 'days': 3, 'spend_poisha': 360000,
+             'high_value': true, 'interest': bn ? 'পাঞ্জাবি' : 'Panjabi'}]},
+          {'key': 'at_risk_30', 'count': 4, 'members': []},
+          {'key': 'lost_90', 'count': 1, 'members': []},
+        ],
+      };
+  @override
+  Future<Map<String, dynamic>> ladder() async => {'stages': _stages()};
+  @override
+  Future<Map<String, dynamic>> approve(Map<String, dynamic> body) async {
+    lastApprove = body;
+    on = body['on'] != false;
+    return {'stages': _stages()};
+  }
+  @override
+  Future<Map<String, dynamic>> aiDraft(String stage, String text, String lang) async {
+    ai++;
+    return {'ok': true, 'text': '{name}, come back to {shop} soon!'};
+  }
+}
+
+// bizai pillar 5 — weekly report payload
+Map<String, dynamic> fakeWeekly({bool bn = false, bool empty = false}) => {
+      'attribution': {
+        'posts': empty
+            ? []
+            : [
+                {'ref': 'PAB2C', 'title': bn ? 'পোস্ট: পাঞ্জাবি' : 'Post: Panjabi', 'chats': 5,
+                 'orders': 2, 'bdt': '2400.00'}
+              ],
+        'best': null,
+      },
+      'best_hours': [20],
+      'weekly': {
+        'lines': [bn ? 'এই সপ্তাহে বিক্রি: ১২টি, মোট ৳১৮৫০০।' : 'Sales this week: 12, total ৳18500.'],
+        'plan': [bn ? 'পোস্টের সেরা সময়: ২০:০০।' : 'Best time to post: 20:00.'],
+      },
+    };
+
+// bizai pillar 4 — CCTV accuracy fake
+class FakeCctvAcc implements CctvAccuracySource {
+  final List<String> calls = [];
+  int sessions = 0;
+  @override
+  Future<Map<String, dynamic>> accuracy(int? siteId) async => {
+        'reviews': {
+          'per_type': {
+            'person': {'tp': 8, 'fp': 2, 'fn': 1, 'precision': 0.8, 'recall': 0.889,
+                       'events': 11, 'enough': false, 'meets_target': false},
+          },
+          'unreviewed': 3,
+        },
+        'live_tests': {
+          'sessions': sessions,
+          'per_type': sessions == 0
+              ? {}
+              : {'person': {'tp': 19, 'fp': 1, 'fn': 1, 'precision': 0.95, 'recall': 0.95,
+                            'events': 21, 'enough': true, 'meets_target': true}},
+        },
+      };
+  @override
+  Future<Map<String, dynamic>> startTest(int siteId) async {
+    calls.add('start');
+    return {'id': 7};
+  }
+  @override
+  Future<Map<String, dynamic>> mark(int testId, String kind) async {
+    calls.add('mark:$kind');
+    return {'id': testId};
+  }
+  @override
+  Future<Map<String, dynamic>> stop(int testId) async {
+    calls.add('stop');
+    sessions = 1;
+    return {'id': testId};
+  }
+  @override
+  Future<void> missed(int siteId, String kind) async => calls.add('missed');
+}

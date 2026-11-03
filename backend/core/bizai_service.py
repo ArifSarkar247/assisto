@@ -171,7 +171,7 @@ def _rate_limited(thread, now):
             mine.filter(created_at__gte=now - timedelta(hours=1)).count() >= PER_HOUR)
 
 
-def customer_send(user, business, text="", upload=None, lang="bn"):
+def customer_send(user, business, text="", upload=None, lang="bn", ref=""):
     """One customer message → the agent answers in the same request (the
     reply is in the response; target ≤ 5 s, measured). upload = {"type":
     image|audio, "bytes", "mime"}. -> (status, body)."""
@@ -190,6 +190,10 @@ def customer_send(user, business, text="", upload=None, lang="bn"):
     now = timezone.now()
     if _rate_limited(t, now):
         return 429, {"ok": False, "reason": "rate_limited"}
+    if ref and not t.source_ref:
+        # bizai pillar 5: opened from a tracked post link (…/shop/<code>?p=<ref>)
+        from . import bizai_prochar as BP
+        BP.capture(t, ref=ref)
     last = t.messages.order_by("-id").values_list("id", flat=True).first() or 0
     eid = "app-in-" + hashlib.sha256(("%s|%s|%s" % (t.pk, text, now.isoformat()))
                                      .encode()).hexdigest()[:24]
@@ -300,7 +304,7 @@ def risk_level(delivered, returned):
     rate = returned / done
     if returned >= 2 and rate >= 0.5:
         return HIGH
-    if returned >= 1 and rate >= 0.34:
+    if returned >= 1 and returned * 3 >= done:      # one in three or worse
         return MEDIUM
     return LOW
 
@@ -444,6 +448,12 @@ def outcomes(business, days=7, now=None):
          "how_en": "High return-risk COD orders held and cancelled"},
     ]
     total = sum(Decimal(r["bdt"]) for r in rows)
+    best = None
+    try:   # pillar 5: the post that sold (its orders are already in ai_orders)
+        from . import bizai_prochar as BP
+        best = BP.attribution(business, days=days, now=now)["best"]
+    except Exception:  # noqa: BLE001
+        log.exception("bizai.outcomes best_post")
     return {"days": days, "since": since.isoformat(), "until": now.isoformat(),
-            "rows": rows, "total_bdt": str(total),
+            "rows": rows, "total_bdt": str(total), "best_post": best,
             "empty": all(r["count"] == 0 for r in rows)}

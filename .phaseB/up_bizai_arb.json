@@ -219,6 +219,320 @@
   "bizaiOutEmptyBtn": "Set up the AI sales agent",
   "@bizaiOutEmptyBtn": {
    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmptyBtn"
+  },
+  "bizaiParamDaysUntil": "Stop after this many days (0 = never)",
+  "@bizaiParamDaysUntil": {
+   "description": "bizai: bizaiParamDaysUntil"
+  },
+  "bizaiWinbackTitle": "Bring customers back",
+  "@bizaiWinbackTitle": {
+   "description": "bizai: bizaiWinbackTitle"
+  },
+  "bizaiWinbackHubSub": "Who stopped buying, and a 30/60/90-day message ladder drafted for you",
+  "@bizaiWinbackHubSub": {
+   "description": "bizai: bizaiWinbackHubSub"
+  },
+  "bizaiSegmentsTitle": "Your customers",
+  "@bizaiSegmentsTitle": {
+   "description": "bizai: bizaiSegmentsTitle"
+  },
+  "bizaiSegmentsSub": "{count} customers bought in the last 12 months",
+  "@bizaiSegmentsSub": {
+   "description": "bizai: bizaiSegmentsSub",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiSegmentsEmpty": "When you record sales with a customer's phone, your customers are grouped here by last purchase, value and favourite product.",
+  "@bizaiSegmentsEmpty": {
+   "description": "bizai: bizaiSegmentsEmpty"
+  },
+  "bizaiSegChampion": "Best customers (bought often, recently)",
+  "@bizaiSegChampion": {
+   "description": "bizai: bizaiSegChampion"
+  },
+  "bizaiSegLoyal": "Regular customers",
+  "@bizaiSegLoyal": {
+   "description": "bizai: bizaiSegLoyal"
+  },
+  "bizaiSegNew": "New customers",
+  "@bizaiSegNew": {
+   "description": "bizai: bizaiSegNew"
+  },
+  "bizaiSegAtRisk30": "Silent 30+ days",
+  "@bizaiSegAtRisk30": {
+   "description": "bizai: bizaiSegAtRisk30"
+  },
+  "bizaiSegAtRisk60": "Silent 60+ days",
+  "@bizaiSegAtRisk60": {
+   "description": "bizai: bizaiSegAtRisk60"
+  },
+  "bizaiSegLost90": "Silent 90+ days",
+  "@bizaiSegLost90": {
+   "description": "bizai: bizaiSegLost90"
+  },
+  "bizaiSegOneTime": "Bought once",
+  "@bizaiSegOneTime": {
+   "description": "bizai: bizaiSegOneTime"
+  },
+  "bizaiMemberLine": "{days} days ago · {amount} · likes {product}",
+  "@bizaiMemberLine": {
+   "description": "bizai: bizaiMemberLine",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    },
+    "amount": {
+     "type": "String"
+    },
+    "product": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiHighValue": "Top 20% by spend",
+  "@bizaiHighValue": {
+   "description": "bizai: bizaiHighValue"
+  },
+  "bizaiLadderTitle": "Win-back messages: 30 / 60 / 90 days",
+  "@bizaiLadderTitle": {
+   "description": "bizai: bizaiLadderTitle"
+  },
+  "bizaiLadderSub": "Each silent customer gets at most one message per step — never all three at once.",
+  "@bizaiLadderSub": {
+   "description": "bizai: bizaiLadderSub"
+  },
+  "bizaiStage30": "After 30 days",
+  "@bizaiStage30": {
+   "description": "bizai: bizaiStage30"
+  },
+  "bizaiStage60": "After 60 days",
+  "@bizaiStage60": {
+   "description": "bizai: bizaiStage60"
+  },
+  "bizaiStage90": "After 90 days",
+  "@bizaiStage90": {
+   "description": "bizai: bizaiStage90"
+  },
+  "bizaiLadderAudience": "{count} would get it now",
+  "@bizaiLadderAudience": {
+   "description": "bizai: bizaiLadderAudience",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiAiRewrite": "Rewrite with AI",
+  "@bizaiAiRewrite": {
+   "description": "bizai: bizaiAiRewrite"
+  },
+  "bizaiLadderSafety": "Sent in Assisto between 9 am and 9 pm, with a STOP option and your daily limit. Results show on the Business home.",
+  "@bizaiLadderSafety": {
+   "description": "bizai: bizaiLadderSafety"
+  },
+  "bizaiLadderApprove": "Approve and turn on",
+  "@bizaiLadderApprove": {
+   "description": "bizai: bizaiLadderApprove"
+  },
+  "bizaiLadderStop": "Pause the win-back messages",
+  "@bizaiLadderStop": {
+   "description": "bizai: bizaiLadderStop"
+  },
+  "bizaiLadderOnDone": "Win-back messages are on",
+  "@bizaiLadderOnDone": {
+   "description": "bizai: bizaiLadderOnDone"
+  },
+  "bizaiLadderOffDone": "Win-back messages are paused",
+  "@bizaiLadderOffDone": {
+   "description": "bizai: bizaiLadderOffDone"
+  },
+  "bizaiPhName": "(customer's name)",
+  "@bizaiPhName": {
+   "description": "bizai: bizaiPhName"
+  },
+  "bizaiPhShop": "(your shop)",
+  "@bizaiPhShop": {
+   "description": "bizai: bizaiPhShop"
+  },
+  "bizaiPhDays": "(days)",
+  "@bizaiPhDays": {
+   "description": "bizai: bizaiPhDays"
+  },
+  "bizaiWeeklyTitle": "Weekly report",
+  "@bizaiWeeklyTitle": {
+   "description": "bizai: bizaiWeeklyTitle"
+  },
+  "bizaiWeeklyHubSub": "Your week in plain words, next week's plan, and which posts brought orders",
+  "@bizaiWeeklyHubSub": {
+   "description": "bizai: bizaiWeeklyHubSub"
+  },
+  "bizaiWeekTitle": "This week",
+  "@bizaiWeekTitle": {
+   "description": "bizai: bizaiWeekTitle"
+  },
+  "bizaiNextWeekTitle": "Plan for next week",
+  "@bizaiNextWeekTitle": {
+   "description": "bizai: bizaiNextWeekTitle"
+  },
+  "bizaiPostsSoldTitle": "Posts that brought customers",
+  "@bizaiPostsSoldTitle": {
+   "description": "bizai: bizaiPostsSoldTitle"
+  },
+  "bizaiPostsSoldEmpty": "Share a post from the Marketing engine — it carries its own link and code, so the chats and orders it brings show here.",
+  "@bizaiPostsSoldEmpty": {
+   "description": "bizai: bizaiPostsSoldEmpty"
+  },
+  "bizaiPostLine": "{chats} chats · {orders} orders",
+  "@bizaiPostLine": {
+   "description": "bizai: bizaiPostLine",
+   "placeholders": {
+    "chats": {
+     "type": "String"
+    },
+    "orders": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiOutBestPost": "Best post: {title} — {count} orders, {amount}",
+  "@bizaiOutBestPost": {
+   "description": "bizai: bizaiOutBestPost",
+   "placeholders": {
+    "title": {
+     "type": "String"
+    },
+    "count": {
+     "type": "String"
+    },
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamTitle": "How accurate is my CCTV?",
+  "@bizaiCamTitle": {
+   "description": "bizai: bizaiCamTitle"
+  },
+  "bizaiCamExplain": "Right = when it alerts, something really happened. Catches = when something happens, it alerts. Our goal is 90% for both, measured on at least 20 events.",
+  "@bizaiCamExplain": {
+   "description": "bizai: bizaiCamExplain"
+  },
+  "bizaiCamLine2": "Right {precision} · Catches {recall} · {events} events",
+  "@bizaiCamLine2": {
+   "description": "bizai: bizaiCamLine2",
+   "placeholders": {
+    "precision": {
+     "type": "String"
+    },
+    "recall": {
+     "type": "String"
+    },
+    "events": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamMeets": "Meets the 90% goal",
+  "@bizaiCamMeets": {
+   "description": "bizai: bizaiCamMeets"
+  },
+  "bizaiCamBelow": "Below 90%",
+  "@bizaiCamBelow": {
+   "description": "bizai: bizaiCamBelow"
+  },
+  "bizaiCamNotEnough": "Not enough yet",
+  "@bizaiCamNotEnough": {
+   "description": "bizai: bizaiCamNotEnough"
+  },
+  "bizaiCamNoData": "No measurements yet. Mark alerts Correct / Wrong, or run a live test below.",
+  "@bizaiCamNoData": {
+   "description": "bizai: bizaiCamNoData"
+  },
+  "bizaiCamLiveTitle": "Live test with your camera",
+  "@bizaiCamLiveTitle": {
+   "description": "bizai: bizaiCamLiveTitle"
+  },
+  "bizaiCamLiveHow": "Start, then do things in front of the camera and tap what you did at that moment. Stop when done — alerts within 30 seconds of a tap count as caught.",
+  "@bizaiCamLiveHow": {
+   "description": "bizai: bizaiCamLiveHow"
+  },
+  "bizaiCamPickSite": "Pick a shop in the Shops tab first.",
+  "@bizaiCamPickSite": {
+   "description": "bizai: bizaiCamPickSite"
+  },
+  "bizaiCamStart": "Start a test",
+  "@bizaiCamStart": {
+   "description": "bizai: bizaiCamStart"
+  },
+  "bizaiCamStop": "Stop and see the result",
+  "@bizaiCamStop": {
+   "description": "bizai: bizaiCamStop"
+  },
+  "bizaiCamMarks": "{count} things marked",
+  "@bizaiCamMarks": {
+   "description": "bizai: bizaiCamMarks",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamSessions": "Results from {count} tests",
+  "@bizaiCamSessions": {
+   "description": "bizai: bizaiCamSessions",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamReviewsTitle": "From your reviews",
+  "@bizaiCamReviewsTitle": {
+   "description": "bizai: bizaiCamReviewsTitle"
+  },
+  "bizaiCamUnreviewed": "{count} alerts not reviewed yet",
+  "@bizaiCamUnreviewed": {
+   "description": "bizai: bizaiCamUnreviewed",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiCamMissed": "Something happened but no alert came",
+  "@bizaiCamMissed": {
+   "description": "bizai: bizaiCamMissed"
+  },
+  "bizaiCamMissedDone": "Noted — it counts as a missed event",
+  "@bizaiCamMissedDone": {
+   "description": "bizai: bizaiCamMissedDone"
+  },
+  "bizaiCamPerson": "A person came",
+  "@bizaiCamPerson": {
+   "description": "bizai: bizaiCamPerson"
+  },
+  "bizaiCamLine": "Crossed the door line",
+  "@bizaiCamLine": {
+   "description": "bizai: bizaiCamLine"
+  },
+  "bizaiCamZone": "Entered a no-go area",
+  "@bizaiCamZone": {
+   "description": "bizai: bizaiCamZone"
+  },
+  "bizaiCamLoiter": "Stood around for long",
+  "@bizaiCamLoiter": {
+   "description": "bizai: bizaiCamLoiter"
+  },
+  "bizaiCamCash": "Hand at the cash box",
+  "@bizaiCamCash": {
+   "description": "bizai: bizaiCamCash"
+  },
+  "bizaiCamHealth": "Camera covered or moved",
+  "@bizaiCamHealth": {
+   "description": "bizai: bizaiCamHealth"
   }
  },
  "bn": {
@@ -270,6 +584,68 @@
   "bizaiOutCount": "{count} বার",
   "bizaiOutTotal": "এই সপ্তাহে {amount}",
   "bizaiOutEmpty": "আপনার AI অর্ডার নিলে, গ্রাহক ফিরিয়ে আনলে আর বাকি আদায় করলে — প্রতি সপ্তাহে কত টাকা এল তা এখানে দেখাবে, শুধু আসল সংখ্যা।",
-  "bizaiOutEmptyBtn": "AI সেলস এজেন্ট চালু করুন"
+  "bizaiOutEmptyBtn": "AI সেলস এজেন্ট চালু করুন",
+  "bizaiParamDaysUntil": "এত দিন পরে থামুন (০ = কখনো না)",
+  "bizaiWinbackTitle": "গ্রাহক ফিরিয়ে আনুন",
+  "bizaiWinbackHubSub": "কে কেনা বন্ধ করেছেন, আর ৩০/৬০/৯০ দিনের মেসেজ — আপনার জন্য লেখা তৈরি",
+  "bizaiSegmentsTitle": "আপনার গ্রাহকেরা",
+  "bizaiSegmentsSub": "গত ১২ মাসে {count} জন গ্রাহক কিনেছেন",
+  "bizaiSegmentsEmpty": "গ্রাহকের ফোনসহ বিক্রি লিখলে এখানে গ্রাহকেরা ভাগ হয়ে দেখাবে — শেষ কেনা, কত টাকার, আর পছন্দের পণ্য অনুযায়ী।",
+  "bizaiSegChampion": "সেরা গ্রাহক (প্রায়ই কেনেন, সম্প্রতি)",
+  "bizaiSegLoyal": "নিয়মিত গ্রাহক",
+  "bizaiSegNew": "নতুন গ্রাহক",
+  "bizaiSegAtRisk30": "৩০+ দিন চুপ",
+  "bizaiSegAtRisk60": "৬০+ দিন চুপ",
+  "bizaiSegLost90": "৯০+ দিন চুপ",
+  "bizaiSegOneTime": "একবার কিনেছেন",
+  "bizaiMemberLine": "{days} দিন আগে · {amount} · পছন্দ {product}",
+  "bizaiHighValue": "খরচে সেরা ২০%",
+  "bizaiLadderTitle": "ফিরিয়ে আনার মেসেজ: ৩০ / ৬০ / ৯০ দিন",
+  "bizaiLadderSub": "চুপ থাকা প্রত্যেক গ্রাহক প্রতি ধাপে সর্বোচ্চ একটা মেসেজ পান — তিনটা একসাথে কখনো নয়।",
+  "bizaiStage30": "৩০ দিন পরে",
+  "bizaiStage60": "৬০ দিন পরে",
+  "bizaiStage90": "৯০ দিন পরে",
+  "bizaiLadderAudience": "এখন {count} জন পাবেন",
+  "bizaiAiRewrite": "AI দিয়ে আবার লিখুন",
+  "bizaiLadderSafety": "সকাল ৯টা থেকে রাত ৯টার মধ্যে Assisto-তে যায়, STOP করার সুযোগসহ, আপনার দৈনিক সীমা মেনে। ফল দেখাবে Business হোমে।",
+  "bizaiLadderApprove": "অনুমোদন দিয়ে চালু করুন",
+  "bizaiLadderStop": "ফিরিয়ে আনার মেসেজ থামান",
+  "bizaiLadderOnDone": "ফিরিয়ে আনার মেসেজ চালু হয়েছে",
+  "bizaiLadderOffDone": "ফিরিয়ে আনার মেসেজ থামানো হয়েছে",
+  "bizaiPhName": "(গ্রাহকের নাম)",
+  "bizaiPhShop": "(আপনার দোকান)",
+  "bizaiPhDays": "(দিন)",
+  "bizaiWeeklyTitle": "সাপ্তাহিক রিপোর্ট",
+  "bizaiWeeklyHubSub": "আপনার সপ্তাহ সহজ ভাষায়, আগামী সপ্তাহের পরিকল্পনা, আর কোন পোস্ট অর্ডার এনেছে",
+  "bizaiWeekTitle": "এই সপ্তাহ",
+  "bizaiNextWeekTitle": "আগামী সপ্তাহের পরিকল্পনা",
+  "bizaiPostsSoldTitle": "যে পোস্ট গ্রাহক এনেছে",
+  "bizaiPostsSoldEmpty": "মার্কেটিং ইঞ্জিন থেকে পোস্ট শেয়ার করুন — তাতে নিজস্ব লিংক আর কোড থাকে, তাই সেই পোস্ট থেকে আসা চ্যাট আর অর্ডার এখানে দেখাবে।",
+  "bizaiPostLine": "{chats}টি চ্যাট · {orders}টি অর্ডার",
+  "bizaiOutBestPost": "সেরা পোস্ট: {title} — {count}টি অর্ডার, {amount}",
+  "bizaiCamTitle": "আমার CCTV কতটা নির্ভুল?",
+  "bizaiCamExplain": "ঠিক = সতর্কতা এলে সত্যিই কিছু ঘটেছে। ধরে = কিছু ঘটলে সতর্কতা আসে। লক্ষ্য দুটোই ৯০%, অন্তত ২০টি ঘটনায় মেপে।",
+  "bizaiCamLine2": "ঠিক {precision} · ধরে {recall} · {events}টি ঘটনা",
+  "bizaiCamMeets": "৯০% লক্ষ্য পূরণ",
+  "bizaiCamBelow": "৯০%-এর নিচে",
+  "bizaiCamNotEnough": "এখনো যথেষ্ট নয়",
+  "bizaiCamNoData": "এখনো কোনো মাপ নেই। সতর্কতায় ঠিক / ভুল চিহ্ন দিন, বা নিচে সরাসরি পরীক্ষা চালান।",
+  "bizaiCamLiveTitle": "আপনার ক্যামেরায় সরাসরি পরীক্ষা",
+  "bizaiCamLiveHow": "শুরু করুন, তারপর ক্যামেরার সামনে কিছু করুন আর ঠিক তখন যা করলেন তাতে ট্যাপ করুন। শেষে থামান — ট্যাপের ৩০ সেকেন্ডের মধ্যে সতর্কতা এলে তা ধরা হয়েছে ধরা হবে।",
+  "bizaiCamPickSite": "আগে দোকান ট্যাবে একটি দোকান বেছে নিন।",
+  "bizaiCamStart": "পরীক্ষা শুরু করুন",
+  "bizaiCamStop": "থামিয়ে ফল দেখুন",
+  "bizaiCamMarks": "{count}টি ঘটনা চিহ্নিত",
+  "bizaiCamSessions": "{count}টি পরীক্ষার ফল",
+  "bizaiCamReviewsTitle": "আপনার যাচাই থেকে",
+  "bizaiCamUnreviewed": "{count}টি সতর্কতা এখনো যাচাই হয়নি",
+  "bizaiCamMissed": "কিছু ঘটেছিল কিন্তু সতর্কতা আসেনি",
+  "bizaiCamMissedDone": "লেখা হলো — এটি না-ধরা ঘটনা হিসেবে গোনা হবে",
+  "bizaiCamPerson": "একজন মানুষ এসেছেন",
+  "bizaiCamLine": "দরজার লাইন পার হয়েছেন",
+  "bizaiCamZone": "নিষিদ্ধ জায়গায় ঢুকেছেন",
+  "bizaiCamLoiter": "অনেকক্ষণ ঘোরাঘুরি",
+  "bizaiCamCash": "ক্যাশবাক্সে হাত",
+  "bizaiCamHealth": "ক্যামেরা ঢাকা বা সরানো"
  }
 }

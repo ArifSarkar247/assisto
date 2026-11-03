@@ -1079,6 +1079,9 @@ class Order(models.Model):
     # from delivered/returned counts of this phone across Assisto shops
     # (counts only — no other shop's name or order is ever shown).
     cod_risk = models.CharField(max_length=8, blank=True, default="")
+    # bizai pillar 5 (Prochar attribution): the tracked post/offer code the
+    # customer came from (shop link ?p=<ref> or the code typed in chat)
+    source_ref = models.CharField(max_length=12, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -2299,6 +2302,8 @@ class ChatThread(models.Model):
     # ---- biz-v2 ---- Business inbox read marker + owner takeover idle clock
     owner_read_at = models.DateTimeField(null=True, blank=True)    # owner opened the chat
     takeover_at = models.DateTimeField(null=True, blank=True)      # last owner activity in takeover
+    # bizai pillar 5: first tracked post/offer code seen in this chat
+    source_ref = models.CharField(max_length=12, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -8093,6 +8098,12 @@ class MarketBid(models.Model):
     content_status = models.CharField(max_length=10, default="visible")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # bizai pillar 3: group-buy bulk tier (unlocks when the pool reaches
+    # bulk_min_qty) + the buyer-limit ask sent to this seller (negotiation)
+    bulk_price = models.BigIntegerField(null=True, blank=True)        # poisha per unit
+    bulk_min_qty = models.PositiveIntegerField(default=0)
+    counter_price = models.BigIntegerField(null=True, blank=True)     # poisha per unit
+    counter_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["unit_price"]

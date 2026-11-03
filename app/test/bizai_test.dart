@@ -8,9 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assisto/bizai/bizai_source.dart';
+import 'package:assisto/bizai/cctv_accuracy_screen.dart';
 import 'package:assisto/bizai/my_shops_screen.dart';
 import 'package:assisto/bizai/outcome_card.dart';
 import 'package:assisto/bizai/shop_chat_screen.dart';
+import 'package:assisto/bizai/weekly_report_screen.dart';
+import 'package:assisto/bizai/winback_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/theme.dart';
 
@@ -180,5 +183,83 @@ void main() {
     await tester.tap(find.text('Hold risky cash-on-delivery orders'));
     await _settle(tester);
     expect(f.link['cod_risk_guard'], isFalse);
+  });
+
+  testWidgets('win-back: segments, ladder audience, AI rewrite, one-tap approve + pause', (tester) async {
+    tester.view.physicalSize = const Size(800, 2600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final f = FakeWinback();
+    await tester.pumpWidget(_app(WinbackScreen(source: f)));
+    await _settle(tester);
+    expect(find.text('6 customers bought in the last 12 months'), findsOneWidget);
+    expect(find.text('Silent 30+ days'), findsOneWidget);
+    expect(find.textContaining('4 would get it now'), findsOneWidget);
+    expect(find.textContaining("(customer's name)"), findsWidgets); // no raw {name}
+    expect(find.textContaining('{name}'), findsNothing);
+    await tester.tap(find.text('Rewrite with AI').first);
+    await _settle(tester);
+    expect(f.ai, 1);
+    expect(find.textContaining('come back to (your shop) soon'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-ladder-approve')));
+    await _settle(tester);
+    expect(f.on, isTrue);
+    expect(((f.lastApprove!['drafts'] as Map)['wb30'] as Map)['en'],
+        '{name}, come back to {shop} soon!');
+    expect(find.text('Pause the win-back messages'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-ladder-approve')));
+    await _settle(tester);
+    expect(f.on, isFalse);
+  });
+
+  testWidgets('win-back bn: Bangla digits', (tester) async {
+    await tester.pumpWidget(_app(WinbackScreen(source: FakeWinback(bn: true)), lang: 'bn'));
+    await _settle(tester);
+    expect(find.text('গত ১২ মাসে ৬ জন গ্রাহক কিনেছেন'), findsOneWidget);
+  });
+
+  testWidgets('weekly report: lines, plan, posts that sold; empty = how-to', (tester) async {
+    await tester.pumpWidget(_app(WeeklyReportScreen(load: () async => fakeWeekly())));
+    await _settle(tester);
+    expect(find.text('Sales this week: 12, total ৳18500.'), findsOneWidget);
+    expect(find.text('Best time to post: 20:00.'), findsOneWidget);
+    expect(find.text('Post: Panjabi'), findsOneWidget);
+    expect(find.text('5 chats · 2 orders'), findsOneWidget);
+    await tester.pumpWidget(_app(WeeklyReportScreen(load: () async => fakeWeekly(empty: true))));
+    await _settle(tester);
+    expect(find.textContaining('carries its own link and code'), findsOneWidget);
+  });
+
+  testWidgets('outcome card names the best post', (tester) async {
+    final f = FakeBizai();
+    f.out = {...f.out, 'best_post': {'title': 'Post: Panjabi', 'orders': 2, 'bdt': '2400.00'}};
+    await tester.pumpWidget(_app(SingleChildScrollView(child: OutcomeCard(source: f))));
+    await _settle(tester);
+    expect(find.text('Best post: Post: Panjabi — 2 orders, \u09F32,400'), findsOneWidget);
+  });
+
+  testWidgets('cctv accuracy: measured, not-enough honesty, live test taps', (tester) async {
+    tester.view.physicalSize = const Size(800, 2600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final f = FakeCctvAcc();
+    await tester.pumpWidget(_app(CctvAccuracyScreen(siteId: 1, source: f)));
+    await _settle(tester);
+    expect(find.text('Right 80% · Catches 89% · 11 events'), findsOneWidget);
+    expect(find.text('Not enough yet'), findsOneWidget);
+    expect(find.text('3 alerts not reviewed yet'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-start')));
+    await _settle(tester);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-mark-person')));
+    await _settle(tester);
+    expect(find.text('1 things marked'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-stop')));
+    await _settle(tester);
+    expect(f.calls, ['start', 'mark:person', 'stop']);
+    expect(find.text('Results from 1 tests'), findsOneWidget);
+    expect(find.byIcon(Icons.verified_rounded), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-cam-missed')));
+    await _settle(tester);
+    expect(f.calls.last, 'missed');
   });
 }

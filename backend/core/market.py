@@ -287,7 +287,47 @@ def clean_bid(d):
     notes = " ".join(str(d.get("notes", "")).split())[:300]
     if banned(notes):
         return None, "banned_item"
-    return {"unit_price": price * 100, "delivery_hours": hours, "notes": notes}, None
+    out = {"unit_price": price * 100, "delivery_hours": hours, "notes": notes,
+           "bulk_price": None, "bulk_min_qty": 0}
+    # bizai: optional bulk tier ("10,000 single, 7,000 each from 10 pieces")
+    bp, bq = _int(d.get("bulk_unit_price")), _int(d.get("bulk_min_qty"))
+    if bp is not None or bq is not None:
+        if bp is None or bq is None or bp < 1 or bp >= price or bq < 2 or \
+                bq > LIMITS["max_qty"]:
+            return None, "bad_bulk"
+        out["bulk_price"], out["bulk_min_qty"] = bp * 100, bq
+    return out, None
+
+
+# ------------------------------------------------------------------ bizai: tiers, fee, negotiation
+# deal fee (owner 4 Nov: 1.5-2 %): (basis points, min poisha, max poisha).
+# Cash on delivery: nothing is collected by the app — the fee is recorded
+# on the deal for the seller's monthly statement (Owner Admin).
+DEAL_FEE = {"single": (150, 1500, 40000), "group": (200, 800, 20000)}
+
+
+def deal_fee(total_poisha, group=False):
+    """Pure: the deal fee in poisha (1.5 % single, min ৳15 max ৳400; 2 %
+    group, min ৳8 max ৳200)."""
+    bps, lo, hi = DEAL_FEE["group" if group else "single"]
+    if total_poisha <= 0:
+        return 0
+    return int(max(lo, min(hi, round(total_poisha * bps / 10000))))
+
+
+def unit_for(bid, pool_qty):
+    """Pure: the unit price for a pool of `pool_qty` (bulk when unlocked)."""
+    if bid.bulk_price and bid.bulk_min_qty and pool_qty >= bid.bulk_min_qty:
+        return int(bid.bulk_price)
+    return int(bid.unit_price)
+
+
+def pool_state(need, bid):
+    q = total_qty(need)
+    return {"pool_qty": q, "bulk_min_qty": bid.bulk_min_qty or 0,
+            "bulk_price": bid.bulk_price, "unlocked": bool(bid.bulk_price and
+                                                           q >= (bid.bulk_min_qty or 0)),
+            "needed": max(0, (bid.bulk_min_qty or 0) - q) if bid.bulk_price else 0}
 
 
 # ------------------------------------------------------------------ ranking
@@ -463,12 +503,17 @@ def _visible(obj):
 
 
 # ---------------------------------------------------------------- seller
-def apply_seller(user, area, categories):
+def apply_seller(user, area, categories, invite=""):
     """Apply (or update area/categories). Needs a BusinessProfile. A
-    suspended / rejected seller can update details but stays as decided."""
+    suspended / rejected seller can update details but stays as decided.
+    bizai (owner 4 Nov): a seller needs the Business plan (verified seller);
+    a valid owner INVITE (the owner onboards his own community) approves at
+    once — the 199-taka verification is settled with the owner for the pilot."""
     biz = biz_of(user)
     if biz is None:
         return None, "need_business"
+    if not business_plan_ok(user):
+        return None, "need_business_plan"
     if area not in DHAKA_AREAS:
         return None, "dhaka_only"
     cats = [c for c in (categories or []) if c in CATEGORIES]
@@ -482,7 +527,138 @@ def apply_seller(user, area, categories):
     else:
         s.area, s.categories, s.business = area, cats, biz
         s.save(update_fields=["area", "categories", "business"])
+    if invite and s.status == "pending" and invite_valid(invite):
+        s.status = "approved"
+        s.decided_at = timezone.now()
+        s.owner_note = ("invite %s" % str(invite)[:20])[:300]
+        s.save(update_fields=["status", "decided_at", "owner_note"])
     return s, None
+
+
+# ---------------------------------------------------------------- bizai: sellers
+def business_plan_ok(user):
+    """Verified seller = the Business plan (or founder / owner staff)."""
+    if getattr(user, "is_staff", False):
+        return True
+    try:
+        from . import plans
+        return plans.effective_plan(user) in ("business", "founder")
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _invite_sig(n):
+    import hashlib
+    import hmac
+    from django.conf import settings
+    return hmac.new((settings.SECRET_KEY or "x").encode(), ("mkt-invite:%s" % n).encode(),
+                    hashlib.sha256).hexdigest()[:8]
+
+
+def invite_code(n):
+    """Owner-made seller invite (n = any number the owner chooses, e.g. 1, 2…)."""
+    return "S%d-%s" % (int(n), _invite_sig(int(n)))
+
+
+def invite_valid(code):
+    c = str(code or "").strip().rsplit("/", 1)[-1].split("?")[0]
+    if not c.startswith("S") or "-" not in c:
+        return False
+    n, sig = c[1:].split("-", 1)
+    import hmac
+    return n.isdigit() and hmac.compare_digest(sig, _invite_sig(int(n)))
+
+
+def invite_link(n):
+    return "https://lifeassisto.com/sell/" + invite_code(n)
+
+
+# ---------------------------------------------------------------- bizai: negotiation
+def negotiate(user, need_id, now=None):
+    """The buyer's agent asks every seller whose offer is above the buyer's
+    limit to meet it (budget_max ÷ quantity, never more). Once per offer; the
+    exact limit is only what the buyer already allowed to be asked. -> (n, err)"""
+    now = now or timezone.now()
+    m = _m()
+    need = m.MarketNeed.objects.filter(pk=need_id, buyer=user).first()
+    if need is None:
+        return 0, "not_found"
+    if not need.budget_max:
+        return 0, "need_budget"
+    if effective_status(need, now) != "open":
+        return 0, "not_open"
+    qty = max(1, total_qty(need))
+    target = (int(need.budget_max) // qty) // 100 * 100        # whole taka, rounded down
+    if target < 100:
+        return 0, "need_budget"
+    asked = []
+    for b in m.MarketBid.objects.filter(need=need, status="active", counter_price__isnull=True):
+        if not _visible(b) or unit_for(b, qty) <= target:
+            continue
+        b.counter_price, b.counter_at = target, now
+        b.save(update_fields=["counter_price", "counter_at", "updated_at"])
+        asked.append(b.seller_id)
+    if asked:
+        transaction.on_commit(lambda: _push_counter(need.pk, asked, target))
+    return len(asked), None
+
+
+def _push_counter(need_id, seller_ids, target):
+    from . import push
+    need = _m().MarketNeed.objects.filter(pk=need_id).first()
+    if need is None:
+        return
+    for u in _m().User.objects.filter(pk__in=seller_ids):
+        try:
+            push.push_to_user(u, "market", "ক্রেতা দাম একটু কমাতে বলছেন",
+                              "The buyer asks for a lower price",
+                              "%s · প্রতি একক %s" % (need.title[:60], taka(target, "bn")),
+                              "%s · %s per unit" % (need.title[:60], taka(target, "en")),
+                              data={"route": "market", "tab": "sell", "need_id": str(need.pk)})
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def accept_counter(user, need_id, now=None):
+    """Seller: meet the buyer's ask (one tap) — the offer becomes that price."""
+    now = now or timezone.now()
+    b = _m().MarketBid.objects.filter(need_id=need_id, seller=user, status="active").first()
+    if b is None or not b.counter_price:
+        return None, "not_found"
+    if not bidding_open(b.need, now):
+        return None, "not_open"
+    b.unit_price = int(b.counter_price)
+    if b.bulk_price and b.bulk_price >= b.unit_price:
+        b.bulk_price, b.bulk_min_qty = None, 0
+    b.save(update_fields=["unit_price", "bulk_price", "bulk_min_qty", "updated_at"])
+    return b, None
+
+
+# ---------------------------------------------------------------- bizai: pool failed
+def pool_sweep(now=None, limit=200):
+    """Cron: a group-buy whose deadline (+ the accept grace) passed with no
+    deal → 'expired', and every joiner is told honestly: nothing was charged
+    (cash on delivery), so nothing to refund. Idempotent."""
+    from . import push
+    now = now or timezone.now()
+    m = _m()
+    grace = timedelta(hours=LIMITS["accept_grace_h"])
+    n = 0
+    for need in m.MarketNeed.objects.filter(status="open", group_open=True,
+                                            deadline__lt=now - grace)[:limit]:
+        need.status = "expired"
+        need.save(update_fields=["status", "updated_at"])
+        n += 1
+        for u in [need.buyer] + [j.user for j in need.joins.select_related("user")]:
+            try:
+                push.push_to_user(u, "market", "একসাথে কেনা পূরণ হয়নি",
+                                  "The group-buy did not fill",
+                                  "%s — কোনো টাকা নেওয়া হয়নি (ক্যাশ অন ডেলিভারি)" % need.title[:60],
+                                  "%s — no money was taken (cash on delivery)" % need.title[:60],
+                                  data={"route": "market", "need_id": str(need.pk)})
+            except Exception:  # noqa: BLE001
+                pass
+    return n
 
 
 def seller_payload(s, lang):
@@ -736,7 +912,10 @@ def seller_feed(user, lang, now=None):
 
 def bid_payload(b):
     return {"id": b.pk, "unit_price": b.unit_price, "delivery_hours": b.delivery_hours,
-            "notes": b.notes, "status": b.status, "hidden": not _visible(b)}
+            "notes": b.notes, "status": b.status, "hidden": not _visible(b),
+            # bizai: bulk tier + the buyer's limit ask (seller sees it)
+            "bulk_price": b.bulk_price, "bulk_min_qty": b.bulk_min_qty,
+            "counter_price": b.counter_price}
 
 
 def place_bid(user, need_id, data, now=None):
@@ -855,19 +1034,22 @@ def accept_bid(user, need_id, bid_id, now=None):
             if not blocked_between(j.user_id, bid.seller_id):
                 parties.append((j.user, j.quantity))
         deals = []
+        unit = unit_for(bid, sum(int(q) for _, q in parties))   # bizai: bulk tier
+        group = len(parties) > 1
         for buyer, q in parties:
-            total = int(bid.unit_price) * int(q)
+            total = unit * int(q)
             order = m.Order.objects.create(
                 user=bid.seller, business=s.business,
                 customer_name=(buyer.name or "")[:120],
                 customer_phone=(buyer.phone or "")[:40],
                 items=[{"name": need.title[:120], "qty": int(q),
-                        "price": float(Decimal(bid.unit_price) / 100)}],
+                        "price": float(Decimal(unit) / 100)}],
                 total=Decimal(total) / 100, status="new", payment="cod",
                 channel="market")
             deals.append(m.MarketDeal.objects.create(
                 need=need, bid=bid, buyer=buyer, seller=bid.seller, quantity=q,
-                unit_price=bid.unit_price, total=total, order=order))
+                unit_price=unit, total=total, order=order,
+                fee=deal_fee(total, group)))
     deal_ids = [d.pk for d in deals]
     transaction.on_commit(lambda: _after_accept(deal_ids))
     return deals, None

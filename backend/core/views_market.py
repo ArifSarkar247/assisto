@@ -43,10 +43,18 @@ _MSG = {
                      "Chat could not open — one of you has blocked the other."),
     "bad_report": ("রিপোর্ট ঠিক নয়।", "Not a valid report."),
     "own_item": ("নিজেকে রিপোর্ট করা যায় না।", "You can't report yourself."),
+    # bizai (owner 4 Nov): verified sellers, bulk tiers, negotiation
+    "need_business_plan": ("Market-এ বিক্রেতা হতে Business প্ল্যান লাগে (যাচাই করা বিক্রেতা)।",
+                           "Selling on Market needs the Business plan (verified sellers)."),
+    "bad_bulk": ("বাল্ক দাম একক দামের চেয়ে কম আর কমপক্ষে ২টি পরিমাণ দিন।",
+                 "The bulk price must be lower than the single price, from at least 2 pieces."),
+    "need_budget": ("দাম কমাতে বলার আগে চাহিদায় সর্বোচ্চ বাজেট দিন।",
+                    "Add your highest budget to the need before asking for a lower price."),
 }
 
 _CODE = {"off": 404, "not_found": 404, "rate_limited": 429, "too_many_open": 429,
          "not_seller": 403, "need_business": 403, "not_your_category": 403,
+         "need_business_plan": 402,
          "not_open": 409, "bid_gone": 409, "chat_blocked": 409}
 
 
@@ -81,7 +89,10 @@ class OverviewView(_Base):
                 "has_business": MK.biz_of(request.user) is not None,
                 "seller": MK.seller_payload(s, self.lang),
                 "needs": MK.my_needs(request.user, self.lang),
-                "cod_only": True, "fee": 0,
+                "cod_only": True,
+                # bizai: the deal fee is paid by the SELLER (never the buyer)
+                "fee": 0, "seller_fee": {"single_pct": 1.5, "group_pct": 2.0,
+                                         "collected_in_app": False},
             })
         return self.handle(request, go)
 
@@ -149,6 +160,14 @@ class NeedActView(_Base):
                     return Response({"ok": True, "bid": MK.bid_payload(b)})
             elif action == "withdraw":
                 err = MK.withdraw_bid(u, pk)
+            elif action == "negotiate":      # bizai: ask sellers to meet my limit
+                n, err = MK.negotiate(u, pk)
+                if not err:
+                    return Response({"ok": True, "asked": n})
+            elif action == "counter":        # bizai: seller meets the buyer's ask
+                b, err = MK.accept_counter(u, pk)
+                if not err:
+                    return Response({"ok": True, "bid": MK.bid_payload(b)})
             else:
                 err = "bad_action"
             if err:
@@ -182,7 +201,8 @@ class SellerApplyView(_Base):
             cats = d.get("categories") or []
             if not isinstance(cats, list):
                 cats = []
-            s, err = MK.apply_seller(request.user, str(d.get("area", "")).strip(), cats)
+            s, err = MK.apply_seller(request.user, str(d.get("area", "")).strip(), cats,
+                                     invite=str(d.get("invite") or "")[:40])
             if err:
                 return refuse(request, err)
             return Response({"seller": MK.seller_payload(s, self.lang)})
@@ -239,4 +259,16 @@ class BlockView(_Base):
             if err:
                 return refuse(request, err)
             return Response({"ok": True})
+        return self.handle(request, go)
+
+
+class SellerInviteView(_Base):
+    """bizai: POST market/invites {n} — Assisto owner/staff makes a seller
+    invite link for his community (the seller is approved on applying)."""
+    def post(self, request):
+        def go():
+            if not request.user.is_staff:
+                return refuse(request, "not_found")
+            n = MK._int((request.data or {}).get("n")) or 1
+            return Response({"code": MK.invite_code(n), "link": MK.invite_link(n)})
         return self.handle(request, go)

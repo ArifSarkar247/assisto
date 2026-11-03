@@ -132,6 +132,9 @@ class MarketApiTests(TestCase):
         self.s1, self.s2 = mk("Seller1"), mk("Seller2")
         for s, shop in ((self.s1, "Rahim Store"), (self.s2, "Karim Traders")):
             BusinessProfile.objects.create(user=s, shop_name=shop)
+            # bizai (owner 4 Nov): verified sellers are on the Business plan
+            s.plan, s.plan_until = "business", timezone.now() + timedelta(days=60)
+            s.save(update_fields=["plan", "plan_until"])
 
     def approve(self, u, area="mirpur", cats=("grocery",)):
         r = api(u).post("/api/v1/market/seller", {"area": area, "categories": list(cats)},

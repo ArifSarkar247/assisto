@@ -29,6 +29,7 @@ List<Map<String, dynamic>> bzList(Object? v) =>
     [for (final x in (v as List? ?? const [])) (x as Map).cast<String, dynamic>()];
 
 String _biz(int? id) => id == null ? '' : '?business=$id';
+String _bizAnd(int? id) => id == null ? '' : '&business=$id';
 
 /// "12-ab34cd56" from a code or https://lifeassisto.com/shop/<code>; else null.
 String? shopCodeFrom(String? raw) {
@@ -89,6 +90,14 @@ class ApiBizaiSource implements BizaiSource {
   Future<Map<String, dynamic>> saveShopLink(int? businessId, Map<String, dynamic> body) =>
       api.postJson('/bizai/shop-link${_biz(businessId)}', body);
   @override
-  Future<Map<String, dynamic>> outcomes(int? businessId, {int days = 7}) => api.getJson(
-      '/bizai/outcomes${businessId == null ? '?' : '${_biz(businessId)}&'}days=$days');
+  Future<Map<String, dynamic>> outcomes(int? businessId, {int days = 7}) =>
+      api.getJson('/bizai/outcomes?days=$days${_bizAnd(businessId)}');
 }
+
+/// bizai pillar 5: a marketing post's share text WITH its tracked shop-chat
+/// link + code (GET bizai/prochar/tracked/<id>); null when not available.
+Future<String?> Function(String itemId) bizaiTrackedText(ApiClient api) => (id) async {
+      final r = await api.getJson('/bizai/prochar/tracked/${Uri.encodeComponent(id)}');
+      final t = r['text'];
+      return t is String ? t : null;
+    };

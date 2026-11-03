@@ -66,7 +66,9 @@ CATALOG = {
                   "params": {"days_after": (1, 30, 2)},
                   "vars": ("name", "shop", "product")},
     KIND_WINBACK: {"purpose": MG.PURPOSE_MARKETING,
-                   "params": {"days_without": (14, 365, 45)},
+                   # bizai: days_until > 0 = the stage ends there (30/60/90
+                   # win-back ladder: 30-59, 60-89, 90+); 0 = no end
+                   "params": {"days_without": (14, 365, 45), "days_until": (0, 730, 0)},
                    "vars": ("name", "shop", "days")},
     KIND_KHATA: {"purpose": MG.PURPOSE_UTILITY,
                  "params": {"min_due_taka": (1, 1000000, 100), "every_days": (7, 60, 14)},
@@ -265,14 +267,14 @@ def due_thanks(sales, now, days_after):
     return out
 
 
-def due_winback(last_sales, now, days_without):
+def due_winback(last_sales, now, days_without, days_until=0):
     """last_sales: [{key, last_sale_id, at}] = each customer's LATEST sale.
     One message per lapse (ref = that sale), only for customers who lapsed
     within the last year (older ones are not "our customer" any more)."""
     out = []
     for s in last_sales:
         age = (now - s["at"]).days
-        if days_without <= age <= 365:
+        if days_without <= age <= 365 and (not days_until or age < days_until):
             out.append({"key": s["key"], "ref": "wb:%s" % s["last_sale_id"],
                         "values": {"days": age}})
     return out

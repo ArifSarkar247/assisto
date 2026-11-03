@@ -52,6 +52,7 @@ class ShopChatScreen extends StatefulWidget {
 class _ShopChatScreenState extends State<ShopChatScreen> {
   late final BizaiSource _src = widget.source ?? ApiBizaiSource(context.read<AppState>().api);
   final _text = TextEditingController();
+  final _focus = FocusNode();
   final _scroll = ScrollController();
   Map<String, dynamic> _shop = const {};
   final List<Map<String, dynamic>> _msgs = [];
@@ -73,6 +74,7 @@ class _ShopChatScreenState extends State<ShopChatScreen> {
   void dispose() {
     _poll?.cancel();
     _text.dispose();
+    _focus.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -166,7 +168,11 @@ class _ShopChatScreenState extends State<ShopChatScreen> {
 
   Future<void> _sendText() async {
     final s = _text.text.trim();
-    if (s.isEmpty || _sending) return;
+    if (_sending) return;
+    if (s.isEmpty) {
+      _focus.requestFocus(); // nothing typed yet: open the keyboard
+      return;
+    }
     _text.clear();
     await _run(() => _src.send(widget.code, s));
   }
@@ -231,35 +237,38 @@ class _ShopChatScreenState extends State<ShopChatScreen> {
       );
     }
     final firstTime = _msgs.where((m) => m['dir'] == 'in').isEmpty;
-    return Column(children: [
+    // the disclosure + person banner scroll WITH the chat (never squeeze the
+    // composer at 200 % font); the disclosure is always the first row
+    final head = <Widget>[
       _Disclosure(text: '${_shop['disclosure'] ?? ''}', big: firstTime),
       if (_shop['with_person'] == true)
         Padding(
-          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+          padding: const EdgeInsets.only(top: Gap.sm),
           child: Row(children: [
             const Icon(Icons.support_agent_rounded, size: 20),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(t.bizaiWithPerson)),
           ]),
         ),
+      if (_msgs.isEmpty) ...[
+        const SizedBox(height: Gap.lg),
+        Icon(Icons.chat_bubble_outline_rounded,
+            size: 48, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: Gap.md),
+        Text(t.bizaiEmptyBenefit,
+            textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: Gap.sm),
+        Text(t.bizaiEmptyHow, textAlign: TextAlign.center),
+      ],
+    ];
+    return Column(children: [
       Expanded(
-        child: _msgs.isEmpty
-            ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-                Icon(Icons.chat_bubble_outline_rounded,
-                    size: 48, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: Gap.md),
-                Text(t.bizaiEmptyBenefit,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: Gap.sm),
-                Text(t.bizaiEmptyHow, textAlign: TextAlign.center),
-              ])
-            : ListView.builder(
-                controller: _scroll,
-                padding: const EdgeInsets.all(Gap.md),
-                itemCount: _msgs.length,
-                itemBuilder: (_, i) => _Bubble(m: _msgs[i]),
-              ),
+        child: ListView.builder(
+          controller: _scroll,
+          padding: const EdgeInsets.all(Gap.md),
+          itemCount: head.length + _msgs.length,
+          itemBuilder: (_, i) => i < head.length ? head[i] : _Bubble(m: _msgs[i - head.length]),
+        ),
       ),
       _composer(t),
     ]);
@@ -289,6 +298,7 @@ class _ShopChatScreenState extends State<ShopChatScreen> {
             child: TextField(
               key: const ValueKey('bizai-input'),
               controller: _text,
+              focusNode: _focus,
               minLines: 1,
               maxLines: 4,
               maxLength: 1000,
@@ -331,7 +341,6 @@ class _Disclosure extends StatelessWidget {
       child: Container(
         key: const ValueKey('bizai-disclosure'),
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           color: scheme.secondaryContainer,

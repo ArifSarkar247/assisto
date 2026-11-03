@@ -1,0 +1,5 @@
+# bizai pillar 5: weekly Bangla business report — Friday 10:00 Asia/Dhaka (04:00 UTC).
+# Install (main session / integrator): /etc/cron.d line, like the other jobs.
+0 4 * * 5 ubuntu cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py bizai_weekly >> /home/ubuntu/assisto/logs/bizai_weekly.log 2>&1
+# bizai pillar 3: expire unfilled Market group-buys (hourly; COD = nothing to refund)
+25 * * * * ubuntu cd /home/ubuntu/assisto/backend && /home/ubuntu/assisto/.venv/bin/python manage.py market_pool_sweep >> /home/ubuntu/assisto/logs/market_pool_sweep.log 2>&1

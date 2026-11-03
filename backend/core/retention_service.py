@@ -180,7 +180,8 @@ def _events(auto, now, limit):
                 continue
             last = _sales(biz).filter(customer=c, created_at=r["last"]).order_by("-id").first()
             for ev in R.due_winback([{"key": c.phone_key, "last_sale_id": last.id if last else 0,
-                                      "at": r["last"]}], now, p["days_without"]):
+                                      "at": r["last"]}], now, p["days_without"],
+                                     p.get("days_until", 0)):
                 out.append(dict(ev, customer=c, party=None, name=c.name))
     elif k == R.KIND_KHATA:
         rows = _khata_due(biz, limit)
