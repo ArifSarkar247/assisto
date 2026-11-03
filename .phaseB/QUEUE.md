@@ -1,3 +1,4 @@
+- 3 Nov 16:30 OWNER MY CIRCLE FINAL ORDER (A–G: bubble position, bubble tap, new sound, multi photo, photo bubble, media limits, view once) — TOP PRIORITY, IN PROGRESS (agents circlebub, circlemedia, viewonce) — owner_actions/OWNER_MY_CIRCLE_ORDER_3NOV_1630.md
 # QUEUE — rewritten 3 Nov 10:45 BD (owner: launch 8 Nov with ALL features; NOTHING is after launch)
 Order text: owner_actions/OWNER_ORDER_3NOV_1045.md. Every item below ships behind its switch by 8 Nov; status per item in STATUS every few hours.
 

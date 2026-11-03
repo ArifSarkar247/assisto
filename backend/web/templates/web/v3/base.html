@@ -48,9 +48,9 @@
     <a class="burger" href="#mm" role="button" aria-controls="mm" aria-expanded="false" aria-label="{{ C.menu }}"><span></span><span></span><span></span></a>
   </div>
 </header>
-{# sitefix (owner 3 Nov 11:10): full-screen menu OUTSIDE the header — the
+{% comment %}sitefix (owner 3 Nov 11:10): full-screen menu OUTSIDE the header — the
    header's backdrop-filter made it the containing block of the old
-   position:fixed panel, so the panel was only header-high (only the X showed). #}
+   position:fixed panel, so the panel was only header-high (only the X showed).{% endcomment %}
 <div class="mm" id="mm" role="dialog" aria-modal="true" aria-label="{{ C.menu }}">
   <div class="mm-top"><a class="logo" href="{{ U.home }}" tabindex="-1" aria-hidden="true"><img src="{% site_asset 'logo-96.webp' %}" width="32" height="32" alt="" loading="lazy"><span>Assisto</span></a><a class="mm-x" href="#top" role="button" aria-label="{{ C.menu_close }}"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></a></div>
   <nav class="mm-p" aria-label="{{ C.menu }}">
