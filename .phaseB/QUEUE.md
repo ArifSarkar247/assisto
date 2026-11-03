@@ -1,3 +1,24 @@
+# QUEUE — rewritten 3 Nov 10:45 BD (owner: launch 8 Nov with ALL features; NOTHING is after launch)
+Order text: owner_actions/OWNER_ORDER_3NOV_1045.md. Every item below ships behind its switch by 8 Nov; status per item in STATUS every few hours.
+
+## NOW (agents running, 3 Nov)
+- 1a Lost phone: intruder selfie + SIM-change alert — agent lostsim
+- 1b Bag/shoe tracker chip + asalifymart buy links — agent chipbuy2
+- 1c My Circle Family vs Others + search; review share-to-Facebook button — agent circlefam
+- 1d Invoice designs by business type (cafe, restaurant, fine dining, e-commerce, retail, electronics showroom, lawyer, VAT/tax, any service) — agent invdesign
+- P2 career: CV Builder, Job Hunter (legal sources), Mock interview — agent p2career
+- P2 productivity: Task manager, Cost & time estimator, AI daily planner — agent p2plan
+- P2 Quick tools — agent p2tools
+- P2 Language Partner (IELTS prep + voice pronunciation scoring) — agent p2lang
+- P2 Food-photo calories — agent p2food
+- P3 Live home feed + Daily info (official sources) — agent p3feed
+- P3 Documents with biometric PIN recovery — agent p3docs
+- P3 Ramadan tracker + Quran (licensed text) — agent p3faith
+- P3 Service guide + Probashi corner + Student corner — agent p3guides
+- P3 Travel planner + Wedding & events + Ride & Food — agent p3life
+- P3 Farmer mode + Unseen World — agent p3farm
+- CCTV: cap extra pack (cctvcap), AI snapshot check (cctvaicheck); website shots (siteshots)
+
 # Assisto work queue — updated 3 Nov ~11:00 BD (short; older history is in git: `git log -p .phaseB/QUEUE.md`)
 Rules for every item: Bangla feature card first (owner_actions/FEATURE_CARD_<X>_BN.md) -> competitor teardown -> build with real data + proof -> board row (owner_actions/FEATURE_100_BOARD_BN.md) reaches 100 only with written proof -> new things behind a flag -> 40% profit rule -> CI only (no local tests/builds) -> token rule (grep, never whole files) -> <=2-4 parallel agents. Home frozen except explicit owner order. Never deploy / push main / touch live DB, flags, money, Play, owner_private from agents.
 Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE" never means 100 on the board; see the board for the honest score. Honest per-item table for Part 2/3: owner_actions/PART2_PART3_TABLE_BN.md.
