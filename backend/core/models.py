@@ -8301,3 +8301,33 @@ class VaultShareLink(models.Model):
     class Meta:
         ordering = ["-id"]
 # ---- /p3docs ----
+
+
+# ---- mapscost ---- (owner order 3 Nov 18:40, PART 1: maps cost)
+class MapsUsage(models.Model):
+    """Paid Google Maps Platform calls made by OUR server proxy, counted per
+    day x API x user (user_id 0 = server / owner test). `capped` counts the
+    calls we refused because a per-user or global daily cap was reached (the
+    app then got the free fallback). Feeds Owner Admin -> Maps usage."""
+    day = models.DateField(db_index=True)
+    api = models.CharField(max_length=16)
+    user_id = models.IntegerField(default=0)
+    count = models.PositiveIntegerField(default=0)
+    capped = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = [("day", "api", "user_id")]
+
+
+class MapsGeoCache(models.Model):
+    """Address for a point (reverse geocode), reused for any point within
+    ~50 m. `cell` = rounded lat/lng grid key + language; lookups check the 3x3
+    neighbouring cells and the true distance. Kept 60 days."""
+    cell = models.CharField(max_length=32, db_index=True)
+    lat = models.FloatField()
+    lng = models.FloatField()
+    lang = models.CharField(max_length=4, default="bn")
+    address = models.CharField(max_length=300)
+    source = models.CharField(max_length=12, default="google")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+# ---- /mapscost ----

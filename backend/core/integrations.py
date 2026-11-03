@@ -117,6 +117,42 @@ REGISTRY = {
         "fields": [_f("api_key", "API Key", "API Key")],
         "test": "test_google_places",
     },
+    # ---- mapscost ---- server key (never sent to phones) + the Android key
+    "google_maps_server": {
+        "name": "Google Maps — server key (Geocoding, Places New, Routes)",
+        "category": "Location",
+        "unlocks_bn": "ঠিকানা (ফোনে না পেলে), জায়গা খোঁজা, রাস্তায় সময় — শুধু আমাদের সার্ভার থেকে, দৈনিক সীমার ভেতরে (Owner Admin → Maps usage)। ফোনে কখনো যায় না।",
+        "unlocks_en": "Address (when the phone has none), place search, road time — only from our server, inside the daily caps (Owner Admin → Maps usage). Never sent to phones.",
+        "guide_bn": ["console.cloud.google.com → প্রজেক্ট assisto-play → APIs: Geocoding API, Places API (New), Routes API চালু",
+                     "Credentials → Create credentials → API key → নাম 'assisto-server'",
+                     "Application restrictions: IP addresses → আমাদের সার্ভারের IP",
+                     "API restrictions: শুধু Geocoding API, Places API (New), Routes API",
+                     "কি নিচে পেস্ট → Test (একটি ফ্রি-সীমার ভেতরের কল)"],
+        "guide_en": ["console.cloud.google.com → project assisto-play → enable Geocoding API, Places API (New), Routes API",
+                     "Credentials → Create credentials → API key → name it 'assisto-server'",
+                     "Application restrictions: IP addresses → our server IP",
+                     "API restrictions: only Geocoding API, Places API (New), Routes API",
+                     "Paste the key below → Test (one call inside the free cap)"],
+        "fields": [_f("api_key", "Server API Key", "Server API Key")],
+        "test": "test_google_maps_server",
+    },
+    "google_maps_android": {
+        "name": "Google Maps — Android key (Maps SDK, map display)",
+        "category": "Location",
+        "unlocks_bn": "অ্যাপের ভেতরে আসল ম্যাপ (Maps SDK, ফ্রি)। এই কি APK-তে বিল্ডের সময় ঢোকে (GitHub secret MAPS_ANDROID_KEY) — এখানে রাখা শুধু রেকর্ড; সার্ভার এটা কখনো ফোনে পাঠায় না।",
+        "unlocks_en": "The real map inside the app (Maps SDK, free). This key goes into the APK at build time (GitHub secret MAPS_ANDROID_KEY) — kept here only as the record; the server never sends it to phones.",
+        "guide_bn": ["Credentials → Create credentials → API key → নাম 'assisto-android'",
+                     "Application restrictions: Android apps → Add → package com.assisto.assisto + SHA-1 (দুটোই যোগ করুন: Play App signing key-এর SHA-1 আর upload/ওয়েবসাইট APK কি-এর SHA-1)",
+                     "API restrictions: শুধু Maps SDK for Android",
+                     "কি নিচে পেস্ট করুন + GitHub → Settings → Secrets → MAPS_ANDROID_KEY-এ একই কি"],
+        "guide_en": ["Credentials → Create credentials → API key → name it 'assisto-android'",
+                     "Application restrictions: Android apps → Add → package com.assisto.assisto + SHA-1 (add both: the Play App signing key SHA-1 and the upload / website APK key SHA-1)",
+                     "API restrictions: only Maps SDK for Android",
+                     "Paste the key below + the same key in GitHub → Settings → Secrets → MAPS_ANDROID_KEY"],
+        "fields": [_f("api_key", "Android API Key", "Android API Key")],
+        "test": None,
+    },
+    # ---- /mapscost ----
     "spotify": {
         "name": "Spotify (new releases)",
         "category": "Media",
@@ -1117,6 +1153,23 @@ def test_google_places(cfg):
         return (False, st or "error")
     except urllib.error.HTTPError as e:
         return (False, f"HTTP {e.code}")
+
+
+def test_google_maps_server(cfg):
+    """mapscost: ONE reverse-geocode of Zero Point, Dhaka (inside the free
+    monthly cap). Uses maps_cost.HTTP so CI mocks it."""
+    import urllib.error
+    import urllib.parse as _up
+    from . import maps_cost as MC
+    q = _up.urlencode({"latlng": "23.7286,90.4106", "key": cfg.get("api_key", "")})
+    try:
+        body = MC.HTTP("https://maps.googleapis.com/maps/api/geocode/json?" + q)
+    except urllib.error.HTTPError as e:
+        return (False, f"HTTP {e.code}")
+    st = body.get("status")
+    if st in ("OK", "ZERO_RESULTS"):
+        return (True, "✓ working")
+    return (False, ("%s %s" % (st or "error", body.get("error_message") or "")).strip()[:280])
 
 
 def test_spotify(cfg):

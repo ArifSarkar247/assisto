@@ -445,7 +445,7 @@ class WatchPageTests(Base):
         html = p.content.decode()
         self.assertIn("লাইভ যাত্রা", html)
         self.assertIn('lang="bn"', html)
-        self.assertNotIn("tile.openstreetmap.org", html)
+        self.assertIn("openstreetmap.org/copyright", html)   # mapscost: web page on OSM tiles
         en = self.page(tok, "en").content.decode()
         self.assertIn("Live journey", en)
         main = en.split("<main>")[1].split("<script")[0]   # (header = language switch)

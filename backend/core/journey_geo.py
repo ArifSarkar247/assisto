@@ -68,10 +68,10 @@ def resolve_short_link(url, fetch=None):
 
 
 def geocoder_ready():
-    from .billing import flag_on
-    cfg = integrations.get("google_places") or {}
-    return bool(cfg.get("api_key")) and integrations.is_enabled("google_places") \
-        and flag_on("maps_geocoding")
+    """mapscost: the server key (google_maps_server, else the older
+    google_places entry) + the maps_geocoding cost switch."""
+    from . import maps_cost as MC
+    return MC.ready()
 
 
 def _places_text(q, key, lang, near=None):
@@ -97,17 +97,22 @@ def _places_text(q, key, lang, near=None):
     return out
 
 
-def geocode(q, lang="bn", near=None, search=None):
-    """{'available', 'results', 'state'} — state: ok | none | failed | off."""
+def geocode(q, lang="bn", near=None, search=None, user=None):
+    """{'available', 'results', 'state'} — state: ok | none | failed | off |
+    user_cap | global_cap. mapscost: kept only for app builds older than the
+    Autocomplete search; every call is under the text_search daily caps."""
     q = " ".join(str(q or "").split())[:120]
     if not geocoder_ready():
         return {"available": False, "results": [], "state": "off"}
     if len(q) < 2:
         return {"available": True, "results": [], "state": "none"}
     from . import ext_breaker as XB
-    cfg = integrations.get("google_places") or {}
+    from . import maps_cost as MC
+    ok, why = MC.allow("text_search", user)
+    if not ok:
+        return {"available": True, "results": [], "state": why}
     try:
-        rows = XB.call("maps", search or _places_text, q, cfg["api_key"], lang, near)
+        rows = XB.call("maps", search or _places_text, q, MC.server_key(), lang, near)
     except Exception:
         return {"available": True, "results": [], "state": "failed"}
     return {"available": True, "results": rows, "state": "ok" if rows else "none"}

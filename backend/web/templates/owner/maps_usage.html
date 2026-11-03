@@ -1,0 +1,20 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+<p class="mut small">{{ L.intro }}</p>
+<p class="small">{% if card.ready %}<b>{{ L.ready }}</b>{% else %}<b>{{ L.not_ready }}</b>{% endif %}</p>
+<section class="card"><h2>{{ L.total }} ({{ card.month }}): <span id="maps-total-usd">${{ card.usd }}</span> · <span id="maps-total-bdt">৳{{ card.bdt }}</span></h2>
+<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="api" value="_bdt">
+<label>{{ L.bdt_rate }} <input name="bdt_per_usd" value="{{ card.bdt_per_usd }}" inputmode="decimal" size="6"></label> <button class="btn primary">{{ L.save }}</button></form>
+</section>
+<div class="card tbl"><table id="maps-usage"><thead><tr><th>{{ L.api }}</th><th>{{ L.today }}</th><th>{{ L.capped }}</th><th>{{ L.month }}</th><th>{{ L.free_left }}</th><th>{{ L.usd }}</th><th>{{ L.bdt }}</th></tr></thead><tbody>
+{% for r in card.rows %}<tr><td>{{ r.label }}</td><td>{{ r.today }}</td><td>{{ r.capped_today }}</td><td>{{ r.month }}</td><td>{{ r.free_left }}</td><td>${{ r.usd }}</td><td>৳{{ r.bdt }}</td></tr>
+<tr><td colspan="7"><form method="post" class="cols">{% include "owner/_csrf.html" %}<input type="hidden" name="api" value="{{ r.api }}">
+<label>{{ L.rate }} <input name="usd_per_1000" value="{{ r.usd_per_1000 }}" inputmode="decimal" size="6"></label>
+<label>{{ L.free }} <input name="free_month" value="{{ r.free_month }}" inputmode="numeric" size="7"></label>
+<label>{{ L.user_day }} <input name="user_day" value="{{ r.user_day }}" inputmode="numeric" size="5"></label>
+<label>{{ L.global_day }} <input name="global_day" value="{{ r.global_day }}" inputmode="numeric" size="6"></label>
+<button class="btn primary">{{ L.save }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}
