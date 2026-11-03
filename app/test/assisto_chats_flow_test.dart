@@ -242,7 +242,9 @@ void main() {
     await tester.binding.setSurfaceSize(null);
   });
 
-  testWidgets('chat inputs have no BN/EN chip; mic stays', (tester) async {
+  // owner 4 Nov 00:25 (supersedes build 147): a SMALL Bangla / English
+  // switch sits on the mic; Auto stays the default mode.
+  testWidgets('chat mic has the small BN/EN switch; mic stays', (tester) async {
     final api = FakeApi(mode: FakeMode.data, lang: 'en');
     final voice = VoiceDictation();
     await _pump(
@@ -252,10 +254,13 @@ void main() {
             body:
                 VoiceMicButton(voice: voice, input: TextEditingController())));
     final t = _t(tester);
-    expect(find.text(t.voiceChipBn), findsNothing);
-    expect(find.text(t.voiceChipEn), findsNothing);
+    expect(find.byKey(const Key('voice-lang-switch')), findsOneWidget);
     expect(find.byIcon(Icons.mic_none_rounded), findsOneWidget);
     expect(voice.mode, 'auto');
+    await tester.tap(find.byKey(const Key('voice-lang-switch')));
+    await tester.pump();
+    expect(voice.mode, 'bn'); // en app: auto = English -> switched to Bangla
+    expect(t.voiceLangBn, isNotEmpty);
     await tester.binding.setSurfaceSize(null);
   });
 
