@@ -141,7 +141,11 @@ def active_api_key():
 
 
 def key_present():
-    return bool(active_api_key())
+    """Any AI provider usable (Anthropic key, or a tested Gemini / OpenAI key).
+    aifinal round 4: was the Anthropic key only, so with only Gemini saved,
+    world answers, the marketing engine, the sales agent and the app's "AI
+    enabled" flag all said "no AI" — no feature may depend on one provider."""
+    return bool(active_api_key()) or bool(_providers())
 
 
 def _providers():
