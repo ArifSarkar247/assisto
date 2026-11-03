@@ -124,6 +124,9 @@ import 'package:assisto/screens/quick_tools_screen.dart';
 import 'package:assisto/screens/daily_brief_screen.dart';
 import 'package:assisto/screens/blog_writer_screen.dart';
 import 'package:assisto/screens/cv_builder_screen.dart';
+import 'package:assisto/screens/career/cv_export_screen.dart'; // p2career
+import 'package:assisto/screens/career/job_find_screen.dart'; // p2career
+import 'package:assisto/screens/career/interview_role_screen.dart'; // p2career
 import 'package:assisto/screens/doc_scanner_screen.dart';
 import 'package:assisto/screens/transcription_screen.dart';
 import 'package:assisto/screens/travel_planner_screen.dart';
@@ -605,6 +608,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'pa_visitor': (build: (_) => const VisitorFilterScreen(), mode: FakeMode.data, full: true),
     'pa_liaison': (build: (_) => const LiaisonScreen(), mode: FakeMode.data, full: true),
     // pssec: Personal Secretary Today brief + pick-up from a pasted message
+    // p2career (flag career_plus): CV style/ATS/PDF, Find jobs, role interview
+    'crr_cv_export': (build: (_) => const CvExportScreen(recordId: 1), mode: FakeMode.data, full: true),
+    'crr_jobs_find': (build: (_) => const JobFindScreen(), mode: FakeMode.data, full: true),
+    'crr_jobs_find_empty': (build: (_) => const JobFindScreen(), mode: FakeMode.empty, full: true),
+    'crr_interview_roles': (build: (_) => const InterviewRoleScreen(), mode: FakeMode.data, full: true),
     'psec_today': (build: (_) => const PsTodayScreen(), mode: FakeMode.data, full: true),
     'psec_today_empty': (build: (_) => const PsTodayScreen(), mode: FakeMode.empty, full: true),
     'psec_pickup': (build: (_) => Scaffold(body: SafeArea(child: PsPickupSheet(initialText: kPsecShotMessage, now: DateTime(2026, 11, 2, 10)))), mode: FakeMode.data, full: true),

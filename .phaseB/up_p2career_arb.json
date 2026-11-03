@@ -1,0 +1,717 @@
+{
+ "en": {
+  "crrAgain": "Practice again",
+  "@crrAgain": {
+   "description": "p2career"
+  },
+  "crrAiApplied": "AI text applied — read it once before you send your CV.",
+  "@crrAiApplied": {
+   "description": "p2career"
+  },
+  "crrAiCheckNote": "Check every line: AI must not add anything you did not write.",
+  "@crrAiCheckNote": {
+   "description": "p2career"
+  },
+  "crrAiFeedback": "AI feedback",
+  "@crrAiFeedback": {
+   "description": "p2career"
+  },
+  "crrAiFeedbackBtn": "Get AI feedback (uses credits)",
+  "@crrAiFeedbackBtn": {
+   "description": "p2career"
+  },
+  "crrAiNotNow": "Keep mine",
+  "@crrAiNotNow": {
+   "description": "p2career"
+  },
+  "crrAiNotReady": "AI is not connected yet — the rule-based feedback above still works.",
+  "@crrAiNotReady": {
+   "description": "p2career"
+  },
+  "crrAiPolish": "Polish with AI",
+  "@crrAiPolish": {
+   "description": "p2career"
+  },
+  "crrAiPolishHelp": "AI rewrites your summary and work points with stronger words. It never adds jobs, degrees or numbers you did not write. Uses AI credits.",
+  "@crrAiPolishHelp": {
+   "description": "p2career"
+  },
+  "crrAiResult": "AI suggestion",
+  "@crrAiResult": {
+   "description": "p2career"
+  },
+  "crrAiUse": "Use this",
+  "@crrAiUse": {
+   "description": "p2career"
+  },
+  "crrAnswerHint": "Type your answer, or tap the mic and speak",
+  "@crrAnswerHint": {
+   "description": "p2career"
+  },
+  "crrAtsEducation": "At least one education entry",
+  "@crrAtsEducation": {
+   "description": "p2career"
+  },
+  "crrAtsEmail": "A valid e-mail address",
+  "@crrAtsEmail": {
+   "description": "p2career"
+  },
+  "crrAtsExperience": "Work experience is listed",
+  "@crrAtsExperience": {
+   "description": "p2career"
+  },
+  "crrAtsLength": "Not too long (work points under 450 words)",
+  "@crrAtsLength": {
+   "description": "p2career"
+  },
+  "crrAtsName": "Your name is at the top",
+  "@crrAtsName": {
+   "description": "p2career"
+  },
+  "crrAtsNumbers": "Work points show numbers or results",
+  "@crrAtsNumbers": {
+   "description": "p2career"
+  },
+  "crrAtsPhone": "A phone number with at least 10 digits",
+  "@crrAtsPhone": {
+   "description": "p2career"
+  },
+  "crrAtsScore": "Score: {score} out of 100",
+  "@crrAtsScore": {
+   "description": "p2career",
+   "placeholders": {
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "crrAtsSkills": "At least 5 skills",
+  "@crrAtsSkills": {
+   "description": "p2career"
+  },
+  "crrAtsSummary": "A summary of at least 12 words",
+  "@crrAtsSummary": {
+   "description": "p2career"
+  },
+  "crrAtsTitle": "ATS check — can hiring software read it?",
+  "@crrAtsTitle": {
+   "description": "p2career"
+  },
+  "crrCareerjetOff": "Careerjet search is not connected yet. You can still add company job boards below — their jobs show up here.",
+  "@crrCareerjetOff": {
+   "description": "p2career"
+  },
+  "crrCompanies": "Company job boards",
+  "@crrCompanies": {
+   "description": "p2career"
+  },
+  "crrCompaniesEmpty": "Add the companies you want to work for — their new jobs show up in your search.",
+  "@crrCompaniesEmpty": {
+   "description": "p2career"
+  },
+  "crrCompanyAdd": "Add a company",
+  "@crrCompanyAdd": {
+   "description": "p2career"
+  },
+  "crrCompanyKind": "Type",
+  "@crrCompanyKind": {
+   "description": "p2career"
+  },
+  "crrCompanyLabel": "Company name to show",
+  "@crrCompanyLabel": {
+   "description": "p2career"
+  },
+  "crrCompanyLimit": "You can add up to 10 sources.",
+  "@crrCompanyLimit": {
+   "description": "p2career"
+  },
+  "crrCompanyLinkOnly": "Saved as a link — Assisto never reads career pages; you open it yourself.",
+  "@crrCompanyLinkOnly": {
+   "description": "p2career"
+  },
+  "crrCompanyRemove": "Remove",
+  "@crrCompanyRemove": {
+   "description": "p2career"
+  },
+  "crrCompanyTest": "Test",
+  "@crrCompanyTest": {
+   "description": "p2career"
+  },
+  "crrCompanyTestFail": "Could not read jobs from this source.",
+  "@crrCompanyTestFail": {
+   "description": "p2career"
+  },
+  "crrCompanyTestOk": "Works — {count} jobs found",
+  "@crrCompanyTestOk": {
+   "description": "p2career",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "crrCompanyValueGh": "Board name (boards.greenhouse.io/NAME)",
+  "@crrCompanyValueGh": {
+   "description": "p2career"
+  },
+  "crrCompanyValueLever": "Company name (jobs.lever.co/NAME)",
+  "@crrCompanyValueLever": {
+   "description": "p2career"
+  },
+  "crrCompanyValueUrl": "Link starting with https://",
+  "@crrCompanyValueUrl": {
+   "description": "p2career"
+  },
+  "crrCoveredCount": "Key points covered: {hit} of {total}",
+  "@crrCoveredCount": {
+   "description": "p2career",
+   "placeholders": {
+    "hit": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "crrCvExportAction": "PDF & style",
+  "@crrCvExportAction": {
+   "description": "p2career"
+  },
+  "crrCvExportTitle": "CV style, check & PDF",
+  "@crrCvExportTitle": {
+   "description": "p2career"
+  },
+  "crrCvFormat": "CV style",
+  "@crrCvFormat": {
+   "description": "p2career"
+  },
+  "crrCvLang": "CV language",
+  "@crrCvLang": {
+   "description": "p2career"
+  },
+  "crrDob": "Date of birth",
+  "@crrDob": {
+   "description": "p2career"
+  },
+  "crrDoneAvg": "Average score: {score} out of 100",
+  "@crrDoneAvg": {
+   "description": "p2career",
+   "placeholders": {
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "crrDoneTitle": "Practice finished — well done!",
+  "@crrDoneTitle": {
+   "description": "p2career"
+  },
+  "crrEmptyAnswer": "Write or say an answer first.",
+  "@crrEmptyAnswer": {
+   "description": "p2career"
+  },
+  "crrFather": "Father's name",
+  "@crrFather": {
+   "description": "p2career"
+  },
+  "crrFillProfile": "Fill from my profile",
+  "@crrFillProfile": {
+   "description": "p2career"
+  },
+  "crrFillProfileDone": "Filled from your profile — tap Save.",
+  "@crrFillProfileDone": {
+   "description": "p2career"
+  },
+  "crrFillProfileNothing": "Nothing to fill — name, phone and e-mail are already there.",
+  "@crrFillProfileNothing": {
+   "description": "p2career"
+  },
+  "crrFinish": "Finish",
+  "@crrFinish": {
+   "description": "p2career"
+  },
+  "crrFmtExperienced": "Experienced",
+  "@crrFmtExperienced": {
+   "description": "p2career"
+  },
+  "crrFmtFresher": "Fresher",
+  "@crrFmtFresher": {
+   "description": "p2career"
+  },
+  "crrFmtGovt": "Government job",
+  "@crrFmtGovt": {
+   "description": "p2career"
+  },
+  "crrFmtHelpExperienced": "Summary and work experience first — for people with a job history.",
+  "@crrFmtHelpExperienced": {
+   "description": "p2career"
+  },
+  "crrFmtHelpFresher": "Career objective and education first — for your first job.",
+  "@crrFmtHelpFresher": {
+   "description": "p2career"
+  },
+  "crrFmtHelpGovt": "Adds personal information (parents, date of birth, address) and a declaration — the style government circulars expect.",
+  "@crrFmtHelpGovt": {
+   "description": "p2career"
+  },
+  "crrJobsDeadlineAsk": "Application deadline?",
+  "@crrJobsDeadlineAsk": {
+   "description": "p2career"
+  },
+  "crrJobsDeadlineHelp": "We will remind you 3 days before and on the day, at 9 in the morning.",
+  "@crrJobsDeadlineHelp": {
+   "description": "p2career"
+  },
+  "crrJobsDeadlinePick": "Pick date",
+  "@crrJobsDeadlinePick": {
+   "description": "p2career"
+  },
+  "crrJobsDeadlineSet": "Deadline reminders set",
+  "@crrJobsDeadlineSet": {
+   "description": "p2career"
+  },
+  "crrJobsDeadlineSkip": "No deadline",
+  "@crrJobsDeadlineSkip": {
+   "description": "p2career"
+  },
+  "crrJobsDeleteSearch": "Delete saved search",
+  "@crrJobsDeleteSearch": {
+   "description": "p2career"
+  },
+  "crrJobsFindEntry": "Find real jobs from legal sources",
+  "@crrJobsFindEntry": {
+   "description": "p2career"
+  },
+  "crrJobsFindTitle": "Find jobs",
+  "@crrJobsFindTitle": {
+   "description": "p2career"
+  },
+  "crrJobsLocation": "Location (optional)",
+  "@crrJobsLocation": {
+   "description": "p2career"
+  },
+  "crrJobsNoResults": "No jobs matched. Try a shorter word, or add a company below.",
+  "@crrJobsNoResults": {
+   "description": "p2career"
+  },
+  "crrJobsOpen": "Open",
+  "@crrJobsOpen": {
+   "description": "p2career"
+  },
+  "crrJobsQuery": "Job title or skill",
+  "@crrJobsQuery": {
+   "description": "p2career"
+  },
+  "crrJobsQueryNeeded": "Write a job title or skill first.",
+  "@crrJobsQueryNeeded": {
+   "description": "p2career"
+  },
+  "crrJobsResultsCount": "{count} jobs found",
+  "@crrJobsResultsCount": {
+   "description": "p2career",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "crrJobsSaveSearch": "Save this search",
+  "@crrJobsSaveSearch": {
+   "description": "p2career"
+  },
+  "crrJobsSavedSearches": "Saved searches",
+  "@crrJobsSavedSearches": {
+   "description": "p2career"
+  },
+  "crrJobsSearch": "Search",
+  "@crrJobsSearch": {
+   "description": "p2career"
+  },
+  "crrJobsSearchSaved": "Search saved — tap it any time to run it again.",
+  "@crrJobsSearchSaved": {
+   "description": "p2career"
+  },
+  "crrJobsSourceLabel": "Source: {source}",
+  "@crrJobsSourceLabel": {
+   "description": "p2career",
+   "placeholders": {
+    "source": {
+     "type": "String"
+    }
+   }
+  },
+  "crrJobsTrack": "Track",
+  "@crrJobsTrack": {
+   "description": "p2career"
+  },
+  "crrJobsTracked": "Added to your tracker",
+  "@crrJobsTracked": {
+   "description": "p2career"
+  },
+  "crrKindGreenhouse": "Greenhouse board",
+  "@crrKindGreenhouse": {
+   "description": "p2career"
+  },
+  "crrKindLever": "Lever board",
+  "@crrKindLever": {
+   "description": "p2career"
+  },
+  "crrKindLink": "Career page link (open only)",
+  "@crrKindLink": {
+   "description": "p2career"
+  },
+  "crrKindRss": "RSS / Atom feed",
+  "@crrKindRss": {
+   "description": "p2career"
+  },
+  "crrLangBn": "Bangla",
+  "@crrLangBn": {
+   "description": "p2career"
+  },
+  "crrLangEn": "English",
+  "@crrLangEn": {
+   "description": "p2career"
+  },
+  "crrLinkOnly": "Link only — this site has no open feed",
+  "@crrLinkOnly": {
+   "description": "p2career"
+  },
+  "crrModelOutline": "How to structure a good answer",
+  "@crrModelOutline": {
+   "description": "p2career"
+  },
+  "crrMother": "Mother's name",
+  "@crrMother": {
+   "description": "p2career"
+  },
+  "crrNationality": "Nationality",
+  "@crrNationality": {
+   "description": "p2career"
+  },
+  "crrNext": "Next question",
+  "@crrNext": {
+   "description": "p2career"
+  },
+  "crrOpenFailed": "Could not open the link.",
+  "@crrOpenFailed": {
+   "description": "p2career"
+  },
+  "crrPdfDownload": "Download PDF",
+  "@crrPdfDownload": {
+   "description": "p2career"
+  },
+  "crrPdfFailed": "Could not make the PDF — check the internet and try again.",
+  "@crrPdfFailed": {
+   "description": "p2career"
+  },
+  "crrPdfTitle": "Get your CV",
+  "@crrPdfTitle": {
+   "description": "p2career"
+  },
+  "crrPermAddress": "Permanent address",
+  "@crrPermAddress": {
+   "description": "p2career"
+  },
+  "crrPersonal": "Personal information",
+  "@crrPersonal": {
+   "description": "p2career"
+  },
+  "crrPhoto": "Photo (optional)",
+  "@crrPhoto": {
+   "description": "p2career"
+  },
+  "crrPhotoAdd": "Add photo",
+  "@crrPhotoAdd": {
+   "description": "p2career"
+  },
+  "crrPhotoFailed": "Could not add the photo.",
+  "@crrPhotoFailed": {
+   "description": "p2career"
+  },
+  "crrPhotoHelp": "Government CVs usually have a photo; many private jobs do not need one.",
+  "@crrPhotoHelp": {
+   "description": "p2career"
+  },
+  "crrPhotoRemove": "Remove photo",
+  "@crrPhotoRemove": {
+   "description": "p2career"
+  },
+  "crrPhotoTooBig": "That photo is too big — pick a smaller one.",
+  "@crrPhotoTooBig": {
+   "description": "p2career"
+  },
+  "crrPortals": "Official portals",
+  "@crrPortals": {
+   "description": "p2career"
+  },
+  "crrPrintHelp": "The print page opens in your browser and draws Bangla letters correctly — tap \"Save as PDF\" there. The link works for 30 minutes; do not share the link, share the PDF.",
+  "@crrPrintHelp": {
+   "description": "p2career"
+  },
+  "crrPrintPage": "Print page → Save as PDF",
+  "@crrPrintPage": {
+   "description": "p2career"
+  },
+  "crrReligion": "Religion",
+  "@crrReligion": {
+   "description": "p2career"
+  },
+  "crrRoleEntry": "Practice for a job role",
+  "@crrRoleEntry": {
+   "description": "p2career"
+  },
+  "crrRoleEntrySub": "Bank, sales, IT, teacher, NGO, garments, government viva — speak or type, get a score.",
+  "@crrRoleEntrySub": {
+   "description": "p2career"
+  },
+  "crrRolePick": "Pick a role",
+  "@crrRolePick": {
+   "description": "p2career"
+  },
+  "crrRoleQuestionOf": "Question {n} of {total}",
+  "@crrRoleQuestionOf": {
+   "description": "p2career",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "crrRoleQuestions": "{count} questions",
+  "@crrRoleQuestions": {
+   "description": "p2career",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "crrRoleTitle": "Role practice",
+  "@crrRoleTitle": {
+   "description": "p2career"
+  },
+  "crrRubricLabel": "Rule-based check — not an AI grade. It matches words, it does not understand meaning.",
+  "@crrRubricLabel": {
+   "description": "p2career"
+  },
+  "crrSaveDetails": "Save details",
+  "@crrSaveDetails": {
+   "description": "p2career"
+  },
+  "crrSaveFirst": "Save your CV first.",
+  "@crrSaveFirst": {
+   "description": "p2career"
+  },
+  "crrSaved": "Saved",
+  "@crrSaved": {
+   "description": "p2career"
+  },
+  "crrScore": "Score: {score} out of 100",
+  "@crrScore": {
+   "description": "p2career",
+   "placeholders": {
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "crrSrcFailed": "could not read",
+  "@crrSrcFailed": {
+   "description": "p2career"
+  },
+  "crrSrcNotConnected": "not connected yet",
+  "@crrSrcNotConnected": {
+   "description": "p2career"
+  },
+  "crrSrcOk": "{count} jobs",
+  "@crrSrcOk": {
+   "description": "p2career",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "crrSubmit": "Get feedback",
+  "@crrSubmit": {
+   "description": "p2career"
+  },
+  "crrSummary": "Career objective / summary",
+  "@crrSummary": {
+   "description": "p2career"
+  },
+  "crrSummaryHint": "2–3 lines: who you are, your strongest skill, the job you want",
+  "@crrSummaryHint": {
+   "description": "p2career"
+  },
+  "crrTipAddExample": "Add one real example with a number (how many, how much, how fast).",
+  "@crrTipAddExample": {
+   "description": "p2career"
+  },
+  "crrTipCoverTopics": "Touch more of the key points — open \"How to structure a good answer\".",
+  "@crrTipCoverTopics": {
+   "description": "p2career"
+  },
+  "crrTipFewerFillers": "Fewer filler words (um, actually, basically) — pause instead.",
+  "@crrTipFewerFillers": {
+   "description": "p2career"
+  },
+  "crrTipKeepGoing": "Good answer — practise saying it out loud once more.",
+  "@crrTipKeepGoing": {
+   "description": "p2career"
+  },
+  "crrTipLonger": "Say a bit more — aim for 40 to 200 words.",
+  "@crrTipLonger": {
+   "description": "p2career"
+  },
+  "crrTipShorter": "Too long — keep it under about 200 words.",
+  "@crrTipShorter": {
+   "description": "p2career"
+  },
+  "crrWords": "{count} words",
+  "@crrWords": {
+   "description": "p2career",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "crrAgain": "আবার অনুশীলন",
+  "crrAiApplied": "AI-র লেখা বসানো হলো — সিভি পাঠানোর আগে একবার পড়ে নিন।",
+  "crrAiCheckNote": "প্রতিটা লাইন মিলিয়ে নিন: আপনি যা লেখেননি AI তা যোগ করতে পারবে না।",
+  "crrAiFeedback": "AI ফিডব্যাক",
+  "crrAiFeedbackBtn": "AI ফিডব্যাক নিন (ক্রেডিট লাগে)",
+  "crrAiNotNow": "আমারটাই থাক",
+  "crrAiNotReady": "AI এখনো যুক্ত হয়নি — উপরের নিয়মভিত্তিক ফিডব্যাক কাজ করছে।",
+  "crrAiPolish": "AI দিয়ে ঘষামাজা",
+  "crrAiPolishHelp": "AI আপনার সারাংশ ও কাজের পয়েন্টগুলো আরও জোরালো ভাষায় লেখে। আপনি যা লেখেননি এমন চাকরি, ডিগ্রি বা সংখ্যা কখনো যোগ করে না। AI ক্রেডিট লাগে।",
+  "crrAiResult": "AI-র প্রস্তাব",
+  "crrAiUse": "এটা বসান",
+  "crrAnswerHint": "উত্তর লিখুন, অথবা মাইকে চেপে বলুন",
+  "crrAtsEducation": "অন্তত একটি শিক্ষাগত যোগ্যতা",
+  "crrAtsEmail": "একটি সঠিক ইমেইল ঠিকানা",
+  "crrAtsExperience": "কাজের অভিজ্ঞতা লেখা আছে",
+  "crrAtsLength": "বেশি লম্বা নয় (কাজের পয়েন্ট ৪৫০ শব্দের কম)",
+  "crrAtsName": "ওপরে আপনার নাম আছে",
+  "crrAtsNumbers": "কাজের পয়েন্টে সংখ্যা বা ফল আছে",
+  "crrAtsPhone": "অন্তত ১০ সংখ্যার ফোন নম্বর",
+  "crrAtsScore": "স্কোর: ১০০-এর মধ্যে {score}",
+  "crrAtsSkills": "অন্তত ৫টি দক্ষতা",
+  "crrAtsSummary": "অন্তত ১২ শব্দের সারাংশ",
+  "crrAtsTitle": "ATS চেক — নিয়োগের সফটওয়্যার পড়তে পারবে?",
+  "crrCareerjetOff": "Careerjet খোঁজ এখনো যুক্ত হয়নি। নিচে কোম্পানির জব বোর্ড যোগ করতে পারেন — তাদের চাকরি এখানে আসবে।",
+  "crrCompanies": "কোম্পানির জব বোর্ড",
+  "crrCompaniesEmpty": "যেসব কোম্পানিতে কাজ করতে চান সেগুলো যোগ করুন — তাদের নতুন চাকরি আপনার খোঁজে আসবে।",
+  "crrCompanyAdd": "কোম্পানি যোগ করুন",
+  "crrCompanyKind": "ধরন",
+  "crrCompanyLabel": "দেখানোর জন্য কোম্পানির নাম",
+  "crrCompanyLimit": "সর্বোচ্চ ১০টি উৎস যোগ করা যায়।",
+  "crrCompanyLinkOnly": "লিংক হিসেবে রাখা — Assisto ক্যারিয়ার পাতা পড়ে না; আপনি নিজে খুলবেন।",
+  "crrCompanyRemove": "সরান",
+  "crrCompanyTest": "পরীক্ষা করুন",
+  "crrCompanyTestFail": "এই উৎস থেকে চাকরি পড়া গেল না।",
+  "crrCompanyTestOk": "কাজ করছে — {count}টি চাকরি পাওয়া গেছে",
+  "crrCompanyValueGh": "বোর্ডের নাম (boards.greenhouse.io/NAME)",
+  "crrCompanyValueLever": "কোম্পানির নাম (jobs.lever.co/NAME)",
+  "crrCompanyValueUrl": "https:// দিয়ে শুরু লিংক",
+  "crrCoveredCount": "মূল বিষয় ছুঁয়েছেন: {total}টির মধ্যে {hit}টি",
+  "crrCvExportAction": "PDF ও ধাঁচ",
+  "crrCvExportTitle": "সিভির ধাঁচ, যাচাই ও PDF",
+  "crrCvFormat": "সিভির ধাঁচ",
+  "crrCvLang": "সিভির ভাষা",
+  "crrDob": "জন্ম তারিখ",
+  "crrDoneAvg": "গড় স্কোর: ১০০-এর মধ্যে {score}",
+  "crrDoneTitle": "অনুশীলন শেষ — চমৎকার!",
+  "crrEmptyAnswer": "আগে একটা উত্তর লিখুন বা বলুন।",
+  "crrFather": "পিতার নাম",
+  "crrFillProfile": "প্রোফাইল থেকে পূরণ",
+  "crrFillProfileDone": "প্রোফাইল থেকে পূরণ হলো — সেভ চাপুন।",
+  "crrFillProfileNothing": "পূরণের কিছু নেই — নাম, ফোন, ইমেইল আগেই আছে।",
+  "crrFinish": "শেষ করুন",
+  "crrFmtExperienced": "অভিজ্ঞ",
+  "crrFmtFresher": "ফ্রেশার",
+  "crrFmtGovt": "সরকারি চাকরি",
+  "crrFmtHelpExperienced": "সারাংশ ও কাজের অভিজ্ঞতা আগে — যাঁদের চাকরির অভিজ্ঞতা আছে।",
+  "crrFmtHelpFresher": "ক্যারিয়ার উদ্দেশ্য ও শিক্ষা আগে — প্রথম চাকরির জন্য।",
+  "crrFmtHelpGovt": "ব্যক্তিগত তথ্য (পিতা-মাতা, জন্ম তারিখ, ঠিকানা) ও প্রত্যয়ন যোগ হয় — সরকারি বিজ্ঞপ্তির চেনা ধাঁচ।",
+  "crrJobsDeadlineAsk": "আবেদনের শেষ তারিখ?",
+  "crrJobsDeadlineHelp": "শেষ তারিখের ৩ দিন আগে ও শেষ দিনে সকাল ৯টায় মনে করিয়ে দেব।",
+  "crrJobsDeadlinePick": "তারিখ বাছুন",
+  "crrJobsDeadlineSet": "শেষ তারিখের রিমাইন্ডার সেট হলো",
+  "crrJobsDeadlineSkip": "শেষ তারিখ নেই",
+  "crrJobsDeleteSearch": "সেভ করা খোঁজ মুছুন",
+  "crrJobsFindEntry": "বৈধ উৎস থেকে আসল চাকরি খুঁজুন",
+  "crrJobsFindTitle": "চাকরি খুঁজুন",
+  "crrJobsLocation": "জায়গা (ঐচ্ছিক)",
+  "crrJobsNoResults": "কোনো চাকরি মেলেনি। ছোট শব্দে খুঁজুন, বা নিচে কোম্পানি যোগ করুন।",
+  "crrJobsOpen": "খুলুন",
+  "crrJobsQuery": "পদের নাম বা দক্ষতা",
+  "crrJobsQueryNeeded": "আগে পদের নাম বা দক্ষতা লিখুন।",
+  "crrJobsResultsCount": "{count}টি চাকরি পাওয়া গেছে",
+  "crrJobsSaveSearch": "খোঁজটা সেভ করুন",
+  "crrJobsSavedSearches": "সেভ করা খোঁজ",
+  "crrJobsSearch": "খুঁজুন",
+  "crrJobsSearchSaved": "খোঁজ সেভ হলো — যেকোনো সময় চাপলে আবার চলবে।",
+  "crrJobsSourceLabel": "উৎস: {source}",
+  "crrJobsTrack": "ট্র্যাকারে রাখুন",
+  "crrJobsTracked": "ট্র্যাকারে যোগ হলো",
+  "crrKindGreenhouse": "গ্রিনহাউস বোর্ড",
+  "crrKindLever": "লিভার বোর্ড",
+  "crrKindLink": "ক্যারিয়ার পাতার লিংক (শুধু খোলা)",
+  "crrKindRss": "RSS / Atom ফিড",
+  "crrLangBn": "বাংলা",
+  "crrLangEn": "ইংরেজি",
+  "crrLinkOnly": "শুধু লিংক — এই সাইটের কোনো উন্মুক্ত ফিড নেই",
+  "crrModelOutline": "ভালো উত্তরের কাঠামো",
+  "crrMother": "মাতার নাম",
+  "crrNationality": "জাতীয়তা",
+  "crrNext": "পরের প্রশ্ন",
+  "crrOpenFailed": "লিংক খোলা গেল না।",
+  "crrPdfDownload": "PDF ডাউনলোড",
+  "crrPdfFailed": "PDF বানানো গেল না — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "crrPdfTitle": "সিভি নিন",
+  "crrPermAddress": "স্থায়ী ঠিকানা",
+  "crrPersonal": "ব্যক্তিগত তথ্য",
+  "crrPhoto": "ছবি (ঐচ্ছিক)",
+  "crrPhotoAdd": "ছবি দিন",
+  "crrPhotoFailed": "ছবি যোগ করা গেল না।",
+  "crrPhotoHelp": "সরকারি সিভিতে সাধারণত ছবি থাকে; অনেক বেসরকারি চাকরিতে লাগে না।",
+  "crrPhotoRemove": "ছবি সরান",
+  "crrPhotoTooBig": "ছবিটা অনেক বড় — ছোট একটা বাছুন।",
+  "crrPortals": "অফিশিয়াল পোর্টাল",
+  "crrPrintHelp": "প্রিন্ট পাতা ব্রাউজারে খোলে আর বাংলা যুক্তাক্ষর ঠিকভাবে দেখায় — সেখানে \"PDF হিসেবে সেভ\" চাপুন। লিংক ৩০ মিনিট চলে; লিংক নয়, PDF পাঠান।",
+  "crrPrintPage": "প্রিন্ট পাতা → PDF সেভ",
+  "crrReligion": "ধর্ম",
+  "crrRoleEntry": "পদ ধরে অনুশীলন",
+  "crrRoleEntrySub": "ব্যাংক, সেলস, আইটি, শিক্ষক, এনজিও, গার্মেন্টস, সরকারি ভাইভা — বলুন বা লিখুন, স্কোর পান।",
+  "crrRolePick": "পদ বাছুন",
+  "crrRoleQuestionOf": "প্রশ্ন {n} / {total}",
+  "crrRoleQuestions": "{count}টি প্রশ্ন",
+  "crrRoleTitle": "পদ ধরে অনুশীলন",
+  "crrRubricLabel": "নিয়মে তৈরি যাচাই — AI-র নম্বর নয়। শব্দ মেলায়, অর্থ বোঝে না।",
+  "crrSaveDetails": "তথ্য সেভ করুন",
+  "crrSaveFirst": "আগে সিভি সেভ করুন।",
+  "crrSaved": "সেভ হয়েছে",
+  "crrScore": "স্কোর: ১০০-এর মধ্যে {score}",
+  "crrSrcFailed": "পড়া যায়নি",
+  "crrSrcNotConnected": "এখনো যুক্ত নয়",
+  "crrSrcOk": "{count}টি চাকরি",
+  "crrSubmit": "ফিডব্যাক নিন",
+  "crrSummary": "ক্যারিয়ার উদ্দেশ্য / সারাংশ",
+  "crrSummaryHint": "২–৩ লাইন: আপনি কে, সবচেয়ে বড় দক্ষতা, কোন চাকরি চান",
+  "crrTipAddExample": "একটা আসল উদাহরণ দিন, সংখ্যাসহ (কতজন, কত টাকা, কত দ্রুত)।",
+  "crrTipCoverTopics": "আরও মূল বিষয় ছুঁয়ে যান — \"ভালো উত্তরের কাঠামো\" খুলে দেখুন।",
+  "crrTipFewerFillers": "\"মানে\", \"আসলে\" জাতীয় শব্দ কমান — বরং একটু থামুন।",
+  "crrTipKeepGoing": "ভালো উত্তর — আরেকবার জোরে বলে অনুশীলন করুন।",
+  "crrTipLonger": "আরেকটু বলুন — ৪০ থেকে ২০০ শব্দের মধ্যে।",
+  "crrTipShorter": "অনেক লম্বা — মোটামুটি ২০০ শব্দের মধ্যে রাখুন।",
+  "crrWords": "{count} শব্দ"
+ }
+}

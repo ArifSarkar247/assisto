@@ -27,6 +27,7 @@ import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
 import 'fake_books.dart'; // ledger
 import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
+import 'fake_career.dart'; // p2career
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -242,6 +243,8 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    final careerL = fakeCareerList(path, bn: _bn); // p2career
+    if (careerL != null) return _maybe(careerL);
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -953,6 +956,7 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
     if (path.startsWith('crm/')) return {'id': 99, ...body};
+    if (path == 'jobs' || path.startsWith('career/')) return {'id': 77, ...body}; // p2career
     // vault / scam / safety module endpoints (used via the ScamSafetyApi
     // extension: scamReportFamily, safetyCheckinStart, safetyCheckinArrived,
     // createDocumentWithDetails).
@@ -982,6 +986,11 @@ class FakeApi extends ApiClient {
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
       return inv;
+    }
+    final career = fakeCareerGet(path, bn: _bn, empty: mode == FakeMode.empty); // p2career
+    if (career != null) {
+      if (mode == FakeMode.fail) _fail();
+      return career;
     }
     final psec = fakePsecGet(path, mode == FakeMode.empty); // pssec
     if (psec != null) {
@@ -2050,6 +2059,9 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path == '/career/interview/feedback') return fakeCareerFeedback(ai: body['ai'] == true); // p2career
+    if (path == '/career/jobs/deadline') return {'reminders': ['2026-11-10T09:00:00+06:00']};
+    if (path == '/career/cv/print-link') return {'url': 'https://lifeassisto.com/api/v1/career/cv/print/x', 'path': '/career/cv/print/x', 'expires_in': 1800};
     if (path == '/account/delete/preview') {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
@@ -2354,8 +2366,19 @@ class FakeApi extends ApiClient {
     return {'ok': true, ...body}; // unmatched business POST -> accept gracefully
   }
 
+  // p2career: the CV export screen PATCHes the single cv row.
+  @override
+  Future<void> updateItem(String path, int id, Map<String, dynamic> body) async {
+    if (path == 'cv' || path.startsWith('career/')) {
+      if (mode == FakeMode.fail) _fail();
+      return;
+    }
+    return super.updateItem(path, id, body);
+  }
+
   @override
   Future<void> deleteItem(String path, int id) async {
+    if (path.startsWith('career/')) return; // p2career
     if (path.startsWith('business/') || path.startsWith('/business/')) {
       if (mode == FakeMode.fail) _fail();
       return; // business deletes succeed silently in the gallery
