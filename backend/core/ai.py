@@ -141,7 +141,11 @@ def active_api_key():
 
 
 def key_present():
-    return bool(active_api_key())
+    """Any AI provider usable (Anthropic key, or a tested Gemini / OpenAI key).
+    aifinal round 4: was the Anthropic key only, so with only Gemini saved,
+    world answers, the marketing engine, the sales agent and the app's "AI
+    enabled" flag all said "no AI" — no feature may depend on one provider."""
+    return bool(active_api_key()) or bool(_providers())
 
 
 def _providers():
@@ -372,7 +376,9 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     u = resp.usage
     extra = {"cache_read": int(getattr(u, "cache_read_input_tokens", 0) or 0),
              "cache_write": int(getattr(u, "cache_creation_input_tokens", 0) or 0),
-             "model": getattr(resp, "model", "") or model}
+             "model": getattr(resp, "model", "") or model,
+             # aifinal round 3: the answer hit max_tokens (cut)
+             "truncated": getattr(resp, "stop_reason", "") == "max_tokens"}
     return text, int(u.input_tokens or 0), int(u.output_tokens or 0), extra
 
 
@@ -424,10 +430,13 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
         contents.append({"role": "model" if m["role"] == "assistant" else "user",
                          "parts": [{"text": m["content"]}]})
     gen = {"maxOutputTokens": int(max_tokens)}
-    if model.startswith("gemini-2.5") and _opts().get("klass") == "cheap":
+    if model.startswith("gemini-2.5") and (_opts().get("klass") == "cheap"
+                                          or _opts().get("no_thinking")):
         gen["thinkingConfig"] = {"thinkingBudget": 0}     # cheap tasks: no thinking
     body = {"systemInstruction": {"parts": [{"text": system}]},
             "contents": contents, "generationConfig": gen}
+    if _opts().get("web"):
+        body["tools"] = [{"google_search": {}}]      # owner 01:12: grounding
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
            % model)
     r = _post(url, body, {"x-goog-api-key": key, "content-type": "application/json"})
@@ -446,7 +455,18 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
     cached = int(u.get("cachedContentTokenCount", 0) or 0)
     itok = max(0, int(u.get("promptTokenCount", 0) or 0) - cached)
     otok = int(u.get("candidatesTokenCount", 0) or 0) + int(u.get("thoughtsTokenCount", 0) or 0)
-    return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model}
+    trunc = bool(cands) and str(cands[0].get("finishReason", "")).upper() == "MAX_TOKENS"
+    if cands and _opts().get("web"):
+        gm = cands[0].get("groundingMetadata") or {}
+        links = []
+        for ch in (gm.get("groundingChunks") or [])[:3]:
+            w = ch.get("web") or {}
+            if w.get("uri"):
+                links.append("[%s](%s)" % ((w.get("title") or "source")[:40], w["uri"]))
+        if links:
+            text = text.rstrip() + "\n\n" + " · ".join(links)
+    return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model,
+                              "truncated": trunc}
 
 
 # AF-13 provider retention hygiene: the request options each provider's API
@@ -475,7 +495,8 @@ def _call_openai(key, model, system, prompt, max_tokens, history=None):
     cached = int(((u.get("prompt_tokens_details") or {}).get("cached_tokens", 0)) or 0)
     itok = max(0, int(u.get("prompt_tokens", 0) or 0) - cached)
     return (msg.get("content") or ""), itok, int(u.get("completion_tokens", 0) or 0), \
-        {"cache_read": cached, "cache_write": 0, "model": model}
+        {"cache_read": cached, "cache_write": 0, "model": model,
+         "truncated": choices[0].get("finish_reason") == "length"}
 
 
 def _classify(e):
@@ -543,7 +564,8 @@ def mask_for_provider(task, data="", history=None, extra_system="", pii=None):
 
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
-             task_class=None, mode=None, out_meta=None, upgrade=False, pii=None):
+             task_class=None, mode=None, out_meta=None, upgrade=False, pii=None,
+             level="", web=False):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -601,6 +623,31 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             spec = None
     if spec is None:
         mode = None
+    # aifinal PART 3: the user's answer level (owner switch). It replaces the
+    # mode path: fixed model + hard caps + its own credit price; never an
+    # auto-upgrade; fallback only to the same or a cheaper model.
+    lvl = None
+    if level:
+        try:
+            from . import ai_levels_service as ALS
+            if ALS.enabled():
+                lvl = ALS.spec(level)
+        except Exception:  # noqa: BLE001 — a bad block never breaks AI
+            lvl = None
+    if lvl is not None:
+        spec, mode, upgrade = None, None, False
+        from . import ai_levels_service as ALS
+        if ALS.over_daily_limit(user, lvl["id"]):
+            raise AIUnavailable("user_limit")
+    if user is None:
+        # aifinal PART 4: a call with no payer must be on the documented
+        # free list; anything else is logged loudly (CI audits every caller)
+        try:
+            from . import ai_levels_service as ALS
+            if not ALS.exempt(feature):
+                log.warning("ai: call without a payer (feature=%s)", (feature or "-")[:40])
+        except Exception:  # noqa: BLE001
+            pass
     upgraded = False
     if spec is not None and mode == "smart" and upgrade and user is not None:
         try:
@@ -623,7 +670,19 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             upgraded = False
     charged = 0
     spend_ref = ""
-    if user is not None and spec is not None:
+    if user is not None and lvl is not None:
+        from . import billing
+        extra = 0
+        if web:
+            from . import ai_levels_service as ALS
+            extra = ALS.web_credits()
+        res = billing.charge(user, "ai_level_" + lvl["id"], qty=1, note=feature or lvl["id"],
+                             exact=lvl["credits"] + extra, paid_only=not lvl["free_ok"])
+        if not res["ok"]:
+            raise AIUnavailable("budget" if res.get("reason") == "guard_over" else "credits")
+        charged = res["charged"]
+        spend_ref = res.get("spend_ref", "")
+    elif user is not None and spec is not None:
         from . import billing
         from .logic import pricing_40 as P40
         action = P40.MODE_ACTION[mode]
@@ -661,6 +720,12 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     klass = task_class if task_class in C.CLASSES else C.task_class(tier, feature, conf)
     keys = dict(providers)
     order = [p for p in C.ORDER[klass] if p in keys]
+    # (provider, model-or-None) pairs; None = the router's model for the slot
+    pairs = [(p, None) for p in order]
+    if lvl is not None:
+        pairs = [(p, m) for p, m in [(lvl["provider"], lvl["model"])] + lvl["fallbacks"]
+                 if p in keys]
+        order = [p for p, _ in pairs]
     system = P.system_prompt(extra_system)
     prompt = task + (f"\n\n<data>\n{data}\n</data>" if data else "")
     if not task:
@@ -676,12 +741,19 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         opts.update({"effort": spec["effort"], "hard_cap": True,
                      "thinking": "off" if spec["thinking"] != "adaptive" else None,
                      "cache": bool(spec.get("cache", True))})
+    if lvl is not None:
+        from .logic import pricing_40 as P40
+        prompt, history = P40.fit_input(system, prompt, history, lvl["in_cap"],
+                                        lvl["history_turns"])
+        max_tokens = lvl["out_cap"]
+        opts.update({"effort": "low", "hard_cap": True, "thinking": "off",
+                     "no_thinking": True, "cache": True, "web": bool(web)})
 
     attempts = []
     skipped_cap = 0
     stop_kind = ""
     t_all = _time.monotonic()
-    for name in order:
+    for name, fixed_model in pairs:
         if R.provider_capped(name, conf):
             attempts.append(name + ":cap")
             skipped_cap += 1
@@ -689,7 +761,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         if not R.allow(name, conf):
             attempts.append(name + ":circuit")
             continue
-        model = C.model_for(conf, name, tier, klass)
+        model = fixed_model or C.model_for(conf, name, tier, klass)
         if spec is not None and name == "anthropic":
             model = spec["model"]
         fn = globals()["_call_" + name]
@@ -698,6 +770,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         try:
             out = fn(keys[name], model, system, prompt, max_tokens, history=history)
             text, itok, otok, cr, cw, used = _unpack(out, model)
+            truncated = bool(len(out) > 3 and isinstance(out[3], dict) and out[3].get("truncated"))
             text = P.normalize_output(text, digits)
             if not text:
                 raise ProviderError("empty")
@@ -724,9 +797,11 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             input_tokens=itok, output_tokens=otok, cost_usd=cost,
             provider=name, tier=tier, task_class=klass, latency_ms=latency,
             ok=True, hops=hops, attempts="|".join(attempts)[:240],
-            cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged)
+            cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged,
+            level=(level or "")[:10])
         if isinstance(out_meta, dict):
-            out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded})
+            out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded,
+                             "truncated": truncated})
         try:
             from . import billing
             billing.record_ai_cost_usd(cost)     # Profit Guard (USD -> ৳ ledger)
@@ -745,7 +820,9 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             user=user, feature=(feature or "")[:40], model="", cost_usd=0.0,
             tier=tier, task_class=klass, ok=False, hops=len(attempts),
             attempts="|".join(attempts)[:240], error_kind=kind[:30],
-            latency_ms=int((_time.monotonic() - t_all) * 1000))
+            latency_ms=int((_time.monotonic() - t_all) * 1000),
+            level=(level or "")[:10], credits_charged=charged,
+            refunded=charged if (user is not None and charged) else 0)
     except Exception:
         pass
     if user is not None and charged:

@@ -1,4 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:record/record.dart';
 import '../audio/audio_route_service.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -146,12 +153,32 @@ class VoiceDictation extends ChangeNotifier {
   /// engine has nothing usable. Auto = Bangla first (bn-BD handles Bangla,
   /// English and mixed speech), English only when Bangla is missing or was
   /// rejected ([bnRejected]). Manual bn/en never silently switch language.
+  ///
+  /// aifinal round 2 item 1 — REAL CAUSE of "Dhaka theke Ghazipur City": when
+  /// the phone's engine did not LIST a Bangla locale (or rejected bn once),
+  /// Auto silently listened in ENGLISH, and the English recogniser writes
+  /// Bangla speech as romanized English. Now, in a Bangla app ([appLang] bn)
+  /// or with the mic switch on Bangla, it never falls back to English: it
+  /// uses [serverLocale] = record + transcribe on our server into Bangla
+  /// script.
+  static const serverLocale = 'server';
+
   static ({String lang, String localeId})? pickLocale(
       List<String> available, String mode,
-      {bool bnRejected = false}) {
+      {bool bnRejected = false, String? appLang}) {
     if (mode == 'bn' || mode == 'en') {
       final id = resolveLocale(available, mode);
+      if (id == null && mode == 'bn' && appLang != null) {
+        return (lang: 'bn', localeId: serverLocale);
+      }
+      if (id != null && mode == 'bn' && bnRejected && appLang != null) {
+        return (lang: 'bn', localeId: serverLocale);
+      }
       return id == null ? null : (lang: mode, localeId: id);
+    }
+    if (appLang == 'bn') {
+      final bn = bnRejected ? null : resolveLocale(available, 'bn');
+      return (lang: 'bn', localeId: bn ?? serverLocale);
     }
     if (!bnRejected) {
       final bn = resolveLocale(available, 'bn');
@@ -180,6 +207,15 @@ class VoiceDictation extends ChangeNotifier {
   /// Which language's "missing" message to show when [pickLocale] is null.
   static String missingLang(String mode) => mode == 'en' ? 'en' : 'bn';
 
+  /// aifinal round 2 item 1: the mic's Bangla / English switch (this input;
+  /// a stale "Bangla was rejected" flag is cleared).
+  void setMode(String m) {
+    if (!modes.contains(m) || m == mode) return;
+    mode = m;
+    _bnRejected = false;
+    notifyListeners();
+  }
+
   Future<void> toggle(BuildContext context, TextEditingController input) =>
       (listening || _starting) ? stop() : start(context, input);
 
@@ -200,8 +236,11 @@ class VoiceDictation extends ChangeNotifier {
     listening = false;
     notifyListeners();
     if (!(wasListening || e.permanent)) return;
-    if (shouldFallBackToEnglish(mode, activeLang, e.errorMsg)) {
-      _bnRejected = true;
+    if (shouldFallBackToEnglish(mode, activeLang, e.errorMsg) ||
+        (mode == 'bn' &&
+            (e.errorMsg == 'error_language_not_supported' ||
+                e.errorMsg == 'error_language_unavailable'))) {
+      _bnRejected = true; // Bangla app: next tap = server transcription
     }
     _report(e.errorMsg);
   }
@@ -261,7 +300,9 @@ class VoiceDictation extends ChangeNotifier {
       }
       final plan = learnId != null
           ? (lang: learn!.split(RegExp('[-_]')).first, localeId: learnId)
-          : pickLocale(_available, mode, bnRejected: _bnRejected);
+          : pickLocale(_available, mode,
+              bnRejected: _bnRejected,
+              appLang: Localizations.localeOf(context).languageCode);
       if (plan == null) {
         _showMessage(context,
             missingLang(mode) == 'bn' ? t.voiceNoBangla : t.voiceNoEnglish,
@@ -272,6 +313,10 @@ class VoiceDictation extends ChangeNotifier {
       _base = input.text;
       if (_base.isNotEmpty && !_base.endsWith(' ')) _base = '$_base ';
       activeLang = plan.lang;
+      if (plan.localeId == serverLocale) {
+        await _startServer(context);
+        return;
+      }
       listening = true;
       lastStartListened = true;
       notifyListeners();
@@ -338,7 +383,114 @@ class VoiceDictation extends ChangeNotifier {
       (code == 'error_language_not_supported' ||
           code == 'error_language_unavailable');
 
+  // ---------------------------------------------------------- server mode
+  // aifinal round 2 item 1: the phone cannot write Bangla -> record (WAV 16
+  // kHz mono, max 45 s, temp file deleted at once) and transcribe on our
+  // server into Bangla script. A failed transcription costs nothing.
+  AudioRecorder? _rec;
+  bool _serverRec = false;
+  String? _recPath;
+  Timer? _recCap;
+
+  /// Tests: replace the upload (bytes -> text, null = failed).
+  static Future<String?> Function(BuildContext context, Uint8List wav, String lang)?
+      debugTranscribe;
+
+  Future<void> _startServer(BuildContext context) async {
+    try {
+      // the in-app disclosure first (same as the phone engine path), then
+      // Android's own prompt
+      if (!(await Permission.microphone.status).isGranted) {
+        if (!_reasonShown) {
+          final ok = await _askReason(context); // = showPermissionReason(c, PermKind.mic)
+          if (!ok || !context.mounted) return;
+          _reasonShown = true;
+        }
+      }
+      if (!(await Permission.microphone.request()).isGranted) {
+        if (context.mounted) {
+          _showMessage(context, AppLocalizations.of(context).voiceNoPermission,
+              settings: true);
+        }
+        return;
+      }
+      final dir = await getTemporaryDirectory();
+      _recPath = '${dir.path}/assisto_vt_${DateTime.now().millisecondsSinceEpoch}.wav';
+      _rec ??= AudioRecorder();
+      _mic.start();
+      await _rec!.start(
+          const RecordConfig(
+              encoder: AudioEncoder.wav, sampleRate: 16000, numChannels: 1,
+              androidConfig: AndroidRecordConfig(manageBluetooth: false)),
+          path: _recPath!);
+      _serverRec = true;
+      listening = true;
+      lastStartListened = true;
+      notifyListeners();
+      _recCap?.cancel();
+      _recCap = Timer(const Duration(seconds: 45), stop);
+    } catch (_) {
+      _mic.stop();
+      _serverRec = false;
+      if (context.mounted) {
+        _showMessage(context, AppLocalizations.of(context).micEnableSpeech,
+            settings: false, help: true);
+      }
+    }
+  }
+
+  Future<void> _stopServer() async {
+    _recCap?.cancel();
+    _serverRec = false;
+    _mic.stop();
+    String? path;
+    try {
+      path = await _rec?.stop();
+    } catch (_) {}
+    listening = false;
+    transcribing = true;
+    notifyListeners();
+    final ctx = _ctx;
+    try {
+      final f = File(path ?? _recPath ?? '');
+      if (!f.existsSync() || ctx == null || !ctx.mounted) return;
+      final wav = await f.readAsBytes();
+      try {
+        f.deleteSync();
+      } catch (_) {}
+      if (wav.length < 3200) return; // < 0.1 s: nothing said
+      final text = await (debugTranscribe ?? _upload)(ctx, wav, activeLang);
+      if (text != null && text.trim().isNotEmpty) {
+        final live = '$_base${text.trim()}';
+        _target?.value = TextEditingValue(
+            text: live, selection: TextSelection.collapsed(offset: live.length));
+      } else if (ctx.mounted) {
+        _showMessage(ctx, AppLocalizations.of(ctx).voiceServerFailed, settings: false);
+      }
+    } catch (_) {
+      if (ctx != null && ctx.mounted) {
+        _showMessage(ctx, AppLocalizations.of(ctx).voiceServerFailed, settings: false);
+      }
+    } finally {
+      transcribing = false;
+      notifyListeners();
+    }
+  }
+
+  static Future<String?> _upload(BuildContext context, Uint8List wav, String lang) async {
+    final r = await context.read<AppState>().api.postJson('/voice/transcribe', {
+      'audio_b64': base64Encode(wav),
+      'mime': 'audio/wav',
+      'lang': lang,
+    });
+    return r['ok'] == true ? (r['text'] ?? '').toString() : null;
+  }
+
+  /// True while a recorded clip is being written on the server.
+  bool transcribing = false;
+
   Future<void> stop() async {
+    if (_serverRec) return _stopServer();
     if (_starting) {
       _cancelPending = true;
       return;
@@ -454,10 +606,46 @@ class VoiceMicButton extends StatelessWidget {
       listenable: voice,
       builder: (context, _) {
         final live = voice.listening || debugListening;
+        // aifinal round 2 item 1: a small Bangla / English switch on the mic
+        final bnNow = voice.mode == 'bn' ||
+            (voice.mode == 'auto' &&
+                Localizations.localeOf(context).languageCode == 'bn');
+        final langSwitch = Semantics(
+          button: true,
+          label: t.voiceLangSwitchA11y(bnNow ? t.voiceLangBn : t.voiceLangEn),
+          excludeSemantics: true,
+          child: InkWell(
+            key: const Key('voice-lang-switch'),
+            borderRadius: BorderRadius.circular(12),
+            onTap: live ? null : () => voice.setMode(bnNow ? 'en' : 'bn'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 48),
+              child: Center(
+                child: Text(bnNow ? t.voiceLangBn : t.voiceLangEn,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurfaceVariant)),
+              ),
+            ),
+          ),
+        );
         // a11y1: ONE node for TalkBack (label + tap + long-press). Separate
         // tooltip/button nodes left an invisible child node behind when the
         // field scrolled off screen at large text (Flutter asserts on it).
-        return MergeSemantics(
+        if (voice.transcribing) {
+          return Padding(
+            padding: const EdgeInsets.all(12),
+            child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, semanticsLabel: t.voiceTranscribing)),
+          );
+        }
+        return Row(mainAxisSize: MainAxisSize.min, children: [
+          langSwitch,
+          MergeSemantics(
           child: Tooltip(
             message: live ? t.voiceReleaseToStop : t.voiceHoldToTalk,
             child: GestureDetector(
@@ -475,7 +663,8 @@ class VoiceMicButton extends StatelessWidget {
                     ),
             ),
           ),
-        );
+          ),
+        ]);
       },
     );
   }

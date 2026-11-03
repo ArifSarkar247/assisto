@@ -230,6 +230,7 @@ class ApiClient {
     final r = await _c.post(AppConfig.api('/agent'),
         headers: _headers(),
         body: jsonEncode({
+          ...chatExtra, // aifinal: level / follow / photo_job for this turn
           'text': text,
           if (sessionId != null) 'session_id': sessionId,
           if (clientId != null) 'client_id': clientId,
@@ -1587,10 +1588,19 @@ class ApiClient {
   /// POST chat/sessions/<id>/send {text} -> the assistant message
   /// {id, role:'assistant', text, meta, cards?}.
   /// aibar: [clientId] makes a resend idempotent (one answer, one charge).
+  /// aifinal: extra fields the AI chat adds to its next send / stream
+  /// (photo_job = the earlier photo of this chat, level = answer level). Set by
+  /// the chat screen right before each turn; kept as a field so the method
+  /// signatures (and every test fake overriding them) stay unchanged.
+  Map<String, Object?> chatExtra = {};
+
   Future<Map<String, dynamic>> chatSend(String sessionId, String text,
           {String? clientId}) async =>
-      flattenChatReply(await postJson('/chat/sessions/$sessionId/send',
-          {'text': text, if (clientId != null) 'client_id': clientId}));
+      flattenChatReply(await postJson('/chat/sessions/$sessionId/send', {
+        ...chatExtra,
+        'text': text,
+        if (clientId != null) 'client_id': clientId
+      }));
 
   /// POST chat/sessions/<id>/regenerate {edit?} -> a new assistant message.
   /// Pass [edit] to resend an edited version of the last user message.
@@ -1681,8 +1691,11 @@ class ApiClient {
         'POST', AppConfig.api('/chat/sessions/$sessionId/stream'));
     req.headers.addAll(_headers());
     req.headers['Accept'] = 'text/event-stream';
-    req.body = jsonEncode(
-        {'text': text, if (clientId != null) 'client_id': clientId});
+    req.body = jsonEncode({
+      ...chatExtra,
+      'text': text,
+      if (clientId != null) 'client_id': clientId
+    });
     final resp = await _c.send(req);
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
       // credout: keep the server's reason (402 'credits' opens the sheet).

@@ -41,6 +41,9 @@ PLAN, PACK, FREE, REWARDED, REFERRAL, LEGACY, DEBT = (
     "plan", "pack", "free", "rewarded", "referral", "legacy", "debt")
 BUCKETS = (PLAN, PACK, FREE, REWARDED, REFERRAL, LEGACY)
 GROUP = {PLAN: 0, FREE: 1, REWARDED: 1, REFERRAL: 1, LEGACY: 1, PACK: 2}
+# aifinal PART 4: credits the user PAID for (plan pool + packs) — the only
+# ones Better / Best AI answers may spend
+PAID_BUCKETS = (PLAN, PACK)
 
 
 def _far():

@@ -32,21 +32,19 @@ def _lang(case):
 # ---------------------------------------------------------------- copies of
 # inline product instructions (drift-checked by tests_ai_eval)
 CHAT_TASK = (
-    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। উত্তর সবসময় বাংলায় (বাংলা "
-    "হরফে) দাও — প্রশ্নের উত্তর প্রথম বাক্যেই, সংক্ষেপে ও সত্যভাবে। "
-    "'আমার কাছে আপনার তথ্য নেই' দিয়ে কখনো শুরু করবে না। প্রশ্ন তার "
-    "নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে; কোনো সংখ্যা বা তথ্য বানাবে না।",
-    "You are Assisto, a Bangla-first assistant. Reply in English — answer "
-    "the question in the first sentence, briefly and truthfully. Never open "
-    "by saying you don't have the user's data. Use the DATA below only when "
-    "the question is about their own records; never invent numbers or facts.")
+    "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। ব্যবহারকারীর সাথে "
+    "স্বাভাবিক কথোপকথন চালাও — সংক্ষেপে, সত্যভাবে, বাংলায় (যদি সে "
+    "ইংরেজিতে না বলে)। নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে; "
+    "শুধু সেটাই সত্য তথ্য হিসেবে ধরবে, কোনো সংখ্যা বা তথ্য বানাবে না।",
+    "You are Assisto, a Bangla-first assistant. Hold a natural "
+    "conversation — briefly and truthfully, in English if the user "
+    "writes in English. The DATA below summarises the user's own "
+    "data; treat only it as factual and never invent numbers or facts.")
 AGENT_QA_TASK = (
-    "ব্যবহারকারীর প্রশ্নের উত্তর বাংলায় (বাংলা হরফে) দাও — প্রথম বাক্যেই, "
-    "সংক্ষেপে ও সত্যভাবে; 'আপনার তথ্য নেই' দিয়ে শুরু করবে না। প্রশ্ন "
-    "তার নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে।",
-    "Answer the user's question in English, in the first sentence, "
-    "briefly and truthfully; never open by saying you don't have their "
-    "data. Use the DATA below only when the question is about their own records.")
+    "ব্যবহারকারীর প্রশ্নের উত্তর দাও বাংলায়, সংক্ষেপে ও সত্যভাবে। "
+    "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।",
+    "Answer the user's question briefly and truthfully in English. "
+    "The DATA below summarises their own data — treat only it as true.")
 BRIEFING_TASK = (
     "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।",
     "Using the information below, write a short, warm morning briefing for the user (3-4 lines). Write in English.")
@@ -71,9 +69,10 @@ BUSINESS_REPLY_TASK = (
 
 # (source file, exact snippet) — PromptDriftTests asserts each is still there
 DRIFT = [
-    ("core/views_chat.py", "নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে; কোনো সংখ্যা বা তথ্য বানাবে না।"),
-    ("core/views_chat.py", "the question is about their own records; never invent numbers or facts."),
-    ("core/views.py", "তার নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে।"),
+    ("core/views_chat.py", "কোনো সংখ্যা বা তথ্য বানাবে না।"),   # ailang: CHAT_TASK reworded
+    ("core/views_chat.py", "never invent numbers or facts."),
+    # aifinal round 2: the home question now uses the shared chat engine
+    ("core/views_chat.py", "সত্যভাবে ও সম্পূর্ণভাবে।"),
     ("core/views.py", "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।"),
     ("core/jobs.py", "মূল অংশ বুলেট পয়েন্টে লেখো। যা নেই তা বানাবে না।"),
     ("core/jobs.py", "Write a short, sincere cover letter for this job, staying within the user's own information."),

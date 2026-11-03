@@ -8,6 +8,10 @@ import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
+import '../screens/photo_studio_screen.dart'; // aifinal PART 7g
+import '../widgets/ai_generated_label.dart';
+import '../widgets/ai_markdown.dart';
+import '../widgets/chatnav.dart';
 import '../widgets/money_digits.dart' show moneyDigitsFor;
 import '../theme.dart';
 import '../widgets/ai_report.dart'; // ai-report
@@ -16,11 +20,31 @@ import 'cv_controller.dart';
 import 'on_device_vision.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
+/// aifinal PART 7g: does the question ask to CHANGE the photo (not explain
+/// it)? Bilingual keyword rules; a hint for one button only.
+bool wantsPhotoEdit(String q) => RegExp(
+        r'remove (the )?background|white background|change (the )?background|'
+        r'passport|visa photo|edit|retouch|brighten|make it (brighter|clean)|'
+        r'product photo|blur (the )?background|'
+        '\u098f\u09a1\u09bf\u099f|'                      // edit (bn)
+        '\u09ac\u09cd\u09af\u09be\u0995\u0997\u09cd\u09b0\u09be\u0989\u09a8\u09cd\u09a1|' // background (bn)
+        '\u09aa\u09be\u09b8\u09aa\u09cb\u09b0\u09cd\u099f', // passport (bn)
+        caseSensitive: false)
+    .hasMatch(q);
+
 /// A photo the user attached in a chat, plus the question typed with it.
 class ChatPhotoRequest {
   ChatPhotoRequest(this.bytes, this.question);
   final Uint8List bytes;
   final String question;
+
+  /// aifinal PART 1a: the finished chat-vision job of this photo (set when the
+  /// detailed answer is done) so follow-up questions in the same chat can ask
+  /// about it without re-sending the photo. Memory only; never saved.
+  int? answeredJobId;
+
+  /// aifinal round 2: the AI chat session this photo was sent in.
+  String? sessionId;
 }
 
 /// Camera / gallery seam (tests inject bytes). The picker already shrinks the
@@ -121,8 +145,24 @@ class ChatPhotoTurn extends StatefulWidget {
     this.onDevice,
     this.ads,
     this.controller,
+    this.direct = false,
+    this.sessionId,
+    this.onSession,
   });
   final ChatPhotoRequest request;
+
+  /// aifinal round 2 item 3 (AI chat): ONE step — the full answer starts at
+  /// once (plan pool or credits; an ad only when nothing else can pay) and
+  /// shows in ONE bubble with its credits; no on-device block, no
+  /// "Detailed answer" card.
+  final bool direct;
+
+  /// The AI chat this photo belongs to (saved there as text for follow-ups).
+  final String? sessionId;
+
+  /// Called once with the chat id the server saved the photo turn into
+  /// (a brand-new home chat gets its id here).
+  final ValueChanged<String>? onSession;
   final CvBackend? backend;
   final OnDeviceVision? onDevice;
   final PhotoAdBridge? ads;
@@ -148,7 +188,8 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
     _owns = widget.controller == null;
     c = widget.controller ??
         CvController(
-          backend: widget.backend ?? ApiCvBackend(context.read<AppState>().api),
+          backend: widget.backend ??
+              ApiCvBackend(context.read<AppState>().api, sessionId: widget.sessionId),
           bytes: widget.request.bytes,
           question: widget.request.question,
           onDevice: widget.onDevice,
@@ -159,11 +200,40 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
     c.onOutOfCredits ??= () => mounted
         ? CreditsOut.offer(context, screen: 'chat_photo', draftKept: true)
         : Future.value(false);
+    c.addListener(_noteDone);
     if (_owns) WidgetsBinding.instance.addPostFrameCallback((_) => c.start());
+  }
+
+  bool _autoAsked = false;
+
+  void _noteDone() {
+    if (c.phase == CvPhase.done && c.job != null) {
+      widget.request.answeredJobId = c.job!.id;
+      final sid = c.chatSessionId;
+      if (sid != null && widget.request.sessionId != sid) {
+        widget.request.sessionId = sid;
+        widget.onSession?.call(sid);
+      }
+    }
+    // one step: pay from the plan pool or credits without a second tap (the
+    // send itself is the request, like a text question)
+    if (widget.direct && !_autoAsked && c.phase == CvPhase.ready && !c.configFailed) {
+      final q = c.quote;
+      final via = q.option('pool') != null
+          ? 'pool'
+          : (q.option('credits') != null ? 'credits' : null);
+      if (q.ok && via != null) {
+        _autoAsked = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) c.requestDetailed(via);
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
+    c.removeListener(_noteDone);
     if (_owns) c.dispose();
     super.dispose();
   }
@@ -216,7 +286,7 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
         padding: const EdgeInsets.symmetric(vertical: Gap.xs),
         child: ListenableBuilder(
           listenable: c,
-          builder: (context, _) => _AnswerCard(c: c),
+          builder: (context, _) => _AnswerCard(c: c, direct: widget.direct),
         ),
       ),
     ]);
@@ -224,8 +294,9 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
 }
 
 class _AnswerCard extends StatelessWidget {
-  const _AnswerCard({required this.c});
+  const _AnswerCard({required this.c, this.direct = false});
   final CvController c;
+  final bool direct;
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +330,7 @@ class _AnswerCard extends StatelessWidget {
                 : [
                     // NO SHOWPIECES: no on-device reader in this app -> no
                     // "isn't in this version yet" block, just the answer.
-                    if (c.reading.status != OnDeviceStatus.unavailable) ...[
+                    if (!direct && c.reading.status != OnDeviceStatus.unavailable) ...[
                       _onDevice(context, t, scheme),
                       const SizedBox(height: Gap.md),
                       Divider(height: 1, color: scheme.outlineVariant),
@@ -362,7 +433,34 @@ class _AnswerCard extends StatelessWidget {
         body = _Busy(text: t.h1DetailedAnswering);
       case CvPhase.done:
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SelectableText(c.answer, style: const TextStyle(height: 1.45)),
+          if (direct)
+            AiMarkdown(text: c.answer, color: scheme.onSurface, linkColor: scheme.primary)
+          else
+            SelectableText(c.answer, style: const TextStyle(height: 1.45)),
+          // round 2 item 5: the credits this answer took, on its own bubble
+          if (direct && (c.job?.creditsCharged ?? 0) > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(t.aiPhotoCredits(moneyDigitsFor(context, '${c.job!.creditsCharged}')),
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            ),
+          const AiGeneratedLabel(), // aifinal PART 6
+          // aifinal PART 7g: the user asked for an EDIT -> one tap to Photo Studio
+          if (wantsPhotoEdit(c.question) &&
+              ChatNav.routes.containsKey('photo_studio'))
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: OutlinedButton.icon(
+                key: const Key('chatphoto-edit-studio'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => PhotoStudioScreen(
+                        initialBytes: c.bytes,
+                        initialPrompt: c.question))),
+                icon: const Icon(Icons.auto_fix_high_rounded),
+                label: Text(t.psAskStudio),
+              ),
+            ),
           const SizedBox(height: Gap.sm),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
@@ -406,6 +504,7 @@ class _AnswerCard extends StatelessWidget {
       case CvPhase.ready:
         body = _offer(context, t, scheme);
     }
+    if (direct) return body; // one bubble: no "Detailed answer" title
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       title,
       const SizedBox(height: Gap.xs),

@@ -56,6 +56,10 @@ PROVIDER_FILES = {
         "image in chat / sales-agent photo: the IMAGE cannot be masked; the "
         "text that rides with it is masked by chat_vision_service (question + "
         "on-device OCR text); bizagent sends a fixed question + catalog names"),
+    "core/voice_transcribe.py": (
+        "AI chat voice typing fallback: the AUDIO cannot be masked; only the "
+        "recording + a fixed transcription instruction are sent (no history, "
+        "no contacts); the transcript lands in the user's own input box"),
     "core/bizagent_media.py": (
         "voice-note transcription: the AUDIO cannot be masked; nothing else "
         "is sent (no history, no contacts); the transcript then goes through "

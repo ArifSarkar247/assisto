@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../widgets/ai_action_buttons.dart'; // aifinal
+import '../widgets/ai_generated_label.dart'; // aifinal
+import '../widgets/ai_level_picker.dart'; // aifinal
+import '../widgets/ai_markdown.dart'; // aifinal
 import '../api.dart';
 import '../chat_vision/chat_photo.dart';
 import '../state.dart';
@@ -97,7 +101,17 @@ class AgentThreadScreen extends StatefulWidget {
       this.greeting,
       this.initialSend,
       this.heroBuilder,
-      this.photoPicker});
+      this.photoPicker,
+      this.starters = const [],
+      this.showLevels = false});
+
+  /// aifinal PART 3: the answer-level picker above the input (Assisto AI
+  /// screen only; hidden while the owner switch is off).
+  final bool showLevels;
+
+  /// aifinal (owner AI chat history order 4 Nov 00:33): 3-4 starter questions
+  /// shown on an EMPTY chat (Assisto AI screen only; the home passes none).
+  final List<String> starters;
 
   /// SharedPreferences key of the home thread that survives restarts.
   static const sessionKey = 'home_session_id';
@@ -338,6 +352,11 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     var outOfCredits = false;
     var creditsNeed = 0; // billapp: the server's 402 `need`
     try {
+      app.api.chatExtra = {
+        if (_level != null) 'level': _level,
+        if (_follow != null) 'follow': _follow,
+      };
+      _follow = null;
       final r = await app.api
           .agent(text, sessionId: _sessionId, clientId: mine.clientId);
       final sid = r['session_id']?.toString();
@@ -362,6 +381,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
           'credits': r['credits'] ?? 0,
           if (r['balance'] != null) 'balance': r['balance'],
           if (r['text_cut'] == true) 'text_cut': true,
+          // aifinal: cut / refund / level / hint / actions / label
+          for (final k in const ['cut', 'refunded', 'level', 'hint_better', 'actions',
+            'ai_generated', 'follow'])
+            if (r[k] != null) k: r[k],
         };
       }
       setState(() => _msgs.add(answer));
@@ -426,6 +449,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             ? _welcome()
             : _thread(),
       ),
+      if (widget.showLevels)
+        AiLevelPicker(
+            load: () => context.read<AppState>().api.getJson('/chat/levels'),
+            welcome: () =>
+                context.read<AppState>().api.postJson('/chat/welcome-credits', {}),
+            onChanged: (l) => _level = l),
       _inputBar(),
     ]);
   }
@@ -467,6 +496,21 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               ? block
               : hero(context, block, _inputFocus.hasFocus,
                   box.maxHeight.isFinite ? box.maxHeight - Gap.lg - Gap.md : 0),
+          if (widget.starters.isNotEmpty) ...[
+            const SizedBox(height: Gap.lg),
+            for (final q in widget.starters)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: OutlinedButton(
+                  key: ValueKey('starter-$q'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      alignment: Alignment.centerLeft),
+                  onPressed: _sending ? null : () => _send(q),
+                  child: Text(q),
+                ),
+              ),
+          ],
         ],
       ),
     );
@@ -507,10 +551,74 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     _toBottom();
   }
 
+  // ---------------- aifinal: level, Continue, More detail, Copy ----------------
+  String? _level;
+  String? _follow;
+
+  _Msg? _lastAssistant() {
+    for (final m in _msgs.reversed) {
+      if (m.photo != null) return null;
+      if (!m.user) return m;
+      return null;
+    }
+    return null;
+  }
+
+  Widget _followRow(_Msg m) {
+    final cut = m.meta['cut'] == true;
+    return Wrap(spacing: 4, children: [
+      if (cut)
+        FilledButton.tonalIcon(
+          key: const ValueKey('ai-continue'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () {
+            _follow = 'continue';
+            _send(t.aiContinue);
+          },
+          icon: const Icon(Icons.play_arrow_rounded, size: 18),
+          label: Text(t.aiContinue),
+        ),
+      if (m.meta['source'] == 'ai' && !cut)
+        TextButton.icon(
+          key: const ValueKey('ai-more'),
+          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () {
+            _follow = 'more';
+            _send(t.aiMoreDetail);
+          },
+          icon: const Icon(Icons.unfold_more_rounded, size: 18),
+          label: Text(t.aiMoreDetail),
+        ),
+      IconButton(
+        key: const ValueKey('ai-copy'),
+        tooltip: t.aiCopy,
+        onPressed: () async {
+          await Clipboard.setData(ClipboardData(text: m.text));
+          if (mounted) {
+            ScaffoldMessenger.maybeOf(context)
+                ?.showSnackBar(SnackBar(content: Text(t.aiCopied)));
+          }
+        },
+        icon: const Icon(Icons.copy_rounded, size: 18),
+      ),
+    ]);
+  }
+
   // ---------------- bubbles ----------------
   Widget _bubble(_Msg m) {
     final photo = m.photo;
-    if (photo != null) return ChatPhotoTurn(request: photo);
+    if (photo != null) {
+      // aifinal round 2: ONE direct answer bubble, saved into this chat
+      return ChatPhotoTurn(
+          request: photo,
+          direct: true,
+          sessionId: photo.sessionId ?? _sessionId ?? 'home:new',
+          onSession: (sid) {
+            if (_sessionId == sid) return;
+            _sessionId = sid;
+            Settings.setString(AgentThreadScreen.sessionKey, sid);
+          });
+    }
     final scheme = Theme.of(context).colorScheme;
     final bubble = Container(
       constraints:
@@ -527,10 +635,12 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (m.text.isNotEmpty)
-          Text(m.text,
-              style: TextStyle(
-                  color: m.user ? scheme.onPrimary : scheme.onSurface,
-                  height: 1.4)),
+          m.user
+              ? Text(m.text,
+                  style: TextStyle(color: scheme.onPrimary, height: 1.4))
+              // aifinal round 2 item 7: safe markdown (no raw ** in answers)
+              : AiMarkdown(
+                  text: m.text, color: scheme.onSurface, linkColor: scheme.primary),
         for (final c in m.cards) ChatCard(c, onUndo: _undo),
       ]),
     );
@@ -569,6 +679,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               ? bubble
               : AiAnswerLongPress(target: report, child: bubble),
           if (AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
+          if (AiGeneratedLabel.shows(m.meta, null)) const AiGeneratedLabel(),
+          if (AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
+          if (AiActionButtons.shows(m.meta)) AiActionButtons(m.meta),
+          if (identical(m, _lastAssistant()) && !_sending) _followRow(m),
         ])),
         if (report != null) AiReportButton(target: report),
       ]),

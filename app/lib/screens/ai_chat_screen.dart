@@ -10,6 +10,10 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
+import '../widgets/ai_action_buttons.dart';
+import '../widgets/ai_generated_label.dart';
+import '../widgets/ai_level_picker.dart';
+import '../widgets/ai_markdown.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/voice_input.dart';
@@ -224,6 +228,9 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
+
+  /// aifinal PART 3: the answer level the user picked (null = levels off).
+  String? _level;
 
   @override
   void dispose() {
@@ -499,6 +506,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     setState(() => _msgs.add(assistant));
     _toBottom();
 
+    _api.chatExtra = _turnExtra();
     var gotToken = false;
     Object? streamErr;
     final completer = Completer<bool>(); // true = finished via stream
@@ -880,12 +888,33 @@ class _AiChatScreenState extends State<AiChatScreen>
     }
   }
 
+  /// aifinal: extra fields for this turn. photo_job = the latest answered
+  /// photo of this chat (within its last 12 turns) so a follow-up question
+  /// can be about that photo without re-sending it.
+  Map<String, Object?> _turnExtra() {
+    final out = <String, Object?>{if (_level != null) 'level': _level};
+    final recent = _msgs.length > 12 ? _msgs.sublist(_msgs.length - 12) : _msgs;
+    for (final m in recent.reversed) {
+      final id = m.photo?.answeredJobId;
+      if (id != null) {
+        out['photo_job'] = id;
+        break;
+      }
+    }
+    return out;
+  }
+
   // h1-home: attach a photo and ask about it (typed text = the question).
-  void _attachPhoto(Uint8List bytes) {
+  Future<void> _attachPhoto(Uint8List bytes) async {
     final q = _input.text.trim();
     _input.clear();
-    setState(() => _msgs.add(
-        _Msg(user: true, text: q, photo: ChatPhotoRequest(bytes, q))));
+    // round 2: the photo belongs to this chat (saved there as text)
+    final session = await _ensureSession();
+    if (!mounted) return;
+    setState(() => _msgs.add(_Msg(
+        user: true,
+        text: q,
+        photo: ChatPhotoRequest(bytes, q)..sessionId = session?.id)));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
         _scroll.animateTo(_scroll.position.maxScrollExtent,
@@ -963,6 +992,11 @@ class _AiChatScreenState extends State<AiChatScreen>
         if (_loop.active ||
             (widget.debugLoopPhase != null && !_debugLoopEnded))
           _loopBar(),
+        // aifinal PART 3: answer level picker (hidden while the owner switch is off)
+        AiLevelPicker(
+            load: () => _api.getJson('/chat/levels'),
+            welcome: () => _api.postJson('/chat/welcome-credits', {}),
+            onChanged: (l) => _level = l),
         _inputBar(),
       ]),
     );
@@ -1071,7 +1105,9 @@ class _AiChatScreenState extends State<AiChatScreen>
   // ---------------- bubble ----------------
   Widget _bubble(_Msg m, int i) {
     final photo = m.photo;
-    if (photo != null) return ChatPhotoTurn(request: photo);
+    if (photo != null) {
+      return ChatPhotoTurn(request: photo, direct: true, sessionId: photo.sessionId);
+    }
     final scheme = Theme.of(context).colorScheme;
     final isLastAssistant = !m.user && i == _msgs.length - 1 && !m.streaming;
     final isLastUserEditable = m.user &&
@@ -1152,7 +1188,12 @@ class _AiChatScreenState extends State<AiChatScreen>
                 ? bubble
                 : AiAnswerLongPress(target: report, child: bubble),
             // aibar: what this answer really cost (credits + balance after)
+            // aifinal PART 6: every AI answer is labelled "AI generated"
+            if (!m.streaming && AiGeneratedLabel.shows(m.meta, m.source))
+              const AiGeneratedLabel(),
             if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
+            if (!m.streaming && AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
+            if (!m.streaming && AiActionButtons.shows(m.meta)) AiActionButtons(m.meta),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),
@@ -1420,12 +1461,14 @@ class _AiChatScreenState extends State<AiChatScreen>
   // monospace surface; everything else is plain body text.
   Widget _assistantText(_Msg m, ColorScheme scheme) {
     if (m.text.isEmpty && !m.user) return const SizedBox.shrink();
-    if (m.user || !m.text.contains('```')) {
+    if (m.user) {
       return Text(m.text,
-          style: TextStyle(
-              color: m.user ? scheme.onPrimary : scheme.onSurface,
-              height: 1.45));
+          style: TextStyle(color: scheme.onPrimary, height: 1.45));
     }
+    // aifinal PART 1b: assistant prose renders as safe markdown.
+    Widget md(String s) => AiMarkdown(
+        text: s, color: scheme.onSurface, linkColor: scheme.primary);
+    if (!m.text.contains('```')) return md(m.text);
     // Split on fenced code blocks (``` ... ```), keeping text segments plain
     // and code segments in a mono surface.
     final parts = m.text.split('```');
@@ -1455,8 +1498,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               style: AType.bodyMedium.copyWith(fontFamily: 'monospace', height: 1.4)),
         ));
       } else {
-        widgets.add(Text(seg.trim(),
-            style: TextStyle(color: scheme.onSurface, height: 1.45)));
+        widgets.add(md(seg.trim()));
       }
     }
     return Column(
@@ -1578,6 +1620,9 @@ class _HistorySheetState extends State<_HistorySheet> {
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
+
+  /// aifinal PART 3: the answer level the user picked (null = levels off).
+  String? _level;
 
   @override
   void initState() {

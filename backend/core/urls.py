@@ -166,6 +166,8 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+    path("agent/confirm", chatv.AgentConfirmView.as_view()),        # AI rebuild 01:02
+    path("agent/ai-entries", chatv.AgentEntriesView.as_view()),     # AI rebuild 01:02
 
     # AI Chat (Part 3) — ChatGPT-like multi-turn chat with history.
     path("chat/sessions", chatv.ChatSessionsView.as_view()),
@@ -176,6 +178,8 @@ urlpatterns = [
     path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
     path("chat/report", chatv.AiReportView.as_view()),  # ai-report
     path("chat/status", chatv.ChatStatusView.as_view()),  # aivoice
+    path("chat/levels", chatv.ChatLevelsView.as_view()),  # aifinal PART 3
+    path("chat/welcome-credits", chatv.ChatWelcomeCreditsView.as_view()),  # aifinal PART 4
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),
@@ -728,6 +732,7 @@ urlpatterns = [
 
     # ---- a3-voice ---- Part 3 Assisto Voice (wake-word config, key-gated)
     path("voice/config", voicev.VoiceConfigView.as_view()),
+    path("voice/transcribe", voicev.VoiceTranscribeView.as_view()),  # aifinal round 2
     path("voice/youtube", voicev.VoiceYoutubeView.as_view()),
 ]
 

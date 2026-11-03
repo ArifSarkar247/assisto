@@ -69,6 +69,8 @@ DEFAULT_PRICES = {
     "claude-haiku-5-5": {"in": 0.10, "out": 0.50, "cache_read": 0.01, "cache_write": 0.125},
     "gpt-4o-mini": {"in": 0.15, "out": 0.60, "cache_read": 0.075, "cache_write": 0.0},
     "gemini-2.5-flash": {"in": 0.30, "out": 2.50, "cache_read": 0.075, "cache_write": 0.0},
+    # aifinal PART 3 (Normal level): official Gemini API price, checked 3 Nov 2026
+    "gemini-2.5-flash-lite": {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write": 0.0},
 }
 FALLBACK_PRICE = {"in": 4.00, "out": 20.00, "cache_read": 0.40, "cache_write": 5.00}
 PRICE_KEYS = ("in", "out", "cache_read", "cache_write")

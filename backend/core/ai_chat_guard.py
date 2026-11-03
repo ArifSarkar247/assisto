@@ -20,6 +20,7 @@ view.
     the reply says WHICH, instead of the old "the owner hasn't added the key
     yet" (false once keys exist). No credits are taken for these.
 """
+import logging
 import re
 from datetime import timedelta
 
@@ -28,8 +29,10 @@ from django.utils import timezone
 
 from .i18n import pick
 
+log = logging.getLogger(__name__)
+
 USER_TEXT_MAX = 4000          # same as pricing_40 credit_model.user_text_max_chars
-LEGACY_HISTORY_TURNS = 8      # earlier turns sent on the legacy (non-mode) path
+LEGACY_HISTORY_TURNS = 12     # earlier turns sent on the legacy (non-mode) path
 HISTORY_TURN_CHARS = 1200     # each earlier turn is cut to this many characters
 
 _CID = re.compile(r"^[A-Za-z0-9_\-:.]{8,64}$")
@@ -147,6 +150,29 @@ def unavailable_line(reason, lang):
     if row is None and reason and reason != "no_key":
         row = _UNAVAILABLE["queued"]
     return pick(lang, *row) if row else None
+
+
+# aifinal (owner 3 Nov 23:20, PART 1b): users never see admin wording (key,
+# Integrations, owner, provider names). The real reason stays in the owner's
+# payload / the server log; everyone else gets one friendly line.
+FRIENDLY_UNAVAILABLE = (
+    "এই সুবিধাটি এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন।",
+    "This isn't available right now — please try again a little later.")
+
+
+def friendly_needs(state, user, lang):
+    """A provider-state dict with every 'needs' text made user-safe for anyone
+    but the owner (superuser). Never raises; returns a new dict."""
+    if not isinstance(state, dict) or getattr(user, "is_superuser", False):
+        return state
+    out = dict(state)
+    if out.get("needs"):
+        log.info("ai: unavailable for user (%s)", str(out["needs"])[:120])
+        out["needs"] = pick(lang, *FRIENDLY_UNAVAILABLE)
+    if isinstance(out.get("providers"), list):
+        out["providers"] = [dict(r, needs="") if isinstance(r, dict) else r
+                            for r in out["providers"]]
+    return out
 
 
 # ------------------------------------------------------------------ credits

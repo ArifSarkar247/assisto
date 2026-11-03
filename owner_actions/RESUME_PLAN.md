@@ -46,3 +46,8 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 ## Process notes
 - One dedicated integration agent merges green branches into `bNNNi`; lead ships. android.yml dispatches burn build numbers.
 - Daily 21:00 BD report; 15-min guard (p95 > 400 ms or swap growing → pause newest agent).
+
+## AI order 3 Nov 23:15 / 23:20 / 23:25 / 23:33 (branch agent/aifinal, CI ci/aifinal-arb)
+- Order: PART 1 (lang, markdown, photo follow-ups, friendly lines, refunds) → 2 usage log → 3 answer levels → 4 credits → 5 action buttons → 6 compliance → 7 Photo Studio chat editing → 8 Account recovery.
+- PART 8 (23:33, text in scratchpad recovery_order_2333.txt): Account & security page, email add/verify (6-digit, 45 s resend, 10 min, 5 tries), gentle add-email nudge, forgot password via SMS or verified email, lost-phone recovery request with My Circle confirmation + 48 h hold, change alerts with "This was not me" lock, no phone+email change within 24 h, password change signs out other devices, rate limits.
+- State 4 Nov ~02:00 (agent/aifinal): PARTs 1-7 + rounds 2/3/4 + rebuild 01:02/01:05/01:12 committed. LEFT: PART 8 account recovery (server draft in scratchpad part8_wip/account_security.py + otp email 10-min/45-s diff — not wired, no app screen yet); Photo Studio direct "send to My Circle / business catalog" (share sheet works today); stop button on the HOME chat (not streamed); live exam run + ai_live_e2e (lead, after deploy); Test Lab Robo run (lead dispatch, free Spark quota); Play pre-launch report has no public API — read it in Play Console by hand.

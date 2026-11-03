@@ -1,0 +1,257 @@
+{
+ "en": {
+  "aimdOpenLinkTitle": "Open this link?",
+  "@aimdOpenLinkTitle": {
+   "description": "aifinal: confirm before an AI answer link leaves the app"
+  },
+  "aimdOpenLink": "Open",
+  "@aimdOpenLink": {
+   "description": "aifinal: confirm button to open an AI answer link"
+  },
+  "ailvChip": "{name} · {n} credits",
+  "@ailvChip": {
+   "description": "aifinal: answer level chip with credits per answer",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvChipA11y": "{name}, {n} credits per answer",
+  "@ailvChipA11y": {
+   "description": "aifinal: answer level chip for TalkBack",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvUnavailable": "temporarily unavailable",
+  "@ailvUnavailable": {
+   "description": "aifinal: level whose daily budget is used up"
+  },
+  "ailvEstimate": "This answer: about {n} credits",
+  "@ailvEstimate": {
+   "description": "aifinal: estimated credits before sending",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvHintBetter": "Tip: 'Better' may answer a question like this well.",
+  "@ailvHintBetter": {
+   "description": "aifinal: hint only, never an upgrade"
+  },
+  "credoutPremium": "See Premium — more credits every month",
+  "@credoutPremium": {
+   "description": "aifinal: out-of-credits sheet option to open the plans"
+  },
+  "aiactSafeJourney": "Start Safe Journey",
+  "@aiactSafeJourney": {
+   "description": "aifinal: AI action: open Safe Journey (share live location with a chosen contact)"
+  },
+  "aiactDestAlarm": "Set destination alarm",
+  "@aiactDestAlarm": {
+   "description": "aifinal: AI action: destination alarm"
+  },
+  "aiactReminder": "Add a reminder",
+  "@aiactReminder": {
+   "description": "aifinal: AI action: reminders"
+  },
+  "aiactInvoice": "Create invoice",
+  "@aiactInvoice": {
+   "description": "aifinal: AI action: new invoice"
+  },
+  "aiactCctv": "Open CCTV",
+  "@aiactCctv": {
+   "description": "aifinal: AI action: open CCTV"
+  },
+  "aiactCall999": "Call 999",
+  "@aiactCall999": {
+   "description": "aifinal: AI action: emergency call"
+  },
+  "aiactConfirmOpen": "Open this now? Nothing happens until you choose on the next screen.",
+  "@aiactConfirmOpen": {
+   "description": "aifinal: AI action confirm"
+  },
+  "aiactConfirmCall": "Call 999 (national emergency) now?",
+  "@aiactConfirmCall": {
+   "description": "aifinal: AI action confirm emergency call"
+  },
+  "aiactCallNow": "Call now",
+  "@aiactCallNow": {
+   "description": "aifinal: AI action confirm button for 999"
+  },
+  "aiGenLabel": "AI generated · general information, may be wrong",
+  "@aiGenLabel": {
+   "description": "aifinal PART 6: label under every AI answer"
+  },
+  "psChatHint": "Type or say what to change — each new instruction edits the last result.",
+  "@psChatHint": {
+   "description": "aifinal PART 7: photo studio chat-style editing hint"
+  },
+  "psAskStudio": "Edit in Photo Studio",
+  "@psAskStudio": {
+   "description": "aifinal PART 7: AI chat photo answer button to open Photo Studio with the same photo"
+  },
+  "aiPhotoCredits": "{n} credits used for this photo answer",
+  "@aiPhotoCredits": {
+   "description": "aifinal round 2: credits shown on the photo answer bubble",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvNameNormal": "Normal",
+  "@ailvNameNormal": {
+   "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBetter": "Better",
+  "@ailvNameBetter": {
+   "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBest": "Best",
+  "@ailvNameBest": {
+   "description": "aifinal: answer level name in the credit history"
+  },
+  "voiceLangBn": "BN",
+  "@voiceLangBn": {
+   "description": "aifinal round 2 voice: mic language switch: Bangla"
+  },
+  "voiceLangEn": "EN",
+  "@voiceLangEn": {
+   "description": "aifinal round 2 voice: mic language switch: English"
+  },
+  "voiceLangSwitchA11y": "Voice language: {lang}. Double tap to switch.",
+  "@voiceLangSwitchA11y": {
+   "description": "aifinal round 2 voice: TalkBack label of the mic language switch",
+   "placeholders": {
+    "lang": {
+     "type": "String"
+    }
+   }
+  },
+  "voiceServerFailed": "Couldn't write that down — no credits were used. Please try again.",
+  "@voiceServerFailed": {
+   "description": "aifinal round 2 voice: server transcription failed"
+  },
+  "voiceTranscribing": "Writing down what you said…",
+  "@voiceTranscribing": {
+   "description": "aifinal round 2 voice: server transcription in progress"
+  },
+  "aiChatsPanel": "Chats",
+  "@aiChatsPanel": {
+   "description": "aifinal chat history: side panel button (opens the chat list)"
+  },
+  "aiStarter1": "Plan a safe trip from Dhaka to Gazipur",
+  "@aiStarter1": {
+   "description": "aifinal chat history: starter question 1"
+  },
+  "aiStarter2": "Remind me to take my medicine at 9 pm",
+  "@aiStarter2": {
+   "description": "aifinal chat history: starter question 2"
+  },
+  "aiStarter3": "How much did I spend this month?",
+  "@aiStarter3": {
+   "description": "aifinal chat history: starter question 3"
+  },
+  "aiStarter4": "Write a polite message to my landlord",
+  "@aiStarter4": {
+   "description": "aifinal chat history: starter question 4"
+  },
+  "aiContinue": "Continue",
+  "@aiContinue": {
+   "description": "aifinal round 3: continue a cut answer from where it stopped (free)"
+  },
+  "aiMoreDetail": "More detail",
+  "@aiMoreDetail": {
+   "description": "aifinal round 3: expand the last answer"
+  },
+  "aiCopy": "Copy",
+  "@aiCopy": {
+   "description": "aifinal round 3: copy the answer"
+  },
+  "aiCopied": "Copied",
+  "@aiCopied": {
+   "description": "aifinal round 3: snackbar after copy"
+  },
+  "aiConfirmFailed": "Couldn't save it right now — please try again.",
+  "@aiConfirmFailed": {
+   "description": "AI rebuild: confirm card failed"
+  },
+  "aiEntriesTitle": "Entries the AI saved",
+  "@aiEntriesTitle": {
+   "description": "AI rebuild clean-up: sheet title"
+  },
+  "aiEntriesNone": "Nothing saved by the AI in the last 14 days.",
+  "@aiEntriesNone": {
+   "description": "AI rebuild clean-up: empty"
+  },
+  "aiEntriesDeleteAll": "Delete all of these",
+  "@aiEntriesDeleteAll": {
+   "description": "AI rebuild clean-up: one-tap clean-up"
+  },
+  "aiEntriesDeleted": "Deleted {n} entries.",
+  "@aiEntriesDeleted": {
+   "description": "AI rebuild clean-up: after clean-up",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "aimdOpenLinkTitle": "এই লিংকটি খুলবেন?",
+  "aimdOpenLink": "খুলুন",
+  "ailvChip": "{name} · {n} ক্রেডিট",
+  "ailvChipA11y": "{name}, প্রতি উত্তরে {n} ক্রেডিট",
+  "ailvUnavailable": "সাময়িকভাবে বন্ধ",
+  "ailvEstimate": "এই উত্তরে আনুমানিক {n} ক্রেডিট লাগবে",
+  "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।",
+  "credoutPremium": "প্রিমিয়াম দেখুন — প্রতি মাসে বেশি ক্রেডিট",
+  "aiactSafeJourney": "নিরাপদ যাত্রা শুরু করুন",
+  "aiactDestAlarm": "গন্তব্যের অ্যালার্ম দিন",
+  "aiactReminder": "রিমাইন্ডার যোগ করুন",
+  "aiactInvoice": "ইনভয়েস তৈরি করুন",
+  "aiactCctv": "সিসিটিভি খুলুন",
+  "aiactCall999": "৯৯৯-এ কল করুন",
+  "aiactConfirmOpen": "এখন খুলবেন? পরের স্ক্রিনে আপনি না বেছে নেওয়া পর্যন্ত কিছুই হবে না।",
+  "aiactConfirmCall": "এখনই ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করবেন?",
+  "aiactCallNow": "এখনই কল",
+  "aiGenLabel": "AI-তৈরি উত্তর · সাধারণ তথ্য, ভুল হতে পারে",
+  "psChatHint": "কী বদলাতে চান লিখুন বা বলুন — প্রতিটি নতুন নির্দেশ শেষ ফলাফলটির উপরেই কাজ করে।",
+  "psAskStudio": "ফটো স্টুডিওতে এডিট করুন",
+  "aiPhotoCredits": "এই ছবি-উত্তরে {n} ক্রেডিট লেগেছে",
+  "ailvNameNormal": "সাধারণ",
+  "ailvNameBetter": "ভালো",
+  "ailvNameBest": "সেরা",
+  "voiceLangBn": "বাং",
+  "voiceLangEn": "ইং",
+  "voiceLangSwitchA11y": "কণ্ঠের ভাষা: {lang}। বদলাতে দুবার চাপুন।",
+  "voiceServerFailed": "কথাটি লেখা গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
+  "voiceTranscribing": "আপনার কথা লেখা হচ্ছে…",
+  "aiChatsPanel": "চ্যাটগুলো",
+  "aiStarter1": "ঢাকা থেকে গাজীপুর নিরাপদে যাওয়ার পরিকল্পনা করে দাও",
+  "aiStarter2": "রাত ৯টায় ওষুধ খাওয়ার কথা মনে করিয়ে দিও",
+  "aiStarter3": "এই মাসে আমার কত খরচ হয়েছে?",
+  "aiStarter4": "বাড়িওয়ালাকে একটি ভদ্র বার্তা লিখে দাও",
+  "aiContinue": "চালিয়ে যাও",
+  "aiMoreDetail": "আরও বিস্তারিত",
+  "aiCopy": "কপি",
+  "aiCopied": "কপি হয়েছে",
+  "aiConfirmFailed": "এই মুহূর্তে সেভ করা গেল না — আবার চেষ্টা করুন।",
+  "aiEntriesTitle": "AI যা সেভ করেছে",
+  "aiEntriesNone": "গত ১৪ দিনে AI কিছু সেভ করেনি।",
+  "aiEntriesDeleteAll": "এগুলো সব মুছে দিন",
+  "aiEntriesDeleted": "{n}টি এন্ট্রি মুছে দেওয়া হয়েছে।"
+ }
+}

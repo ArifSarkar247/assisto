@@ -8,6 +8,7 @@
   NOTHING (no turn, no reply, no charge) so the app can keep the typed text,
   open the buy-credits sheet and send the same request again.
 """
+import unittest
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -148,6 +149,7 @@ class OutOfCreditsChatTests(_AiOn, TestCase):
         self._assert_402(r)
         self.assertFalse(ChatSession.objects.filter(user=self.u, source="home").exists())
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_home_agent_actions_never_need_credits(self):
         r = self.c.post("/api/v1/agent", {"text": "remind me to call mom tomorrow 9am"},
                         format="json")

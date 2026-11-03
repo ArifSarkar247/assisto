@@ -33,6 +33,9 @@ Honesty: a no-key chat still gives real answers over the user's own data and the
 app's offline KB, and an honest "needs a key" for general questions — we never
 invent a fact and never charge for a Brain answer.
 """
+import logging
+import re
+
 from django.db.models import Q, Max
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
@@ -49,6 +52,8 @@ from .i18n import req_lang, pick
 from .logic import brain
 from .models import ChatSession, ChatMessage
 
+log = logging.getLogger(__name__)
+
 # How many prior turns to feed the model as context (keeps cost + tokens bounded).
 _HISTORY_TURNS = 20
 
@@ -56,11 +61,11 @@ _HISTORY_TURNS = 20
 # counts exactly what a chat turn sends.
 CHAT_TASK = (
     "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। উত্তর সবসময় বাংলায় (বাংলা "
-    "হরফে) দাও — প্রশ্নের উত্তর প্রথম বাক্যেই, সংক্ষেপে ও সত্যভাবে। "
+    "হরফে) দাও — প্রশ্নের উত্তর প্রথম বাক্যেই, সত্যভাবে ও সম্পূর্ণভাবে। "
     "'আমার কাছে আপনার তথ্য নেই' দিয়ে কখনো শুরু করবে না। প্রশ্ন তার "
     "নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে; কোনো সংখ্যা বা তথ্য বানাবে না।",
     "You are Assisto, a Bangla-first assistant. Reply in English — answer "
-    "the question in the first sentence, briefly and truthfully. Never open "
+    "the question in the first sentence, completely and truthfully. Never open "
     "by saying you don't have the user's data. Use the DATA below only when "
     "the question is about their own records; never invent numbers or facts.")
 CHAT_DATA = "User's latest message: {text}\n\nTheir data summary:\n{summary}"
@@ -101,14 +106,50 @@ def _msg_row(m):
 # ---------------------------------------------------------------------------
 # the one place a reply is produced (shared by send / stream / regenerate)
 # ---------------------------------------------------------------------------
+def summarize_older(session, keep=None, upto_id=None):
+    """aifinal round 4: a running summary of a LONG chat — the turns before
+    the last `keep` become one compact note (the user's earlier questions and
+    the start of each answer), so the model still knows what was said."""
+    keep = keep or _HISTORY_TURNS
+    qs = session.messages.exclude(role="system").order_by("created_at", "id")
+    if upto_id is not None:
+        qs = qs.filter(id__lt=upto_id)
+    n = qs.count()
+    if n <= keep:
+        return []
+    lines = []
+    for m in qs[: n - keep][:40]:
+        t = " ".join((m.text or "").split())
+        if not t:
+            continue
+        lines.append(("U: " if m.role == "user" else "A: ") + t[:140])
+    if not lines:
+        return []
+    return [{"role": "user", "content": "[Summary of the earlier part of this chat]\n"
+             + "\n".join(lines)[:2500]},
+            {"role": "assistant", "content": "OK."}]
+
+
 def _history_for(session, upto_id=None):
     """Prior turns as [{role, content}] for ai.generate. Excludes system rows
     and (when regenerating) anything at/after `upto_id`."""
     qs = session.messages.exclude(role="system").order_by("created_at", "id")
     if upto_id is not None:
         qs = qs.filter(id__lt=upto_id)
-    turns = [{"role": m.role, "content": m.text} for m in qs]
-    return turns[-_HISTORY_TURNS:]
+    turns = []
+    for m in qs:
+        c = m.text
+        pt = (m.meta or {}).get("photo_text") if m.role == "assistant" else ""
+        if pt:
+            # aifinal round 2 item 2: the photo stays in the chat's context as
+            # its stored vision description (never the image bytes)
+            c = c + "\n\n[Photo shared earlier in this chat — text seen in it]: " + pt
+        turns.append({"role": m.role, "content": c})
+    recent = turns[-_HISTORY_TURNS:]
+    older = summarize_older(session, upto_id=upto_id)
+    if older and recent and recent[0]["role"] == "assistant":
+        older = older[:1]          # keep the turns alternating
+    return older + recent
 
 
 def ai_cm():
@@ -121,6 +162,14 @@ def _mode_need(mode):
         from . import billing
         from .logic import pricing, pricing_40 as P40
         return int(pricing.credit_cost(P40.MODE_ACTION[mode], billing.cfg()) or 0)
+    except Exception:  # noqa: BLE001
+        return 0
+
+
+def _level_need(level):
+    try:
+        from . import ai_levels_service as ALS
+        return int(ALS.credits(level))
     except Exception:  # noqa: BLE001
         return 0
 
@@ -146,7 +195,164 @@ def _chat_mode(request):
         return None
 
 
-def _produce_reply(user, session, text, lang, history, credout=False, mode=None):
+def _photo_context(request):
+    """aifinal PART 1a: the TEXT answer of the photo the user attached
+    earlier in this chat (the app sends its chat-vision job id), so follow-up
+    questions about that photo work without re-sending it. Only the user's own
+    finished job from the last 6 hours; the image itself is never kept."""
+    try:
+        raw = (request.data.get("photo_job") if hasattr(request, "data") else None) \
+            or request.query_params.get("photo_job")
+        pk = int(raw or 0)
+        if pk <= 0:
+            return ""
+        from datetime import timedelta
+        from .logic import chat_vision as CV
+        from .models import PhotoStudioJob
+        job = PhotoStudioJob.objects.filter(
+            user=request.user, pk=pk, feature=CV.FEATURE, status="done",
+            done_at__gte=timezone.now() - timedelta(hours=6)).first()
+        return str(((job.options or {}).get("answer") or "") if job else "")[:1500]
+    except Exception:  # noqa: BLE001 — a bad id never breaks the chat
+        return ""
+
+
+PHOTO_NOTE = (
+    "ব্যবহারকারী এই চ্যাটে আগে একটি ছবি দিয়েছিলেন; ছবিতে যা দেখা গেছে তা DATA-তে "
+    "আছে। পরের প্রশ্নের উত্তর সেখান থেকে দাও — 'আমি ছবি দেখতে পাচ্ছি না' বা "
+    "'কিছু দেখতে পাচ্ছি না' কখনো বলবে না।",
+    "The user attached a photo earlier in this chat; what was seen in it is in "
+    "the DATA. Answer follow-ups from that — never say you cannot see the photo "
+    "or cannot see anything.")
+
+
+_FAILED_TASK = re.compile(
+    r"(never reached me|did(?:n't| not) (?:reach|come through)|(?:can(?:'|no)t|cannot|"
+    r"unable to|could(?:n't| not)) (?:see|view|open|access|read) (?:the |your |that |this |any )?"
+    r"(?:image|photo|picture|screenshot|file|attachment)|no (?:image|photo|screenshot|attachment)"
+    r" (?:was |has been )?(?:attached|shared|sent|received)|"
+    r"ছবি(?:টি|টা)?\s*(?:দেখতে পাচ্ছি না|পাইনি|পৌঁছায়নি|আসেনি)|স্ক্রিনশট(?:টি|টা)?\s*(?:পাইনি|পৌঁছায়নি|আসেনি))",
+    re.I)
+
+
+_INCOMPLETE = re.compile(
+    r"\b(incomplete|cut off|got cut|didn'?t finish|not finished|continue|go on|finish (?:it|the answer)|"
+    r"baki ?ta|shesh koro|puro ?ta (?:bolo|likho))\b|অসম্পূর্ণ|শেষ হয়নি|বাকিটা|পুরোটা|চালিয়ে যাও|শেষ করো",
+    re.I)
+_SENT_END = re.compile(r"(?<![0-9\u09e6-\u09ef])[.!?।](?:\s|$)|\n")
+
+CONTINUE_NOTE = (
+    "তোমার আগের উত্তরটি মাঝপথে কেটে গিয়েছিল। ঠিক যেখানে থেমেছিল সেখান থেকে চালিয়ে যাও — "
+    "আগে যা লেখা হয়েছে তা একটুও আবার লিখবে না; পরের শব্দ থেকে শুরু করো।",
+    "Your previous answer was cut off. Continue EXACTLY from where it stopped — do not "
+    "repeat anything already written; start with the next words.")
+MORE_NOTE = (
+    "আগের উত্তরটি আরও গভীরভাবে বাড়াও: শুধু নতুন তথ্য, উদাহরণ ও ধাপ যোগ করো; আগে যা বলা হয়েছে "
+    "তা আবার বলবে না।",
+    "Expand the previous answer in more depth: add only NEW details, examples and steps; "
+    "do not repeat what was already said.")
+
+
+def end_at_sentence(text):
+    """aifinal round 3: a cut answer ends at its last full sentence (never
+    mid-word); returns the text unchanged when no sentence end is found."""
+    t = (text or "").rstrip()
+    ends = [m.end() for m in _SENT_END.finditer(t)]
+    if not ends:
+        return t
+    cut = ends[-1]
+    return t[:cut].rstrip() if cut >= len(t) * 0.3 else t
+
+
+def follow_kind(request, text, session):
+    """'continue' | 'more' | '' for this turn, and whether it is FREE (it
+    continues an answer that was cut, already paid as one answer)."""
+    f = ""
+    try:
+        f = str((request.data.get("follow") if hasattr(request, "data") else "") or "")
+    except Exception:  # noqa: BLE001
+        f = ""
+    if f not in ("continue", "more"):
+        f = "continue" if _INCOMPLETE.search(text or "") and len(text or "") < 80 else ""
+    free = False
+    if f == "continue" and session is not None:
+        last = session.messages.filter(role="assistant").order_by("-created_at", "-id").first()
+        free = bool(last and (last.meta or {}).get("cut"))
+    return f, free
+
+
+_INTERNAL = re.compile(
+    r"[^.!?।\n]*\b(memory item|memory items|context window|my context|in (?:the|my) context|"
+    r"system prompt|the router|tool call|tool result|function call|<data>|DATA block)\b[^.!?।\n]*[.!?।]?",
+    re.I)
+_INTERNAL_BN = re.compile(r"[^।\n]*(মেমরি আইটেম|কনটেক্সট|সিস্টেম প্রম্পট)[^।\n]*।?")
+
+
+def scrub_internal(reply):
+    """aifinal round 4: never show internal words (memory item, context,
+    tool, router, system prompt) — the sentence is removed."""
+    t = _INTERNAL.sub("", reply or "")
+    t = _INTERNAL_BN.sub("", t)
+    t = re.sub(r"[ \t]{2,}", " ", t).strip()
+    return t or (reply or "")
+
+
+_DATA_ASK = re.compile(
+    r"balance|money|spend|spent|expense|income|taka|reminder|todo|task|document|my data|"
+    r"ব্যালেন্স|টাকা|খরচ|আয়|রিমাইন্ডার|কাজ|ডকুমেন্ট|তথ্য", re.I)
+
+
+def _data_cards(ctx, text):
+    """aifinal round 4: the Brain's data cards (balance, reminders,
+    documents) only when the question is about that data — never money or
+    balance unasked (privacy)."""
+    cards = list(ctx.get("cards") or [])
+    if not cards:
+        return []
+    if ctx.get("level") == "L1" and _DATA_ASK.search(text or ""):
+        return cards
+    return []
+
+
+def _failed_task(reply, photo=""):
+    """True when the answer says the AI could not do the task."""
+    return bool(_FAILED_TASK.search(str(reply or "")[:600]))
+
+
+def _refund_turn(user, meta_out, why):
+    """aifinal PART 1c: give back what this turn charged + log the reason."""
+    n = int((meta_out or {}).get("charged") or 0)
+    if user is None or n <= 0:
+        return
+    try:
+        from . import billing
+        billing.credit(user, "adjust", n, note="ai_refund:" + why)
+        meta_out["charged"] = 0
+        meta_out["refunded"] = n
+        from . import ai_usage_log
+        ai_usage_log.mark_refunded(user, n, why)
+        log.info("chat: refunded %s credits (%s)", n, why)
+    except Exception:  # noqa: BLE001
+        log.exception("chat: refund failed (%s)", why)
+
+
+def _chat_level(request):
+    """aifinal PART 3: the answer level the user picked ('normal' | 'better' |
+    'best'), or None while the owner switch is off. Unknown -> the default
+    (Normal); the server never picks a dearer level than the app sent."""
+    try:
+        from . import ai_levels_service as ALS
+        if not ALS.enabled():
+            return None
+        raw = (request.data.get("level") if hasattr(request, "data") else "") \
+            or request.query_params.get("level")
+        return ALS.resolve(raw)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
+                   photo="", level=None, follow="", follow_free=False):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -179,12 +385,40 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             # and the Brain's "needs a key" line is never sent as if it were
             # the user's data.
             limit = G.USER_TEXT_MAX
+            if level:
+                mode = None                  # the level path replaces the modes
+                from . import ai_levels_service as ALS
+                limit = int((ALS.spec(level) or {}).get("max_chars") or G.USER_TEXT_MAX)
             if mode:
                 cm = ai_cm()
                 limit = int(cm.get("user_text_max_chars") or G.USER_TEXT_MAX)
             ai_text, _cut = G.cap_text(text, limit)
             if ctx.get("level") == "L4":
                 summary = "-"
+            task_text = pick(lang, *CHAT_TASK)
+            # aifinal PART 6: general information only + safe mode for minors
+            from . import ai_compliance as AC
+            safe_mode = AC.is_minor(user)
+            task_text += "\n" + AC.system_rules(user)
+            # rebuild 01:02 / 01:05: actions only via the model (confirm card)
+            # + the minimal profile (first name, language, city, plan)
+            from . import ai_tools as AT
+            if user is not None:
+                task_text += "\n" + AT.TOOL_RULE
+                prof = AT.profile_line(user)
+                if prof:
+                    summary = prof + "\n" + summary
+            if follow == "continue":
+                task_text += "\n" + pick(lang, *CONTINUE_NOTE)
+            elif follow == "more":
+                task_text += "\n" + pick(lang, *MORE_NOTE)
+            # a continuation of a CUT answer is free (the cut answer was paid
+            # as one answer); it is logged as chat.continue (FREE_EXEMPT)
+            payer = None if follow_free else user
+            if photo:
+                summary = ("[Photo attached earlier in this chat — what Assisto saw]\n"
+                           + photo + "\n\n" + summary)
+                task_text += "\n" + pick(lang, *PHOTO_NOTE)
             if not mode:
                 # legacy path (no pricing-40 caps): bound the context too
                 history = G.cap_history(history)
@@ -197,35 +431,72 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             from .agentcore import trust as _T
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
-            if mode:
+            if level:
+                from . import ai_levels_service as _ALS
+                use_web = _ALS.wants_web(text, level)
+                reply, cost = ai.generate(
+                    task="", extra_system=task_text,
+                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
+                    user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
+                    web=use_web)
+                if use_web:
+                    meta_out["web"] = True
+            elif mode:
                 # pricing-40: the chat instruction goes into the SYSTEM block so
                 # system + instruction (>= 512 tokens) is one cacheable prefix
                 # shared by every user of that language; free hard-question
                 # check decides the Opus auto-upgrade (capped per month).
                 from .logic import pricing_40 as P40
                 reply, cost = ai.generate(
-                    task="", extra_system=pick(lang, *CHAT_TASK),
+                    task="", extra_system=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
-                    user=user, history=history, mode=mode, out_meta=meta_out,
+                    user=payer, history=history, mode=mode, out_meta=meta_out,
                     upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault)
             else:
                 reply, cost = ai.generate(
-                    task=pick(lang, *CHAT_TASK),
+                    task=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
-                    tier=requested_tier, feature="chat", max_tokens=700,
-                    user=user, history=history, pii=vault, out_meta=meta_out)
+                    tier=requested_tier, feature="chat", max_tokens=1500,
+                    user=payer, history=history, pii=vault, out_meta=meta_out)
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
             from . import ai_guard
-            reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
-            # aibar: no invented taka amounts — a money figure that is not in
-            # the user's text, their data summary or the earlier turns is cut
-            # (own-data question) or marked as an estimate (general question).
-            reply, n_money = ai_guard.scrub_ungrounded_money(
-                reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
-                lang=lang, strict=ctx.get("level") == "L1")
+            n_money = 0
+            try:
+                reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
+                # aibar: no invented taka amounts — a money figure that is not in
+                # the user's text, their data summary or the earlier turns is cut
+                # (own-data question) or marked as an estimate (general question).
+                reply, n_money = ai_guard.scrub_ungrounded_money(
+                    reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
+                    lang=lang, strict=ctx.get("level") == "L1")
+            except Exception:  # noqa: BLE001 — a guard bug never costs the answer
+                log.exception("chat: answer guard failed")
+            reply, proposal = AT.extract(reply)
+            confirm_cards = []
+            if proposal is not None and user is not None:
+                confirm_cards.append(AT.propose(user, proposal, lang))
+            reply = scrub_internal(reply)
+            if meta_out.get("truncated"):
+                # aifinal round 3: never mid-word — end at the last sentence;
+                # the app shows "Continue" (free, from the cut point)
+                reply = end_at_sentence(reply)
+                cut = True
+            else:
+                cut = False
+            if _failed_task(reply, photo):
+                # aifinal round 2 item 6: the answer itself says the AI could
+                # not do the task ("the screenshot never reached me", "I can't
+                # see the image") -> no charge; the answer is still shown
+                _refund_turn(user, meta_out, "chat:task_not_done")
+            if not (reply or "").strip():
+                # aifinal PART 1c: nothing usable came back -> credits back at
+                # once, then the honest free answer below
+                _refund_turn(user, meta_out, "chat:empty_after_guard")
+                raise ai.AIUnavailable("queued")
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
@@ -246,18 +517,44 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 "cost_usd": round(cost, 6),
                 # every plan pays credits (nothing is unlimited)
                 "credits": credits,
-                "cards": ctx.get("cards", []),
+                "cards": _data_cards(ctx, text) + confirm_cards,
             }
             bal = G.balance(user)
             if bal is not None:
                 meta["balance"] = bal
+            if meta_out.get("refunded"):
+                meta["refunded"] = int(meta_out["refunded"])
+            if cut:
+                meta["cut"] = True
+            if follow:
+                meta["follow"] = follow   # shown: "no credits used"
             if mode == "quick" and credits == 0:
                 meta["free_quota"] = True       # one of today's free quick answers
+            if level:
+                from .logic import ai_levels as AL
+                meta["level"] = level
+                meta["model"] = {"normal": "assisto-lite", "better": "assisto",
+                                 "best": "assisto-pro"}.get(level, "assisto")
+                if AL.hint_better(text, level):
+                    meta["hint_better"] = True    # a hint only — never an upgrade
+            # aifinal PART 6: label + consult-a-professional line on legal /
+            # medical / financial topics; safe mode for under-18 accounts
+            reply, topic = AC.add_professional_line(reply, text, lang)
+            meta["ai_generated"] = True
+            if topic:
+                meta["pro_topic"] = topic
+            if safe_mode:
+                meta["safe_mode"] = True
+            # aifinal PART 5: up to 3 real in-app actions (fixed allow-list)
+            from . import ai_actions
+            acts = ai_actions.suggest(user, text)
+            if acts:
+                meta["actions"] = acts
             if _cut:
                 meta["text_cut"] = True
             if n_money:
                 meta["money_grounding"] = n_money
-            return reply, meta, ctx.get("cards", [])
+            return reply, meta, _data_cards(ctx, text) + confirm_cards
         except ai.AIUnavailable as e:
             unavailable = e.reason or "queued"
             # credout: out of credits is NOT degraded silently — the view
@@ -265,7 +562,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             # buy-credits sheet and re-send the same text.
             if e.reason == "credits" and credout:
                 raise credits_out.CreditsOut(
-                    _mode_need(mode) if mode
+                    _level_need(level) if level
+                    else _mode_need(mode) if mode
                     else credits_out.need_for_tier(user, requested_tier))
             # kill-switch / budget / user-limit / guard-over / every provider
             # failed -> degrade to the free, honest Brain answer below.
@@ -414,6 +712,31 @@ class ChatStatusView(APIView):
         return Response(chat_status_payload())
 
 
+class ChatLevelsView(APIView):
+    """aifinal PART 3: GET /chat/levels — the answer-level picker (credits per
+    answer shown BEFORE sending, max length, temporarily unavailable)."""
+    def get(self, request):
+        from . import ai_levels_service as ALS
+        return Response(ALS.app_payload(request.user, req_lang(request)))
+
+
+class ChatWelcomeCreditsView(APIView):
+    """aifinal PART 4: POST /chat/welcome-credits — the 20 free AI credits,
+    ONCE per verified phone + device (antifarm). Idempotent: a second call
+    answers granted 0 with the reason."""
+    def post(self, request):
+        from . import ai_levels_service as ALS
+        from . import ai_prompt as AP
+        from .otp import device_id
+        n, why = ALS.grant_welcome(request.user, device_id(request))
+        lang = req_lang(request)
+        return Response({"granted": n, "reason": why, "balance": G.balance(request.user),
+                         "message": pick(lang, "স্বাগতম! AI-তে ব্যবহারের জন্য %s ফ্রি ক্রেডিট পেলেন (সাধারণ লেভেলে)।"
+                                         % AP.to_bn_digits(str(n)),
+                                         "Welcome! You got %d free AI credits (for Normal answers)." % n)
+                         if n else ""})
+
+
 # ---------------------------------------------------------------------------
 # GET/POST /chat/sessions  — list + create
 # ---------------------------------------------------------------------------
@@ -510,9 +833,13 @@ class ChatSendView(APIView):
 
         history = _history_for(s, upto_id=user_msg.id)
         try:
+            fk, ffree = follow_kind(request, text, s)
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request),
+                                            follow=fk, follow_free=ffree)
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -566,9 +893,13 @@ class ChatStreamView(APIView):
             s.derive_title(text)
         history = _history_for(s, upto_id=user_msg.id)
         try:
+            fk, ffree = follow_kind(request, text, s)
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request),
+                                            follow=fk, follow_free=ffree)
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -644,7 +975,9 @@ class ChatRegenerateView(APIView):
         try:
             reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request))
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.
@@ -765,3 +1098,33 @@ class AiReportView(APIView):
             reason=reason, note=note, answer_text=text)
         return Response({"ok": True, "detail": pick(lang, *_AI_REPORT_MSG["ok"]),
                          **_ai_report_row(r)}, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Owner AI chat rebuild (4 Nov 01:02): confirm cards + one-tap clean-up
+# ---------------------------------------------------------------------------
+class AgentConfirmView(APIView):
+    """POST /agent/confirm {pending_id, yes} — the ONLY way an AI chat
+    proposal (expense / income / reminder / note / name) is written."""
+    def post(self, request):
+        from . import ai_tools as AT
+        d = request.data or {}
+        code, body = AT.confirm(request.user, d.get("pending_id"), d.get("yes") is True)
+        return Response(body, status=code)
+
+
+class AgentEntriesView(APIView):
+    """GET /agent/ai-entries -> entries the AI chat wrote (source=ai, last 14
+    days); POST {items:[{model,id}]} deletes the chosen ones (one-tap clean-up
+    of the old parser's false entries)."""
+    def get(self, request):
+        from . import ai_tools as AT
+        return Response({"items": AT.agent_entries(request.user)})
+
+    def post(self, request):
+        from . import ai_tools as AT
+        items = (request.data or {}).get("items")
+        if items == "all":
+            items = AT.agent_entries(request.user)
+        n = AT.clean_up(request.user, items if isinstance(items, list) else [])
+        return Response({"ok": True, "deleted": n})
