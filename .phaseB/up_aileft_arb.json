@@ -1,0 +1,9 @@
+{
+  "_comment": "aileft (home chat streaming + Stop; Photo Studio send to My Circle / catalog / ID sizes). All keys NEW.",
+  "en": {
+    "aileftStoppedPaid": "Stopped. You pay only for the part shown (nothing if you stopped early)."
+  },
+  "bn": {
+    "aileftStoppedPaid": "থামানো হয়েছে। যতটুকু দেখানো হয়েছে শুধু ততটুকুর ক্রেডিট লাগবে (একদম শুরুতে থামালে কিছুই না)।"
+  }
+}

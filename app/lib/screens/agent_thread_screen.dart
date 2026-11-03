@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +34,9 @@ bool isOwnDeviceAlert(Map<String, dynamic> a, int? me) {
 
 class _Msg {
   final bool user;
-  final String text;
+  // aileft: an answer being typed out (streamed) grows in place
+  String text;
+  bool streaming = false;
   final List<Map<String, dynamic>> cards;
 
   /// h1-home: an attached photo turn (kept on this device only — the photo is
@@ -133,6 +137,15 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
   final _inputFocus = FocusNode();
   final List<_Msg> _msgs = [];
   bool _sending = false;
+
+  // aileft: home streaming + Stop (same SSE protocol as Assisto AI).
+  StreamSubscription<Map<String, dynamic>>? _streamSub;
+  Timer? _typeTimer;
+  String _pending = '';
+  Completer<void>? _drained;
+  _Msg? _live;
+  _Msg? _liveFor;
+  Completer<Map<String, dynamic>?>? _turn;
 
   // Live speech-to-text into the input (shared with Assisto AI chat).
   late final VoiceDictation _voice = VoiceDictation();
@@ -254,6 +267,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
 
   @override
   void dispose() {
+    _streamSub?.cancel();
+    _typeTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _voice.dispose();
     _input.dispose();
@@ -357,8 +372,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         if (_follow != null) 'follow': _follow,
       };
       _follow = null;
-      final r = await app.api
-          .agent(text, sessionId: _sessionId, clientId: mine.clientId);
+      // aileft: stream first (typed out live, Stop pays only what was
+      // shown); a stream that cannot start falls back to POST /agent with
+      // the same client id (the server replays, never answers twice).
+      final Map<String, dynamic>? streamed = await _streamTurn(app.api, mine);
+      if (!mounted) return;
+      if (streamed != null && streamed['_stopped'] == true) return;
+      final r = streamed ??
+          await app.api.agent(text, sessionId: _sessionId, clientId: mine.clientId);
       final sid = r['session_id']?.toString();
       if (sid != null && sid.isNotEmpty && sid != _sessionId) {
         _sessionId = sid;
@@ -424,6 +445,164 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         _input.clear();
         await _send(text, true);
       }
+    }
+  }
+
+  // ---------------- aileft: streaming + Stop ----------------
+
+  /// One home turn over POST /agent/stream. Returns the full /agent body when
+  /// the answer finished typing out, `{'_stopped': true}` when the user
+  /// tapped Stop (handled here), or null when the stream could not deliver
+  /// (the caller falls back to POST /agent with the same client id). Out of
+  /// credits / too fast / still answering are rethrown like POST /agent.
+  Future<Map<String, dynamic>?> _streamTurn(ApiClient api, _Msg mine) async {
+    final live = _Msg(false, '')..streaming = true;
+    final turn = Completer<Map<String, dynamic>?>();
+    Object? err;
+    setState(() {
+      _live = live;
+      _liveFor = mine;
+      _pending = '';
+      _msgs.add(live);
+    });
+    _turn = turn;
+    try {
+      _streamSub = api
+          .agentStream(mine.text, sessionId: _sessionId, clientId: mine.clientId)
+          .listen((ev) {
+        if (ev['kind'] == 'token') {
+          _pending += (ev['chunk'] ?? '').toString();
+          _startTyping();
+        } else if (ev['kind'] == 'done') {
+          final raw = ev['raw'];
+          if (!turn.isCompleted) {
+            turn.complete(raw is Map ? raw.cast<String, dynamic>() : null);
+          }
+        }
+      }, onError: (Object e) {
+        err = e;
+        if (!turn.isCompleted) turn.complete(null);
+      }, onDone: () {
+        if (!turn.isCompleted) turn.complete(null);
+      }, cancelOnError: true);
+    } catch (e) {
+      err = e;
+      if (!turn.isCompleted) turn.complete(null);
+    }
+    var body = await turn.future;
+    _streamSub = null;
+    if (body != null && body['_stopped'] == true) return body;
+    if (body != null) {
+      // let the typed-out text reach the end before the final bubble
+      if (_pending.isNotEmpty) {
+        _drained = Completer<void>();
+        await _drained!.future;
+        if (_turn == null) return {'_stopped': true}; // Stop while typing
+      }
+    }
+    _typeTimer?.cancel();
+    _typeTimer = null;
+    _turn = null;
+    if (mounted) {
+      setState(() {
+        _msgs.remove(live);
+        _live = null;
+        _liveFor = null;
+      });
+    }
+    final e = err;
+    if (body == null && e is ApiException &&
+        (e.status == 402 || e.status == 429 || e.status == 409 ||
+            isOutOfCredits(e))) {
+      throw e;
+    }
+    return body;
+  }
+
+  /// Types the received answer out at a reading pace (~400 chars/s, faster
+  /// for a long backlog) so Stop means something, like ChatGPT.
+  void _startTyping() {
+    if (_typeTimer != null) return;
+    _typeTimer = Timer.periodic(const Duration(milliseconds: 30), (tm) {
+      final live = _live;
+      if (!mounted || live == null) {
+        tm.cancel();
+        _typeTimer = null;
+        return;
+      }
+      if (_pending.isEmpty) {
+        tm.cancel();
+        _typeTimer = null;
+        final d = _drained;
+        _drained = null;
+        if (d != null && !d.isCompleted) d.complete();
+        return;
+      }
+      var n = _pending.length ~/ 50;
+      if (n < 12) n = 12;
+      if (n > _pending.length) n = _pending.length;
+      // never split a surrogate pair (emoji)
+      if (n < _pending.length) {
+        final c = _pending.codeUnitAt(n - 1);
+        if (c >= 0xD800 && c <= 0xDBFF) n++;
+      }
+      setState(() {
+        live.text += _pending.substring(0, n);
+        _pending = _pending.substring(n);
+      });
+      _toBottom();
+    });
+  }
+
+  /// Stop: freeze the answer where it is, tell the server how much was
+  /// shown (it charges only that share — nothing under its minimum).
+  Future<void> _stop() async {
+    final live = _live;
+    final mine = _liveFor;
+    if (live == null || mine == null) return;
+    HapticFeedback.selectionClick();
+    await _streamSub?.cancel();
+    _streamSub = null;
+    _typeTimer?.cancel();
+    _typeTimer = null;
+    _pending = '';
+    final turn = _turn;
+    _turn = null;
+    final d = _drained;
+    _drained = null;
+    final shown = live.text.length;
+    final kept = _Msg(false, live.text, const [], null, shown > 0)
+      ..meta = {'source': 'ai', 'stopped': true, 'credits': 0};
+    setState(() {
+      final i = _msgs.indexOf(live);
+      if (i >= 0) {
+        _msgs[i] = kept;
+      }
+      _live = null;
+      _liveFor = null;
+      _sending = false;
+    });
+    if (turn != null && !turn.isCompleted) turn.complete({'_stopped': true});
+    if (d != null && !d.isCompleted) d.complete();
+    final cid = mine.clientId;
+    if (cid == null) return;
+    try {
+      final r = await context.read<AppState>().api.chatStop(cid, shown);
+      if (!mounted) return;
+      final sid = r['session_id']?.toString();
+      if (sid != null && sid.isNotEmpty && _sessionId == null) {
+        _sessionId = sid;
+        Settings.setString(AgentThreadScreen.sessionKey, sid);
+      }
+      setState(() => kept.meta = {
+            ...kept.meta,
+            'credits': r['credits'] ?? 0,
+            if (r['refunded'] != null) 'refunded': r['refunded'],
+            if (r['balance'] != null) 'balance': r['balance'],
+          });
+    } catch (_) {
+      // offline: the server still parks nothing — the answer was already
+      // saved; the credit line keeps the honest "stopped" note
     }
   }
 
@@ -730,7 +909,14 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
               voice: _voice,
               input: _input,
               debugListening: widget.debugListening),
-          _sending
+          // aileft: while an answer streams, Send becomes Stop
+          _sending && _live != null
+              ? IconButton.filled(
+                  key: const ValueKey('home-stop'),
+                  tooltip: t.aichatStop,
+                  onPressed: _stop,
+                  icon: const Icon(Icons.stop_rounded))
+              : _sending
               ? const Padding(
                   padding: EdgeInsets.all(10),
                   child: SizedBox(

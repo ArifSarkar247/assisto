@@ -49,6 +49,19 @@ class FakeApi extends ApiClient {
 
   bool get _bn => lang == 'bn';
 
+  // aileft: no home stream in fakes — the home chat falls back to [agent]
+  // (the same client id), so every fake overriding agent() keeps working.
+  @override
+  Stream<Map<String, dynamic>> agentStream(String text,
+      {String? sessionId, String? clientId}) async* {
+    throw ApiException('no stream in fakes', 404);
+  }
+
+  @override
+  Future<Map<String, dynamic>> chatStop(String clientId, int shownChars) async =>
+      {'stopped': true, 'credits': 0, 'refunded': 0};
+  // /aileft
+
   /// The plan slug [plan] reports. The gallery sets 'business' for the Shop Box
   /// shots (Business-only UI) and resets it to 'premium' for everything else.
   static String planSlug = 'premium';

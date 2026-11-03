@@ -692,8 +692,25 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   Future<void> _stop() async {
+    // aileft: tell the server how much of the answer was on the screen —
+    // it charges only that share (nothing under its minimum), and a Stop
+    // before the answer arrived refunds it in full (core/chat_stop.py).
+    String? cid;
+    var shown = 0;
+    for (var i = _msgs.length - 1; i >= 0; i--) {
+      final m = _msgs[i];
+      if (!m.user && m.streaming) shown = m.text.length;
+      if (m.user) {
+        cid = m.clientId;
+        break;
+      }
+    }
+    final wasStreaming = _streamSub != null;
     await _streamSub?.cancel();
     _streamSub = null;
+    if (wasStreaming && cid != null) {
+      unawaited(_api.chatStop(cid, shown).then((_) {}, onError: (_) {}));
+    }
     if (!mounted) return;
     setState(() {
       _sending = false;

@@ -801,7 +801,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             level=(level or "")[:10])
         if isinstance(out_meta, dict):
             out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded,
-                             "truncated": truncated})
+                             "truncated": truncated,
+                             "spend_ref": spend_ref})   # aileft: Stop returns the same lots
         try:
             from . import billing
             billing.record_ai_cost_usd(cost)     # Profit Guard (USD -> ৳ ledger)

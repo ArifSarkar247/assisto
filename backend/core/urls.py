@@ -166,6 +166,8 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+    path("agent/stream", views.AgentStreamView.as_view()),         # aileft: home chat streaming
+    path("chat/stop", chatv.ChatStopView.as_view()),                # aileft: Stop = pay only what was shown
     path("agent/confirm", chatv.AgentConfirmView.as_view()),        # AI rebuild 01:02
     path("agent/ai-entries", chatv.AgentEntriesView.as_view()),     # AI rebuild 01:02
 
