@@ -124,6 +124,8 @@ const Map<String, bool> kFeatureDefaults = {
   'retention_auto': false,
   // mktengine (owner P3-D): Marketing Engine v1
   'marketing_engine': false,
+  // invdesign (owner item 1): invoice designs by business type
+  'invoice_designs': false,
   // plans-v2 (owner 27 Oct): Free / Premium / Business limits + trial
   'plans_v2': false,
   // probashi-plan (owner 27 Oct): expat family plan - hidden until 100.

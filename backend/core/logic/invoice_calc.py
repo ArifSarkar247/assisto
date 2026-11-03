@@ -18,7 +18,17 @@ Bangladesh VAT — sources (no rate is invented here):
     "inclusive" mode (VAT shown inside the price; the total does not grow).
 Assisto is not an NBR EFD/SDC device and gives no tax advice; the invoice
 carries "VAT rate entered by the business".
+
+invdesign (owner item 1, 3 Nov): per-business-type DESIGNS — a 10th template
+"vat_invoice" laid out with the Mushak-6.3 columns (the form is issued under
+NBR General Order 22/Mushak/2019; the paper says "not an NBR EFD/SDC receipt"),
+brand accent + logo + footer, bn/en/BOTH paper language, the suggested
+template from the business type, per-line serial/IMEI + warranty months,
+fractional quantities (hours x rate) and a delivery charge outside VAT.
 """
+import base64
+import binascii
+
 from django.core import signing
 
 SALT = "core.invoice.v1"
@@ -31,7 +41,7 @@ MAX_QTY = 100000
 MAX_UNIT = 10 ** 11             # poisha (Tk 1,000,000,000)
 
 TEMPLATES = ("cafe", "restaurant", "fine_dining", "ecommerce", "retail",
-             "electronics", "lawyer", "tax_consultant", "service")
+             "electronics", "lawyer", "vat_invoice", "tax_consultant", "service")
 SERVICE_TEMPLATES = ("lawyer", "tax_consultant", "service")
 FOOD_TEMPLATES = ("cafe", "restaurant", "fine_dining")
 VAT_MODES = ("none", "exclusive", "inclusive")
@@ -43,16 +53,63 @@ TEMPLATE_FIELDS = {
     "cafe": ("table", "token"),
     "restaurant": ("table", "server", "guests"),
     "fine_dining": ("table", "server", "guests"),
-    "ecommerce": ("order_ref", "delivery_address", "courier"),
+    "ecommerce": ("order_ref", "delivery_address", "courier", "tracking"),
     "retail": (),
     "electronics": ("serial", "warranty"),
-    "lawyer": ("case_ref", "court", "period"),
+    "lawyer": ("matter", "case_ref", "court", "fee_basis", "period"),
+    "vat_invoice": ("destination", "vehicle"),
     "tax_consultant": ("tax_year", "tin", "period"),
     "service": ("period",),
 }
 TEXT_MAX = {"name": 120, "address": 300, "phone": 40, "bin": 20,
             "signatory": 120, "payment_link": 300, "footer": 200}
 EXTRA_MAX = 160
+LANGS = ("bn", "en", "both")
+# Print-safe brand accents for A4 (all >= 4.5:1 on white paper; thermal
+# paper is always pure black). Keys only — the app owns the colour values.
+ACCENTS = ("brand", "teal", "green", "maroon", "navy", "charcoal", "plum", "brown")
+LOGO_MAX_BYTES = 48 * 1024      # decoded; the app downsizes before upload
+SERIAL_MAX = 60
+MAX_WARRANTY_M = 120
+
+# Marketing-engine business type (core/logic/mktengine.QUESTIONS) -> template.
+TYPE_TEMPLATE = {"food": "restaurant", "electronics": "electronics",
+                 "service": "service", "education": "service",
+                 "grocery": "retail", "fashion": "retail", "cosmetics": "retail",
+                 "pharmacy": "retail"}
+
+
+def suggest_template(business_type="", has_online_orders=False, vat_ready=False,
+                     sells_by_delivery=False):
+    """The template we SUGGEST for a business (the owner can always switch).
+    Known type first; else an online shop -> ecommerce; else a VAT-registered
+    seller -> the Mushak-6.3 layout; else a plain retail memo."""
+    t = TYPE_TEMPLATE.get(str(business_type or ""))
+    if t == "retail" and (has_online_orders or sells_by_delivery):
+        return "ecommerce"
+    if t:
+        return t
+    if has_online_orders or sells_by_delivery:
+        return "ecommerce"
+    if vat_ready:
+        return "vat_invoice"
+    return "retail"
+
+
+def logo_ok(raw):
+    """'' (no logo) or base64 of a PNG/JPEG no bigger than LOGO_MAX_BYTES."""
+    s = str(raw or "").strip()
+    if not s:
+        return True
+    if len(s) > (LOGO_MAX_BYTES * 4) // 3 + 8:
+        return False
+    try:
+        b = base64.b64decode(s, validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    if len(b) > LOGO_MAX_BYTES:
+        return False
+    return b[:8] == b"\x89PNG\r\n\x1a\n" or b[:3] == b"\xff\xd8\xff"
 
 
 def _clip(v, n):
@@ -87,7 +144,7 @@ def default_settings(shop_name=""):
             "phone": "", "bin": "", "signatory": "", "payment_link": "",
             "footer": "", "vat_mode": "none", "vat_bp": STANDARD_VAT_BP,
             "sd_bp": 0, "service_bp": 0, "verify_qr": True, "size": "80",
-            "lang": "bn"}
+            "lang": "bn", "accent": "brand", "logo": ""}
 
 
 def normalize_settings(raw, base=None):
@@ -123,8 +180,18 @@ def normalize_settings(raw, base=None):
         out["verify_qr"] = bool(raw["verify_qr"])
     if "size" in raw and raw["size"] in SIZES:
         out["size"] = raw["size"]
-    if "lang" in raw and raw["lang"] in ("bn", "en"):
+    if "lang" in raw and raw["lang"] in LANGS:
         out["lang"] = raw["lang"]
+    if "accent" in raw:
+        if raw["accent"] in ACCENTS:
+            out["accent"] = raw["accent"]
+        else:
+            errors.append("accent")
+    if "logo" in raw:
+        if logo_ok(raw["logo"]):
+            out["logo"] = str(raw["logo"] or "").strip()
+        else:
+            errors.append("logo")
     # A VAT invoice needs the seller's BIN (Mushak-6.3); without it we fall
     # back to a plain receipt rather than print a tax line we cannot back.
     if out["vat_mode"] != "none" and not "".join(
@@ -138,8 +205,16 @@ def _div_round(num, den):
     return (2 * num + den) // (2 * den)
 
 
+def line_amount(l):
+    """qty x unit in poisha; a fractional quantity (1.5 hours) travels as
+    qty_c = hundredths and is rounded half-up to the poisha."""
+    if l.get("qty_c") is not None:
+        return _div_round(int(l["qty_c"]) * int(l["unit"]), 100)
+    return int(l["qty"]) * int(l["unit"])
+
+
 def compute(lines, *, vat_mode="none", vat_bp=0, sd_bp=0, discount=0,
-            service_bp=0):
+            service_bp=0, shipping=0):
     """VAT/SD math in integer poisha.
 
     lines: [{qty, unit}] (unit = poisha per unit as the business priced it).
@@ -149,8 +224,10 @@ def compute(lines, *, vat_mode="none", vat_bp=0, sd_bp=0, discount=0,
                VAT; taxable = gross / ((1+sd)(1+vat)); VAT is the remainder so
                taxable + SD + VAT == gross exactly.
     none:      no tax lines.
+    shipping:  a delivery charge the courier collects — added AFTER tax, never
+               taxed or discounted here (shown on its own line).
     """
-    subtotal = sum(int(l["qty"]) * int(l["unit"]) for l in lines)
+    subtotal = sum(line_amount(l) for l in lines)
     discount = max(0, min(int(discount or 0), subtotal))
     net = subtotal - discount
     service = _div_round(net * int(service_bp or 0), 10000) if service_bp else 0
@@ -171,7 +248,10 @@ def compute(lines, *, vat_mode="none", vat_bp=0, sd_bp=0, discount=0,
     else:
         taxable, sd, vat, total = gross, 0, 0, gross
         vat_bp = sd_bp = 0
+    shipping = max(0, int(shipping or 0))
+    total += shipping
     return {"subtotal": subtotal, "discount": discount, "service": service,
+            "shipping": shipping,
             "service_bp": int(service_bp or 0), "taxable": taxable,
             "sd": sd, "sd_bp": sd_bp, "vat": vat, "vat_bp": vat_bp,
             "total": total, "vat_mode": vat_mode}
@@ -186,11 +266,32 @@ def clean_lines(raw):
         if not isinstance(l, dict):
             return None
         desc = _clip(l.get("desc"), 200)
-        qty = _int(l.get("qty", 1), 0, MAX_QTY, -1)
-        unit = _int(l.get("unit"), 0, MAX_UNIT, -1)
-        if not desc or qty <= 0 or unit < 0:
+        try:
+            qf = float(l.get("qty", 1))
+        except (TypeError, ValueError):
             return None
-        out.append({"desc": desc, "qty": qty, "unit": unit})
+        qty_c = int(round(qf * 100))
+        unit = _int(l.get("unit"), 0, MAX_UNIT, -1)
+        if not desc or qty_c <= 0 or qty_c > MAX_QTY * 100 or unit < 0:
+            return None
+        row = {"desc": desc, "qty": max(1, int(round(qf))), "unit": unit}
+        if qty_c % 100:
+            row["qty_c"] = qty_c          # e.g. 1.5 hours -> 150
+        row.update(clean_line_detail(l))
+        out.append(row)
+    return out
+
+
+def clean_line_detail(raw):
+    """Optional per-line facts the seller types: serial/IMEI and warranty."""
+    raw = raw if isinstance(raw, dict) else {}
+    out = {}
+    serial = _clip(raw.get("serial"), SERIAL_MAX)
+    if serial:
+        out["serial"] = serial
+    wm = _int(raw.get("warranty_m"), 0, MAX_WARRANTY_M, 0)
+    if wm:
+        out["warranty_m"] = wm
     return out
 
 

@@ -73,7 +73,7 @@ class SettingsRuleTests(TestCase):
         self.assertIn("payment_link", err)
         _, err = IC.normalize_settings({"template": "casino"})
         self.assertIn("template", err)
-        self.assertEqual(len(IC.TEMPLATES), 9)
+        self.assertEqual(len(IC.TEMPLATES), 10)
 
     def test_token_roundtrip_and_tamper(self):
         t = IC.token_for("s", 42)

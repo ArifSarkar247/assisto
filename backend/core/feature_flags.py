@@ -184,6 +184,11 @@ REGISTRY = (
     # approvable marketing system from REAL catalog / sales / CRM numbers;
     # follow-ups go out through retention automation. OFF until proven.
     ('marketing_engine', 'business', 'Marketing engine (plan, content, campaigns, follow-ups)', 'মার্কেটিং ইঞ্জিন (পরিকল্পনা, কনটেন্ট, ক্যাম্পেইন, ফলো-আপ)', False, ('marketing_engine',)),
+    # invdesign (owner item 1, 3 Nov): invoice designs by business type —
+    # suggested template, logo/accent/footer, bn+en paper, sale details
+    # (serial/IMEI, table, token), Mushak-6.3 layout. OFF until proven; owns
+    # no route (the invoice screens stay where they are).
+    ('invoice_designs', 'business', 'Invoice designs (by business type, logo, colours, bilingual)', 'ইনভয়েস ডিজাইন (ব্যবসার ধরন, লোগো, রং, দুই ভাষা)', False, ()),
     # plans-v2 (owner 27 Oct): the Free / Premium / Business matrix, CRM
     # limits and the 7-day Business trial (core.entitlements_service). A
     # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.
