@@ -9,6 +9,10 @@ import '../widgets/wedding_engine.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
+import '../widgets/local_counter.dart'; // p3life
+import '../widgets/money_circle_pick.dart' show CirclePickButton; // p3life
+import 'life/life_common.dart' show shareLifeLink; // p3life
+import 'life/life_wedding.dart'; // p3life
 
 /// WEDDING & EVENTS — ADVANCED (#189, SPEC v2.1 §20).
 ///
@@ -137,12 +141,31 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
         ),
       );
     }
+    final ev = _eventRow;
     return DefaultTabController(
-      length: 4,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: Text(tr.weddingTitle),
           actions: [
+            // p3life: Bangla invitation card designs -> image share
+            IconButton(
+              key: const ValueKey('wed-card'),
+              icon: const Icon(Icons.mail_rounded),
+              tooltip: tr.p3lCardTitle,
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => InvitationCardScreen(event: ev))),
+            ),
+            // p3life: read-only link for family (My Circle / any app)
+            if (ev != null && ev['id'] is int)
+              IconButton(
+                key: const ValueKey('wed-share'),
+                icon: const Icon(Icons.share_rounded),
+                tooltip: tr.p3lShareFamily,
+                onPressed: () => shareLifeLink(context,
+                    kind: 'event', id: ev['id'] as int,
+                    title: '${ev['title'] ?? ''}'),
+              ),
             IconButton(
               icon: const Icon(Icons.edit_calendar_rounded),
               tooltip: tr.weddingSetEvent,
@@ -152,15 +175,22 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
           bottom: TabBar(isScrollable: true, tabs: [
             Tab(text: tr.weddingTabOverview),
             Tab(text: tr.weddingTabGuests),
+            Tab(text: tr.p3lTabSchedule),
             Tab(text: tr.weddingTabBudget),
+            Tab(text: tr.p3lTabVendors),
+            Tab(text: tr.p3lTabGifts),
             Tab(text: tr.weddingTabTasks),
           ]),
         ),
         body: TabBarView(children: [
           _OverviewTab(event: _eventRow, guests: _guests, budget: _budget,
               tasks: _tasks, onEditEvent: _editEvent),
-          _GuestsTab(guests: _guests, onChanged: _load),
+          _GuestsTab(guests: _guests, onChanged: _load,
+              eventTitle: '${ev?['title'] ?? ''}'),
+          const WeddingScheduleTab(), // p3life
           _BudgetTab(rows: _budget, onChanged: _load),
+          const WeddingVendorsTab(), // p3life
+          const WeddingGiftsTab(), // p3life
           _TasksTab(tasks: _tasks, onChanged: _load),
         ]),
       ),
@@ -171,7 +201,7 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
     final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _EventEditor(existing: _eventRow),
+      builder: (_) => SingleChildScrollView(child: _EventEditor(existing: _eventRow)), // p3life: 200% font
     );
     if (changed == true) await _load();
   }
@@ -221,6 +251,7 @@ class _EventEditor extends StatefulWidget {
 
 class _EventEditorState extends State<_EventEditor> {
   late final TextEditingController _title;
+  late final TextEditingController _venue; // p3life
   DateTime? _date;
   bool _saving = false;
 
@@ -229,12 +260,14 @@ class _EventEditorState extends State<_EventEditor> {
     super.initState();
     final e = widget.existing;
     _title = TextEditingController(text: (e?['title'] ?? '').toString());
+    _venue = TextEditingController(text: (e?['venue'] ?? '').toString());
     _date = WeddingEngine.parseDate(e?['event_date']);
   }
 
   @override
   void dispose() {
     _title.dispose();
+    _venue.dispose();
     super.dispose();
   }
 
@@ -267,6 +300,14 @@ class _EventEditorState extends State<_EventEditor> {
           decoration: InputDecoration(labelText: tr.weddingEventNameLabel),
         ),
         const SizedBox(height: Gap.md),
+        // p3life: venue (shown on the family link, RSVP page and card)
+        TextField(
+          key: const ValueKey('wed-venue'),
+          controller: _venue,
+          maxLength: 100,
+          buildCounter: localCounter,
+          decoration: InputDecoration(labelText: tr.p3lVenueLabel),
+        ),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.event_rounded),
@@ -300,6 +341,7 @@ class _EventEditorState extends State<_EventEditor> {
     final body = {
       'title': _title.text.trim(),
       'event_date': _date == null ? null : WeddingEngine.isoDate(_date!),
+      'venue': _venue.text.trim(), // p3life
     };
     try {
       final id = widget.existing?['id'];
@@ -540,7 +582,8 @@ class _StatCard extends StatelessWidget {
 class _GuestsTab extends StatelessWidget {
   final List<Map<String, dynamic>> guests;
   final Future<void> Function() onChanged;
-  const _GuestsTab({required this.guests, required this.onChanged});
+  final String eventTitle; // p3life: for the RSVP message
+  const _GuestsTab({required this.guests, required this.onChanged, this.eventTitle = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -595,16 +638,30 @@ class _GuestsTab extends StatelessWidget {
                                 : g['name'].toString(),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         subtitle: Text(ld(context, _guestSub(tr, g))),
-                        trailing: IconButton(
-                          tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                          icon: const Icon(Icons.delete_outline_rounded),
-                          onPressed: () async {
-                            if (await _confirmDelete(context, _guestPath,
-                                g['id'], tr.weddingDeleteGuestBody)) {
-                              await onChanged();
-                            }
-                          },
-                        ),
+                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                          // p3life: the guest answers by themselves (no app)
+                          if (g['id'] is int)
+                            IconButton(
+                              key: ValueKey('wed-rsvp-${g['id']}'),
+                              tooltip: tr.p3lRsvpSend,
+                              icon: const Icon(Icons.send_rounded),
+                              onPressed: () => shareLifeLink(context,
+                                  kind: 'guest', id: g['id'] as int,
+                                  title: eventTitle,
+                                  guestName: '${g['name'] ?? ''}',
+                                  guestPhone: '${g['phone'] ?? ''}'),
+                            ),
+                          IconButton(
+                            tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                            icon: const Icon(Icons.delete_outline_rounded),
+                            onPressed: () async {
+                              if (await _confirmDelete(context, _guestPath,
+                                  g['id'], tr.weddingDeleteGuestBody)) {
+                                await onChanged();
+                              }
+                            },
+                          ),
+                        ]),
                         onTap: () => _edit(context, g),
                       ),
                     ),
@@ -617,7 +674,9 @@ class _GuestsTab extends StatelessWidget {
   String _guestSub(AppLocalizations tr, Map<String, dynamic> g) {
     final rsvp = (g['rsvp'] ?? 'invited').toString();
     final plus = int.tryParse('${g['plus_ones'] ?? 0}') ?? 0;
-    final rsvpText = _rsvpLabel(tr, rsvp);
+    var rsvpText = _rsvpLabel(tr, rsvp);
+    // p3life: say when the guest answered by themselves via the link
+    if (g['rsvp_via'] == 'link') rsvpText = '$rsvpText (${tr.p3lRsvpByGuest})';
     return plus > 0 ? '$rsvpText · ${tr.weddingPlusOnes(plus)}' : rsvpText;
   }
 
@@ -629,7 +688,7 @@ class _GuestsTab extends StatelessWidget {
     final changed = await showAppSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _GuestEditor(existing: existing, guests: guests),
+      builder: (_) => SingleChildScrollView(child: _GuestEditor(existing: existing, guests: guests)), // p3life: 200% font
     );
     if (changed == true) await onChanged();
   }
@@ -659,6 +718,7 @@ class _GuestEditor extends StatefulWidget {
 class _GuestEditorState extends State<_GuestEditor> {
   late final TextEditingController _name;
   late final TextEditingController _plus;
+  late final TextEditingController _phone; // p3life
   String _rsvp = 'invited';
   bool _saving = false;
 
@@ -668,6 +728,7 @@ class _GuestEditorState extends State<_GuestEditor> {
     final e = widget.existing;
     _name = TextEditingController(text: (e?['name'] ?? '').toString());
     _plus = TextEditingController(text: (e?['plus_ones'] ?? '').toString());
+    _phone = TextEditingController(text: (e?['phone'] ?? '').toString());
     final r = (e?['rsvp'] ?? 'invited').toString();
     if (WeddingEngine.rsvpStates.contains(r)) _rsvp = r;
   }
@@ -676,6 +737,7 @@ class _GuestEditorState extends State<_GuestEditor> {
   void dispose() {
     _name.dispose();
     _plus.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -695,9 +757,22 @@ class _GuestEditorState extends State<_GuestEditor> {
                 : tr.weddingEditGuest,
             style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: Gap.lg),
+        // p3life: one tap from My Circle (name + number)
+        CirclePickButton(name: _name, phone: _phone),
+        const SizedBox(height: Gap.sm),
         TextField(
           controller: _name,
           decoration: InputDecoration(labelText: tr.weddingGuestNameLabel),
+        ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          key: const ValueKey('wed-guest-phone'),
+          controller: _phone,
+          keyboardType: TextInputType.phone,
+          maxLength: 20,
+          buildCounter: localCounter,
+          decoration: InputDecoration(
+              labelText: tr.p3lPhone, helperText: tr.p3lGuestPhoneHelp),
         ),
         const SizedBox(height: Gap.md),
         DropdownButtonFormField<String>(
@@ -747,6 +822,7 @@ class _GuestEditorState extends State<_GuestEditor> {
       'name': name,
       'rsvp': _rsvp,
       'plus_ones': int.tryParse(_plus.text.trim()) ?? 0,
+      'phone': _phone.text.trim(), // p3life
     };
     try {
       final id = widget.existing?['id'];
