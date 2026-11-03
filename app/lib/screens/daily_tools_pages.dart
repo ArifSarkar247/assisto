@@ -218,7 +218,9 @@ class ResultCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  style: TextButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                      foregroundColor: cs.onSecondaryContainer),
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: copyText!));
                     if (!context.mounted) return;
@@ -356,8 +358,15 @@ class _UnitToolState extends State<UnitTool> {
             for (final e in all.entries)
               if (e.key != _from)
                 InkWell(
-                  onLongPress: () => Clipboard.setData(ClipboardData(
-                      text: toLocalDigits(fmtUnit(e.value), _bn(context)))),
+                  // tap a row = copy that value (with a visible confirmation)
+                  onTap: () async {
+                    await Clipboard.setData(ClipboardData(
+                        text: toLocalDigits(fmtUnit(e.value), _bn(context))));
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text(t.dtCopied)));
+                  },
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 48),
                     child: Padding(

@@ -83,7 +83,7 @@ String fmtUnit(double v) {
   if (a >= 1000) return fmtNum(v, dp: 2);
   if (a >= 1) return fmtNum(v, dp: 4);
   if (a >= 0.001) return fmtNum(v, dp: 6);
-  return v.toStringAsExponential(3);
+  return fmtNum(v, dp: 9);
 }
 
 // ------------------------------------------------------------------ units
