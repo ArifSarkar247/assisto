@@ -8370,3 +8370,82 @@ class GuardianLink(models.Model):
         indexes = [models.Index(fields=["child", "state"], name="core_glink_child_state_idx"),
                    models.Index(fields=["guardian", "state"], name="core_glink_g_state_idx")]
 # ---- /guardian2 ----
+
+
+# ---- nearby (owner 3 Nov 18:50) ----
+class NearbyPlace(models.Model):
+    """Assisto's OWN place list (never Google Places content — Google's terms
+    forbid storing it). Emergency rows come from the monthly OpenStreetMap
+    extract (ODbL; .github/workflows/nearby_data.yml -> nearby_import) or are
+    added by the owner. Owner edits live in the o_* columns and `hidden`, so a
+    monthly refresh rewrites only the source columns and never an override.
+    General-category rows (food/shop/atm/fuel) exist only as Assisto business
+    listings (`business`, optional Sponsored placement) and can never appear
+    in the emergency list (core.nearby_list.EMERGENCY filter)."""
+    country = models.CharField(max_length=2, db_index=True)
+    category = models.CharField(max_length=12)
+    source = models.CharField(max_length=12, default="osm")    # osm | admin | biz
+    src_id = models.CharField(max_length=24, blank=True, default="")
+    name = models.CharField(max_length=160, blank=True, default="")
+    name_en = models.CharField(max_length=160, blank=True, default="")
+    lat = models.FloatField()
+    lon = models.FloatField()
+    phone = models.CharField(max_length=40, blank=True, default="")
+    refreshed_at = models.DateTimeField(null=True, blank=True)
+    gone_upstream = models.BooleanField(default=False)
+    # owner overrides — survive every refresh
+    o_name = models.CharField(max_length=160, blank=True, default="")
+    o_name_en = models.CharField(max_length=160, blank=True, default="")
+    o_phone = models.CharField(max_length=40, blank=True, default="")
+    o_lat = models.FloatField(null=True, blank=True)
+    o_lon = models.FloatField(null=True, blank=True)
+    hidden = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
+    edited_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                  related_name="+")
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.CASCADE, related_name="nearby_listings")
+    sponsored_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["lat", "lon"], name="core_nearby_lat_d0a1f4_idx"),
+                   models.Index(fields=["source", "src_id"], name="core_nearby_source_5b6e2c_idx"),
+                   models.Index(fields=["country", "category"],
+                                name="core_nearby_country_8c3d71_idx")]
+
+
+class NearbyReport(models.Model):
+    """'Report wrong number' (and friends) from the app -> Owner Admin queue."""
+    KINDS = ("wrong_number", "closed", "wrong_place", "other")
+    place = models.ForeignKey(NearbyPlace, on_delete=models.CASCADE, related_name="reports")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    kind = models.CharField(max_length=16, default="wrong_number")
+    suggested_phone = models.CharField(max_length=40, blank=True, default="")
+    note = models.CharField(max_length=300, blank=True, default="")
+    status = models.CharField(max_length=10, default="open")   # open | fixed | rejected
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["status", "id"], name="core_nearby_status_4f9e02_idx")]
+
+
+class NearbyDataset(models.Model):
+    """One row per country file (BD, SA, ...): the version the phones cache
+    against (bumped by every import AND every owner edit, so a change reaches
+    all users at once), plus import facts for the Owner Admin page. The row
+    key 'WORLD' only carries the owner's world switch (enabled)."""
+    key = models.CharField(max_length=8, unique=True)
+    version = models.PositiveIntegerField(default=1)
+    records = models.PositiveIntegerField(default=0)
+    bytes = models.PositiveIntegerField(default=0)
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    osm_timestamp = models.CharField(max_length=40, blank=True, default="")
+    refreshed_at = models.DateTimeField(null=True, blank=True)
+    enabled = models.BooleanField(default=True)
+    last_check_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=300, blank=True, default="")
+# ---- /nearby ----

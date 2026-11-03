@@ -31,6 +31,7 @@ from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
+from . import views_nearby as nearbyv  # nearby
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -210,6 +211,9 @@ urlpatterns = [
     path("waitlist", views.WaitlistView.as_view()),
     path("watch/feed", views.watch_feed),
     path("nearby", views.nearby),
+    path("nearby/area", nearbyv.nearby_area),            # nearby
+    path("nearby/report", nearbyv.nearby_report),        # nearby
+    path("nearby/sponsored", nearbyv.nearby_sponsored),  # nearby
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar

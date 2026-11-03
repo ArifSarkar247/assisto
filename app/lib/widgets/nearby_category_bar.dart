@@ -46,6 +46,12 @@ class NearbyCategoryBar extends StatelessWidget {
         return t.nearbyCatMosque;
       case NearbyCat.govt:
         return t.nearbyCatGovt;
+      case NearbyCat.clinic:
+        return t.nearbyCatClinic;
+      case NearbyCat.ambulance:
+        return t.nearbyCatAmbulance;
+      case NearbyCat.shop:
+        return t.nearbyCatShop;
     }
   }
 

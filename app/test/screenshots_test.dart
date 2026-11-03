@@ -1149,6 +1149,9 @@ Map<String, GallerySpec> gallerySpecs() {
     // truth (27 Oct): live rows + licence line; business first win = ledger;
     // Safe Journey with an empty circle offers "add a family member".
     'truth_nearby_live': (build: (_) => const NearbyScreen(debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
+    // nearby (owner 3 Nov): police list + numbers, and a general category (Open in Google Maps)
+    'nearby_police': (build: (_) => const NearbyScreen(placeType: 'police', debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
+    'nearby_general': (build: (_) => const NearbyScreen(placeType: 'atm', debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
     'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),

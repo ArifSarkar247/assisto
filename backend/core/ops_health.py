@@ -202,6 +202,9 @@ JOBS = (
     Job("vault_share_purge", MIN, "* * * * *", via="minute_jobs"),
     # viewonce: delete opened / 14-day-old view-once media (no own process)
     Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
+    # nearby: pulls the monthly OSM emergency files (GitHub release assets);
+    # idle = one DB read, manifest every 6 h, one country per run
+    Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -216,6 +219,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("vault_share_purge", {"quiet": True}),
                # viewonce: cheap indexed sweep; returns at once when none
                ("view_once_purge", {"quiet": True}),
+               # nearby: after the safety jobs; idle = one DB read, a monthly
+               # import is one country per run
+               ("nearby_import", {"quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 
