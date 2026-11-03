@@ -709,7 +709,8 @@ class _AiChatScreenState extends State<AiChatScreen>
     await _streamSub?.cancel();
     _streamSub = null;
     if (wasStreaming && cid != null) {
-      unawaited(_api.chatStop(cid, shown).then((_) {}, onError: (_) {}));
+      // best-effort: the Stop already froze the answer; this only bills it
+      unawaited(_api.chatStop(cid, shown).then((_) {}, onError: (_) {})); // best-effort: billing only
     }
     if (!mounted) return;
     setState(() {

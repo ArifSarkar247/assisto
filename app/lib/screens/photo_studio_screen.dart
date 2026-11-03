@@ -953,7 +953,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                     key: const Key('psAiEditedMark'),
                     padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
                     decoration: BoxDecoration(
-                        color: const Color(0xB3000000),
+                        color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(Radii.pill)),
                     child: Text(t.aileftAiEdited,
                         style: AType.labelSmall.copyWith(color: Colors.white)),

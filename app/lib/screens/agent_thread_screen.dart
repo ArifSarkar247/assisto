@@ -603,8 +603,8 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
             if (r['balance'] != null) 'balance': r['balance'],
           });
     } catch (_) {
-      // offline: the server still parks nothing — the answer was already
-      // saved; the credit line keeps the honest "stopped" note
+      // best-effort: the answer is already frozen on screen; offline, the
+      // server never shows more of it (the credit line keeps "stopped")
     }
   }
 
