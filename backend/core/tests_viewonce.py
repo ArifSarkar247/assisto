@@ -37,6 +37,8 @@ class MediaLimitsTests(_Base):
         self.assertEqual(lim["voice_max_seconds"], 900)
         self.assertEqual(lim["photos_per_send"], 30)
         self.assertEqual(lim["view_once_days"], 14)
+        # two 30-photo albums an hour never wait in the outbox
+        self.assertEqual(CB.limits()["circle_media_uploads_per_hour"], 300)
 
     def test_owner_editable_and_bounded(self):
         cfg = P.normalize({"limits": {"circle_media_video_max_seconds": 60,

@@ -36,7 +36,7 @@ class LimitsLogicTests(SimpleTestCase):
                                        "circle_media_doc_max_mb": 100,  # viewonce
                                        "circle_media_video_max_mb": 25,  # viewonce
                                        "circle_media_daily_mb": 300,
-                                       "circle_media_uploads_per_hour": 60,
+                                       "circle_media_uploads_per_hour": 300,  # viewonce
                                        "circle_media_keep_days": 30,
                                        "circle_media_max_days": 90,
                                        # viewonce (owner 3 Nov)

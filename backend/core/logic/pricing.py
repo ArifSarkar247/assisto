@@ -715,7 +715,7 @@ def DEFAULTS():
             "circle_media_doc_max_mb": 100,    # viewonce: owner 3 Nov (files <= 100 MB)
             "circle_media_video_max_mb": 25,   # viewonce: owner 3 Nov (720p, <= 25 MB)
             "circle_media_daily_mb": 300,
-            "circle_media_uploads_per_hour": 60,
+            "circle_media_uploads_per_hour": 300,   # viewonce: 30-photo albums
             "circle_media_keep_days": 30,
             "circle_media_max_days": 90,
             # viewonce (owner My Circle order 3 Nov, part F): video <= 3 min
@@ -990,7 +990,7 @@ _MD1_LIMITS = (
     ("circle_media_doc_max_mb", 1, 200, 100),     # viewonce: owner 3 Nov
     ("circle_media_video_max_mb", 1, 100, 25),    # viewonce: owner 3 Nov
     ("circle_media_daily_mb", 10, 5000, 300),
-    ("circle_media_uploads_per_hour", 5, 1000, 60),
+    ("circle_media_uploads_per_hour", 5, 1000, 300),   # viewonce
     ("circle_media_keep_days", 1, 365, 30),
     ("circle_media_max_days", 1, 365, 90),
     # viewonce (owner 3 Nov, part F + G) — bounded, never unlimited

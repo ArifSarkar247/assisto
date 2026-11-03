@@ -1347,6 +1347,7 @@ EN.update({
     "pf_circle_media_video_height": "My Circle: video compressed to (p)",
     "pf_circle_media_voice_max_seconds": "My Circle: voice message max seconds",
     "pf_circle_media_photos_per_send": "My Circle: photos / videos at once",
+    "pf_circle_media_uploads_per_hour": "My Circle: photo / file uploads per hour",
     "pf_circle_media_view_once_days": "My Circle: unopened view-once deleted after (days)",
 })
 BN.update({
@@ -1398,6 +1399,7 @@ BN.update({
     "pf_circle_media_video_height": "মাই সার্কেল: ভিডিও ছোট করা হবে (p)",
     "pf_circle_media_voice_max_seconds": "মাই সার্কেল: ভয়েস মেসেজ সর্বোচ্চ সেকেন্ড",
     "pf_circle_media_photos_per_send": "মাই সার্কেল: একবারে ছবি/ভিডিও",
+    "pf_circle_media_uploads_per_hour": "মাই সার্কেল: ঘণ্টায় ছবি/ফাইল আপলোড",
     "pf_circle_media_view_once_days": "মাই সার্কেল: না-খোলা একবার-দেখা মুছবে (দিন)",
 })
 # ---- /billing-v2 ----
