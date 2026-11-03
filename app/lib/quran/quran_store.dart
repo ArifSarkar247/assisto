@@ -12,6 +12,7 @@
 import 'dart:convert';
 import 'dart:io' show gzip;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -208,9 +209,14 @@ class QuranStore {
     return utf8.decode(gzip.decode(bytes));
   }
 
-  static Future<QuranData> _load() async {
-    final meta = jsonDecode(await rootBundle.loadString(metaAsset))
-        as Map<String, dynamic>;
+  static Future<QuranData> _load() async => fromRaw(
+      await rootBundle.loadString(metaAsset),
+      await _gz(arabicAsset),
+      await _gz(englishAsset));
+
+  /// Parse the bundled files (meta JSON + the two decompressed Tanzil texts).
+  static QuranData fromRaw(String metaJson, String arabicRaw, String englishRaw) {
+    final meta = jsonDecode(metaJson) as Map<String, dynamic>;
     final suras = [
       for (final m in (meta['suras'] as List).cast<Map<String, dynamic>>())
         QuranSura(m['i'] as int, m['ayas'] as int, m['start'] as int,
@@ -221,10 +227,15 @@ class QuranStore {
       for (final j in (meta['juz'] as List).cast<List>())
         AyaRef(j[0] as int, j[1] as int),
     ];
-    final ar = parseTanzil(await _gz(arabicAsset), totalAyas);
-    final en = parseTanzil(await _gz(englishAsset), totalAyas);
+    final ar = parseTanzil(arabicRaw, totalAyas);
+    final en = parseTanzil(englishRaw, totalAyas);
     return QuranData(suras, juz, ar.lines, en.lines, ar.notice);
   }
+
+  /// Tests / gallery: use already-parsed data (the real bundled files).
+  @visibleForTesting
+  static void debugPreload(QuranData? d) =>
+      _loading = d == null ? null : Future.value(d);
 }
 
 /// Translation choice. 'bn' = Bangla (awaiting licence — nothing shown).

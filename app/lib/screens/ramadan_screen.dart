@@ -15,6 +15,11 @@ import '../widgets/ramadan_alarms.dart'; // f6
 import '../widgets/permission_reason.dart';
 import '../widgets/local_digits.dart'; // lifebar
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
+import '../widgets/ramadan_district.dart'; // p3faith
+import '../widgets/ramadan_daily_tracker.dart'; // p3faith
+import '../feature_flags.dart'; // p3faith
+import 'money_tax_screen.dart'; // p3faith: zakat link
+import 'quran_screen.dart'; // p3faith
 
 /// Ramadan mode (module-5 "Life"). Benchmarked vs a SAFE subset of Muslim Pro.
 ///
@@ -37,6 +42,10 @@ class _RamadanScreenState extends State<RamadanScreen> {
   bool _loading = false;
   Map<String, dynamic>? _times;
   String? _error;
+  // p3faith: district mode (no GPS), offline cache, month table.
+  Map<String, dynamic>? _month;
+  DateTime? _offlineSince; // set when showing saved times (no internet)
+  List<RamadanDistrict> _districts = const [];
 
   int _sehriPrewake = 60;
   int _iftarPrealert = 10;
@@ -102,31 +111,111 @@ class _RamadanScreenState extends State<RamadanScreen> {
     }
   }
 
-  Future<void> _loadTimes() async {
+  /// p3faith: a saved district wins (no GPS prompt); otherwise GPS once, and
+  /// the nearest district it resolves to is remembered. No location and no
+  /// district -> the district chooser (never a dead end). No internet -> the
+  /// saved month table / last answer, labelled with its date.
+  Future<void> _loadTimes({bool gps = false}) async {
     setState(() {
       _loading = true;
       _error = null;
     });
-    final pos = await _position();
-    if (pos == null) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _error = 'location';
-        });
+    final api = context.read<AppState>().api;
+    if (gps) await RamadanCache.setDistrict(null);
+    final district = await RamadanCache.district();
+    String path;
+    if (district != null) {
+      path = '/ramadan/times?district=$district';
+    } else {
+      if (!mounted) return;
+      final pos = await _position();
+      if (pos == null) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+            _error = 'location';
+          });
+        }
+        return;
       }
-      return;
+      path = '/ramadan/times?lat=${pos.latitude}&lon=${pos.longitude}';
     }
     try {
-      final r = await context.read<AppState>().api.getJson(
-          '/ramadan/times?lat=${pos.latitude}&lon=${pos.longitude}');
-      if (mounted) setState(() => _times = r);
+      final r = await api.getJson(path);
+      final code = '${r['district'] ?? ''}';
+      if (code.isNotEmpty) await RamadanCache.setDistrict(code);
+      await RamadanCache.saveTimes(r);
+      if (mounted) {
+        setState(() {
+          _times = r;
+          _offlineSince = null;
+        });
+      }
       _syncAlarms(save: false); // f6: follow the day's new times
+      if (code.isNotEmpty) _loadMonth(code);
     } catch (_) {
-      if (mounted) setState(() => _error = 'fetch');
+      final cached = await RamadanCache.offlineTimes(DateTime.now());
+      final at = await RamadanCache.savedAt();
+      final month = await RamadanCache.month();
+      if (mounted) {
+        setState(() {
+          if (cached != null) {
+            _times = cached;
+            _offlineSince = at ?? DateTime.now();
+            _month = month;
+          } else {
+            _error = 'fetch';
+          }
+        });
+      }
+      if (cached != null) _syncAlarms(save: false);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _loadMonth(String code) async {
+    final saved = await RamadanCache.month();
+    if (!mounted) return;
+    if (saved != null && saved['district'] == code) {
+      setState(() => _month = saved);
+    }
+    try {
+      final m = await context
+          .read<AppState>()
+          .api
+          .getJson('/ramadan/month?district=$code');
+      await RamadanCache.saveMonth(m);
+      if (mounted) setState(() => _month = m);
+    } catch (_) {/* keep the saved table */}
+  }
+
+  Future<List<RamadanDistrict>> _districtList() async {
+    if (_districts.isNotEmpty) return _districts;
+    var list = await RamadanCache.districts();
+    if (list.isEmpty && mounted) {
+      try {
+        final r =
+            await context.read<AppState>().api.getJson('/ramadan/districts');
+        list = parseDistricts((r['districts'] as List?) ?? const []);
+        if (list.isNotEmpty) await RamadanCache.saveDistricts(list);
+      } catch (_) {}
+    }
+    if (mounted) setState(() => _districts = list);
+    return list;
+  }
+
+  Future<void> _chooseDistrict() async {
+    final list = await _districtList();
+    if (!mounted) return;
+    if (list.isEmpty) {
+      setState(() => _error = 'fetch');
+      return;
+    }
+    final code = await pickRamadanDistrict(context, list);
+    if (code == null || !mounted) return;
+    await RamadanCache.setDistrict(code);
+    _loadTimes();
   }
 
   // Mirror ramadan._shift_hhmm for the offset previews.
@@ -139,9 +228,15 @@ class _RamadanScreenState extends State<RamadanScreen> {
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       appBar: AppBar(title: Text(t.ramadanTitle), actions: [
         IconButton(
+          key: const Key('ramadan-change-district'),
+          tooltip: t.rmd2ChooseDistrict,
+          icon: const Icon(Icons.place_rounded),
+          onPressed: _chooseDistrict,
+        ),
+        IconButton(
           tooltip: t.ramadanRefresh,
           icon: const Icon(Icons.my_location_rounded),
-          onPressed: _loadTimes,
+          onPressed: () => _loadTimes(gps: true),
         ),
       ]),
       body: _loading
@@ -149,8 +244,15 @@ class _RamadanScreenState extends State<RamadanScreen> {
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
               children: [
-                if (_error == 'location') _errorBox(t.ramadanLocationNeeded),
+                if (_error == 'location')
+                  RamadanDistrictPrompt(
+                      onPick: _chooseDistrict,
+                      onGps: () => _loadTimes(gps: true)),
                 if (_error == 'fetch') _errorBox(t.ramadanFetchFailed),
+                if (_offlineSince != null)
+                  _errorBox(t.rmd2Offline(ld(context,
+                      MaterialLocalizations.of(context)
+                          .formatShortDate(_offlineSince!)))),
                 if (_times != null) ...[
                   RamadanCountdown(
                     sehriEnd: '${_times!['sehri_end'] ?? '--:--'}',
@@ -159,7 +261,22 @@ class _RamadanScreenState extends State<RamadanScreen> {
                   const SizedBox(height: Gap.md),
                   ..._timesSection(t),
                 ],
+                if (_times?['approx_ramadan'] is Map) ...[
+                  const SizedBox(height: Gap.md),
+                  RamadanApproxCard(
+                      approx: Map<String, dynamic>.from(
+                          _times!['approx_ramadan'] as Map)),
+                ],
                 const SizedBox(height: Gap.lg),
+
+                // p3faith: today's prayers + Quran pages (local).
+                RamadanDailyTracker(
+                  onOpenQuran: FeatureFlags.instance.isOn('quran')
+                      ? () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const QuranScreen()))
+                      : null,
+                ),
+                const SizedBox(height: Gap.md),
 
                 // Ramadan calendar — day N of 30 (user-supplied start).
                 const RamadanCalendar(),
@@ -171,6 +288,20 @@ class _RamadanScreenState extends State<RamadanScreen> {
 
                 // Zakat calculator — inline, 2.5% + nisab, user-entered amounts.
                 const RamadanZakat(),
+                // p3faith: the full Tax & Zakat calculator (gold/silver
+                // nisab, assets, debts) — one tap, opens on the Zakat tab.
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: const Key('ramadan-zakat-full'),
+                    icon: const Icon(Icons.calculate_rounded),
+                    label: Text(t.rmd2ZakatFull),
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const MoneyTaxScreen(initialTab: 1))),
+                  ),
+                ),
                 const SizedBox(height: Gap.md),
 
                 // Source-noted authentic duas.
@@ -213,16 +344,44 @@ class _RamadanScreenState extends State<RamadanScreen> {
         ),
       ]),
       const SizedBox(height: Gap.sm),
-      Text(t.ramadanMethodNote(_methodName(t, '${tm['method'] ?? 'karachi'}')),
-          style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      if ('${tm['method']}' == 'ifb')
+        Text(t.rmd2MethodIfb,
+            key: const Key('ramadan-ifb-note'),
+            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
+      else
+        Text(t.ramadanMethodNote(_methodName(t, '${tm['method'] ?? 'karachi'}')),
+            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      const SizedBox(height: Gap.sm),
+      Wrap(
+        spacing: Gap.sm,
+        runSpacing: Gap.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if ('${tm['name_bn'] ?? ''}'.isNotEmpty)
+            ActionChip(
+              key: const Key('ramadan-district-chip'),
+              avatar: const Icon(Icons.place_rounded, size: 18),
+              label: Text(t.rmd2District(
+                  _isBn ? '${tm['name_bn']}' : '${tm['name_en']}')),
+              onPressed: _chooseDistrict,
+            ),
+          if (_month != null)
+            ActionChip(
+              key: const Key('ramadan-month-open'),
+              avatar: const Icon(Icons.calendar_month_rounded, size: 18),
+              label: Text(t.rmd2MonthTable),
+              onPressed: () => showRamadanMonth(context, _month!),
+            ),
+        ],
+      ),
       const SizedBox(height: Gap.md),
 
       // other prayer times
-      _prayerRow(t.ramadanFajr, '${tm['fajr'] ?? '--:--'}'),
-      _prayerRow(t.ramadanDhuhr, '${tm['dhuhr'] ?? '--:--'}'),
-      _prayerRow(t.ramadanAsr, '${tm['asr'] ?? '--:--'}'),
-      _prayerRow(t.ramadanMaghrib, '${tm['maghrib'] ?? '--:--'}'),
-      _prayerRow(t.ramadanIsha, '${tm['isha'] ?? '--:--'}'),
+      if (tm['fajr'] != null) _prayerRow(t.ramadanFajr, '${tm['fajr']}'),
+      if (tm['dhuhr'] != null) _prayerRow(t.ramadanDhuhr, '${tm['dhuhr']}'),
+      if (tm['asr'] != null) _prayerRow(t.ramadanAsr, '${tm['asr']}'),
+      if (tm['maghrib'] != null) _prayerRow(t.ramadanMaghrib, '${tm['maghrib']}'),
+      if (tm['isha'] != null) _prayerRow(t.ramadanIsha, '${tm['isha']}'),
       const Divider(height: Gap.xl),
 
       // alarms
@@ -326,6 +485,8 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ]),
     );
   }
+
+  bool get _isBn => Localizations.localeOf(context).languageCode == 'bn';
 
   /// lifebar: the server's method id ('karachi') named in the app language.
   String _methodName(AppLocalizations t, String id) =>
