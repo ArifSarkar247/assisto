@@ -72,37 +72,45 @@
 {"cat": "compose", "prompt": "bariwala ke ekta bhodro message likhe dao, ei maser vara 5 din deri hobe", "history": [], "expect": {"answer_lang": "bn", "min_chars": 120, "bn_script": true}, "id": "exam-072"}
 {"cat": "compose", "prompt": "আমার কাপড়ের দোকানের জন্য ঈদের ফেসবুক পোস্ট লিখে দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 120, "bn_script": true}, "id": "exam-073"}
 {"cat": "compose", "prompt": "amar kaporer dokaner jonno eid er facebook post likhe dao", "history": [], "expect": {"answer_lang": "bn", "min_chars": 120, "bn_script": true}, "id": "exam-074"}
-{"cat": "short", "prompt": "বাংলাদেশের রাজধানী কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10}, "id": "exam-075"}
-{"cat": "short", "prompt": "What is 15% of 2400 taka?", "history": [], "expect": {"answer_lang": "en", "min_chars": 10}, "id": "exam-076"}
-{"cat": "short", "prompt": "১ ডলার মানে মোটামুটি কত টাকা? সাধারণ ধারণা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10}, "id": "exam-077"}
-{"cat": "bn", "prompt": "গ্যাসের চুলা নিরাপদে ব্যবহারের নিয়ম কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-078"}
-{"cat": "bn", "prompt": "শিশুর টিকার সময়সূচি সম্পর্কে সাধারণ ধারণা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-079"}
-{"cat": "bn", "prompt": "ফ্রিল্যান্সিং শুরু করতে কী কী শিখতে হবে?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-080"}
-{"cat": "bn", "prompt": "মোবাইল ব্যাংকিংয়ে পিন চুরি হলে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-081"}
-{"cat": "bn", "prompt": "রিকশাওয়ালার সাথে ভাড়া নিয়ে ঝামেলা এড়াতে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-082"}
-{"cat": "bn", "prompt": "বন্যার আগে পরিবারকে কীভাবে প্রস্তুত রাখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-083"}
-{"cat": "bn", "prompt": "ভালো ঘুমের জন্য কী অভ্যাস করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-084"}
-{"cat": "bn", "prompt": "চাকরির ইন্টারভিউতে সাধারণ প্রশ্ন ও উত্তর দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-085"}
-{"cat": "bn", "prompt": "ভাড়া বাসা নেওয়ার আগে কী কী দেখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-086"}
-{"cat": "bn", "prompt": "গ্রামে মুরগির খামার শুরু করার পরিকল্পনা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-087"}
-{"cat": "bn", "prompt": "ট্রেনের টিকিট অনলাইনে কাটার নিয়ম বলো", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-088"}
-{"cat": "bn", "prompt": "বয়স্ক বাবা-মায়ের যত্নে কী খেয়াল রাখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-089"}
-{"cat": "bn", "prompt": "ছাদবাগান শুরু করতে কী লাগবে?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-090"}
-{"cat": "bn", "prompt": "মোবাইলের ব্যাটারি দ্রুত শেষ হলে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-091"}
-{"cat": "bn", "prompt": "সাইবার বুলিং হলে কোথায় অভিযোগ করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-092"}
-{"cat": "bn", "prompt": "জন্ম নিবন্ধন সংশোধন কীভাবে করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-093"}
-{"cat": "bn", "prompt": "ঈদে বাড়ি যাওয়ার সময় নিরাপদ থাকার উপায়", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-094"}
-{"cat": "bn", "prompt": "পানি বিশুদ্ধ করার ঘরোয়া উপায় কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-095"}
-{"cat": "bn", "prompt": "নতুন উদ্যোক্তার জন্য ফেসবুক মার্কেটিংয়ের টিপস দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-096"}
-{"cat": "bn", "prompt": "কম খরচে স্বাস্থ্যকর খাবারের তালিকা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-097"}
-{"cat": "romanized", "prompt": "biye barite ki gift deya jay 2000 takar moddhe", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-098"}
-{"cat": "romanized", "prompt": "ghore boshe online income er upay", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-099"}
-{"cat": "romanized", "prompt": "rickshaw vara niye jhamela hole ki korbo", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-100"}
-{"cat": "romanized", "prompt": "bachar jor hole ki korbo", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-101"}
-{"cat": "romanized", "prompt": "notun phone e ki ki app lagbe", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-102"}
-{"cat": "romanized", "prompt": "mon kharap thakle ki kora jay", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-103"}
-{"cat": "en", "prompt": "How do I report a lost NID card?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-104"}
-{"cat": "en", "prompt": "What are good habits for saving money every month?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-105"}
-{"cat": "en", "prompt": "Write a polite email asking my teacher for an extension.", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-106"}
-{"cat": "en", "prompt": "How do I stay safe using ride-sharing at night?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-107"}
-{"cat": "en", "prompt": "Explain what a trade licence is and who needs one.", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-108"}
+{"cat": "owner_fail", "prompt": "kal sokal 9 tay gas er tablet khawar kotha mone koriye dio", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10, "bn_script": true, "action": "reminder", "forbid_any": ["Logged your expense", "খরচ লিখে"]}, "id": "exam-075"}
+{"cat": "owner_fail", "prompt": "কাল সকাল ৯টায় গ্যাসের ট্যাবলেট খাওয়ার কথা মনে করিয়ে দিও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10, "action": "reminder", "forbid_any": ["খরচ লিখে", "Logged your expense"]}, "id": "exam-076"}
+{"cat": "owner_fail", "prompt": "amar nam Arif", "history": [], "expect": {"answer_lang": "bn", "min_chars": 5, "bn_script": true, "action": "profile_name", "forbid_any": ["owner", "key", "Save as a note"]}, "id": "exam-077"}
+{"cat": "owner_fail", "prompt": "আমার নাম আরিফ", "history": [], "expect": {"answer_lang": "bn", "min_chars": 5, "action": "profile_name"}, "id": "exam-078"}
+{"cat": "owner_fail", "prompt": "amar nam ki?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 5, "bn_script": true, "profile_name": "Arif", "must_any": ["Arif", "আরিফ"]}, "id": "exam-079"}
+{"cat": "owner_fail", "prompt": "আমার নাম কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 5, "profile_name": "Arif", "must_any": ["Arif", "আরিফ"]}, "id": "exam-080"}
+{"cat": "owner_fail", "prompt": "mudi dokan er jonno ekta hisab rakhar upay bolo", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250, "bn_script": true}, "id": "exam-081"}
+{"cat": "owner_fail", "prompt": "মুদি দোকানের বাকির হিসাব কীভাবে রাখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-082"}
+{"cat": "short", "prompt": "বাংলাদেশের রাজধানী কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10}, "id": "exam-083"}
+{"cat": "short", "prompt": "What is 15% of 2400 taka?", "history": [], "expect": {"answer_lang": "en", "min_chars": 10}, "id": "exam-084"}
+{"cat": "short", "prompt": "১ ডলার মানে মোটামুটি কত টাকা? সাধারণ ধারণা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 10}, "id": "exam-085"}
+{"cat": "bn", "prompt": "গ্যাসের চুলা নিরাপদে ব্যবহারের নিয়ম কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-086"}
+{"cat": "bn", "prompt": "শিশুর টিকার সময়সূচি সম্পর্কে সাধারণ ধারণা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-087"}
+{"cat": "bn", "prompt": "ফ্রিল্যান্সিং শুরু করতে কী কী শিখতে হবে?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-088"}
+{"cat": "bn", "prompt": "মোবাইল ব্যাংকিংয়ে পিন চুরি হলে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-089"}
+{"cat": "bn", "prompt": "রিকশাওয়ালার সাথে ভাড়া নিয়ে ঝামেলা এড়াতে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-090"}
+{"cat": "bn", "prompt": "বন্যার আগে পরিবারকে কীভাবে প্রস্তুত রাখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-091"}
+{"cat": "bn", "prompt": "ভালো ঘুমের জন্য কী অভ্যাস করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-092"}
+{"cat": "bn", "prompt": "চাকরির ইন্টারভিউতে সাধারণ প্রশ্ন ও উত্তর দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-093"}
+{"cat": "bn", "prompt": "ভাড়া বাসা নেওয়ার আগে কী কী দেখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-094"}
+{"cat": "bn", "prompt": "গ্রামে মুরগির খামার শুরু করার পরিকল্পনা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-095"}
+{"cat": "bn", "prompt": "ট্রেনের টিকিট অনলাইনে কাটার নিয়ম বলো", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-096"}
+{"cat": "bn", "prompt": "বয়স্ক বাবা-মায়ের যত্নে কী খেয়াল রাখব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-097"}
+{"cat": "bn", "prompt": "ছাদবাগান শুরু করতে কী লাগবে?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-098"}
+{"cat": "bn", "prompt": "মোবাইলের ব্যাটারি দ্রুত শেষ হলে কী করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-099"}
+{"cat": "bn", "prompt": "সাইবার বুলিং হলে কোথায় অভিযোগ করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-100"}
+{"cat": "bn", "prompt": "জন্ম নিবন্ধন সংশোধন কীভাবে করব?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-101"}
+{"cat": "bn", "prompt": "ঈদে বাড়ি যাওয়ার সময় নিরাপদ থাকার উপায়", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-102"}
+{"cat": "bn", "prompt": "পানি বিশুদ্ধ করার ঘরোয়া উপায় কী?", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-103"}
+{"cat": "bn", "prompt": "নতুন উদ্যোক্তার জন্য ফেসবুক মার্কেটিংয়ের টিপস দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-104"}
+{"cat": "bn", "prompt": "কম খরচে স্বাস্থ্যকর খাবারের তালিকা দাও", "history": [], "expect": {"answer_lang": "bn", "min_chars": 250}, "id": "exam-105"}
+{"cat": "romanized", "prompt": "biye barite ki gift deya jay 2000 takar moddhe", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-106"}
+{"cat": "romanized", "prompt": "ghore boshe online income er upay", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-107"}
+{"cat": "romanized", "prompt": "rickshaw vara niye jhamela hole ki korbo", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-108"}
+{"cat": "romanized", "prompt": "bachar jor hole ki korbo", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-109"}
+{"cat": "romanized", "prompt": "notun phone e ki ki app lagbe", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-110"}
+{"cat": "romanized", "prompt": "mon kharap thakle ki kora jay", "history": [], "expect": {"answer_lang": "bn", "min_chars": 150, "bn_script": true}, "id": "exam-111"}
+{"cat": "en", "prompt": "How do I report a lost NID card?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-112"}
+{"cat": "en", "prompt": "What are good habits for saving money every month?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-113"}
+{"cat": "en", "prompt": "Write a polite email asking my teacher for an extension.", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-114"}
+{"cat": "en", "prompt": "How do I stay safe using ride-sharing at night?", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-115"}
+{"cat": "en", "prompt": "Explain what a trade licence is and who needs one.", "history": [], "expect": {"answer_lang": "en", "min_chars": 200}, "id": "exam-116"}

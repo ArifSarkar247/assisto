@@ -1,11 +1,12 @@
 """aifinal (owner AI order 3 Nov 23:15, PART 3): the answer level the USER
 chooses above the AI chat input. Pure logic (no DB, no network).
 
-  Normal = Gemini 2.5 Flash-Lite (default)   Better = Claude Haiku 5.5
+  Normal = Gemini 2.5 Flash (default)        Better = Claude Haiku 5.5
   Best   = Claude Sonnet 5.5
 
 Prices (USD per 1M tokens, checked 3 Nov 2026 on the official pages):
-  * gemini-2.5-flash-lite  in 0.10 / out 0.40   https://ai.google.dev/gemini-api/docs/pricing
+  * gemini-2.5-flash       in 0.30 / out 2.50   https://ai.google.dev/gemini-api/docs/pricing
+  * gemini-2.5-flash-lite  in 0.10 / out 0.40   (the earlier Normal)
                                                (now served at aistudio.google.com/docs/pricing)
   * claude-haiku-5-5       in 0.10 / out 0.50 / 5m cache write 0.125
   * claude-sonnet-5-5      in 2.00 / out 10.00 / 5m cache write 2.50
@@ -29,8 +30,9 @@ LEVEL_IDS = ("normal", "better", "best")
 PROVIDERS = ("gemini", "anthropic", "openai")
 
 DEFAULT_LEVELS = {
-    "normal": {"provider": "gemini", "model": "gemini-2.5-flash-lite",
-               "in_cap": 6000, "out_cap": 1500, "max_chars": 2000, "history_turns": 12,
+    # owner rebuild order 4 Nov 01:02: Normal = Gemini FLASH (not Flash-Lite)
+    "normal": {"provider": "gemini", "model": "gemini-2.5-flash",
+               "in_cap": 5000, "out_cap": 1500, "max_chars": 2000, "history_turns": 12,
                "credits": 0, "per_day": 60},
     "better": {"provider": "anthropic", "model": "claude-haiku-5-5",
                "in_cap": 8000, "out_cap": 1800, "max_chars": 3000, "history_turns": 16,
@@ -49,7 +51,9 @@ FLASH_LITE_PRICE = {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write":
 
 
 def defaults():
-    return {"enabled": False, "default": "normal",
+    # rebuild order 01:02: ON by default — the old pricing-40 "smart" mode
+    # (Sonnet for 2 credits) fails the 40 % rule in the worst case
+    return {"enabled": True, "default": "normal",
             "levels": {k: dict(v) for k, v in DEFAULT_LEVELS.items()},
             # PART 4: free + rewarded-ad credits pay ONLY for these levels
             "free_credit_levels": ["normal"],
@@ -79,7 +83,7 @@ def normalize(raw):
     """Bounded, defaults-filled block. Never raises."""
     raw = raw if isinstance(raw, dict) else {}
     base = defaults()
-    out = {"enabled": raw.get("enabled") is True}
+    out = {"enabled": raw.get("enabled", base["enabled"]) is True}
     d = str(raw.get("default") or "")
     out["default"] = d if d in LEVEL_IDS else base["default"]
     rl = raw.get("levels") if isinstance(raw.get("levels"), dict) else {}

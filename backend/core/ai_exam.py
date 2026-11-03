@@ -94,6 +94,12 @@ def grade(case, answer, meta=None):
         fails.append("no_consult_line")
     if e.get("no_cards") and meta.get("cards"):
         fails.append("unasked_data_cards")
+    if "proposal" in meta:
+        prop = (meta.get("proposal") or {}).get("type")
+        if e.get("action") and prop != e["action"]:
+            fails.append("no_action:%s" % e["action"])
+        if not e.get("action") and prop:
+            fails.append("unasked_action:%s" % prop)
     if meta.get("credits_shown") is not None and meta.get("credits_shown") != meta.get("charged"):
         fails.append("credits_mismatch")
     return {"ok": not fails, "fails": fails}
@@ -113,20 +119,26 @@ def product_answer(case, provider=None, minor=False):
         if h.get("photo_text"):
             c += "\n\n[Photo shared earlier in this chat — text seen in it]: " + h["photo_text"]
         hist.append({"role": h["role"], "content": c})
-    task = pick(lang, *VC.CHAT_TASK) + "\n" + AC.GENERAL_RULE
+    from . import ai_tools as AT
+    task = pick(lang, *VC.CHAT_TASK) + "\n" + AC.GENERAL_RULE + "\n" + AT.TOOL_RULE
     if minor or case.get("expect", {}).get("minor"):
         task += "\n" + AC.SAFE_MODE_RULE
     meta = {}
     ctx_mgr = ai.only_provider(provider) if provider else _Null()
     with ctx_mgr:
         reply, cost = ai.generate(task="", extra_system=task,
-                                  data=VC.CHAT_DATA.format(text=text, summary="-"),
+                                  data=VC.CHAT_DATA.format(
+                                      text=text, summary=("User profile — first name: %s"
+                                                          % case["expect"]["profile_name"])
+                                      if case.get("expect", {}).get("profile_name") else "-"),
                                   tier="cheap", feature="eval.exam", max_tokens=1500,
                                   user=None, history=hist, out_meta=meta)
+    reply, proposal = AT.extract(reply)
     reply = VC.scrub_internal(reply)
     if meta.get("truncated"):
         reply = VC.end_at_sentence(reply)
     reply, _ = AC.add_professional_line(reply, text, lang)
+    product_answer.last_meta = {"proposal": proposal}
     return reply, cost
 
 
@@ -225,7 +237,7 @@ def tick(now=None, budget_s=PER_TICK_S, answer=product_answer, ref=reference_ans
         cur["i"] += 1
         try:
             ours, c1 = answer(case)
-            g = grade(case, ours)
+            g = grade(case, ours, getattr(answer, "last_meta", None))
             verdict, c2, c3 = "", 0.0, 0.0
             if c["judge"]:
                 r, c2 = ref(case)

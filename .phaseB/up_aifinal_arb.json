@@ -182,6 +182,31 @@
   "aiCopied": "Copied",
   "@aiCopied": {
    "description": "aifinal round 3: snackbar after copy"
+  },
+  "aiConfirmFailed": "Couldn't save it right now — please try again.",
+  "@aiConfirmFailed": {
+   "description": "AI rebuild: confirm card failed"
+  },
+  "aiEntriesTitle": "Entries the AI saved",
+  "@aiEntriesTitle": {
+   "description": "AI rebuild clean-up: sheet title"
+  },
+  "aiEntriesNone": "Nothing saved by the AI in the last 14 days.",
+  "@aiEntriesNone": {
+   "description": "AI rebuild clean-up: empty"
+  },
+  "aiEntriesDeleteAll": "Delete all of these",
+  "@aiEntriesDeleteAll": {
+   "description": "AI rebuild clean-up: one-tap clean-up"
+  },
+  "aiEntriesDeleted": "Deleted {n} entries.",
+  "@aiEntriesDeleted": {
+   "description": "AI rebuild clean-up: after clean-up",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
   }
  },
  "bn": {
@@ -222,6 +247,11 @@
   "aiContinue": "চালিয়ে যাও",
   "aiMoreDetail": "আরও বিস্তারিত",
   "aiCopy": "কপি",
-  "aiCopied": "কপি হয়েছে"
+  "aiCopied": "কপি হয়েছে",
+  "aiConfirmFailed": "এই মুহূর্তে সেভ করা গেল না — আবার চেষ্টা করুন।",
+  "aiEntriesTitle": "AI যা সেভ করেছে",
+  "aiEntriesNone": "গত ১৪ দিনে AI কিছু সেভ করেনি।",
+  "aiEntriesDeleteAll": "এগুলো সব মুছে দিন",
+  "aiEntriesDeleted": "{n}টি এন্ট্রি মুছে দেওয়া হয়েছে।"
  }
 }
