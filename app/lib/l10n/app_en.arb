@@ -41845,5 +41845,318 @@
   "cbubSoundAssistoPop": "Assisto pop (default)",
   "@cbubSoundAssistoPop": {
     "description": "circlebub: the message-sound setting when the user has not picked a sound — Assisto's own short pop"
+  },
+  "g2ActionFailed": "Could not save — check the internet and try again.",
+  "@g2ActionFailed": {
+    "description": "guardian2 (PART 6 two guardians): g2ActionFailed"
+  },
+  "g2Approve": "Approve",
+  "@g2Approve": {
+    "description": "guardian2 (PART 6 two guardians): g2Approve"
+  },
+  "g2ApproveNote": "Approve only if you know this person. They will see {child}'s location and get every alert, including SOS.",
+  "@g2ApproveNote": {
+    "description": "guardian2 (PART 6 two guardians): g2ApproveNote",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2Approved": "{name} is now a guardian — everyone was told",
+  "@g2Approved": {
+    "description": "guardian2 (PART 6 two guardians): g2Approved",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "g2CancelInvite": "Cancel",
+  "@g2CancelInvite": {
+    "description": "guardian2 (PART 6 two guardians): g2CancelInvite"
+  },
+  "g2CoGuardianOf": "{name} — guardian of {child}",
+  "@g2CoGuardianOf": {
+    "description": "guardian2 (PART 6 two guardians): g2CoGuardianOf",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2Copied": "Code copied",
+  "@g2Copied": {
+    "description": "guardian2 (PART 6 two guardians): g2Copied"
+  },
+  "g2Copy": "Copy code",
+  "@g2Copy": {
+    "description": "guardian2 (PART 6 two guardians): g2Copy"
+  },
+  "g2ErrAlready": "You are already a guardian of this child.",
+  "@g2ErrAlready": {
+    "description": "guardian2 (PART 6 two guardians): g2ErrAlready"
+  },
+  "g2ErrBadCode": "That code is not right — check it and try again.",
+  "@g2ErrBadCode": {
+    "description": "guardian2 (PART 6 two guardians): g2ErrBadCode"
+  },
+  "g2ErrExpired": "This code has expired — ask for a new one.",
+  "@g2ErrExpired": {
+    "description": "guardian2 (PART 6 two guardians): g2ErrExpired"
+  },
+  "g2ErrSelf": "This code is for a guardian, not for the child.",
+  "@g2ErrSelf": {
+    "description": "guardian2 (PART 6 two guardians): g2ErrSelf"
+  },
+  "g2ErrUsed": "This code was already used — ask for a new one.",
+  "@g2ErrUsed": {
+    "description": "guardian2 (PART 6 two guardians): g2ErrUsed"
+  },
+  "g2InviteActive": "Unused code {code} for {child}",
+  "@g2InviteActive": {
+    "description": "guardian2 (PART 6 two guardians): g2InviteActive",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2InviteBody": "Share this code or link with the other parent or guardian. They will see NOTHING until you tap Approve.",
+  "@g2InviteBody": {
+    "description": "guardian2 (PART 6 two guardians): g2InviteBody"
+  },
+  "g2InviteBtn": "Invite a second guardian",
+  "@g2InviteBtn": {
+    "description": "guardian2 (PART 6 two guardians): g2InviteBtn"
+  },
+  "g2InviteExpires": "Works for 48 hours, one time only.",
+  "@g2InviteExpires": {
+    "description": "guardian2 (PART 6 two guardians): g2InviteExpires"
+  },
+  "g2InviteTitle": "Invite a guardian for {child}",
+  "@g2InviteTitle": {
+    "description": "guardian2 (PART 6 two guardians): g2InviteTitle",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2IsResponding": "{name} is responding",
+  "@g2IsResponding": {
+    "description": "guardian2 (PART 6 two guardians): g2IsResponding",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "g2JoinBody": "Type the code the child's guardian sent you. The guardian must approve first — until then you see nothing.",
+  "@g2JoinBody": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinBody"
+  },
+  "g2JoinBtn": "Join as a guardian with a code",
+  "@g2JoinBtn": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinBtn"
+  },
+  "g2JoinHint": "Invite code",
+  "@g2JoinHint": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinHint"
+  },
+  "g2JoinSend": "Send request",
+  "@g2JoinSend": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinSend"
+  },
+  "g2JoinSent": "Request sent — waiting for approval",
+  "@g2JoinSent": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinSent"
+  },
+  "g2JoinTitle": "Become a guardian",
+  "@g2JoinTitle": {
+    "description": "guardian2 (PART 6 two guardians): g2JoinTitle"
+  },
+  "g2Leave": "Stop being a guardian",
+  "@g2Leave": {
+    "description": "guardian2 (PART 6 two guardians): g2Leave"
+  },
+  "g2LeaveBody": "You will stop seeing {child}'s location and alerts at once. The other guardian and {child} will be told.",
+  "@g2LeaveBody": {
+    "description": "guardian2 (PART 6 two guardians): g2LeaveBody",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2LeaveTitle": "Stop being {child}'s guardian?",
+  "@g2LeaveTitle": {
+    "description": "guardian2 (PART 6 two guardians): g2LeaveTitle",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2Limit": "This child already has {max} guardians — the most this plan allows.",
+  "@g2Limit": {
+    "description": "guardian2 (PART 6 two guardians): g2Limit",
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "g2NeedsAccount": "To invite another guardian, {child} needs their own Assisto account on their phone.",
+  "@g2NeedsAccount": {
+    "description": "guardian2 (PART 6 two guardians): g2NeedsAccount",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2PendingBody": "{name} asked to be your guardian. They can NOT see you unless your guardian approves.",
+  "@g2PendingBody": {
+    "description": "guardian2 (PART 6 two guardians): g2PendingBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "g2PendingTitle": "Waiting for approval",
+  "@g2PendingTitle": {
+    "description": "guardian2 (PART 6 two guardians): g2PendingTitle"
+  },
+  "g2Reject": "Reject",
+  "@g2Reject": {
+    "description": "guardian2 (PART 6 two guardians): g2Reject"
+  },
+  "g2Rejected": "Request rejected — nothing was shared",
+  "@g2Rejected": {
+    "description": "guardian2 (PART 6 two guardians): g2Rejected"
+  },
+  "g2RemoveCo": "Remove {name}",
+  "@g2RemoveCo": {
+    "description": "guardian2 (PART 6 two guardians): g2RemoveCo",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "g2RemoveCoBody": "{name} will stop seeing {child}'s location and alerts at once. You, {name} and {child} will all be told.",
+  "@g2RemoveCoBody": {
+    "description": "guardian2 (PART 6 two guardians): g2RemoveCoBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2RemoveCoTitle": "Remove {name} as a guardian?",
+  "@g2RemoveCoTitle": {
+    "description": "guardian2 (PART 6 two guardians): g2RemoveCoTitle",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "g2Removed": "Done — everyone was told",
+  "@g2Removed": {
+    "description": "guardian2 (PART 6 two guardians): g2Removed"
+  },
+  "g2RespondFailed": "Could not send — try again. If it is urgent, call now.",
+  "@g2RespondFailed": {
+    "description": "guardian2 (PART 6 two guardians): g2RespondFailed"
+  },
+  "g2Responding": "I'm responding",
+  "@g2Responding": {
+    "description": "guardian2 (PART 6 two guardians): g2Responding"
+  },
+  "g2Share": "Share",
+  "@g2Share": {
+    "description": "guardian2 (PART 6 two guardians): g2Share"
+  },
+  "g2ShareText": "Be a guardian of {child} on Assisto. Code: {code} — {link} (works after approval)",
+  "@g2ShareText": {
+    "description": "guardian2 (PART 6 two guardians): g2ShareText",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "g2SidebarLabel": "Guardians — who sees me",
+  "@g2SidebarLabel": {
+    "description": "guardian2 (PART 6 two guardians): g2SidebarLabel"
+  },
+  "g2Since": "Since {date}",
+  "@g2Since": {
+    "description": "guardian2 (PART 6 two guardians): g2Since",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "g2SrcCoGuardian": "Approved guardian",
+  "@g2SrcCoGuardian": {
+    "description": "guardian2 (PART 6 two guardians): g2SrcCoGuardian"
+  },
+  "g2ToApprove": "Needs your approval",
+  "@g2ToApprove": {
+    "description": "guardian2 (PART 6 two guardians): g2ToApprove"
+  },
+  "g2WaitingFor": "Waiting for approval to see {child}",
+  "@g2WaitingFor": {
+    "description": "guardian2 (PART 6 two guardians): g2WaitingFor",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2WantsToGuard": "{name} wants to be a guardian of {child}",
+  "@g2WantsToGuard": {
+    "description": "guardian2 (PART 6 two guardians): g2WantsToGuard",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2YouGuard": "You are a guardian of {child}",
+  "@g2YouGuard": {
+    "description": "guardian2 (PART 6 two guardians): g2YouGuard",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "g2YouResponding": "You are responding",
+  "@g2YouResponding": {
+    "description": "guardian2 (PART 6 two guardians): g2YouResponding"
   }
 }
