@@ -426,6 +426,24 @@ jobs:
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
+          # ---- callmoney ---- after-call note + money from notifications: ONE
+          # NotificationListenerService, bound by Android only after the user
+          # turns on Notification access for Assisto (the BIND_ permission
+          # guards the service; it is NOT a uses-permission). No READ_PHONE_STATE,
+          # no READ_SMS, no READ_CALL_LOG, no microphone (calls never recorded).
+          notif_listen = (
+              '\n        <service android:name="com.assisto.assisto.notiflisten.AssistoNotifListener"'
+              ' android:label="Assisto"'
+              ' android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"'
+              ' android:exported="true">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.service.notification.NotificationListenerService"/>'
+              '\n            </intent-filter>'
+              '\n        </service>\n'
+          )
+          if 'notiflisten.AssistoNotifListener' not in s:
+              s = s.replace('</application>', notif_listen + '    </application>', 1)
+          # ---- /callmoney ----
           # LAUNCH-ANR FIX: disable androidx.startup auto-initialization. This
           # phone (Realme/ColorOS) ANR'd at process start on the androidx
           # WorkManager startup ContentProvider before; androidx.camera (CameraX)
