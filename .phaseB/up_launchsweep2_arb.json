@@ -1,0 +1,11 @@
+{
+  "_comment": "launchsweep2 (3 Nov launch quality sweep). All keys NEW (old keys stay for other users). Integrator: bin/arb_apply.py --app app .phaseB/up_launchsweep2_arb.json",
+  "en": {
+    "trDataNote2": "Times are estimates from the published timetable (Wikipedia, CC BY-SA) until checked; map © OpenStreetMap contributors (ODbL). Free to use.",
+    "amkNeedsEmptyBenefit2": "Post what you need once — Dhaka sellers approved by Assisto send their best price, and Assisto tells you which offer is best."
+  },
+  "bn": {
+    "trDataNote2": "যাচাই না হওয়া পর্যন্ত সময়গুলো প্রকাশিত সময়সূচি থেকে আনুমানিক (উইকিপিডিয়া, CC BY-SA); ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।",
+    "amkNeedsEmptyBenefit2": "একবার লিখুন কী লাগবে — Assisto-র অনুমোদিত ঢাকার বিক্রেতারা সেরা দাম পাঠাবেন, আর Assisto বলে দেবে কোন অফার সবচেয়ে ভালো।"
+  }
+}

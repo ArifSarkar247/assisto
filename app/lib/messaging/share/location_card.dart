@@ -130,7 +130,7 @@ class _LocationCardState extends State<LocationCard> {
     final scheme = Theme.of(context).colorScheme;
     final title = s.label.isNotEmpty
         ? s.label
-        : (s.live ? t.circleAttachLiveLocation : t.circleAttachLocation);
+        : (s.live ? t.sjlNameLive : t.circleAttachLocation);
     final lines = <String>[];
     if (s.live) {
       lines.add(liveNow

@@ -498,7 +498,7 @@ class SidebarSections {
       // requests, private contact, My saved donors (flag blood_donors OFF).
       // ownerfix (owner 3 Nov): the ONLY blood donor entry — the old personal
       // registry (#188) is gone; its donors moved into "My saved donors".
-      SidebarItem(Icons.bloodtype_rounded, (t) => t.bpTitle,
+      SidebarItem(Icons.bloodtype_rounded, (t) => t.hv2TileBloodDonor,
           feature: 'blood_donors',
           (_) => const BloodHubScreen(),
           synonyms: ['blood donor', 'blood bank', 'urgent blood', 'need blood',

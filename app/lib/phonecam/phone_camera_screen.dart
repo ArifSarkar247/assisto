@@ -20,6 +20,7 @@ import '../services/error_report.dart';
 import '../shop_api.dart';
 import '../shop_motion.dart';
 import '../theme.dart' show Brand;
+import '../widgets/local_digits.dart' show ld;
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/permission_reason.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -750,7 +751,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
           textCapitalization: TextCapitalization.characters,
           decoration: InputDecoration(
             labelText: t.pcCodeLabel,
-            hintText: '12-ABC234',
+            hintText: ld(context, '12-ABC234'),
             errorText: _pairError.isEmpty ? null : _pairError,
             border: const OutlineInputBorder(),
             suffixIcon: IconButton(

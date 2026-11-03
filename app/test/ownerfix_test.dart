@@ -193,17 +193,18 @@ void main() {
             for (final s in SidebarSections.allModes)
               for (final i in s.items) i.label(l),
           ];
-      expect(labels(), isNot(contains(l.bpTitle)));
+      expect(labels(), isNot(contains(l.hv2TileBloodDonor)));
       // owner / staff / allow-listed tester: the server sends it as a preview
       FeatureFlags.instance.applyForTest({
         'features': {'blood_donors': true},
         'preview': ['blood_donors'],
       });
       expect(FeatureFlags.instance.isOn('blood_donors'), isTrue);
-      // exactly ONE blood donor entry (the old registry had the same English
-      // name "Blood donors" — two entries would count 2 here)
-      expect(labels().where((x) => x == l.bpTitle).length, 1);
-      expect(labels().where((x) => x == l.bloodTitle).length, 1);
+      // exactly ONE blood donor entry, named "Blood donor" like everywhere
+      // else (launchsweep2); the old registry names are not in the menu
+      expect(labels().where((x) => x == l.hv2TileBloodDonor).length, 1);
+      expect(labels(), isNot(contains(l.bpTitle)));
+      expect(labels(), isNot(contains(l.bloodTitle)));
       // ...but the owner's home / Discover match normal users (preview = off)
       expect(FeatureFlags.instance.homeTileAllowed('blood_panel'), isFalse);
       expect(renderableDiscover(kDiscoverFallback).map((c) => c.key),
@@ -222,7 +223,7 @@ void main() {
       });
       expect(FeatureFlags.instance.routeAllowed('blood_panel'), isFalse);
       expect(FeatureFlags.instance.routeAllowed('blood_donor'), isFalse);
-      expect(labels(), isNot(contains(l.bpTitle)));
+      expect(labels(), isNot(contains(l.hv2TileBloodDonor)));
     });
 
     test('NO ads anywhere in blood donor', () {

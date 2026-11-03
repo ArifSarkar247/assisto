@@ -476,7 +476,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
       if (trial) Text(t.cplTrialThen(price)),
       if (_active) Text(t.cplChangeNote),
       if (playPrice != null && playPrice.isNotEmpty)
-        Text(t.cplPlayPrice(playPrice), style: Theme.of(context).textTheme.bodySmall),
+        Text(t.cplPlayPrice(wmDigits(_lang(), playPrice)), style: Theme.of(context).textTheme.bodySmall),
     ]);
   }
 
@@ -592,7 +592,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
               child: Text(t.cplAddonBuy(t.cplPerMonth(_n(total))), textAlign: TextAlign.center),
             ),
           if (_addonOffers[plan] != null && _active && d['on_sale'] == true)
-            Text(t.cplPlayPrice(_addonOffers[plan]!), style: tt.bodySmall),
+            Text(t.cplPlayPrice(wmDigits(_lang(), _addonOffers[plan]!)), style: tt.bodySmall),
         ]),
       ),
     );

@@ -273,7 +273,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.bpTitle),
+        title: Text(t.hv2TileBloodDonor),
         actions: [
           IconButton(
             key: const ValueKey('bp-threads'),

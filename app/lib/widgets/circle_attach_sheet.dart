@@ -61,7 +61,7 @@ class CircleAttachGrid extends StatelessWidget {
           CircleAttachKind.document => (Icons.insert_drive_file_rounded, t.circleAttachDocument),
           CircleAttachKind.contact => (Icons.contact_page_rounded, t.circleAttachContact),
           CircleAttachKind.location => (Icons.location_on_rounded, t.circleAttachLocation),
-          CircleAttachKind.liveLocation => (Icons.my_location_rounded, t.circleAttachLiveLocation),
+          CircleAttachKind.liveLocation => (Icons.my_location_rounded, t.sjlNameLive),
         };
 
     Widget cell(CircleAttachKind kind) {

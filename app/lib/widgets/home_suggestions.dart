@@ -242,7 +242,7 @@ const List<DiscoverItem> kDiscoverFallback = [
 // Top-level tear-offs so the fallback entries can stay `const`.
 String _tSosTitle(AppLocalizations t) => t.emergencySosBigButton;
 String _tSosBenefit(AppLocalizations t) => t.discoverSosBenefit;
-String _tTrainTitle(AppLocalizations t) => t.trTitle;
+String _tTrainTitle(AppLocalizations t) => t.sjlNameTrain;
 String _tTrainBenefit(AppLocalizations t) => t.discoverTrainBenefit;
 // b2-badges: the card opens Photo Studio, so it is named Photo Studio
 // (server seed renamed by migration 0056).

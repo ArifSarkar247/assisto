@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../widgets/app_sheet.dart';
+import '../widgets/local_digits.dart' show ld;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'phonecam_api.dart';
 
@@ -163,7 +164,9 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
             const SizedBox(height: 12),
             Text(t.pcOrTypeCode, textAlign: TextAlign.center),
             const SizedBox(height: 4),
-            SelectableText((d['code'] ?? '').toString(),
+            // Bangla digits on a Bangla screen (launchsweep2); the old phone's
+            // code box accepts both (normalizePairCode), Copy keeps Latin.
+            SelectableText(ld(context, d['code'] ?? ''),
                 key: const Key('pcPairCode'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
