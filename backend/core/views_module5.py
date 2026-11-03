@@ -801,6 +801,8 @@ def _mr1_enrich(viewer, m, d):
                          "deleted": last.deleted or "",
                          "peer_public_key": e2_keys.edge_key(m)[0] or "",
                          "created_at": last.created_at.isoformat()}
+            if last.view_once:   # viewonce: never its descriptor in a list
+                d["last"].update(view_once=True, ciphertext="", nonce="")
             d["at"] = last.created_at.isoformat()
             unseen = [x for x in rows if x.sender_id != viewer.id
                       and viewer.id not in (x.read_by or [])]

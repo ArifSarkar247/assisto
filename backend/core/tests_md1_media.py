@@ -150,8 +150,8 @@ class UploadTests(_Base):
         # mc-media2: video is a chat media kind now (own cap); unknown -> bad_kind
         r = self.create(kind="sticker")
         self.assertEqual(r.json()["reason"], "bad_kind")
-        # documents default to 25 MB
-        self.assertEqual(CB.max_bytes("document"), 25 * MB + 64 * 1024)
+        # documents default to 100 MB (viewonce: owner 3 Nov)
+        self.assertEqual(CB.max_bytes("document"), 100 * MB + 64 * 1024)
         ref = self.create(data=CIPHER[:100]).json()["ref"]
         r = self.put(ref, 0, b"y" * (CB.CHUNK_MAX + 1))
         self.assertEqual(r.status_code, 413)

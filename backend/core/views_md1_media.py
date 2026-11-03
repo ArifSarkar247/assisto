@@ -63,11 +63,15 @@ class MediaBlobsView(APIView):
             return Response({"detail": "bad sha256"},
                             status=status.HTTP_400_BAD_REQUEST)
         why = CB.quota_check(request.user, kind, size)
+        # viewonce (owner 3 Nov): video <= 3 min, voice <= 15 min (declared
+        # by the phone; the server can't look inside the encrypted file)
+        why = why or CB.duration_check(kind, d.get("duration_ms"))
         if why:
             http = (status.HTTP_429_TOO_MANY_REQUESTS
-                    if why in ("daily_quota", "rate_limit")
+                    if why in ("daily_quota", "rate_limit", "too_many")
                     else status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
-                    if why == "too_big" else status.HTTP_400_BAD_REQUEST)
+                    if why in ("too_big", "too_long")
+                    else status.HTTP_400_BAD_REQUEST)
             return _refuse(request, why, http)
         ref = CB.new_ref()
         b = CircleMediaBlob.objects.create(ref=ref, owner=request.user,
@@ -165,6 +169,15 @@ class MediaBlobUrlView(APIView):
             return _nf()
         if b.owner_id != request.user.id and not CB.can_access(request.user, ref):
             return _nf()   # never reveal that the blob exists
+        # viewonce: a view-once file is handed out ONLY through the open
+        # (server-enforced once). Older builds ask here first: that request
+        # IS their one open; the sender never gets it back.
+        from . import e_gaps
+        vo = e_gaps.message_for_blob(ref)
+        if vo is not None:
+            ok, _code = e_gaps.claim_open(vo, request.user)
+            if not ok:
+                return _nf()
         return Response({"url": CB.signed_url(ref, request.user.id),
                          "expires_in": CB.URL_TTL_S, "size": b.size,
                          "sha256": b.sha256})

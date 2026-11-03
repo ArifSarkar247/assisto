@@ -1322,8 +1322,13 @@ class CircleMessage(models.Model):
     # e-gaps: VIEW-ONCE media (1:1). The flag is routing metadata only; the
     # file key stays inside the E2E descriptor. Once the recipient opens it,
     # the server blanks the ciphertext + deletes the encrypted blob.
-    view_once = models.BooleanField(default=False)
+    view_once = models.BooleanField(default=False, db_index=True)
     view_once_opened_at = models.DateTimeField(null=True, blank=True)
+    # viewonce: {user_id: iso open time} — each recipient (every group
+    # member) opens once; the server refuses a second open. expired_at: the
+    # unopened server copy was deleted (14 days, owner-editable).
+    view_once_opens = models.JSONField(default=dict, blank=True)
+    view_once_expired_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

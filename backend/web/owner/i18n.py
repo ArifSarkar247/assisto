@@ -1340,6 +1340,14 @@ EN.update({
     "pf_cost_alert_safe_paisa": "AI cost per credit: my own safe level in paisa (0 = automatic)",
     "cost_alert_title": "AI cost per credit is above the safe level:", "cost_alert_open": "Open AI page",
     "pf_trial_days": "Trial: days", "pf_trial_credits": "Trial: credits", "pf_trial_on_signup": "Trial: start at sign-up",
+    # viewonce (owner 3 Nov): My Circle media limits — no new app build needed
+    "pf_circle_media_photo_max_mb": "My Circle: photo max MB", "pf_circle_media_voice_max_mb": "My Circle: voice max MB",
+    "pf_circle_media_doc_max_mb": "My Circle: file max MB", "pf_circle_media_video_max_mb": "My Circle: video max MB (after 720p)",
+    "pf_circle_media_video_max_seconds": "My Circle: video max seconds (longer = trim screen)",
+    "pf_circle_media_video_height": "My Circle: video compressed to (p)",
+    "pf_circle_media_voice_max_seconds": "My Circle: voice message max seconds",
+    "pf_circle_media_photos_per_send": "My Circle: photos / videos at once",
+    "pf_circle_media_view_once_days": "My Circle: unopened view-once deleted after (days)",
 })
 BN.update({
     "b2_seg_test": "টেস্ট কেনাকাটা", "b2_seg_trial": "ট্রায়াল", "b2_seg_grants": "মালিক/সিস্টেমের দেওয়া",
@@ -1383,6 +1391,14 @@ BN.update({
     "pf_cost_alert_safe_paisa": "প্রতি ক্রেডিটে AI খরচ: আমার নিজের নিরাপদ সীমা, পয়সায় (০ = নিজে হিসাব)",
     "cost_alert_title": "প্রতি ক্রেডিটে AI খরচ নিরাপদ সীমার উপরে:", "cost_alert_open": "AI পাতা খুলুন",
     "pf_trial_days": "ট্রায়াল: দিন", "pf_trial_credits": "ট্রায়াল: ক্রেডিট", "pf_trial_on_signup": "ট্রায়াল: সাইন আপেই শুরু",
+    # viewonce (owner 3 Nov)
+    "pf_circle_media_photo_max_mb": "মাই সার্কেল: ছবি সর্বোচ্চ MB", "pf_circle_media_voice_max_mb": "মাই সার্কেল: ভয়েস সর্বোচ্চ MB",
+    "pf_circle_media_doc_max_mb": "মাই সার্কেল: ফাইল সর্বোচ্চ MB", "pf_circle_media_video_max_mb": "মাই সার্কেল: ভিডিও সর্বোচ্চ MB (৭২০p-র পরে)",
+    "pf_circle_media_video_max_seconds": "মাই সার্কেল: ভিডিও সর্বোচ্চ সেকেন্ড (বেশি হলে কাটার স্ক্রিন)",
+    "pf_circle_media_video_height": "মাই সার্কেল: ভিডিও ছোট করা হবে (p)",
+    "pf_circle_media_voice_max_seconds": "মাই সার্কেল: ভয়েস মেসেজ সর্বোচ্চ সেকেন্ড",
+    "pf_circle_media_photos_per_send": "মাই সার্কেল: একবারে ছবি/ভিডিও",
+    "pf_circle_media_view_once_days": "মাই সার্কেল: না-খোলা একবার-দেখা মুছবে (দিন)",
 })
 # ---- /billing-v2 ----
 

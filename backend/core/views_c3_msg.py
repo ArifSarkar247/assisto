@@ -541,14 +541,20 @@ def envelope_for(viewer, x, ctx, key_cache=None):
                 from . import e2_keys
                 ctx["edge_key"] = e2_keys.edge_key(edge)[0] or ""
             peer_pub = ctx["edge_key"]
-    return {
+    return _vo_env(x, {   # viewonce: hook
         "id": x.id, "sender_id": x.sender_id, "mine": mine,
         "sender_name": _cde_sender_name(viewer, x, ctx, key_cache, mine),
         "content_type": x.content_type, "ciphertext": ct, "nonce": nonce,
         "sender_key_id": x.sender_key_id, "scheme": x.scheme,
         "peer_public_key": peer_pub, "deleted": x.deleted or "",
         "created_at": x.created_at.isoformat(),
-    }
+    })
+
+
+def _vo_env(x, env):
+    """viewonce: never a view-once descriptor in a notification / list row."""
+    from . import e_gaps
+    return e_gaps.envelope_hook(env, x)
 
 
 def _cde_sender_name(viewer, x, ctx, cache, mine):

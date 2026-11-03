@@ -421,7 +421,9 @@ class CircleChatsView(APIView):
                           "nonce": last.nonce, "scheme": last.scheme,
                           "content_type": last.content_type,
                           "mine": last.sender_id == uid,
-                          "deleted": last.deleted or ""} if last else None),
+                          "deleted": last.deleted or "",
+                          # viewonce: "Photo, view once" — never its descriptor
+                          **_vo_last(last)} if last else None),
                 "unread": unread,
                 # connect-flow: a fresh accept tops the list (both sides)
                 "at": _activity_at(last, m),
@@ -809,3 +811,10 @@ class ChannelDiscoverView(APIView):
                          "suggested": [ser(c) for c in sug],
                          "categories": [c if isinstance(c, str) else c[0]
                                         for c in mch.CATEGORIES]})
+
+
+def _vo_last(last):
+    """viewonce: a view-once last message carries no descriptor."""
+    if not getattr(last, "view_once", False):
+        return {}
+    return {"view_once": True, "ciphertext": "", "nonce": ""}

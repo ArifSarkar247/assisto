@@ -33,12 +33,18 @@ class LimitsLogicTests(SimpleTestCase):
                                        "message_requests_per_recipient_day": 50,  # connect-flow
                                        "circle_media_photo_max_mb": 16,  # md1
                                        "circle_media_voice_max_mb": 16,
-                                       "circle_media_doc_max_mb": 25,
-                                       "circle_media_video_max_mb": 32,  # mc-media2
+                                       "circle_media_doc_max_mb": 100,  # viewonce
+                                       "circle_media_video_max_mb": 25,  # viewonce
                                        "circle_media_daily_mb": 300,
                                        "circle_media_uploads_per_hour": 60,
                                        "circle_media_keep_days": 30,
-                                       "circle_media_max_days": 90})
+                                       "circle_media_max_days": 90,
+                                       # viewonce (owner 3 Nov)
+                                       "circle_media_video_max_seconds": 180,
+                                       "circle_media_video_height": 720,
+                                       "circle_media_voice_max_seconds": 900,
+                                       "circle_media_photos_per_send": 30,
+                                       "circle_media_view_once_days": 14})
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)

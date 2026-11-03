@@ -8,23 +8,59 @@ from .models import CircleMessage
 
 
 class ViewOnceOpenView(APIView):
-    """POST /circle/messages/<id>/view-once-open — the RECIPIENT's phone
-    opened a view-once photo: blank the ciphertext + delete the blob."""
+    """POST /circle/messages/<id>/view-once-open — a recipient opens a
+    view-once photo / video / voice (1:1 or group; viewonce).
+
+    {want_url: true} (viewonce builds): the open is claimed on the SERVER
+    first — a second open is refused (409 already_opened, Bangla + English
+    detail) — and the one signed download link comes back.
+    No want_url (older builds ack AFTER they downloaded): idempotent."""
 
     def post(self, request, pk):
         from . import e_gaps
-        x = CircleMessage.objects.filter(
-            Q(member__user=request.user) | Q(member__peer_user=request.user),
-            pk=pk, group__isnull=True).first()
-        if x is None:
+        from . import circle_blobs as CB
+        from .i18n import req_lang
+        from .models import CircleGroupMember
+        x = CircleMessage.objects.filter(pk=pk).select_related("member").first()
+        ok_access = False
+        if x is not None:
+            if x.group_id:
+                ok_access = x.sender_id == request.user.id or \
+                    CircleGroupMember.objects.filter(
+                        group_id=x.group_id, member=request.user,
+                        status="active").exists()
+            elif x.member is not None:
+                ok_access = request.user.id in (x.member.user_id,
+                                                 x.member.peer_user_id)
+        if not ok_access:
             return Response({"detail": "not found"},
                             status=status.HTTP_404_NOT_FOUND)
-        ok, code = e_gaps.open_view_once(x, request.user)
+        lang = req_lang(request)
+        if not (request.data or {}).get("want_url"):
+            ok, code = e_gaps.open_view_once(x, request.user)
+            if not ok:
+                return Response({"ok": False, "reason": code,
+                                 "detail": e_gaps.refusal_text(code, lang)},
+                                status=status.HTTP_400_BAD_REQUEST)
+            x.refresh_from_db()
+            at = (x.view_once_opens or {}).get(str(request.user.id))
+            return Response({"ok": True, "state": code, "opened_at": at})
+        ref = x.blob_ref
+        ok, code = e_gaps.claim_open(x, request.user)
         if not ok:
-            return Response({"ok": False, "reason": code},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return Response({"ok": True, "state": code,
-                         "opened_at": x.view_once_opened_at.isoformat()})
+            http = (status.HTTP_409_CONFLICT if code == "already_opened"
+                    else status.HTTP_410_GONE if code == "expired"
+                    else status.HTTP_400_BAD_REQUEST)
+            return Response({"ok": False, "reason": code,
+                             "detail": e_gaps.refusal_text(code, lang)},
+                            status=http)
+        x.refresh_from_db()
+        out = {"ok": True, "state": code,
+               "opened_at": (x.view_once_opens or {}).get(str(request.user.id))}
+        if ref and CB.valid_ref(ref):
+            out.update({"url": CB.signed_url(ref, request.user.id),
+                        "expires_in": CB.URL_TTL_S})
+        return Response(out)
 
 
 class GroupOrganiseView(APIView):

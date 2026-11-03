@@ -404,6 +404,10 @@ class CircleGroupMessagesView(APIView):
         from . import views_c3_msg as C3
         C3.annotate(out, msgs, request.user)
         C3.mark_fetched(request.user, msgs)   # x2-ticks: ack on any fetch
+        from . import e_gaps   # viewonce: per-member open state + stripping
+        my_gm = getattr(_my_membership(g, request.user), "id", None)
+        for row, x in zip(out, msgs):
+            e_gaps.annotate_group(row, x, request.user.id, my_gm)
         # e2e-groups: my replacement copy (re-shared by another member's
         # phone to my current key) rides next to the untouched original.
         from . import views_e2e_recover as E2R
@@ -494,7 +498,9 @@ class CircleGroupMessagesView(APIView):
             per_recipient=env.get("per_recipient"),
             mentions=mentions or None,
             announcement=bool(env.get("announcement", False)),
-            client_msg_id=cmid)
+            client_msg_id=cmid,
+            # viewonce: groups too — each member opens once
+            view_once=_vo_wants(env))
         if md1_blob is not None:   # md1: every active member must download
             from . import circle_blobs as CB
             CB.add_recipients(md1_blob, CircleGroupMember.objects.filter(
@@ -1393,3 +1399,9 @@ class CircleDeviceRevokeView(APIView):
         row.revoked = True
         row.save(update_fields=["revoked"])
         return Response({"ok": True, "revoked": True})
+
+
+def _vo_wants(env):
+    """viewonce: a group send asked for view-once (photo / video / voice)."""
+    from . import e_gaps
+    return e_gaps.wants_view_once(env, env.get("content_type", ""))
