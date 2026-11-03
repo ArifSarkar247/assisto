@@ -26,6 +26,7 @@ import '../screens/subscriptions_screen.dart';
 import '../screens/finance_screen.dart';
 import '../screens/payment_ladder_screen.dart';
 import '../screens/task_manager_screen.dart';
+import '../screens/day_planner_screen.dart'; // p2plan
 import '../screens/mess_accounting_screen.dart';
 import '../screens/my_vehicles_screen.dart';
 import '../screens/expense_split_screen.dart';
@@ -781,6 +782,12 @@ class SidebarSections {
           feature: 'task_manager',
           (_) => const TaskManagerScreen(),
           synonyms: ['task', 'project', 'board', 'kanban', 'assign', 'progress']),
+      // p2plan (owner PART 2): today's time-blocked plan from tasks + PS
+      // meetings + reminders + bills (+ prayer times). Flag OFF until proven.
+      SidebarItem(Icons.today_rounded, (t) => t.p2DayPlanner,
+          feature: 'ai_daily_planner',
+          (_) => const DayPlannerScreen(),
+          synonyms: ['planner', 'plan my day', 'daily plan', 'time block', 'schedule today']),
       // #36 Cost/time estimator + #131 mock interview (key-gated mock).
       SidebarItem(Icons.calculate_rounded, (t) => t.ceTitle,
           feature: 'cost_estimator',

@@ -114,6 +114,7 @@ urlpatterns = [
     path("campaigns/<int:pk>/report.<str:fmt>", P2.campaign_report),
     path("impact", P2.ad_impact),
     path("world", P4.world),          # p4-world: Unseen World data sources
+    path("estimate-rates", P4.estimate_rates),  # p2plan: estimator rates
     path("photo", D1P.photo),                                   # d1-photo v2
     path("photo/ab/<int:pk>/<str:tag>", D1P.photo_ab_image),     # d1-photo v2
     path("funnel", P5.funnel),                                   # p5-growth

@@ -1686,3 +1686,22 @@ urlpatterns += [
     path("food/table", foodv.FoodTableView.as_view()),
 ]
 # ---- /p2food ----
+
+# ---- p2plan ---- Task manager sharing + quick-add, estimator templates,
+# AI daily planner (flag ai_daily_planner, default OFF)
+from . import views_p2plan as p2v  # noqa: E402
+urlpatterns += [
+    path("tasks/parse", p2v.TaskParseView.as_view()),
+    path("tasks/shared", p2v.SharedListsView.as_view()),
+    path("tasks/lists/<int:pid>", p2v.SharedListView.as_view()),
+    path("tasks/lists/<int:pid>/tasks", p2v.SharedListTasksView.as_view()),
+    path("tasks/lists/<int:pid>/tasks/<int:tid>", p2v.SharedListTaskView.as_view()),
+    path("tasks/lists/<int:pid>/share", p2v.SharedListShareView.as_view()),
+    path("tasks/lists/<int:pid>/unshare", p2v.SharedListUnshareView.as_view()),
+    path("estimate/templates", p2v.EstimateTemplatesView.as_view()),
+    path("estimate/templates/<slug:tid>", p2v.EstimateComputeView.as_view()),
+    path("planner/today", p2v.PlannerTodayView.as_view()),
+    path("planner/today/polish", p2v.PlannerPolishView.as_view()),
+    path("planner/prefs", p2v.PlannerPrefsView.as_view()),
+]
+# ---- /p2plan ----

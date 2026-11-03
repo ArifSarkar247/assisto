@@ -72,3 +72,53 @@ def world(request):
     ctx.update({"feeds": st["feeds"], "keys": sorted(st["keys"].items()), "web": st["web"],
                 "values": values})
     return page(request, "owner/world.html", ctx, status=status, nav="world")
+
+
+# ---- p2plan ---- Owner Admin → estimator rates (owner-curated, with source +
+# date; never invented "market prices"). Linked from the world page.
+@require_http_methods(["GET", "POST"])
+@owner_view()
+def estimate_rates(request):
+    from core import views_p2plan as V
+    from core.logic import estimate_templates as ET
+    T = _T(request)
+    ctx, status = {}, 200
+    if request.method == "POST":
+        key = request.POST.get("key", "")
+        if key not in {k[0] for k in ET.rate_keys()}:
+            raise Http404
+        raw = request.POST.get("value", "").strip()
+        src = request.POST.get("source", "").strip()
+        val, eff = None, None
+        if raw:
+            n = to_num(raw)
+            if n is None or n <= 0 or n > 100_000_000:
+                ctx["problems"] = [T["p_invalid_number"]]
+                status = 400
+            else:
+                val = n
+        d = request.POST.get("effective_date", "").strip()
+        if d and status == 200:
+            try:
+                eff = date.fromisoformat(d)
+            except ValueError:
+                ctx["problems"] = [T["p_invalid_number"]]
+                status = 400
+        if status == 200 and val is not None and (not src or eff is None):
+            ctx["problems"] = [T["er_need_source"]]
+            status = 400
+        if status == 200:
+            before, after = V.set_estimate_rate(request.owner, key, val, src, eff)
+            S.audit(request, request.owner, "estimate.rate", "estimate:rate:%s" % key,
+                    before=before, after=after)
+            return done("/owner/estimate-rates")
+    lang = getattr(request, "owner_lang", "bn")
+    rates = V.estimate_rates()
+    rows = []
+    for key, tid, lid, kind, lbn, len_, _ub, _ue in ET.rate_keys():
+        r = rates.get(key) or {}
+        rows.append({"key": key, "label": lbn if lang == "bn" else len_,
+                     "value": r.get("value"), "source": r.get("source", ""),
+                     "date": r.get("date", "")})
+    ctx["rows"] = rows
+    return page(request, "owner/estimate_rates.html", ctx, status=status, nav="world")

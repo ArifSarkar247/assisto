@@ -61,6 +61,7 @@ const _launchPrefixes = <String>[
   'lostsim_', // lost phone: intruder-photo notice on the Vault PIN (3 Nov)
   'carm_', // CCTV auto guard (arm / SOS)
   'ctm_', // CCTV team (guards, links, access log)
+  'dp_', 'task_mgr', 'cost_est', // p2plan: daily planner, task manager, estimator (3 Nov)
   'sjl_', 'trip_', // Safe Journey Live Location + trip recorder
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary

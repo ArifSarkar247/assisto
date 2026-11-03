@@ -160,7 +160,7 @@ REGISTRY = (
     # §15). WP-APP: the hidden agent screen + approval inbox (preview for
     # owner / staff / allow-listed testers only while OFF).
     ('agent_core', 'work', 'Assisto Agent (goals, plans, approvals)', 'Assisto এজেন্ট (লক্ষ্য, পরিকল্পনা, অনুমোদন)', False, ('agent_core', 'agent_approvals')),
-    ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ()),
+    ('task_manager', 'work', 'Task Manager', 'টাস্ক ম্যানেজার', True, ('task_manager',)),
     ('cost_estimator', 'work', 'Cost & time estimator', 'খরচ ও সময় হিসাব', True, ()),
     ('mock_interview', 'work', 'Mock interview', 'মক ইন্টারভিউ', True, ()),
     ('quick_tools', 'work', 'Quick tools', 'কুইক টুলস', True, ()),
@@ -177,6 +177,10 @@ REGISTRY = (
     # pssec (owner Part 2.1, 2 Nov): PS Today brief, My Circle invites /
     # follow-up nudges, pick up tasks from pasted messages. OFF until proven.
     ('ps_secretary', 'work', 'PS: Today brief + pick-up', 'পিএস: আজকের ব্রিফ + কাজ তোলা', False, ()),
+    # p2plan (owner PART 2, 3 Nov): AI daily planner — today's time-blocked
+    # plan from tasks + PS meetings + reminders + bills (+ prayer times);
+    # template without AI, optional AI advice. OFF until proven.
+    ('ai_daily_planner', 'work', 'AI daily planner', 'AI দৈনিক পরিকল্পনা', False, ('day_planner',)),
     ('business', 'business', 'Business', 'বিজনেস', True, ('business', 'bargain_rules', 'business_plans', 'khata')),
     ('crm', 'business', 'CRM', 'CRM', True, ('crm',)),
     ('business_agent', 'business', 'AI sales agent', 'AI সেলস এজেন্ট', True, ('sales_agent',)),

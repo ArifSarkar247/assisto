@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'feature_unavailable.dart'; // feature-flags
+import '../screens/task_manager_screen.dart'; // p2plan
+import '../screens/day_planner_screen.dart'; // p2plan
 
 import '../screens/money_screen.dart';
 import '../screens/money_budget_screen.dart';
@@ -262,6 +264,8 @@ class ChatNav {
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
     'exam': (_) => const ExamResultScreen(),
+    'task_manager': (_) => const TaskManagerScreen(), // p2plan
+    'day_planner': (_) => const DayPlannerScreen(), // p2plan
     'unseen': (_) => const UnseenWorldScreen(),
     'daily_today': (_) => const WorldTodayScreen(), // p3feed: Today feed
     // The old enhance tool is gone (owner order): its key stays because saved
@@ -403,6 +407,8 @@ class ChatNav {
     'ride_food': ['ride', 'food', 'uber', 'pathao', 'foodpanda'],
     'ramadan': ['ramadan', 'sehri', 'iftar', 'prayer times'],
     'exam': ['exam result', 'result', 'exam'],
+    'task_manager': ['task manager', 'project board', 'kanban'], // p2plan
+    'day_planner': ['daily planner', 'day planner', 'plan my day'], // p2plan
     'unseen': ['unseen bangladesh', 'travel', 'destinations', 'tourism'],
     'photo_enhance': ['enhance photo', 'photo enhance', 'improve photo'],
     'photo_studio': ['photo studio', 'edit photo', 'photo editor', 'change background', 'passport photo', 'ai photo'],

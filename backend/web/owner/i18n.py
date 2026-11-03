@@ -814,6 +814,22 @@ BN.update({
     "w_open_official": "অফিশিয়াল পাতা খুলুন",
 })
 # ---- /p4-world ----
+# ---- p2plan ---- owner panel: Cost & time estimator rates
+EN.update({
+    "er_title": "Cost estimator rates (entered by you)",
+    "er_note": "Each rate is shown to users as \"Owner-checked rate · <source> · <date>\". Never type a guess: use an official source (e.g. PWD Schedule of Rates 2022, revised Feb 2023) or your own written survey, and name it. A rate with no source or date is refused. Leave empty to show users \"no rate — enter yours\". Every change is in the audit log.",
+    "er_item": "Item", "er_value": "Rate (৳ or minutes per unit)", "er_source": "Source (book / page / survey)",
+    "er_date": "Date of the source", "er_need_source": "A rate needs its source and date.",
+    "er_link": "Cost estimator rates",
+})
+BN.update({
+    "er_title": "খরচ-হিসাবের রেট (আপনার লেখা)",
+    "er_note": "প্রতিটি রেট ব্যবহারকারী দেখবেন \"মালিকের যাচাই করা রেট · <উৎস> · <তারিখ>\" হিসেবে। আন্দাজে লিখবেন না: সরকারি উৎস (যেমন PWD Schedule of Rates 2022, ফেব্রু ২০২৩ সংশোধিত) বা নিজের লিখিত জরিপ ব্যবহার করুন এবং নাম লিখুন। উৎস বা তারিখ ছাড়া রেট নেওয়া হয় না। খালি রাখলে ব্যবহারকারী দেখবেন \"রেট নেই — নিজের দাম দিন\"। প্রতিটি পরিবর্তন অডিট লগে থাকে।",
+    "er_item": "আইটেম", "er_value": "রেট (৳ বা মিনিট / একক)", "er_source": "উৎস (বই / পাতা / জরিপ)",
+    "er_date": "উৎসের তারিখ", "er_need_source": "রেটের সাথে উৎস ও তারিখ দিতে হবে।",
+    "er_link": "খরচ-হিসাবের রেট",
+})
+# ---- /p2plan ----
 
 # ---- d1-photo v2: Owner Admin → Photo Studio ----
 EN.update({
