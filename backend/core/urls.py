@@ -424,6 +424,8 @@ urlpatterns = [
     path("dictionary/lookup", m5.DictionaryLookupView.as_view()),
     path("ramadan/times", m5.RamadanTimesView.as_view()),
     path("ramadan/eid-card", m5.RamadanEidCardView.as_view()),
+    path("ramadan/districts", m5.RamadanDistrictsView.as_view()),  # p3faith
+    path("ramadan/month", m5.RamadanMonthView.as_view()),  # p3faith
     path("exam/watcher", m5.ExamWatcherView.as_view()),
     # Launch gaps
     path("auth/reset/request", m5.ResetRequestView.as_view()),

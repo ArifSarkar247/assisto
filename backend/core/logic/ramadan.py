@@ -558,3 +558,143 @@ def iftar_payload(iftar_hhmm, lang="bn"):
             f"ইফতার {iftar_hhmm}-এ।",
             f"Iftar is at {iftar_hhmm}."),
     }
+
+
+# ===========================================================================
+# p3faith (owner PART 3, 3 Nov 2026): Islamic Foundation Bangladesh method,
+# 64-district month tables, approximate (tabular) Hijri date.
+# ===========================================================================
+#
+# METHOD "ifb" — the convention the Islamic Foundation Bangladesh (IFB) uses
+# for its published sehri/iftar timetables:
+#   * Subh-e-Sadiq (true dawn) = sun 18 deg below the horizon (University of
+#     Islamic Sciences, Karachi angle set — the BD standard), Asr Hanafi.
+#   * PRECAUTION (ihtiyat): sehri ends 3 minutes BEFORE Subh-e-Sadiq and iftar
+#     is 3 minutes AFTER sunset. Source: IFB Ramadan timetable announcement as
+#     reported by Dhaka Tribune (2025: "end time for Sehri has been set three
+#     minutes before Subah-e-Sadiq ... Iftar three minutes after sunset").
+#   * Check value (test-pinned): IFB published Dhaka, 19 Feb 2026 = sehri
+#     05:12, iftar 17:58 (bdnews24, Jan 2026); this calculation lands within
+#     3 minutes. IFB's own district table stays the authority — the UI says so.
+IFB_SEHRI_PRECAUTION_MIN = 3
+IFB_IFTAR_PRECAUTION_MIN = 3
+METHOD_IFB = "ifb"
+IFB_SOURCE = {
+    "method": METHOD_IFB,
+    "dawn_angle_deg": 18.0,
+    "asr": ASR_HANAFI,
+    "sehri_precaution_min": IFB_SEHRI_PRECAUTION_MIN,
+    "iftar_precaution_min": IFB_IFTAR_PRECAUTION_MIN,
+    "authority": "Islamic Foundation Bangladesh district timetable",
+}
+
+
+def ifb_times(d, lat, lng, tz_offset_hours=6.0):
+    """Sehri/iftar + prayer times by the IFB convention (see above).
+
+    `fajr` / `maghrib` stay the astronomical times; `sehri_end` is fajr - 3
+    min and `iftar` is sunset + 3 min.
+    """
+    base = prayer_times(d, lat, lng, tz_offset_hours=tz_offset_hours,
+                        method=METHOD_DEFAULT, asr=ASR_HANAFI)
+    out = dict(base)
+    out["method"] = METHOD_IFB
+    if base.get("fajr"):
+        out["sehri_end"] = _shift_hhmm(base["fajr"], -IFB_SEHRI_PRECAUTION_MIN)
+    if base.get("maghrib"):
+        out["iftar"] = _shift_hhmm(base["maghrib"], IFB_IFTAR_PRECAUTION_MIN)
+    return out
+
+
+def _districts():
+    from core.logic.missing_rules import DISTRICTS  # (code, en, bn, lat, lng)
+    return DISTRICTS
+
+
+def district_row(code):
+    c = (code or "").strip().lower()
+    for row in _districts():
+        if row[0] == c:
+            return row
+    return None
+
+
+def districts(lang="bn"):
+    """All 64 districts (headquarters point), sorted by the app language."""
+    rows = [{"code": c, "name": bn if lang == "bn" else en, "bn": bn, "en": en}
+            for c, en, bn, _la, _ln in _districts()]
+    return sorted(rows, key=lambda r: r["en"])
+
+
+def nearest_district_code(lat, lng):
+    best, bd = "", None
+    for c, _en, _bn, la, ln in _districts():
+        dd = (la - lat) ** 2 + ((ln - lng) * math.cos(math.radians(lat))) ** 2
+        if bd is None or dd < bd:
+            best, bd = c, dd
+    return best
+
+
+MONTH_MAX_DAYS = 31
+
+
+def district_month(code, start, days=RAMADAN_MAX_DAYS):
+    """Day-by-day IFB-method sehri/iftar for a district from `start`."""
+    row = district_row(code)
+    if row is None:
+        return None
+    try:
+        n = max(1, min(MONTH_MAX_DAYS, int(days)))
+    except (TypeError, ValueError):
+        n = RAMADAN_MAX_DAYS
+    out = []
+    for i in range(n):
+        d = start + timedelta(days=i)
+        t = ifb_times(d, row[3], row[4])
+        out.append({"date": d.isoformat(), "sehri_end": t["sehri_end"],
+                    "iftar": t["iftar"], "fajr": t["fajr"],
+                    "maghrib": t["maghrib"]})
+    return {"district": row[0], "name_bn": row[2], "name_en": row[1],
+            "lat": row[3], "lng": row[4], "days": out}
+
+
+# ---------------------------------------------------------------------------
+# Approximate Hijri date — the TABULAR (arithmetic, "Kuwaiti") Islamic
+# calendar. It is an approximation: the real month start in Bangladesh is set
+# by the National Moon Sighting Committee and can differ by 1-2 days.
+# ---------------------------------------------------------------------------
+
+_HIJRI_EPOCH = date(622, 7, 19).toordinal()  # 1 Muharram 1 AH (Julian 16 Jul 622)
+
+
+def _hijri_to_ordinal(y, m, d):
+    return (d + math.ceil(29.5 * (m - 1)) + (y - 1) * 354
+            + (3 + 11 * y) // 30 + _HIJRI_EPOCH - 1)
+
+
+def hijri_tabular(g):
+    """Gregorian date -> (year, month, day) in the tabular Islamic calendar."""
+    o = g.toordinal()
+    y = (30 * (o - _HIJRI_EPOCH) + 10646) // 10631
+    m = min(12, math.ceil((o - (29 + _hijri_to_ordinal(y, 1, 1))) / 29.5) + 1)
+    m = max(1, m)
+    d = o - _hijri_to_ordinal(y, m, 1) + 1
+    return y, m, d
+
+
+def approx_next_ramadan(today=None):
+    """Approximate start/end of the current or next Ramadan (month 9).
+
+    Returns {'hijri_year', 'start', 'end', 'approximate': True,
+    'in_ramadan': bool}. Dates are ISO strings.
+    """
+    t = today or date.today()
+    y, m, _d = hijri_tabular(t)
+    if m > 9:
+        y += 1
+    start = date.fromordinal(_hijri_to_ordinal(y, 9, 1))
+    end = date.fromordinal(_hijri_to_ordinal(y, 10, 1) - 1)
+    return {"hijri_year": y, "start": start.isoformat(),
+            "end": end.isoformat(), "approximate": True,
+            "in_ramadan": start <= t <= end,
+            "confirm_with": "National Moon Sighting Committee (Islamic Foundation)"}

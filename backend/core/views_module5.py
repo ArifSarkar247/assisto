@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils import timezone
+from datetime import date
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
@@ -203,15 +204,72 @@ class DictionaryLookupView(APIView):
 # ===========================================================================
 
 class RamadanTimesView(APIView):
+    """Today's sehri/iftar. p3faith: `?district=<code>` (no GPS needed) or
+    `?lat=&lon=`; `method=ifb` (default — Islamic Foundation Bangladesh
+    convention, 3-min precaution) or `method=karachi` (raw astronomical)."""
+
     def get(self, request):
-        try:
-            lat = float(request.query_params.get("lat"))
-            lon = float(request.query_params.get("lon"))
-        except (TypeError, ValueError):
-            return Response({"error": "lat_lon_required"},
-                            status=status.HTTP_400_BAD_REQUEST)
+        qp = request.query_params
+        code = (qp.get("district") or "").strip().lower()
+        if code:
+            row = ramadan.district_row(code)
+            if row is None:
+                return Response({"error": "unknown_district"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            lat, lon = row[3], row[4]
+        else:
+            try:
+                lat = float(qp.get("lat"))
+                lon = float(qp.get("lon"))
+            except (TypeError, ValueError):
+                return Response({"error": "lat_lon_required"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            code = ramadan.nearest_district_code(lat, lon)
         d = timezone.localdate()
-        return Response(ramadan.prayer_times(d, lat, lon, tz_offset_hours=6.0))
+        if (qp.get("method") or "ifb") == "karachi":
+            out = ramadan.prayer_times(d, lat, lon, tz_offset_hours=6.0)
+        else:
+            out = ramadan.ifb_times(d, lat, lon)
+            out["source"] = ramadan.IFB_SOURCE
+        out["district"] = code
+        out["approx_ramadan"] = ramadan.approx_next_ramadan(d)
+        return Response(out)
+
+
+class RamadanDistrictsView(APIView):
+    """p3faith: the 64 districts for the no-GPS picker."""
+
+    def get(self, request):
+        return Response({"districts": ramadan.districts(req_lang(request))})
+
+
+class RamadanMonthView(APIView):
+    """p3faith: `?district=<code>&start=YYYY-MM-DD&days=30` — day-by-day
+    IFB-method sehri/iftar (the app caches it for offline use). `start`
+    defaults to the approximate (tabular) Ramadan start, or today when
+    Ramadan is under way."""
+
+    def get(self, request):
+        qp = request.query_params
+        code = (qp.get("district") or "").strip().lower()
+        today = timezone.localdate()
+        approx = ramadan.approx_next_ramadan(today)
+        raw = (qp.get("start") or "").strip()
+        if raw:
+            try:
+                start = date.fromisoformat(raw)
+            except ValueError:
+                return Response({"error": "bad_start"},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            start = date.fromisoformat(approx["start"])
+        tbl = ramadan.district_month(code, start, qp.get("days") or 30)
+        if tbl is None:
+            return Response({"error": "unknown_district"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        tbl["source"] = ramadan.IFB_SOURCE
+        tbl["approx_ramadan"] = approx
+        return Response(tbl)
 
 
 class RamadanEidCardView(APIView):
