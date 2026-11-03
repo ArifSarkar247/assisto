@@ -1,0 +1,169 @@
+{
+ "format": 1,
+ "lang": "ko",
+ "tts_locale": "ko-KR",
+ "label_en": "Read by your phone's voice — not exam audio. Practice only.",
+ "label_bn": "ফোনের কণ্ঠে পড়া — পরীক্ষার অডিও নয়। শুধু অনুশীলন।",
+ "questions": [
+  {
+   "id": "kl1",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "무엇을 달라고 합니까?",
+   "options": [
+    "물",
+    "밥",
+    "돈",
+    "우유"
+   ],
+   "answer": 0,
+   "explain_bn": "물 = পানি।",
+   "explain_en": "Water.",
+   "say": "물 좀 주세요."
+  },
+  {
+   "id": "kl2",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "무엇을 써야 합니까?",
+   "options": [
+    "모자 없이",
+    "안전모",
+    "안경",
+    "마스크"
+   ],
+   "answer": 1,
+   "explain_bn": "안전모 = হেলমেট।",
+   "explain_en": "A hard hat.",
+   "say": "안전모를 꼭 쓰세요."
+  },
+  {
+   "id": "kl3",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "지금 몇 시입니까?",
+   "options": [
+    "4:30",
+    "13:30",
+    "3:30",
+    "3:00"
+   ],
+   "answer": 2,
+   "explain_bn": "세 시 반 = সাড়ে তিনটা।",
+   "explain_en": "Half past three.",
+   "say": "지금 세 시 반이에요."
+  },
+  {
+   "id": "kl4",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "얼마입니까?",
+   "options": [
+    "5,000원",
+    "50,000원",
+    "1,500원",
+    "15,000원"
+   ],
+   "answer": 3,
+   "explain_bn": "만 오천 = ১৫,০০০।",
+   "explain_en": "15,000 won.",
+   "say": "이 상자는 만 오천 원이에요."
+  },
+  {
+   "id": "kl5",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "먼저 무엇을 합니까?",
+   "options": [
+    "기계를 끈다",
+    "손을 씻는다",
+    "밥을 먹는다",
+    "기계를 켠다"
+   ],
+   "answer": 0,
+   "explain_bn": "먼저 = প্রথমে: মেশিন বন্ধ।",
+   "explain_en": "First turn off the machine.",
+   "say": "기계를 끄고 손을 씻으세요."
+  },
+  {
+   "id": "kl6",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "여자는 어디가 아픕니까?",
+   "options": [
+    "손",
+    "머리",
+    "배",
+    "다리"
+   ],
+   "answer": 1,
+   "explain_bn": "머리 = মাথা।",
+   "explain_en": "Her head.",
+   "say": "남자: 어디가 아프세요? 여자: 어제부터 머리가 아파요."
+  },
+  {
+   "id": "kl7",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "월급날은 언제입니까?",
+   "options": [
+    "매주 금요일",
+    "매달 1일",
+    "매달 25일",
+    "매달 15일"
+   ],
+   "answer": 2,
+   "explain_bn": "২৫ তারিখ।",
+   "explain_en": "The 25th.",
+   "say": "남자: 월급날이 언제예요? 여자: 매달 25일이에요."
+  },
+  {
+   "id": "kl8",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "남자는 내일 언제 일합니까?",
+   "options": [
+    "밤",
+    "주말",
+    "일하지 않는다",
+    "낮"
+   ],
+   "answer": 3,
+   "explain_bn": "주간 = দিন।",
+   "explain_en": "Daytime.",
+   "say": "여자: 내일 야간 근무예요? 남자: 아니요, 내일은 주간 근무예요."
+  },
+  {
+   "id": "kl9",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "비상구는 어디에 있습니까?",
+   "options": [
+    "식당 옆",
+    "사무실 안",
+    "기숙사 뒤",
+    "주차장 앞"
+   ],
+   "answer": 0,
+   "explain_bn": "식당 옆 = ক্যান্টিনের পাশে।",
+   "explain_en": "Next to the canteen.",
+   "say": "비상구는 식당 옆에 있어요."
+  },
+  {
+   "id": "kl10",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "왜 뛰면 안 됩니까?",
+   "options": [
+    "바닥이 미끄러워서",
+    "시끄러워서",
+    "기계가 있어서",
+    "밤이라서"
+   ],
+   "answer": 0,
+   "explain_bn": "미끄럽다 = পিছলা।",
+   "explain_en": "The floor is slippery.",
+   "say": "바닥이 미끄러우니까 뛰지 마세요."
+  }
+ ]
+}
