@@ -59,7 +59,13 @@ int? psPreviewCacheWidth({
 
 class PhotoStudioScreen extends StatefulWidget {
   const PhotoStudioScreen(
-      {super.key, this.deps, this.controller, this.webImport});
+      {super.key, this.deps, this.controller, this.webImport, this.initialBytes,
+      this.initialPrompt = ''});
+
+  /// aifinal PART 7g: a photo sent from the AI chat ("Edit in Photo Studio")
+  /// with the user's instruction pre-filled (they still tap Edit themselves).
+  final Uint8List? initialBytes;
+  final String initialPrompt;
 
   /// w1-webphoto: a photo made on lifeassisto.com/photo, opened by the deep
   /// link. Exported through the same gate as every other result.
@@ -84,6 +90,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   final Set<ImageProvider> _shown = {};
   late final bool _ownsController;
   final _prompt = TextEditingController();
+  /// aifinal PART 7a: the instructions already applied in this session —
+  /// shown like a chat; each new one edits the LAST result.
+  final List<String> _turns = [];
   late final VoiceDictation _voice = VoiceDictation();
 
   @override
@@ -101,6 +110,13 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         final w = widget.webImport;
         if (w != null && !_c.disposed && _c.phase == PsPhase.open) {
           _c.loadWebImport(w);
+        }
+        final ib = widget.initialBytes;
+        if (ib != null && w == null && !_c.disposed && _c.phase == PsPhase.open) {
+          await _c.openBytes(ib);
+          if (mounted && widget.initialPrompt.isNotEmpty) {
+            _prompt.text = widget.initialPrompt;
+          }
         }
       });
     }
@@ -1217,6 +1233,30 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               child: Text(t.psGenerateNoPhoto,
                   style: TextStyle(color: scheme.onSurfaceVariant)),
             ),
+          if (hasPhoto) ...[
+            Text(t.psChatHint,
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: Gap.xs),
+            for (var i = 0; i < _turns.length; i++)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  key: Key('psTurn_$i'),
+                  margin: const EdgeInsets.only(bottom: Gap.xs),
+                  padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+                  decoration: BoxDecoration(
+                      color: scheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(Radii.md)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.check_circle_rounded, size: 16, color: scheme.onPrimaryContainer),
+                    const SizedBox(width: Gap.xs),
+                    Flexible(
+                        child: Text(_turns[i],
+                            style: TextStyle(color: scheme.onPrimaryContainer))),
+                  ]),
+                ),
+              ),
+          ],
           TextField(
             key: const Key('psPrompt'),
             controller: _prompt,
@@ -1293,11 +1333,24 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               key: const Key('psRunPrompt'),
               onPressed: _c.busy
                   ? null
-                  : () => _c.runPrompt(
-                      _prompt.text,
-                      SheetGateUi(context,
-                          forRun: true,
-                          onPremium: _c.free ? _openPlans : null)),
+                  : () async {
+                      // aifinal PART 7a: chat-style turns on the last result
+                      final said = _prompt.text.trim();
+                      final opts = _c.options.map((o) => _optLabel(t, o)).join(', ');
+                      final before = _c.session?.versions.length ?? 0;
+                      await _c.runPrompt(
+                          _prompt.text,
+                          SheetGateUi(context,
+                              forRun: true,
+                              onPremium: _c.free ? _openPlans : null));
+                      if (!mounted) return;
+                      if ((_c.session?.versions.length ?? 0) > before) {
+                        setState(() {
+                          _turns.add(said.isNotEmpty ? said : opts);
+                          _prompt.clear();
+                        });
+                      }
+                    },
               icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(hasPhoto ? t.psRunEdit : t.psRunGenerate),
             ),

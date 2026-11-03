@@ -88,6 +88,18 @@
   "aiactCallNow": "Call now",
   "@aiactCallNow": {
    "description": "aifinal: AI action confirm button for 999"
+  },
+  "aiGenLabel": "AI generated · general information, may be wrong",
+  "@aiGenLabel": {
+   "description": "aifinal PART 6: label under every AI answer"
+  },
+  "psChatHint": "Type or say what to change — each new instruction edits the last result.",
+  "@psChatHint": {
+   "description": "aifinal PART 7: photo studio chat-style editing hint"
+  },
+  "psAskStudio": "Edit in Photo Studio",
+  "@psAskStudio": {
+   "description": "aifinal PART 7: AI chat photo answer button to open Photo Studio with the same photo"
   }
  },
  "bn": {
@@ -107,6 +119,9 @@
   "aiactCall999": "৯৯৯-এ কল করুন",
   "aiactConfirmOpen": "এখন খুলবেন? পরের স্ক্রিনে আপনি না বেছে নেওয়া পর্যন্ত কিছুই হবে না।",
   "aiactConfirmCall": "এখনই ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করবেন?",
-  "aiactCallNow": "এখনই কল"
+  "aiactCallNow": "এখনই কল",
+  "aiGenLabel": "AI-তৈরি উত্তর · সাধারণ তথ্য, ভুল হতে পারে",
+  "psChatHint": "কী বদলাতে চান লিখুন বা বলুন — প্রতিটি নতুন নির্দেশ শেষ ফলাফলটির উপরেই কাজ করে।",
+  "psAskStudio": "ফটো স্টুডিওতে এডিট করুন"
  }
 }
