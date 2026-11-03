@@ -149,7 +149,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               }),
               decoration: InputDecoration(
                 labelText: t.otpPhoneLabel,
-                hintText: t.otpPhoneHint,
                 prefixIcon: const Icon(Icons.phone_iphone_rounded),
               ),
             ),

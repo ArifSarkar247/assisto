@@ -419,7 +419,10 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
             ),
             OutlinedButton(
               key: Key('rec-family-no-${a.id}'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                  foregroundColor: scheme.onTertiaryContainer,
+                  side: BorderSide(color: scheme.onTertiaryContainer)),
               onPressed: _busy ? null : () => _family(a, false),
               child: Text(t.acsecFamilyNo),
             ),

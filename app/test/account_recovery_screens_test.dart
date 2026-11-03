@@ -165,6 +165,7 @@ void main() {
     expect(otp.calls, contains('email:password_reset')); // the chosen channel
 
     final b2 = FakeAccountSecurity(emailOnAccount: false);
+    await tester.pumpWidget(const SizedBox()); // drop the pushed code step
     await tester.pumpWidget(_app(ForgotPasswordScreen(backend: b2, otpBackend: FakeOtpBackend()),
         locale: const Locale('bn')));
     await _spin(tester);
