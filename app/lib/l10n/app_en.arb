@@ -42034,5 +42034,42 @@
   "cmPhotoLoadFailed": "Could not load this photo. Tap to try again.",
   "@cmPhotoLoadFailed": {
     "description": "circlemedia: multi-photo send / album bubble"
+  },
+  "mapscSearchHint": "Type at least 3 letters — places appear as you type.",
+  "@mapscSearchHint": {
+    "description": "mapscost: destination search helper (3+ chars, debounce)"
+  },
+  "mapscSearchOff": "Place search is off right now. Paste a Google Maps link, pick a saved place or use your current location.",
+  "@mapscSearchOff": {
+    "description": "mapscost: server has no maps key / switch off"
+  },
+  "mapscSearchCapped": "Today's place-search limit is reached. Paste a Google Maps link or pick a saved place — it works the same.",
+  "@mapscSearchCapped": {
+    "description": "mapscost: per-user / global daily cap reached"
+  },
+  "mapscPoweredByGoogle": "Powered by Google",
+  "@mapscPoweredByGoogle": {
+    "description": "mapscost: Google Places attribution under search results"
+  },
+  "mapscRoadEta": "Road time with traffic",
+  "@mapscRoadEta": {
+    "description": "mapscost: tap = one Routes call"
+  },
+  "mapscRoadEtaResult": "About {min} min by road (Google, with traffic)",
+  "@mapscRoadEtaResult": {
+    "description": "mapscost: Routes answer",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "mapscRoadEtaCapped": "Road time is not available right now — Google Maps shows it for free.",
+  "@mapscRoadEtaCapped": {
+    "description": "mapscost: Routes capped / off / failed"
+  },
+  "mapscRoadEtaOpen": "Open directions in Google Maps",
+  "@mapscRoadEtaOpen": {
+    "description": "mapscost: free fallback"
   }
 }

@@ -23177,5 +23177,13 @@
   "cmAlbumSent": "{total}টির মধ্যে {done}টি গেছে",
   "cmEditFailed": "ছবিটি এডিট করা যায়নি। যেমন আছে তেমনই যাবে।",
   "cmPlayVideo": "ভিডিও চালান",
-  "cmPhotoLoadFailed": "ছবিটি আনা যায়নি। আবার চেষ্টা করতে চাপুন।"
+  "cmPhotoLoadFailed": "ছবিটি আনা যায়নি। আবার চেষ্টা করতে চাপুন।",
+  "mapscSearchHint": "অন্তত ৩টি অক্ষর লিখুন — লিখতে লিখতেই জায়গা দেখাবে।",
+  "mapscSearchOff": "জায়গা খোঁজা এখন বন্ধ। Google Maps লিংক পেস্ট করুন, সেভ করা জায়গা বা এখনকার লোকেশন বাছুন।",
+  "mapscSearchCapped": "আজকের জায়গা খোঁজার সীমা শেষ। Google Maps লিংক পেস্ট করুন বা সেভ করা জায়গা বাছুন — একইভাবে কাজ করবে।",
+  "mapscPoweredByGoogle": "Google-এর সহায়তায়",
+  "mapscRoadEta": "ট্রাফিকসহ রাস্তায় কত সময়",
+  "mapscRoadEtaResult": "রাস্তায় প্রায় {min} মিনিট (Google, ট্রাফিকসহ)",
+  "mapscRoadEtaCapped": "রাস্তার সময় এখন পাওয়া যাচ্ছে না — Google Maps-এ ফ্রি দেখা যায়।",
+  "mapscRoadEtaOpen": "Google Maps-এ পথ দেখুন"
 }
