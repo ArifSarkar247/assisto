@@ -37806,26 +37806,5 @@
         "type": "String"
       }
     }
-  },
-  "uwCardNotices": "Official notices & links",
-  "uwNoticesNote": "Opens the government office's own website. Assisto does not copy their notices.",
-  "uwNoticeGroupPower": "Electricity / load-shedding",
-  "uwNoticeGroupWeather": "Weather, flood & disaster",
-  "uwNoticeGroupMoney": "Rates & prices",
-  "uwOfficialBadge": "Official",
-  "uwFxOfficialUsd": "Bangladesh Bank rate — 1 US dollar",
-  "uwRateDate": "Rate date: {date}",
-  "@uwRateDate": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "uwFxOfficialStale": "This Bangladesh Bank rate is a few days old — tap the source to check today's.",
-  "uwFxIndicativeTitle": "Other currencies — indicative market rate, not official",
-  "uwComingSoonTitle": "Coming soon",
-  "uwNeedsLicence": "comes when a licensed live-score source is connected",
-  "uwAwaitingOfficialEntry": "waiting for today's official figure",
-  "uwSourceDownNow": "the official source is not reachable right now"
+  }
 }
