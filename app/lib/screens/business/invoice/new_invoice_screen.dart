@@ -13,6 +13,8 @@ import '../../../widgets/app_sheet.dart';
 import '../../../widgets/cv_empty.dart' show pickCirclePerson;
 import '../selling_common.dart' show showApiError;
 import 'invoice_api.dart';
+import 'invoice_design.dart';
+import 'invoice_details_sheet.dart' show typedMonths;
 import 'invoice_doc.dart';
 import 'invoice_paper.dart' show extraLabel, paymentLabel, templateLabel;
 import 'invoice_screen.dart';
@@ -27,6 +29,16 @@ int? typedPoisha(String raw) {
   return (v * 100).round();
 }
 
+/// invdesign: hours may be fractional ("1.5", Bangla digits too), 2 decimals.
+num? typedHours(String raw) {
+  final s = raw.trim().replaceAllMapped(
+      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
+  final v = double.tryParse(s.isEmpty ? '1' : s);
+  if (v == null || v <= 0 || v > 100000) return null;
+  final c = (v * 100).round();
+  return c % 100 == 0 ? c ~/ 100 : c / 100;
+}
+
 int? typedQty(String raw) {
   final s = raw.trim().replaceAllMapped(
       RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
@@ -38,10 +50,14 @@ class _LineCtl {
   final desc = TextEditingController();
   final qty = TextEditingController(text: '1');
   final unit = TextEditingController();
+  final serial = TextEditingController();
+  final warranty = TextEditingController();
   void dispose() {
     desc.dispose();
     qty.dispose();
     unit.dispose();
+    serial.dispose();
+    warranty.dispose();
   }
 }
 
@@ -57,6 +73,10 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   bool _vatReady = false;
   bool _noVat = false;
   String _method = 'cash'; // how the client paid (cash | bkash | nagad | bank)
+  bool _byHours = false; // invdesign: hours x rate
+  bool get _designs => invoiceDesignsOn();
+  bool get _hours => _designs && _byHours;
+  bool get _perLine => _designs && _template == 'electronics';
   bool _busy = false;
   final _name = TextEditingController(),
       _phone = TextEditingController(),
@@ -80,7 +100,8 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
       final s = (r['settings'] as Map?) ?? const {};
       if (!mounted) return;
       setState(() {
-        if (invoiceTemplates.contains(s['template'])) _template = s['template'] as String;
+        final tpls = _designs ? invoiceTemplates : classicTemplates;
+        if (tpls.contains(s['template'])) _template = s['template'] as String;
         _vatReady = s['vat_mode'] != 'none' &&
             '${s['bin'] ?? ''}'.replaceAll(RegExp(r'\D'), '').isNotEmpty;
       });
@@ -171,12 +192,20 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
     for (final l in _lines) {
       final desc = l.desc.text.trim();
       if (desc.isEmpty && l.unit.text.trim().isEmpty) continue;
-      final q = typedQty(l.qty.text), u = typedPoisha(l.unit.text);
-      if (desc.isEmpty || q == null || u == null) {
+      final num? q = _hours ? typedHours(l.qty.text) : typedQty(l.qty.text);
+      final u = typedPoisha(l.unit.text);
+      final wm = _perLine ? typedMonths(l.warranty.text) : 0;
+      if (desc.isEmpty || q == null || u == null || wm == null) {
         messenger.showSnackBar(SnackBar(content: Text(t.invNeedLine)));
         return;
       }
-      lines.add({'desc': desc, 'qty': q, 'unit': u});
+      lines.add({
+        'desc': desc,
+        'qty': q,
+        'unit': u,
+        if (_perLine && l.serial.text.trim().isNotEmpty) 'serial': l.serial.text.trim(),
+        if (_perLine && wm > 0) 'warranty_m': wm,
+      });
     }
     if (lines.isEmpty) {
       messenger.showSnackBar(SnackBar(content: Text(t.invNeedLine)));
@@ -207,6 +236,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         'payment_method': _method,
         'no_vat': _noVat,
         'note': _note.text.trim(),
+        if (_hours) 'by_hours': true,
       }, businessId: widget.businessId);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -245,8 +275,9 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           Text(t.invSetBusinessType, style: tt.titleMedium),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final k in invoiceTemplates)
+            for (final k in _designs ? invoiceTemplates : classicTemplates)
               ChoiceChip(
+                key: ValueKey('inv-new-tpl-$k'),
                 label: Text(templateLabel(t, k)),
                 selected: _template == k,
                 onSelected: (_) => setState(() => _template = k),
@@ -279,6 +310,15 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
           const SizedBox(height: Gap.md),
           Text(t.invLinesTitle, style: tt.titleMedium),
           const SizedBox(height: Gap.sm),
+          if (_designs)
+            SwitchListTile(
+              key: const ValueKey('ivd-by-hours'),
+              contentPadding: EdgeInsets.zero,
+              value: _byHours,
+              onChanged: (v) => setState(() => _byHours = v),
+              title: Text(t.ivdByHours),
+              subtitle: Text(t.ivdByHoursHelp),
+            ),
           for (var i = 0; i < _lines.length; i++)
             Card(
               child: Padding(
@@ -296,12 +336,27 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                       ),
                   ]),
                   Wrap(spacing: Gap.sm, children: [
-                    SizedBox(width: 110, child: _tf(_lines[i].qty, t.invLineQty, kb: TextInputType.number)),
+                    SizedBox(
+                        width: 110,
+                        child: _tf(_lines[i].qty, _hours ? t.ivdHours : t.invLineQty,
+                            kb: _hours ? money : TextInputType.number,
+                            key: ValueKey('inv-line-qty-$i'))),
                     SizedBox(
                         width: 180,
-                        child: _tf(_lines[i].unit, t.invLineUnit,
+                        child: _tf(_lines[i].unit, _hours ? t.ivdRatePerHour : t.invLineUnit,
                             kb: money, prefix: '৳ ', key: ValueKey('inv-line-unit-$i'))),
                   ]),
+                  if (_perLine)
+                    Wrap(spacing: Gap.sm, children: [
+                      SizedBox(
+                          width: 200,
+                          child: _tf(_lines[i].serial, t.invXSerial,
+                              key: ValueKey('inv-line-serial-$i'))),
+                      SizedBox(
+                          width: 130,
+                          child: _tf(_lines[i].warranty, t.ivdWarrantyMonths,
+                              kb: TextInputType.number, key: ValueKey('inv-line-warranty-$i'))),
+                    ]),
                 ]),
               ),
             ),

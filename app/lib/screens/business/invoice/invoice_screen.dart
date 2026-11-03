@@ -5,6 +5,7 @@
 // plugin is in the app). The PDF/PNG is exactly the printer's dot width, and
 // the "How to print" sheet says how to send it from the share sheet.
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +18,8 @@ import '../../../theme.dart';
 import '../../../widgets/app_sheet.dart';
 import '../selling_common.dart' show showApiError;
 import 'invoice_api.dart';
+import 'invoice_design.dart';
+import 'invoice_details_sheet.dart';
 import 'invoice_doc.dart';
 import 'invoice_paper.dart';
 
@@ -49,6 +52,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   bool _busy = false;
   late InvoicePaper _paper = widget.paper ?? InvoicePaper.mm80;
   String? _lang;
+  // invdesign: the owner's design (accent, logo) and a per-invoice template
+  // switch (preview only; a POS sale can save it with its details)
+  String _accent = 'brand';
+  ui.Image? _logo;
+  String? _template;
+  bool get _designs => invoiceDesignsOn();
 
   @override
   void initState() {
@@ -64,7 +73,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     try {
       final j = widget.initial ?? await widget.loader!(context);
       _doc = InvoiceDoc.fromJson(j);
-      if (widget.paper == null || widget.lang == null) {
+      if (widget.paper == null || widget.lang == null || _designs) {
         try {
           if (!mounted) return;
           final s = await context
@@ -73,8 +82,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               .invoiceSettings(businessId: widget.businessId);
           final st = (s['settings'] as Map?) ?? const {};
           if (widget.paper == null) _paper = InvoicePaperX.parse('${st['size']}');
-          if (widget.lang == null && (st['lang'] == 'bn' || st['lang'] == 'en')) {
+          final okLang = _designs ? const ['bn', 'en', 'both'] : const ['bn', 'en'];
+          if (widget.lang == null && okLang.contains(st['lang'])) {
             _lang ??= st['lang'] as String;
+          }
+          if (_designs) {
+            _accent = invoiceAccents.contains(st['accent']) ? st['accent'] as String : 'brand';
+            _logo?.dispose();
+            _logo = await decodeLogo('${st['logo'] ?? ''}');
           }
         } catch (_) {
           // best-effort: default paper/language are fine; the invoice itself loaded
@@ -86,19 +101,51 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  String get _paperLang =>
-      _lang ?? widget.lang ?? Localizations.localeOf(context).languageCode;
+  @override
+  void dispose() {
+    _logo?.dispose();
+    super.dispose();
+  }
 
-  AppLocalizations get _pt => lookupAppLocalizations(Locale(_paperLang == 'en' ? 'en' : 'bn'));
+  String get _paperLang {
+    final l = _lang ?? widget.lang ?? Localizations.localeOf(context).languageCode;
+    if (l == 'both') return _designs ? 'both' : 'bn';
+    return l == 'en' ? 'en' : 'bn';
+  }
+
+  AppLocalizations get _pt => paperLocalizations(_paperLang).$1;
+
+  InvoiceDesign get _design => _designs
+      ? InvoiceDesign(styled: true, accent: _accent, logo: _logo)
+      : InvoiceDesign.classic;
+
+  /// The invoice as drawn: the owner may preview it in another design.
+  InvoiceDoc? get _shown {
+    final d = _doc;
+    if (d == null) return null;
+    final tp = _template;
+    return tp == null || !_designs ? d : d.withTemplate(tp);
+  }
+
+  Future<void> _editDetails() async {
+    final d = _shown;
+    if (d == null || d.kind != 'sale') return;
+    final j = await showInvoiceDetailsSheet(context, d, businessId: widget.businessId);
+    if (j == null || !mounted) return;
+    setState(() {
+      _doc = InvoiceDoc.fromJson(j);
+      _template = null;
+    });
+  }
 
   Future<void> _share({required bool png}) async {
-    final d = _doc;
+    final d = _shown;
     if (d == null || _busy) return;
     final t = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
     try {
-      final lay = layoutInvoice(d, _paper, _pt, _paperLang);
+      final lay = layoutWithDesign(d, _paper, _paperLang, design: _design);
       final bytes = png ? await buildInvoicePng(lay, _pt) : await buildInvoicePdf(lay, _pt, number: d.number);
       final dir = await getTemporaryDirectory();
       final safe = d.number.replaceAll(RegExp(r'[^A-Za-z0-9-]'), '');
@@ -191,7 +238,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final d = _doc;
+    final d = _shown;
     return Scaffold(
       appBar: AppBar(
         title: Text(d == null || d.number.isEmpty ? t.invScreenTitle : invNum(d.number, Localizations.localeOf(context).languageCode)),
@@ -245,10 +292,35 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       segments: [
                         ButtonSegment(value: 'bn', label: Text(t.invLangBn)),
                         ButtonSegment(value: 'en', label: Text(t.invLangEn)),
+                        if (_designs) ButtonSegment(value: 'both', label: Text(t.ivdLangBoth)),
                       ],
-                      selected: {_paperLang == 'en' ? 'en' : 'bn'},
+                      selected: {_paperLang},
                       onSelectionChanged: (s) => setState(() => _lang = s.first),
                     ),
+                    if (_designs) ...[
+                      const SizedBox(height: Gap.md),
+                      Text(t.ivdDesignLabel, style: Theme.of(context).textTheme.titleSmall),
+                      const SizedBox(height: Gap.xs),
+                      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                        for (final k in invoiceTemplates)
+                          ChoiceChip(
+                            key: ValueKey('inv-design-$k'),
+                            label: Text(templateLabel(t, k)),
+                            selected: d.template == k,
+                            onSelected: (_) => setState(() => _template = k),
+                          ),
+                      ]),
+                      if (d.kind == 'sale' && !d.cancelled) ...[
+                        const SizedBox(height: Gap.sm),
+                        OutlinedButton.icon(
+                          key: const ValueKey('inv-details'),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          onPressed: _editDetails,
+                          icon: const Icon(Icons.edit_note_rounded),
+                          label: Text(t.ivdAddDetails),
+                        ),
+                      ],
+                    ],
                     const SizedBox(height: Gap.md),
                     FilledButton.icon(
                       key: const ValueKey('inv-share-pdf'),
@@ -277,7 +349,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       label: Text(t.invPrintHowTitle),
                     ),
                     const SizedBox(height: Gap.sm),
-                    InvoicePreview(doc: d, paper: _paper, lang: _paperLang == 'en' ? 'en' : 'bn'),
+                    InvoicePreview(doc: d, paper: _paper, lang: _paperLang, design: _design),
                   ],
                 ),
     );
@@ -286,15 +358,21 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
 /// The paper itself, painted live (no rasterising) and scaled to the screen.
 class InvoicePreview extends StatelessWidget {
-  const InvoicePreview({super.key, required this.doc, required this.paper, required this.lang});
+  const InvoicePreview(
+      {super.key,
+      required this.doc,
+      required this.paper,
+      required this.lang,
+      this.design = InvoiceDesign.classic});
   final InvoiceDoc doc;
   final InvoicePaper paper;
-  final String lang;
+  final String lang; // bn | en | both
+  final InvoiceDesign design;
 
   @override
   Widget build(BuildContext context) {
-    final t = lookupAppLocalizations(Locale(lang));
-    final lay = layoutInvoice(doc, paper, t, lang);
+    final t = paperLocalizations(lang).$1;
+    final lay = layoutWithDesign(doc, paper, lang, design: design);
     final maxW = paper.thermal ? (paper == InvoicePaper.mm58 ? 300.0 : 380.0) : 560.0;
     return Semantics(
       label: '${invoiceTitle(t, doc)} ${doc.number}',

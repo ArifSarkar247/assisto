@@ -144,6 +144,21 @@ class PrintInk {
   // invoices: thermal printers print pure black only
   static const thermal = Color(0xFF000000);
   static const shadow = Color(0x33000000);
+
+  /// invdesign: print-safe A4 brand accents (every one >= 4.5:1 on white, so
+  /// titles and table heads stay readable on cheap office printers). Keys
+  /// mirror backend invoice_calc.ACCENTS.
+  static const accents = <String, Color>{
+    'brand': brand,
+    'teal': Color(0xFF00575A),
+    'green': Color(0xFF175C2C),
+    'maroon': Color(0xFF7D1A2A),
+    'navy': Color(0xFF1F3A68),
+    'charcoal': Color(0xFF2F3237),
+    'plum': Color(0xFF5E275E),
+    'brown': Color(0xFF6B4019),
+  };
+  static Color accent(String key) => accents[key] ?? brand;
 }
 
 /// 4/8-pt spacing scale. Use these instead of magic numbers.

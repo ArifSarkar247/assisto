@@ -231,6 +231,7 @@ urlpatterns = [
     path("business/sales/<int:pk>/receipt.pdf", bz.ReceiptPdfView.as_view()),
     # invoices — 58/80 mm + A4 invoice data, VAT, manual service invoices
     path("business/sales/<int:pk>/invoice", invv.SaleInvoiceView.as_view()),
+    path("business/sales/<int:pk>/invoice/details", invv.SaleInvoiceDetailsView.as_view()),
     path("business/invoice/settings", invv.InvoiceSettingsView.as_view()),
     path("business/invoices/sales", invv.InvoiceSalesView.as_view()),
     path("business/invoices", invv.ManualInvoicesView.as_view()),

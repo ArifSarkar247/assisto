@@ -1089,6 +1089,19 @@ Map<String, GallerySpec> gallerySpecs() {
     'inv_paper_a4_lawyer': (build: (_) => InvoiceScreen(initial: {...fakeSaleInvoice(template: 'lawyer'), 'kind': 'manual', 'payment_method': ''}, paper: InvoicePaper.a4, lang: 'en'), mode: FakeMode.data, full: true),
     'inv_settings': (build: (_) => const InvoiceSettingsScreen(businessId: 1), mode: FakeMode.data, full: true),
     'inv_new': (build: (_) => const NewInvoiceScreen(businessId: 1), mode: FakeMode.data, full: true),
+    // invdesign: one paper per business-type design (switch invoice_designs on)
+    'inv_design_cafe': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('cafe'), paper: InvoicePaper.mm58, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_restaurant': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('restaurant'), paper: InvoicePaper.mm80, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_fine_dining': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('fine_dining'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_ecommerce': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('ecommerce'), paper: InvoicePaper.mm80, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_retail': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('retail'), paper: InvoicePaper.mm58, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_electronics': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('electronics'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_lawyer': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('lawyer'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_vat_invoice': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('vat_invoice'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_tax_consultant': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('tax_consultant'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_service': (build: (l) => _InvDesignFlags(child: InvoiceScreen(initial: fakeDesignInvoice('service'), paper: InvoicePaper.a4, lang: l)), mode: FakeMode.data, full: true),
+    'inv_design_both': (build: (_) => const _InvDesignFlags(child: InvoiceScreen(initial: null, loader: _invRestaurant, paper: InvoicePaper.mm80, lang: 'both')), mode: FakeMode.data, full: true),
+    'inv_design_settings': (build: (_) => const _InvDesignFlags(child: InvoiceSettingsScreen(businessId: 1)), mode: FakeMode.data, full: true),
     'crm100_quotes': (build: (_) => const ShopQuoteListScreen(), mode: FakeMode.data, full: true),
     'crm100_quote_builder': (build: (_) => const ShopQuoteBuilderScreen(customerName: 'Karim Mia', customerPhone: '01712345678'), mode: FakeMode.data, full: true),
     'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
@@ -1387,6 +1400,36 @@ class _SjFlagsState extends State<_SjFlags> {
     _was = FeatureFlags.instance.debugOverride;
     FeatureFlags.instance.debugOverride = {
       ...?_was, 'dest_alarm': true, 'train_tracker': true};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _was;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+
+/// invdesign: the invoice designs switch on for the gallery shot only.
+Future<Map<String, dynamic>> _invRestaurant(BuildContext _) async => fakeDesignInvoice('restaurant');
+
+class _InvDesignFlags extends StatefulWidget {
+  final Widget child;
+  const _InvDesignFlags({required this.child});
+  @override
+  State<_InvDesignFlags> createState() => _InvDesignFlagsState();
+}
+
+class _InvDesignFlagsState extends State<_InvDesignFlags> {
+  Map<String, bool>? _was;
+  @override
+  void initState() {
+    super.initState();
+    _was = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {...?_was, 'invoice_designs': true};
   }
 
   @override

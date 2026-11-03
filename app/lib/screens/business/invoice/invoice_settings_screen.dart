@@ -2,7 +2,11 @@
 // staff see it read-only. VAT: only the 15 % standard rate (VAT & SD Act 2012
 // s.15) is pre-filled; reduced rates are item-specific (Third Schedule), so
 // the owner types theirs — Assisto never guesses a rate.
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../api.dart' show ApiException;
@@ -12,6 +16,7 @@ import '../../../theme.dart';
 import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../selling_common.dart' show showApiError;
 import 'invoice_api.dart';
+import 'invoice_design.dart';
 import 'invoice_doc.dart';
 import 'invoice_paper.dart' show templateLabel;
 
@@ -43,6 +48,11 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
   Object? _error;
   String _template = 'retail', _vatMode = 'none', _size = '80', _lang = 'bn';
   bool _verifyQr = true;
+  // invdesign
+  String _accent = 'brand', _logo = '';
+  String? _suggested;
+  Uint8List? _logoBytes;
+  bool get _designs => invoiceDesignsOn();
   final _name = TextEditingController(),
       _address = TextEditingController(),
       _phone = TextEditingController(),
@@ -75,7 +85,16 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
         ? s['vat_mode'] as String
         : 'none';
     _size = const ['58', '80', 'a4'].contains(s['size']) ? s['size'] as String : '80';
-    _lang = s['lang'] == 'en' ? 'en' : 'bn';
+    _lang = s['lang'] == 'en'
+        ? 'en'
+        : (s['lang'] == 'both' && _designs ? 'both' : 'bn');
+    _accent = invoiceAccents.contains(s['accent']) ? s['accent'] as String : 'brand';
+    _logo = '${s['logo'] ?? ''}';
+    try {
+      _logoBytes = _logo.isEmpty ? null : base64Decode(_logo);
+    } catch (_) {
+      _logoBytes = null;
+    }
     _verifyQr = s['verify_qr'] != false;
     _name.text = '${s['name'] ?? ''}';
     _address.text = '${s['address'] ?? ''}';
@@ -98,6 +117,8 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
       final r = await context.read<AppState>().api.invoiceSettings(businessId: widget.businessId);
       _apply((r['settings'] as Map?) ?? const {});
       _canEdit = r['can_edit'] == true;
+      final sg = r['suggested_template'];
+      _suggested = invoiceTemplates.contains(sg) ? sg as String : null;
     } catch (e) {
       _error = e;
     }
@@ -139,6 +160,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
         'verify_qr': _verifyQr,
         'size': _size,
         'lang': _lang,
+        if (_designs) ...{'accent': _accent, 'logo': _logo},
       }, businessId: widget.businessId);
       if (!mounted) return;
       _apply((r['settings'] as Map?) ?? const {});
@@ -156,6 +178,118 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
     }
     if (mounted) setState(() => _saving = false);
   }
+
+  Future<void> _pickLogo() async {
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    Uint8List? raw;
+    try {
+      final x = await ImagePicker()
+          .pickImage(source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024);
+      raw = x == null ? null : await x.readAsBytes();
+    } catch (_) {
+      raw = null;
+      messenger.showSnackBar(SnackBar(content: Text(t.ivdLogoFailed)));
+    }
+    if (raw == null || !mounted) return;
+    final small = shrinkLogo(raw);
+    if (small == null) {
+      messenger.showSnackBar(SnackBar(content: Text(t.ivdLogoFailed)));
+      return;
+    }
+    setState(() {
+      _logoBytes = small;
+      _logo = base64Encode(small);
+    });
+  }
+
+  String _accentName(AppLocalizations t, String k) => switch (k) {
+        'teal' => t.ivdAccTeal,
+        'green' => t.ivdAccGreen,
+        'maroon' => t.ivdAccMaroon,
+        'navy' => t.ivdAccNavy,
+        'charcoal' => t.ivdAccCharcoal,
+        'plum' => t.ivdAccPlum,
+        'brown' => t.ivdAccBrown,
+        _ => t.ivdAccBlue,
+      };
+
+  List<Widget> _brandSection(AppLocalizations t, TextTheme tt, ColorScheme scheme) => [
+        Text(t.ivdBrandTitle, style: tt.titleMedium),
+        const SizedBox(height: Gap.xs),
+        Text(t.ivdLogoHelp, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.md, runSpacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          if (_logoBytes != null)
+            Container(
+              width: 72,
+              height: 72,
+              padding: const EdgeInsets.all(Gap.xs),
+              decoration: BoxDecoration(
+                color: PrintInk.paper,
+                borderRadius: BorderRadius.circular(Radii.sm),
+                border: Border.all(color: scheme.outlineVariant),
+              ),
+              child: Image.memory(_logoBytes!, fit: BoxFit.contain, semanticLabel: t.ivdLogoAlt,
+                  errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
+            ),
+          OutlinedButton.icon(
+            key: const ValueKey('ivd-logo-pick'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _canEdit ? _pickLogo : null,
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+            label: Text(_logoBytes == null ? t.ivdLogoAdd : t.ivdLogoChange),
+          ),
+          if (_logoBytes != null)
+            TextButton(
+              key: const ValueKey('ivd-logo-remove'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _canEdit
+                  ? () => setState(() {
+                        _logo = '';
+                        _logoBytes = null;
+                      })
+                  : null,
+              child: Text(t.ivdLogoRemove),
+            ),
+        ]),
+        const SizedBox(height: Gap.md),
+        Text(t.ivdAccentLabel, style: tt.titleSmall),
+        const SizedBox(height: Gap.xs),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          for (final k in invoiceAccents)
+            Semantics(
+              button: true,
+              selected: _accent == k,
+              label: _accentName(t, k),
+              child: Tooltip(
+                message: _accentName(t, k),
+                child: InkWell(
+                  key: ValueKey('ivd-accent-$k'),
+                  customBorder: const CircleBorder(),
+                  onTap: _canEdit ? () => setState(() => _accent = k) : null,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: PrintInk.accent(k),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: _accent == k ? scheme.onSurface : scheme.outlineVariant,
+                          width: _accent == k ? 3 : 1),
+                    ),
+                    child: _accent == k
+                        ? const Icon(Icons.check_rounded, color: PrintInk.paper)
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+        ]),
+        const SizedBox(height: Gap.xs),
+        Text(t.ivdAccentHelp, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.lg),
+      ];
 
   Widget _field(TextEditingController c, String label,
       {String? helper, String? errorKey, TextInputType? kb, int maxLines = 1, String? errorText}) {
@@ -205,16 +339,42 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                       ),
                     Text(t.invSetBusinessType, style: tt.titleMedium),
                     const SizedBox(height: Gap.sm),
+                    if (_designs && _suggested != null && _suggested != _template)
+                      Card(
+                        key: const ValueKey('ivd-suggest'),
+                        margin: const EdgeInsets.only(bottom: Gap.sm),
+                        child: Padding(
+                          padding: const EdgeInsets.all(Gap.md),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text(t.ivdSuggested(templateLabel(t, _suggested!)), style: tt.bodyLarge),
+                            const SizedBox(height: Gap.xs),
+                            Text(t.ivdSuggestedWhy, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                            if (_canEdit) ...[
+                              const SizedBox(height: Gap.sm),
+                              FilledButton.tonal(
+                                key: const ValueKey('ivd-use-suggested'),
+                                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                                onPressed: () => setState(() => _template = _suggested!),
+                                child: Text(t.ivdUseSuggested),
+                              ),
+                            ],
+                          ]),
+                        ),
+                      ),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-                      for (final k in invoiceTemplates)
+                      for (final k in _designs ? invoiceTemplates : classicTemplates)
                         ChoiceChip(
                           key: ValueKey('inv-tpl-$k'),
+                          avatar: _designs && k == _suggested
+                              ? const Icon(Icons.auto_awesome_rounded, size: 18)
+                              : null,
                           label: Text(templateLabel(t, k)),
                           selected: _template == k,
                           onSelected: _canEdit ? (_) => setState(() => _template = k) : null,
                         ),
                     ]),
                     const SizedBox(height: Gap.lg),
+                    if (_designs) ..._brandSection(t, tt, scheme),
                     Text(t.invSetSellerBlock, style: tt.titleMedium),
                     const SizedBox(height: Gap.sm),
                     _field(_name, t.invSetName),
@@ -287,6 +447,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                       segments: [
                         ButtonSegment(value: 'bn', label: Text(t.invLangBn)),
                         ButtonSegment(value: 'en', label: Text(t.invLangEn)),
+                        if (_designs) ButtonSegment(value: 'both', label: Text(t.ivdLangBoth)),
                       ],
                       selected: {_lang},
                       onSelectionChanged: _canEdit ? (s) => setState(() => _lang = s.first) : null,

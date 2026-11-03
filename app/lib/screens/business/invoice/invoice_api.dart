@@ -15,6 +15,12 @@ extension InvoiceApi on ApiClient {
   Future<Map<String, dynamic>> saleInvoice(int saleId, {int? businessId}) =>
       getJson(_b('/business/sales/$saleId/invoice', businessId));
 
+  /// invdesign: paper-only facts of a POS sale (template, table/token/...,
+  /// per-line serial/IMEI + warranty months). Returns the updated invoice.
+  Future<Map<String, dynamic>> saleInvoiceDetails(int saleId, Map<String, dynamic> body,
+          {int? businessId}) =>
+      postJson(_b('/business/sales/$saleId/invoice/details', businessId), body);
+
   Future<Map<String, dynamic>> invoiceSales({int? businessId}) =>
       getJson(_b('/business/invoices/sales', businessId));
 
