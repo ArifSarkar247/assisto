@@ -157,7 +157,8 @@ def check_one(ev, slug, conf, prov_cost, now=None):
     if not img:
         return _save(ev, {"state": "no_photo"})
     # the allowance is taken BEFORE the call: a paid call is never free
-    if not BUD.ai_check_used(cam, now):
+    from . import cctv_cap as CAP  # the ONE account counter (incl. bought packs)
+    if not CAP.ai_try_take(cam.site.owner, now):
         return _save(ev, {"state": "cap"})
     _save(ev, {"state": "pending", "at": now.isoformat()})
     usage = {}

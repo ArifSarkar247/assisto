@@ -218,7 +218,8 @@ class AiCheckGlueTests(E2E._Base):
 
     def test_over_cap_no_call_and_shared_with_descriptions(self):
         ev = self.event()
-        with mock.patch("core.cctv_activity.ai_per_camera", return_value=0):
+        with mock.patch("core.cctv_activity.ai_per_camera", return_value=0), \
+                mock.patch("core.cctv_cap.ai_per_camera", return_value=0):
             out, _s, m = self.run_check('{"object": "person", "confidence": 92}')
         m.assert_not_called()
         row = self.row(ev)
