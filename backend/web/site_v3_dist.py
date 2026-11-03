@@ -110,7 +110,7 @@ def apk_info():
         sha = h.hexdigest()
         _SHA.clear()
         _SHA[key] = sha
-    name = os.path.basename(p)
+    name = os.path.basename(os.path.realpath(p))  # fixed URL may be a symlink to the build file
     ver = ""
     if not getattr(settings, "WEBSITE_APK_FILE", ""):
         ver = _latest().get("version_name") or ""
