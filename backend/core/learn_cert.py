@@ -91,6 +91,7 @@ QURAN_LEVEL = {
     "nazera": {"en": "Nazera reading completed", "bn": "নাযেরা পড়া সম্পন্ন"},
 }
 
+_BN_RE = re.compile("[\u0980-\u09FF]")
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 _BN_MONTHS = ("জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই",
               "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর")
@@ -417,22 +418,22 @@ def pdf_bytes(row, lang):
         c.setLineWidth(4)
         c.rect(24 + i * 6, 24 + i * 6, w - 48 - i * 12, h - 48 - i * 12)
     c.setFillColorRGB(0.07, 0.09, 0.15)
+
+    def put(size, x, y, text, center=True):
+        # Bangla text -> Noto Bengali; Latin -> Helvetica (always has Latin glyphs)
+        c.setFont(font if _BN_RE.search(text) else "Helvetica", size)
+        (c.drawCentredString if center else c.drawString)(x, y, text)
+
     y = h - 110
-    c.setFont(font, 30)
-    c.drawCentredString(w / 2, y, t["title"]); y -= 50
-    c.setFont(font, 14)
-    c.drawCentredString(w / 2, y, t["awarded"]); y -= 42
-    c.setFont(font, 28)
-    c.drawCentredString(w / 2, y, t["name"][:NAME_MAX]); y -= 40
-    c.setFont(font, 14)
-    c.drawCentredString(w / 2, y, t["completed"]); y -= 28
-    c.setFont(font, 20)
-    c.drawCentredString(w / 2, y, t["course"]); y -= 34
-    c.setFont(font, 16)
-    c.drawCentredString(w / 2, y, "%s: %s" % (t["level_label"], t["level"])); y -= 24
+    put(30, w / 2, y, t["title"]); y -= 50
+    put(14, w / 2, y, t["awarded"]); y -= 42
+    put(28, w / 2, y, t["name"][:NAME_MAX]); y -= 40
+    put(14, w / 2, y, t["completed"]); y -= 28
+    put(20, w / 2, y, t["course"]); y -= 34
+    put(16, w / 2, y, "%s: %s" % (t["level_label"], t["level"])); y -= 24
     if t["score"]:
-        c.drawCentredString(w / 2, y, "%s: %s" % (t["score_label"], t["score"])); y -= 24
-    c.drawCentredString(w / 2, y, "%s: %s" % (t["date_label"], t["date"])); y -= 34
+        put(16, w / 2, y, "%s: %s" % (t["score_label"], t["score"])); y -= 24
+    put(16, w / 2, y, "%s: %s" % (t["date_label"], t["date"])); y -= 34
     # QR -> public verify page
     try:
         from reportlab.graphics import renderPDF
@@ -446,12 +447,11 @@ def pdf_bytes(row, lang):
         renderPDF.draw(dr, c, w - 60 - size, 60)
     except Exception:  # noqa: BLE001
         pass
-    c.setFont(font, 11)
-    c.drawString(60, 92, "%s: %s" % (t["code_label"], code))
-    c.drawString(60, 76, "%s: %s" % (TXT[lang]["check"], verify_url(code)))
-    c.setFont(font, 12)
+    c.setFillColorRGB(0.07, 0.09, 0.15)
+    put(11, 60, 92, "%s: %s" % (t["code_label"], code), center=False)
+    put(11, 60, 76, "%s: %s" % (TXT[lang]["check"], verify_url(code)), center=False)
     c.setFillColorRGB(0.55, 0.11, 0.07)
-    c.drawString(60, 56, t["disclaimer"])
+    put(12, 60, 56, t["disclaimer"], center=False)
     c.showPage()
     c.save()
     return buf.getvalue()
