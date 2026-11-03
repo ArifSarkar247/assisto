@@ -124,6 +124,14 @@ def _notify(user, method):
         pass
 
 
+def _has_sealed(u):
+    try:
+        from .models import Document
+        return Document.objects.filter(user=u, e2e=True).exists()
+    except Exception:  # noqa: BLE001
+        return False
+
+
 class VaultRecoveryStatusView(APIView):
     def get(self, request):
         u = request.user
@@ -134,7 +142,9 @@ class VaultRecoveryStatusView(APIView):
         m.update({
             "ok": True,
             # honest model facts the app shows in "How your vault is protected"
-            "end_to_end_encrypted": False,
+            # p3docs: true once the user keeps end-to-end sealed documents
+            # (core/vault_e2e); older documents stay account-protected.
+            "end_to_end_encrypted": _has_sealed(u),
             "pin_on_server": False,
             "last_reset_at": last.isoformat() if last else None,
             "resets_left_today": max(0, MAX_RESETS_PER_DAY - _count(u, A_RESET, day_ago)),
