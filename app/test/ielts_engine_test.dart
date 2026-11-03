@@ -47,4 +47,12 @@ void main() {
     expect(leitnerNext(5, true, 10), (5, 25));
     expect(leitnerNext(4, false, 10), (1, 11));
   });
+
+  test('language packs: Korean words, Japanese/Chinese characters, Arabic', () {
+    expect(ieltsWords('안녕하세요 반갑습니다'), ['안녕하세요', '반갑습니다']);
+    expect(ieltsWords('すみません'), ['す', 'み', 'ま', 'せ', 'ん']);
+    expect(alignWords('你好吗', '你好').score, 67);
+    expect(alignWords('مرحبا صديقي', 'مرحبا صديقي').score, 100);
+    expect(ieltsWords('Guten Tag, wie geht’s?'), ['guten', 'tag', 'wie', "geht's"]);
+  });
 }

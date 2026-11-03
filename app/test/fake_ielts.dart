@@ -112,11 +112,113 @@ Map<String, dynamic> fakeIeltsWritingResult() => {
 
 Map<String, dynamic>? fakeIeltsGet(String path, {bool empty = false}) {
   if (path == '/ielts/content') return fakeIeltsContent();
+  if (path == '/learn/catalog') return fakeLearnCatalog();
+  if (path == '/learn/pack/en') return fakeLearnPack();
   return null;
 }
 
+const _learnLabel = {
+  'en': 'Assisto practice estimate — not an official exam result.',
+  'bn': 'Assisto অনুশীলনের অনুমান — অফিসিয়াল পরীক্ষার ফল নয়।',
+};
+
+/// The 8 cards exactly as backend logic/langpacks.py LANGUAGES (only English
+/// has a pack in this branch).
+Map<String, dynamic> fakeLearnCatalog() {
+  Map<String, dynamic> l(String code, String en, String bn, String native, String exEn, String exBn,
+          String purpose, bool on) =>
+      {'code': code, 'name_en': en, 'name_bn': bn, 'native': native, 'exams_en': exEn,
+       'exams_bn': exBn, 'purpose': purpose, 'available': on};
+  return {
+    'estimate_label': _learnLabel,
+    'ai_left_today': 3,
+    'ai_free_per_day': 3,
+    'languages': [
+      l('en', 'English', 'ইংরেজি', 'English', 'IELTS · PTE style', 'IELTS · PTE ধাঁচ', 'study_work', true),
+      l('ko', 'Korean', 'কোরিয়ান', '한국어', 'EPS-TOPIK · TOPIK 1–6', 'EPS-TOPIK · TOPIK ১–৬', 'work_korea', false),
+      l('ja', 'Japanese', 'জাপানি', '日本語', 'JFT-Basic · JLPT N5–N1', 'JFT-Basic · JLPT N৫–N১', 'work_japan', false),
+      l('ar', 'Arabic', 'আরবি', 'العربية', 'Work Arabic for the Gulf', 'উপসাগরীয় দেশে কাজের আরবি', 'work_gulf', false),
+      l('de', 'German', 'জার্মান', 'Deutsch', 'CEFR A1–C2', 'CEFR A১–C২', 'study_work', false),
+      l('fr', 'French', 'ফরাসি', 'Français', 'CEFR A1–C2', 'CEFR A১–C২', 'study_work', false),
+      l('es', 'Spanish', 'স্প্যানিশ', 'Español', 'CEFR A1–C2', 'CEFR A১–C২', 'study_work', false),
+      l('zh', 'Chinese', 'চীনা', '中文', 'HSK 1–6', 'HSK ১–৬', 'study_work', false),
+    ],
+  };
+}
+
+/// A trimmed public English pack (answer keys stripped like the server does).
+Map<String, dynamic> fakeLearnPack() => {
+      'format': 1, 'lang': 'en', 'stt_locale': 'en-US', 'level_system': 'CEFR', 'ai_ready': true,
+      'estimate_label': _learnLabel,
+      'levels': [
+        {'id': 'A1', 'en': 'A1', 'bn': 'A১'}, {'id': 'A2', 'en': 'A2', 'bn': 'A২'},
+        {'id': 'B1', 'en': 'B1', 'bn': 'B১'},
+      ],
+      'placement': {'pass_pct': 60, 'questions': [
+        {'id': 'pl1', 'type': 'mcq', 'skill': 'grammar', 'level': 'A1', 'text': 'She ___ a teacher.',
+         'options': ['am', 'is', 'are', 'be']},
+        {'id': 'pl4', 'type': 'mcq', 'skill': 'grammar', 'level': 'A2', 'text': 'I ___ to Chattogram last year.',
+         'options': ['go', 'goes', 'went', 'going']},
+      ]},
+      'lessons': [
+        {'id': 'l_a1_greet', 'level': 'A1', 'title_en': 'Greetings and introducing yourself',
+         'title_bn': 'শুভেচ্ছা ও নিজের পরিচয়',
+         'items': [{'kind': 'phrase', 'target': 'Nice to meet you.', 'bn': 'আপনার সাথে দেখা হয়ে ভালো লাগল।',
+                    'en': 'Nice to meet you.'}],
+         'practice': ['Hello, my name is Karim.']},
+      ],
+      'scenarios': [
+        {'id': 'airport', 'title_en': 'At the airport', 'title_bn': 'বিমানবন্দরে',
+         'opening': 'Good morning. May I see your passport, please? What is the purpose of your visit?',
+         'goals_en': ['Say why you are travelling'], 'goals_bn': ['কেন যাচ্ছেন বলুন'],
+         'useful': [{'target': 'I am here to work. Here is my contract.',
+                     'bn': 'আমি কাজ করতে এসেছি। এই যে আমার চুক্তিপত্র।', 'en': 'I am here to work. Here is my contract.'}]},
+      ],
+      'pron': [
+        {'id': 'pr_school', 'text': 'Students start school in spring.',
+         'tip_bn': "s দিয়ে শুরু শব্দের আগে 'ই' যোগ করবেন না।", 'tip_en': "Do not add a vowel before s-clusters."},
+      ],
+      'mock': [
+        {'id': 'pte_style_1', 'title_en': 'PTE-style practice test (Reading + Speaking + Writing)',
+         'title_bn': 'PTE-ধাঁচের অনুশীলন টেস্ট (রিডিং + স্পিকিং + রাইটিং)',
+         'format_en': 'PTE-style task types. Original Assisto questions.',
+         'format_bn': 'PTE-ধাঁচের প্রশ্ন। প্রশ্নগুলো Assisto-র নিজস্ব।', 'minutes': 30,
+         'sections': [
+           {'id': 'reading', 'skill': 'reading', 'title_en': 'Reading: multiple choice', 'title_bn': 'রিডিং: MCQ',
+            'passage': ['Not long ago, sending money to a family member in another district usually meant a bus journey.'],
+            'questions': [{'id': 'q1', 'type': 'mcq', 'skill': 'reading',
+                           'text': 'A smartphone is required to use mobile financial services.',
+                           'options': ['True', 'False', 'Not Given']}]},
+         ],
+         'bands': [{'min_pct': 0, 'level': 'A2'}, {'min_pct': 40, 'level': 'B1'}]},
+      ],
+      'extras': [{'id': 'ielts'}],
+    };
+
+Map<String, dynamic> fakeLearnMockResult() => {
+      'ok': true, 'level': 'B1', 'score_pct': 60, 'correct': 3, 'total': 5, 'weak': ['writing'],
+      'sections': [{'id': 'reading', 'skill': 'reading', 'correct': 3, 'total': 5, 'pct': 60}],
+      'rows': [
+        {'id': 'q1', 'skill': 'reading', 'given': 0, 'answer': 1, 'correct': false,
+         'explain_bn': "লেখায় আছে 'a basic phone' — False।", 'explain_en': "The text says 'a basic phone' is enough — False."},
+      ],
+      'timed_out': false, 'estimate': true,
+    };
+
 Map<String, dynamic>? fakeIeltsPost(String path, Map body) {
   if (path == '/ielts/writing/check') return fakeIeltsWritingResult();
+  if (path == '/learn/en/placement') {
+    return {'ok': true, 'level': 'A2', 'score_pct': 50, 'correct': 1, 'total': 2, 'weak': ['grammar'],
+            'skills': {'grammar': 50}, 'estimate': true, 'rows': [
+      {'id': 'pl1', 'skill': 'grammar', 'given': 1, 'answer': 1, 'correct': true, 'explain_bn': 'is।', 'explain_en': "'She' takes 'is'."},
+      {'id': 'pl4', 'skill': 'grammar', 'given': 0, 'answer': 2, 'correct': false, 'explain_bn': 'went।', 'explain_en': "Past: 'went'."},
+    ]};
+  }
+  if (path == '/learn/en/mock') return fakeLearnMockResult();
+  if (path == '/learn/en/roleplay') {
+    return {'ok': true, 'ai_state': 'used', 'reply': 'How long will you stay?', 'fix_en': "Say 'for work', not 'for working'.",
+            'fix_bn': "'for working' নয়, 'for work' বলুন।", 'free': true, 'credits_charged': 0, 'ai_left_today': 2};
+  }
   if (path == '/ielts/reading/grade') {
     return {'ok': true, 'correct': 1, 'total': 2, 'rows': [
       {'id': 'q1', 'given': 'true', 'answer': 'true', 'correct': true, 'bn': 'True।', 'en': 'True.'},

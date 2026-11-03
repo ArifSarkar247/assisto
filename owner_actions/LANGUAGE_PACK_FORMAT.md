@@ -66,7 +66,7 @@ Answer keys and explanations never reach the app before grading (`public_pack` s
  ],
  "bands": [{"min_pct": 0, "level": "1"}, {"min_pct": 50, "level": "2"}]}   // first band must start at 0
 ```
-Objective % → level from `bands`; weak areas = sections < 60 % + open prompts outside the word range.
+Question and prompt ids must be unique inside one mock (answers are keyed by id). Objective % → level from `bands`; weak areas = sections < 60 % + open prompts outside the word range.
 
 ## Server API (flag `language_packs`)
 `GET /learn/catalog` · `GET /learn/pack/<lang>` · `POST /learn/<lang>/placement` · `POST /learn/<lang>/mock` · `POST /learn/<lang>/roleplay` · `GET /learn/results`.

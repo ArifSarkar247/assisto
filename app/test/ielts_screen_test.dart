@@ -9,6 +9,7 @@ import 'package:assisto/api.dart';
 import 'package:assisto/feature_flags.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/ielts_screen.dart';
+import 'package:assisto/screens/language_pack_screen.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -70,18 +71,96 @@ void main() {
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
   });
 
-  testWidgets('Language Partner shows the IELTS card only when language_packs is on', (t) async {
+  testWidgets('Language Partner home shows the 8 language cards only when language_packs is on',
+      (t) async {
     FeatureFlags.instance.debugOverride = {'language_packs': false};
     await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    expect(find.text('IELTS practice'), findsNothing);
+    expect(find.text('Learn a language'), findsNothing);
     FeatureFlags.instance.debugOverride = {'language_packs': true};
     await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    expect(find.text('IELTS practice'), findsOneWidget);
-    await t.tap(find.text('IELTS practice'));
+    expect(find.text('Learn a language'), findsOneWidget);
+    expect(find.text('For work in Korea'), findsOneWidget);
+    // a language without a pack is an honest disabled card, never a promise
+    expect(find.text('Lessons for this language are not added yet.'), findsNWidgets(7));
+    await t.tap(find.text('English · English'));
     await t.pumpAndSettle();
-    expect(find.text('3-day practice streak'), findsOneWidget);
+    expect(find.text('Placement test'), findsOneWidget);
+    expect(find.text('IELTS practice'), findsOneWidget);
+  });
+
+  testWidgets('catalog order and exam names follow the owner order', (t) async {
+    await t.pumpWidget(_app(const Scaffold(body: SingleChildScrollView(child: LanguageCatalogSection())),
+        FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    final ys = [for (final n in ['English · English', 'Korean · 한국어', 'Japanese · 日本語', 'Arabic · العربية',
+        'German · Deutsch', 'French · Français', 'Spanish · Español', 'Chinese · 中文']) t.getTopLeft(find.text(n)).dy];
+    expect(ys, [...ys]..sort());
+    expect(find.text('EPS-TOPIK · TOPIK 1–6'), findsOneWidget);
+    expect(find.text('JFT-Basic · JLPT N5–N1'), findsOneWidget);
+    expect(find.text('HSK 1–6'), findsOneWidget);
+  });
+
+  testWidgets('placement: answer, grade, estimated level + weak areas', (t) async {
+    await t.pumpWidget(_app(const LanguagePackScreen(lang: 'en', title: 'English'), FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Placement test'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('is'));
+    await t.pump();
+    await t.scrollUntilVisible(find.text('Check answers'), 200);
+    await t.tap(find.text('Check answers'));
+    await t.pumpAndSettle();
+    await t.scrollUntilVisible(find.text('Estimated level: A2'), -200);
+    expect(find.text('Estimated level: A2'), findsOneWidget);
+    expect(find.text('Practise more: Grammar'), findsOneWidget);
+    expect(find.text('Assisto practice estimate — not an official exam result.'), findsWidgets);
+  });
+
+  testWidgets('mock test result shows level, sections and weak areas', (t) async {
+    final pack = fakeLearnPack();
+    await t.pumpWidget(_app(
+        MockTestPage(pack: Object(), mock: (pack['mock'] as List).first as Map<String, dynamic>,
+            debugResult: fakeLearnMockResult()),
+        FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    expect(find.text('Estimated level: B1'), findsOneWidget);
+    expect(find.text('Reading: 60%'), findsOneWidget);
+    expect(find.text('Practise more: Writing'), findsOneWidget);
+  });
+
+  testWidgets('role-play without a connected AI says so and never sends', (t) async {
+    final sc = (fakeLearnPack()['scenarios'] as List).first as Map<String, dynamic>;
+    await t.pumpWidget(_app(ScenarioChatPage(pack: Object(), scenario: sc), FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    expect(find.textContaining('AI practice partner is not connected yet'), findsOneWidget);
+    expect(find.textContaining('May I see your passport'), findsOneWidget);
+    final send = t.widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send_rounded));
+    expect(send.onPressed, isNull);
+  });
+
+  testWidgets('role-play with AI: reply + correction + free turns left', (t) async {
+    await t.pumpWidget(_app(const LanguagePackScreen(lang: 'en', title: 'English'), FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Speaking for life abroad'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('At the airport'));
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextField), 'I am here for working.');
+    await t.tap(find.byIcon(Icons.send_rounded));
+    await t.pumpAndSettle();
+    expect(find.text('How long will you stay?'), findsOneWidget);
+    expect(find.textContaining("Say 'for work'"), findsOneWidget);
+    expect(find.text('Free AI practice left today: 2'), findsOneWidget);
+  });
+
+  testWidgets('Bangla catalog: no ASCII digits', (t) async {
+    await t.pumpWidget(_app(const Scaffold(body: SingleChildScrollView(child: LanguageCatalogSection())),
+        FakeApi(lang: 'bn'), lang: 'bn'));
+    await t.pumpAndSettle();
+    final texts = t.widgetList<Text>(find.byType(Text)).map((w) => w.data ?? '').toList();
+    expect(texts.where((s) => _asciiDigit.hasMatch(s)), isEmpty);
   });
 
   testWidgets('pronunciation result: score, coloured words, honest estimate', (t) async {
@@ -135,12 +214,12 @@ void main() {
     final row = (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>;
     await t.pumpWidget(_app(IeltsReadingPractice(ctx: Object(), row: row), FakeApi(lang: 'en')));
     await t.pumpAndSettle();
-    await t.tap(find.text('True').first);
+    await t.tap(find.text('True (T)').first);
     await t.pump();
     await t.scrollUntilVisible(find.text('Check answers'), 200);
     await t.tap(find.text('Check answers'));
     await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.textContaining('Answer: False'), 200);
+    await t.scrollUntilVisible(find.textContaining('Answer: False (F)'), 200);
     expect(find.textContaining('Answer: False'), findsOneWidget);
     await t.scrollUntilVisible(find.text('1 of 2 correct'), 200);
     expect(find.text('1 of 2 correct'), findsOneWidget);
@@ -152,6 +231,10 @@ void main() {
       t.view.devicePixelRatio = 3;
       addTearDown(t.view.reset);
       await t.pumpWidget(_app(const IeltsScreen(), FakeApi(lang: lang), lang: lang, scale: 2, dark: true));
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(_app(const Scaffold(body: SingleChildScrollView(child: LanguageCatalogSection())),
+          FakeApi(lang: lang), lang: lang, scale: 2, dark: true));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
       final row = ((fakeIeltsContent()['writing'] as Map)['t2'] as List).first as Map<String, dynamic>;

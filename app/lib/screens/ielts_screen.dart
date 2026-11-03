@@ -272,14 +272,19 @@ class IeltsPronPractice extends StatefulWidget {
   final Object ctx; // _Ielts (Object so tests can build it via the hub)
   final Map<String, dynamic> row;
   final String? debugHeard; // gallery/tests: a finished attempt
-  const IeltsPronPractice({super.key, required this.ctx, required this.row, this.debugHeard});
+  /// Language packs: the speech locale of the language being learnt
+  /// (e.g. 'ko-KR'); null = English. [title] replaces the app-bar title.
+  final String? localeId;
+  final String? title;
+  const IeltsPronPractice(
+      {super.key, required this.ctx, required this.row, this.debugHeard, this.localeId, this.title});
   @override
   State<IeltsPronPractice> createState() => _IeltsPronPracticeState();
 }
 
 class _IeltsPronPracticeState extends State<IeltsPronPractice> {
   final _heard = TextEditingController();
-  late final VoiceDictation _voice = VoiceDictation(mode: 'en');
+  late final VoiceDictation _voice = VoiceDictation(mode: 'en', learnLocale: widget.localeId);
   AlignResult? _result;
 
   @override
@@ -326,7 +331,8 @@ class _IeltsPronPracticeState extends State<IeltsPronPractice> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final r = _result;
-    return _page(context, tr.ieltsPron, [
+    final tip = _loc(context, widget.row, 'tip_bn', 'tip_en');
+    return _page(context, widget.title ?? tr.ieltsPron, [
       Card(
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
@@ -335,8 +341,8 @@ class _IeltsPronPracticeState extends State<IeltsPronPractice> {
         ),
       ),
       const SizedBox(height: Gap.sm),
-      Text('${tr.ieltsTip}: ${_loc(context, widget.row, 'tip_bn', 'tip_en')}',
-          style: TextStyle(height: 1.4, color: scheme.onSurface)),
+      if (tip.isNotEmpty)
+        Text('${tr.ieltsTip}: $tip', style: TextStyle(height: 1.4, color: scheme.onSurface)),
       const SizedBox(height: Gap.lg),
       ListenableBuilder(
         listenable: _voice,
