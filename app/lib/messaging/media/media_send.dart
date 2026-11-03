@@ -322,7 +322,7 @@ Future<List<MediaJob>> pickPreviewAndQueuePhotos(BuildContext context, ApiClient
       final d = await pickPhoto(context, camera: true, maxEdge: kHdEdge, quality: kHdQuality);
       drafts = [if (d != null) d];
     } else {
-      final r = await pickMultiDrafts(limit: limit, videoMax: MediaLimits.video);
+      final r = await pickMultiDrafts(limit: limit, videoMax: kRawVideoPickMax);
       if (r == null) return const [];
       if (context.mounted) _multiNotes(context, r, limit);
       drafts = r.drafts;
@@ -334,6 +334,9 @@ Future<List<MediaJob>> pickPreviewAndQueuePhotos(BuildContext context, ApiClient
     if (context.mounted) showActionFailed(context, 'cm_pick', e);
     return const [];
   }
+  if (!context.mounted) return const [];
+  drafts = await _videosToRule(context, drafts);
+  if (!context.mounted) return const [];
   drafts = _withinCaps(context, drafts);
   if (drafts.isEmpty || !context.mounted) return const [];
   final choice = await Navigator.of(context).push<AlbumSendChoice>(MaterialPageRoute(
@@ -345,10 +348,12 @@ Future<List<MediaJob>> pickPreviewAndQueuePhotos(BuildContext context, ApiClient
       allowViewOnce: true,
       onAddMore: (left) async {
         try {
-          final r = await pickMultiDrafts(limit: left, videoMax: MediaLimits.video);
+          final r = await pickMultiDrafts(limit: left, videoMax: kRawVideoPickMax);
           if (r == null) return const [];
-          if (context.mounted) _multiNotes(context, r, limit);
-          return context.mounted ? _withinCaps(context, r.drafts) : r.drafts;
+          if (!context.mounted) return r.drafts;
+          _multiNotes(context, r, limit);
+          final ok = await _videosToRule(context, r.drafts);
+          return context.mounted ? _withinCaps(context, ok) : ok;
         } catch (e) {
           reportNonFatal('cm_add_more', e);
           return const [];
@@ -366,11 +371,37 @@ Future<List<MediaJob>> pickPreviewAndQueuePhotos(BuildContext context, ApiClient
   }
 }
 
+/// circlemedia + viewonce: every video in an album follows the owner's video
+/// rule exactly like a single video (longer than the limit -> trim screen;
+/// compressed on the phone to 720p under the size cap). A video the user
+/// does not trim is left out; photos pass through untouched.
+Future<List<MediaDraft>> _videosToRule(BuildContext context, List<MediaDraft> drafts) async {
+  final out = <MediaDraft>[];
+  for (final d in drafts) {
+    if (d.kind != 'video') {
+      out.add(d);
+      continue;
+    }
+    if (!context.mounted) {
+      _deleteQuietly(d.path);
+      continue;
+    }
+    try {
+      final v = await prepareVideoForSend(context, d);
+      if (v != null) out.add(v);
+    } catch (e) {
+      reportNonFatal('cm_album_video', e);
+      _deleteQuietly(d.path);
+    }
+  }
+  return out;
+}
+
 void _multiNotes(BuildContext context, MultiPickResult r, int limit) {
   final t = AppLocalizations.of(context);
   final lines = <String>[
     if (r.overLimit > 0) t.cmLimitNote('$limit'),
-    if (r.tooBig > 0) t.cmVideoTooBig('${r.tooBig}', '${MediaLimits.video ~/ (1024 * 1024)}'),
+    if (r.tooBig > 0) t.cmVideoTooBig('${r.tooBig}', '${kRawVideoPickMax ~/ (1024 * 1024)}'),
     if (r.failed > 0) t.cmSomeFailed('${r.failed}'),
   ];
   if (lines.isNotEmpty) _toast(context, notifLocalizeDigits(context, lines.join('\n')));
