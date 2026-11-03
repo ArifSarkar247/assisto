@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -194,7 +195,22 @@ class _ShopLinkCardState extends State<ShopLinkCard> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(t.bizaiShopLinkSub),
         const SizedBox(height: Gap.sm),
-        SelectableText('${d['url'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
+        // the link itself is not printed (strict Bangla digits): copy / share it
+        OutlinedButton.icon(
+          key: const ValueKey('bizai-copy-link'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: on
+              ? () async {
+                  await Clipboard.setData(ClipboardData(text: '${d['url'] ?? ''}'));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.bizaiLinkCopied)));
+                  }
+                }
+              : null,
+          icon: const Icon(Icons.copy_rounded),
+          label: Text(t.bizaiCopyLink),
+        ),
         const SizedBox(height: Gap.sm),
         FilledButton.icon(
           key: const ValueKey('bizai-share'),

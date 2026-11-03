@@ -179,7 +179,7 @@ void main() {
     final f = FakeBizai();
     await tester.pumpWidget(_app(SingleChildScrollView(child: ShopLinkCard(source: f))));
     await _settle(tester);
-    expect(find.text('https://lifeassisto.com/shop/12-ab34cd56'), findsOneWidget);
+    expect(find.byKey(const ValueKey('bizai-copy-link')), findsOneWidget);
     await tester.tap(find.text('Hold risky cash-on-delivery orders'));
     await _settle(tester);
     expect(f.link['cod_risk_guard'], isFalse);
