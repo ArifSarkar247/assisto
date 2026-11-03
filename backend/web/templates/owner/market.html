@@ -1,0 +1,33 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_market }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.mkt_intro }}</p>
+<div class="tiles">
+<a class="tile" href="?status=pending"><span>{{ T.mkt_pending }}</span><b>{{ stats.pending }}</b></a>
+<a class="tile" href="?status=approved"><span>{{ T.mkt_approved }}</span><b>{{ stats.approved }}</b></a>
+<div class="tile"><span>{{ T.mkt_open_needs }}</span><b>{{ stats.open_needs }}</b></div>
+<div class="tile"><span>{{ T.mkt_deals }}</span><b>{{ stats.deals }} / {{ stats.delivered }}</b></div>
+</div>
+<h3>{{ T.mkt_sellers }}</h3>
+<p class="small">{% for s in statuses %}<a href="?status={{ s }}" class="pill{% if st == s %} on{% endif %}">{{ s }}</a> {% endfor %}</p>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.mkt_seller }}</th><th>{{ T.mkt_area }}</th><th>{{ T.mkt_categories }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+{% for s in rows %}<tr><td>#{{ s.id }}</td>
+<td><b>{{ s.business.shop_name|default:"—" }}</b> · {{ s.user.name|default:"—" }} · <a href="/owner/users/{{ s.user_id }}">#{{ s.user_id }} ›</a><br><span class="mut small">{{ s.applied_at|date:"Y-m-d H:i" }}{% if s.rating_count %} · ★ {{ s.rating_sum }}/{{ s.rating_count }}{% endif %}</span></td>
+<td>{{ s.area_label }}</td><td>{{ s.cat_labels }}</td><td>{{ s.status }}{% if s.owner_note %}<br><span class="mut small">{{ s.owner_note }}</span>{% endif %}</td>
+<td><form method="post" action="/owner/market/sellers/{{ s.id }}/act" class="inline">{% include "owner/_csrf.html" %}<input name="note" placeholder="{{ T.note }}" maxlength="300">
+{% if s.status != 'approved' %}<button class="btn primary" name="decision" value="approved">{{ T.mkt_approve }}</button>{% endif %}
+{% if s.status == 'approved' %}<button class="btn ghost" name="decision" value="suspended">{{ T.mkt_suspend }}</button>{% endif %}
+{% if s.status == 'pending' %}<button class="btn ghost" name="decision" value="rejected">{{ T.mkt_reject }}</button>{% endif %}
+</form></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.mkt_no_sellers }}</p>{% endif %}
+<h3>{{ T.mkt_reports }}</h3>
+{% if reports %}
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.chr_what }}</th><th>{{ T.chr_reports }}</th><th>{{ T.air_reason }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+{% for r in reports %}<tr><td>#{{ r.id }}{% if r.severe %} <span class="pill spons">!</span>{% endif %}</td><td>{{ r.opened_at|date:"Y-m-d H:i" }}</td>
+<td><b>{{ r.target_kind }}</b> · {{ r.label }}</td><td>{{ r.report_count }}</td><td>{{ r.categories|join:", " }}</td><td>{{ r.content_status }}</td>
+<td><form method="post" action="/owner/market/reports/{{ r.id }}/act" class="inline">{% include "owner/_csrf.html" %}<input name="reason" placeholder="{{ T.note }}" maxlength="300"><button class="btn primary" name="action" value="remove">{{ T.chr_remove }}</button><button class="btn ghost" name="action" value="restore">{{ T.chr_restore }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.mkt_no_reports }}</p>{% endif %}
+{% endblock %}

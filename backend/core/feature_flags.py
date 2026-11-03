@@ -193,6 +193,11 @@ REGISTRY = (
     ('marketing', 'upcoming', 'Marketing automation', 'মার্কেটিং অটোমেশন', False, ()),
     ('retention', 'upcoming', 'Retention automation', 'রিটেনশন অটোমেশন', False, ()),
     ('booking', 'upcoming', 'Appointment booking bot', 'অ্যাপয়েন্টমেন্ট বুকিং বট', False, ()),
+    # amarket (owner master order 3 Nov, P3-E): Assisto Market v1 — buyers
+    # post a need, owner-approved Business sellers send sealed offers,
+    # rule-based ranking, group-buy, COD only, Dhaka only. Hidden until a
+    # real pilot (owner decisions: owner_actions/FEATURE_CARD_ASSISTO_MARKET_BN.md).
+    ('assisto_market', 'upcoming', 'Assisto Market (post a need, verified sellers offer)', 'Assisto Market (চাহিদা দিন, যাচাই করা বিক্রেতারা অফার দেন)', False, ('market',)),
     # The REAL Unseen World (owner 27 Oct): travel discovery — Bangladesh
     # divisions/districts/spots first, then countries. Not built yet; plan:
     # owner_actions/UNSEEN_WORLD_PLAN_BN.md. Hidden until all 9 DoD checks.

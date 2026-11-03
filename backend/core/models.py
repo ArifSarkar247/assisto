@@ -7980,3 +7980,130 @@ class CctvWatchBlock(models.Model):
         constraints = [models.UniqueConstraint(fields=["blocker", "blocked"],
                                                name="uniq_cctv_watch_block")]
 # ---- /cctvteam ----
+# ---- amarket ---- Assisto Market v1 (owner master order 3 Nov, P3-E; flag
+# `assisto_market`, default OFF). Reverse auction: a buyer posts a NEED, only
+# owner-APPROVED Business sellers send SEALED bids, the rule-based ranking
+# (core.market.rank_bids) explains the best offer in plain Bangla and never
+# hides the cheapest; the buyer accepts -> COD deal(s) + the seller's Business
+# Order + a My Circle chat. Group-buy: other buyers JOIN a need with their own
+# quantity. No payments, no fees. Dhaka areas only (core.market.DHAKA_AREAS).
+# Money in POISHA. Reports reuse ModerationReport/ModerationItem
+# (target_kind mkt_need / mkt_bid / mkt_seller).
+class MarketSeller(models.Model):
+    """Seller verification v1 = an existing BusinessProfile + a MANUAL Owner
+    Admin approve. No documents are collected (owner decision pending)."""
+    STATUSES = ("pending", "approved", "suspended", "rejected")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="market_seller")
+    business = models.ForeignKey("BusinessProfile", null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="+")
+    area = models.CharField(max_length=40, default="")
+    categories = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=12, default="pending")
+    owner_note = models.CharField(max_length=300, blank=True, default="")
+    rating_sum = models.IntegerField(default=0)
+    rating_count = models.IntegerField(default=0)
+    applied_at = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decided_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+
+    class Meta:
+        indexes = [models.Index(fields=["status"], name="mkt_seller_status")]
+
+
+class MarketNeed(models.Model):
+    STATUSES = ("open", "accepted", "closed", "cancelled")
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_needs")
+    category = models.CharField(max_length=24)
+    title = models.CharField(max_length=120)
+    description = models.TextField(blank=True, default="")
+    quantity = models.PositiveIntegerField(default=1)
+    unit = models.CharField(max_length=12, default="piece")
+    budget_min = models.BigIntegerField(null=True, blank=True)   # poisha, total
+    budget_max = models.BigIntegerField(null=True, blank=True)
+    show_budget = models.BooleanField(default=False)   # sellers see it only if ON
+    area = models.CharField(max_length=40)
+    deadline = models.DateTimeField()
+    group_open = models.BooleanField(default=False)    # others may join (group-buy)
+    status = models.CharField(max_length=12, default="open")
+    content_status = models.CharField(max_length=10, default="visible")
+    accepted_bid = models.ForeignKey("MarketBid", null=True, blank=True,
+                                     on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["status", "category"], name="mkt_need_status_cat"),
+                   models.Index(fields=["buyer", "created_at"], name="mkt_need_buyer_at")]
+
+
+class MarketJoin(models.Model):
+    """Group-buy: another buyer adds their own quantity to an open need."""
+    need = models.ForeignKey(MarketNeed, on_delete=models.CASCADE, related_name="joins")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_joins")
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["need", "user"],
+                                               name="market_join_once")]
+
+
+class MarketBid(models.Model):
+    """A SEALED offer: only the need's buyer (and the bidding seller) see it."""
+    STATUSES = ("active", "withdrawn", "accepted", "lost")
+    need = models.ForeignKey(MarketNeed, on_delete=models.CASCADE, related_name="bids")
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_bids")
+    unit_price = models.BigIntegerField()               # poisha per unit
+    delivery_hours = models.PositiveIntegerField(default=24)
+    notes = models.CharField(max_length=300, blank=True, default="")
+    status = models.CharField(max_length=12, default="active")
+    content_status = models.CharField(max_length=10, default="visible")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["unit_price"]
+        constraints = [models.UniqueConstraint(fields=["need", "seller"],
+                                               name="market_bid_once")]
+        indexes = [models.Index(fields=["seller", "created_at"], name="mkt_bid_seller_at")]
+
+
+class MarketDeal(models.Model):
+    """One accepted offer for ONE buyer (the poster, or a group-buy joiner).
+    Cash on delivery only; Assisto takes no money and no fee."""
+    STATUSES = ("confirmed", "delivered", "cancelled")
+    need = models.ForeignKey(MarketNeed, on_delete=models.CASCADE, related_name="deals")
+    bid = models.ForeignKey(MarketBid, on_delete=models.CASCADE, related_name="deals")
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_deals_bought")
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_deals_sold")
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.BigIntegerField()
+    total = models.BigIntegerField()                     # poisha
+    payment = models.CharField(max_length=8, default="cod")
+    fee = models.BigIntegerField(default=0)              # v1: always 0
+    status = models.CharField(max_length=12, default="confirmed")
+    order = models.ForeignKey("Order", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    rating = models.PositiveSmallIntegerField(null=True, blank=True)
+    cancelled_by = models.CharField(max_length=8, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["buyer", "created_at"], name="mkt_deal_buyer_at"),
+                   models.Index(fields=["seller", "created_at"], name="mkt_deal_seller_at")]
+
+
+class MarketBlock(models.Model):
+    """Either side blocks the other inside Market (needs/bids no longer meet)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="market_blocks")
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "blocked"],
+                                               name="market_block_once")]
+# ---- /amarket ----

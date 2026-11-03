@@ -499,7 +499,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | রিটেনশন অটোমেশন + দোকানের মেসেজ ইনবক্স | **৬৬** (moneybar; আগে ৬৪) | সুইচ বন্ধ; retention_run এখন লাইভ cron-এ চলে (২ Nov যাচাই) + ops_watch; SMS চাবি নেই | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | core.tests_retention, tests_rt2_rt_logging; RETENTION_AUTO_BN.md; SERVER_JOBS_100_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | CRM-এর সাথে কন্টাক্ট মেলানো (কন্টাক্টস মডিউল) | **৫৬** | RA-তে C (ফোনবুক); দুই ফোনে প্রমাণ | চালু (APK+Play) · দেখানো | RA 'Contacts on Assisto' = C | WhatsApp Business (লেবেল/নোট) · WhatsApp Business | গ্রাহকের এক-পাতার ইতিহাস নেই — খাতা, POS, AI-সেলস অর্ডার ও লিড তিন জায়গায় (BEST_IN_CLASS_BN.md CRM ফাঁক ১) |
 
-## ২০. আসছে (তৈরি হয়নি) — গড় ১৫.২
+## ২০. আসছে (তৈরি হয়নি) — গড় ১৯.২ (amarket ৩ Nov: "Assisto Market" নতুন সারি ৩৫ → ৫ সারি; আগে ১৫.২ / ৪ সারি)
 
 | ফিচার | স্কোর /১০০ | কী বাকি (concrete) | Play-তে এখন | প্রমাণ | সেরা বিকল্প (BEST ALTERNATIVE) | ফাঁক (GAPS) |
 |---|---|---|---|---|---|---|
@@ -507,6 +507,7 @@ journey100 যা করেছে: সার্ভার sweeper (প্রত�
 | রিমোট সাপোর্ট | **১৩** | শুধু নকশা (~২%) | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | FS: remote_support | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | মার্কেটিং অটোমেশন | **১৫** | ~১০% | সুইচ বন্ধ · সিদ্ধান্তে দেখানো, ১০০ হলে চালু | FS: marketing | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
 | Agent Mode | **১৪** | শুধু নকশা (AGENT_MODE_PLAN_BN.md) | কোডে লুকানো (দেখা যায় না) | AGENT_MODE_PLAN_BN.md | যাচাই বাকি (not yet benchmarked) | যাচাই বাকি (not yet benchmarked) |
+| Assisto Market (চাহিদা দিন → যাচাই করা বিক্রেতার গোপন অফার, একসাথে কেনা, COD, ঢাকা) | **৩৫** (নতুন, amarket ৩ Nov; আসল পাইলট না হওয়া পর্যন্ত ≤৫০) | v1 তৈরি: চাহিদা, মালিকের হাতে বিক্রেতা অনুমোদন, sealed অফার, খোলা ওজনে র‍্যাংকিং (সবচেয়ে কম দাম কখনো লুকানো নয়), একসাথে কেনা, গ্রহণে COD ডিল + Business অর্ডার + My Circle চ্যাট, রিপোর্ট/ব্লক, Owner Admin → Market। বাকি: আসল ঢাকা পাইলট (কোনো অনুমোদিত বিক্রেতা নেই), মালিকের ১০টি সিদ্ধান্ত (কাগজে যাচাই, ফি, বিরোধ, ডেলিভারি পার্টনার, নিষিদ্ধ তালিকা, আইনজীবী), দূরত্ব শুধু এলাকা-কেন্দ্রে | সুইচ `assisto_market` বন্ধ · টেস্টার তালিকায় দেখা যায় | core.tests_amarket, web.tests_amarket_owner, app/test/amarket_test.dart, শট amk_*; FEATURE_CARD_ASSISTO_MARKET_BN.md | Facebook গ্রুপ "কে দেবেন?" · Daraz/Chaldal (ক্যাটালগ, চাহিদা দেওয়া যায় না) · Alibaba RFQ/IndiaMART (B2B) | কোনো আসল বিক্রেতা/ক্রেতা নেই; দুই ফোনে প্রমাণ নেই; বিক্রেতার কাগজ-যাচাই ও বিরোধ নীতি নেই (মালিকের সিদ্ধান্ত) |
 
 ## ২১. Owner Admin (প্রতিটি পাতা) — গড় ৬৫.৫
 

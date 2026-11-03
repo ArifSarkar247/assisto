@@ -1,0 +1,481 @@
+{
+ "en": {
+  "amkTitle": "Assisto Market",
+  "amkTabNeeds": "My needs",
+  "amkTabGroup": "Buy together",
+  "amkTabSell": "Seller",
+  "amkTabDeals": "Deals",
+  "amkGuideTitle": "How Assisto Market works",
+  "amkGuide1": "Write what you need, how much, your Dhaka area and by when.",
+  "amkGuide2": "Only sellers the Assisto owner approved can send offers. Offers are sealed: no seller sees another's price, and your name and number stay hidden until you accept.",
+  "amkGuide3": "Assisto explains which offer is best and why: price 50%, delivery time 20%, seller rating 20%, distance 10%. The lowest price is always shown.",
+  "amkGuide4": "You pay the seller in cash when the goods arrive. Assisto never takes your money and charges no fee.",
+  "amkGuide5": "Buy together: neighbours, office or mess can join one need to raise the quantity — bigger orders usually get a lower price.",
+  "amkPostNeed": "Post a need",
+  "amkPostNeedSend": "Post the need",
+  "amkCodNote": "Cash on delivery only. No fee.",
+  "amkNeedsEmptyTitle": "Let sellers come to you",
+  "amkNeedsEmptyBenefit": "Post what you need once — verified Dhaka sellers send their best price, and Assisto tells you which offer is best.",
+  "amkNeedsEmptyHow": "Example: 25 kg rice, Mirpur, within 3 days.",
+  "amkGroupIntro": "Join a need near you and add your own quantity. Each person pays the seller in cash on delivery for their own part.",
+  "amkMyArea": "My area (nearest first)",
+  "amkGroupEmptyTitle": "No group-buy near you yet",
+  "amkGroupEmptyBenefit": "Start one: more people in one order means a stronger price.",
+  "amkGroupEmptyHow": "Turn on 'Others can join' when you post a need.",
+  "amkStartGroup": "Start a group-buy",
+  "amkSellNoBizTitle": "Sell on Assisto Market",
+  "amkSellBenefit": "Get ready buyers from Dhaka without paying for ads. Accepted orders go straight to your Business orders, cash on delivery.",
+  "amkOpenBusiness": "Turn on Business",
+  "amkSellNoBizHow": "First set up your shop in Business, then come back here and apply.",
+  "amkSellApplyTitle": "Apply to become a seller",
+  "amkSellApplyHow": "Pick your shop area and what you sell. The Assisto owner checks and approves sellers by hand.",
+  "amkApply": "Apply",
+  "amkApplyTitle": "Seller details",
+  "amkApplyNote": "Only Dhaka for now. No documents are needed yet; the owner approves by hand.",
+  "amkShopArea": "Shop area",
+  "amkWhatYouSell": "What do you sell?",
+  "amkApplied": "Saved. You will get a notification when it is approved.",
+  "amkSellPending": "Waiting for the owner's approval",
+  "amkSellSuspended": "Suspended — you can't send offers now",
+  "amkSellRejected": "Not approved",
+  "amkSellApproved": "Approved seller",
+  "amkSellerYou": "My shop",
+  "amkEditSeller": "Change area or categories",
+  "amkSellEmptyTitle": "No open needs in your categories right now",
+  "amkSellEmptyBenefit": "You get a notification when a buyer posts a new need. More categories = more buyers.",
+  "amkYourOffer": "Your offer",
+  "amkDealsEmptyTitle": "No deals yet",
+  "amkDealsEmptyBenefit": "When you accept an offer (or a buyer accepts yours) the deal shows here with a chat button.",
+  "amkDealsEmptyHow": "Pay only when the goods arrive.",
+  "amkCod": "Cash on delivery",
+  "amkChat": "Chat",
+  "amkGotIt": "I got it",
+  "amkDelivered": "Delivered",
+  "amkMarkedDelivered": "Marked as delivered.",
+  "amkRate": "Rate the seller",
+  "amkRateTitle": "How was the seller?",
+  "amkThanksRating": "Thanks — your rating helps other buyers.",
+  "amkCancelDeal": "Cancel deal",
+  "amkCancelDealTitle": "Cancel this deal?",
+  "amkCancelDealBody": "No money has moved, so nothing needs to be refunded. Please tell the other side in the chat.",
+  "amkKeep": "Keep it",
+  "amkReportBlock": "Report / block",
+  "amkReportTitle": "What is wrong?",
+  "amkRepScam": "Scam or fraud",
+  "amkRepSpam": "Spam or fake need",
+  "amkRepHarass": "Harassment or bad language",
+  "amkRepFake": "Pretending to be someone else",
+  "amkRepOther": "Something else",
+  "amkBlock": "Block this person in Market",
+  "amkBlockNote": "Your needs and their offers will no longer meet.",
+  "amkBlocked": "Blocked.",
+  "amkReported": "Thanks — the Assisto team will check it.",
+  "amkOffline": "No internet. Check the connection and try again.",
+  "amkError": "Something went wrong. Please try again.",
+  "amkRetry": "Try again",
+  "amkStOpen": "Open",
+  "amkStAccepted": "Offer accepted",
+  "amkStCancelled": "Cancelled",
+  "amkStDelivered": "Delivered",
+  "amkStConfirmed": "Confirmed",
+  "amkStClosed": "Closed",
+  "amkFormIntro": "Sellers see what you need, the quantity, your area and the deadline — never your name or number until you accept an offer.",
+  "amkCategory": "Category",
+  "amkWhat": "What do you need?",
+  "amkWhatHint": "e.g. Miniket rice",
+  "amkDetails": "Details (optional)",
+  "amkDetailsHint": "Brand, size, quality, delivery floor…",
+  "amkQuantity": "Quantity",
+  "amkUnit": "Unit",
+  "amkArea": "Area in Dhaka",
+  "amkDhakaOnly": "Dhaka only for now.",
+  "amkDeadline": "Needed within",
+  "amkBudgetOptional": "Budget for the whole order (optional, in taka)",
+  "amkBudgetMin": "From",
+  "amkBudgetMax": "Up to",
+  "amkShowBudget": "Show my budget to sellers",
+  "amkShowBudgetNote": "Off: only you see it, and offers above it are marked for you.",
+  "amkGroupSwitch": "Others can join (buy together)",
+  "amkGroupSwitchNote": "Neighbours can add their quantity. You choose the offer; each person gets their own cash-on-delivery deal.",
+  "amkFormMissing": "Pick a category and an area, write what you need (3+ letters) and a quantity.",
+  "amkPosted": "Posted. Sellers are told now.",
+  "amkNeedTitle": "Need",
+  "amkHiddenByReports": "Hidden after reports — the Assisto team is checking.",
+  "amkNoOffersTitle": "No offers yet",
+  "amkNoOffersBenefit": "Approved sellers in this category were told. You get a notification for each new offer.",
+  "amkNoOffersJoiner": "When offers come, you will see them here with the reasons.",
+  "amkNoOffersHow": "Tip: turn on 'Others can join' so a bigger order attracts better prices.",
+  "amkWhyTitle": "Which offer is best, and why",
+  "amkNoAiNeeded": "Calculated by fixed, open rules — the same for everyone.",
+  "amkSuggested": "Suggested",
+  "amkLowest": "Lowest price",
+  "amkFastest": "Fastest",
+  "amkOverBudget": "Above budget",
+  "amkTakeOffer": "Take this offer",
+  "amkAcceptYes": "Yes, take it",
+  "amkDealDone": "Deal confirmed — chat with the seller to set the delivery.",
+  "amkCancelNeed": "Close this need",
+  "amkCancelNeedTitle": "Close this need? Open offers will end.",
+  "amkNeedCancelled": "Closed.",
+  "amkYourOfferTitle": "Send your offer",
+  "amkYourOfferEdit": "Your offer",
+  "amkSealedNote": "Sealed: other sellers never see your price, and you don't see theirs.",
+  "amkDeliveryHours": "Delivery within (hours)",
+  "amkNotes": "Note to the buyer (optional)",
+  "amkNotesHint": "Brand, quality, delivery charge included…",
+  "amkSendOffer": "Send offer",
+  "amkUpdateOffer": "Update offer",
+  "amkOfferSent": "Offer sent.",
+  "amkWithdraw": "Withdraw offer",
+  "amkOfferWithdrawn": "Offer withdrawn.",
+  "amkBiddingClosed": "Offers are closed for this need.",
+  "amkJoinTitle": "Buy together",
+  "amkJoinedTitle": "You joined",
+  "amkJoinNote": "The person who posted chooses the offer. You then get your own cash-on-delivery deal and a chat with the seller. You can leave until an offer is taken.",
+  "amkJoin": "Join",
+  "amkUpdateQty": "Update my quantity",
+  "amkJoined": "Saved.",
+  "amkLeave": "Leave",
+  "amkLeft": "You left this group-buy.",
+  "amkInHours": "in {n} hours",
+  "@amkInHours": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkInDays": "in {n} days",
+  "@amkInDays": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkOffersN": "{n} offers",
+  "@amkOffersN": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkJoinersN": "{n} joined",
+  "@amkJoinersN": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkKmAway": "about {km} km away",
+  "@amkKmAway": {
+   "placeholders": {
+    "km": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkRating": "rating {avg}/5 ({n})",
+  "@amkRating": {
+   "placeholders": {
+    "avg": {
+     "type": "Object"
+    },
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkStarsN": "{n} stars",
+  "@amkStarsN": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkSeller": "Seller: {name}",
+  "@amkSeller": {
+   "placeholders": {
+    "name": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkBuyer": "Buyer: {name}",
+  "@amkBuyer": {
+   "placeholders": {
+    "name": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkAcceptTitle": "Take {name}'s offer?",
+  "@amkAcceptTitle": {
+   "placeholders": {
+    "name": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkAcceptBody": "Total {total}, cash on delivery. No fee. A chat with the seller opens so you can share the address. Other offers will end.",
+  "@amkAcceptBody": {
+   "placeholders": {
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkQtyLine": "Quantity: {n} {unit}",
+  "@amkQtyLine": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    },
+    "unit": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkTotalQty": "Together: {n} ({people} joined)",
+  "@amkTotalQty": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    },
+    "people": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkDeadlineAt": "Needed by {when}",
+  "@amkDeadlineAt": {
+   "placeholders": {
+    "when": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkBudgetLine": "Budget: {min} – {max}",
+  "@amkBudgetLine": {
+   "placeholders": {
+    "min": {
+     "type": "Object"
+    },
+    "max": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkPerUnit": "{price} per unit",
+  "@amkPerUnit": {
+   "placeholders": {
+    "price": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkScore": "Score {n}/100",
+  "@amkScore": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkSellerNote": "Seller's note: {note}",
+  "@amkSellerNote": {
+   "placeholders": {
+    "note": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkUnitPrice": "Price per {unit} (taka)",
+  "@amkUnitPrice": {
+   "placeholders": {
+    "unit": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkBidTotal": "Total for the whole order: {total}",
+  "@amkBidTotal": {
+   "placeholders": {
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "amkMyQty": "My quantity ({unit})",
+  "@amkMyQty": {
+   "placeholders": {
+    "unit": {
+     "type": "Object"
+    }
+   }
+  }
+ },
+ "bn": {
+  "amkTitle": "Assisto মার্কেট",
+  "amkTabNeeds": "আমার চাহিদা",
+  "amkTabGroup": "একসাথে কিনুন",
+  "amkTabSell": "বিক্রেতা",
+  "amkTabDeals": "ডিল",
+  "amkGuideTitle": "Assisto Market কীভাবে কাজ করে",
+  "amkGuide1": "কী লাগবে, কতটা, ঢাকার কোন এলাকায়, কবের মধ্যে — লিখে দিন।",
+  "amkGuide2": "শুধু Assisto-র মালিক যাঁদের অনুমোদন দিয়েছেন, সেই বিক্রেতারা অফার দিতে পারেন। অফার গোপন: এক বিক্রেতা অন্যের দাম দেখেন না, আর আপনি গ্রহণ না করা পর্যন্ত আপনার নাম-নম্বর লুকানো থাকে।",
+  "amkGuide3": "কোন অফার সবচেয়ে ভালো আর কেন, Assisto বুঝিয়ে বলে: দাম ৫০%, ডেলিভারির সময় ২০%, বিক্রেতার রেটিং ২০%, দূরত্ব ১০%। সবচেয়ে কম দাম সবসময় দেখানো হয়।",
+  "amkGuide4": "জিনিস হাতে পেয়ে বিক্রেতাকে নগদে টাকা দেবেন। Assisto কখনো আপনার টাকা নেয় না, কোনো ফি নেয় না।",
+  "amkGuide5": "একসাথে কিনুন: পাশের বাসা, অফিস বা মেস একটা চাহিদায় যোগ দিয়ে পরিমাণ বাড়াতে পারেন — বড় অর্ডারে সাধারণত দাম কম পাওয়া যায়।",
+  "amkPostNeed": "চাহিদা দিন",
+  "amkPostNeedSend": "চাহিদা পোস্ট করুন",
+  "amkCodNote": "শুধু ক্যাশ অন ডেলিভারি। কোনো ফি নেই।",
+  "amkNeedsEmptyTitle": "বিক্রেতারা আপনার কাছে আসুক",
+  "amkNeedsEmptyBenefit": "একবার লিখুন কী লাগবে — ঢাকার যাচাই করা বিক্রেতারা সেরা দাম পাঠাবেন, আর Assisto বলে দেবে কোন অফার সবচেয়ে ভালো।",
+  "amkNeedsEmptyHow": "যেমন: ২৫ কেজি চাল, মিরপুর, ৩ দিনের মধ্যে।",
+  "amkGroupIntro": "আপনার কাছের একটা চাহিদায় যোগ দিয়ে নিজের পরিমাণ যোগ করুন। প্রত্যেকে নিজের অংশের টাকা ডেলিভারির সময় বিক্রেতাকে নগদে দেন।",
+  "amkMyArea": "আমার এলাকা (কাছেরগুলো আগে)",
+  "amkGroupEmptyTitle": "এখনো কাছাকাছি কোনো একসাথে কেনা নেই",
+  "amkGroupEmptyBenefit": "নিজেই শুরু করুন: এক অর্ডারে বেশি মানুষ মানে দাম কমানোর জোর বেশি।",
+  "amkGroupEmptyHow": "চাহিদা দেওয়ার সময় 'অন্যরাও যোগ দিতে পারবেন' চালু করুন।",
+  "amkStartGroup": "একসাথে কেনা শুরু করুন",
+  "amkSellNoBizTitle": "Assisto Market-এ বিক্রি করুন",
+  "amkSellBenefit": "বিজ্ঞাপনের খরচ ছাড়াই ঢাকার তৈরি ক্রেতা পান। গ্রহণ হওয়া অর্ডার সরাসরি আপনার Business-এর অর্ডারে যায়, ক্যাশ অন ডেলিভারি।",
+  "amkOpenBusiness": "Business চালু করুন",
+  "amkSellNoBizHow": "আগে Business-এ দোকান সাজান, তারপর এখানে ফিরে আবেদন করুন।",
+  "amkSellApplyTitle": "বিক্রেতা হতে আবেদন করুন",
+  "amkSellApplyHow": "দোকানের এলাকা আর কী বিক্রি করেন বাছুন। Assisto-র মালিক নিজে দেখে অনুমোদন দেন।",
+  "amkApply": "আবেদন করুন",
+  "amkApplyTitle": "বিক্রেতার তথ্য",
+  "amkApplyNote": "এখন শুধু ঢাকা। এখনো কোনো কাগজ লাগে না; মালিক নিজে অনুমোদন দেন।",
+  "amkShopArea": "দোকানের এলাকা",
+  "amkWhatYouSell": "কী বিক্রি করেন?",
+  "amkApplied": "সেভ হয়েছে। অনুমোদন হলে নোটিফিকেশন পাবেন।",
+  "amkSellPending": "মালিকের অনুমোদনের অপেক্ষায়",
+  "amkSellSuspended": "স্থগিত — এখন অফার দিতে পারবেন না",
+  "amkSellRejected": "অনুমোদন হয়নি",
+  "amkSellApproved": "অনুমোদিত বিক্রেতা",
+  "amkSellerYou": "আমার দোকান",
+  "amkEditSeller": "এলাকা বা ক্যাটাগরি বদলান",
+  "amkSellEmptyTitle": "এখন আপনার ক্যাটাগরিতে কোনো খোলা চাহিদা নেই",
+  "amkSellEmptyBenefit": "ক্রেতা নতুন চাহিদা দিলে নোটিফিকেশন পাবেন। বেশি ক্যাটাগরি = বেশি ক্রেতা।",
+  "amkYourOffer": "আপনার অফার",
+  "amkDealsEmptyTitle": "এখনো কোনো ডিল নেই",
+  "amkDealsEmptyBenefit": "আপনি কোনো অফার গ্রহণ করলে (বা ক্রেতা আপনার অফার নিলে) ডিলটা এখানে চ্যাট বোতামসহ দেখাবে।",
+  "amkDealsEmptyHow": "জিনিস হাতে পেলে তবেই টাকা দিন।",
+  "amkCod": "ক্যাশ অন ডেলিভারি",
+  "amkChat": "চ্যাট",
+  "amkGotIt": "পেয়েছি",
+  "amkDelivered": "ডেলিভারি দিয়েছি",
+  "amkMarkedDelivered": "ডেলিভার হয়েছে বলে চিহ্নিত।",
+  "amkRate": "বিক্রেতাকে রেটিং দিন",
+  "amkRateTitle": "বিক্রেতা কেমন ছিলেন?",
+  "amkThanksRating": "ধন্যবাদ — আপনার রেটিং অন্য ক্রেতাদের সাহায্য করে।",
+  "amkCancelDeal": "ডিল বাতিল",
+  "amkCancelDealTitle": "এই ডিল বাতিল করবেন?",
+  "amkCancelDealBody": "কোনো টাকা লেনদেন হয়নি, তাই ফেরতের কিছু নেই। চ্যাটে অন্য পক্ষকে জানিয়ে দিন।",
+  "amkKeep": "রেখে দিন",
+  "amkReportBlock": "রিপোর্ট / ব্লক",
+  "amkReportTitle": "কী সমস্যা?",
+  "amkRepScam": "প্রতারণা বা জালিয়াতি",
+  "amkRepSpam": "স্প্যাম বা ভুয়া চাহিদা",
+  "amkRepHarass": "হয়রানি বা খারাপ ভাষা",
+  "amkRepFake": "অন্য কেউ সেজে আছে",
+  "amkRepOther": "অন্য কিছু",
+  "amkBlock": "Market-এ এই মানুষটিকে ব্লক করুন",
+  "amkBlockNote": "আপনার চাহিদা আর তাঁর অফার আর কখনো মিলবে না।",
+  "amkBlocked": "ব্লক করা হয়েছে।",
+  "amkReported": "ধন্যবাদ — Assisto টিম দেখবে।",
+  "amkOffline": "ইন্টারনেট নেই। সংযোগ দেখে আবার চেষ্টা করুন।",
+  "amkError": "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+  "amkRetry": "আবার চেষ্টা করুন",
+  "amkStOpen": "খোলা",
+  "amkStAccepted": "অফার গ্রহণ হয়েছে",
+  "amkStCancelled": "বাতিল",
+  "amkStDelivered": "ডেলিভার হয়েছে",
+  "amkStConfirmed": "নিশ্চিত",
+  "amkStClosed": "বন্ধ",
+  "amkFormIntro": "বিক্রেতারা দেখবেন কী লাগবে, পরিমাণ, এলাকা আর শেষ সময় — আপনি অফার গ্রহণ না করা পর্যন্ত আপনার নাম-নম্বর কখনো নয়।",
+  "amkCategory": "ক্যাটাগরি",
+  "amkWhat": "কী লাগবে?",
+  "amkWhatHint": "যেমন: মিনিকেট চাল",
+  "amkDetails": "বিস্তারিত (ইচ্ছা হলে)",
+  "amkDetailsHint": "ব্র্যান্ড, সাইজ, মান, কোন তলায় দিতে হবে…",
+  "amkQuantity": "পরিমাণ",
+  "amkUnit": "একক",
+  "amkArea": "ঢাকার এলাকা",
+  "amkDhakaOnly": "এখন শুধু ঢাকা।",
+  "amkDeadline": "কতদিনের মধ্যে লাগবে",
+  "amkBudgetOptional": "পুরো অর্ডারের বাজেট (ইচ্ছা হলে, টাকায়)",
+  "amkBudgetMin": "থেকে",
+  "amkBudgetMax": "পর্যন্ত",
+  "amkShowBudget": "বিক্রেতাদের বাজেট দেখান",
+  "amkShowBudgetNote": "বন্ধ থাকলে শুধু আপনি দেখবেন, আর বাজেটের বেশি অফার আপনার জন্য চিহ্নিত হবে।",
+  "amkGroupSwitch": "অন্যরাও যোগ দিতে পারবেন (একসাথে কেনা)",
+  "amkGroupSwitchNote": "প্রতিবেশীরা নিজের পরিমাণ যোগ করতে পারবেন। অফার আপনি বাছবেন; প্রত্যেকে নিজের আলাদা ক্যাশ-অন-ডেলিভারি ডিল পাবেন।",
+  "amkFormMissing": "ক্যাটাগরি আর এলাকা বাছুন, কী লাগবে লিখুন (৩ অক্ষরের বেশি) আর পরিমাণ দিন।",
+  "amkPosted": "পোস্ট হয়েছে। বিক্রেতাদের এখনই জানানো হচ্ছে।",
+  "amkNeedTitle": "চাহিদা",
+  "amkHiddenByReports": "রিপোর্টের পরে লুকানো — Assisto টিম দেখছে।",
+  "amkNoOffersTitle": "এখনো কোনো অফার আসেনি",
+  "amkNoOffersBenefit": "এই ক্যাটাগরির অনুমোদিত বিক্রেতাদের জানানো হয়েছে। প্রতিটি নতুন অফারে নোটিফিকেশন পাবেন।",
+  "amkNoOffersJoiner": "অফার এলে এখানে কারণসহ দেখতে পাবেন।",
+  "amkNoOffersHow": "টিপ: 'অন্যরাও যোগ দিতে পারবেন' চালু রাখলে বড় অর্ডারে ভালো দাম আসে।",
+  "amkWhyTitle": "কোন অফার সবচেয়ে ভালো, আর কেন",
+  "amkNoAiNeeded": "নির্দিষ্ট, খোলা নিয়মে হিসাব — সবার জন্য একই।",
+  "amkSuggested": "সুপারিশ",
+  "amkLowest": "সবচেয়ে কম দাম",
+  "amkFastest": "সবচেয়ে দ্রুত",
+  "amkOverBudget": "বাজেটের বেশি",
+  "amkTakeOffer": "এই অফার নিন",
+  "amkAcceptYes": "হ্যাঁ, নেব",
+  "amkDealDone": "ডিল নিশ্চিত — ডেলিভারি ঠিক করতে বিক্রেতার সাথে চ্যাট করুন।",
+  "amkCancelNeed": "চাহিদাটি বন্ধ করুন",
+  "amkCancelNeedTitle": "চাহিদাটি বন্ধ করবেন? খোলা অফারগুলো শেষ হয়ে যাবে।",
+  "amkNeedCancelled": "বন্ধ করা হয়েছে।",
+  "amkYourOfferTitle": "আপনার অফার দিন",
+  "amkYourOfferEdit": "আপনার অফার",
+  "amkSealedNote": "গোপন: অন্য বিক্রেতারা আপনার দাম কখনো দেখেন না, আপনিও তাঁদেরটা দেখেন না।",
+  "amkDeliveryHours": "কত ঘণ্টার মধ্যে ডেলিভারি",
+  "amkNotes": "ক্রেতার জন্য নোট (ইচ্ছা হলে)",
+  "amkNotesHint": "ব্র্যান্ড, মান, ডেলিভারি চার্জ সহ কি না…",
+  "amkSendOffer": "অফার পাঠান",
+  "amkUpdateOffer": "অফার বদলান",
+  "amkOfferSent": "অফার পাঠানো হয়েছে।",
+  "amkWithdraw": "অফার তুলে নিন",
+  "amkOfferWithdrawn": "অফার তুলে নেওয়া হয়েছে।",
+  "amkBiddingClosed": "এই চাহিদায় অফার দেওয়া বন্ধ।",
+  "amkJoinTitle": "একসাথে কিনুন",
+  "amkJoinedTitle": "আপনি যোগ দিয়েছেন",
+  "amkJoinNote": "যিনি পোস্ট করেছেন তিনি অফার বাছবেন। তারপর আপনি নিজের ক্যাশ-অন-ডেলিভারি ডিল আর বিক্রেতার সাথে চ্যাট পাবেন। অফার নেওয়ার আগ পর্যন্ত বের হয়ে যেতে পারবেন।",
+  "amkJoin": "যোগ দিন",
+  "amkUpdateQty": "আমার পরিমাণ বদলান",
+  "amkJoined": "সেভ হয়েছে।",
+  "amkLeave": "বের হয়ে যান",
+  "amkLeft": "আপনি এই একসাথে কেনা থেকে বের হয়েছেন।",
+  "amkInHours": "{n} ঘণ্টায়",
+  "amkInDays": "{n} দিনে",
+  "amkOffersN": "{n}টি অফার",
+  "amkJoinersN": "{n} জন যোগ দিয়েছেন",
+  "amkKmAway": "আনুমানিক {km} কিমি দূরে",
+  "amkRating": "রেটিং {avg}/৫ ({n})",
+  "amkStarsN": "{n} তারা",
+  "amkSeller": "বিক্রেতা: {name}",
+  "amkBuyer": "ক্রেতা: {name}",
+  "amkAcceptTitle": "{name}-এর অফার নেবেন?",
+  "amkAcceptBody": "মোট {total}, ক্যাশ অন ডেলিভারি। কোনো ফি নেই। ঠিকানা জানাতে বিক্রেতার সাথে চ্যাট খুলবে। অন্য অফারগুলো শেষ হয়ে যাবে।",
+  "amkQtyLine": "পরিমাণ: {n} {unit}",
+  "amkTotalQty": "সবাই মিলে: {n} ({people} জন যোগ দিয়েছেন)",
+  "amkDeadlineAt": "লাগবে {when}-এর মধ্যে",
+  "amkBudgetLine": "বাজেট: {min} – {max}",
+  "amkPerUnit": "প্রতি একক {price}",
+  "amkScore": "স্কোর {n}/১০০",
+  "amkSellerNote": "বিক্রেতার নোট: {note}",
+  "amkUnitPrice": "প্রতি {unit} দাম (টাকা)",
+  "amkBidTotal": "পুরো অর্ডারের মোট: {total}",
+  "amkMyQty": "আমার পরিমাণ ({unit})"
+ }
+}

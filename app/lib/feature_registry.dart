@@ -131,6 +131,8 @@ const Map<String, bool> kFeatureDefaults = {
   'marketing': false,
   'retention': false,
   'booking': false,
+  // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
+  'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
   'unseen_world': false,
   'home_v2': true,
@@ -242,6 +244,7 @@ const Map<String, String> kRouteFeature = {
   'business_plans': 'business',
   'crm': 'crm',
   'booking': 'booking_bot',
+  'market': 'assisto_market',
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
   'acct': 'accounting_v2', // acctui

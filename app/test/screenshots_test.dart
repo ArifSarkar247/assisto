@@ -147,6 +147,9 @@ import 'package:assisto/screens/trust_page_screen.dart';
 import 'package:assisto/screens/prepaid_meter_screen.dart';
 import 'package:assisto/screens/qurbani_screen.dart';
 import 'package:assisto/screens/probashi_screen.dart';
+import 'package:assisto/screens/market/market_screen.dart'; // amarket
+import 'package:assisto/screens/market/market_need_screen.dart'; // amarket
+import 'market_fake.dart'; // amarket
 import 'package:assisto/screens/student_corner_screen.dart';
 import 'package:assisto/screens/wedding_events_screen.dart';
 import 'package:assisto/screens/task_manager_screen.dart';
@@ -578,6 +581,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'meter': (build: (_) => const PrepaidMeterScreen(), mode: FakeMode.data, full: true),
     'qurbani': (build: (_) => const QurbaniScreen(), mode: FakeMode.data, full: true),
     'probashi': (build: (_) => const ProbashiScreen(), mode: FakeMode.data, full: true),
+    // amarket (flag assisto_market): Assisto Market v1 with a fake server.
+    'amk_needs': (build: (_) => MarketScreen(source: FakeMarketSource()), mode: FakeMode.data, full: true),
+    'amk_needs_empty': (build: (_) => MarketScreen(source: FakeMarketSource(empty: true)), mode: FakeMode.data, full: true),
+    'amk_group': (build: (_) => MarketScreen(source: FakeMarketSource(), initialTab: 1), mode: FakeMode.data, full: true),
+    'amk_sell_apply': (build: (_) => MarketScreen(source: FakeMarketSource(sellerStatus: null), initialTab: 2), mode: FakeMode.data, full: true),
+    'amk_sell_feed': (build: (_) => MarketScreen(source: FakeMarketSource(), initialTab: 2), mode: FakeMode.data, full: true),
+    'amk_deals': (build: (_) => MarketScreen(source: FakeMarketSource(), initialTab: 3), mode: FakeMode.data, full: true),
+    'amk_offers': (build: (_) => MarketNeedScreen(source: FakeMarketSource(), needId: 7), mode: FakeMode.data, full: true),
+    'amk_bid': (build: (_) => MarketNeedScreen(source: FakeMarketSource(), needId: 9), mode: FakeMode.data, full: true),
     'student': (build: (_) => const StudentCornerScreen(), mode: FakeMode.data, full: true),
     'wedding': (build: (_) => const WeddingEventsScreen(), mode: FakeMode.data, full: true),
     'task_mgr': (build: (_) => const TaskManagerScreen(), mode: FakeMode.data, full: true),

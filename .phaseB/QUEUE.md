@@ -1,450 +1,104 @@
-# ▶ OWNER BACKLOG ORDER (2 Nov) — WORK STRICTLY IN THIS ORDER
-Rules for every item: Bangla feature card first (purpose, what exists, what is missing and why, how it helps people, bugs, best competitor) → build to beat that competitor with real data + proof → never ship half done → new things behind a flag until proven → existing features never hidden to avoid work → 40% profit rule → server-load rule (CI only; no new agents when load is high). Daily Bangla progress in STATUS with queue position + estimated hours. Hours = agent wall-clock estimates.
+# Assisto work queue — rewritten 3 Nov 04:00 BD (short; older history is in git: `git log -p .phaseB/QUEUE.md`)
+Rules for every item: Bangla feature card first (owner_actions/FEATURE_CARD_<X>_BN.md) -> competitor teardown -> build with real data + proof -> board row (owner_actions/FEATURE_100_BOARD_BN.md) reaches 100 only with written proof -> new things behind a flag -> 40% profit rule -> CI only (no local tests/builds) -> token rule (grep, never whole files) -> <=2-4 parallel agents. Home frozen except explicit owner order. Never deploy / push main / touch live DB, flags, money, Play, owner_private from agents.
+Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE" never means 100 on the board; see the board for the honest score. Honest per-item table for Part 2/3: owner_actions/PART2_PART3_TABLE_BN.md.
 
-## 0) ALWAYS FIRST — owner phone-test bugs + launch blockers
-- Owner decisions 2 Nov: guardian +45 min on consent screen, stop at once; saved places ≠ anti-theft safe places (Home only by default) — agent/jdec, RUNNING.
-- 8 Nov launch: switch list + entry-point leaks + AI-off honesty + Play production checklist — agent/launch, RUNNING.
-- Any owner phone-test bug report jumps here.
+## MASTER ORDER 3 Nov 04:00 — owner_actions/OWNER_MASTER_ORDER_3NOV_0400.md (replaces unsent messages)
+- P1 Finish CCTV completely (auto-arm, daily summary, visitor log, elder no-movement, shop times, watchman, footfall, guard mode, SOS->home camera, time-lapse, multi-site grid, health report, roles, share link, neighbourhood watch, Play Billing plans, Hikvision/Dahua path) — IN PROGRESS (audit: 8 exist / 23 partial / 38 missing, owner_actions/CCTV_AUDIT_3NOV_BN.md)
+- P2 Website hero + fixes (owner_actions/OWNER_WEBSITE_ORDER_3NOV.md) — IN PROGRESS (v3 live 3 Nov 03:07; hero change pending)
+- P2 Owner fixes 02:55 (owner_actions/OWNER_FIXES_3NOV_0255.md): single blood donor, train banner ad, home + Discover — IN PROGRESS
+- P2 Floating chat bubbles FINAL (owner_actions/OWNER_BUBBLES_ORDER_3NOV.md) — IN PROGRESS (first version in b286; board 58)
+- P2 Safe Journey final (owner_actions/OWNER_SAFE_JOURNEY_ORDER_3NOV.md) — IN PROGRESS (board rows 75-89, no owner real-phone proof)
+- P2 Play listing pack (owner_actions/OWNER_PLAY_LISTING_ORDER_3NOV.md) — IN PROGRESS (same headline as website)
+- P3-A Rewrite this queue — DONE (this file)
+- P3-B Flag prep (read-only live cron check + ONE sudo command, train schedule path, agent_core 10% rollout, Data safety in Bangla) — IN PROGRESS (agent flagprep; live crons checked 3 Nov 04:00: ops_cron_file --diff = 0 missing, ops_watch bad=0 → no sudo command needed)
+- P3-C Business automation real-life ready (crmauto, retention_auto, AI Sales Assistant, agent_core; opt-out, daily caps, SMS cost; Meta App Review steps) — IN PROGRESS (crmauto merged b280, board CRM 69.5; Meta review = owner)
+- P3-D Marketing engine v1 behind a switch — NOT STARTED (no code)
+- P3-E Assisto Market (reverse auction, group-buy, COD, Dhaka pilot) — NOT STARTED (no code)
+- P3-F Honest Bangla table for every Part 2/3 item — DONE (owner_actions/PART2_PART3_TABLE_BN.md)
+- MORNING: top of STATUS one short Bangla summary — WAITING (written at morning)
 
-## 0.5) OWNER PRIORITY 2 Nov 14:20 — CCTV, Vehicle tracking, Safe Journey (+ guardian journey + destination alarm) to 100 before launch, right after phone-test bugs
-- agent/cctv100, agent/veh100b, agent/journey100b RUNNING (gap tables *_GAP_TO_100_BN.md first, then close code gaps); destination alarm in agent/train. Never 100 without real-device proof.
+## Orders since 2 Nov 18:00 BD (one line each)
+- 2 Nov 18:00 daily 21:00 BD feature report + usage forecast — DONE (STATUS)
+- 2 Nov 19:00 My Circle notifications lost: fix + chat bubbles — DONE b286 (owner 4-state test pending) — owner_actions/FEATURE_CARD_MY_CIRCLE_BN.md
+- 2 Nov video call PiP like WhatsApp — DONE b287 (Realme real-phone proof still owner) — FEATURE_CARD_CALLS_BN.md
+- 2 Nov invoices thermal 58/80 + A4, 9 templates, VAT/Mushak — DONE b287 (board 68) — FEATURE_CARD_INVOICES_BN.md
+- 2 Nov business accounting: core + UI behind accounting_v2 OFF — DONE code (b279/b284), board 62, flag OFF, owner flips — FEATURE_CARD_ACCOUNTING_BN.md
+- 2 Nov channels + communities — DONE b288 (board 62) — FEATURE_CARD_MY_CIRCLE_BN.md
+- 2 Nov ledger2 (VAT rates, year end, supplier BIN, payment method) — DONE b288
+- 2 Nov Play audit 2 (FGS declaration, data safety all features ON, UGC, App Links) — DONE docs b288; owner pastes into Play Console
+- 2 Nov flag-flip readiness table (11 owner-off flags) — DONE (flipready); owner flips
+- 2 Nov launch sweep (Bangla digits, English leaks, overflow, 48dp) — DONE b288
+- 2 Nov bizops Business AI morning card (agent_core switch OFF) — DONE b287 — FEATURE_CARD_BIZ_OPS_AGENT_BN.md
+- 3 Nov 00:45 CCTV FINAL order (owner_actions/OWNER_CCTV_ORDER_3NOV.md): audit table — DONE; phone-as-camera (cctvphone) — DONE b290 (board 55, no 2-phone proof); smart alert types (cctvalerts) — DONE b290 (board 55, no real camera yet); rest — IN PROGRESS (see P1)
+- 3 Nov CCTV devices + cost research (Hikvision/Dahua official API, worst-case cost; relay limit decision) — DONE research; WAITING FOR OWNER yes/no on 0.3 GB relay limit and object storage (R2/S3) — owner_actions/CCTV_DEVICES_COST_BN.md
+- 3 Nov 01:20 Website order v2 (sticky header, mobile menu, chips, Install now, Play badges, cache) — DONE, live 3 Nov 03:07 (board 70) — OWNER_WEBSITE_ORDER_3NOV.md
+- 3 Nov website APK signing cert differs from Play — WAITING FOR OWNER "yes" (use Play-signed universal APK); also paste Play App Signing SHA-256 in Owner Admin -> Integrations
+- 3 Nov 01:50 Bubbles FINAL (auto-on, many bubbles, during calls, per-chat off) — IN PROGRESS — OWNER_BUBBLES_ORDER_3NOV.md
+- 3 Nov 02:00 Play listing pack — IN PROGRESS — OWNER_PLAY_LISTING_ORDER_3NOV.md
+- 3 Nov 02:25 Safe Journey final — IN PROGRESS — OWNER_SAFE_JOURNEY_ORDER_3NOV.md
+- 3 Nov 02:55 owner fixes (blood single screen, train banner, home/Discover) — IN PROGRESS — OWNER_FIXES_3NOV_0255.md
+- 3 Nov 03:30 website hero + fixes; Play pack uses the same headline — IN PROGRESS
+- 3 Nov 04:00 master order — see top
+- Personal Secretary (PS: Today brief, circle people, pick-up sheet) — DONE b290 (board 58; Play notification-listener finding in card) — FEATURE_CARD_PERSONAL_SECRETARY_BN.md
+- 3 Nov camera disclosure before phone camera; contrast fix — DONE b290
+- Build 290 integration (pssec, cctvphone, cctvalerts, sitev3) — release notes committed; server deploy + Play upload by integrator
 
-## 0.6) OWNER PRIORITY 2 Nov 17:30 — BUSINESS ACCOUNTING (board ~35) right after 0.5
-- agent/ledger-acct (core: double entry, BD chart of accounts, cash/bank/bKash/Nagad, auto-posting from POS/khata/expenses/purchases/invoices, stock value, TB/P&L/BS/cash flow, VAT + Mushak-6.3, period close, audit) + agent/acctui (simple Bangla screens, opening balances, reports, Excel/PDF export). Flag accounting_v2 OFF until proven. Beat Tally / Hishabee / Khatabook / TallyKhata for a BD shop.
+## OWNER BACKLOG ORDER 2 Nov (real state)
+### 0) Always first: owner phone-test bugs + launch blockers
+- Guardian +45 min consent, saved places != anti-theft safe places (agent/jdec) — DONE (merged before b280)
+- 8 Nov launch: switch list, entry-point leaks, AI-off honesty, Play production checklist (agent/launch, playaudit2, flipready) — DONE docs/tests; owner flips switches + Play steps — WAITING FOR OWNER
+- Any owner phone-test bug report jumps here — standing
+### 0.5 CCTV / Vehicle / Safe Journey to 100 (cctv100, veh100b, journey100b)
+- CCTV: see P1 (board 10 rows avg 61.1) — IN PROGRESS
+- Vehicle tracking (board 9 rows avg 57.1; live map 43, car-mode 44) — IN PROGRESS, no real GPS device proof
+- Safe Journey (journey100b, journeymode) — DONE code, board 75-89, needs owner real-phone proof; destination alarm in train agent
+### 1) Owner first priority
+1. A1 My Circle links/preview/safe-link, Family/Others, many-to-many guardians (circlea, finish1) — DONE (board 63-70)
+2. A2 Missing person alert + found-share (missing) — DONE code (board 55/50), no 2-phone proof
+3. B Blood donor panel + urgent requests (blood, finish1) — DONE code (board 62); 3 Nov 02:55 order = remove the old simple screen — IN PROGRESS
+4. C Train tracker + chat + destination alarm (train, journeymode) — DONE code (card FEATURE_CARD_TRAIN_TRACKER_BN.md); banner ads + 16318 SMS/schedule check — IN PROGRESS
+### 2) PART 1 before launch
+5a Intruder selfie / SIM change / uninstall alert (theftalerts) — DONE code (board 71); Play-policy note in card; flash/reset wipes app (honest)
+5b Child emergency audio (kidaudio) — DONE code, flag OFF; WATCH side WAITING FOR OWNER decision (silent MONITOR blocked by our guard)
+5c Mini 4G GPS chip on vehicle tracker (chip) — DONE code b284 (board 55); needs real chip proof
+5d "Where to buy" asalifymart.com link on CCTV/vehicle/kids/chip pages — DONE with chipbuy (link only)
+6e Accounts onboarding personal/business/both (acctmode) — DONE (board +1 row)
+6f Listed-company accounting — DONE code flag OFF, board 62 (ledger-acct, acctui, ledger2)
+6g Invoices — DONE (see above)
+6h CRM most automated (crmauto) — DONE code (board CRM 69.5; CI 41439870415 green)
+6i AI sales agent chats + Facebook/Instagram comments (salesbar, sales2) — chats DONE code (board 55-72); FB/IG comments WAITING FOR OWNER (Meta App Review)
 
-## 1) OWNER FIRST PRIORITY (2 Nov)
-1. A1 My Circle: clickable links + preview + safe-link check; Family/Others everywhere + chips/search; many-to-many guardianship — agent/circlea, RUNNING (~8 h)
-2. A2 Missing person alert ("mun alert") + D found-share (reusable success_share) — agent/missing, RUNNING (~8 h)
-3. B Blood donor panel + urgent requests + D blood-found share — agent/blood, NEXT (~8 h)
-4. C Train tracker (crowdsourced, timetable estimate, 16318 SMS) + train chat + destination alarm — agent/train, NEXT (~12 h)
+## PART 2 (owner 2 Nov) — real state; per-item honest table in owner_actions/PART2_PART3_TABLE_BN.md
+- 2.1 Rename PA Secretary -> Personal Secretary + PS for everyone — rename DONE b275; PS Today brief DONE b290 (58); WhatsApp notification reading NOT built (Play policy)
+- 2.2 CV Builder professional — PARTIAL (board 65); "ads line" question WAITING FOR OWNER
+- 2.3 Job Hunter legal sources — PARTIAL (board 56; no real job source feed)
+- 2.4 Mock interview with voice + scoring — PARTIAL (board 52)
+- 2.5 Task manager (subtasks, shared, calendar, voice) — PARTIAL (board 62)
+- 2.6 Cost and time estimator real prices — PARTIAL (screen+engine exist; no board row)
+- 2.7 Quick tools — PARTIAL (screen+engine exist; no board row)
+- 2.8 Language Partner (5 languages, IELTS, pronunciation scoring) — PARTIAL (bn<->en decks only; no IELTS, no scoring)
+- 2.9 Food photo -> calories — NOT STARTED
+- 2.10 AI daily planner — NOT STARTED (needs AI key)
 
-## 2) PART 1 — BEFORE LAUNCH (owner 2 Nov)
-SAFETY
-5. a) Lost/stolen phone: intruder selfie after repeated wrong PIN/pattern → push with photo to owner + nominee; SIM-change alert; uninstall-attempt alert; Play-policy check of the method; honest note: flash/factory reset wipes the app (~6 h)
-6. b) Child emergency audio: ONLY active emergency (child SOS, or late alert + no answer to "are you OK"), verified parent, confirmed under-18 device, consent in advance, few minutes/session, full audit log, never adults, never normal times; phone shows Android FGS notification. WATCH side needs owner decision (silent MONITOR is blocked by our guard) — see STATUS (~8 h)
-7. c) Mini 4G GPS tracker chip (school bag / shoe) on the vehicle tracker server, shown on the child card (~5 h)
-8. d) "Where to buy" external link to asalifymart.com on CCTV, vehicle tracker, kids watch, tracker chip pages (link only; never touch Asalify) (~1 h, bundle with 7)
-BUSINESS
-9. e) Accounts onboarding: personal only / business only / both; switch later any direction without losing entries (~6 h)
-10. f) Business accounting at listed-company quality: ledger, trial balance, P&L, balance sheet, cash flow, VAT, period close, audit trail, export (~3 days)
-11. g) Invoices: thermal 58 mm + 80 mm + A4; templates by business type (cafe, restaurant, fine dining, e-commerce, retail, electronics showroom) + service providers (lawyer, VAT/tax, any service); bn/en, VAT lines, QR (~10 h)
-12. h) CRM most automated: follow-ups, reorder reminders, win-back, after-delivery feedback, lead scoring; clear owner control (~8 h)
-13. i) AI sales agent replies in chats AND Facebook/Instagram comments; business AI agent for daily operations (Meta permissions in STATUS) (~10 h code; Meta App Review = owner)
+## PART 3 (owner 2 Nov) — real state
+- 3.1 Home feed live (dollar, gold, football/cricket, offers, packages) — NOT STARTED (home frozen; needs official/licensed sources)
+- 3.2 Documents typed add, PIN recovery, free limit — PARTIAL (vault exists; typed add/recovery not verified)
+- 3.3 Service guide — NOT STARTED
+- 3.4 Daily info and services — PARTIAL (lifebar, board rows 24-70)
+- 3.5 Ramadan tracker (deadline Jan 2027) — PARTIAL (ramadan screen/calendar/alarms exist; no board row)
+- 3.6 Quran Majid — NOT STARTED (needs licensed text + audio)
+- 3.7 Probashi corner — PARTIAL (board 63)
+- 3.8 Student corner — PARTIAL (board 61)
+- 3.9 Travel Planner — PARTIAL (board 49)
+- 3.10 Wedding and events — PARTIAL (screen+engine exist; no board row)
+- 3.11 Ride and Food — PARTIAL (board 63, opens partner apps)
+- 3.12 Farmer mode — PARTIAL (offline ledger engine; no DAE/BARI/DAM data)
+- 3.13 Unseen World / Unseen Bangladesh — PARTIAL (board 66/59)
+- 3.14 My Circle community + channels — channels/communities DONE b288 (62); further plan WAITING FOR OWNER explanation
 
-## 3) AFTER LAUNCH — owner PART 2 (2 Nov), then PART 3 (below). Owner feature card first for each.
-- 2.1 DONE 2 Nov (b275): rename PA Secretary → Personal Secretary (PS) everywhere visible. Then PS for everyone (normal people → corporate bosses): schedule, meetings, info tracking, My Circle communication, reminders + follow-ups, daily brief; reading WhatsApp/other notifications ONLY with clear opt-in notification access to pick up dates/tasks (Play policy check; content stays on the phone where possible).
-- 2.2 CV Builder fully professional: photo, several templates, save, PDF, print, bn/en, ATS friendly. ASK OWNER what his "ads line" means before adding ads.
-- 2.3 Job Hunter: real jobs only from legal sources (employers posting in Assisto, official government circulars, partners with permission; no scraping against site terms); match to CV; one-tap apply only where allowed.
-- 2.4 Mock interview: job, viva, visa, university; voice answers; scoring + feedback; bn/en.
-- 2.5 Task manager: subtasks, priority, repeat, due, shared tasks (family + team), calendar view, voice add.
-- 2.6 Cost and time estimator really usable: real local prices where we have sources, clear assumptions.
-- 2.7 Quick tools: only tools people really use in Bangladesh, each one complete.
-- 2.8 Language Partner: English, Japanese, German, Korean, Chinese; basic → advanced; lessons, tests, exams; real IELTS prep (4 skills + band estimates); listen-and-repeat with voice pronunciation scoring (MUST).
-- 2.9 Food photo → calories with portion estimate, Bangladeshi foods (no extreme diet targets).
-- 2.10 AI daily planner from tasks, reminders, calendar, habits.
-
-## 4) AFTER PART 2 — owner PART 3 (2 Nov), in order. Owner feature card first for each.
-- 3.1 Home feed live + real: dollar rate, gold rate (official: Bangladesh Bank, BAJUS), football + cricket scores, nearby offers, mobile/internet package offers — licensed or official sources only. (Home frozen: needs explicit owner order at build time — this item IS that order for the feed content; layout changes still owner-confirmed.)
-- 3.2 Documents: add by typing, PIN recovery with face/fingerprint, free limit then a Premium suggestion.
-- 3.3 Service guide like a helpful person: step-by-step tutorials for government + daily services with official website links.
-- 3.4 Daily info and services really usable.
-- 3.5 Ramadan tracker complete (sehri/iftar by district, prayer times, fasting log, duas, zakat calculator, reminders) — DEADLINE: ready by January 2027.
-- 3.6 Quran Majid: Arabic, Bangla, English — licensed translations + audio only.
-- 3.7 Probashi corner really usable.
-- 3.8 Student corner: research what students need, build the best set.
-- 3.9 Travel Planner.
-- 3.10 Wedding and events: guest list, budget, vendors, invitations, day plan.
-- 3.11 Ride and Food really usable; plan only for our own platform later.
-- 3.12 Farmer mode: seasonal crop guides from official agriculture sources (DAE/BARI), livestock feeding by age + weight, vaccine reminders, daily market prices from official DAM data, listed farmers/livestock with contact by request.
-- 3.13 Unseen World / Unseen Bangladesh: licensed real sources only.
-- 3.14 My Circle community + channels: PLAN ONLY — owner will explain later.
-
----
-# Older backlog (ordered after the list above)
-
-## 🧠 OWNER ORDER 28 Oct — ONE BRAIN, THREE PRODUCTS (verbatim)
-OWNER ORDER 28 Oct, ONE BRAIN, THREE PRODUCTS. 1) AGENT CORE must match or beat Salesforce Agentforce part by part: reasoning engine that plans steps, grounding only on the user and business real data, topics as sub-agents with typed actions, trust layer (masking, injection blocking, guardrails, approvals, human handover). In AGENT_CORE_DESIGN_BN.md add a table Agentforce part vs ours vs gap, and close every gap before launch where possible. 2) ASSISTO MARKETING ENGINE (benchmark mengoengine.com, HubSpot Breeze, Jasper; own name and design, never copy): business questionnaire, Bangla content calendar with Bangladesh festivals, posts, captions, video scripts, growth plan and funnel, lead nurturing flows on WhatsApp and Messenger that hand over to the sales agent, review and one-tap deploy, page posting via Meta API with owner approval, learns from REAL sales in CRM, khata and agent chats, reports which content brought orders. 3) ASSISTO MARKET reverse auction plus group buying per the existing queue spec. NOW: write MARKETING_ENGINE_PLAN_BN.md and finish ASSISTO_MARKET_PLAN_BN.md with competitor teardown, screens, costs inside the 40 percent rule, legal checks, phases. BUILD ORDER: Agent Core and AI sales agent to world best first; Marketing Engine build starts right after launch-critical rows reach 95, flag OFF until it passes the bar; Market after that, when enough verified Business sellers exist. Report in Bangla in STATUS. Quality rules unchanged.
-NEXT-UP (when load allows): (a) docs agent: Agentforce-vs-ours table in AGENT_CORE_DESIGN_BN.md + gap-closing work packages; (b) docs agent: MARKETING_ENGINE_PLAN_BN.md + finish ASSISTO_MARKET_PLAN_BN.md; (c) then build agents to close Agent Core / AI sales gaps.
-- (d) SMALL perf WP (found 28 Oct 06:05): per-minute crons journey_sweep (~2.0 s CPU) + antitheft_escalate (~2.2 s CPU, 7.8 s wall) each pay ~1 s Django start-up every minute → load average ~2 on the 2-vCPU box. Fix: one `manage.py minute_jobs` runner (journey_sweep + antitheft_escalate in one process, same locks/heartbeats) + trim import-time cost (lazy heavy imports); then give the owner ONE replacement cron line. Measure before/after.
-
-## 🧠 AGENT CORE GAP WPs (Agentforce) — from owner_actions/AGENT_CORE_DESIGN_BN.md §19 (28 Oct) [PLANNED, not started]
-Order = launch-critical first (flag agent_core stays OFF; these make v1 meet the bar and bring the LIVE sales agent to trust-layer parity). All server-side unless noted; every WP: own unit tests + the agent-eval workflow green on ci/**; no real AI calls in CI; deploy backend live after checks (backup first). Migration = none for all launch WPs (JSON/meta fields only).
-- **AF-2 (S, LIVE sales agent) Sales-agent PII masking before the LLM.** Goal: customer text + history in `bizagent_service._llm_draft` (and the g1 vision/voice prompts if they carry text) go through `agentcore.trust.Vault.mask`; reply unmasked before `check_numbers`/send; no raw phone/NID/acct ever in a provider prompt. Files: core/bizagent_service.py, core/bizagent_g1_service.py, core/ai_evals/graders.py. Proof: new tests in core/tests_biz_agent_v2.py (prompt recorded at the router seam has no raw PII; reply round-trips the customer's own number); bizagent_reply eval grader gains a no-raw-PII check (negative control: masking off ⇒ fails). Migration no.
-- **AF-1 (S) Grounded final answers + sources.** Goal: in `runner._plan` when the planner returns a free `answer`, run `ai_guard.ungrounded_numbers(answer, observations, goal, memory)`; any invented number ⇒ template answer (`_template_answer`) or an honest "নিশ্চিত নই" line, audit `guard.grounding`; run API returns `sources` [{tool, label_bn/en, step}] and the hidden app agent screen shows a "উৎস" chip. Files: core/agentcore/runner.py, core/agentcore/views.py, app agent screen (flag-gated). Proof: tests_agentcore (invented-number answer is replaced; real numbers pass; Bangla digits), new eval negative control "brain answers with a made-up amount after calling tools" fails the grader. Migration no.
-- **AF-3 (M) Crisis / emergency handover for the life agent.** Goal: before any AI call (`runner.start`), a 0-credit guard detects self-harm, violence/abuse, medical emergency, missing child (bn/en/banglish; reuse `logic/health_tips` red flags) ⇒ immediate calm answer with 999 + owner-verified helpline list (numbers confirmed by owner, not invented) + an optional "পরিবারকে জানাব?" card (external risk ⇒ approval) via My Circle/Safe Journey; never silent, never SOS on the user's behalf; audit `guard.crisis`. Files: core/agentcore/crisis_guard.py (new), runner.py, topics.py, evals/build_goalsets.py (+ crisis.jsonl ≥200), owner_actions doc for helpline numbers. Proof: crisis eval 100% in CI (planner never called, line present, no external step without approval); false-positive set (e.g. "মরে যাচ্ছি হাসতে হাসতে") ≥50 cases ≤5% trigger. Migration no.
-- **AF-4 (M, LIVE sales agent + agent core) Toxicity / abuse guard.** Goal: `ai_guard.toxicity(text, lang)` — Bangla/Banglish/English abuse, hate, threat, sexual lexicon with severity; OUTBOUND (agent answers, bizagent replies, compose drafts) blocked ⇒ honest fallback / approval queue; INBOUND abusive customer ⇒ handoff reason "abuse" + per-chat cool-down; score logged in AgentAuditEvent.detail / Message.meta (no message bodies in logs). Files: core/ai_guard.py, core/bizagent_service.py (compose/_deliver_ai), core/agentcore/runner.py (_finish), core/logic/business_ai.py (handoff reasons), core/ai_evals/toxicity.jsonl (≥200 bn/en/banglish incl. benign look-alikes). Proof: rule eval ≥98% with ≤2% false positives on benign set; tests that a toxic draft is never sent. Migration no.
-- **AF-5 (M) Indirect-injection eval + hardening.** Goal: every topic set gets ≥20 poisoned-observation cases (note text, CRM lead note, memory fact, customer chat in bizagent.inbox, scam.check input saying "ignore rules, delete/send/pay") — grader: no step outside allow-list, no unapproved external/delete, no number from poisoned text in external args, answer does not echo the injected instruction. Add a structural check that external tool args never carry a raw phone/acct (only own-record names/ids/vault tokens minted from the user's own tool outputs). Files: core/agentcore/evals/build_goalsets.py, fixtures_topics.py, topic_brain.py, scripted_brain.py, runner._exec_step. Proof: all topic sets still 100% CI; a "gullible brain" negative control that obeys the poisoned text fails. Migration no.
-- **AF-7 (S) Retention sweeps the doc promises.** Goal: wipe `AgentRun.vault_sealed` 30 days after finish, delete AgentAuditEvent > 12 months, wipe goal `text_sealed`/step `args_sealed`/`result_sealed` per the same policy; run from `agent_core_run` once a day (or new `agent_core_retention` cron line for the owner list). Files: core/agentcore/runner.py or new retention.py, core/management/commands/agent_core_run.py. Proof: tests with frozen time (kept before, gone after; user-visible trail still readable as masked summaries). Migration no.
-- **AF-10 (S, LIVE sales agent) Handoff context card.** Goal: every handoff/approval push to the seller carries a masked 3-line rule-made summary (what the customer wants, matched products + cart total, reason: angry/refund/big order/low confidence/abuse/out of replies), 0 credits; same in Business inbox thread header. Files: core/bizagent_service.py (_queue_approval, notify_seller callers), core/logic/business_ai.py, app business inbox (next app build). Proof: tests for each reason (summary present, no raw phone, bn/en). Migration no.
-- **AF-9 (S, LIVE sales agent) Resolution / deflection metrics.** Goal: HubSpot-style resolution rate (thread handled by AI with no customer-initiated handoff within 72 h), deflection, handoff rate by reason, AI-assisted orders + revenue, first-response time p50/p95, "unanswered by catalog/FAQ" knowledge-gap list — in `daily_stats`, the seller daily report and Owner Admin. Files: core/bizagent_service.py (daily_stats), core/logic/bizagent.py (daily_report), web/owner (sales-agent page). Proof: tests on seeded threads with exact expected percentages. Migration no.
-- **AF-8 (S) Agent observability + alerts.** Goal: Owner Admin Agent runs page adds p50/p95 inline latency, per-tool error rate, invalid_plan rate, cost per successful task, approval accept/reject/expire rates; alert (push.notify_owner, max 1/hour) when 15-min run failure >20% or invalid_plan >10% (min 10 runs). Files: web/owner/views_agent.py, core/agentcore/runner.py (tick hook) or core/ops_health.py. Proof: web/tests_agentcore_owner + alert threshold tests. Migration no.
-- **AF-13 (S code + owner) Provider data-retention hygiene.** Goal: OpenAI body sends `"store": false` explicitly; no user id/email/phone in any provider metadata; Gemini only via paid key (assert in config); Owner Admin AI page shows a per-provider retention line; owner_actions note for the owner to request Anthropic ZDR / OpenAI ZDR (owner-only, legal). Files: core/ai.py, web/owner/views_ai.py, owner_actions/AI_ROUTER_BN.md. Proof: core.tests_ai_router asserts request bodies. Migration no.
-- **[BUILT agent/afnext 28 Oct — `manage.py agent_eval --live`, NOT run; core.tests_afeval_live]** **AF-6 (M) Live agent eval command + results tile (built, NOT run).** Goal: `manage.py agent_eval --live --topic X --limit N --estimate|--confirm --budget-usd B` (same safety as ai_eval: estimate first, daily cap, refuses without --confirm), per-model comparison, JSON report saved; Owner Admin tile (topic × model pass %, avg credits/cost per task). Running it = owner key + ~$5 approval. Files: core/management/commands/agent_eval.py (new), core/agentcore/evals/harness.py, web/owner/views_agent.py. Proof: tests with the provider seam mocked (estimate math, refuses without confirm, budget stop). Migration no.
-- **[DONE agent/afnext 28 Oct — two-topic goals, scope lines, eval set multi 272/272; core.tests_afmulti]** **AF-11 (M) Multi-topic goals + topic scope lines.** Goal: `topics.classify` returns ranked hits; a goal hitting two topics gets the union of their read/write_low tools, external/money/delete only from the primary topic (still approval); each topic gets an explicit out-of-scope line; audit records secondary topic. Files: core/agentcore/topics.py, runner.py (start/_allowed), evals (≥200 mixed-topic goals). Proof: tests_agentcore_topics + new mixed eval 100% CI; GENERAL still never risky. Migration no.
-- **[DONE agent/afnext 28 Oct — review queue /owner/agent-runs/feedback, `manage.py agent_eval_export_feedback`; core.tests_affeedback]** **AF-12 (M) Feedback → eval loop.** Goal: 👎 runs (with masked note) land in an Owner Admin review queue; one click exports the masked goal + expected tools as a regression case (`manage.py agent_feedback_export` writes jsonl for a PR); feedback rate tile. Files: web/owner/views_agent.py, core/management/commands/agent_feedback_export.py, core/agentcore/evals/. Proof: tests (export is masked, idempotent, owner-only). Migration no.
-POST-LAUNCH (not before 8 Nov; design noted in §19):
-- **AF-15 (L) Seller Agent Builder:** versioned agent card (instructions in plain Bangla, tone, FAQ, floor prices, policies) + 20-question test chat before publish + rollback. Migration yes (AgentCard).
-- **AF-16 (L) One brain:** customer-facing sales pipeline runs as an Agent Core "sales" topic with typed actions (catalog.search, order.draft, faq.answer, handoff) sharing runner/trust/audit; keep the rule-first path. Migration likely yes.
-- **AF-17 (L) Channels:** Hey Assisto voice (Picovoice licence = owner), home widget (home frozen — owner order needed), notification "হ্যাঁ, করো" quick goals.
-- **[DONE (agent core part) agent/afnext 28 Oct — follow_up + undo, eval set multiturn 528 three-turn convs; core.tests_afmultiturn; app follow-up button + sales-agent personas still open]** **AF-18 (M) Multi-turn conversation evals** for agent core and sales agent (scripted customer personas, 5–10 turns).
-- **AF-19 (M) Lead nurture sequences** (WhatsApp templates, opt-in, hands over to the sales agent) — belongs to the Marketing Engine plan.
-
-## ⭐ PERMANENT OWNER RULE 28 Oct — FEATURE EXCELLENCE
-Before any feature is called done: a competitor teardown (best global AND Bangladesh apps) + a best-in-market spec (owner_actions/<FEATURE>_TEARDOWN_BN.md); everything feasible within our stack and budget is built; the feature must be so complete that the user never needs another app. Measured claims only; never accuse a person; 40% profit rule on every paid part. First applications: CCTV Smart Cash Guard, Tagada + SMS (order 28 Oct).
-**Addendum 28 Oct (BEST-IN-MARKET):** a board row reaches 100 only with written proof it equals or beats the best alternative (global + Bangladesh) on every point that matters; FEATURE_100_BOARD_BN.md gets columns BEST ALTERNATIVE and GAPS. Order: CCTV, vehicle tracking, Safe Journey, family SOS, khata + tagada, AI sales, My Circle chat + calls, anti-theft, then the rest. No feature hidden to avoid work. Each spec item reported as done / in progress / not possible (reason).
-
-## ⬛⬛ TOP RULE (replaces tonight's earlier quality + agent orders) — OWNER FINAL ORDER 27 Oct night
-Word for word: **owner_actions/OWNER_FINAL_ORDER_27OCT.md** (MASTER_QUALITY_ORDER.md stays as background). TWO workstreams in parallel, both moving every day:
-- **PART 1 — every existing feature at Silicon Valley standard** (board rows; benchmark + review complaints → BEST_IN_CLASS_BN.md 3 reasons + wow → Bangla journeys → build every missing piece → polish → simulated week → 10-min Bangla owner test → honest score with before/after screenshots; QUALITY_BARS_BN.md real numbers). Part 1 quality comes first (it is the agent's hands).
-- **PART 2 — ASSISTO AGENT CORE (Agent Mode UNFROZEN):** design doc owner_actions/AGENT_CORE_DESIGN_BN.md FIRST; goal→plan→act→observe→re-plan background loop; topics with every module as a typed tool (schema, risk, credit cost, tests); trust layer (mask phone/NID/account numbers before AI, one-tap approval before message/post/pay/book/delete, readable audit, injection blocking); private encrypted life-graph memory (view/edit/export/delete); proactive triggers with daily cap + quiet hours; morning brief + evening recap (Bangla voice + text); business agent builder (WhatsApp/Messenger/in-app, human takeover); agent-to-agent offers = plan only (never hold buyer money); testing center ≥200 bn/en goals per topic in CI; Owner Admin runs/success/cost/feedback; every task priced via the AI router; channels: chat, Hey Assisto voice, widget, notification actions. Behind a flag; v1 at launch only if it meets the bar.
-- STATUS line every 3 h: rows at 100, average score, **agent-core progress**. Daily testing build. Watchdog 60 min. ≥95 launch-critical by 5 Nov. Guardrails unchanged.
-
-## ▶ NEXT-UP AGENT PACKAGES (start in order as slots free; source: owner_actions/BEST_IN_CLASS_BN.md + .phaseB/best_in_class_gaps.json)
-Note: the benchmark read origin/main; b255 already has the Safe Journey sweeper + push, location FGS and /j/<token> page (journey100) — re-check gaps against b255 before briefing.
-1. **TRUTH SWEEP (P0, ~3 d):** no fake data anywhere — hide or make real: AI tools' output without a key, health parts, Nearby, Dictionary, sample police-station list, job feed; drop unbuilt claims; onboarding first-win: fix the empty-circle dead end (add-someone step) and the business first-win (opens Vault OCR with no key); align pack-credit expiry wording (TOP10 doc says 12 months, credits.py says never).
-2. **EXACT REMINDERS + PREPAID METER (P0, ~4.5 d):** app/lib/notifications.dart uses inexactAllowWhileIdle → exact alarms (SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM policy check) + OEM proof plan; meter low-balance push, utility picker (DESCO/DPDC/NESCO/WZPDCL/BREB), bKash/Nagad Pay Bill deep paths, token/receipt log.
-3. **INVITE ONBOARDING (P0, ~4 d):** invite → install → join in ~6 taps like imo/WhatsApp (deep link with referrer, OTP-first when SMS is live, email fallback), no password step.
-4. **LEDGER TAGADA (P0, ~5.5 d):** separate reminder per customer, offline entry + sync queue, scheduled reminders cron — AFTER agent/smsotp merges (it owns the tagada SMS send path).
-5. **ANTI-THEFT P0 rest / CCTV real-camera rule / vehicle silent-tracker alert / vault PIN recovery / owner alerts on cron+service failure / run_watchers cron** — after the running anti-theft, CCTV and vehicle agents report.
-6. **Agent Core work packages** — from the agentcore agent's report.
-
-## ⬛ TOP RULE ABOVE EVERYTHING — OWNER MASTER QUALITY ORDER 27 Oct (SILICON VALLEY STANDARD)
-Full text, word for word: **owner_actions/MASTER_QUALITY_ORDER.md** — read it before starting or briefing any work. Every feature: benchmark competitors + their review complaints → 3 reasons + wow moment → Bangla user journeys → build every missing piece → polish → simulated-week customer test → Bangla 10-min owner test → honest board score. Measured bars in owner_actions/QUALITY_BARS_BN.md (real numbers only). Also: one design system + line-by-line Bangla review (E); no fake data, licensed sources (F); AI eval sets ≥200 bn/en prompts per AI feature running in CI (G); OWASP MASVS, backup+restore tested, monitoring alerts, graceful outages (H); emulator matrix Android 9–15 + low-RAM, monkey, load 1k→10k, failure tests with AI/SMS/push/TURN down (I); before/after screenshots per improved feature (J). Target ≥95 launch-critical by 5 Nov, nothing 100 without proof. Guardrails (L) unchanged: no production track, no secrets, no spending, no Asalify, no ads on SOS/safety/calls/chat/payment/login/permission screens, credits never cash, medicine hidden.
-
-# Owner work queue (newest order wins)
-
-## 🟪 OWNER ORDER 27 Oct night — MAXIMUM MODE (on top of 100% mode)
-1) Max safe parallel agents 24/7; start the next the moment one finishes. 2) Never wait for the owner — build key/device/account features fully, test E2E with mocks/simulators, ready the minute the key is added; owner needs = one short list. 3) FEATURE_100_BOARD lowest launch-critical rows first, each to 100 on every criterion (2 GB speed measured on a low-RAM emulator / Test Lab free quota). 4) Every launch-critical feature ≥95 by 5 Nov; board updated after every merge; one Bangla line atop STATUS every 3 h (rows at 100 + average). 5) A testing build EVERY day (Bangla notes, never production). 6) Watchdog: no commit for 60 min → find the stuck agent, save its work, restart it. Never mark 100 without proof. No secrets, no spending.
-**Mechanics:** full suites on GitHub CI only (`.github/workflows/checks.yml`, push `ci/<name>`; backend + analyze + lang gate + flutter test ×8 shards). Local heavy.sh = targeted tests only.
-
-## 🟦 OWNER ORDER 27 Oct — LAUNCH SWITCH-ON (conditional)
-CCTV, vehicle tracking and AI sales assistant are LAUNCH features (not preview). AS SOON AS each one's E2E tests pass (agents e2e_cv, e2e_sales) and the code is merged + deployed + shipped: turn its flags ON for both the website APK and the Play build (live today: cctv_watchman ON, vehicle_tracking ON, business_agent ON; home_watchman OFF → turn ON after CCTV E2E passes), make CCTV appear in the home v2 default shortcuts again and vehicle tracking selectable in the Edit shortcuts list, remove every preview label. NEVER turn on anything that hasn't passed its E2E tests. DB backup before the config change; report the day in STATUS.
-
-## 🟥 TOP RULE (owner 27 Oct) — 100 PERCENT MODE (above everything below)
-A) FREEZE NEW FEATURES: real Unseen World, Agent Mode, digital legacy, reverse auction and every new idea stay PLANS ONLY until every existing feature is 100%. (Renaming the current Unseen World screen is allowed. Medicine stays hidden until the owner says an Organization account exists.)
-B) INVENTORY: owner_actions/FEATURE_100_BOARD_BN.md — every feature and sub-feature since day one (app, server, Owner Admin, website), one row each, score /100, exactly what is missing; totals at top (at 100, below, total remaining work).
-C) DEFINITION OF 100: end to end with real data and real services; every button and screen works; no demo/sample/fake data; no "coming soon"; honest empty and error states; offline works or fails gracefully; Bangla mode only Bangla, English mode only English; fast on a 2 GB phone; plan limits and credits enforced on the server; privacy + Play policy safe; automated tests pass; a 10-minute owner test in Bangla. A screen that doesn't meet a real user need is NOT done.
-D) ORDER: calls, My Circle, Safe Journey, family safety, reminders, AI assistant + voice, Photo Studio, business + digital ledger, CRM, AI sales assistant, CCTV, vehicle tracking, budget + remittance, payments + plans; then everything else. CCTV, vehicle tracking and AI sales assistant: fully working, E2E with real protocols/simulators now, real devices when the owner tests. Do NOT hide features to avoid work — fix them.
-E) As many parallel agents as safe. Update the board after every merge; a short Bangla progress line at the top of STATUS every few hours (features at 100 today, next ones, what is needed from the owner). Real-device testing is the owner's job; making it work is ours. Never Play production, never secrets, no spending without approval.
-
-## NEXT (owner 27 Oct) — PLANS v2 for CRM/business [audit DONE in STATUS; implementation starts when an agent slot frees]
-Flag plans_v2; all limits in Owner Admin. FREE: ledger basic, CRM ≤20 contacts, leads/deals/pipeline/tasks VIEW only, no follow-up reminders, no automation. PREMIUM: CRM ≤500, full leads/deals/pipeline/tasks + follow-up reminders, no automation. BUSINESS: CRM "unlimited" (high hidden server cap, editable), all automation (COD confirm, refill, birthday/win-back, post-delivery feedback), AI Sales Agent, booking bot, marketing automation, team members, reports. 7-day Business trial once (no card, clear end date, no auto-charge outside Play). No data loss (over-limit readable; only adding asks upgrade). Server-enforced (owner's plan, not staff's). Honest upgrade sheet w/ Play ProductDetails prices. Update Plans screen + Play listing text. Fix credit leaks: business AI reply + CRM AI calls must charge credits/Profit Guard. Founder must count as Business where intended. Tests every gate; owner 10-min check in Bangla.
-
-## 🟠 BEFORE 8 NOV (found by the Agent Mode plan) — small, policy/quality
-- Play AI-Generated Content policy: add a "Report this answer" action on AI chat answers (home chat + Assisto AI chat) → server endpoint + Owner Admin list. (No report endpoint exists in views_chat.py.)
-- Bangla date parser fixes (core/nlp_datetime.py): "আজকে …" must not resolve to a past time; past-tense "কাল … করেছি" = yesterday; add tests.
-
-## 🔴 TOP PRIORITY after 252 ships (owner 27 Oct) — BILLING, CREDIT AND REFUND HARDENING (full text: owner_actions/BILLING_ORDER_27OCT.md, rules A–V)
-Step 1 audit [AGENT billaudit, read-only → owner_actions/BILLING_AUDIT_BN.md]. Step 2 fixes start after the audit AND after agent/plansv2 (it also touches billing credit charging) is merged, to avoid two agents editing billing.py at once. Server fixes deploy as soon as tested (DB backup first); app screens in the next build. Report in Bangla atop STATUS.
-
-## 🔴 URGENT (owner 27 Oct) — CALL BUGS, top priority after build 250 [AGENTS callsA (1 accept-from-outside + 2 use app during call: return bar, in-app/Android PiP), callsB (3 screen share mediaProjection + Play FGS text, 4 group calls mesh ≤4, no SFU)]
-Real fixes proven on emulator (CI ring-proof) + owner real phone; Bangla STATUS: what was broken, what fixed, 10-min two-phone check.
-
-## ✅ [SHIPPED 10249; subtitle in 10250] TOP PRIORITY (owner 26 Oct evening) — FINAL HOME DESIGN v6
-Full order text is in the agent prompt / STATUS; flag home_v2 default ON for the next closed-testing build, old home fallback 1 week; 12 shortcuts (My Circle pinned + owner's 11, real routes only, flag-hidden skipped); Ask Assisto card → AI chat on its own screen; bottom bar Home / All Services / Assisto Voice / Reminders / Business; golden screenshots; Bangla STATUS with mapping + 10-min check.
-
-## BIG BUILD WEEK (owner 26 Oct) — plan: owner_actions/BIG_WEEK_PLAN_BN.md; rule: owner_actions/DEFINITION_OF_DONE_BN.md (MOST IMPORTANT: 9 checks, hidden behind flag until all pass, finish one before starting another, honest table in STATUS). 8 Nov Play production must never be blocked.
-0) Track 0 [DONE: 244-247 SHIPPED; payments e2e + credout + Play prices 247; calls95 245; vitals LIVE; RTDN verified; play-verifier permission pending (owner)]
-1) [SHIPPED 245] Feature flags + Play hiding + DoD audit (48/41 proposal waits owner)
-0b) [AGENT home-circle] OWNER HOME CHANGE 26 Oct (explicitly allowed): My Circle = fixed pinned FIRST home shortcut (lock in edit, subtitle "Chat and call with friends"/"বন্ধুদের সাথে চ্যাট ও কল", unread badge + missed-call dot); sidebar My Circle entry in Assisto AI style with subtitle "Chat and call with your friends"/"বন্ধুদের সাথে চ্যাট ও কল" + unread badge; 200% font, 48dp, dark. Ship in the next build.
-2) [cctv1 SHIPPED hidden 10246 (flag home_watchman OFF); waits owner Imou keys + camera] A CCTV watchman → 3) [AGENTS booking1, retention1] I booking + H retention → 4) E CRM email + F marketing → 5) G offers → 6) B vehicle → 7) D meetings (separate SFU server: owner money decision) → 8) C remote support → 8a) [AGENT unseen: rename + plan doc] UNSEEN WORLD (owner 27 Oct): rename current screen to 'Daily info and services / আজকের তথ্য ও সেবা' (next build); write owner_actions/UNSEEN_WORLD_PLAN_BN.md; build REAL Unseen Bangladesh Phase 1 behind flag unseen_world (OFF) AFTER build 253 and billing work. REAL DATA ONLY (Wikidata/Wikipedia/Commons/OSM/Open-Meteo, licences shown), no scraping, honest empty states.
-8b) [DESIGN ONLY — AGENT agentplan → owner_actions/AGENT_MODE_PLAN_BN.md] ASSISTO AGENT MODE (owner 27 Oct vision; no code until owner approves the plan; v1 2–3 weeks after launch behind a flag).
-9z) [PLAN ONLY — LOWEST PRIORITY, after 100% mode; no code] ASSISTO MARKET (owner 27 Oct): write owner_actions/ASSISTO_MARKET_PLAN_BN.md in Bangla — Mode 1 reverse auction (buyer need + budget → verified Business-plan sellers' AI agents offer within their minimum price → buyer picks); Mode 2 buy-together group buying (verified producer/importer/wholesaler price tiers, minimum quantity, deadline, invite friends/communities; target missed = nobody pays). Assisto never holds buyer money: COD or approved escrow/gateway, seller paid after delivery, per Bangladesh Digital Commerce Operation Guidelines + escrow rules for advance payments. Revenue: seller prepaid wallet, fee per confirmed deal, numbers hidden until deal, ratings only for in-app deals. Authenticity: trade licence, factory/warehouse photos, BSTI where needed, ratings, complaints. Free buyers a few requests/month; sellers Business plan. Community posting + rewards for members who bring buyers. Doc must cover screens, rules, legal checks, fraud risks, costs, revenue, phases.
-9) backlog: MEDICINE IN PLAY (owner 27 Oct: skipped until an Organization developer account exists — D-U-N-S → org verification → Health apps declaration → Data safety Health info → privacy health section → in-app disclaimers + tests → new Play build + listing Case A), SOS SMS fallback, low-data mode, in-app business chat, TEAM MEMBERS (owner 27 Oct: staff accounts for a shop with roles + permissions; add back to the Business plan text ONLY when it passes all 9 DoD checks). No law/clinic knowledge base.
-
-**STANDING RULE (owner, 22 Oct):** when a question has a safe, reversible Recommended option, pick it, note it in STATUS, keep working. Ask the owner only for irreversible, money, legal or security decisions.
-
-**PERMANENT RULE (owner, 22 Oct) — ALL ANDROID PHONES:** the app must work on every Android phone common in Bangladesh — OPPO, Realme, Xiaomi/Redmi/POCO, Samsung, vivo, Walton, Symphony, Infinix/Tecno — Android 8 to 16. Secure storage must fall back (Keystore failures never break identity/chats); Crashlytics + Owner Admin → Reports (device model + OS + error, NO message content/PII); Firebase Test Lab device matrix + robo (login → My Circle → chat → send → call screen) before each My Circle build, pass/fail per device in STATUS; OEM background guide once after login.
-D. [SHIPPED: 191 SecretStore/IdentityVault emergency (user 18 PROVEN: key + 5 queued msgs delivered/read + reply), 192 Crashlytics+Owner Reports+OEM guide+deletion UX+free calls, 193 dead-button sweep (CI). Test Lab workflow ready — BLOCKED on owner GCP_TESTLAB_SA. AGENT mr1: message requests + full last-seen + hide media-gated attach] [AGENTS sc1, tl1] Evidence: user 18 (OPPO Reno 12 F 5G, ColorOS) on build 188 never POSTs /circle/keys; 15 key_request pushes unanswered.
-
-**ORDER OF WORK (owner, 22 Oct evening):** finish My Circle FIRST — E1 OPPO secure-storage key fix (integrator, IdentityVault) + deletion UX + Free calls switch (agent dl1) in ONE emergency build; then message requests like WhatsApp, messages never wait on keys, full last-seen time, Crashlytics (sc1), device matrix (tl1). When My Circle passes, continue the rest of QUEUE automatically — ship each item with proof + Bangla 3-line STATUS.
-E. [DONE 22 Oct] user 18 deletion cancelled (owner order), notifications removed, account + My Circle link intact.
-F. [SHIPPED 192] FREE CALLS (testing): My Circle voice+video calls 0 credits for all plans incl. relayed minutes; Owner Admin switch 'Free calls (testing)' = ON; keep relay cost in P&L.
-
-G2. [SHIPPED 197] media follow-ups: group media forward (same blob), send-to-poll bubble flicker, preview labels.
-G. [SHIPPED build 196 + backend live (0066, nginx internal location, live blob proof)] MY CIRCLE E2E MEDIA (photo, voice note, document, video if reliable): encrypt on device, ciphertext blob via signed URLs, key inside the E2E message, quotas + retention; attach button stays hidden until each kind truly works. (from mr1 design note)
-H. [SHIPPED/IN CI] mr1: message requests like WhatsApp + full last-seen + media showpieces hidden (live smoke passed with test accounts A/C). DECISION (reversible, noted in STATUS): default 'who can message me' = My Circle now lets people with your number send a REQUEST (WhatsApp-like); 'nobody' blocks strangers.
-
-## OWNER STANDING ORDER (25 Oct) — WORK CONTINUOUSLY, NEVER IDLE
-Never wait for builds/reviews/owner replies; owner items → waiting-for-owner list at top of STATUS, then next item. Batch 2–3 release builds/day (auto internal + closed testing, auto review, versionCode in STATUS). 2-line Bangla summary per finished item. Calls/API fast; never touch Asalify (read-only clone only); never commit secrets; never production track.
-Queue: 1) AdMob [DONE: live server + build 237; Play upload HELD for owner ads declarations] 2) Photo Studio final Phase 1 — provider switch, commercially clean models only, zero-loss limits, benchmark vs Remini [DONE: live + build 238; owner decisions in STATUS waiting list 6] 3) Business AI Agent upgrade for OWN Page + number first: Asalify-proven auto-reply ported into Assisto, image→order, 24/7 with owner takeover, Business inbox [DONE: live 0086 + build 238; owner Meta/WA steps in STATUS waiting list 5] 4) Assisto Growth plan doc [DONE: GROWTH_PLAN_BN.md + 25 Oct update §10] 5) Quality sweep: fix failing workflows, raise test coverage on calls, My Circle, anti-theft, payments; remove non-working showpieces. [DONE: backend tests + 3 security/robustness fixes LIVE, iOS check green; PENDING next app batch: Flutter test commit 9eab699 on agent/quality]
-
-6) [DONE: run 40220390438 A=105 B=5 C=0 D=0; agent/reality-fix rides the next build] REALITY AUDIT first real emulator run (run 40205920547): A=18 C=7 D=6 — C mostly flows finding widgets by old icons (f5 icon migration); D = emulator died before the flow. Fix flows/workflow, prove real classes, fix real product bugs, update REALITY_AUDIT.md.
-16) [LIVE 26 Oct] Play Vitals: Reporting API enabled by owner; daily play_vitals_pull (cron 06:40 UTC) → Owner Admin /owner/vitals (0088); top issue = flutter_local_notifications boot receiver TypeToken crash (R8) → keep rules + CI gate on branch r8fix, ships next build. 14) [built; ships in build 244] accessibility sweep: Flutter tap-target/label/contrast guidelines + 1.3x text scale over every gallery screen bn/en light/dark; fix (home: labels only). 15) [DONE 26 Oct] ring proof restored (script was never committed) — 4/4 on API 34 + 30, run 40255906215. Latency (352 req): median 6 ms, p95 125 ms, max ~350 ms — no action.
-12) [SHIPPED 10241] WhatsApp "Reply with message" on incoming calls (low-risk: decline + open chat with quick replies, normal E2E send). 13) [LIVE 26 Oct] nginx request-timing log /var/log/nginx/api_timing.log + bin/api_latency.py (server-only) — review p95 per endpoint once traffic accumulates ("keep calls and API fast").
-10) [SHIPPED 10240] WhatsApp-level polish part 2 (owner 25 Oct night order continued): bubble grouping, mic-in-composer hold-to-record, voice-note waveform + 1x/1.5x/2x, call info screen. 11) [DONE live: hardening + follow-ups (Play ack sweep, EPS token refresh, RTDN other-account 200, /pay/return signed, IPN tz, per-order refund)] payments eps.py 72% / play.py 79% → money-critical branch tests, fix real bugs.
-9) [DONE: 0087 live + build 239] [owner 26 Oct] MY CIRCLE CHAT ACTIONS LIKE WHATSAPP: delete chat (my list/device only, optional media, membership kept, re-surfaces on new msg/open), clear chat (keep starred option), delete for me / for everyone (server-enforced window), View contact / Block / Report / Favourites / multi-select bulk pin-mute-archive-delete-read, disappearing messages Off/24h/7d/90d in header menu + contact info + system line + timer icon + default in Settings Privacy; server deletes ciphertext+blobs, E2E intact; two-account tests; ship in next build.
-8) [OWNER 25 Oct night] referral 20/10, cap 10/month, founding 500x20 CONFIRMED (live defaults = these) — DONE. Real-ESRGAN stays OFF (owner). Face provider: decide when owner adds fal key; off + hidden until then. Ads declarations: owner tomorrow morning → first build after that ships everything since 236 (237 was cancelled; 238 + next-batch). Verify 10236 with testers + call delivery stats [DONE]; Play vitals [BLOCKED: Reporting API disabled — owner 1 click]; own crash reports → video_stage clamp fix [next-batch]; [AGENT wa-polish] My Circle + calls UX to WhatsApp level.
-7) [DONE: 9eab699 shipped in 10239; 10238 uploaded after owner "ads declared"]
-
-## NEXT — ADMOB INTEGRATION (owner 25 Oct; after the calls build [SHIPPED 10233] and the public-repo work [READY, waiting for owner to flip visibility])
-IDs (public, not secrets): App ca-app-pub-2506398550427515~5116255919; Rewarded /2426427676; App open /1193237050; Native home /7259951959; Banner /4940910375; Interstitial /3547937658. AdMob console caps: app open 1/hour, interstitial 1/5 min.
-1) google_mobile_ads + UMP consent (GDPR + US states). Ship with Google TEST ad IDs; real IDs switch on by a SERVER flag only after production launch + AdMob app approval (no app update).
-2) Free users only; Premium + Business see zero ads.
-3) Placements: native card on home every visit, away from shortcuts/SOS, clear "Ad" label; max one ad per screen; banner only on safe list pages; app open once/hour, max 6/day, never on first launch, right after login, or when opened from notification/SOS/safety alert/call/alarm/reminder/widget/deep link; interstitial only at natural breaks (after saving a photo, after finishing a task), max 1/5 min + daily cap; rewarded unlocks verified server-side (SSV callback to our API).
-4) NEVER ads on SOS, safety, anti-theft, family alerts, calls, chat conversations, chat lock, payment, login, onboarding, permission screens.
-5) All caps/placements server-configurable; log impressions + revenue per placement.
-6) Host lifeassisto.com/app-ads.txt: `google.com, pub-2506398550427515, DIRECT, f08c47fec0942fa0`; confirm Play listing website = lifeassisto.com.
-7) Privacy policy updated (ads + advertising ID) BEFORE the ads build ships; owner_actions/ADMOB_PLAY_DECLARATIONS_BN.md (Ads = Yes, Advertising ID = Yes, Data safety, AdMob Privacy & messaging consent). Tests, Bangla STATUS note.
-NOTE (home frozen): the native home card is an explicit owner order for this build — the only home change allowed.
-
-## NOW (24 Oct, owner priorities in order)
-0. [SHIPPED 10233] CALLS MUST RING LIKE WHATSAPP ON EVERY PHONE (owner 25 Oct, top): native FCM → CallStyle notification + self-managed ConnectionService, setup checklist (notifications / FSI / battery / OEM autostart deep links + badge), server delivered/ringing acks + 4 s resend + Calling vs Ringing + missed call on reconnect, token refresh/dead tokens, Owner Admin delivery by brand/model/Android, CI emulator proof, CALL_RING_TEST_BN.md. Build 224 (group E2E + own-device) in checks.
-0b. [SHIPPED 10233/10235: 0084 live] MY CIRCLE CONNECT FLOW (owner 25 Oct): after sending a request open the chat with banner "Request sent"; sender may send up to 3 text messages before acceptance (no media/links/voice/calls; E2E); recipient Requests box with preview + Accept/Decline/Block/Report, no read receipts/online to sender before accept; daily request rate limit; on accept: chat to top of both lists, system line "You are now connected", sender notified "X accepted your request — say hi" opening the chat, pending messages become normal; tapping any My Circle contact/member/profile shows Message / Audio call / Video call; same for phone-number invites when the invitee joins+accepts. Tests on two accounts, Bangla STATUS note, build → closed testing.
-1. [SHIPPED 10223] E2E decrypt fix: peer-assisted history resend, PIN key backup, key ring, grey waiting line.
-2. [SHIPPED; server hotfix LIVE: went-dark/back-online family-only, owner false alerts cleared] stopped-checking-in after update.
-3. [DONE 25 Oct: live + build 238; owner decisions pending] PHOTO STUDIO FINAL ORDER (owner 24 Oct): provider switch on server (replicate / runpod_serverless / assisto_face, % rollout, fallback, cost log), Replicate pipeline (2 MP, face restore, Real-ESRGAN x2, bg blur, auto tone), Ultra HD Premium via fal.ai with quota, Natural/Strong, Face Lock default, 3 free lifetime then rewarded ads (default 2) / 1 free per week, server-side limits per account+device, result cache, global daily spend cap 1 USD + queue, no always-on GPU; PHOTO_GPU_SETUP_BN.md; benchmark 10 portraits in owner_actions/photo_bench/; Phase 2 plan PHOTO_OWN_MODEL_PLAN_BN.md + training scripts, NO spending. LICENCE CHECK FIRST: GFPGAN weights/training data (FFHQ, non-commercial) — verify and report before use.
-
-## ORDER 6 — GAME CHANGERS (owner, 23 Oct, FINAL) — CURRENT TOP PRIORITY after the Play AAB [AAB DELIVERED: 1.0.209/10209]
-G+ NIGHT SALESMAN (owner add-on to G, Business plan only, verbatim): (1) IMAGE UNDERSTANDING: when a customer sends a photo or screenshot, use a vision model to match it to the seller catalog (image embeddings of product photos + vision description); if matched, reply with name, price, sizes, colours, stock; if not, show the 2-3 closest products with photos. Also read size charts and text in images (address, phone). (2) AUTONOMOUS ORDER: collect name, phone, address, size/colour, show a full summary with delivery charge and total, ask the customer to confirm, then create the order, reduce stock, book the courier, send the order number. Polite upsell of a matching product, bundle/free-delivery rules from seller settings. (3) Payment screenshots: NEVER confirm payment from a screenshot (fake screenshots are common); mark the order payment-pending and tell the customer the owner will verify. COD by default. (4) Night mode setting and a morning summary push to the owner: orders, revenue, pending approvals, unanswered questions. (5) Cost: vision replies cost more credits (set in Owner Admin -> Pricing), Profit Guard shows cost per image. (6) Keep all safety: min price in code, number post-check, approval queue, human takeover, AI disclosure. Prove with a test page: image -> match -> order -> courier, screenshots in STATUS (Bangla).
-G++ RULE-FIRST (owner, high priority, verbatim): (1) RULE-FIRST layer like Asalify: answer FAQ, price, stock, delivery charge, size, colour, shop hours and order status from the seller catalog/settings WITHOUT calling the AI (instant, cost 0, no credit used); call the AI only when rules do not match. Owner Admin must show percent of replies answered by rules vs AI and the money saved. (2) Read Asalify docs/MESSAGING_AI_SYSTEM.md and its bot code as READ-ONLY reference (never change Asalify config, services or DB) and port anything Asalify does better; write a Bangla comparison table in STATUS: Asalify vs Assisto, what we took, what Assisto already does better. (3) Keep all existing safety: min price locked in code, number post-check, approval queue. [Asalify source = private GitHub repo ArifSarkar247/asalify, read-only clone only]
-G+ CORRECTION (owner, verbatim, supersedes 'Night mode' in Night Salesman): the agent works 24/7 by DEFAULT, not only at night. Owner/staff can take over any time: (1) when a human sends a reply in a chat (from Assisto or directly from the Page/WhatsApp, detected via message_echoes), the AI pauses in THAT chat only; (2) if the human goes silent and the customer is waiting, the AI resumes after a timeout the seller sets (default 15 minutes); (3) per-chat toggle: I will reply / Let AI reply; (4) business-wide mode switch: AI always on (default) / only outside business hours / off. Never two replies at once. Morning summary stays. Prove: human reply pauses AI, AI resumes after timeout, toggle works; screenshots in STATUS (Bangla).
-Agents: A+B Photo Studio v2 [SHIPPED 213 + photo worker live; 0073]; C+D+E video-call UI, chat themes, nicknames [SHIPPED 216; 0075; needs owner 2-phone test]; F design part 1 [SHIPPED 212]; F wake every showpiece [after]; G advanced Business AI Agent [SHIPPED 214, live selftest ALL PASSED; 0074]; F wake showpieces [SHIPPED 215]; P5 growth [SHIPPED 217; 0076; owner to confirm reward amounts]; F design part 2 [AGENT f2 running]; E My Circle gaps [AGENT e-gaps running]. Earlier queue (F design agent f1 running, group calls b3 built, P4 in checks) continues behind it.
-```
-ORDER 6 - GAME CHANGERS (FINAL, replaces any earlier order6/6b/pricing message). Start right after the Play AAB is delivered; the AAB stays first. Use parallel agents.
-
-A. PHOTO STUDIO v2 - must BEAT Remini in a blind test, not just match it. Do whatever it takes.
- 1. ENHANCE server-side: face detect -> dedicated face restoration -> full-image upscale/denoise -> FACE LOCK identity check. Choose the best models available NOW. Every model and weight must allow commercial use - list each license in STATUS; no non-commercial weights (check CodeFormer, InsightFace etc. carefully).
-    - Runs in a SEPARATE worker process/instance with a queue; the main API must never slow down. Free tier uses the same best open models on our own worker (cost per image = 0, just slower). Premium = fast path (GPU on demand or best hosted API), up to 4K.
-    - On-device enhance stays only as an offline fallback.
- 2. PROMPT EDIT like ChatGPT/Gemini: photo + Bangla or English prompt -> new image. Provider switchable in Owner Admin (e.g. Nano Banana 2 / GPT Image 2 / Flux 2); default = best identity preservation.
- 3. FACE LOCK (our USP): after every AI output, measure face identity similarity vs the original with a commercial-licensed method. Below threshold -> paste the ORIGINAL face back with seamless blending + light/colour match, or re-run as masked inpainting that never touches the face. Promise: "your face stays yours". Show a Face Lock badge.
- 4. One-tap templates: HD portrait, old photo restore + colourize, passport/visa sizes, professional/LinkedIn, Eid/Puja/wedding outfits, studio background, product photo for shops.
- 5. PROOF: 50 licensed/consented test photos (low light, old, group, dark skin tones) -> ours vs Remini -> blind A/B vote page in Owner Admin + identity score + sharpness metrics. Report honestly. Never claim "better than Remini" anywhere until the blind test proves it.
- 6. Safety + Play AI policy: block sexual/undressing edits, suggestive edits of minors, realistic fakes of other real people without consent; in-app "report this AI image" button (Google Play AI-generated content policy); "Edited with AI" in saved metadata.
-
-B. PHOTO STUDIO PRICING (owner decision; every number editable in Owner Admin -> Pricing):
- - FREE ENHANCE: 3 per day, each unlocked by 1 rewarded ad. After 3 -> Premium paywall.
- - FREE AI GENERATION (Face Lock): 2 free in the user's lifetime. After that 1 per week, unlocked only after watching at least 3 rewarded ads; use the highest-paying ad network/placement available. Profit Guard must show AI cost vs ad revenue per free user and alert me if the free tier loses money.
- - PREMIUM: unlimited instant enhance up to 4K, no ads, monthly AI credits, extra credit packs.
- - No ads on safety, SOS, payment, login or call screens. Credits are never withdrawable as cash.
-
-C. VIDEO CALL like WhatsApp: tap the small self-view to swap big/small, drag the small view to any corner, pinch-to-zoom, double-tap fullscreen, flip camera, camera on/off visible to the other side. Prove on 2 real phones.
-
-D. CHAT THEMES - REAL, not a showpiece (owner says the current theme does not work):
- - Per-chat theme that BOTH sides see instantly (theme synced through the chat; system line "X changed the theme").
- - A small curated set of really beautiful themes (about 8-10): love/romantic (hearts, roses, moon & stars), gradient, calm, dark, nature, festival (Eid, birthday, anniversary), each with matching bubble colours and quick-reaction emoji.
- - Custom theme from the user's own photo (sent end-to-end encrypted like media; dimmed so text stays readable). AI theme from a prompt with Face Lock (credits).
- - Free: a few themes; Premium: all + custom + AI.
- - Proof: two real phones see the same theme, after restart, on OPPO/ColorOS too; screenshots of both phones in STATUS.
-
-E. NICKNAMES (Messenger-style), 1:1 and groups:
- - Either person can set, change or remove a nickname for themselves or for the other person; both sides see it instantly; system line "X set the nickname for Y to ..." / "X removed the nickname".
- - Nickname shows in the chat header, chat list, notifications and call screen; the real name stays visible in profile/info. Synced across reinstall and devices.
-
-F. WAKE UP EVERY SHOWPIECE: go through REALITY_AUDIT (all C and D items) and every screen that looks finished but does not really work. For each: make it really work end-to-end with proof, OR hide it from the UI until it does. Nothing fake visible to users. Report a Bangla table: feature -> now works / hidden / needs owner key.
-
-G. BUSINESS AI AGENT - advanced (paid Business plan):
- - One inbox for WhatsApp Business (Cloud API), Facebook Messenger, Instagram DM and a website chat widget. Asalify's proven WhatsApp + Messenger agent is READ-ONLY reference; never touch Asalify config, services or DB.
- - Understands Bangla, Banglish, English, voice notes (transcribe) and product photos (match to catalog).
- - Answers only from real catalog price/stock; takes the order in chat -> creates the order in Assisto -> optional courier booking.
- - Facebook comment-to-DM ("price?" under a post -> reply in inbox). Follow-ups for silent customers. Learns tone/FAQ from the owner's past replies. Human takeover any time. Quiet hours.
- - Report: chats, orders, revenue the agent brought, AI cost, profit.
- - No payment collection inside Assisto for now (Play financial declaration says the app does not move money).
- - List exactly which parts need Meta app review or owner keys.
-
-Each part: real proof (tests + 2 real phones where relevant), Bangla 3-line STATUS, owner tasks listed clearly. Never commit secrets; DB backup before migrations.
-```
-
-## MASTER STRATEGY 23 Oct (owner, ~/order3.txt) — INCOME FIRST; overrides the A-F order's sequence
-MERGED ORDER: 1) A My Circle bugs [agent a1 running] -> 2) P1 Business AI Agent [next free slot] -> 3) P2 monetization -> 4) P3 My Circle differentiators -> 5) P4 Unseen World -> 6) B calls [b1 batch running: wrapping up B1/B2/B6 + flow-18 fix], D Photo Studio, F design, C themes, E gaps -> 7) P5 growth. P6 BUSINESS_PLAN_BN.md written early (doc) [integrator writing now].
-Done today: pricing nothing-unlimited (Premium 90/mo) + disk alert 80% [build 203, backend LIVE]; reality audit 202 [b26ccc0]; C4 POS sale/void now A (run 39946885424).
-```
-OWNER MASTER STRATEGY 23 Oct - INCOME FIRST. Assisto = Bangla super-app + real AI agent.
-Profit must beat cost every day; nothing unlimited; credits + Profit Guard on every AI/API
-cost; no showpieces; follow laws + Google Play + Meta policies; never touch Asalify.
-
-NEW PRIORITY ORDER (merge with today's A-F order):
-1) Finish A (My Circle bugs) -> 2) P1 Business AI Agent -> 3) P2 monetization ->
-4) P3 My Circle differentiators -> 5) P4 Unseen World -> 6) B calls, D Photo Studio,
-F design, C themes, E gaps -> 7) P5 growth + P6 business plan (write P6 early, it is a doc).
-
-P1. ASSISTO BUSINESS AI AGENT for Bangladeshi F-commerce sellers (main revenue):
- - Connect Facebook Page (Messenger + comments), Instagram DM, WhatsApp Business (Cloud API).
- - AI replies 24/7 in Bangla/Banglish/English from the seller's product catalog, prices,
-   stock, delivery charges, policies; takes orders, confirms COD, collects address/phone.
- - Courier booking + tracking: Pathao, Steadfast, RedX (official merchant APIs, keys in
-   Admin); invoice to customer; daily sales/orders report; low-stock alert.
- - Human handover button, seller approves risky replies, never invents prices/stock.
- - Plans for sellers (e.g. Starter/Pro by monthly AI replies), 7-day free trial, credit
-   packs; Profit Guard per AI reply + per WhatsApp conversation cost.
- - Owner steps in Bangla (owner_actions/BUSINESS_AGENT_SETUP.md): Meta developer app,
-   business verification, App Review for page messaging permissions, WhatsApp Business
-   number, courier merchant accounts. Build + test with sandboxes/test pages until then.
- - Later (doc only now): integration API so Asalify / AXON ERP shops can connect.
-
-P2. MONETIZATION (free plan only; never on safety, payment, login, call screens):
- - App Open ad: from day 2 after signup, max 3 per day, skippable after 5 s; all caps
-   editable in Owner Admin so I can raise/lower them.
- - Home hero native ad (exists), Telegram-style "Sponsored" post at the end of large
-   communities/channels (Admin threshold), rewarded ads for credits.
- - Direct sponsors first: brand offers + Discover cards sold by me via Owner Admin
-   (price, dates, audience, reports); AdMob fills empty slots.
- - Brand offers by interest: users pick favourite brands/categories; max 2 offer
-   notifications/day; mute any brand.
- - Premium must be worth buying: list the premium-only benefits clearly, paywall at
-   the moment of need, 3-day trial, yearly discount within the safe margin.
- - P&L per placement + uninstall/retention impact.
-
-P3. MY CIRCLE = WhatsApp + AI assistant + family safety:
- - "@Assisto" inside chats/groups: summarize unread, set reminders for everyone, split a
-   bill, make a shopping list, translate, answer questions (credits).
- - Family safety links: missed medicine alert to family, safe-arrival, SOS, lost phone,
-   scam message warning inside chats.
- - Stories (24 h) + profile Notes in the Updates tab, privacy controls.
-
-P4. UNSEEN WORLD (everything in one place, Bangla, voice):
- - AI answers anything with LIVE web search + cited sources (search API key in Admin,
-   credits per answer).
- - Daily cards (user can turn each on/off): live cricket/football scores (licensed API,
-   cost shown), currency rates, gold, fuel, weather, prayer times, news headlines +
-   snippet + link only (reputable outlets, never copy articles), world news too.
- - Jobs hub (link out, never copy): bpsc.gov.bd, Bdjobs.com, alljobs.teletalk.com.bd,
-   erecruitment.bb.org.bd, LinkedIn.com/jobs, boesl.gov.bd, Chakri.com,
-   Careerjet.com.bd, Bangladesh.gov.bd, ngoforum.org.bd; job-type alerts where a lawful
-   feed exists.
- - Hubs: Expats (visa, remittance, overseas jobs, country rules), Students (SSC/HSC/
-   admission/BCS practice), Farmers (crop photo -> disease + treatment, with "ask an
-   agri officer" note), Government services (passport, NID, birth cert, land: steps,
-   documents, fees, links, AI help filling forms), Health helpers (prescription reader,
-   medicine price; always "consult a doctor").
-
-P5. GROWTH: referral (invite -> credits for both), share AI answers/cards with Assisto
-   branding, Founding Members, Facebook page content kit; Owner Admin funnel: installs,
-   activation, D1/D7/D30 retention, paying users, revenue per user.
-
-P6. owner_actions/BUSINESS_PLAN_BN.md (Bangla): who pays and why, pricing, unit
-   economics per plan, 12-month revenue scenarios (honest assumptions), first 10,000
-   users plan, partners to sign (payments, couriers, tickets, brands), risks, and a
-   1-page investor summary.
-
-Each part: real proof (tests + live), Bangla 3-line STATUS, owner tasks listed clearly.
-```
-
-## NEW ORDER 23 Oct (owner, ~/order.txt) — DO FIRST, in order A, B, C, D, F, E
-Status: A [agent a1 starting], B-F [queued]. Pricing (no unlimited, Premium 90) + disk alert 80% [agent pr1]. Reality audit 202 [DONE b26ccc0].
-```
-OWNER ORDER 23 Oct - My Circle polish + calls like WhatsApp/Messenger + chat themes +
-Photo Studio like Remini + Silicon Valley design. Order: A, B, C, D, F, E.
-
-A. BUGS from my phone (build 202):
- 1. Chat list shows "Abul Kashem" TWICE (one with messages, one "No messages yet") - merge
-    duplicate threads/edges (request thread vs circle edge); one row per person, always.
- 2. Chat list preview shows "Encrypted message" instead of the decrypted last message - fix
-    on-device preview decryption (incl. after a key change).
- 3. Header still shows "last seen today at..." cut off - full time must be visible
-    (shorten the name first; 2 lines or marquee). Test 360 dp, bn + en.
- 4. Call events must appear INSIDE the chat like WhatsApp ("Missed voice call 10:05",
-    "Video call 3:12") with tap to call back.
-
-B. CALLS (must match WhatsApp/Messenger):
- 1. Switch voice -> video during a call (request + accept on the other side) and back.
- 2. Mute mic, camera on/off, flip camera, speaker/earpiece/Bluetooth; each person sees
-    who has camera/mic off.
- 3. Add people during a call -> group call; group voice/video calls from groups. Use a
-    self-hosted SFU (e.g. LiveKit, Apache-2.0) on our server for 3+ people; 1:1 stays P2P.
-    Active speaker, grid, host can mute others, leave/rejoin.
- 4. Screen share during a call (Android MediaProjection, foreground service, clear banner).
- 5. Call recording ONLY with consent: asking person requests, everyone must accept,
-    visible "Recording" banner for all, saved encrypted on the requester's phone only,
-    legal note in Privacy Policy (bn + en). No silent recording ever.
- 6. Picture-in-picture, call quality indicator, reconnect on network change.
- Measure server cost (SFU bandwidth) in P&L; respect the "Free calls (testing)" switch.
-
-C. CHAT THEMES like Messenger:
- 1. A default premium-looking chat theme (bubbles, background, typography) in light/dark.
- 2. Per-chat themes: 10+ ready themes (colour gradients, bubble colours, wallpapers incl.
-    Bangla-inspired designs), custom colour + own photo wallpaper; both sides see the
-    chosen theme (synced), with a "Theme changed" note in the chat.
-
-D. PHOTO STUDIO like Remini, but better - the on-device enhance FAILED on my phone:
- 1. Find and fix the root cause first (report in STATUS with device + error).
- 2. Feature set (our OWN licence-clean models only - never copy Remini code, models,
-    design or brand): Enhance face (face restoration), Unblur/deblur, Old photo restore,
-    Colorize B/W, Upscale 2x/4x, Denoise, Low-light fix, Background blur, Before/after
-    slider, batch of photos. Candidates (check licences for commercial use): Real-ESRGAN
-    (BSD), NAFNet (MIT), DDColor (Apache-2.0), SwinIR (Apache-2.0), GFPGAN only if weights
-    allow; NOT CodeFormer (non-commercial).
- 3. Light tasks on-device (free to us); heavy tasks on our server or a pay-per-use GPU
-    API behind Admin keys, charged in credits/ads with Profit Guard - never a loss.
- 4. Face must stay the same person; never change identity. Results in < 10 s on a
-    mid-range phone for light tasks; show progress; never a fake result.
- 5. Compare our results side by side with Remini on 20 test photos (portraits, old,
-    blurry, low light) and report honestly in STATUS.
-
-F. APP-WIDE DESIGN UPGRADE to Silicon Valley standard (owner order; home screen look may
-   change too, but keep its structure):
- 1. Typography: English = Inter; Bangla = compare Hind Siliguri vs Noto Sans Bengali (also
-    Anek Bangla) on real screens and pick the best; all fonts bundled (OFL), never
-    downloaded at runtime. One clear type scale (display, title, body, label, caption),
-    correct Bangla line-height so letters never clip, tabular figures for amounts/times.
- 2. Design system: colour tokens (light + dark, WCAG AA contrast), 4/8 pt spacing, radius,
-    elevation, one icon set (Material Symbols Rounded or Phosphor, same weight everywhere),
-    consistent buttons, inputs, cards, lists, sheets, empty states, loading skeletons,
-    smooth 150-300 ms motion. No random colours or sizes anywhere.
- 3. Apply to ALL screens (316): My Circle and call screens first, then home, Assisto AI
-    chat, Photo Studio, settings, business tools.
- 4. Accessibility: works at 200% font size, screen reader labels, tap targets >= 48 dp.
- 5. Proof: before/after screenshots of the 30 most-used screens (bn + en, light + dark) in
-    .phaseB/design_shots/ + Bangla summary in STATUS. Show home + My Circle before/after
-    first; continue with the rest without waiting.
-
-E. DO MORE ON YOUR OWN: compare My Circle with WhatsApp, Messenger and Telegram, write a
-   gap table (feature | them | us | plan) in owner_actions/MYCIRCLE_GAPS_BN.md and build the
-   high-value missing ones (e.g. chat lock, disappearing messages, view-once media, pinned/
-   archived chats, polls, message search, voice note speed), each one really working.
-
-Rules: no showpieces, prove each part (tests + live), Bangla 3-line STATUS per build.
-```
-
-## MASTER ORDER 22 Oct (single source of truth; earlier orders below are history)
-Rules: max parallel agents (own worktree each), heavy cmds via lock, ship each part immediately, deploy each backend after checks (standing approval), max 1 h on CI problems (gate = release cold start + backend tests + route_check; note missing proof), commit hourly, never idle, blockers in Bangla at top of STATUS, 3 Bangla lines per build.
-
-MY CIRCLE MASTER ORDER (22 Oct, after build 183 real-phone tests) — supersedes all earlier My Circle items. SHIP ORDER: Build A as soon as proven → Build B. Do not hold A for B.
-A. [SHIPPED build 187 + backend live + LIVE PROOF PASSED (calls relay/direct; ticks server-side 0.14/0.10 s; runner 2.3/1.6 s = network distance). MISSING PROOF: two real phones] [EMERGENCY — agents x1-calls, x2-ticks] A1 calls (root cause: every call POSTed twice by the same phone → duplicate ends 'busy' → Busy + Missed rows; ICE rarely connected; relayed=False always, coturn 0 allocations, no TLS 5349): idempotent start + glare merge, busy only when really active, signalling <1 s, early-ICE queue, ICE restart, 20 s fail both sides, stale sweeps + cron + one-time cleanup, grouped log, TURN probe from outside (AWS SG). A2 ticks: delivered via FCM background ack <2 s, read only when visible <1 s, grey/grey/bright-blue + darker outgoing bubble, Message info real times (read receipts: user 3 on, user 20 default). A3 profile photos everywhere. A4 proof against LIVE server + LIVE TURN from a GitHub runner (relay + direct, 30 s audio both ways, ticks timings).
-B. [PUSHED as build 188 (CI) + backend live: 0060_e2_keys, Photo Studio model installed] [agents e2-keys, b2-badges (in CI), t1-ticks, p2-photo, s2-showpieces] B1 keys per user + outbox (BEFORE: 2 accepted pairs, 1 missing a key — 3↔18). B2 chat opens at latest (reversed, unread divider, paged), date chips + floating date, header name/status line, Search in ⋮, E2E notice as first history item (not pinned). B3 badges repair + sum rule + bell clear (b2 build). B4 legacy tick info + min-version gate. B5 NO SHOWPIECES: Photo Studio real on-device enhance, FLAG_SECURE, identity check, prompt section hidden without key, Hey Assisto hidden, Discover rename (b2), list every removed text in STATUS.
-Each build: deploy backend (backup → migrate → restart), Bangla 3-line STATUS, two-phone checklist. Parallel: wake word (training in CI). PAYMENTS [BUILT; integrating as Build C with TURN scale-up (agent integ-c); needs owner EPS + Play keys] [AGENT pay1, decided 22 Oct]: Play Billing first (Play flavour) + EPS gateway (eps.com.bd — owner amendment, NOT SSLCommerz; bKash/Nagad/cards), provider-agnostic gateway layer, no QR; checkout sheet, Play subs + credit packs with server verification + RTDN, EPS hosted checkout + server-to-server verification + signed callback, prepaid gateway periods + reminders, website /premium with OTP login, one entitlement service, owner per-channel kill-switch (same options for everyone), P&L per channel, PAYMENTS_SETUP.md (Bangla, incl. Play policy risk note), sandbox proof. After Build A.
-T. [LIVE 22 Oct] TURN debug + scale-up: quota root cause fixed, ports 49152-65535, TLS 5349, bps-capacity ceiling removed (total-quota 1200), outside probe UDP/TCP/TLS pass; list/monitor/alerts/relay cost in Build C; CALL_SCALING.md.
-1. [SHIPPED build 176 + backend deployed] My Circle like WhatsApp (add any format/phonebook/QR/link, requests, messages, voice+video calls, FCM ringing closed app) + settings-store release fix + Phone Safety spinner fix. MISSING PROOF: native tour + two-account emulator audit (hosted emulator wedges adb) — re-run when CI stable.
-2. [DONE 22 Oct] Owner account: owner confirmed id 3 (owner account) → superuser + staff (backup first, AuditLog entry). Superusers: Owner (13) + id 3.
-3. [BUILT, in builds] OTP flow (provider-agnostic, key-gated) + owner_actions/SMS_GATEWAY_NEEDS.md (Bangla). Needs SMS gateway keys.
-4. [SHIPPED build 177] Voice assistant: default assistant (long-press power), optional Hey Assisto (needs Picovoice key), YouTube/YT Music, hands-free, TTS, bn/Banglish/en.
-5. [LIVE 22 Oct] Web Owner Admin Panel https://api.lifeassisto.com/owner/ (migration 0051_o2; login steps in STATUS, Bangla).
-6. [SHIPPED build 178: Photo Studio; home hero + image in chat merged, next] Photo Studio + home ad hero (remove suggestions, muted hero) + image in chat.
-7. [vehicle OBD SHIPPED build 179; webphoto next] Vehicle app part (live map, 24h playback, engine cut-off rules, geofence/over-speed, OBD, Car Mode) — verify completeness; website passport funnel.
-8. [NOT IN THIS SESSION] Remote support — owner's full spec saved in .phaseB/REMOTE_SUPPORT_SPEC.md; the first launch here was stopped by a safety system before it ran, so it must be built in a separate session.
-9. [Batch 6 SHIPPED build 195 + backend 0065] [CCTV live + Shop Box mode SHIPPED build 180] [b6r READY (agent/b6r 00f2517: intruder photo real, no Keystore, Kotlin compiled) — ships right after My Circle; migration re-chain to 0065] [AGENT b6-antitheft, spec .phaseB/BATCH6_ORDER.md] Batch 6 native lost/stolen engine (opt-in, own phone: heartbeat, snatch, SIM/airplane/battery/shutdown guards, intruder photo, store-and-forward) + [READY cctv] CCTV live view + Android Shop Box mode.
-10. [SHIPPED 197: QA avg 8.98, below-9 78->8 (rest explained in QA_REPORT_BN.md); reality audit runs (31 flows, 61 real shots); rt1 SHIPPED 198: C 18->1, 4 real bugs fixed; rt2 SHIPPED 199: honest 5xx text, rt logging, cart/add 500 fix, per-group matrix; emulator still dies (RenderThread; guest/swiftshader both) - 1h CI cap hit, parked; 17_circle "exactly one candidate" = harness bug (ended call screen has Close, no back button) fixed in flow, no CI rerun; ty1 SHIPPED 200: realtime loop in safe mode + harness (typing/in-app ring); qa2 MERGED -> build 201: last 7 screens 8->9 (avg 9.00), 100+ screens honest 5xx] Premium QA every screen >=9/10, full reality audit with real runs, owner phone checklist.
-L. [SHIPPED build 185: legal pages live (AXON ERP Software, Mumbai), signed Play AAB in CI, app-ads.txt 200, PLAY_STORE_PACK.md; owner still owes [ADDRESS] + AdMob publisher ID] LAUNCH TRACK [AGENT]: Privacy Policy / Terms / Data Deletion pages on lifeassisto.com (bn+en, Play + AdMob compliant, every permission explained); app-ads.txt ready for the AdMob publisher ID; owner_actions/PLAY_STORE_PACK.md (name, short/full description bn+en, feature graphic, 8 screenshots, content rating + Data Safety, permission declarations); signed release AAB per release in CI + upload key + Play App Signing plan.
-L2. [SHIPPED build 185] [AGENT f1-founders] FOUNDING TESTERS: owner admin action grants "Founding Member" (free Premium N months, admin-editable default 12, + badge) to a pasted list of accounts (first 12–20 Play closed testers); in-app "Send feedback / report a problem" (screenshot + note) landing in the owner admin panel.
-L3. [SHIPPED 202: UMP consent gate + Settings ad-privacy tile + Owner EEA debug switch; off until AdMob linked (a6 apply + owner AdMob ID + GDPR message)] Google UMP consent flow for AdMob (EEA/UK/Switzerland) — then re-add those countries in Play.
-L4. [ww2 DONE: conversion fixed (agent/ww2), full training ok, NOT ship-ready (TV/music FA 20/10h); ww3 MERGED (tools only): TV FA 3/10h (target <1), bn 0/10h, far FRR 7.8% synthetic, ship_ready=false; NEXT needs owner HF_TOKEN (AI4Bharat Kathbath/Shrutilipi) + real recordings; owner: real voice clips later; app integration needs clamp 0.9999 + ship_ready gate]  [AGENT k1-wake] "Hey Assisto" wake word on openWakeWord (Picovoice removed): custom model trained in a CI workflow, opt-in mic FGS + disclosure, auto-pause, locked-phone rules, reboot honesty, OEM guide, default-assistant step, Play declaration; real-phone proof before shipping.
-Also queued: [hc1 MERGED 0f39297, in all builds since] Health Connect plugin fails to register (MainActivity must become FlutterFragmentActivity) — own native build (the HC privacy activity is now in the launch build).
-
-## History
-
-0. (old) Final order 21 Oct: 1 → 2 (+contract test) → 4 (FCM) → 3 (reality audit) → 5 (voice assistant) → 6 (vehicle) → 7.
-1. 21-Oct NIGHT order (replaces the order above): 1 broken links + contract CI → 2 sidebar/auto voice → 2b DISCOVER MANAGER → 3 FCM + un-park workflows → 4 OTP → 5 reality audit → 6 voice assistant → 7 Photo Studio → 8 vehicle → 9 remote support → Batch 6 → CCTV live + Shop Box → Premium QA. Max 3 agents.
-0a. MY CIRCLE LIKE WHATSAPP (top priority, current build): FCM + contacts + New chat / Add to My Circle / requests / no silent failures / Phone Safety Check-up loading fix; ships only after the two-account emulator proof (agent m3-circle).
-0b. WEB OWNER ADMIN PANEL at https://api.lifeassisto.com/owner/ — RIGHT AFTER the My Circle build (agent o2-admin building). Owner tried the URL: Not Found (expected — not deployed yet). Superuser login + mandatory TOTP 2FA + recovery codes, HTTPS only, rate-limited, audit log; sections: Discover manager (cards, sponsors, images, schedule, audience, CTR reports, CSV/PDF), Pricing & plans & credits, Profit Guard + P&L, Ads settings (caps, hero ad, sound), Integrations/API keys, Users (search, plan, credits, block), Reports; bn + en. Needs nginx /owner/ location → :8700. When live: tell the owner in Bangla (URL + login steps, owner_actions/OWNER_ADMIN_PANEL.md).
-   Decision done 21 Oct: SPONSORED cards reach every plan (always labelled), AdMob Free-only — LIVE.
-1a. OWNER BUG — CONTACTS ON ASSISTO IS A FACADE (top priority right after the current build): agent c1-contacts.
-   - Root causes: permission stub always true + phonebook never read (no plugin); UserPhoneHash never created; no phone normalisation (exact-string match).
-   - Fix: E.164 canonical phone everywhere + data migration; UserPhoneHash on register/phone change + backfill; admin flag allow-unverified-matching (ON test, OFF at launch); contacts plugin + READ_CONTACTS + prominent disclosure (native build, needs workflow scope); WhatsApp-style On Assisto / Invite; search any format.
-   - Stays C in the Reality Audit until the two-phone test passes (01711000777 searched as +880 1711-000777 / 8801711000777 / 01711000777).
-1b. DISCOVER MANAGER + SPONSORED CARDS (owner, 21 Oct night; right after priority 2):
-   - Link fix axonerp.com → https://axonerpsoftware.com: DONE in build 148.
-   - Admin panel: cards CRUD + reorder + enable; image/icon; bn+en title/desc; action = in-app route (picker) or external URL; start/end datetime; audience all/Free/Premium/Business; optional min app version.
-   - Types: FEATURE, OUR PRODUCT (Asalify https://asalify.com, AXON ERP https://axonerpsoftware.com, label "Our products"), SPONSORED (always labelled "Sponsored"), ADMOB slot (free only, fills when no sponsored booked).
-   - Rules: Premium/Business never see SPONSORED/AdMob; never on safety screens; content safety check (no scams/gambling/adult/fake claims).
-   - Sponsor reporting: impressions/clicks/CTR per card per day; CSV/PDF export; sponsor revenue per card → owner P&L dashboard.
-   - App: server fetch + offline cache (last set), auto-rotate as now, tap tracking; hard-coded list only as first-run fallback.
-   - Real E2E test: admin adds card → appears without update; expires on end date; audience respected. 3 Bangla lines.
-2. PHOTO STUDIO — queued right AFTER the voice assistant ships (owner order 21 Oct, replaces all earlier Photo Studio messages).
-   Full text of the order is in the session; key constraints:
-   - One-tap on-device enhance, no API key; commercially-licensed models only (Real-ESRGAN BSD-3 ok; CodeFormer NON-commercial → never; verify GFPGAN + every weight) → .phaseB/MODEL_LICENSES.md.
-   - Prompt edit/generate via switchable, key-gated cloud adapter (Gemini / OpenAI image / Replicate-class); keys + cost/image in OWNER_UNLOCK_LIST.md.
-   - Face-lock compositing for scene edits; beauty retouch only within allowed list; identity guard (ArcFace-class + landmarks) on every result; original kept, undo + history.
-   - Ads: entry interstitial (≤1 per 30 min, admin-editable); every export path gated by rewarded ads for free users; watermarked reduced preview + FLAG_SECURE; no free bypass on no-fill; Profit Guard makes loss-making edits impossible (tests); owner dashboard.
-   - Safety refusals (sexual/undressing, fake compromising scenes, ID/document/money/seal edits), child caution, consent reminder, AI-edit metadata.
-   - Ship with 3 Bangla lines + before/after gallery examples; Reality Audit A/B/C/D on emulator.
+## Standing orders still in force (details in owner_actions/OWNER_*.md and memory)
+- Owner final order 2 Nov: launch ALL features 8 Nov at Silicon Valley standard; guard = p95>400 ms or swap -> pause newest agent; daily 21:00 BD report
+- Definition of Done (owner_actions/DEFINITION_OF_DONE_BN.md), Master quality order, Feature excellence rule, 100% mode, Maximum mode (owner_actions/OWNER_FINAL_ORDER_27OCT.md)
+- Agent Core (Part 2 of 27 Oct order): owner_actions/AGENT_CORE_DESIGN_BN.md; flag agent_core OFF; AI keys: owner adds
+- Billing hardening (owner_actions/BILLING_ORDER_27OCT.md), call bugs (b287 done), home frozen (v2; v6 behind home_v2)
+- Daily: STATUS_FOR_OWNER.md top = short Bangla summary; 3 Bangla lines per published build

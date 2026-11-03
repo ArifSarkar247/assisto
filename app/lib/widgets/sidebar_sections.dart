@@ -110,6 +110,7 @@ import '../screens/inbox_screen.dart';
 // business
 import '../screens/pa/pa_hub_screen.dart';
 import '../screens/business_screen.dart';
+import '../screens/market/market_screen.dart'; // amarket
 import '../screens/crm/crm_home_screen.dart';
 import '../feature_gates.dart'
     show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
@@ -560,6 +561,13 @@ class SidebarSections {
         (t) => t.sidebarLife, [
       // Part 3: Assisto Voice — hands-free assistant (calls, alarms, torch,
       // YouTube, maps, reminders, expenses, SOS — outgoing always confirmed).
+      // amarket (flag assisto_market, default OFF): buyers post a need,
+      // verified sellers send sealed offers; COD only, Dhaka only.
+      SidebarItem(Icons.local_mall_rounded, (t) => t.amkTitle,
+          feature: 'assisto_market',
+          (_) => const MarketScreen(),
+          synonyms: ['market', 'marketplace', 'reverse auction', 'bid', 'offer',
+              'group buy', 'buy together', 'wholesale', 'seller']),
       SidebarItem(Icons.graphic_eq_rounded, (t) => t.vaTitle,
           feature: 'voice_assistant',
           (_) => const VoiceAssistantScreen(),

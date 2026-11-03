@@ -44,6 +44,7 @@ class PushChannels {
     'budget_alert': alerts, // remhbud: an expense crossed 80% / 100% of a budget
     'channel_post': messages, // channels: a new post in a followed channel
     'community_join': messages, // channels: join request / approved
+    'market': alerts, // amarket: new need / new offer / accepted deal
   };
 }
 
@@ -225,6 +226,7 @@ class PushRouting {
     'exam': 'exam', // lifebar: the exam-result page changed
     'channels': 'channels', // channels: a new channel post
     'communities': 'communities', // channels: community join request
+    'market': 'market', // amarket: Assisto Market (flag-gated route)
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -246,6 +248,7 @@ class PushRouting {
     'budget_alert': 'budget', // remhbud: opens the Budget page
     'channel_post': 'channels', // channels: My Circle -> Channels
     'community_join': 'communities', // channels: My Circle -> Communities
+    'market': 'market', // amarket: Assisto Market (flag-gated route)
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,
