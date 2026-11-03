@@ -1,0 +1,6 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.as_forbidden_h }}{% endblock %}
+{% block content %}
+<section class="card"><p>{{ T.as_forbidden_body }}</p><p class="mut small">{{ T.as_role }}: <b>{{ role }}</b> · {{ T.as_need }}: <code>{{ need }}</code></p>
+{% if can.users %}<a class="btn primary" href="/owner/users">{{ T.nav_users }}</a>{% endif %}</section>
+{% endblock %}

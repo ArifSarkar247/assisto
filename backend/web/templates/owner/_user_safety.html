@@ -1,0 +1,77 @@
+{# adminsafe: account facts + safety actions. NEVER: chats, calls, vault, private photos, camera video, location. #}
+<section class="card" id="facts"><h2>{{ T.as_h_facts }}</h2>
+<div class="tbl"><table><tbody>
+<tr><th>{{ T.as_last_active }}</th><td>{{ u.last_active|date:"Y-m-d H:i"|default:"—" }}{% if as_push_dead %} <span class="pill bad" title="{{ T.as_def_uninstalled }}">{{ T.as_uninstalled }}</span>{% endif %}</td></tr>
+<tr><th>{{ T.as_device }}</th><td>{% if as_device %}{{ as_device.brand|default:"" }} {{ as_device.model|default:"" }}{% if as_device.sdk_int %} · Android SDK {{ as_device.sdk_int }}{% endif %} · {{ as_devices_n }} {{ T.as_devices }}{% else %}—{% endif %}</td></tr>
+<tr><th>{{ T.as_app_version }}</th><td>{% if u.app_version %}{{ u.app_version }}{% elif as_device and as_device.app_version %}{{ as_device.app_version }}{% else %}—{% endif %}</td></tr>
+<tr><th>{{ T.as_language }}</th><td>{{ u.language }}</td></tr>
+<tr><th>{{ T.as_reports_against }}</th><td>{{ as_reports_n }}{% if as_items_open %} · <a href="/owner/channel-reports">{{ T.as_open_items }} {{ as_items_open }}</a>{% endif %}</td></tr>
+</tbody></table></div>
+{% if as_reports %}<h3>{{ T.as_reports_against }}</h3><p class="mut small">{{ T.as_reports_note }}</p><ul>{% for r in as_reports %}<li>{{ r.at|date:"Y-m-d" }} · {{ r.cats|default:"—" }}{% if r.note %} · “{{ r.note }}”{% endif %} <span class="mut small">({{ r.source }})</span></li>{% endfor %}</ul>{% endif %}
+<h3>{{ T.as_tickets }}</h3>{% if as_tickets %}<ul>{% for t in as_tickets %}<li>{{ t.created_at|date:"Y-m-d" }} · {{ t.get_kind_display }} · {% if t.resolved %}<span class="pill ok">{{ T.as_resolved }}</span>{% else %}<span class="pill">{{ T.as_open }}</span>{% endif %} · {{ t.message|truncatechars:140 }}</li>{% endfor %}</ul>{% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
+<p class="mut small">{{ T.as_privacy_wall }}</p>
+</section>
+
+<section class="card" id="standing"><h2>{{ T.as_h_standing }}</h2>
+<p>{{ T.status }}: <b class="{% if blocked %}neg{% else %}pos{% endif %}">{{ u.account_status }}</b>{% if as_suspend_end %} · {{ T.until }} {{ as_suspend_end|date:"Y-m-d H:i" }}{% endif %}</p>
+{% if as_restrictions %}<p>{{ T.as_restricted }}: {% for r in as_restrictions %}<span class="pill bad">{{ r.get_kind_display }}{% if r.until %} → {{ r.until|date:"Y-m-d" }}{% endif %}</span> {% endfor %}</p>{% endif %}
+{% if as_actions %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.kind }}</th><th>{{ T.reason }}</th><th>{{ T.until }}</th><th>{{ T.as_by }}</th></tr></thead><tbody>
+{% for a in as_actions %}<tr><td>{{ a.created_at|date:"Y-m-d H:i" }}</td><td>{{ a.get_kind_display }}</td><td>{{ a.reason }}</td><td>{{ a.until|date:"Y-m-d"|default:"—" }}</td><td>{% if a.actor %}#{{ a.actor_id }}{% else %}{{ T.as_auto }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.as_no_actions }}</p>{% endif %}
+{% if as_appeals %}<h3>{{ T.nav_appeals }}</h3><ul>{% for ap in as_appeals %}<li>{{ ap.created_at|date:"Y-m-d" }} · {{ ap.get_state_display }} · “{{ ap.text|truncatechars:160 }}”{% if ap.decision_note %} → {{ ap.decision_note }}{% endif %}</li>{% endfor %}</ul>{% endif %}
+</section>
+
+{% if as_can_support or as_can_moderate %}{% if not u.is_superuser %}
+<div class="cols" id="actions">
+{% if as_can_support %}
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="warn">
+  <h2>{{ T.as_warn }}</h2><p class="mut small">{{ T.as_warn_note }}</p>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn primary">{{ T.as_warn }}</button>
+</form>
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="force_logout">
+  <h2>{{ T.as_force_logout }}</h2><p class="mut small">{{ T.as_force_logout_note }}</p>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn">{{ T.as_force_logout }}</button>
+</form>
+{% endif %}
+{% if as_can_moderate %}
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="restrict">
+  <h2>{{ T.as_restrict }}</h2>
+  <fieldset class="checks"><legend class="mut small">{{ T.as_restrict_what }}</legend>{% for k in as_kinds %}<label class="check"><input type="checkbox" name="kinds" value="{{ k }}"> {% if k == 'stranger_msg' %}{{ T.as_k_stranger_msg }}{% elif k == 'channel_post' %}{{ T.as_k_channel_post }}{% else %}{{ T.as_k_community_join }}{% endif %}</label>{% endfor %}</fieldset>
+  <label>{{ T.as_days_opt }}<input name="days" type="number" min="1" max="365" placeholder="7"></label>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn danger">{{ T.as_restrict }}</button>
+</form>
+{% if as_restrictions %}<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="unrestrict">
+  <h2>{{ T.as_unrestrict }}</h2>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn primary">{{ T.as_unrestrict }}</button>
+</form>{% endif %}
+{% if not blocked %}
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="suspend">
+  <h2>{{ T.as_suspend }}</h2><p class="mut small">{{ T.as_suspend_note }}</p>
+  <label>{{ T.as_days }}<input name="days" type="number" min="1" max="365" value="7" required></label>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn danger">{{ T.as_suspend }}</button>
+</form>
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card danger">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="ban">
+  <h2>{{ T.as_ban }}</h2><p class="mut small">{{ T.as_ban_note }}</p>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn danger">{{ T.as_ban }}</button>
+</form>
+{% else %}
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="unblock">
+  <h2>{{ T.unblock }}</h2><p class="mut small">{{ T.unblock_note }}</p>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn primary">{{ T.unblock }}</button>
+</form>
+{% endif %}
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="remove_content">
+  <h2>{{ T.as_remove_content }}</h2><p class="mut small">{{ T.as_remove_content_note }}</p>
+  <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
+  <button class="btn danger">{{ T.as_remove_content }}</button>
+</form>
+{% endif %}
+</div>
+{% endif %}{% endif %}

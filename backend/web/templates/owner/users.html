@@ -1,13 +1,16 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_users }}{% endblock %}
 {% block content %}
-<form method="get" class="inline card"><input name="q" value="{{ q }}" placeholder="{{ T.user_search_ph }}" class="grow" autofocus><button class="btn primary">{{ T.search }}</button></form>
+{% include "owner/_user_stats.html" %}
+<form method="get" class="inline card"><input type="hidden" name="f" value="{{ f }}"><input name="q" value="{{ q }}" placeholder="{{ T.user_search_ph }}" class="grow" aria-label="{{ T.user_search_ph }}"><button class="btn primary">{{ T.search }}</button></form>
+<p class="mut small">{% if f != 'all' %}{{ T.as_filter_on }} <b>{{ f_label }}</b> · <a href="/owner/users{% if q %}?q={{ q|urlencode }}{% endif %}">{{ T.as_filter_clear }}</a> · {% endif %}{{ T.as_rows }} {{ total }}</p>
 {% if rows %}
 <form method="post" action="/owner/founders" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="preview">
-<div class="row-between"><p class="mut small">{{ T.fm_pick_note }}</p><button class="btn primary small">{{ T.fm_pick_btn }}</button></div>
-<div class="tbl"><table><thead><tr><th><span class="mut">{{ T.fm_badge }}</span></th><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.plan }}</th><th>{{ T.credits }}</th><th>{{ T.status }}</th><th>{{ T.joined }}</th></tr></thead><tbody>
-{% for r in rows %}<tr><td><label class="check"><input type="checkbox" name="uid" value="{{ r.u.id }}" aria-label="#{{ r.u.id }}"></label></td><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td><a href="/owner/users/{{ r.u.id }}">{{ r.u.name|default:"—" }}</a>{% if r.u.is_superuser %} <span class="pill">owner</span>{% endif %}{% if r.u.is_founder %} <span class="pill fm">{{ T.fm_badge }}</span>{% endif %}</td><td>{{ r.u.phone|default:r.u.username }}</td><td>{{ r.eff }}</td><td class="num">{{ r.u.ai_credits }}</td><td>{% if r.u.account_status == 'active' %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill bad">{{ r.u.account_status }}</span>{% endif %}</td><td>{{ r.u.date_joined|date:"Y-m-d" }}</td></tr>{% endfor %}
+{% if role == 'owner' %}<div class="row-between"><p class="mut small">{{ T.fm_pick_note }}</p><button class="btn primary small">{{ T.fm_pick_btn }}</button></div>{% endif %}
+<div class="tbl"><table><thead><tr>{% if role == 'owner' %}<th><span class="mut">{{ T.fm_badge }}</span></th>{% endif %}<th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.plan }}</th><th>{{ T.credits }}</th><th>{{ T.status }}</th><th>{{ T.as_last_active }}</th><th>{{ T.joined }}</th></tr></thead><tbody>
+{% for r in rows %}<tr>{% if role == 'owner' %}<td><label class="check"><input type="checkbox" name="uid" value="{{ r.u.id }}" aria-label="#{{ r.u.id }}"></label></td>{% endif %}<td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td><a href="/owner/users/{{ r.u.id }}">{{ r.u.name|default:"—" }}</a>{% if r.u.is_superuser %} <span class="pill">owner</span>{% endif %}{% if r.u.is_founder %} <span class="pill fm">{{ T.fm_badge }}</span>{% endif %}</td><td>{{ r.phone }}</td><td>{{ r.eff }}</td><td class="num">{{ r.u.ai_credits }}</td><td>{% if r.u.account_status == 'active' %}<span class="pill ok">{{ T.active }}</span>{% else %}<span class="pill bad">{{ r.u.account_status }}</span>{% endif %}</td><td>{{ r.u.last_active|date:"Y-m-d"|default:"—" }}</td><td>{{ r.u.date_joined|date:"Y-m-d" }}</td></tr>{% endfor %}
 </tbody></table></div>
 </form>
+<nav class="pager" aria-label="pages">{% if pg.has_previous %}<a class="btn ghost small" href="?f={{ f }}&amp;q={{ q|urlencode }}&amp;page={{ pg.previous_page_number }}">←</a>{% endif %} <span class="mut small">{{ pg.number }} / {{ pg.paginator.num_pages }}</span> {% if pg.has_next %}<a class="btn ghost small" href="?f={{ f }}&amp;q={{ q|urlencode }}&amp;page={{ pg.next_page_number }}">→</a>{% endif %}</nav>
 {% else %}<p class="empty">{{ T.no_users }}</p>{% endif %}
 {% endblock %}

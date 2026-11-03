@@ -169,6 +169,12 @@ class ApiOtpBackend implements OtpBackend {
       if (phone.isEmpty && email != null && email.isNotEmpty) 'email': email,
       'otp_proof': proof,
     });
+    // adminsafe: a suspended / banned account -> the caller opens Account
+    // status (reason + appeal) with this body instead of a generic error.
+    if (r.data['reason'] == 'account_blocked' && r.data['appeal_token'] is String) {
+      throw ApiException((r.data['detail'] ?? '').toString(), 403, null,
+          'account_blocked', Map<String, dynamic>.from(r.data));
+    }
     if (!r.ok || r.data['token'] == null || r.data['user'] is! Map) return null;
     return (
       token: r.data['token'] as String,

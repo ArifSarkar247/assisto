@@ -9,6 +9,7 @@ import '../otp_api.dart';
 import '../services/phone_canon.dart';
 import 'otp/otp_login_screen.dart';
 import 'otp/otp_verify_screen.dart';
+import 'account_standing_screen.dart'; // adminsafe
 import '../widgets/robo_id.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -123,6 +124,12 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) setState(() => _error = _errorText(e));
+      // adminsafe: suspended / banned -> show the reason + appeal (no session)
+      if (mounted && e is ApiException && e.reason == 'account_blocked' &&
+          e.body?['appeal_token'] is String) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => AccountStandingScreen(blockedBody: e.body)));
+      }
       // offline at first paint: the OTP button may have been hidden
       if (_otp == null || (!_otp!.smsEnabled && !_otp!.emailEnabled)) {
         _loadOtp();

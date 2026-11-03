@@ -90,6 +90,12 @@ def dashboard(request):
     ctx["signups_today"] = User.objects.filter(date_joined__date=today).count()
     from core.models import OwnerAudit
     ctx["recent"] = OwnerAudit.objects.select_related("actor")[:8]
+    # adminsafe: real user stats (each number opens the filtered Users list)
+    try:
+        from .views_safety import stats_ctx
+        ctx.update(stats_ctx(request))
+    except Exception:
+        ctx["as_tiles"] = None
     return page(request, "owner/dashboard.html", ctx, nav="home")
 
 
@@ -780,7 +786,7 @@ def _adjust_credits(user, delta, note, actor=None):
 
 
 @require_http_methods(["GET", "POST"])
-@owner_view()
+@owner_view(perm="users", write_perm="owner")   # adminsafe: staff view, owner edits
 def user_detail(request, pk):
     from core import plans
     from core.models import CreditLedger
@@ -838,6 +844,14 @@ def user_detail(request, pk):
                     reason=audit_entry["reason"],
                     extra={"new_status": new_status, "reset_sessions": reset,
                            "via": "owner_panel"})
+                # adminsafe: the user sees this reason at sign-in and can appeal
+                from core.models import AccountAction, BannedIdentity
+                AccountAction.objects.create(
+                    user=u, kind="suspend" if action == "block" else "unblock",
+                    reason=reason, actor=request.owner, detail={"legacy_block": True})
+                if action == "unblock":
+                    BannedIdentity.objects.filter(user=u, lifted_at__isnull=True).update(
+                        lifted_at=timezone.now())
         else:
             raise Http404
         if err:
@@ -849,8 +863,20 @@ def user_detail(request, pk):
             S.audit(request, request.owner, "user." + action, "user:%s" % u.pk,
                     before=b, after={**a, "_reason": reason})
             return done("/owner/users/%d" % u.pk)
+    return user_detail_render(request, u, error=ctx.get("error"), status=status)
+
+
+def user_detail_render(request, u, error=None, status=200):
+    """adminsafe: the user page (GET is audited as user.view)."""
+    from core import plans
+    from core.models import CreditLedger
     from .views_bill2 import user_billing
+    from .views_safety import audit_view, detail_ctx
+    ctx = {"error": error} if error else {}
+    if request.method == "GET":
+        audit_view(request, u)
     ctx.update(user_billing(u))
+    ctx.update(detail_ctx(request, u))
     ctx.update({"u": u, "state": _user_state(u),
                 "ledger": CreditLedger.objects.filter(user=u)[:20],
                 "plan_ids": [p for p in plans.PLANS if p != "founder"],
@@ -948,7 +974,8 @@ def audit_log(request):
         r.before_json = json.dumps(r.before, ensure_ascii=False, default=str) if r.before else ""
         r.after_json = json.dumps(r.after, ensure_ascii=False, default=str) if r.after else ""
     prefixes = ("login", "2fa", "logout", "discover", "pricing", "ads", "flag",
-                "integration", "user", "security", "founders", "feedback")
+                "integration", "user", "security", "founders", "feedback",
+                "staff", "appeal")   # adminsafe
     return page(request, "owner/audit.html",
                 {"rows": rows, "act": act, "page_no": pg, "total": total,
                  "has_next": pg * 50 < total, "prefixes": prefixes}, nav="audit")

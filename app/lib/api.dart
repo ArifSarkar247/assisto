@@ -600,6 +600,26 @@ class ApiClient {
   }
   // ---- /o1-otp ----
 
+  // ---- adminsafe ---- Account status + appeals (backend core/views_safety.py)
+  /// GET /account/standing -> {status, until, restrictions, notices, can_appeal}.
+  Future<Map<String, dynamic>> accountStanding() => getJson('/account/standing');
+
+  /// POST /account/appeal {action_id, text}. Raw answer incl. `_status`
+  /// (201 ok; 400 bad_text; 404 not_found; 409 already_appealed).
+  Future<Map<String, dynamic>> sendAppeal(int actionId, String text) =>
+      postJsonRaw('/account/appeal', {'action_id': actionId, 'text': text});
+
+  /// Suspended / banned account (no session): the sign-in 403 carried an
+  /// `appeal_token`; these two endpoints accept only that token.
+  Future<Map<String, dynamic>> blockedStanding(String appealToken) =>
+      postJsonRaw('/account/standing/blocked', {'appeal_token': appealToken});
+
+  Future<Map<String, dynamic>> sendBlockedAppeal(
+          String appealToken, int actionId, String text) =>
+      postJsonRaw('/account/appeal/blocked',
+          {'appeal_token': appealToken, 'action_id': actionId, 'text': text});
+  // ---- /adminsafe ----
+
   Future<Map<String, dynamic>> postJson(String path,
       [Map<String, dynamic> body = const {}]) async {
     final r = await _c.post(AppConfig.api(path),

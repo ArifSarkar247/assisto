@@ -1,5 +1,5 @@
 {% extends "owner/base.html" %}
-{% block heading %}#{{ u.id }} {{ u.name|default:u.username }}{% endblock %}
+{% block heading %}#{{ u.id }} {% if as_pii %}{{ u.name|default:u.username }}{% else %}{{ u.name|default:"—" }}{% endif %}{% endblock %}
 {% block content %}
 <p><a href="/owner/users">← {{ T.nav_users }}</a></p>
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
@@ -7,9 +7,10 @@
   <div class="tile"><span>{{ T.plan }}</span><b>{{ state.effective }}</b><small>{{ T.stored_plan }}: {{ u.plan }}{% if u.plan_until %} · {{ T.until }} {{ u.plan_until|date:"Y-m-d" }}{% endif %}{% if u.trial_until %} · {{ T.trial_until }} {{ u.trial_until|date:"Y-m-d" }}{% endif %}</small></div>
   <div class="tile"><span>{{ T.credits }}</span><b>{{ state.ai_credits }}</b><small>{{ T.ad_wallet }}: {{ state.ad_wallet }}</small></div>
   <div class="tile"><span>{{ T.status }}</span><b class="{% if blocked %}neg{% else %}pos{% endif %}">{{ u.account_status }}</b><small>{{ T.joined }} {{ u.date_joined|date:"Y-m-d" }}</small></div>
-  <div class="tile"><span>{{ T.phone }}</span><b class="sm">{{ u.phone|default:"—" }}</b><small>{{ u.email|default:"" }}</small></div>
+  <div class="tile"><span>{{ T.phone }}</span><b class="sm">{{ as_phone }}</b><small>{{ as_email }}{% if not as_pii %} · {{ T.as_masked }}{% endif %}</small></div>
 </div>
-<div class="cols">
+{% include "owner/_user_safety.html" %}
+{% if as_can_money %}<div class="cols">
 <form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="credits">
   <h2>{{ T.adjust_credits }}</h2>
   <label>{{ T.delta }}<input name="delta" type="number" required placeholder="+10 / -5"></label>
@@ -40,7 +41,7 @@
   <label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
   <button class="btn {% if blocked %}primary{% else %}danger{% endif %}">{% if blocked %}{{ T.unblock }}{% else %}{{ T.block }}{% endif %}</button>
 </form>
-</div>
+</div>{% endif %}
 <section class="card"><h2>{{ T.b2_h_buckets }}</h2>
 <p>{% if b2_verify.ok %}<span class="pill ok">{{ T.b2_invariant_ok }}</span>{% else %}<span class="pill off">{{ T.b2_invariant_bad }}</span>{% endif %}
  <span class="mut small">{{ T.credits }} {{ b2_verify.balance }} · {{ T.b2_ledger_sum }} {{ b2_verify.ledger_sum }} · {{ T.b2_lots_sum }} {{ b2_verify.lots_sum }}</span></p>

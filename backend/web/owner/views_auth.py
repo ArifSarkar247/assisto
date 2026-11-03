@@ -49,7 +49,7 @@ def login_view(request):
     if refused:
         return refused
     sess = S.load_session(request)
-    if sess is not None and S.is_owner(sess.user) and request.method == "GET":
+    if sess is not None and S.can_enter(sess.user) and request.method == "GET":
         return S.harden(HttpResponseRedirect({"mfa": "/owner/2fa", "enrol": "/owner/enrol"}
                                              .get(sess.stage, "/owner/")))
     if request.method == "GET":
@@ -68,7 +68,8 @@ def login_view(request):
         return _bare(request, "owner/login.html",
                      {"error": T["err_locked"].format(m=_mins(left))}, status=429)
     user = _find_user(ident)
-    ok = bool(user and password and user.check_password(password) and S.is_owner(user))
+    # adminsafe: the owner OR an active staff role (same 2FA flow)
+    ok = bool(user and password and user.check_password(password) and S.can_enter(user))
     if not ok:
         S.register_fail(ip_key)
         S.register_fail(acct_key)
@@ -139,6 +140,8 @@ def mfa_view(request):
         return page(request, "owner/mfa.html", {"error": T["err_code"]}, status=401)
     raw = _finish_login(request, sess, method)
     dest = "/owner/security?m=recovery_used" if method == "recovery_code" else "/owner/"
+    if S.panel_role(sess.user) != "owner":
+        dest = "/owner/users"          # adminsafe: staff land on Users
     resp = HttpResponseRedirect(dest)
     S.set_cookie(resp, raw)
     return resp

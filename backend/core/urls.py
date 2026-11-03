@@ -1650,3 +1650,12 @@ urlpatterns += [
     path("mkt/items/<str:item_id>/publish", mktv.PublishView.as_view()),
 ]
 # ---- /mktengine ----
+# ---- adminsafe ---- Account status + appeals (Owner Admin safety, 3 Nov)
+from . import views_safety as safev  # noqa: E402
+urlpatterns += [
+    path("account/standing", safev.AccountStandingView.as_view()),
+    path("account/appeal", safev.AccountAppealView.as_view()),
+    path("account/standing/blocked", safev.BlockedStandingView.as_view()),
+    path("account/appeal/blocked", safev.BlockedAppealView.as_view()),
+]
+# ---- /adminsafe ----

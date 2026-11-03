@@ -130,6 +130,13 @@ class RegisterView(APIView):
             return signup_gate_response(lang)
         ser = RegisterSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
+        # adminsafe: a banned account's phone / email cannot sign up again
+        from .admin_safety import banned_identity, banned_message
+        if banned_identity(phone=ser.validated_data.get("phone"),
+                           email=ser.validated_data.get("email")):
+            return Response({"ok": False, "reason": "identity_banned",
+                             "detail": banned_message(lang)},
+                            status=status.HTTP_403_FORBIDDEN)
         canon = None
         if proof:
             canon = otp.normalize_bd_phone(ser.validated_data.get("phone"))
@@ -180,10 +187,10 @@ class LoginView(APIView):
             return Response({"detail": pick(lang, "ভুল তথ্য। আবার চেষ্টা করুন।",
                                             "Those details didn't match. Please try again.")},
                             status=status.HTTP_401_UNAUTHORIZED)
-        from .account_block import is_blocked, blocked_message
+        from .account_block import is_blocked, blocked_payload
         if is_blocked(user):   # o2-admin: blocked accounts cannot sign in
-            return Response({"reason": "account_blocked",
-                             "detail": blocked_message(req_lang(request))},
+            # adminsafe: + reason, suspension end and an appeal token
+            return Response(blocked_payload(user, req_lang(request)),
                             status=status.HTTP_403_FORBIDDEN)
         token, _ = Token.objects.get_or_create(user=user)
         log(user, "account.login")

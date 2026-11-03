@@ -8107,3 +8107,105 @@ class MarketBlock(models.Model):
         constraints = [models.UniqueConstraint(fields=["user", "blocked"],
                                                name="market_block_once")]
 # ---- /amarket ----
+# ---- adminsafe ---- (owner 3 Nov 04:22: Owner Admin support, safety and
+# user stats). Rules live in core/admin_safety.py. None of these rows hold
+# message, call, vault, photo, camera or location content.
+class AdminStaffRole(models.Model):
+    """A NON-owner account allowed into /owner/ with ONE least-privilege role.
+    The owner (superuser) is never stored here. Staff sign in with the same
+    password + TOTP 2FA flow as the owner."""
+    ROLES = [("support", "support"), ("moderator", "moderator"),
+             ("finance", "finance"), ("readonly", "read-only")]
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="admin_staff_role")
+    role = models.CharField(max_length=10, choices=ROLES)
+    active = models.BooleanField(default=True)
+    granted_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    note = models.CharField(max_length=200, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AccountAction(models.Model):
+    """One moderation/support decision on an account (warn, restrict,
+    suspend, ban, force logout, remove content, lift). `reason` is shown to
+    the user in the app; an appeal points at the action it disputes."""
+    KINDS = [("warn", "warn"), ("restrict", "restrict"), ("unrestrict", "unrestrict"),
+             ("suspend", "suspend"), ("ban", "ban"), ("unblock", "unblock"),
+             ("force_logout", "force logout"), ("remove_content", "remove content")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="account_actions")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    reason = models.CharField(max_length=300)
+    detail = models.JSONField(default=dict, blank=True)
+    until = models.DateTimeField(null=True, blank=True)        # suspend/restrict end
+    actor = models.ForeignKey(User, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "kind"], name="adminsafe_act_uk")]
+
+
+class UserRestriction(models.Model):
+    """A feature restriction enforced server-side in the matching endpoints.
+    Active while lifted_at is empty and (until is empty or in the future)."""
+    KINDS = [("stranger_msg", "messaging strangers"),
+             ("channel_post", "channel posting"),
+             ("community_join", "community joining")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="restrictions")
+    kind = models.CharField(max_length=16, choices=KINDS)
+    action = models.ForeignKey(AccountAction, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="+")
+    until = models.DateTimeField(null=True, blank=True)
+    lifted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "kind"], name="adminsafe_rst_uk")]
+
+
+class BannedIdentity(models.Model):
+    """A banned phone number / email (the Google account) — only a keyed
+    HMAC-SHA256 of the normalised value is stored, never the value."""
+    KINDS = [("phone", "phone"), ("email", "email")]
+    kind = models.CharField(max_length=6, choices=KINDS)
+    value_hash = models.CharField(max_length=64, db_index=True)
+    user = models.ForeignKey(User, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    action = models.ForeignKey(AccountAction, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    lifted_at = models.DateTimeField(null=True, blank=True)
+
+
+class AccountAppeal(models.Model):
+    """The user's appeal against one AccountAction -> Owner Admin queue."""
+    STATES = [("open", "open"), ("upheld", "decision kept"), ("lifted", "lifted")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="account_appeals")
+    action = models.ForeignKey(AccountAction, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="appeals")
+    text = models.TextField()
+    state = models.CharField(max_length=8, choices=STATES, default="open")
+    decided_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
+    decision_note = models.CharField(max_length=300, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+
+class PushDeadMark(models.Model):
+    """Set when FCM reported the user's LAST push token as dead
+    (UNREGISTERED / invalid) — the 'likely uninstalled' signal. Cleared as
+    soon as the app registers a token again. Recorded from adminsafe deploy."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="push_dead_mark")
+    at = models.DateTimeField(default=timezone.now)
+# ---- /adminsafe ----

@@ -67,6 +67,7 @@ owner_actions/photo_bench/.media_tmp/
 !tools/e2e/
 !tools/cashguard/
 !tools/play_pack/
+!tools/owner_shots/
 screenshots/
 new-logo.png
 logs/

@@ -212,6 +212,8 @@ import 'package:assisto/screens/credits_screen.dart'; // pay1 gallery
 import 'package:assisto/billing/refund_screen.dart'; // billapp gallery
 import 'package:assisto/screens/finance_screen.dart';
 import 'package:assisto/screens/watch_feed_screen.dart';
+import 'package:assisto/screens/account_standing_screen.dart'; // adminsafe
+import 'fake_standing.dart'; // adminsafe
 import 'package:assisto/screens/jobs_screen.dart';
 import 'package:assisto/screens/nominee_screen.dart';
 import 'package:assisto/screens/crm_contacts_screen.dart';
@@ -872,6 +874,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
     'finance': (build: (_) => const FinanceScreen(), mode: FakeMode.data, full: true),
     'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
+    // adminsafe: Account status + appeal (blocked sign-in body / signed in)
+    'acct_standing_suspended': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn')), mode: FakeMode.data, full: true),
+    'acct_standing_banned': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn', banned: true)), mode: FakeMode.data, full: true),
+    'acct_standing_restricted': (build: (_) => const AccountStandingScreen(), mode: FakeMode.data, full: true),
+    'acct_standing_good': (build: (_) => const AccountStandingScreen(), mode: FakeMode.empty, full: true),
     'jobs': (build: (_) => const JobsScreen(), mode: FakeMode.data, full: true),
     'nominee': (build: (_) => const NomineeScreen(), mode: FakeMode.data, full: true),
     'scam': (build: (_) => const ScamScreen(), mode: FakeMode.data, full: true),

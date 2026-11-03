@@ -324,6 +324,11 @@ class ConnectionRequestCreateView(APIView):
     and the ONE-note budget. Persists only on ok."""
 
     def post(self, request):
+        # adminsafe: Owner Admin restriction (stranger_msg) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "stranger_msg")
+        if _denied is not None:
+            return _denied
         lang = req_lang(request)
         data = request.data or {}
         target = User.objects.filter(pk=data.get("target_id")).first()
@@ -420,6 +425,11 @@ class ConnectionRequestMessageView(APIView):
     recipient-bound requester may attach the single note."""
 
     def post(self, request, pk):
+        # adminsafe: Owner Admin restriction (stranger_msg) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "stranger_msg")
+        if _denied is not None:
+            return _denied
         cr = ConnectionRequest.objects.filter(
             pk=pk, requester=request.user).first()
         if cr is None:
@@ -669,6 +679,11 @@ class CommunityGroupJoinView(APIView):
     request=create a JoinRequest)."""
 
     def post(self, request, pk):
+        # adminsafe: Owner Admin restriction (community_join) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "community_join")
+        if _denied is not None:
+            return _denied
         from . import channels_service as CS
         group = CommunityGroup.objects.filter(pk=pk).first()
         if group is None:
@@ -855,6 +870,11 @@ class CommunityMessageView(APIView):
       who==nobody / blocked -> refused."""
 
     def post(self, request):
+        # adminsafe: Owner Admin restriction (stranger_msg) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "stranger_msg")
+        if _denied is not None:
+            return _denied
         lang = req_lang(request)
         data = request.data or {}
         recipient = User.objects.filter(pk=data.get("recipient_id")).first()
@@ -1077,6 +1097,11 @@ class ChannelsView(APIView):
                          "suggested": suggested})
 
     def post(self, request):
+        # adminsafe: Owner Admin restriction (channel_post) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "channel_post")
+        if _denied is not None:
+            return _denied
         CS = _cs()
         data = request.data or {}
         name = str(data.get("name", "")).strip()
@@ -1389,6 +1414,11 @@ class ChannelPostsView(APIView):
         return Response({"results": [self._post_dict(p) for p in posts]})
 
     def post(self, request, pk):
+        # adminsafe: Owner Admin restriction (channel_post) — server-side
+        from .admin_safety import gate as _as_gate
+        _denied = _as_gate(request, "channel_post")
+        if _denied is not None:
+            return _denied
         CS = _cs()
         ch = Channel.objects.filter(pk=pk).first()
         if ch is None:

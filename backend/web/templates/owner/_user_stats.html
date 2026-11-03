@@ -1,0 +1,8 @@
+{# adminsafe: real user counts; every tile filters the Users list; definition on hover (title) and in the list below #}
+<section class="card" id="user-stats" aria-labelledby="as-h">
+<div class="row-between"><h2 id="as-h">{{ T.as_h_stats }}</h2><a class="btn ghost small" href="/owner/users?f={{ f|default:'all' }}&amp;fresh=1">{{ T.as_refresh }}</a></div>
+<div class="tiles">{% for t in as_tiles %}<a class="tile{% if f == t.key %} on{% endif %}" href="/owner/users?f={{ t.key }}" title="{{ t.def }}" aria-label="{{ t.label }}: {% if t.n is None %}—{% else %}{{ t.n }}{% endif %}. {{ t.def }}"><span>{{ t.label }}</span><b>{% if t.n is None %}—{% else %}{{ t.n }}{% endif %}</b></a>{% endfor %}</div>
+{% if as_chart %}<h3>{{ T.as_trend_h }}</h3><div class="legend"><span><i class="key s1"></i> {{ T.as_trend_active }}</span><span><i class="key s2"></i> {{ T.as_trend_signups }}</span></div><div class="chartbox">{{ as_chart|safe }}</div>{% else %}<p class="empty">{{ T.as_trend_empty }}</p>{% endif %}
+<details><summary>{{ T.as_defs }}</summary><dl class="defs">{% for t in as_tiles %}<dt>{{ t.label }}</dt><dd>{{ t.def }}</dd>{% endfor %}</dl></details>
+<p class="mut small">{{ T.as_cached }} {{ as_cache_sec }}s · {{ as_at|slice:":19" }}</p>
+</section>

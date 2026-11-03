@@ -29,6 +29,7 @@ from . import views_missing as MIS   # missing
 from . import views_blood as BLD     # blood
 from . import views_site3 as WS3     # sitev3: website go-live switch
 from . import views_market as MKT     # amarket
+from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -78,8 +79,12 @@ urlpatterns = [
     path("pnl", V.pnl),
     path("ads", V.ads),
     path("integrations", V.integrations),
-    path("users", V.users),
+    path("users", SAF.users),                          # adminsafe (stats + filters)
     path("users/<int:pk>", V.user_detail),
+    path("users/<int:pk>/act", SAF.user_act),          # adminsafe
+    path("appeals", SAF.appeals),                      # adminsafe
+    path("appeals/<int:pk>/decide", SAF.appeal_decide),  # adminsafe
+    path("staff", SAF.staff),                          # adminsafe
     path("reports", V.reports),
     path("reports/errors", SC1.app_errors),                 # sc1
     path("reports/errors/<str:fp>", SC1.app_error_detail),  # sc1
