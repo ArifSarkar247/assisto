@@ -79,7 +79,7 @@ class Packs(SimpleTestCase):
                     self.assertTrue(q["text_bn"] and q["text_en"])
                     if "options_bn" in q:
                         self.assertEqual(len(q["options_bn"]), len(q["options"]))
-                        self.assertEqual(q["options_en"], q["options"])
+                        self.assertEqual(q["options_bn"], q["options"])  # Bangla-first fallback
 
     def test_every_level_reachable_by_placement(self):
         for code in _mine():

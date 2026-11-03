@@ -46,7 +46,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A1",
-    "text": "Choose the right answer: 'Comment vous appelez-vous ?'",
+    "text": "সঠিক উত্তর বাছুন: 'Comment vous appelez-vous ?'",
     "text_en": "Choose the right answer: 'Comment vous appelez-vous ?'",
     "text_bn": "সঠিক উত্তর বাছুন: 'Comment vous appelez-vous ?'",
     "options": [
@@ -64,7 +64,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A1",
-    "text": "Which number?\nsoixante-dix",
+    "text": "কোন সংখ্যা?\nsoixante-dix",
     "text_en": "Which number?\nsoixante-dix",
     "text_bn": "কোন সংখ্যা?\nsoixante-dix",
     "tts_text": "soixante-dix",
@@ -83,7 +83,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "A2",
-    "text": "Fill the gap: 'Hier, je ___ allé au marché.'",
+    "text": "শূন্যস্থান: 'Hier, je ___ allé au marché.'",
     "text_en": "Fill the gap: 'Hier, je ___ allé au marché.'",
     "text_bn": "শূন্যস্থান: 'Hier, je ___ allé au marché.'",
     "options": [
@@ -101,14 +101,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A2",
-    "text": "When is the appointment?\nVotre rendez-vous est jeudi à quinze heures.",
+    "text": "অ্যাপয়েন্টমেন্ট কখন?\nVotre rendez-vous est jeudi à quinze heures.",
     "text_en": "When is the appointment?\nVotre rendez-vous est jeudi à quinze heures.",
     "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nVotre rendez-vous est jeudi à quinze heures.",
     "tts_text": "Votre rendez-vous est jeudi à quinze heures.",
     "options": [
-     "Thursday at 3 pm",
-     "Tuesday at 3 pm",
-     "Thursday at 10 am"
+     "বৃহস্পতিবার বিকেল ৩টা",
+     "মঙ্গলবার বিকেল ৩টা",
+     "বৃহস্পতিবার সকাল ১০টা"
     ],
     "options_en": [
      "Thursday at 3 pm",
@@ -129,7 +129,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "B1",
-    "text": "Choose the correct sentence.",
+    "text": "সঠিক বাক্য বাছুন।",
     "text_en": "Choose the correct sentence.",
     "text_bn": "সঠিক বাক্য বাছুন।",
     "options": [
@@ -147,14 +147,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B1",
-    "text": "Why is the student calling?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
+    "text": "ছাত্রটি কেন ফোন করছেন?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
     "text_en": "Why is the student calling?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
     "text_bn": "ছাত্রটি কেন ফোন করছেন?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
     "tts_text": "Bonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
     "options": [
-     "To change her exam date",
-     "To pay the rent",
-     "To buy a ticket"
+     "পরীক্ষার তারিখ বদলাতে",
+     "ভাড়া দিতে",
+     "টিকিট কিনতে"
     ],
     "options_en": [
      "To change her exam date",
@@ -175,7 +175,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B2",
-    "text": "Which closing fits a formal letter?",
+    "text": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
     "text_en": "Which closing fits a formal letter?",
     "text_bn": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
     "options": [
@@ -193,7 +193,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "B2",
-    "text": "Fill the gap: 'Si j'avais le temps, je ___ un cours du soir.'",
+    "text": "শূন্যস্থান: 'Si j'avais le temps, je ___ un cours du soir.'",
     "text_en": "Fill the gap: 'Si j'avais le temps, je ___ un cours du soir.'",
     "text_bn": "শূন্যস্থান: 'Si j'avais le temps, je ___ un cours du soir.'",
     "options": [
@@ -211,7 +211,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "Choose the best connector: '___ des difficultés, le projet a réussi.'",
+    "text": "উপযুক্ত সংযোজক: '___ des difficultés, le projet a réussi.'",
     "text_en": "Choose the best connector: '___ des difficultés, le projet a réussi.'",
     "text_bn": "উপযুক্ত সংযোজক: '___ des difficultés, le projet a réussi.'",
     "options": [
@@ -229,14 +229,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "What is the speaker's view?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
+    "text": "বক্তার মত কী?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
     "text_en": "What is the speaker's view?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
     "text_bn": "বক্তার মত কী?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
     "tts_text": "Le télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
     "options": [
-     "Remote work helps, but isolation is a risk",
-     "Remote work should be banned",
-     "Isolation is not a problem"
+     "দূর থেকে কাজ উপকারী, কিন্তু একাকীত্বের ঝুঁকি আছে",
+     "দূর থেকে কাজ নিষিদ্ধ হোক",
+     "একাকীত্ব সমস্যা নয়"
     ],
     "options_en": [
      "Remote work helps, but isolation is a risk",
@@ -257,13 +257,13 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "C2",
-    "text": "'Poser un lapin à quelqu'un' means…",
+    "text": "'Poser un lapin à quelqu'un' মানে…",
     "text_en": "'Poser un lapin à quelqu'un' means…",
     "text_bn": "'Poser un lapin à quelqu'un' মানে…",
     "options": [
-     "To stand someone up",
-     "To give someone a rabbit",
-     "To cook for someone"
+     "কথা দিয়ে না আসা",
+     "কাউকে খরগোশ দেওয়া",
+     "কারও জন্য রান্না করা"
     ],
     "options_en": [
      "To stand someone up",
@@ -284,7 +284,7 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "C2",
-    "text": "Which word best completes: 'Son argument est tout à fait ___.'",
+    "text": "শূন্যস্থান: 'Son argument est tout à fait ___.'",
     "text_en": "Which word best completes: 'Son argument est tout à fait ___.'",
     "text_bn": "শূন্যস্থান: 'Son argument est tout à fait ___.'",
     "options": [
@@ -1264,7 +1264,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "Which platform?\nLe train pour Lille part de la voie six.",
+       "text": "কোন প্ল্যাটফর্ম?\nLe train pour Lille part de la voie six.",
        "text_en": "Which platform?\nLe train pour Lille part de la voie six.",
        "text_bn": "কোন প্ল্যাটফর্ম?\nLe train pour Lille part de la voie six.",
        "tts_text": "Le train pour Lille part de la voie six.",
@@ -1282,13 +1282,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "True or false: the pharmacy is closed on Sunday.\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
+       "text": "সত্য না মিথ্যা: রবিবার ফার্মেসি বন্ধ।\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
        "text_en": "True or false: the pharmacy is closed on Sunday.\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
        "text_bn": "সত্য না মিথ্যা: রবিবার ফার্মেসি বন্ধ।\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
        "tts_text": "La pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1307,14 +1307,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "What must the student bring?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
+       "text": "ছাত্রটিকে কী আনতে হবে?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
        "text_en": "What must the student bring?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
        "text_bn": "ছাত্রটিকে কী আনতে হবে?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
        "tts_text": "Pour votre carte d'étudiant, apportez une photo et votre passeport.",
        "options": [
-        "A photo and the passport",
-        "Money",
-        "A book"
+        "ছবি ও পাসপোর্ট",
+        "টাকা",
+        "বই"
        ],
        "options_en": [
         "A photo and the passport",
@@ -1335,14 +1335,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why is the class cancelled?\nLe cours de jeudi est annulé à cause de la grève des transports.",
+       "text": "ক্লাস কেন বাতিল?\nLe cours de jeudi est annulé à cause de la grève des transports.",
        "text_en": "Why is the class cancelled?\nLe cours de jeudi est annulé à cause de la grève des transports.",
        "text_bn": "ক্লাস কেন বাতিল?\nLe cours de jeudi est annulé à cause de la grève des transports.",
        "tts_text": "Le cours de jeudi est annulé à cause de la grève des transports.",
        "options": [
-        "The teacher is ill",
-        "There is a strike",
-        "It's a holiday"
+        "শিক্ষক অসুস্থ",
+        "ধর্মঘট",
+        "ছুটির দিন"
        ],
        "options_en": [
         "The teacher is ill",
@@ -1363,14 +1363,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the advisor recommend?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
+       "text": "পরামর্শদাতা কী বললেন?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
        "text_en": "What does the advisor recommend?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
        "text_bn": "পরামর্শদাতা কী বললেন?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
        "tts_text": "Je vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
        "options": [
-        "Apply for housing aid as soon as you arrive",
-        "Wait one year",
-        "Live without a lease"
+        "পৌঁছেই আবাসন সহায়তার আবেদন",
+        "এক বছর অপেক্ষা",
+        "চুক্তি ছাড়া থাকা"
        ],
        "options_en": [
         "Apply for housing aid as soon as you arrive",
@@ -1391,14 +1391,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "What is the speaker's attitude?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
+       "text": "বক্তার মনোভাব কী?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
        "text_en": "What is the speaker's attitude?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
        "text_bn": "বক্তার মনোভাব কী?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
        "tts_text": "Cette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
        "options": [
-        "Supportive with a reservation",
-        "Totally against",
-        "Indifferent"
+        "সমর্থন, তবে একটু সংশয়",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
        ],
        "options_en": [
         "Supportive with a reservation",
@@ -1419,13 +1419,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "Notice at the town hall. When is it closed?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
+       "text": "পৌরসভার নোটিশ। কখন বন্ধ?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
        "text_en": "Notice at the town hall. When is it closed?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
        "text_bn": "পৌরসভার নোটিশ। কখন বন্ধ?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
        "options": [
-        "Saturday afternoon",
-        "Monday morning",
-        "Every day"
+        "শনিবার বিকেল",
+        "সোমবার সকাল",
+        "প্রতিদিন"
        ],
        "options_en": [
         "Saturday afternoon",
@@ -1446,12 +1446,12 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "True or false: you can eat in the library.\nBibliothèque : silence. Interdit de manger et de boire.",
+       "text": "সত্য না মিথ্যা: লাইব্রেরিতে খাওয়া যায়।\nBibliothèque : silence. Interdit de manger et de boire.",
        "text_en": "True or false: you can eat in the library.\nBibliothèque : silence. Interdit de manger et de boire.",
        "text_bn": "সত্য না মিথ্যা: লাইব্রেরিতে খাওয়া যায়।\nBibliothèque : silence. Interdit de manger et de boire.",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1470,13 +1470,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "What does Léa ask?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
+       "text": "লেয়া কী চাইছেন?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
        "text_en": "What does Léa ask?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
        "text_bn": "লেয়া কী চাইছেন?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
        "options": [
-        "To swap shifts",
-        "A pay rise",
-        "A day trip"
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "এক দিনের ভ্রমণ"
        ],
        "options_en": [
         "To swap shifts",
@@ -1497,13 +1497,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why is the course free for Nadia?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
+       "text": "নাদিয়ার কোর্স কেন ফ্রি?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
        "text_en": "Why is the course free for Nadia?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
        "text_bn": "নাদিয়ার কোর্স কেন ফ্রি?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
        "options": [
-        "She is a registered job seeker",
-        "She is under 18",
-        "She booked early"
+        "নিবন্ধিত চাকরিপ্রার্থী",
+        "১৮-র কম বয়স",
+        "আগে বুক করেছেন"
        ],
        "options_en": [
         "She is a registered job seeker",
@@ -1524,13 +1524,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the employer offer?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
+       "text": "নিয়োগকর্তা কী দিচ্ছেন?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
        "text_en": "What does the employer offer?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
        "text_bn": "নিয়োগকর্তা কী দিচ্ছেন?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
        "options": [
-        "Help finding housing",
-        "A free car",
-        "Only remote work"
+        "বাসা খুঁজতে সাহায্য",
+        "বিনামূল্যে গাড়ি",
+        "শুধু দূর থেকে কাজ"
        ],
        "options_en": [
         "Help finding housing",
@@ -1551,13 +1551,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "Which statement matches the text?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
        "text_en": "Which statement matches the text?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
        "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
        "options": [
-        "Online forms help only if people are supported",
-        "Online forms always help",
-        "Paper is faster"
+        "মানুষকে সহায়তা করলে তবেই অনলাইন ফর্ম কাজে দেয়",
+        "অনলাইন ফর্ম সবসময় কাজে দেয়",
+        "কাগজে দ্রুত"
        ],
        "options_en": [
         "Online forms help only if people are supported",
@@ -1583,7 +1583,7 @@
      "prompts": [
       {
        "id": "fr-mk-w1",
-       "text": "Write a short message (about 40 words) to your friend Paul: you can't come on Saturday, say why, propose another day.",
+       "text": "বন্ধু Paul-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
        "text_en": "Write a short message (about 40 words) to your friend Paul: you can't come on Saturday, say why, propose another day.",
        "text_bn": "বন্ধু Paul-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
        "min_words": 25,
@@ -1630,7 +1630,7 @@
       },
       {
        "id": "fr-mk-w2",
-       "text": "Write to your landlord (about 160 words, as in the B1 format): the heating is broken, since when, ask for a repair date, polite close.",
+       "text": "বাড়িওয়ালাকে লিখুন (প্রায় ১৬০ শব্দ, B1 ফরম্যাটের মতো): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "text_en": "Write to your landlord (about 160 words, as in the B1 format): the heating is broken, since when, ask for a repair date, polite close.",
        "text_bn": "বাড়িওয়ালাকে লিখুন (প্রায় ১৬০ শব্দ, B1 ফরম্যাটের মতো): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "min_words": 120,

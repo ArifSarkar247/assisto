@@ -31,7 +31,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W1",
-    "text": "Which letter is 'b'?",
+    "text": "কোন অক্ষরটি 'ব'?",
     "text_en": "Which letter is 'b'?",
     "text_bn": "কোন অক্ষরটি 'ব'?",
     "options": [
@@ -49,15 +49,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W1",
-    "text": "What does this mean?\nشلونك؟",
+    "text": "এর মানে কী?\nشلونك؟",
     "text_en": "What does this mean?\nشلونك؟",
     "text_bn": "এর মানে কী?\nشلونك؟",
     "tts_text": "شلونك؟",
     "options": [
-     "How are you?",
-     "Where are you?",
-     "Thank you",
-     "Goodbye"
+     "কেমন আছেন?",
+     "কোথায় আছেন?",
+     "ধন্যবাদ",
+     "বিদায়"
     ],
     "options_en": [
      "How are you?",
@@ -80,7 +80,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W1",
-    "text": "What is the number?\nخمسة",
+    "text": "সংখ্যাটি কত?\nخمسة",
     "text_en": "What is the number?\nخمسة",
     "text_bn": "সংখ্যাটি কত?\nخمسة",
     "tts_text": "خمسة",
@@ -99,14 +99,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W1",
-    "text": "What does this sign say?\nخطر",
+    "text": "সাইনটিতে কী লেখা?\nخطر",
     "text_en": "What does this sign say?\nخطر",
     "text_bn": "সাইনটিতে কী লেখা?\nخطر",
     "options": [
-     "Exit",
-     "Danger",
-     "Pharmacy",
-     "Closed"
+     "বের হওয়ার পথ",
+     "বিপদ",
+     "ওষুধের দোকান",
+     "বন্ধ"
     ],
     "options_en": [
      "Exit",
@@ -129,15 +129,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W2",
-    "text": "Your passenger says this. What do you do?\nلف يسار عند الإشارة",
+    "text": "যাত্রী এটা বললেন। আপনি কী করবেন?\nلف يسار عند الإشارة",
     "text_en": "Your passenger says this. What do you do?\nلف يسار عند الإشارة",
     "text_bn": "যাত্রী এটা বললেন। আপনি কী করবেন?\nلف يسار عند الإشارة",
     "tts_text": "لف يسار عند الإشارة",
     "options": [
-     "Turn right",
-     "Turn left",
-     "Stop",
-     "Go back"
+     "ডানে ঘুরব",
+     "বামে ঘুরব",
+     "থামব",
+     "পিছনে যাব"
     ],
     "options_en": [
      "Turn right",
@@ -160,15 +160,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W2",
-    "text": "Madam says this. What should you do?\nاغسلي الصحون بعد الغدا",
+    "text": "ম্যাডাম এটা বললেন। কী করবেন?\nاغسلي الصحون بعد الغدا",
     "text_en": "Madam says this. What should you do?\nاغسلي الصحون بعد الغدا",
     "text_bn": "ম্যাডাম এটা বললেন। কী করবেন?\nاغسلي الصحون بعد الغدا",
     "tts_text": "اغسلي الصحون بعد الغدا",
     "options": [
-     "Wash the dishes",
-     "Cook lunch",
-     "Iron clothes",
-     "Clean the room"
+     "থালা-বাসন ধোব",
+     "দুপুরের খাবার রাঁধব",
+     "কাপড় ইস্ত্রি করব",
+     "ঘর পরিষ্কার করব"
     ],
     "options_en": [
      "Wash the dishes",
@@ -191,15 +191,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W2",
-    "text": "The foreman shouts this. What does it mean?\nانتبه!",
+    "text": "ফোরম্যান চিৎকার করলেন। মানে কী?\nانتبه!",
     "text_en": "The foreman shouts this. What does it mean?\nانتبه!",
     "text_bn": "ফোরম্যান চিৎকার করলেন। মানে কী?\nانتبه!",
     "tts_text": "انتبه!",
     "options": [
-     "Watch out!",
-     "Come here",
-     "Well done",
-     "Go home"
+     "সাবধান!",
+     "এদিকে আসো",
+     "শাবাশ",
+     "বাসায় যাও"
     ],
     "options_en": [
      "Watch out!",
@@ -222,7 +222,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W2",
-    "text": "Choose the right reply to 'Do you have cold water?'",
+    "text": "'ঠান্ডা পানি আছে?' — সঠিক উত্তর কোনটি?",
     "text_en": "Choose the right reply to 'Do you have cold water?'",
     "text_bn": "'ঠান্ডা পানি আছে?' — সঠিক উত্তর কোনটি?",
     "options": [
@@ -240,15 +240,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W3",
-    "text": "What is the worker saying?\nما استلمت الراتب من شهرين",
+    "text": "কর্মী কী বলছেন?\nما استلمت الراتب من شهرين",
     "text_en": "What is the worker saying?\nما استلمت الراتب من شهرين",
     "text_bn": "কর্মী কী বলছেন?\nما استلمت الراتب من شهرين",
     "tts_text": "ما استلمت الراتب من شهرين",
     "options": [
-     "He has not been paid for two months",
-     "He wants to go home tomorrow",
-     "He lost his phone",
-     "He needs a new room"
+     "দুই মাস বেতন পাননি",
+     "কাল দেশে যেতে চান",
+     "ফোন হারিয়েছেন",
+     "নতুন ঘর দরকার"
     ],
     "options_en": [
      "He has not been paid for two months",
@@ -271,15 +271,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W3",
-    "text": "Where does it hurt?\nبطني يعوّرني من أمس",
+    "text": "কোথায় ব্যথা?\nبطني يعوّرني من أمس",
     "text_en": "Where does it hurt?\nبطني يعوّرني من أمس",
     "text_bn": "কোথায় ব্যথা?\nبطني يعوّرني من أمس",
     "tts_text": "بطني يعوّرني من أمس",
     "options": [
-     "Head",
-     "Stomach",
-     "Back",
-     "Leg"
+     "মাথা",
+     "পেট",
+     "পিঠ",
+     "পা"
     ],
     "options_en": [
      "Head",
@@ -302,7 +302,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W3",
-    "text": "How do you ask for your passport politely?",
+    "text": "ভদ্রভাবে পাসপোর্ট চাইবেন কীভাবে?",
     "text_en": "How do you ask for your passport politely?",
     "text_bn": "ভদ্রভাবে পাসপোর্ট চাইবেন কীভাবে?",
     "options": [
@@ -320,14 +320,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "W3",
-    "text": "What does this mean?\nهذا مو في العقد",
+    "text": "এর মানে কী?\nهذا مو في العقد",
     "text_en": "What does this mean?\nهذا مو في العقد",
     "text_bn": "এর মানে কী?\nهذا مو في العقد",
     "options": [
-     "This is not in the contract",
-     "This is very expensive",
-     "This is the supervisor",
-     "This room is closed"
+     "এটা চুক্তিতে নেই",
+     "এটা খুব দামি",
+     "ইনি সুপারভাইজার",
+     "এই ঘর বন্ধ"
     ],
     "options_en": [
      "This is not in the contract",
@@ -2009,7 +2009,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W1",
-       "text": "What is the price?\nعشرين ريال",
+       "text": "দাম কত?\nعشرين ريال",
        "text_en": "What is the price?\nعشرين ريال",
        "text_bn": "দাম কত?\nعشرين ريال",
        "tts_text": "عشرين ريال",
@@ -2028,15 +2028,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W1",
-       "text": "What does the person want?\nمرة ثانية لو سمحت",
+       "text": "লোকটি কী চান?\nمرة ثانية لو سمحت",
        "text_en": "What does the person want?\nمرة ثانية لو سمحت",
        "text_bn": "লোকটি কী চান?\nمرة ثانية لو سمحت",
        "tts_text": "مرة ثانية لو سمحت",
        "options": [
-        "Say it again",
-        "Go home",
-        "Water",
-        "A taxi"
+        "আবার বলুন",
+        "বাসায় যাওয়া",
+        "পানি",
+        "ট্যাক্সি"
        ],
        "options_en": [
         "Say it again",
@@ -2059,15 +2059,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "Where should the driver go?\nروح سيدا، بعدين يمين",
+       "text": "ড্রাইভার কোন দিকে যাবেন?\nروح سيدا، بعدين يمين",
        "text_en": "Where should the driver go?\nروح سيدا، بعدين يمين",
        "text_bn": "ড্রাইভার কোন দিকে যাবেন?\nروح سيدا، بعدين يمين",
        "tts_text": "روح سيدا، بعدين يمين",
        "options": [
-        "Straight, then right",
-        "Left, then stop",
-        "Back to the hotel",
-        "To the airport"
+        "সোজা, তারপর ডানে",
+        "বামে, তারপর থামা",
+        "হোটেলে ফেরা",
+        "বিমানবন্দরে"
        ],
        "options_en": [
         "Straight, then right",
@@ -2090,15 +2090,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "What must you do first?\nلبس الخوذة أول",
+       "text": "আগে কী করবেন?\nلبس الخوذة أول",
        "text_en": "What must you do first?\nلبس الخوذة أول",
        "text_bn": "আগে কী করবেন?\nلبس الخوذة أول",
        "tts_text": "لبس الخوذة أول",
        "options": [
-        "Wear the helmet",
-        "Bring water",
-        "Call the supervisor",
-        "Go to lunch"
+        "হেলমেট পরা",
+        "পানি আনা",
+        "সুপারভাইজারকে ডাকা",
+        "দুপুরের খাবারে যাওয়া"
        ],
        "options_en": [
         "Wear the helmet",
@@ -2121,15 +2121,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "What is madam asking?\nاكوي الملابس اليوم",
+       "text": "ম্যাডাম কী বলছেন?\nاكوي الملابس اليوم",
        "text_en": "What is madam asking?\nاكوي الملابس اليوم",
        "text_bn": "ম্যাডাম কী বলছেন?\nاكوي الملابس اليوم",
        "tts_text": "اكوي الملابس اليوم",
        "options": [
-        "Iron the clothes",
-        "Cook dinner",
-        "Clean the kitchen",
-        "Wake the child"
+        "কাপড় ইস্ত্রি",
+        "রাতের রান্না",
+        "রান্নাঘর পরিষ্কার",
+        "বাচ্চাকে জাগানো"
        ],
        "options_en": [
         "Iron the clothes",
@@ -2152,15 +2152,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W3",
-       "text": "How often is the medicine?\nمرتين باليوم بعد الأكل",
+       "text": "ওষুধ কতবার?\nمرتين باليوم بعد الأكل",
        "text_en": "How often is the medicine?\nمرتين باليوم بعد الأكل",
        "text_bn": "ওষুধ কতবার?\nمرتين باليوم بعد الأكل",
        "tts_text": "مرتين باليوم بعد الأكل",
        "options": [
-        "Twice a day",
-        "Once a day",
-        "Three times a day",
-        "Only at night"
+        "দিনে দুবার",
+        "দিনে একবার",
+        "দিনে তিনবার",
+        "শুধু রাতে"
        ],
        "options_en": [
         "Twice a day",
@@ -2183,15 +2183,15 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W3",
-       "text": "What did the manager promise?\nالراتب الأسبوع الجاي إن شاء الله",
+       "text": "ম্যানেজার কী কথা দিলেন?\nالراتب الأسبوع الجاي إن شاء الله",
        "text_en": "What did the manager promise?\nالراتب الأسبوع الجاي إن شاء الله",
        "text_bn": "ম্যানেজার কী কথা দিলেন?\nالراتب الأسبوع الجاي إن شاء الله",
        "tts_text": "الراتب الأسبوع الجاي إن شاء الله",
        "options": [
-        "Salary next week",
-        "A new room",
-        "A day off tomorrow",
-        "A ticket home"
+        "আগামী সপ্তাহে বেতন",
+        "নতুন ঘর",
+        "কাল ছুটি",
+        "দেশে যাওয়ার টিকিট"
        ],
        "options_en": [
         "Salary next week",
@@ -2214,7 +2214,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W1",
-       "text": "Where do you go out?",
+       "text": "বের হবেন কোন দরজা দিয়ে?",
        "text_en": "Where do you go out?",
        "text_bn": "বের হবেন কোন দরজা দিয়ে?",
        "options": [
@@ -2232,14 +2232,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W1",
-       "text": "This sign is on a door. What does it mean?\nممنوع الدخول",
+       "text": "দরজায় এই সাইন। মানে কী?\nممنوع الدخول",
        "text_en": "This sign is on a door. What does it mean?\nممنوع الدخول",
        "text_bn": "দরজায় এই সাইন। মানে কী?\nممنوع الدخول",
        "options": [
-        "No entry",
-        "Open",
-        "Women",
-        "Pharmacy"
+        "প্রবেশ নিষেধ",
+        "খোলা",
+        "নারী",
+        "ওষুধের দোকান"
        ],
        "options_en": [
         "No entry",
@@ -2262,7 +2262,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W1",
-       "text": "Which number is this?\n٥٧",
+       "text": "এটা কোন সংখ্যা?\n٥٧",
        "text_en": "Which number is this?\n٥٧",
        "text_bn": "এটা কোন সংখ্যা?\n٥٧",
        "options": [
@@ -2280,7 +2280,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
+       "text": "কফিলের বার্তা। কাল কাজ কয়টায়?\nبكرة الشغل الساعة ٧ الصبح",
        "text_en": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
        "text_bn": "কফিলের বার্তা। কাল কাজ কয়টায়?\nبكرة الشغل الساعة ٧ الصبح",
        "options": [
@@ -2298,7 +2298,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "Where do you go if you are hurt at night?",
+       "text": "রাতে আঘাত পেলে কোথায় যাবেন?",
        "text_en": "Where do you go if you are hurt at night?",
        "text_bn": "রাতে আঘাত পেলে কোথায় যাবেন?",
        "options": [
@@ -2316,7 +2316,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W3",
-       "text": "Which sentence asks for overtime pay?",
+       "text": "কোন বাক্যে ওভারটাইমের টাকা চাওয়া হচ্ছে?",
        "text_en": "Which sentence asks for overtime pay?",
        "text_bn": "কোন বাক্যে ওভারটাইমের টাকা চাওয়া হচ্ছে?",
        "options": [
@@ -2339,7 +2339,7 @@
      "prompts": [
       {
        "id": "ar-mk-w1",
-       "text": "Write in Arabic: your country, and your phone number in Arabic digits. Example: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
+       "text": "আরবিতে লিখুন: আপনার দেশ, আর আরবি অঙ্কে ফোন নম্বর। উদাহরণ: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
        "text_en": "Write in Arabic: your country, and your phone number in Arabic digits. Example: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
        "text_bn": "আরবিতে লিখুন: আপনার দেশ, আর আরবি অঙ্কে ফোন নম্বর। উদাহরণ: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
        "min_words": 1,

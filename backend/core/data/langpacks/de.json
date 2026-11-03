@@ -46,7 +46,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A1",
-    "text": "Choose the right answer: 'Wie heißen Sie?'",
+    "text": "সঠিক উত্তর বাছুন: 'Wie heißen Sie?'",
     "text_en": "Choose the right answer: 'Wie heißen Sie?'",
     "text_bn": "সঠিক উত্তর বাছুন: 'Wie heißen Sie?'",
     "options": [
@@ -64,7 +64,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A1",
-    "text": "What number do you hear?\neinundzwanzig",
+    "text": "কোন সংখ্যা শুনলেন?\neinundzwanzig",
     "text_en": "What number do you hear?\neinundzwanzig",
     "text_bn": "কোন সংখ্যা শুনলেন?\neinundzwanzig",
     "tts_text": "einundzwanzig",
@@ -83,7 +83,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A2",
-    "text": "Fill the gap: 'Gestern ___ ich nach Köln gefahren.'",
+    "text": "শূন্যস্থান: 'Gestern ___ ich nach Köln gefahren.'",
     "text_en": "Fill the gap: 'Gestern ___ ich nach Köln gefahren.'",
     "text_bn": "শূন্যস্থান: 'Gestern ___ ich nach Köln gefahren.'",
     "options": [
@@ -101,15 +101,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A2",
-    "text": "When is the appointment?\nIhr Termin ist am Dienstag um zehn Uhr.",
+    "text": "অ্যাপয়েন্টমেন্ট কখন?\nIhr Termin ist am Dienstag um zehn Uhr.",
     "text_en": "When is the appointment?\nIhr Termin ist am Dienstag um zehn Uhr.",
     "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nIhr Termin ist am Dienstag um zehn Uhr.",
     "tts_text": "Ihr Termin ist am Dienstag um zehn Uhr.",
     "options": [
-     "Tuesday at 10",
-     "Thursday at 10",
-     "Tuesday at 2",
-     "Today"
+     "মঙ্গলবার ১০টায়",
+     "বৃহস্পতিবার ১০টায়",
+     "মঙ্গলবার ২টায়",
+     "আজ"
     ],
     "options_en": [
      "Tuesday at 10",
@@ -132,7 +132,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B1",
-    "text": "Choose the correct word order.",
+    "text": "সঠিক শব্দক্রম বাছুন।",
     "text_en": "Choose the correct word order.",
     "text_bn": "সঠিক শব্দক্রম বাছুন।",
     "options": [
@@ -150,15 +150,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B1",
-    "text": "Why can't the colleague come?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
+    "text": "সহকর্মী কেন আসতে পারবেন না?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
     "text_en": "Why can't the colleague come?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
     "text_bn": "সহকর্মী কেন আসতে পারবেন না?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
     "tts_text": "Hallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
     "options": [
-     "Her child is ill",
-     "Her train is late",
-     "She has a holiday",
-     "She has a doctor's appointment"
+     "তার সন্তান অসুস্থ",
+     "ট্রেন দেরি",
+     "ছুটি নিয়েছেন",
+     "ডাক্তারের অ্যাপয়েন্টমেন্ট"
     ],
     "options_en": [
      "Her child is ill",
@@ -181,7 +181,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B2",
-    "text": "Which ending fits a formal job email?",
+    "text": "আনুষ্ঠানিক চাকরির ইমেইলের শেষে কোনটি?",
     "text_en": "Which ending fits a formal job email?",
     "text_bn": "আনুষ্ঠানিক চাকরির ইমেইলের শেষে কোনটি?",
     "options": [
@@ -199,14 +199,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B2",
-    "text": "'Ich würde mich über eine Antwort freuen' means…",
+    "text": "'Ich würde mich über eine Antwort freuen' মানে…",
     "text_en": "'Ich würde mich über eine Antwort freuen' means…",
     "text_bn": "'Ich würde mich über eine Antwort freuen' মানে…",
     "options": [
-     "I would be glad of a reply",
-     "I am angry about the answer",
-     "I answered happily",
-     "Please don't answer"
+     "উত্তর পেলে খুশি হব",
+     "উত্তরে রাগ হয়েছি",
+     "খুশি হয়ে উত্তর দিয়েছি",
+     "উত্তর দেবেন না"
     ],
     "options_en": [
      "I would be glad of a reply",
@@ -229,7 +229,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "Choose the best connector: '___ der hohen Kosten wurde das Projekt gestoppt.'",
+    "text": "উপযুক্ত সংযোজক: '___ der hohen Kosten wurde das Projekt gestoppt.'",
     "text_en": "Choose the best connector: '___ der hohen Kosten wurde das Projekt gestoppt.'",
     "text_bn": "উপযুক্ত সংযোজক: '___ der hohen Kosten wurde das Projekt gestoppt.'",
     "options": [
@@ -247,15 +247,15 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "What is the speaker's main point?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
+    "text": "বক্তার মূল কথা কী?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
     "text_en": "What is the speaker's main point?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
     "text_bn": "বক্তার মূল কথা কী?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
     "tts_text": "Die Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
     "options": [
-     "Skilled immigration helps, but recognition is too slow",
-     "Immigration should stop",
-     "Recognition is fast enough",
-     "Nurses earn too much"
+     "দক্ষ অভিবাসন সাহায্য করে, কিন্তু স্বীকৃতি খুব ধীর",
+     "অভিবাসন বন্ধ হোক",
+     "স্বীকৃতি যথেষ্ট দ্রুত",
+     "নার্সরা বেশি আয় করে"
     ],
     "options_en": [
      "Skilled immigration helps, but recognition is too slow",
@@ -278,14 +278,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C2",
-    "text": "'Das ist nicht mein Bier' means…",
+    "text": "'Das ist nicht mein Bier' মানে…",
     "text_en": "'Das ist nicht mein Bier' means…",
     "text_bn": "'Das ist nicht mein Bier' মানে…",
     "options": [
-     "That's not my business",
-     "I don't drink beer",
-     "That's not my glass",
-     "I'm not thirsty"
+     "এটা আমার বিষয় নয়",
+     "আমি বিয়ার খাই না",
+     "এটা আমার গ্লাস নয়",
+     "তৃষ্ণা নেই"
     ],
     "options_en": [
      "That's not my business",
@@ -308,7 +308,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C2",
-    "text": "Which word best completes: 'Seine Argumentation war in sich ___.'",
+    "text": "শূন্যস্থান: 'Seine Argumentation war in sich ___.'",
     "text_en": "Which word best completes: 'Seine Argumentation war in sich ___.'",
     "text_bn": "শূন্যস্থান: 'Seine Argumentation war in sich ___.'",
     "options": [
@@ -1323,7 +1323,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "Where does the train go?\nDer Zug nach Bonn fährt heute von Gleis vier.",
+       "text": "ট্রেন কোথায় যাবে?\nDer Zug nach Bonn fährt heute von Gleis vier.",
        "text_en": "Where does the train go?\nDer Zug nach Bonn fährt heute von Gleis vier.",
        "text_bn": "ট্রেন কোথায় যাবে?\nDer Zug nach Bonn fährt heute von Gleis vier.",
        "tts_text": "Der Zug nach Bonn fährt heute von Gleis vier.",
@@ -1341,13 +1341,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "True or false: the shop opens at 9.\nUnser Geschäft öffnet morgen schon um acht Uhr.",
+       "text": "সত্য না মিথ্যা: দোকান ৯টায় খোলে।\nUnser Geschäft öffnet morgen schon um acht Uhr.",
        "text_en": "True or false: the shop opens at 9.\nUnser Geschäft öffnet morgen schon um acht Uhr.",
        "text_bn": "সত্য না মিথ্যা: দোকান ৯টায় খোলে।\nUnser Geschäft öffnet morgen schon um acht Uhr.",
        "tts_text": "Unser Geschäft öffnet morgen schon um acht Uhr.",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1366,14 +1366,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "What should Ali bring?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
+       "text": "আলী কী আনবেন?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
        "text_en": "What should Ali bring?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
        "text_bn": "আলী কী আনবেন?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
        "tts_text": "Herr Ali, bringen Sie bitte morgen Ihren Pass mit.",
        "options": [
-        "His passport",
-        "A photo",
-        "Money"
+        "পাসপোর্ট",
+        "ছবি",
+        "টাকা"
        ],
        "options_en": [
         "His passport",
@@ -1394,14 +1394,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why does the shift change?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
+       "text": "শিফট কেন বদলাল?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
        "text_en": "Why does the shift change?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
        "text_bn": "শিফট কেন বদলাল?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
        "tts_text": "Achtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
        "options": [
-        "A colleague is ill",
-        "There is a holiday",
-        "The home is closed"
+        "একজন সহকর্মী অসুস্থ",
+        "ছুটির দিন",
+        "হোম বন্ধ"
        ],
        "options_en": [
         "A colleague is ill",
@@ -1422,14 +1422,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the speaker recommend?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
+       "text": "বক্তা কী পরামর্শ দিলেন?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
        "text_en": "What does the speaker recommend?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
        "text_bn": "বক্তা কী পরামর্শ দিলেন?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
        "tts_text": "Ich empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
        "options": [
-        "Apply for recognition early",
-        "Wait until you arrive",
-        "Avoid the language course"
+        "আগেভাগে স্বীকৃতির আবেদন করুন",
+        "পৌঁছানো পর্যন্ত অপেক্ষা করুন",
+        "ভাষা কোর্স এড়িয়ে চলুন"
        ],
        "options_en": [
         "Apply for recognition early",
@@ -1450,14 +1450,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "What is the speaker's attitude?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
+       "text": "বক্তার মনোভাব কী?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
        "text_en": "What is the speaker's attitude?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
        "text_bn": "বক্তার মনোভাব কী?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
        "tts_text": "Die Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
        "options": [
-        "Cautiously positive",
-        "Completely against it",
-        "Indifferent"
+        "সতর্কভাবে ইতিবাচক",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
        ],
        "options_en": [
         "Cautiously positive",
@@ -1478,13 +1478,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "Sign at a doctor's door. When is it closed?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
+       "text": "ডাক্তারখানার দরজায় সাইন। কখন বন্ধ?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
        "text_en": "Sign at a doctor's door. When is it closed?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
        "text_bn": "ডাক্তারখানার দরজায় সাইন। কখন বন্ধ?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
        "options": [
-        "Wednesday afternoon",
-        "Monday morning",
-        "Every day"
+        "বুধবার বিকেল",
+        "সোমবার সকাল",
+        "প্রতিদিন"
        ],
        "options_en": [
         "Wednesday afternoon",
@@ -1505,12 +1505,12 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "True or false: you may park here on Sunday.\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
+       "text": "সত্য না মিথ্যা: রবিবার এখানে গাড়ি রাখা যায়।\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
        "text_en": "True or false: you may park here on Sunday.\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
        "text_bn": "সত্য না মিথ্যা: রবিবার এখানে গাড়ি রাখা যায়।\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1529,13 +1529,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "What is the email about?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
+       "text": "ইমেইলটি কী নিয়ে?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
        "text_en": "What is the email about?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
        "text_bn": "ইমেইলটি কী নিয়ে?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
        "options": [
-        "Swapping a shift",
-        "A pay rise",
-        "A birthday party"
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "জন্মদিনের পার্টি"
        ],
        "options_en": [
         "Swapping a shift",
@@ -1556,13 +1556,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why is the course cheaper for Karim?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
+       "text": "করিমের কোর্স কেন সস্তা?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
        "text_en": "Why is the course cheaper for Karim?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
        "text_bn": "করিমের কোর্স কেন সস্তা?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
        "options": [
-        "He has a job-centre voucher",
-        "He is a student",
-        "He booked online"
+        "চাকরি কেন্দ্রের ভাউচার আছে",
+        "সে ছাত্র",
+        "অনলাইনে বুক করেছে"
        ],
        "options_en": [
         "He has a job-centre voucher",
@@ -1583,13 +1583,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the employer require?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
+       "text": "নিয়োগকর্তা কী চান?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
        "text_en": "What does the employer require?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
        "text_bn": "নিয়োগকর্তা কী চান?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
        "options": [
-        "Recognised qualification and B2 German",
-        "Only English",
-        "A driving licence"
+        "স্বীকৃত ডিগ্রি ও B2 জার্মান",
+        "শুধু ইংরেজি",
+        "ড্রাইভিং লাইসেন্স"
        ],
        "options_en": [
         "Recognised qualification and B2 German",
@@ -1610,13 +1610,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "Which statement matches the text?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
        "text_en": "Which statement matches the text?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
        "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
        "options": [
-        "Digital forms save time only if staff are trained",
-        "Digital forms always save time",
-        "Paper forms are faster"
+        "কর্মী প্রশিক্ষিত হলেই ডিজিটাল ফর্ম সময় বাঁচায়",
+        "ডিজিটাল ফর্ম সবসময় সময় বাঁচায়",
+        "কাগজের ফর্ম দ্রুত"
        ],
        "options_en": [
         "Digital forms save time only if staff are trained",
@@ -1642,7 +1642,7 @@
      "prompts": [
       {
        "id": "de-mk-w1",
-       "text": "Write a short message (about 30 words) to your colleague Jan: you are ill today, you can't come, you will call tomorrow.",
+       "text": "সহকর্মী Jan-কে ছোট বার্তা (প্রায় ৩০ শব্দ): আজ অসুস্থ, আসতে পারবেন না, কাল ফোন করবেন।",
        "text_en": "Write a short message (about 30 words) to your colleague Jan: you are ill today, you can't come, you will call tomorrow.",
        "text_bn": "সহকর্মী Jan-কে ছোট বার্তা (প্রায় ৩০ শব্দ): আজ অসুস্থ, আসতে পারবেন না, কাল ফোন করবেন।",
        "min_words": 20,
@@ -1686,7 +1686,7 @@
       },
       {
        "id": "de-mk-w2",
-       "text": "Write an email (about 80 words) to your landlord: the heating is broken, since when, ask for a repair date, polite close.",
+       "text": "বাড়িওয়ালাকে ইমেইল (প্রায় ৮০ শব্দ): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "text_en": "Write an email (about 80 words) to your landlord: the heating is broken, since when, ask for a repair date, polite close.",
        "text_bn": "বাড়িওয়ালাকে ইমেইল (প্রায় ৮০ শব্দ): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "min_words": 60,

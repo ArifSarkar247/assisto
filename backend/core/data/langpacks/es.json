@@ -46,7 +46,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A1",
-    "text": "Choose the right answer: '¿Cómo se llama usted?'",
+    "text": "সঠিক উত্তর বাছুন: '¿Cómo se llama usted?'",
     "text_en": "Choose the right answer: '¿Cómo se llama usted?'",
     "text_bn": "সঠিক উত্তর বাছুন: '¿Cómo se llama usted?'",
     "options": [
@@ -64,7 +64,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "A1",
-    "text": "Fill the gap: 'Yo ___ cansado hoy.'",
+    "text": "শূন্যস্থান: 'Yo ___ cansado hoy.'",
     "text_en": "Fill the gap: 'Yo ___ cansado hoy.'",
     "text_bn": "শূন্যস্থান: 'Yo ___ cansado hoy.'",
     "options": [
@@ -82,7 +82,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "A2",
-    "text": "Fill the gap: 'Ayer ___ a Madrid.'",
+    "text": "শূন্যস্থান: 'Ayer ___ a Madrid.'",
     "text_en": "Fill the gap: 'Ayer ___ a Madrid.'",
     "text_bn": "শূন্যস্থান: 'Ayer ___ a Madrid.'",
     "options": [
@@ -100,14 +100,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "A2",
-    "text": "When is the appointment?\nSu cita es el viernes a las once.",
+    "text": "অ্যাপয়েন্টমেন্ট কখন?\nSu cita es el viernes a las once.",
     "text_en": "When is the appointment?\nSu cita es el viernes a las once.",
     "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nSu cita es el viernes a las once.",
     "tts_text": "Su cita es el viernes a las once.",
     "options": [
-     "Friday at 11",
-     "Thursday at 11",
-     "Friday at 1"
+     "শুক্রবার ১১টা",
+     "বৃহস্পতিবার ১১টা",
+     "শুক্রবার ১টা"
     ],
     "options_en": [
      "Friday at 11",
@@ -128,7 +128,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "B1",
-    "text": "Choose the correct sentence.",
+    "text": "সঠিক বাক্য বাছুন।",
     "text_en": "Choose the correct sentence.",
     "text_bn": "সঠিক বাক্য বাছুন।",
     "options": [
@@ -146,14 +146,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B1",
-    "text": "Why is the colleague calling?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
+    "text": "সহকর্মী কেন ফোন করছেন?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
     "text_en": "Why is the colleague calling?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
     "text_bn": "সহকর্মী কেন ফোন করছেন?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
     "tts_text": "Hola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
     "options": [
-     "To swap a shift",
-     "To ask for money",
-     "To cancel a party"
+     "শিফট বদলাতে",
+     "টাকা চাইতে",
+     "পার্টি বাতিল করতে"
     ],
     "options_en": [
      "To swap a shift",
@@ -174,7 +174,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "B2",
-    "text": "Which closing fits a formal letter?",
+    "text": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
     "text_en": "Which closing fits a formal letter?",
     "text_bn": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
     "options": [
@@ -192,7 +192,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "B2",
-    "text": "Fill the gap: 'Si tuviera tiempo, ___ un curso.'",
+    "text": "শূন্যস্থান: 'Si tuviera tiempo, ___ un curso.'",
     "text_en": "Fill the gap: 'Si tuviera tiempo, ___ un curso.'",
     "text_bn": "শূন্যস্থান: 'Si tuviera tiempo, ___ un curso.'",
     "options": [
@@ -210,7 +210,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "Choose the best connector: '___ los problemas, el proyecto salió adelante.'",
+    "text": "উপযুক্ত সংযোজক: '___ los problemas, el proyecto salió adelante.'",
     "text_en": "Choose the best connector: '___ los problemas, el proyecto salió adelante.'",
     "text_bn": "উপযুক্ত সংযোজক: '___ los problemas, el proyecto salió adelante.'",
     "options": [
@@ -228,14 +228,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "C1",
-    "text": "What is the speaker's view?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
+    "text": "বক্তার মত কী?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
     "text_en": "What is the speaker's view?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
     "text_bn": "বক্তার মত কী?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
     "tts_text": "Si bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
     "options": [
-     "The law helps, but procedures are slow",
-     "The law should be removed",
-     "Procedures are fast"
+     "আইন সাহায্য করে, কিন্তু প্রক্রিয়া ধীর",
+     "আইন বাতিল হোক",
+     "প্রক্রিয়া দ্রুত"
     ],
     "options_en": [
      "The law helps, but procedures are slow",
@@ -256,13 +256,13 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "C2",
-    "text": "'Tomar el pelo a alguien' means…",
+    "text": "'Tomar el pelo a alguien' মানে…",
     "text_en": "'Tomar el pelo a alguien' means…",
     "text_bn": "'Tomar el pelo a alguien' মানে…",
     "options": [
-     "To pull someone's leg",
-     "To cut someone's hair",
-     "To help someone"
+     "কারও সাথে মজা করা",
+     "চুল কাটা",
+     "কাউকে সাহায্য করা"
     ],
     "options_en": [
      "To pull someone's leg",
@@ -283,7 +283,7 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "C2",
-    "text": "Which word best completes: 'Su argumento resultó del todo ___.'",
+    "text": "শূন্যস্থান: 'Su argumento resultó del todo ___.'",
     "text_en": "Which word best completes: 'Su argumento resultó del todo ___.'",
     "text_bn": "শূন্যস্থান: 'Su argumento resultó del todo ___.'",
     "options": [
@@ -1263,7 +1263,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "Which platform?\nEl tren a Sevilla sale de la vía siete.",
+       "text": "কোন প্ল্যাটফর্ম?\nEl tren a Sevilla sale de la vía siete.",
        "text_en": "Which platform?\nEl tren a Sevilla sale de la vía siete.",
        "text_bn": "কোন প্ল্যাটফর্ম?\nEl tren a Sevilla sale de la vía siete.",
        "tts_text": "El tren a Sevilla sale de la vía siete.",
@@ -1281,13 +1281,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A1",
-       "text": "True or false: the shop opens at 10.\nLa tienda abre mañana a las nueve.",
+       "text": "সত্য না মিথ্যা: দোকান ১০টায় খোলে।\nLa tienda abre mañana a las nueve.",
        "text_en": "True or false: the shop opens at 10.\nLa tienda abre mañana a las nueve.",
        "text_bn": "সত্য না মিথ্যা: দোকান ১০টায় খোলে।\nLa tienda abre mañana a las nueve.",
        "tts_text": "La tienda abre mañana a las nueve.",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1306,14 +1306,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "What must Ali bring?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
+       "text": "আলী কী আনবেন?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
        "text_en": "What must Ali bring?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
        "text_bn": "আলী কী আনবেন?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
        "tts_text": "Señor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
        "options": [
-        "Passport and contract",
-        "Money",
-        "A photo only"
+        "পাসপোর্ট ও চুক্তিপত্র",
+        "টাকা",
+        "শুধু ছবি"
        ],
        "options_en": [
         "Passport and contract",
@@ -1334,14 +1334,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why does the schedule change?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
+       "text": "সময়সূচি কেন বদলাল?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
        "text_en": "Why does the schedule change?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
        "text_bn": "সময়সূচি কেন বদলাল?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
        "tts_text": "Atención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
        "options": [
-        "A colleague is ill",
-        "It's a holiday",
-        "The kitchen is closed"
+        "একজন সহকর্মী অসুস্থ",
+        "ছুটির দিন",
+        "রান্নাঘর বন্ধ"
        ],
        "options_en": [
         "A colleague is ill",
@@ -1362,14 +1362,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the advisor recommend?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
+       "text": "পরামর্শদাতা কী বললেন?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
        "text_en": "What does the advisor recommend?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
        "text_bn": "পরামর্শদাতা কী বললেন?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
        "tts_text": "Les recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
        "options": [
-        "Register your address as soon as possible",
-        "Wait a year",
-        "Avoid the town hall"
+        "যত দ্রুত সম্ভব ঠিকানা নিবন্ধন",
+        "এক বছর অপেক্ষা",
+        "পৌরসভা এড়ানো"
        ],
        "options_en": [
         "Register your address as soon as possible",
@@ -1390,14 +1390,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "What is the speaker's attitude?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
+       "text": "বক্তার মনোভাব কী?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
        "text_en": "What is the speaker's attitude?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
        "text_bn": "বক্তার মনোভাব কী?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
        "tts_text": "La medida supone un avance, aunque habrá que ver si se aplica de verdad.",
        "options": [
-        "Positive with doubts",
-        "Totally against",
-        "Indifferent"
+        "ইতিবাচক, তবে সংশয় আছে",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
        ],
        "options_en": [
         "Positive with doubts",
@@ -1418,13 +1418,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "Notice at a health centre. When is it closed?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
+       "text": "স্বাস্থ্যকেন্দ্রের নোটিশ। কখন বন্ধ?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
        "text_en": "Notice at a health centre. When is it closed?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
        "text_bn": "স্বাস্থ্যকেন্দ্রের নোটিশ। কখন বন্ধ?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
        "options": [
-        "Weekends",
-        "Monday morning",
-        "Every afternoon"
+        "সপ্তাহান্তে",
+        "সোমবার সকাল",
+        "প্রতি বিকেল"
        ],
        "options_en": [
         "Weekends",
@@ -1445,12 +1445,12 @@
        "type": "mcq",
        "skill": "reading",
        "level": "A2",
-       "text": "True or false: you may smoke here.\nProhibido fumar en todo el edificio.",
+       "text": "সত্য না মিথ্যা: এখানে ধূমপান করা যায়।\nProhibido fumar en todo el edificio.",
        "text_en": "True or false: you may smoke here.\nProhibido fumar en todo el edificio.",
        "text_bn": "সত্য না মিথ্যা: এখানে ধূমপান করা যায়।\nProhibido fumar en todo el edificio.",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1469,13 +1469,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "What does Lucía ask?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
+       "text": "লুসিয়া কী চাইছেন?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
        "text_en": "What does Lucía ask?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
        "text_bn": "লুসিয়া কী চাইছেন?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
        "options": [
-        "To swap shifts",
-        "A pay rise",
-        "A lift home"
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "বাসায় পৌঁছে দেওয়া"
        ],
        "options_en": [
         "To swap shifts",
@@ -1496,13 +1496,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B1",
-       "text": "Why is the course free for Nadia?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
+       "text": "নাদিয়ার কোর্স কেন ফ্রি?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
        "text_en": "Why is the course free for Nadia?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
        "text_bn": "নাদিয়ার কোর্স কেন ফ্রি?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
        "options": [
-        "She is registered as unemployed",
-        "She is a student",
-        "She booked online"
+        "বেকার হিসেবে নিবন্ধিত",
+        "ছাত্রী",
+        "অনলাইনে বুক করেছেন"
        ],
        "options_en": [
         "She is registered as unemployed",
@@ -1523,13 +1523,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "B2",
-       "text": "What does the employer offer?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
+       "text": "নিয়োগকর্তা কী দিচ্ছেন?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
        "text_en": "What does the employer offer?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
        "text_bn": "নিয়োগকর্তা কী দিচ্ছেন?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
        "options": [
-        "Accommodation for the season",
-        "A free car",
-        "Remote work"
+        "মৌসুমে থাকার ব্যবস্থা",
+        "বিনামূল্যে গাড়ি",
+        "দূর থেকে কাজ"
        ],
        "options_en": [
         "Accommodation for the season",
@@ -1550,13 +1550,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "C1",
-       "text": "Which statement matches the text?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
        "text_en": "Which statement matches the text?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
        "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
        "options": [
-        "Online procedures help only if people get support",
-        "Online procedures always help",
-        "Paper is faster"
+        "সহায়তা পেলে তবেই অনলাইন প্রক্রিয়া কাজে দেয়",
+        "অনলাইন প্রক্রিয়া সবসময় কাজে দেয়",
+        "কাগজে দ্রুত"
        ],
        "options_en": [
         "Online procedures help only if people get support",
@@ -1582,7 +1582,7 @@
      "prompts": [
       {
        "id": "es-mk-w1",
-       "text": "Write a short message (about 40 words) to your friend Pablo: you can't come on Saturday, say why, propose another day.",
+       "text": "বন্ধু Pablo-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
        "text_en": "Write a short message (about 40 words) to your friend Pablo: you can't come on Saturday, say why, propose another day.",
        "text_bn": "বন্ধু Pablo-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
        "min_words": 25,
@@ -1628,7 +1628,7 @@
       },
       {
        "id": "es-mk-w2",
-       "text": "Write to your landlord (about 120 words): the water heater is broken, since when, ask for a repair date, polite close.",
+       "text": "বাড়িওয়ালাকে লিখুন (প্রায় ১২০ শব্দ): গরম পানির যন্ত্র নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "text_en": "Write to your landlord (about 120 words): the water heater is broken, since when, ask for a repair date, polite close.",
        "text_bn": "বাড়িওয়ালাকে লিখুন (প্রায় ১২০ শব্দ): গরম পানির যন্ত্র নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
        "min_words": 90,

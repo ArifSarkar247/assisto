@@ -134,6 +134,7 @@ import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/screens/ielts_screen.dart'; // p2lang
 import 'package:assisto/screens/language_pack_screen.dart'; // p2lang
 import 'fake_ielts.dart'; // p2lang
+import 'fake_langmulti.dart'; // langmulti
 import 'package:assisto/screens/spending_advice_screen.dart';
 import 'package:assisto/screens/price_radar_screen.dart';
 import 'package:assisto/screens/health_timeline_screen.dart';
@@ -574,6 +575,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'ielts_learn_pack': (build: (_) => const LanguagePackScreen(lang: 'en', title: 'IELTS · PTE'), mode: FakeMode.data, full: true),
     'ielts_learn_mock_result': (build: (_) => MockTestPage(pack: Object(), mock: (fakeLearnPack()['mock'] as List).first as Map<String, dynamic>, debugResult: fakeLearnMockResult()), mode: FakeMode.data, full: true),
     'ielts_learn_roleplay': (build: (_) => ScenarioChatPage(pack: Object(), scenario: (fakeLearnPack()['scenarios'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
+    // langmulti: real Arabic / Chinese / German pack lessons (script first)
+    'ielts_learn_ar_letters': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('ar-s1')), mode: FakeMode.data, full: true),
+    'ielts_learn_ar_rights': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('ar-x1')), mode: FakeMode.data, full: true),
+    'ielts_learn_zh_tones': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('zh-p1')), mode: FakeMode.data, full: true),
+    'ielts_learn_de_lesson': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('de-a1-1')), mode: FakeMode.data, full: true),
     'ielts_reading': (build: (_) => IeltsReadingPractice(ctx: Object(), row: (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),

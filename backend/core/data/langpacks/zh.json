@@ -46,7 +46,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "HSK1",
-    "text": "Choose the right reply to: 你好！(Nǐ hǎo!)",
+    "text": "উত্তর বাছুন: 你好！(Nǐ hǎo!)",
     "text_en": "Choose the right reply to: 你好！(Nǐ hǎo!)",
     "text_bn": "উত্তর বাছুন: 你好！(Nǐ hǎo!)",
     "options": [
@@ -64,7 +64,7 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "HSK1",
-    "text": "Which character means 'three'?",
+    "text": "'তিন' কোন অক্ষর?",
     "text_en": "Which character means 'three'?",
     "text_bn": "'তিন' কোন অক্ষর?",
     "options": [
@@ -82,7 +82,7 @@
     "type": "mcq",
     "skill": "reading",
     "level": "HSK2",
-    "text": "Best reply to: 这个多少钱？(How much is this?)",
+    "text": "সেরা উত্তর: 这个多少钱？(এটার দাম কত?)",
     "text_en": "Best reply to: 这个多少钱？(How much is this?)",
     "text_bn": "সেরা উত্তর: 这个多少钱？(এটার দাম কত?)",
     "options": [
@@ -100,7 +100,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "HSK2",
-    "text": "Fill the gap: 我昨天___商店买了一件衣服。",
+    "text": "শূন্যস্থান: 我昨天___商店买了一件衣服。",
     "text_en": "Fill the gap: 我昨天___商店买了一件衣服。",
     "text_bn": "শূন্যস্থান: 我昨天___商店买了一件衣服。",
     "options": [
@@ -118,7 +118,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "HSK3",
-    "text": "Fill the gap: 你去___中国吗？(Have you ever been to China?)",
+    "text": "শূন্যস্থান: 你去___中国吗？(কখনো চীনে গেছেন?)",
     "text_en": "Fill the gap: 你去___中国吗？(Have you ever been to China?)",
     "text_bn": "শূন্যস্থান: 你去___中国吗？(কখনো চীনে গেছেন?)",
     "options": [
@@ -136,7 +136,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "HSK3",
-    "text": "Choose the correct word order.",
+    "text": "সঠিক শব্দক্রম বাছুন।",
     "text_en": "Choose the correct word order.",
     "text_bn": "সঠিক শব্দক্রম বাছুন।",
     "options": [
@@ -154,7 +154,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "HSK4",
-    "text": "Fill the gaps: ___他很忙，___他每天都学习。",
+    "text": "শূন্যস্থান: ___他很忙，___他每天都学习。",
     "text_en": "Fill the gaps: ___他很忙，___他每天都学习。",
     "text_bn": "শূন্যস্থান: ___他很忙，___他每天都学习。",
     "options": [
@@ -172,14 +172,14 @@
     "type": "mcq",
     "skill": "reading",
     "level": "HSK4",
-    "text": "Why was the match postponed?\n因为下雨，所以比赛推迟了。",
+    "text": "খেলা কেন পিছিয়েছে?\n因为下雨，所以比赛推迟了。",
     "text_en": "Why was the match postponed?\n因为下雨，所以比赛推迟了。",
     "text_bn": "খেলা কেন পিছিয়েছে?\n因为下雨，所以比赛推迟了。",
     "tts_text": "因为下雨，所以比赛推迟了。",
     "options": [
-     "It rained",
-     "A player was ill",
-     "No tickets were sold"
+     "বৃষ্টি হয়েছে",
+     "একজন খেলোয়াড় অসুস্থ",
+     "টিকিট বিক্রি হয়নি"
     ],
     "options_en": [
      "It rained",
@@ -200,7 +200,7 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "HSK5",
-    "text": "Fill the gap in a formal letter: 期待您的___。",
+    "text": "আনুষ্ঠানিক চিঠির শূন্যস্থান: 期待您的___。",
     "text_en": "Fill the gap in a formal letter: 期待您的___。",
     "text_bn": "আনুষ্ঠানিক চিঠির শূন্যস্থান: 期待您的___。",
     "options": [
@@ -218,7 +218,7 @@
     "type": "mcq",
     "skill": "grammar",
     "level": "HSK5",
-    "text": "Choose the best word: ___学校的要求，申请人需要HSK四级。",
+    "text": "উপযুক্ত শব্দ: ___学校的要求，申请人需要HSK四级。",
     "text_en": "Choose the best word: ___学校的要求，申请人需要HSK四级。",
     "text_bn": "উপযুক্ত শব্দ: ___学校的要求，申请人需要HSK四级。",
     "options": [
@@ -236,13 +236,13 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "HSK6",
-    "text": "'入乡随俗' means…",
+    "text": "'入乡随俗' মানে…",
     "text_en": "'入乡随俗' means…",
     "text_bn": "'入乡随俗' মানে…",
     "options": [
-     "Follow local customs in a new place",
-     "Go back to your village",
-     "Travel a lot"
+     "নতুন জায়গায় স্থানীয় রীতি মানা",
+     "গ্রামে ফিরে যাওয়া",
+     "অনেক ভ্রমণ করা"
     ],
     "options_en": [
      "Follow local customs in a new place",
@@ -263,7 +263,7 @@
     "type": "mcq",
     "skill": "vocab",
     "level": "HSK6",
-    "text": "Which idiom means 'practice makes perfect'?",
+    "text": "'অনুশীলনেই দক্ষতা' কোন বাগধারা?",
     "text_en": "Which idiom means 'practice makes perfect'?",
     "text_bn": "'অনুশীলনেই দক্ষতা' কোন বাগধারা?",
     "options": [
@@ -1345,7 +1345,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK1",
-       "text": "What time is it?\n现在八点。",
+       "text": "কয়টা বাজে?\n现在八点。",
        "text_en": "What time is it?\n现在八点。",
        "text_bn": "কয়টা বাজে?\n现在八点。",
        "tts_text": "现在八点。",
@@ -1363,13 +1363,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK1",
-       "text": "True or false: he is a student.\n你好，我是学生。",
+       "text": "সত্য না মিথ্যা: সে ছাত্র।\n你好，我是学生。",
        "text_en": "True or false: he is a student.\n你好，我是学生。",
        "text_bn": "সত্য না মিথ্যা: সে ছাত্র।\n你好，我是学生。",
        "tts_text": "你好，我是学生。",
        "options": [
-        "True",
-        "False"
+        "সত্য",
+        "মিথ্যা"
        ],
        "options_en": [
         "True",
@@ -1388,7 +1388,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK2",
-       "text": "How much does it cost?\n这个三十块钱。",
+       "text": "দাম কত?\n这个三十块钱。",
        "text_en": "How much does it cost?\n这个三十块钱。",
        "text_bn": "দাম কত?\n这个三十块钱。",
        "tts_text": "这个三十块钱。",
@@ -1406,14 +1406,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK3",
-       "text": "Why can't he come to work?\n经理，我今天生病了，不能上班。",
+       "text": "সে কেন কাজে আসবে না?\n经理，我今天生病了，不能上班。",
        "text_en": "Why can't he come to work?\n经理，我今天生病了，不能上班。",
        "text_bn": "সে কেন কাজে আসবে না?\n经理，我今天生病了，不能上班。",
        "tts_text": "经理，我今天生病了，不能上班。",
        "options": [
-        "He is ill",
-        "His train is late",
-        "It's a holiday"
+        "অসুস্থ",
+        "ট্রেন দেরি",
+        "ছুটি"
        ],
        "options_en": [
         "He is ill",
@@ -1434,14 +1434,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK4",
-       "text": "What does the speaker think?\n学汉语虽然很难，但是对我的工作很有用。",
+       "text": "বক্তা কী মনে করেন?\n学汉语虽然很难，但是对我的工作很有用。",
        "text_en": "What does the speaker think?\n学汉语虽然很难，但是对我的工作很有用。",
        "text_bn": "বক্তা কী মনে করেন?\n学汉语虽然很难，但是对我的工作很有用。",
        "tts_text": "学汉语虽然很难，但是对我的工作很有用。",
        "options": [
-        "Hard but worth it",
-        "Too easy",
-        "Not useful"
+        "কঠিন, তবে মূল্যবান",
+        "খুব সহজ",
+        "কাজের নয়"
        ],
        "options_en": [
         "Hard but worth it",
@@ -1462,14 +1462,14 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK5",
-       "text": "What must applicants do?\n根据学校的要求，申请人需要提交HSK四级证书。",
+       "text": "আবেদনকারীদের কী করতে হবে?\n根据学校的要求，申请人需要提交HSK四级证书。",
        "text_en": "What must applicants do?\n根据学校的要求，申请人需要提交HSK四级证书。",
        "text_bn": "আবেদনকারীদের কী করতে হবে?\n根据学校的要求，申请人需要提交HSK四级证书。",
        "tts_text": "根据学校的要求，申请人需要提交HSK四级证书。",
        "options": [
-        "Submit an HSK 4 certificate",
-        "Pay a fee in cash",
-        "Come in person only"
+        "HSK ৪ সনদ জমা দেওয়া",
+        "নগদ ফি দেওয়া",
+        "শুধু সরাসরি আসা"
        ],
        "options_en": [
         "Submit an HSK 4 certificate",
@@ -1490,7 +1490,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK1",
-       "text": "Which word means 'water'?",
+       "text": "'পানি' কোনটি?",
        "text_en": "Which word means 'water'?",
        "text_bn": "'পানি' কোনটি?",
        "options": [
@@ -1508,13 +1508,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK2",
-       "text": "Sign: 出口. What is it?\n出口",
+       "text": "সাইন: 出口। এটা কী?\n出口",
        "text_en": "Sign: 出口. What is it?\n出口",
        "text_bn": "সাইন: 出口। এটা কী?\n出口",
        "options": [
-        "Exit",
-        "Entrance",
-        "Toilet"
+        "বের হওয়ার পথ",
+        "ঢোকার পথ",
+        "টয়লেট"
        ],
        "options_en": [
         "Exit",
@@ -1535,13 +1535,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK3",
-       "text": "When is the salary paid?\n通知：工资每月十号发，加班费一起发。",
+       "text": "বেতন কবে দেওয়া হয়?\n通知：工资每月十号发，加班费一起发。",
        "text_en": "When is the salary paid?\n通知：工资每月十号发，加班费一起发。",
        "text_bn": "বেতন কবে দেওয়া হয়?\n通知：工资每月十号发，加班费一起发。",
        "options": [
-        "On the 10th of each month",
-        "Every Friday",
-        "At the end of the year"
+        "প্রতি মাসের ১০ তারিখে",
+        "প্রতি শুক্রবার",
+        "বছরের শেষে"
        ],
        "options_en": [
         "On the 10th of each month",
@@ -1562,7 +1562,7 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK3",
-       "text": "Choose the correct word order.",
+       "text": "সঠিক শব্দক্রম বাছুন।",
        "text_en": "Choose the correct word order.",
        "text_bn": "সঠিক শব্দক্রম বাছুন।",
        "options": [
@@ -1580,13 +1580,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK4",
-       "text": "What does the company offer?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
+       "text": "কোম্পানি কী দিচ্ছে?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
        "text_en": "What does the company offer?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
        "text_bn": "কোম্পানি কী দিচ্ছে?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
        "options": [
-        "Free housing",
-        "A free car",
-        "Only part-time work"
+        "বিনামূল্যে থাকার ব্যবস্থা",
+        "বিনামূল্যে গাড়ি",
+        "শুধু খণ্ডকালীন কাজ"
        ],
        "options_en": [
         "Free housing",
@@ -1607,13 +1607,13 @@
        "type": "mcq",
        "skill": "reading",
        "level": "HSK5",
-       "text": "Which statement matches the text?\n只要有人帮助，网上申请就能节省很多时间。",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\n只要有人帮助，网上申请就能节省很多时间。",
        "text_en": "Which statement matches the text?\n只要有人帮助，网上申请就能节省很多时间。",
        "text_bn": "কোন বাক্য লেখার সাথে মেলে?\n只要有人帮助，网上申请就能节省很多时间。",
        "options": [
-        "Online applications are faster if people get help",
-        "Online applications are always faster",
-        "Paper is faster"
+        "সাহায্য পেলে অনলাইন আবেদন দ্রুত",
+        "অনলাইন আবেদন সবসময় দ্রুত",
+        "কাগজে দ্রুত"
        ],
        "options_en": [
         "Online applications are faster if people get help",
@@ -1639,7 +1639,7 @@
      "prompts": [
       {
        "id": "zh-mk-w1",
-       "text": "Write 2–3 sentences in Chinese characters: who you are, where you work or study, and why you learn Chinese (use 因为).",
+       "text": "চীনা অক্ষরে ২–৩ বাক্য লিখুন: আপনি কে, কোথায় কাজ/পড়াশোনা করেন, কেন চীনা শিখছেন (因为 ব্যবহার করুন)।",
        "text_en": "Write 2–3 sentences in Chinese characters: who you are, where you work or study, and why you learn Chinese (use 因为).",
        "text_bn": "চীনা অক্ষরে ২–৩ বাক্য লিখুন: আপনি কে, কোথায় কাজ/পড়াশোনা করেন, কেন চীনা শিখছেন (因为 ব্যবহার করুন)।",
        "min_words": 1,
