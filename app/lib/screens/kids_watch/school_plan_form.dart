@@ -13,6 +13,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/permission_reason.dart';
+import '../../maps/place_search.dart'; // jsearch
 
 /// kidswatch — create / edit a School Mode plan (full-screen form sheet).
 /// For a WATCH plan the child is the watch; for a PHONE plan the child is a
@@ -128,6 +129,15 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
             subtitle: Text(t.kwUseHereNowSub),
             onTap: () => Navigator.pop(ctx, {'here': true}),
           ),
+          // jsearch: the same place search as My Trip (live suggestions,
+          // full address, confirm card)
+          ListTile(
+            key: const ValueKey('kw_place_search'),
+            leading: const Icon(Icons.travel_explore_rounded),
+            title: Text(t.j2Search),
+            subtitle: Text(t.psSchoolSearchSub),
+            onTap: () => Navigator.pop(ctx, {'search': true}),
+          ),
           for (final p in _places)
             ListTile(
               leading: const Icon(Icons.place_rounded),
@@ -139,7 +149,22 @@ class _SchoolPlanFormState extends State<SchoolPlanForm> {
     );
     if (pick == null || !mounted) return;
     Map<String, dynamic>? place;
-    if (pick['here'] == true) {
+    if (pick['search'] == true) {
+      final p = await showPlaceSearchSheet(context, _api,
+          currentLocation: false,
+          saved: [
+            for (final x in _places)
+              if (x['lat'] is num && x['lng'] is num)
+                (
+                  name: '${x['label'] ?? ''}'.isNotEmpty ? '${x['label']}' : '${x['name'] ?? ''}',
+                  address: '',
+                  lat: (x['lat'] as num).toDouble(),
+                  lng: (x['lng'] as num).toDouble()
+                )
+          ]);
+      if (p == null || !mounted) return;
+      place = {'lat': p.lat, 'lng': p.lng, 'name': p.name};
+    } else if (pick['here'] == true) {
       final pos = await _here();
       if (pos == null) {
         if (mounted) setState(() => _error = t.kwLocationUnavailable);

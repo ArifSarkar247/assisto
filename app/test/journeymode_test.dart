@@ -399,7 +399,7 @@ void main() {
 
   // ---------------------------------------------------------- start screen
   group('start screen: How are you going?', () {
-    testWidgets('7 chips; local bus turns the alarm on at 10 m; choice remembered', (tester) async {
+    testWidgets('7 chips; no alarm switch on My Trip (jsearch); choice remembered', (tester) async {
       await _open(tester, _Api(), const JourneyStartScreen());
       expect(find.text(en.jmHowGoing), findsOneWidget);
       for (final m in kTravelModes) {
@@ -408,15 +408,14 @@ void main() {
       expect(find.byKey(const ValueKey('jm_alarm')), findsNothing); // nothing picked yet
       await tester.tap(find.byKey(const ValueKey('jm_mode_local_bus')));
       await _settle(tester);
-      final sw = tester.widget<SwitchListTile>(find.byKey(const ValueKey('jm_alarm')));
-      expect(sw.value, isTrue);
-      expect(find.text(en.jmAlarmBus('10 m')), findsOneWidget);
-      expect(find.byKey(const ValueKey('jm_alarm_needs_pin')), findsOneWidget); // honest: no pin yet
+      // owner decision 4 Nov: "Wake me before my stop" lives only on the
+      // Destination Alarm card — never on the My Trip form
+      expect(find.byKey(const ValueKey('jm_alarm')), findsNothing);
+      expect(find.text(en.jmAlarmSwitch), findsNothing);
       expect(await Settings.getString(kTravelModeKey), 'local_bus');
-      // long-distance bus: 2 km
       await tester.tap(find.byKey(const ValueKey('jm_mode_long_bus')));
       await _settle(tester);
-      expect(find.text(en.jmAlarmBus('2.0 km')), findsOneWidget);
+      expect(find.byKey(const ValueKey('jm_alarm')), findsNothing);
       // car: no alarm
       await tester.tap(find.byKey(const ValueKey('jm_mode_car')));
       await _settle(tester);
@@ -455,10 +454,7 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const ValueKey('jm_train_card')), findsOneWidget);
       expect(find.text('Dhaka Airport Railway Station'), findsWidgets); // destination filled
-      // alarm on, rings when leaving the stop before (Chattogram is 300 km
-      // back: the GPS rule is used and said so)
-      expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('jm_alarm'))).value, isTrue);
-      expect(find.text(en.jmAlarmTrainGps('2.0 km')), findsOneWidget);
+      expect(find.byKey(const ValueKey('jm_alarm')), findsNothing); // jsearch: alarm card only
       await tester.ensureVisible(find.byKey(const ValueKey('j100_w_7')));
       await tester.tap(find.byKey(const ValueKey('j100_w_7')));
       await _settle(tester);
@@ -466,6 +462,12 @@ void main() {
       await tester.ensureVisible(start);
       await tester.tap(start);
       await _settle(tester);
+      final tp = find.byType(TimePickerDialog);
+      if (tp.evaluate().isNotEmpty) {
+        Navigator.of(tester.element(tp))
+            .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
+        await _settle(tester);
+      }
       final body = api.posts.firstWhere((p) => p.$1 == '/journey/start').$2;
       expect(body['mode'], 'train');
       final v = body['vehicle'] as Map;

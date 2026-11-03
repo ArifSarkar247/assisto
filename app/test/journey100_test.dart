@@ -438,6 +438,13 @@ void main() {
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
+    // jsearch: no road time in the fake -> the arrival time is asked once
+    final tp = find.byType(TimePickerDialog);
+    if (tp.evaluate().isNotEmpty) {
+      Navigator.of(tester.element(tp))
+          .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
+      await _settle(tester);
+    }
     final eta = '${api.posts('/journey/start').single.body['eta']}';
     expect(eta, endsWith('Z'));
     final at = DateTime.parse(eta);

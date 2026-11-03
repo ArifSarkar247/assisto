@@ -4,7 +4,7 @@ replaced by a recorder that returns plain dicts (never a bare MagicMock).
 
 Covers: per-user daily limit, global daily cap + free fallback, off without a
 key / with the cost switch off, reverse-geocode cache hit within 50 m (and a
-miss beyond), Autocomplete (3+ chars, session token, field masks) + ONE Place
+miss beyond), Autocomplete (2+ chars, session token, field masks) + ONE Place
 Details Essentials, Routes once + cached, SOS makes zero maps calls, the
 usage-card math, the server key never reaching the app, the web share page on
 OpenStreetMap tiles with attribution."""
@@ -150,7 +150,7 @@ class GeoCacheTests(MapsBase):
 
 class SearchTests(MapsBase):
     def test_short_query_and_bad_session_make_no_call(self):
-        self.assertEqual(self.c1.get("%s/maps/autocomplete?q=ab&session=abcdefgh12" % V)
+        self.assertEqual(self.c1.get("%s/maps/autocomplete?q=a&session=abcdefgh12" % V)
                          .json()["state"], "short")
         self.assertEqual(self.c1.get("%s/maps/autocomplete?q=Bashundhara&session=x" % V)
                          .json()["state"], "bad_session")
@@ -264,7 +264,7 @@ class KeyNeverToPhoneTests(MapsBase):
                   self.c1.get("%s/maps/eta?olat=23.7&olng=90.4&dlat=23.8&dlng=90.41" % V).content]
         for b in bodies:
             self.assertNotIn(KEY.encode(), b)
-        self.assertEqual(self.c1.get("%s/maps/status" % V).json()["min_chars"], 3)
+        self.assertEqual(self.c1.get("%s/maps/status" % V).json()["min_chars"], 2)
 
     def test_needs_login(self):
         from rest_framework.test import APIClient
@@ -288,3 +288,69 @@ class WebShareOsmTests(Base):
     def test_licensed_tiles_win_when_configured(self):
         from core import journey_watch as JW
         self.assertIn("maps.example.com", JW.tile_config(web=True)["tile_url"])
+
+
+class ChandraSearchTests(MapsBase):
+    """jsearch (owner phone test 4 Nov 00:05): typing "Ch" / "Chandra" near
+    Gazipur lists Chandra Mor and Chandra Bus Terminal with the area line and
+    the distance; bias to the user + Bangladesh; one Details ends it."""
+
+    def setUp(self):
+        super().setUp()
+        base = self.rec
+
+        def rec(url, body=None, headers=None):
+            if "places:autocomplete" in url:
+                base.calls.append({"url": url, "body": body, "headers": headers or {}})
+                return {"suggestions": [
+                    {"placePrediction": {"placeId": "ChIJchandraMor", "distanceMeters": 2140,
+                                         "structuredFormat": {
+                                             "mainText": {"text": "Chandra Mor"},
+                                             "secondaryText": {"text": "Kaliakair, Gazipur"}}}},
+                    {"placePrediction": {"placeId": "ChIJchandraBus", "distanceMeters": 2380,
+                                         "structuredFormat": {
+                                             "mainText": {"text": "Chandra Bus Terminal"},
+                                             "secondaryText": {"text": "Chandra, Kaliakair, Gazipur"}}}}]}
+            if "/v1/places/ChIJchandraMor" in url:
+                base.calls.append({"url": url, "body": body, "headers": headers or {}})
+                return {"id": "ChIJchandraMor", "location": {"latitude": 24.0469, "longitude": 90.2405},
+                        "formattedAddress": "Chandra Mor, Dhaka-Tangail Hwy, Kaliakair 1750, Gazipur"}
+            return base(url, body, headers)
+        p = mock.patch.object(MC, "HTTP", rec)
+        p.start()
+        self.addCleanup(p.stop)
+
+    def test_two_letters_already_search_with_bias_region_and_distance(self):
+        s = "chandra-sess-0001"
+        r = self.c1.get("%s/maps/autocomplete?q=Ch&session=%s&lat=24.03&lng=90.25" % (V, s)).json()
+        self.assertEqual(r["state"], "ok")
+        body = self.rec.calls[0]["body"]
+        self.assertEqual((body["input"], body["sessionToken"]), ("Ch", s))
+        self.assertEqual(body["includedRegionCodes"], ["bd"])
+        self.assertEqual(body["regionCode"], "bd")
+        self.assertIn(body["languageCode"], ("bn", "en"))
+        self.assertEqual(body["locationBias"]["circle"]["center"], {"latitude": 24.03, "longitude": 90.25})
+        self.assertEqual(body["origin"], {"latitude": 24.03, "longitude": 90.25})
+        self.assertIn("distanceMeters", self.rec.calls[0]["headers"]["X-Goog-FieldMask"])
+
+    def test_chandra_lists_mor_and_bus_terminal_then_details_ends_session(self):
+        s = "chandra-sess-0002"
+        r = self.c1.get("%s/maps/autocomplete?q=Chandra&session=%s&lat=24.03&lng=90.25" % (V, s)).json()
+        self.assertEqual([x["name"] for x in r["results"]], ["Chandra Mor", "Chandra Bus Terminal"])
+        self.assertEqual(r["results"][0]["secondary"], "Kaliakair, Gazipur")
+        self.assertEqual(r["results"][0]["distance_m"], 2140)
+        d = self.c1.get("%s/maps/place?id=ChIJchandraMor&session=%s" % (V, s)).json()
+        self.assertEqual(d["state"], "ok")
+        self.assertEqual((d["lat"], d["lng"]), (24.0469, 90.2405))
+        self.assertIn("Kaliakair", d["address"])
+        det = self.rec.calls[1]
+        self.assertIn("sessionToken=%s" % s, det["url"])
+        self.assertEqual(det["headers"]["X-Goog-FieldMask"], "id,location,formattedAddress")
+        self.assertEqual(len(self.rec.calls), 2)
+
+    def test_search_uses_places_new_never_legacy_endpoints(self):
+        self.c1.get("%s/maps/autocomplete?q=Chandra&session=chandra-sess-0003" % V)
+        self.c1.get("%s/maps/place?id=ChIJchandraMor&session=chandra-sess-0003" % V)
+        for c in self.rec.calls:
+            self.assertTrue(c["url"].startswith("https://places.googleapis.com/v1/"), c["url"])
+            self.assertNotIn("/api/place/", c["url"])  # the legacy Places web API

@@ -80,7 +80,7 @@ class _VehicleFenceEditorScreenState extends State<VehicleFenceEditorScreen> {
           : !cfg.hasTiles
               ? Padding(
                   padding: const EdgeInsets.all(Gap.lg),
-                  child: Text(tr.v100FenceNoMap,
+                  child: Text(tr.psFenceNoMap, // jsearch: no internal "not set up" text
                       style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
                 )
               : ListView(padding: const EdgeInsets.all(Gap.md), children: [

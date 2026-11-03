@@ -197,7 +197,7 @@ void main() {
     expect(find.byKey(const ValueKey('j2_intro')), findsOneWidget);
     expect(find.byKey(const ValueKey('j2_search')), findsNothing); // no geocoder
     expect(find.byKey(const ValueKey('j2_pick_map')), findsNothing); // no tiles
-    expect(find.byKey(const ValueKey('j2_no_map')), findsOneWidget);
+    expect(find.byKey(const ValueKey('j2_no_map')), findsNothing); // jsearch: no internal text
     await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Aunt');
     await _settle(tester, 3);
     expect(find.byKey(const ValueKey('j2_no_pin')), findsOneWidget);
@@ -205,7 +205,7 @@ void main() {
     await _settle(tester, 3);
     expect(find.byKey(const ValueKey('j2_pinned')), findsOneWidget);
     expect(find.byKey(const ValueKey('j2_no_pin')), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('j2_unpin')));
+    await tester.tap(find.byKey(const ValueKey('ps_change')));
     await _settle(tester, 3);
     expect(find.byKey(const ValueKey('j2_no_pin')), findsOneWidget);
   });
@@ -225,7 +225,7 @@ void main() {
     await _settle(tester, 8);
     expect(api.posts('/journey/parse-link').length, 2);
     expect(find.byKey(const ValueKey('j2_pinned')), findsOneWidget);
-    expect(find.text('Gulshan 1'), findsOneWidget);
+    expect(find.text('Gulshan 1'), findsWidgets); // the field + the confirm card
   });
 
   testWidgets('search shows only with a geocoder, and picks a real row', (tester) async {
@@ -237,6 +237,8 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.search);
     await _settle(tester, 6);
     await tester.tap(find.text('Bashundhara City'));
+    await _settle(tester, 6);
+    await tester.tap(find.byKey(const ValueKey('ps_use'))); // jsearch: confirm card
     await _settle(tester, 6);
     expect(find.byKey(const ValueKey('j2_pinned')), findsOneWidget);
   });
@@ -269,6 +271,13 @@ void main() {
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
+    // jsearch: no road time in the fake -> the arrival time is asked once
+    final tp = find.byType(TimePickerDialog);
+    if (tp.evaluate().isNotEmpty) {
+      Navigator.of(tester.element(tp))
+          .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
+      await _settle(tester);
+    }
     final b = api.posts('/journey/start').single.body;
     expect((b['watcher_ids'] as List).toSet(), {7, 8});
     expect(b['vehicle'], {'plate': 'DHA-1', 'driver_name': 'Rahim'});
@@ -308,6 +317,13 @@ void main() {
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
+    // jsearch: no road time in the fake -> the arrival time is asked once
+    final tp = find.byType(TimePickerDialog);
+    if (tp.evaluate().isNotEmpty) {
+      Navigator.of(tester.element(tp))
+          .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
+      await _settle(tester);
+    }
     expect(find.byKey(const ValueKey('j100b_bg_sheet')), findsOneWidget);
     expect(find.text(en.j100bBgSheetTitle), findsOneWidget);
     expect(api.posts('/journey/start'), isEmpty); // nothing started yet

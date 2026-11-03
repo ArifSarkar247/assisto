@@ -202,11 +202,11 @@ class JourneyModePicker extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final bn = Localizations.localeOf(context).languageCode == 'bn';
+    // jsearch (owner decision 4 Nov): no "Wake me before my stop" switch on
+    // My Trip any more — the destination alarm lives only on its own card.
     final travel = c.travel;
-    final mode = c.alarmMode;
     final tr = c.train;
     final showTrain = travel == 'train' && jmTrainOn;
-    final showAlarm = mode != null && jmAlarmOn;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text(t.jmHowGoing, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
       Text(t.jmHowGoingHelp, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
@@ -256,95 +256,7 @@ class JourneyModePicker extends StatelessWidget {
             ),
           ),
       ],
-      if (showAlarm) ...[
-        const SizedBox(height: Gap.xs),
-        SwitchListTile(
-          key: const ValueKey('jm_alarm'),
-          contentPadding: EdgeInsets.zero,
-          secondary: const Icon(Icons.alarm_on_rounded),
-          title: Text(t.jmAlarmSwitch),
-          subtitle: Text(_alarmLine(context, t, bn, mode)),
-          value: c.alarmOn,
-          onChanged: c.setAlarmOn,
-        ),
-        if (c.alarmOn) ..._alarmSettings(context, t, cs, bn, mode),
-      ],
     ]);
-  }
-
-  String _alarmLine(BuildContext context, AppLocalizations t, bool bn, TransportMode mode) {
-    switch (mode) {
-      case TransportMode.metro:
-        return t.jmAlarmMetro;
-      case TransportMode.train:
-        final p = c.preview(destName: destName, destLat: destLat, destLng: destLng, bn: bn);
-        final prev = p?.prevStation;
-        if (prev != null &&
-            trainLegUsable(prev.lat, prev.lng, p!.target.lat, p.target.lng)) {
-          return t.jmAlarmTrainPrev(prev.name);
-        }
-        return t.jmAlarmTrainGps(jmDist(context, t, c.alarmM.toDouble()));
-      default:
-        return t.jmAlarmBus(jmDist(context, t, c.alarmM.toDouble()));
-    }
-  }
-
-  List<Widget> _alarmSettings(
-      BuildContext context, AppLocalizations t, ColorScheme cs, bool bn, TransportMode mode) {
-    final spec = kModeSpecs[mode]!;
-    final out = <Widget>[];
-    if (mode == TransportMode.metro) {
-      if (c.metro.length >= 2) {
-        out.addAll([
-          for (final from in [true, false])
-            Padding(
-              key: ValueKey('jm_metro_${from}_${from ? c.metroFrom : c.metroTo}'),
-              padding: const EdgeInsets.only(bottom: Gap.sm),
-              child: DropdownButtonFormField<int>(
-                key: ValueKey(from ? 'jm_metro_from' : 'jm_metro_to'),
-                initialValue: from ? c.metroFrom : c.metroTo,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: from ? t.jmMetroFrom : t.jmMetroTo),
-                items: [
-                  for (var i = 0; i < c.metro.length; i++)
-                    DropdownMenuItem(value: i, child: Text(c.metro[i].name(bn))),
-                ],
-                onChanged: (v) => from ? c.setMetro(from: v) : c.setMetro(to: v),
-              ),
-            ),
-        ]);
-      }
-      if (c.metroFrom == null || c.metroTo == null || c.metroFrom == c.metroTo) {
-        out.add(Text(t.jmMetroPick,
-            key: const ValueKey('jm_metro_pick'),
-            style: AType.bodySmall.copyWith(color: Brand.warnInk(context))));
-      }
-    } else {
-      if (mode != TransportMode.train || c.train == null) {
-        out.add(Semantics(
-          label: t.jmAlarmSwitch,
-          child: Slider(
-            key: const ValueKey('jm_alarm_m'),
-            value: c.alarmM.toDouble().clamp(spec.minM.toDouble(), spec.maxM.toDouble()),
-            min: spec.minM.toDouble(),
-            max: spec.maxM.toDouble(),
-            divisions: ((spec.maxM - spec.minM) / (spec.maxM > 5000 ? 500 : 10)).round(),
-            label: jmDist(context, t, c.alarmM.toDouble()),
-            semanticFormatterCallback: (v) => jmDist(context, t, v),
-            onChanged: (v) => c.setAlarmM(v.round()),
-            onChangeEnd: (v) => c.setAlarmM(v.round(), save: true),
-          ),
-        ));
-      }
-      final hasTarget = destPinned || (mode == TransportMode.train && c.train != null);
-      if (!hasTarget) {
-        out.add(Text(t.jmAlarmNeedsPin,
-            key: const ValueKey('jm_alarm_needs_pin'),
-            style: AType.bodySmall.copyWith(color: Brand.warnInk(context))));
-      }
-    }
-    out.add(Text(t.jmAlarmPhoneOnly, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)));
-    return out;
   }
 }
 

@@ -8,8 +8,7 @@ import 'app_sheet.dart';
 import 'journey_api.dart';
 import 'journey_ride.dart';
 import 'local_counter.dart';
-import '../maps/maps_api.dart'; // mapscost
-import '../maps/place_search_controller.dart'; // mapscost
+import '../maps/place_search.dart'; // jsearch
 
 /// journey2 — the destination sheets of the Safe Journey start form:
 ///  * paste a Google Maps link (long or maps.app.goo.gl) or "23.78, 90.41";
@@ -134,204 +133,17 @@ class _LinkSheetState extends State<_LinkSheet> {
   }
 }
 
+/// jsearch: the "Search a place" sheet is the ONE shared place search
+/// (maps/place_search.dart) — live suggestions, confirm card, Change.
 Future<JourneyDest?> showJourneySearchSheet(BuildContext context, ApiClient api,
-    {double? lat, double? lng}) {
-  return showAppSheet<JourneyDest>(
-    context: context,
-    isScrollControlled: true,
-    builder: (_) => _SearchSheet(api: api, lat: lat, lng: lng),
-  );
-}
-
-class _SearchSheet extends StatefulWidget {
-  final ApiClient api;
-  final double? lat, lng;
-  const _SearchSheet({required this.api, this.lat, this.lng});
-  @override
-  State<_SearchSheet> createState() => _SearchSheetState();
-}
-
-class _SearchSheetState extends State<_SearchSheet> {
-  final _ctl = TextEditingController();
-  List<Map<String, dynamic>> _rows = [];
-  bool _busy = false;
-  String? _msg;
-  bool _legacy = false; // an older server without Autocomplete: search on Enter
-  bool _google = false; // rows came from Google -> "Powered by Google" shown
-  // mapscost: 3+ characters, 300 ms debounce, one session token per search,
-  // ONE Place Details when a row is picked (owner order 3 Nov 18:40)
-  late final PlaceSearchController _ps = PlaceSearchController(
-    suggest: (q, session) =>
-        widget.api.mapsAutocomplete(q, session, lat: widget.lat, lng: widget.lng),
-    details: (id, session) => widget.api.mapsPlace(id, session),
-    onView: _onView,
-  );
-
-  @override
-  void dispose() {
-    _ps.dispose();
-    _ctl.dispose();
-    super.dispose();
-  }
-
-  String? _stateMsg(AppLocalizations t, String st) => switch (st) {
-        'short' => t.mapscSearchHint,
-        'none' => t.j2SearchNone,
-        'failed' || 'bad_session' => t.j2SearchFailed,
-        'off' => t.mapscSearchOff,
-        'user_cap' || 'global_cap' || 'plan_cap' => t.mapscSearchCapped,
-        _ => null,
-      };
-
-  void _onView(PlaceSearchView v) {
-    if (!mounted) return;
-    final t = AppLocalizations.of(context);
-    if (v.state == 'legacy') {
-      _legacy = true;
-      setState(() => _busy = false);
-      return;
-    }
-    setState(() {
-      _busy = v.state == 'loading';
-      _google = v.rows.isNotEmpty;
-      _rows = v.rows;
-      _msg = _stateMsg(t, v.state);
-    });
-  }
-
-  void _changed(String text) {
-    if (_legacy) return; // older server: only on Enter (its search is costly)
-    _ps.onChanged(text);
-  }
-
-  Future<void> _search() async {
-    if (!_legacy) {
-      await _ps.submit(_ctl.text);
-      if (!_legacy) return;
-    }
-    await _legacySearch();
-  }
-
-  /// Pre-mapscost servers: GET /journey/geocode on Enter (capped server-side).
-  Future<void> _legacySearch() async {
-    final t = AppLocalizations.of(context);
-    final q = _ctl.text.trim();
-    if (q.length < 2) return;
-    setState(() {
-      _busy = true;
-      _msg = null;
-    });
-    try {
-      final r = await widget.api.journeyGeocode(q, lat: widget.lat, lng: widget.lng);
-      final rows = ((r['results'] ?? const []) as List)
-          .whereType<Map>()
-          .map((m) => m.cast<String, dynamic>())
-          .where((m) => m['lat'] is num && m['lng'] is num)
-          .toList();
-      if (!mounted) return;
-      setState(() {
-        _busy = false;
-        _rows = rows;
-        _google = rows.isNotEmpty;
-        _msg = r['state'] == 'failed'
-            ? t.j2SearchFailed
-            : (rows.isEmpty ? (_stateMsg(t, '${r['state']}') ?? t.j2SearchNone) : null);
-      });
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _rows = [];
-          _msg = t.j2SearchFailed;
-        });
-      }
-    }
-  }
-
-  Future<void> _pick(Map<String, dynamic> r) async {
-    final name = '${r['name'] ?? ''}';
-    if (r['lat'] is num && r['lng'] is num) {
-      Navigator.pop<JourneyDest>(context,
-          (name: name, lat: (r['lat'] as num).toDouble(), lng: (r['lng'] as num).toDouble()));
-      return;
-    }
-    final t = AppLocalizations.of(context);
-    setState(() => _busy = true);
-    final got = await _ps.select('${r['place_id']}',
-        error: (st) => _msg = _stateMsg(t, st) ?? t.j2SearchFailed);
-    if (!mounted) return;
-    if (got == null) {
-      setState(() => _busy = false);
-      return;
-    }
-    Navigator.pop<JourneyDest>(context, (name: name, lat: got.lat, lng: got.lng));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final cs = Theme.of(context).colorScheme;
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-          TextField(
-            key: const ValueKey('j2_search_field'),
-            controller: _ctl,
-            autofocus: true,
-            maxLength: 120,
-            buildCounter: localCounter,
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              labelText: t.j2SearchField,
-              helperText: t.mapscSearchHint,
-              helperMaxLines: 2,
-              suffixIcon: IconButton(
-                  tooltip: t.j2Search,
-                  icon: const Icon(Icons.search_rounded),
-                  onPressed: _busy ? null : _search),
-            ),
-            onChanged: _changed,
-            onSubmitted: (_) => _search(),
-          ),
-          if (_busy)
-            const Padding(
-                padding: EdgeInsets.all(Gap.md),
-                child: Center(child: CircularProgressIndicator())),
-          if (_msg != null)
-            Padding(
-              padding: const EdgeInsets.only(top: Gap.md),
-              child: Text(_msg!,
-                  key: const ValueKey('mc_search_msg'),
-                  style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
-            ),
-          Flexible(
-            child: ListView(shrinkWrap: true, children: [
-              for (final r in _rows)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  minTileHeight: 48,
-                  leading: const Icon(Icons.place_rounded),
-                  title: Text('${r['name'] ?? ''}'),
-                  subtitle: '${r['secondary'] ?? r['address'] ?? ''}'.isEmpty
-                      ? null
-                      : Text('${r['secondary'] ?? r['address']}'),
-                  onTap: _busy ? null : () => _pick(r),
-                ),
-            ]),
-          ),
-          if (_google)
-            Padding(
-              padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(t.mapscPoweredByGoogle,
-                  key: const ValueKey('mc_powered_google'),
-                  textAlign: TextAlign.end,
-                  style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
-            ),
-        ]),
-      ),
-    );
-  }
+    {double? lat,
+    double? lng,
+    PlaceSearchMode? mode,
+    List<PlacePick> saved = const [],
+    Future<({double lat, double lng})?> Function()? onMap}) async {
+  final p = await showPlaceSearchSheet(context, api,
+      lat: lat, lng: lng, mode: mode, saved: saved, onMap: onMap);
+  return p == null ? null : (name: p.name, lat: p.lat, lng: p.lng);
 }
 
 /// The "Safe place for anti-theft" switch (owner decision 2 Nov): saved

@@ -18,7 +18,8 @@ intent) and SOS — SOS never calls or waits on anything in this module.
 Reverse geocoding: the phone asks the free on-phone Android Geocoder first;
 only when that gives nothing does it call /maps/reverse here, which answers
 from our ~50 m cache before paying.
-Search: Places API (New) Autocomplete with a session token, 3+ characters,
+Search: Places API (New) Autocomplete with a session token, 2+ characters
+(jsearch, owner 4 Nov: like the Google Maps app),
 the app debounces 300 ms, field masks on every request, and ONE Place Details
 (Essentials fields only: id, location, formattedAddress) ends the session.
 Routes: one Compute Routes call at trip start or on the user's tap, cached
@@ -321,9 +322,10 @@ def reverse(user, lat, lng, lang="bn"):
 
 # ------------------------------------------------------------------ search
 AUTOCOMPLETE_MASK = ("suggestions.placePrediction.placeId,"
-                     "suggestions.placePrediction.structuredFormat")
+                     "suggestions.placePrediction.structuredFormat,"
+                     "suggestions.placePrediction.distanceMeters")
 DETAILS_MASK = "id,location,formattedAddress"       # Essentials SKU only
-MIN_CHARS = 3
+MIN_CHARS = 2      # jsearch: "Ch" already lists places (owner 4 Nov)
 
 
 def autocomplete(user, q, session, lat=None, lng=None, lang="bn"):
@@ -336,11 +338,14 @@ def autocomplete(user, q, session, lat=None, lng=None, lang="bn"):
     if not _TOKEN.match(session):
         return {"state": "bad_session", "results": []}
     body = {"input": q, "sessionToken": session, "includedRegionCodes": ["bd"],
-            "languageCode": "en" if lang == "en" else "bn"}
+            "regionCode": "bd", "languageCode": "en" if lang == "en" else "bn"}
     near = _ok_coord(lat, lng)
     if near:
         body["locationBias"] = {"circle": {"center": {"latitude": near[0], "longitude": near[1]},
                                            "radius": 30000.0}}
+        # same request, no extra charge: Google returns each row's straight
+        # distance from here (distanceMeters) — the phone formats it
+        body["origin"] = {"latitude": near[0], "longitude": near[1]}
 
     def call(key):
         data = HTTP("https://places.googleapis.com/v1/places:autocomplete", body,
@@ -352,8 +357,12 @@ def autocomplete(user, q, session, lat=None, lng=None, lang="bn"):
             pid = str(pp.get("placeId") or "")
             name = str(((sf.get("mainText") or {}).get("text")) or "")
             if pid and name:
-                out.append({"place_id": pid, "name": name[:120],
-                            "secondary": str(((sf.get("secondaryText") or {}).get("text")) or "")[:200]})
+                row = {"place_id": pid, "name": name[:120],
+                       "secondary": str(((sf.get("secondaryText") or {}).get("text")) or "")[:200]}
+                dm = pp.get("distanceMeters")
+                if isinstance(dm, (int, float)) and dm >= 0:
+                    row["distance_m"] = int(dm)
+                out.append(row)
         return out
 
     state, rows = _paid("autocomplete", user, call)

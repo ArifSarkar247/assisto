@@ -281,7 +281,7 @@ void main() {
       expect(find.descendant(of: rafi, matching: find.textContaining(en.sjlNoFixYet)),
           findsOneWidget);
       // no tile provider -> honest note, maps app per person
-      expect(find.byKey(const ValueKey('sjl_where_nomap')), findsOneWidget);
+      expect(find.byKey(const ValueKey('sjl_where_nomap')), findsNothing); // jsearch: no internal text
       expect(find.byKey(const ValueKey('sjl_where_maps_7')), findsOneWidget);
       expect(find.byKey(const ValueKey('sjl_where_maps_1')), findsNothing);
     });
