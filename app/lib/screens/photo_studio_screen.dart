@@ -643,6 +643,25 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                     tp, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
           ),
       ]),
+      // aileft: the price of every chip BEFORE the tap (never charged on a
+      // failed edit — the server refunds at once)
+      const SizedBox(height: Gap.sm),
+      for (final f in {for (final tp in _templates) tp.feature})
+        Padding(
+          key: Key('psTplCost_${f.wire}'),
+          padding: const EdgeInsets.only(bottom: Gap.xs),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+                f == PsFeature.enhanceServer
+                    ? t.aileftTplCostHd
+                    : f.isRestore
+                        ? t.aileftTplCostRestore
+                        : t.aileftTplCostAi,
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700)),
+            _costLine(t, _c.config.quote(f)),
+          ]),
+        ),
+      _infoLine(Icons.verified_user_rounded, t.aileftNoChargeOnFail),
       if (_c.free) ...[
         const SizedBox(height: Gap.sm),
         // photo-final: free HD enhance counts live in the HD enhance card
@@ -907,7 +926,28 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final fl = _c.currentFaceLock;
     final canReport = s.current.aiEdited && _c.jobForCurrent() != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      img,
+      // aileft: a small "AI edited" mark on every AI result (also burnt
+      // into the exported file — see PhotoStudioController.aiMarkFor)
+      _c.aiMarkFor(cur)
+          ? Stack(children: [
+              img,
+              PositionedDirectional(
+                top: Gap.sm,
+                start: Gap.sm,
+                child: IgnorePointer(
+                  child: Container(
+                    key: const Key('psAiEditedMark'),
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: const Color(0xB3000000),
+                        borderRadius: BorderRadius.circular(Radii.pill)),
+                    child: Text(t.aileftAiEdited,
+                        style: AType.labelSmall.copyWith(color: Colors.white)),
+                  ),
+                ),
+              ),
+            ])
+          : img,
       const SizedBox(height: Gap.sm),
       // d1-photo v2: FACE LOCK badge — only when the check really ran
       if (fl != null && fl.locked) ...[
@@ -1494,6 +1534,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
 
   String _idName(AppLocalizations t, String id) => switch (id) {
         'passport_bd' => t.psbIdPassport,
+        'nid_bd' => t.aileftIdNid, // aileft
         'visa_bd' => t.psbIdVisaBd,
         'visa_india' => t.psbIdVisaIndia,
         'job_bd' => t.psbIdJob,
@@ -1592,6 +1633,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         ),
       ],
       _infoLine(Icons.info_outline_rounded, t.psbIdEpassport),
+      _infoLine(Icons.badge_outlined, t.aileftIdNidNote), // aileft
       _infoLine(Icons.fact_check_outlined, t.psbIdCheck),
     ]);
   }
