@@ -100,7 +100,7 @@ Widget _app(Widget child, ApiClient api,
 }
 
 void _tall(WidgetTester t) {
-  t.view.physicalSize = const Size(1080, 6400);
+  t.view.physicalSize = const Size(1080, 12000); // chipbuy2: taller chip card
   t.view.devicePixelRatio = 2.5;
   addTearDown(t.view.reset);
 }

@@ -1,5 +1,5 @@
 """chipbuy2 (owner 3 Nov): Owner Admin -> Buy links. The owner's list of
-links to his own shop asalifymart (per device type). No prices. Audited in
+links to his own shop (per device type). No prices. Audited in
 AdminFlagState(key="buy_links").audit and OwnerAudit "buy_links.save"."""
 from django.views.decorators.http import require_http_methods
 
