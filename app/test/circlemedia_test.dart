@@ -410,7 +410,8 @@ void main() {
       await tester.tap(find.byKey(const Key('cm-add-more')));
       await tester.pumpAndSettle();
       expect(asked, 2);
-      expect(find.text('3 of 4'), findsOneWidget);
+      expect(find.byKey(const Key('cm-thumb-3')), findsOneWidget);
+      expect(find.text('1 of 4'), findsOneWidget);
       expect(find.byKey(const Key('cm-add-more')), findsNothing, reason: 'limit reached');
     });
   });

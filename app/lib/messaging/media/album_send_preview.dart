@@ -213,11 +213,8 @@ class _AlbumSendPreviewState extends State<AlbumSendPreview> {
     try {
       final more = await add(left);
       if (!mounted || more.isEmpty) return;
-      setState(() {
-        _items.addAll(more.take(left).map(AlbumSendItem.new));
-        _index = _items.length - more.take(left).length;
-      });
-      _jumpAfterFrame();
+      // the new picks join the strip; the photo on screen stays put
+      setState(() => _items.addAll(more.take(left).map(AlbumSendItem.new)));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
