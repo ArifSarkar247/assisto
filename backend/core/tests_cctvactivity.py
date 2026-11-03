@@ -349,13 +349,13 @@ class ActivityApiTests(E2E._Base):
         self.assertEqual(ev.signals["desc"]["src"], "ai")
         r = self.client.get(self.base + "/visitors", {"q": "blue shirt"})
         self.assertEqual([x["id"] for x in r.data["rows"]], [ev.id])
-        self.s.refresh_from_db()
-        self.assertEqual(self.s.guard["_activity"]["ai"]["used"], 1)
+        from core import cctv_cap as CC                              # cctvcap: ONE counter
+        self.assertEqual(CC.ai_used(self.s.owner), 1)
         # cap reached -> no paid call, template stays
         ev2 = self.event("person_detected", timezone.now() - timedelta(minutes=2))
         with mock.patch("core.chat_vision_service._active",
                         return_value=("vision_claude", {"api_key": "x"}, 0.002)), \
-                mock.patch("core.cctv_activity.ai_per_camera", return_value=0), \
+                mock.patch("core.cctv_cap.ai_per_camera", return_value=0), \
                 mock.patch("core.vision_providers.ask", return_value=reply) as ask:
             self.assertEqual(A.describe_due()["ai"], 0)
             ask.assert_not_called()

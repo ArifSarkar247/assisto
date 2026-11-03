@@ -153,6 +153,13 @@ DEFAULTS = {
     "limits_owner_confirmed": False,
     "relay_mb_per_camera": 300,          # 0.3 GB relay live / camera / month
     "ai_checks_per_camera": 50,          # AI snapshot checks / camera / month
+    # cctvcap (owner 3 Nov 10:40): one-tap "extra pack" for THIS month, paid
+    # with credits. Prices keep the profit table >= 40 % (relay worst case
+    # 50 tk/GB -> 150 tk = 40.6 %; AI 100 x 0.25 tk -> 80 tk = 42.7 %).
+    "extra_relay_mb": 1000,              # relay pack: +1 GB this month
+    "extra_relay_bdt": 150,
+    "extra_ai_checks": 100,              # AI pack: +100 checks this month
+    "extra_ai_bdt": 80,
     # unpaid end -> unbind -> keep -> delete
     "unbind_after_days": 3,
     "keep_days": 30,
@@ -174,7 +181,9 @@ DEFAULTS = {
 }
 _INT_BOUNDS = {"relay_mb_per_camera": (0, 5000), "ai_checks_per_camera": (0, 1000),
                "unbind_after_days": (1, 30), "keep_days": (30, 90),
-               "clips_per_day": (0, 100)}
+               "clips_per_day": (0, 100),
+               "extra_relay_mb": (100, 10000), "extra_relay_bdt": (10, 5000),
+               "extra_ai_checks": (10, 1000), "extra_ai_bdt": (10, 5000)}
 _NUM_BOUNDS = {"usd_bdt": (50.0, 500.0), "ezviz_device_usd_year": (0.0, 100.0),
                "ezviz_traffic_usd_gb": (0.0, 10.0), "imou_device_bdt_month": (0.0, 1000.0),
                "imou_traffic_usd_gb": (0.0, 10.0), "turn_bdt_per_gb": (0.0, 500.0),
@@ -297,6 +306,32 @@ def addon_cost_bdt(c, days):
     return round(traffic + storage, 2)
 
 
+# cctvcap: the extra packs (Play one-time products later — the seam; today
+# they are paid with Assisto credits). Kinds and their Play product ids.
+PACK_KINDS = ("relay", "ai")
+PACK_PLAY_PRODUCTS = {"relay": "cctv_extra_relay_1gb", "ai": "cctv_extra_ai_100"}
+
+
+def pack_cost_bdt(c, kind):
+    """Worst case cost of one extra pack, fully used."""
+    if kind == "relay":
+        return round(c["extra_relay_mb"] / 1000.0 * _worst_traffic_bdt_gb(c), 2)
+    if kind == "ai":
+        return round(c["extra_ai_checks"] * c["ai_check_usd"] * c["usd_bdt"], 2)
+    raise ValueError(kind)
+
+
+def packs(cfg=None):
+    """The two packs as the app shows them: size + price (tk)."""
+    c = normalize_cfg(cfg)
+    return {"relay": {"kind": "relay", "mb": c["extra_relay_mb"],
+                      "price_bdt": c["extra_relay_bdt"],
+                      "play_product": PACK_PLAY_PRODUCTS["relay"]},
+            "ai": {"kind": "ai", "checks": c["extra_ai_checks"],
+                   "price_bdt": c["extra_ai_bdt"],
+                   "play_product": PACK_PLAY_PRODUCTS["ai"]}}
+
+
 def _row(price_bdt, cost, share):
     net = price_bdt * share
     profit = net - cost
@@ -322,8 +357,13 @@ def profit_table(cfg=None, target_pct=40.0):
         r = _row(ADDON_PRICE_BDT[d], addon_cost_bdt(c, d), share)
         r.update(days=d)
         adds.append(r)
-    low = min(r["pct"] for r in rows + adds)
-    return {"tiers": rows, "addons": adds, "per_camera_cost": per_cam,
+    pk = []
+    for k in PACK_KINDS:
+        r = _row(c["extra_%s_bdt" % k], pack_cost_bdt(c, k), share)
+        r.update(kind=k)
+        pk.append(r)
+    low = min(r["pct"] for r in rows + adds + pk)
+    return {"tiers": rows, "addons": adds, "packs": pk, "per_camera_cost": per_cam,
             "per_vendor": [camera_cost_bdt(c, v) for v in VENDORS],
             "net_share": round(share, 4), "min_pct": low,
             "target_pct": target_pct, "ok": low >= target_pct,

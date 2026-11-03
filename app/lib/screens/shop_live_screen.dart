@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../cctvguard/live_cost.dart'; // cctvguard: direct/relay badge + meter
+import '../cctvguard/live_path_chip.dart'; // cctvcap: tested path chip
 import '../l10n/app_localizations.dart';
 import '../shop_api.dart';
 import '../state.dart';
@@ -444,15 +445,9 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
-          if (_phase == _Phase.live && (_relayed || _path != LivePath.unknown))
-            Chip(
-              key: const Key('shopLivePath'),
-              avatar: Icon(_relayed ? Icons.cloud_sync_rounded
-                  : _path == LivePath.lan ? Icons.wifi_rounded : Icons.bolt_rounded,
-                  size: 18, color: _relayed ? scheme.tertiary : AssistoTokens.of(context).success),
-              label: Text(_relayed ? t.cgPathRelay
-                  : _path == LivePath.lan ? t.cgPathLan : t.cgPathDirect),
-            ),
+          if (_phase == _Phase.live &&
+              LiveCost.badge(relayed: _relayed, path: _path) != LivePath.unknown)
+            LivePathChip(path: _path, relayed: _relayed),
           if (active)
             Chip(
               avatar: const Icon(Icons.timer_rounded, size: 18),

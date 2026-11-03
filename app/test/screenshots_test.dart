@@ -294,6 +294,7 @@ import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
 import 'cctvalerts_shots.dart'; // cctvalerts W3 alert types
 import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
+import 'cctvcap_shots.dart'; // cctvcap: CCTV caps + extra pack
 import 'cctvactivity_shots.dart'; // cctvactivity W10 activity brain
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'phonecam_shots.dart'; // cctvphone old phone as a camera
@@ -957,6 +958,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in cctvalertsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvalerts
     for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
+    for (final e in cctvcapShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvcap
     for (final e in cctvactivityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvactivity
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in phonecamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvphone

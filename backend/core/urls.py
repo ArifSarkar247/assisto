@@ -724,6 +724,7 @@ urlpatterns += [
     # cctvguard (order G): traffic meter, relay cap, vendor live SD/HD + idle stop
     path("shop/live/<int:pk>/usage", cctvguard.ShopLiveUsageView.as_view()),
     path("cctv/usage", cctvguard.CctvUsageView.as_view()),
+    path("cctv/extra-pack", cctvguard.CctvExtraPackView.as_view()),   # cctvcap
     path("watchman/cameras/<int:pk>/vendor_live", cctvguard.VendorLiveStartView.as_view()),
     path("watchman/cameras/<int:pk>/vendor_live/<str:vid>/touch",
          cctvguard.VendorLiveTouchView.as_view()),

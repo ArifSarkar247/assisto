@@ -89,19 +89,46 @@ def n_cameras(owner_id):
     return ShopCamera.objects.filter(site__owner_id=owner_id, enabled=True).count()
 
 
+def extra_relay_mb(doc):
+    """cctvcap: relay MB of the extra packs bought for this month."""
+    from .logic import cctv_cap as C
+    return C.extra(doc)["relay_mb"]
+
+
 def account_state(owner_id, now=None, doc=None, c=None):
     c = c or cfg()
     doc = doc if doc is not None else month_doc(owner_id, now)
-    cap = T.pool_mb(c["relay_mb"], n_cameras(owner_id))
+    cap = T.pool_mb(c["relay_mb"], n_cameras(owner_id)) + extra_relay_mb(doc)
     st = T.cap_state(T.account_relay_bytes(doc), cap, c["confirmed"])
     st["cap_mb"] = cap
     return st
 
 
 # ---------------------------------------------------------------- emergency
-def emergency_active(viewer, owner_id, now=None):
+def _arm_sos(viewer, site, now):
+    """cctvcap: an active cctvarm SOS grant on this site (an SOS at Home
+    opened the home cameras to the family) — the owner or a granted viewer."""
+    if site is None:
+        return False
+    try:
+        from .logic import cctv_arm as ARM
+        arm = ARM.arm_of(site)
+        if not ARM.sos_active(arm, now):
+            return False
+        vid = getattr(viewer, "pk", viewer)
+        return vid == site.owner_id or vid in (arm["sos"].get("viewers") or [])
+    except Exception:
+        log.exception("arm sos check failed")
+        return False
+
+
+def emergency_active(viewer, owner_id, now=None, site=None):
     """An unresolved SOS / fall alert (last 2 h) sent BY the viewer or the
-    camera owner, or sent TO the viewer — then a live view is never cut."""
+    camera owner, or sent TO the viewer, or an active SOS-at-Home grant on
+    the camera's site — then a live view is never cut."""
+    now = now or timezone.now()
+    if _arm_sos(viewer, site, now):
+        return True
     try:
         from django.db.models import Q
         from .models import FamilyAlertDelivery
@@ -127,13 +154,13 @@ def _ekey(session_id):
     return "cctvguard:emerg:%s" % session_id
 
 
-def relay_decision(viewer, owner_id, now=None, lang="bn"):
+def relay_decision(viewer, owner_id, now=None, lang="bn", site=None):
     """May a NEW live view use the TURN relay? -> dict for the API."""
     now = now or timezone.now()
     st = account_state(owner_id, now)
     emergency = False
     if st["level"] == "paused":
-        emergency = emergency_active(viewer, owner_id, now)
+        emergency = emergency_active(viewer, owner_id, now, site=site)
     allow = T.gate(st, emergency)
     level = "emergency" if (emergency and st["level"] == "paused") else st["level"]
     return {"allow": allow, "level": level, "pct": st["pct"],
@@ -150,7 +177,14 @@ def session_relay_allowed(session):
     """The device side of a session: relay only if the start allowed it."""
     if cache.get(_ekey(session.pk)):
         return True
-    return T.gate(account_state(session.site.owner_id))
+    st = account_state(session.site.owner_id)
+    if T.gate(st):
+        return True
+    # cctvcap: an SOS that started AFTER the live view began still wins
+    if emergency_active(session.owner_id, session.site.owner_id, site=session.site):
+        mark_emergency(session.pk)
+        return True
+    return False
 
 
 # ---------------------------------------------------------------- recording
@@ -169,7 +203,18 @@ def record_live(session, total_bytes, seconds, path, now=None):
     except Exception:
         log.exception("traffic record failed")
         doc = None
-    return account_state(owner_id, now, doc=doc)
+    st = account_state(owner_id, now, doc=doc)
+    _relay_after(owner_id, st, now)
+    return st
+
+
+def _relay_after(owner_id, st, now=None):
+    """cctvcap: one push per month when the relay cap is reached."""
+    try:
+        from . import cctv_cap as CC
+        CC.relay_after(owner_id, st, now)
+    except Exception:
+        log.exception("relay cap push failed")
 
 
 def note_turn_usage(user_id, bytes_out, at=None):
@@ -193,7 +238,8 @@ def note_turn_usage(user_id, bytes_out, at=None):
         def fn(doc):
             doc["turn_bytes"] = int(doc.get("turn_bytes") or 0) + int(bytes_out)
             return doc
-        _update(user_id, at, fn)
+        doc = _update(user_id, at, fn)
+        _relay_after(user_id, account_state(user_id, at, doc=doc), at)
         return True
     except Exception:
         log.exception("turn usage note failed")
@@ -284,6 +330,8 @@ def vendor_end(cam, vid, reported_s, hd=None, now=None):
     month, v = _vendor_month(cam, vid, now)
     if month:
         _update(cam.site.owner_id, now, fn, month=month)
+        if out["s"]:
+            _relay_after(cam.site.owner_id, account_state(cam.site.owner_id, now), now)
     return out["s"], out["ref"]
 
 
@@ -333,7 +381,7 @@ def admin_rows(month, limit=200):
         agg = {k: sum(int((x or {}).get(k) or 0) for x in cams.values())
                for k in ("direct_bytes", "live_s", "relay_s", "vendor_s", "vendor_est_bytes")}
         n = n_cameras(r.user_id)
-        cap = T.pool_mb(c["relay_mb"], n)
+        cap = T.pool_mb(c["relay_mb"], n) + extra_relay_mb(d)
         st = T.cap_state(relay, cap, c["confirmed"])
         out.append({"user_id": r.user_id, "name": getattr(r.user, "name", "") or "",
                     "cameras": n, "relay_mb": T.mb(relay),

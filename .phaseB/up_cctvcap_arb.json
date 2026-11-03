@@ -1,0 +1,85 @@
+{
+  "_comment": "cctvcap (owner 3 Nov 10:40): CCTV caps notices + extra pack. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_cctvcap_arb.json",
+  "en": {
+    "capAiLine": "AI photo checks: {used} of {cap} this month",
+    "@capAiLine": {
+      "placeholders": {
+        "used": {
+          "type": "String"
+        },
+        "cap": {
+          "type": "String"
+        }
+      }
+    },
+    "capAiNoticeShort": "{pct}% of AI checks used",
+    "@capAiNoticeShort": {
+      "placeholders": {
+        "pct": {
+          "type": "String"
+        }
+      }
+    },
+    "capAiFullShort": "AI checks used up this month",
+    "capSafety": "SOS, alerts, photos and evidence never stop.",
+    "capPackButton": "Extra pack",
+    "capPackTitle": "Extra pack for this month",
+    "capPackIntro": "Adds to this month only. Paid from your credits.",
+    "capPackBalance": "Your credits: {n}",
+    "@capPackBalance": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "capPackRelay": "Relay live +{gb} GB",
+    "@capPackRelay": {
+      "placeholders": {
+        "gb": {
+          "type": "String"
+        }
+      }
+    },
+    "capPackAi": "AI photo checks +{n}",
+    "@capPackAi": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "capPackPrice": "{tk} tk · {credits} credits",
+    "@capPackPrice": {
+      "placeholders": {
+        "tk": {
+          "type": "String"
+        },
+        "credits": {
+          "type": "String"
+        }
+      }
+    },
+    "capPackBuy": "Add",
+    "capPackDone": "Pack added for this month.",
+    "capPackGetCredits": "Get credits",
+    "capPackFailed": "The pack could not be added. Please try again."
+  },
+  "bn": {
+    "capAiLine": "AI ছবি-যাচাই: এই মাসে {cap}টির মধ্যে {used}টি",
+    "capAiNoticeShort": "AI যাচাইয়ের {pct}% ব্যবহার হয়েছে",
+    "capAiFullShort": "এই মাসের AI যাচাই শেষ",
+    "capSafety": "SOS, সতর্কতা, ছবি ও প্রমাণ কখনো থামে না।",
+    "capPackButton": "বাড়তি প্যাক",
+    "capPackTitle": "এই মাসের জন্য বাড়তি প্যাক",
+    "capPackIntro": "শুধু এই মাসে যোগ হবে। আপনার ক্রেডিট থেকে কাটা হবে।",
+    "capPackBalance": "আপনার ক্রেডিট: {n}",
+    "capPackRelay": "রিলে-লাইভ +{gb} GB",
+    "capPackAi": "AI ছবি-যাচাই +{n}টি",
+    "capPackPrice": "{tk} টাকা · {credits} ক্রেডিট",
+    "capPackBuy": "যোগ করুন",
+    "capPackDone": "এই মাসের জন্য প্যাক যোগ হয়েছে।",
+    "capPackGetCredits": "ক্রেডিট নিন",
+    "capPackFailed": "প্যাক যোগ করা যায়নি। আবার চেষ্টা করুন।"
+  }
+}
