@@ -35,6 +35,7 @@ import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
 import 'fake_ielts.dart'; // p2lang
 import 'fake_langkoja.dart'; // langkoja
+import 'bizai_fakes.dart' show fakeBizaiGet; // bizai
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -1058,6 +1059,11 @@ class FakeApi extends ApiClient {
     if (lkG != null) {
       if (mode == FakeMode.fail) _fail();
       return lkG;
+    }
+    final bzai = fakeBizaiGet(path, bn: _bn, empty: mode == FakeMode.empty); // bizai
+    if (bzai != null) {
+      if (mode == FakeMode.fail) _fail();
+      return bzai;
     }
     final ielts = fakeIeltsGet(path); // p2lang
     if (ielts != null) {
