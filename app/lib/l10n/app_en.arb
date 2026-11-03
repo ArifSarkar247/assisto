@@ -38561,5 +38561,2447 @@
         "type": "String"
       }
     }
+  },
+  "lostsimIcWhen": "Only while Assisto is open on the screen: after several wrong PINs in a row inside Assisto (3 by default) — a Security PIN (for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off) or your Vault PIN. Never on the lock screen and never in the background.",
+  "@lostsimIcWhen": {
+    "description": "Intruder photo consent: when the photo is taken (v2 adds the Vault PIN)."
+  },
+  "lostsimIcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN and Vault PIN box says that a wrong PIN takes a photo.",
+  "@lostsimIcNotice": {
+    "description": "Intruder photo consent: it is never hidden (v2 adds the Vault PIN box)."
+  },
+  "foodTitle": "Food calories",
+  "foodEmptyBenefit": "Know roughly how many calories you eat — Bangladeshi foods, with the source of every number.",
+  "foodEmptyCta": "Log your first meal",
+  "foodEmptyHow": "Take a photo of your plate or pick from the list, choose plate, bowl or piece — done.",
+  "foodPhotoBtn": "Photo of my plate",
+  "foodPickBtn": "Pick from the list",
+  "foodPhotoNotReady": "Photo recognition isn't connected yet — pick your food from the list.",
+  "foodPhotoQuestion": "Which foods are on this plate?",
+  "foodRecognised": "Found in the photo — tap a food to log it",
+  "foodRecognisedNone": "No food from our list was recognised — pick from the list.",
+  "foodToday": "Today",
+  "foodEatenOfGoal": "{eaten} of {goal} kcal",
+  "@foodEatenOfGoal": {
+    "placeholders": {
+      "eaten": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "foodLeft": "{n} kcal left",
+  "@foodLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodOver": "{n} kcal over your goal",
+  "@foodOver": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodMacros": "Protein {p} g · Fat {f} g · Carbs {c} g",
+  "@foodMacros": {
+    "placeholders": {
+      "p": {
+        "type": "String"
+      },
+      "f": {
+        "type": "String"
+      },
+      "c": {
+        "type": "String"
+      }
+    }
+  },
+  "foodUnknownCount": "{n} item(s) without a cited value are not counted",
+  "@foodUnknownCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSetGoal": "Set daily goal",
+  "foodGoalTitle": "Daily calorie goal",
+  "foodGoalHelp": "Between {min} and {max} kcal. Ask a doctor or dietitian what is right for you.",
+  "@foodGoalHelp": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "foodGoalInvalid": "Enter a number from {min} to {max}",
+  "@foodGoalInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSave": "Save",
+  "foodAdd": "Add to today",
+  "foodSearchHint": "Search: bhat, dal, biriyani…",
+  "foodNoMatch": "No food matches — try another name.",
+  "foodPortion": "How much?",
+  "foodGrams": "Grams",
+  "foodGramsValue": "{g} g",
+  "@foodGramsValue": {
+    "placeholders": {
+      "g": {
+        "type": "String"
+      }
+    }
+  },
+  "foodApprox": "approx.",
+  "foodQty": "Quantity",
+  "foodQtyLess": "Less",
+  "foodQtyMore": "More",
+  "foodKcalValue": "{n} kcal",
+  "@foodKcalValue": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSourceLine": "Source: {src}",
+  "@foodSourceLine": {
+    "placeholders": {
+      "src": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSelfKcal": "Calories (your own number, optional)",
+  "foodSelfTag": "your number",
+  "foodNoValueTag": "no cited value",
+  "foodTodayList": "Today's meals",
+  "foodWeek": "Last 7 days",
+  "foodWeekA11y": "{day}: {kcal} kcal",
+  "@foodWeekA11y": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "foodHintsTitle": "Healthy-plate tips (general information)",
+  "foodSourcesTitle": "Where the numbers come from",
+  "foodSourcesBody": "Every calorie number comes from a published table — never from AI. Portions marked 'approx.' are household measures; change the grams if yours differ.",
+  "foodOff": "This feature is not available yet.",
+  "foodRetry": "Try again",
+  "foodSaveFail": "Couldn't save — check the internet and try again.",
+  "foodGroupRice": "Rice & khichuri",
+  "foodGroupBread": "Ruti & paratha",
+  "foodGroupDal": "Dal",
+  "foodGroupCurry": "Curry",
+  "foodGroupVeg": "Vegetables & bhorta",
+  "foodGroupFish": "Fish",
+  "foodGroupMeat": "Meat",
+  "foodGroupEgg": "Egg",
+  "foodGroupSnack": "Snacks",
+  "foodGroupSweet": "Sweets",
+  "foodGroupDrink": "Tea & drinks",
+  "foodGroupFruit": "Fruit",
+  "foodGroupExtra": "Sugar & oil",
+  "farmTabHelp": "Help",
+  "farmHelpIntro": "Tap a big button to open it. Tap the speaker to hear it read aloud.",
+  "farmTileDisease": "Check crop disease",
+  "farmTileDiseaseHint": "With a photo, or pick what you see",
+  "farmTileDisaster": "Disaster alerts",
+  "farmTileDisasterHint": "Cyclone, flood, heatwave — official warnings",
+  "farmTileWeather": "Farm weather",
+  "farmTileWeatherHint": "Official agro-weather from BAMIS (opens the website)",
+  "farmTileMarket": "Market price",
+  "farmTileMarketHint": "Official DAM prices — not in the app yet",
+  "farmTileCall": "Call 16123",
+  "farmTileCallHint": "Krishi Call Centre — advice on crops, fish and livestock",
+  "farmTileKhata": "My farm khata",
+  "farmTileKhataHint": "Costs, sales and profit",
+  "farmTileCalendar": "Crop calendar",
+  "farmTileCalendarHint": "When to sow, transplant and harvest",
+  "farmMarketTitle": "Market price",
+  "farmMarketBody": "Daily official prices from the Department of Agricultural Marketing (DAM) are not connected to the app yet, because DAM does not offer an open data feed. We never show a guessed price. You can see the official prices on DAM's website.",
+  "farmMarketOpen": "Open the DAM website",
+  "farmMarketKhataHint": "Write your own sale price in your farm khata to see your real profit.",
+  "farmThisMonth": "This month",
+  "farmCropCalTitle": "Major crops — when to do what",
+  "farmCropCalNote": "Broad months from the government research institutes. Your area and variety can change the dates — ask your Upazila Agriculture Officer or call 16123.",
+  "farmJobSow": "Seedbed / sowing",
+  "farmJobTransplant": "Transplanting",
+  "farmJobHarvest": "Harvest",
+  "farmSourceWord": "Source",
+  "farmSrcBrri": "BRRI (Rice Research Institute)",
+  "farmSrcBjri": "BJRI (Jute Research Institute)",
+  "farmSrcBari": "BARI (Agricultural Research Institute)",
+  "farmSrcBwmri": "BWMRI (Wheat and Maize Research Institute)",
+  "farmCropWinterVeg": "Winter vegetables",
+  "farmCropSummerVeg": "Summer vegetables",
+  "farmDzTitle": "Crop disease check",
+  "farmDzPhotoTitle": "Check with a photo",
+  "farmDzPhotoHint": "Take a clear photo of the sick leaf, stem or fruit. This uses your credits.",
+  "farmDzPhotoOpen": "Open photo check",
+  "farmDzPhotoOff": "Photo check is not switched on yet. Pick what you see below — it works without internet too.",
+  "farmDzPickCrop": "1. Which crop?",
+  "farmDzPickSign": "2. What do you see?",
+  "farmDzGroupRice": "Rice",
+  "farmDzGroupVeg": "Vegetables",
+  "farmDzMayBe": "It may be",
+  "farmDzCare": "What you can do now",
+  "farmDzNotDiagnosis": "This is a guide, not a sure diagnosis. Do not use any pesticide without advice, and then follow only the label.",
+  "farmDzOfficial": "Read more",
+  "farmDzJanala": "More pictures: Krishoker Janala (DAE)",
+  "farmConsult": "To be sure, talk to your Upazila Agriculture Officer or call the Krishi Call Centre on 16123.",
+  "farmPbRiceBlastName": "Blast",
+  "farmPbRiceBlastSign": "Eye-shaped spots on leaves with a grey centre and brown edge; the neck of the panicle may turn black and break",
+  "farmPbRiceBlastCare": "Do not add extra urea. Keep water standing in the field. Next season, use clean seed of a resistant variety.",
+  "farmPbRiceBlightName": "Bacterial leaf blight",
+  "farmPbRiceBlightSign": "Leaf tips and edges turn yellow, then dry like straw, often with wavy edges",
+  "farmPbRiceBlightCare": "Stop extra urea. Drain the field for a few days, then water again. Do not walk through wet sick plants.",
+  "farmPbRiceBphName": "Brown planthopper",
+  "farmPbRiceBphSign": "Many small brown insects at the base of the plants; round patches of the field dry and turn brown",
+  "farmPbRiceBphCare": "Part the plants and look at the base. Drain the field for a few days. Ask the officer quickly — it spreads fast.",
+  "farmPbRiceBorerName": "Stem borer",
+  "farmPbRiceBorerSign": "The middle shoot dries up (dead heart), or the panicle stays white and empty",
+  "farmPbRiceBorerCare": "Put branches or sticks in the field so birds can sit and eat the insects. Collect and destroy egg masses. A light trap helps you check.",
+  "farmPbPotatoLateBlightName": "Late blight",
+  "farmPbPotatoLateBlightSign": "Dark, water-soaked patches on leaves, white mould underneath in foggy weather; spreads very fast",
+  "farmPbPotatoLateBlightCare": "Act the same day — call 16123 or the officer. Do not water from above. Remove and bury badly affected plants.",
+  "farmPbPotatoWiltName": "Bacterial wilt",
+  "farmPbPotatoWiltSign": "The plant suddenly wilts while still green; a cut stem in clear water lets out milky threads",
+  "farmPbPotatoWiltCare": "Pull out and destroy wilted plants with their soil. Do not plant potato, tomato or aubergine there next season.",
+  "farmPbJuteStemRotName": "Stem rot",
+  "farmPbJuteStemRotSign": "Dark brown or black patches on the stem; the plant breaks at the patch",
+  "farmPbJuteStemRotCare": "Remove and destroy sick plants. Keep the field drained. Next season use clean, treated seed.",
+  "farmPbBrinjalBorerName": "Aubergine shoot and fruit borer",
+  "farmPbBrinjalBorerSign": "Shoot tips droop and dry; fruits have holes with waste inside",
+  "farmPbBrinjalBorerCare": "Cut and destroy drooping shoots and holed fruits every week. Sex-pheromone traps from your dealer catch the moths.",
+  "farmPbGourdFruitFlyName": "Fruit fly (gourds)",
+  "farmPbGourdFruitFlySign": "Small marks on young gourds, then the fruit rots and has maggots inside",
+  "farmPbGourdFruitFlyCare": "Collect fallen and rotting fruits and bury them deep. Pheromone or bait traps help. Bagging young fruits protects them.",
+  "p2DayPlanner": "AI daily planner",
+  "@p2DayPlanner": {
+    "description": "p2plan: sidebar label of the AI daily planner (Work section)"
+  },
+  "p2CeTemplates": "Ready templates",
+  "@p2CeTemplates": {
+    "description": "p2plan: estimator: templates button / sheet title"
+  },
+  "p2CeStartFromTemplate": "Start from a ready template (home repair, event, trip, shop, tutor)",
+  "@p2CeStartFromTemplate": {
+    "description": "p2plan: estimator: big start button"
+  },
+  "p2CeTemplateAnswers": "Answer a few questions — the lines and quantities fill in.",
+  "@p2CeTemplateAnswers": {
+    "description": "p2plan: estimator: template questions intro"
+  },
+  "p2CeBuild": "Build the estimate",
+  "@p2CeBuild": {
+    "description": "p2plan: estimator: build from template"
+  },
+  "p2CeReplaceQ": "Replace the lines you already typed?",
+  "@p2CeReplaceQ": {
+    "description": "p2plan: estimator: replace confirm"
+  },
+  "p2CeReplace": "Replace",
+  "@p2CeReplace": {
+    "description": "p2plan: estimator: replace button"
+  },
+  "p2CeRateOwner": "Owner-checked rate · {source} · {date}",
+  "@p2CeRateOwner": {
+    "description": "p2plan: estimator: rate source line",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "p2CeRateNone": "No rate yet — enter the price you know",
+  "@p2CeRateNone": {
+    "description": "p2plan: estimator: no owner rate"
+  },
+  "p2CeRateUser": "Your own rate",
+  "@p2CeRateUser": {
+    "description": "p2plan: estimator: user edited rate"
+  },
+  "p2CeTemplatesFailed": "Could not load the templates — check the internet and try again.",
+  "@p2CeTemplatesFailed": {
+    "description": "p2plan: estimator: templates load failed"
+  },
+  "dtTitle": "Daily tools",
+  "@dtTitle": {},
+  "dtIntro": "Land, weight, loan, zakat, dates and more — works without internet.",
+  "@dtIntro": {},
+  "dtSearchLabel": "Search tools",
+  "@dtSearchLabel": {},
+  "dtSearchHint": "e.g. bigha, EMI, zakat",
+  "@dtSearchHint": {},
+  "dtClearSearch": "Clear search",
+  "@dtClearSearch": {},
+  "dtResults": "Matching tools",
+  "@dtResults": {},
+  "dtNoMatch": "No tool matches that. Try a simpler word like \"land\" or \"loan\".",
+  "@dtNoMatch": {},
+  "dtShowAll": "Show all tools",
+  "@dtShowAll": {},
+  "dtFavourites": "Favourites",
+  "@dtFavourites": {},
+  "dtFavEmpty": "Tap the star on any tool to keep it here at the top.",
+  "@dtFavEmpty": {},
+  "dtRecent": "Used recently",
+  "@dtRecent": {},
+  "dtAllTools": "All tools",
+  "@dtAllTools": {},
+  "dtOfflineNote": "Everything is calculated on your phone. Nothing you type is sent anywhere.",
+  "@dtOfflineNote": {},
+  "dtFav": "Add to favourites",
+  "@dtFav": {},
+  "dtUnfav": "Remove from favourites",
+  "@dtUnfav": {},
+  "dtFavAdded": "Added to favourites",
+  "@dtFavAdded": {},
+  "dtFavRemoved": "Removed from favourites",
+  "@dtFavRemoved": {},
+  "dtCopy": "Copy",
+  "@dtCopy": {},
+  "dtCopied": "Copied",
+  "@dtCopied": {},
+  "dtEnterValue": "Type a number above to see it in every unit.",
+  "@dtEnterValue": {},
+  "dtValue": "Amount",
+  "@dtValue": {},
+  "dtFromUnit": "From unit",
+  "@dtFromUnit": {},
+  "dtLess": "Fewer",
+  "@dtLess": {},
+  "dtMore": "More",
+  "@dtMore": {},
+  "dtDay": "Day",
+  "@dtDay": {},
+  "dtMonth": "Month",
+  "@dtMonth": {},
+  "dtYear": "Year",
+  "@dtYear": {},
+  "dtFrom": "From",
+  "@dtFrom": {},
+  "dtTo": "To",
+  "@dtTo": {},
+  "dtStart": "Start",
+  "@dtStart": {},
+  "dtPause": "Pause",
+  "@dtPause": {},
+  "dtReset": "Reset",
+  "@dtReset": {},
+  "dtLap": "Lap",
+  "@dtLap": {},
+  "dtToolLand": "Land measure",
+  "@dtToolLand": {},
+  "dtSubLand": "Bigha, katha, decimal (shotangsho), acre, sq ft",
+  "@dtSubLand": {},
+  "dtToolWeight": "Gold & weight",
+  "@dtToolWeight": {},
+  "dtSubWeight": "Bhori, tola, ana, rati, seer, maund, kg",
+  "@dtSubWeight": {},
+  "dtToolUnit": "Unit converter",
+  "@dtToolUnit": {},
+  "dtSubUnit": "Length, hath, litre, temperature and more",
+  "@dtSubUnit": {},
+  "dtToolCurrency": "Currency",
+  "@dtToolCurrency": {},
+  "dtSubCurrency": "Dollar, riyal, ringgit to taka — your rate, with date",
+  "@dtSubCurrency": {},
+  "dtToolEmi": "Loan EMI",
+  "@dtToolEmi": {},
+  "dtSubEmi": "Flat vs reducing rate side by side",
+  "@dtSubEmi": {},
+  "dtToolZakat": "Zakat",
+  "@dtToolZakat": {},
+  "dtSubZakat": "Gold or silver nisab with today's price",
+  "@dtSubZakat": {},
+  "dtToolPercent": "VAT, discount, %",
+  "@dtToolPercent": {},
+  "dtSubPercent": "Add or remove VAT, sale price, percent change",
+  "@dtSubPercent": {},
+  "dtToolSplit": "Split the bill",
+  "@dtToolSplit": {},
+  "dtSubSplit": "Tip and share per person",
+  "@dtSubSplit": {},
+  "dtToolAge": "Age calculator",
+  "@dtToolAge": {},
+  "dtSubAge": "Exact years, months, days; next birthday",
+  "@dtSubAge": {},
+  "dtToolDate": "Date converter",
+  "@dtToolDate": {},
+  "dtSubDate": "English, Bangla (Bangabda) and Hijri",
+  "@dtSubDate": {},
+  "dtToolBmi": "BMI",
+  "@dtToolBmi": {},
+  "dtSubBmi": "Body mass index with Asian limits",
+  "@dtSubBmi": {},
+  "dtToolTimer": "Stopwatch & timer",
+  "@dtToolTimer": {},
+  "dtSubTimer": "Laps and countdown",
+  "@dtSubTimer": {},
+  "dtToolQr": "QR maker",
+  "@dtToolQr": {},
+  "dtSubQr": "Text, link, Wi-Fi or phone number",
+  "@dtSubQr": {},
+  "dtToolWords": "Word counter",
+  "@dtToolWords": {},
+  "dtSubWords": "Bangla and English words, letters, reading time",
+  "@dtSubWords": {},
+  "dtToolFun": "Dice & lottery",
+  "@dtToolFun": {},
+  "dtSubFun": "Dice, coin toss, random numbers for games",
+  "@dtSubFun": {},
+  "dtKeywords": "{id, select, land{land plot area} weight{gold weight} unit{unit convert} currency{currency exchange} emi{loan installment} zakat{zakat nisab} percent{vat discount percent} split{split bill} age{age birthday} calendar{calendar date} bmi{bmi health} timer{timer stopwatch} qr{qr code} words{word count} fun{dice game} other{tool}}",
+  "@dtKeywords": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtUnitName": "{id, select, sqft{sq ft} sqm{sq metre} decimal{Decimal (shotangsho)} katha{Katha} bigha{Bigha} acre{Acre} hectare{Hectare} gram{Gram} kg{kg} rati{Rati} ana{Ana} bhori{Bhori (tola)} seer{Seer} maund{Maund (mon)} pound{Pound} ounce{Ounce} tonne{Tonne} cm{cm} inch{Inch} foot{Foot} hath{Hath (cubit)} yard{Yard} metre{Metre} km{km} mile{Mile} ml{ml} litre{Litre} gallon{Gallon (US)} cuft{Cubic foot} c{Celsius} f{Fahrenheit} k{Kelvin} other{}}",
+  "@dtUnitName": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtCatName": "{id, select, length{Length} land{Land} weight{Weight} volume{Volume} temp{Temperature} other{}}",
+  "@dtCatName": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtLandNote": "Standard Bangladesh measure: 1 bigha = 20 katha = 33 decimal (14,400 sq ft); 1 katha = 720 sq ft; 1 decimal = 435.6 sq ft = 1/100 acre.",
+  "@dtLandNote": {},
+  "dtLandRegional": "In some districts a \"bigha\" is bigger (e.g. 48–60 decimal in parts of the north). Check the measure in your deed or with the land office.",
+  "@dtLandRegional": {},
+  "dtWeightNote": "Jewellers' measure: 1 bhori = 1 tola = 16 ana = 96 rati = 11.664 g. 1 seer = 80 tola; 1 maund = 40 seer (about 37.32 kg).",
+  "@dtWeightNote": {},
+  "dtLengthNote": "1 hath (cubit) is taken as 18 inches.",
+  "@dtLengthNote": {},
+  "dtFxName": "{id, select, USD{US dollar (USD)} SAR{Saudi riyal (SAR)} AED{UAE dirham (AED)} MYR{Malaysian ringgit (MYR)} QAR{Qatari riyal (QAR)} KWD{Kuwaiti dinar (KWD)} OMR{Omani rial (OMR)} SGD{Singapore dollar (SGD)} GBP{British pound (GBP)} EUR{Euro (EUR)} INR{Indian rupee (INR)} other{}}",
+  "@dtFxName": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxCurrency": "Currency",
+  "@dtFxCurrency": {},
+  "dtFxRateLabel": "Taka for 1 {name}",
+  "@dtFxRateLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxRateDate": "Rate date: {date}",
+  "@dtFxRateDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxRateDateNone": "Set rate date",
+  "@dtFxRateDateNone": {},
+  "dtFxUseIndicative": "Use today's indicative rate",
+  "@dtFxUseIndicative": {},
+  "dtFxIndicativeNote": "Indicative market rate from ExchangeRate-API (via Assisto daily info), not Bangladesh Bank. Banks and exchange houses give a different rate.",
+  "@dtFxIndicativeNote": {},
+  "dtFxNoFeed": "Today's rate is not available right now. Type the rate your bank or exchange house gave you.",
+  "@dtFxNoFeed": {},
+  "dtFxToBdt": "{name} to taka",
+  "@dtFxToBdt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxFromBdt": "Taka to {name}",
+  "@dtFxFromBdt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxAmountForeign": "Amount in {name}",
+  "@dtFxAmountForeign": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dtFxAmountBdt": "Amount in taka",
+  "@dtFxAmountBdt": {},
+  "dtFxEnterRate": "Type the rate first (taka for 1 unit) — we never guess it.",
+  "@dtFxEnterRate": {},
+  "dtFxRateUsed": "Rate used:",
+  "@dtFxRateUsed": {},
+  "dtFxRateOn": "Rate date:",
+  "@dtFxRateOn": {},
+  "dtFxHonest": "Your rate and its date stay on this phone for next time. Before sending money, confirm the rate with your bank, bKash/Nagad remittance or exchange house.",
+  "@dtFxHonest": {},
+  "dtFxBbLink": "See Bangladesh Bank's rate",
+  "@dtFxBbLink": {},
+  "dtEmiPrincipal": "Loan amount",
+  "@dtEmiPrincipal": {},
+  "dtEmiRate": "Interest rate per year",
+  "@dtEmiRate": {},
+  "dtEmiMonths": "Number of months",
+  "@dtEmiMonths": {},
+  "dtMonthsN": "{n} months",
+  "@dtMonthsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtDaysN": "{n} days",
+  "@dtDaysN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtMinutesN": "{n} min",
+  "@dtMinutesN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtEmiEnter": "Type the loan amount, rate and months to compare.",
+  "@dtEmiEnter": {},
+  "dtEmiReducing": "Reducing balance",
+  "@dtEmiReducing": {},
+  "dtEmiFlat": "Flat rate",
+  "@dtEmiFlat": {},
+  "dtEmiMonthly": "Monthly instalment",
+  "@dtEmiMonthly": {},
+  "dtEmiInterest": "Total interest:",
+  "@dtEmiInterest": {},
+  "dtEmiTotal": "Total you pay:",
+  "@dtEmiTotal": {},
+  "dtEmiFlatExtra": "Flat costs you more by",
+  "@dtEmiFlatExtra": {},
+  "dtEmiFlatReally": "A flat {rate}% is really about",
+  "@dtEmiFlatReally": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "dtEmiExplain": "Reducing: interest is charged only on the money you still owe, so it falls every month. Flat: interest is charged on the full loan for the whole time, so the same \"rate\" costs much more. Many NGO and consumer loans quote a flat rate.",
+  "@dtEmiExplain": {},
+  "dtEmiAsk": "Ask the lender: \"Is this rate flat or reducing?\" and for any processing fee — fees are not included here.",
+  "@dtEmiAsk": {},
+  "dtZakatBasis": "Nisab by",
+  "@dtZakatBasis": {},
+  "dtZakatSilverBasis": "Silver (52.5 bhori)",
+  "@dtZakatSilverBasis": {},
+  "dtZakatGoldBasis": "Gold (7.5 bhori)",
+  "@dtZakatGoldBasis": {},
+  "dtZakatBasisNote": "Most scholars in Bangladesh advise the silver nisab when you hold cash or mixed wealth (it is lower, so more people give). Gold-only savers often use the gold nisab.",
+  "@dtZakatBasisNote": {},
+  "dtZakatGoldPrice": "Gold price per bhori (22 carat)",
+  "@dtZakatGoldPrice": {},
+  "dtZakatSilverPrice": "Silver price per bhori",
+  "@dtZakatSilverPrice": {},
+  "dtZakatFillBajus": "Fill today's BAJUS price",
+  "@dtZakatFillBajus": {},
+  "dtZakatSrcBajus": "Price source: Bangladesh Jewellers Association (BAJUS), as entered in Assisto daily info. Check bajus.org before you pay.",
+  "@dtZakatSrcBajus": {},
+  "dtZakatSrcUser": "Price source: what you typed. Today's price is on bajus.org or at your jeweller.",
+  "@dtZakatSrcUser": {},
+  "dtZakatNoFeed": "Today's BAJUS price is not in Assisto yet. Type the price from bajus.org or your jeweller.",
+  "@dtZakatNoFeed": {},
+  "dtZakatCash": "Cash and bank balance",
+  "@dtZakatCash": {},
+  "dtZakatGoldQty": "Gold you own",
+  "@dtZakatGoldQty": {},
+  "dtZakatSilverQty": "Silver you own",
+  "@dtZakatSilverQty": {},
+  "dtZakatBiz": "Business stock and money others owe you",
+  "@dtZakatBiz": {},
+  "dtZakatDebt": "Debts you must pay now",
+  "@dtZakatDebt": {},
+  "dtZakatNeedGold": "Type today's gold price first — without it we cannot tell if zakat is due.",
+  "@dtZakatNeedGold": {},
+  "dtZakatNeedSilver": "Type today's silver price first — without it we cannot tell if zakat is due.",
+  "@dtZakatNeedSilver": {},
+  "dtZakatEnterWealth": "Now type your cash, gold, silver and other wealth.",
+  "@dtZakatEnterWealth": {},
+  "dtZakatBelow": "Below nisab — zakat is not due",
+  "@dtZakatBelow": {},
+  "dtZakatNisab": "Nisab today:",
+  "@dtZakatNisab": {},
+  "dtZakatWealth": "Your zakatable wealth:",
+  "@dtZakatWealth": {},
+  "dtZakatRate": "Rate:",
+  "@dtZakatRate": {},
+  "dtZakatRateValue": "2.5% (one-fortieth)",
+  "@dtZakatRateValue": {},
+  "dtZakatHonest": "Zakat is due when this wealth has stayed above nisab for one lunar year. For special cases (jewellery in use, loans, shares) ask a scholar you trust.",
+  "@dtZakatHonest": {},
+  "dtPctMode": "{id, select, vat_add{Add VAT} vat_out{VAT inside price} discount{Discount} of{What %} change{% change} other{}}",
+  "@dtPctMode": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtPctPriceNoVat": "Price without VAT",
+  "@dtPctPriceNoVat": {},
+  "dtPctPriceWithVat": "Price with VAT",
+  "@dtPctPriceWithVat": {},
+  "dtPctVatRate": "VAT rate",
+  "@dtPctVatRate": {},
+  "dtPctPrice": "Price",
+  "@dtPctPrice": {},
+  "dtPctDiscount": "Discount",
+  "@dtPctDiscount": {},
+  "dtPctPart": "This number",
+  "@dtPctPart": {},
+  "dtPctWhole": "Out of",
+  "@dtPctWhole": {},
+  "dtPctOld": "Old value",
+  "@dtPctOld": {},
+  "dtPctNew": "New value",
+  "@dtPctNew": {},
+  "dtPctEnter": "Type both numbers to see the answer.",
+  "@dtPctEnter": {},
+  "dtPctVat": "VAT:",
+  "@dtPctVat": {},
+  "dtPctBase": "Price before VAT:",
+  "@dtPctBase": {},
+  "dtPctVatInside": "VAT inside:",
+  "@dtPctVatInside": {},
+  "dtPctTotal": "Total paid:",
+  "@dtPctTotal": {},
+  "dtPctYouSave": "You save:",
+  "@dtPctYouSave": {},
+  "dtPctNotZero": "The second number cannot be zero.",
+  "@dtPctNotZero": {},
+  "dtPctUp": "Went up by",
+  "@dtPctUp": {},
+  "dtPctDown": "Went down by",
+  "@dtPctDown": {},
+  "dtPctVatNote": "Standard VAT in Bangladesh is 15%; some goods and services have reduced rates (5%, 7.5%, 10%). Check the rate on your receipt.",
+  "@dtPctVatNote": {},
+  "dtSplitBill": "Bill amount",
+  "@dtSplitBill": {},
+  "dtSplitPeople": "People",
+  "@dtSplitPeople": {},
+  "dtSplitTip": "Tip",
+  "@dtSplitTip": {},
+  "dtSplitNoTip": "No tip",
+  "@dtSplitNoTip": {},
+  "dtSplitEnter": "Type the bill amount to see each person's share.",
+  "@dtSplitEnter": {},
+  "dtSplitEach": "{amount} each",
+  "@dtSplitEach": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dtSplitTipAmt": "Tip:",
+  "@dtSplitTipAmt": {},
+  "dtSplitTotal": "Total with tip:",
+  "@dtSplitTotal": {},
+  "dtSplitRounded": "Rounded: {amount} each",
+  "@dtSplitRounded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dtSplitExtra": "({amount} extra)",
+  "@dtSplitExtra": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dtSplitShare": "Bill {total} for {people} people: {each} each",
+  "@dtSplitShare": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "people": {
+        "type": "String"
+      },
+      "each": {
+        "type": "String"
+      }
+    }
+  },
+  "dtAgePickBirth": "Pick date of birth",
+  "@dtAgePickBirth": {},
+  "dtAgeBorn": "Born: {date}",
+  "@dtAgeBorn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dtAgeOn": "Age on: {date}",
+  "@dtAgeOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dtAgeEnter": "Pick a date of birth to see the exact age.",
+  "@dtAgeEnter": {},
+  "dtAgeFuture": "The date of birth is after the other date. Check the dates.",
+  "@dtAgeFuture": {},
+  "dtAgeYmd": "{y} years {m} months {d} days",
+  "@dtAgeYmd": {
+    "placeholders": {
+      "y": {
+        "type": "String"
+      },
+      "m": {
+        "type": "String"
+      },
+      "d": {
+        "type": "String"
+      }
+    }
+  },
+  "dtAgeTotalMonths": "Total months:",
+  "@dtAgeTotalMonths": {},
+  "dtAgeTotalWeeks": "Total weeks:",
+  "@dtAgeTotalWeeks": {},
+  "dtAgeTotalDays": "Total days:",
+  "@dtAgeTotalDays": {},
+  "dtAgeNextBday": "Next birthday in:",
+  "@dtAgeNextBday": {},
+  "dtAgeToday": "Today!",
+  "@dtAgeToday": {},
+  "dtAgeBornWeekday": "Born on a:",
+  "@dtAgeBornWeekday": {},
+  "dtAgeBornBangla": "Bangla date of birth:",
+  "@dtAgeBornBangla": {},
+  "dtAgeNote": "For forms (SSC, NID, jobs) use the \"age on\" date the form asks for.",
+  "@dtAgeNote": {},
+  "dtDateFrom": "Convert from",
+  "@dtDateFrom": {},
+  "dtCalName": "{id, select, en{English (Gregorian)} bn{Bangla (Bangabda)} hijri{Hijri} other{}}",
+  "@dtCalName": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtDateInvalid": "That date does not exist. Check the day, month and year.",
+  "@dtDateInvalid": {},
+  "dtHijriApprox": "Hijri (approximate):",
+  "@dtHijriApprox": {},
+  "dtHijriMonths": "Muharram,Safar,Rabi al-Awwal,Rabi al-Thani,Jumada al-Ula,Jumada al-Thani,Rajab,Shaban,Ramadan,Shawwal,Dhul Qadah,Dhul Hijjah",
+  "@dtHijriMonths": {},
+  "dtBanglaCalNote": "Bangla date follows the Bangla Academy calendar used in Bangladesh (1 Boishakh = 14 April). West Bengal's calendar can differ by a day.",
+  "@dtBanglaCalNote": {},
+  "dtHijriNote": "Hijri is calculated, not from moon sighting — it can differ by 1–2 days from the date announced in Bangladesh. For Ramadan and Eid follow the moon-sighting committee.",
+  "@dtHijriNote": {},
+  "dtBmiWeight": "Weight",
+  "@dtBmiWeight": {},
+  "dtBmiFeet": "Feet + inches",
+  "@dtBmiFeet": {},
+  "dtBmiCm": "Centimetres",
+  "@dtBmiCm": {},
+  "dtBmiHeightCm": "Height",
+  "@dtBmiHeightCm": {},
+  "dtBmiEnter": "Type weight and height to see your BMI.",
+  "@dtBmiEnter": {},
+  "dtBmiBandLabel": "Result:",
+  "@dtBmiBandLabel": {},
+  "dtBmiBand": "{id, select, under{Underweight} normal{Healthy} over{Overweight} obese{Obese} other{}}",
+  "@dtBmiBand": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtBmiHealthy": "Healthy weight for your height:",
+  "@dtBmiHealthy": {},
+  "dtBmiRange": "{min}–{max} kg",
+  "@dtBmiRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "dtBmiNote": "Uses the WHO Asia-Pacific limits for South Asians (healthy 18.5–22.9). BMI is a rough guide, not a diagnosis — ask a doctor about your health.",
+  "@dtBmiNote": {},
+  "dtStopwatch": "Stopwatch",
+  "@dtStopwatch": {},
+  "dtCountdown": "Timer",
+  "@dtCountdown": {},
+  "dtLapN": "Lap {n}",
+  "@dtLapN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtMinutes": "Minutes",
+  "@dtMinutes": {},
+  "dtTimeUp": "Time is up!",
+  "@dtTimeUp": {},
+  "dtTimerNote": "The timer vibrates only while this screen is open. For longer waits set a reminder instead.",
+  "@dtTimerNote": {},
+  "dtQrKind": "{id, select, text{Text or link} wifi{Wi-Fi} phone{Phone number} other{}}",
+  "@dtQrKind": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "dtQrText": "Text or link",
+  "@dtQrText": {},
+  "dtQrPhone": "Phone number",
+  "@dtQrPhone": {},
+  "dtQrSsid": "Wi-Fi name",
+  "@dtQrSsid": {},
+  "dtQrPass": "Wi-Fi password (empty if open)",
+  "@dtQrPass": {},
+  "dtQrEnter": "Type something above and the QR code appears here.",
+  "@dtQrEnter": {},
+  "dtQrShare": "Share QR image",
+  "@dtQrShare": {},
+  "dtQrShareFailed": "Could not make the image. Take a screenshot instead.",
+  "@dtQrShareFailed": {},
+  "dtQrNoScanner": "To scan a QR, use your phone's camera app — Assisto does not add a scanner.",
+  "@dtQrNoScanner": {},
+  "dtWordsInput": "Your text",
+  "@dtWordsInput": {},
+  "dtWordsHint": "Paste or type an essay, post or letter",
+  "@dtWordsHint": {},
+  "dtWordsEnter": "Type or paste text to count words.",
+  "@dtWordsEnter": {},
+  "dtWordsN": "{n} words",
+  "@dtWordsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtWordsBangla": "Bangla words:",
+  "@dtWordsBangla": {},
+  "dtWordsEnglish": "English words:",
+  "@dtWordsEnglish": {},
+  "dtWordsChars": "Characters:",
+  "@dtWordsChars": {},
+  "dtWordsCharsNoSpace": "Characters without spaces:",
+  "@dtWordsCharsNoSpace": {},
+  "dtWordsSentences": "Sentences:",
+  "@dtWordsSentences": {},
+  "dtWordsParagraphs": "Paragraphs:",
+  "@dtWordsParagraphs": {},
+  "dtWordsRead": "Reading time:",
+  "@dtWordsRead": {},
+  "dtMinutesApprox": "about {n} min",
+  "@dtMinutesApprox": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtDice": "Dice",
+  "@dtDice": {},
+  "dtDiceN": "{n} dice",
+  "@dtDiceN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "dtDiceResult": "Total {sum}",
+  "@dtDiceResult": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "dtRoll": "Roll",
+  "@dtRoll": {},
+  "dtCoin": "Coin toss",
+  "@dtCoin": {},
+  "dtHeads": "Heads",
+  "@dtHeads": {},
+  "dtTails": "Tails",
+  "@dtTails": {},
+  "dtFlip": "Toss",
+  "@dtFlip": {},
+  "dtPick": "Random numbers",
+  "@dtPick": {},
+  "dtHowMany": "How many numbers",
+  "@dtHowMany": {},
+  "dtPickInvalid": "Check the numbers: \"to\" must be bigger and there must be enough numbers in the range (up to 100).",
+  "@dtPickInvalid": {},
+  "dtPickGo": "Pick",
+  "@dtPickGo": {},
+  "dtDrawer": "Daily tools",
+  "@dtDrawer": {},
+  "ivdAccBlue": "Blue",
+  "@ivdAccBlue": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccBrown": "Brown",
+  "@ivdAccBrown": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccCharcoal": "Charcoal",
+  "@ivdAccCharcoal": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccGreen": "Green",
+  "@ivdAccGreen": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccMaroon": "Maroon",
+  "@ivdAccMaroon": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccNavy": "Navy",
+  "@ivdAccNavy": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccPlum": "Plum",
+  "@ivdAccPlum": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccTeal": "Teal",
+  "@ivdAccTeal": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccentHelp": "The colour prints on A4 only. Thermal paper is always black.",
+  "@ivdAccentHelp": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccentLabel": "Colour (A4)",
+  "@ivdAccentLabel": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAddDetails": "Add invoice details",
+  "@ivdAddDetails": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdBalanceDue": "Balance due",
+  "@ivdBalanceDue": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdBrandTitle": "Logo and colour",
+  "@ivdBrandTitle": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdByHours": "Bill by hours",
+  "@ivdByHours": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdByHoursHelp": "Quantity is hours: 1.5 means one and a half hours.",
+  "@ivdByHoursHelp": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColSd": "SD",
+  "@ivdColSd": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColTotalIncl": "Total incl. all taxes",
+  "@ivdColTotalIncl": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColValue": "Value (excl. tax)",
+  "@ivdColValue": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColVat": "VAT",
+  "@ivdColVat": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDesignLabel": "Design",
+  "@ivdDesignLabel": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsHelp": "These print on the paper only. The amount, VAT and the QR check never change.",
+  "@ivdDetailsHelp": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsNone": "This design has no extra fields. Pick another design above to add table, token, IMEI or courier details.",
+  "@ivdDetailsNone": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsSave": "Save details",
+  "@ivdDetailsSave": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsSaved": "Details saved",
+  "@ivdDetailsSaved": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdHours": "Hours",
+  "@ivdHours": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdHoursShort": "hr",
+  "@ivdHoursShort": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLangBoth": "Both",
+  "@ivdLangBoth": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoAdd": "Add logo",
+  "@ivdLogoAdd": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoAlt": "Your logo",
+  "@ivdLogoAlt": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoChange": "Change logo",
+  "@ivdLogoChange": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoFailed": "Could not use this picture. Try a PNG or JPG.",
+  "@ivdLogoFailed": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoHelp": "A square logo looks best. It prints in grey on thermal paper.",
+  "@ivdLogoHelp": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoRemove": "Remove logo",
+  "@ivdLogoRemove": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdNotNbr": "Not an NBR EFD/SDC receipt. Check with your VAT adviser.",
+  "@ivdNotNbr": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdNotVatRegistered": "Not VAT-registered: no VAT charged.",
+  "@ivdNotVatRegistered": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdPrepaid": "PAID: collect nothing",
+  "@ivdPrepaid": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdRatePerHour": "Rate per hour",
+  "@ivdRatePerHour": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdRetainerPaid": "Advance / retainer received",
+  "@ivdRetainerPaid": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdShipTo": "Ship to",
+  "@ivdShipTo": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdShipping": "Delivery charge",
+  "@ivdShipping": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdSuggestedWhy": "Picked from your business type and how you sell. You can choose any design.",
+  "@ivdSuggestedWhy": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdTplVat": "VAT invoice (Mushak-6.3)",
+  "@ivdTplVat": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdUseSuggested": "Use this design",
+  "@ivdUseSuggested": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdWarrantyBad": "Months must be 0 to 120",
+  "@ivdWarrantyBad": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdWarrantyMonths": "Warranty (months)",
+  "@ivdWarrantyMonths": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXDestination": "Place of supply",
+  "@ivdXDestination": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXFeeBasis": "Fee basis",
+  "@ivdXFeeBasis": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXMatter": "Matter",
+  "@ivdXMatter": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXTracking": "Tracking",
+  "@ivdXTracking": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXVehicle": "Vehicle type and number",
+  "@ivdXVehicle": {
+    "description": "invdesign: invoice designs by business type"
+  },
+  "ivdSuggested": "Suggested for your business: {name}",
+  "@ivdSuggested": {
+    "description": "invdesign: suggested invoice template",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ivdWarrantyUntil": "Warranty {months} months, until {date}",
+  "@ivdWarrantyUntil": {
+    "description": "invdesign: per-line warranty on the invoice paper",
+    "placeholders": {
+      "months": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ieltsTitle": "IELTS practice",
+  "ieltsEntrySubtitle": "Speaking, writing, reading and pronunciation — with explanations",
+  "ieltsLoadError": "Could not load IELTS practice. Check the internet and try again.",
+  "ieltsStreak": "{n}-day practice streak",
+  "@ieltsStreak": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsStreakBest": "Best: {n} days",
+  "@ieltsStreakBest": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsStreakStart": "Practise today to start your streak",
+  "ieltsTodayDone": "Today's practice is done",
+  "ieltsPron": "Pronunciation check",
+  "ieltsPronSub": "Read a sentence aloud and see which words were clear — works offline",
+  "ieltsSpeaking": "Speaking",
+  "ieltsSpeakingSub": "Part 1, 2 (cue cards) and 3 — answer by voice",
+  "ieltsWriting": "Writing",
+  "ieltsWritingSub": "Task 1 letter and Task 2 essay with a checklist",
+  "ieltsReading": "Reading",
+  "ieltsReadingSub": "Original passages with True / False / Not Given",
+  "ieltsListening": "Listening",
+  "ieltsListeningSub": "Official free practice tests",
+  "ieltsVocab": "IELTS vocabulary",
+  "ieltsVocabSub": "Academic words that come back just before you forget",
+  "ieltsPronHow": "Pick a sentence, tap Record and read it aloud in English, then tap Check. Each word turns green (clear), amber (heard as another word) or red (missed).",
+  "ieltsTip": "Tip",
+  "ieltsRecord": "Record",
+  "ieltsStop": "Stop",
+  "ieltsHeardLabel": "What the phone heard",
+  "ieltsCheck": "Check",
+  "ieltsNothingHeard": "Nothing heard yet — tap Record and read the sentence.",
+  "ieltsPronScore": "{n}% of the words were recognised",
+  "@ieltsPronScore": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPronEstimate": "Estimate: how much of the sentence your phone's speech recogniser understood. It is not a sound-by-sound analysis and not an IELTS band.",
+  "ieltsWordOk": "Clear",
+  "ieltsWordSub": "Heard as another word",
+  "ieltsWordMiss": "Missed",
+  "ieltsHeardAs": "heard: {word}",
+  "@ieltsHeardAs": {
+    "placeholders": {
+      "word": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPartN": "Part {n}",
+  "@ieltsPartN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsPart1Help": "Short questions about you and familiar topics (about 4–5 minutes in the test).",
+  "ieltsPart2Help": "A cue card: 1 minute to prepare, then speak for up to 2 minutes.",
+  "ieltsPart3Help": "Discussion questions linked to Part 2 — give reasons and examples.",
+  "ieltsYouShouldSay": "You should say:",
+  "ieltsPrepTimer": "Start 1-minute preparation",
+  "ieltsPrepLeft": "Preparation: {s} s left",
+  "@ieltsPrepLeft": {
+    "placeholders": {
+      "s": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsAnswerHint": "Tap Record and answer in English. Your words appear below; you can also type or fix them.",
+  "ieltsYourAnswer": "Your answer",
+  "ieltsGetFeedback": "Check my answer (free)",
+  "ieltsAiEstimate": "AI band estimate (uses AI credits)",
+  "ieltsAiTitle": "AI practice estimate",
+  "ieltsAiNotConnected": "The AI estimate is not connected yet. The checklist above works without it.",
+  "ieltsAiNoCredits": "Not enough AI credits for an estimate today. The checklist above is free.",
+  "ieltsAiBusy": "AI is busy right now. Please try again in a minute.",
+  "ieltsAiUnreadable": "The AI answer could not be read. Please try again.",
+  "ieltsAiCharged": "{n} AI credits used",
+  "@ieltsAiCharged": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsChecklistTitle": "{passed} of {total} checks passed",
+  "@ieltsChecklistTitle": {
+    "placeholders": {
+      "passed": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsOverall": "Overall",
+  "ieltsBandEstimate": "about band {band}",
+  "@ieltsBandEstimate": {
+    "placeholders": {
+      "band": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsNoBandText": "not judged from text — use the pronunciation check",
+  "ieltsCritTask": "Task achievement / response",
+  "ieltsCritCoherence": "Coherence and cohesion",
+  "ieltsCritLexical": "Vocabulary (lexical resource)",
+  "ieltsCritGrammar": "Grammar range and accuracy",
+  "ieltsCritFluency": "Fluency and coherence",
+  "ieltsCritPronunciation": "Pronunciation",
+  "ieltsFixes": "What to fix next",
+  "ieltsEmptyAnswer": "Write or say your answer first.",
+  "ieltsTask1": "Task 1 (letter)",
+  "ieltsTask2": "Task 2 (essay)",
+  "ieltsTask1Help": "General Training letter — at least 150 words, about 20 minutes.",
+  "ieltsTask2Help": "Essay — at least 250 words, about 40 minutes. Give your opinion with reasons and examples.",
+  "ieltsWriteHint": "Write your answer in English",
+  "ieltsWordCount": "{n} words · at least {min}",
+  "@ieltsWordCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "min": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsReadingOriginal": "These passages were written by Assisto for practice. They are not taken from any official test book.",
+  "ieltsQuestionsCount": "{n} questions",
+  "@ieltsQuestionsCount": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsTrue": "True (T)",
+  "ieltsFalse": "False (F)",
+  "ieltsNotGiven": "Not Given (NG)",
+  "ieltsSubmitAnswers": "Check answers",
+  "ieltsCorrectAnswer": "Answer: {answer}",
+  "@ieltsCorrectAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsScore": "{correct} of {total} correct",
+  "@ieltsScore": {
+    "placeholders": {
+      "correct": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsTryAgain": "Try again",
+  "ieltsListeningBody": "Listening needs real exam-style recordings. We do not have licensed recordings yet, so practise with the official free tests below — they open in your browser.",
+  "ieltsOpenLinkFailed": "Could not open the link.",
+  "ieltsVocabHow": "Read the word, think of its meaning, then tap to check. Words you miss come back tomorrow; words you know come back later.",
+  "ieltsVocabDue": "{n} words to review today",
+  "@ieltsVocabDue": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "ieltsVocabNoneDue": "All caught up for today — come back tomorrow.",
+  "ieltsShowMeaning": "Show meaning",
+  "ieltsBackToPractice": "Back to IELTS practice",
+  "learnPickLanguage": "Learn a language",
+  "learnPickLanguageSub": "Placement test, lessons, speaking practice for life abroad and timed practice tests.",
+  "learnCatalogFail": "Could not load the language courses. Check the internet and try again.",
+  "learnNotAdded": "Lessons for this language are not added yet.",
+  "learnPurposeKorea": "For work in Korea",
+  "learnPurposeJapan": "For work in Japan",
+  "learnPurposeGulf": "For work in the Gulf",
+  "learnPlacement": "Placement test",
+  "learnPlacementSub": "Find your starting level in a few minutes",
+  "learnPlacementHow": "Answer what you can — skip what you don't know. You get an estimated level and your weak areas.",
+  "learnLessons": "Lessons",
+  "learnLessonsSub": "From basic to advanced, with Bangla explanations",
+  "learnLessonsHow": "Read each line, then tap a sentence under 'Say it' to check your pronunciation.",
+  "learnSayIt": "Say it",
+  "learnScenarios": "Speaking for life abroad",
+  "learnScenariosSub": "Airport, workplace, doctor, renting, shopping — practise with AI by voice",
+  "learnScenariosHow": "Pick a situation. The AI plays the other person; answer by voice or typing. A short correction appears when something can be said better.",
+  "learnPronSub": "Read sentences aloud and see which words were clear",
+  "learnMock": "Timed practice tests",
+  "learnMockSub": "In the exam's format — estimated level and weak areas",
+  "learnMockHow": "Original practice questions in the exam's format. The clock runs while you answer.",
+  "learnMinutes": "{n} minutes",
+  "@learnMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnTimeLeft": "Time left",
+  "learnFinishTest": "Finish and see my level",
+  "learnTimedOut": "You went over the time limit — in the real exam you would have had less time.",
+  "learnYourLevel": "Estimated level: {level}",
+  "@learnYourLevel": {
+    "placeholders": {
+      "level": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnNoWeak": "No weak area found in this test.",
+  "learnWeak": "Practise more: {skills}",
+  "@learnWeak": {
+    "placeholders": {
+      "skills": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnSkillGrammar": "Grammar",
+  "learnSkillVocab": "Vocabulary",
+  "learnGoals": "Your goals",
+  "learnUseful": "Useful phrases",
+  "learnUsePhrase": "Put this phrase in the message box",
+  "learnTypeOrSpeak": "Speak or type your answer",
+  "learnSend": "Send",
+  "learnAiNotConnected": "AI practice partner is not connected yet. The phrases, lessons and tests work without it.",
+  "learnAiNoCredits": "Today's free AI practice is used up and there are not enough credits. Lessons and tests stay free.",
+  "learnAiLeft": "Free AI practice left today: {n}",
+  "@learnAiLeft": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnVoiceNoLang": "This phone has no speech recognition for this language. You can type instead, or add the language in Google voice typing settings.",
+  "learnProbashiTitle": "Learn the language for work abroad",
+  "learnProbashiSub": "Korean (EPS-TOPIK), Japanese, Gulf Arabic, English and more",
+  "quranTitle": "Quran",
+  "@quranTitle": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAbout": "Source & licence",
+  "@qrnAbout": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutArabic": "Arabic text: Tanzil Quran Text — Uthmani for reading (Hafs), Simple for search — © Tanzil Project, licensed under Creative Commons Attribution 3.0. Shown exactly as published, without any change.",
+  "@qrnAboutArabic": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutEnglish": "English meaning: Mohammed Marmaduke Pickthall, “The Meaning of the Glorious Koran” (1930) — public domain. Digital text from Tanzil.net.",
+  "@qrnAboutEnglish": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutBangla": "Bangla translation: not included yet — we are waiting for written permission from a translator or publisher.",
+  "@qrnAboutBangla": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutAudio": "Recitation audio: not included — we will add it only from a licensed source.",
+  "@qrnAboutAudio": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutUpdates": "Corrections and updates to the text: tanzil.net",
+  "@qrnAboutUpdates": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnOffline": "Works without internet — the whole text is on your phone.",
+  "@qrnOffline": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnOpenTanzil": "Open tanzil.net",
+  "@qrnOpenTanzil": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnNoticeTitle": "Tanzil copyright notice (as published)",
+  "@qrnNoticeTitle": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnArabicSize": "Arabic text size",
+  "@qrnArabicSize": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAyasCount": "{n} verses",
+  "@qrnAyasCount": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnBnPending": "Coming — awaiting licence",
+  "@qrnBnPending": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBnPendingBody": "We will show a Bangla translation only with the translator's or publisher's written permission. Until then, read the English meaning or the Arabic only.",
+  "@qrnBnPendingBody": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarkAdd": "Bookmark verse {n}",
+  "@qrnBookmarkAdd": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnBookmarkRemove": "Remove the bookmark from verse {n}",
+  "@qrnBookmarkRemove": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnBookmarked": "Bookmarked",
+  "@qrnBookmarked": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnUnbookmarked": "Bookmark removed",
+  "@qrnUnbookmarked": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarksEmpty": "Save the verses you want to come back to.",
+  "@qrnBookmarksEmpty": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarksEmptyHow": "Open a sura and tap the bookmark sign next to a verse.",
+  "@qrnBookmarksEmptyHow": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnStartReading": "Start reading",
+  "@qrnStartReading": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnClear": "Clear",
+  "@qrnClear": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnContinue": "Continue reading",
+  "@qrnContinue": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnJuzN": "Juz {n}",
+  "@qrnJuzN": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnLoadFailed": "Could not open the Quran text on this phone. Please try again.",
+  "@qrnLoadFailed": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnRetry": "Try again",
+  "@qrnRetry": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnMeccan": "Meccan",
+  "@qrnMeccan": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnMedinan": "Medinan",
+  "@qrnMedinan": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnNoResults": "Nothing found. Try another word, in Arabic or English.",
+  "@qrnNoResults": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnReaderSettings": "Reading settings",
+  "@qrnReaderSettings": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnResultsCount": "{n} verses found",
+  "@qrnResultsCount": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnSearchHint": "Sura name, number or a word",
+  "@qrnSearchHint": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnSearchNote": "Search works in Arabic and in the English meaning. Bangla search comes with the Bangla translation.",
+  "@qrnSearchNote": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnSearchVerses": "Search the verses for “{q}”",
+  "@qrnSearchVerses": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnShowEarlier": "Show from the first verse",
+  "@qrnShowEarlier": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnShowEnglish": "Show the English meaning",
+  "@qrnShowEnglish": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTabBookmarks": "Bookmarks",
+  "@qrnTabBookmarks": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTabSuras": "Suras",
+  "@qrnTabSuras": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransBn": "Bangla",
+  "@qrnTransBn": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransEn": "English (Pickthall)",
+  "@qrnTransEn": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransNone": "Arabic only",
+  "@qrnTransNone": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTranslation": "Translation",
+  "@qrnTranslation": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnVerseN": "Verse {n}",
+  "@qrnVerseN": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2ChooseDistrict": "Choose your district",
+  "@rmd2ChooseDistrict": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2DayN": "Day {n}",
+  "@rmd2DayN": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2District": "District: {name}",
+  "@rmd2District": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2DistrictWhy": "No location needed — sehri and iftar times for all 64 districts.",
+  "@rmd2DistrictWhy": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2InRamadan": "Ramadan (approximate dates): {start} – {end}",
+  "@rmd2InRamadan": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2NextRamadan": "Next Ramadan (approximate): {start} – {end}",
+  "@rmd2NextRamadan": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2MoonNote": "Lunar dates — confirm with the National Moon Sighting Committee's announcement.",
+  "@rmd2MoonNote": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MethodIfb": "Islamic Foundation Bangladesh method: sehri ends 3 minutes before dawn (Subh-e-Sadiq), iftar is 3 minutes after sunset. These are calculated times — if your district's Islamic Foundation timetable differs, follow it.",
+  "@rmd2MethodIfb": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MonthTable": "Full month timetable",
+  "@rmd2MonthTable": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MonthTitle": "Sehri & iftar — {name}",
+  "@rmd2MonthTitle": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2Offline": "No internet — showing the times saved on {date}.",
+  "@rmd2Offline": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2OpenQuran": "Open the Quran",
+  "@rmd2OpenQuran": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2PagesMinus": "One page less",
+  "@rmd2PagesMinus": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2PagesPlus": "One page more",
+  "@rmd2PagesPlus": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2QuranPages": "Quran read today: {n} pages",
+  "@rmd2QuranPages": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2SearchDistrict": "Search district",
+  "@rmd2SearchDistrict": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2TrackerHint": "Tick what you have done — it stays on your phone only.",
+  "@rmd2TrackerHint": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2TrackerTitle": "Today's prayers and Quran",
+  "@rmd2TrackerTitle": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2UseGps": "Use my location",
+  "@rmd2UseGps": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2Week": "Last 7 days: {done} of {total} prayers · {pages} Quran pages",
+  "@rmd2Week": {
+    "description": "p3faith (Ramadan tracker / Quran)",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "rmd2ZakatFull": "Open the full Zakat calculator",
+  "@rmd2ZakatFull": {
+    "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "vaultE2eTitle": "End-to-end lock",
+  "@vaultE2eTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWhat": "Lock your documents so that only your phones can open them — not even Assisto's server.",
+  "@vaultE2eWhat": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWhatShort": "Only your phones can open them",
+  "@vaultE2eWhatShort": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eServerSees": "What our server keeps for a locked document: only the scrambled (encrypted) file, the document type and — while its reminder is on — the expiry date. Never the name, numbers, photo, your PIN or your recovery code.",
+  "@vaultE2eServerSees": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLossWarning": "If you lose your PIN, this phone's fingerprint, your recovery code AND your trusted person, the locked documents can never be opened again — not even by Assisto. That is what end-to-end means.",
+  "@vaultE2eLossWarning": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnderstand": "I understand",
+  "@vaultE2eUnderstand": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eTurnOn": "Turn on end-to-end lock",
+  "@vaultE2eTurnOn": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eEnterPin": "Enter your vault PIN",
+  "@vaultE2eEnterPin": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWrongPin": "Wrong PIN.",
+  "@vaultE2eWrongPin": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eOnTitle": "On — new documents are end-to-end locked",
+  "@vaultE2eOnTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eOldDocsNote": "Documents added earlier stay as they were (protected by your account login).",
+  "@vaultE2eOldDocsNote": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFingerprint": "Open with fingerprint",
+  "@vaultE2eFingerprint": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFingerprintSub": "Keeps an extra key in this phone's secure storage, opened after your fingerprint.",
+  "@vaultE2eFingerprintSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRecoveryOnServer": "Recovery code: saved sealed — works on a new phone",
+  "@vaultE2eRecoveryOnServer": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRecoveryMissing": "No recovery code saved yet — make one now",
+  "@vaultE2eRecoveryMissing": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eNewCode": "Make a new recovery code",
+  "@vaultE2eNewCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eHelpers": "Trusted people",
+  "@vaultE2eHelpers": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eHelpersSub": "If you lose everything, one of them can help you unlock. They can never see your documents.",
+  "@vaultE2eHelpersSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eAddHelper": "Add from My Circle",
+  "@vaultE2eAddHelper": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRemove": "Remove",
+  "@vaultE2eRemove": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eNoKeyYet": "Their phone has no security key yet — ask them to open Assisto once, then try again.",
+  "@vaultE2eNoKeyYet": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLockedTitle": "Locked on this phone — tap to unlock",
+  "@vaultE2eLockedTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLockedCount": "{n} locked documents on this phone",
+  "@vaultE2eLockedCount": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eLockedOpen": "This is locked on this phone — unlock it first.",
+  "@vaultE2eLockedOpen": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnlockCode": "Unlock with recovery code",
+  "@vaultE2eUnlockCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eCodeHint": "Recovery code (16 letters)",
+  "@vaultE2eCodeHint": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eCodeWrong": "That code didn't open it. Check the letters and try again.",
+  "@vaultE2eCodeWrong": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eAskHelper": "Ask my trusted person",
+  "@vaultE2eAskHelper": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eMatchCode": "Match code: {code} — read it to your trusted person on a call.",
+  "@vaultE2eMatchCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestPending": "Waiting for {name} to approve",
+  "@vaultE2eRequestPending": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestWait": "Approved — opens at {when} (24-hour safety wait)",
+  "@vaultE2eRequestWait": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestDeclined": "{name} declined.",
+  "@vaultE2eRequestDeclined": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestCancel": "Cancel request",
+  "@vaultE2eRequestCancel": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eInboxSection": "Help requests for you",
+  "@vaultE2eInboxSection": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eInboxTitle": "{name} asks for your help to unlock",
+  "@vaultE2eInboxTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eInboxBody": "Call them first. Approve only if they read you this match code: {code}",
+  "@vaultE2eInboxBody": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eApprove": "Approve",
+  "@vaultE2eApprove": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eDecline": "Decline",
+  "@vaultE2eDecline": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eApproved": "Approved. Their vault opens after a 24-hour safety wait.",
+  "@vaultE2eApproved": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnlocked": "Unlocked — your documents are back",
+  "@vaultE2eUnlocked": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFailed": "Couldn't do that now. Check the internet and try again.",
+  "@vaultE2eFailed": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eSealSwitch": "End-to-end lock this document",
+  "@vaultE2eSealSwitch": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eSealSwitchSub": "Only your phones can open it.",
+  "@vaultE2eSealSwitchSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eBadge": "End-to-end locked",
+  "@vaultE2eBadge": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eBadgeLong": "End-to-end locked — only your phones can open it",
+  "@vaultE2eBadgeLong": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareLink": "Show with a link",
+  "@vaultShareLink": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareLinkSub": "An encrypted link that stops working on its own. The key is only inside the link — our server can't open it.",
+  "@vaultShareLinkSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareFor": "Link works for",
+  "@vaultShareFor": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare1h": "1 hour",
+  "@vaultShare1h": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare1d": "1 day",
+  "@vaultShare1d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare3d": "3 days",
+  "@vaultShare3d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare7d": "7 days",
+  "@vaultShare7d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareOpens": "Times it can be opened",
+  "@vaultShareOpens": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCreate": "Make the link",
+  "@vaultShareCreate": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareReady": "Link ready — send it only to the person who needs it.",
+  "@vaultShareReady": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareSend": "Send the link",
+  "@vaultShareSend": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCopy": "Copy",
+  "@vaultShareCopy": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCopied": "Copied",
+  "@vaultShareCopied": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareActive": "Links for this document",
+  "@vaultShareActive": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareRowState": "Opened {opens} of {max} · until {until}",
+  "@vaultShareRowState": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "opens": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultShareEnded": "Ended — the file was deleted",
+  "@vaultShareEnded": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareStop": "Turn off",
+  "@vaultShareStop": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareNoFile": "Attach a photo to this document first.",
+  "@vaultShareNoFile": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareTooBig": "Share links take files up to 10 MB.",
+  "@vaultShareTooBig": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareText": "Assisto document — encrypted link, works for a limited time: {link}",
+  "@vaultShareText": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gCall": "Call",
+  "@p3gCall": {
+    "description": "p3guides"
+  },
+  "p3gCallFailed": "Couldn't open the phone dialer.",
+  "@p3gCallFailed": {
+    "description": "p3guides"
+  },
+  "p3gDeadlineHow": "Read the last date on the official notice, then save it here — Assisto never guesses dates.",
+  "@p3gDeadlineHow": {
+    "description": "p3guides"
+  },
+  "p3gDeadlinePickDate": "Pick the last date",
+  "@p3gDeadlinePickDate": {
+    "description": "p3guides"
+  },
+  "p3gDeadlineSaved": "Saved — you'll find it in the Tracker.",
+  "@p3gDeadlineSaved": {
+    "description": "p3guides"
+  },
+  "p3gDeadlineTitleHint": "What is due? (e.g. scholarship form)",
+  "@p3gDeadlineTitleHint": {
+    "description": "p3guides"
+  },
+  "p3gDocsReady": "{done} of {total} ready — tick what you have (saved on this phone)",
+  "@p3gDocsReady": {
+    "description": "p3guides",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gFromCache": "Showing the copy saved on this phone (no internet).",
+  "@p3gFromCache": {
+    "description": "p3guides"
+  },
+  "p3gHelplines": "Official helplines",
+  "@p3gHelplines": {
+    "description": "p3guides"
+  },
+  "p3gKindDeadline": "Deadline",
+  "@p3gKindDeadline": {
+    "description": "p3guides"
+  },
+  "p3gLastChecked": "Last checked by Assisto: {date}",
+  "@p3gLastChecked": {
+    "description": "p3guides",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gLinksTitle": "Official sites",
+  "@p3gLinksTitle": {
+    "description": "p3guides"
+  },
+  "p3gNeedNetOnce": "Connect to the internet once to download the official information — after that it works offline.",
+  "@p3gNeedNetOnce": {
+    "description": "p3guides"
+  },
+  "p3gNoGuessedFee": "We show a fee number only when the government has published it and we could confirm it. Open the official fee page for today's fee.",
+  "@p3gNoGuessedFee": {
+    "description": "p3guides"
+  },
+  "p3gOfficialFeePage": "Official fee page",
+  "@p3gOfficialFeePage": {
+    "description": "p3guides"
+  },
+  "p3gOfficialSources": "Official sources",
+  "@p3gOfficialSources": {
+    "description": "p3guides"
+  },
+  "p3gOpenNctb": "Free textbooks (NCTB)",
+  "@p3gOpenNctb": {
+    "description": "p3guides"
+  },
+  "p3gPublishedFee": "Fee published by the government",
+  "@p3gPublishedFee": {
+    "description": "p3guides"
+  },
+  "p3gRemitAboveSdg": "Above the UN target of 3% — compare providers on the World Bank page.",
+  "@p3gRemitAboveSdg": {
+    "description": "p3guides"
+  },
+  "p3gRemitAmount": "Amount you sent (foreign currency)",
+  "@p3gRemitAmount": {
+    "description": "p3guides"
+  },
+  "p3gRemitBbRate": "Today's reference rate (Bangladesh Bank)",
+  "@p3gRemitBbRate": {
+    "description": "p3guides"
+  },
+  "p3gRemitBelowSdg": "Within the UN target of 3% — a good deal.",
+  "@p3gRemitBelowSdg": {
+    "description": "p3guides"
+  },
+  "p3gRemitCheck": "Check the real cost",
+  "@p3gRemitCheck": {
+    "description": "p3guides"
+  },
+  "p3gRemitFee": "Fee you paid (same currency)",
+  "@p3gRemitFee": {
+    "description": "p3guides"
+  },
+  "p3gRemitIncentive": "Sent through an official channel? The government's 2.5% incentive adds about Tk {amount}.",
+  "@p3gRemitIncentive": {
+    "description": "p3guides",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gRemitIntro": "Enter one transfer to see what it really cost you: the fee plus the exchange-rate margin.",
+  "@p3gRemitIntro": {
+    "description": "p3guides"
+  },
+  "p3gRemitInvalid": "Enter the amount and both rates as numbers above zero.",
+  "@p3gRemitInvalid": {
+    "description": "p3guides"
+  },
+  "p3gRemitRateGot": "Rate you got (Tk per unit)",
+  "@p3gRemitRateGot": {
+    "description": "p3guides"
+  },
+  "p3gRemitRateRef": "Today's reference rate (Tk per unit)",
+  "@p3gRemitRateRef": {
+    "description": "p3guides"
+  },
+  "p3gRemitResult": "Real cost: {pct}% of what you sent",
+  "@p3gRemitResult": {
+    "description": "p3guides",
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gRemitTitle": "Real cost of sending money",
+  "@p3gRemitTitle": {
+    "description": "p3guides"
+  },
+  "p3gRemitWorldBank": "Compare providers (World Bank)",
+  "@p3gRemitWorldBank": {
+    "description": "p3guides"
+  },
+  "p3gSafetyTips": "Stay safe abroad",
+  "@p3gSafetyTips": {
+    "description": "p3guides"
+  },
+  "p3gSaveDeadline": "Save a deadline",
+  "@p3gSaveDeadline": {
+    "description": "p3guides"
+  },
+  "p3gSosBody": "Open Assisto's emergency help to alert your family, then call the embassy or Probash-Bondhu.",
+  "@p3gSosBody": {
+    "description": "p3guides"
+  },
+  "p3gSosButton": "Open emergency help",
+  "@p3gSosButton": {
+    "description": "p3guides"
+  },
+  "p3gSosTitle": "In danger abroad?",
+  "@p3gSosTitle": {
+    "description": "p3guides"
+  },
+  "p3gTabHelp": "Help",
+  "@p3gTabHelp": {
+    "description": "p3guides"
+  },
+  "p3gTabOfficial": "Official dates",
+  "@p3gTabOfficial": {
+    "description": "p3guides"
+  },
+  "p3gTabTimer": "Study timer",
+  "@p3gTabTimer": {
+    "description": "p3guides"
+  },
+  "p3gTimerBreak": "{min} min break",
+  "@p3gTimerBreak": {
+    "description": "p3guides",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gTimerDone": "Session done — take a short break.",
+  "@p3gTimerDone": {
+    "description": "p3guides"
+  },
+  "p3gTimerFocus": "{min} min focus",
+  "@p3gTimerFocus": {
+    "description": "p3guides",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gTimerHint": "Works without internet. The timer runs while this screen is open.",
+  "@p3gTimerHint": {
+    "description": "p3guides"
+  },
+  "p3gTimerPause": "Pause",
+  "@p3gTimerPause": {
+    "description": "p3guides"
+  },
+  "p3gTimerResume": "Resume",
+  "@p3gTimerResume": {
+    "description": "p3guides"
+  },
+  "p3gTimerStart": "Start",
+  "@p3gTimerStart": {
+    "description": "p3guides"
+  },
+  "p3gTimerStop": "Stop and save",
+  "@p3gTimerStop": {
+    "description": "p3guides"
+  },
+  "p3gTimerToday": "Today: {min} min studied",
+  "@p3gTimerToday": {
+    "description": "p3guides",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gTimerWeek": "Last 7 days: {min} min",
+  "@p3gTimerWeek": {
+    "description": "p3guides",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "p3gWelfareTitle": "Wage Earners' Welfare Board support",
+  "@p3gWelfareTitle": {
+    "description": "p3guides"
+  },
+  "lcTitle": "My certificates",
+  "@lcTitle": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyTitle": "No certificate yet",
+  "@lcEmptyTitle": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyBody": "Finish a level test in Language Partner or a step of Learn to read Quran. Your Assisto learning certificate appears here, with a QR code anyone can check.",
+  "@lcEmptyBody": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyAction": "Start learning",
+  "@lcEmptyAction": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyHow": "How: open Language Partner, take the level test, then tap Get my certificate.",
+  "@lcEmptyHow": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcValid": "Valid",
+  "@lcValid": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevoked": "Revoked",
+  "@lcRevoked": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokedBanner": "You revoked this certificate. The check page now says it is not valid.",
+  "@lcRevokedBanner": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcDownloadPdf": "Download PDF",
+  "@lcDownloadPdf": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareFacebook": "Share to Facebook",
+  "@lcShareFacebook": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareLink": "Share link",
+  "@lcShareLink": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareText": "My Assisto learning certificate (practice, not an official qualification). Check it here: {url}",
+  "@lcShareText": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "lcRevoke": "Revoke certificate",
+  "@lcRevoke": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokeTitle": "Revoke this certificate?",
+  "@lcRevokeTitle": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokeBody": "The check page will say it is not valid any more. This cannot be undone.",
+  "@lcRevokeBody": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEarnedTitle": "You earned a certificate!",
+  "@lcEarnedTitle": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcEarnedBody": "Check the name to print on it. Anyone can verify it on lifeassisto.com with the QR code.",
+  "@lcEarnedBody": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcNameLabel": "Name on the certificate",
+  "@lcNameLabel": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcGetCert": "Get my certificate",
+  "@lcGetCert": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcNotNow": "Not now",
+  "@lcNotNow": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrName": "Please write your real name: letters only, 2 to 60 characters.",
+  "@lcErrName": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrToken": "This result has expired. Finish the test again to get the certificate.",
+  "@lcErrToken": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrMany": "Too many certificates today. Please try again tomorrow.",
+  "@lcErrMany": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrGeneric": "Could not load the certificate. Check the internet and try again.",
+  "@lcErrGeneric": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcDisclaimer": "Assisto learning certificate — not an official qualification",
+  "@lcDisclaimer": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcScanHint": "Scan to check if it is genuine",
+  "@lcScanHint": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcPdfReady": "Certificate PDF is ready",
+  "@lcPdfReady": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcPdfFailed": "Could not download the PDF. Please try again.",
+  "@lcPdfFailed": {
+    "description": "learncert: Assisto learning certificate"
+  },
+  "lcFbFailed": "Could not open Facebook.",
+  "@lcFbFailed": {
+    "description": "learncert: Assisto learning certificate"
   }
 }
