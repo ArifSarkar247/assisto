@@ -1423,7 +1423,8 @@ def _ai_check_label(e, request):
     try:
         from . import cctv_ai_check as CAI
         from .i18n import req_lang
-        return CAI.event_label(e, req_lang(request) if request is not None else "bn")
+        return CAI.event_label(e, req_lang(request) if request is not None else "bn",
+                               key_ready=CAI.key_ready_for(request))
     except Exception:
         return None
 

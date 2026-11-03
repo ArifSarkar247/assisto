@@ -35,26 +35,33 @@ from .logic import cctv_ai_check as AC
 log = logging.getLogger(__name__)
 
 FEATURE = "cctv_ai_check"
-_KEY_MEMO = {"t": 0.0, "v": (None, None, 0.0)}
-_KEY_TTL_S = 30.0
 
 
 # ---------------------------------------------------------------- key / cost
-def vision_key(fresh=False):
+def vision_key():
     """(slug, conf, provider_cost_usd) of the active vision provider, or
-    (None, None, 0.0). Memoised 30 s so a list view asks once."""
-    now = time.monotonic()
-    if not fresh and now - _KEY_MEMO["t"] < _KEY_TTL_S:
-        return _KEY_MEMO["v"]
-    v = (None, None, 0.0)
+    (None, None, 0.0)."""
     try:
         from . import chat_vision_service as CVS
         slug, conf, cost = CVS._active()
         if slug:
-            v = (slug, conf or {}, float(cost or 0))
+            return slug, conf or {}, float(cost or 0)
     except Exception:
-        v = (None, None, 0.0)
-    _KEY_MEMO.update(t=now, v=v)
+        pass
+    return None, None, 0.0
+
+
+def key_ready_for(request):
+    """vision key present? asked ONCE per request (list views label 200 rows)."""
+    if request is None:
+        return bool(vision_key()[0])
+    v = getattr(request, "_cctv_ai_key_ready", None)
+    if v is None:
+        v = bool(vision_key()[0])
+        try:
+            setattr(request, "_cctv_ai_key_ready", v)
+        except Exception:
+            pass
     return v
 
 
@@ -179,7 +186,7 @@ def check_due(now=None, limit=AC.PER_TICK):
     now = now or timezone.now()
     out = {"checked": 0, "skipped": 0}
     try:
-        slug, conf, prov_cost = vision_key(fresh=True)
+        slug, conf, prov_cost = vision_key()
         if not slug:
             return out                     # labels say "no AI key" at read time
         from .models import ShopEvent
@@ -207,7 +214,7 @@ def check_due(now=None, limit=AC.PER_TICK):
 
 
 # ---------------------------------------------------------------- read side
-def event_label(ev, lang="bn", now=None):
+def event_label(ev, lang="bn", now=None, key_ready=None):
     """Label for one alert row, or None for alert types the AI never checks."""
     try:
         if ev.type not in AC.CHECK_TYPES:
@@ -219,7 +226,7 @@ def event_label(ev, lang="bn", now=None):
         if ai is None:
             if not ev.snapshot:
                 ai = {"state": "no_photo"}
-            elif not vision_key()[0]:
+            elif not (key_ready if key_ready is not None else vision_key()[0]):
                 ai = {"state": "no_key"}
             elif ev.camera_id and ev.camera and not switch_on(ev.camera, True):
                 ai = {"state": "off"}
