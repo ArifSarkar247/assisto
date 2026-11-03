@@ -282,7 +282,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     return l.toLowerCase();
   }
 
-  /// "1 h 20 min" / "১ ঘণ্টা ২০ মিনিট".
+  /// "1 h 20 min" (Bangla words + digits in Bangla).
   String _dur(AppLocalizations t, int min) => jDigits(
       context, min >= 60 ? t.psDurHM(min ~/ 60, min % 60) : t.psDurM(min));
 

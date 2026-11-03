@@ -439,8 +439,10 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
     // jsearch: no road time in the fake -> the arrival time is asked once
-    if (find.text('OK').evaluate().isNotEmpty) {
-      await tester.tap(find.text('OK'));
+    final tp = find.byType(TimePickerDialog);
+    if (tp.evaluate().isNotEmpty) {
+      Navigator.of(tester.element(tp))
+          .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
       await _settle(tester);
     }
     final eta = '${api.posts('/journey/start').single.body['eta']}';

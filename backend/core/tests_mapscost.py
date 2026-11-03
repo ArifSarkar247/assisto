@@ -353,4 +353,4 @@ class ChandraSearchTests(MapsBase):
         self.c1.get("%s/maps/place?id=ChIJchandraMor&session=chandra-sess-0003" % V)
         for c in self.rec.calls:
             self.assertTrue(c["url"].startswith("https://places.googleapis.com/v1/"), c["url"])
-            self.assertNotIn("maps/api/place", c["url"])
+            self.assertNotIn("/api/place/", c["url"])  # the legacy Places web API

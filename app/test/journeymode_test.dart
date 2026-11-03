@@ -462,8 +462,10 @@ void main() {
       await tester.ensureVisible(start);
       await tester.tap(start);
       await _settle(tester);
-      if (find.text('OK').evaluate().isNotEmpty) {
-        await tester.tap(find.text('OK'));
+      final tp = find.byType(TimePickerDialog);
+      if (tp.evaluate().isNotEmpty) {
+        Navigator.of(tester.element(tp))
+            .pop(TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30))));
         await _settle(tester);
       }
       final body = api.posts.firstWhere((p) => p.$1 == '/journey/start').$2;
