@@ -62,7 +62,14 @@ def defaults():
             "actions_on": False,
             # round 3 item 7: the nightly AI exam (core/ai_exam.py)
             "exam_on": False, "exam_budget_usd": 1.5, "exam_min_pass": 0.85,
-            "exam_min_win": 0.6}
+            "exam_min_win": 0.9,
+            # owner 01:12: web search for recent / changing facts (Gemini
+            # grounding with Google Search: 1,500 free/day on the paid tier,
+            # then $35 / 1,000 grounded prompts — checked 4 Nov 2026,
+            # https://ai.google.dev/gemini-api/docs/pricing). The worst-case
+            # price is added to the answer's credits. OFF until the owner
+            # accepts that price.
+            "web_on": False, "web_usd_per_prompt": 0.035}
 
 
 def _clampi(v, lo, hi, d):
@@ -102,6 +109,12 @@ def normalize(raw):
     out["welcome_on"] = raw.get("welcome_on") is True
     out["actions_on"] = raw.get("actions_on") is True
     out["exam_on"] = raw.get("exam_on") is True
+    out["web_on"] = raw.get("web_on") is True
+    try:
+        w = float(raw.get("web_usd_per_prompt", base["web_usd_per_prompt"]))
+        out["web_usd_per_prompt"] = base["web_usd_per_prompt"] if w != w else max(0.0, min(1.0, w))
+    except (TypeError, ValueError):
+        out["web_usd_per_prompt"] = base["web_usd_per_prompt"]
     for k, lo, hi in (("exam_budget_usd", 0.0, 20.0), ("exam_min_pass", 0.0, 1.0),
                       ("exam_min_win", 0.0, 1.0)):
         try:

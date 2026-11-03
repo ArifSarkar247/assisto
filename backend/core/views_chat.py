@@ -434,11 +434,16 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
             if level:
+                from . import ai_levels_service as _ALS
+                use_web = _ALS.wants_web(text, level)
                 reply, cost = ai.generate(
                     task="", extra_system=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
-                    user=payer, history=history, out_meta=meta_out, pii=vault, level=level)
+                    user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
+                    web=use_web)
+                if use_web:
+                    meta_out["web"] = True
             elif mode:
                 # pricing-40: the chat instruction goes into the SYSTEM block so
                 # system + instruction (>= 512 tokens) is one cacheable prefix

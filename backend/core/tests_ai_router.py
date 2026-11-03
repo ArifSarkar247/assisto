@@ -448,10 +448,11 @@ class ProviderNeutralityTests(RouterBase):
     def test_self_identification_scrubbed(self):
         Fakes(self, anthropic="আমি Claude, Anthropic এর তৈরি। I am Claude, made by Anthropic.")
         text, _ = ai.generate("তুমি কে?", tier="cheap", feature="chat")
-        low = text.lower()
-        for n in ("claude", "anthropic"):
-            self.assertNotIn(n, low)
+        # owner identity rule 4 Nov 01:12: a false self-claim is corrected
+        self.assertNotIn("I am Claude", text)
+        self.assertNotIn("আমি Claude", text)
         self.assertIn("Assisto", text)
+        self.assertIn("AXON Dynamic", text)
 
     def test_status_and_labels_are_neutral(self):
         blob = repr(ai.status()).lower() + repr(ai.TIER_MODEL).lower()
