@@ -104,3 +104,17 @@ class WorldMcqView(APIView):
         answers = data.get("answers") if isinstance(data.get("answers"), list) else []
         return Response(SVC.mcq_submit(request.user, str(data.get("topic") or "mixed"),
                                        answers[:50], lang))
+
+
+class OfficialInfoView(APIView):
+    """p3guides: GET official-info/<probashi|student> — official helplines,
+    welfare, remittance benchmarks / scholarship+admission+board links, each
+    with a last-checked date (logic/official_info.py). Pure data, no AI, no
+    cost; the app caches it for offline reading."""
+
+    def get(self, request, section):
+        from .logic import official_info as OI
+        d = OI.section_public(section, req_lang(request))
+        if d is None:
+            return Response({"ok": False, "reason": "unknown_section"}, status=404)
+        return Response(d)

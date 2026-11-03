@@ -38,6 +38,10 @@ class GuideScreen extends StatefulWidget {
 class _GuideScreenState extends State<GuideScreen> {
   static const _cacheKey = 'guide_cache_v21';
   static const _bookmarkKey = 'guide_bookmarks';
+  static const _docsKey = 'guide_docs_v1'; // p3guides: ticked documents
+
+  /// p3guides: service key -> ticked document indexes (kept on the phone).
+  Map<String, Set<int>> _ticked = {};
 
   GuideData? _data;
   bool _loading = true;
@@ -55,6 +59,7 @@ class _GuideScreenState extends State<GuideScreen> {
   void initState() {
     super.initState();
     _loadBookmarks();
+    _loadTicks();
     _load();
   }
 
@@ -72,6 +77,28 @@ class _GuideScreenState extends State<GuideScreen> {
       _saved = raw.split(',').where((e) => e.isNotEmpty).toSet();
       if (mounted) setState(() {});
     }
+  }
+
+  Future<void> _loadTicks() async {
+    final raw = await Settings.getString(_docsKey);
+    if (raw == null || raw.isEmpty) return;
+    try {
+      final m = jsonDecode(raw) as Map<String, dynamic>;
+      _ticked = {
+        for (final e in m.entries)
+          e.key: ((e.value as List?) ?? const []).whereType<int>().toSet(),
+      };
+      if (mounted) setState(() {});
+    } catch (_) {}
+  }
+
+  Future<void> _toggleDoc(String key, int i) async {
+    final set = _ticked.putIfAbsent(key, () => <int>{});
+    setState(() {
+      if (!set.remove(i)) set.add(i);
+    });
+    await Settings.setString(_docsKey,
+        jsonEncode({for (final e in _ticked.entries) e.key: e.value.toList()}));
   }
 
   Future<void> _load() async {
@@ -291,6 +318,9 @@ class _GuideScreenState extends State<GuideScreen> {
                               showGuideNeedSheet(context, s, onOpenLink: _open),
                           initiallyExpanded:
                               results.length == 1 && _query.isNotEmpty,
+                          checkedDocs: _ticked[s.key] ?? const {},
+                          onToggleDoc:
+                              s.key.isEmpty ? null : (i) => _toggleDoc(s.key, i),
                         ),
                       ),
                   ],

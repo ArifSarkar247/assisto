@@ -33,6 +33,7 @@ class GuideService {
   final List<String> mistakes; // common mistakes
   final String source; // "Source: <portal>"
   final String disclaimer;
+  final GuideOfficial official; // p3guides: last-checked + official sources/fees
 
   const GuideService({
     required this.key,
@@ -50,6 +51,7 @@ class GuideService {
     required this.mistakes,
     required this.source,
     required this.disclaimer,
+    this.official = GuideOfficial.none,
   });
 
   factory GuideService.fromJson(Map<String, dynamic> j) => GuideService(
@@ -68,6 +70,9 @@ class GuideService {
         mistakes: _strList(j['mistakes']),
         source: (j['source'] ?? '').toString(),
         disclaimer: (j['disclaimer'] ?? '').toString(),
+        official: j['official'] is Map<String, dynamic>
+            ? GuideOfficial.fromJson(j['official'] as Map<String, dynamic>)
+            : GuideOfficial.none,
       );
 
   Map<String, dynamic> toJson() => {
@@ -86,6 +91,79 @@ class GuideService {
         'mistakes': mistakes,
         'source': source,
         'disclaimer': disclaimer,
+        'official': official.toJson(),
+      };
+}
+
+/// p3guides: one labelled official link.
+class GuideLink {
+  final String label;
+  final String url;
+  const GuideLink(this.label, this.url);
+  factory GuideLink.fromJson(Map<String, dynamic> j) =>
+      GuideLink((j['label'] ?? '').toString(), (j['url'] ?? '').toString());
+  Map<String, dynamic> toJson() => {'label': label, 'url': url};
+}
+
+/// p3guides: one published fee row (label + amount, both server content).
+class GuideFee {
+  final String label;
+  final String amount;
+  const GuideFee(this.label, this.amount);
+  factory GuideFee.fromJson(Map<String, dynamic> j) =>
+      GuideFee((j['label'] ?? '').toString(), (j['amount'] ?? '').toString());
+  Map<String, dynamic> toJson() => {'label': label, 'amount': amount};
+}
+
+/// p3guides: official facts for a service (backend logic/official_info.py).
+/// [feeStatus] 'published' = [fees] are the government's published numbers
+/// (with [feeBasis]); 'official_page' = no number, open [feePage] instead.
+class GuideOfficial {
+  final String checked; // ISO date Assisto last checked the sources
+  final String feeStatus;
+  final String feePage;
+  final String feeBasis;
+  final String feeNote;
+  final List<GuideFee> fees;
+  final List<GuideLink> sources;
+  const GuideOfficial({
+    this.checked = '',
+    this.feeStatus = 'official_page',
+    this.feePage = '',
+    this.feeBasis = '',
+    this.feeNote = '',
+    this.fees = const [],
+    this.sources = const [],
+  });
+  static const none = GuideOfficial();
+
+  bool get isEmpty => checked.isEmpty && sources.isEmpty && feePage.isEmpty;
+  bool get published => feeStatus == 'published' && fees.isNotEmpty;
+
+  factory GuideOfficial.fromJson(Map<String, dynamic> j) => GuideOfficial(
+        checked: (j['checked'] ?? '').toString(),
+        feeStatus: (j['fee_status'] ?? 'official_page').toString(),
+        feePage: (j['fee_page'] ?? '').toString(),
+        feeBasis: (j['fee_basis'] ?? '').toString(),
+        feeNote: (j['fee_note'] ?? '').toString(),
+        fees: ((j['fees'] ?? const []) as List)
+            .whereType<Map<String, dynamic>>()
+            .map(GuideFee.fromJson)
+            .toList(),
+        sources: ((j['sources'] ?? const []) as List)
+            .whereType<Map<String, dynamic>>()
+            .map(GuideLink.fromJson)
+            .toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'checked': checked,
+        'fee_status': feeStatus,
+        'fee_page': feePage,
+        'fee_basis': feeBasis,
+        'fee_note': feeNote,
+        'fees': fees.map((f) => f.toJson()).toList(),
+        'sources': sources.map((l) => l.toJson()).toList(),
       };
 }
 

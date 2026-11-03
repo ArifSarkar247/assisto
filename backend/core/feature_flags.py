@@ -141,6 +141,11 @@ REGISTRY = (
     ('wedding_events', 'daily_life', 'Wedding & events', 'বিয়ে ও অনুষ্ঠান', True, ()),
     ('qurbani', 'daily_life', 'Qurbani & Eid planner', 'কোরবানি ও ঈদ পরিকল্পনা', True, ()),
     ('probashi', 'daily_life', 'Probashi corner', 'প্রবাসী কর্নার', True, ()),
+    # p3guides (owner PART 3, 3 Nov): official extras in Probashi corner
+    # (helplines, WEWB welfare, remittance real-cost check, SOS abroad) and
+    # Student corner (study timer, official scholarship/admission/board links
+    # + save-a-deadline). OFF until the owner's phone test; owns no route.
+    ('official_corners', 'daily_life', 'Probashi & Student official extras', 'প্রবাসী ও স্টুডেন্ট কর্নারের অফিশিয়াল অংশ', False, ()),
     ('farmer_mode', 'daily_life', 'Farmer mode', 'কৃষক মোড', True, ()),
     ('wellness', 'daily_life', 'Water, sleep & diet', 'পানি, ঘুম ও খাবার', True, ()),
     ('fitness', 'daily_life', 'Fitness partner', 'ফিটনেস সঙ্গী', True, ()),

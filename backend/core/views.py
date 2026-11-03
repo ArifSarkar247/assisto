@@ -2310,8 +2310,11 @@ class FinanceView(APIView):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def govt_guide(request):
-    from .logic import guides
-    return Response(guides.localized(req_lang(request)))
+    # p3guides: serve the ADVANCED guide (docs checklist, fees, office, time,
+    # mistakes, categories + official sources/last-checked). It used to return
+    # the old logic/guides.py names+steps only, so the app never got them.
+    from .logic import govt_guide as GG
+    return Response(GG.localized(req_lang(request)))
 
 
 class ElderlyModeView(APIView):

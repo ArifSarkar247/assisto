@@ -1,3 +1,4 @@
+import 'p3guides_fake.dart'; // p3guides
 import 'fake_channels.dart'; // channels
 import 'fake_food.dart'; // p2food
 import 'fake_famcare.dart'; // famcare
@@ -759,7 +760,13 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> guides() async => {
+        // p3guides: the server now sends the ADVANCED guide (+ official facts)
+        'version': '2.1',
+        'categories': [
+          {'key': 'land', 'name': _bn ? 'জমি ও ভূমি' : 'Land & property'},
+        ],
         'services': [
+          p3gFakeEmutation(_bn),
           {'name': _bn ? 'NID (জাতীয় পরিচয়পত্র)' : 'National ID', 'portal': 'services.nidw.gov.bd',
            'steps': _bn
                ? ['অনলাইনে রেজিস্টার/লগইন', 'ফর্ম পূরণ + ছবি', 'ফি পরিশোধ', 'স্ট্যাটাস ট্র্যাক']
@@ -1018,6 +1025,11 @@ class FakeApi extends ApiClient {
     if (p2g != null) {
       if (mode == FakeMode.fail) _fail();
       return p2g;
+    }
+    final p3g = fakeP3gGet(path, _bn); // p3guides
+    if (p3g != null) {
+      if (mode == FakeMode.fail) _fail();
+      return p3g;
     }
     final psec = fakePsecGet(path, mode == FakeMode.empty); // pssec
     if (psec != null) {

@@ -33,6 +33,7 @@ app/lib/widgets/guide_data.dart.
 """
 
 from ..i18n import localise, pick
+from . import official_info as OI  # p3guides
 
 # ---------------------------------------------------------------------------
 # Categories a Bangladeshi user actually searches for.
@@ -330,6 +331,36 @@ SERVICES = [
 ]
 
 
+# p3guides (owner PART 3): land e-mutation (e-namjari) — the published
+# Ministry of Land fee lives in logic/official_info.py GUIDE_FACTS.
+SERVICES.append(_svc(
+    "emutation", "land", "জমির ই-নামজারি (ই-মিউটেশন)", "Land e-mutation (e-namjari)",
+    "mutation.land.gov.bd", "https://mutation.land.gov.bd",
+    ["ই-নামজারি সাইটে মোবাইল নম্বর দিয়ে আবেদন শুরু করুন",
+     "জমির তথ্য (মৌজা, খতিয়ান, দাগ) দিন ও মালিকানার কাগজ আপলোড করুন",
+     "কোর্ট ফি ও নোটিশ ফি অনলাইনে দিন",
+     "এসএমএসে শুনানির তারিখ আসবে — মূল কাগজ নিয়ে এসি ল্যান্ড অফিসে যান",
+     "অনুমোদনের পর রেকর্ড সংশোধন ও খতিয়ান ফি অনলাইনে দিয়ে নতুন খতিয়ান নিন"],
+    ["Start the application on the e-mutation site with your mobile number",
+     "Enter the land details (mouza, khatian, dag) and upload ownership papers",
+     "Pay the court fee and notice fee online",
+     "The hearing date comes by SMS — bring the original papers to the AC Land office",
+     "After approval pay the record-correction and khatian fees online and get the new khatian"],
+    ["দলিলের কপি (বা উত্তরাধিকার সনদ / বণ্টননামা)", "আগের খতিয়ান / পর্চা", "জাতীয় পরিচয়পত্র (NID)",
+     "ভূমি উন্নয়ন কর পরিশোধের রসিদ", "পাসপোর্ট সাইজ ছবি"],
+    ["Copy of the deed (or succession certificate / partition deed)", "Previous khatian / porcha",
+     "National ID (NID)", "Land development tax receipt", "Passport-size photo"],
+    "ভূমি মন্ত্রণালয়ের প্রকাশিত মোট ফি ১,১৭০ টাকা (কোর্ট ফি ২০ + নোটিশ ৫০ + রেকর্ড সংশোধন ১,০০০ + খতিয়ান ১০০), সব অনলাইনে।",
+    "Ministry of Land published total fee Tk 1,170 (court fee 20 + notice 50 + record correction 1,000 + khatian 100), all paid online.",
+    "সহকারী কমিশনার (ভূমি) অফিস", "Assistant Commissioner (Land) office",
+    "সাধারণত ২৮ কার্যদিবসের মধ্যে নিষ্পত্তির লক্ষ্য — অফিসভেদে ভিন্ন, যাচাই করুন।",
+    "Usually targeted within 28 working days — varies by office, verify.",
+    ["দালালকে টাকা দেওয়া — সব ফি অনলাইনে দেওয়া যায়", "শুনানিতে মূল কাগজ না নেওয়া",
+     "দলিলের দাগ/খতিয়ান নম্বর ভুল লেখা"],
+    ["Paying a broker — every fee can be paid online", "Going to the hearing without the original papers",
+     "Typing the wrong dag/khatian number from the deed"]))
+
+
 # ---------------------------------------------------------------------------
 # Pure helpers (localisation, search, "what do I need").
 # ---------------------------------------------------------------------------
@@ -337,6 +368,13 @@ _LOCALISED_FIELDS = (
     "name", "steps", "docs", "fee", "office", "time",
     "mistakes", "source", "disclaimer",
 )
+
+
+def _with_facts(loc, lang):
+    """p3guides: attach the official facts (last-checked date, official
+    sources, published fee table or the official fee page)."""
+    loc["official"] = OI.guide_facts(loc.get("key", ""), lang)
+    return loc
 
 
 def localized(lang):
@@ -348,7 +386,8 @@ def localized(lang):
     return {
         "version": "2.1",
         "categories": [localise(lang, c, "name") for c in CATEGORIES],
-        "services": [localise(lang, s, *_LOCALISED_FIELDS) for s in SERVICES],
+        "services": [_with_facts(localise(lang, s, *_LOCALISED_FIELDS), lang) for s in SERVICES],
+        "checked": OI.CHECKED,  # p3guides
         "disclaimer": pick(lang, DISCLAIMER_BN, DISCLAIMER_EN),
     }
 

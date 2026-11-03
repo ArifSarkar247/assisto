@@ -88,6 +88,8 @@ const Map<String, bool> kFeatureDefaults = {
   'wedding_events': true,
   'qurbani': true,
   'probashi': true,
+  // p3guides (3 Nov): Probashi Help + Student Timer/Official tabs - OFF until the owner's phone test.
+  'official_corners': false,
   'farmer_mode': true,
   'wellness': true,
   'fitness': true,

@@ -756,6 +756,10 @@ class ApiClient {
 
   // Guides, elderly, inbox, studio
   Future<Map<String, dynamic>> guides() => getJson('/guides');
+  // p3guides: official helplines/welfare/remittance (probashi) or official
+  // scholarship/board/admission links (student), with a last-checked date.
+  Future<Map<String, dynamic>> officialInfo(String section) =>
+      getJson('/official-info/$section');
   Future<Map<String, dynamic>> setElderly(bool v) =>
       postJson('/me/elderly', {'enabled': v});
   Future<Map<String, dynamic>> inboxStatus() => getJson('/inbox');

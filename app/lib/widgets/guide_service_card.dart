@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'guide_data.dart';
+import 'local_digits.dart'; // p3guides
 
 /// Opens [url] in the external browser if non-empty. Kept dependency-free:
 /// uses url_launcher only if present via a late import at the call site; here
@@ -26,6 +27,10 @@ class GuideServiceCard extends StatelessWidget {
   final GuideLaunch onOpenLink;
   final VoidCallback onWhatDoINeed;
   final bool initiallyExpanded;
+  // p3guides: tickable documents checklist (indexes into service.docs),
+  // persisted by the screen. Null callback = read-only rows.
+  final Set<int> checkedDocs;
+  final ValueChanged<int>? onToggleDoc;
 
   const GuideServiceCard({
     super.key,
@@ -35,6 +40,8 @@ class GuideServiceCard extends StatelessWidget {
     required this.onOpenLink,
     required this.onWhatDoINeed,
     this.initiallyExpanded = false,
+    this.checkedDocs = const {},
+    this.onToggleDoc,
   });
 
   @override
@@ -113,7 +120,25 @@ class GuideServiceCard extends StatelessWidget {
           if (service.docs.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             _Section(icon: Icons.fact_check_rounded, title: tr.guideRequiredDocs),
-            for (final d in service.docs) _CheckRow(text: d),
+            if (onToggleDoc == null)
+              for (final d in service.docs) _CheckRow(text: d)
+            else ...[
+              Text(
+                tr.p3gDocsReady(
+                    ld(context, checkedDocs.where((i) => i < service.docs.length).length),
+                    ld(context, service.docs.length)),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+              ),
+              for (int i = 0; i < service.docs.length; i++)
+                CheckboxListTile(
+                  key: ValueKey('p3g-doc-${service.key}-$i'),
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  value: checkedDocs.contains(i),
+                  onChanged: (_) => onToggleDoc!(i),
+                  title: Text(service.docs[i], style: const TextStyle(height: 1.35)),
+                ),
+            ],
           ],
 
           // ---- fee / office / time facts ----
@@ -140,6 +165,12 @@ class GuideServiceCard extends StatelessWidget {
               verifyNote: service.verifyTime ? tr.guideVerifyOnPortal : null,
               tint: scheme,
             ),
+
+          // ---- p3guides: official fees / sources / last checked ----
+          if (!service.official.isEmpty) ...[
+            const SizedBox(height: Gap.md),
+            _OfficialBox(official: service.official, onOpenLink: onOpenLink),
+          ],
 
           // ---- common mistakes ----
           if (service.mistakes.isNotEmpty) ...[
@@ -178,8 +209,10 @@ class _Section extends StatelessWidget {
       child: Row(children: [
         Icon(icon, size: 17, color: c),
         const SizedBox(width: Gap.sm),
-        Text(title,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: c)),
+        Flexible( // p3guides: wraps at 200% font
+          child: Text(title,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: c)),
+        ),
       ]),
     );
   }
@@ -203,7 +236,7 @@ class _StepRow extends StatelessWidget {
             color: scheme.primary.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: Text('$index',
+          child: Text(ld(context, index), // p3guides: Bangla digits in bn
               style: TextStyle(
                   fontSize: 12, fontWeight: FontWeight.w700, color: scheme.primary)),
         ),
@@ -332,4 +365,103 @@ class _DisclaimerBox extends StatelessWidget {
       ]),
     );
   }
+}
+
+/// p3guides: published fee table (only numbers the government published) or
+/// an honest "open the official fee page", plus official sources and the date
+/// Assisto last checked them.
+class _OfficialBox extends StatelessWidget {
+  final GuideOfficial official;
+  final GuideLaunch onOpenLink;
+  const _OfficialBox({required this.official, required this.onOpenLink});
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AType.bodySmall.copyWith(color: scheme.onSurfaceVariant);
+    return Container(
+      key: const ValueKey('p3g-official'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (official.published) ...[
+          Text(tr.p3gPublishedFee,
+              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.xs),
+          for (final f in official.fees)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(flex: 3, child: Text(f.label, style: AType.bodyMedium)),
+                const SizedBox(width: Gap.sm),
+                Flexible(
+                  flex: 2,
+                  child: Text(f.amount,
+                      textAlign: TextAlign.end,
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                ),
+              ]),
+            ),
+          if (official.feeBasis.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(official.feeBasis, style: muted),
+            ),
+        ] else ...[
+          Text(tr.p3gNoGuessedFee, style: AType.bodyMedium),
+          if (official.feeNote.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(official.feeNote, style: muted),
+            ),
+        ],
+        if (official.feePage.isNotEmpty) ...[
+          const SizedBox(height: Gap.sm),
+          OutlinedButton.icon(
+            key: const ValueKey('p3g-fee-page'),
+            onPressed: () => onOpenLink(official.feePage),
+            icon: const Icon(Icons.receipt_long_rounded, size: 18),
+            label: Text(tr.p3gOfficialFeePage),
+          ),
+        ],
+        if (official.sources.isNotEmpty) ...[
+          const SizedBox(height: Gap.sm),
+          Text(tr.p3gOfficialSources,
+              style: AType.labelLarge.copyWith(fontWeight: FontWeight.w700)),
+          for (final l in official.sources)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: () => onOpenLink(l.url),
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: Text(l.label, textAlign: TextAlign.start),
+              ),
+            ),
+        ],
+        if (official.checked.isNotEmpty) ...[
+          const SizedBox(height: Gap.xs),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.event_available_rounded, size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: Gap.xs),
+            Flexible(
+              child: Text(tr.p3gLastChecked(ld(context, p3gDate(official.checked))),
+                  key: const ValueKey('p3g-checked'), style: muted),
+            ),
+          ]),
+        ],
+      ]),
+    );
+  }
+}
+
+/// '2026-11-03' -> '03/11/2026' (day first, as Bangladesh writes dates).
+String p3gDate(String iso) {
+  final p = iso.split('-');
+  if (p.length != 3) return iso;
+  return '${p[2]}/${p[1]}/${p[0]}';
 }
