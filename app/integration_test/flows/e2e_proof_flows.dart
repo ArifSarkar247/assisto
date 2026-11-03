@@ -502,10 +502,10 @@ void registerE2eProofFlows() {
         post = v is int ? v : null;
         return post != null;
       }, seconds: 260);
-      final late = ((post! - plan.at.millisecondsSinceEpoch) / 1000).round();
-      f.note('delivered ${late}s after its time');
+      final lateS = ((post! - plan.at.millisecondsSinceEpoch) / 1000).round();
+      f.note('delivered ${lateS}s after its time');
       await f.shot('delivered');
-      if (late > 60) throw TestFailure('reminder ${late}s late');
+      if (lateS > 60) throw TestFailure('reminder ${lateS}s late');
     });
   }, timeout: const Duration(minutes: 8));
 
