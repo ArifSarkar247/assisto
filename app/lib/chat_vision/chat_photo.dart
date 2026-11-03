@@ -56,6 +56,15 @@ class ChatPhotoAttachButton extends StatelessWidget {
   final bool enabled;
 
   Future<void> _open(BuildContext context) async {
+    final bytes = await pickPhoto(context, picker: picker);
+    if (bytes == null) return;
+    onPicked(bytes);
+  }
+
+  /// p2food: the same camera / gallery sheet for any screen (e.g. the food
+  /// calories "photo of my plate" button). Null when cancelled or empty.
+  static Future<Uint8List?> pickPhoto(BuildContext context,
+      {ChatPhotoPicker? picker}) async {
     final t = AppLocalizations.of(context);
     final camera = await showAppSheet<bool>(
       context: context,
@@ -87,12 +96,12 @@ class ChatPhotoAttachButton extends StatelessWidget {
         ]),
       ),
     );
-    if (camera == null) return;
+    if (camera == null) return null;
     final bytes =
         await (picker ?? const ImagePickerChatPhotoPicker()).pick(camera: camera);
-    if (bytes == null || bytes.isEmpty) return;
+    if (bytes == null || bytes.isEmpty) return null;
     HapticFeedback.selectionClick();
-    onPicked(bytes);
+    return bytes;
   }
 
   @override

@@ -1679,3 +1679,10 @@ urlpatterns += [
     path("career/interview/roles/<slug:role>", careerv.InterviewRolesView.as_view()),
     path("career/interview/feedback", careerv.InterviewFeedbackView.as_view()),
 ]
+
+# ---- p2food ---- Food photo -> calories (flag food_calories, default OFF)
+from . import views_food as foodv  # noqa: E402
+urlpatterns += [
+    path("food/table", foodv.FoodTableView.as_view()),
+]
+# ---- /p2food ----

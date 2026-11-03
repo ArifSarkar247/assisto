@@ -152,6 +152,8 @@ _A = {
                     "p2career: সিভি PDF (ইংরেজি) + প্রিন্ট পাতা (বাংলা), দেশি ধাঁচ, ATS চেক, রাউটারে AI; Careerjet + Greenhouse/Lever/RSS উৎস, সেভ খোঁজ, শেষ-তারিখ রিমাইন্ডার; পদভিত্তিক ইন্টারভিউ + ভয়েস + রুব্রিক/AI; CI টেস্ট; আসল ফোনে চালানো হয়নি।"),
     "ai_inbox": ("?F???P?FF", "hide", "No mailbox connected: honest empty state only.", "কোনো মেইলবক্স যুক্ত নয়: শুধু খালি অবস্থা।"),
     "pa_secretary": ("?F???P?FF", "hide", "Sweep B?: key-gated / mock parts.", "সুইপ B?: চাবি-নির্ভর / নকল অংশ।"),
+    "food_calories": ("?P??P???F", "hide", "p2food: food photo -> dish ids (existing vision rails) or manual Bangla list, portion picker, calories/macros from a cited table (FCT Bangladesh 2013 + USDA FNDDS; no number for uncited dishes), daily log + goal + 7-day chart; CI tests; no real-phone run; FCT reuse permission email pending.",
+                      "p2food: খাবারের ছবি → খাবারের নাম (আগের ভিশন পথ) বা বাংলা তালিকা, পরিমাণ বাছাই, সূত্রসহ তালিকা থেকে ক্যালরি (FCT বাংলাদেশ ২০১৩ + USDA FNDDS; সূত্র না থাকলে সংখ্যা নেই), দৈনিক লগ + লক্ষ্য + ৭ দিনের চার্ট; CI টেস্ট; আসল ফোনে চালানো হয়নি; FCT-র অনুমতি-ইমেইল বাকি।"),
     "ps_secretary": ("?P??PP??F", "hide", "pssec: Today brief (meetings, follow-ups, reminders, bills), My Circle invites / nudges via the E2E chat, paste-to-pick-up parser on the phone; CI tests; no real-phone run; notification listener not built.",
                      "pssec: আজকের ব্রিফ, My Circle-এ আমন্ত্রণ/রিমাইন্ডার চ্যাটে, পেস্ট করে কাজ তোলা (ফোনেই); CI টেস্ট; আসল ফোনে চালানো হয়নি; নোটিফিকেশন লিসেনার নেই।"),
     # ---- Business

@@ -1,0 +1,218 @@
+{
+  "_comment": "p2food (owner PART 2): food photo -> calories screen. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_p2food_arb.json",
+  "en": {
+    "foodTitle": "Food calories",
+    "foodEmptyBenefit": "Know roughly how many calories you eat — Bangladeshi foods, with the source of every number.",
+    "foodEmptyCta": "Log your first meal",
+    "foodEmptyHow": "Take a photo of your plate or pick from the list, choose plate, bowl or piece — done.",
+    "foodPhotoBtn": "Photo of my plate",
+    "foodPickBtn": "Pick from the list",
+    "foodPhotoNotReady": "Photo recognition isn't connected yet — pick your food from the list.",
+    "foodPhotoQuestion": "Which foods are on this plate?",
+    "foodRecognised": "Found in the photo — tap a food to log it",
+    "foodRecognisedNone": "No food from our list was recognised — pick from the list.",
+    "foodToday": "Today",
+    "foodEatenOfGoal": "{eaten} of {goal} kcal",
+    "@foodEatenOfGoal": {
+      "placeholders": {
+        "eaten": {
+          "type": "String"
+        },
+        "goal": {
+          "type": "String"
+        }
+      }
+    },
+    "foodLeft": "{n} kcal left",
+    "@foodLeft": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "foodOver": "{n} kcal over your goal",
+    "@foodOver": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "foodMacros": "Protein {p} g · Fat {f} g · Carbs {c} g",
+    "@foodMacros": {
+      "placeholders": {
+        "p": {
+          "type": "String"
+        },
+        "f": {
+          "type": "String"
+        },
+        "c": {
+          "type": "String"
+        }
+      }
+    },
+    "foodUnknownCount": "{n} item(s) without a cited value are not counted",
+    "@foodUnknownCount": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "foodSetGoal": "Set daily goal",
+    "foodGoalTitle": "Daily calorie goal",
+    "foodGoalHelp": "Between {min} and {max} kcal. Ask a doctor or dietitian what is right for you.",
+    "@foodGoalHelp": {
+      "placeholders": {
+        "min": {
+          "type": "String"
+        },
+        "max": {
+          "type": "String"
+        }
+      }
+    },
+    "foodGoalInvalid": "Enter a number from {min} to {max}",
+    "@foodGoalInvalid": {
+      "placeholders": {
+        "min": {
+          "type": "String"
+        },
+        "max": {
+          "type": "String"
+        }
+      }
+    },
+    "foodSave": "Save",
+    "foodAdd": "Add to today",
+    "foodSearchHint": "Search: bhat, dal, biriyani…",
+    "foodNoMatch": "No food matches — try another name.",
+    "foodPortion": "How much?",
+    "foodGrams": "Grams",
+    "foodGramsValue": "{g} g",
+    "@foodGramsValue": {
+      "placeholders": {
+        "g": {
+          "type": "String"
+        }
+      }
+    },
+    "foodApprox": "approx.",
+    "foodQty": "Quantity",
+    "foodQtyLess": "Less",
+    "foodQtyMore": "More",
+    "foodKcalValue": "{n} kcal",
+    "@foodKcalValue": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "foodSourceLine": "Source: {src}",
+    "@foodSourceLine": {
+      "placeholders": {
+        "src": {
+          "type": "String"
+        }
+      }
+    },
+    "foodSelfKcal": "Calories (your own number, optional)",
+    "foodSelfTag": "your number",
+    "foodNoValueTag": "no cited value",
+    "foodTodayList": "Today's meals",
+    "foodWeek": "Last 7 days",
+    "foodWeekA11y": "{day}: {kcal} kcal",
+    "@foodWeekA11y": {
+      "placeholders": {
+        "day": {
+          "type": "String"
+        },
+        "kcal": {
+          "type": "String"
+        }
+      }
+    },
+    "foodHintsTitle": "Healthy-plate tips (general information)",
+    "foodSourcesTitle": "Where the numbers come from",
+    "foodSourcesBody": "Every calorie number comes from a published table — never from AI. Portions marked 'approx.' are household measures; change the grams if yours differ.",
+    "foodOff": "This feature is not available yet.",
+    "foodRetry": "Try again",
+    "foodSaveFail": "Couldn't save — check the internet and try again.",
+    "foodGroupRice": "Rice & khichuri",
+    "foodGroupBread": "Ruti & paratha",
+    "foodGroupDal": "Dal",
+    "foodGroupCurry": "Curry",
+    "foodGroupVeg": "Vegetables & bhorta",
+    "foodGroupFish": "Fish",
+    "foodGroupMeat": "Meat",
+    "foodGroupEgg": "Egg",
+    "foodGroupSnack": "Snacks",
+    "foodGroupSweet": "Sweets",
+    "foodGroupDrink": "Tea & drinks",
+    "foodGroupFruit": "Fruit",
+    "foodGroupExtra": "Sugar & oil"
+  },
+  "bn": {
+    "foodTitle": "খাবারের ক্যালরি",
+    "foodEmptyBenefit": "দিনে কত ক্যালরি খাচ্ছেন মোটামুটি জানুন — দেশি খাবার, প্রতিটি সংখ্যার সূত্রসহ।",
+    "foodEmptyCta": "আজকের প্রথম খাবার লিখুন",
+    "foodEmptyHow": "থালার ছবি তুলুন বা তালিকা থেকে বাছুন, প্লেট/বাটি/পিস বেছে নিন — হয়ে গেল।",
+    "foodPhotoBtn": "থালার ছবি তুলুন",
+    "foodPickBtn": "তালিকা থেকে বাছুন",
+    "foodPhotoNotReady": "ছবি চেনার AI এখনো যুক্ত হয়নি — তালিকা থেকে খাবার বাছুন।",
+    "foodPhotoQuestion": "এই থালায় কোন কোন খাবার আছে?",
+    "foodRecognised": "ছবিতে পাওয়া গেছে — লগ করতে খাবারে ট্যাপ করুন",
+    "foodRecognisedNone": "আমাদের তালিকার কোনো খাবার চেনা যায়নি — তালিকা থেকে বাছুন।",
+    "foodToday": "আজ",
+    "foodEatenOfGoal": "{goal} ক্যালরির মধ্যে {eaten}",
+    "foodLeft": "আরও {n} ক্যালরি বাকি",
+    "foodOver": "লক্ষ্যের চেয়ে {n} ক্যালরি বেশি",
+    "foodMacros": "প্রোটিন {p} গ্রাম · চর্বি {f} গ্রাম · শর্করা {c} গ্রাম",
+    "foodUnknownCount": "সূত্রসহ মান নেই এমন {n}টি খাবার মোটে যোগ হয়নি",
+    "foodSetGoal": "দৈনিক লক্ষ্য ঠিক করুন",
+    "foodGoalTitle": "দৈনিক ক্যালরির লক্ষ্য",
+    "foodGoalHelp": "{min} থেকে {max} ক্যালরির মধ্যে। আপনার জন্য কত ঠিক, ডাক্তার বা পুষ্টিবিদকে জিজ্ঞেস করুন।",
+    "foodGoalInvalid": "{min} থেকে {max}-এর মধ্যে একটি সংখ্যা লিখুন",
+    "foodSave": "সংরক্ষণ করুন",
+    "foodAdd": "আজকের তালিকায় যোগ করুন",
+    "foodSearchHint": "খুঁজুন: ভাত, ডাল, বিরিয়ানি…",
+    "foodNoMatch": "মিলছে না — অন্য নামে খুঁজুন।",
+    "foodPortion": "কতটুকু?",
+    "foodGrams": "গ্রাম",
+    "foodGramsValue": "{g} গ্রাম",
+    "foodApprox": "আনুমানিক",
+    "foodQty": "পরিমাণ",
+    "foodQtyLess": "কম",
+    "foodQtyMore": "বেশি",
+    "foodKcalValue": "{n} ক্যালরি",
+    "foodSourceLine": "সূত্র: {src}",
+    "foodSelfKcal": "ক্যালরি (নিজের সংখ্যা, ঐচ্ছিক)",
+    "foodSelfTag": "আপনার দেওয়া",
+    "foodNoValueTag": "সূত্রসহ মান নেই",
+    "foodTodayList": "আজকের খাবার",
+    "foodWeek": "গত ৭ দিন",
+    "foodWeekA11y": "{day}: {kcal} ক্যালরি",
+    "foodHintsTitle": "সুস্থ থালার টিপস (সাধারণ তথ্য)",
+    "foodSourcesTitle": "সংখ্যাগুলো কোথা থেকে আসে",
+    "foodSourcesBody": "প্রতিটি ক্যালরির সংখ্যা প্রকাশিত তালিকা থেকে আসে — AI থেকে কখনো নয়। 'আনুমানিক' লেখা পরিমাণ ঘরোয়া মাপ; আপনার থালা আলাদা হলে গ্রাম বদলে দিন।",
+    "foodOff": "এই ফিচারটি এখনো চালু হয়নি।",
+    "foodRetry": "আবার চেষ্টা করুন",
+    "foodSaveFail": "সংরক্ষণ হয়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "foodGroupRice": "ভাত ও খিচুড়ি",
+    "foodGroupBread": "রুটি ও পরোটা",
+    "foodGroupDal": "ডাল",
+    "foodGroupCurry": "তরকারি",
+    "foodGroupVeg": "সবজি ও ভর্তা",
+    "foodGroupFish": "মাছ",
+    "foodGroupMeat": "মাংস",
+    "foodGroupEgg": "ডিম",
+    "foodGroupSnack": "নাস্তা",
+    "foodGroupSweet": "মিষ্টি",
+    "foodGroupDrink": "চা ও পানীয়",
+    "foodGroupFruit": "ফল",
+    "foodGroupExtra": "চিনি ও তেল"
+  }
+}

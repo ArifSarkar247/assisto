@@ -29,6 +29,7 @@ It owns:
 import json
 import re
 
+from . import food_calories as FC   # p2food
 from . import photo_studio as PS
 
 ACTION = "chat_vision_image"            # pricing.py action id (credits per image)
@@ -218,7 +219,7 @@ def system_prompt(lang, purpose=""):
 # "crop" (Farmers hub: crop photo -> likely disease + general treatment) and
 # "rx" (Health hub: read a prescription, list medicines as written). The
 # safety rules above still apply; each purpose adds a mandatory closing note.
-PURPOSES = ("crop", "rx")
+PURPOSES = ("crop", "rx", "food")   # p2food: food photo -> dish ids
 
 PURPOSE_PROMPTS = {
     "crop": (
@@ -238,6 +239,8 @@ PURPOSE_PROMPTS = {
         "read as unreadable instead of guessing. Do not add, change or "
         "recommend any medicine or dose, and do not diagnose. Use kind "
         "\"medicine\"."),
+    # p2food: dish IDS from the cited table only — never numbers.
+    "food": FC.vision_prompt(),
 }
 
 PURPOSE_NOTES = {
@@ -248,6 +251,10 @@ PURPOSE_NOTES = {
     "rx": {
         "bn": "এটি প্রেসক্রিপশনে যা লেখা আছে তার পড়া মাত্র — ওষুধ খাওয়ার আগে ডাক্তার বা ফার্মাসিস্টের সাথে মিলিয়ে নিন।",
         "en": "This only reads what is written on the prescription — check with your doctor or pharmacist before taking any medicine.",
+    },
+    "food": {
+        "bn": "খাবারের নাম মিলিয়ে নিন — ক্যালরি আসে সূত্রসহ তালিকা থেকে। এটি আনুমানিক, চিকিৎসা-পরামর্শ নয়।",
+        "en": "Check the food names — calories come from a cited table. This is an estimate, not medical advice.",
     },
 }
 
