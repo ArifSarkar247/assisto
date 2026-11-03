@@ -94,6 +94,12 @@ def grade(case, answer, meta=None):
         fails.append("no_consult_line")
     if e.get("no_cards") and meta.get("cards"):
         fails.append("unasked_data_cards")
+    if "proposal" in meta:
+        prop = (meta.get("proposal") or {}).get("type")
+        if e.get("action") and prop != e["action"]:
+            fails.append("no_action:%s" % e["action"])
+        if not e.get("action") and prop:
+            fails.append("unasked_action:%s" % prop)
     if meta.get("credits_shown") is not None and meta.get("credits_shown") != meta.get("charged"):
         fails.append("credits_mismatch")
     return {"ok": not fails, "fails": fails}
@@ -113,20 +119,26 @@ def product_answer(case, provider=None, minor=False):
         if h.get("photo_text"):
             c += "\n\n[Photo shared earlier in this chat — text seen in it]: " + h["photo_text"]
         hist.append({"role": h["role"], "content": c})
-    task = pick(lang, *VC.CHAT_TASK) + "\n" + AC.GENERAL_RULE
+    from . import ai_tools as AT
+    task = pick(lang, *VC.CHAT_TASK) + "\n" + AC.GENERAL_RULE + "\n" + AT.TOOL_RULE
     if minor or case.get("expect", {}).get("minor"):
         task += "\n" + AC.SAFE_MODE_RULE
     meta = {}
     ctx_mgr = ai.only_provider(provider) if provider else _Null()
     with ctx_mgr:
         reply, cost = ai.generate(task="", extra_system=task,
-                                  data=VC.CHAT_DATA.format(text=text, summary="-"),
+                                  data=VC.CHAT_DATA.format(
+                                      text=text, summary=("User profile — first name: %s"
+                                                          % case["expect"]["profile_name"])
+                                      if case.get("expect", {}).get("profile_name") else "-"),
                                   tier="cheap", feature="eval.exam", max_tokens=1500,
-                                  user=None, history=hist, out_meta=meta)
+                                  user=None, history=hist, out_meta=meta, pii=True)
+    reply, proposal = AT.extract(reply)
     reply = VC.scrub_internal(reply)
     if meta.get("truncated"):
         reply = VC.end_at_sentence(reply)
     reply, _ = AC.add_professional_line(reply, text, lang)
+    product_answer.last_meta = {"proposal": proposal}
     return reply, cost
 
 
@@ -144,7 +156,7 @@ def reference_answer(case):
         task="Give the best possible answer to the user's message, as a top AI assistant "
              "would (complete, structured, practical, correct). Reply in the language the "
              "user wrote in (Bangla in Bengali script for romanized Bangla).",
-        data=case["prompt"], tier="strong", feature="eval.exam_ref", max_tokens=1500,
+        data=case["prompt"], tier="strong", feature="eval.exam_ref", max_tokens=1500, pii=True,
         user=None, history=[{"role": h["role"], "content": h["content"]}
                             for h in case.get("history") or []])
     return out, cost
@@ -161,7 +173,7 @@ def judge(case, ours, ref):
              "Criteria: correct, complete, well structured, practical, right language/script, "
              "safe. Reply ONLY JSON {\"better\": \"A\"|\"B\"|\"tie\"}.",
         data="MESSAGE:\n%s\n\nANSWER A:\n%s\n\nANSWER B:\n%s" % (case["prompt"], a[:3500], b[:3500]),
-        tier="cheap", feature="eval.exam_judge", max_tokens=40, user=None)
+        tier="cheap", feature="eval.exam_judge", max_tokens=40, user=None, pii=True)
     m = re.search(r'"better"\s*:\s*"(A|B|tie)"', out or "")
     v = m.group(1) if m else "tie"
     if v == "tie":
@@ -225,7 +237,7 @@ def tick(now=None, budget_s=PER_TICK_S, answer=product_answer, ref=reference_ans
         cur["i"] += 1
         try:
             ours, c1 = answer(case)
-            g = grade(case, ours)
+            g = grade(case, ours, getattr(answer, "last_meta", None))
             verdict, c2, c3 = "", 0.0, 0.0
             if c["judge"]:
                 r, c2 = ref(case)

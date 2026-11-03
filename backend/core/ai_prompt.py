@@ -49,10 +49,13 @@ STYLE = (
     "sentence; never open by saying you don't have, can't see or can't access "
     "the user's data — only mention their data when the question is about it. "
     "If you are not sure, say so plainly instead of guessing. "
-    "Identity: your name is Assisto, made by the Assisto team. Never say which "
-    "company, AI provider or model you run on, and never name one as yourself; "
-    "if asked which AI you are, who made you or what model you use, answer that "
-    "you are Assisto, the Assisto app's assistant."
+    "Identity (owner-approved): you are Assisto, made by AXON Dynamic; you use AI "
+    "models from Anthropic (Claude) and Google (Gemini) — say exactly that when "
+    "asked who you are, who made you or which AI you use. You are not Claude or "
+    "Gemini yourself. You may name, describe and compare real products, companies "
+    "and AIs truthfully (e.g. Claude is made by Anthropic, Gemini by Google). Be "
+    "decisive: give a clear recommendation with the reasons first, short caveats "
+    "after."
 )
 
 
@@ -139,37 +142,29 @@ _MODEL_NAMES = (r"Claude(?:\s+(?:Opus|Sonnet|Haiku))?(?:\s*\d+(?:\.\d+)?)?|ChatG
                 r"(?:\s+(?:Pro|Flash|Ultra|Nano))?|Bard")
 _COMPANIES = r"Anthropic|OpenAI|Google(?:\s+DeepMind)?|DeepMind"
 
+# Owner identity rule (4 Nov 01:12, owner-approved): "I am Assisto, made by
+# AXON Dynamic; I use AI models from Anthropic (Claude) and Google (Gemini)."
+# Only a FALSE self-claim is corrected ("I am Claude" -> "I am Assisto",
+# "Assisto ... by Anthropic" -> "by AXON Dynamic"). Facts about other AIs
+# ("Claude is made by Anthropic") stay TRUE and untouched — the old rewrites
+# that turned them into "the Assisto team" made those answers false.
 _IDENTITY_RULES = [
-    # "I am Claude", "I'm ChatGPT, …", "আমি Gemini"
-    (re.compile(r"\b(I\s+am|I'm|I’m|this\s+is|my\s+name\s+is)\s+(?:" + _MODEL_NAMES + r")\b", re.I),
+    (re.compile(r"\b(I\s+am|I'm|I’m|my\s+name\s+is)\s+(?:" + _MODEL_NAMES + r")\b", re.I),
      r"\1 Assisto"),
     (re.compile(r"(আমি|আমার\s+নাম)\s+(?:" + _MODEL_NAMES + r")"), r"\1 Assisto"),
-    # "made / created / trained / developed by Anthropic|OpenAI|Google"
-    (re.compile(r"\b(made|created|built|trained|developed)\s+by\s+(?:" + _COMPANIES + r")\b", re.I),
-     r"\1 by the Assisto team"),
-    (re.compile(r"(?:" + _COMPANIES + r")\s*(?:এর|-এর|’র|'র)?\s*(তৈরি|বানানো|প্রশিক্ষিত|ডেভেলপ)"),
-     r"Assisto টিমের \1"),
-    # "I'm Assisto by OpenAI" (after the rewrite above) -> no company
-    (re.compile(r"(Assisto\b[^.।!?\n]{0,60}?\b(?:by|from)\s+)(?:" + _COMPANIES + r")\b", re.I),
-     r"\1the Assisto team"),
-    # "an AI model by OpenAI", "a large language model from Google"
-    (re.compile(r"\b(model|assistant|AI)\s+(?:from|by)\s+(?:" + _COMPANIES + r")\b", re.I),
-     r"\1 by the Assisto team"),
+    (re.compile(r"(Assisto\b[^.।!?\n]{0,40}?\b(?:made|created|built|developed)?\s*(?:by|from)\s+)"
+                r"(?:" + _COMPANIES + r")\b", re.I),
+     r"\1AXON Dynamic"),
+    (re.compile(r"(Assisto[^।!?\n]{0,30}?)(?:" + _COMPANIES + r")\s*(?:এর|-এর|’র|'র)?\s*(তৈরি|বানানো)"),
+     r"\1AXON Dynamic-এর \2"),
 ]
-
-# Bare names that can ONLY mean an AI product (not "Gemini" the star sign or
-# a person called Claude) -> neutral name.
-_BARE_MODEL = re.compile(
-    r"\b(?:ChatGPT|GPT-?\s?\d(?:\.\d+)?o?(?:[\s-]?mini|-?turbo)?|"
-    r"Claude\s+(?:Opus|Sonnet|Haiku)(?:\s*\d+(?:\.\d+)?)?|Claude\s+AI|"
-    r"Gemini\s+(?:\d(?:\.\d+)?|Pro|Flash|Ultra|Nano|AI)(?:\s+(?:Pro|Flash|Ultra|Nano))?)\b", re.I)
 
 
 def scrub_identity(text):
     out = text
     for rx, rep in _IDENTITY_RULES:
         out = rx.sub(rep, out)
-    return _BARE_MODEL.sub("Assisto", out)
+    return out
 
 
 def to_bn_digits(text):

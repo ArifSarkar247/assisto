@@ -141,7 +141,11 @@ def active_api_key():
 
 
 def key_present():
-    return bool(active_api_key())
+    """Any AI provider usable (Anthropic key, or a tested Gemini / OpenAI key).
+    aifinal round 4: was the Anthropic key only, so with only Gemini saved,
+    world answers, the marketing engine, the sales agent and the app's "AI
+    enabled" flag all said "no AI" — no feature may depend on one provider."""
+    return bool(active_api_key()) or bool(_providers())
 
 
 def _providers():
@@ -431,6 +435,8 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
         gen["thinkingConfig"] = {"thinkingBudget": 0}     # cheap tasks: no thinking
     body = {"systemInstruction": {"parts": [{"text": system}]},
             "contents": contents, "generationConfig": gen}
+    if _opts().get("web"):
+        body["tools"] = [{"google_search": {}}]      # owner 01:12: grounding
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
            % model)
     r = _post(url, body, {"x-goog-api-key": key, "content-type": "application/json"})
@@ -450,6 +456,15 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
     itok = max(0, int(u.get("promptTokenCount", 0) or 0) - cached)
     otok = int(u.get("candidatesTokenCount", 0) or 0) + int(u.get("thoughtsTokenCount", 0) or 0)
     trunc = bool(cands) and str(cands[0].get("finishReason", "")).upper() == "MAX_TOKENS"
+    if cands and _opts().get("web"):
+        gm = cands[0].get("groundingMetadata") or {}
+        links = []
+        for ch in (gm.get("groundingChunks") or [])[:3]:
+            w = ch.get("web") or {}
+            if w.get("uri"):
+                links.append("[%s](%s)" % ((w.get("title") or "source")[:40], w["uri"]))
+        if links:
+            text = text.rstrip() + "\n\n" + " · ".join(links)
     return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model,
                               "truncated": trunc}
 
@@ -550,7 +565,7 @@ def mask_for_provider(task, data="", history=None, extra_system="", pii=None):
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
              task_class=None, mode=None, out_meta=None, upgrade=False, pii=None,
-             level=""):
+             level="", web=False):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -657,8 +672,12 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     spend_ref = ""
     if user is not None and lvl is not None:
         from . import billing
+        extra = 0
+        if web:
+            from . import ai_levels_service as ALS
+            extra = ALS.web_credits()
         res = billing.charge(user, "ai_level_" + lvl["id"], qty=1, note=feature or lvl["id"],
-                             exact=lvl["credits"], paid_only=not lvl["free_ok"])
+                             exact=lvl["credits"] + extra, paid_only=not lvl["free_ok"])
         if not res["ok"]:
             raise AIUnavailable("budget" if res.get("reason") == "guard_over" else "credits")
         charged = res["charged"]
@@ -728,7 +747,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
                                         lvl["history_turns"])
         max_tokens = lvl["out_cap"]
         opts.update({"effort": "low", "hard_cap": True, "thinking": "off",
-                     "no_thinking": True, "cache": True})
+                     "no_thinking": True, "cache": True, "web": bool(web)})
 
     attempts = []
     skipped_cap = 0

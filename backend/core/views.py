@@ -1626,13 +1626,16 @@ class AgentView(APIView):
             return resp
         # aibar: the user's own text is capped (parsing + AI) on every path
         text, _text_cut = G.cap_text(text)
-        p = agent_brain.parse(text, req_lang(request))
-        from .i18n import is_play_flavour
-        if is_play_flavour(request):
-            # play-nomed: no medicine schedules in the Play build — the same
-            # words become a plain reminder the user wrote themselves.
-            p = agent_brain.play_safe(p, text, req_lang(request))
-        intent = p.get("intent")
+        # OWNER AI CHAT REBUILD (4 Nov 01:02): ONE PATH. The regex / keyword
+        # intent parser (agent.parse) no longer runs on chat messages — it
+        # wrote "Logged your expense, 9 BDT" for "remind me tomorrow at 9 am to
+        # take the gas tablet" and sent statements / translate requests to the
+        # offline Brain. Every message goes to the model; saving anything is a
+        # model proposal + the user's Yes (core/ai_tools.py, POST
+        # agent/confirm). The Brain answers only when no AI provider can.
+        del agent_brain
+        p = {"intent": "question"}
+        intent = "question"
         cards = []
         reply = ""
         ai_used = False

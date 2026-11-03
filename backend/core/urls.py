@@ -166,6 +166,8 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+    path("agent/confirm", chatv.AgentConfirmView.as_view()),        # AI rebuild 01:02
+    path("agent/ai-entries", chatv.AgentEntriesView.as_view()),     # AI rebuild 01:02
 
     # AI Chat (Part 3) — ChatGPT-like multi-turn chat with history.
     path("chat/sessions", chatv.ChatSessionsView.as_view()),

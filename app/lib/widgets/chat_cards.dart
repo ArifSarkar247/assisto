@@ -2,6 +2,7 @@ import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
+import 'ai_confirm_card.dart'; // AI rebuild 01:02
 import 'money_digits.dart' show moneyDigitsFor;
 import '../l10n/app_localizations.dart';
 import '../screens/nearby_screen.dart';
@@ -52,6 +53,8 @@ class ChatCard extends StatelessWidget {
     // buttons wired to `() {}` (they did nothing). The backend never emits
     // this type today; if it ever does, show it as information only — never
     // buttons that pretend to act.
+    // AI rebuild 01:02: a model proposal waits for the user's Yes / No
+    if (c['type'] == 'confirm_action') return AiConfirmCard(c);
     if (c['type'] == 'approval') {
       return _actionCard(context, c, Icons.verified_user_rounded, const []);
     }

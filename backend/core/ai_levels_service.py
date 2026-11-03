@@ -216,3 +216,30 @@ def ad_table(c=None):
     n = int(lv["ad_answers_per_ad"])
     return {"answers": n, "ad_value_bdt": round(val, 4),
             "profit_pct": AL.ad_profit_pct(lv["levels"]["normal"], n, prices, rate, val)}
+
+
+# ---------------------------------------------------------------- web search
+import re as _re
+RECENT = _re.compile(
+    r"\b(today|latest|news|current(?:ly)?|right now|this week|price (?:now|today)|score|"
+    r"weather|exchange rate|dollar rate|20[2-3]\d)\b|আজ|আজকের|সর্বশেষ|খবর|এখন(?:কার)? দাম|"
+    r"আবহাওয়া|ডলারের রেট|ajker|aj ke|latest", _re.I)
+
+
+def web_credits(c=None):
+    """Extra credits for one grounded answer (worst case, 40 % rule)."""
+    import math
+    lv, c = cfg(c)
+    _, rate, safe, _ = _economics(c)
+    if safe <= 0:
+        return 0
+    return int(math.ceil(lv["web_usd_per_prompt"] * rate / safe))
+
+
+def wants_web(text, lid, c=None):
+    """Use web grounding for this turn? Only for recent / changing facts, only
+    while the owner switch is on, only when the level runs on Gemini."""
+    lv, _ = cfg(c)
+    if not lv.get("web_on") or not RECENT.search(text or ""):
+        return False
+    return lv["levels"].get(lid, {}).get("provider") == "gemini"

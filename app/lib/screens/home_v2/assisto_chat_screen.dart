@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../agent_thread_screen.dart';
 import '../assisto_chats_screen.dart';
+import '../../widgets/ai_confirm_card.dart';
+import '../../widgets/app_sheet.dart';
 
 /// home_v2: the Assisto AI chat moved from the home body to its own screen
 /// (owner order). It is the SAME conversation engine the old home embedded
@@ -117,6 +119,15 @@ class _AssistoChatScreenState extends State<AssistoChatScreen> {
         title: Text(t.aichatTitle,
             maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
+          IconButton(
+            key: const ValueKey('hv2_chat_ai_entries'),
+            tooltip: t.aiEntriesTitle,
+            icon: const Icon(Icons.fact_check_outlined),
+            onPressed: () => showAppSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => const AiEntriesSheet()),
+          ),
           TextButton.icon(
             key: const ValueKey('hv2_chat_new'),
             style: TextButton.styleFrom(minimumSize: const Size(48, 48)),

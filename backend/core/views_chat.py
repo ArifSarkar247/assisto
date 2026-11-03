@@ -239,7 +239,7 @@ _INCOMPLETE = re.compile(
     r"\b(incomplete|cut off|got cut|didn'?t finish|not finished|continue|go on|finish (?:it|the answer)|"
     r"baki ?ta|shesh koro|puro ?ta (?:bolo|likho))\b|অসম্পূর্ণ|শেষ হয়নি|বাকিটা|পুরোটা|চালিয়ে যাও|শেষ করো",
     re.I)
-_SENT_END = re.compile(r"[.!?।](?:\s|$)|\n")
+_SENT_END = re.compile(r"(?<![0-9\u09e6-\u09ef])[.!?।](?:\s|$)|\n")
 
 CONTINUE_NOTE = (
     "তোমার আগের উত্তরটি মাঝপথে কেটে গিয়েছিল। ঠিক যেখানে থেমেছিল সেখান থেকে চালিয়ে যাও — "
@@ -402,6 +402,14 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             from . import ai_compliance as AC
             safe_mode = AC.is_minor(user)
             task_text += "\n" + AC.system_rules(user)
+            # rebuild 01:02 / 01:05: actions only via the model (confirm card)
+            # + the minimal profile (first name, language, city, plan)
+            from . import ai_tools as AT
+            if user is not None:
+                task_text += "\n" + AT.TOOL_RULE
+                prof = AT.profile_line(user)
+                if prof:
+                    summary = prof + "\n" + summary
             if follow == "continue":
                 task_text += "\n" + pick(lang, *CONTINUE_NOTE)
             elif follow == "more":
@@ -426,11 +434,16 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
             if level:
+                from . import ai_levels_service as _ALS
+                use_web = _ALS.wants_web(text, level)
                 reply, cost = ai.generate(
                     task="", extra_system=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
-                    user=payer, history=history, out_meta=meta_out, pii=vault, level=level)
+                    user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
+                    web=use_web)
+                if use_web:
+                    meta_out["web"] = True
             elif mode:
                 # pricing-40: the chat instruction goes into the SYSTEM block so
                 # system + instruction (>= 512 tokens) is one cacheable prefix
@@ -464,6 +477,10 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     lang=lang, strict=ctx.get("level") == "L1")
             except Exception:  # noqa: BLE001 — a guard bug never costs the answer
                 log.exception("chat: answer guard failed")
+            reply, proposal = AT.extract(reply)
+            confirm_cards = []
+            if proposal is not None and user is not None:
+                confirm_cards.append(AT.propose(user, proposal, lang))
             reply = scrub_internal(reply)
             if meta_out.get("truncated"):
                 # aifinal round 3: never mid-word — end at the last sentence;
@@ -502,7 +519,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 "cost_usd": round(cost, 6),
                 # every plan pays credits (nothing is unlimited)
                 "credits": credits,
-                "cards": _data_cards(ctx, text),
+                "cards": _data_cards(ctx, text) + confirm_cards,
             }
             bal = G.balance(user)
             if bal is not None:
@@ -539,7 +556,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 meta["text_cut"] = True
             if n_money:
                 meta["money_grounding"] = n_money
-            return reply, meta, _data_cards(ctx, text)
+            return reply, meta, _data_cards(ctx, text) + confirm_cards
         except ai.AIUnavailable as e:
             unavailable = e.reason or "queued"
             # credout: out of credits is NOT degraded silently — the view
@@ -1083,3 +1100,33 @@ class AiReportView(APIView):
             reason=reason, note=note, answer_text=text)
         return Response({"ok": True, "detail": pick(lang, *_AI_REPORT_MSG["ok"]),
                          **_ai_report_row(r)}, status=201)
+
+
+# ---------------------------------------------------------------------------
+# Owner AI chat rebuild (4 Nov 01:02): confirm cards + one-tap clean-up
+# ---------------------------------------------------------------------------
+class AgentConfirmView(APIView):
+    """POST /agent/confirm {pending_id, yes} — the ONLY way an AI chat
+    proposal (expense / income / reminder / note / name) is written."""
+    def post(self, request):
+        from . import ai_tools as AT
+        d = request.data or {}
+        code, body = AT.confirm(request.user, d.get("pending_id"), d.get("yes") is True)
+        return Response(body, status=code)
+
+
+class AgentEntriesView(APIView):
+    """GET /agent/ai-entries -> entries the AI chat wrote (source=ai, last 14
+    days); POST {items:[{model,id}]} deletes the chosen ones (one-tap clean-up
+    of the old parser's false entries)."""
+    def get(self, request):
+        from . import ai_tools as AT
+        return Response({"items": AT.agent_entries(request.user)})
+
+    def post(self, request):
+        from . import ai_tools as AT
+        items = (request.data or {}).get("items")
+        if items == "all":
+            items = AT.agent_entries(request.user)
+        n = AT.clean_up(request.user, items if isinstance(items, list) else [])
+        return Response({"ok": True, "deleted": n})
