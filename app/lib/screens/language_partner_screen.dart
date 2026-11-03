@@ -261,8 +261,8 @@ class _DeckPicker extends StatelessWidget {
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.xl),
         ],
-        // p2lang: IELTS practice (flag ielts_prep; hidden while OFF).
-        if (FeatureFlags.instance.isOn('ielts_prep')) ...[
+        // p2lang: IELTS practice (flag language_packs; hidden while OFF).
+        if (FeatureFlags.instance.isOn('language_packs')) ...[
           Card(
             color: scheme.tertiaryContainer,
             margin: const EdgeInsets.only(bottom: Gap.lg),

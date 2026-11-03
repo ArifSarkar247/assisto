@@ -15,7 +15,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/voice_input.dart';
 import 'ielts_engine.dart';
 
-/// p2lang — IELTS PRACTICE inside Language Partner (flag `ielts_prep`).
+/// p2lang — IELTS PRACTICE inside Language Partner (flag `language_packs`).
 ///
 /// Four modules + pronunciation + vocabulary, all from GET /ielts/content
 /// (original Assisto content — nothing copied from Cambridge / IDP / British

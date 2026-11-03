@@ -70,12 +70,12 @@ void main() {
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
   });
 
-  testWidgets('Language Partner shows the IELTS card only when ielts_prep is on', (t) async {
-    FeatureFlags.instance.debugOverride = {'ielts_prep': false};
+  testWidgets('Language Partner shows the IELTS card only when language_packs is on', (t) async {
+    FeatureFlags.instance.debugOverride = {'language_packs': false};
     await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
     expect(find.text('IELTS practice'), findsNothing);
-    FeatureFlags.instance.debugOverride = {'ielts_prep': true};
+    FeatureFlags.instance.debugOverride = {'language_packs': true};
     await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
     expect(find.text('IELTS practice'), findsOneWidget);
