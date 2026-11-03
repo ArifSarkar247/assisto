@@ -178,7 +178,8 @@ class QueueTests(_Base):
         PhotoWorkItem.objects.filter(pk=it.pk).update(claimed_at=timezone.now() - timedelta(hours=1))
         self.assertEqual(W.requeue_stale(), 1)
 
-    def test_worker_failure_keeps_funds_then_refunds_after_three(self):
+    def test_worker_failure_refunds_credits_at_once(self):
+        # aifinal PART 1c: a credit-funded job that failed is refunded at once
         from core import billing
         billing.grant_monthly_pool(self.prem)
         r = self.post(self.prem, "jobs", {"feature": "colorize"})
@@ -187,11 +188,9 @@ class QueueTests(_Base):
         before = self.prem.ai_credits
         img = {"image_b64": base64.b64encode(_png()).decode()}
         with mock.patch.object(W, "_execute", side_effect=W.JobFailed("ort_run:X")):
-            for i in range(3):
-                self.post(self.prem, "jobs/%d/run" % jid, img)
-                W.loop(once=True)
-                st = PhotoStudioJob.objects.get(pk=jid).status
-                self.assertEqual(st, "failed" if i == 2 else "funded")
+            self.post(self.prem, "jobs/%d/run" % jid, img)
+            W.loop(once=True)
+        self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "failed")
         self.prem.refresh_from_db()
         self.assertEqual(self.prem.ai_credits, before + PhotoStudioJob.objects.get(pk=jid).credits_charged)
 

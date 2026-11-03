@@ -500,6 +500,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     setState(() => _msgs.add(assistant));
     _toBottom();
 
+    _api.chatExtra = _turnExtra();
     var gotToken = false;
     Object? streamErr;
     final completer = Completer<bool>(); // true = finished via stream
@@ -879,6 +880,22 @@ class _AiChatScreenState extends State<AiChatScreen>
       });
       await _streamOrSend(_active!.id, edited.trim(), userMsg);
     }
+  }
+
+  /// aifinal: extra fields for this turn. photo_job = the latest answered
+  /// photo of this chat (within its last 12 turns) so a follow-up question
+  /// can be about that photo without re-sending it.
+  Map<String, Object?> _turnExtra() {
+    final out = <String, Object?>{};
+    final recent = _msgs.length > 12 ? _msgs.sublist(_msgs.length - 12) : _msgs;
+    for (final m in recent.reversed) {
+      final id = m.photo?.answeredJobId;
+      if (id != null) {
+        out['photo_job'] = id;
+        break;
+      }
+    }
+    return out;
   }
 
   // h1-home: attach a photo and ask about it (typed text = the question).

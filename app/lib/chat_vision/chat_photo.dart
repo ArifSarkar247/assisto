@@ -21,6 +21,11 @@ class ChatPhotoRequest {
   ChatPhotoRequest(this.bytes, this.question);
   final Uint8List bytes;
   final String question;
+
+  /// aifinal PART 1a: the finished chat-vision job of this photo (set when the
+  /// detailed answer is done) so follow-up questions in the same chat can ask
+  /// about it without re-sending the photo. Memory only; never saved.
+  int? answeredJobId;
 }
 
 /// Camera / gallery seam (tests inject bytes). The picker already shrinks the
@@ -159,11 +164,19 @@ class _ChatPhotoTurnState extends State<ChatPhotoTurn>
     c.onOutOfCredits ??= () => mounted
         ? CreditsOut.offer(context, screen: 'chat_photo', draftKept: true)
         : Future.value(false);
+    c.addListener(_noteDone);
     if (_owns) WidgetsBinding.instance.addPostFrameCallback((_) => c.start());
+  }
+
+  void _noteDone() {
+    if (c.phase == CvPhase.done && c.job != null) {
+      widget.request.answeredJobId = c.job!.id;
+    }
   }
 
   @override
   void dispose() {
+    c.removeListener(_noteDone);
     if (_owns) c.dispose();
     super.dispose();
   }

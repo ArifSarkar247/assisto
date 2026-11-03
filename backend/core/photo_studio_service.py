@@ -15,6 +15,7 @@ Money rules (owner order):
 """
 import base64
 import io
+import logging
 import os
 import secrets
 import uuid
@@ -28,6 +29,7 @@ from django.utils import timezone
 from .i18n import pick
 from .logic import photo_studio as PS
 
+log = logging.getLogger(__name__)
 SSV_KEYS_URL = "https://www.gstatic.com/admob/reward/verifier-keys.json"
 MEDIA_DIR = "photo_studio"
 MAX_UPLOAD_BYTES = 8 * 1024 * 1024
@@ -244,8 +246,9 @@ def funding_message(reason, lang):
     m = {
         "busy": ("সার্ভার এখন ব্যস্ত — একটু পরে আবার চেষ্টা করুন।",
                  "The server is busy — try again in a moment."),
-        "provider_missing": ("ক্লাউড এডিট এখনো চালু হয়নি — মালিককে Integrations-এ ইমেজ প্রোভাইডার যোগ করতে হবে।",
-                             "Cloud editing isn't switched on yet — the owner must connect an image provider in Integrations."),
+        # aifinal PART 1b: no admin wording for users (the real reason is logged)
+        "provider_missing": ("ক্লাউড এডিট এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন।",
+                             "Cloud editing isn't available right now — please try again a little later."),
         "unpriced": ("এই কাজের খরচ জানা নেই, তাই চালানো হবে না।",
                      "This job's cost isn't known, so it won't run."),
         "guard_over": ("আজকের ফ্রি ক্লাউড এডিট সীমা শেষ — কাল আবার চেষ্টা করুন, বা প্রিমিয়াম নিন।",
@@ -805,7 +808,9 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
                      prompt=job.prompt, mime=mime)
     except PP.ProviderError as e:
         job.error = str(e)[:200]
-        if job.runs >= 3:
+        log.warning("photo: provider %s failed for job %s: %s", slug, job.pk, job.error)
+        # aifinal PART 1c: credits back at once (ad-funded keeps the free retry)
+        if job.runs >= 3 or (job.funding in ("credits", "pool") and job.credits_charged):
             job.status = "failed"
             if job.funding in ("credits", "pool") and job.credits_charged:
                 _refund(user, job.credits_charged, "photo:refund:%d" % job.pk)
@@ -813,7 +818,11 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
             job.status = "funded"     # funds kept: retry is free
         job.save(update_fields=["error", "status"])
         return 502, {"ok": False, "reason": "provider_failed",
-                     "message": pick(lang, "এডিট সার্ভার এখন সাড়া দেয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
+                     "message": pick(lang, "এডিটটি এই মুহূর্তে করা গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।"
+                                     if job.status == "failed" else
+                                     "এডিট সার্ভার এখন সাড়া দেয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
+                                     "The edit couldn't be done right now — no credits were used. Please try again."
+                                     if job.status == "failed" else
                                      "The edit server didn't respond — try again (no extra ads or credits)."),
                      "job": job_state(job, lang)}
     if raw and face_boxes and job.feature != "generate":
@@ -866,7 +875,8 @@ def client_config(user, lang="bn", request=None):
     c = _cfg()
     ps = ps_cfg(c)
     plan = plan_of(user)
-    prov = providers_state(lang, c)
+    from . import ai_chat_guard as _G
+    prov = _G.friendly_needs(providers_state(lang, c), user, lang)   # aifinal 1b
     from . import photo_final as PFN
     dkey = ""
     if request is not None:
@@ -900,7 +910,9 @@ def client_config(user, lang="bn", request=None):
         "ai_model": _ai_model(request),
         "is_owner": bool(getattr(user, "is_superuser", False)),
         # d1-photo: heavy restore jobs — ready? (owner sees what is missing)
-        "restore": _restore_state(lang),
+        "restore": (_restore_state(lang) if getattr(user, "is_superuser", False)
+                    else {k: dict(v, needs="") if isinstance(v, dict) else v
+                          for k, v in (_restore_state(lang) or {}).items()}),
         # face restoration: only when the owner turned the GFPGAN legal switch
         # on AND a Replicate key is connected (photo-final, MODEL_LICENSES.md)
         "face_restore": {"available": bool(enhance_cap["face_restore"]),

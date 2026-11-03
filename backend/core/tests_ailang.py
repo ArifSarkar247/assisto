@@ -49,3 +49,48 @@ class ChatUsesMessageLanguageTest(TestCase):
             prompt = (seen.get("task") or "") + (seen.get("extra_system") or "")
             self.assertIn("বাংলায়", prompt)
             self.assertNotIn("Reply in English", prompt)
+
+
+class VisionUsesMainKeysTest(TestCase):
+    """PART 1a/b (23:20): vision uses the saved Anthropic/Gemini keys; users
+    never see admin wording."""
+
+    def _keys(self, enabled):
+        def is_enabled(s):
+            return s in enabled
+
+        def get(s):
+            return {"api_key": "test-not-a-real-key"} if s in enabled else {}
+        return (mock.patch("core.integrations.is_enabled", side_effect=is_enabled),
+                mock.patch("core.integrations.get", side_effect=get))
+
+    def test_main_anthropic_and_gemini_keys_make_vision_ready_claude_first(self):
+        from core import chat_vision_service as CVS
+        p1, p2 = self._keys({"anthropic", "gemini"})
+        with p1, p2:
+            st = CVS.providers_state("en")
+            self.assertTrue(st["ready"])
+            self.assertEqual(st["active"], "vision_claude")
+            self.assertEqual(CVS._fallbacks("vision_claude"), ["vision_gemini"])
+            slug, conf, cost = CVS._active()
+        self.assertEqual(conf["api_key"], "test-not-a-real-key")
+        self.assertGreater(cost, 0)
+
+    def test_gemini_only_is_ready(self):
+        from core import chat_vision_service as CVS
+        p1, p2 = self._keys({"gemini"})
+        with p1, p2:
+            self.assertEqual(CVS.providers_state("en")["active"], "vision_gemini")
+
+    def test_never_falls_back_to_a_costlier_provider(self):
+        from core import chat_vision_service as CVS
+        p1, p2 = self._keys({"anthropic", "gemini", "openai"})
+        with p1, p2:
+            self.assertNotIn("vision_claude", CVS._fallbacks("vision_gemini"))
+
+    def test_user_message_has_no_admin_wording(self):
+        from core import chat_vision_service as CVS
+        for lang in ("bn", "en"):
+            m = CVS.funding_message("provider_missing", lang)
+            for w in ("Integrations", "owner", "key", "মালিক", "key যোগ"):
+                self.assertNotIn(w, m)

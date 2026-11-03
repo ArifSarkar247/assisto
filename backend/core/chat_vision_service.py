@@ -24,6 +24,9 @@ from .i18n import pick
 from .logic import chat_vision as CV
 from .logic import photo_studio as PS
 
+import logging
+log = logging.getLogger("assisto.ai")
+
 _NEEDS = {
     "vision_claude": ("Claude (Anthropic) API key + cost per image",
                       "Claude (Anthropic) API key ও ছবি প্রতি খরচ"),
@@ -38,16 +41,42 @@ def cv_cfg(c=None):
 
 
 # ------------------------------------------------------------------ providers
-def providers_state(lang="bn", c=None):
+# ailang (owner 3 Nov 23:20, PART 1a): vision used ONLY the separate
+# vision_* integrations (key + cost per image), so with the Anthropic and
+# Gemini keys saved (and passing Test connection) under the main AI entries,
+# photo answers said "the owner must add a vision key". Now each vision
+# provider falls back to the main AI key of the same company, with a
+# conservative default cost per image. Order: Claude first, Gemini fallback,
+# OpenAI only if its key exists.
+_MAIN_KEY = {"vision_claude": "anthropic", "vision_gemini": "gemini", "vision_openai": "openai"}
+_DEFAULT_COST_USD = {"vision_claude": 0.02, "vision_gemini": 0.004, "vision_openai": 0.015}
+_ORDER = ("vision_claude", "vision_gemini", "vision_openai")
+
+
+def _resolve(slug):
+    """(connected, conf) for a vision provider: its own entry, else the main key."""
     from . import integrations
+    try:
+        if integrations.is_enabled(slug):
+            conf = dict(integrations.get(slug) or {})
+            if conf.get("api_key"):
+                return True, conf
+        main = _MAIN_KEY.get(slug)
+        if main and integrations.is_enabled(main):
+            key = (integrations.get(main) or {}).get("api_key")
+            if key:
+                return True, {"api_key": key, "cost_per_image_usd": _DEFAULT_COST_USD[slug],
+                              "_from_main": main}
+    except Exception:  # noqa: BLE001
+        pass
+    return False, {}
+
+
+def providers_state(lang="bn", c=None):
     cv = cv_cfg(c)
     rows = []
-    for slug in CV.PROVIDERS:
-        try:
-            on = integrations.is_enabled(slug)
-            conf = integrations.get(slug) if on else {}
-        except Exception:
-            on, conf = False, {}
+    for slug in sorted(CV.PROVIDERS, key=lambda x: _ORDER.index(x) if x in _ORDER else 9):
+        on, conf = _resolve(slug)
         cost = S._provider_cost(conf)
         en, bn = _NEEDS[slug]
         rows.append({"slug": slug, "connected": bool(on), "cost_usd": cost,
@@ -69,12 +98,19 @@ def providers_state(lang="bn", c=None):
 
 
 def _active(c=None):
-    from . import integrations
     st = providers_state("en", c)
     if not st["ready"]:
         return "", {}, 0.0
-    conf = integrations.get(st["active"])
+    _on, conf = _resolve(st["active"])
     return st["active"], conf, S._provider_cost(conf)
+
+
+def _fallbacks(active, c=None):
+    """Ready providers after `active`, same or cheaper per image (never a costlier one)."""
+    st = providers_state("en", c)
+    cost = {r["slug"]: r["cost_usd"] for r in st["providers"] if r["ready"]}
+    top = cost.get(active, 0)
+    return [s for s in cost if s != active and cost[s] <= top]
 
 
 # ------------------------------------------------------------------ quote
@@ -112,8 +148,9 @@ def funding_message(reason, lang):
     m = {
         "disabled": ("বিস্তারিত ছবি-উত্তর এখন বন্ধ আছে। ফোনে পড়া লেখা ও লেবেল দেখানো হচ্ছে।",
                      "Detailed photo answers are switched off right now. Showing what the phone read."),
-        "provider_missing": ("বিস্তারিত ছবি-উত্তর এখনো চালু হয়নি — মালিককে Integrations-এ Claude, OpenAI বা Gemini ভিশন key যোগ করতে হবে।",
-                             "Detailed photo answers aren't switched on yet — the owner must add a Claude, OpenAI or Gemini vision key in Integrations."),
+        # ailang (PART 1b): users never see admin wording (keys, integrations, owner)
+        "provider_missing": ("ছবির বিস্তারিত উত্তর এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন।",
+                             "Detailed photo answers aren't available right now — please try again a little later."),
         "unpriced": ("এই উত্তরের খরচ জানা নেই, তাই চালানো হবে না।",
                      "This answer's cost isn't known, so it won't run."),
         "guard_over": ("আজকের ফ্রি বিস্তারিত উত্তর বন্ধ — কাল আবার চেষ্টা করুন, বা প্রিমিয়াম নিন।",
@@ -130,6 +167,7 @@ def funding_message(reason, lang):
 
 
 def client_config(user, lang="bn"):
+    from . import ai_chat_guard as G
     c = S._cfg()
     cv = cv_cfg(c)
     q = quote(user, c)
@@ -137,7 +175,7 @@ def client_config(user, lang="bn"):
     plan = S.plan_of(user)
     return {
         "plan": plan, "free": plan == "free", "enabled": cv["enabled"],
-        "quote": q, "providers": providers_state(lang, c),
+        "quote": q, "providers": G.friendly_needs(providers_state(lang, c), user, lang),
         "free_per_day": cv["free_detailed_per_day"],
         "max_image_kb": cv["max_image_kb"],
         "balance": int(getattr(user, "ai_credits", 0) or 0),
@@ -298,21 +336,36 @@ def answer(user, job, data, lang="bn"):
     job.provider = slug
     job.save(update_fields=["status", "runs", "provider"])
     try:
-        reply = VP.ask(slug, conf, image_bytes=raw, mime=mime,
-                       system=CV.system_prompt(lang, purpose), question=q_text)
+        reply, err = None, None
+        for prov in [slug] + _fallbacks(slug, c):     # Claude first, then same-or-cheaper
+            _on, pconf = (True, conf) if prov == slug else _resolve(prov)
+            try:
+                reply = VP.ask(prov, pconf, image_bytes=raw, mime=mime,
+                               system=CV.system_prompt(lang, purpose), question=q_text)
+                if prov != slug:
+                    log.warning("chat_vision: %s failed (%s), answered by %s", slug, err, prov)
+                    slug, conf, prov_cost = prov, pconf, S._provider_cost(pconf)
+                    job.provider = prov
+                break
+            except VP.VisionError as e:
+                err = str(e)
+                log.warning("chat_vision: provider %s failed: %s", prov, err)
+        if reply is None:
+            raise VP.VisionError(err or "failed")
         reply = vault.unmask(reply)
     except VP.VisionError as e:
+        # ailang (PART 1c): never keep credits for an answer we could not give —
+        # refund at once on every failure (before: only after the 3rd try).
         job.error = str(e)[:200]
-        if job.runs >= 3:
-            job.status = "failed"
-            if job.funding in ("credits", "pool") and job.credits_charged:
-                S._refund(user, job.credits_charged, "vision:refund:%d" % job.pk)
-        else:
-            job.status = "funded"
+        job.status = "failed"
+        if job.funding in ("credits", "pool") and job.credits_charged:
+            S._refund(user, job.credits_charged, "vision:refund:%d" % job.pk)
+            log.info("chat_vision: refunded %s credits for job %s (%s)",
+                     job.credits_charged, job.pk, job.error)
         job.save(update_fields=["error", "status"])
         return 502, {"ok": False, "reason": "provider_failed",
-                     "message": pick(lang, "ছবি বিশ্লেষণ সার্ভার এখন সাড়া দেয়নি — আবার চেষ্টা করুন (আর বিজ্ঞাপন/ক্রেডিট লাগবে না)।",
-                                     "The photo analysis server didn't respond — try again (no extra ads or credits)."),
+                     "message": pick(lang, "এই মুহূর্তে ছবিটি পড়া গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
+                                     "The photo couldn't be read right now — no credits were used. Please try again."),
                      "job": job_state(job, lang)}
     finally:
         del raw

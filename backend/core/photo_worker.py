@@ -21,6 +21,7 @@ backend .env) — without it the worker-only features stay hidden and prompt
 edits keep the old inline path. PHOTO_WORKER_INLINE (tests only) processes an
 item right after enqueueing.
 """
+import logging
 import os
 import socket
 import time
@@ -29,6 +30,8 @@ import uuid
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+
+log = logging.getLogger(__name__)
 
 WORKER_ONLY = ("enhance_server", "colorize", "old_restore", "deblur", "ultra_hd")
 MAX_RUNS = 3
@@ -307,10 +310,16 @@ def _fail(item, job, code, busy=False, final=False):
     job.error = str(code)[:200]
     if busy:
         job.runs = max(0, job.runs - 1)          # a busy worker is not the user's attempt
-    if final or (not busy and job.runs >= MAX_RUNS):
+    # aifinal (owner 3 Nov 23:20, PART 1c): never keep credits for a task the
+    # AI could not do — a credit/pool-funded job is refunded at once (busy
+    # included). Ad-funded jobs keep the free retry (the ads were watched).
+    paid = job.funding in ("credits", "pool") and job.credits_charged
+    if paid or final or (not busy and job.runs >= MAX_RUNS):
         job.status = "failed"
-        if job.funding in ("credits", "pool") and job.credits_charged:
+        if paid:
             S._refund(job.user, job.credits_charged, "photo:refund:%d" % job.pk)
+            log.info("photo: refunded %s credits for job %s (%s)",
+                     job.credits_charged, job.pk, code)
         item.state = "failed"
         _drop_input(item)
     else:
