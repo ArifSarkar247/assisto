@@ -55,7 +55,10 @@ def defaults():
             "free_credit_levels": ["normal"],
             "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2,
             # PART 5: action buttons under AI answers (fixed allow-list)
-            "actions_on": False}
+            "actions_on": False,
+            # round 3 item 7: the nightly AI exam (core/ai_exam.py)
+            "exam_on": False, "exam_budget_usd": 1.5, "exam_min_pass": 0.85,
+            "exam_min_win": 0.6}
 
 
 def _clampi(v, lo, hi, d):
@@ -94,6 +97,14 @@ def normalize(raw):
     out["free_credit_levels"] = fl or ["normal"]
     out["welcome_on"] = raw.get("welcome_on") is True
     out["actions_on"] = raw.get("actions_on") is True
+    out["exam_on"] = raw.get("exam_on") is True
+    for k, lo, hi in (("exam_budget_usd", 0.0, 20.0), ("exam_min_pass", 0.0, 1.0),
+                      ("exam_min_win", 0.0, 1.0)):
+        try:
+            v = float(raw.get(k, base[k]))
+            out[k] = base[k] if v != v else round(max(lo, min(hi, v)), 3)
+        except (TypeError, ValueError):
+            out[k] = base[k]
     for k, (lo, hi) in TOP_BOUNDS.items():
         out[k] = _clampi(raw.get(k), lo, hi, base[k])
     return out
