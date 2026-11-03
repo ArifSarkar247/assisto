@@ -37933,7 +37933,7 @@
   "@dtToolFun": {},
   "dtSubFun": "Dice, coin toss, random numbers for games",
   "@dtSubFun": {},
-  "dtKeywords": "{id, select, land{land plot area} weight{gold weight} unit{unit convert} currency{currency exchange} emi{loan installment} zakat{zakat nisab} percent{vat discount percent} split{split bill} age{age birthday} date{calendar date} bmi{bmi health} timer{timer stopwatch} qr{qr code} words{word count} fun{dice game} other{tool}}",
+  "dtKeywords": "{id, select, land{land plot area} weight{gold weight} unit{unit convert} currency{currency exchange} emi{loan installment} zakat{zakat nisab} percent{vat discount percent} split{split bill} age{age birthday} calendar{calendar date} bmi{bmi health} timer{timer stopwatch} qr{qr code} words{word count} fun{dice game} other{tool}}",
   "@dtKeywords": {
     "placeholders": {
       "id": {
