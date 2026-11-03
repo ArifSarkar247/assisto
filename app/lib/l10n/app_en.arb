@@ -42955,5 +42955,54 @@
   "nearbyCountryUS": "USA",
   "@nearbyCountryUS": {
     "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
-  }
+  },
+  "psHereName": "Where I am now",
+  "psRecent": "Recent",
+  "psFieldHint": "Type 2 letters — places appear as you type.",
+  "psUse": "Use this place",
+  "psEtaAbout": "About {dur} by {mode}",
+  "@psEtaAbout": {
+    "placeholders": {
+      "dur": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "psEtaAboutRoad": "About {dur} by road",
+  "@psEtaAboutRoad": {
+    "placeholders": {
+      "dur": {
+        "type": "String"
+      }
+    }
+  },
+  "psDurHM": "{h} h {m} min",
+  "@psDurHM": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "psDurM": "{m} min",
+  "@psDurM": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "psEtaSet": "Set arrival time",
+  "psEtaHint": "Pick the place above and the road time fills this in — or set the time yourself.",
+  "psEtaNeed": "Set the time you expect to arrive, then tap Start.",
+  "psFenceNoMap": "Drawing an area needs the street map. For now use \"Add an area here\" — a circle around the vehicle.",
+  "psSearchOffAlarm": "Place search is off right now. Pick a stop from the list or on the map.",
+  "psSchoolSearchSub": "Type the school's name — see the full address before you save",
+  "psAddPlace": "Add a place"
 }
