@@ -1414,7 +1414,18 @@ def _event_row(e, request):
             # cctvalerts: what the alert is about (person / vehicle / ...)
             **_kind_fields(e, request),
             "opened_at": _iso(getattr(e, "opened_at", None)),
+            # cctvaicheck: AI label of the photo (never hides the alert)
+            "ai_check": _ai_check_label(e, request),
             "created": e.created.isoformat()}
+
+
+def _ai_check_label(e, request):
+    try:
+        from . import cctv_ai_check as CAI
+        from .i18n import req_lang
+        return CAI.event_label(e, req_lang(request) if request is not None else "bn")
+    except Exception:
+        return None
 
 
 def _kind_fields(e, request):

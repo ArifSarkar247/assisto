@@ -440,7 +440,18 @@ def types_payload(cam, lang):
                       "text": src},
             "line_today": {k: int(line.get(k, 0)) for k in ("total", "a_to_b", "b_to_a")},
             "sd": {"state": sd_state, "text": sd_text},
-            "ai_used": False}
+            "ai_used": False,
+            # cctvaicheck: the per-camera "AI দিয়ে যাচাই" switch
+            "ai_check": _ai_check_payload(cam, lang)}
+
+
+def _ai_check_payload(cam, lang):
+    try:
+        from . import cctv_ai_check as CAI
+        return CAI.camera_payload(cam, lang)
+    except Exception:
+        log.exception("ai check payload failed")
+        return None
 
 
 class CameraAlertTypesView(APIView):
@@ -478,6 +489,10 @@ class CameraAlertTypesView(APIView):
                            code="bad_types")
         zc = dict(cam.zone_config) if isinstance(cam.zone_config, dict) else {}
         zc["alert_types"] = CR.normalize_toggles(raw, zc.get("alert_types"))
+        # cctvaicheck: the "AI দিয়ে যাচাই" switch rides along (types map or top level)
+        ai = raw.get("ai_check", request.data.get("ai_check")) if hasattr(request.data, "get") else None
+        if isinstance(ai, bool):
+            zc["ai_check"] = ai
         ShopCamera.objects.filter(pk=cam.pk).update(zone_config=zc)
         cam.zone_config = zc
         return Response(types_payload(cam, lang))

@@ -735,6 +735,13 @@ def tick(now=None):
         out["describe"] = CACT.describe_due(now)
     except Exception:
         log.exception("activity describe failed")
+    # cctvaicheck (W4 B3): AI check of fresh alert photos — a LABEL only,
+    # the alert + push already went out in _ingest_event
+    try:
+        from . import cctv_ai_check as CAI
+        out["ai_check"] = CAI.check_due(now)
+    except Exception:
+        log.exception("cctv ai check failed")
     return out
 
 
