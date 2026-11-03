@@ -138,7 +138,10 @@ class StartArriveTests(Base):
             format="json")
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.json()["detail"], "too_many_watchers")
-        with mock.patch.object(JW, "DAILY_JOURNEY_CAP", 2):
+        # freeze at local noon so the "today" window cannot roll over at midnight mid-test
+        noon = timezone.localtime(timezone.now()).replace(hour=12, minute=0, second=0, microsecond=0)
+        with mock.patch.object(JW, "DAILY_JOURNEY_CAP", 2), \
+                mock.patch("django.utils.timezone.now", return_value=noon):
             self.start(), self.start()
             r = self.ca.post("%s/journey/start" % V, {"destination": HOME}, format="json")
             self.assertEqual(r.status_code, 429)

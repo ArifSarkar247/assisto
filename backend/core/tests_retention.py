@@ -534,8 +534,12 @@ class GateTests(_Base):
         from django.core.cache import cache
         cache.clear()
         body = {"kind": "winback", "template_bn": "x"}
-        codes = [self.oc.post("/api/v1/retention/preview", body, format="json").status_code
-                 for _ in range(32)]
+        # freeze the clock 5 s into a minute so the per-minute bucket cannot roll over mid-test
+        import time as _time
+        frozen = (_time.time() // 60) * 60 + 5
+        with mock.patch("time.time", return_value=frozen):
+            codes = [self.oc.post("/api/v1/retention/preview", body, format="json").status_code
+                     for _ in range(32)]
         self.assertEqual(codes[:30], [200] * 30)
         self.assertEqual(codes[-1], 429)
         cache.clear()
