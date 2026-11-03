@@ -209,8 +209,10 @@ class _Section extends StatelessWidget {
       child: Row(children: [
         Icon(icon, size: 17, color: c),
         const SizedBox(width: Gap.sm),
-        Text(title,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: c)),
+        Flexible( // p3guides: wraps at 200% font
+          child: Text(title,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: c)),
+        ),
       ]),
     );
   }
@@ -234,7 +236,7 @@ class _StepRow extends StatelessWidget {
             color: scheme.primary.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: Text('$index',
+          child: Text(ld(context, index), // p3guides: Bangla digits in bn
               style: TextStyle(
                   fontSize: 12, fontWeight: FontWeight.w700, color: scheme.primary)),
         ),
