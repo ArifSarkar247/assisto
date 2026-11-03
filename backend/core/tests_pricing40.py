@@ -245,7 +245,7 @@ class MergeChangesNothingTests(Base):
         r = self.send(mode="pro")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.calls[0]["model"], "claude-opus-5-5")   # today's chat model
-        self.assertEqual(self.calls[0]["max_tokens"], 700)
+        self.assertEqual(self.calls[0]["max_tokens"], 1500)  # aifinal round 3: answers finish
         self.assertNotIn("hard_cap", self.calls[0]["opts"])
         self.assertEqual(before - self.balance(), P.credit_cost("ai_msg_cheap", billing.cfg()))
         self.assertEqual(AIUsage.objects.get().feature, "chat")

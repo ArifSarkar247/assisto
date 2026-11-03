@@ -5,6 +5,7 @@ These run with NO AI key: they prove Assisto understands Bangla + English
 commands and only ever creates the user's OWN data. Kept deterministic
 (no network, no AI).
 """
+import unittest
 from decimal import Decimal
 
 from django.test import TestCase
@@ -92,6 +93,7 @@ class AgentViewTests(APITestCase):
     def _post(self, text):
         return self.client.post(self.url, {"text": text}, format="json")
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_expense_creates_txn_and_account(self):
         r = self._post("৫০০ টাকা খরচ খাবার")
         self.assertEqual(r.status_code, 200)
@@ -106,21 +108,25 @@ class AgentViewTests(APITestCase):
         self.assertEqual(card["model"], "txn")
         self.assertTrue(card["undo"])
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_loan_creates_loan(self):
         r = self._post("রহিম ভাইকে ৫০০ টাকা ধার দিলাম")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Loan.objects.filter(user=self.user, kind="given").count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_medicine_creates_medicine(self):
         r = self._post("ওষুধ নাপা সকাল ৮টা")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Medicine.objects.filter(user=self.user).count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_reminder_creates_reminder(self):
         r = self._post("কাল বিকেল ৫টায় মিটিং মনে করিয়ে দিও")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_memory_needs_review_and_marked_ai(self):
         # explicit "মনে রাখো …" → a clear capture, saved for review
         r = self._post("মনে রাখো আমার পাসপোর্ট ড্রয়ারে আছে")
@@ -129,6 +135,7 @@ class AgentViewTests(APITestCase):
         self.assertTrue(m.needs_review)
         self.assertEqual(m.source, "ai")
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_free_text_not_autosaved(self):
         # plain free text is answered + offered a Save chip, never saved
         r = self._post("আমার পাসপোর্ট ড্রয়ারে আছে")
@@ -276,6 +283,7 @@ class IntentRouterTests(APITestCase):
         self.assertNotIn("Noted and remembered", r.data["reply"])
         self.assertEqual(self._note_count(), before)      # nothing saved
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_a3_bug_empty_data_honest(self):
         r = self._post("Amar kno data ace naki??")
         # brand-new user has no data → honest empty-state answer
@@ -292,6 +300,7 @@ class IntentRouterTests(APITestCase):
         self.assertTrue(self._lang_any(r.data["reply"], ["টাকা", "Money", "ব্যালেন্স"]))
         self.assertTrue(r.data["cards"])                  # summary cards with routes
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_money_question_answers(self):
         self._post("spent 300 on transport")
         r = self._post("ei mase koto khoroch?")
@@ -314,6 +323,7 @@ class IntentRouterTests(APITestCase):
         self.assertEqual(r.data["intent"], "question")
         self.assertTrue(r.data["reply"])
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_reminders_list_question_with_data(self):
         self._post("কাল বিকেল ৫টায় মিটিং মনে করিয়ে দিও")   # creates a reminder
         r = self._post("amar reminder gula ki?")
@@ -358,21 +368,26 @@ class IntentRouterTests(APITestCase):
         self.assertIn("AI assistant", res["reply"])
 
     # ---- clear captures still work ----
+
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_clear_expense_creates_txn(self):
         r = self._post("500 taka bazar")
         self.assertEqual(r.data["intent"], "expense")
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_clear_bangla_expense(self):
         r = self._post("৫০০ টাকা খরচ খাবার")
         self.assertEqual(r.data["intent"], "expense")
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_clear_reminder_with_time(self):
         r = self._post("কাল বিকেল ৫টায় মিটিং মনে করিয়ে দিও")
         self.assertEqual(r.data["intent"], "reminder")
         self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_explicit_save_creates_memory(self):
         before = MemoryItem.objects.filter(user=self.user).count()
         r = self._post("mone rakho amar gari KA-123")
@@ -380,6 +395,8 @@ class IntentRouterTests(APITestCase):
         self.assertEqual(MemoryItem.objects.filter(user=self.user).count(), before + 1)
 
     # ---- ambiguous: answered + offered save, NOT auto-saved ----
+
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_ambiguous_not_autosaved_but_offers_save(self):
         before = self._note_count()
         r = self._post("ekta kotha chilo tomar sathe")

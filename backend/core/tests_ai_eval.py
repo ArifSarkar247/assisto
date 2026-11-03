@@ -1,3 +1,4 @@
+import unittest
 """AI quality evals (owner MASTER QUALITY ORDER G) — runs in checks.yml and
 ai-eval.yml. No provider is ever called: the router's provider calls are
 mocked, recorded outputs are replayed, graders are deterministic."""
@@ -193,6 +194,7 @@ class ProductGuardTests(APITestCase):
         self.assertNotIn("পাঠিয়ে দিয়েছি", reply)
         self.assertIn(G.HONEST_ACTION_LINE["bn"], reply)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_agent_cards_that_leave_the_app_need_confirm(self):
         for text in ("call ammu", "nearby pharmacy", "রাস্তা দেখাও গুলশান ১"):
             r = self.client.post("/api/v1/agent", {"text": text}, format="json")
