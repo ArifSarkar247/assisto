@@ -56,20 +56,33 @@ String peopleSearchText(Map row) => [
 /// Chips + search. [textOf] picks what the search looks at.
 List<T> filterPeople<T extends Map>(List<T> rows, PeopleFilter f, String query,
     {String Function(T row)? textOf}) {
-  final q = _norm(query);
-  final digitsQ = _toLatinDigits(q).replaceAll(RegExp(r'\D'), '');
   return [
     for (final r in rows)
       if ((f == PeopleFilter.all ||
               (f == PeopleFilter.family) == (circleGroupOf(r) == kGroupFamily)) &&
-          (q.isEmpty ||
-              _norm(textOf?.call(r) ?? peopleSearchText(r)).contains(q) ||
-              (digitsQ.length >= 3 &&
-                  _toLatinDigits(textOf?.call(r) ?? peopleSearchText(r))
-                      .replaceAll(RegExp(r'\D'), '')
-                      .contains(digitsQ))))
+          peopleTextMatches(textOf?.call(r) ?? peopleSearchText(r), query))
         r
   ];
+}
+
+/// circlefam: the ONE text matcher for people search (chat list, pickers,
+/// message search): case-insensitive substring, and a number typed in
+/// Bangla or English digits (>= 3 digits) matches the other script too —
+/// "০১৭১১" finds "01711-…". An empty query matches everything.
+bool peopleTextMatches(String hay, String query) {
+  final q = _norm(query);
+  if (q.isEmpty) return true;
+  final h = _norm(hay);
+  if (h.contains(q)) return true;
+  final latinQ = _toLatinDigits(q);
+  final latinH = _toLatinDigits(h);
+  // a word with Bangla digits inside ("৫ টাকা") still finds "5 টাকা"
+  if (latinH.contains(latinQ)) return true;
+  // a phone number typed with spaces / dashes / +: digits only, >= 3
+  if (!RegExp(r'^[0-9\s\-+()]+$').hasMatch(latinQ)) return false;
+  final digitsQ = latinQ.replaceAll(RegExp(r'\D'), '');
+  return digitsQ.length >= 3 &&
+      latinH.replaceAll(RegExp(r'\D'), '').contains(digitsQ);
 }
 
 /// Bangla digits (U+09E6..U+09EF) -> 0-9 so Bangla-digit numbers finds "01711".

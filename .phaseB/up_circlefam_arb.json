@@ -1,0 +1,18 @@
+{
+  "en": {
+    "cfPublishConfirmTitle": "Post this on your Facebook Page?",
+    "@cfPublishConfirmTitle": {"description": "circlefam: confirm before a public post on the shop's own Facebook Page"},
+    "cfPublishConfirmBody": "Everyone who visits your Page will see it. Assisto posts only when you tap Post now.",
+    "@cfPublishConfirmBody": {"description": "circlefam: publish confirm body"},
+    "cfPublishConfirmYes": "Post now",
+    "@cfPublishConfirmYes": {"description": "circlefam: publish confirm button"},
+    "cfPublishConfirmNo": "Not now",
+    "@cfPublishConfirmNo": {"description": "circlefam: publish cancel button"}
+  },
+  "bn": {
+    "cfPublishConfirmTitle": "আপনার Facebook পেজে এটা পোস্ট করবেন?",
+    "cfPublishConfirmBody": "আপনার পেজে যে-ই আসবে, সবাই দেখবে। আপনি \"এখনই পোস্ট করুন\" চাপলে তবেই Assisto পোস্ট করে।",
+    "cfPublishConfirmYes": "এখনই পোস্ট করুন",
+    "cfPublishConfirmNo": "এখন না"
+  }
+}

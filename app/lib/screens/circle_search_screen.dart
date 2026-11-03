@@ -15,6 +15,7 @@ import '../messaging/chat_decor/chat_control.dart' show isControlText;
 import '../messaging/chat_decor/decor_store.dart';
 import '../messaging/chat_lock.dart';
 import '../p3/assisto_card.dart' show cardFallback;
+import '../widgets/circle_people_filter.dart' show peopleTextMatches;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_chat_screen.dart';
 
@@ -69,33 +70,75 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
 
+  /// circlefam (2 GB phones): newest [kPerChat] messages per chat (the
+  /// server's page cap), [kParallel] chats at a time, results shown as they
+  /// arrive, the decrypted index kept in memory for [kCacheFor] so opening
+  /// search again is instant. Nothing typed here is ever sent anywhere.
+  static const int kPerChat = 200;
+  static const int kParallel = 3;
+  static const int kMaxShown = 200;
+  static const Duration kCacheFor = Duration(minutes: 10);
+  static final Map<String, (DateTime, List<_CircleSearchHit>)> _cache = {};
+
+  int _done = 0;
+  int _total = 0;
+
   /// Pull + decrypt each accepted member's chat once, into a local index.
   Future<void> _buildIndex() async {
+    final api = _api;
     final me = context.read<AppState>().user?.id;
     await ChatLockStore.instance.warm();
+    final todo = <Map<String, dynamic>>[];
     for (final member in widget.members) {
       final id = member['id'];
       // e-gaps: a locked chat is searched only while the lock is open
       if (ChatLockStore.instance.isLockedSync('member:$id') && !ChatLockSession.isOpen) {
         continue;
       }
-      final peer = _peerPub(member);
-      if (peer == null) continue;
-      try {
-        final r = await _api.getJson('/circle/$id/messages');
-        final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
-        for (final env in raw) {
-          if ('${env['deleted'] ?? ''}' == 'everyone') continue;
-          if ('${env['content_type'] ?? 'text'}' != 'text') continue;
-          final text = _decrypt(env, peer, me);
-          // e-gaps: theme / timer / nickname lines are not messages
-          if (text == null || text.isEmpty || isControlText(text)) continue;
-          final at = DateTime.tryParse('${env['created_at'] ?? ''}')?.toLocal() ?? DateTime.now();
-          _index.add(_CircleSearchHit(member, text, at));
-        }
-      } catch (_) {}
+      if (_peerPub(member) == null) continue;
+      todo.add(member);
     }
+    _total = todo.length;
+    var next = 0;
+    Future<void> worker() async {
+      while (next < todo.length) {
+        final member = todo[next++];
+        final hits = await _indexOne(api, member, me);
+        if (!mounted) return;
+        setState(() {
+          _index.addAll(hits);
+          _done++;
+        });
+      }
+    }
+
+    await Future.wait([for (var i = 0; i < kParallel; i++) worker()]);
     if (mounted) setState(() => _loading = false);
+  }
+
+  Future<List<_CircleSearchHit>> _indexOne(
+      ApiClient api, Map<String, dynamic> member, int? me) async {
+    final id = member['id'];
+    final ck = '${identityHashCode(api)}|$me|$id|${widget.identity.keyId}';
+    final hit = _cache[ck];
+    if (hit != null && DateTime.now().difference(hit.$1) < kCacheFor) return hit.$2;
+    final peer = _peerPub(member)!;
+    final out = <_CircleSearchHit>[];
+    try {
+      final r = await api.getJson('/circle/$id/messages?limit=$kPerChat');
+      final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
+      for (final env in raw) {
+        if ('${env['deleted'] ?? ''}' == 'everyone') continue;
+        if ('${env['content_type'] ?? 'text'}' != 'text') continue;
+        final text = _decrypt(env, peer, me);
+        // e-gaps: theme / timer / nickname lines are not messages
+        if (text == null || text.isEmpty || isControlText(text)) continue;
+        final at = DateTime.tryParse('${env['created_at'] ?? ''}')?.toLocal() ?? DateTime.now();
+        out.add(_CircleSearchHit(member, text, at));
+      }
+      _cache[ck] = (DateTime.now(), out);
+    } catch (_) {}
+    return out;
   }
 
   Uint8List? _peerPub(Map<String, dynamic> member) {
@@ -126,12 +169,12 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return const [];
     final terms = q.split(RegExp(r'\s+'));
-    final hits = _index.where((h) {
-      final hay = h.text.toLowerCase();
-      return terms.every((tk) => hay.contains(tk));
-    }).toList();
+    // circlefam: Bangla / English digits match each other (৫০০ = 500)
+    final hits = _index
+        .where((h) => terms.every((tk) => peopleTextMatches(h.text, tk)))
+        .toList();
     hits.sort((a, b) => b.at.compareTo(a.at));
-    return hits;
+    return hits.length > kMaxShown ? hits.sublist(0, kMaxShown) : hits;
   }
 
   @override
@@ -148,12 +191,19 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
           onChanged: (v) => setState(() => _query = v),
         ),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _query.trim().isEmpty
+      // circlefam: results appear while the other chats are still loading
+      // (a thin progress line on top), never a long blank spinner.
+      body: Column(children: [
+        if (_loading)
+          LinearProgressIndicator(
+              key: const Key('cf-search-progress'),
+              value: _total == 0 ? null : _done / _total),
+        Expanded(child: _query.trim().isEmpty
               ? _hint(scheme)
               : results.isEmpty
-                  ? Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: scheme.onSurfaceVariant)))
+                  ? (_loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: scheme.onSurfaceVariant))))
                   : ListView.builder(
                       itemCount: results.length,
                       itemBuilder: (_, i) {
@@ -177,7 +227,8 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                           )),
                         );
                       },
-                    ),
+                    )),
+      ]),
     );
   }
 
