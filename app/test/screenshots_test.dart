@@ -146,6 +146,7 @@ import 'package:assisto/screens/ielts_screen.dart'; // p2lang
 import 'package:assisto/screens/language_pack_screen.dart'; // p2lang
 import 'fake_ielts.dart'; // p2lang
 import 'fake_langmulti.dart'; // langmulti
+import 'fake_learnwire.dart'; // learnwire
 import 'package:assisto/screens/lang_work_path.dart'; // langkoja
 import 'fake_langkoja.dart'; // langkoja
 import 'package:assisto/screens/spending_advice_screen.dart';
@@ -633,6 +634,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'ielts_learn_ar_rights': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('ar-x1')), mode: FakeMode.data, full: true),
     'ielts_learn_zh_tones': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('zh-p1')), mode: FakeMode.data, full: true),
     'ielts_learn_de_lesson': (build: (_) => LessonPage(pack: Object(), lesson: langmultiLesson('de-a1-1')), mode: FakeMode.data, full: true),
+    // learnwire: per-language text, writing checklist + speaking prompts, Arabic/CJK/pinyin fonts, certificate offers, Gulf tile
+    'lw_ar_mock_graded': (build: (_) => _LwFlags(child: MockTestPage(pack: Object(), mock: langmultiMock('ar'), lang: 'ar', debugResult: lwArResult())), mode: FakeMode.data, full: true),
+    'lw_zh_writing': (build: (_) => MockTestPage(pack: Object(), mock: lwZhMock(), lang: 'zh', debugResult: const {'level': 'HSK1', 'score_pct': 0, 'correct': 0, 'total': 0, 'open': [{'id': 'zh-lw-w1', 'checks': [{'ok': true}, {'ok': false}]}]}), mode: FakeMode.data, full: true),
+    'lw_speak_zh': (build: (_) => SpeakPromptPage(prompt: (((lwZhMock()['sections'] as List)[1] as Map)['speak_prompts'] as List).first as Map<String, dynamic>, debugHeard: '你好，我叫阿里。'), mode: FakeMode.data, full: true),
+    'lw_probashi_gulf': (build: (_) => _LwFlags(child: Scaffold(appBar: AppBar(), body: ListView(padding: const EdgeInsets.all(16), children: const [LearnForWorkTile(abroadOffsetMin: 240), SizedBox(height: 16), LearnForWorkTile(abroadOffsetMin: 540)]))), mode: FakeMode.data, full: true),
+    'lw_jft_section': (build: (_) => MockTestPage(pack: Object(), mock: lwJftMock(), lang: 'ja'), mode: FakeMode.data, full: true),
+    'lw_ko_lesson_listen': (build: (_) => LessonPage(pack: Object(), ttsLocale: 'ko-KR', lesson: const {'id': 'ko-lw', 'title_en': 'Greetings', 'title_bn': 'সম্ভাষণ', 'items': [{'kind': 'vocab', 'target': '안녕하세요', 'roman': 'annyeonghaseyo', 'bn': 'হ্যালো / আসসালামু আলাইকুম', 'en': 'Hello'}, {'kind': 'vocab', 'target': 'おはようございます', 'roman': 'ohayou gozaimasu', 'bn': 'সুপ্রভাত', 'en': 'Good morning'}]}), mode: FakeMode.data, full: true),
+    'lw_quran_cert': (build: (_) => _LwFlags(child: QuranLearnScreen(progress: lwQaidaDone())), mode: FakeMode.data, full: true),
     'ielts_reading': (build: (_) => IeltsReadingPractice(ctx: Object(), row: (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
     // langkoja: Korea → EPS-TOPIK / Japan → JFT-Basic work paths (Probashi), phone-voice listening
     'lk_probashi_tiles': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: const [WorkLanguagePathTiles(debugForceOn: true)])), mode: FakeMode.data, full: true),
@@ -1640,4 +1649,32 @@ class _P3gTabShotState extends State<_P3gTabShot> {
 String _p3lIso(int days) {
   final x = DateTime.now().add(Duration(days: days));
   return '${x.year.toString().padLeft(4, '0')}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
+}
+
+/// learnwire: Language Partner + learning certificate switches on for the
+/// gallery shot only.
+class _LwFlags extends StatefulWidget {
+  final Widget child;
+  const _LwFlags({required this.child});
+  @override
+  State<_LwFlags> createState() => _LwFlagsState();
+}
+
+class _LwFlagsState extends State<_LwFlags> {
+  Map<String, bool>? _was;
+  @override
+  void initState() {
+    super.initState();
+    _was = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {...?_was, 'language_packs': true, 'learning_certificate': true};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _was;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

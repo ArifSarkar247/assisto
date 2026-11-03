@@ -40,4 +40,8 @@ Future<void> loadAppFonts() async {
   await family('Atma', ['assets/fonts/Atma-SemiBold.ttf']);
   // quranread: Arabic (Learn to read Quran screens)
   await family('AmiriQuran', ['assets/fonts/AmiriQuran.ttf']);
+  // learnwire: Language Partner script fallbacks (AFonts.fallback)
+  await family('AssistoArabic', ['assets/fonts/NotoNaskhArabic-Regular.ttf']);
+  await family('AssistoPinyin', ['assets/fonts/AssistoPinyin.ttf']);
+  await family('AssistoCjk', ['assets/fonts/AssistoCjk.otf']);
 }

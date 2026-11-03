@@ -1615,7 +1615,8 @@
        "explain_bn": "立入禁止 = প্রবেশ নিষেধ।",
        "explain_en": "No entry."
       }
-     ]
+     ],
+     "minutes": 15
     },
     {
      "id": "conversation",
@@ -1803,7 +1804,8 @@
        "explain_bn": "までに = …এর মধ্যে (শেষ সময়)।",
        "explain_en": "までに = by (deadline)."
       }
-     ]
+     ],
+     "minutes": 15
     },
     {
      "id": "reading",
@@ -1991,7 +1993,8 @@
        "explain_bn": "৭:১৫ + ২০ মিনিট = ৭:৩৫; ৭:৪৫-এরটা ৮:০৫-এ পৌঁছায়।",
        "explain_en": "7:15 arrives 7:35; 7:45 arrives 8:05."
       }
-     ]
+     ],
+     "minutes": 15
     }
    ],
    "bands": [
@@ -2007,7 +2010,8 @@
      "min_pct": 75,
      "level": "N4"
     }
-   ]
+   ],
+   "no_back": true
   },
   {
    "id": "jlpt_n5_style_1",
@@ -2905,7 +2909,18 @@
    ]
   }
  ],
- "extras": [],
+ "extras": [
+  {
+   "id": "work_path",
+   "en": "Work in Japan: the JFT-Basic path (official steps and websites)",
+   "bn": "জাপানে কাজ: JFT-Basic পথ (অফিসিয়াল ধাপ ও ওয়েবসাইট)"
+  },
+  {
+   "id": "listening",
+   "en": "Listening practice — phone voice, not exam audio",
+   "bn": "শোনার অনুশীলন — ফোনের কণ্ঠ, পরীক্ষার অডিও নয়"
+  }
+ ],
  "work_path": {
   "title_en": "Work in Japan: the JFT-Basic path",
   "title_bn": "জাপানে কাজ: JFT-Basic পথ",

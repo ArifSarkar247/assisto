@@ -545,7 +545,7 @@ class _ClockTabState extends State<_ClockTab> {
         const SizedBox(height: Gap.sm),
         _noteCard(context, tr.probashiClockNote),
         const SizedBox(height: Gap.sm),
-        const LearnForWorkTile(), // p2lang: Korea/Japan/Gulf work language paths
+        LearnForWorkTile(abroadOffsetMin: abroadOffsetMin), // p2lang + learnwire: Gulf zone opens Arabic
         const WorkLanguagePathTiles(), // langkoja: Korea → EPS-TOPIK, Japan → JFT-Basic
       ],
     );

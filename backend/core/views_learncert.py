@@ -111,3 +111,25 @@ class CertRevokeCodeView(APIView):
             return R({"ok": False, "reason": "not_found"}, status=404)
         LC.revoke(row, by="staff:%s" % request.user.pk)
         return R({"ok": True, "code": (row.data or {}).get("code"), "valid": False})
+
+
+class QuranCompleteView(APIView):
+    """learnwire: POST /learn/quran/complete {course, stages:[n...], completed_on}
+    -> {ok, cert:{course, level, score:null, completed_on, token}}.
+    course quran_qaida needs stages 1-7, quran_nazera stages 8-9 (the full
+    set). The certificate reads only "Qaida / Nazera reading practice
+    completed" — never an ijazah, a Qari title or a score."""
+
+    def post(self, request):
+        if not flag_on(request.user):
+            return _off()
+        d = request.data or {}
+        stages = d.get("stages")
+        if not isinstance(stages, list) or len(stages) > 20:
+            return R({"ok": False, "reason": "bad_stages"}, status=400)
+        try:
+            offer = LC.record_quran_stages(request.user, str(d.get("course") or ""), stages,
+                                           d.get("completed_on"))
+        except LC.CertError as e:
+            return R({"ok": False, "reason": e.reason}, status=400)
+        return R({"ok": True, "cert": offer})

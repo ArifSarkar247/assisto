@@ -12,7 +12,7 @@
 //          the day of the latest practice while in progress.
 //
 // RULES for the certificate (owner order 3 Nov): issue only when
-// `completed`; wording only "Qaida completed" / "Nazera reading completed";
+// `completed`; wording only "Qaida / Nazera reading practice completed";
 // never ijazah, never a Qari title; the course is EXPERIMENTAL until a
 // qualified Qari reviews the lessons. There is no exam score (the recitation
 // helper is not a grade), so `score` stays null.

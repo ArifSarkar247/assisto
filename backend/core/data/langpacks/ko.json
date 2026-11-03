@@ -2825,7 +2825,18 @@
    ]
   }
  ],
- "extras": [],
+ "extras": [
+  {
+   "id": "work_path",
+   "en": "Work in Korea: the EPS-TOPIK path (official steps and websites)",
+   "bn": "কোরিয়ায় কাজ: EPS-TOPIK পথ (অফিসিয়াল ধাপ ও ওয়েবসাইট)"
+  },
+  {
+   "id": "listening",
+   "en": "Listening practice — phone voice, not exam audio",
+   "bn": "শোনার অনুশীলন — ফোনের কণ্ঠ, পরীক্ষার অডিও নয়"
+  }
+ ],
  "work_path": {
   "title_en": "Work in Korea: the EPS path",
   "title_bn": "কোরিয়ায় কাজ: EPS পথ",

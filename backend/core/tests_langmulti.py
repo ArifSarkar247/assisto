@@ -53,7 +53,10 @@ class Packs(SimpleTestCase):
             with self.subTest(code=code):
                 LP.validate(_raw(code))
                 self.assertTrue(cat[code]["available"])
-                self.assertEqual(cat[code]["counts"]["scenarios"], 5)
+                # the 5 default role-plays + pack extras (learnwire)
+                self.assertGreaterEqual(cat[code]["counts"]["scenarios"], 5)
+                ids = {sc["id"] for sc in _raw(code)["scenarios"]}
+                self.assertTrue(set(LP.SCENARIO_IDS) <= ids, code)
                 self.assertGreaterEqual(cat[code]["counts"]["lessons"], 8)
                 self.assertGreaterEqual(cat[code]["counts"]["pron"], 10)
 

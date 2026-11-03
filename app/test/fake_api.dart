@@ -2140,6 +2140,11 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path.endsWith('learn/quran/complete')) { // learnwire
+      final c = '${body['course']}';
+      return {'ok': true, 'cert': {'course': c, 'level': c == 'quran_nazera' ? 'nazera' : 'qaida',
+          'score': null, 'completed_on': body['completed_on'], 'token': 'lw-quran-token'}};
+    }
     if (path == '/career/interview/feedback') return fakeCareerFeedback(ai: body['ai'] == true); // p2career
     if (path == '/career/jobs/deadline') return {'reminders': ['2026-11-10T09:00:00+06:00']};
     if (path == '/career/cv/print-link') return {'url': 'https://lifeassisto.com/api/v1/career/cv/print/x', 'path': '/career/cv/print/x', 'expires_in': 1800};

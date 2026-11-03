@@ -129,9 +129,9 @@ class IssueTests(TestCase):
         self.assertEqual(LC.level_text("lang_en", "B1", "bn"), "B১ · Assisto অনুশীলন · আনুমানিক")
         self.assertIn("TOPIK-style practice", LC.level_text("lang_ko", "L4", "en"))
         self.assertIn("লেভেল ৪", LC.level_text("lang_ko", "L4", "bn"))
-        self.assertEqual(LC.level_text("quran_qaida", "qaida", "en"), "Qaida completed")
-        self.assertEqual(LC.level_text("quran_nazera", "nazera", "bn"), "নাযেরা পড়া সম্পন্ন")
-        self.assertEqual(LC.level_text("quran_qaida", "qaida", "bn"), "কায়দা সম্পন্ন")
+        self.assertEqual(LC.level_text("quran_qaida", "qaida", "en"), "Qaida reading practice completed")
+        self.assertEqual(LC.level_text("quran_nazera", "nazera", "bn"), "নাযেরা পড়ার অনুশীলন সম্পন্ন")
+        self.assertEqual(LC.level_text("quran_qaida", "qaida", "bn"), "কায়দা পড়ার অনুশীলন সম্পন্ন")
 
 
 class HonestyGuardTests(TestCase):
@@ -186,8 +186,8 @@ class HonestyGuardTests(TestCase):
 
     def test_quran_level_words_only(self):
         for lv, t in LC.QURAN_LEVEL.items():
-            self.assertIn(t["en"], ("Qaida completed", "Nazera reading completed"))
-            self.assertIn(t["bn"], ("কায়দা সম্পন্ন", "নাযেরা পড়া সম্পন্ন"))
+            self.assertIn(t["en"], ("Qaida reading practice completed", "Nazera reading practice completed"))
+            self.assertIn(t["bn"], ("কায়দা পড়ার অনুশীলন সম্পন্ন", "নাযেরা পড়ার অনুশীলন সম্পন্ন"))
         for course in ("quran_qaida", "quran_nazera"):
             for lang in ("en", "bn"):
                 self.assertEqual(_quran_bad(LC.COURSES[course][lang]), [])

@@ -1,0 +1,152 @@
+{
+ "en": {
+  "lwChecklist": "Checklist — key words, not a grade",
+  "@lwChecklist": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwCountWords": "{n} words",
+  "@lwCountWords": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwCountChars": "{n} characters (spaces not counted)",
+  "@lwCountChars": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwCountAim": "Aim: {min} to {max}",
+  "@lwCountAim": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "min": {
+     "type": "Object"
+    },
+    "max": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwCountAimMin": "Aim: at least {min}",
+  "@lwCountAimMin": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "min": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwSpeakTitle": "Speak freely",
+  "@lwSpeakTitle": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwSpeakSeconds": "About {n} seconds",
+  "@lwSpeakSeconds": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwSpeakTry": "Try to say:",
+  "@lwSpeakTry": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwSpeakHonest": "Key-word check from the phone's speech-to-text — not a speaking score.",
+  "@lwSpeakHonest": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwGulfArabic": "Working in a Gulf country? Learn work Arabic",
+  "@lwGulfArabic": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwGulfArabicSub": "Saudi Arabia, UAE, Qatar, Kuwait, Oman, Bahrain — salary, rights and workplace phrases",
+  "@lwGulfArabicSub": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwArabicTitle": "Arabic for work",
+  "@lwArabicTitle": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwAllLanguages": "All languages",
+  "@lwAllLanguages": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwQuranCertHint": "Assisto practice certificate: \"reading practice completed\" — not a teaching licence and not a recitation grade.",
+  "@lwQuranCertHint": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwCheckOk": "Included",
+  "@lwCheckOk": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwCheckMissing": "Missing",
+  "@lwCheckMissing": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwNothingHeard": "Nothing heard yet — tap Record and speak.",
+  "@lwNothingHeard": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwSectionOf": "Section {n} of {total}",
+  "@lwSectionOf": {
+   "description": "learnwire: Language Partner framework / certificate wiring",
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    },
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "lwNoBackNote": "Like the real JFT-Basic: each section has its own timer, and once you move on you cannot go back.",
+  "@lwNoBackNote": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwNextSection": "Next section",
+  "@lwNextSection": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwSectionTimeUp": "Time is up for this section — moved to the next one.",
+  "@lwSectionTimeUp": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "lwListen": "Listen (phone voice)",
+  "@lwListen": {
+   "description": "learnwire: Language Partner framework / certificate wiring"
+  }
+ },
+ "bn": {
+  "lwChecklist": "চেকলিস্ট — মূল শব্দ, নম্বর নয়",
+  "lwCountWords": "{n} শব্দ",
+  "lwCountChars": "{n} অক্ষর (ফাঁকা জায়গা গোনা হয় না)",
+  "lwCountAim": "লক্ষ্য: {min} থেকে {max}",
+  "lwCountAimMin": "লক্ষ্য: অন্তত {min}",
+  "lwSpeakTitle": "নিজে থেকে বলুন",
+  "lwSpeakSeconds": "প্রায় {n} সেকেন্ড",
+  "lwSpeakTry": "বলার চেষ্টা করুন:",
+  "lwSpeakHonest": "ফোনের কথা-থেকে-লেখা দিয়ে মূল শব্দ মেলানো — এটি বলার নম্বর নয়।",
+  "lwGulfArabic": "উপসাগরীয় দেশে কাজ করেন? কাজের আরবি শিখুন",
+  "lwGulfArabicSub": "সৌদি আরব, আমিরাত, কাতার, কুয়েত, ওমান, বাহরাইন — বেতন, অধিকার আর কাজের কথা",
+  "lwArabicTitle": "কাজের আরবি",
+  "lwAllLanguages": "সব ভাষা",
+  "lwQuranCertHint": "Assisto অনুশীলনের সনদ: \"পড়ার অনুশীলন সম্পন্ন\" — এটি পড়ানোর অনুমতি বা তিলাওয়াতের নম্বর নয়।",
+  "lwCheckOk": "আছে",
+  "lwCheckMissing": "নেই",
+  "lwNothingHeard": "এখনো কিছু শোনা যায়নি — রেকর্ড চাপুন, তারপর বলুন।",
+  "lwSectionOf": "অংশ {n} / {total}",
+  "lwNoBackNote": "আসল JFT-Basic-এর মতো: প্রতিটি অংশের আলাদা সময়, আর পরের অংশে গেলে আগেরটায় ফেরা যায় না।",
+  "lwNextSection": "পরের অংশ",
+  "lwSectionTimeUp": "এই অংশের সময় শেষ — পরের অংশে চলে এসেছেন।",
+  "lwListen": "শুনুন (ফোনের কণ্ঠ)"
+ }
+}

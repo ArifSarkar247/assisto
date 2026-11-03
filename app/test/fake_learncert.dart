@@ -40,9 +40,9 @@ Map<String, dynamic> fakeQuranCert() => {
       'valid': true, 'revoked_at': null,
       'verify_url': 'https://lifeassisto.com/verify/ALC-QDNZ-RAEB-CMWT', 'kind': 'quran',
       'bn': _lines('bn', name: 'রহিম উদ্দিন', course: 'কুরআন পড়া শেখা — কায়দা',
-          level: 'কায়দা সম্পন্ন', date: '২ নভেম্বর ২০২৬'),
+          level: 'কায়দা পড়ার অনুশীলন সম্পন্ন', date: '২ নভেম্বর ২০২৬'),
       'en': _lines('en', name: 'Rahim Uddin', course: 'Learn to read Quran — Qaida',
-          level: 'Qaida completed', date: '2 November 2026'),
+          level: 'Qaida reading practice completed', date: '2 November 2026'),
     };
 
 Map<String, dynamic>? fakeLearnCertGet(String path, {required bool empty}) {
