@@ -51,8 +51,9 @@ void main() {
     FeatureFlags.instance.debugOverride = {'language_packs': false};
     await t.pumpWidget(_app(_tiles(), FakeApi(lang: 'en')));
     expect(find.text('Work in Korea → EPS-TOPIK path'), findsNothing);
+    await t.pumpWidget(const SizedBox()); // fresh route: the home page is cached by the Navigator
     FeatureFlags.instance.debugOverride = {'language_packs': true};
-    await t.pumpWidget(_app(_tiles(), FakeApi(lang: 'en'), scale: 1.01));
+    await t.pumpWidget(_app(_tiles(), FakeApi(lang: 'en')));
     await t.pumpAndSettle();
     expect(find.text('Work in Korea → EPS-TOPIK path'), findsOneWidget);
     expect(find.text('Work in Japan → JFT-Basic path'), findsOneWidget);
@@ -70,6 +71,7 @@ void main() {
     await t.scrollUntilVisible(find.text('BOESL (Bangladesh)'), 200);
     expect(find.text('BOESL (Bangladesh)'), findsOneWidget);
     expect(find.text('Official websites'), findsOneWidget);
+    await t.scrollUntilVisible(find.text('Assisto practice estimate — not an official exam result.'), 200);
     expect(find.text('Assisto practice estimate — not an official exam result.'), findsOneWidget);
     await t.scrollUntilVisible(find.text('Start the course'), -200);
     await t.tap(find.text('Start the course'));
@@ -129,15 +131,18 @@ void main() {
   testWidgets('listening: check with no answer asks to choose; then grades with explanations', (t) async {
     await t.pumpWidget(_app(const ListeningPracticePage(lang: 'ko', title: 'EPS-TOPIK'), FakeApi(lang: 'en')));
     await t.pumpAndSettle();
+    await t.scrollUntilVisible(find.text('Check answers'), 200);
     await t.ensureVisible(find.text('Check answers'));
     await t.pumpAndSettle();
     await t.tap(find.text('Check answers'));
     await t.pump();
     expect(find.text('Choose an answer for at least one question first.'), findsOneWidget);
+    await t.scrollUntilVisible(find.text('물'), -200);
     await t.ensureVisible(find.text('물'));
     await t.pumpAndSettle();
     await t.tap(find.text('물'));
     await t.pump();
+    await t.scrollUntilVisible(find.text('Check answers'), 200);
     await t.ensureVisible(find.text('Check answers'));
     await t.pumpAndSettle();
     await t.tap(find.text('Check answers'));
