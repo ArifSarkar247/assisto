@@ -13,6 +13,7 @@ import '../widgets/app_sheet.dart';
 import '../widgets/msgr_avatar.dart';
 import 'bubble_ask.dart';
 import 'bubble_policy.dart';
+import 'bubble_position.dart'; // circlebub
 import 'chat_lock.dart';
 import 'chat_opener.dart';
 import 'date_separators.dart' show localDigits;
@@ -284,6 +285,10 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
   bool _globalOn = true;
   bool _hide = false;
   Set<String> _offChats = const {};
+  // circlebub (part A): where the user last dragged the bubble (per chat)
+  BubblePos _pos = BubblePos.fallback;
+  String? _posFor;
+  final GlobalKey _hostKey = GlobalKey();
   final Map<String, ({String name, String photo, String photoV})?> _people = {};
   Map<String, dynamic>? _members;
 
@@ -356,8 +361,34 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
     for (final b in _bus.items.value) {
       if (!_people.containsKey(b.key)) unawaited(_resolve(b.key));
     }
+    final items = _bus.items.value;
+    if (items.isNotEmpty) unawaited(_loadPos(items.first.key));
     setState(() {});
   }
+
+  /// circlebub: restore this chat's saved spot (else the last one used).
+  Future<void> _loadPos(String key) async {
+    if (_posFor == key) return;
+    _posFor = key;
+    final p = await BubblePositionStore.load(key);
+    if (mounted && _posFor == key) setState(() => _pos = p);
+  }
+
+  /// circlebub: let go → snap to the nearer side, remember it for the chat.
+  void _onDrop(DraggableDetails d, String key) {
+    setState(() => _dragging = false);
+    if (d.wasAccepted) return; // dropped on ✕: closed
+    final box = _hostKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final local = box.globalToLocal(d.offset);
+    final next = BubbleGeometry.fromDrop(
+        local, box.size, kStackSize, MediaQuery.paddingOf(context));
+    setState(() => _pos = next);
+    unawaited(BubblePositionStore.save(key, next));
+  }
+
+  /// The closed stack's box (the drag feedback is the same widget).
+  static const kStackSize = Size(70, 78);
 
   Future<void> _resolve(String key) async {
     _people[key] = null; // in flight
@@ -416,7 +447,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
     // ALWAYS the same Stack with the call body first: the first bubble must
     // never remount the call screen (video views, controls).
     if (items.isEmpty) {
-      return Stack(fit: StackFit.expand, children: [widget.child]);
+      return Stack(key: _hostKey, fit: StackFit.expand, children: [widget.child]);
     }
     final t = AppLocalizations.of(context);
     final pad = MediaQuery.paddingOf(context);
@@ -442,7 +473,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
           ),
       ]),
     );
-    return Stack(fit: StackFit.expand, children: [
+    return Stack(key: _hostKey, fit: StackFit.expand, children: [
       widget.child,
       if (_expanded) ...[
         // tap outside closes the row
@@ -500,9 +531,16 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
           ),
         ),
       ] else
-        PositionedDirectional(
-          end: Gap.sm,
-          top: pad.top + 72,
+        Builder(builder: (context) {
+          // circlebub: the saved spot, clamped inside THIS screen size (the
+          // call screen is full-screen; rotation = a new size → re-clamped)
+          final at = BubbleGeometry.resolve(
+              _pos, MediaQuery.sizeOf(context), kStackSize, pad);
+          return AnimatedPositioned(
+          key: const Key('bbl2-call-stack-pos'),
+          duration: Motion.fast,
+          left: at.dx,
+          top: at.dy,
           child: Semantics(
             button: true,
             label: _label(t, top),
@@ -518,7 +556,7 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
               feedback: Material(type: MaterialType.transparency, child: stack),
               childWhenDragging: const SizedBox(width: 70, height: 62),
               onDragStarted: () => setState(() => _dragging = true),
-              onDragEnd: (_) => setState(() => _dragging = false),
+              onDragEnd: (d) => _onDrop(d, top.key), // circlebub
               child: GestureDetector(
                 onTap: () => items.length == 1
                     ? _open(top.key)
@@ -527,7 +565,8 @@ class _InCallBubbleHostState extends State<InCallBubbleHost> {
               ),
             ),
           ),
-        ),
+        );
+        }),
       if (_dragging)
         Positioned(
           left: 0,
