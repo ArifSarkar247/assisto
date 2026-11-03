@@ -37806,5 +37806,316 @@
         "type": "String"
       }
     }
+  },
+  "vaultE2eTitle": "End-to-end lock",
+  "@vaultE2eTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWhat": "Lock your documents so that only your phones can open them — not even Assisto's server.",
+  "@vaultE2eWhat": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWhatShort": "Only your phones can open them",
+  "@vaultE2eWhatShort": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eServerSees": "What our server keeps for a locked document: only the scrambled (encrypted) file, the document type and — while its reminder is on — the expiry date. Never the name, numbers, photo, your PIN or your recovery code.",
+  "@vaultE2eServerSees": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLossWarning": "If you lose your PIN, this phone's fingerprint, your recovery code AND your trusted person, the locked documents can never be opened again — not even by Assisto. That is what end-to-end means.",
+  "@vaultE2eLossWarning": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnderstand": "I understand",
+  "@vaultE2eUnderstand": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eTurnOn": "Turn on end-to-end lock",
+  "@vaultE2eTurnOn": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eEnterPin": "Enter your vault PIN",
+  "@vaultE2eEnterPin": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eWrongPin": "Wrong PIN.",
+  "@vaultE2eWrongPin": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eOnTitle": "On — new documents are end-to-end locked",
+  "@vaultE2eOnTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eOldDocsNote": "Documents added earlier stay as they were (protected by your account login).",
+  "@vaultE2eOldDocsNote": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFingerprint": "Open with fingerprint",
+  "@vaultE2eFingerprint": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFingerprintSub": "Keeps an extra key in this phone's secure storage, opened after your fingerprint.",
+  "@vaultE2eFingerprintSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRecoveryOnServer": "Recovery code: saved sealed — works on a new phone",
+  "@vaultE2eRecoveryOnServer": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRecoveryMissing": "No recovery code saved yet — make one now",
+  "@vaultE2eRecoveryMissing": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eNewCode": "Make a new recovery code",
+  "@vaultE2eNewCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eHelpers": "Trusted people",
+  "@vaultE2eHelpers": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eHelpersSub": "If you lose everything, one of them can help you unlock. They can never see your documents.",
+  "@vaultE2eHelpersSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eAddHelper": "Add from My Circle",
+  "@vaultE2eAddHelper": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eRemove": "Remove",
+  "@vaultE2eRemove": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eNoKeyYet": "Their phone has no security key yet — ask them to open Assisto once, then try again.",
+  "@vaultE2eNoKeyYet": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLockedTitle": "Locked on this phone — tap to unlock",
+  "@vaultE2eLockedTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eLockedCount": "{n} locked documents on this phone",
+  "@vaultE2eLockedCount": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eLockedOpen": "This is locked on this phone — unlock it first.",
+  "@vaultE2eLockedOpen": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnlockCode": "Unlock with recovery code",
+  "@vaultE2eUnlockCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eCodeHint": "Recovery code (16 letters)",
+  "@vaultE2eCodeHint": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eCodeWrong": "That code didn't open it. Check the letters and try again.",
+  "@vaultE2eCodeWrong": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eAskHelper": "Ask my trusted person",
+  "@vaultE2eAskHelper": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eMatchCode": "Match code: {code} — read it to your trusted person on a call.",
+  "@vaultE2eMatchCode": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestPending": "Waiting for {name} to approve",
+  "@vaultE2eRequestPending": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestWait": "Approved — opens at {when} (24-hour safety wait)",
+  "@vaultE2eRequestWait": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestDeclined": "{name} declined.",
+  "@vaultE2eRequestDeclined": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eRequestCancel": "Cancel request",
+  "@vaultE2eRequestCancel": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eInboxSection": "Help requests for you",
+  "@vaultE2eInboxSection": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eInboxTitle": "{name} asks for your help to unlock",
+  "@vaultE2eInboxTitle": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eInboxBody": "Call them first. Approve only if they read you this match code: {code}",
+  "@vaultE2eInboxBody": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultE2eApprove": "Approve",
+  "@vaultE2eApprove": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eDecline": "Decline",
+  "@vaultE2eDecline": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eApproved": "Approved. Their vault opens after a 24-hour safety wait.",
+  "@vaultE2eApproved": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eUnlocked": "Unlocked — your documents are back",
+  "@vaultE2eUnlocked": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eFailed": "Couldn't do that now. Check the internet and try again.",
+  "@vaultE2eFailed": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eSealSwitch": "End-to-end lock this document",
+  "@vaultE2eSealSwitch": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eSealSwitchSub": "Only your phones can open it.",
+  "@vaultE2eSealSwitchSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eBadge": "End-to-end locked",
+  "@vaultE2eBadge": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultE2eBadgeLong": "End-to-end locked — only your phones can open it",
+  "@vaultE2eBadgeLong": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareLink": "Show with a link",
+  "@vaultShareLink": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareLinkSub": "An encrypted link that stops working on its own. The key is only inside the link — our server can't open it.",
+  "@vaultShareLinkSub": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareFor": "Link works for",
+  "@vaultShareFor": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare1h": "1 hour",
+  "@vaultShare1h": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare1d": "1 day",
+  "@vaultShare1d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare3d": "3 days",
+  "@vaultShare3d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShare7d": "7 days",
+  "@vaultShare7d": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareOpens": "Times it can be opened",
+  "@vaultShareOpens": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCreate": "Make the link",
+  "@vaultShareCreate": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareReady": "Link ready — send it only to the person who needs it.",
+  "@vaultShareReady": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareSend": "Send the link",
+  "@vaultShareSend": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCopy": "Copy",
+  "@vaultShareCopy": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareCopied": "Copied",
+  "@vaultShareCopied": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareActive": "Links for this document",
+  "@vaultShareActive": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareRowState": "Opened {opens} of {max} · until {until}",
+  "@vaultShareRowState": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "opens": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultShareEnded": "Ended — the file was deleted",
+  "@vaultShareEnded": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareStop": "Turn off",
+  "@vaultShareStop": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareNoFile": "Attach a photo to this document first.",
+  "@vaultShareNoFile": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareTooBig": "Share links take files up to 10 MB.",
+  "@vaultShareTooBig": {
+    "description": "p3docs: Documents vault end-to-end lock / share link"
+  },
+  "vaultShareText": "Assisto document — encrypted link, works for a limited time: {link}",
+  "@vaultShareText": {
+    "description": "p3docs: Documents vault end-to-end lock / share link",
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
   }
 }
