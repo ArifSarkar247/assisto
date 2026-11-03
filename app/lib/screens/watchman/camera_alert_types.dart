@@ -151,6 +151,56 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
     }
   }
 
+  /// cctvaicheck: the per-camera "Check with AI" switch (server words).
+  Map<String, dynamic> get _ai => (_data?['ai_check'] as Map?)?.cast<String, dynamic>() ?? const {};
+
+  Future<void> _toggleAi(bool on) async {
+    final t = AppLocalizations.of(context);
+    final before = _data;
+    final types = <String, bool>{
+      for (final r in _types) r['kind'].toString(): r['on'] == true,
+      'ai_check': on,
+    };
+    setState(() {
+      _saving.add('ai_check');
+      _data = {
+        ...?_data,
+        'ai_check': {..._ai, 'on': on},
+      };
+    });
+    try {
+      final d = await _src.save(widget.cameraId, types);
+      if (!mounted) return;
+      setState(() => _data = d);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _data = before);
+      final msg = e is ApiException && e.message.isNotEmpty ? e.message : t.cxatSaveFailed;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(msg)));
+    } finally {
+      if (mounted) setState(() => _saving.remove('ai_check'));
+    }
+  }
+
+  Widget _aiRow() {
+    final ai = _ai;
+    final ready = ai['ready'] == true;
+    final scheme = Theme.of(context).colorScheme;
+    return SwitchListTile(
+      key: const ValueKey('cxat_ai_check'),
+      contentPadding: EdgeInsets.zero,
+      secondary: Icon(Icons.auto_awesome_rounded,
+          color: ready ? scheme.primary : scheme.onSurfaceVariant),
+      value: ready && ai['on'] == true,
+      title: Text((ai['title'] ?? '').toString()),
+      subtitle: Text((ai['note'] ?? '').toString(),
+          style: TextStyle(color: scheme.onSurfaceVariant)),
+      onChanged: !ready || _saving.contains('ai_check') ? null : _toggleAi,
+    );
+  }
+
   Widget _row(Map<String, dynamic> r) {
     final kind = r['kind'].toString();
     final available = r['available'] == true;
@@ -233,6 +283,10 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
                       style: theme.textTheme.bodySmall)),
             ]),
           ),
+          if (_ai.isNotEmpty && (_ai['title'] ?? '').toString().isNotEmpty) ...[
+            const Divider(height: 28),
+            _aiRow(),
+          ],
           const Divider(height: 28),
           Text(t.cxatHealthHead, style: theme.textTheme.titleMedium),
           ...health.map(_row),
@@ -249,12 +303,15 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
                 Expanded(child: Text(sd['text'].toString(), style: theme.textTheme.bodySmall)),
               ]),
             ),
-          const SizedBox(height: 16),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.info_outline_rounded, size: 20, color: theme.colorScheme.onSurfaceVariant),
-            const SizedBox(width: 8),
-            Expanded(child: Text(t.cxatNoAi, style: theme.textTheme.bodySmall)),
-          ]),
+          // "no AI looks at your pictures" is only true while the AI check is off
+          if (!(_ai['ready'] == true && _ai['on'] == true)) ...[
+            const SizedBox(height: 16),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.info_outline_rounded, size: 20, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Expanded(child: Text(t.cxatNoAi, style: theme.textTheme.bodySmall)),
+            ]),
+          ],
         ],
       );
     }

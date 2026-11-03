@@ -41,7 +41,14 @@ def _http():
     return requests
 
 
-def ask(slug, cfg, *, image_bytes, mime="image/jpeg", system="", question=""):
+def ask(slug, cfg, *, image_bytes, mime="image/jpeg", system="", question="",
+        timeout=None, max_tokens=None, usage=None):
+    """`timeout` / `max_tokens` override the defaults (cctvaicheck uses a
+    short budget inside the minute tick); a dict passed as `usage` is filled
+    with the provider's own token counts {input_tokens, output_tokens} when
+    the reply carries them (for the AIUsage ledger)."""
+    opts = {"timeout": timeout or TIMEOUT_S, "max_tokens": max_tokens or MAX_TOKENS,
+            "usage": usage if isinstance(usage, dict) else {}}
     fn = {"vision_claude": _claude, "vision_openai": _openai,
           "vision_gemini": _gemini}.get(slug)
     if fn is None:
@@ -50,7 +57,8 @@ def ask(slug, cfg, *, image_bytes, mime="image/jpeg", system="", question=""):
         raise VisionError("no_image")
     try:
         text = fn(cfg or {}, image_bytes=image_bytes, mime=mime, system=system,
-                  question=(question or "").strip() or "What is in this photo?")
+                  question=(question or "").strip() or "What is in this photo?",
+                  opts=opts)
     except VisionError:
         raise
     except Exception as e:  # noqa: BLE001 — SDK/network/JSON errors -> honest failure
@@ -65,12 +73,13 @@ def _b64(data):
     return base64.standard_b64encode(data).decode("ascii")
 
 
-def _claude(cfg, *, image_bytes, mime, system, question):
+def _claude(cfg, *, image_bytes, mime, system, question, opts=None):
+    opts = opts or {"timeout": TIMEOUT_S, "max_tokens": MAX_TOKENS, "usage": {}}
     try:
         import anthropic
     except ImportError:
         raise VisionError("sdk_missing")
-    client = anthropic.Anthropic(api_key=cfg.get("api_key", ""), timeout=TIMEOUT_S,
+    client = anthropic.Anthropic(api_key=cfg.get("api_key", ""), timeout=opts["timeout"],
                                  max_retries=1)
     model = (cfg.get("model") or DEFAULT_MODELS["vision_claude"]).strip()
     content = [
@@ -78,7 +87,7 @@ def _claude(cfg, *, image_bytes, mime, system, question):
                                      "data": _b64(image_bytes)}},
         {"type": "text", "text": question},
     ]
-    kwargs = dict(model=model, max_tokens=MAX_TOKENS, system=system,
+    kwargs = dict(model=model, max_tokens=opts["max_tokens"], system=system,
                   messages=[{"role": "user", "content": content}])
     try:
         # server-side refusal fallback (routes a policy decline to a fallback
@@ -89,15 +98,20 @@ def _claude(cfg, *, image_bytes, mime, system, question):
         resp = client.messages.create(**kwargs)
     if getattr(resp, "stop_reason", "") == "refusal":
         raise VisionError("refused")
+    u = getattr(resp, "usage", None)
+    if u is not None:
+        opts["usage"].update(input_tokens=int(getattr(u, "input_tokens", 0) or 0),
+                             output_tokens=int(getattr(u, "output_tokens", 0) or 0))
     return "".join(getattr(b, "text", "") for b in (resp.content or [])
                    if getattr(b, "type", "") == "text")
 
 
-def _openai(cfg, *, image_bytes, mime, system, question):
+def _openai(cfg, *, image_bytes, mime, system, question, opts=None):
+    opts = opts or {"timeout": TIMEOUT_S, "max_tokens": MAX_TOKENS, "usage": {}}
     rq = _http()
     model = (cfg.get("model") or DEFAULT_MODELS["vision_openai"]).strip()
     # AF-13: store=False — never kept in the OpenAI dashboard log / evals
-    body = {"model": model, "max_tokens": MAX_TOKENS, "store": False,
+    body = {"model": model, "max_tokens": opts["max_tokens"], "store": False,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": [
@@ -106,17 +120,23 @@ def _openai(cfg, *, image_bytes, mime, system, question):
                         "url": "data:%s;base64,%s" % (mime, _b64(image_bytes))}},
                 ]}]}
     r = rq.post("https://api.openai.com/v1/chat/completions", json=body,
-                timeout=TIMEOUT_S,
+                timeout=opts["timeout"],
                 headers={"Authorization": "Bearer %s" % cfg.get("api_key", "")})
     if r.status_code != 200:
         raise VisionError("http_%d" % r.status_code)
-    choices = r.json().get("choices") or []
+    data = r.json()
+    u = data.get("usage") if isinstance(data.get("usage"), dict) else {}
+    if u:
+        opts["usage"].update(input_tokens=int(u.get("prompt_tokens") or 0),
+                             output_tokens=int(u.get("completion_tokens") or 0))
+    choices = data.get("choices") or []
     if not choices:
         raise VisionError("empty_reply")
     return (choices[0].get("message") or {}).get("content") or ""
 
 
-def _gemini(cfg, *, image_bytes, mime, system, question):
+def _gemini(cfg, *, image_bytes, mime, system, question, opts=None):
+    opts = opts or {"timeout": TIMEOUT_S, "max_tokens": MAX_TOKENS, "usage": {}}
     rq = _http()
     model = (cfg.get("model") or DEFAULT_MODELS["vision_gemini"]).strip()
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
@@ -125,13 +145,18 @@ def _gemini(cfg, *, image_bytes, mime, system, question):
             "contents": [{"parts": [
                 {"inline_data": {"mime_type": mime, "data": _b64(image_bytes)}},
                 {"text": question}]}],
-            "generationConfig": {"maxOutputTokens": MAX_TOKENS}}
-    r = rq.post(url, json=body, timeout=TIMEOUT_S,
+            "generationConfig": {"maxOutputTokens": opts["max_tokens"]}}
+    r = rq.post(url, json=body, timeout=opts["timeout"],
                 headers={"x-goog-api-key": cfg.get("api_key", "")})
     if r.status_code != 200:
         raise VisionError("http_%d" % r.status_code)
+    data = r.json()
+    u = data.get("usageMetadata") if isinstance(data.get("usageMetadata"), dict) else {}
+    if u:
+        opts["usage"].update(input_tokens=int(u.get("promptTokenCount") or 0),
+                             output_tokens=int(u.get("candidatesTokenCount") or 0))
     out = []
-    for cand in r.json().get("candidates") or []:
+    for cand in data.get("candidates") or []:
         for part in ((cand.get("content") or {}).get("parts") or []):
             if part.get("text"):
                 out.append(part["text"])
