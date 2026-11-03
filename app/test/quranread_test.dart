@@ -114,6 +114,16 @@ void main() {
           {'خ', 'ص', 'ض', 'غ', 'ط', 'ق', 'ظ'});
     });
 
+    test('titles have no Arabic (app bars / buttons use the UI font)', () {
+      final ar = RegExp('[\u0600-\u06FF]');
+      for (final s in kQlStages) {
+        expect(ar.hasMatch(s.title.bn + s.title.en), isFalse, reason: '${s.n}');
+        for (final l in s.lessons) {
+          expect(ar.hasMatch(l.title.bn + l.title.en), isFalse, reason: l.id);
+        }
+      }
+    });
+
     test('Bangla lesson text uses Bangla digits only', () {
       for (final s in kQlStages) {
         expect(_bnDigitsOnly.hasMatch(s.title.bn + s.summary.bn), isFalse);

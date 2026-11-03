@@ -16,6 +16,14 @@
 // never ijazah, never a Qari title; the course is EXPERIMENTAL until a
 // qualified Qari reviews the lessons. There is no exam score (the recitation
 // helper is not a grade), so `score` stays null.
+//
+// INTEGRATION NOTE (3 Nov): agent/learncert issues certificates from a SERVER
+// token: learn_cert.result_token(user, 'quran_qaida'|'quran_nazera', level,
+// score) and the app's learncert courseResult(context, course:, level:,
+// score:, token:). Quran progress is kept on the phone only today, so the
+// integrator still needs a small endpoint that records the completion this
+// seam reports and returns the token; import this file with a prefix to
+// avoid the name clash with learncert's courseResult.
 import 'learn_progress.dart';
 import 'qaida_model.dart';
 
