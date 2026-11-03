@@ -440,7 +440,13 @@ class _PrefsSheetState extends State<_PrefsSheet> {
   Future<void> _pick(bool start) async {
     final t = await showTimePicker(context: context, initialTime: _tod(start ? _start : _end));
     if (t == null) return;
-    setState(() => start ? _start = _fmt(t) : _end = _fmt(t));
+    setState(() {
+      if (start) {
+        _start = _fmt(t);
+      } else {
+        _end = _fmt(t);
+      }
+    });
   }
 
   Future<void> _save() async {
