@@ -179,6 +179,29 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.wmAlerts)), body: body);
   }
 
+  String _aiText(Map<String, dynamic> e) => (wmMap(e['ai_check'])['text'] ?? '').toString();
+
+  Widget _aiPill(Map<String, dynamic> e) {
+    final ai = wmMap(e['ai_check']);
+    final done = ai['state'] == 'done';
+    final likelyFalse = ai['likely_false'] == true;
+    final seen = done && ai['cls'] != null && ai['cls'] != 'none';
+    return Semantics(
+      container: true,
+      child: WmPill(
+        label: _aiText(e),
+        icon: likelyFalse
+            ? Icons.help_outline_rounded
+            : (done ? Icons.auto_awesome_rounded : Icons.hourglass_empty_rounded),
+        color: seen
+            ? wmOk()
+            : likelyFalse
+                ? wmWarn()
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+
   Widget _alertCard(AppLocalizations t, String lang, Map<String, dynamic> e) {
     final loc = MaterialLocalizations.of(context);
     final dt = DateTime.tryParse((e['last_at'] ?? e['created'] ?? '').toString())?.toLocal();
@@ -250,6 +273,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(t.wmNoSnapshot, style: Theme.of(context).textTheme.bodySmall),
+              ),
+            // cctvaicheck: the AI label of the photo (server words, viewer's
+            // language) — never hides the alert, only helps the owner tune
+            if (_aiText(e).isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: _aiPill(e),
               ),
             if (clip.isNotEmpty) ...[
               const SizedBox(height: 8),

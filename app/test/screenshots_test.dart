@@ -293,6 +293,7 @@ import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
 import 'cctvalerts_shots.dart'; // cctvalerts W3 alert types
+import 'cctvaicheck_shots.dart'; // cctvaicheck W4 AI check of the alert photo
 import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
 import 'cctvactivity_shots.dart'; // cctvactivity W10 activity brain
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
@@ -956,6 +957,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
     for (final e in cctvalertsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvalerts
+    for (final e in cctvaicheckShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvaicheck
     for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
     for (final e in cctvactivityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvactivity
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
