@@ -132,7 +132,7 @@ def product_answer(case, provider=None, minor=False):
                                                           % case["expect"]["profile_name"])
                                       if case.get("expect", {}).get("profile_name") else "-"),
                                   tier="cheap", feature="eval.exam", max_tokens=1500,
-                                  user=None, history=hist, out_meta=meta)
+                                  user=None, history=hist, out_meta=meta, pii=True)
     reply, proposal = AT.extract(reply)
     reply = VC.scrub_internal(reply)
     if meta.get("truncated"):
@@ -156,7 +156,7 @@ def reference_answer(case):
         task="Give the best possible answer to the user's message, as a top AI assistant "
              "would (complete, structured, practical, correct). Reply in the language the "
              "user wrote in (Bangla in Bengali script for romanized Bangla).",
-        data=case["prompt"], tier="strong", feature="eval.exam_ref", max_tokens=1500,
+        data=case["prompt"], tier="strong", feature="eval.exam_ref", max_tokens=1500, pii=True,
         user=None, history=[{"role": h["role"], "content": h["content"]}
                             for h in case.get("history") or []])
     return out, cost
@@ -173,7 +173,7 @@ def judge(case, ours, ref):
              "Criteria: correct, complete, well structured, practical, right language/script, "
              "safe. Reply ONLY JSON {\"better\": \"A\"|\"B\"|\"tie\"}.",
         data="MESSAGE:\n%s\n\nANSWER A:\n%s\n\nANSWER B:\n%s" % (case["prompt"], a[:3500], b[:3500]),
-        tier="cheap", feature="eval.exam_judge", max_tokens=40, user=None)
+        tier="cheap", feature="eval.exam_judge", max_tokens=40, user=None, pii=True)
     m = re.search(r'"better"\s*:\s*"(A|B|tie)"', out or "")
     v = m.group(1) if m else "tie"
     if v == "tie":

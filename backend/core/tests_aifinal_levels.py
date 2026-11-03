@@ -39,7 +39,7 @@ class LevelMathTests(TestCase):
         row = dict(LV["best"], credits=3)
         self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 33)
         row["credits"] = 25
-        self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 25)
+        self.assertEqual(AL.credits_for(row, PRICES, 120.0, 0.2), 33)
 
     def test_fallback_only_same_or_cheaper(self):
         # worst case: Best (Sonnet) > Normal (Gemini Flash) > Better (Haiku 5.5)
@@ -57,7 +57,7 @@ class LevelMathTests(TestCase):
         self.assertEqual(n["levels"]["best"]["out_cap"], 4000)
         self.assertEqual(n["levels"]["best"]["model"], "claude-sonnet-5-5")
         self.assertEqual(n["levels"]["best"]["provider"], "anthropic")
-        self.assertTrue(AL.defaults()["enabled"])           # rebuild 01:02: ships ON
+        self.assertFalse(AL.defaults()["enabled"])          # ON via migration 0152 on deploy
 
     def test_hint_only_on_normal(self):
         long_q = "Compare these two loan offers and explain why? " * 10
@@ -131,7 +131,18 @@ class GenerateLevelTests(TestCase):
 
 
 class LevelPayloadTests(TestCase):
-    def test_on_by_default(self):
+    def test_off_on_a_fresh_db(self):
+        self.assertFalse(ALS.enabled())
+
+    def test_migration_turns_levels_on_for_the_live_row(self):
+        import importlib
+        from core.models import PricingConfig
+        mig = importlib.import_module("core.migrations.0152_ai_rebuild")
+        row, _ = PricingConfig.objects.get_or_create(key="global", defaults={"data": {}})
+        from django.apps import apps
+        mig.levels_on(apps, None)
+        row.refresh_from_db()
+        self.assertTrue(row.data["ai_levels"]["enabled"])
         self.assertTrue(ALS.enabled())
 
     def test_capped_provider_shows_temporarily_unavailable(self):

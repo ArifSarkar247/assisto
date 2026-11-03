@@ -51,9 +51,11 @@ FLASH_LITE_PRICE = {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write":
 
 
 def defaults():
-    # rebuild order 01:02: ON by default — the old pricing-40 "smart" mode
-    # (Sonnet for 2 credits) fails the 40 % rule in the worst case
-    return {"enabled": True, "default": "normal",
+    # rebuild order 01:02: switched ON on deploy by migration 0152_ai_rebuild
+    # (the live config row); the code default stays OFF so a fresh / test DB
+    # keeps today's behaviour. The old pricing-40 "smart" mode (Sonnet for 2
+    # credits) fails the 40 % rule in the worst case.
+    return {"enabled": False, "default": "normal",
             "levels": {k: dict(v) for k, v in DEFAULT_LEVELS.items()},
             # PART 4: free + rewarded-ad credits pay ONLY for these levels
             "free_credit_levels": ["normal"],

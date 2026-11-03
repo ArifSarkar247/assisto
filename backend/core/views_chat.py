@@ -239,7 +239,7 @@ _INCOMPLETE = re.compile(
     r"\b(incomplete|cut off|got cut|didn'?t finish|not finished|continue|go on|finish (?:it|the answer)|"
     r"baki ?ta|shesh koro|puro ?ta (?:bolo|likho))\b|অসম্পূর্ণ|শেষ হয়নি|বাকিটা|পুরোটা|চালিয়ে যাও|শেষ করো",
     re.I)
-_SENT_END = re.compile(r"[.!?।](?:\s|$)|\n")
+_SENT_END = re.compile(r"(?<![0-9\u09e6-\u09ef])[.!?।](?:\s|$)|\n")
 
 CONTINUE_NOTE = (
     "তোমার আগের উত্তরটি মাঝপথে কেটে গিয়েছিল। ঠিক যেখানে থেমেছিল সেখান থেকে চালিয়ে যাও — "
