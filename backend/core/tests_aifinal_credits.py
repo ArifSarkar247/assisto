@@ -53,8 +53,8 @@ class EveryCallerPaysTests(TestCase):
                         break
                     j += 1
                 call = src[m.start():j + 1]
-                if call.startswith("ai.generate(task, data") or "def generate" in call:
-                    continue
+                if "feature=" not in call:
+                    continue        # prose in a docstring/comment (every real call names its feature)
                 um = re.search(r"\buser=([^,)\n]+)", call)
                 fm = re.search(r"\bfeature=(\"[^\"]*\"|f\"[^\"]*\"|[^,)\n]+)", call)
                 payer = um and um.group(1).strip() != "None"
