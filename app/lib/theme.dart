@@ -913,3 +913,13 @@ class HomeV2Palette {
     return discoverGradients[h % discoverGradients.length];
   }
 }
+
+
+/// p3life: fixed artwork palettes for the Bangla invitation cards (the card
+/// is an image people share, so it looks the same in light and dark).
+class InviteCardColors {
+  InviteCardColors._();
+  static const roseBg = Color(0xFF6D0F2A), roseBg2 = Color(0xFF9B1B3F), roseAccent = Color(0xFFF3C969);
+  static const holudBg = Color(0xFFFFE082), holudBg2 = Color(0xFFFFC107), holudInk = Color(0xFF1B3A12), holudAccent = Color(0xFF2E7D32);
+  static const classicBg = Color(0xFFFFFBF2), classicBg2 = Color(0xFFF1E6CF), classicInk = Color(0xFF14213D), classicAccent = Color(0xFF9C6B12);
+}
