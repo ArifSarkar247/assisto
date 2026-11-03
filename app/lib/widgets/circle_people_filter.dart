@@ -68,7 +68,7 @@ List<T> filterPeople<T extends Map>(List<T> rows, PeopleFilter f, String query,
 /// circlefam: the ONE text matcher for people search (chat list, pickers,
 /// message search): case-insensitive substring, and a number typed in
 /// Bangla or English digits (>= 3 digits) matches the other script too —
-/// "০১৭১১" finds "01711-…". An empty query matches everything.
+/// a Bangla-digit "01711" finds "01711-…". An empty query matches everything.
 bool peopleTextMatches(String hay, String query) {
   final q = _norm(query);
   if (q.isEmpty) return true;
@@ -76,7 +76,7 @@ bool peopleTextMatches(String hay, String query) {
   if (h.contains(q)) return true;
   final latinQ = _toLatinDigits(q);
   final latinH = _toLatinDigits(h);
-  // a word with Bangla digits inside ("৫ টাকা") still finds "5 টাকা"
+  // a word with Bangla digits inside still finds the English-digit text
   if (latinH.contains(latinQ)) return true;
   // a phone number typed with spaces / dashes / +: digits only, >= 3
   if (!RegExp(r'^[0-9\s\-+()]+$').hasMatch(latinQ)) return false;

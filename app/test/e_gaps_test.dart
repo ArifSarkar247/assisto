@@ -575,7 +575,7 @@ void main() {
       // the message search screen opened with the query, decrypted on device
       expect(find.byKey(const Key('e-msg-search-box')), findsOneWidget);
       expect(find.text('Dinner at 8 tonight?'), findsOneWidget);
-      expect(api.gets, contains('/circle/1/messages'));
+      expect(api.gets.any((p) => p.startsWith('/circle/1/messages')), isTrue);
       await _drain(tester);
     });
   });
@@ -645,7 +645,7 @@ class _Api extends ApiClient {
   Future<Map<String, dynamic>> getJson(String path) async {
     gets.add(path);
     if (path == '/circle/chats') return {'results': rows};
-    if (path == '/circle/1/messages') {
+    if (path.split('?').first == '/circle/1/messages') {
       return {
         'results': [
           {

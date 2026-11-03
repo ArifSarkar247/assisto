@@ -162,7 +162,7 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
     if (mounted) _snack(t.mktCopied);
     try {
       await Share.share('${it['body'] ?? ''}', subject: '${it['title'] ?? ''}');
-    } catch (_) {} // the text is already on the clipboard
+    } catch (_) {} // best-effort: the text is already on the clipboard (snack shown)
   }
 
   Future<void> _polish(Map<String, dynamic> it) => _run('${it['id']}', () async {

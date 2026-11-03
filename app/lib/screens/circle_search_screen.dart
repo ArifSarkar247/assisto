@@ -169,7 +169,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return const [];
     final terms = q.split(RegExp(r'\s+'));
-    // circlefam: Bangla / English digits match each other (৫০০ = 500)
+    // circlefam: Bangla and English digits match each other
     final hits = _index
         .where((h) => terms.every((tk) => peopleTextMatches(h.text, tk)))
         .toList();
