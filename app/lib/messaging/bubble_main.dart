@@ -9,6 +9,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/a11y_prefs.dart';
 import '../widgets/bn_day_periods.dart';
+import 'bubble_open_mark.dart'; // circlebub
 import 'chat_opener.dart';
 import 'msg_native.dart';
 
@@ -110,16 +111,45 @@ class _BubbleChatHostState extends State<BubbleChatHost> {
   ({String kind, int id})? _chat;
   Widget? _screen;
   int _gen = 0;
+  // circlebub: "this chat is open in its bubble" for the other engines
+  Timer? _markTimer;
+  AppLifecycleListener? _life;
+  bool _visible = true;
+
+  String? get _key => _chat == null ? null : '${_chat!.kind}:${_chat!.id}';
+
+  void _mark() {
+    final k = _key;
+    if (k == null || !_visible || _stage != BubbleStage.ready) return;
+    unawaited(BubbleOpenMark.mark(k));
+  }
+
+  void _unmark() {
+    final k = _key;
+    if (k != null) unawaited(BubbleOpenMark.clear(k));
+  }
 
   @override
   void initState() {
     super.initState();
+    _markTimer = Timer.periodic(BubbleOpenMark.refresh, (_) => _mark());
+    _life = AppLifecycleListener(
+      onShow: () {
+        _visible = true;
+        _mark();
+      },
+      onHide: () {
+        _visible = false; // collapsed: notifications for it come back
+        _unmark();
+      },
+    );
     widget.app.addListener(_onApp);
     // a second message for the same bubble window (rare: documentLaunchMode
     // gives each chat its own window) → switch to that chat.
     MsgNative.onOpenChat((key) {
       final c = ChatOpener.parse(key);
       if (c != null && mounted) {
+        _unmark(); // circlebub: the previous chat is no longer open
         _chat = c;
         unawaited(_load());
       }
@@ -129,6 +159,9 @@ class _BubbleChatHostState extends State<BubbleChatHost> {
 
   @override
   void dispose() {
+    _markTimer?.cancel();
+    _life?.dispose();
+    _unmark();
     widget.app.removeListener(_onApp);
     super.dispose();
   }
@@ -173,6 +206,7 @@ class _BubbleChatHostState extends State<BubbleChatHost> {
         _screen = screen;
         _stage = BubbleStage.ready;
       });
+      _mark(); // circlebub
     } catch (_) {
       if (!mounted || gen != _gen) return;
       setState(() => _stage = BubbleStage.failed);

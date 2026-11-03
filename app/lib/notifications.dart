@@ -8,6 +8,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'l10n/app_localizations.dart';
+import 'messaging/msg_channel.dart'; // circlebub
 import 'push/push_notifier.dart' show assistoNotificationBackground;
 import 'reminders/alarm_plan.dart' show AlarmMode, AlarmRepeat;
 
@@ -270,7 +271,7 @@ class Notifications {
           AndroidFlutterLocalNotificationsPlugin>();
       final chs = await android?.getNotificationChannels();
       if (chs == null) return true;
-      final msg = chs.where((c) => c.id == 'messages' || c.id.startsWith('messages_'));
+      final msg = chs.where((c) => MsgChannel.isMessageChannel(c.id)); // circlebub
       if (msg.isEmpty) return true; // not created yet -> created on first push
       return msg.any((c) => c.importance != Importance.none);
     } catch (_) {

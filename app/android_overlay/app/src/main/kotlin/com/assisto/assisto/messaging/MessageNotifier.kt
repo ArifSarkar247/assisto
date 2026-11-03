@@ -105,6 +105,18 @@ object MessageNotifier {
         return MessageSpec(kind, (d["chat_id"] ?: "").trim(), title, text, lang, canReply = !locked)
     }
 
+    /** Mirror of Dart BubbleOpenMark.isOpenIn (TTL 45 s). */
+    fun bubbleOpen(raw: String?, key: String, now: Long): Boolean = try {
+        val i = raw?.lastIndexOf('|') ?: -1
+        if (raw == null || i <= 0 || raw.substring(0, i) != key) false
+        else {
+            val left = (raw.substring(i + 1).toLongOrNull() ?: 0L) - now
+            left > 0L && left <= 45_000L
+        }
+    } catch (_: Throwable) {
+        false
+    }
+
     // ------------------------------------------------------------ safety net
     /** From AssistoFcmService for every data push (FCM thread). */
     fun onMessagePush(context: Context, data: Map<String, String>) {
@@ -114,6 +126,16 @@ object MessageNotifier {
             val id = (data["chat_id"] ?: "").trim()
             if (id.isEmpty()) return
             val app = context.applicationContext
+            // circlebub: open in its expanded bubble → tick now, draw nothing
+            try {
+                val raw = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                    .getString("flutter.c3_bubble_open_chat", null)
+                if (bubbleOpen(raw, "${kindOf(data)}:$id", System.currentTimeMillis())) {
+                    Handler(Looper.getMainLooper()).post { MsgTick.play(app) }
+                    return
+                }
+            } catch (_: Throwable) {
+            }
             val since = System.currentTimeMillis()
             val wl = try {
                 (app.getSystemService(Context.POWER_SERVICE) as? PowerManager)
@@ -157,6 +179,15 @@ object MessageNotifier {
             false
         }
         if (drawn) return
+        // circlebub: the chat is OPEN in its expanded bubble (Dart mark
+        // "c3_bubble_open_chat" = "<kind>:<id>|<until ms>", see
+        // lib/messaging/bubble_open_mark.dart) → it shows the message itself;
+        // a soft tick instead of a notification redraw.
+        if (bubbleOpen(p.getString("flutter.c3_bubble_open_chat", null), "$kind:$id",
+                System.currentTimeMillis())) {
+            MsgTick.play(ctx)
+            return
+        }
         val hide = try {
             p.getBoolean("flutter.c3_msg_hide_content", false)
         } catch (_: Throwable) {
@@ -258,7 +289,10 @@ object MessageNotifier {
         return a.build()
     }
 
-    /** The channel Dart's MsgPrefs.channelId() uses (same sound keys). */
+    /** The channel Dart's MsgPrefs.channelId() uses (same sound keys).
+     *  circlebub: the default is Assisto's own pop on [CHANNEL_ID]; the old
+     *  'messages' channel is migrated once ([migrateChannel], mirror of Dart
+     *  lib/messaging/msg_channel.dart). */
     private fun ensureChannel(ctx: Context, lang: String): String {
         val nm = ctx.getSystemService(NotificationManager::class.java)
         val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -268,22 +302,56 @@ object MessageNotifier {
             null
         }
         val wanted = when {
-            uri == null -> "messages"
+            uri == null -> CHANNEL_ID
             uri.isEmpty() -> "messages_silent"
             else -> "messages_" + Integer.toString(
                 com.assisto.assisto.calls.IncomingCall.stableHash(uri), 36)
         }
         try {
             if (nm?.getNotificationChannel(wanted) != null) return wanted
-            if (nm?.getNotificationChannel("messages") == null) {
-                val ch = NotificationChannel("messages",
-                    if (lang == "en") "Messages" else "মেসেজ", NotificationManager.IMPORTANCE_HIGH)
-                ch.enableVibration(true)
-                nm?.createNotificationChannel(ch)
-            }
+            if (nm != null) migrateChannel(ctx, nm, if (lang == "en") "Messages" else "মেসেজ")
         } catch (_: Throwable) {
         }
-        return "messages"
+        return CHANNEL_ID
+    }
+
+    const val CHANNEL_ID = "chat_msg_v2"
+    const val LEGACY_CHANNEL_ID = "messages"
+
+    /** What a migration keeps from the old channel (pure, for tests). */
+    data class ChannelCarry(val importance: Int, val vibrate: Boolean, val sound: Boolean)
+
+    fun carryFrom(old: NotificationChannel?): ChannelCarry =
+        if (old == null) ChannelCarry(NotificationManager.IMPORTANCE_HIGH, true, true)
+        else ChannelCarry(old.importance, old.shouldVibrate(), old.sound != null)
+
+    /** Create [CHANNEL_ID] once with the user's old mute / vibrate / sound-on
+     *  choices, THEN delete the old channel. Never recreates the old id.
+     *  Never throws. */
+    fun migrateChannel(ctx: Context, nm: NotificationManager, name: String) {
+        try {
+            val old = nm.getNotificationChannel(LEGACY_CHANNEL_ID)
+            if (nm.getNotificationChannel(CHANNEL_ID) == null) {
+                val c = carryFrom(old)
+                val imp = if (c.importance == NotificationManager.IMPORTANCE_UNSPECIFIED)
+                    NotificationManager.IMPORTANCE_HIGH else c.importance
+                val ch = NotificationChannel(CHANNEL_ID, name, imp)
+                ch.enableVibration(c.vibrate)
+                if (c.sound) {
+                    ch.setSound(
+                        android.net.Uri.parse("android.resource://${ctx.packageName}/raw/assisto_pop"),
+                        android.media.AudioAttributes.Builder()
+                            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
+                            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build())
+                } else {
+                    ch.setSound(null, null)
+                }
+                nm.createNotificationChannel(ch)
+            }
+            if (old != null) nm.deleteNotificationChannel(LEGACY_CHANNEL_ID)
+        } catch (_: Throwable) {
+        }
     }
 
     private fun smallIcon(ctx: Context): Int {

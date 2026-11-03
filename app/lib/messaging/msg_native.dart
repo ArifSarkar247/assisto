@@ -77,6 +77,21 @@ class MsgNative {
   static Future<void> attachBubble(String kind, int id, String name) =>
       _call<bool>('attachBubble', {'kind': kind, 'id': id, 'name': name});
 
+  // circlebub ------------------------------------------------------------
+  /// The chat was opened / read: while Android shows it as a BUBBLE the
+  /// notification is kept (only hidden from the shade) — cancelling it would
+  /// remove the bubble. true = kept as a bubble (do NOT cancel it);
+  /// false / null (no native side, background isolate, not a bubble) =
+  /// cancel as before.
+  static Future<bool> clearChat(String kind, int id) async =>
+      (await _call<bool>('clearChat', {'kind': kind, 'id': id})) ?? false;
+
+  /// The soft in-app tick for a message in the OPEN chat (native, played as
+  /// a notification sound: Android mutes it on silent / DND).
+  static Future<bool> playTick() async =>
+      (await _call<bool>('playTick')) ?? false;
+  // /circlebub ----------------------------------------------------------
+
   /// bubbles: from the bubble window, open this chat in the full app.
   static Future<bool> openInApp(String kind, int id) async =>
       (await _call<bool>('openInApp', {'chat': '$kind:$id'})) ?? false;

@@ -46,7 +46,9 @@ import android.util.Log
 object BubbleHelper {
     private const val TAG = "AssistoBubble"
     private const val PREFS = "FlutterSharedPreferences"
-    private val DELAYS_MS = longArrayOf(700, 1500, 2600, 4200, 6500, 10000)
+    // circlebub: first try sooner (the Dart re-post drops the bubble until
+    // it is re-attached — the shorter the gap, the less it blinks)
+    private val DELAYS_MS = longArrayOf(400, 900, 1500, 2600, 4200, 6500, 10000)
 
     fun chatKey(kind: String, id: String) = "${if (kind == "group") "group" else "member"}:$id"
     fun tagFor(kind: String, id: String) = "c3chat:${if (kind == "group") "group" else "member"}:$id"
@@ -243,15 +245,11 @@ object BubbleHelper {
     }
 
     private fun bubbleMeta(context: Context, kind: String, id: String, icon: Icon): Notification.BubbleMetadata {
-        val intent = Intent(context, BubbleActivity::class.java)
-            .setAction(Intent.ACTION_VIEW)
-            .putExtra(EXTRA_CHAT, chatKey(kind, id))
         val pi = PendingIntent.getActivity(
-            context, id.hashCode() xor kind.hashCode(), intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            context, requestCodeFor(kind, id), bubbleIntent(context, kind, id), bubblePiFlags()
         )
         return Notification.BubbleMetadata.Builder(pi, icon)
-            .setDesiredHeight(640)
+            .setDesiredHeight(BUBBLE_HEIGHT_DP)
             .setAutoExpandBubble(false)
             .setSuppressNotification(false)
             .build()
@@ -281,6 +279,29 @@ object BubbleHelper {
             Log.w(TAG, "bubble decorate skipped: ${t.javaClass.simpleName}")
         }
     }
+
+    const val BUBBLE_HEIGHT_DP = 640
+
+    /** EXPLICIT intent (component set: Android 14 forbids a mutable implicit
+     *  one) → BubbleActivity on exactly this chat (extra "c3_chat"). No data
+     *  uri on purpose: FlutterActivity would treat it as a deep-link route.
+     *  Each chat has its own request code, so several bubbles never share or
+     *  overwrite one PendingIntent. */
+    fun bubbleIntent(context: Context, kind: String, id: String): Intent =
+        Intent(context, BubbleActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(EXTRA_CHAT, chatKey(kind, id))
+
+    /** Stable per chat (same chat = same PendingIntent across re-posts). */
+    fun requestCodeFor(kind: String, id: String): Int = shortcutIdFor(kind, id).hashCode()
+
+    /** Android 12+ (S) bubbles REQUIRE a MUTABLE PendingIntent (the system
+     *  fills in the embedded-task extras); UPDATE_CURRENT keeps the extras
+     *  fresh. FLAG_MUTABLE is only defined from API 31. */
+    fun bubblePiFlags(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        else PendingIntent.FLAG_UPDATE_CURRENT
 
     private fun bubbleActivityDeclared(context: Context): Boolean = try {
         context.packageManager.getActivityInfo(
@@ -338,6 +359,49 @@ object BubbleHelper {
             Log.w(TAG, "shortcut skipped: ${t.javaClass.simpleName}")
         }
     }
+
+    /**
+     * circlebub (part B ROOT CAUSE FIX): opening a chat used to CANCEL its
+     * conversation notification (chat screen initState → FlnMsgSink.cancel).
+     * Android removes a bubble whose notification the app cancels — so the
+     * moment the chat loaded INSIDE the expanded bubble, the bubble closed
+     * and vanished ("tap does nothing"). Now, while the system shows this
+     * chat as a bubble (FLAG_BUBBLE), we keep the notification and only
+     * hide it from the shade (BubbleMetadata suppressNotification) — the
+     * bubble stays where the user put it, at the same shortcut id.
+     * Returns true = kept as a bubble (the caller must NOT cancel it).
+     * Never throws.
+     */
+    fun clearChat(context: Context, kind: String, id: String): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+        return try {
+            val nm = context.getSystemService(NotificationManager::class.java) ?: return false
+            val tag = tagFor(kind, id)
+            val sbn = nm.activeNotifications.firstOrNull { it.tag == tag } ?: return false
+            val n = sbn.notification
+            val meta = n.bubbleMetadata ?: return false
+            if (!isShownAsBubble(n.flags)) return false
+            if (meta.isNotificationSuppressed) return true // already quiet
+            val quiet = (meta.intent?.let { Notification.BubbleMetadata.Builder(it, meta.icon ?: avatarIcon(context)) }
+                ?: Notification.BubbleMetadata.Builder(meta.shortcutId ?: shortcutIdFor(kind, id)))
+                .setDesiredHeight(BUBBLE_HEIGHT_DP)
+                .setAutoExpandBubble(false)
+                .setSuppressNotification(true)
+                .build()
+            val rebuilt = Notification.Builder.recoverBuilder(context, n)
+                .setBubbleMetadata(quiet)
+                .setOnlyAlertOnce(true)
+                .build()
+            nm.notify(tag, sbn.id, rebuilt)
+            true
+        } catch (t: Throwable) {
+            Log.w(TAG, "bubble clear skipped: ${t.javaClass.simpleName}")
+            false
+        }
+    }
+
+    /** Android sets FLAG_BUBBLE while the notification is shown as a bubble. */
+    fun isShownAsBubble(flags: Int): Boolean = (flags and Notification.FLAG_BUBBLE) != 0
 
     fun removeChat(context: Context, key: String) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
