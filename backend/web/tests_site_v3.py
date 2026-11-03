@@ -376,7 +376,7 @@ class HeroOrder3NovTests(Base):
     def test_hero_slides_owner_order(self):
         self.assertEqual([n for n, _ in V3.HERO_SLIDES],
                          ["c3_chat", "callpip_pip_window", "gj_live_banner", "emergency_hub", "wm_alerts",
-                          "acct_home", "inv_paper_80", "home_v2_chat", "dest_alarm"])
+                          "acct_home", "inv_paper_80", "chat", "dest_alarm"])
         for lang in ("bn", "en"):
             html = self.c.get("/preview/?lang=%s" % lang).content.decode()
             hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
