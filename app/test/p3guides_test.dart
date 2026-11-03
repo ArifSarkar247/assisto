@@ -141,6 +141,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('p3g-doc-emutation-0')));
       expect(ticked, [0]);
       await tester.ensureVisible(find.byKey(const ValueKey('p3g-fee-page')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('p3g-fee-page')));
       expect(opened, ['https://mutation.land.gov.bd']);
       expect(find.text('Last checked by Assisto: 03/11/2026'), findsOneWidget);
@@ -173,6 +174,7 @@ void main() {
       await tester.enterText(find.byKey(const ValueKey('p3g-rate-got')), '32.10');
       await tester.enterText(find.byKey(const ValueKey('p3g-rate-ref')), '32.50');
       await tester.ensureVisible(find.byKey(const ValueKey('p3g-check')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('p3g-check')));
       await _settle(tester);
       final res = tester.widget<Text>(find.byKey(const ValueKey('p3g-result'))).data!;

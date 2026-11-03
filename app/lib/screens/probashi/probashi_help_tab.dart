@@ -49,7 +49,7 @@ RemitCost? p3gRemitCost(double? amount, double? fee, double? rateGot,
   return RemitCost(cost, pct, home, home * incentivePct / 100, pct > sdgPct);
 }
 
-/// Parses a number typed with Bangla or ASCII digits ('৩২.৫০' or '32.50').
+/// Parses a number typed with Bangla (U+09E6..U+09EF) or ASCII digits.
 double? p3gParse(String s) {
   final b = StringBuffer();
   for (final c in s.trim().codeUnits) {

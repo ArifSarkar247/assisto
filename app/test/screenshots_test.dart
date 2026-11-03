@@ -361,6 +361,7 @@ import 'fake_api.dart';
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
 import 'package:assisto/widgets/guide_service_card.dart'; // p3guides
+import 'package:assisto/widgets/guide_need_sheet.dart' show showGuideNeedSheet; // p3guides
 import 'package:assisto/screens/probashi/probashi_help_tab.dart'; // p3guides
 import 'package:assisto/screens/student/study_timer_tab.dart'; // p3guides
 import 'package:assisto/screens/student/student_official_tab.dart'; // p3guides
@@ -1367,8 +1368,22 @@ class _SjFlagsState extends State<_SjFlags> {
 
 /// p3guides: one expanded e-namjari card (published fee table, sources,
 /// last-checked date, 1 of 3 documents ticked).
-class _P3gGuideCardShot extends StatelessWidget {
+class _P3gGuideCardShot extends StatefulWidget {
   const _P3gGuideCardShot();
+  @override
+  State<_P3gGuideCardShot> createState() => _P3gGuideCardShotState();
+}
+
+/// Behaves like GuideScreen: bookmark + ticks change the card, links tell
+/// the user (no browser in tests), "What do I need?" opens the real sheet.
+class _P3gGuideCardShotState extends State<_P3gGuideCardShot> {
+  final Set<int> _ticked = {0};
+  bool _saved = false;
+
+  void _open(String url) => ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(url)));
+
   @override
   Widget build(BuildContext context) {
     final bn = Localizations.localeOf(context).languageCode == 'bn';
@@ -1378,13 +1393,15 @@ class _P3gGuideCardShot extends StatelessWidget {
       body: ListView(padding: const EdgeInsets.all(16), children: [
         GuideServiceCard(
           service: svc,
-          bookmarked: false,
-          onToggleBookmark: () {},
-          onOpenLink: (_) {},
-          onWhatDoINeed: () {},
+          bookmarked: _saved,
+          onToggleBookmark: () => setState(() => _saved = !_saved),
+          onOpenLink: _open,
+          onWhatDoINeed: () => showGuideNeedSheet(context, svc, onOpenLink: _open),
           initiallyExpanded: true,
-          checkedDocs: const {0},
-          onToggleDoc: (_) {},
+          checkedDocs: _ticked,
+          onToggleDoc: (i) => setState(() {
+            if (!_ticked.remove(i)) _ticked.add(i);
+          }),
         ),
       ]),
     );

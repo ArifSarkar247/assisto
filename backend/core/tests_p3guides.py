@@ -21,7 +21,7 @@ from core.logic import govt_guide as GG
 from core.logic import official_info as OI
 from core.models import User
 
-_DIGIT = re.compile(r"\d")
+_DIGIT = re.compile(r"[0-9]")  # ASCII only (\d also matches Bangla digits)
 
 
 def _official(url):
