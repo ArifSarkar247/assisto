@@ -23352,5 +23352,20 @@
   "nearbyCountryGB": "যুক্তরাজ্য",
   "nearbyCountryUS": "যুক্তরাষ্ট্র",
   "aimdOpenLinkTitle": "এই লিংকটি খুলবেন?",
-  "aimdOpenLink": "খুলুন"
+  "aimdOpenLink": "খুলুন",
+  "ailvChip": "{name} · {n} ক্রেডিট",
+  "ailvChipA11y": "{name}, প্রতি উত্তরে {n} ক্রেডিট",
+  "ailvUnavailable": "সাময়িকভাবে বন্ধ",
+  "ailvEstimate": "এই উত্তরে আনুমানিক {n} ক্রেডিট লাগবে",
+  "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।",
+  "credoutPremium": "প্রিমিয়াম দেখুন — প্রতি মাসে বেশি ক্রেডিট",
+  "aiactSafeJourney": "নিরাপদ যাত্রা শুরু করুন",
+  "aiactDestAlarm": "গন্তব্যের অ্যালার্ম দিন",
+  "aiactReminder": "রিমাইন্ডার যোগ করুন",
+  "aiactInvoice": "ইনভয়েস তৈরি করুন",
+  "aiactCctv": "সিসিটিভি খুলুন",
+  "aiactCall999": "৯৯৯-এ কল করুন",
+  "aiactConfirmOpen": "এখন খুলবেন? পরের স্ক্রিনে আপনি না বেছে নেওয়া পর্যন্ত কিছুই হবে না।",
+  "aiactConfirmCall": "এখনই ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করবেন?",
+  "aiactCallNow": "এখনই কল"
 }

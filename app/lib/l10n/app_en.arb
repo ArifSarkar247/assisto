@@ -42963,5 +42963,86 @@
   "aimdOpenLink": "Open",
   "@aimdOpenLink": {
     "description": "aifinal: confirm button to open an AI answer link"
+  },
+  "ailvChip": "{name} · {n} credits",
+  "@ailvChip": {
+    "description": "aifinal: answer level chip with credits per answer",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ailvChipA11y": "{name}, {n} credits per answer",
+  "@ailvChipA11y": {
+    "description": "aifinal: answer level chip for TalkBack",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ailvUnavailable": "temporarily unavailable",
+  "@ailvUnavailable": {
+    "description": "aifinal: level whose daily budget is used up"
+  },
+  "ailvEstimate": "This answer: about {n} credits",
+  "@ailvEstimate": {
+    "description": "aifinal: estimated credits before sending",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ailvHintBetter": "Tip: 'Better' may answer a question like this well.",
+  "@ailvHintBetter": {
+    "description": "aifinal: hint only, never an upgrade"
+  },
+  "credoutPremium": "See Premium — more credits every month",
+  "@credoutPremium": {
+    "description": "aifinal: out-of-credits sheet option to open the plans"
+  },
+  "aiactSafeJourney": "Start Safe Journey",
+  "@aiactSafeJourney": {
+    "description": "aifinal: AI action: open Safe Journey (share live location with a chosen contact)"
+  },
+  "aiactDestAlarm": "Set destination alarm",
+  "@aiactDestAlarm": {
+    "description": "aifinal: AI action: destination alarm"
+  },
+  "aiactReminder": "Add a reminder",
+  "@aiactReminder": {
+    "description": "aifinal: AI action: reminders"
+  },
+  "aiactInvoice": "Create invoice",
+  "@aiactInvoice": {
+    "description": "aifinal: AI action: new invoice"
+  },
+  "aiactCctv": "Open CCTV",
+  "@aiactCctv": {
+    "description": "aifinal: AI action: open CCTV"
+  },
+  "aiactCall999": "Call 999",
+  "@aiactCall999": {
+    "description": "aifinal: AI action: emergency call"
+  },
+  "aiactConfirmOpen": "Open this now? Nothing happens until you choose on the next screen.",
+  "@aiactConfirmOpen": {
+    "description": "aifinal: AI action confirm"
+  },
+  "aiactConfirmCall": "Call 999 (national emergency) now?",
+  "@aiactConfirmCall": {
+    "description": "aifinal: AI action confirm emergency call"
+  },
+  "aiactCallNow": "Call now",
+  "@aiactCallNow": {
+    "description": "aifinal: AI action confirm button for 999"
   }
 }
