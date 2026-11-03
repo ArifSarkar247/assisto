@@ -322,7 +322,7 @@ void main() {
       expect((descs[0].width, descs[0].height), (800, 1600));
       expect(descs[0].mime, 'image/jpeg');
       for (final (_, env) in srv.sentMember) {
-        expect(jsonEncode(env).contains('alb'), isFalse);
+        expect(env.keys.where((k) => k.contains('alb')), isEmpty);
       }
     });
 
