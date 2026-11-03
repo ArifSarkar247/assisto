@@ -13,6 +13,18 @@ en.pickthall.txt.gz
   Owner decision pending: owner_actions/FEATURE_CARD_QURAN_BN.md section 6.
   sha256 of the uncompressed file: 4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7
 
+quran-uthmani.txt.gz  (quranread: Learn to read Quran)
+  Tanzil Quran Text (Uthmani, Version 1.1), Copyright (C) 2007-2026 Tanzil Project.
+  License: Creative Commons Attribution 3.0. https://tanzil.net/docs/text_license
+  Downloaded 3 Nov 2026 from tanzil.net/download (quranType=uthmani, outType=txt-2,
+  default options). Follows the Medina mushaf (King Fahd Complex), riwayah Hafs.
+  Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
+  sha256 of the uncompressed file: bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8
+
+../fonts/AmiriQuran.ttf  (quranread)
+  Amiri Quran 1.003, Copyright 2010-2022 The Amiri Project Authors
+  (https://github.com/aliftype/amiri). SIL Open Font License 1.1 (AmiriQuran-OFL.txt).
+
 quran_meta.json
   Derived from Tanzil Quran metadata (quran-data.xml v1.0), (C) 2008-2009 Tanzil.info, license cc-by.
 
