@@ -304,7 +304,7 @@ def risk_level(delivered, returned):
     rate = returned / done
     if returned >= 2 and rate >= 0.5:
         return HIGH
-    if returned >= 1 and rate >= 0.34:
+    if returned >= 1 and returned * 3 >= done:      # one in three or worse
         return MEDIUM
     return LOW
 

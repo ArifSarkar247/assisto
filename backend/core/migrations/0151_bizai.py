@@ -2,7 +2,8 @@
 # ("assisto") for the AI sales agent, its per-shop switch, the COD
 # return-risk guard switch and the risk level stamped on each order.
 # Additive only (5 new columns with defaults + 2 widened choice lists);
-# pillar 5: the tracked post code on chats and orders (Prochar attribution).
+# pillar 5: the tracked post code on chats and orders (Prochar attribution);
+# pillar 3: Market bulk tier + negotiation ask on bids.
 from django.db import migrations, models
 
 
@@ -38,6 +39,18 @@ class Migration(migrations.Migration):
             name='source_ref',
             field=models.CharField(blank=True, default='', max_length=12),
         ),
+        migrations.AddField(
+            model_name='marketbid', name='bulk_price',
+            field=models.BigIntegerField(blank=True, null=True)),
+        migrations.AddField(
+            model_name='marketbid', name='bulk_min_qty',
+            field=models.PositiveIntegerField(default=0)),
+        migrations.AddField(
+            model_name='marketbid', name='counter_price',
+            field=models.BigIntegerField(blank=True, null=True)),
+        migrations.AddField(
+            model_name='marketbid', name='counter_at',
+            field=models.DateTimeField(blank=True, null=True)),
         migrations.AlterField(
             model_name='chatthread',
             name='channel',

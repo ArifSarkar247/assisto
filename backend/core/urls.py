@@ -1671,6 +1671,7 @@ urlpatterns += [
     path("market/group", mkv.GroupFeedView.as_view()),
     path("market/sell", mkv.SellView.as_view()),
     path("market/seller", mkv.SellerApplyView.as_view()),
+    path("market/invites", mkv.SellerInviteView.as_view()),   # bizai
     path("market/deals", mkv.DealsView.as_view()),
     path("market/deals/<int:pk>/act", mkv.DealActView.as_view()),
     path("market/deals/<int:pk>/chat", mkv.DealChatView.as_view()),

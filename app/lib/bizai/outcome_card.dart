@@ -160,6 +160,8 @@ class _ShopLinkCardState extends State<ShopLinkCard> {
       final d = await _src.shopLink(widget.businessId);
       if (mounted) setState(() => _d = d);
     } catch (e) {
+      // hidden on failure (the agent screen above has its own retry)
+      reportNonFatal('bizai.shopLink', e);
       if (mounted) setState(() => _error = e);
     }
   }
@@ -183,13 +185,7 @@ class _ShopLinkCardState extends State<ShopLinkCard> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final d = _d;
-    if (_error != null) {
-      return BizCard(
-          title: t.bizaiShopLinkTitle,
-          icon: Icons.storefront_rounded,
-          child: BizNote(text: baErrorText(t, _error!)));
-    }
-    if (d == null) return const SizedBox.shrink();
+    if (_error != null || d == null) return const SizedBox.shrink();
     final on = d['app_chat_enabled'] == true;
     return BizCard(
       key: const ValueKey('bizai-shop-link'),

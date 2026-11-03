@@ -8098,6 +8098,12 @@ class MarketBid(models.Model):
     content_status = models.CharField(max_length=10, default="visible")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # bizai pillar 3: group-buy bulk tier (unlocks when the pool reaches
+    # bulk_min_qty) + the buyer-limit ask sent to this seller (negotiation)
+    bulk_price = models.BigIntegerField(null=True, blank=True)        # poisha per unit
+    bulk_min_qty = models.PositiveIntegerField(default=0)
+    counter_price = models.BigIntegerField(null=True, blank=True)     # poisha per unit
+    counter_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["unit_price"]
