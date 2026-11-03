@@ -43,6 +43,7 @@ import '../../services/khata_offline.dart' show KhataOffline; // bizbar
 import 'low_stock_card.dart'; // bizbar
 import '../../bizai/outcome_card.dart' show OutcomeCard; // bizai
 import '../../bizai/winback_screen.dart' show WinbackScreen; // bizai
+import '../../bizai/weekly_report_screen.dart' show WeeklyReportScreen; // bizai
 import 'staff_screen.dart'; // bizbar
 import 'invoice/invoices_screen.dart'; // invoices
 
@@ -484,6 +485,15 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 title: t.baHubTitle,
                 subtitle: t.baHubSub,
                 onTap: () => _go(const SellerAgentScreen()),
+              ),
+              const SizedBox(height: Gap.md),
+              // bizai pillar 5: the weekly report + which tracked posts sold
+              _HubCard(
+                icon: Icons.insights_rounded,
+                tint: Brand.cyan,
+                title: t.bizaiWeeklyTitle,
+                subtitle: t.bizaiWeeklyHubSub,
+                onTap: () => _go(WeeklyReportScreen(businessId: bizId)),
               ),
               const SizedBox(height: Gap.md),
             ],

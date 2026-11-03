@@ -133,3 +133,21 @@ class FakeWinback implements WinbackSource {
     return {'ok': true, 'text': '{name}, come back to {shop} soon!'};
   }
 }
+
+// bizai pillar 5 — weekly report payload
+Map<String, dynamic> fakeWeekly({bool bn = false, bool empty = false}) => {
+      'attribution': {
+        'posts': empty
+            ? []
+            : [
+                {'ref': 'PAB2C', 'title': bn ? 'পোস্ট: পাঞ্জাবি' : 'Post: Panjabi', 'chats': 5,
+                 'orders': 2, 'bdt': '2400.00'}
+              ],
+        'best': null,
+      },
+      'best_hours': [20],
+      'weekly': {
+        'lines': [bn ? 'এই সপ্তাহে বিক্রি: ১২টি, মোট ৳১৮৫০০।' : 'Sales this week: 12, total ৳18500.'],
+        'plan': [bn ? 'পোস্টের সেরা সময়: ২০:০০।' : 'Best time to post: 20:00.'],
+      },
+    };

@@ -1814,5 +1814,7 @@ urlpatterns += [
     path("bizai/crm/segments", bzai.CrmSegmentsView.as_view()),
     path("bizai/crm/ladder", bzai.CrmLadderView.as_view()),
     path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
+    path("bizai/prochar", bzai.ProcharView.as_view()),
+    path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
 ]
 # ---- /bizai ----

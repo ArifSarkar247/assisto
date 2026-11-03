@@ -146,7 +146,8 @@ class ShopChatSendView(_Customer):
             upload = {"type": kind, "bytes": f.read(), "mime": f.content_type or ""}
         lang = req_lang(request)
         st, body = BA.customer_send(request.user, b, request.data.get("text") or "",
-                                    upload=upload, lang=lang)
+                                    upload=upload, lang=lang,
+                                    ref=str(request.data.get("ref") or "")[:12])
         if not body.get("ok"):
             return _refuse(request, body.get("reason", ""), st)
         return Response(body, status=st)
@@ -208,3 +209,40 @@ class CrmDraftView(_RetOwner):
                              "detail": C.problem_text(problem, req_lang(request))},
                             status=402 if problem == "ai_insufficient" else 400)
         return Response({"ok": True, "text": text})
+
+
+# ===================================================================== pillar 5: Prochar
+class ProcharView(APIView):
+    """GET bizai/prochar?days=30 — which posts sold (tracked codes), the best
+    time to post, and this week's report (owner / staff of the shop)."""
+    def get(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        from . import bizai_prochar as BP
+        try:
+            days = max(1, min(int(request.query_params.get("days") or 30), 90))
+        except ValueError:
+            days = 30
+        lang = req_lang(request)
+        return Response({"attribution": BP.attribution(prof, days=days),
+                         "best_hours": BP.best_hours(prof),
+                         "weekly": BP.weekly_report(prof, lang)})
+
+
+class ProcharTrackedView(APIView):
+    """GET bizai/prochar/tracked/<item_id> — the post text with its tracked
+    shop link + code, ready to share (WhatsApp status / broadcast / Page)."""
+    def get(self, request, item_id):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        from . import bizai_prochar as BP
+        d = BP.tracked(prof, item_id, req_lang(request))
+        if d is None:
+            return _refuse(request, "not_found", 404)
+        return Response(d)

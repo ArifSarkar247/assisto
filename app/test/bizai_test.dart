@@ -11,6 +11,7 @@ import 'package:assisto/bizai/bizai_source.dart';
 import 'package:assisto/bizai/my_shops_screen.dart';
 import 'package:assisto/bizai/outcome_card.dart';
 import 'package:assisto/bizai/shop_chat_screen.dart';
+import 'package:assisto/bizai/weekly_report_screen.dart';
 import 'package:assisto/bizai/winback_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/theme.dart';
@@ -214,5 +215,25 @@ void main() {
     await tester.pumpWidget(_app(WinbackScreen(source: FakeWinback(bn: true)), lang: 'bn'));
     await _settle(tester);
     expect(find.text('গত ১২ মাসে ৬ জন গ্রাহক কিনেছেন'), findsOneWidget);
+  });
+
+  testWidgets('weekly report: lines, plan, posts that sold; empty = how-to', (tester) async {
+    await tester.pumpWidget(_app(WeeklyReportScreen(load: () async => fakeWeekly())));
+    await _settle(tester);
+    expect(find.text('Sales this week: 12, total ৳18500.'), findsOneWidget);
+    expect(find.text('Best time to post: 20:00.'), findsOneWidget);
+    expect(find.text('Post: Panjabi'), findsOneWidget);
+    expect(find.text('5 chats · 2 orders'), findsOneWidget);
+    await tester.pumpWidget(_app(WeeklyReportScreen(load: () async => fakeWeekly(empty: true))));
+    await _settle(tester);
+    expect(find.textContaining('carries its own link and code'), findsOneWidget);
+  });
+
+  testWidgets('outcome card names the best post', (tester) async {
+    final f = FakeBizai();
+    f.out = {...f.out, 'best_post': {'title': 'Post: Panjabi', 'orders': 2, 'bdt': '2400.00'}};
+    await tester.pumpWidget(_app(SingleChildScrollView(child: OutcomeCard(source: f))));
+    await _settle(tester);
+    expect(find.text('Best post: Post: Panjabi — 2 orders, \u09F32,400'), findsOneWidget);
   });
 }

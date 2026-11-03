@@ -103,6 +103,14 @@ class _OutcomeCardState extends State<OutcomeCard> {
                         .headlineSmall
                         ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.sm),
+                if (d['best_post'] is Map)
+                  BizNote(
+                    icon: Icons.campaign_rounded,
+                    text: t.bizaiOutBestPost(
+                        bd(context, (d['best_post'] as Map)['title']),
+                        fmtInt(context, ((d['best_post'] as Map)['orders'] as num?)?.toInt() ?? 0),
+                        bizaiTaka(context, (d['best_post'] as Map)['bdt'])),
+                  ),
                 for (final r in rows)
                   ListTile(
                     contentPadding: EdgeInsets.zero,

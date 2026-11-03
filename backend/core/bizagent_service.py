@@ -1378,6 +1378,13 @@ def handle_message(ch, e):
     inbound = Message.objects.create(thread=t, direction="in", text=text or ("[%s]" % kind if atts else ""),
                                      external_id=e.get("event_id", ""), status="received",
                                      kind=kind, meta=meta)
+    # bizai pillar 5: a tracked post code in the message marks this chat
+    if text:
+        try:
+            from . import bizai_prochar as BP
+            BP.capture(t, text)
+        except Exception:  # noqa: BLE001
+            log.exception("bizai.capture")
     # retention1: a reply to an automated message counts as "replied"; a STOP
     # here opts the customer out of every retention automation of the shop
     try:
@@ -1820,6 +1827,7 @@ def confirm_order(thread, agent, lang):
                   address=draft["address"], items=[item], total=priced["total"],
                   delivery_charge=priced["delivery"], area=draft["area"], status="confirmed",
                   payment="cod", channel=thread.channel, via_agent=True,
+                  source_ref=thread.source_ref or "",       # bizai: Prochar attribution
                   payment_status="pending_verification" if draft.get("payment_proof") else "")
     with transaction.atomic():
         if not _decrement_stock(item):
