@@ -40,6 +40,5 @@ final Map<String, Widget Function(String)> at100Shots = {
           lock: VaultLock(kv: MemoryKv(), iterations: 10),
           mode: VaultLockMode.enter,
           onUnlocked: () {},
-          onForgot: () {},
           intruderArmed: true)),
 };
