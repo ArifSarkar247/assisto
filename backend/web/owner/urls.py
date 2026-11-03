@@ -30,6 +30,7 @@ from . import views_blood as BLD     # blood
 from . import views_site3 as WS3     # sitev3: website go-live switch
 from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
+from . import views_buylinks as BUY   # chipbuy2: own-shop buy links
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -135,6 +136,7 @@ urlpatterns = [
     path("agent-runs/thresholds", AGR.agent_obs_save),           # af-8
     path("agent-runs/brief-rollout", AGR.agent_brief_rollout_save),  # flagprep
     path("train-schedule", TRS.train_schedule),                  # flagprep
+    path("buy-links", BUY.buy_links),                            # chipbuy2
     path("agent-runs/feedback", AGR.agent_feedback_queue),       # af-12
     path("agent-runs/feedback/<int:pk>", AGR.agent_feedback_decide),  # af-12
     path("agent-runs/<int:pk>", AGR.agent_run_detail),           # agent-core

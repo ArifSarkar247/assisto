@@ -58,10 +58,14 @@ class _Fake extends ApiClient {
     return {'ok': true};
   }
 
+  final List<(String, Map<String, dynamic>)> patches = [];
+
   @override
   Future<Map<String, dynamic>> patchJson(String path,
-          [Map<String, dynamic> body = const {}]) async =>
-      {'ok': true};
+      [Map<String, dynamic> body = const {}]) async {
+    patches.add((path, Map.of(body)));
+    return {'ok': true};
+  }
 
   @override
   Future<Map<String, dynamic>> deleteJson(String path) async => {'ok': true};
@@ -96,7 +100,7 @@ Widget _app(Widget child, ApiClient api,
 }
 
 void _tall(WidgetTester t) {
-  t.view.physicalSize = const Size(1080, 6400);
+  t.view.physicalSize = const Size(1080, 12000); // chipbuy2: taller chip card
   t.view.devicePixelRatio = 2.5;
   addTearDown(t.view.reset);
 }
@@ -105,6 +109,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
+    BuyLinks.reset();
   });
 
   group('where to buy', () {
@@ -130,11 +135,13 @@ void main() {
       expect(hits, ['lib/widgets/where_to_buy.dart']);
     });
 
-    test('plain external link, one utm_source, nothing else', () {
-      final u = WhereToBuyLink.uri;
-      expect(u.scheme, 'https');
-      expect(u.host, 'asalifymart.com');
-      expect(u.queryParameters, {'utm_source': 'assisto'});
+    test('only https links on the own shop host are ever opened', () {
+      expect(isOwnShopUrl('https://asalifymart.com/?utm_source=assisto'), isTrue);
+      expect(isOwnShopUrl('https://www.asalifymart.com/p/x'), isTrue);
+      for (final bad in ['http://asalifymart.com/', 'https://asalifymart.com.evil.io/',
+        'https://evil.io/?q=asalifymart.com', 'https://u:p@asalifymart.com/', '']) {
+        expect(isOwnShopUrl(bad), isFalse, reason: bad);
+      }
     });
 
     for (final lang in ['en', 'bn']) {
@@ -151,13 +158,16 @@ void main() {
             ),
             _Fake(),
             lang: lang));
+        await t.pump();
         for (final s in [l.buyCctvTitle, l.buyVehicleTitle, l.buyKidsWatchTitle,
           l.buyChipTitle]) {
           expect(find.text(s), findsOneWidget);
         }
         await t.tap(find.byKey(const ValueKey('where-to-buy-chip')));
         await t.pump();
-        expect(opened.single.$1.toString(), kWhereToBuyUrl);
+        expect(opened.single.$1.toString(), 'https://asalifymart.com/?utm_source=assisto');
+        expect(find.text(l.buyNow), findsNWidgets(4));
+        expect(find.text(l.buyOwnShopSub), findsNWidgets(4));
         expect(opened.single.$2, LaunchMode.externalApplication);
         // 48 dp+ touch target
         expect(t.getSize(find.byKey(const ValueKey('where-to-buy-cctv'))).height,
@@ -170,6 +180,7 @@ void main() {
       final l = await AppLocalizations.delegate.load(const Locale('en'));
       await t.pumpWidget(_app(
           const Scaffold(body: WhereToBuyLink(product: BuyProduct.vehicle)), _Fake()));
+      await t.pump();
       await t.tap(find.byKey(const ValueKey('where-to-buy-vehicle')));
       await t.pump();
       expect(find.text(l.buyOpenFailed), findsOneWidget);
@@ -271,5 +282,89 @@ void main() {
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
     });
+  }
+
+  // ------------------------------------------------------------ chipbuy2
+  group('chipbuy2 own-shop list', () {
+    testWidgets('owner title shown; empty / failing list = no link at all', (t) async {
+      await t.pumpWidget(_app(
+          const Scaffold(body: WhereToBuyLink(product: BuyProduct.chip)), _ListFake([
+        {'category': 'chip', 'title_bn': 'চিপ', 'title_en': 'Mini 4G chip',
+         'url': 'https://asalifymart.com/chip?utm_source=assisto'},
+        {'category': 'chip', 'title_en': 'Bad host', 'url': 'https://evil.io/'},
+        {'category': 'cctv', 'title_en': 'Camera', 'url': 'https://asalifymart.com/c'},
+      ])));
+      await t.pump();
+      expect(find.text('Mini 4G chip'), findsOneWidget);
+      expect(find.text('Bad host'), findsNothing);              // never a foreign link
+      expect(find.text('Camera'), findsNothing);                // other category
+      BuyLinks.reset();
+      await t.pumpWidget(_app(
+          const Scaffold(body: WhereToBuyLink(product: BuyProduct.chip, key: ValueKey('b'))),
+          _ListFake(null)));
+      await t.pump();
+      expect(find.byKey(const ValueKey('where-to-buy-chip')), findsNothing);
+    });
+  });
+
+  testWidgets('chip card: find now, find state, left-behind spot + safe place, minutes',
+      (t) async {
+    _tall(t);
+    final l = await AppLocalizations.delegate.load(const Locale('en'));
+    final api = _Fake();
+    await t.pumpWidget(_app(const KidsWatchScreen(), api));
+    await t.pumpAndSettle();
+    final card = find.byKey(const ValueKey('chip-card-7'));
+    expect(find.descendant(of: card, matching: find.text(l.chipFindAcked)), findsOneWidget);
+    expect(find.descendant(of: card, matching: find.text(l.chipLeftSpot)), findsOneWidget);
+    expect(find.descendant(of: card, matching: find.text(l.chipSafeCount('1'))), findsOneWidget);
+    await t.ensureVisible(find.byKey(const ValueKey('chip-find')));
+    await t.tap(find.byKey(const ValueKey('chip-find')));
+    await t.pumpAndSettle();
+    expect(api.posts.last.$1, '/kids-watch/chips/7/find');
+    expect(find.text(l.chipFindAsked), findsWidgets);
+    await t.pump(const Duration(seconds: 6));                  // snackbar gone
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('chip-safe-place')));
+    await t.tap(find.byKey(const ValueKey('chip-safe-place')));
+    await t.pumpAndSettle();
+    expect(api.patches.last.$1, '/kids-watch/chips/7');
+    final add = (api.patches.last.$2['left_behind'] as Map)['safe_add'] as Map;
+    expect(add['lat'], 23.7911);
+    await t.pump(const Duration(seconds: 6));
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('chip-left-30')).first);
+    await t.tap(find.byKey(const ValueKey('chip-left-30')).first);
+    await t.pumpAndSettle();
+    expect(api.patches.last.$2['left_behind'], {'on': true, 'min': 30});
+    // 48 dp find button
+    expect(t.getSize(find.byKey(const ValueKey('chip-find'))).height,
+        greaterThanOrEqualTo(48));
+  });
+
+  testWidgets('bn: left-behind minutes in Bangla digits; pair sheet says GPS vs Bluetooth',
+      (t) async {
+    _tall(t);
+    final l = await AppLocalizations.delegate.load(const Locale('bn'));
+    await t.pumpWidget(_app(const KidsWatchScreen(), _Fake(bn: true), lang: 'bn'));
+    await t.pumpAndSettle();
+    expect(find.text(l.chipLeftMin('৬০')), findsWidgets);
+    await t.pumpWidget(_app(const Scaffold(body: ChipPairSheet()), _Fake(bn: true), lang: 'bn'));
+    await t.pumpAndSettle();
+    expect(find.text(l.chipRangeNote), findsOneWidget);
+  });
+}
+
+class _ListFake extends ApiClient {
+  _ListFake(this.items) {
+    token = 't';
+  }
+
+  final List<Map<String, dynamic>>? items;
+
+  @override
+  Future<Map<String, dynamic>> getJson(String path) async {
+    if (items == null) throw ApiException('offline');
+    return {'items': items};
   }
 }

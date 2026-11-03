@@ -2101,3 +2101,26 @@ BN.update({
     "as_need": "দরকার",
 })
 # ---- /adminsafe ----
+
+# ---- chipbuy2: Owner Admin -> Buy links (own shop asalifymart) ----
+EN.update({
+    "nav_buy_links": "Buy links (our shop)",
+    "bl_intro": "Where the app recommends a device (tracker chip, CCTV camera, vehicle tracker, kids watch) it shows a \"Buy — our own shop asalifymart\" link. The links come only from this list. There is no price field on purpose: prices are shown only on the shop page, so the app never shows a stale price.",
+    "bl_rules": "Only https links on asalifymart.com are saved. The app adds utm_source=assisto. Up to 3 links per device type are shown; switched-off rows are hidden. Links never appear on SOS, alert, live-location, permission, payment or login screens.",
+    "bl_category": "Device type", "bl_title_bn": "Name (Bangla)", "bl_title_en": "Name (English)",
+    "bl_url": "Link (asalifymart.com)", "bl_on": "Show",
+    "bl_cat_chip": "Tracker chip (bag / shoe)", "bl_cat_cctv": "CCTV camera",
+    "bl_cat_vehicle": "Vehicle tracker", "bl_cat_kids_watch": "Kids watch",
+    "bl_add_hint": "Empty rows are ignored. To remove a row, clear its link.",
+})
+BN.update({
+    "nav_buy_links": "কেনার লিংক (নিজের দোকান)",
+    "bl_intro": "অ্যাপ যেখানে কোনো যন্ত্রের কথা বলে (ট্র্যাকার চিপ, সিসিটিভি ক্যামেরা, গাড়ির ট্র্যাকার, বাচ্চাদের ঘড়ি), সেখানে \"কিনুন — আমাদের নিজের দোকান asalifymart\" লিংক দেখায়। লিংক আসে শুধু এই তালিকা থেকে। দামের ঘর ইচ্ছা করেই নেই: দাম দেখা যায় শুধু দোকানের পাতায়, তাই অ্যাপে পুরোনো দাম কখনো দেখাবে না।",
+    "bl_rules": "শুধু asalifymart.com-এর https লিংক সেভ হয়। অ্যাপ utm_source=assisto যোগ করে। প্রতিটি যন্ত্রের ধরনে সর্বোচ্চ ৩টি লিংক দেখায়; বন্ধ সারি লুকানো। SOS, সতর্কবার্তা, চলমান অবস্থান, অনুমতি, পেমেন্ট বা লগইন পাতায় কখনো দেখায় না।",
+    "bl_category": "যন্ত্রের ধরন", "bl_title_bn": "নাম (বাংলা)", "bl_title_en": "নাম (ইংরেজি)",
+    "bl_url": "লিংক (asalifymart.com)", "bl_on": "দেখান",
+    "bl_cat_chip": "ট্র্যাকার চিপ (ব্যাগ / জুতা)", "bl_cat_cctv": "সিসিটিভি ক্যামেরা",
+    "bl_cat_vehicle": "গাড়ির ট্র্যাকার", "bl_cat_kids_watch": "বাচ্চাদের ঘড়ি",
+    "bl_add_hint": "খালি সারি বাদ পড়ে। কোনো সারি মুছতে তার লিংক খালি করুন।",
+})
+# ---- /chipbuy2 ----

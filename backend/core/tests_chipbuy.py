@@ -282,7 +282,13 @@ class NoAsalifyCallsTests(TestCase):
         root = Path(__file__).resolve().parents[1]
         files = [p for d in ("core", "web", "crm", "tracker", "assisto_backend")
                  for p in (root / d).rglob("*.py")]
+        # chipbuy2: the owner-editable link LIST (core/buy_links.py) and the
+        # Owner Admin strings name the shop; neither may make a network call.
+        allowed = {"tests_chipbuy.py", "tests_chipbuy2.py", "buy_links.py", "i18n.py"}
         hits = [str(p) for p in files
                 if "asalifymart" in p.read_text(encoding="utf-8", errors="ignore").lower()
-                and p.name != "tests_chipbuy.py"]
+                and p.name not in allowed]
         self.assertEqual(hits, [])
+        src = (root / "core" / "buy_links.py").read_text(encoding="utf-8")
+        for net in ("requests", "urlopen", "httpx", "http.client", "socket"):
+            self.assertNotIn(net, src)
