@@ -393,7 +393,7 @@ class _AnswerCard extends StatelessWidget {
           SelectableText(c.answer, style: const TextStyle(height: 1.45)),
           const AiGeneratedLabel(), // aifinal PART 6
           // aifinal PART 7g: the user asked for an EDIT -> one tap to Photo Studio
-          if (wantsPhotoEdit(widget.request.question) &&
+          if (wantsPhotoEdit(c.question) &&
               ChatNav.routes.containsKey('photo_studio'))
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
@@ -402,8 +402,8 @@ class _AnswerCard extends StatelessWidget {
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => PhotoStudioScreen(
-                        initialBytes: widget.request.bytes,
-                        initialPrompt: widget.request.question))),
+                        initialBytes: c.bytes,
+                        initialPrompt: c.question))),
                 icon: const Icon(Icons.auto_fix_high_rounded),
                 label: Text(t.psAskStudio),
               ),
