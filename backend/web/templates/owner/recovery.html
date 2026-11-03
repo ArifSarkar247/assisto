@@ -1,0 +1,29 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_recovery }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.rec_intro }}</p>
+<div class="tiles">{% for k, n in tiles %}<a class="tile" href="?status={{ k }}"><span>{% if k == 'pending' %}{{ T.rec_t_pending }}{% else %}{{ T.rec_t_approved }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<form method="get" class="inline card">
+  <label>{{ T.status }}<select name="status">{% for f in filters %}<option value="{{ f }}" {% if f == st %}selected{% endif %}>{% if f == 'pending' %}{{ T.rec_t_pending }}{% elif f == 'approved' %}{{ T.rec_t_approved }}{% elif f == 'done' %}{{ T.rec_f_done }}{% else %}{{ T.all }}{% endif %}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <span class="mut small">{{ total }}</span>
+</form>
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>Ref</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.rec_account }}</th><th>{{ T.rec_numbers }}</th><th>{{ T.rec_proof }}</th><th>{{ T.rec_family }}</th><th>{{ T.rec_hold }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.ref }}</td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+<td><span class="pill {% if r.state == 'approved' %}ok{% elif r.state == 'pending' %}spons{% endif %}">{{ r.state }}</span></td>
+<td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a> · {{ T.rec_age }} {{ r.p.account_age_days|default:"—" }}</td>
+<td>{{ T.rec_lost }} {{ r.acct_m }}<br>{{ T.rec_new }} {{ r.contact_m }} ({{ T.rec_sms_ok }})</td>
+<td><b>{{ r.score }}/100</b><div class="small">{{ T.rec_name }}: {{ r.p.name }} ("{{ r.typed_name }}") · {{ T.rec_signup }}: {{ r.p.signup }} · Circle: {{ r.p.circle }} · {{ T.rec_pw }}: {{ r.p.password }}</div></td>
+<td>{{ r.family_state }}{% if r.family_user_id %} · #{{ r.family_user_id }}{% endif %}{% if r.p.family_asked and not r.p.family_matched %}<div class="small">{{ T.rec_family_nomatch }}</div>{% endif %}</td>
+<td>{% if r.hold_left_h %}{{ r.hold_left_h }} h{% else %}{{ T.rec_hold_over }}{% endif %}</td>
+<td>{% if r.state == 'pending' %}
+<form method="post" action="/owner/recovery/{{ r.id }}/act">{% include "owner/_csrf.html" %}<input type="hidden" name="status" value="{{ st }}">
+<input name="note" maxlength="300" placeholder="{{ T.rec_note }}">
+{% if r.family_state != 'denied' %}<button class="btn primary" name="action" value="approve">{{ T.rec_approve }}</button>{% endif %}
+<button class="btn danger" name="action" value="reject">{{ T.rec_reject }}</button>
+</form>{% else %}<span class="small mut">{{ r.review_note }}</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.rec_none }}</p>{% endif %}
+{% endblock %}

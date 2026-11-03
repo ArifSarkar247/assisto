@@ -2210,3 +2210,32 @@ BN.update({
     "bl_add_hint": "খালি সারি বাদ পড়ে। কোনো সারি মুছতে তার লিংক খালি করুন।",
 })
 # ---- /chipbuy2 ----
+
+# ---- recovery: Owner Admin -> Account recovery ----
+EN.update({
+    "nav_recovery": "Account recovery",
+    "rec_intro": "People who lost their phone and have no verified email. You see match RESULTS only — never chats, photos or documents. Approving never skips the 48-hour security hold: the person can finish only after it ends, on the new number they proved by SMS. A family member's 'No' cannot be approved. The account's signed-in phones got a push to cancel.",
+    "rec_t_pending": "Waiting for review", "rec_t_approved": "Approved (hold / ready)",
+    "rec_f_done": "Finished", "rec_account": "Account", "rec_numbers": "Numbers",
+    "rec_proof": "Proof (match results)", "rec_family": "Family confirmation",
+    "rec_hold": "Hold left", "rec_hold_over": "over", "rec_age": "age (days)",
+    "rec_lost": "lost:", "rec_new": "new:", "rec_sms_ok": "SMS-verified",
+    "rec_name": "name", "rec_signup": "signup", "rec_pw": "old password",
+    "rec_family_nomatch": "typed number is not a Family member in their Circle",
+    "rec_note": "Note (optional)", "rec_approve": "Approve", "rec_reject": "Reject",
+    "rec_none": "No requests here.",
+})
+BN.update({
+    "nav_recovery": "অ্যাকাউন্ট রিকভারি",
+    "rec_intro": "যাঁরা ফোন হারিয়েছেন এবং যাচাই-করা ইমেইল নেই। আপনি শুধু মিলের ফল দেখেন — কোনো চ্যাট, ছবি বা ডকুমেন্ট নয়। অনুমোদন দিলেও ৪৮ ঘণ্টার নিরাপত্তা অপেক্ষা বাদ যায় না: অপেক্ষা শেষে, SMS-এ যাচাই করা নতুন নম্বরেই মানুষটি শেষ করতে পারেন। পরিবারের সদস্য 'না' বললে অনুমোদন দেওয়া যায় না। অ্যাকাউন্টের লগইন থাকা ফোনে বাতিলের push গেছে।",
+    "rec_t_pending": "রিভিউয়ের অপেক্ষায়", "rec_t_approved": "অনুমোদিত (অপেক্ষা / প্রস্তুত)",
+    "rec_f_done": "শেষ", "rec_account": "অ্যাকাউন্ট", "rec_numbers": "নম্বর",
+    "rec_proof": "প্রমাণ (মিলের ফল)", "rec_family": "পরিবারের নিশ্চিতকরণ",
+    "rec_hold": "অপেক্ষা বাকি", "rec_hold_over": "শেষ", "rec_age": "বয়স (দিন)",
+    "rec_lost": "হারানো:", "rec_new": "নতুন:", "rec_sms_ok": "SMS-এ যাচাই",
+    "rec_name": "নাম", "rec_signup": "খোলার সময়", "rec_pw": "পুরোনো পাসওয়ার্ড",
+    "rec_family_nomatch": "লেখা নম্বরটি তাঁর Circle-এর পরিবারের কেউ নন",
+    "rec_note": "নোট (ইচ্ছামতো)", "rec_approve": "অনুমোদন", "rec_reject": "বাতিল",
+    "rec_none": "এখানে কোনো অনুরোধ নেই।",
+})
+# ---- /recovery ----

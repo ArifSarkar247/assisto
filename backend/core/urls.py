@@ -1801,3 +1801,20 @@ urlpatterns += [
     path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
 ]
 # ---- /safeplans ----
+# ---- recovery ---- Account & security + account recovery (owner Part 8)
+from . import views_account_security as acsec  # noqa: E402
+urlpatterns += [
+    path("account/security", acsec.AccountSecurityView.as_view()),
+    path("account/security/password", acsec.ChangePasswordView.as_view()),
+    path("account/security/devices/signout-others", acsec.DeviceSignOutOthersView.as_view()),
+    path("account/security/devices/<str:sid>/signout", acsec.DeviceSignOutView.as_view()),
+    path("account/security/nudge", acsec.NudgeView.as_view()),
+    path("account/security/recovery/<int:pk>/cancel", acsec.OwnerCancelRecoveryView.as_view()),
+    path("account/security/recovery/family/<int:pk>", acsec.FamilyDecideView.as_view()),
+    path("auth/recovery/options", acsec.RecoveryOptionsView.as_view()),
+    path("auth/recovery/support/start", acsec.SupportStartView.as_view()),
+    path("auth/recovery/support/status", acsec.SupportStatusView.as_view()),
+    path("auth/recovery/support/complete", acsec.SupportCompleteView.as_view()),
+    path("account/not-me/<str:token>", acsec.NotMeView.as_view()),
+]
+# ---- /recovery ----

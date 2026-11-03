@@ -62,7 +62,18 @@ class BlockAwareTokenAuthentication(TokenAuthentication):
         return res
 
     def authenticate_credentials(self, key):
-        user, token = super().authenticate_credentials(key)
+        try:
+            user, token = super().authenticate_credentials(key)
+        except exceptions.AuthenticationFailed:
+            # recovery: a per-device session key (new builds). The legacy
+            # single Token (above) is unchanged for older builds.
+            from .device_sessions import lookup
+            sess = lookup(key)
+            if sess is None:
+                raise
+            if not sess.user.is_active:
+                raise exceptions.AuthenticationFailed("User inactive or deleted.")
+            user, token = sess.user, sess
         if is_blocked(user):
             raise exceptions.AuthenticationFailed("account_blocked")
         # p5-growth: once a local day, mark the account active (retention +
