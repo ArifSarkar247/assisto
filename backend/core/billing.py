@@ -632,6 +632,9 @@ def guard_can(user, action, qty=1):
         return True, "unlimited"
     ensure_monthly_pool(user)
     need = pricing.credits_for(action, qty, cfg())
+    # aifinal PART 3: an AI answer level carries its own computed price
+    if exact is not None:
+        need = max(0, int(exact))
     if need <= 0:
         return True, "ok"          # unpriced/unknown action -> free, never block
 
@@ -657,7 +660,7 @@ def guard_can(user, action, qty=1):
 
 # --------------------------------------------------------------- atomic charge
 
-def charge(user, action, qty=1, note="", min_credits=0):
+def charge(user, action, qty=1, note="", min_credits=0, exact=None, paid_only=False):
     """ATOMIC debit of the per-action credit cost against User.ai_credits.
 
     Returns {"ok": bool, "reason": str, "charged": int, "balance": int}.
@@ -686,6 +689,9 @@ def charge(user, action, qty=1, note="", min_credits=0):
     ensure_monthly_pool(user)
 
     need = pricing.credits_for(action, qty, cfg())
+    # aifinal PART 3: an AI answer level carries its own computed price
+    if exact is not None:
+        need = max(0, int(exact))
     # bizauto: a caller that knows a higher real cost (an SMS gateway with its
     # own per-part price) may raise the charge to keep the 40 % rule — never lower
     if need > 0 and min_credits:
@@ -730,7 +736,10 @@ def charge(user, action, qty=1, note="", min_credits=0):
             fam = None
         if fam is not None and (fam["ok"] or fam["reason"] == "family_cap"):
             return fam
-    res = CR.spend(user, need, note=(note or action))
+    # aifinal PART 4: free + rewarded-ad credits pay only for Normal answers;
+    # Better / Best spend only BOUGHT credits (plan pool + packs)
+    only = CR.PAID_BUCKETS if paid_only else None
+    res = CR.spend(user, need, note=(note or action), only_buckets=only)
     return {"ok": res["ok"], "reason": res["reason"], "charged": res["charged"],
             "balance": res["balance"], "spend_ref": res.get("spend_ref", ""),
             **({"negative": True} if res.get("negative") else {})}
@@ -1005,7 +1014,27 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
         return {"ok": True, "reason": "not_rewarded_format",
                 "credited_paisa": 0, "credited_credits": 0}
 
+    # aifinal PART 4: rewarded ads are for adults only — never a child account
+    try:
+        from .safe_plans import is_child_account
+        if is_child_account(user):
+            AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                                   ad_id=ad_id[:80], credited_paisa=0, at=now)
+            return {"ok": False, "reason": "child_account", "credited_paisa": 0,
+                    "credited_credits": 0}
+    except Exception:  # noqa: BLE001
+        pass
     paisa = _ad_reward_paisa(ad_cfg)
+    rev_paisa = paisa
+    # aifinal PART 4: while AI answer levels are on, one verified rewarded ad
+    # buys N Normal answers (owner ratio, default 2) instead of the eCPM share
+    try:
+        from . import ai_levels_service as ALS
+        n_ad = ALS.ad_credits()
+        if n_ad is not None:
+            paisa = int(n_ad) * 100        # the wallet moves whole credits (100 paisa each)
+    except Exception:  # noqa: BLE001
+        pass
     moved = 0
     whole = 0
     from . import credits as CR
@@ -1037,7 +1066,7 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
     after_credits = ad_wallet_credits(user)
     # ad revenue into the DailyLedger (we got paid the eCPM; the user share is a cost
     # we recognise as the credit grant — we only book the NET we actually keep here).
-    record_revenue("ads", paisa / 100.0)
+    record_revenue("ads", rev_paisa / 100.0)
     out = {"ok": True, "reason": "ok", "credited_paisa": paisa,
            "credited_credits": whole if not paid else 0,
            "wallet_credits": after_credits}

@@ -129,6 +129,14 @@ def _mode_need(mode):
         return 0
 
 
+def _level_need(level):
+    try:
+        from . import ai_levels_service as ALS
+        return int(ALS.credits(level))
+    except Exception:  # noqa: BLE001
+        return 0
+
+
 def _chat_mode(request):
     """pricing-40: the chat mode for this request — the app's `mode`
     ('quick'|'smart'|'pro') or the owner's default — ONLY while the
@@ -198,8 +206,23 @@ def _refund_turn(user, meta_out, why):
         log.exception("chat: refund failed (%s)", why)
 
 
+def _chat_level(request):
+    """aifinal PART 3: the answer level the user picked ('normal' | 'better' |
+    'best'), or None while the owner switch is off. Unknown -> the default
+    (Normal); the server never picks a dearer level than the app sent."""
+    try:
+        from . import ai_levels_service as ALS
+        if not ALS.enabled():
+            return None
+        raw = (request.data.get("level") if hasattr(request, "data") else "") \
+            or request.query_params.get("level")
+        return ALS.resolve(raw)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
-                   photo=""):
+                   photo="", level=None):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -232,6 +255,10 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             # and the Brain's "needs a key" line is never sent as if it were
             # the user's data.
             limit = G.USER_TEXT_MAX
+            if level:
+                mode = None                  # the level path replaces the modes
+                from . import ai_levels_service as ALS
+                limit = int((ALS.spec(level) or {}).get("max_chars") or G.USER_TEXT_MAX)
             if mode:
                 cm = ai_cm()
                 limit = int(cm.get("user_text_max_chars") or G.USER_TEXT_MAX)
@@ -255,7 +282,13 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             from .agentcore import trust as _T
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
-            if mode:
+            if level:
+                reply, cost = ai.generate(
+                    task="", extra_system=task_text,
+                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    tier=requested_tier, feature="chat." + level, max_tokens=700,
+                    user=user, history=history, out_meta=meta_out, pii=vault, level=level)
+            elif mode:
                 # pricing-40: the chat instruction goes into the SYSTEM block so
                 # system + instruction (>= 512 tokens) is one cacheable prefix
                 # shared by every user of that language; free hard-question
@@ -320,6 +353,18 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 meta["balance"] = bal
             if mode == "quick" and credits == 0:
                 meta["free_quota"] = True       # one of today's free quick answers
+            if level:
+                from .logic import ai_levels as AL
+                meta["level"] = level
+                meta["model"] = {"normal": "assisto-lite", "better": "assisto",
+                                 "best": "assisto-pro"}.get(level, "assisto")
+                if AL.hint_better(text, level):
+                    meta["hint_better"] = True    # a hint only — never an upgrade
+            # aifinal PART 5: up to 3 real in-app actions (fixed allow-list)
+            from . import ai_actions
+            acts = ai_actions.suggest(user, text)
+            if acts:
+                meta["actions"] = acts
             if _cut:
                 meta["text_cut"] = True
             if n_money:
@@ -332,7 +377,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             # buy-credits sheet and re-send the same text.
             if e.reason == "credits" and credout:
                 raise credits_out.CreditsOut(
-                    _mode_need(mode) if mode
+                    _level_need(level) if level
+                    else _mode_need(mode) if mode
                     else credits_out.need_for_tier(user, requested_tier))
             # kill-switch / budget / user-limit / guard-over / every provider
             # failed -> degrade to the free, honest Brain answer below.
@@ -481,6 +527,31 @@ class ChatStatusView(APIView):
         return Response(chat_status_payload())
 
 
+class ChatLevelsView(APIView):
+    """aifinal PART 3: GET /chat/levels — the answer-level picker (credits per
+    answer shown BEFORE sending, max length, temporarily unavailable)."""
+    def get(self, request):
+        from . import ai_levels_service as ALS
+        return Response(ALS.app_payload(request.user, req_lang(request)))
+
+
+class ChatWelcomeCreditsView(APIView):
+    """aifinal PART 4: POST /chat/welcome-credits — the 20 free AI credits,
+    ONCE per verified phone + device (antifarm). Idempotent: a second call
+    answers granted 0 with the reason."""
+    def post(self, request):
+        from . import ai_levels_service as ALS
+        from . import ai_prompt as AP
+        from .otp import device_id
+        n, why = ALS.grant_welcome(request.user, device_id(request))
+        lang = req_lang(request)
+        return Response({"granted": n, "reason": why, "balance": G.balance(request.user),
+                         "message": pick(lang, "স্বাগতম! AI-তে ব্যবহারের জন্য %s ফ্রি ক্রেডিট পেলেন (সাধারণ লেভেলে)।"
+                                         % AP.to_bn_digits(str(n)),
+                                         "Welcome! You got %d free AI credits (for Normal answers)." % n)
+                         if n else ""})
+
+
 # ---------------------------------------------------------------------------
 # GET/POST /chat/sessions  — list + create
 # ---------------------------------------------------------------------------
@@ -580,7 +651,8 @@ class ChatSendView(APIView):
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
                                             mode=_chat_mode(request),
-                                            photo=_photo_context(request))
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request))
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -637,7 +709,8 @@ class ChatStreamView(APIView):
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
                                             mode=_chat_mode(request),
-                                            photo=_photo_context(request))
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request))
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -714,7 +787,8 @@ class ChatRegenerateView(APIView):
             reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
                                             credout=credits_out.supported(request),
                                             mode=_chat_mode(request),
-                                            photo=_photo_context(request))
+                                            photo=_photo_context(request),
+                                            level=_chat_level(request))
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.

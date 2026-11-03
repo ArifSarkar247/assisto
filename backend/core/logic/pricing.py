@@ -37,6 +37,7 @@ from . import probashi_plan as _PB   # probashi-plan
 from .. import ai_config as _AIR      # ai-router: models, caps, prices
 from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 from . import cctv_plan as _CCTV     # cctvprice: CCTV plan (Play), cost guards
+from . import ai_levels as _AIL     # aifinal PART 3
 from . import safe_plans as _SAFE    # safeplans: Child / Safe Family / School Safe
 
 # --------------------------------------------------------------- currency basis
@@ -762,6 +763,7 @@ def DEFAULTS():
         # quota, input/output caps, annual credit months. DISABLED until the
         # owner approves (manage.py apply_pricing_preset pricing_27oct).
         "credit_model": _P40.credit_model_defaults(),
+        "ai_levels": _AIL.defaults(),            # aifinal PART 3
         # probashi-plan (owner 27 Oct): seats, shared pool, caps, cooldown
         "probashi_plan": _PB.defaults(),
     }
@@ -908,6 +910,7 @@ def normalize(data):
         "retention": _norm_retention(d.get("retention"), base["retention"]),
         "plans_v2": _ENT.normalize(d.get("plans_v2")),
         "credit_model": _P40.normalize_credit_model(d.get("credit_model")),
+        "ai_levels": _AIL.normalize(d.get("ai_levels")),   # aifinal PART 3
         "probashi_plan": _PB.normalize(d.get("probashi_plan")),
     }
 

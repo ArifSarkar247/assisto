@@ -424,7 +424,8 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
         contents.append({"role": "model" if m["role"] == "assistant" else "user",
                          "parts": [{"text": m["content"]}]})
     gen = {"maxOutputTokens": int(max_tokens)}
-    if model.startswith("gemini-2.5") and _opts().get("klass") == "cheap":
+    if model.startswith("gemini-2.5") and (_opts().get("klass") == "cheap"
+                                          or _opts().get("no_thinking")):
         gen["thinkingConfig"] = {"thinkingBudget": 0}     # cheap tasks: no thinking
     body = {"systemInstruction": {"parts": [{"text": system}]},
             "contents": contents, "generationConfig": gen}
@@ -602,6 +603,31 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             spec = None
     if spec is None:
         mode = None
+    # aifinal PART 3: the user's answer level (owner switch). It replaces the
+    # mode path: fixed model + hard caps + its own credit price; never an
+    # auto-upgrade; fallback only to the same or a cheaper model.
+    lvl = None
+    if level:
+        try:
+            from . import ai_levels_service as ALS
+            if ALS.enabled():
+                lvl = ALS.spec(level)
+        except Exception:  # noqa: BLE001 — a bad block never breaks AI
+            lvl = None
+    if lvl is not None:
+        spec, mode, upgrade = None, None, False
+        from . import ai_levels_service as ALS
+        if ALS.over_daily_limit(user, lvl["id"]):
+            raise AIUnavailable("user_limit")
+    if user is None:
+        # aifinal PART 4: a call with no payer must be on the documented
+        # free list; anything else is logged loudly (CI audits every caller)
+        try:
+            from . import ai_levels_service as ALS
+            if not ALS.exempt(feature):
+                log.warning("ai: call without a payer (feature=%s)", (feature or "-")[:40])
+        except Exception:  # noqa: BLE001
+            pass
     upgraded = False
     if spec is not None and mode == "smart" and upgrade and user is not None:
         try:
@@ -624,7 +650,15 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             upgraded = False
     charged = 0
     spend_ref = ""
-    if user is not None and spec is not None:
+    if user is not None and lvl is not None:
+        from . import billing
+        res = billing.charge(user, "ai_level_" + lvl["id"], qty=1, note=feature or lvl["id"],
+                             exact=lvl["credits"], paid_only=not lvl["free_ok"])
+        if not res["ok"]:
+            raise AIUnavailable("budget" if res.get("reason") == "guard_over" else "credits")
+        charged = res["charged"]
+        spend_ref = res.get("spend_ref", "")
+    elif user is not None and spec is not None:
         from . import billing
         from .logic import pricing_40 as P40
         action = P40.MODE_ACTION[mode]
@@ -662,6 +696,12 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     klass = task_class if task_class in C.CLASSES else C.task_class(tier, feature, conf)
     keys = dict(providers)
     order = [p for p in C.ORDER[klass] if p in keys]
+    # (provider, model-or-None) pairs; None = the router's model for the slot
+    pairs = [(p, None) for p in order]
+    if lvl is not None:
+        pairs = [(p, m) for p, m in [(lvl["provider"], lvl["model"])] + lvl["fallbacks"]
+                 if p in keys]
+        order = [p for p, _ in pairs]
     system = P.system_prompt(extra_system)
     prompt = task + (f"\n\n<data>\n{data}\n</data>" if data else "")
     if not task:
@@ -677,12 +717,19 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         opts.update({"effort": spec["effort"], "hard_cap": True,
                      "thinking": "off" if spec["thinking"] != "adaptive" else None,
                      "cache": bool(spec.get("cache", True))})
+    if lvl is not None:
+        from .logic import pricing_40 as P40
+        prompt, history = P40.fit_input(system, prompt, history, lvl["in_cap"],
+                                        lvl["history_turns"])
+        max_tokens = lvl["out_cap"]
+        opts.update({"effort": "low", "hard_cap": True, "thinking": "off",
+                     "no_thinking": True, "cache": True})
 
     attempts = []
     skipped_cap = 0
     stop_kind = ""
     t_all = _time.monotonic()
-    for name in order:
+    for name, fixed_model in pairs:
         if R.provider_capped(name, conf):
             attempts.append(name + ":cap")
             skipped_cap += 1
@@ -690,7 +737,7 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         if not R.allow(name, conf):
             attempts.append(name + ":circuit")
             continue
-        model = C.model_for(conf, name, tier, klass)
+        model = fixed_model or C.model_for(conf, name, tier, klass)
         if spec is not None and name == "anthropic":
             model = spec["model"]
         fn = globals()["_call_" + name]

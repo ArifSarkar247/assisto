@@ -258,7 +258,8 @@ def pricing_apply(actor_id, d):
                  "billing",                                      # billing-v2
                  "plans_v2",    # plans-v2
                  "safe_plans",  # safeplans
-                 "credit_model"):   # pricing-40
+                 "credit_model",    # pricing-40
+                 "ai_levels"):      # aifinal PART 3
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})
                 and not isinstance(patch[dkey], dict)):

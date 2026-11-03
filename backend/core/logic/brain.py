@@ -398,9 +398,9 @@ def _l2_knowledge(text, lang):
 def _l4_needs_ai(lang):
     return pick(lang,
                 # aifinal PART 1b: no admin wording ("owner", "key") for users
-                "এই প্রশ্নের AI উত্তর এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন। "
+                "এই প্রশ্নের উত্তর AI সহকারী এই মুহূর্তে দিতে পারছে না — একটু পরে আবার চেষ্টা করুন। "
                 "তবে আমি এখনও আপনার নিজের ডেটা ও অ্যাপ নিয়ে সব প্রশ্নের উত্তর দিতে পারি।",
-                "An AI answer to this isn't available right now — please try again a little later. "
+                "The AI assistant can't answer this right now — please try again a little later. "
                 "I can still answer about YOUR data and the app.")
 
 
