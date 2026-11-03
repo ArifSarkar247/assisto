@@ -398,6 +398,15 @@ class VoiceDictation extends ChangeNotifier {
 
   Future<void> _startServer(BuildContext context) async {
     try {
+      // the in-app disclosure first (same as the phone engine path), then
+      // Android's own prompt
+      if (!(await Permission.microphone.status).isGranted) {
+        if (!_reasonShown) {
+          final ok = await _askReason(context); // = showPermissionReason(c, PermKind.mic)
+          if (!ok || !context.mounted) return;
+          _reasonShown = true;
+        }
+      }
       if (!(await Permission.microphone.request()).isGranted) {
         if (context.mounted) {
           _showMessage(context, AppLocalizations.of(context).voiceNoPermission,
