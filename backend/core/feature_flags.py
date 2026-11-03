@@ -140,6 +140,8 @@ REGISTRY = (
     ('farmer_mode', 'daily_life', 'Farmer mode', 'কৃষক মোড', True, ()),
     ('wellness', 'daily_life', 'Water, sleep & diet', 'পানি, ঘুম ও খাবার', True, ()),
     ('fitness', 'daily_life', 'Fitness partner', 'ফিটনেস সঙ্গী', True, ()),
+    # p2food (owner PART 2): food photo -> calories from a cited table. OFF until proven.
+    ('food_calories', 'daily_life', 'Food calories (photo)', 'খাবারের ক্যালরি (ছবি)', False, ()),
     ('smartwatch', 'daily_life', 'Smartwatch & fitness', 'স্মার্টওয়াচ ও ফিটনেস', True, ()),
     ('daily_challenges', 'daily_life', 'Daily challenge', 'দৈনিক চ্যালেঞ্জ', True, ()),
     ('contract_analyzer', 'daily_life', 'Contract analyzer', 'চুক্তি বিশ্লেষক', True, ('contract',)),

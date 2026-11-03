@@ -2400,6 +2400,8 @@ GENERIC_COLLECTIONS = [
     "staff/people", "staff/payments", "savechal/plans", "savechal/deposits",
     # #69 Health timeline + #71 Wellness tracker
     "health/timeline", "wellness/logs",
+    # p2food: food photo -> calories (cited table; flag food_calories)
+    "food/log", "food/goal",
     # #173 Daily challenges + #18 Saved/bookmarks
     "challenges/progress", "saved/items",
     # #27 Kid's school corner + #72 Fitness partner

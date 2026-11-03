@@ -89,6 +89,8 @@ const Map<String, bool> kFeatureDefaults = {
   'farmer_mode': true,
   'wellness': true,
   'fitness': true,
+  // p2food: food photo -> calories — OFF until the owner's real-phone test.
+  'food_calories': false,
   'smartwatch': true,
   'daily_challenges': true,
   'contract_analyzer': true,

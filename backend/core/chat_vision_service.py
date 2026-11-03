@@ -154,6 +154,8 @@ def job_state(job, lang="bn"):
     out["answer"] = opts.get("answer", "")
     out["medicine"] = bool(opts.get("medicine"))
     out["kind"] = opts.get("kind", "")
+    if "dishes" in opts:                       # p2food: food purpose
+        out["dishes"] = opts.get("dishes") or []
     return out
 
 
@@ -323,6 +325,9 @@ def answer(user, job, data, lang="bn"):
     job.options = {"answer": out["answer"][:6000], "kind": out["kind"],
                    "medicine": out["medicine"], "doses_removed": out["doses_removed"],
                    "face_refused": out["face_refused"]}
+    if purpose == "food":                      # p2food: ids from our table only
+        from .logic import food_calories as FC
+        job.options["dishes"] = FC.parse_dishes(reply)
     job.cost_bdt = cost_usd * float(c["usd_bdt"])
     job.status = "done"
     job.done_at = timezone.now()
