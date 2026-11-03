@@ -129,6 +129,10 @@ void main() {
 
   group('AI daily planner screen', () {
     testWidgets('plan: blocks, bills, tips; tasks tappable; English', (tester) async {
+      // a tall phone so the whole lazy list is built
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       final api = _Api();
       await tester.pumpWidget(_app(_stub(api, 'en'), const DayPlannerScreen()));
       await _settle(tester);
@@ -141,6 +145,10 @@ void main() {
     });
 
     testWidgets('Bangla: no English digits anywhere, Bangla prayer name', (tester) async {
+      // a tall phone so the whole lazy list is built
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       final api = _Api(lang: 'bn');
       await tester.pumpWidget(_app(_stub(api, 'bn'), const DayPlannerScreen(), lang: 'bn'));
       await _settle(tester);
@@ -151,6 +159,10 @@ void main() {
     });
 
     testWidgets('AI advice is shown on top of the plan (blocks stay)', (tester) async {
+      // a tall phone so the whole lazy list is built
+      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       final api = _Api();
       await tester.pumpWidget(_app(_stub(api, 'en'), const DayPlannerScreen()));
       await _settle(tester);
