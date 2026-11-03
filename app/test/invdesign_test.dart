@@ -309,17 +309,23 @@ void main() {
     testWidgets('new invoice: bill by hours sends fractional hours', (tester) async {
       final api = _Api();
       await _pump(tester, const NewInvoiceScreen(businessId: 1), api);
-      final list = find.byType(Scrollable).first;
+      Future<void> show(Key k) async {
+        await tester.ensureVisible(find.byKey(k));
+        await tester.pumpAndSettle();
+      }
+
+      await show(const ValueKey('inv-client-name'));
       await tester.enterText(find.byKey(const ValueKey('inv-client-name')), 'Green Grocers');
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('ivd-by-hours')), 200,
-          scrollable: list);
+      await show(const ValueKey('ivd-by-hours'));
       await tester.tap(find.byKey(const ValueKey('ivd-by-hours')));
       await tester.pumpAndSettle();
+      await show(const ValueKey('inv-line-desc-0'));
       await tester.enterText(find.byKey(const ValueKey('inv-line-desc-0')), 'Website maintenance');
+      await show(const ValueKey('inv-line-qty-0'));
       await tester.enterText(find.byKey(const ValueKey('inv-line-qty-0')), '2.5');
+      await show(const ValueKey('inv-line-unit-0'));
       await tester.enterText(find.byKey(const ValueKey('inv-line-unit-0')), '1500');
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('inv-create')), 300,
-          scrollable: list);
+      await show(const ValueKey('inv-create'));
       await tester.tap(find.byKey(const ValueKey('inv-create')));
       await tester.pumpAndSettle();
       final body = api.posts['/business/invoices']!;
