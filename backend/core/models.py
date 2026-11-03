@@ -1079,6 +1079,13 @@ class Order(models.Model):
     # screenshot — NEVER treated as paid) | verified | rejected (owner decides)
     payment_status = models.CharField(max_length=24, blank=True, default="")
     via_agent = models.BooleanField(default=False)    # taken by the AI agent in chat
+    # bizai: COD return-risk at order time ('' unchecked | low | medium | high)
+    # from delivered/returned counts of this phone across Assisto shops
+    # (counts only — no other shop's name or order is ever shown).
+    cod_risk = models.CharField(max_length=8, blank=True, default="")
+    # bizai pillar 5 (Prochar attribution): the tracked post/offer code the
+    # customer came from (shop link ?p=<ref> or the code typed in chat)
+    source_ref = models.CharField(max_length=12, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -2267,7 +2274,8 @@ class ChatThread(models.Model):
     last_inbound_at → epoch for business_ai.within_service_window()."""
     CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger"),
                 ("instagram", "instagram"),   # p1: Instagram DM
-                ("website", "website")]       # g1: website chat widget
+                ("website", "website"),       # g1: website chat widget
+                ("assisto", "assisto")]       # bizai: in-app shop chat (My Circle)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_threads")
     business = models.ForeignKey(BusinessProfile, null=True, blank=True,
                                  on_delete=models.CASCADE, related_name="chat_threads")
@@ -2298,6 +2306,8 @@ class ChatThread(models.Model):
     # ---- biz-v2 ---- Business inbox read marker + owner takeover idle clock
     owner_read_at = models.DateTimeField(null=True, blank=True)    # owner opened the chat
     takeover_at = models.DateTimeField(null=True, blank=True)      # last owner activity in takeover
+    # bizai pillar 5: first tracked post/offer code seen in this chat
+    source_ref = models.CharField(max_length=12, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -5472,6 +5482,10 @@ class SellerAgent(models.Model):
     takeover_idle_minutes = models.IntegerField(default=60)   # 0 = until handed back
     daily_ai_cap = models.IntegerField(default=300)           # paid AI calls / business / day
     thread_daily_cap = models.IntegerField(default=50)        # agent replies / chat / day
+    # bizai: in-app shop chat on (customers in Assisto chat with the shop's
+    # agent) + COD return-risk guard (high risk → no auto-courier, owner told)
+    app_chat_enabled = models.BooleanField(default=True)
+    cod_risk_guard = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -5484,7 +5498,8 @@ class SellerChannel(models.Model):
     test_secret_enc signs webhooks and nothing is ever sent to Graph."""
     KINDS = [("messenger", "messenger"), ("instagram", "instagram"),
              ("whatsapp_cloud", "whatsapp_cloud"),
-             ("website", "website")]   # g1: website chat widget
+             ("website", "website"),   # g1: website chat widget
+             ("assisto", "assisto")]   # bizai: in-app shop chat (My Circle)
     business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
                                  related_name="seller_channels")
     kind = models.CharField(max_length=16, choices=KINDS)
@@ -8087,6 +8102,12 @@ class MarketBid(models.Model):
     content_status = models.CharField(max_length=10, default="visible")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # bizai pillar 3: group-buy bulk tier (unlocks when the pool reaches
+    # bulk_min_qty) + the buyer-limit ask sent to this seller (negotiation)
+    bulk_price = models.BigIntegerField(null=True, blank=True)        # poisha per unit
+    bulk_min_qty = models.PositiveIntegerField(default=0)
+    counter_price = models.BigIntegerField(null=True, blank=True)     # poisha per unit
+    counter_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["unit_price"]

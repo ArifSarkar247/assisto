@@ -10,6 +10,7 @@ from . import views_invoice   # invoices
 from . import views_vehicle_share   # veh100
 from . import views_vault_share   # p3docs
 from . import views_phonecam   # cctvphone
+from . import views_shoplink   # bizai
 from . import views_cctv_share   # cctvteam
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
@@ -113,6 +114,8 @@ urlpatterns = [
     path("v/<str:token>", views_vehicle_share.share_page),
     # cctvphone: phone-camera pairing QR fallback (App Link opens the app)
     path("pc/<str:code>", views_phonecam.pair_landing),
+    # bizai: a shop's chat link (App Link opens the shop chat in the app)
+    path("shop/<str:code>", views_shoplink.shop_landing),
     # cctvteam: view-only, time-limited CCTV share link (stills, no audio)
     path("c/<str:token>/data", views_cctv_share.share_data),
     path("c/<str:token>/img/<int:cam>", views_cctv_share.share_image),

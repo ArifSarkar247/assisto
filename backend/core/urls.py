@@ -1680,6 +1680,7 @@ urlpatterns += [
     path("market/group", mkv.GroupFeedView.as_view()),
     path("market/sell", mkv.SellView.as_view()),
     path("market/seller", mkv.SellerApplyView.as_view()),
+    path("market/invites", mkv.SellerInviteView.as_view()),   # bizai
     path("market/deals", mkv.DealsView.as_view()),
     path("market/deals/<int:pk>/act", mkv.DealActView.as_view()),
     path("market/deals/<int:pk>/chat", mkv.DealChatView.as_view()),
@@ -1849,3 +1850,24 @@ urlpatterns += [
     path("account/not-me/<str:token>", acsec.NotMeView.as_view()),
 ]
 # ---- /recovery ----
+# ---- bizai ---- AI sales agent in the in-app shop chat + outcome card
+from . import views_bizai as bzai  # noqa: E402
+urlpatterns += [
+    path("bizai/shop-link", bzai.ShopLinkView.as_view()),
+    path("bizai/outcomes", bzai.OutcomesView.as_view()),
+    path("shopchat/mine", bzai.ShopChatMineView.as_view()),
+    path("shopchat/<str:code>", bzai.ShopChatView.as_view()),
+    path("shopchat/<str:code>/messages", bzai.ShopChatMessagesView.as_view()),
+    path("shopchat/<str:code>/send", bzai.ShopChatSendView.as_view()),
+    path("shopchat/<str:code>/person", bzai.ShopChatPersonView.as_view()),
+    path("bizai/crm/segments", bzai.CrmSegmentsView.as_view()),
+    path("bizai/crm/ladder", bzai.CrmLadderView.as_view()),
+    path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
+    path("bizai/prochar", bzai.ProcharView.as_view()),
+    path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
+    path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),
+    path("bizai/cctv/test", bzai.CctvTestView.as_view()),
+    path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
+]
+# ---- /bizai ----

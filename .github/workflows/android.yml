@@ -632,7 +632,7 @@ jobs:
           # and /cm/<code> (community invite), plus cctvphone /pc/<CODE> (phone-camera
           # pairing QR) open the app on it (same
           # verified host/assetlinks); without the app the web page -> Play.
-          for _pp in ("/ch/", "/cm/", "/pc/"):
+          for _pp in ("/ch/", "/cm/", "/pc/", "/shop/"):  # bizai: /shop/<code> shop chat
               spacelink = (
                   '\n            <intent-filter android:autoVerify="true">'
                   '\n                <action android:name="android.intent.action.VIEW"/>'

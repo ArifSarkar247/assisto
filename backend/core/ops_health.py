@@ -206,6 +206,11 @@ JOBS = (
     Job("carecall_tick", MIN, "* * * * *", via="minute_jobs"),
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
     Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
+    # bizai: Market group-buy expiry (gated inside: every 30 min) and the
+    # weekly Bangla business report (gated: Friday from 10:00 Dhaka, once per
+    # ISO week) — both ride minute_jobs (owner: no new cron lines)
+    Job("market_pool_sweep", MIN, "* * * * *", via="minute_jobs"),
+    Job("bizai_weekly", MIN, "* * * * *", via="minute_jobs"),
     # nearby: pulls the monthly OSM emergency files (GitHub release assets);
     # idle = one DB read, manifest every 6 h, one country per run
     Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
@@ -230,6 +235,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                # aifinal: nightly AI exam — idle unless the owner switched it on
                # AND it is 02-05 local; 15 s slices, nightly $ cap
                ("ai_exam", {"tick": True, "quiet": True}),
+               # bizai: gated, so idle minutes are one indexed stamp read
+               ("market_pool_sweep", {"tick": True}),
+               ("bizai_weekly", {"tick": True}),
                # nearby: after the safety jobs; idle = one DB read, a monthly
                # import is one country per run
                ("nearby_import", {"quiet": True}),
@@ -331,6 +339,28 @@ def _restore_term_handler(prev):
         signal.signal(signal.SIGTERM, prev)
     except Exception:  # noqa: BLE001
         pass
+
+
+def stamp_get(name):
+    """bizai (owner: no new cron lines): the last time a GATED minute_jobs job
+    really did its work (its heartbeat row is touched every minute, so the
+    gate keeps its own stamp row '<name>.done'). None = never / unreadable."""
+    try:
+        from .models import JobHeartbeat
+        hb = JobHeartbeat.objects.filter(name=(name + ".done")[:48]).first()
+        return hb.last_ok if hb else None
+    except Exception as e:  # noqa: BLE001 — a missing stamp only means "due"
+        log.warning("ops_health: stamp %s unreadable (%s)", name, type(e).__name__)
+        return None
+
+
+def stamp_set(name, when=None):
+    try:
+        from .models import JobHeartbeat
+        JobHeartbeat.objects.update_or_create(name=(name + ".done")[:48],
+                                              defaults={"last_ok": when or _now()})
+    except Exception as e:  # noqa: BLE001 — worst case the job runs again (idempotent)
+        log.warning("ops_health: stamp %s not saved (%s)", name, type(e).__name__)
 
 
 def track_job(name):

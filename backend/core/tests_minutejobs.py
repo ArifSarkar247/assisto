@@ -44,7 +44,7 @@ class MinuteJobsTests(_Base):
                            wraps=call_command) as cc:
             self.run_cmd()
         self.assertEqual([c.args[0] for c in cc.call_args_list],
-                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "ai_exam", "nearby_import", "agent_core_run"])
+                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "nearby_import", "agent_core_run"])
         self.assertTrue(cc.call_args_list[0].kwargs["quiet"])
         # every job's heartbeat recorded OK, as from its own cron line
         for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "agent_core_run"):
@@ -173,7 +173,7 @@ class OpsWatchCronTests(TestCase):
             "/home/ubuntu/assisto/backend/logs >> /home/ubuntu/assisto/backend/logs/"
             "minute_jobs.log 2>&1")
         self.assertEqual(H.lock_path("journey_sweep"), "/tmp/assisto-journey-sweep.lock")
-        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "ai_exam", "nearby_import", "agent_core_run"])
+        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "nearby_import", "agent_core_run"])
 
     def test_snapshot_no_false_not_scheduled(self):
         snap = H.snapshot(cron_text=H.minute_jobs_cron_line(),
@@ -194,8 +194,56 @@ class EveryMinuteCronSkipsChecksTests(SimpleTestCase):
 
     def test_every_minute_commands_skip_system_checks(self):
         import importlib
-        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "nearby_import", "agent_core_run", "minute_jobs",
+        for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "ai_usage_purge", "market_pool_sweep", "bizai_weekly", "nearby_import", "agent_core_run", "minute_jobs",
                      "push_due_reminders", "calls_sweep", "turn_monitor",
                      "bizagent_process"):
             mod = importlib.import_module("core.management.commands." + name)
             self.assertEqual(mod.Command.requires_system_checks, [], name)
+
+
+# bizai: the two business jobs ride minute_jobs (owner: no new cron lines)
+class BizaiGatedJobsTests(TestCase):
+    def test_pool_sweep_runs_at_most_every_30_min(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core import market as MK
+        with mock.patch.object(MK, "pool_sweep", return_value=0) as sw:
+            call_command("market_pool_sweep", tick=True, stdout=StringIO())
+            call_command("market_pool_sweep", tick=True, stdout=StringIO())
+            self.assertEqual(sw.call_count, 1)                 # second minute: idle
+            H.stamp_set("market_pool_sweep", timezone.now() - timedelta(minutes=31))
+            call_command("market_pool_sweep", tick=True, stdout=StringIO())
+            self.assertEqual(sw.call_count, 2)
+            call_command("market_pool_sweep", stdout=StringIO())   # manual = now
+            self.assertEqual(sw.call_count, 3)
+
+    def test_weekly_window_once_per_iso_week(self):
+        import datetime as dt
+        from zoneinfo import ZoneInfo
+        from core.management.commands.bizai_weekly import is_due
+        z = ZoneInfo("Asia/Dhaka")
+        thu = dt.datetime(2026, 11, 5, 12, 0, tzinfo=z)
+        fri9 = dt.datetime(2026, 11, 6, 9, 59, tzinfo=z)
+        fri10 = dt.datetime(2026, 11, 6, 10, 0, tzinfo=z)
+        sun = dt.datetime(2026, 11, 8, 23, 0, tzinfo=z)
+        self.assertFalse(is_due(thu, None))
+        self.assertFalse(is_due(fri9, None))
+        self.assertTrue(is_due(fri10, None))
+        self.assertFalse(is_due(sun, fri10))                   # done this week
+        self.assertTrue(is_due(sun, fri10 - dt.timedelta(days=7)))   # missed Friday catch-up
+
+    def test_weekly_tick_stamps_and_skips(self):
+        import datetime as dt
+        from zoneinfo import ZoneInfo
+        from core import bizai_prochar as BP
+        fri = dt.datetime(2026, 11, 6, 10, 5, tzinfo=ZoneInfo("Asia/Dhaka"))
+        with mock.patch("django.utils.timezone.now", return_value=fri), \
+                mock.patch.object(BP, "run_weekly", return_value=0) as rw:
+            call_command("bizai_weekly", tick=True, stdout=StringIO())
+            call_command("bizai_weekly", tick=True, stdout=StringIO())
+        self.assertEqual(rw.call_count, 1)
+
+    def test_no_bizai_cron_file(self):
+        import os
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.assertFalse(os.path.exists(os.path.join(root, "deploy", "bizai", "bizai.cron")))

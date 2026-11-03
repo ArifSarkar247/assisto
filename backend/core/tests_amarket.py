@@ -132,6 +132,9 @@ class MarketApiTests(TestCase):
         self.s1, self.s2 = mk("Seller1"), mk("Seller2")
         for s, shop in ((self.s1, "Rahim Store"), (self.s2, "Karim Traders")):
             BusinessProfile.objects.create(user=s, shop_name=shop)
+            # bizai (owner 4 Nov): verified sellers are on the Business plan
+            s.plan, s.plan_until = "business", timezone.now() + timedelta(days=60)
+            s.save(update_fields=["plan", "plan_until"])
 
     def approve(self, u, area="mirpur", cats=("grocery",)):
         r = api(u).post("/api/v1/market/seller", {"area": area, "categories": list(cats)},
@@ -216,7 +219,8 @@ class MarketApiTests(TestCase):
         self.assertEqual(r.status_code, 200, r.content)
         deals = MarketDeal.objects.filter(need_id=nid)
         self.assertEqual(sorted((d.buyer.name, d.quantity, d.total, d.payment, d.fee) for d in deals),
-                         [("Buyer", 25, 187500, "cod", 0), ("Joiner", 15, 112500, "cod", 0)])
+                         # bizai (owner 4 Nov): the seller's group deal fee, 2 %
+                         [("Buyer", 25, 187500, "cod", 3750), ("Joiner", 15, 112500, "cod", 2250)])
         orders = Order.objects.filter(user=self.s2, channel="market")
         self.assertEqual(orders.count(), 2)
         self.assertTrue(all(o.payment == "cod" and o.status == "new" for o in orders))
