@@ -36,6 +36,15 @@ class LiveCost {
         _ => LivePath.unknown,
       };
 
+  /// What the path chip shows: a session that was relayed once stays
+  /// "relay" (its bytes count against the allowance); otherwise the path of
+  /// the selected pair (same Wi-Fi / direct = free).
+  static LivePath badge({required bool relayed, required LivePath path}) =>
+      relayed ? LivePath.relay : path;
+
+  /// True when this path uses the monthly relay allowance.
+  static bool countsAgainstAllowance(LivePath p) => p == LivePath.relay;
+
   /// Seconds between usage reports to the server while a live view runs.
   static const int reportEverySeconds = 60;
 

@@ -75,6 +75,11 @@ extension ShopOpsApi on ApiClient {
   /// cctvguard: this month's live traffic per camera ("this month's use").
   Future<Map<String, dynamic>> cctvUsage() => getJson('/cctv/usage');
 
+  /// cctvcap: one-tap extra pack for THIS month ('relay' = +1 GB relay live,
+  /// 'ai' = +100 AI photo checks), paid with credits. 402 = not enough.
+  Future<Map<String, dynamic>> cctvExtraPack(String kind) =>
+      postJson('/cctv/extra-pack', {'kind': kind});
+
   /// cctvguard: Imou / EZVIZ cloud live (HLS) — SD unless [hd].
   Future<Map<String, dynamic>> vendorLiveStart(int cameraId, {bool hd = false}) =>
       postJson('/watchman/cameras/$cameraId/vendor_live', {'hd': hd});

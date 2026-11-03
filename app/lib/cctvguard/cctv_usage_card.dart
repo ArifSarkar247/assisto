@@ -7,6 +7,7 @@ import '../screens/watchman/watchman_widgets.dart' show wmLang, wmOk, wmWarn, wm
 import '../shop_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'cctv_cap_section.dart'; // cctvcap: AI checks, 80/100 % notices, extra pack
 
 typedef UsageLoader = Future<Map<String, dynamic>> Function();
 
@@ -19,9 +20,16 @@ typedef UsageLoader = Future<Map<String, dynamic>> Function();
 class CctvUsageCard extends StatefulWidget {
   final UsageLoader? load;
 
+  /// cctvcap: buys an extra pack (tests / gallery inject a fake).
+  final PackBuyer? buy;
+
+  /// cctvcap: "get credits" when a pack is refused for credits (tests).
+  final VoidCallback? onGetCredits;
+
   /// Gallery / tests: start with the per-camera rows open.
   final bool initiallyOpen;
-  const CctvUsageCard({super.key, this.load, this.initiallyOpen = false});
+  const CctvUsageCard(
+      {super.key, this.load, this.initiallyOpen = false, this.buy, this.onGetCredits});
 
   @override
   State<CctvUsageCard> createState() => _CctvUsageCardState();
@@ -45,6 +53,12 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
     loader().then((d) {
       if (mounted) setState(() => _d = d);
     }, onError: (_) {});
+  }
+
+  Future<Map<String, dynamic>> _buy(String kind) {
+    final b = widget.buy;
+    if (b != null) return b(kind);
+    return context.read<AppState>().api.cctvExtraPack(kind);
   }
 
   @override
@@ -105,6 +119,15 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
             const SizedBox(height: Gap.xs),
             Text(msg, key: const Key('cctvUsageMsg'), style: Theme.of(context).textTheme.bodySmall),
           ],
+          if (d['cap'] is Map)
+            CctvCapSection(
+              cap: Map<String, dynamic>.from(d['cap'] as Map),
+              buy: _buy,
+              onGetCredits: widget.onGetCredits,
+              onBought: (u) {
+                if (mounted) setState(() => _d = u);
+              },
+            ),
           if (_open)
             for (final c in cams) ...[
               const Divider(height: Gap.lg),
