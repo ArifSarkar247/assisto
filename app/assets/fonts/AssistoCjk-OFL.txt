@@ -1,4 +1,4 @@
-AssistoCjk.otf = Noto Sans SC Regular (github.com/notofonts/noto-cjk), subset by agent/learnwire to the Chinese characters of backend/core/data/langpacks/zh.json + CJK punctuation + arrows U+2190-2199. Renamed subset; licence unchanged:
+AssistoCjk.otf = Noto Sans SC Regular (github.com/notofonts/noto-cjk), subset by agent/learnwire to the Chinese characters of the zh pack + the kanji/hanja of the ja/ko packs + CJK punctuation + arrows U+2190-2199. Renamed subset; licence unchanged:
 
 This Font Software is licensed under the SIL Open Font License,
 Version 1.1.
