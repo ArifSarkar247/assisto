@@ -1248,11 +1248,11 @@
     },
     {
      "kind": "phrase",
-     "target": "لبس الخوذة",
+     "target": "البس الخوذة",
      "bn": "হেলমেট পরো",
      "en": "Wear the helmet",
-     "roman": "libs al-khuudha",
-     "note_bn": "উচ্চারণ: লিবস আল-খূযা",
+     "roman": "ilbas al-khuudha",
+     "note_bn": "উচ্চারণ: ইলবাস আল-খূযা",
      "note_en": ""
     },
     {
@@ -1330,7 +1330,7 @@
    ],
    "practice": [
     "انتبه!",
-    "لبس الخوذة",
+    "البس الخوذة",
     "حزام الأمان"
    ]
   },
@@ -1700,7 +1700,7 @@
    "id": "workplace",
    "title_en": "First day at work",
    "title_bn": "কাজের প্রথম দিন",
-   "ai_role": "You are a site supervisor on a Gulf construction site, friendly but busy. Use short Gulf Arabic. Give one simple task, mention the helmet, answer questions about break time. Example flow (adapt, do not read verbatim): you: السلام عليكم، أنا العامل الجديد / them: هلا والله. لبس الخوذة أول / you: زين. وش أسوّي؟ / them: جيب الحديد من هناك / you: الاستراحة الساعة كم؟ / them: الساعة ١٢",
+   "ai_role": "You are a site supervisor on a Gulf construction site, friendly but busy. Use short Gulf Arabic. Give one simple task, mention the helmet, answer questions about break time. Example flow (adapt, do not read verbatim): you: السلام عليكم، أنا العامل الجديد / them: هلا والله. البس الخوذة أول / you: زين. وش أسوّي؟ / them: جيب الحديد من هناك / you: الاستراحة الساعة كم؟ / them: الساعة ١٢",
    "opening": "هلا، أنت العامل الجديد؟",
    "goals_en": [
     "Greet the supervisor, ask what to do, ask for the time of the break.",
@@ -2112,10 +2112,10 @@
        "type": "mcq",
        "skill": "reading",
        "level": "W2",
-       "text": "আগে কী করবেন?\nلبس الخوذة أول",
-       "text_en": "What must you do first?\nلبس الخوذة أول",
-       "text_bn": "আগে কী করবেন?\nلبس الخوذة أول",
-       "tts_text": "لبس الخوذة أول",
+       "text": "আগে কী করবেন?\nالبس الخوذة أول",
+       "text_en": "What must you do first?\nالبس الخوذة أول",
+       "text_bn": "আগে কী করবেন?\nالبس الخوذة أول",
+       "tts_text": "البس الخوذة أول",
        "options": [
         "হেলমেট পরা",
         "পানি আনা",
@@ -2136,7 +2136,7 @@
        ],
        "answer": 0,
        "explain_bn": "আগে হেলমেট পরো।",
-       "explain_en": "لبس الخوذة أول = put on the helmet first."
+       "explain_en": "البس الخوذة أول = put on the helmet first."
       },
       {
        "id": "ar-mk-l5",
