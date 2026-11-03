@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import media_sign
+from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
@@ -166,6 +167,8 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+    path("agent/stream", views.AgentStreamView.as_view()),         # aileft: home chat streaming
+    path("chat/stop", chatv.ChatStopView.as_view()),                # aileft: Stop = pay only what was shown
     path("agent/confirm", chatv.AgentConfirmView.as_view()),        # AI rebuild 01:02
     path("agent/ai-entries", chatv.AgentEntriesView.as_view()),     # AI rebuild 01:02
 
@@ -237,6 +240,7 @@ urlpatterns = [
     path("business/profiles/select", bz.ProfileSelectView.as_view()),
 
     # SELLING (§3) — catalog, quick-sell cart, checkout, customers, reports
+    path("business/products/photo", aileft_cat.CatalogPhotoView.as_view()),  # aileft
     path("business/products", bz.ProductsView.as_view()),
     path("business/products/<int:pk>", bz.ProductDetailView.as_view()),
     path("business/products/import", bz.ProductImportView.as_view()),

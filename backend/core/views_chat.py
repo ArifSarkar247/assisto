@@ -524,6 +524,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 meta["balance"] = bal
             if meta_out.get("refunded"):
                 meta["refunded"] = int(meta_out["refunded"])
+            if meta_out.get("spend_ref") and credits:
+                meta["spend_ref"] = str(meta_out["spend_ref"])   # aileft: Stop refunds the same lots
             if cut:
                 meta["cut"] = True
             if follow:
@@ -679,9 +681,51 @@ def _sse(reply, asst, cards, meta, replayed=False):
     return resp
 
 
+def sse_payload(reply, done):
+    """aileft: the home chat's stream — the same SSE framing as _sse (token
+    chunks of ~120 chars, then one `done` event carrying the whole JSON body
+    the non-stream endpoint would have returned, plus `text`)."""
+    import json as _j
+
+    def gen():
+        step = 120
+        for i in range(0, len(reply), step):
+            piece = reply[i:i + step]
+            yield "event: token\ndata: " + _j.dumps({"chunk": piece, "text": piece}) + "\n\n"
+        body = dict(done)
+        body["text"] = reply
+        yield "event: done\ndata: " + _j.dumps(body, default=str) + "\n\n"
+
+    resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
+    resp["Cache-Control"] = "no-cache"
+    resp["X-Accel-Buffering"] = "no"
+    return resp
+
+
+class ChatStopView(APIView):
+    """aileft: POST /chat/stop {client_id, shown_chars} — the Stop button of
+    the home chat and of Assisto AI. Charges only what was delivered, nothing
+    under the minimum (rule + limits: core/chat_stop.py)."""
+    def post(self, request):
+        from . import chat_stop
+        cid = G.client_id(request)
+        if not cid:
+            return Response({"detail": "client_id required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            shown = int(request.data.get("shown_chars") or 0)
+        except (TypeError, ValueError):
+            shown = 0
+        out = chat_stop.request_stop(request.user, cid, shown)
+        if out is None:
+            return Response({"stopped": False, "reason": "too_late"})
+        return Response(out)
+
+
 # meta keys the app may read on a reply (never cost_usd internals beyond these)
 _PUBLIC_META = ("source", "model", "credits", "balance", "free_quota", "text_cut",
-                "money_grounding", "ai_unavailable", "level", "crisis")
+                "money_grounding", "ai_unavailable", "level", "crisis",
+                "stopped", "refunded")   # aileft: Stop result
 
 # ---------------------------------------------------------------------------
 # GET /chat/status — aivoice: is keyed AI usable right now? (honest no-key state)
@@ -846,6 +890,10 @@ class ChatSendView(APIView):
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()  # bump updated_at
+        from . import chat_stop     # aileft: a Stop that came in meanwhile
+        if chat_stop.after_turn(u, cid, asst.id):
+            asst.refresh_from_db()
+            reply, meta = asst.text, asst.meta
         return Response({
             "message": _msg_row(asst),
             "cards": cards,
@@ -907,6 +955,10 @@ class ChatStreamView(APIView):
         asst = ChatMessage.objects.create(session=s, role="assistant",
                                            text=reply, meta=meta)
         s.save()
+        from . import chat_stop     # aileft: a Stop that came in meanwhile
+        if chat_stop.after_turn(u, cid, asst.id):
+            asst.refresh_from_db()
+            reply, meta = asst.text, asst.meta
         # aibar honest limit: the reply is complete (and has passed every
         # guard: action claims, medical, invented money) BEFORE the first
         # token is sent — guarded text only, never raw provider tokens.

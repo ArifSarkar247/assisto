@@ -1804,7 +1804,8 @@ class AgentView(APIView):
                     ai_meta = {k: rmeta[k] for k in (
                         "credits", "balance", "money_grounding", "free_quota", "level",
                         "refunded", "hint_better", "actions", "ai_generated", "pro_topic",
-                        "safe_mode", "text_cut", "cut", "follow") if k in rmeta}
+                        "safe_mode", "text_cut", "cut", "follow",
+                        "spend_ref") if k in rmeta}   # aileft: spend_ref stays server-side
                     ai_meta["credits"] = int(rmeta.get("credits") or 0)
                 else:
                     # the engine already gave the honest free (Brain) answer
@@ -1870,7 +1871,32 @@ class AgentView(APIView):
             client_id=cid, extra_meta=dict(ai_meta, ai_used=ai_used))
         out["session_id"] = session_id
         out["message_id"] = message_id
+        # aileft: a Stop tapped while this answer was being made is applied
+        # now (charge only what was delivered — core/chat_stop.py)
+        from . import chat_stop
+        st = chat_stop.after_turn(u, cid, message_id)
+        if st:
+            out.update({"stopped": True, "credits": st["credits"],
+                        "refunded": st["refunded"]})
+            if "balance" in st:
+                out["balance"] = st["balance"]
         return Response(out)
+
+
+class AgentStreamView(APIView):
+    """aileft: POST /agent/stream — the home chat's SSE stream. The SAME turn
+    as POST /agent (crisis handover, client_id replay, rate limit, the shared
+    chat engine, confirm cards, credits) — the answer is then sent with the
+    Assisto AI chat's protocol (`event: token` {chunk} ... `event: done`
+    {message_id, text, cards, meta, + the /agent fields}). Errors (402 out
+    of credits, 429 too fast) stay plain JSON, exactly like the AI chat
+    stream. Stop = POST /chat/stop (core/chat_stop.py)."""
+    def post(self, request):
+        resp = AgentView().post(request)
+        if getattr(resp, "status_code", 200) != 200:
+            return resp
+        from .views_chat import sse_payload
+        return sse_payload(resp.data.get("reply") or "", resp.data)
 
 
 _HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut",

@@ -257,6 +257,8 @@ def refusal_message(reason, lang):
                              "We don't generate new images of children."),
         "child_suggestive": ("শিশুর ছবিতে এমন এডিট করা হয় না।",
                              "We don't make edits like this to photos of children."),
+        "child_harm": ("শিশুর ছবিকে আঘাত, ভয়, নেশা বা অস্ত্রের দৃশ্যে বদলানো হয় না।",
+                       "We never edit a child's photo to show harm, injury, drugs or weapons."),
         "consent_needed": ("অন্য মানুষের ছবি AI দিয়ে বদলাতে তাঁদের অনুমতি লাগবে — অনুমতি আছে তা নিশ্চিত করুন।",
                            "Editing other people with AI needs their permission — confirm you have it."),
         "bad_option": ("অজানা অপশন।", "Unknown option."),
@@ -1009,8 +1011,37 @@ def report_ai_image(user, job, reason, note, lang="bn"):
     if PhotoAIReport.objects.filter(user=user, created_at__gte=timezone.now() - timedelta(hours=1)).count() >= 10:
         return 429, {"ok": False, "reason": "too_many"}
     PhotoAIReport.objects.create(user=user, job=job, reason=reason, note=str(note or "")[:300])
+    if reason == "face_changed" and str(note or "").startswith(FACE_AUTO_NOTE):
+        # aileft: the phone's face check rejected this AI result (the face
+        # changed) — the user never gets it, so the credits come back now
+        n = refund_face_changed(user, job)
+        return 201, {"ok": True, "refunded": n,
+                     "message": pick(lang, "মুখ বদলে গিয়েছিল, তাই ছবিটি দেখাইনি — ক্রেডিট ফেরত দেওয়া হয়েছে।",
+                                     "The face changed, so the result was not used — credits returned.")}
     return 201, {"ok": True, "message": pick(lang, "ধন্যবাদ — রিপোর্টটি আমরা দেখব।",
                                              "Thank you — we will review this report.")}
+
+
+FACE_AUTO_NOTE = "auto:identity_check"
+
+
+def refund_face_changed(user, job):
+    """aileft: refund (once) a credit / pool funded AI result the face check
+    rejected; the job can no longer be exported. Ad-funded jobs keep their
+    free retry. Returns credits refunded."""
+    flags = dict(job.flags or {})
+    if flags.get("face_refund") or job.status != "done":
+        return 0
+    n = 0
+    if job.funding in ("credits", "pool") and job.credits_charged:
+        n = int(job.credits_charged)
+        _refund(user, n, "photo:refund:face:%d" % job.pk)
+    flags["face_refund"] = n or True
+    job.flags = flags
+    job.status = "failed"
+    job.error = "face_changed"
+    job.save(update_fields=["flags", "status", "error"])
+    return n
 
 
 # ------------------------------------------------------------------ free-tier Profit Guard (v2)

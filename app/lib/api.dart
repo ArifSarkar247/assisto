@@ -1648,6 +1648,7 @@ class ApiClient {
         'source': payload['source'],
         'meta': payload['meta'],
         'text': payload['text'],
+        'raw': payload, // aileft: the home stream's full /agent body
       };
     }
     final c = payload['chunk'] ?? payload['text'] ?? payload['value'] ?? '';
@@ -1744,5 +1745,96 @@ class ApiClient {
       }
       // other SSE fields (id:, retry:, comments) are ignored.
     }
+  }
+
+
+  // ---------------- aileft: home chat streaming + Stop ----------------
+
+  /// aileft: POST /agent/stream — the home chat's SSE stream (the same turn
+  /// as [agent], sent with the AI chat's token / done protocol). The `done`
+  /// record's `raw` is the full /agent body (reply, cards, route, session_id,
+  /// credits ...). Errors keep the server's status + reason, like
+  /// [chatStream]; callers fall back to [agent] (same client id = replay)
+  /// when the stream cannot start.
+  Stream<Map<String, dynamic>> agentStream(String text,
+      {String? sessionId, String? clientId}) async* {
+    final req = http.Request('POST', AppConfig.api('/agent/stream'));
+    req.headers.addAll(_headers());
+    req.headers['Accept'] = 'text/event-stream';
+    req.body = jsonEncode({
+      ...chatExtra,
+      'text': text,
+      if (sessionId != null) 'session_id': sessionId,
+      if (clientId != null) 'client_id': clientId,
+    });
+    final resp = await _c.send(req);
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      String? why;
+      String msg = 'stream failed';
+      Map<String, dynamic>? body;
+      try {
+        final b = jsonDecode(await resp.stream.bytesToString());
+        if (b is Map) {
+          body = b.cast<String, dynamic>();
+          final w = b['reason'] ?? b['code'];
+          if (w is String) why = w;
+          if (b['message'] is String) {
+            msg = b['message'] as String;
+          } else if (b['detail'] is String) {
+            msg = b['detail'] as String;
+          }
+        }
+      } catch (_) {}
+      throw ApiException(msg, resp.statusCode, null, why, body);
+    }
+    String? event;
+    final dataBuf = StringBuffer();
+    await for (final line in resp.stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())) {
+      if (line.isEmpty) {
+        final data = dataBuf.toString();
+        dataBuf.clear();
+        if (data.isNotEmpty) yield chatSseRecord(event, data);
+        event = null;
+      } else if (line.startsWith('event:')) {
+        event = line.substring(6).trim();
+      } else if (line.startsWith('data:')) {
+        if (dataBuf.isNotEmpty) dataBuf.write('\n');
+        dataBuf.write(line.substring(5).trimLeft());
+      }
+    }
+  }
+
+  /// aileft: POST /chat/stop — the user tapped Stop after [shownChars]
+  /// characters of the answer were on the screen. The server charges only
+  /// that delivered share (nothing under its minimum) and answers
+  /// {stopped, credits, refunded, balance?, pending?}.
+  Future<Map<String, dynamic>> chatStop(String clientId, int shownChars) =>
+      postJson('/chat/stop', {'client_id': clientId, 'shown_chars': shownChars});
+
+  /// aileft: Photo Studio "Add to business catalog" — GET = does this user
+  /// run a shop (never creates one) + their products.
+  Future<Map<String, dynamic>> catalogPhotoState() => getJson('/business/products/photo');
+
+  /// aileft: POST the edited photo (multipart) onto one of my products
+  /// ([productId]) or as a NEW product ([name] + [price] in taka).
+  Future<Map<String, dynamic>> catalogAddPhoto(
+      {required List<int> bytes,
+      required String fileName,
+      int? productId,
+      String? name,
+      String? price}) async {
+    final req = http.MultipartRequest('POST', AppConfig.api('/business/products/photo'));
+    req.headers.addAll(_headers(json: false));
+    if (productId != null) req.fields['product_id'] = '$productId';
+    if (name != null) req.fields['name'] = name;
+    if (price != null) req.fields['price'] = price;
+    req.files.add(http.MultipartFile.fromBytes('photo', bytes, filename: fileName));
+    final r = await http.Response.fromStream(await _c.send(req));
+    if (r.statusCode == 200 || r.statusCode == 201) {
+      return jsonDecode(r.body) as Map<String, dynamic>;
+    }
+    _fail(r);
   }
 }

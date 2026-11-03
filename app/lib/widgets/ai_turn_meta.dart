@@ -92,6 +92,13 @@ class AiCreditLine extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Text(t.aibarTextCut, style: style),
           ),
+        // aileft: a stopped answer is billed only for the part shown
+        if (meta['stopped'] == true)
+          Padding(
+            key: const ValueKey('aileft_stopped_line'),
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(t.aileftStoppedPaid, style: style),
+          ),
       ]),
     );
   }
