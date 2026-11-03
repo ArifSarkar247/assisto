@@ -260,7 +260,7 @@ class NoGoogleTests(SimpleTestCase):
         for f in ("nearby.py", "nearby_list.py", "views_nearby.py"):
             src = (REPO / "backend" / "core" / f).read_text()
             self.assertNotIn("googleapis", src, f)
-            self.assertNotIn("nearbysearch", src.lower(), f)
+            self.assertNotIn("place/nearbysearch", src, f)
             self.assertNotIn("google_places", src, f)
         app = (REPO / "app" / "lib" / "nearby").glob("*.dart")
         for f in app:

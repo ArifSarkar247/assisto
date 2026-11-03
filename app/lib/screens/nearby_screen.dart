@@ -200,8 +200,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
     });
     EmergencyArea? saved;
     try {
-      saved = await _cache.lookup(pos.lat, pos.lon);
-    } catch (_) {
+      saved = await _cache
+          .lookup(pos.lat, pos.lon)
+          .timeout(const Duration(seconds: 3));
+    } catch (_) { // best-effort: no offline copy -> the server answer below
       saved = null;
     }
     if (saved != null && mounted) {
@@ -226,8 +228,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
             _offline = false;
           });
           try {
-            await _cache.put(a);
-          } catch (_) {
+            await _cache.put(a).timeout(const Duration(seconds: 5));
+          } catch (_) { // best-effort: no offline copy this time
             // no offline copy this time; the list still shows
           }
         }
@@ -259,7 +261,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         ];
         _sponsoredLabel = '${r['label'] ?? ''}';
       });
-    } catch (_) {
+    } catch (_) { // best-effort: Sponsored is optional; Maps button stays
       if (mounted) setState(() => _sponsored = const []);
     }
   }

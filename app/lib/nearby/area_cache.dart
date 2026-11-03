@@ -139,8 +139,10 @@ abstract class AreaStore {
 class FileAreaStore implements AreaStore {
   Directory? _dir;
   Future<Directory> _d() async {
+    // a phone (or test) without the plugin answers fast or not at all:
+    // never wait on it for more than 2 s
     final d = _dir ??= Directory(
-        '${(await getApplicationSupportDirectory()).path}/nearby_areas');
+        '${(await getApplicationSupportDirectory().timeout(const Duration(seconds: 2))).path}/nearby_areas');
     if (!await d.exists()) await d.create(recursive: true);
     return d;
   }
