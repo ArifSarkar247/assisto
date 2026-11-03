@@ -553,6 +553,13 @@ class PhotoStudioController extends ChangeNotifier {
   Future<void> pick({required bool camera}) async {
     final b = await deps.picker.pick(camera: camera);
     if (b == null || disposed) return;
+    await openBytes(b);
+  }
+
+  /// aifinal PART 7g: open a photo the user already has (AI chat ->
+  /// "Edit in Photo Studio"), exactly like a picked one.
+  Future<void> openBytes(Uint8List b) async {
+    if (disposed) return;
     final sw = Stopwatch()..start();
     timings.clear();
     webImport = false;

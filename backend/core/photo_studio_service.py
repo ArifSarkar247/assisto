@@ -80,17 +80,40 @@ def _provider_cost(conf):
         return 0.0
 
 
+# aifinal PART 7d (owner 3 Nov 23:25): Photo Studio had no place to type —
+# the prompt card shows only when an image provider is ready, and it looked
+# ONLY at separate photo_* integrations, never the saved main Gemini / OpenAI
+# keys. Now photo_gemini / photo_openai fall back to the main key with a
+# per-image cost from the official price (Gemini 2.5 Flash Image: 1290 output
+# tokens x $30 / 1M = $0.039 -> 0.04; checked 3 Nov 2026,
+# https://ai.google.dev/gemini-api/docs/pricing). OpenAI only if its key exists.
+_PHOTO_MAIN_KEY = {"photo_gemini": "gemini", "photo_openai": "openai"}
+_PHOTO_DEFAULT_COST_USD = {"photo_gemini": 0.04, "photo_openai": 0.07}
+
+
+def _resolve_photo(slug):
+    """(connected, conf) for an image provider: its own entry, else the main key."""
+    from . import integrations
+    try:
+        if integrations.is_enabled(slug):
+            return True, dict(integrations.get(slug) or {})
+        main = _PHOTO_MAIN_KEY.get(slug)
+        if main and integrations.is_enabled(main):
+            key = (integrations.get(main) or {}).get("api_key")
+            if key:
+                return True, {"api_key": key, "cost_per_image_usd": _PHOTO_DEFAULT_COST_USD[slug],
+                              "_from_main": main}
+    except Exception:  # noqa: BLE001
+        pass
+    return False, {}
+
+
 def providers_state(lang="bn", c=None):
     """Honest per-provider state: connected? cost set? which one is active."""
-    from . import integrations
     ps = ps_cfg(c)
     rows = []
     for slug in PS.PROVIDERS:
-        try:
-            on = integrations.is_enabled(slug)
-            conf = integrations.get(slug) if on else {}
-        except Exception:
-            on, conf = False, {}
+        on, conf = _resolve_photo(slug)
         cost = _provider_cost(conf)
         needs_en, needs_bn = _PROVIDER_NEEDS[slug]
         rows.append({"slug": slug, "connected": bool(on), "cost_usd": cost,
@@ -111,12 +134,11 @@ def providers_state(lang="bn", c=None):
 
 
 def _active_provider(c=None):
-    from . import integrations
     st = providers_state("en", c)
     if not st["ready"]:
         return None, {}, 0.0
     slug = st["active"]
-    conf = integrations.get(slug)
+    conf = _resolve_photo(slug)[1]
     return slug, conf, _provider_cost(conf)
 
 
@@ -952,6 +974,19 @@ _TEMPLATES = (
     ("product_shop", "prompt_edit", "Product photo for an online shop: clean white background, "
      "soft shadow, sharp and well lit; keep the product exactly as it is.", "Product photo (shop)",
      "দোকানের পণ্যের ছবি"),
+    # aifinal PART 7a: the owner's quick chips (face lock prepended as always)
+    ("bg_remove_white", "prompt_edit", "Remove the background and put the subject on a plain pure "
+     "white background; keep the subject exactly as it is.", "Remove background", "ব্যাকগ্রাউন্ড সরান"),
+    ("white_bg", "prompt_edit", "Replace the background with plain even white; keep the person or "
+     "object exactly as it is.", "White background", "সাদা ব্যাকগ্রাউন্ড"),
+    ("form_photo_bd", "prompt_edit", "Make a formal portrait for official forms: plain white "
+     "background, head and shoulders, centred, even light, neutral look.", "NID / form photo",
+     "এনআইডি / ফর্মের ছবি"),
+    ("bright_clean", "prompt_edit", "Make the photo bright and clean: fix exposure and white "
+     "balance, reduce noise and haze; change nothing else.", "Bright & clean", "উজ্জ্বল ও পরিষ্কার"),
+    ("facebook_product", "prompt_edit", "Product photo for a Facebook shop post: clean bright "
+     "background, soft shadow, sharp and well lit; keep the product exactly as it is.",
+     "Product (Facebook)", "পণ্যের ছবি (ফেসবুক)"),
 )
 
 

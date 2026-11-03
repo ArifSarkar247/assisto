@@ -8,7 +8,9 @@ import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
+import '../screens/photo_studio_screen.dart'; // aifinal PART 7g
 import '../widgets/ai_generated_label.dart';
+import '../widgets/chatnav.dart';
 import '../widgets/money_digits.dart' show moneyDigitsFor;
 import '../theme.dart';
 import '../widgets/ai_report.dart'; // ai-report
@@ -16,6 +18,18 @@ import 'cv_backend.dart';
 import 'cv_controller.dart';
 import 'on_device_vision.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+
+/// aifinal PART 7g: does the question ask to CHANGE the photo (not explain
+/// it)? Bilingual keyword rules; a hint for one button only.
+bool wantsPhotoEdit(String q) => RegExp(
+        r'remove (the )?background|white background|change (the )?background|'
+        r'passport|visa photo|edit|retouch|brighten|make it (brighter|clean)|'
+        r'product photo|blur (the )?background|'
+        '\u098f\u09a1\u09bf\u099f|'                      // edit (bn)
+        '\u09ac\u09cd\u09af\u09be\u0995\u0997\u09cd\u09b0\u09be\u0989\u09a8\u09cd\u09a1|' // background (bn)
+        '\u09aa\u09be\u09b8\u09aa\u09cb\u09b0\u09cd\u099f', // passport (bn)
+        caseSensitive: false)
+    .hasMatch(q);
 
 /// A photo the user attached in a chat, plus the question typed with it.
 class ChatPhotoRequest {
@@ -378,6 +392,22 @@ class _AnswerCard extends StatelessWidget {
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(c.answer, style: const TextStyle(height: 1.45)),
           const AiGeneratedLabel(), // aifinal PART 6
+          // aifinal PART 7g: the user asked for an EDIT -> one tap to Photo Studio
+          if (wantsPhotoEdit(widget.request.question) &&
+              ChatNav.routes.containsKey('photo_studio'))
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: OutlinedButton.icon(
+                key: const Key('chatphoto-edit-studio'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => PhotoStudioScreen(
+                        initialBytes: widget.request.bytes,
+                        initialPrompt: widget.request.question))),
+                icon: const Icon(Icons.auto_fix_high_rounded),
+                label: Text(t.psAskStudio),
+              ),
+            ),
           const SizedBox(height: Gap.sm),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
