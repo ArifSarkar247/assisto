@@ -9,6 +9,8 @@ import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart' show FeatureFlags; // p2lang
+import 'ielts_screen.dart'; // p2lang
 
 /// LANGUAGE-LEARNING PARTNER — ADVANCED, KEY-GATED (#132, SPEC v2.1 §21).
 ///
@@ -258,6 +260,28 @@ class _DeckPicker extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: Gap.xl),
+        ],
+        // p2lang: IELTS practice (flag ielts_prep; hidden while OFF).
+        if (FeatureFlags.instance.isOn('ielts_prep')) ...[
+          Card(
+            color: scheme.tertiaryContainer,
+            margin: const EdgeInsets.only(bottom: Gap.lg),
+            child: ListTile(
+              minVerticalPadding: Gap.md,
+              leading: Icon(Icons.school_rounded,
+                  size: 32, color: scheme.onTertiaryContainer),
+              title: Text(tr.ieltsTitle,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onTertiaryContainer)),
+              subtitle: Text(tr.ieltsEntrySubtitle,
+                  style: TextStyle(color: scheme.onTertiaryContainer)),
+              trailing: Icon(Icons.chevron_right_rounded,
+                  color: scheme.onTertiaryContainer),
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const IeltsScreen())),
+            ),
+          ),
         ],
         Text(tr.lpPickDeck, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.md),

@@ -131,6 +131,8 @@ import 'package:assisto/screens/contract_analyzer_screen.dart';
 import 'package:assisto/screens/cost_estimator_screen.dart';
 import 'package:assisto/screens/mock_interview_screen.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
+import 'package:assisto/screens/ielts_screen.dart'; // p2lang
+import 'fake_ielts.dart'; // p2lang
 import 'package:assisto/screens/spending_advice_screen.dart';
 import 'package:assisto/screens/price_radar_screen.dart';
 import 'package:assisto/screens/health_timeline_screen.dart';
@@ -560,6 +562,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
     'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    // p2lang: IELTS practice (hub + streak, pronunciation result, writing
+    // checklist + AI estimate, reading passage, load failure)
+    'ielts_hub': (build: (_) => const IeltsScreen(), mode: FakeMode.data, full: true),
+    'ielts_hub_fail': (build: (_) => const IeltsScreen(), mode: FakeMode.fail, full: true),
+    'ielts_pron_result': (build: (_) => IeltsPronPractice(ctx: Object(), row: (fakeIeltsContent()['pron'] as List).first as Map<String, dynamic>, debugHeard: 'students start is school spring'), mode: FakeMode.data, full: true),
+    'ielts_writing_result': (build: (_) => IeltsWritingPractice(ctx: Object(), task: 't2', row: ((fakeIeltsContent()['writing'] as Map)['t2'] as List).first as Map<String, dynamic>, debugText: 'Some people believe online study works. However, I think classrooms help.', debugResult: fakeIeltsWritingResult()), mode: FakeMode.data, full: true),
+    'ielts_reading': (build: (_) => IeltsReadingPractice(ctx: Object(), row: (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),
     // moneybar: official TCB not fetched + no own logs; the official list page

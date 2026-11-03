@@ -1,0 +1,280 @@
+{
+ "_comment": "p2lang: IELTS practice (Language Partner)",
+ "en": {
+  "ieltsTitle": "IELTS practice",
+  "ieltsEntrySubtitle": "Speaking, writing, reading and pronunciation — with explanations",
+  "ieltsLoadError": "Could not load IELTS practice. Check the internet and try again.",
+  "ieltsStreak": "{n}-day practice streak",
+  "@ieltsStreak": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsStreakBest": "Best: {n} days",
+  "@ieltsStreakBest": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsStreakStart": "Practise today to start your streak",
+  "ieltsTodayDone": "Today's practice is done",
+  "ieltsPron": "Pronunciation check",
+  "ieltsPronSub": "Read a sentence aloud and see which words were clear — works offline",
+  "ieltsSpeaking": "Speaking",
+  "ieltsSpeakingSub": "Part 1, 2 (cue cards) and 3 — answer by voice",
+  "ieltsWriting": "Writing",
+  "ieltsWritingSub": "Task 1 letter and Task 2 essay with a checklist",
+  "ieltsReading": "Reading",
+  "ieltsReadingSub": "Original passages with True / False / Not Given",
+  "ieltsListening": "Listening",
+  "ieltsListeningSub": "Official free practice tests",
+  "ieltsVocab": "IELTS vocabulary",
+  "ieltsVocabSub": "Academic words that come back just before you forget",
+  "ieltsPronHow": "Pick a sentence, tap Record and read it aloud in English, then tap Check. Each word turns green (clear), amber (heard as another word) or red (missed).",
+  "ieltsTip": "Tip",
+  "ieltsRecord": "Record",
+  "ieltsStop": "Stop",
+  "ieltsHeardLabel": "What the phone heard",
+  "ieltsCheck": "Check",
+  "ieltsNothingHeard": "Nothing heard yet — tap Record and read the sentence.",
+  "ieltsPronScore": "{n}% of the words were recognised",
+  "@ieltsPronScore": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsPronEstimate": "Estimate: how much of the sentence your phone's speech recogniser understood. It is not a sound-by-sound analysis and not an IELTS band.",
+  "ieltsWordOk": "Clear",
+  "ieltsWordSub": "Heard as another word",
+  "ieltsWordMiss": "Missed",
+  "ieltsHeardAs": "heard: {word}",
+  "@ieltsHeardAs": {
+   "placeholders": {
+    "word": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsPartN": "Part {n}",
+  "@ieltsPartN": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsPart1Help": "Short questions about you and familiar topics (about 4–5 minutes in the test).",
+  "ieltsPart2Help": "A cue card: 1 minute to prepare, then speak for up to 2 minutes.",
+  "ieltsPart3Help": "Discussion questions linked to Part 2 — give reasons and examples.",
+  "ieltsYouShouldSay": "You should say:",
+  "ieltsPrepTimer": "Start 1-minute preparation",
+  "ieltsPrepLeft": "Preparation: {s} s left",
+  "@ieltsPrepLeft": {
+   "placeholders": {
+    "s": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsAnswerHint": "Tap Record and answer in English. Your words appear below; you can also type or fix them.",
+  "ieltsYourAnswer": "Your answer",
+  "ieltsGetFeedback": "Check my answer (free)",
+  "ieltsAiEstimate": "AI band estimate (uses AI credits)",
+  "ieltsAiTitle": "AI practice estimate",
+  "ieltsAiNotConnected": "The AI estimate is not connected yet. The checklist above works without it.",
+  "ieltsAiNoCredits": "Not enough AI credits for an estimate today. The checklist above is free.",
+  "ieltsAiBusy": "AI is busy right now. Please try again in a minute.",
+  "ieltsAiUnreadable": "The AI answer could not be read. Please try again.",
+  "ieltsAiCharged": "{n} AI credits used",
+  "@ieltsAiCharged": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsChecklistTitle": "{passed} of {total} checks passed",
+  "@ieltsChecklistTitle": {
+   "placeholders": {
+    "passed": {
+     "type": "Object"
+    },
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsOverall": "Overall",
+  "ieltsBandEstimate": "about band {band}",
+  "@ieltsBandEstimate": {
+   "placeholders": {
+    "band": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsNoBandText": "not judged from text — use the pronunciation check",
+  "ieltsCritTask": "Task achievement / response",
+  "ieltsCritCoherence": "Coherence and cohesion",
+  "ieltsCritLexical": "Vocabulary (lexical resource)",
+  "ieltsCritGrammar": "Grammar range and accuracy",
+  "ieltsCritFluency": "Fluency and coherence",
+  "ieltsCritPronunciation": "Pronunciation",
+  "ieltsFixes": "What to fix next",
+  "ieltsEmptyAnswer": "Write or say your answer first.",
+  "ieltsTask1": "Task 1 (letter)",
+  "ieltsTask2": "Task 2 (essay)",
+  "ieltsTask1Help": "General Training letter — at least 150 words, about 20 minutes.",
+  "ieltsTask2Help": "Essay — at least 250 words, about 40 minutes. Give your opinion with reasons and examples.",
+  "ieltsWriteHint": "Write your answer in English",
+  "ieltsWordCount": "{n} words · at least {min}",
+  "@ieltsWordCount": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    },
+    "min": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsReadingOriginal": "These passages were written by Assisto for practice. They are not taken from any official test book.",
+  "ieltsQuestionsCount": "{n} questions",
+  "@ieltsQuestionsCount": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsTrue": "True",
+  "ieltsFalse": "False",
+  "ieltsNotGiven": "Not Given",
+  "ieltsSubmitAnswers": "Check answers",
+  "ieltsCorrectAnswer": "Answer: {answer}",
+  "@ieltsCorrectAnswer": {
+   "placeholders": {
+    "answer": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsScore": "{correct} of {total} correct",
+  "@ieltsScore": {
+   "placeholders": {
+    "correct": {
+     "type": "Object"
+    },
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsTryAgain": "Try again",
+  "ieltsListeningBody": "Listening needs real exam-style recordings. We do not have licensed recordings yet, so practise with the official free tests below — they open in your browser.",
+  "ieltsOpenLinkFailed": "Could not open the link.",
+  "ieltsVocabHow": "Read the word, think of its meaning, then tap to check. Words you miss come back tomorrow; words you know come back later.",
+  "ieltsVocabDue": "{n} words to review today",
+  "@ieltsVocabDue": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "ieltsVocabNoneDue": "All caught up for today — come back tomorrow.",
+  "ieltsShowMeaning": "Show meaning",
+  "ieltsBackToPractice": "Back to IELTS practice"
+ },
+ "bn": {
+  "ieltsTitle": "IELTS প্রস্তুতি",
+  "ieltsEntrySubtitle": "স্পিকিং, রাইটিং, রিডিং ও উচ্চারণ — বাংলা ব্যাখ্যাসহ",
+  "ieltsLoadError": "IELTS অনুশীলন আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "ieltsStreak": "টানা {n} দিন অনুশীলন",
+  "ieltsStreakBest": "সেরা: {n} দিন",
+  "ieltsStreakStart": "আজ অনুশীলন করে ধারাবাহিকতা শুরু করুন",
+  "ieltsTodayDone": "আজকের অনুশীলন হয়ে গেছে",
+  "ieltsPron": "উচ্চারণ যাচাই",
+  "ieltsPronSub": "একটা বাক্য পড়ুন, কোন শব্দ পরিষ্কার হলো দেখুন — নেট ছাড়াও চলে",
+  "ieltsSpeaking": "স্পিকিং",
+  "ieltsSpeakingSub": "পার্ট ১, ২ (কিউ-কার্ড) ও ৩ — মুখে উত্তর দিন",
+  "ieltsWriting": "রাইটিং",
+  "ieltsWritingSub": "Task ১ চিঠি ও Task ২ প্রবন্ধ — চেকলিস্টসহ যাচাই",
+  "ieltsReading": "রিডিং",
+  "ieltsReadingSub": "নিজস্ব অনুচ্ছেদ — True / False / Not Given",
+  "ieltsListening": "লিসেনিং",
+  "ieltsListeningSub": "অফিসিয়াল ফ্রি প্র্যাকটিস টেস্ট",
+  "ieltsVocab": "IELTS শব্দভাণ্ডার",
+  "ieltsVocabSub": "একাডেমিক শব্দ — ভুলে যাওয়ার আগেই আবার আসে",
+  "ieltsPronHow": "একটা বাক্য বেছে 'রেকর্ড' চাপুন, ইংরেজিতে জোরে পড়ুন, তারপর 'যাচাই' চাপুন। প্রতিটি শব্দ সবুজ (পরিষ্কার), হলুদ (অন্য শব্দ শুনেছে) বা লাল (বাদ পড়েছে) হবে।",
+  "ieltsTip": "টিপস",
+  "ieltsRecord": "রেকর্ড",
+  "ieltsStop": "থামান",
+  "ieltsHeardLabel": "ফোন যা শুনেছে",
+  "ieltsCheck": "যাচাই",
+  "ieltsNothingHeard": "এখনো কিছু শোনা যায়নি — 'রেকর্ড' চেপে বাক্যটা পড়ুন।",
+  "ieltsPronScore": "{n}% শব্দ ঠিকভাবে বোঝা গেছে",
+  "ieltsPronEstimate": "অনুমান: ফোনের speech recogniser বাক্যের কতটা বুঝল। এটা ধ্বনি-ধরে বিশ্লেষণ নয়, IELTS ব্যান্ডও নয়।",
+  "ieltsWordOk": "পরিষ্কার",
+  "ieltsWordSub": "অন্য শব্দ শুনেছে",
+  "ieltsWordMiss": "বাদ পড়েছে",
+  "ieltsHeardAs": "শুনেছে: {word}",
+  "ieltsPartN": "পার্ট {n}",
+  "ieltsPart1Help": "আপনার নিজের ও চেনা বিষয়ে ছোট প্রশ্ন (পরীক্ষায় প্রায় ৪–৫ মিনিট)।",
+  "ieltsPart2Help": "কিউ-কার্ড: ১ মিনিট প্রস্তুতি, তারপর ২ মিনিট পর্যন্ত বলুন।",
+  "ieltsPart3Help": "পার্ট ২-এর সাথে যুক্ত আলোচনা — কারণ ও উদাহরণ দিন।",
+  "ieltsYouShouldSay": "যা বলবেন:",
+  "ieltsPrepTimer": "১ মিনিট প্রস্তুতি শুরু",
+  "ieltsPrepLeft": "প্রস্তুতি: আর {s} সেকেন্ড",
+  "ieltsAnswerHint": "'রেকর্ড' চেপে ইংরেজিতে উত্তর দিন। আপনার কথা নিচে লেখা হবে; চাইলে টাইপ বা ঠিকও করতে পারেন।",
+  "ieltsYourAnswer": "আপনার উত্তর",
+  "ieltsGetFeedback": "আমার উত্তর যাচাই (ফ্রি)",
+  "ieltsAiEstimate": "AI ব্যান্ড-অনুমান (AI ক্রেডিট লাগে)",
+  "ieltsAiTitle": "AI অনুশীলন-অনুমান",
+  "ieltsAiNotConnected": "AI অনুমান এখনো চালু হয়নি। উপরের চেকলিস্ট এটা ছাড়াই কাজ করে।",
+  "ieltsAiNoCredits": "আজ অনুমানের জন্য যথেষ্ট AI ক্রেডিট নেই। উপরের চেকলিস্ট ফ্রি।",
+  "ieltsAiBusy": "AI এখন ব্যস্ত। এক মিনিট পরে আবার চেষ্টা করুন।",
+  "ieltsAiUnreadable": "AI-এর উত্তর পড়া গেল না। আবার চেষ্টা করুন।",
+  "ieltsAiCharged": "{n} AI ক্রেডিট খরচ হয়েছে",
+  "ieltsChecklistTitle": "{total}টির মধ্যে {passed}টি ঠিক আছে",
+  "ieltsOverall": "সব মিলিয়ে",
+  "ieltsBandEstimate": "আনুমানিক ব্যান্ড {band}",
+  "ieltsNoBandText": "লেখা থেকে বিচার হয় না — উচ্চারণ যাচাই ব্যবহার করুন",
+  "ieltsCritTask": "প্রশ্নের উত্তর কতটা দিলেন",
+  "ieltsCritCoherence": "সাজানো ও সংযোগ",
+  "ieltsCritLexical": "শব্দভাণ্ডার",
+  "ieltsCritGrammar": "ব্যাকরণের বৈচিত্র্য ও শুদ্ধতা",
+  "ieltsCritFluency": "সাবলীলতা ও সংযোগ",
+  "ieltsCritPronunciation": "উচ্চারণ",
+  "ieltsFixes": "এরপর যা ঠিক করবেন",
+  "ieltsEmptyAnswer": "আগে উত্তর লিখুন বা বলুন।",
+  "ieltsTask1": "Task ১ (চিঠি)",
+  "ieltsTask2": "Task ২ (প্রবন্ধ)",
+  "ieltsTask1Help": "General Training চিঠি — কমপক্ষে ১৫০ শব্দ, প্রায় ২০ মিনিট।",
+  "ieltsTask2Help": "প্রবন্ধ — কমপক্ষে ২৫০ শব্দ, প্রায় ৪০ মিনিট। কারণ ও উদাহরণসহ মত দিন।",
+  "ieltsWriteHint": "ইংরেজিতে উত্তর লিখুন",
+  "ieltsWordCount": "{n} শব্দ · কমপক্ষে {min}",
+  "ieltsReadingOriginal": "এই অনুচ্ছেদগুলো Assisto অনুশীলনের জন্য নিজে লিখেছে — কোনো অফিসিয়াল টেস্ট বই থেকে নেওয়া নয়।",
+  "ieltsQuestionsCount": "{n}টি প্রশ্ন",
+  "ieltsTrue": "সত্য (T)",
+  "ieltsFalse": "মিথ্যা (F)",
+  "ieltsNotGiven": "লেখায় নেই (NG)",
+  "ieltsSubmitAnswers": "উত্তর মিলিয়ে দেখুন",
+  "ieltsCorrectAnswer": "সঠিক উত্তর: {answer}",
+  "ieltsScore": "{total}টির মধ্যে {correct}টি সঠিক",
+  "ieltsTryAgain": "আবার চেষ্টা করুন",
+  "ieltsListeningBody": "লিসেনিং-এর জন্য পরীক্ষার মতো আসল রেকর্ডিং লাগে। আমাদের কাছে এখনো লাইসেন্স করা রেকর্ডিং নেই — তাই নিচের অফিসিয়াল ফ্রি টেস্টগুলো দিয়ে অনুশীলন করুন, ব্রাউজারে খুলবে।",
+  "ieltsOpenLinkFailed": "লিংক খোলা গেল না।",
+  "ieltsVocabHow": "শব্দটা পড়ুন, মনে মনে অর্থ ভাবুন, তারপর চেপে মিলিয়ে নিন। ভুল হলে কাল আবার আসবে; জানা শব্দ পরে আসবে।",
+  "ieltsVocabDue": "আজ {n}টি শব্দ ঝালাই করার আছে",
+  "ieltsVocabNoneDue": "আজকের সব শব্দ শেষ — কাল আবার আসুন।",
+  "ieltsShowMeaning": "অর্থ দেখুন",
+  "ieltsBackToPractice": "IELTS প্রস্তুতিতে ফিরুন"
+ }
+}

@@ -64,6 +64,7 @@ const _launchPrefixes = <String>[
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
+  'ielts_', // p2lang: IELTS practice (Language Partner)
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
 ];

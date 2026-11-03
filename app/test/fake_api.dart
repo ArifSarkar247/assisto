@@ -27,6 +27,7 @@ import 'remhbud_fakes.dart'; // remhbud (Budget module endpoints)
 import 'fake_books.dart'; // ledger
 import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
+import 'fake_ielts.dart'; // p2lang
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -242,6 +243,8 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    if (path == 'ielts/practice') return fakeIeltsPractice(empty: mode == FakeMode.empty); // p2lang
+    if (path == 'ielts/vocab') return const []; // p2lang: every word due
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -978,6 +981,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final ielts = fakeIeltsGet(path); // p2lang
+    if (ielts != null) {
+      if (mode == FakeMode.fail) _fail();
+      return ielts;
+    }
     final inv = fakeInvoiceGet(path, empty: mode == FakeMode.empty); // invoices
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2054,6 +2062,8 @@ class FakeApi extends ApiClient {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
+    final ieltsP = fakeIeltsPost(path, body); // p2lang
+    if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels
     if (chxP != null) return chxP;
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
