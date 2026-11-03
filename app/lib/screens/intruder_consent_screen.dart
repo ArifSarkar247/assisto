@@ -7,7 +7,7 @@ import '../theme.dart';
 /// at100 — the intruder-photo CONSENT screen (prominent disclosure). Shown
 /// BEFORE the camera permission prompt, every time the owner switches the
 /// option on. It says plainly: what, when (only while Assisto is open, after
-/// wrong Security PINs — never the lock screen, never the background), that
+/// wrong Security PINs or Vault PINs — never the lock screen, never the background), that
 /// it is not hidden (shutter sound + camera dot + a line on every PIN box),
 /// where it is kept, who sees it, how long, how to turn it off / delete, and
 /// the "your own phone only" rule. Returns true only on "I agree".
@@ -15,7 +15,9 @@ import '../theme.dart';
 /// [consentVersion] is sent to the server with the setting; the server
 /// refuses to switch the photo on without it (core/views_at_remote.py).
 class IntruderConsentScreen extends StatelessWidget {
-  static const consentVersion = 1;
+  // lostsim: 2 = the text now also covers wrong Vault PINs (older
+  // consents stop counting on the server; the owner is asked again).
+  static const consentVersion = 2;
 
   const IntruderConsentScreen({super.key});
 
@@ -71,8 +73,8 @@ class IntruderConsentScreen extends StatelessWidget {
                   const SizedBox(height: Gap.sm),
                   item(Icons.photo_camera_front_outlined, tr.at100IcWhatT,
                       tr.at100IcWhat),
-                  item(Icons.schedule_rounded, tr.at100IcWhenT, tr.at100IcWhen),
-                  item(Icons.campaign_outlined, tr.at100IcNoticeT, tr.at100IcNotice),
+                  item(Icons.schedule_rounded, tr.at100IcWhenT, tr.lostsimIcWhen),
+                  item(Icons.campaign_outlined, tr.at100IcNoticeT, tr.lostsimIcNotice),
                   item(Icons.lock_outline_rounded, tr.at100IcWhereT, tr.at100IcWhere),
                   item(Icons.people_outline_rounded, tr.at100IcWhoT, tr.at100IcWho),
                   item(Icons.auto_delete_outlined, tr.at100IcKeepT, tr.at100IcKeep),

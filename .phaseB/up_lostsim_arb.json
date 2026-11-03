@@ -1,0 +1,12 @@
+{
+  "en": {
+    "lostsimIcWhen": "Only while Assisto is open on the screen: after several wrong PINs in a row inside Assisto (3 by default) — a Security PIN (for example on the \"Are you OK?\" check after a grab, or when someone tries to switch protection off) or your Vault PIN. Never on the lock screen and never in the background.",
+    "@lostsimIcWhen": {"description": "Intruder photo consent: when the photo is taken (v2 adds the Vault PIN)."},
+    "lostsimIcNotice": "The phone plays the camera shutter sound, Android shows its camera dot, and every Security PIN and Vault PIN box says that a wrong PIN takes a photo.",
+    "@lostsimIcNotice": {"description": "Intruder photo consent: it is never hidden (v2 adds the Vault PIN box)."}
+  },
+  "bn": {
+    "lostsimIcWhen": "শুধু Assisto স্ক্রিনে খোলা থাকলে: Assisto-র ভেতরে পরপর কয়েকবার ভুল পিন দিলে (সাধারণত ৩ বার) — সিকিউরিটি পিন (যেমন টানের পরে \"আপনি ঠিক আছেন?\" প্রশ্নে, বা কেউ সুরক্ষা বন্ধ করার চেষ্টা করলে) অথবা ভল্টের পিন। লক-স্ক্রিনে বা ব্যাকগ্রাউন্ডে কখনো নয়।",
+    "lostsimIcNotice": "ফোনে ক্যামেরার শাটার-শব্দ হয়, Android ক্যামেরার সবুজ বিন্দু দেখায়, আর প্রতিটি সিকিউরিটি পিন ও ভল্ট পিনের বাক্সে লেখা থাকে যে ভুল পিন দিলে ছবি তোলা হয়।"
+  }
+}

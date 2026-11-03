@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../messaging/chat_lock.dart' show ChatLockAuth;
+import '../services/intruder_snap.dart' show IntruderSnap; // lostsim
 import '../theme.dart' show AType, Gap;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vault_lock.dart';
@@ -21,13 +22,17 @@ class VaultLockView extends StatefulWidget {
 
   /// Shown above the PIN boxes when setting a NEW PIN after a recovery.
   final String? notice;
+
+  /// lostsim: gallery seam — null = the real state ([IntruderSnap.armed]).
+  final bool? intruderArmed;
   const VaultLockView(
       {super.key,
       required this.lock,
       required this.mode,
       required this.onUnlocked,
       this.onForgot,
-      this.notice});
+      this.notice,
+      this.intruderArmed});
 
   @override
   State<VaultLockView> createState() => _VaultLockViewState();
@@ -131,9 +136,23 @@ class _VaultLockViewState extends State<VaultLockView> {
       }
       return;
     }
-    if (pin.isEmpty) return;
+    if (pin.isEmpty) {
+      // lostsim: never a silent tap — say what is missing
+      setState(() => _error = t.vaultEnterPinHint);
+      return;
+    }
     setState(() => _busy = true);
     final r = await widget.lock.check(pin);
+    if (r == PinCheck.wrong || r == PinCheck.lockedOut) {
+      // lostsim: the owner's consented intruder photo (off by default;
+      // the notice below says so while it is on). Fire-and-forget.
+      try {
+        IntruderSnap.afterLocalWrong(await widget.lock.wrongInARow());
+      } catch (_) {
+        // best-effort: the photo is optional evidence; the wrong-PIN message
+        // below must show whatever happens here
+      }
+    }
     if (!mounted) return;
     _pin.clear();
     final locked = await widget.lock.lockedFor();
@@ -180,6 +199,21 @@ class _VaultLockViewState extends State<VaultLockView> {
               const SizedBox(height: Gap.sm),
               Text(widget.notice ?? (setting ? t.vaultSetPinInfo : t.vaultUnlockInfo),
                   textAlign: TextAlign.center, style: AType.bodyMedium),
+              // lostsim: never covert — whoever types here is told while the
+              // owner's intruder photo is on.
+              if (!setting && (widget.intruderArmed ?? IntruderSnap.armed)) ...[
+                const SizedBox(height: Gap.sm),
+                Row(
+                  key: const Key('lostsim-vault-notice'),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.photo_camera_front_outlined, size: 18),
+                    const SizedBox(width: Gap.xs),
+                    Expanded(
+                        child: Text(t.at100PinNotice, style: AType.bodySmall)),
+                  ],
+                ),
+              ],
               const SizedBox(height: Gap.lg),
               TextField(
                 key: const Key('vault_pin'),

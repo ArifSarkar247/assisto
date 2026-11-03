@@ -10,7 +10,8 @@ import 'antitheft_service.dart';
 /// check after a grab, switching protection off, a Section-8 action...), the
 /// server answers `intruder_snap: true` once the owner's threshold of wrong
 /// attempts in a row is reached, and the app asks the engine for ONE front
-/// photo — with the system shutter sound and Android's camera dot. Never in
+/// photo — with the system shutter sound and Android's camera dot. lostsim:
+/// the same after [localThreshold] wrong Vault PINs in a row. Never in
 /// the background, never on the lock screen, never covert: every PIN dialog
 /// shows a visible line saying so while it is on ([armed]).
 class IntruderSnap {
@@ -55,6 +56,24 @@ class IntruderSnap {
     try {
       await Settings.setBool(_kOn, on);
     } catch (_) {}
+  }
+
+  /// lostsim: wrong attempts in a row before a LOCAL Assisto PIN (the
+  /// Vault PIN — Assisto's app lock) takes the photo. Same default as the
+  /// server's Security-PIN threshold.
+  static const localThreshold = 3;
+
+  /// lostsim: a wrong LOCAL Assisto PIN (Vault) — no server round trip, so
+  /// the app counts. [wrongInARow] = wrong attempts in a row INCLUDING this
+  /// one. Takes ONE photo when the consented intruder photo is on ([armed])
+  /// and the count reached [localThreshold]; the native engine checks the
+  /// server's consent-gated config again and rate-limits (1 per minute).
+  /// Never throws, never blocks the caller's UI.
+  static bool afterLocalWrong(int wrongInARow) {
+    if (!_armed || wrongInARow < localThreshold) return false;
+    final f = snapOverride ?? AntiTheftService.intruderSnap;
+    unawaited(f().catchError((_) => false));
+    return true;
   }
 
   /// After a PIN-gated server answer: take the photo when the server says so.

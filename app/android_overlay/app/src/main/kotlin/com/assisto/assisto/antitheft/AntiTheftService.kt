@@ -295,6 +295,11 @@ class AntiTheftService : Service(), SensorEventListener {
                 } catch (_: Throwable) {}
                 if (running) {
                     flush(ctx)
+                    // lostsim: re-compare the SIM(s) on every app open/resume.
+                    // The SIM_STATE_CHANGED receiver can miss a swap (OEM
+                    // battery savers); the comparison is idempotent (lastSeen),
+                    // so a re-check never repeats an alert.
+                    try { instance?.recheckSim() } catch (_: Throwable) {}
                     return true
                 }
                 val cfg = try { JSONObject(p.getString("config", "{}") ?: "{}") }
@@ -1496,6 +1501,13 @@ class AntiTheftService : Service(), SensorEventListener {
     private fun hasSimBaseline(): Boolean = try {
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(K_SIM_BASE)
     } catch (_: Throwable) { false }
+
+    /** lostsim: app open/resume -> compare to the baseline again (only when
+     *  a baseline exists; recording one stays the arming path's job). */
+    internal fun recheckSim() {
+        if (!hasSimBaseline()) return
+        scheduleSimCheck(SIM_DEBOUNCE_MS)
+    }
 
     private fun scheduleSimCheck(delayMs: Long) {
         try {

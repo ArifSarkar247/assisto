@@ -230,7 +230,7 @@ class NomineeTests(_Armed):
 class PhotoPushTests(_Base):
     def setUp(self):
         super().setUp()
-        self._enable(intruder_photo=True, intruder_consent=1)
+        self._enable(intruder_photo=True, intruder_consent=2)
         AntiTheftEngine.objects.filter(phone=self.phone).update(
             device_hash=own_device.device_hash(DEV))
 

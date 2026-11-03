@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:assisto/screens/intruder_consent_screen.dart';
 import 'package:assisto/screens/watched_phones_screen.dart';
 import 'package:assisto/theme.dart';
+import 'package:assisto/vault/vault_lock.dart';
+import 'package:assisto/vault/vault_lock_view.dart';
 import 'package:assisto/widgets/remote_switches_card.dart';
 
 import 'at100_fakes.dart';
@@ -32,4 +34,11 @@ final Map<String, Widget Function(String)> at100Shots = {
   'at100_watch_empty': (l) =>
       WatchedPhonesScreen(load: () async => {'watching': <Map>[]}),
   'at100_consent': (l) => const IntruderConsentScreen(),
+  // lostsim: the Vault PIN box says plainly that a wrong PIN takes a photo
+  'lostsim_vault_notice': (l) => Scaffold(
+      body: VaultLockView(
+          lock: VaultLock(kv: MemoryKv(), iterations: 10),
+          mode: VaultLockMode.enter,
+          onUnlocked: () {},
+          intruderArmed: true)),
 };

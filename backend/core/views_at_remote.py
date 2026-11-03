@@ -64,7 +64,7 @@ ALARM_SECONDS = 60        # the phone rings this long (MUST match RemoteCommands
 
 # Intruder photo: the consent screen's version. Raise it when the consent
 # text changes materially — older consents then stop counting.
-INTRUDER_CONSENT_VERSION = 1
+INTRUDER_CONSENT_VERSION = 2  # lostsim: text now also covers wrong Vault PINs
 
 
 # --------------------------------------------------------------------------
