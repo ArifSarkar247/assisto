@@ -22852,5 +22852,6 @@
   "lcScanHint": "আসল কি না দেখতে স্ক্যান করুন",
   "lcPdfReady": "সনদের PDF তৈরি",
   "lcPdfFailed": "PDF নামানো গেল না। আবার চেষ্টা করুন।",
-  "lcFbFailed": "Facebook খোলা গেল না।"
+  "lcFbFailed": "Facebook খোলা গেল না।",
+  "qrnBnNotIncluded": "অন্তর্ভুক্ত নয় — প্রকাশকের অনুমতি লাগবে"
 }

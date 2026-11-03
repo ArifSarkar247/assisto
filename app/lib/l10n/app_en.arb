@@ -41003,5 +41003,9 @@
   "lcFbFailed": "Could not open Facebook.",
   "@lcFbFailed": {
     "description": "learncert: Assisto learning certificate"
+  },
+  "qrnBnNotIncluded": "Not included — needs the publisher's permission",
+  "@qrnBnNotIncluded": {
+    "description": "launchsweep3: Quran Bangla translation option label; honest (no 'coming' promise)"
   }
 }
