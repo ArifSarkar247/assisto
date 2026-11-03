@@ -41841,5 +41841,9 @@
   "lwListen": "Listen (phone voice)",
   "@lwListen": {
     "description": "learnwire: Language Partner framework / certificate wiring"
+  },
+  "cbubSoundAssistoPop": "Assisto pop (default)",
+  "@cbubSoundAssistoPop": {
+    "description": "circlebub: the message-sound setting when the user has not picked a sound — Assisto's own short pop"
   }
 }
