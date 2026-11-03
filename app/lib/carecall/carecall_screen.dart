@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../calls/fullscreen_call_prompt.dart';
 import '../l10n/app_localizations.dart';
+import '../notifications.dart';
 import '../screens/circle_call_screen.dart';
 import '../screens/journey_watch_screen.dart';
 import '../state.dart';
@@ -263,6 +264,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
       ],
       if (received.isNotEmpty || links.isNotEmpty) ...[
         _header(t.ccForYou),
+        if (received.isNotEmpty && Notifications.exactAllowedCached == false) _exactCard(t),
         for (final c in received) _receivedTile(t, c),
         for (final l in links) _linkTile(t, l),
         _quietTile(t),
@@ -538,6 +540,37 @@ class _CareCallScreenState extends State<CareCallScreen> {
                 icon: const Icon(Icons.phone_callback_rounded),
                 label: Text(t.ccAllowAgain(name)),
               ),
+      ),
+    );
+  }
+
+  /// Receiver: Android 12+ "Alarms & reminders" off -> the phone's own
+  /// alarm may be late (the push still rings on time). One tap to allow.
+  Widget _exactCard(AppLocalizations t) {
+    final tt = Theme.of(context).textTheme;
+    return Card(
+      margin: const EdgeInsets.only(bottom: Gap.sm),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.ccExactTitle, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: Gap.xs),
+          Text(t.ccExactBody, style: tt.bodyMedium),
+          const SizedBox(height: Gap.sm),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: FilledButton.tonal(
+              onPressed: () async {
+                await Notifications.requestExact();
+                if (!mounted) return;
+                setState(() {});
+                final api = _api, m = _m;
+                if (api != null && m != null) unawaited(CareCallSync.apply(api, m, lang: ccLang(context)));
+              },
+              child: Text(t.ccExactAllow),
+            ),
+          ),
+        ]),
       ),
     );
   }

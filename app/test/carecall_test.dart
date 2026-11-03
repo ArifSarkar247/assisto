@@ -291,7 +291,7 @@ void main() {
       await tester.pumpWidget(_app(CareCallScreen(api: FakeCareCallApi(), debugMine: ccMine('en', empty: true))));
       await tester.pumpAndSettle();
       expect(find.textContaining('in your own voice'), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, 'New Care Call'), findsOneWidget);
+      expect(find.ancestor(of: find.text('New Care Call'), matching: find.byWidgetPredicate((w) => w is FilledButton)), findsOneWidget);
       expect(find.textContaining('Pick someone from My Circle'), findsOneWidget);
     });
 
@@ -346,7 +346,8 @@ void main() {
       expect(find.text('Arif is reminding you'), findsOneWidget);
       expect(find.text('“Take your gas tablet”'), findsOneWidget);
       expect(find.text('Care Call · Assisto'), findsOneWidget);
-      expect(tester.getSize(find.widgetWithText(FilledButton, 'Done')).height, greaterThanOrEqualTo(72));
+      expect(tester.getSize(find.ancestor(of: find.text('Done'), matching: find.byWidgetPredicate((w) => w is FilledButton))).height,
+          greaterThanOrEqualTo(72));
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
       expect(api.ackBatches.single.single['action'], 'done');

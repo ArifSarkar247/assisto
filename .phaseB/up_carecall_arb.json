@@ -261,7 +261,10 @@
     }
    }
   },
-  "ccOfflineBanner": "You are offline — showing what this phone saved. Care Calls still ring."
+  "ccOfflineBanner": "You are offline — showing what this phone saved. Care Calls still ring.",
+  "ccExactTitle": "Ring exactly on time, even offline",
+  "ccExactBody": "Allow \"Alarms & reminders\" for Assisto so this phone's own Care Call alarm is never late.",
+  "ccExactAllow": "Allow"
  },
  "bn": {
   "ccTitle": "কেয়ার কল",
@@ -366,6 +369,9 @@
   "ccDelete": "মুছুন",
   "ccDeleteConfirm": "এই কেয়ার কল মুছবেন?",
   "ccLimitLine": "ফ্রি {max}টির মধ্যে {used}টি চালু",
-  "ccOfflineBanner": "নেট নেই — ফোনে যা সেভ আছে দেখানো হচ্ছে। কেয়ার কল তবুও বাজবে।"
+  "ccOfflineBanner": "নেট নেই — ফোনে যা সেভ আছে দেখানো হচ্ছে। কেয়ার কল তবুও বাজবে।",
+  "ccExactTitle": "নেট ছাড়াও ঠিক সময়ে বাজুক",
+  "ccExactBody": "Assisto-কে \"অ্যালার্ম ও রিমাইন্ডার\" অনুমতি দিন — তাহলে এই ফোনের নিজের কেয়ার কল অ্যালার্ম কখনো দেরি করবে না।",
+  "ccExactAllow": "অনুমতি দিন"
  }
 }
