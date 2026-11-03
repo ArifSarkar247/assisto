@@ -281,7 +281,8 @@ const Map<String, String> kRouteFeature = {
   'booking': 'booking_bot',
   'market': 'assisto_market',
   'safe_plans': 'safe_plans',
-  'carecall': 'care_call', // carecall
+  // carecall: Care Call home
+  'carecall': 'care_call',
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
   'acct': 'accounting_v2', // acctui

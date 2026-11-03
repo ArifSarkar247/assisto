@@ -124,7 +124,9 @@ class _CareCallRingScreenState extends State<CareCallRingScreen> {
     setState(() => _busy = true);
     try {
       await _sound.stop();
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the voice may already have finished
+    }
     await CareCallActions.answer(d, action, api: _api());
     if (!mounted) return;
     _answered = true;

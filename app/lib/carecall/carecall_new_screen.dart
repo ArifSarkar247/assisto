@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +15,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/local_counter.dart';
+import '../widgets/permission_reason.dart';
 import 'carecall_api.dart';
 import 'carecall_plan.dart';
 import 'carecall_ui.dart';
@@ -175,11 +177,27 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
   }
 
   // ---------------------------------------------------------------- voice
+  /// Microphone: our own reason first (Play policy), then Android's prompt.
+  Future<bool> _micOk() async {
+    try {
+      if ((await Permission.microphone.status).isGranted) return true;
+    } catch (_) {
+      return false; // no permission plugin (tests): treated as refused
+    }
+    if (!mounted) return false;
+    if (!await showPermissionReason(context, PermKind.mic)) return false;
+    try {
+      return (await Permission.microphone.request()).isGranted;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _record() async {
     final t = AppLocalizations.of(context);
     await VoicePlayer.instance.stop();
     final r = _rec ??= ccRecorderFactory();
-    final ok = await r.start();
+    final ok = await _micOk() && await r.start();
     if (!mounted) return;
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.ccMicDenied)));
@@ -260,7 +278,16 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
       try {
         body['voice_b64'] = base64Encode(await File(_voicePath!).readAsBytes());
         body['voice_sec'] = _voiceSec;
-      } catch (_) {}
+      } catch (_) {
+        // the recording file is gone: say so, never save without it silently
+        if (mounted) {
+          setState(() {
+            _saving = false;
+            _error = t.ccFailed;
+          });
+        }
+        return;
+      }
     }
     final api = _api();
     final name = '${_who?['name'] ?? ''}';
@@ -662,7 +689,9 @@ class CareCallDrafts {
     try {
       final p = await SharedPreferences.getInstance();
       await p.setString(key, jsonEncode(l));
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: no local storage (tests / blocked) — the online path still works
+    }
   }
 
   static Future<void> add(Map<String, dynamic> body) async {

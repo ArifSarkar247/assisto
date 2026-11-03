@@ -32,7 +32,8 @@ class PluginCcRecorder implements CcRecorder {
   @override
   Future<bool> start() async {
     try {
-      if (!(await Permission.microphone.request()).isGranted) return false;
+      // the screen showed our reason and asked first (_micOk)
+      if (!(await Permission.microphone.status).isGranted) return false;
       _mic.start();
       await _rec.start(
           const RecordConfig(

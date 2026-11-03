@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../push/push_payload.dart' show PushPayload;
 
-/// carecall (owner order 4 Nov 01:50) — Care Call / কেয়ার কল. PURE rules
+/// carecall (owner order 4 Nov 01:50) — Care Call. PURE rules
 /// (no Flutter, no plugins, no I/O; unit-tested in test/carecall_test.dart),
 /// mirrored 1:1 from the server (backend/core/carecall.py) so the phone's
 /// own alarm and the server's ring land on the SAME slot:

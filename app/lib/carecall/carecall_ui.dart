@@ -10,14 +10,14 @@ import 'carecall_plan.dart';
 String ccLang(BuildContext context) =>
     Localizations.localeOf(context).languageCode == 'en' ? 'en' : 'bn';
 
-/// 'HH:MM' -> '9:00 am' / 'সকাল ৯:০০'.
+/// 'HH:MM' -> '9:00 am' (Bangla: day-period word + Bangla digits).
 String ccTimeText(BuildContext context, String hhmm) {
   final m = ccMinutes(hhmm) ?? 540;
   return clockLabel(AppLocalizations.of(context), DateTime(2000, 1, 1, m ~/ 60, m % 60),
       lang: ccLang(context));
 }
 
-/// A server ISO time -> its Bangladesh clock ('9:02 am' / 'সকাল ৯:০২').
+/// A server ISO time -> its Bangladesh clock ('9:02 am').
 String ccIsoTimeText(BuildContext context, String? iso) {
   final d = DateTime.tryParse(iso ?? '');
   if (d == null) return '';

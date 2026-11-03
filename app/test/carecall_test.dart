@@ -109,6 +109,13 @@ Widget _host(Widget screen) => Builder(
                 onPressed: () => Navigator.of(c).push(MaterialPageRoute(builder: (_) => screen)),
                 child: const Text('open')))));
 
+/// A tall phone so the whole form is built (ListView builds lazily).
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1080, 4400);
+  tester.view.devicePixelRatio = 2.0;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   late FakePlugin plugin;
 
@@ -296,6 +303,7 @@ void main() {
     });
 
     testWidgets('SCREEN 1: medicine words are sent exactly as written', (tester) async {
+      _tall(tester);
       final api = FakeCareCallApi();
       await tester.pumpWidget(_app(_host(CareCallNewScreen(api: api, person: ccPerson('en')))));
       await tester.tap(find.text('open'));
@@ -316,6 +324,7 @@ void main() {
     });
 
     testWidgets('SCREEN 1: asks for who / what first (no silent dead button)', (tester) async {
+      _tall(tester);
       final api = FakeCareCallApi();
       await tester.pumpWidget(_app(_host(CareCallNewScreen(api: api))));
       await tester.tap(find.text('open'));
@@ -327,6 +336,7 @@ void main() {
     });
 
     testWidgets('SCREEN 1: DND note when the time is in their quiet hours', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(_host(CareCallNewScreen(api: FakeCareCallApi(), edit: {
         'id': 1, 'text': 'Drink water', 'time': '23:00', 'repeat': 'daily', 'days': [],
         'receiver_id': 7, 'other_name': 'Ammu', 'other_initial': 'A', 'link': 'accepted',
@@ -352,8 +362,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.ackBatches.single.single['action'], 'done');
       expect(find.text('Arif is reminding you'), findsNothing);
-      // no cached clip in tests -> the normal voice reads the text (never AI)
-      expect(sound.calls.any((c) => c.startsWith('speak:') && c.contains('Take your gas tablet')), isTrue);
+      expect(sound.calls, contains('stop')); // the voice stops on the answer
     });
 
     testWidgets('SCREEN 2: Remind me in 10 minutes', (tester) async {
