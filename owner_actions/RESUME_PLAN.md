@@ -10,6 +10,8 @@ Live server = origin/main (build 304) **plus local merges of `agent/placesnew` (
 3. When green: ship as the next build (backup → push main → migrate 0148_mapscost, 0149_guardian2, 0150_nearby → restart assisto + assisto-tracker → health) → `bin/ship_watch.sh` (Play internal+alpha, never production) → Bangla STATUS lines (one per part of the 18:40 order, list of Play product ids, Nearby data line).
 4. Then fix whatever the owner's phone tests of builds 302/304 find (top priority over new work).
 
+## ⭐ PERMANENT RULE (4 Nov 01:32): WORLD CLASS — see CLAUDE.md top. All features ON at 8 Nov launch; every feature ≥ 9/10 by 7 Nov; create owner_actions/QUALITY_BOARD_BN.md (reference app + 6 scores per feature) and show it in Owner Admin; daily 21:00 board line; 7 Nov 18:00 below-9 list.
+
 ## Owner orders not finished (newest first)
 | Order | State | What is left |
 |---|---|---|
