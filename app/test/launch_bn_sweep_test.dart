@@ -51,6 +51,7 @@ const _launchPrefixes = <String>[
   'callpip_', // call PiP / mini tile / call bar
   'bizops_', // biz brief card
   'chat', 'ps_assistant', // home AI chat action cards (expense / reminder / approval)
+  'dtools_', // p2tools: Daily tools hub + every tool (3 Nov)
   // launchsweep2 (3 Nov): everything built on the 2–3 Nov night.
   'pc_', // CCTV phone camera (old phone as camera)
   'cx_', 'cxat_', // CCTV alerts inbox / actions / alert types

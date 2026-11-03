@@ -55,6 +55,7 @@ import '../screens/language_partner_screen.dart';
 import '../screens/spending_advice_screen.dart';
 import '../screens/price_radar_screen.dart';
 import '../screens/quick_tools_screen.dart';
+import '../screens/daily_tools_screen.dart';
 import '../screens/daily_brief_screen.dart';
 import '../screens/blog_writer_screen.dart';
 import '../screens/cv_builder_screen.dart';
@@ -748,6 +749,14 @@ class SidebarSections {
           feature: 'voice_mood',
           (_) => const VoiceMoodScreen(),
           synonyms: ['mood', 'journal', 'energy', 'relax', 'breathing', 'check-in']),
+      // p2tools (flag daily_tools, default OFF): offline calculators and
+      // converters for BD daily life (bigha/katha, bhori, EMI, zakat, dates).
+      SidebarItem(Icons.calculate_rounded, (t) => t.dtDrawer,
+          feature: 'daily_tools',
+          (_) => const DailyToolsScreen(),
+          synonyms: ['calculator', 'converter', 'unit', 'bigha', 'katha',
+              'bhori', 'emi', 'zakat', 'age', 'bmi', 'hijri', 'timer', 'qr',
+              'dice', 'word count']),
       SidebarItem(Icons.lightbulb_outline_rounded, (t) => t.proTitle,
           feature: 'proactive_ai',
           (_) => const ProactiveAiScreen(),

@@ -137,6 +137,8 @@ _A = {
                    "মালিকের সিদ্ধান্ত ২৭ Oct: শুধু সুস্থতার ডায়েরি ও বিশ্রাম (Stress Management), কখনো মানসিক স্বাস্থ্যের চিকিৎসা নয়; তথ্য ফোনেই থাকে; হেল্পলাইনের বদলে ৯৯৯ নিরাপত্তা লাইন; ঘোষণা তৈরি, মালিক জমা দেবেন।"),
     "proactive_ai": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "area_community": ("FF???????", "hide", "Hidden today (posts not shared; f6).", "আজও লুকানো (পোস্ট কেউ দেখেন না; f6)।"),
+    "daily_tools": ("????PP?FF", "hide", "p2tools: 15 offline tools (BD land/weight units, currency with user rate+date, EMI flat vs reducing, zakat, VAT, split, age, Bangabda/Hijri dates, BMI, timer, QR maker, dice, Bangla word count) + search/favourites; unit tests + gallery bn/en; no real-phone run yet; no server part (nothing to limit), no permissions.",
+                    "p2tools: ১৫টি অফলাইন টুল (জমি/ওজনের দেশি একক, নিজের রেট+তারিখে মুদ্রা, ফ্ল্যাট বনাম রিডিউসিং কিস্তি, যাকাত, ভ্যাট, বিল ভাগ, বয়স, বঙ্গাব্দ/হিজরি, বিএমআই, টাইমার, QR, ছক্কা, বাংলা শব্দ গণনা) + খোঁজা/প্রিয়; ইউনিট টেস্ট + গ্যালারি bn/en; আসল ফোনে চালানো হয়নি; সার্ভার অংশ নেই, কোনো অনুমতি লাগে না।"),
     # ---- Work
     "agent_studio": ("FF???????", "hide", "Hidden today (automations never run; f6).", "আজও লুকানো (অটোমেশন চলে না; f6)।"),
     "agent_core": ("?F??P?FFF", "hide", "agent-core foundation: typed tools, trust layer, run loop, Owner Admin page and the CI eval (money topic, 200+ goals, mocked planner) pass; no app screen yet, no live-model eval (no AI key), no real-phone run.",
