@@ -107,6 +107,22 @@ def _shot(name, lang, alt, eager=False):
 V3_WIDTHS = (360, 720)
 
 
+def _slides(C, lang):
+    """sitefix (owner 3 Nov 11:10): hero slides with a caption and an
+    "n / total" counter (Bangla digits in bn)."""
+    out = []
+    for n, k in V3.HERO_SLIDES:
+        s = _shot(n, lang, C["shot_alt"] + C["slide_" + k])
+        if s:
+            s["cap"] = C["slide_" + k]
+            out.append(s)
+    total = len(out)
+    for i, s in enumerate(out):
+        pos = "%d %s %d" % (i + 1, C["slide_of"], total)
+        s["pos"] = V3.bn_digits(pos) if lang == "bn" else pos
+    return out
+
+
 PLACEMENTS = ("hero", "chip_download", "sticky_bar", "footer", "header", "menu")
 GET_PLACES = ("hero", "sticky_bar", "footer", "menu")
 HERO_SLIDES = tuple(n for n, _ in V3.HERO_SLIDES)  # order + names live in site_v3
@@ -140,6 +156,21 @@ def _chips(C, page, group, base, U, groups, play):
         out.append({"label": C[key], "href": href, "spy": anchor if (home and not is_play) else "",
                     "on": on, "play": is_play})
     return out
+
+
+def _menu(C, page, group, U, groups, other_url, other):
+    """sitefix (owner 3 Nov 11:10): the mobile full-screen menu rows, in the
+    owner's order; the current page is highlighted."""
+    gm = {g["id"]: g for g in groups}
+    rows = [{"label": C["chip_home"], "href": U["home"], "icon": "home", "on": page == "home"}]
+    for gid in ("ai", "circle", "safety", "cctv", "business"):
+        rows.append({"label": C["chip_" + gid], "href": gm[gid]["url"], "icon": gm[gid]["icon"],
+                     "on": page == "group" and group == gid})
+    rows += [{"label": C["nav_pricing"], "href": U["pricing"], "icon": "tag", "on": page == "pricing"},
+             {"label": C["security_h"], "href": U["security"], "icon": "lock", "on": page == "security"},
+             {"label": C["nav_help"], "href": U["help"], "icon": "message", "on": page == "help"},
+             {"label": C["lang_name"], "href": other_url, "icon": "globe", "on": False, "lang": other}]
+    return rows
 
 
 def _render(request, page, preview, group=None, status=200):
@@ -180,7 +211,7 @@ def _render(request, page, preview, group=None, status=200):
     play["_public"] = pub
     dist = {"public": pub, "apk": DIST.apk_display(DIST.apk_info(), lang), "apk_url": DIST.apk_url()}
     monthly, yearly = OLD._plans(lang) if page in ("home", "pricing") else ([], [])
-    icons = {"arrow", "play", "pause", "lock", "check", "shield", "home", "tag", "message", "globe", "camera"} | {g["icon"] for g in groups} | {i for i, *_ in C["what"]}
+    icons = {"arrow", "play", "pause", "close", "sparkle", "chat", "store", "lock", "check", "shield", "home", "tag", "message", "globe", "camera"} | {g["icon"] for g in groups} | {i for i, *_ in C["what"]}
     for g in groups:
         icons |= {f["icon"] for f in g["features"]}
     ctx = {
@@ -194,7 +225,7 @@ def _render(request, page, preview, group=None, status=200):
         "play_url": SC.play_url(lang), "play": play,
         "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or play[p]),
                                   "place": p} for p in GET_PLACES},
-        "slides": [s for s in (_shot(n, lang, C["shot_alt"] + C["slide_" + k]) for n, k in V3.HERO_SLIDES) if s], "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
+        "slides": _slides(C, lang), "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
         "sprite": ICONS.sprite(icons),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
@@ -205,6 +236,7 @@ def _render(request, page, preview, group=None, status=200):
         "year": 2026,
     }
     ctx["chips"] = _chips(C, page, group, base, U, groups, ctx["play"])
+    ctx["menu"] = _menu(C, page, group, U, groups, ctx["other_url"], ctx["other"])
     if page == "group":
         i = V3.GROUP_IDS.index(group)
         ctx["prev_g"] = groups[i - 1] if i > 0 else None

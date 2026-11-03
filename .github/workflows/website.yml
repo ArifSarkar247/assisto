@@ -17,12 +17,12 @@
 #     titles/screenshots, Install/APK links answer HEAD 200 (APK body never
 #     downloaded), HTML no-cache + ETag, ?v= assets immutable; one Lighthouse
 #     run per URL -> artifact website-live. A handful of GETs, never a load test.
-# Runs only on ci/website* and ci/sitev3* pushes (and by hand). Never deploys anything.
+# Runs only on ci/website*, ci/sitev3* and ci/sitefix* pushes (and by hand). Never deploys anything.
 name: website
 
 on:
   push:
-    branches: ['ci/website*', 'ci/sitev3*']
+    branches: ['ci/website*', 'ci/sitev3*', 'ci/sitefix*']
   workflow_dispatch:
     inputs:
       shots_run_id:
@@ -147,6 +147,18 @@ jobs:
           cd "$RUNNER_TEMP/pw"
           cp "$GITHUB_WORKSPACE/tools/website/livecheck.mjs" .
           node livecheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/livelocal" local
+      - name: menu + slider + header check (sitefix; 360/390/430/1280/1440, bn + en; BEFORE = origin/main = live code, report only)
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/pw"
+          cp "$GITHUB_WORKSPACE/tools/website/uxcheck.mjs" "$GITHUB_WORKSPACE/tools/website/clipaudit.mjs" .
+          node uxcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/uxcheck" before || true
+          node uxcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/uxcheck" after
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-uxcheck
+          path: ${{ runner.temp }}/shots/uxcheck
       - uses: actions/upload-artifact@v4
         if: always()
         with:
