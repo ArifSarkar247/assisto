@@ -215,11 +215,11 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("ezviz_poll_alarms", {}),
                # p3docs: cheap; returns at once when no link has ended
                ("vault_share_purge", {"quiet": True}),
+               # nearby: after the safety jobs; idle = one DB read, a monthly
+               # import is one country per run
+               ("nearby_import", {"quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
-               ("agent_core_run", {"seconds": 20.0}),
-               # nearby: after everything else, so a monthly import never
-               # delays a safety job
-               ("nearby_import", {"quiet": True}))
+               ("agent_core_run", {"seconds": 20.0}))
 
 
 MINUTE_JOB_NAMES = tuple(n for n, _ in MINUTE_JOBS)
