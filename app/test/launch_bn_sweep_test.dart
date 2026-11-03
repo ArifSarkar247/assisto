@@ -51,6 +51,19 @@ const _launchPrefixes = <String>[
   'callpip_', // call PiP / mini tile / call bar
   'bizops_', // biz brief card
   'chat', 'ps_assistant', // home AI chat action cards (expense / reminder / approval)
+  // launchsweep2 (3 Nov): everything built on the 2–3 Nov night.
+  'pc_', // CCTV phone camera (old phone as camera)
+  'cx_', 'cxat_', 'cctv_', // CCTV alerts inbox / actions / alert types
+  'cev_', // CCTV evidence (SD clip / recording)
+  'cesc_', // CCTV escalation (alarm call, police card)
+  'cpl_', // CCTV pricing / add-on
+  'cg_', // CCTV cost guard
+  'carm_', // CCTV auto guard (arm / SOS)
+  'ctm_', // CCTV team (guards, links, access log)
+  'sjl_', 'trip_', // Safe Journey Live Location + trip recorder
+  'bbl2_', 'bbl_', // chat bubbles
+  'psec_', // Personal Secretary
+  'amk_', // Market
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
