@@ -132,6 +132,7 @@ import 'package:assisto/screens/cost_estimator_screen.dart';
 import 'package:assisto/screens/mock_interview_screen.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/screens/ielts_screen.dart'; // p2lang
+import 'package:assisto/screens/language_pack_screen.dart'; // p2lang
 import 'fake_ielts.dart'; // p2lang
 import 'package:assisto/screens/spending_advice_screen.dart';
 import 'package:assisto/screens/price_radar_screen.dart';
@@ -568,6 +569,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'ielts_hub_fail': (build: (_) => const IeltsScreen(), mode: FakeMode.fail, full: true),
     'ielts_pron_result': (build: (_) => IeltsPronPractice(ctx: Object(), row: (fakeIeltsContent()['pron'] as List).first as Map<String, dynamic>, debugHeard: 'students start is school spring'), mode: FakeMode.data, full: true),
     'ielts_writing_result': (build: (_) => IeltsWritingPractice(ctx: Object(), task: 't2', row: ((fakeIeltsContent()['writing'] as Map)['t2'] as List).first as Map<String, dynamic>, debugText: 'Some people believe online study works. However, I think classrooms help.', debugResult: fakeIeltsWritingResult()), mode: FakeMode.data, full: true),
+    // p2lang framework: 8 language cards (owner mockup), English pack, mock result, role-play
+    'ielts_learn_home': (build: (_) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).lpTitle)), body: ListView(padding: const EdgeInsets.all(16), children: const [LanguageCatalogSection()])))), mode: FakeMode.data, full: true),
+    'ielts_learn_pack': (build: (_) => const LanguagePackScreen(lang: 'en', title: 'IELTS · PTE'), mode: FakeMode.data, full: true),
+    'ielts_learn_mock_result': (build: (_) => MockTestPage(pack: Object(), mock: (fakeLearnPack()['mock'] as List).first as Map<String, dynamic>, debugResult: fakeLearnMockResult()), mode: FakeMode.data, full: true),
+    'ielts_learn_roleplay': (build: (_) => ScenarioChatPage(pack: Object(), scenario: (fakeLearnPack()['scenarios'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
     'ielts_reading': (build: (_) => IeltsReadingPractice(ctx: Object(), row: (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),

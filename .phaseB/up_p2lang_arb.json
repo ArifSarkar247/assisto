@@ -153,9 +153,9 @@
     }
    }
   },
-  "ieltsTrue": "True",
-  "ieltsFalse": "False",
-  "ieltsNotGiven": "Not Given",
+  "ieltsTrue": "True (T)",
+  "ieltsFalse": "False (F)",
+  "ieltsNotGiven": "Not Given (NG)",
   "ieltsSubmitAnswers": "Check answers",
   "ieltsCorrectAnswer": "Answer: {answer}",
   "@ieltsCorrectAnswer": {
@@ -190,7 +190,76 @@
   },
   "ieltsVocabNoneDue": "All caught up for today — come back tomorrow.",
   "ieltsShowMeaning": "Show meaning",
-  "ieltsBackToPractice": "Back to IELTS practice"
+  "ieltsBackToPractice": "Back to IELTS practice",
+  "learnPickLanguage": "Learn a language",
+  "learnPickLanguageSub": "Placement test, lessons, speaking practice for life abroad and timed practice tests.",
+  "learnCatalogFail": "Could not load the language courses. Check the internet and try again.",
+  "learnNotAdded": "Lessons for this language are not added yet.",
+  "learnPurposeKorea": "For work in Korea",
+  "learnPurposeJapan": "For work in Japan",
+  "learnPurposeGulf": "For work in the Gulf",
+  "learnPlacement": "Placement test",
+  "learnPlacementSub": "Find your starting level in a few minutes",
+  "learnPlacementHow": "Answer what you can — skip what you don't know. You get an estimated level and your weak areas.",
+  "learnLessons": "Lessons",
+  "learnLessonsSub": "From basic to advanced, with Bangla explanations",
+  "learnLessonsHow": "Read each line, then tap a sentence under 'Say it' to check your pronunciation.",
+  "learnSayIt": "Say it",
+  "learnScenarios": "Speaking for life abroad",
+  "learnScenariosSub": "Airport, workplace, doctor, renting, shopping — practise with AI by voice",
+  "learnScenariosHow": "Pick a situation. The AI plays the other person; answer by voice or typing. A short correction appears when something can be said better.",
+  "learnPronSub": "Read sentences aloud and see which words were clear",
+  "learnMock": "Timed practice tests",
+  "learnMockSub": "In the exam's format — estimated level and weak areas",
+  "learnMockHow": "Original practice questions in the exam's format. The clock runs while you answer.",
+  "learnMinutes": "{n} minutes",
+  "@learnMinutes": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "learnTimeLeft": "Time left",
+  "learnFinishTest": "Finish and see my level",
+  "learnTimedOut": "You went over the time limit — in the real exam you would have had less time.",
+  "learnYourLevel": "Estimated level: {level}",
+  "@learnYourLevel": {
+   "placeholders": {
+    "level": {
+     "type": "Object"
+    }
+   }
+  },
+  "learnNoWeak": "No weak area found in this test.",
+  "learnWeak": "Practise more: {skills}",
+  "@learnWeak": {
+   "placeholders": {
+    "skills": {
+     "type": "Object"
+    }
+   }
+  },
+  "learnSkillGrammar": "Grammar",
+  "learnSkillVocab": "Vocabulary",
+  "learnGoals": "Your goals",
+  "learnUseful": "Useful phrases",
+  "learnUsePhrase": "Put this phrase in the message box",
+  "learnTypeOrSpeak": "Speak or type your answer",
+  "learnSend": "Send",
+  "learnAiNotConnected": "AI practice partner is not connected yet. The phrases, lessons and tests work without it.",
+  "learnAiNoCredits": "Today's free AI practice is used up and there are not enough credits. Lessons and tests stay free.",
+  "learnAiLeft": "Free AI practice left today: {n}",
+  "@learnAiLeft": {
+   "placeholders": {
+    "n": {
+     "type": "Object"
+    }
+   }
+  },
+  "learnVoiceNoLang": "This phone has no speech recognition for this language. You can type instead, or add the language in Google voice typing settings.",
+  "learnProbashiTitle": "Learn the language for work abroad",
+  "learnProbashiSub": "Korean (EPS-TOPIK), Japanese, Gulf Arabic, English and more"
  },
  "bn": {
   "ieltsTitle": "IELTS প্রস্তুতি",
@@ -275,6 +344,47 @@
   "ieltsVocabDue": "আজ {n}টি শব্দ ঝালাই করার আছে",
   "ieltsVocabNoneDue": "আজকের সব শব্দ শেষ — কাল আবার আসুন।",
   "ieltsShowMeaning": "অর্থ দেখুন",
-  "ieltsBackToPractice": "IELTS প্রস্তুতিতে ফিরুন"
+  "ieltsBackToPractice": "IELTS প্রস্তুতিতে ফিরুন",
+  "learnPickLanguage": "ভাষা শিখুন",
+  "learnPickLanguageSub": "লেভেল যাচাই, পাঠ, বিদেশে কাজে লাগার মতো কথা বলার অনুশীলন আর সময় ধরে অনুশীলন টেস্ট।",
+  "learnCatalogFail": "ভাষা কোর্স আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "learnNotAdded": "এই ভাষার পাঠ এখনো যোগ হয়নি।",
+  "learnPurposeKorea": "কোরিয়ায় কাজের জন্য",
+  "learnPurposeJapan": "জাপানে কাজের জন্য",
+  "learnPurposeGulf": "উপসাগরীয় দেশে কাজের জন্য",
+  "learnPlacement": "লেভেল যাচাই টেস্ট",
+  "learnPlacementSub": "কয়েক মিনিটে জানুন কোথা থেকে শুরু করবেন",
+  "learnPlacementHow": "যা পারেন উত্তর দিন — না জানলে বাদ দিন। আনুমানিক লেভেল আর দুর্বল দিকগুলো দেখাবে।",
+  "learnLessons": "পাঠ",
+  "learnLessonsSub": "শুরু থেকে উচ্চ স্তর — বাংলা ব্যাখ্যাসহ",
+  "learnLessonsHow": "প্রতিটি লাইন পড়ুন, তারপর 'বলে দেখুন'-এর বাক্যে চেপে উচ্চারণ যাচাই করুন।",
+  "learnSayIt": "বলে দেখুন",
+  "learnScenarios": "বিদেশে চলার মতো কথা বলা",
+  "learnScenariosSub": "বিমানবন্দর, কর্মস্থল, ডাক্তার, বাসা ভাড়া, কেনাকাটা — AI-এর সাথে মুখে অনুশীলন",
+  "learnScenariosHow": "একটা পরিস্থিতি বাছুন। AI অন্য মানুষটির ভূমিকায় কথা বলবে; আপনি মুখে বা লিখে উত্তর দিন। ভুল হলে ছোট একটা সংশোধন দেখাবে।",
+  "learnPronSub": "বাক্য জোরে পড়ুন, কোন শব্দ পরিষ্কার হলো দেখুন",
+  "learnMock": "সময় ধরে অনুশীলন টেস্ট",
+  "learnMockSub": "পরীক্ষার ধরনে — আনুমানিক লেভেল ও দুর্বল দিক",
+  "learnMockHow": "পরীক্ষার ধরনে নিজস্ব অনুশীলন প্রশ্ন। উত্তর দেওয়ার সময় ঘড়ি চলবে।",
+  "learnMinutes": "{n} মিনিট",
+  "learnTimeLeft": "বাকি সময়",
+  "learnFinishTest": "শেষ করে লেভেল দেখুন",
+  "learnTimedOut": "সময়সীমা পার হয়ে গেছে — আসল পরীক্ষায় এর চেয়ে কম সময় পেতেন।",
+  "learnYourLevel": "আনুমানিক লেভেল: {level}",
+  "learnNoWeak": "এই টেস্টে দুর্বল দিক পাওয়া যায়নি।",
+  "learnWeak": "আরও অনুশীলন করুন: {skills}",
+  "learnSkillGrammar": "ব্যাকরণ",
+  "learnSkillVocab": "শব্দভাণ্ডার",
+  "learnGoals": "আপনার লক্ষ্য",
+  "learnUseful": "কাজের বাক্য",
+  "learnUsePhrase": "বাক্যটা লেখার ঘরে বসান",
+  "learnTypeOrSpeak": "মুখে বলুন বা লিখুন",
+  "learnSend": "পাঠান",
+  "learnAiNotConnected": "AI অনুশীলন-সঙ্গী এখনো চালু হয়নি। বাক্য, পাঠ ও টেস্ট এটা ছাড়াই চলে।",
+  "learnAiNoCredits": "আজকের ফ্রি AI অনুশীলন শেষ, আর যথেষ্ট ক্রেডিট নেই। পাঠ ও টেস্ট ফ্রি থাকছে।",
+  "learnAiLeft": "আজ ফ্রি AI অনুশীলন বাকি: {n}",
+  "learnVoiceNoLang": "এই ফোনে এই ভাষার কথা-চেনার ব্যবস্থা নেই। লিখে উত্তর দিন, অথবা Google ভয়েস টাইপিং সেটিংসে ভাষাটা যোগ করুন।",
+  "learnProbashiTitle": "বিদেশে কাজের ভাষা শিখুন",
+  "learnProbashiSub": "কোরিয়ান (EPS-TOPIK), জাপানি, উপসাগরীয় আরবি, ইংরেজি ও আরও"
  }
 }

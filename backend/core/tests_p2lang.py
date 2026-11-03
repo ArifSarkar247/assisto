@@ -1,4 +1,4 @@
-"""p2lang — IELTS practice (Language Partner, flag ielts_prep).
+"""p2lang — IELTS practice (Language Partner, flag language_packs).
 
 Engine: alignment vectors (shared with app/test/ielts_engine_test.dart),
 streak, writing/speaking checklists, content honesty (original, bn+en,
@@ -282,3 +282,182 @@ class ApiTests(TestCase):
         self.assertEqual(other.get(V + "/ielts/practice/").json(), [])
         r = other.post(V + "/ielts/vocab/", {"card_id": "v_benefit", "box": 2}, format="json")
         self.assertIn(r.status_code, (200, 201))
+
+
+# ======================================================================
+# Language Partner framework (owner design 3 Nov 11:45): 8 languages, packs.
+# ======================================================================
+import copy
+import glob
+import os
+
+from core import learn_views as LV
+from core.logic import langpacks as LP
+from core.logic import pricing as PR
+
+
+class PackFilesTests(SimpleTestCase):
+    """Every pack file in core/data/langpacks validates (other agents' packs too)."""
+
+    def test_every_pack_file_is_valid(self):
+        files = glob.glob(os.path.join(LP.PACK_DIR, "*.json"))
+        self.assertTrue(files)
+        for f in files:
+            with self.subTest(pack=os.path.basename(f)):
+                with open(f, encoding="utf-8") as fh:
+                    p = LP.validate(json.load(fh))
+                self.assertEqual(os.path.basename(f), p["lang"] + ".json")
+
+    def test_owner_order_and_exam_names(self):
+        self.assertEqual(LP.CODES, ("en", "ko", "ja", "ar", "de", "fr", "es", "zh"))
+        by = {l["code"]: l for l in LP.LANGUAGES}
+        self.assertIn("EPS-TOPIK", by["ko"]["exams_en"])
+        self.assertIn("JFT-Basic", by["ja"]["exams_en"])
+        self.assertIn("HSK", by["zh"]["exams_en"])
+        self.assertEqual(by["ko"]["purpose"], "work_korea")
+        for l in LP.LANGUAGES:
+            self.assertFalse(any(c.isdigit() and c.isascii() for c in l["exams_bn"]), l["code"])
+
+    def test_catalog_states(self):
+        cat = LP.catalog()
+        self.assertEqual([c["code"] for c in cat], list(LP.CODES))
+        en = cat[0]
+        self.assertTrue(en["available"])
+        self.assertGreaterEqual(en["counts"]["lessons"], 5)
+        self.assertEqual(en["counts"]["scenarios"], 5)
+
+
+class FrameworkLogicTests(SimpleTestCase):
+    def setUp(self):
+        self.p = LP.load("en")
+
+    def test_validator_refuses_bad_packs(self):
+        bad = copy.deepcopy(self.p)
+        bad["placement"]["questions"][0]["answer"] = 99
+        with self.assertRaises(LP.PackError):
+            LP.validate(bad)
+        bad = copy.deepcopy(self.p)
+        bad["lessons"][0]["items"][0]["note_en"] = "Copyright 2020 Cambridge"
+        with self.assertRaises(LP.PackError):
+            LP.validate(bad)
+        bad = copy.deepcopy(self.p)
+        bad["mock"][0]["sections"].append({"id": "l", "skill": "listening", "questions": [
+            dict(bad["placement"]["questions"][0], skill="listening")]})
+        with self.assertRaises(LP.PackError):   # listening without licensed audio
+            LP.validate(bad)
+
+    def test_public_pack_hides_keys_and_ai_role(self):
+        pub = json.dumps(LP.public_pack(self.p))
+        self.assertNotIn('"answer"', pub)
+        self.assertNotIn("explain_bn", pub)
+        self.assertNotIn("ai_role", pub)
+
+    def test_placement(self):
+        qs = self.p["placement"]["questions"]
+        all_right = {q["id"]: q["answer"] for q in qs}
+        self.assertEqual(LP.grade_placement(self.p, all_right)["level"], "C1")
+        self.assertEqual(LP.grade_placement(self.p, {})["level"], "A1")
+        upto_b1 = {q["id"]: q["answer"] for q in qs if q["level"] in ("A1", "A2", "B1")}
+        g = LP.grade_placement(self.p, upto_b1)
+        self.assertEqual(g["level"], "B1")
+        self.assertTrue(g["estimate"])
+
+    def test_mock(self):
+        m = LP.mock_test(self.p, "ielts_style_1")
+        qs = m["sections"][0]["questions"]
+        g = LP.grade_mock(self.p, "ielts_style_1", {q["id"]: q["answer"] for q in qs},
+                          {"w1": "word " * 260}, seconds=60)
+        self.assertEqual((g["score_pct"], g["level"], g["weak"]), (100, "C1", []))
+        g = LP.grade_mock(self.p, "ielts_style_1", {}, {"w1": "too short"}, seconds=99999)
+        self.assertEqual(g["level"], "A2")
+        self.assertIn("writing", g["weak"])
+        self.assertTrue(g["timed_out"])
+        self.assertIsNone(LP.grade_mock(self.p, "nope", {}))
+
+    def test_course_result_seam(self):
+        r = LP.course_result("en", "B1", 72, "2026-11-03")
+        self.assertEqual((r["level"], r["score"], r["level_system"]), ("B1", 72, "CEFR"))
+        self.assertIn("not an official", r["label"]["en"])
+        for bad in (("xx", "B1", 1, "2026-11-03"), ("en", "Z9", 1, "2026-11-03"),
+                    ("en", "B1", 101, "2026-11-03"), ("en", "B1", 1, "3 Nov")):
+            with self.assertRaises(LP.PackError):
+                LP.course_result(*bad)
+
+    def test_ai_actions_hold_the_40_percent_rule(self):
+        cfg = PR.DEFAULTS()
+        for action in ("ai_msg_cheap", "ai_msg_medium"):
+            self.assertGreaterEqual(PR.credit_cost(action, cfg), PR.action_credit_floor(action, cfg),
+                                    action)
+        self.assertLess(LP.ai_allowance("free"), LP.ai_allowance("premium"))
+
+
+@mock.patch("core.learn_views.flag_on", return_value=True)
+class LearnApiTests(TestCase):
+    def setUp(self):
+        self.u = _user(11)
+        self.c = _client(self.u)
+
+    def test_flag_off(self, _f):
+        with mock.patch("core.learn_views.flag_on", return_value=False):
+            self.assertEqual(self.c.get(V + "/learn/catalog").status_code, 403)
+            # my own results are never hidden by the switch
+            self.assertEqual(self.c.get(V + "/learn/results").status_code, 200)
+
+    def test_catalog_and_pack(self, _f):
+        j = self.c.get(V + "/learn/catalog").json()
+        self.assertEqual(len(j["languages"]), 8)
+        self.assertEqual(j["ai_left_today"], LP.FREE_AI_PER_DAY)
+        with mock.patch.object(ai, "available", return_value=False):
+            p = self.c.get(V + "/learn/pack/en").json()
+        self.assertFalse(p["ai_ready"])
+        self.assertNotIn("answer", p["placement"]["questions"][0])
+        self.assertEqual(self.c.get(V + "/learn/pack/ko").status_code, 404)
+
+    def test_placement_and_mock_store_results_for_the_certificate(self, _f):
+        qs = LP.load("en")["placement"]["questions"]
+        r = self.c.post(V + "/learn/en/placement",
+                        {"answers": {q["id"]: q["answer"] for q in qs}}, format="json")
+        self.assertEqual(r.json()["level"], "C1")
+        self.assertEqual(self.c.post(V + "/learn/en/placement", {"answers": {}},
+                                     format="json").status_code, 400)
+        r = self.c.post(V + "/learn/en/mock", {"mock_id": "pte_style_1", "answers": {"q1": 1},
+                                               "texts": {"s1": "Mobile money lets people send cash quickly."},
+                                               "seconds": 300}, format="json")
+        self.assertEqual(r.status_code, 200)
+        res = self.c.get(V + "/learn/results").json()["results"]
+        self.assertEqual([x["kind"] for x in res], ["mock", "placement"])
+        self.assertEqual(LV.results_for(self.u)[1]["level"], "C1")
+        self.assertEqual(_client(_user(12)).get(V + "/learn/results").json()["results"], [])
+
+    def test_roleplay_free_quota_then_credits(self, _f):
+        calls = []
+
+        def fake_generate(**kw):
+            calls.append(kw["user"])
+            if kw["user"] is not None:
+                kw["out_meta"]["charged"] = 1
+            return (json.dumps({"reply": "How long will you stay?", "fix_en": "", "fix_bn": ""}), 0.0)
+        body = {"scenario_id": "airport", "message": "I am here for work.", "history": []}
+        with mock.patch.object(ai, "available", return_value=True), \
+                mock.patch.object(ai, "generate", side_effect=fake_generate):
+            for _ in range(LP.FREE_AI_PER_DAY):
+                j = self.c.post(V + "/learn/en/roleplay", body, format="json").json()
+                self.assertTrue(j["free"])
+            j = self.c.post(V + "/learn/en/roleplay", body, format="json").json()
+        self.assertFalse(j["free"])
+        self.assertEqual(j["credits_charged"], 1)
+        self.assertEqual(j["reply"], "How long will you stay?")
+        self.assertEqual(calls[:LP.FREE_AI_PER_DAY], [None] * LP.FREE_AI_PER_DAY)
+        self.assertIs(calls[-1], self.u)
+
+    def test_roleplay_states(self, _f):
+        body = {"scenario_id": "airport", "message": "hello"}
+        with mock.patch.object(ai, "available", return_value=False):
+            self.assertEqual(self.c.post(V + "/learn/en/roleplay", body, format="json")
+                             .json()["ai_state"], "no_key")
+        with mock.patch.object(ai, "available", return_value=True), \
+                mock.patch.object(ai, "generate", side_effect=ai.AIUnavailable("credits")):
+            self.assertEqual(self.c.post(V + "/learn/en/roleplay", body, format="json")
+                             .json()["ai_state"], "credits")
+        self.assertEqual(self.c.post(V + "/learn/en/roleplay", {"scenario_id": "moon", "message": "x"},
+                                     format="json").json()["reason"], "bad_scenario")
