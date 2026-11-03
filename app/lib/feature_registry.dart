@@ -93,6 +93,8 @@ const Map<String, bool> kFeatureDefaults = {
   'daily_challenges': true,
   'contract_analyzer': true,
   'language_partner': true,
+  // learncert: Assisto learning certificate — OFF until real-phone proof.
+  'learning_certificate': false,
   'daily_brief': true,
   'doc_scanner': true,
   'transcription': true,

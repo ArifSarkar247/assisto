@@ -144,6 +144,10 @@ REGISTRY = (
     ('daily_challenges', 'daily_life', 'Daily challenge', 'দৈনিক চ্যালেঞ্জ', True, ()),
     ('contract_analyzer', 'daily_life', 'Contract analyzer', 'চুক্তি বিশ্লেষক', True, ('contract',)),
     ('language_partner', 'daily_life', 'Language partner', 'ভাষা শেখার সঙ্গী', True, ()),
+    # learncert (owner 3 Nov 11:45 part C): Assisto learning certificate for
+    # Language Partner + Learn to read Quran (verify QR on lifeassisto.com).
+    # OFF until the owner's real-phone proof; /verify/<code> always answers.
+    ('learning_certificate', 'daily_life', 'Learning certificate', 'শেখার সনদ', False, ()),
     ('daily_brief', 'daily_life', 'Daily brief', 'দৈনিক ব্রিফ', True, ()),
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
     ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),

@@ -13,6 +13,7 @@ from . import views_cctv_share   # cctvteam
 from . import views_at_watch   # antitheft2
 from . import views_site   # website (owner 2 Nov)
 from . import views_channels_web   # channels
+from . import views_learncert   # learncert
 from . import views_site3  # sitev3: website v3 behind the go-live switch
 
 urlpatterns = [
@@ -98,6 +99,9 @@ urlpatterns = [
     # link, no login, noindex, rate-limited, bn/en)
     path("r/<str:token>", views_invoice.verify_page),   # invoices QR check
     path("q/<str:token>", views_quote.quote_page),
+    # learncert: Assisto learning certificate QR check (minimal data, noindex)
+    path("verify/", views_learncert.verify_form),
+    path("verify/<str:code>", views_learncert.verify_page),
     path("qp/<str:token>", views_quote.proposal_page),
     # veh100: vehicle live-location share link (random token, expiring, revocable)
     path("v/<str:token>/data", views_vehicle_share.share_data),
