@@ -53,7 +53,9 @@ def defaults():
             "levels": {k: dict(v) for k, v in DEFAULT_LEVELS.items()},
             # PART 4: free + rewarded-ad credits pay ONLY for these levels
             "free_credit_levels": ["normal"],
-            "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2}
+            "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2,
+            # PART 5: action buttons under AI answers (fixed allow-list)
+            "actions_on": False}
 
 
 def _clampi(v, lo, hi, d):
@@ -91,6 +93,7 @@ def normalize(raw):
     fl = [x for x in fl if x in LEVEL_IDS] if isinstance(fl, list) else base["free_credit_levels"]
     out["free_credit_levels"] = fl or ["normal"]
     out["welcome_on"] = raw.get("welcome_on") is True
+    out["actions_on"] = raw.get("actions_on") is True
     for k, (lo, hi) in TOP_BOUNDS.items():
         out[k] = _clampi(raw.get(k), lo, hi, base[k])
     return out

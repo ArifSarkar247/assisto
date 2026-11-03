@@ -52,6 +52,42 @@
   "credoutPremium": "See Premium — more credits every month",
   "@credoutPremium": {
    "description": "aifinal: out-of-credits sheet option to open the plans"
+  },
+  "aiactSafeJourney": "Start Safe Journey",
+  "@aiactSafeJourney": {
+   "description": "aifinal: AI action: open Safe Journey (share live location with a chosen contact)"
+  },
+  "aiactDestAlarm": "Set destination alarm",
+  "@aiactDestAlarm": {
+   "description": "aifinal: AI action: destination alarm"
+  },
+  "aiactReminder": "Add a reminder",
+  "@aiactReminder": {
+   "description": "aifinal: AI action: reminders"
+  },
+  "aiactInvoice": "Create invoice",
+  "@aiactInvoice": {
+   "description": "aifinal: AI action: new invoice"
+  },
+  "aiactCctv": "Open CCTV",
+  "@aiactCctv": {
+   "description": "aifinal: AI action: open CCTV"
+  },
+  "aiactCall999": "Call 999",
+  "@aiactCall999": {
+   "description": "aifinal: AI action: emergency call"
+  },
+  "aiactConfirmOpen": "Open this now? Nothing happens until you choose on the next screen.",
+  "@aiactConfirmOpen": {
+   "description": "aifinal: AI action confirm"
+  },
+  "aiactConfirmCall": "Call 999 (national emergency) now?",
+  "@aiactConfirmCall": {
+   "description": "aifinal: AI action confirm emergency call"
+  },
+  "aiactCallNow": "Call now",
+  "@aiactCallNow": {
+   "description": "aifinal: AI action confirm button for 999"
   }
  },
  "bn": {
@@ -62,6 +98,15 @@
   "ailvUnavailable": "সাময়িকভাবে বন্ধ",
   "ailvEstimate": "এই উত্তরে আনুমানিক {n} ক্রেডিট লাগবে",
   "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।",
-  "credoutPremium": "প্রিমিয়াম দেখুন — প্রতি মাসে বেশি ক্রেডিট"
+  "credoutPremium": "প্রিমিয়াম দেখুন — প্রতি মাসে বেশি ক্রেডিট",
+  "aiactSafeJourney": "নিরাপদ যাত্রা শুরু করুন",
+  "aiactDestAlarm": "গন্তব্যের অ্যালার্ম দিন",
+  "aiactReminder": "রিমাইন্ডার যোগ করুন",
+  "aiactInvoice": "ইনভয়েস তৈরি করুন",
+  "aiactCctv": "সিসিটিভি খুলুন",
+  "aiactCall999": "৯৯৯-এ কল করুন",
+  "aiactConfirmOpen": "এখন খুলবেন? পরের স্ক্রিনে আপনি না বেছে নেওয়া পর্যন্ত কিছুই হবে না।",
+  "aiactConfirmCall": "এখনই ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করবেন?",
+  "aiactCallNow": "এখনই কল"
  }
 }

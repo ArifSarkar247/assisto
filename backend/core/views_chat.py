@@ -360,6 +360,11 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                                  "best": "assisto-pro"}.get(level, "assisto")
                 if AL.hint_better(text, level):
                     meta["hint_better"] = True    # a hint only — never an upgrade
+            # aifinal PART 5: up to 3 real in-app actions (fixed allow-list)
+            from . import ai_actions
+            acts = ai_actions.suggest(user, text)
+            if acts:
+                meta["actions"] = acts
             if _cut:
                 meta["text_cut"] = True
             if n_money:

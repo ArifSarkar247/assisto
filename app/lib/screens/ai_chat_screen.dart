@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
+import '../widgets/ai_action_buttons.dart';
 import '../widgets/ai_level_picker.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/chat_cards.dart';
@@ -1181,6 +1182,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             // aibar: what this answer really cost (credits + balance after)
             if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
             if (!m.streaming && AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
+            if (!m.streaming && AiActionButtons.shows(m.meta)) AiActionButtons(m.meta),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),
