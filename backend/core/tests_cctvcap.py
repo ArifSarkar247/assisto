@@ -26,7 +26,11 @@ from core.logic import cctv_cap as C
 from core.logic import cctv_plan as CP
 from core.logic import cctv_traffic as T
 from core.models import User
-from core.tests_cctvguard import ON, LiveCapTests, _Base
+# module refs (not names): importing a TestCase class would run its tests here too
+from core import tests_cashguard as CGT
+from core import tests_cctvguard as G
+
+ON = G.ON
 
 BN_DIGITS = "০১২৩৪৫৬৭৮৯"
 
@@ -132,7 +136,7 @@ class OneCounterGuardTests(SimpleTestCase):
 
 
 # ================================================================ AI counter
-class AiCounterTests(_Base):
+class AiCounterTests(G._Base):
     def setUp(self):
         super().setUp()
         from core.models import ShopCamera, ShopSite
@@ -217,8 +221,13 @@ class AiCounterTests(_Base):
 # ================================================================ relay + live
 @override_settings(TURN_STATIC_SECRET="test-secret", TURN_HOST="turn.example.test",
                    TURN_PORT=3478)
-class RelayCapTests(LiveCapTests):
-    """Inherits every cctvguard live-cap test and adds the cctvcap proofs."""
+class RelayCapTests(G._Base):
+    """cctvcap proofs on top of the cctvguard live-cap tests (their helpers
+    are borrowed, their tests are not re-run here)."""
+    _online = G.LiveCapTests._online
+    _start = G.LiveCapTests._start
+    _turn = staticmethod(G.LiveCapTests._turn)
+    _pending_turn = G.LiveCapTests._pending_turn
 
     def setUp(self):
         super().setUp()
@@ -355,11 +364,10 @@ class RelayCapTests(LiveCapTests):
 
 
 # ================================================================ alerts + evidence
-from core.tests_cashguard import _Base as _CashBase, _jpeg, _MEDIA  # noqa: E402
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class SafetyNeverStopsTests(_CashBase):
+@override_settings(MEDIA_ROOT=CGT._MEDIA)
+class SafetyNeverStopsTests(CGT._Base):
     """Both caps full: the alert (push + photo), the clip and the evidence pack
     all still work."""
 
@@ -385,7 +393,7 @@ class SafetyNeverStopsTests(_CashBase):
         r = self.dev.post("/api/v1/shop/ingest", {
             "type": "hand_in_cash_zone", "clip_ref": ref,
             "signals": json.dumps({"detector": "yolox_nano", "motion_in_zone": True}),
-            "snapshot": SimpleUploadedFile("s.jpg", _jpeg(), content_type="image/jpeg")},
+            "snapshot": SimpleUploadedFile("s.jpg", CGT._jpeg(), content_type="image/jpeg")},
             format="multipart")
         self.assertEqual(r.status_code, 201, r.data)
         ev = ShopEvent.objects.get(pk=r.data["event_id"])
