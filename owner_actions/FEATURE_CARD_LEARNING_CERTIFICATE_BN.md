@@ -64,4 +64,6 @@
 
 ## ৯. প্রমাণ
 
-* CI রান: (রিপোর্টে) · স্ক্রিনশট: `learn_cert_*` (bn/en)।
+* CI রান 41590789783: backend (সব টেস্ট, `tests_learncert` ও flipready সহ) সবুজ, flutter-static সবুজ, Flutter ৪ ভাগের ৩ সবুজ; ১টা টেস্ট-ভুল (পুরনো পাতা থেকে যাওয়া) ঠিক করে আবার রান 41596411646।
+* স্ক্রিনশট: `learn_cert_list/empty/fail/card/quran/revoked/claim` (bn/en) — CI artifacts `shots-*`।
+* মাইগ্রেশন: লাগেনি।
