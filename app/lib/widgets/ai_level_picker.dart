@@ -72,7 +72,12 @@ String pickAiLevel(AiLevelState s, String? remembered) {
 class AiLevelPicker extends StatefulWidget {
   final Future<Map<String, dynamic>> Function() load;
   final ValueChanged<String?> onChanged;
-  const AiLevelPicker({super.key, required this.load, required this.onChanged});
+
+  /// PART 4: claim the one-time welcome credits (server: once per verified
+  /// phone + device); returns the server's message ('' = nothing granted).
+  final Future<Map<String, dynamic>> Function()? welcome;
+  const AiLevelPicker(
+      {super.key, required this.load, required this.onChanged, this.welcome});
 
   @override
   State<AiLevelPicker> createState() => _AiLevelPickerState();
@@ -106,6 +111,16 @@ class _AiLevelPickerState extends State<AiLevelPicker> {
       _sel = sel;
     });
     widget.onChanged(sel);
+    if (s.enabled && widget.welcome != null) {
+      try {
+        final r = await widget.welcome!();
+        final msg = (r['message'] ?? '').toString();
+        if (msg.isNotEmpty && mounted) {
+          ScaffoldMessenger.maybeOf(context)
+              ?.showSnackBar(SnackBar(content: Text(msg)));
+        }
+      } catch (_) {}
+    }
   }
 
   Future<void> _choose(AiLevel l) async {

@@ -114,3 +114,101 @@ def app_payload(user, lang="bn", c=None):
     from . import ai_chat_guard as G
     return {"enabled": True, "default": lv["default"], "levels": rows,
             "balance": G.balance(user)}
+
+
+# ---------------------------------------------------------------- PART 4
+WELCOME_KIND = "ai_welcome"
+
+
+def phone_verified(user):
+    """The account's phone passed an SMS/e-mail OTP (a consumed challenge)."""
+    try:
+        from .models import OtpChallenge
+        from .phone import canonical_phone
+        ph = canonical_phone(getattr(user, "phone", "") or "")
+        return bool(ph) and OtpChallenge.objects.filter(
+            phone=ph, consumed_at__isnull=False).exists()
+    except Exception:  # noqa: BLE001 — fails closed (no grant)
+        return False
+
+
+def grant_welcome(user, device_id=""):
+    """The 20 free AI credits — ONCE per person: one per verified phone AND
+    device AND e-mail, even after delete + re-signup (antifarm tombstones).
+    They land in the FREE bucket, so they pay only for the free-credit levels
+    (Normal). Returns (granted_credits, reason)."""
+    from django.db import transaction
+    from . import antifarm
+    from . import credits as CR
+    from .models import User
+    lv, _ = cfg()
+    if not (lv["enabled"] and lv["welcome_on"]) or lv["welcome_credits"] <= 0:
+        return 0, "off"
+    if not device_id:
+        return 0, "no_device"
+    if not phone_verified(user):
+        return 0, "phone_not_verified"
+    with transaction.atomic():
+        u = User.objects.select_for_update().get(pk=user.pk)
+        keys = antifarm.keys_for(u, device_id)
+        if not keys or antifarm.claimed(WELCOME_KIND, keys):
+            return 0, "already_claimed"
+        if not antifarm.claim(WELCOME_KIND, keys):
+            return 0, "already_claimed"
+        CR.grant(u, CR.FREE, lv["welcome_credits"], reason="trial", note="ai_welcome",
+                 source_type="ai_welcome", source_id="ai_welcome")
+    user.refresh_from_db(fields=["ai_credits"])
+    return lv["welcome_credits"], "ok"
+
+
+def ad_credits(c=None):
+    """Credits one verified rewarded ad buys while levels are on: N Normal
+    answers (owner ratio). None = levels off (the eCPM wallet rule applies)."""
+    lv, c = cfg(c)
+    if not lv["enabled"]:
+        return None
+    return int(lv["ad_answers_per_ad"]) * credits("normal", c)
+
+
+def over_daily_limit(user, lid, now=None):
+    """Per-user answers per day for this level (owner-editable; 0 = none)."""
+    from . import ai_router as R
+    from .models import AIUsage
+    lv, _ = cfg()
+    cap = int(lv["levels"][lid].get("per_day") or 0)
+    if user is None or cap <= 0:
+        return False
+    n = AIUsage.objects.filter(user=user, level=lid, ok=True,
+                               created_at__gte=R.day_start(now)).count()
+    return n >= cap
+
+
+# Every AI call either debits the user (ai.generate with user=...) or is on
+# this documented list (owner order PART 4). A CI test scans every caller.
+FREE_EXEMPT = {
+    "eval.": "owner-only quality evals (manage.py ai_eval), never user-facing",
+    "smoke": "owner-only live smoke check (core/ai_live_smoke.py)",
+    "bizagent.reply": "billed once per reply by bizagent consume_reply (ai_sales)",
+    "w1_cv": "public website CV tips, per-IP rate limited, no account",
+    "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
+    "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
+}
+
+
+def exempt(feature):
+    f = str(feature or "")
+    return any(f == k or (k.endswith(".") and f.startswith(k)) for k in FREE_EXEMPT)
+
+
+def ad_table(c=None):
+    """Owner Admin: what one rewarded ad buys and its worst-case profit."""
+    from .logic import photo_studio as PS
+    lv, c = cfg(c)
+    prices, rate, _, _ = _economics(c)
+    try:
+        val = float(PS.ad_value_bdt(c.get("photo_studio"), c["ad_rewards"]))
+    except Exception:  # noqa: BLE001
+        val = 0.0
+    n = int(lv["ad_answers_per_ad"])
+    return {"answers": n, "ad_value_bdt": round(val, 4),
+            "profit_pct": AL.ad_profit_pct(lv["levels"]["normal"], n, prices, rate, val)}

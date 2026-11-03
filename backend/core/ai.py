@@ -616,6 +616,18 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             lvl = None
     if lvl is not None:
         spec, mode, upgrade = None, None, False
+        from . import ai_levels_service as ALS
+        if ALS.over_daily_limit(user, lvl["id"]):
+            raise AIUnavailable("user_limit")
+    if user is None:
+        # aifinal PART 4: a call with no payer must be on the documented
+        # free list; anything else is logged loudly (CI audits every caller)
+        try:
+            from . import ai_levels_service as ALS
+            if not ALS.exempt(feature):
+                log.warning("ai: call without a payer (feature=%s)", (feature or "-")[:40])
+        except Exception:  # noqa: BLE001
+            pass
     upgraded = False
     if spec is not None and mode == "smart" and upgrade and user is not None:
         try:

@@ -1014,7 +1014,27 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
         return {"ok": True, "reason": "not_rewarded_format",
                 "credited_paisa": 0, "credited_credits": 0}
 
+    # aifinal PART 4: rewarded ads are for adults only — never a child account
+    try:
+        from .safe_plans import is_child_account
+        if is_child_account(user):
+            AdEvent.objects.create(user=user, kind=kind, device_id=device_id[:64],
+                                   ad_id=ad_id[:80], credited_paisa=0, at=now)
+            return {"ok": False, "reason": "child_account", "credited_paisa": 0,
+                    "credited_credits": 0}
+    except Exception:  # noqa: BLE001
+        pass
     paisa = _ad_reward_paisa(ad_cfg)
+    rev_paisa = paisa
+    # aifinal PART 4: while AI answer levels are on, one verified rewarded ad
+    # buys N Normal answers (owner ratio, default 2) instead of the eCPM share
+    try:
+        from . import ai_levels_service as ALS
+        n_ad = ALS.ad_credits()
+        if n_ad is not None:
+            paisa = int(n_ad) * 100        # the wallet moves whole credits (100 paisa each)
+    except Exception:  # noqa: BLE001
+        pass
     moved = 0
     whole = 0
     from . import credits as CR
@@ -1046,7 +1066,7 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
     after_credits = ad_wallet_credits(user)
     # ad revenue into the DailyLedger (we got paid the eCPM; the user share is a cost
     # we recognise as the credit grant — we only book the NET we actually keep here).
-    record_revenue("ads", paisa / 100.0)
+    record_revenue("ads", rev_paisa / 100.0)
     out = {"ok": True, "reason": "ok", "credited_paisa": paisa,
            "credited_credits": whole if not paid else 0,
            "wallet_credits": after_credits}

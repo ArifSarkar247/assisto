@@ -48,6 +48,10 @@
   "ailvHintBetter": "Tip: 'Better' may answer a question like this well.",
   "@ailvHintBetter": {
    "description": "aifinal: hint only, never an upgrade"
+  },
+  "credoutPremium": "See Premium — more credits every month",
+  "@credoutPremium": {
+   "description": "aifinal: out-of-credits sheet option to open the plans"
   }
  },
  "bn": {
@@ -57,6 +61,7 @@
   "ailvChipA11y": "{name}, প্রতি উত্তরে {n} ক্রেডিট",
   "ailvUnavailable": "সাময়িকভাবে বন্ধ",
   "ailvEstimate": "এই উত্তরে আনুমানিক {n} ক্রেডিট লাগবে",
-  "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।"
+  "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।",
+  "credoutPremium": "প্রিমিয়াম দেখুন — প্রতি মাসে বেশি ক্রেডিট"
  }
 }

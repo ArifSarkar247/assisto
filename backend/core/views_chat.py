@@ -530,6 +530,23 @@ class ChatLevelsView(APIView):
         return Response(ALS.app_payload(request.user, req_lang(request)))
 
 
+class ChatWelcomeCreditsView(APIView):
+    """aifinal PART 4: POST /chat/welcome-credits — the 20 free AI credits,
+    ONCE per verified phone + device (antifarm). Idempotent: a second call
+    answers granted 0 with the reason."""
+    def post(self, request):
+        from . import ai_levels_service as ALS
+        from . import ai_prompt as AP
+        from .otp import device_id
+        n, why = ALS.grant_welcome(request.user, device_id(request))
+        lang = req_lang(request)
+        return Response({"granted": n, "reason": why, "balance": G.balance(request.user),
+                         "message": pick(lang, "স্বাগতম! AI-তে ব্যবহারের জন্য %s ফ্রি ক্রেডিট পেলেন (সাধারণ লেভেলে)।"
+                                         % AP.to_bn_digits(str(n)),
+                                         "Welcome! You got %d free AI credits (for Normal answers)." % n)
+                         if n else ""})
+
+
 # ---------------------------------------------------------------------------
 # GET/POST /chat/sessions  — list + create
 # ---------------------------------------------------------------------------

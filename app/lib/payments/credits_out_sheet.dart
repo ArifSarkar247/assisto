@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../ads/ads_service.dart';
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../screens/plans_screen.dart'; // aifinal PART 4
 import '../services/error_report.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -487,6 +488,20 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
                     style: TextStyle(
                         fontSize: 12, color: scheme.onSurfaceVariant))),
           ]),
+          // aifinal PART 4: out of credits = buy credits / watch an ad / Premium
+          TextButton.icon(
+            key: const Key('credout-premium'),
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busySku != null
+                ? null
+                : () {
+                    final nav = Navigator.of(context);
+                    nav.pop(false);
+                    nav.push(MaterialPageRoute(builder: (_) => const PlansScreen()));
+                  },
+            icon: const Icon(Icons.workspace_premium_rounded),
+            label: Text(t.credoutPremium),
+          ),
           // billapp: the exact why (locked credits, debt, what it costs) lives
           // on the Credits screen; one tap opens it with this reason.
           TextButton.icon(

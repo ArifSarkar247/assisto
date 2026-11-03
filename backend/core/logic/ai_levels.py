@@ -31,17 +31,20 @@ PROVIDERS = ("gemini", "anthropic", "openai")
 DEFAULT_LEVELS = {
     "normal": {"provider": "gemini", "model": "gemini-2.5-flash-lite",
                "in_cap": 3000, "out_cap": 700, "max_chars": 2000, "history_turns": 4,
-               "credits": 0},
+               "credits": 0, "per_day": 60},
     "better": {"provider": "anthropic", "model": "claude-haiku-5-5",
                "in_cap": 4000, "out_cap": 800, "max_chars": 3000, "history_turns": 6,
-               "credits": 0},
+               "credits": 0, "per_day": 40},
     "best": {"provider": "anthropic", "model": "claude-sonnet-5-5",
              "in_cap": 6000, "out_cap": 1200, "max_chars": 4000, "history_turns": 8,
-             "credits": 0},
+             "credits": 0, "per_day": 20},
 }
 # credits 0 = use the computed worst-case minimum
 BOUNDS = {"in_cap": (500, 16000), "out_cap": (100, 4000), "max_chars": (200, 20000),
-          "history_turns": (0, 20), "credits": (0, 500)}
+          "history_turns": (0, 20), "credits": (0, 500), "per_day": (0, 1000)}
+# PART 4 (owner-editable): welcome credits ONCE per verified phone + device,
+# Normal answers one rewarded ad buys (adults only)
+TOP_BOUNDS = {"welcome_credits": (0, 200), "ad_answers_per_ad": (0, 10)}
 FLASH_LITE_PRICE = {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write": 0.0}
 
 
@@ -49,7 +52,8 @@ def defaults():
     return {"enabled": False, "default": "normal",
             "levels": {k: dict(v) for k, v in DEFAULT_LEVELS.items()},
             # PART 4: free + rewarded-ad credits pay ONLY for these levels
-            "free_credit_levels": ["normal"]}
+            "free_credit_levels": ["normal"],
+            "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2}
 
 
 def _clampi(v, lo, hi, d):
@@ -86,7 +90,19 @@ def normalize(raw):
     fl = raw.get("free_credit_levels")
     fl = [x for x in fl if x in LEVEL_IDS] if isinstance(fl, list) else base["free_credit_levels"]
     out["free_credit_levels"] = fl or ["normal"]
+    out["welcome_on"] = raw.get("welcome_on") is True
+    for k, (lo, hi) in TOP_BOUNDS.items():
+        out[k] = _clampi(raw.get(k), lo, hi, base[k])
     return out
+
+
+def ad_profit_pct(normal_row, answers, prices, usd_bdt, ad_value_bdt):
+    """Worst-case profit % of one rewarded ad that buys `answers` Normal
+    answers (every answer at its hard caps)."""
+    if ad_value_bdt <= 0:
+        return 0.0
+    cost = answers * worst_cost_usd(normal_row, prices) * float(usd_bdt)
+    return round(100.0 * (ad_value_bdt - cost) / ad_value_bdt, 1)
 
 
 def price_of(model, prices):

@@ -14,6 +14,9 @@
 <form method="post">{% include "owner/_csrf.html" %}
 <label><input type="checkbox" name="enabled" {% if c.enabled %}checked{% endif %}> {{ L.on }}</label>
 <label>{{ L.default }} <select name="default">{% for i in ids %}<option value="{{ i }}" {% if c.default == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select></label>
+<p><label><input type="checkbox" name="welcome_on" {% if c.welcome_on %}checked{% endif %}> {{ L.welcome }}</label> · <label>{{ L.welcome_n }} <input name="welcome_credits" value="{{ c.welcome_credits }}" size="4" inputmode="numeric"></label></p>
+<p><label>{{ L.ad_n }} <input name="ad_answers_per_ad" value="{{ c.ad_answers_per_ad }}" size="3" inputmode="numeric"></label> · {{ L.ad_profit }}: {% if ad.profit_pct < 40 %}<span class="pill off">{{ ad.profit_pct }}%</span>{% else %}<span class="pill ok">{{ ad.profit_pct }}%</span>{% endif %} (৳{{ ad.ad_value_bdt }} / ad)</p>
+<p class="small mut">{{ L.per_day }}</p>
 <p>{{ L.free }}: {% for i in ids %}<label><input type="checkbox" name="free_{{ i }}" {% if i in c.free_credit_levels %}checked{% endif %}> {{ i }}</label> {% endfor %}</p>
 <div class="tbl"><table><thead><tr><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th>{% for k in int_keys %}<th><code>{{ k }}</code></th>{% endfor %}</tr></thead><tbody>
 {% for r in t.rows %}<tr><td><b>{{ r.id }}</b></td>

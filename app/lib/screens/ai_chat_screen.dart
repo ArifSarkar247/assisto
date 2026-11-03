@@ -988,6 +988,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         // aifinal PART 3: answer level picker (hidden while the owner switch is off)
         AiLevelPicker(
             load: () => _api.getJson('/chat/levels'),
+            welcome: () => _api.postJson('/chat/welcome-credits', {}),
             onChanged: (l) => _level = l),
         _inputBar(),
       ]),
