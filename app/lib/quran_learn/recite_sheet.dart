@@ -312,7 +312,7 @@ class _ReciteSheetState extends State<ReciteSheet> {
               onPressed: () async {
                 try {
                   await openAppSettings();
-                } catch (_) {}
+                } catch (_) {/* best-effort: the message above already says where the switch is */}
               },
               child: Text(t.qlOpenSettings),
             ),

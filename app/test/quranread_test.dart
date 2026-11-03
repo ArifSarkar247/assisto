@@ -136,9 +136,11 @@ void main() {
       }
       expect(refs, greaterThan(40));
       // spot checks against the mushaf
-      expect(u.text(const QlRef(112, 1, 4)), 'قُلْ هُوَ ٱللَّهُ أَحَدٌ');
-      expect(u.text(const QlRef(1, 4, 1, 1)), 'يَوْمِ');
-      expect(u.text(const QlRef(86, 7, 1, 2)), 'مِنۢ بَيْنِ');
+      // word ranges cut the real line on spaces (bismillah skipped in 112:1)
+      expect(qlSkeleton(u.text(const QlRef(112, 1, 4))!), qlSkeleton('قل هو الله احد'));
+      expect(qlSkeleton(u.text(const QlRef(1, 4, 1, 1))!), qlSkeleton('يوم'));
+      expect(qlSkeleton(u.text(const QlRef(86, 7, 1, 2))!), qlSkeleton('من بين'));
+      expect(u.text(const QlRef(86, 7, 1, 2))!.split(' ').length, 2);
       expect(u.text(const QlRef(1, 8)), isNull); // Al-Fatiha has 7 ayat
       expect(u.text(const QlRef(1, 1, 3, 9)), isNull); // past the last word
     });
@@ -327,26 +329,32 @@ void main() {
       await _pump(tester,
           QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: p));
       expect(find.byKey(const Key('ql-focus')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_ba'), skipOffstage: false));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_ba')));
       await tester.pump();
       final focus = tester.widget<Text>(find.byKey(const Key('ql-focus-text')));
       expect(focus.data, 'ب');
       expect(find.textContaining('lips'), findsWidgets); // makhraj note
       // Listen: no licensed audio -> explains, never a fake sound
+      await tester.ensureVisible(find.byKey(const Key('ql-listen-l_ba'), skipOffstage: false));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('ql-listen-l_ba')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('ql-no-audio')), findsOneWidget);
       await tester.tap(find.text('Got it'));
       await tester.pumpAndSettle();
       // mark learned -> progress + saved
-      await tester.ensureVisible(find.byKey(const Key('ql-learned-l_ba')));
+      await tester.ensureVisible(find.byKey(const Key('ql-learned-l_ba'), skipOffstage: false));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('ql-learned-l_ba')));
       await tester.pump();
       expect(p.learned, contains('l_ba'));
       await tester.pump();
       expect((await QlProgressStore.load()).learned, contains('l_ba'));
       // alif has no checkable letter: the check button is replaced by a note
-      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_alif')));
+      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_alif'), skipOffstage: false));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_alif')));
       await tester.pump();
       expect(find.byKey(const Key('ql-check-l_alif')), findsOneWidget); // name ألف is checkable
@@ -357,7 +365,7 @@ void main() {
       preloadRealUthmani();
       await _pump(tester,
           QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: QlProgress()));
-      expect(find.text('قُلْ هُوَ ٱللَّهُ أَحَدٌ'), findsOneWidget);
+      expect(find.text(realUthmani().text(const QlRef(112, 1, 4))!), findsOneWidget);
       expect(find.text('Quran 112:1'), findsOneWidget);
       expect(find.byKey(const Key('ql-check-a112_1')), findsOneWidget);
     });

@@ -771,7 +771,7 @@ class _QuranLearnAboutScreenState extends State<QuranLearnAboutScreen> {
                 try {
                   await launchUrl(QuranLearnAboutScreen.tanzil,
                       mode: LaunchMode.externalApplication);
-                } catch (_) {/* no browser: the address is in the notice */}
+                } catch (_) {/* best-effort: no browser app; the address is shown in the notice */}
               },
             ),
           ),
