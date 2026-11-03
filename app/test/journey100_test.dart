@@ -438,6 +438,11 @@ void main() {
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
     await _settle(tester);
+    // jsearch: no road time in the fake -> the arrival time is asked once
+    if (find.text('OK').evaluate().isNotEmpty) {
+      await tester.tap(find.text('OK'));
+      await _settle(tester);
+    }
     final eta = '${api.posts('/journey/start').single.body['eta']}';
     expect(eta, endsWith('Z'));
     final at = DateTime.parse(eta);

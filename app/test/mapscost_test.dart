@@ -1,5 +1,5 @@
 // mapscost (owner order 3 Nov 18:40, PART 1): destination search sends
-// nothing under 3 characters, waits 300 ms of quiet, keeps ONE session token
+// nothing under 2 characters (jsearch), waits 300 ms of quiet, keeps ONE session token
 // per search and ends it with ONE Place Details; the address comes from the
 // phone's free Geocoder first, our server second, coordinates last; road time
 // is one call on tap with a free Google Maps fallback; SOS code has no maps
@@ -14,6 +14,7 @@ import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/maps/address_resolver.dart';
 import 'package:assisto/maps/maps_sdk.dart';
+import 'package:assisto/maps/place_search.dart';
 import 'package:assisto/maps/place_search_controller.dart';
 import 'package:assisto/maps/road_eta_button.dart';
 import 'package:assisto/theme.dart';
@@ -71,7 +72,7 @@ void main() {
   });
 
   group('PlaceSearchController', () {
-    testWidgets('nothing under 3 chars, one call after 300 ms quiet, same session token',
+    testWidgets('nothing under 2 chars, one call after 300 ms quiet, same session token',
         (tester) async {
       final asked = <List<String>>[];
       final views = <String>[];
@@ -86,11 +87,10 @@ void main() {
         onView: (v) => views.add(v.state),
       );
       c.onChanged('B');
-      c.onChanged('Ba');
       await tester.pump(const Duration(milliseconds: 500));
       expect(asked, isEmpty);
       expect(views.last, 'short');
-      for (final q in ['Bas', 'Bash', 'Bashu', 'Bashun']) {
+      for (final q in ['Ba', 'Bas', 'Bash', 'Bashu', 'Bashun']) {
         c.onChanged(q);
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -162,7 +162,7 @@ void main() {
       JourneyDest? picked;
       await tester.pumpWidget(_host(Builder(
           builder: (ctx) => TextButton(
-              onPressed: () async => picked = await showJourneySearchSheet(ctx, api),
+              onPressed: () async => picked = await showJourneySearchSheet(ctx, api, mode: PlaceSearchMode.live),
               child: const Text('open')))));
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
@@ -177,6 +177,8 @@ void main() {
       await tester.tap(find.text('Bashundhara City'));
       await tester.pumpAndSettle();
       expect(api.hits('/maps/place').length, 1);
+      await tester.tap(find.byKey(const ValueKey('ps_use'))); // jsearch: confirm card
+      await tester.pumpAndSettle();
       final session = Uri.parse(api.hits('/maps/autocomplete').single).queryParameters['session'];
       expect(Uri.parse(api.hits('/maps/place').single).queryParameters['session'], session);
       expect(picked?.name, 'Bashundhara City');
@@ -187,7 +189,7 @@ void main() {
       final api = _Api()..acState = 'global_cap';
       await tester.pumpWidget(_host(Builder(
           builder: (ctx) => TextButton(
-              onPressed: () => showJourneySearchSheet(ctx, api), child: const Text('open')))));
+              onPressed: () => showJourneySearchSheet(ctx, api, mode: PlaceSearchMode.live), child: const Text('open')))));
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey('j2_search_field')), 'Gulshan');

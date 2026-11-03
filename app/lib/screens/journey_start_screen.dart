@@ -25,10 +25,11 @@ import '../services/oem_guide.dart';
 import 'battery_guidance_screen.dart';
 import '../train/journey_transit.dart';
 import '../widgets/journey_mode_section.dart';
-import 'train/dest_alarm_screen.dart' show destAlarmTexts;
 import 'train/journey_train_pick_screen.dart';
 import '../maps/address_resolver.dart'; // mapscost
 import '../maps/maps_sdk.dart'; // mapscost
+import '../maps/maps_api.dart'; // jsearch
+import '../maps/place_search.dart'; // jsearch
 
 /// Start a Safe Journey: where to (saved Home/School/Office, current
 /// location, a pasted Google Maps link, place search when the server has a
@@ -81,8 +82,13 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   Map<String, dynamic>? _dest; // {name, lat, lng} — a PIN when lat/lng set
   final _destName = TextEditingController();
-  TimeOfDay _eta = TimeOfDay.now().replacing(
-      hour: (TimeOfDay.now().hour + 1) % 24);
+  // jsearch (owner 4 Nov): no made-up default. Filled from ONE Routes ETA
+  // for the chosen travel mode once the destination is pinned (editable);
+  // empty with a hint when road time is not available.
+  TimeOfDay? _eta;
+  int? _etaMin; // the Routes answer behind _eta ("about 1 h 20 min by car")
+  bool _etaEdited = false; // the user picked the time: never overwrite it
+  String _destAddress = '';
   String? _mode;
   String? _app;
   final _plate = TextEditingController();
@@ -97,7 +103,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   bool _loading = true;
   bool _starting = false;
   // journey2: what this server/phone can offer for picking a destination
-  bool _canSearch = false;
+  PlaceSearchMode _psMode = PlaceSearchMode.off; // jsearch
   VehMapConfig _map = const VehMapConfig();
   bool _gmaps = false; // mapscost: Google Maps SDK key built in (free map display)
   ({double lat, double lng})? _here; // last known, never prompts on open
@@ -184,9 +190,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       final r = await api.getJson('/circle/members');
       _watchers = journeyWatcherRows(r);
     } catch (_) {} // best-effort: offline -> empty list shows the add-family step
-    try {
-      _canSearch = (await api.journeyGeocode(''))['available'] == true;
-    } catch (_) {} // best-effort: no search box offline (link / saved / map still work)
+    _psMode = await placeSearchMode(api); // jsearch: never throws
     _map = await VehMapConfig.load(api); // never throws; empty = no map
     _gmaps = await MapsSdk.available(); // mapscost: never throws
     if (mounted) setState(() => _loading = false);
@@ -200,7 +204,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       final perm = await Geolocator.checkPermission();
       if (perm != LocationPermission.whileInUse && perm != LocationPermission.always) return;
       final p = await Geolocator.getLastKnownPosition();
-      if (p != null && mounted) setState(() => _here = (lat: p.latitude, lng: p.longitude));
+      if (p != null && mounted) {
+        setState(() => _here = (lat: p.latitude, lng: p.longitude));
+        if (_pinned && _eta == null) unawaited(_fetchEta());
+      }
     } catch (_) {
       // best-effort: no distance line, nothing else changes
     }
@@ -208,12 +215,76 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   bool get _pinned => _dest?['lat'] is num && _dest?['lng'] is num;
 
-  void _setDest(String name, double lat, double lng) {
+  void _setDest(String name, double lat, double lng, {String address = ''}) {
     setState(() {
       if (name.isNotEmpty) _destName.text = name;
       _dest = {'name': _destName.text.trim(), 'lat': lat, 'lng': lng};
+      _destAddress = address;
+      if (!_etaEdited) {
+        _eta = null;
+        _etaMin = null;
+      }
+    });
+    unawaited(_fetchEta());
+  }
+
+  void _unpin() => setState(() {
+        _dest = null;
+        _destAddress = '';
+        if (!_etaEdited) {
+          _eta = null;
+          _etaMin = null;
+        }
+      });
+
+  /// Road modes Google's Routes answers for (DRIVE / TWO_WHEELER); train
+  /// times come from the train, metro / launch have no road time.
+  static const _roadModes = <String?>{null, 'local_bus', 'long_bus', 'car', 'cng'};
+
+  /// jsearch: ONE Routes call (our capped server; cached 10 min there) for
+  /// the pinned destination + chosen mode -> the default arrival time.
+  /// Unavailable / capped / no fix -> stays empty with a hint.
+  Future<void> _fetchEta() async {
+    if (_etaEdited || !_pinned) return;
+    if (!_roadModes.contains(_mode)) {
+      if (_jm.train == null && _etaMin != null) {
+        setState(() {
+          _eta = null;
+          _etaMin = null;
+        });
+      }
+      return;
+    }
+    final here = _here;
+    if (here == null) return;
+    final lat = (_dest!['lat'] as num).toDouble(), lng = (_dest!['lng'] as num).toDouble();
+    final mode = _mode;
+    Map<String, dynamic> r;
+    try {
+      r = await context.read<AppState>().api.mapsEta(here.lat, here.lng, lat, lng, mode: mode ?? '');
+    } catch (_) {
+      r = const {'state': 'failed'};
+    }
+    if (!mounted || _etaEdited || _mode != mode) return;
+    if (_dest?['lat'] != lat || _dest?['lng'] != lng) return; // a newer pin
+    final ok = r['state'] == 'ok' || r['state'] == 'cache';
+    final m = ok && r['minutes'] is num ? (r['minutes'] as num).toInt() : null;
+    setState(() {
+      _etaMin = m;
+      _eta = m == null ? null : TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: m)));
     });
   }
+
+  /// "car" / "local bus" / "CNG" inside a sentence (Bangla as is).
+  String _modeWord(AppLocalizations t) {
+    final l = _mode == null ? '' : jTravelLabel(t, _mode!);
+    if (Localizations.localeOf(context).languageCode == 'bn' || l == l.toUpperCase()) return l;
+    return l.toLowerCase();
+  }
+
+  /// "1 h 20 min" / "১ ঘণ্টা ২০ মিনিট".
+  String _dur(AppLocalizations t, int min) => jDigits(
+      context, min >= 60 ? t.psDurHM(min ~/ 60, min % 60) : t.psDurM(min));
 
   Future<void> _useCurrentAsDest() async {
     final t = AppLocalizations.of(context);
@@ -246,20 +317,38 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     if (got != null && mounted) _setDest(got.name, got.lat, got.lng);
   }
 
+  /// Saved places with a pin, for the search's pre-typing list.
+  List<PlacePick> _savedPicks(AppLocalizations t) => [
+        for (final p in _places)
+          if (p['lat'] is num && p['lng'] is num)
+            (
+              name: jPlaceLabel(t, p),
+              address: '${p['address'] ?? ''}',
+              lat: (p['lat'] as num).toDouble(),
+              lng: (p['lng'] as num).toDouble()
+            )
+      ];
+
   Future<void> _search() async {
-    final got = await showJourneySearchSheet(context, context.read<AppState>().api,
-        lat: _here?.lat, lng: _here?.lng);
-    if (got != null && mounted) _setDest(got.name, got.lat, got.lng);
+    final got = await showPlaceSearchSheet(context, context.read<AppState>().api,
+        lat: _here?.lat,
+        lng: _here?.lng,
+        mode: _psMode,
+        saved: _savedPicks(AppLocalizations.of(context)),
+        onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null);
+    if (got != null && mounted) _setDest(got.name, got.lat, got.lng, address: got.address);
   }
 
+  Future<({double lat, double lng})?> _mapPoint() =>
+      Navigator.of(context).push<({double lat, double lng})>(MaterialPageRoute(
+          builder: (_) => JourneyMapPickScreen(
+              config: _map,
+              google: _gmaps,
+              lat: (_dest?['lat'] as num?)?.toDouble() ?? _here?.lat,
+              lng: (_dest?['lng'] as num?)?.toDouble() ?? _here?.lng)));
+
   Future<void> _pickOnMap() async {
-    final got = await Navigator.of(context).push<({double lat, double lng})>(
-        MaterialPageRoute(
-            builder: (_) => JourneyMapPickScreen(
-                config: _map,
-                google: _gmaps,
-                lat: (_dest?['lat'] as num?)?.toDouble() ?? _here?.lat,
-                lng: (_dest?['lng'] as num?)?.toDouble() ?? _here?.lng)));
+    final got = await _mapPoint();
     if (got != null && mounted) {
       final pinned = AppLocalizations.of(context).journeyDestPinned;
       final blank = _destName.text.trim().isEmpty || _destName.text.trim() == pinned;
@@ -283,13 +372,31 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   }
 
   Future<void> _savePlace() async {
-    final t = AppLocalizations.of(context);
     if (!_pinned) return;
+    final t = AppLocalizations.of(context);
+    await _saveAs(_destName.text.trim() == t.journeyDestPinned ? '' : _destName.text.trim(),
+        (_dest!['lat'] as num).toDouble(), (_dest!['lng'] as num).toDouble());
+  }
+
+  /// jsearch: "Add a place" — the same place search, then Home / School /
+  /// Office / other.
+  Future<void> _addPlace() async {
+    final got = await showPlaceSearchSheet(context, context.read<AppState>().api,
+        lat: _here?.lat,
+        lng: _here?.lng,
+        mode: _psMode,
+        onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null);
+    if (got == null || !mounted) return;
+    await _saveAs(got.name, got.lat, got.lng);
+  }
+
+  Future<void> _saveAs(String name, double lat, double lng) async {
+    final t = AppLocalizations.of(context);
     final have = _places.map(jPlaceKind).toSet();
     final first = kPlaceKinds.firstWhere((k) => !have.contains(k), orElse: () => 'other');
     final pick = await showJourneySavePlaceSheet(context,
         kind: first,
-        name: _destName.text.trim() == t.journeyDestPinned ? '' : _destName.text.trim());
+        name: name);
     if (pick == null || !mounted) return;
     try {
       final api = context.read<AppState>().api;
@@ -297,8 +404,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         'kind': pick.kind,
         'label': pick.kind == 'other' ? pick.name : pick.kind,
         'name': pick.name.isNotEmpty ? pick.name : jKindLabel(t, pick.kind),
-        'lat': _dest!['lat'],
-        'lng': _dest!['lng'],
+        'lat': lat,
+        'lng': lng,
         'theft_safe': pick.theftSafe,
       });
       final rows = await api.savedPlaces();
@@ -429,8 +536,22 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedWatcher)));
       return;
     }
+    // jsearch: no ETA yet (no road time) -> the user sets it now, once
+    if (_eta == null) {
+      final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+      if (!mounted) return;
+      if (picked == null) {
+        messenger.showSnackBar(SnackBar(content: Text(t.psEtaNeed)));
+        return;
+      }
+      setState(() {
+        _eta = picked;
+        _etaEdited = true;
+      });
+    }
+    final at = _eta!;
     final now = DateTime.now();
-    var eta = DateTime(now.year, now.month, now.day, _eta.hour, _eta.minute);
+    var eta = DateTime(now.year, now.month, now.day, at.hour, at.minute);
     if (eta.isBefore(now)) eta = eta.add(const Duration(days: 1));
     final dest = <String, dynamic>{
       'name': name.isEmpty ? (_dest?['name'] ?? '') : name,
@@ -485,19 +606,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           .join(',');
       await Settings.setString(kPhonesKey, phones);
       if (!mounted) return;
-      // journeymode: the destination alarm (on the phone only) for this trip
-      final plan = _jm.plan(
-          destName: '${dest['name']}',
-          destLat: (dest['lat'] as num?)?.toDouble(),
-          destLng: (dest['lng'] as num?)?.toDouble(),
-          bn: Localizations.localeOf(context).languageCode == 'bn');
-      if (plan != null && id != null) {
-        try {
-          await JourneyAlarmLink.I.arm(id, plan, destAlarmTexts(context, t, plan.target.name));
-        } catch (_) {
-          // best-effort: the journey itself is running; the alarm screen still works
-        }
-      }
+      // jsearch: My Trip no longer arms the destination alarm (owner 4 Nov) —
+      // it is set only on the Destination Alarm card.
       if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (_) => JourneyLiveScreen(journeyId: id ?? 0)));
@@ -520,7 +630,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       destName: _destName.text.trim(),
       destLat: lat,
       destLng: lng,
-      onMode: (m) => setState(() => _mode = m),
+      onMode: (m) {
+        setState(() => _mode = m);
+        unawaited(_fetchEta()); // same road call is cached on the server
+      },
       onPickTrain: _pickTrain,
     );
   }
@@ -552,35 +665,42 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   Widget _pinCard(AppLocalizations t, ColorScheme cs) {
     if (_pinned) {
+      // jsearch: the confirm card — full address, the pin on Google's map
+      // when this build has the Maps SDK key, Change; the arrival geofence
+      // is this pin.
       final d = _distM;
-      return Container(
+      return KeyedSubtree(
         key: const ValueKey('j2_pinned'),
-        padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-            color: Brand.successFill.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(Radii.md)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Icon(Icons.where_to_vote_rounded, color: Brand.successFill),
-            const SizedBox(width: Gap.sm),
-            Expanded(child: Text(t.j2Pinned, style: AType.bodyMedium)),
-            IconButton(
-                key: const ValueKey('j2_unpin'),
-                tooltip: t.j2Unpin,
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => setState(() => _dest = null)),
-          ]),
-          if (d != null)
-            Text(t.j2PinnedFar(jKm(context, d)),
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
-          const SizedBox(height: Gap.xs),
-          OutlinedButton.icon(
-            key: const ValueKey('j2_save_place'),
-            icon: const Icon(Icons.bookmark_add_rounded),
-            label: Text(t.j2SavePlace),
-            onPressed: _savePlace,
+        child: PlaceConfirmCard(
+          pick: (
+            name: _destName.text.trim().isEmpty ? t.journeyDestPinned : _destName.text.trim(),
+            address: _destAddress,
+            lat: (_dest!['lat'] as num).toDouble(),
+            lng: (_dest!['lng'] as num).toDouble()
           ),
-        ]),
+          showMap: _gmaps,
+          title: t.j2Pinned,
+          onChange: _unpin,
+          extra: [
+            if (d != null)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(t.j2PinnedFar(jKm(context, d)),
+                    style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              ),
+            const SizedBox(height: Gap.xs),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: const ValueKey('j2_save_place'),
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.bookmark_add_rounded),
+                label: Text(t.j2SavePlace),
+                onPressed: _savePlace,
+              ),
+            ),
+          ],
+        ),
       );
     }
     if (_destName.text.trim().isEmpty) return const SizedBox.shrink();
@@ -673,17 +793,41 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         else
           Text(t.j2PlacesEmpty,
               style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+        if (_psMode != PlaceSearchMode.off)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+                key: const ValueKey('j2_place_add'),
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.add_location_alt_rounded),
+                label: Text(t.psAddPlace),
+                onPressed: _addPlace),
+          ),
         const SizedBox(height: Gap.sm),
-        TextField(
-            key: const ValueKey('j100_dest'),
+        // jsearch: the field itself is the place search (live suggestions
+        // from 2 letters; before typing: current location, map, saved,
+        // recent). A typed name without a pick still works (no-pin card).
+        PlaceSearchBox(
+            api: context.read<AppState>().api,
+            mode: _psMode,
             controller: _destName,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-                labelText: t.journeyDestLabel,
-                suffixIcon: IconButton(
-                    icon: const Icon(Icons.my_location_rounded),
-                    tooltip: t.journeyUseCurrent,
-                    onPressed: _useCurrentAsDest))),
+            fieldKey: const ValueKey('j100_dest'),
+            label: t.journeyDestLabel,
+            nearLat: _here?.lat,
+            nearLng: _here?.lng,
+            saved: _savedPicks(t),
+            onCurrent: () async {
+              final p = await placeHereNow(context);
+              if (p != null && mounted) setState(() => _here = p);
+              return p;
+            },
+            onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null,
+            onTyped: (_) => setState(() {}),
+            onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address),
+            suffixIcon: IconButton(
+                icon: const Icon(Icons.my_location_rounded),
+                tooltip: t.journeyUseCurrent,
+                onPressed: _useCurrentAsDest)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           OutlinedButton.icon(
@@ -691,7 +835,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               icon: const Icon(Icons.link_rounded),
               label: Text(t.j2PasteLink),
               onPressed: _pasteLink),
-          if (_canSearch)
+          if (_psMode != PlaceSearchMode.off)
             OutlinedButton.icon(
                 key: const ValueKey('j2_search'),
                 icon: const Icon(Icons.search_rounded),
@@ -704,27 +848,46 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 label: Text(t.j2PickMap),
                 onPressed: _pickOnMap),
         ]),
-        if (!_map.hasTiles && !_gmaps)
-          Padding(
-            padding: const EdgeInsets.only(top: Gap.xs),
-            child: Text(t.j2NoMapNote,
-                key: const ValueKey('j2_no_map'),
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
-          ),
+        // jsearch: no internal "the map is not set up yet" text on user screens
         const SizedBox(height: Gap.sm),
         _pinCard(t, cs),
         const Divider(height: 28),
 
         _h(t.journeyEtaSection),
         OutlinedButton.icon(
+          key: const ValueKey('js_eta_btn'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
           icon: const Icon(Icons.schedule_rounded),
-          label: Text(t.journeyEtaBy(_eta.format(context))),
+          label: Text(_eta == null ? t.psEtaSet : t.journeyEtaBy(_eta!.format(context))),
           onPressed: () async {
-            final picked = await showTimePicker(context: context, initialTime: _eta);
-            if (picked != null) setState(() => _eta = picked);
+            final picked = await showTimePicker(
+                context: context, initialTime: _eta ?? TimeOfDay.now());
+            if (picked != null) {
+              setState(() {
+                _eta = picked;
+                _etaEdited = true;
+              });
+            }
           },
         ),
-        if (rough != null) ...[
+        if (_etaMin != null)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(
+                _modeWord(t).isEmpty
+                    ? t.psEtaAboutRoad(_dur(t, _etaMin!))
+                    : t.psEtaAbout(_dur(t, _etaMin!), _modeWord(t)),
+                key: const ValueKey('js_eta_about'),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+          )
+        else if (_eta == null)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(t.psEtaHint,
+                key: const ValueKey('js_eta_hint'),
+                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+          ),
+        if (rough != null && _etaMin == null) ...[
           const SizedBox(height: Gap.xs),
           Text(t.j2Rough(jDigits(context, rough)),
               key: const ValueKey('j2_rough'),
@@ -733,8 +896,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             alignment: AlignmentDirectional.centerStart,
             child: TextButton(
                 key: const ValueKey('j2_rough_use'),
-                onPressed: () => setState(() => _eta = TimeOfDay.fromDateTime(
-                    DateTime.now().add(Duration(minutes: rough + 10)))),
+                onPressed: () => setState(() {
+                      _eta = TimeOfDay.fromDateTime(DateTime.now().add(Duration(minutes: rough + 10)));
+                      _etaEdited = true;
+                    }),
                 child: Text(t.j2RoughUse)),
           ),
         ],

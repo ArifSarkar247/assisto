@@ -1,0 +1,41 @@
+{
+  "_comment": "jsearch (owner phone test 4 Nov 00:05): shared place search, confirm card, Routes ETA default, no internal map text. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_jsearch_arb.json",
+  "en": {
+    "psHereName": "Where I am now",
+    "psRecent": "Recent",
+    "psFieldHint": "Type 2 letters — places appear as you type.",
+    "psUse": "Use this place",
+    "psEtaAbout": "About {dur} by {mode}",
+    "@psEtaAbout": {"placeholders": {"dur": {"type": "String"}, "mode": {"type": "String"}}},
+    "psEtaAboutRoad": "About {dur} by road",
+    "@psEtaAboutRoad": {"placeholders": {"dur": {"type": "String"}}},
+    "psDurHM": "{h} h {m} min",
+    "@psDurHM": {"placeholders": {"h": {"type": "int"}, "m": {"type": "int"}}},
+    "psDurM": "{m} min",
+    "@psDurM": {"placeholders": {"m": {"type": "int"}}},
+    "psEtaSet": "Set arrival time",
+    "psEtaHint": "Pick the place above and the road time fills this in — or set the time yourself.",
+    "psEtaNeed": "Set the time you expect to arrive, then tap Start.",
+    "psFenceNoMap": "Drawing an area needs the street map. For now use \"Add an area here\" — a circle around the vehicle.",
+    "psSearchOffAlarm": "Place search is off right now. Pick a stop from the list or on the map.",
+    "psSchoolSearchSub": "Type the school's name — see the full address before you save",
+    "psAddPlace": "Add a place"
+  },
+  "bn": {
+    "psHereName": "আমি এখন যেখানে আছি",
+    "psRecent": "সাম্প্রতিক",
+    "psFieldHint": "২টি অক্ষর লিখুন — লিখতে লিখতেই জায়গা দেখাবে।",
+    "psUse": "এই জায়গাটি নিন",
+    "psEtaAbout": "{mode}: প্রায় {dur}",
+    "psEtaAboutRoad": "রাস্তায় প্রায় {dur}",
+    "psDurHM": "{h} ঘণ্টা {m} মিনিট",
+    "psDurM": "{m} মিনিট",
+    "psEtaSet": "পৌঁছানোর সময় দিন",
+    "psEtaHint": "উপরে জায়গাটি বেছে নিন, রাস্তার সময় দেখে এটি নিজেই ভরবে — অথবা নিজে সময় দিন।",
+    "psEtaNeed": "কখন পৌঁছাবেন সেই সময় দিন, তারপর শুরু চাপুন।",
+    "psFenceNoMap": "এলাকা আঁকতে রাস্তার ম্যাপ লাগে। আপাতত \"এখানে এলাকা যোগ করুন\" ব্যবহার করুন — গাড়ির চারপাশে একটি বৃত্ত।",
+    "psSearchOffAlarm": "জায়গা খোঁজা এখন বন্ধ। তালিকা থেকে বা ম্যাপে স্টপ বেছে নিন।",
+    "psSchoolSearchSub": "স্কুলের নাম লিখুন — সেভ করার আগে পুরো ঠিকানা দেখুন",
+    "psAddPlace": "জায়গা যোগ করুন"
+  }
+}

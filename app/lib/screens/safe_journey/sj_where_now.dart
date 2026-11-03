@@ -286,13 +286,7 @@ class SjWhereNowState extends State<SjWhereNow> {
       if (_map.hasTiles && pts.isNotEmpty) ...[
         _mapView(pts),
         const SizedBox(height: Gap.sm),
-      ] else if (pts.isNotEmpty)
-        Padding(
-          padding: const EdgeInsets.only(bottom: Gap.sm),
-          child: Text(t.sjlNoMapNote,
-              key: const ValueKey('sjl_where_nomap'),
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
-        ),
+      ], // jsearch: no internal "the map is not set up yet" text for users
       for (final r in _rows) _row(t, r),
     ]);
   }

@@ -21,6 +21,7 @@ import '../../widgets/cv_empty.dart' show pickCirclePerson;
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
+import '../../maps/place_search.dart'; // jsearch
 import 'trip_recorder_screen.dart';
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
@@ -183,6 +184,32 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     });
     await _loadMode(_mode);
     _pickInitialStation();
+  }
+
+  /// jsearch: the same place search as My Trip (live suggestions, confirm
+  /// card) — the picked place becomes the stop to wake up before.
+  /// Nothing is read from the server until this tap (the alarm itself never
+  /// uses the network).
+  Future<void> _searchPlace() async {
+    final api = context.read<AppState>().api;
+    final mode = await placeSearchMode(api); // never throws
+    if (!mounted) return;
+    if (mode == PlaceSearchMode.off) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).psSearchOffAlarm)));
+      return;
+    }
+    final p = await showPlaceSearchSheet(context, api,
+        mode: mode,
+        currentLocation: false,
+        saved: [
+          for (final s in _saved) (name: s.name(_bn), address: '', lat: s.lat, lng: s.lng)
+        ]);
+    if (p == null || !mounted) return;
+    setState(() {
+      _target = DestTarget(p.name, p.lat, p.lng);
+      _prev = null;
+    });
   }
 
   /// "Set alarm at this station" from the Train Tracker.
@@ -668,6 +695,17 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
               label: Text(t.trPickOnMap),
               onPressed: _pickMap,
             ),
+            if (_mode != TransportMode.train) // jsearch
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: OutlinedButton.icon(
+                  key: const ValueKey('da_place_search'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  icon: const Icon(Icons.travel_explore_rounded),
+                  label: Text(t.j2Search),
+                  onPressed: _searchPlace,
+                ),
+              ),
             if (list.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),

@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 /// mapscost — destination search the cheap way (owner order 3 Nov 18:40):
-///  * nothing is sent before 3 characters;
+///  * nothing is sent before 2 characters (jsearch, owner 4 Nov: like the
+///    Google Maps app);
 ///  * typing waits 300 ms of quiet before ONE request (debounce);
 ///  * every request of one search carries the same session token, and the
 ///    session ends with ONE Place Details — then a fresh token starts;
@@ -18,7 +19,7 @@ typedef SuggestFn = Future<Map<String, dynamic>> Function(String q, String sessi
 typedef DetailsFn = Future<Map<String, dynamic>> Function(String placeId, String session);
 
 class PlaceSearchController {
-  static const minChars = 3;
+  static const minChars = 2;
   static const debounce = Duration(milliseconds: 300);
 
   final SuggestFn suggest;
