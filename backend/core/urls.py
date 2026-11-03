@@ -1740,3 +1740,14 @@ urlpatterns += [
     path("learn/<str:lang>/roleplay", learnv.LearnRoleplayView.as_view()),
 ]
 # ---- /p2lang ----
+# ---- learncert ---- Assisto Learning Certificate (flag learning_certificate)
+from . import views_learncert as lcv  # noqa: E402
+urlpatterns += [
+    path("learn/certs", lcv.CertListView.as_view()),
+    path("learn/certs/claim", lcv.CertClaimView.as_view()),
+    path("learn/certs/revoke-code", lcv.CertRevokeCodeView.as_view()),
+    path("learn/certs/<int:pk>", lcv.CertDetailView.as_view()),
+    path("learn/certs/<int:pk>/pdf", lcv.CertPdfView.as_view()),
+    path("learn/certs/<int:pk>/revoke", lcv.CertRevokeView.as_view()),
+]
+# ---- /learncert ----

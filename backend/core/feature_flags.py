@@ -159,6 +159,10 @@ REGISTRY = (
     # speaking/writing checklists + AI estimate (credits), original reading,
     # official listening links, pronunciation check. OFF until real-phone proof.
     ('language_packs', 'daily_life', 'Language courses (8 languages) + IELTS', 'ভাষা কোর্স (৮টি ভাষা) + IELTS', False, ()),
+    # learncert (owner 3 Nov 11:45 part C): Assisto learning certificate for
+    # Language Partner + Learn to read Quran (verify QR on lifeassisto.com).
+    # OFF until the owner's real-phone proof; /verify/<code> always answers.
+    ('learning_certificate', 'daily_life', 'Learning certificate', 'শেখার সনদ', False, ()),
     ('daily_brief', 'daily_life', 'Daily brief', 'দৈনিক ব্রিফ', True, ()),
     ('doc_scanner', 'daily_life', 'Document scanner', 'ডকুমেন্ট স্ক্যানার', True, ()),
     ('transcription', 'daily_life', 'Calls & voice notes', 'কল ও ভয়েস নোট', True, ()),

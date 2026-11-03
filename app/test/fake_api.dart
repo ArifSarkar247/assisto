@@ -9,6 +9,7 @@ import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
 import 'fake_kidaudio.dart'; // kidaudio
+import 'fake_learncert.dart'; // learncert
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -1005,6 +1006,11 @@ class FakeApi extends ApiClient {
     if (ielts != null) {
       if (mode == FakeMode.fail) _fail();
       return ielts;
+    }
+    final lcg = fakeLearnCertGet(path, empty: mode == FakeMode.empty); // learncert
+    if (lcg != null) {
+      if (mode == FakeMode.fail) _fail();
+      return lcg;
     }
     final inv = fakeInvoiceGet(path, empty: mode == FakeMode.empty); // invoices
     if (inv != null) {
@@ -2105,6 +2111,8 @@ class FakeApi extends ApiClient {
     if (kh != null) return kh;
     final kau = fakeKidAudioPost(path); // kidaudio
     if (kau != null) return kau;
+    final lcp = fakeLearnCertPost(path, body); // learncert
+    if (lcp != null) return lcp;
     final ma = fakeMissingPost(path, bn: _bn); // missing
     if (ma != null) return ma;
     final bp = fakeBloodPost(path, bn: _bn); // blood

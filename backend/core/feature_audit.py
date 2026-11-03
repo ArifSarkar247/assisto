@@ -133,6 +133,8 @@ _A = {
     "language_partner": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "language_packs": ("?PP?P?P?F", "hide", "p2lang 3 Nov: IELTS speaking/writing key-free checklists + AI practice estimate (credits), original reading passages with Bangla explanations, official listening links, offline pronunciation check (word alignment), streak + academic vocab SR; real-phone test pending.",
                    "p2lang ৩ নভেম্বর: IELTS স্পিকিং/রাইটিং চেকলিস্ট (চাবি ছাড়া) + AI অনুশীলন-অনুমান (ক্রেডিট), নিজস্ব রিডিং অনুচ্ছেদ ও বাংলা ব্যাখ্যা, অফিসিয়াল লিসেনিং লিংক, নেট ছাড়া উচ্চারণ যাচাই, streak + শব্দ পুনরাবৃত্তি; আসল ফোনে পরীক্ষা বাকি।"),
+    "learning_certificate": ("?P???PP?F", "hide", "learncert 3 Nov: signed verify code + QR, public /verify page (minimal data, noindex, revocable), certificate card, PDF, Facebook sharer; issued only from a server-signed course result; real-phone test pending.",
+                             "learncert ৩ নভেম্বর: সই করা যাচাই কোড + QR, পাবলিক /verify পাতা (কম তথ্য, noindex, বাতিলযোগ্য), সনদ কার্ড, PDF, Facebook শেয়ার; শুধু সার্ভারের সই করা ফল থেকে সনদ; আসল ফোনে পরীক্ষা বাকি।"),
     "daily_brief": ("?F???P?FF", "hide", "Sweep B?: AI mock without the key.", "সুইপ B?: চাবি ছাড়া AI নকল ফল।"),
     "doc_scanner": ("?F???P?FF", "hide", "Sweep B?: OCR key-gated mock.", "সুইপ B?: OCR চাবি-নির্ভর নকল।"),
     "transcription": ("?F???P?FF", "hide", "Sweep B?: speech key-gated mock.", "সুইপ B?: কথা-থেকে-লেখা চাবি-নির্ভর নকল।"),

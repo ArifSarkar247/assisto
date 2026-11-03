@@ -43,6 +43,7 @@ const _launchPrefixes = <String>[
   'journey_', // journey modes
   'chip_', // tracker chip
   'kid_audio', // child emergency audio
+  'learn_cert_', // learncert: Assisto learning certificate
   'acct_', // accounting + account modes (acct_mode_*)
   'inv_', // invoices
   'rt_', // CRM automation (retention1)

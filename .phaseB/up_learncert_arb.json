@@ -1,0 +1,155 @@
+{
+ "en": {
+  "lcTitle": "My certificates",
+  "@lcTitle": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyTitle": "No certificate yet",
+  "@lcEmptyTitle": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyBody": "Finish a level test in Language Partner or a step of Learn to read Quran. Your Assisto learning certificate appears here, with a QR code anyone can check.",
+  "@lcEmptyBody": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyAction": "Start learning",
+  "@lcEmptyAction": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEmptyHow": "How: open Language Partner, take the level test, then tap Get my certificate.",
+  "@lcEmptyHow": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcValid": "Valid",
+  "@lcValid": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevoked": "Revoked",
+  "@lcRevoked": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokedBanner": "You revoked this certificate. The check page now says it is not valid.",
+  "@lcRevokedBanner": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcDownloadPdf": "Download PDF",
+  "@lcDownloadPdf": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareFacebook": "Share to Facebook",
+  "@lcShareFacebook": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareLink": "Share link",
+  "@lcShareLink": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcShareText": "My Assisto learning certificate (practice, not an official qualification). Check it here: {url}",
+  "@lcShareText": {
+   "placeholders": {
+    "url": {
+     "type": "String"
+    }
+   }
+  },
+  "lcRevoke": "Revoke certificate",
+  "@lcRevoke": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokeTitle": "Revoke this certificate?",
+  "@lcRevokeTitle": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcRevokeBody": "The check page will say it is not valid any more. This cannot be undone.",
+  "@lcRevokeBody": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEarnedTitle": "You earned a certificate!",
+  "@lcEarnedTitle": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcEarnedBody": "Check the name to print on it. Anyone can verify it on lifeassisto.com with the QR code.",
+  "@lcEarnedBody": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcNameLabel": "Name on the certificate",
+  "@lcNameLabel": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcGetCert": "Get my certificate",
+  "@lcGetCert": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcNotNow": "Not now",
+  "@lcNotNow": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrName": "Please write your real name: letters only, 2 to 60 characters.",
+  "@lcErrName": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrToken": "This result has expired. Finish the test again to get the certificate.",
+  "@lcErrToken": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrMany": "Too many certificates today. Please try again tomorrow.",
+  "@lcErrMany": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcErrGeneric": "Could not load the certificate. Check the internet and try again.",
+  "@lcErrGeneric": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcDisclaimer": "Assisto learning certificate — not an official qualification",
+  "@lcDisclaimer": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcScanHint": "Scan to check if it is genuine",
+  "@lcScanHint": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcPdfReady": "Certificate PDF is ready",
+  "@lcPdfReady": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcPdfFailed": "Could not download the PDF. Please try again.",
+  "@lcPdfFailed": {
+   "description": "learncert: Assisto learning certificate"
+  },
+  "lcFbFailed": "Could not open Facebook.",
+  "@lcFbFailed": {
+   "description": "learncert: Assisto learning certificate"
+  }
+ },
+ "bn": {
+  "lcTitle": "আমার সনদ",
+  "lcEmptyTitle": "এখনো কোনো সনদ নেই",
+  "lcEmptyBody": "ভাষা শেখার সঙ্গীতে লেভেল টেস্ট বা কুরআন পড়া শেখার একটা ধাপ শেষ করুন। আপনার Assisto শেখার সনদ এখানে আসবে, সাথে একটা QR কোড — যে কেউ যাচাই করতে পারবে।",
+  "lcEmptyAction": "শেখা শুরু করুন",
+  "lcEmptyHow": "কীভাবে: ভাষা শেখার সঙ্গী খুলুন, লেভেল টেস্ট দিন, তারপর \"আমার সনদ নিন\" চাপুন।",
+  "lcValid": "বৈধ",
+  "lcRevoked": "বাতিল",
+  "lcRevokedBanner": "আপনি এই সনদ বাতিল করেছেন। যাচাই পাতায় এখন লেখা আছে এটি বৈধ নয়।",
+  "lcDownloadPdf": "PDF নামান",
+  "lcShareFacebook": "Facebook-এ শেয়ার করুন",
+  "lcShareLink": "লিংক শেয়ার করুন",
+  "lcShareText": "আমার Assisto শেখার সনদ (অনুশীলন, অফিসিয়াল যোগ্যতা নয়)। এখানে যাচাই করুন: {url}",
+  "lcRevoke": "সনদ বাতিল করুন",
+  "lcRevokeTitle": "এই সনদ বাতিল করবেন?",
+  "lcRevokeBody": "যাচাই পাতায় লেখা থাকবে এটি আর বৈধ নয়। এটা আর ফেরানো যাবে না।",
+  "lcEarnedTitle": "আপনি একটা সনদ পেয়েছেন!",
+  "lcEarnedBody": "সনদে কোন নাম ছাপা হবে দেখে নিন। QR কোড দিয়ে যে কেউ lifeassisto.com-এ যাচাই করতে পারবে।",
+  "lcNameLabel": "সনদে নাম",
+  "lcGetCert": "আমার সনদ নিন",
+  "lcNotNow": "এখন না",
+  "lcErrName": "আপনার আসল নাম লিখুন: শুধু অক্ষর, ২ থেকে ৬০টি।",
+  "lcErrToken": "এই ফলের মেয়াদ শেষ। সনদ পেতে টেস্টটা আবার শেষ করুন।",
+  "lcErrMany": "আজ অনেক সনদ হয়েছে। আগামীকাল আবার চেষ্টা করুন।",
+  "lcErrGeneric": "সনদ আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "lcDisclaimer": "Assisto শেখার সনদ — এটি কোনো অফিসিয়াল যোগ্যতা নয়",
+  "lcScanHint": "আসল কি না দেখতে স্ক্যান করুন",
+  "lcPdfReady": "সনদের PDF তৈরি",
+  "lcPdfFailed": "PDF নামানো গেল না। আবার চেষ্টা করুন।",
+  "lcFbFailed": "Facebook খোলা গেল না।"
+ }
+}

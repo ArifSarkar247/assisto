@@ -1,0 +1,41 @@
+{% extends "web/base.html" %}
+{% block title %}{{ B.title }}{% if v %} — {{ v.name }}{% endif %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.ok{background:#e7f7ee;color:#0b5e3c;padding:14px;border-radius:12px;font-size:17px;font-weight:700}
+.no{background:#fdecea;color:#8a1c12;padding:14px;border-radius:12px;font-size:17px;font-weight:700}
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eef1f7;font-size:16px;flex-wrap:wrap}
+.row b{text-align:right}
+.small{font-size:13px;color:#4a556e}
+.disc{margin-top:14px;padding:10px 12px;border-left:4px solid #7c3aed;background:#f5f3ff;color:#3b1d75;font-size:15px;font-weight:600}
+form{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+form input{flex:1;min-width:0;min-height:48px;font-size:17px;padding:0 12px;border:1px solid #c5cbe0;border-radius:10px;text-transform:uppercase}
+form button{min-height:48px;padding:0 18px;font-size:16px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:700}
+</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ B.title }}</h1>
+  {% if state == "limited" %}<p role="alert">{{ B.limited }}</p>
+  {% elif state == "ok" or state == "revoked" %}
+    {% if state == "revoked" %}<p class="no" role="alert">{{ B.revoked }}</p>
+    {% else %}<p class="ok" role="status">{{ B.ok }}</p>{% endif %}
+    <div class="row"><span>{{ B.name }}</span><b>{{ v.name }}</b></div>
+    <div class="row"><span>{{ B.course }}</span><b>{{ v.course }}</b></div>
+    <div class="row"><span>{{ B.level }}</span><b>{{ v.level }}</b></div>
+    <div class="row"><span>{{ B.date }}</span><b>{{ v.date }}</b></div>
+    <div class="row"><span>{{ B.code }}</span><b>{{ v.code }}</b></div>
+    <p class="small">{{ B.check }}</p>
+    <p class="small"><a href="/verify/{{ v.code }}?lang={{ other }}" lang="{{ other }}">{% if other == "en" %}English{% else %}বাংলা{% endif %}</a></p>
+  {% else %}
+    {% if state == "bad" %}<p class="no" role="alert">{{ B.bad }}</p>{% endif %}
+    <p>{{ B.ask }}</p>
+    <form method="get" action="/verify/">
+      <input type="hidden" name="lang" value="{{ lang }}">
+      <input name="code" maxlength="24" autocomplete="off" autocapitalize="characters" aria-label="{{ B.code }}">
+      <button type="submit">{{ B.go }}</button>
+    </form>
+    <p class="small"><a href="/verify/?lang={{ other }}" lang="{{ other }}">{% if other == "en" %}English{% else %}বাংলা{% endif %}</a></p>
+  {% endif %}
+  <p class="disc">{{ disclaimer }}</p>
+</div>
+{% endblock %}

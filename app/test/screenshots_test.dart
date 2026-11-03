@@ -70,6 +70,8 @@ import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // ki
 import 'package:assisto/screens/kids_watch/chip_widgets.dart'; // chipbuy
 import 'package:assisto/screens/missing/missing_hub_screen.dart'; // missing
 import 'package:assisto/screens/kid_audio/kid_audio_screen.dart'; // kidaudio
+import 'package:assisto/screens/learn_cert_screen.dart'; // learncert
+import 'fake_learncert.dart'; // learncert
 import 'package:assisto/screens/missing/missing_detail_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_post_screen.dart'; // missing
 import 'package:assisto/screens/missing/missing_optin_screen.dart'; // missing
@@ -893,6 +895,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'kid_audio': (build: (_) => const KidAudioScreen(), mode: FakeMode.data, full: true),
     'kid_audio_empty': (build: (_) => const KidAudioScreen(), mode: FakeMode.empty, full: true),
     'kid_audio_error': (build: (_) => const KidAudioScreen(), mode: FakeMode.fail, full: false),
+    // learncert (owner 3 Nov part C): Assisto learning certificate — list, empty,
+    // load failure, language card, Quran card, revoked card, claim sheet.
+    'learn_cert_list': (build: (_) => const LearnCertScreen(), mode: FakeMode.data, full: true),
+    'learn_cert_empty': (build: (_) => const LearnCertScreen(), mode: FakeMode.empty, full: true),
+    'learn_cert_fail': (build: (_) => const LearnCertScreen(), mode: FakeMode.fail, full: false),
+    'learn_cert_card': (build: (_) => LearnCertDetailScreen(cert: fakeLangCert()), mode: FakeMode.data, full: true),
+    'learn_cert_quran': (build: (_) => LearnCertDetailScreen(cert: fakeQuranCert()), mode: FakeMode.data, full: true),
+    'learn_cert_revoked': (build: (_) => LearnCertDetailScreen(cert: fakeLangCert(valid: false)), mode: FakeMode.data, full: true),
+    'learn_cert_claim': (build: (_) => const Scaffold(body: LearnCertClaimSheet(token: 'tok', defaultName: 'Rahim Uddin')), mode: FakeMode.data, full: true),
     'success_share': (build: (l) => SuccessShareScreen(
         title: l == 'bn' ? 'ধন্যবাদ জানান' : 'Say thank you',
         cardHeadline: l == 'bn' ? 'পাওয়া গেছে — সবাইকে ধন্যবাদ' : 'Found — thank you all',

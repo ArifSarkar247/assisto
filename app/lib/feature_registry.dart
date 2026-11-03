@@ -101,6 +101,8 @@ const Map<String, bool> kFeatureDefaults = {
   'language_partner': true,
   // p2lang: IELTS practice inside Language Partner — OFF until real-phone proof.
   'language_packs': false,
+  // learncert: Assisto learning certificate — OFF until real-phone proof.
+  'learning_certificate': false,
   'daily_brief': true,
   'doc_scanner': true,
   'transcription': true,
