@@ -22,11 +22,12 @@ import os
 # Integrations are stored encrypted; settings_ci scrubs the real key. A
 # deterministic THROW-AWAY key (derived, not a secret) lets the seed and the
 # server process read the fake "anthropic" / "google_places" entries.
-os.environ["INTEGRATIONS_FERNET_KEY"] = base64.urlsafe_b64encode(
-    hashlib.sha256(b"assisto-ci-e2e-throwaway").digest()).decode()
-
 from .settings_ci import *  # noqa: E402,F401,F403
 from .settings_ci import INSTALLED_APPS, BASE_DIR  # noqa: E402
+
+# AFTER settings_ci (which scrubs any real key from the environment)
+os.environ["INTEGRATIONS_FERNET_KEY"] = base64.urlsafe_b64encode(
+    hashlib.sha256(b"assisto-ci-e2e-throwaway").digest()).decode()
 
 INSTALLED_APPS = list(INSTALLED_APPS) + ["ci_e2e.apps.CiE2EConfig"]
 ROOT_URLCONF = "ci_e2e.urls"
