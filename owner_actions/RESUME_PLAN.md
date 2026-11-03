@@ -1,4 +1,4 @@
-# RESUME PLAN — work paused by owner STOP ORDER (3 Nov 2026 21:15 BD, Claude usage 86%)
+# RESUME PLAN — pause (3 Nov 21:15) ENDED 4 Nov 02:25: owner RESUME FULL SPEED — this file is the work list
 
 Nothing is lost: every agent branch is committed and pushed; nothing half-merged into main.
 Live server = origin/main (build 304) **plus local merges of `agent/placesnew` (Places key fix) and `agent/ailang` (AI Part 1 server fixes: reply language, vision uses saved keys, instant refund, friendly text)** — server HEAD d0b6adf3.
