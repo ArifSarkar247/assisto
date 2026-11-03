@@ -50,7 +50,19 @@ extension InvoicePaperX on InvoicePaper {
 
 const invoiceTemplates = <String>[
   'cafe', 'restaurant', 'fine_dining', 'ecommerce', 'retail', 'electronics',
+  'lawyer', 'vat_invoice', 'tax_consultant', 'service',
+];
+
+/// invdesign: the templates the classic (flag-off) picker offers — the new
+/// Mushak-6.3 layout appears only with the `invoice_designs` switch.
+const classicTemplates = <String>[
+  'cafe', 'restaurant', 'fine_dining', 'ecommerce', 'retail', 'electronics',
   'lawyer', 'tax_consultant', 'service',
+];
+
+/// invdesign: print-safe A4 accents (keys mirror invoice_calc.ACCENTS).
+const invoiceAccents = <String>[
+  'brand', 'teal', 'green', 'maroon', 'navy', 'charcoal', 'plum', 'brown',
 ];
 const serviceTemplates = <String>['lawyer', 'tax_consultant', 'service'];
 const foodTemplates = <String>['cafe', 'restaurant', 'fine_dining'];
@@ -60,10 +72,11 @@ const templateFields = <String, List<String>>{
   'cafe': ['table', 'token'],
   'restaurant': ['table', 'server', 'guests'],
   'fine_dining': ['table', 'server', 'guests'],
-  'ecommerce': ['order_ref', 'delivery_address', 'courier'],
+  'ecommerce': ['order_ref', 'delivery_address', 'courier', 'tracking'],
   'retail': [],
   'electronics': ['serial', 'warranty'],
-  'lawyer': ['case_ref', 'court', 'period'],
+  'lawyer': ['matter', 'case_ref', 'court', 'fee_basis', 'period'],
+  'vat_invoice': ['destination', 'vehicle'],
   'tax_consultant': ['tax_year', 'tin', 'period'],
   'service': ['period'],
 };
@@ -78,7 +91,68 @@ class InvoiceLine {
   final int qty;
   final int unit;
   final int amount;
-  const InvoiceLine(this.desc, this.qty, this.unit, this.amount);
+  /// Fractional quantity in hundredths (1.5 hours = 150); null = whole [qty].
+  final int? qtyC;
+  /// Serial / IMEI the seller typed for this line ('' = none).
+  final String serial;
+  /// Warranty in months (0 = none).
+  final int warrantyM;
+  const InvoiceLine(this.desc, this.qty, this.unit, this.amount,
+      {this.qtyC, this.serial = '', this.warrantyM = 0});
+
+  /// "2" / "1.5" (bn digits when [lang] is bn).
+  String qtyText(String lang) {
+    final c = qtyC;
+    if (c == null) return localDigits('$qty', lang);
+    final whole = c ~/ 100, frac = c % 100;
+    final f = frac.toString().padLeft(2, '0').replaceAll(RegExp(r'0$'), '');
+    return localDigits(frac == 0 ? '$whole' : '$whole.$f', lang);
+  }
+}
+
+/// [d] + [months], clamped to the month's last day (31 Jan + 1 = 28/29 Feb).
+DateTime addMonths(DateTime d, int months) {
+  final m0 = d.month - 1 + months;
+  final y = d.year + (m0 ~/ 12);
+  final m = m0 % 12 + 1;
+  final last = DateTime(y, m + 1, 0).day;
+  return DateTime(y, m, d.day > last ? last : d.day);
+}
+
+/// Mushak-6.3 per-line split: the invoice-level taxable value, SD and VAT
+/// spread over the lines in proportion to each line's amount (largest
+/// remainder), so every column sums EXACTLY to the server's totals.
+class LineTax {
+  final int value, sd, vat;
+  const LineTax(this.value, this.sd, this.vat);
+  int get total => value + sd + vat;
+}
+
+List<int> _spread(int total, List<int> weights) {
+  final sum = weights.fold<int>(0, (a, b) => a + b);
+  if (weights.isEmpty) return const [];
+  if (sum <= 0) return [total, for (var i = 1; i < weights.length; i++) 0];
+  final out = <int>[];
+  final rem = <(int, int)>[];
+  var used = 0;
+  for (var i = 0; i < weights.length; i++) {
+    final num = total * weights[i];
+    final q = num ~/ sum;
+    out.add(q);
+    used += q;
+    rem.add((num % sum, i));
+  }
+  rem.sort((a, b) => b.$1 != a.$1 ? b.$1.compareTo(a.$1) : a.$2.compareTo(b.$2));
+  for (var k = 0; k < total - used; k++) {
+    out[rem[k % rem.length].$2] += 1;
+  }
+  return out;
+}
+
+List<LineTax> allocateLineTax(List<InvoiceLine> lines, InvoiceCalc c) {
+  final w = [for (final l in lines) l.amount < 0 ? 0 : l.amount];
+  final v = _spread(c.taxable, w), s = _spread(c.sd, w), t = _spread(c.vat, w);
+  return [for (var i = 0; i < lines.length; i++) LineTax(v[i], s[i], t[i])];
 }
 
 class InvoiceParty {
@@ -119,6 +193,7 @@ class InvoiceSeller {
 
 class InvoiceCalc {
   final int subtotal, discount, service, serviceBp, taxable, sd, sdBp, vat, vatBp, total;
+  final int shipping; // delivery charge, added after tax
   final String vatMode; // none | exclusive | inclusive
   const InvoiceCalc({
     this.subtotal = 0,
@@ -132,6 +207,7 @@ class InvoiceCalc {
     this.vatBp = 0,
     this.total = 0,
     this.vatMode = 'none',
+    this.shipping = 0,
   });
   bool get hasTax => vatMode != 'none';
   factory InvoiceCalc.from(Object? raw) {
@@ -147,6 +223,7 @@ class InvoiceCalc {
       vat: _i(m['vat']),
       vatBp: _i(m['vat_bp']),
       total: _i(m['total']),
+      shipping: _i(m['shipping']),
       vatMode: _s(m['vat_mode']).isEmpty ? 'none' : _s(m['vat_mode']),
     );
   }
@@ -171,6 +248,7 @@ class InvoiceDoc {
   final String verifyUrl;
   final String paymentLink;
   final String note;
+  final bool byHours; // service lines are hours x rate
 
   const InvoiceDoc({
     this.kind = 'sale',
@@ -193,9 +271,36 @@ class InvoiceDoc {
     this.verifyUrl = '',
     this.paymentLink = '',
     this.note = '',
+    this.byHours = false,
   });
 
   bool get isService => serviceTemplates.contains(template);
+
+  /// The same invoice drawn with another design (the owner switches the
+  /// template on the preview; facts and money never change).
+  InvoiceDoc withTemplate(String t) => InvoiceDoc(
+        kind: kind,
+        id: id,
+        number: number,
+        issuedAt: issuedAt,
+        template: invoiceTemplates.contains(t) ? t : template,
+        seller: seller,
+        buyer: buyer,
+        extras: extras,
+        lines: lines,
+        calc: calc,
+        paid: paid,
+        change: change,
+        due: due,
+        paymentMethod: paymentMethod,
+        cancelled: cancelled,
+        cancelReason: cancelReason,
+        consistent: consistent,
+        verifyUrl: verifyUrl,
+        paymentLink: paymentLink,
+        note: note,
+        byHours: byHours,
+      );
 
   factory InvoiceDoc.fromJson(Map<String, dynamic> j) {
     final at = DateTime.tryParse(_s(j['issued_at']));
@@ -223,7 +328,10 @@ class InvoiceDoc {
           InvoiceLine(_s(_m(l)['desc']), _i(_m(l)['qty']), _i(_m(l)['unit']),
               _m(l).containsKey('amount')
                   ? _i(_m(l)['amount'])
-                  : _i(_m(l)['qty']) * _i(_m(l)['unit'])),
+                  : _i(_m(l)['qty']) * _i(_m(l)['unit']),
+              qtyC: _m(l)['qty_c'] == null ? null : _i(_m(l)['qty_c']),
+              serial: _s(_m(l)['serial']).trim(),
+              warrantyM: _i(_m(l)['warranty_m'])),
       ],
       calc: InvoiceCalc.from(j['calc']),
       paid: _i(j['paid']),
@@ -236,6 +344,7 @@ class InvoiceDoc {
       verifyUrl: _s(j['verify_url']),
       paymentLink: _s(j['payment_link']),
       note: _s(j['note']),
+      byHours: j['by_hours'] == true,
     );
   }
 }

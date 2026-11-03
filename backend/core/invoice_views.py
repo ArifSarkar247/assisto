@@ -50,6 +50,15 @@ def _cfg_row(prof):
     return None
 
 
+def designs_on(prof):
+    """invdesign switch (OFF until proven): flag-off keeps the old defaults."""
+    try:
+        from . import feature_flags as FF
+        return FF.is_on("invoice_designs", prof.user)
+    except Exception:
+        return False
+
+
 def suggested_template(prof, settings=None):
     """invdesign: the template we suggest from the business's own facts — the
     business type it gave the marketing engine, whether it takes online
@@ -75,7 +84,8 @@ def load_settings(prof):
     row = _cfg_row(prof)
     base = IC.default_settings(prof.shop_name or "")
     if row is None:
-        base["template"] = suggested_template(prof)
+        if designs_on(prof):
+            base["template"] = suggested_template(prof)
         return base, False
     s, _ = IC.normalize_settings({k: v for k, v in (row.data or {}).items()
                                   if k != "business_id"}, base)

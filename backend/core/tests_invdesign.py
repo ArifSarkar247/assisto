@@ -90,6 +90,12 @@ class DesignApiTests(APITestCase):
         return s
 
     def test_suggested_template_from_business_type(self):
+        r = self.client.get("/api/v1/business/invoice/settings")
+        self.assertEqual(r.data["settings"]["template"], "retail")   # flag off: old default
+        from unittest import mock
+        p = mock.patch("core.invoice_views.designs_on", return_value=True)
+        p.start()
+        self.addCleanup(p.stop)
         PaCollectionItem.objects.create(user=self.owner, collection="mkt_profile", data={
             "business_id": self.biz.id, "answers": {"business_type": "electronics"}})
         r = self.client.get("/api/v1/business/invoice/settings")

@@ -1,0 +1,279 @@
+{
+ "en": {
+  "ivdAccBlue": "Blue",
+  "@ivdAccBlue": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccBrown": "Brown",
+  "@ivdAccBrown": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccCharcoal": "Charcoal",
+  "@ivdAccCharcoal": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccGreen": "Green",
+  "@ivdAccGreen": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccMaroon": "Maroon",
+  "@ivdAccMaroon": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccNavy": "Navy",
+  "@ivdAccNavy": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccPlum": "Plum",
+  "@ivdAccPlum": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccTeal": "Teal",
+  "@ivdAccTeal": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccentHelp": "The colour prints on A4 only. Thermal paper is always black.",
+  "@ivdAccentHelp": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAccentLabel": "Colour (A4)",
+  "@ivdAccentLabel": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdAddDetails": "Add invoice details",
+  "@ivdAddDetails": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdBalanceDue": "Balance due",
+  "@ivdBalanceDue": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdBrandTitle": "Logo and colour",
+  "@ivdBrandTitle": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdByHours": "Bill by hours",
+  "@ivdByHours": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdByHoursHelp": "Quantity is hours: 1.5 means one and a half hours.",
+  "@ivdByHoursHelp": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColSd": "SD",
+  "@ivdColSd": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColTotalIncl": "Total incl. all taxes",
+  "@ivdColTotalIncl": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColValue": "Value (excl. tax)",
+  "@ivdColValue": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdColVat": "VAT",
+  "@ivdColVat": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDesignLabel": "Design",
+  "@ivdDesignLabel": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsHelp": "These print on the paper only. The amount, VAT and the QR check never change.",
+  "@ivdDetailsHelp": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsNone": "This design has no extra fields. Pick another design above to add table, token, IMEI or courier details.",
+  "@ivdDetailsNone": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsSave": "Save details",
+  "@ivdDetailsSave": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdDetailsSaved": "Details saved",
+  "@ivdDetailsSaved": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdHours": "Hours",
+  "@ivdHours": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdHoursShort": "hr",
+  "@ivdHoursShort": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLangBoth": "Both",
+  "@ivdLangBoth": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoAdd": "Add logo",
+  "@ivdLogoAdd": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoAlt": "Your logo",
+  "@ivdLogoAlt": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoChange": "Change logo",
+  "@ivdLogoChange": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoFailed": "Could not use this picture. Try a PNG or JPG.",
+  "@ivdLogoFailed": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoHelp": "A square logo looks best. It prints in grey on thermal paper.",
+  "@ivdLogoHelp": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdLogoRemove": "Remove logo",
+  "@ivdLogoRemove": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdNotNbr": "Not an NBR EFD/SDC receipt. Check with your VAT adviser.",
+  "@ivdNotNbr": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdNotVatRegistered": "Not VAT-registered: no VAT charged.",
+  "@ivdNotVatRegistered": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdPrepaid": "PAID: collect nothing",
+  "@ivdPrepaid": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdRatePerHour": "Rate per hour",
+  "@ivdRatePerHour": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdRetainerPaid": "Advance / retainer received",
+  "@ivdRetainerPaid": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdShipTo": "Ship to",
+  "@ivdShipTo": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdShipping": "Delivery charge",
+  "@ivdShipping": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdSuggestedWhy": "Picked from your business type and how you sell. You can choose any design.",
+  "@ivdSuggestedWhy": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdTplVat": "VAT invoice (Mushak-6.3)",
+  "@ivdTplVat": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdUseSuggested": "Use this design",
+  "@ivdUseSuggested": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdWarrantyBad": "Months must be 0 to 120",
+  "@ivdWarrantyBad": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdWarrantyMonths": "Warranty (months)",
+  "@ivdWarrantyMonths": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXDestination": "Place of supply",
+  "@ivdXDestination": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXFeeBasis": "Fee basis",
+  "@ivdXFeeBasis": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXMatter": "Matter",
+  "@ivdXMatter": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXTracking": "Tracking",
+  "@ivdXTracking": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdXVehicle": "Vehicle type and number",
+  "@ivdXVehicle": {
+   "description": "invdesign: invoice designs by business type"
+  },
+  "ivdSuggested": "Suggested for your business: {name}",
+  "@ivdSuggested": {
+   "description": "invdesign: suggested invoice template",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ivdWarrantyUntil": "Warranty {months} months, until {date}",
+  "@ivdWarrantyUntil": {
+   "description": "invdesign: per-line warranty on the invoice paper",
+   "placeholders": {
+    "months": {
+     "type": "String"
+    },
+    "date": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "ivdAccBlue": "নীল",
+  "ivdAccBrown": "বাদামি",
+  "ivdAccCharcoal": "গাঢ় ধূসর",
+  "ivdAccGreen": "সবুজ",
+  "ivdAccMaroon": "মেরুন",
+  "ivdAccNavy": "গাঢ় নীল",
+  "ivdAccPlum": "বেগুনি",
+  "ivdAccTeal": "টিল",
+  "ivdAccentHelp": "রং শুধু A4-এ ছাপা হয়। থার্মাল কাগজে সবসময় কালো।",
+  "ivdAccentLabel": "রং (A4)",
+  "ivdAddDetails": "ইনভয়েসের তথ্য যোগ করুন",
+  "ivdBalanceDue": "বাকি পাওনা",
+  "ivdBrandTitle": "লোগো ও রং",
+  "ivdByHours": "ঘণ্টা হিসেবে বিল",
+  "ivdByHoursHelp": "পরিমাণ মানে ঘণ্টা: ১.৫ মানে দেড় ঘণ্টা।",
+  "ivdColSd": "সম্পূরক শুল্ক",
+  "ivdColTotalIncl": "সব করসহ মূল্য",
+  "ivdColValue": "মূল্য (কর ছাড়া)",
+  "ivdColVat": "মূসক",
+  "ivdDesignLabel": "ডিজাইন",
+  "ivdDetailsHelp": "এগুলো শুধু কাগজে ছাপা হয়। টাকার অঙ্ক, VAT আর QR যাচাই বদলায় না।",
+  "ivdDetailsNone": "এই ডিজাইনে বাড়তি ঘর নেই। টেবিল, টোকেন, IMEI বা কুরিয়ারের তথ্য দিতে ওপরে অন্য ডিজাইন বাছুন।",
+  "ivdDetailsSave": "তথ্য সংরক্ষণ করুন",
+  "ivdDetailsSaved": "তথ্য সংরক্ষিত হয়েছে",
+  "ivdHours": "ঘণ্টা",
+  "ivdHoursShort": "ঘণ্টা",
+  "ivdLangBoth": "দুটোই",
+  "ivdLogoAdd": "লোগো দিন",
+  "ivdLogoAlt": "আপনার লোগো",
+  "ivdLogoChange": "লোগো বদলান",
+  "ivdLogoFailed": "এই ছবিটা নেওয়া গেল না। PNG বা JPG দিয়ে চেষ্টা করুন।",
+  "ivdLogoHelp": "চারকোনা লোগো সবচেয়ে ভালো দেখায়। থার্মাল কাগজে ধূসর হয়ে ছাপা হয়।",
+  "ivdLogoRemove": "লোগো সরান",
+  "ivdNotNbr": "NBR-এর EFD/SDC রসিদ নয়। আপনার VAT পরামর্শকের সঙ্গে মিলিয়ে নিন।",
+  "ivdNotVatRegistered": "VAT-নিবন্ধিত নয়: কোনো VAT নেওয়া হয়নি।",
+  "ivdPrepaid": "পরিশোধিত: কিছু আদায় করবেন না",
+  "ivdRatePerHour": "ঘণ্টাপ্রতি রেট",
+  "ivdRetainerPaid": "অগ্রিম / রিটেইনার পাওয়া গেছে",
+  "ivdShipTo": "যেখানে পাঠাবেন",
+  "ivdShipping": "ডেলিভারি চার্জ",
+  "ivdSuggestedWhy": "আপনার ব্যবসার ধরন আর বিক্রির ধরন দেখে বাছা। আপনি যেকোনো ডিজাইন নিতে পারেন।",
+  "ivdTplVat": "VAT চালান (মূসক-৬.৩)",
+  "ivdUseSuggested": "এই ডিজাইন নিন",
+  "ivdWarrantyBad": "মাস ০ থেকে ১২০-এর মধ্যে হবে",
+  "ivdWarrantyMonths": "ওয়ারেন্টি (মাস)",
+  "ivdXDestination": "সরবরাহের গন্তব্যস্থল",
+  "ivdXFeeBasis": "ফি-র ধরন",
+  "ivdXMatter": "মামলার বিষয়",
+  "ivdXTracking": "ট্র্যাকিং",
+  "ivdXVehicle": "গাড়ির প্রকৃতি ও নম্বর",
+  "ivdSuggested": "আপনার ব্যবসার জন্য প্রস্তাবিত: {name}",
+  "ivdWarrantyUntil": "ওয়ারেন্টি {months} মাস, {date} পর্যন্ত"
+ }
+}
