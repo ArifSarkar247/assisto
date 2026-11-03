@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
+import 'cctv_grid_screen.dart' show ctmRoleName; // cctvteam
+import 'cctv_team_screens.dart'; // cctvteam
+import 'cctv_team_source.dart'; // cctvteam
 import '../../widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../../widgets/fam_empty.dart' show famDigits;
@@ -11,7 +14,10 @@ import '../../widgets/fam_empty.dart' show famDigits;
 class WatchmanViewersScreen extends StatefulWidget {
   final WatchmanSource source;
   final int siteId;
-  const WatchmanViewersScreen({super.key, required this.source, required this.siteId});
+
+  /// cctvteam: role per person (family / manager / guard + cameras + live)
+  final CctvTeamSource? team;
+  const WatchmanViewersScreen({super.key, required this.source, required this.siteId, this.team});
 
   @override
   State<WatchmanViewersScreen> createState() => _WatchmanViewersScreenState();
@@ -166,12 +172,28 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
               ),
               const Divider(height: 28),
               if (_error != null) Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
+              if (widget.team != null && _rows.isNotEmpty)
+                Text(t.ctmTapToSetRole, style: Theme.of(context).textTheme.bodySmall),
               for (final v in _rows)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const CircleAvatar(child: Icon(Icons.person_rounded)),
                   title: Text((v['name'] ?? '').toString().isEmpty ? t.wmFamilyNoName : v['name'].toString()),
-                  subtitle: Text(famDigits(context, (v['phone'] ?? '').toString())),
+                  subtitle: Text([
+                    famDigits(context, (v['phone'] ?? '').toString()),
+                    if (v['role'] != null) ctmRoleName(t, v['role'].toString()),
+                    if (v['role'] == 'guard' || v['all_cameras'] == false)
+                      t.ctmCamerasCount(famDigits(context, '${(v['cameras'] as List?)?.length ?? 0}')),
+                    if (v['live_ok'] == true) t.ctmLiveOkShort,
+                  ].join(' · ')),
+                  // cctvteam: tap → what this person may see
+                  onTap: widget.team == null
+                      ? null
+                      : () async {
+                          if (await showCctvRoleSheet(context, widget.team!, siteId: widget.siteId, viewer: v)) {
+                            await _load();
+                          }
+                        },
                   trailing: IconButton(
                     tooltip: t.wmRemove,
                     icon: const Icon(Icons.person_remove_alt_1_outlined),

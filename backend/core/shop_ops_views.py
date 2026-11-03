@@ -681,16 +681,17 @@ class ShopLiveStartView(APIView):
         if cam is None:
             cam = ARM.sos_camera(request.user, _poisha(request.data.get("camera")))
         if cam is None:
-            # cctvphone: a family viewer the owner allowed may watch a PHONE
-            # camera live (owner switch `viewers_live`, default OFF)
-            from . import phonecam_views as PCV
-            cam = ShopCamera.objects.filter(
-                pk=_poisha(request.data.get("camera")), vendor="phone",
-                site__viewers__user=request.user).select_related("site").first()
-            if cam is not None and not PCV.viewers_live(cam):
+            # cctvphone + cctvteam: a viewer may watch live ONLY a camera in
+            # their role's scope, and only when the owner allowed live for
+            # them (per person) or for this phone camera (`viewers_live`)
+            from . import cctv_team_views as CTV
+            cam, why = CTV.viewer_live_camera(request.user, _poisha(request.data.get("camera")))
+            if why == "viewer_live_off":
                 return _err(lang, "মালিক এই ক্যামেরার লাইভ দেখা শুধু নিজের জন্য রেখেছেন।",
                             "The owner keeps live view of this camera to themselves.",
                             status=403, code="viewer_live_off")
+            if why is not None:
+                cam = None
         if cam is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         now = timezone.now()

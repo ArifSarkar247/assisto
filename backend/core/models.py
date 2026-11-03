@@ -3479,6 +3479,17 @@ class ShopSiteViewer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name="shop_site_views")
     created = models.DateTimeField(auto_now_add=True)
+    # ---- cctvteam (W11) ---- what this person may see, enforced on the
+    # SERVER on every CCTV endpoint (core/cctv_team_views.py viewer_scope):
+    # family = every camera (read-only), manager = every camera + may mark
+    # alerts, guard = ONLY the cameras in `cameras` (e.g. the gate).
+    # `cameras` [] means every camera (family / manager); a guard always has
+    # at least one. `live_ok` = the owner lets this person open live view of
+    # the cameras they may see (counts toward the owner's 2-live cap).
+    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard")]
+    role = models.CharField(max_length=8, choices=ROLES, default="family")
+    cameras = models.JSONField(default=list, blank=True)
+    live_ok = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["created", "id"]
@@ -3529,6 +3540,12 @@ class ShopCamera(models.Model):
     # owner Correct/Wrong feedback -> bounded per-camera thresholds
     # {"person_conf", "motion_mult", "cooldown_s", "correct", "wrong"}
     tuning = models.JSONField(default=dict, blank=True)
+    # ---- cctvteam (W11) ---- the latest still for the multi-site grid and
+    # share links: fetched on demand from the vendor cloud (Imou / EZVIZ),
+    # at most once per STILL_MIN_S. One file per camera, overwritten; never
+    # kept when the site keeps no snapshots (retention 0). NEVER video.
+    still = models.ImageField(upload_to="shop/still/", null=True, blank=True)
+    still_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["created", "id"]
@@ -7871,3 +7888,95 @@ class JournalLine(models.Model):
             check=(models.Q(debit__gte=0, credit=0) | models.Q(debit=0, credit__gte=0)),
             name="ledger_line_one_side")]
 # ---- /ledger ----
+
+
+# ---- cctvteam (W11: multi-site grid, roles, share links, neighbourhood watch) ----
+class CctvShareLink(models.Model):
+    """A view-only, time-limited link lifeassisto.com/c/<token> to chosen
+    cameras of one site, for someone without the app. Only the SHA-256 of
+    the token is stored; it shows still photos only (no audio, no history),
+    stops at expires_at or when revoked, and every open is logged for the
+    owner (CctvAccessLog)."""
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="share_links")
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    token_hash = models.CharField(max_length=64, unique=True)
+    label = models.CharField(max_length=40, blank=True, default="")
+    cameras = models.JSONField(default=list, blank=True)   # [camera ids], >= 1
+    expires_at = models.DateTimeField()
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    views = models.PositiveIntegerField(default=0)
+    last_view_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["site", "-created_at"], name="cctv_share_site_idx")]
+
+
+class CctvAccessLog(models.Model):
+    """Who (a viewer, or a share link) looked at what — shown to the site
+    owner. The owner's own views are not logged. Kept 30 days."""
+    ACTIONS = [("alerts", "alert list"), ("alert", "one alert / clip / evidence"),
+               ("still", "camera photo"), ("live", "live view"),
+               ("link", "share link opened")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="access_logs")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="+")
+    link = models.ForeignKey(CctvShareLink, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    camera = models.ForeignKey(ShopCamera, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="+")
+    action = models.CharField(max_length=8, choices=ACTIONS)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "-created"], name="cctv_access_site_idx")]
+
+
+class CctvWatchPost(models.Model):
+    """Private neighbourhood watch: ONE still a user chose to share with a
+    PRIVATE My Circle community group they belong to. Never public, never
+    automatic, auto-expires (image deleted). Faces are NOT blurred."""
+    group = models.ForeignKey(CommunityGroup, on_delete=models.CASCADE,
+                              related_name="cctv_watch_posts")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="cctv_watch_posts")
+    image = models.ImageField(upload_to="cctvwatch/", null=True, blank=True)
+    caption = models.CharField(max_length=200, blank=True, default="")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    removed = models.BooleanField(default=False)
+    removed_reason = models.CharField(max_length=10, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["group", "-created"], name="cctv_watch_group_idx")]
+
+
+class CctvWatchReport(models.Model):
+    post = models.ForeignKey(CctvWatchPost, on_delete=models.CASCADE,
+                             related_name="reports")
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    reason = models.CharField(max_length=12, default="other")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["post", "reporter"],
+                                               name="uniq_cctv_watch_report")]
+
+
+class CctvWatchBlock(models.Model):
+    """`blocker` never sees neighbourhood-watch posts from `blocked` again."""
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name="cctv_watch_blocks")
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["blocker", "blocked"],
+                                               name="uniq_cctv_watch_block")]
+# ---- /cctvteam ----

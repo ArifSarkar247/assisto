@@ -24,6 +24,9 @@ import 'watchman_source.dart';
 import 'watchman_viewers.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
+import 'cctv_grid_screen.dart'; // cctvteam
+import 'cctv_team_screens.dart'; // cctvteam
+import 'cctv_team_source.dart'; // cctvteam
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
@@ -47,12 +50,15 @@ import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
 class WatchmanScreen extends StatefulWidget {
   final WatchmanSource? source;
 
+  /// cctvteam: grid / roles / share links / access log seam (tests inject).
+  final CctvTeamSource? team;
+
   /// Tests / gallery: force the first-run guide on (true) or off (false).
   final bool? guide;
 
   /// cctvguard: tests / gallery inject "this month's use".
   final Future<Map<String, dynamic>> Function()? usageLoader;
-  const WatchmanScreen({super.key, this.source, this.guide, this.usageLoader});
+  const WatchmanScreen({super.key, this.source, this.team, this.guide, this.usageLoader});
 
   @override
   State<WatchmanScreen> createState() => _WatchmanScreenState();
@@ -63,6 +69,8 @@ const _kGuideSeen = 'wm_guide_seen_v1';
 class _WatchmanScreenState extends State<WatchmanScreen> {
   late final WatchmanSource _src =
       widget.source ?? ApiWatchmanSource(context.read<AppState>().api);
+  late final CctvTeamSource _team =
+      widget.team ?? ApiCctvTeamSource(context.read<AppState>().api);
   bool _loading = true;
   String? _error;
   bool _featureOff = false;
@@ -147,6 +155,15 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
       appBar: AppBar(
         title: Text(t.wmTitle),
         actions: [
+          // cctvteam: every place + camera on one screen (still photos)
+          if (!_loading && !_featureOff && wmList(_data['sites']).isNotEmpty)
+            IconButton(
+              key: const ValueKey('wm-grid'),
+              tooltip: AppLocalizations.of(context).ctmGridTitle,
+              icon: const Icon(Icons.grid_view_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => CctvGridScreen(source: _team, onSetup: () => Navigator.of(context).pop()))),
+            ),
           // cctvx: alerts other owners passed to me / clips shared with me
           IconButton(
             tooltip: t.cxInboxTitle,
@@ -229,6 +246,7 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               onChanged: _load,
               onAddCamera: () => _addCamera(s),
               source: _src,
+              team: _team,
             ),
           // cctvguard (order G): live traffic this month, per camera
           // (an injected test source never reaches the network: tests pass usageLoader)
@@ -314,12 +332,14 @@ class _SiteCard extends StatelessWidget {
   final Future<void> Function() onChanged;
   final VoidCallback onAddCamera;
   final WatchmanSource source;
+  final CctvTeamSource team;
   const _SiteCard({
     required this.site,
     required this.notice,
     required this.onChanged,
     required this.onAddCamera,
     required this.source,
+    required this.team,
   });
 
   bool get _owner => site['role'] == 'owner';
@@ -615,7 +635,27 @@ class _SiteCard extends StatelessWidget {
                 icon: const Icon(Icons.family_restroom_rounded),
                 label: Text(t.wmFamily),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => WatchmanViewersScreen(source: source, siteId: siteId))),
+                    builder: (_) => WatchmanViewersScreen(source: source, siteId: siteId, team: team))),
+              ),
+              // cctvteam: a view-only, time-limited link for someone without the app
+              if (cams.isNotEmpty)
+                OutlinedButton.icon(
+                  key: const ValueKey('wm-share-links'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.add_link_rounded),
+                  label: Text(t.ctmLinksTitle),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => CctvShareLinksScreen(
+                          source: team, siteId: siteId, siteName: (site['name'] ?? '').toString()))),
+                ),
+              // cctvteam: who looked at which camera, when
+              OutlinedButton.icon(
+                key: const ValueKey('wm-access-log'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.manage_search_rounded),
+                label: Text(t.ctmLogTitle),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CctvAccessLogScreen(source: team, siteId: siteId))),
               ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),

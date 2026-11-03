@@ -241,7 +241,10 @@ class ShopIngestView(APIView):
         but no phone notification is pushed. Best-effort; never raises."""
         recipients = [site.owner]
         try:
-            recipients += [v.user for v in site.viewers.select_related("user")]
+            # cctvteam: only viewers allowed to see this camera (a guard
+            # gets the gate's alerts, never the cash counter's)
+            from . import cctv_team_views as CTV
+            recipients += CTV.viewer_users(site, getattr(cam, "id", None))
         except Exception:
             pass
         snap_url = _abs_snapshot_url(ev)
@@ -1113,6 +1116,14 @@ class ShopEventsView(APIView):
             return _err(lang, "সাইট পাওয়া যায়নি।", "Site not found.", status=404)
         status_f = request.query_params.get("status")
         qs = s.events.filter(pending=False).select_related("camera", "clip")
+        # cctvteam: a guard / limited viewer sees ONLY their cameras' alerts
+        team_role = role
+        if role != "owner":
+            from . import cctv_team_views as CTV
+            team_role, scope = CTV.scope_for(s, request.user)
+            if scope is not None:
+                qs = qs.filter(camera_id__in=list(scope))
+            CTV.log_access(s, "alerts", user=request.user)
         # cctvx: the alert list was opened -> these alerts are SEEN (the
         # escalation chain stops; anyone who may see them counts)
         try:
@@ -1128,6 +1139,7 @@ class ShopEventsView(APIView):
             qs = qs.filter(camera_id=int(cam_f))
         rows = [_event_row(e, request) for e in qs[:200]]
         return Response({"events": rows, "site": s.id, "role": role,
+                         "team_role": team_role or role,
                          "held_today": held_today(s)})
 
 
@@ -1138,6 +1150,10 @@ class ShopEventMarkView(APIView):
         lang = req_lang(request)
         from .models import ShopEvent
         e = ShopEvent.objects.filter(pk=pk, site__owner=request.user).first()
+        if e is None:
+            # cctvteam: a MANAGER may mark alerts of the cameras they see
+            from . import cctv_team_views as CTV
+            e = CTV.manager_event(request.user, pk)
         if e is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         status_v = (request.data.get("status") or "").strip()

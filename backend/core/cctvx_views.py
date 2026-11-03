@@ -196,7 +196,9 @@ def notice(user, site, kind, title_bn, title_en, body_bn, body_en, *,
 def site_people(site):
     out = [site.owner]
     try:
-        out += [v.user for v in site.viewers.select_related("user")]
+        # cctvteam: site-level notices only to unrestricted viewers
+        from . import cctv_team_views as CTV
+        out += CTV.viewer_users(site, None)
     except Exception:
         pass
     return out
@@ -802,7 +804,13 @@ def event_access(request, pk):
         return None, None
     s, role = SV._viewable_site(request, ev.site_id)
     if s is not None:
-        return ev, role
+        # cctvteam: a guard / limited viewer only for their cameras
+        from . import cctv_team_views as CTV
+        _r, scope = CTV.scope_for(s, request.user)
+        if role == "owner" or CTV.CT.camera_allowed(scope, ev.camera_id):
+            if role != "owner":
+                CTV.log_access(s, "alert", user=request.user, camera_id=ev.camera_id)
+            return ev, role
     uid = request.user.pk
     if uid in _escalated(ev):
         return ev, "escalated"
@@ -935,6 +943,13 @@ class GuardReportView(_OwnerBase):
         s, role = SV._viewable_site(request, pk)
         if s is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        if role != "owner":
+            # cctvteam: the whole-site report is not for a limited viewer
+            from . import cctv_team_views as CTV
+            if CTV.scope_for(s, request.user)[1] is not None:
+                return _err(lang, "এই রিপোর্ট শুধু মালিক ও পুরো-দোকান দেখার অনুমতি যাঁদের আছে তাঁদের জন্য।",
+                            "This report is only for the owner and people allowed to see every camera.",
+                            status=403, code="role_limited")
         r = report_counts(s)
         return Response({"site": s.id, "counts": r,
                          "lines": [ln[lang if lang in ("bn", "en") else "bn"]
