@@ -17,7 +17,7 @@ Honest states, never a guess:
 
 Map: the same tile setting as vehicle tracking (MAP_TILE_URL, {z}/{x}/{y}).
 Without it the page says "map not set up" and links the coordinates to
-Google Maps. tile.openstreetmap.org is never used.
+Google Maps. mapscost: with no provider set, free OpenStreetMap tiles (attribution, origin-only Referer).
 """
 from django.conf import settings
 from django.core.cache import cache
@@ -215,10 +215,10 @@ def watch_page(request, token):
     data, st = public_state(token)
     if data.get("ride"):
         data["ride"]["line"] = ride_line(data["ride"], lang)
-    tiles = JW.tile_config()
+    tiles = JW.tile_config(web=True)
     ctx = {"lang": lang, "T": T, "token": token, "state": data.get("state"),
            "boot": {"data": data, "T": T, "lang": lang,
-                    "tile": tiles["tile_url"], "attr": tiles["attribution"],
+                    "tile": tiles["tile_url"], "attr": tiles["attribution"], "osm": tiles["osm"],
                     "api": "/j/%s/data" % token},
            "other_q": "" if lang == "en" else "?lang=en"}
     return _headers(render(request, "web/safe_journey.html", ctx, status=st))

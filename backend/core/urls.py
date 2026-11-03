@@ -6,6 +6,7 @@ from . import media_sign
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_maps as vmaps   # mapscost
 from . import views_guardian as vg
 from . import views_m2 as m2
 from . import views_p3_circle as p3c
@@ -554,6 +555,12 @@ urlpatterns = [
     path("journey/<int:pk>/ride", b61.JourneyRideView.as_view()),
     path("journey/parse-link", b61.JourneyParseLinkView.as_view()),
     path("journey/geocode", b61.JourneyGeocodeView.as_view()),
+    # mapscost: paid maps calls only through the capped server proxy
+    path("maps/status", vmaps.MapsStatusView.as_view()),
+    path("maps/reverse", vmaps.MapsReverseView.as_view()),
+    path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
+    path("maps/place", vmaps.MapsPlaceView.as_view()),
+    path("maps/eta", vmaps.MapsEtaView.as_view()),
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
     # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
     path("journey/requests", vg.JourneyRequestsView.as_view()),

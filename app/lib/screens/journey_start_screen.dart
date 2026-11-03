@@ -27,6 +27,8 @@ import '../train/journey_transit.dart';
 import '../widgets/journey_mode_section.dart';
 import 'train/dest_alarm_screen.dart' show destAlarmTexts;
 import 'train/journey_train_pick_screen.dart';
+import '../maps/address_resolver.dart'; // mapscost
+import '../maps/maps_sdk.dart'; // mapscost
 
 /// Start a Safe Journey: where to (saved Home/School/Office, current
 /// location, a pasted Google Maps link, place search when the server has a
@@ -97,6 +99,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   // journey2: what this server/phone can offer for picking a destination
   bool _canSearch = false;
   VehMapConfig _map = const VehMapConfig();
+  bool _gmaps = false; // mapscost: Google Maps SDK key built in (free map display)
   ({double lat, double lng})? _here; // last known, never prompts on open
   // journeymode: "How are you going?" + train + destination alarm
   final JourneyModeController _jm = JourneyModeController();
@@ -185,6 +188,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       _canSearch = (await api.journeyGeocode(''))['available'] == true;
     } catch (_) {} // best-effort: no search box offline (link / saved / map still work)
     _map = await VehMapConfig.load(api); // never throws; empty = no map
+    _gmaps = await MapsSdk.available(); // mapscost: never throws
     if (mounted) setState(() => _loading = false);
     _lastKnown();
   }
@@ -253,11 +257,28 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         MaterialPageRoute(
             builder: (_) => JourneyMapPickScreen(
                 config: _map,
+                google: _gmaps,
                 lat: (_dest?['lat'] as num?)?.toDouble() ?? _here?.lat,
                 lng: (_dest?['lng'] as num?)?.toDouble() ?? _here?.lng)));
     if (got != null && mounted) {
-      _setDest(_destName.text.trim().isEmpty
-          ? AppLocalizations.of(context).journeyDestPinned : '', got.lat, got.lng);
+      final pinned = AppLocalizations.of(context).journeyDestPinned;
+      final blank = _destName.text.trim().isEmpty || _destName.text.trim() == pinned;
+      _setDest(blank ? pinned : '', got.lat, got.lng);
+      if (blank) _nameFromAddress(got.lat, got.lng, pinned);
+    }
+  }
+
+  /// mapscost: name a map-picked pin by its address — the phone's own free
+  /// Geocoder first, our capped server only as fallback, else it stays
+  /// "Pinned spot" (the coordinates are already shown on the pin card).
+  Future<void> _nameFromAddress(double lat, double lng, String pinned) async {
+    final api = context.read<AppState>().api;
+    final lang = Localizations.localeOf(context).languageCode;
+    final r = await AddressResolver.resolve(api, lat, lng, lang: lang);
+    if (!mounted || !r.isAddress) return;
+    // only if the user has not typed a name meanwhile and the pin is the same
+    if (_destName.text.trim() == pinned && _dest?['lat'] == lat && _dest?['lng'] == lng) {
+      _setDest(r.text, lat, lng);
     }
   }
 
@@ -676,14 +697,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 icon: const Icon(Icons.search_rounded),
                 label: Text(t.j2Search),
                 onPressed: _search),
-          if (_map.hasTiles)
+          if (_map.hasTiles || _gmaps)
             OutlinedButton.icon(
                 key: const ValueKey('j2_pick_map'),
                 icon: const Icon(Icons.map_rounded),
                 label: Text(t.j2PickMap),
                 onPressed: _pickOnMap),
         ]),
-        if (!_map.hasTiles)
+        if (!_map.hasTiles && !_gmaps)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(t.j2NoMapNote,

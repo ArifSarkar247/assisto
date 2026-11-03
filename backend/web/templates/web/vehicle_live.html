@@ -69,7 +69,7 @@
   </div>
   <div class="card" id="mapcard" hidden>
     <div id="map" aria-hidden="true"><div id="pin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1d4ed8" stroke="#fff" stroke-width="2"/><path d="M12 4l5 12-5-3-5 3z" fill="#fff"/></svg></div></div>
-    <div class="attr" id="attr"></div>
+    <div class="attr"><span id="attr"></span> <a id="osmc" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" hidden>openstreetmap.org/copyright</a></div>
     <div id="nomap" hidden><p class="muted">{{ T.nomap }}</p></div>
     <a class="btn primary" id="gmaps" href="#" target="_blank" rel="noopener noreferrer">{{ T.open_maps }}</a>
   </div>
@@ -86,18 +86,29 @@
     function ago(s) { if (s == null) return ""; return s < 90 ? T.ago_s.replace("{n}", num(s)) : T.ago_m.replace("{n}", num(Math.round(s / 60))); }
     function show(id, on) { document.getElementById(id).hidden = !on; }
     function txt(id, v) { document.getElementById(id).textContent = v; }
+    // mapscost: OSM tile policy — tiles are only re-requested when the centre
+    // moves to another tile (otherwise the same images are just shifted), the
+    // Referer is the site origin only (never the private link), the browser
+    // cache is honoured.
+    var lastTile = "";
     function tiles(lat, lng) {
       var map = document.getElementById("map"), w = map.clientWidth, h = map.clientHeight;
-      Array.prototype.slice.call(map.querySelectorAll("img.t")).forEach(function (n) { n.remove(); });
       var n = Math.pow(2, Z), x = (lng + 180) / 360 * n,
           r = lat * Math.PI / 180, y = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
       var cx = Math.floor(x), cy = Math.floor(y), ox = w / 2 - (x - cx) * 256, oy = h / 2 - (y - cy) * 256;
+      var key = cx + "/" + cy + "/" + w + "/" + h, same = key === lastTile;
+      lastTile = key;
+      if (!same) Array.prototype.slice.call(map.querySelectorAll("img.t")).forEach(function (n) { n.remove(); });
       for (var dx = -2; dx <= 2; dx++) for (var dy = -2; dy <= 2; dy++) {
         var tx = cx + dx, ty = cy + dy; if (ty < 0 || ty >= n) continue;
-        var img = document.createElement("img"); img.className = "t"; img.alt = "";
-        img.src = B.tile.replace("{z}", Z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty).replace("{s}", "a");
+        var img = same ? map.querySelector('img.t[data-k="' + dx + "_" + dy + '"]') : null;
+        if (!img) {
+          img = document.createElement("img"); img.className = "t"; img.alt = ""; img.setAttribute("data-k", dx + "_" + dy);
+          img.referrerPolicy = "strict-origin"; img.loading = "lazy";
+          img.src = B.tile.replace("{z}", Z).replace("{x}", ((tx % n) + n) % n).replace("{y}", ty).replace("{s}", "a");
+          map.insertBefore(img, map.firstChild);
+        }
         img.style.left = (ox + dx * 256) + "px"; img.style.top = (oy + dy * 256) + "px";
-        map.insertBefore(img, map.firstChild);
       }
     }
     function render(d) {
@@ -112,7 +123,7 @@
       if (hasLoc) {
         document.getElementById("gmaps").href = "https://www.google.com/maps/search/?api=1&query=" + d.lat + "," + d.lng;
         var haveTiles = !!B.tile;
-        show("map", haveTiles); show("nomap", !haveTiles); txt("attr", haveTiles ? B.attr : "");
+        show("map", haveTiles); show("nomap", !haveTiles); txt("attr", haveTiles ? B.attr : ""); show("osmc", haveTiles && !!B.osm);
         if (haveTiles) tiles(d.lat, d.lng);
         document.getElementById("pin").style.transform = "rotate(" + (d.course || 0) + "deg)";
       }

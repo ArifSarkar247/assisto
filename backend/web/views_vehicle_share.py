@@ -13,7 +13,7 @@ Honest states, never a guess:
 Only the CURRENT position, never the route history. noindex, no-store, no
 ads, rate-limited per IP (40 / min). Map: the configured licensed tile
 provider (MAP_TILE_URL) or an honest "open in Google Maps" link —
-tile.openstreetmap.org is never used.
+mapscost: with no provider set, free OpenStreetMap tiles (attribution, origin-only Referer).
 """
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -111,10 +111,10 @@ def share_page(request, token):
         return _headers(render(request, "web/vehicle_live.html",
                                {"lang": lang, "T": T, "limited": True}, status=429))
     data, st = V1.share_state(token)
-    tiles = JW.tile_config()
+    tiles = JW.tile_config(web=True)
     ctx = {"lang": lang, "T": T, "state": data.get("state"),
            "boot": {"data": data, "T": T, "lang": lang,
-                    "tile": tiles["tile_url"], "attr": tiles["attribution"],
+                    "tile": tiles["tile_url"], "attr": tiles["attribution"], "osm": tiles["osm"],
                     "api": "/v/%s/data" % token},
            "other_q": "" if lang == "en" else "?lang=en"}
     return _headers(render(request, "web/vehicle_live.html", ctx, status=st))

@@ -1701,7 +1701,7 @@ class JourneyGeocodeView(APIView):
         except (TypeError, ValueError):
             near = None
         return Response(JG.geocode(request.query_params.get("q"), lang=req_lang(request),
-                                   near=near))
+                                   near=near, user=request.user))
 
 
 def _lost_fields(j, fx, now):

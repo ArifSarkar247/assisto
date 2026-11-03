@@ -126,20 +126,32 @@ def web_url(j):
     return "%s/j/%s" % (site(), t) if t else ""
 
 
-def tile_config():
-    """Map tiles for the watcher page. Same key as vehicle tracking
-    (settings / env MAP_TILE_URL, an {z}/{x}/{y} template from a provider the
-    owner has an account with). Empty = no map, an honest 'open in Google
-    Maps' link instead. tile.openstreetmap.org is NEVER used (OSMF policy)."""
+OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+OSM_ATTRIBUTION = "© OpenStreetMap contributors"
+
+
+def tile_config(web=False):
+    """Map tiles. Same key as vehicle tracking (settings / env MAP_TILE_URL,
+    an {z}/{x}/{y} template from a provider the owner has an account with).
+
+    The APP never gets tile.openstreetmap.org (OSMF policy: no app traffic;
+    the app shows Google's Maps SDK when its key is built in).
+    mapscost (owner order 3 Nov 18:40): the WEB share pages (/j/, /v/) use the
+    free OpenStreetMap tiles when no licensed provider is set — light,
+    browser-only use within the OSMF tile policy: visible attribution linked
+    to openstreetmap.org/copyright, a valid Referer (origin only, never the
+    private token path), the browser cache honoured (OSM's own cache headers),
+    and tiles re-requested only when the map centre moves to another tile."""
     import os
     url = str(getattr(settings, "MAP_TILE_URL", "") or
               os.getenv("MAP_TILE_URL", "") or "")
     if "tile.openstreetmap.org" in url or "{z}" not in url:
         url = ""
     attr = str(getattr(settings, "MAP_TILE_ATTRIBUTION", "") or
-               os.getenv("MAP_TILE_ATTRIBUTION", "") or
-               "© OpenStreetMap contributors")
-    return {"tile_url": url, "attribution": attr}
+               os.getenv("MAP_TILE_ATTRIBUTION", "") or OSM_ATTRIBUTION)
+    if web and not url:
+        return {"tile_url": OSM_TILE_URL, "attribution": OSM_ATTRIBUTION, "osm": True}
+    return {"tile_url": url, "attribution": attr, "osm": False}
 
 
 def fix_of(j):
