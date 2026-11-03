@@ -71,7 +71,8 @@ class _AlbumViewerState extends State<AlbumViewer> {
         foregroundColor: Colors.white,
         title: n > 1
             ? Text(notifLocalizeDigits(context, t.cmCountOf('${_index + 1}', '$n')),
-                key: const Key('cm-viewer-count'), style: const TextStyle(fontSize: 16))
+                key: const Key('cm-viewer-count'),
+                style: const TextStyle(fontSize: 16, color: Colors.white))
             : null,
         actions: [
           IconButton(

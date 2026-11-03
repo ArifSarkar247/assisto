@@ -124,8 +124,14 @@ class _AlbumSendPreviewState extends State<AlbumSendPreview> {
       _items.removeAt(_index);
       if (_index >= _items.length) _index = _items.length - 1;
     });
-    if (_pager.hasClients) _pager.jumpToPage(_index);
+    _jumpAfterFrame();
   }
+
+  /// Jump once the pager has rebuilt with the new item count (jumping on
+  /// the old one clamps the page and reports the wrong index).
+  void _jumpAfterFrame() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pager.hasClients) _pager.jumpToPage(_index);
+      });
 
   void _go(int i) {
     setState(() => _index = i);
@@ -211,7 +217,7 @@ class _AlbumSendPreviewState extends State<AlbumSendPreview> {
         _items.addAll(more.take(left).map(AlbumSendItem.new));
         _index = _items.length - more.take(left).length;
       });
-      if (_pager.hasClients) _pager.jumpToPage(_index);
+      _jumpAfterFrame();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -245,7 +251,7 @@ class _AlbumSendPreviewState extends State<AlbumSendPreview> {
         title: many
             ? Text(_d(t.cmCountOf('${_index + 1}', '${_items.length}')),
                 key: const Key('cm-preview-count'),
-                style: const TextStyle(fontSize: 16))
+                style: const TextStyle(fontSize: 16, color: Colors.white))
             : null,
         actions: [
           if (hasPhoto)
