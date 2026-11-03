@@ -194,7 +194,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ] else ...[
               Text(t.acsecCodeOk, style: AType.titleSmall),
               const SizedBox(height: Gap.md),
-              PasswordField(
+              ObscureTextField(
                   key: const Key('fp-new-pw'),
                   controller: _pw,
                   labelText: t.acsecPwNew,
@@ -612,7 +612,7 @@ class _SupportRecoveryScreenState extends State<SupportRecoveryScreen> {
         TextField(controller: c, decoration: _dec(t.acsecCircleNameHint, icon: Icons.person_rounded)),
         const SizedBox(height: Gap.sm),
       ],
-      PasswordField(
+      ObscureTextField(
           key: const Key('sr-old-pw'),
           controller: _oldPw,
           labelText: t.acsecOldPassword),
@@ -693,7 +693,7 @@ class _SupportRecoveryScreenState extends State<SupportRecoveryScreen> {
       ],
       const SizedBox(height: Gap.lg),
       if (st == 'ready') ...[
-        PasswordField(
+        ObscureTextField(
             key: const Key('sr-final-pw'),
             controller: _pw,
             labelText: t.acsecPwNew,

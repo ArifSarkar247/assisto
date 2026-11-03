@@ -501,20 +501,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           Text(t.acsecPwIntro, style: AType.bodyMedium),
           const SizedBox(height: Gap.lg),
           if (widget.hasPassword) ...[
-            PasswordField(
+            ObscureTextField(
                 key: const Key('rec-pw-current'),
                 controller: _cur,
                 labelText: t.acsecPwCurrent,
                 autofillHints: const [AutofillHints.password]),
             const SizedBox(height: Gap.md),
           ],
-          PasswordField(
+          ObscureTextField(
               key: const Key('rec-pw-new'),
               controller: _new,
               labelText: t.acsecPwNew,
               autofillHints: const [AutofillHints.newPassword]),
           const SizedBox(height: Gap.md),
-          PasswordField(
+          ObscureTextField(
               key: const Key('rec-pw-again'),
               controller: _again,
               labelText: t.acsecPwAgain,
