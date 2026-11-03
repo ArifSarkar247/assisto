@@ -138,11 +138,19 @@ abstract class AreaStore {
 
 class FileAreaStore implements AreaStore {
   Directory? _dir;
+  static final bool _inFlutterTest = () {
+    try {
+      return Platform.environment.containsKey('FLUTTER_TEST');
+    } catch (_) {
+      return false;
+    }
+  }();
   Future<Directory> _d() async {
-    // a phone (or test) without the plugin answers fast or not at all:
-    // never wait on it for more than 2 s
+    // widget tests run in a fake clock where real disk IO never completes:
+    // there the store is simply "no offline copy" (tests inject MemoryAreaStore)
+    if (_inFlutterTest) throw StateError('no disk in widget tests');
     final d = _dir ??= Directory(
-        '${(await getApplicationSupportDirectory().timeout(const Duration(seconds: 2))).path}/nearby_areas');
+        '${(await getApplicationSupportDirectory()).path}/nearby_areas');
     if (!await d.exists()) await d.create(recursive: true);
     return d;
   }
