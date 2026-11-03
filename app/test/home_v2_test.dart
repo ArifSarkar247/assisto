@@ -834,6 +834,12 @@ void main() {
           await tester.pump();
           await _settle(tester);
           expect(tester.takeException(), isNull);
+          // the moved ad sits below the Ask card, i.e. below the first
+          // screen (the Ask card fills to the bottom): scroll to the end
+          await tester.drag(find.byType(Scrollable).first, const Offset(0, -4000));
+          await _settle(tester);
+          await tester.pump(const Duration(seconds: 1));
+          await _settle(tester);
           final ad = find.byKey(const ValueKey('hero-ad-box'));
           expect(ad, findsOneWidget, reason: 'the ad still shows (moved)');
           final adRect = tester.getRect(find.byType(CompactAdFrame));
