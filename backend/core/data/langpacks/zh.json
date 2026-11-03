@@ -1,0 +1,1772 @@
+{
+ "format": 1,
+ "lang": "zh",
+ "version": 1,
+ "stt_locale": "zh-CN",
+ "tts_locale": "zh-CN",
+ "rtl": false,
+ "level_system": "HSK",
+ "levels": [
+  {
+   "id": "HSK1",
+   "en": "HSK 1 style (first words)",
+   "bn": "HSK ১ ধাঁচ (প্রথম শব্দ)"
+  },
+  {
+   "id": "HSK2",
+   "en": "HSK 2 style (daily life)",
+   "bn": "HSK ২ ধাঁচ (দৈনন্দিন জীবন)"
+  },
+  {
+   "id": "HSK3",
+   "en": "HSK 3 style (work and travel)",
+   "bn": "HSK ৩ ধাঁচ (কাজ ও ভ্রমণ)"
+  },
+  {
+   "id": "HSK4",
+   "en": "HSK 4 style (opinions)",
+   "bn": "HSK ৪ ধাঁচ (মতামত)"
+  },
+  {
+   "id": "HSK5",
+   "en": "HSK 5 style (study and formal)",
+   "bn": "HSK ৫ ধাঁচ (পড়াশোনা ও আনুষ্ঠানিক)"
+  },
+  {
+   "id": "HSK6",
+   "en": "HSK 6 style (advanced)",
+   "bn": "HSK ৬ ধাঁচ (উন্নত)"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "zh-pl1",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "HSK1",
+    "text": "উত্তর বাছুন: 你好！(Nǐ hǎo!)",
+    "text_en": "Choose the right reply to: 你好！(Nǐ hǎo!)",
+    "text_bn": "উত্তর বাছুন: 你好！(Nǐ hǎo!)",
+    "options": [
+     "你好！",
+     "再见！",
+     "八点。",
+     "不客气。"
+    ],
+    "answer": 0,
+    "explain_bn": "'হ্যালো'-র উত্তর 'হ্যালো'।",
+    "explain_en": "Reply to 'hello' with 'hello'."
+   },
+   {
+    "id": "zh-pl2",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "HSK1",
+    "text": "'তিন' কোন অক্ষর?",
+    "text_en": "Which character means 'three'?",
+    "text_bn": "'তিন' কোন অক্ষর?",
+    "options": [
+     "三",
+     "山",
+     "上",
+     "十"
+    ],
+    "answer": 0,
+    "explain_bn": "三 = তিন; 山 = পাহাড়; 上 = উপরে; 十 = দশ।",
+    "explain_en": "三 sān = three; 山 = mountain; 上 = up; 十 = ten."
+   },
+   {
+    "id": "zh-pl3",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "HSK2",
+    "text": "সেরা উত্তর: 这个多少钱？(এটার দাম কত?)",
+    "text_en": "Best reply to: 这个多少钱？(How much is this?)",
+    "text_bn": "সেরা উত্তর: 这个多少钱？(এটার দাম কত?)",
+    "options": [
+     "三十块。",
+     "我是学生。",
+     "在北京。",
+     "星期一。"
+    ],
+    "answer": 0,
+    "explain_bn": "三十块 = ত্রিশ ইউয়ান।",
+    "explain_en": "三十块 = thirty yuan."
+   },
+   {
+    "id": "zh-pl4",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "HSK2",
+    "text": "শূন্যস্থান: 我昨天___商店买了一件衣服。",
+    "text_en": "Fill the gap: 我昨天___商店买了一件衣服。",
+    "text_bn": "শূন্যস্থান: 我昨天___商店买了一件衣服。",
+    "options": [
+     "去",
+     "是",
+     "和",
+     "很"
+    ],
+    "answer": 0,
+    "explain_bn": "去商店 = দোকানে যাওয়া।",
+    "explain_en": "去商店 = go to the shop."
+   },
+   {
+    "id": "zh-pl5",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "HSK3",
+    "text": "শূন্যস্থান: 你去___中国吗？(কখনো চীনে গেছেন?)",
+    "text_en": "Fill the gap: 你去___中国吗？(Have you ever been to China?)",
+    "text_bn": "শূন্যস্থান: 你去___中国吗？(কখনো চীনে গেছেন?)",
+    "options": [
+     "过",
+     "着",
+     "的",
+     "得"
+    ],
+    "answer": 0,
+    "explain_bn": "过 = অভিজ্ঞতা বোঝায়।",
+    "explain_en": "过 marks experience."
+   },
+   {
+    "id": "zh-pl6",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "HSK3",
+    "text": "সঠিক শব্দক্রম বাছুন।",
+    "text_en": "Choose the correct word order.",
+    "text_bn": "সঠিক শব্দক্রম বাছুন।",
+    "options": [
+     "请把门关上。",
+     "请门把关上。",
+     "请关上把门。",
+     "把请门关上。"
+    ],
+    "answer": 0,
+    "explain_bn": "把 + কর্ম + ক্রিয়া: 把门关上।",
+    "explain_en": "把 + object + verb + result: 把门关上."
+   },
+   {
+    "id": "zh-pl7",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "HSK4",
+    "text": "শূন্যস্থান: ___他很忙，___他每天都学习。",
+    "text_en": "Fill the gaps: ___他很忙，___他每天都学习。",
+    "text_bn": "শূন্যস্থান: ___他很忙，___他每天都学习。",
+    "options": [
+     "虽然……但是",
+     "因为……所以",
+     "如果……就",
+     "不但……而且"
+    ],
+    "answer": 0,
+    "explain_bn": "'ব্যস্ত হলেও পড়ে' → 虽然…但是।",
+    "explain_en": "'Although busy, he still studies' → 虽然…但是."
+   },
+   {
+    "id": "zh-pl8",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "HSK4",
+    "text": "খেলা কেন পিছিয়েছে?\n因为下雨，所以比赛推迟了。",
+    "text_en": "Why was the match postponed?\n因为下雨，所以比赛推迟了。",
+    "text_bn": "খেলা কেন পিছিয়েছে?\n因为下雨，所以比赛推迟了。",
+    "tts_text": "因为下雨，所以比赛推迟了。",
+    "options": [
+     "বৃষ্টি হয়েছে",
+     "একজন খেলোয়াড় অসুস্থ",
+     "টিকিট বিক্রি হয়নি"
+    ],
+    "options_en": [
+     "It rained",
+     "A player was ill",
+     "No tickets were sold"
+    ],
+    "options_bn": [
+     "বৃষ্টি হয়েছে",
+     "একজন খেলোয়াড় অসুস্থ",
+     "টিকিট বিক্রি হয়নি"
+    ],
+    "answer": 0,
+    "explain_bn": "因为下雨 = বৃষ্টির কারণে।",
+    "explain_en": "因为下雨 = because it rained."
+   },
+   {
+    "id": "zh-pl9",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "HSK5",
+    "text": "আনুষ্ঠানিক চিঠির শূন্যস্থান: 期待您的___。",
+    "text_en": "Fill the gap in a formal letter: 期待您的___。",
+    "text_bn": "আনুষ্ঠানিক চিঠির শূন্যস্থান: 期待您的___。",
+    "options": [
+     "回复",
+     "回家",
+     "回去",
+     "回头"
+    ],
+    "answer": 0,
+    "explain_bn": "期待您的回复 = আপনার উত্তরের অপেক্ষায়।",
+    "explain_en": "期待您的回复 = I look forward to your reply."
+   },
+   {
+    "id": "zh-pl10",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "HSK5",
+    "text": "উপযুক্ত শব্দ: ___学校的要求，申请人需要HSK四级。",
+    "text_en": "Choose the best word: ___学校的要求，申请人需要HSK四级。",
+    "text_bn": "উপযুক্ত শব্দ: ___学校的要求，申请人需要HSK四级。",
+    "options": [
+     "根据",
+     "关于",
+     "对于",
+     "为了"
+    ],
+    "answer": 0,
+    "explain_bn": "根据 = অনুযায়ী।",
+    "explain_en": "根据 = according to."
+   },
+   {
+    "id": "zh-pl11",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "HSK6",
+    "text": "'入乡随俗' মানে…",
+    "text_en": "'入乡随俗' means…",
+    "text_bn": "'入乡随俗' মানে…",
+    "options": [
+     "নতুন জায়গায় স্থানীয় রীতি মানা",
+     "গ্রামে ফিরে যাওয়া",
+     "অনেক ভ্রমণ করা"
+    ],
+    "options_en": [
+     "Follow local customs in a new place",
+     "Go back to your village",
+     "Travel a lot"
+    ],
+    "options_bn": [
+     "নতুন জায়গায় স্থানীয় রীতি মানা",
+     "গ্রামে ফিরে যাওয়া",
+     "অনেক ভ্রমণ করা"
+    ],
+    "answer": 0,
+    "explain_bn": "মানিয়ে নেওয়ার বাগধারা।",
+    "explain_en": "An idiom about adapting."
+   },
+   {
+    "id": "zh-pl12",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "HSK6",
+    "text": "'অনুশীলনেই দক্ষতা' কোন বাগধারা?",
+    "text_en": "Which idiom means 'practice makes perfect'?",
+    "text_bn": "'অনুশীলনেই দক্ষতা' কোন বাগধারা?",
+    "options": [
+     "熟能生巧",
+     "画蛇添足",
+     "半途而废",
+     "马马虎虎"
+    ],
+    "answer": 0,
+    "explain_bn": "熟能生巧 = অনুশীলনে দক্ষতা।",
+    "explain_en": "熟能生巧 = skill comes from practice."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "zh-p1",
+   "level": "HSK1",
+   "title_en": "Pinyin and the four tones",
+   "title_bn": "পিনইন ও চার টোন",
+   "items": [
+    {
+     "kind": "note",
+     "target": "妈  mā",
+     "bn": "ভুল টোন মানে অন্য শব্দ: mǎ (ঘোড়া) ≠ mā (মা)। শুনে টোন-চিহ্ন দেখে নকল করুন।",
+     "en": "A wrong tone makes a different word: mǎ (horse) ≠ mā (mother). Listen, then copy the tone mark."
+    },
+    {
+     "kind": "vocab",
+     "target": "妈  mā",
+     "bn": "মা — টোন ১: উঁচু ও সমান",
+     "en": "mother — tone 1: high, level",
+     "roman": "mā",
+     "note_bn": "উচ্চারণ: মা (উঁচু, সমান)",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "麻  má",
+     "bn": "শণ — টোন ২: প্রশ্নের মতো উঠে যায়",
+     "en": "hemp — tone 2: rising, like a question",
+     "roman": "má",
+     "note_bn": "উচ্চারণ: মা↗ (নিচ থেকে ওঠে)",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "马  mǎ",
+     "bn": "ঘোড়া — টোন ৩: নেমে আবার ওঠে",
+     "en": "horse — tone 3: falls then rises",
+     "roman": "mǎ",
+     "note_bn": "উচ্চারণ: মা↘↗ (নেমে উঠে)",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "骂  mà",
+     "bn": "বকা — টোন ৪: আদেশের মতো ঝটকায় নামে",
+     "en": "to scold — tone 4: sharp fall, like a command",
+     "roman": "mà",
+     "note_bn": "উচ্চারণ: মা↘ (ঝটকা দিয়ে নামে)",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "你好  nǐ hǎo",
+     "bn": "হ্যালো — পরপর দুই টোন ৩: প্রথমটি টোন ২ হয়ে যায়",
+     "en": "hello — two 3rd tones: the first becomes rising",
+     "roman": "nǐ hǎo → ní hǎo",
+     "note_bn": "উচ্চারণ: নি হাও",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "不是  bú shì",
+     "bn": "নয় — টোন ৪-এর আগে 不 হয় bú",
+     "en": "is not — 不 changes to bú before tone 4",
+     "roman": "bù → bú shì",
+     "note_bn": "উচ্চারণ: বু শি",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "中国  Zhōngguó",
+     "bn": "চীন — zh, ch, sh: জিভ পেছনে বাঁকিয়ে",
+     "en": "China — zh, ch, sh: tongue curled back",
+     "roman": "Zhōngguó",
+     "note_bn": "উচ্চারণ: চোং-গুও",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "谢谢  xièxie",
+     "bn": "ধন্যবাদ — x, q, j: ঠোঁট ছড়িয়ে",
+     "en": "thank you — x, q, j: lips spread",
+     "roman": "xièxie",
+     "note_bn": "উচ্চারণ: শিয়েশিয়ে",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "去  qù",
+     "bn": "যাওয়া — এখানে u আসলে ü (ঠোঁট গোল 'ই')",
+     "en": "to go — the u here is ü (rounded 'ই')",
+     "roman": "qù",
+     "note_bn": "উচ্চারণ: চ্যু",
+     "note_en": ""
+    }
+   ]
+  },
+  {
+   "id": "zh-c1",
+   "level": "HSK1",
+   "title_en": "First characters",
+   "title_bn": "প্রথম অক্ষর",
+   "items": [
+    {
+     "kind": "note",
+     "target": "人",
+     "bn": "রেখা লিখুন উপর থেকে নিচে, বাম থেকে ডানে।",
+     "en": "Write strokes top to bottom, left to right."
+    },
+    {
+     "kind": "vocab",
+     "target": "人",
+     "bn": "মানুষ",
+     "en": "person",
+     "roman": "rén",
+     "note_bn": "উচ্চারণ: রেন · হাঁটা মানুষের মতো দেখতে।",
+     "note_en": "Looks like a person walking."
+    },
+    {
+     "kind": "vocab",
+     "target": "口",
+     "bn": "মুখ",
+     "en": "mouth",
+     "roman": "kǒu",
+     "note_bn": "উচ্চারণ: খোউ",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "大 / 小",
+     "bn": "বড় / ছোট",
+     "en": "big / small",
+     "roman": "dà / xiǎo",
+     "note_bn": "উচ্চারণ: দা / শিয়াও",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "水",
+     "bn": "পানি",
+     "en": "water",
+     "roman": "shuǐ",
+     "note_bn": "উচ্চারণ: শুই",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "火",
+     "bn": "আগুন",
+     "en": "fire",
+     "roman": "huǒ",
+     "note_bn": "উচ্চারণ: হুও",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "山",
+     "bn": "পাহাড়",
+     "en": "mountain",
+     "roman": "shān",
+     "note_bn": "উচ্চারণ: শান",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "日 / 月",
+     "bn": "সূর্য, দিন / চাঁদ, মাস",
+     "en": "sun, day / moon, month",
+     "roman": "rì / yuè",
+     "note_bn": "উচ্চারণ: রি / ইউয়ে",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "中",
+     "bn": "মাঝখান (中国 = চীন)",
+     "en": "middle (中国 = the Middle Kingdom, China)",
+     "roman": "zhōng",
+     "note_bn": "উচ্চারণ: চোং",
+     "note_en": ""
+    }
+   ]
+  },
+  {
+   "id": "zh-h1a",
+   "level": "HSK1",
+   "title_en": "Hello! Introduce yourself",
+   "title_bn": "হ্যালো! নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "你好！/ 您好！",
+     "bn": "হ্যালো! / আপনাকে সালাম (ভদ্র)!",
+     "en": "Hello! / Hello (polite)!",
+     "roman": "Nǐ hǎo! / Nín hǎo!",
+     "note_bn": "উচ্চারণ: নি হাও / নিন হাও",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我叫阿里。",
+     "bn": "আমার নাম আলী।",
+     "en": "My name is Ali.",
+     "roman": "Wǒ jiào Ālǐ.",
+     "note_bn": "উচ্চারণ: ওয়ো চিয়াও আলি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我是孟加拉国人。",
+     "bn": "আমি বাংলাদেশি।",
+     "en": "I am from Bangladesh.",
+     "roman": "Wǒ shì Mèngjiālāguó rén.",
+     "note_bn": "উচ্চারণ: ওয়ো শি মেংচিয়ালাগুও রেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "谢谢！— 不客气。",
+     "bn": "ধন্যবাদ! — স্বাগত।",
+     "en": "Thank you! — You're welcome.",
+     "roman": "Xièxie! — Bú kèqi.",
+     "note_bn": "উচ্চারণ: শিয়েশিয়ে — বু খ্য-ছি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "对不起。— 没关系。",
+     "bn": "দুঃখিত। — কোনো সমস্যা নেই।",
+     "en": "Sorry. — It doesn't matter.",
+     "roman": "Duìbuqǐ. — Méi guānxi.",
+     "note_bn": "উচ্চারণ: তুইবুছি — মেই গুয়ানশি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我听不懂。",
+     "bn": "আমি (শুনে) বুঝিনি।",
+     "en": "I don't understand (what I hear).",
+     "roman": "Wǒ tīng bu dǒng.",
+     "note_bn": "উচ্চারণ: ওয়ো থিং বু তোং",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "请说慢一点。",
+     "bn": "দয়া করে একটু আস্তে বলুন।",
+     "en": "Please speak a bit slower.",
+     "roman": "Qǐng shuō màn yìdiǎn.",
+     "note_bn": "উচ্চারণ: ছিং শুও মান ই-তিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "再见！",
+     "bn": "বিদায়!",
+     "en": "Goodbye!",
+     "roman": "Zàijiàn!",
+     "note_bn": "উচ্চারণ: জাইচিয়েন",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "你好！/ 您好！",
+    "我叫阿里。",
+    "我是孟加拉国人。"
+   ]
+  },
+  {
+   "id": "zh-h1b",
+   "level": "HSK1",
+   "title_en": "Numbers, time and money",
+   "title_bn": "সংখ্যা, সময় ও টাকা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "一 二 三 四 五",
+     "bn": "এক থেকে পাঁচ",
+     "en": "one to five",
+     "roman": "yī èr sān sì wǔ",
+     "note_bn": "উচ্চারণ: ই আর সান স্য উ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "六 七 八 九 十",
+     "bn": "ছয় থেকে দশ",
+     "en": "six to ten",
+     "roman": "liù qī bā jiǔ shí",
+     "note_bn": "উচ্চারণ: লিউ ছি পা চিউ শি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "现在几点？— 八点。",
+     "bn": "এখন কয়টা? — আটটা।",
+     "en": "What time is it? — Eight o'clock.",
+     "roman": "Xiànzài jǐ diǎn? — Bā diǎn.",
+     "note_bn": "উচ্চারণ: শিয়েনজাই চি তিয়েন? — পা তিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "今天 / 明天 / 昨天",
+     "bn": "আজ / আগামীকাল / গতকাল",
+     "en": "today / tomorrow / yesterday",
+     "roman": "jīntiān / míngtiān / zuótiān",
+     "note_bn": "উচ্চারণ: চিনথিয়েন / মিংথিয়েন / জুওথিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "星期一",
+     "bn": "সোমবার ('সপ্তাহ-এক')",
+     "en": "Monday ('week-one')",
+     "roman": "xīngqīyī",
+     "note_bn": "উচ্চারণ: শিংছি-ই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "多少钱？— 三十块。",
+     "bn": "কত দাম? — ত্রিশ ইউয়ান।",
+     "en": "How much? — Thirty yuan.",
+     "roman": "Duōshao qián? — Sānshí kuài.",
+     "note_bn": "উচ্চারণ: তুওশাও ছিয়েন? — সানশি খুয়াই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "两个",
+     "bn": "দুটি — গণনাবাচকের আগে 二 নয়, 两",
+     "en": "two (of something) — use 两 not 二 before a measure word",
+     "roman": "liǎng ge",
+     "note_bn": "উচ্চারণ: লিয়াং গ্য",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "一 二 三 四 五",
+    "六 七 八 九 十",
+    "现在几点？— 八点。"
+   ]
+  },
+  {
+   "id": "zh-h2",
+   "level": "HSK2",
+   "title_en": "Shopping and getting around",
+   "title_bn": "কেনাকাটা ও চলাফেরা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "我想买这个。",
+     "bn": "আমি এটা কিনতে চাই।",
+     "en": "I'd like to buy this.",
+     "roman": "Wǒ xiǎng mǎi zhège.",
+     "note_bn": "উচ্চারণ: ওয়ো শিয়াং মাই চ্য-গ্য",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "太贵了！便宜一点吧。",
+     "bn": "খুব দাম! একটু কম করুন।",
+     "en": "Too expensive! A bit cheaper, please.",
+     "roman": "Tài guì le! Piányi yìdiǎn ba.",
+     "note_bn": "উচ্চারণ: থাই কুই ল্য! ফিয়েনই ই-তিয়েন পা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "可以用微信付款吗？",
+     "bn": "WeChat দিয়ে টাকা দেওয়া যাবে?",
+     "en": "Can I pay with WeChat?",
+     "roman": "Kěyǐ yòng Wēixìn fùkuǎn ma?",
+     "note_bn": "উচ্চারণ: খ্য-ই ইয়োং ওয়েইশিন ফুখুয়ান মা?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "火车站在哪儿？",
+     "bn": "রেলস্টেশন কোথায়?",
+     "en": "Where is the train station?",
+     "roman": "Huǒchēzhàn zài nǎr?",
+     "note_bn": "উচ্চারণ: হুওছ্যচান জাই নার?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "往前走，然后往左拐。",
+     "bn": "সোজা যান, তারপর বামে ঘুরুন।",
+     "en": "Go straight, then turn left.",
+     "roman": "Wǎng qián zǒu, ránhòu wǎng zuǒ guǎi.",
+     "note_bn": "উচ্চারণ: ওয়াং ছিয়েন জোউ, রানহোউ ওয়াং জুও কুয়াই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "一张去上海的票。",
+     "bn": "সাংহাইয়ের একটা টিকিট।",
+     "en": "One ticket to Shanghai.",
+     "roman": "Yì zhāng qù Shànghǎi de piào.",
+     "note_bn": "উচ্চারণ: ই চাং চ্যু শাংহাই দ্য ফিয়াও",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我不吃猪肉。",
+     "bn": "আমি শূকরের মাংস খাই না।",
+     "en": "I don't eat pork.",
+     "roman": "Wǒ bù chī zhūròu.",
+     "note_bn": "উচ্চারণ: ওয়ো পু ছ্‌ চুরোউ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "我想买这个。",
+    "太贵了！便宜一点吧。",
+    "可以用微信付款吗？"
+   ]
+  },
+  {
+   "id": "zh-h3a",
+   "level": "HSK3",
+   "title_en": "Past and experience: 了, 过, 把, 比",
+   "title_bn": "অতীত ও অভিজ্ঞতা: 了, 过, 把, 比",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "我吃了饭。",
+     "bn": "আমি খেয়েছি। (了 = কাজ শেষ)",
+     "en": "I have eaten. (了 = completed)",
+     "roman": "Wǒ chī le fàn.",
+     "note_bn": "উচ্চারণ: ওয়ো ছ্‌ ল্য ফান",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "你去过中国吗？",
+     "bn": "কখনো চীনে গেছেন? (过 = অভিজ্ঞতা)",
+     "en": "Have you ever been to China? (过 = experience)",
+     "roman": "Nǐ qùguo Zhōngguó ma?",
+     "note_bn": "উচ্চারণ: নি চ্যুগুও চোংগুও মা?",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "我已经到了。",
+     "bn": "আমি পৌঁছে গেছি।",
+     "en": "I have already arrived.",
+     "roman": "Wǒ yǐjīng dào le.",
+     "note_bn": "উচ্চারণ: ওয়ো ই-চিং তাও ল্য",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "请把门关上。",
+     "bn": "দয়া করে দরজা বন্ধ করুন। (把 কর্মকে আগে আনে)",
+     "en": "Please close the door. (把 puts the object first)",
+     "roman": "Qǐng bǎ mén guānshang.",
+     "note_bn": "উচ্চারণ: ছিং পা মেন গুয়ানশাং",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "今天比昨天热。",
+     "bn": "আজ গতকালের চেয়ে গরম। (比 = চেয়ে)",
+     "en": "Today is hotter than yesterday. (比 = than)",
+     "roman": "Jīntiān bǐ zuótiān rè.",
+     "note_bn": "উচ্চারণ: চিনথিয়েন পি জুওথিয়েন র্য",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "我在学习汉语。",
+     "bn": "আমি চীনা ভাষা শিখছি। (在 = চলমান)",
+     "en": "I am studying Chinese. (在 = in progress)",
+     "roman": "Wǒ zài xuéxí Hànyǔ.",
+     "note_bn": "উচ্চারণ: ওয়ো জাই শ্যুয়েশি হানইউ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "我吃了饭。",
+    "你去过中国吗？",
+    "我已经到了。"
+   ]
+  },
+  {
+   "id": "zh-h3b",
+   "level": "HSK3",
+   "title_en": "At work: shifts, safety, salary",
+   "title_bn": "কাজে: শিফট, নিরাপত্তা, বেতন",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "我在工厂工作。",
+     "bn": "আমি কারখানায় কাজ করি।",
+     "en": "I work in a factory.",
+     "roman": "Wǒ zài gōngchǎng gōngzuò.",
+     "note_bn": "উচ্চারণ: ওয়ো জাই কোংছাং কোংজুও",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "几点上班？",
+     "bn": "কাজ কয়টায় শুরু?",
+     "en": "What time does work start?",
+     "roman": "Jǐ diǎn shàngbān?",
+     "note_bn": "উচ্চারণ: চি তিয়েন শাংপান?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "请再说一遍。",
+     "bn": "দয়া করে আরেকবার বলুন।",
+     "en": "Please say it once more.",
+     "roman": "Qǐng zài shuō yí biàn.",
+     "note_bn": "উচ্চারণ: ছিং জাই শুও ই পিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "注意安全！戴好安全帽。",
+     "bn": "নিরাপত্তায় খেয়াল! হেলমেট ঠিকমতো পরুন।",
+     "en": "Mind safety! Put on your helmet properly.",
+     "roman": "Zhùyì ānquán! Dàihǎo ānquánmào.",
+     "note_bn": "উচ্চারণ: চুই আনছ্যুয়েন! তাইহাও আনছ্যুয়েনমাও",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我今天生病了，不能上班。",
+     "bn": "আজ অসুস্থ, কাজে আসতে পারব না।",
+     "en": "I'm ill today and can't come to work.",
+     "roman": "Wǒ jīntiān shēngbìng le, bù néng shàngbān.",
+     "note_bn": "উচ্চারণ: ওয়ো চিনথিয়েন শ্যংপিং ল্য, পু নেং শাংপান",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "加班有加班费吗？",
+     "bn": "ওভারটাইমের টাকা আছে?",
+     "en": "Is overtime paid?",
+     "roman": "Jiābān yǒu jiābānfèi ma?",
+     "note_bn": "উচ্চারণ: চিয়াপান ইয়োউ চিয়াপানফেই মা?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "这个月的工资什么时候发？",
+     "bn": "এই মাসের বেতন কবে দেবে?",
+     "en": "When is this month's salary paid?",
+     "roman": "Zhège yuè de gōngzī shénme shíhou fā?",
+     "note_bn": "উচ্চারণ: চ্য-গ্য ইউয়ে দ্য কোংজ্‌ শেনম্য শিহোউ ফা?",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "我在工厂工作。",
+    "几点上班？",
+    "请再说一遍。"
+   ]
+  },
+  {
+   "id": "zh-h4",
+   "level": "HSK4",
+   "title_en": "Reasons and opinions",
+   "title_bn": "কারণ ও মতামত",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "我觉得这个办法很好。",
+     "bn": "আমার মনে হয় এই উপায়টা ভালো।",
+     "en": "I think this method is good.",
+     "roman": "Wǒ juéde zhège bànfǎ hěn hǎo.",
+     "note_bn": "উচ্চারণ: ওয়ো চ্যুয়েদ্য চ্য-গ্য পানফা হেন হাও",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "因为下雨，所以比赛推迟了。",
+     "bn": "বৃষ্টির কারণে খেলা পিছিয়েছে।",
+     "en": "Because it rained, the match was postponed.",
+     "roman": "Yīnwèi xià yǔ, suǒyǐ bǐsài tuīchí le.",
+     "note_bn": "উচ্চারণ: ইনওয়েই শিয়া ইউ, সুওই পিসাই থুইছ্‌ ল্য",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "虽然很累，但是我很开心。",
+     "bn": "ক্লান্ত হলেও আমি খুশি।",
+     "en": "Although tired, I'm happy.",
+     "roman": "Suīrán hěn lèi, dànshì wǒ hěn kāixīn.",
+     "note_bn": "উচ্চারণ: সুইরান হেন লেই, তানশি ওয়ো হেন খাইশিন",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "一方面……另一方面……",
+     "bn": "একদিকে … অন্যদিকে …",
+     "en": "On one hand … on the other …",
+     "roman": "Yì fāngmiàn… lìng yì fāngmiàn…",
+     "note_bn": "উচ্চারণ: ই ফাংমিয়েন… লিং ই ফাংমিয়েন…",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "对我来说，学汉语很重要。",
+     "bn": "আমার জন্য চীনা শেখা জরুরি।",
+     "en": "For me, learning Chinese is important.",
+     "roman": "Duì wǒ lái shuō, xué Hànyǔ hěn zhòngyào.",
+     "note_bn": "উচ্চারণ: তুই ওয়ো লাই শুও, শ্যুয়ে হানইউ হেন চোংইয়াও",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "我同意你的看法。",
+     "bn": "আপনার মতের সাথে একমত।",
+     "en": "I agree with your view.",
+     "roman": "Wǒ tóngyì nǐ de kànfǎ.",
+     "note_bn": "উচ্চারণ: ওয়ো থোংই নি দ্য খানফা",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "我觉得这个办法很好。",
+    "因为下雨，所以比赛推迟了。",
+    "虽然很累，但是我很开心。"
+   ]
+  },
+  {
+   "id": "zh-h5",
+   "level": "HSK5",
+   "title_en": "Formal letters and scholarships",
+   "title_bn": "আনুষ্ঠানিক চিঠি ও বৃত্তি",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "尊敬的王老师：",
+     "bn": "শ্রদ্ধেয় অধ্যাপক ওয়াং:",
+     "en": "Dear Professor Wang:",
+     "roman": "Zūnjìng de Wáng lǎoshī:",
+     "note_bn": "উচ্চারণ: জুনচিং দ্য ওয়াং লাওশি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "我想申请贵校的奖学金。",
+     "bn": "আপনাদের বিশ্ববিদ্যালয়ের বৃত্তির জন্য আবেদন করতে চাই।",
+     "en": "I'd like to apply for your university's scholarship.",
+     "roman": "Wǒ xiǎng shēnqǐng guì xiào de jiǎngxuéjīn.",
+     "note_bn": "উচ্চারণ: ওয়ো শিয়াং শেনছিং কুই শিয়াও দ্য চিয়াংশ্যুয়েচিন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "随信附上我的简历。",
+     "bn": "চিঠির সাথে আমার সিভি সংযুক্ত।",
+     "en": "My CV is attached to this letter.",
+     "roman": "Suí xìn fùshang wǒ de jiǎnlì.",
+     "note_bn": "উচ্চারণ: সুই শিন ফুশাং ওয়ো দ্য চিয়েনলি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "根据学校的要求……",
+     "bn": "বিশ্ববিদ্যালয়ের শর্ত অনুযায়ী …",
+     "en": "According to the university's requirements …",
+     "roman": "Gēnjù xuéxiào de yāoqiú…",
+     "note_bn": "উচ্চারণ: কেনচ্যু শ্যুয়েশিয়াও দ্য ইয়াওছিউ…",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "期待您的回复。",
+     "bn": "আপনার উত্তরের অপেক্ষায়।",
+     "en": "I look forward to your reply.",
+     "roman": "Qīdài nín de huífù.",
+     "note_bn": "উচ্চারণ: ছিতাই নিন দ্য হুইফু",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "此致敬礼",
+     "bn": "সশ্রদ্ধ নিবেদন (আনুষ্ঠানিক সমাপ্তি)",
+     "en": "Yours respectfully (formal closing)",
+     "roman": "Cǐzhì jìnglǐ",
+     "note_bn": "উচ্চারণ: ছ্‌চ্‌ চিংলি",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "尊敬的王老师：",
+    "我想申请贵校的奖学金。",
+    "随信附上我的简历。"
+   ]
+  },
+  {
+   "id": "zh-h6",
+   "level": "HSK6",
+   "title_en": "Chengyu — four-character idioms",
+   "title_bn": "চেংইউ — চার অক্ষরের বাগধারা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "入乡随俗",
+     "bn": "নতুন জায়গায় সেখানকার রীতি মেনে চলা",
+     "en": "when in a new place, follow local customs",
+     "roman": "rù xiāng suí sú",
+     "note_bn": "উচ্চারণ: রু শিয়াং সুই সু",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "一举两得",
+     "bn": "এক কাজে দুই লাভ",
+     "en": "one action, two gains",
+     "roman": "yì jǔ liǎng dé",
+     "note_bn": "উচ্চারণ: ই চ্যু লিয়াং ত্য",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "半途而废",
+     "bn": "মাঝপথে ছেড়ে দেওয়া",
+     "en": "to give up halfway",
+     "roman": "bàn tú ér fèi",
+     "note_bn": "উচ্চারণ: পান থু আর ফেই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "熟能生巧",
+     "bn": "অনুশীলনেই দক্ষতা",
+     "en": "practice makes perfect",
+     "roman": "shú néng shēng qiǎo",
+     "note_bn": "উচ্চারণ: শু নেং শ্যং ছিয়াও",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "画蛇添足",
+     "bn": "বাড়াবাড়ি করে নষ্ট করা",
+     "en": "to ruin something by overdoing it",
+     "roman": "huà shé tiān zú",
+     "note_bn": "উচ্চারণ: হুয়া শ্য থিয়েন জু",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "马马虎虎",
+     "bn": "মোটামুটি; অযত্নে",
+     "en": "so-so; careless",
+     "roman": "mǎmǎhūhū",
+     "note_bn": "উচ্চারণ: মামাহুহু",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "入乡随俗",
+    "一举两得",
+    "半途而废"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Arrival in Beijing",
+   "title_bn": "বেইজিংয়ে পৌঁছানো",
+   "ai_role": "You are a Chinese border officer at Beijing Capital airport. Very simple Mandarin (HSK 1-2), short sentences. Ask for passport, purpose (study), length of stay, university name. Give pinyin if the learner asks. Example flow (adapt, do not read verbatim): them: 你好。请给我你的护照。 / you: 好的，给您。 / them: 你来中国做什么？ / you: 我来学习。我是留学生。 / them: 你在中国住多长时间？ / you: 四年。我在北京大学学习。",
+   "opening": "你好。请给我你的护照。",
+   "goals_en": [
+    "Say why you came (study), how long, and where you will live.",
+    "Say: OK, here you are.",
+    "Say: I came to study. I'm an international student.",
+    "Say: Four years. I study at Peking University."
+   ],
+   "goals_bn": [
+    "কেন এসেছেন (পড়াশোনা), কতদিন, কোথায় থাকবেন বলুন।",
+    "বলুন: ঠিক আছে, এই নিন।",
+    "বলুন: পড়তে এসেছি। আমি বিদেশি ছাত্র।",
+    "বলুন: চার বছর। পিকিং বিশ্ববিদ্যালয়ে পড়ি।"
+   ],
+   "useful": [
+    {
+     "target": "好的，给您。",
+     "bn": "ঠিক আছে, এই নিন।",
+     "en": "OK, here you are.",
+     "roman": "Hǎo de, gěi nín."
+    },
+    {
+     "target": "我来学习。我是留学生。",
+     "bn": "পড়তে এসেছি। আমি বিদেশি ছাত্র।",
+     "en": "I came to study. I'm an international student.",
+     "roman": "Wǒ lái xuéxí. Wǒ shì liúxuéshēng."
+    },
+    {
+     "target": "四年。我在北京大学学习。",
+     "bn": "চার বছর। পিকিং বিশ্ববিদ্যালয়ে পড়ি।",
+     "en": "Four years. I study at Peking University.",
+     "roman": "Sì nián. Wǒ zài Běijīng Dàxué xuéxí."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at a Chinese company",
+   "title_bn": "চীনা কোম্পানিতে প্রথম দিন",
+   "ai_role": "You are a team leader at a Chinese construction or factory company (in China or on a project in Bangladesh). HSK 3 Mandarin. Explain hours (8:00-17:00), lunch at 12:00, the helmet rule, and who to ask. Speak slowly. Example flow (adapt, do not read verbatim): you: 王经理，您好！我是新来的阿里。 / them: 欢迎！我们八点上班，五点下班。 / you: 几点吃午饭？ / them: 十二点。在工地一定要戴安全帽。 / you: 明白了。有问题我问谁？ / them: 问我或者问小李。",
+   "opening": "你好！你是新来的同事吗？",
+   "goals_en": [
+    "Greet the team leader, ask the working hours and safety rules.",
+    "Say: Hello Manager Wang! I'm Ali, the new one.",
+    "Say: What time is lunch?",
+    "Say: Understood. Whom do I ask if there's a problem?"
+   ],
+   "goals_bn": [
+    "দলনেতাকে শুভেচ্ছা, কাজের সময় ও নিরাপত্তা নিয়ম জিজ্ঞেস করুন।",
+    "বলুন: ম্যানেজার ওয়াং, সালাম! আমি নতুন, আলী।",
+    "বলুন: দুপুরের খাবার কয়টায়?",
+    "বলুন: বুঝেছি। সমস্যা হলে কাকে জিজ্ঞেস করব?"
+   ],
+   "useful": [
+    {
+     "target": "王经理，您好！我是新来的阿里。",
+     "bn": "ম্যানেজার ওয়াং, সালাম! আমি নতুন, আলী।",
+     "en": "Hello Manager Wang! I'm Ali, the new one.",
+     "roman": "Wáng jīnglǐ, nín hǎo! Wǒ shì xīn lái de Ālǐ."
+    },
+    {
+     "target": "几点吃午饭？",
+     "bn": "দুপুরের খাবার কয়টায়?",
+     "en": "What time is lunch?",
+     "roman": "Jǐ diǎn chī wǔfàn?"
+    },
+    {
+     "target": "明白了。有问题我问谁？",
+     "bn": "বুঝেছি। সমস্যা হলে কাকে জিজ্ঞেস করব?",
+     "en": "Understood. Whom do I ask if there's a problem?",
+     "roman": "Míngbai le. Yǒu wèntí wǒ wèn shéi?"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the campus clinic",
+   "title_bn": "ক্যাম্পাস ক্লিনিকে",
+   "ai_role": "You are a doctor at a Chinese university clinic. HSK 2 Mandarin. Ask what's wrong, since when, fever; prescribe '一天两次，饭后吃'. Do not give real medical advice. Example flow (adapt, do not read verbatim): them: 你哪儿不舒服？ / you: 我头疼，还发烧。 / them: 从什么时候开始的？ / you: 从昨天晚上。 / them: 这个药一天两次，饭后吃。 / you: 谢谢大夫。",
+   "opening": "你哪儿不舒服？",
+   "goals_en": [
+    "Say what hurts and since when; ask how to take the medicine.",
+    "Say: I have a headache and a fever.",
+    "Say: Since last night.",
+    "Say: Thank you, doctor."
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা ও কবে থেকে বলুন; ওষুধ কীভাবে খাবেন জিজ্ঞেস করুন।",
+    "বলুন: মাথা ব্যথা, আর জ্বর।",
+    "বলুন: গতকাল রাত থেকে।",
+    "বলুন: ধন্যবাদ, ডাক্তার।"
+   ],
+   "useful": [
+    {
+     "target": "我头疼，还发烧。",
+     "bn": "মাথা ব্যথা, আর জ্বর।",
+     "en": "I have a headache and a fever.",
+     "roman": "Wǒ tóu téng, hái fāshāo."
+    },
+    {
+     "target": "从昨天晚上。",
+     "bn": "গতকাল রাত থেকে।",
+     "en": "Since last night.",
+     "roman": "Cóng zuótiān wǎnshang."
+    },
+    {
+     "target": "谢谢大夫。",
+     "bn": "ধন্যবাদ, ডাক্তার।",
+     "en": "Thank you, doctor.",
+     "roman": "Xièxie dàifu."
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a flat near campus",
+   "title_bn": "ক্যাম্পাসের কাছে ফ্ল্যাট ভাড়া",
+   "ai_role": "You are a landlord near a Chinese university. HSK 3 Mandarin. Rent 2000 yuan a month, deposit one month ('押一付三' — explain simply: one month deposit, pay three months at a time), utilities not included. Remind the student to register at the police station within 24 hours. Example flow (adapt, do not read verbatim): you: 这个房子一个月多少钱？ / them: 两千块。押一付三。 / you: 水电费包括吗？ / them: 不包括，你自己交。 / you: 好的，我想租。 / them: 别忘了二十四小时内去派出所登记。",
+   "opening": "你好！你想租房子吗？",
+   "goals_en": [
+    "Ask the monthly rent, deposit and whether utilities are included.",
+    "Say: How much is this flat a month?",
+    "Say: Are water and electricity included?",
+    "Say: OK, I'd like to rent it."
+   ],
+   "goals_bn": [
+    "মাসিক ভাড়া, জামানত, আর বিল ধরা কিনা জিজ্ঞেস করুন।",
+    "বলুন: এই ফ্ল্যাট মাসে কত?",
+    "বলুন: পানি-বিদ্যুতের বিল ধরা আছে?",
+    "বলুন: ঠিক আছে, ভাড়া নিতে চাই।"
+   ],
+   "useful": [
+    {
+     "target": "这个房子一个月多少钱？",
+     "bn": "এই ফ্ল্যাট মাসে কত?",
+     "en": "How much is this flat a month?",
+     "roman": "Zhège fángzi yí ge yuè duōshao qián?"
+    },
+    {
+     "target": "水电费包括吗？",
+     "bn": "পানি-বিদ্যুতের বিল ধরা আছে?",
+     "en": "Are water and electricity included?",
+     "roman": "Shuǐdiànfèi bāokuò ma?"
+    },
+    {
+     "target": "好的，我想租。",
+     "bn": "ঠিক আছে, ভাড়া নিতে চাই।",
+     "en": "OK, I'd like to rent it.",
+     "roman": "Hǎo de, wǒ xiǎng zū."
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "Bargaining at a market",
+   "title_bn": "বাজারে দরদাম",
+   "ai_role": "You are a stallholder at a Chinese market. HSK 2 Mandarin. Start at 100 yuan for a jacket, accept 80 after polite bargaining, accept WeChat or Alipay. Example flow (adapt, do not read verbatim): you: 这件衣服多少钱？ / them: 一百块。 / you: 太贵了，八十块可以吗？ / them: 好吧，八十。 / you: 可以用支付宝吗？ / them: 可以，扫这儿。",
+   "opening": "你好！你想买什么？",
+   "goals_en": [
+    "Ask the price, bargain politely, and pay by phone.",
+    "Say: How much is this jacket?",
+    "Say: Too expensive, is eighty OK?",
+    "Say: Can I use Alipay?"
+   ],
+   "goals_bn": [
+    "দাম জিজ্ঞেস করুন, ভদ্রভাবে দরদাম করুন, ফোনে টাকা দিন।",
+    "বলুন: এই জামার দাম কত?",
+    "বলুন: খুব দাম, আশি হবে?",
+    "বলুন: Alipay দিয়ে দেওয়া যাবে?"
+   ],
+   "useful": [
+    {
+     "target": "这件衣服多少钱？",
+     "bn": "এই জামার দাম কত?",
+     "en": "How much is this jacket?",
+     "roman": "Zhè jiàn yīfu duōshao qián?"
+    },
+    {
+     "target": "太贵了，八十块可以吗？",
+     "bn": "খুব দাম, আশি হবে?",
+     "en": "Too expensive, is eighty OK?",
+     "roman": "Tài guì le, bāshí kuài kěyǐ ma?"
+    },
+    {
+     "target": "可以用支付宝吗？",
+     "bn": "Alipay দিয়ে দেওয়া যাবে?",
+     "en": "Can I use Alipay?",
+     "roman": "Kěyǐ yòng Zhīfùbǎo ma?"
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "zh-pr1",
+   "text": "你好，我叫阿里。",
+   "tip_bn": "nǐ hǎo: প্রথম টোন ৩ উঠে যায় (ní hǎo)।",
+   "tip_en": "nǐ hǎo: the first 3rd tone rises (ní hǎo).",
+   "roman": "Nǐ hǎo, wǒ jiào Ālǐ."
+  },
+  {
+   "id": "zh-pr2",
+   "text": "我是孟加拉国人。",
+   "tip_bn": "shì: জিভ পেছনে বাঁকানো, নামা টোন।",
+   "tip_en": "shì: tongue curled back, falling tone.",
+   "roman": "Wǒ shì Mèngjiālāguó rén."
+  },
+  {
+   "id": "zh-pr3",
+   "text": "谢谢，再见。",
+   "tip_bn": "দ্বিতীয় 谢 হালকা (নিরপেক্ষ টোন)।",
+   "tip_en": "The second 谢 is light (neutral tone).",
+   "roman": "Xièxie, zàijiàn."
+  },
+  {
+   "id": "zh-pr4",
+   "text": "我听不懂，请说慢一点。",
+   "tip_bn": "tīng উঁচু ও সমান।",
+   "tip_en": "tīng is high and flat.",
+   "roman": "Wǒ tīng bu dǒng, qǐng shuō màn yìdiǎn."
+  },
+  {
+   "id": "zh-pr5",
+   "text": "火车站在哪儿？",
+   "tip_bn": "nǎr: 'র' শব্দাংশের সাথে মিশে যায় (বেইজিং ধরন)।",
+   "tip_en": "nǎr: the 'r' joins the syllable (Beijing style).",
+   "roman": "Huǒchēzhàn zài nǎr?"
+  },
+  {
+   "id": "zh-pr6",
+   "text": "太贵了，便宜一点吧。",
+   "tip_bn": "টোন ৩-এর আগে yī হয় yì।",
+   "tip_en": "yī becomes yì before a 3rd tone.",
+   "roman": "Tài guì le, piányi yìdiǎn ba."
+  },
+  {
+   "id": "zh-pr7",
+   "text": "请再说一遍。",
+   "tip_bn": "টোন ৪-এর আগে yī হয় yí।",
+   "tip_en": "yī becomes yí before a 4th tone.",
+   "roman": "Qǐng zài shuō yí biàn."
+  },
+  {
+   "id": "zh-pr8",
+   "text": "注意安全，戴好安全帽。",
+   "tip_bn": "quán: ঠোঁট ছড়িয়ে তারপর গোল।",
+   "tip_en": "quán: lips spread then round.",
+   "roman": "Zhùyì ānquán, dàihǎo ānquánmào."
+  },
+  {
+   "id": "zh-pr9",
+   "text": "今天比昨天热。",
+   "tip_bn": "rè: গুঞ্জনের মতো 'র', র আর ঝ-এর মাঝামাঝি।",
+   "tip_en": "rè: a buzzing 'r', between র and ঝ.",
+   "roman": "Jīntiān bǐ zuótiān rè."
+  },
+  {
+   "id": "zh-pr10",
+   "text": "虽然很累，但是我很开心。",
+   "tip_bn": "পরপর দুই টোন ৩ — প্রথমটি ওঠে।",
+   "tip_en": "hěn + hěn: two 3rd tones in a row — the first rises.",
+   "roman": "Suīrán hěn lèi, dànshì wǒ hěn kāixīn."
+  },
+  {
+   "id": "zh-pr11",
+   "text": "期待您的回复。",
+   "tip_bn": "de হালকা ও ছোট।",
+   "tip_en": "de is light and short.",
+   "roman": "Qīdài nín de huífù."
+  },
+  {
+   "id": "zh-pr12",
+   "text": "熟能生巧，入乡随俗。",
+   "tip_bn": "প্রতিটি বাগধারা চার শব্দাংশের এক টানা একক হিসেবে বলুন।",
+   "tip_en": "Say each idiom as one smooth unit of four syllables.",
+   "roman": "Shú néng shēng qiǎo, rù xiāng suí sú."
+  }
+ ],
+ "mock": [
+  {
+   "id": "zh_style_1",
+   "title_en": "HSK FORMAT style (听力 listening, 阅读 reading, 书写 writing) + speaking — original Assisto questions, never a real exam paper",
+   "title_bn": "HSK ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা) + বলা — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "format_en": "HSK FORMAT style (听力 listening, 阅读 reading, 书写 writing) + speaking — original Assisto questions, never a real exam paper",
+   "format_bn": "HSK ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা) + বলা — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "minutes": 35,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading and understanding (listening items are shown as text until phone-voice listening is enabled)",
+     "title_bn": "পড়া ও বোঝা (ফোনের কণ্ঠে শোনা চালু না হওয়া পর্যন্ত শোনার প্রশ্ন লেখা আকারে)",
+     "questions": [
+      {
+       "id": "zh-mk-l1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK1",
+       "text": "কয়টা বাজে?\n现在八点。",
+       "text_en": "What time is it?\n现在八点。",
+       "text_bn": "কয়টা বাজে?\n现在八点。",
+       "tts_text": "现在八点。",
+       "options": [
+        "৮:০০",
+        "৯:০০",
+        "১০:০০"
+       ],
+       "options_en": [
+        "8:00",
+        "9:00",
+        "10:00"
+       ],
+       "options_bn": [
+        "৮:০০",
+        "৯:০০",
+        "১০:০০"
+       ],
+       "answer": 0,
+       "explain_bn": "八点 = আটটা।",
+       "explain_en": "八点 = eight o'clock."
+      },
+      {
+       "id": "zh-mk-l2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK1",
+       "text": "সত্য না মিথ্যা: সে ছাত্র।\n你好，我是学生。",
+       "text_en": "True or false: he is a student.\n你好，我是学生。",
+       "text_bn": "সত্য না মিথ্যা: সে ছাত্র।\n你好，我是学生。",
+       "tts_text": "你好，我是学生。",
+       "options": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 0,
+       "explain_bn": "我是学生 = আমি ছাত্র।",
+       "explain_en": "我是学生 = I am a student."
+      },
+      {
+       "id": "zh-mk-l3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK2",
+       "text": "দাম কত?\n这个三十块钱。",
+       "text_en": "How much does it cost?\n这个三十块钱。",
+       "text_bn": "দাম কত?\n这个三十块钱。",
+       "tts_text": "这个三十块钱。",
+       "options": [
+        "৩০",
+        "১৩",
+        "৩০০"
+       ],
+       "options_en": [
+        "30",
+        "13",
+        "300"
+       ],
+       "options_bn": [
+        "৩০",
+        "১৩",
+        "৩০০"
+       ],
+       "answer": 0,
+       "explain_bn": "三十块 = ত্রিশ ইউয়ান।",
+       "explain_en": "三十块 = thirty yuan."
+      },
+      {
+       "id": "zh-mk-l4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK3",
+       "text": "সে কেন কাজে আসবে না?\n经理，我今天生病了，不能上班。",
+       "text_en": "Why can't he come to work?\n经理，我今天生病了，不能上班。",
+       "text_bn": "সে কেন কাজে আসবে না?\n经理，我今天生病了，不能上班。",
+       "tts_text": "经理，我今天生病了，不能上班。",
+       "options": [
+        "অসুস্থ",
+        "ট্রেন দেরি",
+        "ছুটি"
+       ],
+       "options_en": [
+        "He is ill",
+        "His train is late",
+        "It's a holiday"
+       ],
+       "options_bn": [
+        "অসুস্থ",
+        "ট্রেন দেরি",
+        "ছুটি"
+       ],
+       "answer": 0,
+       "explain_bn": "生病了 = অসুস্থ হয়েছে।",
+       "explain_en": "生病了 = got ill."
+      },
+      {
+       "id": "zh-mk-l5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK4",
+       "text": "বক্তা কী মনে করেন?\n学汉语虽然很难，但是对我的工作很有用。",
+       "text_en": "What does the speaker think?\n学汉语虽然很难，但是对我的工作很有用。",
+       "text_bn": "বক্তা কী মনে করেন?\n学汉语虽然很难，但是对我的工作很有用。",
+       "tts_text": "学汉语虽然很难，但是对我的工作很有用。",
+       "options": [
+        "কঠিন, তবে মূল্যবান",
+        "খুব সহজ",
+        "কাজের নয়"
+       ],
+       "options_en": [
+        "Hard but worth it",
+        "Too easy",
+        "Not useful"
+       ],
+       "options_bn": [
+        "কঠিন, তবে মূল্যবান",
+        "খুব সহজ",
+        "কাজের নয়"
+       ],
+       "answer": 0,
+       "explain_bn": "কঠিন হলেও খুব কাজের।",
+       "explain_en": "虽然难，但是很有用."
+      },
+      {
+       "id": "zh-mk-l6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK5",
+       "text": "আবেদনকারীদের কী করতে হবে?\n根据学校的要求，申请人需要提交HSK四级证书。",
+       "text_en": "What must applicants do?\n根据学校的要求，申请人需要提交HSK四级证书。",
+       "text_bn": "আবেদনকারীদের কী করতে হবে?\n根据学校的要求，申请人需要提交HSK四级证书。",
+       "tts_text": "根据学校的要求，申请人需要提交HSK四级证书。",
+       "options": [
+        "HSK ৪ সনদ জমা দেওয়া",
+        "নগদ ফি দেওয়া",
+        "শুধু সরাসরি আসা"
+       ],
+       "options_en": [
+        "Submit an HSK 4 certificate",
+        "Pay a fee in cash",
+        "Come in person only"
+       ],
+       "options_bn": [
+        "HSK ৪ সনদ জমা দেওয়া",
+        "নগদ ফি দেওয়া",
+        "শুধু সরাসরি আসা"
+       ],
+       "answer": 0,
+       "explain_bn": "HSK ৪-এর সনদ জমা দিতে হবে।",
+       "explain_en": "需要提交HSK四级证书."
+      },
+      {
+       "id": "zh-mk-r1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK1",
+       "text": "'পানি' কোনটি?",
+       "text_en": "Which word means 'water'?",
+       "text_bn": "'পানি' কোনটি?",
+       "options": [
+        "水",
+        "火",
+        "山",
+        "人"
+       ],
+       "answer": 0,
+       "explain_bn": "水 = পানি।",
+       "explain_en": "水 shuǐ = water."
+      },
+      {
+       "id": "zh-mk-r2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK2",
+       "text": "সাইন: 出口। এটা কী?\n出口",
+       "text_en": "Sign: 出口. What is it?\n出口",
+       "text_bn": "সাইন: 出口। এটা কী?\n出口",
+       "options": [
+        "বের হওয়ার পথ",
+        "ঢোকার পথ",
+        "টয়লেট"
+       ],
+       "options_en": [
+        "Exit",
+        "Entrance",
+        "Toilet"
+       ],
+       "options_bn": [
+        "বের হওয়ার পথ",
+        "ঢোকার পথ",
+        "টয়লেট"
+       ],
+       "answer": 0,
+       "explain_bn": "出口 = বাহির; 入口 = প্রবেশ।",
+       "explain_en": "出口 = exit; 入口 = entrance."
+      },
+      {
+       "id": "zh-mk-r3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK3",
+       "text": "বেতন কবে দেওয়া হয়?\n通知：工资每月十号发，加班费一起发。",
+       "text_en": "When is the salary paid?\n通知：工资每月十号发，加班费一起发。",
+       "text_bn": "বেতন কবে দেওয়া হয়?\n通知：工资每月十号发，加班费一起发。",
+       "options": [
+        "প্রতি মাসের ১০ তারিখে",
+        "প্রতি শুক্রবার",
+        "বছরের শেষে"
+       ],
+       "options_en": [
+        "On the 10th of each month",
+        "Every Friday",
+        "At the end of the year"
+       ],
+       "options_bn": [
+        "প্রতি মাসের ১০ তারিখে",
+        "প্রতি শুক্রবার",
+        "বছরের শেষে"
+       ],
+       "answer": 0,
+       "explain_bn": "每月十号 = প্রতি মাসের ১০ তারিখ।",
+       "explain_en": "每月十号 = the 10th of every month."
+      },
+      {
+       "id": "zh-mk-r4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK3",
+       "text": "সঠিক শব্দক্রম বাছুন।",
+       "text_en": "Choose the correct word order.",
+       "text_bn": "সঠিক শব্দক্রম বাছুন।",
+       "options": [
+        "我已经到了。",
+        "我到了已经。",
+        "已经我到了。",
+        "了我已经到。"
+       ],
+       "answer": 0,
+       "explain_bn": "已经 ক্রিয়ার আগে বসে।",
+       "explain_en": "Adverb 已经 goes before the verb."
+      },
+      {
+       "id": "zh-mk-r5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK4",
+       "text": "কোম্পানি কী দিচ্ছে?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
+       "text_en": "What does the company offer?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
+       "text_bn": "কোম্পানি কী দিচ্ছে?\n我公司招聘技术工人，要求会说简单的汉语，提供免费住宿。",
+       "options": [
+        "বিনামূল্যে থাকার ব্যবস্থা",
+        "বিনামূল্যে গাড়ি",
+        "শুধু খণ্ডকালীন কাজ"
+       ],
+       "options_en": [
+        "Free housing",
+        "A free car",
+        "Only part-time work"
+       ],
+       "options_bn": [
+        "বিনামূল্যে থাকার ব্যবস্থা",
+        "বিনামূল্যে গাড়ি",
+        "শুধু খণ্ডকালীন কাজ"
+       ],
+       "answer": 0,
+       "explain_bn": "免费住宿 = বিনামূল্যে থাকা।",
+       "explain_en": "提供免费住宿 = free accommodation."
+      },
+      {
+       "id": "zh-mk-r6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "HSK5",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\n只要有人帮助，网上申请就能节省很多时间。",
+       "text_en": "Which statement matches the text?\n只要有人帮助，网上申请就能节省很多时间。",
+       "text_bn": "কোন বাক্য লেখার সাথে মেলে?\n只要有人帮助，网上申请就能节省很多时间。",
+       "options": [
+        "সাহায্য পেলে অনলাইন আবেদন দ্রুত",
+        "অনলাইন আবেদন সবসময় দ্রুত",
+        "কাগজে দ্রুত"
+       ],
+       "options_en": [
+        "Online applications are faster if people get help",
+        "Online applications are always faster",
+        "Paper is faster"
+       ],
+       "options_bn": [
+        "সাহায্য পেলে অনলাইন আবেদন দ্রুত",
+        "অনলাইন আবেদন সবসময় দ্রুত",
+        "কাগজে দ্রুত"
+       ],
+       "answer": 0,
+       "explain_bn": "只要……就 = যদি … তবেই।",
+       "explain_en": "只要……就 = as long as … then."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing",
+     "title_bn": "লেখা",
+     "prompts": [
+      {
+       "id": "zh-mk-w1",
+       "text": "চীনা অক্ষরে ২–৩ বাক্য লিখুন: আপনি কে, কোথায় কাজ/পড়াশোনা করেন, কেন চীনা শিখছেন (因为 ব্যবহার করুন)।",
+       "text_en": "Write 2–3 sentences in Chinese characters: who you are, where you work or study, and why you learn Chinese (use 因为).",
+       "text_bn": "চীনা অক্ষরে ২–৩ বাক্য লিখুন: আপনি কে, কোথায় কাজ/পড়াশোনা করেন, কেন চীনা শিখছেন (因为 ব্যবহার করুন)।",
+       "min_words": 1,
+       "max_words": 200,
+       "checks": [
+        {
+         "any": [
+          "我"
+         ],
+         "en": "Write about yourself (我)",
+         "bn": "নিজের কথা (我)"
+        },
+        {
+         "any": [
+          "工作",
+          "学习",
+          "上班"
+         ],
+         "en": "Work or study",
+         "bn": "কাজ বা পড়াশোনা"
+        },
+        {
+         "any": [
+          "因为"
+         ],
+         "en": "A reason with 因为",
+         "bn": "因为 দিয়ে কারণ"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "speaking",
+     "skill": "speaking",
+     "title_en": "Speaking — read aloud, the phone checks",
+     "title_bn": "বলা — জোরে পড়ুন, ফোন যাচাই করবে",
+     "read_aloud": [
+      "你好，我叫阿里。",
+      "我是孟加拉国人。",
+      "谢谢，再见。",
+      "我听不懂，请说慢一点。"
+     ],
+     "speak_prompts": [
+      {
+       "id": "zh-mk-s1",
+       "text_en": "Introduce yourself in Chinese: name, country, job or studies.",
+       "text_bn": "চীনা ভাষায় পরিচয়: নাম, দেশ, কাজ বা পড়াশোনা।",
+       "seconds": 45,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "我叫",
+          "名字"
+         ],
+         "en": "Name",
+         "bn": "নাম"
+        },
+        {
+         "any": [
+          "孟加拉"
+         ],
+         "en": "Country",
+         "bn": "দেশ"
+        },
+        {
+         "any": [
+          "工作",
+          "学习",
+          "学生"
+         ],
+         "en": "Job or studies",
+         "bn": "কাজ বা পড়াশোনা"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "HSK1"
+    },
+    {
+     "min_pct": 35,
+     "level": "HSK2"
+    },
+    {
+     "min_pct": 50,
+     "level": "HSK3"
+    },
+    {
+     "min_pct": 65,
+     "level": "HSK4"
+    },
+    {
+     "min_pct": 80,
+     "level": "HSK5"
+    },
+    {
+     "min_pct": 92,
+     "level": "HSK6"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}

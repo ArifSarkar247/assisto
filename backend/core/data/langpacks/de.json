@@ -1,0 +1,1881 @@
+{
+ "format": 1,
+ "lang": "de",
+ "version": 1,
+ "stt_locale": "de-DE",
+ "tts_locale": "de-DE",
+ "rtl": false,
+ "level_system": "CEFR",
+ "levels": [
+  {
+   "id": "A1",
+   "en": "A1 — Beginner",
+   "bn": "A1 — একেবারে শুরু"
+  },
+  {
+   "id": "A2",
+   "en": "A2 — Elementary",
+   "bn": "A2 — প্রাথমিক"
+  },
+  {
+   "id": "B1",
+   "en": "B1 — Intermediate (work, daily life)",
+   "bn": "B1 — মাঝারি (কাজ, দৈনন্দিন জীবন)"
+  },
+  {
+   "id": "B2",
+   "en": "B2 — Upper intermediate (study, office)",
+   "bn": "B2 — উচ্চ-মাঝারি (পড়াশোনা, অফিস)"
+  },
+  {
+   "id": "C1",
+   "en": "C1 — Advanced",
+   "bn": "C1 — উন্নত"
+  },
+  {
+   "id": "C2",
+   "en": "C2 — Mastery",
+   "bn": "C2 — দক্ষ"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "de-pl1",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A1",
+    "text": "সঠিক উত্তর বাছুন: 'Wie heißen Sie?'",
+    "text_en": "Choose the right answer: 'Wie heißen Sie?'",
+    "text_bn": "সঠিক উত্তর বাছুন: 'Wie heißen Sie?'",
+    "options": [
+     "Ich heiße Rina.",
+     "Ich bin fünfundzwanzig.",
+     "Ich wohne in Dhaka.",
+     "Danke, gut."
+    ],
+    "answer": 0,
+    "explain_bn": "'Wie heißen Sie?' মানে আপনার নাম কী।",
+    "explain_en": "'Wie heißen Sie?' asks your name."
+   },
+   {
+    "id": "de-pl2",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A1",
+    "text": "কোন সংখ্যা শুনলেন?\neinundzwanzig",
+    "text_en": "What number do you hear?\neinundzwanzig",
+    "text_bn": "কোন সংখ্যা শুনলেন?\neinundzwanzig",
+    "tts_text": "einundzwanzig",
+    "options": [
+     "১২",
+     "২১",
+     "২০",
+     "২২"
+    ],
+    "options_en": [
+     "12",
+     "21",
+     "20",
+     "22"
+    ],
+    "options_bn": [
+     "১২",
+     "২১",
+     "২০",
+     "২২"
+    ],
+    "answer": 1,
+    "explain_bn": "einundzwanzig = ২১।",
+    "explain_en": "einundzwanzig = 21 (one-and-twenty)."
+   },
+   {
+    "id": "de-pl3",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A2",
+    "text": "শূন্যস্থান: 'Gestern ___ ich nach Köln gefahren.'",
+    "text_en": "Fill the gap: 'Gestern ___ ich nach Köln gefahren.'",
+    "text_bn": "শূন্যস্থান: 'Gestern ___ ich nach Köln gefahren.'",
+    "options": [
+     "bin",
+     "habe",
+     "war",
+     "hat"
+    ],
+    "answer": 0,
+    "explain_bn": "fahren অতীতে 'sein' নেয় → bin।",
+    "explain_en": "fahren takes 'sein' in the Perfekt."
+   },
+   {
+    "id": "de-pl4",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A2",
+    "text": "অ্যাপয়েন্টমেন্ট কখন?\nIhr Termin ist am Dienstag um zehn Uhr.",
+    "text_en": "When is the appointment?\nIhr Termin ist am Dienstag um zehn Uhr.",
+    "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nIhr Termin ist am Dienstag um zehn Uhr.",
+    "tts_text": "Ihr Termin ist am Dienstag um zehn Uhr.",
+    "options": [
+     "মঙ্গলবার ১০টায়",
+     "বৃহস্পতিবার ১০টায়",
+     "মঙ্গলবার ২টায়",
+     "আজ"
+    ],
+    "options_en": [
+     "Tuesday at 10",
+     "Thursday at 10",
+     "Tuesday at 2",
+     "Today"
+    ],
+    "options_bn": [
+     "মঙ্গলবার ১০টায়",
+     "বৃহস্পতিবার ১০টায়",
+     "মঙ্গলবার ২টায়",
+     "আজ"
+    ],
+    "answer": 0,
+    "explain_bn": "Dienstag = মঙ্গলবার, zehn = দশ।",
+    "explain_en": "Dienstag = Tuesday, zehn = ten."
+   },
+   {
+    "id": "de-pl5",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B1",
+    "text": "সঠিক শব্দক্রম বাছুন।",
+    "text_en": "Choose the correct word order.",
+    "text_bn": "সঠিক শব্দক্রম বাছুন।",
+    "options": [
+     "Ich bleibe zu Hause, weil ich krank bin.",
+     "Ich bleibe zu Hause, weil ich bin krank.",
+     "Ich bleibe zu Hause, weil bin ich krank.",
+     "Weil ich krank, bleibe ich bin zu Hause."
+    ],
+    "answer": 0,
+    "explain_bn": "'weil'-এর পরে ক্রিয়া শেষে।",
+    "explain_en": "After 'weil' the verb goes to the end."
+   },
+   {
+    "id": "de-pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B1",
+    "text": "সহকর্মী কেন আসতে পারবেন না?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
+    "text_en": "Why can't the colleague come?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
+    "text_bn": "সহকর্মী কেন আসতে পারবেন না?\nHallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
+    "tts_text": "Hallo, hier ist Maria. Ich kann heute leider nicht kommen, mein Sohn hat Fieber.",
+    "options": [
+     "তার সন্তান অসুস্থ",
+     "ট্রেন দেরি",
+     "ছুটি নিয়েছেন",
+     "ডাক্তারের অ্যাপয়েন্টমেন্ট"
+    ],
+    "options_en": [
+     "Her child is ill",
+     "Her train is late",
+     "She has a holiday",
+     "She has a doctor's appointment"
+    ],
+    "options_bn": [
+     "তার সন্তান অসুস্থ",
+     "ট্রেন দেরি",
+     "ছুটি নিয়েছেন",
+     "ডাক্তারের অ্যাপয়েন্টমেন্ট"
+    ],
+    "answer": 0,
+    "explain_bn": "'mein Sohn hat Fieber' = ছেলের জ্বর।",
+    "explain_en": "'mein Sohn hat Fieber' = my son has a fever."
+   },
+   {
+    "id": "de-pl7",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B2",
+    "text": "আনুষ্ঠানিক চাকরির ইমেইলের শেষে কোনটি?",
+    "text_en": "Which ending fits a formal job email?",
+    "text_bn": "আনুষ্ঠানিক চাকরির ইমেইলের শেষে কোনটি?",
+    "options": [
+     "Mit freundlichen Grüßen",
+     "Bis bald!",
+     "Liebe Grüße und Küsschen",
+     "Tschüss!"
+    ],
+    "answer": 0,
+    "explain_bn": "'Mit freundlichen Grüßen' = আনুষ্ঠানিক সমাপ্তি।",
+    "explain_en": "'Mit freundlichen Grüßen' is the standard formal close."
+   },
+   {
+    "id": "de-pl8",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B2",
+    "text": "'Ich würde mich über eine Antwort freuen' মানে…",
+    "text_en": "'Ich würde mich über eine Antwort freuen' means…",
+    "text_bn": "'Ich würde mich über eine Antwort freuen' মানে…",
+    "options": [
+     "উত্তর পেলে খুশি হব",
+     "উত্তরে রাগ হয়েছি",
+     "খুশি হয়ে উত্তর দিয়েছি",
+     "উত্তর দেবেন না"
+    ],
+    "options_en": [
+     "I would be glad of a reply",
+     "I am angry about the answer",
+     "I answered happily",
+     "Please don't answer"
+    ],
+    "options_bn": [
+     "উত্তর পেলে খুশি হব",
+     "উত্তরে রাগ হয়েছি",
+     "খুশি হয়ে উত্তর দিয়েছি",
+     "উত্তর দেবেন না"
+    ],
+    "answer": 0,
+    "explain_bn": "'würde' (Konjunktiv II) ভদ্রতা আনে।",
+    "explain_en": "Konjunktiv II 'würde' makes it polite."
+   },
+   {
+    "id": "de-pl9",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "উপযুক্ত সংযোজক: '___ der hohen Kosten wurde das Projekt gestoppt.'",
+    "text_en": "Choose the best connector: '___ der hohen Kosten wurde das Projekt gestoppt.'",
+    "text_bn": "উপযুক্ত সংযোজক: '___ der hohen Kosten wurde das Projekt gestoppt.'",
+    "options": [
+     "Aufgrund",
+     "Obwohl",
+     "Damit",
+     "Sondern"
+    ],
+    "answer": 0,
+    "explain_bn": "'aufgrund' + Genitiv = কারণে।",
+    "explain_en": "'aufgrund' + genitive = because of."
+   },
+   {
+    "id": "de-pl10",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "বক্তার মূল কথা কী?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
+    "text_en": "What is the speaker's main point?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
+    "text_bn": "বক্তার মূল কথা কী?\nDie Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
+    "tts_text": "Die Fachkräfteeinwanderung ist zwar ein Gewinn für die Pflege, aber die Anerkennung der Abschlüsse dauert oft viel zu lange.",
+    "options": [
+     "দক্ষ অভিবাসন সাহায্য করে, কিন্তু স্বীকৃতি খুব ধীর",
+     "অভিবাসন বন্ধ হোক",
+     "স্বীকৃতি যথেষ্ট দ্রুত",
+     "নার্সরা বেশি আয় করে"
+    ],
+    "options_en": [
+     "Skilled immigration helps, but recognition is too slow",
+     "Immigration should stop",
+     "Recognition is fast enough",
+     "Nurses earn too much"
+    ],
+    "options_bn": [
+     "দক্ষ অভিবাসন সাহায্য করে, কিন্তু স্বীকৃতি খুব ধীর",
+     "অভিবাসন বন্ধ হোক",
+     "স্বীকৃতি যথেষ্ট দ্রুত",
+     "নার্সরা বেশি আয় করে"
+    ],
+    "answer": 0,
+    "explain_bn": "'zwar … aber' = যদিও … কিন্তু।",
+    "explain_en": "'zwar … aber' = admittedly … but."
+   },
+   {
+    "id": "de-pl11",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C2",
+    "text": "'Das ist nicht mein Bier' মানে…",
+    "text_en": "'Das ist nicht mein Bier' means…",
+    "text_bn": "'Das ist nicht mein Bier' মানে…",
+    "options": [
+     "এটা আমার বিষয় নয়",
+     "আমি বিয়ার খাই না",
+     "এটা আমার গ্লাস নয়",
+     "তৃষ্ণা নেই"
+    ],
+    "options_en": [
+     "That's not my business",
+     "I don't drink beer",
+     "That's not my glass",
+     "I'm not thirsty"
+    ],
+    "options_bn": [
+     "এটা আমার বিষয় নয়",
+     "আমি বিয়ার খাই না",
+     "এটা আমার গ্লাস নয়",
+     "তৃষ্ণা নেই"
+    ],
+    "answer": 0,
+    "explain_bn": "বাগধারা: আমার মাথাব্যথা নয়।",
+    "explain_en": "An idiom: not my concern."
+   },
+   {
+    "id": "de-pl12",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C2",
+    "text": "শূন্যস্থান: 'Seine Argumentation war in sich ___.'",
+    "text_en": "Which word best completes: 'Seine Argumentation war in sich ___.'",
+    "text_bn": "শূন্যস্থান: 'Seine Argumentation war in sich ___.'",
+    "options": [
+     "schlüssig",
+     "schlüsselig",
+     "geschlossen worden",
+     "schluckend"
+    ],
+    "answer": 0,
+    "explain_bn": "'in sich schlüssig' = নিজের মধ্যে সুসংগত।",
+    "explain_en": "'in sich schlüssig' = internally consistent."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "de-a1-1",
+   "level": "A1",
+   "title_en": "Hello! Introduce yourself",
+   "title_bn": "হ্যালো! নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "note",
+     "target": "Hallo! / Guten Morgen!",
+     "bn": "অপরিচিত ও কাজে 'Sie' (আপনি), বন্ধু ও শিশুদের 'du' (তুমি)।",
+     "en": "Use 'Sie' with strangers and at work, 'du' with friends and children."
+    },
+    {
+     "kind": "phrase",
+     "target": "Hallo! / Guten Morgen!",
+     "bn": "হ্যালো! / সুপ্রভাত!",
+     "en": "Hello! / Good morning!",
+     "note_bn": "উচ্চারণ: হালো / গুটেন মর্গেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich heiße Karim.",
+     "bn": "আমার নাম করিম।",
+     "en": "My name is Karim.",
+     "note_bn": "উচ্চারণ: ইশ হাইসে করিম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich komme aus Bangladesch.",
+     "bn": "আমি বাংলাদেশ থেকে এসেছি।",
+     "en": "I come from Bangladesh.",
+     "note_bn": "উচ্চারণ: ইশ কমে আউস বাংলাদেশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Wie geht es Ihnen?",
+     "bn": "আপনি কেমন আছেন? (ভদ্র রূপ)",
+     "en": "How are you? (formal)",
+     "note_bn": "উচ্চারণ: ভি গেট এস ইনেন? · বন্ধুদের: ভি গেটস?",
+     "note_en": "Friends: Wie geht's?"
+    },
+    {
+     "kind": "phrase",
+     "target": "Gut, danke. Und Ihnen?",
+     "bn": "ভালো, ধন্যবাদ। আপনি?",
+     "en": "Fine, thanks. And you?",
+     "note_bn": "উচ্চারণ: গুট, ডাঙ্কে। উন্ট ইনেন?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Bitte. / Danke schön.",
+     "bn": "দয়া করে / স্বাগত। / অনেক ধন্যবাদ।",
+     "en": "Please / You're welcome. / Thank you very much.",
+     "note_bn": "উচ্চারণ: বিটে / ডাঙ্কে শ্যোন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Entschuldigung!",
+     "bn": "মাফ করবেন!",
+     "en": "Excuse me! / Sorry!",
+     "note_bn": "উচ্চারণ: এন্টশুলডিগুং",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich verstehe das nicht.",
+     "bn": "আমি এটা বুঝিনি।",
+     "en": "I don't understand that.",
+     "note_bn": "উচ্চারণ: ইশ ফেয়াশটেয়ে দাস নিশট",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Sprechen Sie bitte langsam.",
+     "bn": "দয়া করে আস্তে বলুন।",
+     "en": "Please speak slowly.",
+     "note_bn": "উচ্চারণ: শপ্রেশেন জি বিটে লাংজাম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Auf Wiedersehen! / Tschüss!",
+     "bn": "বিদায়! (ভদ্র / ঘরোয়া)",
+     "en": "Goodbye! (formal / casual)",
+     "note_bn": "উচ্চারণ: আউফ ভিডারজেয়েন / চুস",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Hallo! / Guten Morgen!",
+    "Ich heiße Karim.",
+    "Ich komme aus Bangladesch."
+   ]
+  },
+  {
+   "id": "de-a1-2",
+   "level": "A1",
+   "title_en": "Numbers, time and days",
+   "title_bn": "সংখ্যা, সময় ও দিন",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "eins, zwei, drei, vier, fünf",
+     "bn": "এক, দুই, তিন, চার, পাঁচ",
+     "en": "one, two, three, four, five",
+     "note_bn": "উচ্চারণ: আইন্স, ৎস্ভাই, ড্রাই, ফিয়া, ফ্যুনফ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "sechs, sieben, acht, neun, zehn",
+     "bn": "ছয় থেকে দশ",
+     "en": "six to ten",
+     "note_bn": "উচ্চারণ: জেক্স, জিবেন, আখট, নয়ন, ৎসেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "einundzwanzig",
+     "bn": "একুশ (জার্মানে 'এক-আর-বিশ')",
+     "en": "twenty-one (one-and-twenty)",
+     "note_bn": "উচ্চারণ: আইন-উন্ট-ৎস্ভান্ৎসিশ · জার্মানে একক আগে, দশক পরে বলে।",
+     "note_en": "German says the ones before the tens."
+    },
+    {
+     "kind": "phrase",
+     "target": "Wie spät ist es? — Es ist acht Uhr.",
+     "bn": "কয়টা বাজে? — আটটা।",
+     "en": "What time is it? — It is eight o'clock.",
+     "note_bn": "উচ্চারণ: ভি শপেট ইস্ট এস? — এস ইস্ট আখট উয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "halb neun",
+     "bn": "সাড়ে আটটা (শব্দে 'অর্ধেক নয়')",
+     "en": "half past eight (lit. 'half nine')",
+     "note_bn": "উচ্চারণ: হাল্প নয়ন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Montag, Dienstag, Mittwoch",
+     "bn": "সোম, মঙ্গল, বুধবার",
+     "en": "Monday, Tuesday, Wednesday",
+     "note_bn": "উচ্চারণ: মোনটাগ, ডিনস্টাগ, মিটভখ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Donnerstag, Freitag, Samstag, Sonntag",
+     "bn": "বৃহস্পতি, শুক্র, শনি, রবিবার",
+     "en": "Thursday, Friday, Saturday, Sunday",
+     "note_bn": "উচ্চারণ: ডনার্সটাগ, ফ্রাইটাগ, জামস্টাগ, জনটাগ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Was kostet das? — Drei Euro.",
+     "bn": "এটার দাম কত? — তিন ইউরো।",
+     "en": "How much is that? — Three euros.",
+     "note_bn": "উচ্চারণ: ভাস কস্টেট দাস? — ড্রাই অয়রো",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "eins, zwei, drei, vier, fünf",
+    "sechs, sieben, acht, neun, zehn",
+    "einundzwanzig"
+   ]
+  },
+  {
+   "id": "de-a1-3",
+   "level": "A1",
+   "title_en": "der, die, das — family and food",
+   "title_bn": "der, die, das — পরিবার ও খাবার",
+   "items": [
+    {
+     "kind": "note",
+     "target": "der Vater, die Mutter, das Kind",
+     "bn": "প্রতিটি বিশেষ্য der/die/das সহ মুখস্থ করুন — লিঙ্গ যুক্তি মানে না (das Mädchen = মেয়ে)।",
+     "en": "Learn every noun WITH der/die/das — the gender is not logical (das Mädchen = the girl)."
+    },
+    {
+     "kind": "grammar",
+     "target": "der Vater, die Mutter, das Kind",
+     "bn": "বাবা, মা, শিশু",
+     "en": "the father, the mother, the child",
+     "note_bn": "উচ্চারণ: ডেয়া ফাটা, ডি মুটা, দাস কিন্ড",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "der Bruder, die Schwester",
+     "bn": "ভাই, বোন",
+     "en": "the brother, the sister",
+     "note_bn": "উচ্চারণ: ডেয়া ব্রুডা, ডি শ্ভেস্টা",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "das Brot, der Reis, die Milch",
+     "bn": "রুটি, ভাত/চাল, দুধ",
+     "en": "the bread, the rice, the milk",
+     "note_bn": "উচ্চারণ: দাস ব্রোট, ডেয়া রাইস, ডি মিলশ",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "das Wasser, der Tee, das Hähnchen",
+     "bn": "পানি, চা, মুরগি",
+     "en": "the water, the tea, the chicken",
+     "note_bn": "উচ্চারণ: দাস ভাসা, ডেয়া টে, দাস হেনশেন",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich habe zwei Kinder.",
+     "bn": "আমার দুটি সন্তান।",
+     "en": "I have two children.",
+     "note_bn": "উচ্চারণ: ইশ হাবে ৎস্ভাই কিন্ডা",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich esse kein Schweinefleisch.",
+     "bn": "আমি শূকরের মাংস খাই না।",
+     "en": "I don't eat pork.",
+     "note_bn": "উচ্চারণ: ইশ এসে কাইন শ্ভাইনেফ্লাইশ",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich trinke gern Tee.",
+     "bn": "আমি চা খেতে ভালোবাসি।",
+     "en": "I like drinking tea.",
+     "note_bn": "উচ্চারণ: ইশ ট্রিঙ্কে গেয়ার্ন টে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "der Vater, die Mutter, das Kind",
+    "der Bruder, die Schwester",
+    "das Brot, der Reis, die Milch"
+   ]
+  },
+  {
+   "id": "de-a2-1",
+   "level": "A2",
+   "title_en": "Shopping and appointments",
+   "title_bn": "কেনাকাটা ও অ্যাপয়েন্টমেন্ট",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Ich hätte gern ein Kilo Reis.",
+     "bn": "এক কেজি চাল চাই।",
+     "en": "I'd like a kilo of rice.",
+     "note_bn": "উচ্চারণ: ইশ হেটে গেয়ার্ন আইন কিলো রাইস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Haben Sie das auch in Größe M?",
+     "bn": "এটা কি M সাইজে আছে?",
+     "en": "Do you have this in size M too?",
+     "note_bn": "উচ্চারণ: হাবেন জি দাস আউখ ইন গ্র্যোসে এম?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Kann ich mit Karte zahlen?",
+     "bn": "কার্ডে দেওয়া যাবে?",
+     "en": "Can I pay by card?",
+     "note_bn": "উচ্চারণ: কান ইশ মিট কার্টে ৎসালেন?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich brauche einen Termin.",
+     "bn": "আমার একটা অ্যাপয়েন্টমেন্ট দরকার।",
+     "en": "I need an appointment.",
+     "note_bn": "উচ্চারণ: ইশ ব্রাউখে আইনেন টেয়ারমিন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Geht es am Dienstag um zehn Uhr?",
+     "bn": "মঙ্গলবার দশটায় হবে?",
+     "en": "Is Tuesday at ten o'clock OK?",
+     "note_bn": "উচ্চারণ: গেট এস আম ডিনস্টাগ উম ৎসেন উয়া?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Wo ist der Bahnhof?",
+     "bn": "রেলস্টেশন কোথায়?",
+     "en": "Where is the train station?",
+     "note_bn": "উচ্চারণ: ভো ইস্ট ডেয়া বানহোফ?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Gehen Sie geradeaus und dann links.",
+     "bn": "সোজা গিয়ে তারপর বামে যান।",
+     "en": "Go straight on and then left.",
+     "note_bn": "উচ্চারণ: গেয়েন জি গেরাডেআউস উন্ট দান লিঙ্কস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Eine Fahrkarte nach Berlin, bitte.",
+     "bn": "বার্লিনের একটা টিকিট, দয়া করে।",
+     "en": "A ticket to Berlin, please.",
+     "note_bn": "উচ্চারণ: আইনে ফারকার্টে নাখ বেয়ারলিন, বিটে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ich hätte gern ein Kilo Reis.",
+    "Haben Sie das auch in Größe M?",
+    "Kann ich mit Karte zahlen?"
+   ]
+  },
+  {
+   "id": "de-a2-2",
+   "level": "A2",
+   "title_en": "Talking about the past (Perfekt)",
+   "title_bn": "অতীতের কথা (Perfekt)",
+   "items": [
+    {
+     "kind": "note",
+     "target": "Ich habe gestern gearbeitet.",
+     "bn": "চলাচলের ক্রিয়া (fahren, gehen, kommen) 'sein' নেয়: ich bin gefahren। বাকিগুলো সাধারণত 'haben'।",
+     "en": "Movement verbs (fahren, gehen, kommen) use 'sein': ich bin gefahren. Most others use 'haben'."
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich habe gestern gearbeitet.",
+     "bn": "আমি গতকাল কাজ করেছি।",
+     "en": "I worked yesterday.",
+     "note_bn": "উচ্চারণ: ইশ হাবে গেস্টার্ন গেআরবাইটেট",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich bin nach Hamburg gefahren.",
+     "bn": "আমি হামবুর্গে গিয়েছি।",
+     "en": "I travelled to Hamburg.",
+     "note_bn": "উচ্চারণ: ইশ বিন নাখ হামবুর্গ গেফারেন",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Wir haben Reis gekocht.",
+     "bn": "আমরা ভাত রান্না করেছি।",
+     "en": "We cooked rice.",
+     "note_bn": "উচ্চারণ: ভিয়া হাবেন রাইস গেকখট",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Hast du gut geschlafen?",
+     "bn": "ভালো ঘুম হয়েছে?",
+     "en": "Did you sleep well?",
+     "note_bn": "উচ্চারণ: হাস্ট ডু গুট গেশলাফেন?",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich bin um sechs Uhr aufgestanden.",
+     "bn": "আমি ছয়টায় উঠেছি।",
+     "en": "I got up at six o'clock.",
+     "note_bn": "উচ্চারণ: ইশ বিন উম জেক্স উয়া আউফগেশটান্ডেন",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Was hast du am Wochenende gemacht?",
+     "bn": "সপ্তাহান্তে কী করেছ?",
+     "en": "What did you do at the weekend?",
+     "note_bn": "উচ্চারণ: ভাস হাস্ট ডু আম ভখেনএন্ডে গেমাখট?",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ich habe gestern gearbeitet.",
+    "Ich bin nach Hamburg gefahren.",
+    "Wir haben Reis gekocht."
+   ]
+  },
+  {
+   "id": "de-b1-1",
+   "level": "B1",
+   "title_en": "At work: shifts, care, questions",
+   "title_bn": "কাজে: শিফট, সেবা, প্রশ্ন",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Ich arbeite als Pflegefachkraft.",
+     "bn": "আমি নার্স হিসেবে কাজ করি।",
+     "en": "I work as a nurse (care specialist).",
+     "note_bn": "উচ্চারণ: ইশ আরবাইটে আলস প্ফ্লেগেফাখক্রাফট",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Wann beginnt meine Schicht?",
+     "bn": "আমার শিফট কখন শুরু?",
+     "en": "When does my shift start?",
+     "note_bn": "উচ্চারণ: ভান বেগিন্ট মাইনে শিশট?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Könnten Sie das bitte noch einmal erklären?",
+     "bn": "দয়া করে আরেকবার বুঝিয়ে বলবেন?",
+     "en": "Could you explain that once more, please?",
+     "note_bn": "উচ্চারণ: ক্যোন্টেন জি দাস বিটে নখ আইনমাল এয়ারক্লেরেন?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich habe Überstunden gemacht.",
+     "bn": "আমি ওভারটাইম করেছি।",
+     "en": "I worked overtime.",
+     "note_bn": "উচ্চারণ: ইশ হাবে উবারশটুন্ডেন গেমাখট",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich bin heute krank und kann nicht kommen.",
+     "bn": "আজ আমি অসুস্থ, আসতে পারব না।",
+     "en": "I am ill today and can't come.",
+     "note_bn": "উচ্চারণ: ইশ বিন হয়টে ক্রাঙ্ক উন্ট কান নিশট কমেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Brauche ich eine Krankmeldung?",
+     "bn": "অসুস্থতার সার্টিফিকেট লাগবে?",
+     "en": "Do I need a sick note?",
+     "note_bn": "উচ্চারণ: ব্রাউখে ইশ আইনে ক্রাঙ্কমেলডুং?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Der Patient hat Schmerzen im Rücken.",
+     "bn": "রোগীর পিঠে ব্যথা।",
+     "en": "The patient has back pain.",
+     "note_bn": "উচ্চারণ: ডেয়া পাৎসিয়েন্ট হাট শমেয়ার্ৎসেন ইম র‍্যুকেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich habe mich um die Stelle beworben.",
+     "bn": "আমি পদটির জন্য আবেদন করেছি।",
+     "en": "I have applied for the position.",
+     "note_bn": "উচ্চারণ: ইশ হাবে মিশ উম ডি শটেলে বেভর্বেন",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ich arbeite als Pflegefachkraft.",
+    "Wann beginnt meine Schicht?",
+    "Könnten Sie das bitte noch einmal erklären?"
+   ]
+  },
+  {
+   "id": "de-b1-2",
+   "level": "B1",
+   "title_en": "Giving reasons and opinions",
+   "title_bn": "কারণ ও মতামত",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "Ich lerne Deutsch, weil ich in Deutschland arbeiten möchte.",
+     "bn": "আমি জার্মান শিখি কারণ জার্মানিতে কাজ করতে চাই।",
+     "en": "I learn German because I want to work in Germany.",
+     "note_bn": "উচ্চারণ: ইশ লেয়ার্নে ডয়চ, ভাইল ইশ ইন ডয়চলান্ট আরবাইটেন ম্যোশটে · 'weil'-এর পরে ক্রিয়া বাক্যের শেষে।",
+     "note_en": "After 'weil' the verb goes to the end."
+    },
+    {
+     "kind": "grammar",
+     "target": "Deshalb mache ich einen Kurs.",
+     "bn": "সেজন্য আমি একটা কোর্স করছি।",
+     "en": "That's why I'm taking a course.",
+     "note_bn": "উচ্চারণ: ডেসহাল্প মাখে ইশ আইনেন কুর্স",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Obwohl es regnet, gehe ich zur Arbeit.",
+     "bn": "বৃষ্টি হলেও আমি কাজে যাই।",
+     "en": "Although it is raining, I go to work.",
+     "note_bn": "উচ্চারণ: অপভোল এস রেগনেট, গেয়ে ইশ ৎসুয়া আরবাইট",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Meiner Meinung nach ist das richtig.",
+     "bn": "আমার মতে এটা ঠিক।",
+     "en": "In my opinion that is right.",
+     "note_bn": "উচ্চারণ: মাইনা মাইনুং নাখ ইস্ট দাস রিশটিশ",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Einerseits … andererseits …",
+     "bn": "একদিকে … অন্যদিকে …",
+     "en": "On the one hand … on the other hand …",
+     "note_bn": "উচ্চারণ: আইনারজাইটস … আন্ডেরারজাইটস",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Ich finde, dass man pünktlich sein sollte.",
+     "bn": "আমার মনে হয় সময়মতো থাকা উচিত।",
+     "en": "I think one should be on time.",
+     "note_bn": "উচ্চারণ: ইশ ফিন্ডে, দাস মান প্যুঙ্কটলিশ জাইন জলটে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ich lerne Deutsch, weil ich in Deutschland arbeiten möchte.",
+    "Deshalb mache ich einen Kurs.",
+    "Obwohl es regnet, gehe ich zur Arbeit."
+   ]
+  },
+  {
+   "id": "de-b2-1",
+   "level": "B2",
+   "title_en": "Formal letters and polite requests",
+   "title_bn": "আনুষ্ঠানিক চিঠি ও ভদ্র অনুরোধ",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Sehr geehrte Damen und Herren,",
+     "bn": "জনাব/জনাবা,",
+     "en": "Dear Sir or Madam,",
+     "note_bn": "উচ্চারণ: জেয়া গেএয়ার্টে ডামেন উন্ট হেরেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ich beziehe mich auf Ihre Anzeige vom 3. März.",
+     "bn": "৩ মার্চের আপনার বিজ্ঞাপনের প্রসঙ্গে লিখছি।",
+     "en": "I am writing with reference to your advertisement of 3 March.",
+     "note_bn": "উচ্চারণ: ইশ বেৎসিয়ে মিশ আউফ ইরে আন্ৎসাইগে ফম ড্রিটেন মেয়ার্ৎস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ich würde mich über eine Antwort freuen.",
+     "bn": "উত্তর পেলে খুশি হব।",
+     "en": "I would be glad to receive a reply.",
+     "note_bn": "উচ্চারণ: ইশ ভ্যুয়ার্ডে মিশ উবা আইনে আন্টভর্ট ফ্রয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Könnten Sie mir bitte mitteilen, ob …",
+     "bn": "দয়া করে জানাবেন কি …",
+     "en": "Could you please let me know whether …",
+     "note_bn": "উচ্চারণ: ক্যোন্টেন জি মিয়া বিটে মিটটাইলেন, অপ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Im Anhang finden Sie meinen Lebenslauf.",
+     "bn": "সংযুক্তিতে আমার সিভি পাবেন।",
+     "en": "Please find my CV attached.",
+     "note_bn": "উচ্চারণ: ইম আনহাং ফিন্ডেন জি মাইনেন লেবেন্সলাউফ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Mit freundlichen Grüßen",
+     "bn": "বিনীত",
+     "en": "Yours sincerely",
+     "note_bn": "উচ্চারণ: মিট ফ্রয়েন্ডলিশেন গ্র্যুসেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Die Anerkennung meines Abschlusses dauert noch.",
+     "bn": "আমার ডিগ্রির স্বীকৃতি এখনো চলছে।",
+     "en": "The recognition of my qualification is still in progress.",
+     "note_bn": "উচ্চারণ: ডি আনএয়ারকেনুং মাইনেস আপশ্লুসেস দাউয়ার্ট নখ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Sehr geehrte Damen und Herren,",
+    "ich beziehe mich auf Ihre Anzeige vom 3. März.",
+    "Ich würde mich über eine Antwort freuen."
+   ]
+  },
+  {
+   "id": "de-c1-1",
+   "level": "C1",
+   "title_en": "Arguing like an expert",
+   "title_bn": "বিশেষজ্ঞের মতো যুক্তি",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Es lässt sich nicht leugnen, dass …",
+     "bn": "অস্বীকার করা যায় না যে …",
+     "en": "It cannot be denied that …",
+     "note_bn": "উচ্চারণ: এস লেস্ট জিশ নিশট লয়গনেন, দাস …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "In Anbetracht der Tatsache, dass …",
+     "bn": "এই বাস্তবতা বিবেচনায় যে …",
+     "en": "In view of the fact that …",
+     "note_bn": "উচ্চারণ: ইন আনবেট্রাখট ডেয়া টাটজাখে, দাস …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Daraus ergibt sich, dass …",
+     "bn": "এ থেকে বোঝা যায় যে …",
+     "en": "From this it follows that …",
+     "note_bn": "উচ্চারণ: ডারাউস এয়ারগিপ্ট জিশ, দাস …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Dem ist entgegenzuhalten, dass …",
+     "bn": "এর বিপক্ষে বলতে হয় যে …",
+     "en": "Against this it must be said that …",
+     "note_bn": "উচ্চারণ: ডেম ইস্ট এন্টগেগেনৎসুহাল্টেন, দাস …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "die Fachkräfteeinwanderung",
+     "bn": "দক্ষ কর্মী অভিবাসন",
+     "en": "skilled-worker immigration",
+     "note_bn": "উচ্চারণ: ডি ফাখক্রেফটেআইনভান্ডেরুং",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Zusammenfassend lässt sich sagen, …",
+     "bn": "সংক্ষেপে বলা যায় …",
+     "en": "In summary, one can say …",
+     "note_bn": "উচ্চারণ: ৎসুজামেনফাসেন্ট লেস্ট জিশ জাগেন",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "die Fachkräfteeinwanderung"
+   ]
+  },
+  {
+   "id": "de-c2-1",
+   "level": "C2",
+   "title_en": "Idioms native speakers use",
+   "title_bn": "স্থানীয়রা যে বাগধারা বলে",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Ich verstehe nur Bahnhof.",
+     "bn": "কিছুই বুঝছি না।",
+     "en": "I don't understand a thing (lit. 'I only understand train station').",
+     "note_bn": "উচ্চারণ: ইশ ফেয়াশটেয়ে নুয়া বানহোফ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Das ist nicht mein Bier.",
+     "bn": "এটা আমার বিষয় নয়।",
+     "en": "That's not my business.",
+     "note_bn": "উচ্চারণ: দাস ইস্ট নিশট মাইন বিয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "den Nagel auf den Kopf treffen",
+     "bn": "একদম ঠিক কথা বলা",
+     "en": "to hit the nail on the head",
+     "note_bn": "উচ্চারণ: ডেন নাগেল আউফ ডেন কপফ ট্রেফেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ins Fettnäpfchen treten",
+     "bn": "বেফাঁস কথা বলে ফেলা",
+     "en": "to put one's foot in it (say something awkward)",
+     "note_bn": "উচ্চারণ: ইন্স ফেটনেপফশেন ট্রেটেন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "auf dem Holzweg sein",
+     "bn": "ভুল পথে থাকা",
+     "en": "to be on the wrong track",
+     "note_bn": "উচ্চারণ: আউফ ডেম হলৎসভেগ জাইন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "unter vier Augen",
+     "bn": "একান্তে, দুজনে",
+     "en": "in private (lit. 'under four eyes')",
+     "note_bn": "উচ্চারণ: উন্টা ফিয়া আউগেন",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ich verstehe nur Bahnhof.",
+    "Das ist nicht mein Bier.",
+    "den Nagel auf den Kopf treffen"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Passport control in Frankfurt",
+   "title_bn": "ফ্রাঙ্কফুর্টে পাসপোর্ট কন্ট্রোল",
+   "ai_role": "You are a German border officer at Frankfurt airport. Polite, short sentences, simple German (A1-A2). Ask for the passport, purpose of stay, duration, address. Repeat slowly if asked. Example flow (adapt, do not read verbatim): them: Guten Tag. Ihren Pass, bitte. / you: Bitte schön. / them: Was ist der Zweck Ihrer Reise? / you: Ich komme zum Arbeiten. Ich habe ein Visum. / them: Wo werden Sie wohnen? / you: In Köln. Hier ist die Adresse.",
+   "opening": "Guten Tag. Ihren Pass, bitte.",
+   "goals_en": [
+    "Answer: purpose of the trip, how long, where you will live.",
+    "Say: Here you are.",
+    "Say: I'm coming to work. I have a visa.",
+    "Say: In Cologne. Here is the address."
+   ],
+   "goals_bn": [
+    "উত্তর দিন: কেন এসেছেন, কতদিন, কোথায় থাকবেন।",
+    "বলুন: এই নিন।",
+    "বলুন: কাজে এসেছি। আমার ভিসা আছে।",
+    "বলুন: কোলনে। এই যে ঠিকানা।"
+   ],
+   "useful": [
+    {
+     "target": "Bitte schön.",
+     "bn": "এই নিন।",
+     "en": "Here you are."
+    },
+    {
+     "target": "Ich komme zum Arbeiten. Ich habe ein Visum.",
+     "bn": "কাজে এসেছি। আমার ভিসা আছে।",
+     "en": "I'm coming to work. I have a visa."
+    },
+    {
+     "target": "In Köln. Hier ist die Adresse.",
+     "bn": "কোলনে। এই যে ঠিকানা।",
+     "en": "In Cologne. Here is the address."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at a care home",
+   "title_bn": "কেয়ার হোমে প্রথম দিন",
+   "ai_role": "You are the ward lead (Stationsleitung) at a German care home. Friendly, B1-level German. Explain the shift (6:00-14:00), break at 10:00, and one task. Correct gently if the learner uses 'du' instead of 'Sie'. Example flow (adapt, do not read verbatim): you: Guten Morgen, ich bin Nasrin, die neue Pflegekraft. / them: Herzlich willkommen! Ihre Schicht geht heute von sechs bis vierzehn Uhr. / you: Wann habe ich Pause? / them: Um zehn Uhr, für dreißig Minuten. / you: Könnten Sie mir bitte zeigen, wo die Handschuhe sind? / them: Natürlich, kommen Sie mit.",
+   "opening": "Guten Morgen! Sind Sie neu bei uns?",
+   "goals_en": [
+    "Introduce yourself to the ward lead, ask about the shift and the break.",
+    "Say: Good morning, I'm Nasrin, the new nurse.",
+    "Say: When do I have a break?",
+    "Say: Could you show me where the gloves are?"
+   ],
+   "goals_bn": [
+    "ওয়ার্ড প্রধানকে পরিচয় দিন, শিফট ও বিরতি জিজ্ঞেস করুন।",
+    "বলুন: সুপ্রভাত, আমি নাসরিন, নতুন নার্স।",
+    "বলুন: বিরতি কখন?",
+    "বলুন: গ্লাভস কোথায় দেখাবেন?"
+   ],
+   "useful": [
+    {
+     "target": "Guten Morgen, ich bin Nasrin, die neue Pflegekraft.",
+     "bn": "সুপ্রভাত, আমি নাসরিন, নতুন নার্স।",
+     "en": "Good morning, I'm Nasrin, the new nurse."
+    },
+    {
+     "target": "Wann habe ich Pause?",
+     "bn": "বিরতি কখন?",
+     "en": "When do I have a break?"
+    },
+    {
+     "target": "Könnten Sie mir bitte zeigen, wo die Handschuhe sind?",
+     "bn": "গ্লাভস কোথায় দেখাবেন?",
+     "en": "Could you show me where the gloves are?"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the family doctor (Hausarzt)",
+   "title_bn": "পারিবারিক ডাক্তারের কাছে",
+   "ai_role": "You are a German family doctor. Ask simple A2 questions: what's wrong, since when, fever, medication. Give a sick note (Krankschreibung) for three days. Do not give real medical advice. Example flow (adapt, do not read verbatim): them: Was fehlt Ihnen? / you: Ich habe Halsschmerzen und Fieber. / them: Seit wann? / you: Seit gestern Abend. / you: Brauche ich eine Krankschreibung für die Arbeit? / them: Ja, ich schreibe Sie drei Tage krank.",
+   "opening": "Was fehlt Ihnen?",
+   "goals_en": [
+    "Say what hurts and since when; ask for a sick note.",
+    "Say: I have a sore throat and a fever.",
+    "Say: Since last night.",
+    "Say: Do I need a sick note for work?"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা ও কবে থেকে বলুন; অসুস্থতার সার্টিফিকেট চান।",
+    "বলুন: গলা ব্যথা আর জ্বর।",
+    "বলুন: গতকাল সন্ধ্যা থেকে।",
+    "বলুন: কাজের জন্য অসুস্থতার সার্টিফিকেট লাগবে?"
+   ],
+   "useful": [
+    {
+     "target": "Ich habe Halsschmerzen und Fieber.",
+     "bn": "গলা ব্যথা আর জ্বর।",
+     "en": "I have a sore throat and a fever."
+    },
+    {
+     "target": "Seit gestern Abend.",
+     "bn": "গতকাল সন্ধ্যা থেকে।",
+     "en": "Since last night."
+    },
+    {
+     "target": "Brauche ich eine Krankschreibung für die Arbeit?",
+     "bn": "কাজের জন্য অসুস্থতার সার্টিফিকেট লাগবে?",
+     "en": "Do I need a sick note for work?"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Viewing a room in a shared flat (WG)",
+   "title_bn": "শেয়ার্ড ফ্ল্যাটে (WG) ঘর দেখা",
+   "ai_role": "You are a student showing a room in a German WG. B1 German. Rent 450 euros warm (heating included), deposit two months' rent, available from 1st of next month. Ask about the learner's job. Example flow (adapt, do not read verbatim): you: Wie hoch ist die Miete? / them: Vierhundertfünfzig Euro warm. / you: Und wie hoch ist die Kaution? / them: Zwei Monatsmieten. / you: Ab wann ist das Zimmer frei? / them: Ab dem Ersten. Was machen Sie beruflich?",
+   "opening": "Hallo! Sie kommen wegen des Zimmers, oder?",
+   "goals_en": [
+    "Ask the rent (warm or cold), the deposit, and when you can move in.",
+    "Say: How much is the rent?",
+    "Say: And how much is the deposit?",
+    "Say: From when is the room free?"
+   ],
+   "goals_bn": [
+    "ভাড়া (warm/kalt), জামানত, কবে উঠতে পারবেন জিজ্ঞেস করুন।",
+    "বলুন: ভাড়া কত?",
+    "বলুন: আর জামানত কত?",
+    "বলুন: ঘর কবে থেকে খালি?"
+   ],
+   "useful": [
+    {
+     "target": "Wie hoch ist die Miete?",
+     "bn": "ভাড়া কত?",
+     "en": "How much is the rent?"
+    },
+    {
+     "target": "Und wie hoch ist die Kaution?",
+     "bn": "আর জামানত কত?",
+     "en": "And how much is the deposit?"
+    },
+    {
+     "target": "Ab wann ist das Zimmer frei?",
+     "bn": "ঘর কবে থেকে খালি?",
+     "en": "From when is the room free?"
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the supermarket",
+   "title_bn": "সুপারমার্কেটে",
+   "ai_role": "You are a supermarket employee in Germany. Very simple A1 German. Help find rice and chicken; say halal meat is at the Turkish shop nearby if asked; ask card or cash. Example flow (adapt, do not read verbatim): you: Entschuldigung, wo ist der Reis? / them: Gang drei, links. / you: Haben Sie Halal-Hähnchen? / them: Nein, leider nicht. Der türkische Laden gegenüber hat Halal-Fleisch. / them: Mit Karte oder bar? / you: Mit Karte, bitte.",
+   "opening": "Guten Tag, kann ich Ihnen helfen?",
+   "goals_en": [
+    "Find an item, ask if it is halal, and pay.",
+    "Say: Excuse me, where is the rice?",
+    "Say: Do you have halal chicken?",
+    "Say: By card, please."
+   ],
+   "goals_bn": [
+    "জিনিস খুঁজুন, হালাল কিনা জিজ্ঞেস করুন, টাকা দিন।",
+    "বলুন: মাফ করবেন, চাল কোথায়?",
+    "বলুন: হালাল মুরগি আছে?",
+    "বলুন: কার্ডে, দয়া করে।"
+   ],
+   "useful": [
+    {
+     "target": "Entschuldigung, wo ist der Reis?",
+     "bn": "মাফ করবেন, চাল কোথায়?",
+     "en": "Excuse me, where is the rice?"
+    },
+    {
+     "target": "Haben Sie Halal-Hähnchen?",
+     "bn": "হালাল মুরগি আছে?",
+     "en": "Do you have halal chicken?"
+    },
+    {
+     "target": "Mit Karte, bitte.",
+     "bn": "কার্ডে, দয়া করে।",
+     "en": "By card, please."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "de-pr1",
+   "text": "Ich heiße Karim und komme aus Bangladesch.",
+   "tip_bn": "'ich'-এর ch নরম, ফিসফিস 'শ'-এর মতো — 'ক' নয়।",
+   "tip_en": "'ich': soft 'ch' like a whispered 'হ্যিশ', not 'ক'."
+  },
+  {
+   "id": "de-pr2",
+   "text": "Guten Morgen, wie geht es Ihnen?",
+   "tip_bn": "জার্মান 'w' উচ্চারণ ইংরেজি 'v'-এর মতো।",
+   "tip_en": "German 'w' sounds like English 'v'."
+  },
+  {
+   "id": "de-pr3",
+   "text": "Ich möchte ein Brötchen, bitte.",
+   "tip_bn": "ö: ঠোঁট গোল করে 'এ' বলুন।",
+   "tip_en": "ö: say 'এ' with rounded lips."
+  },
+  {
+   "id": "de-pr4",
+   "text": "Fünf Tüten Müll",
+   "tip_bn": "ü: ঠোঁট গোল করে 'ই' বলুন।",
+   "tip_en": "ü: say 'ই' with rounded lips."
+  },
+  {
+   "id": "de-pr5",
+   "text": "Der Zug nach Zürich ist zu spät.",
+   "tip_bn": "z = 'ৎস'; শুরুতে 'sp' = 'শপ'।",
+   "tip_en": "z = 'ts' (ৎস); 'sp' at the start = 'শপ'."
+  },
+  {
+   "id": "de-pr6",
+   "text": "Ich wohne in einer kleinen Wohnung.",
+   "tip_bn": "'ei' = 'আই', 'ie' = 'ঈ'।",
+   "tip_en": "'ei' = 'আই', 'ie' = 'ঈ'."
+  },
+  {
+   "id": "de-pr7",
+   "text": "Könnten Sie das bitte wiederholen?",
+   "tip_bn": "'ভিডার-হো-লেন' — জোর 'হো'-তে।",
+   "tip_en": "Stress 'wie-der-HO-len' on HO."
+  },
+  {
+   "id": "de-pr8",
+   "text": "Ich arbeite seit drei Jahren in der Pflege.",
+   "tip_bn": "'Pf' — প আর ফ একসাথে।",
+   "tip_en": "'Pf' — say both p and f together."
+  },
+  {
+   "id": "de-pr9",
+   "text": "Das Wetter ist heute schöner als gestern.",
+   "tip_bn": "শেষের '-er' ছোট 'আ'-এর মতো।",
+   "tip_en": "Final '-er' sounds like a short 'আ'."
+  },
+  {
+   "id": "de-pr10",
+   "text": "Ich würde mich sehr über eine Rückmeldung freuen.",
+   "tip_bn": "'eu' = 'অয়'।",
+   "tip_en": "'eu' = 'অয়'."
+  },
+  {
+   "id": "de-pr11",
+   "text": "Die Anerkennung meines Abschlusses dauert noch.",
+   "tip_bn": "'noch'-এর ch গলা থেকে 'খ'।",
+   "tip_en": "'ach' sound in 'noch' is from the throat."
+  },
+  {
+   "id": "de-pr12",
+   "text": "Zusammenfassend lässt sich sagen, dass die Integration gelungen ist.",
+   "tip_bn": "স্বরবর্ণের আগে 's' = 'z' (জ)।",
+   "tip_en": "'s' before a vowel = 'z' (জ)."
+  }
+ ],
+ "mock": [
+  {
+   "id": "de_style_1",
+   "title_en": "Goethe-Zertifikat FORMAT style (Hören, Lesen, Schreiben, Sprechen) — original Assisto questions, never a real exam paper",
+   "title_bn": "Goethe-Zertifikat ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, অফিসিয়াল প্রশ্নপত্র নয়",
+   "format_en": "Goethe-Zertifikat FORMAT style (Hören, Lesen, Schreiben, Sprechen) — original Assisto questions, never a real exam paper",
+   "format_bn": "Goethe-Zertifikat ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, অফিসিয়াল প্রশ্নপত্র নয়",
+   "minutes": 40,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading and understanding (listening items are shown as text until phone-voice listening is enabled)",
+     "title_bn": "পড়া ও বোঝা (ফোনের কণ্ঠে শোনা চালু না হওয়া পর্যন্ত শোনার প্রশ্ন লেখা আকারে)",
+     "questions": [
+      {
+       "id": "de-mk-l1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "ট্রেন কোথায় যাবে?\nDer Zug nach Bonn fährt heute von Gleis vier.",
+       "text_en": "Where does the train go?\nDer Zug nach Bonn fährt heute von Gleis vier.",
+       "text_bn": "ট্রেন কোথায় যাবে?\nDer Zug nach Bonn fährt heute von Gleis vier.",
+       "tts_text": "Der Zug nach Bonn fährt heute von Gleis vier.",
+       "options": [
+        "Berlin",
+        "Bremen",
+        "Bonn"
+       ],
+       "answer": 2,
+       "explain_bn": "'nach Bonn' = বনে।",
+       "explain_en": "'nach Bonn' = to Bonn."
+      },
+      {
+       "id": "de-mk-l2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "সত্য না মিথ্যা: দোকান ৯টায় খোলে।\nUnser Geschäft öffnet morgen schon um acht Uhr.",
+       "text_en": "True or false: the shop opens at 9.\nUnser Geschäft öffnet morgen schon um acht Uhr.",
+       "text_bn": "সত্য না মিথ্যা: দোকান ৯টায় খোলে।\nUnser Geschäft öffnet morgen schon um acht Uhr.",
+       "tts_text": "Unser Geschäft öffnet morgen schon um acht Uhr.",
+       "options": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 1,
+       "explain_bn": "'um acht Uhr' = আটটায়।",
+       "explain_en": "'um acht Uhr' = at eight."
+      },
+      {
+       "id": "de-mk-l3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "আলী কী আনবেন?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
+       "text_en": "What should Ali bring?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
+       "text_bn": "আলী কী আনবেন?\nHerr Ali, bringen Sie bitte morgen Ihren Pass mit.",
+       "tts_text": "Herr Ali, bringen Sie bitte morgen Ihren Pass mit.",
+       "options": [
+        "পাসপোর্ট",
+        "ছবি",
+        "টাকা"
+       ],
+       "options_en": [
+        "His passport",
+        "A photo",
+        "Money"
+       ],
+       "options_bn": [
+        "পাসপোর্ট",
+        "ছবি",
+        "টাকা"
+       ],
+       "answer": 0,
+       "explain_bn": "'Ihren Pass' = আপনার পাসপোর্ট।",
+       "explain_en": "'Bringen Sie bitte Ihren Pass mit' = bring your passport."
+      },
+      {
+       "id": "de-mk-l4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "শিফট কেন বদলাল?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
+       "text_en": "Why does the shift change?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
+       "text_bn": "শিফট কেন বদলাল?\nAchtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
+       "tts_text": "Achtung, die Schicht am Samstag ändert sich, weil Frau Weber krank ist. Bitte kommen Sie schon um sechs.",
+       "options": [
+        "একজন সহকর্মী অসুস্থ",
+        "ছুটির দিন",
+        "হোম বন্ধ"
+       ],
+       "options_en": [
+        "A colleague is ill",
+        "There is a holiday",
+        "The home is closed"
+       ],
+       "options_bn": [
+        "একজন সহকর্মী অসুস্থ",
+        "ছুটির দিন",
+        "হোম বন্ধ"
+       ],
+       "answer": 0,
+       "explain_bn": "'Frau Weber ist krank' = মিসেস ভেবার অসুস্থ।",
+       "explain_en": "'Frau Weber ist krank' = Ms Weber is ill."
+      },
+      {
+       "id": "de-mk-l5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "বক্তা কী পরামর্শ দিলেন?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
+       "text_en": "What does the speaker recommend?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
+       "text_bn": "বক্তা কী পরামর্শ দিলেন?\nIch empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
+       "tts_text": "Ich empfehle allen, den Antrag auf Anerkennung so früh wie möglich zu stellen, am besten noch vor der Einreise.",
+       "options": [
+        "আগেভাগে স্বীকৃতির আবেদন করুন",
+        "পৌঁছানো পর্যন্ত অপেক্ষা করুন",
+        "ভাষা কোর্স এড়িয়ে চলুন"
+       ],
+       "options_en": [
+        "Apply for recognition early",
+        "Wait until you arrive",
+        "Avoid the language course"
+       ],
+       "options_bn": [
+        "আগেভাগে স্বীকৃতির আবেদন করুন",
+        "পৌঁছানো পর্যন্ত অপেক্ষা করুন",
+        "ভাষা কোর্স এড়িয়ে চলুন"
+       ],
+       "answer": 0,
+       "explain_bn": "'so früh wie möglich' = যত আগে সম্ভব।",
+       "explain_en": "'so früh wie möglich' = as early as possible."
+      },
+      {
+       "id": "de-mk-l6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "বক্তার মনোভাব কী?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
+       "text_en": "What is the speaker's attitude?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
+       "text_bn": "বক্তার মনোভাব কী?\nDie Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
+       "tts_text": "Die Reform ist grundsätzlich zu begrüßen, allerdings bleibt abzuwarten, ob die Behörden genügend Personal haben.",
+       "options": [
+        "সতর্কভাবে ইতিবাচক",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
+       ],
+       "options_en": [
+        "Cautiously positive",
+        "Completely against it",
+        "Indifferent"
+       ],
+       "options_bn": [
+        "সতর্কভাবে ইতিবাচক",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
+       ],
+       "answer": 0,
+       "explain_bn": "'নীতিগতভাবে স্বাগত, তবে …'",
+       "explain_en": "'grundsätzlich zu begrüßen, allerdings …' = welcome in principle, however …"
+      },
+      {
+       "id": "de-mk-r1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "ডাক্তারখানার দরজায় সাইন। কখন বন্ধ?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
+       "text_en": "Sign at a doctor's door. When is it closed?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
+       "text_bn": "ডাক্তারখানার দরজায় সাইন। কখন বন্ধ?\nPraxis Dr. Krause — Mo–Fr 8–12 Uhr, Mo/Di/Do 15–18 Uhr. Mittwochnachmittag geschlossen.",
+       "options": [
+        "বুধবার বিকেল",
+        "সোমবার সকাল",
+        "প্রতিদিন"
+       ],
+       "options_en": [
+        "Wednesday afternoon",
+        "Monday morning",
+        "Every day"
+       ],
+       "options_bn": [
+        "বুধবার বিকেল",
+        "সোমবার সকাল",
+        "প্রতিদিন"
+       ],
+       "answer": 0,
+       "explain_bn": "'Mittwochnachmittag' = বুধবার বিকেল।",
+       "explain_en": "'Mittwochnachmittag geschlossen'."
+      },
+      {
+       "id": "de-mk-r2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "সত্য না মিথ্যা: রবিবার এখানে গাড়ি রাখা যায়।\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
+       "text_en": "True or false: you may park here on Sunday.\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
+       "text_bn": "সত্য না মিথ্যা: রবিবার এখানে গাড়ি রাখা যায়।\nParken verboten: Mo–Sa 7–19 Uhr (außer sonntags).",
+       "options": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 0,
+       "explain_bn": "নিষেধ রবিবার ছাড়া — তাই রবিবার রাখা যায়।",
+       "explain_en": "'außer sonntags' = except Sundays (parking ban)."
+      },
+      {
+       "id": "de-mk-r3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "ইমেইলটি কী নিয়ে?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
+       "text_en": "What is the email about?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
+       "text_bn": "ইমেইলটি কী নিয়ে?\nLiebe Sabine, könntest du am Freitag meine Spätschicht übernehmen? Ich würde dafür gern deine Frühschicht am Montag machen. Viele Grüße, Rahim",
+       "options": [
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "জন্মদিনের পার্টি"
+       ],
+       "options_en": [
+        "Swapping a shift",
+        "A pay rise",
+        "A birthday party"
+       ],
+       "options_bn": [
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "জন্মদিনের পার্টি"
+       ],
+       "answer": 0,
+       "explain_bn": "'tauschen' = বদলানো।",
+       "explain_en": "'tauschen' = swap."
+      },
+      {
+       "id": "de-mk-r4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "করিমের কোর্স কেন সস্তা?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
+       "text_en": "Why is the course cheaper for Karim?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
+       "text_bn": "করিমের কোর্স কেন সস্তা?\nDer Kurs kostet 400 Euro. Mit einem Bildungsgutschein vom Jobcenter zahlen Teilnehmende nichts. Karim hat einen solchen Gutschein.",
+       "options": [
+        "চাকরি কেন্দ্রের ভাউচার আছে",
+        "সে ছাত্র",
+        "অনলাইনে বুক করেছে"
+       ],
+       "options_en": [
+        "He has a job-centre voucher",
+        "He is a student",
+        "He booked online"
+       ],
+       "options_bn": [
+        "চাকরি কেন্দ্রের ভাউচার আছে",
+        "সে ছাত্র",
+        "অনলাইনে বুক করেছে"
+       ],
+       "answer": 0,
+       "explain_bn": "'Bildungsgutschein' = শিক্ষা ভাউচার।",
+       "explain_en": "'Bildungsgutschein' = education voucher."
+      },
+      {
+       "id": "de-mk-r5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "নিয়োগকর্তা কী চান?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
+       "text_en": "What does the employer require?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
+       "text_bn": "নিয়োগকর্তা কী চান?\nWir suchen Pflegefachkräfte (m/w/d) mit anerkannter Ausbildung und Deutschkenntnissen auf B2-Niveau. Wir unterstützen bei der Wohnungssuche.",
+       "options": [
+        "স্বীকৃত ডিগ্রি ও B2 জার্মান",
+        "শুধু ইংরেজি",
+        "ড্রাইভিং লাইসেন্স"
+       ],
+       "options_en": [
+        "Recognised qualification and B2 German",
+        "Only English",
+        "A driving licence"
+       ],
+       "options_bn": [
+        "স্বীকৃত ডিগ্রি ও B2 জার্মান",
+        "শুধু ইংরেজি",
+        "ড্রাইভিং লাইসেন্স"
+       ],
+       "answer": 0,
+       "explain_bn": "স্বীকৃত প্রশিক্ষণ + B2 জার্মান।",
+       "explain_en": "'anerkannte Ausbildung' + 'Deutschkenntnisse auf B2-Niveau'."
+      },
+      {
+       "id": "de-mk-r6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "কোন বাক্য লেখার সাথে মেলে?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
+       "text_en": "Which statement matches the text?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
+       "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nDigitale Anträge können Wartezeiten erheblich verkürzen, sofern die Mitarbeitenden entsprechend geschult werden.",
+       "options": [
+        "কর্মী প্রশিক্ষিত হলেই ডিজিটাল ফর্ম সময় বাঁচায়",
+        "ডিজিটাল ফর্ম সবসময় সময় বাঁচায়",
+        "কাগজের ফর্ম দ্রুত"
+       ],
+       "options_en": [
+        "Digital forms save time only if staff are trained",
+        "Digital forms always save time",
+        "Paper forms are faster"
+       ],
+       "options_bn": [
+        "কর্মী প্রশিক্ষিত হলেই ডিজিটাল ফর্ম সময় বাঁচায়",
+        "ডিজিটাল ফর্ম সবসময় সময় বাঁচায়",
+        "কাগজের ফর্ম দ্রুত"
+       ],
+       "answer": 0,
+       "explain_bn": "'sofern' = যদি/শর্তে।",
+       "explain_en": "'sofern' = provided that."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing",
+     "title_bn": "লেখা",
+     "prompts": [
+      {
+       "id": "de-mk-w1",
+       "text": "সহকর্মী Jan-কে ছোট বার্তা (প্রায় ৩০ শব্দ): আজ অসুস্থ, আসতে পারবেন না, কাল ফোন করবেন।",
+       "text_en": "Write a short message (about 30 words) to your colleague Jan: you are ill today, you can't come, you will call tomorrow.",
+       "text_bn": "সহকর্মী Jan-কে ছোট বার্তা (প্রায় ৩০ শব্দ): আজ অসুস্থ, আসতে পারবেন না, কাল ফোন করবেন।",
+       "min_words": 20,
+       "max_words": 60,
+       "checks": [
+        {
+         "any": [
+          "hallo",
+          "lieber",
+          "liebe"
+         ],
+         "en": "Greeting (Hallo / Lieber Jan)",
+         "bn": "সম্বোধন (Hallo / Lieber Jan)"
+        },
+        {
+         "any": [
+          "krank"
+         ],
+         "en": "Say you are ill (krank)",
+         "bn": "অসুস্থ বলা (krank)"
+        },
+        {
+         "any": [
+          "morgen"
+         ],
+         "en": "Mention tomorrow (morgen)",
+         "bn": "আগামীকাল বলা (morgen)"
+        },
+        {
+         "any": [
+          "gruß",
+          "grüße",
+          "gruss",
+          "grusse",
+          "bis"
+         ],
+         "en": "Closing (Viele Grüße / Bis morgen)",
+         "bn": "সমাপ্তি (Viele Grüße)"
+        }
+       ]
+      },
+      {
+       "id": "de-mk-w2",
+       "text": "বাড়িওয়ালাকে ইমেইল (প্রায় ৮০ শব্দ): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
+       "text_en": "Write an email (about 80 words) to your landlord: the heating is broken, since when, ask for a repair date, polite close.",
+       "text_bn": "বাড়িওয়ালাকে ইমেইল (প্রায় ৮০ শব্দ): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
+       "min_words": 60,
+       "max_words": 140,
+       "checks": [
+        {
+         "any": [
+          "sehr geehrte",
+          "sehr geehrter",
+          "guten tag"
+         ],
+         "en": "Formal greeting",
+         "bn": "আনুষ্ঠানিক সম্বোধন"
+        },
+        {
+         "any": [
+          "heizung"
+         ],
+         "en": "Name the problem (Heizung)",
+         "bn": "সমস্যার নাম (Heizung)"
+        },
+        {
+         "any": [
+          "seit"
+         ],
+         "en": "Say since when (seit …)",
+         "bn": "কবে থেকে (seit …)"
+        },
+        {
+         "any": [
+          "könnten",
+          "würden",
+          "bitte"
+         ],
+         "en": "Polite request (Könnten Sie …)",
+         "bn": "ভদ্র অনুরোধ"
+        },
+        {
+         "any": [
+          "mit freundlichen grüßen",
+          "mit freundlichen grussen",
+          "freundliche grüße"
+         ],
+         "en": "Formal close",
+         "bn": "আনুষ্ঠানিক সমাপ্তি"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "speaking",
+     "skill": "speaking",
+     "title_en": "Speaking — read aloud, the phone checks",
+     "title_bn": "বলা — জোরে পড়ুন, ফোন যাচাই করবে",
+     "read_aloud": [
+      "Ich heiße Karim und komme aus Bangladesch.",
+      "Guten Morgen, wie geht es Ihnen?",
+      "Ich möchte ein Brötchen, bitte.",
+      "Fünf Tüten Müll"
+     ],
+     "speak_prompts": [
+      {
+       "id": "de-mk-s1",
+       "text_en": "Introduce yourself: name, country, where you live, job, languages.",
+       "text_bn": "নিজের পরিচয়: নাম, দেশ, কোথায় থাকেন, কাজ, ভাষা।",
+       "seconds": 60,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "heiße",
+          "heisse",
+          "name ist"
+         ],
+         "en": "Name",
+         "bn": "নাম"
+        },
+        {
+         "any": [
+          "bangladesch"
+         ],
+         "en": "Country",
+         "bn": "দেশ"
+        },
+        {
+         "any": [
+          "wohne"
+         ],
+         "en": "Where you live (wohne)",
+         "bn": "কোথায় থাকেন"
+        },
+        {
+         "any": [
+          "arbeite",
+          "beruf",
+          "bin"
+         ],
+         "en": "Job",
+         "bn": "কাজ"
+        },
+        {
+         "any": [
+          "spreche"
+         ],
+         "en": "Languages (spreche)",
+         "bn": "ভাষা"
+        }
+       ]
+      },
+      {
+       "id": "de-mk-s2",
+       "text_en": "Present a topic for 1 minute: 'Working abroad — advantages and disadvantages'. Give your opinion.",
+       "text_bn": "১ মিনিট বলুন: 'বিদেশে কাজ — সুবিধা ও অসুবিধা'। নিজের মত দিন।",
+       "seconds": 90,
+       "prep_seconds": 60,
+       "checks": [
+        {
+         "any": [
+          "vorteil"
+         ],
+         "en": "An advantage (Vorteil)",
+         "bn": "সুবিধা (Vorteil)"
+        },
+        {
+         "any": [
+          "nachteil"
+         ],
+         "en": "A disadvantage (Nachteil)",
+         "bn": "অসুবিধা (Nachteil)"
+        },
+        {
+         "any": [
+          "meiner meinung",
+          "ich finde",
+          "ich denke"
+         ],
+         "en": "Your opinion",
+         "bn": "নিজের মত"
+        },
+        {
+         "any": [
+          "weil",
+          "deshalb",
+          "denn"
+         ],
+         "en": "A reason (weil/deshalb)",
+         "bn": "কারণ (weil/deshalb)"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "A1"
+    },
+    {
+     "min_pct": 30,
+     "level": "A2"
+    },
+    {
+     "min_pct": 50,
+     "level": "B1"
+    },
+    {
+     "min_pct": 70,
+     "level": "B2"
+    },
+    {
+     "min_pct": 88,
+     "level": "C1"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}
