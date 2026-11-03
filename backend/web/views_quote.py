@@ -140,7 +140,9 @@ def _render(request, ctx, status=200):
     resp["Cache-Control"] = "no-store"
     resp["X-Robots-Tag"] = "noindex, nofollow"
     resp["X-Frame-Options"] = "DENY"
-    resp["Referrer-Policy"] = "no-referrer"
+    # same-origin, not no-referrer: with no-referrer browsers send "Origin: null"
+    # on the accept/reply form POST and Django's CSRF check refuses it (403).
+    resp["Referrer-Policy"] = "same-origin"
     resp["X-Content-Type-Options"] = "nosniff"
     return resp
 
