@@ -1,6 +1,7 @@
 // aifinal PART 1b: AI chat bubbles render safe markdown — bold, lists,
 // links; never raw asterisks; links open only http/https after a confirm;
 // no images or HTML.
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,7 +78,17 @@ void main() {
       await tester.pumpWidget(_app(const Text('Read **this** at [site](https://lifeassisto.com)'),
           lang: lang, scale: 2, dark: lang == 'bn'));
       expect(find.textContaining('**'), findsNothing);
-      await tester.tap(find.textContaining('site', findRichText: true));
+      TapGestureRecognizer? tap;
+      for (final rt in tester.widgetList<RichText>(find.byType(RichText))) {
+        rt.text.visitChildren((sp) {
+          if (sp is TextSpan && sp.recognizer is TapGestureRecognizer) {
+            tap = sp.recognizer as TapGestureRecognizer;
+          }
+          return true;
+        });
+      }
+      expect(tap, isNotNull);
+      tap!.onTap!();
       await tester.pumpAndSettle();
       final t = AppLocalizations.of(tester.element(find.byType(AiMarkdown)));
       expect(find.text(t.aimdOpenLinkTitle), findsOneWidget);
