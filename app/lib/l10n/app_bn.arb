@@ -23350,5 +23350,7 @@
   "nearbyCountrySG": "সিঙ্গাপুর",
   "nearbyCountryIT": "ইতালি",
   "nearbyCountryGB": "যুক্তরাজ্য",
-  "nearbyCountryUS": "যুক্তরাষ্ট্র"
+  "nearbyCountryUS": "যুক্তরাষ্ট্র",
+  "aimdOpenLinkTitle": "এই লিংকটি খুলবেন?",
+  "aimdOpenLink": "খুলুন"
 }

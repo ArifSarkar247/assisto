@@ -42955,5 +42955,13 @@
   "nearbyCountryUS": "USA",
   "@nearbyCountryUS": {
     "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "aimdOpenLinkTitle": "Open this link?",
+  "@aimdOpenLinkTitle": {
+    "description": "aifinal: confirm before an AI answer link leaves the app"
+  },
+  "aimdOpenLink": "Open",
+  "@aimdOpenLink": {
+    "description": "aifinal: confirm button to open an AI answer link"
   }
 }
