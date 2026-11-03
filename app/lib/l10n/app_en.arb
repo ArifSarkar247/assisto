@@ -43948,5 +43948,182 @@
   "aileftCatalogName": "Product name",
   "aileftCatalogPrice": "Price (taka)",
   "aileftCatalogNew": "Add as new product",
-  "aileftCatalogExisting": "Or set as the picture of"
+  "aileftCatalogExisting": "Or set as the picture of",
+  "acsecTitle": "Account & security",
+  "acsecTileSub": "Phone, email, password, signed-in devices",
+  "acsecIntro": "Keep your account safe — and get it back if you ever lose your phone.",
+  "acsecSignInSection": "How you sign in",
+  "acsecNoPhone": "No phone number",
+  "acsecVerified": "Verified",
+  "acsecNotVerified": "Not verified yet",
+  "acsecNoEmail": "No email yet",
+  "acsecAddEmailWhy": "Add one so you can get your account back if you lose your phone.",
+  "acsecAddEmail": "Add email",
+  "acsecChangeEmail": "Change email",
+  "acsecGoogleNote": "Sign-in with Google isn't part of Assisto yet. Your phone number and a verified email keep your account safe.",
+  "acsecChangePassword": "Change password",
+  "acsecSetPassword": "Set a password",
+  "acsecPasswordSub": "Every other device will be signed out",
+  "acsecDevicesTitle": "Signed-in devices ({count})",
+  "@acsecDevicesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecNoDevices": "No other devices.",
+  "acsecOlderApp": "Older app version (one or more phones)",
+  "acsecAndroidPhone": "Android phone",
+  "acsecThisPhone": "This phone",
+  "acsecLastActive": "Last active {when}",
+  "@acsecLastActive": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSince": "Signed in {when}",
+  "@acsecSince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSignOut": "Sign out",
+  "acsecSignOutTitle": "Sign out this device?",
+  "acsecSignOutBody": "That phone will go back to the sign-in screen the next time it is used.",
+  "acsecSignedOut": "Signed out.",
+  "acsecSignOutOthers": "Sign out of all other devices",
+  "acsecSignOutOthersBody": "Every phone except this one will be signed out. Use this if a phone was lost or someone else may know your password.",
+  "acsecSignedOutOthers": "All other devices were signed out.",
+  "acsecLostTitle": "If you lose your phone",
+  "acsecLostBody": "With a verified email you can reset your password from any phone. Without one, ask for support recovery on the sign-in screen: a family member in your My Circle confirms it's you, and after a 48-hour safety wait you get back in on your new number.",
+  "acsecLoadFail": "Couldn't load your account details. Check the internet and try again.",
+  "acsecLocked": "For safety, email and phone changes are paused for a few days (someone tapped \"This was not me\").",
+  "acsecCooldown": "Your phone number and email can't both change within 24 hours.",
+  "acsecOwnerAlertTitle": "Someone asked to recover your account",
+  "acsecOwnerAlertBody": "They gave the new number {masked}. Nothing happens before {when}. If this wasn't you, cancel it now.",
+  "@acsecOwnerAlertBody": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecNotMeCancel": "This was not me — cancel it",
+  "acsecCancelled": "Cancelled. Your account is safe.",
+  "acsecFamilyTitle": "{name} is trying to get back into their account",
+  "@acsecFamilyTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecFamilyBody": "They said they lost their phone and named you as family. Confirm only if you have spoken to them yourself.",
+  "acsecFamilyYes": "Yes, it's them",
+  "acsecFamilyNo": "No, I'm not sure",
+  "acsecFamilyYesTitle": "Are you sure?",
+  "acsecFamilyYesBody": "Say yes only if you called or met them and they really lost their phone.",
+  "acsecFamilyThanks": "Thank you. Your answer went to the review team.",
+  "acsecPwIntro": "Use at least 8 characters with letters and numbers. After saving, every other device is signed out.",
+  "acsecPwCurrent": "Current password",
+  "acsecPwNew": "New password",
+  "acsecPwAgain": "New password again",
+  "acsecPwSave": "Save new password",
+  "acsecPwShort": "Use at least 8 characters.",
+  "acsecPwMismatch": "The two new passwords don't match.",
+  "acsecPwDone": "Password changed. Other devices were signed out.",
+  "acsecNudgeTitle": "Add an email to protect your account",
+  "acsecNudgeBody": "If you ever lose your phone, a verified email lets you get back into Assisto. It takes one minute. We never send ads to it.",
+  "acsecLater": "Later",
+  "acsecCodeRules": "The code works for 10 minutes. You can try 5 times.",
+  "acsecForgotTitle": "Forgot password",
+  "acsecForgotIntro": "Type your phone number. Then choose where we send the code.",
+  "acsecContinue": "Continue",
+  "acsecWhereCode": "Where should the code go?",
+  "acsecViaSms": "By SMS",
+  "acsecViaSmsSub": "To this phone number",
+  "acsecViaEmail": "By email",
+  "acsecViaEmailSub": "To your verified email {masked}",
+  "@acsecViaEmailSub": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSmsOnlyNote": "No verified email on this account, so the code can only go by SMS.",
+  "acsecNoChannel": "Codes can't be sent right now. Try again later, or ask for support recovery below.",
+  "acsecSendCode": "Send code",
+  "acsecCodeOk": "Code accepted. Now choose a new password.",
+  "acsecForgotDone": "Your password was changed and every device was signed out. Sign in with the new password.",
+  "acsecBackToSignIn": "Back to sign in",
+  "acsecUseEmailInstead": "No phone on the account? Reset with your email address",
+  "acsecLostNoEmail": "Lost your phone and have no email?",
+  "acsecLostNoEmailSub": "Ask for support recovery (takes at least 48 hours)",
+  "acsecSupportTitle": "Recover my account",
+  "acsecSupportIntro": "For your safety this is never instant. We check what you tell us, a family member from your My Circle can confirm it's you, and nothing happens for 48 hours. If your old phone is still signed in somewhere, it gets an alert and can cancel. Our team never sees your chats, photos or documents.",
+  "acsecLostNumber": "Your account's phone number (the lost one)",
+  "acsecNewNumber": "A number you can use now",
+  "acsecNewNumberHelp": "We'll send a code to check it. Your account moves to this number at the end.",
+  "acsecVerifyNew": "Verify this number",
+  "acsecNewVerified": "New number verified",
+  "acsecVerifyNewFirst": "First verify the number you can use now.",
+  "acsecProofTitle": "What you remember about the account",
+  "acsecAccountName": "Name on the account",
+  "acsecNameNeeded": "Type the name on the account.",
+  "acsecSignupYear": "Year you joined (if you remember)",
+  "acsecSignupMonth": "Month you joined (if you remember)",
+  "acsecCircleNames": "Names of up to 3 people in your My Circle",
+  "acsecCircleNameHint": "Name as saved in My Circle",
+  "acsecOldPassword": "A password you used before (optional)",
+  "acsecFamilyConfirmTitle": "Ask a family member to confirm",
+  "acsecFamilyPhone": "Their phone number (optional)",
+  "acsecFamilyPhoneHelp": "Someone marked Family in your My Circle who uses Assisto. They get a request in their app.",
+  "acsecSendRequest": "Send recovery request",
+  "acsecPrivacyNote": "We keep only whether your answers matched — not the answers themselves (except the name).",
+  "acsecRefLine": "Your request number: {ref}. Keep this phone — the request is saved here.",
+  "@acsecRefLine": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStPending": "Under review. The safety wait ends {when}.",
+  "@acsecStPending": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStApprovedWait": "Approved. You can finish after {when}.",
+  "@acsecStApprovedWait": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStReady": "Approved — you can get back in now.",
+  "acsecStRejected": "We couldn't confirm it's you, so the request was closed. You can contact Assisto support.",
+  "acsecStCancelled": "The request was cancelled from a phone signed in to the account.",
+  "acsecStCompleted": "Done — your account is back.",
+  "acsecStExpired": "This request expired. You can start a new one.",
+  "acsecStUnknown": "Couldn't check the request right now. Try again.",
+  "acsecFamConfirmed": "Your family member confirmed it's you.",
+  "acsecFamDenied": "Your family member did not confirm.",
+  "acsecFamPending": "Waiting for your family member to confirm in their app.",
+  "acsecCheckAgain": "Check again",
+  "acsecFinish": "Verify my new number and sign in",
+  "acsecStartOver": "Start a new request",
+  "acsecChecked": "Checked just now — we'll keep it moving."
 }
