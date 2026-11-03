@@ -109,6 +109,15 @@ for (const lang of ['bn', 'en']) {
         }
       }
       for (const c of clip) fail(where, c);
+      // tplfix (owner 3 Nov 16:33): no leaked Django template syntax on any public page
+      const leak = await page.evaluate(() => {
+        const raw = document.documentElement.outerHTML, txt = document.body.innerText;
+        const hits = [];
+        for (const t of ['{#', '{%']) if (raw.includes(t)) hits.push('html ' + t);
+        for (const t of ['{#', '#}', '{%', '%}', '{{', '}}']) if (txt.includes(t)) hits.push('text ' + t);
+        return hits;
+      });
+      for (const l of leak) fail(where, `leaked template syntax (${l})`);
       for (const e of consoleErrs) fail(where, `console: ${e}`);
       const links = await page.$$eval('a[data-play], a.install, a[href$=".apk"], a[href*=".apk?"]',
         as => as.map(a => ({ href: a.href, raw: a.getAttribute('href') })));
