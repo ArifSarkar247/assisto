@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:assisto/crypto/identity_vault.dart'; // integration b296
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'app_fonts.dart';
@@ -1293,6 +1294,12 @@ Future<void> gallerySetUpAll() async {
       '${Platform.environment['HOME']}/assisto/tools/flutter';
   final icons = '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
   if (File(icons).existsSync()) await _loadFont('MaterialIcons', icons);
+  // integration b296: load the circle identity once in real time, so
+  // CircleScreen's 8 s loadGuard never waits on a vault load that a fake-async
+  // test zone cannot finish (a11y "circle bn-x1.3" left the timer pending).
+  try {
+    await IdentityVault.instance.get().timeout(const Duration(seconds: 15));
+  } catch (_) {}
 }
 
 /// a11y1: pumps gallery spec [name] exactly like the screenshot gallery
