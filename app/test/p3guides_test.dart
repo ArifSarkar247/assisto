@@ -169,15 +169,26 @@ void main() {
       await _settle(tester);
       expect(find.text('১৬১৩৫'), findsOneWidget);
       expect(find.byKey(const ValueKey('p3g-sos')), findsOneWidget);
-      await tester.enterText(find.byKey(const ValueKey('p3g-amount')), '৫০০');
-      await tester.enterText(find.byKey(const ValueKey('p3g-fee')), '15');
-      await tester.enterText(find.byKey(const ValueKey('p3g-rate-got')), '32.10');
-      await tester.enterText(find.byKey(const ValueKey('p3g-rate-ref')), '32.50');
-      await tester.ensureVisible(find.byKey(const ValueKey('p3g-check')));
+      for (final e in const {
+        'p3g-amount': '৫০০',
+        'p3g-fee': '15',
+        'p3g-rate-got': '32.10',
+        'p3g-rate-ref': '32.50',
+      }.entries) {
+        final f = find.descendant(
+            of: find.byKey(ValueKey(e.key)), matching: find.byType(TextField));
+        await tester.ensureVisible(f);
+        await tester.pump();
+        await tester.enterText(f, e.value);
+        await tester.pump();
+      }
+      final check = find.byKey(const ValueKey('p3g-check'));
+      await tester.ensureVisible(check);
       await tester.pump();
-      await tester.tap(find.byKey(const ValueKey('p3g-check')));
+      tester.widget<FilledButton>(check).onPressed!();
       await _settle(tester);
-      final res = tester.widget<Text>(find.byKey(const ValueKey('p3g-result'))).data!;
+      expect(find.byKey(const ValueKey('p3g-result'), skipOffstage: false), findsOneWidget);
+      final res = tester.widget<Text>(find.byKey(const ValueKey('p3g-result'), skipOffstage: false)).data!;
       expect(res.contains('৪.২৩'), isTrue, reason: res);
       expect(_ascii.hasMatch(res), isFalse);
     });
