@@ -13,6 +13,8 @@ QuranData realQuranData() => _cached ??= QuranStore.fromRaw(
           File('assets/quran/quran-simple.txt.gz').readAsBytesSync())),
       utf8.decode(gzip.decode(
           File('assets/quran/en.pickthall.txt.gz').readAsBytesSync())),
+      uthmaniRaw: utf8.decode(gzip.decode(
+          File('assets/quran/quran-uthmani.txt.gz').readAsBytesSync())),
     );
 
 /// Make QuranStore.load() return the real data immediately.

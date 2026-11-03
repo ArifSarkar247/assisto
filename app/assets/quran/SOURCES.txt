@@ -6,6 +6,15 @@ quran-simple.txt.gz
   Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
   sha256 of the uncompressed file: b3638f5cf03e2b05e4000efc0e4b656aafb3cf6ed28f8770b6497c5b43c46089
 
+quran-uthmani.txt.gz   (READING TEXT — default for reading and learning)
+  Tanzil Quran Text (Uthmani, Version 1.1), Copyright (C) 2007-2026 Tanzil Project.
+  Riwayah Hafs 'an 'Asim, Medina mushaf orthography. License: Creative Commons Attribution 3.0.
+  Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
+  sha256 of the uncompressed file: 7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326
+  quran-simple.txt.gz above is used for SEARCH only.
+  King Fahd Glorious Quran Printing Complex (KFGQPC) text/fonts: licence NOT verified
+  — not used; the owner can request permission (FEATURE_CARD_QURAN_BN.md section 6).
+
 en.pickthall.txt.gz
   The Meaning of the Glorious Koran (1930), Mohammed Marmaduke William Pickthall (d. 1936).
   Public domain (BD life+60, UK life+70, US: 1930 publication, PD since 1 Jan 2026).

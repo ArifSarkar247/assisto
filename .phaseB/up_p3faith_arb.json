@@ -8,7 +8,7 @@
   "@qrnAbout": {
    "description": "p3faith (Ramadan tracker / Quran)"
   },
-  "qrnAboutArabic": "Arabic text: Tanzil Quran Text (Simple), © Tanzil Project, licensed under Creative Commons Attribution 3.0. Shown exactly as published, without any change.",
+  "qrnAboutArabic": "Arabic text: Tanzil Quran Text — Uthmani for reading (Hafs), Simple for search — © Tanzil Project, licensed under Creative Commons Attribution 3.0. Shown exactly as published, without any change.",
   "@qrnAboutArabic": {
    "description": "p3faith (Ramadan tracker / Quran)"
   },
@@ -347,7 +347,7 @@
  "bn": {
   "quranTitle": "কুরআন",
   "qrnAbout": "উৎস ও লাইসেন্স",
-  "qrnAboutArabic": "আরবি লেখা: Tanzil Quran Text (Simple), © Tanzil Project, Creative Commons Attribution 3.0 লাইসেন্সে। যেমন প্রকাশিত, হুবহু — কোনো পরিবর্তন ছাড়া।",
+  "qrnAboutArabic": "আরবি লেখা: Tanzil Quran Text — পড়ার জন্য উসমানি (হাফস), খোঁজার জন্য Simple — © Tanzil Project, Creative Commons Attribution 3.0 লাইসেন্সে। যেমন প্রকাশিত, হুবহু — কোনো পরিবর্তন ছাড়া।",
   "qrnAboutEnglish": "ইংরেজি অর্থ: মোহাম্মদ মারমাডিউক পিকথল, “The Meaning of the Glorious Koran” (১৯৩০) — পাবলিক ডোমেইন। ডিজিটাল লেখা Tanzil.net থেকে।",
   "qrnAboutBangla": "বাংলা অনুবাদ: এখনো নেই — অনুবাদক বা প্রকাশকের লিখিত অনুমতির অপেক্ষায়।",
   "qrnAboutAudio": "তিলাওয়াতের অডিও: নেই — শুধু লাইসেন্সপ্রাপ্ত উৎস থেকে যোগ করা হবে।",

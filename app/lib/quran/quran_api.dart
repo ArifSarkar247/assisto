@@ -2,17 +2,26 @@
 // read Quran"). Text = the bundled Tanzil file, VERBATIM (CC BY 3.0: show
 // "Tanzil Project" + a tanzil.net link wherever it is displayed — reuse
 // QuranAboutScreen). Riwayah: Hafs 'an 'Asim (Tanzil follows the Medina
-// mushaf). The bundled edition is "Simple"; Tanzil's "Uthmani" edition is
-// under the same CC BY 3.0 terms and can be added as a second asset later.
+// mushaf). quranText = Tanzil UTHMANI (reading/learning default);
+// quranTextSimple = Tanzil SIMPLE (search/matching). Both CC BY 3.0, verbatim.
+// King Fahd Complex (KFGQPC) licence NOT verified — owner action in the card.
 // Licence notes: assets/quran/SOURCES.txt, owner_actions/FEATURE_CARD_QURAN_BN.md.
 import 'quran_store.dart';
 
-/// Arabic text of [surah]:[ayah] (verbatim), or null when out of range.
+/// Uthmani Arabic text of [surah]:[ayah] (verbatim), or null when out of range.
 Future<String?> quranText(int surah, int ayah) async {
   if (surah < 1 || surah > 114 || ayah < 1) return null;
   final d = await QuranStore.load();
   if (ayah > d.suras[surah - 1].ayas) return null;
   return d.ar(AyaRef(surah, ayah));
+}
+
+/// Tanzil Simple text (no Uthmani-specific marks) — for search / matching.
+Future<String?> quranTextSimple(int surah, int ayah) async {
+  if (surah < 1 || surah > 114 || ayah < 1) return null;
+  final d = await QuranStore.load();
+  if (ayah > d.suras[surah - 1].ayas) return null;
+  return d.arSimple(AyaRef(surah, ayah));
 }
 
 /// English meaning (Pickthall 1930, public domain) or null.

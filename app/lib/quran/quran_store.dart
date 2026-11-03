@@ -1,8 +1,9 @@
 // p3faith (owner PART 3, 3 Nov 2026): offline Quran data.
 //
 // Sources (assets/quran/SOURCES.txt):
-//   * Arabic — Tanzil Quran Text (Simple 1.1), CC BY 3.0. Stored VERBATIM
-//     (gzip only, copyright notice kept). We only READ it; nothing is changed.
+//   * Arabic — Tanzil Quran Text, CC BY 3.0, Hafs (Medina mushaf). UTHMANI
+//     1.1 is the reading text; SIMPLE 1.1 is used for search. Both stored
+//     VERBATIM (gzip only, notice kept). We only READ them; nothing changes.
 //   * English — Pickthall, "The Meaning of the Glorious Koran" (1930), public
 //     domain; digital text from Tanzil.net, verbatim.
 //   * Bangla — NOT bundled: no licence for app redistribution yet. The UI
@@ -59,16 +60,23 @@ class QuranHit {
 class QuranData {
   final List<QuranSura> suras;
   final List<AyaRef> juzStarts; // 30
-  final List<String> arabic; // 6236, global order
+  final List<String> arabic; // Tanzil SIMPLE, 6236 — used for SEARCH
+  final List<String> uthmani; // Tanzil UTHMANI, 6236 — shown for reading
   final List<String> english; // 6236, global order
-  final String arabicNotice; // Tanzil copyright notice, verbatim
+  final String arabicNotice; // Tanzil copyright notice (Uthmani), verbatim
   List<String>? _arNorm;
 
   QuranData(this.suras, this.juzStarts, this.arabic, this.english,
-      this.arabicNotice);
+      this.arabicNotice, {List<String>? uthmani})
+      : uthmani = uthmani ?? arabic;
 
   int globalIndex(AyaRef r) => suras[r.sura - 1].start + r.aya - 1;
-  String ar(AyaRef r) => arabic[globalIndex(r)];
+
+  /// Reading text: Tanzil Uthmani (Hafs), verbatim.
+  String ar(AyaRef r) => uthmani[globalIndex(r)];
+
+  /// Tanzil Simple, verbatim (search / matching).
+  String arSimple(AyaRef r) => arabic[globalIndex(r)];
   String en(AyaRef r) => english[globalIndex(r)];
 
   /// Juz (1..30) an aya belongs to.
@@ -112,7 +120,7 @@ class QuranData {
       if (nq.isEmpty) return const [];
       final norm = _arNorm ??= arabic.map(normalizeArabic).toList();
       for (var i = 0; i < norm.length && hits.length < limit; i++) {
-        if (norm[i].contains(nq)) hits.add(QuranHit(refAt(i), arabic[i], true));
+        if (norm[i].contains(nq)) hits.add(QuranHit(refAt(i), uthmani[i], true));
       }
     } else {
       final lq = s.toLowerCase();
@@ -193,6 +201,7 @@ class QuranStore {
 
   static const metaAsset = 'assets/quran/quran_meta.json';
   static const arabicAsset = 'assets/quran/quran-simple.txt.gz';
+  static const uthmaniAsset = 'assets/quran/quran-uthmani.txt.gz';
   static const englishAsset = 'assets/quran/en.pickthall.txt.gz';
   static const totalAyas = 6236;
 
@@ -212,10 +221,12 @@ class QuranStore {
   static Future<QuranData> _load() async => fromRaw(
       await rootBundle.loadString(metaAsset),
       await _gz(arabicAsset),
-      await _gz(englishAsset));
+      await _gz(englishAsset),
+      uthmaniRaw: await _gz(uthmaniAsset));
 
   /// Parse the bundled files (meta JSON + the two decompressed Tanzil texts).
-  static QuranData fromRaw(String metaJson, String arabicRaw, String englishRaw) {
+  static QuranData fromRaw(String metaJson, String arabicRaw, String englishRaw,
+      {String? uthmaniRaw}) {
     final meta = jsonDecode(metaJson) as Map<String, dynamic>;
     final suras = [
       for (final m in (meta['suras'] as List).cast<Map<String, dynamic>>())
@@ -229,7 +240,9 @@ class QuranStore {
     ];
     final ar = parseTanzil(arabicRaw, totalAyas);
     final en = parseTanzil(englishRaw, totalAyas);
-    return QuranData(suras, juz, ar.lines, en.lines, ar.notice);
+    final uth = uthmaniRaw == null ? null : parseTanzil(uthmaniRaw, totalAyas);
+    return QuranData(suras, juz, ar.lines, en.lines, uth?.notice ?? ar.notice,
+        uthmani: uth?.lines);
   }
 
   /// Tests / gallery: use already-parsed data (the real bundled files).
