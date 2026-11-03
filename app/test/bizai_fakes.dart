@@ -1,6 +1,7 @@
 // bizai: fake server for test/bizai_test.dart + gallery shots (bizai_shots.dart).
 // bn=true gives Bangla shop data (the launch Bangla sweep reads bn shots).
 import 'package:assisto/bizai/bizai_source.dart';
+import 'package:assisto/bizai/winback_screen.dart';
 
 const _discBn = 'এই দোকান উত্তর দিতে Assisto AI ব্যবহার করে। এখানের মেসেজ এন্ড-টু-এন্ড '
     'এনক্রিপ্টেড নয় — দোকান ও তার AI সহকারী দেখতে পান।';
@@ -94,3 +95,41 @@ class FakeBizai implements BizaiSource {
   }
 }
 
+
+// bizai pillar 2 — win-back fake
+class FakeWinback implements WinbackSource {
+  final bool bn;
+  FakeWinback({this.bn = false});
+  bool on = false;
+  Map<String, dynamic>? lastApprove;
+  int ai = 0;
+  List<Map<String, dynamic>> _stages() => [
+        for (final st in ['wb30', 'wb60', 'wb90'])
+          {'stage': st, 'enabled': on, 'audience': st == 'wb30' ? 4 : 0,
+           'draft': bn ? '{name}, অনেক দিন দেখা হয়নি! {shop}-এ আসুন।' : '{name}, we miss you at {shop}.'}
+      ];
+  @override
+  Future<Map<String, dynamic>> segments() async => {
+        'total': 6,
+        'segments': [
+          {'key': 'champion', 'count': 1, 'members': [
+            {'name': bn ? 'করিম' : 'Karim', 'days': 3, 'spend_poisha': 360000,
+             'high_value': true, 'interest': bn ? 'পাঞ্জাবি' : 'Panjabi'}]},
+          {'key': 'at_risk_30', 'count': 4, 'members': []},
+          {'key': 'lost_90', 'count': 1, 'members': []},
+        ],
+      };
+  @override
+  Future<Map<String, dynamic>> ladder() async => {'stages': _stages()};
+  @override
+  Future<Map<String, dynamic>> approve(Map<String, dynamic> body) async {
+    lastApprove = body;
+    on = body['on'] != false;
+    return {'stages': _stages()};
+  }
+  @override
+  Future<Map<String, dynamic>> aiDraft(String stage, String text, String lang) async {
+    ai++;
+    return {'ok': true, 'text': '{name}, come back to {shop} soon!'};
+  }
+}

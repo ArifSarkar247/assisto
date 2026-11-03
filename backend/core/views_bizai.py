@@ -161,3 +161,50 @@ class ShopChatPersonView(_Customer):
         if not body.get("ok"):
             return _refuse(request, body.get("reason", ""), st)
         return Response(body, status=st)
+
+
+# ===================================================================== pillar 2: CRM
+# Same gate as retention automation (flag `retention_auto`, shop owner,
+# Business plan to change/send) — views_retention._Owner.
+from .views_retention import _Owner as _RetOwner  # noqa: E402
+
+
+class CrmSegmentsView(_RetOwner):
+    need_plan = False
+
+    def get(self, request):
+        from . import bizai_crm as C
+        return Response(C.segments(self.biz))
+
+
+class CrmLadderView(_RetOwner):
+    def get(self, request):
+        from . import bizai_crm as C
+        return Response(C.ladder(self.biz, req_lang(request)))
+
+    def post(self, request):
+        from . import bizai_crm as C
+        lang = req_lang(request)
+        if request.data.get("on") is False:
+            C.stop_ladder(self.biz, request.user)
+            return Response(C.ladder(self.biz, lang))
+        ok, problem = C.approve_ladder(self.biz, request.user,
+                                       drafts=request.data.get("drafts"),
+                                       channel=str(request.data.get("channel") or "in_app"))
+        if not ok:
+            return Response({"ok": False, "reason": problem,
+                             "detail": C.problem_text(problem, lang)}, status=400)
+        return Response(C.ladder(self.biz, lang))
+
+
+class CrmDraftView(_RetOwner):
+    def post(self, request):
+        from . import bizai_crm as C
+        lang = "en" if request.data.get("lang") == "en" else "bn"
+        text, problem = C.ai_draft(request.user, str(request.data.get("stage") or ""),
+                                   str(request.data.get("text") or ""), lang)
+        if problem:
+            return Response({"ok": False, "reason": problem,
+                             "detail": C.problem_text(problem, req_lang(request))},
+                            status=402 if problem == "ai_insufficient" else 400)
+        return Response({"ok": True, "text": text})

@@ -1811,5 +1811,8 @@ urlpatterns += [
     path("shopchat/<str:code>/messages", bzai.ShopChatMessagesView.as_view()),
     path("shopchat/<str:code>/send", bzai.ShopChatSendView.as_view()),
     path("shopchat/<str:code>/person", bzai.ShopChatPersonView.as_view()),
+    path("bizai/crm/segments", bzai.CrmSegmentsView.as_view()),
+    path("bizai/crm/ladder", bzai.CrmLadderView.as_view()),
+    path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
 ]
 # ---- /bizai ----

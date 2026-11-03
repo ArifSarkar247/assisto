@@ -281,6 +281,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
   String _paramLabel(AppLocalizations t, String p) => switch (p) {
         'days_after' => t.rtParamDaysAfter,
         'days_without' => t.rtParamDaysWithout,
+        'days_until' => t.bizaiParamDaysUntil, // bizai: win-back ladder stage end
         'min_due_taka' => t.rtParamMinDue,
         'every_days' => t.rtParamEvery,
         'daily_cap' => t.crmAutoParamDailyCap,
@@ -291,6 +292,7 @@ class _RetentionWizardScreenState extends State<RetentionWizardScreen> {
 
   int _stepOf(String p) => switch (p) {
         'days_without' => 5,
+        'days_until' => 5, // bizai
         'min_due_taka' => 50,
         'daily_cap' => 5,
         _ => 1,

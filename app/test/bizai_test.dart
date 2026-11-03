@@ -11,6 +11,7 @@ import 'package:assisto/bizai/bizai_source.dart';
 import 'package:assisto/bizai/my_shops_screen.dart';
 import 'package:assisto/bizai/outcome_card.dart';
 import 'package:assisto/bizai/shop_chat_screen.dart';
+import 'package:assisto/bizai/winback_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/theme.dart';
 
@@ -180,5 +181,38 @@ void main() {
     await tester.tap(find.text('Hold risky cash-on-delivery orders'));
     await _settle(tester);
     expect(f.link['cod_risk_guard'], isFalse);
+  });
+
+  testWidgets('win-back: segments, ladder audience, AI rewrite, one-tap approve + pause', (tester) async {
+    tester.view.physicalSize = const Size(800, 2600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    final f = FakeWinback();
+    await tester.pumpWidget(_app(WinbackScreen(source: f)));
+    await _settle(tester);
+    expect(find.text('6 customers bought in the last 12 months'), findsOneWidget);
+    expect(find.text('Silent 30+ days'), findsOneWidget);
+    expect(find.textContaining('4 would get it now'), findsOneWidget);
+    expect(find.textContaining("(customer's name)"), findsWidgets); // no raw {name}
+    expect(find.textContaining('{name}'), findsNothing);
+    await tester.tap(find.text('Rewrite with AI').first);
+    await _settle(tester);
+    expect(f.ai, 1);
+    expect(find.textContaining('come back to (your shop) soon'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-ladder-approve')));
+    await _settle(tester);
+    expect(f.on, isTrue);
+    expect(((f.lastApprove!['drafts'] as Map)['wb30'] as Map)['en'],
+        '{name}, come back to {shop} soon!');
+    expect(find.text('Pause the win-back messages'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bizai-ladder-approve')));
+    await _settle(tester);
+    expect(f.on, isFalse);
+  });
+
+  testWidgets('win-back bn: Bangla digits', (tester) async {
+    await tester.pumpWidget(_app(WinbackScreen(source: FakeWinback(bn: true)), lang: 'bn'));
+    await _settle(tester);
+    expect(find.text('গত ১২ মাসে ৬ জন গ্রাহক কিনেছেন'), findsOneWidget);
   });
 }

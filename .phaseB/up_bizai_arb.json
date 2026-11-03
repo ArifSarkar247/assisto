@@ -219,6 +219,147 @@
   "bizaiOutEmptyBtn": "Set up the AI sales agent",
   "@bizaiOutEmptyBtn": {
    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmptyBtn"
+  },
+  "bizaiParamDaysUntil": "Stop after this many days (0 = never)",
+  "@bizaiParamDaysUntil": {
+   "description": "bizai: bizaiParamDaysUntil"
+  },
+  "bizaiWinbackTitle": "Bring customers back",
+  "@bizaiWinbackTitle": {
+   "description": "bizai: bizaiWinbackTitle"
+  },
+  "bizaiWinbackHubSub": "Who stopped buying, and a 30/60/90-day message ladder drafted for you",
+  "@bizaiWinbackHubSub": {
+   "description": "bizai: bizaiWinbackHubSub"
+  },
+  "bizaiSegmentsTitle": "Your customers",
+  "@bizaiSegmentsTitle": {
+   "description": "bizai: bizaiSegmentsTitle"
+  },
+  "bizaiSegmentsSub": "{count} customers bought in the last 12 months",
+  "@bizaiSegmentsSub": {
+   "description": "bizai: bizaiSegmentsSub",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiSegmentsEmpty": "When you record sales with a customer's phone, your customers are grouped here by last purchase, value and favourite product.",
+  "@bizaiSegmentsEmpty": {
+   "description": "bizai: bizaiSegmentsEmpty"
+  },
+  "bizaiSegChampion": "Best customers (bought often, recently)",
+  "@bizaiSegChampion": {
+   "description": "bizai: bizaiSegChampion"
+  },
+  "bizaiSegLoyal": "Regular customers",
+  "@bizaiSegLoyal": {
+   "description": "bizai: bizaiSegLoyal"
+  },
+  "bizaiSegNew": "New customers",
+  "@bizaiSegNew": {
+   "description": "bizai: bizaiSegNew"
+  },
+  "bizaiSegAtRisk30": "Silent 30+ days",
+  "@bizaiSegAtRisk30": {
+   "description": "bizai: bizaiSegAtRisk30"
+  },
+  "bizaiSegAtRisk60": "Silent 60+ days",
+  "@bizaiSegAtRisk60": {
+   "description": "bizai: bizaiSegAtRisk60"
+  },
+  "bizaiSegLost90": "Silent 90+ days",
+  "@bizaiSegLost90": {
+   "description": "bizai: bizaiSegLost90"
+  },
+  "bizaiSegOneTime": "Bought once",
+  "@bizaiSegOneTime": {
+   "description": "bizai: bizaiSegOneTime"
+  },
+  "bizaiMemberLine": "{days} days ago · {amount} · likes {product}",
+  "@bizaiMemberLine": {
+   "description": "bizai: bizaiMemberLine",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    },
+    "amount": {
+     "type": "String"
+    },
+    "product": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiHighValue": "Top 20% by spend",
+  "@bizaiHighValue": {
+   "description": "bizai: bizaiHighValue"
+  },
+  "bizaiLadderTitle": "Win-back messages: 30 / 60 / 90 days",
+  "@bizaiLadderTitle": {
+   "description": "bizai: bizaiLadderTitle"
+  },
+  "bizaiLadderSub": "Each silent customer gets at most one message per step — never all three at once.",
+  "@bizaiLadderSub": {
+   "description": "bizai: bizaiLadderSub"
+  },
+  "bizaiStage30": "After 30 days",
+  "@bizaiStage30": {
+   "description": "bizai: bizaiStage30"
+  },
+  "bizaiStage60": "After 60 days",
+  "@bizaiStage60": {
+   "description": "bizai: bizaiStage60"
+  },
+  "bizaiStage90": "After 90 days",
+  "@bizaiStage90": {
+   "description": "bizai: bizaiStage90"
+  },
+  "bizaiLadderAudience": "{count} would get it now",
+  "@bizaiLadderAudience": {
+   "description": "bizai: bizaiLadderAudience",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiAiRewrite": "Rewrite with AI",
+  "@bizaiAiRewrite": {
+   "description": "bizai: bizaiAiRewrite"
+  },
+  "bizaiLadderSafety": "Sent in Assisto between 9 am and 9 pm, with a STOP option and your daily limit. Results show on the Business home.",
+  "@bizaiLadderSafety": {
+   "description": "bizai: bizaiLadderSafety"
+  },
+  "bizaiLadderApprove": "Approve and turn on",
+  "@bizaiLadderApprove": {
+   "description": "bizai: bizaiLadderApprove"
+  },
+  "bizaiLadderStop": "Pause the win-back messages",
+  "@bizaiLadderStop": {
+   "description": "bizai: bizaiLadderStop"
+  },
+  "bizaiLadderOnDone": "Win-back messages are on",
+  "@bizaiLadderOnDone": {
+   "description": "bizai: bizaiLadderOnDone"
+  },
+  "bizaiLadderOffDone": "Win-back messages are paused",
+  "@bizaiLadderOffDone": {
+   "description": "bizai: bizaiLadderOffDone"
+  },
+  "bizaiPhName": "(customer's name)",
+  "@bizaiPhName": {
+   "description": "bizai: bizaiPhName"
+  },
+  "bizaiPhShop": "(your shop)",
+  "@bizaiPhShop": {
+   "description": "bizai: bizaiPhShop"
+  },
+  "bizaiPhDays": "(days)",
+  "@bizaiPhDays": {
+   "description": "bizai: bizaiPhDays"
   }
  },
  "bn": {
@@ -270,6 +411,36 @@
   "bizaiOutCount": "{count} বার",
   "bizaiOutTotal": "এই সপ্তাহে {amount}",
   "bizaiOutEmpty": "আপনার AI অর্ডার নিলে, গ্রাহক ফিরিয়ে আনলে আর বাকি আদায় করলে — প্রতি সপ্তাহে কত টাকা এল তা এখানে দেখাবে, শুধু আসল সংখ্যা।",
-  "bizaiOutEmptyBtn": "AI সেলস এজেন্ট চালু করুন"
+  "bizaiOutEmptyBtn": "AI সেলস এজেন্ট চালু করুন",
+  "bizaiParamDaysUntil": "এত দিন পরে থামুন (০ = কখনো না)",
+  "bizaiWinbackTitle": "গ্রাহক ফিরিয়ে আনুন",
+  "bizaiWinbackHubSub": "কে কেনা বন্ধ করেছেন, আর ৩০/৬০/৯০ দিনের মেসেজ — আপনার জন্য লেখা তৈরি",
+  "bizaiSegmentsTitle": "আপনার গ্রাহকেরা",
+  "bizaiSegmentsSub": "গত ১২ মাসে {count} জন গ্রাহক কিনেছেন",
+  "bizaiSegmentsEmpty": "গ্রাহকের ফোনসহ বিক্রি লিখলে এখানে গ্রাহকেরা ভাগ হয়ে দেখাবে — শেষ কেনা, কত টাকার, আর পছন্দের পণ্য অনুযায়ী।",
+  "bizaiSegChampion": "সেরা গ্রাহক (প্রায়ই কেনেন, সম্প্রতি)",
+  "bizaiSegLoyal": "নিয়মিত গ্রাহক",
+  "bizaiSegNew": "নতুন গ্রাহক",
+  "bizaiSegAtRisk30": "৩০+ দিন চুপ",
+  "bizaiSegAtRisk60": "৬০+ দিন চুপ",
+  "bizaiSegLost90": "৯০+ দিন চুপ",
+  "bizaiSegOneTime": "একবার কিনেছেন",
+  "bizaiMemberLine": "{days} দিন আগে · {amount} · পছন্দ {product}",
+  "bizaiHighValue": "খরচে সেরা ২০%",
+  "bizaiLadderTitle": "ফিরিয়ে আনার মেসেজ: ৩০ / ৬০ / ৯০ দিন",
+  "bizaiLadderSub": "চুপ থাকা প্রত্যেক গ্রাহক প্রতি ধাপে সর্বোচ্চ একটা মেসেজ পান — তিনটা একসাথে কখনো নয়।",
+  "bizaiStage30": "৩০ দিন পরে",
+  "bizaiStage60": "৬০ দিন পরে",
+  "bizaiStage90": "৯০ দিন পরে",
+  "bizaiLadderAudience": "এখন {count} জন পাবেন",
+  "bizaiAiRewrite": "AI দিয়ে আবার লিখুন",
+  "bizaiLadderSafety": "সকাল ৯টা থেকে রাত ৯টার মধ্যে Assisto-তে যায়, STOP করার সুযোগসহ, আপনার দৈনিক সীমা মেনে। ফল দেখাবে Business হোমে।",
+  "bizaiLadderApprove": "অনুমোদন দিয়ে চালু করুন",
+  "bizaiLadderStop": "ফিরিয়ে আনার মেসেজ থামান",
+  "bizaiLadderOnDone": "ফিরিয়ে আনার মেসেজ চালু হয়েছে",
+  "bizaiLadderOffDone": "ফিরিয়ে আনার মেসেজ থামানো হয়েছে",
+  "bizaiPhName": "(গ্রাহকের নাম)",
+  "bizaiPhShop": "(আপনার দোকান)",
+  "bizaiPhDays": "(দিন)"
  }
 }
