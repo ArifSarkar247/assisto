@@ -129,7 +129,7 @@ class PrivacyTests(_Base):
         with connection.cursor() as cur:
             cur.execute("SELECT * FROM core_remittanceentry")
             raw = " ".join(str(x) for x in cur.fetchone())
-        for leak in ("7743219", "31.25", "24281", "Secret Brother", "hospital", "bkash", "SAR"):
+        for leak in ("7743219", "31.25", "241975593", "Secret Brother", "hospital", "bkash", "SAR"):
             self.assertNotIn(leak, raw)
         row = RemittanceEntry.objects.get()
         self.assertTrue(row.enc.startswith("gAAAA"))     # a Fernet token
