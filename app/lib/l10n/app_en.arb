@@ -37806,5 +37806,586 @@
         "type": "String"
       }
     }
+  },
+  "crrAgain": "Practice again",
+  "@crrAgain": {
+    "description": "p2career"
+  },
+  "crrAiApplied": "AI text applied — read it once before you send your CV.",
+  "@crrAiApplied": {
+    "description": "p2career"
+  },
+  "crrAiCheckNote": "Check every line: AI must not add anything you did not write.",
+  "@crrAiCheckNote": {
+    "description": "p2career"
+  },
+  "crrAiFeedback": "AI feedback",
+  "@crrAiFeedback": {
+    "description": "p2career"
+  },
+  "crrAiFeedbackBtn": "Get AI feedback (uses credits)",
+  "@crrAiFeedbackBtn": {
+    "description": "p2career"
+  },
+  "crrAiNotNow": "Keep mine",
+  "@crrAiNotNow": {
+    "description": "p2career"
+  },
+  "crrAiNotReady": "AI is not connected yet — the rule-based feedback above still works.",
+  "@crrAiNotReady": {
+    "description": "p2career"
+  },
+  "crrAiPolish": "Polish with AI",
+  "@crrAiPolish": {
+    "description": "p2career"
+  },
+  "crrAiPolishHelp": "AI rewrites your summary and work points with stronger words. It never adds jobs, degrees or numbers you did not write. Uses AI credits.",
+  "@crrAiPolishHelp": {
+    "description": "p2career"
+  },
+  "crrAiResult": "AI suggestion",
+  "@crrAiResult": {
+    "description": "p2career"
+  },
+  "crrAiUse": "Use this",
+  "@crrAiUse": {
+    "description": "p2career"
+  },
+  "crrAnswerHint": "Type your answer, or tap the mic and speak",
+  "@crrAnswerHint": {
+    "description": "p2career"
+  },
+  "crrAtsEducation": "At least one education entry",
+  "@crrAtsEducation": {
+    "description": "p2career"
+  },
+  "crrAtsEmail": "A valid e-mail address",
+  "@crrAtsEmail": {
+    "description": "p2career"
+  },
+  "crrAtsExperience": "Work experience is listed",
+  "@crrAtsExperience": {
+    "description": "p2career"
+  },
+  "crrAtsLength": "Not too long (work points under 450 words)",
+  "@crrAtsLength": {
+    "description": "p2career"
+  },
+  "crrAtsName": "Your name is at the top",
+  "@crrAtsName": {
+    "description": "p2career"
+  },
+  "crrAtsNumbers": "Work points show numbers or results",
+  "@crrAtsNumbers": {
+    "description": "p2career"
+  },
+  "crrAtsPhone": "A phone number with at least 10 digits",
+  "@crrAtsPhone": {
+    "description": "p2career"
+  },
+  "crrAtsScore": "Score: {score} out of 100",
+  "@crrAtsScore": {
+    "description": "p2career",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "crrAtsSkills": "At least 5 skills",
+  "@crrAtsSkills": {
+    "description": "p2career"
+  },
+  "crrAtsSummary": "A summary of at least 12 words",
+  "@crrAtsSummary": {
+    "description": "p2career"
+  },
+  "crrAtsTitle": "ATS check — can hiring software read it?",
+  "@crrAtsTitle": {
+    "description": "p2career"
+  },
+  "crrCareerjetOff": "Careerjet search is not connected yet. You can still add company job boards below — their jobs show up here.",
+  "@crrCareerjetOff": {
+    "description": "p2career"
+  },
+  "crrCompanies": "Company job boards",
+  "@crrCompanies": {
+    "description": "p2career"
+  },
+  "crrCompaniesEmpty": "Add the companies you want to work for — their new jobs show up in your search.",
+  "@crrCompaniesEmpty": {
+    "description": "p2career"
+  },
+  "crrCompanyAdd": "Add a company",
+  "@crrCompanyAdd": {
+    "description": "p2career"
+  },
+  "crrCompanyKind": "Type",
+  "@crrCompanyKind": {
+    "description": "p2career"
+  },
+  "crrCompanyLabel": "Company name to show",
+  "@crrCompanyLabel": {
+    "description": "p2career"
+  },
+  "crrCompanyLimit": "You can add up to 10 sources.",
+  "@crrCompanyLimit": {
+    "description": "p2career"
+  },
+  "crrCompanyLinkOnly": "Saved as a link — Assisto never reads career pages; you open it yourself.",
+  "@crrCompanyLinkOnly": {
+    "description": "p2career"
+  },
+  "crrCompanyRemove": "Remove",
+  "@crrCompanyRemove": {
+    "description": "p2career"
+  },
+  "crrCompanyTest": "Test",
+  "@crrCompanyTest": {
+    "description": "p2career"
+  },
+  "crrCompanyTestFail": "Could not read jobs from this source.",
+  "@crrCompanyTestFail": {
+    "description": "p2career"
+  },
+  "crrCompanyTestOk": "Works — {count} jobs found",
+  "@crrCompanyTestOk": {
+    "description": "p2career",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "crrCompanyValueGh": "Board name (boards.greenhouse.io/NAME)",
+  "@crrCompanyValueGh": {
+    "description": "p2career"
+  },
+  "crrCompanyValueLever": "Company name (jobs.lever.co/NAME)",
+  "@crrCompanyValueLever": {
+    "description": "p2career"
+  },
+  "crrCompanyValueUrl": "Link starting with https://",
+  "@crrCompanyValueUrl": {
+    "description": "p2career"
+  },
+  "crrCoveredCount": "Key points covered: {hit} of {total}",
+  "@crrCoveredCount": {
+    "description": "p2career",
+    "placeholders": {
+      "hit": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "crrCvExportAction": "PDF & style",
+  "@crrCvExportAction": {
+    "description": "p2career"
+  },
+  "crrCvExportTitle": "CV style, check & PDF",
+  "@crrCvExportTitle": {
+    "description": "p2career"
+  },
+  "crrCvFormat": "CV style",
+  "@crrCvFormat": {
+    "description": "p2career"
+  },
+  "crrCvLang": "CV language",
+  "@crrCvLang": {
+    "description": "p2career"
+  },
+  "crrDob": "Date of birth",
+  "@crrDob": {
+    "description": "p2career"
+  },
+  "crrDoneAvg": "Average score: {score} out of 100",
+  "@crrDoneAvg": {
+    "description": "p2career",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "crrDoneTitle": "Practice finished — well done!",
+  "@crrDoneTitle": {
+    "description": "p2career"
+  },
+  "crrEmptyAnswer": "Write or say an answer first.",
+  "@crrEmptyAnswer": {
+    "description": "p2career"
+  },
+  "crrFather": "Father's name",
+  "@crrFather": {
+    "description": "p2career"
+  },
+  "crrFillProfile": "Fill from my profile",
+  "@crrFillProfile": {
+    "description": "p2career"
+  },
+  "crrFillProfileDone": "Filled from your profile — tap Save.",
+  "@crrFillProfileDone": {
+    "description": "p2career"
+  },
+  "crrFillProfileNothing": "Nothing to fill — name, phone and e-mail are already there.",
+  "@crrFillProfileNothing": {
+    "description": "p2career"
+  },
+  "crrFinish": "Finish",
+  "@crrFinish": {
+    "description": "p2career"
+  },
+  "crrFmtExperienced": "Experienced",
+  "@crrFmtExperienced": {
+    "description": "p2career"
+  },
+  "crrFmtFresher": "Fresher",
+  "@crrFmtFresher": {
+    "description": "p2career"
+  },
+  "crrFmtGovt": "Government job",
+  "@crrFmtGovt": {
+    "description": "p2career"
+  },
+  "crrFmtHelpExperienced": "Summary and work experience first — for people with a job history.",
+  "@crrFmtHelpExperienced": {
+    "description": "p2career"
+  },
+  "crrFmtHelpFresher": "Career objective and education first — for your first job.",
+  "@crrFmtHelpFresher": {
+    "description": "p2career"
+  },
+  "crrFmtHelpGovt": "Adds personal information (parents, date of birth, address) and a declaration — the style government circulars expect.",
+  "@crrFmtHelpGovt": {
+    "description": "p2career"
+  },
+  "crrJobsDeadlineAsk": "Application deadline?",
+  "@crrJobsDeadlineAsk": {
+    "description": "p2career"
+  },
+  "crrJobsDeadlineHelp": "We will remind you 3 days before and on the day, at 9 in the morning.",
+  "@crrJobsDeadlineHelp": {
+    "description": "p2career"
+  },
+  "crrJobsDeadlinePick": "Pick date",
+  "@crrJobsDeadlinePick": {
+    "description": "p2career"
+  },
+  "crrJobsDeadlineSet": "Deadline reminders set",
+  "@crrJobsDeadlineSet": {
+    "description": "p2career"
+  },
+  "crrJobsDeadlineSkip": "No deadline",
+  "@crrJobsDeadlineSkip": {
+    "description": "p2career"
+  },
+  "crrJobsDeleteSearch": "Delete saved search",
+  "@crrJobsDeleteSearch": {
+    "description": "p2career"
+  },
+  "crrJobsFindEntry": "Find real jobs from legal sources",
+  "@crrJobsFindEntry": {
+    "description": "p2career"
+  },
+  "crrJobsFindTitle": "Find jobs",
+  "@crrJobsFindTitle": {
+    "description": "p2career"
+  },
+  "crrJobsLocation": "Location (optional)",
+  "@crrJobsLocation": {
+    "description": "p2career"
+  },
+  "crrJobsNoResults": "No jobs matched. Try a shorter word, or add a company below.",
+  "@crrJobsNoResults": {
+    "description": "p2career"
+  },
+  "crrJobsOpen": "Open",
+  "@crrJobsOpen": {
+    "description": "p2career"
+  },
+  "crrJobsQuery": "Job title or skill",
+  "@crrJobsQuery": {
+    "description": "p2career"
+  },
+  "crrJobsQueryNeeded": "Write a job title or skill first.",
+  "@crrJobsQueryNeeded": {
+    "description": "p2career"
+  },
+  "crrJobsResultsCount": "{count} jobs found",
+  "@crrJobsResultsCount": {
+    "description": "p2career",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "crrJobsSaveSearch": "Save this search",
+  "@crrJobsSaveSearch": {
+    "description": "p2career"
+  },
+  "crrJobsSavedSearches": "Saved searches",
+  "@crrJobsSavedSearches": {
+    "description": "p2career"
+  },
+  "crrJobsSearch": "Search",
+  "@crrJobsSearch": {
+    "description": "p2career"
+  },
+  "crrJobsSearchSaved": "Search saved — tap it any time to run it again.",
+  "@crrJobsSearchSaved": {
+    "description": "p2career"
+  },
+  "crrJobsSourceLabel": "Source: {source}",
+  "@crrJobsSourceLabel": {
+    "description": "p2career",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "crrJobsTrack": "Track",
+  "@crrJobsTrack": {
+    "description": "p2career"
+  },
+  "crrJobsTracked": "Added to your tracker",
+  "@crrJobsTracked": {
+    "description": "p2career"
+  },
+  "crrKindGreenhouse": "Greenhouse board",
+  "@crrKindGreenhouse": {
+    "description": "p2career"
+  },
+  "crrKindLever": "Lever board",
+  "@crrKindLever": {
+    "description": "p2career"
+  },
+  "crrKindLink": "Career page link (open only)",
+  "@crrKindLink": {
+    "description": "p2career"
+  },
+  "crrKindRss": "RSS / Atom feed",
+  "@crrKindRss": {
+    "description": "p2career"
+  },
+  "crrLangBn": "Bangla",
+  "@crrLangBn": {
+    "description": "p2career"
+  },
+  "crrLangEn": "English",
+  "@crrLangEn": {
+    "description": "p2career"
+  },
+  "crrLinkOnly": "Link only — this site has no open feed",
+  "@crrLinkOnly": {
+    "description": "p2career"
+  },
+  "crrModelOutline": "How to structure a good answer",
+  "@crrModelOutline": {
+    "description": "p2career"
+  },
+  "crrMother": "Mother's name",
+  "@crrMother": {
+    "description": "p2career"
+  },
+  "crrNationality": "Nationality",
+  "@crrNationality": {
+    "description": "p2career"
+  },
+  "crrNext": "Next question",
+  "@crrNext": {
+    "description": "p2career"
+  },
+  "crrOpenFailed": "Could not open the link.",
+  "@crrOpenFailed": {
+    "description": "p2career"
+  },
+  "crrPdfDownload": "Download PDF",
+  "@crrPdfDownload": {
+    "description": "p2career"
+  },
+  "crrPdfFailed": "Could not make the PDF — check the internet and try again.",
+  "@crrPdfFailed": {
+    "description": "p2career"
+  },
+  "crrPdfTitle": "Get your CV",
+  "@crrPdfTitle": {
+    "description": "p2career"
+  },
+  "crrPermAddress": "Permanent address",
+  "@crrPermAddress": {
+    "description": "p2career"
+  },
+  "crrPersonal": "Personal information",
+  "@crrPersonal": {
+    "description": "p2career"
+  },
+  "crrPhoto": "Photo (optional)",
+  "@crrPhoto": {
+    "description": "p2career"
+  },
+  "crrPhotoAdd": "Add photo",
+  "@crrPhotoAdd": {
+    "description": "p2career"
+  },
+  "crrPhotoFailed": "Could not add the photo.",
+  "@crrPhotoFailed": {
+    "description": "p2career"
+  },
+  "crrPhotoHelp": "Government CVs usually have a photo; many private jobs do not need one.",
+  "@crrPhotoHelp": {
+    "description": "p2career"
+  },
+  "crrPhotoRemove": "Remove photo",
+  "@crrPhotoRemove": {
+    "description": "p2career"
+  },
+  "crrPhotoTooBig": "That photo is too big — pick a smaller one.",
+  "@crrPhotoTooBig": {
+    "description": "p2career"
+  },
+  "crrPortals": "Official portals",
+  "@crrPortals": {
+    "description": "p2career"
+  },
+  "crrPrintHelp": "The print page opens in your browser and draws Bangla letters correctly — tap \"Save as PDF\" there. The link works for 30 minutes; do not share the link, share the PDF.",
+  "@crrPrintHelp": {
+    "description": "p2career"
+  },
+  "crrPrintPage": "Print page → Save as PDF",
+  "@crrPrintPage": {
+    "description": "p2career"
+  },
+  "crrReligion": "Religion",
+  "@crrReligion": {
+    "description": "p2career"
+  },
+  "crrRoleEntry": "Practice for a job role",
+  "@crrRoleEntry": {
+    "description": "p2career"
+  },
+  "crrRoleEntrySub": "Bank, sales, IT, teacher, NGO, garments, government viva — speak or type, get a score.",
+  "@crrRoleEntrySub": {
+    "description": "p2career"
+  },
+  "crrRolePick": "Pick a role",
+  "@crrRolePick": {
+    "description": "p2career"
+  },
+  "crrRoleQuestionOf": "Question {n} of {total}",
+  "@crrRoleQuestionOf": {
+    "description": "p2career",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "crrRoleQuestions": "{count} questions",
+  "@crrRoleQuestions": {
+    "description": "p2career",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "crrRoleTitle": "Role practice",
+  "@crrRoleTitle": {
+    "description": "p2career"
+  },
+  "crrRubricLabel": "Rule-based check — not an AI grade. It matches words, it does not understand meaning.",
+  "@crrRubricLabel": {
+    "description": "p2career"
+  },
+  "crrSaveDetails": "Save details",
+  "@crrSaveDetails": {
+    "description": "p2career"
+  },
+  "crrSaveFirst": "Save your CV first.",
+  "@crrSaveFirst": {
+    "description": "p2career"
+  },
+  "crrSaved": "Saved",
+  "@crrSaved": {
+    "description": "p2career"
+  },
+  "crrScore": "Score: {score} out of 100",
+  "@crrScore": {
+    "description": "p2career",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "crrSrcFailed": "could not read",
+  "@crrSrcFailed": {
+    "description": "p2career"
+  },
+  "crrSrcNotConnected": "not connected yet",
+  "@crrSrcNotConnected": {
+    "description": "p2career"
+  },
+  "crrSrcOk": "{count} jobs",
+  "@crrSrcOk": {
+    "description": "p2career",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "crrSubmit": "Get feedback",
+  "@crrSubmit": {
+    "description": "p2career"
+  },
+  "crrSummary": "Career objective / summary",
+  "@crrSummary": {
+    "description": "p2career"
+  },
+  "crrSummaryHint": "2–3 lines: who you are, your strongest skill, the job you want",
+  "@crrSummaryHint": {
+    "description": "p2career"
+  },
+  "crrTipAddExample": "Add one real example with a number (how many, how much, how fast).",
+  "@crrTipAddExample": {
+    "description": "p2career"
+  },
+  "crrTipCoverTopics": "Touch more of the key points — open \"How to structure a good answer\".",
+  "@crrTipCoverTopics": {
+    "description": "p2career"
+  },
+  "crrTipFewerFillers": "Fewer filler words (um, actually, basically) — pause instead.",
+  "@crrTipFewerFillers": {
+    "description": "p2career"
+  },
+  "crrTipKeepGoing": "Good answer — practise saying it out loud once more.",
+  "@crrTipKeepGoing": {
+    "description": "p2career"
+  },
+  "crrTipLonger": "Say a bit more — aim for 40 to 200 words.",
+  "@crrTipLonger": {
+    "description": "p2career"
+  },
+  "crrTipShorter": "Too long — keep it under about 200 words.",
+  "@crrTipShorter": {
+    "description": "p2career"
+  },
+  "crrWords": "{count} words",
+  "@crrWords": {
+    "description": "p2career",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   }
 }
