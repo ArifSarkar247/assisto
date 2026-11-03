@@ -1,0 +1,2872 @@
+{
+ "format": 1,
+ "lang": "ko",
+ "version": 1,
+ "stt_locale": "ko-KR",
+ "level_system": "TOPIK",
+ "levels": [
+  {
+   "id": "0",
+   "en": "Hangul start",
+   "bn": "হাঙ্গুল শুরু"
+  },
+  {
+   "id": "1",
+   "en": "TOPIK 1 level (estimate)",
+   "bn": "TOPIK ১ স্তর (অনুমান)"
+  },
+  {
+   "id": "2",
+   "en": "TOPIK 2 / EPS work level (estimate)",
+   "bn": "TOPIK ২ / EPS কাজের স্তর (অনুমান)"
+  },
+  {
+   "id": "3",
+   "en": "TOPIK 3 level (estimate)",
+   "bn": "TOPIK ৩ স্তর (অনুমান)"
+  },
+  {
+   "id": "4",
+   "en": "TOPIK 4 level (estimate)",
+   "bn": "TOPIK ৪ স্তর (অনুমান)"
+  },
+  {
+   "id": "5",
+   "en": "TOPIK 5 level (estimate)",
+   "bn": "TOPIK ৫ স্তর (অনুমান)"
+  },
+  {
+   "id": "6",
+   "en": "TOPIK 6 level (estimate)",
+   "bn": "TOPIK ৬ স্তর (অনুমান)"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "pl1",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "1",
+    "text": "사과, 바나나, 포도는 모두 ___입니다.",
+    "options": [
+     "음료",
+     "과일",
+     "채소",
+     "고기"
+    ],
+    "answer": 1,
+    "explain_bn": "আপেল, কলা, আঙুর — সবই ফল। 과일 = ফল।",
+    "explain_en": "Apple, banana and grape are all fruit (과일)."
+   },
+   {
+    "id": "pl2",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "1",
+    "text": "저는 방글라데시___ 왔어요.",
+    "options": [
+     "을",
+     "이",
+     "에서",
+     "에게"
+    ],
+    "answer": 2,
+    "explain_bn": "\"থেকে\" বোঝাতে জায়গার পরে 에서 বসে।",
+    "explain_en": "에서 marks the place you come from."
+   },
+   {
+    "id": "pl3",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "1",
+    "text": "'세 시 삼십 분'은 몇 시입니까?",
+    "options": [
+     "3:13",
+     "13:30",
+     "4:30",
+     "3:30"
+    ],
+    "answer": 3,
+    "explain_bn": "세 시 = ৩টা (ঘণ্টায় কোরিয়ান সংখ্যা), 삼십 분 = ৩০ মিনিট (মিনিটে চীনা-কোরিয়ান সংখ্যা)।",
+    "explain_en": "세 시 = 3 o'clock (native number), 삼십 분 = 30 minutes (Sino number)."
+   },
+   {
+    "id": "pl4",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "2",
+    "text": "공장에서 머리를 보호하려고 ___를 씁니다.",
+    "options": [
+     "안전모",
+     "장갑",
+     "안전화",
+     "귀마개"
+    ],
+    "answer": 0,
+    "explain_bn": "মাথা রক্ষার জন্য 안전모 (হেলমেট) পরা হয়। 장갑 = গ্লাভস, 안전화 = সেফটি জুতা।",
+    "explain_en": "A hard hat (안전모) protects the head."
+   },
+   {
+    "id": "pl5",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "2",
+    "text": "비가 ___ 우산을 가지고 가세요.",
+    "options": [
+     "오면서",
+     "오니까",
+     "오지만",
+     "오고"
+    ],
+    "answer": 1,
+    "explain_bn": "কারণ বলে তারপর আদেশ/অনুরোধ করলে -(으)니까 বসে: \"বৃষ্টি হচ্ছে, তাই ছাতা নিয়ে যান\"।",
+    "explain_en": "-(으)니까 gives a reason before a request or command."
+   },
+   {
+    "id": "pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "2",
+    "text": "안내문: '작업 중에는 휴대폰을 사용하지 마십시오.' 무슨 뜻입니까?",
+    "options": [
+     "여기에서 휴대폰을 팝니다.",
+     "쉬는 시간이 없습니다.",
+     "일할 때 휴대폰을 쓰면 안 됩니다.",
+     "휴대폰을 꼭 가져와야 합니다."
+    ],
+    "answer": 2,
+    "explain_bn": "작업 중 = কাজের সময়, 사용하지 마십시오 = ব্যবহার করবেন না।",
+    "explain_en": "작업 중 = during work; 사용하지 마십시오 = do not use."
+   },
+   {
+    "id": "pl7",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "3",
+    "text": "한국어를 열심히 공부___ 한국 회사에 취직할 수 있었어요.",
+    "options": [
+     "하는 대신에",
+     "하려면",
+     "하더니",
+     "한 덕분에"
+    ],
+    "answer": 3,
+    "explain_bn": "-(으)ㄴ 덕분에 = \"…এর কল্যাণে/জন্য\" (ভালো ফলের কারণ)।",
+    "explain_en": "-(으)ㄴ 덕분에 = thanks to (a good cause)."
+   },
+   {
+    "id": "pl8",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "3",
+    "text": "월급을 받으면 일부는 고향의 가족에게 ___.",
+    "options": [
+     "송금해요",
+     "졸업해요",
+     "출근해요",
+     "이사해요"
+    ],
+    "answer": 0,
+    "explain_bn": "송금하다 = টাকা পাঠানো (রেমিট্যান্স)।",
+    "explain_en": "송금하다 = to send money (remit)."
+   },
+   {
+    "id": "pl9",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "3",
+    "text": "우리 회사는 아침 8시에 일을 시작합니다. 점심시간은 12시부터 1시까지입니다. 일은 오후 5시에 끝납니다. — 점심시간은 얼마나 됩니까?",
+    "options": [
+     "다섯 시간",
+     "한 시간",
+     "두 시간",
+     "삼십 분"
+    ],
+    "answer": 1,
+    "explain_bn": "১২টা থেকে ১টা = এক ঘণ্টা (한 시간)।",
+    "explain_en": "12 to 1 is one hour."
+   },
+   {
+    "id": "pl10",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "4",
+    "text": "회의가 길어지는 ___ 약속에 늦었습니다.",
+    "options": [
+     "만큼",
+     "바람에",
+     "대로",
+     "김에"
+    ],
+    "answer": 1,
+    "explain_bn": "-는 바람에 = হঠাৎ কোনো কারণে খারাপ ফল হলো (মিটিং লম্বা হওয়ায় দেরি)।",
+    "explain_en": "-는 바람에 = because of (an unexpected cause with a bad result)."
+   },
+   {
+    "id": "pl11",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "4",
+    "text": "이 제품은 품질이 좋을 ___ 가격도 저렴합니다.",
+    "options": [
+     "지만",
+     "거나",
+     "뿐만 아니라",
+     "텐데"
+    ],
+    "answer": 2,
+    "explain_bn": "-(으)ㄹ 뿐만 아니라= \"শুধু তা-ই নয়, …ও\"।",
+    "explain_en": "-(으)ㄹ 뿐만 아니라 = not only … but also."
+   },
+   {
+    "id": "pl12",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "4",
+    "text": "공지: 신입 직원은 첫 출근 후 일주일 안에 안전 교육을 받아야 합니다. — 신입 직원은 언제까지 안전 교육을 받아야 합니까?",
+    "options": [
+     "입사하기 전에",
+     "한 달 후에",
+     "일 년에 한 번",
+     "첫 출근 후 일주일 안에"
+    ],
+    "answer": 3,
+    "explain_bn": "일주일 안에 = এক সপ্তাহের মধ্যে, 첫 출근 후 = প্রথম কাজের দিনের পরে।",
+    "explain_en": "Within one week after the first working day."
+   },
+   {
+    "id": "pl13",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "5",
+    "text": "정부는 일자리 문제를 해결하기 위해 다양한 정책을 ___.",
+    "options": [
+     "시행하고 있다",
+     "졸업하고 있다",
+     "포기하고 있다",
+     "출근하고 있다"
+    ],
+    "answer": 0,
+    "explain_bn": "정책을 시행하다 = নীতি চালু/বাস্তবায়ন করা।",
+    "explain_en": "정책을 시행하다 = to implement a policy."
+   },
+   {
+    "id": "pl14",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "5",
+    "text": "그는 몸이 피곤했음에도 ___ 끝까지 일을 마쳤다.",
+    "options": [
+     "관계하고",
+     "불구하고",
+     "불과하고",
+     "상관하고"
+    ],
+    "answer": 1,
+    "explain_bn": "-음에도 불구하고 = \"…সত্ত্বেও\"।",
+    "explain_en": "-음에도 불구하고 = despite."
+   },
+   {
+    "id": "pl15",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "6",
+    "text": "'일석이조'와 뜻이 가장 비슷한 것은?",
+    "options": [
+     "돌을 두 개 던짐",
+     "하루에 두 번 일함",
+     "한 가지 일로 두 가지 이익을 얻음",
+     "같은 일을 두 번 반복함"
+    ],
+    "answer": 2,
+    "explain_bn": "일석이조 = এক ঢিলে দুই পাখি — এক কাজে দুই লাভ।",
+    "explain_en": "일석이조 = two birds with one stone."
+   },
+   {
+    "id": "pl16",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "6",
+    "text": "아무리 경험이 많은 사람___ 이 문제를 혼자 해결하기는 어렵다.",
+    "options": [
+     "이라서",
+     "이니까",
+     "이고",
+     "이라고 해도"
+    ],
+    "answer": 3,
+    "explain_bn": "아무리 … -(이)라고 해도 = \"যতই … হোক না কেন\"।",
+    "explain_en": "아무리 … -(이)라고 해도 = no matter how … even if."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "ko0_vowels",
+   "level": "0",
+   "title_en": "Hangul vowels",
+   "title_bn": "হাঙ্গুল স্বরবর্ণ",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "ㅏ",
+     "roman": "a",
+     "bn": "আ — মুখ খোলা।",
+     "en": "a as in 'father'."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅓ",
+     "roman": "eo",
+     "bn": "খোলা অ — 'অ' আর 'ও'-এর মাঝামাঝি, ঠোঁট গোল নয়।",
+     "en": "Open 'aw' without rounding the lips."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅗ",
+     "roman": "o",
+     "bn": "ও — ঠোঁট গোল।",
+     "en": "o with rounded lips."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅜ",
+     "roman": "u",
+     "bn": "উ — ঠোঁট গোল।",
+     "en": "u as in 'moon'."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅡ",
+     "roman": "eu",
+     "bn": "উ, কিন্তু ঠোঁট টেনে (হাসির মতো), গোল নয়।",
+     "en": "u with flat, spread lips."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅣ",
+     "roman": "i",
+     "bn": "ই।",
+     "en": "ee as in 'see'."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅐ / ㅔ",
+     "roman": "ae / e",
+     "bn": "দুটোই প্রায় 'এ' — আজকের কোরিয়ানে প্রায় একই শোনায়।",
+     "en": "Both sound like 'e' in 'bed' today."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅑ ㅕ ㅛ ㅠ",
+     "roman": "ya yeo yo yu",
+     "bn": "আগে 'ইয়' যোগ: ইয়া, ইয়অ, ইয়ো, ইউ।",
+     "en": "Add a 'y' glide: ya, yeo, yo, yu."
+    },
+    {
+     "kind": "note",
+     "target": "아 어 오 우 으 이",
+     "roman": "a eo o u eu i",
+     "bn": "স্বর একা লিখতে সামনে নীরব ㅇ বসে।",
+     "en": "A vowel alone is written with a silent ㅇ in front."
+    }
+   ],
+   "practice": [
+    "아 어 오 우 으 이",
+    "아이",
+    "오이",
+    "우유"
+   ]
+  },
+  {
+   "id": "ko0_consonants",
+   "level": "0",
+   "title_en": "Hangul consonants",
+   "title_bn": "হাঙ্গুল ব্যঞ্জনবর্ণ",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "ㄱ ㄴ ㄷ ㄹ",
+     "roman": "g n d r/l",
+     "bn": "গ/ক, ন, দ/ত, র/ল (শব্দের শেষে ল)।",
+     "en": "g/k, n, d/t, r (l at the end)."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅁ ㅂ ㅅ ㅇ",
+     "roman": "m b s ng",
+     "bn": "ম, ব/প, স, ㅇ — শুরুতে নীরব, শেষে 'ং'।",
+     "en": "m, b/p, s, ㅇ silent at the start and 'ng' at the end."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅈ ㅊ ㅎ",
+     "roman": "j ch h",
+     "bn": "জ, ছ/চ (জোরে বাতাস), হ।",
+     "en": "j, ch (with a puff of air), h."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㅋ ㅌ ㅍ",
+     "roman": "k t p",
+     "bn": "খ, থ, ফ — জোরে বাতাস ছেড়ে। ㅍ ইংরেজি f নয়, বাংলা 'ফ'-এর মতো প।",
+     "en": "Aspirated k, t, p. ㅍ is never 'f'."
+    },
+    {
+     "kind": "vocab",
+     "target": "ㄲ ㄸ ㅃ ㅆ ㅉ",
+     "roman": "kk tt pp ss jj",
+     "bn": "শক্ত/চাপা উচ্চারণ, বাতাস ছাড়া — গলা টাইট করে।",
+     "en": "Tense sounds: tight throat, no puff of air."
+    }
+   ],
+   "practice": [
+    "가 나 다 라 마",
+    "바 사 아 자 차",
+    "카 타 파 하"
+   ]
+  },
+  {
+   "id": "ko0_blocks",
+   "level": "0",
+   "title_en": "Building syllable blocks",
+   "title_bn": "অক্ষর-ব্লক বানানো",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "ㄱ + ㅏ = 가",
+     "roman": "ga",
+     "bn": "ব্যঞ্জন + স্বর = এক অক্ষর-ব্লক। খাড়া স্বর (ㅏ ㅣ) ডানে বসে।",
+     "en": "Consonant + vowel = one block; tall vowels go to the right."
+    },
+    {
+     "kind": "grammar",
+     "target": "ㄱ + ㅗ = 고",
+     "roman": "go",
+     "bn": "চ্যাপ্টা স্বর (ㅗ ㅜ ㅡ) নিচে বসে।",
+     "en": "Flat vowels go underneath."
+    },
+    {
+     "kind": "grammar",
+     "target": "ㅂ + ㅏ + ㅂ = 밥",
+     "roman": "bap",
+     "bn": "নিচের ব্যঞ্জনকে 받침 (batchim) বলে। 밥 = ভাত/খাবার।",
+     "en": "The bottom consonant is the batchim. 밥 = rice/meal."
+    },
+    {
+     "kind": "vocab",
+     "target": "물",
+     "roman": "mul",
+     "bn": "পানি।",
+     "en": "water"
+    },
+    {
+     "kind": "vocab",
+     "target": "집",
+     "roman": "jip",
+     "bn": "বাসা।",
+     "en": "house/home"
+    },
+    {
+     "kind": "vocab",
+     "target": "돈",
+     "roman": "don",
+     "bn": "টাকা।",
+     "en": "money"
+    },
+    {
+     "kind": "note",
+     "target": "한국어 → [한구거]",
+     "roman": "han-gu-geo",
+     "bn": "ব্যঞ্জনে শেষ হলে আর পরের অক্ষর ㅇ দিয়ে শুরু হলে ব্যঞ্জনটা পরের অক্ষরে চলে যায় (연음)।",
+     "en": "A final consonant moves to the next syllable when that starts with ㅇ."
+    }
+   ],
+   "practice": [
+    "밥",
+    "물",
+    "집",
+    "한국어"
+   ]
+  },
+  {
+   "id": "ko0_words",
+   "level": "0",
+   "title_en": "First words for work",
+   "title_bn": "কাজের প্রথম শব্দ",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "일",
+     "roman": "il",
+     "bn": "কাজ (আবার সংখ্যা ১-ও)।",
+     "en": "work (also the number 1)"
+    },
+    {
+     "kind": "vocab",
+     "target": "회사",
+     "roman": "hoe-sa",
+     "bn": "কোম্পানি/অফিস।",
+     "en": "company"
+    },
+    {
+     "kind": "vocab",
+     "target": "공장",
+     "roman": "gong-jang",
+     "bn": "কারখানা।",
+     "en": "factory"
+    },
+    {
+     "kind": "vocab",
+     "target": "사람",
+     "roman": "sa-ram",
+     "bn": "মানুষ।",
+     "en": "person"
+    },
+    {
+     "kind": "vocab",
+     "target": "사장님",
+     "roman": "sa-jang-nim",
+     "bn": "মালিক/বস (সম্মান দিয়ে)।",
+     "en": "the boss/owner (polite)"
+    },
+    {
+     "kind": "vocab",
+     "target": "동료",
+     "roman": "dong-nyo",
+     "bn": "সহকর্মী।",
+     "en": "co-worker"
+    },
+    {
+     "kind": "phrase",
+     "target": "네 / 아니요",
+     "roman": "ne / a-ni-yo",
+     "bn": "হ্যাঁ / না।",
+     "en": "yes / no"
+    }
+   ],
+   "practice": [
+    "네, 알겠습니다.",
+    "공장에서 일해요."
+   ]
+  },
+  {
+   "id": "ko1_greet",
+   "level": "1",
+   "title_en": "Greetings and introducing yourself",
+   "title_bn": "শুভেচ্ছা ও নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "안녕하세요?",
+     "roman": "an-nyeong-ha-se-yo",
+     "bn": "আসসালামু আলাইকুম/নমস্কার — সবসময় চলে।",
+     "en": "Hello (polite)."
+    },
+    {
+     "kind": "phrase",
+     "target": "처음 뵙겠습니다.",
+     "roman": "cheo-eum boep-get-seum-ni-da",
+     "bn": "প্রথম দেখায়: আপনার সাথে পরিচিত হচ্ছি।",
+     "en": "Nice to meet you (first meeting, formal)."
+    },
+    {
+     "kind": "phrase",
+     "target": "저는 카림입니다.",
+     "roman": "jeo-neun ka-rim-im-ni-da",
+     "bn": "আমি করিম।",
+     "en": "I am Karim."
+    },
+    {
+     "kind": "phrase",
+     "target": "방글라데시에서 왔어요.",
+     "roman": "bang-geul-la-de-si-e-seo wa-sseo-yo",
+     "bn": "আমি বাংলাদেশ থেকে এসেছি।",
+     "en": "I came from Bangladesh."
+    },
+    {
+     "kind": "phrase",
+     "target": "잘 부탁드립니다.",
+     "roman": "jal bu-tak-deu-rim-ni-da",
+     "bn": "\"আমার দিকে খেয়াল রাখবেন\" — কাজে প্রথম দিনে খুব জরুরি।",
+     "en": "Please take care of me — key phrase on day one."
+    },
+    {
+     "kind": "phrase",
+     "target": "감사합니다. / 죄송합니다.",
+     "roman": "gam-sa-ham-ni-da / joe-song-ham-ni-da",
+     "bn": "ধন্যবাদ। / দুঃখিত।",
+     "en": "Thank you. / I'm sorry."
+    }
+   ],
+   "practice": [
+    "안녕하세요?",
+    "저는 방글라데시에서 왔어요.",
+    "잘 부탁드립니다."
+   ]
+  },
+  {
+   "id": "ko1_numbers",
+   "level": "1",
+   "title_en": "Numbers, money and time",
+   "title_bn": "সংখ্যা, টাকা ও সময়",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "일 이 삼 사 오 육 칠 팔 구 십",
+     "roman": "il i sam sa o yuk chil pal gu sip",
+     "bn": "চীনা-কোরিয়ান ১-১০: টাকা, তারিখ, মিনিট, ফোন নম্বরে।",
+     "en": "Sino-Korean 1-10: money, dates, minutes, phone numbers."
+    },
+    {
+     "kind": "vocab",
+     "target": "백 / 천 / 만",
+     "roman": "baek / cheon / man",
+     "bn": "১০০ / ১,০০০ / ১০,০০০ — কোরিয়ানে ১০ হাজার একটা একক (만)।",
+     "en": "100 / 1,000 / 10,000 (만 is its own unit)."
+    },
+    {
+     "kind": "vocab",
+     "target": "하나 둘 셋 넷 다섯",
+     "roman": "ha-na dul set net da-seot",
+     "bn": "খাঁটি কোরিয়ান ১-৫: জিনিস গোনা ও ঘণ্টায় (한 시, 두 시)।",
+     "en": "Native 1-5: counting things and the hour."
+    },
+    {
+     "kind": "phrase",
+     "target": "만 원이에요.",
+     "roman": "man wo-ni-e-yo",
+     "bn": "দশ হাজার ওন।",
+     "en": "It is 10,000 won."
+    },
+    {
+     "kind": "phrase",
+     "target": "지금 몇 시예요? — 두 시 반이에요.",
+     "roman": "ji-geum myeot si-ye-yo — du si ba-ni-e-yo",
+     "bn": "এখন কয়টা? — আড়াইটা।",
+     "en": "What time is it? — Half past two."
+    }
+   ],
+   "practice": [
+    "만 원이에요.",
+    "두 시 반이에요."
+   ]
+  },
+  {
+   "id": "ko1_daily",
+   "level": "1",
+   "title_en": "Daily verbs (polite -요)",
+   "title_bn": "দৈনন্দিন ক্রিয়া (ভদ্র -요)",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "가다 → 가요",
+     "roman": "ga-yo",
+     "bn": "ক্রিয়ার মূল + -아요/어요 = ভদ্র বর্তমান: যাই/যান।",
+     "en": "Stem + -아요/어요 = polite present."
+    },
+    {
+     "kind": "grammar",
+     "target": "먹다 → 먹어요",
+     "roman": "meo-geo-yo",
+     "bn": "খাই/খান।",
+     "en": "eat"
+    },
+    {
+     "kind": "grammar",
+     "target": "일하다 → 일해요",
+     "roman": "il-hae-yo",
+     "bn": "-하다 ক্রিয়া → -해요: কাজ করি।",
+     "en": "-하다 verbs become -해요."
+    },
+    {
+     "kind": "grammar",
+     "target": "갔어요 / 먹었어요",
+     "roman": "ga-sseo-yo / meo-geo-sseo-yo",
+     "bn": "অতীত: -았어요/었어요 (গিয়েছিলাম, খেয়েছিলাম)।",
+     "en": "Past: -았어요/었어요."
+    },
+    {
+     "kind": "phrase",
+     "target": "밥 먹었어요?",
+     "roman": "bap meo-geo-sseo-yo",
+     "bn": "\"খেয়েছেন?\" — কোরিয়ায় এটা শুভেচ্ছাও।",
+     "en": "Have you eaten? — also a greeting."
+    }
+   ],
+   "practice": [
+    "밥 먹었어요?",
+    "오늘 공장에서 일해요."
+   ]
+  },
+  {
+   "id": "ko2_safety",
+   "level": "2",
+   "title_en": "Safety gear and danger words",
+   "title_bn": "নিরাপত্তা সরঞ্জাম ও বিপদের শব্দ",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "안전모",
+     "roman": "an-jeon-mo",
+     "bn": "সেফটি হেলমেট।",
+     "en": "hard hat"
+    },
+    {
+     "kind": "vocab",
+     "target": "안전화",
+     "roman": "an-jeon-hwa",
+     "bn": "সেফটি জুতা।",
+     "en": "safety shoes"
+    },
+    {
+     "kind": "vocab",
+     "target": "장갑 / 보안경",
+     "roman": "jang-gap / bo-an-gyeong",
+     "bn": "গ্লাভস / চোখের সুরক্ষা চশমা।",
+     "en": "gloves / safety glasses"
+    },
+    {
+     "kind": "vocab",
+     "target": "귀마개 / 마스크",
+     "roman": "gwi-ma-gae / ma-seu-keu",
+     "bn": "কানের প্লাগ / মাস্ক।",
+     "en": "earplugs / mask"
+    },
+    {
+     "kind": "vocab",
+     "target": "소화기",
+     "roman": "so-hwa-gi",
+     "bn": "অগ্নিনির্বাপক যন্ত্র।",
+     "en": "fire extinguisher"
+    },
+    {
+     "kind": "vocab",
+     "target": "위험 / 주의 / 금지",
+     "roman": "wi-heom / ju-ui / geum-ji",
+     "bn": "বিপদ / সাবধান / নিষেধ।",
+     "en": "danger / caution / prohibited"
+    },
+    {
+     "kind": "phrase",
+     "target": "조심하세요!",
+     "roman": "jo-sim-ha-se-yo",
+     "bn": "সাবধান!",
+     "en": "Be careful!"
+    }
+   ],
+   "practice": [
+    "안전모를 쓰세요.",
+    "조심하세요!"
+   ]
+  },
+  {
+   "id": "ko2_signs",
+   "level": "2",
+   "title_en": "Reading workplace signs",
+   "title_bn": "কর্মস্থলের চিহ্ন পড়া",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "출입금지",
+     "roman": "chu-rip-geum-ji",
+     "bn": "প্রবেশ নিষেধ।",
+     "en": "No entry"
+    },
+    {
+     "kind": "vocab",
+     "target": "금연",
+     "roman": "geu-myeon",
+     "bn": "ধূমপান নিষেধ।",
+     "en": "No smoking"
+    },
+    {
+     "kind": "vocab",
+     "target": "화기엄금",
+     "roman": "hwa-gi-eom-geum",
+     "bn": "আগুন/খোলা শিখা একদম নিষেধ।",
+     "en": "No open flames"
+    },
+    {
+     "kind": "vocab",
+     "target": "고압 전기 위험",
+     "roman": "go-ap jeon-gi wi-heom",
+     "bn": "উচ্চ ভোল্টেজ — বিপদ।",
+     "en": "High voltage — danger"
+    },
+    {
+     "kind": "vocab",
+     "target": "비상구",
+     "roman": "bi-sang-gu",
+     "bn": "জরুরি বহির্গমন।",
+     "en": "Emergency exit"
+    },
+    {
+     "kind": "vocab",
+     "target": "미끄럼 주의",
+     "roman": "mi-kkeu-reom ju-ui",
+     "bn": "পিছলে পড়ার ভয় — সাবধান।",
+     "en": "Caution: slippery"
+    },
+    {
+     "kind": "vocab",
+     "target": "지게차 주의",
+     "roman": "ji-ge-cha ju-ui",
+     "bn": "ফর্কলিফট চলে — সাবধান।",
+     "en": "Caution: forklifts"
+    },
+    {
+     "kind": "vocab",
+     "target": "손대지 마시오",
+     "roman": "son-dae-ji ma-si-o",
+     "bn": "হাত দেবেন না।",
+     "en": "Do not touch"
+    }
+   ],
+   "practice": [
+    "여기는 출입금지예요.",
+    "비상구는 저쪽이에요."
+   ]
+  },
+  {
+   "id": "ko2_instructions",
+   "level": "2",
+   "title_en": "Understanding instructions",
+   "title_bn": "নির্দেশ বোঝা ও জিজ্ঞেস করা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "이것 좀 옮겨 주세요.",
+     "roman": "i-geot jom om-gyeo ju-se-yo",
+     "bn": "এটা একটু সরিয়ে দিন।",
+     "en": "Please move this."
+    },
+    {
+     "kind": "phrase",
+     "target": "기계를 끄세요.",
+     "roman": "gi-gye-reul kkeu-se-yo",
+     "bn": "মেশিন বন্ধ করুন।",
+     "en": "Turn off the machine."
+    },
+    {
+     "kind": "phrase",
+     "target": "다시 한 번 말씀해 주세요.",
+     "roman": "da-si han beon mal-sseum-hae ju-se-yo",
+     "bn": "আরেকবার বলবেন?",
+     "en": "Please say it once more."
+    },
+    {
+     "kind": "phrase",
+     "target": "천천히 말씀해 주세요.",
+     "roman": "cheon-cheon-hi mal-sseum-hae ju-se-yo",
+     "bn": "আস্তে বলবেন?",
+     "en": "Please speak slowly."
+    },
+    {
+     "kind": "phrase",
+     "target": "잘 모르겠어요.",
+     "roman": "jal mo-reu-ge-sseo-yo",
+     "bn": "ঠিক বুঝলাম না — না বুঝে কাজ করবেন না, জিজ্ঞেস করুন।",
+     "en": "I don't quite understand — always ask."
+    },
+    {
+     "kind": "phrase",
+     "target": "알겠습니다.",
+     "roman": "al-get-seum-ni-da",
+     "bn": "বুঝেছি।",
+     "en": "Understood."
+    }
+   ],
+   "practice": [
+    "다시 한 번 말씀해 주세요.",
+    "천천히 말씀해 주세요."
+   ]
+  },
+  {
+   "id": "ko2_tools",
+   "level": "2",
+   "title_en": "Machines, tools and shifts",
+   "title_bn": "মেশিন, যন্ত্রপাতি ও শিফট",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "기계 / 공구",
+     "roman": "gi-gye / gong-gu",
+     "bn": "মেশিন / যন্ত্রপাতি।",
+     "en": "machine / tool"
+    },
+    {
+     "kind": "vocab",
+     "target": "망치 / 드라이버",
+     "roman": "mang-chi / deu-ra-i-beo",
+     "bn": "হাতুড়ি / স্ক্রু-ড্রাইভার।",
+     "en": "hammer / screwdriver"
+    },
+    {
+     "kind": "vocab",
+     "target": "불량",
+     "roman": "bul-lyang",
+     "bn": "ত্রুটিপূর্ণ মাল।",
+     "en": "defective (product)"
+    },
+    {
+     "kind": "vocab",
+     "target": "포장",
+     "roman": "po-jang",
+     "bn": "প্যাকিং।",
+     "en": "packing"
+    },
+    {
+     "kind": "vocab",
+     "target": "주간 / 야간 근무",
+     "roman": "ju-gan / ya-gan geun-mu",
+     "bn": "দিনের / রাতের শিফট।",
+     "en": "day / night shift"
+    },
+    {
+     "kind": "vocab",
+     "target": "잔업",
+     "roman": "ja-neop",
+     "bn": "ওভারটাইম।",
+     "en": "overtime"
+    },
+    {
+     "kind": "phrase",
+     "target": "기계가 고장 났어요.",
+     "roman": "gi-gye-ga go-jang na-sseo-yo",
+     "bn": "মেশিন নষ্ট হয়ে গেছে।",
+     "en": "The machine is broken."
+    }
+   ],
+   "practice": [
+    "기계가 고장 났어요.",
+    "오늘 야간 근무예요."
+   ]
+  },
+  {
+   "id": "ko2_report",
+   "level": "2",
+   "title_en": "Reporting injury or illness",
+   "title_bn": "আঘাত বা অসুস্থতা জানানো",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "다쳤어요.",
+     "roman": "da-cheo-sseo-yo",
+     "bn": "আমি আঘাত পেয়েছি।",
+     "en": "I'm hurt."
+    },
+    {
+     "kind": "phrase",
+     "target": "손가락을 베었어요.",
+     "roman": "son-ga-ra-geul be-eo-sseo-yo",
+     "bn": "আঙুল কেটে গেছে।",
+     "en": "I cut my finger."
+    },
+    {
+     "kind": "phrase",
+     "target": "도와주세요!",
+     "roman": "do-wa-ju-se-yo",
+     "bn": "সাহায্য করুন!",
+     "en": "Help me!"
+    },
+    {
+     "kind": "phrase",
+     "target": "몸이 안 좋아서 병원에 가야 해요.",
+     "roman": "mo-mi an jo-a-seo byeong-wo-ne ga-ya hae-yo",
+     "bn": "শরীর ভালো না, হাসপাতালে যেতে হবে।",
+     "en": "I feel unwell, I need to go to hospital."
+    },
+    {
+     "kind": "vocab",
+     "target": "반장님",
+     "roman": "ban-jang-nim",
+     "bn": "টিম লিডার — আঘাত হলে সঙ্গে সঙ্গে তাঁকে বলুন।",
+     "en": "team leader — tell them at once"
+    },
+    {
+     "kind": "note",
+     "target": "119",
+     "roman": "il-il-gu",
+     "bn": "কোরিয়ায় অ্যাম্বুলেন্স/ফায়ার: ১১৯। পুলিশ: ১১২।",
+     "en": "Korea: ambulance/fire 119, police 112."
+    }
+   ],
+   "practice": [
+    "다쳤어요. 도와주세요!",
+    "몸이 안 좋아서 병원에 가야 해요."
+   ]
+  },
+  {
+   "id": "ko2_pay",
+   "level": "2",
+   "title_en": "Pay, leave and documents",
+   "title_bn": "বেতন, ছুটি ও কাগজপত্র",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "월급 / 월급날",
+     "roman": "wol-geup / wol-geup-nal",
+     "bn": "মাসিক বেতন / বেতনের দিন।",
+     "en": "salary / payday"
+    },
+    {
+     "kind": "vocab",
+     "target": "근로계약서",
+     "roman": "geul-lo-gye-yak-seo",
+     "bn": "শ্রম চুক্তিপত্র — কপি নিজের কাছে রাখুন।",
+     "en": "employment contract — keep a copy"
+    },
+    {
+     "kind": "vocab",
+     "target": "휴가 / 휴일",
+     "roman": "hyu-ga / hyu-il",
+     "bn": "ছুটি / ছুটির দিন।",
+     "en": "leave / day off"
+    },
+    {
+     "kind": "vocab",
+     "target": "출근 / 퇴근",
+     "roman": "chul-geun / toe-geun",
+     "bn": "কাজে আসা / কাজ শেষে যাওয়া।",
+     "en": "arrive at work / leave work"
+    },
+    {
+     "kind": "vocab",
+     "target": "기숙사",
+     "roman": "gi-suk-sa",
+     "bn": "ডরমিটরি (থাকার জায়গা)।",
+     "en": "dormitory"
+    },
+    {
+     "kind": "vocab",
+     "target": "외국인등록증",
+     "roman": "oe-gu-gin-deung-nok-jjeung",
+     "bn": "বিদেশি নিবন্ধন কার্ড — কোরিয়ায় আপনার পরিচয়পত্র।",
+     "en": "alien registration card"
+    },
+    {
+     "kind": "note",
+     "target": "1345",
+     "bn": "বিদেশিদের সরকারি তথ্য-কেন্দ্র (외국인종합안내센터) ১৩৪৫ — নানা ভাষায় সাহায্য।",
+     "en": "Korea Immigration Contact Center 1345 helps in many languages."
+    }
+   ],
+   "practice": [
+    "월급날이 언제예요?",
+    "근로계약서를 보여 주세요."
+   ]
+  },
+  {
+   "id": "ko3_connect",
+   "level": "3",
+   "title_en": "Joining sentences",
+   "title_bn": "বাক্য জোড়া লাগানো",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "-고",
+     "roman": "-go",
+     "bn": "এবং: 밥을 먹고 일해요 (খেয়ে কাজ করি)।",
+     "en": "and (then)"
+    },
+    {
+     "kind": "grammar",
+     "target": "-아서/어서",
+     "roman": "-a-seo/-eo-seo",
+     "bn": "কারণ/তারপর: 피곤해서 쉬었어요 (ক্লান্ত তাই বিশ্রাম নিলাম)।",
+     "en": "because / and so (no commands after it)"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)면",
+     "roman": "-(eu)myeon",
+     "bn": "যদি: 아프면 말하세요 (অসুস্থ হলে বলুন)।",
+     "en": "if / when"
+    },
+    {
+     "kind": "grammar",
+     "target": "-지만",
+     "roman": "-ji-man",
+     "bn": "কিন্তু: 일은 힘들지만 재미있어요।",
+     "en": "but"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)니까",
+     "roman": "-(eu)ni-kka",
+     "bn": "যেহেতু — পরে আদেশ/অনুরোধ বসতে পারে: 위험하니까 들어가지 마세요।",
+     "en": "since (can be followed by a command)"
+    }
+   ],
+   "practice": [
+    "아프면 말하세요.",
+    "위험하니까 들어가지 마세요."
+   ]
+  },
+  {
+   "id": "ko3_honor",
+   "level": "3",
+   "title_en": "Polite speech to your boss",
+   "title_bn": "বসের সাথে সম্মান দিয়ে কথা",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "-(으)시-",
+     "roman": "-(eu)si-",
+     "bn": "যাঁকে সম্মান করছেন তাঁর কাজে -시- বসে: 가세요, 오셨어요।",
+     "en": "Honorific -시- for the person you respect."
+    },
+    {
+     "kind": "vocab",
+     "target": "드시다 / 계시다 / 주무시다",
+     "roman": "deu-si-da / gye-si-da / ju-mu-si-da",
+     "bn": "খাওয়া / থাকা / ঘুমানো — সম্মানসূচক রূপ।",
+     "en": "honorific eat / be / sleep"
+    },
+    {
+     "kind": "vocab",
+     "target": "말씀",
+     "roman": "mal-sseum",
+     "bn": "কথা (সম্মানসূচক)।",
+     "en": "words (honorific)"
+    },
+    {
+     "kind": "phrase",
+     "target": "사장님, 내일 휴가를 써도 될까요?",
+     "roman": "sa-jang-nim, nae-il hyu-ga-reul sseo-do doel-kka-yo",
+     "bn": "স্যার, কাল ছুটি নিতে পারি?",
+     "en": "Boss, may I take leave tomorrow?"
+    }
+   ],
+   "practice": [
+    "사장님, 내일 휴가를 써도 될까요?"
+   ]
+  },
+  {
+   "id": "ko4_formal",
+   "level": "4",
+   "title_en": "Formal and written style",
+   "title_bn": "আনুষ্ঠানিক ও লিখিত রীতি",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "-ㅂ니다/습니다",
+     "roman": "-m-ni-da/-seum-ni-da",
+     "bn": "আনুষ্ঠানিক বক্তব্য, ঘোষণা, সংবাদে।",
+     "en": "Formal speech, announcements, news."
+    },
+    {
+     "kind": "grammar",
+     "target": "-다 (한다/했다)",
+     "roman": "-da",
+     "bn": "লিখিত রীতি — TOPIK II লেখায় এটাই ব্যবহার করুন।",
+     "en": "Written style — use it in TOPIK II writing."
+    },
+    {
+     "kind": "grammar",
+     "target": "-기 때문에",
+     "roman": "-gi ttae-mu-ne",
+     "bn": "কারণ (আনুষ্ঠানিক)।",
+     "en": "because (formal)"
+    },
+    {
+     "kind": "grammar",
+     "target": "-는 것 같다",
+     "roman": "-neun geot gat-da",
+     "bn": "মনে হয় …।",
+     "en": "it seems that …"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)ㄹ 수 있다/없다",
+     "roman": "-(eu)l su it-da",
+     "bn": "পারা/না পারা।",
+     "en": "can / cannot"
+    }
+   ],
+   "practice": [
+    "외국인 근로자가 늘고 있다.",
+    "안전 교육이 중요하기 때문에 꼭 참석해야 한다."
+   ]
+  },
+  {
+   "id": "ko5_adv",
+   "level": "5",
+   "title_en": "Advanced connectors",
+   "title_bn": "উচ্চতর সংযোজক",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "-는 바람에",
+     "roman": "-neun ba-ra-me",
+     "bn": "হঠাৎ কারণে খারাপ ফল।",
+     "en": "because of (unexpected, bad result)"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)ㄹ 뿐만 아니라",
+     "roman": "-(eu)l ppun-man a-ni-ra",
+     "bn": "শুধু তা-ই নয়, …ও।",
+     "en": "not only … but also"
+    },
+    {
+     "kind": "grammar",
+     "target": "-에도 불구하고",
+     "roman": "-e-do bul-gu-ha-go",
+     "bn": "সত্ত্বেও।",
+     "en": "despite"
+    },
+    {
+     "kind": "grammar",
+     "target": "-는 반면에",
+     "roman": "-neun ban-myeo-ne",
+     "bn": "অন্যদিকে।",
+     "en": "whereas"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)ㄹ 겸",
+     "roman": "-(eu)l gyeom",
+     "bn": "একসাথে দুই উদ্দেশ্যে।",
+     "en": "for two purposes at once"
+    }
+   ],
+   "practice": [
+    "비가 오는 바람에 늦었습니다.",
+    "그 일은 힘든 반면에 월급이 많다."
+   ]
+  },
+  {
+   "id": "ko6_idioms",
+   "level": "6",
+   "title_en": "Idioms and nuance",
+   "title_bn": "প্রবাদ ও সূক্ষ্ম অর্থ",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "일석이조",
+     "roman": "il-seo-gi-jo",
+     "bn": "এক ঢিলে দুই পাখি।",
+     "en": "two birds with one stone"
+    },
+    {
+     "kind": "vocab",
+     "target": "티끌 모아 태산",
+     "roman": "ti-kkeul mo-a tae-san",
+     "bn": "বিন্দু বিন্দু জমে সিন্ধু — সঞ্চয়ের প্রবাদ।",
+     "en": "many a little makes a mickle"
+    },
+    {
+     "kind": "vocab",
+     "target": "시작이 반이다",
+     "roman": "si-ja-gi ba-ni-da",
+     "bn": "শুরু করাই অর্ধেক কাজ।",
+     "en": "well begun is half done"
+    },
+    {
+     "kind": "grammar",
+     "target": "-기 마련이다",
+     "roman": "-gi ma-ryeo-ni-da",
+     "bn": "স্বাভাবিকভাবেই এমন হয়।",
+     "en": "it is bound to happen"
+    },
+    {
+     "kind": "grammar",
+     "target": "-(으)ㄹ 법하다",
+     "roman": "-(eu)l beo-pa-da",
+     "bn": "হতেই পারে / যুক্তিসঙ্গত।",
+     "en": "it is likely / reasonable"
+    }
+   ],
+   "practice": [
+    "티끌 모아 태산이라고 매달 조금씩 저축해요."
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Arriving at Incheon Airport",
+   "title_bn": "ইনচন বিমানবন্দরে পৌঁছানো",
+   "ai_role": "You are a polite Korean immigration officer at Incheon Airport. The traveller is a Bangladeshi worker arriving on an E-9 work visa. Speak simple polite Korean (해요체), one short question at a time: passport, purpose of visit, company name, where they will stay. If the learner makes a mistake, show the corrected Korean sentence in brackets, then continue.",
+   "opening": "안녕하세요. 여권 좀 보여 주세요. 한국에 왜 오셨어요?",
+   "goals_en": [
+    "Say you came to work",
+    "Say your company name",
+    "Say how long you will stay"
+   ],
+   "goals_bn": [
+    "বলুন কাজ করতে এসেছেন",
+    "কোম্পানির নাম বলুন",
+    "কতদিন থাকবেন বলুন"
+   ],
+   "useful": [
+    {
+     "target": "일하러 왔어요.",
+     "bn": "কাজ করতে এসেছি।",
+     "en": "I came to work."
+    },
+    {
+     "target": "회사 이름은 한빛산업이에요.",
+     "bn": "কোম্পানির নাম হানবিত শিল্প।",
+     "en": "The company is Hanbit Industry."
+    },
+    {
+     "target": "삼 년 동안 있을 거예요.",
+     "bn": "তিন বছর থাকব।",
+     "en": "I will stay for three years."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at the factory",
+   "title_bn": "কারখানায় প্রথম দিন",
+   "ai_role": "You are 반장 (team leader) at a small Korean factory, meeting a new Bangladeshi worker on day one. Speak simple polite Korean. Explain safety gear, ask if they understand, give one simple instruction at a time (wear a hard hat, do not touch the machine while it runs, report injuries). Check understanding. Correct mistakes in brackets.",
+   "opening": "반가워요. 오늘부터 같이 일해요. 안전모하고 장갑 있어요?",
+   "goals_en": [
+    "Greet your team leader",
+    "Ask them to repeat or slow down",
+    "Confirm the safety rules"
+   ],
+   "goals_bn": [
+    "টিম লিডারকে শুভেচ্ছা দিন",
+    "আবার বা আস্তে বলতে বলুন",
+    "নিরাপত্তার নিয়ম বুঝেছেন বলুন"
+   ],
+   "useful": [
+    {
+     "target": "잘 부탁드립니다.",
+     "bn": "আমার দিকে খেয়াল রাখবেন।",
+     "en": "Please look after me."
+    },
+    {
+     "target": "천천히 말씀해 주세요.",
+     "bn": "আস্তে বলবেন।",
+     "en": "Please speak slowly."
+    },
+    {
+     "target": "기계가 움직일 때 손대지 않을게요.",
+     "bn": "মেশিন চলার সময় হাত দেব না।",
+     "en": "I won't touch the machine while it runs."
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the clinic",
+   "title_bn": "ক্লিনিকে ডাক্তারের কাছে",
+   "ai_role": "You are a receptionist and then a doctor at a Korean neighbourhood clinic (의원). Ask in simple polite Korean for the alien registration card, then about symptoms: where it hurts, since when, fever. Give simple advice. Never give a real diagnosis or medicine names; say they should follow the doctor's real advice. Correct mistakes in brackets.",
+   "opening": "어서 오세요. 외국인등록증 있으세요? 어디가 아프세요?",
+   "goals_en": [
+    "Say where it hurts",
+    "Say since when",
+    "Ask how to take the medicine"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা বলুন",
+    "কবে থেকে বলুন",
+    "ওষুধ কীভাবে খাবেন জিজ্ঞেস করুন"
+   ],
+   "useful": [
+    {
+     "target": "배가 아파요.",
+     "bn": "পেটে ব্যথা।",
+     "en": "My stomach hurts."
+    },
+    {
+     "target": "어제부터 열이 나요.",
+     "bn": "গতকাল থেকে জ্বর।",
+     "en": "I have had a fever since yesterday."
+    },
+    {
+     "target": "이 약은 어떻게 먹어요?",
+     "bn": "এই ওষুধ কীভাবে খাব?",
+     "en": "How do I take this medicine?"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a room",
+   "title_bn": "বাসা (원룸) ভাড়া",
+   "ai_role": "You are a Korean real-estate agent (부동산) showing a small studio (원룸). Speak simple polite Korean. Talk about deposit (보증금), monthly rent (월세), utilities (관리비), distance to the factory. Encourage the learner to ask for a written contract. Correct mistakes in brackets.",
+   "opening": "어서 오세요. 어떤 방 찾으세요? 보증금은 얼마 생각하세요?",
+   "goals_en": [
+    "Ask the monthly rent and deposit",
+    "Ask what the utilities cost",
+    "Ask for a written contract"
+   ],
+   "goals_bn": [
+    "মাসিক ভাড়া ও জামানত জিজ্ঞেস করুন",
+    "বিদ্যুৎ/পানি খরচ জিজ্ঞেস করুন",
+    "লিখিত চুক্তি চান"
+   ],
+   "useful": [
+    {
+     "target": "월세가 얼마예요?",
+     "bn": "মাসিক ভাড়া কত?",
+     "en": "How much is the monthly rent?"
+    },
+    {
+     "target": "관리비도 따로 내요?",
+     "bn": "সার্ভিস চার্জ আলাদা দিতে হয়?",
+     "en": "Do I pay the maintenance fee separately?"
+    },
+    {
+     "target": "계약서를 써 주세요.",
+     "bn": "চুক্তিপত্র লিখে দিন।",
+     "en": "Please write a contract."
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the mart",
+   "title_bn": "মার্টে কেনাকাটা",
+   "ai_role": "You are a cashier at a Korean neighbourhood mart. Speak simple polite Korean. Ask if they need a bag (봉투), card or cash, point card; answer where items are (rice, chicken, phone card). Correct mistakes in brackets.",
+   "opening": "어서 오세요. 봉투 필요하세요?",
+   "goals_en": [
+    "Ask where an item is",
+    "Ask the price",
+    "Pay and ask for a bag"
+   ],
+   "goals_bn": [
+    "জিনিস কোথায় জিজ্ঞেস করুন",
+    "দাম জিজ্ঞেস করুন",
+    "টাকা দিন ও ব্যাগ চান"
+   ],
+   "useful": [
+    {
+     "target": "쌀은 어디에 있어요?",
+     "bn": "চাল কোথায়?",
+     "en": "Where is the rice?"
+    },
+    {
+     "target": "이거 얼마예요?",
+     "bn": "এটার দাম কত?",
+     "en": "How much is this?"
+    },
+    {
+     "target": "카드로 할게요. 봉투 하나 주세요.",
+     "bn": "কার্ডে দেব। একটা ব্যাগ দিন।",
+     "en": "I'll pay by card. One bag, please."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "kpr1",
+   "text": "어머니가 오이를 사요.",
+   "tip_bn": "ㅓ (어) আর ㅗ (오) আলাদা: ㅓ-তে ঠোঁট গোল নয়, ㅗ-তে গোল।",
+   "tip_en": "ㅓ unrounded, ㅗ rounded."
+  },
+  {
+   "id": "kpr2",
+   "text": "포장을 빨리 해 주세요.",
+   "tip_bn": "ㅍ ইংরেজি f নয় — বাতাস ছেড়ে 'ফ/প'। ㅃ শক্ত প, বাতাস ছাড়া।",
+   "tip_en": "ㅍ is an aspirated p, never f; ㅃ is tense."
+  },
+  {
+   "id": "kpr3",
+   "text": "물을 마셔요.",
+   "tip_bn": "ㄹ শেষে 'ল' (물), দুই স্বরের মাঝে 'র' (물을 → 무를)।",
+   "tip_en": "ㄹ is l at the end, r between vowels."
+  },
+  {
+   "id": "kpr4",
+   "text": "감사합니다.",
+   "tip_bn": "লেখা 합니다, বলা [함니다] — ㅂ-এর পরে ㄴ এলে ㅂ 'ম' হয়ে যায়।",
+   "tip_en": "합니다 is said [함니다] (nasalisation)."
+  },
+  {
+   "id": "kpr5",
+   "text": "한국어를 공부해요.",
+   "tip_bn": "한국어 → [한구거]: ㄱ পরের অক্ষরে চলে যায়।",
+   "tip_en": "Linking: 한국어 → [한구거]."
+  },
+  {
+   "id": "kpr6",
+   "text": "안전모를 쓰세요.",
+   "tip_bn": "ㅡ (쓰) ঠোঁট টেনে 'উ'; ㅆ শক্ত 'স'।",
+   "tip_en": "ㅡ with spread lips; ㅆ is a tense s."
+  },
+  {
+   "id": "kpr7",
+   "text": "기계가 고장 났어요.",
+   "tip_bn": "শব্দের শুরুতে ㄱ নরম 'ক', মাঝে 'গ' — 기계가 ≈ [기게가]।",
+   "tip_en": "ㄱ is soft k at the start, g in the middle."
+  },
+  {
+   "id": "kpr8",
+   "text": "천천히 말씀해 주세요.",
+   "tip_bn": "ㅊ জোরে বাতাস দিয়ে 'ছ'; ㅈ নরম 'জ'।",
+   "tip_en": "ㅊ with a puff of air; ㅈ soft."
+  },
+  {
+   "id": "kpr9",
+   "text": "다쳤어요. 도와주세요.",
+   "tip_bn": "ㅌ-এর মতো ㅊ-তেও বাতাস; শেষের -요 টেনে বলবেন না।",
+   "tip_en": "Aspirated ㅊ; keep the final -요 short."
+  },
+  {
+   "id": "kpr10",
+   "text": "월급날이 언제예요?",
+   "tip_bn": "ㅝ = 'উঅ' দ্রুত একসাথে; 급날 → [금날]।",
+   "tip_en": "ㅝ = quick 'wo'; 급날 → [금날]."
+  },
+  {
+   "id": "kpr11",
+   "text": "비상구는 저쪽이에요.",
+   "tip_bn": "ㅉ শক্ত 'জ', বাতাস ছাড়া।",
+   "tip_en": "ㅉ is a tense j."
+  },
+  {
+   "id": "kpr12",
+   "text": "외국인등록증을 보여 주세요.",
+   "tip_bn": "ㅚ আজকাল প্রায় 'ওয়ে'; 등록 → [등녹]।",
+   "tip_en": "ㅚ ≈ 'we'; 등록 → [등녹]."
+  }
+ ],
+ "mock": [
+  {
+   "id": "eps_style_1",
+   "title_en": "EPS-TOPIK style practice — Reading",
+   "title_bn": "EPS-TOPIK ধাঁচের অনুশীলন — রিডিং",
+   "format_en": "Reading half of the EPS-TOPIK format: 25 four-option questions in 40 minutes (the real test adds 25 listening questions in 30 minutes; 200 points in all, about 80 is the usual minimum, then selection by rank). Check your round's notice on BOESL. All questions are original Assisto practice.",
+   "format_bn": "EPS-TOPIK ধরনের রিডিং অর্ধেক: ৪০ মিনিটে ২৫টি চার-বিকল্প প্রশ্ন (আসল পরীক্ষায় আরও ৩০ মিনিটে ২৫টি লিসেনিং; মোট ২০০ নম্বর, সাধারণত ৮০ ন্যূনতম, তারপর মেধাক্রমে বাছাই)। নিজের রাউন্ডের নোটিশ BOESL-এ মিলিয়ে নিন। সব প্রশ্ন Assisto-র নিজের লেখা।",
+   "minutes": 40,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading (읽기)",
+     "title_bn": "রিডিং (읽기)",
+     "questions": [
+      {
+       "id": "e1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "다음 중 '마시는 것'이 아닌 것은?",
+       "options": [
+        "우유",
+        "주스",
+        "빵",
+        "물"
+       ],
+       "answer": 2,
+       "explain_bn": "빵 = রুটি (খাওয়ার জিনিস); বাকিগুলো পান করার।",
+       "explain_en": "빵 is bread — you eat it."
+      },
+      {
+       "id": "e2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "손을 보호할 때 끼는 것은?",
+       "options": [
+        "모자",
+        "양말",
+        "안경",
+        "장갑"
+       ],
+       "answer": 3,
+       "explain_bn": "হাত রক্ষায় 장갑 (গ্লাভস) পরা হয়।",
+       "explain_en": "Gloves (장갑) protect the hands."
+      },
+      {
+       "id": "e3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "불이 났을 때 사용하는 것은?",
+       "options": [
+        "소화기",
+        "냉장고",
+        "세탁기",
+        "청소기"
+       ],
+       "answer": 0,
+       "explain_bn": "আগুনে 소화기 (অগ্নিনির্বাপক)।",
+       "explain_en": "A fire extinguisher (소화기)."
+      },
+      {
+       "id": "e4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'출근'의 반대말은?",
+       "options": [
+        "입사",
+        "퇴근",
+        "휴가",
+        "야근"
+       ],
+       "answer": 1,
+       "explain_bn": "출근 = কাজে আসা, 퇴근 = কাজ শেষে ফেরা।",
+       "explain_en": "출근 (go to work) ↔ 퇴근 (leave work)."
+      },
+      {
+       "id": "e5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "저는 매일 아침 7시___ 일어나요.",
+       "options": [
+        "와",
+        "도",
+        "에",
+        "을"
+       ],
+       "answer": 2,
+       "explain_bn": "সময়ের পরে 에 বসে।",
+       "explain_en": "에 marks time."
+      },
+      {
+       "id": "e6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "어제 저녁에 친구하고 영화를 ___.",
+       "options": [
+        "볼 거예요",
+        "봐요",
+        "보세요",
+        "봤어요"
+       ],
+       "answer": 3,
+       "explain_bn": "어제 (গতকাল) → অতীত: -았어요/었어요।",
+       "explain_en": "어제 (yesterday) needs the past tense."
+      },
+      {
+       "id": "e7",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "너무 ___ 창문을 열었어요.",
+       "options": [
+        "더워서",
+        "더우면",
+        "덥지만",
+        "덥고"
+       ],
+       "answer": 0,
+       "explain_bn": "কারণ বোঝাতে -아서/어서: গরম লাগায় জানালা খুললাম।",
+       "explain_en": "-어서 gives the reason."
+      },
+      {
+       "id": "e8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "작업장에서는 담배를 피우면 ___.",
+       "options": [
+        "괜찮아요",
+        "안 돼요",
+        "돼요",
+        "좋아요"
+       ],
+       "answer": 1,
+       "explain_bn": "-(으)면 안 돼요 = করা যাবে না।",
+       "explain_en": "-(으)면 안 돼요 = must not."
+      },
+      {
+       "id": "e9",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '금연' — 이곳에서 할 수 없는 것은?",
+       "options": [
+        "쉬는 것",
+        "전화하는 것",
+        "담배를 피우는 것",
+        "물을 마시는 것"
+       ],
+       "answer": 2,
+       "explain_bn": "금연 = ধূমপান নিষেধ।",
+       "explain_en": "금연 = no smoking."
+      },
+      {
+       "id": "e10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '비상구' — 이 문은 언제 사용합니까?",
+       "options": [
+        "물건을 살 때",
+        "월급을 받을 때",
+        "불이 나거나 위험할 때",
+        "점심을 먹을 때"
+       ],
+       "answer": 2,
+       "explain_bn": "비상구 = জরুরি বহির্গমন।",
+       "explain_en": "비상구 = emergency exit."
+      },
+      {
+       "id": "e11",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '지게차 주의' — 무엇을 조심해야 합니까?",
+       "options": [
+        "뜨거운 물",
+        "젖은 바닥",
+        "높은 소리",
+        "움직이는 지게차"
+       ],
+       "answer": 3,
+       "explain_bn": "지게차 = ফর্কলিফট।",
+       "explain_en": "지게차 = forklift."
+      },
+      {
+       "id": "e12",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '손대지 마시오' — 맞는 행동은?",
+       "options": [
+        "만지지 않는다.",
+        "손을 씻는다.",
+        "손을 든다.",
+        "장갑을 벗는다."
+       ],
+       "answer": 0,
+       "explain_bn": "손대지 마시오 = হাত দেবেন না।",
+       "explain_en": "Do not touch."
+      },
+      {
+       "id": "e13",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "메모: '내일은 기계 점검이 있어서 오전 근무는 없습니다. 오후 1시까지 오세요.' — 내일 몇 시까지 와야 합니까?",
+       "options": [
+        "오후 5시",
+        "오후 1시",
+        "오전 7시",
+        "오전 9시"
+       ],
+       "answer": 1,
+       "explain_bn": "오후 1시까지 오세요 = দুপুর ১টার মধ্যে আসুন।",
+       "explain_en": "Come by 1 p.m."
+      },
+      {
+       "id": "e14",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "메모: '월급은 매달 10일에 통장으로 보냅니다.' — 월급은 어떻게 받습니까?",
+       "options": [
+        "매주 받는다.",
+        "20일에 받는다.",
+        "통장으로 받는다.",
+        "현금으로 받는다."
+       ],
+       "answer": 2,
+       "explain_bn": "통장 = ব্যাংক অ্যাকাউন্ট/পাসবুক।",
+       "explain_en": "통장 = bank account."
+      },
+      {
+       "id": "e15",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "기숙사 안내: '밤 11시 이후에는 조용히 해 주세요. 세탁기는 밤 10시까지 사용할 수 있습니다.' — 맞는 것은?",
+       "options": [
+        "밤 11시 이후에도 세탁기를 쓸 수 있다.",
+        "기숙사에서는 말하면 안 된다.",
+        "세탁기는 아침에만 쓸 수 있다.",
+        "세탁기는 밤 10시까지 쓸 수 있다."
+       ],
+       "answer": 3,
+       "explain_bn": "세탁기 ... 10시까지 = ওয়াশিং মেশিন রাত ১০টা পর্যন্ত।",
+       "explain_en": "The washing machine is until 10 p.m."
+      },
+      {
+       "id": "e16",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "문자: '반장님, 오늘 아침에 열이 많이 나서 병원에 갔다가 오후에 출근하겠습니다.' — 이 사람은 왜 늦습니까?",
+       "options": [
+        "아파서 병원에 가야 해서",
+        "버스를 놓쳐서",
+        "늦잠을 자서",
+        "휴가라서"
+       ],
+       "answer": 0,
+       "explain_bn": "열이 나서 병원 = জ্বরের জন্য হাসপাতাল।",
+       "explain_en": "Fever → hospital first."
+      },
+      {
+       "id": "e17",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "안내: '안전 교육은 매달 첫째 주 월요일 오전 8시에 식당에서 합니다.' — 안전 교육은 어디에서 합니까?",
+       "options": [
+        "주차장",
+        "식당",
+        "사무실",
+        "기숙사"
+       ],
+       "answer": 1,
+       "explain_bn": "식당에서 = ক্যান্টিনে।",
+       "explain_en": "In the canteen (식당)."
+      },
+      {
+       "id": "e18",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "물건이 잘못 만들어져서 팔 수 없는 것을 무엇이라고 합니까?",
+       "options": [
+        "선물",
+        "재료",
+        "불량품",
+        "신제품"
+       ],
+       "answer": 2,
+       "explain_bn": "불량품 = ত্রুটিপূর্ণ মাল।",
+       "explain_en": "불량품 = defective goods."
+      },
+      {
+       "id": "e19",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "일하다가 다쳤을 때 가장 먼저 말해야 하는 사람은?",
+       "options": [
+        "손님",
+        "친구",
+        "택배 기사",
+        "반장님"
+       ],
+       "answer": 3,
+       "explain_bn": "আঘাত পেলে প্রথমে টিম লিডারকে (반장님) জানান।",
+       "explain_en": "Tell the team leader first."
+      },
+      {
+       "id": "e20",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "이 상자는 무거우니까 같이 ___.",
+       "options": [
+        "들었어요.",
+        "들 뻔했어요.",
+        "들었더라고요.",
+        "들까요?"
+       ],
+       "answer": 3,
+       "explain_bn": "-(으)니까 + প্রস্তাব: চলুন একসাথে তুলি (들까요?)।",
+       "explain_en": "-(으)니까 + a suggestion (들까요?)."
+      },
+      {
+       "id": "e21",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "한국에 온 지 1년___ 됐어요.",
+       "options": [
+        "이",
+        "을",
+        "에서",
+        "로"
+       ],
+       "answer": 0,
+       "explain_bn": "-(으)ㄴ 지 … 이/가 됐어요 = … হয়ে গেছে।",
+       "explain_en": "-(으)ㄴ 지 N이 됐어요 = it has been N."
+      },
+      {
+       "id": "e22",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 한국 공장에서 일한 지 2년이 됐습니다. 처음에는 한국어를 잘 못해서 힘들었지만 지금은 동료들과 이야기를 많이 합니다.' — 맞는 것은?",
+       "options": [
+        "지금도 동료와 이야기하지 않는다.",
+        "지금은 동료들과 이야기를 많이 한다.",
+        "처음부터 한국어를 잘했다.",
+        "한국에 온 지 1년이 됐다."
+       ],
+       "answer": 1,
+       "explain_bn": "처음 কঠিন ছিল, 지금 많이 이야기 = এখন অনেক কথা বলে।",
+       "explain_en": "Now they talk a lot with co-workers."
+      },
+      {
+       "id": "e23",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '농장에서는 아침 일찍 일을 시작합니다. 여름에는 낮에 너무 더워서 12시부터 3시까지 쉽니다.' — 여름에 왜 낮에 쉽니까?",
+       "options": [
+        "손님이 와서",
+        "기계가 고장 나서",
+        "너무 더워서",
+        "비가 와서"
+       ],
+       "answer": 2,
+       "explain_bn": "너무 더워서 = খুব গরম বলে।",
+       "explain_en": "Because it is too hot."
+      },
+      {
+       "id": "e24",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "공지: '이번 주 토요일은 특근이 있습니다. 특근 수당은 다음 달 월급에 같이 드립니다.' — 특근 수당은 언제 받습니까?",
+       "options": [
+        "토요일 저녁에",
+        "이번 주 금요일에",
+        "받을 수 없다",
+        "다음 달 월급과 같이"
+       ],
+       "answer": 3,
+       "explain_bn": "특근 = ছুটির দিনে বিশেষ কাজ; 수당 = ভাতা।",
+       "explain_en": "Extra-day pay comes with next month's salary."
+      },
+      {
+       "id": "e25",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '외국인등록증을 잃어버리면 가까운 출입국 사무소에 가서 다시 신청해야 합니다.' — 등록증을 잃어버리면 어떻게 합니까?",
+       "options": [
+        "출입국 사무소에서 다시 신청한다.",
+        "회사에서 새로 만든다.",
+        "그냥 여권만 가지고 다닌다.",
+        "경찰서에서 바로 받는다."
+       ],
+       "answer": 0,
+       "explain_bn": "출입국 사무소 = ইমিগ্রেশন অফিস।",
+       "explain_en": "Re-apply at the immigration office."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "1"
+    },
+    {
+     "min_pct": 40,
+     "level": "2"
+    },
+    {
+     "min_pct": 80,
+     "level": "3"
+    }
+   ]
+  },
+  {
+   "id": "eps_style_2",
+   "title_en": "EPS-TOPIK style practice 2 — Reading (farm, construction, fishery)",
+   "title_bn": "EPS-TOPIK ধাঁচের অনুশীলন ২ — রিডিং (কৃষি, নির্মাণ, মৎস্য)",
+   "format_en": "Reading half of the EPS-TOPIK format, shorter set: 20 four-option questions in 32 minutes, with words from farms, building sites and fishing boats. Check your round's notice on BOESL. All questions are original Assisto practice.",
+   "format_bn": "EPS-TOPIK ধরনের রিডিং, ছোট সেট: ৩২ মিনিটে ২০টি চার-বিকল্প প্রশ্ন — খামার, নির্মাণ সাইট ও মাছ ধরার নৌকার শব্দসহ। নিজের রাউন্ডের নোটিশ BOESL-এ মিলিয়ে নিন। সব প্রশ্ন Assisto-র নিজের লেখা।",
+   "minutes": 32,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading (읽기)",
+     "title_bn": "রিডিং (읽기)",
+     "questions": [
+      {
+       "id": "f1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "농장에서 채소를 심을 때 쓰는 것은?",
+       "options": [
+        "냄비",
+        "우산",
+        "칫솔",
+        "삽"
+       ],
+       "answer": 3,
+       "explain_bn": "삽 = বেলচা।",
+       "explain_en": "삽 = shovel."
+      },
+      {
+       "id": "f2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "비닐하우스 안은 여름에 아주 ___.",
+       "options": [
+        "더워요",
+        "추워요",
+        "어두워요",
+        "조용해요"
+       ],
+       "answer": 0,
+       "explain_bn": "গ্রীনহাউসে গ্রীষ্মে খুব গরম।",
+       "explain_en": "Greenhouses get very hot."
+      },
+      {
+       "id": "f3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "높은 곳에서 일할 때 꼭 해야 하는 것은?",
+       "options": [
+        "슬리퍼",
+        "안전벨트",
+        "앞치마",
+        "넥타이"
+       ],
+       "answer": 1,
+       "explain_bn": "উঁচুতে কাজে 안전벨트 (সেফটি বেল্ট/হারনেস)।",
+       "explain_en": "Safety harness."
+      },
+      {
+       "id": "f4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "배에서 일할 때 입는 것은?",
+       "options": [
+        "잠옷",
+        "등산화",
+        "구명조끼",
+        "양복"
+       ],
+       "answer": 2,
+       "explain_bn": "구명조끼 = লাইফ জ্যাকেট।",
+       "explain_en": "Life jacket."
+      },
+      {
+       "id": "f5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "벽돌, 시멘트, 모래는 어디에서 많이 씁니까?",
+       "options": [
+        "병원",
+        "은행",
+        "학교 도서관",
+        "건설 현장"
+       ],
+       "answer": 3,
+       "explain_bn": "নির্মাণ সাইটে।",
+       "explain_en": "Construction site."
+      },
+      {
+       "id": "f6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "날씨가 추우니까 따뜻한 옷을 ___.",
+       "options": [
+        "입으세요",
+        "입었어요",
+        "입을 뻔했어요",
+        "입었더라고요"
+       ],
+       "answer": 0,
+       "explain_bn": "-(으)니까 + অনুরোধ।",
+       "explain_en": "Reason + request."
+      },
+      {
+       "id": "f7",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "저는 한국에 가기 ___ 한국어를 배우고 있어요.",
+       "options": [
+        "대신에",
+        "위해서",
+        "때문에",
+        "덕분에"
+       ],
+       "answer": 1,
+       "explain_bn": "-기 위해서 = …করার জন্য (উদ্দেশ্য)।",
+       "explain_en": "-기 위해서 = in order to."
+      },
+      {
+       "id": "f8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "일이 끝나___ 같이 저녁 먹을까요?",
+       "options": [
+        "는데도",
+        "더니",
+        "면",
+        "지만"
+       ],
+       "answer": 2,
+       "explain_bn": "-(으)면 = …হলে।",
+       "explain_en": "-(으)면 = when/if."
+      },
+      {
+       "id": "f9",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "이 기계는 위험해서 혼자 사용하면 ___.",
+       "options": [
+        "됩니다",
+        "좋습니다",
+        "편합니다",
+        "안 됩니다"
+       ],
+       "answer": 3,
+       "explain_bn": "-(으)면 안 됩니다 = করা যাবে না।",
+       "explain_en": "Must not."
+      },
+      {
+       "id": "f10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '추락 주의' — 무엇을 조심해야 합니까?",
+       "options": [
+        "뜨거운 물",
+        "전기",
+        "차",
+        "높은 곳에서 떨어지는 것"
+       ],
+       "answer": 3,
+       "explain_bn": "추락 = উঁচু থেকে পড়ে যাওয়া।",
+       "explain_en": "Falling from height."
+      },
+      {
+       "id": "f11",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '안전모 착용' — 무슨 뜻입니까?",
+       "options": [
+        "안전모를 써야 한다.",
+        "안전모를 벗어야 한다.",
+        "안전모를 판다.",
+        "안전모를 버린다."
+       ],
+       "answer": 0,
+       "explain_bn": "착용 = পরা।",
+       "explain_en": "Must wear a hard hat."
+      },
+      {
+       "id": "f12",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "메모: '내일은 비가 많이 와서 밭일은 쉬고, 창고에서 상자 정리를 합니다.' — 내일 어디에서 일합니까?",
+       "options": [
+        "사무실",
+        "창고",
+        "밭",
+        "식당"
+       ],
+       "answer": 1,
+       "explain_bn": "창고 = গুদাম।",
+       "explain_en": "In the warehouse."
+      },
+      {
+       "id": "f13",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "공지: '작업 중 다치면 바로 반장에게 알리고 산재 신청을 할 수 있습니다.' — 다치면 먼저 무엇을 합니까?",
+       "options": [
+        "참고 일한다.",
+        "친구에게만 말한다.",
+        "반장에게 알린다.",
+        "집에 간다."
+       ],
+       "answer": 2,
+       "explain_bn": "আগে টিম লিডারকে জানান; 산재 = কর্মস্থলে দুর্ঘটনার বীমা।",
+       "explain_en": "Tell the team leader first."
+      },
+      {
+       "id": "f14",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 어선에서 일합니다. 새벽 4시에 바다로 나가서 오후 2시에 돌아옵니다.' — 이 사람은 몇 시에 돌아옵니까?",
+       "options": [
+        "새벽 4시",
+        "오전 10시",
+        "밤 8시",
+        "오후 2시"
+       ],
+       "answer": 3,
+       "explain_bn": "오후 2시에 돌아옵니다 = দুপুর ২টায় ফেরে।",
+       "explain_en": "2 p.m."
+      },
+      {
+       "id": "f15",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "기숙사 규칙: '방에서 요리하면 안 됩니다. 요리는 1층 부엌에서만 할 수 있습니다.' — 맞는 것은?",
+       "options": [
+        "요리는 1층 부엌에서 한다.",
+        "방에서 요리해도 된다.",
+        "부엌은 2층에 있다.",
+        "요리를 할 수 없다."
+       ],
+       "answer": 0,
+       "explain_bn": "শুধু ১ তলার রান্নাঘরে।",
+       "explain_en": "Only in the ground-floor kitchen."
+      },
+      {
+       "id": "f16",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'급여 명세서'는 무엇입니까?",
+       "options": [
+        "집 계약서",
+        "월급을 얼마 받았는지 적은 종이",
+        "병원 예약 종이",
+        "비행기 표"
+       ],
+       "answer": 1,
+       "explain_bn": "급여 명세서 = বেতনের স্লিপ — প্রতি মাসে মিলিয়ে নিন।",
+       "explain_en": "Pay slip."
+      },
+      {
+       "id": "f17",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "사장님에게 휴가를 받고 싶을 때 쓰는 말은?",
+       "options": [
+        "휴가를 운전하다",
+        "휴가를 요리하다",
+        "휴가를 신청하다",
+        "휴가를 고장 내다"
+       ],
+       "answer": 2,
+       "explain_bn": "신청하다 = আবেদন করা।",
+       "explain_en": "To apply for leave."
+      },
+      {
+       "id": "f18",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "문자: '이번 달 월급이 하루 늦게 들어갑니다. 죄송합니다. — 회사' — 맞는 것은?",
+       "options": [
+        "월급을 받을 수 없다.",
+        "월급이 하루 일찍 나온다.",
+        "월급이 반으로 준다.",
+        "월급이 하루 늦게 나온다."
+       ],
+       "answer": 3,
+       "explain_bn": "하루 늦게 = এক দিন দেরিতে।",
+       "explain_en": "Pay comes one day late."
+      },
+      {
+       "id": "f19",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '한국의 겨울은 아주 춥습니다. 그래서 일할 때 장갑과 두꺼운 옷이 필요합니다.' — 왜 두꺼운 옷이 필요합니까?",
+       "options": [
+        "겨울이 아주 추워서",
+        "여름이 더워서",
+        "옷이 싸서",
+        "회사 규칙이 없어서"
+       ],
+       "answer": 0,
+       "explain_bn": "겨울 = শীত; 춥다 = ঠান্ডা।",
+       "explain_en": "Winters are very cold."
+      },
+      {
+       "id": "f20",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "안내: '외국인 근로자 상담은 평일 오전 9시부터 오후 6시까지, 일요일에도 받습니다.' — 상담을 받을 수 없는 시간은?",
+       "options": [
+        "평일 밤 9시",
+        "평일 오전 10시",
+        "일요일 오후",
+        "평일 오후 3시"
+       ],
+       "answer": 0,
+       "explain_bn": "রাত ৯টা খোলার সময়ের বাইরে।",
+       "explain_en": "9 p.m. on a weekday is outside the hours."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "1"
+    },
+    {
+     "min_pct": 40,
+     "level": "2"
+    },
+    {
+     "min_pct": 80,
+     "level": "3"
+    }
+   ]
+  },
+  {
+   "id": "topik1_style_1",
+   "title_en": "TOPIK I style practice — Reading",
+   "title_bn": "TOPIK I ধাঁচের অনুশীলন — রিডিং",
+   "format_en": "TOPIK I (levels 1-2) style reading: 20 questions in 30 minutes (the real TOPIK I has 40 reading questions in 60 minutes plus 30 listening in 40 minutes, 200 points). Original Assisto practice.",
+   "format_bn": "TOPIK I (লেভেল ১-২) ধাঁচের রিডিং: ৩০ মিনিটে ২০ প্রশ্ন (আসল TOPIK I-এ ৬০ মিনিটে ৪০ রিডিং + ৪০ মিনিটে ৩০ লিসেনিং, ২০০ নম্বর)। Assisto-র নিজের অনুশীলন।",
+   "minutes": 30,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading (읽기)",
+     "title_bn": "রিডিং (읽기)",
+     "questions": [
+      {
+       "id": "t1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "무엇에 대한 이야기입니까? '사과가 있습니다. 귤도 있습니다.'",
+       "options": [
+        "가족",
+        "과일",
+        "나라",
+        "계절"
+       ],
+       "answer": 1,
+       "explain_bn": "사과, 귤 = ফল।",
+       "explain_en": "Apple, tangerine → fruit."
+      },
+      {
+       "id": "t2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "무엇에 대한 이야기입니까? '저는 축구를 좋아해요. 형은 수영을 좋아해요.'",
+       "options": [
+        "음식",
+        "직업",
+        "운동",
+        "날씨"
+       ],
+       "answer": 2,
+       "explain_bn": "축구, 수영 = খেলা/ব্যায়াম।",
+       "explain_en": "Football, swimming → sport."
+      },
+      {
+       "id": "t3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "무엇에 대한 이야기입니까? '봄에는 따뜻해요. 겨울에는 추워요.'",
+       "options": [
+        "취미",
+        "주소",
+        "가격",
+        "계절"
+       ],
+       "answer": 3,
+       "explain_bn": "봄/겨울 = বসন্ত/শীত — ঋতু।",
+       "explain_en": "Spring/winter → seasons."
+      },
+      {
+       "id": "t4",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "저는 시장___ 과일을 샀어요.",
+       "options": [
+        "에서",
+        "에게",
+        "이",
+        "의"
+       ],
+       "answer": 0,
+       "explain_bn": "কাজের জায়গায় 에서।",
+       "explain_en": "에서 marks where an action happens."
+      },
+      {
+       "id": "t5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "날씨가 좋___ 공원에 갈까요?",
+       "options": [
+        "는데도",
+        "으니까",
+        "지만",
+        "고"
+       ],
+       "answer": 1,
+       "explain_bn": "-(으)니까 + প্রস্তাব।",
+       "explain_en": "Reason + suggestion."
+      },
+      {
+       "id": "t6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "주말에 친구를 ___ 영화관에 갔어요.",
+       "options": [
+        "만나면서까지",
+        "만나니까요",
+        "만나러",
+        "만나서도"
+       ],
+       "answer": 2,
+       "explain_bn": "-(으)러 가다 = করতে যাওয়া।",
+       "explain_en": "-(으)러 가다 = go in order to."
+      },
+      {
+       "id": "t7",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "어제는 너무 피곤해서 일찍 ___.",
+       "options": [
+        "잘 거예요",
+        "자고 싶어요 내일",
+        "자세요",
+        "잤어요"
+       ],
+       "answer": 3,
+       "explain_bn": "어제 = গতকাল → অতীত।",
+       "explain_en": "어제 needs the past tense."
+      },
+      {
+       "id": "t8",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'싸다'의 반대말은?",
+       "options": [
+        "비싸다",
+        "작다",
+        "많다",
+        "느리다"
+       ],
+       "answer": 0,
+       "explain_bn": "싸다 = সস্তা ↔ 비싸다 = দামি।",
+       "explain_en": "cheap ↔ expensive"
+      },
+      {
+       "id": "t9",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'오른쪽'의 반대말은?",
+       "options": [
+        "위쪽",
+        "왼쪽",
+        "앞쪽",
+        "아래쪽"
+       ],
+       "answer": 1,
+       "explain_bn": "ডান ↔ বাম।",
+       "explain_en": "right ↔ left"
+      },
+      {
+       "id": "t10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "광고: '한빛 마트 — 매일 오전 9시~밤 10시, 일요일 휴무' — 맞는 것은?",
+       "options": [
+        "오전 8시에 문을 연다.",
+        "일요일에는 문을 열지 않는다.",
+        "밤 11시까지 한다.",
+        "일요일에만 문을 연다."
+       ],
+       "answer": 1,
+       "explain_bn": "휴무 = বন্ধ।",
+       "explain_en": "휴무 = closed."
+      },
+      {
+       "id": "t11",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 매일 지하철로 회사에 갑니다. 지하철역은 집에서 걸어서 5분 걸립니다.' — 맞는 것은?",
+       "options": [
+        "역까지 30분 걸린다.",
+        "회사에 걸어서 간다.",
+        "집에서 역까지 가깝다.",
+        "버스로 회사에 간다."
+       ],
+       "answer": 2,
+       "explain_bn": "걸어서 5분 = হেঁটে ৫ মিনিট — কাছে।",
+       "explain_en": "5 minutes on foot → close."
+      },
+      {
+       "id": "t12",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '내일 친구 생일이라서 오늘 선물을 샀습니다. 친구가 책을 좋아해서 책을 샀습니다.' — 왜 책을 샀습니까?",
+       "options": [
+        "책이 싸서",
+        "내가 책을 좋아해서",
+        "서점이 가까워서",
+        "친구가 책을 좋아해서"
+       ],
+       "answer": 3,
+       "explain_bn": "좋아해서 = পছন্দ করে বলে।",
+       "explain_en": "Because the friend likes books."
+      },
+      {
+       "id": "t13",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 한국 음식 중에서 비빔밥을 제일 좋아합니다. 맵지 않게 먹고 싶으면 고추장을 조금만 넣으면 됩니다.' — 중심 생각은?",
+       "options": [
+        "비빔밥은 맵기를 조절해서 먹을 수 있다.",
+        "비빔밥은 항상 아주 맵다.",
+        "고추장은 비싸다.",
+        "한국 음식은 모두 싱겁다."
+       ],
+       "answer": 0,
+       "explain_bn": "고추장 কম দিলে ঝাল কম — নিজের মতো ঝাল ঠিক করা যায়।",
+       "explain_en": "You can adjust the spiciness."
+      },
+      {
+       "id": "t14",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "한국어를 잘하고 ___ 매일 연습해요.",
+       "options": [
+        "싶은데도",
+        "싶어서",
+        "싶지만",
+        "싶으면서"
+       ],
+       "answer": 1,
+       "explain_bn": "-고 싶어서 = চাই বলে।",
+       "explain_en": "-고 싶어서 = because I want to."
+      },
+      {
+       "id": "t15",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "수업이 끝난 ___ 같이 밥 먹어요.",
+       "options": [
+        "동안",
+        "때문에",
+        "후에",
+        "전에"
+       ],
+       "answer": 2,
+       "explain_bn": "-(으)ㄴ 후에 = …এর পরে।",
+       "explain_en": "-(으)ㄴ 후에 = after."
+      },
+      {
+       "id": "t16",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "아플 때 가는 곳은?",
+       "options": [
+        "은행",
+        "우체국",
+        "도서관",
+        "병원"
+       ],
+       "answer": 3,
+       "explain_bn": "অসুস্থ হলে হাসপাতাল।",
+       "explain_en": "hospital"
+      },
+      {
+       "id": "t17",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "돈을 찾거나 보낼 때 가는 곳은?",
+       "options": [
+        "은행",
+        "약국",
+        "미용실",
+        "식당"
+       ],
+       "answer": 0,
+       "explain_bn": "টাকা তোলা/পাঠানো = ব্যাংক।",
+       "explain_en": "bank"
+      },
+      {
+       "id": "t18",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "안내: '도서관에서는 음식을 먹을 수 없습니다. 물은 마실 수 있습니다.' — 맞는 것은?",
+       "options": [
+        "도서관은 음식을 판다.",
+        "도서관에서 물은 마셔도 된다.",
+        "도서관에서 빵을 먹어도 된다.",
+        "도서관에서는 아무것도 마실 수 없다."
+       ],
+       "answer": 1,
+       "explain_bn": "물은 마실 수 있습니다 = পানি খাওয়া যাবে।",
+       "explain_en": "Water is allowed."
+      },
+      {
+       "id": "t19",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 지난주에 이사를 했습니다. 새 집은 회사에서 가깝지만 조금 작습니다.' — 새 집에 대해 맞는 것은?",
+       "options": [
+        "회사에서 멀다.",
+        "다음 주에 이사한다.",
+        "회사에서 가깝다.",
+        "아주 크다."
+       ],
+       "answer": 2,
+       "explain_bn": "가깝지만 작습니다 = কাছে, কিন্তু ছোট।",
+       "explain_en": "Close to the office but small."
+      },
+      {
+       "id": "t20",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '한국에서는 집에 들어갈 때 신발을 벗습니다. 그래서 양말이 깨끗해야 합니다.' — 왜 양말이 깨끗해야 합니까?",
+       "options": [
+        "한국은 추워서",
+        "신발을 빌려야 해서",
+        "집 안에서 신발을 벗기 때문에",
+        "양말이 비싸서"
+       ],
+       "answer": 2,
+       "explain_bn": "জুতা খুলে ঘরে ঢুকতে হয়, তাই মোজা দেখা যায়।",
+       "explain_en": "Shoes come off indoors."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "0"
+    },
+    {
+     "min_pct": 40,
+     "level": "1"
+    },
+    {
+     "min_pct": 70,
+     "level": "2"
+    }
+   ]
+  },
+  {
+   "id": "topik2_style_1",
+   "title_en": "TOPIK II style practice — Reading, Writing, Speaking",
+   "title_bn": "TOPIK II ধাঁচের অনুশীলন — রিডিং, রাইটিং, স্পিকিং",
+   "format_en": "TOPIK II (levels 3-6) style mini set: 10 reading questions, 2 writing tasks and read-aloud, 45 minutes (the real TOPIK II: listening 50/60 min, writing 4 tasks/50 min, reading 50/70 min, 300 points). Original Assisto practice.",
+   "format_bn": "TOPIK II (লেভেল ৩-৬) ধাঁচের ছোট সেট: ১০টি রিডিং, ২টি লেখা ও জোরে পড়া, ৪৫ মিনিট (আসল TOPIK II: লিসেনিং ৫০/৬০ মিনিট, রাইটিং ৪টি/৫০ মিনিট, রিডিং ৫০/৭০ মিনিট, ৩০০ নম্বর)। Assisto-র নিজের অনুশীলন।",
+   "minutes": 45,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading (읽기)",
+     "title_bn": "রিডিং (읽기)",
+     "questions": [
+      {
+       "id": "u1",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "날씨가 갑자기 추워지는 ___ 감기에 걸리는 사람이 많다.",
+       "options": [
+        "김에",
+        "대로",
+        "바람에",
+        "덕분에"
+       ],
+       "answer": 2,
+       "explain_bn": "অপ্রত্যাশিত কারণ + খারাপ ফল = -는 바람에।",
+       "explain_en": "Unexpected cause, bad result."
+      },
+      {
+       "id": "u2",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "열심히 준비했으니까 좋은 결과가 나올 ___.",
+       "options": [
+        "뻔했다",
+        "리가 없다",
+        "뿐이다",
+        "것이다"
+       ],
+       "answer": 3,
+       "explain_bn": "-(으)ㄹ 것이다 = হবে (অনুমান)।",
+       "explain_en": "Prediction."
+      },
+      {
+       "id": "u3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "다음 중 밑줄 친 부분과 의미가 비슷한 것은? '회사는 근무 시간을 줄이기로 했다.'",
+       "options": [
+        "단축하기로",
+        "연장하기로",
+        "유지하기로",
+        "공개하기로"
+       ],
+       "answer": 0,
+       "explain_bn": "줄이다 = কমানো = 단축하다।",
+       "explain_en": "줄이다 ≈ 단축하다 (shorten)."
+      },
+      {
+       "id": "u4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'인력이 부족하다'와 뜻이 가장 가까운 것은?",
+       "options": [
+        "시간이 남는다",
+        "일할 사람이 모자라다",
+        "돈이 많다",
+        "기계가 새롭다"
+       ],
+       "answer": 1,
+       "explain_bn": "인력 = জনবল; 부족하다 = ঘাটতি।",
+       "explain_en": "Not enough workers."
+      },
+      {
+       "id": "u5",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '최근 많은 중소기업이 외국인 근로자를 고용하고 있다. 이는 국내 젊은 층이 제조업 일자리를 꺼리면서 인력이 부족해졌기 때문이다.' — 외국인 근로자를 고용하는 이유는?",
+       "options": [
+        "기계가 고장 나서",
+        "회사가 해외로 이전해서",
+        "제조업에서 일할 사람이 부족해서",
+        "외국인의 월급이 더 적어서"
+       ],
+       "answer": 2,
+       "explain_bn": "-기 때문이다 অংশে কারণ: জনবলের ঘাটতি।",
+       "explain_en": "The reason is the labour shortage."
+      },
+      {
+       "id": "u6",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '규칙적인 운동은 건강에 좋다. 하지만 무리하게 운동하면 오히려 몸을 다칠 수 있다.' — 중심 내용은?",
+       "options": [
+        "운동은 하지 않는 것이 좋다.",
+        "운동은 많이 할수록 좋다.",
+        "운동을 하면 반드시 다친다.",
+        "운동은 자신의 몸에 맞게 해야 한다."
+       ],
+       "answer": 3,
+       "explain_bn": "নিয়মিত ভালো, তবে অতিরিক্ত নয় — নিজের মতো।",
+       "explain_en": "Exercise moderately."
+      },
+      {
+       "id": "u7",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '이 공장은 작년부터 작업자의 안전을 위해 모든 기계에 비상 정지 버튼을 설치했다. 그 결과 사고가 절반으로 줄었다.' — 맞는 것은?",
+       "options": [
+        "비상 정지 버튼 설치 후 사고가 줄었다.",
+        "사고가 두 배로 늘었다.",
+        "버튼은 일부 기계에만 있다.",
+        "올해 처음 버튼을 설치했다."
+       ],
+       "answer": 0,
+       "explain_bn": "절반으로 줄었다 = অর্ধেকে নেমেছে।",
+       "explain_en": "Accidents halved after installing the buttons."
+      },
+      {
+       "id": "u8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "그 사람은 한국에 온 지 얼마 안 됐는데도 한국어를 아주 ___.",
+       "options": [
+        "잘하기는커녕",
+        "잘하는 편이다",
+        "잘할 뻔했다",
+        "잘했더라면"
+       ],
+       "answer": 1,
+       "explain_bn": "-는 편이다 = মোটামুটি … বলা যায়।",
+       "explain_en": "-는 편이다 = tends to / is rather."
+      },
+      {
+       "id": "u9",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '돈을 빌릴 때는 반드시 계약서를 쓰고 이자를 확인해야 한다. 말로만 한 약속은 나중에 문제가 될 수 있기 때문이다.' — 글쓴이의 생각은?",
+       "options": [
+        "이자는 확인할 필요가 없다.",
+        "돈은 절대 빌리면 안 된다.",
+        "돈을 빌릴 때는 서면으로 계약해야 한다.",
+        "말로 약속해도 충분하다."
+       ],
+       "answer": 2,
+       "explain_bn": "লিখিত চুক্তি জরুরি।",
+       "explain_en": "Always use a written contract."
+      },
+      {
+       "id": "u10",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'시행착오'의 뜻으로 알맞은 것은?",
+       "options": [
+        "다른 사람을 따라 함",
+        "일을 미루는 것",
+        "여러 번 실패하면서 방법을 찾아 감",
+        "처음부터 완벽하게 함"
+       ],
+       "answer": 2,
+       "explain_bn": "시행착오 = ভুল করে করে শেখা (trial and error)।",
+       "explain_en": "trial and error"
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing (쓰기)",
+     "title_bn": "রাইটিং (쓰기)",
+     "prompts": [
+      {
+       "id": "w1",
+       "text": "'외국에서 일할 때 필요한 준비'에 대해 쓰십시오. 언어, 건강, 돈 관리 중 두 가지를 골라 (-다) 문체로 쓰십시오.",
+       "min_words": 40,
+       "max_words": 90
+      },
+      {
+       "id": "w2",
+       "text": "'작업장 안전 교육은 왜 중요한가?'에 대해 자신의 생각을 쓰십시오. 이유 두 가지와 예를 포함하여 (-다) 문체로 쓰십시오.",
+       "min_words": 100,
+       "max_words": 200
+      }
+     ]
+    },
+    {
+     "id": "read_aloud",
+     "skill": "speaking",
+     "title_en": "Read aloud (말하기)",
+     "title_bn": "জোরে পড়া (말하기)",
+     "read_aloud": [
+      "안전 교육은 사고를 예방하는 가장 좋은 방법이다.",
+      "외국인 근로자도 근로계약서를 꼭 확인해야 한다."
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "2"
+    },
+    {
+     "min_pct": 40,
+     "level": "3"
+    },
+    {
+     "min_pct": 60,
+     "level": "4"
+    },
+    {
+     "min_pct": 80,
+     "level": "5"
+    },
+    {
+     "min_pct": 95,
+     "level": "6"
+    }
+   ]
+  }
+ ],
+ "extras": [],
+ "work_path": {
+  "title_en": "Work in Korea: the EPS path",
+  "title_bn": "কোরিয়ায় কাজ: EPS পথ",
+  "steps": [
+   {
+    "en": "EPS (Employment Permit System) is government-to-government. In Bangladesh only BOESL runs it. Never pay a broker or agent.",
+    "bn": "EPS (এমপ্লয়মেন্ট পারমিট সিস্টেম) সরকার-থেকে-সরকার পদ্ধতি। বাংলাদেশে শুধু BOESL এটা চালায়। কোনো দালাল বা এজেন্টকে টাকা দেবেন না।"
+   },
+   {
+    "en": "Watch the BOESL notice for each EPS-TOPIK round: age limit, registration dates, fee and test format.",
+    "bn": "প্রতি রাউন্ডের EPS-TOPIK নোটিশ BOESL-এ দেখুন: বয়সসীমা, নিবন্ধনের তারিখ, ফি ও পরীক্ষার ধরন।"
+   },
+   {
+    "en": "Learn Korean and pass EPS-TOPIK (reading + listening, on a computer or tablet). A higher score ranks you higher.",
+    "bn": "কোরিয়ান শিখে EPS-TOPIK পাস করুন (রিডিং + লিসেনিং, কম্পিউটার বা ট্যাবলেটে)। নম্বর বেশি হলে তালিকায় আগে থাকবেন।"
+   },
+   {
+    "en": "Take the skills or competency test when your round and industry require it.",
+    "bn": "আপনার রাউন্ড ও শিল্পখাতে লাগলে দক্ষতা (Skills/Competency) পরীক্ষা দিন।"
+   },
+   {
+    "en": "Your name joins the job-seeker roster; a Korean employer chooses you; you sign the labour contract, get the E-9 visa and do the pre-departure training.",
+    "bn": "আপনার নাম চাকরিপ্রার্থীর তালিকায় যায়; কোরিয়ান মালিক বাছাই করলে শ্রম চুক্তি, E-৯ ভিসা ও যাত্রার আগের প্রশিক্ষণ।"
+   }
+  ],
+  "links": [
+   {
+    "en": "BOESL (Bangladesh)",
+    "bn": "BOESL (বাংলাদেশ)",
+    "url": "https://boesl.gov.bd/"
+   },
+   {
+    "en": "EPS Korea (official)",
+    "bn": "EPS কোরিয়া (অফিসিয়াল)",
+    "url": "https://www.eps.go.kr/"
+   },
+   {
+    "en": "TOPIK (official)",
+    "bn": "TOPIK (অফিসিয়াল)",
+    "url": "https://www.topik.go.kr/"
+   }
+  ]
+ }
+}

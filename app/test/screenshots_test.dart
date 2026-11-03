@@ -146,6 +146,8 @@ import 'package:assisto/screens/language_pack_screen.dart'; // p2lang
 import 'fake_ielts.dart'; // p2lang
 import 'fake_langmulti.dart'; // langmulti
 import 'fake_learnwire.dart'; // learnwire
+import 'package:assisto/screens/lang_work_path.dart'; // langkoja
+import 'fake_langkoja.dart'; // langkoja
 import 'package:assisto/screens/spending_advice_screen.dart';
 import 'package:assisto/screens/price_radar_screen.dart';
 import 'package:assisto/screens/health_timeline_screen.dart';
@@ -638,6 +640,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'lw_probashi_gulf': (build: (_) => _LwFlags(child: Scaffold(appBar: AppBar(), body: ListView(padding: const EdgeInsets.all(16), children: const [LearnForWorkTile(abroadOffsetMin: 240), SizedBox(height: 16), LearnForWorkTile(abroadOffsetMin: 540)]))), mode: FakeMode.data, full: true),
     'lw_quran_cert': (build: (_) => _LwFlags(child: QuranLearnScreen(progress: lwQaidaDone())), mode: FakeMode.data, full: true),
     'ielts_reading': (build: (_) => IeltsReadingPractice(ctx: Object(), row: (fakeIeltsContent()['reading'] as List).first as Map<String, dynamic>), mode: FakeMode.data, full: true),
+    // langkoja: Korea → EPS-TOPIK / Japan → JFT-Basic work paths (Probashi), phone-voice listening
+    'lk_probashi_tiles': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: const [WorkLanguagePathTiles(debugForceOn: true)])), mode: FakeMode.data, full: true),
+    'lk_path_korea': (build: (_) => const WorkPathScreen(lang: 'ko', title: 'EPS-TOPIK'), mode: FakeMode.data, full: true),
+    'lk_path_japan': (build: (_) => const WorkPathScreen(lang: 'ja', title: 'JFT-Basic'), mode: FakeMode.data, full: true),
+    'lk_path_fail': (build: (_) => const WorkPathScreen(lang: 'ko', title: 'EPS-TOPIK'), mode: FakeMode.fail, full: true),
+    'lk_listen': (build: (_) => const ListeningPracticePage(lang: 'ko', title: 'EPS-TOPIK'), mode: FakeMode.data, full: true),
+    'lk_listen_result': (build: (_) => ListeningPracticePage(lang: 'ko', title: 'EPS-TOPIK', debugData: fakeListening('ko'), debugResult: fakeListeningResult()), mode: FakeMode.data, full: true),
     'spending': (build: (_) => const SpendingAdviceScreen(), mode: FakeMode.data, full: true),
     'price_radar': (build: (_) => const PriceRadarScreen(), mode: FakeMode.data, full: true),
     // moneybar: official TCB not fetched + no own logs; the official list page
