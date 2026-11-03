@@ -219,7 +219,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
     final unread = UnreadStore.instance.perChat.value;
     final byKey = <String, Map<String, dynamic>>{
       for (final c in _chats)
-        if (!_isLocked(c) && !_isArchived(c)) _key(c): c,
+        if (!_isLocked(c) &&
+            !_isArchived(c) &&
+            // circlefam: the row follows the Family / Others chip
+            (_filter != 'family' && _filter != 'others' || _matchesFilter(c)))
+          _key(c): c,
     };
     final keys =
         bubbleRowKeys(active: _active, unread: unread, known: byKey.keys.toSet());
@@ -413,10 +417,16 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
             .where(_matchesFilter)
             .toList();
     if (q.isNotEmpty) {
+      // circlefam: nickname AND real name, relation label, phone (Bangla
+      // or English digits) and the last message — decrypted on this phone,
+      // the text never leaves it.
       list = list.where((c) {
-        final name = _nameOf(c).toLowerCase();
-        final last = _preview(c).text.toLowerCase();
-        return name.contains(q) || last.contains(q);
+        final hay = [
+          _nameOf(c),
+          if (!_isGroup(c)) peopleSearchText(_memberOf(c)),
+          _preview(c).text,
+        ].join(' \n ');
+        return peopleTextMatches(hay, q);
       }).toList();
     }
 

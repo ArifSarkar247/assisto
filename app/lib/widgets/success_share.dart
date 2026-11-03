@@ -93,6 +93,11 @@ class _SuccessShareScreenState extends State<SuccessShareScreen> {
   Future<void> _shareCard() async {
     final t = AppLocalizations.of(context);
     setState(() => _busy = true);
+    // circlefam: Facebook never takes text from the share sheet (its own
+    // rule — only the picture arrives), so the text goes to the clipboard
+    // FIRST and the person pastes it in the Facebook post box.
+    await Clipboard.setData(ClipboardData(text: _text.text));
+    if (mounted) _snack(t.ssCopied);
     bool ok = false;
     try {
       ok = await (widget.shareImage ?? _defaultShareImage)(_card, _text.text);

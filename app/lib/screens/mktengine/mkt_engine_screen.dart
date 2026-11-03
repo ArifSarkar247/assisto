@@ -156,12 +156,13 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
 
   Future<void> _share(Map<String, dynamic> it) async {
     final t = AppLocalizations.of(context);
+    // circlefam: Facebook drops shared text (only links/images arrive), so
+    // copy first — the person pastes it in the post box.
+    await Clipboard.setData(ClipboardData(text: '${it['body'] ?? ''}'));
+    if (mounted) _snack(t.mktCopied);
     try {
       await Share.share('${it['body'] ?? ''}', subject: '${it['title'] ?? ''}');
-    } catch (_) {
-      await Clipboard.setData(ClipboardData(text: '${it['body'] ?? ''}'));
-      if (mounted) _snack(t.mktCopied);
-    }
+    } catch (_) {} // best-effort: the text is already on the clipboard (snack shown)
   }
 
   Future<void> _polish(Map<String, dynamic> it) => _run('${it['id']}', () async {
@@ -174,10 +175,53 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
         if (mounted) _snack(AppLocalizations.of(context).mktActivated);
       });
 
-  Future<void> _publish(Map<String, dynamic> it) => _run('${it['id']}', () async {
-        await _src.publish('${it['id']}');
-        if (mounted) _snack(AppLocalizations.of(context).mktPublished);
-      });
+  /// circlefam: a public post on the shop's Page is never one stray tap —
+  /// the person confirms first (nothing is posted on "Not now").
+  Future<void> _publish(Map<String, dynamic> it) async {
+    final t = AppLocalizations.of(context);
+    final ok = await showAppSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(t.cfPublishConfirmTitle, style: Theme.of(ctx).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(t.cfPublishConfirmBody),
+              const SizedBox(height: 12),
+              Text('${it['body'] ?? ''}',
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(ctx).textTheme.bodySmall),
+              const SizedBox(height: 16),
+              FilledButton(
+                key: const Key('cf-publish-yes'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.cfPublishConfirmYes),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                key: const Key('cf-publish-no'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.cfPublishConfirmNo),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await _run('${it['id']}', () async {
+      await _src.publish('${it['id']}');
+      if (mounted) _snack(AppLocalizations.of(context).mktPublished);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
