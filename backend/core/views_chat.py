@@ -34,6 +34,7 @@ app's offline KB, and an honest "needs a key" for general questions — we never
 invent a fact and never charge for a Brain answer.
 """
 import logging
+import re
 
 from django.db.models import Q, Max
 from django.http import StreamingHttpResponse
@@ -111,7 +112,15 @@ def _history_for(session, upto_id=None):
     qs = session.messages.exclude(role="system").order_by("created_at", "id")
     if upto_id is not None:
         qs = qs.filter(id__lt=upto_id)
-    turns = [{"role": m.role, "content": m.text} for m in qs]
+    turns = []
+    for m in qs:
+        c = m.text
+        pt = (m.meta or {}).get("photo_text") if m.role == "assistant" else ""
+        if pt:
+            # aifinal round 2 item 2: the photo stays in the chat's context as
+            # its stored vision description (never the image bytes)
+            c = c + "\n\n[Photo shared earlier in this chat — text seen in it]: " + pt
+        turns.append({"role": m.role, "content": c})
     return turns[-_HISTORY_TURNS:]
 
 
@@ -187,6 +196,20 @@ PHOTO_NOTE = (
     "The user attached a photo earlier in this chat; what was seen in it is in "
     "the DATA. Answer follow-ups from that — never say you cannot see the photo "
     "or cannot see anything.")
+
+
+_FAILED_TASK = re.compile(
+    r"(never reached me|did(?:n't| not) (?:reach|come through)|(?:can(?:'|no)t|cannot|"
+    r"unable to|could(?:n't| not)) (?:see|view|open|access|read) (?:the |your |that |this |any )?"
+    r"(?:image|photo|picture|screenshot|file|attachment)|no (?:image|photo|screenshot|attachment)"
+    r" (?:was |has been )?(?:attached|shared|sent|received)|"
+    r"ছবি(?:টি|টা)?\s*(?:দেখতে পাচ্ছি না|পাইনি|পৌঁছায়নি|আসেনি)|স্ক্রিনশট(?:টি|টা)?\s*(?:পাইনি|পৌঁছায়নি|আসেনি))",
+    re.I)
+
+
+def _failed_task(reply, photo=""):
+    """True when the answer says the AI could not do the task."""
+    return bool(_FAILED_TASK.search(str(reply or "")[:600]))
 
 
 def _refund_turn(user, meta_out, why):
@@ -325,6 +348,11 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     lang=lang, strict=ctx.get("level") == "L1")
             except Exception:  # noqa: BLE001 — a guard bug never costs the answer
                 log.exception("chat: answer guard failed")
+            if _failed_task(reply, photo):
+                # aifinal round 2 item 6: the answer itself says the AI could
+                # not do the task ("the screenshot never reached me", "I can't
+                # see the image") -> no charge; the answer is still shown
+                _refund_turn(user, meta_out, "chat:task_not_done")
             if not (reply or "").strip():
                 # aifinal PART 1c: nothing usable came back -> credits back at
                 # once, then the honest free answer below
@@ -355,6 +383,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             bal = G.balance(user)
             if bal is not None:
                 meta["balance"] = bal
+            if meta_out.get("refunded"):
+                meta["refunded"] = int(meta_out["refunded"])   # shown: "no credits used"
             if mode == "quick" and credits == 0:
                 meta["free_quota"] = True       # one of today's free quick answers
             if level:

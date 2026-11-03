@@ -100,6 +100,27 @@
   "psAskStudio": "Edit in Photo Studio",
   "@psAskStudio": {
    "description": "aifinal PART 7: AI chat photo answer button to open Photo Studio with the same photo"
+  },
+  "aiPhotoCredits": "{n} credits used for this photo answer",
+  "@aiPhotoCredits": {
+   "description": "aifinal round 2: credits shown on the photo answer bubble",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvNameNormal": "Normal",
+  "@ailvNameNormal": {
+   "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBetter": "Better",
+  "@ailvNameBetter": {
+   "description": "aifinal: answer level name in the credit history"
+  },
+  "ailvNameBest": "Best",
+  "@ailvNameBest": {
+   "description": "aifinal: answer level name in the credit history"
   }
  },
  "bn": {
@@ -122,6 +143,10 @@
   "aiactCallNow": "এখনই কল",
   "aiGenLabel": "AI-তৈরি উত্তর · সাধারণ তথ্য, ভুল হতে পারে",
   "psChatHint": "কী বদলাতে চান লিখুন বা বলুন — প্রতিটি নতুন নির্দেশ শেষ ফলাফলটির উপরেই কাজ করে।",
-  "psAskStudio": "ফটো স্টুডিওতে এডিট করুন"
+  "psAskStudio": "ফটো স্টুডিওতে এডিট করুন",
+  "aiPhotoCredits": "এই ছবি-উত্তরে {n} ক্রেডিট লেগেছে",
+  "ailvNameNormal": "সাধারণ",
+  "ailvNameBetter": "ভালো",
+  "ailvNameBest": "সেরা"
  }
 }

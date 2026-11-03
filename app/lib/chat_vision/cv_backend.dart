@@ -75,8 +75,12 @@ class CvJob {
     this.answer = '',
     this.medicine = false,
     this.dishes = const [],
+    this.creditsCharged = 0,
   });
   final int id;
+
+  /// aifinal round 2 item 5: the credits this photo answer really took.
+  final int creditsCharged;
   final String status;
   final String funding;
   final int adsRequired;
@@ -98,6 +102,7 @@ class CvJob {
       id: i(j['id']),
       status: '${j['status'] ?? ''}',
       funding: '${j['funding'] ?? ''}',
+      creditsCharged: i(j['credits_charged']),
       adsRequired: i(j['ads_required']),
       adsVerified: i(j['ads_verified']),
       answer: '${j['answer'] ?? ''}',
@@ -134,8 +139,12 @@ abstract class CvBackend {
 }
 
 class ApiCvBackend implements CvBackend {
-  ApiCvBackend(this.api, {this.purpose = ''});
+  ApiCvBackend(this.api, {this.purpose = '', this.sessionId});
   final ApiClient api;
+
+  /// aifinal round 2: the AI chat this photo was asked in — the server saves
+  /// the question + answer into that chat (text only) so later turns know it.
+  final String? sessionId;
 
   /// p4-world: '' (chat), 'crop' (Farmers hub), 'rx' (Health hub) or
   /// 'food' (p2food: food calories). The
@@ -157,6 +166,7 @@ class ApiCvBackend implements CvBackend {
         'via': via,
         'question': question,
         if (purpose.isNotEmpty) 'purpose': purpose,
+        if (sessionId != null) 'session_id': sessionId,
       }));
 
   @override
@@ -188,5 +198,6 @@ class ApiCvBackend implements CvBackend {
         'device_text': deviceText,
         'device_labels': deviceLabels,
         if (purpose.isNotEmpty) 'purpose': purpose,
+        if (sessionId != null) 'session_id': sessionId,
       }));
 }

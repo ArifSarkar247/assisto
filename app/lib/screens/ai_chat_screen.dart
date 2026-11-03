@@ -905,11 +905,16 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   // h1-home: attach a photo and ask about it (typed text = the question).
-  void _attachPhoto(Uint8List bytes) {
+  Future<void> _attachPhoto(Uint8List bytes) async {
     final q = _input.text.trim();
     _input.clear();
-    setState(() => _msgs.add(
-        _Msg(user: true, text: q, photo: ChatPhotoRequest(bytes, q))));
+    // round 2: the photo belongs to this chat (saved there as text)
+    final session = await _ensureSession();
+    if (!mounted) return;
+    setState(() => _msgs.add(_Msg(
+        user: true,
+        text: q,
+        photo: ChatPhotoRequest(bytes, q)..sessionId = session?.id)));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
         _scroll.animateTo(_scroll.position.maxScrollExtent,
@@ -1100,7 +1105,9 @@ class _AiChatScreenState extends State<AiChatScreen>
   // ---------------- bubble ----------------
   Widget _bubble(_Msg m, int i) {
     final photo = m.photo;
-    if (photo != null) return ChatPhotoTurn(request: photo);
+    if (photo != null) {
+      return ChatPhotoTurn(request: photo, direct: true, sessionId: photo.sessionId);
+    }
     final scheme = Theme.of(context).colorScheme;
     final isLastAssistant = !m.user && i == _msgs.length - 1 && !m.streaming;
     final isLastUserEditable = m.user &&
