@@ -1,1 +1,1 @@
-Build 298: Language Partner adds Korean (EPS-TOPIK/TOPIK) and Japanese (JFT-Basic/JLPT) with official work paths and phone-voice listening practice (in testing, switch off). Honest Quran translation note; launch quality fixes.
+Build 302: My Circle chat bubbles now open the chat when tapped and stay open; Back makes the bubble small. New short message sound (your mute and vibrate settings kept). Language Partner: questions in your app language, Arabic/Chinese/Korean/Japanese text displays correctly, certificates prepared (switch off).
