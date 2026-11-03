@@ -1,0 +1,2659 @@
+{
+ "format": 1,
+ "lang": "ja",
+ "version": 1,
+ "stt_locale": "ja-JP",
+ "level_system": "JLPT",
+ "levels": [
+  {
+   "id": "kana",
+   "en": "Kana start",
+   "bn": "কানা (হিরাগানা-কাতাকানা) শুরু"
+  },
+  {
+   "id": "N5",
+   "en": "JLPT N5 level (estimate)",
+   "bn": "JLPT N৫ স্তর (অনুমান)"
+  },
+  {
+   "id": "N4",
+   "en": "JLPT N4 / JFT-Basic A2 work level (estimate)",
+   "bn": "JLPT N৪ / JFT-Basic A২ কাজের স্তর (অনুমান)"
+  },
+  {
+   "id": "N3",
+   "en": "JLPT N3 level (estimate)",
+   "bn": "JLPT N৩ স্তর (অনুমান)"
+  },
+  {
+   "id": "N2",
+   "en": "JLPT N2 level (estimate)",
+   "bn": "JLPT N২ স্তর (অনুমান)"
+  },
+  {
+   "id": "N1",
+   "en": "JLPT N1 level (estimate)",
+   "bn": "JLPT N১ স্তর (অনুমান)"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "jpl1",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "N5",
+    "text": "「みず」は どれですか。",
+    "options": [
+     "火",
+     "木",
+     "金",
+     "水"
+    ],
+    "answer": 3,
+    "explain_bn": "水 = みず = পানি। 火 = আগুন, 木 = গাছ, 金 = সোনা/টাকা।",
+    "explain_en": "水 (mizu) = water."
+   },
+   {
+    "id": "jpl2",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N5",
+    "text": "わたしは バングラデシュ___ きました。",
+    "options": [
+     "から",
+     "まで",
+     "を",
+     "が"
+    ],
+    "answer": 0,
+    "explain_bn": "\"থেকে\" = から।",
+    "explain_en": "から = from."
+   },
+   {
+    "id": "jpl3",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "N5",
+    "text": "「いま、さんじ はんです。」 いまは なんじですか。",
+    "options": [
+     "4:30",
+     "3:30",
+     "3:00",
+     "13:30"
+    ],
+    "answer": 1,
+    "explain_bn": "さんじ = ৩টা, はん = আধা → সাড়ে তিনটা।",
+    "explain_en": "さんじはん = half past three."
+   },
+   {
+    "id": "jpl4",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "N5",
+    "text": "「おはようございます」は いつ いいますか。",
+    "options": [
+     "ねる とき",
+     "たべた あと",
+     "あさ",
+     "よる"
+    ],
+    "answer": 2,
+    "explain_bn": "おはようございます = সুপ্রভাত — সকালে।",
+    "explain_en": "Said in the morning."
+   },
+   {
+    "id": "jpl5",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N4",
+    "text": "ここで しゃしんを とって___ いいですか。",
+    "options": [
+     "は",
+     "が",
+     "に",
+     "も"
+    ],
+    "answer": 3,
+    "explain_bn": "〜ても いいですか = …করতে পারি?",
+    "explain_en": "〜てもいいですか = may I …?"
+   },
+   {
+    "id": "jpl6",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N4",
+    "text": "あしたは はやく おき___ なりません。",
+    "options": [
+     "なければ",
+     "ないで",
+     "ても",
+     "たら"
+    ],
+    "answer": 0,
+    "explain_bn": "〜なければ なりません = করতেই হবে।",
+    "explain_en": "〜なければなりません = must."
+   },
+   {
+    "id": "jpl7",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "N4",
+    "text": "けいじ: 「危険 — 立入禁止」 いみは どれですか。",
+    "options": [
+     "ここは 出口です",
+     "ここに 入っては いけない",
+     "ここで 休んでも いい",
+     "ここで 物を 買う"
+    ],
+    "answer": 1,
+    "explain_bn": "危険 = বিপদ, 立入禁止 = প্রবেশ নিষেধ।",
+    "explain_en": "Danger — no entry."
+   },
+   {
+    "id": "jpl8",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N3",
+    "text": "日本語が 話せる___、毎日 練習して います。",
+    "options": [
+     "ところに",
+     "くせに",
+     "ように",
+     "ために"
+    ],
+    "answer": 2,
+    "explain_bn": "সম্ভাব্য রূপ (話せる) + ように = যাতে পারি সেজন্য। ために সম্ভাব্য রূপের সাথে বসে না।",
+    "explain_en": "Potential form + ように (not ために)."
+   },
+   {
+    "id": "jpl9",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "N3",
+    "text": "「残業」の いみは どれですか。",
+    "options": [
+     "休みの 日",
+     "朝ごはん",
+     "給料日",
+     "決まった 時間の あとも する 仕事"
+    ],
+    "answer": 3,
+    "explain_bn": "残業 (ざんぎょう) = ওভারটাইম।",
+    "explain_en": "残業 = overtime."
+   },
+   {
+    "id": "jpl10",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "N3",
+    "text": "お知らせ: 「明日は 機械の 点検の ため、作業は 午後1時から 始めます。」 明日、作業は 何時から ですか。",
+    "options": [
+     "午前8時",
+     "午前9時",
+     "午後5時",
+     "午後1時"
+    ],
+    "answer": 3,
+    "explain_bn": "午後1時から = দুপুর ১টা থেকে।",
+    "explain_en": "From 1 p.m."
+   },
+   {
+    "id": "jpl11",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N2",
+    "text": "彼は 熱が ある___、仕事を 休まなかった。",
+    "options": [
+     "にもかかわらず",
+     "おかげで",
+     "ばかりか",
+     "ついでに"
+    ],
+    "answer": 0,
+    "explain_bn": "〜にもかかわらず = সত্ত্বেও।",
+    "explain_en": "〜にもかかわらず = despite."
+   },
+   {
+    "id": "jpl12",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "N2",
+    "text": "「把握する」に いちばん 近い いみは?",
+    "options": [
+     "断る",
+     "よく 理解する",
+     "手で 持つ",
+     "忘れる"
+    ],
+    "answer": 1,
+    "explain_bn": "把握する (はあくする) = ভালোভাবে বোঝা।",
+    "explain_en": "把握する = grasp / understand well."
+   },
+   {
+    "id": "jpl13",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N2",
+    "text": "この 仕事は 経験___、だれでも できます。",
+    "options": [
+     "にとって",
+     "に沿って",
+     "を問わず",
+     "に限って"
+    ],
+    "answer": 2,
+    "explain_bn": "〜を問わず = …নির্বিশেষে।",
+    "explain_en": "〜を問わず = regardless of."
+   },
+   {
+    "id": "jpl14",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N1",
+    "text": "上司の 命令と あっては、従わ___。",
+    "options": [
+     "ずじまいだ",
+     "んばかりだ",
+     "ずにおく",
+     "ざるを得ない"
+    ],
+    "answer": 3,
+    "explain_bn": "〜ざるを得ない = না করে উপায় নেই।",
+    "explain_en": "〜ざるを得ない = have no choice but to."
+   },
+   {
+    "id": "jpl15",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "N1",
+    "text": "「一石二鳥」に 近い いみは?",
+    "options": [
+     "一つの ことで 二つの 得を する",
+     "同じ ことを 二回 する",
+     "石を 二つ 投げる",
+     "鳥を 育てる"
+    ],
+    "answer": 0,
+    "explain_bn": "一石二鳥 = এক ঢিলে দুই পাখি।",
+    "explain_en": "Two birds with one stone."
+   },
+   {
+    "id": "jpl16",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "N1",
+    "text": "どんなに 反対されよう___、私は 自分の 道を 進む。",
+    "options": [
+     "ばこそ",
+     "とも",
+     "ものなら",
+     "からには"
+    ],
+    "answer": 1,
+    "explain_bn": "〜(よ)うとも = যতই … হোক না কেন।",
+    "explain_en": "〜(よ)うとも = no matter how much …"
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "ja_hira1",
+   "level": "kana",
+   "title_en": "Hiragana 1: a ka sa ta na",
+   "title_bn": "হিরাগানা ১: আ কা সা তা না",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "あ い う え お",
+     "roman": "a i u e o",
+     "bn": "আ ই উ এ ও — জাপানির পাঁচ স্বর; উ ঠোঁট গোল না করে।",
+     "en": "The five vowels; u with unrounded lips."
+    },
+    {
+     "kind": "vocab",
+     "target": "か き く け こ",
+     "roman": "ka ki ku ke ko",
+     "bn": "কা কি কু কে কো।",
+     "en": "ka ki ku ke ko"
+    },
+    {
+     "kind": "vocab",
+     "target": "さ し す せ そ",
+     "roman": "sa shi su se so",
+     "bn": "সা শি সু সে সো — し = 'শি'।",
+     "en": "し is 'shi'."
+    },
+    {
+     "kind": "vocab",
+     "target": "た ち つ て と",
+     "roman": "ta chi tsu te to",
+     "bn": "তা চি ৎসু তে তো — ち = 'চি', つ = 'ৎসু'।",
+     "en": "ち = chi, つ = tsu."
+    },
+    {
+     "kind": "vocab",
+     "target": "な に ぬ ね の",
+     "roman": "na ni nu ne no",
+     "bn": "না নি নু নে নো।",
+     "en": "na ni nu ne no"
+    }
+   ],
+   "practice": [
+    "あいうえお",
+    "かさ",
+    "いぬ",
+    "ねこ"
+   ]
+  },
+  {
+   "id": "ja_hira2",
+   "level": "kana",
+   "title_en": "Hiragana 2: ha ma ya ra wa n",
+   "title_bn": "হিরাগানা ২: হা মা ইয়া রা ওয়া ন",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "は ひ ふ へ ほ",
+     "roman": "ha hi fu he ho",
+     "bn": "হা হি ফু হে হো — ふ নরম 'ফু' (দুই ঠোঁট কাছাকাছি)।",
+     "en": "ふ is a soft 'fu' between h and f."
+    },
+    {
+     "kind": "vocab",
+     "target": "ま み む め も",
+     "roman": "ma mi mu me mo",
+     "bn": "মা মি মু মে মো।",
+     "en": "ma mi mu me mo"
+    },
+    {
+     "kind": "vocab",
+     "target": "や ゆ よ",
+     "roman": "ya yu yo",
+     "bn": "ইয়া ইউ ইয়ো।",
+     "en": "ya yu yo"
+    },
+    {
+     "kind": "vocab",
+     "target": "ら り る れ ろ",
+     "roman": "ra ri ru re ro",
+     "bn": "র আর ল-এর মাঝামাঝি — জিভ একবার হালকা ছুঁয়ে।",
+     "en": "A light tap between r and l."
+    },
+    {
+     "kind": "vocab",
+     "target": "わ を ん",
+     "roman": "wa o n",
+     "bn": "ওয়া, ও (শুধু কর্ম-চিহ্ন), ন/ং।",
+     "en": "wa, o (object marker), n."
+    },
+    {
+     "kind": "note",
+     "target": "は → wa / へ → e",
+     "bn": "কণা (particle) হিসেবে は পড়া হয় 'ওয়া', へ পড়া হয় 'এ'।",
+     "en": "As particles は reads 'wa' and へ reads 'e'."
+    }
+   ],
+   "practice": [
+    "わたしは",
+    "ありがとう",
+    "ふね"
+   ]
+  },
+  {
+   "id": "ja_hira3",
+   "level": "kana",
+   "title_en": "Hiragana 3: dakuten, small kana, long sounds",
+   "title_bn": "হিরাগানা ৩: দাকুতেন, ছোট অক্ষর, দীর্ঘ স্বর",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "が ざ だ ば / ぱ",
+     "roman": "ga za da ba / pa",
+     "bn": "দুই দাগ (゛) = নরম থেকে ঘোষ: কা→গা; গোল (゜) = প।",
+     "en": "゛ voices the sound; ゜ makes p."
+    },
+    {
+     "kind": "note",
+     "target": "ざ ず ぜ ぞ",
+     "roman": "za zu ze zo",
+     "bn": "বাংলায় 'z' নেই — 'জ' বলবেন না, দাঁতের পেছনে জিভ রেখে গুনগুন 'জ়'।",
+     "en": "Bangla has no z — do not say j."
+    },
+    {
+     "kind": "vocab",
+     "target": "きゃ きゅ きょ",
+     "roman": "kya kyu kyo",
+     "bn": "ছোট ゃゅょ যুক্ত হয়ে এক মাত্রা: ক্যা ক্যু ক্যো।",
+     "en": "Small ゃゅょ make one beat."
+    },
+    {
+     "kind": "note",
+     "target": "きって ≠ きて",
+     "roman": "kitte / kite",
+     "bn": "ছোট っ = এক মাত্রা থামা: きって (ডাকটিকিট) আর きて (আসুন) আলাদা।",
+     "en": "Small っ is a one-beat pause."
+    },
+    {
+     "kind": "note",
+     "target": "おばさん ≠ おばあさん",
+     "roman": "obasan / obaasan",
+     "bn": "দীর্ঘ স্বরে অর্থ বদলায়: খালা ≠ দাদি/নানি।",
+     "en": "Long vowels change meaning."
+    }
+   ],
+   "practice": [
+    "きって",
+    "おばあさん",
+    "しゃしん"
+   ]
+  },
+  {
+   "id": "ja_kata",
+   "level": "kana",
+   "title_en": "Katakana for foreign words",
+   "title_bn": "বিদেশি শব্দের কাতাকানা",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "ア イ ウ エ オ",
+     "roman": "a i u e o",
+     "bn": "হিরাগানার মতোই উচ্চারণ, শুধু রূপ আলাদা।",
+     "en": "Same sounds as hiragana."
+    },
+    {
+     "kind": "vocab",
+     "target": "バングラデシュ",
+     "roman": "banguradeshu",
+     "bn": "বাংলাদেশ।",
+     "en": "Bangladesh"
+    },
+    {
+     "kind": "vocab",
+     "target": "コンビニ",
+     "roman": "konbini",
+     "bn": "কনভেনিয়েন্স স্টোর (দোকান)।",
+     "en": "convenience store"
+    },
+    {
+     "kind": "vocab",
+     "target": "パスポート",
+     "roman": "pasupooto",
+     "bn": "পাসপোর্ট — ー মানে স্বর লম্বা।",
+     "en": "passport — ー lengthens the vowel"
+    },
+    {
+     "kind": "vocab",
+     "target": "ヘルメット",
+     "roman": "herumetto",
+     "bn": "হেলমেট।",
+     "en": "helmet"
+    },
+    {
+     "kind": "vocab",
+     "target": "シフト",
+     "roman": "shifuto",
+     "bn": "শিফট।",
+     "en": "shift"
+    }
+   ],
+   "practice": [
+    "バングラデシュ",
+    "コンビニ",
+    "パスポート"
+   ]
+  },
+  {
+   "id": "ja_n5_greet",
+   "level": "N5",
+   "title_en": "Greetings and self-introduction",
+   "title_bn": "শুভেচ্ছা ও নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "こんにちは。",
+     "roman": "konnichiwa",
+     "bn": "শুভ দিন/হ্যালো।",
+     "en": "Hello."
+    },
+    {
+     "kind": "phrase",
+     "target": "はじめまして。",
+     "roman": "hajimemashite",
+     "bn": "প্রথম পরিচয়ে।",
+     "en": "Nice to meet you (first time)."
+    },
+    {
+     "kind": "phrase",
+     "target": "カリムと もうします。",
+     "roman": "Karimu to moushimasu",
+     "bn": "আমি করিম (বিনয়ী)।",
+     "en": "My name is Karim (humble)."
+    },
+    {
+     "kind": "phrase",
+     "target": "バングラデシュから きました。",
+     "roman": "Banguradeshu kara kimashita",
+     "bn": "বাংলাদেশ থেকে এসেছি।",
+     "en": "I came from Bangladesh."
+    },
+    {
+     "kind": "phrase",
+     "target": "よろしく おねがいします。",
+     "roman": "yoroshiku onegaishimasu",
+     "bn": "\"আমার দিকে খেয়াল রাখবেন\" — জাপানে প্রথম দিনে অবশ্যই।",
+     "en": "Please treat me well — essential on day one."
+    },
+    {
+     "kind": "phrase",
+     "target": "ありがとうございます。/ すみません。",
+     "roman": "arigatou gozaimasu / sumimasen",
+     "bn": "ধন্যবাদ। / দুঃখিত/শুনছেন।",
+     "en": "Thank you. / Excuse me, sorry."
+    }
+   ],
+   "practice": [
+    "はじめまして。カリムと もうします。",
+    "よろしく おねがいします。"
+   ]
+  },
+  {
+   "id": "ja_n5_numbers",
+   "level": "N5",
+   "title_en": "Numbers, money and time",
+   "title_bn": "সংখ্যা, টাকা ও সময়",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "いち に さん よん ご ろく なな はち きゅう じゅう",
+     "roman": "ichi ni san yon go roku nana hachi kyuu juu",
+     "bn": "১-১০ (৪ = よん, ৭ = なな, ৯ = きゅう বেশি ব্যবহার)।",
+     "en": "1-10."
+    },
+    {
+     "kind": "vocab",
+     "target": "ひゃく / せん / まん",
+     "roman": "hyaku / sen / man",
+     "bn": "১০০ / ১,০০০ / ১০,০০০ — জাপানে ১০ হাজার (まん) একটা একক।",
+     "en": "100 / 1,000 / 10,000 (man is a unit)."
+    },
+    {
+     "kind": "phrase",
+     "target": "これは いくらですか。— 500えんです。",
+     "roman": "kore wa ikura desu ka — gohyaku en desu",
+     "bn": "এটার দাম কত? — ৫০০ ইয়েন।",
+     "en": "How much is this? — 500 yen."
+    },
+    {
+     "kind": "phrase",
+     "target": "いま なんじですか。— 2じ はんです。",
+     "roman": "ima nanji desu ka — niji han desu",
+     "bn": "এখন কয়টা? — আড়াইটা।",
+     "en": "What time is it? — Half past two."
+    },
+    {
+     "kind": "vocab",
+     "target": "ひとつ ふたつ みっつ",
+     "roman": "hitotsu futatsu mittsu",
+     "bn": "জিনিস গোনা: একটা, দুটো, তিনটা।",
+     "en": "Counting things: one, two, three."
+    }
+   ],
+   "practice": [
+    "これは いくらですか。",
+    "いま なんじですか。"
+   ]
+  },
+  {
+   "id": "ja_n5_daily",
+   "level": "N5",
+   "title_en": "Daily verbs (polite -masu)",
+   "title_bn": "দৈনন্দিন ক্রিয়া (ভদ্র -ます)",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "いきます / いきません",
+     "roman": "ikimasu / ikimasen",
+     "bn": "যাই / যাই না।",
+     "en": "go / don't go"
+    },
+    {
+     "kind": "grammar",
+     "target": "たべました",
+     "roman": "tabemashita",
+     "bn": "অতীত: খেয়েছি (-ました)।",
+     "en": "Past: ate (-mashita)."
+    },
+    {
+     "kind": "grammar",
+     "target": "はたらきます",
+     "roman": "hatarakimasu",
+     "bn": "কাজ করি।",
+     "en": "work"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜を ください",
+     "roman": "~o kudasai",
+     "bn": "…দিন।",
+     "en": "Please give me …"
+    },
+    {
+     "kind": "phrase",
+     "target": "いっしょに たべませんか。",
+     "roman": "issho ni tabemasen ka",
+     "bn": "একসাথে খাবেন? (আমন্ত্রণ)।",
+     "en": "Won't you eat with me? (invitation)"
+    }
+   ],
+   "practice": [
+    "みずを ください。",
+    "まいにち こうじょうで はたらきます。"
+   ]
+  },
+  {
+   "id": "ja_n4_signs",
+   "level": "N4",
+   "title_en": "Safety kanji and signs",
+   "title_bn": "নিরাপত্তার কাঞ্জি ও চিহ্ন",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "危険",
+     "roman": "kiken",
+     "bn": "বিপদ।",
+     "en": "danger"
+    },
+    {
+     "kind": "vocab",
+     "target": "注意",
+     "roman": "chuui",
+     "bn": "সাবধান।",
+     "en": "caution"
+    },
+    {
+     "kind": "vocab",
+     "target": "立入禁止",
+     "roman": "tachiiri kinshi",
+     "bn": "প্রবেশ নিষেধ।",
+     "en": "no entry"
+    },
+    {
+     "kind": "vocab",
+     "target": "禁煙",
+     "roman": "kin'en",
+     "bn": "ধূমপান নিষেধ।",
+     "en": "no smoking"
+    },
+    {
+     "kind": "vocab",
+     "target": "火気厳禁",
+     "roman": "kaki genkin",
+     "bn": "আগুন একদম নিষেধ।",
+     "en": "no open flames"
+    },
+    {
+     "kind": "vocab",
+     "target": "非常口",
+     "roman": "hijouguchi",
+     "bn": "জরুরি বহির্গমন।",
+     "en": "emergency exit"
+    },
+    {
+     "kind": "vocab",
+     "target": "出口 / 入口",
+     "roman": "deguchi / iriguchi",
+     "bn": "বের হওয়ার পথ / ঢোকার পথ।",
+     "en": "exit / entrance"
+    },
+    {
+     "kind": "vocab",
+     "target": "止まれ",
+     "roman": "tomare",
+     "bn": "থামুন।",
+     "en": "stop"
+    }
+   ],
+   "practice": [
+    "ここは 立入禁止です。",
+    "非常口は あちらです。"
+   ]
+  },
+  {
+   "id": "ja_n4_gear",
+   "level": "N4",
+   "title_en": "Safety gear",
+   "title_bn": "নিরাপত্তা সরঞ্জাম",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "ヘルメット",
+     "roman": "herumetto",
+     "bn": "হেলমেট।",
+     "en": "helmet"
+    },
+    {
+     "kind": "vocab",
+     "target": "安全靴",
+     "roman": "anzengutsu",
+     "bn": "সেফটি জুতা।",
+     "en": "safety shoes"
+    },
+    {
+     "kind": "vocab",
+     "target": "手袋",
+     "roman": "tebukuro",
+     "bn": "গ্লাভস।",
+     "en": "gloves"
+    },
+    {
+     "kind": "vocab",
+     "target": "保護メガネ",
+     "roman": "hogo megane",
+     "bn": "চোখের সুরক্ষা চশমা।",
+     "en": "safety glasses"
+    },
+    {
+     "kind": "vocab",
+     "target": "耳栓",
+     "roman": "mimisen",
+     "bn": "কানের প্লাগ।",
+     "en": "earplugs"
+    },
+    {
+     "kind": "vocab",
+     "target": "消火器",
+     "roman": "shoukaki",
+     "bn": "অগ্নিনির্বাপক।",
+     "en": "fire extinguisher"
+    },
+    {
+     "kind": "phrase",
+     "target": "気を つけて ください。",
+     "roman": "ki o tsukete kudasai",
+     "bn": "সাবধানে থাকুন।",
+     "en": "Please be careful."
+    }
+   ],
+   "practice": [
+    "ヘルメットを かぶって ください。",
+    "気を つけて ください。"
+   ]
+  },
+  {
+   "id": "ja_n4_instr",
+   "level": "N4",
+   "title_en": "Understanding instructions",
+   "title_bn": "নির্দেশ বোঝা ও জিজ্ঞেস করা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "もう いちど いって ください。",
+     "roman": "mou ichido itte kudasai",
+     "bn": "আরেকবার বলুন।",
+     "en": "Please say it again."
+    },
+    {
+     "kind": "phrase",
+     "target": "ゆっくり はなして ください。",
+     "roman": "yukkuri hanashite kudasai",
+     "bn": "আস্তে বলুন।",
+     "en": "Please speak slowly."
+    },
+    {
+     "kind": "phrase",
+     "target": "わかりました。",
+     "roman": "wakarimashita",
+     "bn": "বুঝেছি।",
+     "en": "Understood."
+    },
+    {
+     "kind": "phrase",
+     "target": "すみません、わかりません。",
+     "roman": "sumimasen, wakarimasen",
+     "bn": "দুঃখিত, বুঝিনি — না বুঝে কাজ করবেন না।",
+     "en": "Sorry, I don't understand — always ask."
+    },
+    {
+     "kind": "phrase",
+     "target": "これを はこんで ください。",
+     "roman": "kore o hakonde kudasai",
+     "bn": "এটা বয়ে নিয়ে যান।",
+     "en": "Please carry this."
+    },
+    {
+     "kind": "phrase",
+     "target": "きかいを とめて ください。",
+     "roman": "kikai o tomete kudasai",
+     "bn": "মেশিন থামান।",
+     "en": "Please stop the machine."
+    }
+   ],
+   "practice": [
+    "ゆっくり はなして ください。",
+    "すみません、わかりません。"
+   ]
+  },
+  {
+   "id": "ja_n4_hourensou",
+   "level": "N4",
+   "title_en": "Report, contact, consult (ho-ren-so)",
+   "title_bn": "জানানো, যোগাযোগ, পরামর্শ (報連相)",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "報告 / 連絡 / 相談",
+     "roman": "houkoku / renraku / soudan",
+     "bn": "জাপানি কর্মস্থলের মূল নিয়ম: কাজের খবর জানান, দেরি/সমস্যা আগেই জানান, সন্দেহ হলে জিজ্ঞেস করুন।",
+     "en": "Core Japanese workplace rule: report, inform early, consult."
+    },
+    {
+     "kind": "grammar",
+     "target": "〜ても いいですか",
+     "roman": "~temo ii desu ka",
+     "bn": "করতে পারি?",
+     "en": "May I …?"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜なければ なりません",
+     "roman": "~nakereba narimasen",
+     "bn": "করতেই হবে।",
+     "en": "must"
+    },
+    {
+     "kind": "phrase",
+     "target": "おくれて すみません。",
+     "roman": "okurete sumimasen",
+     "bn": "দেরির জন্য দুঃখিত।",
+     "en": "Sorry I'm late."
+    },
+    {
+     "kind": "phrase",
+     "target": "たいちょうが わるいので、やすんでも いいですか。",
+     "roman": "taichou ga warui node, yasundemo ii desu ka",
+     "bn": "শরীর খারাপ, ছুটি নিতে পারি?",
+     "en": "I feel unwell; may I take the day off?"
+    },
+    {
+     "kind": "phrase",
+     "target": "おさきに しつれいします。",
+     "roman": "osaki ni shitsurei shimasu",
+     "bn": "আগে চলে যাচ্ছি (কাজ শেষে)।",
+     "en": "Excuse me for leaving first."
+    }
+   ],
+   "practice": [
+    "おくれて すみません。",
+    "おさきに しつれいします。"
+   ]
+  },
+  {
+   "id": "ja_n4_injury",
+   "level": "N4",
+   "title_en": "Injury and emergencies",
+   "title_bn": "আঘাত ও জরুরি অবস্থা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "けがを しました。",
+     "roman": "kega o shimashita",
+     "bn": "আঘাত পেয়েছি।",
+     "en": "I got hurt."
+    },
+    {
+     "kind": "phrase",
+     "target": "ゆびを きりました。",
+     "roman": "yubi o kirimashita",
+     "bn": "আঙুল কেটে গেছে।",
+     "en": "I cut my finger."
+    },
+    {
+     "kind": "phrase",
+     "target": "たすけて ください!",
+     "roman": "tasukete kudasai",
+     "bn": "বাঁচান/সাহায্য করুন!",
+     "en": "Help!"
+    },
+    {
+     "kind": "phrase",
+     "target": "きぶんが わるいです。",
+     "roman": "kibun ga warui desu",
+     "bn": "শরীর খারাপ লাগছে।",
+     "en": "I feel sick."
+    },
+    {
+     "kind": "note",
+     "target": "119 / 110",
+     "bn": "জাপানে অ্যাম্বুলেন্স/ফায়ার ১১৯, পুলিশ ১১০।",
+     "en": "Japan: ambulance/fire 119, police 110."
+    }
+   ],
+   "practice": [
+    "けがを しました。たすけて ください!"
+   ]
+  },
+  {
+   "id": "ja_n4_life",
+   "level": "N4",
+   "title_en": "Pay, contract and documents",
+   "title_bn": "বেতন, চুক্তি ও কাগজপত্র",
+   "items": [
+    {
+     "kind": "vocab",
+     "target": "給料 / 給料日",
+     "roman": "kyuuryou / kyuuryoubi",
+     "bn": "বেতন / বেতনের দিন।",
+     "en": "salary / payday"
+    },
+    {
+     "kind": "vocab",
+     "target": "雇用契約書",
+     "roman": "koyou keiyakusho",
+     "bn": "নিয়োগ চুক্তিপত্র — কপি নিজের কাছে রাখুন।",
+     "en": "employment contract — keep a copy"
+    },
+    {
+     "kind": "vocab",
+     "target": "在留カード",
+     "roman": "zairyuu kaado",
+     "bn": "রেসিডেন্স কার্ড — জাপানে সবসময় সঙ্গে রাখতে হয়।",
+     "en": "residence card — carry it always"
+    },
+    {
+     "kind": "vocab",
+     "target": "寮",
+     "roman": "ryou",
+     "bn": "ডরমিটরি।",
+     "en": "dormitory"
+    },
+    {
+     "kind": "vocab",
+     "target": "残業 / 休み",
+     "roman": "zangyou / yasumi",
+     "bn": "ওভারটাইম / ছুটি।",
+     "en": "overtime / day off"
+    },
+    {
+     "kind": "phrase",
+     "target": "給料日は いつですか。",
+     "roman": "kyuuryoubi wa itsu desu ka",
+     "bn": "বেতনের দিন কবে?",
+     "en": "When is payday?"
+    }
+   ],
+   "practice": [
+    "給料日は いつですか。"
+   ]
+  },
+  {
+   "id": "ja_n4_konbini",
+   "level": "N4",
+   "title_en": "At the convenience store",
+   "title_bn": "কনবিনিতে (দোকানে)",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "ふくろは いりますか。",
+     "roman": "fukuro wa irimasu ka",
+     "bn": "ব্যাগ লাগবে? (ক্যাশিয়ার জিজ্ঞেস করে)",
+     "en": "Do you need a bag?"
+    },
+    {
+     "kind": "phrase",
+     "target": "あたためますか。",
+     "roman": "atatamemasu ka",
+     "bn": "গরম করে দেব? (খাবারের জন্য)",
+     "en": "Shall I heat it up?"
+    },
+    {
+     "kind": "phrase",
+     "target": "カードで おねがいします。",
+     "roman": "kaado de onegaishimasu",
+     "bn": "কার্ডে দেব।",
+     "en": "By card, please."
+    },
+    {
+     "kind": "phrase",
+     "target": "〜は どこですか。",
+     "roman": "~wa doko desu ka",
+     "bn": "…কোথায়?",
+     "en": "Where is …?"
+    },
+    {
+     "kind": "note",
+     "target": "ハラール",
+     "roman": "haraaru",
+     "bn": "হালাল খাবার চিনতে প্যাকেটে উপাদান দেখুন; 豚 (ぶた) = শূকর।",
+     "en": "Check ingredients; 豚 = pork."
+    }
+   ],
+   "practice": [
+    "ふくろは いりません。",
+    "カードで おねがいします。"
+   ]
+  },
+  {
+   "id": "ja_n3_grammar",
+   "level": "N3",
+   "title_en": "N3 grammar for work",
+   "title_bn": "কাজের জন্য N3 ব্যাকরণ",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "〜ように",
+     "roman": "~you ni",
+     "bn": "যাতে …: 忘れないように メモします।",
+     "en": "so that"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜ために",
+     "roman": "~tame ni",
+     "bn": "…এর উদ্দেশ্যে (ইচ্ছাকৃত কাজ): 家族の ために 働きます।",
+     "en": "for the purpose of"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜そうです",
+     "roman": "~sou desu",
+     "bn": "শুনেছি … (খবর): 明日 雨が 降るそうです।",
+     "en": "I hear that …"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜ことに する",
+     "roman": "~koto ni suru",
+     "bn": "সিদ্ধান্ত নেওয়া: 毎日 勉強する ことに しました।",
+     "en": "decide to"
+    },
+    {
+     "kind": "vocab",
+     "target": "申します / いらっしゃる",
+     "roman": "moushimasu / irassharu",
+     "bn": "বিনয়ী 'বলি' / সম্মানসূচক 'আছেন/আসেন' (敬語)।",
+     "en": "humble 'say' / honorific 'be, come' (keigo)"
+    }
+   ],
+   "practice": [
+    "忘れないように メモします。",
+    "毎日 勉強する ことに しました。"
+   ]
+  },
+  {
+   "id": "ja_n2_grammar",
+   "level": "N2",
+   "title_en": "N2 grammar",
+   "title_bn": "N2 ব্যাকরণ",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "〜にもかかわらず",
+     "roman": "~ni mo kakawarazu",
+     "bn": "সত্ত্বেও।",
+     "en": "despite"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜を問わず",
+     "roman": "~o towazu",
+     "bn": "নির্বিশেষে।",
+     "en": "regardless of"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜に対して",
+     "roman": "~ni taishite",
+     "bn": "…এর প্রতি/বিপরীতে।",
+     "en": "toward / in contrast to"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜わけには いかない",
+     "roman": "~wake ni wa ikanai",
+     "bn": "করা চলে না (দায়িত্বের কারণে)।",
+     "en": "cannot (for social reasons)"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜ざるを得ない",
+     "roman": "~zaru o enai",
+     "bn": "না করে উপায় নেই।",
+     "en": "have no choice but to"
+    }
+   ],
+   "practice": [
+    "雨にもかかわらず、作業は 続いた。"
+   ]
+  },
+  {
+   "id": "ja_n1_grammar",
+   "level": "N1",
+   "title_en": "N1 grammar and idioms",
+   "title_bn": "N1 ব্যাকরণ ও প্রবাদ",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "〜とあっては",
+     "roman": "~to atte wa",
+     "bn": "যখন … তখন তো (করতেই হবে)।",
+     "en": "if it is a case of …"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜をものともせず",
+     "roman": "~o mono tomo sezu",
+     "bn": "…কে তোয়াক্কা না করে।",
+     "en": "in defiance of"
+    },
+    {
+     "kind": "grammar",
+     "target": "〜んばかり",
+     "roman": "~n bakari",
+     "bn": "যেন এখনই … করবে।",
+     "en": "as if about to"
+    },
+    {
+     "kind": "vocab",
+     "target": "一石二鳥",
+     "roman": "isseki nichou",
+     "bn": "এক ঢিলে দুই পাখি।",
+     "en": "two birds with one stone"
+    },
+    {
+     "kind": "vocab",
+     "target": "石の上にも三年",
+     "roman": "ishi no ue ni mo sannen",
+     "bn": "ধৈর্য ধরলে ফল আসে — বিদেশে কর্মীর প্রিয় প্রবাদ।",
+     "en": "perseverance prevails"
+    }
+   ],
+   "practice": [
+    "石の上にも三年と いうから、がんばろう。"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Arriving at Narita Airport",
+   "title_bn": "নারিতা বিমানবন্দরে পৌঁছানো",
+   "ai_role": "You are a polite Japanese immigration officer at Narita Airport. The traveller is a Bangladeshi worker arriving on a Specified Skilled Worker (特定技能) visa. Speak simple polite Japanese (です/ます) with hiragana-friendly words, one short question at a time: passport, purpose, company, address in Japan; mention the residence card. If the learner makes a mistake, show the corrected Japanese in brackets, then continue.",
+   "opening": "こんにちは。パスポートを みせて ください。にほんへ なにを しに きましたか。",
+   "goals_en": [
+    "Say you came to work",
+    "Say your company and city",
+    "Say how long you will stay"
+   ],
+   "goals_bn": [
+    "বলুন কাজ করতে এসেছেন",
+    "কোম্পানি ও শহরের নাম বলুন",
+    "কতদিন থাকবেন বলুন"
+   ],
+   "useful": [
+    {
+     "target": "しごとを しに きました。",
+     "bn": "কাজ করতে এসেছি।",
+     "en": "I came to work."
+    },
+    {
+     "target": "かいしゃは おおさかに あります。",
+     "bn": "কোম্পানি ওসাকায়।",
+     "en": "The company is in Osaka."
+    },
+    {
+     "target": "５ねん いる よていです。",
+     "bn": "পাঁচ বছর থাকার পরিকল্পনা।",
+     "en": "I plan to stay five years."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at the workplace",
+   "title_bn": "কর্মস্থলে প্রথম দিন",
+   "ai_role": "You are a senior worker (先輩) at a Japanese food factory meeting a new Bangladeshi worker. Speak simple polite Japanese. Explain hygiene and safety one rule at a time (wash hands, wear a cap and mask, stop the line and call someone if there is a problem), and teach ho-ren-so. Check understanding. Correct mistakes in brackets.",
+   "opening": "はじめまして。せんぱいの たなかです。きょうから よろしく おねがいします。",
+   "goals_en": [
+    "Introduce yourself politely",
+    "Ask them to repeat or slow down",
+    "Say what you will do if there is a problem"
+   ],
+   "goals_bn": [
+    "ভদ্রভাবে নিজের পরিচয় দিন",
+    "আবার বা আস্তে বলতে বলুন",
+    "সমস্যা হলে কী করবেন বলুন"
+   ],
+   "useful": [
+    {
+     "target": "よろしく おねがいします。",
+     "bn": "আমার দিকে খেয়াল রাখবেন।",
+     "en": "Please treat me well."
+    },
+    {
+     "target": "もう いちど おねがいします。",
+     "bn": "আরেকবার বলবেন?",
+     "en": "Once more, please."
+    },
+    {
+     "target": "もんだいが あったら、すぐ れんらくします。",
+     "bn": "সমস্যা হলে সঙ্গে সঙ্গে জানাব।",
+     "en": "If there is a problem I will report at once."
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the clinic",
+   "title_bn": "ক্লিনিকে ডাক্তারের কাছে",
+   "ai_role": "You are a receptionist then a doctor at a Japanese clinic. In simple polite Japanese ask for the health insurance card (保険証), then symptoms: where it hurts, since when, fever. Give simple general advice only; never give a real diagnosis or medicine names. Correct mistakes in brackets.",
+   "opening": "こんにちは。ほけんしょうは ありますか。きょうは どう しましたか。",
+   "goals_en": [
+    "Say where it hurts",
+    "Say since when",
+    "Ask how to take the medicine"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা বলুন",
+    "কবে থেকে বলুন",
+    "ওষুধ কীভাবে খাবেন জিজ্ঞেস করুন"
+   ],
+   "useful": [
+    {
+     "target": "おなかが いたいです。",
+     "bn": "পেটে ব্যথা।",
+     "en": "My stomach hurts."
+    },
+    {
+     "target": "きのうから ねつが あります。",
+     "bn": "গতকাল থেকে জ্বর।",
+     "en": "I have had a fever since yesterday."
+    },
+    {
+     "target": "この くすりは いつ のみますか。",
+     "bn": "এই ওষুধ কখন খাব?",
+     "en": "When do I take this medicine?"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting an apartment",
+   "title_bn": "বাসা (アパート) ভাড়া",
+   "ai_role": "You are a Japanese real-estate agent (不動産屋). Speak simple polite Japanese. Talk about monthly rent (家賃), deposit (敷金), key money (礼金), guarantor or guarantee company (保証会社), garbage rules. Encourage asking for everything in writing. Correct mistakes in brackets.",
+   "opening": "いらっしゃいませ。どんな へやを さがして いますか。",
+   "goals_en": [
+    "Ask the rent and deposit",
+    "Ask about the garbage rules",
+    "Ask for the contract in writing"
+   ],
+   "goals_bn": [
+    "ভাড়া ও জামানত জিজ্ঞেস করুন",
+    "ময়লা ফেলার নিয়ম জিজ্ঞেস করুন",
+    "লিখিত চুক্তি চান"
+   ],
+   "useful": [
+    {
+     "target": "やちんは いくらですか。",
+     "bn": "ভাড়া কত?",
+     "en": "How much is the rent?"
+    },
+    {
+     "target": "しききんと れいきんは ありますか。",
+     "bn": "জামানত আর 'রেইকিন' আছে?",
+     "en": "Is there a deposit and key money?"
+    },
+    {
+     "target": "ゴミの ルールを おしえて ください。",
+     "bn": "ময়লা ফেলার নিয়ম বলুন।",
+     "en": "Please tell me the garbage rules."
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the convenience store",
+   "title_bn": "কনবিনিতে কেনাকাটা",
+   "ai_role": "You are a cashier at a Japanese convenience store (コンビニ). Speak simple polite Japanese. Ask about a bag, heating food, point card, payment; answer where items are. Correct mistakes in brackets.",
+   "opening": "いらっしゃいませ。ふくろは ごりようですか。",
+   "goals_en": [
+    "Ask where an item is",
+    "Ask the price",
+    "Pay and answer about the bag"
+   ],
+   "goals_bn": [
+    "জিনিস কোথায় জিজ্ঞেস করুন",
+    "দাম জিজ্ঞেস করুন",
+    "টাকা দিন ও ব্যাগের প্রশ্নের উত্তর দিন"
+   ],
+   "useful": [
+    {
+     "target": "おにぎりは どこですか。",
+     "bn": "অনিগিরি (ভাতের বল) কোথায়?",
+     "en": "Where are the rice balls?"
+    },
+    {
+     "target": "これは いくらですか。",
+     "bn": "এটার দাম কত?",
+     "en": "How much is this?"
+    },
+    {
+     "target": "ふくろは いりません。カードで おねがいします。",
+     "bn": "ব্যাগ লাগবে না। কার্ডে দেব।",
+     "en": "No bag. By card, please."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "jpr1",
+   "text": "おばあさんと おばさん",
+   "tip_bn": "দীর্ঘ স্বর দুই মাত্রা: おばあさん (দাদি) ≠ おばさん (খালা)।",
+   "tip_en": "Long vowels take two beats."
+  },
+  {
+   "id": "jpr2",
+   "text": "きってを かいました。",
+   "tip_bn": "ছোট っ-তে এক মাত্রা থামুন: き・っ・て।",
+   "tip_en": "Pause one beat on small っ."
+  },
+  {
+   "id": "jpr3",
+   "text": "ざんぎょうは ありますか。",
+   "tip_bn": "ざ = 'জ়' (z), 'জা' নয়। ん পুরো এক মাত্রা।",
+   "tip_en": "ざ is za, not ja; ん is a full beat."
+  },
+  {
+   "id": "jpr4",
+   "text": "つくえの うえに あります。",
+   "tip_bn": "つ = 'ৎসু' — 'চু' বা 'সু' নয়।",
+   "tip_en": "つ is tsu."
+  },
+  {
+   "id": "jpr5",
+   "text": "ふくろは いりません。",
+   "tip_bn": "ふ = নরম 'ফু', দুই ঠোঁট কাছাকাছি, দাঁত ছোঁবে না।",
+   "tip_en": "ふ: both lips, no teeth."
+  },
+  {
+   "id": "jpr6",
+   "text": "りょうは えきの ちかくです。",
+   "tip_bn": "りょ এক মাত্রা: 'রিয়ো' নয়, 'র্যো'।",
+   "tip_en": "りょ is one beat."
+  },
+  {
+   "id": "jpr7",
+   "text": "よろしく おねがいします。",
+   "tip_bn": "শেষের す প্রায় শোনা যায় না: 'শিমাস'।",
+   "tip_en": "The final u of -masu is nearly silent."
+  },
+  {
+   "id": "jpr8",
+   "text": "ゆっくり はなして ください。",
+   "tip_bn": "ゆっくり-তে っ-এর থামা; ください = 'কুদাসাই'।",
+   "tip_en": "Pause on っ; ku-da-sa-i."
+  },
+  {
+   "id": "jpr9",
+   "text": "きけんですから はいらないで ください。",
+   "tip_bn": "প্রতিটি মাত্রা সমান লম্বা — তাড়াহুড়া করবেন না।",
+   "tip_en": "Keep every beat even."
+  },
+  {
+   "id": "jpr10",
+   "text": "せんぱい、しつもんが あります。",
+   "tip_bn": "せんぱい-তে ん-এর পরে প, তাই ঠোঁট বন্ধ 'ম'-এর মতো শোনায়।",
+   "tip_en": "ん before p sounds like m."
+  },
+  {
+   "id": "jpr11",
+   "text": "きゅうりょうびは にじゅうごにちです。",
+   "tip_bn": "きゅう আর りょう দুটোই দীর্ঘ — দুই মাত্রা করে।",
+   "tip_en": "きゅう and りょう are long."
+  },
+  {
+   "id": "jpr12",
+   "text": "ひじょうぐちは あちらです。",
+   "tip_bn": "じょ = 'জো' (এখানে জ ঠিক আছে); ぐ নরম 'গু'।",
+   "tip_en": "じょ is jo; ぐ soft."
+  }
+ ],
+ "mock": [
+  {
+   "id": "jft_style_1",
+   "title_en": "JFT-Basic style practice",
+   "title_bn": "JFT-Basic ধাঁচের অনুশীলন",
+   "format_en": "JFT-Basic format: 4 sections (Script and Vocabulary, Conversation and Expression, Listening, Reading), about 12 questions each, 60 minutes, multiple choice, no going back to an earlier section. This set has the 3 text sections (36 questions, 45 minutes); listening is in the phone-voice practice. The real score is a scaled 10-250 (200+ = A2, needed for the Specified Skilled Worker visa); ours is only a percentage estimate. Original Assisto practice.",
+   "format_bn": "JFT-Basic ধরন: ৪ অংশ (লিপি ও শব্দ, কথোপকথন ও প্রকাশ, শোনা, পড়া), প্রতিটিতে প্রায় ১২ প্রশ্ন, ৬০ মিনিট, MCQ, আগের অংশে ফেরা যায় না। এই সেটে লেখার ৩ অংশ (৩৬ প্রশ্ন, ৪৫ মিনিট); শোনার অংশ ফোন-কণ্ঠের অনুশীলনে। আসল স্কোর ১০-২৫০ স্কেল (২০০+ = A2, SSW ভিসার জন্য লাগে); আমাদেরটা শুধু শতাংশ থেকে অনুমান। Assisto-র নিজের অনুশীলন।",
+   "minutes": 45,
+   "sections": [
+    {
+     "id": "script_vocab",
+     "skill": "vocab",
+     "title_en": "Script and Vocabulary (文字と語彙)",
+     "title_bn": "লিপি ও শব্দ (文字と語彙)",
+     "questions": [
+      {
+       "id": "sv1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「出口」の よみかたは?",
+       "options": [
+        "でくち",
+        "しゅっこう",
+        "でぐち",
+        "いりぐち"
+       ],
+       "answer": 2,
+       "explain_bn": "出口 = でぐち = বের হওয়ার পথ।",
+       "explain_en": "出口 = deguchi (exit)."
+      },
+      {
+       "id": "sv2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「休み」の よみかたは?",
+       "options": [
+        "よすみ",
+        "きゅうみ",
+        "やすい",
+        "やすみ"
+       ],
+       "answer": 3,
+       "explain_bn": "休み = やすみ = ছুটি।",
+       "explain_en": "休み = yasumi (day off)."
+      },
+      {
+       "id": "sv3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「危険」の よみかたは?",
+       "options": [
+        "きけん",
+        "きげん",
+        "けんき",
+        "あぶない"
+       ],
+       "answer": 0,
+       "explain_bn": "危険 = きけん = বিপদ।",
+       "explain_en": "危険 = kiken (danger)."
+      },
+      {
+       "id": "sv4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「電車」の よみかたは?",
+       "options": [
+        "てんしゃ",
+        "でんしゃ",
+        "でんき",
+        "じてんしゃ"
+       ],
+       "answer": 1,
+       "explain_bn": "電車 = でんしゃ = ট্রেন।",
+       "explain_en": "電車 = densha (train)."
+      },
+      {
+       "id": "sv5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「午後」の よみかたは?",
+       "options": [
+        "ごこう",
+        "こご",
+        "ごご",
+        "ごぜん"
+       ],
+       "answer": 2,
+       "explain_bn": "午後 = ごご = দুপুরের পর।",
+       "explain_en": "午後 = gogo (p.m.)."
+      },
+      {
+       "id": "sv6",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "あついので、（みず）を のみます。 （みず）は どれですか。",
+       "options": [
+        "木",
+        "火",
+        "金",
+        "水"
+       ],
+       "answer": 3,
+       "explain_bn": "水 = পানি।",
+       "explain_en": "水 = water."
+      },
+      {
+       "id": "sv7",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "でんきを （けして） ください。 （けして）は どれですか。",
+       "options": [
+        "消して",
+        "決して",
+        "化して",
+        "着して"
+       ],
+       "answer": 0,
+       "explain_bn": "消す = বন্ধ করা/নেভানো।",
+       "explain_en": "消す = turn off."
+      },
+      {
+       "id": "sv8",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「さむい」の はんたいは?",
+       "options": [
+        "おもい",
+        "あつい",
+        "つめたい",
+        "ひろい"
+       ],
+       "answer": 1,
+       "explain_bn": "ঠান্ডা ↔ গরম।",
+       "explain_en": "cold ↔ hot"
+      },
+      {
+       "id": "sv9",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "けがを したので、___へ いきます。",
+       "options": [
+        "ゆうびんきょく",
+        "としょかん",
+        "びょういん",
+        "ぎんこう"
+       ],
+       "answer": 2,
+       "explain_bn": "আঘাত পেলে হাসপাতাল (びょういん)।",
+       "explain_en": "hospital"
+      },
+      {
+       "id": "sv10",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "しごとが おわって、うちへ ___。",
+       "options": [
+        "はたらきます",
+        "うまれます",
+        "かえります",
+        "でかけます"
+       ],
+       "answer": 2,
+       "explain_bn": "かえります = ফিরি।",
+       "explain_en": "go home"
+      },
+      {
+       "id": "sv11",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "この にもつは とても ___ので、ふたりで はこびましょう。",
+       "options": [
+        "かるい",
+        "やすい",
+        "ちいさい",
+        "おもい"
+       ],
+       "answer": 3,
+       "explain_bn": "おもい = ভারী।",
+       "explain_en": "heavy"
+      },
+      {
+       "id": "sv12",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「立入禁止」の いみは?",
+       "options": [
+        "入っては いけない",
+        "入っても いい",
+        "立って 待つ",
+        "すわって 待つ"
+       ],
+       "answer": 0,
+       "explain_bn": "立入禁止 = প্রবেশ নিষেধ।",
+       "explain_en": "No entry."
+      }
+     ]
+    },
+    {
+     "id": "conversation",
+     "skill": "grammar",
+     "title_en": "Conversation and Expression (会話と表現)",
+     "title_bn": "কথোপকথন ও প্রকাশ (会話と表現)",
+     "questions": [
+      {
+       "id": "ce1",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "せんぱいに はじめて あった とき、なんと いいますか。",
+       "options": [
+        "おやすみなさい。",
+        "はじめまして。よろしく おねがいします。",
+        "おつかれさまでした。",
+        "いただきます。"
+       ],
+       "answer": 1,
+       "explain_bn": "প্রথম দেখায় はじめまして।",
+       "explain_en": "First meeting."
+      },
+      {
+       "id": "ce2",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "しごとが おわって、さきに かえる とき、なんと いいますか。",
+       "options": [
+        "いただきます。",
+        "はじめまして。",
+        "おさきに しつれいします。",
+        "いってきます。"
+       ],
+       "answer": 2,
+       "explain_bn": "আগে বের হওয়ার সময় おさきに しつれいします।",
+       "explain_en": "Leaving before others."
+      },
+      {
+       "id": "ce3",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "せつめいが はやくて わからない とき、なんと いいますか。",
+       "options": [
+        "はい、だいじょうぶです。",
+        "どういたしまして。",
+        "いってらっしゃい。",
+        "すみません、もう すこし ゆっくり はなして ください。"
+       ],
+       "answer": 3,
+       "explain_bn": "বুঝতে না পারলে আস্তে বলতে বলুন।",
+       "explain_en": "Ask them to slow down."
+      },
+      {
+       "id": "ce4",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "ここで たばこを すって___ いけません。",
+       "options": [
+        "は",
+        "も",
+        "が",
+        "を"
+       ],
+       "answer": 0,
+       "explain_bn": "〜ては いけません = করা নিষেধ।",
+       "explain_en": "〜てはいけません = must not."
+      },
+      {
+       "id": "ce5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "あした やすんでも ___ですか。",
+       "options": [
+        "だめ",
+        "いい",
+        "いけない",
+        "ならない"
+       ],
+       "answer": 1,
+       "explain_bn": "〜ても いいですか = অনুমতি চাওয়া।",
+       "explain_en": "Asking permission."
+      },
+      {
+       "id": "ce6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "まいにち にほんごを べんきょう___ います。",
+       "options": [
+        "する",
+        "しよう",
+        "して",
+        "した"
+       ],
+       "answer": 2,
+       "explain_bn": "〜て います = নিয়মিত/চলমান কাজ।",
+       "explain_en": "〜ています = ongoing/habit."
+      },
+      {
+       "id": "ce7",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "A「この はこ、どこに おきますか。」 B「あそこの たな___ おいて ください。」",
+       "options": [
+        "で",
+        "を",
+        "が",
+        "に"
+       ],
+       "answer": 3,
+       "explain_bn": "রাখার জায়গা = に।",
+       "explain_en": "に marks where you put something."
+      },
+      {
+       "id": "ce8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "ねつが あるので、マネージャーに いいます。「きょうは ___。」",
+       "options": [
+        "やすませて いただけませんか。",
+        "やすんで ください。",
+        "やすみましょう。",
+        "やすんで あげます。"
+       ],
+       "answer": 0,
+       "explain_bn": "বসের কাছে বিনয়ী অনুরোধ: 〜させて いただけませんか।",
+       "explain_en": "Polite request to a manager."
+      },
+      {
+       "id": "ce9",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "「すみません、でんしゃが おくれて いるので、10ぷんぐらい おくれ___ です。」",
+       "options": [
+        "たい",
+        "そう",
+        "よう",
+        "らしい"
+       ],
+       "answer": 1,
+       "explain_bn": "ক্রিয়ার মূল + そうです = মনে হচ্ছে … হবে।",
+       "explain_en": "Stem + そうです = looks like."
+      },
+      {
+       "id": "ce10",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "A「にもつ、もちましょうか。」 B「___」",
+       "options": [
+        "いただきます。",
+        "ありがとうございます。おねがいします。",
+        "いいえ、もちましょう。",
+        "どういたしまして。"
+       ],
+       "answer": 1,
+       "explain_bn": "সাহায্যের প্রস্তাবে ধন্যবাদ দিয়ে গ্রহণ।",
+       "explain_en": "Accepting help politely."
+      },
+      {
+       "id": "ce11",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "きのうは あめ___ ふって いました。",
+       "options": [
+        "で",
+        "に",
+        "が",
+        "を"
+       ],
+       "answer": 2,
+       "explain_bn": "あめが ふる = বৃষ্টি হয়।",
+       "explain_en": "あめがふる."
+      },
+      {
+       "id": "ce12",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "この しょるいを あした まで___ だして ください。",
+       "options": [
+        "で",
+        "を",
+        "から",
+        "に"
+       ],
+       "answer": 3,
+       "explain_bn": "までに = …এর মধ্যে (শেষ সময়)।",
+       "explain_en": "までに = by (deadline)."
+      }
+     ]
+    },
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading Comprehension (読解)",
+     "title_bn": "পড়া (読解)",
+     "questions": [
+      {
+       "id": "rd1",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "けいじ: 「ゴミは 月・水・金の 朝8時までに 出して ください。」 いつ ゴミを 出しますか。",
+       "options": [
+        "火曜日の 夜",
+        "日曜日の 朝",
+        "毎日 いつでも",
+        "月曜日の 朝"
+       ],
+       "answer": 3,
+       "explain_bn": "月・水・金 = সোম, বুধ, শুক্র।",
+       "explain_en": "Mon/Wed/Fri morning."
+      },
+      {
+       "id": "rd2",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "おなじ けいじ: ゴミを 出す じかんは?",
+       "options": [
+        "朝8時まで",
+        "夜8時から",
+        "午後 ずっと",
+        "きまって いない"
+       ],
+       "answer": 0,
+       "explain_bn": "朝8時までに = সকাল ৮টার মধ্যে।",
+       "explain_en": "By 8 a.m."
+      },
+      {
+       "id": "rd3",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "メッセージ: 「カリムさん、あしたの シフトは ごご2じからです。おくれないで ください。たなか」 カリムさんは あした なんじから はたらきますか。",
+       "options": [
+        "午前8時",
+        "午後2時",
+        "午前2時",
+        "午後12時"
+       ],
+       "answer": 1,
+       "explain_bn": "ごご2じ = দুপুর ২টা।",
+       "explain_en": "2 p.m."
+      },
+      {
+       "id": "rd4",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "りょうの おしらせ: 「おふろは よる11じまでです。せんたくきは よる10じまでに つかって ください。」 ただしい ものは?",
+       "options": [
+        "せんたくきは あさだけ つかえる。",
+        "おふろは つかえない。",
+        "せんたくきは よる10じまで つかえる。",
+        "おふろは よる12じまで つかえる。"
+       ],
+       "answer": 2,
+       "explain_bn": "せんたくき (ওয়াশিং মেশিন) রাত ১০টা পর্যন্ত।",
+       "explain_en": "Washer until 10 p.m."
+      },
+      {
+       "id": "rd5",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "みせの あんない: 「えいぎょうじかん 9:00〜21:00 まいしゅう かようび やすみ」 かようびは?",
+       "options": [
+        "9じから あく",
+        "21じまで あいて いる",
+        "はんにちだけ",
+        "やすみ"
+       ],
+       "answer": 3,
+       "explain_bn": "かようび やすみ = মঙ্গলবার বন্ধ।",
+       "explain_en": "Closed on Tuesdays."
+      },
+      {
+       "id": "rd6",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "びょういん: 「うけつけは ごぜん8じはんから 11じはんまで、ごごは 2じから 5じまで。どようびは ごぜんだけです。」 どようびの ごご3じに いけますか。",
+       "options": [
+        "いけない",
+        "いける",
+        "2じからなら いける",
+        "よやくすれば いける"
+       ],
+       "answer": 0,
+       "explain_bn": "শনিবার শুধু সকালে খোলা।",
+       "explain_en": "Saturday is morning only."
+      },
+      {
+       "id": "rd7",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "しょくばの けいじ: 「きかいを そうじする ときは、かならず でんげんを きってから して ください。」 そうじの まえに なにを しますか。",
+       "options": [
+        "きかいを うごかす",
+        "でんげんを きる",
+        "てを あらう",
+        "じょうしに でんわする"
+       ],
+       "answer": 1,
+       "explain_bn": "でんげんを きる = সুইচ বন্ধ করা।",
+       "explain_en": "Turn off the power first."
+      },
+      {
+       "id": "rd8",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "メモ: 「あしたの ちょうれいは 8じ10ぷんからです。しょくどうに あつまって ください。」 どこに あつまりますか。",
+       "options": [
+        "りょう",
+        "ちゅうしゃじょう",
+        "しょくどう",
+        "じむしょ"
+       ],
+       "answer": 2,
+       "explain_bn": "しょくどう = ক্যান্টিন।",
+       "explain_en": "Canteen."
+      },
+      {
+       "id": "rd9",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "メール: 「らいげつの きゅうりょうは 25にちに ぎんこうに ふりこみます。」 きゅうりょうは どう もらいますか。",
+       "options": [
+        "げんきんで もらう",
+        "らいしゅう もらう",
+        "りょうで もらう",
+        "ぎんこうに ふりこまれる"
+       ],
+       "answer": 3,
+       "explain_bn": "ふりこみ = ব্যাংকে জমা।",
+       "explain_en": "Bank transfer."
+      },
+      {
+       "id": "rd10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "けいじ: 「ひじょうぐちの まえに にもつを おかないで ください。」 いみは?",
+       "options": [
+        "ひじょうぐちの まえに にもつを おく",
+        "ひじょうぐちは つかえない",
+        "にもつは ひじょうぐちから だす",
+        "ひじょうぐちの まえに ものを おいては いけない"
+       ],
+       "answer": 3,
+       "explain_bn": "জরুরি দরজার সামনে মাল রাখা নিষেধ।",
+       "explain_en": "Keep the emergency exit clear."
+      },
+      {
+       "id": "rd11",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "ぶん: 「わたしは にほんの しょくひん こうじょうで はたらいて います。こうじょうの なかは さむいので、あつい ふくを きます。」 なぜ あつい ふくを きますか。",
+       "options": [
+        "こうじょうの なかが さむいから",
+        "そとが あついから",
+        "せいふくが ないから",
+        "あめが ふるから"
+       ],
+       "answer": 0,
+       "explain_bn": "কারখানার ভেতর ঠান্ডা।",
+       "explain_en": "The factory is cold inside."
+      },
+      {
+       "id": "rd12",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "バス: 「こうじょうまえ → えき 7:15 7:45 8:15」「えきまで 20ぷん かかります」 8じまでに えきに つきたいです。どの バスに のりますか。",
+       "options": [
+        "8:00",
+        "7:15",
+        "7:45",
+        "8:15"
+       ],
+       "answer": 1,
+       "explain_bn": "৭:১৫ + ২০ মিনিট = ৭:৩৫; ৭:৪৫-এরটা ৮:০৫-এ পৌঁছায়।",
+       "explain_en": "7:15 arrives 7:35; 7:45 arrives 8:05."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "kana"
+    },
+    {
+     "min_pct": 40,
+     "level": "N5"
+    },
+    {
+     "min_pct": 75,
+     "level": "N4"
+    }
+   ]
+  },
+  {
+   "id": "jlpt_n5_style_1",
+   "title_en": "JLPT N5 style practice",
+   "title_bn": "JLPT N৫ ধাঁচের অনুশীলন",
+   "format_en": "JLPT N5 style: Vocabulary (20 min) and Grammar + Reading (40 min) in the real test, plus Listening (30 min); pass 80/180 with section minimums. This set: 20 questions, 30 minutes. Original Assisto practice.",
+   "format_bn": "JLPT N৫ ধাঁচ: আসল পরীক্ষায় শব্দ (২০ মিনিট), ব্যাকরণ + পড়া (৪০ মিনিট), শোনা (৩০ মিনিট); পাস ৮০/১৮০ ও প্রতিটি অংশে ন্যূনতম। এই সেট: ২০ প্রশ্ন, ৩০ মিনিট। Assisto-র নিজের অনুশীলন।",
+   "minutes": 30,
+   "sections": [
+    {
+     "id": "vocab",
+     "skill": "vocab",
+     "title_en": "Vocabulary (文字・語彙)",
+     "title_bn": "শব্দ (文字・語彙)",
+     "questions": [
+      {
+       "id": "n5v1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「山」の よみかたは?",
+       "options": [
+        "はやし",
+        "やまい",
+        "やま",
+        "かわ"
+       ],
+       "answer": 2,
+       "explain_bn": "山 = やま = পাহাড়।",
+       "explain_en": "山 = yama."
+      },
+      {
+       "id": "n5v2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「先生」の よみかたは?",
+       "options": [
+        "せんせ",
+        "さきせい",
+        "がくせい",
+        "せんせい"
+       ],
+       "answer": 3,
+       "explain_bn": "先生 = শিক্ষক।",
+       "explain_en": "先生 = sensei."
+      },
+      {
+       "id": "n5v3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「金曜日」の よみかたは?",
+       "options": [
+        "きんようび",
+        "どようび",
+        "かようび",
+        "きんようひ"
+       ],
+       "answer": 0,
+       "explain_bn": "金曜日 = শুক্রবার।",
+       "explain_en": "Friday."
+      },
+      {
+       "id": "n5v4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「百」の よみかたは?",
+       "options": [
+        "びゃく",
+        "ひゃく",
+        "せん",
+        "まん"
+       ],
+       "answer": 1,
+       "explain_bn": "百 = ১০০।",
+       "explain_en": "100."
+      },
+      {
+       "id": "n5v5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "あさごはんを ___。",
+       "options": [
+        "ききます",
+        "よみます",
+        "たべます",
+        "のみます"
+       ],
+       "answer": 2,
+       "explain_bn": "খাবার = たべます।",
+       "explain_en": "eat"
+      },
+      {
+       "id": "n5v6",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「おおきい」の はんたいは?",
+       "options": [
+        "ながい",
+        "たかい",
+        "おもい",
+        "ちいさい"
+       ],
+       "answer": 3,
+       "explain_bn": "বড় ↔ ছোট।",
+       "explain_en": "big ↔ small"
+      },
+      {
+       "id": "n5v7",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「ノート」は なにに つかいますか。",
+       "options": [
+        "じを かく",
+        "みずを のむ",
+        "はしる",
+        "ねる"
+       ],
+       "answer": 0,
+       "explain_bn": "ノート = খাতা।",
+       "explain_en": "notebook → write."
+      },
+      {
+       "id": "n5v8",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「なつ」は どれですか。",
+       "options": [
+        "秋",
+        "夏",
+        "冬",
+        "春"
+       ],
+       "answer": 1,
+       "explain_bn": "夏 = গ্রীষ্ম।",
+       "explain_en": "summer"
+      },
+      {
+       "id": "n5v9",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "きょうは さむい___、コートを きます。",
+       "options": [
+        "が",
+        "と",
+        "から",
+        "けど"
+       ],
+       "answer": 2,
+       "explain_bn": "から = কারণ।",
+       "explain_en": "から = because."
+      },
+      {
+       "id": "n5v10",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「でんわ」は どれですか。",
+       "options": [
+        "電車",
+        "会話",
+        "電話",
+        "電気"
+       ],
+       "answer": 2,
+       "explain_bn": "電話 = ফোন।",
+       "explain_en": "telephone"
+      }
+     ]
+    },
+    {
+     "id": "grammar_reading",
+     "skill": "grammar",
+     "title_en": "Grammar and Reading (文法・読解)",
+     "title_bn": "ব্যাকরণ ও পড়া (文法・読解)",
+     "questions": [
+      {
+       "id": "n5g1",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "わたしは まいあさ コーヒー___ のみます。",
+       "options": [
+        "に",
+        "で",
+        "が",
+        "を"
+       ],
+       "answer": 3,
+       "explain_bn": "কর্মের পরে を।",
+       "explain_en": "を marks the object."
+      },
+      {
+       "id": "n5g2",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "つくえの うえに ほん___ あります。",
+       "options": [
+        "が",
+        "を",
+        "で",
+        "へ"
+       ],
+       "answer": 0,
+       "explain_bn": "あります-এর সাথে が।",
+       "explain_en": "が with あります."
+      },
+      {
+       "id": "n5g3",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "きのう ともだちと えいがを ___。",
+       "options": [
+        "みましょう",
+        "みました",
+        "みます",
+        "みません"
+       ],
+       "answer": 1,
+       "explain_bn": "きのう = গতকাল → অতীত।",
+       "explain_en": "Past tense."
+      },
+      {
+       "id": "n5g4",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "にほんへ なに___ きましたか。—ひこうきで きました。",
+       "options": [
+        "を",
+        "が",
+        "で",
+        "に"
+       ],
+       "answer": 2,
+       "explain_bn": "বাহন = で।",
+       "explain_en": "で marks the means."
+      },
+      {
+       "id": "n5g5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "この りんごは ひとつ ___ですか。—100えんです。",
+       "options": [
+        "いくつ",
+        "どこ",
+        "だれ",
+        "いくら"
+       ],
+       "answer": 3,
+       "explain_bn": "দাম = いくら।",
+       "explain_en": "Price = いくら."
+      },
+      {
+       "id": "n5g6",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "「わたしの へやは 2かいです。へやには つくえと ベッドが あります。テレビは ありません。」 へやに ない ものは?",
+       "options": [
+        "つくえ",
+        "ベッド",
+        "テレビ"
+       ],
+       "answer": 2,
+       "explain_bn": "テレビは ありません।",
+       "explain_en": "No TV."
+      },
+      {
+       "id": "n5g7",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "「やまださんは まいにち 6じに おきます。でも、にちようびは 9じに おきます。」 にちようびは なんじに おきますか。",
+       "options": [
+        "おきない",
+        "9じ",
+        "6じ",
+        "7じ"
+       ],
+       "answer": 1,
+       "explain_bn": "でも、にちようびは 9じ।",
+       "explain_en": "9 on Sunday."
+      },
+      {
+       "id": "n5g8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "しゅくだいを して___、テレビを みます。",
+       "options": [
+        "より",
+        "ほど",
+        "から",
+        "まで"
+       ],
+       "answer": 2,
+       "explain_bn": "〜てから = …করার পরে।",
+       "explain_en": "〜てから = after doing."
+      },
+      {
+       "id": "n5g9",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "ここで しゃしんを とらないで ___。",
+       "options": [
+        "なさい",
+        "います",
+        "ありません",
+        "ください"
+       ],
+       "answer": 3,
+       "explain_bn": "〜ないで ください = করবেন না।",
+       "explain_en": "Please don't."
+      },
+      {
+       "id": "n5g10",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "あしたは あめが ___。",
+       "options": [
+        "ふりました",
+        "ふりましょう",
+        "ふって ください",
+        "ふるでしょう"
+       ],
+       "answer": 3,
+       "explain_bn": "ভবিষ্যৎ অনুমান = でしょう।",
+       "explain_en": "Prediction = でしょう."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "kana"
+    },
+    {
+     "min_pct": 50,
+     "level": "N5"
+    }
+   ]
+  },
+  {
+   "id": "jlpt_n4_style_1",
+   "title_en": "JLPT N4 style practice",
+   "title_bn": "JLPT N৪ ধাঁচের অনুশীলন",
+   "format_en": "JLPT N4 style: Vocabulary (25 min) and Grammar + Reading (55 min) in the real test, plus Listening (35 min); pass 90/180 with section minimums. N4 also meets the Specified Skilled Worker language rule. This set: 18 questions, 30 minutes. Original Assisto practice.",
+   "format_bn": "JLPT N৪ ধাঁচ: আসল পরীক্ষায় শব্দ (২৫ মিনিট), ব্যাকরণ + পড়া (৫৫ মিনিট), শোনা (৩৫ মিনিট); পাস ৯০/১৮০ ও প্রতিটি অংশে ন্যূনতম। N৪ দিয়েও SSW-এর ভাষা শর্ত পূরণ হয়। এই সেট: ১৮ প্রশ্ন, ৩০ মিনিট। Assisto-র নিজের অনুশীলন।",
+   "minutes": 30,
+   "sections": [
+    {
+     "id": "vocab",
+     "skill": "vocab",
+     "title_en": "Vocabulary (文字・語彙)",
+     "title_bn": "শব্দ (文字・語彙)",
+     "questions": [
+      {
+       "id": "n4v1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「運動」の よみかたは?",
+       "options": [
+        "うんど",
+        "うんどう",
+        "うんとう",
+        "うどう"
+       ],
+       "answer": 1,
+       "explain_bn": "運動 = ব্যায়াম।",
+       "explain_en": "exercise"
+      },
+      {
+       "id": "n4v2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「会議」の よみかたは?",
+       "options": [
+        "かいぎい",
+        "あいぎ",
+        "かいぎ",
+        "かいき"
+       ],
+       "answer": 2,
+       "explain_bn": "会議 = মিটিং।",
+       "explain_en": "meeting"
+      },
+      {
+       "id": "n4v3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「急ぐ」の よみかたは?",
+       "options": [
+        "きゅうぐ",
+        "およぐ",
+        "ぬぐ",
+        "いそぐ"
+       ],
+       "answer": 3,
+       "explain_bn": "急ぐ = তাড়া করা।",
+       "explain_en": "hurry"
+      },
+      {
+       "id": "n4v4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「便利」の よみかたは?",
+       "options": [
+        "べんり",
+        "びんり",
+        "べんりい",
+        "へんり"
+       ],
+       "answer": 0,
+       "explain_bn": "便利 = সুবিধাজনক।",
+       "explain_en": "convenient"
+      },
+      {
+       "id": "n4v5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "しけんに ___ ために、まいにち べんきょうして います。",
+       "options": [
+        "しゅっせきする",
+        "ごうかくする",
+        "しっぱいする",
+        "ちゅういする"
+       ],
+       "answer": 1,
+       "explain_bn": "合格 = পাস করা।",
+       "explain_en": "pass (an exam)"
+      },
+      {
+       "id": "n4v6",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「きかいが こしょう しました。」 いみは?",
+       "options": [
+        "よく うごく",
+        "きれいに なった",
+        "こわれて うごかない",
+        "あたらしく なった"
+       ],
+       "answer": 2,
+       "explain_bn": "故障 = নষ্ট হওয়া।",
+       "explain_en": "broke down"
+      },
+      {
+       "id": "n4v7",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「ていねいに」に ちかい いみは?",
+       "options": [
+        "いそいで",
+        "らんぼうに",
+        "おおきく",
+        "きれいに きを つけて"
+       ],
+       "answer": 3,
+       "explain_bn": "ていねいに = যত্ন করে।",
+       "explain_en": "carefully"
+      },
+      {
+       "id": "n4v8",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「じゅんび」の つかいかたが ただしい ものは?",
+       "options": [
+        "あしたの しごとの じゅんびを します。",
+        "じゅんびが おいしいです。",
+        "ともだちに じゅんびを のみます。",
+        "じゅんびで えきへ いきます。"
+       ],
+       "answer": 0,
+       "explain_bn": "準備 = প্রস্তুতি।",
+       "explain_en": "preparation"
+      }
+     ]
+    },
+    {
+     "id": "grammar_reading",
+     "skill": "grammar",
+     "title_en": "Grammar and Reading (文法・読解)",
+     "title_bn": "ব্যাকরণ ও পড়া (文法・読解)",
+     "questions": [
+      {
+       "id": "n4g1",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "にほんごが はなせる___ なりました。",
+       "options": [
+        "そうに",
+        "ことに",
+        "ように",
+        "ために"
+       ],
+       "answer": 2,
+       "explain_bn": "〜ように なる = পারতে শুরু করা।",
+       "explain_en": "〜ようになる = come to be able."
+      },
+      {
+       "id": "n4g2",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "まどが あいて ___。",
+       "options": [
+        "あります",
+        "おきます",
+        "みます",
+        "います"
+       ],
+       "answer": 3,
+       "explain_bn": "অকর্মক ক্রিয়া + ています = অবস্থা।",
+       "explain_en": "Intransitive + ています = state."
+      },
+      {
+       "id": "n4g3",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "せんせい___ ほんを いただきました。",
+       "options": [
+        "に",
+        "を",
+        "で",
+        "へ"
+       ],
+       "answer": 0,
+       "explain_bn": "কারো কাছ থেকে পাওয়া = に いただく।",
+       "explain_en": "Receive from = に."
+      },
+      {
+       "id": "n4g4",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "この くすりを のむ___、げんきに なります。",
+       "options": [
+        "けど",
+        "と",
+        "のに",
+        "ので"
+       ],
+       "answer": 1,
+       "explain_bn": "〜と = করলেই (স্বাভাবিক ফল)।",
+       "explain_en": "〜と = whenever/if (natural result)."
+      },
+      {
+       "id": "n4g5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "あめが ふり___ですね。かさを もって いきましょう。",
+       "options": [
+        "らしい",
+        "みたい",
+        "そう",
+        "よう"
+       ],
+       "answer": 2,
+       "explain_bn": "মূল + そう = দেখে মনে হচ্ছে।",
+       "explain_en": "Stem + そう = looks like."
+      },
+      {
+       "id": "n4g6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "ぶちょうは いま かいぎしつに ___。",
+       "options": [
+        "まいります",
+        "おります",
+        "いたします",
+        "いらっしゃいます"
+       ],
+       "answer": 3,
+       "explain_bn": "বসের জন্য সম্মানসূচক いらっしゃる।",
+       "explain_en": "Honorific for the manager."
+      },
+      {
+       "id": "n4g7",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "「らいしゅうの げつようびから、こうじょうの いりぐちが ひがしがわに かわります。にしがわの いりぐちは こうじの ため つかえません。」 らいしゅうから どこから はいりますか。",
+       "options": [
+        "ひがしがわの いりぐち",
+        "にしがわの いりぐち",
+        "どちらでも いい",
+        "うらぐち"
+       ],
+       "answer": 0,
+       "explain_bn": "東側 = পূর্ব দিক।",
+       "explain_en": "East entrance."
+      },
+      {
+       "id": "n4g8",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "「おべんとうは しょくどうで たべて ください。さぎょうばでは のみものだけ だいじょうぶです。」 さぎょうばで しても いい ことは?",
+       "options": [
+        "ねる",
+        "みずを のむ",
+        "べんとうを たべる",
+        "おかしを たべる"
+       ],
+       "answer": 1,
+       "explain_bn": "のみものだけ = শুধু পানীয়।",
+       "explain_en": "Drinks only."
+      },
+      {
+       "id": "n4g9",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "おくれる___、れんらくして ください。",
+       "options": [
+        "ながら",
+        "ばかり",
+        "ときは",
+        "のに"
+       ],
+       "answer": 2,
+       "explain_bn": "〜ときは = …হলে/যখন।",
+       "explain_en": "〜ときは = when."
+      },
+      {
+       "id": "n4g10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "「あしたの めんせつは 10じからです。15ふん まえに うけつけに きて ください。」 なんじに うけつけに いきますか。",
+       "options": [
+        "10じ15ふん",
+        "9じ15ふん",
+        "9じ45ふん",
+        "10じ"
+       ],
+       "answer": 2,
+       "explain_bn": "১০টার ১৫ মিনিট আগে = ৯:৪৫।",
+       "explain_en": "15 minutes before 10."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "N5"
+    },
+    {
+     "min_pct": 55,
+     "level": "N4"
+    },
+    {
+     "min_pct": 90,
+     "level": "N3"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}
