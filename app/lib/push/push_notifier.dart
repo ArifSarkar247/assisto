@@ -21,6 +21,7 @@ import '../reminders/reminder_alarms.dart' show ReminderAlarms;
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../services/own_device_guard.dart'; // grab-guard
 import '../messaging/msg_notify.dart';
+import '../messaging/msg_channel.dart'; // circlebub
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
 import '../security/secret_store.dart';
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
@@ -64,8 +65,10 @@ class PushNotifier {
   static List<AndroidNotificationChannel> channels(String lang) {
     final t = _t(lang);
     return [
-      AndroidNotificationChannel(PushChannels.messages, t.pushChMessages,
-          description: t.pushChMessagesDesc, importance: Importance.high),
+      // circlebub: messages draw on Assisto's own-pop channel (the old
+      // 'messages' id is migrated once by MsgChannel.ensure, then deleted)
+      MsgChannel.channelFor(
+          name: t.pushChMessages, description: t.pushChMessagesDesc),
       AndroidNotificationChannel(PushChannels.calls, t.pushChCalls,
           description: t.pushChCallsDesc,
           importance: Importance.max,
@@ -96,6 +99,13 @@ class PushNotifier {
       final a = _android;
       if (a == null) return;
       for (final c in channels(lang)) {
+        if (c.id == MsgChannel.id) {
+          // circlebub: create + migrate (keeps mute / vibrate), never
+          // recreates the old 'messages' id
+          await MsgChannel.ensure(a,
+              name: c.name, description: c.description ?? '');
+          continue;
+        }
         await a.createNotificationChannel(c);
       }
     } catch (e) {
@@ -160,7 +170,9 @@ class PushNotifier {
     // x1-calls A3: the caller's photo as the large icon (ring + missed)
     final AndroidBitmap<Object>? icon =
         largeIcon == null ? null : ByteArrayAndroidBitmap(largeIcon);
-    final ch = channels(p.lang).firstWhere((c) => c.id == p.channel,
+    // circlebub: the server still names the logical 'messages' channel
+    final want = p.channel == PushChannels.messages ? MsgChannel.id : p.channel;
+    final ch = channels(p.lang).firstWhere((c) => c.id == want,
         orElse: () => channels(p.lang).first);
     if (p.isMissedCall) {
       return NotificationDetails(
@@ -370,6 +382,13 @@ class PushNotifier {
         final t = msgL10n(p.lang);
         title = t.eLockNotifTitle;
         body = t.eLockNotifBody;
+      }
+      if (p.channel == PushChannels.messages) {
+        // circlebub: migrate before the first post (a post would otherwise
+        // auto-create the new channel without the user's old choices)
+        final t = _t(p.lang);
+        await MsgChannel.ensure(_android,
+            name: t.pushChMessages, description: t.pushChMessagesDesc);
       }
       await _plugin.show(p.notificationId, title,
           body.isEmpty ? null : body,

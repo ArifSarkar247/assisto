@@ -1039,6 +1039,11 @@ jobs:
           for d in ic_stat_assisto c3_person_avatar ic_pip_mic ic_pip_mic_off ic_pip_videocam ic_pip_videocam_off ic_pip_call_end; do
             grep -q "drawable/$d\$" /tmp/res_dump.txt || { echo "::error::drawable/$d missing from the release APK (add it to res/raw/assisto_keep.xml)"; exit 1; }
           done
+          # circlebub: the message sounds (channel sound + in-app tick) are raw
+          # resources used BY NAME too
+          for r in assisto_pop assisto_tick; do
+            grep -q "raw/$r\$" /tmp/res_dump.txt || { echo "::error::raw/$r missing from the release APK (add it to res/raw/assisto_keep.xml)"; exit 1; }
+          done
           echo "notification drawables present"
 
       - name: Build x86_64 RELEASE APK (emulator smoke test only — NOT shipped)

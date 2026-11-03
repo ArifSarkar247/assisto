@@ -1,0 +1,9 @@
+{
+  "en": {
+    "cbubSoundAssistoPop": "Assisto pop (default)",
+    "@cbubSoundAssistoPop": {"description": "circlebub: the message-sound setting when the user has not picked a sound — Assisto's own short pop"}
+  },
+  "bn": {
+    "cbubSoundAssistoPop": "Assisto পপ (ডিফল্ট)"
+  }
+}

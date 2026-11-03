@@ -1,6 +1,7 @@
 package com.assisto.assisto.messaging
 
 import android.content.Intent
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -27,6 +28,33 @@ class BubbleActivity : FlutterActivity() {
         try {
             bubbleChannel = C3MessagingChannel.register(this, flutterEngine, inBubble = true)
         } catch (t: Throwable) {
+        }
+    }
+
+    /**
+     * circlebub: Back on the chat's first screen must COLLAPSE the bubble.
+     * Flutter's default (no route left) calls finish(), and Android REMOVES
+     * a bubble whose task finished — the bubble vanished on Back. Instead we
+     * take Android's own "back on task root" path (Activity.onBackPressed of
+     * the platform, which the bubble host turns into a collapse); the chat
+     * stays loaded for the next tap. Fallback: move the task back. Never
+     * throws; false = Flutter's default (finish).
+     */
+    override fun popSystemNavigator(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
+        return try {
+            java.lang.invoke.MethodHandles.lookup().findSpecial(
+                android.app.Activity::class.java, "onBackPressed",
+                java.lang.invoke.MethodType.methodType(Void.TYPE),
+                BubbleActivity::class.java
+            ).invokeWithArguments(this)
+            true
+        } catch (t: Throwable) {
+            try {
+                moveTaskToBack(true)
+            } catch (t2: Throwable) {
+                false
+            }
         }
     }
 

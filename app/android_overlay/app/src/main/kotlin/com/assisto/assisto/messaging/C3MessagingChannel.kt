@@ -100,6 +100,14 @@ object C3MessagingChannel {
                         }
                         result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                     }
+                    // circlebub: open chat → keep its bubble (hide from the
+                    // shade) instead of cancelling (a cancel kills the bubble)
+                    "clearChat" -> result.success(BubbleHelper.clearChat(
+                        activity.applicationContext,
+                        if (call.argument<String>("kind") == "group") "group" else "member",
+                        "${call.argument<Any>("id") ?: ""}"))
+                    // circlebub: the soft in-app tick for the OPEN chat
+                    "playTick" -> result.success(MsgTick.play(activity.applicationContext))
                     "openInApp" -> result.success(
                         BubbleHelper.openInApp(activity, call.argument<String>("chat") ?: ""))
                     "isMetered" -> result.success(isMetered(activity))

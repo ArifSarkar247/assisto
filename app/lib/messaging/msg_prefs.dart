@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../calls/call_sound_prefs.dart';
 import 'bubble_policy.dart';
+import 'msg_channel.dart'; // circlebub
 
 /// c3-msg — device-level message-notification + bubble preferences.
 ///
@@ -74,10 +75,11 @@ class MsgPrefs {
       (await _p())?.getString(kSoundTitle) ?? '';
 
   /// Android notification channels can't change their sound after creation,
-  /// so each sound has its own channel id: 'messages' = phone default (the
-  /// original channel), 'messages_silent', or 'messages_<hash of uri>'.
+  /// so each sound has its own channel id: MsgChannel.id = Assisto's own pop
+  /// (circlebub; replaced the old 'messages' = phone default channel),
+  /// 'messages_silent', or 'messages_<hash of uri>'.
   static String channelIdFor(String? uri) {
-    if (uri == null) return 'messages';
+    if (uri == null) return MsgChannel.id; // circlebub: Assisto pop
     if (uri.isEmpty) return 'messages_silent';
     return CallSoundPrefs.channelIdFor(uri).replaceFirst('calls_', 'messages_');
   }

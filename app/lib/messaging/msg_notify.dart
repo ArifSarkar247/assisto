@@ -1,4 +1,5 @@
 import '../p3/assisto_card.dart' show cardFallback;
+import '../audio/msg_open_tick.dart'; // circlebub
 import 'chat_decor/chat_control.dart'; // cde-chat
 import 'chat_decor/system_line.dart';
 import 'dart:async';
@@ -17,8 +18,10 @@ import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
+import 'bubble_open_mark.dart'; // circlebub
 import 'chat_preview.dart' show mediaPreviewDetail;
 import 'msg_native.dart'; // bubbles
+import 'msg_channel.dart'; // circlebub
 import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
@@ -453,6 +456,12 @@ class FlnMsgSink implements MsgNotifSink {
 
   Future<String> _ensureChannel(AppLocalizations t) async {
     final id = await MsgPrefs.channelId();
+    // circlebub: the default channel (Assisto pop) + one-time migration of
+    // the old 'messages' channel keeping mute / vibrate choices
+    if (id == MsgChannel.id) {
+      return MsgChannel.ensure(_android,
+          name: t.pushChMessages, description: t.pushChMessagesDesc);
+    }
     try {
       // shared key snd_msg_uri: null = phone default, '' = silent
       final uri = await MsgPrefs.soundUri();
@@ -553,6 +562,10 @@ class FlnMsgSink implements MsgNotifSink {
   @override
   Future<void> cancel(String kind, int id) async {
     try {
+      // circlebub (bubble-tap ROOT CAUSE): never cancel a chat that Android
+      // is showing as a bubble — that removed the bubble the moment its chat
+      // opened inside it. Native keeps it, hidden from the shade.
+      if (await MsgNative.clearChat(kind, id)) return;
       await _plugin.cancel(notifIdFor(kind, id), tag: notifTag(kind, id));
       // a legacy (untagged) notification for the same chat
       await _plugin.cancel(notifIdFor(kind, id));
@@ -591,6 +604,9 @@ class MsgPushHandler {
   final Future<bool> Function() hideContent;
   final String Function() clientMsgId;
 
+  /// circlebub: "is this chat open in its expanded bubble?" (tests inject).
+  final Future<bool> Function(String chatKey) bubbleOpen;
+
   MsgPushHandler({
     required this.backend,
     required this.identity,
@@ -598,7 +614,9 @@ class MsgPushHandler {
     E2E? e2e,
     Future<bool> Function()? hideContent,
     String Function()? clientMsgId,
+    Future<bool> Function(String chatKey)? bubbleOpen,
   })  : e2e = e2e ?? SoftwareE2E(),
+        bubbleOpen = bubbleOpen ?? BubbleOpenMark.isOpen, // circlebub
         hideContent = hideContent ?? MsgPrefs.hideContent,
         clientMsgId = clientMsgId ??
             (() => 'nr-${DateTime.now().microsecondsSinceEpoch}');
@@ -623,6 +641,13 @@ class MsgPushHandler {
     if (p.kind != 'message') return false;
     final chat = chatOf(p);
     if (chat == null) return false;
+    // circlebub: this chat is OPEN in its expanded bubble (another engine) →
+    // no redraw (a redraw without bubble data closed the bubble mid-read);
+    // the bubble shows the message, a soft tick says it arrived.
+    if (await bubbleOpen('${chat.kind}:${chat.id}')) {
+      unawaited(MsgOpenTick.play());
+      return true;
+    }
     final t = msgL10n(p.lang);
     try {
       final pull = await backend.pull(chat.kind, chat.id);

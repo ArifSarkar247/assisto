@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/msg_prefs.dart';
+import 'package:assisto/messaging/msg_channel.dart'; // circlebub
 import 'package:assisto/messaging/msg_widgets.dart';
 import 'package:assisto/messaging/presence_label.dart';
 import 'package:assisto/realtime/realtime_channel.dart';
@@ -261,7 +262,7 @@ void main() {
       // ONE message sound, on c2-calls' shared keys (snd_msg_uri/_title)
       expect(MsgPrefs.kSoundUri, 'snd_msg_uri');
       expect(MsgPrefs.kSoundTitle, 'snd_msg_title');
-      expect(await MsgPrefs.channelId(), 'messages'); // absent = phone default
+      expect(await MsgPrefs.channelId(), MsgChannel.id); // circlebub: absent = Assisto pop
       await p.setString('snd_msg_uri', 'content://media/internal/audio/media/7');
       final c1 = await MsgPrefs.channelId();
       expect(c1, startsWith('messages_'));
@@ -273,7 +274,7 @@ void main() {
       expect(await MsgPrefs.channelId(), 'messages_silent'); // '' = silent
       await MsgPrefs.setSound(null, '');
       expect(p.containsKey('snd_msg_uri'), isFalse);
-      expect(await MsgPrefs.channelId(), 'messages');
+      expect(await MsgPrefs.channelId(), MsgChannel.id); // circlebub
     });
   });
 

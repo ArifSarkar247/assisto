@@ -1,3 +1,4 @@
+import '../audio/msg_open_tick.dart'; // circlebub
 import '../messaging/in_call_bubbles.dart' show InCallBubbles; // bubbles2
 import '../messaging/msg_push_done.dart'; // notifs
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
@@ -549,6 +550,7 @@ class PushService {
       if (MsgActiveChat.isOpen(chat.kind, chat.id)) {
         // notifs: no ring for the open chat — and no native fallback either
         unawaited(MsgPushDone.mark(data));
+        if (p.kind == 'message') unawaited(MsgOpenTick.play()); // circlebub
         return;
       }
       final h = MsgPushHandler(

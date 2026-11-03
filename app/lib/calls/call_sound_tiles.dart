@@ -122,9 +122,12 @@ class _SoundPickTileState extends State<SoundPickTile> {
     };
     final String value;
     if (!_set) {
-      value = widget.kind == SoundPickKind.contact
-          ? t.c2SoundSameAsDefault
-          : t.c2SoundPhoneDefault;
+      value = switch (widget.kind) {
+        SoundPickKind.contact => t.c2SoundSameAsDefault,
+        // circlebub: unset message sound = Assisto's own pop now
+        SoundPickKind.message => t.cbubSoundAssistoPop,
+        SoundPickKind.ringtone => t.c2SoundPhoneDefault,
+      };
     } else if ((_uri ?? '').isEmpty) {
       value = t.c2SoundSilent;
     } else {

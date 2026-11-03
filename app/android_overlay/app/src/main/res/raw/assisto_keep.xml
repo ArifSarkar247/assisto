@@ -7,4 +7,4 @@
      Circle message notification failed silently. CI (android.yml) now fails
      the build if any of these is missing from the APK. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/ic_stat_assisto,@drawable/c3_person_avatar,@drawable/ic_pip_mic,@drawable/ic_pip_mic_off,@drawable/ic_pip_videocam,@drawable/ic_pip_videocam_off,@drawable/ic_pip_call_end" />
+    tools:keep="@raw/assisto_pop,@raw/assisto_tick,@drawable/ic_stat_assisto,@drawable/c3_person_avatar,@drawable/ic_pip_mic,@drawable/ic_pip_mic_off,@drawable/ic_pip_videocam,@drawable/ic_pip_videocam_off,@drawable/ic_pip_call_end" />
