@@ -74,7 +74,11 @@ void main() {
     guardiansLoaderOverride = (p) async => p.endsWith('mine') ? _mine() : _kids();
     guardian2ApiOverride = (method, path, body) async {
       calls.add('$method $path ${body ?? ''}');
-      if (path == '/guardians/links') return _links();
+      if (path == '/guardians/links') {
+        // after an approve / reject / remove the server's list has changed
+        final acted = calls.any((c) => c.startsWith('POST /guardians/links/'));
+        return acted ? {..._links(), 'to_approve': [], 'co_guardians': []} : _links();
+      }
       if (path == '/guardians/invites') {
         return {'id': 9, 'code': 'ABCDEFGH', 'link': 'https://lifeassisto.com/g/ABCDEFGH',
           'child_name': 'Rina', 'max': 2};

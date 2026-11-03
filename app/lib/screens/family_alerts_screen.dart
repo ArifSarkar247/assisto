@@ -405,7 +405,10 @@ class _AlertCard extends StatelessWidget {
                     ),
             if (hasLoc)
               OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                // guardian2/a11y: on the red SOS card the map button uses the
+                // card's own text colour (primary on errorContainer = 4.48:1)
+                style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(48, 48), foregroundColor: isSos ? fg : null),
                 onPressed: () => openForUser(
                     context,
                     Uri.parse('https://maps.google.com/?q=$lat,$lng'),

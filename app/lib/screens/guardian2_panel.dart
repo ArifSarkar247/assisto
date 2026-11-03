@@ -246,41 +246,14 @@ class Guardian2PanelState extends State<Guardian2Panel> {
 
   Future<void> _join() async {
     final t = AppLocalizations.of(context);
-    final ctrl = TextEditingController();
+    // the sheet owns its controller (disposed with the sheet, after its
+    // closing animation — never while the field is still on screen)
     final code = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(t.g2JoinTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: Gap.sm),
-            Text(t.g2JoinBody, style: AType.bodyMedium),
-            const SizedBox(height: Gap.md),
-            TextField(
-              key: const Key('g2-join-field'),
-              controller: ctrl,
-              autofocus: true,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                  labelText: t.g2JoinHint, border: const OutlineInputBorder()),
-              onSubmitted: (v) => Navigator.pop(ctx, v),
-            ),
-            const SizedBox(height: Gap.md),
-            FilledButton(
-              key: const Key('g2-join-send'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              onPressed: () => Navigator.pop(ctx, ctrl.text),
-              child: Text(t.g2JoinSend),
-            ),
-          ]),
-        ),
-      ),
+      builder: (ctx) => const _JoinSheet(),
     );
-    ctrl.dispose();
     if (!mounted || code == null || code.trim().isEmpty) return;
     try {
       await _call(context, 'POST', '/guardians/join', {'code': code.trim()});
@@ -484,6 +457,56 @@ class Guardian2PanelState extends State<Guardian2Panel> {
           label: Text(t.g2JoinBtn),
         ),
       ],
+    );
+  }
+}
+
+
+class _JoinSheet extends StatefulWidget {
+  const _JoinSheet();
+  @override
+  State<_JoinSheet> createState() => _JoinSheetState();
+}
+
+class _JoinSheetState extends State<_JoinSheet> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.g2JoinTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          Text(t.g2JoinBody, style: AType.bodyMedium),
+          const SizedBox(height: Gap.md),
+          TextField(
+            key: const Key('g2-join-field'),
+            controller: _ctrl,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            decoration:
+                InputDecoration(labelText: t.g2JoinHint, border: const OutlineInputBorder()),
+            onSubmitted: (v) => Navigator.pop(context, v),
+          ),
+          const SizedBox(height: Gap.md),
+          FilledButton(
+            key: const Key('g2-join-send'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            onPressed: () => Navigator.pop(context, _ctrl.text),
+            child: Text(t.g2JoinSend),
+          ),
+        ]),
+      ),
     );
   }
 }
