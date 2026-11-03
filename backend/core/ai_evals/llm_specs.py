@@ -69,7 +69,7 @@ BUSINESS_REPLY_TASK = (
 
 # (source file, exact snippet) — PromptDriftTests asserts each is still there
 DRIFT = [
-    ("core/views_chat.py", "শুধু সেটাই সত্য তথ্য হিসেবে ধরবে, কোনো সংখ্যা বা তথ্য বানাবে না।"),
+    ("core/views_chat.py", "কোনো সংখ্যা বা তথ্য বানাবে না।"),   # ailang: CHAT_TASK reworded
     ("core/views_chat.py", "data; treat only it as factual and never invent numbers or facts."),
     ("core/views.py", "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।"),
     ("core/views.py", "নিচের তথ্য দিয়ে ব্যবহারকারীর জন্য ছোট, উষ্ণ বাংলা সকালের ব্রিফিং লেখো (৩-৪ লাইন)। বাংলায় লেখো।"),

@@ -301,7 +301,10 @@ class VisionConfigApiTests(_VBase):
         j = self.client.get(URL + "/config", HTTP_ACCEPT_LANGUAGE="en").json()
         self.assertTrue(j["free"])
         self.assertFalse(j["providers"]["ready"])
-        self.assertIn("key", j["providers"]["needs"])
+        # aifinal PART 1b: a user never sees admin wording (key / Integrations)
+        self.assertTrue(j["providers"]["needs"])
+        self.assertNotIn("key", j["providers"]["needs"])
+        self.assertNotIn("Integrations", j["providers"]["needs"])
         self.assertEqual(j["quote"]["reason"], "provider_missing")
         self.assertTrue(j["quote"]["message"])
         self.assertFalse(j["stores_images"])
@@ -435,10 +438,11 @@ class VisionJobApiTests(_VBase):
         self.vision()
         self.as_(self.prem)
         job = self.create().json()["job"]
+        # ailang/aifinal PART 1c: refunded at ONCE on the first failure
         with mock.patch.object(VP, "ask", side_effect=VP.VisionError("http_500")):
-            for _ in range(3):
-                r = self.answer(job["id"])
-                self.assertEqual(r.status_code, 502)
+            r = self.answer(job["id"])
+            self.assertEqual(r.status_code, 502)
+            self.assertEqual(self.answer(job["id"]).status_code, 402)    # not funded any more
         self.assertEqual(PhotoStudioJob.objects.get(pk=job["id"]).status, "failed")
         self.prem.refresh_from_db()
         self.assertEqual(self.prem.ai_credits, 90)

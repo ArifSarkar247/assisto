@@ -267,7 +267,8 @@ class HonestDegradeTests(AiBase):
         self.fake.fail = ai.ProviderError("server")
         s = self.session()
         before = self.balance()
-        r = self.send(s, "what is the capital of France?")
+        # ailang: the reply follows the language of the message (Bangla here)
+        r = self.send(s, "ফ্রান্সের রাজধানী কোথায়?")
         m = r.json()["message"]
         self.assertEqual(m["meta"]["ai_unavailable"], "queued")
         self.assertIn("ক্রেডিট কাটা হয়নি", m["text"])

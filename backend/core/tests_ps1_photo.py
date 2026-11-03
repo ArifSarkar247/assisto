@@ -344,7 +344,8 @@ class ConfigApiTests(_Base):
         self.assertEqual(j["features"]["enhance_hd"]["options"][0]["ads"], 2)
         # no provider connected -> honest "needs key" state, no fake option
         self.assertFalse(j["providers"]["ready"])
-        self.assertIn("key", j["providers"]["needs"])
+        self.assertTrue(j["providers"]["needs"])            # aifinal 1b: friendly line,
+        self.assertNotIn("Integrations", j["providers"]["needs"])   # no admin wording
         self.assertEqual(j["features"]["prompt_edit"]["reason"], "provider_missing")
         self.assertEqual(j["trials_left_today"], 1)
 
@@ -581,10 +582,10 @@ class CloudJobTests(_Base):
         jid = r.json()["job"]["id"]
         self.prem.refresh_from_db()
         self.assertEqual(self.prem.ai_credits, 90 - 9)          # pool debited first
+        # aifinal PART 1c: a credit-funded job is refunded at ONCE
         with mock.patch("core.photo_providers.run", side_effect=ProviderError("http_500")):
-            for i in range(3):
-                r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, {}, format="json")
-                self.assertEqual(r.status_code, 502)
+            r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, {}, format="json")
+            self.assertEqual(r.status_code, 502)
         self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "failed")
         self.prem.refresh_from_db()
         self.assertEqual(self.prem.ai_credits, 90)              # refunded
