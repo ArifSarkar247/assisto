@@ -180,6 +180,10 @@ REGISTRY = (
     ('offers', 'business', 'Offers & brands', 'অফার ও ব্র্যান্ড', True, ('offers',)),
     ('referral', 'business', 'Referral points', 'রেফারেল পয়েন্ট', True, ('referral',)),
     ('retention_auto', 'business', 'Retention automation (thank-you, we-miss-you, due, back-in-stock, birthday)', 'রিটেনশন অটোমেশন (ধন্যবাদ, ফিরে আসুন, বাকি, স্টকে এসেছে, জন্মদিন)', False, ('retention_auto', 'retention_inbox')),
+    # mktengine (owner P3-D, 3 Nov): Marketing Engine v1 — questionnaire ->
+    # approvable marketing system from REAL catalog / sales / CRM numbers;
+    # follow-ups go out through retention automation. OFF until proven.
+    ('marketing_engine', 'business', 'Marketing engine (plan, content, campaigns, follow-ups)', 'মার্কেটিং ইঞ্জিন (পরিকল্পনা, কনটেন্ট, ক্যাম্পেইন, ফলো-আপ)', False, ('marketing_engine',)),
     # plans-v2 (owner 27 Oct): the Free / Premium / Business matrix, CRM
     # limits and the 7-day Business trial (core.entitlements_service). A
     # POLICY switch: OFF = every gate behaves exactly as before. Owns no route.

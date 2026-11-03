@@ -45,6 +45,7 @@ const _launchPrefixes = <String>[
   'acct_', // accounting + account modes (acct_mode_*)
   'inv_', // invoices
   'rt_', // CRM automation (retention1)
+  'mkt_', // marketing engine (mktengine)
   'chx_', // channels + communities
   'cact_', // cctvactivity: CCTV activity brain (3 Nov)
   'callpip_', // call PiP / mini tile / call bar

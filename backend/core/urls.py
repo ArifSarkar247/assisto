@@ -1634,3 +1634,15 @@ urlpatterns += [
     path("market/block", mkv.BlockView.as_view()),
 ]
 # ---- /amarket ----
+# ---- mktengine ---- Marketing Engine v1 (owner P3-D, flag marketing_engine)
+from . import views_mktengine as mktv  # noqa: E402
+urlpatterns += [
+    path("mkt", mktv.OverviewView.as_view()),
+    path("mkt/profile", mktv.ProfileView.as_view()),
+    path("mkt/generate", mktv.GenerateView.as_view()),
+    path("mkt/items/<str:item_id>", mktv.ItemView.as_view()),
+    path("mkt/items/<str:item_id>/polish", mktv.PolishView.as_view()),
+    path("mkt/items/<str:item_id>/activate", mktv.ActivateView.as_view()),
+    path("mkt/items/<str:item_id>/publish", mktv.PublishView.as_view()),
+]
+# ---- /mktengine ----

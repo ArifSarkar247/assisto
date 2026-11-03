@@ -92,6 +92,7 @@ ROUTE_KEYS = (
     "remittance",  # budget-remittance (flag budget_remittance)
     "probashi_plan",  # probashi-plan (flag probashi_plan)
     "retention_auto", "retention_inbox",  # retention1: Retention automation
+    "marketing_engine",  # mktengine: Marketing Engine v1
     "khata", "sales_agent", "prepaid_meter", "contract",  # home_v2 shortcut routes
     "agent_core", "agent_approvals",  # agent-core WP-APP (flag agent_core)
 )

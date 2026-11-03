@@ -94,6 +94,7 @@ import '../screens/booking/booking_biz_screen.dart'; // booking-bot
 import '../screens/booking/my_bookings_screen.dart'; // booking-bot
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
+import '../screens/mktengine/mkt_engine_screen.dart'; // mktengine
 import '../screens/used_phone_check_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_hub_screen.dart'; // p4-world
@@ -841,6 +842,14 @@ class SidebarSections {
               'review', 'birthday wish', 'back in stock', 'due reminder', 'follow up',
               'reorder', 'refill reminder', 'delivery feedback', 'rating', 'quote follow up',
               'customer score', 'lead score', 'activity log']),
+      // mktengine: Marketing Engine v1 (flag marketing_engine, shop owner)
+      SidebarItem(Icons.campaign_rounded, (t) => t.mktTitle,
+          area: AcctArea.business,
+          feature: 'marketing_engine',
+          (_) => const MktEngineScreen(),
+          synonyms: ['marketing', 'marketing engine', 'marketing plan', 'content calendar',
+              'facebook post', 'post ideas', 'reels ideas', 'caption', 'campaign', 'festival post',
+              'eid offer', 'boishakh offer', 'ad budget', 'follow up sequence']),
       SidebarItem(Icons.mark_chat_unread_outlined, (t) => t.rtInboxTitle,
           feature: 'retention_auto',
           (_) => const RetentionInboxScreen(),
