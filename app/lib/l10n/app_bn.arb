@@ -23388,5 +23388,10 @@
   "aiContinue": "চালিয়ে যাও",
   "aiMoreDetail": "আরও বিস্তারিত",
   "aiCopy": "কপি",
-  "aiCopied": "কপি হয়েছে"
+  "aiCopied": "কপি হয়েছে",
+  "aiConfirmFailed": "এই মুহূর্তে সেভ করা গেল না — আবার চেষ্টা করুন।",
+  "aiEntriesTitle": "AI যা সেভ করেছে",
+  "aiEntriesNone": "গত ১৪ দিনে AI কিছু সেভ করেনি।",
+  "aiEntriesDeleteAll": "এগুলো সব মুছে দিন",
+  "aiEntriesDeleted": "{n}টি এন্ট্রি মুছে দেওয়া হয়েছে।"
 }
