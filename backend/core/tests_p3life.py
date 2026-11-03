@@ -190,7 +190,11 @@ class P3LifeCsrfTests(APITestCase):
         c = Client(enforce_csrf_checks=True)
         page = c.get(path)
         self.assertEqual(page["Referrer-Policy"], "same-origin")
-        tok = page.cookies["csrftoken"].value
+        import re
+        m = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
+                      page.content.decode())
+        self.assertIsNotNone(m)
+        tok = m.group(1)
         r = c.post(path, {"answer": "maybe", "plus_ones": "1",
                           "csrfmiddlewaretoken": tok})
         self.assertEqual(r.status_code, 200)
