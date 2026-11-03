@@ -151,7 +151,7 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
     }
   }
 
-  /// cctvaicheck: the per-camera "AI দিয়ে যাচাই" switch (server words).
+  /// cctvaicheck: the per-camera "Check with AI" switch (server words).
   Map<String, dynamic> get _ai => (_data?['ai_check'] as Map?)?.cast<String, dynamic>() ?? const {};
 
   Future<void> _toggleAi(bool on) async {

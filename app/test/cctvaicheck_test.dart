@@ -57,7 +57,7 @@ SwitchListTile _tile(WidgetTester tester, String label) => tester.widget<SwitchL
     find.ancestor(of: find.text(label), matching: find.byType(SwitchListTile)));
 
 void _tall(WidgetTester tester) {
-  tester.view.physicalSize = const Size(1080, 6000);
+  tester.view.physicalSize = const Size(1080, 12000);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.reset);
 }
