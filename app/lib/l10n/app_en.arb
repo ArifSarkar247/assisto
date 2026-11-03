@@ -37806,5 +37806,79 @@
         "type": "String"
       }
     }
+  },
+  "buyNow": "Buy",
+  "@buyNow": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "buyOwnShopSub": "Our own shop · asalifymart · opens in your browser",
+  "@buyOwnShopSub": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipRangeNote": "Needs a 4G GPS chip with a SIM: it reports from anywhere with mobile network. Bluetooth tags (AirTag type) reach only about 10 to 30 metres from a phone and do not work with Assisto.",
+  "@chipRangeNote": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipFindNow": "Find now",
+  "@chipFindNow": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipFindAsked": "Asked the chip to send its location every 10 seconds for 10 minutes. Waiting for the chip to say OK.",
+  "@chipFindAsked": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipFindAcked": "The chip agreed: a new location every 10 seconds for 10 minutes.",
+  "@chipFindAcked": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipFindFailed": "The chip did not answer. Some models ignore this request; the last known location is still shown.",
+  "@chipFindFailed": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipFindTooSoon": "Please wait 10 minutes before asking again.",
+  "@chipFindTooSoon": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipLeftTitle": "Left-behind alert",
+  "@chipLeftTitle": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipLeftSub": "Alert me when the chip stays in one place that is not home, school or a safe place for:",
+  "@chipLeftSub": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipLeftMin": "{n} min",
+  "@chipLeftMin": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "chipLeftOff": "Off",
+  "@chipLeftOff": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipLeftSpot": "The chip has stayed at one place. Left behind?",
+  "@chipLeftSpot": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipSafePlace": "Safe place",
+  "@chipSafePlace": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
+  },
+  "chipSafeCount": "Safe places: {n}",
+  "@chipSafeCount": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "chipSafeSaved": "Saved as a safe place. No more alerts for it.",
+  "@chipSafeSaved": {
+    "description": "chipbuy2 (owner 3 Nov): tracker chip find / left-behind / own-shop buy links"
   }
 }
