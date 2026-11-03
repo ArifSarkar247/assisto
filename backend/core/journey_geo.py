@@ -75,25 +75,32 @@ def geocoder_ready():
 
 
 def _places_text(q, key, lang, near=None):
-    params = {"query": q, "key": key, "region": "bd",
-              "language": "bn" if lang == "bn" else "en"}
+    """placesnew (owner 3 Nov 19:55): Places API (New) Text Search — the legacy
+    legacy Text Search endpoint can't be enabled on new projects. Field
+    mask keeps it to the fields we show."""
+    body = {"textQuery": q, "languageCode": "bn" if lang == "bn" else "en",
+            "regionCode": "BD", "maxResultCount": 8}
     if near:
-        params["location"] = "%s,%s" % near
-        params["radius"] = 30000
-    url = ("https://maps.googleapis.com/maps/api/place/textsearch/json?" +
-           urllib.parse.urlencode(params))
-    req = urllib.request.Request(url, headers={"User-Agent": _UA})
+        body["locationBias"] = {"circle": {"center": {"latitude": float(near[0]),
+                                                      "longitude": float(near[1])},
+                                           "radius": 30000.0}}
+    req = urllib.request.Request(
+        "https://places.googleapis.com/v1/places:searchText",
+        data=json.dumps(body).encode("utf-8"), method="POST",
+        headers={"User-Agent": _UA, "Content-Type": "application/json",
+                 "X-Goog-Api-Key": key,
+                 "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location"})
     data = json.loads(urllib.request.urlopen(req, timeout=HTTP_TIMEOUT_S)
-                      .read().decode("utf-8", "replace"))
+                      .read().decode("utf-8", "replace") or "{}")
     out = []
-    for r in (data.get("results") or [])[:8]:
-        loc = (r.get("geometry") or {}).get("location") or {}
-        if loc.get("lat") is None:
+    for r in (data.get("places") or [])[:8]:
+        loc = r.get("location") or {}
+        if loc.get("latitude") is None:
             continue
-        out.append({"name": str(r.get("name") or "")[:120],
-                    "address": str(r.get("formatted_address") or "")[:200],
-                    "lat": round(float(loc["lat"]), 6),
-                    "lng": round(float(loc["lng"]), 6)})
+        out.append({"name": str((r.get("displayName") or {}).get("text") or "")[:120],
+                    "address": str(r.get("formattedAddress") or "")[:200],
+                    "lat": round(float(loc["latitude"]), 6),
+                    "lng": round(float(loc["longitude"]), 6)})
     return out
 
 

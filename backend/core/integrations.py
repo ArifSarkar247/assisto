@@ -1138,21 +1138,75 @@ def test_openai(cfg):
         return (False, f"HTTP {e.code}")
 
 
-def test_google_places(cfg):
-    import urllib.request
+# placesnew (owner 3 Nov 19:55): new Google Cloud projects cannot enable the
+# LEGACY Places web service (the old /place/ endpoints), so a valid key restricted to
+# Places API (New) + Geocoding got REQUEST_DENIED. Test both APIs the app uses,
+# each with its own result and Google's own reason; never echo the key.
+_GOOGLE_REASON_BN = {
+    "REQUEST_DENIED": "অনুরোধ বাতিল — এই কি-তে এই API চালু নেই বা কি-র সীমাবদ্ধতা মিলছে না",
+    "PERMISSION_DENIED": "অনুমতি নেই — Cloud Console-এ এই API চালু করুন ও কি-র API তালিকায় যোগ করুন",
+    "API_KEY_INVALID": "কি সঠিক নয়",
+    "INVALID_ARGUMENT": "অনুরোধ ঠিক নয়",
+    "OVER_QUERY_LIMIT": "দৈনিক সীমা শেষ বা বিলিং চালু নেই",
+    "RESOURCE_EXHAUSTED": "দৈনিক সীমা শেষ বা বিলিং চালু নেই",
+    "BILLING_DISABLED": "এই প্রজেক্টে বিলিং চালু নেই",
+}
+
+
+def _google_reason(status, message, key):
+    msg = str(message or "").replace(key, "•••") if key else str(message or "")
+    bn = _GOOGLE_REASON_BN.get(status or "", "Google ত্রুটি")
+    return "%s (%s)%s" % (bn, status or "error", (" — " + msg[:160]) if msg else "")
+
+
+def _google_call(req, key):
     import json as _j
-    key = cfg.get("api_key", "")
-    url = ("https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
-           "?input=restaurant&inputtype=textquery&key=" + key)
+    import urllib.request
     try:
-        r = urllib.request.urlopen(url, timeout=15)
-        body = _j.loads(r.read().decode())
-        st = body.get("status")
-        if st in ("OK", "ZERO_RESULTS"):
-            return (True, "✓ working")
-        return (False, st or "error")
+        r = urllib.request.urlopen(req, timeout=15)
+        return 200, _j.loads(r.read().decode("utf-8", "replace") or "{}")
     except urllib.error.HTTPError as e:
-        return (False, f"HTTP {e.code}")
+        try:
+            return e.code, _j.loads(e.read().decode("utf-8", "replace") or "{}")
+        except Exception:  # noqa: BLE001
+            return e.code, {}
+    except Exception as e:  # noqa: BLE001  (network: never include the URL — it may hold the key)
+        return 0, {"error": {"status": "NETWORK", "message": type(e).__name__}}
+
+
+def _test_places_new(key):
+    import json as _j
+    import urllib.request
+    req = urllib.request.Request(
+        "https://places.googleapis.com/v1/places:searchText",
+        data=_j.dumps({"textQuery": "hospital Dhaka", "maxResultCount": 1}).encode(),
+        headers={"Content-Type": "application/json", "X-Goog-Api-Key": key,
+                 "X-Goog-FieldMask": "places.id"}, method="POST")
+    code, body = _google_call(req, key)
+    if code == 200 and "error" not in body:
+        return True, "✓ Places API (New) চলছে / working"
+    err = body.get("error") or {}
+    return False, "Places API (New): " + _google_reason(err.get("status"), err.get("message"), key)
+
+
+def _test_geocoding(key):
+    import urllib.parse
+    import urllib.request
+    url = ("https://maps.googleapis.com/maps/api/geocode/json?" +
+           urllib.parse.urlencode({"address": "Dhaka", "key": key}))
+    code, body = _google_call(urllib.request.Request(url), key)
+    st = body.get("status") or ((body.get("error") or {}).get("status"))
+    if st in ("OK", "ZERO_RESULTS"):
+        return True, "✓ Geocoding API চলছে / working"
+    return False, "Geocoding API: " + _google_reason(
+        st, body.get("error_message") or (body.get("error") or {}).get("message"), key)
+
+
+def test_google_places(cfg):
+    key = str(cfg.get("api_key", "")).strip()
+    ok1, d1 = _test_places_new(key)
+    ok2, d2 = _test_geocoding(key)
+    return (ok1 and ok2, (d1 + " · " + d2).replace(key, "•••") if key else d1 + " · " + d2)
 
 
 def test_google_maps_server(cfg):
