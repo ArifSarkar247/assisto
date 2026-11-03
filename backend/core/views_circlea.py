@@ -31,7 +31,9 @@ class GuardiansMineView(APIView):
 
     def get(self, request):
         from . import guardianship
-        return Response({"guardians": guardianship.guardians_of(request.user)})
+        from . import guardian_links   # guardian2: requests waiting for approval
+        return Response({"guardians": guardianship.guardians_of(request.user),
+                         "pending": guardian_links.pending_for_child(request.user)})
 
 
 class GuardianRemoveView(APIView):

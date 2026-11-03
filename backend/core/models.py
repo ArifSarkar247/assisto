@@ -6689,6 +6689,9 @@ class FamilyAlertDelivery(models.Model):
     seen_at = models.DateTimeField(null=True, blank=True)
     # sosat: an SOS nobody opened was rung once more (escalation ladder)
     rerung_at = models.DateTimeField(null=True, blank=True)
+    # guardian2: this recipient tapped "I am responding / going" -> the other
+    # recipients and the sender see "<name> is responding".
+    responding_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]
@@ -8301,3 +8304,34 @@ class VaultShareLink(models.Model):
     class Meta:
         ordering = ["-id"]
 # ---- /p3docs ----
+
+
+# ---- guardian2 ---- PART 6 two guardians (owner 3 Nov 18:40): a second
+# guardian joins a child by invite code; an EXISTING guardian must approve
+# before any access. Rules: core/guardian_links.py. Owner Admin / staff never
+# read this table (privacy wall test).
+class GuardianLink(models.Model):
+    STATES = ("invited", "pending", "approved", "rejected", "removed", "expired")
+    child = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="guardian_links_as_child")
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name="guardian_invites_sent")
+    guardian = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
+                                 related_name="guardian_links")
+    code = models.CharField(max_length=12, unique=True)
+    state = models.CharField(max_length=10, default="invited")
+    expires_at = models.DateTimeField()
+    requested_at = models.DateTimeField(null=True, blank=True)
+    decided_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    approved_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    ended_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["child", "state"], name="core_glink_child_state_idx"),
+                   models.Index(fields=["guardian", "state"], name="core_glink_g_state_idx")]
+# ---- /guardian2 ----

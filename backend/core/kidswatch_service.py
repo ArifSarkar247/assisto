@@ -107,8 +107,15 @@ def charge_month(w, now=None):
 
 def _peer_ok(owner, user_id):
     from .models import CircleMember
-    return CircleMember.objects.filter(user=owner, peer_user_id=user_id,
-                                       state="accepted", blocked=False).exists()
+    if CircleMember.objects.filter(user=owner, peer_user_id=user_id,
+                                   state="accepted", blocked=False).exists():
+        return True
+    # guardian2: an approved second guardian of a child this owner set up
+    try:
+        from . import guardian_links
+        return guardian_links.co_pair(getattr(owner, "pk", owner), user_id)
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def clean_guardians(owner, ids):
@@ -329,6 +336,11 @@ def watch_sos(w, lat=None, lng=None, now=None):
                           payload={"source": "watch", "watch_id": w.id},
                           texts=texts, lat=lat, lng=lng, now=now)
         reached = {u.pk for u, _m in FA.consenting_members(w.child_user)}
+        try:   # guardian2: approved co-guardians got the circle alert too
+            from . import guardian_links
+            reached |= {u.pk for u in guardian_links.sos_extra_recipients(w.child_user)}
+        except Exception:  # noqa: BLE001
+            pass
     else:
         others = [u for u in guardians(w.owner, w.guardian_ids) if u.pk != w.owner_id]
         if others:

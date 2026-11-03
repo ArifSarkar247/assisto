@@ -64,6 +64,7 @@ KINDS = {
     # with "tell family when I arrive" on — only the people they picked.
     "dest_arrived":    {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
 }
+_CO_GUARDIAN_KINDS = ("sos", "sos_resolved", "fall", "checkin_overdue", "wellness_alert")
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
             "wellness_alert": "high", "scam_report": "high", "crisis_support": "high",
             "fall": "high", "dest_arrived": "info"}
@@ -106,6 +107,22 @@ def consenting_members(sender):
 
 def is_member(sender, user):
     return any(u.pk == user.pk for u, _m in consenting_members(sender))
+
+
+def _still_reachable(d):
+    """A held / re-rung delivery still goes out: the recipient is still a
+    consenting circle member — or (guardian2) still an approved guardian of
+    the sender for the safety kinds."""
+    if is_member(d.sender, d.recipient):
+        return True
+    if d.kind not in _CO_GUARDIAN_KINDS:
+        return False
+    try:
+        from . import guardian_links
+        return any(u.pk == d.recipient_id
+                   for u in guardian_links.sos_extra_recipients(d.sender))
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _shares_location(edge):
@@ -232,6 +249,18 @@ def _alert(sender, kind, event_key, payload, recipients, texts, lat, lng, now, s
     cfg = KINDS[kind]
     key = ("%s:%s:%s" % (kind, sender.pk, event_key))[:120]
     members = consenting_members(sender)
+    if kind in _CO_GUARDIAN_KINDS:
+        # guardian2: BOTH guardians of a child — an approved second guardian
+        # (and the guardian who approved them) get SOS / fall / check-in
+        # alerts even when they are not in the child's My Circle. Errors here
+        # never stop the alert to the circle (SOS is never blocked).
+        try:
+            from . import guardian_links
+            have = {u.pk for u, _m in members}
+            members = members + [(u, None) for u in guardian_links.sos_extra_recipients(sender)
+                                 if u.pk not in have]
+        except Exception:  # noqa: BLE001
+            log.warning("family_alerts: guardian2 extra recipients failed")
     if recipients is not None:
         want = {getattr(u, "pk", u) for u in recipients}
         members = [(u, m) for u, m in members if u.pk in want]
@@ -405,7 +434,7 @@ def sweep(now=None, stats=None):
             d.status = "expired"
             d.save(update_fields=["status"])
             continue
-        if not is_member(d.sender, d.recipient):
+        if not _still_reachable(d):
             d.status = "revoked"
             d.save(update_fields=["status"])
             d.alert.dismissed = True
@@ -446,7 +475,7 @@ def rering(now=None, stats=None):
         if not FamilyAlertDelivery.objects.filter(
                 pk=d.pk, rerung_at__isnull=True).update(rerung_at=now):
             continue
-        if not is_member(d.sender, d.recipient):
+        if not _still_reachable(d):
             continue
         name = (d.alert.payload or {}).get("from_name") or push.seen_name(
             d.recipient, d.sender)
@@ -483,14 +512,16 @@ def ladder(user, now=None):
         rows.append({"name": seen_name(user, d.recipient), "status": d.status,
                      "received": d.received_at is not None,
                      "seen": d.seen_at is not None,
-                     "rerung": d.rerung_at is not None})
+                     "rerung": d.rerung_at is not None,
+                     "responding": d.responding_at is not None})
     resolved = FamilyAlertDelivery.objects.filter(
         sender=user, kind="sos_resolved", created_at__gte=last.created_at).exists()
     age = (now - last.created_at).total_seconds()
     return {"stage": L.stage(rows, age, resolved=resolved), "kind": last.kind,
             "at": _iso(last.created_at), "age_s": int(age), "recipients": rows,
             "rering_after_s": L.RERING_AFTER_S,
-            "suggest_999_after_s": L.SUGGEST_999_AFTER_S, **L.counts(rows)}
+            "suggest_999_after_s": L.SUGGEST_999_AFTER_S, **L.counts(rows),
+            "responders": _responders(last, user)}
 
 
 # ------------------------------------------------------------- API shapes
@@ -515,8 +546,21 @@ def received_rows(user, now=None):
             "lng": p.get("lng") if d.with_location else None,
             "seen": d.seen_at is not None, "status": d.status,
             "active": bool(fa) and not fa.dismissed,
+            # guardian2: who said "I am responding" to this SOS
+            "responding": d.responding_at is not None,
+            "responders": _responders(d, user),
         })
     return out
+
+
+def _responders(d, viewer):
+    if d.kind not in ("sos", "fall"):
+        return []
+    try:
+        from . import guardian_links
+        return guardian_links.responders(d.event_key, viewer)
+    except Exception:  # noqa: BLE001
+        return []
 
 
 def sent_rows(user, now=None):
