@@ -1783,3 +1783,17 @@ urlpatterns += [
     path("learn/<str:lang>/listening/grade", lkv.LearnListeningGradeView.as_view()),
 ]
 # ---- /langkoja ----
+# ---- safeplans ---- Safety plans, credits, rewarded unlocks (flag safe_plans)
+from . import safe_plans_views as spv  # noqa: E402
+urlpatterns += [
+    path("safe-plans", spv.SafePlansView.as_view()),
+    path("safe-plans/use", spv.SafePlansUseView.as_view()),
+    path("safe-plans/child", spv.SafePlansChildView.as_view()),
+    path("safe-plans/ad/ticket", spv.SafeAdTicketView.as_view()),
+    path("safe-plans/ad/ticket/<str:nonce>", spv.SafeAdTicketStateView.as_view()),
+    path("safe-plans/school/redeem", spv.SchoolRedeemView.as_view()),
+    path("safe-plans/school/<str:code>/attendance", spv.SchoolAttendanceView.as_view()),
+    path("safe-plans/school/<str:code>/broadcast", spv.SchoolBroadcastView.as_view()),
+    path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
+]
+# ---- /safeplans ----

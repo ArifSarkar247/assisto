@@ -73,6 +73,7 @@ ROUTE_KEYS = (
     "books",           # ledger: Business Accounting books (flag accounting_v2)
     "acct",            # acctui: accounting home (flag accounting_v2)
     "market",          # amarket: Assisto Market (flag assisto_market)
+    "safe_plans",      # safeplans: Safety plans (flag safe_plans)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",

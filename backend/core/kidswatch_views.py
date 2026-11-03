@@ -331,6 +331,14 @@ class WatchCommandView(APIView):
             return R({"ok": False, "reason": "bad_kind"}, status=400)
         if w.state != "paired":
             return R({"ok": False, "reason": "not_paired"}, status=409)
+        if kind == "locate_now":
+            # safeplans: one location request (1 credit) while safe_plans is on
+            from . import safe_plans as SPS
+            fee = SPS.charge(request.user, "location_request", child=w.child_user_id)
+            if not fee["ok"]:
+                return R({"ok": False, "reason": "safe_credits_out",
+                          "sheet": SPS.out_payload(request.user, "bn",
+                                                   fee.get("plan"))}, status=402)
         c = KW.queue(w, kind, actor=request.user)
         return R({"ok": True, "command": {"id": c.id, "kind": c.kind, "state": c.state}},
                  status=201)

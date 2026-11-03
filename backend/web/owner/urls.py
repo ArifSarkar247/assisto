@@ -10,6 +10,7 @@ from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_mapsusage as MAPSU   # mapscost
+from . import views_safeplans as SAFEP   # safeplans
 from . import views_sc1 as SC1   # sc1 app errors
 from . import views_p1 as P1     # p1-bizagent sellers
 from . import views_p2 as P2     # p2-money
@@ -106,6 +107,7 @@ urlpatterns = [
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("cctv-traffic", CCTVT.cctv_traffic),   # cctvguard: CCTV live traffic
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
+    path("safe-plans", SAFEP.safe_plans),       # safeplans: Safety plans
     path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
     # ---- p2-money ---- direct sponsors, campaigns, reports, ad impact
     path("sponsors", P2.sponsors),

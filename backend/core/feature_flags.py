@@ -250,6 +250,11 @@ REGISTRY = (
     # The REAL Unseen World (owner 27 Oct): travel discovery — Bangladesh
     # divisions/districts/spots first, then countries. Not built yet; plan:
     # owner_actions/UNSEEN_WORLD_PLAN_BN.md. Hidden until all 9 DoD checks.
+    # safeplans (owner order 3 Nov 18:40): Child Plan / Safe Family / School
+    # Safe, monthly safety credits (no rollover), prepaid request packs,
+    # guardian-only rewarded unlocks. SOS / danger / school alerts stay free
+    # whatever this switch says. Hidden until the Play products exist.
+    ('safe_plans', 'family_safety', 'Safety plans (Child / Safe Family / School)', 'নিরাপত্তা প্ল্যান (চাইল্ড / সেফ ফ্যামিলি / স্কুল)', False, ('safe_plans',)),
     ('unseen_world', 'upcoming', 'Unseen World (travel discovery)', 'অদেখা দুনিয়া (ভ্রমণ আবিষ্কার)', False, ()),
     # home_v2 (owner final home design, 26 Oct): ON = the new home (header,
     # Discover, 12 shortcuts, Ask Assisto card, bottom bar with Assisto Voice);

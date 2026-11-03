@@ -19,6 +19,7 @@ import '../../widgets/where_to_buy.dart';
 import 'chip_widgets.dart';
 import 'kw_recorder.dart';
 import 'school_plan_form.dart';
+import '../../safe_plans/safe_plans_screen.dart' show showSafeCreditsOutSheet; // safeplans
 
 /// kidswatch (owner idea 2, 28 Oct) — the PARENT side: kids GPS watches and
 /// School Mode plans. Behind the server flag `kids_watch` (route owned by it).
@@ -133,6 +134,14 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
       await _api.kwCommand(w['id'] as int, kind);
       _snack(kind == 'find_watch' ? t.kwFindSent : t.kwLocateSent);
       await _load();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      // safeplans: location requests used up -> the approved sheet
+      if (e.reason == 'safe_credits_out') {
+        await showSafeCreditsOutSheet(context, (e.body?['sheet'] as Map?)?.cast<String, dynamic>());
+        return;
+      }
+      _fail(e);
     } catch (e) {
       if (mounted) _fail(e);
     }

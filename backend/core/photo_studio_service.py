@@ -586,6 +586,22 @@ def ssv_callback(raw_query, params):
             return 200, {"ok": True, "ignored": "replay"}
         if t.status != "pending" or (uid and uid != str(t.user_id)):
             return 200, {"ok": True, "ignored": "not_pending"}
+        if t.placement in ("safe_day", "safe_req") and t.job is None:
+            # safeplans: a guardian's rewarded ad toward a Child Plan day
+            # pass / one request — counted ONLY here, on Google's signature
+            from . import safe_plans as _SPS
+            c = _cfg()
+            val = PS.ad_value_bdt(c.get("photo_studio"), c["ad_rewards"])
+            t.status = "verified"
+            t.transaction_id = txn
+            t.ad_unit = (params.get("ad_unit") or "")[:80]
+            t.value_bdt = val
+            t.source = "ssv"
+            t.verified_at = timezone.now()
+            t.save()
+            _SPS.on_ad_verified(t, val)
+            billing.record_revenue("ads", val)
+            return 200, {"ok": True}
         if t.placement == "credits" and t.job is None:
             # p2-money: rewarded ad for credits - Google verified it, credit
             # the ad wallet now (daily cap + fraud guard inside ad_event).

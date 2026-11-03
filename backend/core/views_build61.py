@@ -164,6 +164,14 @@ def _cctv_profit(cfg):
         return None
 
 
+def _safe_profit(cfg):
+    try:
+        from .logic import safe_plans as SPL
+        return SPL.profit_table(cfg.get("safe_plans"))
+    except Exception:
+        return None
+
+
 class PricingConfigView(APIView):
     """Business Model (Build 1) — SERVER-SIDE PRICING config, OWNER-only (same
     superuser gate as /admin/integrations & /admin/flags).
@@ -193,7 +201,9 @@ class PricingConfigView(APIView):
                 "margin_check": P.plan_margin_report(cfg),
                 "warnings": P.margin_warnings(cfg),
                 # cctvprice: per-tier worst-case profit after Play fee + VAT
-                "cctv_profit": _cctv_profit(cfg)}
+                "cctv_profit": _cctv_profit(cfg),
+                # safeplans: Child / Safe Family / School worst-case profit
+                "safe_plans_profit": _safe_profit(cfg)}
 
     def get(self, request):
         if not self._owner(request):
@@ -247,6 +257,7 @@ def pricing_apply(actor_id, d):
                      "chat_vision", "home_hero", "payments",   # pay1: payments
                  "billing",                                      # billing-v2
                  "plans_v2",    # plans-v2
+                 "safe_plans",  # safeplans
                  "credit_model"):   # pricing-40
         if (dkey in ("guarantees", "limits", "referral")
                 and dkey in (patch or {})

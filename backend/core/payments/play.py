@@ -414,6 +414,12 @@ def sync_subscription(token, user=None, now=None, c=None):
     if _CPS.is_cctv_product(product_id):
         return _CPS.sync_from_play(js, token, line, product_id, base_plan,
                                    user=user, now=now, c=c)
+    # safeplans: Child Plan / Safe Family (Play subscriptions, no app plan,
+    # no AI credits) — same token binding, ack, revenue and refund path
+    from .. import safe_plans as _SPS
+    if _SPS.is_safe_product(product_id):
+        return _SPS.sync_from_play(js, token, line, product_id, base_plan,
+                                   user=user, now=now, c=c)
     sku = catalog.sku_for_play(product_id, base_plan)
     if not sku or not sku.endswith(("_monthly", "_yearly")):
         raise PlayError("unknown_product", 400)
@@ -536,8 +542,8 @@ def sub_status(user, now=None):
     gone = _replaced_hashes(user)
     for pp in PlayPurchase.objects.filter(user=user, kind="sub", revoked=False,
                                           state__in=tuple(_STATUS)).order_by("-updated_at"):
-        if pp.token_hash in gone or pp.sku.startswith("cctv"):
-            continue        # cctvprice: the CCTV plan has its own status
+        if pp.token_hash in gone or pp.sku.startswith(("cctv", "safe_")):
+            continue        # cctvprice / safeplans: those plans have their own status
         st = _STATUS[pp.state]
         if st in ("active", "canceled", "grace") and not (pp.expires_at and pp.expires_at > now):
             continue
@@ -562,6 +568,9 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     from . import orders as O
     now = now or timezone.now()
     c = c or cfg()
+    from .. import safe_plans as _SPS          # safeplans: prepaid request packs
+    if _SPS.is_safe_product(product_id):
+        return _SPS.sync_pack(token, product_id, user=user, now=now, c=c)
     sku = catalog.sku_for_play(product_id)
     smspack = catalog.is_smspack(sku)       # tagada2: SMS parts, not credits
     if not (sku.startswith("pack_") or smspack):
@@ -648,6 +657,11 @@ def revoke_token(token, reason, now=None, order_id="", refund_type=1, source="go
         return None
     R.void_play(pp, order_id=order_id, reason=reason, refund_type=refund_type,
                 source=source, now=now)
+    try:                                       # safeplans: unspent pack requests go
+        from .. import safe_plans as _SPS
+        _SPS.on_play_revoked(pp)
+    except Exception:
+        log.exception("safeplans: revoke hook failed")
     return pp
 
 
