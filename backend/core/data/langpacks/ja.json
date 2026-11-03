@@ -1038,7 +1038,7 @@
    "id": "ja_n3_grammar",
    "level": "N3",
    "title_en": "N3 grammar for work",
-   "title_bn": "কাজের জন্য N3 ব্যাকরণ",
+   "title_bn": "কাজের জন্য N৩ ব্যাকরণ",
    "items": [
     {
      "kind": "grammar",
@@ -1085,7 +1085,7 @@
    "id": "ja_n2_grammar",
    "level": "N2",
    "title_en": "N2 grammar",
-   "title_bn": "N2 ব্যাকরণ",
+   "title_bn": "N২ ব্যাকরণ",
    "items": [
     {
      "kind": "grammar",
@@ -1131,7 +1131,7 @@
    "id": "ja_n1_grammar",
    "level": "N1",
    "title_en": "N1 grammar and idioms",
-   "title_bn": "N1 ব্যাকরণ ও প্রবাদ",
+   "title_bn": "N১ ব্যাকরণ ও প্রবাদ",
    "items": [
     {
      "kind": "grammar",
@@ -1426,7 +1426,7 @@
    "title_en": "JFT-Basic style practice",
    "title_bn": "JFT-Basic ধাঁচের অনুশীলন",
    "format_en": "JFT-Basic format: 4 sections (Script and Vocabulary, Conversation and Expression, Listening, Reading), about 12 questions each, 60 minutes, multiple choice, no going back to an earlier section. This set has the 3 text sections (36 questions, 45 minutes); listening is in the phone-voice practice. The real score is a scaled 10-250 (200+ = A2, needed for the Specified Skilled Worker visa); ours is only a percentage estimate. Original Assisto practice.",
-   "format_bn": "JFT-Basic ধরন: ৪ অংশ (লিপি ও শব্দ, কথোপকথন ও প্রকাশ, শোনা, পড়া), প্রতিটিতে প্রায় ১২ প্রশ্ন, ৬০ মিনিট, MCQ, আগের অংশে ফেরা যায় না। এই সেটে লেখার ৩ অংশ (৩৬ প্রশ্ন, ৪৫ মিনিট); শোনার অংশ ফোন-কণ্ঠের অনুশীলনে। আসল স্কোর ১০-২৫০ স্কেল (২০০+ = A2, SSW ভিসার জন্য লাগে); আমাদেরটা শুধু শতাংশ থেকে অনুমান। Assisto-র নিজের অনুশীলন।",
+   "format_bn": "JFT-Basic ধরন: ৪ অংশ (লিপি ও শব্দ, কথোপকথন ও প্রকাশ, শোনা, পড়া), প্রতিটিতে প্রায় ১২ প্রশ্ন, ৬০ মিনিট, MCQ, আগের অংশে ফেরা যায় না। এই সেটে লেখার ৩ অংশ (৩৬ প্রশ্ন, ৪৫ মিনিট); শোনার অংশ ফোন-কণ্ঠের অনুশীলনে। আসল স্কোর ১০-২৫০ স্কেল (২০০+ = A২, SSW ভিসার জন্য লাগে); আমাদেরটা শুধু শতাংশ থেকে অনুমান। Assisto-র নিজের অনুশীলন।",
    "minutes": 45,
    "sections": [
     {
@@ -2655,5 +2655,53 @@
    ]
   }
  ],
- "extras": []
+ "extras": [],
+ "work_path": {
+  "title_en": "Work in Japan: the JFT-Basic path",
+  "title_bn": "জাপানে কাজ: JFT-Basic পথ",
+  "steps": [
+   {
+    "en": "The Specified Skilled Worker (SSW, Tokutei Ginou) visa needs two passes: Japanese (JFT-Basic A2, a score of 200 or more, or JLPT N4 or higher) and the skills test for your job field.",
+    "bn": "Specified Skilled Worker (SSW, 特定技能) ভিসায় দুটো পাস লাগে: জাপানি ভাষা (JFT-Basic A২ অর্থাৎ ২০০ বা বেশি, অথবা JLPT N৪ বা উপরে) এবং আপনার কাজের খাতের দক্ষতা পরীক্ষা।"
+   },
+   {
+    "en": "Care workers also need the separate Care Japanese test.",
+    "bn": "কেয়ারগিভারদের আলাদা কেয়ার-জাপানি পরীক্ষাও লাগে।"
+   },
+   {
+    "en": "JFT-Basic is a computer test at Prometric centres. Check dates and centres on the Japan Foundation JFT-Basic site.",
+    "bn": "JFT-Basic কম্পিউটারে, Prometric কেন্দ্রে হয়। তারিখ ও কেন্দ্র Japan Foundation-এর JFT-Basic সাইটে দেখুন।"
+   },
+   {
+    "en": "Bangladesh and Japan have a government agreement for SSW workers. Check BMET for the current process and never pay unofficial brokers.",
+    "bn": "SSW কর্মীর জন্য বাংলাদেশ ও জাপানের সরকারি চুক্তি আছে। বর্তমান প্রক্রিয়া BMET-এ দেখুন; অনানুষ্ঠানিক দালালকে কখনো টাকা দেবেন না।"
+   },
+   {
+    "en": "Free official course for work Japanese: Irodori by the Japan Foundation (A1-A2). Use it together with the practice here.",
+    "bn": "কাজের জাপানির জন্য ফ্রি অফিসিয়াল কোর্স: Japan Foundation-এর Irodori (A১-A২)। এখানকার অনুশীলনের সাথে মিলিয়ে ব্যবহার করুন।"
+   }
+  ],
+  "links": [
+   {
+    "en": "JFT-Basic (Japan Foundation)",
+    "bn": "JFT-Basic (Japan Foundation)",
+    "url": "https://www.jpf.go.jp/jft-basic/"
+   },
+   {
+    "en": "Irodori free course",
+    "bn": "Irodori ফ্রি কোর্স",
+    "url": "https://www.irodori.jpf.go.jp/en/"
+   },
+   {
+    "en": "JLPT (official)",
+    "bn": "JLPT (অফিসিয়াল)",
+    "url": "https://www.jlpt.jp/e/"
+   },
+   {
+    "en": "BMET (Bangladesh)",
+    "bn": "BMET (বাংলাদেশ)",
+    "url": "https://bmet.gov.bd/"
+   }
+  ]
+ }
 }

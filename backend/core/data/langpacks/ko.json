@@ -2493,5 +2493,48 @@
    ]
   }
  ],
- "extras": []
+ "extras": [],
+ "work_path": {
+  "title_en": "Work in Korea: the EPS path",
+  "title_bn": "কোরিয়ায় কাজ: EPS পথ",
+  "steps": [
+   {
+    "en": "EPS (Employment Permit System) is government-to-government. In Bangladesh only BOESL runs it. Never pay a broker or agent.",
+    "bn": "EPS (এমপ্লয়মেন্ট পারমিট সিস্টেম) সরকার-থেকে-সরকার পদ্ধতি। বাংলাদেশে শুধু BOESL এটা চালায়। কোনো দালাল বা এজেন্টকে টাকা দেবেন না।"
+   },
+   {
+    "en": "Watch the BOESL notice for each EPS-TOPIK round: age limit, registration dates, fee and test format.",
+    "bn": "প্রতি রাউন্ডের EPS-TOPIK নোটিশ BOESL-এ দেখুন: বয়সসীমা, নিবন্ধনের তারিখ, ফি ও পরীক্ষার ধরন।"
+   },
+   {
+    "en": "Learn Korean and pass EPS-TOPIK (reading + listening, on a computer or tablet). A higher score ranks you higher.",
+    "bn": "কোরিয়ান শিখে EPS-TOPIK পাস করুন (রিডিং + লিসেনিং, কম্পিউটার বা ট্যাবলেটে)। নম্বর বেশি হলে তালিকায় আগে থাকবেন।"
+   },
+   {
+    "en": "Take the skills or competency test when your round and industry require it.",
+    "bn": "আপনার রাউন্ড ও শিল্পখাতে লাগলে দক্ষতা (Skills/Competency) পরীক্ষা দিন।"
+   },
+   {
+    "en": "Your name joins the job-seeker roster; a Korean employer chooses you; you sign the labour contract, get the E-9 visa and do the pre-departure training.",
+    "bn": "আপনার নাম চাকরিপ্রার্থীর তালিকায় যায়; কোরিয়ান মালিক বাছাই করলে শ্রম চুক্তি, E-৯ ভিসা ও যাত্রার আগের প্রশিক্ষণ।"
+   }
+  ],
+  "links": [
+   {
+    "en": "BOESL (Bangladesh)",
+    "bn": "BOESL (বাংলাদেশ)",
+    "url": "https://boesl.gov.bd/"
+   },
+   {
+    "en": "EPS Korea (official)",
+    "bn": "EPS কোরিয়া (অফিসিয়াল)",
+    "url": "https://www.eps.go.kr/"
+   },
+   {
+    "en": "TOPIK (official)",
+    "bn": "TOPIK (অফিসিয়াল)",
+    "url": "https://www.topik.go.kr/"
+   }
+  ]
+ }
 }

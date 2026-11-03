@@ -1678,3 +1678,10 @@ urlpatterns += [
     path("learn/<str:lang>/roleplay", learnv.LearnRoleplayView.as_view()),
 ]
 # ---- /p2lang ----
+# ---- langkoja ---- phone-voice listening practice (Korean / Japanese packs)
+from . import learn_listen_views as lkv  # noqa: E402
+urlpatterns += [
+    path("learn/<str:lang>/listening", lkv.LearnListeningView.as_view()),
+    path("learn/<str:lang>/listening/grade", lkv.LearnListeningGradeView.as_view()),
+]
+# ---- /langkoja ----
