@@ -34,8 +34,9 @@ class AccountSecurityScreen extends StatefulWidget {
 /// Bangla digits in a Bangla UI (phone numbers, codes, dates).
 String recDigits(BuildContext context, String s) {
   if (Localizations.localeOf(context).languageCode != 'bn') return s;
-  const bn = '০১২৩৪৫৬৭৮৯';
-  return s.replaceAllMapped(RegExp(r'[0-9]'), (m) => bn[int.parse(m[0]!)]);
+  // U+09E6 = Bengali digit zero (no Bangla literals in Dart: lang gate)
+  return s.replaceAllMapped(
+      RegExp(r'[0-9]'), (m) => String.fromCharCode(0x09E6 + int.parse(m[0]!)));
 }
 
 String recWhen(BuildContext context, DateTime? d) {
