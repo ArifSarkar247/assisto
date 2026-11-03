@@ -1,0 +1,329 @@
+{
+ "format": 1,
+ "lang": "ja",
+ "tts_locale": "ja-JP",
+ "label_en": "Read by your phone's voice — not exam audio. Practice only.",
+ "label_bn": "ফোনের কণ্ঠে পড়া — পরীক্ষার অডিও নয়। শুধু অনুশীলন।",
+ "questions": [
+  {
+   "id": "jl1",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "なにが ほしいですか。",
+   "options": [
+    "おちゃ",
+    "ごはん",
+    "おかね",
+    "みず"
+   ],
+   "answer": 3,
+   "explain_bn": "みず = পানি।",
+   "explain_en": "Water.",
+   "say": "みずを ください。"
+  },
+  {
+   "id": "jl2",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "なにを かぶりますか。",
+   "options": [
+    "ヘルメット",
+    "てぶくろ",
+    "マスク",
+    "くつ"
+   ],
+   "answer": 0,
+   "explain_bn": "ヘルメット = হেলমেট।",
+   "explain_en": "Helmet.",
+   "say": "ヘルメットを かぶって ください。"
+  },
+  {
+   "id": "jl3",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "いま なんじですか。",
+   "options": [
+    "13:30",
+    "3:30",
+    "3:00",
+    "4:30"
+   ],
+   "answer": 1,
+   "explain_bn": "সাড়ে তিনটা।",
+   "explain_en": "Half past three.",
+   "say": "いま 3じ はんです。"
+  },
+  {
+   "id": "jl4",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "いくらですか。",
+   "options": [
+    "150円",
+    "15,000円",
+    "1,500円",
+    "5,000円"
+   ],
+   "answer": 2,
+   "explain_bn": "せんごひゃく = ১৫০০।",
+   "explain_en": "1,500 yen.",
+   "say": "これは 1500えんです。"
+  },
+  {
+   "id": "jl5",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "さいしょに なにを しますか。",
+   "options": [
+    "そうじする",
+    "てを あらう",
+    "きかいを うごかす",
+    "きかいを とめる"
+   ],
+   "answer": 3,
+   "explain_bn": "〜てから: আগে মেশিন থামান।",
+   "explain_en": "Stop the machine first.",
+   "say": "きかいを とめてから、そうじして ください。"
+  },
+  {
+   "id": "jl6",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "おんなの ひとは どこが いたいですか。",
+   "options": [
+    "あたま",
+    "おなか",
+    "あし",
+    "て"
+   ],
+   "answer": 0,
+   "explain_bn": "あたま = মাথা।",
+   "explain_en": "Head.",
+   "say": "おとこ: どう しましたか。おんな: きのうから あたまが いたいです。"
+  },
+  {
+   "id": "jl7",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "きゅうりょうびは いつですか。",
+   "options": [
+    "まいつき ついたち",
+    "まいつき 25にち",
+    "まいつき 15にち",
+    "まいしゅう きんようび"
+   ],
+   "answer": 1,
+   "explain_bn": "২৫ তারিখ।",
+   "explain_en": "The 25th.",
+   "say": "おとこ: きゅうりょうびは いつですか。おんな: まいつき 25にちです。"
+  },
+  {
+   "id": "jl8",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "おとこの ひとは あした いつ はたらきますか。",
+   "options": [
+    "やすみ",
+    "ひると よる",
+    "あさ",
+    "よる"
+   ],
+   "answer": 2,
+   "explain_bn": "あさ = সকাল।",
+   "explain_en": "Morning.",
+   "say": "おんな: あしたも よるの シフトですか。おとこ: いいえ、あしたは あさです。"
+  },
+  {
+   "id": "jl9",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "ひじょうぐちは どこですか。",
+   "options": [
+    "じむしょの なか",
+    "りょうの うしろ",
+    "ちゅうしゃじょうの まえ",
+    "しょくどうの となり"
+   ],
+   "answer": 3,
+   "explain_bn": "となり = পাশে।",
+   "explain_en": "Next to the canteen.",
+   "say": "ひじょうぐちは しょくどうの となりです。"
+  },
+  {
+   "id": "jl10",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "なぜ はしっては いけませんか。",
+   "options": [
+    "うるさいから",
+    "きかいが あるから",
+    "よるだから",
+    "ゆかが すべりやすいから"
+   ],
+   "answer": 3,
+   "explain_bn": "すべりやすい = পিছলা।",
+   "explain_en": "The floor is slippery.",
+   "say": "ゆかが すべりやすいので、はしらないで ください。"
+  },
+  {
+   "id": "jl11",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "あしたは なんの ひですか。",
+   "options": [
+    "やすみ",
+    "きゅうりょうび",
+    "しけんの ひ",
+    "ひっこしの ひ"
+   ],
+   "answer": 0,
+   "explain_bn": "やすみ = ছুটি।",
+   "explain_en": "Day off.",
+   "say": "あしたは やすみです。"
+  },
+  {
+   "id": "jl12",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "ひるやすみは いつですか。",
+   "options": [
+    "12じ〜2じ",
+    "12じ〜1じ",
+    "11じ〜12じ",
+    "1じ〜2じ"
+   ],
+   "answer": 1,
+   "explain_bn": "দুপুর ১২টা থেকে ১টা।",
+   "explain_en": "12 to 1.",
+   "say": "ひるやすみは 12じから 1じまでです。"
+  },
+  {
+   "id": "jl13",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "はこを どこに はこびますか。",
+   "options": [
+    "りょう",
+    "じむしょ",
+    "そうこ",
+    "しょくどう"
+   ],
+   "answer": 2,
+   "explain_bn": "そうこ = গুদাম।",
+   "explain_en": "Warehouse.",
+   "say": "この はこを そうこに はこんで ください。"
+  },
+  {
+   "id": "jl14",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "おんなの ひとは どこから きましたか。",
+   "options": [
+    "ネパール",
+    "ベトナム",
+    "にほん",
+    "バングラデシュ"
+   ],
+   "answer": 3,
+   "explain_bn": "বাংলাদেশ।",
+   "explain_en": "Bangladesh.",
+   "say": "おとこ: どこから きましたか。おんな: バングラデシュから きました。"
+  },
+  {
+   "id": "jl15",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "なにを しますか。",
+   "options": [
+    "みみせん",
+    "マスク",
+    "てぶくろ",
+    "あんぜんぐつ"
+   ],
+   "answer": 0,
+   "explain_bn": "みみせん = কানের প্লাগ।",
+   "explain_en": "Earplugs.",
+   "say": "きかいの おとが おおきいので、みみせんを して ください。"
+  },
+  {
+   "id": "jl16",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "いくらですか。",
+   "options": [
+    "130円",
+    "300円",
+    "3,000円",
+    "30円"
+   ],
+   "answer": 1,
+   "explain_bn": "さんびゃく = ৩০০।",
+   "explain_en": "300 yen.",
+   "say": "おんな: これ、いくらですか。おとこ: 300えんです。"
+  },
+  {
+   "id": "jl17",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "バスは なんじに でますか。",
+   "options": [
+    "8:30",
+    "11:30",
+    "7:30",
+    "7:00"
+   ],
+   "answer": 2,
+   "explain_bn": "しちじ はん = সাড়ে সাতটা।",
+   "explain_en": "7:30.",
+   "say": "バスは こうじょうの まえを 7じ はんに でます。"
+  },
+  {
+   "id": "jl18",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "てを きったら どう しますか。",
+   "options": [
+    "がまんする",
+    "うちへ かえる",
+    "しごとを つづける",
+    "すぐ いう"
+   ],
+   "answer": 3,
+   "explain_bn": "すぐ = সঙ্গে সঙ্গে।",
+   "explain_en": "Tell at once.",
+   "say": "てを きったら、すぐ いって ください。"
+  },
+  {
+   "id": "jl19",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "ざんぎょうは なんじかんですか。",
+   "options": [
+    "2じかん",
+    "1じかん",
+    "3じかん",
+    "ない"
+   ],
+   "answer": 0,
+   "explain_bn": "২ ঘণ্টা।",
+   "explain_en": "Two hours.",
+   "say": "おとこ: きょう ざんぎょうは ありますか。おんな: はい、2じかん あります。"
+  },
+  {
+   "id": "jl20",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "しゅうまつ、しょくどうは?",
+   "options": [
+    "しまって いる",
+    "おそく あく",
+    "はやく あく",
+    "24じかん あいて いる"
+   ],
+   "answer": 0,
+   "explain_bn": "しまって いる = বন্ধ।",
+   "explain_en": "Closed.",
+   "say": "どようびと にちようびは りょうの しょくどうが しまって います。"
+  }
+ ]
+}

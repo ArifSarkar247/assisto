@@ -1,0 +1,109 @@
+{
+ "en": {
+  "lkKoreaPathTitle": "Work in Korea → EPS-TOPIK path",
+  "@lkKoreaPathTitle": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkKoreaPathSub": "Korean from Hangul, EPS-TOPIK style tests, factory safety words",
+  "@lkKoreaPathSub": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkJapanPathTitle": "Work in Japan → JFT-Basic path",
+  "@lkJapanPathTitle": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkJapanPathSub": "Japanese from kana, JFT-Basic and JLPT style tests, workplace phrases",
+  "@lkJapanPathSub": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkCourseKorean": "Korean (EPS-TOPIK · TOPIK)",
+  "@lkCourseKorean": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkCourseJapanese": "Japanese (JFT-Basic · JLPT)",
+  "@lkCourseJapanese": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkStartCourse": "Start the course",
+  "@lkStartCourse": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkStartCourseSub": "Placement test, lessons, role-play, pronunciation and timed tests",
+  "@lkStartCourseSub": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkListenTitle": "Listening practice (phone voice)",
+  "@lkListenTitle": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkListenSub": "Your phone reads short lines aloud; you pick the right answer",
+  "@lkListenSub": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkListenHow": "Tap Listen and hear the line (as many times as you like), then choose an answer. The voice is your phone's, not exam audio. If the phone has no voice for this language, it shows how to install one.",
+  "@lkListenHow": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkOfficialLinks": "Official websites",
+  "@lkOfficialLinks": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkVerifyNote": "Rules, fees and dates change with every round. Always check the official notice.",
+  "@lkVerifyNote": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkShowLine": "Show the line",
+  "@lkShowLine": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkCheck": "Check answers",
+  "@lkCheck": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkPickOne": "Choose an answer for at least one question first.",
+  "@lkPickOne": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)"
+  },
+  "lkScore": "{correct} of {total} correct",
+  "@lkScore": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)",
+   "placeholders": {
+    "correct": {
+     "type": "Object"
+    },
+    "total": {
+     "type": "Object"
+    }
+   }
+  },
+  "lkRightAnswer": "Right answer: {answer}",
+  "@lkRightAnswer": {
+   "description": "langkoja: Korean/Japanese work-language path (Probashi corner)",
+   "placeholders": {
+    "answer": {
+     "type": "Object"
+    }
+   }
+  }
+ },
+ "bn": {
+  "lkKoreaPathTitle": "কোরিয়ায় কাজ → EPS-TOPIK পথ",
+  "lkKoreaPathSub": "হাঙ্গুল থেকে কোরিয়ান, EPS-TOPIK ধাঁচের টেস্ট, কারখানার নিরাপত্তা শব্দ",
+  "lkJapanPathTitle": "জাপানে কাজ → JFT-Basic পথ",
+  "lkJapanPathSub": "কানা থেকে জাপানি, JFT-Basic ও JLPT ধাঁচের টেস্ট, কর্মস্থলের বাক্য",
+  "lkCourseKorean": "কোরিয়ান (EPS-TOPIK · TOPIK)",
+  "lkCourseJapanese": "জাপানি (JFT-Basic · JLPT)",
+  "lkStartCourse": "কোর্স শুরু করুন",
+  "lkStartCourseSub": "লেভেল যাচাই, পাঠ, রোল-প্লে, উচ্চারণ ও সময় ধরা টেস্ট",
+  "lkListenTitle": "শোনার অনুশীলন (ফোনের কণ্ঠ)",
+  "lkListenSub": "ফোন ছোট বাক্য জোরে পড়ে; আপনি সঠিক উত্তর বাছেন",
+  "lkListenHow": "\"শুনুন\" চাপুন, বাক্যটা শুনুন (যতবার দরকার), তারপর উত্তর বাছুন। কণ্ঠটা ফোনের, পরীক্ষার অডিও নয়। ফোনে এই ভাষার কণ্ঠ না থাকলে কীভাবে ইনস্টল করবেন তা দেখাবে।",
+  "lkOfficialLinks": "অফিসিয়াল ওয়েবসাইট",
+  "lkVerifyNote": "নিয়ম, ফি ও তারিখ প্রতি রাউন্ডে বদলায়। সবসময় অফিসিয়াল নোটিশ দেখে নিন।",
+  "lkShowLine": "বাক্যটা দেখুন",
+  "lkCheck": "উত্তর যাচাই করুন",
+  "lkPickOne": "আগে অন্তত একটা প্রশ্নের উত্তর বাছুন।",
+  "lkScore": "{total}টির মধ্যে {correct}টি সঠিক",
+  "lkRightAnswer": "সঠিক উত্তর: {answer}"
+ }
+}

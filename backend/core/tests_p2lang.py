@@ -411,7 +411,7 @@ class LearnApiTests(TestCase):
             p = self.c.get(V + "/learn/pack/en").json()
         self.assertFalse(p["ai_ready"])
         self.assertNotIn("answer", p["placement"]["questions"][0])
-        self.assertEqual(self.c.get(V + "/learn/pack/ko").status_code, 404)
+        self.assertEqual(self.c.get(V + "/learn/pack/xx").status_code, 404)
 
     def test_placement_and_mock_store_results_for_the_certificate(self, _f):
         qs = LP.load("en")["placement"]["questions"]

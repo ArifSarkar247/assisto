@@ -73,6 +73,7 @@ const _launchPrefixes = <String>[
   'food_cal', // p2food: food photo -> calories
   'ielts_', // p2lang: IELTS practice (Language Partner)
   'vde2e_', // p3docs: Documents end-to-end lock + share link
+  'lk_', // langkoja: Korea/Japan work-language paths + phone-voice listening
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
   'crr_', // p2career: CV export, Find jobs, role interview (3 Nov)

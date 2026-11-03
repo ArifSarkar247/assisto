@@ -1758,3 +1758,10 @@ urlpatterns += [
     path("life/share/revoke", lifesh.LifeShareRevokeView.as_view()),
 ]
 # ---- /p3life ----
+# ---- langkoja ---- phone-voice listening practice (Korean / Japanese packs)
+from . import learn_listen_views as lkv  # noqa: E402
+urlpatterns += [
+    path("learn/<str:lang>/listening", lkv.LearnListeningView.as_view()),
+    path("learn/<str:lang>/listening/grade", lkv.LearnListeningGradeView.as_view()),
+]
+# ---- /langkoja ----
