@@ -239,7 +239,7 @@ def validate(pack):
             errs.append(f"{it['id']}: unknown skill")
         if it["type"] == "mcq":
             opts = it["options"]
-            if len(opts) < 3 or not 0 <= it["answer"] < len(opts):
+            if len(opts) < 2 or not 0 <= it["answer"] < len(opts):
                 errs.append(f"{it['id']}: bad options/answer")
             keys = [json.dumps(o, sort_keys=True, ensure_ascii=False) for o in opts]
             if len(set(keys)) != len(keys):
