@@ -1776,18 +1776,22 @@ class AgentView(APIView):
                     # = MAIN model for 1 credit, outside the 40 % rule).
                     from .views_chat import _chat_mode
                     mode = _chat_mode(request)
+                    from . import ai_prompt as AP
+                    qlang = AP.reply_lang(text, lang)   # ailang: the user's language
                     ai_reply, _ = ai.generate(
-                        task=pick(lang,
-                                  "ব্যবহারকারীর প্রশ্নের উত্তর দাও বাংলায়, সংক্ষেপে ও সত্যভাবে। "
-                                  "নিচের DATA-তে তার নিজের তথ্যের সারাংশ আছে — শুধু এটাই সত্য।",
-                                  "Answer the user's question briefly and truthfully in English. "
-                                  "The DATA below summarises their own data — treat only it as true."),
+                        task=pick(qlang,
+                                  "ব্যবহারকারীর প্রশ্নের উত্তর বাংলায় (বাংলা হরফে) দাও — প্রথম বাক্যেই, "
+                                  "সংক্ষেপে ও সত্যভাবে; 'আপনার তথ্য নেই' দিয়ে শুরু করবে না। প্রশ্ন "
+                                  "তার নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে।",
+                                  "Answer the user's question in English, in the first sentence, "
+                                  "briefly and truthfully; never open by saying you don't have their "
+                                  "data. Use the DATA below only when the question is about their own records."),
                         data=f"Question: {text}\n\n{summary}",
                         tier="cheap", feature=("chat." + mode) if mode else "agent_qa",
                         max_tokens=400, user=u, history=hist, out_meta=gen_meta,
                         mode=mode, pii=True)   # AF-2: question + own-data summary masked
                     from . import ai_guard
-                    reply, _flags = ai_guard.clean_assistant_answer(ai_reply, lang)
+                    reply, _flags = ai_guard.clean_assistant_answer(ai_reply, qlang)
                     reply, n_money = ai_guard.scrub_ungrounded_money(
                         reply, text, ctx["reply"], [h["content"] for h in hist],
                         lang=lang, strict=ctx.get("level") == "L1")

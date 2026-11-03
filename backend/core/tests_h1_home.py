@@ -435,10 +435,10 @@ class VisionJobApiTests(_VBase):
         self.vision()
         self.as_(self.prem)
         job = self.create().json()["job"]
+        # ailang (owner 23:20): refunded on the FIRST failure (before: after 3 tries)
         with mock.patch.object(VP, "ask", side_effect=VP.VisionError("http_500")):
-            for _ in range(3):
-                r = self.answer(job["id"])
-                self.assertEqual(r.status_code, 502)
+            r = self.answer(job["id"])
+            self.assertEqual(r.status_code, 502)
         self.assertEqual(PhotoStudioJob.objects.get(pk=job["id"]).status, "failed")
         self.prem.refresh_from_db()
         self.assertEqual(self.prem.ai_credits, 90)
