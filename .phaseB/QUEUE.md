@@ -1,21 +1,21 @@
-# Assisto work queue — rewritten 3 Nov 04:00 BD (short; older history is in git: `git log -p .phaseB/QUEUE.md`)
+# Assisto work queue — updated 3 Nov ~11:00 BD (short; older history is in git: `git log -p .phaseB/QUEUE.md`)
 Rules for every item: Bangla feature card first (owner_actions/FEATURE_CARD_<X>_BN.md) -> competitor teardown -> build with real data + proof -> board row (owner_actions/FEATURE_100_BOARD_BN.md) reaches 100 only with written proof -> new things behind a flag -> 40% profit rule -> CI only (no local tests/builds) -> token rule (grep, never whole files) -> <=2-4 parallel agents. Home frozen except explicit owner order. Never deploy / push main / touch live DB, flags, money, Play, owner_private from agents.
 Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE" never means 100 on the board; see the board for the honest score. Honest per-item table for Part 2/3: owner_actions/PART2_PART3_TABLE_BN.md.
 
 ## MASTER ORDER 3 Nov 04:00 — owner_actions/OWNER_MASTER_ORDER_3NOV_0400.md (replaces unsent messages)
-- P1 Finish CCTV completely (auto-arm, daily summary, visitor log, elder no-movement, shop times, watchman, footfall, guard mode, SOS->home camera, time-lapse, multi-site grid, health report, roles, share link, neighbourhood watch, Play Billing plans, Hikvision/Dahua path) — IN PROGRESS (audit: 8 exist / 23 partial / 38 missing, owner_actions/CCTV_AUDIT_3NOV_BN.md)
-- P2 Website hero + fixes (owner_actions/OWNER_WEBSITE_ORDER_3NOV.md) — IN PROGRESS (v3 live 3 Nov 03:07; hero change pending)
-- P2 Owner fixes 02:55 (owner_actions/OWNER_FIXES_3NOV_0255.md): single blood donor, train banner ad, home + Discover — IN PROGRESS
-- P2 Floating chat bubbles FINAL (owner_actions/OWNER_BUBBLES_ORDER_3NOV.md) — IN PROGRESS (first version in b286; board 58)
-- P2 Safe Journey final (owner_actions/OWNER_SAFE_JOURNEY_ORDER_3NOV.md) — IN PROGRESS (board rows 75-89, no owner real-phone proof)
-- P2 Play listing pack (owner_actions/OWNER_PLAY_LISTING_ORDER_3NOV.md) — IN PROGRESS (same headline as website)
+- P1 Finish CCTV (owner_actions/CCTV_AUDIT_3NOV_BN.md) — W1 auto-arm, W3 daily summary/visitor log, W5 elder no-movement, W6 shop times, W7 watchman, W8 footfall, W9 guard mode, W10 activity brain, W11 roles/multi-site grid/share link: DONE code in b291/b293 (board 45-55, NO real-camera or two-phone proof). IN PROGRESS: cap extra pack (agent cctvcap), AI snapshot check (agent cctvaicheck). WAITING FOR OWNER: Play CCTV products, Hikvision/Dahua emails, real-device tests
+- P2 Website hero + fixes — DONE: v3 + new hero live (b291 day, 3 Nov); IN PROGRESS: website shots refresh (agent siteshots)
+- P2 Owner fixes 02:55 (single blood donor screen, train banner ad, home ad below fold) — DONE b293 (migration 0142; owner phone check pending)
+- P2 Floating chat bubbles FINAL — DONE b293 (board 58; no ColorOS real-phone proof, owner 4-state test pending)
+- P2 Safe Journey final — DONE b293 (3 cards: live location, destination alarm, train + banner; board 75-89, owner real-phone proof pending)
+- P2 Play listing pack — DONE (16 shots, 2 graphics, bn+en text, Play guide; owner pastes into Play Console)
 - P3-A Rewrite this queue — DONE (this file)
-- P3-B Flag prep (read-only live cron check + ONE sudo command, train schedule path, agent_core 10% rollout, Data safety in Bangla) — IN PROGRESS (agent flagprep; live crons checked 3 Nov 04:00: ops_cron_file --diff = 0 missing, ops_watch bad=0 → no sudo command needed)
-- P3-C Business automation real-life ready (crmauto, retention_auto, AI Sales Assistant, agent_core; opt-out, daily caps, SMS cost; Meta App Review steps) — IN PROGRESS (crmauto merged b280, board CRM 69.5; Meta review = owner)
-- P3-D Marketing engine v1 behind a switch — NOT STARTED (no code)
-- P3-E Assisto Market (reverse auction, group-buy, COD, Dhaka pilot) — NOT STARTED (no code)
-- P3-F Honest Bangla table for every Part 2/3 item — DONE (owner_actions/PART2_PART3_TABLE_BN.md)
-- MORNING: top of STATUS one short Bangla summary — WAITING (written at morning)
+- P3-B Flag prep — DONE b292/b293 (cron check = no sudo needed, train schedule check in Owner Admin, agent_core rollout %, Data safety Bangla); owner flips switches
+- P3-C Business automation (message safety, opt-out, caps, SMS 40%) — DONE b293 (CRM 69.5, message safety 70, comment replies 55); WAITING FOR OWNER: Meta App Review (META_APP_REVIEW_BN.md), AI keys
+- P3-D Marketing engine v1 — DONE b293 behind a switch (board 50; questionnaire, plan, follow-ups; publish gated); WAITING FOR OWNER: Meta App Review, AI keys
+- P3-E Assisto Market v1 — DONE b293 (needs, sealed bids, group-buy, COD, Owner Admin; migration 0144); WAITING FOR OWNER: Market decisions (law/trust, card CI section)
+- P3-F Honest Bangla table for every Part 2/3 item — DONE, updated 3 Nov ~11:00 (owner_actions/PART2_PART3_TABLE_BN.md)
+- MORNING: top of STATUS short Bangla summary — DONE (3 Nov morning + b293 note)
 
 ## Orders since 2 Nov 18:00 BD (one line each)
 - 2 Nov 18:00 daily 21:00 BD feature report + usage forecast — DONE (STATUS)
@@ -30,18 +30,18 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - 2 Nov launch sweep (Bangla digits, English leaks, overflow, 48dp) — DONE b288
 - 2 Nov bizops Business AI morning card (agent_core switch OFF) — DONE b287 — FEATURE_CARD_BIZ_OPS_AGENT_BN.md
 - 3 Nov 00:45 CCTV FINAL order (owner_actions/OWNER_CCTV_ORDER_3NOV.md): audit table — DONE; phone-as-camera (cctvphone) — DONE b290 (board 55, no 2-phone proof); smart alert types (cctvalerts) — DONE b290 (board 55, no real camera yet); rest — IN PROGRESS (see P1)
-- 3 Nov CCTV devices + cost research (Hikvision/Dahua official API, worst-case cost; relay limit decision) — DONE research; WAITING FOR OWNER yes/no on 0.3 GB relay limit and object storage (R2/S3) — owner_actions/CCTV_DEVICES_COST_BN.md
+- 3 Nov CCTV devices + cost research — DONE; owner decided: relay limit 0.3 GB/camera + 50 AI checks ON (STATUS 10:40); object storage (R2/S3) still WAITING FOR OWNER
 - 3 Nov 01:20 Website order v2 (sticky header, mobile menu, chips, Install now, Play badges, cache) — DONE, live 3 Nov 03:07 (board 70) — OWNER_WEBSITE_ORDER_3NOV.md
-- 3 Nov website APK signing cert differs from Play — WAITING FOR OWNER "yes" (use Play-signed universal APK); also paste Play App Signing SHA-256 in Owner Admin -> Integrations
-- 3 Nov 01:50 Bubbles FINAL (auto-on, many bubbles, during calls, per-chat off) — IN PROGRESS — OWNER_BUBBLES_ORDER_3NOV.md
-- 3 Nov 02:00 Play listing pack — IN PROGRESS — OWNER_PLAY_LISTING_ORDER_3NOV.md
-- 3 Nov 02:25 Safe Journey final — IN PROGRESS — OWNER_SAFE_JOURNEY_ORDER_3NOV.md
-- 3 Nov 02:55 owner fixes (blood single screen, train banner, home/Discover) — IN PROGRESS — OWNER_FIXES_3NOV_0255.md
-- 3 Nov 03:30 website hero + fixes; Play pack uses the same headline — IN PROGRESS
+- 3 Nov website APK signing cert — DONE b293: website APK now Play-signed (owner said yes); owner pastes Play App Signing SHA-256 in Owner Admin -> Integrations
+- 3 Nov 01:50 Bubbles FINAL — DONE b293 — OWNER_BUBBLES_ORDER_3NOV.md
+- 3 Nov 02:00 Play listing pack — DONE — OWNER_PLAY_LISTING_ORDER_3NOV.md
+- 3 Nov 02:25 Safe Journey final — DONE b293 — OWNER_SAFE_JOURNEY_ORDER_3NOV.md
+- 3 Nov 02:55 owner fixes (blood single screen, train banner, home/Discover) — DONE b293 — OWNER_FIXES_3NOV_0255.md
+- 3 Nov 03:30 website hero + fixes; Play pack same headline — DONE (live; shots refresh IN PROGRESS, agent siteshots)
 - 3 Nov 04:00 master order — see top
 - Personal Secretary (PS: Today brief, circle people, pick-up sheet) — DONE b290 (board 58; Play notification-listener finding in card) — FEATURE_CARD_PERSONAL_SECRETARY_BN.md
 - 3 Nov camera disclosure before phone camera; contrast fix — DONE b290
-- Build 290 integration (pssec, cctvphone, cctvalerts, sitev3) — release notes committed; server deploy + Play upload by integrator
+- Builds 288, 290, 291, 293 are on Play (internal + closed testing); b293 server migrations 0142-0145 live; 292 content ships inside 293
 
 ## OWNER BACKLOG ORDER 2 Nov (real state)
 ### 0) Always first: owner phone-test bugs + launch blockers
@@ -49,14 +49,14 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - 8 Nov launch: switch list, entry-point leaks, AI-off honesty, Play production checklist (agent/launch, playaudit2, flipready) — DONE docs/tests; owner flips switches + Play steps — WAITING FOR OWNER
 - Any owner phone-test bug report jumps here — standing
 ### 0.5 CCTV / Vehicle / Safe Journey to 100 (cctv100, veh100b, journey100b)
-- CCTV: see P1 (board 10 rows avg 61.1) — IN PROGRESS
+- CCTV: see P1 (board 10 rows, no real-camera proof) — IN PROGRESS (cctvcap, cctvaicheck)
 - Vehicle tracking (board 9 rows avg 57.1; live map 43, car-mode 44) — IN PROGRESS, no real GPS device proof
-- Safe Journey (journey100b, journeymode) — DONE code, board 75-89, needs owner real-phone proof; destination alarm in train agent
+- Safe Journey (journey100b, journeymode) — DONE b293, board 75-89, needs owner real-phone proof
 ### 1) Owner first priority
 1. A1 My Circle links/preview/safe-link, Family/Others, many-to-many guardians (circlea, finish1) — DONE (board 63-70)
 2. A2 Missing person alert + found-share (missing) — DONE code (board 55/50), no 2-phone proof
-3. B Blood donor panel + urgent requests (blood, finish1) — DONE code (board 62); 3 Nov 02:55 order = remove the old simple screen — IN PROGRESS
-4. C Train tracker + chat + destination alarm (train, journeymode) — DONE code (card FEATURE_CARD_TRAIN_TRACKER_BN.md); banner ads + 16318 SMS/schedule check — IN PROGRESS
+3. B Blood donor panel + urgent requests (blood, finish1) — DONE code (board 62); old simple screen removed b293
+4. C Train tracker + chat + destination alarm (train, journeymode) — DONE code; banner ads DONE b293; 16318 schedule check in Owner Admin DONE; owner real-phone proof pending
 ### 2) PART 1 before launch
 5a Intruder selfie / SIM change / uninstall alert (theftalerts) — DONE code (board 71); Play-policy note in card; flash/reset wipes app (honest)
 5b Child emergency audio (kidaudio) — DONE code, flag OFF; WATCH side WAITING FOR OWNER decision (silent MONITOR blocked by our guard)
@@ -104,4 +104,4 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - Daily: STATUS_FOR_OWNER.md top = short Bangla summary; 3 Bangla lines per published build
 
 ## OWNER ADMIN SUPPORT/SAFETY/STATS (3 Nov 04:22) — after CCTV P1
-Full text: owner_actions/OWNER_ADMIN_SUPPORT_ORDER_3NOV.md. Agent: adminsafe (running).
+Full text: owner_actions/OWNER_ADMIN_SUPPORT_ORDER_3NOV.md. adminsafe — DONE b293 (stats + filters + trend, user detail, appeals, staff roles, bans, DATA_MINIMISATION_BN.md; board users 85, audit/security 80; migration 0145). WAITING FOR OWNER: privacy page OK (PRIVACY_UPDATE_DRAFT_BN.md), AI keys, real-device tests.
