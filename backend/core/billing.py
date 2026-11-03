@@ -632,6 +632,9 @@ def guard_can(user, action, qty=1):
         return True, "unlimited"
     ensure_monthly_pool(user)
     need = pricing.credits_for(action, qty, cfg())
+    # aifinal PART 3: an AI answer level carries its own computed price
+    if exact is not None:
+        need = max(0, int(exact))
     if need <= 0:
         return True, "ok"          # unpriced/unknown action -> free, never block
 
@@ -657,7 +660,7 @@ def guard_can(user, action, qty=1):
 
 # --------------------------------------------------------------- atomic charge
 
-def charge(user, action, qty=1, note="", min_credits=0):
+def charge(user, action, qty=1, note="", min_credits=0, exact=None, paid_only=False):
     """ATOMIC debit of the per-action credit cost against User.ai_credits.
 
     Returns {"ok": bool, "reason": str, "charged": int, "balance": int}.
@@ -686,6 +689,9 @@ def charge(user, action, qty=1, note="", min_credits=0):
     ensure_monthly_pool(user)
 
     need = pricing.credits_for(action, qty, cfg())
+    # aifinal PART 3: an AI answer level carries its own computed price
+    if exact is not None:
+        need = max(0, int(exact))
     # bizauto: a caller that knows a higher real cost (an SMS gateway with its
     # own per-part price) may raise the charge to keep the 40 % rule — never lower
     if need > 0 and min_credits:
@@ -730,7 +736,10 @@ def charge(user, action, qty=1, note="", min_credits=0):
             fam = None
         if fam is not None and (fam["ok"] or fam["reason"] == "family_cap"):
             return fam
-    res = CR.spend(user, need, note=(note or action))
+    # aifinal PART 4: free + rewarded-ad credits pay only for Normal answers;
+    # Better / Best spend only BOUGHT credits (plan pool + packs)
+    only = CR.PAID_BUCKETS if paid_only else None
+    res = CR.spend(user, need, note=(note or action), only_buckets=only)
     return {"ok": res["ok"], "reason": res["reason"], "charged": res["charged"],
             "balance": res["balance"], "spend_ref": res.get("spend_ref", ""),
             **({"negative": True} if res.get("negative") else {})}

@@ -12,6 +12,7 @@ from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_mapsusage as MAPSU   # mapscost
 from . import views_safeplans as SAFEP   # safeplans
 from . import views_aiusage as AIU     # aifinal
+from . import views_ailevels as AILV   # aifinal PART 3
 from . import views_sc1 as SC1   # sc1 app errors
 from . import views_p1 as P1     # p1-bizagent sellers
 from . import views_p2 as P2     # p2-money
@@ -130,6 +131,7 @@ urlpatterns = [
     path("website", WS3.website),                                # sitev3
     path("ai", AIRT.ai_page),                                     # ai-router
     path("ai-usage", AIU.ai_usage),                              # aifinal: AI usage log
+    path("ai-levels", AILV.ai_levels),                           # aifinal: answer levels
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report

@@ -1,0 +1,31 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<p class="mut small">{{ L.intro }}</p>
+<section class="card" id="ail-table">
+<p class="small">{{ L.rate }}: <b>{{ t.usd_bdt }}</b> · {{ L.safe }}: <b>{{ t.safe_bdt_per_credit }}</b></p>
+<div class="tbl"><table><thead><tr><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th><th>in / out</th><th>{{ L.worst }}</th><th>{{ L.min }}</th><th>{{ L.charged }}</th><th>{{ L.profit }}</th></tr></thead><tbody>
+{% for r in t.rows %}<tr><td><b>{{ r.id }}</b></td><td>{{ r.provider }}</td><td><code>{{ r.model }}</code></td><td>{{ r.in_cap }} / {{ r.out_cap }}</td><td>${{ r.worst_usd }} · ৳{{ r.worst_bdt }}</td><td>{{ r.min_credits }}</td><td><b>{{ r.charged }}</b></td><td>{% if r.profit_pct < 40 %}<span class="pill off">{{ r.profit_pct }}%</span>{% else %}<span class="pill ok">{{ r.profit_pct }}%</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="small">{{ L.caps }}: {% for k, v in caps.items %}<code>{{ k }}</code> ${{ v }} {% endfor %} · <a href="/owner/ai">/owner/ai</a></p>
+</section>
+<section class="card" id="ail-edit">
+<form method="post">{% include "owner/_csrf.html" %}
+<label><input type="checkbox" name="enabled" {% if c.enabled %}checked{% endif %}> {{ L.on }}</label>
+<label>{{ L.default }} <select name="default">{% for i in ids %}<option value="{{ i }}" {% if c.default == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select></label>
+<p>{{ L.free }}: {% for i in ids %}<label><input type="checkbox" name="free_{{ i }}" {% if i in c.free_credit_levels %}checked{% endif %}> {{ i }}</label> {% endfor %}</p>
+<div class="tbl"><table><thead><tr><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th>{% for k in int_keys %}<th><code>{{ k }}</code></th>{% endfor %}</tr></thead><tbody>
+{% for r in t.rows %}<tr><td><b>{{ r.id }}</b></td>
+<td><select name="{{ r.id }}_provider" aria-label="{{ r.id }} provider">{% for p in providers %}<option value="{{ p }}" {% if r.provider == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></td>
+<td><input name="{{ r.id }}_model" value="{{ r.model }}" size="20" aria-label="{{ r.id }} model"></td>
+<td><input name="{{ r.id }}_in_cap" value="{{ r.in_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }} in_cap"></td>
+<td><input name="{{ r.id }}_out_cap" value="{{ r.out_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }} out_cap"></td>
+<td><input name="{{ r.id }}_max_chars" value="{{ r.max_chars }}" size="6" inputmode="numeric" aria-label="{{ r.id }} max_chars"></td>
+<td><input name="{{ r.id }}_history_turns" value="{{ r.history_turns }}" size="4" inputmode="numeric" aria-label="{{ r.id }} history_turns"></td>
+<td><input name="{{ r.id }}_credits" value="{{ r.credits }}" size="4" inputmode="numeric" aria-label="{{ r.id }} credits"></td></tr>{% endfor %}
+</tbody></table></div>
+<label>{{ L.reason }} <input name="reason" maxlength="200"></label> <button class="btn">{{ L.save }}</button>
+</form>
+</section>
+{% endblock %}

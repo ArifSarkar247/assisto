@@ -176,6 +176,7 @@ urlpatterns = [
     path("chat/sessions/<int:sid>/regenerate", chatv.ChatRegenerateView.as_view()),
     path("chat/report", chatv.AiReportView.as_view()),  # ai-report
     path("chat/status", chatv.ChatStatusView.as_view()),  # aivoice
+    path("chat/levels", chatv.ChatLevelsView.as_view()),  # aifinal PART 3
     path("wrapped", views.wrapped),
     path("invite", views.InviteView.as_view()),
     path("export", views.ExportView.as_view()),

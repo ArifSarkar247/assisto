@@ -1,8 +1,62 @@
-{"en": {
- "aimdOpenLinkTitle": "Open this link?", "@aimdOpenLinkTitle": {"description": "aifinal: confirm before an AI answer link leaves the app"},
- "aimdOpenLink": "Open", "@aimdOpenLink": {"description": "aifinal: confirm button to open an AI answer link"}
-},
-"bn": {
- "aimdOpenLinkTitle": "এই লিংকটি খুলবেন?",
- "aimdOpenLink": "খুলুন"
-}}
+{
+ "en": {
+  "aimdOpenLinkTitle": "Open this link?",
+  "@aimdOpenLinkTitle": {
+   "description": "aifinal: confirm before an AI answer link leaves the app"
+  },
+  "aimdOpenLink": "Open",
+  "@aimdOpenLink": {
+   "description": "aifinal: confirm button to open an AI answer link"
+  },
+  "ailvChip": "{name} · {n} credits",
+  "@ailvChip": {
+   "description": "aifinal: answer level chip with credits per answer",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvChipA11y": "{name}, {n} credits per answer",
+  "@ailvChipA11y": {
+   "description": "aifinal: answer level chip for TalkBack",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvUnavailable": "temporarily unavailable",
+  "@ailvUnavailable": {
+   "description": "aifinal: level whose daily budget is used up"
+  },
+  "ailvEstimate": "This answer: about {n} credits",
+  "@ailvEstimate": {
+   "description": "aifinal: estimated credits before sending",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "ailvHintBetter": "Tip: 'Better' may answer a question like this well.",
+  "@ailvHintBetter": {
+   "description": "aifinal: hint only, never an upgrade"
+  }
+ },
+ "bn": {
+  "aimdOpenLinkTitle": "এই লিংকটি খুলবেন?",
+  "aimdOpenLink": "খুলুন",
+  "ailvChip": "{name} · {n} ক্রেডিট",
+  "ailvChipA11y": "{name}, প্রতি উত্তরে {n} ক্রেডিট",
+  "ailvUnavailable": "সাময়িকভাবে বন্ধ",
+  "ailvEstimate": "এই উত্তরে আনুমানিক {n} ক্রেডিট লাগবে",
+  "ailvHintBetter": "টিপ: এমন প্রশ্নে 'ভালো' লেভেল আরও ভালো উত্তর দিতে পারে।"
+ }
+}

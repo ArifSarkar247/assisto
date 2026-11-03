@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
+import '../widgets/ai_level_picker.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/chat_cards.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -225,6 +226,9 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
+
+  /// aifinal PART 3: the answer level the user picked (null = levels off).
+  String? _level;
 
   @override
   void dispose() {
@@ -886,7 +890,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   /// photo of this chat (within its last 12 turns) so a follow-up question
   /// can be about that photo without re-sending it.
   Map<String, Object?> _turnExtra() {
-    final out = <String, Object?>{};
+    final out = <String, Object?>{if (_level != null) 'level': _level};
     final recent = _msgs.length > 12 ? _msgs.sublist(_msgs.length - 12) : _msgs;
     for (final m in recent.reversed) {
       final id = m.photo?.answeredJobId;
@@ -981,6 +985,10 @@ class _AiChatScreenState extends State<AiChatScreen>
         if (_loop.active ||
             (widget.debugLoopPhase != null && !_debugLoopEnded))
           _loopBar(),
+        // aifinal PART 3: answer level picker (hidden while the owner switch is off)
+        AiLevelPicker(
+            load: () => _api.getJson('/chat/levels'),
+            onChanged: (l) => _level = l),
         _inputBar(),
       ]),
     );
@@ -1171,6 +1179,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 : AiAnswerLongPress(target: report, child: bubble),
             // aibar: what this answer really cost (credits + balance after)
             if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
+            if (!m.streaming && AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),
@@ -1597,6 +1606,9 @@ class _HistorySheetState extends State<_HistorySheet> {
 
   AppLocalizations get t => AppLocalizations.of(context);
   ApiClient get _api => context.read<AppState>().api;
+
+  /// aifinal PART 3: the answer level the user picked (null = levels off).
+  String? _level;
 
   @override
   void initState() {
