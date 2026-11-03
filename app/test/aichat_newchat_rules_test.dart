@@ -84,10 +84,15 @@ void main() {
     await t.pumpWidget(_app(const AssistoChatScreen(sessionId: '5')));
     await _settle(t);
     final before = _thread(t).key;
-    t.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    t.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    for (final st in const [AppLifecycleState.inactive, AppLifecycleState.hidden,
+      AppLifecycleState.paused]) {
+      t.binding.handleAppLifecycleStateChanged(st);
+    }
     await t.pump();
-    t.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    for (final st in const [AppLifecycleState.hidden, AppLifecycleState.inactive,
+      AppLifecycleState.resumed]) {
+      t.binding.handleAppLifecycleStateChanged(st);
+    }
     await _settle(t);
     expect(_thread(t).key, before);
     expect(_thread(t).sessionId, '5');
