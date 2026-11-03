@@ -1820,3 +1820,10 @@ urlpatterns += [
     path("carecall/<int:pk>/voice", ccv.CareCallVoiceView.as_view()),
 ]
 # ---- /carecall ----
+
+# ---- callmoney ---- After-call note: words -> draft reminder / note / due (never writes)
+from . import callnote_views as cnv  # noqa: E402
+urlpatterns += [
+    path("callnote/understand", cnv.CallNoteUnderstandView.as_view()),
+]
+# ---- /callmoney ----

@@ -16,6 +16,7 @@ import 'money_budget_screen.dart';
 import '../widgets/budget_sheets.dart' show showBudgetSheet, budgetCategoryChoices;
 import 'money_import_screen.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import '../notiflisten/callmoney_screens.dart'; // callmoney
 
 /// Locale-aware Taka string. Keeps [tkFmt]'s ৳ sign, lakh grouping and decimals
 /// exactly, but renders the digits in Bangla numerals when the locale is bn —
@@ -103,6 +104,14 @@ class _MoneyScreenState extends State<MoneyScreen> {
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const MoneyImportScreen())),
               icon: const Icon(Icons.sms_rounded),
+            ),
+            // callmoney: money from bKash / Nagad / Rocket / bank notifications
+            IconButton(
+              key: const ValueKey('cmn_money_action'),
+              tooltip: t.clnMoneyTitle,
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const MoneyNotifReviewScreen())),
+              icon: const Icon(Icons.notifications_active_rounded),
             ),
             IconButton(
                 tooltip: AppLocalizations.of(context).refresh,onPressed: _refresh, icon: const Icon(Icons.sync_rounded)),

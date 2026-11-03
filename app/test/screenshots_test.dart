@@ -400,6 +400,9 @@ import 'package:assisto/push/push_settings_screen.dart';
 import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'bizops_shots.dart'; // bizops
 import 'fake_api.dart';
+import 'package:assisto/notiflisten/callmoney_screens.dart'; // callmoney
+import 'package:assisto/notiflisten/notif_listen_channel.dart'; // callmoney
+import 'callmoney_fake.dart'; // callmoney
 import 'fake_kidswatch.dart'; // chipbuy2
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
@@ -1229,6 +1232,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
     'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
     'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
+    // callmoney: after-call note + money from notifications (consent, review, sheet)
+    'cmn_settings': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_call_v1': 'x', 'cm_consent_money_v1': 'x', 'cm_callnote_on': true, 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(st: const NotifListenStatus(available: true, granted: true, callNote: true, money: true)); return const CallMoneySettingsScreen(); }, mode: FakeMode.data, full: true),
+    'cmn_settings_off': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const CallMoneySettingsScreen(); }, mode: FakeMode.data, full: true),
+    'cmn_consent_money': (build: (_) => const NotifConsentScreen(feature: 'money'), mode: FakeMode.data, full: true),
+    'cmn_consent_call': (build: (_) => const NotifConsentScreen(feature: 'call'), mode: FakeMode.data, full: true),
+    'cmn_review': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueue()); return const MoneyNotifReviewScreen(focusId: 1); }, mode: FakeMode.data, full: true),
+    'cmn_review_empty': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const MoneyNotifReviewScreen(); }, mode: FakeMode.empty, full: true),
+    'cmn_callnote': (build: (_) => const Scaffold(body: CallNoteSheet(launch: NotifLaunch(kind: 'callnote', mode: 'type', source: 'sim'), offline: true)), mode: FakeMode.data, full: true),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
     'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
     'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),

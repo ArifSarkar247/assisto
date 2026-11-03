@@ -418,6 +418,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // callmoney: "com.assisto/notif_listen" (after-call note + money from
+        // notifications). Handler only — the listener is bound by Android only
+        // after the user grants Notification access; nothing runs at launch.
+        try {
+            com.assisto.assisto.notiflisten.NotifListenChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

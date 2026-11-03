@@ -63,6 +63,7 @@ import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
+import '../notiflisten/callmoney_screens.dart'; // callmoney
 import '../services/action_feedback.dart'; // db1
 import '../services/data_export.dart'; // framebar
 import '../play_update.dart'; // framebar
@@ -260,6 +261,16 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.vaSettingsTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const VoiceAssistantSettingsScreen())),
+          ),
+          // callmoney: after-call note + money from notifications (consent first)
+          if (FeatureFlags.instance.isOn('reminders') || FeatureFlags.instance.isOn('money'))
+          ListTile(
+            key: const ValueKey('cmn_settings_tile'),
+            leading: const Icon(Icons.notifications_active_rounded),
+            title: Text(t.clnSettingsTitle),
+            subtitle: Text(t.clnSettingsTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const CallMoneySettingsScreen())),
           ),
           const Divider(),
           const _SafetySection(),
