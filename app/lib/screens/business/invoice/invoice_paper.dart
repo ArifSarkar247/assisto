@@ -363,8 +363,8 @@ InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t
         final fill = Paint()..color = brand;
         switch (hs) {
           case 'double':
-            cv.drawRect(Rect.fromLTWH(x, 18, w, 3), fill);
-            cv.drawRect(Rect.fromLTWH(x, 26, w, 1.5), fill);
+            cv.drawRect(Rect.fromLTWH(x, y + 2, w, 3), fill);
+            cv.drawRect(Rect.fromLTWH(x, y + 9, w, 1.5), fill);
           case 'letter':
             cv.drawRect(Rect.fromLTWH(0, 0, 18, 520), fill);
           default:
