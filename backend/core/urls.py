@@ -1801,3 +1801,10 @@ urlpatterns += [
     path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
 ]
 # ---- /safeplans ----
+
+# ---- callmoney ---- After-call note: words -> draft reminder / note / due (never writes)
+from . import callnote_views as cnv  # noqa: E402
+urlpatterns += [
+    path("callnote/understand", cnv.CallNoteUnderstandView.as_view()),
+]
+# ---- /callmoney ----
