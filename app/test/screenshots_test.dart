@@ -1482,7 +1482,24 @@ class _InvDesignFlags extends StatefulWidget {
 }
 
 class _InvDesignFlagsState extends State<_InvDesignFlags> {
+  Map<String, bool>? _was;
+  @override
+  void initState() {
+    super.initState();
+    _was = FeatureFlags.instance.debugOverride;
+    FeatureFlags.instance.debugOverride = {...?_was, 'invoice_designs': true};
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.instance.debugOverride = _was;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
+
 /// p3guides: one expanded e-namjari card (published fee table, sources,
 /// last-checked date, 1 of 3 documents ticked).
 class _P3gGuideCardShot extends StatefulWidget {
@@ -1540,7 +1557,6 @@ class _P3gTabShotState extends State<_P3gTabShot> {
   void initState() {
     super.initState();
     _was = FeatureFlags.instance.debugOverride;
-    FeatureFlags.instance.debugOverride = {...?_was, 'invoice_designs': true};
     FeatureFlags.instance.debugOverride = {...?_was, 'official_corners': true};
   }
 
@@ -1551,7 +1567,6 @@ class _P3gTabShotState extends State<_P3gTabShot> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     String title;

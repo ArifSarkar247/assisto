@@ -2449,11 +2449,6 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return;
     }
-    return super.updateItem(path, id, body);
-  }
-
-  @override
-  Future<void> updateItem(String path, int id, Map<String, dynamic> body) async {
     if (path.startsWith('food/')) { // p2food
       if (mode == FakeMode.fail) _fail();
       return;
