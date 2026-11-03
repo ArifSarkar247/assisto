@@ -78,7 +78,7 @@ ROUTE_KEYS = (
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",
     "ride_food", "fall_detect", "lost_stolen", "my_lost_phone", "recovery",
     "phone_safety", "security", "used_phone_check", "sell_phone", "shop_box",
-    "analytics", "name_about", "ramadan", "quran", "exam", "unseen", "photo_enhance",
+    "analytics", "name_about", "ramadan", "quran", "quran_learn", "exam", "unseen", "photo_enhance",
     "circle", "circle_add", "messages", "channels", "communities", "notifications", "groups", "status", "legal",
     "subscriptions", "finance", "payment_ladder", "notes", "memory", "nominee",
     "contacts", "agent_studio", "jobs", "cv", "resume", "inbox", "guide",

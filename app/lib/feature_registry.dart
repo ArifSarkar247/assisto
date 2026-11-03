@@ -76,6 +76,8 @@ const Map<String, bool> kFeatureDefaults = {
   'ramadan': true,
   // p3faith: offline Quran (Tanzil Arabic + Pickthall) - OFF until the owner's licence decision.
   'quran': false,
+  // quranread: learn to read Quran (Noorani order) - OFF until a Qari reviews.
+  'quran_learn': false,
   'watch_feed': true,
   'exam_result': true,
   'photo_studio': true,
@@ -241,6 +243,7 @@ const Map<String, String> kRouteFeature = {
   'dictionary': 'dictionary',
   'ramadan': 'ramadan',
   'quran': 'quran',
+  'quran_learn': 'quran_learn',
   'watch_feed': 'watch_feed',
   'exam': 'exam_result',
   'photo_studio': 'photo_studio',

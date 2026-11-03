@@ -192,6 +192,8 @@ class AudioRouteService extends ChangeNotifier {
     'lib/widgets/voice_input.dart': AudioUse.assistantListen,
     'lib/widgets/voice_command_sheet.dart': AudioUse.assistantListen,
     'lib/screens/money_voice_screen.dart': AudioUse.assistantListen,
+    // quranread: "I read, check me" (speech-to-text, Arabic)
+    'lib/quran_learn/recite_listener.dart': AudioUse.assistantListen,
     // SOS: the documented exception — the voice-SOS listener never moves
     // audio, and sirens play on STREAM_ALARM on the loudspeaker by design.
     'lib/widgets/voice_sos_service.dart': AudioUse.sos,
