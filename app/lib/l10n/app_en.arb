@@ -41003,5 +41003,626 @@
   "lcFbFailed": "Could not open Facebook.",
   "@lcFbFailed": {
     "description": "learncert: Assisto learning certificate"
-  }
+  },
+  "qlTitle": "Learn to read Quran",
+  "@qlTitle": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAbout": "Sources and notes",
+  "@qlAbout": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlExperimentalTitle": "Experimental",
+  "@qlExperimentalTitle": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlExperimentalBody": "These lessons follow the Noorani method order and are written by Assisto. Until a qualified Qari reviews them, use them for practice and learn correct pronunciation from a teacher.",
+  "@qlExperimentalBody": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlToday": "Today {done} of {goal}",
+  "@qlToday": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "qlStreak": "{n}-day streak - keep going!",
+  "@qlStreak": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qlNoStreak": "A few letters a day is enough. Start today.",
+  "@qlNoStreak": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlGoalTitle": "Daily goal",
+  "@qlGoalTitle": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlGoalItems": "{n} items a day",
+  "@qlGoalItems": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qlGoalChange": "Change daily goal",
+  "@qlGoalChange": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlGoalDone": "Today's goal is done. Well done!",
+  "@qlGoalDone": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlStart": "Start with lesson 1",
+  "@qlStart": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlContinue": "Continue: {lesson}",
+  "@qlContinue": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      }
+    }
+  },
+  "qlAllDone": "Every lesson is marked learned. Keep reading daily and recite to a teacher.",
+  "@qlAllDone": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlCourseQaida": "Qaida (stages 1-7)",
+  "@qlCourseQaida": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlCourseNazera": "Nazera reading (stages 8-9)",
+  "@qlCourseNazera": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlCourseDone": "Completed {date}",
+  "@qlCourseDone": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "qlCourseCompleted": "Course completed! You can get an Assisto learning certificate.",
+  "@qlCourseCompleted": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlProgress": "{done} of {total} learned",
+  "@qlProgress": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "qlStageN": "Stage {n} · {title}",
+  "@qlStageN": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "qlTapLetter": "Tap any item to see it large.",
+  "@qlTapLetter": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlSay": "Say: {text}",
+  "@qlSay": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "qlHeavy": "Heavy letter",
+  "@qlHeavy": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlPrev": "Previous",
+  "@qlPrev": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlNext": "Next",
+  "@qlNext": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlQuranRef": "Quran {ref}",
+  "@qlQuranRef": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "qlListen": "Listen",
+  "@qlListen": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlCheckMe": "I read, check me",
+  "@qlCheckMe": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlLearned": "Learned",
+  "@qlLearned": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlMarkLearned": "Mark as learned",
+  "@qlMarkLearned": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlLessonDone": "Lesson learned! Go on to the next one.",
+  "@qlLessonDone": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlNextLessonNamed": "Next lesson: {lesson}",
+  "@qlNextLessonNamed": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "lesson": {
+        "type": "String"
+      }
+    }
+  },
+  "qlBestCheck": "Best helper check: {score}% letters matched",
+  "@qlBestCheck": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "qlNoAudioTitle": "Audio not available yet",
+  "@qlNoAudioTitle": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlNoAudioBody": "We will only play a recitation from a Qari who has given permission or published it under an open licence. None is licensed yet, and we never use a machine voice for the Quran. Until then, listen to your teacher or a Qari you trust.",
+  "@qlNoAudioBody": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlGotIt": "Got it",
+  "@qlGotIt": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlHelperLabel": "Helper - not a replacement for a teacher",
+  "@qlHelperLabel": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteTitle": "Check my reading",
+  "@qlReciteTitle": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteHint": "Tap Start and read the text above clearly and slowly.",
+  "@qlReciteHint": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteLetterHint": "For a single letter, say its name (for example \"Ba\").",
+  "@qlReciteLetterHint": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteStart": "Start",
+  "@qlReciteStart": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteStop": "Stop",
+  "@qlReciteStop": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteAgain": "Try again",
+  "@qlReciteAgain": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteListening": "Listening...",
+  "@qlReciteListening": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteHeard": "The phone heard:",
+  "@qlReciteHeard": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteScore": "Letters matched: {score}%",
+  "@qlReciteScore": {
+    "description": "quranread: learn to read Quran",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "qlReciteGood": "The letters match well. Ask a teacher to check your tajweed too.",
+  "@qlReciteGood": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteClose": "Close - some words were missed (shown in red). Read slowly and try again.",
+  "@qlReciteClose": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteRetry": "Many letters did not match. Read slowly, letter by letter, and try again.",
+  "@qlReciteRetry": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteLimits": "The phone compares letters only. It cannot judge vowel marks, madd length, ghunnah or makhraj - a teacher can.",
+  "@qlReciteLimits": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteNoArabic": "This phone's voice typing has no Arabic. Add it: Settings > System > Languages > On-screen keyboard > Gboard > Voice typing > Languages > Arabic.",
+  "@qlReciteNoArabic": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlReciteNoCheck": "This item has no letter the phone can compare (alif / hamza) - read it to your teacher.",
+  "@qlReciteNoCheck": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlWordOk": "matched",
+  "@qlWordOk": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlWordMissed": "not matched",
+  "@qlWordMissed": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlOpenSettings": "Open settings",
+  "@qlOpenSettings": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlDone": "Done",
+  "@qlDone": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlLoadFailed": "Could not open the Quran text on this phone. Please try again.",
+  "@qlLoadFailed": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlRetry": "Try again",
+  "@qlRetry": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlTanzilCredit": "Quran text: Tanzil Project (tanzil.net), Uthmani, CC BY 3.0, unchanged.",
+  "@qlTanzilCredit": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlTanzilNotice": "Tanzil notice (kept unchanged)",
+  "@qlTanzilNotice": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlOpenTanzil": "Open tanzil.net",
+  "@qlOpenTanzil": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutMethod": "Lesson order follows the Noorani Qaida method (letters and makhraj, harakat, tanween, jazm, tashdeed, madd, words, ayat, basic tajweed) in the simple adult-learning style used in Bangladesh. Every explanation is written by Assisto - no book pages are copied.",
+  "@qlAboutMethod": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutText": "Quran words and ayat come from the Tanzil Quran Text (Uthmani), Tanzil Project, CC BY 3.0, shown unchanged. It follows the Madinah mushaf of the King Fahd Complex, riwayah Hafs 'an 'Asim.",
+  "@qlAboutText": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutFont": "Arabic font: Amiri Quran (SIL Open Font License 1.1).",
+  "@qlAboutFont": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutAudio": "Audio: none yet. Only a recitation by a Qari with written permission or an open licence will be added - never a machine voice.",
+  "@qlAboutAudio": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutVoice": "\"I read, check me\" uses your phone's own speech service (for example Google). Assisto keeps no recording.",
+  "@qlAboutVoice": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlAboutPron": "Bangla pronunciation hints are approximate - Arabic has sounds that Bangla letters cannot show.",
+  "@qlAboutPron": {
+    "description": "quranread: learn to read Quran"
+  },
+  "qlFreeNoAds": "Core learning is free. No ads.",
+  "@qlFreeNoAds": {
+    "description": "quranread: learn to read Quran"
+  },
+  "p3lOfflineCopy": "No internet — showing the copy saved on this phone. Changes need internet.",
+  "p3lOfflineNoSave": "No internet — this change was not saved. Try again when you are online.",
+  "p3lPickFromCircle": "Pick from My Circle",
+  "p3lRequired": "Please fill in: {field}",
+  "@p3lRequired": {
+    "placeholders": {
+      "field": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lBadAmount": "{field}: please write a number of taka",
+  "@p3lBadAmount": {
+    "placeholders": {
+      "field": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lSaved": "Saved",
+  "p3lLoadFailed": "Could not load this list. Check the internet and try again.",
+  "p3lMore": "More options",
+  "p3lNote": "Note",
+  "p3lPhone": "Phone number",
+  "p3lCall": "Call",
+  "p3lShareTitle": "Share (view only)",
+  "p3lShareFamily": "Share with family",
+  "p3lShareToCircle": "Send to someone in My Circle (SMS)",
+  "p3lShareOtherApps": "Other apps (WhatsApp, Messenger…)",
+  "p3lLinkOff": "Turn this link off",
+  "p3lLinkOffDone": "Link turned off. Anyone who had it can no longer open it.",
+  "p3lShareFailed": "Could not make the link. Check the internet and try again.",
+  "p3lNoPhone": "This person has no phone number in My Circle. Use 'Other apps' instead.",
+  "p3lShareMsgTrip": "My trip plan for {title} (view only): {url}",
+  "@p3lShareMsgTrip": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      },
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lShareMsgEvent": "{title} — programme and details (view only): {url}",
+  "@p3lShareMsgEvent": {
+    "placeholders": {
+      "title": {
+        "type": "Object"
+      },
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lShareMsgGuest": "Dear {name}, you are invited to {title}. Please tell us if you can come: {url}",
+  "@p3lShareMsgGuest": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "title": {
+        "type": "Object"
+      },
+      "url": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lSharePrivacyTrip": "They see the day plan and transport only — never your budget, packing list or documents. You can turn the link off any time.",
+  "p3lSharePrivacyEvent": "They see the date, venue, programme and head count only — never the budget, vendors, gifts or guests' names.",
+  "p3lSharePrivacyGuest": "The guest opens the link without the app and answers Coming / Maybe / Can't come. The answer appears in your guest list.",
+  "p3lRsvpSend": "Send RSVP link",
+  "p3lRsvpSendTitle": "Send the guest their RSVP link",
+  "p3lSmsTo": "SMS to {name}",
+  "@p3lSmsTo": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lRsvpByGuest": "answered by the guest",
+  "p3lGuestPhoneHelp": "Needed to send the RSVP link by SMS",
+  "p3lTabTransport": "Transport",
+  "p3lTabDocs": "Documents",
+  "p3lModeTrain": "Train",
+  "p3lModeBus": "Bus",
+  "p3lModeLaunch": "Launch",
+  "p3lModeAir": "Flight",
+  "p3lModeCar": "Car / CNG",
+  "p3lModeOther": "Other",
+  "p3lLegsEmptyTitle": "How are you getting there?",
+  "p3lLegsEmptyBody": "Keep every train, bus, launch and flight of this trip in one place — times, seat or PNR, all offline.",
+  "p3lLegsHowTo": "Tap the button, pick the transport, write from and to. A train opens our Train tracker in one tap.",
+  "p3lLegAdd": "Add transport",
+  "p3lLegEdit": "Edit transport",
+  "p3lLegDelete": "Delete this transport?",
+  "p3lLegMode": "Transport",
+  "p3lLegFrom": "From",
+  "p3lLegTo": "To",
+  "p3lLegDate": "Date",
+  "p3lLegTime": "Time",
+  "p3lLegRef": "Train no. / PNR / company",
+  "p3lTrackTrain": "Track this train",
+  "p3lOfficialSite": "Official ticket site",
+  "p3lDocsEmptyTitle": "Papers ready?",
+  "p3lDocsEmptyBody": "Write each document's expiry once — we warn you if it runs out before or soon after the trip.",
+  "p3lDocsHowTo": "Tap the button, pick NID / passport / visa / ticket, and set the expiry date.",
+  "p3lDocAdd": "Add document",
+  "p3lDocEdit": "Edit document",
+  "p3lDocDelete": "Delete this document entry?",
+  "p3lDocKind": "Document",
+  "p3lDocLabel": "Name / number (optional)",
+  "p3lDocExpiry": "Expiry date",
+  "p3lDocNid": "NID",
+  "p3lDocPassport": "Passport",
+  "p3lDocVisa": "Visa",
+  "p3lDocTicket": "Ticket",
+  "p3lDocInsurance": "Insurance",
+  "p3lDocOther": "Other",
+  "p3lDocExpiresOn": "Expires {date}",
+  "@p3lDocExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lDocExpired": "Already expired — renew before you travel.",
+  "p3lDocBeforeTrip": "Expires before the trip ends — renew it first.",
+  "p3lDocSixMonths": "Less than 6 months left after the trip. Many countries require 6 months — check with the embassy.",
+  "p3lDocNoDate": "No expiry written — we can't check it.",
+  "p3lDocOk": "Valid for this trip.",
+  "p3lSplitTitle": "Split costs with travel mates",
+  "p3lSplitBody": "Who paid what, who owes whom — this trip only. Add people from My Circle.",
+  "p3lOfficialTitle": "Official travel information",
+  "p3lOfficialBody": "Destination, ticket and route information straight from the official sources below. We open their sites — we never copy their content or show a price we can't check.",
+  "p3lOfficialNote": "Everything else in your plan is what you wrote yourself.",
+  "p3lTabSchedule": "Programme",
+  "p3lTabVendors": "Vendors",
+  "p3lTabGifts": "Gifts",
+  "p3lVenueLabel": "Venue",
+  "p3lSchedEmptyTitle": "Holud, wedding, bou-bhat…",
+  "p3lSchedEmptyBody": "Write each programme once — the family link, RSVP page and invitation card all show it.",
+  "p3lSchedHowTo": "Tap the button, write the name, date, time and place.",
+  "p3lSchedAdd": "Add programme",
+  "p3lSchedEdit": "Edit programme",
+  "p3lSchedDelete": "Delete this programme?",
+  "p3lSchedName": "Programme name",
+  "p3lSchedPlace": "Place",
+  "p3lVenEmptyTitle": "Keep every vendor in one list",
+  "p3lVenEmptyBody": "Decorator, cook, photographer — the price agreed, what you paid and what is still due, with one-tap call.",
+  "p3lVenHowTo": "Tap the button, write the name, service, phone and price.",
+  "p3lVenAdd": "Add vendor",
+  "p3lVenEdit": "Edit vendor",
+  "p3lVenDelete": "Delete this vendor?",
+  "p3lVenName": "Vendor name",
+  "p3lVenService": "Service",
+  "p3lVenQuoted": "Price agreed",
+  "p3lVenPaid": "Paid",
+  "p3lVenDue": "Due",
+  "p3lVenVenue": "Venue / community centre",
+  "p3lVenCook": "Cook / catering",
+  "p3lVenDecor": "Decorator",
+  "p3lVenPhoto": "Photo / video",
+  "p3lVenMakeup": "Makeup / parlour",
+  "p3lVenCard": "Cards / printing",
+  "p3lVenTransport": "Transport",
+  "p3lVenOther": "Other",
+  "p3lGiftEmptyTitle": "Remember who gave what",
+  "p3lGiftEmptyBody": "Write each gift — cash total, and who still needs a thank-you.",
+  "p3lGiftHowTo": "Tap the button, pick the person from My Circle or write the name, then the gift or amount.",
+  "p3lGiftAdd": "Add gift",
+  "p3lGiftEdit": "Edit gift",
+  "p3lGiftDelete": "Delete this gift entry?",
+  "p3lGiftGiver": "Given by",
+  "p3lGiftWhat": "Gift (e.g. ring, saree)",
+  "p3lGiftAmount": "Cash amount",
+  "p3lGiftOccasion": "Programme (e.g. holud)",
+  "p3lGiftThanked": "Thank-you sent",
+  "p3lGiftThankedYes": "Thanked",
+  "p3lGiftThankedNo": "Thank-you not sent yet",
+  "p3lGiftCount": "Gifts",
+  "p3lGiftCash": "Cash total",
+  "p3lGiftToThank": "To thank",
+  "p3lGiftThankSms": "Send a thank-you SMS",
+  "p3lGiftThankMsg": "Dear {name}, thank you so much for your gift and blessings. — From all of us",
+  "@p3lGiftThankMsg": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lCardTitle": "Invitation card",
+  "p3lCardShare": "Share as picture",
+  "p3lCardShareFailed": "Could not share the card. Please try again.",
+  "p3lCardCaption": "Invitation — {names}",
+  "@p3lCardCaption": {
+    "placeholders": {
+      "names": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lCardDesign": "Design",
+  "p3lCardDesignRose": "Maroon & gold",
+  "p3lCardDesignHolud": "Holud yellow",
+  "p3lCardDesignClassic": "Classic cream",
+  "p3lCardOccasion": "Programme",
+  "p3lCardOccWedding": "Wedding",
+  "p3lCardOccHolud": "Gaye holud",
+  "p3lCardOccReception": "Reception",
+  "p3lCardOccAkika": "Akika",
+  "p3lCardOccBirthday": "Birthday",
+  "p3lCardOccOther": "Invitation",
+  "p3lCardInviteDefault": "You and your family are warmly invited",
+  "p3lCardNames": "Names (e.g. Rina & Karim)",
+  "p3lCardTime": "Time (e.g. 7 pm)",
+  "p3lCardHostsLabel": "Invited by (optional)",
+  "p3lCardHosts": "Invited by: {hosts}",
+  "@p3lCardHosts": {
+    "placeholders": {
+      "hosts": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lCardMessage": "Message (optional)",
+  "p3lShareRideTitle": "Share my ride",
+  "p3lShareRideBody": "On any ride — Pathao, Uber, CNG or bus — your My Circle sees your live location until you arrive, and is alerted if you don't. Free, always.",
+  "p3lShareRideButton": "Start Safe Journey",
+  "p3lCompareTitle": "How to compare honestly",
+  "p3lCompareBody": "Fares and delivery times are only true inside each company's own app, and they change with traffic and demand. Open both apps for the same place and compare what they show. We never show a fare or a price we cannot check, and we never book or order for you.",
+  "p3lFoodTitle": "Food order diary",
+  "p3lFoodCardBody": "Your own record of orders and a monthly budget — across all apps.",
+  "p3lFoodEmptyTitle": "How much goes on food orders?",
+  "p3lFoodEmptyBody": "Write each order once — see this month's total across foodpanda, Pathao Food and restaurants, against your own budget.",
+  "p3lFoodHowTo": "Tap the button, write the date, where from and the amount. Nothing is read from other apps.",
+  "p3lFoodAdd": "Add order",
+  "p3lFoodEdit": "Edit order",
+  "p3lFoodDelete": "Delete this order?",
+  "p3lFoodFrom": "From",
+  "p3lFoodWhat": "What (optional)",
+  "p3lFoodAmount": "Amount",
+  "p3lFoodRestaurant": "Restaurant",
+  "p3lFoodOther": "Other",
+  "p3lFoodThisMonth": "This month",
+  "p3lFoodOrders": "{count} orders",
+  "@p3lFoodOrders": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lFoodNoBudget": "No monthly budget set.",
+  "p3lFoodLeft": "{left} left of {budget}",
+  "@p3lFoodLeft": {
+    "placeholders": {
+      "left": {
+        "type": "Object"
+      },
+      "budget": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lFoodOver": "{amount} over budget",
+  "@p3lFoodOver": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
+  "p3lFoodBudget": "Monthly food-order budget",
+  "p3lFoodBudgetSet": "Set monthly budget",
+  "p3lFoodBudgetChange": "Change budget"
 }
