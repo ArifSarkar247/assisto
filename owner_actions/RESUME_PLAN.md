@@ -13,6 +13,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 ## Owner orders not finished (newest first)
 | Order | State | What is left |
 |---|---|---|
+| 3 Nov 23:15/23:20 AI FINAL + 23:25 PART 7 Photo Studio (owner_actions/OWNER_AI_ORDER_3NOV_2315_2320_2325.md) | allowed during pause; PART 1 server fixes on `agent/ailang` (CI → deploy); PARTS 1(rest)–6 on `agent/aifinal` (one agent, sequential) | PART 7 Photo Studio after Parts 1–6 or on resume |
 | 3 Nov 19:55 Google Places key bug | ✅ fix LIVE (local merge) | owner presses Test connection again; reach main via b301 |
 | 3 Nov 18:50 NEARBY final (own emergency list, zero Google cost) | ✅ code CI-green (`agent/nearby` fd48cae3, checks 41649679482), merged in b301i as 0150_nearby, NOT shipped | data run 41639696149 (GitHub) still building → record counts + storage size unknown; SA + QA official number pages unreachable (shown with "confirm locally"); BD official lists have no reuse licence → OSM only; Europe too big for the runner (skipped); two-phone test; Sponsored payment flow |
 | 3 Nov 18:40 SAFETY PLANS + MAPS COST (Parts 1–7) | code CI-green, merged in b301i, NOT shipped; switches OFF | ship; owner: create Play products `safe_child` (sub, base plan `monthly`, ৳30), `safe_family` (sub, `monthly`, ৳99), consumables `safe_req_10` ৳10, `safe_req_30` ৳30, `safe_req_100` ৳100; decide prices: 40% rule holds only with per-account paid-map caps (without caps min ৳36 / ৳126); owner reads School Safe Play-policy answer (no in-app price/link, school code only) |
