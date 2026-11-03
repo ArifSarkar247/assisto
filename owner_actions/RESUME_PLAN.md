@@ -14,7 +14,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 | Order | State | What is left |
 |---|---|---|
 | 3 Nov 19:55 Google Places key bug | ✅ fix LIVE (local merge) | owner presses Test connection again; reach main via b301 |
-| 3 Nov 18:50 NEARBY final (own emergency list, zero Google cost) | WIP `agent/nearby` (merged WIP into b301i as 0150_nearby) | finish + CI green; GitHub data workflow (Geofabrik + osmium, monthly); BD official sources only if terms allow; per-country emergency numbers; Owner Admin Nearby page + report queue; STATUS line with sources/countries/counts/size |
+| 3 Nov 18:50 NEARBY final (own emergency list, zero Google cost) | ✅ code CI-green (`agent/nearby` fd48cae3, checks 41649679482), merged in b301i as 0150_nearby, NOT shipped | data run 41639696149 (GitHub) still building → record counts + storage size unknown; SA + QA official number pages unreachable (shown with "confirm locally"); BD official lists have no reuse licence → OSM only; Europe too big for the runner (skipped); two-phone test; Sponsored payment flow |
 | 3 Nov 18:40 SAFETY PLANS + MAPS COST (Parts 1–7) | code CI-green, merged in b301i, NOT shipped; switches OFF | ship; owner: create Play products `safe_child` (sub, base plan `monthly`, ৳30), `safe_family` (sub, `monthly`, ৳99), consumables `safe_req_10` ৳10, `safe_req_30` ৳30, `safe_req_100` ৳100; decide prices: 40% rule holds only with per-account paid-map caps (without caps min ৳36 / ৳126); owner reads School Safe Play-policy answer (no in-app price/link, school code only) |
 | 3 Nov 16:30 MY CIRCLE final (A–G) | ✅ shipped builds 302 + 304 | owner phone tests (below); Android bubble position is decided by the phone (honest limit) |
 | 3 Nov 11:45 Language Partner 8 languages, Noorani Quran, certificate | ✅ code shipped (switches OFF) | mock-test listening via phone voice inside mocks; `lw_` shots into Bangla sweep; native-speaker reviews; Qari review + licensed audio; owner flips switches after phone tests |
@@ -24,7 +24,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 
 ## Branches (all committed + pushed)
 - `b301i` (integration, WIP) = origin/main + mapscost (0148) + guardian2 (0149) + safeplans + placesnew + nearby WIP (0150). Last green part: see integration agent note in QUEUE.
-- `agent/nearby` — WIP (phone-side list, offline cache done; see its last commit message).
+- `agent/nearby` — finished, CI green (fd48cae3); merged in b301i.
 - `agent/mapscost`, `agent/safeplans`, `agent/guardian2`, `agent/placesnew` — finished, CI green, merged in b301i.
 - Already shipped (no action): circlebub, circlemedia, viewonce, learnwire, langkoja, langmulti, quranread, p3life, launchsweep3, sitefix, tplfix, smtpfix.
 

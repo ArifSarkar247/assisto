@@ -1,6 +1,6 @@
 # ⏸ PAUSED 3 Nov 21:15 BD by owner STOP ORDER (usage 86%) — resume from owner_actions/RESUME_PLAN.md only when the owner says so.
 - 3 Nov 19:55 Google Places key bug — DONE live (local merge agent/placesnew; must ship via b301i); owner retest pending
-- 3 Nov 18:50 NEARBY final — WIP agent/nearby (0150_nearby in b301i)
+- 3 Nov 18:50 NEARBY final — code CI-green, in b301i (0150_nearby), NOT shipped; data run 41639696149 pending (counts/size unknown)
 - 3 Nov 18:40 SAFETY PLANS + MAPS COST — CI green, merged in b301i, NOT shipped; owner Play products + price decision
 - 3 Nov 16:30 MY CIRCLE final — DONE builds 302 + 304; owner phone tests pending
 - 3 Nov 11:45 learning — DONE code (switches OFF); left: mock listening, lw_ bn sweep, reviews
