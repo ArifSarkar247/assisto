@@ -66,6 +66,9 @@ void main() {
       expect(
           sha256.convert(utf8.encode(_gunzip('assets/quran/en.pickthall.txt.gz'))).toString(),
           '4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7');
+      expect(
+          sha256.convert(utf8.encode(_gunzip('assets/quran/quran-uthmani.txt.gz'))).toString(),
+          '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326');
       expect(File('assets/quran/SOURCES.txt').readAsStringSync(),
           contains('Creative Commons Attribution 3.0'));
     });
@@ -74,6 +77,9 @@ void main() {
       final d = realQuranData();
       expect(d.suras.length, 114);
       expect(d.arabic.length, 6236);
+      expect(d.uthmani.length, 6236);
+      expect(d.uthmani, isNot(same(d.arabic))); // reading text = Uthmani
+      expect(d.arabicNotice, contains('Uthmani'));
       expect(d.english.length, 6236);
       expect(d.arabic.every((s) => s.isNotEmpty), isTrue);
       expect(d.english.every((s) => s.isNotEmpty), isTrue);
@@ -100,7 +106,7 @@ void main() {
       expect(en.map((h) => h.ref), contains(const AyaRef(114, 5)));
       expect(en.every((h) => h.text.toLowerCase().contains('whispereth')), isTrue);
       // the bare (no harakat) spelling finds the vocalised verse
-      final ar = d.search(d.ar(const AyaRef(1, 2)).replaceAll(
+      final ar = d.search(d.arSimple(const AyaRef(1, 2)).replaceAll(
           RegExp('[ً-ٰٟ]'), ''));
       expect(ar.map((h) => h.ref), contains(const AyaRef(1, 2)));
       expect(d.search('a'), isEmpty); // too short
