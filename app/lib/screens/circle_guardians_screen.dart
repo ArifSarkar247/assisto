@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
+import 'guardian2_panel.dart'; // guardian2: two guardians
 import 'guardian_journey_screen.dart';
 
 /// circlea — many-to-many guardianship in one place (Google Family Link
@@ -34,6 +35,9 @@ class CircleGuardiansScreen extends StatefulWidget {
 class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
   List<Map<String, dynamic>> _mine = const [];
   List<Map<String, dynamic>> _kids = const [];
+  // guardian2: people who asked to see me — NOT approved, see nothing yet
+  List<Map<String, dynamic>> _pending = const [];
+  final _g2 = GlobalKey<Guardian2PanelState>();
   bool _loading = true;
   bool _failed = false;
   int? _busy;
@@ -61,10 +65,12 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
       _failed = false;
     });
     try {
+      _g2.currentState?.reload(); // guardian2 panel refreshes with the page
       final r = await Future.wait([_get('/guardians/mine'), _get('/guardians/children')]);
       if (!mounted) return;
       setState(() {
         _mine = _rows(r[0], 'guardians');
+        _pending = _rows(r[0], 'pending');
         _kids = _rows(r[1], 'children');
         _loading = false;
       });
@@ -82,6 +88,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
         'kids_watch' => t.cgaSrcWatch,
         'school_mode' => t.cgaSrcSchool,
         'chip' => t.cgaSrcChip, // finish1: bag / shoe tracker chip
+        'co_guardian' => t.g2SrcCoGuardian, // guardian2: approved second guardian
         _ => t.cgaSrcJourney,
       };
 
@@ -172,9 +179,12 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
                     children: [
                       _header(t.cgaWhoSeesMe, Icons.visibility_rounded),
                       if (_mine.isEmpty) _emptyMine(t) else for (final g in _mine) _guardian(t, g),
+                      for (final p in _pending) _pendingRow(t, p),
                       const SizedBox(height: Gap.lg),
                       _header(t.cgaMyChildren, Icons.family_restroom_rounded),
                       if (_kids.isEmpty) _emptyKids(t) else for (final k in _kids) _child(t, k),
+                      // guardian2: approve / co-guardians / my codes / join with a code
+                      Guardian2Panel(key: _g2, onChanged: _load, getOverride: guardiansLoaderOverride),
                       const SizedBox(height: Gap.md),
                       Text(t.cgaFree,
                           style: AType.bodySmall
@@ -210,6 +220,28 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           ]),
         ),
       );
+
+  Widget _pendingRow(AppLocalizations t, Map<String, dynamic> p) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      key: ValueKey('g2-pending-${p['id']}'),
+      margin: const EdgeInsets.only(bottom: Gap.sm),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Row(children: [
+          Icon(Icons.hourglass_top_rounded, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.g2PendingTitle, style: AType.titleMedium),
+              Text(t.g2PendingBody('${p['name'] ?? ''}'),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
 
   Widget _emptyKids(AppLocalizations t) => Card(
         key: const Key('cga-kids-empty'),
@@ -250,6 +282,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
                     'kids_watch' => Icons.watch_rounded,
                     'school_mode' => Icons.school_rounded,
                     'chip' => Icons.backpack_rounded,
+                    'co_guardian' => Icons.verified_user_rounded,
                     _ => Icons.route_rounded,
                   },
                   size: 16),
@@ -285,6 +318,11 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(name, style: AType.titleMedium)),
           ]),
+          // guardian2: since when this person can see me
+          if (g2Date(context, g['since']).isNotEmpty)
+            Text(t.g2Since(g2Date(context, g['since'])),
+                key: ValueKey('g2-since-$uid'),
+                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xs),
           _chips(t, sources),
           if (watchOwners.isNotEmpty) ...[
@@ -343,8 +381,25 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
               key: ValueKey('cga-co-${k['key']}'),
               style: AType.bodyMedium.copyWith(
                   color: co.isEmpty ? scheme.onSurfaceVariant : scheme.onSurface)),
-          if (co.isEmpty)
-            Text(t.cgaAddCoGuardianHow,
+          // guardian2: invite a second guardian (needs the child's own account)
+          const SizedBox(height: Gap.sm),
+          if (k['child_user_id'] is num)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton.icon(
+                key: ValueKey('g2-invite-btn-${k['key']}'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () async {
+                  final ok = await showGuardianInvite(
+                      context, (k['child_user_id'] as num).toInt(), '${k['name'] ?? ''}');
+                  if (ok && mounted) _g2.currentState?.reload();
+                },
+                icon: const Icon(Icons.person_add_alt_1_rounded),
+                label: Text(t.g2InviteBtn),
+              ),
+            )
+          else
+            Text(t.g2NeedsAccount('${k['name'] ?? ''}'),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ]),
       ),

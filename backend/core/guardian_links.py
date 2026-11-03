@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 INVITE_HOURS = 48
 CODE_LEN = 8
-CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"   # no 0/O, 1/I/L
+CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ"   # letters only (no I/L/O): no digits to localize
 LIVE = ("invited", "pending")
 DEFAULT_MAX = 2
 MAX_LIVE_INVITES = 3            # per child, unused codes at one time

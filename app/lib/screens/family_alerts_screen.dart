@@ -25,13 +25,16 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits, notifWhen;
 ///  * Real data only: loading, empty, error + retry states; pull to refresh.
 class FamilyAlertsScreen extends StatefulWidget {
   const FamilyAlertsScreen(
-      {super.key, this.load, this.seen, this.resolve, this.pushEnabled});
+      {super.key, this.load, this.seen, this.resolve, this.pushEnabled, this.responding});
 
   /// Test seams (default: the signed-in ApiClient).
   final Future<Map<String, dynamic>> Function()? load;
   final Future<void> Function(int id)? seen;
   final Future<Map<String, dynamic>> Function()? resolve;
   final Future<bool> Function()? pushEnabled;
+
+  /// guardian2 test seam: "I'm responding" on an SOS.
+  final Future<Map<String, dynamic>> Function(int id)? responding;
 
   @override
   State<FamilyAlertsScreen> createState() => _FamilyAlertsScreenState();
@@ -80,6 +83,26 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
       if (mounted) setState(() => a['seen'] = true);
     } catch (e) {
       if (mounted) showActionFailed(context, 'family_alert.seen', e);
+    }
+  }
+
+  // guardian2: "I'm responding" — the other guardian + the child see it.
+  Future<void> _responding(Map<String, dynamic> a) async {
+    final id = (a['id'] as num?)?.toInt();
+    if (id == null) return;
+    final t = AppLocalizations.of(context);
+    final m = ScaffoldMessenger.of(context);
+    try {
+      final r = await (widget.responding ??
+          (int i) => context.read<AppState>().api.familySosResponding(i))(id);
+      if (!mounted) return;
+      setState(() {
+        a['responding'] = true;
+        a['seen'] = true;
+        if (r['responders'] is List) a['responders'] = r['responders'];
+      });
+    } catch (_) {
+      m.showSnackBar(SnackBar(content: Text(t.g2RespondFailed)));
     }
   }
 
@@ -193,6 +216,7 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
           alert: a,
           kindLabel: _kindLabel(t, '${a['kind']}'),
           onSeen: () => _markSeen(a),
+          onResponding: () => _responding(a),
         ));
       }
       if (_sent.isNotEmpty) {
@@ -297,10 +321,14 @@ class _ErrorCard extends StatelessWidget {
 
 class _AlertCard extends StatelessWidget {
   const _AlertCard(
-      {required this.alert, required this.kindLabel, required this.onSeen});
+      {required this.alert,
+      required this.kindLabel,
+      required this.onSeen,
+      this.onResponding});
   final Map<String, dynamic> alert;
   final String kindLabel;
   final VoidCallback onSeen;
+  final VoidCallback? onResponding;
 
   @override
   Widget build(BuildContext context) {
@@ -338,8 +366,43 @@ class _AlertCard extends StatelessWidget {
           if ('${alert['body'] ?? ''}'.isNotEmpty)
             Text(notifLocalizeDigits(context, '${alert['body']}'),
                 style: AType.bodyMedium.copyWith(color: fg)),
+          // guardian2: who is responding (the other guardian sees it at once)
+          if (isSos || alert['kind'] == 'fall') ...[
+            for (final r in (alert['responders'] as List? ?? const []))
+              if (r is Map && r['me'] != true)
+                Padding(
+                  padding: const EdgeInsets.only(top: Gap.xs),
+                  child: Row(children: [
+                    Icon(Icons.directions_run_rounded, size: 20, color: fg),
+                    const SizedBox(width: Gap.xs),
+                    Expanded(
+                      child: Text(t.g2IsResponding('${r['name'] ?? ''}'),
+                          key: ValueKey('g2-responder-${alert['id']}-${r['name']}'),
+                          style: AType.bodyLarge
+                              .copyWith(fontWeight: FontWeight.w700, color: fg)),
+                    ),
+                  ]),
+                ),
+          ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if ((isSos || (alert['kind'] == 'fall' && alert['active'] == true)) &&
+                onResponding != null)
+              alert['responding'] == true
+                  ? Chip(
+                      key: ValueKey('g2-you-responding-${alert['id']}'),
+                      avatar: const Icon(Icons.directions_run_rounded, size: 18),
+                      label: Text(t.g2YouResponding))
+                  : FilledButton.icon(
+                      key: ValueKey('g2-responding-${alert['id']}'),
+                      style: FilledButton.styleFrom(
+                          minimumSize: const Size(48, 48),
+                          backgroundColor: Brand.dangerFill,
+                          foregroundColor: Colors.white),
+                      onPressed: onResponding,
+                      icon: const Icon(Icons.directions_run_rounded),
+                      label: Text(t.g2Responding),
+                    ),
             if (hasLoc)
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),

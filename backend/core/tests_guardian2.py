@@ -168,7 +168,7 @@ class InviteApproveAccess(Base):
     def test_stranger_cannot_invite_and_codes_are_checked(self):
         self.assertEqual(self.invite(by=self.x).status_code, 404)
         self.assertEqual(self.invite(by=self.dad).status_code, 404)
-        self.assertEqual(self.join("NOPE2345").status_code, 404)
+        self.assertEqual(self.join("NOPEXXXX").status_code, 404)
         code = self.invite().json()["code"]
         self.assertEqual(self.join(code, who=self.rina).status_code, 400)   # the child
         GuardianLink.objects.filter(code=code).update(

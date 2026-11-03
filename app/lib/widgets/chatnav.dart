@@ -96,6 +96,7 @@ import '../screens/business/business_plans_screen.dart';
 import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/journey_watch_screen.dart'; // journey100
 import '../screens/guardian_journey_screen.dart'; // owner idea 1
+import '../screens/circle_guardians_screen.dart'; // guardian2
 import '../screens/journey_settings_screen.dart'; // journey100
 import '../screens/referral_screen.dart';
 import '../screens/circle_privacy_screen.dart';
@@ -333,6 +334,8 @@ class ChatNav {
     'journey_watch': (_) => const JourneyWatchScreen(),
     'journey_settings': (_) => const JourneySettingsScreen(),
     'journey_requests': (_) => const GuardianJourneyScreen(),
+    // guardian2: who can see me / approve a second guardian (push + chat)
+    'guardians': (_) => const CircleGuardiansScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),
@@ -471,6 +474,8 @@ class ChatNav {
         'donate blood', 'blood bank', 'rokto dan', 'rokto dorkar'],
     'referral': ['referral', 'refer', 'points', 'invite friend'],
     'circle_privacy': ['circle privacy', 'privacy controls', 'block'],
+    'guardians': ['guardians', 'second guardian', 'who can see me',
+        'who sees my location', 'co-parent', 'add guardian', 'ovibhabok'],
     'circle_calls': ['call history', 'call log', 'circle calls'],
     // Wave-D batch-4
     'action_center': ['action center', 'action centre', 'audit log', 'audit',

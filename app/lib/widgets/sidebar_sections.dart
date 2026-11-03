@@ -73,6 +73,7 @@ import '../screens/nominee_screen.dart';
 import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/emergency_screen.dart';
 import '../screens/emergency_hub_screen.dart'; // emhub
+import '../screens/circle_guardians_screen.dart'; // guardian2
 import '../screens/scam_screen.dart';
 import '../screens/disaster_alerts_screen.dart';
 // contacts (own section per SPEC v2.1 §4; Profile moved to Settings per
@@ -401,6 +402,13 @@ class SidebarSections {
           (_) => const SafeJourneyHubScreen(),
           synonyms: ['safe journey', 'journey', 'travel', 'sos', 'track',
               'live location', 'share location', 'request location', 'child school']),
+      // guardian2 (PART 6): always reachable — a child sees who can see their
+      // location (names + since when); guardians approve a second guardian.
+      // Core entry (no flag): transparency must always work.
+      SidebarItem(Icons.supervisor_account_rounded, (t) => t.g2SidebarLabel,
+          (_) => const CircleGuardiansScreen(),
+          synonyms: ['guardians', 'who can see me', 'second guardian', 'co-parent',
+              'who sees my location']),
       // probashi-plan (flag probashi_plan, default OFF)
       SidebarItem(Icons.flight_takeoff_rounded, (t) => t.pbsTitle,
           feature: 'probashi_plan',
