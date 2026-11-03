@@ -1,0 +1,964 @@
+{
+ "format": 1,
+ "lang": "en",
+ "version": 1,
+ "stt_locale": "en-US",
+ "level_system": "CEFR",
+ "levels": [
+  {
+   "id": "A1",
+   "en": "A1",
+   "bn": "A1"
+  },
+  {
+   "id": "A2",
+   "en": "A2",
+   "bn": "A2"
+  },
+  {
+   "id": "B1",
+   "en": "B1",
+   "bn": "B1"
+  },
+  {
+   "id": "B2",
+   "en": "B2",
+   "bn": "B2"
+  },
+  {
+   "id": "C1",
+   "en": "C1",
+   "bn": "C1"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "pl1",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A1",
+    "text": "She ___ a teacher.",
+    "options": [
+     "am",
+     "is",
+     "are",
+     "be"
+    ],
+    "answer": 1,
+    "explain_bn": "She (একবচন) এর সাথে is বসে।",
+    "explain_en": "'She' takes 'is'."
+   },
+   {
+    "id": "pl2",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "A1",
+    "text": "Which word is a day of the week?",
+    "options": [
+     "March",
+     "Winter",
+     "Tuesday",
+     "Morning"
+    ],
+    "answer": 2,
+    "explain_bn": "Tuesday = মঙ্গলবার; বাকিগুলো মাস/ঋতু/সময়।",
+    "explain_en": "Tuesday is a day; the others are a month, a season and a time of day."
+   },
+   {
+    "id": "pl3",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A1",
+    "text": "There ___ two shops near my house.",
+    "options": [
+     "is",
+     "are",
+     "has",
+     "have"
+    ],
+    "answer": 1,
+    "explain_bn": "two shops বহুবচন — there are।",
+    "explain_en": "'Two shops' is plural, so 'there are'."
+   },
+   {
+    "id": "pl4",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A2",
+    "text": "I ___ to Chattogram last year.",
+    "options": [
+     "go",
+     "goes",
+     "went",
+     "going"
+    ],
+    "answer": 2,
+    "explain_bn": "last year অতীত — went।",
+    "explain_en": "'Last year' is past, so 'went'."
+   },
+   {
+    "id": "pl5",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "A2",
+    "text": "If something is 'expensive', it…",
+    "options": [
+     "costs a lot",
+     "is very old",
+     "is broken",
+     "is free"
+    ],
+    "answer": 0,
+    "explain_bn": "expensive = দামি।",
+    "explain_en": "'Expensive' means it costs a lot."
+   },
+   {
+    "id": "pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A2",
+    "text": "'The office opens at 9 but the shop opens an hour later.' When does the shop open?",
+    "options": [
+     "8",
+     "9",
+     "10",
+     "11"
+    ],
+    "answer": 2,
+    "explain_bn": "এক ঘণ্টা পরে = ৯ + ১ = ১০টা।",
+    "explain_en": "An hour after 9 is 10."
+   },
+   {
+    "id": "pl7",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B1",
+    "text": "If it rains tomorrow, we ___ at home.",
+    "options": [
+     "stay",
+     "will stay",
+     "stayed",
+     "would stayed"
+    ],
+    "answer": 1,
+    "explain_bn": "if + present, তারপর will + verb (first conditional)।",
+    "explain_en": "First conditional: if + present, will + verb."
+   },
+   {
+    "id": "pl8",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B1",
+    "text": "I have lived here ___ 2019.",
+    "options": [
+     "for",
+     "since",
+     "from",
+     "during"
+    ],
+    "answer": 1,
+    "explain_bn": "নির্দিষ্ট সময়বিন্দু (2019) — since; সময়কাল হলে for।",
+    "explain_en": "Use 'since' with a point in time, 'for' with a period."
+   },
+   {
+    "id": "pl9",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "B1",
+    "text": "Choose the closest meaning of 'reliable'.",
+    "options": [
+     "cheap",
+     "dependable",
+     "famous",
+     "quick"
+    ],
+    "answer": 1,
+    "explain_bn": "reliable = নির্ভরযোগ্য = dependable।",
+    "explain_en": "'Reliable' means dependable."
+   },
+   {
+    "id": "pl10",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B2",
+    "text": "The report ___ by the manager before the meeting.",
+    "options": [
+     "has checked",
+     "was checked",
+     "checked",
+     "is check"
+    ],
+    "answer": 1,
+    "explain_bn": "কাজটা কে করল নয়, কী হলো — passive: was checked।",
+    "explain_en": "Passive voice: 'was checked'."
+   },
+   {
+    "id": "pl11",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B2",
+    "text": "'Despite the delay, the team met its deadline.' What does this mean?",
+    "options": [
+     "The team was late.",
+     "The team finished on time even though there was a delay.",
+     "There was no delay.",
+     "The deadline was changed."
+    ],
+    "answer": 1,
+    "explain_bn": "Despite = সত্ত্বেও — দেরি হলেও সময়মতো শেষ।",
+    "explain_en": "'Despite' = even though there was a delay, they finished on time."
+   },
+   {
+    "id": "pl12",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "C1",
+    "text": "Hardly ___ the station when the train left.",
+    "options": [
+     "I had reached",
+     "had I reached",
+     "I reached",
+     "did I reached"
+    ],
+    "answer": 1,
+    "explain_bn": "Hardly দিয়ে শুরু হলে উল্টো ক্রম: had I reached।",
+    "explain_en": "After 'Hardly' at the start, invert: 'had I reached'."
+   },
+   {
+    "id": "pl13",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "C1",
+    "text": "Which word best completes: 'The new policy had a ___ effect on small businesses.'",
+    "options": [
+     "profound",
+     "profoundly",
+     "profundity",
+     "profounded"
+    ],
+    "answer": 0,
+    "explain_bn": "effect (বিশেষ্য)-এর আগে বিশেষণ লাগে — profound।",
+    "explain_en": "An adjective is needed before the noun 'effect': 'profound'."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "l_a1_greet",
+   "level": "A1",
+   "title_en": "Greetings and introducing yourself",
+   "title_bn": "শুভেচ্ছা ও নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Hello, my name is Karim.",
+     "bn": "হ্যালো, আমার নাম করিম।",
+     "en": "Hello, my name is Karim."
+    },
+    {
+     "kind": "phrase",
+     "target": "I am from Bangladesh.",
+     "bn": "আমি বাংলাদেশ থেকে এসেছি।",
+     "en": "I am from Bangladesh."
+    },
+    {
+     "kind": "phrase",
+     "target": "Nice to meet you.",
+     "bn": "আপনার সাথে দেখা হয়ে ভালো লাগল।",
+     "en": "Nice to meet you."
+    },
+    {
+     "kind": "grammar",
+     "target": "I am / You are / He is",
+     "bn": "আমি = I am, তুমি/আপনি = you are, সে = he/she is",
+     "en": "Use am with I, are with you/we/they, is with he/she/it."
+    }
+   ],
+   "practice": [
+    "Hello, my name is Karim.",
+    "I am from Bangladesh."
+   ]
+  },
+  {
+   "id": "l_a1_numbers",
+   "level": "A1",
+   "title_en": "Numbers, prices and time",
+   "title_bn": "সংখ্যা, দাম ও সময়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "How much is this?",
+     "bn": "এটার দাম কত?",
+     "en": "How much is this?"
+    },
+    {
+     "kind": "phrase",
+     "target": "It is two hundred taka.",
+     "bn": "এটা দুইশো টাকা।",
+     "en": "It is two hundred taka."
+    },
+    {
+     "kind": "phrase",
+     "target": "What time is it?",
+     "bn": "এখন কয়টা বাজে?",
+     "en": "What time is it?"
+    },
+    {
+     "kind": "note",
+     "target": "thirteen / thirty",
+     "bn": "thirteen (১৩) আর thirty (৩০) — শেষের স্ট্রেস আলাদা: thirTEEN, THIRty।",
+     "en": "Stress: thirTEEN vs THIRty."
+    }
+   ],
+   "practice": [
+    "How much is this?",
+    "What time is it?"
+   ]
+  },
+  {
+   "id": "l_a2_past",
+   "level": "A2",
+   "title_en": "Talking about yesterday (past simple)",
+   "title_bn": "গতকালের কথা (past simple)",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "I worked / I went",
+     "bn": "নিয়মিত ক্রিয়ায় -ed (worked), অনিয়মিত আলাদা (go → went)।",
+     "en": "Regular verbs add -ed; irregular verbs change (go → went)."
+    },
+    {
+     "kind": "phrase",
+     "target": "Yesterday I went to the market.",
+     "bn": "গতকাল আমি বাজারে গিয়েছিলাম।",
+     "en": "Yesterday I went to the market."
+    },
+    {
+     "kind": "phrase",
+     "target": "Did you finish the work?",
+     "bn": "তুমি কি কাজটা শেষ করেছ?",
+     "en": "Did you finish the work?"
+    }
+   ],
+   "practice": [
+    "Yesterday I went to the market.",
+    "Did you finish the work?"
+   ]
+  },
+  {
+   "id": "l_b1_work",
+   "level": "B1",
+   "title_en": "At work: asking and explaining",
+   "title_bn": "কর্মস্থলে: জিজ্ঞেস করা ও বোঝানো",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Could you show me how to do this?",
+     "bn": "কীভাবে করতে হয় একটু দেখিয়ে দেবেন?",
+     "en": "Could you show me how to do this?"
+    },
+    {
+     "kind": "phrase",
+     "target": "I'm sorry, I didn't understand. Could you repeat that?",
+     "bn": "দুঃখিত, বুঝিনি। আবার বলবেন?",
+     "en": "I'm sorry, I didn't understand. Could you repeat that?"
+    },
+    {
+     "kind": "phrase",
+     "target": "I will finish it by five o'clock.",
+     "bn": "পাঁচটার মধ্যে শেষ করব।",
+     "en": "I will finish it by five o'clock."
+    },
+    {
+     "kind": "grammar",
+     "target": "Could you…? / Would you mind…?",
+     "bn": "অনুরোধ ভদ্রভাবে: Could you…? বা Would you mind + -ing?",
+     "en": "Polite requests: Could you…? / Would you mind + -ing?"
+    }
+   ],
+   "practice": [
+    "Could you show me how to do this?",
+    "I will finish it by five o'clock."
+   ]
+  },
+  {
+   "id": "l_b2_opinion",
+   "level": "B2",
+   "title_en": "Giving opinions and reasons",
+   "title_bn": "মত ও কারণ দেওয়া",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "In my opinion, the main problem is the cost.",
+     "bn": "আমার মতে মূল সমস্যা হলো খরচ।",
+     "en": "In my opinion, the main problem is the cost."
+    },
+    {
+     "kind": "phrase",
+     "target": "On the other hand, it saves a lot of time.",
+     "bn": "অন্যদিকে, এতে অনেক সময় বাঁচে।",
+     "en": "On the other hand, it saves a lot of time."
+    },
+    {
+     "kind": "grammar",
+     "target": "although / however / therefore",
+     "bn": "although বাক্যের ভিতরে; however ও therefore নতুন বাক্যের শুরুতে কমা দিয়ে।",
+     "en": "'Although' joins clauses; 'However,' and 'Therefore,' start a new sentence."
+    }
+   ],
+   "practice": [
+    "In my opinion, the main problem is the cost.",
+    "On the other hand, it saves a lot of time."
+   ]
+  },
+  {
+   "id": "l_c1_formal",
+   "level": "C1",
+   "title_en": "Formal writing and hedging",
+   "title_bn": "আনুষ্ঠানিক লেখা ও সাবধানে দাবি করা",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "It could be argued that…",
+     "bn": "বলা যেতে পারে যে…",
+     "en": "It could be argued that…"
+    },
+    {
+     "kind": "phrase",
+     "target": "The evidence suggests that…",
+     "bn": "প্রমাণ থেকে মনে হয় যে…",
+     "en": "The evidence suggests that…"
+    },
+    {
+     "kind": "grammar",
+     "target": "may / might / tend to",
+     "bn": "নিশ্চিত না হলে may, might, tend to দিয়ে দাবি নরম করুন — IELTS-এ ভালো নম্বর পায়।",
+     "en": "Soften claims with may / might / tend to."
+    }
+   ],
+   "practice": [
+    "It could be argued that online study is effective."
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "At the airport",
+   "title_bn": "বিমানবন্দরে",
+   "ai_role": "You are a polite immigration officer at an international airport. Ask the traveller short, realistic questions one at a time: purpose of visit, length of stay, where they will stay, work contract or return ticket.",
+   "opening": "Good morning. May I see your passport, please? What is the purpose of your visit?",
+   "goals_en": [
+    "Say why you are travelling",
+    "Say how long you will stay",
+    "Answer about your work contract or address"
+   ],
+   "goals_bn": [
+    "কেন যাচ্ছেন বলুন",
+    "কতদিন থাকবেন বলুন",
+    "কাজের চুক্তি বা ঠিকানা নিয়ে উত্তর দিন"
+   ],
+   "useful": [
+    {
+     "target": "I am here to work. Here is my contract.",
+     "bn": "আমি কাজ করতে এসেছি। এই যে আমার চুক্তিপত্র।",
+     "en": "I am here to work. Here is my contract."
+    },
+    {
+     "target": "I will stay for two years.",
+     "bn": "আমি দুই বছর থাকব।",
+     "en": "I will stay for two years."
+    },
+    {
+     "target": "Could you speak more slowly, please?",
+     "bn": "একটু আস্তে বলবেন, প্লিজ?",
+     "en": "Could you speak more slowly, please?"
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at work",
+   "title_bn": "কাজের প্রথম দিন",
+   "ai_role": "You are a friendly supervisor on the worker's first day. Explain one simple task, give a safety instruction, and check that they understood. Keep sentences short.",
+   "opening": "Welcome! I'm your supervisor. Today you will help in the packing section. Have you done this kind of work before?",
+   "goals_en": [
+    "Introduce yourself",
+    "Ask how to do a task",
+    "Check a safety rule"
+   ],
+   "goals_bn": [
+    "নিজের পরিচয় দিন",
+    "কাজটা কীভাবে করতে হয় জিজ্ঞেস করুন",
+    "একটা নিরাপত্তা নিয়ম নিশ্চিত হন"
+   ],
+   "useful": [
+    {
+     "target": "Could you show me once more?",
+     "bn": "আর একবার দেখিয়ে দেবেন?",
+     "en": "Could you show me once more?"
+    },
+    {
+     "target": "Where should I put this?",
+     "bn": "এটা কোথায় রাখব?",
+     "en": "Where should I put this?"
+    },
+    {
+     "target": "Do I need gloves for this?",
+     "bn": "এর জন্য কি গ্লাভস লাগবে?",
+     "en": "Do I need gloves for this?"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the doctor",
+   "title_bn": "ডাক্তারের কাছে",
+   "ai_role": "You are a calm clinic doctor. Ask about symptoms, how long they have lasted, allergies, and explain simple advice. Never give a real diagnosis; say this is practice and to see a real doctor for real problems.",
+   "opening": "Hello, please sit down. What seems to be the problem today?",
+   "goals_en": [
+    "Describe your symptoms",
+    "Say how long you have had them",
+    "Mention any allergy"
+   ],
+   "goals_bn": [
+    "উপসর্গ বলুন",
+    "কতদিন ধরে বলুন",
+    "কোনো অ্যালার্জি থাকলে বলুন"
+   ],
+   "useful": [
+    {
+     "target": "I have had a fever since Monday.",
+     "bn": "সোমবার থেকে আমার জ্বর।",
+     "en": "I have had a fever since Monday."
+    },
+    {
+     "target": "My back hurts when I lift things.",
+     "bn": "কিছু তুললে পিঠে ব্যথা করে।",
+     "en": "My back hurts when I lift things."
+    },
+    {
+     "target": "I am allergic to penicillin.",
+     "bn": "আমার পেনিসিলিনে অ্যালার্জি আছে।",
+     "en": "I am allergic to penicillin."
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a room",
+   "title_bn": "ঘর ভাড়া নেওয়া",
+   "ai_role": "You are a landlord showing a room. Answer questions about rent, deposit, bills and rules. Be realistic and polite.",
+   "opening": "Hi, you called about the room? It's on the second floor. Would you like to see it?",
+   "goals_en": [
+    "Ask the rent and deposit",
+    "Ask what bills are included",
+    "Ask about the rules"
+   ],
+   "goals_bn": [
+    "ভাড়া ও জামানত জিজ্ঞেস করুন",
+    "কোন বিল ভাড়ার মধ্যে জিজ্ঞেস করুন",
+    "নিয়মকানুন জিজ্ঞেস করুন"
+   ],
+   "useful": [
+    {
+     "target": "How much is the rent per month?",
+     "bn": "মাসে ভাড়া কত?",
+     "en": "How much is the rent per month?"
+    },
+    {
+     "target": "Are water and electricity included?",
+     "bn": "পানি ও বিদ্যুৎ কি ভাড়ার মধ্যে?",
+     "en": "Are water and electricity included?"
+    },
+    {
+     "target": "Can I get a written agreement?",
+     "bn": "লিখিত চুক্তি পাওয়া যাবে?",
+     "en": "Can I get a written agreement?"
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "Shopping",
+   "title_bn": "কেনাকাটা",
+   "ai_role": "You are a shop assistant in a supermarket abroad. Help the customer find items, explain prices and offers, and handle a return.",
+   "opening": "Hello! Can I help you find something?",
+   "goals_en": [
+    "Ask where something is",
+    "Ask the price",
+    "Ask to return or exchange"
+   ],
+   "goals_bn": [
+    "কোনো জিনিস কোথায় জিজ্ঞেস করুন",
+    "দাম জিজ্ঞেস করুন",
+    "ফেরত বা বদল চান"
+   ],
+   "useful": [
+    {
+     "target": "Where can I find rice?",
+     "bn": "চাল কোথায় পাব?",
+     "en": "Where can I find rice?"
+    },
+    {
+     "target": "Is there a discount on this?",
+     "bn": "এটায় কি ছাড় আছে?",
+     "en": "Is there a discount on this?"
+    },
+    {
+     "target": "I'd like to return this, please. Here is the receipt.",
+     "bn": "এটা ফেরত দিতে চাই। এই যে রসিদ।",
+     "en": "I'd like to return this, please. Here is the receipt."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "pr_vw",
+   "text": "We visited a very wide valley.",
+   "tip_bn": "v আর w আলাদা: v-তে উপরের দাঁত নিচের ঠোঁটে ছোঁয়ান; w-তে ঠোঁট গোল করুন, দাঁত ছোঁবে না।",
+   "tip_en": "v and w differ: for v the top teeth touch the lower lip; for w round the lips, no teeth."
+  },
+  {
+   "id": "pr_th1",
+   "text": "I think three things are worth it.",
+   "tip_bn": "th (think, three): জিভের ডগা দুই দাঁতের মাঝে রেখে বাতাস ছাড়ুন — 'থ' বা 'ট' নয়।",
+   "tip_en": "th in think/three: tongue tip between the teeth and blow air — not 't'."
+  },
+  {
+   "id": "pr_th2",
+   "text": "This is the weather they like.",
+   "tip_bn": "th (this, the, they): জিভ দাঁতের মাঝে, গলায় কম্পন — 'দ' নয়।",
+   "tip_en": "th in this/the/they: tongue between the teeth with voice — not 'd'."
+  },
+  {
+   "id": "pr_school",
+   "text": "Students start school in spring.",
+   "tip_bn": "s দিয়ে শুরু শব্দের আগে 'ই' যোগ করবেন না: 'ইস্কুল' নয়, সরাসরি school।",
+   "tip_en": "Do not add a vowel before s-clusters: say 'school', not 'ischool'."
+  },
+  {
+   "id": "pr_z",
+   "text": "The zoo is closed on Thursdays.",
+   "tip_bn": "z-তে মৌমাছির মতো 'জ্‌জ্‌' কম্পন — 'জ' (j) নয়। Thursdays-এর শেষ s-ও z-এর মতো।",
+   "tip_en": "z buzzes like a bee — it is not j. The final s in Thursdays also sounds like z."
+  },
+  {
+   "id": "pr_final_s",
+   "text": "She works and lives in two cities.",
+   "tip_bn": "শব্দের শেষের s/z (works, lives, cities) বাদ দেবেন না — অর্থ বদলে যায়।",
+   "tip_en": "Keep the final s/z in works, lives, cities — dropping it changes the meaning."
+  },
+  {
+   "id": "pr_f_p",
+   "text": "Five friends found a perfect place.",
+   "tip_bn": "f আর p আলাদা: f-এ দাঁত-ঠোঁট, p-তে দুই ঠোঁট — 'ফ' দিয়ে দুটোই বলবেন না।",
+   "tip_en": "f uses teeth and lip; p uses both lips — do not say both as one sound."
+  },
+  {
+   "id": "pr_short_long",
+   "text": "Please sit on this seat.",
+   "tip_bn": "sit (ছোট ই) আর seat (লম্বা ঈ) আলাদা শব্দ — দৈর্ঘ্যে পার্থক্য রাখুন।",
+   "tip_en": "sit (short i) and seat (long ee) are different words — keep the length difference."
+  },
+  {
+   "id": "pr_cluster",
+   "text": "The strong street lights were bright.",
+   "tip_bn": "str, spr-এর মতো একসাথে কয়েকটা ব্যঞ্জন — মাঝে স্বর ঢোকাবেন না ('সট্রং' নয়)।",
+   "tip_en": "In str/spr clusters do not insert a vowel between the consonants."
+  },
+  {
+   "id": "pr_ed",
+   "text": "I walked, talked and waited for an hour.",
+   "tip_bn": "-ed: walked = 'ওয়াক্ট', talked = 'টক্ট', waited = 'ওয়েটিড' — সবসময় 'এড' নয়।",
+   "tip_en": "-ed: walked = 'walkt', talked = 'talkt', waited = 'wait-id' — not always 'ed'."
+  },
+  {
+   "id": "pr_stress",
+   "text": "I need a photograph for my photography class.",
+   "tip_bn": "স্ট্রেস বদলায়: PHOtograph কিন্তু phoTOGraphy।",
+   "tip_en": "Stress moves: PHOtograph but phoTOGraphy."
+  },
+  {
+   "id": "pr_r",
+   "text": "Rice is ready in the river village.",
+   "tip_bn": "ইংরেজি r-এ জিভ মুখের ছাদ ছোঁয় না, কাঁপে না — নরম করে বলুন।",
+   "tip_en": "English r: the tongue does not touch the roof of the mouth and does not roll."
+  }
+ ],
+ "mock": [
+  {
+   "id": "ielts_style_1",
+   "title_en": "IELTS-style practice test (Reading + Writing)",
+   "title_bn": "IELTS-ধাঁচের অনুশীলন টেস্ট (রিডিং + রাইটিং)",
+   "format_en": "Same task types as the IELTS test (True/False/Not Given, multiple choice, a Task 2 essay). Original Assisto questions.",
+   "format_bn": "IELTS-এর মতো একই ধরনের প্রশ্ন (True/False/Not Given, MCQ, Task 2 প্রবন্ধ)। প্রশ্নগুলো Assisto-র নিজস্ব।",
+   "minutes": 40,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading",
+     "title_bn": "রিডিং",
+     "passage": [
+      "In the low-lying wetlands of southern Bangladesh, land can stay under water for several months of the year. For generations, farmers there have answered this problem in an unusual way: they build gardens that float.",
+      "The beds are made mainly from water hyacinth, a fast-growing plant that covers ponds and canals. Farmers pile the plants into long rafts, add layers of other plant material, and let them rot slightly so that seeds can take root. Vegetables and seedlings are then grown on top of the raft while the fields below remain flooded.",
+      "When the water goes down, the old beds are not wasted. They break down into rich material that farmers spread on their fields as natural fertiliser. The practice has been recognised by the UN's Food and Agriculture Organization as an important agricultural heritage system, and researchers have studied it as one way that farming can adapt to flooding."
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Floating gardens are used when fields are covered by water.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 0,
+       "explain_bn": "প্রথম ও দ্বিতীয় অনুচ্ছেদ: মাঠ পানির নিচে থাকলে ভাসমান বাগান ব্যবহার হয় — তাই True।",
+       "explain_en": "Paragraphs 1-2: the gardens are used while the fields stay flooded — True."
+      },
+      {
+       "id": "q2",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Water hyacinth grows slowly.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 1,
+       "explain_bn": "লেখায় বলা আছে 'fast-growing' — দ্রুত বাড়ে। প্রশ্নটা উল্টো বলছে, তাই False।",
+       "explain_en": "The text says water hyacinth is 'fast-growing' — the statement says the opposite, so False."
+      },
+      {
+       "id": "q3",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Floating gardens produce more food than ordinary fields.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 2,
+       "explain_bn": "সাধারণ মাঠের সাথে উৎপাদনের তুলনা লেখায় কোথাও নেই — তাই Not Given। নিজের ধারণা দিয়ে উত্তর দেবেন না।",
+       "explain_en": "The passage never compares output with ordinary fields — Not Given. Do not answer from your own knowledge."
+      },
+      {
+       "id": "q4",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "What happens to the old beds after the flood?",
+       "options": [
+        "They are burned.",
+        "They are used as fertiliser.",
+        "They are sold to other farmers.",
+        "They float away."
+       ],
+       "answer": 1,
+       "explain_bn": "তৃতীয় অনুচ্ছেদ: পুরনো বেড পচে সার হয়, মাঠে ছড়ানো হয় — দ্বিতীয় বিকল্প।",
+       "explain_en": "Paragraph 3: the old beds break down and are spread on fields as fertiliser — option 2."
+      },
+      {
+       "id": "q5",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "The practice has received international recognition.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 0,
+       "explain_bn": "জাতিসংঘের FAO একে কৃষি ঐতিহ্য হিসেবে স্বীকৃতি দিয়েছে — আন্তর্জাতিক স্বীকৃতি, তাই True।",
+       "explain_en": "The UN's FAO recognised it as an agricultural heritage system — international recognition, True."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing Task 2",
+     "title_bn": "রাইটিং Task 2",
+     "prompts": [
+      {
+       "id": "w1",
+       "text": "More and more people are moving from villages to big cities. What problems does this cause, and what can be done to solve them?",
+       "min_words": 250
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "A2"
+    },
+    {
+     "min_pct": 40,
+     "level": "B1"
+    },
+    {
+     "min_pct": 60,
+     "level": "B2"
+    },
+    {
+     "min_pct": 80,
+     "level": "C1"
+    }
+   ]
+  },
+  {
+   "id": "pte_style_1",
+   "title_en": "PTE-style practice test (Reading + Speaking + Writing)",
+   "title_bn": "PTE-ধাঁচের অনুশীলন টেস্ট (রিডিং + স্পিকিং + রাইটিং)",
+   "format_en": "PTE-style task types: multiple choice reading, read aloud, summarise written text in one sentence. Original Assisto questions.",
+   "format_bn": "PTE-ধাঁচের প্রশ্ন: MCQ রিডিং, জোরে পড়া (read aloud), এক বাক্যে সারাংশ। প্রশ্নগুলো Assisto-র নিজস্ব।",
+   "minutes": 30,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading: multiple choice",
+     "title_bn": "রিডিং: MCQ",
+     "passage": [
+      "Not long ago, sending money to a family member in another district usually meant a bus journey, a long queue or trusting a friend to carry cash. Mobile financial services changed this in many countries, including Bangladesh. With a basic phone and a registered account, a person can now send money in seconds.",
+      "These services are especially useful for people who live far from a bank branch. Agents in local shops let customers put cash into their account or take it out, so the shop works almost like a small bank counter.",
+      "However, the convenience also brings risks. Fraudsters sometimes call users and pretend to be from the service, asking for a secret PIN or a one-time code. Providers repeatedly warn customers never to share these numbers with anyone, because genuine staff will never ask for them."
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "A smartphone is required to use mobile financial services.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 1,
+       "explain_bn": "লেখায় আছে 'a basic phone' — সাধারণ ফোনেই চলে, স্মার্টফোন লাগে না। False।",
+       "explain_en": "The text says 'a basic phone' is enough — False."
+      },
+      {
+       "id": "q2",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "What role do local shop agents play?",
+       "options": [
+        "They lend money.",
+        "They repair phones.",
+        "They let people deposit and withdraw cash.",
+        "They open bank branches."
+       ],
+       "answer": 2,
+       "explain_bn": "দ্বিতীয় অনুচ্ছেদ: এজেন্ট দোকানে টাকা জমা ও তোলা যায় — তৃতীয় বিকল্প।",
+       "explain_en": "Paragraph 2: agents let customers put cash in and take it out — option 3."
+      },
+      {
+       "id": "q3",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Genuine staff may ask customers for their PIN.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 1,
+       "explain_bn": "শেষ লাইন: আসল কর্মী কখনো PIN চান না — False। বাস্তবেও কাউকে PIN/OTP বলবেন না।",
+       "explain_en": "Last sentence: genuine staff will never ask for a PIN — False. Never share your PIN or code."
+      },
+      {
+       "id": "q4",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Mobile financial services charge lower fees than banks.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 2,
+       "explain_bn": "খরচ/ফি নিয়ে লেখায় কিছু নেই — Not Given।",
+       "explain_en": "Fees are not mentioned anywhere — Not Given."
+      },
+      {
+       "id": "q5",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "Before mobile money, sending money could take a long time.",
+       "options": [
+        "True",
+        "False",
+        "Not Given"
+       ],
+       "answer": 0,
+       "explain_bn": "প্রথম অনুচ্ছেদ: আগে বাসে যাওয়া, লম্বা লাইন — সময় লাগত। True।",
+       "explain_en": "Paragraph 1: it meant a bus journey or a long queue — True."
+      }
+     ]
+    },
+    {
+     "id": "read_aloud",
+     "skill": "speaking",
+     "title_en": "Speaking: read aloud",
+     "title_bn": "স্পিকিং: জোরে পড়া",
+     "read_aloud": [
+      "We visited a very wide valley.",
+      "I think three things are worth it.",
+      "This is the weather they like.",
+      "Students start school in spring."
+     ]
+    },
+    {
+     "id": "summary",
+     "skill": "writing",
+     "title_en": "Writing: summarise the passage in one sentence",
+     "title_bn": "রাইটিং: অনুচ্ছেদের সারাংশ এক বাক্যে",
+     "prompts": [
+      {
+       "id": "s1",
+       "text": "Summarise the passage about mobile money in ONE sentence of 5 to 75 words.",
+       "min_words": 5,
+       "max_words": 75
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "A2"
+    },
+    {
+     "min_pct": 40,
+     "level": "B1"
+    },
+    {
+     "min_pct": 60,
+     "level": "B2"
+    },
+    {
+     "min_pct": 80,
+     "level": "C1"
+    }
+   ]
+  }
+ ],
+ "extras": [
+  {
+   "id": "ielts",
+   "en": "Full IELTS practice (speaking, writing, reading, listening links)",
+   "bn": "পূর্ণ IELTS অনুশীলন (স্পিকিং, রাইটিং, রিডিং, লিসেনিং লিংক)"
+  }
+ ]
+}

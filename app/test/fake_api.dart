@@ -30,6 +30,7 @@ import 'fake_books.dart'; // ledger
 import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
+import 'fake_ielts.dart'; // p2lang
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -250,6 +251,8 @@ class FakeApi extends ApiClient {
     // p2food: food calories log + goal
     if (path == 'food/log') return _maybe(fakeFoodLog(DateTime.now()));
     if (path == 'food/goal') return _maybe([{'id': 1, 'kcal': 1800}]);
+    if (path == 'ielts/practice') return fakeIeltsPractice(empty: mode == FakeMode.empty); // p2lang
+    if (path == 'ielts/vocab') return const []; // p2lang: every word due
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -991,6 +994,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final ielts = fakeIeltsGet(path); // p2lang
+    if (ielts != null) {
+      if (mode == FakeMode.fail) _fail();
+      return ielts;
+    }
     final inv = fakeInvoiceGet(path, empty: mode == FakeMode.empty); // invoices
     if (inv != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2087,6 +2095,8 @@ class FakeApi extends ApiClient {
     }
     final p2p = fakeP2planPost(path, body, bn: _bn); // p2plan
     if (p2p != null) return p2p;
+    final ieltsP = fakeIeltsPost(path, body); // p2lang
+    if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels
     if (chxP != null) return chxP;
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent

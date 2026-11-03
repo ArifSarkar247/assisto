@@ -69,6 +69,7 @@ const _launchPrefixes = <String>[
   'amk_', // Market
   'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   'food_cal', // p2food: food photo -> calories
+  'ielts_', // p2lang: IELTS practice (Language Partner)
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
   'crr_', // p2career: CV export, Find jobs, role interview (3 Nov)

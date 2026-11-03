@@ -9,6 +9,8 @@ import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
+import '../feature_flags.dart' show FeatureFlags; // p2lang
+import 'language_pack_screen.dart' show LanguageCatalogSection; // p2lang
 
 /// LANGUAGE-LEARNING PARTNER — ADVANCED, KEY-GATED (#132, SPEC v2.1 §21).
 ///
@@ -243,6 +245,11 @@ class _DeckPicker extends StatelessWidget {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
+        // p2lang: the 8 language courses (flag language_packs; hidden while OFF).
+        if (FeatureFlags.instance.isOn('language_packs')) ...[
+          const LanguageCatalogSection(),
+          const SizedBox(height: Gap.xl),
+        ],
         if (progress.isEmpty) ...[
           const SizedBox(height: Gap.lg),
           Icon(Icons.translate_rounded, size: 56, color: scheme.primary),
