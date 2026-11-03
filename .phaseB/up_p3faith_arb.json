@@ -1,0 +1,413 @@
+{
+ "en": {
+  "quranTitle": "Quran",
+  "@quranTitle": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAbout": "Source & licence",
+  "@qrnAbout": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutArabic": "Arabic text: Tanzil Quran Text (Simple), © Tanzil Project, licensed under Creative Commons Attribution 3.0. Shown exactly as published, without any change.",
+  "@qrnAboutArabic": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutEnglish": "English meaning: Mohammed Marmaduke Pickthall, “The Meaning of the Glorious Koran” (1930) — public domain. Digital text from Tanzil.net.",
+  "@qrnAboutEnglish": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutBangla": "Bangla translation: not included yet — we are waiting for written permission from a translator or publisher.",
+  "@qrnAboutBangla": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutAudio": "Recitation audio: not included — we will add it only from a licensed source.",
+  "@qrnAboutAudio": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAboutUpdates": "Corrections and updates to the text: tanzil.net",
+  "@qrnAboutUpdates": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnOffline": "Works without internet — the whole text is on your phone.",
+  "@qrnOffline": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnOpenTanzil": "Open tanzil.net",
+  "@qrnOpenTanzil": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnNoticeTitle": "Tanzil copyright notice (as published)",
+  "@qrnNoticeTitle": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnArabicSize": "Arabic text size",
+  "@qrnArabicSize": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnAyasCount": "{n} verses",
+  "@qrnAyasCount": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnBnPending": "Coming — awaiting licence",
+  "@qrnBnPending": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBnPendingBody": "We will show a Bangla translation only with the translator's or publisher's written permission. Until then, read the English meaning or the Arabic only.",
+  "@qrnBnPendingBody": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarkAdd": "Bookmark verse {n}",
+  "@qrnBookmarkAdd": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnBookmarkRemove": "Remove the bookmark from verse {n}",
+  "@qrnBookmarkRemove": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnBookmarked": "Bookmarked",
+  "@qrnBookmarked": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnUnbookmarked": "Bookmark removed",
+  "@qrnUnbookmarked": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarksEmpty": "Save the verses you want to come back to.",
+  "@qrnBookmarksEmpty": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnBookmarksEmptyHow": "Open a sura and tap the bookmark sign next to a verse.",
+  "@qrnBookmarksEmptyHow": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnStartReading": "Start reading",
+  "@qrnStartReading": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnClear": "Clear",
+  "@qrnClear": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnContinue": "Continue reading",
+  "@qrnContinue": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnJuzN": "Juz {n}",
+  "@qrnJuzN": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnLoadFailed": "Could not open the Quran text on this phone. Please try again.",
+  "@qrnLoadFailed": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnRetry": "Try again",
+  "@qrnRetry": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnMeccan": "Meccan",
+  "@qrnMeccan": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnMedinan": "Medinan",
+  "@qrnMedinan": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnNoResults": "Nothing found. Try another word, in Arabic or English.",
+  "@qrnNoResults": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnReaderSettings": "Reading settings",
+  "@qrnReaderSettings": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnResultsCount": "{n} verses found",
+  "@qrnResultsCount": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnSearchHint": "Sura name, number or a word",
+  "@qrnSearchHint": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnSearchNote": "Search works in Arabic and in the English meaning. Bangla search comes with the Bangla translation.",
+  "@qrnSearchNote": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnSearchVerses": "Search the verses for “{q}”",
+  "@qrnSearchVerses": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "q": {
+     "type": "String"
+    }
+   }
+  },
+  "qrnShowEarlier": "Show from the first verse",
+  "@qrnShowEarlier": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnShowEnglish": "Show the English meaning",
+  "@qrnShowEnglish": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTabBookmarks": "Bookmarks",
+  "@qrnTabBookmarks": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTabSuras": "Suras",
+  "@qrnTabSuras": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransBn": "Bangla",
+  "@qrnTransBn": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransEn": "English (Pickthall)",
+  "@qrnTransEn": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTransNone": "Arabic only",
+  "@qrnTransNone": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnTranslation": "Translation",
+  "@qrnTranslation": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "qrnVerseN": "Verse {n}",
+  "@qrnVerseN": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2ChooseDistrict": "Choose your district",
+  "@rmd2ChooseDistrict": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2DayN": "Day {n}",
+  "@rmd2DayN": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2District": "District: {name}",
+  "@rmd2District": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2DistrictWhy": "No location needed — sehri and iftar times for all 64 districts.",
+  "@rmd2DistrictWhy": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2InRamadan": "Ramadan (approximate dates): {start} – {end}",
+  "@rmd2InRamadan": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "start": {
+     "type": "String"
+    },
+    "end": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2NextRamadan": "Next Ramadan (approximate): {start} – {end}",
+  "@rmd2NextRamadan": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "start": {
+     "type": "String"
+    },
+    "end": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2MoonNote": "Lunar dates — confirm with the National Moon Sighting Committee's announcement.",
+  "@rmd2MoonNote": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MethodIfb": "Islamic Foundation Bangladesh method: sehri ends 3 minutes before dawn (Subh-e-Sadiq), iftar is 3 minutes after sunset. These are calculated times — if your district's Islamic Foundation timetable differs, follow it.",
+  "@rmd2MethodIfb": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MonthTable": "Full month timetable",
+  "@rmd2MonthTable": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2MonthTitle": "Sehri & iftar — {name}",
+  "@rmd2MonthTitle": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2Offline": "No internet — showing the times saved on {date}.",
+  "@rmd2Offline": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2OpenQuran": "Open the Quran",
+  "@rmd2OpenQuran": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2PagesMinus": "One page less",
+  "@rmd2PagesMinus": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2PagesPlus": "One page more",
+  "@rmd2PagesPlus": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2QuranPages": "Quran read today: {n} pages",
+  "@rmd2QuranPages": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2SearchDistrict": "Search district",
+  "@rmd2SearchDistrict": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2TrackerHint": "Tick what you have done — it stays on your phone only.",
+  "@rmd2TrackerHint": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2TrackerTitle": "Today's prayers and Quran",
+  "@rmd2TrackerTitle": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2UseGps": "Use my location",
+  "@rmd2UseGps": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  },
+  "rmd2Week": "Last 7 days: {done} of {total} prayers · {pages} Quran pages",
+  "@rmd2Week": {
+   "description": "p3faith (Ramadan tracker / Quran)",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    },
+    "pages": {
+     "type": "String"
+    }
+   }
+  },
+  "rmd2ZakatFull": "Open the full Zakat calculator",
+  "@rmd2ZakatFull": {
+   "description": "p3faith (Ramadan tracker / Quran)"
+  }
+ },
+ "bn": {
+  "quranTitle": "কুরআন",
+  "qrnAbout": "উৎস ও লাইসেন্স",
+  "qrnAboutArabic": "আরবি লেখা: Tanzil Quran Text (Simple), © Tanzil Project, Creative Commons Attribution 3.0 লাইসেন্সে। যেমন প্রকাশিত, হুবহু — কোনো পরিবর্তন ছাড়া।",
+  "qrnAboutEnglish": "ইংরেজি অর্থ: মোহাম্মদ মারমাডিউক পিকথল, “The Meaning of the Glorious Koran” (১৯৩০) — পাবলিক ডোমেইন। ডিজিটাল লেখা Tanzil.net থেকে।",
+  "qrnAboutBangla": "বাংলা অনুবাদ: এখনো নেই — অনুবাদক বা প্রকাশকের লিখিত অনুমতির অপেক্ষায়।",
+  "qrnAboutAudio": "তিলাওয়াতের অডিও: নেই — শুধু লাইসেন্সপ্রাপ্ত উৎস থেকে যোগ করা হবে।",
+  "qrnAboutUpdates": "লেখার সংশোধন ও হালনাগাদ: tanzil.net",
+  "qrnOffline": "নেট ছাড়াই চলে — পুরো লেখা আপনার ফোনেই আছে।",
+  "qrnOpenTanzil": "tanzil.net খুলুন",
+  "qrnNoticeTitle": "Tanzil-এর কপিরাইট নোটিশ (যেমন প্রকাশিত)",
+  "qrnArabicSize": "আরবি লেখার আকার",
+  "qrnAyasCount": "{n} আয়াত",
+  "qrnBnPending": "আসছে — লাইসেন্স অপেক্ষায়",
+  "qrnBnPendingBody": "অনুবাদক বা প্রকাশকের লিখিত অনুমতি পেলেই বাংলা অনুবাদ দেখানো হবে। ততক্ষণ ইংরেজি অর্থ বা শুধু আরবি পড়ুন।",
+  "qrnBookmarkAdd": "আয়াত {n} বুকমার্ক করুন",
+  "qrnBookmarkRemove": "আয়াত {n}-এর বুকমার্ক সরান",
+  "qrnBookmarked": "বুকমার্ক হয়েছে",
+  "qrnUnbookmarked": "বুকমার্ক সরানো হয়েছে",
+  "qrnBookmarksEmpty": "যে আয়াতে আবার ফিরতে চান, সেটা সংরক্ষণ করে রাখুন।",
+  "qrnBookmarksEmptyHow": "একটা সূরা খুলে আয়াতের পাশের বুকমার্ক চিহ্নে ট্যাপ করুন।",
+  "qrnStartReading": "পড়া শুরু করুন",
+  "qrnClear": "মুছুন",
+  "qrnContinue": "পড়া চালিয়ে যান",
+  "qrnJuzN": "পারা {n}",
+  "qrnLoadFailed": "এই ফোনে কুরআনের লেখা খোলা যায়নি। আবার চেষ্টা করুন।",
+  "qrnRetry": "আবার চেষ্টা করুন",
+  "qrnMeccan": "মাক্কী",
+  "qrnMedinan": "মাদানী",
+  "qrnNoResults": "কিছু পাওয়া যায়নি। আরবি বা ইংরেজিতে অন্য শব্দ দিয়ে খুঁজুন।",
+  "qrnReaderSettings": "পড়ার সেটিং",
+  "qrnResultsCount": "{n}টি আয়াত পাওয়া গেছে",
+  "qrnSearchHint": "সূরার নাম, নম্বর বা একটা শব্দ",
+  "qrnSearchNote": "খোঁজা চলে আরবিতে ও ইংরেজি অর্থে। বাংলা অনুবাদ এলে বাংলায়ও খোঁজা যাবে।",
+  "qrnSearchVerses": "আয়াতে “{q}” খুঁজুন",
+  "qrnShowEarlier": "প্রথম আয়াত থেকে দেখান",
+  "qrnShowEnglish": "ইংরেজি অর্থ দেখান",
+  "qrnTabBookmarks": "বুকমার্ক",
+  "qrnTabSuras": "সূরা",
+  "qrnTransBn": "বাংলা",
+  "qrnTransEn": "ইংরেজি (পিকথল)",
+  "qrnTransNone": "শুধু আরবি",
+  "qrnTranslation": "অনুবাদ",
+  "qrnVerseN": "আয়াত {n}",
+  "rmd2ChooseDistrict": "আপনার জেলা বাছুন",
+  "rmd2DayN": "{n} রমজান",
+  "rmd2District": "জেলা: {name}",
+  "rmd2DistrictWhy": "লোকেশন লাগবে না — ৬৪ জেলার সেহরি-ইফতারের সময় আছে।",
+  "rmd2InRamadan": "রমজান (আনুমানিক তারিখ): {start} – {end}",
+  "rmd2NextRamadan": "পরের রমজান (আনুমানিক): {start} – {end}",
+  "rmd2MoonNote": "চাঁদের হিসাবের তারিখ — জাতীয় চাঁদ দেখা কমিটির ঘোষণায় নিশ্চিত হয়ে নিন।",
+  "rmd2MethodIfb": "ইসলামিক ফাউন্ডেশন বাংলাদেশের পদ্ধতি: সুবহে সাদিকের ৩ মিনিট আগে সেহরি শেষ, সূর্যাস্তের ৩ মিনিট পরে ইফতার। সময়গুলো হিসাব করা — আপনার জেলার ইসলামিক ফাউন্ডেশনের সূচির সাথে না মিললে সেটাই মানুন।",
+  "rmd2MonthTable": "পুরো মাসের সময়সূচি",
+  "rmd2MonthTitle": "সেহরি ও ইফতার — {name}",
+  "rmd2Offline": "নেট নেই — {date} তারিখে সংরক্ষিত সময় দেখানো হচ্ছে।",
+  "rmd2OpenQuran": "কুরআন খুলুন",
+  "rmd2PagesMinus": "এক পৃষ্ঠা কম",
+  "rmd2PagesPlus": "এক পৃষ্ঠা বেশি",
+  "rmd2QuranPages": "আজ কুরআন পড়া: {n} পৃষ্ঠা",
+  "rmd2SearchDistrict": "জেলা খুঁজুন",
+  "rmd2TrackerHint": "যা করেছেন টিক দিন — শুধু আপনার ফোনেই থাকে।",
+  "rmd2TrackerTitle": "আজকের নামাজ ও কুরআন",
+  "rmd2UseGps": "আমার লোকেশন ব্যবহার করুন",
+  "rmd2Week": "গত ৭ দিন: {total} ওয়াক্তের {done} ওয়াক্ত নামাজ · কুরআন {pages} পৃষ্ঠা",
+  "rmd2ZakatFull": "পুরো যাকাত ক্যালকুলেটর খুলুন"
+ }
+}

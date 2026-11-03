@@ -273,9 +273,15 @@ class _QuranScreenState extends State<QuranScreen> {
       subtitle: Text(
           '${s.meccan ? t.qrnMeccan : t.qrnMedinan} · '
           '${t.qrnAyasCount(ld(context, s.ayas))}'),
-      trailing: Text(s.nameAr,
-          textDirection: TextDirection.rtl,
-          style: const TextStyle(fontSize: 20)),
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 110),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(s.nameAr,
+              textDirection: TextDirection.rtl,
+              style: const TextStyle(fontSize: 20)),
+        ),
+      ),
       onTap: () => _open(s.index),
     );
   }
@@ -692,8 +698,11 @@ class QuranAboutScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.qrnOpenTanzil),
-              onPressed: () =>
-                  launchUrl(tanzil, mode: LaunchMode.externalApplication),
+              onPressed: () async {
+                try {
+                  await launchUrl(tanzil, mode: LaunchMode.externalApplication);
+                } catch (_) {/* no browser: the address is shown above */}
+              },
             ),
           ),
           if ((notice ?? '').isNotEmpty) ...[

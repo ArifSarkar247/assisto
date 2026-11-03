@@ -232,6 +232,8 @@ class RamadanTimesView(APIView):
             out = ramadan.ifb_times(d, lat, lon)
             out["source"] = ramadan.IFB_SOURCE
         out["district"] = code
+        row = ramadan.district_row(code)
+        out["name_bn"], out["name_en"] = (row[2], row[1]) if row else ("", "")
         out["approx_ramadan"] = ramadan.approx_next_ramadan(d)
         return Response(out)
 

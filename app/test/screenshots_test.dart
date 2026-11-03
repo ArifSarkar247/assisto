@@ -256,6 +256,8 @@ import 'package:assisto/screens/meetings_screen.dart';
 import 'package:assisto/screens/dictionary_screen.dart';
 import 'package:assisto/screens/ride_food_screen.dart';
 import 'package:assisto/screens/ramadan_screen.dart';
+import 'package:assisto/screens/quran_screen.dart'; // p3faith
+import 'quran_fixture.dart'; // p3faith
 import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
@@ -907,6 +909,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'dictionary': (build: (_) => const DictionaryScreen(), mode: FakeMode.data, full: true),
     'ride_food': (build: (_) => const RideFoodScreen(), mode: FakeMode.data, full: true),
     'ramadan': (build: (_) => const RamadanScreen(), mode: FakeMode.data, full: true),
+    // p3faith: district saved -> IFB times, district chip, month + approx card, daily tracker
+    'ramadan_district': (build: (_) { SharedPreferences.setMockInitialValues({'ramadan_district_v1': 'dhaka', 'faith_log_v1': '{}'}); return const RamadanScreen(); }, mode: FakeMode.data, full: true),
+    // p3faith: offline Quran (real bundled Tanzil Arabic + Pickthall English)
+    'quran_list': (build: (_) { SharedPreferences.setMockInitialValues({'quran_last_read_v1': '18:10'}); preloadRealQuran(); return const QuranScreen(); }, mode: FakeMode.data, full: true),
+    'quran_reader': (build: (_) { SharedPreferences.setMockInitialValues({'quran_bookmarks_v1': ['1:2']}); return QuranReaderScreen(data: realQuranData(), sura: 1); }, mode: FakeMode.data, full: true),
+    'quran_reader_en': (build: (_) { SharedPreferences.setMockInitialValues({'quran_translation_v1': 'en'}); return QuranReaderScreen(data: realQuranData(), sura: 112); }, mode: FakeMode.data, full: true),
+    'quran_about': (build: (_) => QuranAboutScreen(notice: realQuranData().arabicNotice), mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
