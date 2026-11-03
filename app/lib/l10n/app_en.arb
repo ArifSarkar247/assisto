@@ -37959,9 +37959,9 @@
       }
     }
   },
-  "ieltsTrue": "True",
-  "ieltsFalse": "False",
-  "ieltsNotGiven": "Not Given",
+  "ieltsTrue": "True (T)",
+  "ieltsFalse": "False (F)",
+  "ieltsNotGiven": "Not Given (NG)",
   "ieltsSubmitAnswers": "Check answers",
   "ieltsCorrectAnswer": "Answer: {answer}",
   "@ieltsCorrectAnswer": {
@@ -37996,5 +37996,74 @@
   },
   "ieltsVocabNoneDue": "All caught up for today — come back tomorrow.",
   "ieltsShowMeaning": "Show meaning",
-  "ieltsBackToPractice": "Back to IELTS practice"
+  "ieltsBackToPractice": "Back to IELTS practice",
+  "learnPickLanguage": "Learn a language",
+  "learnPickLanguageSub": "Placement test, lessons, speaking practice for life abroad and timed practice tests.",
+  "learnCatalogFail": "Could not load the language courses. Check the internet and try again.",
+  "learnNotAdded": "Lessons for this language are not added yet.",
+  "learnPurposeKorea": "For work in Korea",
+  "learnPurposeJapan": "For work in Japan",
+  "learnPurposeGulf": "For work in the Gulf",
+  "learnPlacement": "Placement test",
+  "learnPlacementSub": "Find your starting level in a few minutes",
+  "learnPlacementHow": "Answer what you can — skip what you don't know. You get an estimated level and your weak areas.",
+  "learnLessons": "Lessons",
+  "learnLessonsSub": "From basic to advanced, with Bangla explanations",
+  "learnLessonsHow": "Read each line, then tap a sentence under 'Say it' to check your pronunciation.",
+  "learnSayIt": "Say it",
+  "learnScenarios": "Speaking for life abroad",
+  "learnScenariosSub": "Airport, workplace, doctor, renting, shopping — practise with AI by voice",
+  "learnScenariosHow": "Pick a situation. The AI plays the other person; answer by voice or typing. A short correction appears when something can be said better.",
+  "learnPronSub": "Read sentences aloud and see which words were clear",
+  "learnMock": "Timed practice tests",
+  "learnMockSub": "In the exam's format — estimated level and weak areas",
+  "learnMockHow": "Original practice questions in the exam's format. The clock runs while you answer.",
+  "learnMinutes": "{n} minutes",
+  "@learnMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnTimeLeft": "Time left",
+  "learnFinishTest": "Finish and see my level",
+  "learnTimedOut": "You went over the time limit — in the real exam you would have had less time.",
+  "learnYourLevel": "Estimated level: {level}",
+  "@learnYourLevel": {
+    "placeholders": {
+      "level": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnNoWeak": "No weak area found in this test.",
+  "learnWeak": "Practise more: {skills}",
+  "@learnWeak": {
+    "placeholders": {
+      "skills": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnSkillGrammar": "Grammar",
+  "learnSkillVocab": "Vocabulary",
+  "learnGoals": "Your goals",
+  "learnUseful": "Useful phrases",
+  "learnUsePhrase": "Put this phrase in the message box",
+  "learnTypeOrSpeak": "Speak or type your answer",
+  "learnSend": "Send",
+  "learnAiNotConnected": "AI practice partner is not connected yet. The phrases, lessons and tests work without it.",
+  "learnAiNoCredits": "Today's free AI practice is used up and there are not enough credits. Lessons and tests stay free.",
+  "learnAiLeft": "Free AI practice left today: {n}",
+  "@learnAiLeft": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "learnVoiceNoLang": "This phone has no speech recognition for this language. You can type instead, or add the language in Google voice typing settings.",
+  "learnProbashiTitle": "Learn the language for work abroad",
+  "learnProbashiSub": "Korean (EPS-TOPIK), Japanese, Gulf Arabic, English and more"
 }
