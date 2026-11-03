@@ -29,7 +29,7 @@ int? typedPoisha(String raw) {
   return (v * 100).round();
 }
 
-/// invdesign: hours may be fractional ("1.5", "১.৫") — up to 2 decimals.
+/// invdesign: hours may be fractional ("1.5", Bangla digits too), 2 decimals.
 num? typedHours(String raw) {
   final s = raw.trim().replaceAllMapped(
       RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');

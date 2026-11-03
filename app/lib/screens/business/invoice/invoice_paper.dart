@@ -12,7 +12,7 @@
 //
 // invdesign: per-business-type designs (header styles, logo, accent, token
 // box, ship-to + COD boxes, Mushak-6.3 columns) behind [InvoiceDesign.styled];
-// bilingual paper prints every label "বাংলা / English".
+// bilingual paper prints every label in Bangla, then English.
 //
 // The layout is a list of measured blocks (pure apart from text measuring),
 // which the tests inspect: every block fits the paper width and each template
@@ -189,7 +189,7 @@ void _paintLogo(Canvas cv, ui.Image img, Rect box, {required bool grey}) {
 /// Builds the measured block list. [t] must be the localizations of [lang]
 /// (`lookupAppLocalizations(Locale(lang))`), NOT the app's UI language — the
 /// paper language is chosen per invoice. Bilingual paper: [lang] 'both', [t]
-/// Bangla and [t2] English — every label prints "বাংলা / English" and the
+/// Bangla and [t2] English — every label prints Bangla, then English, and the
 /// digits are Latin (read by both).
 InvoiceLayout layoutInvoice(InvoiceDoc d, InvoicePaper paper, AppLocalizations t,
     String lang,
