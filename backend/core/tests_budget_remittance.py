@@ -125,11 +125,11 @@ class EntryTests(_Base):
 
 class PrivacyTests(_Base):
     def test_encrypted_at_rest_raw_row(self):
-        self.add(amount="777", rate="31.25", sender_name="Secret Brother", note="hospital bill")
+        self.add(amount="7743219", rate="31.25", sender_name="Secret Brother", note="hospital bill")
         with connection.cursor() as cur:
             cur.execute("SELECT * FROM core_remittanceentry")
             raw = " ".join(str(x) for x in cur.fetchone())
-        for leak in ("777", "31.25", "24281", "Secret Brother", "hospital", "bkash", "SAR"):
+        for leak in ("7743219", "31.25", "24281", "Secret Brother", "hospital", "bkash", "SAR"):
             self.assertNotIn(leak, raw)
         row = RemittanceEntry.objects.get()
         self.assertTrue(row.enc.startswith("gAAAA"))     # a Fernet token
