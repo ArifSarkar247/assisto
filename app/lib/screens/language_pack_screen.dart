@@ -15,6 +15,7 @@ import '../widgets/voice_input.dart';
 import '../feature_flags.dart' show FeatureFlags;
 import 'ielts_screen.dart';
 import 'language_partner_screen.dart';
+import 'learn_cert_screen.dart' as lc; // learnwire: certificate offer
 
 /// p2lang — LANGUAGE PARTNER framework (owner design 3 Nov 11:45, flag
 /// `language_packs`). Everything is rendered from server packs
@@ -34,6 +35,37 @@ String _loc(BuildContext c, Map m, String bnKey, String enKey) =>
 List<Map<String, dynamic>> _list(Object? v) =>
     v is List ? v.whereType<Map>().map((e) => e.cast<String, dynamic>()).toList() : const [];
 List<String> _strs(Object? v) => v is List ? v.map((e) => '$e').toList() : const [];
+
+// ---- learnwire: framework gaps (langmulti) ----
+
+/// `<base>_bn` / `<base>_en` for the UI language; the other language only
+/// when that one is missing; then the plain `<base>`.
+Object? pickLang(bool bn, Map m, String base) {
+  bool has(Object? v) => v != null && !(v is String && v.isEmpty) && !(v is List && v.isEmpty);
+  final a = m['${base}_${bn ? 'bn' : 'en'}'];
+  if (has(a)) return a;
+  final b = m['${base}_${bn ? 'en' : 'bn'}'];
+  return has(b) ? b : m[base];
+}
+
+String _pickText(BuildContext c, Map m) => '${pickLang(_bn(c), m, 'text') ?? ''}';
+
+/// Writing in Chinese / Japanese is counted in characters (letters and
+/// ideographs; no spaces or punctuation), else in space-separated words —
+/// the same rule as the server (langpacks.count_units).
+const kCharCountLangs = {'zh', 'ja'};
+int writingCount(String lang, String text) => kCharCountLangs.contains(lang)
+    ? RegExp(r'[\p{L}\p{N}]', unicode: true).allMatches(text).length
+    : RegExp(r'\S+').allMatches(text).length;
+
+/// The pack's key-word checklist (any phrase, case-insensitive). Not a grade.
+List<bool> runChecks(List<Map<String, dynamic>> checks, String text) {
+  final t = text.toLowerCase();
+  return [
+    for (final c in checks)
+      t.trim().isNotEmpty && _strs(c['any']).any((w) => w.isNotEmpty && t.contains(w.toLowerCase())),
+  ];
+}
 
 void _toast(BuildContext context, String msg) => ScaffoldMessenger.of(context)
   ..clearSnackBars()
@@ -81,25 +113,52 @@ String _purposeLabel(AppLocalizations tr, String? p) => switch (p) {
 
 /// Probashi corner link: "learn the language for work abroad" (hidden while
 /// the language_packs switch is off).
+/// learnwire: Gulf work-abroad zones (UTC+3 Saudi/Kuwait/Qatar/Bahrain,
+/// UTC+4 UAE/Oman) — the Probashi tile then opens work Arabic directly.
+bool isGulfOffset(int? minutes) => minutes == 180 || minutes == 240;
+
 class LearnForWorkTile extends StatelessWidget {
-  const LearnForWorkTile({super.key});
+  /// The Probashi abroad time zone (minutes); a Gulf zone opens Arabic first.
+  final int? abroadOffsetMin;
+  const LearnForWorkTile({super.key, this.abroadOffsetMin});
+
+  static Widget arabicPack(AppLocalizations tr) => LanguagePackScreen(lang: 'ar', title: tr.lwArabicTitle);
+
   @override
   Widget build(BuildContext context) {
     if (!FeatureFlags.instance.isOn('language_packs')) return const SizedBox.shrink();
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final gulf = isGulfOffset(abroadOffsetMin);
+    void open(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
+    final fg = scheme.onTertiaryContainer;
     return Card(
       color: scheme.tertiaryContainer,
-      child: ListTile(
-        minVerticalPadding: Gap.md,
-        leading: Icon(Icons.translate_rounded, color: scheme.onTertiaryContainer),
-        title: Text(tr.learnProbashiTitle,
-            style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onTertiaryContainer)),
-        subtitle: Text(tr.learnProbashiSub, style: TextStyle(color: scheme.onTertiaryContainer)),
-        trailing: Icon(Icons.chevron_right_rounded, color: scheme.onTertiaryContainer),
-        onTap: () => Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const LanguagePartnerScreen())),
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        ListTile(
+          key: const Key('lw-work-tile'),
+          minVerticalPadding: Gap.md,
+          leading: Icon(Icons.translate_rounded, color: fg),
+          title: Text(gulf ? tr.lwGulfArabic : tr.learnProbashiTitle,
+              style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
+          subtitle: Text(gulf ? tr.lwGulfArabicSub : tr.learnProbashiSub, style: TextStyle(color: fg)),
+          trailing: Icon(Icons.chevron_right_rounded, color: fg),
+          onTap: () => open(gulf ? arabicPack(tr) : const LanguagePartnerScreen()),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.sm, 0, Gap.sm, Gap.sm),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const Key('lw-work-other'),
+              style: TextButton.styleFrom(foregroundColor: fg, minimumSize: const Size(kMinTap, kMinTap)),
+              onPressed: () => open(gulf ? const LanguagePartnerScreen() : arabicPack(tr)),
+              icon: Icon(gulf ? Icons.language_rounded : Icons.work_rounded),
+              label: Text(gulf ? tr.lwAllLanguages : tr.lwGulfArabic),
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -358,12 +417,12 @@ class _McqBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final opts = _strs(q['options']);
+    final opts = _strs(pickLang(_bn(context), q, 'options'));
     final g = graded;
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('${ld(context, index + 1)}. ${q['text']}',
+        Text('${ld(context, index + 1)}. ${_pickText(context, q)}',
             style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
         for (var k = 0; k < opts.length; k++)
           Semantics(
@@ -472,6 +531,7 @@ class _PlacementPageState extends State<_PlacementPage> {
             result: _result!,
             levelName: widget.pack.levelName(context, '${_result!['level']}'),
             estimate: widget.pack.estimate(context)),
+        CertOfferButton(offer: _result!['cert']),
         const SizedBox(height: Gap.md),
       ],
       for (var i = 0; i < qs.length; i++)
@@ -634,7 +694,10 @@ class _ScenarioListPage extends StatelessWidget {
               'workplace' => Icons.engineering_rounded,
               'doctor' => Icons.local_hospital_rounded,
               'renting' => Icons.home_rounded,
-              _ => Icons.shopping_cart_rounded,
+              'shopping' => Icons.shopping_cart_rounded,
+              'salary_rights' => Icons.payments_rounded, // learnwire: pack extras
+              'immigration_office' => Icons.badge_rounded,
+              _ => Icons.forum_rounded,
             }),
             title: Text(_loc(context, s, 'title_bn', 'title_en')),
             trailing: const Icon(Icons.chevron_right_rounded),
@@ -863,7 +926,9 @@ class MockTestPage extends StatefulWidget {
   final Object pack; // _Pack
   final Map<String, dynamic> mock;
   final Map<String, dynamic>? debugResult;
-  const MockTestPage({super.key, required this.pack, required this.mock, this.debugResult});
+  /// Course language when [pack] is not a pack (tests / gallery).
+  final String? lang;
+  const MockTestPage({super.key, required this.pack, required this.mock, this.debugResult, this.lang});
   @override
   State<MockTestPage> createState() => _MockTestPageState();
 }
@@ -877,6 +942,7 @@ class _MockTestPageState extends State<MockTestPage> {
   bool _busy = false;
 
   _Pack? get _p => widget.pack is _Pack ? widget.pack as _Pack : null;
+  String get _lang => _p?.lang ?? widget.lang ?? '';
 
   @override
   void initState() {
@@ -896,6 +962,13 @@ class _MockTestPageState extends State<MockTestPage> {
   }
 
   TextEditingController _ctl(String id) => _texts.putIfAbsent(id, TextEditingController.new);
+
+  /// Server checklist results for open answer [id] (after grading), else null.
+  List<bool>? _openChecks(String id) {
+    final row = _list(_result?['open']).where((o) => '${o['id']}' == id).firstOrNull;
+    if (row == null) return null;
+    return [for (final c in _list(row['checks'])) c['ok'] == true];
+  }
 
   Future<void> _submit() async {
     final tr = AppLocalizations.of(context);
@@ -947,6 +1020,7 @@ class _MockTestPageState extends State<MockTestPage> {
             result: _result!,
             levelName: _p?.levelName(context, '${_result!['level']}') ?? '${_result!['level']}',
             estimate: _p?.estimate(context) ?? ''),
+        CertOfferButton(offer: _result!['cert']),
         const SizedBox(height: Gap.md),
       ],
       for (final s in _list(m['sections'])) ...[
@@ -969,7 +1043,7 @@ class _MockTestPageState extends State<MockTestPage> {
             onPick: _result != null ? null : (k) => setState(() => _answers['${q['id']}'] = k),
           ),
         for (final pr in _list(s['prompts'])) ...[
-          Text('${pr['text']}', style: const TextStyle(height: 1.45)),
+          Text(_pickText(context, pr), style: const TextStyle(height: 1.45)),
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _ctl('${pr['id']}'),
@@ -978,9 +1052,32 @@ class _MockTestPageState extends State<MockTestPage> {
             maxLines: 12,
             maxLength: 6000,
             buildCounter: localCounter,
+            onChanged: (_) => setState(() {}),
             decoration: InputDecoration(labelText: tr.ieltsYourAnswer, border: const OutlineInputBorder()),
           ),
+          WritingCountLine(lang: _lang, text: _ctl('${pr['id']}').text, prompt: pr),
+          if (_list(pr['checks']).isNotEmpty)
+            PackChecklist(
+              checks: _list(pr['checks']),
+              results: _openChecks('${pr['id']}'),
+            ),
+          const SizedBox(height: Gap.md),
         ],
+        for (final sp in _list(s['speak_prompts']))
+          Card(
+            margin: const EdgeInsets.only(bottom: Gap.sm),
+            child: ListTile(
+              minVerticalPadding: Gap.md,
+              leading: const Icon(Icons.record_voice_over_rounded),
+              title: Text(_pickText(context, sp)),
+              subtitle: (sp['seconds'] is num)
+                  ? Text(ld(context, tr.lwSpeakSeconds(sp['seconds'])))
+                  : null,
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => SpeakPromptPage(prompt: sp, localeId: _p?.locale))),
+            ),
+          ),
         for (final ra in _strs(s['read_aloud']))
           Card(
             margin: const EdgeInsets.only(bottom: Gap.sm),
@@ -1003,5 +1100,201 @@ class _MockTestPageState extends State<MockTestPage> {
           label: Text(tr.learnFinishTest),
         ),
     ]);
+  }
+}
+
+// ======================= learnwire: writing count, checklist, speaking, certificate =======================
+
+/// "12 words · Aim: 20 to 60" (Chinese / Japanese: characters, spaces not
+/// counted) under a writing box.
+class WritingCountLine extends StatelessWidget {
+  final String lang;
+  final String text;
+  final Map<String, dynamic> prompt;
+  const WritingCountLine({super.key, required this.lang, required this.text, required this.prompt});
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final n = writingCount(lang, text);
+    final lo = (prompt['min_words'] as num?)?.toInt() ?? 0;
+    final hi = (prompt['max_words'] as num?)?.toInt();
+    final count = kCharCountLangs.contains(lang) ? tr.lwCountChars(n) : tr.lwCountWords(n);
+    final aim = hi != null ? tr.lwCountAim(lo, hi) : (lo > 0 ? tr.lwCountAimMin(lo) : '');
+    final outside = n > 0 && (n < lo || (hi != null && n > hi));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.xs),
+      child: Text(ld(context, aim.isEmpty ? count : '$count · $aim'),
+          key: const Key('lw-count'),
+          style: TextStyle(
+              color: outside ? scheme.error : scheme.onSurfaceVariant,
+              fontWeight: outside ? FontWeight.w600 : null)),
+    );
+  }
+}
+
+/// The pack's key-word checklist. Before grading: what to include; after:
+/// a tick or a cross per line ([results]). Never a grade.
+class PackChecklist extends StatelessWidget {
+  final List<Map<String, dynamic>> checks;
+  final List<bool>? results;
+  final String? title;
+  const PackChecklist({super.key, required this.checks, this.results, this.title});
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final r = results;
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs, bottom: Gap.sm),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title ?? tr.lwChecklist,
+            style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface)),
+        for (var i = 0; i < checks.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (r == null || i >= r.length)
+                Icon(Icons.radio_button_unchecked_rounded, size: 20, color: scheme.onSurfaceVariant)
+              else
+                Icon(r[i] ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                    size: 20,
+                    color: Brand.onTint(context, r[i] ? Brand.success : Brand.danger),
+                    semanticLabel: r[i] ? tr.lwCheckOk : tr.lwCheckMissing),
+              const SizedBox(width: Gap.xs),
+              Expanded(child: Text(_loc(context, checks[i], 'bn', 'en'), style: const TextStyle(height: 1.35))),
+            ]),
+          ),
+      ]),
+    );
+  }
+}
+
+/// Free speaking task from a pack mock (`speak_prompts`): the prompt in the
+/// UI language, speak in the course language (phone speech-to-text), then a
+/// key-word checklist — honestly labelled, not a speaking score.
+class SpeakPromptPage extends StatefulWidget {
+  final Map<String, dynamic> prompt;
+  final String? localeId;
+  final String? debugHeard; // gallery / tests: a finished attempt
+  const SpeakPromptPage({super.key, required this.prompt, this.localeId, this.debugHeard});
+  @override
+  State<SpeakPromptPage> createState() => _SpeakPromptPageState();
+}
+
+class _SpeakPromptPageState extends State<SpeakPromptPage> {
+  final _heard = TextEditingController();
+  late final VoiceDictation _voice = VoiceDictation(mode: 'en', learnLocale: widget.localeId);
+  List<bool>? _res;
+
+  List<Map<String, dynamic>> get _checks => _list(widget.prompt['checks']);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.debugHeard != null) {
+      _heard.text = widget.debugHeard!;
+      _res = runChecks(_checks, widget.debugHeard!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _voice.stop();
+    _voice.dispose();
+    _heard.dispose();
+    super.dispose();
+  }
+
+  Future<void> _record() async {
+    if (_voice.listening) {
+      await _voice.stop();
+      return;
+    }
+    _heard.clear();
+    setState(() => _res = null);
+    await _voice.start(context, _heard, pauseFor: const Duration(seconds: 4));
+  }
+
+  void _check() {
+    final tr = AppLocalizations.of(context);
+    if (_heard.text.trim().isEmpty) {
+      _toast(context, tr.lwNothingHeard);
+      return;
+    }
+    setState(() => _res = runChecks(_checks, _heard.text));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final sp = widget.prompt;
+    return _page(context, tr.lwSpeakTitle, [
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Text(_pickText(context, sp),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(height: 1.35)),
+        ),
+      ),
+      if (sp['seconds'] is num) _muted(context, ld(context, tr.lwSpeakSeconds(sp['seconds']))),
+      if (_checks.isNotEmpty) PackChecklist(checks: _checks, results: _res, title: tr.lwSpeakTry),
+      const SizedBox(height: Gap.sm),
+      ListenableBuilder(
+        listenable: _voice,
+        builder: (context, _) => FilledButton.icon(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          onPressed: _record,
+          icon: Icon(_voice.listening ? Icons.stop_rounded : Icons.mic_rounded),
+          label: Text(_voice.listening ? tr.ieltsStop : tr.ieltsRecord),
+        ),
+      ),
+      const SizedBox(height: Gap.md),
+      TextField(
+        controller: _heard,
+        readOnly: true,
+        minLines: 1,
+        maxLines: 6,
+        decoration: InputDecoration(labelText: tr.ieltsHeardLabel, border: const OutlineInputBorder()),
+      ),
+      const SizedBox(height: Gap.sm),
+      OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _check,
+        icon: const Icon(Icons.fact_check_rounded),
+        label: Text(tr.ieltsCheck),
+      ),
+      const SizedBox(height: Gap.md),
+      _note(context, tr.lwSpeakHonest),
+    ]);
+  }
+}
+
+/// "Get my certificate" under a server-graded result. Shown only when the
+/// server signed an offer AND the learning_certificate switch is on; the
+/// certificate itself is issued by the server (/learn/certs/claim).
+class CertOfferButton extends StatelessWidget {
+  final Object? offer;
+  const CertOfferButton({super.key, required this.offer});
+  @override
+  Widget build(BuildContext context) {
+    final o = offer;
+    if (o is! Map || '${o['token'] ?? ''}'.isEmpty) return const SizedBox.shrink();
+    if (!FeatureFlags.instance.isOn(lc.kLearnCertFlag)) return const SizedBox.shrink();
+    final tr = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.sm),
+      child: FilledButton.tonalIcon(
+        key: const Key('lw-cert-offer'),
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: () => lc.courseResult(context,
+            course: '${o['course']}',
+            level: '${o['level']}',
+            score: o['score'] is num ? o['score'] as num : null,
+            token: '${o['token']}'),
+        icon: const Icon(Icons.workspace_premium_rounded),
+        label: Text(tr.lcGetCert),
+      ),
+    );
   }
 }

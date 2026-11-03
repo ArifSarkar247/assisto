@@ -2116,6 +2116,11 @@ class FakeApi extends ApiClient {
     if (kau != null) return kau;
     final lcp = fakeLearnCertPost(path, body); // learncert
     if (lcp != null) return lcp;
+    if (p == 'learn/quran/complete') { // learnwire
+      final c = '${body['course']}';
+      return {'ok': true, 'cert': {'course': c, 'level': c == 'quran_nazera' ? 'nazera' : 'qaida',
+          'score': null, 'completed_on': body['completed_on'], 'token': 'lw-quran-token'}};
+    }
     final ma = fakeMissingPost(path, bn: _bn); // missing
     if (ma != null) return ma;
     final bp = fakeBloodPost(path, bn: _bn); // blood

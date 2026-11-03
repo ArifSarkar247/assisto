@@ -7,9 +7,16 @@
 // not a teacher). Progress steps + daily goal; no ads; core learning free;
 // EXPERIMENTAL until a qualified Qari reviews the lessons.
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../feature_flags.dart' show FeatureFlags;
 import '../l10n/app_localizations.dart';
+// learnwire: the learncert seam. Prefixed — this folder's own
+// course_result.dart also has a courseResult (the on-phone progress seam).
+import '../screens/learn_cert_screen.dart' as lc;
+import '../services/error_kind.dart' show honestFailText;
+import '../state.dart';
 import '../l10n/quran_learn_content.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
@@ -41,6 +48,7 @@ class QuranLearnScreen extends StatefulWidget {
 
 class _QuranLearnScreenState extends State<QuranLearnScreen> {
   QlProgress? _p;
+  bool _certBusy = false; // learnwire
 
   @override
   void initState() {
@@ -133,6 +141,7 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
                 for (final course in const [kCourseQaida, kCourseNazera]) ...[
                   const SizedBox(height: Gap.lg),
                   _courseHeader(t, p, course),
+                  _certOffer(t, p, course), // learnwire
                   const SizedBox(height: Gap.sm),
                   for (final s in kQlStages.where((s) => s.course == course))
                     _stageTile(t, p, s),
@@ -239,6 +248,55 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
       icon: Icon(fresh ? Icons.play_arrow_rounded : Icons.history_edu_rounded),
       label: Text(fresh ? t.qlStart : t.qlContinue(target.lesson.title.of(bn))),
     );
+  }
+
+  /// learnwire: a finished course (every stage of it) can be claimed as an
+  /// Assisto practice certificate: the server records the stage set and signs
+  /// a token; the learncert sheet then confirms the name. Wording on the
+  /// certificate: only "Qaida / Nazera reading practice completed".
+  Widget _certOffer(AppLocalizations t, QlProgress p, String course) {
+    final doneOn = p.done[course];
+    if (doneOn == null || !FeatureFlags.instance.isOn(lc.kLearnCertFlag)) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        FilledButton.tonalIcon(
+          key: Key('ql-cert-$course'),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
+          onPressed: _certBusy ? null : () => _claimCert(t, course, doneOn),
+          icon: const Icon(Icons.workspace_premium_rounded),
+          label: Text(t.lcGetCert),
+        ),
+        const SizedBox(height: Gap.xxs),
+        Text(t.lwQuranCertHint,
+            style: AType.bodySmall.copyWith(color: AssistoTokens.of(context).textMuted)),
+      ]),
+    );
+  }
+
+  Future<void> _claimCert(AppLocalizations t, String course, String doneOn) async {
+    setState(() => _certBusy = true);
+    try {
+      final r = await context.read<AppState>().api.postJson('/learn/quran/complete', {
+        'course': course,
+        'stages': [for (final s in kQlStages.where((s) => s.course == course)) s.n],
+        'completed_on': doneOn,
+      });
+      final cert = r['cert'];
+      if (mounted && cert is Map) {
+        await lc.courseResult(context,
+            course: course, level: '${cert['level']}', token: '${cert['token'] ?? ''}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(SnackBar(content: Text(honestFailText(t, e, otherwise: t.lcErrGeneric))));
+      }
+    }
+    if (mounted) setState(() => _certBusy = false);
   }
 
   Widget _courseHeader(AppLocalizations t, QlProgress p, String course) {
