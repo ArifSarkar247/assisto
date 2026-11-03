@@ -121,6 +121,31 @@
   "ailvNameBest": "Best",
   "@ailvNameBest": {
    "description": "aifinal: answer level name in the credit history"
+  },
+  "voiceLangBn": "BN",
+  "@voiceLangBn": {
+   "description": "aifinal round 2 voice: mic language switch: Bangla"
+  },
+  "voiceLangEn": "EN",
+  "@voiceLangEn": {
+   "description": "aifinal round 2 voice: mic language switch: English"
+  },
+  "voiceLangSwitchA11y": "Voice language: {lang}. Double tap to switch.",
+  "@voiceLangSwitchA11y": {
+   "description": "aifinal round 2 voice: TalkBack label of the mic language switch",
+   "placeholders": {
+    "lang": {
+     "type": "String"
+    }
+   }
+  },
+  "voiceServerFailed": "Couldn't write that down — no credits were used. Please try again.",
+  "@voiceServerFailed": {
+   "description": "aifinal round 2 voice: server transcription failed"
+  },
+  "voiceTranscribing": "Writing down what you said…",
+  "@voiceTranscribing": {
+   "description": "aifinal round 2 voice: server transcription in progress"
   }
  },
  "bn": {
@@ -147,6 +172,11 @@
   "aiPhotoCredits": "এই ছবি-উত্তরে {n} ক্রেডিট লেগেছে",
   "ailvNameNormal": "সাধারণ",
   "ailvNameBetter": "ভালো",
-  "ailvNameBest": "সেরা"
+  "ailvNameBest": "সেরা",
+  "voiceLangBn": "বাং",
+  "voiceLangEn": "ইং",
+  "voiceLangSwitchA11y": "কণ্ঠের ভাষা: {lang}। বদলাতে দুবার চাপুন।",
+  "voiceServerFailed": "কথাটি লেখা গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
+  "voiceTranscribing": "আপনার কথা লেখা হচ্ছে…"
  }
 }

@@ -730,6 +730,7 @@ urlpatterns = [
 
     # ---- a3-voice ---- Part 3 Assisto Voice (wake-word config, key-gated)
     path("voice/config", voicev.VoiceConfigView.as_view()),
+    path("voice/transcribe", voicev.VoiceTranscribeView.as_view()),  # aifinal round 2
     path("voice/youtube", voicev.VoiceYoutubeView.as_view()),
 ]
 

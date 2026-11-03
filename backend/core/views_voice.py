@@ -110,3 +110,14 @@ class VoiceYoutubeView(APIView):
             return Response({"available": False, "reason": "not_found"})
         cache.set(ck, res, 60 * 60 * 24 * 7)
         return Response({"available": True, **res})
+
+
+class VoiceTranscribeView(APIView):
+    """aifinal round 2: POST /voice/transcribe {audio_b64, mime, lang} ->
+    {ok, text}. Bangla in Bangla script; never charged when it fails."""
+    def post(self, request):
+        from . import voice_transcribe as VT
+        from .i18n import req_lang
+        code, body = VT.transcribe(request.user, request.data or {}, req_lang(request))
+        return Response(body, status=code)
+
