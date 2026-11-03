@@ -1,3 +1,4 @@
+- 3 Nov 18:50 OWNER NEARBY FINAL order (own emergency list, zero Google cost, rollout BD first) — IN PROGRESS (agent nearby) — owner_actions/OWNER_NEARBY_ORDER_3NOV_1850.md
 - 3 Nov 18:40 OWNER SAFETY PLANS + MAPS COST order (Parts 1–7) — IN PROGRESS (agents mapscost, safeplans, guardian2) — owner_actions/OWNER_SAFETY_PLANS_MAPS_ORDER_3NOV_1840.md
 - 3 Nov 16:30 OWNER MY CIRCLE FINAL ORDER (A–G: bubble position, bubble tap, new sound, multi photo, photo bubble, media limits, view once) — TOP PRIORITY, IN PROGRESS (agents circlebub, circlemedia, viewonce) — owner_actions/OWNER_MY_CIRCLE_ORDER_3NOV_1630.md
 # QUEUE — rewritten 3 Nov 10:45 BD (owner: launch 8 Nov with ALL features; NOTHING is after launch)
