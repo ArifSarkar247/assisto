@@ -15,6 +15,9 @@ class NearbyPlaceCard extends StatelessWidget {
   final VoidCallback onToggleFav;
   final DateTime now;
 
+  /// nearby (owner 3 Nov): "Report wrong number" (own-list rows only).
+  final VoidCallback? onReport;
+
   const NearbyPlaceCard({
     super.key,
     required this.place,
@@ -23,6 +26,7 @@ class NearbyPlaceCard extends StatelessWidget {
     required this.favourite,
     required this.onToggleFav,
     required this.now,
+    this.onReport,
   });
 
   String _bnDigits(String s) {
@@ -142,6 +146,17 @@ class NearbyPlaceCard extends StatelessWidget {
               ),
             ),
           ]),
+          if (onReport != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                key: ValueKey('nearby_report_${place.serverId}'),
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: onReport,
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                label: Text(t.nearbyReportWrong),
+              ),
+            ),
         ]),
       ),
     );

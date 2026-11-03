@@ -115,6 +115,54 @@ class FakeApi extends ApiClient {
             'attribution': '\u00a9 OpenStreetMap contributors (ODbL)'};
   }
 
+  // nearby (owner 3 Nov): own emergency list area (REAL-shaped rows).
+  int nearbyAreaCalls = 0;
+  final List<Map<String, dynamic>> nearbyReports = [];
+  @override
+  Future<Map<String, dynamic>> nearbyArea(double lat, double lon,
+      {String v = ''}) async {
+    await _slow();
+    nearbyAreaCalls++;
+    if (mode == FakeMode.fail) _fail();
+    final t = lat.floor(), g = lon.floor();
+    final area = {'key': '$t:$g', 'lat0': t - 1, 'lat1': t + 2, 'lon0': g - 1, 'lon1': g + 2};
+    const ver = 'BD:3';
+    if (v == ver) return {'area': area, 'version': ver, 'unchanged': true};
+    final rows = mode == FakeMode.empty
+        ? const <List<Object>>[]
+        : <List<Object>>[
+            [11, 'hospital', 'ঢাকা মেডিকেল কলেজ হাসপাতাল', 'Dhaka Medical College Hospital',
+             lat + 0.006, lon + 0.002, '', 'osm'],
+            [12, 'hospital', 'স্কয়ার হাসপাতাল', 'Square Hospital', lat + 0.015, lon - 0.012,
+             '10616', 'osm'],
+            [13, 'police', 'শাহবাগ থানা', 'Shahbag Police Station', lat + 0.002, lon + 0.001,
+             '01320-040000', 'osm'],
+            [14, 'pharmacy', 'লাজ ফার্মা', '', lat + 0.001, lon, '', 'osm'],
+          ];
+    return {
+      'area': area, 'version': ver, 'unchanged': false, 'country': 'BD',
+      'countries': ['BD'], 'fields': ['id', 'cat', 'name', 'name_en', 'lat', 'lon', 'phone', 'src'],
+      'rows': rows, 'refreshed_at': '2026-11-03T02:00:00+00:00',
+      'attribution': '\u00a9 OpenStreetMap contributors (ODbL)',
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> nearbyReport(int place,
+      {String kind = 'wrong_number', String phone = '', String note = ''}) async {
+    await _slow();
+    if (mode == FakeMode.fail) _fail();
+    nearbyReports.add({'place': place, 'kind': kind, 'phone': phone, 'note': note});
+    return {'ok': true, 'id': nearbyReports.length};
+  }
+
+  @override
+  Future<Map<String, dynamic>> nearbySponsored(
+      double lat, double lon, String cat) async {
+    await _slow();
+    return {'cat': cat, 'places': const []};
+  }
+
   Map<String, dynamic>? _pay1Get(String path) {
     if (path.startsWith('/payments/config')) {
       final prods = [

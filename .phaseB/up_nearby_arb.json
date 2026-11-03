@@ -1,42 +1,257 @@
 {
-  "nearbyAll":              ["সব", "All"],
-  "nearbyFavourites":       ["পছন্দের", "Favourites"],
-
-  "nearbyCatHospital":      ["হাসপাতাল", "Hospital"],
-  "nearbyCatPharmacy":      ["ফার্মেসি", "Pharmacy"],
-  "nearbyCatAtm":           ["এটিএম / ব্যাংক", "ATM / Bank"],
-  "nearbyCatAgent":         ["বিকাশ / নগদ এজেন্ট", "bKash / Nagad agent"],
-  "nearbyCatPolice":        ["পুলিশ", "Police"],
-  "nearbyCatFire":          ["ফায়ার সার্ভিস", "Fire service"],
-  "nearbyCatTransport":     ["বাস / ট্রেন / লঞ্চ", "Bus / train / launch"],
-  "nearbyCatFuel":          ["জ্বালানি / সিএনজি", "Fuel / CNG"],
-  "nearbyCatRestaurant":    ["রেস্তোরাঁ", "Restaurant"],
-  "nearbyCatMosque":        ["মসজিদ", "Mosque"],
-  "nearbyCatGovt":          ["সরকারি অফিস", "Govt office"],
-
-  "nearbyCall":             ["কল", "Call"],
-  "nearbyDirections":       ["পথ দেখাও", "Directions"],
-  "nearbySave":             ["পছন্দে রাখো", "Save"],
-  "nearbyUnsave":           ["পছন্দ থেকে সরাও", "Remove"],
-
-  "nearbyOpenNow":          ["এখন খোলা", "Open now"],
-  "nearbyClosedNow":        ["এখন বন্ধ", "Closed now"],
-  "nearbyOpen24h":          ["২৪ ঘণ্টা খোলা", "Open 24h"],
-  "nearbyHoursUnknown":     ["সময় অজানা", "Hours unknown"],
-  "nearbyHoursRange":       ["{open}–{close}", "{open}–{close}"],
-  "nearbyKmAway":           ["{km} কিমি দূরে", "{km} km away"],
-  "nearbyMAway":            ["{m} মি দূরে", "{m} m away"],
-
-  "nearbySearchHint":       ["জায়গা খুঁজুন…", "Search places…"],
-  "nearbySortBy":           ["সাজান", "Sort by"],
-  "nearbySortDistance":     ["দূরত্ব অনুযায়ী", "Distance"],
-  "nearbySortOpen":         ["আগে খোলা", "Open first"],
-  "nearbySortName":         ["নাম অনুযায়ী", "Name"],
-
-  "nearbyMockBanner":       ["নমুনা তালিকা দেখানো হচ্ছে — ম্যাপ কী ও লোকেশন চালু হলে লাইভ হবে।", "Showing a sample list — goes live when the Maps key + location are enabled."],
-  "nearbyLocationBanner":   ["লোকেশন ছাড়া দূরত্ব দেখানো যাচ্ছে না — নমুনা তালিকা দেখানো হচ্ছে।", "Distance is hidden without location — showing a sample list."],
-  "nearbyEnable":           ["চালু করুন", "Enable"],
-
-  "nearbyNoFavourites":     ["কোনো পছন্দের জায়গা নেই", "No saved places yet"],
-  "nearbyNoFavouritesHint": ["তারকা চিহ্নে ট্যাপ করে জায়গা পছন্দে রাখুন।", "Tap the star on a place to save it here."]
+ "_comment": "nearby (owner 3 Nov 18:50): own emergency list, emergency numbers per country, report wrong number, Open in Google Maps, Sponsored label. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_nearby_arb.json",
+ "en": {
+  "nearbyCatClinic": "Clinic",
+  "@nearbyCatClinic": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCatAmbulance": "Ambulance",
+  "@nearbyCatAmbulance": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCatShop": "Shops",
+  "@nearbyCatShop": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportWrong": "Report wrong number",
+  "@nearbyReportWrong": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportTitle": "Is this number wrong?",
+  "@nearbyReportTitle": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportBody": "Tell us the right number if you know it. Our team checks it and fixes it for everyone.",
+  "@nearbyReportBody": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportPhoneHint": "Correct number (if you know it)",
+  "@nearbyReportPhoneHint": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportNoteHint": "Anything else? (optional)",
+  "@nearbyReportNoteHint": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportSend": "Send report",
+  "@nearbyReportSend": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyReportThanks": "Thanks! We'll check the number and fix it for everyone.",
+  "@nearbyReportThanks": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbySeeMoreMaps": "See more in Google Maps",
+  "@nearbySeeMoreMaps": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyOpenInMaps": "Open in Google Maps",
+  "@nearbyOpenInMaps": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyGeneralTitle": "Find it near you in Google Maps",
+  "@nearbyGeneralTitle": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyGeneralBody": "Google Maps opens with this search ready. It's free and needs no account.",
+  "@nearbyGeneralBody": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbySponsored": "Sponsored",
+  "@nearbySponsored": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbySponsoredHint": "Assisto businesses near you",
+  "@nearbySponsoredHint": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyOfflineNote": "Offline — showing the list saved on this phone for this area.",
+  "@nearbyOfflineNote": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyEmergencyNumbers": "Emergency numbers",
+  "@nearbyEmergencyNumbers": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyEmergencyIn": "Emergency numbers · {country}",
+  "@nearbyEmergencyIn": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links",
+   "placeholders": {
+    "country": {
+     "type": "String"
+    }
+   }
+  },
+  "nearbyNumbersSource": "Official source: {source}",
+  "@nearbyNumbersSource": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links",
+   "placeholders": {
+    "source": {
+     "type": "String"
+    }
+   }
+  },
+  "nearbyNumbersUnverified": "We could not re-open this official page today. Please confirm the number locally.",
+  "@nearbyNumbersUnverified": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumbersFallback": "We don't know which country you are in yet. 112 works as an emergency number on mobile phones in many countries.",
+  "@nearbyNumbersFallback": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCallNumber": "Call {number}",
+  "@nearbyCallNumber": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links",
+   "placeholders": {
+    "number": {
+     "type": "String"
+    }
+   }
+  },
+  "nearbyNumAll": "Police, fire service, ambulance",
+  "@nearbyNumAll": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumPolice": "Police",
+  "@nearbyNumPolice": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumAmbulance": "Ambulance",
+  "@nearbyNumAmbulance": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumFire": "Fire service",
+  "@nearbyNumFire": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumAmbulanceFire": "Ambulance & fire",
+  "@nearbyNumAmbulanceFire": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumCivilDefence": "Civil defence (fire & rescue)",
+  "@nearbyNumCivilDefence": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumWomenChild": "Violence against women & children",
+  "@nearbyNumWomenChild": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumChild": "Child helpline",
+  "@nearbyNumChild": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumWomenFamily": "Women & family helpline",
+  "@nearbyNumWomenFamily": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumHealth": "Health advice by phone",
+  "@nearbyNumHealth": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumHealthNonEmergency": "Health advice (not an emergency)",
+  "@nearbyNumHealthNonEmergency": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumPoliceNonEmergency": "Police (not an emergency)",
+  "@nearbyNumPoliceNonEmergency": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyNumCrisis": "Suicide & crisis line",
+  "@nearbyNumCrisis": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryBD": "Bangladesh",
+  "@nearbyCountryBD": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountrySA": "Saudi Arabia",
+  "@nearbyCountrySA": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryAE": "UAE",
+  "@nearbyCountryAE": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryMY": "Malaysia",
+  "@nearbyCountryMY": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryQA": "Qatar",
+  "@nearbyCountryQA": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryOM": "Oman",
+  "@nearbyCountryOM": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryKW": "Kuwait",
+  "@nearbyCountryKW": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountrySG": "Singapore",
+  "@nearbyCountrySG": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryIT": "Italy",
+  "@nearbyCountryIT": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryGB": "United Kingdom",
+  "@nearbyCountryGB": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  },
+  "nearbyCountryUS": "USA",
+  "@nearbyCountryUS": {
+   "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
+  }
+ },
+ "bn": {
+  "nearbyCatClinic": "ক্লিনিক",
+  "nearbyCatAmbulance": "অ্যাম্বুলেন্স",
+  "nearbyCatShop": "দোকান",
+  "nearbyReportWrong": "ভুল নম্বর জানান",
+  "nearbyReportTitle": "নম্বরটি কি ভুল?",
+  "nearbyReportBody": "সঠিক নম্বর জানলে লিখে দিন। আমাদের টিম যাচাই করে সবার জন্য ঠিক করে দেবে।",
+  "nearbyReportPhoneHint": "সঠিক নম্বর (জানলে)",
+  "nearbyReportNoteHint": "আর কিছু? (ইচ্ছা হলে)",
+  "nearbyReportSend": "রিপোর্ট পাঠান",
+  "nearbyReportThanks": "ধন্যবাদ! আমরা নম্বরটি যাচাই করে সবার জন্য ঠিক করব।",
+  "nearbySeeMoreMaps": "Google Maps-এ আরও দেখুন",
+  "nearbyOpenInMaps": "Google Maps-এ খুলুন",
+  "nearbyGeneralTitle": "Google Maps-এ কাছেরগুলো খুঁজুন",
+  "nearbyGeneralBody": "খোঁজাটা লেখা অবস্থায় Google Maps খুলবে। এটা ফ্রি, কোনো অ্যাকাউন্ট লাগে না।",
+  "nearbySponsored": "Sponsored (বিজ্ঞাপন)",
+  "nearbySponsoredHint": "আপনার কাছের Assisto ব্যবসা",
+  "nearbyOfflineNote": "অফলাইন — এই এলাকার জন্য ফোনে সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyEmergencyNumbers": "জরুরি নম্বর",
+  "nearbyEmergencyIn": "জরুরি নম্বর · {country}",
+  "nearbyNumbersSource": "সরকারি সূত্র: {source}",
+  "nearbyNumbersUnverified": "আজ এই সরকারি পেজটি আবার খোলা যায়নি। দয়া করে নম্বরটি স্থানীয়ভাবে নিশ্চিত হয়ে নিন।",
+  "nearbyNumbersFallback": "আপনি কোন দেশে আছেন এখনো বোঝা যায়নি। অনেক দেশে মোবাইল ফোন থেকে ১১২ জরুরি নম্বর হিসেবে কাজ করে।",
+  "nearbyCallNumber": "{number} নম্বরে কল করুন",
+  "nearbyNumAll": "পুলিশ, ফায়ার সার্ভিস, অ্যাম্বুলেন্স",
+  "nearbyNumPolice": "পুলিশ",
+  "nearbyNumAmbulance": "অ্যাম্বুলেন্স",
+  "nearbyNumFire": "ফায়ার সার্ভিস",
+  "nearbyNumAmbulanceFire": "অ্যাম্বুলেন্স ও ফায়ার",
+  "nearbyNumCivilDefence": "সিভিল ডিফেন্স (ফায়ার ও উদ্ধার)",
+  "nearbyNumWomenChild": "নারী ও শিশু নির্যাতন প্রতিরোধ",
+  "nearbyNumChild": "শিশু হেল্পলাইন",
+  "nearbyNumWomenFamily": "নারী ও পরিবার হেল্পলাইন",
+  "nearbyNumHealth": "ফোনে স্বাস্থ্য পরামর্শ",
+  "nearbyNumHealthNonEmergency": "স্বাস্থ্য পরামর্শ (জরুরি নয়)",
+  "nearbyNumPoliceNonEmergency": "পুলিশ (জরুরি নয়)",
+  "nearbyNumCrisis": "আত্মহত্যা ও সংকট হেল্পলাইন",
+  "nearbyCountryBD": "বাংলাদেশ",
+  "nearbyCountrySA": "সৌদি আরব",
+  "nearbyCountryAE": "সংযুক্ত আরব আমিরাত",
+  "nearbyCountryMY": "মালয়েশিয়া",
+  "nearbyCountryQA": "কাতার",
+  "nearbyCountryOM": "ওমান",
+  "nearbyCountryKW": "কুয়েত",
+  "nearbyCountrySG": "সিঙ্গাপুর",
+  "nearbyCountryIT": "ইতালি",
+  "nearbyCountryGB": "যুক্তরাজ্য",
+  "nearbyCountryUS": "যুক্তরাষ্ট্র"
+ }
 }

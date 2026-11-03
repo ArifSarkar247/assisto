@@ -746,6 +746,23 @@ class ApiClient {
   // Nearby + music/artist (voice)
   Future<Map<String, dynamic>> nearby(double lat, double lon, String type) =>
       getJson('/nearby?lat=$lat&lon=$lon&type=$type');
+
+  // nearby (owner 3 Nov 18:50): Assisto's own emergency list. The phone
+  // caches the area (offline) and sends its version token `v`.
+  Future<Map<String, dynamic>> nearbyArea(double lat, double lon,
+          {String v = ''}) =>
+      getJson('/nearby/area?lat=$lat&lon=$lon&v=${Uri.encodeQueryComponent(v)}');
+
+  /// "Report wrong number" -> Owner Admin review queue.
+  Future<Map<String, dynamic>> nearbyReport(int place,
+          {String kind = 'wrong_number', String phone = '', String note = ''}) =>
+      postJson('/nearby/report',
+          {'place': place, 'kind': kind, 'phone': phone, 'note': note});
+
+  /// Assisto business listings (Sponsored; server flag, default off).
+  Future<Map<String, dynamic>> nearbySponsored(
+          double lat, double lon, String cat) =>
+      getJson('/nearby/sponsored?lat=$lat&lon=$lon&cat=$cat');
   Future<Map<String, dynamic>> favouriteArtist(String name,
           {String channelRss = ''}) =>
       postJson('/artist/favourite', {'name': name, 'channel_rss': channelRss});

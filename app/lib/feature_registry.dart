@@ -69,6 +69,8 @@ const Map<String, bool> kFeatureDefaults = {
   'documents': true,
   'service_guide': true,
   'nearby': true,
+  // nearby (owner 3 Nov): Sponsored business listings — OFF by default.
+  'nearby_sponsored': false,
   // unseen-rename (owner 27 Oct): the daily info hub (was `unseen_world`).
   'daily_info': true,
   'unseen_bangladesh': true,

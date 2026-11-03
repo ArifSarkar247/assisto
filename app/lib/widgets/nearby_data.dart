@@ -13,9 +13,14 @@
 
 import 'package:flutter/material.dart';
 
+import '../nearby/area_cache.dart' show AreaPlace;
+import '../theme.dart' show Brand;
+
 /// Categories a Bangladeshi user actually needs nearby.
 enum NearbyCat {
   hospital,
+  clinic, // nearby (owner 3 Nov)
+  ambulance, // nearby (owner 3 Nov)
   pharmacy,
   atmBank,
   police,
@@ -23,9 +28,79 @@ enum NearbyCat {
   transport, // bus / train / launch terminal
   fuel, // petrol / CNG / gas
   restaurant,
+  shop, // nearby (owner 3 Nov)
   mosque,
   govt,
 }
+
+/// nearby (owner 3 Nov 18:50): the EMERGENCY categories come from Assisto's
+/// own list (offline, distance on the phone, never ads); every other
+/// category opens Google Maps with the search ready (free) + optional
+/// Sponsored Assisto businesses.
+const Set<NearbyCat> kEmergencyCats = {
+  NearbyCat.hospital,
+  NearbyCat.clinic,
+  NearbyCat.pharmacy,
+  NearbyCat.police,
+  NearbyCat.fire,
+  NearbyCat.ambulance,
+};
+
+extension NearbyCatX on NearbyCat {
+  bool get isEmergency => kEmergencyCats.contains(this);
+
+  /// Category name in the server's own list (core.nearby_list.EMERGENCY).
+  String get listCat => switch (this) {
+        NearbyCat.hospital => 'hospital',
+        NearbyCat.clinic => 'clinic',
+        NearbyCat.pharmacy => 'pharmacy',
+        NearbyCat.police => 'police',
+        NearbyCat.fire => 'fire',
+        NearbyCat.ambulance => 'ambulance',
+        _ => '',
+      };
+
+  /// Sponsored listing category (core.nearby_list.GENERAL), '' = none.
+  String get sponsorCat => switch (this) {
+        NearbyCat.restaurant => 'food',
+        NearbyCat.shop => 'shop',
+        NearbyCat.atmBank => 'atm',
+        NearbyCat.fuel => 'fuel',
+        _ => '',
+      };
+
+  /// The Google Maps search (English terms work in every country).
+  String get mapsQuery => switch (this) {
+        NearbyCat.hospital => 'hospital',
+        NearbyCat.clinic => 'clinic',
+        NearbyCat.ambulance => 'ambulance service',
+        NearbyCat.pharmacy => 'pharmacy',
+        NearbyCat.police => 'police station',
+        NearbyCat.fire => 'fire station',
+        NearbyCat.atmBank => 'ATM',
+        NearbyCat.transport => 'bus station',
+        NearbyCat.fuel => 'petrol pump',
+        NearbyCat.restaurant => 'restaurants',
+        NearbyCat.shop => 'shops',
+        NearbyCat.mosque => 'mosque',
+        NearbyCat.govt => 'government office',
+      };
+
+  /// "Open in / See more in Google Maps": the free Maps URL with the search
+  /// pre-filled (opens the Google Maps app when installed). Never an API.
+  String get mapsSearchUrl =>
+      'https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent('$mapsQuery near me')}';
+}
+
+NearbyCat? nearbyCatFromList(String c) => switch (c) {
+      'hospital' => NearbyCat.hospital,
+      'clinic' => NearbyCat.clinic,
+      'pharmacy' => NearbyCat.pharmacy,
+      'police' => NearbyCat.police,
+      'fire' => NearbyCat.fire,
+      'ambulance' => NearbyCat.ambulance,
+      _ => null,
+    };
 
 /// Per-category icon + tint. Labels are resolved via AppLocalizations.
 class CatMeta {
@@ -37,13 +112,16 @@ class CatMeta {
 
 const List<CatMeta> kNearbyCats = [
   CatMeta(NearbyCat.hospital, Icons.local_hospital_rounded, Color(0xFFE0485A)),
+  CatMeta(NearbyCat.clinic, Icons.medical_services_rounded, Brand.danger),
   CatMeta(NearbyCat.pharmacy, Icons.local_pharmacy_rounded, Color(0xFF2E9E6B)),
-  CatMeta(NearbyCat.atmBank, Icons.atm_rounded, Color(0xFF3B6EF6)),
   CatMeta(NearbyCat.police, Icons.local_police_rounded, Color(0xFF2347D9)),
   CatMeta(NearbyCat.fire, Icons.fire_truck_rounded, Color(0xFFE0A500)),
+  CatMeta(NearbyCat.ambulance, Icons.emergency_rounded, Brand.danger),
+  CatMeta(NearbyCat.atmBank, Icons.atm_rounded, Color(0xFF3B6EF6)),
   CatMeta(NearbyCat.transport, Icons.directions_bus_rounded, Color(0xFF9B4DF0)),
   CatMeta(NearbyCat.fuel, Icons.local_gas_station_rounded, Color(0xFFE0A500)),
   CatMeta(NearbyCat.restaurant, Icons.restaurant_rounded, Color(0xFFE0485A)),
+  CatMeta(NearbyCat.shop, Icons.storefront_rounded, Brand.info),
   CatMeta(NearbyCat.mosque, Icons.mosque_rounded, Color(0xFF2E9E6B)),
   CatMeta(NearbyCat.govt, Icons.account_balance_rounded, Color(0xFF3B6EF6)),
 ];
@@ -63,6 +141,7 @@ class NearbyPlace {
   final int? openMin; // minutes from midnight — the live sources never set it
   final int? closeMin;
   final bool? openNow; // Places open_now; OSM has none (null = unknown)
+  final int? serverId; // nearby: row id in Assisto's own list (for reports)
 
   const NearbyPlace({
     required this.id,
@@ -76,7 +155,21 @@ class NearbyPlace {
     this.openMin,
     this.closeMin,
     this.openNow,
+    this.serverId,
   });
+
+  /// nearby: one row of the cached area (English name first, local name
+  /// as the second line).
+  static NearbyPlace fromArea(AreaPlace a, NearbyCat cat) => NearbyPlace(
+        id: '${cat.name}:${a.lat.toStringAsFixed(5)},${a.lon.toStringAsFixed(5)}',
+        cat: cat,
+        nameEn: a.displayName,
+        addrEn: a.secondName,
+        lat: a.lat,
+        lon: a.lon,
+        phone: a.phone.isEmpty ? null : a.phone,
+        serverId: a.id,
+      );
 
   /// One row of GET /nearby `places`. Returns null for a row without a
   /// position (never guessed).
@@ -94,6 +187,7 @@ class NearbyPlace {
       lon: lon,
       phone: phone.isEmpty ? null : phone,
       openNow: m['open_now'] is bool ? m['open_now'] as bool : null,
+      serverId: (m['sid'] as num?)?.toInt(),
     );
   }
 
@@ -104,6 +198,7 @@ class NearbyPlace {
         'lat': lat,
         'lon': lon,
         'phone': phone,
+        if (serverId != null) 'sid': serverId,
       };
 
   /// A saved favourite (stored on the phone as the source gave it).
@@ -141,6 +236,9 @@ class NearbyPlace {
 /// The server `type` for a category (backend core/nearby.py _OSM_FILTER).
 String nearbyServerType(NearbyCat c) => switch (c) {
       NearbyCat.hospital => 'hospital',
+      NearbyCat.clinic => 'clinic',
+      NearbyCat.ambulance => 'ambulance',
+      NearbyCat.shop => 'restaurant',
       NearbyCat.pharmacy => 'pharmacy',
       NearbyCat.atmBank => 'atm',
       NearbyCat.police => 'police',

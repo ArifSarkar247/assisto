@@ -439,6 +439,22 @@ class MainActivity : FlutterFragmentActivity() {
                         )
                     )
 
+                    // nearby: the country the phone is in (mobile network)
+                    // and the SIM's home country, for the emergency numbers.
+                    // No permission needed; any failure -> empty strings.
+                    "phoneCountry" -> {
+                        var net = ""
+                        var sim = ""
+                        try {
+                            val tm = getSystemService(android.content.Context.TELEPHONY_SERVICE)
+                                as? android.telephony.TelephonyManager
+                            net = tm?.networkCountryIso ?: ""
+                            sim = tm?.simCountryIso ?: ""
+                        } catch (e: Throwable) {
+                        }
+                        result.success(mapOf("network" to net, "sim" to sim))
+                    }
+
                     // CI launch-safety probe: returns the "ao_open" intent extra
                     // (a ChatNav route name) so the emulator smoke test can open
                     // one feature screen and exercise its real native plugins.
