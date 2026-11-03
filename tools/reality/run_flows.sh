@@ -121,7 +121,7 @@ run_group() {  # $1 = group, $2 = attempt label
   [ -n "$APK" ] && [ -f "$APK" ] && [ "${3:-}" != "build" ] && bin=(--use-application-binary "$APK")
   echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left) ${bin[*]:-(builds)}" | tee -a "$OUT/drive.log"
   : > "$att"
-  REALITY_OUT="$OUT" timeout "$(( left < 1500 ? left : 1500 ))" flutter drive \
+  REALITY_OUT="$OUT" timeout "$(( left < ${REALITY_DRIVE_SECONDS:-1500} ? left : ${REALITY_DRIVE_SECONDS:-1500} ))" flutter drive \
     --driver=test_driver/integration_test.dart \
     --target=integration_test/reality_all_test.dart \
     -d emulator-5554 \

@@ -70,7 +70,11 @@ def answer_for(user, prompt, history, system):
     low = user.lower()
     tools = "ACTION:" in (system or "") or "ACTION:" in (prompt or "")
     hist_text = " ".join(str(h.get("content", "")) for h in (history or []))
-    photo = "[Photo attached earlier" in (prompt or "") or "[Photo attached earlier" in hist_text
+    ctx = (prompt or "") + " " + hist_text
+    # the photo's stored description reaches the model by either path
+    # (photo_job -> DATA, or the session's photo_text in the history)
+    photo = any(k in ctx for k in ("[Photo attached earlier", "[Photo shared earlier",
+                                   "লাল বৃত্ত", "red circle"))
     tag = " (CI)"
     # reminder ("৩ মিনিট পরে ওষুধ খাওয়ার কথা মনে করিয়ে দাও")
     if tools and re.search(r"মনে করিয়ে|রিমাইন্ডার|remind", low):

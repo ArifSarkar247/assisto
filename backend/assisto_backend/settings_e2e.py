@@ -32,3 +32,7 @@ INSTALLED_APPS = list(INSTALLED_APPS) + ["ci_e2e.apps.CiE2EConfig"]
 ROOT_URLCONF = "ci_e2e.urls"
 E2E_OUTBOX = os.getenv("E2E_OUTBOX", str(BASE_DIR / "ci_e2e_outbox.jsonl"))
 E2E_TEST_OTP = os.getenv("E2E_TEST_OTP", "135790")   # fake CI-only code
+
+# Test Lab job only: the real phones reach this throw-away server through a
+# temporary tunnel host (e2e.yml sets E2E_PUBLIC_HOST); never a real domain.
+ALLOWED_HOSTS = list(ALLOWED_HOSTS) + [h for h in os.getenv("E2E_PUBLIC_HOST", "").split(",") if h]  # noqa: F405

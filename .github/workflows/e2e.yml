@@ -1,0 +1,353 @@
+name: E2E proof (8 main flows, emulator + Test Lab)
+
+# e2eproof — owner WORLD CLASS rule: "proof before done = scripted E2E tests
+# of main flows on emulators and Firebase Test Lab". A quality-board score (1)
+# "works end to end on a real phone" may rise above 5 ONLY with a green run of
+# this workflow linked (owner_actions/E2E_PROOF_BN.md).
+#
+# Job "emulator": throw-away Django inside the runner (settings_e2e = the
+# reality settings + backend/ci_e2e fakes for AI, photo answers, SMS OTP,
+# Google Places and push; fake-clock tick), the API-33 emulator, and the 8
+# flows in app/integration_test/flows/e2e_proof_flows.dart (REALITY_ONLY=e2e).
+# It NEVER touches api.lifeassisto.com or the live DB.
+# Job "testlab": the SAME flows as an instrumentation test on 2-3 real phones
+# popular in Bangladesh (Firebase Test Lab, Spark = free daily quota only).
+# Needs the secret GCP_TESTLAB_SA; without it the job says NOT RUN and why.
+#
+# Evidence (artifacts): e2e_proof.json (per flow: board rows, steps with
+# at_ms/ms timings, screenshots, errors) + e2e_proof.md, screenshots, server
+# outbox (what the server "sent"), Django log, logcat.
+
+on:
+  workflow_dispatch:
+    inputs:
+      testlab:
+        description: "Also run on real phones in Firebase Test Lab (free Spark quota: 3 devices)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)
+  push:
+    branches: ["ci/e2eproof", "ci/e2eproof-*"]   # the agent's own CI branch only
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Throw-away backend with CI fakes (migrate, seed_e2e self-check, serve :8700)
+        run: bash tools/e2e/backend_up.sh
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Add integration_test + flutter_driver (CI-only dev deps) + real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n"
+                            "  flutter_driver:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s, "dev_dependencies block not found"
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend (Skia in the test APK)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          PY
+      - name: Analyze the flows (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt | tail -40
+          grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
+          exit 0
+      - name: Build the x86_64 debug test APK once
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/reality_all_test.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
+            --dart-define=REALITY_ONLY=e2e
+          echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
+      - name: Free the runner for the emulator
+        working-directory: app
+        run: |
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          free -m
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the 8 proof flows on API 33
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          REALITY_ONLY: e2e
+          REALITY_TOTAL_SECONDS: "3000"
+          REALITY_DRIVE_SECONDS: "2700"
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+        with:
+          api-level: 33
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 480
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
+          script: bash tools/reality/run_flows.sh
+      - name: Stop Django
+        if: always()
+        run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Proof (e2e_proof.json + table; red unless every flow passed)
+        if: always()
+        env:
+          REALITY_ONLY: e2e
+        run: |
+          python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
+          python3 tools/e2e/proof.py "$REALITY_OUT" "$E2E_OUTBOX" "emulator API 33 (pixel_5, x86_64)"
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-proof-emulator
+          path: |
+            reality_out/
+            !reality_out/.recording
+            !reality_out/.attempt.log
+          retention-days: 30
+          if-no-files-found: warn
+
+  testlab:
+    # real phones: manual (input testlab) or nightly; never on the agent push
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.testlab)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      PROJECT: assisto-247
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+      # used only when the live catalog query fails (BD-common brands first)
+      STATIC_PHYSICAL: >-
+        model=a10,version=29,locale=en,orientation=portrait
+        model=oriole,version=33,locale=en,orientation=portrait
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secret present? (else NOT RUN, with the owner's exact step)
+        id: pre
+        env:
+          SA: ${{ secrets.GCP_TESTLAB_SA }}
+        run: |
+          if [ -z "$SA" ]; then
+            {
+              echo "### Firebase Test Lab — NOT RUN"
+              echo "The GitHub secret **GCP_TESTLAB_SA** does not exist yet."
+              echo "Owner: follow owner_actions/TESTLAB_SETUP.md steps 1, 3, 4 (enable 2 APIs, make the"
+              echo "service-account JSON key, add it as repository secret GCP_TESTLAB_SA). Free Spark plan only."
+            } | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Test Lab NOT RUN: secret GCP_TESTLAB_SA missing (owner_actions/E2E_PROOF_BN.md)"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.pre.outputs.run == 'true'
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        if: steps.pre.outputs.run == 'true'
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Temporary public tunnel to the throw-away backend (free, no account)
+        if: steps.pre.outputs.run == 'true'
+        run: |
+          # Real phones in Google's lab cannot reach 10.0.2.2: a Cloudflare
+          # quick tunnel (random https://*.trycloudflare.com, lives only for
+          # this job) points at the in-runner Django. Fake demo data only.
+          curl -fsSL -o cloudflared https://github.com/cloudflare/cloudflared/releases/download/2024.8.2/cloudflared-linux-amd64
+          chmod +x cloudflared
+          mkdir -p "$REALITY_OUT"
+          nohup ./cloudflared tunnel --no-autoupdate --url http://127.0.0.1:8700 > "$REALITY_OUT/tunnel.log" 2>&1 &
+          for i in $(seq 1 60); do
+            URL=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$REALITY_OUT/tunnel.log" | head -1 || true)
+            [ -n "$URL" ] && break; sleep 2
+          done
+          [ -n "$URL" ] || { echo "::error::no tunnel URL"; cat "$REALITY_OUT/tunnel.log"; exit 1; }
+          echo "E2E_BASE=$URL" >> "$GITHUB_ENV"
+          echo "E2E_PUBLIC_HOST=${URL#https://}" >> "$GITHUB_ENV"
+      - name: Throw-away backend with CI fakes
+        if: steps.pre.outputs.run == 'true'
+        run: |
+          bash tools/e2e/backend_up.sh
+          for i in $(seq 1 30); do curl -fsS -m 10 "$E2E_BASE/api/v1/health" >/dev/null && { echo "tunnel OK"; break; }; sleep 3; done
+      - uses: actions/setup-java@v4
+        if: steps.pre.outputs.run == 'true'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        if: steps.pre.outputs.run == 'true'
+        with:
+          channel: stable
+          cache: true
+      - name: integration_test dev dep + build prep + androidTest runner
+        if: steps.pre.outputs.run == 'true'
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "app/pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n", 1)
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s = re.sub(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          open(p, "w").write(s)
+          PY
+          python3 tools/reality/replay_android_steps.py
+          python3 tools/e2e/android_test_prep.py
+      - name: Build app + instrumentation APKs (same flows, in-app screenshots)
+        if: steps.pre.outputs.run == 'true'
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug \
+            --target=integration_test/reality_all_test.dart \
+            --dart-define=REALITY_API_BASE="$E2E_BASE" \
+            --dart-define=REALITY_ONLY=e2e \
+            --dart-define=REALITY_SHOT_MODE=inapp
+          (cd android && timeout 1200 ./gradlew app:assembleAndroidTest -q)
+          ls -la build/app/outputs/flutter-apk/ build/app/outputs/apk/androidTest/debug/
+      - uses: google-github-actions/auth@v2.1.7
+        if: steps.pre.outputs.run == 'true'
+        with:
+          credentials_json: ${{ secrets.GCP_TESTLAB_SA }}
+      - uses: google-github-actions/setup-gcloud@v2.1.2
+        if: steps.pre.outputs.run == 'true'
+        with:
+          project_id: assisto-247
+      - name: Pick 3 real phones popular in Bangladesh (live catalog, Spark caps)
+        if: steps.pre.outputs.run == 'true'
+        run: |
+          set -uo pipefail
+          if gcloud firebase test android models list --format=json > catalog.json 2> catalog.err; then
+            python3 tools/testlab/pick_devices.py catalog.json --set smoke --max-physical 3 --form physical > phys.txt 2> picker.txt
+            cat picker.txt
+          else
+            cat catalog.err; echo "$STATIC_PHYSICAL" | tr ' ' '\n' > phys.txt
+          fi
+          head -3 phys.txt > p && mv p phys.txt
+          echo "devices:"; cat phys.txt
+      - name: Run the 8 proof flows on the phones (instrumentation)
+        if: steps.pre.outputs.run == 'true'
+        run: |
+          set -uo pipefail
+          args=()
+          while read -r d; do [ -n "$d" ] && args+=(--device "$d"); done < phys.txt
+          gcloud firebase test android run --type instrumentation \
+            --app app/build/app/outputs/flutter-apk/app-debug.apk \
+            --test app/build/app/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+            "${args[@]}" --timeout 25m --num-flaky-test-attempts 0 \
+            --directories-to-pull /sdcard/Android/data/com.assisto.assisto/files \
+            --format=json > tl_out.json 2> tl_log.txt
+          echo "gcloud exit $?"; cat tl_log.txt | tail -40
+          URL=$(grep -oE 'https://console\.(developers|cloud)\.google\.com/storage/browser/[^] ]+' tl_log.txt | head -1 || true)
+          if [ -n "$URL" ]; then
+            GS="gs://${URL#*storage/browser/}"; GS="${GS%/}"
+            mkdir -p "$REALITY_OUT/testlab"
+            gcloud storage cp -r "$GS/*" "$REALITY_OUT/testlab/" 2>/dev/null || true
+          fi
+          cp tl_out.json tl_log.txt "$REALITY_OUT/" || true
+      - name: Proof per phone
+        if: always() && steps.pre.outputs.run == 'true'
+        run: |
+          rc=0
+          for d in "$REALITY_OUT"/testlab/*/; do
+            [ -d "$d" ] || continue
+            r=$(find "$d" -name results.json -path '*reality*' | head -1)
+            [ -n "$r" ] || { echo "no results.json from $d"; rc=1; continue; }
+            mkdir -p "$d/device/reality" && cp "$r" "$d/device/reality/results.json"
+            python3 tools/e2e/proof.py "$d" "$E2E_OUTBOX" "Test Lab $(basename "$d")" || rc=1
+          done
+          [ -s "$REALITY_OUT/tl_out.json" ] && cat "$REALITY_OUT/tl_out.json" | head -40
+          exit $rc
+      - name: Upload Test Lab evidence
+        if: always() && steps.pre.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-proof-testlab
+          path: reality_out/
+          retention-days: 30
+          if-no-files-found: warn
