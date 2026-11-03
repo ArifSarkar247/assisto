@@ -561,11 +561,13 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     final mine = _liveFor;
     if (live == null || mine == null) return;
     HapticFeedback.selectionClick();
-    await _streamSub?.cancel();
+    final sub = _streamSub;
     _streamSub = null;
     _typeTimer?.cancel();
     _typeTimer = null;
     _pending = '';
+    await sub?.cancel();
+    if (!mounted) return;
     final turn = _turn;
     _turn = null;
     final d = _drained;
