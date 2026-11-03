@@ -50,6 +50,7 @@ import '../screens/contract_analyzer_screen.dart';
 import '../screens/cost_estimator_screen.dart';
 import '../screens/mock_interview_screen.dart';
 import '../screens/language_partner_screen.dart';
+import '../screens/learn_cert_screen.dart'; // learncert
 import '../screens/spending_advice_screen.dart';
 import '../screens/price_radar_screen.dart';
 import '../screens/quick_tools_screen.dart';
@@ -717,6 +718,11 @@ class SidebarSections {
           feature: 'language_partner',
           (_) => const LanguagePartnerScreen(),
           synonyms: ['language', 'learn', 'english', 'vocabulary', 'practice']),
+      // learncert: Assisto learning certificates (flag learning_certificate, OFF)
+      SidebarItem(Icons.workspace_premium_rounded, (t) => t.lcTitle,
+          feature: 'learning_certificate',
+          (_) => const LearnCertScreen(),
+          synonyms: ['certificate', 'certificates', 'verify', 'qr', 'course', 'quran']),
       // §6/§8 key-gated-mock: #7 daily brief, #29 doc scanner, #92 transcription,
       // #35 travel planner.
       SidebarItem(Icons.wb_sunny_rounded, (t) => t.dbTitle,
