@@ -37798,5 +37798,13 @@
     }
   },
   "astdLoadFailed": "Could not load your account status. Check the internet and try again.",
-  "astdRetry": "Try again"
+  "astdRetry": "Try again",
+  "examWatchSummaryD": "Watching results for {count} student(s). Results are only ever shown on the official site.",
+  "@examWatchSummaryD": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }
