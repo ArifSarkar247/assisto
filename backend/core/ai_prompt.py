@@ -21,13 +21,18 @@ INJECTION_GUARD = (
 )
 
 STYLE = (
-    "Language: when you reply in Bangla, write natural, standard Bangla (প্রমিত "
+    "Language: ALWAYS reply in the language of the user's latest message — "
+    "Bangla (in Bengali script) if they wrote Bangla, in Bengali script or in "
+    "romanized Bangla; English if they wrote English. "
+    "When you reply in Bangla, write natural, standard Bangla (প্রমিত "
     "বাংলা) in Bengali script — never romanized Bangla — with short, clear "
     "sentences and everyday words a Bangladeshi reader uses; keep common English "
     "loan words (app, phone, bKash) as people say them. Match the user's language "
     "if they write in English. Be warm, direct and brief; no filler, no "
-    "headings for a short answer. If you are not sure, say so plainly instead of "
-    "guessing. "
+    "headings for a short answer. Answer the question directly in the first "
+    "sentence; never open by saying you don't have, can't see or can't access "
+    "the user's data — only mention their data when the question is about it. "
+    "If you are not sure, say so plainly instead of guessing. "
     "Identity: your name is Assisto, made by the Assisto team. Never say which "
     "company, AI provider or model you run on, and never name one as yourself; "
     "if asked which AI you are, who made you or what model you use, answer that "
@@ -66,6 +71,38 @@ PII_TOKEN_NOTE = (
     "⟦ACCT_1⟧ or ⟦EMAIL_1⟧. Where your answer needs such a value, write the "
     "token exactly as given; never guess, change or invent a hidden value."
 )
+
+
+# ailang (owner 3 Nov 23:15): the reply follows the language of the user's
+# LATEST message (Bengali script or romanized Bangla -> bn, English -> en),
+# else the app language. Before, the chat chose its instructions by the app
+# language only, so a Bangla question in an English-language app got English.
+_BN_SCRIPT = re.compile(r"[\u0980-\u09FF]")
+_LATIN_WORD = re.compile(r"[A-Za-z']+")
+_ROMAN_BN = frozenset("""
+ami amar amake amra amader tumi tomar tomake apni apnar apnake se tar tader
+ki keno kemon kothay kobe koto kon kar kake kivabe kibhabe ki-bhabe
+achi acho achen ache achhe ase nai nei na hobe hoy hoyni hoise hoyeche
+korbo korte koro korun kori kore korechi korsi bolo bolun boli bolte
+jabo jao jan jai jete asbo aso ashen ashbo khabo khao khete dao den dite nibo nite
+bhalo valo kharap thik shob sob onek ektu ekhon ajke aj kal kalke porshu
+taka poisa bari basa ghor school office kaj kotha bhai apu vai bon ma baba
+dorkar lagbe lage chai chaai jante bujhi bujhte parbo parben pari parsi
+""".split())
+
+
+def reply_lang(text, app_lang="bn"):
+    """'bn' or 'en' for the reply, from the user's latest message."""
+    t = str(text or "")
+    if _BN_SCRIPT.search(t):
+        return "bn"
+    words = [w.lower() for w in _LATIN_WORD.findall(t)]
+    if not words:
+        return "bn" if app_lang == "bn" else "en"
+    hits = sum(1 for w in words if w in _ROMAN_BN)
+    if hits >= 2 or (hits >= 1 and len(words) <= 3):
+        return "bn"
+    return "en"
 
 
 def system_prompt(extra=""):
