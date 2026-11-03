@@ -37727,5 +37727,7 @@
   "bzSrcSmsLink": "SMS stop link",
   "bzSrcInApp": "Stop button in Assisto",
   "bzSrcChat": "Wrote STOP in a chat",
-  "bzSrcOwner": "Added by you"
+  "bzSrcOwner": "Added by you",
+  "trDataNote2": "Times are estimates from the published timetable (Wikipedia, CC BY-SA) until checked; map © OpenStreetMap contributors (ODbL). Free to use.",
+  "amkNeedsEmptyBenefit2": "Post what you need once — Dhaka sellers approved by Assisto send their best price, and Assisto tells you which offer is best."
 }
