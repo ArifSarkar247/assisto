@@ -41845,5 +41845,78 @@
   "cbubSoundAssistoPop": "Assisto pop (default)",
   "@cbubSoundAssistoPop": {
     "description": "circlebub: the message-sound setting when the user has not picked a sound — Assisto's own short pop"
+  },
+  "vo1Voice": "Voice",
+  "vo1PreviewPhoto": "Photo, view once",
+  "vo1PreviewVideo": "Video, view once",
+  "vo1PreviewVoice": "Voice, view once",
+  "vo1AlreadyOpened": "This was already opened once. It can't be opened again.",
+  "vo1Expired": "Not opened within 14 days, so it was deleted",
+  "vo1NeedsInternet": "Connect to the internet to open it. It can be opened only once.",
+  "vo1OpenFailed": "Couldn't open it. Check the internet and try again.",
+  "vo1HonestLine": "Note: someone could still photograph the screen with another camera.",
+  "vo1ViewerTitleVideo": "View once video",
+  "vo1ViewerTitleVoice": "View once voice message",
+  "vo1ViewerHintAll": "When you close it, it's gone for good. Screenshots and screen recording are blocked.",
+  "vo1OpenedAt": "Opened {time}",
+  "@vo1OpenedAt": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "vo1OpenedCount": "Opened by {count} of {total}",
+  "@vo1OpenedCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      },
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "vo1ToggleOnHint": "View once: they can open it one time only",
+  "vo1Compressing": "Making the video smaller (720p)…",
+  "vo1CompressFailed": "Couldn't make this video smaller on this phone. Choose a clip up to {minutes} min and {mb} MB.",
+  "@vo1CompressFailed": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      },
+      "mb": {
+        "type": "Object"
+      }
+    }
+  },
+  "vo1TrimTitle": "Choose the part to send",
+  "vo1TrimBody": "Videos can be up to {minutes} min. Move the two handles to choose the part to send.",
+  "@vo1TrimBody": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
+  },
+  "vo1TrimSelected": "Selected: {length} · about {size}",
+  "@vo1TrimSelected": {
+    "placeholders": {
+      "length": {
+        "type": "Object"
+      },
+      "size": {
+        "type": "Object"
+      }
+    }
+  },
+  "vo1TrimDone": "Use this part",
+  "vo1VoiceMax": "Voice messages can be up to {minutes} minutes long.",
+  "@vo1VoiceMax": {
+    "placeholders": {
+      "minutes": {
+        "type": "Object"
+      }
+    }
   }
 }
