@@ -28,6 +28,7 @@ import 'fake_books.dart'; // ledger
 import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
 import 'fake_ielts.dart'; // p2lang
+import 'fake_langkoja.dart'; // langkoja
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -981,6 +982,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final lkG = fakeLangkojaGet(path); // langkoja
+    if (lkG != null) {
+      if (mode == FakeMode.fail) _fail();
+      return lkG;
+    }
     final ielts = fakeIeltsGet(path); // p2lang
     if (ielts != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2062,6 +2068,8 @@ class FakeApi extends ApiClient {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
     }
+    final lkP = fakeLangkojaPost(path, body); // langkoja
+    if (lkP != null) return lkP;
     final ieltsP = fakeIeltsPost(path, body); // p2lang
     if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels

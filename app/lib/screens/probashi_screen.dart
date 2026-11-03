@@ -11,6 +11,7 @@ import 'dart:async' show Timer; // lifebar
 import 'package:shared_preferences/shared_preferences.dart'; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
 import 'language_pack_screen.dart' show LearnForWorkTile; // p2lang
+import 'lang_work_path.dart' show WorkLanguagePathTiles; // langkoja
 
 /// PROBASHI CORNER — ADVANCED (#191, SPEC v2.1 §20) for Bangladeshis abroad.
 ///
@@ -526,6 +527,7 @@ class _ClockTabState extends State<_ClockTab> {
         _noteCard(context, tr.probashiClockNote),
         const SizedBox(height: Gap.sm),
         const LearnForWorkTile(), // p2lang: Korea/Japan/Gulf work language paths
+        const WorkLanguagePathTiles(), // langkoja: Korea → EPS-TOPIK, Japan → JFT-Basic
       ],
     );
   }

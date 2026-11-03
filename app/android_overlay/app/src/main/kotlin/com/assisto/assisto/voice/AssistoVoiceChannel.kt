@@ -324,6 +324,13 @@ object AssistoVoiceChannel {
     private fun pickLocale(t: TextToSpeech, lang: String): Locale? {
         val cands = if (lang == "bn") {
             listOf(Locale("bn", "BD"), Locale("bn", "IN"), Locale("bn"))
+        } else if (lang != "en" && lang.length >= 2 && !lang.startsWith("en")) {
+            // langkoja: a course language (e.g. "ko-KR", "ja-JP") for the
+            // Language Partner "Listen" buttons. No English fallback: a phone
+            // without that voice answers "no_voice" and the app offers the
+            // TTS settings to install it (never reads Korean in an English voice).
+            val tag = try { Locale.forLanguageTag(lang) } catch (ignored: Exception) { null }
+            listOfNotNull(tag, tag?.let { Locale(it.language) })
         } else {
             listOf(Locale.US, Locale.UK, Locale("en", "IN"), Locale.ENGLISH)
         }
