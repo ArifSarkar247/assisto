@@ -334,6 +334,7 @@ import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
+import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
 import 'booking1_shots.dart'; // booking1 booking bot
@@ -1117,6 +1118,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvevidenceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvevidence
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
+    for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1

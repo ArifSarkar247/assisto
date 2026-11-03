@@ -424,7 +424,27 @@ def status(user, now=None, play=False):
         "base_plan_id": c["base_plan_id"],
         "pack_products": c["packs"], "pack_valid_days": c["pack_valid_days"],
         "free_requests": c["free_requests"],
+        "play_account_id": _play_account(user),
+        "children": _children_list(user),
     }
+
+
+def _children_list(user):
+    from .models import User
+    try:
+        ids = list(_children_ids(user))[:20]
+        return [{"id": u.pk, "name": u.name or ""}
+                for u in User.objects.filter(pk__in=ids).order_by("name")]
+    except Exception:
+        return []
+
+
+def _play_account(user):
+    try:
+        from .payments import play
+        return play.account_id(user)
+    except Exception:
+        return ""
 
 
 # ---------------------------------------------------------------- Play

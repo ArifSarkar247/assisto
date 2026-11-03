@@ -1,0 +1,447 @@
+{
+ "en": {
+  "spTitle": "Safety plans",
+  "@spTitle": {
+   "description": "safeplans"
+  },
+  "spCurrentPlan": "Your safety plan",
+  "@spCurrentPlan": {
+   "description": "safeplans"
+  },
+  "spPlanFree": "Free",
+  "@spPlanFree": {
+   "description": "safeplans"
+  },
+  "spPlanChild": "Child Plan",
+  "@spPlanChild": {
+   "description": "safeplans"
+  },
+  "spPlanFamily": "Safe Family",
+  "@spPlanFamily": {
+   "description": "safeplans"
+  },
+  "spFromAds": "Unlocked with ads for today",
+  "@spFromAds": {
+   "description": "safeplans"
+  },
+  "spRequestsLeft": "{n} location requests left this month",
+  "@spRequestsLeft": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spResetsNote": "Credits renew on the 1st of every month. Unused credits do not carry over.",
+  "@spResetsNote": {
+   "description": "safeplans"
+  },
+  "spAlwaysFreeTitle": "Safety is always free",
+  "@spAlwaysFreeTitle": {
+   "description": "safeplans"
+  },
+  "spAlwaysFreeBody": "SOS, danger alerts and automatic school arrive and leave alerts are never blocked by plans, credits or ads.",
+  "@spAlwaysFreeBody": {
+   "description": "safeplans"
+  },
+  "spChoose": "Choose a plan",
+  "@spChoose": {
+   "description": "safeplans"
+  },
+  "spChildF1": "{children} child, {guardians} guardians",
+  "@spChildF1": {
+   "description": "safeplans",
+   "placeholders": {
+    "children": {
+     "type": "String"
+    },
+    "guardians": {
+     "type": "String"
+    }
+   }
+  },
+  "spChildF2": "Unlimited automatic school arrive and leave alerts",
+  "@spChildF2": {
+   "description": "safeplans"
+  },
+  "spChildF3": "{n} location requests a month",
+  "@spChildF3": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spFamF1": "Up to {n} members, any number of children",
+  "@spFamF1": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spFamF2": "{n} credits a month (location request {req}, live trip with arrival time {trip})",
+  "@spFamF2": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "req": {
+     "type": "String"
+    },
+    "trip": {
+     "type": "String"
+    }
+   }
+  },
+  "spFamF3": "{days}-day history, updates every {min} minutes",
+  "@spFamF3": {
+   "description": "safeplans",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    },
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "spSchoolTitle": "School Safe",
+  "@spSchoolTitle": {
+   "description": "safeplans"
+  },
+  "spSchoolBody": "If your child's school has School Safe, enter the school code to turn it on for your child.",
+  "@spSchoolBody": {
+   "description": "safeplans"
+  },
+  "spSchoolF1": "Up to {guardians} guardians per student, {n} requests per student a month",
+  "@spSchoolF1": {
+   "description": "safeplans",
+   "placeholders": {
+    "guardians": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spSchoolF2": "School bus live location, gate arrive and leave list, messages from the school",
+  "@spSchoolF2": {
+   "description": "safeplans"
+  },
+  "spSchoolActive": "School Safe on: {name} · {n} requests left",
+  "@spSchoolActive": {
+   "description": "safeplans",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spEnterCode": "Enter school code",
+  "@spEnterCode": {
+   "description": "safeplans"
+  },
+  "spPickChild": "Which child?",
+  "@spPickChild": {
+   "description": "safeplans"
+  },
+  "spNoChildren": "Add your child in My Circle first, then enter the code.",
+  "@spNoChildren": {
+   "description": "safeplans"
+  },
+  "spOpenCircle": "Open My Circle",
+  "@spOpenCircle": {
+   "description": "safeplans"
+  },
+  "spCodeLabel": "School code",
+  "@spCodeLabel": {
+   "description": "safeplans"
+  },
+  "spCodeSend": "Turn on",
+  "@spCodeSend": {
+   "description": "safeplans"
+  },
+  "spCodeBad": "This code is not active. Check it with the school.",
+  "@spCodeBad": {
+   "description": "safeplans"
+  },
+  "spCodeFull": "The school has no free student places left. Please tell the school.",
+  "@spCodeFull": {
+   "description": "safeplans"
+  },
+  "spCodeGuardians": "This child already has the most guardians allowed.",
+  "@spCodeGuardians": {
+   "description": "safeplans"
+  },
+  "spCodeFailed": "Could not turn it on. Please try again.",
+  "@spCodeFailed": {
+   "description": "safeplans"
+  },
+  "spCurrent": "Your current plan",
+  "@spCurrent": {
+   "description": "safeplans"
+  },
+  "spNotOnSale": "Coming soon. Buying opens when the store is ready.",
+  "@spNotOnSale": {
+   "description": "safeplans"
+  },
+  "spPriceRetry": "Price not loaded. Tap to try again",
+  "@spPriceRetry": {
+   "description": "safeplans"
+  },
+  "spBuyFor": "Buy for {price}",
+  "@spBuyFor": {
+   "description": "safeplans",
+   "placeholders": {
+    "price": {
+     "type": "String"
+    }
+   }
+  },
+  "spBuyDone": "Done. Your plan is updated.",
+  "@spBuyDone": {
+   "description": "safeplans"
+  },
+  "spBuyPending": "Payment is pending. It will show here once Google confirms.",
+  "@spBuyPending": {
+   "description": "safeplans"
+  },
+  "spBuyCancelled": "Payment cancelled. Nothing was charged.",
+  "@spBuyCancelled": {
+   "description": "safeplans"
+  },
+  "spBuyFailed": "Payment failed. Nothing was charged. Please try again.",
+  "@spBuyFailed": {
+   "description": "safeplans"
+  },
+  "spPlayOnly": "Buy from the Google Play version of Assisto.",
+  "@spPlayOnly": {
+   "description": "safeplans"
+  },
+  "spMoreTitle": "Need more requests?",
+  "@spMoreTitle": {
+   "description": "safeplans"
+  },
+  "spPackNote": "Prepaid packs, valid {days} days. Never postpaid; credits are not cash.",
+  "@spPackNote": {
+   "description": "safeplans",
+   "placeholders": {
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "spPackRequests": "{n} requests",
+  "@spPackRequests": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spAdsTitle": "Watch ads to unlock",
+  "@spAdsTitle": {
+   "description": "safeplans"
+  },
+  "spAdsDay": "{n} ads = 1 day of Child Plan",
+  "@spAdsDay": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spAdsReq": "{n} ads = 1 location request",
+  "@spAdsReq": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spAdsOpen": "Watch ads",
+  "@spAdsOpen": {
+   "description": "safeplans"
+  },
+  "spAdIntro": "Only for guardians. Each fully watched ad counts once Google confirms it.",
+  "@spAdIntro": {
+   "description": "safeplans"
+  },
+  "spAdProgress": "{done} of {total} ads watched",
+  "@spAdProgress": {
+   "description": "safeplans",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "spAdWatch": "Watch an ad",
+  "@spAdWatch": {
+   "description": "safeplans"
+  },
+  "spAdCapped": "Today's limit reached",
+  "@spAdCapped": {
+   "description": "safeplans"
+  },
+  "spAdCounted": "Ad counted. Thank you!",
+  "@spAdCounted": {
+   "description": "safeplans"
+  },
+  "spAdPending": "Waiting for Google to confirm. It will count in a moment.",
+  "@spAdPending": {
+   "description": "safeplans"
+  },
+  "spAdDismissed": "The ad was closed early, so it did not count.",
+  "@spAdDismissed": {
+   "description": "safeplans"
+  },
+  "spAdUnavailable": "No ad is available right now. Please try later.",
+  "@spAdUnavailable": {
+   "description": "safeplans"
+  },
+  "spAdChild": "Child accounts never get ads.",
+  "@spAdChild": {
+   "description": "safeplans"
+  },
+  "spAdNotGuardian": "Ad unlocks are for guardians. Add your child in My Circle first.",
+  "@spAdNotGuardian": {
+   "description": "safeplans"
+  },
+  "spAdPaid": "Your plan has no ads.",
+  "@spAdPaid": {
+   "description": "safeplans"
+  },
+  "spAdNoClick": "Nothing is given for clicking an ad.",
+  "@spAdNoClick": {
+   "description": "safeplans"
+  },
+  "spOutTitle": "Location requests used up",
+  "@spOutTitle": {
+   "description": "safeplans"
+  },
+  "spOutBody": "SOS and safety alerts still work. To ask again:",
+  "@spOutBody": {
+   "description": "safeplans"
+  },
+  "spOutBuy": "Buy credits",
+  "@spOutBuy": {
+   "description": "safeplans"
+  },
+  "spOutAds": "Watch {n} ads for 1 request",
+  "@spOutAds": {
+   "description": "safeplans",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "spOutUpgrade": "Move to Safe Family",
+  "@spOutUpgrade": {
+   "description": "safeplans"
+  },
+  "spOutNone": "Your monthly requests renew on the 1st.",
+  "@spOutNone": {
+   "description": "safeplans"
+  },
+  "spNotNow": "Not now",
+  "@spNotNow": {
+   "description": "safeplans"
+  },
+  "spLoadFailed": "Could not load safety plans. Check your internet and try again.",
+  "@spLoadFailed": {
+   "description": "safeplans"
+  },
+  "spRetry": "Try again",
+  "@spRetry": {
+   "description": "safeplans"
+  }
+ },
+ "bn": {
+  "spTitle": "নিরাপত্তা প্ল্যান",
+  "spCurrentPlan": "আপনার নিরাপত্তা প্ল্যান",
+  "spPlanFree": "ফ্রি",
+  "spPlanChild": "চাইল্ড প্ল্যান",
+  "spPlanFamily": "সেফ ফ্যামিলি",
+  "spFromAds": "আজকের জন্য বিজ্ঞাপন দেখে খোলা",
+  "spRequestsLeft": "এই মাসে আর {n}টি লোকেশন অনুরোধ বাকি",
+  "spResetsNote": "প্রতি মাসের ১ তারিখে ক্রেডিট নতুন হয়। না-খরচ ক্রেডিট পরের মাসে যায় না।",
+  "spAlwaysFreeTitle": "নিরাপত্তা সবসময় ফ্রি",
+  "spAlwaysFreeBody": "SOS, বিপদের খবর আর স্কুলে ঢোকা-বের হওয়ার স্বয়ংক্রিয় খবর কোনো প্ল্যান, ক্রেডিট বা বিজ্ঞাপনের জন্য কখনো আটকায় না।",
+  "spChoose": "প্ল্যান বেছে নিন",
+  "spChildF1": "{children}টি সন্তান, {guardians} জন অভিভাবক",
+  "spChildF2": "স্কুলে ঢোকা-বের হওয়ার স্বয়ংক্রিয় খবর সীমাহীন",
+  "spChildF3": "মাসে {n}টি লোকেশন অনুরোধ",
+  "spFamF1": "সর্বোচ্চ {n} জন সদস্য, যত খুশি সন্তান",
+  "spFamF2": "মাসে {n} ক্রেডিট (লোকেশন অনুরোধ {req}, পৌঁছানোর সময়সহ লাইভ যাত্রা {trip})",
+  "spFamF3": "{days} দিনের ইতিহাস, প্রতি {min} মিনিটে আপডেট",
+  "spSchoolTitle": "স্কুল সেফ",
+  "spSchoolBody": "আপনার সন্তানের স্কুলে স্কুল সেফ থাকলে, স্কুল কোড দিয়ে সন্তানের জন্য চালু করুন।",
+  "spSchoolF1": "শিক্ষার্থীপ্রতি সর্বোচ্চ {guardians} জন অভিভাবক, মাসে {n}টি অনুরোধ",
+  "spSchoolF2": "স্কুল বাসের লাইভ লোকেশন, গেটে আসা-যাওয়ার তালিকা, স্কুলের বার্তা",
+  "spSchoolActive": "স্কুল সেফ চালু: {name} · {n}টি অনুরোধ বাকি",
+  "spEnterCode": "স্কুল কোড দিন",
+  "spPickChild": "কোন সন্তান?",
+  "spNoChildren": "আগে My Circle-এ সন্তানকে যোগ করুন, তারপর কোড দিন।",
+  "spOpenCircle": "My Circle খুলুন",
+  "spCodeLabel": "স্কুল কোড",
+  "spCodeSend": "চালু করুন",
+  "spCodeBad": "এই কোড চালু নেই। স্কুলের সাথে মিলিয়ে দেখুন।",
+  "spCodeFull": "স্কুলে আর খালি শিক্ষার্থী-জায়গা নেই। স্কুলকে জানান।",
+  "spCodeGuardians": "এই সন্তানের অভিভাবকের সংখ্যা ইতিমধ্যে সর্বোচ্চ।",
+  "spCodeFailed": "চালু করা গেল না। আবার চেষ্টা করুন।",
+  "spCurrent": "আপনার বর্তমান প্ল্যান",
+  "spNotOnSale": "শিগগিরই আসছে। স্টোর তৈরি হলে কেনা যাবে।",
+  "spPriceRetry": "দাম আসেনি। আবার চেষ্টা করতে চাপুন",
+  "spBuyFor": "{price}-এ কিনুন",
+  "spBuyDone": "হয়ে গেছে। আপনার প্ল্যান হালনাগাদ হয়েছে।",
+  "spBuyPending": "পেমেন্ট অপেক্ষায়। Google নিশ্চিত করলে এখানে দেখাবে।",
+  "spBuyCancelled": "পেমেন্ট বাতিল হয়েছে। কিছু কাটা হয়নি।",
+  "spBuyFailed": "পেমেন্ট হয়নি। কিছু কাটা হয়নি। আবার চেষ্টা করুন।",
+  "spPlayOnly": "Google Play-র Assisto থেকে কিনুন।",
+  "spMoreTitle": "আরও অনুরোধ লাগবে?",
+  "spPackNote": "আগে টাকা দেওয়া প্যাক, {days} দিন চলে। বাকিতে কখনো নয়; ক্রেডিট নগদ টাকা নয়।",
+  "spPackRequests": "{n}টি অনুরোধ",
+  "spAdsTitle": "বিজ্ঞাপন দেখে খুলুন",
+  "spAdsDay": "{n}টি বিজ্ঞাপন = ১ দিনের চাইল্ড প্ল্যান",
+  "spAdsReq": "{n}টি বিজ্ঞাপন = ১টি লোকেশন অনুরোধ",
+  "spAdsOpen": "বিজ্ঞাপন দেখুন",
+  "spAdIntro": "শুধু অভিভাবকদের জন্য। পুরো দেখা প্রতিটি বিজ্ঞাপন Google নিশ্চিত করলে গোনা হয়।",
+  "spAdProgress": "{total}টির মধ্যে {done}টি বিজ্ঞাপন দেখা হয়েছে",
+  "spAdWatch": "একটি বিজ্ঞাপন দেখুন",
+  "spAdCapped": "আজকের সীমা শেষ",
+  "spAdCounted": "বিজ্ঞাপন গোনা হয়েছে। ধন্যবাদ!",
+  "spAdPending": "Google-এর নিশ্চিতকরণের অপেক্ষা। একটু পরে গোনা হবে।",
+  "spAdDismissed": "বিজ্ঞাপন আগেই বন্ধ হয়েছে, তাই গোনা হয়নি।",
+  "spAdUnavailable": "এখন কোনো বিজ্ঞাপন নেই। পরে চেষ্টা করুন।",
+  "spAdChild": "শিশুর অ্যাকাউন্টে কখনো বিজ্ঞাপন নেই।",
+  "spAdNotGuardian": "বিজ্ঞাপন-আনলক অভিভাবকদের জন্য। আগে My Circle-এ সন্তানকে যোগ করুন।",
+  "spAdPaid": "আপনার প্ল্যানে কোনো বিজ্ঞাপন নেই।",
+  "spAdNoClick": "বিজ্ঞাপনে ক্লিক করলে কিছু দেওয়া হয় না।",
+  "spOutTitle": "লোকেশন অনুরোধ শেষ",
+  "spOutBody": "SOS আর নিরাপত্তার খবর আগের মতোই চলবে। আবার জানতে:",
+  "spOutBuy": "ক্রেডিট কিনুন",
+  "spOutAds": "{n}টি বিজ্ঞাপন দেখে ১টি অনুরোধ",
+  "spOutUpgrade": "সেফ ফ্যামিলিতে যান",
+  "spOutNone": "আপনার মাসিক অনুরোধ ১ তারিখে নতুন হবে।",
+  "spNotNow": "এখন না",
+  "spLoadFailed": "নিরাপত্তা প্ল্যান আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "spRetry": "আবার চেষ্টা করুন"
+ }
+}

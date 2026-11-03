@@ -22,6 +22,7 @@ import '../feature_flags.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../billing/billing_api.dart'; // billapp
 import '../billing/plan_status_panel.dart'; // billapp
+import '../safe_plans/safe_plans_screen.dart'; // safeplans
 
 /// Plans / monetization — the "why pay (or earn) it" surface (SPEC v2.1 §21).
 ///
@@ -398,6 +399,18 @@ class _PlansScreenState extends State<PlansScreen> {
         label: Text(t.plansManageCredits),
         style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
       ),
+      // safeplans: Child / Safe Family / School Safe (switch default OFF)
+      if (FeatureFlags.instance.isOn('safe_plans')) ...[
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          key: const Key('plans-open-safe-plans'),
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const SafePlansScreen())),
+          icon: const Icon(Icons.family_restroom, size: 18),
+          label: Text(t.spTitle),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        ),
+      ],
       const SizedBox(height: Gap.lg),
       Row(children: [
         Expanded(

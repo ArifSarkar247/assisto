@@ -78,7 +78,7 @@ class JourneyRequestsView(APIView):
         if not clean["standing"]:
             fee = SPS.charge(me, "live_trip", child=m.peer_user)
             if not fee["ok"]:
-                return Response({"detail": "safe_credits_out",
+                return Response({"detail": "safe_credits_out", "reason": "safe_credits_out",
                                  "sheet": SPS.out_payload(me, req_lang(request), fee.get("plan"))},
                                 status=status.HTTP_402_PAYMENT_REQUIRED)
         try:

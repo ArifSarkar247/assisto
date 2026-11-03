@@ -1,0 +1,48 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<p class="mut small">{{ L.intro }}</p>
+<section class="card" id="safe-profit"><h2>{{ L.profit }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.price }}</th><th>{{ L.net }}</th><th>{{ L.cost }}</th><th>{{ L.pct }}</th></tr></thead><tbody>
+{% for r in profit.rows %}<tr><td><code>{{ r.plan }}</code></td><td>{{ r.price }}</td><td>{{ r.net }}</td><td>{{ r.cost }}</td><td>{% if r.pct < profit.target_pct %}<span class="pill off">{{ r.pct }}% · {{ L.fail }}</span>{% else %}<span class="pill ok">{{ r.pct }}%</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="card" id="safe-products"><h2>{{ L.products }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ L.type }}</th><th>Product ID</th><th>Base plan</th><th>{{ L.price }}</th><th>{{ L.name }}</th></tr></thead><tbody>
+{% for p in products %}<tr><td>{{ p.type }}</td><td><code>{{ p.product_id }}</code></td><td>{{ p.base_plan_id|default:"—" }}</td><td>{{ p.price_bdt }}</td><td>{% if lang == 'en' %}{{ p.name_en }}{% else %}{{ p.name_bn }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="card" id="safe-ads"><h2>{{ L.ads }}</h2>
+<p>{{ L.ads_rev }}: <b>{{ report.ads_verified }}</b> / <b>{{ report.ads_revenue_bdt }}</b></p>
+<p>{{ L.unlocks }}: <b>{{ report.unlocks_day }}</b> / <b>{{ report.unlocks_request }}</b> · {{ L.ucost }}: <b>{{ report.unlock_cost_bdt }}</b>{% if report.ads_profit_pct is not None %} · {{ L.pct }}: <b>{{ report.ads_profit_pct }}%</b>{% endif %}</p>
+<p>{{ L.subs }}: Child <b>{{ report.subs.child }}</b> · Safe Family <b>{{ report.subs.family }}</b> · {{ L.packs }}: <b>{{ report.packs_sold }}</b> (৳{{ report.packs_bdt }})</p>
+</section>
+<section class="card" id="safe-edit"><h2>{{ L.fields }}</h2>
+<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="save">
+<label><input type="checkbox" name="on_sale" {% if c.on_sale %}checked{% endif %}> {{ L.on_sale }}</label>
+<div class="tbl"><table><tbody>
+{% for k, v in int_fields %}<tr><td><label for="f-{{ k }}"><code>{{ k }}</code></label></td><td><input id="f-{{ k }}" name="{{ k }}" value="{{ v }}" inputmode="numeric" size="8"></td></tr>{% endfor %}
+{% for k, v in num_fields %}<tr><td><label for="f-{{ k }}"><code>{{ k }}</code></label></td><td><input id="f-{{ k }}" name="{{ k }}" value="{{ v }}" inputmode="decimal" size="8"></td></tr>{% endfor %}
+</tbody></table></div>
+<label>{{ L.reason }} <input name="reason" maxlength="200"></label> <button class="btn">{{ L.save }}</button>
+</form>
+</section>
+<section class="card" id="safe-schools"><h2>{{ L.schools }}</h2>
+{% if report.schools %}<div class="tbl"><table><thead><tr><th>{{ L.code }}</th><th>{{ L.name }}</th><th>{{ L.students }}</th><th>{{ L.covered }}</th><th>{{ L.paid_until }}</th><th>{{ L.active }}</th></tr></thead><tbody>
+{% for s in report.schools %}<tr><td><code>{{ s.code }}</code></td><td>{{ s.name }}</td><td>{{ s.students }}</td><td>{{ s.covered }}</td><td>{{ s.paid_until|default:"—" }}</td><td>{% if s.active %}<span class="pill ok">✓</span>{% else %}<span class="pill off">—</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="school">
+<label>{{ L.code }} <input name="code" maxlength="12" required pattern="[A-Za-z0-9]{4,12}"></label>
+<label>{{ L.name }} <input name="name" maxlength="80"></label>
+<label>{{ L.students }} <input name="students" inputmode="numeric" size="6"></label>
+<label>{{ L.paid_until }} <input name="paid_until" type="date"></label>
+<label>{{ L.invoice }} <input name="invoice_ref" maxlength="40"></label>
+<label>{{ L.admins }} <input name="admin_ids" placeholder="12,34"></label>
+<label>{{ L.drivers }} <input name="driver_ids" placeholder="56"></label>
+<label><input type="checkbox" name="active" checked> {{ L.active }}</label>
+<label>{{ L.reason }} <input name="reason" maxlength="200"></label>
+<button class="btn">{{ L.add }}</button>
+</form>
+</section>
+{% endblock %}
