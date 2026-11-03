@@ -715,12 +715,24 @@ def tick(now=None):
                     out["health"] = out.get("health", 0) + 1
         except Exception:
             log.exception("health stills failed for site %s", site.pk)
+        # cctvactivity (W10): health copy, hourly watchman check, morning
+        # summary — cheap reads of the already-loaded site; never raises
+        try:
+            from . import cctv_activity as CACT
+            CACT.tick_site(site, now)
+        except Exception:
+            log.exception("activity tick failed for site %s", site.pk)
     # cctvevidence (W7): due 10-s SD-card clip fetches (video add-on)
     try:
         from . import cctv_evidence as CE
         out["sd_clips"] = CE.run_sd_clips(now)
     except Exception:
         log.exception("sd clips failed")
+    try:
+        from . import cctv_activity as CACT
+        out["describe"] = CACT.describe_due(now)
+    except Exception:
+        log.exception("activity describe failed")
     return out
 
 

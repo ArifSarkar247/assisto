@@ -15,6 +15,8 @@ import 'cctv_recording_screen.dart';
 import 'cash_guard_screen.dart';
 import 'auto_guard_screen.dart'; // cctvarm
 import 'cctvx_inbox.dart';
+import 'activity_screen.dart'; // cctvactivity
+import '../../cctvx/activity_source.dart'; // cctvactivity
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -542,6 +544,20 @@ class _SiteCard extends StatelessWidget {
                 await onChanged();
               },
             ),
+            // cctvactivity (W10): the day in numbers, visitor log, time-lapse
+            if (cams.isNotEmpty)
+              OutlinedButton.icon(
+                key: const ValueKey('wm-activity'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.insights_rounded),
+                label: Text(t.cactEntry),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (ctx) => ActivityScreen(
+                        source: ApiActivitySource(ctx.read<AppState>().api),
+                        siteId: siteId,
+                        siteName: (site['name'] ?? '').toString(),
+                        owner: _owner))),
+              ),
             if (_owner) ...[
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),

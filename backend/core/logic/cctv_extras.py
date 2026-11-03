@@ -178,7 +178,8 @@ def apply_settings(guard, body, allowed_uids):
     # store the bounded form (plus the untouched server state + the owner's
     # recorded warning clip, cctvescalate C5)
     clean = settings_of(g)
-    for k in ("_state", "_warn"):
+    # server state + cctvactivity's own block are never touched here
+    for k in ("_state", "_warn", "_activity"):
         if k in g:
             clean[k] = g[k]
     return clean

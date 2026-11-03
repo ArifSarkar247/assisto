@@ -813,6 +813,15 @@ urlpatterns += [
     path("shop/arm/presence", carm.ArmPresenceView.as_view()),
     path("shop/arm/sos-live", carm.SosLiveView.as_view()),
 ]
+# ---- cctvactivity ---- CCTV activity brain (owner CCTV order 3 Nov, W10)
+from . import cctv_activity as cact  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/activity", cact.ActivityView.as_view()),
+    path("shop/sites/<int:pk>/activity/settings", cact.ActivitySettingsView.as_view()),
+    path("shop/sites/<int:pk>/activity/confirm", cact.ActivityConfirmView.as_view()),
+    path("shop/sites/<int:pk>/visitors", cact.VisitorLogView.as_view()),
+    path("shop/sites/<int:pk>/timelapse", cact.TimelapseView.as_view()),
+]
 # ---- /cctv1 ----
 
 # ---- m1-messenger ---- real backends for the 1:1 / group / community ⋮ menus

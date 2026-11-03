@@ -482,6 +482,14 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     # cctvalerts (W3): alert TYPES — the owner's per-camera switches, the
     # night loitering rule, dark / covered / moved from the event's still
     extra_events = []
+    # cctvactivity (W10): count every camera event (armed or not) for the
+    # activity brain — visits per hour, open/close, watchman presence
+    if _rules and cam is not None:
+        try:
+            from . import cctv_activity as CACT
+            CACT.observe(site, cam, cam_event, now)
+        except Exception:
+            pass
     if _rules and cam is not None:
         from . import cctv_alerts as CA
         cam_event, extra_events, muted = CA.prepare(site, cam, cam_event, now, snapshot)
