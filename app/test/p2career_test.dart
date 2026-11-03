@@ -110,7 +110,7 @@ void main() {
     });
 
     testWidgets('empty: benefit line + add button; Bangla digits; 200% font no overflow', (tester) async {
-      _phone(tester, height: 1600);
+      _phone(tester, height: 4000);
       await tester.pumpWidget(_app(const JobFindScreen(), lang: 'bn', scale: 2.0, mode: FakeMode.empty));
       await _settle(tester);
       expect(tester.takeException(), isNull);
