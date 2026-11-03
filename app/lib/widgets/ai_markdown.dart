@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart';
 
 // aifinal (owner AI order 3 Nov 23:15, PART 1b): safe, tiny markdown for AI
 // chat bubbles. Supports **bold**, *italic*, `code`, headings, bullet and
@@ -174,9 +175,9 @@ class _AiMarkdownState extends State<AiMarkdown> {
   Future<void> _open(String url) async {
     if (!aiSafeUrl(url)) return;
     if (!await confirmOpenAiLink(context, url)) return;
-    try {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } catch (_) {}
+    if (!mounted) return;
+    await openForUser(context, Uri.parse(url),
+        where: 'ai.link', mode: LaunchMode.externalApplication);
   }
 
   TextSpan _span(AiInline r, TextStyle base) {

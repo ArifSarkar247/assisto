@@ -1,3 +1,4 @@
+import unittest
 """Django wiring for the pure-python Bangla date/time parser self-tests
 (core/logic/reminders_tests_snippets.py incl. the shared Python<->Dart golden
 fixtures, and voice_commands_tests_snippets.py), plus end-to-end checks that the
@@ -41,6 +42,7 @@ class AgentExpenseDateTests(APITestCase):
     def _post(self, text):
         return self.client.post("/api/v1/agent", {"text": text}, format="json")
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_past_tense_kal_expense_is_yesterday(self):
         r = self._post("কাল ৫০০ টাকা খরচ করেছি")
         self.assertEqual(r.status_code, 200)
@@ -48,11 +50,13 @@ class AgentExpenseDateTests(APITestCase):
         self.assertEqual(t.amount, Decimal("500"))
         self.assertEqual(t.date, timezone.localdate() - timedelta(days=1))
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_gotokal_expense_is_yesterday(self):
         self._post("গতকাল ২০০ টাকা খরচ রিকশা")
         t = Transaction.objects.get(user=self.user)
         self.assertEqual(t.date, timezone.localdate() - timedelta(days=1))
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_plain_expense_is_today(self):
         self._post("৫০০ টাকা খরচ খাবার")
         t = Transaction.objects.get(user=self.user)

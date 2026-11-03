@@ -152,6 +152,7 @@ _IDENTITY_RULES = [
     (re.compile(r"\b(I\s+am|I'm|I’m|my\s+name\s+is)\s+(?:" + _MODEL_NAMES + r")\b", re.I),
      r"\1 Assisto"),
     (re.compile(r"(আমি|আমার\s+নাম)\s+(?:" + _MODEL_NAMES + r")"), r"\1 Assisto"),
+    (re.compile(r"\b(As|Being)\s+(?:" + _MODEL_NAMES + r")\b", re.I), r"\1 Assisto"),
     (re.compile(r"(Assisto\b[^.।!?\n]{0,40}?\b(?:made|created|built|developed)?\s*(?:by|from)\s+)"
                 r"(?:" + _COMPANIES + r")\b", re.I),
      r"\1AXON Dynamic"),

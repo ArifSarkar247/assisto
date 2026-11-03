@@ -222,7 +222,8 @@ class ChatSurfaces(TestCase):
     def test_home_chat_benign_turn_is_unchanged(self):
         r = _client(self.u, "en").post(V + "/agent", {"text": "remind me to call mom tomorrow 9am"},
                                        format="json")
-        self.assertEqual(r.json()["intent"], "reminder")
+        # AI rebuild 01:02: no regex parser — a benign turn is a normal chat turn
+        self.assertEqual(r.json()["intent"], "question")
 
     def test_ai_chat_crisis_turn(self):
         s = ChatSession.objects.create(user=self.u, source="ai")

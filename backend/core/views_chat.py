@@ -311,8 +311,6 @@ def _data_cards(ctx, text):
         return []
     if ctx.get("level") == "L1" and _DATA_ASK.search(text or ""):
         return cards
-    if ctx.get("level") == "L2":
-        return [c for c in cards if c.get("type") not in ("summary", "money", "balance")]
     return []
 
 

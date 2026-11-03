@@ -17,6 +17,7 @@ AI call ever happens in CI.
   * manage.py ai_live_smoke: --estimate makes no call, --confirm refused in
     tests/CI, run() budget + report with mocked providers, keys never printed.
 """
+import unittest
 import io
 import json
 from datetime import date
@@ -343,6 +344,8 @@ class MoneyGuardUnitTests(SimpleTestCase):
 
 # ------------------------------------------------------------------ home chat (/agent)
 class HomeAgentTests(AiBase):
+
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_retry_with_same_client_id_logs_the_expense_once(self):
         body = {"text": "৫০০ টাকা খরচ খাবার", "client_id": "cid-home-0001"}
         r1 = self.c.post(f"{V}/agent", body, format="json")
@@ -368,6 +371,7 @@ class HomeAgentTests(AiBase):
         self.assertTrue(am.meta["ai_used"])
         self.assertGreater(am.meta["credits"], 0)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_local_command_is_free(self):
         r = self.c.post(f"{V}/agent", {"text": "remind me to call mom tomorrow 9am"},
                         format="json")

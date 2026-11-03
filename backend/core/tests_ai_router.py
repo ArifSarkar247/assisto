@@ -497,7 +497,7 @@ class ProviderNeutralityTests(RouterBase):
         systems = {s for _, s in seen}
         self.assertEqual(len(systems), 1)
         sp = systems.pop()
-        self.assertIn("Never say which", sp)
+        self.assertIn("AXON Dynamic", sp)        # owner identity rule 4 Nov 01:12
         self.assertIn("EXTRA", sp)
 
 

@@ -139,6 +139,8 @@ class LevelPayloadTests(TestCase):
         from core.models import PricingConfig
         mig = importlib.import_module("core.migrations.0152_ai_rebuild")
         row, _ = PricingConfig.objects.get_or_create(key="global", defaults={"data": {}})
+        row.data = dict(row.data or {}, credit_model={"enabled": True})
+        row.save()
         from django.apps import apps
         mig.levels_on(apps, None)
         row.refresh_from_db()

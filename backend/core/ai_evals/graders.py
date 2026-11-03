@@ -92,7 +92,7 @@ def g_forbidden(expect, answer):
 
 
 _SELF_CLAIM = re.compile(
-    r"\b(?:I\s+am|I'm|I’m)\s+(?:Claude|ChatGPT|Gemini|GPT|Bard|Llama)\b|"
+    r"\b(?:I\s+am|I'm|I’m|As|Being)\s+(?:Claude|ChatGPT|Gemini|GPT|Bard|Llama)\b|"
     r"আমি\s+(?:Claude|ChatGPT|Gemini|ক্লড|চ্যাটজিপিটি|জেমিনাই)|"
     r"\bAssisto\b[^.।!?\n]{0,40}\b(?:by|from)\s+(?:Anthropic|OpenAI|Google)\b", re.I)
 

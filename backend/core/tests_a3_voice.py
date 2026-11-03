@@ -1,3 +1,4 @@
+import unittest
 """a3-voice — Part 3 Assisto Voice backend: wake-word config is key-gated,
 voice routes resolve, and a reminder that mentions "call" stays a reminder."""
 from unittest import mock
@@ -66,6 +67,7 @@ class VoiceRoutingTests(APITestCase):
     def test_plain_call_still_call(self):
         self.assertEqual(agent.parse("আম্মুকে কল দাও", "bn")["intent"], "call")
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_agent_creates_reminder_row(self):
         u = User.objects.create_user(name="R", phone="01710000902", password="pw")
         self.client.force_authenticate(u)

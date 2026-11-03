@@ -129,7 +129,9 @@ class _AiLevelPickerState extends State<AiLevelPicker> {
     widget.onChanged(l.id);
     try {
       (await SharedPreferences.getInstance()).setString(aiLevelPrefKey, l.id);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: remembering the level is a convenience; the pick still applies
+    }
   }
 
   @override

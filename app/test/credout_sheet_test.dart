@@ -240,6 +240,8 @@ void main() {
     final t = _t(tester);
     expect(find.text(t.credoutCancelledKept), findsOneWidget);
     expect(b.calls.any((c) => c.startsWith('verify')), isFalse);
+    await tester.ensureVisible(find.byKey(const Key('credout-not-now'))); // aifinal: + Premium row
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('credout-not-now')));
     await tester.pumpAndSettle();
     expect(h.result, isFalse);

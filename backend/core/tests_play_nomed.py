@@ -1,3 +1,4 @@
+import unittest
 """play-nomed — the Google Play build (header X-Assisto-Flavour: play) never
 gets medicine schedules from chat (a plain reminder instead) and never gets
 medicine suggestions. The website APK (no header) is unchanged."""
@@ -29,6 +30,7 @@ class PlayAgentViewTests(APITestCase):
         self.u = User.objects.create_user(name="P", phone="01710000951", password="pw")
         self.client.force_authenticate(self.u)
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_play_creates_reminder_not_medicine(self):
         r = self.client.post("/api/v1/agent", {"text": "take medicine at 9pm"},
                              format="json", **PLAY)
@@ -37,6 +39,7 @@ class PlayAgentViewTests(APITestCase):
         self.assertEqual(Reminder.objects.filter(user=self.u).count(), 1)
         self.assertNotIn("medicine", [c.get("type") for c in r.data["cards"]])
 
+    @unittest.skip("Owner AI chat rebuild 4 Nov 01:02: the regex intent parser no longer writes from chat; saving = model proposal + Yes (core/tests_ai_rebuild.py)")
     def test_website_apk_still_creates_medicine(self):
         r = self.client.post("/api/v1/agent", {"text": "take medicine at 9pm"},
                              format="json", **APK)

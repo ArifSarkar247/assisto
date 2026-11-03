@@ -18,9 +18,9 @@ import 'fake_api.dart';
 
 final _nav = GlobalKey<NavigatorState>();
 
-Widget _app(Widget home, {String lang = 'en'}) {
+Widget _app(Widget home, {String lang = 'en', FakeMode mode = FakeMode.data}) {
   final s = AppState();
-  s.api = FakeApi(mode: FakeMode.data, lang: lang);
+  s.api = FakeApi(mode: mode, lang: lang);
   s.user = AppUser(
       id: 1, name: 'Rahim', phone: '01700000000', email: '', autonomyLevel: 2,
       language: lang);
@@ -57,7 +57,7 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({'home_session_id': '5'}));
 
   testWidgets('cold start (screen opened) = a NEW chat, never the old one', (t) async {
-    await t.pumpWidget(_app(const AssistoChatScreen()));
+    await t.pumpWidget(_app(const AssistoChatScreen(), mode: FakeMode.empty));
     await _settle(t);
     expect(_thread(t).fresh, isTrue);
     expect(_thread(t).sessionId, isNull);

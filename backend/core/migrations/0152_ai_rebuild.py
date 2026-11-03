@@ -13,9 +13,11 @@ def levels_on(apps, schema_editor):
     if row is None:
         return
     data = dict(row.data or {})
-    lv = dict(data.get("ai_levels") or {})
-    if "enabled" in lv and lv.get("_owner_saved"):
+    # only where the pricing-40 chat modes are live (the owner's server) —
+    # a fresh / test database keeps today's behaviour
+    if not (data.get("credit_model") or {}).get("enabled"):
         return
+    lv = dict(data.get("ai_levels") or {})
     lv["enabled"] = True
     data["ai_levels"] = lv
     row.data = data
