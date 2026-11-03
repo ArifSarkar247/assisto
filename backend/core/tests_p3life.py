@@ -174,3 +174,28 @@ class P3LifeTests(APITestCase):
         self.assertEqual(LS.nice_date(None), "")
         self.assertIsNone(LS.read_token("x:y:z"))
         self.assertEqual(LS.leg_view({"mode": "rocket"})["mode"], "other")
+
+
+class P3LifeCsrfTests(APITestCase):
+    """The RSVP form must work with real CSRF checks (a browser posting the
+    form it was served)."""
+
+    def test_rsvp_form_posts_with_csrf(self):
+        from django.test import Client
+        u = User.objects.create_user(name="H", phone="01710009011", password="pw")
+        g = PaCollectionItem.objects.create(user=u, collection="wedding/guests",
+                                            data={"name": "Mina"})
+        url = LS.issue(u, "guest", g.id)
+        path = url[url.index("/rsvp/"):]
+        c = Client(enforce_csrf_checks=True)
+        page = c.get(path)
+        self.assertEqual(page["Referrer-Policy"], "same-origin")
+        import re
+        m = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
+                      page.content.decode())
+        self.assertIsNotNone(m)
+        tok = m.group(1)
+        r = c.post(path, {"answer": "maybe", "plus_ones": "1",
+                          "csrfmiddlewaretoken": tok})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(PaCollectionItem.objects.get(id=g.id).data["rsvp"], "maybe")

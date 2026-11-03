@@ -80,11 +80,14 @@ def _rate_ok(request):
         return True
 
 
-def _headers(resp):
+def _headers(resp, same_origin=False):
     resp["Cache-Control"] = "no-store"
     resp["X-Robots-Tag"] = "noindex, nofollow"
     resp["X-Frame-Options"] = "DENY"
-    resp["Referrer-Policy"] = "no-referrer"
+    # The RSVP form POSTs back to us: "no-referrer" would make the browser
+    # send Origin: null and Django's CSRF check would refuse the answer.
+    # same-origin still never leaks the token to another site.
+    resp["Referrer-Policy"] = "same-origin" if same_origin else "no-referrer"
     resp["X-Content-Type-Options"] = "nosniff"
     return resp
 
@@ -124,12 +127,12 @@ def rsvp_page(request, token):
     ctx = _base(request, lang)
     if not _rate_ok(request):
         ctx["state"] = "limited"
-        return _headers(render(request, "web/life_rsvp.html", ctx, status=429))
+        return _headers(render(request, "web/life_rsvp.html", ctx, status=429), True)
     state, row = LS.resolve(token, ("guest",))
     ctx["state"] = state
     if state != "ok":
         return _headers(render(request, "web/life_rsvp.html", ctx,
-                               status=404 if state == "bad" else 410))
+                               status=404 if state == "bad" else 410), True)
     if request.method == "POST":
         err = LS.apply_rsvp(row, request.POST.get("answer"),
                             request.POST.get("plus_ones"))
@@ -147,4 +150,4 @@ def rsvp_page(request, token):
     ctx["v"] = LS.event_view(ev, lang, with_counts=False) if ev else None
     ctx["token"] = token
     return _headers(render(request, "web/life_rsvp.html", ctx,
-                           status=400 if ctx.get("error") else 200))
+                           status=400 if ctx.get("error") else 200), True)
