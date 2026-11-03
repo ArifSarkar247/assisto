@@ -101,6 +101,7 @@ import '../screens/world/world_hub_screen.dart'; // p4-world
 import '../screens/dictionary_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/quran_screen.dart'; // p3faith
+import '../quran_learn/quran_learn_screen.dart'; // quranread
 import '../screens/watch_feed_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
@@ -622,6 +623,12 @@ class SidebarSections {
           feature: 'quran',
           (_) => const QuranScreen(),
           synonyms: ['quran', 'koran', 'surah', 'sura', 'ayat', 'tilawat']),
+      // quranread (flag quran_learn, default OFF): learn to read Quran in the
+      // Noorani order; EXPERIMENTAL until a Qari reviews; no ads.
+      SidebarItem(Icons.school_rounded, (t) => t.qlTitle,
+          feature: 'quran_learn',
+          (_) => const QuranLearnScreen(),
+          synonyms: ['qaida', 'noorani', 'nurani', 'learn quran', 'arabic letters', 'tajweed', 'nazera']),
       SidebarItem(Icons.radar_rounded, (t) => t.watchFeed2,
           feature: 'watch_feed',
           (_) => const WatchFeedScreen(),

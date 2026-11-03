@@ -61,6 +61,7 @@ import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/quran_screen.dart'; // p3faith
+import '../quran_learn/quran_learn_screen.dart'; // quranread
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
@@ -263,6 +264,8 @@ class ChatNav {
     'ramadan': (_) => const RamadanScreen(),
     // p3faith (flag quran): offline Quran.
     'quran': (_) => const QuranScreen(),
+    // quranread (flag quran_learn): learn to read Quran, Noorani order.
+    'quran_learn': (_) => const QuranLearnScreen(),
     'exam': (_) => const ExamResultScreen(),
     'unseen': (_) => const UnseenWorldScreen(),
     // The old enhance tool is gone (owner order): its key stays because saved

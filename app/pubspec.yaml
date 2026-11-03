@@ -212,6 +212,12 @@ flutter:
       fonts:
         - asset: assets/fonts/Atma-SemiBold.ttf
           weight: 600
+    # quranread: Amiri Quran 1.003 (SIL OFL 1.1, licence in
+    # AmiriQuran-OFL.txt) - full harakat + Uthmani marks. Used ONLY by the
+    # Learn-to-read-Quran screens (big Arabic letters).
+    - family: AmiriQuran
+      fonts:
+        - asset: assets/fonts/AmiriQuran.ttf
 
 flutter_launcher_icons:
   android: true

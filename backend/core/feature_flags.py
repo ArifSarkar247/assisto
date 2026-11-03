@@ -127,6 +127,11 @@ REGISTRY = (
     # verbatim) + Pickthall 1930 English (public domain); Bangla waits for a
     # licence. Hidden until the owner's licence decision + phone check.
     ('quran', 'daily_life', 'Quran', 'কুরআন', False, ('quran',)),
+    # quranread (owner order 3 Nov 11:45, part B): learn to read the Quran,
+    # Noorani-method order, our own lessons, Tanzil Uthmani text, no audio
+    # until a licensed Qari recording exists. EXPERIMENTAL until a qualified
+    # Qari reviews the lessons; hidden until then.
+    ('quran_learn', 'daily_life', 'Learn to read Quran', 'কুরআন পড়া শিখি', False, ('quran_learn',)),
     ('watch_feed', 'daily_life', 'Watch feed', 'ওয়াচ ফিড', True, ('watch_feed',)),
     ('exam_result', 'daily_life', 'Exam result', 'পরীক্ষার ফলাফল', True, ('exam',)),
     ('photo_studio', 'daily_life', 'Photo Studio', 'ফটো স্টুডিও', True, ('photo_studio', 'photo_enhance')),
