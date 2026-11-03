@@ -142,10 +142,7 @@ class C3Fake {
         {'place': bn ? 'বাসা' : 'Home', 'at': at(40)});
     return {
       'results': [
-        {'id': 61, 'sender_id': 60, 'mine': false, 'created_at': at(0), 'content_type': 'text',
-         ...env(bn ? 'অফিস থেকে বের হলাম, বাসে উঠছি।' : 'Leaving the office, getting on the bus.', karima, me)},
-        {'id': 62, 'sender_id': 9, 'mine': true, 'status': 'read', 'created_at': at(1), 'content_type': 'text',
-         ...env(bn ? 'ঠিক আছে, লাইভ লোকেশন দাও।' : 'Okay, share your live location.', me, karima)},
+        // the end-to-end line + date stay on screen above the live location
         {'id': 63, 'sender_id': 60, 'mine': false, 'created_at': at(2), 'content_type': 'location',
          ...env(encodeLocation(live, bn ? 'লাইভ লোকেশন' : 'Live location'), karima, me)},
         {'id': 64, 'sender_id': 9, 'mine': true, 'status': 'read', 'created_at': at(3), 'content_type': 'voice',
