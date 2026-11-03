@@ -139,7 +139,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
     // p3docs: the fingerprint also carries the end-to-end key (when open)
     try {
       if (!on || VaultE2E.instance.unlocked) await VaultE2E.instance.enableBio(on);
-    } catch (_) {}
+    } catch (_) {} // best-effort: the PIN still opens the end-to-end key
     if (mounted) setState(() => _bio = on);
   }
 
