@@ -176,6 +176,8 @@ _A = {
                       "sjalarm ৩ নভে: শুধু মালিকের GPS ট্রিপ রেকর্ডার (ফোনে JSON+GPX, শেয়ার / প্রাইভেট আপলোড); ব্যবহারকারীদের জন্য নয়।"),
     "train_schedule_verified": ("?PP?P?PFF", "hide", "sjalarm 3 Nov: owner switch — ON for all only after the timetable is checked against the official one.",
                                 "sjalarm ৩ নভে: মালিকের সুইচ — অফিসিয়াল সময়সূচির সাথে মেলানোর পরেই সবার জন্য চালু।"),
+    "official_corners": ("?PP?P??PF", "hide", "p3guides 3 Nov: Probashi Help tab (official helplines, WEWB welfare, remittance real-cost check vs SDG 3%, SOS abroad) + Student Timer and Official tabs (official scholarship/board/admission links, save-a-deadline); backend + widget tests; owner phone test pending (FEATURE_CARD_PROBASHI_CORNER_BN.md, FEATURE_CARD_STUDENT_CORNER_BN.md).",
+                         "p3guides ৩ নভে: প্রবাসী 'সহায়তা' ট্যাব (অফিশিয়াল হেল্পলাইন, কল্যাণ বোর্ড, পাঠানোর আসল খরচ, বিদেশে SOS) + স্টুডেন্ট টাইমার ও অফিশিয়াল ট্যাব; মালিকের ফোন-পরীক্ষা বাকি।"),
     # ---- Upcoming (nothing built yet)
     "corporate_meetings": ("FFFFFFFFF", "hide", "~10%: not built (needs its own SFU server).", "~১০%: তৈরি হয়নি (আলাদা SFU সার্ভার লাগবে)।"),
     "remote_support": ("FFFFFFFFF", "hide", "~2%: design only.", "~২%: শুধু নকশা।"),

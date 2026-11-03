@@ -1255,6 +1255,7 @@ urlpatterns += [
     path("world/jobs", p4w.WorldJobsView.as_view()),
     path("world/mcq", p4w.WorldMcqView.as_view()),
     path("world/hub/<str:hub>", p4w.WorldHubView.as_view()),
+    path("official-info/<str:section>", p4w.OfficialInfoView.as_view()),  # p3guides
     path("world/hub/<str:hub>/ai", p4w.WorldHubAiView.as_view()),
 ]
 # ---- /p4-world ----
