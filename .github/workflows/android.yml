@@ -955,6 +955,12 @@ jobs:
           # bound lazily from InstallReferrerChannel when Dart asks)
           if "com.android.installreferrer:installreferrer" not in s:
               deps.append("com.android.installreferrer:installreferrer:2.2")
+          # viewonce: on-phone video trim + 720p (media3 Transformer, the same
+          # 1.9.2 the video_player plugin already ships; no ContentProvider)
+          if "androidx.media3:media3-transformer" not in s:
+              deps.append("androidx.media3:media3-transformer:1.9.2")
+              deps.append("androidx.media3:media3-effect:1.9.2")
+              deps.append("androidx.media3:media3-common:1.9.2")
           if deps:
               body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
                              for d in deps)

@@ -29,6 +29,9 @@ class MediaDraft {
   final int? width, height, durationMs;
   final List<int> wave;
   final String thumbB64;
+
+  /// viewonce: the voice recorder's "1" (view once) toggle.
+  final bool viewOnce;
   const MediaDraft({
     required this.kind,
     required this.path,
@@ -40,6 +43,7 @@ class MediaDraft {
     this.durationMs,
     this.wave = const [],
     this.thumbB64 = '',
+    this.viewOnce = false,
   });
 }
 

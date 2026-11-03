@@ -167,18 +167,31 @@ class MediaCache {
     });
   }
 
-  Future<File?> _fetch(MediaDescriptor d) async {
+  /// viewonce: download + decrypt a VIEW-ONCE file with the one signed
+  /// [url] the server handed out at the open, into the private `vo/` dir
+  /// (never the shared cache). The caller deletes it when the viewer closes.
+  Future<File?> fetchViewOnce(MediaDescriptor d, String url) async {
+    try {
+      final out = File('${(await MediaDirs.sub('vo')).path}/${fileName(d.ref, d.ext)}');
+      return await _fetch(d, presetUrl: url, outFile: out);
+    } catch (e) {
+      reportNonFatal('vo_fetch_dir', e);
+      return null;
+    }
+  }
+
+  Future<File?> _fetch(MediaDescriptor d, {String? presetUrl, File? outFile}) async {
     final ref = d.ref;
     _set(ref, const MediaDl(progress: 0));
     File? tmp;
     try {
-      final out = await fileFor(d);
+      final out = outFile ?? await fileFor(d);
       if (out.existsSync()) {
         _set(ref, null);
         return out;
       }
       tmp = File('${(await MediaDirs.sub('dl')).path}/$ref.enc');
-      final u = await transport.downloadUrl(ref);
+      final u = presetUrl != null ? <String, dynamic>{'url': presetUrl} : await transport.downloadUrl(ref);
       final url = '${u['url'] ?? ''}';
       if (url.isEmpty) throw const MediaHttpError(404);
       final sink = tmp.openWrite();

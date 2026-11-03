@@ -317,7 +317,7 @@ void main() {
       expect(againOk, isFalse);
       expect(fetched, isFalse);
       await tester.pump();
-      expect(find.text('This view-once photo was already opened'), findsOneWidget);
+      expect(find.text("This was already opened once. It can't be opened again."), findsOneWidget); // viewonce
     });
 
     test('an ack that fails offline is retried later', () async {

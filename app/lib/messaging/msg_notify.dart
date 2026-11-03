@@ -23,6 +23,8 @@ import 'msg_prefs.dart';
 import 'outbox.dart';
 import '../security/secret_store.dart';
 import 'chat_lock.dart' show ChatLockStore; // e-gaps
+import 'view_once_preview.dart'; // viewonce
+import 'media/media_descriptor.dart' show descriptorIsViewOnce; // viewonce
 
 /// c3-msg — WhatsApp-style message notifications, built ON THE DEVICE.
 ///
@@ -153,6 +155,10 @@ EnvelopeDecrypt e2eDecryptor(IdentityKeyPair self, {E2E? e2e}) {
 /// the plain label). Only used when previews are SHOWN — hidden previews
 /// never reach here (no file name, no caption).
 String mediaNotifText(AppLocalizations t, String ct, {String? plaintext}) {
+  // viewonce: never a caption / name / thumbnail — "Photo, view once" only
+  final vo = viewOnceLabel(
+      t, plaintext != null && descriptorIsViewOnce(plaintext) ? voPreviewKind(ct) : ct);
+  if (vo != null) return vo;
   final detail = plaintext == null ? '' : mediaPreviewDetail(ct, plaintext);
   switch (ct) {
     case 'photo':
@@ -268,7 +274,7 @@ MsgNotifModel buildMsgNotifModel(
       final cc = (ct == 'photo' && pt != null) ? controlInDescriptor(pt) : null;
       text = cc != null
           ? describeControl(t, cc, mine: mine, actor: sender, peerName: sender)
-          : mediaNotifText(t, ct, plaintext: pt);
+          : mediaNotifText(t, m['view_once'] == true ? voPreviewKind(ct) : ct, plaintext: pt); // viewonce
     } else {
       final pt = decrypt(m);
       // cde-chat: theme / nickname changes in the reader's language

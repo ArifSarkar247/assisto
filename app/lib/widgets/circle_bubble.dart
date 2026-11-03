@@ -51,6 +51,11 @@ class CircleMessage {
   final bool viewOnce;
   final bool viewOnceOpened;
 
+  /// viewonce: when it was opened (the sender sees "Opened 10:42") and
+  /// whether the server deleted it unopened (14 days).
+  final DateTime? viewOnceOpenedAt;
+  final bool viewOnceExpired;
+
   const CircleMessage({
     required this.id,
     required this.text,
@@ -75,6 +80,8 @@ class CircleMessage {
     this.mediaJob,
     this.viewOnce = false,
     this.viewOnceOpened = false,
+    this.viewOnceOpenedAt, // viewonce
+    this.viewOnceExpired = false,
   });
 
   CircleMessage copyWith({
@@ -113,6 +120,8 @@ class CircleMessage {
         mediaJob: mediaJob,
         viewOnce: viewOnce,
         viewOnceOpened: viewOnceOpened ?? this.viewOnceOpened,
+        viewOnceOpenedAt: viewOnceOpenedAt, // viewonce
+        viewOnceExpired: viewOnceExpired,
       );
 }
 
@@ -345,7 +354,10 @@ class CircleBubble extends StatelessWidget {
           mine: msg.mine,
           opened: msg.viewOnceOpened,
           fg: fg,
-          onOpen: (msg.mine || msg.viewOnceOpened || msg.media == null)
+          kind: msg.contentType, // viewonce: Photo / Video / Voice
+          openedAt: msg.viewOnceOpenedAt,
+          expired: msg.viewOnceExpired,
+          onOpen: (msg.mine || msg.viewOnceOpened || msg.viewOnceExpired || msg.media == null)
               ? null
               : onOpenViewOnce,
         ),

@@ -37,6 +37,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/circle_group_poll.dart';
 import '../messaging/receipt_bus.dart';
+import '../messaging/view_once.dart'; // viewonce: groups
 import '../messaging/echo_reconcile.dart'; // md2
 import '../messaging/disappear_sweep.dart'; // e-gaps
 import '../messaging/chat_actions.dart'; // chat-actions
@@ -263,6 +264,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'mine': true,
           'content_type': s.desc!.kind,
           'md1_desc': s.desc,
+          if (j.viewOnce) 'view_once': true, // viewonce: the "1" tile, never the photo
           'sender_id': _myUserId,
           'status': 'sent',
           'created_at': (s.at ?? j.at).toUtc().toIso8601String(),
@@ -275,6 +277,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   /// md2: forward a text / photo / voice / document to any chat (member or
   /// group). Media reuses the same blob + key — no re-upload.
   Future<void> _forward(Map<String, dynamic> msg) async {
+    if (msg['view_once'] == true) return; // viewonce: never forwarded
     final media = _mediaOf(msg);
     final ct0 = '${msg['content_type'] ?? 'text'}';
     final dec0 = media != null ? media.encode() : _decryptForMe(msg);
@@ -402,6 +405,59 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       _mediaJobs = [..._mediaJobs.where((j) => j.id != job.id), job];
       _replyTo = null;
     });
+  }
+
+  // ---- viewonce: view-once in groups (each member opens once) ------------
+  Widget _viewOnceItem(Map<String, dynamic> msg) {
+    final mine = msg['mine'] == true;
+    final id = '${msg['id'] ?? ''}';
+    final opened = msg['view_once_opened'] == true || (!mine && ViewOnceStore.instance.isOpenedSync(id));
+    final expired = msg['view_once_expired'] == true;
+    final desc = (mine || opened || expired) ? null : _mediaOf(msg);
+    final fg = Theme.of(context).colorScheme.onSurface;
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: Gap.xs),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!mine)
+                Text(_senderName(msg),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+              ViewOnceTile(
+                key: ValueKey('e-vo-$id'),
+                mine: mine,
+                opened: opened,
+                fg: fg,
+                kind: '${msg['content_type'] ?? 'photo'}',
+                openedAt: DateTime.tryParse('${msg['view_once_opened_at'] ?? ''}'),
+                expired: expired,
+                openCount: (msg['view_once_open_count'] as num?)?.toInt(),
+                openTotal: (msg['view_once_total'] as num?)?.toInt(),
+                onOpen: (_selecting || desc == null) ? null : () => _openGroupViewOnce(msg, desc),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openGroupViewOnce(Map<String, dynamic> msg, MediaDescriptor d) async {
+    final id = '${msg['id'] ?? ''}';
+    await openViewOnce(context,
+        msgId: id, desc: d, deps: ViewOnceDeps.real((_) async {}, api: _api));
+    if (!mounted) return;
+    setState(() => msg['view_once_opened'] = true);
   }
 
   /// The media descriptor of a photo / voice / document message, decrypted
@@ -2108,6 +2164,11 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         onTick: (c, i, on) => sendTick(c, i, on, _p3MyName, _sendCard, _t),
         onLongPress: _selecting ? null : () => _showActions(msg),
       );
+    }
+    // viewonce: a view-once photo / video / voice — the dashed "1" tile only
+    // (no caption, no file, no menu: nothing to copy / forward / save)
+    if (msg['view_once'] == true && '${msg['deleted'] ?? ''}' != 'everyone') {
+      return _viewOnceItem(msg);
     }
     final media = _mediaOf(msg); // md1
     // e2-keys: honest bubble when this device cannot decrypt it.

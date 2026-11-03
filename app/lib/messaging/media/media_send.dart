@@ -13,7 +13,12 @@ import 'media_descriptor.dart';
 import 'media_outbox.dart';
 import 'media_prep.dart';
 import 'video_prep.dart';
+import 'media_limits.dart'; // viewonce
+import 'video_limits_flow.dart'; // viewonce
+import '../view_once.dart' show ViewOnceSwitch; // viewonce
 import 'voice_recorder_sheet.dart';
+
+export 'media_limits.dart'; // viewonce: MediaLimits moved there
 
 /// md1 — the chat side of sending media: pick → (preview + caption) →
 /// queue in the persistent media outbox. Shared by 1:1 and group chats.
@@ -29,38 +34,6 @@ String md1KindLabel(AppLocalizations t, MediaDescriptor d) => switch (d.kind) {
       _ => d.name.isEmpty ? t.circleAttachDocument : d.name,
     };
 
-/// The owner-editable per-file caps (admin pricing limits), fetched once per
-/// app run from GET /circle/media/limits; safe defaults until then.
-class MediaLimits {
-  MediaLimits._();
-  static const int _mb = 1024 * 1024;
-  static int photo = 16 * _mb, voice = 16 * _mb, document = 25 * _mb, video = 32 * _mb;
-  static bool _loaded = false;
-
-  static Future<void> load(ApiClient api) async {
-    if (_loaded) return;
-    try {
-      final r = await api.getJson('/circle/media/limits');
-      int v(String k, int d) => (r[k] as num?)?.toInt() ?? d;
-      photo = v('photo_max_bytes', photo);
-      voice = v('voice_max_bytes', voice);
-      document = v('doc_max_bytes', document);
-      video = v('video_max_bytes', video); // mc-media2
-      _loaded = true;
-    } catch (e) {
-      reportNonFatal('md1_limits', e); // defaults stay; the server re-checks
-    }
-  }
-
-  static int of(String kind) => kind == 'photo'
-      ? photo
-      : kind == 'voice'
-          ? voice
-          : kind == 'video'
-              ? video
-              : document;
-}
-
 void _toast(BuildContext context, String msg) =>
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(msg)));
 
@@ -73,7 +46,7 @@ Future<MediaDraft?> pickMediaDraft(
   await MediaLimits.load(api);
   if (!context.mounted) return null;
   try {
-    final MediaDraft? d;
+    MediaDraft? d;
     switch (kind) {
       case CircleAttachKind.gallery:
         d = await pickPhoto(context, camera: false);
@@ -83,8 +56,14 @@ Future<MediaDraft?> pickMediaDraft(
         d = await showVoiceRecorder(context, onRecording: onRecording);
       case CircleAttachKind.document:
         d = await pickDocument(MediaLimits.document);
-      case CircleAttachKind.video: // mc-media2: sent as picked (no transcoding)
-        d = await pickVideo(MediaLimits.video);
+      case CircleAttachKind.video:
+        // viewonce (owner 3 Nov): longer than 3 min -> trim screen; then
+        // compressed on the phone to 720p, under 25 MB (owner-editable)
+        d = await pickVideo(kRawVideoPickMax);
+        if (d != null) {
+          if (!context.mounted) return null;
+          d = await prepareVideoForSend(context, d);
+        }
       default:
         return null; // not offered (circleAttachKinds)
     }
@@ -133,7 +112,8 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     final c = await Navigator.of(context).push<PhotoSendChoice>(MaterialPageRoute(
         fullscreenDialog: true,
         // e-gaps: view-once is offered in 1:1 chats
-        builder: (_) => PhotoSendPreview(draft: d, allowViewOnce: chatKind == 'member')));
+        // viewonce: groups too (each member opens once, server-enforced)
+        builder: (_) => PhotoSendPreview(draft: d, allowViewOnce: true)));
     if (c == null) {
       _deleteQuietly(d.path);
       return null;
@@ -141,35 +121,43 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     caption = c.caption;
     viewOnce = c.viewOnce;
   } else if (d.kind == 'document' || d.kind == 'video') {
+    var vo = false; // viewonce: the "1" next to Send (video only)
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) {
         final t = AppLocalizations.of(ctx);
-        return AlertDialog(
+        return StatefulBuilder(builder: (ctx, setLocal) => AlertDialog(
           scrollable: true, // insets: 200% text / keyboard
           title: Text(d.kind == 'video' ? t.mc2VideoSendTitle : t.md1DocSendTitle),
           content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(d.name, style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
+            // viewonce: the size AFTER the 720p compression, before Send
             Text(d.kind == 'video'
                 ? t.mc2VideoSendBody(notifLocalizeDigits(ctx,
                     '${mediaSizeLabel(d.size)}${d.durationMs == null ? '' : ' · ${mediaDurationLabel(d.durationMs!)}'}'))
-                : t.md1DocSendBody(notifLocalizeDigits(ctx, mediaSizeLabel(d.size)))),
+                : t.md1DocSendBody(notifLocalizeDigits(ctx, mediaSizeLabel(d.size))),
+                key: const Key('vo1-send-size')),
           ]),
           actions: [
+            if (d.kind == 'video')
+              ViewOnceSwitch(value: vo, onChanged: (v) => setLocal(() => vo = v)),
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.md1Cancel)),
             FilledButton(
                 key: const Key('md1-doc-send'),
                 onPressed: () => Navigator.pop(ctx, true),
                 child: Text(t.md1Send)),
           ],
-        );
+        ));
       },
     );
     if (ok != true) {
       _deleteQuietly(d.path);
       return null;
     }
+    viewOnce = vo;
+  } else if (d.kind == 'voice') {
+    viewOnce = d.viewOnce; // viewonce: the recorder's "1"
   }
   final job = MediaJob(
     id: newMediaId(),
@@ -185,7 +173,7 @@ Future<MediaJob?> confirmAndQueueMedia(BuildContext context, MediaDraft d,
     height: d.height,
     durationMs: d.durationMs,
     wave: d.wave,
-    thumbB64: viewOnce ? '' : d.thumbB64,
+    thumbB64: viewOnce ? '' : d.thumbB64, // e-gaps / viewonce: no preview
     caption: caption.trim(),
     replyTo: replyTo,
     viewOnce: viewOnce,
