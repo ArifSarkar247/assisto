@@ -33,7 +33,7 @@ class ReplyLangTest(TestCase):
 class ChatUsesMessageLanguageTest(TestCase):
     def test_bangla_question_in_english_app_gets_bangla_instructions(self):
         from core import views_chat as VC
-        u = get_user_model().objects.create_user(username="lang1", password="x")
+        u = get_user_model().objects.create_user(name="lang1", phone="+8801700000013", password="pw12345!")
         seen = {}
 
         def fake_generate(**kw):

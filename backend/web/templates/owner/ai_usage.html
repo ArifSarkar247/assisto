@@ -1,0 +1,27 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+<section class="card" id="aiu-today"><h2>{{ L.today }}</h2>
+{% include "owner/_ai_usage_totals.html" with t=today %}
+</section>
+<section class="card" id="aiu-month"><h2>{{ L.month }}</h2>
+{% include "owner/_ai_usage_totals.html" with t=month %}
+</section>
+<section class="card" id="aiu-filter"><h2>{{ L.filter }}</h2>
+<form method="get">
+<label>{{ L.provider }} <select name="provider"><option value="">{{ L.all }}</option>{% for p in providers %}<option value="{{ p }}" {% if f.provider == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+<label>{{ L.level }} <select name="level"><option value="">{{ L.all }}</option>{% for p in levels %}<option value="{{ p }}" {% if f.level == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+<label>{{ L.result }} <select name="result"><option value="">{{ L.all }}</option>{% for p in results %}<option value="{{ p }}" {% if f.result == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+<label>{{ L.feature }} <input name="feature" value="{{ f.feature|default:'' }}" maxlength="40" size="12"></label>
+<label>{{ L.user }} <input name="user" value="{{ f.user|default:'' }}" maxlength="14" size="12"></label>
+<label>{{ L.days }} <input name="days" value="{{ f.days }}" inputmode="numeric" size="3"></label>
+<button class="btn">{{ L.filter }}</button>
+</form>
+</section>
+<section class="card" id="aiu-rows">
+{% if rows %}<div class="tbl"><table><thead><tr><th>{{ L.time }}</th><th>{{ L.user }}</th><th>{{ L.feature }}</th><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th><th>{{ L.tin }}</th><th>{{ L.tout }}</th><th>{{ L.usd }}</th><th>{{ L.bdt }}</th><th>{{ L.lat }}</th><th>{{ L.result }}</th><th>{{ L.credits }}</th><th>{{ L.refunded }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.time }}</td><td><code>{{ r.user }}</code></td><td><code>{{ r.feature }}</code></td><td>{{ r.level }}</td><td>{{ r.provider }}</td><td><code>{{ r.model }}</code></td><td>{{ r.tokens_in }}</td><td>{{ r.tokens_out }}</td><td>{{ r.usd }}</td><td>{{ r.bdt }}</td><td>{{ r.latency_ms }}</td><td>{% if r.result == 'success' %}<span class="pill ok">{{ L.success }}</span>{% elif r.result == 'fallback' %}<span class="pill">{{ L.fallback }}</span>{% elif r.result == 'refunded' %}<span class="pill">{{ L.refunded_r }}</span>{% else %}<span class="pill off">{{ L.error }}</span>{% endif %}{% if r.reason %} <span class="mut small">{{ r.reason }}</span>{% endif %}</td><td>{{ r.credits }}</td><td>{{ r.refunded }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="mut">{{ L.none }}</p>{% endif %}
+</section>
+{% endblock %}

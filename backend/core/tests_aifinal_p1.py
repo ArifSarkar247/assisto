@@ -20,8 +20,13 @@ ADMIN_WORDS = ("Integrations", "owner", "Owner", " key", "মালিক", "key
                "Gemini", "OpenAI", "Anthropic", "provider")
 
 
+_N = [100]
+
+
 def _user(name, **kw):
-    return get_user_model().objects.create_user(username=name, password="x", **kw)
+    _N[0] += 1
+    return get_user_model().objects.create_user(name=name, phone="+88018%08d" % _N[0],
+                                                password="pw12345!", **kw)
 
 
 class PhotoFollowUpTest(TestCase):

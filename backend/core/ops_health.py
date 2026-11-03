@@ -202,6 +202,7 @@ JOBS = (
     Job("vault_share_purge", MIN, "* * * * *", via="minute_jobs"),
     # viewonce: delete opened / 14-day-old view-once media (no own process)
     Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
+    Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
     # nearby: pulls the monthly OSM emergency files (GitHub release assets);
     # idle = one DB read, manifest every 6 h, one country per run
     Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
@@ -219,6 +220,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("vault_share_purge", {"quiet": True}),
                # viewonce: cheap indexed sweep; returns at once when none
                ("view_once_purge", {"quiet": True}),
+               # aifinal: AI usage log retention (90 days), bounded batch
+               ("ai_usage_purge", {"quiet": True}),
                # nearby: after the safety jobs; idle = one DB read, a monthly
                # import is one country per run
                ("nearby_import", {"quiet": True}),
