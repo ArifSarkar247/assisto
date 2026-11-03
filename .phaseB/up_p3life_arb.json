@@ -1,0 +1,461 @@
+{
+  "_comment": "p3life (owner PART 3, 3 Nov): travel planner, wedding & events, ride & food. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_p3life_arb.json",
+  "en": {
+    "p3lOfflineCopy": "No internet — showing the copy saved on this phone. Changes need internet.",
+    "p3lOfflineNoSave": "No internet — this change was not saved. Try again when you are online.",
+    "p3lPickFromCircle": "Pick from My Circle",
+    "p3lRequired": "Please fill in: {field}",
+    "@p3lRequired": {
+      "placeholders": {
+        "field": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lBadAmount": "{field}: please write a number of taka",
+    "@p3lBadAmount": {
+      "placeholders": {
+        "field": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lSaved": "Saved",
+    "p3lLoadFailed": "Could not load this list. Check the internet and try again.",
+    "p3lMore": "More options",
+    "p3lNote": "Note",
+    "p3lPhone": "Phone number",
+    "p3lCall": "Call",
+    "p3lShareTitle": "Share (view only)",
+    "p3lShareFamily": "Share with family",
+    "p3lShareToCircle": "Send to someone in My Circle (SMS)",
+    "p3lShareOtherApps": "Other apps (WhatsApp, Messenger…)",
+    "p3lLinkOff": "Turn this link off",
+    "p3lLinkOffDone": "Link turned off. Anyone who had it can no longer open it.",
+    "p3lShareFailed": "Could not make the link. Check the internet and try again.",
+    "p3lNoPhone": "This person has no phone number in My Circle. Use 'Other apps' instead.",
+    "p3lShareMsgTrip": "My trip plan for {title} (view only): {url}",
+    "@p3lShareMsgTrip": {
+      "placeholders": {
+        "title": {
+          "type": "Object"
+        },
+        "url": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lShareMsgEvent": "{title} — programme and details (view only): {url}",
+    "@p3lShareMsgEvent": {
+      "placeholders": {
+        "title": {
+          "type": "Object"
+        },
+        "url": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lShareMsgGuest": "Dear {name}, you are invited to {title}. Please tell us if you can come: {url}",
+    "@p3lShareMsgGuest": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        },
+        "title": {
+          "type": "Object"
+        },
+        "url": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lSharePrivacyTrip": "They see the day plan and transport only — never your budget, packing list or documents. You can turn the link off any time.",
+    "p3lSharePrivacyEvent": "They see the date, venue, programme and head count only — never the budget, vendors, gifts or guests' names.",
+    "p3lSharePrivacyGuest": "The guest opens the link without the app and answers Coming / Maybe / Can't come. The answer appears in your guest list.",
+    "p3lRsvpSend": "Send RSVP link",
+    "p3lRsvpSendTitle": "Send the guest their RSVP link",
+    "p3lSmsTo": "SMS to {name}",
+    "@p3lSmsTo": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lRsvpByGuest": "answered by the guest",
+    "p3lGuestPhoneHelp": "Needed to send the RSVP link by SMS",
+    "p3lTabTransport": "Transport",
+    "p3lTabDocs": "Documents",
+    "p3lModeTrain": "Train",
+    "p3lModeBus": "Bus",
+    "p3lModeLaunch": "Launch",
+    "p3lModeAir": "Flight",
+    "p3lModeCar": "Car / CNG",
+    "p3lModeOther": "Other",
+    "p3lLegsEmptyTitle": "How are you getting there?",
+    "p3lLegsEmptyBody": "Keep every train, bus, launch and flight of this trip in one place — times, seat or PNR, all offline.",
+    "p3lLegsHowTo": "Tap the button, pick the transport, write from and to. A train opens our Train tracker in one tap.",
+    "p3lLegAdd": "Add transport",
+    "p3lLegEdit": "Edit transport",
+    "p3lLegDelete": "Delete this transport?",
+    "p3lLegMode": "Transport",
+    "p3lLegFrom": "From",
+    "p3lLegTo": "To",
+    "p3lLegDate": "Date",
+    "p3lLegTime": "Time",
+    "p3lLegRef": "Train no. / PNR / company",
+    "p3lTrackTrain": "Track this train",
+    "p3lOfficialSite": "Official ticket site",
+    "p3lDocsEmptyTitle": "Papers ready?",
+    "p3lDocsEmptyBody": "Write each document's expiry once — we warn you if it runs out before or soon after the trip.",
+    "p3lDocsHowTo": "Tap the button, pick NID / passport / visa / ticket, and set the expiry date.",
+    "p3lDocAdd": "Add document",
+    "p3lDocEdit": "Edit document",
+    "p3lDocDelete": "Delete this document entry?",
+    "p3lDocKind": "Document",
+    "p3lDocLabel": "Name / number (optional)",
+    "p3lDocExpiry": "Expiry date",
+    "p3lDocNid": "NID",
+    "p3lDocPassport": "Passport",
+    "p3lDocVisa": "Visa",
+    "p3lDocTicket": "Ticket",
+    "p3lDocInsurance": "Insurance",
+    "p3lDocOther": "Other",
+    "p3lDocExpiresOn": "Expires {date}",
+    "@p3lDocExpiresOn": {
+      "placeholders": {
+        "date": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lDocExpired": "Already expired — renew before you travel.",
+    "p3lDocBeforeTrip": "Expires before the trip ends — renew it first.",
+    "p3lDocSixMonths": "Less than 6 months left after the trip. Many countries require 6 months — check with the embassy.",
+    "p3lDocNoDate": "No expiry written — we can't check it.",
+    "p3lDocOk": "Valid for this trip.",
+    "p3lSplitTitle": "Split costs with travel mates",
+    "p3lSplitBody": "Who paid what, who owes whom — this trip only. Add people from My Circle.",
+    "p3lOfficialTitle": "Official travel information",
+    "p3lOfficialBody": "Destination, ticket and route information straight from the official sources below. We open their sites — we never copy their content or show a price we can't check.",
+    "p3lOfficialNote": "Everything else in your plan is what you wrote yourself.",
+    "p3lTabSchedule": "Programme",
+    "p3lTabVendors": "Vendors",
+    "p3lTabGifts": "Gifts",
+    "p3lVenueLabel": "Venue",
+    "p3lSchedEmptyTitle": "Holud, wedding, bou-bhat…",
+    "p3lSchedEmptyBody": "Write each programme once — the family link, RSVP page and invitation card all show it.",
+    "p3lSchedHowTo": "Tap the button, write the name, date, time and place.",
+    "p3lSchedAdd": "Add programme",
+    "p3lSchedEdit": "Edit programme",
+    "p3lSchedDelete": "Delete this programme?",
+    "p3lSchedName": "Programme name",
+    "p3lSchedPlace": "Place",
+    "p3lVenEmptyTitle": "Keep every vendor in one list",
+    "p3lVenEmptyBody": "Decorator, cook, photographer — the price agreed, what you paid and what is still due, with one-tap call.",
+    "p3lVenHowTo": "Tap the button, write the name, service, phone and price.",
+    "p3lVenAdd": "Add vendor",
+    "p3lVenEdit": "Edit vendor",
+    "p3lVenDelete": "Delete this vendor?",
+    "p3lVenName": "Vendor name",
+    "p3lVenService": "Service",
+    "p3lVenQuoted": "Price agreed",
+    "p3lVenPaid": "Paid",
+    "p3lVenDue": "Due",
+    "p3lVenVenue": "Venue / community centre",
+    "p3lVenCook": "Cook / catering",
+    "p3lVenDecor": "Decorator",
+    "p3lVenPhoto": "Photo / video",
+    "p3lVenMakeup": "Makeup / parlour",
+    "p3lVenCard": "Cards / printing",
+    "p3lVenTransport": "Transport",
+    "p3lVenOther": "Other",
+    "p3lGiftEmptyTitle": "Remember who gave what",
+    "p3lGiftEmptyBody": "Write each gift — cash total, and who still needs a thank-you.",
+    "p3lGiftHowTo": "Tap the button, pick the person from My Circle or write the name, then the gift or amount.",
+    "p3lGiftAdd": "Add gift",
+    "p3lGiftEdit": "Edit gift",
+    "p3lGiftDelete": "Delete this gift entry?",
+    "p3lGiftGiver": "Given by",
+    "p3lGiftWhat": "Gift (e.g. ring, saree)",
+    "p3lGiftAmount": "Cash amount",
+    "p3lGiftOccasion": "Programme (e.g. holud)",
+    "p3lGiftThanked": "Thank-you sent",
+    "p3lGiftThankedYes": "Thanked",
+    "p3lGiftThankedNo": "Thank-you not sent yet",
+    "p3lGiftCount": "Gifts",
+    "p3lGiftCash": "Cash total",
+    "p3lGiftToThank": "To thank",
+    "p3lGiftThankSms": "Send a thank-you SMS",
+    "p3lGiftThankMsg": "Dear {name}, thank you so much for your gift and blessings. — From all of us",
+    "@p3lGiftThankMsg": {
+      "placeholders": {
+        "name": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lCardTitle": "Invitation card",
+    "p3lCardShare": "Share as picture",
+    "p3lCardShareFailed": "Could not share the card. Please try again.",
+    "p3lCardCaption": "Invitation — {names}",
+    "@p3lCardCaption": {
+      "placeholders": {
+        "names": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lCardDesign": "Design",
+    "p3lCardDesignRose": "Maroon & gold",
+    "p3lCardDesignHolud": "Holud yellow",
+    "p3lCardDesignClassic": "Classic cream",
+    "p3lCardOccasion": "Programme",
+    "p3lCardOccWedding": "Wedding",
+    "p3lCardOccHolud": "Gaye holud",
+    "p3lCardOccReception": "Reception",
+    "p3lCardOccAkika": "Akika",
+    "p3lCardOccBirthday": "Birthday",
+    "p3lCardOccOther": "Invitation",
+    "p3lCardInviteDefault": "You and your family are warmly invited",
+    "p3lCardNames": "Names (e.g. Rina & Karim)",
+    "p3lCardTime": "Time (e.g. 7 pm)",
+    "p3lCardHostsLabel": "Invited by (optional)",
+    "p3lCardHosts": "Invited by: {hosts}",
+    "@p3lCardHosts": {
+      "placeholders": {
+        "hosts": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lCardMessage": "Message (optional)",
+    "p3lShareRideTitle": "Share my ride",
+    "p3lShareRideBody": "On any ride — Pathao, Uber, CNG or bus — your My Circle sees your live location until you arrive, and is alerted if you don't. Free, always.",
+    "p3lShareRideButton": "Start Safe Journey",
+    "p3lCompareTitle": "How to compare honestly",
+    "p3lCompareBody": "Fares and delivery times are only true inside each company's own app, and they change with traffic and demand. Open both apps for the same place and compare what they show. We never show a fare or a price we cannot check, and we never book or order for you.",
+    "p3lFoodTitle": "Food order diary",
+    "p3lFoodCardBody": "Your own record of orders and a monthly budget — across all apps.",
+    "p3lFoodEmptyTitle": "How much goes on food orders?",
+    "p3lFoodEmptyBody": "Write each order once — see this month's total across foodpanda, Pathao Food and restaurants, against your own budget.",
+    "p3lFoodHowTo": "Tap the button, write the date, where from and the amount. Nothing is read from other apps.",
+    "p3lFoodAdd": "Add order",
+    "p3lFoodEdit": "Edit order",
+    "p3lFoodDelete": "Delete this order?",
+    "p3lFoodFrom": "From",
+    "p3lFoodWhat": "What (optional)",
+    "p3lFoodAmount": "Amount",
+    "p3lFoodRestaurant": "Restaurant",
+    "p3lFoodOther": "Other",
+    "p3lFoodThisMonth": "This month",
+    "p3lFoodOrders": "{count} orders",
+    "@p3lFoodOrders": {
+      "placeholders": {
+        "count": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lFoodNoBudget": "No monthly budget set.",
+    "p3lFoodLeft": "{left} left of {budget}",
+    "@p3lFoodLeft": {
+      "placeholders": {
+        "left": {
+          "type": "Object"
+        },
+        "budget": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lFoodOver": "{amount} over budget",
+    "@p3lFoodOver": {
+      "placeholders": {
+        "amount": {
+          "type": "Object"
+        }
+      }
+    },
+    "p3lFoodBudget": "Monthly food-order budget",
+    "p3lFoodBudgetSet": "Set monthly budget",
+    "p3lFoodBudgetChange": "Change budget"
+  },
+  "bn": {
+    "p3lOfflineCopy": "ইন্টারনেট নেই — ফোনে সেভ করা কপি দেখাচ্ছি। কিছু বদলাতে ইন্টারনেট লাগবে।",
+    "p3lOfflineNoSave": "ইন্টারনেট নেই — এই পরিবর্তন সেভ হয়নি। নেট এলে আবার চেষ্টা করুন।",
+    "p3lPickFromCircle": "My Circle থেকে বাছুন",
+    "p3lRequired": "এটা লিখুন: {field}",
+    "p3lBadAmount": "{field}: টাকার অঙ্ক লিখুন",
+    "p3lSaved": "সেভ হয়েছে",
+    "p3lLoadFailed": "তালিকাটি আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "p3lMore": "আরও অপশন",
+    "p3lNote": "নোট",
+    "p3lPhone": "ফোন নম্বর",
+    "p3lCall": "কল করুন",
+    "p3lShareTitle": "শেয়ার করুন (শুধু দেখার জন্য)",
+    "p3lShareFamily": "পরিবারকে দেখান",
+    "p3lShareToCircle": "My Circle-এর কাউকে পাঠান (SMS)",
+    "p3lShareOtherApps": "অন্য অ্যাপে (WhatsApp, Messenger…)",
+    "p3lLinkOff": "এই লিংক বন্ধ করুন",
+    "p3lLinkOffDone": "লিংক বন্ধ হয়েছে। যাঁদের কাছে ছিল তাঁরা আর খুলতে পারবেন না।",
+    "p3lShareFailed": "লিংক বানানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "p3lNoPhone": "এই মানুষটির নম্বর My Circle-এ নেই। 'অন্য অ্যাপে' দিয়ে পাঠান।",
+    "p3lShareMsgTrip": "{title} ভ্রমণের আমার পরিকল্পনা (শুধু দেখার জন্য): {url}",
+    "p3lShareMsgEvent": "{title} — অনুষ্ঠানসূচি ও বিস্তারিত (শুধু দেখার জন্য): {url}",
+    "p3lShareMsgGuest": "প্রিয় {name}, {title}-এ আপনাকে দাওয়াত। আসতে পারবেন কিনা জানান: {url}",
+    "p3lSharePrivacyTrip": "তাঁরা শুধু দিনের পরিকল্পনা ও যাতায়াত দেখবেন — বাজেট, প্যাকিং বা কাগজপত্র কখনো না। যেকোনো সময় লিংক বন্ধ করতে পারবেন।",
+    "p3lSharePrivacyEvent": "তাঁরা শুধু তারিখ, স্থান, অনুষ্ঠানসূচি ও কতজন আসছেন দেখবেন — বাজেট, ভেন্ডর, উপহার বা অতিথির নাম কখনো না।",
+    "p3lSharePrivacyGuest": "অতিথি অ্যাপ ছাড়াই লিংক খুলে 'আসছি / হয়তো / আসতে পারছি না' জানাবেন। উত্তর আপনার অতিথি তালিকায় বসে যাবে।",
+    "p3lRsvpSend": "RSVP লিংক পাঠান",
+    "p3lRsvpSendTitle": "অতিথিকে RSVP লিংক পাঠান",
+    "p3lSmsTo": "{name}-কে SMS",
+    "p3lRsvpByGuest": "অতিথি নিজে জানিয়েছেন",
+    "p3lGuestPhoneHelp": "SMS-এ RSVP লিংক পাঠাতে লাগবে",
+    "p3lTabTransport": "যাতায়াত",
+    "p3lTabDocs": "কাগজপত্র",
+    "p3lModeTrain": "ট্রেন",
+    "p3lModeBus": "বাস",
+    "p3lModeLaunch": "লঞ্চ",
+    "p3lModeAir": "বিমান",
+    "p3lModeCar": "গাড়ি / সিএনজি",
+    "p3lModeOther": "অন্যান্য",
+    "p3lLegsEmptyTitle": "কীভাবে যাবেন?",
+    "p3lLegsEmptyBody": "এই ট্রিপের সব ট্রেন, বাস, লঞ্চ, বিমান এক জায়গায় — সময়, সিট বা PNR, নেট ছাড়াও দেখা যায়।",
+    "p3lLegsHowTo": "বোতাম চাপুন, যানবাহন বাছুন, কোথা থেকে কোথায় লিখুন। ট্রেন হলে এক ট্যাপে আমাদের ট্রেন ট্র্যাকার খোলে।",
+    "p3lLegAdd": "যাতায়াত যোগ করুন",
+    "p3lLegEdit": "যাতায়াত বদলান",
+    "p3lLegDelete": "এই যাতায়াত মুছবেন?",
+    "p3lLegMode": "যানবাহন",
+    "p3lLegFrom": "কোথা থেকে",
+    "p3lLegTo": "কোথায়",
+    "p3lLegDate": "তারিখ",
+    "p3lLegTime": "সময়",
+    "p3lLegRef": "ট্রেন নম্বর / PNR / কোম্পানি",
+    "p3lTrackTrain": "ট্রেন ট্র্যাক করুন",
+    "p3lOfficialSite": "সরকারি টিকিট সাইট",
+    "p3lDocsEmptyTitle": "কাগজপত্র ঠিক আছে?",
+    "p3lDocsEmptyBody": "প্রতিটি কাগজের মেয়াদ একবার লিখুন — ট্রিপের আগে বা পরপরই মেয়াদ শেষ হলে সতর্ক করব।",
+    "p3lDocsHowTo": "বোতাম চাপুন, NID / পাসপোর্ট / ভিসা / টিকিট বাছুন, মেয়াদের তারিখ দিন।",
+    "p3lDocAdd": "কাগজ যোগ করুন",
+    "p3lDocEdit": "কাগজ বদলান",
+    "p3lDocDelete": "এই কাগজের তথ্য মুছবেন?",
+    "p3lDocKind": "কাগজ",
+    "p3lDocLabel": "নাম / নম্বর (ইচ্ছা হলে)",
+    "p3lDocExpiry": "মেয়াদ শেষের তারিখ",
+    "p3lDocNid": "NID",
+    "p3lDocPassport": "পাসপোর্ট",
+    "p3lDocVisa": "ভিসা",
+    "p3lDocTicket": "টিকিট",
+    "p3lDocInsurance": "বীমা",
+    "p3lDocOther": "অন্যান্য",
+    "p3lDocExpiresOn": "মেয়াদ শেষ {date}",
+    "p3lDocExpired": "মেয়াদ শেষ হয়ে গেছে — যাওয়ার আগে নবায়ন করুন।",
+    "p3lDocBeforeTrip": "ট্রিপ শেষের আগেই মেয়াদ শেষ — আগে নবায়ন করুন।",
+    "p3lDocSixMonths": "ট্রিপের পর ৬ মাসের কম মেয়াদ থাকবে। অনেক দেশ ৬ মাস চায় — দূতাবাসে যাচাই করুন।",
+    "p3lDocNoDate": "মেয়াদ লেখা নেই — যাচাই করা যাচ্ছে না।",
+    "p3lDocOk": "এই ট্রিপের জন্য ঠিক আছে।",
+    "p3lSplitTitle": "সঙ্গীদের সাথে খরচ ভাগ",
+    "p3lSplitBody": "কে কত দিল, কে কাকে দেবে — শুধু এই ট্রিপের। My Circle থেকে মানুষ যোগ করুন।",
+    "p3lOfficialTitle": "সরকারি ভ্রমণ তথ্য",
+    "p3lOfficialBody": "গন্তব্য, টিকিট ও রুটের তথ্য নিচের সরকারি সূত্র থেকে। আমরা ওদের সাইট খুলি — ওদের লেখা কপি করি না, যাচাই করা যায় না এমন দাম দেখাই না।",
+    "p3lOfficialNote": "আপনার পরিকল্পনার বাকি সব তথ্য আপনার নিজের লেখা।",
+    "p3lTabSchedule": "অনুষ্ঠানসূচি",
+    "p3lTabVendors": "ভেন্ডর",
+    "p3lTabGifts": "উপহার",
+    "p3lVenueLabel": "স্থান",
+    "p3lSchedEmptyTitle": "গায়ে হলুদ, বিয়ে, বৌভাত…",
+    "p3lSchedEmptyBody": "প্রতিটি অনুষ্ঠান একবার লিখুন — পরিবারের লিংক, RSVP পাতা আর দাওয়াত কার্ডে দেখাবে।",
+    "p3lSchedHowTo": "বোতাম চাপুন, নাম, তারিখ, সময় ও জায়গা লিখুন।",
+    "p3lSchedAdd": "অনুষ্ঠান যোগ করুন",
+    "p3lSchedEdit": "অনুষ্ঠান বদলান",
+    "p3lSchedDelete": "এই অনুষ্ঠান মুছবেন?",
+    "p3lSchedName": "অনুষ্ঠানের নাম",
+    "p3lSchedPlace": "জায়গা",
+    "p3lVenEmptyTitle": "সব ভেন্ডর এক তালিকায়",
+    "p3lVenEmptyBody": "ডেকোরেটর, বাবুর্চি, ফটোগ্রাফার — কত দামে ঠিক, কত দেওয়া হয়েছে, কত বাকি; এক ট্যাপে কল।",
+    "p3lVenHowTo": "বোতাম চাপুন, নাম, কাজ, ফোন ও দাম লিখুন।",
+    "p3lVenAdd": "ভেন্ডর যোগ করুন",
+    "p3lVenEdit": "ভেন্ডর বদলান",
+    "p3lVenDelete": "এই ভেন্ডর মুছবেন?",
+    "p3lVenName": "ভেন্ডরের নাম",
+    "p3lVenService": "কাজ",
+    "p3lVenQuoted": "ঠিক হওয়া দাম",
+    "p3lVenPaid": "দেওয়া হয়েছে",
+    "p3lVenDue": "বাকি",
+    "p3lVenVenue": "ভেন্যু / কমিউনিটি সেন্টার",
+    "p3lVenCook": "বাবুর্চি / খাবার",
+    "p3lVenDecor": "ডেকোরেটর",
+    "p3lVenPhoto": "ছবি / ভিডিও",
+    "p3lVenMakeup": "মেকআপ / পার্লার",
+    "p3lVenCard": "কার্ড / ছাপা",
+    "p3lVenTransport": "যানবাহন",
+    "p3lVenOther": "অন্যান্য",
+    "p3lGiftEmptyTitle": "কে কী দিলেন মনে রাখুন",
+    "p3lGiftEmptyBody": "প্রতিটি উপহার লিখুন — মোট নগদ, আর কাকে ধন্যবাদ জানানো বাকি।",
+    "p3lGiftHowTo": "বোতাম চাপুন, My Circle থেকে মানুষ বাছুন বা নাম লিখুন, তারপর উপহার বা টাকা।",
+    "p3lGiftAdd": "উপহার যোগ করুন",
+    "p3lGiftEdit": "উপহার বদলান",
+    "p3lGiftDelete": "এই উপহারের তথ্য মুছবেন?",
+    "p3lGiftGiver": "কে দিলেন",
+    "p3lGiftWhat": "উপহার (যেমন আংটি, শাড়ি)",
+    "p3lGiftAmount": "নগদ টাকা",
+    "p3lGiftOccasion": "অনুষ্ঠান (যেমন হলুদ)",
+    "p3lGiftThanked": "ধন্যবাদ জানানো হয়েছে",
+    "p3lGiftThankedYes": "ধন্যবাদ জানানো হয়েছে",
+    "p3lGiftThankedNo": "ধন্যবাদ জানানো বাকি",
+    "p3lGiftCount": "উপহার",
+    "p3lGiftCash": "মোট নগদ",
+    "p3lGiftToThank": "ধন্যবাদ বাকি",
+    "p3lGiftThankSms": "ধন্যবাদ SMS পাঠান",
+    "p3lGiftThankMsg": "প্রিয় {name}, আপনার উপহার ও দোয়ার জন্য অনেক ধন্যবাদ। — আমাদের সবার পক্ষ থেকে",
+    "p3lCardTitle": "দাওয়াত কার্ড",
+    "p3lCardShare": "ছবি হিসেবে শেয়ার করুন",
+    "p3lCardShareFailed": "কার্ড শেয়ার করা গেল না। আবার চেষ্টা করুন।",
+    "p3lCardCaption": "দাওয়াত — {names}",
+    "p3lCardDesign": "নকশা",
+    "p3lCardDesignRose": "মেরুন ও সোনালি",
+    "p3lCardDesignHolud": "হলুদ",
+    "p3lCardDesignClassic": "ক্লাসিক ক্রিম",
+    "p3lCardOccasion": "অনুষ্ঠান",
+    "p3lCardOccWedding": "শুভ বিবাহ",
+    "p3lCardOccHolud": "গায়ে হলুদ",
+    "p3lCardOccReception": "বৌভাত",
+    "p3lCardOccAkika": "আকিকা",
+    "p3lCardOccBirthday": "জন্মদিন",
+    "p3lCardOccOther": "দাওয়াত",
+    "p3lCardInviteDefault": "আপনাকে সপরিবারে সাদর আমন্ত্রণ",
+    "p3lCardNames": "নাম (যেমন রিনা ও করিম)",
+    "p3lCardTime": "সময় (যেমন সন্ধ্যা ৭টা)",
+    "p3lCardHostsLabel": "আমন্ত্রণে (ইচ্ছা হলে)",
+    "p3lCardHosts": "আমন্ত্রণে: {hosts}",
+    "p3lCardMessage": "বার্তা (ইচ্ছা হলে)",
+    "p3lShareRideTitle": "আমার রাইড শেয়ার করুন",
+    "p3lShareRideBody": "যেকোনো রাইডে — Pathao, Uber, সিএনজি বা বাস — পৌঁছানো পর্যন্ত My Circle আপনার লাইভ লোকেশন দেখবে; না পৌঁছালে সতর্ক করবে। সবসময় ফ্রি।",
+    "p3lShareRideButton": "নিরাপদ যাত্রা শুরু করুন",
+    "p3lCompareTitle": "সৎভাবে তুলনা করবেন যেভাবে",
+    "p3lCompareBody": "ভাড়া আর ডেলিভারির সময় শুধু ওদের নিজের অ্যাপেই সত্যি, আর যানজট ও চাহিদায় বদলায়। একই জায়গার জন্য দুই অ্যাপ খুলে যা দেখায় তা মিলিয়ে নিন। যাচাই করা যায় না এমন ভাড়া বা দাম আমরা কখনো দেখাই না, আর আপনার হয়ে বুকিং বা অর্ডার করি না।",
+    "p3lFoodTitle": "খাবারের অর্ডারের খাতা",
+    "p3lFoodCardBody": "সব অ্যাপের অর্ডারের নিজের হিসাব আর মাসের বাজেট।",
+    "p3lFoodEmptyTitle": "খাবার অর্ডারে মাসে কত যায়?",
+    "p3lFoodEmptyBody": "প্রতিটি অর্ডার একবার লিখুন — foodpanda, Pathao Food, রেস্টুরেন্ট মিলিয়ে এ মাসের মোট, আপনার বাজেটের পাশে।",
+    "p3lFoodHowTo": "বোতাম চাপুন, তারিখ, কোথা থেকে আর টাকা লিখুন। অন্য অ্যাপ থেকে কিছু পড়া হয় না।",
+    "p3lFoodAdd": "অর্ডার যোগ করুন",
+    "p3lFoodEdit": "অর্ডার বদলান",
+    "p3lFoodDelete": "এই অর্ডার মুছবেন?",
+    "p3lFoodFrom": "কোথা থেকে",
+    "p3lFoodWhat": "কী (ইচ্ছা হলে)",
+    "p3lFoodAmount": "টাকা",
+    "p3lFoodRestaurant": "রেস্টুরেন্ট",
+    "p3lFoodOther": "অন্যান্য",
+    "p3lFoodThisMonth": "এ মাসে",
+    "p3lFoodOrders": "{count}টি অর্ডার",
+    "p3lFoodNoBudget": "মাসের বাজেট বসানো হয়নি।",
+    "p3lFoodLeft": "{budget}-এর মধ্যে {left} বাকি",
+    "p3lFoodOver": "বাজেটের চেয়ে {amount} বেশি",
+    "p3lFoodBudget": "খাবার অর্ডারের মাসিক বাজেট",
+    "p3lFoodBudgetSet": "মাসের বাজেট বসান",
+    "p3lFoodBudgetChange": "বাজেট বদলান"
+  }
+}

@@ -6,6 +6,7 @@ import 'fake_kidswatch.dart'; // kidswatch
 import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
 import 'fake_kidaudio.dart'; // kidaudio
+import 'fake_p3life.dart'; // p3life
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -242,6 +243,8 @@ class FakeApi extends ApiClient {
   Future<List<Map<String, dynamic>>> listItems(String path) async {
     await _slow();
     if (path.startsWith('crm/')) return _crmList(path);
+    final p3l = fakeP3LifeList(path, bn: _bn); // p3life
+    if (p3l != null) return _maybe(p3l);
     // a2-cctv QA batch 3: seeded rows so arg-order fixes are visible on screen
     if (path == 'spending/notes') {
       final b = _bn;
@@ -2050,6 +2053,8 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    final p3l = fakeP3LifePost(path); // p3life
+    if (p3l != null) return p3l;
     if (path == '/account/delete/preview') {
       return {'counts': {'memories': 42, 'reminders': 12, 'documents': 5, 'txns': 230, 'accounts': 3, 'auth_token': 1, 'notif_events': 88},
               'export_downloaded': false, 'grace_days': 7};
