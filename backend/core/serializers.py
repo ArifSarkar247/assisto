@@ -355,7 +355,11 @@ class DocumentSerializer(serializers.ModelSerializer):
             import json as _json
             try:
                 decoded = _json.loads(raw)
-                data = data.copy() if hasattr(data, "copy") else dict(data)
+                # A PLAIN dict, not a QueryDict copy: DRF's JSONField str()s a
+                # value read from form input, turning the map into
+                # "{'k': 'v'}" -> 400 "Value must be valid JSON."
+                data = ({k: data.get(k) for k in data.keys()} if hasattr(data, "getlist")
+                        else dict(data))
                 data["details"] = decoded
             except (ValueError, TypeError):
                 pass
