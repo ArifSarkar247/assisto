@@ -22,7 +22,9 @@ import '../widgets/tax_widgets.dart';
 /// prices are user inputs, never guessed. A persistent "not tax advice" banner
 /// shows on every tab. ZERO Bangla literals — all strings via AppLocalizations.
 class MoneyTaxScreen extends StatefulWidget {
-  const MoneyTaxScreen({super.key});
+  /// p3faith: 1 opens straight on the Zakat tab (from Ramadan).
+  final int initialTab;
+  const MoneyTaxScreen({super.key, this.initialTab = 0});
   @override
   State<MoneyTaxScreen> createState() => _MoneyTaxScreenState();
 }
@@ -41,6 +43,7 @@ class _MoneyTaxScreenState extends State<MoneyTaxScreen> {
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 3,
+      initialIndex: widget.initialTab.clamp(0, 2),
       child: Scaffold(
         // banners-everywhere (owner 26 Oct): one bottom banner, Free only
         appBar: AppBar(

@@ -1296,9 +1296,34 @@ class FakeApi extends ApiClient {
     }
     if (path.startsWith('/ramadan/times')) {
       if (mode == FakeMode.fail) _fail();
-      return {'date': '2026-03-15', 'method': 'karachi',
-              'sehri_end': '04:42', 'fajr': '04:42', 'dhuhr': '12:05',
-              'asr': '15:30', 'iftar': '18:12', 'maghrib': '18:12', 'isha': '19:30'};
+      // p3faith: the server's IFB-method answer (Dhaka, 10 Feb 2027 values
+      // from core.logic.ramadan.ifb_times) incl. district + approximate dates.
+      return {'date': '2027-02-10', 'method': 'ifb', 'asr_convention': 'hanafi',
+              'sehri_end': '05:15', 'fajr': '05:18', 'sunrise': '06:35', 'dhuhr': '12:13',
+              'asr': '16:14', 'iftar': '17:53', 'maghrib': '17:50', 'isha': '19:07',
+              // echo a requested district (the picker test saves what it picks)
+              ...(path.contains('district=sylhet')
+                  ? {'district': 'sylhet', 'name_bn': 'সিলেট', 'name_en': 'Sylhet'}
+                  : {'district': 'dhaka', 'name_bn': 'ঢাকা', 'name_en': 'Dhaka'}),
+              'approx_ramadan': {'hijri_year': 1448, 'start': '2027-02-08',
+                  'end': '2027-03-09', 'approximate': true, 'in_ramadan': false}};
+    }
+    if (path.startsWith('/ramadan/districts')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'districts': [
+        {'code': 'dhaka', 'bn': 'ঢাকা', 'en': 'Dhaka', 'name': _bn ? 'ঢাকা' : 'Dhaka'},
+        {'code': 'sylhet', 'bn': 'সিলেট', 'en': 'Sylhet', 'name': _bn ? 'সিলেট' : 'Sylhet'},
+        {'code': 'khulna', 'bn': 'খুলনা', 'en': 'Khulna', 'name': _bn ? 'খুলনা' : 'Khulna'},
+      ]};
+    }
+    if (path.startsWith('/ramadan/month')) {
+      if (mode == FakeMode.fail) _fail();
+      return {'district': 'dhaka', 'name_bn': 'ঢাকা', 'name_en': 'Dhaka',
+              // real core.logic.ramadan.district_month('dhaka', 2027-02-08)
+              'days': [
+                for (final r in const [['2027-02-08', '05:16', '17:52'], ['2027-02-09', '05:16', '17:53'], ['2027-02-10', '05:15', '17:53'], ['2027-02-11', '05:15', '17:54'], ['2027-02-12', '05:14', '17:54'], ['2027-02-13', '05:14', '17:55'], ['2027-02-14', '05:13', '17:56'], ['2027-02-15', '05:13', '17:56'], ['2027-02-16', '05:12', '17:57'], ['2027-02-17', '05:11', '17:57'], ['2027-02-18', '05:11', '17:58'], ['2027-02-19', '05:10', '17:58'], ['2027-02-20', '05:09', '17:59'], ['2027-02-21', '05:09', '18:00'], ['2027-02-22', '05:08', '18:00'], ['2027-02-23', '05:07', '18:01'], ['2027-02-24', '05:07', '18:01'], ['2027-02-25', '05:06', '18:02'], ['2027-02-26', '05:05', '18:02'], ['2027-02-27', '05:04', '18:03'], ['2027-02-28', '05:03', '18:03'], ['2027-03-01', '05:03', '18:04'], ['2027-03-02', '05:02', '18:04'], ['2027-03-03', '05:01', '18:05'], ['2027-03-04', '05:00', '18:05'], ['2027-03-05', '04:59', '18:06'], ['2027-03-06', '04:58', '18:06'], ['2027-03-07', '04:57', '18:07'], ['2027-03-08', '04:56', '18:07'], ['2027-03-09', '04:56', '18:07']])
+                  {'date': r[0], 'sehri_end': r[1], 'iftar': r[2]},
+              ]};
     }
     if (path.startsWith('/legal/')) {
       return {'key': path.split('/').last,

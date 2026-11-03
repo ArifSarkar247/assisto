@@ -62,6 +62,7 @@ import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
+import '../screens/quran_screen.dart'; // p3faith
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
 import '../screens/world/world_today_screen.dart';
@@ -263,6 +264,8 @@ class ChatNav {
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
+    // p3faith (flag quran): offline Quran.
+    'quran': (_) => const QuranScreen(),
     'exam': (_) => const ExamResultScreen(),
     'task_manager': (_) => const TaskManagerScreen(), // p2plan
     'day_planner': (_) => const DayPlannerScreen(), // p2plan

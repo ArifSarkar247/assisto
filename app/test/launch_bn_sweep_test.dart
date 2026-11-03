@@ -74,10 +74,15 @@ const _launchPrefixes = <String>[
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
   'crr_', // p2career: CV export, Find jobs, role interview (3 Nov)
   'farm_', // p3farm: Farmer mode help / crop calendar / disease check
+  // p3faith (3 Nov): Ramadan tracker + Quran
+  'ramadan', 'quran_',
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
 const Map<String, String> _allow = {
+  // p3faith: CC BY 3.0 requires the Tanzil notice VERBATIM (years, version).
+  'quran_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
+  'quran_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   // Paper size / device model trade names are written the same in Bangla.
   'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
   'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',
