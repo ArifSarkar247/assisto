@@ -103,17 +103,16 @@ String docStatus(Map<String, dynamic> doc,
   return 'ok';
 }
 
-/// Bangla keyboard digits -> ASCII ('১২' -> '12').
+/// Bangla keyboard digits (U+09E6..U+09EF) -> ASCII digits.
 String asciiDigits(String raw) {
-  const bn = '০১২৩৪৫৬৭৮৯';
   var s = raw;
   for (var i = 0; i < 10; i++) {
-    s = s.replaceAll(bn[i], '$i');
+    s = s.replaceAll(String.fromCharCode(0x09E6 + i), '$i');
   }
   return s;
 }
 
-/// "1,500.50" / "১৫০০" / "৳ 200" -> poisha; null when not a number.
+/// "1,500.50" / Bangla digits / "৳ 200" -> poisha; null when not a number.
 int? parsePoisha(String raw) {
   var s = asciiDigits(raw.trim());
   s = s.replaceAll(RegExp(r'[৳,\s]'), '').replaceAll('Tk', '').replaceAll('tk', '');
