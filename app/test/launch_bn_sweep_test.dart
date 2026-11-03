@@ -64,7 +64,7 @@ const _launchPrefixes = <String>[
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
-  'p3feed_', // Today feed: BB official rate, notices, Coming soon (3 Nov)
+  'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
 ];

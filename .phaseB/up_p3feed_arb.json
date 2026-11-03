@@ -1,5 +1,5 @@
 {
-  "_comment": "p3feed (owner PART 3 live feed + Daily info): Today screen official BB rate, notices card, Coming soon section. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_p3feed_arb.json",
+  "_comment": "p3feed (owner PART 3 live feed + Daily info): Today screen official BB rate, notices card, Not connected yet section. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_p3feed_arb.json",
   "en": {
     "uwCardNotices": "Official notices & links",
     "uwNoticesNote": "Opens the government office's own website. Assisto does not copy their notices.",
@@ -9,13 +9,19 @@
     "uwOfficialBadge": "Official",
     "uwFxOfficialUsd": "Bangladesh Bank rate — 1 US dollar",
     "uwRateDate": "Rate date: {date}",
-    "@uwRateDate": {"placeholders": {"date": {"type": "String"}}},
+    "@uwRateDate": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
     "uwFxOfficialStale": "This Bangladesh Bank rate is a few days old — tap the source to check today's.",
     "uwFxIndicativeTitle": "Other currencies — indicative market rate, not official",
-    "uwComingSoonTitle": "Coming soon",
-    "uwNeedsLicence": "comes when a licensed live-score source is connected",
-    "uwAwaitingOfficialEntry": "waiting for today's official figure",
-    "uwSourceDownNow": "the official source is not reachable right now"
+    "uwSourceDownNow": "the official source is not reachable right now",
+    "uwNotConnectedTitle": "Not connected yet",
+    "uwNoLicensedSource": "not connected — no licensed source yet",
+    "uwOfficialNotEntered": "official figure not entered yet"
   },
   "bn": {
     "uwCardNotices": "অফিসিয়াল নোটিশ ও লিংক",
@@ -28,9 +34,9 @@
     "uwRateDate": "রেটের তারিখ: {date}",
     "uwFxOfficialStale": "বাংলাদেশ ব্যাংকের এই রেট কয়েক দিনের পুরনো — আজকেরটা দেখতে সোর্সে চাপুন।",
     "uwFxIndicativeTitle": "অন্যান্য মুদ্রা — বাজারের নির্দেশক হার, সরকারি নয়",
-    "uwComingSoonTitle": "শিগগির আসছে",
-    "uwNeedsLicence": "লাইসেন্স করা লাইভ স্কোরের সোর্স যুক্ত হলে আসবে",
-    "uwAwaitingOfficialEntry": "আজকের অফিসিয়াল সংখ্যার অপেক্ষায়",
-    "uwSourceDownNow": "অফিসিয়াল সোর্স এই মুহূর্তে পাওয়া যাচ্ছে না"
+    "uwSourceDownNow": "অফিসিয়াল সোর্স এই মুহূর্তে পাওয়া যাচ্ছে না",
+    "uwNotConnectedTitle": "এখনো সংযুক্ত নয়",
+    "uwNoLicensedSource": "এখনো সংযুক্ত নয় — লাইসেন্সড উৎস নেই",
+    "uwOfficialNotEntered": "অফিসিয়াল সংখ্যা এখনো দেওয়া হয়নি"
   }
 }

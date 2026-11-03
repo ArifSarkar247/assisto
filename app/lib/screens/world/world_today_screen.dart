@@ -17,7 +17,7 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// A card with no real data is not shown — nothing is ever made up.
 /// p3feed: Bangladesh Bank's official USD rate (owner-entered, dated) leads the
 /// currency card; official notice links (load-shedding, BMD, flood); cards
-/// that are on but have no real data are listed under "Coming soon" with the
+/// that are on but have no real data are listed under "Not connected yet" with the
 /// honest reason; prayer times for a week so an offline phone stays right.
 class WorldTodayScreen extends StatefulWidget {
   const WorldTodayScreen({super.key, this.api});
@@ -139,8 +139,8 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
   }
 
   String _hiddenReason(AppLocalizations t, String why) => switch (why) {
-        'needs_key' => t.uwNeedsLicence,
-        'not_entered' => t.uwAwaitingOfficialEntry,
+        'needs_key' => t.uwNoLicensedSource,
+        'not_entered' => t.uwOfficialNotEntered,
         _ => t.uwSourceDownNow,
       };
 
@@ -347,7 +347,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                           color: scheme.onSurfaceVariant),
                       const SizedBox(width: Gap.sm),
                       Expanded(
-                          child: Text(t.uwComingSoonTitle,
+                          child: Text(t.uwNotConnectedTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium

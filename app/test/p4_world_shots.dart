@@ -58,7 +58,7 @@ final Map<String, Widget Function(String)> p4WorldShots = {
   'p4_world_farmers': (l) => WorldGuideHubScreen(
       hubId: 'farmers', api: FakeWorldApi(lang: l, aiReady: false)),
   'p4_world_mcq': (l) => WorldMcqScreen(api: FakeWorldApi(lang: l)),
-  // p3feed: Today feed — Bangladesh Bank official rate + notices + Coming soon
+  // p3feed: Today feed — Bangladesh Bank official rate + notices + Not connected yet
   'p3feed_today': (l) => WorldTodayScreen(api: FakeWorldApi(lang: l)),
   'p3feed_today_no_bb_rate': (l) =>
       WorldTodayScreen(api: FakeWorldApi(lang: l, officialFx: false)),
