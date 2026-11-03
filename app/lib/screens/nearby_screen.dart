@@ -200,9 +200,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     });
     EmergencyArea? saved;
     try {
-      saved = await _cache
-          .lookup(pos.lat, pos.lon)
-          .timeout(const Duration(seconds: 3));
+      saved = await _cache.lookup(pos.lat, pos.lon);
     } catch (_) { // best-effort: no offline copy -> the server answer below
       saved = null;
     }
@@ -228,7 +226,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
             _offline = false;
           });
           try {
-            await _cache.put(a).timeout(const Duration(seconds: 5));
+            await _cache.put(a);
           } catch (_) { // best-effort: no offline copy this time
             // no offline copy this time; the list still shows
           }
