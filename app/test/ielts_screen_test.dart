@@ -115,7 +115,9 @@ void main() {
     await t.tap(find.text('Check my answer (free)'));
     await t.pumpAndSettle();
     expect(find.text('4 of 7 checks passed'), findsOneWidget);
-    await t.scrollUntilVisible(find.text('3 AI credits used'), 200);
+    // the multi-line TextField is a Scrollable too: scroll the page itself
+    await t.scrollUntilVisible(find.text('3 AI credits used'), 200,
+        scrollable: find.byType(Scrollable).first);
     expect(find.textContaining('about band 6'), findsWidgets);
     expect(find.text('Practice estimate — not an official IELTS band.'), findsOneWidget);
   });
@@ -138,8 +140,10 @@ void main() {
     await t.scrollUntilVisible(find.text('Check answers'), 200);
     await t.tap(find.text('Check answers'));
     await t.pumpAndSettle();
-    expect(find.text('1 of 2 correct'), findsOneWidget);
+    await t.scrollUntilVisible(find.textContaining('Answer: False'), 200);
     expect(find.textContaining('Answer: False'), findsOneWidget);
+    await t.scrollUntilVisible(find.text('1 of 2 correct'), 200);
+    expect(find.text('1 of 2 correct'), findsOneWidget);
   });
 
   for (final lang in ['bn', 'en']) {
