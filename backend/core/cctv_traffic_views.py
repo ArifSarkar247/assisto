@@ -27,7 +27,43 @@ log = logging.getLogger("assisto.cctvguard")
 
 class CctvUsageView(_OwnerBase):
     def get(self, request):
-        return Response(CT.usage_for(request.user, lang=req_lang(request)))
+        lang = req_lang(request)
+        out = CT.usage_for(request.user, lang=lang)
+        try:
+            from . import cctv_cap as CC
+            out["cap"] = CC.status(request.user, lang=lang)    # cctvcap
+        except Exception:
+            log.exception("cap status failed")
+        return Response(out)
+
+
+class CctvExtraPackView(_OwnerBase):
+    """POST cctv/extra-pack {kind: relay|ai} — cctvcap: one-tap extra pack for
+    THIS month (relay +1 GB / AI +100 checks by default), paid with credits.
+    A Play one-time product per pack is the later seam (owner_actions/
+    CCTV_PRICING_BN.md)."""
+
+    def post(self, request):
+        from . import cctv_cap as CC
+        lang = req_lang(request)
+        kind = str((request.data or {}).get("kind") or "")
+        ok, info = CC.buy_pack(request.user, kind)
+        if not ok:
+            code = info.get("code")
+            if code == "bad_kind":
+                return _err(lang, "প্যাক ঠিক নেই।", "Unknown pack.", status=422, code=code)
+            if code == "no_credits":
+                return _err(lang, "যথেষ্ট ক্রেডিট নেই — আগে ক্রেডিট নিন।",
+                            "Not enough credits — add credits first.", status=402,
+                            code=code, credits_needed=info.get("credits_needed"))
+            return _err(lang, "প্যাক যোগ করা যায়নি — ক্রেডিট ফেরত দেওয়া হয়েছে।",
+                        "The pack could not be added — your credits were returned.",
+                        status=503, code="failed")
+        request.user.refresh_from_db()
+        out = CT.usage_for(request.user, lang=lang)
+        out["cap"] = CC.status(request.user, lang=lang)
+        out["bought"] = info
+        return Response(out, status=201)
 
 
 class ShopLiveUsageView(_LiveBase):
@@ -48,6 +84,11 @@ class ShopLiveUsageView(_LiveBase):
             s.relayed = True
         st = CT.record_live(s, d.get("bytes"), secs, path, now)
         emergency = bool(CT.cache.get(CT._ekey(s.pk)))
+        if (not emergency and s.relayed and st["level"] == "paused"
+                and CT.emergency_active(s.owner_id, s.site.owner_id, now, site=s.site)):
+            # cctvcap: an SOS / fall that began during this live view
+            CT.mark_emergency(s.pk)
+            emergency = True
         stop = (s.relayed and st["level"] == "paused" and not emergency
                 and s.status in ("pending", "active"))
         if stop:

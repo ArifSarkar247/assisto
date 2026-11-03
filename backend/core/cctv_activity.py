@@ -391,37 +391,25 @@ def snapshot_bytes(ev):
 
 
 def ai_per_camera():
-    """Monthly AI snapshot checks per camera: agent/cctvprice's cctv_plan
-    config when merged (Owner Admin -> Pricing), else the same default 50."""
+    """Monthly AI snapshot checks per camera (Owner Admin -> Pricing ->
+    cctv_plan). cctvcap: one shared source — core/cctv_cap.py."""
     try:
-        from . import billing
-        raw = billing.cfg().get("cctv_plan")
+        from . import cctv_cap as CC
+        return CC.ai_per_camera()
     except Exception:
-        raw = None
-    try:
-        from .logic import cctv_plan as CP
-        return int(CP.normalize_cfg(raw).get("ai_checks_per_camera", CB.AI_CHECKS_PER_CAMERA))
-    except Exception:
-        try:
-            return int((raw or {}).get("ai_checks_per_camera", CB.AI_CHECKS_PER_CAMERA))
-        except Exception:
-            return CB.AI_CHECKS_PER_CAMERA
+        return CB.AI_CHECKS_PER_CAMERA
 
 
 def owner_cap(owner):
-    from .models import ShopCamera
-    n = ShopCamera.objects.filter(site__owner=owner, enabled=True).count()
-    return CB.ai_cap(ai_per_camera(), n)
+    """cctvcap: the account's AI checks this month (cameras x per camera +
+    the extra packs) — the ONE shared counter in core/cctv_cap.py."""
+    from . import cctv_cap as CC
+    return CC.ai_cap(owner)
 
 
-def _owner_ai_used(owner, month):
-    from .models import ShopSite
-    used = 0
-    for s in ShopSite.objects.filter(owner=owner).only("id", "guard"):
-        a = act_of(s).get("ai") or {}
-        if a.get("month") == month:
-            used += int(a.get("used", 0) or 0)
-    return used
+def _owner_ai_used(owner, month=None):
+    from . import cctv_cap as CC
+    return CC.ai_used(owner)
 
 
 def vision_ready():
@@ -448,12 +436,9 @@ def describe_one(ev, slug, conf, now):
     from .models import ShopEvent
     from . import vision_providers as VP
     site = ev.site
-    month = _local(now).strftime("%Y-%m")
     sig = dict(ev.signals or {})
     stop = None
-    if _owner_ai_used(site.owner, month) >= owner_cap(site.owner):
-        stop = "cap"
-    elif not CB.normalize_cfg(act_of(site).get("cfg")).get("ai_desc"):
+    if not CB.normalize_cfg(act_of(site).get("cfg")).get("ai_desc"):
         stop = "off"
     if stop:
         # keeps its labelled template text; never retried (no queue starvation)
@@ -465,8 +450,14 @@ def describe_one(ev, slug, conf, now):
         sig["desc_try"] = int(sig.get("desc_try", 0)) + 3
         ShopEvent.objects.filter(pk=ev.pk).update(signals=sig)
         return "no_photo"
-    # the cap is taken BEFORE the call: a paid call is never free
-    act_update(site, lambda a: CB.ai_take(a, month))
+    # cctvcap: the ONE shared AI counter (cameras x 50 + packs / month),
+    # taken BEFORE the call: a paid call is never free; at the cap the photo
+    # keeps its labelled template text (alerts were never waiting on this)
+    from . import cctv_cap as CC
+    if not CC.ai_try_take(site.owner, now):
+        sig["desc_try"] = 3
+        ShopEvent.objects.filter(pk=ev.pk).update(signals=sig)
+        return "cap"
     try:
         reply = VP.ask(slug, conf, image_bytes=raw,
                        mime="image/png" if raw[:4] == b"\x89PNG" else "image/jpeg",

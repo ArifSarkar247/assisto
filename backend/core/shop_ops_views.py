@@ -735,7 +735,8 @@ class ShopLiveStartView(APIView):
         # cctvguard: monthly relay cap (P2P / LAN never capped, SOS never cut)
         from . import cctv_traffic as CT
         try:
-            cap = CT.relay_decision(request.user, cam.site.owner_id, now, lang)
+            cap = CT.relay_decision(request.user, cam.site.owner_id, now, lang,
+                                   site=cam.site)
         except Exception:
             cap = {"allow": True, "level": "off", "pct": 0, "message": "",
                    "emergency": False}
