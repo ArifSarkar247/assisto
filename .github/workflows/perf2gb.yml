@@ -169,6 +169,8 @@ jobs:
       - name: Build the two x86_64 PROFILE APKs (perf test + real app)
         working-directory: app
         run: |
+          # plugins pinned below SDK 36 (in_app_review, geocoding_android)
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
           D="--dart-define=REALITY_API_BASE=http://10.0.2.2:8700 --dart-define=ASSISTO_PERF=true"
           timeout 2400 flutter build apk --profile --target-platform=android-x64 \
             --target=integration_test/perf_all_test.dart $D --dart-define=PERF_ONLY="$PERF_ONLY"

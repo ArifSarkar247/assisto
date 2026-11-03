@@ -51,6 +51,7 @@ app/lib/l10n/app_localizations*.dart
 # local Flutter SDK + render outputs (not committed)
 tools/*
 !tools/route_check.py
+!tools/ci/
 !tools/reality/
 !tools/wakeword/
 !tools/callproof/

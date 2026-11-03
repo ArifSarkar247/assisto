@@ -33,7 +33,10 @@ jobs:
 
       - name: Pub get
         working-directory: app
-        run: flutter pub get
+        run: |
+          flutter pub get
+          # plugins pinned below SDK 36 (in_app_review, geocoding_android)
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
 
       - name: Generate launcher icons (adaptive)
         working-directory: app

@@ -210,10 +210,8 @@ jobs:
         run: |
           # same patch as android.yml (build 281): in_app_review pins
           # compileSdk 33 but its androidx deps need >= 34
-          for f in "$HOME"/.pub-cache/hosted/pub.dev/in_app_review-*/android/build.gradle; do
-            [ -f "$f" ] || continue
-            sed -i -E 's/compileSdk(Version)?[ =]+[0-9]+/compileSdkVersion 36/' "$f"
-          done
+          # every plugin pinned below SDK 36 (in_app_review, geocoding_android, ...)
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
           # rt2: REALITY_ONLY is a compile-time define, so this job's groups
           # are baked in; run_flows.sh then uses --use-application-binary and
           # no Gradle runs while the emulator is up.

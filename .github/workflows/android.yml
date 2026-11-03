@@ -128,11 +128,8 @@ jobs:
         # behaviour are unchanged.
         run: |
           set -e
-          for f in "$HOME"/.pub-cache/hosted/pub.dev/in_app_review-*/android/build.gradle; do
-            [ -f "$f" ] || continue
-            sed -i -E 's/compileSdk(Version)?[ =]+[0-9]+/compileSdkVersion 36/' "$f"
-            grep -n "compileSdk" "$f"
-          done
+          # every plugin pinned below SDK 36 (in_app_review, geocoding_android, ...)
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
 
       - name: Analyze (fail only on errors)
         working-directory: app
