@@ -157,7 +157,8 @@ def check_one(ev, slug, conf, prov_cost, now=None):
     if not img:
         return _save(ev, {"state": "no_photo"})
     # the allowance is taken BEFORE the call: a paid call is never free
-    BUD.ai_check_used(cam, now)
+    if not BUD.ai_check_used(cam, now):
+        return _save(ev, {"state": "cap"})
     _save(ev, {"state": "pending", "at": now.isoformat()})
     usage = {}
     t0 = time.monotonic()

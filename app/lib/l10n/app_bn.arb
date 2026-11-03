@@ -21913,5 +21913,20 @@
   "astdAppealAnswer": "আমাদের উত্তর: {note}",
   "astdLoadFailed": "অ্যাকাউন্টের অবস্থা আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "astdRetry": "আবার চেষ্টা করুন",
-  "examWatchSummaryD": "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।"
+  "examWatchSummaryD": "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।",
+  "capAiLine": "AI ছবি-যাচাই: এই মাসে {cap}টির মধ্যে {used}টি",
+  "capAiNoticeShort": "AI যাচাইয়ের {pct}% ব্যবহার হয়েছে",
+  "capAiFullShort": "এই মাসের AI যাচাই শেষ",
+  "capSafety": "SOS, সতর্কতা, ছবি ও প্রমাণ কখনো থামে না।",
+  "capPackButton": "বাড়তি প্যাক",
+  "capPackTitle": "এই মাসের জন্য বাড়তি প্যাক",
+  "capPackIntro": "শুধু এই মাসে যোগ হবে। আপনার ক্রেডিট থেকে কাটা হবে।",
+  "capPackBalance": "আপনার ক্রেডিট: {n}",
+  "capPackRelay": "রিলে-লাইভ +{gb} GB",
+  "capPackAi": "AI ছবি-যাচাই +{n}টি",
+  "capPackPrice": "{tk} টাকা · {credits} ক্রেডিট",
+  "capPackBuy": "যোগ করুন",
+  "capPackDone": "এই মাসের জন্য প্যাক যোগ হয়েছে।",
+  "capPackGetCredits": "ক্রেডিট নিন",
+  "capPackFailed": "প্যাক যোগ করা যায়নি। আবার চেষ্টা করুন।"
 }

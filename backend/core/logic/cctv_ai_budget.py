@@ -28,13 +28,16 @@ def _month(now=None):
     return CACT._local(now or timezone.now()).strftime("%Y-%m")
 
 
+# Integrator (b294): ONE account counter — these delegate to agent/cctvcap's
+# core/cctv_cap.py (monthly cctv_traffic doc: ai_used + bought AI packs), the
+# same counter the visitor descriptions use. Names kept for cctv_ai_check.
+
 def ai_check_status(camera, now=None):
-    from .. import cctv_activity as CACT
+    from .. import cctv_cap as CAP
     owner = camera.site.owner
-    month = _month(now)
-    cap = CACT.owner_cap(owner)
-    used = CACT._owner_ai_used(owner, month)
-    return {"used": used, "cap": cap, "left": max(0, cap - used), "month": month}
+    st = CAP.ai_state(owner.pk if hasattr(owner, "pk") else owner, now)
+    used, cap = int(st.get("used", 0)), int(st.get("cap", 0))
+    return {"used": used, "cap": cap, "left": max(0, cap - used), "month": _month(now)}
 
 
 def ai_check_allowed(camera, now=None):
@@ -46,7 +49,7 @@ def ai_check_allowed(camera, now=None):
 
 
 def ai_check_used(camera, now=None):
-    from .. import cctv_activity as CACT
-    from . import cctv_brief as CB
-    month = _month(now)
-    return CACT.act_update(camera.site, lambda act: CB.ai_take(act, month)) or 0
+    """Take ONE unit before the paid call. True = taken; False = no room (or
+    any failure) -> the caller must NOT make the paid call."""
+    from .. import cctv_cap as CAP
+    return bool(CAP.ai_try_take(camera.site.owner, now))

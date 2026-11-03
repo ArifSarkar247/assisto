@@ -37806,5 +37806,68 @@
         "type": "String"
       }
     }
-  }
+  },
+  "capAiLine": "AI photo checks: {used} of {cap} this month",
+  "@capAiLine": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "capAiNoticeShort": "{pct}% of AI checks used",
+  "@capAiNoticeShort": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "capAiFullShort": "AI checks used up this month",
+  "capSafety": "SOS, alerts, photos and evidence never stop.",
+  "capPackButton": "Extra pack",
+  "capPackTitle": "Extra pack for this month",
+  "capPackIntro": "Adds to this month only. Paid from your credits.",
+  "capPackBalance": "Your credits: {n}",
+  "@capPackBalance": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "capPackRelay": "Relay live +{gb} GB",
+  "@capPackRelay": {
+    "placeholders": {
+      "gb": {
+        "type": "String"
+      }
+    }
+  },
+  "capPackAi": "AI photo checks +{n}",
+  "@capPackAi": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "capPackPrice": "{tk} tk · {credits} credits",
+  "@capPackPrice": {
+    "placeholders": {
+      "tk": {
+        "type": "String"
+      },
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "capPackBuy": "Add",
+  "capPackDone": "Pack added for this month.",
+  "capPackGetCredits": "Get credits",
+  "capPackFailed": "The pack could not be added. Please try again."
 }
