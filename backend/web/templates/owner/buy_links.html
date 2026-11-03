@@ -1,0 +1,18 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_buy_links }}{% endblock %}
+{% block content %}
+<div class="card"><p>{{ T.bl_intro }}</p><p class="mut small">{{ T.bl_rules }}</p></div>
+{% if problems %}<p class="err">{{ problems|join:", " }}</p>{% endif %}
+<form method="post" action="/owner/buy-links">{% include "owner/_csrf.html" %}
+<div class="card tbl"><table><thead><tr><th>{{ T.bl_on }}</th><th>{{ T.bl_category }}</th><th>{{ T.bl_title_bn }}</th><th>{{ T.bl_title_en }}</th><th>{{ T.bl_url }}</th></tr></thead><tbody>
+{% for r in rows %}<tr>
+<td><input type="checkbox" name="on" value="{{ forloop.counter0 }}" {% if r.on %}checked{% endif %} aria-label="{{ T.bl_on }}"></td>
+<td><select name="category" aria-label="{{ T.bl_category }}">{% for c, label in cats %}<option value="{{ c }}" {% if c == r.category %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></td>
+<td><input name="title_bn" value="{{ r.title_bn }}" maxlength="80" aria-label="{{ T.bl_title_bn }}"></td>
+<td><input name="title_en" value="{{ r.title_en }}" maxlength="80" aria-label="{{ T.bl_title_en }}"></td>
+<td><input name="url" value="{{ r.url }}" maxlength="400" placeholder="https://asalifymart.com/..." aria-label="{{ T.bl_url }}"></td>
+</tr>{% endfor %}
+</tbody></table></div>
+<p class="mut small">{{ T.bl_add_hint }}</p>
+<p><button class="btn">{{ T.save }}</button></p></form>
+{% endblock %}

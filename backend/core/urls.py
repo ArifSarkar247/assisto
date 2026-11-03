@@ -1492,6 +1492,8 @@ urlpatterns += [
     path("kids-watch/chips/<int:pk>", chipv.ChipDetailView.as_view()),
     path("kids-watch/chips/<int:pk>/repair", chipv.ChipRepairView.as_view()),
     path("kids-watch/chips/<int:pk>/history", chipv.ChipHistoryView.as_view()),
+    path("kids-watch/chips/<int:pk>/find", chipv.ChipFindView.as_view()),   # chipbuy2
+    path("app/buy-links", chipv.BuyLinksView.as_view()),                    # chipbuy2
     path("kids-watch/watches/<int:pk>", kwv.WatchDetailView.as_view()),
     path("kids-watch/watches/<int:pk>/repair", kwv.WatchRepairView.as_view()),
     path("kids-watch/watches/<int:pk>/command", kwv.WatchCommandView.as_view()),

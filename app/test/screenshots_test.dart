@@ -358,6 +358,7 @@ import 'package:assisto/push/push_settings_screen.dart';
 import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'bizops_shots.dart'; // bizops
 import 'fake_api.dart';
+import 'fake_kidswatch.dart'; // chipbuy2
 import 'fake_psec.dart' show kPsecShotMessage; // pssec
 import 'package:assisto/screens/pa/ps_today_screen.dart'; // pssec
 import 'package:assisto/screens/pa/ps_pickup_sheet.dart'; // pssec
@@ -759,6 +760,23 @@ Map<String, GallerySpec> gallerySpecs() {
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
     // chipbuy: add a tracker chip (bag / shoe) + "where to buy" link
     'chip_pair': (build: (_) => const Scaffold(body: ChipPairSheet()), mode: FakeMode.data, full: true),
+    // chipbuy2: chip card — find now (acked), left-behind spot + safe place,
+    // minutes choice, own-shop buy link on the pair sheet (chip_pair)
+    'chip_card': (
+      build: (_) => Builder(builder: (c) {
+            final bn = Localizations.localeOf(c).languageCode == 'bn';
+            final chip = ((fakeKidsWatchGet('/kids-watch/chips', bn: bn, empty: false)!['chips']
+                    as List)
+                .first as Map)
+                .cast<String, dynamic>();
+            return Scaffold(
+                body: ListView(padding: const EdgeInsets.all(16), children: [
+              ChipCard(chip: chip, onChanged: () async {}),
+            ]));
+          }),
+      mode: FakeMode.data,
+      full: true
+    ),
     // missing (owner 2 Nov): Missing person alert — hub, empty, error, a nearby
     // alert (recipient), my alert (family), post form, opt-in, tip thread,
     // the reusable success-share screen

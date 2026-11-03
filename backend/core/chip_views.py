@@ -67,6 +67,11 @@ class ChipListView(APIView):
         now = timezone.now()
         own = list(VehicleTracker.objects.filter(owner=request.user, kind="chip")
                    .select_related("owner", "child_user"))
+        for t in own:                       # chipbuy2: find mode ends on time
+            try:
+                CS.end_find_if_due(t, now)
+            except Exception:  # noqa: BLE001 — the list must still load
+                pass
         shared = [t for t in VehicleTracker.objects.filter(
             kind="chip", grants__grantee=request.user, grants__kind="family")
             .exclude(owner=request.user).select_related("owner").distinct()[:50]
@@ -160,6 +165,11 @@ class ChipDetailView(APIView):
                 return R({"ok": False, "reason": "name_required"}, status=400)
             t.child_name, t.name = name, name[:80]
         told = False
+        if isinstance(d.get("left_behind"), dict):          # chipbuy2
+            try:
+                CS.set_left_cfg(t, d["left_behind"])
+            except ValueError as e:
+                return R({"ok": False, "reason": str(e)}, status=400)
         if "child_user_id" in d:
             cid = d.get("child_user_id")
             if cid in (None, "", 0):
@@ -230,3 +240,35 @@ class ChipHistoryView(APIView):
         except ValueError:
             hours = 24
         return R({"points": CS.history(t, hours), "history_hours": CS.HISTORY_HOURS})
+
+
+class ChipFindView(APIView):
+    """chipbuy2: FIND NOW — the chip sends a fix every 10 s for 10 minutes
+    (owner or a guardian; once per 10 minutes). Honest: 'acked' only when the
+    chip itself replied OK; many cheap models ignore interval commands."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if not flag_on(request.user):
+            return _off()
+        t, err = _load(request, pk)
+        if err:
+            return err
+        ok, reason = CS.start_find(t, request.user)
+        if not ok:
+            return R({"ok": False, "reason": reason,
+                      "chip": CS.chip_json(t, request.user)}, status=409)
+        return R({"ok": True, "chip": CS.chip_json(t, request.user)})
+
+
+class BuyLinksView(APIView):
+    """chipbuy2: GET /app/buy-links[?category=chip] — the owner's own shop
+    links (Owner Admin -> Buy links). No prices, links only."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from . import buy_links as BL
+        cat = request.GET.get("category") or None
+        if cat is not None and cat not in BL.CATEGORIES:
+            return R({"ok": False, "reason": "bad_category"}, status=400)
+        return R(BL.public(cat))

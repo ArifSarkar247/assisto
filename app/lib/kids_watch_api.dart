@@ -100,6 +100,10 @@ extension KidsWatchApi on ApiClient {
       patchJson('/kids-watch/chips/$id', body);
   Future<Map<String, dynamic>> chipRemove(int id) => deleteJson('/kids-watch/chips/$id');
   Future<Map<String, dynamic>> chipRepair(int id) => postJson('/kids-watch/chips/$id/repair');
+  // chipbuy2: find now (10 s fixes for 10 min) + left-behind settings
+  Future<Map<String, dynamic>> chipFind(int id) => postJson('/kids-watch/chips/$id/find');
+  Future<Map<String, dynamic>> chipLeftBehind(int id, Map<String, dynamic> body) =>
+      patchJson('/kids-watch/chips/$id', {'left_behind': body});
   Future<Map<String, dynamic>> chipHistory(int id, {int hours = 24}) =>
       getJson('/kids-watch/chips/$id/history?hours=$hours');
 

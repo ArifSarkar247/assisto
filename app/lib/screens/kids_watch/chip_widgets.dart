@@ -133,6 +133,134 @@ class ChipCard extends StatelessWidget {
     await onChanged();
   }
 
+  // chipbuy2 ---------------------------------------------------- find now
+  Future<void> _find(BuildContext context) async {
+    final api = context.read<AppState>().api;
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    String msg;
+    try {
+      await api.chipFind(chip['id'] as int);
+      msg = t.chipFindAsked;
+    } catch (e) {
+      final tooSoon = e is ApiException && (e.message == 'too_soon' || e.reason == 'too_soon');
+      msg = tooSoon ? t.chipFindTooSoon : chipReasonText(t, e);
+    }
+    messenger
+      ?..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(msg)));
+    await onChanged();
+  }
+
+  // chipbuy2 ------------------------------------------------- left behind
+  Future<void> _left(BuildContext context, Map<String, dynamic> body, {String? done}) async {
+    final api = context.read<AppState>().api;
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    try {
+      await api.chipLeftBehind(chip['id'] as int, body);
+      if (done != null) {
+        messenger
+          ?..clearSnackBars()
+          ..showSnackBar(SnackBar(content: Text(done)));
+      }
+    } catch (e) {
+      messenger
+        ?..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(chipReasonText(t, e))));
+    }
+    await onChanged();
+  }
+
+  Widget? _findLine(AppLocalizations t, ColorScheme scheme) {
+    final f = chip['find'] is Map ? (chip['find'] as Map).cast<String, dynamic>() : null;
+    if (f == null || f['active'] != true) return null;
+    final cmd = '${f['command'] ?? ''}';
+    final text = switch (cmd) {
+      'acked' => t.chipFindAcked,
+      'failed' || 'expired' || 'cancelled' => t.chipFindFailed,
+      _ => t.chipFindAsked,
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Text(text,
+          key: const ValueKey('chip-find-state'),
+          style: AType.bodySmall.copyWith(
+              color: cmd == 'failed' ? scheme.error : scheme.onSurfaceVariant)),
+    );
+  }
+
+  Widget _leftSection(BuildContext context, AppLocalizations t, ColorScheme scheme,
+      String Function(String) d, bool mine) {
+    final lb = chip['left_behind'] is Map
+        ? (chip['left_behind'] as Map).cast<String, dynamic>()
+        : const <String, dynamic>{};
+    final on = lb['on'] == true;
+    final min = (lb['min'] as num?)?.toInt() ?? 60;
+    final choices = (lb['choices'] is List ? lb['choices'] as List : const [30, 60, 120])
+        .whereType<num>()
+        .map((n) => n.toInt())
+        .toList();
+    final safe = lb['safe'] is List ? (lb['safe'] as List).length : 0;
+    final spot = lb['alerted_spot'] is Map ? (lb['alerted_spot'] as Map).cast<String, dynamic>() : null;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const SizedBox(height: Gap.sm),
+      if (spot != null)
+        Container(
+          key: const ValueKey('chip-left-spot'),
+          margin: const EdgeInsets.only(bottom: Gap.sm),
+          padding: const EdgeInsets.all(Gap.sm),
+          decoration: BoxDecoration(
+              color: scheme.errorContainer, borderRadius: BorderRadius.circular(12)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(t.chipLeftSpot,
+                style: AType.bodyMedium.copyWith(
+                    color: scheme.onErrorContainer, fontWeight: FontWeight.w700)),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              TextButton.icon(
+                  onPressed: () => _openMap(context, spot['lat'], spot['lng']),
+                  icon: const Icon(Icons.map_rounded),
+                  label: Text(t.vehOpenMaps)),
+              if (mine)
+                FilledButton.tonalIcon(
+                    key: const ValueKey('chip-safe-place'),
+                    onPressed: () => _left(context, {
+                          'safe_add': {'lat': spot['lat'], 'lng': spot['lng'], 'name': ''}
+                        }, done: t.chipSafeSaved),
+                    icon: const Icon(Icons.verified_user_rounded),
+                    label: Text(t.chipSafePlace)),
+            ]),
+          ]),
+        ),
+      Text(t.chipLeftTitle, style: AType.titleSmall),
+      if (mine) ...[
+        Text(t.chipLeftSub, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        const SizedBox(height: Gap.xs),
+        Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
+          ChoiceChip(
+              key: const ValueKey('chip-left-0'),
+              label: Text(t.chipLeftOff),
+              selected: !on,
+              onSelected: (_) => _left(context, {'on': false})),
+          for (final m in choices)
+            ChoiceChip(
+                key: ValueKey('chip-left-$m'),
+                label: Text(t.chipLeftMin(d('$m'))),
+                selected: on && m == min,
+                onSelected: (_) => _left(context, {'on': true, 'min': m})),
+        ]),
+      ] else
+        Text(on ? t.chipLeftMin(d('$min')) : t.chipLeftOff,
+            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+      if (safe > 0)
+        Padding(
+          padding: const EdgeInsets.only(top: Gap.xxs),
+          child: Text(t.chipSafeCount(d('$safe')),
+              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        ),
+    ]);
+  }
+
   Future<void> _plan(BuildContext context) async {
     final has = plan != null && plan!.isNotEmpty;
     final ok = await showSchoolPlanForm(context,
@@ -205,6 +333,7 @@ class ChipCard extends StatelessWidget {
             Text(paired ? t.chipNoLocationYet : t.chipPairHint,
                 style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           if (hasPlan) _todayLine(t, plan!),
+          if (_findLine(t, scheme) case final w?) w,
           if (guardians.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.chipWhoSees(guardians.join(', ')),
@@ -215,8 +344,15 @@ class ChipCard extends StatelessWidget {
             Text(t.chipChildSeesNote,
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ],
+          _leftSection(context, t, scheme, d, mine),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            if (paired)
+              FilledButton.icon(
+                  key: const ValueKey('chip-find'),
+                  onPressed: () => _find(context),
+                  icon: const Icon(Icons.my_location_rounded),
+                  label: Text(t.chipFindNow)),
             if (paired)
               FilledButton.tonalIcon(
                   key: const ValueKey('chip-history'),
@@ -480,6 +616,15 @@ class _ChipPairSheetState extends State<ChipPairSheet> {
         Text(t.chipAddTitle, style: AType.titleLarge),
         const SizedBox(height: Gap.xs),
         Text(t.chipPairIntro, style: AType.bodyMedium),
+        const SizedBox(height: Gap.xs),
+        // chipbuy2: honest range — GPS chip vs Bluetooth tag
+        Row(key: const ValueKey('chip-range-note'), crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.info_outline_rounded, size: 20, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.xs),
+          Expanded(
+              child: Text(t.chipRangeNote,
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+        ]),
         const WhereToBuyLink(product: BuyProduct.chip, dense: true),
         const SizedBox(height: Gap.sm),
         TextField(

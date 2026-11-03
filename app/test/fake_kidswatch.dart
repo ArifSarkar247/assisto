@@ -115,6 +115,16 @@ Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required 
                 'school_plan_id': null, 'child_has_app': true,
                 'guardians': [{'id': 2, 'name': ammu}],
                 'imei': '865920051234563', 'child_user_id': 3,
+                // chipbuy2: left-behind on (60 min) with one alerted spot,
+                // find now acked by the chip
+                'range': 'gps_network',
+                'left_behind': {
+                  'on': true, 'min': 60, 'choices': const [30, 60, 120],
+                  'safe': const [{'lat': 23.78, 'lng': 90.41, 'radius_m': 150, 'name': ''}],
+                  'safe_max': 8,
+                  'alerted_spot': {'lat': 23.7911, 'lng': 90.4242, 'since': _ago(70)},
+                },
+                'find': {'active': true, 'command': 'acked', 'until': null, 'can_find': false},
               },
               {
                 'id': 8, 'kind': 'chip', 'child_name': rina, 'imei_tail': '0007',
@@ -126,6 +136,22 @@ Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required 
                 'imei': '865920060000007', 'child_user_id': null,
               },
             ],
+    };
+  }
+  // chipbuy2: the owner's buy-link list (Owner Admin -> Buy links)
+  if (path == '/app/buy-links') {
+    return {
+      'shop': 'asalifymart', 'own_shop': true,
+      'items': const [
+        {'category': 'chip', 'title_bn': '', 'title_en': '',
+         'url': 'https://asalifymart.com/?utm_source=assisto'},
+        {'category': 'kids_watch', 'title_bn': '', 'title_en': '',
+         'url': 'https://asalifymart.com/?utm_source=assisto'},
+        {'category': 'cctv', 'title_bn': '', 'title_en': '',
+         'url': 'https://asalifymart.com/?utm_source=assisto'},
+        {'category': 'vehicle', 'title_bn': '', 'title_en': '',
+         'url': 'https://asalifymart.com/?utm_source=assisto'},
+      ],
     };
   }
   if (path.startsWith('/kids-watch/chips/') && path.contains('/history')) {
