@@ -54,7 +54,7 @@ def _worst_out(model, effort):
     """max output tokens the call can bill (thinking headroom included)."""
     if model in C.EFFORT_MODELS:
         return min(ai._MAX_TOKENS_CAP, MAX_OUT + ai._THINK_HEADROOM.get(effort, 1024))
-    if model.startswith("gemini-2.5"):
+    if model.startswith("gemini-"):
         return MAX_OUT + 1024        # thinking tokens bill as output on main class
     return MAX_OUT
 

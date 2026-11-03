@@ -9,7 +9,7 @@ class AiLevelsPageTests(OwnerBase):
         r = self.c.get("/owner/ai-levels?lang=en")
         self.assertEqual(r.status_code, 200)
         html = r.content.decode()
-        for s in ('id="ail-table"', "gemini-2.5-flash", "claude-haiku-5-5",
+        for s in ('id="ail-table"', "gemini-3.5-flash-lite", "claude-haiku-5-5",
                   "claude-sonnet-5-5", "/owner/ai"):
             self.assertIn(s, html)
 

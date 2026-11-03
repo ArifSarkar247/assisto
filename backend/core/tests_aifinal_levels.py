@@ -44,7 +44,7 @@ class LevelMathTests(TestCase):
     def test_fallback_only_same_or_cheaper(self):
         # worst case: Best (Sonnet) > Normal (Gemini Flash) > Better (Haiku 5.5)
         self.assertEqual(AL.fallbacks(LV, "best", PRICES),
-                         [("gemini", "gemini-2.5-flash"), ("anthropic", "claude-haiku-5-5")])
+                         [("gemini", "gemini-3.5-flash-lite"), ("anthropic", "claude-haiku-5-5")])
         self.assertEqual(AL.fallbacks(LV, "normal", PRICES), [("anthropic", "claude-haiku-5-5")])
         self.assertEqual(AL.fallbacks(LV, "better", PRICES), [])
 

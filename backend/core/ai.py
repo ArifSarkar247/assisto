@@ -407,6 +407,23 @@ def _status_error(code):
     return ProviderError("error", "http_%d" % code)
 
 
+def _error_message(r):
+    """The provider's error text from a non-200 JSON body, made safe."""
+    try:
+        j = r.json()
+    except Exception:  # noqa: BLE001
+        return ""
+    e = j.get("error") if isinstance(j, dict) else None
+    if isinstance(e, dict):
+        txt = e.get("message") or e.get("status") or ""
+    elif isinstance(e, str):
+        txt = e
+    else:
+        txt = ""
+    from .ai_health import clean_reason
+    return clean_reason(txt) if isinstance(txt, str) else ""
+
+
 def _post(url, body, headers):
     rq = _http()
     o = _opts()
@@ -417,7 +434,13 @@ def _post(url, body, headers):
         name = type(e).__name__.lower()
         raise ProviderError("timeout" if "timeout" in name else "connection", type(e).__name__)
     if r.status_code != 200:
-        raise _status_error(r.status_code)
+        err = _status_error(r.status_code)
+        msg = _error_message(r)
+        if msg:
+            # geminifix: keep the provider's own reason ("model ... no longer
+            # available to new users", billing) — masked, never the key
+            err.detail = ("%s: %s" % (err.detail, msg))[:200]
+        raise err
     try:
         return r.json()
     except Exception:
@@ -430,9 +453,10 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
         contents.append({"role": "model" if m["role"] == "assistant" else "user",
                          "parts": [{"text": m["content"]}]})
     gen = {"maxOutputTokens": int(max_tokens)}
-    if model.startswith("gemini-2.5") and (_opts().get("klass") == "cheap"
-                                          or _opts().get("no_thinking")):
-        gen["thinkingConfig"] = {"thinkingBudget": 0}     # cheap tasks: no thinking
+    from .gemini_models import thinking_off_config
+    off = thinking_off_config(model)
+    if off and (_opts().get("klass") == "cheap" or _opts().get("no_thinking")):
+        gen["thinkingConfig"] = off     # cheap tasks: no thinking (3.x: minimal by default)
     body = {"systemInstruction": {"parts": [{"text": system}]},
             "contents": contents, "generationConfig": gen}
     if _opts().get("web"):
@@ -753,17 +777,27 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     skipped_cap = 0
     stop_kind = ""
     t_all = _time.monotonic()
+    from . import ai_health as AH
+    from .gemini_models import resolve as _gemini_resolve
     for name, fixed_model in pairs:
         if R.provider_capped(name, conf):
             attempts.append(name + ":cap")
             skipped_cap += 1
             continue
+        model = fixed_model or C.model_for(conf, name, tier, klass)
+        if name == "gemini" and fixed_model:
+            model = _gemini_resolve(model, "text", conf["prices"])
+        if spec is not None and name == "anthropic":
+            model = spec["model"]
+        # geminifix: a 404 (model retired) / 402 (billing) / 401-403 key is
+        # skipped for down_min minutes — straight to the next same-or-cheaper
+        # provider, no doomed call, nothing charged for it
+        if AH.is_down(name, model):
+            attempts.append(name + ":down")
+            continue
         if not R.allow(name, conf):
             attempts.append(name + ":circuit")
             continue
-        model = fixed_model or C.model_for(conf, name, tier, klass)
-        if spec is not None and name == "anthropic":
-            model = spec["model"]
         fn = globals()["_call_" + name]
         token = _CALL_OPTS.set(opts)
         t0 = _time.monotonic()
@@ -779,6 +813,9 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             attempts.append("%s:%s" % (name, err.kind))
             if err.circuit:
                 R.record(name, False, conf, error=err.kind)
+            if err.kind in AH.HARD_KINDS:
+                code, _, why = (err.detail or "").partition(": ")
+                AH.mark_down(name, model, err.kind, code, why, conf)
             if not err.failover:
                 log.error("ai: %s %s bad request (no failover): %s", name, model,
                           _safe_detail(err.detail))

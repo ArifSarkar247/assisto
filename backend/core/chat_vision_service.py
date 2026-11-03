@@ -113,6 +113,38 @@ def _fallbacks(active, c=None):
     return [s for s in cost if s != active and cost[s] <= top]
 
 
+HAIKU_VISION = "claude-haiku-5-5"
+_VISION_IN_TOKENS = 2500        # one image (<=1600 tokens on Claude) + question + OCR text
+
+
+def _haiku_cost_usd():
+    """Worst-case USD of one photo answer on Claude Haiku (price table)."""
+    from . import ai_router as R
+    from . import vision_providers as VP
+    from .logic.ai_levels import price_of
+    p = price_of(HAIKU_VISION, R.cfg()["prices"])
+    inp = max(float(p.get("in", 0)), float(p.get("cache_write", 0)))
+    return round((_VISION_IN_TOKENS * inp + VP.MAX_TOKENS * float(p.get("out", 0))) / 1e6, 6)
+
+
+def _candidates(slug, conf, c=None):
+    """[(provider, conf)] to try for one photo: the active provider, then the
+    ready same-or-cheaper ones, then (geminifix) Claude vision on HAIKU when
+    the active one is not Claude and Haiku is not dearer per image — so a
+    Gemini 404 / 402 still gets a real answer, never a costlier one."""
+    out = [(slug, conf)] + [(p, _resolve(p)[1]) for p in _fallbacks(slug, c)]
+    if slug != "vision_claude" and all(p != "vision_claude" for p, _ in out):
+        on, cc = _resolve("vision_claude")
+        try:
+            hc = _haiku_cost_usd()
+        except Exception:  # noqa: BLE001
+            hc = None
+        if on and hc is not None and hc <= S._provider_cost(conf) + 1e-9:
+            cc = dict(cc, model=HAIKU_VISION, cost_per_image_usd=max(hc, 0.000001))
+            out.append(("vision_claude", cc))
+    return out
+
+
 # ------------------------------------------------------------------ quote
 def used_today(user):
     """Free detailed answers taken via the ads route today."""
@@ -346,13 +378,13 @@ def answer(user, job, data, lang="bn"):
     hops = 0
     try:
         reply, err = None, None
-        for prov in [slug] + _fallbacks(slug, c):     # Claude first, then same-or-cheaper
-            _on, pconf = (True, conf) if prov == slug else _resolve(prov)
+        first = slug
+        for i, (prov, pconf) in enumerate(_candidates(slug, conf, c)):   # same-or-cheaper only
             try:
                 reply = VP.ask(prov, pconf, image_bytes=raw, mime=mime,
                                system=CV.system_prompt(lang, purpose), question=q_text)
-                if prov != slug:
-                    log.warning("chat_vision: %s failed (%s), answered by %s", slug, err, prov)
+                if i:
+                    log.warning("chat_vision: %s failed (%s), answered by %s", first, err, prov)
                     slug, conf, prov_cost = prov, pconf, S._provider_cost(pconf)
                     job.provider = prov
                 break
