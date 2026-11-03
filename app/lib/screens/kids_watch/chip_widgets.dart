@@ -218,6 +218,7 @@ class ChipCard extends StatelessWidget {
                     color: scheme.onErrorContainer, fontWeight: FontWeight.w700)),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               TextButton.icon(
+                  style: TextButton.styleFrom(foregroundColor: scheme.onErrorContainer),
                   onPressed: () => _openMap(context, spot['lat'], spot['lng']),
                   icon: const Icon(Icons.map_rounded),
                   label: Text(t.vehOpenMaps)),
