@@ -13,6 +13,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 ## Owner orders not finished (newest first)
 | Order | State | What is left |
 |---|---|---|
+| 3 Nov 23:33 PART 8 ACCOUNT RECOVERY (owner_actions/OWNER_ACCOUNT_RECOVERY_ORDER_3NOV_2333.md) | not started — after AI Parts 1–6 (agent `aifinal`) or on resume | all 7 points: Account & security page, add/verify email (6-digit, 45 s resend, 10 min, 5 tries), gentle nudge, forgot password via SMS or verified email, lost-phone support recovery with 48 h hold, change alerts + 'This was not me' lock + 24 h rule + sign out others + rate limits; CI tests per flow |
 | 3 Nov 23:15/23:20 AI FINAL + 23:25 PART 7 Photo Studio (owner_actions/OWNER_AI_ORDER_3NOV_2315_2320_2325.md) | allowed during pause; PART 1 server fixes on `agent/ailang` (CI → deploy); PARTS 1(rest)–6 on `agent/aifinal` (one agent, sequential) | PART 7 Photo Studio after Parts 1–6 or on resume |
 | 3 Nov 19:55 Google Places key bug | ✅ fix LIVE (local merge) | owner presses Test connection again; reach main via b301 |
 | 3 Nov 18:50 NEARBY final (own emergency list, zero Google cost) | ✅ code CI-green (`agent/nearby` fd48cae3, checks 41649679482), merged in b301i as 0150_nearby, NOT shipped | data run 41639696149 (GitHub) still building → record counts + storage size unknown; SA + QA official number pages unreachable (shown with "confirm locally"); BD official lists have no reuse licence → OSM only; Europe too big for the runner (skipped); two-phone test; Sponsored payment flow |
