@@ -76,7 +76,8 @@ class MainActivity : FlutterFragmentActivity() {
         // calls-a: a call launch shows over the lock screen from the very
         // first window frame (not after the engine started).
         try {
-            if (!restored && com.assisto.assisto.calls.CallLaunch.parse(intent) != null) {
+            if (!restored && (com.assisto.assisto.calls.CallLaunch.parse(intent) != null ||
+                    careCallPayload(intent) != null)) {
                 setOverLockScreen(true)
             }
         } catch (e: Throwable) {
@@ -97,6 +98,15 @@ class MainActivity : FlutterFragmentActivity() {
             try {
                 val r = com.assisto.assisto.calls.CallLaunch.initialRoute(intent)
                 if (r != null) return r
+            } catch (e: Throwable) {
+            }
+            // carecall: a Care Call ring's tap / full-screen launch -> the ring
+            // screen is the first route (Dart CareCallRingScreen.onGenerateRoute)
+            try {
+                val raw = careCallPayload(intent)
+                if (raw != null && intent?.getStringExtra("actionId").isNullOrEmpty()) {
+                    return "/carecall_ring?p=" + java.net.URLEncoder.encode(raw, "UTF-8")
+                }
             } catch (e: Throwable) {
             }
         }
@@ -225,7 +235,14 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (e: Exception) {
             false
         }
-        setOverLockScreen(isCall)
+        // carecall: a Care Call ring (tap / full-screen) also shows over the
+        // lock screen for that one launch — the same per-launch rule as calls.
+        val isCareCall = try {
+            careCallPayload(i) != null
+        } catch (e: Throwable) {
+            false
+        }
+        setOverLockScreen(isCall || isCareCall)
         // calls-a: ONLY Accept takes over from the native ring (Telecom marked
         // answered + the ring notification cancelled on the tap). A tap /
         // full-screen launch just SHOWS the ringing screen: the native ring
@@ -245,6 +262,20 @@ class MainActivity : FlutterFragmentActivity() {
                 com.assisto.assisto.calls.CallLaunch.answeredHere(applicationContext, callId)
             } catch (e: Throwable) {
             }
+        }
+    }
+
+    /** carecall: the notification payload JSON when this launch is a Care
+     *  Call ring (kind "carecall"), else null. Never throws; Recents
+     *  re-deliveries never count. */
+    private fun careCallPayload(i: Intent?): String? {
+        return try {
+            if (i == null) return null
+            if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return null
+            val raw = i.getStringExtra("payload") ?: return null
+            if (JSONObject(raw).optString("kind") == "carecall") raw else null
+        } catch (e: Throwable) {
+            null
         }
     }
 

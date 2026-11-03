@@ -25,6 +25,7 @@ import '../messaging/msg_channel.dart'; // circlebub
 import '../messaging/chat_lock.dart' show ChatLockStore; // e-gaps
 import '../security/secret_store.dart';
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
+import '../carecall/carecall_alarms.dart' show CareCallAlarms, CareCallActions; // carecall
 
 /// Draws Assisto pushes as local notifications. Usable from the UI isolate AND
 /// from the FCM background isolate (no BuildContext — strings come from
@@ -166,6 +167,8 @@ class PushNotifier {
 
   static NotificationDetails detailsFor(PushPayload p,
       {String? ringtoneUri, Uint8List? largeIcon, Uint8List? bigPicture}) {
+    // carecall: the Care Call ring — call-style, full-screen, Done / Snooze
+    if (p.kind == 'carecall') return CareCallAlarms.details(p.lang);
     final t = _t(p.lang);
     // x1-calls A3: the caller's photo as the large icon (ring + missed)
     final AndroidBitmap<Object>? icon =
@@ -337,6 +340,12 @@ class PushNotifier {
       if (p.kind == 'reminder') {
         final d = await ReminderAlarms.onReminderPush(p.data, plugin: _plugin);
         if (d == PushDecision.suppress) return;
+      }
+      // carecall: one ring per slot — silent when this phone's own alarm
+      // already rang it (or it is answered); a late own alarm is cancelled.
+      if (p.kind == 'carecall' &&
+          !await CareCallAlarms.onPush(p, plugin: _plugin)) {
+        return;
       }
       String? ring;
       if (p.isCall) {
@@ -563,6 +572,11 @@ void assistoNotificationBackground(NotificationResponse r) {
   // remnotes: Done / Snooze on a reminder alarm with the app closed.
   if (ReminderActions.isOurs(r)) {
     unawaited(_reminderActionBg(r));
+    return;
+  }
+  // carecall: Done / "Remind me in 10 minutes" on a Care Call ring.
+  if (CareCallActions.isOurs(r)) {
+    unawaited(CareCallActions.handleBackground(r));
     return;
   }
   // c3-msg: inline reply / mark as read (encrypt + send from this isolate).

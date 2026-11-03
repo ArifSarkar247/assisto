@@ -1,0 +1,371 @@
+{
+ "_comment": "carecall (owner order 4 Nov 01:50): Care Call / কেয়ার কল — SCREEN 1/2/3, consent, quiet hours.",
+ "en": {
+  "ccTitle": "Care Call",
+  "ccNewTitle": "New Care Call",
+  "ccEditTitle": "Edit Care Call",
+  "ccWho": "Who",
+  "ccWhoPick": "Pick from My Circle family",
+  "ccWhat": "What to remind",
+  "ccWhatHint": "e.g. take your gas tablet",
+  "ccChipMedicine": "Medicine time",
+  "ccChipMeal": "Eat your meal",
+  "ccChipWater": "Drink water",
+  "ccChipPrayer": "Prayer time",
+  "ccChipWalk": "Go for a walk",
+  "ccChipBill": "Bill payment day",
+  "ccTime": "Time",
+  "ccRepeat": "Repeat",
+  "ccRepeatOnce": "Once",
+  "ccRepeatDaily": "Daily",
+  "ccRepeatDays": "Chosen days",
+  "ccDaySat": "Sat",
+  "ccDaySun": "Sun",
+  "ccDayMon": "Mon",
+  "ccDayTue": "Tue",
+  "ccDayWed": "Wed",
+  "ccDayThu": "Thu",
+  "ccDayFri": "Fri",
+  "ccOnceToday": "Today",
+  "ccOnceTomorrow": "Tomorrow",
+  "ccOnceChange": "Change date",
+  "ccRecord": "Record in your own voice",
+  "ccRecordHint": "Up to {sec} seconds. Only your own voice — never an AI voice.",
+  "@ccRecordHint": {
+   "placeholders": {
+    "sec": {
+     "type": "String"
+    }
+   }
+  },
+  "ccRecording": "Recording…",
+  "ccRecordStop": "Stop",
+  "ccYourVoice": "Your voice · {len}",
+  "@ccYourVoice": {
+   "placeholders": {
+    "len": {
+     "type": "String"
+    }
+   }
+  },
+  "ccPlay": "Play",
+  "ccPause": "Pause",
+  "ccReRecord": "Record again",
+  "ccDeleteVoice": "Delete recording",
+  "ccMicDenied": "Microphone permission is off. Allow it in Settings to record your voice.",
+  "ccRetryLine": "If not answered, Assisto tries again after 10 minutes, then tells you.",
+  "ccQuietNote": "{name}'s quiet hours are {start} – {end}, so this call will ring at {at}.",
+  "@ccQuietNote": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "start": {
+     "type": "String"
+    },
+    "end": {
+     "type": "String"
+    },
+    "at": {
+     "type": "String"
+    }
+   }
+  },
+  "ccConsentNote": "{name} will be asked once to accept your Care Calls.",
+  "@ccConsentNote": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccTurnOn": "Turn on Care Call",
+  "ccSave": "Save changes",
+  "ccErrWho": "Pick who to remind.",
+  "ccErrWhat": "Write what to remind, or record your voice.",
+  "ccErrDays": "Pick at least one day.",
+  "ccSavedOn": "Care Call is on — {name} will get it at {time}.",
+  "@ccSavedOn": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ccSavedPending": "Saved. It starts once {name} accepts.",
+  "@ccSavedPending": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccSavedOffline": "Saved on this phone. It turns on as soon as you are online.",
+  "ccFailed": "Could not save. Please try again.",
+  "ccPickTitle": "Who should get this Care Call?",
+  "ccPickEmpty": "Add your family to My Circle — then one tap here sends them a Care Call.",
+  "ccPickEmptyHow": "My Circle → Add → their phone number. They need Assisto too.",
+  "ccOpenCircle": "Open My Circle",
+  "ccLinkAccepted": "Accepted",
+  "ccLinkPending": "Waiting to accept",
+  "ccLinkStopped": "Turned off by them",
+  "ccLinkNew": "Will be asked once",
+  "ccRingTopLabel": "Care Call · Assisto",
+  "ccRingTitle": "{name} is reminding you",
+  "@ccRingTitle": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccRingVoicePlaying": "{name}'s voice is playing",
+  "@ccRingVoicePlaying": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccRingReadingAloud": "Reading the reminder aloud",
+  "ccRingPlayAgain": "Play again",
+  "ccRingDone": "Done",
+  "ccRingSnooze": "Remind me in 10 minutes",
+  "ccRingDoneToast": "Thank you! {name} will know.",
+  "@ccRingDoneToast": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccRingSnoozeToast": "OK — it will ring again in 10 minutes.",
+  "ccRingVoiceOnly": "Tap to hear the voice message",
+  "ccEmptyBenefit": "Remind your loved ones in your own voice — their phone rings like a call at the right time.",
+  "ccEmptyHow": "1. Pick someone from My Circle  2. Write or record the reminder  3. Pick a time",
+  "ccNew": "New Care Call",
+  "ccInviteTitle": "{name} wants to send you Care Calls. Accept?",
+  "@ccInviteTitle": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccInviteBody": "They can then remind you at set times with a call, in their own voice. You can stop any time.",
+  "ccAccept": "Accept",
+  "ccNotNow": "Not now",
+  "ccUpdates": "Updates",
+  "ccCardTitle": "Care Call {time}",
+  "@ccCardTitle": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "ccConfirmed": "{name} confirmed",
+  "@ccConfirmed": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccConfirmedLate": "{name} confirmed late",
+  "@ccConfirmedLate": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccMissedTwice": "{name} did not answer twice",
+  "@ccMissedTwice": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccCallNow": "Call now",
+  "ccSeeLocation": "See location",
+  "ccSetByYou": "Care Calls you set",
+  "ccForYou": "Care Calls for you",
+  "ccFrom": "From {name}",
+  "@ccFrom": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccStatusOn": "On",
+  "ccStatusOff": "Off",
+  "ccStopFrom": "Stop Care Calls from {name}",
+  "@ccStopFrom": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccStopConfirm": "No Care Call from {name} will ring until you allow it again.",
+  "@ccStopConfirm": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccStopYes": "Stop",
+  "ccAllowAgain": "Allow {name} again",
+  "@ccAllowAgain": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "ccQuietTitle": "Quiet hours",
+  "ccQuietValue": "No Care Call rings {start} – {end}",
+  "@ccQuietValue": {
+   "placeholders": {
+    "start": {
+     "type": "String"
+    },
+    "end": {
+     "type": "String"
+    }
+   }
+  },
+  "ccQuietOff": "Off — Care Calls can ring any time",
+  "ccQuietFrom": "From",
+  "ccQuietTo": "To",
+  "ccQuietUse": "Use quiet hours",
+  "ccSaveBtn": "Save",
+  "ccEdit": "Edit",
+  "ccDelete": "Delete",
+  "ccDeleteConfirm": "Delete this Care Call?",
+  "ccLimitLine": "{used} of {max} free Care Calls on",
+  "@ccLimitLine": {
+   "placeholders": {
+    "used": {
+     "type": "String"
+    },
+    "max": {
+     "type": "String"
+    }
+   }
+  },
+  "ccOfflineBanner": "You are offline — showing what this phone saved. Care Calls still ring."
+ },
+ "bn": {
+  "ccTitle": "কেয়ার কল",
+  "ccNewTitle": "নতুন কেয়ার কল",
+  "ccEditTitle": "কেয়ার কল বদলান",
+  "ccWho": "কাকে",
+  "ccWhoPick": "My Circle-এর পরিবার থেকে বাছুন",
+  "ccWhat": "কী মনে করাবেন",
+  "ccWhatHint": "যেমন: গ্যাসের ট্যাবলেটটা খাও",
+  "ccChipMedicine": "ওষুধ খাওয়ার সময়",
+  "ccChipMeal": "খাবার খেয়ে নাও",
+  "ccChipWater": "পানি খাও",
+  "ccChipPrayer": "নামাজের সময়",
+  "ccChipWalk": "একটু হেঁটে এসো",
+  "ccChipBill": "আজ বিল দেওয়ার দিন",
+  "ccTime": "সময়",
+  "ccRepeat": "কতবার",
+  "ccRepeatOnce": "একবার",
+  "ccRepeatDaily": "প্রতিদিন",
+  "ccRepeatDays": "নির্দিষ্ট দিন",
+  "ccDaySat": "শনি",
+  "ccDaySun": "রবি",
+  "ccDayMon": "সোম",
+  "ccDayTue": "মঙ্গল",
+  "ccDayWed": "বুধ",
+  "ccDayThu": "বৃহস্পতি",
+  "ccDayFri": "শুক্র",
+  "ccOnceToday": "আজ",
+  "ccOnceTomorrow": "কাল",
+  "ccOnceChange": "তারিখ বদলান",
+  "ccRecord": "নিজের গলায় রেকর্ড করুন",
+  "ccRecordHint": "সর্বোচ্চ {sec} সেকেন্ড। শুধু আপনার নিজের গলা — কখনো AI কণ্ঠ নয়।",
+  "ccRecording": "রেকর্ড হচ্ছে…",
+  "ccRecordStop": "থামান",
+  "ccYourVoice": "আপনার গলা · {len}",
+  "ccPlay": "শুনুন",
+  "ccPause": "বিরতি",
+  "ccReRecord": "আবার রেকর্ড করুন",
+  "ccDeleteVoice": "রেকর্ড মুছুন",
+  "ccMicDenied": "মাইক্রোফোনের অনুমতি বন্ধ। নিজের গলা রেকর্ড করতে সেটিংসে অনুমতি দিন।",
+  "ccRetryLine": "না ধরলে ১০ মিনিট পরে আবার কল করবে, তারপর আপনাকে জানাবে।",
+  "ccQuietNote": "{name}-এর নীরব সময় {start} – {end}, তাই এই কল বাজবে {at}-এ।",
+  "ccConsentNote": "{name}-কে একবার জিজ্ঞেস করা হবে আপনার কেয়ার কল নিতে রাজি কিনা।",
+  "ccTurnOn": "কেয়ার কল চালু করুন",
+  "ccSave": "পরিবর্তন সেভ করুন",
+  "ccErrWho": "কাকে মনে করাবেন বাছুন।",
+  "ccErrWhat": "কী মনে করাবেন লিখুন, অথবা নিজের গলায় রেকর্ড করুন।",
+  "ccErrDays": "অন্তত একটা দিন বাছুন।",
+  "ccSavedOn": "কেয়ার কল চালু — {name} {time}-এ কল পাবেন।",
+  "ccSavedPending": "সেভ হয়েছে। {name} রাজি হলেই শুরু হবে।",
+  "ccSavedOffline": "ফোনে সেভ হয়েছে। নেট এলেই চালু হবে।",
+  "ccFailed": "করা গেল না। আবার চেষ্টা করুন।",
+  "ccPickTitle": "কেয়ার কল কে পাবেন?",
+  "ccPickEmpty": "পরিবারের মানুষদের My Circle-এ যোগ করুন — তারপর এখানে এক ট্যাপে কেয়ার কল পাঠানো যাবে।",
+  "ccPickEmptyHow": "My Circle → যোগ করুন → তাঁর ফোন নম্বর। তাঁরও Assisto লাগবে।",
+  "ccOpenCircle": "My Circle খুলুন",
+  "ccLinkAccepted": "রাজি আছেন",
+  "ccLinkPending": "রাজি হওয়ার অপেক্ষায়",
+  "ccLinkStopped": "উনি বন্ধ রেখেছেন",
+  "ccLinkNew": "একবার জিজ্ঞেস করা হবে",
+  "ccRingTopLabel": "কেয়ার কল · Assisto",
+  "ccRingTitle": "{name} আপনাকে মনে করিয়ে দিচ্ছেন",
+  "ccRingVoicePlaying": "{name}-এর গলা বাজছে",
+  "ccRingReadingAloud": "মনে করানোটা পড়ে শোনানো হচ্ছে",
+  "ccRingPlayAgain": "আবার শুনুন",
+  "ccRingDone": "হয়ে গেছে",
+  "ccRingSnooze": "১০ মিনিট পরে মনে করিয়ে দাও",
+  "ccRingDoneToast": "ধন্যবাদ! {name} জানতে পারবেন।",
+  "ccRingSnoozeToast": "ঠিক আছে — ১০ মিনিট পরে আবার বাজবে।",
+  "ccRingVoiceOnly": "গলার বার্তা শুনতে ট্যাপ করুন",
+  "ccEmptyBenefit": "প্রিয়জনকে নিজের গলায় মনে করিয়ে দিন — ঠিক সময়ে তাঁর ফোনে কলের মতো বাজবে।",
+  "ccEmptyHow": "১. My Circle থেকে কাউকে বাছুন  ২. লিখুন বা রেকর্ড করুন  ৩. সময় দিন",
+  "ccNew": "নতুন কেয়ার কল",
+  "ccInviteTitle": "{name} আপনাকে কেয়ার কল পাঠাতে চান। রাজি?",
+  "ccInviteBody": "রাজি হলে উনি ঠিক সময়ে কল করে নিজের গলায় মনে করিয়ে দিতে পারবেন। যেকোনো সময় বন্ধ করতে পারবেন।",
+  "ccAccept": "রাজি",
+  "ccNotNow": "এখন না",
+  "ccUpdates": "খবর",
+  "ccCardTitle": "কেয়ার কল {time}",
+  "ccConfirmed": "{name} নিশ্চিত করেছেন",
+  "ccConfirmedLate": "{name} দেরিতে নিশ্চিত করেছেন",
+  "ccMissedTwice": "{name} দুবার ধরেননি",
+  "ccCallNow": "এখনই কল করুন",
+  "ccSeeLocation": "লোকেশন দেখুন",
+  "ccSetByYou": "আপনার দেওয়া কেয়ার কল",
+  "ccForYou": "আপনার জন্য কেয়ার কল",
+  "ccFrom": "{name}-এর কাছ থেকে",
+  "ccStatusOn": "চালু",
+  "ccStatusOff": "বন্ধ",
+  "ccStopFrom": "{name}-এর কেয়ার কল বন্ধ করুন",
+  "ccStopConfirm": "আবার অনুমতি না দেওয়া পর্যন্ত {name}-এর কোনো কেয়ার কল বাজবে না।",
+  "ccStopYes": "বন্ধ করুন",
+  "ccAllowAgain": "{name}-কে আবার অনুমতি দিন",
+  "ccQuietTitle": "নীরব সময়",
+  "ccQuietValue": "{start} – {end} কোনো কেয়ার কল বাজবে না",
+  "ccQuietOff": "বন্ধ — যেকোনো সময় বাজতে পারে",
+  "ccQuietFrom": "শুরু",
+  "ccQuietTo": "শেষ",
+  "ccQuietUse": "নীরব সময় চালু রাখুন",
+  "ccSaveBtn": "সেভ করুন",
+  "ccEdit": "বদলান",
+  "ccDelete": "মুছুন",
+  "ccDeleteConfirm": "এই কেয়ার কল মুছবেন?",
+  "ccLimitLine": "ফ্রি {max}টির মধ্যে {used}টি চালু",
+  "ccOfflineBanner": "নেট নেই — ফোনে যা সেভ আছে দেখানো হচ্ছে। কেয়ার কল তবুও বাজবে।"
+ }
+}

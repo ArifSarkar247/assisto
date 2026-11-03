@@ -1801,3 +1801,17 @@ urlpatterns += [
     path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
 ]
 # ---- /safeplans ----
+# ---- carecall ---- Care Call (flag care_call): family care reminder call
+from . import views_carecall as ccv  # noqa: E402
+urlpatterns += [
+    path("carecall", ccv.CareCallView.as_view()),
+    path("carecall/people", ccv.CareCallPeopleView.as_view()),
+    path("carecall/consent", ccv.CareCallConsentView.as_view()),
+    path("carecall/quiet", ccv.CareCallQuietView.as_view()),
+    path("carecall/ack", ccv.CareCallAckView.as_view()),
+    path("carecall/acks", ccv.CareCallAcksView.as_view()),
+    path("carecall/<int:pk>", ccv.CareCallItemView.as_view()),
+    path("carecall/<int:pk>/delete", ccv.CareCallDeleteView.as_view()),
+    path("carecall/<int:pk>/voice", ccv.CareCallVoiceView.as_view()),
+]
+# ---- /carecall ----

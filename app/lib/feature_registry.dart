@@ -157,6 +157,8 @@ const Map<String, bool> kFeatureDefaults = {
   'vault_e2e': false,
   // safeplans (3 Nov): Child / Safe Family / School Safe plans.
   'safe_plans': false,
+  // carecall (4 Nov): Care Call - family care reminder call, LIVE for 8 Nov.
+  'care_call': true,
   // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
   'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
@@ -279,6 +281,7 @@ const Map<String, String> kRouteFeature = {
   'booking': 'booking_bot',
   'market': 'assisto_market',
   'safe_plans': 'safe_plans',
+  'carecall': 'care_call', // carecall
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
   'acct': 'accounting_v2', // acctui

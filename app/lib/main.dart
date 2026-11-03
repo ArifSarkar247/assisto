@@ -67,6 +67,8 @@ import 'services/missing_nearby_sync.dart'; // missing
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
+import 'carecall/carecall_screen.dart' show careCallResume; // carecall
+import 'carecall/carecall_ring_screen.dart'; // carecall
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
 /// (messaging/BubbleActivity.kt getDartEntrypointFunctionName). One chat,
@@ -309,6 +311,7 @@ class AssistoApp extends StatelessWidget {
           // the root decides what to show (InviteRouter).
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
+              CareCallRingScreen.onGenerateRoute(s) ?? // carecall: cold-start ring
               InviteRouter.route(s) ??
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
@@ -511,6 +514,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // kidaudio: a granted emergency-audio session waiting for this phone
       // (flag + server grant; visible notice first; never throws).
       unawaited(KidAudioChild.maybeStart(app.api));
+      // carecall: flush the offline answer queue + keep this phone's own
+      // Care Call alarms in step (flag + throttled 2 min; never throws).
+      unawaited(careCallResume(app, enabled: FeatureFlags.instance.isOn('care_call')));
     }
     _resumeProtection();
   }

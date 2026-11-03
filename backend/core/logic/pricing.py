@@ -727,6 +727,12 @@ def DEFAULTS():
             "circle_media_voice_max_seconds": 900,
             "circle_media_photos_per_send": 30,
             "circle_media_view_once_days": 14,
+            # carecall (owner 4 Nov): Care Call fair limits (free; more
+            # schedules = Safe Family plan proposal, PRICING_PLAN_BN.md)
+            "carecall_active_per_setter": 10,
+            "carecall_rings_per_receiver_day": 20,
+            "carecall_voice_max_seconds": 30,
+            "carecall_text_max_chars": 300,
         },
         "probashi_price_usd": DEFAULT_PROBASHI_PRICE_USD,
         # 0 = use the server env AI_DAILY_BUDGET_USD kill-switch default
@@ -1002,6 +1008,11 @@ _MD1_LIMITS = (
     ("circle_media_voice_max_seconds", 60, 3600, 900),
     ("circle_media_photos_per_send", 1, 100, 30),
     ("circle_media_view_once_days", 1, 30, 14),
+    # carecall (owner 4 Nov) — bounded, never unlimited
+    ("carecall_active_per_setter", 1, 100, 10),
+    ("carecall_rings_per_receiver_day", 1, 200, 20),
+    ("carecall_voice_max_seconds", 5, 120, 30),
+    ("carecall_text_max_chars", 40, 1000, 300),
 )
 
 
