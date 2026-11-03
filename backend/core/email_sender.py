@@ -20,15 +20,32 @@ the app is told to prefer SMS, at the cap email OTP is refused honestly.
 Network seam for tests: `smtplib.SMTP` (patched in tests — no real mail).
 """
 import hashlib
+import logging
 import smtplib
 import socket
+import time
 from datetime import timedelta
 from email.message import EmailMessage
 from email.utils import formataddr, make_msgid
 
+from zoneinfo import ZoneInfo
+
 from django.utils import timezone
 
 TIMEOUT = 20
+BD_TZ = ZoneInfo("Asia/Dhaka")
+# smtpfix: every send attempt + result goes to the backend log (journalctl) —
+# masked address, purpose, ok/error, duration; never the body, code or password
+# Production has no LOGGING dict (root = WARNING), so like core/push.py this
+# logger carries its own stderr handler (gunicorn -> journal):
+#   journalctl -u assisto | grep "email send"
+log = logging.getLogger("assisto.email")
+if not log.handlers:
+    _h = logging.StreamHandler()
+    _h.setFormatter(logging.Formatter("%(levelname)s %(name)s %(message)s"))
+    log.addHandler(_h)
+    log.setLevel(logging.INFO)
+    log.propagate = False
 FOOTER_BN = "Assisto — AXON Dynamic"
 FOOTER_EN = "Assisto by AXON Dynamic"
 
@@ -136,15 +153,34 @@ class SmtpSender:
                 except Exception:  # noqa: BLE001
                     pass
             return True, "accepted"
-        except smtplib.SMTPAuthenticationError:
-            return False, "login refused"
-        except smtplib.SMTPRecipientsRefused:
-            return False, "recipient refused"
-        except smtplib.SMTPDataError as e:
+        except smtplib.SMTPAuthenticationError as e:
+            return False, "%s লগইন প্রত্যাখ্যাত — App password ভুল / bad credentials — check the app password" % e.smtp_code
+        except smtplib.SMTPRecipientsRefused as e:
+            codes = [str(v[0]) for v in (e.recipients or {}).values()
+                     if isinstance(v, tuple) and v]
+            return False, ("%s প্রাপকের ঠিকানা গ্রহণ হয়নি — ঠিকানা দেখুন / recipient refused — check the address"
+                           % (codes[0] if codes else "")).strip()
+        except (smtplib.SMTPDataError, smtplib.SMTPSenderRefused) as e:
             # Gmail 550 5.4.5 "Daily user sending quota exceeded"
-            return False, "smtp data error %s" % getattr(e, "smtp_code", "")
+            txt = _smtp_text(getattr(e, "smtp_error", b""))
+            if "5.4.5" in txt or "quota" in txt.lower():
+                return False, ("%s Gmail-এর দৈনিক পাঠানোর সীমা শেষ / daily sending quota reached (%s)"
+                               % (e.smtp_code, txt))[:280]
+            return False, ("%s SMTP ত্রুটি / SMTP error (%s)" % (e.smtp_code, txt))[:280]
+        except smtplib.SMTPResponseException as e:
+            return False, ("%s SMTP ত্রুটি / SMTP error (%s)"
+                           % (e.smtp_code, _smtp_text(e.smtp_error)))[:280]
+        except (socket.timeout, TimeoutError):
+            return False, "নেটওয়ার্ক টাইমআউট / network timeout — the SMTP server did not answer"
         except (smtplib.SMTPException, socket.error, OSError) as e:
-            return False, "network: %s" % type(e).__name__
+            return False, "নেটওয়ার্ক ত্রুটি / network error: %s" % type(e).__name__
+
+
+def _smtp_text(raw):
+    """Short one-line server reply (Gmail never echoes the password)."""
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", "replace")
+    return " ".join(str(raw or "").split())[:90]
 
 
 # Amazon SES drops in here later (see owner_actions/SMS_EMAIL_SETUP_BN.md).
@@ -189,14 +225,19 @@ def available():
         return False
 
 
-def _log(to, purpose, provider, status, detail=""):
+def _log(to, purpose, provider, status, detail="", ms=None):
     from .models import EmailLog
+    masked = mask_email(to)
+    log.info("email send purpose=%s to=%s provider=%s result=%s ms=%s detail=%s",
+             purpose, masked or "-", provider, status,
+             "-" if ms is None else int(ms), str(detail or "")[:160])
     try:
         EmailLog.objects.create(purpose=purpose[:16], to_hash=email_hash(to),
-                                to_masked=mask_email(to)[:80], provider=provider[:16],
+                                to_masked=masked[:80], provider=provider[:16],
                                 status=status, detail=str(detail or "")[:200])
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as e:  # noqa: BLE001
+        log.warning("email log row not saved (%s) purpose=%s to=%s",
+                    type(e).__name__, purpose, masked or "-")
 
 
 def send_email(to, subject, body, purpose="otp"):
@@ -213,8 +254,10 @@ def send_email(to, subject, body, purpose="otp"):
     if st["blocked"]:
         _log(addr, purpose, snd.name, "blocked", "daily cap")
         return {"ok": False, "reason": "email_daily_cap", "provider": snd.name}
+    t0 = time.monotonic()
     ok, detail = snd.send(addr, subject, body)
-    _log(addr, purpose, snd.name, "sent" if ok else "failed", detail)
+    _log(addr, purpose, snd.name, "sent" if ok else "failed", detail,
+         ms=(time.monotonic() - t0) * 1000)
     return {"ok": bool(ok), "reason": "ok" if ok else "send_failed", "provider": snd.name}
 
 
@@ -261,13 +304,21 @@ def check(cfg, test_to=None):
     if test_to:
         addr = normalize_email(test_to)
         if not addr:
-            return False, "test address is not a valid email"
+            return False, ("✗ টেস্ট ঠিকানাটি সঠিক ইমেইল নয় / "
+                           "the test address is not a valid email")
         subject, body = test_email()
+        t0 = time.monotonic()
         ok, detail = snd.send(addr, subject, body)
-        _log(addr, "test", snd.name, "sent" if ok else "failed", detail)
+        _log(addr, "test", snd.name, "sent" if ok else "failed", detail,
+             ms=(time.monotonic() - t0) * 1000)
+        # smtpfix: the card shows exactly where + when it went, or why not
+        when = timezone.now().astimezone(BD_TZ).strftime("%d %b %H:%M")
+        masked = mask_email(addr)
         if ok:
-            return True, "✓ টেস্ট ইমেইল পাঠানো হয়েছে / test email accepted — check the inbox (and Spam)"
-        return False, detail
+            return True, ("✓ %s-এ পাঠানো হয়েছে, %s (বাংলাদেশ সময়) / Sent to %s at %s BD time"
+                          " — check the inbox (and Spam)" % (masked, when, masked, when))
+        return False, ("✗ %s · %s BD — যায়নি / not sent: %s"
+                       % (masked, when, detail))[:300]
     ok, detail = snd.login_check()
     if ok:
         return True, "✓ SMTP লগইন সফল / SMTP login OK"
