@@ -550,7 +550,7 @@ class _LearnCertScreenState extends State<LearnCertScreen> {
               textAlign: TextAlign.center,
               style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
-          Text(t.lcEmptyBody, textAlign: TextAlign.center, style: AType.bodyLarge),
+          Text(t.lcEmptyBodyLang, textAlign: TextAlign.center, style: AType.bodyLarge),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),

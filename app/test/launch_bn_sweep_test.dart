@@ -83,6 +83,8 @@ const _launchPrefixes = <String>[
   // quranread (3 Nov): learn to read Quran
   'quran_learn',
   'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
+  // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
+  'circle_search', 'farmer',
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.

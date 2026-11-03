@@ -467,7 +467,7 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                       QuranTrans.bn => t.qrnTransBn,
                       QuranTrans.none => t.qrnTransNone,
                     }),
-                    subtitle: v == QuranTrans.bn ? Text(t.qrnBnPending) : null,
+                    subtitle: v == QuranTrans.bn ? Text(t.qrnBnNotIncluded) : null,
                   ),
               ]),
             ),
@@ -558,7 +558,7 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.qrnBnPending,
+          Text(t.qrnBnNotIncluded,
               style: AType.titleSmall.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
           Text(t.qrnBnPendingBody),
