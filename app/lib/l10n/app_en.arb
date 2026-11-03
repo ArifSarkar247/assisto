@@ -41717,5 +41717,9 @@
   "lcEmptyBodyLang": "Finish a level test in Language Partner. Your Assisto learning certificate appears here, with a QR code anyone can check.",
   "@lcEmptyBodyLang": {
     "description": "launchsweep3: learning-certificate empty state; Quran certificates are not wired, so no Quran promise"
+  },
+  "cbubSoundAssistoPop": "Assisto pop (default)",
+  "@cbubSoundAssistoPop": {
+    "description": "circlebub: the message-sound setting when the user has not picked a sound — Assisto's own short pop"
   }
 }
