@@ -1,0 +1,1810 @@
+{
+ "format": 1,
+ "lang": "fr",
+ "version": 1,
+ "stt_locale": "fr-FR",
+ "tts_locale": "fr-FR",
+ "rtl": false,
+ "level_system": "CEFR",
+ "levels": [
+  {
+   "id": "A1",
+   "en": "A1 — Beginner",
+   "bn": "A1 — একেবারে শুরু"
+  },
+  {
+   "id": "A2",
+   "en": "A2 — Elementary",
+   "bn": "A2 — প্রাথমিক"
+  },
+  {
+   "id": "B1",
+   "en": "B1 — Intermediate (work, daily life)",
+   "bn": "B1 — মাঝারি (কাজ, দৈনন্দিন জীবন)"
+  },
+  {
+   "id": "B2",
+   "en": "B2 — Upper intermediate (study, office)",
+   "bn": "B2 — উচ্চ-মাঝারি (পড়াশোনা, অফিস)"
+  },
+  {
+   "id": "C1",
+   "en": "C1 — Advanced",
+   "bn": "C1 — উন্নত"
+  },
+  {
+   "id": "C2",
+   "en": "C2 — Mastery",
+   "bn": "C2 — দক্ষ"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "fr-pl1",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A1",
+    "text": "Choose the right answer: 'Comment vous appelez-vous ?'",
+    "text_en": "Choose the right answer: 'Comment vous appelez-vous ?'",
+    "text_bn": "সঠিক উত্তর বাছুন: 'Comment vous appelez-vous ?'",
+    "options": [
+     "Je m'appelle Rina.",
+     "J'ai 25 ans.",
+     "J'habite à Dhaka.",
+     "Très bien, merci."
+    ],
+    "answer": 0,
+    "explain_bn": "প্রশ্নটি নাম জানতে চায়।",
+    "explain_en": "The question asks your name."
+   },
+   {
+    "id": "fr-pl2",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A1",
+    "text": "Which number?\nsoixante-dix",
+    "text_en": "Which number?\nsoixante-dix",
+    "text_bn": "কোন সংখ্যা?\nsoixante-dix",
+    "tts_text": "soixante-dix",
+    "options": [
+     "60",
+     "70",
+     "80",
+     "17"
+    ],
+    "answer": 1,
+    "explain_bn": "soixante-dix = ৭০ ('ষাট-দশ')।",
+    "explain_en": "soixante-dix = 70 ('sixty-ten')."
+   },
+   {
+    "id": "fr-pl3",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A2",
+    "text": "Fill the gap: 'Hier, je ___ allé au marché.'",
+    "text_en": "Fill the gap: 'Hier, je ___ allé au marché.'",
+    "text_bn": "শূন্যস্থান: 'Hier, je ___ allé au marché.'",
+    "options": [
+     "suis",
+     "ai",
+     "étais",
+     "vais"
+    ],
+    "answer": 0,
+    "explain_bn": "'aller' অতীতে 'être' নেয় → suis।",
+    "explain_en": "'aller' takes 'être' in the passé composé."
+   },
+   {
+    "id": "fr-pl4",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A2",
+    "text": "When is the appointment?\nVotre rendez-vous est jeudi à quinze heures.",
+    "text_en": "When is the appointment?\nVotre rendez-vous est jeudi à quinze heures.",
+    "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nVotre rendez-vous est jeudi à quinze heures.",
+    "tts_text": "Votre rendez-vous est jeudi à quinze heures.",
+    "options": [
+     "Thursday at 3 pm",
+     "Tuesday at 3 pm",
+     "Thursday at 10 am"
+    ],
+    "options_en": [
+     "Thursday at 3 pm",
+     "Tuesday at 3 pm",
+     "Thursday at 10 am"
+    ],
+    "options_bn": [
+     "বৃহস্পতিবার বিকেল ৩টা",
+     "মঙ্গলবার বিকেল ৩টা",
+     "বৃহস্পতিবার সকাল ১০টা"
+    ],
+    "answer": 0,
+    "explain_bn": "jeudi = বৃহস্পতিবার, quinze heures = বিকেল ৩টা।",
+    "explain_en": "jeudi = Thursday, quinze heures = 3 pm."
+   },
+   {
+    "id": "fr-pl5",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B1",
+    "text": "Choose the correct sentence.",
+    "text_en": "Choose the correct sentence.",
+    "text_bn": "সঠিক বাক্য বাছুন।",
+    "options": [
+     "Bien qu'il soit tard, je travaille.",
+     "Bien qu'il est tard, je travaille.",
+     "Bien que il soit tard, je travaille.",
+     "Bien qu'il été tard, je travaille."
+    ],
+    "answer": 0,
+    "explain_bn": "'bien que' + subjonctif (soit), আর qu'il।",
+    "explain_en": "'bien que' + subjunctive (soit), with elision qu'il."
+   },
+   {
+    "id": "fr-pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B1",
+    "text": "Why is the student calling?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
+    "text_en": "Why is the student calling?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
+    "text_bn": "ছাত্রটি কেন ফোন করছেন?\nBonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
+    "tts_text": "Bonjour, je suis malade cette semaine. Est-ce que je peux déplacer mon examen à lundi prochain ?",
+    "options": [
+     "To change her exam date",
+     "To pay the rent",
+     "To buy a ticket"
+    ],
+    "options_en": [
+     "To change her exam date",
+     "To pay the rent",
+     "To buy a ticket"
+    ],
+    "options_bn": [
+     "পরীক্ষার তারিখ বদলাতে",
+     "ভাড়া দিতে",
+     "টিকিট কিনতে"
+    ],
+    "answer": 0,
+    "explain_bn": "'déplacer mon examen' = পরীক্ষা সরানো।",
+    "explain_en": "'déplacer mon examen' = move my exam."
+   },
+   {
+    "id": "fr-pl7",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B2",
+    "text": "Which closing fits a formal letter?",
+    "text_en": "Which closing fits a formal letter?",
+    "text_bn": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
+    "options": [
+     "Veuillez agréer mes salutations distinguées.",
+     "Bisous !",
+     "À plus !",
+     "Salut !"
+    ],
+    "answer": 0,
+    "explain_bn": "এটি আদর্শ আনুষ্ঠানিক সমাপ্তি।",
+    "explain_en": "This is the standard formal closing."
+   },
+   {
+    "id": "fr-pl8",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B2",
+    "text": "Fill the gap: 'Si j'avais le temps, je ___ un cours du soir.'",
+    "text_en": "Fill the gap: 'Si j'avais le temps, je ___ un cours du soir.'",
+    "text_bn": "শূন্যস্থান: 'Si j'avais le temps, je ___ un cours du soir.'",
+    "options": [
+     "suivrais",
+     "suivrai",
+     "suis",
+     "suivais"
+    ],
+    "answer": 0,
+    "explain_bn": "si + imparfait হলে পরের অংশে conditionnel (suivrais) বসে।",
+    "explain_en": "si + imparfait → conditionnel (suivrais)."
+   },
+   {
+    "id": "fr-pl9",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "Choose the best connector: '___ des difficultés, le projet a réussi.'",
+    "text_en": "Choose the best connector: '___ des difficultés, le projet a réussi.'",
+    "text_bn": "উপযুক্ত সংযোজক: '___ des difficultés, le projet a réussi.'",
+    "options": [
+     "En dépit",
+     "Grâce",
+     "Afin",
+     "Parce"
+    ],
+    "answer": 0,
+    "explain_bn": "'en dépit de' = সত্ত্বেও।",
+    "explain_en": "'en dépit de' = despite."
+   },
+   {
+    "id": "fr-pl10",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "What is the speaker's view?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
+    "text_en": "What is the speaker's view?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
+    "text_bn": "বক্তার মত কী?\nLe télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
+    "tts_text": "Le télétravail offre certes plus de liberté ; il n'en demeure pas moins qu'il peut isoler les salariés.",
+    "options": [
+     "Remote work helps, but isolation is a risk",
+     "Remote work should be banned",
+     "Isolation is not a problem"
+    ],
+    "options_en": [
+     "Remote work helps, but isolation is a risk",
+     "Remote work should be banned",
+     "Isolation is not a problem"
+    ],
+    "options_bn": [
+     "দূর থেকে কাজ উপকারী, কিন্তু একাকীত্বের ঝুঁকি আছে",
+     "দূর থেকে কাজ নিষিদ্ধ হোক",
+     "একাকীত্ব সমস্যা নয়"
+    ],
+    "answer": 0,
+    "explain_bn": "'যদিও … তবু'।",
+    "explain_en": "'certes … il n'en demeure pas moins' = admittedly … still."
+   },
+   {
+    "id": "fr-pl11",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "C2",
+    "text": "'Poser un lapin à quelqu'un' means…",
+    "text_en": "'Poser un lapin à quelqu'un' means…",
+    "text_bn": "'Poser un lapin à quelqu'un' মানে…",
+    "options": [
+     "To stand someone up",
+     "To give someone a rabbit",
+     "To cook for someone"
+    ],
+    "options_en": [
+     "To stand someone up",
+     "To give someone a rabbit",
+     "To cook for someone"
+    ],
+    "options_bn": [
+     "কথা দিয়ে না আসা",
+     "কাউকে খরগোশ দেওয়া",
+     "কারও জন্য রান্না করা"
+    ],
+    "answer": 0,
+    "explain_bn": "বাগধারা: দেখা করতে না আসা।",
+    "explain_en": "An idiom: not showing up."
+   },
+   {
+    "id": "fr-pl12",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "C2",
+    "text": "Which word best completes: 'Son argument est tout à fait ___.'",
+    "text_en": "Which word best completes: 'Son argument est tout à fait ___.'",
+    "text_bn": "শূন্যস্থান: 'Son argument est tout à fait ___.'",
+    "options": [
+     "pertinent",
+     "pertinence",
+     "pertinemment",
+     "pertiner"
+    ],
+    "answer": 0,
+    "explain_bn": "বিশেষণ লাগবে: pertinent (প্রাসঙ্গিক)।",
+    "explain_en": "An adjective is needed: pertinent (relevant)."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "fr-a1-1",
+   "level": "A1",
+   "title_en": "Hello! Introduce yourself",
+   "title_bn": "হ্যালো! নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "note",
+     "target": "Bonjour ! / Bonsoir !",
+     "bn": "অপরিচিত ও কাজে 'vous' (আপনি), বন্ধু ও শিশুদের 'tu' (তুমি)।",
+     "en": "Use 'vous' with strangers and at work, 'tu' with friends and children."
+    },
+    {
+     "kind": "phrase",
+     "target": "Bonjour ! / Bonsoir !",
+     "bn": "হ্যালো! / শুভ সন্ধ্যা!",
+     "en": "Hello! / Good evening!",
+     "note_bn": "উচ্চারণ: বোঁজুর / বোঁসোয়ার",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je m'appelle Karim.",
+     "bn": "আমার নাম করিম।",
+     "en": "My name is Karim.",
+     "note_bn": "উচ্চারণ: ঝ্ মাপেল করিম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je viens du Bangladesh.",
+     "bn": "আমি বাংলাদেশ থেকে এসেছি।",
+     "en": "I come from Bangladesh.",
+     "note_bn": "উচ্চারণ: ঝ্ ভিয়াঁ দ্যু বাংলাদেশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Comment allez-vous ?",
+     "bn": "আপনি কেমন আছেন? (ভদ্র রূপ)",
+     "en": "How are you? (formal)",
+     "note_bn": "উচ্চারণ: কমঁ তালে-ভু? · বন্ধুদের: সা ভা?",
+     "note_en": "Friends: Ça va ?"
+    },
+    {
+     "kind": "phrase",
+     "target": "Très bien, merci. Et vous ?",
+     "bn": "খুব ভালো, ধন্যবাদ। আপনি?",
+     "en": "Very well, thank you. And you?",
+     "note_bn": "উচ্চারণ: ত্রে বিয়াঁ, মের্সি। এ ভু?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "S'il vous plaît. / Merci beaucoup.",
+     "bn": "দয়া করে। / অনেক ধন্যবাদ।",
+     "en": "Please. / Thank you very much.",
+     "note_bn": "উচ্চারণ: সিল ভু প্লে / মের্সি বোকু",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Excusez-moi.",
+     "bn": "মাফ করবেন।",
+     "en": "Excuse me.",
+     "note_bn": "উচ্চারণ: এক্সক্যুজে-মোয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je ne comprends pas.",
+     "bn": "আমি বুঝিনি।",
+     "en": "I don't understand.",
+     "note_bn": "উচ্চারণ: ঝ্ ন্ কঁপ্রঁ পা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Pouvez-vous parler plus lentement ?",
+     "bn": "আরেকটু আস্তে বলবেন?",
+     "en": "Can you speak more slowly?",
+     "note_bn": "উচ্চারণ: পুভে-ভু পার্লে প্ল্যু লঁতমঁ?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Au revoir !",
+     "bn": "বিদায়!",
+     "en": "Goodbye!",
+     "note_bn": "উচ্চারণ: ও র্‌ভোয়ার",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Bonjour ! / Bonsoir !",
+    "Je m'appelle Karim.",
+    "Je viens du Bangladesh."
+   ]
+  },
+  {
+   "id": "fr-a1-2",
+   "level": "A1",
+   "title_en": "Numbers, time and days",
+   "title_bn": "সংখ্যা, সময় ও দিন",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "un, deux, trois, quatre, cinq",
+     "bn": "এক থেকে পাঁচ",
+     "en": "one to five",
+     "note_bn": "উচ্চারণ: অ্যাঁ, দ্যো, ত্রোয়া, কাত্র, সাঁক",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "six, sept, huit, neuf, dix",
+     "bn": "ছয় থেকে দশ",
+     "en": "six to ten",
+     "note_bn": "উচ্চারণ: সিস, সেত, উইত, ন্যোফ, দিস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "soixante-dix",
+     "bn": "সত্তর (শব্দে 'ষাট-দশ')",
+     "en": "seventy (lit. 'sixty-ten')",
+     "note_bn": "উচ্চারণ: সোয়াসঁত-দিস · ৮০ = কাত্র-ভাঁ ('চার কুড়ি')।",
+     "note_en": "80 = quatre-vingts ('four twenties')."
+    },
+    {
+     "kind": "phrase",
+     "target": "Quelle heure est-il ? — Il est huit heures.",
+     "bn": "কয়টা বাজে? — আটটা।",
+     "en": "What time is it? — It's eight o'clock.",
+     "note_bn": "উচ্চারণ: কেল ্যর এ-তিল? — ইল এ উই ত্যর",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "lundi, mardi, mercredi",
+     "bn": "সোম, মঙ্গল, বুধবার",
+     "en": "Monday, Tuesday, Wednesday",
+     "note_bn": "উচ্চারণ: ল্যাঁদি, মার্দি, মের্ক্রদি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "jeudi, vendredi, samedi, dimanche",
+     "bn": "বৃহস্পতি থেকে রবিবার",
+     "en": "Thursday to Sunday",
+     "note_bn": "উচ্চারণ: ঝ্যোদি, ভঁদ্রদি, সামদি, দিমাঁশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ça coûte combien ? — Trois euros.",
+     "bn": "দাম কত? — তিন ইউরো।",
+     "en": "How much is it? — Three euros.",
+     "note_bn": "উচ্চারণ: সা কুত কঁবিয়াঁ? — ত্রোয়া জ্যোরো",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "un, deux, trois, quatre, cinq",
+    "six, sept, huit, neuf, dix",
+    "soixante-dix"
+   ]
+  },
+  {
+   "id": "fr-a1-3",
+   "level": "A1",
+   "title_en": "le, la, les — family and food",
+   "title_bn": "le, la, les — পরিবার ও খাবার",
+   "items": [
+    {
+     "kind": "note",
+     "target": "le père, la mère, les enfants",
+     "bn": "প্রতিটি বিশেষ্য পুংলিঙ্গ (le) বা স্ত্রীলিঙ্গ (la) — আর্টিকেলসহ মুখস্থ করুন।",
+     "en": "Every noun is masculine (le) or feminine (la); learn it with the article."
+    },
+    {
+     "kind": "grammar",
+     "target": "le père, la mère, les enfants",
+     "bn": "বাবা, মা, সন্তানেরা",
+     "en": "the father, the mother, the children",
+     "note_bn": "উচ্চারণ: ল্ পের, লা মের, লে জঁফঁ",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "le frère, la sœur",
+     "bn": "ভাই, বোন",
+     "en": "the brother, the sister",
+     "note_bn": "উচ্চারণ: ল্ ফ্রের, লা স্যোর",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "le pain, le riz, le lait",
+     "bn": "রুটি, চাল/ভাত, দুধ",
+     "en": "bread, rice, milk",
+     "note_bn": "উচ্চারণ: ল্ পাঁ, ল্ রি, ল্ লে",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "l'eau, le thé, le poulet",
+     "bn": "পানি, চা, মুরগি",
+     "en": "water, tea, chicken",
+     "note_bn": "উচ্চারণ: লো, ল্ তে, ল্ পুলে",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "J'ai deux enfants.",
+     "bn": "আমার দুটি সন্তান।",
+     "en": "I have two children.",
+     "note_bn": "উচ্চারণ: ঝে দ্যো জঁফঁ",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Je ne mange pas de porc.",
+     "bn": "আমি শূকরের মাংস খাই না।",
+     "en": "I don't eat pork.",
+     "note_bn": "উচ্চারণ: ঝ্ ন্ মাঁঝ পা দ্ পর",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "J'aime le thé.",
+     "bn": "আমি চা পছন্দ করি।",
+     "en": "I like tea.",
+     "note_bn": "উচ্চারণ: ঝেম ল্ তে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "le père, la mère, les enfants",
+    "le frère, la sœur",
+    "le pain, le riz, le lait"
+   ]
+  },
+  {
+   "id": "fr-a2-1",
+   "level": "A2",
+   "title_en": "Shopping, transport and appointments",
+   "title_bn": "কেনাকাটা, যাতায়াত ও অ্যাপয়েন্টমেন্ট",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Je voudrais un kilo de riz.",
+     "bn": "এক কেজি চাল চাই।",
+     "en": "I'd like a kilo of rice.",
+     "note_bn": "উচ্চারণ: ঝ্ ভুদ্রে অ্যাঁ কিলো দ্ রি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Vous l'avez en taille M ?",
+     "bn": "M সাইজে আছে?",
+     "en": "Do you have it in size M?",
+     "note_bn": "উচ্চারণ: ভু লাভে অঁ তাই এম?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je peux payer par carte ?",
+     "bn": "কার্ডে দেওয়া যাবে?",
+     "en": "Can I pay by card?",
+     "note_bn": "উচ্চারণ: ঝ্ প্যো পেয়ে পার কার্ত?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je voudrais prendre rendez-vous.",
+     "bn": "একটা অ্যাপয়েন্টমেন্ট নিতে চাই।",
+     "en": "I'd like to make an appointment.",
+     "note_bn": "উচ্চারণ: ঝ্ ভুদ্রে প্রঁদ্র রঁদে-ভু",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Où est la gare ?",
+     "bn": "স্টেশন কোথায়?",
+     "en": "Where is the station?",
+     "note_bn": "উচ্চারণ: উ এ লা গার?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Allez tout droit, puis à gauche.",
+     "bn": "সোজা যান, তারপর বামে।",
+     "en": "Go straight on, then left.",
+     "note_bn": "উচ্চারণ: আলে তু দ্রোয়া, পুই আ গোশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Un aller simple pour Paris, s'il vous plaît.",
+     "bn": "প্যারিসের একমুখী টিকিট, দয়া করে।",
+     "en": "A one-way ticket to Paris, please.",
+     "note_bn": "উচ্চারণ: অ্যাঁ নালে স্যাঁপ্ল পুর পারি, সিল ভু প্লে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Je voudrais un kilo de riz.",
+    "Vous l'avez en taille M ?",
+    "Je peux payer par carte ?"
+   ]
+  },
+  {
+   "id": "fr-a2-2",
+   "level": "A2",
+   "title_en": "Talking about the past (passé composé)",
+   "title_bn": "অতীতের কথা (passé composé)",
+   "items": [
+    {
+     "kind": "note",
+     "target": "J'ai travaillé hier.",
+     "bn": "চলাচলের ক্রিয়া (aller, venir, arriver, partir) 'être' নেয়; বাকিগুলো সাধারণত 'avoir'।",
+     "en": "Verbs of movement (aller, venir, arriver, partir) use 'être'; most others use 'avoir'."
+    },
+    {
+     "kind": "grammar",
+     "target": "J'ai travaillé hier.",
+     "bn": "গতকাল কাজ করেছি।",
+     "en": "I worked yesterday.",
+     "note_bn": "উচ্চারণ: ঝে ত্রাভাইয়ে ইয়ের",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Je suis allé à Lyon.",
+     "bn": "আমি লিয়ঁ গিয়েছি।",
+     "en": "I went to Lyon.",
+     "note_bn": "উচ্চারণ: ঝ্ স্যুই আলে আ লিয়ঁ · নারী লেখেন: je suis allée।",
+     "note_en": "Woman writes: je suis allée."
+    },
+    {
+     "kind": "grammar",
+     "target": "Nous avons mangé du riz.",
+     "bn": "আমরা ভাত খেয়েছি।",
+     "en": "We ate rice.",
+     "note_bn": "উচ্চারণ: নু জাভঁ মাঁঝে দ্যু রি",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Tu as bien dormi ?",
+     "bn": "ভালো ঘুম হয়েছে?",
+     "en": "Did you sleep well?",
+     "note_bn": "উচ্চারণ: ত্যু আ বিয়াঁ দর্মি?",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Je suis arrivé en France en mars.",
+     "bn": "মার্চে ফ্রান্সে এসেছি।",
+     "en": "I arrived in France in March.",
+     "note_bn": "উচ্চারণ: ঝ্ স্যুই জারিভে অঁ ফ্রঁস অঁ মার্স",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Qu'est-ce que tu as fait ce week-end ?",
+     "bn": "সপ্তাহান্তে কী করেছ?",
+     "en": "What did you do this weekend?",
+     "note_bn": "উচ্চারণ: কেস ক্ ত্যু আ ফে স্ উইকেন্ড?",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "J'ai travaillé hier.",
+    "Je suis allé à Lyon.",
+    "Nous avons mangé du riz."
+   ]
+  },
+  {
+   "id": "fr-b1-1",
+   "level": "B1",
+   "title_en": "Study and work",
+   "title_bn": "পড়াশোনা ও কাজ",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Je fais un master en informatique.",
+     "bn": "আমি কম্পিউটার সায়েন্সে মাস্টার্স করছি।",
+     "en": "I'm doing a master's in computer science.",
+     "note_bn": "উচ্চারণ: ঝ্ ফে অ্যাঁ মাস্তের অঁ নাঁফর্মাতিক",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je cherche un job étudiant.",
+     "bn": "ছাত্রদের খণ্ডকালীন কাজ খুঁজছি।",
+     "en": "I'm looking for a student job.",
+     "note_bn": "উচ্চারণ: ঝ্ শের্শ অ্যাঁ জব এত্যুদিয়াঁ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "À quelle heure commence mon service ?",
+     "bn": "আমার শিফট কখন শুরু?",
+     "en": "What time does my shift start?",
+     "note_bn": "উচ্চারণ: আ কেল ্যর কমঁস মঁ সের্ভিস?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Pourriez-vous répéter, s'il vous plaît ?",
+     "bn": "আরেকবার বলবেন?",
+     "en": "Could you repeat, please?",
+     "note_bn": "উচ্চারণ: পুরিয়ে-ভু রেপেতে, সিল ভু প্লে?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je suis malade, je ne peux pas venir aujourd'hui.",
+     "bn": "আমি অসুস্থ, আজ আসতে পারব না।",
+     "en": "I'm ill, I can't come today.",
+     "note_bn": "উচ্চারণ: ঝ্ স্যুই মালাদ, ঝ্ ন্ প্যো পা ভনির ওঝুর্দুই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "J'ai besoin d'un arrêt de travail.",
+     "bn": "অসুস্থতার সার্টিফিকেট দরকার।",
+     "en": "I need a sick note.",
+     "note_bn": "উচ্চারণ: ঝে ব্‌জোয়াঁ দ্যাঁ নারে দ্ ত্রাভাই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "J'ai envoyé mon CV et ma lettre de motivation.",
+     "bn": "আমি সিভি ও কভার লেটার পাঠিয়েছি।",
+     "en": "I sent my CV and cover letter.",
+     "note_bn": "উচ্চারণ: ঝে অঁভোয়াইয়ে মঁ সে-ভে এ মা লেত্র দ্ মতিভাসিয়ঁ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Je fais un master en informatique.",
+    "Je cherche un job étudiant.",
+    "À quelle heure commence mon service ?"
+   ]
+  },
+  {
+   "id": "fr-b1-2",
+   "level": "B1",
+   "title_en": "Giving reasons and opinions",
+   "title_bn": "কারণ ও মতামত",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "J'apprends le français parce que je veux étudier en France.",
+     "bn": "ফ্রান্সে পড়তে চাই বলে ফরাসি শিখছি।",
+     "en": "I learn French because I want to study in France.",
+     "note_bn": "উচ্চারণ: ঝাপ্রঁ ল্ ফ্রঁসে পার্স ক্ ঝ্ ভ্যো এত্যুদিয়ে অঁ ফ্রঁস",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "C'est pourquoi je prends des cours.",
+     "bn": "সেজন্য ক্লাস করছি।",
+     "en": "That's why I'm taking classes.",
+     "note_bn": "উচ্চারণ: সে পুর্কোয়া ঝ্ প্রঁ দে কুর",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Bien qu'il pleuve, je vais au travail.",
+     "bn": "বৃষ্টি হলেও কাজে যাই।",
+     "en": "Although it's raining, I go to work.",
+     "note_bn": "উচ্চারণ: বিয়াঁ কিল প্ল্যোভ, ঝ্ ভে ও ত্রাভাই · 'bien que'-এর পরে subjonctif (pleuve)।",
+     "note_en": "'bien que' is followed by the subjunctive (pleuve)."
+    },
+    {
+     "kind": "grammar",
+     "target": "À mon avis, c'est une bonne idée.",
+     "bn": "আমার মতে এটা ভালো ভাবনা।",
+     "en": "In my opinion, it's a good idea.",
+     "note_bn": "উচ্চারণ: আ মঁ নাভি, সে ত্যুন বন ইদে",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "D'un côté … de l'autre …",
+     "bn": "একদিকে … অন্যদিকে …",
+     "en": "On one hand … on the other …",
+     "note_bn": "উচ্চারণ: দ্যাঁ কোতে … দ্ লোত্র …",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Je pense qu'il faut être ponctuel.",
+     "bn": "আমার মনে হয় সময়মতো থাকা দরকার।",
+     "en": "I think one must be punctual.",
+     "note_bn": "উচ্চারণ: ঝ্ পঁস কিল ফো এত্র পঁক্ত্যুয়েল",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "C'est pourquoi je prends des cours.",
+    "Bien qu'il pleuve, je vais au travail.",
+    "À mon avis, c'est une bonne idée."
+   ]
+  },
+  {
+   "id": "fr-b2-1",
+   "level": "B2",
+   "title_en": "Formal letters and polite requests",
+   "title_bn": "আনুষ্ঠানিক চিঠি ও ভদ্র অনুরোধ",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Madame, Monsieur,",
+     "bn": "জনাব/জনাবা,",
+     "en": "Dear Sir or Madam,",
+     "note_bn": "উচ্চারণ: মাদাম, ম্যসিয়ো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je me permets de vous écrire au sujet de …",
+     "bn": "… বিষয়ে আপনাকে লিখছি",
+     "en": "I am writing to you regarding …",
+     "note_bn": "উচ্চারণ: ঝ্ ম্ পের্মে দ্ ভু জেক্রির ও স্যুঝে দ্ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Je vous serais reconnaissant de bien vouloir …",
+     "bn": "অনুগ্রহ করে … করলে কৃতজ্ঞ থাকব",
+     "en": "I would be grateful if you would kindly …",
+     "note_bn": "উচ্চারণ: ঝ্ ভু স্রে র্‌কনেসঁ দ্ বিয়াঁ ভুলোয়ার …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Vous trouverez ci-joint mon dossier.",
+     "bn": "সংযুক্তিতে আমার নথি পাবেন।",
+     "en": "Please find my file attached.",
+     "note_bn": "উচ্চারণ: ভু ত্রুভ্রে সি-ঝোয়াঁ মঁ দসিয়ে",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Dans l'attente de votre réponse,",
+     "bn": "আপনার উত্তরের অপেক্ষায়,",
+     "en": "Looking forward to your reply,",
+     "note_bn": "উচ্চারণ: দাঁ লাতঁত দ্ ভোত্র রেপঁস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Veuillez agréer mes salutations distinguées.",
+     "bn": "বিনীত।",
+     "en": "Yours faithfully.",
+     "note_bn": "উচ্চারণ: ভ্যয়ে আগ্রেয়ে মে সাল্যুতাসিয়ঁ দিস্তাঁগে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Madame, Monsieur,",
+    "Vous trouverez ci-joint mon dossier.",
+    "Dans l'attente de votre réponse,"
+   ]
+  },
+  {
+   "id": "fr-c1-1",
+   "level": "C1",
+   "title_en": "Arguing like an expert",
+   "title_bn": "বিশেষজ্ঞের মতো যুক্তি",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Force est de constater que …",
+     "bn": "স্বীকার করতেই হয় যে …",
+     "en": "One has to acknowledge that …",
+     "note_bn": "উচ্চারণ: ফর্স এ দ্ কঁস্তাতে ক্ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Il n'en demeure pas moins que …",
+     "bn": "তবু সত্য এই যে …",
+     "en": "The fact remains that …",
+     "note_bn": "উচ্চারণ: ইল নঁ দ্‌ম্যর পা মোয়াঁ ক্ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Compte tenu de …",
+     "bn": "… বিবেচনায়",
+     "en": "Given / taking into account …",
+     "note_bn": "উচ্চারণ: কঁত ত্‌ন্যু দ্ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "En revanche, …",
+     "bn": "অন্যদিকে …",
+     "en": "On the other hand / by contrast …",
+     "note_bn": "উচ্চারণ: অঁ র্‌ভাঁশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Il convient de souligner que …",
+     "bn": "উল্লেখ করা দরকার যে …",
+     "en": "It should be stressed that …",
+     "note_bn": "উচ্চারণ: ইল কঁভিয়াঁ দ্ সুলিনিয়ে ক্ …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "En définitive, …",
+     "bn": "শেষ পর্যন্ত, …",
+     "en": "Ultimately, …",
+     "note_bn": "উচ্চারণ: অঁ দেফিনিতিভ",
+     "note_en": ""
+    }
+   ]
+  },
+  {
+   "id": "fr-c2-1",
+   "level": "C2",
+   "title_en": "Idioms native speakers use",
+   "title_bn": "স্থানীয়রা যে বাগধারা বলে",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Poser un lapin à quelqu'un",
+     "bn": "কাউকে কথা দিয়ে না আসা",
+     "en": "to stand someone up",
+     "note_bn": "উচ্চারণ: পোজে অ্যাঁ লাপাঁ আ কেলক্যাঁ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Avoir le cafard",
+     "bn": "মন খারাপ থাকা",
+     "en": "to feel down",
+     "note_bn": "উচ্চারণ: আভোয়ার ল্ কাফার",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Coûter les yeux de la tête",
+     "bn": "আকাশছোঁয়া দাম",
+     "en": "to cost an arm and a leg",
+     "note_bn": "উচ্চারণ: কুতে লে জ্যো দ্ লা তেত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Tomber dans les pommes",
+     "bn": "অজ্ঞান হয়ে যাওয়া",
+     "en": "to faint",
+     "note_bn": "উচ্চারণ: তঁবে দাঁ লে পম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ce n'est pas la mer à boire",
+     "bn": "এটা তেমন কঠিন কিছু নয়",
+     "en": "it's not that hard",
+     "note_bn": "উচ্চারণ: স্ নে পা লা মের আ বোয়ার",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Mettre les pieds dans le plat",
+     "bn": "বেফাঁস কথা বলে ফেলা",
+     "en": "to put one's foot in it",
+     "note_bn": "উচ্চারণ: মেত্র লে পিয়ে দাঁ ল্ প্লা",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Poser un lapin à quelqu'un",
+    "Avoir le cafard",
+    "Coûter les yeux de la tête"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Passport control in Paris",
+   "title_bn": "প্যারিসে পাসপোর্ট কন্ট্রোল",
+   "ai_role": "You are a French border officer at Paris-Charles de Gaulle. Polite, short, simple French (A1-A2). Ask for passport, purpose (study/work), length of stay, address. Repeat slowly if asked. Example flow (adapt, do not read verbatim): them: Bonjour. Votre passeport, s'il vous plaît. / you: Voilà. / them: Quel est le but de votre séjour ? / you: Je viens pour étudier. J'ai un visa étudiant. / them: Vous restez combien de temps ? / you: Deux ans. Voici l'adresse de ma résidence.",
+   "opening": "Bonjour. Votre passeport, s'il vous plaît.",
+   "goals_en": [
+    "Say why you came, how long you stay and where.",
+    "Say: Here you are.",
+    "Say: I'm here to study. I have a student visa.",
+    "Say: Two years. Here is my residence address."
+   ],
+   "goals_bn": [
+    "কেন এসেছেন, কতদিন, কোথায় থাকবেন বলুন।",
+    "বলুন: এই নিন।",
+    "বলুন: পড়তে এসেছি। স্টুডেন্ট ভিসা আছে।",
+    "বলুন: দুই বছর। এই যে হোস্টেলের ঠিকানা।"
+   ],
+   "useful": [
+    {
+     "target": "Voilà.",
+     "bn": "এই নিন।",
+     "en": "Here you are."
+    },
+    {
+     "target": "Je viens pour étudier. J'ai un visa étudiant.",
+     "bn": "পড়তে এসেছি। স্টুডেন্ট ভিসা আছে।",
+     "en": "I'm here to study. I have a student visa."
+    },
+    {
+     "target": "Deux ans. Voici l'adresse de ma résidence.",
+     "bn": "দুই বছর। এই যে হোস্টেলের ঠিকানা।",
+     "en": "Two years. Here is my residence address."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at a restaurant job",
+   "title_bn": "রেস্টুরেন্টের কাজে প্রথম দিন",
+   "ai_role": "You are the manager of a Paris restaurant welcoming a new student worker. B1 French. Explain hours (18h-23h), break at 20h30, one task (setting tables). Correct 'tu' to 'vous' gently. Example flow (adapt, do not read verbatim): you: Bonjour, je suis Rahim, le nouveau serveur. / them: Bienvenue ! Vous travaillez de dix-huit heures à vingt-trois heures. / you: À quelle heure est la pause ? / them: À vingt heures trente, pendant vingt minutes. / you: D'accord. Qu'est-ce que je fais d'abord ? / them: Mettez les couverts sur les tables, s'il vous plaît.",
+   "opening": "Bonjour ! Vous êtes le nouveau serveur ?",
+   "goals_en": [
+    "Introduce yourself, ask about your hours and the break.",
+    "Say: Hello, I'm Rahim, the new waiter.",
+    "Say: What time is the break?",
+    "Say: OK. What do I do first?"
+   ],
+   "goals_bn": [
+    "নিজের পরিচয় দিন, কাজের সময় ও বিরতি জিজ্ঞেস করুন।",
+    "বলুন: হ্যালো, আমি রহিম, নতুন ওয়েটার।",
+    "বলুন: বিরতি কখন?",
+    "বলুন: ঠিক আছে। প্রথমে কী করব?"
+   ],
+   "useful": [
+    {
+     "target": "Bonjour, je suis Rahim, le nouveau serveur.",
+     "bn": "হ্যালো, আমি রহিম, নতুন ওয়েটার।",
+     "en": "Hello, I'm Rahim, the new waiter."
+    },
+    {
+     "target": "À quelle heure est la pause ?",
+     "bn": "বিরতি কখন?",
+     "en": "What time is the break?"
+    },
+    {
+     "target": "D'accord. Qu'est-ce que je fais d'abord ?",
+     "bn": "ঠিক আছে। প্রথমে কী করব?",
+     "en": "OK. What do I do first?"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the doctor's",
+   "title_bn": "ডাক্তারের কাছে",
+   "ai_role": "You are a French general practitioner (médecin généraliste). Simple A2 French: what's wrong, since when, fever, allergies; prescribe 'deux fois par jour'. Do not give real medical advice. Example flow (adapt, do not read verbatim): them: Qu'est-ce qui ne va pas ? / you: J'ai mal à la gorge et j'ai de la fièvre. / them: Depuis quand ? / you: Depuis hier soir. / them: Prenez ce médicament deux fois par jour. / you: Avant ou après le repas ?",
+   "opening": "Qu'est-ce qui ne va pas ?",
+   "goals_en": [
+    "Say what hurts and since when; ask about the medicine.",
+    "Say: I have a sore throat and a fever.",
+    "Say: Since last night.",
+    "Say: Before or after meals?"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা ও কবে থেকে বলুন; ওষুধ নিয়ে জিজ্ঞেস করুন।",
+    "বলুন: গলা ব্যথা আর জ্বর।",
+    "বলুন: গতকাল রাত থেকে।",
+    "বলুন: খাবারের আগে না পরে?"
+   ],
+   "useful": [
+    {
+     "target": "J'ai mal à la gorge et j'ai de la fièvre.",
+     "bn": "গলা ব্যথা আর জ্বর।",
+     "en": "I have a sore throat and a fever."
+    },
+    {
+     "target": "Depuis hier soir.",
+     "bn": "গতকাল রাত থেকে।",
+     "en": "Since last night."
+    },
+    {
+     "target": "Avant ou après le repas ?",
+     "bn": "খাবারের আগে না পরে?",
+     "en": "Before or after meals?"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a student room",
+   "title_bn": "ছাত্রদের ঘর ভাড়া",
+   "ai_role": "You are a landlord renting a studio in Lyon to a student. B1 French. Rent 520 euros with charges included, deposit one month, mention that students can apply for housing aid (APL via CAF). Ask for a guarantor. Example flow (adapt, do not read verbatim): you: Le loyer est de combien ? / them: Cinq cent vingt euros, charges comprises. / you: Et le dépôt de garantie ? / them: Un mois de loyer. Vous avez un garant ? / you: Est-ce que je peux demander l'aide au logement ? / them: Oui, vous pouvez faire une demande à la CAF.",
+   "opening": "Bonjour ! Vous venez pour le studio ?",
+   "goals_en": [
+    "Ask the rent, charges, the deposit and the housing aid (CAF).",
+    "Say: How much is the rent?",
+    "Say: And the deposit?",
+    "Say: Can I apply for housing aid?"
+   ],
+   "goals_bn": [
+    "ভাড়া, চার্জ, জামানত ও আবাসন সহায়তা (CAF) জিজ্ঞেস করুন।",
+    "বলুন: ভাড়া কত?",
+    "বলুন: আর জামানত?",
+    "বলুন: আবাসন সহায়তার আবেদন করতে পারব?"
+   ],
+   "useful": [
+    {
+     "target": "Le loyer est de combien ?",
+     "bn": "ভাড়া কত?",
+     "en": "How much is the rent?"
+    },
+    {
+     "target": "Et le dépôt de garantie ?",
+     "bn": "আর জামানত?",
+     "en": "And the deposit?"
+    },
+    {
+     "target": "Est-ce que je peux demander l'aide au logement ?",
+     "bn": "আবাসন সহায়তার আবেদন করতে পারব?",
+     "en": "Can I apply for housing aid?"
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the market",
+   "title_bn": "বাজারে",
+   "ai_role": "You are a stallholder at a French street market. Very simple A1 French. Sell tomatoes and onions by the kilo, say the price, give change. Example flow (adapt, do not read verbatim): you: Bonjour, un kilo de tomates, s'il vous plaît. / them: Voilà. Et avec ça ? / you: Des oignons aussi. Ça fait combien ? / them: Quatre euros cinquante. / you: Voilà cinq euros. / them: Et cinquante centimes. Merci, bonne journée !",
+   "opening": "Bonjour ! Qu'est-ce que je vous sers ?",
+   "goals_en": [
+    "Ask for vegetables, the price, and pay.",
+    "Say: Hello, a kilo of tomatoes, please.",
+    "Say: Onions too. How much is that?",
+    "Say: Here's five euros."
+   ],
+   "goals_bn": [
+    "সবজি চান, দাম জিজ্ঞেস করুন, টাকা দিন।",
+    "বলুন: হ্যালো, এক কেজি টমেটো দিন।",
+    "বলুন: পেঁয়াজও। মোট কত?",
+    "বলুন: এই নিন পাঁচ ইউরো।"
+   ],
+   "useful": [
+    {
+     "target": "Bonjour, un kilo de tomates, s'il vous plaît.",
+     "bn": "হ্যালো, এক কেজি টমেটো দিন।",
+     "en": "Hello, a kilo of tomatoes, please."
+    },
+    {
+     "target": "Des oignons aussi. Ça fait combien ?",
+     "bn": "পেঁয়াজও। মোট কত?",
+     "en": "Onions too. How much is that?"
+    },
+    {
+     "target": "Voilà cinq euros.",
+     "bn": "এই নিন পাঁচ ইউরো।",
+     "en": "Here's five euros."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "fr-pr1",
+   "text": "Bonjour, je m'appelle Karim.",
+   "tip_bn": "'bonjour'-এর 'on' নাকি সুর — নাক দিয়ে বাতাস।",
+   "tip_en": "'on' in 'bonjour' is nasal — air through the nose."
+  },
+  {
+   "id": "fr-pr2",
+   "text": "Je viens du Bangladesh.",
+   "tip_bn": "'du'-এর u: ঠোঁট গোল করে 'ই'।",
+   "tip_en": "'u' in 'du': say 'ই' with rounded lips."
+  },
+  {
+   "id": "fr-pr3",
+   "text": "Je ne comprends pas.",
+   "tip_bn": "শেষের ব্যঞ্জন সাধারণত নীরব: 'comprends'-এর d, s উচ্চারণ হয় না।",
+   "tip_en": "Final consonants are usually silent: 'comprends' ends in a nasal vowel."
+  },
+  {
+   "id": "fr-pr4",
+   "text": "Merci beaucoup, au revoir.",
+   "tip_bn": "ফরাসি 'r' গলার পেছন থেকে।",
+   "tip_en": "French 'r' comes from the back of the throat."
+  },
+  {
+   "id": "fr-pr5",
+   "text": "Les enfants sont à l'école.",
+   "tip_bn": "লিয়েজোঁ: 'les enfants' শোনায় 'লে-জঁফঁ'।",
+   "tip_en": "Liaison: 'les enfants' sounds 'lé-zanfan'."
+  },
+  {
+   "id": "fr-pr6",
+   "text": "Je voudrais un aller simple pour Lyon.",
+   "tip_bn": "'un aller' জোড়া লাগে: 'অ্যাঁ-নালে'।",
+   "tip_en": "'un aller' links: 'un-n-aller'."
+  },
+  {
+   "id": "fr-pr7",
+   "text": "Pourriez-vous répéter, s'il vous plaît ?",
+   "tip_bn": "'é' বন্ধ 'এ'।",
+   "tip_en": "'é' is a closed 'এ'."
+  },
+  {
+   "id": "fr-pr8",
+   "text": "J'habite en France depuis trois ans.",
+   "tip_bn": "'h' নীরব: j'habite = 'ঝাবিত'।",
+   "tip_en": "'h' is silent: j'habite = 'জাবিত'."
+  },
+  {
+   "id": "fr-pr9",
+   "text": "Il fait beau aujourd'hui.",
+   "tip_bn": "'eau' আর 'au' দুটোই 'ও'।",
+   "tip_en": "'eau' and 'au' both sound 'ও'."
+  },
+  {
+   "id": "fr-pr10",
+   "text": "Je vous serais reconnaissant de bien vouloir me répondre.",
+   "tip_bn": "মসৃণ রাখুন — ফরাসিতে প্রতিটি শব্দগুচ্ছের শেষ অংশে জোর।",
+   "tip_en": "Keep it smooth — French stresses the last syllable of each group."
+  },
+  {
+   "id": "fr-pr11",
+   "text": "Le développement durable est une priorité.",
+   "tip_bn": "'durable' ও 'une'-এর u — ঠোঁট গোল।",
+   "tip_en": "'u' in 'durable' and 'une' — rounded lips."
+  },
+  {
+   "id": "fr-pr12",
+   "text": "Force est de constater que la situation s'améliore.",
+   "tip_bn": "'tion' উচ্চারণ 'সিয়ঁ'।",
+   "tip_en": "'tion' sounds 'সিয়ঁ'."
+  }
+ ],
+ "mock": [
+  {
+   "id": "fr_style_1",
+   "title_en": "DELF/DALF FORMAT style (compréhension de l'oral, compréhension des écrits, production écrite, production orale) — original Assisto questions, never a real exam paper",
+   "title_bn": "DELF/DALF ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "format_en": "DELF/DALF FORMAT style (compréhension de l'oral, compréhension des écrits, production écrite, production orale) — original Assisto questions, never a real exam paper",
+   "format_bn": "DELF/DALF ফরম্যাটের ধাঁচ (শোনা, পড়া, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "minutes": 40,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading and understanding (listening items are shown as text until phone-voice listening is enabled)",
+     "title_bn": "পড়া ও বোঝা (ফোনের কণ্ঠে শোনা চালু না হওয়া পর্যন্ত শোনার প্রশ্ন লেখা আকারে)",
+     "questions": [
+      {
+       "id": "fr-mk-l1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "Which platform?\nLe train pour Lille part de la voie six.",
+       "text_en": "Which platform?\nLe train pour Lille part de la voie six.",
+       "text_bn": "কোন প্ল্যাটফর্ম?\nLe train pour Lille part de la voie six.",
+       "tts_text": "Le train pour Lille part de la voie six.",
+       "options": [
+        "2",
+        "4",
+        "6"
+       ],
+       "answer": 2,
+       "explain_bn": "'voie six' = ৬ নম্বর প্ল্যাটফর্ম।",
+       "explain_en": "'voie six' = platform 6."
+      },
+      {
+       "id": "fr-mk-l2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "True or false: the pharmacy is closed on Sunday.\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
+       "text_en": "True or false: the pharmacy is closed on Sunday.\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
+       "text_bn": "সত্য না মিথ্যা: রবিবার ফার্মেসি বন্ধ।\nLa pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
+       "tts_text": "La pharmacie est ouverte du lundi au samedi et fermée le dimanche.",
+       "options": [
+        "True",
+        "False"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 0,
+       "explain_bn": "'fermée le dimanche' = রবিবার বন্ধ।",
+       "explain_en": "'fermée le dimanche' = closed on Sunday."
+      },
+      {
+       "id": "fr-mk-l3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "What must the student bring?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
+       "text_en": "What must the student bring?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
+       "text_bn": "ছাত্রটিকে কী আনতে হবে?\nPour votre carte d'étudiant, apportez une photo et votre passeport.",
+       "tts_text": "Pour votre carte d'étudiant, apportez une photo et votre passeport.",
+       "options": [
+        "A photo and the passport",
+        "Money",
+        "A book"
+       ],
+       "options_en": [
+        "A photo and the passport",
+        "Money",
+        "A book"
+       ],
+       "options_bn": [
+        "ছবি ও পাসপোর্ট",
+        "টাকা",
+        "বই"
+       ],
+       "answer": 0,
+       "explain_bn": "'একটা ছবি ও পাসপোর্ট'।",
+       "explain_en": "'une photo et votre passeport'."
+      },
+      {
+       "id": "fr-mk-l4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "Why is the class cancelled?\nLe cours de jeudi est annulé à cause de la grève des transports.",
+       "text_en": "Why is the class cancelled?\nLe cours de jeudi est annulé à cause de la grève des transports.",
+       "text_bn": "ক্লাস কেন বাতিল?\nLe cours de jeudi est annulé à cause de la grève des transports.",
+       "tts_text": "Le cours de jeudi est annulé à cause de la grève des transports.",
+       "options": [
+        "The teacher is ill",
+        "There is a strike",
+        "It's a holiday"
+       ],
+       "options_en": [
+        "The teacher is ill",
+        "There is a strike",
+        "It's a holiday"
+       ],
+       "options_bn": [
+        "শিক্ষক অসুস্থ",
+        "ধর্মঘট",
+        "ছুটির দিন"
+       ],
+       "answer": 1,
+       "explain_bn": "'à cause de la grève' = ধর্মঘটের কারণে।",
+       "explain_en": "'à cause de la grève' = because of the strike."
+      },
+      {
+       "id": "fr-mk-l5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "What does the advisor recommend?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
+       "text_en": "What does the advisor recommend?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
+       "text_bn": "পরামর্শদাতা কী বললেন?\nJe vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
+       "tts_text": "Je vous conseille de faire votre demande d'aide au logement dès votre arrivée, car le traitement prend plusieurs semaines.",
+       "options": [
+        "Apply for housing aid as soon as you arrive",
+        "Wait one year",
+        "Live without a lease"
+       ],
+       "options_en": [
+        "Apply for housing aid as soon as you arrive",
+        "Wait one year",
+        "Live without a lease"
+       ],
+       "options_bn": [
+        "পৌঁছেই আবাসন সহায়তার আবেদন",
+        "এক বছর অপেক্ষা",
+        "চুক্তি ছাড়া থাকা"
+       ],
+       "answer": 0,
+       "explain_bn": "'dès votre arrivée' = পৌঁছেই।",
+       "explain_en": "'dès votre arrivée' = as soon as you arrive."
+      },
+      {
+       "id": "fr-mk-l6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "What is the speaker's attitude?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
+       "text_en": "What is the speaker's attitude?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
+       "text_bn": "বক্তার মনোভাব কী?\nCette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
+       "tts_text": "Cette réforme constitue une avancée indéniable ; reste à savoir si les moyens suivront.",
+       "options": [
+        "Supportive with a reservation",
+        "Totally against",
+        "Indifferent"
+       ],
+       "options_en": [
+        "Supportive with a reservation",
+        "Totally against",
+        "Indifferent"
+       ],
+       "options_bn": [
+        "সমর্থন, তবে একটু সংশয়",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
+       ],
+       "answer": 0,
+       "explain_bn": "'অগ্রগতি … তবে দেখার বিষয়'।",
+       "explain_en": "'une avancée … reste à savoir si' = progress … it remains to be seen."
+      },
+      {
+       "id": "fr-mk-r1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "Notice at the town hall. When is it closed?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
+       "text_en": "Notice at the town hall. When is it closed?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
+       "text_bn": "পৌরসভার নোটিশ। কখন বন্ধ?\nMairie : ouvert du lundi au vendredi 8h30–17h, le samedi 9h–12h. Fermé le samedi après-midi.",
+       "options": [
+        "Saturday afternoon",
+        "Monday morning",
+        "Every day"
+       ],
+       "options_en": [
+        "Saturday afternoon",
+        "Monday morning",
+        "Every day"
+       ],
+       "options_bn": [
+        "শনিবার বিকেল",
+        "সোমবার সকাল",
+        "প্রতিদিন"
+       ],
+       "answer": 0,
+       "explain_bn": "'শনিবার বিকেলে বন্ধ'।",
+       "explain_en": "'fermé le samedi après-midi'."
+      },
+      {
+       "id": "fr-mk-r2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "True or false: you can eat in the library.\nBibliothèque : silence. Interdit de manger et de boire.",
+       "text_en": "True or false: you can eat in the library.\nBibliothèque : silence. Interdit de manger et de boire.",
+       "text_bn": "সত্য না মিথ্যা: লাইব্রেরিতে খাওয়া যায়।\nBibliothèque : silence. Interdit de manger et de boire.",
+       "options": [
+        "True",
+        "False"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 1,
+       "explain_bn": "'Interdit de manger' = খাওয়া নিষেধ।",
+       "explain_en": "'Interdit de manger' = eating forbidden."
+      },
+      {
+       "id": "fr-mk-r3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "What does Léa ask?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
+       "text_en": "What does Léa ask?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
+       "text_bn": "লেয়া কী চাইছেন?\nSalut Rahim, est-ce qu'on pourrait échanger nos services ? Je prendrais ton samedi et tu ferais mon mardi. Merci ! Léa",
+       "options": [
+        "To swap shifts",
+        "A pay rise",
+        "A day trip"
+       ],
+       "options_en": [
+        "To swap shifts",
+        "A pay rise",
+        "A day trip"
+       ],
+       "options_bn": [
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "এক দিনের ভ্রমণ"
+       ],
+       "answer": 0,
+       "explain_bn": "'échanger nos services' = শিফট বদল।",
+       "explain_en": "'échanger nos services' = swap our shifts."
+      },
+      {
+       "id": "fr-mk-r4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "Why is the course free for Nadia?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
+       "text_en": "Why is the course free for Nadia?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
+       "text_bn": "নাদিয়ার কোর্স কেন ফ্রি?\nCours de français : 300 €. Gratuit pour les demandeurs d'emploi inscrits. Nadia est inscrite comme demandeuse d'emploi.",
+       "options": [
+        "She is a registered job seeker",
+        "She is under 18",
+        "She booked early"
+       ],
+       "options_en": [
+        "She is a registered job seeker",
+        "She is under 18",
+        "She booked early"
+       ],
+       "options_bn": [
+        "নিবন্ধিত চাকরিপ্রার্থী",
+        "১৮-র কম বয়স",
+        "আগে বুক করেছেন"
+       ],
+       "answer": 0,
+       "explain_bn": "নিবন্ধিত চাকরিপ্রার্থীদের জন্য ফ্রি।",
+       "explain_en": "'gratuit pour les demandeurs d'emploi inscrits'."
+      },
+      {
+       "id": "fr-mk-r5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "What does the employer offer?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
+       "text_en": "What does the employer offer?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
+       "text_bn": "নিয়োগকর্তা কী দিচ্ছেন?\nNous recrutons des développeurs (H/F) maîtrisant le français (niveau B2 minimum). Nous offrons une aide à la recherche de logement.",
+       "options": [
+        "Help finding housing",
+        "A free car",
+        "Only remote work"
+       ],
+       "options_en": [
+        "Help finding housing",
+        "A free car",
+        "Only remote work"
+       ],
+       "options_bn": [
+        "বাসা খুঁজতে সাহায্য",
+        "বিনামূল্যে গাড়ি",
+        "শুধু দূর থেকে কাজ"
+       ],
+       "answer": 0,
+       "explain_bn": "বাসা খোঁজায় সাহায্য।",
+       "explain_en": "'aide à la recherche de logement'."
+      },
+      {
+       "id": "fr-mk-r6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "Which statement matches the text?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
+       "text_en": "Which statement matches the text?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
+       "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nLa dématérialisation des démarches peut réduire les délais, à condition que les usagers soient accompagnés.",
+       "options": [
+        "Online forms help only if people are supported",
+        "Online forms always help",
+        "Paper is faster"
+       ],
+       "options_en": [
+        "Online forms help only if people are supported",
+        "Online forms always help",
+        "Paper is faster"
+       ],
+       "options_bn": [
+        "মানুষকে সহায়তা করলে তবেই অনলাইন ফর্ম কাজে দেয়",
+        "অনলাইন ফর্ম সবসময় কাজে দেয়",
+        "কাগজে দ্রুত"
+       ],
+       "answer": 0,
+       "explain_bn": "'à condition que' = শর্তে।",
+       "explain_en": "'à condition que' = provided that."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing",
+     "title_bn": "লেখা",
+     "prompts": [
+      {
+       "id": "fr-mk-w1",
+       "text": "Write a short message (about 40 words) to your friend Paul: you can't come on Saturday, say why, propose another day.",
+       "text_en": "Write a short message (about 40 words) to your friend Paul: you can't come on Saturday, say why, propose another day.",
+       "text_bn": "বন্ধু Paul-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
+       "min_words": 25,
+       "max_words": 70,
+       "checks": [
+        {
+         "any": [
+          "salut",
+          "bonjour",
+          "cher",
+          "chère"
+         ],
+         "en": "Greeting",
+         "bn": "সম্বোধন"
+        },
+        {
+         "any": [
+          "samedi"
+         ],
+         "en": "Mention Saturday",
+         "bn": "শনিবার বলা"
+        },
+        {
+         "any": [
+          "parce que",
+          "car"
+         ],
+         "en": "A reason (parce que)",
+         "bn": "কারণ (parce que)"
+        },
+        {
+         "any": [
+          "lundi",
+          "mardi",
+          "mercredi",
+          "jeudi",
+          "vendredi",
+          "dimanche"
+         ],
+         "en": "Another day",
+         "bn": "অন্য দিন"
+        }
+       ]
+      },
+      {
+       "id": "fr-mk-w2",
+       "text": "Write to your landlord (about 160 words, as in the B1 format): the heating is broken, since when, ask for a repair date, polite close.",
+       "text_en": "Write to your landlord (about 160 words, as in the B1 format): the heating is broken, since when, ask for a repair date, polite close.",
+       "text_bn": "বাড়িওয়ালাকে লিখুন (প্রায় ১৬০ শব্দ, B1 ফরম্যাটের মতো): হিটিং নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
+       "min_words": 120,
+       "max_words": 220,
+       "checks": [
+        {
+         "any": [
+          "madame",
+          "monsieur"
+         ],
+         "en": "Formal greeting",
+         "bn": "আনুষ্ঠানিক সম্বোধন"
+        },
+        {
+         "any": [
+          "chauffage"
+         ],
+         "en": "Name the problem (chauffage)",
+         "bn": "সমস্যার নাম (chauffage)"
+        },
+        {
+         "any": [
+          "depuis"
+         ],
+         "en": "Since when (depuis)",
+         "bn": "কবে থেকে (depuis)"
+        },
+        {
+         "any": [
+          "pourriez",
+          "pourrez",
+          "voudriez",
+          "s'il vous plaît"
+         ],
+         "en": "Polite request",
+         "bn": "ভদ্র অনুরোধ"
+        },
+        {
+         "any": [
+          "salutations",
+          "cordialement"
+         ],
+         "en": "Formal close",
+         "bn": "আনুষ্ঠানিক সমাপ্তি"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "speaking",
+     "skill": "speaking",
+     "title_en": "Speaking — read aloud, the phone checks",
+     "title_bn": "বলা — জোরে পড়ুন, ফোন যাচাই করবে",
+     "read_aloud": [
+      "Bonjour, je m'appelle Karim.",
+      "Je viens du Bangladesh.",
+      "Je ne comprends pas.",
+      "Merci beaucoup, au revoir."
+     ],
+     "speak_prompts": [
+      {
+       "id": "fr-mk-s1",
+       "text_en": "Introduce yourself: name, country, city, studies or job, languages.",
+       "text_bn": "নিজের পরিচয়: নাম, দেশ, শহর, পড়াশোনা বা কাজ, ভাষা।",
+       "seconds": 60,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "appelle"
+         ],
+         "en": "Name",
+         "bn": "নাম"
+        },
+        {
+         "any": [
+          "bangladesh"
+         ],
+         "en": "Country",
+         "bn": "দেশ"
+        },
+        {
+         "any": [
+          "habite"
+         ],
+         "en": "Where you live",
+         "bn": "কোথায় থাকেন"
+        },
+        {
+         "any": [
+          "étudie",
+          "travaille",
+          "suis"
+         ],
+         "en": "Study or job",
+         "bn": "পড়াশোনা বা কাজ"
+        },
+        {
+         "any": [
+          "parle"
+         ],
+         "en": "Languages",
+         "bn": "ভাষা"
+        }
+       ]
+      },
+      {
+       "id": "fr-mk-s2",
+       "text_en": "Give your opinion for 1 minute: 'Studying abroad — advantages and disadvantages'.",
+       "text_bn": "১ মিনিট মত দিন: 'বিদেশে পড়াশোনা — সুবিধা ও অসুবিধা'।",
+       "seconds": 90,
+       "prep_seconds": 60,
+       "checks": [
+        {
+         "any": [
+          "avantage"
+         ],
+         "en": "An advantage",
+         "bn": "সুবিধা"
+        },
+        {
+         "any": [
+          "inconvénient"
+         ],
+         "en": "A disadvantage",
+         "bn": "অসুবিধা"
+        },
+        {
+         "any": [
+          "à mon avis",
+          "je pense",
+          "je trouve"
+         ],
+         "en": "Your opinion",
+         "bn": "নিজের মত"
+        },
+        {
+         "any": [
+          "parce que",
+          "car",
+          "donc"
+         ],
+         "en": "A reason",
+         "bn": "কারণ"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "A1"
+    },
+    {
+     "min_pct": 30,
+     "level": "A2"
+    },
+    {
+     "min_pct": 50,
+     "level": "B1"
+    },
+    {
+     "min_pct": 70,
+     "level": "B2"
+    },
+    {
+     "min_pct": 88,
+     "level": "C1"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}
