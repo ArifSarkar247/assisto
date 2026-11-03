@@ -1,0 +1,2469 @@
+{
+ "format": 1,
+ "lang": "ar",
+ "version": 1,
+ "stt_locale": "ar-SA",
+ "tts_locale": "ar-SA",
+ "rtl": true,
+ "level_system": "Work Arabic",
+ "levels": [
+  {
+   "id": "W1",
+   "en": "Level 1 — Survival (greet, numbers, I don't understand)",
+   "bn": "স্তর ১ — টিকে থাকা (সালাম, সংখ্যা, 'বুঝিনি')"
+  },
+  {
+   "id": "W2",
+   "en": "Level 2 — Work instructions (driver, house, site, shop)",
+   "bn": "স্তর ২ — কাজের নির্দেশ বোঝা (ড্রাইভার, বাসা, সাইট, দোকান)"
+  },
+  {
+   "id": "W3",
+   "en": "Level 3 — Problems & rights (health, salary, passport)",
+   "bn": "স্তর ৩ — সমস্যা ও অধিকার (অসুখ, বেতন, পাসপোর্ট)"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "ar-pl1",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W1",
+    "text": "Which letter is 'b'?",
+    "text_en": "Which letter is 'b'?",
+    "text_bn": "কোন অক্ষরটি 'ব'?",
+    "options": [
+     "ب",
+     "ت",
+     "ن",
+     "ي"
+    ],
+    "answer": 0,
+    "explain_bn": "ب-এর নিচে এক ফোঁটা।",
+    "explain_en": "ب has one dot below."
+   },
+   {
+    "id": "ar-pl2",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W1",
+    "text": "What does this mean?\nشلونك؟",
+    "text_en": "What does this mean?\nشلونك؟",
+    "text_bn": "এর মানে কী?\nشلونك؟",
+    "tts_text": "شلونك؟",
+    "options": [
+     "How are you?",
+     "Where are you?",
+     "Thank you",
+     "Goodbye"
+    ],
+    "options_en": [
+     "How are you?",
+     "Where are you?",
+     "Thank you",
+     "Goodbye"
+    ],
+    "options_bn": [
+     "কেমন আছেন?",
+     "কোথায় আছেন?",
+     "ধন্যবাদ",
+     "বিদায়"
+    ],
+    "answer": 0,
+    "explain_bn": "শ্লোনাক = কেমন আছেন (উপসাগরীয়)।",
+    "explain_en": "شلونك = how are you (Gulf)."
+   },
+   {
+    "id": "ar-pl3",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W1",
+    "text": "What is the number?\nخمسة",
+    "text_en": "What is the number?\nخمسة",
+    "text_bn": "সংখ্যাটি কত?\nخمسة",
+    "tts_text": "خمسة",
+    "options": [
+     "3",
+     "5",
+     "8",
+     "10"
+    ],
+    "answer": 1,
+    "explain_bn": "খামসা = পাঁচ।",
+    "explain_en": "خمسة = five."
+   },
+   {
+    "id": "ar-pl4",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W1",
+    "text": "What does this sign say?\nخطر",
+    "text_en": "What does this sign say?\nخطر",
+    "text_bn": "সাইনটিতে কী লেখা?\nخطر",
+    "options": [
+     "Exit",
+     "Danger",
+     "Pharmacy",
+     "Closed"
+    ],
+    "options_en": [
+     "Exit",
+     "Danger",
+     "Pharmacy",
+     "Closed"
+    ],
+    "options_bn": [
+     "বের হওয়ার পথ",
+     "বিপদ",
+     "ওষুধের দোকান",
+     "বন্ধ"
+    ],
+    "answer": 1,
+    "explain_bn": "খাতার = বিপদ।",
+    "explain_en": "خطر = danger."
+   },
+   {
+    "id": "ar-pl5",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W2",
+    "text": "Your passenger says this. What do you do?\nلف يسار عند الإشارة",
+    "text_en": "Your passenger says this. What do you do?\nلف يسار عند الإشارة",
+    "text_bn": "যাত্রী এটা বললেন। আপনি কী করবেন?\nلف يسار عند الإشارة",
+    "tts_text": "لف يسار عند الإشارة",
+    "options": [
+     "Turn right",
+     "Turn left",
+     "Stop",
+     "Go back"
+    ],
+    "options_en": [
+     "Turn right",
+     "Turn left",
+     "Stop",
+     "Go back"
+    ],
+    "options_bn": [
+     "ডানে ঘুরব",
+     "বামে ঘুরব",
+     "থামব",
+     "পিছনে যাব"
+    ],
+    "answer": 1,
+    "explain_bn": "ইয়াসার = বামে।",
+    "explain_en": "يسار = left."
+   },
+   {
+    "id": "ar-pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W2",
+    "text": "Madam says this. What should you do?\nاغسلي الصحون بعد الغدا",
+    "text_en": "Madam says this. What should you do?\nاغسلي الصحون بعد الغدا",
+    "text_bn": "ম্যাডাম এটা বললেন। কী করবেন?\nاغسلي الصحون بعد الغدا",
+    "tts_text": "اغسلي الصحون بعد الغدا",
+    "options": [
+     "Wash the dishes",
+     "Cook lunch",
+     "Iron clothes",
+     "Clean the room"
+    ],
+    "options_en": [
+     "Wash the dishes",
+     "Cook lunch",
+     "Iron clothes",
+     "Clean the room"
+    ],
+    "options_bn": [
+     "থালা-বাসন ধোব",
+     "দুপুরের খাবার রাঁধব",
+     "কাপড় ইস্ত্রি করব",
+     "ঘর পরিষ্কার করব"
+    ],
+    "answer": 0,
+    "explain_bn": "ইগসিল আস-সুহূন = থালা-বাসন ধোও।",
+    "explain_en": "اغسل الصحون = wash the dishes."
+   },
+   {
+    "id": "ar-pl7",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W2",
+    "text": "The foreman shouts this. What does it mean?\nانتبه!",
+    "text_en": "The foreman shouts this. What does it mean?\nانتبه!",
+    "text_bn": "ফোরম্যান চিৎকার করলেন। মানে কী?\nانتبه!",
+    "tts_text": "انتبه!",
+    "options": [
+     "Watch out!",
+     "Come here",
+     "Well done",
+     "Go home"
+    ],
+    "options_en": [
+     "Watch out!",
+     "Come here",
+     "Well done",
+     "Go home"
+    ],
+    "options_bn": [
+     "সাবধান!",
+     "এদিকে আসো",
+     "শাবাশ",
+     "বাসায় যাও"
+    ],
+    "answer": 0,
+    "explain_bn": "ইনতাবিহ = সাবধান।",
+    "explain_en": "انتبه = watch out."
+   },
+   {
+    "id": "ar-pl8",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W2",
+    "text": "Choose the right reply to 'Do you have cold water?'",
+    "text_en": "Choose the right reply to 'Do you have cold water?'",
+    "text_bn": "'ঠান্ডা পানি আছে?' — সঠিক উত্তর কোনটি?",
+    "options": [
+     "موجود، تفضّل",
+     "أنا من بنغلاديش",
+     "الدوّار",
+     "انجرحت"
+    ],
+    "answer": 0,
+    "explain_bn": "মাওজূদ, তফাদ্দাল = আছে, নিন।",
+    "explain_en": "موجود، تفضّل = yes, we have it, here you are."
+   },
+   {
+    "id": "ar-pl9",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W3",
+    "text": "What is the worker saying?\nما استلمت الراتب من شهرين",
+    "text_en": "What is the worker saying?\nما استلمت الراتب من شهرين",
+    "text_bn": "কর্মী কী বলছেন?\nما استلمت الراتب من شهرين",
+    "tts_text": "ما استلمت الراتب من شهرين",
+    "options": [
+     "He has not been paid for two months",
+     "He wants to go home tomorrow",
+     "He lost his phone",
+     "He needs a new room"
+    ],
+    "options_en": [
+     "He has not been paid for two months",
+     "He wants to go home tomorrow",
+     "He lost his phone",
+     "He needs a new room"
+    ],
+    "options_bn": [
+     "দুই মাস বেতন পাননি",
+     "কাল দেশে যেতে চান",
+     "ফোন হারিয়েছেন",
+     "নতুন ঘর দরকার"
+    ],
+    "answer": 0,
+    "explain_bn": "দুই মাস বেতন পাইনি।",
+    "explain_en": "ما استلمت الراتب من شهرين = I haven't received the salary for two months."
+   },
+   {
+    "id": "ar-pl10",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W3",
+    "text": "Where does it hurt?\nبطني يعوّرني من أمس",
+    "text_en": "Where does it hurt?\nبطني يعوّرني من أمس",
+    "text_bn": "কোথায় ব্যথা?\nبطني يعوّرني من أمس",
+    "tts_text": "بطني يعوّرني من أمس",
+    "options": [
+     "Head",
+     "Stomach",
+     "Back",
+     "Leg"
+    ],
+    "options_en": [
+     "Head",
+     "Stomach",
+     "Back",
+     "Leg"
+    ],
+    "options_bn": [
+     "মাথা",
+     "পেট",
+     "পিঠ",
+     "পা"
+    ],
+    "answer": 1,
+    "explain_bn": "বাতনি = আমার পেট।",
+    "explain_en": "بطني = my stomach."
+   },
+   {
+    "id": "ar-pl11",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W3",
+    "text": "How do you ask for your passport politely?",
+    "text_en": "How do you ask for your passport politely?",
+    "text_bn": "ভদ্রভাবে পাসপোর্ট চাইবেন কীভাবে?",
+    "options": [
+     "أبي جوازي لو سمحت",
+     "وين الدوّار؟",
+     "بكم هذا؟",
+     "اطبخ الغدا"
+    ],
+    "answer": 0,
+    "explain_bn": "আবি জাওয়াযি লাও সামাহত = দয়া করে আমার পাসপোর্ট দিন।",
+    "explain_en": "أبي جوازي لو سمحت = I want my passport, please."
+   },
+   {
+    "id": "ar-pl12",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "W3",
+    "text": "What does this mean?\nهذا مو في العقد",
+    "text_en": "What does this mean?\nهذا مو في العقد",
+    "text_bn": "এর মানে কী?\nهذا مو في العقد",
+    "options": [
+     "This is not in the contract",
+     "This is very expensive",
+     "This is the supervisor",
+     "This room is closed"
+    ],
+    "options_en": [
+     "This is not in the contract",
+     "This is very expensive",
+     "This is the supervisor",
+     "This room is closed"
+    ],
+    "options_bn": [
+     "এটা চুক্তিতে নেই",
+     "এটা খুব দামি",
+     "ইনি সুপারভাইজার",
+     "এই ঘর বন্ধ"
+    ],
+    "answer": 0,
+    "explain_bn": "হাযা মু ফিল-আকদ = এটা চুক্তিতে নেই।",
+    "explain_en": "هذا مو في العقد = this is not in the contract."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "ar-s1",
+   "level": "W1",
+   "title_en": "Script 1: alif to raa",
+   "title_bn": "বর্ণমালা ১: আলিফ থেকে রা",
+   "items": [
+    {
+     "kind": "note",
+     "target": "ا   ـا",
+     "bn": "আরবি ডান থেকে বামে পড়ে। বেশিরভাগ অক্ষর শব্দের শুরু, মাঝে ও শেষে আকার বদলায়।",
+     "en": "Arabic is read right to left. Most letters change shape at the start, middle and end of a word."
+    },
+    {
+     "kind": "vocab",
+     "target": "ا   ـا",
+     "bn": "লম্বা 'আ' — পরের অক্ষরের সাথে জোড়ে না",
+     "en": "long 'aa' (also carries other vowels)",
+     "roman": "alif",
+     "note_bn": "উচ্চারণ: আ · অক্ষরের নাম: আলিফ",
+     "note_en": "Letter name: alif"
+    },
+    {
+     "kind": "vocab",
+     "target": "ب   بـ ـبـ ـب",
+     "bn": "বাংলা 'ব' — নিচে এক ফোঁটা",
+     "en": "b as in 'bag' (one dot below)",
+     "roman": "baa",
+     "note_bn": "উচ্চারণ: ব · অক্ষরের নাম: বা",
+     "note_en": "Letter name: baa"
+    },
+    {
+     "kind": "vocab",
+     "target": "ت   تـ ـتـ ـت",
+     "bn": "বাংলা 'ত' — উপরে দুই ফোঁটা",
+     "en": "t (two dots above)",
+     "roman": "taa",
+     "note_bn": "উচ্চারণ: ত · অক্ষরের নাম: তা",
+     "note_en": "Letter name: taa"
+    },
+    {
+     "kind": "vocab",
+     "target": "ث   ثـ ـثـ ـث",
+     "bn": "জিভ দাঁতের ফাঁকে রেখে নরম 'স' — উপরে তিন ফোঁটা",
+     "en": "'th' as in 'think'",
+     "roman": "thaa",
+     "note_bn": "উচ্চারণ: ছ/থ · অক্ষরের নাম: ছা",
+     "note_en": "Letter name: thaa"
+    },
+    {
+     "kind": "vocab",
+     "target": "ج   جـ ـجـ ـج",
+     "bn": "বাংলা 'জ'",
+     "en": "j as in 'job'",
+     "roman": "jiim",
+     "note_bn": "উচ্চারণ: জ · অক্ষরের নাম: জীম",
+     "note_en": "Letter name: jiim"
+    },
+    {
+     "kind": "vocab",
+     "target": "ح   حـ ـحـ ـح",
+     "bn": "গলার মাঝখান থেকে বাতাস ছেড়ে 'হ' — ফোঁটা নেই",
+     "en": "breathy h from the throat",
+     "roman": "Haa",
+     "note_bn": "উচ্চারণ: হ (গলা) · অক্ষরের নাম: হা",
+     "note_en": "Letter name: Haa"
+    },
+    {
+     "kind": "vocab",
+     "target": "خ   خـ ـخـ ـخ",
+     "bn": "গলায় ঘষা দিয়ে 'খ' — উপরে এক ফোঁটা",
+     "en": "rough 'kh' like clearing the throat",
+     "roman": "khaa",
+     "note_bn": "উচ্চারণ: খ (ঘর্ষণ) · অক্ষরের নাম: খা",
+     "note_en": "Letter name: khaa"
+    },
+    {
+     "kind": "vocab",
+     "target": "د   ـد",
+     "bn": "বাংলা 'দ' — পরের অক্ষরের সাথে জোড়ে না",
+     "en": "d",
+     "roman": "daal",
+     "note_bn": "উচ্চারণ: দ · অক্ষরের নাম: দাল",
+     "note_en": "Letter name: daal"
+    },
+    {
+     "kind": "vocab",
+     "target": "ذ   ـذ",
+     "bn": "জিভ দাঁতে ছুঁয়ে নরম 'য'",
+     "en": "'th' as in 'this'",
+     "roman": "dhaal",
+     "note_bn": "উচ্চারণ: য (দাঁতে জিভ) · অক্ষরের নাম: যাল",
+     "note_en": "Letter name: dhaal"
+    },
+    {
+     "kind": "vocab",
+     "target": "ر   ـر",
+     "bn": "বাংলা 'র' — একটু কাঁপিয়ে",
+     "en": "rolled r",
+     "roman": "raa",
+     "note_bn": "উচ্চারণ: র · অক্ষরের নাম: রা",
+     "note_en": "Letter name: raa"
+    }
+   ]
+  },
+  {
+   "id": "ar-s2",
+   "level": "W1",
+   "title_en": "Script 2: zaay to faa",
+   "title_bn": "বর্ণমালা ২: যা থেকে ফা",
+   "items": [
+    {
+     "kind": "note",
+     "target": "ز   ـز",
+     "bn": "ফোঁটা গুরুত্বপূর্ণ: س (স)-এ নেই, ش (শ)-এ তিনটি।",
+     "en": "Dots matter: س (s) has none, ش (sh) has three."
+    },
+    {
+     "kind": "vocab",
+     "target": "ز   ـز",
+     "bn": "ইংরেজি 'z'-এর মতো 'য'",
+     "en": "z as in 'zoo'",
+     "roman": "zaay",
+     "note_bn": "উচ্চারণ: য (z) · অক্ষরের নাম: যা",
+     "note_en": "Letter name: zaay"
+    },
+    {
+     "kind": "vocab",
+     "target": "س   سـ ـسـ ـس",
+     "bn": "বাংলা 'স'",
+     "en": "s",
+     "roman": "siin",
+     "note_bn": "উচ্চারণ: স · অক্ষরের নাম: সীন",
+     "note_en": "Letter name: siin"
+    },
+    {
+     "kind": "vocab",
+     "target": "ش   شـ ـشـ ـش",
+     "bn": "বাংলা 'শ' — উপরে তিন ফোঁটা",
+     "en": "sh",
+     "roman": "shiin",
+     "note_bn": "উচ্চারণ: শ · অক্ষরের নাম: শীন",
+     "note_en": "Letter name: shiin"
+    },
+    {
+     "kind": "vocab",
+     "target": "ص   صـ ـصـ ـص",
+     "bn": "মুখ গোল করে ভারী 'স'",
+     "en": "heavy s (mouth rounder)",
+     "roman": "Saad",
+     "note_bn": "উচ্চারণ: ভারী স · অক্ষরের নাম: ছোয়াদ",
+     "note_en": "Letter name: Saad"
+    },
+    {
+     "kind": "vocab",
+     "target": "ض   ضـ ـضـ ـض",
+     "bn": "ভারী 'দ' — উপরে এক ফোঁটা",
+     "en": "heavy d",
+     "roman": "Daad",
+     "note_bn": "উচ্চারণ: ভারী দ · অক্ষরের নাম: দোয়াদ",
+     "note_en": "Letter name: Daad"
+    },
+    {
+     "kind": "vocab",
+     "target": "ط   طـ ـطـ ـط",
+     "bn": "ভারী 'ত'",
+     "en": "heavy t",
+     "roman": "Taa",
+     "note_bn": "উচ্চারণ: ভারী ত · অক্ষরের নাম: ত্বোয়া",
+     "note_en": "Letter name: Taa"
+    },
+    {
+     "kind": "vocab",
+     "target": "ظ   ظـ ـظـ ـظ",
+     "bn": "ভারী 'য' — উপরে এক ফোঁটা",
+     "en": "heavy 'th/z'",
+     "roman": "Zaa",
+     "note_bn": "উচ্চারণ: ভারী য · অক্ষরের নাম: যোয়া",
+     "note_en": "Letter name: Zaa"
+    },
+    {
+     "kind": "vocab",
+     "target": "ع   عـ ـعـ ـع",
+     "bn": "গলার গভীর থেকে চাপা 'আ' — বাংলায় নেই, শুনে শিখুন",
+     "en": "squeezed sound deep in the throat",
+     "roman": "ayn",
+     "note_bn": "উচ্চারণ: আ (গলার গভীর) · অক্ষরের নাম: আইন",
+     "note_en": "Letter name: ayn"
+    },
+    {
+     "kind": "vocab",
+     "target": "غ   غـ ـغـ ـغ",
+     "bn": "গরগর করার মতো 'গ'",
+     "en": "gargling 'gh'",
+     "roman": "ghayn",
+     "note_bn": "উচ্চারণ: গ (গরগর) · অক্ষরের নাম: গাইন",
+     "note_en": "Letter name: ghayn"
+    },
+    {
+     "kind": "vocab",
+     "target": "ف   فـ ـفـ ـف",
+     "bn": "ইংরেজি 'f' — নিচের ঠোঁটে দাঁত",
+     "en": "f",
+     "roman": "faa",
+     "note_bn": "উচ্চারণ: ফ (f) · অক্ষরের নাম: ফা",
+     "note_en": "Letter name: faa"
+    }
+   ]
+  },
+  {
+   "id": "ar-s3",
+   "level": "W1",
+   "title_en": "Script 3: qaaf to yaa + Arabic digits",
+   "title_bn": "বর্ণমালা ৩: ক্বাফ থেকে ইয়া + আরবি অঙ্ক",
+   "items": [
+    {
+     "kind": "note",
+     "target": "ق   قـ ـقـ ـق",
+     "bn": "আরবি অঙ্ক বাম থেকে ডানে লেখা হয়, লেখা ডান থেকে বামে হলেও।",
+     "en": "Arabic digits are written left to right, even inside right-to-left text."
+    },
+    {
+     "kind": "vocab",
+     "target": "ق   قـ ـقـ ـق",
+     "bn": "গলার পেছন থেকে 'ক'; উপসাগরে প্রায়ই 'গ' বলে (قهوة = গাহওয়া)",
+     "en": "deep q; in the Gulf often said like 'g'",
+     "roman": "qaaf",
+     "note_bn": "উচ্চারণ: ক (গলার পেছন) · অক্ষরের নাম: ক্বাফ",
+     "note_en": "Letter name: qaaf"
+    },
+    {
+     "kind": "vocab",
+     "target": "ك   كـ ـكـ ـك",
+     "bn": "বাংলা 'ক'",
+     "en": "k",
+     "roman": "kaaf",
+     "note_bn": "উচ্চারণ: ক · অক্ষরের নাম: কাফ",
+     "note_en": "Letter name: kaaf"
+    },
+    {
+     "kind": "vocab",
+     "target": "ل   لـ ـلـ ـل",
+     "bn": "বাংলা 'ল'",
+     "en": "l",
+     "roman": "laam",
+     "note_bn": "উচ্চারণ: ল · অক্ষরের নাম: লাম",
+     "note_en": "Letter name: laam"
+    },
+    {
+     "kind": "vocab",
+     "target": "م   مـ ـمـ ـم",
+     "bn": "বাংলা 'ম'",
+     "en": "m",
+     "roman": "miim",
+     "note_bn": "উচ্চারণ: ম · অক্ষরের নাম: মীম",
+     "note_en": "Letter name: miim"
+    },
+    {
+     "kind": "vocab",
+     "target": "ن   نـ ـنـ ـن",
+     "bn": "বাংলা 'ন' — উপরে এক ফোঁটা",
+     "en": "n",
+     "roman": "nuun",
+     "note_bn": "উচ্চারণ: ন · অক্ষরের নাম: নূন",
+     "note_en": "Letter name: nuun"
+    },
+    {
+     "kind": "vocab",
+     "target": "ه   هـ ـهـ ـه",
+     "bn": "হালকা 'হ'",
+     "en": "soft h",
+     "roman": "haa",
+     "note_bn": "উচ্চারণ: হ · অক্ষরের নাম: হা",
+     "note_en": "Letter name: haa"
+    },
+    {
+     "kind": "vocab",
+     "target": "و   ـو",
+     "bn": "'ওয়া' বা লম্বা 'উ'",
+     "en": "w, or long 'oo'",
+     "roman": "waaw",
+     "note_bn": "উচ্চারণ: ও/উ/ওয়া · অক্ষরের নাম: ওয়াও",
+     "note_en": "Letter name: waaw"
+    },
+    {
+     "kind": "vocab",
+     "target": "ي   يـ ـيـ ـي",
+     "bn": "'ইয়া' বা লম্বা 'ঈ' — নিচে দুই ফোঁটা",
+     "en": "y, or long 'ee'",
+     "roman": "yaa",
+     "note_bn": "উচ্চারণ: ই/ইয়া · অক্ষরের নাম: ইয়া",
+     "note_en": "Letter name: yaa"
+    },
+    {
+     "kind": "vocab",
+     "target": "٠ ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩",
+     "bn": "আরবি অঙ্ক ০–৯ (দাম, বাস নম্বর, ফর্মে দেখবেন)",
+     "en": "Arabic-Indic digits 0-9 (on prices, buses, forms)",
+     "roman": "0 1 2 3 4 5 6 7 8 9",
+     "note_bn": "উচ্চারণ: সিফর, ওয়াহিদ, ইসনাইন… · সাবধান: ٥ মানে ৫, ٠ মানে ০; ٦ মানে ৬, ٧ মানে ৭।",
+     "note_en": "Careful: ٥ is 5 and ٠ is 0; ٦ is 6, ٧ is 7."
+    },
+    {
+     "kind": "vocab",
+     "target": "٩٦٦ ٥٠ ١٢٣ ٤٥٦٧",
+     "bn": "আরবি অঙ্কে লেখা একটা ফোন নম্বর",
+     "en": "A phone number written in Arabic digits",
+     "roman": "966 50 123 4567"
+    }
+   ]
+  },
+  {
+   "id": "ar-r1",
+   "level": "W1",
+   "title_en": "Read the signs (standard Arabic)",
+   "title_bn": "সাইনবোর্ড পড়ুন (প্রমিত আরবি)",
+   "items": [
+    {
+     "kind": "note",
+     "target": "مخرج",
+     "bn": "সাইনবোর্ডে প্রমিত আরবি (MSA) — সব উপসাগরীয় দেশে এক।",
+     "en": "Signs use standard Arabic (MSA), the same in every Gulf country."
+    },
+    {
+     "kind": "vocab",
+     "target": "مخرج",
+     "bn": "বের হওয়ার পথ",
+     "en": "Exit",
+     "roman": "makhraj",
+     "note_bn": "উচ্চারণ: মাখরাজ",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "دخول",
+     "bn": "ঢোকার পথ",
+     "en": "Entrance",
+     "roman": "dukhuul",
+     "note_bn": "উচ্চারণ: দুখূল",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "خطر",
+     "bn": "বিপদ",
+     "en": "Danger",
+     "roman": "khaTar",
+     "note_bn": "উচ্চারণ: খাতার",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "ممنوع الدخول",
+     "bn": "প্রবেশ নিষেধ",
+     "en": "No entry",
+     "roman": "mamnuu' ad-dukhuul",
+     "note_bn": "উচ্চারণ: মামনূ আদ-দুখূল",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "ممنوع التدخين",
+     "bn": "ধূমপান নিষেধ",
+     "en": "No smoking",
+     "roman": "mamnuu' at-tadkhiin",
+     "note_bn": "উচ্চারণ: মামনূ আত-তাদখীন",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "طوارئ",
+     "bn": "জরুরি বিভাগ",
+     "en": "Emergency",
+     "roman": "Tawaari'",
+     "note_bn": "উচ্চারণ: তাওয়ারি",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "صيدلية",
+     "bn": "ওষুধের দোকান",
+     "en": "Pharmacy",
+     "roman": "Saydaliyya",
+     "note_bn": "উচ্চারণ: সাইদালিয়্যা",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "رجال",
+     "bn": "পুরুষ",
+     "en": "Men",
+     "roman": "rijaal",
+     "note_bn": "উচ্চারণ: রিজাল",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "نساء",
+     "bn": "নারী",
+     "en": "Women",
+     "roman": "nisaa'",
+     "note_bn": "উচ্চারণ: নিসা",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "مغلق",
+     "bn": "বন্ধ",
+     "en": "Closed",
+     "roman": "mughlaq",
+     "note_bn": "উচ্চারণ: মুগলাক",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "مفتوح",
+     "bn": "খোলা",
+     "en": "Open",
+     "roman": "maftuuH",
+     "note_bn": "উচ্চারণ: মাফতূহ",
+     "note_en": ""
+    },
+    {
+     "kind": "vocab",
+     "target": "قف",
+     "bn": "থামুন (রাস্তার সাইন)",
+     "en": "STOP (road sign)",
+     "roman": "qif",
+     "note_bn": "উচ্চারণ: ক্বিফ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "مخرج",
+    "دخول",
+    "خطر"
+   ]
+  },
+  {
+   "id": "ar-w1",
+   "level": "W1",
+   "title_en": "Greetings and 'I don't understand'",
+   "title_bn": "সালাম ও 'আমি বুঝিনি'",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "السلام عليكم",
+     "bn": "সালাম",
+     "en": "Peace be upon you (hello)",
+     "roman": "as-salaamu 'alaykum",
+     "note_bn": "উচ্চারণ: আস-সালামু আলাইকুম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "وعليكم السلام",
+     "bn": "সালামের উত্তর",
+     "en": "And upon you peace (reply)",
+     "roman": "wa 'alaykum as-salaam",
+     "note_bn": "উচ্চারণ: ওয়া আলাইকুম আস-সালাম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "شلونك؟",
+     "bn": "কেমন আছেন? (পুরুষকে)",
+     "en": "How are you? (to a man)",
+     "roman": "shloonak?",
+     "note_bn": "উচ্চারণ: শ্লোনাক? · নারীকে: শ্লোনিচ?",
+     "note_en": "To a woman: شلونچ؟ shloonich"
+    },
+    {
+     "kind": "phrase",
+     "target": "زين، الحمد لله",
+     "bn": "ভালো, আলহামদুলিল্লাহ",
+     "en": "Fine, thank God",
+     "roman": "zeen, al-Hamdu lillaah",
+     "note_bn": "উচ্চারণ: যেইন, আলহামদুলিল্লাহ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اسمي رحيم",
+     "bn": "আমার নাম রহিম",
+     "en": "My name is Rahim",
+     "roman": "ismi Rahim",
+     "note_bn": "উচ্চারণ: ইসমি রহিম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أنا من بنغلاديش",
+     "bn": "আমি বাংলাদেশ থেকে",
+     "en": "I am from Bangladesh",
+     "roman": "ana min banglaadesh",
+     "note_bn": "উচ্চারণ: আনা মিন বাংলাদেশ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "شكراً",
+     "bn": "ধন্যবাদ",
+     "en": "Thank you",
+     "roman": "shukran",
+     "note_bn": "উচ্চারণ: শুকরান",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "لو سمحت",
+     "bn": "দয়া করে / একটু শুনুন",
+     "en": "Please / excuse me",
+     "roman": "law samaHt",
+     "note_bn": "উচ্চারণ: লাও সামাহত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ما أفهم",
+     "bn": "আমি বুঝিনি",
+     "en": "I don't understand",
+     "roman": "ma afham",
+     "note_bn": "উচ্চারণ: মা আফহাম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "شوي شوي، لو سمحت",
+     "bn": "আস্তে আস্তে বলুন, দয়া করে",
+     "en": "Slowly, please",
+     "roman": "shway shway, law samaHt",
+     "note_bn": "উচ্চারণ: শ্বাই শ্বাই, লাও সামাহত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "مرة ثانية",
+     "bn": "আরেকবার বলুন",
+     "en": "Once more (say it again)",
+     "roman": "marra thaanya",
+     "note_bn": "উচ্চারণ: মাররা সানিয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "إن شاء الله",
+     "bn": "ইনশাআল্লাহ (মানে 'করব'ও হয়)",
+     "en": "God willing (also: 'I will do it')",
+     "roman": "in shaa' allaah",
+     "note_bn": "উচ্চারণ: ইনশাআল্লাহ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "السلام عليكم",
+    "وعليكم السلام",
+    "شلونك؟"
+   ]
+  },
+  {
+   "id": "ar-w2",
+   "level": "W1",
+   "title_en": "Numbers, money and time",
+   "title_bn": "সংখ্যা, টাকা ও সময়",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "واحد، اثنين، ثلاثة",
+     "bn": "এক, দুই, তিন",
+     "en": "one, two, three",
+     "roman": "waaHid, ithneen, thalaatha",
+     "note_bn": "উচ্চারণ: ওয়াহিদ, ইসনেইন, সালাসা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أربعة، خمسة، ستة",
+     "bn": "চার, পাঁচ, ছয়",
+     "en": "four, five, six",
+     "roman": "arba'a, khamsa, sitta",
+     "note_bn": "উচ্চারণ: আরবাআ, খামসা, সিত্তা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "سبعة، ثمانية، تسعة، عشرة",
+     "bn": "সাত, আট, নয়, দশ",
+     "en": "seven, eight, nine, ten",
+     "roman": "sab'a, thamaanya, tis'a, 'ashra",
+     "note_bn": "উচ্চারণ: সাবআ, সামানিয়া, তিসআ, আশরা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "عشرين، خمسين، مية",
+     "bn": "বিশ, পঞ্চাশ, একশো",
+     "en": "twenty, fifty, hundred",
+     "roman": "'ishriin, khamsiin, miyya",
+     "note_bn": "উচ্চারণ: ইশরীন, খামসীন, মিয়্যা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ألف",
+     "bn": "হাজার",
+     "en": "thousand",
+     "roman": "alf",
+     "note_bn": "উচ্চারণ: আলফ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "كم؟",
+     "bn": "কত?",
+     "en": "How much / how many?",
+     "roman": "kam?",
+     "note_bn": "উচ্চারণ: কাম?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "بكم هذا؟",
+     "bn": "এটার দাম কত?",
+     "en": "How much is this?",
+     "roman": "b-kam haadha?",
+     "note_bn": "উচ্চারণ: বিকাম হাযা?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "عشرة ريال",
+     "bn": "দশ রিয়াল",
+     "en": "ten riyals",
+     "roman": "'ashra riyaal",
+     "note_bn": "উচ্চারণ: আশরা রিয়াল · আমিরাতে: দিরহাম",
+     "note_en": "UAE: درهم dirham"
+    },
+    {
+     "kind": "phrase",
+     "target": "الساعة كم؟",
+     "bn": "কয়টা বাজে?",
+     "en": "What time is it?",
+     "roman": "as-saa'a kam?",
+     "note_bn": "উচ্চারণ: আস-সাআ কাম?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اليوم / بكرة",
+     "bn": "আজ / আগামীকাল",
+     "en": "today / tomorrow",
+     "roman": "al-yoom / bukra",
+     "note_bn": "উচ্চারণ: আল-ইয়াউম / বুকরা",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "واحد، اثنين، ثلاثة",
+    "أربعة، خمسة، ستة",
+    "سبعة، ثمانية، تسعة، عشرة"
+   ]
+  },
+  {
+   "id": "ar-d1",
+   "level": "W2",
+   "title_en": "For drivers",
+   "title_bn": "ড্রাইভারদের জন্য",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "يمين",
+     "bn": "ডানে",
+     "en": "right",
+     "roman": "yamiin",
+     "note_bn": "উচ্চারণ: ইয়ামীন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "يسار",
+     "bn": "বামে",
+     "en": "left",
+     "roman": "yasaar",
+     "note_bn": "উচ্চারণ: ইয়াসার",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "سيدا",
+     "bn": "সোজা (উপসাগরীয় শব্দ)",
+     "en": "straight on (Gulf)",
+     "roman": "seeda",
+     "note_bn": "উচ্চারণ: সীদা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "وقّف هنا",
+     "bn": "এখানে থামুন",
+     "en": "Stop here",
+     "roman": "waggif hina",
+     "note_bn": "উচ্চারণ: ওয়াগ্গিফ হিনা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ارجع ورا",
+     "bn": "পিছনে যান",
+     "en": "Go back / reverse",
+     "roman": "irja' wara",
+     "note_bn": "উচ্চারণ: ইরজা ওয়ারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الدوّار",
+     "bn": "গোলচত্বর",
+     "en": "the roundabout",
+     "roman": "ad-dawwaar",
+     "note_bn": "উচ্চারণ: আদ-দাওয়ার",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الإشارة",
+     "bn": "ট্রাফিক সিগন্যাল",
+     "en": "the traffic light",
+     "roman": "al-ishaara",
+     "note_bn": "উচ্চারণ: আল-ইশারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "وين تبي تروح؟",
+     "bn": "কোথায় যেতে চান?",
+     "en": "Where do you want to go?",
+     "roman": "ween tabi truuH?",
+     "note_bn": "উচ্চারণ: ওয়েইন তাবি তরূহ?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الرخصة والاستمارة",
+     "bn": "লাইসেন্স ও গাড়ির কাগজ (সৌদি)",
+     "en": "licence and car registration (Saudi)",
+     "roman": "ar-rukhSa wal-istimaara",
+     "note_bn": "উচ্চারণ: আর-রুখসা ওয়াল-ইস্তিমারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الزحمة واجد",
+     "bn": "অনেক যানজট",
+     "en": "There is a lot of traffic",
+     "roman": "az-zaHma waajid",
+     "note_bn": "উচ্চারণ: আয-যাহমা ওয়াজিদ",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "يمين",
+    "يسار",
+    "سيدا"
+   ]
+  },
+  {
+   "id": "ar-h1",
+   "level": "W2",
+   "title_en": "For housekeeping and care work",
+   "title_bn": "গৃহকর্ম ও পরিচর্যার কাজের জন্য",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "نظّف الغرفة",
+     "bn": "ঘর পরিষ্কার করো",
+     "en": "Clean the room",
+     "roman": "naDDif al-ghurfa",
+     "note_bn": "উচ্চারণ: নাদ্দিফ আল-গুরফা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اغسل الصحون",
+     "bn": "থালা-বাসন ধোও",
+     "en": "Wash the dishes",
+     "roman": "ighsil aS-SuHuun",
+     "note_bn": "উচ্চারণ: ইগসিল আস-সুহূন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "المطبخ / الحمّام",
+     "bn": "রান্নাঘর / বাথরুম",
+     "en": "kitchen / bathroom",
+     "roman": "al-maTbakh / al-Hammaam",
+     "note_bn": "উচ্চারণ: আল-মাতবাখ / আল-হাম্মাম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اكوي الملابس",
+     "bn": "কাপড় ইস্ত্রি করো",
+     "en": "Iron the clothes",
+     "roman": "ikwi al-malaabis",
+     "note_bn": "উচ্চারণ: ইকউই আল-মালাবিস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اطبخ الغدا",
+     "bn": "দুপুরের খাবার রান্না করো",
+     "en": "Cook lunch",
+     "roman": "uTbukh al-ghada",
+     "note_bn": "উচ্চারণ: উতবুখ আল-গাদা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الياهل نايم",
+     "bn": "বাচ্চা ঘুমাচ্ছে (উপসাগরে 'ইয়াহিল' = শিশু)",
+     "en": "The child is asleep (Gulf 'yaahil' = child)",
+     "roman": "al-yaahil naayim",
+     "note_bn": "উচ্চারণ: আল-ইয়াহিল নায়িম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "خلّصت",
+     "bn": "আমি শেষ করেছি",
+     "en": "I have finished",
+     "roman": "khallaSt",
+     "note_bn": "উচ্চারণ: খাল্লাসত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أنا تعبانة، أبي أرتاح شوي",
+     "bn": "আমি ক্লান্ত, একটু বিশ্রাম চাই (নারী বলছেন)",
+     "en": "I am tired, I want to rest a little (woman speaking)",
+     "roman": "ana ta'baana, abi artaaH shway",
+     "note_bn": "উচ্চারণ: আনা তাবানা, আবি আরতাহ শ্বাই",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "متى إجازتي؟",
+     "bn": "আমার ছুটি কবে?",
+     "en": "When is my day off / leave?",
+     "roman": "mita ijaazti?",
+     "note_bn": "উচ্চারণ: মিতা ইজাযতি?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ما أعرف، علّمني لو سمحت",
+     "bn": "আমি জানি না, দয়া করে শিখিয়ে দিন",
+     "en": "I don't know, please show me",
+     "roman": "ma a'arf, 'allimni law samaHt",
+     "note_bn": "উচ্চারণ: মা আরফ, আল্লিমনি লাও সামাহত",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "نظّف الغرفة",
+    "اغسل الصحون",
+    "المطبخ / الحمّام"
+   ]
+  },
+  {
+   "id": "ar-c1",
+   "level": "W2",
+   "title_en": "For construction sites",
+   "title_bn": "নির্মাণ সাইটের জন্য",
+   "items": [
+    {
+     "kind": "note",
+     "target": "انتبه!",
+     "bn": "আগে নিরাপত্তার শব্দ: 'ইনতাবিহ' শুনলে থামুন, চারপাশে দেখুন।",
+     "en": "Safety words first: if you hear انتبه (intabih), stop and look."
+    },
+    {
+     "kind": "phrase",
+     "target": "انتبه!",
+     "bn": "সাবধান!",
+     "en": "Watch out!",
+     "roman": "intabih!",
+     "note_bn": "উচ্চারণ: ইনতাবিহ!",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "لبس الخوذة",
+     "bn": "হেলমেট পরো",
+     "en": "Wear the helmet",
+     "roman": "libs al-khuudha",
+     "note_bn": "উচ্চারণ: লিবস আল-খূযা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "حزام الأمان",
+     "bn": "সেফটি বেল্ট",
+     "en": "safety harness / seat belt",
+     "roman": "Hizaam al-amaan",
+     "note_bn": "উচ্চারণ: হিযাম আল-আমান",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "السلّم",
+     "bn": "মই",
+     "en": "the ladder",
+     "roman": "as-sullam",
+     "note_bn": "উচ্চারণ: আস-সুল্লাম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "جيب الحديد هنا",
+     "bn": "রড এখানে আনো",
+     "en": "Bring the steel (rods) here",
+     "roman": "jiib al-Hadiid hina",
+     "note_bn": "উচ্চারণ: জীব আল-হাদীদ হিনা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الإسمنت خلص",
+     "bn": "সিমেন্ট শেষ",
+     "en": "The cement has run out",
+     "roman": "al-ismant khalaS",
+     "note_bn": "উচ্চারণ: আল-ইসমান্ত খালাস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "المشرف وين؟",
+     "bn": "সুপারভাইজার কোথায়?",
+     "en": "Where is the supervisor?",
+     "roman": "al-mushrif ween?",
+     "note_bn": "উচ্চারণ: আল-মুশরিফ ওয়েইন?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الحر واجد، أبي ماي",
+     "bn": "খুব গরম, পানি দরকার",
+     "en": "It is very hot, I need water",
+     "roman": "al-Harr waajid, abi maay",
+     "note_bn": "উচ্চারণ: আল-হার ওয়াজিদ, আবি মায়",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "انجرحت",
+     "bn": "আমি আহত হয়েছি",
+     "en": "I got injured",
+     "roman": "injaraHt",
+     "note_bn": "উচ্চারণ: ইনজারাহত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "اتصل بالإسعاف!",
+     "bn": "অ্যাম্বুলেন্স ডাকুন!",
+     "en": "Call the ambulance!",
+     "roman": "ittaSil bil-is'aaf!",
+     "note_bn": "উচ্চারণ: ইত্তাসিল বিল-ইসআফ!",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "انتبه!",
+    "لبس الخوذة",
+    "حزام الأمان"
+   ]
+  },
+  {
+   "id": "ar-p1",
+   "level": "W2",
+   "title_en": "For shops, hotels and restaurants",
+   "title_bn": "দোকান, হোটেল ও রেস্টুরেন্টের জন্য",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "هلا، تفضّل",
+     "bn": "স্বাগতম, বলুন (গ্রাহককে)",
+     "en": "Hello, go ahead / welcome (to a customer)",
+     "roman": "hala, tfaDDal",
+     "note_bn": "উচ্চারণ: হালা, তফাদ্দাল",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "وش تبي؟",
+     "bn": "কী চান?",
+     "en": "What do you want?",
+     "roman": "wesh tabi?",
+     "note_bn": "উচ্চারণ: ওয়েশ তাবি?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "عندك ماي بارد؟",
+     "bn": "ঠান্ডা পানি আছে?",
+     "en": "Do you have cold water?",
+     "roman": "'indak maay baarid?",
+     "note_bn": "উচ্চারণ: ইনদাক মায় বারিদ?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "موجود / مو موجود",
+     "bn": "আছে / নেই",
+     "en": "available / not available",
+     "roman": "mawjuud / mu mawjuud",
+     "note_bn": "উচ্চারণ: মাওজূদ / মু মাওজূদ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "غالي واجد",
+     "bn": "খুব দামি",
+     "en": "Very expensive",
+     "roman": "ghaali waajid",
+     "note_bn": "উচ্চারণ: গালি ওয়াজিদ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الحساب",
+     "bn": "বিল",
+     "en": "the bill",
+     "roman": "al-Hisaab",
+     "note_bn": "উচ্চারণ: আল-হিসাব",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "كاش ولا بطاقة؟",
+     "bn": "নগদ না কার্ড?",
+     "en": "Cash or card?",
+     "roman": "kaash walla biTaaqa?",
+     "note_bn": "উচ্চারণ: ক্যাশ ওয়াল্লা বিতাকা?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الباقي",
+     "bn": "ফেরত টাকা",
+     "en": "the change (money back)",
+     "roman": "al-baaqi",
+     "note_bn": "উচ্চারণ: আল-বাকি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "لحظة لو سمحت",
+     "bn": "এক মুহূর্ত, দয়া করে",
+     "en": "One moment please",
+     "roman": "laHZa law samaHt",
+     "note_bn": "উচ্চারণ: লাহযা লাও সামাহত",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "هلا، تفضّل",
+    "وش تبي؟",
+    "عندك ماي بارد؟"
+   ]
+  },
+  {
+   "id": "ar-m1",
+   "level": "W3",
+   "title_en": "At the doctor",
+   "title_bn": "ডাক্তারের কাছে",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "أنا مريض",
+     "bn": "আমি অসুস্থ (পুরুষ)",
+     "en": "I am sick (man)",
+     "roman": "ana mariiD",
+     "note_bn": "উচ্চারণ: আনা মারীদ · নারী: আনা মারীদা",
+     "note_en": "Woman: أنا مريضة ana mariiDa"
+    },
+    {
+     "kind": "phrase",
+     "target": "راسي يعوّرني",
+     "bn": "মাথা ব্যথা",
+     "en": "My head hurts",
+     "roman": "raasi y'awwirni",
+     "note_bn": "উচ্চারণ: রাসি ইয়াওয়ির্নি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "بطني يعوّرني",
+     "bn": "পেট ব্যথা",
+     "en": "My stomach hurts",
+     "roman": "baTni y'awwirni",
+     "note_bn": "উচ্চারণ: বাতনি ইয়াওয়ির্নি",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "عندي حرارة",
+     "bn": "আমার জ্বর",
+     "en": "I have a fever",
+     "roman": "'indi Haraara",
+     "note_bn": "উচ্চারণ: ইনদি হারারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "من أمس",
+     "bn": "গতকাল থেকে",
+     "en": "since yesterday",
+     "roman": "min ams",
+     "note_bn": "উচ্চারণ: মিন আমস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أبي دكتور",
+     "bn": "ডাক্তার দরকার",
+     "en": "I need a doctor",
+     "roman": "abi daktoor",
+     "note_bn": "উচ্চারণ: আবি দাকতূর",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "عندي حساسية من…",
+     "bn": "আমার … তে অ্যালার্জি",
+     "en": "I am allergic to…",
+     "roman": "'indi Hasaasiyya min…",
+     "note_bn": "উচ্চারণ: ইনদি হাসাসিয়্যা মিন…",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الدوا كم مرة باليوم؟",
+     "bn": "ওষুধ দিনে কয়বার?",
+     "en": "How many times a day is the medicine?",
+     "roman": "ad-dawa kam marra bil-yoom?",
+     "note_bn": "উচ্চারণ: আদ-দাওয়া কাম মাররা বিল-ইয়াউম?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أبي إجازة مرضية",
+     "bn": "অসুস্থতার ছুটি দরকার",
+     "en": "I need sick leave",
+     "roman": "abi ijaaza maraDiyya",
+     "note_bn": "উচ্চারণ: আবি ইজাযা মারাদিয়্যা",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "أنا مريض",
+    "راسي يعوّرني",
+    "بطني يعوّرني"
+   ]
+  },
+  {
+   "id": "ar-x1",
+   "level": "W3",
+   "title_en": "Salary, passport and your rights",
+   "title_bn": "বেতন, পাসপোর্ট ও আপনার অধিকার",
+   "items": [
+    {
+     "kind": "note",
+     "target": "الراتب",
+     "bn": "পাসপোর্ট আপনার। সমস্যা হলে শান্তভাবে বলুন, আর বাংলাদেশ দূতাবাস বা শ্রম উইংয়ে যোগাযোগ করুন।",
+     "en": "Your passport belongs to you. If there is a problem, say it calmly and contact the Bangladesh embassy or labour wing."
+    },
+    {
+     "kind": "phrase",
+     "target": "الراتب",
+     "bn": "বেতন",
+     "en": "salary",
+     "roman": "ar-raatib",
+     "note_bn": "উচ্চারণ: আর-রাতিব",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ما استلمت الراتب من شهرين",
+     "bn": "দুই মাস বেতন পাইনি",
+     "en": "I have not received my salary for two months",
+     "roman": "ma istalamt ar-raatib min shahreen",
+     "note_bn": "উচ্চারণ: মা ইসতালামত আর-রাতিব মিন শাহরেইন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "العقد",
+     "bn": "চুক্তিপত্র",
+     "en": "the contract",
+     "roman": "al-'aqd",
+     "note_bn": "উচ্চারণ: আল-আকদ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "هذا مو في العقد",
+     "bn": "এটা চুক্তিতে নেই",
+     "en": "This is not in the contract",
+     "roman": "haadha mu fil-'aqd",
+     "note_bn": "উচ্চারণ: হাযা মু ফিল-আকদ",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الجواز / الإقامة",
+     "bn": "পাসপোর্ট / ইকামা",
+     "en": "passport / residence permit (iqama)",
+     "roman": "al-jawaaz / al-iqaama",
+     "note_bn": "উচ্চারণ: আল-জাওয়ায / আল-ইকামা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أبي جوازي لو سمحت",
+     "bn": "দয়া করে আমার পাসপোর্ট দিন",
+     "en": "I want my passport, please",
+     "roman": "abi jawaazi law samaHt",
+     "note_bn": "উচ্চারণ: আবি জাওয়াযি লাও সামাহত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ساعات إضافية",
+     "bn": "ওভারটাইম",
+     "en": "overtime hours",
+     "roman": "saa'aat iDaafiyya",
+     "note_bn": "উচ্চারণ: সাআত ইদাফিয়্যা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "أبي أكلّم السفارة",
+     "bn": "দূতাবাসের সাথে কথা বলতে চাই",
+     "en": "I want to speak to the embassy",
+     "roman": "abi akallim as-safaara",
+     "note_bn": "উচ্চারণ: আবি আকাল্লিম আস-সাফারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "ساعدني لو سمحت",
+     "bn": "দয়া করে সাহায্য করুন",
+     "en": "Please help me",
+     "roman": "saa'idni law samaHt",
+     "note_bn": "উচ্চারণ: সাইদনি লাও সামাহত",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "الكفيل",
+     "bn": "কফিল (নিয়োগকর্তা)",
+     "en": "the sponsor (employer)",
+     "roman": "al-kafiil",
+     "note_bn": "উচ্চারণ: আল-কাফীল",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "الراتب",
+    "ما استلمت الراتب من شهرين",
+    "العقد"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Airport immigration",
+   "title_bn": "বিমানবন্দরে ইমিগ্রেশন",
+   "ai_role": "You are a calm immigration officer at a Gulf airport. Speak short, simple Gulf Arabic. Ask: passport, nationality, purpose (work), sponsor's company name. If the learner is stuck, repeat slowly. Example flow (adapt, do not read verbatim): them: الجواز لو سمحت / you: تفضّل / them: من وين انت؟ / you: أنا من بنغلاديش / them: جاي شغل؟ / you: إيه، جاي للشغل. أنا سوّاق / them: منو الكفيل؟ / you: شركة النور للمقاولات",
+   "opening": "الجواز لو سمحت",
+   "goals_en": [
+    "Answer the officer: where from, why you came, who your sponsor is.",
+    "Say: Here you are",
+    "Say: I am from Bangladesh",
+    "Say: Yes, I've come for work. I am a driver."
+   ],
+   "goals_bn": [
+    "অফিসারকে বলুন: কোথা থেকে, কেন এসেছেন, কফিল কে।",
+    "বলুন: এই নিন",
+    "বলুন: আমি বাংলাদেশ থেকে",
+    "বলুন: হ্যাঁ, কাজে এসেছি। আমি ড্রাইভার।"
+   ],
+   "useful": [
+    {
+     "target": "تفضّل",
+     "bn": "এই নিন",
+     "en": "Here you are",
+     "roman": "tfaDDal"
+    },
+    {
+     "target": "أنا من بنغلاديش",
+     "bn": "আমি বাংলাদেশ থেকে",
+     "en": "I am from Bangladesh",
+     "roman": "ana min banglaadesh"
+    },
+    {
+     "target": "إيه، جاي للشغل. أنا سوّاق",
+     "bn": "হ্যাঁ, কাজে এসেছি। আমি ড্রাইভার।",
+     "en": "Yes, I've come for work. I am a driver.",
+     "roman": "eeh, jaay lish-shughul. ana sawwaag"
+    },
+    {
+     "target": "شركة النور للمقاولات",
+     "bn": "আন-নূর কনট্রাক্টিং কোম্পানি",
+     "en": "An-Noor Contracting Company",
+     "roman": "sharikat an-nuur lil-muqaawalaat"
+    },
+    {
+     "target": "شكراً",
+     "bn": "ধন্যবাদ",
+     "en": "Thank you",
+     "roman": "shukran"
+    },
+    {
+     "target": "ما أفهم",
+     "bn": "আমি বুঝিনি",
+     "en": "I don't understand",
+     "roman": "ma afham"
+    },
+    {
+     "target": "شوي شوي، لو سمحت",
+     "bn": "আস্তে আস্তে বলুন, দয়া করে",
+     "en": "Slowly, please",
+     "roman": "shway shway, law samaHt"
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day at work",
+   "title_bn": "কাজের প্রথম দিন",
+   "ai_role": "You are a site supervisor on a Gulf construction site, friendly but busy. Use short Gulf Arabic. Give one simple task, mention the helmet, answer questions about break time. Example flow (adapt, do not read verbatim): you: السلام عليكم، أنا العامل الجديد / them: هلا والله. لبس الخوذة أول / you: زين. وش أسوّي؟ / them: جيب الحديد من هناك / you: الاستراحة الساعة كم؟ / them: الساعة ١٢",
+   "opening": "هلا، أنت العامل الجديد؟",
+   "goals_en": [
+    "Greet the supervisor, ask what to do, ask for the time of the break.",
+    "Say: Hello, I am the new worker",
+    "Say: OK. What should I do?",
+    "Say: What time is the break?"
+   ],
+   "goals_bn": [
+    "সুপারভাইজারকে সালাম, কী করতে হবে জিজ্ঞেস, বিরতির সময় জানুন।",
+    "বলুন: সালাম, আমি নতুন কর্মী",
+    "বলুন: ঠিক আছে। কী করব?",
+    "বলুন: বিরতি কয়টায়?"
+   ],
+   "useful": [
+    {
+     "target": "السلام عليكم، أنا العامل الجديد",
+     "bn": "সালাম, আমি নতুন কর্মী",
+     "en": "Hello, I am the new worker",
+     "roman": "as-salaamu 'alaykum, ana al-'aamil al-jadiid"
+    },
+    {
+     "target": "زين. وش أسوّي؟",
+     "bn": "ঠিক আছে। কী করব?",
+     "en": "OK. What should I do?",
+     "roman": "zeen. wesh asawwi?"
+    },
+    {
+     "target": "الاستراحة الساعة كم؟",
+     "bn": "বিরতি কয়টায়?",
+     "en": "What time is the break?",
+     "roman": "al-istiraaHa as-saa'a kam?"
+    },
+    {
+     "target": "الراتب",
+     "bn": "বেতন",
+     "en": "salary",
+     "roman": "ar-raatib"
+    },
+    {
+     "target": "ما استلمت الراتب من شهرين",
+     "bn": "দুই মাস বেতন পাইনি",
+     "en": "I have not received my salary for two months",
+     "roman": "ma istalamt ar-raatib min shahreen"
+    },
+    {
+     "target": "العقد",
+     "bn": "চুক্তিপত্র",
+     "en": "the contract",
+     "roman": "al-'aqd"
+    },
+    {
+     "target": "هذا مو في العقد",
+     "bn": "এটা চুক্তিতে নেই",
+     "en": "This is not in the contract",
+     "roman": "haadha mu fil-'aqd"
+    },
+    {
+     "target": "الجواز / الإقامة",
+     "bn": "পাসপোর্ট / ইকামা",
+     "en": "passport / residence permit (iqama)",
+     "roman": "al-jawaaz / al-iqaama"
+    },
+    {
+     "target": "أبي جوازي لو سمحت",
+     "bn": "দয়া করে আমার পাসপোর্ট দিন",
+     "en": "I want my passport, please",
+     "roman": "abi jawaazi law samaHt"
+    },
+    {
+     "target": "ساعات إضافية",
+     "bn": "ওভারটাইম",
+     "en": "overtime hours",
+     "roman": "saa'aat iDaafiyya"
+    },
+    {
+     "target": "أبي أكلّم السفارة",
+     "bn": "দূতাবাসের সাথে কথা বলতে চাই",
+     "en": "I want to speak to the embassy",
+     "roman": "abi akallim as-safaara"
+    },
+    {
+     "target": "ساعدني لو سمحت",
+     "bn": "দয়া করে সাহায্য করুন",
+     "en": "Please help me",
+     "roman": "saa'idni law samaHt"
+    },
+    {
+     "target": "الكفيل",
+     "bn": "কফিল (নিয়োগকর্তা)",
+     "en": "the sponsor (employer)",
+     "roman": "al-kafiil"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the clinic",
+   "title_bn": "ক্লিনিকে",
+   "ai_role": "You are a kind clinic doctor in the Gulf. Use simple Gulf Arabic. Ask where it hurts, since when, fever, allergies; give a simple dosage like 'twice a day after food'. Never give real medical advice beyond the role-play. Example flow (adapt, do not read verbatim): them: وش فيك؟ / you: بطني يعوّرني / them: من متى؟ / you: من أمس. وعندي حرارة / them: هذا الدوا، مرتين باليوم بعد الأكل / you: أبي إجازة مرضية لو سمحت",
+   "opening": "وش فيك؟",
+   "goals_en": [
+    "Say what hurts, since when, and ask how to take the medicine.",
+    "Say: My stomach hurts",
+    "Say: Since yesterday. And I have a fever.",
+    "Say: I need a sick-leave note, please"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা, কবে থেকে বলুন; ওষুধ কীভাবে খাবেন জিজ্ঞেস করুন।",
+    "বলুন: পেট ব্যথা",
+    "বলুন: গতকাল থেকে। আর জ্বর আছে।",
+    "বলুন: দয়া করে অসুস্থতার ছুটির কাগজ দিন"
+   ],
+   "useful": [
+    {
+     "target": "بطني يعوّرني",
+     "bn": "পেট ব্যথা",
+     "en": "My stomach hurts",
+     "roman": "baTni y'awwirni"
+    },
+    {
+     "target": "من أمس. وعندي حرارة",
+     "bn": "গতকাল থেকে। আর জ্বর আছে।",
+     "en": "Since yesterday. And I have a fever.",
+     "roman": "min ams. w-'indi Haraara"
+    },
+    {
+     "target": "أبي إجازة مرضية لو سمحت",
+     "bn": "দয়া করে অসুস্থতার ছুটির কাগজ দিন",
+     "en": "I need a sick-leave note, please",
+     "roman": "abi ijaaza maraDiyya law samaHt"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a room",
+   "title_bn": "ঘর ভাড়া",
+   "ai_role": "You are a landlord renting shared rooms to workers in the Gulf. Simple Gulf Arabic. Give a monthly rent, say whether bills are included, promise to fix the AC. Example flow (adapt, do not read verbatim): you: عندك غرفة للإيجار؟ / them: إيه موجود. شهري ستمية / you: مع الكهربا والماي؟ / them: إيه، كله مع بعض / you: المكيّف خربان / them: بكرة نصلّحه إن شاء الله",
+   "opening": "هلا، تفضّل. وش تبي؟",
+   "goals_en": [
+    "Ask the rent, whether electricity and water are included, and report a broken AC.",
+    "Say: Do you have a room for rent?",
+    "Say: Including electricity and water?",
+    "Say: The AC is broken"
+   ],
+   "goals_bn": [
+    "ভাড়া কত, বিদ্যুৎ-পানি ধরা কিনা জিজ্ঞেস করুন; এসি নষ্ট জানান।",
+    "বলুন: ভাড়ার ঘর আছে?",
+    "বলুন: বিদ্যুৎ আর পানি সহ?",
+    "বলুন: এসি নষ্ট"
+   ],
+   "useful": [
+    {
+     "target": "عندك غرفة للإيجار؟",
+     "bn": "ভাড়ার ঘর আছে?",
+     "en": "Do you have a room for rent?",
+     "roman": "'indak ghurfa lil-iijaar?"
+    },
+    {
+     "target": "مع الكهربا والماي؟",
+     "bn": "বিদ্যুৎ আর পানি সহ?",
+     "en": "Including electricity and water?",
+     "roman": "ma' al-kahraba wal-maay?"
+    },
+    {
+     "target": "المكيّف خربان",
+     "bn": "এসি নষ্ট",
+     "en": "The AC is broken",
+     "roman": "al-mukayyif kharbaan"
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the grocery (baqala)",
+   "title_bn": "মুদি দোকানে (বাকালা)",
+   "ai_role": "You are a shopkeeper at a small Gulf grocery. Short Gulf Arabic. Say prices in riyals, ask cash or card, give change. Example flow (adapt, do not read verbatim): you: عندك رز؟ / them: موجود. خمسة كيلو؟ / you: إيه. بكم؟ / them: خمسة وعشرين ريال / you: تفضّل خمسين / them: هذا الباقي، خمسة وعشرين",
+   "opening": "هلا، تفضّل. وش تبي؟",
+   "goals_en": [
+    "Ask for an item, ask the price, pay and get your change.",
+    "Say: Do you have rice?",
+    "Say: Yes. How much?",
+    "Say: Here is fifty"
+   ],
+   "goals_bn": [
+    "জিনিস চান, দাম জিজ্ঞেস করুন, টাকা দিয়ে বাকি নিন।",
+    "বলুন: চাল আছে?",
+    "বলুন: হ্যাঁ। কত?",
+    "বলুন: এই নিন পঞ্চাশ"
+   ],
+   "useful": [
+    {
+     "target": "عندك رز؟",
+     "bn": "চাল আছে?",
+     "en": "Do you have rice?",
+     "roman": "'indak ruzz?"
+    },
+    {
+     "target": "إيه. بكم؟",
+     "bn": "হ্যাঁ। কত?",
+     "en": "Yes. How much?",
+     "roman": "eeh. b-kam?"
+    },
+    {
+     "target": "تفضّل خمسين",
+     "bn": "এই নিন পঞ্চাশ",
+     "en": "Here is fifty",
+     "roman": "tfaDDal khamsiin"
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "ar-pr1",
+   "text": "السلام عليكم",
+   "tip_bn": "'আস-সালামু' একটানা বলুন; 'আলাইকুম'-এর ع হালকা।",
+   "tip_en": "Join 'as-salaamu' smoothly; the ع in 'alaykum' is light.",
+   "roman": "as-salaamu 'alaykum"
+  },
+  {
+   "id": "ar-pr2",
+   "text": "أنا من بنغلاديش",
+   "tip_bn": "আস্তে ও স্পষ্ট বলুন।",
+   "tip_en": "Say it slowly and clearly.",
+   "roman": "ana min banglaadesh"
+  },
+  {
+   "id": "ar-pr3",
+   "text": "ما أفهم، شوي شوي لو سمحت",
+   "tip_bn": "'সামাহত'-এর ح গলা থেকে বাতাসের 'হ'।",
+   "tip_en": "ح in 'samaHt' is a breathy h from the throat.",
+   "roman": "ma afham, shway shway law samaHt"
+  },
+  {
+   "id": "ar-pr4",
+   "text": "شكراً جزيلاً",
+   "tip_bn": "'জাযীলান'-এর ز ইংরেজি z-এর মতো।",
+   "tip_en": "'z' in jaziilan is like English z, not j.",
+   "roman": "shukran jaziilan"
+  },
+  {
+   "id": "ar-pr5",
+   "text": "لف يمين عند الدوّار",
+   "tip_bn": "'ইনদ'-এর ع গলার গভীর থেকে — শুনে নকল করুন।",
+   "tip_en": "ع in 'ind is deep in the throat — listen and copy.",
+   "roman": "liff yamiin 'ind ad-dawwaar"
+  },
+  {
+   "id": "ar-pr6",
+   "text": "خلّصت الشغل",
+   "tip_bn": "خ গলায় ঘষা 'খ' — বাংলা খ-এর মতো ফুঁ নয়।",
+   "tip_en": "خ is a rough 'kh', not a Bangla খ with a puff.",
+   "roman": "khallaSt ash-shughul"
+  },
+  {
+   "id": "ar-pr7",
+   "text": "الحر واجد، أبي ماي",
+   "tip_bn": "'হার'-এর দুই র একটু টেনে।",
+   "tip_en": "Double r in 'Harr' — hold it a little.",
+   "roman": "al-Harr waajid, abi maay"
+  },
+  {
+   "id": "ar-pr8",
+   "text": "عندك ماي بارد؟",
+   "tip_bn": "শেষে গলা একটু উঁচু — প্রশ্ন।",
+   "tip_en": "Raise your voice at the end — it's a question.",
+   "roman": "'indak maay baarid?"
+  },
+  {
+   "id": "ar-pr9",
+   "text": "راسي يعوّرني من أمس",
+   "tip_bn": "দুই ওয়াও জোরে: ইয়াও-ওয়ির্নি।",
+   "tip_en": "Stress the doubled w: y'aw-wirni.",
+   "roman": "raasi y'awwirni min ams"
+  },
+  {
+   "id": "ar-pr10",
+   "text": "ما استلمت الراتب",
+   "tip_bn": "'আর-রাতিব': 'আল'-এর ল র-এর মধ্যে মিশে যায়।",
+   "tip_en": "'ar-raatib': the l of 'al' disappears into r.",
+   "roman": "ma istalamt ar-raatib"
+  },
+  {
+   "id": "ar-pr11",
+   "text": "أبي جوازي لو سمحت",
+   "tip_bn": "দৃঢ় কিন্তু শান্ত গলায়।",
+   "tip_en": "Firm, calm voice.",
+   "roman": "abi jawaazi law samaHt"
+  },
+  {
+   "id": "ar-pr12",
+   "text": "أبي أكلّم السفارة",
+   "tip_bn": "'আকাল্লিম'-এ দুই লাম।",
+   "tip_en": "Double l in 'akallim'.",
+   "roman": "abi akallim as-safaara"
+  }
+ ],
+ "mock": [
+  {
+   "id": "ar_style_1",
+   "title_en": "Assisto work-Arabic skills check (no official exam exists for this)",
+   "title_bn": "Assisto কাজের আরবি দক্ষতা যাচাই (এর কোনো অফিসিয়াল পরীক্ষা নেই)",
+   "format_en": "Assisto work-Arabic skills check (no official exam exists for this)",
+   "format_bn": "Assisto কাজের আরবি দক্ষতা যাচাই (এর কোনো অফিসিয়াল পরীক্ষা নেই)",
+   "minutes": 20,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading and understanding (listening items are shown as text until phone-voice listening is enabled)",
+     "title_bn": "পড়া ও বোঝা (ফোনের কণ্ঠে শোনা চালু না হওয়া পর্যন্ত শোনার প্রশ্ন লেখা আকারে)",
+     "questions": [
+      {
+       "id": "ar-mk-l1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W1",
+       "text": "What is the price?\nعشرين ريال",
+       "text_en": "What is the price?\nعشرين ريال",
+       "text_bn": "দাম কত?\nعشرين ريال",
+       "tts_text": "عشرين ريال",
+       "options": [
+        "10",
+        "20",
+        "50",
+        "100"
+       ],
+       "answer": 1,
+       "explain_bn": "ইশরীন = বিশ।",
+       "explain_en": "عشرين = twenty."
+      },
+      {
+       "id": "ar-mk-l2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W1",
+       "text": "What does the person want?\nمرة ثانية لو سمحت",
+       "text_en": "What does the person want?\nمرة ثانية لو سمحت",
+       "text_bn": "লোকটি কী চান?\nمرة ثانية لو سمحت",
+       "tts_text": "مرة ثانية لو سمحت",
+       "options": [
+        "Say it again",
+        "Go home",
+        "Water",
+        "A taxi"
+       ],
+       "options_en": [
+        "Say it again",
+        "Go home",
+        "Water",
+        "A taxi"
+       ],
+       "options_bn": [
+        "আবার বলুন",
+        "বাসায় যাওয়া",
+        "পানি",
+        "ট্যাক্সি"
+       ],
+       "answer": 0,
+       "explain_bn": "মাররা সানিয়া = আরেকবার।",
+       "explain_en": "مرة ثانية = once more."
+      },
+      {
+       "id": "ar-mk-l3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W2",
+       "text": "Where should the driver go?\nروح سيدا، بعدين يمين",
+       "text_en": "Where should the driver go?\nروح سيدا، بعدين يمين",
+       "text_bn": "ড্রাইভার কোন দিকে যাবেন?\nروح سيدا، بعدين يمين",
+       "tts_text": "روح سيدا، بعدين يمين",
+       "options": [
+        "Straight, then right",
+        "Left, then stop",
+        "Back to the hotel",
+        "To the airport"
+       ],
+       "options_en": [
+        "Straight, then right",
+        "Left, then stop",
+        "Back to the hotel",
+        "To the airport"
+       ],
+       "options_bn": [
+        "সোজা, তারপর ডানে",
+        "বামে, তারপর থামা",
+        "হোটেলে ফেরা",
+        "বিমানবন্দরে"
+       ],
+       "answer": 0,
+       "explain_bn": "সীদা = সোজা, ইয়ামীন = ডানে।",
+       "explain_en": "سيدا = straight, يمين = right."
+      },
+      {
+       "id": "ar-mk-l4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W2",
+       "text": "What must you do first?\nلبس الخوذة أول",
+       "text_en": "What must you do first?\nلبس الخوذة أول",
+       "text_bn": "আগে কী করবেন?\nلبس الخوذة أول",
+       "tts_text": "لبس الخوذة أول",
+       "options": [
+        "Wear the helmet",
+        "Bring water",
+        "Call the supervisor",
+        "Go to lunch"
+       ],
+       "options_en": [
+        "Wear the helmet",
+        "Bring water",
+        "Call the supervisor",
+        "Go to lunch"
+       ],
+       "options_bn": [
+        "হেলমেট পরা",
+        "পানি আনা",
+        "সুপারভাইজারকে ডাকা",
+        "দুপুরের খাবারে যাওয়া"
+       ],
+       "answer": 0,
+       "explain_bn": "আগে হেলমেট পরো।",
+       "explain_en": "لبس الخوذة أول = put on the helmet first."
+      },
+      {
+       "id": "ar-mk-l5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W2",
+       "text": "What is madam asking?\nاكوي الملابس اليوم",
+       "text_en": "What is madam asking?\nاكوي الملابس اليوم",
+       "text_bn": "ম্যাডাম কী বলছেন?\nاكوي الملابس اليوم",
+       "tts_text": "اكوي الملابس اليوم",
+       "options": [
+        "Iron the clothes",
+        "Cook dinner",
+        "Clean the kitchen",
+        "Wake the child"
+       ],
+       "options_en": [
+        "Iron the clothes",
+        "Cook dinner",
+        "Clean the kitchen",
+        "Wake the child"
+       ],
+       "options_bn": [
+        "কাপড় ইস্ত্রি",
+        "রাতের রান্না",
+        "রান্নাঘর পরিষ্কার",
+        "বাচ্চাকে জাগানো"
+       ],
+       "answer": 0,
+       "explain_bn": "ইকউই = ইস্ত্রি করো।",
+       "explain_en": "اكوي = iron."
+      },
+      {
+       "id": "ar-mk-l6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W3",
+       "text": "How often is the medicine?\nمرتين باليوم بعد الأكل",
+       "text_en": "How often is the medicine?\nمرتين باليوم بعد الأكل",
+       "text_bn": "ওষুধ কতবার?\nمرتين باليوم بعد الأكل",
+       "tts_text": "مرتين باليوم بعد الأكل",
+       "options": [
+        "Twice a day",
+        "Once a day",
+        "Three times a day",
+        "Only at night"
+       ],
+       "options_en": [
+        "Twice a day",
+        "Once a day",
+        "Three times a day",
+        "Only at night"
+       ],
+       "options_bn": [
+        "দিনে দুবার",
+        "দিনে একবার",
+        "দিনে তিনবার",
+        "শুধু রাতে"
+       ],
+       "answer": 0,
+       "explain_bn": "মাররাতেইন = দুবার।",
+       "explain_en": "مرتين = twice."
+      },
+      {
+       "id": "ar-mk-l7",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W3",
+       "text": "What did the manager promise?\nالراتب الأسبوع الجاي إن شاء الله",
+       "text_en": "What did the manager promise?\nالراتب الأسبوع الجاي إن شاء الله",
+       "text_bn": "ম্যানেজার কী কথা দিলেন?\nالراتب الأسبوع الجاي إن شاء الله",
+       "tts_text": "الراتب الأسبوع الجاي إن شاء الله",
+       "options": [
+        "Salary next week",
+        "A new room",
+        "A day off tomorrow",
+        "A ticket home"
+       ],
+       "options_en": [
+        "Salary next week",
+        "A new room",
+        "A day off tomorrow",
+        "A ticket home"
+       ],
+       "options_bn": [
+        "আগামী সপ্তাহে বেতন",
+        "নতুন ঘর",
+        "কাল ছুটি",
+        "দেশে যাওয়ার টিকিট"
+       ],
+       "answer": 0,
+       "explain_bn": "আর-রাতিব আল-উসবূ আল-জায় = আগামী সপ্তাহে বেতন।",
+       "explain_en": "الراتب الأسبوع الجاي = salary next week."
+      },
+      {
+       "id": "ar-mk-r1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W1",
+       "text": "Where do you go out?",
+       "text_en": "Where do you go out?",
+       "text_bn": "বের হবেন কোন দরজা দিয়ে?",
+       "options": [
+        "مخرج",
+        "دخول",
+        "مغلق",
+        "رجال"
+       ],
+       "answer": 0,
+       "explain_bn": "মাখরাজ = বাহির।",
+       "explain_en": "مخرج = exit."
+      },
+      {
+       "id": "ar-mk-r2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W1",
+       "text": "This sign is on a door. What does it mean?\nممنوع الدخول",
+       "text_en": "This sign is on a door. What does it mean?\nممنوع الدخول",
+       "text_bn": "দরজায় এই সাইন। মানে কী?\nممنوع الدخول",
+       "options": [
+        "No entry",
+        "Open",
+        "Women",
+        "Pharmacy"
+       ],
+       "options_en": [
+        "No entry",
+        "Open",
+        "Women",
+        "Pharmacy"
+       ],
+       "options_bn": [
+        "প্রবেশ নিষেধ",
+        "খোলা",
+        "নারী",
+        "ওষুধের দোকান"
+       ],
+       "answer": 0,
+       "explain_bn": "মামনূ আদ-দুখূল = প্রবেশ নিষেধ।",
+       "explain_en": "ممنوع الدخول = no entry."
+      },
+      {
+       "id": "ar-mk-r3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W1",
+       "text": "Which number is this?\n٥٧",
+       "text_en": "Which number is this?\n٥٧",
+       "text_bn": "এটা কোন সংখ্যা?\n٥٧",
+       "options": [
+        "57",
+        "75",
+        "52",
+        "27"
+       ],
+       "answer": 0,
+       "explain_bn": "٥ = ৫, ٧ = ৭ → ৫৭।",
+       "explain_en": "٥ = 5, ٧ = 7 → 57."
+      },
+      {
+       "id": "ar-mk-r4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W2",
+       "text": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
+       "text_en": "A message from your sponsor. When is work tomorrow?\nبكرة الشغل الساعة ٧ الصبح",
+       "text_bn": "কফিলের বার্তা। কাল কাজ কয়টায়?\nبكرة الشغل الساعة ٧ الصبح",
+       "options": [
+        "6",
+        "7",
+        "8",
+        "9"
+       ],
+       "answer": 1,
+       "explain_bn": "আস-সাআ ٧ = সাতটা।",
+       "explain_en": "الساعة ٧ = seven o'clock."
+      },
+      {
+       "id": "ar-mk-r5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W2",
+       "text": "Where do you go if you are hurt at night?",
+       "text_en": "Where do you go if you are hurt at night?",
+       "text_bn": "রাতে আঘাত পেলে কোথায় যাবেন?",
+       "options": [
+        "طوارئ",
+        "مخرج",
+        "صيدلية",
+        "دخول"
+       ],
+       "answer": 0,
+       "explain_bn": "তাওয়ারি = জরুরি বিভাগ।",
+       "explain_en": "طوارئ = emergency department."
+      },
+      {
+       "id": "ar-mk-r6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "W3",
+       "text": "Which sentence asks for overtime pay?",
+       "text_en": "Which sentence asks for overtime pay?",
+       "text_bn": "কোন বাক্যে ওভারটাইমের টাকা চাওয়া হচ্ছে?",
+       "options": [
+        "أبي فلوس الساعات الإضافية",
+        "أبي ماي بارد",
+        "وين الدوّار؟",
+        "الياهل نايم"
+       ],
+       "answer": 0,
+       "explain_bn": "ওভারটাইমের টাকা।",
+       "explain_en": "فلوس الساعات الإضافية = overtime money."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing",
+     "title_bn": "লেখা",
+     "prompts": [
+      {
+       "id": "ar-mk-w1",
+       "text": "Write in Arabic: your country, and your phone number in Arabic digits. Example: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
+       "text_en": "Write in Arabic: your country, and your phone number in Arabic digits. Example: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
+       "text_bn": "আরবিতে লিখুন: আপনার দেশ, আর আরবি অঙ্কে ফোন নম্বর। উদাহরণ: بنغلاديش — ٠٥٠١٢٣٤٥٦٧",
+       "min_words": 1,
+       "max_words": 20,
+       "checks": [
+        {
+         "any": [
+          "بنغلاديش",
+          "بنجلاديش"
+         ],
+         "en": "Country written in Arabic",
+         "bn": "দেশের নাম আরবিতে"
+        },
+        {
+         "any": [
+          "٠",
+          "١",
+          "٢",
+          "٣",
+          "٤",
+          "٥",
+          "٦",
+          "٧",
+          "٨",
+          "٩"
+         ],
+         "en": "Number in Arabic digits",
+         "bn": "আরবি অঙ্কে নম্বর"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "speaking",
+     "skill": "speaking",
+     "title_en": "Speaking — read aloud, the phone checks",
+     "title_bn": "বলা — জোরে পড়ুন, ফোন যাচাই করবে",
+     "read_aloud": [
+      "السلام عليكم",
+      "أنا من بنغلاديش",
+      "ما أفهم، شوي شوي لو سمحت",
+      "شكراً جزيلاً"
+     ],
+     "speak_prompts": [
+      {
+       "id": "ar-mk-s1",
+       "text_en": "Greet, say your name and that you are from Bangladesh.",
+       "text_bn": "সালাম দিন, নাম বলুন, বাংলাদেশ থেকে এসেছেন বলুন।",
+       "seconds": 30,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "السلام",
+          "سلام"
+         ],
+         "en": "Greeting",
+         "bn": "সালাম"
+        },
+        {
+         "any": [
+          "اسمي"
+         ],
+         "en": "Your name (ismi…)",
+         "bn": "নাম (ইসমি…)"
+        },
+        {
+         "any": [
+          "بنغلاديش",
+          "بنجلاديش",
+          "بنغلادش"
+         ],
+         "en": "Bangladesh",
+         "bn": "বাংলাদেশ"
+        }
+       ]
+      },
+      {
+       "id": "ar-mk-s2",
+       "text_en": "Tell your supervisor you are sick and need a doctor.",
+       "text_bn": "সুপারভাইজারকে বলুন আপনি অসুস্থ, ডাক্তার দরকার।",
+       "seconds": 40,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "مريض",
+          "مريضة",
+          "تعبان",
+          "تعبانة"
+         ],
+         "en": "Say you are sick/tired",
+         "bn": "অসুস্থ/ক্লান্ত বলা"
+        },
+        {
+         "any": [
+          "دكتور",
+          "طبيب",
+          "مستشفى"
+         ],
+         "en": "Ask for a doctor/hospital",
+         "bn": "ডাক্তার/হাসপাতাল চাওয়া"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "W1"
+    },
+    {
+     "min_pct": 50,
+     "level": "W2"
+    },
+    {
+     "min_pct": 80,
+     "level": "W3"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}
