@@ -23,7 +23,8 @@ from core.models import BusinessProfile, FeatureFlag, User
 
 FLIP = ("blood_donors", "train_tracker", "dest_alarm", "missing_alert",
         "retention_auto", "accounting_v2", "child_emergency_audio",
-        "kids_watch", "agent_core", "fall_detect", "pa_secretary")
+        "kids_watch", "agent_core", "fall_detect", "pa_secretary",
+        "learning_certificate")
 
 # flag -> the GET endpoints its screens open with (no ids needed)
 ENDPOINTS = {
@@ -53,6 +54,7 @@ ENDPOINTS = {
                    "agent-core/memory/prefs", "crisis/helplines"],
     "fall_detect": ["family/fall/pending"],
     "pa_secretary": ["pa/visitors/", "pa/followups/", "pa_schedule/"],
+    "learning_certificate": ["learn/certs"],   # learncert
 }
 
 
