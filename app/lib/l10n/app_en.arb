@@ -43920,5 +43920,33 @@
         "type": "String"
       }
     }
-  }
+  },
+  "aileftStoppedPaid": "Stopped. You pay only for the part shown (nothing if you stopped early).",
+  "aileftIdNid": "NID application",
+  "aileftIdNidNote": "NID: inside Bangladesh the photo is taken at the registration office. Use this only when a form asks for a passport-size photo (for example NID from abroad).",
+  "aileftTplCostAi": "AI edit chips",
+  "aileftTplCostHd": "HD portrait",
+  "aileftTplCostRestore": "Old photo restore",
+  "aileftNoChargeOnFail": "If an edit fails or changes the face, you are not charged.",
+  "aileftAiEdited": "AI edited",
+  "aileftSendCircle": "Send to My Circle",
+  "aileftAddCatalog": "Add to catalog",
+  "aileftCircleEmpty": "Nobody in My Circle yet. Add family or friends to send them photos.",
+  "aileftCircleAdd": "Add people",
+  "aileftSentCircle": "Sending to {name}. It goes end-to-end encrypted.",
+  "@aileftSentCircle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aileftCatalogFailed": "Could not add the photo to your catalog. Check the internet and try again.",
+  "aileftCatalogDone": "Added to your shop catalog.",
+  "aileftCatalogTitle": "Add to your shop catalog",
+  "aileftCatalogBody": "Make it a new product, or set it as the picture of a product you already sell.",
+  "aileftCatalogName": "Product name",
+  "aileftCatalogPrice": "Price (taka)",
+  "aileftCatalogNew": "Add as new product",
+  "aileftCatalogExisting": "Or set as the picture of"
 }
