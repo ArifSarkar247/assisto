@@ -113,8 +113,8 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 - 3.9 Travel Planner — PARTIAL (board 49)
 - 3.10 Wedding and events — PARTIAL (screen+engine exist; no board row)
 - 3.11 Ride and Food — PARTIAL (board 63, opens partner apps)
-- 3.12 Farmer mode — PARTIAL (offline ledger engine; no DAE/BARI/DAM data)
-- 3.13 Unseen World / Unseen Bangladesh — PARTIAL (board 66/59)
+- 3.12 Farmer mode — PARTIAL+ (p3farm 3 Nov: Help tab, sourced crop calendar, symptom picker/AI photo, 16123, honest DAM; DAM feed + vision key + real phone left)
+- 3.13 Unseen World / Unseen Bangladesh — WAITING FOR OWNER (FEATURE_CARD_UNSEEN_WORLD_BN.md: site ownership + option A/B/C); Unseen Bangladesh board 66
 - 3.14 My Circle community + channels — channels/communities DONE b288 (62); further plan WAITING FOR OWNER explanation
 
 ## Standing orders still in force (details in owner_actions/OWNER_*.md and memory)
