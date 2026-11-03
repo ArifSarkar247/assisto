@@ -63,6 +63,8 @@ void main() {
       expect(normalizePairCode('12-HK7P4Q'), '12-HK7P4Q');
       expect(normalizePairCode(' 12 hk7p4q '), '12-HK7P4Q');
       expect(normalizePairCode('12HK7P4Q'), '12-HK7P4Q');
+      // launchsweep2: a Bangla screen shows the code with Bangla digits
+      expect(normalizePairCode('\u09E7\u09E8-HK\u09EDP\u09EAQ'), '12-HK7P4Q');
       expect(normalizePairCode('https://lifeassisto.com/pc/12-HK7P4Q'), '12-HK7P4Q');
       expect(normalizePairCode('/pc/012-HK7P4Q'), '12-HK7P4Q');
       expect(normalizePairCode('12-HK7P40'), isNull); // 0 is not in the alphabet

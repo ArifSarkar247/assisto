@@ -16,6 +16,9 @@ const kPairLinkBase = 'https://lifeassisto.com/pc/';
 /// Link, spaces, lower case and a missing dash (same as the server).
 String? normalizePairCode(String? raw) {
   var s = (raw ?? '').trim();
+  // a code typed with Bangla digits (shown that way on a Bangla screen)
+  s = String.fromCharCodes(s.runes.map(
+      (c) => c >= 0x09E6 && c <= 0x09EF ? 0x30 + (c - 0x09E6) : c));
   final i = s.indexOf(kPairLinkBase);
   if (i >= 0) s = s.substring(i + kPairLinkBase.length);
   // an App Link route name arrives as "/pc/<code>"

@@ -53,7 +53,7 @@ const _launchPrefixes = <String>[
   'chat', 'ps_assistant', // home AI chat action cards (expense / reminder / approval)
   // launchsweep2 (3 Nov): everything built on the 2–3 Nov night.
   'pc_', // CCTV phone camera (old phone as camera)
-  'cx_', 'cxat_', 'cctv_', // CCTV alerts inbox / actions / alert types
+  'cx_', 'cxat_', // CCTV alerts inbox / actions / alert types
   'cev_', // CCTV evidence (SD clip / recording)
   'cesc_', // CCTV escalation (alarm call, police card)
   'cpl_', // CCTV pricing / add-on
@@ -81,11 +81,30 @@ const Map<String, String> _allow = {
   'rt_*|english|"Karim"': 'fake customer name (user data)',
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
   // Site shots: standard / brand names written the same in Bangla.
-  'cx_alert_actions|digit|SHA-256': 'hash standard name (SHA-256), never translated',
+  '*|digit|SHA-256': 'hash standard name (SHA-256), never translated',
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
   'acct_reports_*|english|"Rent"': 'fake data: server sends the Bangla account name',
   'acct_reports_*|english|"Stock"': 'fake data: server sends the Bangla account name',
+  // launchsweep2 (3 Nov) — reviewed; each is user data or English-only
+  // gallery fake data for text the server already sends in Bangla.
+  '*|digit|PDF (A': 'paper size trade name (A4 / A5)',
+  '*|english|"PDF (A': 'paper size trade name (A4 / A5), same in Bangla',
+  'cx_privacy_kit|english|"English"': 'the language choice বাংলা / English, each in its own script',
+  'amk_*|digit|Good quality, 2nd floor': "the seller's own note (user data)",
+  'amk_deals|digit|LED bulb 12W': "the buyer's own product name (user data)",
+  'amk_offers|digit|more than the lowest price': 'fake data: core/market.py rank_bids sends bn reasons',
+  'amk_offers|digit|Delivery in': 'fake data: core/market.py rank_bids sends bn reasons',
+  'amk_offers|digit|Rating 4.6/5': 'fake data: core/market.py rank_bids sends bn reasons',
+  'amk_offers|digit|km away': 'fake data: core/market.py rank_bids sends bn reasons',
+  'cx_placement|english|it cannot tell what is in front': 'fake data: core/cctvx_views.py sends the bn honest line',
+  'cx_cash_guard_extras|digit|Cash drawer:': 'fake data: core/logic/cctv_extras.py sends bn lines',
+  'cx_cash_guard_extras|digit|Camera/internet silent': 'fake data: core/logic/cctv_extras.py sends bn lines',
+  'cx_cash_guard_extras|digit|The shop opened at': 'fake data: core/logic/cctv_extras.py sends bn lines',
+  'cev_recording*|english|"SD card OK"': 'fake data: core/cctv_evidence.py sends the bn SD label',
+  'carm_sos_live|english|"Home"': 'the place name the owner typed (user data)',
+  'bbl2_circle_row|english|"Karim"': 'a contact name (user data)',
+  'bbl2_circle_row|english|"Family"': 'a group name the user chose (user data)',
 };
 
 final _env = Platform.environment;
