@@ -33,6 +33,8 @@ Honesty: a no-key chat still gives real answers over the user's own data and the
 app's offline KB, and an honest "needs a key" for general questions — we never
 invent a fact and never charge for a Brain answer.
 """
+import logging
+
 from django.db.models import Q, Max
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
@@ -48,6 +50,8 @@ from . import credits_out
 from .i18n import req_lang, pick
 from .logic import brain
 from .models import ChatSession, ChatMessage
+
+log = logging.getLogger(__name__)
 
 # How many prior turns to feed the model as context (keeps cost + tokens bounded).
 _HISTORY_TURNS = 20
@@ -146,7 +150,54 @@ def _chat_mode(request):
         return None
 
 
-def _produce_reply(user, session, text, lang, history, credout=False, mode=None):
+def _photo_context(request):
+    """aifinal PART 1a: the TEXT answer of the photo the user attached
+    earlier in this chat (the app sends its chat-vision job id), so follow-up
+    questions about that photo work without re-sending it. Only the user's own
+    finished job from the last 6 hours; the image itself is never kept."""
+    try:
+        raw = (request.data.get("photo_job") if hasattr(request, "data") else None) \
+            or request.query_params.get("photo_job")
+        pk = int(raw or 0)
+        if pk <= 0:
+            return ""
+        from datetime import timedelta
+        from .logic import chat_vision as CV
+        from .models import PhotoStudioJob
+        job = PhotoStudioJob.objects.filter(
+            user=request.user, pk=pk, feature=CV.FEATURE, status="done",
+            done_at__gte=timezone.now() - timedelta(hours=6)).first()
+        return str(((job.options or {}).get("answer") or "") if job else "")[:1500]
+    except Exception:  # noqa: BLE001 — a bad id never breaks the chat
+        return ""
+
+
+PHOTO_NOTE = (
+    "ব্যবহারকারী এই চ্যাটে আগে একটি ছবি দিয়েছিলেন; ছবিতে যা দেখা গেছে তা DATA-তে "
+    "আছে। পরের প্রশ্নের উত্তর সেখান থেকে দাও — 'আমি ছবি দেখতে পাচ্ছি না' বা "
+    "'কিছু দেখতে পাচ্ছি না' কখনো বলবে না।",
+    "The user attached a photo earlier in this chat; what was seen in it is in "
+    "the DATA. Answer follow-ups from that — never say you cannot see the photo "
+    "or cannot see anything.")
+
+
+def _refund_turn(user, meta_out, why):
+    """aifinal PART 1c: give back what this turn charged + log the reason."""
+    n = int((meta_out or {}).get("charged") or 0)
+    if user is None or n <= 0:
+        return
+    try:
+        from . import billing
+        billing.credit(user, "adjust", n, note="ai_refund:" + why)
+        meta_out["charged"] = 0
+        meta_out["refunded"] = n
+        log.info("chat: refunded %s credits (%s)", n, why)
+    except Exception:  # noqa: BLE001
+        log.exception("chat: refund failed (%s)", why)
+
+
+def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
+                   photo=""):
     """Produce the assistant reply for `text` given prior `history`.
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
@@ -185,6 +236,11 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             ai_text, _cut = G.cap_text(text, limit)
             if ctx.get("level") == "L4":
                 summary = "-"
+            task_text = pick(lang, *CHAT_TASK)
+            if photo:
+                summary = ("[Photo attached earlier in this chat — what Assisto saw]\n"
+                           + photo + "\n\n" + summary)
+                task_text += "\n" + pick(lang, *PHOTO_NOTE)
             if not mode:
                 # legacy path (no pricing-40 caps): bound the context too
                 history = G.cap_history(history)
@@ -204,14 +260,14 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
                 # check decides the Opus auto-upgrade (capped per month).
                 from .logic import pricing_40 as P40
                 reply, cost = ai.generate(
-                    task="", extra_system=pick(lang, *CHAT_TASK),
+                    task="", extra_system=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
                     user=user, history=history, mode=mode, out_meta=meta_out,
                     upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault)
             else:
                 reply, cost = ai.generate(
-                    task=pick(lang, *CHAT_TASK),
+                    task=task_text,
                     data=CHAT_DATA.format(text=ai_text, summary=summary),
                     tier=requested_tier, feature="chat", max_tokens=700,
                     user=user, history=history, pii=vault, out_meta=meta_out)
@@ -219,13 +275,22 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None)
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
             from . import ai_guard
-            reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
-            # aibar: no invented taka amounts — a money figure that is not in
-            # the user's text, their data summary or the earlier turns is cut
-            # (own-data question) or marked as an estimate (general question).
-            reply, n_money = ai_guard.scrub_ungrounded_money(
-                reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
-                lang=lang, strict=ctx.get("level") == "L1")
+            n_money = 0
+            try:
+                reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
+                # aibar: no invented taka amounts — a money figure that is not in
+                # the user's text, their data summary or the earlier turns is cut
+                # (own-data question) or marked as an estimate (general question).
+                reply, n_money = ai_guard.scrub_ungrounded_money(
+                    reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
+                    lang=lang, strict=ctx.get("level") == "L1")
+            except Exception:  # noqa: BLE001 — a guard bug never costs the answer
+                log.exception("chat: answer guard failed")
+            if not (reply or "").strip():
+                # aifinal PART 1c: nothing usable came back -> credits back at
+                # once, then the honest free answer below
+                _refund_turn(user, meta_out, "chat:empty_after_guard")
+                raise ai.AIUnavailable("queued")
             # billing.charge inside ai.generate used effective_tier; recompute it
             # here only to record which action/credits were booked into meta.
             from . import billing
@@ -512,7 +577,8 @@ class ChatSendView(APIView):
         try:
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request))
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -568,7 +634,8 @@ class ChatStreamView(APIView):
         try:
             reply, meta, cards = _produce_reply(u, s, text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request))
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -644,7 +711,8 @@ class ChatRegenerateView(APIView):
         try:
             reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
                                             credout=credits_out.supported(request),
-                                            mode=_chat_mode(request))
+                                            mode=_chat_mode(request),
+                                            photo=_photo_context(request))
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.

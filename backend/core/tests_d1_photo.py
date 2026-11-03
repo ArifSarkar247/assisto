@@ -416,25 +416,22 @@ class RestoreApiTests(APITestCase):
                              format="json")
         self.assertEqual(u.status_code, 200)
 
-    def test_failure_keeps_funds_busy_is_free_then_refund(self):
+    def test_failure_refunds_credits_at_once(self):
+        # aifinal (owner 3 Nov 23:20, PART 1c): the AI could not do the task
+        # (busy or failed) -> credits come back at once, never held for a retry
         self.ready(on=True)
         self.client.force_authenticate(self.prem)
-        r = self.client.post("/api/v1/photo-studio/jobs", {"feature": "colorize"}, format="json")
-        jid = r.json()["job"]["id"]
-        self.prem.refresh_from_db()
-        before = self.prem.ai_credits
         img = {"image_b64": base64.b64encode(_png_bytes()).decode()}
-        with mock.patch.object(R, "process", side_effect=R.RestoreBusy("busy")):
-            r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, img, format="json")
-        self.assertEqual(r.status_code, 502)
-        self.assertEqual(PhotoStudioJob.objects.get(pk=jid).runs, 0)   # busy is not an attempt
-        self.assertEqual(PhotoStudioJob.objects.get(pk=jid).status, "funded")
-        with mock.patch.object(R, "process", side_effect=R.RestoreError("ort_run:Fail")):
-            for _ in range(3):
+        for err in (R.RestoreBusy("busy"), R.RestoreError("ort_run:Fail")):
+            r = self.client.post("/api/v1/photo-studio/jobs", {"feature": "colorize"}, format="json")
+            jid = r.json()["job"]["id"]
+            self.prem.refresh_from_db()
+            before = self.prem.ai_credits
+            with mock.patch.object(R, "process", side_effect=err):
                 r = self.client.post("/api/v1/photo-studio/jobs/%d/run" % jid, img, format="json")
-                self.assertEqual(r.status_code, 502)
-        job = PhotoStudioJob.objects.get(pk=jid)
-        self.assertEqual(job.status, "failed")
-        self.assertEqual(job.cost_bdt, 0)
-        self.prem.refresh_from_db()
-        self.assertEqual(self.prem.ai_credits, before + job.credits_charged)
+            self.assertEqual(r.status_code, 502)
+            job = PhotoStudioJob.objects.get(pk=jid)
+            self.assertEqual(job.status, "failed")
+            self.assertEqual(job.cost_bdt, 0)
+            self.prem.refresh_from_db()
+            self.assertEqual(self.prem.ai_credits, before + job.credits_charged)

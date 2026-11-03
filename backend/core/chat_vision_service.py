@@ -167,6 +167,7 @@ def funding_message(reason, lang):
 
 
 def client_config(user, lang="bn"):
+    from . import ai_chat_guard as G
     c = S._cfg()
     cv = cv_cfg(c)
     q = quote(user, c)
@@ -174,7 +175,7 @@ def client_config(user, lang="bn"):
     plan = S.plan_of(user)
     return {
         "plan": plan, "free": plan == "free", "enabled": cv["enabled"],
-        "quote": q, "providers": providers_state(lang, c),
+        "quote": q, "providers": G.friendly_needs(providers_state(lang, c), user, lang),
         "free_per_day": cv["free_detailed_per_day"],
         "max_image_kb": cv["max_image_kb"],
         "balance": int(getattr(user, "ai_credits", 0) or 0),

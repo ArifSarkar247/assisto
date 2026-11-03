@@ -202,6 +202,9 @@ SYSTEM_PROMPT = (
     "account or card numbers (mask all but the last 4 digits).\n"
     "4. Do not invent facts. If something is unreadable, say so.\n"
     "5. Answer in the user's language ({lang_name}), short and practical.\n"
+    "6. The photo IS attached: never open with 'I cannot see anything' or "
+    "'I cannot see the image'. Describe what you do see; if part is unclear, "
+    "say which part and what photo would help.\n"
     "Reply with ONLY a JSON object, no markdown: "
     '{{"kind": "medicine|bill|plant|document|food|product|person|other", '
     '"label_text": "<all readable text in the photo, verbatim, or empty>", '
