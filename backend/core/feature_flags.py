@@ -119,7 +119,7 @@ REGISTRY = (
     # REAL Unseen World travel feature below (default OFF). Migration
     # 0099_daily_info_flag carries the owner's old row over; LEGACY_KEYS
     # keeps old apps (which still ask for `unseen_world`) showing the hub.
-    ('daily_info', 'daily_life', 'Daily info and services', 'আজকের তথ্য ও সেবা', True, ()),
+    ('daily_info', 'daily_life', 'Daily info and services', 'আজকের তথ্য ও সেবা', True, ('daily_today',)),   # p3feed: Today feed route
     ('unseen_bangladesh', 'daily_life', 'Unseen Bangladesh', 'অদেখা বাংলাদেশ', True, ('unseen',)),
     ('dictionary', 'daily_life', 'Dictionary', 'অভিধান', True, ('dictionary',)),
     ('ramadan', 'daily_life', 'Ramadan mode', 'রমজান মোড', True, ('ramadan',)),

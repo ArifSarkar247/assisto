@@ -64,6 +64,7 @@ const _launchPrefixes = <String>[
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
+  'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
 ];
@@ -84,6 +85,7 @@ const Map<String, String> _allow = {
   'rt_inbox|digit|A gentle note': "a customer's chat message text (user data)",
   // Site shots: standard / brand names written the same in Bangla.
   '*|digit|SHA-256': 'hash standard name (SHA-256), never translated',
+  'p3feed_*|digit|CC BY 4.0': 'MET Norway licence name (CC BY 4.0) — attribution text required as published',
   // Report account names arrive from the server in the request language
   // (backend ledger._m); the gallery fake is English-only.
   // bndigits6: names the user typed / the job board supplies (data, not UI).

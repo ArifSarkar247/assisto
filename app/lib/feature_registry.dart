@@ -213,6 +213,8 @@ const Map<String, String> kRouteFeature = {
   'voice_settings': 'voice_assistant',
   'documents': 'documents',
   'guide': 'service_guide',
+  // p3feed: Today feed (a Discover card on Home can open it)
+  'daily_today': 'daily_info',
   'nearby': 'nearby',
   'unseen': 'unseen_bangladesh',
   'dictionary': 'dictionary',

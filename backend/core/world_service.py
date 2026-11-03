@@ -373,6 +373,14 @@ def today(user, lang, now=None):
                                      asr=ramadan.ASR_HANAFI)
         cards["prayer"] = WF.prayer_card(times, local.strftime("%H:%M"))
         cards["prayer"]["method"] = "Karachi angles, Hanafi Asr"
+        # p3feed: a week ahead, so a phone offline tomorrow still shows the
+        # right day's times from its cached copy (pure calculation, no key)
+        cards["prayer"]["days"] = [
+            {"date": (local.date() + timedelta(days=i)).isoformat(),
+             "times": WF.prayer_card(ramadan.prayer_times(
+                 local.date() + timedelta(days=i), c[3], c[4], tz_offset_hours=6.0,
+                 asr=ramadan.ASR_HANAFI), "00:00")["times"]}
+            for i in range(1, 8)]
     if on["weather"]:
         refresh_weather(c[0], now=now)
         row = _feed("weather_" + c[0], "weather")
@@ -381,17 +389,24 @@ def today(user, lang, now=None):
             cards["weather"] = w
         else:
             hidden["weather"] = "unavailable"
+    rows = admin_rows()
     if on["currency"]:
         refresh_fx(now=now)
         row = _feed("fx_usd", "fx")
         fx = WF.fx_public(row.payload, lang) if row.enabled else None
+        # p3feed: Bangladesh Bank's official USD rate (owner-entered) leads
+        official = WF.fx_official(rows, lang, timezone.localdate(now))
         if fx:
             nb, ne = fx.pop("note_bn"), fx.pop("note_en")
             fx["note"] = nb if lang == "bn" else ne
+        elif official:
+            fx = {"rows": [], "updated": "", "source": "", "source_url": "", "note": ""}
+        if fx:
+            if official:
+                fx["official"] = official
             cards["currency"] = fx
         else:
             hidden["currency"] = "unavailable"
-    rows = admin_rows()
     for g in ("gold", "fuel"):
         if on[g]:
             card = WF.admin_card(g, rows, lang)
@@ -420,6 +435,8 @@ def today(user, lang, now=None):
                            "source": "API-Football" if kind == "football" else "CricketData.org"}
         else:
             hidden[kind] = "unavailable"
+    if on.get("notices"):
+        cards["notices"] = WF.notices_card(lang)   # p3feed: official links
     if "prayer" in cards:
         note = cards["prayer"].pop("note_bn"), cards["prayer"].pop("note_en")
         cards["prayer"]["note"] = note[0] if lang == "bn" else note[1]

@@ -15,6 +15,10 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// Assisto, dated), Bangladesh + world headlines (official RSS: headline +
 /// short summary + link only) and live scores (only with a licensed key).
 /// A card with no real data is not shown — nothing is ever made up.
+/// p3feed: Bangladesh Bank's official USD rate (owner-entered, dated) leads the
+/// currency card; official notice links (load-shedding, BMD, flood); cards
+/// that are on but have no real data are listed under "Not connected yet" with the
+/// honest reason; prayer times for a week so an offline phone stays right.
 class WorldTodayScreen extends StatefulWidget {
   const WorldTodayScreen({super.key, this.api});
   final WorldApi? api;
@@ -32,7 +36,8 @@ const _order = [
   'news_bd',
   'news_world',
   'cricket',
-  'football'
+  'football',
+  'notices'
 ];
 
 class _WorldTodayScreenState extends State<WorldTodayScreen> {
@@ -91,7 +96,8 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         'news_bd' => t.uwCardNewsBd,
         'news_world' => t.uwCardNewsWorld,
         'cricket' => t.uwCardCricket,
-        _ => t.uwCardFootball,
+        'football' => t.uwCardFootball,
+        _ => t.uwCardNotices,
       };
 
   IconData _cardIcon(String id) => switch (id) {
@@ -103,7 +109,39 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         'news_bd' => Icons.newspaper_rounded,
         'news_world' => Icons.public_rounded,
         'cricket' => Icons.sports_cricket_rounded,
-        _ => Icons.sports_soccer_rounded,
+        'football' => Icons.sports_soccer_rounded,
+        _ => Icons.campaign_rounded,
+      };
+
+  /// p3feed: a cached copy from an earlier day carries the next 7 days of
+  /// prayer times — show today's (pure calculation, valid offline).
+  Map<String, dynamic> _prayerForToday(Map<String, dynamic> c) {
+    final now = DateTime.now();
+    final today =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    for (final d in worldList(c['days'])) {
+      if ('${d['date']}' == today) {
+        final times = worldMap(d['times']);
+        final hhmm =
+            '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        var next = 'fajr';
+        for (final k in const ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']) {
+          final v = times[k];
+          if (v != null && '$v'.compareTo(hhmm) > 0) {
+            next = k;
+            break;
+          }
+        }
+        return {...c, 'times': times, 'next': next};
+      }
+    }
+    return c;
+  }
+
+  String _hiddenReason(AppLocalizations t, String why) => switch (why) {
+        'needs_key' => t.uwNoLicensedSource,
+        'not_entered' => t.uwOfficialNotEntered,
+        _ => t.uwSourceDownNow,
       };
 
   Future<void> _customize() async {
@@ -233,6 +271,10 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     final cards = worldMap(d['cards']);
     final city = worldMap(d['city']);
     final shown = _order.where(cards.containsKey).toList();
+    final hidden = worldMap(d['hidden']);
+    final soon = _order
+        .where((id) => hidden.containsKey(id) && !cards.containsKey(id))
+        .toList();
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
       children: [
@@ -292,6 +334,46 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               ),
             ),
           ),
+        if (soon.isNotEmpty)
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(Gap.lg),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Icon(Icons.hourglass_top_rounded,
+                          color: scheme.onSurfaceVariant),
+                      const SizedBox(width: Gap.sm),
+                      Expanded(
+                          child: Text(t.uwNotConnectedTitle,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700))),
+                    ]),
+                    const SizedBox(height: Gap.xs),
+                    for (final id in soon)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(_cardIcon(id),
+                                  size: 20, color: scheme.onSurfaceVariant),
+                              const SizedBox(width: Gap.sm),
+                              Expanded(
+                                  child: Text(
+                                      '${_cardTitle(t, id)} — ${_hiddenReason(t, '${hidden[id]}')}',
+                                      style: TextStyle(
+                                          color: scheme.onSurfaceVariant,
+                                          height: 1.35))),
+                            ]),
+                      ),
+                  ]),
+            ),
+          ),
       ],
     );
   }
@@ -312,8 +394,9 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     final dg = (Object v) => uwDigits(context, v);
     switch (id) {
       case 'prayer':
-        final times = worldMap(c['times']);
-        final next = '${c['next'] ?? ''}';
+        final pc = _fromCache ? _prayerForToday(c) : c;
+        final times = worldMap(pc['times']);
+        final next = '${pc['next'] ?? ''}';
         final names = {
           'fajr': t.uwFajr,
           'sunrise': t.uwSunrise,
@@ -327,7 +410,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             if (times[k] != null)
               _row(names[k]!, dg(times[k]), strong: k == next),
           const SizedBox(height: Gap.xs),
-          Text('${c['note'] ?? ''}',
+          Text('${pc['note'] ?? ''}',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
@@ -362,19 +445,95 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               updated: '${c['updated'] ?? ''}'),
         ]);
       case 'currency':
+        final off = worldMap(c['official']);
+        final rows = worldList(c['rows']);
+        final small = Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(color: scheme.onSurfaceVariant);
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (final r in worldList(c['rows']))
+          if (off.isNotEmpty) ...[
+            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Expanded(
+                  child: Text(t.uwFxOfficialUsd,
+                      style: Theme.of(context).textTheme.titleSmall)),
+              const SizedBox(width: Gap.sm),
+              Text('৳${dg((off['bdt'] as num?)?.toStringAsFixed(2) ?? '')}',
+                  style:
+                      AFonts.figures(Theme.of(context).textTheme.headlineSmall)),
+            ]),
+            const SizedBox(height: Gap.xxs),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xxs, children: [
+              Chip(
+                visualDensity: VisualDensity.compact,
+                avatar: Icon(Icons.verified_rounded,
+                    size: 16, color: scheme.primary),
+                label: Text(t.uwOfficialBadge),
+              ),
+              Text(
+                  t.uwRateDate(
+                      uwWhen(context, '${off['date'] ?? ''}', time: false)),
+                  style: small),
+            ]),
+            if (off['stale'] == true)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xxs),
+                child: Text(t.uwFxOfficialStale,
+                    style: small?.copyWith(color: scheme.error)),
+              ),
+            UwSourceLine(
+                source: '${off['source']}', url: '${off['source_url'] ?? ''}'),
+            if (rows.isNotEmpty) ...[
+              const Divider(height: Gap.xl),
+              Text(t.uwFxIndicativeTitle, style: small),
+              const SizedBox(height: Gap.xxs),
+            ],
+          ],
+          for (final r in rows)
             _row('${r['name']} (${r['code']})', '৳${dg(r['bdt'])}'),
+          if (rows.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Text('${c['note'] ?? ''}', style: small),
+            UwSourceLine(
+                source: '${c['source']}',
+                url: '${c['source_url'] ?? ''}',
+                updated: '${c['updated'] ?? ''}'),
+          ],
+        ]);
+      case 'notices':
+        final links = worldList(c['links']);
+        final groups = <String, String>{
+          'power': t.uwNoticeGroupPower,
+          'weather': t.uwNoticeGroupWeather,
+          'money': t.uwNoticeGroupMoney,
+        };
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          for (final g in groups.keys)
+            if (links.any((l) => l['group'] == g)) ...[
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.sm),
+                child: Text(groups[g]!,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(color: scheme.primary)),
+              ),
+              for (final l in links.where((l) => l['group'] == g))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  minTileHeight: 48,
+                  dense: false,
+                  title: Text('${l['label']}'),
+                  trailing: const Icon(Icons.open_in_new_rounded, size: 20),
+                  onTap: () => uwOpen(context, '${l['url']}'),
+                ),
+            ],
           const SizedBox(height: Gap.xs),
-          Text('${c['note'] ?? ''}',
+          Text(t.uwNoticesNote,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
                   ?.copyWith(color: scheme.onSurfaceVariant)),
-          UwSourceLine(
-              source: '${c['source']}',
-              url: '${c['source_url'] ?? ''}',
-              updated: '${c['updated'] ?? ''}'),
         ]);
       case 'gold':
       case 'fuel':
