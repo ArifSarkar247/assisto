@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0140_cctvalerts'),
+        ('core', '0143_cctvteam'),
     ]
 
     operations = [

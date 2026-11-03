@@ -36295,5 +36295,1437 @@
   "discoverLiveBenefit": "Family sees where you are and gets notified when you arrive.",
   "discoverDestTitle": "Destination Alarm",
   "discoverDestBenefit": "Wakes you before your stop, even without internet.",
-  "discoverBloodBenefit": "Find blood donors near you and send an urgent request — all in the app."
+  "discoverBloodBenefit": "Find blood donors near you and send an urgent request — all in the app.",
+  "cactEntry": "Activity & daily summary",
+  "cactTitle": "Activity",
+  "cactTabSummary": "Summary",
+  "cactTabVisitors": "Visitor log",
+  "cactTabTimelapse": "Time-lapse",
+  "cactPrevDay": "Previous day",
+  "cactNextDay": "Next day",
+  "cactToday": "Today",
+  "cactSettings": "Activity settings",
+  "cactRole": "You can view; only the owner can change settings.",
+  "cactSummaryTitle": "The day in numbers",
+  "cactSummaryHint": "Yesterday's summary is sent to you every morning at {hour}:00.",
+  "@cactSummaryHint": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSummaryOff": "The morning summary is off (turn it on in settings).",
+  "cactOcTitle": "Shop opened / closed",
+  "cactOcLine": "Opened {open} · Closed {close}",
+  "@cactOcLine": {
+    "placeholders": {
+      "open": {
+        "type": "String"
+      },
+      "close": {
+        "type": "String"
+      }
+    }
+  },
+  "cactOcFromCamera": "From the camera (first and last person seen). Is it right?",
+  "cactOcConfirmed": "Confirmed by you",
+  "cactOcOk": "Correct",
+  "cactOcChange": "Change",
+  "cactOcNone": "No movement was seen on the shop cameras this day.",
+  "cactOcStillOpen": "Still open — last movement {time}",
+  "@cactOcStillOpen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactOcPickOpen": "Opening time",
+  "cactOcPickClose": "Closing time",
+  "cactSaved": "Saved",
+  "cactFootTitle": "Visitors next to sales",
+  "cactFootTotals": "{visitors} visitors · {sales} sales · conversion {conv}",
+  "@cactFootTotals": {
+    "placeholders": {
+      "visitors": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      },
+      "conv": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootSrcLine": "Counted by the entry line on the camera.",
+  "cactFootSrcEstimate": "Estimate from person alerts (the same person within 1 minute counts once). Draw an entry line for an exact count.",
+  "cactFootPeak": "Busiest: {hours}",
+  "@cactFootPeak": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootRow": "{hour}: {visitors} visitors, {sales} sales",
+  "@cactFootRow": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      },
+      "visitors": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "String"
+      }
+    }
+  },
+  "cactFootVisitors": "Visitors",
+  "cactFootSales": "Sales",
+  "cactNoSales": "No POS sales recorded this day.",
+  "cactFootEmptyTitle": "No visitors counted yet",
+  "cactFootEmptyBenefit": "See how many people come in each hour and how many buy — find your busiest hours.",
+  "cactFootStep1": "Turn on person (motion) detection in the camera's own app.",
+  "cactFootStep2": "Draw an entry line on the door camera (Zones and times).",
+  "cactFootStep3": "Sell through Assisto POS — sales appear here next to visitors.",
+  "cactWmTitle": "Watchman check",
+  "cactWmOffBody": "Every night hour, if no one moves on the watchman camera, you get an alert. If the camera is offline we say so — the watchman is never blamed for it.",
+  "cactWmTurnOn": "Turn on watchman check",
+  "cactWmTotals": "Seen {ok} h · not seen {miss} h · camera offline {unknown} h",
+  "@cactWmTotals": {
+    "placeholders": {
+      "ok": {
+        "type": "String"
+      },
+      "miss": {
+        "type": "String"
+      },
+      "unknown": {
+        "type": "String"
+      }
+    }
+  },
+  "cactWmOk": "Seen",
+  "cactWmMiss": "Not seen",
+  "cactWmUnknown": "Camera offline",
+  "cactWmNoneYet": "No night hour has been checked yet for this day.",
+  "cactHealthTitle": "Camera health",
+  "cactHealthOffline": "Offline {min} min",
+  "@cactHealthOffline": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cactHealthOn": "On all day",
+  "cactSdOk": "SD card OK",
+  "cactSdProblem": "SD card problem",
+  "cactSdNone": "No SD card",
+  "cactSdUnknown": "No SD status yet",
+  "cactLastPhoto": "Last photo {time}",
+  "@cactLastPhoto": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactNoPhoto": "No photo this day",
+  "cactVisSearch": "Search words, e.g. red shirt, gate, 19:",
+  "cactVisClear": "Clear search",
+  "cactVisAll": "All day",
+  "cactVisMorning": "Morning 6–12",
+  "cactVisAfternoon": "Afternoon 12–5",
+  "cactVisEvening": "Evening 5–10",
+  "cactVisNight": "Night 10–6",
+  "cactVisDay": "This day",
+  "cactVisWeek": "Last 7 days",
+  "cactVisAi": "AI description",
+  "cactVisTemplate": "Automatic text (not AI)",
+  "cactVisEmptyTitle": "No visitors in the log",
+  "cactVisEmptyBenefit": "Every person your camera alerts on is kept here with a photo and a short description — search by time or words.",
+  "cactVisStep1": "Set the guard schedule (Zones and times).",
+  "cactVisStep2": "To log daytime visitors too: schedule 'Always' plus quiet hours (no sound).",
+  "cactVisStep3": "Photos stay for the days you chose to keep them.",
+  "cactVisNoMatch": "Nothing matches “{q}”.",
+  "@cactVisNoMatch": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "cactVisMore": "Showing the latest 60. Narrow the search to see older ones.",
+  "cactTlTitle": "30-second time-lapse",
+  "cactTlBody": "{n} stored photos of this day. Your phone joins them into a short film — nothing is made on the server.",
+  "@cactTlBody": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cactTlNote": "A photo sequence, not full video.",
+  "cactTlMake": "Make time-lapse",
+  "cactTlMaking": "Making… {done} of {total} photos",
+  "@cactTlMaking": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cactTlShare": "Share",
+  "cactTlFailed": "Could not make the time-lapse. The photos may have expired.",
+  "cactTlEmptyTitle": "No photos for a time-lapse",
+  "cactTlEmptyBenefit": "See your whole day in 30 seconds — made from the photos your cameras stored.",
+  "cactTlStep1": "A photo is stored with each alert (photo keeping above 0 days).",
+  "cactTlStep2": "More alerts in the day = a fuller time-lapse.",
+  "cactTlLabel": "Time-lapse of {date}",
+  "@cactTlLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetBrief": "Morning summary",
+  "cactSetBriefSub": "Yesterday's visitors, sales, open/close, watchman and camera health — counts only, no AI cost.",
+  "cactSetBriefHour": "Send at {hour}:00",
+  "@cactSetBriefHour": {
+    "placeholders": {
+      "hour": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetEarlier": "Earlier",
+  "cactSetLater": "Later",
+  "cactSetShopCams": "Shop cameras (for open / close)",
+  "cactSetAllCams": "All cameras",
+  "cactSetWmFrom": "From {time}",
+  "@cactSetWmFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetWmTo": "Until {time}",
+  "@cactSetWmTo": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetWmCams": "Watchman cameras",
+  "cactSetDir": "Which way is 'in' on the entry line",
+  "cactSetDirBoth": "Both ways (crossings ÷ 2)",
+  "cactSetDirAb": "A → B is in",
+  "cactSetDirBa": "B → A is in",
+  "cactSetAi": "AI descriptions of visitor photos",
+  "cactSetAiUsed": "This month: {used} of {cap}",
+  "@cactSetAiUsed": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "cactSetAiNoKey": "No AI key yet — automatic text is used (labelled).",
+  "cactSetSave": "Save",
+  "ctmGridTitle": "All cameras",
+  "@ctmGridTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridNote": "Still photos, not video — light on data and battery. Tap a camera for a bigger photo or live view (up to {n} live at a time).",
+  "@ctmGridNote": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmGridEmptyTitle": "No camera to show yet",
+  "@ctmGridEmptyTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyBenefit": "See every home and shop on one screen — each camera's latest photo and whether it is online.",
+  "@ctmGridEmptyBenefit": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep1": "Add a place (home or shop)",
+  "@ctmGridEmptyStep1": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep2": "Add a camera or turn an old phone into one",
+  "@ctmGridEmptyStep2": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGridEmptyStep3": "Come back here to see them all together",
+  "@ctmGridEmptyStep3": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleOwner": "Owner",
+  "@ctmRoleOwner": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleFamily": "Family",
+  "@ctmRoleFamily": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleManager": "Manager",
+  "@ctmRoleManager": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleGuard": "Guard",
+  "@ctmRoleGuard": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleFamilyHelp": "Sees the cameras you allow and their alerts. Cannot change anything.",
+  "@ctmRoleFamilyHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleManagerHelp": "Sees the cameras you allow and can mark alerts as checked or wrong.",
+  "@ctmRoleManagerHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleGuardHelp": "Sees ONLY the cameras you tick (for example the gate) — nothing else at this place.",
+  "@ctmRoleGuardHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRoleTitle": "What {name} may see",
+  "@ctmRoleTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmRoleServerNote": "Assisto's server checks this on every photo, alert, clip and live view — not just the app.",
+  "@ctmRoleServerNote": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmAllCameras": "All cameras at this place",
+  "@ctmAllCameras": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPickCameras": "Choose cameras",
+  "@ctmPickCameras": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmGuardPick": "Tick at least one camera the guard may see",
+  "@ctmGuardPick": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOk": "Allow live view",
+  "@ctmLiveOk": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOkHelp": "Only for the cameras above. Counts toward your 2 live views at a time.",
+  "@ctmLiveOkHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveOkShort": "Live allowed",
+  "@ctmLiveOkShort": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCamerasCount": "{n} cameras",
+  "@ctmCamerasCount": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmTapToSetRole": "Tap a person to choose what they may see (family, manager or guard).",
+  "@ctmTapToSetRole": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmSave": "Save",
+  "@ctmSave": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOnline": "Online",
+  "@ctmStatusOnline": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOffline": "Offline",
+  "@ctmStatusOffline": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusNever": "Not connected yet",
+  "@ctmStatusNever": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmStatusOff": "Turned off",
+  "@ctmStatusOff": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmNoPhoto": "No photo yet",
+  "@ctmNoPhoto": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoFromCheck": "Photo from the setup check",
+  "@ctmPhotoFromCheck": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoJustNow": "Photo just now",
+  "@ctmPhotoJustNow": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPhotoMinutes": "Photo {n} min ago",
+  "@ctmPhotoMinutes": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmPhotoAt": "Photo at {time}",
+  "@ctmPhotoAt": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmFreshPhoto": "Get a fresh photo now",
+  "@ctmFreshPhoto": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmFreshDone": "Fresh photo from the camera.",
+  "@ctmFreshDone": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmFreshUnsupported": "This camera can't send a fresh photo on request — you see its last alert photo. Open live to see it right now.",
+  "@ctmFreshUnsupported": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmOpenLive": "Watch live",
+  "@ctmOpenLive": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveNotAllowed": "The owner has not allowed you live view of this camera.",
+  "@ctmLiveNotAllowed": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLiveNotCapable": "Live view is not available for this camera yet.",
+  "@ctmLiveNotCapable": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareToWatch": "Share this photo with neighbours",
+  "@ctmShareToWatch": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchTitle": "Neighbourhood watch",
+  "@ctmWatchTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchIntro": "Your private community groups. A photo shared here is seen only by that group's members and is deleted when its time is up.",
+  "@ctmWatchIntro": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchMembers": "{n} members",
+  "@ctmWatchMembers": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmWatchEmptyTitle": "No private group yet",
+  "@ctmWatchEmptyTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyBenefit": "Warn trusted neighbours with one photo you choose — only your private group sees it, never the public.",
+  "@ctmWatchEmptyBenefit": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyRefresh": "Check again",
+  "@ctmWatchEmptyRefresh": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep1": "In My Circle → Communities, create a private community for your road or building",
+  "@ctmWatchEmptyStep1": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep2": "Invite neighbours you trust",
+  "@ctmWatchEmptyStep2": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchEmptyStep3": "Come back here — the group appears in this list",
+  "@ctmWatchEmptyStep3": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchNoPostsTitle": "No photo shared right now",
+  "@ctmWatchNoPostsTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchNoPostsBenefit": "When a neighbour shares a photo, it shows here until it expires.",
+  "@ctmWatchNoPostsBenefit": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep1": "Open All cameras and tap a camera",
+  "@ctmWatchShareStep1": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep2": "Tap 'Share this photo with neighbours'",
+  "@ctmWatchShareStep2": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShareStep3": "Pick this group, confirm and send",
+  "@ctmWatchShareStep3": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchBy": "By {name} at {time}",
+  "@ctmWatchBy": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmWatchUntil": "Deleted at {time}",
+  "@ctmWatchUntil": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmWatchDelete": "Delete",
+  "@ctmWatchDelete": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchDeleted": "Deleted.",
+  "@ctmWatchDeleted": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchReport": "Report",
+  "@ctmWatchReport": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchReported": "Thanks — reported. It is hidden for you.",
+  "@ctmWatchReported": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReportHelp": "Three reports from members remove the photo for everyone.",
+  "@ctmReportHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonPrivate": "Shows a private place or person",
+  "@ctmReasonPrivate": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonWrongPerson": "Blames the wrong person",
+  "@ctmReasonWrongPerson": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonAbuse": "Abusive or hateful",
+  "@ctmReasonAbuse": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonSpam": "Spam",
+  "@ctmReasonSpam": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReasonOther": "Something else",
+  "@ctmReasonOther": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmBlockAuthor": "Also block {name}",
+  "@ctmBlockAuthor": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmBlockHelp": "You will not see their neighbourhood-watch photos again.",
+  "@ctmBlockHelp": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmReportSend": "Send report",
+  "@ctmReportSend": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmPickGroup": "Which private group?",
+  "@ctmPickGroup": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmDeleteAfter": "Delete the photo after",
+  "@ctmDeleteAfter": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmHours": "{n} hours",
+  "@ctmHours": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmCaption": "A short note (optional)",
+  "@ctmCaption": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCaptionHint": "Suspicious — please keep an eye out",
+  "@ctmCaptionHint": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchConfirm": "I chose this photo myself and want only this group to see it. I know faces are not blurred.",
+  "@ctmWatchConfirm": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchSend": "Share with the group",
+  "@ctmWatchSend": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmWatchShared": "Shared with your private group.",
+  "@ctmWatchShared": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksTitle": "Share link",
+  "@ctmLinksTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksIntro": "A view-only link for someone without the app — photos of the cameras you choose, until the time you set. No sound. Turn it off any time.",
+  "@ctmLinksIntro": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksEmptyTitle": "No share link yet",
+  "@ctmLinksEmptyTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksEmptyBenefit": "Let a relative or a security company check your cameras for an hour or a day — in any browser, no app needed.",
+  "@ctmLinksEmptyBenefit": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep1": "Choose the cameras",
+  "@ctmLinksStep1": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep2": "Choose 1 hour, 24 hours or your own time",
+  "@ctmLinksStep2": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinksStep3": "Send the link — you can turn it off any time",
+  "@ctmLinksStep3": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmNewLink": "New share link",
+  "@ctmNewLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkHowLong": "Open for how long?",
+  "@ctmLinkHowLong": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCustom": "Choose time",
+  "@ctmCustom": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkLabel": "Who is it for? (only you see this)",
+  "@ctmLinkLabel": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkLabelHint": "e.g. Cousin Rafiq",
+  "@ctmLinkLabelHint": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkWarning": "Anyone who gets this link can see these cameras' photos until it ends. Photos only — never sound, never old video. You see each time it is opened.",
+  "@ctmLinkWarning": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmMakeLink": "Make the link",
+  "@ctmMakeLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkReady": "Link ready",
+  "@ctmLinkReady": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkOnce": "For safety the full link is shown only now. Lost it? Turn it off and make a new one.",
+  "@ctmLinkOnce": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareLink": "Send the link",
+  "@ctmShareLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCopyLink": "Copy the link",
+  "@ctmCopyLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmCopied": "Copied.",
+  "@ctmCopied": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmShareMessage": "You can see the cameras of {place} until {time} (view only): {url}",
+  "@ctmShareMessage": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmLinkUntil": "Shared until {time}",
+  "@ctmLinkUntil": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmLinkStateRevoked": "Turned off",
+  "@ctmLinkStateRevoked": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkStateExpired": "Expired",
+  "@ctmLinkStateExpired": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkViews": "Opened {n} times",
+  "@ctmLinkViews": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "ctmLinkNoLabel": "Share link",
+  "@ctmLinkNoLabel": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmRevoke": "Turn off now",
+  "@ctmRevoke": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLinkRevoked": "Link turned off — it shows nothing now.",
+  "@ctmLinkRevoked": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogTitle": "Who viewed",
+  "@ctmLogTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogEmptyTitle": "Nobody else has looked yet",
+  "@ctmLogEmptyTitle": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogEmptyBenefit": "Every time family, a guard, a manager or a share link looks at a camera, it shows here — for 30 days.",
+  "@ctmLogEmptyBenefit": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStep1": "Add people under Family viewers",
+  "@ctmLogStep1": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStep2": "Or make a share link",
+  "@ctmLogStep2": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogAlerts": "Opened the alert list",
+  "@ctmLogAlerts": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogAlert": "Opened an alert",
+  "@ctmLogAlert": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogStill": "Looked at camera photos",
+  "@ctmLogStill": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogLive": "Watched live",
+  "@ctmLogLive": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogLink": "Opened the share link",
+  "@ctmLogLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch"
+  },
+  "ctmLogByLink": "Link: {label}",
+  "@ctmLogByLink": {
+    "description": "cctvteam (CCTV W11): grid / roles / share links / neighbourhood watch",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "amkTitle": "Assisto Market",
+  "amkTabNeeds": "My needs",
+  "amkTabGroup": "Buy together",
+  "amkTabSell": "Seller",
+  "amkTabDeals": "Deals",
+  "amkGuideTitle": "How Assisto Market works",
+  "amkGuide1": "Write what you need, how much, your Dhaka area and by when.",
+  "amkGuide2": "Only sellers the Assisto owner approved can send offers. Offers are sealed: no seller sees another's price, and your name and number stay hidden until you accept.",
+  "amkGuide3": "Assisto explains which offer is best and why: price 50%, delivery time 20%, seller rating 20%, distance 10%. The lowest price is always shown.",
+  "amkGuide4": "You pay the seller in cash when the goods arrive. Assisto never takes your money and charges no fee.",
+  "amkGuide5": "Buy together: neighbours, office or mess can join one need to raise the quantity — bigger orders usually get a lower price.",
+  "amkPostNeed": "Post a need",
+  "amkPostNeedSend": "Post the need",
+  "amkCodNote": "Cash on delivery only. No fee.",
+  "amkNeedsEmptyTitle": "Let sellers come to you",
+  "amkNeedsEmptyBenefit": "Post what you need once — verified Dhaka sellers send their best price, and Assisto tells you which offer is best.",
+  "amkNeedsEmptyHow": "Example: 25 kg rice, Mirpur, within 3 days.",
+  "amkGroupIntro": "Join a need near you and add your own quantity. Each person pays the seller in cash on delivery for their own part.",
+  "amkMyArea": "My area (nearest first)",
+  "amkGroupEmptyTitle": "No group-buy near you yet",
+  "amkGroupEmptyBenefit": "Start one: more people in one order means a stronger price.",
+  "amkGroupEmptyHow": "Turn on 'Others can join' when you post a need.",
+  "amkStartGroup": "Start a group-buy",
+  "amkSellNoBizTitle": "Sell on Assisto Market",
+  "amkSellBenefit": "Get ready buyers from Dhaka without paying for ads. Accepted orders go straight to your Business orders, cash on delivery.",
+  "amkOpenBusiness": "Turn on Business",
+  "amkSellNoBizHow": "First set up your shop in Business, then come back here and apply.",
+  "amkSellApplyTitle": "Apply to become a seller",
+  "amkSellApplyHow": "Pick your shop area and what you sell. The Assisto owner checks and approves sellers by hand.",
+  "amkApply": "Apply",
+  "amkApplyTitle": "Seller details",
+  "amkApplyNote": "Only Dhaka for now. No documents are needed yet; the owner approves by hand.",
+  "amkShopArea": "Shop area",
+  "amkWhatYouSell": "What do you sell?",
+  "amkApplied": "Saved. You will get a notification when it is approved.",
+  "amkSellPending": "Waiting for the owner's approval",
+  "amkSellSuspended": "Suspended — you can't send offers now",
+  "amkSellRejected": "Not approved",
+  "amkSellApproved": "Approved seller",
+  "amkSellerYou": "My shop",
+  "amkEditSeller": "Change area or categories",
+  "amkSellEmptyTitle": "No open needs in your categories right now",
+  "amkSellEmptyBenefit": "You get a notification when a buyer posts a new need. More categories = more buyers.",
+  "amkYourOffer": "Your offer",
+  "amkDealsEmptyTitle": "No deals yet",
+  "amkDealsEmptyBenefit": "When you accept an offer (or a buyer accepts yours) the deal shows here with a chat button.",
+  "amkDealsEmptyHow": "Pay only when the goods arrive.",
+  "amkCod": "Cash on delivery",
+  "amkChat": "Chat",
+  "amkGotIt": "I got it",
+  "amkDelivered": "Delivered",
+  "amkMarkedDelivered": "Marked as delivered.",
+  "amkRate": "Rate the seller",
+  "amkRateTitle": "How was the seller?",
+  "amkThanksRating": "Thanks — your rating helps other buyers.",
+  "amkCancelDeal": "Cancel deal",
+  "amkCancelDealTitle": "Cancel this deal?",
+  "amkCancelDealBody": "No money has moved, so nothing needs to be refunded. Please tell the other side in the chat.",
+  "amkKeep": "Keep it",
+  "amkReportBlock": "Report / block",
+  "amkReportTitle": "What is wrong?",
+  "amkRepScam": "Scam or fraud",
+  "amkRepSpam": "Spam or fake need",
+  "amkRepHarass": "Harassment or bad language",
+  "amkRepFake": "Pretending to be someone else",
+  "amkRepOther": "Something else",
+  "amkBlock": "Block this person in Market",
+  "amkBlockNote": "Your needs and their offers will no longer meet.",
+  "amkBlocked": "Blocked.",
+  "amkReported": "Thanks — the Assisto team will check it.",
+  "amkOffline": "No internet. Check the connection and try again.",
+  "amkError": "Something went wrong. Please try again.",
+  "amkRetry": "Try again",
+  "amkStOpen": "Open",
+  "amkStAccepted": "Offer accepted",
+  "amkStCancelled": "Cancelled",
+  "amkStDelivered": "Delivered",
+  "amkStConfirmed": "Confirmed",
+  "amkStClosed": "Closed",
+  "amkFormIntro": "Sellers see what you need, the quantity, your area and the deadline — never your name or number until you accept an offer.",
+  "amkCategory": "Category",
+  "amkWhat": "What do you need?",
+  "amkWhatHint": "e.g. Miniket rice",
+  "amkDetails": "Details (optional)",
+  "amkDetailsHint": "Brand, size, quality, delivery floor…",
+  "amkQuantity": "Quantity",
+  "amkUnit": "Unit",
+  "amkArea": "Area in Dhaka",
+  "amkDhakaOnly": "Dhaka only for now.",
+  "amkDeadline": "Needed within",
+  "amkBudgetOptional": "Budget for the whole order (optional, in taka)",
+  "amkBudgetMin": "From",
+  "amkBudgetMax": "Up to",
+  "amkShowBudget": "Show my budget to sellers",
+  "amkShowBudgetNote": "Off: only you see it, and offers above it are marked for you.",
+  "amkGroupSwitch": "Others can join (buy together)",
+  "amkGroupSwitchNote": "Neighbours can add their quantity. You choose the offer; each person gets their own cash-on-delivery deal.",
+  "amkFormMissing": "Pick a category and an area, write what you need (3+ letters) and a quantity.",
+  "amkPosted": "Posted. Sellers are told now.",
+  "amkNeedTitle": "Need",
+  "amkHiddenByReports": "Hidden after reports — the Assisto team is checking.",
+  "amkNoOffersTitle": "No offers yet",
+  "amkNoOffersBenefit": "Approved sellers in this category were told. You get a notification for each new offer.",
+  "amkNoOffersJoiner": "When offers come, you will see them here with the reasons.",
+  "amkNoOffersHow": "Tip: turn on 'Others can join' so a bigger order attracts better prices.",
+  "amkWhyTitle": "Which offer is best, and why",
+  "amkNoAiNeeded": "Calculated by fixed, open rules — the same for everyone.",
+  "amkSuggested": "Suggested",
+  "amkLowest": "Lowest price",
+  "amkFastest": "Fastest",
+  "amkOverBudget": "Above budget",
+  "amkTakeOffer": "Take this offer",
+  "amkAcceptYes": "Yes, take it",
+  "amkDealDone": "Deal confirmed — chat with the seller to set the delivery.",
+  "amkCancelNeed": "Close this need",
+  "amkCancelNeedTitle": "Close this need? Open offers will end.",
+  "amkNeedCancelled": "Closed.",
+  "amkYourOfferTitle": "Send your offer",
+  "amkYourOfferEdit": "Your offer",
+  "amkSealedNote": "Sealed: other sellers never see your price, and you don't see theirs.",
+  "amkDeliveryHours": "Delivery within (hours)",
+  "amkNotes": "Note to the buyer (optional)",
+  "amkNotesHint": "Brand, quality, delivery charge included…",
+  "amkSendOffer": "Send offer",
+  "amkUpdateOffer": "Update offer",
+  "amkOfferSent": "Offer sent.",
+  "amkWithdraw": "Withdraw offer",
+  "amkOfferWithdrawn": "Offer withdrawn.",
+  "amkBiddingClosed": "Offers are closed for this need.",
+  "amkJoinTitle": "Buy together",
+  "amkJoinedTitle": "You joined",
+  "amkJoinNote": "The person who posted chooses the offer. You then get your own cash-on-delivery deal and a chat with the seller. You can leave until an offer is taken.",
+  "amkJoin": "Join",
+  "amkUpdateQty": "Update my quantity",
+  "amkJoined": "Saved.",
+  "amkLeave": "Leave",
+  "amkLeft": "You left this group-buy.",
+  "amkInHours": "in {n} hours",
+  "@amkInHours": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkInDays": "in {n} days",
+  "@amkInDays": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkOffersN": "{n} offers",
+  "@amkOffersN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkJoinersN": "{n} joined",
+  "@amkJoinersN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkKmAway": "about {km} km away",
+  "@amkKmAway": {
+    "placeholders": {
+      "km": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkRating": "rating {avg}/5 ({n})",
+  "@amkRating": {
+    "placeholders": {
+      "avg": {
+        "type": "Object"
+      },
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkStarsN": "{n} stars",
+  "@amkStarsN": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkSeller": "Seller: {name}",
+  "@amkSeller": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkBuyer": "Buyer: {name}",
+  "@amkBuyer": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkAcceptTitle": "Take {name}'s offer?",
+  "@amkAcceptTitle": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkAcceptBody": "Total {total}, cash on delivery. No fee. A chat with the seller opens so you can share the address. Other offers will end.",
+  "@amkAcceptBody": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkQtyLine": "Quantity: {n} {unit}",
+  "@amkQtyLine": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "unit": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkTotalQty": "Together: {n} ({people} joined)",
+  "@amkTotalQty": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      },
+      "people": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkDeadlineAt": "Needed by {when}",
+  "@amkDeadlineAt": {
+    "placeholders": {
+      "when": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkBudgetLine": "Budget: {min} – {max}",
+  "@amkBudgetLine": {
+    "placeholders": {
+      "min": {
+        "type": "Object"
+      },
+      "max": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkPerUnit": "{price} per unit",
+  "@amkPerUnit": {
+    "placeholders": {
+      "price": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkScore": "Score {n}/100",
+  "@amkScore": {
+    "placeholders": {
+      "n": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkSellerNote": "Seller's note: {note}",
+  "@amkSellerNote": {
+    "placeholders": {
+      "note": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkUnitPrice": "Price per {unit} (taka)",
+  "@amkUnitPrice": {
+    "placeholders": {
+      "unit": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkBidTotal": "Total for the whole order: {total}",
+  "@amkBidTotal": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "amkMyQty": "My quantity ({unit})",
+  "@amkMyQty": {
+    "placeholders": {
+      "unit": {
+        "type": "Object"
+      }
+    }
+  },
+  "mktTitle": "Marketing engine",
+  "@mktTitle": {
+    "description": "Marketing engine (mktengine): mktTitle"
+  },
+  "mktOffTitle": "Not available yet",
+  "@mktOffTitle": {
+    "description": "Marketing engine (mktengine): mktOffTitle"
+  },
+  "mktOffBody": "The marketing engine is being tested. It will appear here once it is ready.",
+  "@mktOffBody": {
+    "description": "Marketing engine (mktengine): mktOffBody"
+  },
+  "mktLoadErrorTitle": "Couldn't load",
+  "@mktLoadErrorTitle": {
+    "description": "Marketing engine (mktengine): mktLoadErrorTitle"
+  },
+  "mktLoadErrorBody": "Check the internet and try again.",
+  "@mktLoadErrorBody": {
+    "description": "Marketing engine (mktengine): mktLoadErrorBody"
+  },
+  "mktRetry": "Try again",
+  "@mktRetry": {
+    "description": "Marketing engine (mktengine): mktRetry"
+  },
+  "mktGenericError": "That did not work, please try again.",
+  "@mktGenericError": {
+    "description": "Marketing engine (mktengine): mktGenericError"
+  },
+  "mktWelcomeTitle": "Your own marketing team, in Bangla",
+  "@mktWelcomeTitle": {
+    "description": "Marketing engine (mktengine): mktWelcomeTitle"
+  },
+  "mktWelcomeBody": "Answer a few short questions. We build posts, a 30-day festival calendar, campaigns and customer follow-ups from your real products, prices and sales.",
+  "@mktWelcomeBody": {
+    "description": "Marketing engine (mktengine): mktWelcomeBody"
+  },
+  "mktStart": "Start (about 5 minutes)",
+  "@mktStart": {
+    "description": "Marketing engine (mktengine): mktStart"
+  },
+  "mktContinue": "Continue the questions",
+  "@mktContinue": {
+    "description": "Marketing engine (mktengine): mktContinue"
+  },
+  "mktHowTitle": "How it works",
+  "@mktHowTitle": {
+    "description": "Marketing engine (mktengine): mktHowTitle"
+  },
+  "mktHow1": "Tell us about your shop: customers, goals, budget, tone, offers.",
+  "@mktHow1": {
+    "description": "Marketing engine (mktengine): mktHow1"
+  },
+  "mktHow2": "Check every item and approve only what you like. Nothing goes out without your OK.",
+  "@mktHow2": {
+    "description": "Marketing engine (mktengine): mktHow2"
+  },
+  "mktHow3": "Copy or share posts; approved follow-ups go to your own customers with STOP and quiet hours.",
+  "@mktHow3": {
+    "description": "Marketing engine (mktengine): mktHow3"
+  },
+  "mktHonestLine": "We never invent sales numbers, reviews or testimonials. Lunar festival dates are marked as estimates.",
+  "@mktHonestLine": {
+    "description": "Marketing engine (mktengine): mktHonestLine"
+  },
+  "mktQuestionsTitle": "About your business",
+  "@mktQuestionsTitle": {
+    "description": "Marketing engine (mktengine): mktQuestionsTitle"
+  },
+  "mktStepOf": "Step {n} of {total}",
+  "@mktStepOf": {
+    "description": "Marketing engine (mktengine): mktStepOf",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mktOptional": "Optional — you can skip this.",
+  "@mktOptional": {
+    "description": "Marketing engine (mktengine): mktOptional"
+  },
+  "mktPickMany": "Pick one or more.",
+  "@mktPickMany": {
+    "description": "Marketing engine (mktengine): mktPickMany"
+  },
+  "mktAnswerFirst": "Please answer this one first.",
+  "@mktAnswerFirst": {
+    "description": "Marketing engine (mktengine): mktAnswerFirst"
+  },
+  "mktNext": "Next",
+  "@mktNext": {
+    "description": "Marketing engine (mktengine): mktNext"
+  },
+  "mktBack": "Back",
+  "@mktBack": {
+    "description": "Marketing engine (mktengine): mktBack"
+  },
+  "mktCancel": "Cancel",
+  "@mktCancel": {
+    "description": "Marketing engine (mktengine): mktCancel"
+  },
+  "mktBuildPlan": "Build my plan",
+  "@mktBuildPlan": {
+    "description": "Marketing engine (mktengine): mktBuildPlan"
+  },
+  "mktBuildHint": "Your answers are saved. You can change them any time.",
+  "@mktBuildHint": {
+    "description": "Marketing engine (mktengine): mktBuildHint"
+  },
+  "mktApprovedCount": "Approved {done} of {total}",
+  "@mktApprovedCount": {
+    "description": "Marketing engine (mktengine): mktApprovedCount",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mktFactsTitle": "Real numbers used",
+  "@mktFactsTitle": {
+    "description": "Marketing engine (mktengine): mktFactsTitle"
+  },
+  "mktFactsSub": "From your POS sales, catalog and CRM",
+  "@mktFactsSub": {
+    "description": "Marketing engine (mktengine): mktFactsSub"
+  },
+  "mktRebuild": "Rebuild with fresh numbers",
+  "@mktRebuild": {
+    "description": "Marketing engine (mktengine): mktRebuild"
+  },
+  "mktRebuilt": "Plan rebuilt. Your approved items stayed as they were.",
+  "@mktRebuilt": {
+    "description": "Marketing engine (mktengine): mktRebuilt"
+  },
+  "mktEditAnswers": "Change answers",
+  "@mktEditAnswers": {
+    "description": "Marketing engine (mktengine): mktEditAnswers"
+  },
+  "mktSecContent": "Content",
+  "@mktSecContent": {
+    "description": "Marketing engine (mktengine): mktSecContent"
+  },
+  "mktSecStrategy": "Strategy",
+  "@mktSecStrategy": {
+    "description": "Marketing engine (mktengine): mktSecStrategy"
+  },
+  "mktSecCampaign": "Campaigns",
+  "@mktSecCampaign": {
+    "description": "Marketing engine (mktengine): mktSecCampaign"
+  },
+  "mktSecConversion": "Follow-ups & sales",
+  "@mktSecConversion": {
+    "description": "Marketing engine (mktengine): mktSecConversion"
+  },
+  "mktStatusDraft": "Waiting for you",
+  "@mktStatusDraft": {
+    "description": "Marketing engine (mktengine): mktStatusDraft"
+  },
+  "mktStatusApproved": "Approved",
+  "@mktStatusApproved": {
+    "description": "Marketing engine (mktengine): mktStatusApproved"
+  },
+  "mktStatusRejected": "Not used",
+  "@mktStatusRejected": {
+    "description": "Marketing engine (mktengine): mktStatusRejected"
+  },
+  "mktEstimateBadge": "Estimate",
+  "@mktEstimateBadge": {
+    "description": "Marketing engine (mktengine): mktEstimateBadge"
+  },
+  "mktApprove": "Approve",
+  "@mktApprove": {
+    "description": "Marketing engine (mktengine): mktApprove"
+  },
+  "mktUnapprove": "Take back approval",
+  "@mktUnapprove": {
+    "description": "Marketing engine (mktengine): mktUnapprove"
+  },
+  "mktReject": "Don't use",
+  "@mktReject": {
+    "description": "Marketing engine (mktengine): mktReject"
+  },
+  "mktEdit": "Edit",
+  "@mktEdit": {
+    "description": "Marketing engine (mktengine): mktEdit"
+  },
+  "mktCopy": "Copy",
+  "@mktCopy": {
+    "description": "Marketing engine (mktengine): mktCopy"
+  },
+  "mktShare": "Share",
+  "@mktShare": {
+    "description": "Marketing engine (mktengine): mktShare"
+  },
+  "mktPolish": "Personalise with AI (uses credits)",
+  "@mktPolish": {
+    "description": "Marketing engine (mktengine): mktPolish"
+  },
+  "mktPolished": "Rewritten. Read it and approve again.",
+  "@mktPolished": {
+    "description": "Marketing engine (mktengine): mktPolished"
+  },
+  "mktPolishedNote": "AI-polished — prices and numbers were checked to be unchanged.",
+  "@mktPolishedNote": {
+    "description": "Marketing engine (mktengine): mktPolishedNote"
+  },
+  "mktCopied": "Copied. Paste it on your Page or in WhatsApp.",
+  "@mktCopied": {
+    "description": "Marketing engine (mktengine): mktCopied"
+  },
+  "mktEditTitle": "Edit the text",
+  "@mktEditTitle": {
+    "description": "Marketing engine (mktengine): mktEditTitle"
+  },
+  "mktEditHint": "Keep prices true to your catalog.",
+  "@mktEditHint": {
+    "description": "Marketing engine (mktengine): mktEditHint"
+  },
+  "mktSave": "Save",
+  "@mktSave": {
+    "description": "Marketing engine (mktengine): mktSave"
+  },
+  "mktUses": "Made from: {list}",
+  "@mktUses": {
+    "description": "Marketing engine (mktengine): mktUses",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "mktFollowActivate": "Turn on — really send to my customers",
+  "@mktFollowActivate": {
+    "description": "Marketing engine (mktengine): mktFollowActivate"
+  },
+  "mktActivated": "Turned on. It now runs in Retention automation, where you can switch it off.",
+  "@mktActivated": {
+    "description": "Marketing engine (mktengine): mktActivated"
+  },
+  "mktFollowOn": "On — sending through Retention automation (STOP, daily limits, no messages 9 pm–9 am).",
+  "@mktFollowOn": {
+    "description": "Marketing engine (mktengine): mktFollowOn"
+  },
+  "mktFollowNeedsRetention": "To send follow-ups, Retention automation must be switched on for your account. It is not on yet.",
+  "@mktFollowNeedsRetention": {
+    "description": "Marketing engine (mktengine): mktFollowNeedsRetention"
+  },
+  "mktFollowNeedsPlan": "Sending follow-ups needs the Business plan.",
+  "@mktFollowNeedsPlan": {
+    "description": "Marketing engine (mktengine): mktFollowNeedsPlan"
+  },
+  "mktPublishFb": "Post to my Facebook Page",
+  "@mktPublishFb": {
+    "description": "Marketing engine (mktengine): mktPublishFb"
+  },
+  "mktPublished": "Posted on your Facebook Page.",
+  "@mktPublished": {
+    "description": "Marketing engine (mktengine): mktPublished"
+  },
+  "mktPublishPending": "Direct posting to Facebook / Instagram starts once Meta approves it for Assisto. For now, copy or share and post it yourself.",
+  "@mktPublishPending": {
+    "description": "Marketing engine (mktengine): mktPublishPending"
+  },
+  "mktPublishNoPage": "Connect your Facebook Page in AI sales agent → Channels to post from here.",
+  "@mktPublishNoPage": {
+    "description": "Marketing engine (mktengine): mktPublishNoPage"
+  },
+  "mktHubSub": "Posts, festival calendar, campaigns and follow-ups from your real sales",
+  "@mktHubSub": {
+    "description": "Marketing engine (mktengine): business hub card subtitle"
+  },
+  "bzSafeTitle": "Rules every automatic message follows",
+  "bzSafeQuiet": "Quiet hours: nothing goes out from {start} to {end} (Dhaka time).",
+  "@bzSafeQuiet": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "bzSafeAll": "One customer gets at most {n} messages a day from your shop — automations, due reminders and CRM SMS together.",
+  "@bzSafeAll": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzSafeStop": "Every message carries a one-tap Stop. A stop works at once for every automation of your shop.",
+  "bzSafeSms": "One SMS part costs {n} credits.",
+  "@bzSafeSms": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzStoppedOpen": "Customers who stopped messages ({n})",
+  "@bzStoppedOpen": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "bzStoppedTitle": "Stopped messages",
+  "bzStoppedBenefit": "People who said stop never get an automatic message from your shop again — this keeps your shop out of spam blocks.",
+  "bzStoppedEmpty": "Nobody has stopped your messages yet.",
+  "bzStoppedHowTo": "A customer stops with the link in an SMS, the Stop button in Assisto, or by writing STOP in a chat. If someone asks you in person, add their number below.",
+  "bzStoppedOnlyThey": "Only the customer can start messages again, by messaging your shop.",
+  "bzSrcSmsLink": "SMS stop link",
+  "bzSrcInApp": "Stop button in Assisto",
+  "bzSrcChat": "Wrote STOP in a chat",
+  "bzSrcOwner": "Added by you"
 }

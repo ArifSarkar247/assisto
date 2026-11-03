@@ -11,7 +11,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0140_cctvalerts'),
+        ('core', '0142_ownerfix'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
