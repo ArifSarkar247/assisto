@@ -137,6 +137,7 @@ void main() {
   testWidgets('Quran card: only "Qaida completed", never ijazah / Qari', (t) async {
     _tall(t);
     for (final lang in ['en', 'bn']) {
+      await t.pumpWidget(const SizedBox());
       await t.pumpWidget(_app(LearnCertDetailScreen(cert: fakeQuranCert()), FakeApi(lang: lang), lang: lang));
       await t.pumpAndSettle();
       final all = _texts(t).join(' | ').toLowerCase();
@@ -157,6 +158,8 @@ void main() {
     await t.pumpAndSettle();
     expect(find.byType(LearnCertCard), findsOneWidget);
 
+    // fresh app (the pushed card route would otherwise survive the re-pump)
+    await t.pumpWidget(const SizedBox());
     await t.pumpWidget(_app(const LearnCertScreen(), FakeApi(lang: 'en', mode: FakeMode.empty)));
     await t.pumpAndSettle();
     final tr = AppLocalizations.of(t.element(find.byType(LearnCertScreen)));
@@ -166,6 +169,7 @@ void main() {
     final btn = t.getSize(find.ancestor(of: find.text(tr.lcEmptyAction), matching: find.byType(FilledButton)));
     expect(btn.height, greaterThanOrEqualTo(48));
 
+    await t.pumpWidget(const SizedBox());
     await t.pumpWidget(_app(const LearnCertScreen(), FakeApi(lang: 'en', mode: FakeMode.fail)));
     await t.pumpAndSettle();
     expect(find.text(tr.retry), findsOneWidget);
@@ -202,6 +206,7 @@ void main() {
 
     got = {'x': 1};
     FeatureFlags.instance.debugOverride = {kLearnCertFlag: true};
+    await t.pumpWidget(const SizedBox());
     await t.pumpWidget(_app(_CallSite(done: (c) => got = c, token: null), FakeApi(lang: 'en')));
     await t.tap(find.text('finish'));
     await t.pumpAndSettle();
@@ -241,6 +246,7 @@ void main() {
         const LearnCertScreen(),
         const Scaffold(body: LearnCertClaimSheet(token: 'tok', defaultName: 'Rahim Uddin')),
       ]) {
+        await t.pumpWidget(const SizedBox());
         await t.pumpWidget(_app(w, FakeApi(), lang: 'bn', dark: dark, scale: 2));
         await t.pumpAndSettle();
         expect(t.takeException(), isNull);
