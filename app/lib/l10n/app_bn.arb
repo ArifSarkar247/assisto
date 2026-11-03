@@ -21913,5 +21913,9 @@
   "astdAppealAnswer": "আমাদের উত্তর: {note}",
   "astdLoadFailed": "অ্যাকাউন্টের অবস্থা আনা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "astdRetry": "আবার চেষ্টা করুন",
-  "examWatchSummaryD": "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।"
+  "examWatchSummaryD": "{count} জন শিক্ষার্থীর ফলের জন্য নজর রাখা হচ্ছে। ফল কেবল অফিশিয়াল সাইটেই দেখা যাবে।",
+  "cfPublishConfirmTitle": "আপনার Facebook পেজে এটা পোস্ট করবেন?",
+  "cfPublishConfirmBody": "আপনার পেজে যে-ই আসবে, সবাই দেখবে। আপনি \"এখনই পোস্ট করুন\" চাপলে তবেই Assisto পোস্ট করে।",
+  "cfPublishConfirmYes": "এখনই পোস্ট করুন",
+  "cfPublishConfirmNo": "এখন না"
 }
