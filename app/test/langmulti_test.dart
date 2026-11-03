@@ -66,6 +66,8 @@ void main() {
     await t.pumpWidget(_app(MockTestPage(pack: Object(), mock: langmultiMock('es')), FakeApi(lang: 'bn'), lang: 'bn'));
     await t.pump(const Duration(milliseconds: 100)); // the mock clock ticks every second: no pumpAndSettle
     expect(find.textContaining('কোন প্ল্যাটফর্ম?'), findsOneWidget);
+    // the writing box sits below the 12 questions (lazy list): scroll to it
+    await t.scrollUntilVisible(find.byType(TextField).first, 400, scrollable: find.byType(Scrollable).first);
     expect(find.byType(TextField), findsWidgets);
   });
 
