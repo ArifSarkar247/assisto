@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../services/action_feedback.dart';
 import '../theme.dart';
 import '../widgets/journey_ride.dart' show jDigits;
 import 'maps_api.dart';
@@ -53,7 +54,9 @@ class _RoadEtaButtonState extends State<RoadEtaButton> {
   Future<void> _open() async {
     try {
       await launchUrl(Uri.parse(_gmaps ?? _dirUrl), mode: LaunchMode.externalApplication);
-    } catch (_) {/* no maps app / browser: nothing else to do */}
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'maps.directions', e);
+    }
   }
 
   @override
