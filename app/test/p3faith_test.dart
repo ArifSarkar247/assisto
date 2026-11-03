@@ -20,6 +20,7 @@ import 'package:assisto/widgets/ramadan_daily_tracker.dart';
 import 'package:assisto/widgets/ramadan_district.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -184,7 +185,13 @@ void main() {
       await _pump(tester, const RamadanScreen());
       expect(find.byKey(const Key('ramadan-ifb-note')), findsOneWidget);
       expect(find.byKey(const Key('ramadan-district-chip')), findsOneWidget);
+      final list = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(find.byKey(const Key('ramadan-approx')), 300,
+          scrollable: list);
       expect(find.byKey(const Key('ramadan-approx')), findsOneWidget);
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('ramadan-daily-tracker')), 300,
+          scrollable: list);
       expect(find.byKey(const Key('ramadan-daily-tracker')), findsOneWidget);
       final p = await SharedPreferences.getInstance();
       expect(p.getString('ramadan_times_v1'), contains('"district":"dhaka"'));
@@ -193,6 +200,12 @@ void main() {
 
     testWidgets('no location, no district -> district chooser, not a dead end', (tester) async {
       SharedPreferences.setMockInitialValues({});
+      // plugin channels never answer in the test VM: location services OFF
+      final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      const geo = MethodChannel('flutter.baseflow.com/geolocator');
+      m.setMockMethodCallHandler(
+          geo, (call) async => call.method == 'isLocationServiceEnabled' ? false : null);
+      addTearDown(() => m.setMockMethodCallHandler(geo, null));
       await _pump(tester, const RamadanScreen());
       expect(find.byKey(const Key('ramadan-district-prompt')), findsOneWidget);
       await tester.tap(find.byKey(const Key('ramadan-pick-district')));

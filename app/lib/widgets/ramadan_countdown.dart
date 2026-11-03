@@ -86,14 +86,22 @@ class _RamadanCountdownState extends State<RamadanCountdown> {
             style: TextStyle(
                 color: color, fontWeight: FontWeight.w600, fontSize: 13)),
         const SizedBox(height: 2),
-        Text(ld(context, value),
-            style: TextStyle(
-                color: color,
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()])),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(ld(context, value),
+              style: TextStyle(
+                  color: color,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  fontFeatures: const [FontFeature.tabularFigures()])),
+        ),
         const SizedBox(height: Gap.xs),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        // p3faith: wraps at 200 % font (was a Row that overflowed at 360 dp)
+        Wrap(
+            alignment: WrapAlignment.spaceAround,
+            spacing: Gap.lg,
+            runSpacing: Gap.xs,
+            children: [
           _mini(t.ramadanUntilSehri, _fmt(toSehri), Brand.purple),
           _mini(t.ramadanUntilIftar, _fmt(toIftar), Brand.warning),
         ]),
