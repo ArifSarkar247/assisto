@@ -124,6 +124,7 @@ import '../screens/contract_analyzer_screen.dart';
 import '../screens/my_dues_screen.dart'; // tagada2
 import '../screens/market/market_screen.dart'; // amarket
 import '../safe_plans/safe_plans_screen.dart'; // safeplans
+import '../carecall/carecall_screen.dart'; // carecall
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -197,6 +198,7 @@ class ChatNav {
     'documents': (_) => const VaultScreen(),
     'family': (_) => const FamilyScreen(),
     'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
+    'carecall': (_) => const CareCallScreen(), // carecall (flag care_call, push)
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle

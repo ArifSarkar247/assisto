@@ -45,6 +45,11 @@ class PushChannels {
     'channel_post': messages, // channels: a new post in a followed channel
     'community_join': messages, // channels: join request / approved
     'market': alerts, // amarket: new need / new offer / accepted deal
+    // carecall: the Care Call ring (full-screen, call channel), the consent
+    // request and the setter's confirmed / did-not-answer update
+    'carecall': calls,
+    'carecall_invite': alerts,
+    'carecall_status': alerts,
   };
 }
 
@@ -144,6 +149,10 @@ class PushPayload {
       key = 'agentap-${_s('approval_id')}';
     } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
       key = 'rem-${_s('reminder_id')}';
+    } else if (kind == 'carecall' && _s('slot_key').isNotEmpty) {
+      // carecall: the SAME id as the phone's own alarm for this ring
+      // (carecall_plan.dart ccNotifId), so the two never show twice
+      key = 'cc-${_s('slot_key')}-${_s('attempt')}';
     } else {
       key = '$kind-${_s('sent_at')}-${_s('message_id')}${_s('event_id')}';
     }
@@ -230,6 +239,7 @@ class PushRouting {
     'channels': 'channels', // channels: a new channel post
     'communities': 'communities', // channels: community join request
     'market': 'market', // amarket: Assisto Market (flag-gated route)
+    'carecall': 'carecall', // carecall: Care Call home (flag-gated route)
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -252,6 +262,8 @@ class PushRouting {
     'channel_post': 'channels', // channels: My Circle -> Channels
     'community_join': 'communities', // channels: My Circle -> Communities
     'market': 'market', // amarket: Assisto Market (flag-gated route)
+    'carecall_invite': 'carecall', // carecall
+    'carecall_status': 'carecall', // carecall
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,

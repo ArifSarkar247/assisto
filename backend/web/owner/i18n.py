@@ -1349,6 +1349,11 @@ EN.update({
     "pf_circle_media_photos_per_send": "My Circle: photos / videos at once",
     "pf_circle_media_uploads_per_hour": "My Circle: photo / file uploads per hour",
     "pf_circle_media_view_once_days": "My Circle: unopened view-once deleted after (days)",
+    # carecall
+    "pf_carecall_active_per_setter": "Care Call: active schedules per person (free)",
+    "pf_carecall_rings_per_receiver_day": "Care Call: rings per receiver per day",
+    "pf_carecall_voice_max_seconds": "Care Call: own-voice recording max (seconds)",
+    "pf_carecall_text_max_chars": "Care Call: reminder text max (characters)",
 })
 BN.update({
     "b2_seg_test": "টেস্ট কেনাকাটা", "b2_seg_trial": "ট্রায়াল", "b2_seg_grants": "মালিক/সিস্টেমের দেওয়া",
@@ -1401,6 +1406,11 @@ BN.update({
     "pf_circle_media_photos_per_send": "মাই সার্কেল: একবারে ছবি/ভিডিও",
     "pf_circle_media_uploads_per_hour": "মাই সার্কেল: ঘণ্টায় ছবি/ফাইল আপলোড",
     "pf_circle_media_view_once_days": "মাই সার্কেল: না-খোলা একবার-দেখা মুছবে (দিন)",
+    # carecall
+    "pf_carecall_active_per_setter": "কেয়ার কল: একজনের চালু সময়সূচি (ফ্রি)",
+    "pf_carecall_rings_per_receiver_day": "কেয়ার কল: একজন রিসিভারের দিনে কল",
+    "pf_carecall_voice_max_seconds": "কেয়ার কল: নিজের গলার রেকর্ড সর্বোচ্চ (সেকেন্ড)",
+    "pf_carecall_text_max_chars": "কেয়ার কল: লেখা সর্বোচ্চ (অক্ষর)",
 })
 # ---- /billing-v2 ----
 

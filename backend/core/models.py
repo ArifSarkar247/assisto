@@ -8453,3 +8453,74 @@ class NearbyDataset(models.Model):
     last_check_at = models.DateTimeField(null=True, blank=True)
     last_error = models.CharField(max_length=300, blank=True, default="")
 # ---- /nearby ----
+
+
+# ---- carecall ---- Care Call (owner order 4 Nov 01:50): a family member sets
+# a reminder for a loved one (any text — never filtered — plus an optional
+# recording in their OWN voice); at the time the receiver's phone rings with a
+# full-screen call-style screen. No answer: one retry after 10 min, then the
+# setter is told. Receiver consents once (CareCallLink) and can stop any time;
+# their own quiet hours are respected. Logic: core/carecall.py.
+class CareCallLink(models.Model):
+    """setter -> receiver consent. status: pending | accepted | declined |
+    stopped. quiet_* = the RECEIVER's own Care Call do-not-disturb window
+    ("" = none); a ring due inside it waits until the window ends."""
+    setter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecall_links_out")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecall_links_in")
+    status = models.CharField(max_length=10, default="pending")
+    quiet_start = models.CharField(max_length=5, blank=True, default="")
+    quiet_end = models.CharField(max_length=5, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("setter", "receiver")]
+
+
+class CareCall(models.Model):
+    """One schedule. repeat: once (once_date) | daily | days (days = [0..6],
+    0 = Monday). time_hhmm in Asia/Dhaka wall time. `next_at` = the next slot
+    the minute tick materialises (None = nothing left / paused)."""
+    setter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecalls_set")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecalls_received")
+    text = models.TextField(blank=True, default="")
+    time_hhmm = models.CharField(max_length=5, default="09:00")
+    repeat = models.CharField(max_length=6, default="daily")
+    days = models.JSONField(default=list, blank=True)
+    once_date = models.DateField(null=True, blank=True)
+    voice = models.FileField(upload_to="carecall/", null=True, blank=True)
+    voice_rev = models.PositiveIntegerField(default=0)
+    voice_sec = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+    next_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class CareCallRing(models.Model):
+    """One occurrence (slot) of a CareCall and its ring ladder.
+    status: pending (ring at due_at) | ringing (wait for an answer until
+    due_at) | snoozed (ring again at due_at) | done | missed (setter told).
+    slot = 'YYYYMMDDHHMM' Dhaka wall time of the scheduled ring (shared with
+    the phone's own alarm, so a Done from either side lands on the same row)."""
+    care_call = models.ForeignKey(CareCall, on_delete=models.CASCADE, related_name="rings")
+    slot = models.CharField(max_length=12)
+    scheduled_at = models.DateTimeField()
+    status = models.CharField(max_length=8, default="pending", db_index=True)
+    due_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    misses = models.PositiveSmallIntegerField(default=0)
+    snoozes = models.PositiveSmallIntegerField(default=0)
+    last_ring_at = models.DateTimeField(null=True, blank=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    escalated_at = models.DateTimeField(null=True, blank=True)
+    late = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("care_call", "slot")]
+        ordering = ["-scheduled_at", "-id"]
+# ---- /carecall ----

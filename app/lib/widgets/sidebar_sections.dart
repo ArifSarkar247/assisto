@@ -119,6 +119,7 @@ import '../screens/inbox_screen.dart';
 import '../screens/pa/pa_hub_screen.dart';
 import '../screens/business_screen.dart';
 import '../screens/market/market_screen.dart'; // amarket
+import '../carecall/carecall_screen.dart'; // carecall
 import '../screens/crm/crm_home_screen.dart';
 import '../feature_gates.dart'
     show kAgentStudioRunsAutomations, kAreaBoardShared, kMedicalFeaturesAllowed; // f6 + play-nomed
@@ -393,6 +394,12 @@ class SidebarSections {
           feature: 'family',
           (_) => const FamilyScreen(),
           synonyms: ['family', 'care', 'medicine schedule', 'elderly']),
+      // carecall (flag care_call): a family care reminder call in your own voice
+      SidebarItem(Icons.phone_callback_rounded, (t) => t.ccTitle,
+          feature: 'care_call',
+          (_) => const CareCallScreen(),
+          synonyms: ['care call', 'reminder call', 'call reminder', 'remind mother',
+              'remind father', 'elderly reminder']),
       SidebarItem(Icons.shield_rounded, (t) => t.nominee,
           feature: 'nominee',
           (_) => const NomineeScreen(),

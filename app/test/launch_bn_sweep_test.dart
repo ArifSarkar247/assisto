@@ -85,6 +85,7 @@ const _launchPrefixes = <String>[
   'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
   // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
   'circle_search', 'farmer',
+  'cc_', // carecall: Care Call SCREEN 1/2/3 (4 Nov)
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.

@@ -119,7 +119,13 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # amarket: Assisto Market — a new need for an approved seller, a new
          # offer for the buyer, an accepted offer / group-buy deal. A
          # NOTIFICATION push (tray draws it on every build). Opens Market.
-         "market")
+         "market",
+         # carecall (owner 4 Nov): Care Call — "carecall" = the scheduled
+         # family care reminder RING (data-only, the app draws a full-screen
+         # call-style notification); "carecall_invite" = "X wants to send you
+         # Care Calls" (receiver consent); "carecall_status" = the setter's
+         # confirmed / did-not-answer card. Opens Care Call.
+         "carecall", "carecall_invite", "carecall_status")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -127,7 +133,8 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
 # handler shows title/body when there is no notification block).
 # c2-calls: "missed_call" is data-only (the app draws it on its own channel).
 DATA_ONLY_KINDS = ("call", "call_cancel", "sos", "message", "missed_call",
-                   "msg_sync", "key_request", "key_ready", "at_command")
+                   "msg_sync", "key_request", "key_ready", "at_command",
+                   "carecall")
 # x2-ticks: "msg_sync" = a SILENT delivery ping (muted chat / message
 # notifications off). The device only acks DELIVERED (✓✓ for the sender) and
 # draws nothing. Older builds ignore unknown kinds (PushPayload.isKnownKind),
@@ -142,7 +149,9 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "agent_nudge": 12 * 3600, "agent_approval": 86400,
          "at_command": 3600, "doc_expiry": 12 * 3600, "dues": 86400,
          "budget_alert": 12 * 3600, "channel_post": 86400,
-         "community_join": 86400, "market": 86400}
+         "community_join": 86400, "market": 86400,
+         # carecall: a ring older than 10 min is replaced by the retry
+         "carecall": 600, "carecall_invite": 86400, "carecall_status": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -154,7 +163,9 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "agent_nudge": "alerts", "agent_approval": "alerts",
             "at_command": "alerts", "doc_expiry": "reminders", "dues": "reminders",
             "budget_alert": "alerts", "channel_post": "messages",
-            "community_join": "messages", "market": "alerts"}
+            "community_join": "messages", "market": "alerts",
+            "carecall": "calls", "carecall_invite": "alerts",
+            "carecall_status": "alerts"}
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -532,6 +543,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             collapse = "chpost-%s" % payload["channel_id"]   # newest per channel
         elif kind == "agent_approval" and payload.get("approval_id"):
             collapse = "agentap-%s" % payload["approval_id"]
+        elif kind == "carecall" and payload.get("slot_key"):
+            collapse = "cc-%s" % payload["slot_key"]   # carecall: one per slot
         sent = 0
         msg_ids = []
         for tok in dict.fromkeys(tokens):
@@ -607,7 +620,7 @@ def _get_executor():
 # the app's foreground polls still deliver them.
 PUSH_QUEUE_CAP = 300
 _CRITICAL_KINDS = ("call", "call_cancel", "sos", "family_alert", "owner_alert",
-                   "at_command")
+                   "at_command", "carecall", "carecall_status")  # carecall
 _pending = [0]
 _dropped = [0]
 

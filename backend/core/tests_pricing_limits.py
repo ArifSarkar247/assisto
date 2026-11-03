@@ -44,7 +44,12 @@ class LimitsLogicTests(SimpleTestCase):
                                        "circle_media_video_height": 720,
                                        "circle_media_voice_max_seconds": 900,
                                        "circle_media_photos_per_send": 30,
-                                       "circle_media_view_once_days": 14})
+                                       "circle_media_view_once_days": 14,
+                                       # carecall (owner 4 Nov)
+                                       "carecall_active_per_setter": 10,
+                                       "carecall_rings_per_receiver_day": 20,
+                                       "carecall_voice_max_seconds": 30,
+                                       "carecall_text_max_chars": 300})
         self.assertEqual(c["guarantees"], {"margin_net_floor": 0.60,
                                            "pool_cap_pct_of_net": 0.60})
         self.assertEqual(c["probashi_price_usd"], 4.99)
