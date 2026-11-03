@@ -1,1 +1,1 @@
-Build 297: Lost phone help, daily tools, task planner, food calories, farmer help, invoice designs, document vault, service guides, Travel/Wedding/Ride & Food upgrades, Ramadan and Quran reading. Language Partner packs (Arabic, German, French, Spanish, Chinese) and Learn to read Quran are in testing (switches off).
+Build 298: Language Partner adds Korean (EPS-TOPIK/TOPIK) and Japanese (JFT-Basic/JLPT) with official work paths and phone-voice listening practice (in testing, switch off). Honest Quran translation note; launch quality fixes.
