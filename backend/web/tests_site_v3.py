@@ -330,8 +330,8 @@ class NavigationAndPlayTests(Base):
         for anchor in ("#hero", "#g-ai", "#g-circle", "#g-safety", "#g-cctv", "#g-business", "#pricing"):
             self.assertIn('href="%s"' % anchor, chips)
             self.assertIn('id="%s"' % anchor[1:], html)
-        menu = re.search(r'<nav class="mm-p".*?</nav>', html, re.S).group(0)
-        for g in V3.GROUP_IDS:
+        menu = re.search(r'<div class="mm" id="mm".*?<div class="mm-get">.*?</div>', html, re.S).group(0)
+        for g in ("ai", "circle", "safety", "cctv", "business"):
             self.assertIn("/preview/features/%s" % g, menu)
         for x in ("/preview/pricing", "/preview/security", "/preview/help", "?lang=bn", "details?id="):
             self.assertIn(x, menu)
@@ -375,7 +375,7 @@ class HeroOrder3NovTests(Base):
 
     def test_hero_slides_owner_order(self):
         self.assertEqual([n for n, _ in V3.HERO_SLIDES],
-                         ["c3_chat", "callpip_pip_window", "gj_live_banner", "emergency_hub", "wm_alerts",
+                         ["c3_circle_hero", "c2_call_video_connected", "gj_live_banner", "emergency_hub", "wm_alerts",
                           "acct_home", "inv_paper_80", "chat", "dest_alarm"])
         for lang in ("bn", "en"):
             html = self.c.get("/preview/?lang=%s" % lang).content.decode()
@@ -517,3 +517,53 @@ class OwnerSwitchTests(OwnerBase):
         r = self.post("/owner/website", {"action": "explode"})
         self.assertEqual(r.status_code, 400)
         self.assertFalse(VS3.is_live())
+
+
+class SiteFix3NovTests(Base):
+    """owner FIXES — APPROVED DESIGN (3 Nov 11:10): mobile full-screen menu,
+    one-screen hero slider with caption + counter, compact desktop header."""
+
+    def test_menu_is_outside_the_header_with_owner_rows(self):
+        for lang, rows in (("en", ["Home", "AI Assistant", "My Circle", "Safety", "CCTV", "Business", "Pricing",
+                                   "Security and privacy", "Help", "বাংলা"]),
+                           ("bn", ["হোম", "AI সহকারী", "আমার সার্কেল", "নিরাপত্তা", "CCTV", "ব্যবসা", "দাম",
+                                   "নিরাপত্তা ও গোপনীয়তা", "সাহায্য", "English"])):
+            html = self.c.get("/preview/?lang=%s" % lang).content.decode()
+            header = re.search(r'<header class="hd".*?</header>', html, re.S).group(0)
+            # root cause of the "only an X" bug: a fixed panel inside the
+            # header's backdrop-filter is clipped to the header — never again
+            self.assertNotIn('class="mm', header)
+            self.assertIn('class="burger" href="#mm" role="button" aria-controls="mm" aria-expanded="false"', header)
+            nav = re.search(r'<nav class="mm-p".*?</nav>', html, re.S).group(0)
+            labels = [x.strip() for x in re.findall(r"</svg>([^<]+)</a>", nav)]
+            self.assertEqual(labels, rows, lang)
+            self.assertRegex(nav, r'<a href="[^"]*" class="on" aria-current="page">')   # Home highlighted
+            self.assertIn('class="mm-x"', html)
+            self.assertIn('<div class="mm-get"><a class="btn install"', html)
+        css = self.c.get("/preview/?lang=en").content.decode()
+        self.assertIn(".mm:target,.mm-open .mm{display:flex}", css)
+        self.assertIn(".mm-open,.mm-open body{overflow:hidden}", css)
+        self.assertIn("min-height:52px", css)
+
+    def test_hero_slider_caption_counter_and_one_screen(self):
+        for lang, first, pos in (("en", "My Circle — chat, calls, live location", "1 / 9"),
+                                 ("bn", "আমার সার্কেল — চ্যাট, কল, লাইভ লোকেশন", "১ / ৯")):
+            html = self.c.get("/preview/?lang=%s" % lang).content.decode()
+            hero = re.search(r'data-rot>.*?class="rot-btn"', html, re.S).group(0)
+            self.assertIn('<span class="rot-t">%s</span><span class="rot-n">%s</span>' % (first, pos), hero)
+            self.assertEqual(hero.count('class="slide'), 9)
+            self.assertEqual(hero.count('data-cap="'), 9)
+            self.assertEqual(hero.count('aria-hidden="true" tabindex="-1"'), 8)   # only slide 1 is live
+        self.assertIn("4000", html)                       # 4 s auto-advance
+        self.assertIn(".rot-vp{overflow:hidden;touch-action:pan-y}", html)
+        self.assertIn(".slide.on,.drag .slide{visibility:visible;transition:none}", html)
+        self.assertIn(".rot-btn{width:44px;height:44px", html)
+
+    def test_compact_desktop_header(self):
+        html = self.c.get("/preview/?lang=en").content.decode()
+        header = re.search(r'<header class="hd".*?</header>', html, re.S).group(0)
+        order = [header.find(x) for x in ('class="logo"', '<nav class="chips"', 'class="btn sm play-top"', 'class="lang"')]
+        self.assertNotIn(-1, order)
+        self.assertEqual(order, sorted(order))
+        self.assertIn("padding:48px 0 64px", html)
+        self.assertIn("align-items:start", html)

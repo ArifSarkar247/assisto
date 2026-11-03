@@ -83,6 +83,7 @@ _P = {
     "arrow": '<path d="M5 12h14M13 6l6 6-6 6"/>',
     "play": '<path d="M5 3.5l14 8.5-14 8.5z"/>',
     "pause": '<path d="M8 5v14M16 5v14"/>',
+    "close": '<path d="M6 6l12 12M18 6L6 18"/>',  # sitefix: menu X
 }
 
 
