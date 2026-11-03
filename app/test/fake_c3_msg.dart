@@ -8,6 +8,8 @@ import 'dart:typed_data';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/messaging/media/media_descriptor.dart';
 import 'package:assisto/messaging/media/media_store.dart';
+import 'package:assisto/messaging/share/share_payload.dart';
+import 'package:assisto/p3/assisto_card.dart';
 import 'package:assisto/realtime/realtime_channel.dart';
 
 bool fakeC3On = false;
@@ -19,6 +21,7 @@ class C3Fake {
   static final rahim = e2e.generateIdentity();
   static final nadia = e2e.generateIdentity();
   static final karim = e2e.generateIdentity();
+  static final karima = e2e.generateIdentity(); // sitefix: website My Circle hero
 
   static Map<String, dynamic> env(String text, IdentityKeyPair from, IdentityKeyPair to) {
     final ct = e2e.encrypt(self: from, recipientPublicKey: to.publicKey, plaintext: text);
@@ -49,6 +52,7 @@ class C3Fake {
     RealtimeChannel.instance.states.value = {
       'member:2': const RtChatState(activity: 'typing', online: true),
       'member:1': const RtChatState(online: true),
+      'member:6': const RtChatState(online: true), // sitefix
     };
   }
 
@@ -112,10 +116,52 @@ class C3Fake {
     };
   }
 
+  /// sitefix (owner website order 3 Nov 11:10): the website's My Circle hero
+  /// shot — the REAL chat screen with generic test names: text bubbles, a
+  /// live location from Karima, a voice note, her "reached safely" card, the
+  /// end-to-end line and the composer with the mic. Real E2E ciphertext.
+  static Map<String, dynamic> memberHero(bool bn) => {
+        'id': 6,
+        'name': bn ? 'করিমা' : 'Karima',
+        'relation': 'sister',
+        'state': 'accepted',
+        'public_key': pub(karima),
+        'photo': avatar,
+      };
+  static Map<String, dynamic>? _heroChat(String path, bool bn) {
+    if (path.split('?').first != '/circle/6/messages') return null;
+    final now = DateTime.now();
+    final t0 = now.subtract(const Duration(minutes: 42));
+    String at(int m) => t0.add(Duration(minutes: m)).toUtc().toIso8601String();
+    final wave = [for (var i = 0; i < 48; i++) 5 + ((i * 29) % 21) + (i % 6 == 0 ? 9 : 0)];
+    final live = LocationShare(
+      lat: 23.80690, lng: 90.36870, accuracy: 12, label: bn ? 'মিরপুর ১০' : 'Mirpur 10',
+      at: now.subtract(const Duration(minutes: 1)).millisecondsSinceEpoch, live: true,
+      until: now.add(const Duration(minutes: 40)).millisecondsSinceEpoch, seq: 7);
+    final arrived = AssistoCard(CardType.arrived, 'site-arr-1',
+        {'place': bn ? 'বাসা' : 'Home', 'at': at(40)});
+    return {
+      'results': [
+        // the end-to-end line + date stay on screen above the live location
+        {'id': 63, 'sender_id': 60, 'mine': false, 'created_at': at(2), 'content_type': 'location',
+         ...env(encodeLocation(live, bn ? 'লাইভ লোকেশন' : 'Live location'), karima, me)},
+        {'id': 64, 'sender_id': 9, 'mine': true, 'status': 'read', 'created_at': at(3), 'content_type': 'voice',
+         ...env(_media('voice', ms: 14000, wave: wave, mime: 'audio/mp4', name: 'voice.m4a'), me, karima)},
+        {'id': 65, 'sender_id': 60, 'mine': false, 'created_at': at(40), 'content_type': 'text',
+         ...env(encodeCard(arrived, bn ? 'নিরাপদে পৌঁছেছি' : 'Reached safely'), karima, me)},
+        {'id': 66, 'sender_id': 9, 'mine': true, 'status': 'read', 'created_at': at(41), 'content_type': 'text',
+         ...env(bn ? 'যাক, শান্তি! রাতে কথা হবে।' : 'Great, see you at dinner!', me, karima)},
+      ],
+      'has_more': false,
+    };
+  }
+
   static Map<String, dynamic>? get(String path, bool bn) {
     if (!fakeC3On) return null;
     final media = _mediaChat(path, bn);
     if (media != null) return media;
+    final hero = _heroChat(path, bn);
+    if (hero != null) return hero;
     if (path == '/circle/chats') {
       return {
         'results': [

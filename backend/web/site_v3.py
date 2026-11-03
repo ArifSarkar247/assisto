@@ -459,11 +459,17 @@ COPY = {
         "chips_label": "দ্রুত যান", "chip_home": "হোম", "chip_ai": "AI সহকারী", "chip_circle": "আমার সার্কেল",
         "chip_safety": "নিরাপত্তা", "chip_cctv": "CCTV", "chip_business": "ব্যবসা", "chip_pricing": "দাম", "chip_download": "ডাউনলোড",
         "to_top": "উপরে যান", "pause": "স্ক্রিনশট চলা থামান বা চালান",
-        "slide_chat": "কথা বলে রিমাইন্ডার ও খরচ", "slide_emergency_hub": "SOS ও জরুরি হাব",
-        "slide_wm_alerts": "CCTV স্মার্ট সতর্কতা", "slide_acct_home": "ব্যবসার হিসাব ও খাতা",
-        "slide_c3_chat": "আমার সার্কেলে চ্যাট", "slide_callpip_pip_window": "ভিডিও কল, ছোট ভাসমান জানালায় (PiP)",
-        "slide_location_sharing": "লাইভ লোকেশন", "slide_inv_paper_80": "ইনভয়েস",
-        "slide_dest_alarm": "গন্তব্য অ্যালার্ম", "slide_ai": "AI সহকারী",
+        # sitefix (owner 3 Nov 11:10): one caption under each hero screen
+        "slide_circle_hero": "আমার সার্কেল — চ্যাট, কল, লাইভ লোকেশন",
+        "slide_video_call": "ভিডিও কল — end-to-end এনক্রিপ্টেড",
+        "slide_location_sharing": "লাইভ লোকেশন — পরিবার আপনার যাত্রা দেখে",
+        "slide_emergency_hub": "SOS ও জরুরি হাব — এক চাপে ৯৯৯",
+        "slide_wm_alerts": "CCTV — ক্যামেরার স্মার্ট সতর্কতা",
+        "slide_acct_home": "ব্যবসা — হিসাব ও খাতা",
+        "slide_inv_paper_80": "ইনভয়েস — প্রিন্ট বা PDF শেয়ার",
+        "slide_ai": "AI সহকারী — কথা বলেই রিমাইন্ডার ও খরচ",
+        "slide_dest_alarm": "গন্তব্য অ্যালার্ম — স্টপের আগে জাগিয়ে দেয়",
+        "slide_of": "/", "menu_close": "মেনু বন্ধ করুন",
     },
     "en": {
         "html_lang": "en", "title": "Assisto — the AI assistant that does the work by itself",
@@ -512,11 +518,16 @@ COPY = {
         "chips_label": "Quick links", "chip_home": "Home", "chip_ai": "AI Assistant", "chip_circle": "My Circle",
         "chip_safety": "Safety", "chip_cctv": "CCTV", "chip_business": "Business", "chip_pricing": "Pricing", "chip_download": "Download",
         "to_top": "Back to top", "pause": "Pause or play the screenshots",
-        "slide_chat": "reminders and expenses by talking", "slide_emergency_hub": "SOS and emergency hub",
-        "slide_wm_alerts": "CCTV smart alerts", "slide_acct_home": "business accounts and khata",
-        "slide_c3_chat": "My Circle chat", "slide_callpip_pip_window": "video call in a small floating window (PiP)",
-        "slide_location_sharing": "Live Location", "slide_inv_paper_80": "invoice",
-        "slide_dest_alarm": "Destination Alarm", "slide_ai": "AI assistant",
+        "slide_circle_hero": "My Circle — chat, calls, live location",
+        "slide_video_call": "Video calls — end-to-end encrypted",
+        "slide_location_sharing": "Live Location — family sees your trip",
+        "slide_emergency_hub": "SOS and emergency hub — 999 in one tap",
+        "slide_wm_alerts": "CCTV — smart alerts from your cameras",
+        "slide_acct_home": "Business — accounts and khata",
+        "slide_inv_paper_80": "Invoices — print or share as PDF",
+        "slide_ai": "AI assistant — reminders and expenses by talking",
+        "slide_dest_alarm": "Destination Alarm — wakes you before your stop",
+        "slide_of": "/", "menu_close": "Close menu",
     },
 }
 
@@ -616,13 +627,13 @@ def cctv_plan(lang):
 
 
 # hero auto-play, in the owner's order (HERO order 3 Nov 03:30): My Circle
-# chat, video call with PiP, Live Location, SOS + emergency hub, CCTV,
+# chat, video call, Live Location, SOS + emergency hub, CCTV,
 # business accounts + khata, invoice, AI assistant, Destination Alarm.
 # (gallery spec, alt-text key) — real CI gallery shots only.
-HERO_SLIDES = (("c3_chat", "c3_chat"), ("callpip_pip_window", "callpip_pip_window"),
+HERO_SLIDES = (("c3_circle_hero", "circle_hero"), ("c2_call_video_connected", "video_call"),
                ("gj_live_banner", "location_sharing"), ("emergency_hub", "emergency_hub"),
                ("wm_alerts", "wm_alerts"), ("acct_home", "acct_home"), ("inv_paper_80", "inv_paper_80"),
-               ("chat", "ai"), ("dest_alarm", "dest_alarm"))  # aicardbn merged (b292)
+               ("chat", "ai"), ("dest_alarm", "dest_alarm"))  # aicardbn merged (b292); sitefix: new My Circle shot + connected video call
 
 
 def shot_names():
