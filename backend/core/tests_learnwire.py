@@ -39,6 +39,12 @@ class LevelMapTests(SimpleTestCase):
         self.assertEqual(LC.pack_level("zh", "HSK6"), ("lang_zh", "H6"))
         self.assertEqual(LC.pack_level("ar", "W2"), ("lang_ar", "W2"))
         self.assertEqual(LC.pack_level("de", "B1"), ("lang_de", "B1"))
+        self.assertEqual(LC.pack_level("ko", "1"), ("lang_ko", "L1"))
+        self.assertEqual(LC.pack_level("ko", "6"), ("lang_ko", "L6"))
+        self.assertIsNone(LC.pack_level("ko", "0"))           # Hangul starter: no certificate
+        self.assertEqual(LC.pack_level("ja", "N5"), ("lang_ja", "N5"))
+        self.assertEqual(LC.pack_level("ja", "N1"), ("lang_ja", "N1"))
+        self.assertIsNone(LC.pack_level("ja", "kana"))        # kana starter: no certificate
         self.assertIsNone(LC.pack_level("zh", "HSK9"))
         self.assertIsNone(LC.pack_level("xx", "A1"))
 
@@ -49,7 +55,10 @@ class LevelMapTests(SimpleTestCase):
                 continue
             for lv in p["levels"]:
                 with self.subTest(code=code, level=lv["id"]):
-                    self.assertIsNotNone(LC.pack_level(code, lv["id"]))
+                    if (code, lv["id"]) in (("ko", "0"), ("ja", "kana")):
+                        self.assertIsNone(LC.pack_level(code, lv["id"]))
+                    else:
+                        self.assertIsNotNone(LC.pack_level(code, lv["id"]))
 
     def test_work_arabic_wording_is_never_an_official_level(self):
         for lv in ("W1", "W2", "W3"):
@@ -119,6 +128,31 @@ class FrameworkGapTests(SimpleTestCase):
         row = next(o for o in empty["open"] if o["id"] == pr["id"])
         self.assertFalse(any(c["ok"] for c in row["checks"]))
 
+    def test_jft_style_mock_is_section_by_section(self):
+        import copy
+        ja = LP.load("ja")
+        jft = LP.mock_test(ja, "jft_style_1")
+        self.assertTrue(jft["no_back"])
+        self.assertLessEqual(sum(s["minutes"] for s in jft["sections"]), jft["minutes"])
+        bad = copy.deepcopy(ja)
+        LP.mock_test(bad, "jft_style_1")["sections"][0].pop("minutes")
+        with self.assertRaises(LP.PackError):
+            LP.validate(bad)
+
+    def test_extras_tiles_are_known_ids_in_both_languages(self):
+        import copy
+        for code in ("ko", "ja"):
+            ids = [e["id"] for e in LP.load(code)["extras"]]
+            self.assertEqual(ids, ["work_path", "listening"], code)
+            for e in LP.load(code)["extras"]:
+                if e["id"] == "listening":   # phone voice is never sold as exam audio
+                    self.assertIn("not exam audio", e["en"])
+                    self.assertIn("পরীক্ষার অডিও নয়", e["bn"])
+        bad = copy.deepcopy(LP.load("ko"))
+        bad["extras"].append({"id": "casino", "en": "x", "bn": "য"})
+        with self.assertRaises(LP.PackError):
+            LP.validate(bad)
+
     def test_checks_are_case_insensitive(self):
         out = LP.run_checks([{"any": ["krank"], "en": "ill", "bn": "অসুস্থ"}], "Ich bin KRANK")
         self.assertEqual(out, [{"en": "ill", "bn": "অসুস্থ", "ok": True}])
@@ -160,6 +194,18 @@ class LanguageCertOfferTests(TestCase):
         self.assertEqual(j["cert"]["course"], "lang_de")
         self.assertEqual(j["cert"]["level"], j["level"])
         self.assertEqual(j["cert"]["score"], j["score_pct"])
+
+    def test_korean_and_japanese_offers(self, _f):
+        j = self._place("ko")
+        self.assertEqual(j["level"], "6")
+        self.assertEqual((j["cert"]["course"], j["cert"]["level"]), ("lang_ko", "L6"))
+        low = self._place("ko", all_right=False)
+        self.assertEqual(low["level"], "0")
+        self.assertIsNone(low["cert"])                        # Hangul starter: no certificate
+        ja = self._place("ja")
+        self.assertEqual((ja["cert"]["course"], ja["cert"]["level"]), ("lang_ja", "N1"))
+        self.assertIsNone(self._place("ja", all_right=False)["cert"])
+        self.assertIn("JLPT-style practice", LC.level_text("lang_ja", "N1", "en"))
 
     def test_token_is_bound_to_the_learner(self, _f):
         j = self._place("zh")

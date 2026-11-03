@@ -242,6 +242,77 @@ void main() {
     expect(find.byType(LearnCertClaimSheet), findsOneWidget);
   });
 
+  testWidgets('JFT-style mock: one section at a time, no going back', (t) async {
+    _tall(t);
+    await t.pumpWidget(_app(MockTestPage(pack: Object(), mock: lwJftMock(), lang: 'ja'), FakeApi(lang: 'en')));
+    await t.pump(const Duration(milliseconds: 100));
+    expect(find.text('Section 1 of 2'), findsOneWidget);
+    expect(find.textContaining('lw-q1'), findsOneWidget);
+    expect(find.textContaining('lw-q2'), findsNothing);
+    expect(find.text('Finish and see my level'), findsNothing);
+    await t.tap(find.byKey(const Key('lw-next-section')));
+    await t.pump(const Duration(milliseconds: 100));
+    expect(find.text('Section 2 of 2'), findsOneWidget);
+    expect(find.textContaining('lw-q1'), findsNothing); // the earlier section is gone
+    expect(find.textContaining('lw-q2'), findsOneWidget);
+    expect(find.byKey(const Key('lw-next-section')), findsNothing);
+    // after grading every section shows again for review
+    await t.pumpWidget(_app(
+        MockTestPage(pack: Object(), mock: lwJftMock(), lang: 'ja', debugResult: const {
+          'level': 'N5', 'score_pct': 50, 'correct': 1, 'total': 2,
+        }),
+        FakeApi(lang: 'en')));
+    await t.pump(const Duration(milliseconds: 100));
+    expect(find.textContaining('lw-q1'), findsOneWidget);
+    expect(find.textContaining('lw-q2'), findsOneWidget);
+    expect(find.byKey(const Key('lw-section-of')), findsNothing);
+  });
+
+  testWidgets('pack extras: work path + phone-voice listening tiles', (t) async {
+    _tall(t);
+    await t.pumpWidget(_app(
+        LanguagePackScreen(lang: 'ko', title: 'Korean', debugPack: {
+          'stt_locale': 'ko-KR',
+          'levels': const [],
+          'extras': const [
+            {'id': 'work_path', 'en': 'Work in Korea: the EPS-TOPIK path', 'bn': 'কোরিয়ায় কাজ'},
+            {'id': 'listening', 'en': 'Listening practice — phone voice, not exam audio', 'bn': 'শোনা'},
+            {'id': 'unknown', 'en': 'Never shown', 'bn': 'না'},
+          ],
+        }),
+        FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    expect(find.text('Work in Korea: the EPS-TOPIK path'), findsOneWidget);
+    expect(find.text('Listening practice — phone voice, not exam audio'), findsOneWidget);
+    expect(find.text('Never shown'), findsNothing); // no dead tile for an id the app cannot open
+  });
+
+  testWidgets('lesson lines: Listen reads the line with the phone voice in the course language', (t) async {
+    final said = <String>[];
+    debugPackSpeak = (text, locale) async {
+      said.add('$locale|$text');
+      return said.length == 1 ? 'ok' : 'no_voice';
+    };
+    addTearDown(() => debugPackSpeak = null);
+    await t.pumpWidget(_app(
+        LessonPage(pack: Object(), ttsLocale: 'ko-KR', lesson: const {
+          'id': 'ko-lw', 'title_en': 'Greetings', 'title_bn': 'সম্ভাষণ',
+          'items': [
+            {'kind': 'note', 'target': 'ㅏ ㅓ', 'bn': 'নোট', 'en': 'note'},
+            {'kind': 'vocab', 'target': '안녕하세요', 'roman': 'annyeonghaseyo', 'bn': 'হ্যালো', 'en': 'Hello'},
+          ],
+        }),
+        FakeApi(lang: 'en')));
+    await t.pumpAndSettle();
+    expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget); // not on the note
+    await t.tap(find.byIcon(Icons.volume_up_rounded));
+    await t.pump();
+    expect(said, ['ko-KR|안녕하세요']);
+    await t.tap(find.byIcon(Icons.volume_up_rounded));
+    await t.pump();
+    expect(find.text('This phone has no voice for this language yet.'), findsOneWidget);
+  });
+
   for (final lang in ['bn', 'en']) {
     testWidgets('200% font + dark at 360 dp: Arabic mock + speaking page + Gulf tile ($lang)', (t) async {
       t.view.physicalSize = const Size(360 * 3, 780 * 3);

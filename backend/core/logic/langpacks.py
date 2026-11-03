@@ -54,6 +54,8 @@ _SCENARIO_ID_RE = re.compile(r"^[a-z][a-z0-9_]{1,31}$")
 # Writing in these languages is counted in characters (no spaces between
 # words), not in space-separated words.
 CHAR_COUNT_LANGS = ("zh", "ja")
+# Course-screen tiles a pack may add (the app knows how to open these).
+EXTRA_IDS = ("ielts", "work_path", "listening")
 WEAK_PCT = 60
 
 ESTIMATE_LABEL = {
@@ -134,9 +136,19 @@ def validate(pack):
                 _need(all(q.get("audio_url", "").startswith("https://")
                           for q in s.get("questions") or []),
                       f"mock {m['id']}/{s['id']}: listening needs audio_url (licensed)")
+        # learnwire: JFT-style rule — sections one by one, no going back,
+        # each with its own timer (section minutes must fit the mock time).
+        if m.get("no_back"):
+            mins = [s.get("minutes") for s in m["sections"]]
+            _need(all(isinstance(x, int) and x > 0 for x in mins),
+                  f"mock {m['id']}: no_back needs minutes on every section")
+            _need(sum(mins) <= m["minutes"], f"mock {m['id']}: section minutes exceed the mock")
         bands = m.get("bands") or []
         _need(bands and bands[0].get("min_pct") == 0, f"mock {m['id']}: bands start at 0")
         _need(all(b.get("level") in ids for b in bands), f"mock {m['id']}: band level")
+    for e in pack.get("extras") or []:
+        _need(isinstance(e, dict) and e.get("id") in EXTRA_IDS, f"extra {e}")
+        _need(e.get("en") and e.get("bn"), f"extra {e.get('id')}: en + bn")
     _need(not _BANNED.search(json.dumps(pack, ensure_ascii=False)),
           "pack text looks copied from an official paper")
     return pack

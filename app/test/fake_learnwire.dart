@@ -83,3 +83,34 @@ QlProgress lwQaidaDone() => QlProgress(
       days: {'2026-11-02': 5},
       done: {kCourseQaida: '2026-11-02'},
     );
+
+/// A two-section JFT-style mock (`no_back`, per-section minutes).
+Map<String, dynamic> lwJftMock() => {
+      'id': 'jft-lw',
+      'title_en': 'JFT-Basic style (short)',
+      'title_bn': 'JFT-Basic ধাঁচ (ছোট)',
+      'format_en': 'Two sections, own timers',
+      'format_bn': 'দুই অংশ, আলাদা সময়',
+      'minutes': 10,
+      'no_back': true,
+      'sections': [
+        for (final n in [1, 2])
+          {
+            'id': 's$n',
+            'skill': 'vocab',
+            'minutes': 5,
+            'title_en': 'Part $n',
+            'title_bn': 'অংশ $n',
+            'questions': [
+              {
+                'id': 'lw-q$n',
+                'type': 'mcq',
+                'skill': 'vocab',
+                'text_en': 'lw-q$n: pick 1',
+                'text_bn': 'lw-q$n: ১ বাছুন',
+                'options': ['1', '2'],
+              }
+            ],
+          }
+      ],
+    };

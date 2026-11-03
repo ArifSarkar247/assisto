@@ -16,6 +16,8 @@ import '../feature_flags.dart' show FeatureFlags;
 import 'ielts_screen.dart';
 import 'language_partner_screen.dart';
 import 'learn_cert_screen.dart' as lc; // learnwire: certificate offer
+import 'lang_work_path.dart' show WorkPathScreen, ListeningPracticePage; // learnwire: pack extras
+import '../voice/va_native.dart'; // learnwire: "Listen" on lesson lines (phone voice)
 
 /// p2lang — LANGUAGE PARTNER framework (owner design 3 Nov 11:45, flag
 /// `language_packs`). Everything is rendered from server packs
@@ -308,6 +310,7 @@ class _Pack {
   final Map<String, dynamic> data;
   _Pack(this.lang, this.data);
   String get locale => '${data['stt_locale'] ?? 'en-US'}';
+  String get ttsLocale => '${data['tts_locale'] ?? data['stt_locale'] ?? ''}';
   bool get aiReady => data['ai_ready'] == true;
   String estimate(BuildContext c) => _loc(c, (data['estimate_label'] as Map?) ?? const {}, 'bn', 'en');
   String levelName(BuildContext c, String id) {
@@ -369,7 +372,18 @@ class _LanguagePackScreenState extends State<LanguagePackScreen> {
     }
     final p = _Pack(widget.lang, _data!);
     void open(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
-    final hasIelts = _list(p.data['extras']).any((e) => e['id'] == 'ielts');
+    // learnwire: per-pack extras tiles (IELTS hub, work path, phone-voice listening)
+    final extras = [
+      for (final e in _list(p.data['extras']))
+        if (e['id'] == 'ielts')
+          (Icons.school_rounded, tr.ieltsTitle, tr.ieltsEntrySubtitle, () => open(const IeltsScreen()))
+        else if (e['id'] == 'work_path')
+          (Icons.work_rounded, _loc(context, e, 'bn', 'en'), tr.lkOfficialLinks,
+              () => open(WorkPathScreen(lang: widget.lang, title: _loc(context, e, 'bn', 'en'))))
+        else if (e['id'] == 'listening')
+          (Icons.hearing_rounded, _loc(context, e, 'bn', 'en'), tr.lkListenSub,
+              () => open(ListeningPracticePage(lang: widget.lang, title: _loc(context, e, 'bn', 'en')))),
+    ];
     final tiles = <(IconData, String, String, VoidCallback)>[
       (Icons.flag_rounded, tr.learnPlacement, tr.learnPlacementSub, () => open(_PlacementPage(pack: p))),
       (Icons.menu_book_rounded, tr.learnLessons, tr.learnLessonsSub, () => open(_LessonsPage(pack: p))),
@@ -380,8 +394,7 @@ class _LanguagePackScreenState extends State<LanguagePackScreen> {
         (Icons.record_voice_over_rounded, tr.ieltsPron, tr.learnPronSub, () => open(_PronListPage(pack: p))),
       if (_list(p.data['mock']).isNotEmpty)
         (Icons.timer_rounded, tr.learnMock, tr.learnMockSub, () => open(_MockListPage(pack: p))),
-      if (hasIelts)
-        (Icons.school_rounded, tr.ieltsTitle, tr.ieltsEntrySubtitle, () => open(const IeltsScreen())),
+      ...extras,
     ];
     return _page(context, widget.title, [
       _note(context, p.estimate(context)),
@@ -602,13 +615,16 @@ class _LessonsPage extends StatelessWidget {
 class LessonPage extends StatelessWidget {
   final Object pack; // _Pack
   final Map<String, dynamic> lesson;
-  const LessonPage({super.key, required this.pack, required this.lesson});
+  /// Phone-voice locale for "Listen" when [pack] is not a pack (tests / gallery).
+  final String? ttsLocale;
+  const LessonPage({super.key, required this.pack, required this.lesson, this.ttsLocale});
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final p = pack;
     final locale = p is _Pack ? p.locale : 'en-US';
+    final tts = p is _Pack ? p.ttsLocale : (ttsLocale ?? '');
     return _page(context, _loc(context, lesson, 'title_bn', 'title_en'), [
       for (final it in _list(lesson['items']))
         Card(
@@ -616,8 +632,19 @@ class LessonPage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('${it['target']}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(
+                  child: Text('${it['target']}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                ),
+                if (tts.isNotEmpty && it['kind'] != 'note' && '${it['target'] ?? ''}'.trim().isNotEmpty)
+                  IconButton(
+                    key: Key('lw-listen-${it['target']}'),
+                    tooltip: tr.lwListen,
+                    icon: const Icon(Icons.volume_up_rounded),
+                    onPressed: () => speakPackLine(context, '${it['target']}', tts),
+                  ),
+              ]),
               if ((it['roman'] ?? '').toString().isNotEmpty)
                 Text('${it['roman']}', style: TextStyle(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.xs),
@@ -944,11 +971,47 @@ class _MockTestPageState extends State<MockTestPage> {
   _Pack? get _p => widget.pack is _Pack ? widget.pack as _Pack : null;
   String get _lang => _p?.lang ?? widget.lang ?? '';
 
+  // learnwire: JFT-style rule (`no_back`) — one section at a time, no going
+  // back, each section with its own timer; time up moves on (last: submits).
+  int _sec = 0;
+  bool _timeUpSubmitted = false;
+  final _secClock = Stopwatch()..start();
+  bool get _noBack => widget.mock['no_back'] == true && _result == null;
+  List<Map<String, dynamic>> get _secs => _list(widget.mock['sections']);
+  int _secLeft() {
+    final total = ((_secs.elementAtOrNull(_sec)?['minutes'] as num?)?.toInt() ?? 0) * 60;
+    return (total - _secClock.elapsed.inSeconds).clamp(0, total);
+  }
+
+  void _nextSection({bool timeUp = false}) {
+    if (_sec >= _secs.length - 1) {
+      // the last section's time is up: submit once (a failed submit leaves
+      // the Finish button; it is not retried every second)
+      if (!_busy && !_timeUpSubmitted) {
+        _timeUpSubmitted = true;
+        _submit();
+      }
+      return;
+    }
+    setState(() {
+      _sec++;
+      _secClock
+        ..reset()
+        ..start();
+    });
+    if (timeUp) _toast(context, AppLocalizations.of(context).lwSectionTimeUp);
+  }
+
   @override
   void initState() {
     super.initState();
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && _result == null) setState(() {});
+      if (!mounted || _result != null) return;
+      if (_noBack && !_busy && _secLeft() == 0) {
+        _nextSection(timeUp: true);
+        return;
+      }
+      setState(() {});
     });
   }
 
@@ -995,10 +1058,18 @@ class _MockTestPageState extends State<MockTestPage> {
     final tr = AppLocalizations.of(context);
     final m = widget.mock;
     final total = ((m['minutes'] as num?)?.toInt() ?? 0) * 60;
-    final left = (total - _clock.elapsed.inSeconds).clamp(0, total);
+    final noBack = _noBack;
+    final left = noBack ? _secLeft() : (total - _clock.elapsed.inSeconds).clamp(0, total);
     final mmss = '${left ~/ 60}:${(left % 60).toString().padLeft(2, '0')}';
     final graded = {for (final r in _list(_result?['rows'])) '${r['id']}': r};
-    var qi = 0;
+    final secs = _secs;
+    final starts = <int>[];
+    var acc = 0;
+    for (final s in secs) {
+      starts.add(acc);
+      acc += _list(s['questions']).length;
+    }
+    final lastSec = !noBack || _sec >= secs.length - 1;
     return _page(context, _loc(context, m, 'title_bn', 'title_en'), actions: [
       if (_result == null)
         Center(
@@ -1023,7 +1094,14 @@ class _MockTestPageState extends State<MockTestPage> {
         CertOfferButton(offer: _result!['cert']),
         const SizedBox(height: Gap.md),
       ],
-      for (final s in _list(m['sections'])) ...[
+      if (noBack) ...[
+        Text(ld(context, tr.lwSectionOf(_sec + 1, secs.length)),
+            key: const Key('lw-section-of'),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+        _note(context, tr.lwNoBackNote),
+      ],
+      for (final (si, s) in secs.indexed)
+        if (!noBack || si == _sec) ...[
         Padding(
           padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.sm),
           child: Text(_loc(context, s, 'title_bn', 'title_en'),
@@ -1034,9 +1112,9 @@ class _MockTestPageState extends State<MockTestPage> {
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Text(para, style: const TextStyle(height: 1.5)),
           ),
-        for (final q in _list(s['questions']))
+        for (final (qj, q) in _list(s['questions']).indexed)
           _McqBlock(
-            index: qi++,
+            index: starts[si] + qj,
             q: q,
             picked: _answers['${q['id']}'],
             graded: graded['${q['id']}'],
@@ -1092,7 +1170,15 @@ class _MockTestPageState extends State<MockTestPage> {
           ),
       ],
       const SizedBox(height: Gap.md),
-      if (_result == null)
+      if (_result == null && !lastSec)
+        FilledButton.icon(
+          key: const Key('lw-next-section'),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: _busy ? null : () => _nextSection(),
+          icon: const Icon(Icons.arrow_forward_rounded),
+          label: Text(tr.lwNextSection),
+        )
+      else if (_result == null)
         FilledButton.icon(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: _busy ? null : _submit,
@@ -1296,5 +1382,32 @@ class CertOfferButton extends StatelessWidget {
         label: Text(tr.lcGetCert),
       ),
     );
+  }
+}
+
+/// Tests: replaces the phone voice ([VaNative.speak]).
+@visibleForTesting
+Future<String?> Function(String text, String locale)? debugPackSpeak;
+
+/// learnwire: read one lesson line aloud with the phone's own voice in the
+/// course language (Android TTS; ko-KR / ja-JP supported by
+/// AssistoVoiceChannel). Practice only — never exam audio, never scored.
+Future<void> speakPackLine(BuildContext context, String text, String locale) async {
+  final tr = AppLocalizations.of(context);
+  String? r;
+  try {
+    r = await (debugPackSpeak ?? VaNative.speak)(text, locale);
+  } catch (_) {
+    r = 'no_engine';
+  }
+  if (!context.mounted) return;
+  final m = ScaffoldMessenger.of(context)..clearSnackBars();
+  if (r == 'no_voice') {
+    m.showSnackBar(SnackBar(
+      content: Text(tr.uwTtsNoVoice),
+      action: SnackBarAction(label: tr.uwTtsSettings, onPressed: () => VaNative.openTtsSettings()),
+    ));
+  } else if (r == null || r == 'no_engine') {
+    m.showSnackBar(SnackBar(content: Text(tr.uwTtsUnavailable)));
   }
 }

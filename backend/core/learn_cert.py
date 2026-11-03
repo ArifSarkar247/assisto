@@ -303,7 +303,10 @@ def read_token(user, token):
 def pack_level(lang, level):
     """Language Partner pack level -> (course, certificate level), or None.
     Chinese HSK1..HSK6 -> H1..H6 ("Level n (HSK-style practice)"); Arabic
-    W1..W3 -> work-Arabic levels; CEFR levels pass through."""
+    W1..W3 -> work-Arabic levels; Korean "1".."6" -> L1..L6 ("Level n
+    (TOPIK-style practice)"); Japanese N5..N1 as-is; CEFR levels pass
+    through. The script-only starter levels (Korean "0" = Hangul, Japanese
+    "kana") give no certificate."""
     course = "lang_%s" % lang
     c = COURSES.get(course)
     if c is None or c["kind"] != "language":
@@ -311,6 +314,8 @@ def pack_level(lang, level):
     lv = str(level or "").strip().upper()
     if lv.startswith("HSK") and lv[3:].isdigit():
         lv = "H" + lv[3:]
+    elif lang == "ko" and lv.isdigit():
+        lv = "L" + lv if lv != "0" else ""
     return (course, lv) if lv in c["levels"] else None
 
 
