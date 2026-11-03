@@ -15,6 +15,21 @@ const String kQlArabicFont = 'AmiriQuran';
 TextStyle qlArabic(double size, {Color? color}) => TextStyle(
     fontFamily: kQlArabicFont, fontSize: size, height: 1.9, color: color);
 
+/// Arabic letters inside Bangla/English text (titles, notes) also use the
+/// bundled Amiri Quran - never a missing-glyph box on phones without an
+/// Arabic system font.
+Widget qlWithArabic(BuildContext context, Widget child) {
+  final th = Theme.of(context);
+  final fb = [...AFonts.fallback, kQlArabicFont];
+  return Theme(
+    data: th.copyWith(
+      textTheme: th.textTheme.apply(fontFamilyFallback: fb),
+      primaryTextTheme: th.primaryTextTheme.apply(fontFamilyFallback: fb),
+    ),
+    child: child,
+  );
+}
+
 /// "Audio not available yet" - why, and what to do instead (never a fake
 /// sound, never a machine voice for the Quran).
 Future<void> showQlNoAudio(BuildContext context) => showAppSheet<void>(
@@ -22,7 +37,7 @@ Future<void> showQlNoAudio(BuildContext context) => showAppSheet<void>(
       isScrollControlled: true,
       builder: (ctx) {
         final t = AppLocalizations.of(ctx);
-        return SingleChildScrollView(
+        return qlWithArabic(ctx, SingleChildScrollView(
           key: const Key('ql-no-audio'),
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(
@@ -48,7 +63,7 @@ Future<void> showQlNoAudio(BuildContext context) => showAppSheet<void>(
               ),
             ],
           ),
-        );
+        ));
       },
     );
 
@@ -63,12 +78,12 @@ Future<int?> showReciteSheet(BuildContext context,
     showAppSheet<int>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => ReciteSheet(
+      builder: (ctx) => qlWithArabic(ctx, ReciteSheet(
           expected: expected,
           alsoAccept: alsoAccept,
           letterName: letterName,
           onScore: onScore,
-          listener: listener),
+          listener: listener)),
     );
 
 class ReciteSheet extends StatefulWidget {

@@ -106,7 +106,7 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final p = _p;
-    return Scaffold(
+    return qlWithArabic(context, Scaffold(
       appBar: AppBar(
         title: Text(t.qlTitle),
         actions: [
@@ -150,7 +150,7 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
                 ]),
               ],
             ),
-    );
+    ));
   }
 
   Widget _todayCard(AppLocalizations t, QlProgress p) {
@@ -507,7 +507,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
         ],
       );
     }
-    return Scaffold(
+    return qlWithArabic(context, Scaffold(
       appBar: AppBar(
         title: Text(l.title.of(bn)),
         actions: [
@@ -520,7 +520,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
         ],
       ),
       body: body,
-    );
+    ));
   }
 
   Widget _grid(AppLocalizations t, QlProgress p, QlLesson l) {
@@ -746,7 +746,7 @@ class _QuranLearnAboutScreenState extends State<QuranLearnAboutScreen> {
             Expanded(child: Text(s)),
           ]),
         );
-    return Scaffold(
+    return qlWithArabic(context, Scaffold(
       appBar: AppBar(title: Text(t.qlAbout)),
       body: ListView(
         key: const Key('ql-about-body'),
@@ -785,6 +785,6 @@ class _QuranLearnAboutScreenState extends State<QuranLearnAboutScreen> {
           ],
         ],
       ),
-    );
+    ));
   }
 }
