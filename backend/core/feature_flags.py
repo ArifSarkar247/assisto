@@ -201,6 +201,11 @@ REGISTRY = (
     # post a need, owner-approved Business sellers send sealed offers,
     # rule-based ranking, group-buy, COD only, Dhaka only. Hidden until a
     # real pilot (owner decisions: owner_actions/FEATURE_CARD_ASSISTO_MARKET_BN.md).
+    # p3docs (owner PART 3, 3 Nov): Documents vault END-TO-END lock — PIN /
+    # biometric / recovery-code / trusted-person wraps of the document key,
+    # sealed uploads (server holds only ciphertext) and time-limited
+    # encrypted share links (/d/<token>#key). Hidden until a two-phone test.
+    ('vault_e2e', 'daily_life', 'Documents end-to-end lock + expiring share links', 'ডকুমেন্টস এন্ড-টু-এন্ড তালা + মেয়াদি শেয়ার লিংক', False, ()),
     ('assisto_market', 'upcoming', 'Assisto Market (post a need, verified sellers offer)', 'Assisto Market (চাহিদা দিন, যাচাই করা বিক্রেতারা অফার দেন)', False, ('market',)),
     # The REAL Unseen World (owner 27 Oct): travel discovery — Bangladesh
     # divisions/districts/spots first, then countries. Not built yet; plan:

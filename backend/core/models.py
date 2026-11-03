@@ -578,11 +578,24 @@ class Document(models.Model):
     # days before expiry_date). Metadata only — the push never carries the
     # title, numbers or the file.
     expiry_alerts = models.BooleanField(default=True)
+    # p3docs: END-TO-END sealed on the phone. The server then holds only
+    # ciphertext: `file` starts with b"AVE1", `details` is {"e2e":1,"box":..}
+    # and title/note are blank (core/vault_e2e.validate_sealed enforces it).
+    # doc_type + expiry_date stay plain ONLY so the expiry push can run.
+    e2e = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["expiry_date", "-updated_at"]
+
+    @property
+    def public_title(self):
+        """A title safe to show in server-made text: the user's title, or the
+        document type for an end-to-end sealed document (title is blank)."""
+        if self.title:
+            return self.title
+        return dict(self.TYPES).get(self.doc_type, self.doc_type or "")
 
 
 class DocExpiryPush(models.Model):
@@ -8209,3 +8222,82 @@ class PushDeadMark(models.Model):
                                 related_name="push_dead_mark")
     at = models.DateTimeField(default=timezone.now)
 # ---- /adminsafe ----
+
+
+# ---- p3docs ---- Documents vault: end-to-end key wraps, trusted-person
+# recovery and time-limited encrypted share links (owner PART 3, 3 Nov).
+# The server stores ONLY opaque sealed blobs — never a PIN, recovery code,
+# document key or plaintext (core/vault_e2e.py refuses them).
+def p3_share_path(instance, filename):
+    import uuid
+    return "vault_share/%s.bin" % uuid.uuid4().hex
+
+
+class VaultKeyWrap(models.Model):
+    """The document master key, sealed ON THE PHONE. kind=recovery: sealed
+    under a key stretched from the 16-character recovery code (the server
+    never sees the code). kind=helper: sealed to a trusted My Circle
+    person's E2E public key (only their phone can open it)."""
+    KINDS = [("recovery", "recovery code"), ("helper", "trusted person")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="vault_key_wraps")
+    kind = models.CharField(max_length=12, choices=KINDS)
+    blob = models.TextField()
+    helper = models.ForeignKey(User, on_delete=models.CASCADE, null=True,
+                               blank=True, related_name="vault_wraps_held")
+    helper_key_id = models.CharField(max_length=64, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class VaultHelpRequest(models.Model):
+    """A trusted-person recovery: the owner (new phone, keys lost) asks; the
+    helper's phone opens its wrap and re-seals the master key to the owner's
+    CURRENT public key (handback). The handback is released only after a
+    24-hour wait so a hijacked account can be stopped (owner gets a push)."""
+    STATES = [("pending", "pending"), ("approved", "approved"),
+              ("declined", "declined"), ("cancelled", "cancelled"),
+              ("done", "done")]
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="vault_help_requests")
+    helper = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="vault_help_inbox")
+    wrap = models.ForeignKey(VaultKeyWrap, on_delete=models.CASCADE,
+                             related_name="requests")
+    requester_pub = models.CharField(max_length=200)
+    requester_key_id = models.CharField(max_length=64, blank=True, default="")
+    state = models.CharField(max_length=10, choices=STATES, default="pending")
+    handback = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    ready_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class VaultShareLink(models.Model):
+    """A time-limited link to ONE document copy, encrypted on the phone with
+    a fresh key that lives only in the link's #fragment (browsers never send
+    it). Only the token's SHA-256 is stored; the ciphertext is deleted when
+    the link expires, runs out of opens or is revoked."""
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name="vault_share_links")
+    document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                 related_name="share_links")
+    token_hash = models.CharField(max_length=64, unique=True)
+    blob = models.FileField(upload_to=p3_share_path, null=True, blank=True)
+    size = models.PositiveIntegerField(default=0)
+    expires_at = models.DateTimeField()
+    max_opens = models.PositiveSmallIntegerField(default=1)
+    opens = models.PositiveSmallIntegerField(default=0)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    last_opened_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+# ---- /p3docs ----

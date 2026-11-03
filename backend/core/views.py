@@ -1385,13 +1385,13 @@ def _build_alerts(user, lang="bn"):
         days = (d.expiry_date - today).days
         if days < 0:
             alerts.append({"type": "doc_expired",
-                           "text": pick(lang, f"{d.title}-এর মেয়াদ শেষ হয়ে গেছে।",
-                                        f"{d.title} has expired."),
+                           "text": pick(lang, f"{d.public_title}-এর মেয়াদ শেষ হয়ে গেছে।",
+                                        f"{d.public_title} has expired."),
                            "severity": "high"})
         elif days <= 30:
             alerts.append({"type": "doc_expiry",
-                           "text": pick(lang, f"{d.title}-এর মেয়াদ {days} দিনে শেষ।",
-                                        f"{d.title} expires in {days} days."),
+                           "text": pick(lang, f"{d.public_title}-এর মেয়াদ {days} দিনে শেষ।",
+                                        f"{d.public_title} expires in {days} days."),
                            "severity": "high" if days <= 7 else "med"})
     # medicine refill — fires from a manual refill_date OR, for stock-only
     # users, a predicted run-out date derived from current stock + burn (P1).
@@ -3403,7 +3403,7 @@ def _collect_reminders(user, now, lang="bn"):
     for d in user.documents.filter(expiry_date__isnull=False):
         items.append({
             "id": f"document:{d.id}", "source_module": "document",
-            "title": {"bn": f"{d.title} মেয়াদ", "en": f"{d.title} expiry"},
+            "title": {"bn": f"{d.public_title} মেয়াদ", "en": f"{d.public_title} expiry"},
             "when": _dt(d.expiry_date),
         })
 

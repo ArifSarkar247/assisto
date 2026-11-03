@@ -340,11 +340,17 @@ class DocumentSerializer(serializers.ModelSerializer):
     # the app legitimately uses. Accept any short string (fixes a pre-existing
     # bug where insurance/warranty docs were rejected).
     doc_type = serializers.CharField(required=False, max_length=16, default="other")
+    # p3docs: an end-to-end sealed document has a BLANK title (the real one
+    # is inside the sealed box), so title is optional here and required in
+    # validate() only for a normal document. `e2e` is fixed at creation.
+    title = serializers.CharField(required=False, allow_blank=True, max_length=200)
+    e2e = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = Document
         fields = ["id", "title", "doc_type", "file", "file_url", "expiry_date",
-                  "note", "details", "expiry_alerts", "created_at", "updated_at"]
+                  "note", "details", "expiry_alerts", "e2e", "created_at",
+                  "updated_at"]
         read_only_fields = ["id", "file_url", "created_at", "updated_at"]
         extra_kwargs = {"file": {"write_only": True, "required": False}}
 
@@ -360,6 +366,31 @@ class DocumentSerializer(serializers.ModelSerializer):
             except (ValueError, TypeError):
                 pass
         return super().to_internal_value(data)
+
+    def validate(self, attrs):
+        from . import vault_e2e
+        inst = self.instance
+        if inst is not None:
+            attrs.pop("e2e", None)          # sealed-or-not never changes
+            sealed = bool(inst.e2e)
+        else:
+            sealed = bool(attrs.get("e2e"))
+        if sealed:
+            req = self.context.get("request")
+            if inst is None and not vault_e2e.enabled(getattr(req, "user", None)):
+                raise serializers.ValidationError({"e2e": ["not switched on"]})
+            err = vault_e2e.validate_sealed(attrs, creating=inst is None)
+            if err:
+                raise serializers.ValidationError({"e2e": [err]})
+            if inst is None:
+                attrs["title"] = ""
+                attrs["note"] = ""
+        else:
+            title = attrs.get("title", inst.title if inst is not None else "")
+            if not (title or "").strip():
+                raise serializers.ValidationError(
+                    {"title": ["This field is required."]})
+        return attrs
 
     def get_file_url(self, obj):
         return f"/api/v1/documents/{obj.id}/file" if obj.file else None

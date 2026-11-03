@@ -407,6 +407,10 @@ def share_docs(user, document_id, member_ids):
     doc = Document.objects.filter(user=user, pk=document_id).first()
     if doc is None:
         return None, "not_found"
+    if getattr(doc, "e2e", False):
+        # p3docs: the server holds only ciphertext of a sealed document;
+        # sharing it here would hand the member unreadable bytes.
+        return None, "e2e_doc"
     fms = list(FamilyMember.objects.filter(user=user, pk__in=list(member_ids or []))
                .select_related("circle_member"))
     if not fms:
