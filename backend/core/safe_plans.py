@@ -416,9 +416,9 @@ def status(user, now=None, play=False):
                        "history_days": c["family_history_days"],
                        "update_min": c["family_update_min"],
                        "product_id": c["family_product_id"]},
-            "school": {"price_bdt": c["school_price_bdt"],
-                       "min_students": c["school_min_students"],
-                       "guardians": c["school_guardians"],
+            # Play Payments policy: the app never shows the school price or
+            # steers to the outside purchase — only "enter your school code"
+            "school": {"guardians": c["school_guardians"],
                        "requests": c["school_requests"]},
         },
         "base_plan_id": c["base_plan_id"],
