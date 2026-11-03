@@ -229,6 +229,12 @@ jobs:
           npx -y playwright@$PW_VERSION install --with-deps chromium >/dev/null
           cp "$GITHUB_WORKSPACE/tools/website/livecheck.mjs" "$GITHUB_WORKSPACE/tools/website/clipaudit.mjs" .
           node livecheck.mjs "$LIVE" "$RUNNER_TEMP/live"
+      - name: menu + slider + header on the live site (tplfix, owner 3 Nov 16:33; 360/390/430/1280/1440, bn + en)
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/pw"
+          cp "$GITHUB_WORKSPACE/tools/website/uxcheck.mjs" .
+          node uxcheck.mjs "$LIVE" "$RUNNER_TEMP/live/uxcheck" live
       - name: Lighthouse on the live site (1 run per URL; performance = warn, network from the runner)
         if: always()
         run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc-live.json
