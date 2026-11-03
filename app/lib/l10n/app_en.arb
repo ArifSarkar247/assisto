@@ -37806,5 +37806,158 @@
         "type": "String"
       }
     }
-  }
+  },
+  "foodTitle": "Food calories",
+  "foodEmptyBenefit": "Know roughly how many calories you eat — Bangladeshi foods, with the source of every number.",
+  "foodEmptyCta": "Log your first meal",
+  "foodEmptyHow": "Take a photo of your plate or pick from the list, choose plate, bowl or piece — done.",
+  "foodPhotoBtn": "Photo of my plate",
+  "foodPickBtn": "Pick from the list",
+  "foodPhotoNotReady": "Photo recognition isn't connected yet — pick your food from the list.",
+  "foodPhotoQuestion": "Which foods are on this plate?",
+  "foodRecognised": "Found in the photo — tap a food to log it",
+  "foodRecognisedNone": "No food from our list was recognised — pick from the list.",
+  "foodToday": "Today",
+  "foodEatenOfGoal": "{eaten} of {goal} kcal",
+  "@foodEatenOfGoal": {
+    "placeholders": {
+      "eaten": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "foodLeft": "{n} kcal left",
+  "@foodLeft": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodOver": "{n} kcal over your goal",
+  "@foodOver": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodMacros": "Protein {p} g · Fat {f} g · Carbs {c} g",
+  "@foodMacros": {
+    "placeholders": {
+      "p": {
+        "type": "String"
+      },
+      "f": {
+        "type": "String"
+      },
+      "c": {
+        "type": "String"
+      }
+    }
+  },
+  "foodUnknownCount": "{n} item(s) without a cited value are not counted",
+  "@foodUnknownCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSetGoal": "Set daily goal",
+  "foodGoalTitle": "Daily calorie goal",
+  "foodGoalHelp": "Between {min} and {max} kcal. Ask a doctor or dietitian what is right for you.",
+  "@foodGoalHelp": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "foodGoalInvalid": "Enter a number from {min} to {max}",
+  "@foodGoalInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSave": "Save",
+  "foodAdd": "Add to today",
+  "foodSearchHint": "Search: bhat, dal, biriyani…",
+  "foodNoMatch": "No food matches — try another name.",
+  "foodPortion": "How much?",
+  "foodGrams": "Grams",
+  "foodGramsValue": "{g} g",
+  "@foodGramsValue": {
+    "placeholders": {
+      "g": {
+        "type": "String"
+      }
+    }
+  },
+  "foodApprox": "approx.",
+  "foodQty": "Quantity",
+  "foodQtyLess": "Less",
+  "foodQtyMore": "More",
+  "foodKcalValue": "{n} kcal",
+  "@foodKcalValue": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSourceLine": "Source: {src}",
+  "@foodSourceLine": {
+    "placeholders": {
+      "src": {
+        "type": "String"
+      }
+    }
+  },
+  "foodSelfKcal": "Calories (your own number, optional)",
+  "foodSelfTag": "your number",
+  "foodNoValueTag": "no cited value",
+  "foodTodayList": "Today's meals",
+  "foodWeek": "Last 7 days",
+  "foodWeekA11y": "{day}: {kcal} kcal",
+  "@foodWeekA11y": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "foodHintsTitle": "Healthy-plate tips (general information)",
+  "foodSourcesTitle": "Where the numbers come from",
+  "foodSourcesBody": "Every calorie number comes from a published table — never from AI. Portions marked 'approx.' are household measures; change the grams if yours differ.",
+  "foodOff": "This feature is not available yet.",
+  "foodRetry": "Try again",
+  "foodSaveFail": "Couldn't save — check the internet and try again.",
+  "foodGroupRice": "Rice & khichuri",
+  "foodGroupBread": "Ruti & paratha",
+  "foodGroupDal": "Dal",
+  "foodGroupCurry": "Curry",
+  "foodGroupVeg": "Vegetables & bhorta",
+  "foodGroupFish": "Fish",
+  "foodGroupMeat": "Meat",
+  "foodGroupEgg": "Egg",
+  "foodGroupSnack": "Snacks",
+  "foodGroupSweet": "Sweets",
+  "foodGroupDrink": "Tea & drinks",
+  "foodGroupFruit": "Fruit",
+  "foodGroupExtra": "Sugar & oil"
 }
