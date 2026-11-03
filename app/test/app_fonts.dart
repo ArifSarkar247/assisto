@@ -38,4 +38,6 @@ Future<void> loadAppFonts() async {
   await family('HindSiliguri', ['assets/fonts/HindSiliguri-SemiBold.ttf']);
   await family('Galada', ['assets/fonts/Galada-Regular.ttf']);
   await family('Atma', ['assets/fonts/Atma-SemiBold.ttf']);
+  // quranread: Arabic (Learn to read Quran screens)
+  await family('AmiriQuran', ['assets/fonts/AmiriQuran.ttf']);
 }
