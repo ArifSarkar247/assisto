@@ -590,9 +590,20 @@ def run_followups(now=None, limit=200):
     qs = ChatThread.objects.filter(business_id__in=list(agents), last_inbound_at__gte=since,
                                    opted_out=False, owner_takeover=False) \
         .exclude(seller_channel=None).select_related("seller_channel", "business")[:limit]
+    from .logic import msg_guard as MG
+    from .logic.business_selling import normalize_phone
+    stopped = {}
     for t in qs:
         a = agents[t.business_id]
         if t.seller_channel.kind == "website":
+            continue
+        # bizauto: a STOP said anywhere (SMS link, app, another chat) stops
+        # this chat's follow-ups too — honoured at once
+        if t.business_id not in stopped:
+            stopped[t.business_id] = MG.opted_out_keys(t.business_id)
+        key = normalize_phone(t.customer_phone) if t.customer_phone else \
+            "psid:" + (t.external_user_id or "")
+        if key in stopped[t.business_id]:
             continue
         last = t.messages.order_by("-created_at", "-id").first()
         if last is None:
@@ -600,7 +611,10 @@ def run_followups(now=None, limit=200):
         paused = bool(t.ai_paused_until and t.ai_paused_until > now)
         ok = G1.followup_due(
             enabled=True, opted_out=t.opted_out, human_mode=t.owner_takeover, paused=paused,
-            quiet=G1.in_window(a.quiet_hours, mod), last_dir=last.direction,
+            # bizauto: the seller's own quiet hours when set ("unless the user
+            # chose otherwise"), else the shared default (never 22:00-08:00)
+            quiet=(G1.in_window(a.quiet_hours, mod) if (a.quiet_hours or {}).get("start")
+                   else MG.in_quiet_hours(now)), last_dir=last.direction,
             last_out_kind=last.kind, last_at_ts=last.created_at.timestamp(),
             last_inbound_ts=t.last_inbound_at.timestamp() if t.last_inbound_at else None,
             now_ts=now.timestamp(), sent=t.followups_sent, max_n=a.followup_max,

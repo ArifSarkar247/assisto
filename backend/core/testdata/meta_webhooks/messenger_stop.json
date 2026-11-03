@@ -1,0 +1,3 @@
+{"object": "page", "entry": [{"id": "__PAGE__", "time": __NOW__000, "messaging": [{
+  "sender": {"id": "7712345678901234"}, "recipient": {"id": "__PAGE__"}, "timestamp": __NOW__000,
+  "message": {"mid": "m_bizauto_stop_1", "text": "STOP"}}]}]}

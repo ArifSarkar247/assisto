@@ -17,6 +17,8 @@ abstract class RetentionSource {
   Future<Map<String, dynamic>> addStockAsk(int productId, int customerId);
   Future<void> removeStockAsk(int id);
   Future<Map<String, dynamic>> addOptOut(String phone);
+  // bizauto: who stopped this shop's messages (masked) — read-only
+  Future<Map<String, dynamic>> optOuts();
   // crmauto: transparent customer score + the owner's activity log
   Future<Map<String, dynamic>> scores({String q = ''});
   Future<Map<String, dynamic>> audit();
@@ -71,6 +73,8 @@ class ApiRetentionSource implements RetentionSource {
   @override
   Future<Map<String, dynamic>> addOptOut(String phone) =>
       api.postJson('/retention/opt-outs', {'phone': phone});
+  @override
+  Future<Map<String, dynamic>> optOuts() => api.getJson('/retention/opt-outs');
   @override
   Future<Map<String, dynamic>> scores({String q = ''}) =>
       api.getJson('/retention/scores?q=${Uri.encodeQueryComponent(q)}');

@@ -140,7 +140,8 @@ class FakeRetention implements RetentionSource {
       'kinds': kinds,
       'max_automations': 10,
       'attribution_days': 7,
-      'opted_out_count': 1,
+      'opted_out_count': 3,
+      'safety': {'all_per_customer_day': 2, 'sms_credits_per_part': 2, 'stop_link': true},
       'caps': {'per_customer_day': 1, 'per_customer_week': 2, 'business_daily': 100},
       'server_max': {'per_customer_day': 1, 'per_customer_week': 2, 'business_daily': 100},
       'automations': mode == 'empty' || mode == 'plan'
@@ -323,6 +324,22 @@ class FakeRetention implements RetentionSource {
   Future<Map<String, dynamic>> addOptOut(String phone) async {
     calls.add('optout:$phone');
     return {'ok': true, 'opted_out_count': 2};
+  }
+
+  // bizauto
+  @override
+  Future<Map<String, dynamic>> optOuts() async {
+    calls.add('optouts');
+    _fail();
+    if (mode == 'empty') return {'count': 0, 'opt_outs': <Map<String, dynamic>>[]};
+    return {
+      'count': 3,
+      'opt_outs': [
+        {'who': '017•••••678', 'source': 'sms_link', 'at': '2026-11-02T10:15:00+06:00'},
+        {'who': '018•••••321', 'source': 'in_app', 'at': '2026-11-01T18:40:00+06:00'},
+        {'who': 'Messenger / Instagram', 'source': 'chat', 'at': '2026-10-30T12:05:00+06:00'},
+      ],
+    };
   }
 
   // crmauto

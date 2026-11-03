@@ -124,7 +124,9 @@ def _tagada(ctx, a):
         if prior is not None:                     # crash-safe: never send twice
             out.update(sent=True, reason="ok")
             return out
-        r = sms_service.send_sms(p.phone, text, "tagada", user=ctx.user, business=biz)
+        from ..tagada_engine import sms_final        # bizauto: one-tap STOP link
+        r = sms_service.send_sms(p.phone, sms_final(biz, p.phone, text), "tagada",
+                                 user=ctx.user, business=biz)
         if r.get("ok") and r.get("log_id") and ctx.idem_key:
             SmsLog.objects.filter(pk=r["log_id"]).update(detail="agent:" + ctx.idem_key[:60])
         out.update(sent=bool(r.get("ok")), reason=r.get("reason") or "",

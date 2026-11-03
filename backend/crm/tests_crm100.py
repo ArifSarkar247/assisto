@@ -505,7 +505,10 @@ class SendTests(_World):
         self.assertTrue(sms["available"])
         self.assertGreaterEqual(sms["credits"], 1)
         self.assertIn("Rahim Store", sms["text"])          # who it is from
-        self.assertIn("STOP", sms["text"])                 # how to stop
+        # bizauto: how to stop = a signed one-tap link (an SMS reply never
+        # reaches us, so "reply STOP" would be a lie)
+        self.assertIn("/api/v1/retention/u/k", sms["text"])
+        self.assertNotIn("STOP লিখুন", sms["text"])
         self.assertFalse(SmsLog.objects.exists())          # nothing sent on preview
 
     def test_link_logged_as_opened_never_sent(self, _q):

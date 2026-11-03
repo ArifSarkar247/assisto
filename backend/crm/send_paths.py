@@ -30,14 +30,19 @@ def _khata():
     return K
 
 
-def sms_text(scope, text, lang):
-    """What an Assisto SMS actually carries: "<shop>: text" + STOP line."""
+def sms_text(scope, text, lang, phone=""):
+    """What an Assisto SMS actually carries: "<shop>: text" + STOP line.
+    bizauto: with the customer's phone the STOP line is a signed one-tap
+    link (an SMS reply never reaches us — one-way sender IDs)."""
     from core.logic import msg_guard as MG
+    from core.logic.business_selling import normalize_phone
     shop = (scope.business.shop_name or "").strip() if scope.business else ""
     body = str(text or "").strip()
     if shop and not body.startswith(shop):
         body = "%s: %s" % (shop, body)
-    return body + "\n" + MG.stop_footer(lang, "sms")
+    link = MG.stop_link(scope.business.pk, normalize_phone(phone)) \
+        if (scope.business is not None and phone) else ""
+    return body + "\n" + MG.stop_footer(lang, "sms", link)
 
 
 def sms_quote(text):
@@ -60,7 +65,8 @@ def sms_offer(request, scope, person, text, lang, now=None):
     from core.logic import msg_guard as MG
     now = now or timezone.now()
     owner = scope.business is not None and scope.role == "owner"
-    final = sms_text(scope, text, lang)
+    final = sms_text(scope, text, lang,
+                     getattr(person, "key", "") or getattr(person, "phone", "") if person else "")
     q = sms_quote(final)
     bal = _balance(request.user) if owner else 0
     blocked = None

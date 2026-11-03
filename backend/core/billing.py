@@ -657,7 +657,7 @@ def guard_can(user, action, qty=1):
 
 # --------------------------------------------------------------- atomic charge
 
-def charge(user, action, qty=1, note=""):
+def charge(user, action, qty=1, note="", min_credits=0):
     """ATOMIC debit of the per-action credit cost against User.ai_credits.
 
     Returns {"ok": bool, "reason": str, "charged": int, "balance": int}.
@@ -686,6 +686,10 @@ def charge(user, action, qty=1, note=""):
     ensure_monthly_pool(user)
 
     need = pricing.credits_for(action, qty, cfg())
+    # bizauto: a caller that knows a higher real cost (an SMS gateway with its
+    # own per-part price) may raise the charge to keep the 40 % rule — never lower
+    if need > 0 and min_credits:
+        need = max(need, int(min_credits))
     if need <= 0:
         return {"ok": True, "reason": "ok", "charged": 0,
                 "balance": int(user.ai_credits or 0)}

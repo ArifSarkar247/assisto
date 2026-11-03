@@ -1,0 +1,68 @@
+{
+  "_comment": "bizauto (P3-C business message safety): safety rules card in the retention limits sheet + the 'who stopped' list screen. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_bizauto_arb.json",
+  "en": {
+    "bzSafeTitle": "Rules every automatic message follows",
+    "bzSafeQuiet": "Quiet hours: nothing goes out from {start} to {end} (Dhaka time).",
+    "@bzSafeQuiet": {
+      "placeholders": {
+        "start": {
+          "type": "String"
+        },
+        "end": {
+          "type": "String"
+        }
+      }
+    },
+    "bzSafeAll": "One customer gets at most {n} messages a day from your shop — automations, due reminders and CRM SMS together.",
+    "@bzSafeAll": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "bzSafeStop": "Every message carries a one-tap Stop. A stop works at once for every automation of your shop.",
+    "bzSafeSms": "One SMS part costs {n} credits.",
+    "@bzSafeSms": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "bzStoppedOpen": "Customers who stopped messages ({n})",
+    "@bzStoppedOpen": {
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "bzStoppedTitle": "Stopped messages",
+    "bzStoppedBenefit": "People who said stop never get an automatic message from your shop again — this keeps your shop out of spam blocks.",
+    "bzStoppedEmpty": "Nobody has stopped your messages yet.",
+    "bzStoppedHowTo": "A customer stops with the link in an SMS, the Stop button in Assisto, or by writing STOP in a chat. If someone asks you in person, add their number below.",
+    "bzStoppedOnlyThey": "Only the customer can start messages again, by messaging your shop.",
+    "bzSrcSmsLink": "SMS stop link",
+    "bzSrcInApp": "Stop button in Assisto",
+    "bzSrcChat": "Wrote STOP in a chat",
+    "bzSrcOwner": "Added by you"
+  },
+  "bn": {
+    "bzSafeTitle": "প্রতিটি স্বয়ংক্রিয় মেসেজ যে নিয়ম মানে",
+    "bzSafeQuiet": "রাতের নীরবতা: {start} থেকে {end} পর্যন্ত কিছুই যায় না (ঢাকার সময়)।",
+    "bzSafeAll": "একজন গ্রাহক আপনার দোকান থেকে দিনে সর্বোচ্চ {n}টি মেসেজ পান — অটোমেশন, বাকির তাগাদা ও CRM SMS সব মিলিয়ে।",
+    "bzSafeStop": "প্রতিটি মেসেজে এক চাপে \"বন্ধ\" করার উপায় থাকে। বন্ধ করলে সাথে সাথে আপনার দোকানের সব অটোমেশনে কার্যকর।",
+    "bzSafeSms": "একটি SMS অংশে {n} ক্রেডিট লাগে।",
+    "bzStoppedOpen": "যাঁরা মেসেজ বন্ধ করেছেন ({n})",
+    "bzStoppedTitle": "বন্ধ করা মেসেজ",
+    "bzStoppedBenefit": "যিনি বন্ধ বলেছেন, আপনার দোকান থেকে আর কোনো স্বয়ংক্রিয় মেসেজ পাবেন না — এতে আপনার দোকান স্প্যাম-ব্লক থেকে বাঁচে।",
+    "bzStoppedEmpty": "এখনো কেউ আপনার মেসেজ বন্ধ করেননি।",
+    "bzStoppedHowTo": "গ্রাহক SMS-এর লিংক, Assisto-র \"বন্ধ করুন\" বোতাম বা চ্যাটে STOP লিখে বন্ধ করেন। কেউ সামনাসামনি বললে নিচে তাঁর নম্বর দিন।",
+    "bzStoppedOnlyThey": "আবার মেসেজ চালু করতে পারেন শুধু গ্রাহক নিজে — আপনার দোকানে মেসেজ করে।",
+    "bzSrcSmsLink": "SMS-এর বন্ধ লিংক",
+    "bzSrcInApp": "Assisto-র বন্ধ বোতাম",
+    "bzSrcChat": "চ্যাটে STOP লিখেছেন",
+    "bzSrcOwner": "আপনি যোগ করেছেন"
+  }
+}

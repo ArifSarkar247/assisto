@@ -156,6 +156,17 @@ def _catalog():
     return out
 
 
+def _safety():
+    from . import billing
+    from .logic import pricing as P
+    try:
+        per = P.credit_cost("sms", billing.cfg())
+    except Exception:  # noqa: BLE001
+        per = 0
+    return {"all_per_customer_day": MG.all_cap(S.cfg()), "sms_credits_per_part": per,
+            "stop_link": True}
+
+
 def _caps_payload(biz):
     return {"caps": S.caps_for(biz), "server_max": S.server_max()}
 
@@ -171,12 +182,14 @@ class OverviewView(_Owner):
         d = {"plan_ok": S.plan_ok(request.user),
              "credits": int(request.user.ai_credits or 0),
              "shop": S.shop_name(biz),
-             "quiet": {"start": "21:00", "end": "09:00", "now": MG.in_quiet_hours(now)},
+             "quiet": {**MG.quiet_label(), "now": MG.in_quiet_hours(now)},
              "channels_ready": S.channels_ready(biz),
              "kinds": _catalog(),
              "max_automations": S.cfg()["max_automations"],
              "attribution_days": S.cfg()["attribution_days"],
              "opted_out_count": BizOptOut.objects.filter(business=biz).count(),
+             # bizauto: the shared safety rules every sender obeys
+             "safety": _safety(),
              "automations": [_auto_row(a) for a in autos]}
         d.update(_caps_payload(biz))
         return Response(d)
@@ -390,6 +403,26 @@ class StockAskDetailView(_Owner):
 class OptOutsView(_Owner):
     need_plan = False      # the owner may always record a customer's STOP
 
+    def get(self, request):
+        """bizauto: who said STOP (masked), how and when — newest first.
+        Read-only: only the CUSTOMER can undo a stop (by messaging again)."""
+        from .models import BizOptOut, ChatThread
+        rows, seen = [], set()
+        for o in BizOptOut.objects.filter(business=self.biz).order_by("-created_at", "-id")[:300]:
+            seen.add(o.key)
+            rows.append({"who": _who(o.key), "source": o.source,
+                         "at": o.created_at.isoformat()})
+        for t in (ChatThread.objects.filter(business=self.biz, opted_out=True)
+                  .order_by("-last_message_at", "-id")[:300]):
+            key = normalize_phone(t.customer_phone) if t.customer_phone else \
+                "psid:" + (t.external_user_id or "")
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append({"who": t.customer_name or _who(key), "source": "chat",
+                         "at": (t.last_message_at or t.created_at).isoformat()})
+        return Response({"count": len(rows), "opt_outs": rows[:300]})
+
     def post(self, request):
         key = normalize_phone(request.data.get("phone"))
         if len(key) < 10:
@@ -399,6 +432,12 @@ class OptOutsView(_Owner):
         from .models import BizOptOut
         return Response({"ok": True, "opted_out_count":
                          BizOptOut.objects.filter(business=self.biz).count()})
+
+
+def _who(key):
+    if str(key).startswith("psid:"):
+        return "Messenger / Instagram"
+    return R.mask_phone(key)
 
 
 # ===================================================================== customer side
@@ -491,18 +530,41 @@ class PublicStopView(APIView):
                                          form=form), status=status,
                             content_type="text/html; charset=utf-8")
 
-    def get(self, request, token):
+    @staticmethod
+    def _resolve(token):
+        """(business, key, lang, send) for a retention send token OR a
+        bizauto business stop token (tagada / CRM SMS); None if invalid."""
         s = S.send_for_token(token)
-        lang = "en" if (s and s.lang == "en") else "bn"
-        if s is None:
-            return self._page(lang, "লিংক ঠিক নয় / Link not valid",
-                              "এই লিংকটি আর কাজ করে না। / This link does not work.", status=404)
-        shop = S.shop_name(s.business)
-        done = MG.is_opted_out(s.business_id, s.audience_key)
-        if done:
-            return self._page(lang, pick(lang, "বন্ধ করা হয়েছে", "Stopped"),
-                              pick(lang, "%s আর নিজে থেকে মেসেজ পাঠাবে না।" % shop,
-                                   "%s will not message you first again." % shop))
+        if s is not None:
+            return s.business, s.audience_key, ("en" if s.lang == "en" else "bn"), s
+        got = MG.parse_stop_token(token)
+        if got is None:
+            return None
+        from .models import BusinessProfile
+        biz = BusinessProfile.objects.filter(pk=got[0]).first()
+        if biz is None:
+            return None
+        return biz, got[1], "bn", None          # Bangla first; ?lang=en switches
+
+    def _bad(self):
+        return self._page("bn", "লিংক ঠিক নয় / Link not valid",
+                          "এই লিংকটি আর কাজ করে না। / This link does not work.", status=404)
+
+    def _done(self, lang, shop):
+        return self._page(lang, pick(lang, "বন্ধ করা হয়েছে", "Stopped"),
+                          pick(lang, "%s আর নিজে থেকে মেসেজ পাঠাবে না।" % shop,
+                               "%s will not message you first again." % shop))
+
+    def get(self, request, token):
+        r = self._resolve(token)
+        if r is None:
+            return self._bad()
+        biz, key, lang, _s = r
+        if request.GET.get("lang") == "en":
+            lang = "en"
+        shop = S.shop_name(biz)
+        if MG.is_opted_out(biz.pk, key):
+            return self._done(lang, shop)
         form = ('<form method="post"><button type="submit">%s</button></form>'
                 % escape(pick(lang, "মেসেজ বন্ধ করুন", "Stop messages")))
         return self._page(lang, pick(lang, "মেসেজ বন্ধ করবেন?", "Stop messages?"),
@@ -510,16 +572,15 @@ class PublicStopView(APIView):
                                "Tap below to get no more automatic messages from %s." % shop), form)
 
     def post(self, request, token):
-        s = S.send_for_token(token)
-        if s is None:
-            return self._page("bn", "লিংক ঠিক নয় / Link not valid",
-                              "এই লিংকটি আর কাজ করে না। / This link does not work.", status=404)
-        S.opt_out_send(s, "sms_link")
-        lang = "en" if s.lang == "en" else "bn"
-        shop = S.shop_name(s.business)
-        return self._page(lang, pick(lang, "বন্ধ করা হয়েছে", "Stopped"),
-                          pick(lang, "%s আর নিজে থেকে মেসেজ পাঠাবে না।" % shop,
-                               "%s will not message you first again." % shop))
+        r = self._resolve(token)
+        if r is None:
+            return self._bad()
+        biz, key, lang, s = r
+        if s is not None:
+            S.opt_out_send(s, "sms_link")
+        else:
+            MG.record_opt_out(biz.pk, key, "sms_link")
+        return self._done(lang, S.shop_name(biz))
 
 
 # ---- crmauto: transparent customer score + audit log ----

@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../business/business_plans_screen.dart';
 import 'retention_crm.dart';
+import 'retention_optouts.dart';
 import 'retention_people.dart';
 import 'retention_results.dart';
 import 'retention_source.dart';
@@ -441,6 +442,42 @@ class _RetentionLimitsSheetState extends State<RetentionLimitsSheet> {
     if (mounted) setState(() => _busy = false);
   }
 
+  /// bizauto: the shared rules every automatic message obeys (server values).
+  Widget _safetyCard(AppLocalizations t) {
+    final lang = rtLang(context);
+    final quiet = rtMap(widget.overview['quiet']);
+    final safety = rtMap(widget.overview['safety']);
+    final scheme = Theme.of(context).colorScheme;
+    Widget line(IconData icon, String text) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon, size: 20, color: scheme.primary),
+            const SizedBox(width: 10),
+            Expanded(child: Text(text)),
+          ]),
+        );
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.bzSafeTitle, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 4),
+          line(Icons.bedtime_outlined,
+              t.bzSafeQuiet(rtDigits(lang, '${quiet['start'] ?? '21:00'}'),
+                  rtDigits(lang, '${quiet['end'] ?? '09:00'}'))),
+          if (safety['all_per_customer_day'] != null)
+            line(Icons.person_outline_rounded,
+                t.bzSafeAll(rtDigits(lang, rtInt(safety['all_per_customer_day'], 2)))),
+          line(Icons.do_not_disturb_on_outlined, t.bzSafeStop),
+          if (rtInt(safety['sms_credits_per_part'], 0) > 0)
+            line(Icons.sms_outlined,
+                t.bzSafeSms(rtDigits(lang, rtInt(safety['sms_credits_per_part'], 0)))),
+        ]),
+      ),
+    );
+  }
+
   Widget _stepper(String label, String key) {
     final t = AppLocalizations.of(context);
     final lang = rtLang(context);
@@ -475,6 +512,8 @@ class _RetentionLimitsSheetState extends State<RetentionLimitsSheet> {
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
           Text(t.rtCapsTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
+          _safetyCard(t),
+          const SizedBox(height: 12),
           Text(t.rtCapsBody),
           const SizedBox(height: 8),
           _stepper(t.rtCapDay, 'per_customer_day'),
@@ -487,6 +526,16 @@ class _RetentionLimitsSheetState extends State<RetentionLimitsSheet> {
             child: Text(t.rtSave),
           ),
           const Divider(height: 32),
+          // bizauto: the full "who stopped" list (masked), read-only
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.do_not_disturb_on_outlined),
+            label: Text(t.bzStoppedOpen(
+                rtDigits(rtLang(context), rtInt(widget.overview['opted_out_count'], 0)))),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => RetentionOptOutsScreen(source: widget.source))),
+          ),
+          const SizedBox(height: 16),
           Text(t.rtOptOutTitle, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           TextField(
