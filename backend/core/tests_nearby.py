@@ -201,6 +201,7 @@ class AreaApiTests(TestCase):
         self.assertFalse(FF.meta("nearby_sponsored")["default_on"])
 
     def test_legacy_nearby_uses_own_list_first(self):
+        NB._CACHE.clear()
         with mock.patch.object(NB, "_osm", side_effect=AssertionError("no overpass")):
             res, src = NB.search(23.74, 90.39, "police", lang="en")
         self.assertEqual(src, "assisto")
