@@ -3,7 +3,7 @@
 1) ONE blood donor feature. The old personal registry (generic collection
    "blood/donors") is gone from the app; every old donor is copied into the
    panel's private "My saved donors" (BloodSavedDonor) by migration
-   0140_ownerfix (dry-run counts, idempotent, old rows kept) and by a lazy
+   0142_ownerfix (dry-run counts, idempotent, old rows kept) and by a lazy
    re-sync for rows an OLD app build writes later. Same list rules as the
    panel: never hidden, available first, waiting by exact days left, paused
    shown, header counts. No ads anywhere in blood donor. Chat / old links open
@@ -32,7 +32,7 @@ from core.logic import discover as D
 from core.models import (BloodSavedDonor, DiscoverCard, FeatureFlag, PaCollectionItem,
                          User)
 
-MIG = importlib.import_module("core.migrations.0140_ownerfix")
+MIG = importlib.import_module("core.migrations.0142_ownerfix")
 APP_LIB = Path(__file__).resolve().parents[2] / "app" / "lib"
 
 
