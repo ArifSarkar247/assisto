@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../photo_studio/ps_ads.dart';
 import '../state.dart';
+import '../widgets/ai_generated_label.dart';
 import '../widgets/money_digits.dart' show moneyDigitsFor;
 import '../theme.dart';
 import '../widgets/ai_report.dart'; // ai-report
@@ -376,6 +377,7 @@ class _AnswerCard extends StatelessWidget {
       case CvPhase.done:
         body = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(c.answer, style: const TextStyle(height: 1.45)),
+          const AiGeneratedLabel(), // aifinal PART 6
           const SizedBox(height: Gap.sm),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(

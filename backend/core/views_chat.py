@@ -266,6 +266,10 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             if ctx.get("level") == "L4":
                 summary = "-"
             task_text = pick(lang, *CHAT_TASK)
+            # aifinal PART 6: general information only + safe mode for minors
+            from . import ai_compliance as AC
+            safe_mode = AC.is_minor(user)
+            task_text += "\n" + AC.system_rules(user)
             if photo:
                 summary = ("[Photo attached earlier in this chat — what Assisto saw]\n"
                            + photo + "\n\n" + summary)
@@ -360,6 +364,14 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                                  "best": "assisto-pro"}.get(level, "assisto")
                 if AL.hint_better(text, level):
                     meta["hint_better"] = True    # a hint only — never an upgrade
+            # aifinal PART 6: label + consult-a-professional line on legal /
+            # medical / financial topics; safe mode for under-18 accounts
+            reply, topic = AC.add_professional_line(reply, text, lang)
+            meta["ai_generated"] = True
+            if topic:
+                meta["pro_topic"] = topic
+            if safe_mode:
+                meta["safe_mode"] = True
             # aifinal PART 5: up to 3 real in-app actions (fixed allow-list)
             from . import ai_actions
             acts = ai_actions.suggest(user, text)

@@ -88,6 +88,10 @@
   "aiactCallNow": "Call now",
   "@aiactCallNow": {
    "description": "aifinal: AI action confirm button for 999"
+  },
+  "aiGenLabel": "AI generated · general information, may be wrong",
+  "@aiGenLabel": {
+   "description": "aifinal PART 6: label under every AI answer"
   }
  },
  "bn": {
@@ -107,6 +111,7 @@
   "aiactCall999": "৯৯৯-এ কল করুন",
   "aiactConfirmOpen": "এখন খুলবেন? পরের স্ক্রিনে আপনি না বেছে নেওয়া পর্যন্ত কিছুই হবে না।",
   "aiactConfirmCall": "এখনই ৯৯৯-এ (জাতীয় জরুরি সেবা) কল করবেন?",
-  "aiactCallNow": "এখনই কল"
+  "aiactCallNow": "এখনই কল",
+  "aiGenLabel": "AI-তৈরি উত্তর · সাধারণ তথ্য, ভুল হতে পারে"
  }
 }

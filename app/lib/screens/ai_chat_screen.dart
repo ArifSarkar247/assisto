@@ -11,6 +11,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../widgets/ai_action_buttons.dart';
+import '../widgets/ai_generated_label.dart';
 import '../widgets/ai_level_picker.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/chat_cards.dart';
@@ -1180,6 +1181,9 @@ class _AiChatScreenState extends State<AiChatScreen>
                 ? bubble
                 : AiAnswerLongPress(target: report, child: bubble),
             // aibar: what this answer really cost (credits + balance after)
+            // aifinal PART 6: every AI answer is labelled "AI generated"
+            if (!m.streaming && AiGeneratedLabel.shows(m.meta, m.source))
+              const AiGeneratedLabel(),
             if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
             if (!m.streaming && AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
             if (!m.streaming && AiActionButtons.shows(m.meta)) AiActionButtons(m.meta),
