@@ -603,6 +603,8 @@ class EmailNudge {
         await Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => EmailVerifyScreen(backend: otpBackend)));
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: an optional reminder; Settings has the same action
+    }
   }
 }

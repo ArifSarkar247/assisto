@@ -352,7 +352,9 @@ class _SupportRecoveryScreenState extends State<SupportRecoveryScreen> {
     Map<String, String>? r;
     try {
       r = await widget.store.read();
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: no saved request -> the form (never a dead end)
+    }
     if (!mounted) return;
     setState(() {
       _ref = r;
@@ -438,7 +440,10 @@ class _SupportRecoveryScreenState extends State<SupportRecoveryScreen> {
       };
       try {
         await widget.store.write(v);
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: the request is already on the server; the ref stays in
+        // memory for this session and is shown on screen to note down.
+      }
       if (!mounted) return;
       setState(() {
         _busy = false;
