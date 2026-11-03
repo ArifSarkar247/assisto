@@ -7,6 +7,7 @@ import '../widgets/ride_store.dart';
 import '../widgets/ride_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
+import 'life/life_ride.dart'; // p3life
 
 /// Ride & food (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
@@ -171,6 +172,10 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           const RideHonestNote(),
+          // p3life: our own Safe Journey for ANY ride + how to compare honestly
+          const SizedBox(height: Gap.sm),
+          const RideShareMyRideCard(),
+          const RideCompareNote(),
           if (_error != null) ...[
             const SizedBox(height: Gap.sm),
             RideError(message: _error!, onRetry: () => setState(() => _error = null)),
@@ -269,6 +274,8 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
 
           // ======================= FOOD =======================
           RideSectionHeader(icon: Icons.fastfood_rounded, label: t.rideFoodFoodSection),
+          const FoodLogCard(), // p3life: the user's own order diary + budget
+          const SizedBox(height: Gap.sm),
           TextField(
             controller: _food,
             textInputAction: TextInputAction.done,
