@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gm; // mapscost
 import 'package:latlong2/latlong.dart';
 
 import '../l10n/app_localizations.dart';
@@ -12,10 +13,17 @@ import '../widgets/journey_ride.dart';
 /// vehicle tracking; never tile.openstreetmap.org). The centre crosshair is
 /// the spot; "Use this spot" returns (lat, lng). Without tiles the start
 /// form never shows this button and says so instead.
+///
+/// mapscost (owner order 3 Nov 18:40): when this build carries the Maps SDK
+/// Android key ([google] = MapsSdk.available()), the map is Google's Maps SDK
+/// — map display on the phone is free, no per-view bill. Otherwise the old
+/// flutter_map + configured tiles path.
 class JourneyMapPickScreen extends StatefulWidget {
   final VehMapConfig config;
   final double? lat, lng;
-  const JourneyMapPickScreen({super.key, required this.config, this.lat, this.lng});
+  final bool google;
+  const JourneyMapPickScreen(
+      {super.key, required this.config, this.lat, this.lng, this.google = false});
 
   @override
   State<JourneyMapPickScreen> createState() => _JourneyMapPickScreenState();
@@ -32,6 +40,20 @@ class _JourneyMapPickScreenState extends State<JourneyMapPickScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.j2PickMapTitle)),
       body: Stack(children: [
+        if (widget.google)
+          gm.GoogleMap(
+            key: const ValueKey('mc_gmap'),
+            initialCameraPosition: gm.CameraPosition(
+                target: gm.LatLng(_center.latitude, _center.longitude),
+                zoom: widget.lat != null ? 16 : 12),
+            onCameraMove: (p) => _center = LatLng(p.target.latitude, p.target.longitude),
+            myLocationButtonEnabled: false,
+            mapToolbarEnabled: false,
+            rotateGesturesEnabled: false,
+            compassEnabled: false,
+            padding: EdgeInsets.only(bottom: 80 + MediaQuery.paddingOf(context).bottom),
+          )
+        else
         FlutterMap(
           options: MapOptions(
             initialCenter: _center,

@@ -920,6 +920,34 @@ jobs:
       #  * ML Kit's startup ContentProvider (MlKitInitProvider) is REMOVED: no
       #    startup providers (ColorOS launch history). PhotoFaces.kt calls
       #    MlKit.initialize() on the first face request instead.
+      # mapscost (owner order 3 Nov 18:40): the Maps SDK Android key comes from
+      # the CI secret MAPS_ANDROID_KEY (restricted to com.assisto.assisto +
+      # SHA-1 in Cloud Console) — never committed. No secret -> no meta-data
+      # and assets/maps/sdk.json stays {"android_key": false}, so the app never
+      # creates a GoogleMap (it would crash without a key) and keeps its old map.
+      - name: Maps SDK key (mapscost)
+        working-directory: app
+        env:
+          MAPS_ANDROID_KEY: ${{ secrets.MAPS_ANDROID_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          k = os.environ.get("MAPS_ANDROID_KEY", "").strip()
+          if not re.fullmatch(r"[A-Za-z0-9_\-]{30,60}", k):
+              print("no MAPS_ANDROID_KEY secret - in-app map keeps the old path")
+              raise SystemExit(0)
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if "com.google.android.geo.API_KEY" not in x:
+              x = x.replace("</application>",
+                  '\n        <meta-data android:name="com.google.android.geo.API_KEY"'
+                  ' android:value="%s"/>\n    </application>' % k, 1)
+              open(m, "w").write(x)
+          with open("assets/maps/sdk.json", "w") as f:
+              json.dump({"android_key": True}, f)
+          print("Maps SDK key added (value not printed)")
+          PY
+
       # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
       # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
       - name: Native debug symbols in the AAB (crash-map)

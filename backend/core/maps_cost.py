@@ -156,8 +156,32 @@ def _bump(day, api, uid, field):
             MapsUsage.objects.filter(day=day, api=api, user_id=uid).update(**{field: F(field) + 1})
 
 
+def _plan_allowed(user):
+    """safeplans hook: per-plan monthly cap on paid map calls. Safe fallback
+    (allowed) until core.safe_plans exists / when it fails."""
+    try:
+        from .safe_plans import paid_maps_allowed
+    except Exception:
+        return True
+    try:
+        return bool(paid_maps_allowed(user))
+    except Exception:
+        return True
+
+
+def _plan_note(user):
+    try:
+        from .safe_plans import note_paid_maps
+    except Exception:
+        return
+    try:
+        note_paid_maps(user)
+    except Exception:
+        pass
+
+
 def allow(api, user, now=None):
-    """(ok, reason) — reason '' | 'user_cap' | 'global_cap'. Counts the call
+    """(ok, reason) — reason '' | 'user_cap' | 'plan_cap' | 'global_cap'. Counts the call
     when allowed, counts the refusal when not. Day = Bangladesh local date."""
     from .models import MapsUsage
     day = timezone.localdate(now or timezone.now())
@@ -169,11 +193,16 @@ def allow(api, user, now=None):
         if mine >= int(c["user_day"]):
             _bump(day, api, uid, "capped")
             return False, "user_cap"
+    if uid and not _plan_allowed(user):
+        _bump(day, api, uid, "capped")
+        return False, "plan_cap"
     total = MapsUsage.objects.filter(day=day, api=api).aggregate(s=Sum("count"))["s"] or 0
     if total >= int(c["global_day"]):
         _bump(day, api, uid, "capped")
         return False, "global_cap"
     _bump(day, api, uid, "count")
+    if uid:
+        _plan_note(user)
     return True, ""
 
 

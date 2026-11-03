@@ -47,6 +47,14 @@ dependencies:
   # Never tile.openstreetmap.org (OSMF usage policy).
   flutter_map: 8.3.2
   latlong2: 0.9.1
+  # mapscost (owner order 3 Nov 18:40): Google Maps SDK for map DISPLAY (free
+  # on the phone). Used only when the build carries the Android key
+  # (assets/maps/sdk.json flipped by CI from the MAPS_ANDROID_KEY secret);
+  # no startup init — the native map is created only when a map screen opens.
+  google_maps_flutter: ^2.10.0
+  # mapscost: the phone's own Android Geocoder (free) before any paid lookup;
+  # called lazily, try/catch + timeout.
+  geocoding: ^3.0.0
   # Stolen-while-unlocked protection (Section 8): class-3 (strong) biometric
   # used LAZILY only when gating a sensitive security action (SecurityGuard).
   # Never invoked at app launch; all calls try/catch so a device without
@@ -166,6 +174,8 @@ flutter:
     - assets/train/
     # p3faith: Tanzil Quran text (CC BY 3.0, verbatim) + Pickthall 1930 (PD)
     - assets/quran/
+    # mapscost: {"android_key": true} only in builds with the Maps SDK key
+    - assets/maps/
   # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
   # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
   # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's

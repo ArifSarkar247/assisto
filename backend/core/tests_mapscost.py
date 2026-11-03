@@ -100,6 +100,18 @@ class LimitTests(MapsBase):
         self.assertEqual(self.rec.calls, [])
         self.assertFalse(MapsUsage.objects.exists())
 
+    def test_plan_cap_hook_refuses_and_notes(self):
+        noted = []
+        with mock.patch.object(MC, "_plan_allowed", lambda u: False):
+            r = self.c1.get("%s/maps/reverse?lat=23.70&lng=90.40" % V).json()
+        self.assertEqual(r["state"], "plan_cap")
+        with mock.patch.object(MC, "_plan_note", lambda u: noted.append(u.id)):
+            self.c1.get("%s/maps/reverse?lat=23.71&lng=90.40" % V)
+        self.assertEqual(noted, [self.u1.id])
+        self.assertEqual(len(self.rec.calls), 1)
+        # before safeplans merges the hook falls back to "allowed"
+        self.assertTrue(MC._plan_allowed(self.u1))
+
     def test_bad_points_are_refused_without_a_call(self):
         for q in ("lat=&lng=", "lat=200&lng=90", "lat=0&lng=0", "lat=x&lng=y"):
             self.assertEqual(self.c1.get("%s/maps/reverse?%s" % (V, q)).json()["state"], "bad")

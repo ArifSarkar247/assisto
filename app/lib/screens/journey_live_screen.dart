@@ -19,6 +19,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/adaptive_button_pair.dart';
 import '../widgets/journey_api.dart';
+import '../maps/road_eta_button.dart'; // mapscost
 import '../widgets/journey_dest_sheets.dart';
 import '../widgets/journey_ride.dart';
 import '../services/oem_guide.dart';
@@ -738,6 +739,15 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           if (_toGo(s) case final m?)
             Text(t.j2ToGo(jKm(context, m)),
                 key: const ValueKey('j2_to_go'), style: AType.bodyMedium),
+          // mapscost: road time with traffic — one Routes call, only on tap
+          if (_toGo(s) != null && !_share && s.lastFix != null)
+            RoadEtaButton(
+                api: context.read<AppState>().api,
+                fromLat: s.lastFix!.lat,
+                fromLng: s.lastFix!.lng,
+                toLat: ((_journey['destination'] as Map)['lat'] as num).toDouble(),
+                toLng: ((_journey['destination'] as Map)['lng'] as num).toDouble(),
+                mode: '${(_journey['vehicle'] as Map?)?['mode'] ?? ''}'),
           if (late)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
