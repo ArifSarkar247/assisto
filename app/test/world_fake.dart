@@ -10,13 +10,15 @@ class FakeWorldApi implements WorldApi {
       this.alertsReady = false,
       this.photoReady = false,
       this.aiReady = true,
-      this.sportsReady = false});
+      this.sportsReady = false,
+      this.officialFx = true});
   final String lang;
   bool searchReady;
   bool alertsReady;
   bool photoReady;
   bool aiReady;
   bool sportsReady;
+  bool officialFx; // p3feed: owner entered Bangladesh Bank's USD rate
   final Map<String, bool> cards = {
     'prayer': true,
     'weather': true,
@@ -27,6 +29,7 @@ class FakeWorldApi implements WorldApi {
     'news_world': true,
     'cricket': true,
     'football': true,
+    'notices': true,
   };
   final List<Map<String, dynamic>> saved = [];
   int asks = 0;
@@ -117,6 +120,16 @@ class FakeWorldApi implements WorldApi {
         'updated': '2026-10-23T00:02:31+00:00',
         'source': 'ExchangeRate-API',
         'source_url': 'https://www.exchangerate-api.com',
+        if (officialFx)
+          'official': {
+            'code': 'USD',
+            'bdt': 122.0,
+            'date': '2026-10-22',
+            'stale': false,
+            'source': _s('বাংলাদেশ ব্যাংক', 'Bangladesh Bank'),
+            'source_url':
+                'https://www.bb.org.bd/en/index.php/econdata/exchangerate',
+          },
         'note': _s(
             'বাজার দরের নির্দেশক হার — ব্যাংক/মানি এক্সচেঞ্জের হার আলাদা হতে পারে।',
             'Indicative market rate — bank and exchange-house rates differ.'),
@@ -159,6 +172,27 @@ class FakeWorldApi implements WorldApi {
             'source': _s('প্রথম আলো', 'Prothom Alo')
           },
         ],
+      };
+    }
+    if (cards['notices']!) {
+      c['notices'] = {
+        'links': [
+          {
+            'id': 'desco',
+            'group': 'power',
+            'label': _s('ডেসকো (ঢাকা উত্তর) — বিদ্যুৎ নোটিশ',
+                'DESCO (Dhaka North) — power notices'),
+            'url': 'https://desco.portal.gov.bd'
+          },
+          {
+            'id': 'bmd',
+            'group': 'weather',
+            'label': _s('আবহাওয়া অধিদপ্তর (BMD) — সতর্কবার্তা',
+                'Meteorological Dept (BMD) — warnings'),
+            'url': 'https://live6.bmd.gov.bd'
+          },
+        ],
+        'checked': '2026-11-03',
       };
     }
     final hidden = <String, String>{};

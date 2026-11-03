@@ -62,6 +62,7 @@ import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
 import '../screens/exam_result_screen.dart';
 import '../screens/unseen_world_screen.dart';
+import '../screens/world/world_today_screen.dart';
 import '../screens/photo_studio_screen.dart'; // ps1-photo
 import '../screens/circle_screen.dart';
 import '../screens/messenger/messenger_home_screen.dart';
@@ -262,6 +263,7 @@ class ChatNav {
     'ramadan': (_) => const RamadanScreen(),
     'exam': (_) => const ExamResultScreen(),
     'unseen': (_) => const UnseenWorldScreen(),
+    'daily_today': (_) => const WorldTodayScreen(), // p3feed: Today feed
     // The old enhance tool is gone (owner order): its key stays because saved
     // home buttons, Discover cards and chat commands use it — it now opens
     // Photo Studio, so every save goes through the same ad/credit rule.

@@ -10,10 +10,14 @@ Source policy (see .phaseB/P4_PLAN.md §3):
     200 characters) and the link. We never read `content:encoded` (the full
     article) and never fetch the article page. An empty summary stays empty.
   * WEATHER — MET Norway Locationforecast 2.0 (CC BY 4.0; attribution shown).
-  * CURRENCY — ExchangeRate-API open access (attribution link shown).
+  * CURRENCY — Bangladesh Bank's official USD rate, owner-entered in Owner
+    Admin (bb.org.bd has no API and sits behind a JS bot challenge, so it is
+    never scraped) + ExchangeRate-API open access rows labelled INDICATIVE.
   * PRAYER — computed locally with core/logic/ramadan.prayer_times.
   * GOLD / FUEL — owner-entered (no official API), labelled as such.
   * SPORTS — licensed APIs only (API-Football, CricketData.org), key-gated.
+  * NOTICES — static links to official .gov.bd pages (load-shedding, BMD
+    warnings, flood forecast, disaster) — links only, no copied content.
 """
 import html
 import re
@@ -26,7 +30,7 @@ USER_AGENT = "AssistoBot/1.0 (+https://lifeassisto.com; support@lifeassisto.com)
 # ------------------------------------------------------------------ cards
 # Card ids (stable; the app maps them to titles/icons). Default on/off.
 CARDS = ("prayer", "weather", "currency", "gold", "fuel", "news_bd",
-         "news_world", "cricket", "football")
+         "news_world", "cricket", "football", "notices")
 DEFAULT_ON = {c: True for c in CARDS}
 
 
@@ -373,13 +377,61 @@ ADMIN_VALUES = {
     "fuel_diesel": ("ডিজেল (প্রতি লিটার)", "Diesel (per litre)", "fuel"),
     "fuel_kerosene": ("কেরোসিন (প্রতি লিটার)", "Kerosene (per litre)", "fuel"),
     "lpg_12kg": ("এলপিজি ১২ কেজি সিলিন্ডার", "LPG 12 kg cylinder", "fuel"),
+    # p3feed: Bangladesh Bank's official rate (taka per 1 US dollar), typed by
+    # the owner from bb.org.bd "Exchange Rate of Taka" (no official API).
+    "fx_usd_bb": ("বাংলাদেশ ব্যাংক — ১ মার্কিন ডলার (টাকা)", "Bangladesh Bank — 1 US dollar (taka)", "fx"),
 }
 ADMIN_SOURCES = {
     "gold": ("বাংলাদেশ জুয়েলার্স অ্যাসোসিয়েশন (বাজুস)", "Bangladesh Jewellers Association (BAJUS)",
              "https://www.bajus.org/gold-price"),
     "fuel": ("বাংলাদেশ পেট্রোলিয়াম কর্পোরেশন (বিপিসি) / বিইআরসি", "Bangladesh Petroleum Corporation (BPC) / BERC",
              "https://bpc.gov.bd"),
+    "fx": ("বাংলাদেশ ব্যাংক", "Bangladesh Bank",
+           "https://www.bb.org.bd/en/index.php/econdata/exchangerate"),
 }
+FX_OFFICIAL_STALE_DAYS = 4   # BB publishes Sun-Thu; > 4 days = say "old"
+
+
+def fx_official(rows, lang, today):
+    """Owner-entered Bangladesh Bank USD rate -> {bdt, date, stale, source,
+    source_url} or None when never entered. `today` is a date."""
+    from datetime import date as _date
+    card = admin_card("fx", rows, lang)
+    if not card:
+        return None
+    day = card["updated"]
+    stale = True
+    try:
+        stale = (today - _date.fromisoformat(day[:10])).days > FX_OFFICIAL_STALE_DAYS
+    except (TypeError, ValueError):
+        pass
+    return {"code": "USD", "bdt": card["rows"][0]["bdt"], "date": day, "stale": stale,
+            "source": card["source"], "source_url": card["source_url"]}
+
+
+# ------------------------------------------------------------------ notices
+# p3feed: official notice pages (checked reachable 2026-11-03). Links only.
+NOTICE_LINKS = (
+    ("power", "bpdb", "বিদ্যুৎ উন্নয়ন বোর্ড (BPDB) — লোডশেডিং ও উৎপাদন", "Power Development Board (BPDB) — load-shedding & generation", "https://bpdb.portal.gov.bd"),
+    ("power", "desco", "ডেসকো (ঢাকা উত্তর) — বিদ্যুৎ নোটিশ", "DESCO (Dhaka North) — power notices", "https://desco.portal.gov.bd"),
+    ("power", "dpdc", "ডিপিডিসি (ঢাকা দক্ষিণ) — বিদ্যুৎ নোটিশ", "DPDC (Dhaka South) — power notices", "https://dpdc.portal.gov.bd"),
+    ("power", "nesco", "নেসকো (রাজশাহী-রংপুর) — বিদ্যুৎ নোটিশ", "NESCO (Rajshahi-Rangpur) — power notices", "https://nesco.portal.gov.bd"),
+    ("power", "wzpdcl", "ওজোপাডিকো (খুলনা-বরিশাল) — বিদ্যুৎ নোটিশ", "WZPDCL (Khulna-Barishal) — power notices", "https://wzpdcl.portal.gov.bd"),
+    ("power", "breb", "পল্লী বিদ্যুতায়ন বোর্ড — বিদ্যুৎ নোটিশ", "Rural Electrification Board — power notices", "https://reb.portal.gov.bd"),
+    ("weather", "bmd", "আবহাওয়া অধিদপ্তর (BMD) — সতর্কবার্তা", "Meteorological Dept (BMD) — warnings", "https://live6.bmd.gov.bd"),
+    ("weather", "ffwc", "বন্যা পূর্বাভাস ও সতর্কীকরণ কেন্দ্র", "Flood Forecasting & Warning Centre", "https://www.ffwc.gov.bd"),
+    ("weather", "ddm", "দুর্যোগ ব্যবস্থাপনা অধিদপ্তর", "Dept of Disaster Management", "https://ddm.portal.gov.bd"),
+    ("money", "bb_fx", "বাংলাদেশ ব্যাংক — টাকার বিনিময় হার", "Bangladesh Bank — exchange rate of taka", "https://www.bb.org.bd/en/index.php/econdata/exchangerate"),
+    ("money", "bpc", "বাংলাদেশ পেট্রোলিয়াম কর্পোরেশন — জ্বালানি দাম", "Bangladesh Petroleum Corporation — fuel prices", "https://bpc.portal.gov.bd"),
+)
+
+
+def notices_card(lang):
+    """Always available (static, official links); never empty."""
+    i = 2 if lang == "bn" else 3
+    return {"links": [{"id": n[1], "group": n[0], "label": n[i], "url": n[4]}
+                      for n in NOTICE_LINKS],
+            "checked": "2026-11-03"}
 
 
 def admin_card(group, rows, lang):
