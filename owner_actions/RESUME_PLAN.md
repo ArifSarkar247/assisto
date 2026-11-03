@@ -6,7 +6,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 
 ## Exact first steps to resume (in order)
 1. Ask the owner for the current Claude usage % and the result of the new-key tests (Places "Test connection", Anthropic key).
-2. Integration branch `b301i` (worktree scratchpad/b301): finish the WIP Nearby merge (see below), push `ci/b301`, wait for checks + one android.yml compile.
+2. Integration branch `b301i` (f744f23b, checks green): check APK compile run 41658245611; merge `agent/tplfix` (a0d7e43d); re-run checks if anything changed.
 3. When green: ship as the next build (backup → push main → migrate 0148_mapscost, 0149_guardian2, 0150_nearby → restart assisto + assisto-tracker → health) → `bin/ship_watch.sh` (Play internal+alpha, never production) → Bangla STATUS lines (one per part of the 18:40 order, list of Play product ids, Nearby data line).
 4. Then fix whatever the owner's phone tests of builds 302/304 find (top priority over new work).
 
@@ -23,7 +23,7 @@ Live server = origin/main (build 304 + daily report) **plus a local merge of `ag
 | 2 Nov orders | ✅ code | owner real-phone proofs listed on the board |
 
 ## Branches (all committed + pushed)
-- `b301i` (integration, WIP) = origin/main + mapscost (0148) + guardian2 (0149) + safeplans + placesnew + nearby WIP (0150). Last green part: see integration agent note in QUEUE.
+- `b301i` (integration) head **f744f23b**, clean, pushed as ci/b301: origin/main + mapscost + guardian2 + safeplans + placesnew + nearby; migrations 0148_mapscost, 0149_guardian2, 0150_nearby (makemigrations --check clean). Checks **41654147028 GREEN**. APK compile android.yml 41658245611 (#305) was running at pause — read its result first. Still to merge: `agent/tplfix` commit a0d7e43d (nightly live menu check).
 - `agent/nearby` — finished, CI green (fd48cae3); merged in b301i.
 - `agent/mapscost`, `agent/safeplans`, `agent/guardian2`, `agent/placesnew` — finished, CI green, merged in b301i.
 - Already shipped (no action): circlebub, circlemedia, viewonce, learnwire, langkoja, langmulti, quranread, p3life, launchsweep3, sitefix, tplfix, smtpfix.
