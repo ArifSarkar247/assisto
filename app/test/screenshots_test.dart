@@ -121,6 +121,8 @@ import 'package:assisto/screens/pa/vip_stakeholder_screen.dart';
 import 'package:assisto/screens/pa/letters_screen.dart';
 import 'package:assisto/screens/pa/expense_voucher_screen.dart';
 import 'package:assisto/screens/quick_tools_screen.dart';
+import 'package:assisto/screens/daily_tools_screen.dart'; // p2tools
+import 'package:assisto/screens/daily_tools_pages.dart'; // p2tools
 import 'package:assisto/screens/daily_brief_screen.dart';
 import 'package:assisto/screens/blog_writer_screen.dart';
 import 'package:assisto/screens/cv_builder_screen.dart';
@@ -550,6 +552,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'pa_letters': (build: (_) => const LettersScreen(), mode: FakeMode.data, full: true),
     'pa_voucher': (build: (_) => const ExpenseVoucherScreen(), mode: FakeMode.data, full: true),
     'quick_tools': (build: (_) => const QuickToolsScreen(), mode: FakeMode.data, full: true),
+    // p2tools: Daily tools (flag daily_tools) — hub + every tool page.
+    'dtools_hub': (build: (_) => const DailyToolsScreen(debugFavs: ['land', 'emi']), mode: FakeMode.data, full: true),
+    'dtools_hub_empty': (build: (_) => const DailyToolsScreen(debugFavs: []), mode: FakeMode.data, full: true),
+    for (final id in kDailyTools)
+      'dtools_$id': (build: (_) => DailyToolPage(tool: id, debugNow: DateTime(2026, 11, 3)), mode: FakeMode.data, full: true),
     'daily_brief': (build: (_) => const DailyBriefScreen(), mode: FakeMode.data, full: true),
     'blog': (build: (_) => const BlogWriterScreen(), mode: FakeMode.data, full: true),
     'cv_builder': (build: (_) => const CvBuilderScreen(), mode: FakeMode.data, full: true),

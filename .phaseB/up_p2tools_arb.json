@@ -1,0 +1,888 @@
+{
+ "en": {
+  "dtTitle": "Daily tools",
+  "@dtTitle": {},
+  "dtIntro": "Land, weight, loan, zakat, dates and more — works without internet.",
+  "@dtIntro": {},
+  "dtSearchLabel": "Search tools",
+  "@dtSearchLabel": {},
+  "dtSearchHint": "e.g. bigha, EMI, zakat",
+  "@dtSearchHint": {},
+  "dtClearSearch": "Clear search",
+  "@dtClearSearch": {},
+  "dtResults": "Matching tools",
+  "@dtResults": {},
+  "dtNoMatch": "No tool matches that. Try a simpler word like \"land\" or \"loan\".",
+  "@dtNoMatch": {},
+  "dtShowAll": "Show all tools",
+  "@dtShowAll": {},
+  "dtFavourites": "Favourites",
+  "@dtFavourites": {},
+  "dtFavEmpty": "Tap the star on any tool to keep it here at the top.",
+  "@dtFavEmpty": {},
+  "dtRecent": "Used recently",
+  "@dtRecent": {},
+  "dtAllTools": "All tools",
+  "@dtAllTools": {},
+  "dtOfflineNote": "Everything is calculated on your phone. Nothing you type is sent anywhere.",
+  "@dtOfflineNote": {},
+  "dtFav": "Add to favourites",
+  "@dtFav": {},
+  "dtUnfav": "Remove from favourites",
+  "@dtUnfav": {},
+  "dtFavAdded": "Added to favourites",
+  "@dtFavAdded": {},
+  "dtFavRemoved": "Removed from favourites",
+  "@dtFavRemoved": {},
+  "dtCopy": "Copy",
+  "@dtCopy": {},
+  "dtCopied": "Copied",
+  "@dtCopied": {},
+  "dtEnterValue": "Type a number above to see it in every unit.",
+  "@dtEnterValue": {},
+  "dtValue": "Amount",
+  "@dtValue": {},
+  "dtFromUnit": "From unit",
+  "@dtFromUnit": {},
+  "dtLess": "Fewer",
+  "@dtLess": {},
+  "dtMore": "More",
+  "@dtMore": {},
+  "dtDay": "Day",
+  "@dtDay": {},
+  "dtMonth": "Month",
+  "@dtMonth": {},
+  "dtYear": "Year",
+  "@dtYear": {},
+  "dtFrom": "From",
+  "@dtFrom": {},
+  "dtTo": "To",
+  "@dtTo": {},
+  "dtStart": "Start",
+  "@dtStart": {},
+  "dtPause": "Pause",
+  "@dtPause": {},
+  "dtReset": "Reset",
+  "@dtReset": {},
+  "dtLap": "Lap",
+  "@dtLap": {},
+  "dtToolLand": "Land measure",
+  "@dtToolLand": {},
+  "dtSubLand": "Bigha, katha, decimal (shotangsho), acre, sq ft",
+  "@dtSubLand": {},
+  "dtToolWeight": "Gold & weight",
+  "@dtToolWeight": {},
+  "dtSubWeight": "Bhori, tola, ana, rati, seer, maund, kg",
+  "@dtSubWeight": {},
+  "dtToolUnit": "Unit converter",
+  "@dtToolUnit": {},
+  "dtSubUnit": "Length, hath, litre, temperature and more",
+  "@dtSubUnit": {},
+  "dtToolCurrency": "Currency",
+  "@dtToolCurrency": {},
+  "dtSubCurrency": "Dollar, riyal, ringgit to taka — your rate, with date",
+  "@dtSubCurrency": {},
+  "dtToolEmi": "Loan EMI",
+  "@dtToolEmi": {},
+  "dtSubEmi": "Flat vs reducing rate side by side",
+  "@dtSubEmi": {},
+  "dtToolZakat": "Zakat",
+  "@dtToolZakat": {},
+  "dtSubZakat": "Gold or silver nisab with today's price",
+  "@dtSubZakat": {},
+  "dtToolPercent": "VAT, discount, %",
+  "@dtToolPercent": {},
+  "dtSubPercent": "Add or remove VAT, sale price, percent change",
+  "@dtSubPercent": {},
+  "dtToolSplit": "Split the bill",
+  "@dtToolSplit": {},
+  "dtSubSplit": "Tip and share per person",
+  "@dtSubSplit": {},
+  "dtToolAge": "Age calculator",
+  "@dtToolAge": {},
+  "dtSubAge": "Exact years, months, days; next birthday",
+  "@dtSubAge": {},
+  "dtToolDate": "Date converter",
+  "@dtToolDate": {},
+  "dtSubDate": "English, Bangla (Bangabda) and Hijri",
+  "@dtSubDate": {},
+  "dtToolBmi": "BMI",
+  "@dtToolBmi": {},
+  "dtSubBmi": "Body mass index with Asian limits",
+  "@dtSubBmi": {},
+  "dtToolTimer": "Stopwatch & timer",
+  "@dtToolTimer": {},
+  "dtSubTimer": "Laps and countdown",
+  "@dtSubTimer": {},
+  "dtToolQr": "QR maker",
+  "@dtToolQr": {},
+  "dtSubQr": "Text, link, Wi-Fi or phone number",
+  "@dtSubQr": {},
+  "dtToolWords": "Word counter",
+  "@dtToolWords": {},
+  "dtSubWords": "Bangla and English words, letters, reading time",
+  "@dtSubWords": {},
+  "dtToolFun": "Dice & lottery",
+  "@dtToolFun": {},
+  "dtSubFun": "Dice, coin toss, random numbers for games",
+  "@dtSubFun": {},
+  "dtKeywords": "{id, select, land{land plot area} weight{gold weight} unit{unit convert} currency{currency exchange} emi{loan installment} zakat{zakat nisab} percent{vat discount percent} split{split bill} age{age birthday} date{calendar date} bmi{bmi health} timer{timer stopwatch} qr{qr code} words{word count} fun{dice game} other{tool}}",
+  "@dtKeywords": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtUnitName": "{id, select, sqft{sq ft} sqm{sq metre} decimal{Decimal (shotangsho)} katha{Katha} bigha{Bigha} acre{Acre} hectare{Hectare} gram{Gram} kg{kg} rati{Rati} ana{Ana} bhori{Bhori (tola)} seer{Seer} maund{Maund (mon)} pound{Pound} ounce{Ounce} tonne{Tonne} cm{cm} inch{Inch} foot{Foot} hath{Hath (cubit)} yard{Yard} metre{Metre} km{km} mile{Mile} ml{ml} litre{Litre} gallon{Gallon (US)} cuft{Cubic foot} c{Celsius} f{Fahrenheit} k{Kelvin} other{}}",
+  "@dtUnitName": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtCatName": "{id, select, length{Length} land{Land} weight{Weight} volume{Volume} temp{Temperature} other{}}",
+  "@dtCatName": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtLandNote": "Standard Bangladesh measure: 1 bigha = 20 katha = 33 decimal (14,400 sq ft); 1 katha = 720 sq ft; 1 decimal = 435.6 sq ft = 1/100 acre.",
+  "@dtLandNote": {},
+  "dtLandRegional": "In some districts a \"bigha\" is bigger (e.g. 48–60 decimal in parts of the north). Check the measure in your deed or with the land office.",
+  "@dtLandRegional": {},
+  "dtWeightNote": "Jewellers' measure: 1 bhori = 1 tola = 16 ana = 96 rati = 11.664 g. 1 seer = 80 tola; 1 maund = 40 seer (about 37.32 kg).",
+  "@dtWeightNote": {},
+  "dtLengthNote": "1 hath (cubit) is taken as 18 inches.",
+  "@dtLengthNote": {},
+  "dtFxName": "{id, select, USD{US dollar (USD)} SAR{Saudi riyal (SAR)} AED{UAE dirham (AED)} MYR{Malaysian ringgit (MYR)} QAR{Qatari riyal (QAR)} KWD{Kuwaiti dinar (KWD)} OMR{Omani rial (OMR)} SGD{Singapore dollar (SGD)} GBP{British pound (GBP)} EUR{Euro (EUR)} INR{Indian rupee (INR)} other{}}",
+  "@dtFxName": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxCurrency": "Currency",
+  "@dtFxCurrency": {},
+  "dtFxRateLabel": "Taka for 1 {name}",
+  "@dtFxRateLabel": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxRateDate": "Rate date: {date}",
+  "@dtFxRateDate": {
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxRateDateNone": "Set rate date",
+  "@dtFxRateDateNone": {},
+  "dtFxUseIndicative": "Use today's indicative rate",
+  "@dtFxUseIndicative": {},
+  "dtFxIndicativeNote": "Indicative market rate from ExchangeRate-API (via Assisto daily info), not Bangladesh Bank. Banks and exchange houses give a different rate.",
+  "@dtFxIndicativeNote": {},
+  "dtFxNoFeed": "Today's rate is not available right now. Type the rate your bank or exchange house gave you.",
+  "@dtFxNoFeed": {},
+  "dtFxToBdt": "{name} to taka",
+  "@dtFxToBdt": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxFromBdt": "Taka to {name}",
+  "@dtFxFromBdt": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxAmountForeign": "Amount in {name}",
+  "@dtFxAmountForeign": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dtFxAmountBdt": "Amount in taka",
+  "@dtFxAmountBdt": {},
+  "dtFxEnterRate": "Type the rate first (taka for 1 unit) — we never guess it.",
+  "@dtFxEnterRate": {},
+  "dtFxRateUsed": "Rate used:",
+  "@dtFxRateUsed": {},
+  "dtFxRateOn": "Rate date:",
+  "@dtFxRateOn": {},
+  "dtFxHonest": "Your rate and its date stay on this phone for next time. Before sending money, confirm the rate with your bank, bKash/Nagad remittance or exchange house.",
+  "@dtFxHonest": {},
+  "dtFxBbLink": "See Bangladesh Bank's rate",
+  "@dtFxBbLink": {},
+  "dtEmiPrincipal": "Loan amount",
+  "@dtEmiPrincipal": {},
+  "dtEmiRate": "Interest rate per year",
+  "@dtEmiRate": {},
+  "dtEmiMonths": "Number of months",
+  "@dtEmiMonths": {},
+  "dtMonthsN": "{n} months",
+  "@dtMonthsN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtDaysN": "{n} days",
+  "@dtDaysN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtMinutesN": "{n} min",
+  "@dtMinutesN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtEmiEnter": "Type the loan amount, rate and months to compare.",
+  "@dtEmiEnter": {},
+  "dtEmiReducing": "Reducing balance",
+  "@dtEmiReducing": {},
+  "dtEmiFlat": "Flat rate",
+  "@dtEmiFlat": {},
+  "dtEmiMonthly": "Monthly instalment",
+  "@dtEmiMonthly": {},
+  "dtEmiInterest": "Total interest:",
+  "@dtEmiInterest": {},
+  "dtEmiTotal": "Total you pay:",
+  "@dtEmiTotal": {},
+  "dtEmiFlatExtra": "Flat costs you more by",
+  "@dtEmiFlatExtra": {},
+  "dtEmiFlatReally": "A flat {rate}% is really about",
+  "@dtEmiFlatReally": {
+   "placeholders": {
+    "rate": {
+     "type": "String"
+    }
+   }
+  },
+  "dtEmiExplain": "Reducing: interest is charged only on the money you still owe, so it falls every month. Flat: interest is charged on the full loan for the whole time, so the same \"rate\" costs much more. Many NGO and consumer loans quote a flat rate.",
+  "@dtEmiExplain": {},
+  "dtEmiAsk": "Ask the lender: \"Is this rate flat or reducing?\" and for any processing fee — fees are not included here.",
+  "@dtEmiAsk": {},
+  "dtZakatBasis": "Nisab by",
+  "@dtZakatBasis": {},
+  "dtZakatSilverBasis": "Silver (52.5 bhori)",
+  "@dtZakatSilverBasis": {},
+  "dtZakatGoldBasis": "Gold (7.5 bhori)",
+  "@dtZakatGoldBasis": {},
+  "dtZakatBasisNote": "Most scholars in Bangladesh advise the silver nisab when you hold cash or mixed wealth (it is lower, so more people give). Gold-only savers often use the gold nisab.",
+  "@dtZakatBasisNote": {},
+  "dtZakatGoldPrice": "Gold price per bhori (22 carat)",
+  "@dtZakatGoldPrice": {},
+  "dtZakatSilverPrice": "Silver price per bhori",
+  "@dtZakatSilverPrice": {},
+  "dtZakatFillBajus": "Fill today's BAJUS price",
+  "@dtZakatFillBajus": {},
+  "dtZakatSrcBajus": "Price source: Bangladesh Jewellers Association (BAJUS), as entered in Assisto daily info. Check bajus.org before you pay.",
+  "@dtZakatSrcBajus": {},
+  "dtZakatSrcUser": "Price source: what you typed. Today's price is on bajus.org or at your jeweller.",
+  "@dtZakatSrcUser": {},
+  "dtZakatNoFeed": "Today's BAJUS price is not in Assisto yet. Type the price from bajus.org or your jeweller.",
+  "@dtZakatNoFeed": {},
+  "dtZakatCash": "Cash and bank balance",
+  "@dtZakatCash": {},
+  "dtZakatGoldQty": "Gold you own",
+  "@dtZakatGoldQty": {},
+  "dtZakatSilverQty": "Silver you own",
+  "@dtZakatSilverQty": {},
+  "dtZakatBiz": "Business stock and money others owe you",
+  "@dtZakatBiz": {},
+  "dtZakatDebt": "Debts you must pay now",
+  "@dtZakatDebt": {},
+  "dtZakatNeedGold": "Type today's gold price first — without it we cannot tell if zakat is due.",
+  "@dtZakatNeedGold": {},
+  "dtZakatNeedSilver": "Type today's silver price first — without it we cannot tell if zakat is due.",
+  "@dtZakatNeedSilver": {},
+  "dtZakatEnterWealth": "Now type your cash, gold, silver and other wealth.",
+  "@dtZakatEnterWealth": {},
+  "dtZakatBelow": "Below nisab — zakat is not due",
+  "@dtZakatBelow": {},
+  "dtZakatNisab": "Nisab today:",
+  "@dtZakatNisab": {},
+  "dtZakatWealth": "Your zakatable wealth:",
+  "@dtZakatWealth": {},
+  "dtZakatRate": "Rate:",
+  "@dtZakatRate": {},
+  "dtZakatRateValue": "2.5% (one-fortieth)",
+  "@dtZakatRateValue": {},
+  "dtZakatHonest": "Zakat is due when this wealth has stayed above nisab for one lunar year. For special cases (jewellery in use, loans, shares) ask a scholar you trust.",
+  "@dtZakatHonest": {},
+  "dtPctMode": "{id, select, vat_add{Add VAT} vat_out{VAT inside price} discount{Discount} of{What %} change{% change} other{}}",
+  "@dtPctMode": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtPctPriceNoVat": "Price without VAT",
+  "@dtPctPriceNoVat": {},
+  "dtPctPriceWithVat": "Price with VAT",
+  "@dtPctPriceWithVat": {},
+  "dtPctVatRate": "VAT rate",
+  "@dtPctVatRate": {},
+  "dtPctPrice": "Price",
+  "@dtPctPrice": {},
+  "dtPctDiscount": "Discount",
+  "@dtPctDiscount": {},
+  "dtPctPart": "This number",
+  "@dtPctPart": {},
+  "dtPctWhole": "Out of",
+  "@dtPctWhole": {},
+  "dtPctOld": "Old value",
+  "@dtPctOld": {},
+  "dtPctNew": "New value",
+  "@dtPctNew": {},
+  "dtPctEnter": "Type both numbers to see the answer.",
+  "@dtPctEnter": {},
+  "dtPctVat": "VAT:",
+  "@dtPctVat": {},
+  "dtPctBase": "Price before VAT:",
+  "@dtPctBase": {},
+  "dtPctVatInside": "VAT inside:",
+  "@dtPctVatInside": {},
+  "dtPctTotal": "Total paid:",
+  "@dtPctTotal": {},
+  "dtPctYouSave": "You save:",
+  "@dtPctYouSave": {},
+  "dtPctNotZero": "The second number cannot be zero.",
+  "@dtPctNotZero": {},
+  "dtPctUp": "Went up by",
+  "@dtPctUp": {},
+  "dtPctDown": "Went down by",
+  "@dtPctDown": {},
+  "dtPctVatNote": "Standard VAT in Bangladesh is 15%; some goods and services have reduced rates (5%, 7.5%, 10%). Check the rate on your receipt.",
+  "@dtPctVatNote": {},
+  "dtSplitBill": "Bill amount",
+  "@dtSplitBill": {},
+  "dtSplitPeople": "People",
+  "@dtSplitPeople": {},
+  "dtSplitTip": "Tip",
+  "@dtSplitTip": {},
+  "dtSplitNoTip": "No tip",
+  "@dtSplitNoTip": {},
+  "dtSplitEnter": "Type the bill amount to see each person's share.",
+  "@dtSplitEnter": {},
+  "dtSplitEach": "{amount} each",
+  "@dtSplitEach": {
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "dtSplitTipAmt": "Tip:",
+  "@dtSplitTipAmt": {},
+  "dtSplitTotal": "Total with tip:",
+  "@dtSplitTotal": {},
+  "dtSplitRounded": "Rounded: {amount} each",
+  "@dtSplitRounded": {
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "dtSplitExtra": "({amount} extra)",
+  "@dtSplitExtra": {
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "dtSplitShare": "Bill {total} for {people} people: {each} each",
+  "@dtSplitShare": {
+   "placeholders": {
+    "total": {
+     "type": "String"
+    },
+    "people": {
+     "type": "String"
+    },
+    "each": {
+     "type": "String"
+    }
+   }
+  },
+  "dtAgePickBirth": "Pick date of birth",
+  "@dtAgePickBirth": {},
+  "dtAgeBorn": "Born: {date}",
+  "@dtAgeBorn": {
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "dtAgeOn": "Age on: {date}",
+  "@dtAgeOn": {
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "dtAgeEnter": "Pick a date of birth to see the exact age.",
+  "@dtAgeEnter": {},
+  "dtAgeFuture": "The date of birth is after the other date. Check the dates.",
+  "@dtAgeFuture": {},
+  "dtAgeYmd": "{y} years {m} months {d} days",
+  "@dtAgeYmd": {
+   "placeholders": {
+    "y": {
+     "type": "String"
+    },
+    "m": {
+     "type": "String"
+    },
+    "d": {
+     "type": "String"
+    }
+   }
+  },
+  "dtAgeTotalMonths": "Total months:",
+  "@dtAgeTotalMonths": {},
+  "dtAgeTotalWeeks": "Total weeks:",
+  "@dtAgeTotalWeeks": {},
+  "dtAgeTotalDays": "Total days:",
+  "@dtAgeTotalDays": {},
+  "dtAgeNextBday": "Next birthday in:",
+  "@dtAgeNextBday": {},
+  "dtAgeToday": "Today!",
+  "@dtAgeToday": {},
+  "dtAgeBornWeekday": "Born on a:",
+  "@dtAgeBornWeekday": {},
+  "dtAgeBornBangla": "Bangla date of birth:",
+  "@dtAgeBornBangla": {},
+  "dtAgeNote": "For forms (SSC, NID, jobs) use the \"age on\" date the form asks for.",
+  "@dtAgeNote": {},
+  "dtDateFrom": "Convert from",
+  "@dtDateFrom": {},
+  "dtCalName": "{id, select, en{English (Gregorian)} bn{Bangla (Bangabda)} hijri{Hijri} other{}}",
+  "@dtCalName": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtDateInvalid": "That date does not exist. Check the day, month and year.",
+  "@dtDateInvalid": {},
+  "dtHijriApprox": "Hijri (approximate):",
+  "@dtHijriApprox": {},
+  "dtHijriMonths": "Muharram,Safar,Rabi al-Awwal,Rabi al-Thani,Jumada al-Ula,Jumada al-Thani,Rajab,Shaban,Ramadan,Shawwal,Dhul Qadah,Dhul Hijjah",
+  "@dtHijriMonths": {},
+  "dtBanglaCalNote": "Bangla date follows the Bangla Academy calendar used in Bangladesh (1 Boishakh = 14 April). West Bengal's calendar can differ by a day.",
+  "@dtBanglaCalNote": {},
+  "dtHijriNote": "Hijri is calculated, not from moon sighting — it can differ by 1–2 days from the date announced in Bangladesh. For Ramadan and Eid follow the moon-sighting committee.",
+  "@dtHijriNote": {},
+  "dtBmiWeight": "Weight",
+  "@dtBmiWeight": {},
+  "dtBmiFeet": "Feet + inches",
+  "@dtBmiFeet": {},
+  "dtBmiCm": "Centimetres",
+  "@dtBmiCm": {},
+  "dtBmiHeightCm": "Height",
+  "@dtBmiHeightCm": {},
+  "dtBmiEnter": "Type weight and height to see your BMI.",
+  "@dtBmiEnter": {},
+  "dtBmiBandLabel": "Result:",
+  "@dtBmiBandLabel": {},
+  "dtBmiBand": "{id, select, under{Underweight} normal{Healthy} over{Overweight} obese{Obese} other{}}",
+  "@dtBmiBand": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtBmiHealthy": "Healthy weight for your height:",
+  "@dtBmiHealthy": {},
+  "dtBmiRange": "{min}–{max} kg",
+  "@dtBmiRange": {
+   "placeholders": {
+    "min": {
+     "type": "String"
+    },
+    "max": {
+     "type": "String"
+    }
+   }
+  },
+  "dtBmiNote": "Uses the WHO Asia-Pacific limits for South Asians (healthy 18.5–22.9). BMI is a rough guide, not a diagnosis — ask a doctor about your health.",
+  "@dtBmiNote": {},
+  "dtStopwatch": "Stopwatch",
+  "@dtStopwatch": {},
+  "dtCountdown": "Timer",
+  "@dtCountdown": {},
+  "dtLapN": "Lap {n}",
+  "@dtLapN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtMinutes": "Minutes",
+  "@dtMinutes": {},
+  "dtTimeUp": "Time is up!",
+  "@dtTimeUp": {},
+  "dtTimerNote": "The timer vibrates only while this screen is open. For longer waits set a reminder instead.",
+  "@dtTimerNote": {},
+  "dtQrKind": "{id, select, text{Text or link} wifi{Wi-Fi} phone{Phone number} other{}}",
+  "@dtQrKind": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "dtQrText": "Text or link",
+  "@dtQrText": {},
+  "dtQrPhone": "Phone number",
+  "@dtQrPhone": {},
+  "dtQrSsid": "Wi-Fi name",
+  "@dtQrSsid": {},
+  "dtQrPass": "Wi-Fi password (empty if open)",
+  "@dtQrPass": {},
+  "dtQrEnter": "Type something above and the QR code appears here.",
+  "@dtQrEnter": {},
+  "dtQrShare": "Share QR image",
+  "@dtQrShare": {},
+  "dtQrShareFailed": "Could not make the image. Take a screenshot instead.",
+  "@dtQrShareFailed": {},
+  "dtQrNoScanner": "To scan a QR, use your phone's camera app — Assisto does not add a scanner.",
+  "@dtQrNoScanner": {},
+  "dtWordsInput": "Your text",
+  "@dtWordsInput": {},
+  "dtWordsHint": "Paste or type an essay, post or letter",
+  "@dtWordsHint": {},
+  "dtWordsEnter": "Type or paste text to count words.",
+  "@dtWordsEnter": {},
+  "dtWordsN": "{n} words",
+  "@dtWordsN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtWordsBangla": "Bangla words:",
+  "@dtWordsBangla": {},
+  "dtWordsEnglish": "English words:",
+  "@dtWordsEnglish": {},
+  "dtWordsChars": "Characters:",
+  "@dtWordsChars": {},
+  "dtWordsCharsNoSpace": "Characters without spaces:",
+  "@dtWordsCharsNoSpace": {},
+  "dtWordsSentences": "Sentences:",
+  "@dtWordsSentences": {},
+  "dtWordsParagraphs": "Paragraphs:",
+  "@dtWordsParagraphs": {},
+  "dtWordsRead": "Reading time:",
+  "@dtWordsRead": {},
+  "dtMinutesApprox": "about {n} min",
+  "@dtMinutesApprox": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtDice": "Dice",
+  "@dtDice": {},
+  "dtDiceN": "{n} dice",
+  "@dtDiceN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "dtDiceResult": "Total {sum}",
+  "@dtDiceResult": {
+   "placeholders": {
+    "sum": {
+     "type": "String"
+    }
+   }
+  },
+  "dtRoll": "Roll",
+  "@dtRoll": {},
+  "dtCoin": "Coin toss",
+  "@dtCoin": {},
+  "dtHeads": "Heads",
+  "@dtHeads": {},
+  "dtTails": "Tails",
+  "@dtTails": {},
+  "dtFlip": "Toss",
+  "@dtFlip": {},
+  "dtPick": "Random numbers",
+  "@dtPick": {},
+  "dtHowMany": "How many numbers",
+  "@dtHowMany": {},
+  "dtPickInvalid": "Check the numbers: \"to\" must be bigger and there must be enough numbers in the range (up to 100).",
+  "@dtPickInvalid": {},
+  "dtPickGo": "Pick",
+  "@dtPickGo": {},
+  "dtDrawer": "Daily tools",
+  "@dtDrawer": {}
+ },
+ "bn": {
+  "dtTitle": "দৈনন্দিন টুল",
+  "dtIntro": "জমি, ওজন, কিস্তি, যাকাত, তারিখ আর আরও অনেক কিছু — নেট ছাড়াই চলে।",
+  "dtSearchLabel": "টুল খুঁজুন",
+  "dtSearchHint": "যেমন: বিঘা, কিস্তি, যাকাত",
+  "dtClearSearch": "খোঁজা মুছুন",
+  "dtResults": "মিলে যাওয়া টুল",
+  "dtNoMatch": "এই নামে কোনো টুল নেই। \"জমি\" বা \"কিস্তি\"-র মতো সহজ শব্দে খুঁজুন।",
+  "dtShowAll": "সব টুল দেখুন",
+  "dtFavourites": "প্রিয় টুল",
+  "dtFavEmpty": "যেকোনো টুলের তারায় চাপুন — সেটা এখানে উপরে থাকবে।",
+  "dtRecent": "সম্প্রতি ব্যবহৃত",
+  "dtAllTools": "সব টুল",
+  "dtOfflineNote": "সব হিসাব আপনার ফোনেই হয়। আপনি যা লেখেন তা কোথাও পাঠানো হয় না।",
+  "dtFav": "প্রিয়তে যোগ করুন",
+  "dtUnfav": "প্রিয় থেকে সরান",
+  "dtFavAdded": "প্রিয়তে যোগ হলো",
+  "dtFavRemoved": "প্রিয় থেকে সরানো হলো",
+  "dtCopy": "কপি",
+  "dtCopied": "কপি হয়েছে",
+  "dtEnterValue": "উপরে একটা সংখ্যা লিখুন — সব এককে দেখাবে।",
+  "dtValue": "পরিমাণ",
+  "dtFromUnit": "কোন একক থেকে",
+  "dtLess": "কমান",
+  "dtMore": "বাড়ান",
+  "dtDay": "দিন",
+  "dtMonth": "মাস",
+  "dtYear": "বছর",
+  "dtFrom": "থেকে",
+  "dtTo": "পর্যন্ত",
+  "dtStart": "শুরু",
+  "dtPause": "থামান",
+  "dtReset": "আবার শুরু",
+  "dtLap": "ল্যাপ",
+  "dtToolLand": "জমির মাপ",
+  "dtSubLand": "বিঘা, কাঠা, শতাংশ, একর, বর্গফুট",
+  "dtToolWeight": "সোনা ও ওজন",
+  "dtSubWeight": "ভরি, তোলা, আনা, রতি, সের, মণ, কেজি",
+  "dtToolUnit": "একক রূপান্তর",
+  "dtSubUnit": "দৈর্ঘ্য, হাত, লিটার, তাপমাত্রা আরও",
+  "dtToolCurrency": "মুদ্রা রূপান্তর",
+  "dtSubCurrency": "ডলার, রিয়াল, রিঙ্গিত থেকে টাকা — আপনার রেট, তারিখসহ",
+  "dtToolEmi": "ঋণের কিস্তি (EMI)",
+  "dtSubEmi": "ফ্ল্যাট বনাম রিডিউসিং রেট পাশাপাশি",
+  "dtToolZakat": "যাকাত",
+  "dtSubZakat": "আজকের দামে সোনা বা রুপার নিসাব",
+  "dtToolPercent": "ভ্যাট, ছাড়, শতাংশ",
+  "dtSubPercent": "ভ্যাট যোগ/বাদ, ছাড়ের দাম, শতাংশ পরিবর্তন",
+  "dtToolSplit": "বিল ভাগ",
+  "dtSubSplit": "বকশিশ ও প্রতিজনের ভাগ",
+  "dtToolAge": "বয়স হিসাব",
+  "dtSubAge": "ঠিক কত বছর, মাস, দিন; পরের জন্মদিন",
+  "dtToolDate": "তারিখ রূপান্তর",
+  "dtSubDate": "ইংরেজি, বাংলা (বঙ্গাব্দ) ও হিজরি",
+  "dtToolBmi": "বিএমআই",
+  "dtSubBmi": "এশীয় সীমায় শরীরের ওজন-সূচক",
+  "dtToolTimer": "স্টপওয়াচ ও টাইমার",
+  "dtSubTimer": "ল্যাপ ও উল্টো গণনা",
+  "dtToolQr": "QR বানান",
+  "dtSubQr": "লেখা, লিংক, ওয়াই-ফাই বা ফোন নম্বর",
+  "dtToolWords": "শব্দ গণনা",
+  "dtSubWords": "বাংলা ও ইংরেজি শব্দ, অক্ষর, পড়ার সময়",
+  "dtToolFun": "ছক্কা ও লটারি",
+  "dtSubFun": "খেলার ছক্কা, টস, এলোমেলো সংখ্যা",
+  "dtKeywords": "{id, select, land{জমি বিঘা কাঠা শতাংশ শতক ডেসিমাল একর বর্গফুট প্লট} weight{ওজন সোনা ভরি তোলা আনা রতি মণ সের কেজি গ্রাম} unit{একক রূপান্তর ফুট মিটার হাত ইঞ্চি লিটার তাপমাত্রা} currency{মুদ্রা ডলার রিয়াল রিঙ্গিত টাকা রেট রেমিট্যান্স} emi{কিস্তি ঋণ লোন সুদ ব্যাংক} zakat{যাকাত নিসাব সোনা রুপা রমজান} percent{শতাংশ ভ্যাট ছাড় ডিসকাউন্ট} split{বিল ভাগ বকশিশ বন্ধু} age{বয়স জন্মদিন জন্ম} date{তারিখ ক্যালেন্ডার বঙ্গাব্দ বাংলা হিজরি আরবি} bmi{ওজন উচ্চতা স্বাস্থ্য} timer{টাইমার স্টপওয়াচ ঘড়ি} qr{কিউআর কোড ওয়াইফাই লিংক} words{শব্দ অক্ষর গণনা রচনা} fun{ছক্কা লুডু টস লটারি খেলা বাচ্চা} other{টুল}}",
+  "dtUnitName": "{id, select, sqft{বর্গফুট} sqm{বর্গমিটার} decimal{শতাংশ (ডেসিমাল)} katha{কাঠা} bigha{বিঘা} acre{একর} hectare{হেক্টর} gram{গ্রাম} kg{কেজি} rati{রতি} ana{আনা} bhori{ভরি (তোলা)} seer{সের} maund{মণ} pound{পাউন্ড} ounce{আউন্স} tonne{টন} cm{সেমি} inch{ইঞ্চি} foot{ফুট} hath{হাত} yard{গজ} metre{মিটার} km{কিমি} mile{মাইল} ml{মিলি} litre{লিটার} gallon{গ্যালন (মার্কিন)} cuft{ঘনফুট} c{সেলসিয়াস} f{ফারেনহাইট} k{কেলভিন} other{}}",
+  "dtCatName": "{id, select, length{দৈর্ঘ্য} land{জমি} weight{ওজন} volume{আয়তন} temp{তাপমাত্রা} other{}}",
+  "dtLandNote": "বাংলাদেশের প্রমিত মাপ: ১ বিঘা = ২০ কাঠা = ৩৩ শতাংশ (১৪,৪০০ বর্গফুট); ১ কাঠা = ৭২০ বর্গফুট; ১ শতাংশ = ৪৩৫.৬ বর্গফুট = একরের ১০০ ভাগের ১ ভাগ।",
+  "dtLandRegional": "কিছু জেলায় \"বিঘা\" বড় (যেমন উত্তরবঙ্গের কোথাও ৪৮–৬০ শতাংশ)। দলিলে বা ভূমি অফিসে মাপটা মিলিয়ে নিন।",
+  "dtWeightNote": "স্বর্ণকারের মাপ: ১ ভরি = ১ তোলা = ১৬ আনা = ৯৬ রতি = ১১.৬৬৪ গ্রাম। ১ সের = ৮০ তোলা; ১ মণ = ৪০ সের (প্রায় ৩৭.৩২ কেজি)।",
+  "dtLengthNote": "১ হাত = ১৮ ইঞ্চি ধরা হয়েছে।",
+  "dtFxName": "{id, select, USD{মার্কিন ডলার (USD)} SAR{সৌদি রিয়াল (SAR)} AED{আমিরাতের দিরহাম (AED)} MYR{মালয়েশিয়ার রিঙ্গিত (MYR)} QAR{কাতারি রিয়াল (QAR)} KWD{কুয়েতি দিনার (KWD)} OMR{ওমানি রিয়াল (OMR)} SGD{সিঙ্গাপুর ডলার (SGD)} GBP{ব্রিটিশ পাউন্ড (GBP)} EUR{ইউরো (EUR)} INR{ভারতীয় রুপি (INR)} other{}}",
+  "dtFxCurrency": "মুদ্রা",
+  "dtFxRateLabel": "১ {name} = কত টাকা",
+  "dtFxRateDate": "রেটের তারিখ: {date}",
+  "dtFxRateDateNone": "রেটের তারিখ দিন",
+  "dtFxUseIndicative": "আজকের নির্দেশক রেট বসান",
+  "dtFxIndicativeNote": "ExchangeRate-API-র নির্দেশক বাজার রেট (Assisto দৈনিক তথ্য থেকে) — বাংলাদেশ ব্যাংকের নয়। ব্যাংক ও এক্সচেঞ্জ হাউসের রেট আলাদা হয়।",
+  "dtFxNoFeed": "আজকের রেট এখন পাওয়া যাচ্ছে না। ব্যাংক বা এক্সচেঞ্জ হাউস যে রেট দিয়েছে সেটা লিখুন।",
+  "dtFxToBdt": "{name} থেকে টাকা",
+  "dtFxFromBdt": "টাকা থেকে {name}",
+  "dtFxAmountForeign": "{name}-এ পরিমাণ",
+  "dtFxAmountBdt": "টাকায় পরিমাণ",
+  "dtFxEnterRate": "আগে রেট লিখুন (১ এককে কত টাকা) — আমরা নিজে থেকে রেট বানাই না।",
+  "dtFxRateUsed": "ব্যবহৃত রেট:",
+  "dtFxRateOn": "রেটের তারিখ:",
+  "dtFxHonest": "আপনার রেট ও তারিখ পরের বারের জন্য এই ফোনেই থাকে। টাকা পাঠানোর আগে ব্যাংক, বিকাশ/নগদ রেমিট্যান্স বা এক্সচেঞ্জ হাউসে রেট মিলিয়ে নিন।",
+  "dtFxBbLink": "বাংলাদেশ ব্যাংকের রেট দেখুন",
+  "dtEmiPrincipal": "ঋণের পরিমাণ",
+  "dtEmiRate": "বছরে সুদের হার",
+  "dtEmiMonths": "কত মাসে শোধ",
+  "dtMonthsN": "{n} মাস",
+  "dtDaysN": "{n} দিন",
+  "dtMinutesN": "{n} মিনিট",
+  "dtEmiEnter": "তুলনা দেখতে ঋণ, সুদের হার আর মাস লিখুন।",
+  "dtEmiReducing": "রিডিউসিং ব্যালান্স",
+  "dtEmiFlat": "ফ্ল্যাট রেট",
+  "dtEmiMonthly": "মাসিক কিস্তি",
+  "dtEmiInterest": "মোট সুদ:",
+  "dtEmiTotal": "মোট শোধ:",
+  "dtEmiFlatExtra": "ফ্ল্যাটে বেশি দিতে হয়",
+  "dtEmiFlatReally": "ফ্ল্যাট {rate}% আসলে প্রায়",
+  "dtEmiExplain": "রিডিউসিং: যতটুকু টাকা এখনো বাকি, শুধু তার উপর সুদ — তাই প্রতি মাসে সুদ কমে। ফ্ল্যাট: পুরো সময় পুরো ঋণের উপর সুদ — তাই একই \"হার\" হলেও খরচ অনেক বেশি। অনেক এনজিও ও কনজিউমার ঋণ ফ্ল্যাট রেটে বলে।",
+  "dtEmiAsk": "ঋণদাতাকে জিজ্ঞেস করুন: \"হারটা ফ্ল্যাট না রিডিউসিং?\" আর প্রসেসিং ফি কত — ফি এখানে ধরা হয়নি।",
+  "dtZakatBasis": "নিসাব ধরুন",
+  "dtZakatSilverBasis": "রুপা (৫২.৫ ভরি)",
+  "dtZakatGoldBasis": "সোনা (৭.৫ ভরি)",
+  "dtZakatBasisNote": "নগদ বা মিশ্র সম্পদ থাকলে বাংলাদেশের অধিকাংশ আলেম রুপার নিসাব ধরতে বলেন (এটা কম, তাই বেশি মানুষ যাকাত দেন)। শুধু সোনা থাকলে অনেকে সোনার নিসাব ধরেন।",
+  "dtZakatGoldPrice": "সোনার দাম প্রতি ভরি (২২ ক্যারেট)",
+  "dtZakatSilverPrice": "রুপার দাম প্রতি ভরি",
+  "dtZakatFillBajus": "আজকের বাজুস দাম বসান",
+  "dtZakatSrcBajus": "দামের উৎস: বাংলাদেশ জুয়েলার্স অ্যাসোসিয়েশন (বাজুস), Assisto দৈনিক তথ্যে যেমন দেওয়া। দেওয়ার আগে bajus.org-এ মিলিয়ে নিন।",
+  "dtZakatSrcUser": "দামের উৎস: আপনি যা লিখেছেন। আজকের দাম bajus.org-এ বা আপনার স্বর্ণকারের কাছে।",
+  "dtZakatNoFeed": "আজকের বাজুস দাম এখনো Assisto-তে নেই। bajus.org বা স্বর্ণকারের কাছ থেকে দাম লিখুন।",
+  "dtZakatCash": "নগদ ও ব্যাংকের টাকা",
+  "dtZakatGoldQty": "আপনার সোনা",
+  "dtZakatSilverQty": "আপনার রুপা",
+  "dtZakatBiz": "ব্যবসার মাল ও পাওনা টাকা",
+  "dtZakatDebt": "এখন শোধ করার দেনা",
+  "dtZakatNeedGold": "আগে আজকের সোনার দাম লিখুন — দাম ছাড়া যাকাত ফরজ কিনা বলা যায় না।",
+  "dtZakatNeedSilver": "আগে আজকের রুপার দাম লিখুন — দাম ছাড়া যাকাত ফরজ কিনা বলা যায় না।",
+  "dtZakatEnterWealth": "এবার আপনার নগদ, সোনা, রুপা ও অন্য সম্পদ লিখুন।",
+  "dtZakatBelow": "নিসাবের নিচে — যাকাত ফরজ নয়",
+  "dtZakatNisab": "আজকের নিসাব:",
+  "dtZakatWealth": "যাকাতযোগ্য সম্পদ:",
+  "dtZakatRate": "হার:",
+  "dtZakatRateValue": "২.৫% (চল্লিশ ভাগের এক ভাগ)",
+  "dtZakatHonest": "এই সম্পদ এক চান্দ্র বছর নিসাবের উপরে থাকলে যাকাত ফরজ হয়। বিশেষ ক্ষেত্রে (ব্যবহারের গয়না, ঋণ, শেয়ার) আস্থাভাজন আলেমের পরামর্শ নিন।",
+  "dtPctMode": "{id, select, vat_add{ভ্যাট যোগ} vat_out{দামের ভেতরের ভ্যাট} discount{ছাড়} of{কত শতাংশ} change{শতাংশ পরিবর্তন} other{}}",
+  "dtPctPriceNoVat": "ভ্যাট ছাড়া দাম",
+  "dtPctPriceWithVat": "ভ্যাটসহ দাম",
+  "dtPctVatRate": "ভ্যাটের হার",
+  "dtPctPrice": "দাম",
+  "dtPctDiscount": "ছাড়",
+  "dtPctPart": "এই সংখ্যা",
+  "dtPctWhole": "মোটের মধ্যে",
+  "dtPctOld": "আগের মান",
+  "dtPctNew": "নতুন মান",
+  "dtPctEnter": "উত্তর দেখতে দুটো সংখ্যাই লিখুন।",
+  "dtPctVat": "ভ্যাট:",
+  "dtPctBase": "ভ্যাটের আগে দাম:",
+  "dtPctVatInside": "ভেতরের ভ্যাট:",
+  "dtPctTotal": "মোট দেওয়া:",
+  "dtPctYouSave": "আপনার বাঁচে:",
+  "dtPctNotZero": "দ্বিতীয় সংখ্যা শূন্য হতে পারে না।",
+  "dtPctUp": "বেড়েছে",
+  "dtPctDown": "কমেছে",
+  "dtPctVatNote": "বাংলাদেশে সাধারণ ভ্যাট ১৫%; কিছু পণ্য ও সেবায় কম হার (৫%, ৭.৫%, ১০%)। রসিদে হারটা মিলিয়ে নিন।",
+  "dtSplitBill": "বিলের পরিমাণ",
+  "dtSplitPeople": "কতজন",
+  "dtSplitTip": "বকশিশ",
+  "dtSplitNoTip": "বকশিশ নেই",
+  "dtSplitEnter": "প্রতিজনের ভাগ দেখতে বিলের পরিমাণ লিখুন।",
+  "dtSplitEach": "প্রতিজন {amount}",
+  "dtSplitTipAmt": "বকশিশ:",
+  "dtSplitTotal": "বকশিশসহ মোট:",
+  "dtSplitRounded": "পূর্ণ সংখ্যায়: প্রতিজন {amount}",
+  "dtSplitExtra": "({amount} বেশি)",
+  "dtSplitShare": "বিল {total}, {people} জন: প্রতিজন {each}",
+  "dtAgePickBirth": "জন্মতারিখ বেছে নিন",
+  "dtAgeBorn": "জন্ম: {date}",
+  "dtAgeOn": "বয়স যে তারিখে: {date}",
+  "dtAgeEnter": "ঠিক বয়স দেখতে জন্মতারিখ বেছে নিন।",
+  "dtAgeFuture": "জন্মতারিখটা অন্য তারিখের পরে। তারিখ দুটো দেখুন।",
+  "dtAgeYmd": "{y} বছর {m} মাস {d} দিন",
+  "dtAgeTotalMonths": "মোট মাস:",
+  "dtAgeTotalWeeks": "মোট সপ্তাহ:",
+  "dtAgeTotalDays": "মোট দিন:",
+  "dtAgeNextBday": "পরের জন্মদিন:",
+  "dtAgeToday": "আজ!",
+  "dtAgeBornWeekday": "জন্মের বার:",
+  "dtAgeBornBangla": "বাংলা জন্মতারিখ:",
+  "dtAgeNote": "ফর্মে (এসএসসি, এনআইডি, চাকরি) ফর্মে যে তারিখে বয়স চায় সেটা \"বয়স যে তারিখে\"-তে দিন।",
+  "dtDateFrom": "কোন ক্যালেন্ডার থেকে",
+  "dtCalName": "{id, select, en{ইংরেজি (খ্রিস্টাব্দ)} bn{বাংলা (বঙ্গাব্দ)} hijri{হিজরি} other{}}",
+  "dtDateInvalid": "এই তারিখ হয় না। দিন, মাস ও বছর দেখুন।",
+  "dtHijriApprox": "হিজরি (আনুমানিক):",
+  "dtHijriMonths": "মুহাররম,সফর,রবিউল আউয়াল,রবিউস সানি,জমাদিউল আউয়াল,জমাদিউস সানি,রজব,শাবান,রমজান,শাওয়াল,জিলকদ,জিলহজ",
+  "dtBanglaCalNote": "বাংলা তারিখ বাংলাদেশে চালু বাংলা একাডেমির পঞ্জিকা অনুযায়ী (১ বৈশাখ = ১৪ এপ্রিল)। পশ্চিমবঙ্গের পঞ্জিকা এক দিন আলাদা হতে পারে।",
+  "dtHijriNote": "হিজরি তারিখ হিসাব করে বের করা, চাঁদ দেখে নয় — বাংলাদেশে ঘোষিত তারিখ থেকে ১–২ দিন আলাদা হতে পারে। রমজান ও ঈদের জন্য চাঁদ দেখা কমিটির ঘোষণা মানুন।",
+  "dtBmiWeight": "ওজন",
+  "dtBmiFeet": "ফুট + ইঞ্চি",
+  "dtBmiCm": "সেন্টিমিটার",
+  "dtBmiHeightCm": "উচ্চতা",
+  "dtBmiEnter": "বিএমআই দেখতে ওজন ও উচ্চতা লিখুন।",
+  "dtBmiBandLabel": "ফল:",
+  "dtBmiBand": "{id, select, under{কম ওজন} normal{স্বাস্থ্যকর} over{বেশি ওজন} obese{স্থূলতা} other{}}",
+  "dtBmiHealthy": "আপনার উচ্চতায় স্বাস্থ্যকর ওজন:",
+  "dtBmiRange": "{min}–{max} কেজি",
+  "dtBmiNote": "দক্ষিণ এশীয়দের জন্য WHO এশিয়া-প্যাসিফিক সীমা (স্বাস্থ্যকর ১৮.৫–২২.৯)। বিএমআই মোটামুটি ধারণা, রোগ নির্ণয় নয় — স্বাস্থ্যের ব্যাপারে ডাক্তারকে জিজ্ঞেস করুন।",
+  "dtStopwatch": "স্টপওয়াচ",
+  "dtCountdown": "টাইমার",
+  "dtLapN": "ল্যাপ {n}",
+  "dtMinutes": "মিনিট",
+  "dtTimeUp": "সময় শেষ!",
+  "dtTimerNote": "এই স্ক্রিন খোলা থাকলেই টাইমার কাঁপবে। লম্বা সময়ের জন্য রিমাইন্ডার দিন।",
+  "dtQrKind": "{id, select, text{লেখা বা লিংক} wifi{ওয়াই-ফাই} phone{ফোন নম্বর} other{}}",
+  "dtQrText": "লেখা বা লিংক",
+  "dtQrPhone": "ফোন নম্বর",
+  "dtQrSsid": "ওয়াই-ফাইয়ের নাম",
+  "dtQrPass": "ওয়াই-ফাই পাসওয়ার্ড (খোলা হলে খালি)",
+  "dtQrEnter": "উপরে কিছু লিখুন — এখানে QR কোড আসবে।",
+  "dtQrShare": "QR ছবি শেয়ার করুন",
+  "dtQrShareFailed": "ছবি বানানো গেল না। স্ক্রিনশট নিন।",
+  "dtQrNoScanner": "QR স্ক্যান করতে ফোনের ক্যামেরা অ্যাপ ব্যবহার করুন — Assisto-তে স্ক্যানার নেই।",
+  "dtWordsInput": "আপনার লেখা",
+  "dtWordsHint": "রচনা, পোস্ট বা চিঠি লিখুন বা পেস্ট করুন",
+  "dtWordsEnter": "শব্দ গুনতে লেখা লিখুন বা পেস্ট করুন।",
+  "dtWordsN": "{n}টি শব্দ",
+  "dtWordsBangla": "বাংলা শব্দ:",
+  "dtWordsEnglish": "ইংরেজি শব্দ:",
+  "dtWordsChars": "অক্ষর:",
+  "dtWordsCharsNoSpace": "ফাঁকা ছাড়া অক্ষর:",
+  "dtWordsSentences": "বাক্য:",
+  "dtWordsParagraphs": "অনুচ্ছেদ:",
+  "dtWordsRead": "পড়তে সময়:",
+  "dtMinutesApprox": "প্রায় {n} মিনিট",
+  "dtDice": "ছক্কা",
+  "dtDiceN": "{n}টি ছক্কা",
+  "dtDiceResult": "মোট {sum}",
+  "dtRoll": "চালুন",
+  "dtCoin": "টস",
+  "dtHeads": "হেড",
+  "dtTails": "টেল",
+  "dtFlip": "টস করুন",
+  "dtPick": "এলোমেলো সংখ্যা",
+  "dtHowMany": "কয়টি সংখ্যা",
+  "dtPickInvalid": "সংখ্যাগুলো দেখুন: \"পর্যন্ত\" বড় হতে হবে আর সীমার মধ্যে যথেষ্ট সংখ্যা থাকতে হবে (সর্বোচ্চ ১০০টি)।",
+  "dtPickGo": "বাছাই করুন",
+  "dtDrawer": "দৈনন্দিন টুল"
+ }
+}

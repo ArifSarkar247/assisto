@@ -12,6 +12,8 @@ import '../feature_gates.dart' show kShowKeySeams; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
 import 'package:assisto/widgets/app_sheet.dart';
+import '../feature_flags.dart' show FeatureFlags; // p2tools
+import 'daily_tools_screen.dart'; // p2tools
 
 /// QUICK TOOLS (#17, SPEC v2.1 §6, built to ADVANCED §21).
 ///
@@ -269,6 +271,14 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       bottomNavigationBar: const AdBannerSlot(screen: 'quick_tools'),
       appBar: AppBar(title: Text(t.qtTitle), actions: [
+        // p2tools: the offline calculators live next door (flag daily_tools).
+        if (FeatureFlags.instance.isOn('daily_tools'))
+          IconButton(
+            tooltip: t.dtTitle,
+            icon: const Icon(Icons.calculate_rounded),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => const DailyToolsScreen())),
+          ),
         IconButton(
           tooltip: t.lbWQtSavedTitle,
           icon: const Icon(Icons.bookmarks_outlined),

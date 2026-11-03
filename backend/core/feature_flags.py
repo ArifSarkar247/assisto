@@ -151,6 +151,8 @@ REGISTRY = (
     ('voice_mood', 'daily_life', 'Mood & energy journal', 'মন ও প্রাণশক্তির ডায়েরি', True, ()),
     ('proactive_ai', 'daily_life', 'Proactive helper', 'প্রোঅ্যাকটিভ সহায়তা', True, ()),
     ('area_community', 'daily_life', 'Area community', 'এলাকার কমিউনিটি', False, ()),
+    # p2tools: offline daily calculators + converters (default OFF until proven)
+    ('daily_tools', 'daily_life', 'Daily tools & converters', 'দৈনন্দিন টুল ও রূপান্তর', False, ()),
     ('agent_studio', 'work', 'Agent Studio', 'এজেন্ট স্টুডিও', False, ('agent_studio',)),
     # agent-core (owner final order 27 Oct, PART 2): the server-side Assisto
     # agent (goal -> plan -> act -> observe, typed tools, one-tap approvals,

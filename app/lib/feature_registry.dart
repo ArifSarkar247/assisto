@@ -100,6 +100,7 @@ const Map<String, bool> kFeatureDefaults = {
   'voice_mood': true,
   'proactive_ai': true,
   'area_community': false,
+  'daily_tools': false,
   'agent_studio': false,
   'agent_core': false,
   'task_manager': true,
