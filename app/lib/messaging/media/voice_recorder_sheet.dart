@@ -128,7 +128,7 @@ List<int> compactWave(List<int> levels, {int n = 48}) {
 /// false when it stops (sent / discarded / closed) — the chat shows the other
 /// person "recording audio…" in between.
 Future<MediaDraft?> showVoiceRecorder(BuildContext context,
-    {ValueChanged<bool>? onRecording}) async {
+    {ValueChanged<bool>? onRecording, bool allowViewOnce = true /* bizai */}) async {
   final t = AppLocalizations.of(context);
   final ok = await ensureMediaPermission(context, Permission.microphone,
       title: t.md1PermMicTitle, body: t.md1PermMicBody, denied: t.md1PermDeniedMic);
@@ -137,12 +137,16 @@ Future<MediaDraft?> showVoiceRecorder(BuildContext context,
     context: context,
     isDismissible: false,
     enableDrag: false,
-    builder: (_) => VoiceRecorderSheet(onRecording: onRecording),
+    builder: (_) =>
+        VoiceRecorderSheet(onRecording: onRecording, allowViewOnce: allowViewOnce),
   );
 }
 
 class VoiceRecorderSheet extends StatefulWidget {
-  const VoiceRecorderSheet({super.key, this.onRecording});
+  const VoiceRecorderSheet({super.key, this.onRecording, this.allowViewOnce = true});
+
+  /// bizai: false = no view-once "1" (e.g. a shop chat voice note).
+  final bool allowViewOnce;
 
   /// calls-presence: recording started (true) / stopped (false).
   final ValueChanged<bool>? onRecording;
@@ -332,8 +336,9 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
                   ),
                   const Spacer(),
                   // viewonce: listen once — the "1" next to Send
-                  ViewOnceSwitch(
-                      value: _viewOnce, onChanged: (v) => setState(() => _viewOnce = v)),
+                  if (widget.allowViewOnce)
+                    ViewOnceSwitch(
+                        value: _viewOnce, onChanged: (v) => setState(() => _viewOnce = v)),
                   const SizedBox(width: Gap.sm),
                   FilledButton.icon(
                     key: const Key('md1-rec-send'),

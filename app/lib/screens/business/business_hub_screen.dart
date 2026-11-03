@@ -41,6 +41,7 @@ import '../../services/error_kind.dart' show honestFailText; // qa2
 import 'dart:async' show unawaited;
 import '../../services/khata_offline.dart' show KhataOffline; // bizbar
 import 'low_stock_card.dart'; // bizbar
+import '../../bizai/outcome_card.dart' show OutcomeCard; // bizai
 import 'staff_screen.dart'; // bizbar
 import 'invoice/invoices_screen.dart'; // invoices
 
@@ -311,6 +312,10 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             _NetPositionCard(
                 key: ValueKey('np-$bizId'), businessId: bizId, isStaff: isStaff),
             const SizedBox(height: Gap.lg),
+            // bizai: this week's outcome card (real BDT; hidden on failure)
+            if (FeatureFlags.instance.isOn('business_agent'))
+              OutcomeCard(
+                  key: ValueKey('oc-$bizId'), businessId: bizId, isStaff: isStaff),
             // bizbar: products at or under their low-stock mark (hidden at 0)
             LowStockCard(
                 key: ValueKey('ls-$bizId'),

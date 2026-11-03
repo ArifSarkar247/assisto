@@ -67,6 +67,7 @@ import 'services/missing_nearby_sync.dart'; // missing
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
+import 'bizai/my_shops_screen.dart' show ShopChatLink; // bizai
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
 /// (messaging/BubbleActivity.kt getDartEntrypointFunctionName). One chat,
@@ -312,6 +313,7 @@ class AssistoApp extends StatelessWidget {
               InviteRouter.route(s) ??
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
+              ShopChatLink.route(s) ?? // bizai: /shop/<code> shop chat
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -355,6 +357,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
       // cctvphone: cold-start phone-camera pairing link (/pc/<code>)
       PhoneCamLink.maybeOpenColdStart(
+          context, PlatformDispatcher.instance.defaultRouteName);
+      // bizai: cold-start shop chat link (/shop/<code>)
+      ShopChatLink.maybeOpenColdStart(
           context, PlatformDispatcher.instance.defaultRouteName);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
       WebPhotoLink.maybeOpenColdStart(

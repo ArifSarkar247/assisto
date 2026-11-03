@@ -1,0 +1,275 @@
+{
+ "_comment": "bizai: in-app shop chat, shop-link card, outcome card. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_bizai_arb.json",
+ "en": {
+  "bizaiChAssisto": "Assisto shop chat",
+  "@bizaiChAssisto": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChAssisto"
+  },
+  "bizaiShopChatTitle": "Chat with {shop}",
+  "@bizaiShopChatTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopChatTitle",
+   "placeholders": {
+    "shop": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiShopChatTitleNoName": "Shop chat",
+  "@bizaiShopChatTitleNoName": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopChatTitleNoName"
+  },
+  "bizaiDisclosureTitle": "Before you chat",
+  "@bizaiDisclosureTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiDisclosureTitle"
+  },
+  "bizaiAiLabel": "AI",
+  "@bizaiAiLabel": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiLabel"
+  },
+  "bizaiAiLabelA11y": "Reply from the shop's AI assistant",
+  "@bizaiAiLabelA11y": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiLabelA11y"
+  },
+  "bizaiTalkToPerson": "Talk to a person",
+  "@bizaiTalkToPerson": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiTalkToPerson"
+  },
+  "bizaiWithPerson": "A person from the shop will reply here.",
+  "@bizaiWithPerson": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiWithPerson"
+  },
+  "bizaiComposerHint": "Ask about a product, price or delivery",
+  "@bizaiComposerHint": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiComposerHint"
+  },
+  "bizaiSend": "Send",
+  "@bizaiSend": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSend"
+  },
+  "bizaiPhoto": "Send a product photo",
+  "@bizaiPhoto": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiPhoto"
+  },
+  "bizaiVoice": "Send a voice note",
+  "@bizaiVoice": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiVoice"
+  },
+  "bizaiSentPhoto": "Photo sent",
+  "@bizaiSentPhoto": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSentPhoto"
+  },
+  "bizaiSentVoice": "Voice note sent",
+  "@bizaiSentVoice": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSentVoice"
+  },
+  "bizaiVoiceHeard": "Voice note — heard as:",
+  "@bizaiVoiceHeard": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiVoiceHeard"
+  },
+  "bizaiEmptyBenefit": "Ask the shop anything — prices and stock come straight from its catalog.",
+  "@bizaiEmptyBenefit": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiEmptyBenefit"
+  },
+  "bizaiEmptyHow": "Type a question, send a product photo or a voice note.",
+  "@bizaiEmptyHow": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiEmptyHow"
+  },
+  "bizaiShopLoadFailed": "Could not open the shop",
+  "@bizaiShopLoadFailed": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLoadFailed"
+  },
+  "bizaiChatOffTitle": "This shop is not taking chats now",
+  "@bizaiChatOffTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChatOffTitle"
+  },
+  "bizaiChatOffBody": "The link is old or the shop turned chats off. Ask the shop for a new link.",
+  "@bizaiChatOffBody": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChatOffBody"
+  },
+  "bizaiOwnShopTitle": "This is your own shop",
+  "@bizaiOwnShopTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOwnShopTitle"
+  },
+  "bizaiOwnShopBody": "Customer chats are in Business → AI sales agent → Inbox. Share this link with customers.",
+  "@bizaiOwnShopBody": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOwnShopBody"
+  },
+  "bizaiBack": "Go back",
+  "@bizaiBack": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiBack"
+  },
+  "bizaiMyShopsTitle": "Shop chats",
+  "@bizaiMyShopsTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsTitle"
+  },
+  "bizaiMyShopsEmpty": "Chat with shops right here — the shop's AI answers in seconds, from its real price list.",
+  "@bizaiMyShopsEmpty": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsEmpty"
+  },
+  "bizaiMyShopsHow": "Open a shop's Assisto link, or ask a shop owner in My Circle to turn on shop chat.",
+  "@bizaiMyShopsHow": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsHow"
+  },
+  "bizaiOpenLink": "Open a shop link",
+  "@bizaiOpenLink": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOpenLink"
+  },
+  "bizaiPasteLinkHint": "Paste the shop link or code",
+  "@bizaiPasteLinkHint": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiPasteLinkHint"
+  },
+  "bizaiBadLink": "That is not a shop link",
+  "@bizaiBadLink": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiBadLink"
+  },
+  "bizaiOpen": "Open",
+  "@bizaiOpen": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOpen"
+  },
+  "bizaiCancel": "Cancel",
+  "@bizaiCancel": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCancel"
+  },
+  "bizaiFromCircle": "In your My Circle",
+  "@bizaiFromCircle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiFromCircle"
+  },
+  "bizaiShopLinkTitle": "Your shop chat link",
+  "@bizaiShopLinkTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLinkTitle"
+  },
+  "bizaiShopLinkSub": "Customers chat with your shop inside Assisto — no Facebook setup. Your AI answers from your catalog in seconds.",
+  "@bizaiShopLinkSub": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLinkSub"
+  },
+  "bizaiShare": "Share link",
+  "@bizaiShare": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShare"
+  },
+  "bizaiShareText": "Chat with {shop} on Assisto: {url}",
+  "@bizaiShareText": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShareText",
+   "placeholders": {
+    "shop": {
+     "type": "String"
+    },
+    "url": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiAppChatSwitch": "Take customer chats in Assisto",
+  "@bizaiAppChatSwitch": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAppChatSwitch"
+  },
+  "bizaiCodGuardSwitch": "Hold risky cash-on-delivery orders",
+  "@bizaiCodGuardSwitch": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCodGuardSwitch"
+  },
+  "bizaiCodGuardSub": "If a phone number returned many parcels before, the courier is not booked automatically and you are told first.",
+  "@bizaiCodGuardSub": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCodGuardSub"
+  },
+  "bizaiAiOffNote": "The AI is off: chats still reach you, and you reply yourself. Turn on the AI above to answer in seconds.",
+  "@bizaiAiOffNote": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiOffNote"
+  },
+  "bizaiOutcomeTitle": "This week Assisto did for you",
+  "@bizaiOutcomeTitle": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutcomeTitle"
+  },
+  "bizaiOutAiOrders": "Orders the AI took",
+  "@bizaiOutAiOrders": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutAiOrders"
+  },
+  "bizaiOutCustomersBack": "Customers brought back",
+  "@bizaiOutCustomersBack": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutCustomersBack"
+  },
+  "bizaiOutDuesCollected": "Dues collected",
+  "@bizaiOutDuesCollected": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutDuesCollected"
+  },
+  "bizaiOutLossesPrevented": "Losses prevented",
+  "@bizaiOutLossesPrevented": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutLossesPrevented"
+  },
+  "bizaiOutCount": "{count} times",
+  "@bizaiOutCount": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutCount",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiOutTotal": "{amount} this week",
+  "@bizaiOutTotal": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutTotal",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "bizaiOutEmpty": "When your AI takes orders, brings customers back and collects dues, the money it made shows here every week — real numbers only.",
+  "@bizaiOutEmpty": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmpty"
+  },
+  "bizaiOutEmptyBtn": "Set up the AI sales agent",
+  "@bizaiOutEmptyBtn": {
+   "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmptyBtn"
+  }
+ },
+ "bn": {
+  "bizaiChAssisto": "Assisto দোকান-চ্যাট",
+  "bizaiShopChatTitle": "{shop}-এর সাথে চ্যাট",
+  "bizaiShopChatTitleNoName": "দোকানের চ্যাট",
+  "bizaiDisclosureTitle": "চ্যাট করার আগে জেনে নিন",
+  "bizaiAiLabel": "AI",
+  "bizaiAiLabelA11y": "দোকানের AI সহকারীর উত্তর",
+  "bizaiTalkToPerson": "মানুষের সাথে কথা",
+  "bizaiWithPerson": "দোকানের একজন মানুষ এখানে উত্তর দেবেন।",
+  "bizaiComposerHint": "পণ্য, দাম বা ডেলিভারি নিয়ে জিজ্ঞেস করুন",
+  "bizaiSend": "পাঠান",
+  "bizaiPhoto": "পণ্যের ছবি পাঠান",
+  "bizaiVoice": "ভয়েস মেসেজ পাঠান",
+  "bizaiSentPhoto": "ছবি পাঠানো হয়েছে",
+  "bizaiSentVoice": "ভয়েস মেসেজ পাঠানো হয়েছে",
+  "bizaiVoiceHeard": "ভয়েস মেসেজ — যা শোনা গেছে:",
+  "bizaiEmptyBenefit": "দোকানকে যা খুশি জিজ্ঞেস করুন — দাম আর স্টক আসে সরাসরি দোকানের তালিকা থেকে।",
+  "bizaiEmptyHow": "প্রশ্ন লিখুন, পণ্যের ছবি বা ভয়েস মেসেজ পাঠান।",
+  "bizaiShopLoadFailed": "দোকান খোলা গেল না",
+  "bizaiChatOffTitle": "এই দোকান এখন চ্যাট নিচ্ছে না",
+  "bizaiChatOffBody": "লিংকটি পুরোনো, বা দোকান চ্যাট বন্ধ রেখেছে। দোকানের কাছে নতুন লিংক চেয়ে নিন।",
+  "bizaiOwnShopTitle": "এটা আপনার নিজের দোকান",
+  "bizaiOwnShopBody": "গ্রাহকের চ্যাট দেখবেন Business → AI সেলস এজেন্ট → ইনবক্সে। এই লিংক গ্রাহকদের পাঠান।",
+  "bizaiBack": "ফিরে যান",
+  "bizaiMyShopsTitle": "দোকানের চ্যাট",
+  "bizaiMyShopsEmpty": "এখানেই দোকানের সাথে চ্যাট করুন — দোকানের AI কয়েক সেকেন্ডে উত্তর দেয়, আসল দামের তালিকা থেকে।",
+  "bizaiMyShopsHow": "দোকানের Assisto লিংক খুলুন, অথবা My Circle-এর দোকানদারকে দোকান-চ্যাট চালু করতে বলুন।",
+  "bizaiOpenLink": "দোকানের লিংক খুলুন",
+  "bizaiPasteLinkHint": "দোকানের লিংক বা কোড বসান",
+  "bizaiBadLink": "এটা দোকানের লিংক নয়",
+  "bizaiOpen": "খুলুন",
+  "bizaiCancel": "বাতিল",
+  "bizaiFromCircle": "আপনার My Circle-এ আছেন",
+  "bizaiShopLinkTitle": "আপনার দোকানের চ্যাট লিংক",
+  "bizaiShopLinkSub": "গ্রাহক Assisto-র ভেতরেই আপনার দোকানের সাথে চ্যাট করেন — Facebook সেটআপ লাগে না। আপনার AI কয়েক সেকেন্ডে আপনার তালিকা থেকে উত্তর দেয়।",
+  "bizaiShare": "লিংক শেয়ার করুন",
+  "bizaiShareText": "Assisto-তে {shop}-এর সাথে চ্যাট করুন: {url}",
+  "bizaiAppChatSwitch": "Assisto-তে গ্রাহকের চ্যাট নিন",
+  "bizaiCodGuardSwitch": "ঝুঁকিপূর্ণ ক্যাশ-অন-ডেলিভারি অর্ডার আটকান",
+  "bizaiCodGuardSub": "কোনো নম্বর আগে অনেক পার্সেল ফেরত দিলে কুরিয়ার নিজে বুক হবে না — আগে আপনাকে জানানো হবে।",
+  "bizaiAiOffNote": "AI বন্ধ: চ্যাট আপনার কাছে আসবে, আপনি নিজে উত্তর দেবেন। কয়েক সেকেন্ডে উত্তরের জন্য ওপরে AI চালু করুন।",
+  "bizaiOutcomeTitle": "এই সপ্তাহে Assisto আপনার জন্য যা করেছে",
+  "bizaiOutAiOrders": "AI-এর নেওয়া অর্ডার",
+  "bizaiOutCustomersBack": "ফিরে আসা গ্রাহক",
+  "bizaiOutDuesCollected": "আদায় হওয়া বাকি",
+  "bizaiOutLossesPrevented": "আটকানো ক্ষতি",
+  "bizaiOutCount": "{count} বার",
+  "bizaiOutTotal": "এই সপ্তাহে {amount}",
+  "bizaiOutEmpty": "আপনার AI অর্ডার নিলে, গ্রাহক ফিরিয়ে আনলে আর বাকি আদায় করলে — প্রতি সপ্তাহে কত টাকা এল তা এখানে দেখাবে, শুধু আসল সংখ্যা।",
+  "bizaiOutEmptyBtn": "AI সেলস এজেন্ট চালু করুন"
+ }
+}

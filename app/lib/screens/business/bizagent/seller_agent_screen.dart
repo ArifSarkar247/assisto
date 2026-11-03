@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../bizai/outcome_card.dart' show ShopLinkCard; // bizai
 import '../../../plans_v2/upgrade_sheet.dart'; // plans-v2
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -70,6 +71,8 @@ String baChannelLabel(AppLocalizations t, String kind) {
       return t.baChWhatsapp;
     case 'website':
       return t.g1WidgetTitle; // g1: website chat widget
+    case 'assisto':
+      return t.bizaiChAssisto; // bizai: in-app shop chat
     default:
       return kind;
   }
@@ -83,6 +86,8 @@ IconData baChannelIcon(String kind) {
       return Icons.chat_rounded;
     case 'website':
       return Icons.language_rounded;
+    case 'assisto':
+      return Icons.storefront_rounded; // bizai
     default:
       return Icons.forum_rounded;
   }
@@ -253,6 +258,9 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
             BizNote(text: t.baHonestNote, icon: Icons.verified_user_rounded),
           ]),
         ),
+        const SizedBox(height: Gap.md),
+        // bizai: the in-app shop chat link (no Meta needed) + COD-risk switch
+        const ShopLinkCard(),
         const SizedBox(height: Gap.md),
         Card(
           child: Column(children: [
