@@ -79,6 +79,8 @@ const _launchPrefixes = <String>[
   'farm_', // p3farm: Farmer mode help / crop calendar / disease check
   // p3faith (3 Nov): Ramadan tracker + Quran
   'ramadan', 'quran_',
+  // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
+  'circle_search', 'farmer',
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.

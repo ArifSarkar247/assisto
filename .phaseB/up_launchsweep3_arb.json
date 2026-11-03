@@ -1,0 +1,9 @@
+{
+  "en": {
+    "qrnBnNotIncluded": "Not included — needs the publisher's permission",
+    "@qrnBnNotIncluded": {"description": "launchsweep3: Quran Bangla translation option label; honest (no 'coming' promise)"}
+  },
+  "bn": {
+    "qrnBnNotIncluded": "অন্তর্ভুক্ত নয় — প্রকাশকের অনুমতি লাগবে"
+  }
+}
