@@ -152,6 +152,8 @@ _A = {
     "pa_secretary": ("?F???P?FF", "hide", "Sweep B?: key-gated / mock parts.", "সুইপ B?: চাবি-নির্ভর / নকল অংশ।"),
     "ps_secretary": ("?P??PP??F", "hide", "pssec: Today brief (meetings, follow-ups, reminders, bills), My Circle invites / nudges via the E2E chat, paste-to-pick-up parser on the phone; CI tests; no real-phone run; notification listener not built.",
                      "pssec: আজকের ব্রিফ, My Circle-এ আমন্ত্রণ/রিমাইন্ডার চ্যাটে, পেস্ট করে কাজ তোলা (ফোনেই); CI টেস্ট; আসল ফোনে চালানো হয়নি; নোটিফিকেশন লিসেনার নেই।"),
+    "ai_daily_planner": ("?P??P???F", "hide", "p2plan: rule-built time-blocked day (tasks, PS meetings, reminders, bills, optional prayer times) + optional AI advice; CI tests; no real-phone run.",
+                         "p2plan: নিয়মে বানানো সময়-ব্লক দিন (কাজ, পিএস মিটিং, রিমাইন্ডার, বিল, চাইলে নামাজের সময়) + ঐচ্ছিক AI পরামর্শ; CI টেস্ট; আসল ফোনে চালানো হয়নি।"),
     # ---- Business
     "business": ("?P???PP?F", "show", "Flows 17/18 A (POS sale + void, khata).", "ফ্লো ১৭/১৮ A (বিক্রি + বাতিল, খাতা)।"),
     "crm": ("?P???PPPF", "show", "Flow 19 A; first-run guide; email + real WhatsApp send missing (big-week E).",

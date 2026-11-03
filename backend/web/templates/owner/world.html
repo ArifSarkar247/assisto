@@ -33,6 +33,7 @@
 
 <section class="card"><h2>{{ T.w_values }}</h2>
   <p class="small">{{ T.w_values_note }}</p>
+  <p class="small"><a href="/owner/estimate-rates">{{ T.er_link }}</a></p>
   <div class="tbl"><table><thead><tr><th>{{ T.w_source }}</th><th>{{ T.w_value }}</th><th>{{ T.w_date }}</th><th>{{ T.w_updated }}</th><th></th></tr></thead><tbody>
   {% for v in values %}<tr><td>{{ v.label }} <a class="small" href="{{ v.url }}" rel="noopener noreferrer" target="_blank">{{ T.w_open_official }}</a></td>
     <td colspan="3"><form method="post" class="cols">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="value"><input type="hidden" name="key" value="{{ v.key }}">

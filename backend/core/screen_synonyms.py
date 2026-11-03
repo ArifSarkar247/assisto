@@ -103,6 +103,10 @@ SCREEN_SYNONYMS = {
                  "সমস্যা জানাও", "সমস্যা রিপোর্ট", "সমস্যার রিপোর্ট", "অভিযোগ জানান",
                  "send feedback", "give feedback", "feedback", "report a problem",
                  "report a bug", "report bug", "report an issue"],
+    # ---- p2plan ---- task manager + AI daily planner
+    "task_manager": ["টাস্ক ম্যানেজার", "প্রজেক্ট বোর্ড", "task manager", "project board", "kanban"],
+    "day_planner": ["দৈনিক পরিকল্পনা", "আজকের পরিকল্পনা", "দিনের পরিকল্পনা",
+                    "daily planner", "day planner", "plan my day"],
     "vaultpin": [],  # reserved
 }
 

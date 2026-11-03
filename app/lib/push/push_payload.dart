@@ -187,6 +187,8 @@ class PushRouting {
     'circle/call': 'circle_calls',
     'circle/calls': 'circle_calls',
     'reminders': 'reminders',
+    'tasks': 'task_manager', // p2plan: shared task list assign / done
+    'planner': 'day_planner', // p2plan
     'alerts': 'notifications',
     // family100: SOS + family alerts open the family alerts screen
     'safety/sos': 'family_alerts',

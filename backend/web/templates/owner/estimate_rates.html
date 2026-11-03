@@ -1,0 +1,16 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.er_title }}{% endblock %}
+{% block content %}
+{% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+<section class="card"><h2>{{ T.er_title }}</h2>
+  <p class="small">{{ T.er_note }}</p>
+  <div class="tbl"><table><thead><tr><th>{{ T.er_item }}</th><th>{{ T.er_value }}</th><th>{{ T.er_source }}</th><th>{{ T.er_date }}</th><th></th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.label }}</td>
+    <td colspan="4"><form method="post" class="cols">{% include "owner/_csrf.html" %}<input type="hidden" name="key" value="{{ r.key }}">
+      <input name="value" value="{% if r.value is not None %}{{ r.value }}{% endif %}" inputmode="decimal" aria-label="{{ T.er_value }}">
+      <input name="source" value="{{ r.source }}" maxlength="200" aria-label="{{ T.er_source }}">
+      <input name="effective_date" type="date" value="{{ r.date }}" aria-label="{{ T.er_date }}">
+      <button class="btn primary">{{ T.save }}</button></form></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

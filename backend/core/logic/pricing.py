@@ -186,6 +186,10 @@ _ACTION_DEFAULTS = {
     # the 40%-of-pack-credit rule (AGENT_CORE_DESIGN_BN.md §11) = 7. Tool steps
     # over our own DB cost 0 credits (they count against the run's step cap).
     "agent_plan":          {"provider_cost": 0.022, "credits": 7},
+    # p2plan: one AI advice pass over the rule-built daily plan (cheap tier,
+    # ~1,200 in + 300 out tokens ≈ $0.004). NET floor = ceil(0.004*120/0.60)
+    # = 1; 2 keeps the 40% margin rule. The template plan itself is free.
+    "day_plan_polish":     {"provider_cost": 0.004, "credits": 2},
     # g1-bizagent: the seller's agent looks at a customer PHOTO with a cloud
     # vision model (only when the free perceptual match is not sure) and
     # transcribes a customer VOICE NOTE. The live call books the larger of

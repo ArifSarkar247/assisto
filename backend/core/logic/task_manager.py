@@ -49,6 +49,17 @@ _PRIORITY_WEIGHT = {
     PRIORITY_LOW: 0,
 }
 
+# p2plan: recurring tasks. "" = one-off.
+REPEAT_NONE = ""
+REPEAT_DAILY = "daily"
+REPEAT_WEEKLY = "weekly"
+REPEAT_MONTHLY = "monthly"
+REPEATS = (REPEAT_NONE, REPEAT_DAILY, REPEAT_WEEKLY, REPEAT_MONTHLY)
+
+# p2plan: a task's own time estimate (minutes) for the daily planner.
+MAX_EST_MIN = 600
+DEFAULT_EST_MIN = 30
+
 # A far-future sentinel so tasks with no due date sort AFTER dated ones (within
 # the same priority band) rather than jumping to the top.
 _NO_DUE = "9999-12-31T23:59:59"
@@ -95,6 +106,25 @@ def _clamp_percent(v):
 
 
 # ------------------------------------------------------------- normalization
+
+def _int_or_none(v):
+    try:
+        if v is None or v == "" or isinstance(v, bool):
+            return None
+        n = int(v)
+        return n if n > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _clamp_minutes(v):
+    """0 = not estimated; else 1..MAX_EST_MIN."""
+    try:
+        n = int(round(float(v)))
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(MAX_EST_MIN, n))
+
 
 def normalize_project(project):
     """Coerce an arbitrary dict into a clean project record. Never raises; the
@@ -147,6 +177,11 @@ def normalize_task(task):
         "priority": priority,
         "due": (str(t.get("due")).strip() if t.get("due") else ""),
         "progress": progress,
+        # p2plan: subtasks, recurring, time estimate, Circle assignee.
+        "parent_id": _int_or_none(t.get("parent_id")),
+        "repeat": t.get("repeat") if t.get("repeat") in REPEATS else REPEAT_NONE,
+        "est_min": _clamp_minutes(t.get("est_min")),
+        "assignee_uid": _int_or_none(t.get("assignee_uid")),
     }
 
 
@@ -162,6 +197,10 @@ def validate_task(task):
         problems.append("bad_priority")
     if t.get("due") and _parse(t.get("due")) is None:
         problems.append("bad_due")
+    if t.get("repeat") not in (None,) + REPEATS:
+        problems.append("bad_repeat")
+    if t.get("repeat") and not t.get("due"):
+        problems.append("repeat_needs_due")
     if t.get("progress") is not None:
         try:
             n = int(round(float(t.get("progress"))))
@@ -402,3 +441,123 @@ def project_rollups(projects, tasks, now):
         out.append({**np,
                     "summary": progress_summary(by_project.get(np["id"], []), now)})
     return out
+
+
+# ------------------------------------------------------- p2plan: subtasks
+
+def top_level(tasks):
+    """Tasks that are not subtasks (parent_id empty), normalized, given order."""
+    return [t for t in (normalize_task(x) for x in (tasks or []))
+            if not t["parent_id"]]
+
+
+def subtasks_of(tasks, parent_id):
+    return [t for t in (normalize_task(x) for x in (tasks or []))
+            if t["parent_id"] == parent_id]
+
+
+def subtask_rollup(tasks):
+    """{parent_id: {"total", "done", "percent"}} — percent = floor(done/total*100).
+    A parent with subtasks shows THIS percent as its progress (the app and the
+    server agree); a parent without subtasks keeps its own progress."""
+    out = {}
+    for t in (normalize_task(x) for x in (tasks or [])):
+        pid = t["parent_id"]
+        if not pid:
+            continue
+        r = out.setdefault(pid, {"total": 0, "done": 0, "percent": 0})
+        r["total"] += 1
+        if t["status"] == STATUS_DONE:
+            r["done"] += 1
+    for r in out.values():
+        r["percent"] = r["done"] * 100 // r["total"] if r["total"] else 0
+    return out
+
+
+# ------------------------------------------------------ p2plan: recurring
+
+def _days_in_month(y, m):
+    if m == 12:
+        return 31
+    from datetime import date
+    return (date(y, m + 1, 1) - date(y, m, 1)).days
+
+
+def next_due(due, repeat):
+    """Next occurrence of a recurring task's due (ISO string) or "" when the
+    task does not repeat / has no due. Monthly keeps the day, clamped to the
+    month's last day (31 Jan -> 28/29 Feb). Keeps the time of day."""
+    from datetime import timedelta
+    if repeat not in (REPEAT_DAILY, REPEAT_WEEKLY, REPEAT_MONTHLY):
+        return ""
+    d = _parse(due)
+    if d is None:
+        return ""
+    if repeat == REPEAT_DAILY:
+        n = d + timedelta(days=1)
+    elif repeat == REPEAT_WEEKLY:
+        n = d + timedelta(days=7)
+    else:
+        y, m = (d.year + 1, 1) if d.month == 12 else (d.year, d.month + 1)
+        n = d.replace(year=y, month=m, day=min(d.day, _days_in_month(y, m)))
+    return n.replace(tzinfo=None).isoformat(timespec="minutes")
+
+
+def roll_forward(due, repeat, now):
+    """next_due() repeated until the result is after `now` (a task finished
+    late must not spawn an already-overdue copy). Capped at 400 steps."""
+    nxt = next_due(due, repeat)
+    ref = now.replace(tzinfo=None) if hasattr(now, "replace") else now
+    steps = 0
+    while nxt and steps < 400:
+        d = _parse(nxt)
+        if d is None or d.replace(tzinfo=None) > ref:
+            break
+        nxt = next_due(nxt, repeat)
+        steps += 1
+    return nxt
+
+
+def spawn_next(task, now):
+    """When a recurring task is marked done: the NEW task to create (todo,
+    progress 0, next due) — or None for a one-off. Subtasks never repeat."""
+    t = normalize_task(task)
+    if t["parent_id"] or t["repeat"] == REPEAT_NONE:
+        return None
+    nxt = roll_forward(t["due"], t["repeat"], now)
+    if not nxt:
+        return None
+    out = dict(t)
+    out.pop("id", None)
+    out.update({"status": STATUS_TODO, "progress": 0, "due": nxt})
+    return out
+
+
+# ------------------------------------------------- p2plan: voice priority
+
+# Words that set a priority when spoken/typed in a quick-add phrase. Longest
+# first so "খুব জরুরি" wins over "জরুরি". Stripped from the title.
+_PRIORITY_WORDS = (
+    ("খুব জরুরি", PRIORITY_URGENT), ("অতি জরুরি", PRIORITY_URGENT),
+    ("very urgent", PRIORITY_URGENT), ("জরুরি", PRIORITY_URGENT),
+    ("জরুরী", PRIORITY_URGENT), ("urgent", PRIORITY_URGENT),
+    ("asap", PRIORITY_URGENT), ("গুরুত্বপূর্ণ", PRIORITY_HIGH),
+    ("important", PRIORITY_HIGH), ("high priority", PRIORITY_HIGH),
+    ("পরে করলেও চলবে", PRIORITY_LOW), ("low priority", PRIORITY_LOW),
+)
+
+
+def voice_priority(text):
+    """(priority, cleaned_text) — first matching priority word, removed from
+    the text (with a leading comma/dash). No match -> (normal, text)."""
+    import re
+    s = str(text or "")
+    low = s.lower()
+    for word, pr in _PRIORITY_WORDS:
+        i = low.find(word)
+        if i >= 0:
+            cleaned = (s[:i] + s[i + len(word):])
+            cleaned = re.sub(r"\s*[,،।\-–]\s*$", "", " ".join(cleaned.split()))
+            cleaned = re.sub(r"^\s*[,،।\-–]\s*", "", cleaned)
+            return pr, cleaned.strip()
+    return PRIORITY_NORMAL, " ".join(s.split())

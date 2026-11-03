@@ -112,6 +112,8 @@ const Map<String, bool> kFeatureDefaults = {
   'ai_inbox': true,
   'pa_secretary': true,
   'ps_secretary': false,
+  // p2plan (owner PART 2): AI daily planner
+  'ai_daily_planner': false,
   'business': true,
   'crm': true,
   'business_agent': true,
@@ -169,6 +171,9 @@ const Map<String, String> kRouteFeature = {
   'circle_privacy': 'my_circle',
   'circle_calls': 'calls',
   'reminders': 'reminders',
+  // p2plan: task manager (push 'tasks') + AI daily planner
+  'task_manager': 'task_manager',
+  'day_planner': 'ai_daily_planner',
   'birthdays': 'birthdays',
   'meetings': 'meetings',
   'notes': 'notes',
