@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/action_feedback.dart' show openForUser;
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/local_counter.dart';
 import '../../widgets/local_digits.dart';
 import '../../widgets/wrapped_share.dart';
