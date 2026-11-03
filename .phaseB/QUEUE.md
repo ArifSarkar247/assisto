@@ -104,12 +104,12 @@ Status words: DONE (shipped in a build) / IN PROGRESS / WAITING FOR OWNER. "DONE
 ## PART 3 (owner 2 Nov) — real state
 - 3.1 Home feed live (dollar, gold, football/cricket, offers, packages) — NOT STARTED (home frozen; needs official/licensed sources)
 - 3.2 Documents typed add, PIN recovery, free limit — PARTIAL (vault exists; typed add/recovery not verified)
-- 3.3 Service guide — NOT STARTED
+- 3.3 Service guide — DONE code (p3guides 3 Nov; board 68): /guides bug fixed (advanced content now reaches the phone), official sources + last-checked + published fees only, e-namjari; owner: fee screenshots from a BD network
 - 3.4 Daily info and services — PARTIAL (lifebar, board rows 24-70)
 - 3.5 Ramadan tracker (deadline Jan 2027) — PARTIAL (ramadan screen/calendar/alarms exist; no board row)
 - 3.6 Quran Majid — NOT STARTED (needs licensed text + audio)
-- 3.7 Probashi corner — PARTIAL (board 63)
-- 3.8 Student corner — PARTIAL (board 61)
+- 3.7 Probashi corner — DONE code behind flag official_corners (p3guides; board 63 visible): Help tab helplines/welfare/real cost/SOS abroad; owner 2-phone test pending
+- 3.8 Student corner — DONE code behind flag official_corners (p3guides; board 61 visible): study timer + official dates/save-a-deadline; exam watcher kept
 - 3.9 Travel Planner — PARTIAL (board 49)
 - 3.10 Wedding and events — PARTIAL (screen+engine exist; no board row)
 - 3.11 Ride and Food — PARTIAL (board 63, opens partner apps)
