@@ -166,7 +166,8 @@ bool dailyToolMatches(AppLocalizations t, String id, String query) {
   final hay = [
     dailyToolTitle(t, id),
     dailyToolSub(t, id),
-    t.dtKeywords(id),
+    // ICU reserves 'date' as a keyword, so that case is named 'calendar'.
+    t.dtKeywords(id == 'date' ? 'calendar' : id),
     _enKeywords[id] ?? '',
     id,
   ].join(' ').toLowerCase();
