@@ -165,7 +165,12 @@ void main() {
     SafePlansDeps.debugApi = FakeSafeApi(safeStatus());
     await tester.pumpWidget(_app(const SafePlansScreen()));
     await tester.pumpAndSettle();
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(tester.view.reset);
     await tester.scrollUntilVisible(find.text(en.spEnterCode), 200);
+    await tester.ensureVisible(find.text(en.spEnterCode));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(en.spEnterCode));
     await tester.pumpAndSettle();
     expect(find.widgetWithText(ChoiceChip, 'Rina'), findsOneWidget);

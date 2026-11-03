@@ -354,12 +354,12 @@ class _AlwaysFreeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
-    final green = Brand.onTint(context, const Color(0xFF16A34A));
+    final green = Brand.onTint(context, Brand.green);
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFF16A34A).withValues(alpha: 0.10),
-        border: Border.all(color: const Color(0xFF16A34A).withValues(alpha: 0.35)),
+        color: Brand.green.withValues(alpha: 0.10),
+        border: Border.all(color: Brand.green.withValues(alpha: 0.35)),
         borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -410,7 +410,7 @@ class _PlanCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.check_circle, size: 20, color: Brand.onTint(context, const Color(0xFF16A34A))),
+                Icon(Icons.check_circle, size: 20, color: Brand.onTint(context, Brand.green)),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(f, style: tt.bodyMedium)),
               ]),

@@ -190,7 +190,7 @@
   "@spCurrent": {
    "description": "safeplans"
   },
-  "spNotOnSale": "Coming soon. Buying opens when the store is ready.",
+  "spNotOnSale": "Buying is closed for now. Free requests and all safety alerts work as usual.",
   "@spNotOnSale": {
    "description": "safeplans"
   },
@@ -327,10 +327,6 @@
   "@spAdPaid": {
    "description": "safeplans"
   },
-  "spAdNoClick": "Nothing is given for clicking an ad.",
-  "@spAdNoClick": {
-   "description": "safeplans"
-  },
   "spOutTitle": "Location requests used up",
   "@spOutTitle": {
    "description": "safeplans"
@@ -407,7 +403,7 @@
   "spCodeGuardians": "এই সন্তানের অভিভাবকের সংখ্যা ইতিমধ্যে সর্বোচ্চ।",
   "spCodeFailed": "চালু করা গেল না। আবার চেষ্টা করুন।",
   "spCurrent": "আপনার বর্তমান প্ল্যান",
-  "spNotOnSale": "শিগগিরই আসছে। স্টোর তৈরি হলে কেনা যাবে।",
+  "spNotOnSale": "এখন কেনা বন্ধ। ফ্রি অনুরোধ আর সব নিরাপত্তা-খবর আগের মতোই চলবে।",
   "spPriceRetry": "দাম আসেনি। আবার চেষ্টা করতে চাপুন",
   "spBuyFor": "{price}-এ কিনুন",
   "spBuyDone": "হয়ে গেছে। আপনার প্ল্যান হালনাগাদ হয়েছে।",
@@ -433,7 +429,6 @@
   "spAdChild": "শিশুর অ্যাকাউন্টে কখনো বিজ্ঞাপন নেই।",
   "spAdNotGuardian": "বিজ্ঞাপন-আনলক অভিভাবকদের জন্য। আগে My Circle-এ সন্তানকে যোগ করুন।",
   "spAdPaid": "আপনার প্ল্যানে কোনো বিজ্ঞাপন নেই।",
-  "spAdNoClick": "বিজ্ঞাপনে ক্লিক করলে কিছু দেওয়া হয় না।",
   "spOutTitle": "লোকেশন অনুরোধ শেষ",
   "spOutBody": "SOS আর নিরাপত্তার খবর আগের মতোই চলবে। আবার জানতে:",
   "spOutBuy": "ক্রেডিট কিনুন",

@@ -246,6 +246,7 @@ void main() {
         'lib/photo_studio/ps_ads.dart',
         'lib/photo_studio/ps_export.dart', // Photo Studio unlock
         'lib/chat_vision/cv_controller.dart', // photo question to Assisto AI
+        'lib/safe_plans/safe_ad_unlock_screen.dart', // safeplans: owner order 3 Nov PART 4, guardians only
       };
       expect(rewarded.difference(allowed), isEmpty,
           reason: 'new rewarded entry point: ${rewarded.difference(allowed)}');

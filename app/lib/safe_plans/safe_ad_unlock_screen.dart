@@ -96,7 +96,7 @@ class _SafeAdUnlockScreenState extends State<SafeAdUnlockScreen> {
         try {
           final s = await _api.adTicketState('${ticket['nonce']}');
           status = '${s['status'] ?? 'pending'}';
-        } catch (_) {}
+        } catch (_) {} // best-effort: stays pending -> the honest pending note
       }
       await _load();
       if (!mounted) return;
@@ -190,8 +190,6 @@ class _SafeAdUnlockScreenState extends State<SafeAdUnlockScreen> {
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(_note!, style: Theme.of(context).textTheme.bodyMedium),
         ),
-      const SizedBox(height: Gap.md),
-      Text(t.spAdNoClick, style: Theme.of(context).textTheme.bodySmall),
     ];
   }
 }

@@ -276,7 +276,7 @@ const Map<String, String> kRouteFeature = {
   'crm': 'crm',
   'booking': 'booking_bot',
   'market': 'assisto_market',
-  'safe_plans': 'safe_plans', // safeplans
+  'safe_plans': 'safe_plans',
   'my_bookings': 'booking_bot',
   'books': 'accounting_v2',
   'acct': 'accounting_v2', // acctui
