@@ -701,7 +701,9 @@ class QuranAboutScreen extends StatelessWidget {
               onPressed: () async {
                 try {
                   await launchUrl(tanzil, mode: LaunchMode.externalApplication);
-                } catch (_) {/* no browser: the address is shown above */}
+                } catch (_) {
+                  // best-effort: no browser app; tanzil.net is written above
+                }
               },
             ),
           ),
