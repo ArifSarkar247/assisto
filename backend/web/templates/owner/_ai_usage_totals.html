@@ -1,0 +1,4 @@
+<div class="tbl"><table><thead><tr><th>{{ L.provider }}</th><th>{{ L.requests }}</th><th>{{ L.tin }}</th><th>{{ L.tout }}</th><th>{{ L.usd }}</th><th>{{ L.bdt }}</th></tr></thead><tbody>
+{% for r in t.rows %}<tr><td>{{ r.provider }}</td><td>{{ r.requests }}</td><td>{{ r.tokens_in }}</td><td>{{ r.tokens_out }}</td><td>{{ r.usd }}</td><td>{{ r.bdt }}</td></tr>{% endfor %}
+<tr><td><b>{{ t.total.provider }}</b></td><td><b>{{ t.total.requests }}</b></td><td><b>{{ t.total.tokens_in }}</b></td><td><b>{{ t.total.tokens_out }}</b></td><td><b>{{ t.total.usd }}</b></td><td><b>{{ t.total.bdt }}</b></td></tr>
+</tbody></table></div>

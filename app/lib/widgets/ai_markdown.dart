@@ -40,7 +40,7 @@ bool aiSafeUrl(String raw) {
 final _html = RegExp(r'<\/?[a-zA-Z][^>]*>');
 final _image = RegExp(r'!\[([^\]]*)\]\([^)]*\)');
 final _ul = RegExp(r'^\s*[-*+•]\s+(.*)$');
-final _ol = RegExp(r'^\s*([0-9০-৯]{1,3})[.)]\s+(.*)$');
+final _ol = RegExp('^\\s*([0-9\u09E6-\u09EF]{1,3})[.)]\\s+(.*)\$');
 final _h = RegExp(r'^\s*#{1,6}\s+(.*)$');
 final _rule = RegExp(r'^\s*([-*_]\s*){3,}$');
 

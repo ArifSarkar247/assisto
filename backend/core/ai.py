@@ -543,7 +543,8 @@ def mask_for_provider(task, data="", history=None, extra_system="", pii=None):
 
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
-             task_class=None, mode=None, out_meta=None, upgrade=False, pii=None):
+             task_class=None, mode=None, out_meta=None, upgrade=False, pii=None,
+             level=""):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -724,7 +725,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             input_tokens=itok, output_tokens=otok, cost_usd=cost,
             provider=name, tier=tier, task_class=klass, latency_ms=latency,
             ok=True, hops=hops, attempts="|".join(attempts)[:240],
-            cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged)
+            cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged,
+            level=(level or "")[:10])
         if isinstance(out_meta, dict):
             out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded})
         try:
@@ -745,7 +747,9 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             user=user, feature=(feature or "")[:40], model="", cost_usd=0.0,
             tier=tier, task_class=klass, ok=False, hops=len(attempts),
             attempts="|".join(attempts)[:240], error_kind=kind[:30],
-            latency_ms=int((_time.monotonic() - t_all) * 1000))
+            latency_ms=int((_time.monotonic() - t_all) * 1000),
+            level=(level or "")[:10], credits_charged=charged,
+            refunded=charged if (user is not None and charged) else 0)
     except Exception:
         pass
     if user is not None and charged:

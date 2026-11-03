@@ -191,6 +191,8 @@ def _refund_turn(user, meta_out, why):
         billing.credit(user, "adjust", n, note="ai_refund:" + why)
         meta_out["charged"] = 0
         meta_out["refunded"] = n
+        from . import ai_usage_log
+        ai_usage_log.mark_refunded(user, n, why)
         log.info("chat: refunded %s credits (%s)", n, why)
     except Exception:  # noqa: BLE001
         log.exception("chat: refund failed (%s)", why)

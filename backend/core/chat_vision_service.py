@@ -335,6 +335,10 @@ def answer(user, job, data, lang="bn"):
     job.runs += 1
     job.provider = slug
     job.save(update_fields=["status", "runs", "provider"])
+    import time as _time
+    from . import ai_usage_log as UL
+    t0 = _time.monotonic()
+    hops = 0
     try:
         reply, err = None, None
         for prov in [slug] + _fallbacks(slug, c):     # Claude first, then same-or-cheaper
@@ -349,6 +353,7 @@ def answer(user, job, data, lang="bn"):
                 break
             except VP.VisionError as e:
                 err = str(e)
+                hops += 1
                 log.warning("chat_vision: provider %s failed: %s", prov, err)
         if reply is None:
             raise VP.VisionError(err or "failed")
@@ -363,6 +368,10 @@ def answer(user, job, data, lang="bn"):
             log.info("chat_vision: refunded %s credits for job %s (%s)",
                      job.credits_charged, job.pk, job.error)
         job.save(update_fields=["error", "status"])
+        UL.log_vision(user, slug, conf, 0.0, (_time.monotonic() - t0) * 1000, False,
+                      hops=hops, error=job.error.split(":")[0],
+                      charged=job.credits_charged,
+                      refunded=job.credits_charged if job.funding in ("credits", "pool") else 0)
         return 502, {"ok": False, "reason": "provider_failed",
                      "message": pick(lang, "এই মুহূর্তে ছবিটি পড়া গেল না — কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
                                      "The photo couldn't be read right now — no credits were used. Please try again."),
@@ -387,4 +396,6 @@ def answer(user, job, data, lang="bn"):
     job.error = ""
     job.save()
     billing.record_cost("ai", job.cost_bdt)
+    UL.log_vision(user, slug, conf, cost_usd, (_time.monotonic() - t0) * 1000, True,
+                  hops=hops, charged=job.credits_charged)
     return 200, {"ok": True, "job": job_state(job, lang)}
