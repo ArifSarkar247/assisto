@@ -1,0 +1,22 @@
+{
+  "_doc": "nearby (owner 3 Nov 18:50): which Geofabrik extracts the monthly GitHub Actions job (.github/workflows/nearby_data.yml) downloads, in the owner's rollout order. One download per extract per run, one at a time (Geofabrik asks for no parallel hammering). 'countries' = the ISO codes kept from that extract (points are assigned to a country with Natural Earth admin-0 polygons, public domain). The planet file is never used.",
+  "geofabrik": "https://download.geofabrik.de/",
+  "rollout": [
+    {"region": "asia/bangladesh", "countries": ["BD"]},
+    {"region": "asia/gcc-states", "countries": ["SA", "AE", "QA", "OM", "KW"]},
+    {"region": "asia/malaysia-singapore-brunei", "countries": ["MY", "SG"]},
+    {"region": "europe/italy", "countries": ["IT"]},
+    {"region": "europe/united-kingdom", "countries": ["GB"]},
+    {"region": "north-america/us", "countries": ["US"]}
+  ],
+  "rollout_order": ["BD", "SA", "AE", "MY", "QA", "OM", "KW", "SG", "IT", "GB", "US"],
+  "world": [
+    {"region": "asia", "countries": ["*"]},
+    {"region": "africa", "countries": ["*"]},
+    {"region": "south-america", "countries": ["*"]},
+    {"region": "central-america", "countries": ["*"]},
+    {"region": "australia-oceania", "countries": ["*"]},
+    {"region": "north-america", "countries": ["*"]},
+    {"region": "europe", "countries": ["*"]}
+  ]
+}
