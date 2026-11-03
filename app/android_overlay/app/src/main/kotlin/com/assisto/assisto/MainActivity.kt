@@ -379,6 +379,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // viewonce: "com.assisto/video_compress" (trim + 720p before send).
+        // Handler only — the media3 Transformer is made when Dart asks.
+        try {
+            com.assisto.assisto.media.VideoCompressChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

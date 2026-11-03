@@ -28,7 +28,10 @@ class MediaHttpError implements Exception {
 
 /// Network seam for media upload / download / send (fake in tests).
 abstract class MediaTransport {
-  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256);
+  /// viewonce: [durationMs] (video / voice) lets the server refuse a clip
+  /// over the owner's length limit with a clear Bangla + English message.
+  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256,
+      {int? durationMs});
   Future<Map<String, dynamic>> blobStatus(String ref);
   Future<Map<String, dynamic>> putChunk(String ref, int offset, Uint8List bytes);
   Future<Map<String, dynamic>> finish(String ref);
@@ -83,8 +86,14 @@ class HttpMediaTransport implements MediaTransport {
           .timeout(_t));
 
   @override
-  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256) =>
-      _post('/circle/media/blobs', {'kind': kind, 'size': size, 'sha256': sha256});
+  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256,
+          {int? durationMs}) =>
+      _post('/circle/media/blobs', {
+        'kind': kind,
+        'size': size,
+        'sha256': sha256,
+        if (durationMs != null) 'duration_ms': durationMs, // viewonce
+      });
 
   @override
   Future<Map<String, dynamic>> blobStatus(String ref) => _get('/circle/media/blobs/$ref');

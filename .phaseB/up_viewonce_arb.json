@@ -1,0 +1,102 @@
+{
+  "_comment": "viewonce (owner My Circle order 3 Nov 16:30, parts F + G): media limits (trim / 720p / voice) + view once photo/video/voice. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_viewonce_arb.json",
+  "en": {
+    "vo1Voice": "Voice",
+    "vo1PreviewPhoto": "Photo, view once",
+    "vo1PreviewVideo": "Video, view once",
+    "vo1PreviewVoice": "Voice, view once",
+    "vo1AlreadyOpened": "This was already opened once. It can't be opened again.",
+    "vo1Expired": "Not opened within 14 days, so it was deleted",
+    "vo1NeedsInternet": "Connect to the internet to open it. It can be opened only once.",
+    "vo1OpenFailed": "Couldn't open it. Check the internet and try again.",
+    "vo1HonestLine": "Note: someone could still photograph the screen with another camera.",
+    "vo1ViewerTitleVideo": "View once video",
+    "vo1ViewerTitleVoice": "View once voice message",
+    "vo1ViewerHintAll": "When you close it, it's gone for good. Screenshots and screen recording are blocked.",
+    "vo1OpenedAt": "Opened {time}",
+    "@vo1OpenedAt": {
+      "placeholders": {
+        "time": {
+          "type": "Object"
+        }
+      }
+    },
+    "vo1OpenedCount": "Opened by {count} of {total}",
+    "@vo1OpenedCount": {
+      "placeholders": {
+        "count": {
+          "type": "Object"
+        },
+        "total": {
+          "type": "Object"
+        }
+      }
+    },
+    "vo1ToggleOnHint": "View once: they can open it one time only",
+    "vo1Compressing": "Making the video smaller (720p)…",
+    "vo1CompressFailed": "Couldn't make this video smaller on this phone. Choose a clip up to {minutes} min and {mb} MB.",
+    "@vo1CompressFailed": {
+      "placeholders": {
+        "minutes": {
+          "type": "Object"
+        },
+        "mb": {
+          "type": "Object"
+        }
+      }
+    },
+    "vo1TrimTitle": "Choose the part to send",
+    "vo1TrimBody": "Videos can be up to {minutes} min. Move the two handles to choose the part to send.",
+    "@vo1TrimBody": {
+      "placeholders": {
+        "minutes": {
+          "type": "Object"
+        }
+      }
+    },
+    "vo1TrimSelected": "Selected: {length} · about {size}",
+    "@vo1TrimSelected": {
+      "placeholders": {
+        "length": {
+          "type": "Object"
+        },
+        "size": {
+          "type": "Object"
+        }
+      }
+    },
+    "vo1TrimDone": "Use this part",
+    "vo1VoiceMax": "Voice messages can be up to {minutes} minutes long.",
+    "@vo1VoiceMax": {
+      "placeholders": {
+        "minutes": {
+          "type": "Object"
+        }
+      }
+    }
+  },
+  "bn": {
+    "vo1Voice": "ভয়েস",
+    "vo1PreviewPhoto": "ছবি, একবার দেখা",
+    "vo1PreviewVideo": "ভিডিও, একবার দেখা",
+    "vo1PreviewVoice": "ভয়েস, একবার শোনা",
+    "vo1AlreadyOpened": "এটি আগেই একবার খোলা হয়েছে। আর খোলা যাবে না।",
+    "vo1Expired": "১৪ দিনে খোলা হয়নি, তাই মুছে গেছে",
+    "vo1NeedsInternet": "খুলতে ইন্টারনেট চালু করুন। এটি মাত্র একবার খোলা যায়।",
+    "vo1OpenFailed": "খোলা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "vo1HonestLine": "মনে রাখবেন: অন্য ক্যামেরা দিয়ে স্ক্রিনের ছবি তোলা তবুও সম্ভব।",
+    "vo1ViewerTitleVideo": "একবার দেখার ভিডিও",
+    "vo1ViewerTitleVoice": "একবার শোনার ভয়েস মেসেজ",
+    "vo1ViewerHintAll": "বন্ধ করলে এটি চিরতরে মুছে যাবে। স্ক্রিনশট ও স্ক্রিন রেকর্ড বন্ধ।",
+    "vo1OpenedAt": "খোলা হয়েছে {time}",
+    "vo1OpenedCount": "{total} জনের মধ্যে {count} জন খুলেছেন",
+    "vo1ToggleOnHint": "একবার দেখা: উনি এটি মাত্র একবার খুলতে পারবেন",
+    "vo1Compressing": "ভিডিও ছোট করা হচ্ছে (৭২০p)…",
+    "vo1CompressFailed": "এই ফোনে ভিডিওটি ছোট করা গেল না। {minutes} মিনিট ও {mb} MB-এর মধ্যে একটি ভিডিও বেছে নিন।",
+    "vo1TrimTitle": "কোন অংশ পাঠাবেন বেছে নিন",
+    "vo1TrimBody": "ভিডিও সর্বোচ্চ {minutes} মিনিট। দুই পাশের হাতল সরিয়ে পাঠানোর অংশ বেছে নিন।",
+    "vo1TrimSelected": "বাছাই: {length} · প্রায় {size}",
+    "vo1TrimDone": "এই অংশ পাঠান",
+    "vo1VoiceMax": "ভয়েস মেসেজ সর্বোচ্চ {minutes} মিনিট লম্বা হতে পারে।"
+  }
+}

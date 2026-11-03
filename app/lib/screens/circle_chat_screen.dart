@@ -696,13 +696,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           ..._messages,
           CircleMessage(
               id: lid,
-              text: s.desc!.caption,
+              text: j.viewOnce ? '' : s.desc!.caption, // viewonce
               mine: true,
               at: s.at ?? j.at,
               status: 'sent',
               replyToId: s.replyTo,
               contentType: s.desc!.kind,
-              media: s.desc),
+              media: s.desc,
+              viewOnce: j.viewOnce), // viewonce: the "1" tile, never the file
         ];
       }
       _mediaJobs = jobs;
@@ -866,7 +867,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final d = m.media;
     if (d == null || m.mine || m.viewOnceOpened) return;
     await openViewOnce(context,
-        msgId: m.id, desc: d, deps: ViewOnceDeps.real(_ackViewOnce));
+        msgId: m.id, desc: d, deps: ViewOnceDeps.real(_ackViewOnce, api: _api)); // viewonce
     if (!mounted) return;
     setState(() {
       _messages = [
@@ -1185,6 +1186,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       media: media,
       viewOnce: viewOnce,
       viewOnceOpened: voOpened,
+      // viewonce: "Opened 10:42" for the sender; deleted unopened (14 days)
+      viewOnceOpenedAt: DateTime.tryParse('${env['view_once_opened_at'] ?? ''}'),
+      viewOnceExpired: env['view_once_expired'] == true,
     );
   }
 

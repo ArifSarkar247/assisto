@@ -200,6 +200,8 @@ JOBS = (
     Job("agent_core_run", MIN, "* * * * *", "nice -n10", lock=True, via="minute_jobs"),
     # p3docs: delete ciphertext of ended vault share links (no own process)
     Job("vault_share_purge", MIN, "* * * * *", via="minute_jobs"),
+    # viewonce: delete opened / 14-day-old view-once media (no own process)
+    Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -212,6 +214,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("ezviz_poll_alarms", {}),
                # p3docs: cheap; returns at once when no link has ended
                ("vault_share_purge", {"quiet": True}),
+               # viewonce: cheap indexed sweep; returns at once when none
+               ("view_once_purge", {"quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 

@@ -243,12 +243,13 @@ class LiveLocationTests(_Base):
 class VideoTests(_Base):
     def test_video_is_a_chat_kind_with_own_cap(self):
         self.assertIn("video", CB.CHAT_MEDIA_KINDS)
-        self.assertEqual(CB.max_bytes("video"), 32 * MB + 64 * 1024)
+        # viewonce (owner 3 Nov): 25 MB (720p on the phone)
+        self.assertEqual(CB.max_bytes("video"), 25 * MB + 64 * 1024)
         lim = self.ca.get(V + "/circle/media/limits").json()
-        self.assertEqual(lim["video_max_bytes"], 32 * MB)
+        self.assertEqual(lim["video_max_bytes"], 25 * MB)
         self.assertIn("video", lim["kinds"])
         r = self.ca.post(V + "/circle/media/blobs", {
-            "kind": "video", "size": 33 * MB, "sha256": "0" * 64},
+            "kind": "video", "size": 26 * MB, "sha256": "0" * 64},
             format="json")
         self.assertEqual(r.json()["reason"], "too_big")
 

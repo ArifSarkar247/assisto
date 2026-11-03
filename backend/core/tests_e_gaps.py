@@ -117,7 +117,13 @@ class ViewOnceTests(_Base):
         self.assertEqual(r.json()["state"], "opened")
         x = CircleMessage.objects.get(pk=mid)
         self.assertIsNotNone(x.view_once_opened_at)
-        self.assertEqual((x.ciphertext, x.nonce, x.blob_ref), ("", "", ""))
+        self.assertEqual((x.ciphertext, x.nonce), ("", ""))
+        # viewonce: the encrypted blob goes with the minute job, 15 min after
+        # the open (so the one download link can finish)
+        from core import e_gaps
+        e_gaps.purge_view_once(now=timezone.now() + timedelta(minutes=16))
+        x.refresh_from_db()
+        self.assertEqual(x.blob_ref, "")
         self.assertFalse(CircleMediaBlob.objects.filter(ref=ref).exists())
         self.assertFalse(os.path.exists(CB.path_for(ref)))
         # both sides now see "opened" and no ciphertext

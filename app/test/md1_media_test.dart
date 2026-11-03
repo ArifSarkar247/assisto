@@ -46,7 +46,8 @@ class FakeServer implements MediaTransport {
   int _n = 0;
 
   @override
-  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256) async {
+  Future<Map<String, dynamic>> createBlob(String kind, int size, String sha256,
+      {int? durationMs}) async {
     if (createError != null) throw createError!;
     final ref = (++_n).toRadixString(16).padLeft(32, 'a');
     blobs[ref] = {'kind': kind, 'size': size, 'sha': sha256, 'data': BytesBuilder(), 'complete': false};

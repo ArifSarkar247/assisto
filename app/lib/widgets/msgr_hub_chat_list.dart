@@ -38,6 +38,7 @@ import 'msgr_avatar.dart';
 import 'robo_id.dart';
 import '../messaging/chat_decor/decor_store.dart'; // cde-chat
 import '../messaging/chat_lock.dart'; // e-gaps
+import '../messaging/view_once_preview.dart'; // viewonce
 import '../messenger_chat_api.dart'; // e-gaps: clear (forgot lock code)
 import '../messenger_group_api.dart';
 import '../screens/circle_search_screen.dart'; // e-gaps: message search
@@ -1692,6 +1693,8 @@ String chatListTime(AppLocalizations t, DateTime at, String lang,
 Color typingGreen(BuildContext context) => AssistoTokens.of(context).success;
 
 String mediaPreviewLabel(AppLocalizations t, String ct) {
+  final vo = viewOnceLabel(t, ct); // viewonce: "Photo, view once"
+  if (vo != null) return vo;
   switch (ct) {
     case 'photo':
     case 'image':
@@ -1712,7 +1715,9 @@ String mediaPreviewLabel(AppLocalizations t, String ct) {
   }
 }
 
-IconData mediaPreviewIcon(String ct) => const {
+IconData mediaPreviewIcon(String ct) => isVoPreviewKind(ct)
+    ? Icons.looks_one_outlined // viewonce
+    : const {
       'photo': Icons.photo_rounded,
       'image': Icons.photo_rounded,
       'video': Icons.videocam_rounded,

@@ -291,6 +291,10 @@ import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/messaging/msg_widgets.dart';
+import 'package:assisto/messaging/media/video_limits_flow.dart' show VideoTrimScreen; // viewonce
+import 'package:assisto/messaging/view_once.dart' show ViewOnceViewer; // viewonce
+import 'package:assisto/photo_studio/ps_engines.dart' show ChannelSecureScreen; // viewonce
+import 'dart:convert' show base64Decode; // viewonce
 import 'package:assisto/widgets/msgr_hub_chat_list.dart';
 import 'package:assisto/screens/messenger/msgr_set_notifications_screen.dart';
 import 'fake_c3_msg.dart';
@@ -1022,6 +1026,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'guide': (build: (_) => const GuideScreen(), mode: FakeMode.data, full: true),
     // p3guides (flag official_corners for the corner tabs): official fee
     // table + ticked documents, Probashi Help, study timer, official dates.
+    // viewonce: the 3-minute trim screen + the view-once photo viewer
+    'vo1_trim': (build: (_) => const VideoTrimScreen(durationMs: 312000), mode: FakeMode.data, full: true),
+    'vo1_viewer': (build: (_) => ViewOnceViewer(bytes: base64Decode(_vo1Png), secure: const ChannelSecureScreen()), mode: FakeMode.data, full: true),
     'p3g_guide_card': (build: (_) => const _P3gGuideCardShot(), mode: FakeMode.data, full: true),
     'p3g_probashi_help': (build: (_) => const _P3gTabShot(which: 'help'), mode: FakeMode.data, full: true),
     'p3g_probashi_help_offline': (build: (_) => const _P3gTabShot(which: 'help'), mode: FakeMode.fail, full: true),
@@ -1678,3 +1685,6 @@ class _LwFlagsState extends State<_LwFlags> {
   @override
   Widget build(BuildContext context) => widget.child;
 }
+// viewonce: a real 1x1 PNG for the view-once viewer shot
+const _vo1Png =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';

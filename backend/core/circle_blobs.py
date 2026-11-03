@@ -55,12 +55,19 @@ _OVERHEAD = 64 * 1024
 _DEFAULTS = {
     "circle_media_photo_max_mb": 16,
     "circle_media_voice_max_mb": 16,
-    "circle_media_doc_max_mb": 25,
-    "circle_media_video_max_mb": 32,
+    "circle_media_doc_max_mb": 100,
+    "circle_media_video_max_mb": 25,
     "circle_media_daily_mb": 300,
-    "circle_media_uploads_per_hour": 60,
+    "circle_media_uploads_per_hour": 300,   # viewonce: 30-photo albums (owner 3 Nov)
     "circle_media_keep_days": 30,
     "circle_media_max_days": 90,
+    # viewonce (owner 3 Nov): durations, video height, photos per send,
+    # view-once server-copy lifetime (all owner-editable, admin pricing)
+    "circle_media_video_max_seconds": 180,
+    "circle_media_video_height": 720,
+    "circle_media_voice_max_seconds": 900,
+    "circle_media_photos_per_send": 30,
+    "circle_media_view_once_days": 14,
 }
 
 
@@ -101,7 +108,35 @@ def public_limits():
         "chunk_bytes": 512 * 1024,
         "keep_days": lim["circle_media_keep_days"],
         "max_days": lim["circle_media_max_days"],
+        # viewonce (owner 3 Nov): the phone trims / compresses to these
+        "video_max_seconds": lim["circle_media_video_max_seconds"],
+        "video_height": lim["circle_media_video_height"],
+        "voice_max_seconds": lim["circle_media_voice_max_seconds"],
+        "photos_per_send": lim["circle_media_photos_per_send"],
+        "view_once_days": lim["circle_media_view_once_days"],
     }
+
+
+def max_seconds(kind, lim=None):
+    """viewonce: the longest video / voice the server accepts (None = no
+    duration rule for this kind)."""
+    lim = lim or limits()
+    return {"video": lim["circle_media_video_max_seconds"],
+            "voice": lim["circle_media_voice_max_seconds"]}.get(kind)
+
+
+def duration_check(kind, duration_ms, lim=None):
+    """viewonce: None if allowed, else "too_long". The phone declares the
+    clip length when it creates the blob (the server never sees inside the
+    encrypted file); 2 s slack for container rounding."""
+    cap = max_seconds(kind, lim)
+    if cap is None or duration_ms in (None, ""):
+        return None
+    try:
+        ms = int(duration_ms)
+    except (TypeError, ValueError):
+        return "too_long"
+    return "too_long" if ms > (cap + 2) * 1000 else None
 
 
 # ---------------------------------------------------------------- storage
@@ -167,7 +202,24 @@ def quota_check(user, kind, size, lim=None):
     hour = day.filter(created_at__gte=now - timedelta(hours=1)).count()
     if hour >= lim["circle_media_uploads_per_hour"]:
         return "rate_limit"
+    # viewonce (owner 3 Nov): at most N photos / videos "at once" — the
+    # uploads one user starts within one minute.
+    if kind in ("photo", "video") and day.filter(
+            kind__in=("photo", "video"),
+            created_at__gte=now - timedelta(seconds=60)).count() >= \
+            lim["circle_media_photos_per_send"]:
+        return "too_many"
     return None
+
+
+def _bn(n):
+    """Bangla digits for the Bangla messages."""
+    return str(n).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
+
+
+def _mins(sec):
+    s = int(sec)
+    return s // 60 if s % 60 == 0 else round(s / 60.0, 1)
 
 
 def reason_text(code, lang="bn", lim=None):
@@ -176,7 +228,24 @@ def reason_text(code, lang="bn", lim=None):
     return {
         "bad_kind": pick(lang, "এই ধরনের ফাইল পাঠানো যায় না।",
                          "This kind of file can't be sent."),
-        "too_big": pick(lang, "ফাইলটি অনেক বড়।", "This file is too large."),
+        "too_big": pick(lang, "ফাইলটি অনেক বড়। ভিডিও সর্বোচ্চ {} MB, ফাইল সর্বোচ্চ {} MB।".format(
+            _bn(lim["circle_media_video_max_mb"]), _bn(lim["circle_media_doc_max_mb"])),
+            "This file is too large. Videos up to {} MB, files up to {} MB.".format(
+                lim["circle_media_video_max_mb"], lim["circle_media_doc_max_mb"])),
+        # viewonce (owner 3 Nov): clear Bangla + English length message
+        "too_long": pick(
+            lang, "ভিডিও সর্বোচ্চ {} মিনিট, ভয়েস সর্বোচ্চ {} মিনিট। ছোট করে আবার পাঠান।".format(
+                _bn(_mins(lim["circle_media_video_max_seconds"])),
+                _bn(_mins(lim["circle_media_voice_max_seconds"]))),
+            "Videos can be up to {} min and voice messages up to {} min. "
+            "Please make it shorter and send again.".format(
+                _mins(lim["circle_media_video_max_seconds"]),
+                _mins(lim["circle_media_voice_max_seconds"]))),
+        "too_many": pick(
+            lang, "একবারে সর্বোচ্চ {}টি ছবি বা ভিডিও পাঠানো যায়।".format(
+                _bn(lim["circle_media_photos_per_send"])),
+            "You can send up to {} photos or videos at once.".format(
+                lim["circle_media_photos_per_send"])),
         "daily_quota": pick(
             lang, "আজকের পাঠানোর সীমা শেষ ({} MB)। কাল আবার পাঠাতে পারবেন।".format(
                 lim["circle_media_daily_mb"]),

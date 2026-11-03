@@ -16,11 +16,14 @@ import 'media_prep.dart';
 import 'media_store.dart';
 import 'voice_bubble.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'media_limits.dart'; // viewonce
+import '../view_once.dart' show ViewOnceSwitch; // viewonce
 
 /// md1 — record a voice message (AAC-LC .m4a, mono, 32 kbps ≈ 240 KB/min).
 /// The recorder is created only when this sheet opens, after the mic
 /// permission; nothing runs at launch.
-const Duration kVoiceMax = Duration(minutes: 15);
+/// viewonce: the owner's voice limit (15 min default, Owner Admin editable).
+Duration get kVoiceMax => Duration(seconds: MediaLimits.voiceSeconds);
 const Duration kVoiceMin = Duration(seconds: 1);
 
 /// Plugin seam (a fake in widget tests).
@@ -156,6 +159,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
   String _path = '';
   String _error = '';
   bool _busy = false;
+  bool _viewOnce = false; // viewonce: the "1" next to Send
 
   @override
   void initState() {
@@ -260,6 +264,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
           size: f.lengthSync(),
           durationMs: elapsed.inMilliseconds,
           wave: compactWave(_levels),
+          viewOnce: _viewOnce, // viewonce
         ));
   }
 
@@ -314,7 +319,7 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
                     painter: WavePainter(wave, 1, scheme.primary, scheme.primary)),
               ),
               const SizedBox(height: Gap.xs),
-              Text(t.md1VoiceMax,
+              Text(t.vo1VoiceMax(notifLocalizeDigits(context, '${MediaLimits.voiceSeconds ~/ 60}')), // viewonce
                   style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.md),
               Row(
@@ -326,6 +331,10 @@ class _VoiceRecorderSheetState extends State<VoiceRecorderSheet> {
                     onPressed: _discard,
                   ),
                   const Spacer(),
+                  // viewonce: listen once — the "1" next to Send
+                  ViewOnceSwitch(
+                      value: _viewOnce, onChanged: (v) => setState(() => _viewOnce = v)),
+                  const SizedBox(width: Gap.sm),
                   FilledButton.icon(
                     key: const Key('md1-rec-send'),
                     onPressed: _finish,

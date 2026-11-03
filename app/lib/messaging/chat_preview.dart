@@ -8,6 +8,7 @@ import 'media/media_descriptor.dart';
 import 'msg_ticks.dart';
 import '../p3/assisto_card.dart' show cardFallback;
 import 'chat_decor/chat_control.dart'; // cde-chat
+import 'view_once_preview.dart'; // viewonce
 
 /// md2: the decrypted detail a media preview shows after its icon + label:
 /// a photo's caption, a document's file name ('' = just the label).
@@ -132,6 +133,16 @@ class ChatPreview {
     final deleted = '${last['deleted'] ?? ''}';
     if (deleted == 'everyone') return of(PreviewKind.deleted);
     final isMedia = ct != 'text';
+    // viewonce: only "Photo, view once" — never its caption / descriptor
+    ChatPreview voOf() => ChatPreview(
+        kind: PreviewKind.media,
+        mine: mine,
+        senderName: sender,
+        contentType: voPreviewKind(ct),
+        tick: tick,
+        at: at,
+        isGroup: isGroup);
+    if (isMedia && last['view_once'] == true) return voOf();
     final self = identity;
     final keys = candidateKeys(row, extraPeerKeys);
     final cipher = '${last['ciphertext'] ?? ''}';
@@ -162,6 +173,7 @@ class ChatPreview {
       final cc = controlInDescriptor(pt); // cde-chat: a photo theme
       if (cc != null) return of(PreviewKind.text, '', cc);
     }
+    if (isMedia && pt != null && descriptorIsViewOnce(pt)) return voOf(); // viewonce
     if (isMedia) {
       // md2: a photo's caption / a document's NAME (decrypted here - the
       // server never has it); the label + icon otherwise. Never the

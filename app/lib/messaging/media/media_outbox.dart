@@ -410,7 +410,10 @@ class MediaOutbox {
       if (_cancelled.contains(job.id)) return MediaStep.cancelled;
       // 2) blob
       if (job.ref.isEmpty) {
-        final b = await transport.createBlob(job.kind, job.cipherSize, job.sha);
+        final b = await transport.createBlob(job.kind, job.cipherSize, job.sha,
+            durationMs: (job.kind == 'video' || job.kind == 'voice')
+                ? job.durationMs
+                : null); // viewonce: the server checks the length too
         job.ref = '${b['ref'] ?? ''}';
         await _put(job);
       }
@@ -473,7 +476,7 @@ class MediaOutbox {
         'blob_ref': job.ref,
         'client_msg_id': job.id,
         if (job.replyTo != null) 'reply_to': job.replyTo,
-        if (job.viewOnce && job.chatKind == 'member') 'view_once': true,
+        if (job.viewOnce) 'view_once': true, // viewonce: groups too
         'sender_key_id': me.keyId,
         'scheme': _e2e.scheme,
       };
