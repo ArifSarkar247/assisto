@@ -443,7 +443,7 @@ class _ListeningPracticePageState extends State<ListeningPracticePage> {
               Text(tr.lkRightAnswer(opts[ans]),
                   style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
-            Text(_loc(context, row, 'explain_bn', 'explain_en'), style: const TextStyle(height: 1.4)),
+            Text(_loc(context, row!, 'explain_bn', 'explain_en'), style: const TextStyle(height: 1.4)),
           ],
         ]),
       ),

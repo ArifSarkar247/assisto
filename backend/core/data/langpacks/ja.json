@@ -2653,6 +2653,256 @@
      "level": "N3"
     }
    ]
+  },
+  {
+   "id": "jlpt_n3_style_1",
+   "title_en": "JLPT N3 style practice",
+   "title_bn": "JLPT N৩ ধাঁচের অনুশীলন",
+   "format_en": "JLPT N3 style: Vocabulary (30 min), Grammar + Reading (70 min) and Listening (40 min) in the real test; three scored sections 0-60 each, pass 95/180 with a minimum of 19 in each. This set: 14 questions, 25 minutes. Original Assisto practice.",
+   "format_bn": "JLPT N৩ ধাঁচ: আসল পরীক্ষায় শব্দ (৩০ মিনিট), ব্যাকরণ + পড়া (৭০ মিনিট), শোনা (৪০ মিনিট); তিন অংশ, প্রতিটি ০-৬০, পাস ৯৫/১৮০ ও প্রতিটি অংশে ন্যূনতম ১৯। এই সেট: ১৪ প্রশ্ন, ২৫ মিনিট। Assisto-র নিজের অনুশীলন।",
+   "minutes": 25,
+   "sections": [
+    {
+     "id": "vocab",
+     "skill": "vocab",
+     "title_en": "Vocabulary (文字・語彙)",
+     "title_bn": "শব্দ (文字・語彙)",
+     "questions": [
+      {
+       "id": "n3v1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「確認」の よみかたは?",
+       "options": [
+        "かくにん",
+        "かくにんう",
+        "かくじん",
+        "かくいん"
+       ],
+       "answer": 0,
+       "explain_bn": "確認 = যাচাই।",
+       "explain_en": "確認 = kakunin (check)."
+      },
+      {
+       "id": "n3v2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「製品」の よみかたは?",
+       "options": [
+        "ぜいひん",
+        "せいひん",
+        "せいしな",
+        "せいびん"
+       ],
+       "answer": 1,
+       "explain_bn": "製品 = পণ্য।",
+       "explain_en": "製品 = seihin (product)."
+      },
+      {
+       "id": "n3v3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「遅刻」の よみかたは?",
+       "options": [
+        "じこく",
+        "おそこく",
+        "ちこく",
+        "ちごく"
+       ],
+       "answer": 2,
+       "explain_bn": "遅刻 = দেরিতে আসা।",
+       "explain_en": "遅刻 = chikoku (being late)."
+      },
+      {
+       "id": "n3v4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "機械の 調子が おかしいので、すぐ 上司に ___した。",
+       "options": [
+        "予約",
+        "注文",
+        "卒業",
+        "報告"
+       ],
+       "answer": 3,
+       "explain_bn": "報告 = রিপোর্ট করা।",
+       "explain_en": "報告 = report."
+      },
+      {
+       "id": "n3v5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "「慣れる」に 近い いみは?",
+       "options": [
+        "何回も して、ふつうに できるように なる",
+        "はじめて する",
+        "やめる",
+        "わすれる"
+       ],
+       "answer": 0,
+       "explain_bn": "慣れる = অভ্যস্ত হওয়া।",
+       "explain_en": "To get used to."
+      },
+      {
+       "id": "n3v6",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "この 作業は 危ないので、___ 手袋を して ください。",
+       "options": [
+        "ちっとも",
+        "必ず",
+        "たまに",
+        "なかなか"
+       ],
+       "answer": 1,
+       "explain_bn": "必ず = অবশ্যই।",
+       "explain_en": "必ず = always, without fail."
+      }
+     ]
+    },
+    {
+     "id": "grammar_reading",
+     "skill": "grammar",
+     "title_en": "Grammar and Reading (文法・読解)",
+     "title_bn": "ব্যাকরণ ও পড়া (文法・読解)",
+     "questions": [
+      {
+       "id": "n3g1",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "日本に 来た ___、毎日 日本語で 話して います。",
+       "options": [
+        "くせに",
+        "ばかりの ころから",
+        "ところに",
+        "わけで"
+       ],
+       "answer": 1,
+       "explain_bn": "〜たばかり = সবে মাত্র।",
+       "explain_en": "Just after arriving."
+      },
+      {
+       "id": "n3g2",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "明日は 雨が 降る ___ です。天気予報で 言って いました。",
+       "options": [
+        "らしく",
+        "みたいに",
+        "そう",
+        "よう"
+       ],
+       "answer": 2,
+       "explain_bn": "সাধারণ রূপ + そうです = শুনেছি।",
+       "explain_en": "Hearsay そうです."
+      },
+      {
+       "id": "n3g3",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "けがを しない ___、安全靴を はきましょう。",
+       "options": [
+        "ことに",
+        "ばかりに",
+        "せいで",
+        "ように"
+       ],
+       "answer": 3,
+       "explain_bn": "নেতিবাচক + ように = যাতে না হয়।",
+       "explain_en": "So that you don't get hurt."
+      },
+      {
+       "id": "n3g4",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "日本語が 上手に なった の は、先輩が 教えて くれた ___ です。",
+       "options": [
+        "おかげ",
+        "せい",
+        "わけ",
+        "はず"
+       ],
+       "answer": 0,
+       "explain_bn": "おかげ = (ভালো) কারণ।",
+       "explain_en": "Thanks to (good cause)."
+      },
+      {
+       "id": "n3g5",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "仕事が 終わって ___、すぐ 寮に 帰りました。",
+       "options": [
+        "より",
+        "から",
+        "まで",
+        "ほど"
+       ],
+       "answer": 1,
+       "explain_bn": "〜てから = পরে।",
+       "explain_en": "After."
+      },
+      {
+       "id": "n3g6",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "お知らせ: 「来月から、作業服は 会社で 洗います。使った 作業服は 金曜日に 更衣室の かごに 入れて ください。」 作業服は どう しますか。",
+       "options": [
+        "月曜日に 事務所に 持って いく",
+        "新しいのを 買う",
+        "金曜日に 更衣室の かごに 入れる",
+        "自分で 毎日 洗う"
+       ],
+       "answer": 2,
+       "explain_bn": "শুক্রবার চেঞ্জিং রুমের ঝুড়িতে।",
+       "explain_en": "Put it in the changing-room basket on Friday."
+      },
+      {
+       "id": "n3g7",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "メール: 「研修は 9時開始ですが、受付が 混むので 8時40分までに 来て ください。」 何時までに 来れば いいですか。",
+       "options": [
+        "9時",
+        "8時",
+        "9時20分",
+        "8時40分"
+       ],
+       "answer": 3,
+       "explain_bn": "৮:৪০-এর মধ্যে।",
+       "explain_en": "By 8:40."
+      },
+      {
+       "id": "n3g8",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "文: 「日本の 職場では、問題が 小さくても 早めに 相談する ことが 大切だと 言われて います。」 筆者が 言いたい ことは?",
+       "options": [
+        "問題は 小さい うちに 相談した ほうが いい",
+        "小さい 問題は 相談しなくて いい",
+        "相談は 仕事の あとで する",
+        "問題は 自分だけで 解決する"
+       ],
+       "answer": 0,
+       "explain_bn": "ছোট সমস্যাও আগেভাগে জানানো ভালো (相談)।",
+       "explain_en": "Consult early, even on small problems."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "N4"
+    },
+    {
+     "min_pct": 55,
+     "level": "N3"
+    },
+    {
+     "min_pct": 90,
+     "level": "N2"
+    }
+   ]
   }
  ],
  "extras": [],

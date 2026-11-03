@@ -164,6 +164,166 @@
    "explain_bn": "すべりやすい = পিছলা।",
    "explain_en": "The floor is slippery.",
    "say": "ゆかが すべりやすいので、はしらないで ください。"
+  },
+  {
+   "id": "jl11",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "あしたは なんの ひですか。",
+   "options": [
+    "やすみ",
+    "きゅうりょうび",
+    "しけんの ひ",
+    "ひっこしの ひ"
+   ],
+   "answer": 0,
+   "explain_bn": "やすみ = ছুটি।",
+   "explain_en": "Day off.",
+   "say": "あしたは やすみです。"
+  },
+  {
+   "id": "jl12",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "ひるやすみは いつですか。",
+   "options": [
+    "12じ〜2じ",
+    "12じ〜1じ",
+    "11じ〜12じ",
+    "1じ〜2じ"
+   ],
+   "answer": 1,
+   "explain_bn": "দুপুর ১২টা থেকে ১টা।",
+   "explain_en": "12 to 1.",
+   "say": "ひるやすみは 12じから 1じまでです。"
+  },
+  {
+   "id": "jl13",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "はこを どこに はこびますか。",
+   "options": [
+    "りょう",
+    "じむしょ",
+    "そうこ",
+    "しょくどう"
+   ],
+   "answer": 2,
+   "explain_bn": "そうこ = গুদাম।",
+   "explain_en": "Warehouse.",
+   "say": "この はこを そうこに はこんで ください。"
+  },
+  {
+   "id": "jl14",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "おんなの ひとは どこから きましたか。",
+   "options": [
+    "ネパール",
+    "ベトナム",
+    "にほん",
+    "バングラデシュ"
+   ],
+   "answer": 3,
+   "explain_bn": "বাংলাদেশ।",
+   "explain_en": "Bangladesh.",
+   "say": "おとこ: どこから きましたか。おんな: バングラデシュから きました。"
+  },
+  {
+   "id": "jl15",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "なにを しますか。",
+   "options": [
+    "みみせん",
+    "マスク",
+    "てぶくろ",
+    "あんぜんぐつ"
+   ],
+   "answer": 0,
+   "explain_bn": "みみせん = কানের প্লাগ।",
+   "explain_en": "Earplugs.",
+   "say": "きかいの おとが おおきいので、みみせんを して ください。"
+  },
+  {
+   "id": "jl16",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "いくらですか。",
+   "options": [
+    "130円",
+    "300円",
+    "3,000円",
+    "30円"
+   ],
+   "answer": 1,
+   "explain_bn": "さんびゃく = ৩০০।",
+   "explain_en": "300 yen.",
+   "say": "おんな: これ、いくらですか。おとこ: 300えんです。"
+  },
+  {
+   "id": "jl17",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "バスは なんじに でますか。",
+   "options": [
+    "8:30",
+    "11:30",
+    "7:30",
+    "7:00"
+   ],
+   "answer": 2,
+   "explain_bn": "しちじ はん = সাড়ে সাতটা।",
+   "explain_en": "7:30.",
+   "say": "バスは こうじょうの まえを 7じ はんに でます。"
+  },
+  {
+   "id": "jl18",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "てを きったら どう しますか。",
+   "options": [
+    "がまんする",
+    "うちへ かえる",
+    "しごとを つづける",
+    "すぐ いう"
+   ],
+   "answer": 3,
+   "explain_bn": "すぐ = সঙ্গে সঙ্গে।",
+   "explain_en": "Tell at once.",
+   "say": "てを きったら、すぐ いって ください。"
+  },
+  {
+   "id": "jl19",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "ざんぎょうは なんじかんですか。",
+   "options": [
+    "2じかん",
+    "1じかん",
+    "3じかん",
+    "ない"
+   ],
+   "answer": 0,
+   "explain_bn": "২ ঘণ্টা।",
+   "explain_en": "Two hours.",
+   "say": "おとこ: きょう ざんぎょうは ありますか。おんな: はい、2じかん あります。"
+  },
+  {
+   "id": "jl20",
+   "type": "mcq",
+   "skill": "listening",
+   "text": "しゅうまつ、しょくどうは?",
+   "options": [
+    "しまって いる",
+    "おそく あく",
+    "はやく あく",
+    "24じかん あいて いる"
+   ],
+   "answer": 0,
+   "explain_bn": "しまって いる = বন্ধ।",
+   "explain_en": "Closed.",
+   "say": "どようびと にちようびは りょうの しょくどうが しまって います。"
   }
  ]
 }

@@ -1941,6 +1941,338 @@
    ]
   },
   {
+   "id": "eps_style_2",
+   "title_en": "EPS-TOPIK style practice 2 — Reading (farm, construction, fishery)",
+   "title_bn": "EPS-TOPIK ধাঁচের অনুশীলন ২ — রিডিং (কৃষি, নির্মাণ, মৎস্য)",
+   "format_en": "Reading half of the EPS-TOPIK format, shorter set: 20 four-option questions in 32 minutes, with words from farms, building sites and fishing boats. Check your round's notice on BOESL. All questions are original Assisto practice.",
+   "format_bn": "EPS-TOPIK ধরনের রিডিং, ছোট সেট: ৩২ মিনিটে ২০টি চার-বিকল্প প্রশ্ন — খামার, নির্মাণ সাইট ও মাছ ধরার নৌকার শব্দসহ। নিজের রাউন্ডের নোটিশ BOESL-এ মিলিয়ে নিন। সব প্রশ্ন Assisto-র নিজের লেখা।",
+   "minutes": 32,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading (읽기)",
+     "title_bn": "রিডিং (읽기)",
+     "questions": [
+      {
+       "id": "f1",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "농장에서 채소를 심을 때 쓰는 것은?",
+       "options": [
+        "냄비",
+        "우산",
+        "칫솔",
+        "삽"
+       ],
+       "answer": 3,
+       "explain_bn": "삽 = বেলচা।",
+       "explain_en": "삽 = shovel."
+      },
+      {
+       "id": "f2",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "비닐하우스 안은 여름에 아주 ___.",
+       "options": [
+        "더워요",
+        "추워요",
+        "어두워요",
+        "조용해요"
+       ],
+       "answer": 0,
+       "explain_bn": "গ্রীনহাউসে গ্রীষ্মে খুব গরম।",
+       "explain_en": "Greenhouses get very hot."
+      },
+      {
+       "id": "f3",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "높은 곳에서 일할 때 꼭 해야 하는 것은?",
+       "options": [
+        "슬리퍼",
+        "안전벨트",
+        "앞치마",
+        "넥타이"
+       ],
+       "answer": 1,
+       "explain_bn": "উঁচুতে কাজে 안전벨트 (সেফটি বেল্ট/হারনেস)।",
+       "explain_en": "Safety harness."
+      },
+      {
+       "id": "f4",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "배에서 일할 때 입는 것은?",
+       "options": [
+        "잠옷",
+        "등산화",
+        "구명조끼",
+        "양복"
+       ],
+       "answer": 2,
+       "explain_bn": "구명조끼 = লাইফ জ্যাকেট।",
+       "explain_en": "Life jacket."
+      },
+      {
+       "id": "f5",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "벽돌, 시멘트, 모래는 어디에서 많이 씁니까?",
+       "options": [
+        "병원",
+        "은행",
+        "학교 도서관",
+        "건설 현장"
+       ],
+       "answer": 3,
+       "explain_bn": "নির্মাণ সাইটে।",
+       "explain_en": "Construction site."
+      },
+      {
+       "id": "f6",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "날씨가 추우니까 따뜻한 옷을 ___.",
+       "options": [
+        "입으세요",
+        "입었어요",
+        "입을 뻔했어요",
+        "입었더라고요"
+       ],
+       "answer": 0,
+       "explain_bn": "-(으)니까 + অনুরোধ।",
+       "explain_en": "Reason + request."
+      },
+      {
+       "id": "f7",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "저는 한국에 가기 ___ 한국어를 배우고 있어요.",
+       "options": [
+        "대신에",
+        "위해서",
+        "때문에",
+        "덕분에"
+       ],
+       "answer": 1,
+       "explain_bn": "-기 위해서 = …করার জন্য (উদ্দেশ্য)।",
+       "explain_en": "-기 위해서 = in order to."
+      },
+      {
+       "id": "f8",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "일이 끝나___ 같이 저녁 먹을까요?",
+       "options": [
+        "는데도",
+        "더니",
+        "면",
+        "지만"
+       ],
+       "answer": 2,
+       "explain_bn": "-(으)면 = …হলে।",
+       "explain_en": "-(으)면 = when/if."
+      },
+      {
+       "id": "f9",
+       "type": "mcq",
+       "skill": "grammar",
+       "text": "이 기계는 위험해서 혼자 사용하면 ___.",
+       "options": [
+        "됩니다",
+        "좋습니다",
+        "편합니다",
+        "안 됩니다"
+       ],
+       "answer": 3,
+       "explain_bn": "-(으)면 안 됩니다 = করা যাবে না।",
+       "explain_en": "Must not."
+      },
+      {
+       "id": "f10",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '추락 주의' — 무엇을 조심해야 합니까?",
+       "options": [
+        "뜨거운 물",
+        "전기",
+        "차",
+        "높은 곳에서 떨어지는 것"
+       ],
+       "answer": 3,
+       "explain_bn": "추락 = উঁচু থেকে পড়ে যাওয়া।",
+       "explain_en": "Falling from height."
+      },
+      {
+       "id": "f11",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "표지판: '안전모 착용' — 무슨 뜻입니까?",
+       "options": [
+        "안전모를 써야 한다.",
+        "안전모를 벗어야 한다.",
+        "안전모를 판다.",
+        "안전모를 버린다."
+       ],
+       "answer": 0,
+       "explain_bn": "착용 = পরা।",
+       "explain_en": "Must wear a hard hat."
+      },
+      {
+       "id": "f12",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "메모: '내일은 비가 많이 와서 밭일은 쉬고, 창고에서 상자 정리를 합니다.' — 내일 어디에서 일합니까?",
+       "options": [
+        "사무실",
+        "창고",
+        "밭",
+        "식당"
+       ],
+       "answer": 1,
+       "explain_bn": "창고 = গুদাম।",
+       "explain_en": "In the warehouse."
+      },
+      {
+       "id": "f13",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "공지: '작업 중 다치면 바로 반장에게 알리고 산재 신청을 할 수 있습니다.' — 다치면 먼저 무엇을 합니까?",
+       "options": [
+        "참고 일한다.",
+        "친구에게만 말한다.",
+        "반장에게 알린다.",
+        "집에 간다."
+       ],
+       "answer": 2,
+       "explain_bn": "আগে টিম লিডারকে জানান; 산재 = কর্মস্থলে দুর্ঘটনার বীমা।",
+       "explain_en": "Tell the team leader first."
+      },
+      {
+       "id": "f14",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '저는 어선에서 일합니다. 새벽 4시에 바다로 나가서 오후 2시에 돌아옵니다.' — 이 사람은 몇 시에 돌아옵니까?",
+       "options": [
+        "새벽 4시",
+        "오전 10시",
+        "밤 8시",
+        "오후 2시"
+       ],
+       "answer": 3,
+       "explain_bn": "오후 2시에 돌아옵니다 = দুপুর ২টায় ফেরে।",
+       "explain_en": "2 p.m."
+      },
+      {
+       "id": "f15",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "기숙사 규칙: '방에서 요리하면 안 됩니다. 요리는 1층 부엌에서만 할 수 있습니다.' — 맞는 것은?",
+       "options": [
+        "요리는 1층 부엌에서 한다.",
+        "방에서 요리해도 된다.",
+        "부엌은 2층에 있다.",
+        "요리를 할 수 없다."
+       ],
+       "answer": 0,
+       "explain_bn": "শুধু ১ তলার রান্নাঘরে।",
+       "explain_en": "Only in the ground-floor kitchen."
+      },
+      {
+       "id": "f16",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "'급여 명세서'는 무엇입니까?",
+       "options": [
+        "집 계약서",
+        "월급을 얼마 받았는지 적은 종이",
+        "병원 예약 종이",
+        "비행기 표"
+       ],
+       "answer": 1,
+       "explain_bn": "급여 명세서 = বেতনের স্লিপ — প্রতি মাসে মিলিয়ে নিন।",
+       "explain_en": "Pay slip."
+      },
+      {
+       "id": "f17",
+       "type": "mcq",
+       "skill": "vocab",
+       "text": "사장님에게 휴가를 받고 싶을 때 쓰는 말은?",
+       "options": [
+        "휴가를 운전하다",
+        "휴가를 요리하다",
+        "휴가를 신청하다",
+        "휴가를 고장 내다"
+       ],
+       "answer": 2,
+       "explain_bn": "신청하다 = আবেদন করা।",
+       "explain_en": "To apply for leave."
+      },
+      {
+       "id": "f18",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "문자: '이번 달 월급이 하루 늦게 들어갑니다. 죄송합니다. — 회사' — 맞는 것은?",
+       "options": [
+        "월급을 받을 수 없다.",
+        "월급이 하루 일찍 나온다.",
+        "월급이 반으로 준다.",
+        "월급이 하루 늦게 나온다."
+       ],
+       "answer": 3,
+       "explain_bn": "하루 늦게 = এক দিন দেরিতে।",
+       "explain_en": "Pay comes one day late."
+      },
+      {
+       "id": "f19",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "글: '한국의 겨울은 아주 춥습니다. 그래서 일할 때 장갑과 두꺼운 옷이 필요합니다.' — 왜 두꺼운 옷이 필요합니까?",
+       "options": [
+        "겨울이 아주 추워서",
+        "여름이 더워서",
+        "옷이 싸서",
+        "회사 규칙이 없어서"
+       ],
+       "answer": 0,
+       "explain_bn": "겨울 = শীত; 춥다 = ঠান্ডা।",
+       "explain_en": "Winters are very cold."
+      },
+      {
+       "id": "f20",
+       "type": "mcq",
+       "skill": "reading",
+       "text": "안내: '외국인 근로자 상담은 평일 오전 9시부터 오후 6시까지, 일요일에도 받습니다.' — 상담을 받을 수 없는 시간은?",
+       "options": [
+        "평일 밤 9시",
+        "평일 오전 10시",
+        "일요일 오후",
+        "평일 오후 3시"
+       ],
+       "answer": 0,
+       "explain_bn": "রাত ৯টা খোলার সময়ের বাইরে।",
+       "explain_en": "9 p.m. on a weekday is outside the hours."
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "1"
+    },
+    {
+     "min_pct": 40,
+     "level": "2"
+    },
+    {
+     "min_pct": 80,
+     "level": "3"
+    }
+   ]
+  },
+  {
    "id": "topik1_style_1",
    "title_en": "TOPIK I style practice — Reading",
    "title_bn": "TOPIK I ধাঁচের অনুশীলন — রিডিং",
