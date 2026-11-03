@@ -41007,5 +41007,9 @@
   "qrnBnNotIncluded": "Not included — needs the publisher's permission",
   "@qrnBnNotIncluded": {
     "description": "launchsweep3: Quran Bangla translation option label; honest (no 'coming' promise)"
+  },
+  "lcEmptyBodyLang": "Finish a level test in Language Partner. Your Assisto learning certificate appears here, with a QR code anyone can check.",
+  "@lcEmptyBodyLang": {
+    "description": "launchsweep3: learning-certificate empty state; Quran certificates are not wired, so no Quran promise"
   }
 }
