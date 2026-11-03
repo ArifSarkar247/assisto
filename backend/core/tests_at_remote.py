@@ -374,7 +374,7 @@ class IntruderConsentTests(_Base):
         self.assertEqual(r.data["reason"], "consent_required")
         self.assertFalse(AntiTheftEngine.objects.get(phone=self.phone).intruder_photo)
         r = self.client.post(self.SETTINGS, {"pin": self.PIN, "intruder_photo": True,
-                                             "intruder_consent": 1}, format="json")
+                                             "intruder_consent": 2}, format="json")
         self.assertEqual(r.status_code, 200, r.data)
         self.assertTrue(r.data["config"]["intruder_photo"])
         eng = AntiTheftEngine.objects.get(phone=self.phone)
@@ -404,10 +404,26 @@ class IntruderConsentTests(_Base):
         self.assertEqual(r.status_code, 403)
         self.assertEqual(r.data["reason"], "intruder_photo_off")
 
+    def test_lostsim_old_v1_consent_no_longer_counts(self):
+        # lostsim: the consent text now also covers wrong Vault PINs, so a
+        # v1 consent is OFF until the owner agrees to the new text.
+        self.assertEqual(atr.INTRUDER_CONSENT_VERSION, 2)
+        eng = AntiTheftEngine.objects.get(phone=self.phone)
+        eng.intruder_photo = True
+        eng.intruder_consent_v = 1
+        eng.save()
+        self._as(self.owner)
+        self.assertFalse(self.client.get("/api/v1/security/engine/state").data["intruder_photo"])
+        r = self.client.post(self.SETTINGS, {"pin": self.PIN, "intruder_photo": True,
+                                             "intruder_consent": 1}, format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.data["reason"], "consent_required")
+        self.assertEqual(r.data["consent_version"], 2)
+
     def test_wrong_pin_past_threshold_asks_the_open_app_for_a_photo(self):
         self._as(self.owner)
         self.client.post(self.SETTINGS, {"pin": self.PIN, "intruder_photo": True,
-                                         "intruder_consent": 1,
+                                         "intruder_consent": 2,
                                          "failed_unlock_threshold": 2}, format="json")
         flags = []
         for i in range(3):

@@ -444,6 +444,15 @@ class SimEngineModel {
   /// A fresh service start (relaunch re-arm): compares, never re-baselines.
   void serviceStart() => _pending = true;
 
+  /// lostsim: the app was opened/resumed while the engine runs
+  /// (AntiTheftService.recheckSim): compare again — only when a baseline
+  /// exists (recording one stays the arming path's job). Idempotent: the
+  /// same SIMs evaluated twice never alert twice (lastSeen).
+  void appResume() {
+    if (base == null) return;
+    _pending = true;
+  }
+
   /// A SIM_STATE_CHANGED broadcast. [initialSticky] = the copy Android hands
   /// a newly registered receiver (the current state, not an event).
   void onBroadcast({bool initialSticky = false}) {

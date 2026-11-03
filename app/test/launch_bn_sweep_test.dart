@@ -58,6 +58,7 @@ const _launchPrefixes = <String>[
   'cesc_', // CCTV escalation (alarm call, police card)
   'cpl_', // CCTV pricing / add-on
   'cg_', // CCTV cost guard
+  'lostsim_', // lost phone: intruder-photo notice on the Vault PIN (3 Nov)
   'carm_', // CCTV auto guard (arm / SOS)
   'ctm_', // CCTV team (guards, links, access log)
   'sjl_', 'trip_', // Safe Journey Live Location + trip recorder

@@ -307,7 +307,7 @@ void main() {
       final t = AppLocalizations.of(
           tester.element(find.byType(IntruderConsentScreen)));
       for (final s in [
-        t.at100IcWhat, t.at100IcWhen, t.at100IcNotice, t.at100IcWhere,
+        t.at100IcWhat, t.lostsimIcWhen, t.lostsimIcNotice, t.at100IcWhere,
         t.at100IcWho, t.at100IcKeep, t.at100IcDelete, t.at100IcLaw,
       ]) {
         await tester.scrollUntilVisible(find.text(s), 120,
@@ -324,7 +324,7 @@ void main() {
       await tester.tap(find.byKey(const Key('at100-ic-agree')));
       await tester.pumpAndSettle();
       expect(got, isTrue);
-      expect(IntruderConsentScreen.consentVersion, 1); // == server version
+      expect(IntruderConsentScreen.consentVersion, 2); // == server version (lostsim)
     });
 
     test('a photo is taken only when the server says so', () async {

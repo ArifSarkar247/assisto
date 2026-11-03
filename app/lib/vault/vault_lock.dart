@@ -195,6 +195,10 @@ class VaultLock {
     return until != null ? PinCheck.lockedOut : PinCheck.wrong;
   }
 
+  /// lostsim: wrong PINs in a row right now (reset by a correct PIN) — the
+  /// intruder photo's counter.
+  Future<int> wrongInARow() async => (await _fails()).count;
+
   Future<int> triesLeftBeforeLockout() async {
     final f = await _fails();
     return max(0, freeTries - f.count);
