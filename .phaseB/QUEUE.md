@@ -1,6 +1,9 @@
-- 3 Nov 18:50 OWNER NEARBY FINAL order (own emergency list, zero Google cost, rollout BD first) — IN PROGRESS (agent nearby) — owner_actions/OWNER_NEARBY_ORDER_3NOV_1850.md
-- 3 Nov 18:40 OWNER SAFETY PLANS + MAPS COST order (Parts 1–7) — IN PROGRESS (agents mapscost, safeplans, guardian2) — owner_actions/OWNER_SAFETY_PLANS_MAPS_ORDER_3NOV_1840.md
-- 3 Nov 16:30 OWNER MY CIRCLE FINAL ORDER (A–G: bubble position, bubble tap, new sound, multi photo, photo bubble, media limits, view once) — TOP PRIORITY, IN PROGRESS (agents circlebub, circlemedia, viewonce) — owner_actions/OWNER_MY_CIRCLE_ORDER_3NOV_1630.md
+# ⏸ PAUSED 3 Nov 21:15 BD by owner STOP ORDER (usage 86%) — resume from owner_actions/RESUME_PLAN.md only when the owner says so.
+- 3 Nov 19:55 Google Places key bug — DONE live (local merge agent/placesnew; must ship via b301i); owner retest pending
+- 3 Nov 18:50 NEARBY final — WIP agent/nearby (0150_nearby in b301i)
+- 3 Nov 18:40 SAFETY PLANS + MAPS COST — CI green, merged in b301i, NOT shipped; owner Play products + price decision
+- 3 Nov 16:30 MY CIRCLE final — DONE builds 302 + 304; owner phone tests pending
+- 3 Nov 11:45 learning — DONE code (switches OFF); left: mock listening, lw_ bn sweep, reviews
 # QUEUE — rewritten 3 Nov 10:45 BD (owner: launch 8 Nov with ALL features; NOTHING is after launch)
 Order text: owner_actions/OWNER_ORDER_3NOV_1045.md. Every item below ships behind its switch by 8 Nov; status per item in STATUS every few hours.
 
