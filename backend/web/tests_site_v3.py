@@ -209,7 +209,7 @@ class HonestyTests(Base):
     def test_bubbles_channels_brief_show_real_screenshots(self):
         shots = {f["id"]: f["shot"] for f in V3.FEATURES["ai"] + V3.FEATURES["circle"]}
         self.assertEqual(shots["brief"], "daily_brief")
-        self.assertIsNone(shots["bubbles"])        # bbl2_install_day_on after agent/bubbles2 is on main
+        self.assertEqual(shots["bubbles"], "bbl2_install_day_on")
         self.assertEqual(shots["channels"], "chx_channel")
         set_flag("my_circle", True)
         set_flag("daily_brief", True)
