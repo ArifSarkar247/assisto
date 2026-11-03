@@ -1,0 +1,1812 @@
+{
+ "format": 1,
+ "lang": "es",
+ "version": 1,
+ "stt_locale": "es-ES",
+ "tts_locale": "es-ES",
+ "rtl": false,
+ "level_system": "CEFR",
+ "levels": [
+  {
+   "id": "A1",
+   "en": "A1 — Beginner",
+   "bn": "A1 — একেবারে শুরু"
+  },
+  {
+   "id": "A2",
+   "en": "A2 — Elementary",
+   "bn": "A2 — প্রাথমিক"
+  },
+  {
+   "id": "B1",
+   "en": "B1 — Intermediate (work, daily life)",
+   "bn": "B1 — মাঝারি (কাজ, দৈনন্দিন জীবন)"
+  },
+  {
+   "id": "B2",
+   "en": "B2 — Upper intermediate (study, office)",
+   "bn": "B2 — উচ্চ-মাঝারি (পড়াশোনা, অফিস)"
+  },
+  {
+   "id": "C1",
+   "en": "C1 — Advanced",
+   "bn": "C1 — উন্নত"
+  },
+  {
+   "id": "C2",
+   "en": "C2 — Mastery",
+   "bn": "C2 — দক্ষ"
+  }
+ ],
+ "placement": {
+  "pass_pct": 60,
+  "questions": [
+   {
+    "id": "es-pl1",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A1",
+    "text": "Choose the right answer: '¿Cómo se llama usted?'",
+    "text_en": "Choose the right answer: '¿Cómo se llama usted?'",
+    "text_bn": "সঠিক উত্তর বাছুন: '¿Cómo se llama usted?'",
+    "options": [
+     "Me llamo Rina.",
+     "Tengo 25 años.",
+     "Vivo en Dhaka.",
+     "Muy bien, gracias."
+    ],
+    "answer": 0,
+    "explain_bn": "প্রশ্নটি নাম জানতে চায়।",
+    "explain_en": "The question asks your name."
+   },
+   {
+    "id": "es-pl2",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A1",
+    "text": "Fill the gap: 'Yo ___ cansado hoy.'",
+    "text_en": "Fill the gap: 'Yo ___ cansado hoy.'",
+    "text_bn": "শূন্যস্থান: 'Yo ___ cansado hoy.'",
+    "options": [
+     "estoy",
+     "soy",
+     "es",
+     "está"
+    ],
+    "answer": 0,
+    "explain_bn": "অস্থায়ী অবস্থা → estar → estoy।",
+    "explain_en": "A temporary state → estar → estoy."
+   },
+   {
+    "id": "es-pl3",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "A2",
+    "text": "Fill the gap: 'Ayer ___ a Madrid.'",
+    "text_en": "Fill the gap: 'Ayer ___ a Madrid.'",
+    "text_bn": "শূন্যস্থান: 'Ayer ___ a Madrid.'",
+    "options": [
+     "fui",
+     "voy",
+     "iré",
+     "iba a"
+    ],
+    "answer": 0,
+    "explain_bn": "'ayer' + শেষ হওয়া কাজ → fui।",
+    "explain_en": "'ayer' + completed action → pretérito: fui."
+   },
+   {
+    "id": "es-pl4",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "A2",
+    "text": "When is the appointment?\nSu cita es el viernes a las once.",
+    "text_en": "When is the appointment?\nSu cita es el viernes a las once.",
+    "text_bn": "অ্যাপয়েন্টমেন্ট কখন?\nSu cita es el viernes a las once.",
+    "tts_text": "Su cita es el viernes a las once.",
+    "options": [
+     "Friday at 11",
+     "Thursday at 11",
+     "Friday at 1"
+    ],
+    "options_en": [
+     "Friday at 11",
+     "Thursday at 11",
+     "Friday at 1"
+    ],
+    "options_bn": [
+     "শুক্রবার ১১টা",
+     "বৃহস্পতিবার ১১টা",
+     "শুক্রবার ১টা"
+    ],
+    "answer": 0,
+    "explain_bn": "viernes = শুক্রবার, once = এগারো।",
+    "explain_en": "viernes = Friday, once = eleven."
+   },
+   {
+    "id": "es-pl5",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B1",
+    "text": "Choose the correct sentence.",
+    "text_en": "Choose the correct sentence.",
+    "text_bn": "সঠিক বাক্য বাছুন।",
+    "options": [
+     "Quiero que vengas mañana.",
+     "Quiero que vienes mañana.",
+     "Quiero que venir mañana.",
+     "Quiero vengas que mañana."
+    ],
+    "answer": 0,
+    "explain_bn": "'querer que'-এর পরে subjuntivo (vengas)।",
+    "explain_en": "'querer que' + subjunctive (vengas)."
+   },
+   {
+    "id": "es-pl6",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B1",
+    "text": "Why is the colleague calling?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
+    "text_en": "Why is the colleague calling?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
+    "text_bn": "সহকর্মী কেন ফোন করছেন?\nHola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
+    "tts_text": "Hola, soy Lucía. ¿Podemos cambiar el turno del sábado? Tengo médico.",
+    "options": [
+     "To swap a shift",
+     "To ask for money",
+     "To cancel a party"
+    ],
+    "options_en": [
+     "To swap a shift",
+     "To ask for money",
+     "To cancel a party"
+    ],
+    "options_bn": [
+     "শিফট বদলাতে",
+     "টাকা চাইতে",
+     "পার্টি বাতিল করতে"
+    ],
+    "answer": 0,
+    "explain_bn": "'cambiar el turno' = শিফট বদল।",
+    "explain_en": "'cambiar el turno' = swap the shift."
+   },
+   {
+    "id": "es-pl7",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "B2",
+    "text": "Which closing fits a formal letter?",
+    "text_en": "Which closing fits a formal letter?",
+    "text_bn": "আনুষ্ঠানিক চিঠির শেষে কোনটি?",
+    "options": [
+     "Atentamente,",
+     "¡Besos!",
+     "¡Chao!",
+     "¡Nos vemos!"
+    ],
+    "answer": 0,
+    "explain_bn": "'Atentamente' আদর্শ আনুষ্ঠানিক সমাপ্তি।",
+    "explain_en": "'Atentamente' is the standard formal close."
+   },
+   {
+    "id": "es-pl8",
+    "type": "mcq",
+    "skill": "grammar",
+    "level": "B2",
+    "text": "Fill the gap: 'Si tuviera tiempo, ___ un curso.'",
+    "text_en": "Fill the gap: 'Si tuviera tiempo, ___ un curso.'",
+    "text_bn": "শূন্যস্থান: 'Si tuviera tiempo, ___ un curso.'",
+    "options": [
+     "haría",
+     "hago",
+     "haré",
+     "hice"
+    ],
+    "answer": 0,
+    "explain_bn": "si + subjuntivo অতীত হলে পরে condicional (haría)।",
+    "explain_en": "si + imperfect subjunctive → conditional (haría)."
+   },
+   {
+    "id": "es-pl9",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "Choose the best connector: '___ los problemas, el proyecto salió adelante.'",
+    "text_en": "Choose the best connector: '___ los problemas, el proyecto salió adelante.'",
+    "text_bn": "উপযুক্ত সংযোজক: '___ los problemas, el proyecto salió adelante.'",
+    "options": [
+     "Pese a",
+     "Gracias",
+     "Para que",
+     "Porque"
+    ],
+    "answer": 0,
+    "explain_bn": "'pese a' = সত্ত্বেও।",
+    "explain_en": "'pese a' = despite."
+   },
+   {
+    "id": "es-pl10",
+    "type": "mcq",
+    "skill": "reading",
+    "level": "C1",
+    "text": "What is the speaker's view?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
+    "text_en": "What is the speaker's view?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
+    "text_bn": "বক্তার মত কী?\nSi bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
+    "tts_text": "Si bien la nueva ley facilita la contratación, los trámites siguen siendo demasiado lentos.",
+    "options": [
+     "The law helps, but procedures are slow",
+     "The law should be removed",
+     "Procedures are fast"
+    ],
+    "options_en": [
+     "The law helps, but procedures are slow",
+     "The law should be removed",
+     "Procedures are fast"
+    ],
+    "options_bn": [
+     "আইন সাহায্য করে, কিন্তু প্রক্রিয়া ধীর",
+     "আইন বাতিল হোক",
+     "প্রক্রিয়া দ্রুত"
+    ],
+    "answer": 0,
+    "explain_bn": "'যদিও … প্রক্রিয়া এখনো ধীর'।",
+    "explain_en": "'si bien … los trámites siguen siendo lentos'."
+   },
+   {
+    "id": "es-pl11",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "C2",
+    "text": "'Tomar el pelo a alguien' means…",
+    "text_en": "'Tomar el pelo a alguien' means…",
+    "text_bn": "'Tomar el pelo a alguien' মানে…",
+    "options": [
+     "To pull someone's leg",
+     "To cut someone's hair",
+     "To help someone"
+    ],
+    "options_en": [
+     "To pull someone's leg",
+     "To cut someone's hair",
+     "To help someone"
+    ],
+    "options_bn": [
+     "কারও সাথে মজা করা",
+     "চুল কাটা",
+     "কাউকে সাহায্য করা"
+    ],
+    "answer": 0,
+    "explain_bn": "বাগধারা: মজা করা।",
+    "explain_en": "An idiom: to tease."
+   },
+   {
+    "id": "es-pl12",
+    "type": "mcq",
+    "skill": "vocab",
+    "level": "C2",
+    "text": "Which word best completes: 'Su argumento resultó del todo ___.'",
+    "text_en": "Which word best completes: 'Su argumento resultó del todo ___.'",
+    "text_bn": "শূন্যস্থান: 'Su argumento resultó del todo ___.'",
+    "options": [
+     "convincente",
+     "convencer",
+     "convencimiento",
+     "convencido de"
+    ],
+    "answer": 0,
+    "explain_bn": "বিশেষণ লাগবে: convincente (বিশ্বাসযোগ্য)।",
+    "explain_en": "An adjective is needed: convincente."
+   }
+  ]
+ },
+ "lessons": [
+  {
+   "id": "es-a1-1",
+   "level": "A1",
+   "title_en": "Hello! Introduce yourself",
+   "title_bn": "হ্যালো! নিজের পরিচয়",
+   "items": [
+    {
+     "kind": "note",
+     "target": "¡Hola! / ¡Buenos días!",
+     "bn": "স্প্যানিশে 'h' সবসময় নীরব: hola = 'ওলা'।",
+     "en": "'h' is always silent in Spanish: hola = 'ওলা'."
+    },
+    {
+     "kind": "phrase",
+     "target": "¡Hola! / ¡Buenos días!",
+     "bn": "হ্যালো! / সুপ্রভাত!",
+     "en": "Hello! / Good morning!",
+     "note_bn": "উচ্চারণ: ওলা / বুয়েনোস দিয়াস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Me llamo Karim.",
+     "bn": "আমার নাম করিম।",
+     "en": "My name is Karim.",
+     "note_bn": "উচ্চারণ: মে ইয়ামো করিম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Soy de Bangladés.",
+     "bn": "আমি বাংলাদেশের।",
+     "en": "I'm from Bangladesh.",
+     "note_bn": "উচ্চারণ: সয় দে বাংলাদেস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Cómo está usted?",
+     "bn": "আপনি কেমন আছেন? (ভদ্র রূপ)",
+     "en": "How are you? (formal)",
+     "note_bn": "উচ্চারণ: কোমো এস্তা উস্তেদ? · বন্ধুদের: কে তাল?",
+     "note_en": "Friends: ¿Qué tal?"
+    },
+    {
+     "kind": "phrase",
+     "target": "Muy bien, gracias. ¿Y usted?",
+     "bn": "খুব ভালো, ধন্যবাদ। আপনি?",
+     "en": "Very well, thanks. And you?",
+     "note_bn": "উচ্চারণ: মুই বিয়েন, গ্রাসিয়াস। ই উস্তেদ?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Por favor. / Muchas gracias.",
+     "bn": "দয়া করে। / অনেক ধন্যবাদ।",
+     "en": "Please. / Thank you very much.",
+     "note_bn": "উচ্চারণ: পোর ফাবোর / মুচাস গ্রাসিয়াস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Perdone.",
+     "bn": "মাফ করবেন।",
+     "en": "Excuse me.",
+     "note_bn": "উচ্চারণ: পেরদোনে",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "No entiendo.",
+     "bn": "আমি বুঝিনি।",
+     "en": "I don't understand.",
+     "note_bn": "উচ্চারণ: নো এন্তিয়েন্দো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Puede hablar más despacio?",
+     "bn": "আরেকটু আস্তে বলবেন?",
+     "en": "Can you speak more slowly?",
+     "note_bn": "উচ্চারণ: পুয়েদে আবলার মাস দেস্পাসিও?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¡Adiós! / ¡Hasta luego!",
+     "bn": "বিদায়! / পরে দেখা হবে!",
+     "en": "Goodbye! / See you later!",
+     "note_bn": "উচ্চারণ: আদিওস / আস্তা লুয়েগো",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "¡Hola! / ¡Buenos días!",
+    "Me llamo Karim.",
+    "Soy de Bangladés."
+   ]
+  },
+  {
+   "id": "es-a1-2",
+   "level": "A1",
+   "title_en": "Numbers, time and days",
+   "title_bn": "সংখ্যা, সময় ও দিন",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "uno, dos, tres, cuatro, cinco",
+     "bn": "এক থেকে পাঁচ",
+     "en": "one to five",
+     "note_bn": "উচ্চারণ: উনো, দোস, ত্রেস, কুয়াত্রো, সিঙ্কো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "seis, siete, ocho, nueve, diez",
+     "bn": "ছয় থেকে দশ",
+     "en": "six to ten",
+     "note_bn": "উচ্চারণ: সেইস, সিয়েতে, ওচো, নুয়েবে, দিয়েস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "veinte, cincuenta, cien",
+     "bn": "বিশ, পঞ্চাশ, একশো",
+     "en": "twenty, fifty, a hundred",
+     "note_bn": "উচ্চারণ: বেইন্তে, সিনকুয়েন্তা, সিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Qué hora es? — Son las ocho.",
+     "bn": "কয়টা বাজে? — আটটা।",
+     "en": "What time is it? — It's eight.",
+     "note_bn": "উচ্চারণ: কে ওরা এস? — সন লাস ওচো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "lunes, martes, miércoles",
+     "bn": "সোম, মঙ্গল, বুধবার",
+     "en": "Monday, Tuesday, Wednesday",
+     "note_bn": "উচ্চারণ: লুনেস, মার্তেস, মিয়ের্কোলেস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "jueves, viernes, sábado, domingo",
+     "bn": "বৃহস্পতি থেকে রবিবার",
+     "en": "Thursday to Sunday",
+     "note_bn": "উচ্চারণ: হুয়েবেস, বিয়ের্নেস, সাবাদো, দোমিঙ্গো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Cuánto cuesta? — Tres euros.",
+     "bn": "দাম কত? — তিন ইউরো।",
+     "en": "How much is it? — Three euros.",
+     "note_bn": "উচ্চারণ: কুয়ান্তো কুয়েস্তা? — ত্রেস এউরোস",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "uno, dos, tres, cuatro, cinco",
+    "seis, siete, ocho, nueve, diez",
+    "veinte, cincuenta, cien"
+   ]
+  },
+  {
+   "id": "es-a1-3",
+   "level": "A1",
+   "title_en": "ser and estar — two kinds of 'to be'",
+   "title_bn": "ser ও estar — দুই রকম 'হওয়া'",
+   "items": [
+    {
+     "kind": "note",
+     "target": "Soy enfermero.",
+     "bn": "ser = কে/কী (পরিচয়); estar = কোথায় বা এখন কেমন।",
+     "en": "ser = who/what something is; estar = where it is or how it is right now."
+    },
+    {
+     "kind": "grammar",
+     "target": "Soy enfermero.",
+     "bn": "আমি নার্স (পরিচয় — ser)।",
+     "en": "I am a nurse (who I am — ser).",
+     "note_bn": "উচ্চারণ: সয় এনফের্মেরো",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Estoy cansado.",
+     "bn": "আমি ক্লান্ত (এখনকার অবস্থা — estar)।",
+     "en": "I am tired (how I feel now — estar).",
+     "note_bn": "উচ্চারণ: এস্তয় কানসাদো · নারী বলেন: estoy cansada।",
+     "note_en": "A woman says: estoy cansada."
+    },
+    {
+     "kind": "grammar",
+     "target": "Madrid está en España.",
+     "bn": "মাদ্রিদ স্পেনে (অবস্থান — estar)।",
+     "en": "Madrid is in Spain (location — estar).",
+     "note_bn": "উচ্চারণ: মাদ্রিদ এস্তা এন এস্পানিয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Mi hermana es alta.",
+     "bn": "আমার বোন লম্বা (স্থায়ী গুণ — ser)।",
+     "en": "My sister is tall (lasting trait — ser).",
+     "note_bn": "উচ্চারণ: মি এরমানা এস আলতা",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "el padre, la madre, los hijos",
+     "bn": "বাবা, মা, সন্তানেরা",
+     "en": "the father, the mother, the children",
+     "note_bn": "উচ্চারণ: এল পাদ্রে, লা মাদ্রে, লোস ইহোস",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "el pan, el arroz, la leche, el pollo",
+     "bn": "রুটি, চাল/ভাত, দুধ, মুরগি",
+     "en": "bread, rice, milk, chicken",
+     "note_bn": "উচ্চারণ: এল পান, এল আররোস, লা লেচে, এল পোইয়ো",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "No como cerdo.",
+     "bn": "আমি শূকরের মাংস খাই না।",
+     "en": "I don't eat pork.",
+     "note_bn": "উচ্চারণ: নো কোমো সের্দো",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Soy enfermero.",
+    "Estoy cansado.",
+    "Madrid está en España."
+   ]
+  },
+  {
+   "id": "es-a2-1",
+   "level": "A2",
+   "title_en": "Shopping, transport and appointments",
+   "title_bn": "কেনাকাটা, যাতায়াত ও অ্যাপয়েন্টমেন্ট",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Quería un kilo de arroz.",
+     "bn": "এক কেজি চাল চাই।",
+     "en": "I'd like a kilo of rice.",
+     "note_bn": "উচ্চারণ: কেরিয়া উন কিলো দে আররোস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Lo tiene en la talla M?",
+     "bn": "M সাইজে আছে?",
+     "en": "Do you have it in size M?",
+     "note_bn": "উচ্চারণ: লো তিয়েনে এন লা তাইয়া এমে?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Puedo pagar con tarjeta?",
+     "bn": "কার্ডে দেওয়া যাবে?",
+     "en": "Can I pay by card?",
+     "note_bn": "উচ্চারণ: পুয়েদো পাগার কন তারহেতা?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Quiero pedir una cita.",
+     "bn": "একটা অ্যাপয়েন্টমেন্ট চাই।",
+     "en": "I want to make an appointment.",
+     "note_bn": "উচ্চারণ: কিয়েরো পেদির উনা সিতা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Dónde está la estación?",
+     "bn": "স্টেশন কোথায়?",
+     "en": "Where is the station?",
+     "note_bn": "উচ্চারণ: দোন্দে এস্তা লা এস্তাসিওন?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Siga recto y luego gire a la izquierda.",
+     "bn": "সোজা গিয়ে তারপর বামে ঘুরুন।",
+     "en": "Go straight on, then turn left.",
+     "note_bn": "উচ্চারণ: সিগা রেক্তো ই লুয়েগো হিরে আ লা ইস্কিয়ের্দা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Un billete de ida a Barcelona, por favor.",
+     "bn": "বার্সেলোনার একমুখী টিকিট, দয়া করে।",
+     "en": "A one-way ticket to Barcelona, please.",
+     "note_bn": "উচ্চারণ: উন বিইয়েতে দে ইদা আ বার্সেলোনা, পোর ফাবোর",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Quería un kilo de arroz.",
+    "¿Lo tiene en la talla M?",
+    "¿Puedo pagar con tarjeta?"
+   ]
+  },
+  {
+   "id": "es-a2-2",
+   "level": "A2",
+   "title_en": "Talking about the past (pretérito)",
+   "title_bn": "অতীতের কথা (pretérito)",
+   "items": [
+    {
+     "kind": "note",
+     "target": "Ayer trabajé diez horas.",
+     "bn": "উচ্চারণ-চিহ্ন গুরুত্বপূর্ণ: trabajo (আমি কাজ করি) আর trabajó (সে কাজ করেছিল)।",
+     "en": "Stress marks matter: trabajo (I work) vs trabajó (he worked)."
+    },
+    {
+     "kind": "grammar",
+     "target": "Ayer trabajé diez horas.",
+     "bn": "গতকাল দশ ঘণ্টা কাজ করেছি।",
+     "en": "Yesterday I worked ten hours.",
+     "note_bn": "উচ্চারণ: আয়ের ত্রাবাহে দিয়েস ওরাস",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Fui a Valencia en tren.",
+     "bn": "ট্রেনে ভালেনসিয়া গিয়েছি।",
+     "en": "I went to Valencia by train.",
+     "note_bn": "উচ্চারণ: ফুই আ বালেন্সিয়া এন ত্রেন",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Comimos arroz con pollo.",
+     "bn": "আমরা মুরগি দিয়ে ভাত খেয়েছি।",
+     "en": "We ate rice with chicken.",
+     "note_bn": "উচ্চারণ: কোমিমোস আররোস কন পোইয়ো",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "¿Dormiste bien?",
+     "bn": "ভালো ঘুম হয়েছে?",
+     "en": "Did you sleep well?",
+     "note_bn": "উচ্চারণ: দোর্মিস্তে বিয়েন?",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Llegué a España en marzo.",
+     "bn": "মার্চে স্পেনে এসেছি।",
+     "en": "I arrived in Spain in March.",
+     "note_bn": "উচ্চারণ: ইয়েগে আ এস্পানিয়া এন মার্সো",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "¿Qué hiciste el fin de semana?",
+     "bn": "সপ্তাহান্তে কী করেছ?",
+     "en": "What did you do at the weekend?",
+     "note_bn": "উচ্চারণ: কে ইসিস্তে এল ফিন দে সেমানা?",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Ayer trabajé diez horas.",
+    "Fui a Valencia en tren.",
+    "Comimos arroz con pollo."
+   ]
+  },
+  {
+   "id": "es-b1-1",
+   "level": "B1",
+   "title_en": "Work and papers",
+   "title_bn": "কাজ ও কাগজপত্র",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Trabajo en un restaurante como cocinero.",
+     "bn": "রেস্টুরেন্টে রাঁধুনি হিসেবে কাজ করি।",
+     "en": "I work in a restaurant as a cook.",
+     "note_bn": "উচ্চারণ: ত্রাবাহো এন উন রেস্তাউরান্তে কোমো কোসিনেরো",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿A qué hora empieza mi turno?",
+     "bn": "আমার শিফট কখন শুরু?",
+     "en": "What time does my shift start?",
+     "note_bn": "উচ্চারণ: আ কে ওরা এম্পিয়েসা মি তুর্নো?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Podría repetirlo, por favor?",
+     "bn": "আরেকবার বলবেন?",
+     "en": "Could you repeat it, please?",
+     "note_bn": "উচ্চারণ: পোদ্রিয়া রেপেতির্লো, পোর ফাবোর?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Estoy enfermo y no puedo ir hoy.",
+     "bn": "অসুস্থ, আজ যেতে পারব না।",
+     "en": "I'm ill and can't come today.",
+     "note_bn": "উচ্চারণ: এস্তয় এনফের্মো ই নো পুয়েদো ইর অয়",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Necesito la baja médica.",
+     "bn": "অসুস্থতার সার্টিফিকেট দরকার।",
+     "en": "I need the medical sick note.",
+     "note_bn": "উচ্চারণ: নেসেসিতো লা বাহা মেদিকা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "¿Dónde me empadrono?",
+     "bn": "ঠিকানা নিবন্ধন কোথায় করব?",
+     "en": "Where do I register my address?",
+     "note_bn": "উচ্চারণ: দোন্দে মে এম্পাদ্রোনো?",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "He enviado mi currículum.",
+     "bn": "আমি সিভি পাঠিয়েছি।",
+     "en": "I have sent my CV.",
+     "note_bn": "উচ্চারণ: এ এনবিয়াদো মি কুররিকুলুম",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Trabajo en un restaurante como cocinero.",
+    "¿A qué hora empieza mi turno?",
+    "¿Podría repetirlo, por favor?"
+   ]
+  },
+  {
+   "id": "es-b1-2",
+   "level": "B1",
+   "title_en": "Giving reasons and opinions",
+   "title_bn": "কারণ ও মতামত",
+   "items": [
+    {
+     "kind": "grammar",
+     "target": "Estudio español porque quiero trabajar en España.",
+     "bn": "স্পেনে কাজ করতে চাই বলে স্প্যানিশ শিখছি।",
+     "en": "I study Spanish because I want to work in Spain.",
+     "note_bn": "উচ্চারণ: এস্তুদিও এস্পানিওল পোর্কে কিয়েরো ত্রাবাহার এন এস্পানিয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Por eso voy a clase.",
+     "bn": "সেজন্য ক্লাসে যাই।",
+     "en": "That's why I go to class.",
+     "note_bn": "উচ্চারণ: পোর এসো বয় আ ক্লাসে",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Aunque llueve, voy al trabajo.",
+     "bn": "বৃষ্টি হলেও কাজে যাই।",
+     "en": "Although it's raining, I go to work.",
+     "note_bn": "উচ্চারণ: আউঙ্কে ইয়ুয়েবে, বয় আল ত্রাবাহো",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "En mi opinión, es una buena idea.",
+     "bn": "আমার মতে এটা ভালো ভাবনা।",
+     "en": "In my opinion, it's a good idea.",
+     "note_bn": "উচ্চারণ: এন মি ওপিনিওন, এস উনা বুয়েনা ইদেয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Por un lado … por otro lado …",
+     "bn": "একদিকে … অন্যদিকে …",
+     "en": "On one hand … on the other …",
+     "note_bn": "উচ্চারণ: পোর উন লাদো … পোর ওত্রো লাদো …",
+     "note_en": ""
+    },
+    {
+     "kind": "grammar",
+     "target": "Es importante que llegues a tiempo.",
+     "bn": "সময়মতো পৌঁছানো জরুরি।",
+     "en": "It's important that you arrive on time.",
+     "note_bn": "উচ্চারণ: এস ইম্পোর্তান্তে কে ইয়েগেস আ তিয়েম্পো · 'que'-এর পরে subjuntivo: llegues।",
+     "note_en": "'que' + subjunctive: llegues."
+    }
+   ],
+   "practice": [
+    "Estudio español porque quiero trabajar en España.",
+    "Por eso voy a clase.",
+    "Aunque llueve, voy al trabajo."
+   ]
+  },
+  {
+   "id": "es-b2-1",
+   "level": "B2",
+   "title_en": "Formal letters and polite requests",
+   "title_bn": "আনুষ্ঠানিক চিঠি ও ভদ্র অনুরোধ",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Estimados señores:",
+     "bn": "জনাব/জনাবা:",
+     "en": "Dear Sirs / Madam:",
+     "note_bn": "উচ্চারণ: এস্তিমাদোস সেনিওরেস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Me dirijo a ustedes en relación con …",
+     "bn": "… বিষয়ে আপনাদের লিখছি",
+     "en": "I am writing to you regarding …",
+     "note_bn": "উচ্চারণ: মে দিরিহো আ উস্তেদেস এন রেলাসিওন কন …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Les agradecería que me informaran sobre …",
+     "bn": "… বিষয়ে জানালে কৃতজ্ঞ থাকব",
+     "en": "I would be grateful if you informed me about …",
+     "note_bn": "উচ্চারণ: লেস আগ্রাদেসেরিয়া কে মে ইনফোর্মারান সোব্রে …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Adjunto mi currículum.",
+     "bn": "আমার সিভি সংযুক্ত করছি।",
+     "en": "I attach my CV.",
+     "note_bn": "উচ্চারণ: আদহুন্তো মি কুররিকুলুম",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Quedo a la espera de su respuesta.",
+     "bn": "আপনার উত্তরের অপেক্ষায় রইলাম।",
+     "en": "I look forward to your reply.",
+     "note_bn": "উচ্চারণ: কেদো আ লা এস্পেরা দে সু রেস্পুয়েস্তা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Atentamente,",
+     "bn": "বিনীত,",
+     "en": "Yours sincerely,",
+     "note_bn": "উচ্চারণ: আতেন্তামেন্তে",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Estimados señores:",
+    "Adjunto mi currículum.",
+    "Quedo a la espera de su respuesta."
+   ]
+  },
+  {
+   "id": "es-c1-1",
+   "level": "C1",
+   "title_en": "Arguing like an expert",
+   "title_bn": "বিশেষজ্ঞের মতো যুক্তি",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Cabe destacar que …",
+     "bn": "উল্লেখযোগ্য যে …",
+     "en": "It is worth noting that …",
+     "note_bn": "উচ্চারণ: কাবে দেস্তাকার কে …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "No obstante, …",
+     "bn": "তবুও, …",
+     "en": "Nevertheless, …",
+     "note_bn": "উচ্চারণ: নো অবস্তান্তে",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Dado que …",
+     "bn": "যেহেতু …",
+     "en": "Given that …",
+     "note_bn": "উচ্চারণ: দাদো কে …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Si bien es cierto que …, …",
+     "bn": "যদিও সত্য যে …, …",
+     "en": "While it is true that …, …",
+     "note_bn": "উচ্চারণ: সি বিয়েন এস সিয়ের্তো কে …",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "En definitiva, …",
+     "bn": "মোটকথা, …",
+     "en": "In short / ultimately, …",
+     "note_bn": "উচ্চারণ: এন দেফিনিতিবা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "A raíz de …",
+     "bn": "… এর ফলে",
+     "en": "As a result of …",
+     "note_bn": "উচ্চারণ: আ রাইস দে …",
+     "note_en": ""
+    }
+   ]
+  },
+  {
+   "id": "es-c2-1",
+   "level": "C2",
+   "title_en": "Idioms native speakers use",
+   "title_bn": "স্থানীয়রা যে বাগধারা বলে",
+   "items": [
+    {
+     "kind": "phrase",
+     "target": "Estar en las nubes",
+     "bn": "আনমনা থাকা",
+     "en": "to be daydreaming",
+     "note_bn": "উচ্চারণ: এস্তার এন লাস নুবেস",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Costar un ojo de la cara",
+     "bn": "আকাশছোঁয়া দাম",
+     "en": "to cost an arm and a leg",
+     "note_bn": "উচ্চারণ: কোস্তার উন ওহো দে লা কারা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Tomar el pelo a alguien",
+     "bn": "কারও সাথে মজা করা",
+     "en": "to pull someone's leg",
+     "note_bn": "উচ্চারণ: তোমার এল পেলো আ আলগিয়েন",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Meter la pata",
+     "bn": "ভুল করে ফেলা",
+     "en": "to put one's foot in it",
+     "note_bn": "উচ্চারণ: মেতের লা পাতা",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "No tener pelos en la lengua",
+     "bn": "মুখের ওপর সোজা কথা বলা",
+     "en": "to speak one's mind",
+     "note_bn": "উচ্চারণ: নো তেনের পেলোস এন লা লেঙ্গুয়া",
+     "note_en": ""
+    },
+    {
+     "kind": "phrase",
+     "target": "Ser pan comido",
+     "bn": "খুব সহজ হওয়া",
+     "en": "to be a piece of cake",
+     "note_bn": "উচ্চারণ: সের পান কোমিদো",
+     "note_en": ""
+    }
+   ],
+   "practice": [
+    "Estar en las nubes",
+    "Costar un ojo de la cara",
+    "Tomar el pelo a alguien"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "airport",
+   "title_en": "Passport control in Madrid",
+   "title_bn": "মাদ্রিদে পাসপোর্ট কন্ট্রোল",
+   "ai_role": "You are a Spanish border officer at Madrid-Barajas airport. Polite, short, simple Spanish (A1-A2). Ask for passport, purpose (work/study), length of stay, address. Repeat slowly if asked. Example flow (adapt, do not read verbatim): them: Buenos días. Su pasaporte, por favor. / you: Aquí tiene. / them: ¿Cuál es el motivo de su viaje? / you: Vengo a trabajar. Tengo un contrato. / them: ¿Dónde va a vivir? / you: En Barcelona. Aquí está la dirección.",
+   "opening": "Buenos días. Su pasaporte, por favor.",
+   "goals_en": [
+    "Say why you came, how long you stay and where.",
+    "Say: Here you are.",
+    "Say: I'm coming to work. I have a contract.",
+    "Say: In Barcelona. Here is the address."
+   ],
+   "goals_bn": [
+    "কেন এসেছেন, কতদিন, কোথায় থাকবেন বলুন।",
+    "বলুন: এই নিন।",
+    "বলুন: কাজ করতে এসেছি। চুক্তিপত্র আছে।",
+    "বলুন: বার্সেলোনায়। এই যে ঠিকানা।"
+   ],
+   "useful": [
+    {
+     "target": "Aquí tiene.",
+     "bn": "এই নিন।",
+     "en": "Here you are."
+    },
+    {
+     "target": "Vengo a trabajar. Tengo un contrato.",
+     "bn": "কাজ করতে এসেছি। চুক্তিপত্র আছে।",
+     "en": "I'm coming to work. I have a contract."
+    },
+    {
+     "target": "En Barcelona. Aquí está la dirección.",
+     "bn": "বার্সেলোনায়। এই যে ঠিকানা।",
+     "en": "In Barcelona. Here is the address."
+    }
+   ]
+  },
+  {
+   "id": "workplace",
+   "title_en": "First day in a restaurant kitchen",
+   "title_bn": "রেস্টুরেন্টের রান্নাঘরে প্রথম দিন",
+   "ai_role": "You are the head chef of a restaurant in Barcelona welcoming a new kitchen assistant. B1 Spanish. Explain the shift (12:00-20:00), break at 16:00, and one task (washing vegetables). Mention safety with knives. Example flow (adapt, do not read verbatim): you: Buenos días, soy Rahim, el nuevo ayudante de cocina. / them: ¡Bienvenido! Tu turno es de doce a ocho. / you: ¿A qué hora es el descanso? / them: A las cuatro, media hora. / you: Vale. ¿Qué hago primero? / them: Lava las verduras. Y cuidado con los cuchillos.",
+   "opening": "¡Hola! ¿Eres el nuevo ayudante?",
+   "goals_en": [
+    "Introduce yourself, ask about your hours and the break.",
+    "Say: Good morning, I'm Rahim, the new kitchen assistant.",
+    "Say: What time is the break?",
+    "Say: OK. What do I do first?"
+   ],
+   "goals_bn": [
+    "নিজের পরিচয় দিন, কাজের সময় ও বিরতি জিজ্ঞেস করুন।",
+    "বলুন: সুপ্রভাত, আমি রহিম, রান্নাঘরের নতুন সহকারী।",
+    "বলুন: বিরতি কখন?",
+    "বলুন: ঠিক আছে। প্রথমে কী করব?"
+   ],
+   "useful": [
+    {
+     "target": "Buenos días, soy Rahim, el nuevo ayudante de cocina.",
+     "bn": "সুপ্রভাত, আমি রহিম, রান্নাঘরের নতুন সহকারী।",
+     "en": "Good morning, I'm Rahim, the new kitchen assistant."
+    },
+    {
+     "target": "¿A qué hora es el descanso?",
+     "bn": "বিরতি কখন?",
+     "en": "What time is the break?"
+    },
+    {
+     "target": "Vale. ¿Qué hago primero?",
+     "bn": "ঠিক আছে। প্রথমে কী করব?",
+     "en": "OK. What do I do first?"
+    }
+   ]
+  },
+  {
+   "id": "doctor",
+   "title_en": "At the health centre",
+   "title_bn": "স্বাস্থ্যকেন্দ্রে",
+   "ai_role": "You are a family doctor at a Spanish health centre (centro de salud). Simple A2 Spanish: what's wrong, since when, fever, allergies; prescribe 'dos veces al día'. Do not give real medical advice. Example flow (adapt, do not read verbatim): them: ¿Qué le pasa? / you: Me duele la garganta y tengo fiebre. / them: ¿Desde cuándo? / you: Desde anoche. / them: Tome este medicamento dos veces al día. / you: ¿Antes o después de comer?",
+   "opening": "¿Qué le pasa?",
+   "goals_en": [
+    "Say what hurts and since when; ask about the medicine.",
+    "Say: My throat hurts and I have a fever.",
+    "Say: Since last night.",
+    "Say: Before or after eating?"
+   ],
+   "goals_bn": [
+    "কোথায় ব্যথা ও কবে থেকে বলুন; ওষুধ নিয়ে জিজ্ঞেস করুন।",
+    "বলুন: গলা ব্যথা আর জ্বর।",
+    "বলুন: গতকাল রাত থেকে।",
+    "বলুন: খাওয়ার আগে না পরে?"
+   ],
+   "useful": [
+    {
+     "target": "Me duele la garganta y tengo fiebre.",
+     "bn": "গলা ব্যথা আর জ্বর।",
+     "en": "My throat hurts and I have a fever."
+    },
+    {
+     "target": "Desde anoche.",
+     "bn": "গতকাল রাত থেকে।",
+     "en": "Since last night."
+    },
+    {
+     "target": "¿Antes o después de comer?",
+     "bn": "খাওয়ার আগে না পরে?",
+     "en": "Before or after eating?"
+    }
+   ]
+  },
+  {
+   "id": "renting",
+   "title_en": "Renting a room in a shared flat",
+   "title_bn": "শেয়ার্ড ফ্ল্যাটে ঘর ভাড়া",
+   "ai_role": "You are a landlord renting a room in a shared flat in Madrid. B1 Spanish. Rent 450 euros, bills not included (about 40 euros), deposit one month, yes the tenant can register the address. Example flow (adapt, do not read verbatim): you: ¿Cuánto es el alquiler? / them: Cuatrocientos cincuenta euros al mes. / you: ¿Los gastos están incluidos? / them: No, son unos cuarenta euros más. / you: ¿Me puedo empadronar aquí? / them: Sí, claro. La fianza es de un mes.",
+   "opening": "¡Hola! ¿Vienes a ver la habitación?",
+   "goals_en": [
+    "Ask the rent, bills, deposit, and whether you can register the address (empadronamiento).",
+    "Say: How much is the rent?",
+    "Say: Are the bills included?",
+    "Say: Can I register my address here?"
+   ],
+   "goals_bn": [
+    "ভাড়া, বিল, জামানত, আর ঠিকানা নিবন্ধন (empadronamiento) করা যাবে কিনা জিজ্ঞেস করুন।",
+    "বলুন: ভাড়া কত?",
+    "বলুন: বিল কি ধরা আছে?",
+    "বলুন: এখানে ঠিকানা নিবন্ধন করতে পারব?"
+   ],
+   "useful": [
+    {
+     "target": "¿Cuánto es el alquiler?",
+     "bn": "ভাড়া কত?",
+     "en": "How much is the rent?"
+    },
+    {
+     "target": "¿Los gastos están incluidos?",
+     "bn": "বিল কি ধরা আছে?",
+     "en": "Are the bills included?"
+    },
+    {
+     "target": "¿Me puedo empadronar aquí?",
+     "bn": "এখানে ঠিকানা নিবন্ধন করতে পারব?",
+     "en": "Can I register my address here?"
+    }
+   ]
+  },
+  {
+   "id": "shopping",
+   "title_en": "At the market",
+   "title_bn": "বাজারে",
+   "ai_role": "You are a market stallholder in Spain. Very simple A1 Spanish. Sell tomatoes and onions by the kilo, say the price, give change. Example flow (adapt, do not read verbatim): you: Hola, un kilo de tomates, por favor. / them: Aquí tiene. ¿Algo más? / you: Cebollas también. ¿Cuánto es? / them: Son cuatro euros con cincuenta. / you: Tome, cinco euros. / them: Y cincuenta céntimos de cambio. ¡Gracias!",
+   "opening": "¡Buenos días! ¿Qué le pongo?",
+   "goals_en": [
+    "Ask for vegetables, the price, and pay.",
+    "Say: Hello, a kilo of tomatoes, please.",
+    "Say: Onions too. How much is it?",
+    "Say: Here, five euros."
+   ],
+   "goals_bn": [
+    "সবজি চান, দাম জিজ্ঞেস করুন, টাকা দিন।",
+    "বলুন: হ্যালো, এক কেজি টমেটো দিন।",
+    "বলুন: পেঁয়াজও। কত হলো?",
+    "বলুন: এই নিন, পাঁচ ইউরো।"
+   ],
+   "useful": [
+    {
+     "target": "Hola, un kilo de tomates, por favor.",
+     "bn": "হ্যালো, এক কেজি টমেটো দিন।",
+     "en": "Hello, a kilo of tomatoes, please."
+    },
+    {
+     "target": "Cebollas también. ¿Cuánto es?",
+     "bn": "পেঁয়াজও। কত হলো?",
+     "en": "Onions too. How much is it?"
+    },
+    {
+     "target": "Tome, cinco euros.",
+     "bn": "এই নিন, পাঁচ ইউরো।",
+     "en": "Here, five euros."
+    }
+   ]
+  }
+ ],
+ "pron": [
+  {
+   "id": "es-pr1",
+   "text": "Hola, me llamo Karim.",
+   "tip_bn": "'ll' উচ্চারণ 'ইয়'।",
+   "tip_en": "'ll' sounds like 'ইয়'."
+  },
+  {
+   "id": "es-pr2",
+   "text": "Soy de Bangladés y vivo en Madrid.",
+   "tip_bn": "'v' প্রায় 'ব'-এর মতো।",
+   "tip_en": "'v' sounds close to 'ব'."
+  },
+  {
+   "id": "es-pr3",
+   "text": "No entiendo, más despacio por favor.",
+   "tip_bn": "প্রতিটি স্বর ছোট ও স্পষ্ট: আ, এ, ই, ও, উ।",
+   "tip_en": "Every vowel is short and clear: a, e, i, o, u."
+  },
+  {
+   "id": "es-pr4",
+   "text": "Muchas gracias, hasta luego.",
+   "tip_bn": "স্পেনে i/e-এর আগে 'c' ইংরেজি 'th'-এর মতো।",
+   "tip_en": "In Spain 'c' before i/e is like English 'th'."
+  },
+  {
+   "id": "es-pr5",
+   "text": "El perro corre por la carretera.",
+   "tip_bn": "'rr' জোরে কাঁপানো র।",
+   "tip_en": "'rr' is a strong rolled r."
+  },
+  {
+   "id": "es-pr6",
+   "text": "Quería un billete de ida y vuelta.",
+   "tip_bn": "'qu' = 'ক'; u নীরব।",
+   "tip_en": "'qu' = 'ক'; the u is silent."
+  },
+  {
+   "id": "es-pr7",
+   "text": "¿Podría repetirlo, por favor?",
+   "tip_bn": "চিহ্নযুক্ত অংশে জোর: পো-দ্রি-আ।",
+   "tip_en": "Stress the accented syllable: po-DRÍ-a."
+  },
+  {
+   "id": "es-pr8",
+   "text": "Trabajo en la cocina desde hace dos años.",
+   "tip_bn": "'j' গলার 'হ'।",
+   "tip_en": "'j' is a throaty 'হ'."
+  },
+  {
+   "id": "es-pr9",
+   "text": "Mañana hace buen tiempo.",
+   "tip_bn": "'ñ' = 'নিয়'।",
+   "tip_en": "'ñ' = 'নিয়'."
+  },
+  {
+   "id": "es-pr10",
+   "text": "Les agradecería una respuesta lo antes posible.",
+   "tip_bn": "শব্দগুলো মসৃণভাবে জুড়ে বলুন।",
+   "tip_en": "Link the words smoothly."
+  },
+  {
+   "id": "es-pr11",
+   "text": "La sostenibilidad es una prioridad.",
+   "tip_bn": "শেষের 'd' খুব নরম।",
+   "tip_en": "Final 'd' is very soft."
+  },
+  {
+   "id": "es-pr12",
+   "text": "Cabe destacar que la situación ha mejorado.",
+   "tip_bn": "'ha'-এর h নীরব।",
+   "tip_en": "'h' in 'ha' is silent."
+  }
+ ],
+ "mock": [
+  {
+   "id": "es_style_1",
+   "title_en": "DELE FORMAT style (comprensión de lectura, comprensión auditiva, expresión e interacción escritas y orales) — original Assisto questions, never a real exam paper",
+   "title_bn": "DELE ফরম্যাটের ধাঁচ (পড়া, শোনা, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "format_en": "DELE FORMAT style (comprensión de lectura, comprensión auditiva, expresión e interacción escritas y orales) — original Assisto questions, never a real exam paper",
+   "format_bn": "DELE ফরম্যাটের ধাঁচ (পড়া, শোনা, লেখা, বলা) — Assisto-র নিজস্ব প্রশ্ন, কখনো আসল প্রশ্নপত্র নয়",
+   "minutes": 40,
+   "sections": [
+    {
+     "id": "reading",
+     "skill": "reading",
+     "title_en": "Reading and understanding (listening items are shown as text until phone-voice listening is enabled)",
+     "title_bn": "পড়া ও বোঝা (ফোনের কণ্ঠে শোনা চালু না হওয়া পর্যন্ত শোনার প্রশ্ন লেখা আকারে)",
+     "questions": [
+      {
+       "id": "es-mk-l1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "Which platform?\nEl tren a Sevilla sale de la vía siete.",
+       "text_en": "Which platform?\nEl tren a Sevilla sale de la vía siete.",
+       "text_bn": "কোন প্ল্যাটফর্ম?\nEl tren a Sevilla sale de la vía siete.",
+       "tts_text": "El tren a Sevilla sale de la vía siete.",
+       "options": [
+        "3",
+        "5",
+        "7"
+       ],
+       "answer": 2,
+       "explain_bn": "'vía siete' = ৭ নম্বর।",
+       "explain_en": "'vía siete' = platform 7."
+      },
+      {
+       "id": "es-mk-l2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A1",
+       "text": "True or false: the shop opens at 10.\nLa tienda abre mañana a las nueve.",
+       "text_en": "True or false: the shop opens at 10.\nLa tienda abre mañana a las nueve.",
+       "text_bn": "সত্য না মিথ্যা: দোকান ১০টায় খোলে।\nLa tienda abre mañana a las nueve.",
+       "tts_text": "La tienda abre mañana a las nueve.",
+       "options": [
+        "True",
+        "False"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 1,
+       "explain_bn": "'a las nueve' = নয়টায়।",
+       "explain_en": "'a las nueve' = at nine."
+      },
+      {
+       "id": "es-mk-l3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "What must Ali bring?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
+       "text_en": "What must Ali bring?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
+       "text_bn": "আলী কী আনবেন?\nSeñor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
+       "tts_text": "Señor Ali, traiga mañana el pasaporte y el contrato de trabajo.",
+       "options": [
+        "Passport and contract",
+        "Money",
+        "A photo only"
+       ],
+       "options_en": [
+        "Passport and contract",
+        "Money",
+        "A photo only"
+       ],
+       "options_bn": [
+        "পাসপোর্ট ও চুক্তিপত্র",
+        "টাকা",
+        "শুধু ছবি"
+       ],
+       "answer": 0,
+       "explain_bn": "পাসপোর্ট ও চুক্তিপত্র।",
+       "explain_en": "'el pasaporte y el contrato'."
+      },
+      {
+       "id": "es-mk-l4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "Why does the schedule change?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
+       "text_en": "Why does the schedule change?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
+       "text_bn": "সময়সূচি কেন বদলাল?\nAtención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
+       "tts_text": "Atención: cambia el horario del domingo porque Marta está de baja. Por favor, venid a las diez.",
+       "options": [
+        "A colleague is ill",
+        "It's a holiday",
+        "The kitchen is closed"
+       ],
+       "options_en": [
+        "A colleague is ill",
+        "It's a holiday",
+        "The kitchen is closed"
+       ],
+       "options_bn": [
+        "একজন সহকর্মী অসুস্থ",
+        "ছুটির দিন",
+        "রান্নাঘর বন্ধ"
+       ],
+       "answer": 0,
+       "explain_bn": "'está de baja' = অসুস্থতার ছুটিতে।",
+       "explain_en": "'está de baja' = is on sick leave."
+      },
+      {
+       "id": "es-mk-l5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "What does the advisor recommend?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
+       "text_en": "What does the advisor recommend?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
+       "text_bn": "পরামর্শদাতা কী বললেন?\nLes recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
+       "tts_text": "Les recomiendo empadronarse cuanto antes, porque lo piden para casi todos los trámites.",
+       "options": [
+        "Register your address as soon as possible",
+        "Wait a year",
+        "Avoid the town hall"
+       ],
+       "options_en": [
+        "Register your address as soon as possible",
+        "Wait a year",
+        "Avoid the town hall"
+       ],
+       "options_bn": [
+        "যত দ্রুত সম্ভব ঠিকানা নিবন্ধন",
+        "এক বছর অপেক্ষা",
+        "পৌরসভা এড়ানো"
+       ],
+       "answer": 0,
+       "explain_bn": "'cuanto antes' = যত দ্রুত সম্ভব।",
+       "explain_en": "'cuanto antes' = as soon as possible."
+      },
+      {
+       "id": "es-mk-l6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "What is the speaker's attitude?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
+       "text_en": "What is the speaker's attitude?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
+       "text_bn": "বক্তার মনোভাব কী?\nLa medida supone un avance, aunque habrá que ver si se aplica de verdad.",
+       "tts_text": "La medida supone un avance, aunque habrá que ver si se aplica de verdad.",
+       "options": [
+        "Positive with doubts",
+        "Totally against",
+        "Indifferent"
+       ],
+       "options_en": [
+        "Positive with doubts",
+        "Totally against",
+        "Indifferent"
+       ],
+       "options_bn": [
+        "ইতিবাচক, তবে সংশয় আছে",
+        "পুরোপুরি বিপক্ষে",
+        "উদাসীন"
+       ],
+       "answer": 0,
+       "explain_bn": "'অগ্রগতি … দেখা যাক'।",
+       "explain_en": "'un avance … habrá que ver' = progress … we'll have to see."
+      },
+      {
+       "id": "es-mk-r1",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "Notice at a health centre. When is it closed?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
+       "text_en": "Notice at a health centre. When is it closed?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
+       "text_bn": "স্বাস্থ্যকেন্দ্রের নোটিশ। কখন বন্ধ?\nCentro de salud: lunes a viernes de 8:00 a 20:00. Sábados y domingos cerrado.",
+       "options": [
+        "Weekends",
+        "Monday morning",
+        "Every afternoon"
+       ],
+       "options_en": [
+        "Weekends",
+        "Monday morning",
+        "Every afternoon"
+       ],
+       "options_bn": [
+        "সপ্তাহান্তে",
+        "সোমবার সকাল",
+        "প্রতি বিকেল"
+       ],
+       "answer": 0,
+       "explain_bn": "শনি ও রবিবার বন্ধ।",
+       "explain_en": "'sábados y domingos cerrado'."
+      },
+      {
+       "id": "es-mk-r2",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "A2",
+       "text": "True or false: you may smoke here.\nProhibido fumar en todo el edificio.",
+       "text_en": "True or false: you may smoke here.\nProhibido fumar en todo el edificio.",
+       "text_bn": "সত্য না মিথ্যা: এখানে ধূমপান করা যায়।\nProhibido fumar en todo el edificio.",
+       "options": [
+        "True",
+        "False"
+       ],
+       "options_en": [
+        "True",
+        "False"
+       ],
+       "options_bn": [
+        "সত্য",
+        "মিথ্যা"
+       ],
+       "answer": 1,
+       "explain_bn": "'Prohibido fumar' = ধূমপান নিষেধ।",
+       "explain_en": "'Prohibido fumar' = no smoking."
+      },
+      {
+       "id": "es-mk-r3",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "What does Lucía ask?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
+       "text_en": "What does Lucía ask?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
+       "text_bn": "লুসিয়া কী চাইছেন?\nHola Rahim, ¿podríamos cambiar los turnos? Yo hago tu sábado y tú haces mi martes. ¡Gracias! Lucía",
+       "options": [
+        "To swap shifts",
+        "A pay rise",
+        "A lift home"
+       ],
+       "options_en": [
+        "To swap shifts",
+        "A pay rise",
+        "A lift home"
+       ],
+       "options_bn": [
+        "শিফট বদল",
+        "বেতন বৃদ্ধি",
+        "বাসায় পৌঁছে দেওয়া"
+       ],
+       "answer": 0,
+       "explain_bn": "শিফট বদল।",
+       "explain_en": "'cambiar los turnos' = swap shifts."
+      },
+      {
+       "id": "es-mk-r4",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B1",
+       "text": "Why is the course free for Nadia?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
+       "text_en": "Why is the course free for Nadia?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
+       "text_bn": "নাদিয়ার কোর্স কেন ফ্রি?\nCurso de español: 200 €. Gratuito para personas desempleadas inscritas. Nadia está inscrita como desempleada.",
+       "options": [
+        "She is registered as unemployed",
+        "She is a student",
+        "She booked online"
+       ],
+       "options_en": [
+        "She is registered as unemployed",
+        "She is a student",
+        "She booked online"
+       ],
+       "options_bn": [
+        "বেকার হিসেবে নিবন্ধিত",
+        "ছাত্রী",
+        "অনলাইনে বুক করেছেন"
+       ],
+       "answer": 0,
+       "explain_bn": "নিবন্ধিত বেকারদের জন্য ফ্রি।",
+       "explain_en": "'gratuito para personas desempleadas inscritas'."
+      },
+      {
+       "id": "es-mk-r5",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "B2",
+       "text": "What does the employer offer?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
+       "text_en": "What does the employer offer?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
+       "text_bn": "নিয়োগকর্তা কী দিচ্ছেন?\nBuscamos personal de cocina con nivel B1 de español. Ofrecemos alojamiento durante la temporada de verano.",
+       "options": [
+        "Accommodation for the season",
+        "A free car",
+        "Remote work"
+       ],
+       "options_en": [
+        "Accommodation for the season",
+        "A free car",
+        "Remote work"
+       ],
+       "options_bn": [
+        "মৌসুমে থাকার ব্যবস্থা",
+        "বিনামূল্যে গাড়ি",
+        "দূর থেকে কাজ"
+       ],
+       "answer": 0,
+       "explain_bn": "মৌসুমে থাকার ব্যবস্থা।",
+       "explain_en": "'alojamiento durante la temporada'."
+      },
+      {
+       "id": "es-mk-r6",
+       "type": "mcq",
+       "skill": "reading",
+       "level": "C1",
+       "text": "Which statement matches the text?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
+       "text_en": "Which statement matches the text?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
+       "text_bn": "কোন বাক্য লেখার সাথে মেলে?\nLa administración electrónica agiliza los trámites, siempre que los ciudadanos reciban apoyo.",
+       "options": [
+        "Online procedures help only if people get support",
+        "Online procedures always help",
+        "Paper is faster"
+       ],
+       "options_en": [
+        "Online procedures help only if people get support",
+        "Online procedures always help",
+        "Paper is faster"
+       ],
+       "options_bn": [
+        "সহায়তা পেলে তবেই অনলাইন প্রক্রিয়া কাজে দেয়",
+        "অনলাইন প্রক্রিয়া সবসময় কাজে দেয়",
+        "কাগজে দ্রুত"
+       ],
+       "answer": 0,
+       "explain_bn": "'siempre que' = শর্তে।",
+       "explain_en": "'siempre que' + subjunctive = provided that."
+      }
+     ]
+    },
+    {
+     "id": "writing",
+     "skill": "writing",
+     "title_en": "Writing",
+     "title_bn": "লেখা",
+     "prompts": [
+      {
+       "id": "es-mk-w1",
+       "text": "Write a short message (about 40 words) to your friend Pablo: you can't come on Saturday, say why, propose another day.",
+       "text_en": "Write a short message (about 40 words) to your friend Pablo: you can't come on Saturday, say why, propose another day.",
+       "text_bn": "বন্ধু Pablo-কে ছোট বার্তা (প্রায় ৪০ শব্দ): শনিবার আসতে পারবেন না, কেন, অন্য দিন প্রস্তাব।",
+       "min_words": 25,
+       "max_words": 70,
+       "checks": [
+        {
+         "any": [
+          "hola",
+          "querido",
+          "querida"
+         ],
+         "en": "Greeting",
+         "bn": "সম্বোধন"
+        },
+        {
+         "any": [
+          "sábado",
+          "sabado"
+         ],
+         "en": "Mention Saturday",
+         "bn": "শনিবার বলা"
+        },
+        {
+         "any": [
+          "porque"
+         ],
+         "en": "A reason (porque)",
+         "bn": "কারণ (porque)"
+        },
+        {
+         "any": [
+          "lunes",
+          "martes",
+          "miércoles",
+          "jueves",
+          "viernes",
+          "domingo"
+         ],
+         "en": "Another day",
+         "bn": "অন্য দিন"
+        }
+       ]
+      },
+      {
+       "id": "es-mk-w2",
+       "text": "Write to your landlord (about 120 words): the water heater is broken, since when, ask for a repair date, polite close.",
+       "text_en": "Write to your landlord (about 120 words): the water heater is broken, since when, ask for a repair date, polite close.",
+       "text_bn": "বাড়িওয়ালাকে লিখুন (প্রায় ১২০ শব্দ): গরম পানির যন্ত্র নষ্ট, কবে থেকে, মেরামতের তারিখ চান, ভদ্র সমাপ্তি।",
+       "min_words": 90,
+       "max_words": 180,
+       "checks": [
+        {
+         "any": [
+          "estimado",
+          "estimada",
+          "buenos días"
+         ],
+         "en": "Formal greeting",
+         "bn": "আনুষ্ঠানিক সম্বোধন"
+        },
+        {
+         "any": [
+          "calentador",
+          "agua caliente"
+         ],
+         "en": "Name the problem",
+         "bn": "সমস্যার নাম"
+        },
+        {
+         "any": [
+          "desde"
+         ],
+         "en": "Since when (desde)",
+         "bn": "কবে থেকে (desde)"
+        },
+        {
+         "any": [
+          "podría",
+          "podrían",
+          "le agradecería",
+          "por favor"
+         ],
+         "en": "Polite request",
+         "bn": "ভদ্র অনুরোধ"
+        },
+        {
+         "any": [
+          "atentamente",
+          "saludos"
+         ],
+         "en": "Formal close",
+         "bn": "আনুষ্ঠানিক সমাপ্তি"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "speaking",
+     "skill": "speaking",
+     "title_en": "Speaking — read aloud, the phone checks",
+     "title_bn": "বলা — জোরে পড়ুন, ফোন যাচাই করবে",
+     "read_aloud": [
+      "Hola, me llamo Karim.",
+      "Soy de Bangladés y vivo en Madrid.",
+      "No entiendo, más despacio por favor.",
+      "Muchas gracias, hasta luego."
+     ],
+     "speak_prompts": [
+      {
+       "id": "es-mk-s1",
+       "text_en": "Introduce yourself: name, country, city, job, languages.",
+       "text_bn": "নিজের পরিচয়: নাম, দেশ, শহর, কাজ, ভাষা।",
+       "seconds": 60,
+       "prep_seconds": 0,
+       "checks": [
+        {
+         "any": [
+          "llamo"
+         ],
+         "en": "Name",
+         "bn": "নাম"
+        },
+        {
+         "any": [
+          "bangladés",
+          "bangladesh"
+         ],
+         "en": "Country",
+         "bn": "দেশ"
+        },
+        {
+         "any": [
+          "vivo"
+         ],
+         "en": "Where you live",
+         "bn": "কোথায় থাকেন"
+        },
+        {
+         "any": [
+          "trabajo",
+          "estudio",
+          "soy"
+         ],
+         "en": "Job or studies",
+         "bn": "কাজ বা পড়াশোনা"
+        },
+        {
+         "any": [
+          "hablo"
+         ],
+         "en": "Languages",
+         "bn": "ভাষা"
+        }
+       ]
+      },
+      {
+       "id": "es-mk-s2",
+       "text_en": "Give your opinion for 1 minute: 'Working abroad — advantages and disadvantages'.",
+       "text_bn": "১ মিনিট মত দিন: 'বিদেশে কাজ — সুবিধা ও অসুবিধা'।",
+       "seconds": 90,
+       "prep_seconds": 60,
+       "checks": [
+        {
+         "any": [
+          "ventaja"
+         ],
+         "en": "An advantage",
+         "bn": "সুবিধা"
+        },
+        {
+         "any": [
+          "desventaja",
+          "inconveniente"
+         ],
+         "en": "A disadvantage",
+         "bn": "অসুবিধা"
+        },
+        {
+         "any": [
+          "en mi opinión",
+          "creo que",
+          "pienso que"
+         ],
+         "en": "Your opinion",
+         "bn": "নিজের মত"
+        },
+        {
+         "any": [
+          "porque",
+          "por eso",
+          "así que"
+         ],
+         "en": "A reason",
+         "bn": "কারণ"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "bands": [
+    {
+     "min_pct": 0,
+     "level": "A1"
+    },
+    {
+     "min_pct": 30,
+     "level": "A2"
+    },
+    {
+     "min_pct": 50,
+     "level": "B1"
+    },
+    {
+     "min_pct": 70,
+     "level": "B2"
+    },
+    {
+     "min_pct": 88,
+     "level": "C1"
+    }
+   ]
+  }
+ ],
+ "extras": []
+}
