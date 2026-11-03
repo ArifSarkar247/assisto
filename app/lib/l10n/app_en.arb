@@ -43488,5 +43488,13 @@
   "bizaiCamHealth": "Camera covered or moved",
   "@bizaiCamHealth": {
     "description": "bizai: bizaiCamHealth"
+  },
+  "bizaiCopyLink": "Copy link",
+  "@bizaiCopyLink": {
+    "description": "bizai: bizaiCopyLink"
+  },
+  "bizaiLinkCopied": "Link copied",
+  "@bizaiLinkCopied": {
+    "description": "bizai: bizaiLinkCopied"
   }
 }

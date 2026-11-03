@@ -23461,5 +23461,7 @@
   "bizaiCamZone": "নিষিদ্ধ জায়গায় ঢুকেছেন",
   "bizaiCamLoiter": "অনেকক্ষণ ঘোরাঘুরি",
   "bizaiCamCash": "ক্যাশবাক্সে হাত",
-  "bizaiCamHealth": "ক্যামেরা ঢাকা বা সরানো"
+  "bizaiCamHealth": "ক্যামেরা ঢাকা বা সরানো",
+  "bizaiCopyLink": "লিংক কপি করুন",
+  "bizaiLinkCopied": "লিংক কপি হয়েছে"
 }
