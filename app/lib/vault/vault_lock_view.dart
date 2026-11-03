@@ -136,7 +136,11 @@ class _VaultLockViewState extends State<VaultLockView> {
       }
       return;
     }
-    if (pin.isEmpty) return;
+    if (pin.isEmpty) {
+      // lostsim: never a silent tap — say what is missing
+      setState(() => _error = t.vaultEnterPinHint);
+      return;
+    }
     setState(() => _busy = true);
     final r = await widget.lock.check(pin);
     if (r == PinCheck.wrong || r == PinCheck.lockedOut) {
@@ -144,7 +148,10 @@ class _VaultLockViewState extends State<VaultLockView> {
       // the notice below says so while it is on). Fire-and-forget.
       try {
         IntruderSnap.afterLocalWrong(await widget.lock.wrongInARow());
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: the photo is optional evidence; the wrong-PIN message
+        // below must show whatever happens here
+      }
     }
     if (!mounted) return;
     _pin.clear();
