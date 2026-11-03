@@ -569,6 +569,13 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
         m.status, m.external_id = status_on_ok, "web-" + uuid.uuid4().hex[:16]
         m.save()
         return m
+    if ch.kind == "assisto":
+        # bizai: in-app shop chat — stored for the customer's app + one push
+        m.status, m.external_id = status_on_ok, "app-" + uuid.uuid4().hex[:16]
+        m.save()
+        from . import bizai_service as BA
+        BA.push_customer(thread, m)
+        return m
     token = channel_token(ch)
     if not token:
         m.status, m.send_error = "queued", "no_token"
@@ -689,7 +696,7 @@ def send_image(thread, url, caption=""):
     now = timezone.now()
     if ch is None:
         m.status, m.send_error = "queued", "no_channel"
-    elif ch.test_mode or ch.kind == "website":
+    elif ch.test_mode or ch.kind in ("website", "assisto"):
         m.status, m.external_id = "sent", "test-" + uuid.uuid4().hex[:16]
         m.meta["test_mode"] = ch.test_mode
     else:
@@ -1701,6 +1708,12 @@ def approve(message, text=None, actor=None):
     message.meta = dict(message.meta or {}, approved=True, edited=edited)
     message.save(update_fields=["status", "meta"])
     if edited:
+        # bizai: the owner's correction is learned for next time (per shop)
+        try:
+            from . import bizai_service as BA
+            BA.learn_from_edit(message, body)
+        except Exception:  # noqa: BLE001
+            log.exception("bizai.learn_from_edit")
         # the seller wrote it: a human message, not billed as an AI reply
         m = send_text(t, body, kind="text", is_ai=False, comment_id=comment_id, source="human")
         G1S.pause_for_human(t, "app", agent)
@@ -1851,7 +1864,15 @@ def confirm_order(thread, agent, lang):
                   "অর্ডার #%s — ৳%s" % (o.id, BZ._fmt_money(o.total)),
                   "Order #%s — ৳%s" % (o.id, BZ._fmt_money(o.total)),
                   data={"order_id": str(o.id)})
-    G1S.auto_courier(o, agent, thread, lang)
+    # bizai: COD return-risk — a high-risk buyer is never auto-shipped
+    from . import bizai_service as BA
+    try:
+        hold = BA.check_order_risk(o, agent)
+    except Exception:  # noqa: BLE001 — the order itself is already safe
+        log.exception("bizai.cod_risk")
+        hold = False
+    if not hold:
+        G1S.auto_courier(o, agent, thread, lang)
     from . import bizagent_crm
     bizagent_crm.note(thread, order=o)
     return "order_created"
@@ -2014,7 +2035,10 @@ def daily_stats(business, day):
                                   created_at__lt=end)
     agent = agent_for(business)
     th = sa_cfg()["low_stock_default"]
+    from . import bizai_service as BA
+    ai_n, ai_v = BA.ai_orders(business, start, end)
     return {"day": day.isoformat(), "orders": orders.count(),
+            "ai_orders": ai_n, "ai_revenue": str(ai_v),     # bizai: AI-taken only
             "revenue": str(orders.exclude(status="cancelled").aggregate(s=Sum("total"))["s"] or 0),
             "messages": msgs.filter(direction="in").count(),
             "ai_replies": msgs.filter(direction="out", is_ai=True,

@@ -1,0 +1,163 @@
+"""bizai — DRF wiring for core/bizai_service.py (flag `business_agent`).
+
+Shop side (owner / active staff; switches owner-only):
+  GET  bizai/shop-link           code, share url, switches
+  POST bizai/shop-link           {app_chat_enabled?, cod_risk_guard?}
+  GET  bizai/outcomes?days=7     the Business-home outcome card (real rows)
+Customer side (any signed-in account):
+  GET  shopchat/mine             shops I chat with + My Circle contacts' shops
+  GET  shopchat/<code>           shop + disclosure + my messages
+  GET  shopchat/<code>/messages?after=<id>
+  POST shopchat/<code>/send      JSON {text} or multipart {text?, file, type image|audio}
+  POST shopchat/<code>/person    "Talk to a person"
+"""
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from . import bizai_service as BA
+from . import feature_flags as FF
+from .business_views import _owner_only, _require_business
+from .i18n import is_play_flavour, pick, req_lang
+
+FLAG = "business_agent"
+
+
+def _off(request):
+    return not FF.is_on(FLAG, request.user, is_play_flavour(request))
+
+
+def _refuse(request, reason, code):
+    lang = req_lang(request)
+    text = {
+        "off": ("এই সুবিধা এখন বন্ধ।", "This feature is off right now."),
+        "not_found": ("দোকানটি পাওয়া যায়নি — লিংকটি আবার দেখুন।",
+                      "Shop not found — please check the link."),
+        "chat_off": ("এই দোকান এখন অ্যাপে চ্যাট নিচ্ছে না।",
+                     "This shop is not taking app chats right now."),
+        "own_shop": ("এটা আপনার নিজের দোকান — গ্রাহকের চ্যাট Business → ইনবক্সে দেখুন।",
+                     "This is your own shop — see customer chats in Business → Inbox."),
+        "empty": ("কিছু লিখুন বা ছবি/ভয়েস পাঠান।", "Type something or send a photo / voice note."),
+        "bad_upload": ("ফাইলটি পাঠানো গেল না (ছবি বা ভয়েস, ৬ MB পর্যন্ত)।",
+                       "That file could not be sent (photo or voice, up to 6 MB)."),
+        "rate_limited": ("একটু ধীরে — এক মিনিট পরে আবার পাঠান।",
+                         "Slow down a little — try again in a minute."),
+    }.get(reason, ("কাজটি করা যায়নি।", "That did not work."))
+    return Response({"ok": False, "reason": reason, "detail": pick(lang, *text)}, status=code)
+
+
+class ShopLinkView(APIView):
+    def get(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        a = BA._S().agent_for(prof)
+        return Response({"code": BA.shop_code(prof), "url": BA.share_url(prof),
+                         "shop": prof.shop_name or "", "app_chat_enabled": a.app_chat_enabled,
+                         "cod_risk_guard": a.cod_risk_guard, "ai_on": a.ai_enabled})
+
+    def post(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        g = _owner_only(request, role)
+        if g:
+            return g
+        a = BA._S().agent_for(prof)
+        changed = []
+        for k in ("app_chat_enabled", "cod_risk_guard"):
+            if k in request.data:
+                setattr(a, k, bool(request.data.get(k)))
+                changed.append(k)
+        if changed:
+            a.save(update_fields=changed + ["updated_at"])
+            if "app_chat_enabled" in changed:
+                BA.app_channel(prof)
+        return self.get(request)
+
+
+class OutcomesView(APIView):
+    def get(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        try:
+            days = max(1, min(int(request.query_params.get("days") or 7), 90))
+        except ValueError:
+            days = 7
+        return Response(BA.outcomes(prof, days=days))
+
+
+class _Customer(APIView):
+    def shop(self, request, code):
+        if _off(request):
+            return None, _refuse(request, "off", 404)
+        b = BA.business_for_code(code)
+        if b is None:
+            return None, _refuse(request, "not_found", 404)
+        return b, None
+
+
+class ShopChatMineView(APIView):
+    def get(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        return Response({"shops": BA.my_shops(request.user)})
+
+
+class ShopChatView(_Customer):
+    def get(self, request, code):
+        b, bad = self.shop(request, code)
+        if bad:
+            return bad
+        return Response(BA.shop_view(request.user, b, req_lang(request)))
+
+
+class ShopChatMessagesView(_Customer):
+    def get(self, request, code):
+        b, bad = self.shop(request, code)
+        if bad:
+            return bad
+        try:
+            after = int(request.query_params.get("after") or 0)
+        except ValueError:
+            after = 0
+        t = BA.customer_thread(request.user, b, create=False)
+        return Response({"messages": BA.visible_messages(t, after=after),
+                         "with_person": bool(t and t.owner_takeover)})
+
+
+class ShopChatSendView(_Customer):
+    def post(self, request, code):
+        b, bad = self.shop(request, code)
+        if bad:
+            return bad
+        upload = None
+        f = request.FILES.get("file")
+        if f is not None:
+            kind = str(request.data.get("type") or "")
+            if f.size > BA.MAX_UPLOAD:
+                return _refuse(request, "bad_upload", 413)
+            upload = {"type": kind, "bytes": f.read(), "mime": f.content_type or ""}
+        lang = req_lang(request)
+        st, body = BA.customer_send(request.user, b, request.data.get("text") or "",
+                                    upload=upload, lang=lang)
+        if not body.get("ok"):
+            return _refuse(request, body.get("reason", ""), st)
+        return Response(body, status=st)
+
+
+class ShopChatPersonView(_Customer):
+    def post(self, request, code):
+        b, bad = self.shop(request, code)
+        if bad:
+            return bad
+        st, body = BA.talk_to_person(request.user, b, req_lang(request))
+        if not body.get("ok"):
+            return _refuse(request, body.get("reason", ""), st)
+        return Response(body, status=st)

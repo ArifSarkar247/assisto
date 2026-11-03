@@ -1801,3 +1801,15 @@ urlpatterns += [
     path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
 ]
 # ---- /safeplans ----
+# ---- bizai ---- AI sales agent in the in-app shop chat + outcome card
+from . import views_bizai as bzai  # noqa: E402
+urlpatterns += [
+    path("bizai/shop-link", bzai.ShopLinkView.as_view()),
+    path("bizai/outcomes", bzai.OutcomesView.as_view()),
+    path("shopchat/mine", bzai.ShopChatMineView.as_view()),
+    path("shopchat/<str:code>", bzai.ShopChatView.as_view()),
+    path("shopchat/<str:code>/messages", bzai.ShopChatMessagesView.as_view()),
+    path("shopchat/<str:code>/send", bzai.ShopChatSendView.as_view()),
+    path("shopchat/<str:code>/person", bzai.ShopChatPersonView.as_view()),
+]
+# ---- /bizai ----
