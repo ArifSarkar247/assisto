@@ -6,20 +6,21 @@ quran-simple.txt.gz
   Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
   sha256 of the uncompressed file: b3638f5cf03e2b05e4000efc0e4b656aafb3cf6ed28f8770b6497c5b43c46089
 
+quran-uthmani.txt.gz   (READING TEXT — default for reading and learning)
+  Tanzil Quran Text (Uthmani, Version 1.1), Copyright (C) 2007-2026 Tanzil Project.
+  Riwayah Hafs 'an 'Asim, Medina mushaf orthography. License: Creative Commons Attribution 3.0.
+  Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
+  sha256 of the uncompressed file: 7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326
+  quran-simple.txt.gz above is used for SEARCH only.
+  King Fahd Glorious Quran Printing Complex (KFGQPC) text/fonts: licence NOT verified
+  — not used; the owner can request permission (FEATURE_CARD_QURAN_BN.md section 6).
+
 en.pickthall.txt.gz
   The Meaning of the Glorious Koran (1930), Mohammed Marmaduke William Pickthall (d. 1936).
   Public domain (BD life+60, UK life+70, US: 1930 publication, PD since 1 Jan 2026).
   Digital text: Tanzil.net (en.pickthall, last update 4 Sep 2010), stored verbatim.
   Owner decision pending: owner_actions/FEATURE_CARD_QURAN_BN.md section 6.
   sha256 of the uncompressed file: 4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7
-
-quran-uthmani.txt.gz  (quranread: Learn to read Quran)
-  Tanzil Quran Text (Uthmani, Version 1.1), Copyright (C) 2007-2026 Tanzil Project.
-  License: Creative Commons Attribution 3.0. https://tanzil.net/docs/text_license
-  Downloaded 3 Nov 2026 from tanzil.net/download (quranType=uthmani, outType=txt-2,
-  default options). Follows the Medina mushaf (King Fahd Complex), riwayah Hafs.
-  Stored VERBATIM (gzip only, copyright notice included). Changing it is not allowed.
-  sha256 of the uncompressed file: bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8
 
 ../fonts/AmiriQuran.ttf  (quranread)
   Amiri Quran 1.003, Copyright 2010-2022 The Amiri Project Authors

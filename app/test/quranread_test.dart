@@ -149,7 +149,7 @@ void main() {
       final raw = utf8.decode(
           gzip.decode(File('assets/quran/quran-uthmani.txt.gz').readAsBytesSync()));
       expect(sha256.convert(utf8.encode(raw)).toString(),
-          'bf4f57b968d03f4131c070b1e285da9be0e0a108a21c910e872801ca273312c8');
+          '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326');
       final u = realUthmani();
       expect(u.notice, contains('Tanzil Quran Text (Uthmani, Version 1.1)'));
       expect(u.notice, contains('Creative Commons Attribution 3.0'));

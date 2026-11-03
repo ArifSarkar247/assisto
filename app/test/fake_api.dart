@@ -1265,7 +1265,10 @@ class FakeApi extends ApiClient {
       return {'date': '2027-02-10', 'method': 'ifb', 'asr_convention': 'hanafi',
               'sehri_end': '05:15', 'fajr': '05:18', 'sunrise': '06:35', 'dhuhr': '12:13',
               'asr': '16:14', 'iftar': '17:53', 'maghrib': '17:50', 'isha': '19:07',
-              'district': 'dhaka', 'name_bn': 'ঢাকা', 'name_en': 'Dhaka',
+              // echo a requested district (the picker test saves what it picks)
+              ...(path.contains('district=sylhet')
+                  ? {'district': 'sylhet', 'name_bn': 'সিলেট', 'name_en': 'Sylhet'}
+                  : {'district': 'dhaka', 'name_bn': 'ঢাকা', 'name_en': 'Dhaka'}),
               'approx_ramadan': {'hijri_year': 1448, 'start': '2027-02-08',
                   'end': '2027-03-09', 'approximate': true, 'in_ramadan': false}};
     }
