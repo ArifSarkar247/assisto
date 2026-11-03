@@ -58,6 +58,7 @@ const _launchPrefixes = <String>[
   'pc_', // CCTV phone camera (old phone as camera)
   'cx_', 'cxat_', // CCTV alerts inbox / actions / alert types
   'cev_', // CCTV evidence (SD clip / recording)
+  'recov_', // recovery: Account & security + account recovery (owner Part 8)
   'cesc_', // CCTV escalation (alarm call, police card)
   'cpl_', // CCTV pricing / add-on
   'cg_', // CCTV cost guard

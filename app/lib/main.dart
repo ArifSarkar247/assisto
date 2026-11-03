@@ -4,6 +4,9 @@ import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'account_security_api.dart'; // recovery
+import 'screens/account_security_screen.dart' show EmailNudge; // recovery
+import 'otp_api.dart' show ApiOtpBackend; // recovery
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -539,6 +542,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           await GrabCheck.maybeShow(nav.context,
               send: (pin) => api.engineFalseAlarm(pin: pin),
               escalate: (r) => api.engineEscalate(reason: r)); // antitheft2
+          // recovery: the gentle "add an email" card (server-decided: at
+          // most twice, never once an email is verified; once per app run)
+          if (nav.mounted && mounted && (route == null || route.isCurrent)) {
+            await EmailNudge.maybeShow(nav.context,
+                backend: ApiAccountSecurityBackend(api),
+                otpBackend: ApiOtpBackend(api));
+          }
         }
         if (!on || !loggedIn || nav == null || !mounted) return;
         await AntiTheftResume.maybeShowBatteryGuide(
