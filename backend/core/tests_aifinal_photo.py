@@ -10,7 +10,8 @@ from core import photo_studio_service as S
 
 def _ints(enabled, keys):
     return (mock.patch("core.integrations.is_enabled", side_effect=lambda s: s in enabled),
-            mock.patch("core.integrations.get", side_effect=lambda s: {"api_key": keys.get(s, "")}))
+            mock.patch("core.integrations.get",
+                       side_effect=lambda s: {"api_key": keys.get(s, ""), "cost_per_image_usd": 0.04}))
 
 
 class PhotoMainKeyTests(TestCase):

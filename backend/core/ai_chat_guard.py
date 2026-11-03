@@ -32,7 +32,7 @@ from .i18n import pick
 log = logging.getLogger(__name__)
 
 USER_TEXT_MAX = 4000          # same as pricing_40 credit_model.user_text_max_chars
-LEGACY_HISTORY_TURNS = 8      # earlier turns sent on the legacy (non-mode) path
+LEGACY_HISTORY_TURNS = 12     # earlier turns sent on the legacy (non-mode) path
 HISTORY_TURN_CHARS = 1200     # each earlier turn is cut to this many characters
 
 _CID = re.compile(r"^[A-Za-z0-9_\-:.]{8,64}$")

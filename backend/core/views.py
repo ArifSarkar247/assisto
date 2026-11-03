@@ -1761,65 +1761,58 @@ class AgentView(APIView):
             # the user's data context. Brain is the no-key fallback (and the
             # honest L4 message is itself returned by Brain when AI is off).
             unavailable = ""
-            if intent == "question" and ai.available():
+            # aifinal round 4 (00:50) REAL CAUSE of "two brains": only
+            # intent == "question" reached the AI; "ambiguous" free text (a
+            # statement, an insult) went to the offline Brain and got its
+            # "needs the AI assistant (owner hasn't added the key)" line + a
+            # Save-as-note card. Now every chat message goes to the AI.
+            if intent in ("question", "ambiguous") and ai.available():
+                # aifinal round 2: the home question runs the SAME chat engine
+                # as Assisto AI (views_chat._produce_reply): answer level,
+                # photo memory, reply language, refund when the AI could not
+                # do the task, compliance line, action buttons, credits shown
+                # = credits charged. Before, this was a second copy of it that
+                # had none of those (the owner's 2-credit "the screenshot
+                # never reached me" answer came from here).
+                from . import credits_out
+                from . import views_chat as VC
+                hist = G.cap_history(_home_history(u, request.data.get("session_id")),
+                                     turns=21)   # aifinal round 4: full recent conversation (+ summary)
+                from .models import ChatSession as _CS
                 try:
-                    ctx = brain.answer(u, text, lang)  # user-data context
-                    # aibar: the last few turns of THIS home conversation, so
-                    # "and last month?" follows the earlier question (bounded)
-                    hist = G.cap_history(_home_history(u, request.data.get("session_id")),
-                                         turns=6)
-                    gen_meta = {}
-                    summary = "-" if ctx.get("level") == "L4" else ctx["reply"]
-                    # aibar: the home question runs the SAME capped, priced
-                    # chat mode as the Assisto AI chat when the owner's
-                    # pricing-40 block is on (before: always the legacy path
-                    # = MAIN model for 1 credit, outside the 40 % rule).
-                    from .views_chat import _chat_mode
-                    mode = _chat_mode(request)
-                    from . import ai_prompt as AP
-                    qlang = AP.reply_lang(text, lang)   # ailang: the user's language
-                    ai_reply, _ = ai.generate(
-                        task=pick(qlang,
-                                  "ব্যবহারকারীর প্রশ্নের উত্তর বাংলায় (বাংলা হরফে) দাও — প্রথম বাক্যেই, "
-                                  "সংক্ষেপে ও সত্যভাবে; 'আপনার তথ্য নেই' দিয়ে শুরু করবে না। প্রশ্ন "
-                                  "তার নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে।",
-                                  "Answer the user's question in English, in the first sentence, "
-                                  "briefly and truthfully; never open by saying you don't have their "
-                                  "data. Use the DATA below only when the question is about their own records."),
-                        data=f"Question: {text}\n\n{summary}",
-                        tier="cheap", feature=("chat." + mode) if mode else "agent_qa",
-                        max_tokens=400, user=u, history=hist, out_meta=gen_meta,
-                        mode=mode, pii=True)   # AF-2: question + own-data summary masked
-                    from . import ai_guard
-                    reply, _flags = ai_guard.clean_assistant_answer(ai_reply, qlang)
-                    reply, n_money = ai_guard.scrub_ungrounded_money(
-                        reply, text, ctx["reply"], [h["content"] for h in hist],
-                        lang=lang, strict=ctx.get("level") == "L1")
-                    cards = ctx.get("cards", [])
+                    _hs = _CS.objects.filter(pk=request.data.get("session_id"), user=u,
+                                             source="home").first() \
+                        if request.data.get("session_id") else None
+                except (TypeError, ValueError):
+                    _hs = None
+                fk, ffree = VC.follow_kind(request, text, _hs)
+                try:
+                    reply, rmeta, rcards = VC._produce_reply(
+                        u, None, text, lang, hist,
+                        credout=credits_out.supported(request),
+                        mode=VC._chat_mode(request),
+                        photo=VC._photo_context(request), level=VC._chat_level(request),
+                        follow=fk, follow_free=ffree)
+                except credits_out.CreditsOut as e:
+                    return credits_out.response(u, lang, e.need)
+                cards = rcards or []
+                if rmeta.get("source") == "ai":
                     ai_used = ai_answered = True
-                    ai_meta = {"credits": int(gen_meta.get("charged") or 0)}
-                    if mode == "quick" and not ai_meta["credits"]:
-                        ai_meta["free_quota"] = True
-                    bal = G.balance(u)
-                    if bal is not None:
-                        ai_meta["balance"] = bal
-                    if n_money:
-                        ai_meta["money_grounding"] = n_money
-                except ai.AIUnavailable as e:
-                    unavailable = e.reason or "queued"
-                    from . import credits_out
-                    if e.reason == "credits" and credits_out.supported(request):
-                        # credout: never a silent downgrade — 402 + nothing
-                        # saved, so the app keeps the text, opens the
-                        # buy-credits sheet and re-sends it once.
-                        from . import credits_out
-                        from .views_chat import _chat_mode, _mode_need
-                        m = _chat_mode(request)
-                        return credits_out.response(
-                            u, lang, _mode_need(m) if m else credits_out.need_for_tier(u, "cheap"))
-                    ai_answered = False
+                    ai_meta = {k: rmeta[k] for k in (
+                        "credits", "balance", "money_grounding", "free_quota", "level",
+                        "refunded", "hint_better", "actions", "ai_generated", "pro_topic",
+                        "safe_mode", "text_cut", "cut", "follow") if k in rmeta}
+                    ai_meta["credits"] = int(rmeta.get("credits") or 0)
+                else:
+                    # the engine already gave the honest free (Brain) answer
+                    ai_answered = True
+                    brain_route = None
+                    ai_meta = {"credits": 0}
+                    if rmeta.get("ai_unavailable"):
+                        ai_meta["ai_unavailable"] = rmeta["ai_unavailable"]
             if not ai_answered:
-                res = brain.answer(u, text, lang)
+                from . import ai_prompt as _AP
+                res = brain.answer(u, text, _AP.reply_lang(text, lang))
                 reply = res["reply"]
                 cards = res.get("cards", [])
                 brain_route = res.get("route")
@@ -1830,7 +1823,9 @@ class AgentView(APIView):
                     if res.get("level") == "L4":
                         reply = G.unavailable_line(unavailable, lang) or reply
             # ambiguous free text → offer a "Save as note" chip (never auto-saved)
-            if intent == "ambiguous":
+            # aifinal round 4: offer "Save as note" ONLY when the user asks to
+            # remember / save something (never for insults or random text)
+            if intent == "ambiguous" and _ASKS_TO_SAVE.search(text or ""):
                 cards = list(cards) + [brain.save_note_card(text, lang)]
         else:
             reply = pick(lang,
@@ -1861,7 +1856,10 @@ class AgentView(APIView):
                "ai_used": ai_used, "ai_enabled": ai.key_present(),
                # aibar: credits actually taken for this turn (0 = free)
                "credits": int(ai_meta.get("credits") or 0)}
-        for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota"):
+        for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota",
+                  # aifinal round 2: level / refund / hint / actions / label
+                  "level", "refunded", "hint_better", "actions", "ai_generated",
+                  "pro_topic", "safe_mode", "cut", "follow"):
             if k in ai_meta:
                 out[k] = ai_meta[k]
         session_id, message_id = _persist_home_turn(
@@ -1873,7 +1871,14 @@ class AgentView(APIView):
 
 
 _HOME_REPLAY_KEYS = ("credits", "balance", "money_grounding", "ai_unavailable", "text_cut",
-                     "free_quota")
+                     "free_quota", "level", "refunded", "hint_better", "actions",
+                     "ai_generated", "pro_topic", "safe_mode", "cut", "follow")
+
+
+import re as _re
+_ASKS_TO_SAVE = _re.compile(
+    r"\b(remember|save|note (?:this|it|down)|write (?:this|it) down|keep (?:this|it))\b|"
+    r"মনে রাখ|সেভ কর|সংরক্ষণ|নোট কর|লিখে রাখ|mone rakh|save koro|note koro", _re.I)
 
 
 def _home_history(user, session_id):
@@ -1887,9 +1892,23 @@ def _home_history(user, session_id):
         s = None
     if s is None:
         return []
-    rows = list(s.messages.exclude(role="system").order_by("-created_at", "-id")[:12])
+    # aifinal round 4: the full recent conversation (was 12 rows / 6 turns)
+    from .views_chat import _HISTORY_TURNS, summarize_older
+    rows = list(s.messages.exclude(role="system").order_by("-created_at", "-id")[:_HISTORY_TURNS])
     rows.reverse()
-    return [{"role": m.role, "content": m.text} for m in rows if (m.text or "").strip()]
+    older = summarize_older(s, keep=_HISTORY_TURNS)
+    out = []
+    for m in rows:
+        if not (m.text or "").strip():
+            continue
+        c = m.text
+        pt = (m.meta or {}).get("photo_text") if m.role == "assistant" else ""
+        if pt:   # aifinal round 2: the photo stays in context (its description)
+            c = c + "\n\n[Photo shared earlier in this chat — text seen in it]: " + pt
+        out.append({"role": m.role, "content": c})
+    if older and out and out[0]["role"] == "assistant":
+        older = older[:1]          # keep the turns alternating
+    return (older + out) if older else out
 
 
 def _home_replay(user, cid):

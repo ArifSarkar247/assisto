@@ -203,6 +203,7 @@ JOBS = (
     # viewonce: delete opened / 14-day-old view-once media (no own process)
     Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
+    Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
     # nearby: pulls the monthly OSM emergency files (GitHub release assets);
     # idle = one DB read, manifest every 6 h, one country per run
     Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
@@ -222,6 +223,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("view_once_purge", {"quiet": True}),
                # aifinal: AI usage log retention (90 days), bounded batch
                ("ai_usage_purge", {"quiet": True}),
+               # aifinal: nightly AI exam — idle unless the owner switched it on
+               # AND it is 02-05 local; 15 s slices, nightly $ cap
+               ("ai_exam", {"tick": True, "quiet": True}),
                # nearby: after the safety jobs; idle = one DB read, a monthly
                # import is one country per run
                ("nearby_import", {"quiet": True}),

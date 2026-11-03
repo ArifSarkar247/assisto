@@ -49,7 +49,11 @@ class AssistoChatsScreen extends StatefulWidget {
   final VoidCallback? onNewHomeChat;
   final void Function(String sessionId)? onOpenHomeChat;
   const AssistoChatsScreen(
-      {super.key, this.onNewHomeChat, this.onOpenHomeChat});
+      {super.key, this.onNewHomeChat, this.onOpenHomeChat, this.inPanel = false});
+
+  /// aifinal: shown inside the Assisto AI side panel — the hooks are called
+  /// directly (no "back to home" pop).
+  final bool inPanel;
 
   @override
   State<AssistoChatsScreen> createState() => _AssistoChatsScreenState();
@@ -113,7 +117,10 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
   void Function(String)? get _homeOpen =>
       widget.onOpenHomeChat ?? HomeChatLink.openChat;
 
-  void _backToHome() => Navigator.of(context).popUntil((r) => r.isFirst);
+  void _backToHome() {
+    if (widget.inPanel) return;
+    Navigator.of(context).popUntil((r) => r.isFirst);
+  }
 
   void _newChat() {
     final home = _homeNew;
@@ -197,6 +204,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.inPanel,
         title: Row(children: [
           Icon(Icons.auto_awesome_rounded, color: scheme.primary, size: 22),
           const SizedBox(width: Gap.sm),

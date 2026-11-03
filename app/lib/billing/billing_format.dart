@@ -131,6 +131,18 @@ String? costFeature(String code) {
 String actionLabel(AppLocalizations t, String code) {
   if (code.startsWith('photo:')) return t.creditsActionPhotoStudio;
   if (code.startsWith('vision:')) return t.creditsActionChatPhoto;
+  // aifinal round 2 item 5: AI chat rows show the answer level
+  if (code.startsWith('chat.')) {
+    final lv = code.substring(5);
+    final name = switch (lv) {
+      'normal' || 'quick' => t.ailvNameNormal,
+      'better' || 'smart' => t.ailvNameBetter,
+      'best' || 'pro' || 'upgrade' => t.ailvNameBest,
+      _ => '',
+    };
+    return name.isEmpty ? t.creditsActionAiChat : '${t.creditsActionAiChat} · $name';
+  }
+  if (code.startsWith('ai_refund') || code.contains(':refund')) return t.billLedRefund;
   final c = costLabel(t, code);
   if (c != null && !code.startsWith('ai_msg')) return c;
   switch (code) {

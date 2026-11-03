@@ -292,6 +292,11 @@ def answer(user, job, data, lang="bn"):
     if job.status != "funded":
         return 402, {"ok": False, "reason": "not_funded", "job": job_state(job, lang)}
     question = str(data.get("question") or "")[:500]
+    # aifinal round 2 item 4: the photo answer follows the language of the
+    # user's question too (Bangla in -> Bangla out), not only the app language
+    if question.strip():
+        from .ai_prompt import reply_lang
+        lang = reply_lang(question, lang)
     if CV.asks_identification(question):
         return 422, {"ok": False, "refused": True, "reason": "identify_person",
                      "message": funding_message("identify_person", lang)}
@@ -378,7 +383,8 @@ def answer(user, job, data, lang="bn"):
                      "job": job_state(job, lang)}
     finally:
         del raw
-    out = CV.postprocess(vault.unmask_obj(CV.parse_reply(reply)), question=question,
+    parsed = vault.unmask_obj(CV.parse_reply(reply))
+    out = CV.postprocess(parsed, question=question,
                          device_text=device_text, lang=lang)
     table = c["action_costs"].get(CV.ACTION) or {}
     cost_usd = max(prov_cost, float(table.get("provider_cost") or 0))
@@ -398,4 +404,42 @@ def answer(user, job, data, lang="bn"):
     billing.record_cost("ai", job.cost_bdt)
     UL.log_vision(user, slug, conf, cost_usd, (_time.monotonic() - t0) * 1000, True,
                   hops=hops, charged=job.credits_charged)
-    return 200, {"ok": True, "job": job_state(job, lang)}
+    sid = _save_to_chat(user, data.get("session_id"), job, question,
+                        dict(out, label_text=str(parsed.get("label_text") or "")), lang)
+    return 200, {"ok": True, "job": job_state(job, lang), **({"session_id": sid} if sid else {})}
+
+
+def _save_to_chat(user, session_id, job, question, out, lang):
+    """aifinal round 2 items 2 + 3 + 5: a photo + question asked in an AI chat
+    becomes ONE user turn + ONE answer turn of that chat, so every later turn
+    has the photo in its context (the stored vision description — never the
+    image bytes) and the answer bubble shows the credits this photo really
+    took (= the ledger row). Never raises."""
+    if not session_id:
+        return None
+    try:
+        from .models import ChatMessage, ChatSession
+        if session_id == "home:new":
+            # a photo is the first turn of a new home (Assisto AI) chat
+            s = ChatSession.objects.create(user=user, source="home")
+        else:
+            s = ChatSession.objects.filter(id=session_id, user=user).first()
+        if s is None:
+            return None
+        seen = (out.get("label_text") or "")[:800]
+        q = question.strip() or pick(lang, "এই ছবিতে কী আছে?", "What is in this photo?")
+        first = not s.messages.filter(role="user").exists()
+        ChatMessage.objects.create(session=s, role="user", text="[photo] " + q,
+                                   meta={"photo_job": job.pk, "photo": True})
+        if first:
+            s.derive_title(q)
+        from . import ai_chat_guard as G
+        ChatMessage.objects.create(session=s, role="assistant", text=out["answer"], meta={
+            "source": "ai", "photo_job": job.pk, "ai_generated": True, "photo_text": seen,
+            "credits": int(job.credits_charged or 0) if job.funding in ("credits", "pool") else 0,
+            "funding": job.funding, "balance": G.balance(user)})
+        s.save()
+        return str(s.pk)
+    except Exception:  # noqa: BLE001
+        log.exception("chat_vision: could not save the photo turn to the chat")
+        return None

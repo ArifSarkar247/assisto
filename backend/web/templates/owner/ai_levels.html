@@ -10,6 +10,10 @@
 </tbody></table></div>
 <p class="small">{{ L.caps }}: {% for k, v in caps.items %}<code>{{ k }}</code> ${{ v }} {% endfor %} · <a href="/owner/ai">/owner/ai</a></p>
 </section>
+<section class="card" id="ail-exam"><h2>{{ L.exam }}</h2>
+<p>{{ exam.cases }} cases · {% if exam.last.day %}{{ exam.last.day }}: pass <b>{{ exam.last.pass_rate }}</b> · win/tie <b>{{ exam.last.win_rate|default:"—" }}</b> · ${{ exam.last.cost_usd }} · {{ exam.last.graded }}/{{ exam.last.total }}{% else %}—{% endif %} · gate: {% if exam.gate_ok %}<span class="pill ok">OK</span>{% else %}<span class="pill off">{{ exam.gate_why }}</span>{% endif %}</p>
+{% if exam.last.by_cat %}<div class="tbl"><table><tbody>{% for k, v in exam.last.by_cat.items %}<tr><td><code>{{ k }}</code></td><td>{{ v.ok }}/{{ v.n }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+</section>
 <section class="card" id="ail-edit">
 <form method="post">{% include "owner/_csrf.html" %}
 <label><input type="checkbox" name="enabled" {% if c.enabled %}checked{% endif %}> {{ L.on }}</label>
@@ -18,6 +22,7 @@
 <p><label>{{ L.ad_n }} <input name="ad_answers_per_ad" value="{{ c.ad_answers_per_ad }}" size="3" inputmode="numeric"></label> · {{ L.ad_profit }}: {% if ad.profit_pct < 40 %}<span class="pill off">{{ ad.profit_pct }}%</span>{% else %}<span class="pill ok">{{ ad.profit_pct }}%</span>{% endif %} (৳{{ ad.ad_value_bdt }} / ad)</p>
 <p><label><input type="checkbox" name="actions_on" {% if c.actions_on %}checked{% endif %}> {{ L.actions }}</label></p>
 <p class="small mut">{{ L.per_day }}</p>
+<p><label><input type="checkbox" name="exam_on" {% if c.exam_on %}checked{% endif %}> {{ L.exam_on }}</label> · $<input name="exam_budget_usd" value="{{ c.exam_budget_usd }}" size="4" inputmode="decimal" aria-label="exam budget usd"> · pass ≥ <input name="exam_min_pass" value="{{ c.exam_min_pass }}" size="4" inputmode="decimal" aria-label="exam min pass"> · win ≥ <input name="exam_min_win" value="{{ c.exam_min_win }}" size="4" inputmode="decimal" aria-label="exam min win"></p>
 <p>{{ L.free }}: {% for i in ids %}<label><input type="checkbox" name="free_{{ i }}" {% if i in c.free_credit_levels %}checked{% endif %}> {{ i }}</label> {% endfor %}</p>
 <div class="tbl"><table><thead><tr><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th>{% for k in int_keys %}<th><code>{{ k }}</code></th>{% endfor %}</tr></thead><tbody>
 {% for r in t.rows %}<tr><td><b>{{ r.id }}</b></td>
