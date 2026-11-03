@@ -221,8 +221,9 @@ class AFonts {
   /// Chinese pack characters) — bundled so they never render as boxes.
   static const arabic = 'AssistoArabic';
   static const pinyin = 'AssistoPinyin';
+  static const koKana = 'AssistoKoKana';
   static const cjk = 'AssistoCjk';
-  static const fallback = <String>[taka, bangla, pinyin, arabic, cjk];
+  static const fallback = <String>[taka, bangla, pinyin, arabic, koKana, cjk];
 
   /// Tabular (fixed-width) figures for amounts, times and counters, so
   /// columns of numbers line up and live counters don't jitter.

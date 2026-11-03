@@ -220,8 +220,9 @@ flutter:
         - asset: assets/fonts/AmiriQuran.ttf
     # learnwire: Language Partner script fallbacks (SIL OFL 1.1, licences
     # next to them). Arabic = Noto Naskh Arabic (158 KB); pinyin tone vowels
-    # = Noto Sans subset (9 KB); Chinese = Noto Sans SC subset to the zh pack
-    # characters (136 KB). Characters outside the subsets fall back to the
+    # = Noto Sans subset (9 KB); Korean Hangul + Japanese kana = Noto Sans KR
+    # subset (146 KB); Chinese characters (zh pack + ja/ko kanji) = Noto Sans
+    # SC subset (177 KB). Characters outside the subsets fall back to the
     # phone's system fonts. Listed after Bangla in AFonts.fallback.
     - family: AssistoArabic
       fonts:
@@ -229,6 +230,9 @@ flutter:
     - family: AssistoPinyin
       fonts:
         - asset: assets/fonts/AssistoPinyin.ttf
+    - family: AssistoKoKana
+      fonts:
+        - asset: assets/fonts/AssistoKoKana.otf
     - family: AssistoCjk
       fonts:
         - asset: assets/fonts/AssistoCjk.otf

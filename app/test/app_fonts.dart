@@ -43,5 +43,6 @@ Future<void> loadAppFonts() async {
   // learnwire: Language Partner script fallbacks (AFonts.fallback)
   await family('AssistoArabic', ['assets/fonts/NotoNaskhArabic-Regular.ttf']);
   await family('AssistoPinyin', ['assets/fonts/AssistoPinyin.ttf']);
+  await family('AssistoKoKana', ['assets/fonts/AssistoKoKana.otf']);
   await family('AssistoCjk', ['assets/fonts/AssistoCjk.otf']);
 }
