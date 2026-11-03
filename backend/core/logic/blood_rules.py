@@ -193,7 +193,7 @@ def first_name(full):
 # Owner 3 Nov: ONE blood donor feature. The old personal registry (generic
 # collection "blood/donors", rows {name, blood_group, area, phone,
 # availability, last_donation, share_contact}) becomes "My saved donors" in
-# the panel. Pure mapping, shared by migration 0140_ownerfix and the lazy
+# the panel. Pure mapping, shared by migration 0142_ownerfix and the lazy
 # re-sync (rows an OLD app build writes after the migration).
 LEGACY_COLLECTION = "blood/donors"
 SAVED_MAX = 300                      # saved donors per user

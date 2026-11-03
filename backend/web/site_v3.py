@@ -89,7 +89,7 @@ def F(fid, icon, flags, shot, bn, en, auto=None, ai=False, soon=False):
 
 FEATURES = {
     "ai": [
-        F("assistant", "sparkle", (), "home_v2_chat",  # "chat" once agent/aicardbn (Bangla digits on cards) is on main
+        F("assistant", "sparkle", (), "chat",  # aicardbn merged (b292): Bangla digits on cards
           ("কথা বলে কাজ করান", "\"কাল ৮টায় মাকে ফোন\" বা \"দুপুরে ৫০০ খরচ\" — লিখুন বা বলুন, Assisto রিমাইন্ডার বা খরচ বানিয়ে দেয়। টাকা পাঠানোর মতো কাজে আগে আপনার অনুমতি নেয়।"),
           ("Get things done by talking", "Type or say \"call mum at 8 tomorrow\" or \"500 for lunch\" — Assisto makes the reminder or the expense. Anything like sending money waits for your OK."),
           auto=("একটা বাক্য থেকে নিজেই রিমাইন্ডার বা খরচের হিসাব বানায়", "Turns one sentence into a reminder or an expense by itself")),
@@ -620,7 +620,7 @@ def cctv_plan(lang):
 HERO_SLIDES = (("c3_chat", "c3_chat"), ("callpip_pip_window", "callpip_pip_window"),
                ("gj_live_banner", "location_sharing"), ("emergency_hub", "emergency_hub"),
                ("wm_alerts", "wm_alerts"), ("acct_home", "acct_home"), ("inv_paper_80", "inv_paper_80"),
-               ("home_v2_chat", "ai"), ("dest_alarm", "dest_alarm"))  # "chat" after agent/aicardbn
+               ("chat", "ai"), ("dest_alarm", "dest_alarm"))  # aicardbn merged (b292)
 
 
 def shot_names():
