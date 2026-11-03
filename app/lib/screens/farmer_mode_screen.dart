@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +7,8 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/farmer_engine.dart';
+import '../world/world_api.dart';
+import 'farmer/farmer_help.dart'; // p3farm: Help tab + crop calendar
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -42,7 +46,13 @@ import '../services/error_kind.dart' show honestFailText; // qa2
 ///   create/update/deleteItem on the same paths; each row round-trips as
 ///   {id, ...data} through one flexible per-user JSON collection.
 class FarmerModeScreen extends StatefulWidget {
-  const FarmerModeScreen({super.key});
+  const FarmerModeScreen({super.key, this.initialTab = 0, this.worldApi});
+
+  /// p3farm: 0 = Help (big buttons), 1 = ledger, 2 = calendar, 3 = livestock.
+  final int initialTab;
+
+  /// Tests / gallery: fake Farmers-hub API for the disease check.
+  final WorldApi? worldApi;
 
   @override
   State<FarmerModeScreen> createState() => _FarmerModeScreenState();
@@ -141,8 +151,12 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
         ),
       );
     }
+    // p3farm: icon+text tabs are a fixed 72dp by default and clipped the
+    // label at 200% font — grow with the text scale instead.
+    final tabH = math.max(72.0, 46 + MediaQuery.textScalerOf(context).scale(16) * 1.5);
     return DefaultTabController(
-      length: 3,
+      length: 4,
+      initialIndex: widget.initialTab.clamp(0, 3),
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 68,
@@ -158,13 +172,20 @@ class _FarmerModeScreenState extends State<FarmerModeScreen> {
             tabAlignment: TabAlignment.start,
             labelStyle: AType.titleMedium.copyWith(fontWeight: FontWeight.w700),
             tabs: [
-              Tab(icon: const Icon(Icons.agriculture_rounded, size: 26), text: t.farmerTabLedger),
-              Tab(icon: const Icon(Icons.calendar_month_rounded, size: 26), text: t.farmerTabCalendar),
-              Tab(icon: const Icon(Icons.pets_rounded, size: 26), text: t.farmerTabLivestock),
+              Tab(height: tabH, icon: const Icon(Icons.support_agent_rounded, size: 26), text: t.farmTabHelp),
+              Tab(height: tabH, icon: const Icon(Icons.agriculture_rounded, size: 26), text: t.farmerTabLedger),
+              Tab(height: tabH, icon: const Icon(Icons.calendar_month_rounded, size: 26), text: t.farmerTabCalendar),
+              Tab(height: tabH, icon: const Icon(Icons.pets_rounded, size: 26), text: t.farmerTabLivestock),
             ],
           ),
         ),
         body: TabBarView(children: [
+          Builder(
+            builder: (tabCtx) => FarmerHelpTab(
+              worldApi: widget.worldApi,
+              onOpenTab: (i) => DefaultTabController.of(tabCtx).animateTo(i),
+            ),
+          ),
           _LedgerTab(
             records: _records,
             money: _money,
@@ -716,6 +737,11 @@ class _CalendarTab extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: Gap.lg),
+        // p3farm: per-crop calendar (Aman/Boro/Aus, jute, potato, …) with
+        // official sources, above the general season almanac.
+        FarmCropCalendarSection(
+            month: now.month, monthName: (m) => _monthName(t, m)),
         const SizedBox(height: Gap.lg),
         for (final s in seasons) ...[
           _SeasonCard(season: s),

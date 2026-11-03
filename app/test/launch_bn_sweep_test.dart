@@ -70,6 +70,7 @@ const _launchPrefixes = <String>[
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
   'ai_knowledge', 'nominee', 'crm_lead_detail', 'jobs', 'landlord', 'exam',
   'crr_', // p2career: CV export, Find jobs, role interview (3 Nov)
+  'farm_', // p3farm: Farmer mode help / crop calendar / disease check
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
