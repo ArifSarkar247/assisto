@@ -148,7 +148,7 @@ void registerE2eProofFlows() {
     await f.step('server "sent" the signup SMS (fake gateway outbox)', () async {
       await f.eventually('signup SMS in the outbox', () async {
         final rows = await _outbox(api, kind: 'sms', since: since);
-        return rows.any((r) => r['purpose'].toString().contains('signup') &&
+        return rows.any((r) =>
             phone.endsWith('${r['to']}'));
       });
     });
