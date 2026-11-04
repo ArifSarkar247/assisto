@@ -179,6 +179,8 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
   // ---------------------------------------------------------------- voice
   /// Microphone: our own reason first (Play policy), then Android's prompt.
   Future<bool> _micOk() async {
+    final forced = ccMicGrantedForTest;
+    if (forced != null) return forced;
     try {
       if ((await Permission.microphone.status).isGranted) return true;
     } catch (_) {

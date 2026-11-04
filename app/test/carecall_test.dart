@@ -26,6 +26,7 @@ import 'package:assisto/carecall/carecall_new_screen.dart';
 import 'package:assisto/carecall/carecall_plan.dart';
 import 'package:assisto/carecall/carecall_ring_screen.dart';
 import 'package:assisto/carecall/carecall_screen.dart';
+import 'package:assisto/carecall/cc_recorder.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/push/push_payload.dart';
@@ -34,6 +35,24 @@ import 'package:assisto/theme.dart';
 
 import 'carecall_fakes.dart';
 import 'fake_api.dart';
+
+class FakeRecorder implements CcRecorder {
+  final List<String> calls = [];
+  @override
+  Future<bool> start() async {
+    calls.add('start');
+    return true;
+  }
+
+  @override
+  Future<String?> stop() async {
+    calls.add('stop');
+    return '/tmp/cc_test_voice.m4a';
+  }
+
+  @override
+  Future<void> delete(String path) async => calls.add('delete');
+}
 
 class FakePlugin extends Fake implements FlutterLocalNotificationsPlugin {
   final Map<int, ({DateTime at, String? payload, AndroidScheduleMode? mode})> scheduled = {};
@@ -321,6 +340,55 @@ void main() {
       expect(api.created.single['receiver_id'], 7);
       expect(api.created.single['time'], '09:00');
       expect(api.created.single['repeat'], 'daily');
+    });
+
+    testWidgets('SCREEN 1: Record in your own voice -> recording -> stop -> play / re-record / delete', (tester) async {
+      _tall(tester);
+      final rec = FakeRecorder();
+      final oldF = ccRecorderFactory;
+      ccRecorderFactory = () => rec;
+      ccMicGrantedForTest = true;
+      addTearDown(() {
+        ccRecorderFactory = oldF;
+        ccMicGrantedForTest = null;
+      });
+      await tester.pumpWidget(_app(_host(CareCallNewScreen(api: FakeCareCallApi(), person: ccPerson('en')))));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Record in your own voice'));
+      await tester.pump();
+      expect(rec.calls, ['start']);
+      expect(find.textContaining('Recording'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 3));
+      await tester.tap(find.text('Stop'));
+      await tester.pumpAndSettle();
+      expect(rec.calls, ['start', 'stop']);
+      expect(find.textContaining('Your voice'), findsOneWidget);
+      expect(find.byTooltip('Record again'), findsOneWidget);
+      await tester.tap(find.byTooltip('Delete recording'));
+      await tester.pumpAndSettle();
+      expect(rec.calls.last, 'delete');
+      expect(find.text('Record in your own voice'), findsOneWidget);
+    });
+
+    testWidgets('SCREEN 1: microphone refused -> clear message, nothing recorded', (tester) async {
+      _tall(tester);
+      final rec = FakeRecorder();
+      final oldF = ccRecorderFactory;
+      ccRecorderFactory = () => rec;
+      ccMicGrantedForTest = false;
+      addTearDown(() {
+        ccRecorderFactory = oldF;
+        ccMicGrantedForTest = null;
+      });
+      await tester.pumpWidget(_app(_host(CareCallNewScreen(api: FakeCareCallApi(), person: ccPerson('en')))));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Record in your own voice'));
+      await tester.pump();
+      expect(rec.calls, isEmpty);
+      expect(find.textContaining('Microphone permission is off'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
     });
 
     testWidgets('SCREEN 1: asks for who / what first (no silent dead button)', (tester) async {
