@@ -43212,5 +43212,230 @@
         "type": "String"
       }
     }
+  },
+  "vaWkTitle": "“Hey Assisto” — hands-free",
+  "vaWkBody": "Say “Hey Assisto” (or “Hi Assisto” / “Ok Assisto”), then your command — without touching the phone. Off unless you turn it on.",
+  "vaWkStatusPending": "Not available right now: the Assisto server is not offering the “Hey Assisto” model.",
+  "vaWkStatusLicence": "Not available right now: the model's licence check is not finished.",
+  "vaWkStatusOff": "Off",
+  "vaWkStatusListening": "On — listening for “Hey Assisto”",
+  "vaWkStatusPausedUser": "Paused until {time}",
+  "vaWkStatusPausedBattery": "Paused — battery below 15%. Resumes at 20% or when charging.",
+  "vaWkStatusPausedCall": "Paused during the call",
+  "vaWkStatusPausedMic": "Paused — another app is using the microphone",
+  "vaWkStatusPausedWake": "Listening to your command…",
+  "vaWkStatusBlocked": "Android stopped it. Turn the switch on again.",
+  "vaWkStatusEngineMissing": "Needs the latest app update.",
+  "vaWkStatusError": "Couldn't start. Please try again.",
+  "vaWkStatusDownloading": "Downloading the model…",
+  "vaWkDownloadFailed": "Couldn't download the model. Check the internet and try again.",
+  "vaWkSensitivity": "Sensitivity",
+  "vaWkSensLow": "Low",
+  "vaWkSensNormal": "Normal",
+  "vaWkSensHigh": "High",
+  "vaWkSensLowSub": "Fewest mistaken wake-ups — speak clearly and close.",
+  "vaWkSensNormalSub": "Recommended for most rooms.",
+  "vaWkSensHighSub": "Hears you from farther away, but may wake by mistake more often.",
+  "vaWkPause1h": "Pause 1 hour",
+  "vaWkResume": "Resume",
+  "vaWkLockedNote": "Screen off or locked: Assisto can open over the lock screen only when it is your default assistant (see above). Otherwise you get a “Tap to talk” notification.",
+  "vaWkLockRules": "On a locked phone, safe things run straight away (music, time, weather, alarm, timer, torch, SOS). Calls, messages, contacts and your own data ask you to unlock first.",
+  "vaWkRebootNote": "After the phone restarts, Android does not let any app turn the microphone on by itself. You'll get a notification — tap it once to turn “Hey Assisto” on again.",
+  "vaWkAutoPause": "It pauses itself during calls, below 15% battery and while another app uses the microphone.",
+  "vaWkBatteryNote": "Uses extra battery while on; we will publish the measured number after real-phone tests. A notification stays visible the whole time.",
+  "vaWkPrivacy": "Detected on this phone only. Nothing is recorded or uploaded before you say “Hey Assisto”.",
+  "vaWkOemGuide": "Keep it running (Xiaomi, Oppo, Vivo, realme, Samsung)",
+  "vaWkDiscTitle": "Before you turn on “Hey Assisto”",
+  "vaWkDiscLead": "To hear “Hey Assisto”, Assisto keeps using your phone's microphone in the background — also when the app is closed or the screen is off — until you turn it off.",
+  "vaWkDisc1": "Your audio is checked on this phone only, a split second at a time, and thrown away at once. Nothing is recorded, saved or sent anywhere before you say “Hey Assisto”.",
+  "vaWkDisc2": "After “Hey Assisto”, Assisto Voice opens and listens to your command, just like when you tap the mic. That command is handled as our Privacy Policy describes.",
+  "vaWkDisc3": "A notification is always shown while the microphone is on, with “Pause 1 h” and “Turn off”.",
+  "vaWkDisc4": "It pauses itself during calls, on Battery Saver, below 15% battery, while another app uses the microphone, and while the phone is locked (unless you allow that). It uses some extra battery.",
+  "vaWkDisc5": "You can turn it off any time — here or from the notification.",
+  "vaWkDiscAgree": "I agree — turn on",
+  "vaWkDiscNo": "Not now",
+  "vaWkDiscPolicy": "Read the Privacy Policy",
+  "vaWkNotifChannel": "Hey Assisto",
+  "vaWkNotifTitle": "Listening for “Hey Assisto”",
+  "vaWkNotifBody": "Microphone on, checked on this phone only. Nothing is recorded.",
+  "vaWkNotifPausedTitle": "“Hey Assisto” paused",
+  "vaWkNotifPausedUser": "Paused for 1 hour. The microphone is off.",
+  "vaWkNotifPause": "Pause 1 h",
+  "vaWkNotifResume": "Resume",
+  "vaWkNotifOff": "Turn off",
+  "vaWkNotifResumeTitle": "Turn on “Hey Assisto” again",
+  "vaWkNotifResumeBody": "Android stopped it after a restart or an update. Tap once to turn it back on.",
+  "vaOemTitle": "Keep “Hey Assisto” running",
+  "vaOemIntro": "Some phones close background apps to save battery. Allow these two things for Assisto:",
+  "vaOemAutostart": "Allow auto-start",
+  "vaOemBattery": "Battery: no restrictions",
+  "vaOemOpenAutostart": "Open auto-start settings",
+  "vaOemOpenBattery": "Open battery settings",
+  "vaOemYourPhone": "Your phone: {maker}",
+  "vaOemXiaomi": "Xiaomi / Redmi / POCO: Security app > Permissions > Autostart > Assisto on. Then Settings > Apps > Assisto > Battery saver > No restrictions.",
+  "vaOemOppo": "Oppo / realme / OnePlus: Settings > Apps > Assisto > Auto launch on, and Battery usage > Allow background activity.",
+  "vaOemVivo": "Vivo / iQOO: i Manager > App manager > Autostart > Assisto on. Settings > Battery > Background power consumption > Assisto > Allow.",
+  "vaOemSamsung": "Samsung: Settings > Apps > Assisto > Battery > Unrestricted. Also check Battery > Background usage limits: Assisto must not be in “Sleeping apps” or “Deep sleeping apps”.",
+  "vaOemOther": "Other phones: Settings > Apps > Assisto > Battery > Unrestricted (or “Don't optimise”).",
+  "vaOemNotOpened": "Couldn't open that screen automatically on this phone — please follow the steps above.",
+  "vaOemBatteryOk": "Battery optimisation is already off for Assisto.",
+  "vaOemHonest": "Even with these settings some phones may still stop it now and then. Opening Assisto starts it again.",
+  "vaDefPowerKey": "Long-press power button setting",
+  "vaDefSamsungNote": "Samsung: Settings > Advanced features > Side button > Press and hold. If “Digital assistant” is offered, choose it and then pick Assisto as the default digital assistant. If only Bixby or the power-off menu is offered, the side key cannot open Assisto on this phone — use “Hey Assisto” instead.",
+  "vaDefXiaomiNote": "Xiaomi: Settings > Apps > Default apps > Assistant app > Assisto. For the power button: Settings > Additional settings > Gesture shortcuts > Launch assistant.",
+  "vaDefOpenFailed": "Couldn't open that setting automatically — please follow the steps.",
+  "@vaWkStatusPausedUser": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@vaOemYourPhone": {
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      }
+    }
+  },
+  "vaWkStatusPausedSaver": "Paused: Battery Saver is on. Starts again when it is off.",
+  "@vaWkStatusPausedSaver": {
+    "description": "wakeword"
+  },
+  "vaWkStatusPausedLocked": "Paused while the phone is locked (you can allow it below).",
+  "@vaWkStatusPausedLocked": {
+    "description": "wakeword"
+  },
+  "vaWkLockedSwitch": "Also listen when the phone is locked",
+  "@vaWkLockedSwitch": {
+    "description": "wakeword"
+  },
+  "vaWkLockedSwitchSub": "Off: Assisto stops listening while the phone is locked. On: you can say “Hey Assisto” with the screen off; calls and messages still ask you to unlock.",
+  "@vaWkLockedSwitchSub": {
+    "description": "wakeword"
+  },
+  "vaWkBatteryNote2": "Uses some extra battery while on and pauses itself on Battery Saver or below 15% battery. A notification stays visible the whole time.",
+  "@vaWkBatteryNote2": {
+    "description": "wakeword"
+  },
+  "@vaWkStatusPending": {
+    "description": "wakeword"
+  },
+  "@vaWkStatusLicence": {
+    "description": "wakeword"
+  },
+  "vaCircleNoOne": "I couldn't find {name} in your My Circle.",
+  "@vaCircleNoOne": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleOpen": "Open My Circle",
+  "@vaCircleOpen": {
+    "description": "wakeword"
+  },
+  "vaConfirmCircleTitle": "Write to {name} in My Circle?",
+  "@vaConfirmCircleTitle": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCircleSpoken": "Send this to {name} in My Circle?",
+  "@vaConfirmCircleSpoken": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleLabel": "My Circle",
+  "@vaCircleLabel": {
+    "description": "wakeword"
+  },
+  "vaCircleSend": "Send",
+  "@vaCircleSend": {
+    "description": "wakeword"
+  },
+  "vaCircleOpenChat": "Open chat",
+  "@vaCircleOpenChat": {
+    "description": "wakeword"
+  },
+  "vaCircleSent": "Sending to {name} in My Circle.",
+  "@vaCircleSent": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleOpened": "Chat with {name} is open — type or speak your message.",
+  "@vaCircleOpened": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCareCallTitle": "Set up a Care Call for {name}?",
+  "@vaConfirmCareCallTitle": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCareCallAny": "Set up a Care Call?",
+  "@vaConfirmCareCallAny": {
+    "description": "wakeword"
+  },
+  "vaCareCallDetail": "Care Call opens: choose the person, time and days, then save.",
+  "@vaCareCallDetail": {
+    "description": "wakeword"
+  },
+  "vaCareCallOpen": "Open Care Call",
+  "@vaCareCallOpen": {
+    "description": "wakeword"
+  },
+  "vaCareCallOpened": "Care Call is open.",
+  "@vaCareCallOpened": {
+    "description": "wakeword"
+  },
+  "vaConfirmJourneyTo": "Start Safe Journey to {place}?",
+  "@vaConfirmJourneyTo": {
+    "description": "wakeword",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmJourneyAny": "Start Safe Journey?",
+  "@vaConfirmJourneyAny": {
+    "description": "wakeword"
+  },
+  "vaJourneyDetail": "Safe Journey opens: choose who sees your live location, then tap Start.",
+  "@vaJourneyDetail": {
+    "description": "wakeword"
+  },
+  "vaJourneyOpen": "Open Safe Journey",
+  "@vaJourneyOpen": {
+    "description": "wakeword"
+  },
+  "vaJourneyOpened": "Safe Journey is open.",
+  "@vaJourneyOpened": {
+    "description": "wakeword"
+  },
+  "@vaWkDisc4": {
+    "description": "wakeword"
   }
 }
