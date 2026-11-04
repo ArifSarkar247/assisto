@@ -106,6 +106,7 @@ const Map<String, String> _allowDead = {
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',
   'famcare_card*|Share as image': 'B: same RepaintBoundary.toImage share as Money Wrapped (the text share beside it is swept)',
+  'cc_screen1*|Record in your own voice': 'B: microphone permission + recorder need a real device (no permission plugin in the widget sweep); carecall two-phone test covers recording', // carecall (integrator)
   'admobump_ads_privacy_required|key=settings-ad-privacy': 'B: opens Google UMP\'s native privacy options form (no platform view in a widget test); ads_consent_ump_test proves the tap reaches showPrivacyOptionsForm and a withdrawal stops the next ad request',
 };
 
