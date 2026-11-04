@@ -58,3 +58,7 @@
 -keep class * extends com.google.gson.reflect.TypeToken
 -keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
 -keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+# ---- k1-wake ---- ONNX Runtime (on-device "Hey Assisto"): its JNI library
+# creates / reads ai.onnxruntime Java objects by name and the AAR ships no
+# consumer rules, so R8 must keep the whole package.
+-keep class ai.onnxruntime.** { *; }

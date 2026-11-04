@@ -156,8 +156,9 @@ void main() {
 
   group('hide-until-shipped switches', () {
     test('flags are off until the real engines ship', () {
-      expect(VaWake.shipped, isFalse,
-          reason: 'the wake-word branch flips this together with the engine');
+      // wakeword (4 Nov): the engine + model shipped; the card itself stays
+      // hidden until this phone can really run it (test below).
+      expect(VaWake.shipped, isTrue);
       // sosat: the fall engine shipped (experimental); the entry points
       // stay behind the OFF-by-default fall_detect flag instead.
       expect(FallDetectScreen.engineShipped, isTrue);
@@ -165,20 +166,22 @@ void main() {
       expect(kCircleMediaStorageOn, isFalse);
     });
 
-    testWidgets('voice settings: no "Hey Assisto" card while not shipped',
+    testWidgets('voice settings: no "Hey Assisto" card while the model is not served',
         (tester) async {
       SharedPreferences.setMockInitialValues({});
       tester.view.physicalSize = const Size(1080, 4000);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
-          _wrap(const VoiceAssistantSettingsScreen(debugStatic: true)));
+          _wrap(const VoiceAssistantSettingsScreen(
+              debugStatic: true, debugModel: false)));
       await tester.pumpAndSettle();
       final t = AppLocalizations.of(
           tester.element(find.byType(VoiceAssistantSettingsScreen)));
       expect(find.text(t.vaDefTitle), findsOneWidget);
-      expect(find.text(t.vaWakeTitle2), findsNothing);
-      expect(find.text(t.vaWakeEngineMissing), findsNothing);
+      expect(find.text(t.vaWkTitle), findsNothing);
+      expect(find.text(t.vaWkStatusPending), findsNothing);
+      expect(find.byKey(const Key('va-wake-switch')), findsNothing);
     });
   });
 

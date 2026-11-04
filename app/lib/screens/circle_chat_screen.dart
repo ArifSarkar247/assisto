@@ -127,6 +127,11 @@ class CircleChatScreen extends StatefulWidget {
   /// invite / follow-up reminder). Only fills the composer — the user reads
   /// it and taps Send; nothing is sent by itself.
   final String? initialText;
+
+  /// wakeword: "Hey Assisto, write in My Circle…" — the user already said
+  /// yes on the voice confirm card, so [initialText] is sent once the thread
+  /// has loaded (through the normal encrypted [_send]).
+  final bool autoSend;
   const CircleChatScreen({
     super.key,
     required this.member,
@@ -135,6 +140,7 @@ class CircleChatScreen extends StatefulWidget {
     this.quickReply = false,
     this.bubble = false,
     this.initialText,
+    this.autoSend = false,
   });
 
   @override
@@ -303,6 +309,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _scroll.addListener(_onScroll);
     _load().then((_) {
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
+      if (widget.autoSend && mounted && _input.text.trim().isNotEmpty) {
+        unawaited(_send()); // wakeword
+      }
       if (widget.quickReply && mounted) {
         unawaited(runCallQuickReply(context,
             name: _memberName,

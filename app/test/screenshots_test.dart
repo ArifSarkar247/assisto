@@ -202,6 +202,9 @@ import 'package:assisto/screens/messenger/admin_moderation_screen.dart';
 import 'package:assisto/screens/money_voice_screen.dart';
 import 'package:assisto/screens/voice_assistant_screen.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
+import 'package:assisto/screens/wake_disclosure_screen.dart';
+import 'package:assisto/screens/wake_oem_guide_screen.dart';
+import 'package:assisto/voice/va_wake_logic.dart';
 import 'package:assisto/voice/va_actions.dart';
 import 'package:assisto/voice/va_confirm_sheet.dart';
 import 'package:assisto/voice/va_onboarding_step.dart';
@@ -786,6 +789,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
     'voice_onboarding': (build: (_) => const Scaffold(body: SafeArea(child: VaOnboardingStep())), mode: FakeMode.data, full: true),
     'voice_settings_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
+    // k1-wake: "Hey Assisto" (openWakeWord) — listening card, paused card,
+    // prominent disclosure, OEM keep-alive guide.
+    'voice_wake_on_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true, debugWake: WakeStatus(WakeRun.listening, wanted: true)), mode: FakeMode.data, full: true),
+    'voice_wake_paused_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true, debugWake: WakeStatus(WakeRun.paused, reason: 'battery', wanted: true)), mode: FakeMode.data, full: true),
+    'voice_wake_disclosure': (build: (_) => const WakeDisclosureScreen(), mode: FakeMode.data, full: true),
+    'voice_wake_oem': (build: (_) => const WakeOemGuideScreen(debugMaker: 'realme'), mode: FakeMode.data, full: true),
     'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
     'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),
     'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),

@@ -7,33 +7,52 @@ import '../state.dart';
 import '../theme.dart';
 import '../voice/va_actions.dart';
 import '../widgets/voice_help_sheet.dart'; // aivoice
-import '../voice/va_native.dart';
-import 'battery_guidance_screen.dart';
-import '../voice/va_wake.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../voice/va_native.dart';
+import '../voice/va_wake.dart';
+import '../voice/va_wake_logic.dart';
+import 'wake_disclosure_screen.dart';
+import 'wake_oem_guide_screen.dart';
 
 /// Assisto Voice settings: make Assisto the phone's default digital
-/// assistant, the optional "Hey Assisto" wake word (OFF by default, honest
-/// about battery/privacy — HIDDEN until [VaWake.shipped] and the engine is
-/// really ready on this phone), and spoken replies.
+/// assistant, the optional hands-free "Hey Assisto" wake word (k1-wake:
+/// openWakeWord, on-device; OFF by default, prominent disclosure before the
+/// first enable, sensitivity, pause, honest limits), and spoken replies.
 class VoiceAssistantSettingsScreen extends StatefulWidget {
   /// Gallery/tests: skip native + network probes.
   final bool debugStatic;
-  const VoiceAssistantSettingsScreen({super.key, this.debugStatic = false});
+
+  /// Gallery/tests: the wake-word state to render with [debugStatic]
+  /// (default: model available, switched off).
+  final WakeStatus? debugWake;
+
+  /// Gallery/tests: whether the server "serves" the model (false = the
+  /// card must stay hidden — NO SHOWPIECES).
+  final bool debugModel;
+  const VoiceAssistantSettingsScreen(
+      {super.key,
+      this.debugStatic = false,
+      this.debugWake,
+      this.debugModel = true});
 
   @override
   State<VoiceAssistantSettingsScreen> createState() =>
       _VoiceAssistantSettingsScreenState();
 }
 
-enum _Wake { loading, keyMissing, engineMissing, ready, running, error }
 
 class _VoiceAssistantSettingsScreenState
     extends State<VoiceAssistantSettingsScreen> with WidgetsBindingObserver {
   bool? _isDefault; // null = unknown
   bool _native = false;
-  _Wake _wake = _Wake.loading;
+  bool _loaded = false;
   VaWakeConfig _cfg = const VaWakeConfig();
+  WakeStatus _wake = WakeStatus.unknown;
+  WakeLevel _level = WakeLevel.low;
+  bool _lockedOk = false; // wakeword: listen while locked (consent)
+  bool _engine = false;
+  double? _progress; // model download
+  String? _wakeError;
   bool _tts = true;
   bool _continue = false; // aivoice
   bool _busy = false;
@@ -64,13 +83,22 @@ class _VoiceAssistantSettingsScreenState
     final tts = await Settings.getBool(VaWake.ttsKey, true);
     final cont = await Settings.getBool(VaWake.continueKey, false);
     final music = await Settings.getString(VaExecutor.musicPrefKey) ?? 'auto';
+    final level = await VaWake.level();
+    final lockedOk = await VaWake.lockedOk();
     if (widget.debugStatic) {
       if (mounted) {
         setState(() {
           _tts = tts;
           _continue = cont;
           _music = music;
-          _wake = _Wake.keyMissing;
+          _level = level;
+          _lockedOk = lockedOk;
+          _loaded = true;
+          _engine = true;
+          _cfg = widget.debugModel
+              ? const VaWakeConfig(available: true, reason: '')
+              : const VaWakeConfig();
+          _wake = widget.debugWake ?? const WakeStatus(WakeRun.off);
         });
       }
       return;
@@ -79,7 +107,7 @@ class _VoiceAssistantSettingsScreenState
     final isDef = native ? await VaNative.isDefaultAssistant() : null;
     if (!mounted) return;
     final cfg = await VaWake.fetchConfig(context.read<AppState>().api);
-    final st = native ? await VaNative.wakeStatus() : null;
+    final st = native ? await VaWake.status() : WakeStatus.unknown;
     final installed = native ? await VaNative.musicApps() : const <String>[];
     if (!mounted) return;
     setState(() {
@@ -90,46 +118,47 @@ class _VoiceAssistantSettingsScreenState
       _native = native;
       _isDefault = isDef;
       _cfg = cfg;
-      if (st == 'running') {
-        _wake = _Wake.running;
-      } else if (!cfg.available) {
-        _wake = _Wake.keyMissing;
-      } else if (st == null || st == 'engine_missing') {
-        _wake = _Wake.engineMissing;
-      } else {
-        _wake = _Wake.ready;
-      }
+      _wake = st;
+      _level = level;
+      _lockedOk = lockedOk;
+      _engine = native && st.run != WakeRun.engineMissing && st.run != WakeRun.unknown;
+      _loaded = true;
     });
   }
+
+  WakeBlock _block({required bool disclosure}) => VaWakeGate.check(
+        modelAvailable: _cfg.available,
+        serverReason: _cfg.reason,
+        engineBundled: _engine,
+        disclosureAccepted: disclosure,
+      );
 
   Future<void> _toggleWake(bool on) async {
     if (_busy) return;
     if (!on) {
       setState(() => _busy = true);
-      await VaNative.wakeStop();
-      await VaWake.setWanted(false);
+      if (!widget.debugStatic) await VaWake.stop();
       if (mounted) setState(() => _busy = false);
       await _load();
       return;
     }
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.hearing_rounded),
-        title: Text(t.vaWakeConfirmTitle),
-        content: SingleChildScrollView(child: Text(t.vaWakeConfirmBody)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t.vaWakeTurnOn)),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-    setState(() => _busy = true);
+    // Prominent disclosure BEFORE the permission prompt (Play policy).
+    if (!await VaWake.disclosureAccepted()) {
+      if (!mounted) return;
+      final ok = await WakeDisclosureScreen.show(context);
+      if (!ok) return;
+      await VaWake.acceptDisclosure();
+    }
+    if (_block(disclosure: true) != WakeBlock.none || !mounted) return;
+    if (widget.debugStatic) {
+      // gallery/tests: no plugins — show the "listening" state
+      setState(() => _wake = const WakeStatus(WakeRun.listening, wanted: true));
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _wakeError = null;
+    });
     try {
       final mic = await Permission.microphone.request();
       if (!mic.isGranted) {
@@ -140,24 +169,56 @@ class _VoiceAssistantSettingsScreenState
         await Permission.notification.request();
       } catch (_) {} // best-effort: optional; the wake listener works without it
       if (!mounted) return;
-      final r = await VaWake.start(_cfg,
-          title: t.vaWakeNotifTitle,
-          body: t.vaWakeNotifBody,
-          stopLabel: t.vaStop,
-          tapText: t.vaWakeTapToTalk);
-      if (r == 'running') {
-        await VaWake.setWanted(true);
-      } else if (r == 'engine_missing' || r == null) {
-        _snack(t.vaWakeEngineMissing);
-      } else if (r == 'error:download') {
-        _snack(t.vaWakeDownloadFailed);
-      } else {
-        _snack(t.vaWakeStartFailed);
-      }
+      final r = await VaWake.start(_cfg, _level, VaWake.texts(t),
+          onProgress: (p) {
+        if (mounted) setState(() => _progress = p);
+      });
+      if (r == 'running') return;
+      _wakeError = switch (r) {
+        'engine_missing' || null => t.vaWkStatusEngineMissing,
+        'error:download' || 'error:model_hash' => t.vaWkDownloadFailed,
+        _ => t.vaWkStatusError,
+      };
+      _snack(_wakeError!);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _progress = null;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 600));
       await _load();
     }
+  }
+
+  Future<void> _setLevel(WakeLevel l) async {
+    setState(() => _level = l);
+    await VaWake.setLevel(l);
+    if (widget.debugStatic || !_wake.isOn) return;
+    // apply now: restart the listener with the new threshold
+    await VaWake.start(_cfg, l, VaWake.texts(t));
+    await _load();
+  }
+
+  /// wakeword: consent to listen while the phone is locked (OFF by default).
+  Future<void> _setLockedOk(bool v) async {
+    setState(() => _lockedOk = v);
+    await VaWake.setLockedOk(v);
+    if (widget.debugStatic || !_wake.isOn) return;
+    await VaWake.start(_cfg, _level, VaWake.texts(t));
+    await _load();
+  }
+
+  Future<void> _pause(bool pause) async {
+    if (widget.debugStatic) return;
+    if (pause) {
+      await VaNative.wakePause(60);
+    } else {
+      await VaNative.wakeResume();
+    }
+    await Future.delayed(const Duration(milliseconds: 400));
+    await _load();
   }
 
   void _snack(String msg) {
@@ -293,92 +354,195 @@ class _VoiceAssistantSettingsScreenState
               color: scheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
-            child: Text('${t.vaDefColorOs}\n\n${t.vaDefPowerNote}',
+            child: Text(
+                '${t.vaDefColorOs}\n\n${t.vaDefSamsungNote}\n\n${t.vaDefXiaomiNote}\n\n${t.vaDefPowerNote}',
                 style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
-          // NO SHOWPIECES: without the native bridge the button could only
-          // say "needs an update" -> hide it; the steps above still guide.
-          if (_native || widget.debugStatic) ...[
-            const SizedBox(height: Gap.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () async {
-                  final ok = await VaNative.openAssistantSettings();
-                  if (!ok) _snack(t.vaSettingsOpenFailed);
-                },
-                icon: const Icon(Icons.open_in_new_rounded),
-                label: Text(t.vaDefOpenSettings),
-              ),
+          const SizedBox(height: Gap.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () async {
+                if (!_native && !widget.debugStatic) return;
+                final ok = await VaNative.openAssistantSettings();
+                if (!ok) _snack(t.vaSettingsOpenFailed);
+              },
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: Text(t.vaDefOpenSettings),
             ),
-          ],
+          ),
+          const SizedBox(height: Gap.sm),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                // gallery/tests: no native half -> the honest "could not open" note
+                final r = widget.debugStatic
+                    ? null
+                    : await VaNative.openPowerKeySettings();
+                if (r == null || r == 'none') _snack(t.vaDefOpenFailed);
+              },
+              icon: const Icon(Icons.power_settings_new_rounded),
+              label: Text(t.vaDefPowerKey),
+            ),
+          ),
         ]);
   }
 
-  /// NO SHOWPIECES: the wake-word card shows only when the feature has
-  /// shipped AND it can really be switched on (or is running) on this phone.
-  /// Key missing / engine missing / still checking -> no card at all.
+  String _pausedUntilLabel(DateTime? at) => at == null
+      ? ''
+      : MaterialLocalizations.of(context)
+          .formatTimeOfDay(TimeOfDay.fromDateTime(at));
+
+  /// Status line of the wake card + whether it is a "good" state.
+  (String, bool) _wakeNote() {
+    if (!_loaded) return (t.vaWakeChecking, false);
+    switch (_block(disclosure: true)) {
+      case WakeBlock.modelPending:
+        return (t.vaWkStatusPending, false);
+      case WakeBlock.licencePending:
+        return (t.vaWkStatusLicence, false);
+      case WakeBlock.engineMissing:
+        return (t.vaWkStatusEngineMissing, false);
+      case WakeBlock.needsDisclosure:
+      case WakeBlock.none:
+        break;
+    }
+    if (_progress != null) return (t.vaWkStatusDownloading, false);
+    final w = _wake;
+    if (w.run == WakeRun.listening) return (t.vaWkStatusListening, true);
+    if (w.run == WakeRun.paused) {
+      return (
+        switch (w.reason) {
+          'user' => t.vaWkStatusPausedUser(_pausedUntilLabel(w.pausedUntil)),
+          'battery' => t.vaWkStatusPausedBattery,
+          'saver' => t.vaWkStatusPausedSaver,
+          'locked' => t.vaWkStatusPausedLocked,
+          'call' => t.vaWkStatusPausedCall,
+          'mic_busy' => t.vaWkStatusPausedMic,
+          _ => t.vaWkStatusPausedWake,
+        },
+        false
+      );
+    }
+    if (w.needsRestart) return (t.vaWkStatusBlocked, false);
+    if (w.run == WakeRun.error) return (_wakeError ?? t.vaWkStatusError, false);
+    return (t.vaWkStatusOff, false);
+  }
+
+  Widget _note(ColorScheme scheme, IconData icon, String text) => Padding(
+        padding: const EdgeInsets.only(bottom: Gap.sm),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(text,
+                  style:
+                      AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
+        ]),
+      );
+
+  /// NO SHOWPIECES: the card shows only when the wake word has shipped AND
+  /// this phone can really run it (server serves the model, native engine in
+  /// this build) — or it is already on. Never a "coming soon" card.
   bool get _showWake =>
       VaWake.shipped &&
-      (_wake == _Wake.ready ||
-          _wake == _Wake.running ||
-          _wake == _Wake.error);
+      _loaded &&
+      (_wake.isOn ||
+          {WakeBlock.none, WakeBlock.needsDisclosure}
+              .contains(_block(disclosure: false)));
 
   Widget _wakeCard(ColorScheme scheme) {
-    final running = _wake == _Wake.running;
-    final canToggle = running || _wake == _Wake.ready;
-    final note = switch (_wake) {
-      _Wake.loading => t.vaWakeChecking,
-      _Wake.keyMissing || _Wake.engineMissing => t.vaWakeEngineMissing,
-      _Wake.ready => t.vaWakeOffNote,
-      _Wake.running => t.vaWakeOnNote,
-      _Wake.error => t.vaWakeStartFailed,
+    final on = _wake.isOn;
+    final blocked = _block(disclosure: true) != WakeBlock.none;
+    final (note, good) = _wakeNote();
+    final levelSub = switch (_level) {
+      WakeLevel.low => t.vaWkSensLowSub,
+      WakeLevel.normal => t.vaWkSensNormalSub,
+      WakeLevel.high => t.vaWkSensHighSub,
     };
     return _card(scheme,
         icon: Icons.hearing_rounded,
-        title: t.vaWakeTitle2,
+        title: t.vaWkTitle,
         trailing: _busy
-            ? const SizedBox(
-                width: Gap.xl,
-                height: Gap.xl,
-                child: CircularProgressIndicator(strokeWidth: 2))
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, value: _progress))
             : Switch(
-                value: running,
-                onChanged: canToggle ? _toggleWake : null,
+                key: const Key('va-wake-switch'),
+                value: on,
+                onChanged: blocked && !on ? null : _toggleWake,
               ),
         children: [
-          Text(t.vaWakeBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.vaWkBody, style: TextStyle(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.md),
-          _statusChip(scheme, note, good: running),
+          _statusChip(scheme, note, good: good),
+          if (on) ...[
+            const SizedBox(height: Gap.sm),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _wake.run == WakeRun.paused && _wake.reason == 'user'
+                  ? TextButton.icon(
+                      onPressed: () => _pause(false),
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      label: Text(t.vaWkResume))
+                  : TextButton.icon(
+                      onPressed: () => _pause(true),
+                      icon: const Icon(Icons.pause_rounded),
+                      label: Text(t.vaWkPause1h)),
+            ),
+          ],
+          if (!blocked) ...[
+            const SizedBox(height: Gap.md),
+            Text(t.vaWkSensitivity,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.sm),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<WakeLevel>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(value: WakeLevel.low, label: Text(t.vaWkSensLow)),
+                  ButtonSegment(
+                      value: WakeLevel.normal, label: Text(t.vaWkSensNormal)),
+                  ButtonSegment(value: WakeLevel.high, label: Text(t.vaWkSensHigh)),
+                ],
+                selected: {_level},
+                onSelectionChanged: _busy ? null : (v) => _setLevel(v.first),
+              ),
+            ),
+            const SizedBox(height: Gap.xs),
+            Text(levelSub,
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+          SwitchListTile(
+            key: const Key('va-wake-locked'),
+            contentPadding: EdgeInsets.zero,
+            value: _lockedOk,
+            title: Text(t.vaWkLockedSwitch,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(t.vaWkLockedSwitchSub),
+            onChanged: _busy ? null : _setLockedOk,
+          ),
           const SizedBox(height: Gap.md),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.battery_alert_rounded,
-                size: 18, color: scheme.onSurfaceVariant),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-                child: Text(t.vaWakeBattery,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
-          ]),
-          const SizedBox(height: Gap.sm),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.lock_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-                child: Text(t.vaWakePrivacy,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
-          ]),
-          const SizedBox(height: Gap.sm),
-          Text(t.vaWakeRealmeNote,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          _note(scheme, Icons.lock_outline_rounded, t.vaWkPrivacy),
+          _note(scheme, Icons.pause_circle_outline_rounded, t.vaWkAutoPause),
+          _note(scheme, Icons.battery_alert_rounded, t.vaWkBatteryNote2),
+          _note(scheme, Icons.screen_lock_portrait_rounded, t.vaWkLockedNote),
+          _note(scheme, Icons.verified_user_rounded, t.vaWkLockRules),
+          _note(scheme, Icons.restart_alt_rounded, t.vaWkRebootNote),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
               onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const BatteryGuidanceScreen())),
+                      builder: (_) => WakeOemGuideScreen(
+                          debugMaker: widget.debugStatic ? 'realme' : null))),
               icon: const Icon(Icons.battery_saver_rounded),
-              label: Text(t.vaWakeBatteryGuide),
+              label: Text(t.vaWkOemGuide),
             ),
           ),
         ]);
