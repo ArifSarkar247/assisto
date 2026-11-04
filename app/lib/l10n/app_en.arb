@@ -42955,5 +42955,269 @@
   "nearbyCountryUS": "USA",
   "@nearbyCountryUS": {
     "description": "nearby (owner 3 Nov 18:50): own emergency list, numbers, Google Maps links"
-  }
+  },
+  "ccTitle": "Care Call",
+  "ccNewTitle": "New Care Call",
+  "ccEditTitle": "Edit Care Call",
+  "ccWho": "Who",
+  "ccWhoPick": "Pick from My Circle family",
+  "ccWhat": "What to remind",
+  "ccWhatHint": "e.g. take your gas tablet",
+  "ccChipMedicine": "Medicine time",
+  "ccChipMeal": "Eat your meal",
+  "ccChipWater": "Drink water",
+  "ccChipPrayer": "Prayer time",
+  "ccChipWalk": "Go for a walk",
+  "ccChipBill": "Bill payment day",
+  "ccTime": "Time",
+  "ccRepeat": "Repeat",
+  "ccRepeatOnce": "Once",
+  "ccRepeatDaily": "Daily",
+  "ccRepeatDays": "Chosen days",
+  "ccDaySat": "Sat",
+  "ccDaySun": "Sun",
+  "ccDayMon": "Mon",
+  "ccDayTue": "Tue",
+  "ccDayWed": "Wed",
+  "ccDayThu": "Thu",
+  "ccDayFri": "Fri",
+  "ccOnceToday": "Today",
+  "ccOnceTomorrow": "Tomorrow",
+  "ccOnceChange": "Change date",
+  "ccRecord": "Record in your own voice",
+  "ccRecordHint": "Up to {sec} seconds. Only your own voice — never an AI voice.",
+  "@ccRecordHint": {
+    "placeholders": {
+      "sec": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRecording": "Recording…",
+  "ccRecordStop": "Stop",
+  "ccYourVoice": "Your voice · {len}",
+  "@ccYourVoice": {
+    "placeholders": {
+      "len": {
+        "type": "String"
+      }
+    }
+  },
+  "ccPlay": "Play",
+  "ccPause": "Pause",
+  "ccReRecord": "Record again",
+  "ccDeleteVoice": "Delete recording",
+  "ccMicDenied": "Microphone permission is off. Allow it in Settings to record your voice.",
+  "ccRetryLine": "If not answered, Assisto tries again after 10 minutes, then tells you.",
+  "ccQuietNote": "{name}'s quiet hours are {start} – {end}, so this call will ring at {at}.",
+  "@ccQuietNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConsentNote": "{name} will be asked once to accept your Care Calls.",
+  "@ccConsentNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccTurnOn": "Turn on Care Call",
+  "ccSave": "Save changes",
+  "ccErrWho": "Pick who to remind.",
+  "ccErrWhat": "Write what to remind, or record your voice.",
+  "ccErrDays": "Pick at least one day.",
+  "ccSavedOn": "Care Call is on — {name} will get it at {time}.",
+  "@ccSavedOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ccSavedPending": "Saved. It starts once {name} accepts.",
+  "@ccSavedPending": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccSavedOffline": "Saved on this phone. It turns on as soon as you are online.",
+  "ccFailed": "Could not save. Please try again.",
+  "ccPickTitle": "Who should get this Care Call?",
+  "ccPickEmpty": "Add your family to My Circle — then one tap here sends them a Care Call.",
+  "ccPickEmptyHow": "My Circle → Add → their phone number. They need Assisto too.",
+  "ccOpenCircle": "Open My Circle",
+  "ccLinkAccepted": "Accepted",
+  "ccLinkPending": "Waiting to accept",
+  "ccLinkStopped": "Turned off by them",
+  "ccLinkNew": "Will be asked once",
+  "ccRingTopLabel": "Care Call · Assisto",
+  "ccRingTitle": "{name} is reminding you",
+  "@ccRingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingVoicePlaying": "{name}'s voice is playing",
+  "@ccRingVoicePlaying": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingReadingAloud": "Reading the reminder aloud",
+  "ccRingPlayAgain": "Play again",
+  "ccRingDone": "Done",
+  "ccRingSnooze": "Remind me in 10 minutes",
+  "ccRingDoneToast": "Thank you! {name} will know.",
+  "@ccRingDoneToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingSnoozeToast": "OK — it will ring again in 10 minutes.",
+  "ccRingVoiceOnly": "Tap to hear the voice message",
+  "ccEmptyBenefit": "Remind your loved ones in your own voice — their phone rings like a call at the right time.",
+  "ccEmptyHow": "1. Pick someone from My Circle  2. Write or record the reminder  3. Pick a time",
+  "ccNew": "New Care Call",
+  "ccInviteTitle": "{name} wants to send you Care Calls. Accept?",
+  "@ccInviteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccInviteBody": "They can then remind you at set times with a call, in their own voice. You can stop any time.",
+  "ccAccept": "Accept",
+  "ccNotNow": "Not now",
+  "ccUpdates": "Updates",
+  "ccCardTitle": "Care Call {time}",
+  "@ccCardTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConfirmed": "{name} confirmed",
+  "@ccConfirmed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConfirmedLate": "{name} confirmed late",
+  "@ccConfirmedLate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccMissedTwice": "{name} did not answer twice",
+  "@ccMissedTwice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccCallNow": "Call now",
+  "ccSeeLocation": "See location",
+  "ccSetByYou": "Care Calls you set",
+  "ccForYou": "Care Calls for you",
+  "ccFrom": "From {name}",
+  "@ccFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStatusOn": "On",
+  "ccStatusOff": "Off",
+  "ccStopFrom": "Stop Care Calls from {name}",
+  "@ccStopFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStopConfirm": "No Care Call from {name} will ring until you allow it again.",
+  "@ccStopConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStopYes": "Stop",
+  "ccAllowAgain": "Allow {name} again",
+  "@ccAllowAgain": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccQuietTitle": "Quiet hours",
+  "ccQuietValue": "No Care Call rings {start} – {end}",
+  "@ccQuietValue": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "ccQuietOff": "Off — Care Calls can ring any time",
+  "ccQuietFrom": "From",
+  "ccQuietTo": "To",
+  "ccQuietUse": "Use quiet hours",
+  "ccSaveBtn": "Save",
+  "ccEdit": "Edit",
+  "ccDelete": "Delete",
+  "ccDeleteConfirm": "Delete this Care Call?",
+  "ccLimitLine": "{used} of {max} free Care Calls on",
+  "@ccLimitLine": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "ccOfflineBanner": "You are offline — showing what this phone saved. Care Calls still ring.",
+  "ccExactTitle": "Ring exactly on time, even offline",
+  "ccExactBody": "Allow \"Alarms & reminders\" for Assisto so this phone's own Care Call alarm is never late.",
+  "ccExactAllow": "Allow"
 }
