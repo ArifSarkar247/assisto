@@ -165,8 +165,9 @@ void registerE2eProofFlows() {
       await f.pumpFor(const Duration(seconds: 3));
       await f.waitFor(find.byKey(const Key('login-with-sms')), seconds: 20, what: 'SMS login button');
       await f.tap(find.byKey(const Key('login-with-sms')), settleSeconds: 2);
-      final id = find.descendant(of: find.byKey(const Key('otp-id')), matching: find.byType(TextField));
-      await f.tester.enterText(id.evaluate().isEmpty ? find.byKey(const Key('otp-id')) : id.first, Seed.phoneA);
+      // the phone mode's field (_PhoneField) has no key: the screen's only TextField
+      final id = await f.waitFor(find.byType(TextField).hitTestable(), what: 'mobile number field');
+      await f.tester.enterText(id.first, Seed.phoneA);
       await f.pumpFor(const Duration(milliseconds: 500));
       await f.tap(find.byKey(const Key('otp-send')), settleSeconds: 4);
       await f.waitFor(find.byType(OtpCodeInput), seconds: 20, what: 'code boxes');
