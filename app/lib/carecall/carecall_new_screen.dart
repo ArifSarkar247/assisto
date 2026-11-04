@@ -62,6 +62,9 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
   String? _voicePath;
   int _voiceSec = 0;
   bool _voiceDeleted = false;
+  // gallery fixture voice (debugVoiceSec) lives in state so Delete / Record
+  // again visibly clear it there too (dead-button sweep, android.yml 41749987543)
+  bool _debugVoice = false;
   bool _recording = false;
   int _recSec = 0;
   Timer? _recTimer;
@@ -72,7 +75,7 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
   int get _maxSec => (widget.limits?['voice_max_seconds'] as num?)?.toInt() ?? 30;
   int get _maxChars => (widget.limits?['text_max_chars'] as num?)?.toInt() ?? 300;
   bool get _isEdit => widget.edit != null;
-  bool get _hasVoice => _voicePath != null || widget.debugVoiceSec != null ||
+  bool get _hasVoice => _voicePath != null || _debugVoice ||
       (_isEdit && widget.edit!['has_voice'] == true && !_voiceDeleted);
 
   CareCallApi? _api() {
@@ -89,7 +92,10 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
     super.initState();
     _who = widget.person;
     _text.text = widget.debugText ?? '';
-    if (widget.debugVoiceSec != null) _voiceSec = widget.debugVoiceSec!;
+    if (widget.debugVoiceSec != null) {
+      _voiceSec = widget.debugVoiceSec!;
+      _debugVoice = true;
+    }
     final e = widget.edit;
     if (e != null) {
       _text.text = '${e['text'] ?? ''}';
@@ -197,9 +203,14 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
 
   Future<void> _record() async {
     final t = AppLocalizations.of(context);
-    await VoicePlayer.instance.stop();
+    unawaited(VoicePlayer.instance.stop()); // stop() reports its own errors
     final r = _rec ??= ccRecorderFactory();
-    final ok = await _micOk() && await r.start();
+    var ok = false;
+    try {
+      ok = await _micOk() && await r.start();
+    } catch (_) {
+      ok = false; // best-effort: a recorder that fails to start = the refused message below
+    }
     if (!mounted) return;
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.ccMicDenied)));
@@ -234,15 +245,24 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
     if (old != null && old != path) unawaited(_rec?.delete(old));
   }
 
+  /// Delete: the voice chip goes at once (the Record button comes back);
+  /// the player stop + file delete follow.
   Future<void> _deleteVoice() async {
-    await VoicePlayer.instance.stop();
     final p = _voicePath;
-    if (p != null) unawaited((_rec ?? ccRecorderFactory()).delete(p));
-    if (mounted) setState(() {
+    setState(() {
       _voicePath = null;
       _voiceSec = 0;
       _voiceDeleted = true;
+      _debugVoice = false;
     });
+    unawaited(VoicePlayer.instance.stop()); // stop() reports its own errors
+    if (p != null) unawaited((_rec ?? ccRecorderFactory()).delete(p));
+  }
+
+  /// Record again: clear the old recording, then open the recorder.
+  Future<void> _reRecord() async {
+    await _deleteVoice();
+    if (mounted) await _record();
   }
 
   // ---------------------------------------------------------------- save
@@ -549,7 +569,7 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
         ),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(t.ccYourVoice(len), style: tt.titleMedium)),
-        IconButton(tooltip: t.ccReRecord, onPressed: _record, icon: const Icon(Icons.refresh_rounded)),
+        IconButton(tooltip: t.ccReRecord, onPressed: _reRecord, icon: const Icon(Icons.refresh_rounded)),
         IconButton(tooltip: t.ccDeleteVoice, onPressed: _deleteVoice, icon: const Icon(Icons.delete_outline_rounded)),
       ]);
     } else {

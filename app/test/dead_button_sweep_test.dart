@@ -34,6 +34,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/carecall/cc_recorder.dart'; // carecall
 import 'package:assisto/realtime/realtime_channel.dart';
 import 'package:assisto/calls/call_runtime.dart';
 import 'package:assisto/state.dart';
@@ -106,7 +107,6 @@ const Map<String, String> _allowDead = {
   'money_wrapped*|Share this card': 'B: RepaintBoundary.toImage needs a real rasterizer (never completes under fake async)',
   'referral|Share achievement card': 'B: same image-capture share as Money Wrapped',
   'famcare_card*|Share as image': 'B: same RepaintBoundary.toImage share as Money Wrapped (the text share beside it is swept)',
-  'cc_screen1*|Record in your own voice': 'B: microphone permission + recorder need a real device (no permission plugin in the widget sweep); carecall two-phone test covers recording', // carecall (integrator)
   'admobump_ads_privacy_required|key=settings-ad-privacy': 'B: opens Google UMP\'s native privacy options form (no platform view in a widget test); ads_consent_ump_test proves the tap reaches showPrivacyOptionsForm and a withdrawal stops the next ad request',
 };
 
@@ -743,6 +743,10 @@ void main() {
   final maxTaps = int.tryParse(Platform.environment['DB1_SWEEP_MAX'] ?? '') ?? 60;
 
   setUpAll(() async {
+    // carecall: the Care Call recorder taps run on a granted mic + fake
+    // recorder (no plugin here) so Record / Record again really record.
+    ccMicGrantedForTest = true;
+    ccRecorderFactory = _SweepCcRecorder.new;
     SharedPreferences.setMockInitialValues({});
     HttpOverrides.global = _RecNet();
     // Real fonts (same as the gallery) so layout matches the screenshots.
@@ -905,4 +909,14 @@ void main() {
           reason: 'Taps on "$name" threw (not a missing-plugin/no-network test artifact).');
     }, timeout: const Timeout(Duration(minutes: 6)));
   });
+}
+
+// carecall: fake Care Call recorder for the sweep (no record plugin in tests).
+class _SweepCcRecorder implements CcRecorder {
+  @override
+  Future<bool> start() async => true;
+  @override
+  Future<String?> stop() async => null;
+  @override
+  Future<void> delete(String path) async {}
 }
