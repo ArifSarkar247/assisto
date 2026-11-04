@@ -3,6 +3,8 @@
 // Journey — plus the AI router that turns a command the offline parser did
 // not understand into ONE of the fixed actions (POST /voice/route). Every
 // action shows a confirm card first; nothing runs by itself.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -165,13 +167,12 @@ extension VaAssistoActions on VaExecutor {
     if (!context.mounted) return VaOutcome(t.vaCancelled);
     final nav = Navigator.of(context);
     final identity = await IdentityVault.instance.get();
-    // ignore: unawaited_futures
-    nav.push(MaterialPageRoute(
+    unawaited(nav.push(MaterialPageRoute(
         builder: (_) => CircleChatScreen(
             member: member,
             identity: identity,
             initialText: body.isEmpty ? null : body,
-            autoSend: body.isNotEmpty)));
+            autoSend: body.isNotEmpty))));
     return VaOutcome(body.isEmpty ? t.vaCircleOpened(name) : t.vaCircleSent(name),
         icon: Icons.forum_rounded, title: name, subtitle: body.isEmpty ? null : body);
   }
