@@ -262,6 +262,11 @@ void registerE2eProofFlows() {
     await f.step('A opens B and sends a text -> B decrypts it', () async {
       before = (await f.net(fromA)).length;
       await f.openRoute('circle');
+      // first open of My Circle may offer chat bubbles (a sheet): "Later"
+      if (await f.appears(find.text(f.t.bbl2Title), seconds: 4)) {
+        await f.shot('bubbles-offer');
+        await f.tap(find.text('Later').hitTestable().last, settleSeconds: 2);
+      }
       await f.waitFor(find.text(Seed.nameB), what: 'B in the chat list');
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
       await f.waitFor(find.byType(CircleChatScreen), what: 'chat');
@@ -346,6 +351,11 @@ void registerE2eProofFlows() {
     await f.step('type "Chandra" -> suggestions -> pick "Chandra"', () async {
       await f.openRoute('journey');
       final dest = find.byKey(const ValueKey('j100_dest'));
+      // the Safe Journey hub: "My Trip" opens the trip form
+      if (!await f.appears(dest, seconds: 4)) {
+        await f.shot('hub');
+        await f.tap(find.text(f.t.sjlBtnTrip), settleSeconds: 3);
+      }
       await f.waitFor(dest, what: 'destination search');
       await f.tester.tap(dest, warnIfMissed: false);
       await f.tester.enterText(dest, 'Chandra');

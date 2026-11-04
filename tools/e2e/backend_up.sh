@@ -5,6 +5,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/../../backend"
 export E2E_OUTBOX="${E2E_OUTBOX:-$REALITY_OUT/outbox.jsonl}"
+# push_due_reminders keeps its "already pushed" state here (default is a server path)
+export PUSH_REMINDER_STATE_FILE="${PUSH_REMINDER_STATE_FILE:-$REALITY_OUT/push_reminders_state.json}"
 S=--settings=assisto_backend.settings_e2e
 mkdir -p "$REALITY_OUT"
 timeout 600 python manage.py migrate $S -v 0
