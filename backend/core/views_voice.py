@@ -212,3 +212,13 @@ class VoiceTranscribeView(APIView):
         code, body = VT.transcribe(request.user, request.data or {}, req_lang(request))
         return Response(body, status=code)
 
+
+
+class VoiceRouteView(APIView):
+    """wakeword: POST /voice/route {text, lang} -> one FIXED phone action
+    (core/voice_router.py). Never executes anything; the app confirms."""
+    def post(self, request):
+        from . import voice_router
+        d = request.data or {}
+        lang = "en" if str(d.get("lang") or "") == "en" else "bn"
+        return Response(voice_router.route(request.user, d.get("text") or "", lang))

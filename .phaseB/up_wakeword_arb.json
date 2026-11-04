@@ -2,8 +2,8 @@
  "en": {
   "vaWkTitle": "“Hey Assisto” — hands-free",
   "vaWkBody": "Say “Hey Assisto” (or “Hi Assisto” / “Ok Assisto”), then your command — without touching the phone. Off unless you turn it on.",
-  "vaWkStatusPending": "Coming soon — the “Hey Assisto” model is still being trained and tested.",
-  "vaWkStatusLicence": "Coming soon — the model is waiting for a final licence check.",
+  "vaWkStatusPending": "Not available right now: the Assisto server is not offering the “Hey Assisto” model.",
+  "vaWkStatusLicence": "Not available right now: the model's licence check is not finished.",
   "vaWkStatusOff": "Off",
   "vaWkStatusListening": "On — listening for “Hey Assisto”",
   "vaWkStatusPausedUser": "Paused until {time}",
@@ -104,13 +104,19 @@
   "vaWkBatteryNote2": "Uses some extra battery while on and pauses itself on Battery Saver or below 15% battery. A notification stays visible the whole time.",
   "@vaWkBatteryNote2": {
    "description": "wakeword"
+  },
+  "@vaWkStatusPending": {
+   "description": "wakeword"
+  },
+  "@vaWkStatusLicence": {
+   "description": "wakeword"
   }
  },
  "bn": {
   "vaWkTitle": "“হেই অ্যাসিস্টো” — হাত না লাগিয়ে",
   "vaWkBody": "“হেই অ্যাসিস্টো” (বা “হাই অ্যাসিস্টো” / “ওকে অ্যাসিস্টো”) বলুন, তারপর আপনার কথা — ফোন না ছুঁয়েই। আপনি চালু না করলে এটি বন্ধ থাকে।",
-  "vaWkStatusPending": "শিগগিরই আসছে — “হেই অ্যাসিস্টো” মডেলটির প্রশিক্ষণ ও পরীক্ষা এখনো চলছে।",
-  "vaWkStatusLicence": "শিগগিরই আসছে — মডেলটির লাইসেন্সের শেষ যাচাই বাকি।",
+  "vaWkStatusPending": "এখন চালু করা যাচ্ছে না: Assisto সার্ভার “Hey Assisto” মডেল দিচ্ছে না।",
+  "vaWkStatusLicence": "এখন চালু করা যাচ্ছে না: মডেলের লাইসেন্স যাচাই শেষ হয়নি।",
   "vaWkStatusOff": "বন্ধ",
   "vaWkStatusListening": "চালু — “হেই অ্যাসিস্টো” শোনার অপেক্ষায়",
   "vaWkStatusPausedUser": "{time} পর্যন্ত বিরতিতে",
