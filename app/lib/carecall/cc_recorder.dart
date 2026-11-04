@@ -68,3 +68,7 @@ class PluginCcRecorder implements CcRecorder {
 
 /// Tests / the gallery swap this.
 CcRecorder Function() ccRecorderFactory = PluginCcRecorder.new;
+
+/// Tests: pretend the microphone is already granted (true) / refused
+/// (false); null = ask the real permission plugin.
+bool? ccMicGrantedForTest;
