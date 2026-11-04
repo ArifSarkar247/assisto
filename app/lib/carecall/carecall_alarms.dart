@@ -180,8 +180,22 @@ class CareCallAlarms {
     }
   }
 
+  /// tz.local is a `late` field set by Notifications.init(). A ring can be
+  /// scheduled before that (push in a background isolate, init timed out,
+  /// widget tests): set it here, idempotent, never throws.
+  static void ensureTz() {
+    try {
+      if (tz.local.name.isNotEmpty) return;
+    } catch (_) {} // best-effort: not set yet -> set it below
+    try {
+      tzdata.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation('Asia/Dhaka'));
+    } catch (_) {} // best-effort: _schedule's own catch reports a failed ring
+  }
+
   static Future<bool> _schedule(int id, Map<String, String> data, DateTime at,
       {required String lang, required bool exact, FlutterLocalNotificationsPlugin? plugin}) async {
+    ensureTz(); // integrator: LateInitializationError on tz.local (android.yml 41745599112)
     final t = _t(lang);
     final title = t.ccRingTitle(data['setter_name'] ?? '');
     final body = data['text'] ?? '';
@@ -396,10 +410,7 @@ class CareCallActions {
     try {
       final d = dataOf(r.payload);
       if (d == null) return;
-      try {
-        tzdata.initializeTimeZones();
-        tz.setLocalLocation(tz.getLocation('Asia/Dhaka'));
-      } catch (_) {}
+      CareCallAlarms.ensureTz();
       final pl = FlutterLocalNotificationsPlugin();
       await pl.initialize(const InitializationSettings(
           android: AndroidInitializationSettings('@drawable/ic_stat_assisto')));
