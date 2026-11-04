@@ -6,6 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../voice/va_actions.dart';
+import '../widgets/voice_help_sheet.dart'; // aivoice
+import 'package:assisto/widgets/app_sheet.dart';
 import '../voice/va_native.dart';
 import '../voice/va_wake.dart';
 import '../voice/va_wake_logic.dart';
@@ -23,8 +25,15 @@ class VoiceAssistantSettingsScreen extends StatefulWidget {
   /// Gallery/tests: the wake-word state to render with [debugStatic]
   /// (default: model available, switched off).
   final WakeStatus? debugWake;
+
+  /// Gallery/tests: whether the server "serves" the model (false = the
+  /// card must stay hidden — NO SHOWPIECES).
+  final bool debugModel;
   const VoiceAssistantSettingsScreen(
-      {super.key, this.debugStatic = false, this.debugWake});
+      {super.key,
+      this.debugStatic = false,
+      this.debugWake,
+      this.debugModel = true});
 
   @override
   State<VoiceAssistantSettingsScreen> createState() =>
@@ -39,11 +48,13 @@ class _VoiceAssistantSettingsScreenState
   bool _loaded = false;
   VaWakeConfig _cfg = const VaWakeConfig();
   WakeStatus _wake = WakeStatus.unknown;
-  WakeLevel _level = WakeLevel.normal;
+  WakeLevel _level = WakeLevel.low;
+  bool _lockedOk = false; // wakeword: listen while locked (consent)
   bool _engine = false;
   double? _progress; // model download
   String? _wakeError;
   bool _tts = true;
+  bool _continue = false; // aivoice
   bool _busy = false;
   String _music = 'auto';
   List<String> _installed = const [];
@@ -70,17 +81,23 @@ class _VoiceAssistantSettingsScreenState
 
   Future<void> _load() async {
     final tts = await Settings.getBool(VaWake.ttsKey, true);
+    final cont = await Settings.getBool(VaWake.continueKey, false);
     final music = await Settings.getString(VaExecutor.musicPrefKey) ?? 'auto';
     final level = await VaWake.level();
+    final lockedOk = await VaWake.lockedOk();
     if (widget.debugStatic) {
       if (mounted) {
         setState(() {
           _tts = tts;
+          _continue = cont;
           _music = music;
           _level = level;
+          _lockedOk = lockedOk;
           _loaded = true;
           _engine = true;
-          _cfg = const VaWakeConfig(available: true, reason: '');
+          _cfg = widget.debugModel
+              ? const VaWakeConfig(available: true, reason: '')
+              : const VaWakeConfig();
           _wake = widget.debugWake ?? const WakeStatus(WakeRun.off);
         });
       }
@@ -95,6 +112,7 @@ class _VoiceAssistantSettingsScreenState
     if (!mounted) return;
     setState(() {
       _tts = tts;
+      _continue = cont;
       _music = music;
       _installed = installed;
       _native = native;
@@ -102,6 +120,7 @@ class _VoiceAssistantSettingsScreenState
       _cfg = cfg;
       _wake = st;
       _level = level;
+      _lockedOk = lockedOk;
       _engine = native && st.run != WakeRun.engineMissing && st.run != WakeRun.unknown;
       _loaded = true;
     });
@@ -182,6 +201,15 @@ class _VoiceAssistantSettingsScreenState
     await _load();
   }
 
+  /// wakeword: consent to listen while the phone is locked (OFF by default).
+  Future<void> _setLockedOk(bool v) async {
+    setState(() => _lockedOk = v);
+    await VaWake.setLockedOk(v);
+    if (widget.debugStatic || !_wake.isOn) return;
+    await VaWake.start(_cfg, _level, VaWake.texts(t));
+    await _load();
+  }
+
   Future<void> _pause(bool pause) async {
     if (widget.debugStatic) return;
     if (pause) {
@@ -205,12 +233,14 @@ class _VoiceAssistantSettingsScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.vaSettingsTitle)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl)),
         children: [
           _defaultCard(scheme),
           const SizedBox(height: Gap.lg),
-          _wakeCard(scheme),
-          const SizedBox(height: Gap.lg),
+          if (_showWake) ...[
+            _wakeCard(scheme),
+            const SizedBox(height: Gap.lg),
+          ],
           _ttsCard(scheme),
           const SizedBox(height: Gap.lg),
           _musicCard(scheme),
@@ -266,16 +296,14 @@ class _VoiceAssistantSettingsScreenState
   Widget _statusChip(ColorScheme scheme, String label, {required bool good}) {
     final bg = good ? Brand.success.withValues(alpha: 0.16) : scheme.surfaceContainerHighest;
     final fg = good
-        ? (Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF7BE0B0)
-            : const Color(0xFF1B6E4A))
+        ? AssistoTokens.of(context).success
         : scheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 6),
       decoration: BoxDecoration(
           color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(good ? Icons.check_circle : Icons.info_outline, size: 16, color: fg),
+        Icon(good ? Icons.check_circle_rounded : Icons.info_outline_rounded, size: 16, color: fg),
         const SizedBox(width: 6),
         Flexible(
             child: Text(label,
@@ -294,10 +322,7 @@ class _VoiceAssistantSettingsScreenState
             decoration: BoxDecoration(
                 color: scheme.primaryContainer, shape: BoxShape.circle),
             child: Text('$n',
-                style: TextStyle(
-                    color: scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(text)),
@@ -311,7 +336,7 @@ class _VoiceAssistantSettingsScreenState
             _isDefault == false ? t.vaDefNotDefault : t.vaDefUnknown,
             good: false);
     return _card(scheme,
-        icon: Icons.assistant_outlined,
+        icon: Icons.assistant_rounded,
         title: t.vaDefTitle,
         children: [
           Text(t.vaDefBody2,
@@ -331,19 +356,18 @@ class _VoiceAssistantSettingsScreenState
             ),
             child: Text(
                 '${t.vaDefColorOs}\n\n${t.vaDefSamsungNote}\n\n${t.vaDefXiaomiNote}\n\n${t.vaDefPowerNote}',
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: !_native && !widget.debugStatic
-                  ? () => _snack(t.vaNeedsUpdate)
-                  : () async {
-                      final ok = await VaNative.openAssistantSettings();
-                      if (!ok) _snack(t.vaNeedsUpdate);
-                    },
-              icon: const Icon(Icons.open_in_new),
+              onPressed: () async {
+                if (!_native && !widget.debugStatic) return;
+                final ok = await VaNative.openAssistantSettings();
+                if (!ok) _snack(t.vaSettingsOpenFailed);
+              },
+              icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.vaDefOpenSettings),
             ),
           ),
@@ -357,7 +381,7 @@ class _VoiceAssistantSettingsScreenState
                       final r = await VaNative.openPowerKeySettings();
                       if (r == null || r == 'none') _snack(t.vaDefOpenFailed);
                     },
-              icon: const Icon(Icons.power_settings_new),
+              icon: const Icon(Icons.power_settings_new_rounded),
               label: Text(t.vaDefPowerKey),
             ),
           ),
@@ -391,6 +415,8 @@ class _VoiceAssistantSettingsScreenState
         switch (w.reason) {
           'user' => t.vaWkStatusPausedUser(_pausedUntilLabel(w.pausedUntil)),
           'battery' => t.vaWkStatusPausedBattery,
+          'saver' => t.vaWkStatusPausedSaver,
+          'locked' => t.vaWkStatusPausedLocked,
           'call' => t.vaWkStatusPausedCall,
           'mic_busy' => t.vaWkStatusPausedMic,
           _ => t.vaWkStatusPausedWake,
@@ -411,9 +437,19 @@ class _VoiceAssistantSettingsScreenState
           Expanded(
               child: Text(text,
                   style:
-                      TextStyle(color: scheme.onSurfaceVariant, fontSize: 13))),
+                      AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
         ]),
       );
+
+  /// NO SHOWPIECES: the card shows only when the wake word has shipped AND
+  /// this phone can really run it (server serves the model, native engine in
+  /// this build) — or it is already on. Never a "coming soon" card.
+  bool get _showWake =>
+      VaWake.shipped &&
+      _loaded &&
+      (_wake.isOn ||
+          {WakeBlock.none, WakeBlock.needsDisclosure}
+              .contains(_block(disclosure: false)));
 
   Widget _wakeCard(ColorScheme scheme) {
     final on = _wake.isOn;
@@ -425,7 +461,7 @@ class _VoiceAssistantSettingsScreenState
       WakeLevel.high => t.vaWkSensHighSub,
     };
     return _card(scheme,
-        icon: Icons.hearing_outlined,
+        icon: Icons.hearing_rounded,
         title: t.vaWkTitle,
         trailing: _busy
             ? SizedBox(
@@ -478,15 +514,24 @@ class _VoiceAssistantSettingsScreenState
             ),
             const SizedBox(height: Gap.xs),
             Text(levelSub,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ],
+          SwitchListTile(
+            key: const Key('va-wake-locked'),
+            contentPadding: EdgeInsets.zero,
+            value: _lockedOk,
+            title: Text(t.vaWkLockedSwitch,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(t.vaWkLockedSwitchSub),
+            onChanged: _busy ? null : _setLockedOk,
+          ),
           const SizedBox(height: Gap.md),
-          _note(scheme, Icons.lock_outline, t.vaWkPrivacy),
-          _note(scheme, Icons.pause_circle_outline, t.vaWkAutoPause),
-          _note(scheme, Icons.battery_alert_outlined, t.vaWkBatteryNote),
-          _note(scheme, Icons.screen_lock_portrait_outlined, t.vaWkLockedNote),
-          _note(scheme, Icons.verified_user_outlined, t.vaWkLockRules),
-          _note(scheme, Icons.restart_alt, t.vaWkRebootNote),
+          _note(scheme, Icons.lock_outline_rounded, t.vaWkPrivacy),
+          _note(scheme, Icons.pause_circle_outline_rounded, t.vaWkAutoPause),
+          _note(scheme, Icons.battery_alert_rounded, t.vaWkBatteryNote2),
+          _note(scheme, Icons.screen_lock_portrait_rounded, t.vaWkLockedNote),
+          _note(scheme, Icons.verified_user_rounded, t.vaWkLockRules),
+          _note(scheme, Icons.restart_alt_rounded, t.vaWkRebootNote),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
@@ -495,7 +540,7 @@ class _VoiceAssistantSettingsScreenState
                   MaterialPageRoute(
                       builder: (_) => WakeOemGuideScreen(
                           debugMaker: widget.debugStatic ? 'realme' : null))),
-              icon: const Icon(Icons.battery_saver_outlined),
+              icon: const Icon(Icons.battery_saver_rounded),
               label: Text(t.vaWkOemGuide),
             ),
           ),
@@ -504,7 +549,7 @@ class _VoiceAssistantSettingsScreenState
 
   Widget _ttsCard(ColorScheme scheme) {
     return _card(scheme,
-        icon: Icons.record_voice_over_outlined,
+        icon: Icons.record_voice_over_rounded,
         title: t.vaTtsTitle,
         trailing: Switch(
           value: _tts,
@@ -521,10 +566,32 @@ class _VoiceAssistantSettingsScreenState
             child: TextButton.icon(
               onPressed: () async {
                 final ok = await VaNative.openTtsSettings();
-                if (!ok) _snack(t.vaNeedsUpdate);
+                if (!ok) _snack(t.vaSettingsOpenFailed);
               },
-              icon: const Icon(Icons.download_outlined),
+              icon: const Icon(Icons.download_rounded),
               label: Text(t.vaTtsInstallBn),
+            ),
+          ),
+          // aivoice: hands-free follow-up on the Assisto Voice screen.
+          SwitchListTile(
+            key: const ValueKey('va_continue_switch'),
+            contentPadding: EdgeInsets.zero,
+            value: _continue,
+            title: Text(t.vaContinueTitle,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(t.vaContinueBody),
+            onChanged: (v) async {
+              setState(() => _continue = v);
+              await Settings.setBool(VaWake.continueKey, v);
+            },
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              key: const ValueKey('va_bangla_help'),
+              onPressed: () => VoiceHelpSheet.show(context),
+              icon: const Icon(Icons.help_outline_rounded),
+              label: Text(t.vaBanglaHelp),
             ),
           ),
         ]);
@@ -538,7 +605,7 @@ class _VoiceAssistantSettingsScreenState
       ('spotify', 'Spotify', VaNative.pkgSpotify),
     ];
     return _card(scheme,
-        icon: Icons.library_music_outlined,
+        icon: Icons.library_music_rounded,
         title: t.vaMusicTitle,
         children: [
           Text(t.vaMusicBody, style: TextStyle(color: scheme.onSurfaceVariant)),
@@ -567,7 +634,7 @@ class _VoiceAssistantSettingsScreenState
             ]),
           ),
           Text(t.vaMusicHonest,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]);
   }
 
@@ -587,21 +654,21 @@ class _VoiceAssistantSettingsScreenState
       t.vaExSos,
     ];
     return _card(scheme,
-        icon: Icons.tips_and_updates_outlined,
+        icon: Icons.tips_and_updates_rounded,
         title: t.vaTryTitle,
         children: [
           for (final e in ex)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.mic_none, size: 18, color: scheme.primary),
+                Icon(Icons.mic_none_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text('“$e”')),
               ]),
             ),
           const SizedBox(height: Gap.xs),
           Text(t.vaConfirmNote,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
         ]);
   }
 }

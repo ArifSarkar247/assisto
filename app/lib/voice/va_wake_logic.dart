@@ -21,7 +21,7 @@ extension WakeLevelX on WakeLevel {
   int get patience => this == WakeLevel.low ? 2 : 1;
 
   static WakeLevel parse(String? s) => WakeLevel.values
-      .firstWhere((l) => l.name == s, orElse: () => WakeLevel.normal);
+      .firstWhere((l) => l.name == s, orElse: () => WakeLevel.low); // wakeword: fewest false wakes by default
 }
 
 /// Server/CI thresholds per level (picked on validation data by the training

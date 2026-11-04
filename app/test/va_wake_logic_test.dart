@@ -51,8 +51,8 @@ void main() {
     });
     test('parse + bad values', () {
       expect(WakeLevelX.parse('high'), WakeLevel.high);
-      expect(WakeLevelX.parse(null), WakeLevel.normal);
-      expect(WakeLevelX.parse('loud'), WakeLevel.normal);
+      expect(WakeLevelX.parse(null), WakeLevel.low); // wakeword default = fewest false wakes
+      expect(WakeLevelX.parse('loud'), WakeLevel.low);
       final t = WakeThresholds.fromJson({'low': 0.2, 'normal': 0.6, 'high': 0.9});
       expect(t.low, 0.6); // never below normal
       expect(t.high, 0.6); // never above normal
@@ -112,6 +112,11 @@ void main() {
       expect(j['files']['e2e'], '/d/e.onnx');
       expect(j['texts']['title'], 'T');
       expect(j['windowSamples'], 12400);
+      // wakeword: never listens on a locked phone unless the user said yes
+      expect(j['lockedOk'], isFalse);
+      final j2 = jsonDecode(VaWake.nativeConfig(c, {'e2e': '/d/e.onnx', 'wake': '/d/w.onnx'},
+          WakeLevel.low, {'title': 'T'}, lockedOk: true));
+      expect(j2['lockedOk'], isTrue);
     });
   });
 

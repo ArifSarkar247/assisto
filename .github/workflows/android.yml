@@ -1238,21 +1238,13 @@ jobs:
           open(p, "w").write(s)
           print("Play manifest: BILLING permission kept (merged from in_app_purchase)")
           # ---- /pay1 ----
-          # ---- playall ---- declared-but-unused in the Play build: the "Hey
-          # Assisto" wake word is not shipped (VaWake.shipped needs the
-          # ASSISTO_WAKE_WORD dart-define, which no build passes), so its
-          # microphone foreground service must not be in the Play manifest (Play
-          # FGS review: every declared type needs a working, filmable feature).
-          # When the wake word ships, delete these lines AND pass the define.
+          # ---- wakeword ---- the opt-in "Hey Assisto" wake word SHIPS (4 Nov):
+          # its microphone foreground service stays in the Play manifest and is
+          # declared in owner_actions/WAKE_WORD_PLAY_BN.md (form text + video).
           s = open(p).read()
-          wake = ('<service android:name="com.assisto.assisto.voice.WakeWordService"'
-                  ' android:foregroundServiceType="microphone"'
-                  ' android:exported="false"/>')
-          assert wake in s, "WakeWordService declaration not found (manifest patch changed?)"
-          s = s.replace(wake, '')
-          open(p, "w").write(s)
-          print("Play manifest: WakeWordService removed (wake word not shipped)")
-          # ---- /playall ----
+          assert 'com.assisto.assisto.voice.WakeWordService' in s, "WakeWordService declaration missing"
+          print("Play manifest: WakeWordService kept (wake word shipped, declared)")
+          # ---- /wakeword ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
           #    versionCode = 10000 + run number: always above every website APK
@@ -1290,7 +1282,7 @@ jobs:
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
-          for C in voice.WakeWordService GeolocatorLocationService; do
+          for C in GeolocatorLocationService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
             fi

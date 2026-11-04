@@ -93,8 +93,13 @@ class VaWake {
   /// `--dart-define=ASSISTO_WAKE_WORD=true`). Even then the settings card only
   /// appears when the engine + server config are really ready on this phone —
   /// never a "coming soon" row.
+  ///
+  /// wakeword (4 Nov): SHIPPED — on-device openWakeWord engine + our own
+  /// licence-cleared model served by the Assisto server. The card still only
+  /// shows when the server really serves the model and the native engine is
+  /// in this build (`--dart-define=ASSISTO_WAKE_WORD=false` hides it again).
   static const bool shipped =
-      bool.fromEnvironment('ASSISTO_WAKE_WORD', defaultValue: false);
+      bool.fromEnvironment('ASSISTO_WAKE_WORD', defaultValue: true);
 
   static const prefKey = 'va_wake_on'; // bool, default false
   static const ttsKey = 'va_tts_on'; // bool, default true
@@ -103,6 +108,10 @@ class VaWake {
   static const disclosureKey = 'va_wake_disclosure_v1'; // bool
   static const levelKey = 'va_wake_level'; // low | normal | high
   static const _cfgCacheKey = 'va_wake_cfg_cache';
+  /// wakeword: listen while the phone is locked — OFF until the user says yes.
+  static const lockedKey = 'va_wake_locked_ok'; // bool, default false
+  static Future<bool> lockedOk() => Settings.getBool(lockedKey, false);
+  static Future<void> setLockedOk(bool v) => Settings.setBool(lockedKey, v);
 
   static Future<bool> wanted() => Settings.getBool(prefKey, false);
   static Future<void> setWanted(bool v) => Settings.setBool(prefKey, v);
@@ -185,6 +194,8 @@ class VaWake {
         'pausedTitle': t.vaWkNotifPausedTitle,
         'pausedUser': t.vaWkNotifPausedUser,
         'pausedBattery': t.vaWkStatusPausedBattery,
+        'pausedSaver': t.vaWkStatusPausedSaver,
+        'pausedLocked': t.vaWkStatusPausedLocked,
         'pausedCall': t.vaWkStatusPausedCall,
         'pausedMic': t.vaWkStatusPausedMic,
         'pausedWake': t.vaWkStatusPausedWake,
@@ -198,7 +209,7 @@ class VaWake {
 
   /// The JSON handed to the native service (also checked by tests).
   static String nativeConfig(VaWakeConfig c, Map<String, String> paths,
-          WakeLevel level, Map<String, String> texts) =>
+          WakeLevel level, Map<String, String> texts, {bool lockedOk = false}) =>
       jsonEncode({
         'backend': c.backend,
         'windowSamples': c.windowSamples,
@@ -207,6 +218,7 @@ class VaWake {
         'sha256': {for (final f in c.files) f.role: f.sha256},
         'thresholds': c.thresholds.toJson(),
         'level': level.key,
+        'lockedOk': lockedOk,
         'texts': texts,
       });
 
@@ -218,7 +230,8 @@ class VaWake {
     if (!c.available) return 'error:config';
     final paths = await ensureModels(c, onProgress: onProgress);
     if (paths == null) return 'error:download';
-    final r = await VaNative.wakeStart(nativeConfig(c, paths, level, texts));
+    final r = await VaNative.wakeStart(
+        nativeConfig(c, paths, level, texts, lockedOk: await lockedOk()));
     if (r == 'running') await setWanted(true);
     return r;
   }

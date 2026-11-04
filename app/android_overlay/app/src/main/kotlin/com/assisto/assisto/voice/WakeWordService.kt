@@ -18,7 +18,9 @@ import android.media.AudioRecord
 import android.media.AudioRecordingConfiguration
 import android.media.MediaRecorder
 import android.media.ToneGenerator
+import android.app.KeyguardManager
 import android.os.BatteryManager
+import android.os.PowerManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -69,7 +71,7 @@ class WakeWordService : Service() {
 
         // stopped | listening | paused | error
         @Volatile var state: String = "stopped"
-        // battery | call | mic_busy | user | wake | fgs_blocked | mic_blocked | engine:<x>
+        // battery | saver | locked | call | mic_busy | user | wake | fgs_blocked | mic_blocked | engine:<x>
         @Volatile var reason: String = ""
         @Volatile var pausedUntil: Long = 0L
 
@@ -294,6 +296,10 @@ class WakeWordService : Service() {
             try {
                 autoReason = when {
                     batteryLow() -> "battery"
+                    // wakeword (4 Nov): Battery Saver on -> pause (resumes when off)
+                    powerSaver() -> "saver"
+                    // never listen on a locked phone unless the user said yes
+                    lockedNoConsent() -> "locked"
                     inCall() -> "call"
                     otherAppRecording() -> "mic_busy"
                     else -> ""
@@ -316,6 +322,15 @@ class WakeWordService : Service() {
         lowBattery = !charging && (if (lowBattery) pct < RESUME_BATTERY else pct < LOW_BATTERY)
         return lowBattery
     }
+
+    private fun powerSaver(): Boolean = try {
+        getSystemService(PowerManager::class.java)?.isPowerSaveMode == true
+    } catch (ignored: Throwable) { false }
+
+    private fun lockedNoConsent(): Boolean = try {
+        !cfg.optBoolean("lockedOk", false) &&
+            getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
+    } catch (ignored: Throwable) { false }
 
     private fun inCall(): Boolean {
         val am = getSystemService(AudioManager::class.java) ?: return false
@@ -553,6 +568,8 @@ class WakeWordService : Service() {
             "" -> tx("body", "")
             "user" -> tx("pausedUser", "")
             "battery" -> tx("pausedBattery", "")
+            "saver" -> tx("pausedSaver", "")
+            "locked" -> tx("pausedLocked", "")
             "call" -> tx("pausedCall", "")
             "mic_busy" -> tx("pausedMic", "")
             else -> tx("pausedWake", "")
