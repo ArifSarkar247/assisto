@@ -103,6 +103,27 @@ void main() {
     expect(tester.widget<Switch>(_wakeSwitch()).value, isTrue);
   });
 
+  // wakeword: never listens on a locked phone without consent
+  testWidgets('locked-phone listening is OFF until the user turns it on', (tester) async {
+    await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
+    final sw = find.byKey(const Key('va-wake-locked'));
+    await _scrollTo(tester, sw);
+    expect(tester.widget<SwitchListTile>(sw).value, isFalse);
+    expect(await VaWake.lockedOk(), isFalse);
+    await tester.tap(sw);
+    await _settle(tester);
+    expect(await VaWake.lockedOk(), isTrue);
+    expect(tester.widget<SwitchListTile>(sw).value, isTrue);
+  });
+
+  testWidgets('default sensitivity is Low (fewest false wakes)', (tester) async {
+    expect(await VaWake.level(), WakeLevel.low);
+    await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
+    final t = _t(tester);
+    await _scrollTo(tester, find.text(t.vaWkSensLowSub));
+    expect(find.text(t.vaWkSensLowSub), findsOneWidget);
+  });
+
   testWidgets('sensitivity is saved', (tester) async {
     await _pump(tester, const VoiceAssistantSettingsScreen(debugStatic: true));
     final t = _t(tester);

@@ -29,6 +29,10 @@ enum VaAction {
   reminder,
   expense,
   sos,
+  // wakeword (4 Nov): Assisto's own real actions
+  circleMessage,
+  careCall,
+  safeJourney,
   unknown,
 }
 
@@ -119,6 +123,7 @@ class VaIntent {
       action == VaAction.call ||
       action == VaAction.sms ||
       action == VaAction.whatsapp ||
+      action == VaAction.circleMessage ||
       action == VaAction.sos;
 
   @override
@@ -662,6 +667,13 @@ class VoiceIntentParser {
     '\u09aa\u09be\u09a0\u09be\u0993', '\u09a7\u09be\u09b0', '\u09aa\u09c7\u09b2\u09be\u09ae', '\u09ac\u09c7\u09a4\u09a8', '\u0986\u09af\u09bc', '\u09a6\u09bf\u09b2\u09be\u09ae',
   ]);
 
+  // wakeword: Care Call / Safe Journey / My Circle (Assisto's own actions)
+  static final _careCall = _n(['care call', 'carecall', 'care kol', 'kear kol', '\u0995\u09c7\u09af\u09bc\u09be\u09b0 \u0995\u09b2', '\u0995\u09c7\u09af\u09bc\u09be\u09b0 \u0995\u09b2', '\u0995\u09c7\u09af\u09bc\u09be\u09b0\u0995\u09b2']);
+  static final _journey = _n(['safe journey', 'start journey', 'start a journey', 'share my journey', 'track my journey', 'nirapod jatra', 'nirapod jattra', 'safe jarni', 'sef jarni', '\u09a8\u09bf\u09b0\u09be\u09aa\u09a6 \u09af\u09be\u09a4\u09cd\u09b0\u09be', '\u09b8\u09c7\u09ab \u099c\u09be\u09b0\u09cd\u09a8\u09bf', '\u09af\u09be\u09a4\u09cd\u09b0\u09be \u09b6\u09c1\u09b0\u09c1']);
+  static final _circle = _n(['on my circle', 'in my circle', 'to my circle', 'my circle', 'assisto circle', 'circle e', 'circle te', '\u09b8\u09be\u09b0\u09cd\u0995\u09c7\u09b2\u09c7', '\u09ae\u09be\u0987 \u09b8\u09be\u09b0\u09cd\u0995\u09c7\u09b2', '\u09b8\u09be\u09b0\u09cd\u0995\u09c7\u09b2']);
+  static final _openOnly = _n(['open', 'kholo', 'khulo', 'show', 'dekhao', '\u0996\u09cb\u09b2\u09cb', '\u0996\u09c1\u09b2\u09cb', '\u0993\u09aa\u09c7\u09a8', '\u09a6\u09c7\u0996\u09be\u0993']);
+  static final _circleVerbs = _n(['write', 'tell', 'say', 'send', 'bolo', 'janao', 'bole dao', '\u09ac\u09b2\u09cb', '\u099c\u09be\u09a8\u09be\u0993', '\u09aa\u09be\u09a0\u09be\u0993']);
+
   static final _whatsapp = _n([
     'whatsapp', 'whats app', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u0985\u09cd\u09af\u09be\u09aa', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u09cd\u09af\u09be\u09aa', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u0986\u09aa',
   ]);
@@ -805,6 +817,52 @@ class VoiceIntentParser {
         (VaText.any(text, _expenseWords) || VaText.any(text, _currency)) &&
         !VaText.any(text, _notExpense)) {
       return _expense(raw, text, amt);
+    }
+
+    // 6b. wakeword: Care Call (before call: it contains "call").
+    if (VaText.any(text, _careCall)) {
+      final cc = extractClock(text);
+      var rest = text;
+      if (cc != null && cc.span.isNotEmpty) rest = rest.replaceFirst(cc.span, ' ');
+      rest = VaText.strip(rest, [..._careCall, ..._call, ..._timeWords])
+          .replaceAll(RegExp(r'\b\d+\b'), ' ');
+      final who = VaText.dropWords(rest, {
+        ..._fillers,
+        ...['for', 'with', 'set', 'up', 'start', 'make', 'schedule', 'daily',
+          'every', 'day', 'diye', 'jonno', 'chalu', 'at', 'am', 'pm'].map(VaText.norm),
+        VaText.norm('\u099c\u09a8\u09cd\u09af'), // jonno
+        VaText.norm('\u099a\u09be\u09b2\u09c1'), // chalu
+      });
+      return VaIntent(VaAction.careCall, raw,
+          target: who.isEmpty ? null : _stripKe(who), clock: cc);
+    }
+
+    // 6c. wakeword: Safe Journey ("start safe journey to Mirpur").
+    if (VaText.any(text, _journey)) {
+      var place = VaText.strip(text, _journey);
+      place = VaText.dropWords(place, {
+        ..._fillers,
+        ...['start', 'begin', 'share', 'my', 'koro', 'shuru', 'chalu'].map(VaText.norm),
+        VaText.norm('\u09b6\u09c1\u09b0\u09c1'), // shuru
+        VaText.norm('\u0995\u09b0\u09cb'), // koro
+      });
+      if (place.isEmpty && VaText.any(text, _openOnly)) {
+        return VaIntent(VaAction.openScreen, raw, route: 'journey');
+      }
+      return VaIntent(VaAction.safeJourney, raw,
+          target: place.isEmpty ? null : _stripLocative(place));
+    }
+
+    // 6d. wakeword: write in My Circle ("my circle e ammu ke likho khaiso").
+    if (!hasOpen &&
+        VaText.any(text, _circle) &&
+        !VaText.any(text, _whatsapp) &&
+        (VaText.any(text, _sms) || VaText.any(text, _circleVerbs))) {
+      final rest = VaText.strip(text, [..._circle, ..._sms, ..._circleVerbs]);
+      final tm = _targetAndMessage(rest, english: !VaText.isBangla(text));
+      if (tm.$1 != null) {
+        return VaIntent(VaAction.circleMessage, raw, target: tm.$1, message: tm.$2);
+      }
     }
 
     // 7. WhatsApp.

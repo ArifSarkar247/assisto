@@ -9,6 +9,7 @@ import '../screens/journey_sos_screen.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/reminders_nlp.dart';
+import 'va_assisto_actions.dart'; // wakeword
 import 'va_confirm_sheet.dart';
 import 'va_native.dart';
 import 'va_wake_logic.dart';
@@ -119,7 +120,20 @@ class VaExecutor {
           return await _reminder(i);
         case VaAction.expense:
           return await _expense(i);
+        case VaAction.circleMessage: // wakeword
+          return await circleMessage(i);
+        case VaAction.careCall:
+          return await careCall(i);
+        case VaAction.safeJourney:
+          return await safeJourney(i);
         case VaAction.unknown:
+          // wakeword: the AI router first (fixed actions only), then the agent
+          if (context.mounted) {
+            final routed = await VaRouter.ask(context, i.raw, lang: _lang);
+            if (routed != null && routed.action != VaAction.unknown) {
+              return await run(routed);
+            }
+          }
           return await agent(i.raw);
       }
     } catch (_) {
