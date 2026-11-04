@@ -839,7 +839,7 @@ class VoiceIntentParser {
 
     // 6c. wakeword: Safe Journey ("start safe journey to Mirpur").
     if (VaText.any(text, _journey)) {
-      var place = VaText.strip(text, _journey);
+      var place = VaText.strip(text, [..._journey, ..._open]);
       place = VaText.dropWords(place, {
         ..._fillers,
         ...['start', 'begin', 'share', 'my', 'koro', 'shuru', 'chalu'].map(VaText.norm),

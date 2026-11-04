@@ -24,16 +24,16 @@ class WakeDisclosureScreen extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final lang = Localizations.localeOf(context).languageCode;
     final points = <(IconData, String)>[
-      (Icons.phonelink_lock_outlined, t.vaWkDisc1),
-      (Icons.record_voice_over_outlined, t.vaWkDisc2),
-      (Icons.notifications_active_outlined, t.vaWkDisc3),
-      (Icons.pause_circle_outline, t.vaWkDisc4),
-      (Icons.toggle_off_outlined, t.vaWkDisc5),
+      (Icons.phonelink_lock_rounded, t.vaWkDisc1),
+      (Icons.record_voice_over_rounded, t.vaWkDisc2),
+      (Icons.notifications_active_rounded, t.vaWkDisc3),
+      (Icons.pause_circle_outline_rounded, t.vaWkDisc4),
+      (Icons.toggle_off_rounded, t.vaWkDisc5),
     ];
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           tooltip: t.vaWkDiscNo,
           onPressed: () => Navigator.pop(context, false),
         ),
@@ -93,7 +93,7 @@ class WakeDisclosureScreen extends StatelessWidget {
                             ? 'https://lifeassisto.com/privacy'
                             : 'https://lifeassisto.com/privacy?lang=en'),
                         mode: LaunchMode.externalApplication),
-                    icon: const Icon(Icons.open_in_new, size: 18),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
                     label: Text(t.vaWkDiscPolicy),
                   ),
                 ),

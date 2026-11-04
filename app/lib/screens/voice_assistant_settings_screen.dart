@@ -167,7 +167,7 @@ class _VoiceAssistantSettingsScreenState
       }
       try {
         await Permission.notification.request();
-      } catch (_) {}
+      } catch (_) {} // best-effort: optional; the wake listener works without it
       if (!mounted) return;
       final r = await VaWake.start(_cfg, _level, VaWake.texts(t),
           onProgress: (p) {
@@ -375,12 +375,13 @@ class _VoiceAssistantSettingsScreenState
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: widget.debugStatic
-                  ? () {}
-                  : () async {
-                      final r = await VaNative.openPowerKeySettings();
-                      if (r == null || r == 'none') _snack(t.vaDefOpenFailed);
-                    },
+              onPressed: () async {
+                // gallery/tests: no native half -> the honest "could not open" note
+                final r = widget.debugStatic
+                    ? null
+                    : await VaNative.openPowerKeySettings();
+                if (r == null || r == 'none') _snack(t.vaDefOpenFailed);
+              },
               icon: const Icon(Icons.power_settings_new_rounded),
               label: Text(t.vaDefPowerKey),
             ),

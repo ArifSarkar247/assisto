@@ -72,7 +72,9 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
 
   Future<void> _open(String kind) async {
     final t = AppLocalizations.of(context);
-    final r = widget.debugMaker != null ? 'oem' : await VaNative.openOemSettings(kind);
+    final r = widget.debugMaker != null
+        ? null // gallery/tests: no native half -> the honest "not opened" note
+        : await VaNative.openOemSettings(kind);
     if (!mounted) return;
     if (r == null || r == 'none') {
       ScaffoldMessenger.maybeOf(context)
@@ -116,9 +118,9 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _row(scheme, Icons.rocket_launch_outlined, t.vaOemAutostart),
+                  _row(scheme, Icons.rocket_launch_rounded, t.vaOemAutostart),
                   const SizedBox(height: Gap.sm),
-                  _row(scheme, Icons.battery_charging_full_outlined, t.vaOemBattery),
+                  _row(scheme, Icons.battery_charging_full_rounded, t.vaOemBattery),
                   const SizedBox(height: Gap.md),
                   Text(steps[fam]!, style: const TextStyle(height: 1.4)),
                   const SizedBox(height: Gap.md),
@@ -126,7 +128,7 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
                     Padding(
                       padding: const EdgeInsets.only(bottom: Gap.sm),
                       child: Row(children: [
-                        const Icon(Icons.check_circle, size: 18, color: Brand.success),
+                        const Icon(Icons.check_circle_rounded, size: 18, color: Brand.success),
                         const SizedBox(width: Gap.sm),
                         Expanded(child: Text(t.vaOemBatteryOk)),
                       ]),
@@ -135,12 +137,12 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
                     if (fam != OemFamily.samsung && fam != OemFamily.other)
                       FilledButton.tonalIcon(
                         onPressed: () => _open('autostart'),
-                        icon: const Icon(Icons.rocket_launch_outlined),
+                        icon: const Icon(Icons.rocket_launch_rounded),
                         label: Text(t.vaOemOpenAutostart),
                       ),
                     FilledButton.tonalIcon(
                       onPressed: () => _open('battery'),
-                      icon: const Icon(Icons.battery_saver_outlined),
+                      icon: const Icon(Icons.battery_saver_rounded),
                       label: Text(t.vaOemOpenBattery),
                     ),
                   ]),
