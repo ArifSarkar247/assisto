@@ -24987,5 +24987,8 @@
   "cityLearnDelete": "কাঁচা তথ্য ৭ দিনের মধ্যে মুছে ফেলা হয়। কখনো বিক্রি বা কারও সঙ্গে শেয়ার করা হয় না।",
   "cityLearnOff": "যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন।",
   "cityLearnAgree": "আমি রাজি",
-  "cityLearnNo": "না, ধন্যবাদ"
+  "cityLearnNo": "না, ধন্যবাদ",
+  "myBusinessTitle": "আমার ব্যবসা",
+  "hv2TileCityService": "সিটি সার্ভিস",
+  "hv2NewBadge": "নতুন"
 }
