@@ -6,26 +6,26 @@ Old history (3–9 Nov): owner_actions/archive/RESUME_PLAN_until_9nov.md and arc
 The 3 Nov STOP ORDER pause is OVER (owner resumed 4 Nov 02:25 and 9 Nov 10:05) — nothing here is paused.
 
 ## 1. Owner phone-test bugs (always first)
-- Place search "limit reached" / V1 screen (P0 19:40) — root cause found; fix **IN PROGRESS (build 322 = integration 309, in CI tonight)**.
+- Place search "limit reached" / V1 screen (P0 19:40) — root cause found; fix **IN PROGRESS (build next build after 324 = integration 309, in CI tonight)**.
 - Owner phone tests pending → see the short list at the bottom.
 
 ## 2. Safe Journey V2 (owner_actions/SAFE_JOURNEY_V2_SPEC_BN.md)
-- False "Arrived" fix (distance + earliest time + PIN) — **DONE (321)**.
-- Start screen, merged search (own BD list), arrival window card, private traveler prompt, alert ladder, PINs, watcher board, web arrival window — **IN PROGRESS (322, CI tonight)**.
+- False "Arrived" fix (distance + earliest time + PIN) — **DONE (324)**.
+- Start screen, merged search (own BD list), arrival window card, private traveler prompt, alert ladder, PINs, watcher board, web arrival window — **IN PROGRESS (next build after 324, CI tonight)**.
 - "From = my current location" row, Bike + Walk modes, watcher chips, plate photo on start, "Going to Office?" suggestion, all unions + hospitals in place list — **IN PROGRESS (agent sjstart2)**.
 - Children corner — **DONE in code, waiting for integration (b310 queue)**.
 - Train screen + destination alarm — **DONE in code, waiting for integration (b310 queue)**.
 - Two-phone real trip (Badda → Gazipur) — **WAITING FOR OWNER (phone test)**.
 
 ## 3. Family Care V3 (owner_actions/FAMILY_CARE_V3_SPEC_BN.md)
-- SOS v3 sender + receiver (offline SMS app path, DND ring) — **DONE (321)**.
+- SOS v3 sender + receiver (offline SMS app path, DND ring) — **DONE (324)**.
 - Arrive/leave news while app open; background watch behind switch OFF — **DONE (320)**.
 - Family screen + widget — **DONE in code, waiting for integration (b310 queue)**.
 - Elder Easy Home + Silent Watch (+ 90-day retention) — **DONE in code, waiting for integration (b310 queue)**.
 - Background location for auto arrive/leave — **WAITING FOR OWNER (Play declaration + video approval)**.
 
 ## 4. CCTV Guard V3 (owner_actions/CCTV_V3_SPEC_BN.md)
-- Phone camera fixes, remote alert video, continuous recording, 30-day clips — **DONE (321)**.
+- Phone camera fixes, remote alert video, continuous recording, 30-day clips — **DONE (324)**.
 - Shop Box PC download — **DONE (lifeassisto.com/get#shopbox, 9 Nov)**.
 - Brand clouds Imou / EZVIZ / Hik-Connect + DVR health + discovery — **DONE in code, waiting for integration (b310)**.
 - Dahua DoLynk real integration from the owner's docs (Open IoT + Open ARC) — **IN PROGRESS (agent dolynkreal)**.
@@ -45,7 +45,7 @@ The 3 Nov STOP ORDER pause is OVER (owner resumed 4 Nov 02:25 and 9 Nov 10:05) �
 - **DONE in code, waiting for integration (b310)**.
 
 ## 7. AI chat quality + nightly AI exam
-- AI on Claude while Gemini is off — **DONE (321)**; pricing v2 applied — **DONE (9 Nov live)**.
+- AI on Claude while Gemini is off — **DONE (324)**; pricing v2 applied — **DONE (9 Nov live)**.
 - Exam update + quality pass — **IN PROGRESS (agent aiqual)**; turning the nightly exam on — **WAITING FOR OWNER/lead after aiqual**.
 
 ## 8. Business AI pillars
@@ -63,6 +63,6 @@ Play prices + Play Console list · Premium AI / trial / commission decision · C
 |---|---|
 | 318 | Two phones signed in at once; My Circle quiet hours; message sound with app closed |
 | 320 | Khata "send due link" opens in another phone's browser; Family Care arrive news while app open |
-| 321 | CCTV two-phone test (CCTV_TEST_TODAY_BN.md); SOS v3 on two phones; Imou test camera |
-| 322 (tonight) | Type "Gaibandha" → suggestions, no limit message; start a journey → watcher board on the other phone |
+| 324 | CCTV two-phone test (CCTV_TEST_TODAY_BN.md); SOS v3 on two phones; Imou test camera |
+| next (tonight) | Type "Gaibandha" → suggestions, no limit message; start a journey → watcher board on the other phone |
 | 302/304 | My Circle bubbles, albums, view once (still not tested) |
