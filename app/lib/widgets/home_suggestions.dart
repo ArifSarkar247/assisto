@@ -16,6 +16,7 @@ import '../theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase; // svcclean
 import 'chatnav.dart';
 import 'home_quick_buttons.dart' show HomeQuickButtons; // svcclean
+import '../perf/disk_image.dart'; // faststart
 import '../services/action_feedback.dart'; // db1
 import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 
@@ -757,8 +758,8 @@ class DiscoverCardTile extends StatelessWidget {
             if (img != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.sm),
-                child: Image.network(
-                  img,
+                child: Image(
+                  image: DiskCachedImage(img), // faststart: saved on the phone
                   width: 46,
                   height: 46,
                   fit: BoxFit.cover,
@@ -909,7 +910,8 @@ class DiscoverCardV2 extends StatelessWidget {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: img != null
-                          ? Image.network(img,
+                          ? Image(
+                              image: DiskCachedImage(img), // faststart
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Center(child: icon))
                           : Center(child: icon),

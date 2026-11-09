@@ -48,6 +48,7 @@ import '../screens/circle_group_info_screen.dart';
 import '../screens/messenger/contact_info_screen.dart';
 import 'chat_menu_pickers.dart' show showChatReportPicker;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../perf/perf_marks.dart'; // faststart (CI-only define)
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -329,6 +330,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _lists = [];
     }
     if (mounted) setState(() => _loading = false);
+    // faststart: the network refresh finished (CI profile APK only)
+    if (PerfMarks.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => PerfMarks.once(
+          _loadFailed ? 'circle_list_failed' : 'circle_list_fresh'));
+    }
   }
 
   /// a1-circle: record each peer's CURRENT key (so a later change keeps the
@@ -1061,6 +1067,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
+    // faststart: the chat list is VISIBLE (cached or fresh; CI profile only)
+    if (PerfMarks.enabled && (_chats.isNotEmpty || !_loadFailed)) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => PerfMarks.once('circle_list_frame'));
+    }
     if (_loadFailed && _chats.isEmpty) {
       return Column(children: [
         if (widget.header != null) widget.header!,

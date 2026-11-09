@@ -381,6 +381,24 @@ void main() {
       expect(ads.appOpens, 0);
       expect(api.paths.where((p) => p.startsWith('/ads/slot')), isEmpty);
     });
+
+    // faststart (owner 10 Nov): never an app-open ad offline — not even a
+    // config or slot request is made.
+    testWidgets('service: offline shows nothing and asks the server nothing',
+        (tester) async {
+      final api = _AdsApi(serverCfg());
+      final app = _app(api);
+      final ads = _FakeFullScreen();
+      AdsService.instance.bridge = ads;
+      AdsService.instance.debugNativeSuppressed = () async => false;
+      AdsService.instance.debugOnline = () async => false;
+      AdsService.instance.attachForTest(app);
+      await AdsService.instance
+          .maybeShowAppOpen(resumed: true, backgroundFor: const Duration(minutes: 5));
+      expect(ads.appOpens, 0);
+      expect(api.paths.where((p) => p.startsWith('/ads/')), isEmpty);
+      AdsService.instance.debugOnline = null;
+    });
   });
 
   // ------------------------------------------------------------- interstitial

@@ -21,6 +21,7 @@ import 'services/own_device_guard.dart'; // grab-guard
 import 'crypto/e2e.dart';
 import 'crypto/key_service.dart';
 import 'crypto/identity_vault.dart';
+import 'perf/perf_marks.dart'; // faststart: startup step marks (CI-only define)
 
 class AppState extends ChangeNotifier {
   ApiClient api = ApiClient(); // non-final so tests/previews can inject a fake
@@ -261,25 +262,32 @@ class AppState extends ChangeNotifier {
     // Startup must ALWAYS finish (loading=false) even if storage/db/network
     // misbehave — otherwise the app hangs on the splash spinner. Each piece is
     // guarded independently so one failure never blocks the rest.
+    PerfMarks.once('init_begin'); // faststart
     try {
       await _loadPrefs();
     } catch (_) {}
+    PerfMarks.once('init_prefs'); // faststart
     // feature-flags: last known visible-feature set (offline = last known;
     // first run = registry defaults), then a background refresh.
     try {
       await FeatureFlags.instance.load();
     } catch (_) {}
+    PerfMarks.once('init_flags'); // faststart
     String? t;
     try {
       t = await SecretStore.instance.read('token');
       api.token = t;
     } catch (_) {}
+    PerfMarks.once('init_token'); // faststart
     try {
-      memory = await db.allMemory();
-      for (final r in _repos) {
-        await r.load();
-      }
+      // faststart: the 9 local reads run together (one wait, not nine
+      // platform round trips in a row — ~100-150 ms on a 2 GB phone)
+      await Future.wait<void>([
+        db.allMemory().then((m) => memory = m),
+        for (final r in _repos) r.load(),
+      ]);
     } catch (_) {}
+    PerfMarks.once('init_db'); // faststart
     if (t != null) {
       try {
         user = await api.me();
@@ -301,6 +309,7 @@ class AppState extends ChangeNotifier {
         }
       }
     }
+    PerfMarks.once('init_auth'); // faststart: after the /me wait (if any)
     loading = false;
     notifyListeners();
     unawaited(FeatureFlags.instance.refreshWith(api)); // feature-flags
