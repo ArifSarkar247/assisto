@@ -243,6 +243,8 @@ import 'fake_fcscreen.dart'; // fcscreen
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/emergency_hub_screen.dart';
+import 'package:assisto/screens/merged/phone_tiles.dart'; // svcclean
+import 'package:assisto/screens/home_v2/all_services_screen.dart' show AllServicesScreen; // svcclean
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
@@ -1046,6 +1048,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     // emhub: the Emergency hub (SOS first, 999, then the rest by urgency)
     'emergency_hub': (build: (_) => const EmergencyHubScreen(), mode: FakeMode.data, full: true),
+    // svcclean (owner 10 Nov): All Services after the cleanup + the merged tiles
+    'svc_all_services': (build: (_) => const AllServicesScreen(), mode: FakeMode.data, full: true),
+    'svc_lost_phone': (build: (_) => const LostPhoneTileScreen(), mode: FakeMode.data, full: true),
+    'svc_phone_safety': (build: (_) => const PhoneSafetyTileScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
     // remmeter: delivery check + recharge paths (sheets shown as pages)
     'rem_check': (build: (_) {

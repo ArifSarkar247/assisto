@@ -15,6 +15,8 @@ import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
 import '../family_sos/sos_setup_card.dart'; // fcsos
 import 'emergency_screen.dart';
+import 'fall_detect_screen.dart'; // svcclean
+import '../services/sos_trigger_settings.dart'; // svcclean
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
 
@@ -44,7 +46,17 @@ class EmergencyHubScreen extends StatefulWidget {
     this.locate,
     this.ladderLoad,
     this.famCard,
+    this.open,
+    this.fallOn,
   });
+
+  /// svcclean: an OLD route that now lives inside Emergency ('fall_detect')
+  /// lands here and opens that section on top (Back returns here).
+  final String? open;
+
+  /// svcclean test seam: is accident & fall detection on (default: the
+  /// phone setting [SosTriggerSettings]).
+  final Future<bool> Function()? fallOn;
 
   /// Route name (ChatNav / feature_registry / ad never-list).
   static const route = 'emergency_hub';
@@ -81,6 +93,32 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
   List<Map<String, String>> _crisis = const [];
   bool _crisisLoaded = false;
   String? _lang;
+  bool? _fallOn; // svcclean: null = not read yet
+
+  @override
+  void initState() {
+    super.initState();
+    _readFall();
+    if (widget.open == 'fall_detect') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openFall();
+      });
+    }
+  }
+
+  Future<void> _readFall() async {
+    bool on = false;
+    try {
+      on = await (widget.fallOn ??
+          () async => (await SosTriggerSettings.load()).fallOn)();
+    } catch (_) {/* best-effort: the row just says Off */}
+    if (mounted) setState(() => _fallOn = on);
+  }
+
+  Future<void> _openFall() async {
+    await _push(const FallDetectScreen(), 'fall_detect');
+    if (mounted) await _readFall();
+  }
 
   @override
   void didChangeDependencies() {
@@ -284,6 +322,14 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           subtitle: t.emhNearbySub,
           onTap: () => _push(const NearbyScreen(placeType: 'police'), 'nearby'),
         ),
+        // svcclean: fire station from the same Nearby list
+        _HubTile(
+          id: 'fire',
+          icon: Icons.local_fire_department_rounded,
+          title: t.svcEmFire,
+          subtitle: t.emhNearbySub,
+          onTap: () => _push(const NearbyScreen(placeType: 'fire'), 'nearby'),
+        ),
       ],
       _HubTile(
         id: 'famcard',
@@ -295,6 +341,27 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           if (mounted) await _loadLocal(); // show the card's new blood group / numbers
         },
       ),
+      // svcclean: the old "Emergency" tile (contacts + emergency card) is a
+      // section of this one Emergency screen now.
+      _HubTile(
+        id: 'contacts',
+        icon: Icons.contact_phone_rounded,
+        title: t.svcEmContacts,
+        subtitle: t.svcEmContactsSub,
+        onTap: () async {
+          await _push(const EmergencyScreen(), 'emergency');
+          if (mounted) await _loadLocal();
+        },
+      ),
+      // svcclean: the old "Accident / fall detection" tile, with its state
+      if (FallDetectScreen.engineShipped && ff.isOn('fall_detect'))
+        _HubTile(
+          id: 'fall',
+          icon: Icons.monitor_heart_rounded,
+          title: t.fallDetectTitle,
+          subtitle: _fallOn == true ? t.svcEmFallOn : t.svcEmFallOff,
+          onTap: _openFall,
+        ),
       if (ff.routeAllowed('blood_panel'))
         _HubTile(
           id: 'blood',
@@ -319,7 +386,8 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           icon: Icons.phonelink_lock_rounded,
           title: t.emhLost,
           subtitle: t.emhLostSub,
-          onTap: () => ChatNav.push(context, 'lost_stolen'),
+          // svcclean: straight to "act now" inside the one Lost phone tile
+          onTap: () => ChatNav.push(context, 'my_lost_phone'),
         ),
       if (ff.isOn('safe_journey'))
         _HubTile(
@@ -332,7 +400,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.emhTitle)),
+      appBar: AppBar(title: Text(t.svcEmergency)),
       body: ListView(
         key: const ValueKey('emh-list'),
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
@@ -446,7 +514,7 @@ class _HubTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       clipBehavior: Clip.antiAlias,
@@ -454,9 +522,10 @@ class _HubTile extends StatelessWidget {
         key: ValueKey('emh-$id'),
         minVerticalPadding: Gap.sm,
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+        // svcclean: red accent — this is the ONE Emergency screen
         leading: CircleAvatar(
-          backgroundColor: scheme.secondaryContainer,
-          foregroundColor: scheme.onSecondaryContainer,
+          backgroundColor: Brand.danger.withValues(alpha: 0.14),
+          foregroundColor: dark ? Brand.danger : Brand.dangerFill,
           child: Icon(icon),
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
