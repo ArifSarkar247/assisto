@@ -41,7 +41,8 @@ class FcMemberCard extends StatelessWidget {
     if (st.state == 'stale') return t.fc3StateStale;
     final c = member['chip'];
     if (c is! Map) return st.state == 'paused' ? t.fc3ChipPaused : null;
-    final place = '${c['place'] ?? ''}'.trim();
+    final pk = fcPlace(context, {'place_kind': c['place_kind'], 'place_label': c['place']});
+    final place = pk.isNotEmpty ? pk : '${c['place'] ?? ''}'.trim();
     final auto = c['auto'] == true ? ' · ${t.fc3ChipAuto}' : '';
     return switch ('${c['kind']}') {
       'arrived' => '${t.fc3ChipArrived(place, fcClock(context, c['at']))}$auto',

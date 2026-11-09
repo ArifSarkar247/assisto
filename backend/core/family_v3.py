@@ -602,10 +602,13 @@ def _chip(status, brain, cc, now):
     if cc and cc.get("missed"):
         return {"kind": "carecall_missed"}
     ev = brain.get("last_event") if isinstance(brain.get("last_event"), dict) else None
-    if ev and ev.get("kind") in ("arrived", "left", "journey"):
+    kind = {"arrive": "arrived", "leave": "left"}.get(ev.get("kind"), ev.get("kind")) if ev else None
+    if ev and kind in ("arrived", "left", "journey"):
         at = FS.parse_ts(ev.get("at"))
         if at is not None and now - at <= timedelta(hours=12):
-            return {"kind": ev["kind"], "at": ev.get("at"), "place": ev.get("place") or "",
+            return {"kind": kind, "at": ev.get("at"),
+                    "place": ev.get("place") or ev.get("place_label") or "",
+                    "place_kind": ev.get("place_kind") or "",
                     "eta": ev.get("eta"), "auto": bool(ev.get("auto", True))}
     if cc and cc.get("done"):
         return {"kind": "carecall_done"}
@@ -637,7 +640,8 @@ def member_rows(viewer, family_id, now=None):
             "brain": {k: brain.get(k) for k in
                       ("last_seen", "battery", "charging", "net", "bg_restricted",
                        "paused_until", "interval_s", "place_label", "place_kind",
-                       "last_event", "brand") if k in brain},
+                       "place_since", "last_event", "brand", "auto_arrive", "watch_on")
+                      if k in brain},
             "status": status, "chip": _chip(status, brain, cc.get(u.id), now),
             "carecall": cc.get(u.id) or {"done": 0, "missed": 0, "pending": 0},
         })

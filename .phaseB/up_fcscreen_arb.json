@@ -295,6 +295,7 @@
   "fc3MoreAdd": "Add member",
   "fc3MoreMembers": "Members and reminders",
   "fc3MoreMedical": "Medicines and care",
+  "fc3MorePrivacy": "Privacy & alerts",
   "fc3MoreLeave": "Leave this family",
   "fc3LeaveConfirm": "Leave “{family}”? They will stop seeing you and you stop seeing them. You can be invited again later.",
   "@fc3LeaveConfirm": {
@@ -523,6 +524,7 @@
   "fc3MoreAdd": "সদস্য যোগ করুন",
   "fc3MoreMembers": "সদস্য ও রিমাইন্ডার",
   "fc3MoreMedical": "ওষুধ ও যত্ন",
+  "fc3MorePrivacy": "গোপনীয়তা ও সতর্কতা",
   "fc3MoreLeave": "এই পরিবার ছেড়ে দিন",
   "fc3LeaveConfirm": "“{family}” ছেড়ে দেবেন? তাঁরা আর আপনাকে দেখবেন না, আপনিও তাঁদের দেখবেন না। পরে আবার আমন্ত্রণ পেলে যোগ দিতে পারবেন।",
   "fc3Leave": "ছেড়ে দিন",

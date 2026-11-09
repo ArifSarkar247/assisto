@@ -280,6 +280,12 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
             'role': m['role'],
             'placeLabel': fcPlace(context, m['brain'] as Map?),
             'state': fcRecheck(m, _now).state,
+            'reason': fcRecheck(m, _now).reason,
+            'relation': m['relation'],
+            'lastSeen': (m['brain'] as Map?)?['last_seen'],
+            'battery': (m['brain'] as Map?)?['battery'],
+            'paused': fcRecheck(m, _now).state == 'paused',
+            'me': m['me'] == true,
           }
       ]);
 
@@ -762,6 +768,11 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         row(const ValueKey('fc3-more-medical'), Icons.medication_rounded, t.fc3MoreMedical,
             () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const FamilyScreen(initialTab: 'today')))),
+      if (FcSlots.privacyScreen != null && _fid != null)
+        row(const ValueKey('fc3-more-privacy'), Icons.privacy_tip_rounded, t.fc3MorePrivacy,
+            () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (c) => FcSlots.privacyScreen!(c, _fid!)))
+                .then((_) => _load())),
       row(const ValueKey('fa100-tile'), Icons.notifications_active_rounded, t.fa100Title,
           () => Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => const FamilyAlertsScreen()))

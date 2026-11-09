@@ -8,6 +8,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/skeleton.dart';
 import 'fc_api.dart';
 import 'fc_member_card.dart';
+import 'fc_slots.dart';
 import 'fc_status.dart';
 import 'fc_text.dart';
 
@@ -159,6 +160,17 @@ class _FcMemberPageState extends State<FcMemberPage> {
                     s['sees_place'] == false ? t.fc3SeenByNoPlace : t.fc3SeenByPlace,
                     ...((s['families'] as List?) ?? const []).map((f) => '$f'),
                   ].join(' · ')),
+                ),
+              if (me && FcSlots.privacyScreen != null)
+                ListTile(
+                  key: const ValueKey('fc3-member-privacy'),
+                  contentPadding: EdgeInsets.zero,
+                  minTileHeight: 56,
+                  leading: const Icon(Icons.privacy_tip_rounded),
+                  title: Text(t.fc3MorePrivacy),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (c) => FcSlots.privacyScreen!(c, widget.familyId))),
                 ),
               const SizedBox(height: Gap.sm),
               Row(children: [

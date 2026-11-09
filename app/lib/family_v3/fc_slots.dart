@@ -37,6 +37,10 @@ class FcSlots {
   /// POST /family/brain/ask.
   static FcAskAnswer? Function(String question, FcAskContext ctx)? askParser;
 
+  /// fcbrain: "Privacy & alerts" (who can see me, pause 1/2/8 h, arrival
+  /// news, night news, leave). null = the row is not shown.
+  static Widget Function(BuildContext context, int familyId)? privacyScreen;
+
   /// fcelder: extra More rows (Elder easy home, set up an elder phone).
   static List<Widget> Function(BuildContext context, int familyId)? moreRows;
 }
