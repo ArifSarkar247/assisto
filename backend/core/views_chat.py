@@ -328,8 +328,8 @@ CONTINUE_NOTE = (
     "আবার লিখবে না; ক্রমিক নম্বর আগের মতোই চলবে (শেষ ধাপ ৪ হলে ৫ থেকে শুরু); একই ভাষায় "
     "উত্তরটি শেষ করো এবং শেষে একটি পরিষ্কার পরের ধাপ দাও।",
     "Your previous answer stopped at its length limit; the user saw it up to its last full "
-    "sentence. Continue EXACTLY from that point — no greeting, no summary again, never repeat "
-    "a heading, step or sentence already written; keep the numbering going (if the last step "
+    "sentence. Continue EXACTLY from that point — no greeting, no summary again; do not repeat "
+    "anything already written (no heading, step or sentence again); keep the numbering going (if the last step "
     "was 4, start at 5); same language; finish the whole answer and end with one clear next step.")
 MORE_NOTE = (
     "আগের উত্তরটি আরও গভীরভাবে বাড়াও: শুধু নতুন তথ্য, উদাহরণ ও ধাপ যোগ করো; আগে যা বলা হয়েছে "
