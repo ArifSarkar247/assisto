@@ -45,7 +45,7 @@ jobs:
         run: python -m shopbox.model_fetch models/yolox_nano.onnx
       - name: COCO val2017 annotations (CC BY 4.0)
         run: |
-          curl -sSfL -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
           unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
       # cctvacc: OWNER CLIPS (optional, private). The owner's labeled clips
       # live ONLY in a private bucket; the Actions secret CCTV_OWNER_CLIPS_URL

@@ -516,6 +516,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
         title: Text(t.fcsSentTitle),
         backgroundColor: kSosRed,
         foregroundColor: Colors.white,
+        titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(color: Colors.white), // theme title colour would override foregroundColor (a11y contrast)
       ),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
@@ -655,7 +656,8 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
       appBar: AppBar(
           title: Text(t.fcsOfflineTitle),
           backgroundColor: kSosRed,
-          foregroundColor: Colors.white),
+          foregroundColor: Colors.white,
+          titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(color: Colors.white)), // theme title colour would override foregroundColor (a11y contrast)
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
