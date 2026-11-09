@@ -72,7 +72,7 @@ const _v3Default = [
 const _ownerOrder = [
   'family',
   'journey',
-  'city_service',
+  'city',
   'crm',
   'business',
   'sales_agent',
@@ -193,7 +193,7 @@ void main() {
       expect(HomeV2Shortcuts.ownerOrder, _ownerOrder);
       expect(HomeV2Shortcuts.max, 11);
       expect(HomeV2Shortcuts.defaults(), _newDefault);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['city_service', 'blood_panel']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['city', 'blood_panel']);
       expect(HomeV2Shortcuts.defaults(), isNot(contains('khata')));
       for (final r in _removed) {
         expect(HomeV2Shortcuts.defaults(), isNot(contains(r)), reason: r);
@@ -250,7 +250,7 @@ void main() {
       final d = HomeV2Shortcuts.defaults();
       expect(d.length, 11);
       expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['city_service']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['city']);
       // My Circle stays pinned outside the 11; money moves to Edit / All
       // services (still pinnable)
       expect(d, isNot(contains('circle')));
@@ -266,7 +266,7 @@ void main() {
       // the owner's defaults lead the Edit list, in order
       expect(cat.take(10).toList(), _newDefault.take(10).toList());
       // City Service has no screen in this build -> not offered (no dead tile)
-      expect(cat, isNot(contains('city_service')));
+      expect(cat, isNot(contains('city')));
     });
 
     test('flag OFF for this user -> skipped honestly, next real one fills',
@@ -277,7 +277,7 @@ void main() {
       expect(d.length, 11);
       expect(d.last, 'notes');
       expect(HomeV2Shortcuts.skippedDefaults(),
-          ['city_service', 'crm', 'blood_panel']);
+          ['city', 'crm', 'blood_panel']);
       // business off -> its slot filled too
       FeatureFlags.instance.debugOverride = {'business': false};
       d = HomeV2Shortcuts.defaults();

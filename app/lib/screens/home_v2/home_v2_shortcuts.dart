@@ -41,7 +41,7 @@ import 'home_v2_tokens.dart';
 const String kHomeSosRoute = 'emergency_hub';
 
 /// homeshort (owner 9 Nov): the ChatNav route of the City Service screen.
-const String kCityServiceRoute = 'city_service';
+const String kCityServiceRoute = 'city';
 
 class HomeV2Shortcuts {
   HomeV2Shortcuts._();
