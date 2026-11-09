@@ -74,3 +74,22 @@ bool trainIsEmergency(String text, [List<String> bangla = const []]) {
   }
   return bangla.any(t.contains);
 }
+
+/// sjtrain (Safe Journey V2): the crowd-sourced seat card.
+extension TrainSeatApi on ApiClient {
+  Future<Map<String, dynamic>> trainSeat(String no, String date, String coach, String seat) =>
+      getJson('/train/$no/seat?date=$date&coach=${Uri.encodeQueryComponent(coach)}'
+          '&seat=${Uri.encodeQueryComponent(seat)}');
+
+  Future<Map<String, dynamic>> trainSeatAnswer(String no, String date, String coach, String seat,
+          {String facing = '', String place = '', String side = '', int? coachPos}) =>
+      postJson('/train/$no/seat', {
+        'date': date,
+        'coach': coach,
+        'seat': seat,
+        if (facing.isNotEmpty) 'facing': facing,
+        if (place.isNotEmpty) 'place': place,
+        if (side.isNotEmpty) 'side': side,
+        if (coachPos != null) 'coach_pos': coachPos,
+      });
+}

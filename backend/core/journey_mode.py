@@ -161,6 +161,9 @@ def train_link(j, now=None, viewer=None):
         "to_eta": to_at.isoformat() if to_at and not passed else None,
         "delay_min": delay,
         "passed": passed,
+        # sjtrain: how many passengers' phones the live position comes from
+        # (works while the traveller's own phone is offline)
+        "sharers": int(live.get("sharers") or 0) if basis == "live" else 0,
         "url_route": "train/%s" % t["no"],
     }
 

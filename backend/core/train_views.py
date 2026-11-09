@@ -16,6 +16,10 @@ leaving a chat are privacy controls and are NEVER flag-gated.
   POST /train/chat/request/<id>/accept|decline
   POST /train/alarm/arrived {stop, circle_ids}   sjalarm: optional family notice
                                                  after "I am awake" (flag dest_alarm)
+  GET  /train/<no>/seat?coach=&seat=&date=        sjtrain: seat card (crowd, unverified
+                                                 until 3 agree; sun side calculated)
+  POST /train/<no>/seat {date, coach, seat, facing, place, side, coach_pos}
+                                                 sjtrain: one-tap answers after a trip
   GET  /train/trace                              sjalarm: my uploaded traces (owner-only)
   POST /train/trace {name, trace}                sjalarm: owner-only private upload
 """
@@ -92,6 +96,37 @@ class LiveView(APIView):
         if err:
             return err
         return R(TS.live_view(t, d, request.user))
+
+
+class SeatView(APIView):
+    """sjtrain: the crowd-sourced seat card (no names, no user ids)."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, no):
+        if not flag_on(request.user):
+            return _off()
+        q = request.query_params
+        t, d, err = _train_date(no, q.get("date") or TS.today().isoformat())
+        if err:
+            return err
+        key = TS.clean_seat_key(q.get("coach"), q.get("seat"))
+        if key is None:
+            return _bad("bad_seat")
+        return R(TS.seat_view(t, key[0], key[1], d, request.user))
+
+    def post(self, request, no):
+        if not flag_on(request.user):
+            return _off()
+        t, d, err = _train_date(no, request.data.get("date"))
+        if err:
+            return err
+        key = TS.clean_seat_key(request.data.get("coach"), request.data.get("seat"))
+        if key is None:
+            return _bad("bad_seat")
+        v, why = TS.seat_answer(request.user, t, d, key[0], key[1], request.data)
+        if why:
+            return _bad(why, 429 if why == "rate_limited" else 400)
+        return R(dict(v, ok=True))
 
 
 class ShareStartView(APIView):
@@ -252,8 +287,9 @@ class AlarmArrivedView(APIView):
         from . import sjalarm as SJ
         if not flag_on(request.user, "dest_alarm"):
             return _off()
+        kind = "get_off" if request.data.get("kind") == "get_off" else "arrived"   # sjtrain
         stats, why = SJ.notify_arrived(request.user, request.data.get("stop"),
-                                       request.data.get("circle_ids"))
+                                       request.data.get("circle_ids"), kind=kind)
         if why:
             return _bad(why)
         return R({"ok": True, "recipients": stats.get("recipients", 0),
