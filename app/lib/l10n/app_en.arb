@@ -45076,5 +45076,270 @@
   "fcbSaveFailed": "Could not save. Check the internet and try again.",
   "fcbLoadFailed": "Could not load your family settings.",
   "fcbRetry": "Try again",
-  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess.",
+  "ccnEntry": "Connect DVR brand app",
+  "@ccnEntry": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnTitle": "Connect your DVR / camera brand",
+  "@ccnTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnIntro": "See the cameras you already have, right here in Assisto — live, recordings and the camera's own alerts. No computer needed.",
+  "@ccnIntro": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnLinkedTitle": "Linked",
+  "@ccnLinkedTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnAddBrandTitle": "Pick your camera brand",
+  "@ccnAddBrandTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnBrandSub": "Serial number + code from the sticker",
+  "@ccnBrandSub": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnDevices": "Devices: {count}",
+  "@ccnDevices": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnStatusActive": "Working",
+  "@ccnStatusActive": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnStatusError": "Connect again",
+  "@ccnStatusError": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnChoose": "Choose cameras",
+  "@ccnChoose": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnRemove": "Remove link",
+  "@ccnRemove": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnRemoveTitle": "Remove this link?",
+  "@ccnRemoveTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnRemoveBody": "Assisto will stop getting this DVR's live view and alerts, and releases it in the maker's cloud. Your cameras and old alerts stay.",
+  "@ccnRemoveBody": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnCancel": "Cancel",
+  "@ccnCancel": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnRemoved": "Link removed",
+  "@ccnRemoved": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnNoCloudTitle": "Connect on the same Wi-Fi",
+  "@ccnNoCloudTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnNoCloudBenefit": "Brand cloud links are being switched on. Your DVR already works today on the shop's Wi-Fi — Assisto finds it by itself.",
+  "@ccnNoCloudBenefit": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnFindOnWifi": "Find cameras on this Wi-Fi",
+  "@ccnFindOnWifi": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnStep1": "Keep an old phone or the Guard Box on the same Wi-Fi as the DVR",
+  "@ccnStep1": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnStep2": "Tap the button — Assisto finds Hikvision, Dahua and ONVIF cameras",
+  "@ccnStep2": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnStep3": "Type the DVR password once — it stays on that device, never on our server",
+  "@ccnStep3": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnPrivacy": "The code is used once and never saved. Remove the link any time. Assisto staff never see your video.",
+  "@ccnPrivacy": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnSheetTitle": "Connect {brand}",
+  "@ccnSheetTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnSheetHelp": "Look at the sticker under the DVR or camera. Type the serial number (SN) and the code printed on it.",
+  "@ccnSheetHelp": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnSerial": "Serial number (SN)",
+  "@ccnSerial": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnCodeFallback": "Code on the sticker",
+  "@ccnCodeFallback": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnConnect": "Connect",
+  "@ccnConnect": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnNeedBoth": "Type both the serial number and the code.",
+  "@ccnNeedBoth": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnLoadError": "Could not load. Check the internet and try again.",
+  "@ccnLoadError": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnRetry": "Try again",
+  "@ccnRetry": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnOnline": "Online",
+  "@ccnOnline": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnOffline": "Offline",
+  "@ccnOffline": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnAdded": "Already added",
+  "@ccnAdded": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnChannel": "Camera {no}",
+  "@ccnChannel": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnAddN": "Add selected cameras ({count})",
+  "@ccnAddN": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnAddedN": "Cameras added: {count} — alerts start now.",
+  "@ccnAddedN": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnNoDevices": "No camera found on this link yet. Check the DVR is online, then pull down to refresh.",
+  "@ccnNoDevices": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthTitle": "Daily CCTV check",
+  "@ccnHealthTitle": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthGreen": "All good",
+  "@ccnHealthGreen": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthRed": "Needs attention",
+  "@ccnHealthRed": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthAmber": "Check soon",
+  "@ccnHealthAmber": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthUnknown": "Not checked",
+  "@ccnHealthUnknown": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthDays": "Recording kept: {days} days (target {target})",
+  "@ccnHealthDays": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnHealthUnknownDays": "Recorded days: this DVR does not report it",
+  "@ccnHealthUnknownDays": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthFix": "What to do",
+  "@ccnHealthFix": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthTarget": "Days of recording I want",
+  "@ccnHealthTarget": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthTargetSaved": "Saved",
+  "@ccnHealthTargetSaved": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health"
+  },
+  "ccnHealthDaysOpt": "{days} days",
+  "@ccnHealthDaysOpt": {
+    "description": "cctvconnect (CCTV Guard V3): brand-cloud connect / DVR health",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOauthButton": "Link my {brand} account (one tap)",
+  "@ccnOauthButton": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOauthHint": "{brand}'s own page is open — sign in, tap Allow, then come back to Assisto.",
+  "@ccnOauthHint": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOauthDaysLeft": "Permission: {days} days left",
+  "@ccnOauthDaysLeft": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOwnerTest": "Owner test device",
+  "@ccnOwnerTest": {
+    "description": "cctvconnect: developer-account bind consent / owner test badge"
+  },
+  "ccnConsent": "I own this camera and agree to link it to Assisto's account; I can unlink it any time.",
+  "@ccnConsent": {
+    "description": "cctvconnect: developer-account bind consent / owner test badge"
+  }
 }
