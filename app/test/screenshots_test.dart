@@ -1133,6 +1133,11 @@ Map<String, GallerySpec> gallerySpecs() {
     // result state of "I read, check me": the text a phone engine returns when the last word is missed
     'quran_learn_check': (build: (_) { preloadRealUthmani(); return Scaffold(body: SafeArea(child: ReciteSheet(expected: realUthmani().text(kQlStages[7].lessons[1].items[0].ref!)!, initialHeard: '\u0642\u0644 \u0647\u0648 \u0627\u0644\u0644\u0647'))); }, mode: FakeMode.data, full: true),
     'quran_learn_about': (build: (_) { preloadRealUthmani(); return const QuranLearnAboutScreen(); }, mode: FakeMode.data, full: true),
+    // quranshikhi: the owner-approved letter lesson (bn + en lines, four forms,
+    // makhraj, under review, streak), joining letters, a new short sura.
+    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba'), mode: FakeMode.data, full: true),
+    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress()), mode: FakeMode.data, full: true),
+    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
