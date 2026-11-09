@@ -16,6 +16,7 @@ import 'package:assisto/models.dart';
 import 'package:assisto/screens/doctor_serial_screen.dart';
 import 'package:assisto/screens/elderly_home_screen.dart';
 import 'package:assisto/screens/family_screen.dart';
+import 'package:assisto/family_v3/family_entry.dart'; // fcscreen
 import 'package:assisto/screens/health_timeline_screen.dart';
 import 'package:assisto/screens/health_tips_screen.dart';
 import 'package:assisto/screens/medicine_db_screen.dart';
@@ -139,7 +140,7 @@ void main() {
           expect(screens.contains(m), present, reason: '$m');
         }
         // Non-medical modules stay in both flavours.
-        expect(screens, contains(FamilyScreen));
+        expect(screens, contains(FamilyEntry)); // fcscreen
       });
 
       test('chat routes + English keyword aliases', () {

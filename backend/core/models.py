@@ -3523,7 +3523,8 @@ class ShopSiteViewer(models.Model):
     # `cameras` [] means every camera (family / manager); a guard always has
     # at least one. `live_ok` = the owner lets this person open live view of
     # the cameras they may see (counts toward the owner's 2-live cap).
-    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard")]
+    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard"),
+             ("staff", "staff")]   # cctvroles: staff = view only, never deletes
     role = models.CharField(max_length=8, choices=ROLES, default="family")
     cameras = models.JSONField(default=list, blank=True)
     live_ok = models.BooleanField(default=False)
@@ -3597,7 +3598,10 @@ class ShopGatewayTask(models.Model):
     ACTIONS = [("discover", "discover"), ("check", "check"),
                # cctvx: sound a LAN camera's own siren / alarm output
                # (Hikvision ISAPI) on the owner's tap from an alert
-               ("siren", "siren")]
+               ("siren", "siren"),
+               # cctvact (V3 D): the Guard Box / phone camera plays the siren
+               # or the owner's recorded warning through its own speaker
+               ("play", "play sound")]
     STATUS = [("pending", "pending"), ("running", "running"), ("done", "done"),
               ("expired", "expired")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
@@ -3788,11 +3792,23 @@ class ShopPosEvent(models.Model):
     kind = models.CharField(max_length=12, choices=KINDS)
     amount = models.BigIntegerField(default=0)   # poisha (or 0 for drawer_open)
     at = models.DateTimeField(default=timezone.now)
+    # ---- cctvact (V3 F): partner POS webhook / CSV import. `source` names the
+    # feed (asalify | pos | csv; '' = Assisto / Shop Box), `ext_id` is the
+    # partner's event id — unique per site + source, so a replayed or
+    # re-imported event is a duplicate, never a second row. `meta` keeps only
+    # amount in poisha, payment method, register and receipt ref — never a
+    # cashier's or a customer's name.
+    source = models.CharField(max_length=12, blank=True, default="")
+    ext_id = models.CharField(max_length=64, blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-at"]
         indexes = [models.Index(fields=["site", "kind", "at"]),
                    models.Index(fields=["site", "at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["site", "source", "ext_id"], condition=~models.Q(ext_id=""),
+            name="shoppos_site_source_ext_uniq")]
 
 
 # ===========================================================================
@@ -7791,6 +7807,28 @@ class TrainChatReport(models.Model):
     text = models.CharField(max_length=520)
     reason = models.CharField(max_length=30, default="other")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# sjtrain (Safe Journey V2, 9 Nov): crowd-sourced SEAT CARD. There is no
+# official seat-orientation data, so passengers answer one-tap questions after
+# a trip. One row per user per train+coach+seat (re-answering replaces it).
+# Shown as "unverified" until enough DIFFERENT people agree. No names shown.
+class TrainSeatAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_seat_answers")
+    train_no = models.CharField(max_length=8)
+    coach = models.CharField(max_length=8)          # as printed on the ticket (ঝ, KA, ...)
+    seat = models.CharField(max_length=8)
+    facing = models.CharField(max_length=10, blank=True, default="")    # forward|backward
+    place = models.CharField(max_length=10, blank=True, default="")     # window|aisle|middle
+    side = models.CharField(max_length=10, blank=True, default="")      # left|right (facing the engine)
+    coach_pos = models.PositiveSmallIntegerField(null=True, blank=True)  # coach no. from the engine
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "train_no", "coach", "seat"],
+                                               name="core_trainseat_once")]
+        indexes = [models.Index(fields=["train_no", "coach"], name="core_trainseat_coach_idx")]
 # ---- /train ----
 
 
@@ -7965,7 +8003,12 @@ class CctvAccessLog(models.Model):
     owner. The owner's own views are not logged. Kept 30 days."""
     ACTIONS = [("alerts", "alert list"), ("alert", "one alert / clip / evidence"),
                ("still", "camera photo"), ("live", "live view"),
-               ("link", "share link opened")]
+               ("link", "share link opened"),
+               # cctvroles (V3 I): every export / share / change / delete /
+               # installer step, the owner's own included (never deduped)
+               ("export", "evidence exported"), ("share", "clip or link shared"),
+               ("change", "setting changed"), ("delete", "something deleted"),
+               ("role", "role changed"), ("installer", "installer step")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
                              related_name="access_logs")
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -7974,12 +8017,55 @@ class CctvAccessLog(models.Model):
                              on_delete=models.SET_NULL, related_name="+")
     camera = models.ForeignKey(ShopCamera, null=True, blank=True,
                                on_delete=models.SET_NULL, related_name="+")
-    action = models.CharField(max_length=8, choices=ACTIONS)
+    action = models.CharField(max_length=10, choices=ACTIONS)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    # cctvroles: short server-made text ("role: staff", "evidence #12")
+    detail = models.CharField(max_length=120, blank=True, default="")
 
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"], name="cctv_access_site_idx")]
+
+
+class CctvPartner(models.Model):
+    """cctvroles (V3 J): a local CCTV technician (installer partner). Applies
+    in the app, the Assisto owner approves in Owner Admin. A partner NEVER
+    sees video, photos or alerts — only the setup status of the sites whose
+    owner invited them (core/cctv_partner_views.py). Commission rules are a
+    PROPOSAL (core/logic/cctv_partner.py) — nothing pays out automatically."""
+    STATUSES = [("pending", "pending"), ("approved", "approved"),
+                ("suspended", "suspended")]
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="cctv_partner")
+    name = models.CharField(max_length=80, blank=True, default="")
+    area = models.CharField(max_length=80, blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUSES, default="pending")
+    created = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class CctvInstallerLink(models.Model):
+    """cctvroles (V3 J): the SITE OWNER's invite (QR / code) for one
+    installer, and — once an approved partner used it — the link between
+    them. Only the code's SHA-256 is stored. The owner ends it any time."""
+    STATUSES = [("invited", "invited"), ("active", "active"), ("ended", "ended")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="installer_links")
+    partner = models.ForeignKey(CctvPartner, null=True, blank=True,
+                                on_delete=models.CASCADE, related_name="links")
+    code_hash = models.CharField(max_length=64, unique=True)
+    status = models.CharField(max_length=8, choices=STATUSES, default="invited")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "status"], name="cctv_inst_site_idx")]
 
 
 class CctvWatchPost(models.Model):
@@ -8641,6 +8727,71 @@ class RecoveryRequest(models.Model):
 # ---- /recovery ----
 
 
+# ---- cctvconnect (CCTV Guard V3 A1 + B, 9 Nov) ----
+class CctvCloudLink(models.Model):
+    """One brand-cloud authorization for ONE site (EZVIZ / Imou /
+    Hik-Connect / DoLynk). `grant_blob` is Fernet-sealed and bound to the site
+    id (logic/cctv_connect.seal) — never sent to any client, never logged.
+    `serials` (not secret) route vendor events to the site and stop two
+    sites claiming the same device. Revoking releases the devices at the
+    vendor and wipes the grant."""
+    STATUS = [("active", "active"), ("error", "error"), ("revoked", "revoked")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="cloud_links")
+    provider = models.CharField(max_length=16, db_index=True)
+    label = models.CharField(max_length=80, blank=True, default="")
+    mode = models.CharField(max_length=12, default="device_code")
+    grant_blob = models.TextField(blank=True, default="")
+    serials = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=8, choices=STATUS, default="active")
+    # sync cursor + small dedupe list {"since": epoch, "seen": [ids]}
+    state = models.JSONField(default=dict, blank=True)
+    last_sync = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=80, blank=True, default="")
+    created = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created", "id"]
+        indexes = [models.Index(fields=["provider", "status"], name="core_cctvcl_prov_st_idx")]
+
+
+class CctvDvrHealth(models.Model):
+    """The latest health report of one DVR / NVR / cloud camera of a site
+    (logic/dvr_health.py) + which problems were already alerted. device
+    "_daily" is the site's daily green-check bookkeeping row."""
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="dvr_health")
+    device = models.CharField(max_length=60)
+    source = models.CharField(max_length=16, blank=True, default="")
+    report = models.JSONField(default=dict, blank=True)
+    evaluation = models.JSONField(default=dict, blank=True)
+    alerted = models.JSONField(default=dict, blank=True)
+    updated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["device"]
+        constraints = [models.UniqueConstraint(fields=["site", "device"],
+                                               name="uniq_cctv_dvr_health")]
+
+
+class CctvVendorUsage(models.Model):
+    """Monthly use of a brand cloud's FREE quota (Imou: 30K API calls, 30K
+    messages, 2 GB traffic) — counted by us so the owner sees it in Owner
+    Admin and gets ONE warning at 80 % (logic/cctv_connect/quota.py)."""
+    provider = models.CharField(max_length=16)
+    month = models.CharField(max_length=7)               # "YYYY-MM"
+    api_calls = models.PositiveIntegerField(default=0)
+    messages = models.PositiveIntegerField(default=0)
+    traffic_mb = models.FloatField(default=0.0)
+    warned = models.JSONField(default=dict, blank=True)  # {"api_calls": 80, ...}
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["provider", "month"],
+                                               name="uniq_cctv_vendor_usage")]
+# ---- /cctvconnect ----
+
 # ---- citydata ----
 # citydata (owner 9 Nov 11:45, City Service): Assisto's own city transit data
 # (GitHub Actions builds it; the server imports the small result), user
@@ -8769,3 +8920,71 @@ class CityLearned(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=["city", "kind", "key"], name="core_citylearn_uniq")]
 # ---- /citydata ----
+# ---- fcscreen ---- Family Care v3 (owner order 9 Nov 10:50): multi-family
+# membership + shared family tasks. Member status (heartbeat, battery, place,
+# pause) lives in fcbrain's store; the pure status rules are in
+# core.logic.family_status. Interface: owner_actions/FAMILY_CARE_V3_API.md.
+class FcFamily(models.Model):
+    """One family a person belongs to ("My family", "Parents' home"...). A user
+    can be an active member of several (core.family_v3.MAX_FAMILIES)."""
+    name = models.CharField(max_length=60)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name="fc_families_created")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+
+class FcMembership(models.Model):
+    """A person in a family. Adults join ONLY by accepting on their own phone
+    (state invited -> active); a child is added active by an approved guardian.
+    `alert` = an amber status another module raised (silent watch, missed Care
+    Call) — {state, reason, source, at, until}; mirrored on all the user's
+    memberships by core.family_v3.set_member_status."""
+    ROLES = [("admin", "admin"), ("adult", "adult"), ("child", "child"), ("elder", "elder")]
+    STATES = [("invited", "invited"), ("active", "active"),
+              ("declined", "declined"), ("left", "left")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="memberships")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fc_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="adult")
+    state = models.CharField(max_length=8, choices=STATES, default="invited")
+    label = models.CharField(max_length=40, blank=True, default="")
+    relation = models.CharField(max_length=20, blank=True, default="")
+    alert = models.JSONField(default=dict, blank=True)
+    abroad_tz = models.CharField(max_length=40, blank=True, default="")
+    invited_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        unique_together = [("family", "user")]
+        indexes = [models.Index(fields=["user", "state"], name="core_fcmem_user_state_idx")]
+
+
+class FcTask(models.Model):
+    """A shared family task (medicine running out, doctor visit, bill): anyone
+    adds it, someone taps "I will do it", everyone sees who took it."""
+    KINDS = [("medicine", "medicine"), ("doctor", "doctor"), ("bill", "bill"),
+             ("other", "other")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="tasks")
+    title = models.CharField(max_length=120)
+    kind = models.CharField(max_length=8, choices=KINDS, default="other")
+    due_date = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    taken_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    taken_at = models.DateTimeField(null=True, blank=True)
+    done_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    done_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["family", "done_at"], name="core_fctask_fam_done_idx")]
+# ---- /fcscreen ----

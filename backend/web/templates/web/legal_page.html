@@ -8,7 +8,7 @@
 {% include "web/_og_image.html" %}{% endblock %}
 {% block description %}<meta name="description" content="{{ page_desc }}">{% endblock %}
 {% block head %}
-<meta name="robots" content="index, follow">
+<meta name="robots" content="{% if preview %}noindex, nofollow{% else %}index, follow{% endif %}">
 <link rel="canonical" href="{{ seo.canonical }}">
 <link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
 <link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
@@ -41,6 +41,7 @@
 <article class="legal">
   <h1>{{ page_title }}</h1>
   <div class="upd">{% if lang == 'en' %}Last updated{% else %}সর্বশেষ হালনাগাদ{% endif %}: {{ updated }}</div>
+  {% if preview %}<p class="card" role="note" id="preview-note"><b>{% if lang == 'en' %}PREVIEW — not live yet.{% else %}প্রিভিউ — এখনো লাইভ নয়।{% endif %}</b> {% if lang == 'en' %}This is the proposed new privacy policy for the owner to review. The live policy is at <a href="/privacy?lang=en">/privacy</a>.{% else %}মালিকের দেখার জন্য প্রস্তাবিত নতুন গোপনীয়তা নীতি। লাইভ নীতি: <a href="/privacy">/privacy</a>।{% endif %}</p>{% endif %}
 
   {% if sections|length > 3 %}
   <nav class="card" aria-label="{% if lang == 'en' %}Contents{% else %}সূচিপত্র{% endif %}">

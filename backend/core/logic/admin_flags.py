@@ -101,6 +101,11 @@ CATALOG = (
     # website_play_public decides (ON = public, OFF = "Coming soon to Play").
     ("website_play_auto", KIND_FEATURE, "ops", True),
     ("website_play_public", KIND_FEATURE, "ops", True),
+    # privacyupd (owner Play decision 7, 9 Nov): ON (default) = /privacy serves
+    # the CLASSIC (current) policy; the updated one is only at /preview/privacy.
+    # OFF = the updated policy is live at /privacy (like website_classic).
+    # Owner Admin → Website, one tap each way.
+    ("privacy_classic", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

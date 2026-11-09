@@ -30,6 +30,7 @@ from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
 from . import views_family_brain as fcb  # fcbrain
+from . import views_family_v3 as f3  # fcscreen
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
@@ -391,6 +392,18 @@ urlpatterns = [
     # famcare (owner 28 Oct): pick from My Circle, limits (safety free = 5),
     # shared reminders, family shopping list, shared vault documents.
     # MUST precede router.urls (family/<pk>).
+    # fcscreen: Family Care v3 (multi-family board, tasks, member page)
+    path("family/v3/families", f3.FamiliesView.as_view()),
+    path("family/v3/families/<int:fid>/board", f3.FamilyBoardView.as_view()),
+    path("family/v3/families/<int:fid>/rename", f3.FamilyRenameView.as_view()),
+    path("family/v3/families/<int:fid>/invite", f3.FamilyInviteView.as_view()),
+    path("family/v3/families/<int:fid>/leave", f3.FamilyLeaveView.as_view()),
+    path("family/v3/families/<int:fid>/remove/<int:uid>", f3.FamilyRemoveView.as_view()),
+    path("family/v3/families/<int:fid>/members/<int:uid>", f3.FamilyMemberEditView.as_view()),
+    path("family/v3/families/<int:fid>/tasks", f3.FamilyTasksView.as_view()),
+    path("family/v3/invites/<int:mid>/<str:answer>", f3.InviteAnswerView.as_view()),
+    path("family/v3/members/<int:uid>", f3.MemberPageView.as_view()),
+    path("family/v3/tasks/<int:tid>/<str:action>", f3.FamilyTaskActionView.as_view()),
     path("family/limits", famc.FamilyLimitsView.as_view()),
     path("family/limits/", famc.FamilyLimitsView.as_view()),
     path("family/circle-pick", famc.FamilyCirclePickView.as_view()),
@@ -1106,6 +1119,20 @@ urlpatterns += [
 ]
 # ---- /mr1 ----
 
+# ---- fcelder ---- Silent Watch + Elder setup by a child (MUST precede router.urls: family/<pk>)
+from . import views_silent_watch as swv  # noqa: E402
+urlpatterns += [
+    path("family/silent-watch", swv.SilentWatchView.as_view()),
+    path("family/silent-watch/token", swv.SilentWatchTokenView.as_view()),
+    path("family/silent-watch/ok", swv.SilentWatchOkView.as_view()),
+    path("family/silent-watch/alert", swv.SilentWatchAlertView.as_view()),
+    path("family/silent-watch/alerts/<int:pk>/ack", swv.SilentWatchAckView.as_view()),
+    path("family/silent-watch/test", swv.SilentWatchTestView.as_view()),
+    path("family/elder-setup", swv.ElderSetupView.as_view()),
+    path("family/elder-setup/<str:code>", swv.ElderSetupCodeView.as_view()),
+    path("family/elder-setup/<str:code>/accept", swv.ElderSetupAcceptView.as_view()),
+]
+# ---- /fcelder ----
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken
@@ -1617,6 +1644,7 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/events", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/events/clear", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/gate-snapshot", kwv.GateSnapshotView.as_view()),  # sjlive
+    path("school-mode/plans/<int:pk>/kc-answer", kwv.KidsCornerAnswerView.as_view()),  # sjkids
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----
@@ -1700,6 +1728,7 @@ urlpatterns += [
     path("train/chat/request/<int:pk>/<str:action>", trv.RequestActView.as_view()),
     path("train/<str:no>/live", trv.LiveView.as_view()),
     path("train/<str:no>/share", trv.ShareStartView.as_view()),
+    path("train/<str:no>/seat", trv.SeatView.as_view()),               # sjtrain
     path("train/<str:no>/chat", trv.ChatView.as_view()),
     path("train/<str:no>/chat/join", trv.ChatJoinView.as_view()),
     path("train/<str:no>/chat/leave", trv.ChatLeaveView.as_view()),
@@ -1940,3 +1969,50 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- cctvconnect (CCTV Guard V3 A1 brand clouds + B DVR health) ----
+from . import cctv_connect_views as ccv  # noqa: E402
+urlpatterns += [
+    path("cctv/connect/providers", ccv.ProvidersView.as_view()),
+    path("cctv/connect/oauth/callback", ccv.OAuthCallbackView.as_view()),
+    path("cctv/connect/oauth/go", ccv.OAuthGoView.as_view()),
+    path("cctv/connect/<str:pid>/link", ccv.LinkDeviceView.as_view()),
+    path("cctv/connect/<str:pid>/oauth/start", ccv.OAuthStartView.as_view()),
+    path("cctv/connect/links/<int:pk>", ccv.LinkRevokeView.as_view()),
+    path("cctv/connect/links/<int:pk>/devices", ccv.LinkDevicesView.as_view()),
+    path("cctv/connect/links/<int:pk>/import", ccv.LinkImportView.as_view()),
+    path("cctv/connect/cameras/<int:pk>/stream", ccv.CameraStreamView.as_view()),
+    path("cctv/health/sites/<int:pk>", ccv.SiteHealthView.as_view()),
+    path("shop/gateway/dvr-health", ccv.GatewayHealthView.as_view()),
+    path("cctv/dolynk/callback/<str:token>", ccv.DolynkCallbackView.as_view()),
+]
+# ---- /cctvconnect ----
+# ---- cctvroles ---- CCTV Guard V3 J (installer partners)
+from . import cctv_partner_views as cpv  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/installer", cpv.SiteInstallerView.as_view()),
+    path("shop/installer/<int:pk>/end", cpv.InstallerEndView.as_view()),
+    path("shop/partner/me", cpv.PartnerMeView.as_view()),
+    path("shop/partner/apply", cpv.PartnerApplyView.as_view()),
+    path("shop/partner/join", cpv.PartnerJoinView.as_view()),
+]
+# ---- cctvact ---- CCTV GUARD V3 D/E/F/G (owner 9 Nov 15:15): act from an
+# alert, Tuya automations, closing report, POS webhook + CSV, sales match, ask
+from . import cctv_act_views as cact3  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/location", cact3.SiteLocationView.as_view()),
+    path("shop/sites/<int:pk>/thana", cact3.SiteThanaView.as_view()),
+    path("shop/events/<int:pk>/play", cact3.EventPlayView.as_view()),
+    path("shop/device/warn-clip", cact3.DeviceWarnClipView.as_view()),
+    path("shop/device/daily-stats", cact3.DeviceDailyStatsView.as_view()),
+    path("shop/sites/<int:pk>/automations", cact3.AutomationsView.as_view()),
+    path("shop/sites/<int:pk>/automations/link", cact3.AutomationsLinkView.as_view()),
+    path("shop/sites/<int:pk>/automations/test", cact3.AutomationsTestView.as_view()),
+    path("shop/sites/<int:pk>/automations/lock", cact3.AutomationsLockView.as_view()),
+    path("shop/sites/<int:pk>/closing-report", cact3.ClosingReportView.as_view()),
+    path("shop/sites/<int:pk>/pos-key", cact3.PosKeyView.as_view()),
+    path("shop/pos/webhook", cact3.PosWebhookView.as_view()),
+    path("shop/sites/<int:pk>/pos-csv", cact3.PosCsvView.as_view()),
+    path("shop/sites/<int:pk>/sales-match", cact3.SalesMatchView.as_view()),
+    path("shop/sites/<int:pk>/ask", cact3.AskView.as_view()),
+]
+# ---- /cctvact ----

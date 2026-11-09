@@ -58,6 +58,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
   Map<String, dynamic>? _task;
   String? _error;
   bool _busy = false;
+  bool _imouConsent = false; // cctvconnect: the camera owner's consent (owner 9 Nov)
   bool _scanning = false;
   List<Map<String, dynamic>> _found = const [];
   Timer? _timer;
@@ -188,7 +189,8 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         return;
       }
       if (_phoneGw && _vendor == 'imou') {
-        await widget.source.linkImou(camId, _serial.text.trim(), _secret.text.trim());
+        await widget.source.linkImou(camId, _serial.text.trim(), _secret.text.trim(),
+            consent: _imouConsent);
         setState(() {
           _busy = false;
           _stage = _Stage.cloudDone;
@@ -377,6 +379,16 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
             label: Text(t.wmPasteLabel),
           ),
         ),
+        // cctvconnect: binding to Assisto's Imou account needs the camera
+        // owner's explicit consent (the server refuses without it)
+        CheckboxListTile(
+          key: const Key('wmImouConsent'),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _imouConsent,
+          onChanged: (v) => setState(() => _imouConsent = v == true),
+          title: Text(t.ccnConsent),
+        ),
         const SizedBox(height: 12),
       ],
       if (needsHost) ...[
@@ -479,7 +491,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       const SizedBox(height: 18),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-        onPressed: _busy ? null : _submit,
+        onPressed: _busy || (_phoneGw && _vendor == 'imou' && !_imouConsent) ? null : _submit,
         child: _busy
             ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
             : Text(_vendor == 'phone'

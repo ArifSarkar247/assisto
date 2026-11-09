@@ -218,16 +218,16 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     final t = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: const SkeletonList(),
       );
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          title: t.business,
+          title: t.myBusinessTitle,
           message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
           action: FilledButton(onPressed: _load, child: Text(t.retry)),
         ),
@@ -235,7 +235,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     }
     if (_businesses.isEmpty || _selected == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: StateMessage(
           icon: Icons.storefront_rounded,
           title: t.businessWelcomeTitle,
@@ -262,7 +262,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       appBar: AppBar(
-        title: Text(t.business),
+        title: Text(t.myBusinessTitle),
         actions: [
           IconButton(
             tooltip: t.businessSetupTitle,
@@ -310,6 +310,19 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
             const SizedBox(height: Gap.lg),
 
+            // homeshort (owner 9 Nov 11:25): Digital Ledger left the home
+            // shortcuts and is the FIRST tile in My Business — same name and
+            // icon as the old home tile so people find it at once.
+            _HubCard(
+              key: const ValueKey('biz_hub_ledger'),
+              icon: Icons.description_outlined,
+              tint: scheme.primary,
+              title: t.hv2TileLedger,
+              subtitle: t.businessKhataSub,
+              onTap: () => _go(KhataScreen(business: biz)),
+            ),
+            const SizedBox(height: Gap.lg),
+
             // Net-position snapshot (receivable vs payable).
             _NetPositionCard(
                 key: ValueKey('np-$bizId'), businessId: bizId, isStaff: isStaff),
@@ -328,14 +341,6 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: Gap.md),
 
-            _HubCard(
-              icon: Icons.menu_book_rounded,
-              tint: scheme.primary,
-              title: t.khataTitle,
-              subtitle: t.businessKhataSub,
-              onTap: () => _go(KhataScreen(business: biz)),
-            ),
-            const SizedBox(height: Gap.md),
             _HubCard(
               icon: Icons.point_of_sale_rounded,
               tint: scheme.secondary,
@@ -677,6 +682,7 @@ class _HubCard extends StatelessWidget {
   final bool locked;
   final String? lockedLabel;
   const _HubCard({
+    super.key,
     required this.icon,
     required this.tint,
     required this.title,

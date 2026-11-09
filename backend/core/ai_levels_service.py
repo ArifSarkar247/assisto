@@ -276,6 +276,9 @@ FREE_EXEMPT = {
     # fcbrain (owner 9 Nov): Family Care is safety — never charged
     "brain.night_news": "Family Care night news card from structured facts, once per member per night",
     "brain.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
+    # sjtrain: safety is never paywalled; one cheap call per train-chat message
+    # (already rate-limited per user: train_chat.PER_MIN / PER_DAY)
+    "train.chat_mod": "train chat safety moderation (one cheap check per message, rate-limited)",
 }
 
 

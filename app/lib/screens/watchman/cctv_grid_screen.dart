@@ -223,6 +223,7 @@ String ctmRoleName(AppLocalizations t, String role) => switch (role) {
       'owner' => t.ctmRoleOwner,
       'manager' => t.ctmRoleManager,
       'guard' => t.ctmRoleGuard,
+      'staff' => t.ctrRoleStaff, // cctvroles
       _ => t.ctmRoleFamily,
     };
 

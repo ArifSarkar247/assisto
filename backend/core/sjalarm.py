@@ -146,7 +146,7 @@ def list_traces(user):
 
 
 # ------------------------------------------------------------ arrival notice
-def notify_arrived(user, stop, circle_ids, now=None):
+def notify_arrived(user, stop, circle_ids, now=None, kind="arrived"):
     """Tell the picked My Circle people "<name> arrived at <stop>". Returns
     (stats dict, None) or (None, reason)."""
     from . import family_alerts as FA
@@ -179,6 +179,17 @@ def notify_arrived(user, stop, circle_ids, now=None):
         "body_bn": "{name} %s পৌঁছেছেন (গন্তব্য অ্যালার্ম)।" % (stop + "-এ" if stop else st_bn),
         "body_en": "{name} reached %s (destination alarm)." % st_en,
     }
-    stats = FA.alert(user, "dest_arrived", "dest:%d" % (int(now.timestamp()) // 60),
+    if kind == "get_off":
+        # sjtrain (Safe Journey V2): the alarm RANG — "time to get off", never
+        # a claim of arrival (no false "Arrived")
+        payload = {
+            "title_bn": "{name}: নামার সময় হয়েছে",
+            "title_en": "{name}: time to get off",
+            "body_bn": "{name}-এর গন্তব্য অ্যালার্ম বেজেছে — %s নামার সময়।" % (
+                stop + "-এ" if stop else "গন্তব্যে"),
+            "body_en": "{name}'s destination alarm rang — time to get off at %s." % st_en,
+        }
+    stats = FA.alert(user, "dest_get_off" if kind == "get_off" else "dest_arrived",
+                     "dest:%s:%d" % (kind, int(now.timestamp()) // 60),
                      payload=payload, recipients=people, now=now)
     return stats, None

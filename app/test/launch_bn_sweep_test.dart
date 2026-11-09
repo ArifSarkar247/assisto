@@ -38,6 +38,7 @@ const _launchPrefixes = <String>[
   'emergency_hub', // emergency hub
   'fcb_', // fcbrain: Family privacy & alerts + night news
   'fcs_', // fcsos: Family Care v3 SOS sender / receiver / setup
+  'city_', // cityapp: City Service (9 Nov)
   'p3g_', // p3guides: service guide card, Probashi Help, Student timer/official
   'blood_', // blood donor list / profile / request / share
   'missing_', // missing alert
@@ -62,13 +63,16 @@ const _launchPrefixes = <String>[
   'cev_', // CCTV evidence (SD clip / recording)
   'recov_', // recovery: Account & security + account recovery (owner Part 8)
   'cesc_', // CCTV escalation (alarm call, police card)
+  'cv3_', // cctvact: CCTV V3 act / report / ask / sales / automations
   'cpl_', // CCTV pricing / add-on
   'cg_', // CCTV cost guard
   'lostsim_', // lost phone: intruder-photo notice on the Vault PIN (3 Nov)
   'carm_', // CCTV auto guard (arm / SOS)
+  'fc3_', // fcscreen: Family Care v3 screen (9 Nov)
   'ctm_', // CCTV team (guards, links, access log)
   'dp_', 'task_mgr', 'cost_est', // p2plan: daily planner, task manager, estimator (3 Nov)
   'sjl_', 'trip_', // Safe Journey Live Location + trip recorder
+  'sjkids_', // sjkids: Children Corner (Safe Journey v2)
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market

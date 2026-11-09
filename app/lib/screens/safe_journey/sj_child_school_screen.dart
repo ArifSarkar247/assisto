@@ -12,6 +12,7 @@ import '../../widgets/journey_ride.dart' show jDigits;
 import '../kids_watch/school_mode_child_screen.dart';
 import '../kids_watch/school_plan_form.dart';
 import 'sj_live_api.dart';
+import 'kids_corner.dart'; // sjkids
 
 /// The four moments of a school day, in order: (today-key, event for the
 /// gate camera). Pure, shared with the tests.
@@ -356,6 +357,8 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
                 onPressed: () => _linkCamera(p),
               ),
           ]),
+          // sjkids: Children Corner — safe / watch places + the guardian question
+          KidsCornerSection(plan: p, onChanged: _load),
         ]),
       ),
     );

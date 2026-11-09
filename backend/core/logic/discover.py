@@ -62,6 +62,7 @@ ROUTE_KEYS = (
     "emergency_hub",   # emhub: the Emergency hub (ChatNav mirror in lock-step)
     "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
     "carecall",   # carecall: Care Call home (ChatNav mirror in lock-step)
+    "elder_watch",  # fcelder: Silent Watch (family view; ChatNav mirror)
     "day_planner",     # p2plan: AI daily planner (flag ai_daily_planner)
     "task_manager",    # p2plan: Task manager (push "tasks" target)
     "my_dues",         # tagada2: the customer's My Dues (push tap target)
@@ -75,6 +76,7 @@ ROUTE_KEYS = (
     "acct",            # acctui: accounting home (flag accounting_v2)
     "market",          # amarket: Assisto Market (flag assisto_market)
     "safe_plans",      # safeplans: Safety plans (flag safe_plans)
+    "city",            # cityapp: City Service (flag city_service)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",

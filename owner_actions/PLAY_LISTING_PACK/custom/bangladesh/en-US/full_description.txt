@@ -3,7 +3,7 @@ Many apps. One Assisto.
 
 Assisto is an assistant that runs much of your daily life, family safety and business by itself, in Bangla and English. Type or say one line, like "call mum at 8 tomorrow" or "500 for lunch", and Assisto makes the reminder or writes the expense. Anything that sends money waits for your OK.
 
-BUSINESS
+MY BUSINESS
 • Digital khata, free on every plan: due reminders go out on your schedule and stop once paid
 • Accounts: sales, purchases and expenses in one tap; profit and loss, cash flow and VAT summary
 • Thermal (58 or 80 mm) and A4 invoices in Bangla or English, with VAT and a QR code
