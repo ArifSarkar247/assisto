@@ -506,13 +506,16 @@ def task_action(viewer, task_id, action):
 
 # ----------------------------------------------------------------- board
 def _brain(viewer, member, now):
-    """fcbrain's member_brain_state; fallback = app presence only (honest:
-    no battery / place, so it can only be green while the app was used)."""
+    """fcbrain's member_brain_state (battery, place, pause, heartbeat), then
+    the app's own presence heartbeat: a phone that used Assisto recently IS
+    fresh news, so the newer of the two timestamps wins. Never invents data —
+    no source at all = {} = gray "never"."""
+    b = {}
     try:
         from . import family_brain   # fcbrain
-        b = family_brain.member_brain_state(viewer, member)
-        if isinstance(b, dict):
-            return b
+        got = family_brain.member_brain_state(viewer, member)
+        if isinstance(got, dict):
+            b = dict(got)
     except ImportError:
         pass
     except Exception as e:  # noqa: BLE001
@@ -521,10 +524,13 @@ def _brain(viewer, member, now):
         from .models import CirclePresence
         p = CirclePresence.objects.filter(user=member).first()
         if p is not None and p.last_seen:
-            return {"last_seen": p.last_seen.isoformat(), "source": "presence"}
+            mine = FS.parse_ts(b.get("last_seen"))
+            if mine is None or p.last_seen > mine:
+                b["last_seen"] = p.last_seen.isoformat()
+                b.setdefault("source", "presence")
     except Exception:  # noqa: BLE001
         pass
-    return {}
+    return b
 
 
 def _sos_ids(viewer, family_id, ids, now):
