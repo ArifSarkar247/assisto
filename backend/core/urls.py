@@ -1634,6 +1634,7 @@ urlpatterns += [
     path("train/chat/request/<int:pk>/<str:action>", trv.RequestActView.as_view()),
     path("train/<str:no>/live", trv.LiveView.as_view()),
     path("train/<str:no>/share", trv.ShareStartView.as_view()),
+    path("train/<str:no>/seat", trv.SeatView.as_view()),               # sjtrain
     path("train/<str:no>/chat", trv.ChatView.as_view()),
     path("train/<str:no>/chat/join", trv.ChatJoinView.as_view()),
     path("train/<str:no>/chat/leave", trv.ChatLeaveView.as_view()),

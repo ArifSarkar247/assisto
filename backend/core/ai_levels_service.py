@@ -222,6 +222,9 @@ FREE_EXEMPT = {
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
+    # sjtrain: safety is never paywalled; one cheap call per train-chat message
+    # (already rate-limited per user: train_chat.PER_MIN / PER_DAY)
+    "train.chat_mod": "train chat safety moderation (one cheap check per message, rate-limited)",
 }
 
 

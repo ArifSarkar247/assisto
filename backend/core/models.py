@@ -7786,6 +7786,28 @@ class TrainChatReport(models.Model):
     text = models.CharField(max_length=520)
     reason = models.CharField(max_length=30, default="other")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# sjtrain (Safe Journey V2, 9 Nov): crowd-sourced SEAT CARD. There is no
+# official seat-orientation data, so passengers answer one-tap questions after
+# a trip. One row per user per train+coach+seat (re-answering replaces it).
+# Shown as "unverified" until enough DIFFERENT people agree. No names shown.
+class TrainSeatAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_seat_answers")
+    train_no = models.CharField(max_length=8)
+    coach = models.CharField(max_length=8)          # as printed on the ticket (ঝ, KA, ...)
+    seat = models.CharField(max_length=8)
+    facing = models.CharField(max_length=10, blank=True, default="")    # forward|backward
+    place = models.CharField(max_length=10, blank=True, default="")     # window|aisle|middle
+    side = models.CharField(max_length=10, blank=True, default="")      # left|right (facing the engine)
+    coach_pos = models.PositiveSmallIntegerField(null=True, blank=True)  # coach no. from the engine
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "train_no", "coach", "seat"],
+                                               name="core_trainseat_once")]
+        indexes = [models.Index(fields=["train_no", "coach"], name="core_trainseat_coach_idx")]
 # ---- /train ----
 
 

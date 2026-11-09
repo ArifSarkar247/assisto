@@ -27,12 +27,14 @@ than OUTLIER_M from the median are dropped (3+ sharers).
 import json
 import math
 from datetime import datetime, timedelta
+from datetime import timezone as _dtz
 from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 DATA = Path(__file__).resolve().parents[1] / "data" / "train"
 DHAKA = ZoneInfo("Asia/Dhaka")
+_UTC = _dtz.utc
 
 MAX_ACC_M = 300.0
 ON_LINE_M = 120.0
@@ -308,6 +310,16 @@ def _median(xs):
     return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2.0
 
 
+def _advance(f, now):
+    """Dead reckoning: chainage + speed x age (age <= FRESH_S, speed <= the
+    rail limit). No speed = no move (honest)."""
+    spd = f.get("speed_kmh")
+    if spd is None:
+        return float(f["chainage"])
+    age = max(0.0, min(float(FRESH_S), (now - f["at"]).total_seconds()))
+    return float(f["chainage"]) + min(float(spd), MAX_SPEED_KMH) / 3.6 * age
+
+
 def fuse(t, latest, now):
     """latest = [{chainage, at, speed_kmh?}] — each sharer's newest ACCEPTED
     fix. Fresh ones (<= FRESH_S) are fused by the median along-route position;
@@ -319,12 +331,15 @@ def fuse(t, latest, now):
     if not fresh:
         return None
     dropped = 0
+    # sjtrain: each fix moved forward by its own speed x its age (capped), so
+    # a 2-minute-old fix at 80 km/h is not 2.7 km behind the train
+    fresh = [dict(f, chainage=_advance(f, now)) for f in fresh]
     if len(fresh) >= 3:
         med = _median([f["chainage"] for f in fresh])
         keep = [f for f in fresh if abs(f["chainage"] - med) <= OUTLIER_M]
         dropped = len(fresh) - len(keep)
         fresh = keep or fresh
-    ch = _median([f["chainage"] for f in fresh])
+    ch = min(rt.length, _median([f["chainage"] for f in fresh]))
     lat, lng = rt.point_at(ch)
     newest = max(f["at"] for f in fresh)
     speeds = [float(f["speed_kmh"]) for f in fresh if f.get("speed_kmh") is not None]
@@ -350,3 +365,119 @@ def next_stop_after(t, chainage):
         if float(s["km"]) * 1000.0 > chainage + 1:
             return s["st"]
     return None
+
+
+# ------------------------------------------------------------ sjtrain: the station line
+@lru_cache(maxsize=1)
+def _line_data():
+    try:
+        with open(DATA / "line_stations_bd.json", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {"trains": {}}
+
+
+def line_stations(t):
+    """Every station the train passes, in order: [{id, bn, en, km, lat, lng,
+    stop}] (stop = a timetable halt). Falls back to the timetable stops."""
+    rows = _line_data().get("trains", {}).get(t["no"])
+    if rows:
+        return rows
+    st = stations()
+    return [dict(id=s["st"], bn=st[s["st"]].get("bn", ""), en=st[s["st"]].get("en", ""),
+                 km=s["km"], lat=st[s["st"]]["lat"], lng=st[s["st"]]["lng"], stop=True)
+            for s in t["stops"] if s["st"] in st]
+
+
+def line_view(t, service_date, chainage, now, delay_min=None):
+    """The metro-style line: each station with passed / now / ETA.
+    chainage = where the train is (live or the timetable estimate);
+    delay_min shifts the timetable times (live only). Returns
+    {"stations": [...], "now_index", "passing", "next_index"}."""
+    rt = route(t["no"])
+    rows = line_stations(t)
+    if rt is None or not rows:
+        return {"stations": [], "now_index": None, "passing": None, "next_index": None}
+    dep, arr = times(t, service_date)
+    total = (arr - dep).total_seconds()
+    km_total = max(0.001, rt.length / 1000.0)
+    shift = timedelta(minutes=delay_min or 0)
+    out, now_i, next_i = [], None, None
+    for i, r in enumerate(rows):
+        m = float(r["km"]) * 1000.0
+        sched = dep + timedelta(seconds=total * max(0.0, min(1.0, float(r["km"]) / km_total)))
+        passed = chainage is not None and m <= chainage + 150.0
+        if passed:
+            now_i = i
+        elif next_i is None and chainage is not None:
+            next_i = i
+        out.append({"id": r["id"], "bn": r.get("bn", ""), "en": r.get("en", ""),
+                    "km": r["km"], "stop": bool(r.get("stop")),
+                    "sched": sched.isoformat(), "eta": (sched + shift).isoformat(),
+                    "passed": passed})
+    passing = None
+    if now_i is not None and chainage is not None:
+        here = float(rows[now_i]["km"]) * 1000.0
+        if chainage - here <= 1500.0:      # within 1.5 km = "passing X"
+            passing = now_i
+    return {"stations": out, "now_index": now_i, "passing": passing, "next_index": next_i}
+
+
+# ------------------------------------------------------------ sjtrain: sun side
+def sun_position(lat, lng, at):
+    """(azimuth deg from north clockwise, elevation deg) — NOAA low-precision
+    formulas, good to ~1 degree; enough to say which side of a coach is sunny."""
+    utc = at.astimezone(_UTC)
+    doy = utc.timetuple().tm_yday
+    hour = utc.hour + utc.minute / 60.0 + utc.second / 3600.0
+    g = 2 * math.pi / 365.0 * (doy - 1 + (hour - 12) / 24.0)
+    eqt = 229.18 * (0.000075 + 0.001868 * math.cos(g) - 0.032077 * math.sin(g)
+                    - 0.014615 * math.cos(2 * g) - 0.040849 * math.sin(2 * g))
+    decl = (0.006918 - 0.399912 * math.cos(g) + 0.070257 * math.sin(g)
+            - 0.006758 * math.cos(2 * g) + 0.000907 * math.sin(2 * g)
+            - 0.002697 * math.cos(3 * g) + 0.00148 * math.sin(3 * g))
+    tst = hour * 60 + eqt + 4 * lng                      # true solar time, minutes
+    ha = math.radians(tst / 4.0 - 180.0)
+    la = math.radians(lat)
+    cos_z = math.sin(la) * math.sin(decl) + math.cos(la) * math.cos(decl) * math.cos(ha)
+    zen = math.acos(max(-1.0, min(1.0, cos_z)))
+    elev = 90.0 - math.degrees(zen)
+    az = math.degrees(math.atan2(math.sin(ha),
+                                 math.cos(ha) * math.sin(la) - math.tan(decl) * math.cos(la)))
+    return (az + 180.0) % 360.0, elev
+
+
+SUN_MIN_ELEV = 8.0       # lower than this the sun is not "in your face" through a window
+
+
+def sun_side(t, service_date, step_km=5.0):
+    """Which side (in the direction of travel) gets direct sun on this trip,
+    from the rail path + timetable times. -> {"left": %, "right": %,
+    "dark": %, "side": "left"|"right"|"none"} (percent of trip time)."""
+    rt = route(t["no"])
+    if rt is None or rt.length <= 0:
+        return None
+    dep, arr = times(t, service_date)
+    total = (arr - dep).total_seconds()
+    n = max(2, int(rt.length / 1000.0 / step_km))
+    left = right = dark = 0
+    for i in range(n):
+        ch = rt.length * (i + 0.5) / n
+        at = dep + timedelta(seconds=total * (i + 0.5) / n)
+        lat, lng = rt.point_at(ch)
+        az, el = sun_position(lat, lng, at)
+        if el < SUN_MIN_ELEV:
+            dark += 1
+            continue
+        rel = (az - rt.heading_at(ch)) % 360.0
+        if rel < 180.0:
+            right += 1
+        else:
+            left += 1
+    pct = lambda x: int(round(100.0 * x / n))
+    side = "none"
+    if left + right and max(left, right) >= 1.5 * min(left, right) and \
+            max(left, right) >= 0.2 * n:
+        side = "left" if left > right else "right"
+    return {"left": pct(left), "right": pct(right), "dark": pct(dark), "side": side,
+            "label": "calculated"}

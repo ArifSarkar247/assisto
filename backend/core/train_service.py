@@ -21,7 +21,7 @@ from django.utils import timezone
 from .logic import train_chat as TC
 from .logic import train_geo as TG
 from .models import (CircleMember, TrainChatBlock, TrainChatMember, TrainChatMessage,
-                     TrainChatReport, TrainCircleRequest, TrainShare)
+                     TrainChatReport, TrainCircleRequest, TrainSeatAnswer, TrainShare)
 
 PURGE_AFTER_H = 6
 REPORT_KEEP_DAYS = 30
@@ -29,6 +29,14 @@ MAX_POINTS = 100
 MIN_FIX_GAP_S = 5
 FUTURE_SLACK_S = 60
 PAST_MAX_MIN = 30
+# sjtrain (Safe Journey V2): the chat is open only while the train runs —
+# from CHAT_OPEN_BEFORE_MIN before departure to CHAT_CLOSE_AFTER_H after the
+# timetable arrival (Bangladesh trains are often hours late; a live position
+# that has not arrived keeps it open up to train_geo.LATE_END_H). Nothing in
+# a room lives longer than CHAT_MAX_H.
+CHAT_OPEN_BEFORE_MIN = 30
+CHAT_CLOSE_AFTER_H = 3
+CHAT_MAX_H = 24
 
 
 # ------------------------------------------------------------ dates / trains
@@ -266,10 +274,24 @@ def live_view(t, service_date, user=None, now=None):
         if s:
             mine = {"id": s.id, "status": s.status, "accepted": s.accepted,
                     "rejected": s.rejected}
+    pos_ch = None
+    if live:
+        pos_ch = float(live["chainage_m"])
+    elif est and est.get("state") == "running":
+        pos_ch = float(est["chainage_m"])
+    elif est and est.get("state") == "arrived" and rt is not None:
+        pos_ch = rt.length
+    line = TG.line_view(t, service_date, pos_ch, now,
+                        delay_min=(live or {}).get("delay_min") if live else None)
     return {
         "train": train_summary(t), "date": service_date.isoformat(),
         "runs": TG.runs_on(t, service_date),
         "mode": "live" if live else "estimate",
+        # sjtrain: the metro-style station line + header facts
+        "line": line,
+        "sharers": int(live["sharers"]) if live else 0,
+        "delay_min": live.get("delay_min") if live else None,
+        "chat": chat_window(t, service_date, now, live),
         "live": live, "estimate": est, "stops": stops,
         "path": t.get("path") or [],
         "sms": {"to": TC.SMS_TO, "body": TC.sms_body(t["no"]), "cost_bdt": TC.SMS_COST_BDT},
@@ -311,17 +333,109 @@ def rate_limited(user, now=None):
     return qs.filter(at__gte=now - timedelta(days=1)).count() >= TC.PER_DAY
 
 
+def chat_window(t, service_date, now=None, live=None):
+    """sjtrain: {"open", "opens_at", "closes_at"} — open only while the train
+    runs (see CHAT_OPEN_BEFORE_MIN / CHAT_CLOSE_AFTER_H)."""
+    now = now or timezone.now()
+    dep, arr = TG.times(t, service_date)
+    opens = dep - timedelta(minutes=CHAT_OPEN_BEFORE_MIN)
+    closes = arr + timedelta(hours=CHAT_CLOSE_AFTER_H)
+    if live is None:
+        try:
+            live = TG.fuse(t, [{"chainage": x.last_chainage, "at": x.last_fix_at,
+                                "speed_kmh": x.last_speed}
+                               for x in TrainShare.objects.filter(
+                                   train_no=t["no"], service_date=service_date,
+                                   status="active", last_fix_at__isnull=False)], now)
+        except Exception:  # noqa: BLE001 — the window never breaks the chat
+            live = None
+    if live and not live.get("arrived"):
+        closes = max(closes, min(arr + timedelta(hours=TG.LATE_END_H), now + timedelta(minutes=10)))
+    return {"open": opens <= now <= closes, "opens_at": opens.isoformat(),
+            "closes_at": closes.isoformat()}
+
+
 def post(member, text, now=None):
     if timezone.now() >= member.ends_at:
         return None, "trip_over"
+    t = TG.train(member.train_no)
+    if t is not None and not chat_window(t, member.service_date, now)["open"]:
+        return None, "not_running"
     clean, err = TC.clean_message(text)
     if err:
         return None, err
     if rate_limited(member.user, now):
         return None, "rate_limited"
-    return TrainChatMessage.objects.create(
+    # sjtrain: AI moderation, step 1 = the shared on-server abuse filter
+    # (instant, free, Bangla + Banglish): abuse / threat / hate / sexual is
+    # refused before anyone sees it; a plain insult is posted but goes to
+    # the AI check like everything else (step 2, after the commit).
+    from . import ai_guard
+    tox = ai_guard.toxicity(clean)
+    if tox["severity"] >= 2:
+        return None, "not_allowed"
+    m = TrainChatMessage.objects.create(
         member=member, train_no=member.train_no, service_date=member.service_date,
-        text=clean, emergency=TC.is_emergency(clean), ends_at=member.ends_at), None
+        text=clean, emergency=TC.is_emergency(clean), ends_at=member.ends_at,
+        hidden=False)
+    if not m.emergency:     # a call for help is never held back
+        _ai_check_later(m.id)
+    return m, None
+
+
+MOD_FEATURE = "train.chat_mod"
+MOD_TASK = ("You moderate a public chat among passengers of one train in Bangladesh "
+            "(Bangla, Banglish or English). Reply with ONE word only: OK or HIDE. "
+            "HIDE when the message harasses or insults someone, is sexual, threatens, "
+            "spreads hate, asks for money or sells something, shares or asks for a "
+            "phone number, address or social-media id, or tries to move a stranger "
+            "into a private chat or meeting. Questions about the train, seats, "
+            "stations, delays, food or help are OK.")
+
+
+def ai_moderate(msg_id):
+    """Step 2: the shared AI router (cheap class) reads ONE message and may
+    hide it for everyone. Best-effort: no key / budget / error = the local
+    filter's decision stands. Returns "ok" | "hidden" | "skipped"."""
+    from . import ai
+    m = TrainChatMessage.objects.filter(pk=msg_id).first()
+    if m is None or m.hidden:
+        return "skipped"
+    try:
+        out, _cost = ai.generate(MOD_TASK, data=m.text, tier="cheap", max_tokens=8,
+                                 feature="train.chat_mod", user=None)
+    except Exception:  # noqa: BLE001 — AIUnavailable or a provider hiccup
+        return "skipped"
+    if "HIDE" in str(out or "").upper():
+        TrainChatMessage.objects.filter(pk=msg_id).update(hidden=True)
+        return "hidden"
+    return "ok"
+
+
+def _ai_check_later(msg_id):
+    """After the commit, in one daemon thread (the poster never waits for the
+    AI); inline under PUSH_SYNC (tests), like missing_alert._run_bg."""
+    from django.conf import settings
+    if getattr(settings, "PUSH_SYNC", False):
+        transaction.on_commit(lambda: ai_moderate(msg_id))
+        return
+
+    def run():
+        from django.db import close_old_connections, connection
+        try:
+            close_old_connections()
+            ai_moderate(msg_id)
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            try:
+                connection.close()
+            except Exception:  # noqa: BLE001
+                pass
+
+    import threading
+    transaction.on_commit(lambda: threading.Thread(target=run, daemon=True,
+                                                   name="train-chat-mod").start())
 
 
 def msg_json(m, me_member):
@@ -342,7 +456,9 @@ def room(user, no, service_date, after=0):
         for r in (TrainCircleRequest.objects.filter(to_member=me, state="pending")
                   .exclude(from_member__user_id__in=blocked).select_related("from_member")):
             reqs.append({"id": r.id, "nick": r.from_member.nickname})
+    t = TG.train(no)
     return {"me": {"nickname": me.nickname} if me else None,
+            "chat": chat_window(t, service_date) if t is not None else None,
             "messages": [msg_json(m, me) for m in msgs],
             "circle_requests": reqs,
             "ends_at": me.ends_at.isoformat() if me else None,
@@ -488,6 +604,10 @@ def purge(now, stats):
     """After the trip: delete the whole room + shares. Called from
     journey_watch.sweep (existing per-minute cron)."""
     n = TrainChatMessage.objects.filter(ends_at__lte=now).delete()[0]
+    # sjtrain: nothing said in a train chat outlives 24 hours
+    n += TrainChatMessage.objects.filter(at__lte=now - timedelta(hours=CHAT_MAX_H)).delete()[0]
+    n += TrainChatMember.objects.filter(
+        joined_at__lte=now - timedelta(hours=CHAT_MAX_H)).delete()[0]
     n += TrainChatMember.objects.filter(ends_at__lte=now).delete()[0]
     TrainShare.objects.filter(status="active", ends_at__lte=now).update(
         status="ended", stopped_at=now)
@@ -496,3 +616,107 @@ def purge(now, stats):
         created_at__lte=now - timedelta(days=REPORT_KEEP_DAYS)).delete()[0]
     if n:
         stats["train_purged"] += n
+
+
+# ------------------------------------------------------------ sjtrain: seat card
+SEAT_VERIFY_N = 3          # distinct people agreeing before a fact is "verified"
+SEAT_VERIFY_SHARE = 0.66   # ... and at least this share of all answers
+SEAT_ANSWERS_PER_DAY = 6
+SEAT_ANSWER_AFTER_H = 12   # answers accepted from departure up to this long after arrival
+_SEAT_CHOICES = {"facing": ("forward", "backward"), "place": ("window", "aisle", "middle"),
+                 "side": ("left", "right")}
+
+
+def clean_seat_key(coach, seat):
+    """Ticket-style coach / seat ('ঝ', 'KA', 'Cha' / '32'): short, no
+    symbols. -> (coach, seat) or None."""
+    import re
+    c = re.sub(r"[^\wঀ-৿]", "", str(coach or ""))[:8].upper()
+    st = re.sub(r"[^\wঀ-৿]", "", str(seat or ""))[:8].upper()
+    return (c, st) if c and st else None
+
+
+def _vote(values):
+    """{"value", "n", "agree", "verified"} for one field (None = no answer)."""
+    vals = [v for v in values if v not in ("", None)]
+    if not vals:
+        return None
+    from collections import Counter
+    top, k = Counter(vals).most_common(1)[0]
+    return {"value": top, "n": len(vals), "agree": k,
+            "verified": k >= SEAT_VERIFY_N and k / float(len(vals)) >= SEAT_VERIFY_SHARE}
+
+
+def seat_view(t, coach, seat, service_date=None, user=None):
+    """The seat card. Crowd facts (unverified until SEAT_VERIFY_N people
+    agree), the coach's place from the engine, and the CALCULATED sun side
+    for this trip. Never a name or user id."""
+    rows = list(TrainSeatAnswer.objects.filter(train_no=t["no"], coach=coach, seat=seat)
+                .values("facing", "place", "side"))
+    coach_rows = list(TrainSeatAnswer.objects.filter(train_no=t["no"], coach=coach)
+                      .exclude(coach_pos=None).values_list("coach_pos", flat=True))
+    out = {"train": t["no"], "coach": coach, "seat": seat, "answers": len(rows),
+           "facing": _vote([r["facing"] for r in rows]),
+           "place": _vote([r["place"] for r in rows]),
+           "side": _vote([r["side"] for r in rows]),
+           "coach_pos": _vote(list(coach_rows)),
+           "verify_n": SEAT_VERIFY_N}
+    sd = service_date or today()
+    sun = TG.sun_side(t, sd)
+    out["sun"] = sun
+    side = (out["side"] or {}).get("value")
+    out["sun_on_seat"] = None
+    if sun and side:
+        out["sun_on_seat"] = {"pct": sun.get(side, 0), "label": "calculated"}
+    mine = None
+    if user is not None:
+        a = TrainSeatAnswer.objects.filter(user=user, train_no=t["no"], coach=coach,
+                                           seat=seat).first()
+        if a:
+            mine = {"facing": a.facing, "place": a.place, "side": a.side,
+                    "coach_pos": a.coach_pos}
+    out["mine"] = mine
+    return out
+
+
+def seat_answer(user, t, service_date, coach, seat, data, now=None):
+    """One-tap answers after (or during) a trip. -> (view, None) | (None, why)."""
+    now = now or timezone.now()
+    dep, arr = TG.times(t, service_date)
+    if not (dep - timedelta(minutes=CHAT_OPEN_BEFORE_MIN) <= now <=
+            arr + timedelta(hours=SEAT_ANSWER_AFTER_H)):
+        return None, "not_this_trip"
+    vals = {}
+    for k, ok in _SEAT_CHOICES.items():
+        v = str((data or {}).get(k) or "").strip().lower()
+        if v and v not in ok:
+            return None, "bad_" + k
+        vals[k] = v
+    cp = (data or {}).get("coach_pos")
+    if cp not in (None, ""):
+        try:
+            cp = int(cp)
+        except (TypeError, ValueError):
+            return None, "bad_coach_pos"
+        if not 1 <= cp <= 30:
+            return None, "bad_coach_pos"
+    else:
+        cp = None
+    if not any(vals.values()) and cp is None:
+        return None, "empty"
+    existing = TrainSeatAnswer.objects.filter(user=user, train_no=t["no"], coach=coach,
+                                              seat=seat).first()
+    if existing is None and TrainSeatAnswer.objects.filter(
+            user=user, created_at__gte=now - timedelta(days=1)).count() >= SEAT_ANSWERS_PER_DAY:
+        return None, "rate_limited"
+    if existing is None:
+        TrainSeatAnswer.objects.create(user=user, train_no=t["no"], coach=coach, seat=seat,
+                                       coach_pos=cp, **vals)
+    else:
+        for k, v in vals.items():
+            if v:
+                setattr(existing, k, v)
+        if cp is not None:
+            existing.coach_pos = cp
+        existing.save()
+    return seat_view(t, coach, seat, service_date, user), None
