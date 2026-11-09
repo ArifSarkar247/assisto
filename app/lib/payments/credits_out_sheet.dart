@@ -146,7 +146,12 @@ class CreditsOutSheet extends StatefulWidget {
     this.watchAd,
     this.gatewayCheckout,
     this.need = 0,
+    this.adsPerAnswer,
   });
+
+  /// aimoney (owner 10 Nov 03:45): ads for ONE Normal answer today — the
+  /// server's daily number (`/ads/wallet` ads_per_answer). Tests inject it.
+  final Future<int?> Function(BuildContext context)? adsPerAnswer;
 
   /// billapp: credits the refused task needs (the server's 402 `need`).
   final int need;
@@ -176,6 +181,7 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
   PayConfig? _cfg;
   bool _pricesLoading = false;
   bool _ads = false;
+  int? _adsN; // aimoney: the server's N (null = not known -> no number shown)
   String? _busySku; // a purchase is running (double-tap guard)
   String _note = '';
   bool _noteBad = false;
@@ -213,9 +219,26 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
         ads = false;
       }
     }
+    // aimoney: the honest daily number from the server, never typed here
+    int? n;
+    if (ads) {
+      try {
+        final f = widget.adsPerAnswer;
+        if (f != null) {
+          n = await f(context);
+        } else {
+          final w = await context.read<AppState>().api.adsWallet();
+          final v = w['ads_per_answer'];
+          n = v is num ? v.toInt() : null;
+        }
+      } catch (_) {
+        n = null;
+      }
+    }
     if (!mounted) return;
     setState(() {
       _ads = ads;
+      _adsN = (n != null && n > 0) ? n : null;
       _s = _S.list;
     });
     if (_play) await _loadPrices();
@@ -696,8 +719,13 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
                 horizontal: Gap.md, vertical: Gap.sm)),
         onPressed: _busySku == null ? _watch : null,
         icon: const Icon(Icons.ondemand_video_rounded),
-        // buyinside: the honest server rule — 2 ads = 1 Normal answer,
-        // within the daily ad cap (the server refuses past the cap)
-        label: Text(t.biWatchTwoAds, textAlign: TextAlign.center),
+        // buyinside + aimoney: the honest server rule — N ads = 1 Normal
+        // answer (N recomputed daily on the server), within the daily ad cap;
+        // N unknown -> the plain line with no number
+        label: Text(
+            _adsN != null
+                ? t.aimAdsOutRow(fmtInt(context, _adsN!))
+                : t.credoutWatchAd,
+            textAlign: TextAlign.center),
       );
 }

@@ -2,9 +2,26 @@
   "_comment": "aimoney (owner 10 Nov 03:45, part G): honest ads-per-answer line in the rewarded-ad sheet",
   "en": {
     "aimAdsPerAnswer": "Watch {n} ads for 1 AI answer",
-    "@aimAdsPerAnswer": {"description": "Rewarded-ad sheet: how many ads buy one AI answer today (n is already formatted).", "placeholders": {"n": {"type": "String"}}}
+    "@aimAdsPerAnswer": {
+      "description": "Rewarded-ad sheet: how many ads buy one AI answer today (n is already formatted).",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "aimAdsOutRow": "Free: watch {n} short ads = 1 Normal answer (daily limit applies)",
+    "@aimAdsOutRow": {
+      "description": "Credits-finished sheet: the free option; n = today's ads per answer from the server (already formatted).",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    }
   },
   "bn": {
-    "aimAdsPerAnswer": "১টি AI উত্তরের জন্য {n}টি বিজ্ঞাপন দেখুন"
+    "aimAdsPerAnswer": "১টি AI উত্তরের জন্য {n}টি বিজ্ঞাপন দেখুন",
+    "aimAdsOutRow": "ফ্রি: {n}টি ছোট বিজ্ঞাপন দেখলে ১টি নরমাল উত্তর (দিনে সীমিত)"
   }
 }

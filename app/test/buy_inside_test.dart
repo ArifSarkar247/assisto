@@ -285,7 +285,8 @@ void main() {
               draftKept: true,
               backend: b,
               flavour: 'apk',
-              adsAvailable: (_) async => true))));
+              adsAvailable: (_) async => true,
+              adsPerAnswer: (_) async => 2))));   // aimoney: the server's N
       await tester.pumpAndSettle();
       expect(find.textContaining('৳179'), findsOneWidget);
       expect(find.textContaining('৳399'), findsOneWidget);
