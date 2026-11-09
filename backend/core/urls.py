@@ -36,6 +36,7 @@ from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 from . import views_nearby as nearbyv  # nearby
 from . import views_city as cityv  # citydata
+from . import views_fcsos as fcsosv  # fcsos
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -419,6 +420,13 @@ urlpatterns = [
     path("family/sos", fam100.FamilySosView.as_view()),
     path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
     path("family/sos/ladder", fam100.FamilySosLadderView.as_view()),  # sosat
+    # fcsos: Family Care v3 SOS sender / receiver
+    path("family/sos/location", fcsosv.SosLocationView.as_view()),
+    path("family/sos/audio", fcsosv.SosAudioView.as_view()),
+    path("family/sos/status", fcsosv.SosStatusView.as_view()),
+    path("family/sos/settings", fcsosv.SosSettingsView.as_view()),
+    path("family/sos/event/<int:pk>", fcsosv.SosEventView.as_view()),
+    path("family/sos/event/<int:pk>/audio", fcsosv.SosEventAudioView.as_view()),
     path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
     path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
@@ -814,6 +822,18 @@ urlpatterns += [
     path("shop/phonecam/claim", phonecam.PhoneCamClaimView.as_view()),
     path("shop/phonecam/unbind", phonecam.PhoneCamUnbindView.as_view()),
     path("shop/phonecam/<int:pk>", phonecam.PhoneCamSettingsView.as_view()),
+    path("shop/shopbox/download", phonecam.ShopBoxDownloadView.as_view()),  # cctvtoday
+]
+
+# cctvplay: remote playback of phone-camera clips (+ continuous recording)
+from . import phonecam_clips_views as pcclips  # noqa: E402
+urlpatterns += [
+    path("shop/events/<int:pk>/clip/full", pcclips.EventFullClipView.as_view()),
+    path("shop/phonecam/video", pcclips.PhoneCamVideoUploadView.as_view()),
+    path("shop/phonecam/timeline", pcclips.PhoneCamTimelineView.as_view()),
+    path("shop/phonecam/<int:pk>/recording", pcclips.PhoneCamRecordingView.as_view()),
+    path("shop/phonecam/<int:pk>/recording/clip",
+         pcclips.PhoneCamRecordingClipView.as_view()),
 ]
 
 # ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)

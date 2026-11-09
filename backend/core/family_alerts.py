@@ -115,6 +115,35 @@ def consenting_members(sender):
     return out
 
 
+# fcsos: SOS / fall / all-clear go to the UNION of My Circle (above) and every
+# Family Care v3 family the sender is in (fcscreen core.family_v3.members_of,
+# which never raises and returns [] before its table exists). THE ONE swap
+# point for SOS recipients — no second membership model here.
+_SOS_KINDS = ("sos", "sos_resolved", "fall")
+
+
+def _sos_recipients(sender, members):
+    try:
+        from . import family_v3
+        rows = family_v3.members_of(sender) or []
+    except Exception:  # noqa: BLE001 — not merged yet / any error: circle only
+        return members
+    have = {u.pk for u, _m in members} | {sender.pk}
+    ids = []
+    for r in rows:
+        try:
+            uid = int(r.get("user_id") or 0)
+        except (TypeError, ValueError, AttributeError):
+            continue
+        if uid and uid not in have:
+            have.add(uid)
+            ids.append(uid)
+    if not ids:
+        return members
+    from .models import User
+    return list(members) + [(u, None) for u in User.objects.filter(pk__in=ids, is_active=True)]
+
+
 def is_member(sender, user):
     return any(u.pk == user.pk for u, _m in consenting_members(sender))
 
@@ -125,6 +154,9 @@ def _still_reachable(d):
     the sender for the safety kinds."""
     if is_member(d.sender, d.recipient):
         return True
+    if d.kind in _SOS_KINDS and any(u.pk == d.recipient_id
+                                    for u, _m in _sos_recipients(d.sender, [])):
+        return True  # fcsos: a Family Care v3 family member
     if d.kind not in _CO_GUARDIAN_KINDS:
         return False
     try:
@@ -277,6 +309,8 @@ def _alert(sender, kind, event_key, payload, recipients, texts, lat, lng, now, s
                                  if u.pk not in have]
         except Exception:  # noqa: BLE001
             log.warning("family_alerts: guardian2 extra recipients failed")
+    if kind in _SOS_KINDS:
+        members = _sos_recipients(sender, members)  # fcsos
     if recipients is not None:
         want = {getattr(u, "pk", u) for u in recipients}
         members = [(u, m) for u, m in members if u.pk in want]
@@ -364,9 +398,19 @@ def sos(sender, lat=None, lng=None, duress=False, journey_id=None,
     return out
 
 
-def sos_resolved(sender, now=None):
+def _mistake_texts(name, lang):
+    """fcsos: "Cancel — sent by mistake" after the SOS went out."""
+    if lang == "en":
+        return ("%s pressed SOS by mistake" % name,
+                "They are OK — there is no emergency. No need to go.")
+    return ("%s ভুল করে SOS চেপেছিলেন" % name,
+            "উনি ঠিক আছেন — কোনো বিপদ নেই। যাওয়ার দরকার নেই।")
+
+
+def sos_resolved(sender, now=None, reason="safe"):
     """'I'm safe now' — tells everyone who got an SOS in the last 24 h, and
-    their SOS cards go stale."""
+    their SOS cards go stale. fcsos: reason "mistake" = the sender cancelled
+    an SOS that had already gone out; everyone is told it was a mistake."""
     from .models import FamilyAlert, FamilyAlertDelivery
     now = now or timezone.now()
     recent = FamilyAlertDelivery.objects.filter(
@@ -376,6 +420,10 @@ def sos_resolved(sender, now=None):
         return {"recipients": 0, "sent": 0, "delivery_ids": []}
     FamilyAlert.objects.filter(kind="sos", dismissed=False, user_id__in=ids,
                                payload__from_user_id=sender.pk).update(dismissed=True)
+    if reason == "mistake":
+        return alert(sender, "sos_resolved", "m:%d" % int(now.timestamp()),
+                     payload={"reason": "mistake", "event": "sos_mistake"},
+                     recipients=list(ids), texts=_mistake_texts, now=now)
     return alert(sender, "sos_resolved", "r:%d" % int(now.timestamp()),
                  recipients=list(ids), now=now)
 
@@ -443,6 +491,12 @@ def sweep(now=None, stats=None):
         rering(now, stats)
     except Exception as e:   # never break the minute sweep
         log.warning("family_alerts: rering failed %s", type(e).__name__)
+    if now.minute == 17:  # fcsos: hourly — SOS recordings are kept 7 days
+        try:
+            from . import family_sos_v3
+            stats["sos_audio_purged"] = family_sos_v3.purge_audio(now)
+        except Exception as e:  # noqa: BLE001
+            log.warning("family_alerts: sos audio purge failed %s", type(e).__name__)
     for d in FamilyAlertDelivery.objects.filter(status="held").select_related(
             "recipient", "sender", "alert"):
         if d.sender is None or d.alert is None or d.alert.dismissed or \

@@ -63,7 +63,7 @@ class CodeTests(TestCase):
             self.assertNotRegex(c, r"[0-9IO]")
             self.assertEqual(LC.normalize_code(c), c)
             self.assertEqual(LC.normalize_code(c.lower().replace("-", " ")), c)
-            self.assertEqual(LC.normalize_code(c.replace("ALC-", "")), c)
+            self.assertEqual(LC.normalize_code(c[4:]), c)   # only the prefix (a body can contain "ALC-")
 
     def test_tampered_or_guessed_code_fails_before_db(self):
         c = LC.new_code()
@@ -72,6 +72,16 @@ class CodeTests(TestCase):
         self.assertIsNone(LC.normalize_code(swapped))
         self.assertIsNone(LC.normalize_code("ALC-AAAA-AAAA"))
         self.assertIsNone(LC.normalize_code(""))
+
+    def test_body_containing_alc(self):
+        # flaky before: "ALC-YJPA-BALC-NBXE".replace("ALC-", "") dropped the body's ALC too
+        body = "ALCDEFGH"
+        c = "ALC-%s-%s-%s" % (body[:4], body[4:], LC._check(body))
+        self.assertEqual(LC.normalize_code(c), c)
+        self.assertEqual(LC.normalize_code(c[4:]), c)
+        body2 = "YJPABALC"
+        c2 = "ALC-%s-%s-%s" % (body2[:4], body2[4:], LC._check(body2))
+        self.assertEqual(LC.normalize_code(c2[4:]), c2)
         self.assertIsNone(LC.normalize_code("<script>"))
 
 

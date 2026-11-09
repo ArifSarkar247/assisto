@@ -252,7 +252,9 @@ class _SosLadderCardState extends State<SosLadderCard> {
               danger: true,
               onTap: () => _call('999'),
             ),
-            if (!widget.offline && st != SosLadder.noOne) ...[
+            // fcsos: the SOS reached the server (even when no phone could be
+            // rung, the family's in-app cards are live) -> it can always be ended
+            if (!widget.offline) ...[
               const SizedBox(height: Gap.sm),
               OutlinedButton.icon(
                 key: const ValueKey('sosat-safe'),

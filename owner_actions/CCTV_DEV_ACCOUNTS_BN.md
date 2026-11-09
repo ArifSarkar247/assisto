@@ -49,7 +49,11 @@ Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Conc
 
 ---
 
-## DAHUA DOLYNK NOW (৯ Nov ১৮:৩০, সর্বজনীন পাতা দেখে লেখা)
+## DAHUA DOLYNK NOW (৯ Nov ১৮:৩০; আপনার কনসোল দেখে নিশ্চিত ১৮:১২-র তথ্য যোগ হয়েছে)
+
+**✅ নিশ্চিত (আপনার কনসোল, ১৮:১২):** প্রোডাক্ট **"Assisto CCTV"**, Product ID **212808822**, ধরন **Open IoT → IoT Application Development**,
+API ঠিকানা **https://open-api-sg.dolynkcloud.com** (সিঙ্গাপুর অঞ্চল), চাবি দুটি: **Access Key** ও **Secret Key**।
+এই দুটি চাবি শুধু Owner Admin → Integrations → **"Dahua DoLynk"** কার্ডে বসান → Save → Test connection।
 
 **আগে সৎ কথা:** DoLynk-এর ইংরেজি ডক (Doc Center) **লগইন ছাড়া খোলে না** — সাইট নিজেই লগইন পাতায় পাঠায়।
 আমরা লগইন করি না। তাই নিচের অনেক ঘর "আপনি কনসোলে যা দেখবেন" ধরে লেখা। যেখানে নিশ্চিত নই, সেখানে ✋ চিহ্ন।
@@ -57,7 +61,7 @@ Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Conc
 ### ১) উইজার্ডের চার ধাপ — কী বেছে নেবেন
 **ধাপ ১ — Create Product**
 - Product name: **Assisto CCTV**
-- Product type / category: **Video / Camera (IPC, NVR/DVR)** — "ভিডিও নজরদারি" ধরনের যেটি আছে সেটি। ✋ তালিকায় ঠিক কী নাম, আমাদের জানান।
+- Product type: **Open IoT → IoT Application Development** ✅ (হয়ে গেছে)।
 - Device type: যদি একটিই বাছতে হয় → **NVR/DVR** (দোকানে বেশিরভাগ এটাই); একাধিক বাছা গেলে **IPC + NVR/DVR** দুটোই।
 - Access mode বা Scenario চাইলে: **Open IoT** (ARC বা Access Control নয়)।
 
@@ -80,7 +84,7 @@ Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Conc
 - চারটি সবুজ হলে আমাদের "DoLynk Debug সবুজ" লিখে জানান (চাবি নয়)।
 
 ### ২) শেষে কী চাবি দেখাবে, কোথায় বসাবেন
-- সম্ভাব্য: **AppId / AppKey**, **AppSecret**, **Product ID / Product Key**, আর **API ঠিকানা (Region/Endpoint)**। ✋ ঠিক নামগুলো কনসোলে যেমন লেখা, তেমন আমাদের জানান (মান নয়, শুধু নাম)।
+- ✅ কনসোলে দেখায়: **Access Key**, **Secret Key**, **Product ID** (212808822), **API ঠিকানা** `https://open-api-sg.dolynkcloud.com`।
 - এগুলো **শুধু** Owner Admin → **Integrations → "Dahua DoLynk"** কার্ডে পেস্ট করবেন (কার্ডটি **পরের বিল্ডে** আসছে) → Save → Test connection।
 - **চ্যাটে, ফাইলে, স্ক্রিনশটে কখনো নয়।**
 
@@ -99,11 +103,24 @@ Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Conc
 - মানে: **ট্রায়ালে ১০টির মতো চ্যানেল দিয়ে পুরো পরীক্ষা করা যাবে।** টাকা লাগবে দোকানদারের সংখ্যা বাড়লে — তখন ৪০% লাভের নিয়মে দাম ঠিক করব, আগে আপনাকে জিজ্ঞেস করব।
 
 ### ৫) যা নিশ্চিত হতে পারিনি — কনসোল দেখে আমাদের শুধু নাম/হ্যাঁ-না জানান
-1. Create Product-এ **Product type** তালিকার ঠিক নাম।
-2. চাবির ঘরের নাম: **AppId / AppKey / AppSecret / Product ID / API Endpoint** কোনটা কোনটা আছে।
-3. Cloud Message-এ **Callback URL** ঘর আছে কিনা, নাকি MQTT/পোলিং।
-4. "How to add devices" পাতায় ডিভাইস যোগের পদ্ধতি (Safety Code / OAuth / DMSS share)।
-5. ট্রায়ালে চ্যানেল সংখ্যা ও ৩০ দিন পরে কী হয় (Billing / Package পাতায়)।
+1. ~~Product type~~ ✅ নিশ্চিত। ~~চাবির নাম~~ ✅ Access Key / Secret Key।
+2. Cloud Message-এ **Callback URL** ঘর আছে কিনা, নাকি MQTT/পোলিং।
+3. "How to add devices" পাতায় ডিভাইস যোগের পদ্ধতি (Safety Code / OAuth / DMSS share)।
+4. ট্রায়ালে চ্যানেল সংখ্যা ও ৩০ দিন পরে কী হয় (Billing / Package পাতায়)।
+
+### ৬) Open Application (পরে — এখন নয়)
+সাধারণ DMSS ব্যবহারকারী (দোকানদার) যেন নিজের DMSS অ্যাকাউন্টের ডিভাইস Assisto-কে অনুমতি দিতে পারেন, তার জন্য আলাদা অনুমোদন লাগে।
+ধাপ (আপনার কনসোলে দেখা নাম): **Apply for Operation** → Dahua-র **রিভিউ** → অনুমোদন হলে **DMSS ব্যবহারকারীরা অনুরোধ** পাঠিয়ে ডিভাইস দেন।
+- ✋ রিভিউতে ঠিক কী চায়, তা সর্বজনীন পাতায় **লেখা নেই**। Dahua-র পাতায় শুধু আছে: কোম্পানি যাচাই (১–২ কর্মদিবস) করলে production খোলে।
+- **সম্ভবত চাইবে** (অনুমান — অন্য বড় ক্লাউডের রিভিউ যেমন হয়), আগে থেকে গুছিয়ে রাখুন:
+  1. কোম্পানির কাগজ: **AXON Dynamic**-এর রেজিস্ট্রেশন (ট্রেড লাইসেন্স / নিবন্ধন সনদ)।
+  2. অ্যাপের বিবরণ: Assisto কী করে, দোকানদার কেন ক্যামেরা যুক্ত করবেন (৩–৪ লাইন, ইংরেজিতে)।
+  3. Privacy policy লিংক: **https://lifeassisto.com/privacy**।
+  4. ইন্টিগ্রেশন চলার **স্ক্রিনশট / ছোট ডেমো ভিডিও** (লাইভ, প্লেব্যাক, সতর্কতা) — Debug সবুজ হলে আমরা বানিয়ে দেব।
+  5. ডেটা কোথায় থাকে: ভিডিও Dahua-র ক্লাউড থেকে সরাসরি দেখানো হয়, আমরা ভিডিও জমাই না; আমাদের সার্ভারে শুধু ডিভাইসের নাম/অবস্থা ও সতর্কতার তালিকা।
+  6. ব্যবহারকারী কীভাবে অনুমতি দেন ও **বাতিল** করেন (অ্যাপে "সংযোগ বিচ্ছিন্ন" বোতাম + DMSS থেকেও বাতিল)।
+  7. নিরাপত্তা: চাবি শুধু সার্ভারে, HTTPS, ফোনে কোনো Secret Key নেই।
+- আমরা ধাপ ১, ৩, ৫, ৬, ৭-এর ইংরেজি লেখা তৈরি করে দেব; আপনি শুধু জমা দেবেন। ট্রায়াল Debug সবুজ হওয়ার **পরে** জমা দিন।
 
 সূত্র (সর্বজনীন):
 - https://open.dolynkcloud.com/ (Doc Center: /platform/develop/doccenter — লগইন লাগে; /package/iot/videoService; /price)

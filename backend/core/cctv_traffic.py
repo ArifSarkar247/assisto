@@ -246,6 +246,20 @@ def note_turn_usage(user_id, bytes_out, at=None):
         return False
 
 
+def record_clip(owner_id, cam_id, nbytes, now=None):
+    """cctvplay: count a phone-camera clip transfer; returns the account
+    state after it. Never raises (a meter error never blocks a clip)."""
+    now = now or timezone.now()
+    try:
+        doc = _update(owner_id, now, lambda d: T.add_clip(d, cam_id, nbytes))
+        st = account_state(owner_id, now, doc=doc)
+        _relay_after(owner_id, st, now)
+        return st
+    except Exception:
+        log.exception("clip traffic record failed")
+        return None
+
+
 # ---------------------------------------------------------------- vendor live
 def vendor_open(cam, viewer, hd, ref="", now=None):
     now = now or timezone.now()

@@ -56,6 +56,10 @@ _ORDER = ("vision_claude", "vision_gemini", "vision_openai")
 def _resolve(slug):
     """(connected, conf) for a vision provider: its own entry, else the main key."""
     from . import integrations
+    if slug == "vision_gemini":
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            return False, {}     # geminioff: image understanding = Claude
     try:
         if integrations.is_enabled(slug):
             conf = dict(integrations.get(slug) or {})
@@ -67,9 +71,35 @@ def _resolve(slug):
             if key:
                 return True, {"api_key": key, "cost_per_image_usd": _DEFAULT_COST_USD[slug],
                               "_from_main": main}
+        if slug == "vision_claude":
+            # geminioff: the Anthropic key may live in the server env only
+            # (ai.active_api_key) — Claude image understanding still works
+            from . import ai
+            key = ai.active_api_key()
+            if key:
+                return True, {"api_key": key, "cost_per_image_usd": _DEFAULT_COST_USD[slug],
+                              "_from_main": "anthropic"}
     except Exception:  # noqa: BLE001
         pass
     return False, {}
+
+
+def cctv_vision(c=None):
+    """geminioff (owner 14:45, CCTV flagship): (slug, conf, cost) for the
+    CCTV cloud AI check + the visitor description. Claude runs on HAIKU
+    vision here (a 512 px still + a short reply; worst case ~$0.001, inside
+    the CCTV plan's per-check budget) — Sonnet's $0.02 failed the budget and
+    the alert said "AI check not done" while Gemini was off. The Owner Admin
+    caps are checked in vision_providers.ask."""
+    slug, conf, cost = _active(c)
+    if slug == "vision_claude":
+        try:
+            hc = _haiku_cost_usd()
+        except Exception:  # noqa: BLE001
+            hc = 0.0011
+        conf = dict(conf or {}, model=HAIKU_VISION, cost_per_image_usd=max(hc, 0.000001))
+        cost = conf["cost_per_image_usd"]
+    return slug, conf, cost
 
 
 def providers_state(lang="bn", c=None):

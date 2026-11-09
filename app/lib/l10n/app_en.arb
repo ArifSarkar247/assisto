@@ -45076,5 +45076,914 @@
   "fcbSaveFailed": "Could not save. Check the internet and try again.",
   "fcbLoadFailed": "Could not load your family settings.",
   "fcbRetry": "Try again",
-  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess.",
+  "qjArrivedUnusual": "Arrival saved. It looked unusual (far from the destination or sooner than possible), so your family is asked to check on you.",
+  "@qjArrivedUnusual": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjArrivedNeedsPin": "This arrival looks unusual. Open Safe Journey and tap “I've arrived safely” to confirm with your safety PIN.",
+  "@qjArrivedNeedsPin": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjDestNeedsPlace": "Choose the destination from the suggestions or pin it on the map, so we can tell when you really arrive.",
+  "@qjDestNeedsPlace": {
+    "description": "qjourney: start blocked, destination has no map position"
+  },
+  "qjDestIsHere": "You are already at this place. Choose where you are going.",
+  "@qjDestIsHere": {
+    "description": "qjourney: start blocked, destination is within 300 m of the phone"
+  },
+  "psAiEditSoonTitle": "AI photo create & edit — paused for now",
+  "@psAiEditSoonTitle": {
+    "description": "Photo Studio card title while AI image create/edit is paused"
+  },
+  "psAiEditSoonBody": "Free now on your phone: one-tap enhance (light, colour, sharpen), remove background, white or blue background, blur background, crop, HD upscale. No credits needed.",
+  "@psAiEditSoonBody": {
+    "description": "Photo Studio card body listing the free on-device tools"
+  },
+  "fcsAgeSeconds": "{n} s ago",
+  "@fcsAgeSeconds": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAgeMinutes": "{n} min ago",
+  "@fcsAgeMinutes": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAgeHours": "{n} h ago",
+  "@fcsAgeHours": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeNight": "{time} am",
+  "@fcsTimeNight": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeDawn": "{time} am",
+  "@fcsTimeDawn": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeMorning": "{time} am",
+  "@fcsTimeMorning": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeNoon": "{time} pm",
+  "@fcsTimeNoon": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeAfternoon": "{time} pm",
+  "@fcsTimeAfternoon": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeEvening": "{time} pm",
+  "@fcsTimeEvening": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeLateNight": "{time} pm",
+  "@fcsTimeLateNight": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsCountdownTitle": "Sending SOS to your family in",
+  "@fcsCountdownTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCountdownBody": "Everyone in your family gets a loud alarm with your location — even if their phone is locked.",
+  "@fcsCountdownBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSendingNow": "Sending SOS…",
+  "@fcsSendingNow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSendNow": "Send now",
+  "@fcsSendNow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCancelMistake": "Cancel — I pressed it by mistake",
+  "@fcsCancelMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCancelledNothingSent": "SOS cancelled. Nothing was sent.",
+  "@fcsCancelledNothingSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentTitle": "SOS sent",
+  "@fcsSentTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentToN": "Your family's phones are ringing ({n} people)",
+  "@fcsSentToN": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSentBody": "They see where you are. Keep this screen open: your location keeps updating.",
+  "@fcsSentBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentToNobody": "No one in your family has Assisto yet",
+  "@fcsSentToNobody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentNobodyBody": "Send an SMS from your SIM or call the emergency number now.",
+  "@fcsSentNobodyBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingTitle": "Who is going",
+  "@fcsGoingTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingWaiting": "Waiting for someone to say they are on the way…",
+  "@fcsGoingWaiting": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingNobody": "No one has said they are going yet. Tap \"I am going\" if you can.",
+  "@fcsGoingNobody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingName": "{name} is on the way · {time}",
+  "@fcsGoingName": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsGoingYou": "You said you are going",
+  "@fcsGoingYou": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsRecordButton": "Record 30 seconds of sound for your family",
+  "@fcsRecordButton": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsRecording": "Recording sound for your family · {n} s left",
+  "@fcsRecording": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsRecordingBody": "Only your family on this SOS can hear it. Deleted after 7 days.",
+  "@fcsRecordingBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStop": "Stop",
+  "@fcsStop": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundSending": "Sending the sound…",
+  "@fcsSoundSending": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundSent": "Sound sent to your family",
+  "@fcsSoundSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundFailed": "The sound could not be sent. Your SOS is still on.",
+  "@fcsSoundFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundDenied": "Microphone not allowed — no sound was recorded.",
+  "@fcsSoundDenied": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCallEmergency": "Call {number}",
+  "@fcsCallEmergency": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSentByMistake": "Sent by mistake — tell everyone",
+  "@fcsSentByMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeConfirmTitle": "Tell everyone it was a mistake?",
+  "@fcsMistakeConfirmTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeConfirmBody": "Your family gets a message that you are OK and nobody needs to come.",
+  "@fcsMistakeConfirmBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsKeepSos": "Keep SOS on",
+  "@fcsKeepSos": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsTellEveryone": "Yes, tell everyone",
+  "@fcsTellEveryone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeSent": "Everyone was told it was a mistake.",
+  "@fcsMistakeSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsLiveNote": "Your location is shared with your family only while this SOS is on. Free, always — no ads.",
+  "@fcsLiveNote": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineTitle": "No internet",
+  "@fcsOfflineTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineHead": "Your SOS could not reach the internet",
+  "@fcsOfflineHead": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineBody": "Send an SMS from your own SIM now. Assisto keeps trying and sends the SOS as soon as the internet is back.",
+  "@fcsOfflineBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickTwo": "Choose 2 people for SMS",
+  "@fcsSmsPickTwo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsSendTo": "Send SMS to {names}",
+  "@fcsSmsSendTo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSmsOne": "SMS {name} only",
+  "@fcsSmsOne": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSmsChange": "Change people",
+  "@fcsSmsChange": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsHow": "Your SMS app opens with the message and your location filled in. Tap Send. Normal SMS charge from your SIM.",
+  "@fcsSmsHow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStillTrying": "Still trying to reach the internet…",
+  "@fcsStillTrying": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStopTrying": "Stop trying and close",
+  "@fcsStopTrying": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickTitle": "SMS when there is no internet",
+  "@fcsSmsPickTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickBody": "Pick up to 2 people. Kept on this phone so it works without internet.",
+  "@fcsSmsPickBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsTypeNumber": "Or type a phone number",
+  "@fcsSmsTypeNumber": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsAdd": "Add",
+  "@fcsSmsAdd": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsSave": "Save ({n} chosen)",
+  "@fcsSmsSave": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmTitle": "{name} needs help",
+  "@fcsAlarmTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmFallTitle": "{name} may have fallen",
+  "@fcsAlarmFallTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmWhen": "Sent at {time} · {ago}",
+  "@fcsAlarmWhen": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmMistake": "{name} pressed SOS by mistake",
+  "@fcsAlarmMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmMistakeBody": "They are OK. Nobody needs to go.",
+  "@fcsAlarmMistakeBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsAlarmSafe": "{name} is safe now",
+  "@fcsAlarmSafe": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmLoadFailed": "Could not load the latest details. Call them now.",
+  "@fcsAlarmLoadFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsIamGoing": "I am going",
+  "@fcsIamGoing": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingSent": "Everyone now sees that you are going.",
+  "@fcsGoingSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingFailed": "Could not send. Check the internet and try again.",
+  "@fcsGoingFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCallName": "Call {name}",
+  "@fcsCallName": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSilence": "Silence the alarm",
+  "@fcsSilence": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereTitle": "Where they are",
+  "@fcsWhereTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereLive": "Live · updated {ago}",
+  "@fcsWhereLive": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsWhereAtSend": "Location when the SOS was sent",
+  "@fcsWhereAtSend": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereAtSendAgo": "Location when the SOS was sent · {ago}",
+  "@fcsWhereAtSendAgo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsOpenMap": "Open map",
+  "@fcsOpenMap": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDirections": "Directions",
+  "@fcsDirections": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNoLocation": "Location not available",
+  "@fcsNoLocation": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNoLocationBody": "Their phone could not get GPS. Call them and ask where they are.",
+  "@fcsNoLocationBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundNotYet": "If they record sound, it appears here.",
+  "@fcsSoundNotYet": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsPlaySound": "Listen to their sound ({n} s)",
+  "@fcsPlaySound": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSoundPlayFailed": "The sound could not be played.",
+  "@fcsSoundPlayFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyTitle": "Nearest police and hospital",
+  "@fcsNearbyTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyNone": "No police station or hospital in our list near them.",
+  "@fcsNearbyNone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyNeedLocation": "Shown when their location is known.",
+  "@fcsNearbyNeedLocation": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsKmAway": "{km} km from them",
+  "@fcsKmAway": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsCall": "Call",
+  "@fcsCall": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsInfoTitle": "Emergency info",
+  "@fcsInfoTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsBloodGroup": "Blood group: {group}",
+  "@fcsBloodGroup": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAllergies": "Allergies: {text}",
+  "@fcsAllergies": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsConditions": "Health: {text}",
+  "@fcsConditions": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmFree": "Family SOS is free, always. No ads.",
+  "@fcsAlarmFree": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsClose": "Close",
+  "@fcsClose": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupTitle": "Get SOS ready",
+  "@fcsSetupTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupBody": "Two minutes now, so your SOS reaches your family in the worst moment.",
+  "@fcsSetupBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsTitle": "SMS when there is no internet",
+  "@fcsSetupSmsTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsNone": "Not chosen yet — choose 2 people.",
+  "@fcsSetupSmsNone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsSome": "SMS goes to {names}",
+  "@fcsSetupSmsSome": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsChoose": "Choose",
+  "@fcsChoose": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsChange": "Change",
+  "@fcsChange": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupShareTitle": "Show my blood group and emergency contacts to my family during SOS",
+  "@fcsSetupShareTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupShareSub": "Blood group {group} · {n} emergency contacts",
+  "@fcsSetupShareSub": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSetupShareEmpty": "Add your blood group and contacts in the Emergency card first.",
+  "@fcsSetupShareEmpty": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndTitle": "Ring family SOS even in Do Not Disturb",
+  "@fcsSetupDndTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndOn": "On — family SOS alarms ring on this phone in Do Not Disturb.",
+  "@fcsSetupDndOn": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndOff": "Off — tap Allow, then turn Assisto on in the list.",
+  "@fcsSetupDndOff": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupFullTitle": "Show SOS full screen on the lock screen",
+  "@fcsSetupFullTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupFullOff": "Off — your phone only shows a small notification.",
+  "@fcsSetupFullOff": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsAllow": "Allow",
+  "@fcsAllow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDndManual": "Open Android Settings → Apps → Special app access → Do Not Disturb access → Assisto.",
+  "@fcsDndManual": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsFullManual": "Open Android Settings → Apps → Special app access → Full-screen notifications → Assisto.",
+  "@fcsFullManual": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSaveFailed": "Could not save. Check the internet.",
+  "@fcsSaveFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDndChannelDesc": "Family SOS alarms that ring even in Do Not Disturb (you allowed it).",
+  "@fcsDndChannelDesc": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "wmPcDownloadHint": "No Shop Box program on the PC yet? Open this page on the PC to download it (Windows 10/11):",
+  "@wmPcDownloadHint": {
+    "description": "cctvtoday: pairing sheet line above the Shop Box PC download page link"
+  },
+  "wmPcDownloadShare": "Send the download link to the PC",
+  "@wmPcDownloadShare": {
+    "description": "cctvtoday: share the Shop Box PC download page link (to WhatsApp/email, to open on the PC)"
+  },
+  "pcpWatchVideo": "Watch the video",
+  "@pcpWatchVideo": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpNoPreview": "No short preview for this alert (today's limit was used up, or a secure key was not ready on the viewer's phone). You can still get the full video from the camera phone below.",
+  "@pcpNoPreview": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewNote": "Short preview: a few frames from the 10-second clip. Kept {hours} hours for you and your family, end-to-end encrypted — even Assisto cannot open it.",
+  "@pcpPreviewNote": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpFullTitle": "Full video from the camera phone",
+  "@pcpFullTitle": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFullLimits": "About {secs} seconds, about {mb} MB. It comes straight from the camera phone, is kept {hours} hours and is end-to-end encrypted.",
+  "@pcpFullLimits": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "secs": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpBudgetLeft": "This month's camera video budget: {left} MB left of {cap} MB.",
+  "@pcpBudgetLeft": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpCamOnline": "The camera phone is online — the video usually comes within 30 seconds.",
+  "@pcpCamOnline": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpCamOffline": "The camera phone is offline now. Your request waits up to 24 hours; the video comes when it is back online.",
+  "@pcpCamOffline": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpGetFull": "Get the full video",
+  "@pcpGetFull": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPlayFull": "Play the full video",
+  "@pcpPlayFull": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaiting": "Asking the camera phone…",
+  "@pcpWaiting": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaitingLong": "Still waiting. The camera phone may be offline or busy with a live view. The request stays for 24 hours — open this alert again later.",
+  "@pcpWaitingLong": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpOpening": "Opening the video on this phone…",
+  "@pcpOpening": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpMissing": "This video is no longer on the camera phone: when its storage limit is full, the oldest videos are deleted first. The photo stays.",
+  "@pcpMissing": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpExpired": "This request or video is older than 24 hours and was deleted. Ask again — it works while the video is still on the camera phone.",
+  "@pcpExpired": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFailed": "Couldn't open the video. Check the internet and try again.",
+  "@pcpFailed": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpClipsHelp": "Each alert keeps a 10-second video here; when the space is full, the oldest is deleted first. A small preview (a few frames, end-to-end encrypted) goes to you and your family; the full video leaves this phone only when one of you asks for it.",
+  "@pcpClipsHelp": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpTrustBody": "Only the owner and the family members they allow can see this camera. Sound is off unless you switch it on here. Videos stay on this phone; only a small encrypted preview, and a full video someone asks for, are sent — end-to-end encrypted. Put a notice where people are filmed, and never film inside a room someone uses privately.",
+  "@pcpTrustBody": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsSent": "Previews sent to family: {n} · {left} left today",
+  "@pcpPreviewsSent": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpPreviewsCapped": "Today's preview limit is used up — alerts and photos still go.",
+  "@pcpPreviewsCapped": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsNoKey": "Previews start once the owner's phone has opened Assisto (it makes a secure key).",
+  "@pcpPreviewsNoKey": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcrTitle": "Continuous recording (optional)",
+  "@pcrTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrBody": "Records all the time in 1-minute pieces, kept only on this phone: up to {cap} MB, oldest deleted first (now {used} MB). Pauses by itself when the phone is hot, low on battery or short of space. A minute leaves this phone only when the owner asks for it. Off by default.",
+  "@pcrBody": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrDelete": "Delete continuous recordings",
+  "@pcrDelete": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOnLine": "Recording continuously · {used} MB of {cap} MB",
+  "@pcrOnLine": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrPausedHot": "Continuous recording paused: the camera phone is too hot. Alerts still work.",
+  "@pcrPausedHot": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedBattery": "Continuous recording paused: the charger is out and the battery is low. Alerts still work.",
+  "@pcrPausedBattery": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedStorage": "Continuous recording paused: the camera phone is short of free space. Alerts still work.",
+  "@pcrPausedStorage": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedLive": "Continuous recording paused while someone watches live.",
+  "@pcrPausedLive": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrUnsupported": "This phone can't record and watch at the same time — continuous recording is off on it. Alerts and their 10-second videos still work.",
+  "@pcrUnsupported": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStarting": "Continuous recording starts in a moment…",
+  "@pcrStarting": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStateOff": "Continuous recording is off. Alerts still save a 10-second video each.",
+  "@pcrStateOff": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrWaitingPhone": "Turned on — waiting for the camera phone to start (it must be open on its camera screen).",
+  "@pcrWaitingPhone": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOnline": "Camera phone online — a minute you pick usually comes within a minute.",
+  "@pcrPhoneOnline": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOffline": "Camera phone offline — you can see what it recorded before; a minute comes when it is back online.",
+  "@pcrPhoneOffline": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOwnerBody": "Off by default. The camera phone records all the time and keeps it only on itself; it pauses when hot, low on battery or short of space. You (and family you allowed to watch live) can pick any recorded minute below; only that minute is sent, end-to-end encrypted, about 5 MB from this month's video budget.",
+  "@pcrOwnerBody": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrCapTitle": "Space on the camera phone",
+  "@pcrCapTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrViewerNote": "Only the owner can turn continuous recording on or off.",
+  "@pcrViewerNote": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTimelineTitle": "Recordings",
+  "@pcrTimelineTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTapHint": "Last 24 hours. Blue = recorded, red dot = alert. Tap a place on an hour to pick that minute.",
+  "@pcrTapHint": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPrevMinute": "Previous minute",
+  "@pcrPrevMinute": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrNextMinute": "Next minute",
+  "@pcrNextMinute": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrSelected": "Picked: {time}",
+  "@pcrSelected": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrMinuteTitle": "This minute from the camera phone",
+  "@pcrMinuteTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyBenefit": "See what happened at any time, not only at alerts — the camera phone keeps a rolling recording.",
+  "@pcrEmptyBenefit": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTurnOn": "Turn on continuous recording",
+  "@pcrTurnOn": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyWaiting": "Nothing recorded yet. Keep the camera phone plugged in with Assisto open on its camera screen; the first minute shows up here within about a minute.",
+  "@pcrEmptyWaiting": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyHow": "How it works: turn it on here or on the camera phone; it records in 1-minute pieces on that phone only, and you fetch a minute when you need it.",
+  "@pcrEmptyHow": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrHourLabel": "{time}: {mins} minutes recorded, {alerts} alerts. Double tap to pick a minute.",
+  "@pcrHourLabel": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "mins": {
+        "type": "String"
+      },
+      "alerts": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrNotRecorded": "Nothing was recorded at that minute.",
+  "@pcrNotRecorded": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  }
 }

@@ -14,9 +14,9 @@ class GeminiHealthOwnerTests(OwnerBase):
         for url in ("/owner/ai-levels?lang=en", "/owner/integrations?lang=en", "/owner/ai?lang=en"):
             html = self.c.get(url).content.decode()
             self.assertIn('id="ai-health-alerts"', html, url)
-            self.assertIn("Gemini: billing not enabled (HTTP 402) — enable billing in "
-                          "Google AI Studio / Cloud", html, url)
-            self.assertIn("বিলিং চালু নেই", html, url)
+            # geminioff: a 402 opens the 24 h breaker -> ONE clear line
+            self.assertIn("Gemini: off (402) — last check", html, url)
+            self.assertIn("Gemini: বন্ধ (402)", html, url)
             self.assertNotIn("AIza", html, url)
 
     def test_404_line_names_the_retired_model(self):

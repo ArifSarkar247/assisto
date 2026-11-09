@@ -50,6 +50,10 @@ const _allowed = <String, String>{
   'lib/widgets/permission_reason.dart': 'the helper itself',
   'lib/family_v3/brain/fc_watch.dart': // fcbrain
       'enable() runs only after FcBrainSettingsScreen shows its own prominent disclosure (fcbDiscloseBody)',
+  'lib/family_sos/sos_sender_screen.dart': // fcsos
+      'SOS moment: the countdown says the family gets your location; never an extra screen during an emergency',
+  'lib/family_sos/sos_recorder.dart': // fcsos
+      'request() is called only from SosSenderScreen._askAndRecord right after showPermissionReason(PermKind.mic)',
   'lib/widgets/emergency_sos_panel.dart':
       'SOS moment: never an extra screen during an emergency; the SOS button says location is sent',
   'lib/widgets/voice_sos_service.dart':

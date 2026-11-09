@@ -198,7 +198,10 @@ class PhoneCamClaimView(APIView):
         from datetime import timedelta
         cam = ShopCamera.objects.create(
             site=site, name=name, kind="shopbox", vendor="phone",
-            zone_config=WM.default_zone_config(site.kind),
+            # cctvtoday: a phone camera guards whenever its own "Start camera"
+            # switch is on — the owner starts/stops it on that phone. A shop's
+            # 21:00-09:00 default made a daytime test silently send nothing.
+            zone_config=WM.default_zone_config("home"),
             source={"pair_sha": sha, "viewers_live": False, "model": model,
                     "paired_at": now.isoformat()},
             billed_until=(now + timedelta(days=SV.BILLING_PERIOD_DAYS)
@@ -224,6 +227,11 @@ class PhoneCamUnbindView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         _notify(site, cam, "unbound")
         cid = cam.id
+        try:  # cctvplay: its stored videos + timeline go with it
+            from . import phonecam_clips_views as PCCV
+            PCCV.forget_camera(site.owner_id, cid)
+        except Exception:
+            log.exception("phonecam forget failed")
         cam.delete()
         return Response({"ok": True, "deleted": cid})
 
@@ -330,3 +338,15 @@ def _notify(site, cam, kind, health=None):
                            high_priority=kind in ("unplugged", "dark"))
         except Exception:
             pass
+
+
+class ShopBoxDownloadView(APIView):
+    """GET shop/shopbox/download (no login) — cctvtoday: the PC program's
+    download link + version + SHA-256 (GitHub release `shopbox-windows`) and
+    the page to send to the PC (lifeassisto.com/get#shopbox)."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        from .logic import shopbox_release as SBR
+        return Response(dict(SBR.latest(), page="https://lifeassisto.com/get#shopbox"))

@@ -395,6 +395,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             // one users see nothing (never a dead button), the owner a note.
             if (_c.config.providerReady)
               _promptCard(t)
+            // geminioff: honest "paused for now" + the free on-phone tools
+            else if (_c.config.aiEditComingSoon)
+              _aiEditSoonCard(t)
             else if (_c.config.isOwner)
               _ownerKeyNote(t),
           ],
@@ -1197,6 +1200,19 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   }
 
   /// p2-photo d): owner-only note when no cloud image-AI key is connected.
+  // geminioff: no button here on purpose — nothing to press until it ships
+  Widget _aiEditSoonCard(AppLocalizations t) => Container(
+        key: const Key('psAiEditSoon'),
+        child: Semantics(
+          container: true,
+          label: '${t.psAiEditSoonTitle}. ${t.psAiEditSoonBody}',
+          excludeSemantics: true,
+          child: _statusBox(Icons.auto_awesome_rounded,
+              '${t.psAiEditSoonTitle}\n${t.psAiEditSoonBody}',
+              Theme.of(context).colorScheme.primary),
+        ),
+      );
+
   Widget _ownerKeyNote(AppLocalizations t) => Container(
         key: const Key('psOwnerKeyNote'),
         child: _statusBox(Icons.key_rounded, t.psOwnerAddKey,

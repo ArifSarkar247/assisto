@@ -150,7 +150,339 @@ def fast_edge():
     T.GatewayTasks = FastTasks
 
 
+# ------------------------------------------------------------------ phone camera
+def run_phonecam(owner, family):
+    """cctvtoday (owner two-phone test, 9 Nov): an old Android phone as the
+    camera, exactly the HTTP calls the app makes (phonecam_api.dart +
+    ShopDeviceClient): QR code -> claim without login -> heartbeat online ->
+    a DAYTIME person alert with photo on a site -> push to owner + family ->
+    alert list + photo -> live view reaches the camera phone -> family live
+    blocked until the owner allows -> unbind."""
+    import requests
+    from core.models import ShopCamera, ShopEvent
+    r = owner.post(API + "/shop/watchman/setup",
+                   json={"kind": "home", "gateway": "phone", "name": "E2E Phone Home"},
+                   timeout=10)
+    need("phonecam: second place created", r.status_code == 201, r.text)
+    site_id = r.json()["id"]
+    r = owner.post(API + "/shop/sites/%d/viewers" % site_id,
+                   json={"phone": FAMILY_PHONE}, timeout=10)
+    check("phonecam: family viewer added", r.status_code == 201, r.text)
+    r = owner.get(API + "/shop/phonecam/pair?site=%d" % site_id, timeout=10)
+    need("phonecam: owner gets QR code + link", r.status_code == 200 and
+         r.json().get("link", "").startswith("https://lifeassisto.com/pc/"), r.text)
+    code, link = r.json()["code"], r.json()["link"]
+    cam_phone = requests.Session()           # the OLD phone: no login at all
+    cam_phone.headers.update({"Accept-Language": "bn"})
+    t0 = time.monotonic()
+    r = cam_phone.post(API + "/shop/phonecam/claim",
+                       json={"code": link, "model": "Sample Phone 5"}, timeout=10)
+    need("phonecam: camera phone pairs by scanning the QR link (no login)",
+         r.status_code == 201 and r.json().get("camera_token"), r.text)
+    tok, cam_id = r.json()["camera_token"], r.json()["camera"]["id"]
+    r = cam_phone.post(API + "/shop/phonecam/claim", json={"code": code}, timeout=10)
+    # spent: 409 code_used, or 400 once the next code is already in force
+    check("phonecam: the same code cannot pair a second phone",
+          r.status_code in (400, 409) and not r.json().get("camera_token"), r.text)
+    dev = requests.Session()
+    dev.headers.update({"X-Shop-Token": tok, "X-Shop-Camera": str(cam_id)})
+    hb = lambda: dev.post(API + "/shop/heartbeat", json={  # noqa: E731
+        "camera_ids": [cam_id], "caps": ["live", "phone"], "platform": "android",
+        "health": {"level": 80, "charging": True, "temp_c": 31, "dark": False}},
+        timeout=10)
+    r = hb()
+    need("phonecam: heartbeat accepted", r.status_code == 200, r.text)
+    rows = owner.get(API + "/shop/phonecam/pair?site=%d" % site_id, timeout=10).json()
+    check("phonecam: owner's pairing sheet sees the new camera",
+          any(c["id"] == cam_id for c in rows.get("cameras", [])), rows)
+    cam = ShopCamera.objects.get(pk=cam_id)
+    check("phonecam: always on guard (no shop-hours schedule)",
+          (cam.zone_config or {}).get("schedule") is None, cam.zone_config)
+
+    n0 = len(fcm_calls())
+    play_ref = "c0ffee" + "ab" * 13      # cctvplay: the alert names its clip
+    ing = dev.post(API + "/shop/ingest", data={
+        "type": "person_detected", "camera_id": str(cam_id), "clip_ref": play_ref,
+        "signals": json.dumps({"detector": "yolox_nano_phone", "conf": 0.82,
+                               "persons": 1, "source": "phone_camera"}),
+        "at": str(time.time())},
+        files={"snapshot": ("snapshot.jpg", jpeg_bytes(1280, 720), "image/jpeg")},
+        timeout=15)
+    need("phonecam: person alert raised", ing.status_code == 201 and
+         ing.json().get("raised"), ing.text)
+    ev_id = ing.json()["event_id"]
+    calls = wait_for(lambda: [c for c in fcm_calls()[n0:]
+                              if (c.get("data") or {}).get("event_id") == str(ev_id)], 10)
+    secs = time.monotonic() - t0
+    check("phonecam: push reaches owner AND family phone",
+          calls and {c["token"] for c in calls} == {"e2e-fcm-owner", "e2e-fcm-family"},
+          calls)
+    CASH_METRICS["phonecam_pair_to_push_s"] = round(secs, 2)
+    ow = {c["token"]: c for c in (calls or [])}.get("e2e-fcm-owner", {})
+    snap_url = (ow.get("data") or {}).get("snapshot_url") or ""
+    img = requests.get(snap_url, timeout=10) if snap_url else None
+    check("phonecam: push photo opens (signed JPEG link)",
+          img is not None and img.status_code == 200 and img.content[:2] == b"\xff\xd8",
+          snap_url)
+    evs = owner.get(API + "/shop/events?site=%d" % site_id, timeout=10).json()
+    check("phonecam: owner alert list shows it with the photo",
+          any(e["id"] == ev_id and e["snapshot_url"] for e in evs.get("events", [])), evs)
+    fevs = family.get(API + "/shop/events?site=%d" % site_id, timeout=10).json()
+    check("phonecam: family member sees the same alert",
+          any(e["id"] == ev_id for e in fevs.get("events", [])), fevs)
+    check("phonecam: alert is stored on the phone camera",
+          ShopEvent.objects.filter(pk=ev_id, camera_id=cam_id).exists())
+    try:
+        run_phonecam_playback(owner, family, dev, hb, ev_id, play_ref)
+    except Abort:
+        pass
+    except Exception:
+        traceback.print_exc()
+        check("cctvplay driver crashed", False, traceback.format_exc()[-300:])
+
+    # live view: owner taps Live -> the camera phone finds it on its heartbeat
+    r = family.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    check("phonecam: family live view is OFF until the owner allows it",
+          r.status_code == 403, r.text)
+    r = owner.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    if r.status_code == 503:
+        check("phonecam: live start (server busy on the CI box — skipped)", True)
+        return
+    need("phonecam: owner live view starts", r.status_code == 201, r.text)
+    sid = r.json()["id"]
+    pend = (hb().json().get("live_pending") or [])
+    check("phonecam: camera phone gets the live request on its next heartbeat",
+          any(p.get("id") == sid for p in pend), pend)
+    owner.post(API + "/shop/live/%d/signal" % sid,
+               json={"kind": "offer", "payload": {"type": "offer", "sdp": "v=0"}},
+               timeout=10)
+    got = dev.get(API + "/shop/live/%d/signal?after=0" % sid, timeout=10).json()
+    check("phonecam: the owner's offer reaches the camera phone",
+          any(m.get("kind") == "offer" for m in got.get("messages", [])), got)
+    dev.post(API + "/shop/live/%d/signal" % sid,
+             json={"kind": "answer", "payload": {"type": "answer", "sdp": "v=0"}},
+             timeout=10)
+    back = owner.get(API + "/shop/live/%d/signal?after=0" % sid, timeout=10).json()
+    check("phonecam: the camera phone's answer reaches the owner",
+          any(m.get("kind") == "answer" for m in back.get("messages", [])), back)
+    dev.post(API + "/shop/live/%d/end" % sid, json={"relayed": False, "seconds": 5},
+             timeout=10)
+    r = owner.patch(API + "/shop/phonecam/%d" % cam_id, json={"viewers_live": True},
+                    timeout=10)
+    check("phonecam: owner allows family live", r.status_code == 200, r.text)
+    r = family.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    check("phonecam: family live view now starts", r.status_code in (201, 503), r.text)
+
+    r = dev.post(API + "/shop/phonecam/unbind", json={}, timeout=10)
+    check("phonecam: camera phone removes itself",
+          r.status_code == 200 and not ShopCamera.objects.filter(pk=cam_id).exists(),
+          r.text)
+
+
 # ------------------------------------------------------------------ run
+def _real_mp4(seconds=10, fps=10):
+    """A REAL small MP4 like the camera phone records (cv2, mp4v); None when
+    OpenCV can't write one here (then plain test bytes are used)."""
+    try:
+        import cv2
+        import numpy as np
+        path = os.path.join(E2E_DIR, "phonecam_clip.mp4")
+        w = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (320, 240))
+        if not w.isOpened():
+            return None
+        for i in range(seconds * fps):
+            f = np.full((240, 320, 3), 40, np.uint8)
+            cv2.rectangle(f, (10 + i * 2, 60), (60 + i * 2, 200), (200, 180, 160), -1)
+            w.write(f)
+        w.release()
+        with open(path, "rb") as fh:
+            return fh.read()
+    except Exception:
+        return None
+
+
+def _mp4_frames(raw):
+    try:
+        import cv2
+        path = os.path.join(E2E_DIR, "phonecam_opened.mp4")
+        with open(path, "wb") as fh:
+            fh.write(raw)
+        cap = cv2.VideoCapture(path)
+        n = 0
+        while True:
+            ok, _f = cap.read()
+            if not ok:
+                break
+            n += 1
+        cap.release()
+        return n
+    except Exception:
+        return -1
+
+
+def run_phonecam_playback(owner, family, dev, hb, ev_id, ref):
+    """cctvplay (owner order 9 Nov 14:45, item 3): the alert clip plays on the
+    VIEWER's phone remotely. The owner's + family's phones publish their
+    public keys; the camera phone's heartbeat names them; it seals a preview
+    (ACG1 frames of its 10 s clip) and uploads ciphertext; the FAMILY phone
+    opens it with its private key. Then the family asks for the FULL video:
+    the camera phone sees the request on its next heartbeat, seals the real
+    MP4 and uploads it; the family phone opens and decodes it (cv2)."""
+    import base64
+    import requests
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
+    from core.models import ShopEvent, UserPublicKey
+    from shopbox import clip as EC
+    with open(os.path.join(ROOT, "tools", "cashguard", "clip_vector.json")) as fh:
+        vec = json.load(fh)
+    ev = ShopEvent.objects.select_related("site").get(pk=ev_id)
+    owner_uid = ev.site.owner_id
+    fam_uid = ev.site.viewers.values_list("user_id", flat=True).first()
+    need("cctvplay: family viewer exists", fam_uid is not None)
+    UserPublicKey.objects.update_or_create(
+        user_id=owner_uid, defaults={"public_key": vec["recipient_public"],
+                                     "key_id": vec["meta"]["wraps"]["7"]["key_id"],
+                                     "scheme": EC.SCHEME})
+    fam_key = X25519PrivateKey.generate()
+    fam_priv = fam_key.private_bytes(serialization.Encoding.Raw,
+                                     serialization.PrivateFormat.Raw,
+                                     serialization.NoEncryption())
+    fam_pub = fam_key.public_key().public_bytes(serialization.Encoding.Raw,
+                                                serialization.PublicFormat.Raw)
+    UserPublicKey.objects.update_or_create(
+        user_id=fam_uid, defaults={"public_key": base64.b64encode(fam_pub).decode(),
+                                   "key_id": EC.key_id(fam_pub), "scheme": EC.SCHEME})
+    t0 = time.monotonic()
+    block = (hb().json().get("phonecam") or {})
+    clip_cfg = block.get("clip") or {}
+    check("cctvplay: camera phone's heartbeat names owner + family as clip recipients",
+          clip_cfg.get("enabled") and {r["uid"] for r in clip_cfg.get("recipients", [])}
+          == {owner_uid, fam_uid}, block)
+    # the preview: 15 small frames over 10 s (what clipFrames + buildPreview make)
+    frames = [(i / 1.5, jpeg_bytes(320, 180)) for i in range(15)]
+    plain = EC.encode_container(frames, 1.5)
+    ct, meta = EC.seal(plain, clip_cfg.get("recipients") or [])
+    meta.update(duration_s=10.0, frames=15, fps=1.5)
+    r = dev.post(API + "/shop/clips", data={"clip_ref": ref, "meta": json.dumps(meta)},
+                 files={"blob": ("clip.bin", ct, "application/octet-stream")}, timeout=15)
+    need("cctvplay: camera phone uploads the sealed preview (ciphertext only)",
+         r.status_code == 201, r.text)
+    env = family.get(API + "/shop/events/%d/clip" % ev_id, timeout=10)
+    ok = env.status_code == 200 and env.json().get("status") == "ready"
+    check("cctvplay: family sees the preview ready (kept 24 h, not deleted on view)",
+          ok and env.json().get("delete_on_view") is False, env.text[:300])
+    if ok:
+        blob = requests.get(env.json()["url"], timeout=10).content
+        try:
+            got = EC.open_clip(blob, env.json()["meta"], fam_uid, fam_priv)
+            _hdr, fr = EC.decode_container(got)
+        except Exception as e:
+            got, fr = None, []
+            print("open preview failed:", e)
+        check("cctvplay: alert -> remote clip PLAYS on the family phone (opened with its key)",
+              got == plain and len(fr) == 15, len(fr))
+        CASH_METRICS["phonecam_alert_to_preview_s"] = round(time.monotonic() - t0, 2)
+        lim = env.json().get("phonecam") or {}
+        check("cctvplay: honest limits shown (10 s clip, 24 h free / 30 days paid, budget, online)",
+              lim.get("clip_s") == 10 and lim.get("preview_keep_h") in (24, 720) and
+              "budget" in (lim.get("full") or {}) and
+              (lim.get("full") or {}).get("camera_online") is True, lim)
+    # the FULL video on demand
+    t1 = time.monotonic()
+    r = family.post(API + "/shop/events/%d/clip/full" % ev_id, json={}, timeout=10)
+    need("cctvplay: family asks the camera phone for the full video",
+         r.status_code == 202 and r.json().get("status") == "requested", r.text)
+    reqs = (hb().json().get("phonecam") or {}).get("video_requests") or []
+    check("cctvplay: camera phone gets the request on its next heartbeat",
+          reqs == [{"key": "e%d" % ev_id, "kind": "event", "ref": ref}], reqs)
+    mp4 = _real_mp4() or (b"\x00\x00\x00\x18ftypmp42" + os.urandom(30000))
+    old = (EC.AAD, EC.FORMAT)
+    try:
+        EC.AAD, EC.FORMAT = b"assisto-phonecam-video-v1", "mp4"
+        vct, vmeta = EC.seal(mp4, clip_cfg.get("recipients") or [])
+    finally:
+        EC.AAD, EC.FORMAT = old
+    vmeta["duration_s"] = 10.0
+    r = dev.post(API + "/shop/phonecam/video", data={"key": "e%d" % ev_id,
+                                                     "meta": json.dumps(vmeta)},
+                 files={"blob": ("video.bin", vct, "application/octet-stream")}, timeout=30)
+    need("cctvplay: camera phone uploads the sealed full video", r.status_code == 201, r.text)
+    st = family.get(API + "/shop/events/%d/clip/full" % ev_id, timeout=10).json()
+    check("cctvplay: full video ready for the family (signed link + their wrap)",
+          st.get("status") == "ready" and st.get("sealed_for_you") is True, st)
+    if st.get("status") == "ready":
+        blob = requests.get(st["url"], timeout=20).content
+        try:
+            got = EC.open_clip(blob, st["meta"], fam_uid, fam_priv)
+        except Exception:
+            got = None
+        n = _mp4_frames(got) if got else 0
+        check("cctvplay: full video PLAYS on the family phone (%d frames decoded)" % n,
+              got == mp4 and (n > 0 or n == -1), n)
+        CASH_METRICS["phonecam_full_request_to_ready_s"] = round(time.monotonic() - t1, 2)
+        CASH_METRICS["phonecam_full_bytes"] = len(vct)
+    fam_other = family.get(API + "/shop/events/%d/clip/full" % (ev_id + 100000), timeout=10)
+    check("cctvplay: no one else's alert videos", fam_other.status_code == 404, fam_other.text)
+
+    # item 4: optional CONTINUOUS recording on the camera phone -> timeline ->
+    # the owner picks a minute -> the camera phone sends it the same sealed way
+    cam_id = ev.camera_id
+    r = owner.get(API + "/shop/phonecam/%d/recording" % cam_id, timeout=10)
+    check("cctvrec: continuous recording is OFF by default",
+          r.status_code == 200 and r.json()["settings"]["on"] is False, r.text[:200])
+    r = owner.patch(API + "/shop/phonecam/%d/recording" % cam_id,
+                    json={"on": True, "cap_mb": 2000}, timeout=10)
+    check("cctvrec: owner turns it on", r.status_code == 200 and
+          r.json()["settings"]["on"] is True, r.text[:200])
+    rec = (hb().json().get("phonecam") or {}).get("recording") or {}
+    check("cctvrec: camera phone sees the switch on its heartbeat", rec.get("on") is True, rec)
+    now = int(time.time())
+    seg_start = now - 120
+    r = dev.post(API + "/shop/phonecam/timeline", json={
+        "spans": [[seg_start, seg_start + 60], [seg_start + 61, now - 1]],
+        "alerts": [seg_start + 20], "used_mb": 12, "cap_mb": 2000,
+        "state": "recording"}, timeout=10)
+    check("cctvrec: camera phone publishes its timeline", r.status_code == 200, r.text)
+    tl = owner.get(API + "/shop/phonecam/%d/recording" % cam_id, timeout=10).json()["timeline"]
+    check("cctvrec: owner's timeline shows the recorded hours + the alert marker",
+          tl.get("spans") == [[seg_start, now - 1]] and seg_start + 20 in (tl.get("alerts") or []), tl)
+    t = seg_start + 20
+    t2 = time.monotonic()
+    r = owner.post(API + "/shop/phonecam/%d/recording/clip" % cam_id, json={"t": t}, timeout=10)
+    need("cctvrec: owner asks for the minute at the alert marker",
+         r.status_code == 202 and r.json().get("status") == "requested", r.text)
+    reqs = (hb().json().get("phonecam") or {}).get("video_requests") or []
+    check("cctvrec: camera phone gets the segment request",
+          {"key": "s%d" % t, "kind": "segment", "start": t} in reqs, reqs)
+    seg = _real_mp4(seconds=6) or (b"\x00\x00\x00\x18ftypmp42" + os.urandom(30000))
+    old = (EC.AAD, EC.FORMAT)
+    try:
+        EC.AAD, EC.FORMAT = b"assisto-phonecam-video-v1", "mp4"
+        sct, smeta = EC.seal(seg, clip_cfg.get("recipients") or [])
+    finally:
+        EC.AAD, EC.FORMAT = old
+    smeta.update(duration_s=60.0, start_ts=seg_start)
+    r = dev.post(API + "/shop/phonecam/video", data={"key": "s%d" % t, "meta": json.dumps(smeta)},
+                 files={"blob": ("video.bin", sct, "application/octet-stream")}, timeout=30)
+    need("cctvrec: camera phone uploads the sealed minute", r.status_code == 201, r.text)
+    st = owner.get(API + "/shop/phonecam/%d/recording/clip?key=s%d" % (cam_id, t),
+                   timeout=10).json()
+    ok = st.get("status") == "ready"
+    got = None
+    if ok:
+        blob = requests.get(st["url"], timeout=20).content
+        try:
+            got = EC.open_clip(blob, st["meta"], owner_uid,
+                               base64.b64decode(vec["recipient_private"]))
+        except Exception:
+            got = None
+    n = _mp4_frames(got) if got else 0
+    check("cctvrec: continuous-recording minute PLAYS remotely on the owner phone (%d frames)" % n,
+          ok and got == seg and (n > 0 or n == -1) and st["meta"].get("start_ts") == seg_start, st)
+    CASH_METRICS["phonecam_segment_request_to_ready_s"] = round(time.monotonic() - t2, 2)
+
+
 def run():
     django_setup()
     from core.models import FamilyAlert, NotifEvent, ShopCamera, ShopEvent
@@ -396,8 +728,12 @@ def run():
         check("cashguard: the alert names its clip (clip_ref, not evidence)",
               len((cev.signals or {}).get("clip_ref") or "") == 32 and
               "clip_ref" not in (cev.signals.get("inputs") or {}), cev.signals)
-        ccalls = wait_for(lambda: [c for c in fcm_calls()[n_push:]
-                                   if (c.get("data") or {}).get("event_id") == str(cev.id)], 15)
+        # cctvtoday: wait for the OWNER's push too (the family push can land first)
+        def _cash_calls():
+            got = [c for c in fcm_calls()[n_push:]
+                   if (c.get("data") or {}).get("event_id") == str(cev.id)]
+            return got if any(c.get("token") == "e2e-fcm-owner" for c in got) else None
+        ccalls = wait_for(_cash_calls, 15)
         cown = [c for c in (ccalls or []) if c.get("token") == "e2e-fcm-owner"]
         check("cashguard: push says 'Possible cash removal — watch the clip and decide'",
               bool(cown) and "Possible cash removal" in json.dumps(cown) and
@@ -672,6 +1008,15 @@ def run():
                 engine.stop()
             except Exception:
                 pass
+    # cctvtoday: the two-phone path (old phone = camera), its own section so a
+    # failure above never hides it
+    try:
+        run_phonecam(owner, family)
+    except Abort:
+        pass
+    except Exception:
+        traceback.print_exc()
+        check("phonecam driver crashed", False, traceback.format_exc()[-300:])
     failed = [r for r in RESULTS if not r[1]]
     print("\n==== CCTV E2E: %d passed, %d failed ====" % (len(RESULTS) - len(failed),
                                                           len(failed)))

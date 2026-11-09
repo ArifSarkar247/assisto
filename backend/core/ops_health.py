@@ -206,6 +206,8 @@ JOBS = (
     Job("carecall_tick", MIN, "* * * * *", via="minute_jobs"),
     Job("family_brain_tick", MIN, "* * * * *", via="minute_jobs"),  # fcbrain
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
+    # geminioff: idle = one indexed read; ONE Gemini request a day while off
+    Job("gemini_probe", MIN, "* * * * *", via="minute_jobs"),
     Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
     # bizai: Market group-buy expiry (gated inside: every 30 min) and the
     # weekly Bangla business report (gated: Friday from 10:00 Dhaka, once per
@@ -255,6 +257,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("nearby_import", {"quiet": True}),
                # citydata: after nearby; idle = two small reads
                ("city_tick", {"quiet": True}),
+               # geminioff: Gemini 24 h breaker — one check a day while off
+               ("gemini_probe", {"quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 

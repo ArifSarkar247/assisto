@@ -149,6 +149,9 @@ class PushPayload {
       key = 'agentap-${_s('approval_id')}';
     } else if (kind == 'reminder' && _s('reminder_id').isNotEmpty) {
       key = 'rem-${_s('reminder_id')}';
+    } else if (kind == 'sos' && _s('delivery_id').isNotEmpty) {
+      // fcsos: one alarm per received SOS (its page cancels exactly this one)
+      key = 'sos-${_s('delivery_id')}';
     } else if (kind == 'carecall' && _s('slot_key').isNotEmpty) {
       // carecall: the SAME id as the phone's own alarm for this ring
       // (carecall_plan.dart ccNotifId), so the two never show twice

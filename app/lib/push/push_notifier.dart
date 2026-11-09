@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 
+import '../family_sos/sos_dnd.dart'; // fcsos
 import '../calls/call_avatar.dart';
 import '../calls/call_log.dart';
 import '../calls/call_reply.dart';
@@ -166,7 +167,8 @@ class PushNotifier {
   }
 
   static NotificationDetails detailsFor(PushPayload p,
-      {String? ringtoneUri, Uint8List? largeIcon, Uint8List? bigPicture}) {
+      {String? ringtoneUri, Uint8List? largeIcon, Uint8List? bigPicture,
+      bool sosDnd = false}) {
     // carecall: the Care Call ring — call-style, full-screen, Done / Snooze
     if (p.kind == 'carecall') return CareCallAlarms.details(p.lang);
     final t = _t(p.lang);
@@ -232,14 +234,21 @@ class PushNotifier {
       );
     }
     if (p.isSos) {
+      // fcsos: a family SOS / fall alarm keeps ringing (insistent) until the
+      // alarm page opens or 10 min pass (the push TTL); with the user's DND
+      // access it rings on the "override Do Not Disturb" channel.
+      final ak = p.data['alert_kind'] ?? 'sos';
+      final alarm = !p.silent && (ak == 'sos' || ak == 'fall');
       return NotificationDetails(
-        android: AndroidNotificationDetails(ch.id, ch.name,
+        android: AndroidNotificationDetails(sosDnd ? SosDnd.channelId : ch.id, ch.name,
             channelDescription: ch.description,
             importance: Importance.max,
             priority: Priority.max,
             category: AndroidNotificationCategory.alarm,
             audioAttributesUsage: AudioAttributesUsage.alarm,
             fullScreenIntent: !p.silent,
+            timeoutAfter: alarm ? 600000 : null,
+            additionalFlags: alarm ? Int32List.fromList(const [_flagInsistent]) : null,
             visibility: NotificationVisibility.public),
       );
     }
@@ -399,9 +408,10 @@ class PushNotifier {
         await MsgChannel.ensure(_android,
             name: t.pushChMessages, description: t.pushChMessagesDesc);
       }
+      final sosDnd = p.isSos && await SosDnd.channelReady(); // fcsos
       await _plugin.show(p.notificationId, title,
           body.isEmpty ? null : body,
-          detailsFor(p, ringtoneUri: ring, largeIcon: face, bigPicture: pic),
+          detailsFor(p, ringtoneUri: ring, largeIcon: face, bigPicture: pic, sosDnd: sosDnd),
           payload: p.encode());
     } catch (e) {
       if (kDebugMode) debugPrint('push show failed: $e');
@@ -452,6 +462,15 @@ class PushNotifier {
     );
     await createChannels(lang);
     _bgInitDone = true;
+  }
+
+  /// fcsos: stop a ringing SOS alarm notification (its page is on screen).
+  static Future<void> cancelFor(Map<String, String> data) async {
+    try {
+      await _plugin.cancel(PushPayload(data).notificationId);
+    } catch (_) {
+      // nothing showing / no plugin (tests)
+    }
   }
 
   static Future<void> cancelCall(String callId) async {
