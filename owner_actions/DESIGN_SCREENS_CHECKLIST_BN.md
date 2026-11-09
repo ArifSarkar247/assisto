@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৪ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪৫ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -197,7 +197,7 @@
 
 ## ৯. খাতা
 
-- ⬜ — `screens/business/khata_entry_screen.dart`
+- ✅ batch 5 (DS ত্রুটি অবস্থা) — `screens/business/khata_entry_screen.dart`
 - ✅ batch 3 (খাতা — নরম হিরো, বড় অঙ্ক) — `screens/business/khata_screen.dart`
 
 ## ১০. মেস ও ব্যাচেলর
