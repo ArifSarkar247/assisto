@@ -547,7 +547,8 @@ class CorpusTests(Sim):
     def run_corpus(self, v2=True):
         t_base = timezone.now() - timedelta(days=30)
         res = {"journeys": 0, "watcher_alerts": 0, "late_alerts": 0, "arrived": 0,
-               "asks": 0, "false_arrived": 0}
+               "asks": 0, "false_arrived": 0,
+               "alerts_answered": 0, "silent_journeys": 0}
         for i, c in enumerate(make_corpus(self.N)):
             t0 = t_base + timedelta(hours=8 * i)
             t0 = timezone.localtime(t0).replace(hour=10, minute=0)
@@ -580,6 +581,10 @@ class CorpusTests(Sim):
             res["arrived"] += int(j.status == "arrived")
             evs = self.watcher_events(j)
             res["watcher_alerts"] += len(evs)
+            if c["answers"]:
+                res["alerts_answered"] += len(evs)     # must stay 0
+            else:
+                res["silent_journeys"] += 1
             res["late_alerts"] += sum(1 for e in evs if e.kind in LATE_KINDS or
                                       (e.payload or {}).get("why") == "late_stopped")
         res["asks"] = len(self.asks())
@@ -590,10 +595,12 @@ class CorpusTests(Sim):
         old = self.run_corpus(v2=False)
         per20 = lambda r, k: round(20.0 * r[k] / max(1, r["journeys"]), 2)
         print("SJDURING_CORPUS v2 journeys=%d arrived=%d false_arrived=%d private_asks=%d "
-              "watcher_alerts=%d (%.2f/20) false_late_alerts=%d (%.2f/20)" % (
+              "watcher_alerts=%d (%.2f/20) false_late_alerts=%d (%.2f/20) alerts_when_answered=%d "
+              "travellers_never_answering=%d" % (
                   new["journeys"], new["arrived"], new["false_arrived"], new["asks"],
                   new["watcher_alerts"], per20(new, "watcher_alerts"),
-                  new["late_alerts"], per20(new, "late_alerts")))
+                  new["late_alerts"], per20(new, "late_alerts"),
+                  new["alerts_answered"], new["silent_journeys"]))
         print("SJDURING_CORPUS old journeys=%d arrived=%d false_arrived=%d "
               "watcher_alerts=%d (%.2f/20) false_late_alerts=%d (%.2f/20)" % (
                   old["journeys"], old["arrived"], old["false_arrived"],
@@ -601,4 +608,6 @@ class CorpusTests(Sim):
                   old["late_alerts"], per20(old, "late_alerts")))
         self.assertEqual(new["false_arrived"], 0)
         self.assertLess(per20(new, "late_alerts"), 1.0)          # owner target
-        self.assertLessEqual(new["watcher_alerts"], old["watcher_alerts"])
+        # a traveller who answers the private screen never causes a family alert
+        self.assertEqual(new["alerts_answered"], 0)
+        self.assertLessEqual(new["late_alerts"], old["late_alerts"])
