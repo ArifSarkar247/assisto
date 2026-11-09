@@ -314,7 +314,9 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
         SizedBox(
           height: 52,
           child: OutlinedButton.icon(
-            onPressed: _busy ? null : _make,
+            onPressed: _busy
+                ? null
+                : (_elderId == null ? () => setState(() => _pair = null) : _make),
             icon: const Icon(Icons.refresh_rounded),
             label: Text(t.fceSetupNewCode),
           ),

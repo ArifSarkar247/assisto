@@ -109,6 +109,7 @@ class _AreYouOkScreenState extends State<AreYouOkScreen> {
               SizedBox(
                 height: 56,
                 child: TextButton.icon(
+                  key: const Key('fce-ask-listen'),
                   onPressed: _speak,
                   icon: const Icon(Icons.volume_up_rounded, size: 28),
                   label: Text(t.fceListenAgain, style: AType.titleLarge),

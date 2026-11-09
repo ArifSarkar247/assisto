@@ -31,6 +31,12 @@ AppState _state(String lang) {
   return s;
 }
 
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(1080, 4800);
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
+}
+
 Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = false}) =>
     ChangeNotifierProvider<AppState>.value(
       value: _state(lang),
@@ -71,6 +77,7 @@ void main() {
 
   group('Screen 4 — Elder Easy Home', () {
     testWidgets('greeting with name + time; five big buttons; each SAYS its name', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily)));
       await tester.pumpAndSettle();
       expect(find.textContaining('Rahima'), findsOneWidget);
@@ -120,6 +127,7 @@ void main() {
     });
 
     testWidgets('no family number yet -> a big "Add a family number", never a dead button', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: [])));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('fce-add-family')), findsOneWidget);
@@ -143,6 +151,7 @@ void main() {
 
   group('Elder setup by a child', () {
     testWidgets('child: pick in one tap -> options -> QR + code', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(ElderSetupScreen(debugPeople: [
         {'user_id': 2, 'name': 'Ammu', 'relation': 'mother'},
         {'user_id': 4, 'name': 'Nabil', 'relation': 'other'},
@@ -163,6 +172,7 @@ void main() {
     });
 
     testWidgets('child with no family yet: benefit + big Add + how', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(const ElderSetupScreen(debugPeople: [])));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('fce-setup-add')), findsOneWidget);
@@ -170,6 +180,7 @@ void main() {
     });
 
     testWidgets('elder: spoken consent, ONE big Yes -> everything armed + battery guide', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(const ElderJoinScreen(debugPreview: {
         'child_name': 'Arif', 'hours': 4,
         'plan': {'easy_home': true, 'carecall': true, 'silent_watch': true},
@@ -203,6 +214,7 @@ void main() {
 
   group('Are you OK? (elder) and the family view', () {
     testWidgets('Are you OK: spoken on open; I am OK stops the phone and the alert', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(const AreYouOkScreen()));
       await tester.pump();
       await tester.pump();
@@ -215,6 +227,7 @@ void main() {
     });
 
     testWidgets('family: alert first, I am checking; no alert says "No alert", never "OK"', (tester) async {
+      _tall(tester);
       await tester.pumpWidget(_app(ElderWatchScreen(debugStatus: fceWatching())));
       await tester.pumpAndSettle();
       expect(find.textContaining('did not answer'), findsOneWidget);

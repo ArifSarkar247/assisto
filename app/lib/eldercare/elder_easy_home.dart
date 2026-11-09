@@ -164,7 +164,9 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
     final uri = Uri(scheme: 'tel', path: c.phone);
     try {
       await launchUrl(uri);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: no dialer app; the number stays on screen to dial by hand
+    }
   }
 
   Future<void> _talk() async {
@@ -177,7 +179,9 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
       final r = await context.read<AppState>().api.agent(text);
       if (!mounted) return;
       if (ChatNav.push(context, r['route'] as String?)) return;
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: offline / AI down -> the honest "could not" snackbar below
+    }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.sendFailed)));
   }
@@ -233,15 +237,6 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
         toolbarHeight: 64,
         automaticallyImplyLeading: false,
         title: Text(t.elderlyHomeTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
-        actions: [
-          TextButton.icon(
-            key: const Key('fce-exit'),
-            onPressed: _exit,
-            icon: const Icon(Icons.close_rounded, size: 26),
-            label: Text(t.elderlyExitCta, style: AType.titleMedium),
-          ),
-          const SizedBox(width: Gap.sm),
-        ],
       ),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl)),
@@ -333,6 +328,18 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
                 onTap: _watchSettings,
               ),
             ),
+          const SizedBox(height: Gap.md),
+          // The always-present, clearly labelled way OUT of the easy home
+          // (bottom of the page: never squeezed off a 200 % app bar).
+          SizedBox(
+            height: 56,
+            child: TextButton.icon(
+              key: const Key('fce-exit'),
+              onPressed: _exit,
+              icon: const Icon(Icons.close_rounded, size: 26),
+              label: Text(t.elderlyExitCta, style: AType.titleMedium),
+            ),
+          ),
         ],
       ),
     );

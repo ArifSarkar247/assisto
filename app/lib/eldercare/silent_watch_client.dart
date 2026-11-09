@@ -135,7 +135,9 @@ class SilentWatchClient {
       final p = await _prefs();
       if (p == null || !(p.getBool(kEnabled) ?? false)) return;
       await p.setInt(kDartActivity, clock.now().millisecondsSinceEpoch);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
     unawaited(native.noteActivity());
   }
 
@@ -144,7 +146,9 @@ class SilentWatchClient {
     try {
       final p = await _prefs();
       await p?.setInt(kDartActivity, clock.now().millisecondsSinceEpoch);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
     await native.ok();
     if (api != null) {
       try {
@@ -195,10 +199,14 @@ class SilentWatchClient {
         if (lost && api != null) {
           try {
             token = await api.newToken(); // reinstall / new phone: a fresh token
-          } catch (_) {}
+          } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
         }
         await arm(cfg: await config(), token: token, lang: lang);
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
   }
 }

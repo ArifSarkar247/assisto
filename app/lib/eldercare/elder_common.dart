@@ -49,7 +49,9 @@ class ElderHooks {
   static Future<void> say(BuildContext context, String text) async {
     try {
       await voice.speak(text, lang(context));
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
   }
 }
 
@@ -132,7 +134,9 @@ class ElderFamilyCache {
     try {
       final p = await SharedPreferences.getInstance();
       await p.setString(key, jsonEncode([for (final c in all) c.toJson()]));
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
   }
 }
 
@@ -206,8 +210,9 @@ class ElderBigButton extends StatelessWidget {
 class ElderColors {
   ElderColors._();
   static const ok = Brand.successFill; // 5.3:1
-  static const callA = Color(0xFF1F4FD1); // deep blue, 6.6:1
-  static const callB = Color(0xFF6A2FB0); // deep purple, 7.6:1
-  static const talk = Color(0xFF0E5E77); // deep teal, 7.2:1
+  static const callA = Brand.blueDeep; // deep blue, white 6.6:1
+  // darkened brand tokens (no new colour literals): white >= 7:1 on each
+  static final callB = Color.lerp(Brand.purple, Brand.ink, 0.4)!; // deep purple
+  static final talk = Color.lerp(Brand.cyan, Brand.ink, 0.6)!; // deep teal
   static const danger = Brand.dangerFill; // 5.6:1
 }

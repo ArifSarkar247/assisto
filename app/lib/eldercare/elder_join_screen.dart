@@ -66,7 +66,9 @@ class ElderJoinScreen extends StatefulWidget {
     if (!loggedIn) {
       try {
         (await SharedPreferences.getInstance()).setString(pendingKey, c);
-      } catch (_) {}
+      } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
       return;
     }
     try {
@@ -74,7 +76,9 @@ class ElderJoinScreen extends StatefulWidget {
         await Navigator.of(context)
             .push(MaterialPageRoute<void>(builder: (_) => ElderJoinScreen(initialCode: c)));
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
   }
 
   /// After sign-in / on resume: a code that arrived while signed out.
@@ -88,7 +92,9 @@ class ElderJoinScreen extends StatefulWidget {
         await Navigator.of(context)
             .push(MaterialPageRoute<void>(builder: (_) => ElderJoinScreen(initialCode: c)));
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: guarded so a failure never blocks the elder's tap
+    }
   }
 
   @override
