@@ -45985,5 +45985,13 @@
   "pcrNotRecorded": "Nothing was recorded at that minute.",
   "@pcrNotRecorded": {
     "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "qsPracticeMeasure": "Practice measure, not a replacement for a teacher",
+  "@qsPracticeMeasure": {
+    "description": "quranshikhi: label on the listen-and-repeat score (owner wording)"
+  },
+  "qsMicReason": "The microphone turns on only when you tap Start, so the phone can hear your reading. Nothing is recorded or kept by Assisto.",
+  "@qsMicReason": {
+    "description": "quranshikhi: why the microphone is used in listen-and-repeat"
   }
 }
