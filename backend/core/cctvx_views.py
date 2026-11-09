@@ -724,6 +724,12 @@ def tick(now=None):
             CACT.tick_site(site, now)
         except Exception:
             log.exception("activity tick failed for site %s", site.pk)
+        # cctvact (V3 E + D): closing report push; Tuya switch-offs
+        try:
+            from . import cctv_act_views as ACTV
+            ACTV.tick_site(site, now)
+        except Exception:
+            log.exception("cctvact tick failed for site %s", site.pk)
     # cctvevidence (W7): due 10-s SD-card clip fetches (video add-on)
     try:
         from . import cctv_evidence as CE
@@ -874,7 +880,19 @@ def actions_for(ev, role):
             "share_clip": role == "owner" and clip in ("ready", "viewed"),
             "evidence": role == "owner",
             # cctvescalate C4-C6: the 999 card, the deterrence table
-            **_escalate_actions(ev, role)}
+            **_escalate_actions(ev, role),
+            # cctvact (V3 D): live path, local thana, wrong-alert learning,
+            # box / phone-camera play targets, automations that ran
+            **_act_actions(ev, role)}
+
+
+def _act_actions(ev, role):
+    try:
+        from . import cctv_act_views as ACTV
+        return ACTV.act_actions(ev, role)
+    except Exception:
+        log.exception("cctvact actions failed")
+        return {}
 
 
 def _escalate_actions(ev, role):

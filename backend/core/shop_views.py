@@ -551,6 +551,14 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
         return decision, None
+    # cctvact (V3 D): the owner's "Wrong alert" answers for THIS site pattern
+    # lower its confidence; after many it is saved quietly (safety never)
+    try:
+        from . import cctv_act_views as ACTV
+        decision, quiet = ACTV.apply_learning(site, cam, cam_event, decision, now,
+                                              quiet, away)
+    except Exception:
+        pass
 
     from .models import ShopEvent
     # GROUPING: the same camera + type still open inside the group window ->
@@ -650,6 +658,12 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     try:
         from . import cctvx_views as CXV
         CXV.after_notify(site, ev, quiet, now)
+    except Exception:
+        pass
+    # cctvact (V3 D): Tuya / Smart Life automations + box warning (never raises)
+    try:
+        from . import cctv_act_views as ACTV
+        ACTV.after_alert(site, cam, ev, now, decision)
     except Exception:
         pass
     return decision, ev
@@ -1173,6 +1187,13 @@ class ShopEventMarkView(APIView):
         before = e.status
         e.status = status_v
         e.save(update_fields=["status"])
+        # cctvact (V3 D): the verdict teaches THIS site's pattern (+ reason)
+        try:
+            from . import cctv_act_views as ACTV
+            ACTV.on_verdict(e, before, status_v,
+                            str(request.data.get("reason") or "")[:16])
+        except Exception:
+            pass
         if before != status_v:
             try:
                 from . import cctvx_views as CXV

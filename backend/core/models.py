@@ -3598,7 +3598,10 @@ class ShopGatewayTask(models.Model):
     ACTIONS = [("discover", "discover"), ("check", "check"),
                # cctvx: sound a LAN camera's own siren / alarm output
                # (Hikvision ISAPI) on the owner's tap from an alert
-               ("siren", "siren")]
+               ("siren", "siren"),
+               # cctvact (V3 D): the Guard Box / phone camera plays the siren
+               # or the owner's recorded warning through its own speaker
+               ("play", "play sound")]
     STATUS = [("pending", "pending"), ("running", "running"), ("done", "done"),
               ("expired", "expired")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
@@ -3789,11 +3792,23 @@ class ShopPosEvent(models.Model):
     kind = models.CharField(max_length=12, choices=KINDS)
     amount = models.BigIntegerField(default=0)   # poisha (or 0 for drawer_open)
     at = models.DateTimeField(default=timezone.now)
+    # ---- cctvact (V3 F): partner POS webhook / CSV import. `source` names the
+    # feed (asalify | pos | csv; '' = Assisto / Shop Box), `ext_id` is the
+    # partner's event id — unique per site + source, so a replayed or
+    # re-imported event is a duplicate, never a second row. `meta` keeps only
+    # amount in poisha, payment method, register and receipt ref — never a
+    # cashier's or a customer's name.
+    source = models.CharField(max_length=12, blank=True, default="")
+    ext_id = models.CharField(max_length=64, blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-at"]
         indexes = [models.Index(fields=["site", "kind", "at"]),
                    models.Index(fields=["site", "at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["site", "source", "ext_id"], condition=~models.Q(ext_id=""),
+            name="shoppos_site_source_ext_uniq")]
 
 
 # ===========================================================================

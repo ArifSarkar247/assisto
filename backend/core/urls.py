@@ -1995,3 +1995,24 @@ urlpatterns += [
     path("shop/partner/apply", cpv.PartnerApplyView.as_view()),
     path("shop/partner/join", cpv.PartnerJoinView.as_view()),
 ]
+# ---- cctvact ---- CCTV GUARD V3 D/E/F/G (owner 9 Nov 15:15): act from an
+# alert, Tuya automations, closing report, POS webhook + CSV, sales match, ask
+from . import cctv_act_views as cact3  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/location", cact3.SiteLocationView.as_view()),
+    path("shop/sites/<int:pk>/thana", cact3.SiteThanaView.as_view()),
+    path("shop/events/<int:pk>/play", cact3.EventPlayView.as_view()),
+    path("shop/device/warn-clip", cact3.DeviceWarnClipView.as_view()),
+    path("shop/device/daily-stats", cact3.DeviceDailyStatsView.as_view()),
+    path("shop/sites/<int:pk>/automations", cact3.AutomationsView.as_view()),
+    path("shop/sites/<int:pk>/automations/link", cact3.AutomationsLinkView.as_view()),
+    path("shop/sites/<int:pk>/automations/test", cact3.AutomationsTestView.as_view()),
+    path("shop/sites/<int:pk>/automations/lock", cact3.AutomationsLockView.as_view()),
+    path("shop/sites/<int:pk>/closing-report", cact3.ClosingReportView.as_view()),
+    path("shop/sites/<int:pk>/pos-key", cact3.PosKeyView.as_view()),
+    path("shop/pos/webhook", cact3.PosWebhookView.as_view()),
+    path("shop/sites/<int:pk>/pos-csv", cact3.PosCsvView.as_view()),
+    path("shop/sites/<int:pk>/sales-match", cact3.SalesMatchView.as_view()),
+    path("shop/sites/<int:pk>/ask", cact3.AskView.as_view()),
+]
+# ---- /cctvact ----

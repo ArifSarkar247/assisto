@@ -352,6 +352,7 @@ import 'phonecam_shots.dart'; // cctvphone old phone as a camera
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
+import 'cctvact_shots.dart'; // cctvact CCTV V3 D/E/F/G
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
 import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
@@ -1189,6 +1190,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvxShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvx
     for (final e in cctvevidenceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvevidence
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
+    for (final e in cctvactShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvact
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
