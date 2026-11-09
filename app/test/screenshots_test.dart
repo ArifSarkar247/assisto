@@ -349,6 +349,7 @@ import 'cctvcap_shots.dart'; // cctvcap: CCTV caps + extra pack
 import 'cctvactivity_shots.dart'; // cctvactivity W10 activity brain
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'phonecam_shots.dart'; // cctvphone old phone as a camera
+import 'ipcam_shots.dart'; // cctvbox IP camera + old phone (no PC)
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
@@ -1198,6 +1199,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvactivityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvactivity
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in phonecamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvphone
+    for (final e in ipcamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvbox
     for (final e in cctvxShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvx
     for (final e in cctvevidenceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvevidence
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate

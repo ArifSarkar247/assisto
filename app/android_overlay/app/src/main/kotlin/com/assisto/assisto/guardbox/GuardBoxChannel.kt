@@ -70,7 +70,16 @@ object GuardBoxChannel {
                         }
                     }
                 }
-                else -> result.notImplemented()
+                // cctvbox: the IP-camera decoder (IpCamDecoder.kt) shares this channel
+                else -> {
+                    val handled = try {
+                        IpCamDecoder.handle(call, result)
+                    } catch (t: Throwable) {
+                        result.success(mapOf("ok" to false, "error" to t.javaClass.simpleName))
+                        true
+                    }
+                    if (!handled) result.notImplemented()
+                }
             }
         }
     }
