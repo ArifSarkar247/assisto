@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../screens/watchman/camera_label.dart';
@@ -25,24 +26,68 @@ class CctvConnectScreen extends StatefulWidget {
 
   /// The same-Wi-Fi discovery flow (the add-camera screen). Null hides it.
   final VoidCallback? onFindOnWifi;
+  /// Opens the vendor's own consent page (tests inject a fake).
+  final Future<bool> Function(Uri url)? openUrl;
   const CctvConnectScreen(
-      {super.key, required this.siteId, this.siteName = '', this.source, this.onFindOnWifi});
+      {super.key,
+      required this.siteId,
+      this.siteName = '',
+      this.source,
+      this.onFindOnWifi,
+      this.openUrl});
 
   @override
   State<CctvConnectScreen> createState() => _CctvConnectScreenState();
 }
 
-class _CctvConnectScreenState extends State<CctvConnectScreen> {
+class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindingObserver {
   late final CctvConnectSource _src =
       widget.source ?? ApiCctvConnectSource(context.read<AppState>().api);
   bool _loading = true;
   String? _error;
   Map<String, dynamic> _d = const {};
 
+  bool _waitingOauth = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Back from the vendor's page in the browser: show the new link at once.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _waitingOauth && mounted) {
+      _waitingOauth = false;
+      _load();
+    }
+  }
+
+  Future<void> _oauth(Map<String, dynamic> p) async {
+    final t = AppLocalizations.of(context);
+    final msg = ScaffoldMessenger.of(context);
+    try {
+      final r = await _src.oauthStart((p['id'] ?? '').toString(), widget.siteId);
+      final url = Uri.tryParse((r['url'] ?? '').toString());
+      if (url == null) throw StateError('no_url');
+      _waitingOauth = true;
+      final open = widget.openUrl ??
+          (Uri u) => launchUrl(u, mode: LaunchMode.externalApplication);
+      final ok = await open(url);
+      msg.showSnackBar(SnackBar(
+          content: Text(ok ? t.ccnOauthHint((p['name'] ?? '').toString()) : t.ccnLoadError)));
+    } catch (e) {
+      _waitingOauth = false;
+      msg.showSnackBar(SnackBar(content: Text(wmError(e) ?? t.ccnLoadError)));
+    }
   }
 
   Future<void> _load() async {
@@ -153,6 +198,13 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> {
                       icon: Icons.dvr_rounded,
                       color: Theme.of(context).colorScheme.primary,
                     ),
+                    if (l['auth_days_left'] is num)
+                      WmPill(
+                        label: t.ccnOauthDaysLeft(
+                            wmDigits(lang, (l['auth_days_left'] as num).toInt())),
+                        icon: Icons.event_rounded,
+                        color: (l['auth_days_left'] as num) < 10 ? wmWarn() : wmOk(),
+                      ),
                   ]),
                   const SizedBox(height: Gap.sm),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -182,15 +234,29 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> {
           for (final p in providers)
             Card(
               margin: const EdgeInsets.only(top: Gap.sm),
-              child: ListTile(
-                key: ValueKey('ccnBrand-${p['id']}'),
-                minVerticalPadding: Gap.md,
-                leading: const Icon(Icons.videocam_rounded),
-                title: Text((p['name'] ?? '').toString()),
-                subtitle: Text(t.ccnBrandSub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _connect(p),
-              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                // owner 9 Nov: the owner's OWN brand account in one tap (OAuth)
+                if (p['modes'] is List && (p['modes'] as List).contains('oauth'))
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
+                    child: FilledButton.icon(
+                      key: ValueKey('ccnOauth-${p['id']}'),
+                      style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                      icon: const Icon(Icons.login_rounded),
+                      label: Text(t.ccnOauthButton((p['name'] ?? '').toString())),
+                      onPressed: () => _oauth(p),
+                    ),
+                  ),
+                ListTile(
+                  key: ValueKey('ccnBrand-${p['id']}'),
+                  minVerticalPadding: Gap.md,
+                  leading: const Icon(Icons.videocam_rounded),
+                  title: Text((p['name'] ?? '').toString()),
+                  subtitle: Text(t.ccnBrandSub),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => _connect(p),
+                ),
+              ]),
             ),
           if (widget.onFindOnWifi != null)
             Padding(

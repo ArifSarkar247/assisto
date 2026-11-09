@@ -94,3 +94,23 @@ def test_integration(pid, cfg, http=None):
     except Exception as e:  # noqa: BLE001 - ImouError from accessToken
         return False, "%s: %s" % (a.name, str(e)[:120])
     return True, "%s access token OK" % a.name
+
+
+def imou_oauth_check(cfg, http=None):
+    """Owner Admin Test for the Imou OAuth project keys: a refresh with a
+    dummy token must fail as a bad GRANT (keys accepted), never as
+    invalid_client (keys wrong). No user data is touched."""
+    a = ImouAdapter(cfg, http=http)
+    if not a.oauth_ready():
+        return False, "OAuth: fill all three OAuth fields (Access Key, Secret Key, H5 page link)"
+    if not str(cfg.get("oauth_h5_url")).startswith("https://"):
+        return False, "OAuth: the H5 page link must start with https://"
+    try:
+        a._token_call({"grant_type": "refresh_token", "refresh_token": "assisto-key-check"})
+    except ConnectError as e:
+        if e.code == "oauth_invalid_client":
+            return False, "OAuth: Access Key / Secret Key not accepted by Imou"
+        if e.code in ("network",) or e.code.startswith("http_5"):
+            return False, "OAuth: could not reach Imou (%s)" % e.code
+        return True, "OAuth keys accepted (%s)" % e.code
+    return True, "OAuth keys accepted"

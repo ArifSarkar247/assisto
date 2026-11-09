@@ -22,7 +22,7 @@ class FakeCctvConnect implements CctvConnectSource {
     Map<String, dynamic> p(String id, String name) => {
           'id': id,
           'name': name,
-          'modes': ['device_code'],
+          'modes': id == 'imou' ? ['device_code', 'oauth'] : ['device_code'],
           'code_label_bn': 'লেবেলের ৬ অক্ষরের Verification Code',
           'code_label_en': '6-letter Verification Code on the label',
         };
@@ -40,6 +40,8 @@ class FakeCctvConnect implements CctvConnectSource {
           : [
               {'id': 5, 'provider': 'hikconnect', 'name': 'Hikvision Hik-Connect', 'status': 'active',
                'devices': 1, 'serials': ['SIMHKDVR0001']},
+              {'id': 6, 'provider': 'imou', 'name': 'Imou', 'status': 'active', 'mode': 'oauth',
+               'devices': 2, 'auth_days_left': 89, 'serials': ['SIMIMOUSER1']},
             ],
       'local_ok': true,
     };
@@ -54,6 +56,12 @@ class FakeCctvConnect implements CctvConnectSource {
       'link': {'id': 9, 'provider': provider, 'name': 'EZVIZ', 'status': 'active', 'devices': 1},
       'devices': [],
     };
+  }
+
+  @override
+  Future<Map<String, dynamic>> oauthStart(String provider, int siteId) async {
+    calls.add('oauth:$provider:$siteId');
+    return {'url': 'https://api.example.test/api/v1/cctv/connect/oauth/go?state=s1'};
   }
 
   @override

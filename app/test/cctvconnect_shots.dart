@@ -18,12 +18,19 @@ Widget _health(String lang, String status) => Scaffold(
       ]),
     );
 
+// the real app opens the same-Wi-Fi add-camera screen here
+void _wifi(BuildContext ctx) => Navigator.of(ctx).push(MaterialPageRoute<void>(
+    builder: (_) => Scaffold(appBar: AppBar(), body: const SizedBox.shrink())));
+
 final Map<String, Widget Function(String)> cctvconnectShots = {
-  'ccn_brands': (l) => CctvConnectScreen(
-      siteId: 1, source: FakeCctvConnect(lang: l), onFindOnWifi: () {}),
-  'ccn_wifi_empty': (l) => CctvConnectScreen(
-      siteId: 1, source: FakeCctvConnect(lang: l, noProviders: true, noLinks: true),
-      onFindOnWifi: () {}),
+  'ccn_brands': (l) => Builder(
+      builder: (ctx) => CctvConnectScreen(
+          siteId: 1, source: FakeCctvConnect(lang: l), onFindOnWifi: () => _wifi(ctx))),
+  'ccn_wifi_empty': (l) => Builder(
+      builder: (ctx) => CctvConnectScreen(
+          siteId: 1,
+          source: FakeCctvConnect(lang: l, noProviders: true, noLinks: true),
+          onFindOnWifi: () => _wifi(ctx))),
   'ccn_link_sheet': (l) => Scaffold(
         body: SafeArea(
           child: CctvLinkSheet(

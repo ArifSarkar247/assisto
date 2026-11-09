@@ -20,7 +20,6 @@ import logging
 import time
 from datetime import timedelta
 
-from django.core import signing
 from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
@@ -36,7 +35,6 @@ from .logic import dvr_health as DH
 
 log = logging.getLogger("assisto.shop")
 
-OAUTH_SALT = "cctvconnect.oauth"
 OAUTH_MAX_AGE_S = 15 * 60
 SEEN_KEEP = 200
 EVENT_LOOKBACK_S = 10 * 60
@@ -81,7 +79,11 @@ def parse_ref(cam):
 
 def link_row(l):
     a = CC.ADAPTERS.get(l.provider)
-    return {"id": l.id, "provider": l.provider, "name": a.name if a else l.provider,
+    days_left = None
+    if l.mode == "oauth" and l.status != "revoked":
+        until = float(_grant(l).get("auth_until") or 0)
+        days_left = max(0, int((until - time.time()) // 86400)) if until else None
+    return {"auth_days_left": days_left,"id": l.id, "provider": l.provider, "name": a.name if a else l.provider,
             "label": l.label, "mode": l.mode, "status": l.status,
             "serials": list(l.serials or []), "devices": len(l.serials or []),
             "last_sync": SV._iso(l.last_sync), "last_error": l.last_error,
@@ -238,6 +240,7 @@ class LinkDeviceView(WMV._OwnerBase):
             link.serials = serials
             link.status, link.last_error = "active", ""
             link.save(update_fields=["grant_blob", "serials", "status", "last_error"])
+        _after_link(a, grant)
         devices = []
         try:
             devices = [d for d in a.devices({"serials": [serial]})]
@@ -247,8 +250,11 @@ class LinkDeviceView(WMV._OwnerBase):
 
 
 class OAuthStartView(WMV._OwnerBase):
-    """POST cctv/connect/<pid>/oauth/start {site} -> {"url"} — the vendor's own
-    consent page (only when the owner saved that vendor's OAuth URLs)."""
+    """POST cctv/connect/<pid>/oauth/start {site} -> {"url"} — the app opens
+    this URL in the browser: our /oauth/go sets a short secure cookie, then
+    sends the user to the vendor's own consent page (Imou: the "User
+    Authorization H5 Page" from its console). Only when the owner saved the
+    vendor's OAuth project keys."""
 
     def post(self, request, pid):
         lang = req_lang(request)
@@ -259,52 +265,150 @@ class OAuthStartView(WMV._OwnerBase):
         if a is None or "oauth" not in a.modes():
             return _err(lang, *CC.base.HINT_TEXT["not_configured"], status=503,
                         code="not_configured")
-        state = signing.dumps({"s": site.id, "u": request.user.pk, "p": pid}, salt=OAUTH_SALT)
-        return Response({"url": a.oauth_url(state, _redirect_uri(request))})
+        if not link_attempt_ok(request.user.pk):
+            return _err(lang, "এক ঘণ্টায় অনেকবার চেষ্টা হয়েছে — একটু পরে আবার চেষ্টা করুন।",
+                        "Too many tries this hour — please try again a little later.",
+                        status=429, code="rate_limited")
+        state = new_oauth_state(site, request.user, pid)
+        return Response({"url": "%s/api/v1/cctv/connect/oauth/go?state=%s" % (_base_url(request), state),
+                         "state": state, "expires_s": OAUTH_MAX_AGE_S})
 
 
-def _redirect_uri(request):
+def _base_url(request):
     from django.conf import settings
     base = getattr(settings, "ASSISTO_BASE_URL", "") or request.build_absolute_uri("/")[:-1]
-    return "%s/api/v1/cctv/connect/oauth/callback" % base.rstrip("/")
+    return base.rstrip("/")
 
 
-class OAuthCallbackView(APIView):
-    """GET cctv/connect/oauth/callback?code&state — the browser lands here
-    after the vendor consent page; a tiny bilingual page says "go back to
-    Assisto". The signed state (15 min) carries site + user + vendor."""
+def _redirect_uri(request, a=None):
+    """Exactly the URL configured in the vendor console."""
+    path = getattr(a, "oauth_redirect_path", "") or "/api/v1/cctv/connect/oauth/callback"
+    return _base_url(request) + path
+
+
+OAUTH_COOKIE = "ccn_oauth_state"
+
+
+def new_oauth_state(site, user, pid):
+    """An unguessable one-time state held SERVER-side (cache, 15 min) ->
+    {site, user, provider}. URL-safe (letters, digits, - and _ only)."""
+    import secrets
+    from django.core.cache import cache
+    state = secrets.token_urlsafe(24)
+    cache.set("ccn_oauth_state:" + state, {"s": site.id, "u": user.pk, "p": pid}, OAUTH_MAX_AGE_S)
+    return state
+
+
+def take_oauth_state(state):
+    """The pending authorization for this state, used ONCE, else None."""
+    from django.core.cache import cache
+    st = str(state or "")[:128]
+    if not st or not st.replace("-", "").replace("_", "").isalnum():
+        return None
+    key = "ccn_oauth_state:" + st
+    pend = cache.get(key)
+    if pend:
+        cache.delete(key)
+    return pend if isinstance(pend, dict) else None
+
+
+def has_oauth_state(state):
+    from django.core.cache import cache
+    st = str(state or "")[:128]
+    return bool(st) and st.replace("-", "").replace("_", "").isalnum() and \
+        cache.get("ccn_oauth_state:" + st) is not None
+
+
+class OAuthGoView(APIView):
+    """GET cctv/connect/oauth/go?state= — set the state cookie (in case the
+    vendor does not hand `state` back), then 302 to the vendor consent page."""
     permission_classes = [AllowAny]
     authentication_classes = []
 
     def get(self, request):
-        from .models import CctvCloudLink, ShopSite
+        from django.core.cache import cache
+        from django.http import HttpResponseRedirect
+        state = str(request.query_params.get("state") or "")[:128]
+        pend = cache.get("ccn_oauth_state:" + state) if state.replace("-", "").replace(
+            "_", "").isalnum() else None
+        a = CC.adapter(pend.get("p")) if isinstance(pend, dict) and CC.enabled(pend.get("p")) else None
+        if a is None:
+            return oauth_page(False)
         try:
-            st = signing.loads(request.query_params.get("state") or "", salt=OAUTH_SALT,
-                               max_age=OAUTH_MAX_AGE_S)
-        except signing.BadSignature:
-            return _page(False)
-        site = ShopSite.objects.filter(pk=st.get("s"), owner_id=st.get("u")).first()
-        a = CC.adapter(st.get("p")) if CC.enabled(st.get("p")) else None
-        code = str(request.query_params.get("code") or "")[:512]
-        if site is None or a is None or not code:
-            return _page(False)
-        try:
-            g = a.oauth_finish(code, _redirect_uri(request))
+            url = a.oauth_url(state, _redirect_uri(request, a))
         except CC.ConnectError:
-            return _page(False)
-        link = CctvCloudLink.objects.create(site=site, provider=a.id, mode="oauth",
-                                            label=a.name, state={"since": time.time()})
-        _save_grant(link, g)
-        return _page(True)
+            return oauth_page(False)
+        resp = HttpResponseRedirect(url)
+        resp.set_cookie(OAUTH_COOKIE, state, max_age=OAUTH_MAX_AGE_S, secure=request.is_secure(),
+                        httponly=True, samesite="Lax", path="/api/v1/cctv/")
+        resp["Cache-Control"] = "no-store"
+        return resp
 
 
-def _page(ok):
-    msg = ("সংযোগ সম্পূর্ণ — এখন Assisto অ্যাপে ফিরে যান।<br>Connected — go back to the Assisto app."
+def finish_oauth(request, code, state=None):
+    """The vendor sent the user back with `code`: exchange it server-side,
+    seal the tokens for that ONE site, read the device list. -> (ok, link)."""
+    from .models import CctvCloudLink, ShopSite
+    pend = take_oauth_state(state) or take_oauth_state(request.COOKIES.get(OAUTH_COOKIE))
+    if not pend or not code:
+        return False, None
+    site = ShopSite.objects.filter(pk=pend.get("s"), owner_id=pend.get("u")).first()
+    a = CC.adapter(pend.get("p")) if CC.enabled(pend.get("p")) else None
+    if site is None or a is None:
+        return False, None
+    try:
+        g = a.oauth_finish(str(code)[:512], _redirect_uri(request, a))
+    except CC.ConnectError as e:
+        log.info("oauth finish failed: %s %s", a.id, e.code)
+        return False, None
+    link = CctvCloudLink.objects.create(site=site, provider=a.id, mode="oauth",
+                                        label=a.name, state={"since": time.time()})
+    try:
+        devs = a.devices(g)
+        g["serials"] = [d["serial"] for d in devs][:CC.base.MAX_DEVICES]
+    except CC.ConnectError:
+        devs = []
+    link.grant_blob = CC.seal(site.id, g)
+    link.serials = list(g.get("serials") or [])
+    link.save(update_fields=["grant_blob", "serials"])
+    _after_link(a, g)
+    return True, link
+
+
+def _after_link(a, g):
+    """Imou: ask for PUSHED alarms + device status + people counting."""
+    try:
+        cb = WMV.imou_callback_url(a.cfg.get("app_id")) if a.id == "imou" else None
+        a.after_link(g, cb)
+    except Exception:
+        log.info("after_link failed for %s", a.id)
+
+
+class OAuthCallbackView(APIView):
+    """GET cctv/connect/oauth/callback?code&state — the generic redirect URI
+    (Imou uses its own fixed path, watchman_views.ImouOAuthCallbackView,
+    which calls the same finish_oauth)."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        ok, _link = finish_oauth(request, request.query_params.get("code"),
+                                 request.query_params.get("state"))
+        return oauth_page(ok)
+
+
+def oauth_page(ok):
+    msg = ("সংযোগ সম্পূর্ণ — এখন Assisto অ্যাপে ফিরে যান, ক্যামেরা তালিকা নিজে আসবে।<br>"
+           "Connected — go back to the Assisto app; your cameras will appear there."
            if ok else "সংযোগ হয়নি — Assisto অ্যাপে ফিরে আবার চেষ্টা করুন।<br>"
                       "Not connected — go back to Assisto and try again.")
-    return HttpResponse("<!doctype html><meta name=viewport content='width=device-width'>"
-                        "<p style='font:18px sans-serif;padding:24px'>%s</p>" % msg,
+    resp = HttpResponse("<!doctype html><meta charset=utf-8><meta name=viewport "
+                        "content='width=device-width,initial-scale=1'><meta name=robots content=noindex>"
+                        "<title>Assisto</title><p style='font:18px sans-serif;padding:24px'>%s</p>" % msg,
                         status=200 if ok else 400)
+    resp["Cache-Control"] = "no-store"
+    resp.delete_cookie(OAUTH_COOKIE, path="/api/v1/cctv/")
+    return resp
 
 
 class LinkDevicesView(WMV._OwnerBase):
@@ -321,10 +425,17 @@ class LinkDevicesView(WMV._OwnerBase):
             return _err(lang, *CC.base.HINT_TEXT["not_configured"], status=503,
                         code="not_configured")
         try:
-            devs = a.devices(_fresh(link, a))
+            g = _fresh(link, a)
+            devs = a.devices(g)
         except CC.ConnectError as e:
             _note_error(link, e)
             return _cerr(lang, e)
+        if link.mode == "oauth":
+            # the user may have added / removed cameras in his own app since
+            g["serials"] = [d["serial"] for d in devs][:CC.base.MAX_DEVICES]
+            link.grant_blob = CC.seal(link.site_id, g)
+            link.serials = list(g["serials"])
+            link.save(update_fields=["grant_blob", "serials"])
         have = set(link.site.cameras.exclude(vendor_ref="").values_list("vendor_ref", flat=True))
         for d in devs:
             for c in d["channels"]:
@@ -472,6 +583,11 @@ class CameraStreamView(WMV._OwnerBase):
         if role != "owner":
             CTV.log_access(cam.site, kind if kind == "live" else "live", user=request.user,
                            camera_id=cam.id)
+        if cam.vendor == "imou" and out.get("proto") in ("hls", "rtsp"):
+            # ESTIMATE for the free 2 GB: one address = up to 5 min of the
+            # sub-stream (~512 kbit/s) ~ 19 MB; HD counts 4x
+            from .logic.cctv_connect import quota as Q
+            Q.bump("imou", mb=19.0 * (4 if SV._coerce_bool(request.data.get("hd")) else 1))
         return Response(dict(out, camera_id=cam.id, kind=kind))
 
 
@@ -555,11 +671,25 @@ def sync_link(link, now=None, account_events=None):
         _note_error(link, e)
         return out
     st = dict(link.state or {})
-    since = max(float(st.get("since") or 0), now.timestamp() - EVENT_LOOKBACK_S)
+    # 2 min of slack (vendor clocks / whole-second times); repeats are
+    # dropped by the seen-id list, never alerted twice
+    since = max(float(st.get("since") or 0), now.timestamp() - EVENT_LOOKBACK_S) - 120
     evs = []
     try:
         if account_events is not None:
             evs = [e for e in account_events if a.owns(g, e["serial"])]
+        elif link.provider == "imou" and link.mode == "oauth" and imou_poll_due(link, now):
+            # Imou docs do not promise that an end user's alarms are PUSHED to
+            # our callback: poll as a fallback only while no push was seen in
+            # 24 h, every 15 min (60 min from 80 % quota, never at 100 %)
+            st0 = dict(link.state or {})
+            st0["poll_at"] = now.timestamp()
+            link.state = st0
+            link.save(update_fields=["state"])
+            for s in g.get("serials") or []:
+                if link.site.cameras.filter(              # only imported cameras
+                        vendor_ref__startswith=vendor_ref("imou", s, "")).exists():
+                    evs.extend(a.events(g, s, since, channels=_channels_of(link, s)))
         elif a.events_scope == "device" and link.provider in ("dolynk",):
             for s in g.get("serials") or []:
                 evs.extend(a.events(g, s, since, channels=_channels_of(link, s)))
@@ -583,6 +713,108 @@ def sync_link(link, now=None, account_events=None):
     link.state = st
     link.last_sync = now
     link.save(update_fields=["state", "last_sync"])
+    return out
+
+
+def imou_poll_due(link, now):
+    from .logic.cctv_connect import quota as Q
+    st = link.state or {}
+    ts = now.timestamp()
+    if ts - float(st.get("push_at") or 0) < 24 * 3600:
+        return False
+    if Q.stop("imou"):
+        return False
+    every = 3600 if Q.saving("imou") else 900
+    return ts - float(st.get("poll_at") or 0) >= every
+
+
+def imou_messages_seen(msgs, now):
+    """The Imou callback got these messages: count them (free quota) and
+    mark the links of those devices as 'push works' (no polling needed)."""
+    from .logic.cctv_connect import quota as Q
+    from .models import CctvCloudLink
+    Q.bump("imou", msg=len(msgs), now=now)
+    serials = {str((m or {}).get("did") or (m or {}).get("deviceId") or "").strip().upper()
+               for m in msgs if isinstance(m, dict)}
+    serials.discard("")
+    if not serials:
+        return
+    for l in CctvCloudLink.objects.filter(provider="imou", status="active"):
+        if serials & set(l.serials or []):
+            st = dict(l.state or {})
+            st["push_at"] = now.timestamp()
+            CctvCloudLink.objects.filter(pk=l.pk).update(state=st)
+
+
+PEOPLE_TYPES = ("numberstat", "passengerflow", "peoplecount", "humancount", "flowstat")
+PEOPLE_KEEP_DAYS = 14
+
+
+def _num(m, *keys):
+    for k in keys:
+        v = m.get(k)
+        try:
+            if v not in (None, ""):
+                return max(0, int(float(v)))
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def imou_people_message(m, now):
+    """An Imou people-counting (numberstat / passenger-flow) message -> the
+    camera's daily in / out counters (no identity, no picture kept). Returns
+    True when it WAS such a message (it must never become an alarm)."""
+    from .models import ShopCamera
+    if not isinstance(m, dict):
+        return False
+    mtype = str(m.get("msgType") or m.get("type") or "").replace("_", "").lower()
+    if not any(t in mtype for t in PEOPLE_TYPES):
+        return False
+    did = str(m.get("did") or m.get("deviceId") or "").strip().upper()
+    cid = str(m.get("cid") if m.get("cid") is not None else m.get("channelId", "0"))
+    data = m.get("data") if isinstance(m.get("data"), dict) else m
+    n_in = _num(data, "inNum", "enterNum", "in", "enter", "entered", "inCount")
+    n_out = _num(data, "outNum", "leaveNum", "out", "leave", "exited", "outCount")
+    n_all = _num(data, "num", "number", "count", "total", "people")
+    cam = ShopCamera.objects.filter(vendor_ref="%s:%s" % (did, cid), enabled=True).first()
+    if cam is None:
+        return True
+    day = timezone.localtime(now).date().isoformat()
+    hour = "%02d" % timezone.localtime(now).hour
+    compat = dict(cam.compat or {})
+    ppl = dict(compat.get("people") or {})
+    d = dict(ppl.get(day) or {"in": 0, "out": 0, "count": 0, "hours": {}})
+    d["in"] += n_in or 0
+    d["out"] += n_out or 0
+    if n_all is not None and n_in is None and n_out is None:
+        d["count"] += n_all
+    hrs = dict(d.get("hours") or {})
+    hrs[hour] = hrs.get(hour, 0) + (n_in or n_all or 0)
+    d["hours"] = hrs
+    ppl[day] = d
+    for k in sorted(ppl)[:-PEOPLE_KEEP_DAYS]:
+        ppl.pop(k, None)
+    compat["people"] = ppl
+    ShopCamera.objects.filter(pk=cam.pk).update(compat=compat, last_seen=now)
+    return True
+
+
+def people_counts(site, day=None):
+    """THE feed for the daily report (cctvact): {"day", "cameras": [{id,
+    name, in, out, count, hours}], "in", "out"} from Imou people counting.
+    Counts only — no identity, no faces."""
+    day = day or timezone.localtime(timezone.now()).date().isoformat()
+    out = {"day": day, "cameras": [], "in": 0, "out": 0, "count": 0}
+    for cam in site.cameras.filter(enabled=True):
+        d = ((cam.compat or {}).get("people") or {}).get(day)
+        if not d:
+            continue
+        out["cameras"].append({"id": cam.id, "name": cam.name, "in": d.get("in", 0),
+                               "out": d.get("out", 0), "count": d.get("count", 0),
+                               "hours": d.get("hours") or {}})
+        for k in ("in", "out", "count"):
+            out[k] += int(d.get(k) or 0)
     return out
 
 

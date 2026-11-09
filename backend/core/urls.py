@@ -807,6 +807,7 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    path("cctv/imou/oauth/callback", wm.ImouOAuthCallbackView.as_view()),
     # cashguard (Smart Cash Guard, owner 28 Oct)
     path("shop/clips", cg.ShopClipUploadView.as_view()),
     path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),
@@ -1879,6 +1880,7 @@ from . import cctv_connect_views as ccv  # noqa: E402
 urlpatterns += [
     path("cctv/connect/providers", ccv.ProvidersView.as_view()),
     path("cctv/connect/oauth/callback", ccv.OAuthCallbackView.as_view()),
+    path("cctv/connect/oauth/go", ccv.OAuthGoView.as_view()),
     path("cctv/connect/<str:pid>/link", ccv.LinkDeviceView.as_view()),
     path("cctv/connect/<str:pid>/oauth/start", ccv.OAuthStartView.as_view()),
     path("cctv/connect/links/<int:pk>", ccv.LinkRevokeView.as_view()),

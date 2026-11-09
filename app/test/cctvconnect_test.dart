@@ -60,6 +60,27 @@ void main() {
     expect(find.byType(CctvLinkDevicesScreen), findsOneWidget);
   });
 
+  testWidgets('Imou: one tap opens the vendor consent page in the browser', (tester) async {
+    _tall(tester);
+    final src = FakeCctvConnect();
+    Uri? opened;
+    await tester.pumpWidget(_app(CctvConnectScreen(
+        siteId: 3,
+        source: src,
+        onFindOnWifi: () {},
+        openUrl: (u) async {
+          opened = u;
+          return true;
+        })));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ccnOauth-ezviz')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('ccnOauth-imou')));
+    await tester.pumpAndSettle();
+    expect(src.calls, contains('oauth:imou:3'));
+    expect(opened.toString(), contains('/cctv/connect/oauth/go?state='));
+    expect(find.textContaining('89'), findsOneWidget); // permission days left
+  });
+
   testWidgets('a wrong code shows the server words in the sheet', (tester) async {
     _tall(tester);
     final src = FakeCctvConnect()

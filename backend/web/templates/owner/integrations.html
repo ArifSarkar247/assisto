@@ -21,6 +21,7 @@
   {% for f in r.fields %}<label>{{ f.label }}{% if f.set %} <span class="pos small">✓ {% if f.secret %}{{ f.masked }}{% else %}{{ T.saved_value }}: {{ f.masked }}{% endif %}</span>{% endif %}
     <input name="{{ f.key }}" {% if f.secret %}type="password"{% endif %} autocomplete="off" placeholder="{% if f.set %}{{ T.replace_ph }}{% else %}{{ T.paste_ph }}{% endif %}"></label>{% endfor %}
   <p class="mut small">{{ T.last_checked }}: {{ r.last_tested_human }}</p>
+  {% if r.usage %}<p class="small" data-cctvconnect-usage>{{ r.usage }}</p>{% endif %}
   {% if r.detail %}<p class="small {% if r.status == 'working' %}pos{% elif r.status == 'failing' %}neg{% endif %}" role="status" id="result-{{ r.slug }}"><b>{{ r.detail }}</b></p>{% endif %}
   {% if r.test_to_kind %}<label>{% if r.test_to_kind == 'email' %}{{ T.test_to_email }}{% else %}{{ T.test_to_phone }}{% endif %}
     <input name="test_to" {% if r.test_to_kind == 'email' %}type="email" placeholder="you@example.com"{% else %}type="tel" placeholder="01XXXXXXXXX"{% endif %} autocomplete="off"></label>{% endif %}
