@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 
 /// Shared helpers for the Business v2 screens.
@@ -70,8 +71,9 @@ String _normalizeDigits(String s) {
   return b.toString();
 }
 
-/// A soft brand-gradient header band used at the top of the hub / section
-/// screens (chat-first, matches login/splash hero surfaces).
+/// A soft header band at the top of the hub / section screens.
+/// designv2: the V2 hero card (light: white → #F2F7FF, dark: card →
+/// background; radius 12; V2 shadow) with dark ink — was a loud gradient.
 class BrandBand extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -82,18 +84,17 @@ class BrandBand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final ds = DsTokens.of(context);
+    return SizedBox(
       width: double.infinity,
-      padding: padding,
-      decoration: const BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.all(Radius.circular(Radii.lg)),
-      ),
-      child: DefaultTextStyle.merge(
-        style: const TextStyle(color: Colors.white),
-        child: IconTheme.merge(
-          data: const IconThemeData(color: Colors.white),
-          child: child,
+      child: DsHeroCard(
+        padding: padding,
+        child: DefaultTextStyle.merge(
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ds.text),
+          child: IconTheme.merge(
+            data: IconThemeData(color: ds.primaryInk),
+            child: child,
+          ),
         ),
       ),
     );

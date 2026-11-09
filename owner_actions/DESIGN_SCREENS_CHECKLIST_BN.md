@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৭ / মোট ৪২০**
+**স্ক্রিন শেষ: ৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -198,7 +198,7 @@
 ## ৯. খাতা
 
 - ⬜ — `screens/business/khata_entry_screen.dart`
-- ⬜ — `screens/business/khata_screen.dart`
+- ✅ batch 3 (খাতা — নরম হিরো, বড় অঙ্ক) — `screens/business/khata_screen.dart`
 
 ## ১০. মেস ও ব্যাচেলর
 
@@ -219,7 +219,7 @@
 - ⬜ — `screens/business/bizagent/seller_inbox_screen.dart`
 - ⬜ — `screens/business/bizagent/seller_setup_screen.dart`
 - ⬜ — `screens/business/books_screen.dart`
-- ⬜ — `screens/business/business_hub_screen.dart`
+- ✅ batch 3 (মাই বিজনেস হেডার) — `screens/business/business_hub_screen.dart`
 - ⬜ — `screens/business/business_setup_screen.dart`
 - ⬜ — `screens/business/cashbox_screen.dart`
 - ⬜ — `screens/business/customers_screen.dart`

@@ -285,7 +285,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             BrandBand(
               child: Row(children: [
                 _TypeAvatar(
-                    type: (biz['type'] ?? '').toString(), onGradient: true),
+                    type: (biz['type'] ?? '').toString()), // designv2: soft hero
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Column(
@@ -302,7 +302,6 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 ),
                 if (_businesses.length > 1)
                   TextButton.icon(
-                    style: TextButton.styleFrom(foregroundColor: Colors.white),
                     icon: const Icon(Icons.unfold_more_rounded, size: 18),
                     label: Text(t.businessSwitch),
                     onPressed: _showSwitcher,

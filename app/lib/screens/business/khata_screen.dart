@@ -843,10 +843,10 @@ class _PartyTile extends StatelessWidget {
             delta == 0
                 ? t.ldgPendingChip
                 : '${t.ldgPendingChip} · ${t.ldgPendingEstimate(pair(context, poishaToTaka(poisha + delta)))}',
-            style: TextStyle(color: scheme.tertiary, fontWeight: FontWeight.w600)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.tertiary, fontWeight: FontWeight.w600)),
       if (hasFailed)
         Text(t.ldgSyncFailed(_d(context, ops.length - pending.length)),
-            style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
     ];
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
@@ -858,7 +858,7 @@ class _PartyTile extends StatelessWidget {
                 backgroundColor: scheme.secondaryContainer,
                 child: Text(
                   _initial((party['name'] ?? '').toString()),
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: scheme.onSecondaryContainer,
                       fontWeight: FontWeight.w700),
                 ),
@@ -876,8 +876,13 @@ class _PartyTile extends StatelessWidget {
         subtitle: sub.isEmpty
             ? null
             : Column(crossAxisAlignment: CrossAxisAlignment.start, children: sub),
+        // designv2: the amount reads first — bigger, bold, tight figures.
         trailing: Text(balanceDisplay,
-            style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontFeatures: AFonts.tabular,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                color: color)),
       ),
     );
   }
