@@ -66,8 +66,10 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
 
   String _fmt(BuildContext context, int min) {
     final lang = Localizations.localeOf(context).languageCode;
-    final s = MaterialLocalizations.of(context)
-        .formatTimeOfDay(TimeOfDay(hour: min ~/ 60, minute: min % 60));
+    // 24-hour clock: no AM/PM letters leak into Bangla; digits localised
+    final s = MaterialLocalizations.of(context).formatTimeOfDay(
+        TimeOfDay(hour: min ~/ 60, minute: min % 60),
+        alwaysUse24HourFormat: true);
     return localDigits(s, lang);
   }
 

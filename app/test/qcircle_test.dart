@@ -125,6 +125,9 @@ void main() {
         final win = find.byKey(const Key('qc-quiet-window'));
         expect(win, findsOneWidget);
         expect(tester.getSize(win).height, greaterThanOrEqualTo(48));
+        if (lang == 'en') {
+          expect(find.textContaining('22:00'), findsOneWidget);
+        }
         if (lang == 'bn') {
           // Bangla digits only, no ASCII digit leaks
           final sub = tester
@@ -132,7 +135,8 @@ void main() {
               .map((w) => w.data ?? '')
               .join(' ');
           expect(RegExp(r'[0-9]').hasMatch(sub), isFalse, reason: sub);
-          expect(sub, contains('১০'));
+          expect(sub, contains('২২:০০'));
+          expect(sub, contains('০৭:০০'));
         }
         expect(tester.takeException(), isNull);
       });
