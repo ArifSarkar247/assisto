@@ -1,12 +1,12 @@
 name: CCTV AI accuracy (person + motion, labeled COCO subset)
 
 # cctvtoday: precision / recall of the Shop Box / phone person model and the
-# motion detector on a labeled public test set (see tools/eval/cctv_accuracy.py
+# motion detector on a labeled public test set (see tools/e2e/cctv_accuracy.py
 # for the licences and the labeling rule). Nothing downloaded is committed.
 on:
   push:
     paths:
-      - "tools/eval/cctv_accuracy.py"
+      - "tools/e2e/cctv_accuracy.py"
       - ".github/workflows/cctv-accuracy.yml"
   workflow_dispatch:
 
@@ -36,7 +36,8 @@ jobs:
           unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
       - name: Evaluate
         run: |
-          python tools/eval/cctv_accuracy.py --ann /tmp/ann/instances_val2017.json \
+          set -o pipefail
+          python tools/e2e/cctv_accuracy.py --ann /tmp/ann/instances_val2017.json \
             --model edge/shopbox/models/yolox_nano.onnx --out cctv_accuracy.json --n 300 \
             | tee cctv_accuracy.txt
       - uses: actions/upload-artifact@v4
