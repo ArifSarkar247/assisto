@@ -178,7 +178,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Counter left empty for 1 h 35 min while open'), findsOneWidget);
       expect(find.text('People by hour'), findsOneWidget);
-      await tester.ensureVisible(find.byKey(const ValueKey('cv3-use-parking')));
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('cv3-use-parking')), 200,
+          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byKey(const ValueKey('cv3-use-parking')));
       await tester.pumpAndSettle();
       expect(act.calls, contains('cfg:use'));
@@ -201,14 +202,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('not an accusation'), findsOneWidget);
       expect(find.textContaining('Cash drawer opened at 15:12'), findsOneWidget);
-      await tester.ensureVisible(find.byKey(const ValueKey('cv3-pos-link')));
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('cv3-pos-link')), 200,
+          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byKey(const ValueKey('cv3-pos-link')));
       await tester.pumpAndSettle();
       await _tapText(tester, 'Asalify POS');
       expect(act.calls, contains('key:asalify'));
       expect(find.textContaining('ask_sample_secret_only_for_tests'), findsOneWidget);
       await _tapText(tester, 'Copy');
-      await tester.ensureVisible(find.byKey(const ValueKey('cv3-csv')));
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('cv3-csv')), 200,
+          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byKey(const ValueKey('cv3-csv')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey('cv3-csv-field')),
