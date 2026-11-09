@@ -47240,5 +47240,428 @@
   "clnSmsPaused": "Reading bank and wallet SMS notifications is paused for now. Notifications from the bKash, Nagad and other wallet apps still work.",
   "@clnSmsPaused": {
     "description": "privacyupd: money from notifications, shown when the server switch money_notif_sms is off"
-  }
+  },
+  "fc3Title": "Family",
+  "fc3NewFamily": "New family",
+  "fc3NewFamilyHint": "Name, e.g. Parents' home",
+  "fc3Create": "Create",
+  "fc3SwitcherA11y": "Family: {name}",
+  "@fc3SwitcherA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3InviteFrom": "{name} invited you to “{family}”",
+  "@fc3InviteFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3InviteConsent": "They will see whether you are OK, your battery and your place. You can leave any time.",
+  "fc3Join": "Join",
+  "fc3NoThanks": "No thanks",
+  "fc3LineOk": "All OK",
+  "fc3LineOkSub": "Every phone sent news recently",
+  "fc3LineCheck": "Check on {name}",
+  "@fc3LineCheck": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3LineSos": "SOS active: {name}",
+  "@fc3LineSos": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3LineStale": "No news from {name}",
+  "@fc3LineStale": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3LineMore": "and {n} more",
+  "@fc3LineMore": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3LineEmpty": "Add your family to see how everyone is",
+  "fc3ReasonNever": "Assisto has not sent any news from this phone yet",
+  "fc3ReasonBatteryOff": "Battery was {n}% — the phone may be off",
+  "@fc3ReasonBatteryOff": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ReasonNoInternet": "The phone had no internet",
+  "fc3ReasonBgKilled": "This phone may be stopping Assisto in the background",
+  "fc3ReasonClock": "The phone's clock is wrong, so its news can't be trusted",
+  "fc3ReasonWatch": "Unusually quiet today",
+  "fc3ReasonCarecallMissed": "Did not answer a Care Call today",
+  "fc3ReasonJourneyOverdue": "A journey is running late",
+  "fc3ReasonBatteryLow": "Battery {n}%, not charging",
+  "@fc3ReasonBatteryLow": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ReasonOther": "Needs a check",
+  "fc3ReasonPaused": "Sharing paused for a while",
+  "fc3ReasonSos": "Sent an SOS",
+  "fc3StateOk": "OK",
+  "fc3StateCheck": "Check",
+  "fc3StateStale": "No news",
+  "fc3StateSos": "SOS",
+  "fc3StatePaused": "Paused",
+  "fc3ChipArrived": "Arrived {place} {time}",
+  "@fc3ChipArrived": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ChipLeft": "Left {place} {time}",
+  "@fc3ChipLeft": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ChipJourney": "On a journey · ETA {time}",
+  "@fc3ChipJourney": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ChipJourneyNoEta": "On a journey",
+  "fc3ChipAuto": "auto",
+  "fc3ChipCareDone": "Care Call done",
+  "fc3ChipCareMissed": "Care Call missed",
+  "fc3ChipPaused": "Sharing paused",
+  "fc3Seen": "News {ago}",
+  "@fc3Seen": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3AgoNow": "just now",
+  "fc3AgoMin": "{n} min ago",
+  "@fc3AgoMin": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3AgoHour": "{n} h ago",
+  "@fc3AgoHour": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3AgoDay": "{n} days ago",
+  "@fc3AgoDay": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3Battery": "Battery {n}%",
+  "@fc3Battery": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3Charging": "charging",
+  "fc3PlaceHome": "Home",
+  "fc3PlaceSchool": "School",
+  "fc3PlaceOffice": "Office",
+  "fc3Call": "Call",
+  "fc3CareCall": "Care Call",
+  "fc3Location": "Location",
+  "fc3Fix": "How to fix",
+  "fc3You": "You",
+  "fc3Waiting": "Waiting for {name} to tap Join",
+  "@fc3Waiting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3CardA11y": "{name}: {state}. {detail}",
+  "@fc3CardA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3AskHint": "Ask: Is Ammu OK? Where is my son?",
+  "fc3AskSend": "Ask",
+  "fc3AskNoAnswer": "I couldn't find that. Try a name, like: Is Ammu OK?",
+  "fc3AskOpen": "Open",
+  "fc3AskOffline": "No internet — answered from the last news on this phone",
+  "fc3TasksTitle": "Family tasks",
+  "fc3TaskAdd": "Add task",
+  "fc3TaskWillDo": "I will do it",
+  "fc3TaskTakenBy": "{name} will do it",
+  "@fc3TaskTakenBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TaskTakenByMe": "You will do it",
+  "fc3TaskDone": "Done",
+  "fc3TaskDoneBy": "Done by {name}",
+  "@fc3TaskDoneBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TaskRelease": "I can't",
+  "fc3TaskEmpty": "Medicine running out, a doctor visit, a bill — add it here and someone takes it.",
+  "fc3TaskTitleHint": "What needs doing?",
+  "fc3TaskKindMedicine": "Medicine",
+  "fc3TaskKindDoctor": "Doctor",
+  "fc3TaskKindBill": "Bill",
+  "fc3TaskKindOther": "Other",
+  "fc3TaskDue": "By {date}",
+  "@fc3TaskDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TaskPickDate": "Pick a date",
+  "fc3Save": "Save",
+  "fc3TodayTitle": "Today",
+  "fc3TodayCare": "Care Calls: {done} done, {missed} missed, {pending} waiting",
+  "@fc3TodayCare": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "missed": {
+        "type": "String"
+      },
+      "pending": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TodayCareNone": "No Care Calls today",
+  "fc3TodayBills": "Bills due soon: {n}",
+  "@fc3TodayBills": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TodayBillsNone": "No bills due",
+  "fc3TodayBirthday": "Birthday today: {names}",
+  "@fc3TodayBirthday": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TodayBazar": "Bazar list: {n} items",
+  "@fc3TodayBazar": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TodayBazarNone": "Bazar list is empty",
+  "fc3MoreTitle": "More",
+  "fc3MoreKids": "Kids and school",
+  "fc3MoreLedger": "Family ledger",
+  "fc3MorePapers": "Important papers",
+  "fc3MorePapersSub": "Locked. Only people you pick can open each paper. Also the bazar list and privacy.",
+  "fc3MoreProbashi": "Probashi",
+  "fc3MoreCard": "Family card",
+  "fc3MoreAdd": "Add member",
+  "fc3MoreMembers": "Members and reminders",
+  "fc3MoreMedical": "Medicines and care",
+  "fc3MorePrivacy": "Privacy & alerts",
+  "fc3MoreLeave": "Leave this family",
+  "fc3LeaveConfirm": "Leave “{family}”? They will stop seeing you and you stop seeing them. You can be invited again later.",
+  "@fc3LeaveConfirm": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3Leave": "Leave",
+  "fc3Sos": "SOS — tell my family",
+  "fc3SosA11y": "Send SOS to your family. You get a few seconds to cancel.",
+  "fc3EmptyTitle": "Your family, at a glance",
+  "fc3EmptyBody": "See who is OK and who has no news, share tasks, and SOS reaches everyone's phone.",
+  "fc3EmptyHow": "How: tap Add member, pick from My Circle, and they tap Join on their own phone.",
+  "fc3AddTitle": "Add from My Circle",
+  "fc3AddNote": "Only people in your My Circle can be added. Grown-ups say yes on their own phone; a child is added by an approved guardian.",
+  "fc3AddEmpty": "Your My Circle is empty. Add family there first, then come back.",
+  "fc3RoleAdult": "Adult",
+  "fc3RoleElder": "Elder",
+  "fc3RoleChild": "Child",
+  "fc3RoleAsk": "Add {name} as",
+  "@fc3RoleAsk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3Invite": "Invite",
+  "fc3InviteSent": "Invite sent. {name} must tap Join on their phone.",
+  "@fc3InviteSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3ChildAdded": "{name} is added to the family.",
+  "@fc3ChildAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3InFamily": "In this family",
+  "fc3TimelineEmpty": "Nothing yet today",
+  "fc3SeenByTitle": "Who can see {name}",
+  "@fc3SeenByTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3SeenByMe": "Who can see you",
+  "fc3SeenByNoPlace": "sees OK or not, not the place",
+  "fc3SeenByPlace": "sees status and place",
+  "fc3SeenByNone": "Nobody yet",
+  "fc3SeenByNote": "Assisto staff never see places or locations.",
+  "fc3TlCareDone": "Answered a Care Call",
+  "fc3TlCareMissed": "Missed a Care Call",
+  "fc3TlCarePending": "Care Call due",
+  "fc3TlTaken": "Took on: {title}",
+  "@fc3TlTaken": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TlDone": "Finished: {title}",
+  "@fc3TlDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TlArrived": "Arrived {place}",
+  "@fc3TlArrived": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3TlLeft": "Left {place}",
+  "@fc3TlLeft": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3FixTitle": "Why no news from {name}?",
+  "@fc3FixTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3FixPickBrand": "Which phone does {name} use?",
+  "@fc3FixPickBrand": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3FixSteps": "On that phone, do these steps once:",
+  "fc3FixSend": "Send these steps",
+  "fc3FixMine": "Fix on this phone",
+  "fc3FixCharge": "Ask them to charge the phone and open Assisto once.",
+  "fc3FixInternet": "Ask them to turn on mobile data or Wi-Fi.",
+  "fc3FixOtherBrand": "Other",
+  "fc3FixShareHead": "Assisto: please do these steps once so the family can see you are OK",
+  "fc3WidgetAsOf": "as of {time}",
+  "@fc3WidgetAsOf": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fc3WidgetEmpty": "Open Assisto to add your family"
 }

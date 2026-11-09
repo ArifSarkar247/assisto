@@ -20,6 +20,7 @@ import 'package:assisto/api.dart';
 import 'package:assisto/family_v3/family_v3_screen.dart';
 import 'package:assisto/family_v3/fc_fix_guide.dart';
 import 'package:assisto/family_v3/fc_slots.dart';
+import 'package:assisto/family_v3/fc_slots_register.dart';
 import 'package:assisto/family_v3/fc_widget_sync.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/state.dart';
@@ -99,6 +100,7 @@ Future<void> _scrollTo(WidgetTester t, Finder f) async {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    fcSlotsRegistered = true; // integration: keep this test's own slots
     FcSlots.openSosSender = null;
     FcSlots.askParser = null;
     FcSlots.nightNewsCard = null;
