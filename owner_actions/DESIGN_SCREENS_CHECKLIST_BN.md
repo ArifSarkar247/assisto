@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১০ / মোট ৪২০**
+**স্ক্রিন শেষ: ১১ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -20,7 +20,7 @@
 - ⬜ — `screens/blood/blood_banks_screen.dart`
 - ⬜ — `screens/blood/blood_donor_setup_screen.dart`
 - ✅ build designv2 batch 1 — `screens/blood/blood_hub_screen.dart`
-- ⬜ — `screens/blood/blood_request_detail_screen.dart`
+- ✅ batch 3 (খোলা অনুরোধ = লাল হিরো) — `screens/blood/blood_request_detail_screen.dart`
 - ⬜ — `screens/blood/blood_request_form_screen.dart`
 - ⬜ — `screens/blood/blood_saved_screen.dart`
 - ⬜ — `screens/blood/blood_thread_screen.dart`

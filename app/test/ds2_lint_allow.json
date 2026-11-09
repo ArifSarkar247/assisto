@@ -116,7 +116,6 @@
   "lib/screens/birthdays_screen.dart": 1,
   "lib/screens/blog_writer_screen.dart": 4,
   "lib/screens/blood/blood_donor_setup_screen.dart": 1,
-  "lib/screens/blood/blood_request_detail_screen.dart": 1,
   "lib/screens/blood/blood_request_form_screen.dart": 1,
   "lib/screens/blood/blood_saved_screen.dart": 2,
   "lib/screens/blood/blood_thread_screen.dart": 2,
