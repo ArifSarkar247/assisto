@@ -128,8 +128,11 @@ Future<void> _tapStartAndTime(WidgetTester tester) async {
   await _settle(tester, 3);
   await tester.tap(find.byKey(const ValueKey('j100_start')));
   await _settle(tester);
+  _pickerSeen = find.byType(TimePickerDialog).evaluate().length;
   await _popTimePicker(tester);
 }
+
+int _pickerSeen = -1;
 
 /// The one start POST, or a failure that says what the screen showed.
 _Hit _started(WidgetTester tester, _Api api) {
@@ -141,7 +144,10 @@ _Hit _started(WidgetTester tester, _Api api) {
   ];
   fail('no /journey/start POST; snackbars=$shown; '
       'timePicker=${find.byType(TimePickerDialog).evaluate().length}; '
-      'sheets=${find.byType(BottomSheet).evaluate().length}; '
+      'sheets=${find.byType(BottomSheet).evaluate().length}; pickerSeen=$_pickerSeen; '
+      'dialogs=${find.byType(Dialog).evaluate().length}; '
+      'startEnabled=${find.byKey(const ValueKey('j100_start')).evaluate().map((e) => (e.widget as ButtonStyleButton).onPressed != null).toList()}; '
+      'texts=${[for (final e in find.byType(Text).evaluate()) (e.widget as Text).data ?? ''].where((x) => x.isNotEmpty).take(80).toList()}; '
       'hits=${[for (final h in api.hits) '${h.method} ${h.path}']}');
 }
 
