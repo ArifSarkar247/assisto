@@ -537,7 +537,9 @@ def deliver(ev):
     if ev.kind == "signal_lost" or (ev.kind == "long_stop" and (p.get("jam") or p.get("dwell"))):
         urgent = False   # owner real trip 2 Nov: calm notice, not an alarm
     if ev.kind == "low_battery" and not p.get("level"):
-        urgent = False   # sjduring: low battery is information, never an alarm
+        from . import journey_during as JDUR
+        if JDUR.enabled(j):
+            urgent = False   # sjduring: low battery is information, never an alarm
     n = 0
     people = watcher_users(j)
     if p.get("circle"):
