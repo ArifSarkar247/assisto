@@ -149,7 +149,13 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
         from . import trial_guard as TG
         kw = {"play_account": aid,
               "linked_token_hash": pp.linked_token_hash}
-        if TG.claimed("cctv_trial", owner, **kw):
+        # the SAME customer's own trial chain (a camera-count change during
+        # the trial = a new token replacing the old one) is not a 2nd trial
+        own = bool(pp.linked_token_hash) and PlayPurchase.objects.filter(
+            token_hash=pp.linked_token_hash, raw__trial_claimed=True).exists()
+        if own:
+            raw["trial_claimed"] = True
+        elif TG.claimed("cctv_trial", owner, **kw):
             raw["trial_dup"] = True
         else:
             TG.claim("cctv_trial", owner, **kw)

@@ -235,3 +235,18 @@ class PaidGateInventoryTests(SimpleTestCase):
         for f in PG.gated_files():
             for word in ("sos", "emergency", "journey", "blood", "quran"):
                 self.assertNotIn(word, os.path.basename(f), f)
+
+
+class CctvTrialReplacementTests(PlayBase):
+    def test_changing_camera_count_during_the_trial_is_not_a_second_trial(self):
+        cache.clear()
+        self.g.subs["t1"] = _trial_body(self.u)
+        self.verify("t1", product="cctv_plan")
+        b = _cctv_body(self.u, "c03-monthly", linked="t1", order="GPA.3300-0000-0000-00011")
+        b["lineItems"][0]["offerDetails"]["offerId"] = "trial-7d"
+        b["lineItems"][0]["offerPhase"] = {"freeTrial": {}}
+        self.g.subs["t2"] = b
+        self.g.subs["t1"]["subscriptionState"] = "SUBSCRIPTION_STATE_EXPIRED"
+        r = self.verify("t2", product="cctv_plan")
+        self.assertTrue(r.json()["entitled"], r.content)
+        self.assertFalse(PlayPurchase.objects.get(sku__startswith="cctv_c03").raw.get("trial_dup"))
