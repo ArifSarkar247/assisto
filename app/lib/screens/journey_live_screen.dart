@@ -306,7 +306,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     setState(() {});
     if (s.journeyId != widget.journeyId) return;
     if (s.status == 'arrived') {
-      _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+      _closeWith(_arrivalMsg ?? AppLocalizations.of(context).journeyArrivedSafely);
     } else if (s.status != 'active') {
       _closeWith(null);
     } else if ((s.overdue == 'ask' || s.overdue == 'alert') && !_asked) {
@@ -369,16 +369,43 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
   }
 
-  Future<void> _markArrived() async {
+  String? _arrivalMsg; // qjourney: the honest closing line for a manual arrival
+
+  Future<void> _markArrived({String? pin}) async {
+    final t = AppLocalizations.of(context);
+    // qjourney (owner V2): the tap carries the phone's fresh fix; the server
+    // checks distance + the earliest possible time. Far away / too early =
+    // "unusual": never "arrived safely", and the safety PIN is asked.
+    final f = _tr.value.lastFix;
+    final fresh = f != null && DateTime.now().difference(f.at).inMinutes < 2;
+    Map<String, dynamic> r;
     try {
-      await _api.journeyArrived(widget.journeyId);
+      r = await _api.journeyArrivedChecked(widget.journeyId,
+          lat: fresh ? f.lat : null, lng: fresh ? f.lng : null,
+          acc: fresh ? f.acc : null, pin: pin);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      final why = '${e.body?['pin'] ?? ''}';
+      if (e.status == 429) {
+        _snack(t.j100PinLocked);
+      } else if (e.status == 400 && why == 'required') {
+        final p = await _askPin(t);
+        if (p != null && p.isNotEmpty && mounted) await _markArrived(pin: p);
+      } else if (e.status == 400 && why == 'wrong') {
+        _snack(t.sosPinWrong);
+      } else {
+        _snack(t.realityArrivedNotSent);
+      }
+      return;
     } catch (_) {
       // q1-seams: never a false "arrived safely" — the server did not hear it.
-      if (mounted) _snack(AppLocalizations.of(context).realityArrivedNotSent);
+      if (mounted) _snack(t.realityArrivedNotSent);
       return;
     }
+    _arrivalMsg = r['arrival'] == 'unusual' ? t.qjArrivedUnusual : t.journeyArrivedSafely;
     await _tr.finished('arrived');
-    if (mounted) _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+    if (!mounted) return;
+    _closeWith(_arrivalMsg);
   }
 
   Future<String?> _askPin(AppLocalizations t) {
@@ -821,7 +848,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
                 foregroundColor: Colors.white,
                 minimumSize: const Size.fromHeight(52),
                 padding: const EdgeInsets.symmetric(vertical: Gap.md)),
-            onPressed: _markArrived,
+            onPressed: () => _markArrived(),
             icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.journeyImSafe, style: AType.bodyLarge),
           ),

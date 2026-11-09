@@ -202,13 +202,13 @@ class RevokeRideProgressTests(Base):
         self.assertEqual(w["distance_m"], d["distance_m"])
         live = self.ca.get("%s/journey/active" % V).json()
         self.assertEqual(live["distance_m"], d["distance_m"])
-        # name only (no pin): no distance, no time — never a guess
-        j2, body2 = self.start(destination={"name": "Aunt's house"})
-        self.assertFalse(body2["has_pin"])
-        self.fix(j2, 23.7550, 90.4000)
-        d2 = self.data(JW.web_token(j2)).json()
-        self.assertNotIn("distance_m", d2)
-        self.assertNotIn("rough_min", d2)
+        # name only (no pin): qjourney (owner V2, 9 Nov) — such a trip can
+        # never check its arrival, so it no longer starts at all
+        r = self.ca.post("%s/journey/start" % V, {
+            "destination": {"name": "Aunt's house"}, "watcher_ids": [self.ab.id]},
+            format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json()["detail"], "destination_coords_required")
 
     def test_bangla_page_has_no_raw_codes(self):
         j, _ = self.start(vehicle={"plate": "DHA-1", "mode": "bike", "app": "uber"})

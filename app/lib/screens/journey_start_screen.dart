@@ -286,32 +286,6 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   String _dur(AppLocalizations t, int min) => jDigits(
       context, min >= 60 ? t.psDurHM(min ~/ 60, min % 60) : t.psDurM(min));
 
-  Future<void> _useCurrentAsDest() async {
-    final t = AppLocalizations.of(context);
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) {
-        if (mounted) _snack(t.j100LocOffBody);
-        return;
-      }
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        if (mounted && !await showPermissionReason(context, PermKind.location)) {
-          return;
-        }
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) return;
-      final pos = await Geolocator.getCurrentPosition();
-      if (!mounted) return;
-      _here = (lat: pos.latitude, lng: pos.longitude);
-      _setDest(_destName.text.trim().isEmpty ? t.journeyDestPinned : '', pos.latitude,
-          pos.longitude);
-    } catch (e) {
-      if (mounted) showActionFailed(context, 'journey.currentLocation', e); // db1
-    }
-  }
-
   Future<void> _pasteLink() async {
     final got = await showJourneyLinkSheet(context, context.read<AppState>().api);
     if (got != null && mounted) _setDest(got.name, got.lat, got.lng);
@@ -530,6 +504,21 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     final name = _destName.text.trim();
     if (name.isEmpty && _dest == null) {
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedDest)));
+      return;
+    }
+    // qjourney (owner V2 root cause): a typed name alone has no coordinates,
+    // so arrival could never be checked — pick it from the list or the map
+    if (_dest?['lat'] == null || _dest?['lng'] == null) {
+      messenger.showSnackBar(SnackBar(content: Text(t.qjDestNeedsPlace)));
+      return;
+    }
+    // qjourney: a destination where you already are would "arrive" at once
+    final h = _here;
+    if (h != null &&
+        jDistanceM(h.lat, h.lng, (_dest!['lat'] as num).toDouble(),
+                (_dest!['lng'] as num).toDouble()) <
+            300) {
+      messenger.showSnackBar(SnackBar(content: Text(t.qjDestIsHere)));
       return;
     }
     if (_selectedWatchers.isEmpty) {
@@ -822,12 +811,19 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               return p;
             },
             onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null,
-            onTyped: (_) => setState(() {}),
-            onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address),
-            suffixIcon: IconButton(
-                icon: const Icon(Icons.my_location_rounded),
-                tooltip: t.journeyUseCurrent,
-                onPressed: _useCurrentAsDest)),
+            // qjourney (owner V2 root cause): typing a NEW name after a pick
+            // kept the OLD pin's coordinates (e.g. "Gazipur" pinned in Badda
+            // -> "arrived" minutes after leaving) — a changed name drops the pin
+            onTyped: (txt) {
+              if (_dest != null && txt.trim() != '${_dest!['name'] ?? ''}'.trim()) {
+                _unpin();
+              } else {
+                setState(() {});
+              }
+            },
+            // qjourney: no "use my location" button on the DESTINATION field
+            // (a trip to where you already are "arrives" at once)
+            onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           OutlinedButton.icon(
