@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../quran/ayah_view_screen.dart'; // quranview
 import '../quran/quran_store.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
@@ -467,7 +468,7 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                       QuranTrans.bn => t.qrnTransBn,
                       QuranTrans.none => t.qrnTransNone,
                     }),
-                    subtitle: v == QuranTrans.bn ? Text(t.qrnBnNotIncluded) : null,
+                    subtitle: v == QuranTrans.bn ? Text(t.qvBnHereTitle) : null,
                   ),
               ]),
             ),
@@ -558,10 +559,12 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.qrnBnNotIncluded,
+          // quranview: Bangla meaning (QuranEnc, Abu Bakr Zakaria) now lives
+          // in the ayah view; say so honestly here.
+          Text(t.qvBnHereTitle,
               style: AType.titleSmall.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
-          Text(t.qrnBnPendingBody),
+          Text(t.qvBnHereBody),
           const SizedBox(height: Gap.sm),
           TextButton(
             key: const Key('quran-show-english'),
@@ -575,6 +578,11 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       ),
     );
   }
+
+  // quranview
+  void _openAyah(int aya) => Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          AyahViewScreen(data: widget.data, sura: widget.sura, aya: aya)));
 
   Widget _ayaTile(AppLocalizations t, int aya, QuranTrans tr) {
     final ref = AyaRef(widget.sura, aya);
@@ -601,6 +609,13 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                   style: AType.labelMedium.copyWith(color: _accent(context))),
             ),
             const Spacer(),
+            // quranview: bilingual ayah view (meaning, tafsir, audio)
+            IconButton(
+              key: Key('quran-ayah-$aya'),
+              tooltip: t.qvOpenAyah(ld(context, aya)),
+              icon: const Icon(Icons.auto_stories_rounded),
+              onPressed: () => _openAyah(aya),
+            ),
             IconButton(
               key: Key('quran-bm-$aya'),
               tooltip: marked
@@ -613,10 +628,13 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
               onPressed: () => _toggle(aya),
             ),
           ]),
-          Text(widget.data.ar(ref),
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
-              style: TextStyle(fontSize: _size, height: 1.9)),
+          InkWell(
+            onTap: () => _openAyah(aya),
+            child: Text(widget.data.ar(ref),
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.right,
+                style: TextStyle(fontSize: _size, height: 1.9)),
+          ),
           if (tr == QuranTrans.en) ...[
             const SizedBox(height: Gap.sm),
             Text(widget.data.en(ref),
@@ -689,8 +707,12 @@ class QuranAboutScreen extends StatelessWidget {
         children: [
           item(Icons.menu_book_rounded, t.qrnAboutArabic),
           item(Icons.translate_rounded, t.qrnAboutEnglish),
-          item(Icons.hourglass_top_rounded, t.qrnAboutBangla),
-          item(Icons.headphones_rounded, t.qrnAboutAudio),
+          // quranview: Bangla + English meaning, tafsir (QuranEnc), audio +
+          // word-by-word (Quran Foundation) — credits required by both.
+          item(Icons.translate_rounded, t.qvAboutQe),
+          item(Icons.headphones_rounded, t.qvQfCredit),
+          item(Icons.hourglass_top_rounded, t.qvTafsirPendingNote),
+          item(Icons.verified_user_rounded, t.qvNoAi),
           item(Icons.wifi_off_rounded, t.qrnOffline),
           item(Icons.update_rounded, t.qrnAboutUpdates),
           Align(

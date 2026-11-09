@@ -294,6 +294,10 @@ import 'package:assisto/quran_learn/quran_learn_screen.dart'; // quranread
 import 'package:assisto/quran_learn/recite_sheet.dart'; // quranread
 import 'package:assisto/l10n/quran_learn_content.dart'; // quranread
 import 'quran_learn_fixture.dart'; // quranread
+import 'package:assisto/quran/ayah_view_screen.dart'; // quranview
+import 'package:assisto/quran/quran_bilingual_api.dart'; // quranview
+import 'package:assisto/quran/quran_tafsir_sheet.dart'; // quranview
+import 'quranview_fixture.dart'; // quranview
 import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
@@ -1095,6 +1099,11 @@ Map<String, GallerySpec> gallerySpecs() {
     // result state of "I read, check me": the text a phone engine returns when the last word is missed
     'quran_learn_check': (build: (_) { preloadRealUthmani(); return Scaffold(body: SafeArea(child: ReciteSheet(expected: realUthmani().text(kQlStages[7].lessons[1].items[0].ref!)!, initialHeard: '\u0642\u0644 \u0647\u0648 \u0627\u0644\u0644\u0647'))); }, mode: FakeMode.data, full: true),
     'quran_learn_about': (build: (_) { preloadRealUthmani(); return const QuranLearnAboutScreen(); }, mode: FakeMode.data, full: true),
+    // quranview: bilingual ayah view (real QuranEnc texts; QF part = test fixture) + tafsir/shane nuzul sheet
+    'qv_ayah': (build: (_) { SharedPreferences.setMockInitialValues({}); QuranBilingualApi.clearForTest(); return AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!)); }, mode: FakeMode.data, full: true),
+    'qv_ayah_qf_pending': (build: (_) { SharedPreferences.setMockInitialValues({}); QuranBilingualApi.clearForTest(); return AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: QuranBilingualApi((p) async => fakeQuranViewGet(p, qfOn: false)!)); }, mode: FakeMode.data, full: true),
+    'qv_tafsir_shan': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 80, aya: 1))); }, mode: FakeMode.data, full: true),
+    'qv_tafsir_none': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 1, aya: 1))); }, mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
