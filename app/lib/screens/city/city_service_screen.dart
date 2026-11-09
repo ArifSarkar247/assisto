@@ -26,7 +26,9 @@ import '../../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
 import '../../widgets/local_counter.dart';
 import 'city_around_screen.dart';
 import 'city_directory_screen.dart';
+import '../../city/map/city_map_data.dart' show CityMapApi; // mapapp
 import 'city_journey.dart';
+import 'city_map_screen.dart'; // mapapp
 import 'city_metro_screen.dart';
 import 'city_reports_screen.dart';
 import 'city_voice.dart';
@@ -81,6 +83,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   DateTime? _rememberedAt;
   List<CityReport> _reports = const [];
   bool? _learnOn; // trip learning consent (null = unknown / offline)
+  int _verifiedStops = 0; // mapapp: "You verified N stops"
 
   CityStore get _store => widget.store ?? CityStore.I;
   ApiClient get _api => context.read<AppState>().api;
@@ -149,6 +152,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       final on = (await _api.cityTripConsent())['on'] == true;
       if (mounted) setState(() => _learnOn = on);
     } catch (_) {} // best-effort: the switch stays hidden offline
+    try {
+      final n = ((await _api.cityTripMine())['stops_verified'] as num?)?.toInt() ?? 0;
+      if (mounted) setState(() => _verifiedStops = n);
+    } catch (_) {} // mapapp: the counter is extra
   }
 
   Future<void> _setLearn(bool on) async {
@@ -266,6 +273,13 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     await _planNow();
   }
 
+  void _openMap() {
+    final o = _origin;
+    if (o == null) return;
+    final city = _where?.city.isNotEmpty == true ? _where!.city : 'dhaka';
+    _open(CityMapScreen(here: o, to: _to, plan: _plan != null && !_plan!.offline ? _plan : null, city: city, store: _store));
+  }
+
   void _open(Widget screen) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
 
   // ------------------------------------------------------------------ UI
@@ -301,6 +315,17 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
               secondary: const Icon(Icons.volunteer_activism_rounded),
               title: Text(t.cityLearnTitle),
               subtitle: Text(t.cityLearnSub),
+            ),
+          if (_verifiedStops > 0) // mapapp
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: Row(children: [
+                const Icon(Icons.verified_rounded, color: Brand.success),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                    child: Text(cityD(context, t.cityLearnVerified('$_verifiedStops')),
+                        key: const ValueKey('city_verified_stops'), style: AType.bodyMedium)),
+              ]),
             ),
           const SizedBox(height: Gap.lg),
           Text(_plan?.attribution.isNotEmpty == true ? _plan!.attribution : t.cityAttribution,
@@ -502,6 +527,20 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             const Divider(height: Gap.xl),
             CityStepList(opt, simple: _simple, onReportLeg: (l) => _correct(target: 'route', id: l.routeId)),
             const SizedBox(height: Gap.sm),
+            if (_origin != null) // mapapp: the same trip on the map, side by side with other ways
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('city_see_on_map'),
+                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                    onPressed: () => _openMap(),
+                    icon: const Icon(Icons.map_rounded),
+                    label: Text(t.cityMapSeeOnMap),
+                  ),
+                ),
+              ),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -639,6 +678,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final city = _where?.city.isNotEmpty == true ? _where!.city : 'dhaka';
     final o = _origin;
     final tiles = <(Key, IconData, Color, String, String, VoidCallback)>[
+      // mapapp: the City map (our map + layers; Google view switch)
+      if (o != null)
+        (const ValueKey('city_tile_map'), Icons.map_rounded, Brand.purple, t.cityMapTitle, t.cityMapTileSub,
+            () => _openMap()),
       (const ValueKey('city_tile_metro'), Icons.subway_rounded, Brand.success, t.cityMetroGuide,
           t.cityMetroGuideSub, () => _open(CityMetroScreen(city: city, store: _store, dest: _to))),
       (const ValueKey('city_tile_around'), Icons.near_me_rounded, Brand.info, t.cityAroundMe, t.cityAroundMeSub,

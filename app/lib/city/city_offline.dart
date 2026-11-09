@@ -588,6 +588,29 @@ class OfflineRouter {
     return out;
   }
 
+  /// mapapp: route shapes for the City map layers — OUR data only (never
+  /// mixed into the base-map tiles). One entry per route direction.
+  List<Map<String, dynamic>> routeShapes({Set<String>? modes, Set<String>? ids}) {
+    final out = <Map<String, dynamic>>[];
+    for (final r in routes) {
+      if (modes != null && !modes.contains(r.mode)) continue;
+      if (ids != null && !ids.contains(r.id)) continue;
+      out.add({
+        'id': r.id,
+        'mode': r.mode,
+        'name': r.name.isNotEmpty ? r.name : r.ref,
+        'name_bn': r.nameBn,
+        'status': r.st == 'v' ? 'verified' : 'reported',
+        'coords': [
+          for (final si in r.stops) [stops[si].lon, stops[si].lat]
+        ],
+        'stops': [for (final si in r.stops) stops[si].pt()],
+        'fare': fare(r.mode, r.km.last),
+      });
+    }
+    return out;
+  }
+
   /// Metro stations in line order (offline metro guide).
   List<Map<String, dynamic>> stations() {
     final out = <Map<String, dynamic>>[];

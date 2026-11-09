@@ -12,6 +12,7 @@ import 'fake_kidaudio.dart'; // kidaudio
 import 'fake_learncert.dart'; // learncert
 import 'fake_p3life.dart'; // p3life
 import 'fake_city.dart'; // cityapp
+import 'fake_city_map.dart'; // mapapp
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -1069,6 +1070,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final mapG = fakeCityMapGet(path); // mapapp
+    if (mapG != null) {
+      if (mode == FakeMode.fail) _fail();
+      return mapG;
+    }
     final cityG = fakeCityGet(path, empty: mode == FakeMode.empty); // cityapp
     if (cityG != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2213,6 +2219,8 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    final mapP = fakeCityMapPost(path, body); // mapapp
+    if (mapP != null) return mapP;
     final cityP = fakeCityPost(path, body); // cityapp
     if (cityP != null) return cityP;
     if (path.endsWith('learn/quran/complete')) { // learnwire
