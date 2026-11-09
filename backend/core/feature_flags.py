@@ -113,6 +113,8 @@ REGISTRY = (
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
     ('service_guide', 'daily_life', 'Service guide', 'সেবা গাইড', True, ('guide',)),
     ('nearby', 'daily_life', 'Nearby', 'কাছেপিঠে', True, ('nearby',)),
+    # cityapp (owner 9 Nov 11:45): City Service — which bus / metro gate / fare, Dhaka first.
+    ('city_service', 'daily_life', 'City Service', 'সিটি সার্ভিস', True, ('city',)),
     # nearby (owner 3 Nov 18:50): Assisto business listings with a clearly
     # labelled Sponsored placement in GENERAL nearby only (never emergency).
     ('nearby_sponsored', 'daily_life', 'Nearby: Sponsored business listings', 'কাছেপিঠে: Sponsored ব্যবসা', False, ()),

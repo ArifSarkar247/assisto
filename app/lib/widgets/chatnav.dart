@@ -89,6 +89,7 @@ import '../screens/cv_builder_screen.dart';
 import '../screens/inbox_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
+import '../screens/city/city_service_screen.dart'; // cityapp
 import '../screens/watch_feed_screen.dart';
 import '../screens/account_standing_screen.dart'; // adminsafe
 import '../screens/business_screen.dart';
@@ -322,6 +323,7 @@ class ChatNav {
     'inbox': (_) => const InboxScreen(),
     'guide': (_) => const GuideScreen(),
     'nearby': (_) => const NearbyScreen(),
+    'city': (_) => const CityServiceScreen(), // cityapp: City Service (home tile key 'city')
     'watch_feed': (_) => const WatchFeedScreen(),
     // adminsafe: Account status + appeal (notification centre events of an
     // Owner Admin decision open it; never gated — safety is never hidden).
@@ -466,6 +468,9 @@ class ChatNav {
     'inbox': ['ai inbox', 'inbox', 'mail'],
     'guide': ['government service', 'service guide', 'guide'],
     'nearby': ['nearby', 'around me', 'places nearby'],
+    // cityapp
+    'city': ['city service', 'which bus', 'bus route', 'metro guide', 'metro gate',
+        'how to go', 'city bus'],
     'watch_feed': ['watch feed', 'alerts feed', 'watch alerts'],
     'business': ['business', 'shop', 'store', 'orders'],
     'bargain_rules': ['bargaining rules', 'bargain rules', 'bargaining',
