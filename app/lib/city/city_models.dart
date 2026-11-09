@@ -417,7 +417,7 @@ class CityWhere {
 class CityDirItem {
   final String id, kind, name, nameBn, address, hours, status, checked;
   final double? lat, lon;
-  final List<String> papersEn, papersBn, routes;
+  final List<String> papersEn, papersBn, routes, routesBn;
   final List<({String url, String date})> sources;
   const CityDirItem(
       {required this.id,
@@ -433,6 +433,7 @@ class CityDirItem {
       this.papersEn = const [],
       this.papersBn = const [],
       this.routes = const [],
+      this.routesBn = const [],
       this.sources = const []});
 
   static CityDirItem from(Object? v) {
@@ -458,10 +459,13 @@ class CityDirItem {
         papersEn: m['papers_en'] != null ? _sl(m['papers_en']) : papers,
         papersBn: _sl(m['papers_bn']),
         routes: _sl(m['routes']),
+        routesBn: _sl(m['routes_bn']),
         sources: srcs);
   }
 
   String label(bool bn) => bn && nameBn.isNotEmpty ? nameBn : name;
+  /// District / ghat names: Bangla when the server has them (routes_bn).
+  List<String> routesFor(bool bn) => bn && routesBn.length == routes.length && routesBn.isNotEmpty ? routesBn : routes;
   List<String> papers(bool bn) => bn && papersBn.isNotEmpty ? papersBn : papersEn;
 }
 

@@ -3,6 +3,7 @@
 // city, metro guide + station gates, which-gate-now at the metro exit,
 // around me, live reports, women options, long distance + water, offices.
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:assisto/city/city_models.dart';
 import 'package:assisto/city/city_offline.dart';
@@ -15,6 +16,7 @@ import 'package:assisto/screens/city/city_metro_screen.dart';
 import 'package:assisto/screens/city/city_reports_screen.dart';
 import 'package:assisto/screens/city/city_service_screen.dart';
 import 'package:assisto/screens/city/city_women_screen.dart';
+import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
 import 'fake_city.dart';
@@ -34,7 +36,10 @@ Widget _steps(CityOption o, {bool simple = false}) => Builder(
         body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           CityOptionSummary(o),
           const Divider(height: Gap.xl),
-          CityStepList(o, simple: simple, onReportLeg: (_) {}),
+          CityStepList(o,
+              simple: simple,
+              onReportLeg: (l) => showCityCorrection(c,
+                  api: c.read<AppState>().api, target: 'route', targetId: l.routeId)),
         ]),
       ),
     );

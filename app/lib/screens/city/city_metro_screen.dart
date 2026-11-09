@@ -97,7 +97,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                           key: ValueKey('city_station_${_stations[i].id}'),
                           minVerticalPadding: Gap.sm,
                           leading: CircleAvatar(
-                              backgroundColor: const Color(0xFF2E9E6B),
+                              backgroundColor: Brand.success,
                               child: Text(cityD(context, '${i + 1}'),
                                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))),
                           title: Text(cityD(context, _stations[i].label(bn)),

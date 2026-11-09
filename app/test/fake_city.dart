@@ -198,17 +198,17 @@ List<Map<String, dynamic>> fakeCityDir(String kind) => switch (kind) {
       'terminals' => [
           {'id': 't-gabtoli', 'kind': 'terminal', 'name': 'Gabtoli Bus Terminal', 'name_bn': 'গাবতলী বাস টার্মিনাল',
            'lat': 23.7837, 'lon': 90.3446, 'address': 'Gabtoli, Mirpur Road, Dhaka',
-           'routes': ['Rajshahi', 'Rangpur', 'Khulna'], 'hours': '', 'status': 'reported', 'checked': _checked,
+           'routes': ['Rajshahi', 'Rangpur', 'Khulna'], 'routes_bn': ['রাজশাহী', 'রংপুর', 'খুলনা'], 'hours': '', 'status': 'reported', 'checked': _checked,
            'sources': [{'url': 'https://example.org/source', 'date': _checked}]},
           {'id': 't-sayedabad', 'kind': 'terminal', 'name': 'Sayedabad Bus Terminal', 'name_bn': 'সায়েদাবাদ বাস টার্মিনাল',
            'lat': 23.7205, 'lon': 90.4275, 'address': 'Sayedabad, Jatrabari, Dhaka',
-           'routes': ['Chattogram', 'Sylhet', 'Cumilla'], 'hours': '', 'status': 'verified', 'checked': _checked,
+           'routes': ['Chattogram', 'Sylhet', 'Cumilla'], 'routes_bn': ['চট্টগ্রাম', 'সিলেট', 'কুমিল্লা'], 'hours': '', 'status': 'verified', 'checked': _checked,
            'sources': [{'url': 'https://example.org/source', 'date': _checked}]},
         ],
       'ghats' => [
           {'id': 'g-sadarghat', 'kind': 'ghat', 'name': 'Sadarghat Launch Terminal', 'name_bn': 'সদরঘাট লঞ্চ টার্মিনাল',
            'lat': 23.7058, 'lon': 90.4077, 'address': 'Sadarghat, Buriganga river, Dhaka (BIWTA)',
-           'routes': ['Barishal', 'Bhola', 'Chandpur'], 'hours': '', 'status': 'reported', 'checked': _checked,
+           'routes': ['Barishal', 'Bhola', 'Chandpur'], 'routes_bn': ['বরিশাল', 'ভোলা', 'চাঁদপুর'], 'hours': '', 'status': 'reported', 'checked': _checked,
            'sources': [{'url': 'https://example.org/source', 'date': _checked}]},
         ],
       _ => [

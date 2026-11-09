@@ -296,10 +296,16 @@ void main() {
           api);
       await tester.tap(find.byKey(const ValueKey('go')));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('city_watch_1')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('city_watch_1')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('city_sj_go')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('city_sj_go')));
       await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('city_sj_go')), findsNothing, reason: 'sheet closed');
+      expect(api.posts.map((p) => p.$1), contains('/journey/start'));
       final start = api.posts.firstWhere((p) => p.$1 == '/journey/start').$2;
       expect((start['destination'] as Map)['name'], 'Motijheel');
       expect(start['watcher_ids'], [1]);

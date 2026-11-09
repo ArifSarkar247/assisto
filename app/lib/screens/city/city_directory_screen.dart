@@ -68,7 +68,7 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
 
   bool _match(CityDirItem i, String q) {
     if (q.isEmpty) return true;
-    final hay = [i.name, i.nameBn, i.address, ...i.routes, ...i.papersEn, ...i.papersBn].join(' ').toLowerCase();
+    final hay = [i.name, i.nameBn, i.address, ...i.routes, ...i.routesBn, ...i.papersEn, ...i.papersBn].join(' ').toLowerCase();
     return hay.contains(q.toLowerCase());
   }
 
@@ -130,12 +130,12 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
           const SizedBox(height: Gap.xs),
           Text(i.hours.isNotEmpty ? d(t.cityHours(i.hours)) : t.cityHoursUnknown,
               style: const TextStyle(fontWeight: FontWeight.w700)),
-          if (i.routes.isNotEmpty) ...[
+          if (i.routesFor(bn).isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(i.kind == 'ghat' ? t.cityLaunchesTo : (i.kind == 'office' ? t.cityServices : t.cityBusesTo),
                 style: AType.labelLarge),
             Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
-              for (final r in i.routes) Chip(label: Text(d(r)), visualDensity: VisualDensity.compact),
+              for (final r in i.routesFor(bn)) Chip(label: Text(d(r)), visualDensity: VisualDensity.compact),
             ]),
           ],
           if (papers.isNotEmpty) ...[

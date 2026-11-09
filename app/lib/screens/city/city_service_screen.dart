@@ -639,17 +639,17 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final city = _where?.city.isNotEmpty == true ? _where!.city : 'dhaka';
     final o = _origin;
     final tiles = <(Key, IconData, Color, String, String, VoidCallback)>[
-      (const ValueKey('city_tile_metro'), Icons.subway_rounded, const Color(0xFF2E9E6B), t.cityMetroGuide,
+      (const ValueKey('city_tile_metro'), Icons.subway_rounded, Brand.success, t.cityMetroGuide,
           t.cityMetroGuideSub, () => _open(CityMetroScreen(city: city, store: _store, dest: _to))),
       (const ValueKey('city_tile_around'), Icons.near_me_rounded, Brand.info, t.cityAroundMe, t.cityAroundMeSub,
           () => _open(CityAroundScreen(debugHere: o))),
       (const ValueKey('city_tile_live'), Icons.campaign_rounded, Brand.warning, t.cityLiveReports,
           t.cityLiveReportsSub, () => _open(CityReportsScreen(debugHere: o))),
-      (const ValueKey('city_tile_women'), Icons.woman_rounded, const Color(0xFFD6336C), t.cityWomen, t.cityWomenSub,
+      (const ValueKey('city_tile_women'), Icons.woman_rounded, Brand.danger, t.cityWomen, t.cityWomenSub,
           () => _open(CityWomenScreen(city: city))),
       (const ValueKey('city_tile_long'), Icons.directions_boat_rounded, Brand.blue, t.cityLongDistance,
           t.cityLongDistanceSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats']))),
-      (const ValueKey('city_tile_offices'), Icons.account_balance_rounded, const Color(0xFF6B7280), t.cityOffices,
+      (const ValueKey('city_tile_offices'), Icons.account_balance_rounded, Brand.blueDeep, t.cityOffices,
           t.cityOfficesSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['offices']))),
     ];
     return LayoutBuilder(builder: (context, c) {

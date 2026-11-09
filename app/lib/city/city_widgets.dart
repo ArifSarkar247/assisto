@@ -69,13 +69,13 @@ IconData cityModeIcon(String mode) => switch (mode) {
     };
 
 Color cityModeColor(String mode) => switch (mode) {
-      'metro' => const Color(0xFF2E9E6B),
+      'metro' => Brand.success,
       'bus' => Brand.blue,
-      'leguna' => const Color(0xFF9B4DF0),
+      'leguna' => Brand.purple,
       'water' => Brand.info,
-      'rickshaw' || 'cng' => const Color(0xFFB7791F),
-      'ride_bike' || 'ride_car' => const Color(0xFF6B7280),
-      _ => const Color(0xFF6B7280),
+      'rickshaw' || 'cng' => Brand.warning,
+      'ride_bike' || 'ride_car' => Brand.blueDeep,
+      _ => Brand.blueDeep,
     };
 
 String fareLabelText(AppLocalizations t, FareLabel l) => switch (l) {

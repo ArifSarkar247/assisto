@@ -21,14 +21,14 @@ import '../../widgets/app_sheet.dart' show withNavBarInset;
 
 /// (server type, Google Maps search words, icon, colour)
 const kCityAroundCats = <(String, String, IconData, Color)>[
-  ('hospital', 'hospital', Icons.local_hospital_rounded, Color(0xFFE0485A)),
-  ('pharmacy', 'pharmacy', Icons.local_pharmacy_rounded, Color(0xFF2E9E6B)),
-  ('atm', 'ATM', Icons.atm_rounded, Color(0xFF3B6EF6)),
-  ('mosque', 'mosque', Icons.mosque_rounded, Color(0xFF2E9E6B)),
-  ('police', 'police station', Icons.local_police_rounded, Color(0xFF2347D9)),
-  ('fuel', 'petrol pump', Icons.local_gas_station_rounded, Color(0xFFE0A500)),
-  ('toilets', 'public toilet', Icons.wc_rounded, Color(0xFF6B7280)),
-  ('restaurant', 'restaurants', Icons.restaurant_rounded, Color(0xFFE0485A)),
+  ('hospital', 'hospital', Icons.local_hospital_rounded, Brand.danger),
+  ('pharmacy', 'pharmacy', Icons.local_pharmacy_rounded, Brand.success),
+  ('atm', 'ATM', Icons.atm_rounded, Brand.blue),
+  ('mosque', 'mosque', Icons.mosque_rounded, Brand.success),
+  ('police', 'police station', Icons.local_police_rounded, Brand.blueDeep),
+  ('fuel', 'petrol pump', Icons.local_gas_station_rounded, Brand.warning),
+  ('toilets', 'public toilet', Icons.wc_rounded, Brand.blueDeep),
+  ('restaurant', 'restaurants', Icons.restaurant_rounded, Brand.danger),
 ];
 
 String cityAroundName(AppLocalizations t, String type) => switch (type) {
