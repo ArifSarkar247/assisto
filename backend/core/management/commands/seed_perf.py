@@ -80,6 +80,11 @@ class Command(BaseCommand):
         user = find_user(opts["phone"])
         if user is None:
             raise CommandError("user A not found — run seed_reality first")
+        from core.test_accounts import RealAccountRefused, refuse_real_account
+        try:
+            refuse_real_account(user, tool="seed_perf")   # sjp0: never the owner's account
+        except RealAccountRefused as e:
+            raise CommandError(str(e))
         now = timezone.now()
         out = {"user_id": user.id}
 

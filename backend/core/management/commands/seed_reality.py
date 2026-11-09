@@ -96,6 +96,12 @@ class Command(BaseCommand):
             # spelling so a re-run reuses the user instead of failing.
             from core.phone import find_user
             user = find_user(u["phone"]) or User.objects.filter(phone=u["phone"]).first()
+            # sjp0 (owner 9 Nov): seed only dedicated test accounts, never the owner's
+            from core.test_accounts import RealAccountRefused, refuse_real_account
+            try:
+                refuse_real_account(user, phone=u["phone"], tool="seed_reality")
+            except RealAccountRefused as e:
+                raise CommandError(str(e))
             if user is None:
                 user = User.objects.create_user(name=u["name"], phone=u["phone"],
                                                 email=u["email"], password=DEMO_PASSWORD)

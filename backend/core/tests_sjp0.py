@@ -127,3 +127,23 @@ class OneSessionCountsOnceTests(MapsBase):
             self.assertNotIn(r["state"], LIMIT_STATES)
         row.refresh_from_db()
         self.assertEqual(row.capped, 1)                # a refused search counts once too
+
+
+class TestHarnessNeverUsesTheOwnerTests(MapsBase):
+    def test_guard_refuses_superuser_staff_and_owner_phone(self):
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+        from core import test_accounts as TA
+        self.assertFalse(TA.is_real_owner(self.u1))
+        self.u1.is_superuser = True
+        self.u1.save(update_fields=["is_superuser"])
+        self.assertTrue(TA.is_real_owner(self.u1))
+        with self.assertRaises(TA.RealAccountRefused):
+            TA.refuse_real_account(self.u1, tool="x")
+        # the owner's number (server env only) in any spelling
+        with mock.patch.dict("os.environ", {"ASSISTO_OWNER_PHONES": "01799999999"}):
+            self.assertTrue(TA.is_real_owner(phone="+8801799999999"))
+            self.assertFalse(TA.is_real_owner(phone="01700000001"))
+        # a live AI e2e run on the owner (superuser) is refused before any spend
+        with self.assertRaises(CommandError):
+            call_command("ai_live_e2e", "--user", str(self.u1.id))
