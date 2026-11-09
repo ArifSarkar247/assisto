@@ -1,5 +1,8 @@
 """
 cctv_partner_views.py — cctvroles (CCTV Guard V3 J): installer partners.
+(V3 K sticker: the app's privacy kit already makes the printable Bangla +
+English PDF with correct Bangla shaping — screens/watchman/cctvx_privacy_kit.dart
+from GET shop/sites/<id>/privacy-kit, owner only.)
 Rules: core/logic/cctv_partner.py. Owner Admin page: web/owner/views_cctvpartners.py.
 
 PRIVACY WALL: a partner reaches ONLY setup facts (counts, online / connected
@@ -114,7 +117,7 @@ class SiteInstallerView(CTV._TeamBase):
                 continue
         else:
             return SV._err(lang, "আবার চেষ্টা করুন।", "Please try again.", status=503)
-        CTV.audit(s, "installer", request.user, "invite made")
+        CTV.audit(s, "installer", request.user, CTV.CT.pack(invite=1))
         out = _link_json(link, now)
         out.update(code=code, qr=CPT.qr_payload(code), note=pick(lang, *OWNER_NOTE))
         return Response(out, status=201)
@@ -132,7 +135,7 @@ class InstallerEndView(CTV._TeamBase):
             link.status, link.ended_at = "ended", timezone.now()
             link.save(update_fields=["status", "ended_at"])
             CTV.audit(link.site, "installer", request.user,
-                      "ended: %s" % (link.partner.name if link.partner else "invite"))
+                      CTV.CT.pack(ended=link.partner.name if link.partner else ""))
         return Response(_link_json(link, timezone.now()))
 
 
@@ -238,98 +241,6 @@ class PartnerJoinView(CTV._TeamBase):
             status="active", partner=p, accepted_at=now)
         if not n:
             return _e(lang, "bad_code")
-        CTV.audit(link.site, "installer", request.user, "joined: %s" % p.name)
+        CTV.audit(link.site, "installer", request.user, CTV.CT.pack(joined=p.name))
         return Response({"ok": True, "site": link.site_id}, status=201)
 
-
-# ------------------------------------------------------------ K: sticker PDF
-def sticker_pdf(place, retention_days, lang="both"):
-    """A4 printable CCTV notice: page 1 = the big sticker (Bangla AND
-    English), page 2 = the staff notice. Same truthful text as the app's
-    privacy kit (core/logic/cctv_extras.privacy_kit). Honest limit:
-    reportlab joins Bangla conjuncts only with uharfbuzz; the app shows the
-    exact text too."""
-    import io
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.utils import simpleSplit
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.pdfgen import canvas
-    from .learn_cert import _BN_RE
-    from .logic import cctv_extras as CX
-
-    kit = CX.privacy_kit(place, retention_days)
-    bn_font = None
-    try:
-        from .views import _NOTO_BN_TTF
-        if "NotoBn" not in pdfmetrics.getRegisteredFontNames():
-            pdfmetrics.registerFont(TTFont("NotoBn", _NOTO_BN_TTF))
-        bn_font = "NotoBn"
-    except Exception:  # noqa: BLE001 — Latin only, never a 500
-        bn_font = None
-    langs = [x for x in (("bn", "en") if lang == "both" else (lang,))
-             if x in ("bn", "en") and (x == "en" or bn_font)] or ["en"]
-    buf = io.BytesIO()
-    w, h = A4
-    c = canvas.Canvas(buf, pagesize=A4)
-    c.setTitle("CCTV notice")
-    c.setAuthor("Assisto")
-
-    def font(text):
-        return bn_font if (bn_font and _BN_RE.search(text)) else "Helvetica"
-
-    # page 1 — sticker: thick frame, camera mark, lines large
-    c.setStrokeColorRGB(0.85, 0.11, 0.11)
-    c.setLineWidth(10)
-    c.rect(36, 36, w - 72, h - 72)
-    c.setFillColorRGB(0.85, 0.11, 0.11)
-    c.circle(w / 2, h - 150, 46, stroke=0, fill=1)
-    c.setFillColorRGB(1, 1, 1)
-    c.roundRect(w / 2 - 26, h - 166, 40, 32, 4, stroke=0, fill=1)
-    c.circle(w / 2 + 22, h - 150, 9, stroke=0, fill=1)
-    c.setFillColorRGB(0.07, 0.09, 0.15)
-    y = h - 240
-    for ln in langs:
-        lines = kit["sticker"][ln]
-        for i, text in enumerate(lines):
-            size = 40 if i == 0 else 18
-            for part in simpleSplit(text, font(text), size, w - 140):
-                c.setFont(font(part), size)
-                c.drawCentredString(w / 2, y, part)
-                y -= size + 10
-        y -= 26
-    c.showPage()
-    # page 2 — staff notice
-    for ln in langs:
-        c.setFillColorRGB(0.07, 0.09, 0.15)
-        y = h - 72
-        for para in kit["staff_notice"][ln].split("\n"):
-            size = 18 if y == h - 72 else 12
-            for part in simpleSplit(para, font(para), size, w - 120) or [""]:
-                c.setFont(font(part), size)
-                c.drawString(60, y, part)
-                y -= size + 6
-            if y < 60:
-                break
-        c.showPage()
-    c.save()
-    return buf.getvalue()
-
-
-class StickerPdfView(CTV._TeamBase):
-    """GET shop/sites/<id>/privacy-kit/pdf?lang=bn|en|both — owner only."""
-
-    def get(self, request, pk):
-        from django.http import HttpResponse
-        lang = req_lang(request)
-        s = SV._owner_site(request, pk)
-        if s is None:
-            return CTV._nf(lang)
-        want = request.query_params.get("lang") or "both"
-        if want not in ("bn", "en", "both"):
-            want = "both"
-        resp = HttpResponse(sticker_pdf(s.name, s.snapshot_retention_days, want),
-                            content_type="application/pdf")
-        resp["Content-Disposition"] = 'attachment; filename="cctv-notice.pdf"'
-        resp["Cache-Control"] = "no-store"
-        return resp

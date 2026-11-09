@@ -733,7 +733,7 @@ class SiteViewerDeleteView(APIView):
         if v is not None:
             from . import cctv_team_views as CTV
             CTV.audit(v.site, "change", request.user,
-                      "removed: %s" % ((getattr(v.user, "name", "") or "#%s" % v.user_id)[:40]))
+                      CTV.CT.pack(removed=getattr(v.user, "name", "") or "#%s" % v.user_id))
         return Response({"ok": True})
 
 

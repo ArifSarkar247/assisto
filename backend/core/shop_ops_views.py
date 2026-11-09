@@ -203,7 +203,7 @@ class ShopCameraDetailView(APIView):
             # cctvroles (V3 I): every camera setting change is audited
             from . import cctv_team_views as CTV
             CTV.audit(cam.site, "change", request.user,
-                      "%s: %s" % ((cam.name or "#%s" % cam.pk)[:40], ", ".join(sorted(fields))),
+                      CTV.CT.pack(cam=cam.name or "#%s" % cam.pk, f=",".join(sorted(fields))),
                       camera_id=cam.pk)
         out = SV._camera_row(cam, reveal_token=reveal)
         out["charged_credits"] = charged
@@ -218,7 +218,7 @@ class ShopCameraDetailView(APIView):
         cam.delete()
         # cctvroles (V3 I): only the owner can delete (self._cam is owner-only)
         from . import cctv_team_views as CTV
-        CTV.audit(site, "delete", request.user, "camera: %s" % label)
+        CTV.audit(site, "delete", request.user, CTV.CT.pack(camera=label))
         return Response({"ok": True, "deleted": int(pk)})
 
 

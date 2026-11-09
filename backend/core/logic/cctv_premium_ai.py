@@ -54,14 +54,16 @@ def call_usd(model, tokens, prices=None):
 
 
 def ai_cost_per_camera_bdt(cfg=None, prices=None):
-    """Worst case Claude cost of ONE camera for one month (every cap used);
-    the per-site ask + report cost is spread over MIN_SITE_CAMERAS."""
+    """Worst case Claude cost for one month (every cap used): `describe` per
+    camera, `site` once per site (asks + daily reports), and `total` = one
+    camera's share on the smallest paid site (MIN_SITE_CAMERAS)."""
     c = CP.normalize_cfg(cfg)
     usd = c["usd_bdt"]
     describe = DESCRIBE_PER_CAMERA_DAY * 30 * call_usd(DESCRIBE_MODEL, DESCRIBE_TOKENS, prices)
     site = (ASK_PER_SITE_MONTH * call_usd(ASK_MODEL, ASK_TOKENS, prices)
             + REPORT_PER_SITE_MONTH * call_usd(REPORT_MODEL, REPORT_TOKENS, prices))
     return {"describe": round(describe * usd, 2),
+            "site": round(site * usd, 2),
             "site_share": round(site / MIN_SITE_CAMERAS * usd, 2),
             "total": round((describe + site / MIN_SITE_CAMERAS) * usd, 2)}
 
@@ -78,14 +80,16 @@ def profit_table(cfg=None, prices=None, target_pct=40.0, commission_pct_of_net=0
     c = CP.normalize_cfg(cfg)
     share = CP.net_share(c)
     base_cam = CP.worst_camera_cost_bdt(c)
-    ai = ai_cost_per_camera_bdt(c, prices)["total"]
+    ai_all = ai_cost_per_camera_bdt(c, prices)
+    ai, site = ai_all["describe"], ai_all["site"]
     clip = clip_cost_per_camera_bdt(c)
     rows = []
     for n in range(1, CP.MAX_CAMERAS + 1):
         price = CP.monthly_price(n) + AI_ADDON_BDT_PER_CAMERA * n
         net = price * share
         commission = net * commission_pct_of_net / 100.0
-        cost = (base_cam + ai + clip) * max(n, 1)
+        # the base plan bills at least BASE_CAMERAS, so cost does too (worst)
+        cost = (base_cam + ai + clip) * n + site
         profit = net - cost - commission
         rows.append({"cameras": n, "price": price, "net": round(net, 2),
                      "cost": round(cost, 2), "commission": round(commission, 2),
@@ -94,6 +98,7 @@ def profit_table(cfg=None, prices=None, target_pct=40.0, commission_pct_of_net=0
     low = min(r["pct"] for r in rows)
     return {"rows": rows, "min_pct": low, "ok": low >= target_pct,
             "per_camera": {"base": round(base_cam, 2), "ai": ai, "clips": clip},
+            "per_site": {"ai": site},
             "addon_price": AI_ADDON_BDT_PER_CAMERA, "net_share": round(share, 4),
             "target_pct": target_pct}
 

@@ -49,6 +49,15 @@ class PureTests(SimpleTestCase):
         self.assertIn("staff", CT.suggested_roles("shop"))
         self.assertEqual(set(CT.perm_table()), {"owner"} | set(CT.ROLES))
         self.assertEqual(len(CT.clean_detail("x " * 200)), CT.DETAIL_MAX)
+        # audit detail: packed once, read in the reader's language
+        raw = CT.pack(who="Su;mon=", role="staff", cam=2, live=1)
+        self.assertEqual(CT.unpack(raw)["who"], "Su,mon-")
+        self.assertEqual(CT.detail_text("role", raw, "en"), "Su,mon- → staff (2 camera(s)) · live")
+        self.assertEqual(CT.detail_text("role", raw, "bn"), "Su,mon- → কর্মী (২ ক্যামেরা) · লাইভ")
+        self.assertEqual(CT.detail_text("export", CT.pack(ev=12, h="ab"), "bn"), "সতর্কতা #১২-এর প্রমাণ")
+        self.assertEqual(CT.detail_text("change", CT.pack(place="name,hours"), "en"),
+                         "place: name, hours")
+        self.assertEqual(CT.detail_text("weird", "x=1", "en"), "")
 
     def test_installer_code_and_checklist(self):
         code = CPT.new_code()
@@ -151,7 +160,7 @@ class StaffRoleTests(_Base):
                    {"cameras": [self.gate.id], "hours": 1}, format="json"),
             w.post("/api/v1/shop/sites/%d/installer" % sid),
             w.get("/api/v1/shop/sites/%d/access-log" % sid),
-            w.get("/api/v1/shop/sites/%d/privacy-kit/pdf" % sid),
+            w.get("/api/v1/shop/sites/%d/privacy-kit" % sid),
         ]
         for r in refused:
             self.assertIn(r.status_code, (403, 404, 405), getattr(r, "data", r))
@@ -190,8 +199,10 @@ class AuditTests(_Base):
         self.assertFalse(acts["change"]["is_owner"])
         self.assertEqual(acts["change"]["user_id"], self.manager.id)
         self.assertTrue(acts["export"]["is_owner"])
-        self.assertIn("evidence #%d" % self.ev_gate.id, acts["export"]["detail"])
-        self.assertIn("staff", acts["role"]["detail"])
+        self.assertEqual(acts["export"]["detail"], "evidence of alert #%d" % self.ev_gate.id)
+        self.assertIn("→ staff", acts["role"]["detail"])
+        self.assertEqual(acts["change"]["detail"], "alert #%d: checked" % self.ev_gate.id)
+        self.assertEqual(acts["delete"]["detail"], "camera: Till")
         self.assertTrue(all(x["kind"] == "change" for x in log["rows"]))
         self.assertEqual(log["audit_keep_days"], CT.AUDIT_KEEP_DAYS)
         views = o.get("/api/v1/shop/sites/%d/access-log?kind=view" % sid).data["rows"]
@@ -258,7 +269,7 @@ class PartnerTests(_Base):
         log = self.c["owner"].get("/api/v1/shop/sites/%d/access-log?kind=change"
                                   % self.site.id).data["rows"]
         self.assertEqual(sorted(x["detail"] for x in log if x["action"] == "installer"),
-                         ["invite made", "joined: Rana CCTV"])
+                         ["code made", "joined: Rana CCTV"])
         r = self.c["owner"].post("/api/v1/shop/installer/%d/end" % link["id"])
         self.assertEqual(r.data["status"], "ended")
         self.assertEqual(self.t.get("/api/v1/shop/partner/me").data["sites"], [])
@@ -304,7 +315,7 @@ class AdminWallTests(_Base):
     MEDIA_PATHS = ("/api/v1/shop/events/%(ev)d", "/api/v1/shop/events/%(ev)d/clip",
                    "/api/v1/shop/events/%(ev)d/evidence", "/api/v1/shop/events/%(ev)d/sd-clip",
                    "/api/v1/shop/cameras/%(cam)d/still", "/api/v1/shop/sites/%(site)d/access-log",
-                   "/api/v1/shop/sites/%(site)d/privacy-kit/pdf",
+                   "/api/v1/shop/sites/%(site)d/privacy-kit",
                    "/api/v1/shop/events?site=%(site)d")
 
     def _paths(self):
@@ -339,17 +350,16 @@ class AdminWallTests(_Base):
             for i, line in enumerate(f.read_text().splitlines(), 1):
                 self.assertIsNone(bad.search(line), "%s:%d %s" % (f.name, i, line.strip()))
 
-    def test_export_only_by_the_site_owner_and_sticker_pdf(self):
+    def test_export_only_by_the_site_owner_and_sticker_text_owner_only(self):
         for who in ("manager", "family", "guard", "staff", "stranger"):
             r = self.c[who].post("/api/v1/shop/events/%d/evidence" % self.ev_gate.id,
                                  {"manifest_sha256": "c" * 64, "files": 1}, format="json")
             self.assertEqual(r.status_code, 404, who)
-        r = self.c["owner"].get("/api/v1/shop/sites/%d/privacy-kit/pdf?lang=both"
-                                % self.site.id)
-        self.assertEqual((r.status_code, r["Content-Type"]), (200, "application/pdf"))
-        self.assertTrue(r.content.startswith(b"%PDF"))
-        r = self.c["owner"].get("/api/v1/shop/sites/%d/privacy-kit/pdf?lang=en" % self.site.id)
-        self.assertTrue(r.content.startswith(b"%PDF"))
+            self.assertEqual(self.c[who].get("/api/v1/shop/sites/%d/privacy-kit"
+                                             % self.site.id).status_code, 404, who)
+        r = self.c["owner"].get("/api/v1/shop/sites/%d/privacy-kit" % self.site.id)
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("A4", r.data["sizes"])
 
     def test_sticker_says_no_face_recognition_in_both_languages(self):
         from core.logic import cctv_extras as CX

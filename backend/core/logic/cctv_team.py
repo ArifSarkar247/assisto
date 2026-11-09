@@ -201,3 +201,90 @@ def camera_status(enabled, online, last_seen):
     if last_seen is None:
         return "never"
     return "online" if online else "offline"
+
+
+# cctvroles: the audit detail is stored as a short machine string
+# ("k=v;k=v") and shown in the reader's language (strict bn / en).
+_ROLE_WORDS = {"family": ("পরিবার", "family"), "manager": ("ম্যানেজার", "manager"),
+               "guard": ("গার্ড", "guard"), "staff": ("কর্মী", "staff")}
+_FIELD_WORDS = {"name": ("নাম", "name"), "hours": ("খোলার সময়", "hours"),
+                "snapshot_retention_days": ("ছবি রাখার দিন", "photo days"),
+                "pos_link": ("POS যোগ", "POS link"), "gateway": ("সংযোগের ধরন", "connection"),
+                "zone_config": ("জোন", "zones"), "enabled": ("চালু/বন্ধ", "on/off"),
+                "camera_token": ("ক্যামেরার চাবি", "camera key")}
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def pack(**kv):
+    """k=v;k=v with the separators removed from values (names are typed)."""
+    out = []
+    for k, v in kv.items():
+        s = " ".join(str(v if v is not None else "").split())
+        s = s.replace(";", ",").replace("=", "-")[:40]
+        out.append("%s=%s" % (k, s))
+    return clean_detail(";".join(out))
+
+
+def unpack(raw):
+    d = {}
+    for part in str(raw or "").split(";"):
+        if "=" in part:
+            k, v = part.split("=", 1)
+            d[k.strip()] = v.strip()
+    return d
+
+
+def _n(v, lang):
+    s = str(v)
+    return s.translate(_BN_DIGITS) if lang == "bn" else s
+
+
+def detail_text(action, raw, lang="bn"):
+    """The audit row's 'what' in the reader's language; '' when unknown."""
+    d = unpack(raw)
+    bn = lang == "bn"
+    i = 0 if bn else 1
+
+    def fields(v):
+        return ", ".join(_FIELD_WORDS.get(f.strip(), (f.strip(), f.strip()))[i]
+                         for f in str(v).split(",") if f.strip())
+    if action == "export" and "ev" in d:
+        return ("সতর্কতা #%s-এর প্রমাণ" if bn else "evidence of alert #%s") % _n(d["ev"], lang)
+    if action == "share":
+        if "clip" in d:
+            return ("সতর্কতা #%s-এর ক্লিপ" if bn else "clip of alert #%s") % _n(d["clip"], lang)
+        if d.get("link") == "off":
+            return "লিংক বন্ধ" if bn else "link turned off"
+        if "link" in d:
+            return ("লিংক %s ঘণ্টা, %s ক্যামেরা" if bn else "link %s h, %s camera(s)") % (
+                _n(d["link"], lang), _n(d.get("cam", "0"), lang))
+    if action == "change":
+        if "alert" in d:
+            st = d.get("st", "")
+            word = {"checked": ("ঠিক আছে", "checked"),
+                    "false_alarm": ("ভুল সতর্কতা", "wrong alert")}.get(st, (st, st))[i]
+            return ("সতর্কতা #%s: %s" if bn else "alert #%s: %s") % (_n(d["alert"], lang), word)
+        if "removed" in d:
+            return ("সরানো হয়েছে: %s" if bn else "removed: %s") % d["removed"]
+        if "cam" in d:
+            return "%s: %s" % (d["cam"], fields(d.get("f", "")))
+        if "place" in d:
+            return ("জায়গা: %s" if bn else "place: %s") % fields(d["place"])
+    if action == "delete" and "camera" in d:
+        return ("ক্যামেরা: %s" if bn else "camera: %s") % d["camera"]
+    if action == "role" and "who" in d:
+        role = _ROLE_WORDS.get(d.get("role", ""), (d.get("role", ""),) * 2)[i]
+        out = "%s → %s" % (d["who"], role)
+        if d.get("cam") not in (None, "", "0"):
+            out += (" (%s ক্যামেরা)" if bn else " (%s camera(s))") % _n(d["cam"], lang)
+        if d.get("live") == "1":
+            out += " · লাইভ" if bn else " · live"
+        return out
+    if action == "installer":
+        if "invite" in d:
+            return "কোড তৈরি" if bn else "code made"
+        if "joined" in d:
+            return ("যুক্ত হয়েছেন: %s" if bn else "joined: %s") % d["joined"]
+        if "ended" in d:
+            return ("বন্ধ: %s" if bn else "ended: %s") % (d["ended"] or ("কোড" if bn else "code"))
+    return ""

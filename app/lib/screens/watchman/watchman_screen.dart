@@ -38,6 +38,7 @@ import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
 import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
 import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
+import 'cctv_installer_screens.dart'; // cctvroles: installer partners
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -163,6 +164,15 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               icon: const Icon(Icons.grid_view_rounded),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => CctvGridScreen(source: _team, onSetup: () => Navigator.of(context).pop()))),
+            ),
+          // cctvroles (V3 J): CCTV technicians — installer partner
+          if (!_loading && !_featureOff)
+            IconButton(
+              key: const ValueKey('wm-partner'),
+              tooltip: t.ctrPartTitle,
+              icon: const Icon(Icons.handyman_outlined),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => CctvPartnerScreen(source: _team))),
             ),
           // cctvx: alerts other owners passed to me / clips shared with me
           IconButton(
@@ -653,9 +663,18 @@ class _SiteCard extends StatelessWidget {
                 key: const ValueKey('wm-access-log'),
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.manage_search_rounded),
-                label: Text(t.ctmLogTitle),
+                label: Text(t.ctrLogTitle),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => CctvAccessLogScreen(source: team, siteId: siteId))),
+              ),
+              // cctvroles (V3 J): a local technician checks the setup — never video
+              OutlinedButton.icon(
+                key: const ValueKey('wm-installer'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.handyman_outlined),
+                label: Text(t.ctrInstTitle),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CctvInstallerScreen(source: team, siteId: siteId))),
               ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),

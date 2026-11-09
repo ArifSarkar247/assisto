@@ -538,9 +538,8 @@ class ViewerRoleView(_TeamBase):
         v.save(update_fields=["role", "cameras", "live_ok"])
         if before != (v.role, list(v.cameras or []), bool(v.live_ok)):
             audit(s, "role", request.user,
-                  "%s: %s%s%s" % ((getattr(v.user, "name", "") or "#%s" % v.user_id)[:40],
-                                  role, "" if not ids else " (%d cam)" % len(ids),
-                                  " +live" if v.live_ok else ""))
+                  CT.pack(who=getattr(v.user, "name", "") or "#%s" % v.user_id, role=role,
+                          cam=len(ids), live=int(bool(v.live_ok))))
         return Response(_role_row(v))
 
     post = put
@@ -561,7 +560,7 @@ class ViewerRolesView(_TeamBase):
 
 
 # ===================================================================== access log
-def _log_row(r, owner_id=None):
+def _log_row(r, owner_id=None, lang="bn"):
     who = None
     if r.user_id:
         who = getattr(r.user, "name", "") or ""
@@ -569,7 +568,7 @@ def _log_row(r, owner_id=None):
             "user_id": r.user_id, "name": who,
             # cctvroles: the owner's own export / change rows say "You"
             "is_owner": bool(r.user_id and r.user_id == owner_id),
-            "detail": getattr(r, "detail", "") or "",
+            "detail": CT.detail_text(r.action, getattr(r, "detail", "") or "", lang),
             "kind": "change" if r.action in CT.AUDIT_ACTIONS else "view",
             "link_id": r.link_id, "link_label": (r.link.label if r.link_id and r.link else ""),
             "camera": r.camera_id,
@@ -592,7 +591,7 @@ class AccessLogView(_TeamBase):
         elif kind == "view":
             qs = qs.exclude(action__in=CT.AUDIT_ACTIONS)
         rows = qs[:200]
-        return Response({"site": s.id, "rows": [_log_row(r, s.owner_id) for r in rows],
+        return Response({"site": s.id, "rows": [_log_row(r, s.owner_id, lang) for r in rows],
                          "keep_days": CT.LOG_KEEP_DAYS,
                          "audit_keep_days": CT.AUDIT_KEEP_DAYS,
                          "note": pick(lang,
@@ -659,7 +658,7 @@ class ShareLinksView(_TeamBase):
             site=s, created_by=request.user, token_hash=_hash(token),
             label=" ".join(str(request.data.get("label") or "").split())[:40],
             cameras=ids, expires_at=now + timedelta(hours=hours))
-        audit(s, "share", request.user, "link %dh, %d cam" % (hours, len(ids)), link=link)
+        audit(s, "share", request.user, CT.pack(link=hours, cam=len(ids)), link=link)
         return Response(link_json(link, now, token=token), status=201)
 
 
@@ -673,7 +672,7 @@ class ShareLinkRevokeView(_TeamBase):
         if link.revoked_at is None:
             link.revoked_at = timezone.now()
             link.save(update_fields=["revoked_at"])
-            audit(link.site, "share", request.user, "link off", link=link)
+            audit(link.site, "share", request.user, CT.pack(link="off"), link=link)
         return Response(link_json(link))
 
 
