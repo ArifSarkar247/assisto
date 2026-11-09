@@ -44891,5 +44891,618 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
+  },
+  "fcsAgeSeconds": "{n} s ago",
+  "@fcsAgeSeconds": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAgeMinutes": "{n} min ago",
+  "@fcsAgeMinutes": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAgeHours": "{n} h ago",
+  "@fcsAgeHours": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeNight": "{time} am",
+  "@fcsTimeNight": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeDawn": "{time} am",
+  "@fcsTimeDawn": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeMorning": "{time} am",
+  "@fcsTimeMorning": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeNoon": "{time} pm",
+  "@fcsTimeNoon": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeAfternoon": "{time} pm",
+  "@fcsTimeAfternoon": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeEvening": "{time} pm",
+  "@fcsTimeEvening": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsTimeLateNight": "{time} pm",
+  "@fcsTimeLateNight": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsCountdownTitle": "Sending SOS to your family in",
+  "@fcsCountdownTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCountdownBody": "Everyone in your family gets a loud alarm with your location — even if their phone is locked.",
+  "@fcsCountdownBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSendingNow": "Sending SOS…",
+  "@fcsSendingNow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSendNow": "Send now",
+  "@fcsSendNow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCancelMistake": "Cancel — I pressed it by mistake",
+  "@fcsCancelMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCancelledNothingSent": "SOS cancelled. Nothing was sent.",
+  "@fcsCancelledNothingSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentTitle": "SOS sent",
+  "@fcsSentTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentToN": "Your family's phones are ringing ({n} people)",
+  "@fcsSentToN": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSentBody": "They see where you are. Keep this screen open: your location keeps updating.",
+  "@fcsSentBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentToNobody": "No one in your family has Assisto yet",
+  "@fcsSentToNobody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSentNobodyBody": "Send an SMS from your SIM or call the emergency number now.",
+  "@fcsSentNobodyBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingTitle": "Who is going",
+  "@fcsGoingTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingWaiting": "Waiting for someone to say they are on the way…",
+  "@fcsGoingWaiting": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingNobody": "No one has said they are going yet. Tap \"I am going\" if you can.",
+  "@fcsGoingNobody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingName": "{name} is on the way · {time}",
+  "@fcsGoingName": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsGoingYou": "You said you are going",
+  "@fcsGoingYou": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsRecordButton": "Record 30 seconds of sound for your family",
+  "@fcsRecordButton": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsRecording": "Recording sound for your family · {n} s left",
+  "@fcsRecording": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsRecordingBody": "Only your family on this SOS can hear it. Deleted after 7 days.",
+  "@fcsRecordingBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStop": "Stop",
+  "@fcsStop": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundSending": "Sending the sound…",
+  "@fcsSoundSending": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundSent": "Sound sent to your family",
+  "@fcsSoundSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundFailed": "The sound could not be sent. Your SOS is still on.",
+  "@fcsSoundFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundDenied": "Microphone not allowed — no sound was recorded.",
+  "@fcsSoundDenied": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCallEmergency": "Call {number}",
+  "@fcsCallEmergency": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSentByMistake": "Sent by mistake — tell everyone",
+  "@fcsSentByMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeConfirmTitle": "Tell everyone it was a mistake?",
+  "@fcsMistakeConfirmTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeConfirmBody": "Your family gets a message that you are OK and nobody needs to come.",
+  "@fcsMistakeConfirmBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsKeepSos": "Keep SOS on",
+  "@fcsKeepSos": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsTellEveryone": "Yes, tell everyone",
+  "@fcsTellEveryone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsMistakeSent": "Everyone was told it was a mistake.",
+  "@fcsMistakeSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsLiveNote": "Your location is shared with your family only while this SOS is on. Free, always — no ads.",
+  "@fcsLiveNote": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineTitle": "No internet",
+  "@fcsOfflineTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineHead": "Your SOS could not reach the internet",
+  "@fcsOfflineHead": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsOfflineBody": "Send an SMS from your own SIM now. Assisto keeps trying and sends the SOS as soon as the internet is back.",
+  "@fcsOfflineBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickTwo": "Choose 2 people for SMS",
+  "@fcsSmsPickTwo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsSendTo": "Send SMS to {names}",
+  "@fcsSmsSendTo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSmsOne": "SMS {name} only",
+  "@fcsSmsOne": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSmsChange": "Change people",
+  "@fcsSmsChange": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsHow": "Your SMS app opens with the message and your location filled in. Tap Send. Normal SMS charge from your SIM.",
+  "@fcsSmsHow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStillTrying": "Still trying to reach the internet…",
+  "@fcsStillTrying": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsStopTrying": "Stop trying and close",
+  "@fcsStopTrying": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickTitle": "SMS when there is no internet",
+  "@fcsSmsPickTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsPickBody": "Pick up to 2 people. Kept on this phone so it works without internet.",
+  "@fcsSmsPickBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsTypeNumber": "Or type a phone number",
+  "@fcsSmsTypeNumber": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsAdd": "Add",
+  "@fcsSmsAdd": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSmsSave": "Save ({n} chosen)",
+  "@fcsSmsSave": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmTitle": "{name} needs help",
+  "@fcsAlarmTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmFallTitle": "{name} may have fallen",
+  "@fcsAlarmFallTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmWhen": "Sent at {time} · {ago}",
+  "@fcsAlarmWhen": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmMistake": "{name} pressed SOS by mistake",
+  "@fcsAlarmMistake": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmMistakeBody": "They are OK. Nobody needs to go.",
+  "@fcsAlarmMistakeBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsAlarmSafe": "{name} is safe now",
+  "@fcsAlarmSafe": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmLoadFailed": "Could not load the latest details. Call them now.",
+  "@fcsAlarmLoadFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsIamGoing": "I am going",
+  "@fcsIamGoing": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingSent": "Everyone now sees that you are going.",
+  "@fcsGoingSent": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsGoingFailed": "Could not send. Check the internet and try again.",
+  "@fcsGoingFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsCallName": "Call {name}",
+  "@fcsCallName": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSilence": "Silence the alarm",
+  "@fcsSilence": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereTitle": "Where they are",
+  "@fcsWhereTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereLive": "Live · updated {ago}",
+  "@fcsWhereLive": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsWhereAtSend": "Location when the SOS was sent",
+  "@fcsWhereAtSend": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsWhereAtSendAgo": "Location when the SOS was sent · {ago}",
+  "@fcsWhereAtSendAgo": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsOpenMap": "Open map",
+  "@fcsOpenMap": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDirections": "Directions",
+  "@fcsDirections": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNoLocation": "Location not available",
+  "@fcsNoLocation": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNoLocationBody": "Their phone could not get GPS. Call them and ask where they are.",
+  "@fcsNoLocationBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSoundNotYet": "If they record sound, it appears here.",
+  "@fcsSoundNotYet": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsPlaySound": "Listen to their sound ({n} s)",
+  "@fcsPlaySound": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSoundPlayFailed": "The sound could not be played.",
+  "@fcsSoundPlayFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyTitle": "Nearest police and hospital",
+  "@fcsNearbyTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyNone": "No police station or hospital in our list near them.",
+  "@fcsNearbyNone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsNearbyNeedLocation": "Shown when their location is known.",
+  "@fcsNearbyNeedLocation": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsKmAway": "{km} km from them",
+  "@fcsKmAway": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsCall": "Call",
+  "@fcsCall": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsInfoTitle": "Emergency info",
+  "@fcsInfoTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsBloodGroup": "Blood group: {group}",
+  "@fcsBloodGroup": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAllergies": "Allergies: {text}",
+  "@fcsAllergies": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsConditions": "Health: {text}",
+  "@fcsConditions": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsAlarmFree": "Family SOS is free, always. No ads.",
+  "@fcsAlarmFree": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsClose": "Close",
+  "@fcsClose": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupTitle": "Get SOS ready",
+  "@fcsSetupTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupBody": "Two minutes now, so your SOS reaches your family in the worst moment.",
+  "@fcsSetupBody": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsTitle": "SMS when there is no internet",
+  "@fcsSetupSmsTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsNone": "Not chosen yet — choose 2 people.",
+  "@fcsSetupSmsNone": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupSmsSome": "SMS goes to {names}",
+  "@fcsSetupSmsSome": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsChoose": "Choose",
+  "@fcsChoose": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsChange": "Change",
+  "@fcsChange": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupShareTitle": "Show my blood group and emergency contacts to my family during SOS",
+  "@fcsSetupShareTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupShareSub": "Blood group {group} · {n} emergency contacts",
+  "@fcsSetupShareSub": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fcsSetupShareEmpty": "Add your blood group and contacts in the Emergency card first.",
+  "@fcsSetupShareEmpty": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndTitle": "Ring family SOS even in Do Not Disturb",
+  "@fcsSetupDndTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndOn": "On — family SOS alarms ring on this phone in Do Not Disturb.",
+  "@fcsSetupDndOn": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupDndOff": "Off — tap Allow, then turn Assisto on in the list.",
+  "@fcsSetupDndOff": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupFullTitle": "Show SOS full screen on the lock screen",
+  "@fcsSetupFullTitle": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSetupFullOff": "Off — your phone only shows a small notification.",
+  "@fcsSetupFullOff": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsAllow": "Allow",
+  "@fcsAllow": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDndManual": "Open Android Settings → Apps → Special app access → Do Not Disturb access → Assisto.",
+  "@fcsDndManual": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsFullManual": "Open Android Settings → Apps → Special app access → Full-screen notifications → Assisto.",
+  "@fcsFullManual": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsSaveFailed": "Could not save. Check the internet.",
+  "@fcsSaveFailed": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsDndChannelDesc": "Family SOS alarms that ring even in Do Not Disturb (you allowed it).",
+  "@fcsDndChannelDesc": {
+    "description": "fcsos: Family Care v3 SOS sender/receiver"
   }
 }
