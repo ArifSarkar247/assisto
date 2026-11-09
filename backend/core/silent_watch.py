@@ -122,6 +122,30 @@ def family_ids(elder):
     return [i for i in dict.fromkeys(ids) if i != elder.pk]
 
 
+def family_people(user):
+    """[{user_id, name, phone, relation}] for one-tap calls on Easy Home
+    (relation as THIS user calls them: son / daughter / ...). Family Care v3
+    first, else accepted My Circle members."""
+    out = []
+    try:
+        from . import family_v3  # fcscreen
+        for m in family_v3.members_of(user):
+            out.append({"user_id": m.get("user_id"), "name": m.get("label") or m.get("name") or "",
+                        "phone": m.get("phone") or "", "relation": m.get("relation") or ""})
+    except Exception:  # noqa: BLE001
+        out = []
+    if not out:
+        try:
+            from .family_alerts import consenting_members
+            for u, m in consenting_members(user):
+                out.append({"user_id": u.pk, "name": name_for(user, u),
+                            "phone": (m.phone or getattr(u, "phone", "") or ""),
+                            "relation": (m.relation or "").lower()})
+        except Exception:  # noqa: BLE001
+            out = []
+    return out
+
+
 def is_family(elder, user):
     return user is not None and user.pk in family_ids(elder)
 
@@ -642,4 +666,4 @@ def status_for(viewer):
                          "alert": alert_dict(a, viewer) if a is not None else None})
     watching.sort(key=lambda w: (0 if (w["alert"] or {}).get("status") in ("open", "asking", "checking") else 1,
                                  w["elder_name"].lower()))
-    return {"mine": mine, "watching": watching}
+    return {"mine": mine, "watching": watching, "family": family_people(viewer)}

@@ -81,6 +81,10 @@ class SetupTests(Base):
         self.assertNotIn(out["token"], str(row.data))
         self.assertEqual(SW.elder_for_token(out["token"]), self.ammu)
         self.assertEqual(len(self.spy.to(self.arif, "elder_setup_done")), 1)
+        # Easy Home's one-tap call buttons: the elder's family with phone + relation
+        fam = self.m.get(V + "/family/silent-watch").json()["family"]
+        son = [f for f in fam if f["user_id"] == self.arif.pk][0]
+        self.assertEqual((son["relation"], son["phone"]), ("son", self.arif.phone))
 
     def test_code_single_use_wrong_phone_expired_stranger(self):
         r = self.a.post(V + "/family/elder-setup", {"elder_user_id": self.ammu.pk}, format="json")
@@ -229,3 +233,14 @@ class LadderE2E(Base):
         r = anon.post(V + "/family/silent-watch/alert", {"token": tok}, format="json")
         self.assertEqual(r.status_code, 409)
         self.assertIsNone(SW.on_carecall_missed(self.ammu))
+
+
+class LandingTests(TestCase):
+    def test_e_link_fallback_page(self):
+        from rest_framework.test import APIClient
+        r = APIClient().get("/e/abcd2345")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("ABCD2345", r.content.decode())
+        self.assertEqual(r["Cache-Control"], "no-store")
+        r = APIClient().get("/e/<script>")
+        self.assertNotIn("<script>", r.content.decode().split("<body>")[1])
