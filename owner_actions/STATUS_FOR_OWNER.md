@@ -15,6 +15,9 @@
 11. GitHub secret `GCP_TESTLAB_SA` যোগ করুন (`TESTLAB_SETUP.md` ধাপ ১, ৩, ৪; ফ্রি Spark প্ল্যান) — তাহলে ৮টি মূল কাজ ৩টি আসল ফোনে প্রতি রাতে পরীক্ষা হবে; এমুলেটরে ৮টিই এখন পাস (রান 42557563988)।
 <!-- OWNER-ONLY END -->
 
+## ✅ Owner Admin-এ "Dahua DoLynk" কার্ড এখন লাইভ (৯ Nov) — Owner Admin → Integrations → **Dahua DoLynk**: Access Key ও Secret Access Key পেস্ট করুন (Product ID 212808822 আর API ঠিকানা https://open-api-sg.dolynkcloud.com ফাঁকা রাখলেও এগুলোই ধরা হবে) → Save → Test। এখনকার Test সৎভাবে শুধু দেখে: দুটি চাবি আছে আর DoLynk সার্ভার সাড়া দিচ্ছে; আসল সাইন-ইন যাচাই, ডিভাইস তালিকা, লাইভ, প্লেব্যাক ও অ্যালার্ম সংযোগ তৈরি হচ্ছে। Open Application-এর রিভিউতে Dahua কী চাইবে তা CCTV_DEV_ACCOUNTS_BN.md-এ যোগ হচ্ছে।
+
+
 ## 🟦 Dahua DoLynk (৯ Nov) — উইজার্ডের প্রতিটি ধাপের মান `CCTV_DEV_ACCOUNTS_BN.md`-এর "DAHUA DOLYNK NOW"-এ। DoLynk-এর ইংরেজি ডকুমেন্ট লগইন ছাড়া খোলে না, তাই ✋ চিহ্নের ৫টি ঘরের নাম কনসোল দেখে জানান; পারলে লগইন করে Doc Center-এর API পাতাগুলো (টোকেন, ডিভাইস তালিকা, লাইভ, প্লেব্যাক, মেসেজ) PDF বা স্ক্রিনশট করে পাঠান — তাহলে সংযোগ দ্রুত ও নির্ভুল হবে। ফ্রি ট্রায়ালে (চীনা সংস্করণের তথ্য): ১০ চ্যানেল, প্রতিদিন ১০০০ ছবি। Owner Admin-এ "Dahua DoLynk" কার্ড পরের বিল্ডে আসছে।
 
 
