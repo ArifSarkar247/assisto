@@ -48,6 +48,9 @@ EVENT_TYPES = frozenset({
     HAND_IN_CASH_ZONE, "drawer_open", "void_spike", "refund_spike",
     "discount_spike", "eod_mismatch", MOTION, AFTER_HOURS, "pose_possible",
     PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING, "camera_alarm",
+    # cctvalerts server types (raised server-side; mirrored so the contract
+    # test keeps the two lists equal)
+    "loitering", "camera_health",
 })
 EDGE_EMITTED_TYPES = frozenset({HAND_IN_CASH_ZONE, AFTER_HOURS, MOTION,
                                 PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING})

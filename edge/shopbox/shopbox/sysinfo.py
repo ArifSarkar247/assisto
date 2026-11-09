@@ -20,11 +20,10 @@ import sys
 import time
 from typing import Optional
 
-_ROOT = os.environ.get("SHOPBOX_SYSROOT", "")   # tests point this at a fake /sys + /proc
-
-
 def _p(path: str) -> str:
-    return _ROOT + path if _ROOT else path
+    # tests point SHOPBOX_SYSROOT at a fake /sys + /proc (read at call time)
+    root = os.environ.get("SHOPBOX_SYSROOT", "")
+    return root + path if root else path
 
 
 def _read(path: str, limit: int = 4096) -> Optional[str]:

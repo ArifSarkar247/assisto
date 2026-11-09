@@ -8,8 +8,17 @@
 # assisto-guardbox-linux-<arch>.tar.gz
 set -euo pipefail
 VERSION="${VERSION:?set VERSION}"
-apt-get update -qq
-apt-get install -y -qq --no-install-recommends binutils gcc libc6-dev dpkg-dev curl ca-certificates >/dev/null
+# Debian 11 left the main mirrors (security support ended): its packages
+# live on archive.debian.org now. Only build tools come from apt.
+if grep -qs bullseye /etc/os-release; then
+  for f in /etc/apt/sources.list /etc/apt/sources.list.d/*; do
+    [ -f "$f" ] && sed -i -e 's|deb.debian.org/debian-security|archive.debian.org/debian-security|g' \
+                          -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
+                          -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' "$f"
+  done
+fi
+apt-get -o Acquire::Check-Valid-Until=false update -qq
+apt-get install -y -qq --no-install-recommends binutils gcc libc6-dev >/dev/null
 ARCH="$(dpkg --print-architecture)"
 python -m pip install -q --upgrade pip
 python -m pip install -q -r requirements.txt -r requirements-dev.txt -r requirements-live.txt

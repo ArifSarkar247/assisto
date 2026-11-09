@@ -6,6 +6,7 @@ import io
 import json
 import os
 import re
+import sys
 import wave
 
 import numpy as np
@@ -64,6 +65,7 @@ def _fake_sys(tmp_path, monkeypatch, files):
     monkeypatch.setenv("SHOPBOX_SYSROOT", str(tmp_path))
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="fake /sys tree uses ':' in names")
 def test_sysinfo_pi_model_memory_and_undervoltage(tmp_path, monkeypatch):
     from shopbox import sysinfo
     _fake_sys(tmp_path, monkeypatch, {
@@ -83,6 +85,7 @@ def test_sysinfo_pi_model_memory_and_undervoltage(tmp_path, monkeypatch):
     assert sysinfo.boot_id() == "ci-reboot"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Windows reads GetSystemPowerStatus")
 def test_sysinfo_power_mains_and_battery(tmp_path, monkeypatch):
     from shopbox import sysinfo
     _fake_sys(tmp_path, monkeypatch, {
