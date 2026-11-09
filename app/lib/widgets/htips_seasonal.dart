@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 
 /// Seasonal health highlights (BD-specific: dengue / heat / winter / flood),
@@ -56,7 +57,7 @@ class _SeasonalCard extends StatelessWidget {
     return SizedBox(
       width: 280,
       child: Card(
-        color: scheme.primaryContainer,
+        color: DsTokens.of(context).primarySoft,
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.md),
           onTap: topicId.isEmpty || onOpenTopic == null
@@ -66,7 +67,7 @@ class _SeasonalCard extends StatelessWidget {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Icon(Icons.campaign_rounded, size: 18, color: scheme.onPrimaryContainer),
+                Icon(Icons.campaign_rounded, size: 18, color: DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(title,
@@ -74,7 +75,7 @@ class _SeasonalCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: scheme.onPrimaryContainer)),
+                          color: DsTokens.of(context).primaryInk)),
                 ),
               ]),
               const SizedBox(height: Gap.xs),
@@ -85,7 +86,7 @@ class _SeasonalCard extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 12.5,
                         height: 1.4,
-                        color: scheme.onPrimaryContainer)),
+                        color: DsTokens.of(context).primaryInk)),
               ),
               const SizedBox(height: Gap.xs),
               if (sourceName.isNotEmpty)
@@ -95,7 +96,7 @@ class _SeasonalCard extends StatelessWidget {
                       : t.htipsSourceDateLine(sourceName, reviewed),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10.5, color: scheme.onPrimaryContainer),
+                  style: TextStyle(fontSize: 10.5, color: DsTokens.of(context).primaryInk),
                 ),
             ]),
           ),

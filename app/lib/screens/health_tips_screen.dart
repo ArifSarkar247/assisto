@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/health_api.dart';
 import '../widgets/htips_tip_card.dart';
@@ -148,7 +149,6 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
 
     // "saved-only" is a client-side filter over whatever the backend returned.
     final visibleTips = _savedOnly
@@ -163,19 +163,17 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           // non-diagnostic disclaimer — always visible
           if (_disclaimer.isNotEmpty)
-            Card(
-              color: scheme.tertiaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Row(children: [
-                  Icon(Icons.info_outline_rounded, size: 18, color: scheme.onTertiaryContainer),
+            DsCard(
+              tone: DsTone.success,
+              padding: const EdgeInsets.all(Gap.md),
+              child: Row(children: [
+                  Icon(Icons.info_outline_rounded, size: 18, color: DsTokens.of(context).successInk),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(_disclaimer,
-                        style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer)),
+                        style: AType.bodySmall.copyWith(color: DsTokens.of(context).successInk)),
                   ),
                 ]),
-              ),
             ),
           const SizedBox(height: Gap.md),
 
@@ -211,9 +209,10 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           const SizedBox(height: Gap.md),
 
           // topic chips + "saved" filter
-          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            ChoiceChip(
-              label: Text(t.healthTipsAllTopics),
+          // designv2: one scrolling row (chips never break into odd rows)
+          DsChipRow(padding: EdgeInsets.zero, children: [
+            DsChip(
+              label: t.healthTipsAllTopics,
               selected: _activeTopic == null,
               onSelected: (_) {
                 setState(() => _activeTopic = null);
@@ -226,20 +225,17 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
               // real non-empty string — otherwise a null/blank field would
               // render the literal text "null" on a health screen.
               if (_topicLabel(top).isNotEmpty)
-                ChoiceChip(
-                  label: Text(_topicLabel(top)),
+                DsChip(
+                  label: _topicLabel(top),
                   selected: _activeTopic == top['id'],
                   onSelected: (_) {
                     setState(() => _activeTopic = top['id'].toString());
                     _load();
                   },
                 ),
-            FilterChip(
-              avatar: Icon(
-                _savedOnly ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                size: 16,
-              ),
-              label: Text(t.htipsSavedFilter),
+            DsChip(
+              icon: _savedOnly ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+              label: t.htipsSavedFilter,
               selected: _savedOnly,
               onSelected: (v) => setState(() => _savedOnly = v),
             ),
@@ -247,8 +243,10 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           const SizedBox(height: Gap.lg),
 
           if (_loading)
-            const Center(child: Padding(
-                padding: EdgeInsets.all(Gap.xl), child: CircularProgressIndicator()))
+            Column(children: [
+              for (var i = 0; i < 3; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSkeleton.card(lines: 3)),
+            ])
           else if (_error)
             _ErrorRetry(message: honestFailText(t, _failCause, otherwise: t.healthTipsLoadError), onRetry: _load)
           else if (visibleTips.isEmpty)
@@ -257,7 +255,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
               child: Center(child: Text(
                   _savedOnly ? t.htipsNoSaved : t.healthTipsNoResults,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant))),
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))),
             )
           else
             for (final tip in visibleTips) ...[
@@ -272,7 +270,7 @@ class _HealthTipsScreenState extends State<HealthTipsScreen> {
           if (_sources.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(t.healthTipsSourcesLine(_sources.join(', ')),
-                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted)),
           ],
         ]),
       ),
@@ -301,16 +299,15 @@ class _EmergencyCheckBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
+    final ds = DsTokens.of(context);
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            const Icon(Icons.emergency_rounded, color: Brand.danger, size: 20),
+            Icon(Icons.emergency_rounded, color: ds.dangerInk, size: 20),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(label,
-                style: const TextStyle(fontWeight: FontWeight.w700))),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: ds.text))),
           ]),
           const SizedBox(height: Gap.sm),
           TextField(
@@ -320,16 +317,12 @@ class _EmergencyCheckBox extends StatelessWidget {
             decoration: InputDecoration(hintText: hint),
           ),
           const SizedBox(height: Gap.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: checking ? null : onCheck,
-              icon: checking
-                  ? const SizedBox(
-                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.health_and_safety_rounded, size: 18),
-              label: Text(button),
-            ),
+          DsButton.secondary(
+            expand: true,
+            busy: checking,
+            onPressed: onCheck,
+            icon: Icons.health_and_safety_rounded,
+            label: button,
           ),
           if (action != null && action!.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
@@ -337,27 +330,26 @@ class _EmergencyCheckBox extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: Brand.danger,
-                borderRadius: BorderRadius.circular(Radii.md),
+                color: ds.dangerFill,
+                borderRadius: BorderRadius.circular(DsRadius.card),
               ),
               child: Row(children: [
-                const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                Icon(Icons.warning_amber_rounded, color: ds.onDangerFill),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(action!,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))),
+                    style: AType.bodyMedium.copyWith(color: ds.onDangerFill, fontWeight: FontWeight.w700))),
               ]),
             ),
           ] else if (action != null && action!.isEmpty) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.check_circle_outline_rounded, size: 16, color: scheme.secondary),
+              Icon(Icons.check_circle_outline_rounded, size: 16, color: ds.successInk),
               const SizedBox(width: Gap.xs),
               Expanded(child: Text(safeText,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted))),
             ]),
           ],
         ]),
-      ),
     );
   }
 }
@@ -368,17 +360,11 @@ class _ErrorRetry extends StatelessWidget {
   const _ErrorRetry({required this.message, required this.onRetry});
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(Gap.xl),
-      child: Column(children: [
-        Text(message, textAlign: TextAlign.center),
-        const SizedBox(height: Gap.md),
-        OutlinedButton.icon(
-          onPressed: onRetry,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(AppLocalizations.of(context).retry),
-        ),
-      ]),
+    return DsEmptyState(
+      icon: Icons.cloud_off_rounded,
+      title: message,
+      actionLabel: AppLocalizations.of(context).retry,
+      onAction: onRetry,
     );
   }
 }

@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ২৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ৩০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -40,7 +40,7 @@
 - ✅ batch 4 (সক্রিয় SOS = লাল কার্ড, স্কেলেটন, DS বোতাম) — `screens/family_alerts_screen.dart`
 - ⬜ — `screens/family_screen.dart`
 - ⬜ — `screens/health_timeline_screen.dart`
-- ⬜ — `screens/health_tips_screen.dart`
+- ✅ batch 4 (এক সারির টপিক চিপ, জরুরি-চেক কার্ড, স্কেলেটন) — `screens/health_tips_screen.dart`
 - ⬜ — `screens/kids_watch/kids_watch_screen.dart`
 - ✅ batch 4 (চালু = নীল কার্ডে সবুজ ডট, বড় বোতামে আভা) — `screens/kids_watch/school_mode_child_screen.dart`
 - ⬜ — `screens/medicine_db_screen.dart`
