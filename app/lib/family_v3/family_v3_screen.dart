@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -516,8 +517,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         controller: _ask,
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _doAsk(),
-        maxLength: 200,
-        buildCounter: localCounter,
+        inputFormatters: [LengthLimitingTextInputFormatter(200)],
         decoration: InputDecoration(
           hintText: t.fc3AskHint,
           hintMaxLines: 2,
@@ -831,7 +831,8 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
             backgroundColor: Brand.danger,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(56),
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            // keep the theme's font family (a bare TextStyle drops it)
+            textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           onPressed: _sos,
           icon: const Icon(Icons.sos_rounded, size: 28),
