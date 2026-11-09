@@ -921,14 +921,16 @@ _CITY_TRIPS = S("city_trips", "সিটি সার্ভিস: যাত্�
     P("বাসের রুট, স্টপ ও আসল যাত্রার সময় জানতে সিটি সার্ভিস যাত্রীদের যাত্রা থেকে শেখে — শুধু আপনি রাজি হলে।",
       "To learn bus routes, stops and real travel times, City Service learns from passengers' trips — only if you "
       "agree."),
-    UL(("<b>কখন:</b> শুধু আপনি অনুমতি চালু রাখলে এবং শুধু Assisto-তে আপনার শুরু করা একটি যাত্রা চলার সময়। ব্যাকগ্রাউন্ড "
-        "লোকেশনের অনুমতি লাগে না, যাত্রার বাইরে কিছু পাঠানো হয় না।",
-        "<b>When:</b> only while you keep it switched on and only while a journey you started in Assisto is running. "
-        "No background-location permission is used and nothing is sent outside a journey."),
-       ("<b>কী পাঠানো হয়:</b> সেই যাত্রার GPS বিন্দু (সময় ও অবস্থান)। আপনার বাসা ও গন্তব্য যেন না থাকে, তাই প্রথম ও শেষ "
-        "৩০০ মিটার সার্ভারে পৌঁছানোর সাথে সাথেই কেটে ফেলা হয়।",
-        "<b>What is sent:</b> the GPS points of that trip (time and position). So that your home and destination are "
-        "not kept, the first and last 300 m are cut off as soon as the trip reaches our server."),
+    UL(("<b>কখন:</b> শুধু আপনি সম্মতির পাতায় রাজি হলে, শুধু সিটি সার্ভিস থেকে শুরু করা যাত্রায়, শুধু বাস বা লেগুনার অংশে, এবং "
+        "শুধু যাত্রার পাতা খোলা থাকা অবস্থায়। ব্যাকগ্রাউন্ডে কখনো নয়, কোনো নতুন অনুমতি লাগে না।",
+        "<b>When:</b> only after you agree on the consent sheet, only on a journey started from City Service, only on "
+        "its bus or leguna part, and only while the journey screen is open. Never in the background; no extra "
+        "permission is used."),
+       ("<b>কী পাঠানো হয়:</b> সেই যাত্রার GPS বিন্দু — প্রতি ১৫ সেকেন্ডে একটি (সময় ও অবস্থান), যাত্রা শেষে একবারে। আপনার বাসা ও "
+        "গন্তব্য যেন না থাকে, তাই প্রথম ও শেষ ৩০০ মিটার সার্ভারে পৌঁছানোর সাথে সাথেই কেটে ফেলা হয়।",
+        "<b>What is sent:</b> the GPS points of that trip — one every 15 seconds (time and position), sent together. "
+        "So that your home and destination are not kept, the first and last 300 m are cut off as soon as the trip "
+        "reaches our server."),
        ("<b>নাম ছাড়া:</b> যাত্রা রাখা হয় আপনার অ্যাকাউন্ট থেকে বানানো একটি এলোমেলো-দেখতে কোডে — নাম বা নম্বরে নয় — এবং কাউকে "
         "দেখানো হয় না।",
         "<b>No names:</b> a trip is stored under a random-looking code made from your account — not your name or "
@@ -944,26 +946,35 @@ _CITY_TRIPS = S("city_trips", "সিটি সার্ভিস: যাত্�
         "<b>Never:</b> location data is never sold or shared. You can switch it off any time.")))
 
 _SILENT_WATCH = S("silent_watch", "বয়স্কদের নীরব পাহারা (Silent Watch)", "Silent Watch for elders",
-    P("ঐচ্ছিক। পরিবারের কেউ বয়স্ক মানুষের ফোন সেট করে দিলে, বয়স্ক মানুষটি নিজে একবার বাংলায় বলা সম্মতির পর্দায় রাজি হলে তবেই "
-      "তাঁর ফোনে চালু হয়।",
-      "Optional. It is switched on only on the elder's phone, after a family member sets it up and the elder agrees "
-      "once on a spoken Bangla consent screen."),
-    UL(("<b>কোন সংকেত:</b> ফোন আনলক হয়েছে কি না, স্ক্রিন জ্বলেছে কি না, চার্জে লাগানো হয়েছে কি না, এবং — শুধু যেখানে Android "
-        "আলাদা অনুমতি ছাড়াই দেয় — ফোন নড়েছে কি না; সাথে কেয়ার কল ধরা হয়েছে কি না। লোকেশন, মাইক্রোফোন, ক্যামেরা, বার্তা বা "
-        "কোন অ্যাপ চালানো হলো — এসব ব্যবহার হয় না।",
-        "<b>Which signals:</b> whether the phone was unlocked, the screen turned on, the phone was charging and — only "
-        "where Android allows it without an extra permission — whether the phone moved; plus whether a Care Call was "
-        "answered. Location, microphone, camera, messages and app usage are not used."),
-       ("<b>ফোনেই থাকে:</b> বয়স্ক মানুষটির স্বাভাবিক দিন ফোনেই শেখা হয় (৭ দিন) এবং ফোনেই থাকে; এই সংকেতগুলোর কোনো ধারা আমাদের "
-        "সার্ভারে যায় না।",
-        "<b>Stays on the phone:</b> the elder's normal day is learned on the phone (7 days) and stays there; no stream "
-        "of these signals is sent to our server."),
-       ("<b>কখন খবর যায়:</b> শুধু অস্বাভাবিক নীরবতা হলে — প্রথমে বয়স্ক মানুষটির ফোনেই \"আপনি ঠিক আছেন?\" জিজ্ঞেস করা হয়; সাড়া "
-        "না পেলে বেছে নেওয়া পরিবারের সদস্যরা ক্রমানুসারে একটি সতর্কতা পান (ফোন কখন থেকে নীরব)। \"আমি ঠিক আছি\" এক চাপেই সব "
-        "আবার শুরু করে; বয়স্ক মানুষটি বা পরিবার যেকোনো সময় বন্ধ করতে পারেন।",
-        "<b>When the family is told:</b> only after unusual silence — first the elder's own phone asks \"Are you OK?\"; "
-        "if there is no answer, the chosen family members get an alert in order (since when the phone has been quiet). "
-        "One tap on \"I am OK\" resets it; the elder or the family can turn it off any time.")))
+    P("ঐচ্ছিক। সন্তান সামনে বসে QR দিয়ে বয়স্ক মানুষের ফোন সেট করেন, আর বয়স্ক মানুষটি নিজে বাংলায় বলা সম্মতির পর্দায় "
+      "\"হ্যাঁ\" বললে তবেই তাঁর ফোনে চালু হয়। এটি সবসময় ফ্রি, কোনো বিজ্ঞাপন নেই।",
+      "Optional. A son or daughter sets up the elder's phone in person with a QR code, and it starts only after the "
+      "elder says \"Yes\" on a spoken Bangla consent screen. Always free, never any ads."),
+    UL(("<b>কোন সংকেত (শুধু ফোনে):</b> দিনের নির্ধারিত সময়ে প্রায় প্রতি ১৫ মিনিটে ফোন দেখে — স্ক্রিন জ্বলে আনলক আছে কি না, "
+        "চার্জার লাগানো বা খোলা হয়েছে কি না, Assisto চলেছে কি না, এবং (যেখানে Android অনুমতি ছাড়াই দেয়) ফোন নড়েছে কি না। "
+        "লোকেশন, মাইক্রোফোন, ক্যামেরা, বার্তা বা অন্য অ্যাপের ব্যবহার দেখা হয় না; কোনো নতুন অনুমতি লাগে না।",
+        "<b>Which signals (on the phone only):</b> about every 15 minutes inside the elder's day window the phone checks "
+        "whether it is in use (screen on and unlocked), whether the charger was plugged in or pulled out, whether "
+        "Assisto ran and — where Android allows it without a permission — whether the phone moved. Location, "
+        "microphone, camera, messages and other apps' use are not looked at; no extra permission is used."),
+       ("<b>ফোনেই থাকে:</b> এই সংকেতের লগ (৮ দিন) আর বয়স্ক মানুষটির স্বাভাবিক দিন (৭ দিনে শেখা) শুধু ফোনেই থাকে। আমাদের "
+        "সার্ভারে আনলকের সময়, অ্যাপ ব্যবহার বা কোনো নিয়মিত সংকেত যায় না।",
+        "<b>Stays on the phone:</b> the signal log (8 days) and the elder's normal day (learned over 7 days) stay only "
+        "on the phone. Our server never receives unlock times, app use or any regular check-in."),
+       ("<b>কখন কী যায়:</b> অস্বাভাবিক নীরবতা হলে প্রথমে বয়স্ক মানুষটির ফোনে \"আপনি ঠিক আছেন?\" ৪ বার বাজে (৫ মিনিট পরপর)। "
+        "কেউ সাড়া না দিলে তবেই ফোন সার্ভারে একটি খবর পাঠায় — কত মিনিট নীরব। কেয়ার কল বারবার না ধরলেও সার্ভার আগে বয়স্ক "
+        "মানুষটিকে জিজ্ঞেস করে। তারপর ১৫ মিনিট পরপর: যে সন্তান সেট করেছেন → পুরো পরিবার → বেছে নেওয়া কাছের একজন।",
+        "<b>What is sent and when:</b> after an unusual silence the elder's own phone first rings \"Are you OK?\" 4 "
+        "times, 5 minutes apart. Only if nobody answers does the phone send one alert to our server — how many "
+        "minutes it has been quiet. If Care Calls go unanswered, the server also asks the elder first. Then, 15 "
+        "minutes apart: the child who set it up → all family → the chosen nearby person."),
+       ("<b>নিয়ন্ত্রণ ও সংরক্ষণ:</b> \"আমি ঠিক আছি\" বা পরিবারের \"আমি দেখছি\" এক চাপেই থামায়; বয়স্ক মানুষটি বা সন্তান যেকোনো "
+        "সময় বন্ধ করতে পারেন। সতর্কতার রেকর্ড (কখন, কতক্ষণ নীরব, কাকে জানানো হলো, কে সাড়া দিলেন) অ্যাকাউন্ট থাকা পর্যন্ত থাকে, "
+        "যাতে পরিবার ইতিহাস দেখতে পারে; অ্যাকাউন্ট মুছলে মুছে যায়।",
+        "<b>Control and retention:</b> \"I am OK\" or a family member's \"I am checking\" stops it in one tap; the elder "
+        "or the child can turn it off any time. Alert records (when, how long it was quiet, who was told, who "
+        "answered) are kept while the account exists so the family can see the history, and are deleted with the "
+        "account.")))
 
 _SUMMARY_V2 = (
     "Assisto কখনো SMS-এর অনুমতি চায় না। \"নোটিফিকেশন থেকে টাকার হিসাব\" আপনি চালু করলে তবেই শুধু ওয়ালেট/ব্যাংকের বার্তা "
@@ -987,6 +998,8 @@ _RETENTION_V2 = (
     ("সিটি সার্ভিসের যাত্রা: GPS বিন্দু প্রক্রিয়ার পরেই (সাধারণত এক ঘণ্টার মধ্যে) মোছে; যাত্রার রেকর্ড সর্বোচ্চ ৭ দিন।",
      "City Service trips: GPS points erased right after processing (normally within an hour); trip records at most "
      "7 days."),
+    ("নীরব পাহারা: সংকেতের লগ শুধু ফোনে ৮ দিন; সতর্কতার রেকর্ড অ্যাকাউন্ট থাকা পর্যন্ত।",
+     "Silent Watch: the signal log only on the phone, 8 days; alert records while the account exists."),
 )
 
 
