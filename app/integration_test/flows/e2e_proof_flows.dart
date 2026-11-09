@@ -60,6 +60,15 @@ List<Map<String, dynamic>> _rows(Map<String, dynamic> r, [String key = 'results'
 int _uid(Map<String, dynamic> me) =>
     ((me['id'] ?? (me['user'] as Map?)?['id']) as num).toInt();
 
+/// A's server client = the APP's own session token. A second password login
+/// (Harness.backend) rotates A's token on current servers and logs the app
+/// out (run 42548977601: every call after it was 401).
+ApiClient _apiA(RFlow f) {
+  final c = ApiClient.detached(f.app.api.token ?? '');
+  c.lang = 'en';
+  return c;
+}
+
 /// Server-side proof rows the CI fakes recorded (ci_e2e outbox).
 Future<List<Map<String, dynamic>>> _outbox(ApiClient api,
     {String kind = '', double since = 0, String user = ''}) async {
@@ -194,7 +203,7 @@ void registerE2eProofFlows() {
       'AI chat: Bangla question -> Bangla answer; follow-up uses context; photo + question; photo follow-up',
       (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final since = await f.net(() => _now(api));
     await f.step('open the chat; ask in Bangla -> Bangla answer', () async {
       await f.openHomeChat();
@@ -332,7 +341,7 @@ void registerE2eProofFlows() {
         final m = (await fromA()).firstWhere((x) => x['id'] == mid);
         return m['view_once_opened'] == true && '${m['ciphertext'] ?? ''}'.isEmpty;
       });
-      final apiA = await f.h.backend();
+      final apiA = _apiA(f);
       await f.eventually('A\'s copy says opened', () async {
         final edgeA = _rows(await apiA.getJson('/circle/members'))
             .firstWhere((m) => '${m['name']}' == Seed.nameB);
@@ -350,7 +359,7 @@ void registerE2eProofFlows() {
   realityFlow('e2e4_safe_journey_chandra', 'E2E proof',
       'Safe Journey: search "Chandra" (Places) -> pick -> start with B watching -> arrived', (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final apiB = await f.h.backend(userB: true);
     await f.net(() async {
       final a = await api.getJson('/journey/active');
@@ -426,7 +435,7 @@ void registerE2eProofFlows() {
   realityFlow('e2e5_sos_guardian', 'E2E proof',
       'SOS: hold the button -> countdown -> alert created -> guardian B notified (server push)', (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final apiB = await f.h.backend(userB: true);
     final since = await f.net(() => _now(api));
     final bId = _uid(await f.net(() => apiB.getJson('/me')));
@@ -466,7 +475,7 @@ void registerE2eProofFlows() {
       'Reminder by chat ("৩ মিনিট পরে ...") -> confirm Yes -> exact OS alarm -> server push at the time (fake clock) -> Android shows it',
       (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final since = await f.net(() => _now(api));
     await f.step('ask in chat -> confirm card -> Yes', () async {
       await f.openHomeChat();
@@ -533,7 +542,7 @@ void registerE2eProofFlows() {
   realityFlow('e2e7_khata_expense_confirm', 'E2E proof',
       'Money/khata: "চায়ে ৫০ টাকা খরচ লিখে রাখো" -> confirm card -> Yes -> expense on the server', (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final before = (await f.net(() => api.listItems('transactions'))).length;
     await f.step('ask in chat -> confirm card shows ৳50', () async {
       await f.openHomeChat();
@@ -563,7 +572,7 @@ void registerE2eProofFlows() {
       'Care Call: B sets one for A -> A accepts (consent) -> server tick rings A -> A taps Done -> B told',
       (f) async {
     await f.home();
-    final api = await f.h.backend();
+    final api = _apiA(f);
     final apiB = await f.h.backend(userB: true);
     final probe = await f.net(() async {
       try {
