@@ -222,7 +222,9 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         ),
       ),
     );
-    ctrl.dispose();
+    // fcrest: dispose only after the sheet's closing animation (a disposed
+    // controller still on screen throws in debug builds)
+    Future.delayed(const Duration(seconds: 1), ctrl.dispose);
     if (name == null || name.trim().isEmpty || !mounted) return;
     try {
       final r = await _api.fcCreateFamily(name.trim());

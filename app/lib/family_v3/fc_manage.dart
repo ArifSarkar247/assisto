@@ -79,44 +79,69 @@ Future<void> fcrOpenMap(BuildContext context, Map loc) async {
 }
 
 /// One-line text sheet (family name, member label). Returns the text or null.
+/// The sheet owns its controller (disposed with the sheet, never while the
+/// closing animation still shows the field).
 Future<String?> fcrTextSheet(BuildContext context,
-    {required String title, required String hint, String initial = '', int max = 40, Key? fieldKey}) async {
-  final t = AppLocalizations.of(context);
-  final ctrl = TextEditingController(text: initial);
-  final v = await showAppSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (ctx) => Padding(
-      padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.of(ctx).viewInsets.bottom),
+        {required String title, required String hint, String initial = '', int max = 40, Key? fieldKey}) =>
+    showAppSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => _FcrTextSheet(
+          title: title, hint: hint, initial: initial, max: max, fieldKey: fieldKey ?? const ValueKey('fcr-text')),
+    );
+
+class _FcrTextSheet extends StatefulWidget {
+  final String title, hint, initial;
+  final int max;
+  final Key fieldKey;
+  const _FcrTextSheet(
+      {required this.title, required this.hint, required this.initial, required this.max, required this.fieldKey});
+  @override
+  State<_FcrTextSheet> createState() => _FcrTextSheetState();
+}
+
+class _FcrTextSheetState extends State<_FcrTextSheet> {
+  late final TextEditingController _ctrl = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.of(context).viewInsets.bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          Text(widget.title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           TextField(
-            key: fieldKey ?? const ValueKey('fcr-text'),
-            controller: ctrl,
+            key: widget.fieldKey,
+            controller: _ctrl,
             autofocus: true,
-            maxLength: max,
+            maxLength: widget.max,
             buildCounter: localCounter,
-            decoration: InputDecoration(labelText: hint),
-            onSubmitted: (s) => Navigator.pop(ctx, s),
+            decoration: InputDecoration(labelText: widget.hint),
+            onSubmitted: (s) => Navigator.pop(context, s),
           ),
           const SizedBox(height: Gap.sm),
           FilledButton(
             key: const ValueKey('fcr-text-save'),
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: () => Navigator.pop(ctx, ctrl.text),
+            onPressed: () => Navigator.pop(context, _ctrl.text),
             child: Text(t.save),
           ),
         ],
       ),
-    ),
-  );
-  ctrl.dispose();
-  return v;
+    );
+  }
 }
 
 /// Admin: rename the family. true when the server took it.
