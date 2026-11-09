@@ -28,6 +28,9 @@ import java.util.concurrent.Executors
  *     dark photo uses thrNight; the same rule + values as the Shop Box
  *     (edge/shopbox/shopbox/night.py), measured on the bitmap scaled for
  *     the model. Without them (older Dart) only `thr` is used.
+ *     cctvacc2: optional nightPre ("clahe" | "gamma" | "none") / claheClip /
+ *     claheTiles / gammaTarget — a night bitmap is enhanced before the model
+ *     with the SAME integer / double maths as night.py enhance().
  *                                        normalised 0..1, COCO class 0 only
  *   close()                           -> frees the session
  *
@@ -65,7 +68,11 @@ object GuardBoxChannel {
                     val night = NightRule(
                         call.argument<Double>("thrNight")?.toFloat(),
                         (call.argument<Double>("nightSpread") ?: 10.0).toFloat(),
-                        (call.argument<Double>("nightLuma") ?: 40.0).toFloat())
+                        (call.argument<Double>("nightLuma") ?: 40.0).toFloat(),
+                        call.argument<String>("nightPre") ?: "none",
+                        call.argument<Double>("claheClip") ?: 2.0,
+                        call.argument<Int>("claheTiles") ?: 8,
+                        call.argument<Double>("gammaTarget") ?: 0.45)
                     worker.execute {
                         val out: Map<String, Any?> = try {
                             if (jpeg == null || model.isEmpty()) mapOf("ok" to false, "error" to "args")
@@ -119,7 +126,97 @@ object GuardBoxChannel {
         strides = st.toFloatArray()
     }
 
-    class NightRule(val thrNight: Float?, val spreadMax: Float, val lumaMax: Float)
+    class NightRule(val thrNight: Float?, val spreadMax: Float, val lumaMax: Float,
+                    val pre: String = "none", val clip: Double = 2.0, val tiles: Int = 8,
+                    val gammaTarget: Double = 0.45)
+
+    /** cctvacc2: night.py enhance() — new luma Y' (CLAHE or gamma), then each
+     *  channel c -> min(255, floor(c * (Y'+1) / (Y+1) + 0.5)). In place. */
+    private fun enhanceNight(px: IntArray, w: Int, h: Int, rule: NightRule) {
+        if (rule.pre != "clahe" && rule.pre != "gamma") return
+        if (w < 1 || h < 1 || px.size < w * h) return
+        val n = w * h
+        val y = IntArray(n)
+        for (i in 0 until n) {
+            val c = px[i]
+            y[i] = (299 * ((c shr 16) and 0xff) + 587 * ((c shr 8) and 0xff) + 114 * (c and 0xff) + 500) / 1000
+        }
+        val y2 = if (rule.pre == "clahe") clahe(y, w, h, rule.clip, maxOf(1, rule.tiles))
+                 else gammaCurve(y, rule.gammaTarget)
+        for (i in 0 until n) {
+            val c = px[i]
+            val k = (y2[i] + 1.0) / (y[i] + 1.0)
+            val r = minOf(255, Math.floor(((c shr 16) and 0xff) * k + 0.5).toInt())
+            val g = minOf(255, Math.floor(((c shr 8) and 0xff) * k + 0.5).toInt())
+            val b = minOf(255, Math.floor((c and 0xff) * k + 0.5).toInt())
+            px[i] = (c and -0x1000000) or (r shl 16) or (g shl 8) or b
+        }
+    }
+
+    private fun clahe(y: IntArray, w: Int, h: Int, clip: Double, t: Int): IntArray {
+        val luts = Array(t * t) { IntArray(256) }
+        val hist = LongArray(256)
+        for (ty in 0 until t) {
+            val y0 = ty * h / t
+            val y1 = (ty + 1) * h / t
+            for (tx in 0 until t) {
+                val x0 = tx * w / t
+                val x1 = (tx + 1) * w / t
+                val area = maxOf(1, (y1 - y0) * (x1 - x0)).toLong()
+                java.util.Arrays.fill(hist, 0L)
+                for (yy in y0 until y1) for (xx in x0 until x1) hist[y[yy * w + xx]]++
+                val limit = maxOf(1L, (clip * area / 256.0).toLong())
+                var excess = 0L
+                for (v in 0..255) if (hist[v] > limit) { excess += hist[v] - limit; hist[v] = limit }
+                val add = excess / 256
+                val rem = (excess % 256).toInt()
+                val lut = luts[ty * t + tx]
+                var cum = 0L
+                for (v in 0..255) {
+                    cum += hist[v] + add + (if (v < rem) 1 else 0)
+                    lut[v] = minOf(255L, cum * 255 / area).toInt()
+                }
+            }
+        }
+        fun axis(n: Int): Triple<IntArray, IntArray, DoubleArray> {
+            val i0 = IntArray(n); val i1 = IntArray(n); val a = DoubleArray(n)
+            for (i in 0 until n) {
+                val pos = (i + 0.5) * t / n - 0.5
+                val f = Math.floor(pos).toInt().coerceIn(0, t - 1)
+                i0[i] = f
+                i1[i] = minOf(f + 1, t - 1)
+                a[i] = if (pos < 0) 0.0 else (pos - f).coerceIn(0.0, 1.0)
+            }
+            return Triple(i0, i1, a)
+        }
+        val (yi0, yi1, ay) = axis(h)
+        val (xi0, xi1, ax) = axis(w)
+        val out = IntArray(w * h)
+        for (yy in 0 until h) {
+            val b = ay[yy]
+            val r0 = yi0[yy] * t
+            val r1 = yi1[yy] * t
+            for (xx in 0 until w) {
+                val v = y[yy * w + xx]
+                val a = ax[xx]
+                val top = (1 - a) * luts[r0 + xi0[xx]][v] + a * luts[r0 + xi1[xx]][v]
+                val bot = (1 - a) * luts[r1 + xi0[xx]][v] + a * luts[r1 + xi1[xx]][v]
+                out[yy * w + xx] = Math.floor((1 - b) * top + b * bot + 0.5).toInt()
+            }
+        }
+        return out
+    }
+
+    private fun gammaCurve(y: IntArray, target: Double): IntArray {
+        if (y.isEmpty()) return y
+        var sum = 0L
+        for (v in y) sum += v
+        val m = maxOf(1.0, sum.toDouble() / y.size)
+        if (m / 255.0 >= target) return y
+        val g = maxOf(0.35, minOf(1.0, Math.log(target) / Math.log(m / 255.0)))
+        val lut = IntArray(256) { Math.floor(255.0 * Math.pow(it / 255.0, g) + 0.5).toInt() }
+        return IntArray(y.size) { lut[y[it]] }
+    }
 
     /** Grey (IR) or dark: mean max-min channel spread / mean luma (night.py). */
     private fun isNight(px: IntArray, rule: NightRule): Boolean {
@@ -160,6 +257,7 @@ object GuardBoxChannel {
         scaled.recycle()
         val night = rule.thrNight != null && isNight(px, rule)
         val thr = if (night) rule.thrNight!! else thrDay
+        if (night) enhanceNight(px, nw, nh, rule)
         val plane = SIDE * SIDE
         val chw = FloatArray(3 * plane) { 114f }
         for (y in 0 until nh) for (x in 0 until nw) {

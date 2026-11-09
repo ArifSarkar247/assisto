@@ -19,9 +19,14 @@ phone's native channel applies the same rule). Each image is scored as-is,
 "cctv" (640 px, blur, JPEG q40), "night_ir" (grey, dark, noise) and
 "night_ir2" (a DIFFERENT night simulation: vignette, softer, stronger noise,
 IR bloom) that was never used to pick anything.
-Overfitting guard: the night threshold is chosen on a CALIBRATION half of
-night_ir (max F1, ties -> higher threshold); P/R are reported on the
-HELD-OUT half and on night_ir2.
+Overfitting guard: the night RULE is chosen on a CALIBRATION half of
+night_ir; P/R are reported on the HELD-OUT half and on night_ir2.
+cctvacc2: the night rule is a grid — pre-processing (none / gamma / CLAHE,
+shopbox/night.py enhance, the same maths as the phone), frames to confirm
+(1 or 2: each night image is scored as two frames with independent noise)
+and threshold; pick = highest calibration recall at precision >= 0.92.
+"before" = the cctvacc rule (raw frame, one check, 0.30), re-measured on
+exactly the same frames.
 
 MOTION check = 24-frame synthetic sequences (3 fps) on real no-person
 backgrounds; positives have a real person cut-out (COCO polygon mask)
@@ -32,7 +37,9 @@ trees, a lamp switching on, shake) and "night" (the hard set as grey IR with
 an IR / light switch). Measured three ways:
   legacy = the old frame-difference detector, any frame (the "before");
   box    = the Shop Box after-hours decision (CameraAnalyzer, 3 frames);
-  phone  = the phone's MotionGate on the phone's own grid, 3 frames.
+  phone  = cctvacc2: the phone's MotionGate AND its pixel-level check
+           (motion_gate.PhoneMotion), 3 frames;
+  phone_gate_only = the cctvacc phone (gate only) — the "before".
 A positive counts only when the alert fires at a frame where its no-person
 twin does not (so nuisance alerts never count as recall).
 
@@ -154,43 +161,81 @@ def prf(tp, fp, fn, tn):
             "accuracy": round(acc, 4), "tp": tp, "fp": fp, "fn": fn, "tn": tn}
 
 
-def counts(rows, thr_of):
+# ------------------------------------------------------------------ person
+# cctvacc2: the NIGHT RULE is a grid of (pre-processing, frames to confirm,
+# threshold). Each night image is scored as TWO frames: the same scene with
+# independent sensor noise / JPEG (what a still person gives 0.3 s apart);
+# the second frame uses its own RNG so frame 1 is exactly the cctvacc frame.
+PRES = ("none", "gamma", "clahe")
+CONFIRMS = (1, 2)
+THRS_N = [0.15] + THRS
+
+
+def night_rule_hit(row, pre, confirm, t, day_t):
+    if not row["night"]:
+        return row["raw"] >= day_t
+    sc = row["s"][pre]
+    return (sc[0] if confirm == 1 else min(sc[:confirm])) >= t
+
+
+def rule_counts(rows, pre, confirm, t, day_t=None):
+    from shopbox import night
+    day_t = night.PERSON_SCORE_DAY if day_t is None else day_t
     tp = fp = fn = tn = 0
-    for row in rows:
-        hit = row["score"] >= thr_of(row)
-        if row["label"]:
+    for r in rows:
+        hit = night_rule_hit(r, pre, confirm, t, day_t)
+        if r["label"]:
             tp, fn = tp + hit, fn + (not hit)
         else:
             fp, tn = fp + hit, tn + (not hit)
     return prf(tp, fp, fn, tn)
 
 
-def pick_threshold(rows):
-    """Calibration rule: max F1, ties -> the higher (stricter) threshold."""
-    best = None
-    for t in THRS:
-        f = counts(rows, lambda r, t=t: t)["f1"]
-        if best is None or f >= best[1]:
-            best = (t, f)
-    return best[0]
+def pick_night_rule(rows, p_min=0.92):
+    """Calibration rule: the highest recall with precision >= p_min (margin
+    over the 90 % target); ties -> fewer steps (no pre-processing, one
+    frame), then the higher threshold. None reach p_min -> max F1."""
+    cands = []
+    for pre in PRES:
+        for c in CONFIRMS:
+            for t in THRS_N:
+                m = rule_counts(rows, pre, c, t)
+                cost = (pre != "none") + (c - 1)
+                cands.append((m, pre, c, t, cost))
+    ok = [x for x in cands if x[0]["precision"] >= p_min]
+    if ok:
+        best = max(ok, key=lambda x: (x[0]["recall"], x[0]["f1"], -x[4], x[3]))
+    else:
+        best = max(cands, key=lambda x: (x[0]["f1"], -x[4], x[3]))
+    return {"pre": best[1], "confirm": best[2], "threshold": best[3]}
 
 
-# ------------------------------------------------------------------ person
 def eval_person(det, items, rnd):
     from shopbox import night
+    rnd2 = random.Random(SEED + 31)
     rows = {v: [] for v in VARIANTS}
     for idx, (img, label) in enumerate(items):
         for v in VARIANTS:
             x = variant(img, v, rnd)
-            ds = det.detect(x, score_thr=0.15)
-            rows[v].append({"i": idx, "label": label,
-                            "score": max([d.score for d in ds] or [0.0]),
-                            "night": night.is_night(x)})
-    out = {"by_threshold": {}, "production": {}, "night_flag_rate": {}}
-    prod = lambda r: night.PERSON_SCORE_NIGHT if r["night"] else night.PERSON_SCORE_DAY  # noqa: E731
+            x2 = variant(img, v, rnd2)
+            raw = max([d.score for d in det.detect(x, score_thr=0.10)] or [0.0])
+            row = {"i": idx, "label": label, "raw": raw, "night": night.is_night(x)}
+            if row["night"]:
+                raw2 = max([d.score for d in det.detect(x2, score_thr=0.10)] or [0.0])
+                row["s"] = {"none": [raw, raw2]}
+                for pre in PRES[1:]:
+                    row["s"][pre] = [
+                        max([d.score for d in det.detect(
+                            night.enhance(night.fit_side(f), pre), score_thr=0.10)] or [0.0])
+                        for f in (x, x2)]
+            rows[v].append(row)
+    prod = (night.NIGHT_PRE, night.NIGHT_CONFIRM, night.PERSON_SCORE_NIGHT)
+    before = ("none", 1, 0.30)                     # the cctvacc rule
+    out = {"production_rule": {"pre": prod[0], "confirm": prod[1], "threshold": prod[2]},
+           "production": {}, "before": {}, "night_flag_rate": {}}
     for v, rs in rows.items():
-        out["by_threshold"][v] = {"%.2f" % t: counts(rs, lambda r, t=t: t) for t in THRS}
-        out["production"][v] = counts(rs, prod)
+        out["production"][v] = rule_counts(rs, *prod)
+        out["before"][v] = rule_counts(rs, *before)
         out["night_flag_rate"][v] = round(sum(r["night"] for r in rs) / max(1, len(rs)), 4)
     # overfitting guard: split night_ir by image (stratified), pick on calib
     split = random.Random(SEED + 7)
@@ -201,16 +246,28 @@ def eval_person(det, items, rnd):
     calib = set(pos_i[: len(pos_i) // 2] + neg_i[: len(neg_i) // 2])
     cal = [r for r in rows["night_ir"] if r["i"] in calib]
     held = [r for r in rows["night_ir"] if r["i"] not in calib]
-    picked = pick_threshold(cal)
+    pick = pick_night_rule(cal)
+    grid = {}
+    for pre in PRES:
+        for c in CONFIRMS:
+            for t in THRS_N:
+                k = "%s/%d/%.2f" % (pre, c, t)
+                grid[k] = {"calibration": rule_counts(cal, pre, c, t),
+                           "held_out": rule_counts(held, pre, c, t),
+                           "night_ir2": rule_counts(rows["night_ir2"], pre, c, t)}
+    pk = (pick["pre"], pick["confirm"], pick["threshold"])
     out["night_split"] = {
         "calibration_n": len(cal), "held_out_n": len(held),
-        "calibration_pick": "%.2f" % picked,
-        "production_night_threshold": "%.2f" % night.PERSON_SCORE_NIGHT,
-        "production_matches_calibration_pick": abs(picked - night.PERSON_SCORE_NIGHT) < 1e-9,
-        "held_out_at_production": counts(held, lambda r: night.PERSON_SCORE_NIGHT),
-        "held_out_at_day_threshold": counts(held, lambda r: night.PERSON_SCORE_DAY),
-        "night_ir2_at_production": counts(rows["night_ir2"], lambda r: night.PERSON_SCORE_NIGHT),
-        "night_ir2_production_rule": out["production"]["night_ir2"],
+        "calibration_pick": pick,
+        "production_matches_calibration_pick": (pk[0] == prod[0] and pk[1] == prod[1]
+                                                and abs(pk[2] - prod[2]) < 1e-9),
+        "held_out_at_production": rule_counts(held, *prod),
+        "held_out_before": rule_counts(held, *before),
+        "held_out_at_pick": rule_counts(held, *pk),
+        "night_ir2_at_production": rule_counts(rows["night_ir2"], *prod),
+        "night_ir2_before": rule_counts(rows["night_ir2"], *before),
+        "night_ir2_at_pick": rule_counts(rows["night_ir2"], *pk),
+        "grid": grid,
     }
     return out
 
@@ -344,8 +401,12 @@ def _closed_ts():
     return datetime(2026, 10, 19, 23, 30, tzinfo=ZoneInfo("Asia/Dhaka")).timestamp()
 
 
+PIX_SWEEP = [(18.0, 6), (25.0, 12), (32.0, 6)]    # diagnostic only (production = JSON)
+
+
 def run_methods(frames):
-    """-> {method: [bool per frame]} for legacy / box / phone."""
+    """-> {method: [bool per frame]} for legacy / box / phone / phone_gate_only
+    (the cctvacc phone) / phone_pix_<diff>_<area> (diagnostic sweep)."""
     import cv2
     from shopbox import motion_gate as mg
     from shopbox.analyzer import CameraAnalyzer
@@ -357,14 +418,25 @@ def run_methods(frames):
     an = CameraAnalyzer(CameraConfig(id="c", name="c", rtsp_url="rtsp://x", zone=[]),
                         Hours(open="09:00", close="22:00"), DetectionConfig(), NullDetector())
     gate = mg.MotionGate()
+    phone = mg.PhoneMotion()                    # cctvacc2: gate AND pixel check
+    sweep = {"phone_pix_%d_%d" % (d, a): [mg.PixelCheck(d, a), 0] for d, a in PIX_SWEEP}
     t0 = _closed_ts()
-    out = {"legacy": [], "box": [], "phone": []}
+    out = {"legacy": [], "box": [], "phone": [], "phone_gate_only": []}
+    out.update({k: [] for k in sweep})
     for i, fr in enumerate(frames):
         out["legacy"].append(bool(legacy.update(fr).motion))
         out["box"].append(an.process(fr, now=t0 + i / FPS) is not None)
         y = cv2.cvtColor(cv2.resize(fr, (320, 180), interpolation=cv2.INTER_AREA),
                          cv2.COLOR_BGR2GRAY)   # phone analyses a small Y plane
-        out["phone"].append(bool(gate.feed(mg.phone_grid(y)).confirmed))
+        out["phone"].append(bool(phone.feed(y)))
+        gr = gate.feed(mg.phone_grid(y))
+        out["phone_gate_only"].append(bool(gr.confirmed))
+        plane = mg.pixel_plane(y)
+        for k, st in sweep.items():
+            pix = st[0].feed(plane, gr.moved, scene=gr.scene_change or gr.warming_up)
+            cand = gr.candidate and pix and not (gr.scene_change or gr.warming_up)
+            st[1] = st[1] + 1 if cand else 0
+            out[k].append(st[1] >= mg.CONFIRM_FRAMES)
     return out
 
 
@@ -372,7 +444,9 @@ def eval_motion(pos, neg, rnd, n, kind):
     import cv2
     bgs = [img for img, _ in neg]
     cuts = [c for c in (person_cutout(img, anns) for img, anns in pos) if c is not None]
-    res = {m: [0, 0, 0, 0] for m in ("legacy", "box", "phone")}   # tp fp fn tn
+    methods = ["legacy", "box", "phone", "phone_gate_only"] + [
+        "phone_pix_%d_%d" % (d, a) for d, a in PIX_SWEEP]
+    res = {m: [0, 0, 0, 0] for m in methods}   # tp fp fn tn
     for i in range(min(n, len(bgs), len(cuts))):
         bg = cv2.resize(bgs[i], (640, 360))
         patch, mask = cuts[i]
@@ -401,8 +475,11 @@ def eval_motion(pos, neg, rnd, n, kind):
 # ------------------------------------------------------- false night alerts
 def sim_false_night(neg, det, cam_hours, rnd):
     """Long simulated nights at 160 x 90 (the box itself analyses 320 px):
-    motion alerts (box: pixel blobs AND gate; phone: gate) with a 180 s
-    cool-down, then the person model at the night threshold on each alert."""
+    motion alerts (box: pixel blobs AND gate; phone: gate AND its pixel check
+    — cctvacc2) with a 180 s cool-down, then the person check on each alert:
+    *_person = the production night rule (enhanced frame, NIGHT_CONFIRM
+    checks on consecutive frames), *_person_before = the cctvacc rule (one
+    raw frame at 0.30)."""
     import cv2
     from shopbox import motion_gate as mg
     from shopbox import night
@@ -413,14 +490,25 @@ def sim_false_night(neg, det, cam_hours, rnd):
     cool = int(180 * FPS)
     rng = np.random.default_rng(SEED)
     bank = [rng.normal(0, 8, (H, W)).astype(np.float32) for _ in range(48)]
-    alerts = {"box_motion": 0, "phone_motion": 0, "box_person": 0, "phone_person": 0}
+    alerts = {"box_motion": 0, "phone_motion": 0, "box_person": 0, "phone_person": 0,
+              "box_person_before": 0, "phone_person_before": 0}
+    thr_n = night.PERSON_SCORE_NIGHT
+
+    def night_score(fr):
+        big = cv2.cvtColor(cv2.resize(fr, (640, 360)), cv2.COLOR_GRAY2BGR)
+        raw = max([d.score for d in det.detect(big, score_thr=0.10)] or [0.0])
+        img, _ = night.model_input(big)
+        prod = raw if img is big else max(
+            [d.score for d in det.detect(img, score_thr=0.10)] or [0.0])
+        return raw, prod
     for c in range(cams):
         g = cv2.cvtColor(cv2.resize(neg[c][0], (W, H), interpolation=cv2.INTER_AREA),
                          cv2.COLOR_BGR2GRAY).astype(np.float32)
         base = 255.0 * np.power(g / 255.0, 1.5) * 0.7
         tree = rnd.random() < 0.5
         tx, ty = rnd.randint(0, W // 2), rnd.randint(0, H // 3)
-        box, gate = MotionDetector(), mg.MotionGate()
+        box, phone = MotionDetector(), mg.PhoneMotion()
+        pending = {}                  # who -> frames still to confirm (2-frame rule)
         box_hits = 0
         next_box = next_phone = 0
         gain = 1.0
@@ -450,14 +538,29 @@ def sim_false_night(neg, det, cam_hours, rnd):
             fr = np.clip(f, 0, 255).astype(np.uint8)
             m = box.update(fr)
             box_hits = box_hits + 1 if m.motion else 0
-            ph = gate.feed(mg.phone_grid(fr)).confirmed
+            ph = phone.feed(fr)
+            if pending:               # cctvacc2: the 2nd night check, next frame
+                sc = None
+                for who in list(pending):
+                    if sc is None:
+                        sc = night_score(fr)
+                    pending[who] -= 1
+                    if sc[1] < thr_n:
+                        del pending[who]
+                    elif pending[who] <= 0:
+                        alerts[who + "_person"] += 1
+                        del pending[who]
             for who, hit in (("box", box_hits >= mg.CONFIRM_FRAMES), ("phone", ph)):
                 nxt = next_box if who == "box" else next_phone
                 if hit and k >= nxt:
                     alerts[who + "_motion"] += 1
-                    big = cv2.cvtColor(cv2.resize(fr, (640, 360)), cv2.COLOR_GRAY2BGR)
-                    if det.detect(big, score_thr=night.PERSON_SCORE_NIGHT):
-                        alerts[who + "_person"] += 1
+                    raw, prod = night_score(fr)
+                    alerts[who + "_person_before"] += raw >= 0.30
+                    if prod >= thr_n:
+                        if night.NIGHT_CONFIRM <= 1:
+                            alerts[who + "_person"] += 1
+                        else:
+                            pending[who] = night.NIGHT_CONFIRM - 1
                     if who == "box":
                         next_box = k + cool
                     else:
@@ -507,13 +610,15 @@ def eval_owner_clips(root, det):
             img = cv2.imread(path)
             if img is None:
                 continue
-            hit = bool(det.detect(img, score_thr=night.person_threshold(img)))
+            x, _ = night.model_input(img)          # a still: one check
+            hit = bool(det.detect(x, score_thr=night.person_threshold(img)))
             c = img_c
         else:
             cap = cv2.VideoCapture(path)
             fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
             every = max(1, int(round(fps / FPS)))
             md, hits, i = MotionDetector(), 0, 0
+            nc = night.NightConfirm()
             while True:
                 ok, fr = cap.read()
                 if not ok:
@@ -523,10 +628,12 @@ def eval_owner_clips(root, det):
                     continue
                 fr = cv2.resize(fr, (640, int(640 * fr.shape[0] / fr.shape[1])))
                 hits = hits + 1 if md.update(fr).motion else 0
-                if hits >= mg.CONFIRM_FRAMES and det.detect(
-                        fr, score_thr=night.person_threshold(fr)):
-                    hit = True
-                    break
+                if hits >= mg.CONFIRM_FRAMES:
+                    x, is_n = night.model_input(fr)
+                    found = bool(det.detect(x, score_thr=night.person_threshold(fr)))
+                    if nc.check(found, is_n, i / fps):
+                        hit = True
+                        break
             cap.release()
             c = vid_c
         if label:
@@ -594,14 +701,28 @@ def main():
         print("PERSON %-9s production rule  P=%.3f R=%.3f F1=%.3f (night-flagged %.0f%%)"
               % (v, r["precision"], r["recall"], r["f1"],
                  100 * person["night_flag_rate"][v]))
+    for v in VARIANTS:
+        r = person["before"][v]
+        print("PERSON %-9s before (cctvacc) P=%.3f R=%.3f" % (v, r["precision"], r["recall"]))
     ns = person["night_split"]
-    ho = ns["held_out_at_production"]
-    n2 = ns["night_ir2_at_production"]
-    print("NIGHT calib pick %s (production %s, match=%s) | held-out P=%.3f R=%.3f | "
-          "night_ir2 P=%.3f R=%.3f" % (ns["calibration_pick"], ns["production_night_threshold"],
-                                       ns["production_matches_calibration_pick"],
-                                       ho["precision"], ho["recall"], n2["precision"],
-                                       n2["recall"]))
+    pr = person["production_rule"]
+    pk = ns["calibration_pick"]
+
+    def pr_(m):
+        return "P=%.3f R=%.3f" % (m["precision"], m["recall"])
+    print("NIGHT production %s/%d/%.2f | calib pick %s/%d/%.2f (match=%s)"
+          % (pr["pre"], pr["confirm"], pr["threshold"], pk["pre"], pk["confirm"],
+             pk["threshold"], ns["production_matches_calibration_pick"]))
+    print("NIGHT held-out: before %s | production %s | pick %s"
+          % (pr_(ns["held_out_before"]), pr_(ns["held_out_at_production"]),
+             pr_(ns["held_out_at_pick"])))
+    print("NIGHT night_ir2: before %s | production %s | pick %s"
+          % (pr_(ns["night_ir2_before"]), pr_(ns["night_ir2_at_production"]),
+             pr_(ns["night_ir2_at_pick"])))
+    best = sorted(ns["grid"].items(), key=lambda kv: -kv[1]["calibration"]["f1"])[:12]
+    for k, g in best:
+        print("  grid %-14s calib %s | held %s | ir2 %s" % (
+            k, pr_(g["calibration"]), pr_(g["held_out"]), pr_(g["night_ir2"])))
     for kind, by in motion.items():
         print("MOTION %-5s " % kind + " | ".join(
             "%s P=%.3f R=%.3f" % (m, r["precision"], r["recall"]) for m, r in by.items()))
@@ -609,7 +730,8 @@ def main():
     print("FALSE NIGHT ALERTS per camera-week (%.1f cam-weeks): " % fn["camera_weeks"] +
           " | ".join("%s %.2f (95%% <= %.2f)" % (k, fn[k]["per_camera_week"],
                                                  fn[k]["upper95_per_camera_week"])
-                     for k in ("box_motion", "phone_motion", "box_person", "phone_person")))
+                     for k in ("box_motion", "phone_motion", "box_person", "phone_person",
+                               "box_person_before", "phone_person_before")))
     if owner:
         print("OWNER CLIPS images P=%.3f R=%.3f | clips P=%.3f R=%.3f (n=%d)"
               % (owner["images"]["precision"], owner["images"]["recall"],

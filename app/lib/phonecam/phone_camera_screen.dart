@@ -867,12 +867,18 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       final wasDark = _dark.dark;
       _dark.feed(DarkMonitor.meanOf(grid), now);
       if (wasDark != _dark.dark) unawaited(_heartbeat());
-      final r = _motion.feedGrid(grid);
+      // cctvacc2: + the pixel-level check (same place, 3 frames in a row)
+      final plane = _motion.pixelPlane(p.bytes, img.width, img.height, p.bytesPerRow);
+      final r = _motion.feedGrid(grid, plane: plane);
       if (!r.motion) return;
       final last = _lastAlert;
       final cool = _detect != null ? _personCooldown : _motionOnlyCooldown;
       if (last != null && now.difference(last) < cool) return;
-      if (_lastCheck != null && now.difference(_lastCheck!).inSeconds < 5) return;
+      // a night person seen once is checked again on the next frame (2-frame rule)
+      if (_lastCheck != null && now.difference(_lastCheck!).inSeconds < 5 &&
+          !guardNightPending) {
+        return;
+      }
       _lastCheck = now;
       _busy = true;
       if (_segRec) {
@@ -884,26 +890,43 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     } catch (_) {} // a malformed frame is skipped, never fatal
   }
 
+  Future<Uint8List?> _still(CameraController c) async {
+    try {
+      if (c.value.isStreamingImages) await c.stopImageStream();
+      final f = await c.takePicture();
+      final b = await f.readAsBytes();
+      try {
+        await File(f.path).delete();
+      } catch (_) {}
+      return b;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Motion -> one photo -> person check on THIS phone -> alert (+ clip).
+  /// cctvacc2: at night a person must be seen on TWO photos in a row.
   Future<void> _onMotion() async {
     final c = _cam;
     final dev = _dev;
     if (c == null || dev == null) return;
-    Uint8List? jpeg;
-    try {
-      if (c.value.isStreamingImages) await c.stopImageStream();
-      final f = await c.takePicture();
-      jpeg = await f.readAsBytes();
-      try {
-        await File(f.path).delete();
-      } catch (_) {}
-    } catch (_) {
-      jpeg = null;
-    }
+    var jpeg = await _still(c);
     try {
       final detect = _detect;
       List<List<double>>? boxes;
-      if (detect != null && jpeg != null) boxes = await detect(jpeg);
+      if (detect != null && jpeg != null) {
+        boxes = await detect(jpeg);
+        if (boxes != null && boxes.isEmpty && guardNightPending) {
+          final j2 = await _still(c);
+          if (j2 != null) {
+            final b2 = await detect(j2);
+            if (b2 != null && b2.isNotEmpty) {
+              boxes = b2;
+              jpeg = j2;
+            }
+          }
+        }
+      }
       final alert = phoneAlert(modelAvailable: detect != null, boxes: boxes);
       if (alert != null) {
         _lastAlert = DateTime.now();

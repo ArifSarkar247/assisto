@@ -247,7 +247,9 @@ class PixelCheck:
     8-connected blob of >= PIX_MIN_AREA changed pixels exists (touching a
     gate-moved cell when `gate_moved` is given)."""
 
-    def __init__(self):
+    def __init__(self, diff: float = PIX_DIFF, min_area: int = PIX_MIN_AREA):
+        self.diff = float(diff)              # overrides: accuracy-harness sweep only
+        self.min_area = int(min_area)
         self.reset()
 
     def reset(self) -> None:
@@ -260,13 +262,13 @@ class PixelCheck:
             return False
         ratio = (hist_median(p) + 1.0) / (hist_median(self._bg) + 1.0)
         pred = self._bg * ratio
-        d = np.abs(p - pred) > PIX_DIFF
+        d = np.abs(p - pred) > self.diff
         n = int(np.count_nonzero(d))
         if n >= PIX_SCENE_FRAC * p.shape[0]:
             self._bg = p.copy()              # lights / IR switch: adopt
             return False
         self._bg = (1.0 - PIX_LEARN) * pred + PIX_LEARN * p
-        if n < PIX_MIN_AREA:
+        if n < self.min_area:
             return False
         import cv2
 
@@ -274,7 +276,7 @@ class PixelCheck:
                                          connectivity=8)
         lab = lab.ravel()
         sizes = np.bincount(lab, minlength=k)
-        ok = sizes >= PIX_MIN_AREA
+        ok = sizes >= self.min_area
         ok[0] = False
         if gate_moved is not None:
             gm = np.asarray(gate_moved, dtype=bool).ravel()

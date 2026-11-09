@@ -46,6 +46,24 @@ List<bool>? _mask(List? r) {
   return m;
 }
 
+Float64List _plane(Map f) {
+  final base = (f['base'] as num).toDouble();
+  final gain = ((f['gain'] ?? 1.0) as num).toDouble();
+  final g = Float64List(kPixW * kPixH)..fillRange(0, kPixW * kPixH, base);
+  for (final r in (f['rects'] as List? ?? const [])) {
+    final q = [for (final v in r as List) (v as num)];
+    for (var y = q[1].toInt(); y < q[1] + q[3]; y++) {
+      for (var x = q[0].toInt(); x < q[0] + q[2]; x++) {
+        g[y * kPixW + x] = q[4].toDouble();
+      }
+    }
+  }
+  for (var i = 0; i < g.length; i++) {
+    g[i] = g[i] * gain;
+  }
+  return g;
+}
+
 void main() {
   test('constants equal the shared Shop Box spec', () {
     final spec = _json('edge/shopbox/shopbox/cctv_thresholds.json');
@@ -80,6 +98,54 @@ void main() {
     expect(kGuardNightArgs['thrNight'], kPersonScoreNight);
     expect(kGuardNightArgs['nightSpread'], kNightSpreadMax);
     expect(kGuardNightArgs['nightLuma'], kNightLumaMax);
+    // cctvacc2: night enhancement + 2-frame check + the phone pixel check
+    expect(kNightPre, spec['night_pre']);
+    expect(kNightClaheClip, spec['night_clahe_clip']);
+    expect(kNightClaheTiles, spec['night_clahe_tiles']);
+    expect(kNightGammaTarget, spec['night_gamma_target']);
+    expect(kNightConfirm, spec['night_confirm']);
+    expect(kNightConfirmGapS, spec['night_confirm_gap_s']);
+    expect(kGuardNightArgs['nightPre'], kNightPre);
+    expect(kGuardNightArgs['claheClip'], kNightClaheClip);
+    expect(kGuardNightArgs['claheTiles'], kNightClaheTiles);
+    expect(kGuardNightArgs['gammaTarget'], kNightGammaTarget);
+    final px = spec['pixel'] as Map<String, dynamic>;
+    final dartPx = <String, num>{
+      'w': kPixW,
+      'h': kPixH,
+      'samples': kPixSamples,
+      'diff': kPixDiff,
+      'learn': kPixLearn,
+      'scene_frac': kPixSceneFrac,
+      'min_area': kPixMinArea,
+    };
+    expect(dartPx.keys.toSet(), px.keys.toSet());
+    for (final k in px.keys) {
+      expect(dartPx[k], px[k], reason: 'pixel.$k');
+    }
+  });
+
+  test('pixel check: same answers as the Shop Box (cctvacc2)', () {
+    final cases = _json('edge/shopbox/tests/fixtures/pixel_check_cases.json')['cases'] as List;
+    expect(cases.length, greaterThanOrEqualTo(8));
+    for (final c in cases.cast<Map<String, dynamic>>()) {
+      final pc = PixelCheck();
+      final gm = _mask(c['gate_moved'] as List?);
+      final got = [for (final f in (c['frames'] as List)) pc.feed(_plane(f as Map), gm)];
+      expect(got, c['expect'], reason: c['name'] as String);
+    }
+    expect(PixelCheck.histMedian(Float64List.fromList([1.9, 5.0, 7.2, 200.0])), 5);
+  });
+
+  test('night 2-frame confirmation (cctvacc2)', () {
+    final c = NightConfirm();
+    expect(c.check(true, night: false, now: 0), isTrue); // day: at once
+    expect(c.check(true, night: true, now: 1.0), isFalse);
+    expect(c.pending, isTrue);
+    expect(c.check(true, night: true, now: 1.4), isTrue);
+    expect(c.check(true, night: true, now: 10.0), isFalse); // too far apart
+    expect(c.check(false, night: true, now: 10.3), isFalse);
+    expect(c.pending, isFalse);
   });
 
   test('shared fixture cases: same answers as the Shop Box', () {

@@ -169,6 +169,9 @@ def model_input(frame_bgr, pre: str = None):
         return frame_bgr, False
     if not is_night(frame_bgr):
         return frame_bgr, False
+    pre = NIGHT_PRE if pre is None else pre
+    if pre == "none":
+        return frame_bgr, True
     return enhance(fit_side(frame_bgr), pre), True
 
 
