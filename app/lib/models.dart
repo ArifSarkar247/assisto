@@ -62,6 +62,10 @@ class AppUser {
         'email': email,
         'autonomy_level': autonomyLevel,
         'language': language,
+        // offline1st: the cached profile keeps every field the app reads
+        'elderly_mode': elderlyMode,
+        'fall_detect': fallDetect,
+        'fall_countdown_sec': fallCountdownSec,
         'photo_url': photoUrl,
         'is_founder': isFounder,
         'founding_member': {

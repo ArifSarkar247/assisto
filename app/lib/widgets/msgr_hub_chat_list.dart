@@ -49,6 +49,8 @@ import '../screens/messenger/contact_info_screen.dart';
 import 'chat_menu_pickers.dart' show showChatReportPicker;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../perf/perf_marks.dart'; // faststart (CI-only define)
+import '../offline/net_status.dart'; // offline1st
+import '../offline/offline_store.dart'; // offline1st
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -156,6 +158,8 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       if (mounted && _showLocked) setState(() => _showLocked = false);
     });
     _load();
+    // offline1st: back online -> the fresh list replaces the saved copy
+    NetStatus.instance.onBackOnline(_onNetBack);
     // x2-ticks: my last message's tick updates live (no list reload); a
     // new message for me reloads the list at once.
     _rcptSub = ReceiptBus.instance.updates.listen(_onReceipt);
@@ -188,6 +192,7 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
 
   @override
   void dispose() {
+    NetStatus.instance.removeBackOnline(_onNetBack); // offline1st
     _rcptSub?.cancel(); // x2-ticks
     _newSub?.cancel();
     _rt.states.removeListener(_onRt);
@@ -302,12 +307,36 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   ApiClient get _api => context.read<AppState>().api;
   AppLocalizations get _t => AppLocalizations.of(context);
 
+  void _onNetBack() {
+    if (mounted) unawaited(_load());
+  }
+
+  // offline1st: the list opens at once from this phone's encrypted copy
+  // (rows carry E2E ciphertext only); the network refresh replaces it.
+  bool _triedCache = false;
+
+  Future<void> _showCached(Object? uid) async {
+    _triedCache = true;
+    final c = await OfflineStore.instance.read(uid, OfflineStore.chatList);
+    if (c is! List || c.isEmpty || _chats.isNotEmpty || !mounted) return;
+    _chats = dedupeChatRows(
+        c.whereType<Map>().map((e) => e.cast<String, dynamic>()).toList());
+    await _loadPeerKeys(_chats);
+    _previews.clear();
+    _publishUnread();
+    if (mounted) setState(() => _loading = false);
+  }
+
   Future<void> _load() async {
+    final uid = context.read<AppState>().user?.id; // offline1st
+    if (!_triedCache && _chats.isEmpty) await _showCached(uid);
     try {
       final r = await loadGuard(_api.getJson('/circle/chats'));
+      final rawRows = ((r['results'] ?? r['chats'] ?? const []) as List)
+          .cast<Map<String, dynamic>>();
+      unawaited(OfflineStore.instance.write(uid, OfflineStore.chatList, rawRows));
       // a1-circle: one row per person, always.
-      _chats = dedupeChatRows(((r['results'] ?? r['chats'] ?? const []) as List)
-          .cast<Map<String, dynamic>>());
+      _chats = dedupeChatRows(rawRows);
       _loadFailed = false;
       // cde-chat: the server's nickname for every 1:1 row (reinstall-safe)
       for (final c in _chats) {

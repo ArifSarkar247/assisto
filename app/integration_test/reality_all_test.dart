@@ -18,6 +18,7 @@ import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
+import 'flows/offline_first_flow.dart'; // offline1st
 import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/family_v3_flow.dart'; // fcscreen
@@ -69,4 +70,9 @@ void main() {
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
+  // offline1st: the offline proof (real airplane mode) — nightly with the
+  // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
+  if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {
+    registerOfflineFirstFlows();
+  }
 }

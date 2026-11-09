@@ -25,6 +25,11 @@ on:
         description: "Also run on real phones in Firebase Test Lab (free Spark quota: 3 devices)"
         type: boolean
         default: false
+      group:
+        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof"
+        type: choice
+        options: [e2e, offline]
+        default: e2e
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)
   push:
@@ -56,6 +61,7 @@ jobs:
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
       E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+      E2E_GROUP: ${{ inputs.group || 'e2e' }}   # offline1st
     steps:
       - uses: actions/checkout@v4
       - name: Free runner disk (the emulator image needs ~8 GB)
@@ -126,7 +132,7 @@ jobs:
           timeout 1800 flutter build apk --debug --target-platform=android-x64 \
             --target=integration_test/reality_all_test.dart \
             --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
-            --dart-define=REALITY_ONLY=e2e
+            --dart-define=REALITY_ONLY="$E2E_GROUP"
           echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
       - name: Free the runner for the emulator
         working-directory: app
@@ -144,10 +150,10 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Run the 8 proof flows on API 33
+      - name: Run the proof flows on API 33
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          REALITY_ONLY: e2e
+          REALITY_ONLY: ${{ env.E2E_GROUP }}
           REALITY_TOTAL_SECONDS: "3000"
           REALITY_DRIVE_SECONDS: "2700"
           REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -170,7 +176,7 @@ jobs:
       - name: Proof (e2e_proof.json + table; red unless every flow passed)
         if: always()
         env:
-          REALITY_ONLY: e2e
+          REALITY_ONLY: ${{ env.E2E_GROUP }}
         run: |
           python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
           python3 tools/e2e/proof.py "$REALITY_OUT" "$E2E_OUTBOX" "emulator API 33 (pixel_5, x86_64)"

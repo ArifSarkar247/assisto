@@ -105,6 +105,28 @@ prep_device
         echo "$(date +%T) $f $( [ -s "$OUT/shots/$f" ] && echo ok || echo MISSING)" >> "$OUT/shots.log"
       done ) &
 
+# offline1st: REAL airplane mode for the offline proof (e2e9_offline_first).
+# The app prints `REALITY_NET off|on <file>`; the host switches the emulator's
+# network with adb (adb itself is not affected) and acks like a screenshot.
+net_mode() {  # $1 = off|on
+  if [ "$1" = off ]; then
+    timeout 20 adb shell cmd connectivity airplane-mode enable >/dev/null 2>&1 || true
+    timeout 10 adb shell svc wifi disable >/dev/null 2>&1 || true
+    timeout 10 adb shell svc data disable >/dev/null 2>&1 || true
+  else
+    timeout 20 adb shell cmd connectivity airplane-mode disable >/dev/null 2>&1 || true
+    timeout 10 adb shell svc wifi enable >/dev/null 2>&1 || true
+    timeout 10 adb shell svc data enable >/dev/null 2>&1 || true
+  fi
+}
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_NET (off|on) [A-Za-z0-9_.-]+' \
+    | while read -r _ mode f; do
+        net_mode "$mode"
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) net $mode $f" >> "$OUT/net.log"
+      done ) &
+
 echo "== settle 60 s after boot"; sleep 60
 # rt2: a "+" joins groups into ONE drive / app process (the matrix job runs
 # "start+personal": log in, then the group, on a fresh emulator).
@@ -117,6 +139,7 @@ run_group() {  # $1 = group, $2 = attempt label
   left=$(( DEADLINE - $(date +%s) ))
   [ "$left" -gt 120 ] || { echo "== out of time before group $g" | tee -a "$OUT/drive.log"; return 2; }
   if ! alive; then restart_emulator || return 2; fi
+  net_mode on  # offline1st: a flow that died offline never leaves the network off
   local bin=() att="$OUT/.attempt.log"
   [ -n "$APK" ] && [ -f "$APK" ] && [ "${3:-}" != "build" ] && bin=(--use-application-binary "$APK")
   echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left) ${bin[*]:-(builds)}" | tee -a "$OUT/drive.log"
