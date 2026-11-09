@@ -198,7 +198,7 @@ void main() {
       await t.tap(find.byKey(const Key('lp2-sec-ac-001-reading')));
       await t.pumpAndSettle();
       expect(find.text('Section practice'), findsOneWidget);
-      expect(find.textContaining(RegExp(r'^(60:00|59:5\d)$')), findsOneWidget); // the real Reading timer
+      expect(find.textContaining(RegExp(r'^(1:00:00|59:5\d)$')), findsOneWidget); // the real Reading timer
       expect(find.text('Floating gardens of the delta'), findsOneWidget);
       await _tapText(t, 'Questions');
       await _tapText(t, 'TRUE');
@@ -239,7 +239,7 @@ void main() {
       expect(find.text('Exam mode: the recording plays once.'), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-submit'))); // listening -> reading
       await t.pumpAndSettle();
-      expect(find.textContaining(RegExp(r'^(60:00|59:5\d)$')), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^(1:00:00|59:5\d)$')), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-submit'))); // reading -> writing
       await t.pumpAndSettle();
       await t.enterText(find.byKey(const Key('lp2-w1')), 'In 2005 most people took the bus; by 2025 the metro led.');
@@ -359,6 +359,8 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('Book 20'), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-timer-btn')));
+      await t.pump(); // the timer appears
+      expect(find.text('30:00'), findsOneWidget);
       await t.pump(const Duration(seconds: 2));
       expect(find.textContaining(RegExp(r'^29:5\d$')), findsOneWidget);
       const ans = {1: 'library', 2: 'Tuesdays', 3: 'B', 4: 'accomodation'};
