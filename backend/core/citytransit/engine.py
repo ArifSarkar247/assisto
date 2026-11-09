@@ -16,7 +16,7 @@ Model
   * Access / egress: walk (<= WALK_MAX m) or rickshaw (RICK_MIN..RICK_MAX m).
     citydata2: a rickshaw leg is offered only beyond a normal walk (RICK_MIN
     = 900 m straight, ~1.2 km on the street), and "Fastest" prefers metro /
-    bus + walking whenever that is within a few minutes of the quickest
+    bus + walking whenever that is within max(10 min, 20 %) of the quickest
     (FAST_SLACK) — the rickshaw stays only where it is the real last mile.
   * Women-only routes (BRTC pink buses) are used only when asked ("women").
     Transfers: walking footpaths between stops <= XFER_M apart.
@@ -32,7 +32,8 @@ WALK_SPEED = 1.2          # m/s (Dhaka footpaths)
 DETOUR = 1.3              # straight line -> street distance
 WALK_MAX = 1200           # m, access/egress on foot
 RICK_MIN, RICK_MAX = 900, 2500
-FAST_SLACK = (480, 0.12)  # s, share: "Fastest" may be this much slower to avoid a rickshaw
+FAST_SLACK = (600, 0.20)  # s, share: "Fastest" may be this much slower to avoid a rickshaw
+FARE_S = 12.0             # s per taka when ranking options inside that slack
 RICK_KMH, CNG_KMH, CAR_KMH, BIKE_KMH = 9.0, 16.0, 15.0, 20.0
 XFER_M = 450
 MAX_ROUNDS = 4            # vehicle legs
@@ -510,7 +511,7 @@ class Network:
             # the one with the fewest rickshaw legs, then the lower fare
             slack = quick[0] + max(FAST_SLACK[0], quick[0] * FAST_SLACK[1])
             fastest = min((r for r in res if r[0] <= slack),
-                          key=lambda r: (self._ricks(r), r[0] + r[2] * 6.0))
+                          key=lambda r: (self._ricks(r), r[0] + r[2] * FARE_S))
             cap = quick[0] * 1.6 + 20 * 60
             ok = [r for r in res if r[0] <= cap]
             cheapest = min(ok, key=lambda r: (r[2], r[1], r[0]))

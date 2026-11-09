@@ -460,6 +460,11 @@ class Builder:
                 p["name_en"] or p["name"], p["name_bn"])
         for lat, lon, name, name_bn, _cat in self.osm["poi"]:
             add(3, lat, lon, "q%.5f,%.5f" % (lat, lon), (name,), name, name_bn)
+        # citydata2: coordinates of the listed place names from Wikipedia's
+        # public API (crawl_public.py) — for suburbs OSM names differently
+        for nm, w in (self.public.get("wiki_places") or {}).items():
+            add(3, w["lat"], w["lon"], "w%.5f,%.5f" % (w["lat"], w["lon"]), (nm, w.get("title", "")),
+                nm, "")
         bb = self.cfg["bbox"]
         inb = lambda c: bb[0] <= c[1] <= bb[2] and bb[1] <= c[2] <= bb[3]
         self.gz = {k: [c for c in v if inb(c)] for k, v in g.items()}
@@ -513,7 +518,10 @@ class Builder:
         """Viterbi over each listed stop's candidates: the chain with the
         least travel (km) + 2.5 km per skipped stop + a small penalty for
         weaker name sources. Fixes wrong homonyms far away."""
-        SKIP, MAXD = 2.5, 16000.0
+        # citydata2: a skipped stop costs as much as ~14 km of travel, so far
+        # suburban stops (Savar, Hemayetpur, Gazipur) are no longer dropped;
+        # distance still decides between same-name places.
+        SKIP, MAXD, PER_KM = 5.0, 16000.0, 0.35
         states = []          # per stop: list of (cost, cand, back)
         for i, (en, bn) in enumerate(stops):
             row = []
@@ -524,7 +532,7 @@ class Builder:
                         dist = hav(d[1], d[2], c[1], c[2])
                         if dist > MAXD or d[3] == c[3]:
                             continue
-                        v = cost + dist / 1000.0 + (i - j - 1) * SKIP + c[0] * 0.3
+                        v = cost + dist / 1000.0 * PER_KM + (i - j - 1) * SKIP + c[0] * 0.3
                         if v < best[0]:
                             best = (v, (j, k))
                 row.append((best[0], c, best[1]))
@@ -926,6 +934,39 @@ class Builder:
                 if s["t"].get("highway") == "bus_stop" or s["t"].get("public_transport") == "platform"]
         return self.coverage({"stops": {"rows": rows}})[0]
 
+    def coverage_built(self, net):
+        """Coverage over BUILT-UP 1-km cells only (a cell with a named
+        neighbourhood / place, or 5+ named shops, offices, schools...): the
+        river, airport, cantonment and wetland cells have nobody to serve."""
+        c = self.cfg["core"]
+        step_lat, step_lon = 0.009, 0.0098
+        dens = defaultdict(int)
+        for p in self.osm["poi"]:
+            dens[(int((p[0] - c[0]) // step_lat), int((p[1] - c[1]) // step_lon))] += 1
+        for p in self.osm["places"]:
+            if not p.get("road"):
+                dens[(int((p["lat"] - c[0]) // step_lat), int((p["lon"] - c[1]) // step_lon))] += 5
+        g = Grid()
+        for row in net["stops"]["rows"]:
+            g.add(row[3], row[4], 1)
+        tot = hit = 0
+        ny = int(round((c[2] - c[0]) / step_lat))
+        nx = int(round((c[3] - c[1]) / step_lon))
+        empty = []
+        for a in range(ny):
+            for b in range(nx):
+                if dens.get((a, b), 0) < 5:
+                    continue
+                lat = c[0] + (a + 0.5) * step_lat
+                lon = c[1] + (b + 0.5) * step_lon
+                tot += 1
+                if g.near(lat, lon, 700):
+                    hit += 1
+                else:
+                    empty.append([round(lat, 4), round(lon, 4), dens[(a, b)]])
+        empty.sort(key=lambda e: -e[2])
+        return round(100.0 * hit / max(1, tot), 1), tot, empty[:40]
+
     def coverage(self, net):
         c = self.cfg["core"]
         g = Grid()
@@ -1062,6 +1103,7 @@ def main():
     version = time.strftime("%Y%m%d", time.gmtime()) + "-" + content
     net = b.network(version, a.osm_timestamp)
     cov, cells = b.coverage(net)
+    built = b.coverage_built(net)
     modes = defaultdict(int)
     for r in net["routes"]:
         modes[r["mode"]] += 1
@@ -1087,6 +1129,8 @@ def main():
               "stations_with_gates": len({g["st"] for g in net["gates"]}),
               "gates_by_basis": dict(getattr(b, "gate_basis", {})),
               "coverage_all_osm_stops_pct": b.coverage_osm(),
+              "coverage_built_pct": built[0], "coverage_built_cells": built[1],
+              "wiki_places": len(public.get("wiki_places") or {}),
               "fuzzy_names": len(getattr(b, "fuzzy_hits", {})),
               "brta_hotlines_found": (public.get("texts", {}).get("brta_home") or {}).get("hotlines", [])}
     net["counts"] = counts
@@ -1108,6 +1152,7 @@ def main():
                             for k in ("terminal", "ghat", "office")},
               "crawl_errors": public.get("errors", [])[:30],
               "crawl_debug": public.get("debug", {}),
+              "built_cells_without_stop": built[2],
               "fuzzy": dict(list(getattr(b, "fuzzy_hits", {}).items())[:80])}
     top = os.path.join(sd, "top50_%s.json" % a.city)
     if os.path.exists(top):

@@ -246,6 +246,30 @@ class CrawlParseTests(SimpleTestCase):
         self.assertNotIn("02-1234567", nums)
 
 
+class WikiAndCoverageTests(SimpleTestCase):
+    def test_page_coords(self):
+        self.assertEqual(CP.page_coords('x "wgCoordinates":{"lat":23.85,"lon":90.26} y'), (23.85, 90.26))
+        self.assertEqual(CP.page_coords('<span class="geo">23.1; 90.2</span>'), (23.1, 90.2))
+        self.assertIsNone(CP.page_coords("no coordinates"))
+
+    def test_wiki_place_lets_far_stop_match(self):
+        pr = {"company": "Far Paribahan", "company_bn": "", "source": "s", "source_url": "https://s.example/",
+              "fetched": "2026-11-09", "stops": [("Alpha", ""), ("Gamma", ""), ("Delta", ""), ("Farplace", "")]}
+        b = BT.Builder("dhaka", tiny_osm(), {"bus_routes": [pr], "wiki_places": {
+            "Farplace": {"lat": 23.8500, "lon": 90.3950, "title": "Farplace", "url": "u"}}}, {})
+        b.public_routes()
+        names = [b.stops[i]["name"] for i in b.routes[0]["stops"]]
+        self.assertEqual(names[-1], "Farplace")      # 7.7 km on: no longer skipped
+
+    def test_built_up_coverage_ignores_empty_cells(self):
+        b = BT.Builder("dhaka", tiny_osm(), {}, {})
+        b.osm["places"] = [{"lat": 23.7605, "lon": 90.3905, "name": "Sample Para", "name_bn": "",
+                            "name_en": ""}]
+        net = {"stops": {"rows": [["n2", "Beta", "", 23.7600, 90.3900, "bus", "r", ""]]}}
+        pct, cells, empty = b.coverage_built(net)
+        self.assertEqual((pct, cells), (100.0, 1))
+
+
 class SeedTests(SimpleTestCase):
     def test_metro_seed_times_and_facilities_have_dated_sources(self):
         import json

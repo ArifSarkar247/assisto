@@ -23,6 +23,7 @@ Output: <out>/public_<city>.json
 import argparse
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -278,6 +279,42 @@ def find_hotlines(text):
     return found[:10]
 
 
+WGC = re.compile(r'"wgCoordinates":\{"lat":(-?[\d.]+),"lon":(-?[\d.]+)\}')
+GEO = re.compile(r'<span class="geo"[^>]*>\s*(-?[\d.]+)\s*;\s*(-?[\d.]+)\s*</span>')
+
+
+def page_coords(page):
+    m = WGC.search(page or "") or GEO.search(page or "")
+    return (float(m.group(1)), float(m.group(2))) if m else None
+
+
+def crawl_wiki_places(seed_path, bbox, errors):
+    """Stop name -> {lat, lon, title, url} from the coordinates printed on
+    a public Wikipedia article (one page per name; /wiki/ pages are allowed
+    by Wikipedia's robots.txt, its APIs are not, so we do not use them)."""
+    out = {}
+    try:
+        seed = json.load(open(seed_path))
+    except Exception as e:
+        errors.append("wiki seed: %s" % e)
+        return out
+    for name, titles in seed.items():
+        if name.startswith("_"):
+            continue
+        for t in titles:
+            url = "https://en.wikipedia.org/wiki/" + urllib.parse.quote(t)
+            try:
+                ll = page_coords(get(url))
+            except Exception as e:
+                errors.append("wiki %s: %s" % (t, str(e)[:80]))
+                continue
+            if ll and bbox[0] <= ll[0] <= bbox[2] and bbox[1] <= ll[1] <= bbox[3]:
+                out[name] = {"lat": ll[0], "lon": ll[1], "title": t.replace("_", " "), "url": url,
+                             "date": str(date.today())}
+                break
+    return out
+
+
 def crawl_text(url, errors):
     try:
         return get(url)
@@ -306,6 +343,10 @@ def main():
         res["texts"]["dmtcl_home"] = {"url": "https://dmtcl.gov.bd/",
                                       "text": re.sub(r"<[^>]+>", " ", dm)[:200000]}
         res["bus_routes_2"] = crawl_dhakabusroute(errors, debug)
+        here = os.path.dirname(os.path.abspath(__file__))
+        res["wiki_places"] = crawl_wiki_places(os.path.join(here, "seed", "dhaka_wiki_places.json"),
+                                               [23.58, 90.18, 24.06, 90.62], errors)
+        debug["wiki_places"] = len(res["wiki_places"])
         hot = []
         for u in ("https://brta.gov.bd/", "http://www.brta.gov.bd/"):
             page = crawl_text(u, errors)
