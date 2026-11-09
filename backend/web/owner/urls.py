@@ -34,6 +34,7 @@ from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
 from . import views_nearby as NBY    # nearby
+from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
 from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
@@ -170,4 +171,10 @@ urlpatterns = [
     path("nearby/report/<int:pk>", NBY.nearby_report),             # nearby
     path("vision", BRD.vision),                                    # adminboards
     path("quality", BRD.quality),                                  # adminboards
+    path("city", CTY.city),                                        # citydata
+    path("city/fix/<int:pk>", CTY.city_fix),                       # citydata
+    path("city/change", CTY.city_change),                          # citydata
+    path("city/live/<int:pk>", CTY.city_live),                     # citydata
+    path("city/dataset", CTY.city_dataset),                        # citydata
+    path("city/learned/<int:pk>", CTY.city_learned),               # citydata
 ]

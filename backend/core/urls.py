@@ -35,6 +35,7 @@ from . import vault_recovery as vaultrec  # vault100
 from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 from . import views_nearby as nearbyv  # nearby
+from . import views_city as cityv  # citydata
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -223,6 +224,27 @@ urlpatterns = [
     path("nearby/area", nearbyv.nearby_area),            # nearby
     path("nearby/report", nearbyv.nearby_report),        # nearby
     path("nearby/sponsored", nearbyv.nearby_sponsored),  # nearby
+    # citydata: City Service (owner_actions/CITY_SERVICE_API.md)
+    path("city/where", cityv.city_where),
+    path("city/plan", cityv.city_plan),
+    path("city/package", cityv.city_package),
+    path("city/stations", cityv.city_stations),
+    path("city/station/<str:stop_id>", cityv.city_station),
+    path("city/metro", cityv.city_metro),
+    path("city/route/<str:route_id>", cityv.city_route),
+    path("city/search", cityv.city_search),
+    path("city/stops/near", cityv.city_stops_near),
+    path("city/terminals", cityv.city_terminals),
+    path("city/ghats", cityv.city_ghats),
+    path("city/offices", cityv.city_offices),
+    path("city/reports", cityv.city_reports),
+    path("city/reports/<int:rid>/flag", cityv.city_report_flag),
+    path("city/correction", cityv.city_correction),
+    path("city/fare-report", cityv.city_fare_report),
+    path("city/night-rating", cityv.city_night_rating),
+    path("city/trips/consent", cityv.city_trip_consent),
+    path("city/trips", cityv.city_trip),
+    path("city/women", cityv.city_women),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
