@@ -15,6 +15,7 @@ Live server = origin/main (build 304) **plus local merges of `agent/placesnew` (
 ## Owner orders not finished (newest first)
 | Order | State | What is left |
 |---|---|---|
+| 9 Nov 14:23 PLAY PRODUCTION ACCESS APPLIED (owner) | WAITING for Google (≤7 days) — keep closed test + ship green builds to internal/closed; never production; no new sensitive permission | staged rollout plan: owner_actions/PLAY_STAGED_ROLLOUT_PLAN_BN.md |
 | 9 Nov 11:15 SAFE JOURNEY V2 — PRIORITY 2 (owner_actions/SAFE_JOURNEY_V2_SPEC_BN.md) | IN PROGRESS — qjourney (root-cause fix + start screen + BD place list + saved places), sjduring, sjkids, sjtrain | all spec items + targets + e2e proof + screenshots + owner trip test |
 | 9 Nov 11:45 HOME + CITY SERVICE ONE FINAL (replaces 11:25–11:40) — PRIORITY 3 (owner_actions/CITY_SERVICE_SPEC_BN.md) | IN PROGRESS — homeshort (A: shortcuts + My Business rename), citydata (Dhaka GTFS + server routing + fares); cityapp (screens) after the data API | top-50 Dhaka trips measured, e2e routing + offline cache, screenshots |
 | 9 Nov 10:50 FAMILY CARE V3 — NEW PRIORITY 1 (owner_actions/FAMILY_CARE_V3_SPEC_BN.md) | IN PROGRESS — agents fcscreen (Family screen + member page + widget + multi-family model), fcsos (SOS sender/receiver), fcelder (elder easy home + QR setup + silent watch), fcbrain (auto arrive/leave, battery 15%, night news, trust/pause, Probashi clocks, notification budget, ask bar) | all spec items + measured targets + e2e proof + screenshots + owner two-phone list |
