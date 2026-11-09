@@ -8,7 +8,7 @@ Owner order 10 Nov 00:35, PART A items 1–2. Built by `.github/workflows/map_ti
 | Stage | Base | Use |
 |---|---|---|
 | Production (after deploy) | `https://api.lifeassisto.com/maps/v1/` | the app, always |
-| Build output (release `map-tiles`) | `https://github.com/ArifSarkar247/assisto/releases/download/map-tiles/` | deploy step + CI tests only — never the app (GitHub is not a CDN) |
+| Build output (release `map-tiles`, published ONLY from main) | `https://github.com/ArifSarkar247/assisto/releases/download/map-tiles/` | deploy step only — never the app (GitHub is not a CDN). Branch runs: workflow artifacts `map-base`, `map-overture`, `map-terrain`, `map-assets`, `map-shots` |
 
 The app keeps the base in ONE constant / remote-config value (`map_tiles_base`) so we can move to
 a CDN later (see section 7) without a new build.

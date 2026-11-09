@@ -172,7 +172,7 @@ def build(theme, lang, base):
                    "line-width": ["match", ["get", "kind"], ["river", "canal"], z(8, 0.6, 14, 3, 18, 12),
                                   z(12, 0.3, 18, 4)]}},
         {"id": "boundaries", "type": "line", "source": "assisto_base", "source-layer": "boundaries",
-         "filter": ["<=", ["coalesce", ["get", "kind_detail"], 4], 4],
+         "filter": ["<=", ["to-number", ["get", "kind_detail"], 4], 4],
          "paint": {"line-color": p["boundary"], "line-dasharray": [3, 2],
                    "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 12, 1.6]}},
         {"id": "buildings-2d", "type": "fill", "source": "assisto_buildings", "source-layer": "buildings",

@@ -5,7 +5,7 @@
 #   terrain   Copernicus DEM GLO-30 -> terrarium raster-dem -> bd_terrain.pmtiles
 #   assets    Bangla PGF glyphs (built here) + Latin glyphs, own sprites, 4 styles (validated)
 #   render    MapLibre Native screenshots (Badda, Motijheel, Mirpur, airport; light/night)
-#   publish   sha256 manifest -> release "map-tiles" (deploy_fetch.sh pulls it onto the server)
+#   publish   sha256 manifest (artifact) -> release "map-tiles" ONLY on main (deploy_fetch.sh pulls it)
 # Licences: owner_actions/CITY_MAP_LICENSE_BN.md. App contract: owner_actions/CITY_MAP_TILES_API.md.
 # CI budget: a push to ci/maptiles runs ONLY the light `assets` job; the heavy data build runs
 # on workflow_dispatch (full=true), push to ci/maptiles-data, or monthly.
@@ -21,7 +21,7 @@ on:
         type: boolean
         default: true
       publish:
-        description: 'Upload to release map-tiles'
+        description: 'Upload to release map-tiles (main only)'
         type: boolean
         default: true
   push:
@@ -275,7 +275,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: map-manifest, path: 'dist/*.json', retention-days: 30 }
       - name: Publish release assets (manifest last)
-        if: github.event_name != 'workflow_dispatch' || inputs.publish
+        # Public release ONLY from main (lead 10 Nov, same rule as the Shop Box release).
+        # Branch runs keep everything as workflow artifacts (map-base/-overture/-terrain/-assets/-manifest).
+        if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.publish)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
