@@ -220,6 +220,8 @@ _A = {
     # ---- App shell
     "home_v2": ("?PP???P??", "show", "New home (owner design v6): widget tests + bn/en/light/dark/200% screenshot gallery; old home stays as the OFF fallback for one week; real-phone 2 GB timing and the owner's 10-minute check pending.",
                 "নতুন হোম (মালিকের ডিজাইন v6): উইজেট টেস্ট + বাংলা/ইংরেজি/লাইট/ডার্ক/২০০% স্ক্রিনশট; এক সপ্তাহ পুরনো হোম বন্ধ-সুইচের বিকল্প; আসল ২ GB ফোনে সময় ও মালিকের ১০ মিনিটের পরীক্ষা বাকি।"),
+    "money_notif_sms": ("?P???PP?F", "show", "Turn OFF if a Play reviewer objects: phones then ignore SMS-app notifications from bank/wallet senders (never read, never sent) within minutes of the next app open (rechecked every 3 h); wallet-app notifications keep working.",
+                        "Play রিভিউয়ার আপত্তি করলে বন্ধ করুন: পরের বার অ্যাপ খুললেই (প্রতি ৩ ঘণ্টায়ও দেখে) ফোন ব্যাংক/ওয়ালেট SMS-এর নোটিফিকেশন আর পড়বে না, পাঠাবেও না; ওয়ালেট অ্যাপের নোটিফিকেশন চালু থাকবে।"),
 }
 
 AUDIT = {

@@ -13,12 +13,14 @@ class NotifListenStatus {
   final bool callNote;
   final bool money;
   final bool moneyAuto;
+  final bool moneySms; // smsswitch: the server switch as the native side holds it
   const NotifListenStatus({
     this.available = false,
     this.granted = false,
     this.callNote = false,
     this.money = false,
     this.moneyAuto = false,
+    this.moneySms = true,
   });
 }
 
@@ -53,6 +55,10 @@ abstract class NotifListenBridge {
       required Map<String, String> strings});
   Future<List<MoneyQueueItem>> takeMoneyQueue();
   Future<void> moneyDone(List<int> ids);
+
+  /// smsswitch: mirrors the server switch money_notif_sms to the native
+  /// listener (OFF = SMS-app notifications ignored unread, waiting ones dropped).
+  Future<void> setMoneySms(bool on);
   Future<NotifLaunch?> takeLaunch();
 }
 
@@ -76,6 +82,7 @@ class NotifListenChannel implements NotifListenBridge {
         callNote: m['callnote'] == true,
         money: m['money'] == true,
         moneyAuto: m['moneyAuto'] == true,
+        moneySms: m['moneySms'] != false,
       );
     } catch (_) {
       return const NotifListenStatus(); // no channel in this build
@@ -133,6 +140,14 @@ class NotifListenChannel implements NotifListenBridge {
     try {
       await _ch.invokeMethod('moneyDone', {'ids': ids});
     } catch (_) {} // best-effort: nothing queued natively
+  }
+
+  @override
+  Future<void> setMoneySms(bool on) async {
+    if (!_android) return;
+    try {
+      await _ch.invokeMethod('setMoneySms', {'on': on});
+    } catch (_) {} // best-effort: an old build without the method keeps reading as before
   }
 
   @override
