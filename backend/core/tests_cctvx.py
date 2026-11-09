@@ -429,7 +429,11 @@ class OfflineTests(_X):
         back = [a for a, k in self.pushes if k["data"].get("notice") == "recovered"]
         self.assertEqual(len(back), 1)
         rep = self.client.get("/api/v1/shop/sites/%d/guard/report" % self.site["id"])
-        self.assertGreaterEqual(rep.data["counts"]["offline_min"], 10)
+        # the report counts today's (local day) minutes only: right after local
+        # midnight part of the 11-minute outage belongs to yesterday
+        lt = timezone.localtime()
+        since_midnight = lt.hour * 60 + lt.minute
+        self.assertGreaterEqual(rep.data["counts"]["offline_min"], min(10, max(since_midnight - 2, 0)))
 
     def test_quiet_hours_saved_not_pushed_unless_away(self):
         from core.models import FamilyAlert, ShopSite
