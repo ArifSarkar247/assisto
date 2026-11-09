@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৩১ / মোট ৪২০**
+**স্ক্রিন শেষ: ৩২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -69,7 +69,7 @@
 - ⬜ — `screens/journey_start_screen.dart`
 - ⬜ — `screens/journey_watch_screen.dart`
 - ⬜ — `screens/safe_journey/sj_child_school_screen.dart`
-- ⬜ — `screens/safe_journey/sj_hub_screen.dart`
+- ✅ batch 5 (চলমান যাত্রা সবার ওপরে, বাছাই করা মোড = নীল কার্ড, অ্যাকশন টাইল) — `screens/safe_journey/sj_hub_screen.dart`
 - ⬜ — `screens/safe_journey/sj_private_ask_screen.dart`
 - ⬜ — `screens/safe_journey/sj_share_screen.dart`
 - ⬜ — `screens/train/journey_train_pick_screen.dart`

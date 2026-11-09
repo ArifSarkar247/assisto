@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/journey_tracker.dart';
 import '../../services/oem_guide.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/journey_api.dart';
@@ -120,81 +121,79 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
   }
 
   Widget _cardTile(AppLocalizations t, SjCard c) {
-    final cs = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final on = _card == c;
     final (icon, name, sub) = switch (c) {
       SjCard.live => (Icons.share_location_rounded, t.sjlNameLive, t.sjlSubLive),
       SjCard.alarm => (Icons.alarm_on_rounded, t.sjlNameAlarm, t.sjlSubAlarm),
       SjCard.train => (Icons.train_rounded, t.sjlNameTrain, t.sjlSubTrain),
     };
-    final fg = on ? cs.onPrimary : cs.onSurface;
+    final fg = on ? ds.onPrimary : ds.text;
+    // designv2: the chosen mode is the filled primary card, others calm cards
     return Semantics(
       button: true,
       selected: on,
-      child: Material(
+      child: DsSurface(
         key: ValueKey('sjl_card_${c.name}'),
-        color: on ? cs.primary : cs.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Radii.md),
-            side: on ? BorderSide.none : BorderSide(color: cs.outlineVariant)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Radii.md),
-          onTap: () => _select(c),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-              child: Row(children: [
-                Icon(icon, color: fg),
-                const SizedBox(width: Gap.md),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(name,
-                        style: AType.bodyLarge.copyWith(
-                            color: fg, fontWeight: on ? FontWeight.w800 : FontWeight.w500)),
-                    Text(sub,
-                        style: AType.bodySmall.copyWith(
-                            color: on ? cs.onPrimary : cs.onSurfaceVariant)),
-                  ]),
-                ),
-                if (on)
-                  Icon(Icons.check_circle_rounded,
-                      key: ValueKey('sjl_card_check_${c.name}'), color: fg),
+        color: on ? ds.primary : null,
+        borderColor: on ? ds.primary : null,
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+        onTap: () => _select(c),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64 - Gap.sm * 2),
+          child: Row(children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: on ? ds.onPrimary.withValues(alpha: 0.18) : ds.primarySoft,
+                borderRadius: BorderRadius.circular(DsRadius.small),
+              ),
+              child: Icon(icon, color: on ? ds.onPrimary : ds.primaryInk),
+            ),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(name,
+                    style: AType.bodyLarge.copyWith(color: fg, fontWeight: FontWeight.w700)),
+                Text(sub, style: AType.bodySmall.copyWith(color: on ? ds.onPrimary : ds.muted)),
               ]),
             ),
-          ),
+            if (on)
+              Icon(Icons.check_circle_rounded,
+                  key: ValueKey('sjl_card_check_${c.name}'), color: fg),
+          ]),
         ),
       ),
     );
   }
 
   Widget _bigButton(String key, IconData icon, String label, String hint, VoidCallback onTap) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
+    final ds = DsTokens.of(context);
+    return DsSurface(
       key: ValueKey(key),
-      color: cs.primaryContainer,
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 96),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 30, color: cs.onPrimaryContainer),
-                  const SizedBox(height: Gap.xs),
-                  Text(label,
-                      style: AType.bodyLarge.copyWith(
-                          color: cs.onPrimaryContainer, fontWeight: FontWeight.w700)),
-                  Text(hint,
-                      style: AType.bodySmall.copyWith(color: cs.onPrimaryContainer)),
-                ]),
-          ),
-        ),
+      onTap: onTap,
+      padding: const EdgeInsets.all(Gap.md),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 96 - Gap.md * 2),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: ds.primarySoft,
+                  borderRadius: BorderRadius.circular(DsRadius.card),
+                ),
+                child: Icon(icon, size: 26, color: ds.primaryInk),
+              ),
+              const SizedBox(height: Gap.sm),
+              Text(label,
+                  style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+              Text(hint, style: AType.bodySmall.copyWith(color: ds.muted)),
+            ]),
       ),
     );
   }
@@ -212,40 +211,43 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
         padding: const EdgeInsets.only(top: Gap.lg, bottom: Gap.sm),
         child: Semantics(
             header: true,
-            child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))),
+            child: Text(s,
+                style: AType.titleMedium.copyWith(
+                    fontWeight: FontWeight.bold, color: DsTokens.of(context).text))),
       );
 
   Widget _activeBanner(AppLocalizations t) {
     final j = _active!;
     final share = j['share'] == true;
-    return Card(
+    final ds = DsTokens.of(context);
+    // designv2: a live trip is the most important thing — success card + pulse
+    return DsCard(
       key: const ValueKey('sjl_active'),
-      color: Brand.successFill.withValues(alpha: 0.14),
-      child: ListTile(
-        minVerticalPadding: Gap.md,
-        leading: const Icon(Icons.navigation_rounded, color: Brand.successFill),
-        title: Text(share ? t.sjlActiveShare : t.sjlActiveTrip,
-            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
-        subtitle: Text(t.sjlActiveOpen),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: () => _go(JourneyLiveScreen(journeyId: (j['id'] as num).toInt())),
+      tone: DsTone.success,
+      padding: EdgeInsets.zero,
+      onTap: () => _go(JourneyLiveScreen(journeyId: (j['id'] as num).toInt())),
+      child: DsListRow(
+        leading: DsStatusDot(color: ds.success, size: 12),
+        title: share ? t.sjlActiveShare : t.sjlActiveTrip,
+        subtitle: t.sjlActiveOpen,
+        trailing: Icon(Icons.chevron_right_rounded, color: ds.successInk),
       ),
     );
   }
 
   Widget _realRow(String key, IconData icon, String title, String body,
       {Color? color, Widget? action}) {
-    final cs = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return Padding(
       key: ValueKey(key),
       padding: const EdgeInsets.only(bottom: Gap.md),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, color: color ?? cs.primary),
+        Icon(icon, color: color ?? ds.primaryInk),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
-            Text(body, style: AType.bodyMedium),
+            Text(title, style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
+            Text(body, style: AType.bodyMedium.copyWith(color: ds.muted)),
             if (action != null) ...[const SizedBox(height: Gap.xs), action],
           ]),
         ),
@@ -308,7 +310,6 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
   Widget _liveBody(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       // the card above already says what Live Location does
-      if (_active != null) ...[_activeBanner(t), const SizedBox(height: Gap.md)],
       _grid([
         _bigButton('sjl_btn_trip', Icons.route_rounded, t.sjlBtnTrip, t.sjlHintTrip,
             () => _go(const JourneyStartScreen())),
@@ -335,13 +336,14 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
   Widget _otherBody(AppLocalizations t, SjCard c) {
     final alarm = c == SjCard.alarm;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text(alarm ? t.sjlSubAlarm : t.sjlSubTrain, style: AType.bodyLarge),
+      Text(alarm ? t.sjlSubAlarm : t.sjlSubTrain,
+          style: AType.bodyLarge.copyWith(color: DsTokens.of(context).muted)),
       const SizedBox(height: Gap.md),
-      FilledButton.icon(
+      DsButton(
         key: ValueKey('sjl_open_${c.name}'),
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-        icon: Icon(alarm ? Icons.alarm_on_rounded : Icons.train_rounded),
-        label: Text(t.sjlOpen(alarm ? t.sjlNameAlarm : t.sjlNameTrain)),
+        expand: true,
+        icon: alarm ? Icons.alarm_on_rounded : Icons.train_rounded,
+        label: t.sjlOpen(alarm ? t.sjlNameAlarm : t.sjlNameTrain),
         onPressed: () => _go(alarm ? const DestAlarmScreen() : const TrainTrackerScreen()),
       ),
     ]);
@@ -375,6 +377,8 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
+            // designv2 page rule: a live trip comes first
+            if (_active != null) ...[_activeBanner(t), const SizedBox(height: Gap.md)],
             for (final c in cards) ...[
               _cardTile(t, c),
               const SizedBox(height: Gap.sm),
