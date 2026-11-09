@@ -44961,5 +44961,62 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
-  }
+  },
+  "icgTitle": "IP camera + old phone",
+  "icgIntro": "No PC needed: this old phone, on the same Wi-Fi as your IP camera, watches the camera, checks for people on the phone itself, sends you photo alerts and opens live view when you ask.",
+  "icgOpen": "Watch a Wi-Fi IP camera with this phone",
+  "icgOpenBody": "No PC needed. Works with Hikvision, Dahua, Imou, EZVIZ, TP-Link Tapo and other ONVIF / RTSP cameras.",
+  "icgDefaultName": "IP camera",
+  "icgStepPair": "1. Connect to the owner",
+  "icgStepCamera": "2. Your IP camera",
+  "icgStepRun": "3. Start guarding",
+  "icgBrand": "Camera brand",
+  "icgBrandOnvif": "Other (ONVIF)",
+  "icgBrandRtsp": "I have the RTSP link",
+  "icgRtspUrl": "RTSP link",
+  "icgHintHikDahua": "User admin and the camera's own password. The small (sub) stream is used, so an old phone keeps up.",
+  "icgHintImou": "User admin. Password = the Safety Code (SC) printed on the camera's sticker.",
+  "icgHintEzviz": "User admin. Password = the 6-letter verification code on the camera's sticker. If it fails, turn on RTSP in the EZVIZ app (camera settings).",
+  "icgHintTapo": "In the Tapo app: camera → Settings → Advanced → Camera Account. Make a user name and password there and type them here.",
+  "icgHintOnvif": "Turn ONVIF on in the camera's settings, then use the camera's user name and password.",
+  "icgHintRtsp": "Paste the full link from the camera's manual, e.g. rtsp://user:password@192.168.1.20:554/stream",
+  "icgShowPass": "Show password",
+  "icgTesting": "Connecting to the camera…",
+  "icgWorks": "Camera works: {info}",
+  "@icgWorks": {
+    "placeholders": {
+      "info": {
+        "type": "String"
+      }
+    }
+  },
+  "icgFailNotFound": "The camera has no video at this address. Pick the right brand, or paste the RTSP link from its manual.",
+  "icgFailCodec": "This camera sends a video type this phone can't read. In the camera's settings choose H.264 (or H.265) for the sub stream.",
+  "icgFailDecoder": "This phone could not decode the camera's video. In the camera's settings set the sub stream to H.264 and a smaller size, then test again.",
+  "icgFailNoVideo": "The camera answered but sent no picture in time. Check that it is on, then test again.",
+  "icgForget": "Forget this camera on this phone",
+  "icgCamLost": "Can't reach the IP camera — trying again. Is it on and on the same Wi-Fi?",
+  "icgWatching": "Watching {camera}",
+  "@icgWatching": {
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      }
+    }
+  },
+  "icgStats": "{fps} pictures a second checked · {kb} KB/s from the camera",
+  "@icgStats": {
+    "placeholders": {
+      "fps": {
+        "type": "String"
+      },
+      "kb": {
+        "type": "String"
+      }
+    }
+  },
+  "icgLowPower": "Old-phone mode: checking the camera's key pictures only (about one every 2–4 seconds).",
+  "icgHonest": "Honest limits: keep this phone plugged in, on this screen, on the same Wi-Fi as the camera. The camera's address and password stay only on this phone. Live view from an IP camera is a fast picture stream (about 4 a second, no sound). Alerts carry a photo; video clips are not kept on this phone yet.",
+  "icgPlayedSiren": "Siren played here (the owner asked)",
+  "icgPlayedWarn": "The owner's warning played here"
 }
