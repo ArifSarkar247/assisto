@@ -192,17 +192,19 @@ List<String> localWarnings(Map<String, dynamic> h) {
 Uint8List? shrinkAlertJpeg(Uint8List jpeg, {int maxBytes = 200 * 1024, int maxSide = 960}) {
   if (jpeg.length <= maxBytes) return jpeg;
   try {
-    var im = img.decodeJpg(jpeg);
+    final im = img.decodeJpg(jpeg);
     if (im == null) return null;
-    im = img.bakeOrientation(im);
-    if (im.width > maxSide || im.height > maxSide) {
-      im = im.width >= im.height
-          ? img.copyResize(im, width: maxSide)
-          : img.copyResize(im, height: maxSide);
-    }
-    for (final q in const [80, 65, 50]) {
-      final out = img.encodeJpg(im, quality: q);
-      if (out.length <= maxBytes) return out;
+    final base = img.bakeOrientation(im);
+    // a very busy scene can stay big at 960 px: step down until it fits
+    for (final side in [maxSide, maxSide * 2 ~/ 3, maxSide ~/ 2]) {
+      var s = base;
+      if (s.width > side || s.height > side) {
+        s = s.width >= s.height ? img.copyResize(s, width: side) : img.copyResize(s, height: side);
+      }
+      for (final q in const [80, 65, 50]) {
+        final out = img.encodeJpg(s, quality: q);
+        if (out.length <= maxBytes) return out;
+      }
     }
     return null;
   } catch (_) {
