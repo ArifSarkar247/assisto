@@ -8634,3 +8634,73 @@ class RecoveryRequest(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["state", "id"], name="core_recreq_state_idx")]
 # ---- /recovery ----
+
+
+# ---- fcscreen ---- Family Care v3 (owner order 9 Nov 10:50): multi-family
+# membership + shared family tasks. Member status (heartbeat, battery, place,
+# pause) lives in fcbrain's store; the pure status rules are in
+# core.logic.family_status. Interface: owner_actions/FAMILY_CARE_V3_API.md.
+class FcFamily(models.Model):
+    """One family a person belongs to ("My family", "Parents' home"...). A user
+    can be an active member of several (core.family_v3.MAX_FAMILIES)."""
+    name = models.CharField(max_length=60)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name="fc_families_created")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+
+class FcMembership(models.Model):
+    """A person in a family. Adults join ONLY by accepting on their own phone
+    (state invited -> active); a child is added active by an approved guardian.
+    `alert` = an amber status another module raised (silent watch, missed Care
+    Call) — {state, reason, source, at, until}; mirrored on all the user's
+    memberships by core.family_v3.set_member_status."""
+    ROLES = [("admin", "admin"), ("adult", "adult"), ("child", "child"), ("elder", "elder")]
+    STATES = [("invited", "invited"), ("active", "active"),
+              ("declined", "declined"), ("left", "left")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="memberships")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fc_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="adult")
+    state = models.CharField(max_length=8, choices=STATES, default="invited")
+    label = models.CharField(max_length=40, blank=True, default="")
+    relation = models.CharField(max_length=20, blank=True, default="")
+    alert = models.JSONField(default=dict, blank=True)
+    abroad_tz = models.CharField(max_length=40, blank=True, default="")
+    invited_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        unique_together = [("family", "user")]
+        indexes = [models.Index(fields=["user", "state"], name="core_fcmem_user_state_idx")]
+
+
+class FcTask(models.Model):
+    """A shared family task (medicine running out, doctor visit, bill): anyone
+    adds it, someone taps "I will do it", everyone sees who took it."""
+    KINDS = [("medicine", "medicine"), ("doctor", "doctor"), ("bill", "bill"),
+             ("other", "other")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="tasks")
+    title = models.CharField(max_length=120)
+    kind = models.CharField(max_length=8, choices=KINDS, default="other")
+    due_date = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    taken_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    taken_at = models.DateTimeField(null=True, blank=True)
+    done_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    done_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["family", "done_at"], name="core_fctask_fam_done_idx")]
+# ---- /fcscreen ----
