@@ -44891,5 +44891,14 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
+  },
+  "qbizDueLinkButton": "Send due link (web page)",
+  "@qbizDueLinkButton": {
+    "description": "Khata statement: share a read-only web page of this customer's own due"
+  },
+  "qbizDueLinkHint": "The customer sees their own due and entries in any browser — no app needed. The link works for 30 days and never shows your notes.",
+  "qbizCamAddShop": "Back to Shop Box to pick or add a shop",
+  "@qbizCamAddShop": {
+    "description": "CCTV accuracy screen opened without a shop: button back to the Shop Box"
   }
 }
