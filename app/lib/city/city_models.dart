@@ -219,7 +219,7 @@ class CityLeg {
 
   bool get isVehicle => kVehicleModes.contains(mode);
 
-  static CityLeg from(Object? v) {
+  static CityLeg parse(Object? v) {
     final m = _m(v);
     final vehicle = kVehicleModes.contains(_s(m['mode']));
     return CityLeg(
@@ -279,7 +279,7 @@ class CityOption {
   static CityOption? from(Object? v) {
     final m = _m(v);
     if (m.isEmpty) return null;
-    final legs = [for (final l in (m['legs'] is List ? m['legs'] as List : const [])) CityLeg.from(l)];
+    final legs = [for (final l in (m['legs'] is List ? m['legs'] as List : const [])) CityLeg.parse(l)];
     return CityOption(
         minutes: _i(m['minutes']),
         fare: CityFare.from(m['fare']) ?? const CityFare(low: 0, high: 0),

@@ -247,7 +247,8 @@ const Map<String, String> kRouteFeature = {
   // p3feed: Today feed (a Discover card on Home can open it)
   'daily_today': 'daily_info',
   'nearby': 'nearby',
-  'city': 'city_service', // cityapp
+  // cityapp: City Service
+  'city': 'city_service',
   'unseen': 'unseen_bangladesh',
   'dictionary': 'dictionary',
   'ramadan': 'ramadan',
