@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ২৪ / মোট ৪২০**
+**স্ক্রিন শেষ: ২৬ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -33,8 +33,8 @@
 - ✅ batch 4 (কোড/সম্মতি কার্ডে, বড় লেখা অপরিবর্তিত) — `eldercare/elder_join_screen.dart`
 - ✅ batch 4 (এক সারিতে মানুষ বাছাই, সেটিং এক কার্ডে, QR কার্ডে ছায়া) — `eldercare/elder_setup_screen.dart`
 - ✅ batch 4 (সতর্কতা = লাল কার্ড, শান্ত কার্ডে সবুজ পালস ডট) — `eldercare/elder_watch_screen.dart`
-- ⬜ — `family_sos/sos_alarm_screen.dart`
-- ⬜ — `family_sos/sos_sender_screen.dart`
+- ✅ batch 4 (টোকেন রং, কার্ড, বোতামে আভা (জরুরি লেআউট অপরিবর্তিত)) — `family_sos/sos_alarm_screen.dart`
+- ✅ batch 4 (টোকেন রং, কার্ড, বোতামে আভা (জরুরি লেআউট অপরিবর্তিত)) — `family_sos/sos_sender_screen.dart`
 - ✅ batch 4 (প্রতিটি অংশ আলাদা কার্ড, এক সারির বিরতি চিপ) — `family_v3/brain/fc_brain_settings_screen.dart`
 - ✅ batch 2 (সদস্য কার্ড) — `family_v3/family_v3_screen.dart`
 - ✅ batch 4 (সক্রিয় SOS = লাল কার্ড, স্কেলেটন, DS বোতাম) — `screens/family_alerts_screen.dart`

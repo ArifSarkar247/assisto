@@ -59,6 +59,9 @@ const ds2Screens = <String>[
   'fce_setup_qr', // batch 4
   'fce_setup_empty', // batch 4
   'fce_consent', // batch 4
+  'fcs_alarm', // batch 4
+  'fcs_countdown', // batch 4
+  'fcs_sent', // batch 4
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {

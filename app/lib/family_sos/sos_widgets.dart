@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../famcare_api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -26,12 +27,14 @@ class SosBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final tx = Theme.of(context).textTheme;
+    // designv2: tinted card (radius 12) in the status colour
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(Radii.md),
+        color: Color.alphaBlend(color.withValues(alpha: ds.isDark ? 0.16 : 0.08), ds.card),
+        borderRadius: BorderRadius.circular(DsRadius.card),
         border: Border.all(color: color.withValues(alpha: 0.45)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -40,10 +43,10 @@ class SosBanner extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: s.onSurface)),
+                style: tx.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w800, color: ds.text)),
             if (body != null && body!.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
-              Text(body!, style: TextStyle(fontSize: 14, height: 1.35, color: s.onSurface)),
+              Text(body!, style: tx.bodyMedium?.copyWith(fontSize: 14, height: 1.35, color: ds.text)),
             ],
             if (action != null) action!,
           ]),
@@ -72,7 +75,16 @@ class SosBigButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
+    // designv2: button radius + a soft glow in its own colour (none in lite)
+    final lite = DsPerf.liteOf(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DsRadius.button),
+        boxShadow: lite || onTap == null
+            ? null
+            : [BoxShadow(color: color.withValues(alpha: 0.30), blurRadius: 14, offset: const Offset(0, 4))],
+      ),
+      child: ConstrainedBox(
       constraints: BoxConstraints(minHeight: height),
       child: FilledButton.icon(
         style: FilledButton.styleFrom(
@@ -80,6 +92,7 @@ class SosBigButton extends StatelessWidget {
           foregroundColor: fg,
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
           alignment: AlignmentDirectional.centerStart,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(DsRadius.button)),
         ),
         onPressed: onTap,
         icon: Icon(icon, size: 26),
@@ -87,8 +100,10 @@ class SosBigButton extends StatelessWidget {
           alignment: AlignmentDirectional.centerStart,
           child: Text(label,
               softWrap: true,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontSize: 18, fontWeight: FontWeight.w700, color: fg)),
         ),
+      ),
       ),
     );
   }
@@ -104,29 +119,28 @@ class SosGoingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
-    return Card(
+    final ds = DsTokens.of(context);
+    final tx = Theme.of(context).textTheme;
+    return DsCard(
       key: const ValueKey('fcs-going'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.directions_run_rounded, color: s.primary),
+            Icon(Icons.directions_run_rounded, color: ds.primaryInk),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(title,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
+                    style: tx.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w800, color: ds.text))),
           ]),
           const SizedBox(height: Gap.sm),
           if (going.isEmpty)
-            Text(empty, style: TextStyle(color: s.onSurfaceVariant))
+            Text(empty, style: tx.bodyMedium?.copyWith(color: ds.muted))
           else
             for (final g in going)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                 child: Row(children: [
-                  const Icon(Icons.check_circle_rounded, color: Brand.success, size: 22),
+                  Icon(Icons.check_circle_rounded, color: ds.successInk, size: 22),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(
@@ -134,13 +148,12 @@ class SosGoingList extends StatelessWidget {
                           ? t.fcsGoingYou
                           : t.fcsGoingName('${g['name'] ?? ''}',
                               sosClock(context, '${g['at'] ?? ''}')),
-                      style: const TextStyle(fontSize: 16),
+                      style: tx.bodyLarge?.copyWith(fontSize: 16, color: ds.text),
                     ),
                   ),
                 ]),
               ),
-        ]),
-      ),
+      ]),
     );
   }
 }
@@ -262,7 +275,7 @@ class _SmsPickerState extends State<_SmsPicker> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final rows = _rows;
     return Padding(
       padding: EdgeInsets.only(
@@ -272,12 +285,13 @@ class _SmsPickerState extends State<_SmsPicker> {
       child: SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.fcsSmsPickTitle,
-              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 19, fontWeight: FontWeight.w800, color: ds.text)),
           const SizedBox(height: Gap.xs),
-          Text(t.fcsSmsPickBody, style: TextStyle(color: s.onSurfaceVariant)),
+          Text(t.fcsSmsPickBody, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ds.muted)),
           const SizedBox(height: Gap.md),
           if (rows == null)
-            const Center(child: Padding(padding: EdgeInsets.all(Gap.md), child: CircularProgressIndicator()))
+            DsSkeleton.card(lines: 2)
           else
             for (final r in rows)
               CheckboxListTile(
@@ -310,26 +324,21 @@ class _SmsPickerState extends State<_SmsPicker> {
               ),
             ),
             const SizedBox(width: Gap.sm),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton(
-                key: const ValueKey('fcs-sms-add'),
-                onPressed: () {
-                  _toggle('', _phone.text);
-                  _phone.clear();
-                },
-                child: Text(t.fcsSmsAdd),
-              ),
+            DsButton.secondary(
+              key: const ValueKey('fcs-sms-add'),
+              onPressed: () {
+                _toggle('', _phone.text);
+                _phone.clear();
+              },
+              label: t.fcsSmsAdd,
             ),
           ]),
           const SizedBox(height: Gap.lg),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
-            child: FilledButton(
-              key: const ValueKey('fcs-sms-save'),
-              onPressed: _sel.isEmpty ? null : _save,
-              child: Text(t.fcsSmsSave(notifLocalizeDigits(context, '${_sel.length}'))),
-            ),
+          DsButton(
+            key: const ValueKey('fcs-sms-save'),
+            expand: true,
+            onPressed: _sel.isEmpty ? null : _save,
+            label: t.fcsSmsSave(notifLocalizeDigits(context, '${_sel.length}')),
           ),
         ]),
       ),

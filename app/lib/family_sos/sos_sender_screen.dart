@@ -11,6 +11,7 @@ import '../nearby/emergency_numbers.dart';
 import '../nearby/phone_country.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -445,7 +446,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                     child: Text(
                       sending ? t.fcsSendingNow : t.fcsCountdownTitle,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -460,12 +461,13 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                     Text(_d('$_left'),
                         key: const ValueKey('fcs-countdown-number'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 96, fontWeight: FontWeight.w900)),
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            color: Colors.white, fontSize: 96, fontWeight: FontWeight.w900, letterSpacing: -2)),
                   const SizedBox(height: Gap.sm),
                   Text(t.fcsCountdownBody,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, height: 1.35)),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.white, fontSize: 16, height: 1.35)),
                   const SizedBox(height: Gap.xl),
                   ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 64),
@@ -473,13 +475,16 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                       key: const ValueKey('fcs-send-now'),
                       style: FilledButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: kSosRed),
+                          foregroundColor: kSosRed,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(DsRadius.button))),
                       onPressed: sending ? null : _send,
                       icon: const Icon(Icons.send_rounded),
                       // style on the Text (merges with the theme font);
                       // ButtonStyle.textStyle would drop the app font
                       label: Text(t.fcsSendNow,
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: 20, fontWeight: FontWeight.w800, color: kSosRed)),
                     ),
                   ),
                   const SizedBox(height: Gap.md),
@@ -489,12 +494,15 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                       key: const ValueKey('fcs-cancel'),
                       style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white, width: 2)),
+                          side: const BorderSide(color: Colors.white, width: 2),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(DsRadius.button))),
                       onPressed: sending ? null : _cancelCountdown,
                       icon: const Icon(Icons.close_rounded),
                       label: Text(t.fcsCancelMistake,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
                     ),
                   ),
                 ],
@@ -508,7 +516,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
 
   Widget _sent(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final em = emergencyFor(_cc);
     return Scaffold(
       key: const ValueKey('fcs-sent'),
@@ -534,7 +542,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
             _smsButton(t),
           ],
           const SizedBox(height: Gap.md),
-          _soundCard(t, s),
+          _soundCard(t),
           const SizedBox(height: Gap.md),
           SosGoingList(going: _going, empty: t.fcsGoingWaiting, title: t.fcsGoingTitle),
           const SizedBox(height: Gap.md),
@@ -549,8 +557,8 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
             key: const ValueKey('fcs-call-emergency'),
             icon: Icons.local_police_rounded,
             label: _d(t.fcsCallEmergency(em.primary.number)),
-            color: s.surfaceContainerHighest,
-            fg: s.onSurface,
+            color: ds.card,
+            fg: ds.text,
             onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
           ),
           const SizedBox(height: Gap.sm),
@@ -558,19 +566,20 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
             key: const ValueKey('fcs-mistake'),
             icon: Icons.undo_rounded,
             label: t.fcsSentByMistake,
-            color: s.surfaceContainerHighest,
-            fg: s.onSurface,
+            color: ds.card,
+            fg: ds.text,
             onTap: _ending || _state != 'active' ? null : _mistake,
           ),
           const SizedBox(height: Gap.sm),
           Text(t.fcsLiveNote,
-              style: TextStyle(fontSize: 13, color: s.onSurfaceVariant)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13, color: ds.muted)),
         ],
       ),
     );
   }
 
-  Widget _soundCard(AppLocalizations t, ColorScheme s) {
+  Widget _soundCard(AppLocalizations t) {
+    final ds = DsTokens.of(context);
     switch (_recState) {
       case 'recording':
         return SosBanner(
@@ -586,7 +595,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
         );
       case 'uploading':
         return SosBanner(
-            icon: Icons.cloud_upload_rounded, color: s.primary, title: t.fcsSoundSending);
+            icon: Icons.cloud_upload_rounded, color: ds.primaryInk, title: t.fcsSoundSending);
       case 'sent':
         return SosBanner(
             key: const ValueKey('fcs-sound-sent'),
@@ -595,17 +604,17 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
             title: t.fcsSoundSent);
       case 'failed':
         return SosBanner(
-            icon: Icons.mic_off_rounded, color: s.onSurfaceVariant, title: t.fcsSoundFailed);
+            icon: Icons.mic_off_rounded, color: ds.muted, title: t.fcsSoundFailed);
       case 'denied':
         return SosBanner(
-            icon: Icons.mic_off_rounded, color: s.onSurfaceVariant, title: t.fcsSoundDenied);
+            icon: Icons.mic_off_rounded, color: ds.muted, title: t.fcsSoundDenied);
       default:
         return SosBigButton(
           key: const ValueKey('fcs-rec-start'),
           icon: Icons.mic_rounded,
           label: t.fcsRecordButton,
-          color: s.surfaceContainerHighest,
-          fg: s.onSurface,
+          color: ds.card,
+          fg: ds.text,
           onTap: _recState == 'asking' ? null : _askAndRecord,
         );
     }
@@ -649,7 +658,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
 
   Widget _offline(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final em = emergencyFor(_cc);
     return Scaffold(
       key: const ValueKey('fcs-offline'),
@@ -676,14 +685,15 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-            child: Text(t.fcsSmsHow, style: TextStyle(fontSize: 13, color: s.onSurfaceVariant)),
+            child: Text(t.fcsSmsHow,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13, color: ds.muted)),
           ),
           SosBigButton(
             key: const ValueKey('fcs-call-emergency'),
             icon: Icons.local_police_rounded,
             label: _d(t.fcsCallEmergency(em.primary.number)),
-            color: s.surfaceContainerHighest,
-            fg: s.onSurface,
+            color: ds.card,
+            fg: ds.text,
             onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
           ),
           const SizedBox(height: Gap.md),
