@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ২৬ / মোট ৪২০**
+**স্ক্রিন শেষ: ২৮ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -44,8 +44,8 @@
 - ⬜ — `screens/kids_watch/kids_watch_screen.dart`
 - ⬜ — `screens/kids_watch/school_mode_child_screen.dart`
 - ⬜ — `screens/medicine_db_screen.dart`
-- ⬜ — `screens/medicine_history_screen.dart`
-- ⬜ — `screens/probashi/probashi_family_screen.dart`
+- ✅ batch 4 (সামগ্রিক % = হিরো কার্ড, ওষুধ কার্ড) — `screens/medicine_history_screen.dart`
+- ✅ batch 4 (DS কার্ড (সব প্রবাসী স্ক্রিনের শেয়ার্ড কার্ডও)) — `screens/probashi/probashi_family_screen.dart`
 
 ## ৪. জরুরি ও SOS
 

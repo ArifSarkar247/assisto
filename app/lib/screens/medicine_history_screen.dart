@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -49,7 +50,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = DsTokens.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.personName ?? t.medHistoryTitle),
@@ -61,13 +62,13 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
                   icon: Icons.cloud_off_rounded,
                   title: t.medHistoryTitle,
                   message: t.medHistoryEmpty,
-                  action: FilledButton(onPressed: _load, child: Text(t.retry)),
+                  action: DsButton(onPressed: _load, label: t.retry),
                 )
               : _body(context, t, scheme),
     );
   }
 
-  Widget _body(BuildContext context, AppLocalizations t, ColorScheme scheme) {
+  Widget _body(BuildContext context, AppLocalizations t, DsTokens scheme) {
     final meds = (data?['medicines'] as List? ?? []);
     if (meds.isEmpty) {
       return StateMessage(
@@ -82,23 +83,22 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
+        // designv2: the overall number is the soft hero
+        DsHeroCard(
             child: Row(children: [
               _ring(overall),
               const SizedBox(width: Gap.lg),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(t.medOverallAdherence,
-                      style: Theme.of(context).textTheme.titleMedium),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: scheme.text, fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   Text(t.medTakenScheduled(fmtInt(context, taken), fmtInt(context, scheduled)),
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.muted)),
                 ]),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         for (final m in meds.cast<Map<String, dynamic>>()) _medCard(context, t, scheme, m),
@@ -122,12 +122,14 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
             valueColor: AlwaysStoppedAnimation(_pctColor(pct)),
           ),
         ),
-        Text('$pctStr%', style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text('$pctStr%',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800, letterSpacing: -0.4, color: DsTokens.of(context).text)),
       ]),
     );
   }
 
-  Widget _medCard(BuildContext context, AppLocalizations t, ColorScheme scheme,
+  Widget _medCard(BuildContext context, AppLocalizations t, DsTokens scheme,
       Map<String, dynamic> m) {
     final pct = (m['adherence_30d'] as num?)?.toInt() ?? 0;
     final streak = (m['streak'] as num?)?.toInt() ?? 0;
@@ -135,21 +137,20 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
     final weeks = (m['weeks'] as List? ?? []).cast<Map<String, dynamic>>();
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.md),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
+      child: DsCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
                 child: Text(m['name'] ?? '',
-                    style: Theme.of(context).textTheme.titleMedium),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: scheme.text, fontWeight: FontWeight.w700)),
               ),
               if (prn)
                 Chip(label: Text(t.medAsNeededShort), visualDensity: VisualDensity.compact)
               else
                 Text('${fmtInt(context, pct)}%',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700, color: _pctColor(pct), fontFeatures: AFonts.tabular)),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800, color: _pctColor(pct), fontFeatures: AFonts.tabular)),
             ]),
             if (streak > 0) ...[
               const SizedBox(height: Gap.xs),
@@ -157,13 +158,13 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
                 const Icon(Icons.local_fire_department_rounded, size: 16),
                 const SizedBox(width: Gap.xs),
                 Text(t.medStreakValue(fmtInt(context, streak)),
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.muted)),
               ]),
             ],
             if (!prn) ...[
               const SizedBox(height: Gap.md),
               Text(t.medWeeklyHeading,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.muted)),
               const SizedBox(height: Gap.sm),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -174,7 +175,6 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
               ),
             ],
           ]),
-        ),
       ),
     );
   }
@@ -201,7 +201,7 @@ class _MedicineHistoryScreenState extends State<MedicineHistoryScreen> {
         ),
         const SizedBox(height: Gap.xs),
         Text(t.medWeekLabel(fmtInt(context, n)),
-            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import 'probashi_source.dart';
 import 'probashi_widgets.dart';
@@ -55,8 +56,8 @@ class _ProbashiFamilyScreenState extends State<ProbashiFamilyScreen> {
                 if (members.isEmpty)
                   Padding(
                     key: const ValueKey('pbs-family-empty'),
-                    padding: const EdgeInsets.all(24),
-                    child: Text(t.pbsFamilyEmpty, textAlign: TextAlign.center),
+                    padding: const EdgeInsets.all(16),
+                    child: DsEmptyState(icon: Icons.family_restroom_rounded, title: t.pbsFamilyEmpty),
                   ),
                 for (final m in members) _member(t, m),
               ]),
@@ -68,7 +69,7 @@ class _ProbashiFamilyScreenState extends State<ProbashiFamilyScreen> {
         key: key,
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+          Icon(icon, size: 20, color: DsTokens.of(context).primaryInk),
           const SizedBox(width: 8),
           Expanded(child: Text(text)),
         ]),
