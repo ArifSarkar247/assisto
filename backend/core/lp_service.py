@@ -717,14 +717,16 @@ def run_score(user, kind, system, task, data, keys, level, attempt_meta):
     meta = {}
     state, parsed = "used", None
     try:
-        kw = dict(task=task, data=data, tier=plan["tier"], max_tokens=plan["max_tokens"],
-                  extra_system=system, out_meta=meta, pii=True)
         if plan["ai_level"]:
-            text, _ = ai.generate(feature="lp.score", user=None, level=plan["ai_level"], **kw)
+            text, _ = ai.generate(task=task, data=data, tier=plan["tier"], feature="lp.score",
+                                  max_tokens=plan["max_tokens"], user=None, extra_system=system,
+                                  out_meta=meta, pii=True, level=plan["ai_level"])
         else:
             with ai.only_provider("anthropic"):
-                text, _ = ai.generate(feature="lp.score", user=None,
-                                      task_class=plan["task_class"], **kw)
+                text, _ = ai.generate(task=task, data=data, tier=plan["tier"], feature="lp.score",
+                                      max_tokens=plan["max_tokens"], user=None,
+                                      extra_system=system, out_meta=meta, pii=True,
+                                      task_class=plan["task_class"])
         if meta.get("truncated"):
             state = "cut"
         else:
