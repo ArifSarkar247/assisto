@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪২ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪৩ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -330,7 +330,7 @@
 - ⬜ — `screens/city/city_women_screen.dart`
 - ⬜ — `screens/contract_analyzer_screen.dart`
 - ⬜ — `screens/cost_estimator_screen.dart`
-- ⬜ — `screens/credits_screen.dart`
+- ✅ batch 5 (জীবন্ত কার্ড, সতর্কতা = লাল কার্ড, বড় সংখ্যা ঘন) — `screens/credits_screen.dart`
 - ⬜ — `screens/cv_builder_screen.dart`
 - ⬜ — `screens/daily_brief_screen.dart`
 - ⬜ — `screens/daily_challenges_screen.dart`

@@ -181,7 +181,7 @@
   "lib/screens/city/city_women_screen.dart": 2,
   "lib/screens/contract_analyzer_screen.dart": 4,
   "lib/screens/cost_estimator_screen.dart": 2,
-  "lib/screens/credits_screen.dart": 11,
+  "lib/screens/credits_screen.dart": 9,
   "lib/screens/crm/crm_aftersale_screen.dart": 5,
   "lib/screens/crm/crm_automation_screen.dart": 3,
   "lib/screens/crm/crm_bulk_send_screen.dart": 1,

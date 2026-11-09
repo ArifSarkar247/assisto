@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../state.dart';
 import '../feature_flags.dart' show FeatureFlags; // launch
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
@@ -459,6 +460,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
                 style: AType.displayMedium.copyWith(
                     color: Colors.white,
                     fontFeatures: AFonts.tabular,
+                    letterSpacing: -1.2, // designv2: big numbers bold + tight
                     fontWeight: FontWeight.w800)),
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
@@ -817,13 +819,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
     ]);
   }
 
-  Widget _card(ColorScheme scheme, List<Widget> children) => Container(
+  // designv2: alive DS cards
+  Widget _card(ColorScheme scheme, List<Widget> children) => DsCard(
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-          color: scheme.ds.card,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.ds.border),
-        ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
       );
 
@@ -834,43 +832,35 @@ class _CreditsScreenState extends State<CreditsScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(text,
-                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, color: scheme.ds.text)),
           ),
         ]),
       );
 
-  Widget _strip(ColorScheme scheme, IconData icon, String text, {Key? key}) => Container(
+  Widget _strip(ColorScheme scheme, IconData icon, String text, {Key? key}) => DsCard(
         key: key,
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-          color: scheme.ds.card,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.ds.border),
-        ),
         child: Row(children: [
           Icon(icon, color: scheme.ds.muted),
           const SizedBox(width: Gap.md),
-          Expanded(child: Text(text)),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: scheme.ds.text))),
         ]),
       );
 
-  Widget _warn(ColorScheme scheme, String title, String body, {Key? key}) => Container(
+  Widget _warn(ColorScheme scheme, String title, String body, {Key? key}) => DsCard(
         key: key,
+        tone: DsTone.danger,
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-          color: scheme.ds.dangerBg,
-          borderRadius: BorderRadius.circular(Radii.md),
-        ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
-                  style: TextStyle(
+                  style: AType.bodyLarge.copyWith(
                       fontWeight: FontWeight.w700, color: scheme.ds.dangerInk)),
               const SizedBox(height: Gap.xxs),
-              Text(body, style: TextStyle(color: scheme.ds.dangerInk, height: 1.35)),
+              Text(body, style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk, height: 1.35)),
             ]),
           ),
         ]),
