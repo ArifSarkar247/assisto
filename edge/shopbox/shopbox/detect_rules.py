@@ -65,7 +65,7 @@ MOVED_MIN_GAP_S = 120
 # --- stage 2 (cctvdet): recall, crowd, vehicles, camera moved by shape ---
 POST_PRESENCE_SCORE = 0.25   # a post counts as manned on a weaker person box
 CROWD_S_DEFAULT = 60         # crowd / queue: N people for a minute
-VEH_GAP_S = 30.0             # a vehicle unseen longer than this has left
+VEH_GAP_S = 90.0             # a vehicle unseen longer than this has left
 VEH_CHECK_S = 10.0           # the model runs at least this often (parking zones)
 VEH_STILL = 0.06             # a parked vehicle's centre moves less than this
 OVERSTAY_MIN_DEFAULT = 60    # parking overstay after an hour

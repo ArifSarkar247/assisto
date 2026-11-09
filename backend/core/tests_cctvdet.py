@@ -297,7 +297,9 @@ class Stage2IngestE2ETests(E2E._Base):
         self.send("vehicle_in_out", {"zone": "l2", "dir": "out", "cls": "bus",
                                      "plate": {"bn": "১৫-৭৭৮৮", "en": "15-7788",
                                                "number": "15-7788", "partial": True}})
-        self.assertEqual(ShopEvent.objects.filter(type="vehicle_in_out").count(), 2)
+        # the same camera + type inside the group window is ONE alert, counted
+        ev = ShopEvent.objects.get(type="vehicle_in_out")
+        self.assertEqual(ev.count, 2)
 
     def test_wrong_parking_alert_row(self):
         from core.models import ShopEvent

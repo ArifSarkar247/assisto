@@ -164,6 +164,9 @@ void main() {
     }
     await tester.tap(find.text(en.wmFinishZone));
     await tester.pump();
+    // cctvdet: more zone tools (gate, post, parking) -> Save may be below the
+    // lazily built part of the list; scroll to it
+    await tester.scrollUntilVisible(find.text(en.wmSave), 300);
     await tester.ensureVisible(find.text(en.wmSave));
     await tester.tap(find.text(en.wmSave));
     await _settle(tester);

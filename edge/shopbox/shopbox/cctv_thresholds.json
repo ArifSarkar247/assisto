@@ -58,7 +58,7 @@
     "moved_min_gap_s": 120,
     "post_presence_score": 0.25,
     "crowd_s_default": 60,
-    "veh_gap_s": 30.0,
+    "veh_gap_s": 90.0,
     "veh_check_s": 10.0,
     "veh_still": 0.06,
     "overstay_min_default": 60,

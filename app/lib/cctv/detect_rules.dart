@@ -36,7 +36,7 @@ const kMovedMinGapS = 120;
 // stage 2 (cctvdet)
 const kPostPresenceScore = 0.25;
 const kCrowdSDefault = 60;
-const kVehGapS = 30.0;
+const kVehGapS = 90.0;
 const kVehCheckS = 10.0;
 const kVehStill = 0.06;
 const kOverstayMinDefault = 60;
