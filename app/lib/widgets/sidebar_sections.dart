@@ -878,8 +878,8 @@ class SidebarSections {
     ]),
     // 8. Business
     SidebarSection('business', Icons.storefront_rounded,
-        (t) => t.sidebarBusiness, [
-      SidebarItem(Icons.storefront_rounded, (t) => t.business,
+        (t) => t.myBusinessTitle, [
+      SidebarItem(Icons.storefront_rounded, (t) => t.myBusinessTitle,
           area: AcctArea.business,
           feature: 'business',
           (_) => const BusinessScreen(),

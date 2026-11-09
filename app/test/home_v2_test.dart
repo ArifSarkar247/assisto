@@ -377,9 +377,15 @@ void main() {
       // the owner's 11 exactly, nothing skipped
       // (homeorder: Blood donor sits next to SOS in the owner order but its
       // flag is OFF by default -> skipped honestly)
-      expect(HomeV2Shortcuts.defaults(),
-          [...HomeV2Shortcuts.ownerOrder]..remove('blood_panel'));
-      expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
+      // homeshort (9 Nov): City Service has no screen in this build yet ->
+      // skipped like any flag-off tile, the next real feature fills
+      expect(HomeV2Shortcuts.defaults(), [
+        ...HomeV2Shortcuts.ownerOrder
+            .where((r) => r != 'blood_panel' && r != kCityServiceRoute),
+        'reminders',
+      ]);
+      expect(HomeV2Shortcuts.skippedDefaults(),
+          [kCityServiceRoute, 'blood_panel']);
       for (final r in HomeV2Shortcuts.defaults()) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
       }
@@ -392,12 +398,13 @@ void main() {
       expect(d, isNot(contains('vehicle_tracking')));
       expect(d, isNot(contains('lost_stolen')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.sublist(8), ['emergency', 'money', 'reminders']);
+      expect(d.sublist(8), ['money', 'reminders', 'notes']);
       // CCTV switched OFF by the owner -> skipped, the next real one fills
       FeatureFlags.instance.debugOverride = {'home_watchman': false};
       expect(HomeV2Shortcuts.defaults(), isNot(contains('watchman')));
-      expect(HomeV2Shortcuts.skippedDefaults(), ['watchman', 'blood_panel']);
-      expect(HomeV2Shortcuts.defaults().last, 'reminders');
+      expect(HomeV2Shortcuts.skippedDefaults(),
+          [kCityServiceRoute, 'watchman', 'blood_panel']);
+      expect(HomeV2Shortcuts.defaults().last, 'notes');
     });
 
     test('a saved set is kept exactly (no top-up, no My Circle)', () {
@@ -704,7 +711,7 @@ void main() {
       final d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('watchman')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.last, 'reminders'); // the next real feature fills the slot
+      expect(d.last, 'notes'); // the next real feature fills the slot
       expect(HomeV2Shortcuts.skippedDefaults(), contains('watchman'));
       // a user-picked set drops it too
       expect(HomeV2Shortcuts.sanitize(['watchman', 'notes']), ['notes']);
@@ -716,7 +723,7 @@ void main() {
         'features': {'home_watchman': true, 'scam_check': true},
         'preview': <String>[],
       });
-      expect(HomeV2Shortcuts.defaults()[6], 'watchman');
+      expect(HomeV2Shortcuts.defaults()[5], 'watchman');
       expect(HomeQuickButtons.sanitize(['scam', 'money']).first, 'scam');
     });
 

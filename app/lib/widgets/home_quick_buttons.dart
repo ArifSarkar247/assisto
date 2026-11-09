@@ -90,7 +90,7 @@ class HomeQuickButtons {
     QuickShortcut(
         'wrapped', Icons.auto_awesome_outlined, (t) => t.wrappedTitle),
     QuickShortcut(
-        'business', Icons.storefront_outlined, (t) => t.sidebarBusiness),
+        'business', Icons.storefront_outlined, (t) => t.myBusinessTitle),
     QuickShortcut('crm', Icons.handshake_outlined, (t) => t.crmTitle),
     QuickShortcut('shop_box', Icons.videocam_outlined, (t) => t.shopBoxTitle),
     QuickShortcut('inbox', Icons.mark_email_unread_outlined, (t) => t.aiInbox),
