@@ -18,7 +18,6 @@
   "lib/bizai/winback_screen.dart": 2,
   "lib/calls/call_avatar.dart": 1,
   "lib/carecall/carecall_new_screen.dart": 1,
-  "lib/carecall/carecall_screen.dart": 2,
   "lib/carecall/carecall_ui.dart": 1,
   "lib/cctvconnect/cctv_connect_screen.dart": 1,
   "lib/cctvconnect/dvr_health_card.dart": 1,

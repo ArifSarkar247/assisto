@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪০ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪১ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -102,7 +102,7 @@
 - ⬜ — `bizai/shop_chat_screen.dart`
 - ⬜ — `carecall/carecall_new_screen.dart`
 - ⬜ — `carecall/carecall_ring_screen.dart`
-- ⬜ — `carecall/carecall_screen.dart`
+- ✅ batch 5 (DS খালি/ত্রুটি অবস্থা, স্কেলেটন, DS নতুন বোতাম) — `carecall/carecall_screen.dart`
 - ⬜ — `push/incoming_call_screen.dart`
 - ✅ batch 3 (শুরু-কার্ড আগে, সাদা উত্তর-কার্ড) — `screens/ai_chat_screen.dart`
 - ⬜ — `screens/business/khata_chat_screen.dart`
