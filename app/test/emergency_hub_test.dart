@@ -309,7 +309,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(_app(_hub()));
       await tester.pump(const Duration(milliseconds: 300));
-      for (final id in ['blood', 'missing', 'hospital', 'police', 'lost', 'fake']) {
+      // designv2: nearby (hospital / police) tiles sit right under 999 now
+      for (final id in ['hospital', 'police', 'blood', 'missing', 'lost', 'fake']) {
         await tester.scrollUntilVisible(find.byKey(ValueKey('emh-$id')), 200,
             scrollable: find.byType(Scrollable).first);
         expect(find.byKey(ValueKey('emh-$id')), findsOneWidget, reason: id);
