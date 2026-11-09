@@ -341,10 +341,14 @@ void main() {
       expect(find.text(l.trCall999), findsWidgets);
       expect(find.text(l.trCall131), findsWidgets);
       expect(find.text(l.trUnchecked), findsWidgets); // schedule not verified
-      final here = find.text(l.sjaAlarmHere);
-      expect(here, findsNWidgets(3));
-      await t.ensureVisible(here.at(1));
-      await t.tap(here.at(1)); // Dhaka Airport
+      // sjtrain: the station line — tap an upcoming station = alarm there
+      final all = find.byKey(const ValueKey('sjt_line_toggle'));
+      await t.ensureVisible(all);
+      await t.tap(all);
+      await t.pumpAndSettle();
+      final here = find.text('Dhaka Airport');
+      await t.ensureVisible(here);
+      await t.tap(here); // Dhaka Airport
       await t.pumpAndSettle();
       expect(find.byType(DestAlarmScreen), findsOneWidget);
       expect(find.widgetWithText(Card, 'Dhaka Airport Railway Station'), findsOneWidget);
