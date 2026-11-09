@@ -7,7 +7,7 @@ import 'package:assisto/api.dart';
 import 'package:assisto/family_v3/brain/fc_brain_settings_screen.dart';
 import 'package:assisto/family_v3/brain/fc_night_news_card.dart';
 
-Map<String, dynamic> fcbSettingsData(String l, {bool paused = false}) => {
+Map<String, dynamic> fcbSettingsData(String l, {bool paused = false, bool foreground = false}) => {
       'prefs': {
         'prefs': {
           'auto_arrive': true,
@@ -20,7 +20,8 @@ Map<String, dynamic> fcbSettingsData(String l, {bool paused = false}) => {
           },
         },
         'paused_until': paused ? DateTime.now().add(const Duration(hours: 2)).toUtc().toIso8601String() : null,
-        'watch_on': true,
+        'watch_on': !foreground,
+        'watch_mode': foreground ? 'foreground' : 'background',
         'budget': {'limit': 3, 'used': 1, 'left': 2, 'skipped': 0},
         'pause_hours': [1, 2, 8],
         'night_items': ['place', 'arrivals', 'battery', 'carecall', 'tasks'],
@@ -33,7 +34,7 @@ Map<String, dynamic> fcbSettingsData(String l, {bool paused = false}) => {
         'reminder_due': false,
       },
       'counters': {'gps': 6, 'net': 41, 'passive': 3, 'pings': 52},
-      'running': true,
+      'running': !foreground,
     };
 
 Map<String, dynamic> fcbNightData(String l, {bool on = true}) => {
@@ -48,6 +49,9 @@ Map<String, dynamic> fcbNightData(String l, {bool on = true}) => {
 
 final Map<String, Widget Function(String)> fcbrainShots = {
   'fcb_settings': (l) => FcBrainSettingsScreen(api: ApiClient(), familyId: 1, debugData: fcbSettingsData(l)),
+  // owner switch family_auto_arrival OFF (the Play default): app-open mode
+  'fcb_settings_foreground': (l) =>
+      FcBrainSettingsScreen(api: ApiClient(), familyId: 1, debugData: fcbSettingsData(l, foreground: true)),
   'fcb_settings_paused': (l) =>
       FcBrainSettingsScreen(api: ApiClient(), familyId: 1, debugData: fcbSettingsData(l, paused: true)),
   'fcb_night': (l) => Scaffold(

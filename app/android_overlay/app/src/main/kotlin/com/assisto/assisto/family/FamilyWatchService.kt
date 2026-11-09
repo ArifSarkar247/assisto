@@ -40,7 +40,7 @@ import java.util.TimeZone
  * switched "tell my family when I arrive" on, on their OWN phone, and the
  * server handed back a SCOPED token (it can only post this member's pings).
  * Never at launch, no WorkManager, no ContentProvider, no
- * ACCESS_BACKGROUND_LOCATION: a foreground service of type "location"
+ * background-location permission: a foreground service of type "location"
  * started from the open app keeps the while-in-use permission. A permanent,
  * low-importance notification says it is on the whole time (no hidden
  * tracking). Re-started on every app open while on (START_STICKY too).

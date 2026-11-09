@@ -498,7 +498,14 @@ class TickCommandTests(Base):
 
 class WatchTokenTests(Base):
     """The native FamilyWatchService posts with a SCOPED token, never the
-    user's session; off = revoked at once."""
+    user's session; off = revoked at once. The owner switch
+    family_auto_arrival (background watch) is ON in these tests."""
+    def setUp(self):
+        super().setUp()
+        p = mock.patch("core.family_brain.background_watch_on", return_value=True)
+        p.start()
+        self.addCleanup(p.stop)
+
     def test_token_only_after_own_consent_and_revoked_when_off(self):
         from core.models import SavedPlace
         SavedPlace.objects.create(user=self.kid, label="school", name="Ideal School",
@@ -530,3 +537,39 @@ class WatchTokenTests(Base):
         tok = FB.watch_token(self.kid)
         r = APIClient().get("%s/family/brain/visibility" % V, HTTP_X_FC_WATCH=tok)
         self.assertIn(r.status_code, (401, 403))
+
+
+class BackgroundSwitchOffTests(Base):
+    """Owner decision 9 Nov 14:20: the background watch stays OFF (no Play
+    background-location declaration yet). Then: no native token, the app
+    works in 'foreground' mode, an old token is refused."""
+    def test_switch_is_off_by_default(self):
+        from core import feature_flags as FF
+        self.assertFalse(FF.resolve(None)[0]["family_auto_arrival"])
+        self.assertFalse(FB.background_watch_on(self.kid))
+
+    def test_off_means_foreground_mode_and_no_token(self):
+        c = cl(self.kid)
+        c.post("%s/family/brain/prefs" % V, {"auto_arrive": True}, format="json")
+        r = c.post("%s/family/brain/watch" % V, {}, format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["mode"], "foreground")
+        self.assertNotIn("token", r.json())
+        self.assertEqual(c.get("%s/family/brain/prefs" % V).json()["watch_mode"], "foreground")
+        tok = FB.watch_token(self.kid)            # e.g. issued while it was ON
+        r = APIClient().post("%s/family/brain/watch-ping" % V, {"events": []}, format="json",
+                             HTTP_X_FC_WATCH=tok)
+        self.assertEqual(r.status_code, 401)
+
+    def test_foreground_arrival_still_reaches_family(self):
+        FB.set_prefs(self.kid, self.kid, {"auto_arrive": True})
+        r = self.arrive(self.kid, "fg-1", place="home")
+        self.assertEqual(r.json()["accepted"], 1)
+        self.assertEqual(len(self.spy.calls), 2)
+
+    def test_play_manifest_never_gets_background_location(self):
+        yml = (ROOT / ".github/workflows/android.yml").read_text(encoding="utf-8")
+        self.assertIn("ACCESS_BACKGROUND_LOCATION", yml.split("---- playall ----")[1][:2000])
+        kt = (ROOT / "app/android_overlay/app/src/main/kotlin/com/assisto/assisto/family/"
+                     "FamilyWatchService.kt").read_text(encoding="utf-8")
+        self.assertNotIn("ACCESS_BACKGROUND_LOCATION", kt)

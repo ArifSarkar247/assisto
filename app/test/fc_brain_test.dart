@@ -23,11 +23,14 @@ import 'package:assisto/family_v3/brain/fc_brain_settings_screen.dart';
 import 'package:assisto/family_v3/brain/fc_brain_slots.dart';
 import 'package:assisto/family_v3/brain/fc_geofence.dart';
 import 'package:assisto/family_v3/brain/fc_night_news_card.dart';
+import 'package:assisto/family_v3/brain/fc_watch.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fcbrain_shots.dart';
 
@@ -123,7 +126,59 @@ Map<String, dynamic> settingsFixture() => fcbSettingsData('en');
 
 Map<String, dynamic> nightFixture(String lang) => fcbNightData(lang);
 
+class _PingApi extends ApiClient {
+  final pings = <Map<String, dynamic>>[];
+  @override
+  Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (path == '/family/brain/ping') pings.add(body);
+    return {'ok': true};
+  }
+}
+
+Position _pos(double m) {
+  final p = _north(m);
+  return Position(
+      latitude: p.lat,
+      longitude: p.lng,
+      timestamp: DateTime.now(),
+      accuracy: 20,
+      altitude: 0,
+      altitudeAccuracy: 0,
+      heading: 0,
+      headingAccuracy: 0,
+      speed: 0,
+      speedAccuracy: 0);
+}
+
 void main() {
+  group('owner switch OFF: foreground mode (app open) still tells the family', () {
+    test('first check learns, arriving sends one event, staying sends none', () async {
+      SharedPreferences.setMockInitialValues({
+        'fcb_auto': true,
+        'fcb_fences': jsonEncode([
+          {'id': 7, 'kind': 'school', 'label': '', 'lat': _lat0, 'lng': _lng0, 'r': 150}
+        ]),
+      });
+      final api = _PingApi();
+      expect(await FcWatch.foregroundCheck(api, locate: () async => _pos(2000)), isEmpty);
+      final got = await FcWatch.foregroundCheck(api, locate: () async => _pos(60));
+      expect(got.single['kind'], 'arrive');
+      expect(got.single['place_kind'], 'school');
+      expect(api.pings.single['events'], hasLength(1));
+      expect(await FcWatch.foregroundCheck(api, locate: () async => _pos(40)), isEmpty);
+    });
+
+    test('switched off by the member: no location is taken', () async {
+      SharedPreferences.setMockInitialValues({'fcb_auto': false});
+      var asked = false;
+      await FcWatch.foregroundCheck(_PingApi(), locate: () async {
+        asked = true;
+        return _pos(10);
+      });
+      expect(asked, isFalse);
+    });
+  });
+
   group('ask bar parser (shared case table)', () {
     final table = jsonDecode(File('test/fixtures/fc_ask_cases.json').readAsStringSync()) as Map;
     final now = DateTime.parse(table['now'] as String);
