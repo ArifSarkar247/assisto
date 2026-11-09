@@ -243,6 +243,7 @@ urlpatterns = [
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
     path("city/women", cityv.city_women),
+    path("city/field-stops", cityv.city_field_stops),  # citycov
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar

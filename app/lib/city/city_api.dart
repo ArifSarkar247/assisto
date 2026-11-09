@@ -89,4 +89,20 @@ extension CityApi on ApiClient {
   Future<Map<String, dynamic>> cityTripConsentSet(bool on) => postJson('/city/trips/consent', {'on': on});
   Future<Map<String, dynamic>> cityTripUpload(List<List<num>> points, {String mode = 'bus'}) =>
       postJson('/city/trips', {'mode': mode, 'points': points});
+
+  /// citycov: field collection. Waiting "a bus stops here" reports near the
+  /// phone + the buses that pass close by.
+  Future<Map<String, dynamic>> cityFieldStops(double lat, double lon) =>
+      getJson('/city/field-stops?lat=$lat&lon=$lon');
+
+  /// One tap at the phone's own location: "Add a stop here" (no route),
+  /// "This bus stops here" ([routeId]) or "Yes, it stops here" ([id]).
+  /// No names, no free text.
+  Future<Map<String, dynamic>> cityFieldStopAdd(double lat, double lon, {String routeId = '', int? id}) =>
+      postJson('/city/field-stops', {
+        'lat': lat,
+        'lon': lon,
+        if (routeId.isNotEmpty) 'route_id': routeId,
+        if (id != null) 'id': id,
+      });
 }

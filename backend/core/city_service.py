@@ -41,8 +41,10 @@ DHAKA_TZ = ZoneInfo("Asia/Dhaka")
 # cities we plan to cover; a city without an imported dataset gets the
 # honest "no data yet" answer (+ Google Maps link)
 CITIES = {
-    "dhaka": {"bbox": [23.58, 90.18, 24.06, 90.62], "name": "Dhaka", "name_bn": "ঢাকা"},
-    "chattogram": {"bbox": [22.20, 91.70, 22.45, 91.95], "name": "Chattogram", "name_bn": "চট্টগ্রাম"},
+    "dhaka": {"bbox": [23.58, 90.18, 24.06, 90.62], "name": "Dhaka", "name_bn": "ঢাকা",
+              "core": [23.69, 90.33, 23.90, 90.46]},
+    "chattogram": {"bbox": [22.20, 91.70, 22.45, 91.95], "name": "Chattogram", "name_bn": "চট্টগ্রাম",
+                   "core": [22.28, 91.76, 22.42, 91.88]},
 }
 LIVE_KINDS = ("jam", "road_closed", "waterlogging", "bus_not_coming", "bus_crowded", "seats_free")
 LIVE_TTL_MIN = 60
@@ -56,6 +58,16 @@ NIGHT_MIN = 3
 TRIP_CONFIRM = 3            # distinct contributors before a finding is "confirmed"
 TRIP_KEEP_DAYS = 7
 TRIP_TRIM_M = 300
+# citycov: users' stops. A trip-learned stop goes into the network after
+# STOP_PROMOTE_TRIPS separate trips stood there; a field report ("Add a stop
+# here" / "This bus stops here") after FIELD_CONFIRM different people. Both
+# stay "Reported by users" until the owner verifies them.
+STOP_PROMOTE_TRIPS = 3
+FIELD_CONFIRM = 3
+FIELD_PER_DAY = 20
+FIELD_NEAR_M = 40          # closer than this to a known stop = that stop
+AUTO_ATTACH_M = 150        # no bus named: routes passing this close
+USER_CELL = 0.0006         # ~65 m (same grid as trip learning)
 CHECK_EVERY_S = 6 * 3600
 MAX_FILE = 30 * 1024 * 1024
 _UA = "AssistoCityImport/1.0 (+https://lifeassisto.com)"
@@ -200,7 +212,7 @@ def package(city, have=""):
     if hit and hit[0] == tok:
         return tok, hit[1]
     ov = _overrides(ds)
-    doc = {"v": tok, "city": city, "net": raw, "overrides": ov,
+    doc = {"v": tok, "city": city, "net": _materialize(nw, raw), "overrides": ov,
            "rates": F.rates(ov.get("rates")), "complaint": complaint(ov),
            "attribution": ATTRIBUTION, "copyright_url": COPYRIGHT_URL}
     gz = gzip.compress(json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode(), 6)
@@ -912,6 +924,7 @@ def process_trip(trip):
             seq.append([sid, t0, t1])
         else:
             seq[-1][2] = t1
+    _note_neighbours(trip.city, trip.anon, seq)
     for a, b in zip(seq, seq[1:]):
         if a[0].startswith("new:") or b[0].startswith("new:"):
             continue
@@ -986,16 +999,343 @@ def learned_to_overrides(city):
         if per_hour:
             speeds[r["id"]] = {str(h): round(statistics.median(v), 1) for h, v in per_hour.items()}
 
+    u_stops, u_ins = user_stops(city, nw)
+
     def mut(ov):
-        if ov.get("add_routes_learned") == add_routes and ov.get("route_speed") == speeds:
+        if (ov.get("add_routes_learned") == add_routes and ov.get("route_speed") == speeds
+                and ov.get("user_stops") == u_stops and ov.get("user_ins") == u_ins):
             return False
         manual = [r for r in (ov.get("add_routes") or []) if not str(r.get("id", "")).startswith("trip-")]
         ov["add_routes"] = manual + add_routes
         ov["add_routes_learned"] = add_routes
         ov["route_speed"] = speeds
+        # citycov: users' stops live apart from the owner's own additions
+        old_s, old_i = ov.get("user_stops") or [], ov.get("user_ins") or []
+        ov["add_stops"] = [x for x in (ov.get("add_stops") or []) if x not in old_s] + u_stops
+        ov["ins_stops"] = [x for x in (ov.get("ins_stops") or []) if x not in old_i] + u_ins
+        ov["user_stops"] = u_stops
+        ov["user_ins"] = u_ins
         return True
 
     bump(city, mut)
+
+
+# ------------------------------------------------------------------ citycov
+def _ucell(lat, lon):
+    return round(lat / USER_CELL) * USER_CELL, round(lon / USER_CELL) * USER_CELL
+
+
+def user_stop_id(lat, lon):
+    a, b = _ucell(lat, lon)
+    return "u-%.4f-%.4f" % (a, b)
+
+
+def _note_neighbours(city, anon, seq):
+    """A new (dwell) stop between two known stops of this trip: remember the
+    pair (-> which route it belongs to) and the trip (-> 3 separate trips)."""
+    from .models import CityLearned
+    known = [k for k, x in enumerate(seq) if not x[0].startswith("new:")]
+    tid = hashlib.sha1(("%s|%s" % (anon, seq[0][1] if seq else 0)).encode()).hexdigest()[:10]
+    for k, x in enumerate(seq):
+        if not x[0].startswith("new:"):
+            continue
+        prev = [seq[j][0] for j in known if j < k]
+        nxt = [seq[j][0] for j in known if j > k]
+        obj = CityLearned.objects.filter(city=city, kind="stop", key=x[0][:120]).first()
+        if obj is None:
+            continue
+        d = dict(obj.data or {})
+        if prev and nxt:
+            nb = dict(d.get("nb") or {})
+            pair = "%s>%s" % (prev[-1], nxt[0])
+            nb[pair] = int(nb.get(pair, 0)) + 1
+            d["nb"] = dict(sorted(nb.items(), key=lambda kv: -kv[1])[:10])
+        tids = [t for t in (d.get("tids") or []) if t != tid] + [tid]
+        d["tids"] = tids[-20:]
+        obj.data = d
+        obj.save(update_fields=["data"])
+
+
+def _route_ids(nw):
+    return {r["id"]: ri for ri, r in enumerate(nw.routes)}
+
+
+def _sibling(rid, ids):
+    for a, b in (("-a", "-b"), ("-b", "-a")):
+        if rid.endswith(a) and rid[:-2] + b in ids:
+            return rid[:-2] + b
+    return None
+
+
+def _attach(nw, lat, lon, limit=12, max_m=AUTO_ATTACH_M):
+    """Routes (bus / leguna) whose line between two stops passes within
+    `max_m` of the point — used only when the reporters named no bus."""
+    out = []
+    for r in nw.routes:
+        if r["hidden"] or r["mode"] not in ("bus", "leguna") or r.get("women_only"):
+            continue
+        best = None
+        for a, b in zip(r["stops"], r["stops"][1:]):
+            sa, sb = nw.stops[a], nw.stops[b]
+            det = (E.hav(sa["lat"], sa["lon"], lat, lon) + E.hav(lat, lon, sb["lat"], sb["lon"])
+                   - E.hav(sa["lat"], sa["lon"], sb["lat"], sb["lon"]))
+            best = det if best is None else min(best, det)
+        if best is not None and best <= max_m:
+            out.append((best, r["id"]))
+    return [rid for _d, rid in sorted(out)[:limit]]
+
+
+def _near_name(nw, lat, lon):
+    for i, _d in nw.near(lat, lon, 600):
+        s = nw.stops[i]
+        if not str(s["id"]).startswith("u-") and (s["name"] or s["name_bn"]):
+            return s["name"] or s["name_bn"], s["name_bn"] or s["name"]
+    return "", ""
+
+
+def user_stops(city, nw):
+    """Promoted users' stops -> (add_stops, ins_stops) for the overrides.
+    Trip-learned: 3 separate trips stood at the same ~65 m spot (or the owner
+    confirmed it). Field reports: 3 different people (or the owner). Rejected
+    ones never come back. Every such stop is labelled Reported by users."""
+    from .models import CityLearned
+    ids = _route_ids(nw)
+    stops, ins, have = [], [], set()
+
+    def add(sid, lat, lon, src, n):
+        if sid in have or sid in nw.by_id and not sid.startswith("u-"):
+            return
+        have.add(sid)
+        en, bn = _near_name(nw, lat, lon)
+        stops.append({"id": sid, "lat": round(lat, 6), "lon": round(lon, 6), "kind": "bus", "st": "r",
+                      "name": ("Near %s" % en) if en else "Stop reported by users",
+                      "name_bn": ("%s-এর কাছে" % bn) if bn else "যাত্রীদের জানানো স্টপ",
+                      "src": src, "n": n})
+
+    def put(sid, rid):
+        x = {"route": rid, "stop": sid}
+        if rid in ids and x not in ins:
+            ins.append(x)
+
+    for l in (CityLearned.objects.filter(city=city, kind="stop").exclude(status="rejected")
+              .order_by("id")[:5000]):
+        d = l.data or {}
+        n = len(set(d.get("tids") or []))
+        if not (l.status == "confirmed" or n >= STOP_PROMOTE_TRIPS) or d.get("lat") is None:
+            continue
+        sid = user_stop_id(float(d["lat"]), float(d["lon"]))
+        add(sid, float(d["lat"]), float(d["lon"]), "trips", max(n, len(l.anons or [])))
+        rids = []
+        for pair in (d.get("nb") or {}):
+            a, _, b = pair.partition(">")
+            ia, ib = nw.by_id.get(a), nw.by_id.get(b)
+            for ri, r in enumerate(nw.routes):
+                if ia in r["stops"] and ib in r["stops"] and \
+                        0 < r["stops"].index(ib) - r["stops"].index(ia) <= 6:
+                    rids.append(r["id"])
+        for rid in (rids or _attach(nw, float(d["lat"]), float(d["lon"]))):
+            put(sid, rid)
+    for l in (CityLearned.objects.filter(city=city, kind="field", status="confirmed")
+              .order_by("id")[:5000]):
+        d = l.data or {}
+        if d.get("lat") is None:
+            continue
+        lat, lon = float(d["lat"]), float(d["lon"])
+        sid = d.get("stop") or user_stop_id(lat, lon)
+        if sid.startswith("u-"):
+            add(sid, lat, lon, "field", len(l.anons or []))
+        rid = d.get("route") or ""
+        rids = [x for x in (rid, _sibling(rid, ids)) if x] if rid else _attach(nw, lat, lon)
+        for x in rids:
+            put(sid, x)
+    return stops, ins
+
+
+def field_stop(user, lat, lon, route_id="", report_id=None):
+    """One tap in the app: "Add a stop here" (no bus named) or "This bus
+    stops here" (route_id), at the phone's own location; or "Yes, it stops
+    here" on someone else's report nearby (report_id). No names, no free
+    text: only the keyed hash counts different people. -> (obj, error)."""
+    from django.core.cache import cache
+    from .models import CityLearned
+    try:
+        lat, lon = float(lat), float(lon)
+    except (TypeError, ValueError):
+        return None, "invalid"
+    city = city_at(lat, lon)
+    if city is None:
+        return None, "no_city"
+    got = network(city)
+    if got is None:
+        return None, "no_data"
+    nw = got[0]
+    ck = "cityfield:%s:%s" % (user.pk, timezone.localdate().isoformat())
+    if cache.get(ck, 0) >= FIELD_PER_DAY:
+        return None, "limit"
+    anon = anon_key(user)
+    route_id = str(route_id or "")[:80]
+    with transaction.atomic():
+        if report_id:
+            obj = (CityLearned.objects.select_for_update()
+                   .filter(pk=report_id, city=city, kind="field").first())
+            if obj is None:
+                return None, "not_found"
+            d = obj.data or {}
+            if E.hav(lat, lon, float(d.get("lat", 0)), float(d.get("lon", 0))) > 300:
+                return obj, "far"
+        else:
+            ids = _route_ids(nw)
+            if route_id and route_id not in ids:
+                return None, "route"
+            near = nw.near(lat, lon, FIELD_NEAR_M)
+            existing = nw.stops[near[0][0]]["id"] if near else ""
+            if existing:
+                if not route_id:
+                    return None, "known"
+                ri = ids[route_id]
+                if nw.by_id[existing] in nw.routes[ri]["stops"]:
+                    return None, "known"
+                key = "f:%s|%s" % (existing, route_id)
+            else:
+                a, b = _ucell(lat, lon)
+                key = "f:%.4f:%.4f|%s" % (a, b, route_id or "-")
+            obj, _ = CityLearned.objects.select_for_update().get_or_create(
+                city=city, kind="field", key=key[:120],
+                defaults={"data": {"lat": lat, "lon": lon, "route": route_id, "stop": existing,
+                                   "n": 0}})
+        if obj.status == "rejected":
+            return obj, "rejected"
+        an = list(obj.anons or [])
+        if anon in an:
+            return obj, "already"
+        d = dict(obj.data or {})
+        n = int(d.get("n", 0))
+        if not d.get("stop") and not report_id:        # mean of where people stood
+            d["lat"] = round((float(d["lat"]) * n + lat) / (n + 1), 6)
+            d["lon"] = round((float(d["lon"]) * n + lon) / (n + 1), 6)
+        d["n"] = n + 1
+        an.append(anon)
+        obj.data, obj.anons, obj.trips = d, an[:50], obj.trips + 1
+        just = obj.status == "reported" and len(an) >= FIELD_CONFIRM
+        if just:
+            obj.status = "confirmed"
+        obj.updated_at = timezone.now()
+        obj.save()
+    cache.set(ck, cache.get(ck, 0) + 1, 26 * 3600)
+    if just:
+        learned_to_overrides(city)
+    return obj, ""
+
+
+def field_list(user, lat, lon, m=800):
+    """Waiting "a bus stops here" reports near the phone (to confirm)."""
+    from .models import CityLearned
+    city = city_at(lat, lon)
+    if city is None:
+        return []
+    got = network(city)
+    names = {}
+    if got:
+        names = {r["id"]: (r.get("name") or r.get("ref") or "", r.get("name_bn") or "")
+                 for r in got[0].routes}
+    a, b, c, d = _box(lat, lon, m)
+    anon = anon_key(user) if user else ""
+    out = []
+    for l in CityLearned.objects.filter(city=city, kind="field").exclude(status="rejected") \
+            .order_by("-updated_at")[:400]:
+        x = l.data or {}
+        la, lo = float(x.get("lat", 0)), float(x.get("lon", 0))
+        if not (a <= la <= b and c <= lo <= d):
+            continue
+        rid = x.get("route") or ""
+        out.append({"id": l.id, "lat": la, "lon": lo, "route_id": rid,
+                    "route": names.get(rid, ("", ""))[0], "route_bn": names.get(rid, ("", ""))[1],
+                    "people": len(l.anons or []), "need": FIELD_CONFIRM,
+                    "confirmed": l.status == "confirmed", "mine": anon in (l.anons or []),
+                    "meters": int(E.hav(lat, lon, la, lo))})
+    out.sort(key=lambda r: r["meters"])
+    return out[:30]
+
+
+def field_routes(lat, lon, limit=12):
+    """Buses / legunas that pass near the phone (for "This bus stops here"):
+    routes serving a stop within 600 m, then routes whose line passes close.
+    One entry per route (both directions are updated together)."""
+    city = city_at(lat, lon)
+    got = network(city) if city else None
+    if got is None:
+        return []
+    nw = got[0]
+    order = []
+    for i, _d in nw.near(lat, lon, 600):
+        for ri, _p in nw.stop_routes[i]:
+            if nw.routes[ri]["id"] not in order:
+                order.append(nw.routes[ri]["id"])
+    for rid in _attach(nw, lat, lon, limit=limit, max_m=300):
+        if rid not in order:
+            order.append(rid)
+    ids = _route_ids(nw)
+    out, groups = [], set()
+    for rid in order:
+        r = nw.routes[ids[rid]]
+        if r["hidden"] or r["mode"] not in ("bus", "leguna") or r.get("women_only"):
+            continue
+        g = rid[:-2] if rid[-2:] in ("-a", "-b") else rid
+        if g in groups:
+            continue
+        groups.add(g)
+        a, z = nw.stops[r["stops"][0]], nw.stops[r["stops"][-1]]
+        out.append({"id": rid, "mode": r["mode"], "name": r.get("name") or r.get("ref") or "",
+                    "name_bn": r.get("name_bn") or "", "status": STATUS_OF.get(r.get("st"), "reported"),
+                    "from": a["name"], "from_bn": a["name_bn"], "to": z["name"], "to_bn": z["name_bn"]})
+        if len(out) >= limit:
+            break
+    return out
+
+
+STATUS_OF = {"v": "verified", "r": "reported"}
+_COV = {}
+
+
+def live_coverage(city):
+    """Coverage of the network as phones see it now (with users' stops):
+    the headline stop measure + the separate corridor measure, over all
+    ~1 km cells of the city core and over built-up cells only."""
+    got = network(city)
+    if got is None or not CITIES.get(city, {}).get("core"):
+        return None
+    nw, _raw, ds = got
+    tok = token(ds)
+    hit = _COV.get(city)
+    if hit and hit[0] == tok:
+        return hit[1]
+    core = CITIES[city]["core"]
+    rep = ds.report or {}
+    cells = {tuple(x) for x in rep.get("built_cells") or [] if isinstance(x, list) and len(x) == 2}
+    allc = nw.coverage(core)
+    out = {"all": {k: v for k, v in allc.items() if k != "empty"},
+           "built": None, "user_stops": sum(1 for s in nw.stops if str(s["id"]).startswith("u-")),
+           "empty_all": len(allc["empty"])}
+    if cells:
+        b = nw.coverage(core, cells)
+        out["built"] = {k: v for k, v in b.items() if k != "empty"}
+        out["empty_built"] = [list(e[2:]) for e in b["empty"]][:60]
+    with _lock:
+        _COV[city] = (tok, out)
+    return out
+
+
+def _materialize(nw, raw):
+    """citycov: the offline package carries the network AS APPLIED (owner
+    edits, users' stops inserted into their routes, learned routes), so the
+    phone plans offline with the same data as the server."""
+    net = dict(raw)
+    cols = ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code"]
+    net["stops"] = {"cols": cols, "rows": [[s.get(c, "") for c in cols] for s in nw.stops]}
+    keep = ("id", "mode", "name", "name_bn", "ref", "op", "st", "stops", "km", "hw", "spd", "dwell",
+            "src", "from", "to", "women_only", "hours", "note", "counters")
+    net["routes"] = [{k: r[k] for k in keep if k in r} for r in nw.routes]
+    return net
 
 
 def learn_tick(limit=200, now=None):

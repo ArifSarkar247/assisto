@@ -17,7 +17,7 @@ from django.views.decorators.http import require_http_methods
 from . import security as S
 from .base import done, owner_view, page, to_int
 
-TABS = ("fixes", "live", "data", "coverage", "fares", "learned")
+TABS = ("fixes", "live", "data", "coverage", "fares", "learned", "stops")
 _PAGE = 50
 
 
@@ -90,6 +90,11 @@ def city(request):
         ctx["datasets"] = ds
         ctx["meta"] = CityDataset.objects.filter(city="_meta").defer("blob", "dir_blob").first()
         ctx["missing"] = [c for c in CS.CITIES if c not in {d.city for d in ds}]
+        for d in ds:     # citycov: coverage as phones see it now (users' stops included)
+            try:
+                d.live_cov = CS.live_coverage(d.city) if d.enabled and d.version else None
+            except Exception:
+                d.live_cov = None
     elif tab == "coverage":
         rows = _coverage(cty)
         ctx["cells"] = rows[:300]
@@ -106,6 +111,8 @@ def city(request):
                         for k, v in R.items()]
         ctx["complaint"] = CS.complaint(ov)
         ctx["has_ds"] = d is not None
+    elif tab == "stops":
+        ctx.update(_user_stops(cty, request.GET.get("st") or "reported"))
     else:
         st = request.GET.get("st") or "confirmed"
         qs = CityLearned.objects.filter(city=cty)
@@ -121,8 +128,30 @@ def city(request):
         ("live", CityLiveReport.objects.filter(expires_at__gt=now, hidden=False).count()),
         ("data", CityDataset.objects.exclude(city="_meta").exclude(version="").count()),
         ("learned", CityLearned.objects.filter(status="confirmed").count()),
+        ("stops", CityLearned.objects.filter(kind="field", status="reported").count()),
     ]
     return page(request, "owner/city.html", ctx, nav="city")
+
+
+def _user_stops(city, st):
+    """citycov: field reports + trip-learned stops, newest first."""
+    from core import city_service as CS
+    from core.models import CityLearned
+    st = st if st in ("reported", "confirmed", "rejected") else "reported"
+    got = CS.network(city)
+    names = {r["id"]: (r.get("name") or r.get("ref") or r["id"]) for r in got[0].routes} if got else {}
+    rows = []
+    for l in (CityLearned.objects.filter(city=city, kind__in=("field", "stop"), status=st)
+              .order_by("-updated_at")[:200]):
+        d = l.data or {}
+        if d.get("lat") is None:
+            continue
+        rows.append({"id": l.id, "src": l.kind, "lat": round(float(d["lat"]), 6),
+                     "lon": round(float(d["lon"]), 6), "people": len(l.anons or []),
+                     "trips": len(set(d.get("tids") or [])) if l.kind == "stop" else l.trips,
+                     "route": names.get(d.get("route") or "", d.get("route") or ""),
+                     "stop": d.get("stop") or "", "updated": l.updated_at})
+    return {"ustops": rows, "st": st, "need": CS.FIELD_CONFIRM}
 
 
 def _patch(request):
@@ -222,4 +251,13 @@ def city_learned(request, pk):
     l.status = "confirmed" if action == "confirm" else "rejected"
     l.save(update_fields=["status"])
     S.audit(request, request.owner, "city_learned." + action, "city_learned:%s" % pk)
+    if l.kind in ("field", "stop"):     # citycov: users' stops change the network at once
+        from core import city_service as CS
+        try:
+            CS.learned_to_overrides(l.city)
+        except Exception:
+            pass
+        back = request.POST.get("back") or ""
+        if back.startswith("/owner/city"):
+            return done(back, "saved")
     return done("/owner/city?tab=learned", "saved")
