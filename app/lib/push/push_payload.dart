@@ -243,6 +243,7 @@ class PushRouting {
     'communities': 'communities', // channels: community join request
     'market': 'market', // amarket: Assisto Market (flag-gated route)
     'carecall': 'carecall', // carecall: Care Call home (flag-gated route)
+    'business/daily': 'biz_daily', // bizai2: the owner's 9 pm shop summary
   };
 
   /// kind -> fallback route when `route` is missing/unknown.

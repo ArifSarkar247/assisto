@@ -125,6 +125,7 @@ import '../screens/my_dues_screen.dart'; // tagada2
 import '../screens/market/market_screen.dart'; // amarket
 import '../safe_plans/safe_plans_screen.dart'; // safeplans
 import '../carecall/carecall_screen.dart'; // carecall
+import '../bizai/biz_daily_screen.dart' show BizDailyScreen; // bizai2
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -266,6 +267,8 @@ class ChatNav {
     'retention_inbox': (_) => const RetentionInboxScreen(),
     // mktengine: Marketing Engine v1 (flag marketing_engine)
     'marketing_engine': (_) => const MktEngineScreen(),
+    // bizai2: the owner's evening shop summary (push 'business/daily')
+    'biz_daily': (_) => const BizDailyScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
