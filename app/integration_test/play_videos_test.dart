@@ -102,7 +102,12 @@ void main() {
     await f.step('Assisto Voice settings: switch off', () async {
       await f.openRoute('voice_settings', settleSeconds: 2);
       final sw = find.byKey(const Key('va-wake-switch'));
-      await f.waitFor(sw, seconds: 25, what: 'Hey Assisto switch');
+      // the wake card sits below the fold of a lazy list: scroll to it
+      for (var i = 0; i < 8 && sw.evaluate().isEmpty; i++) {
+        await f.pumpFor(const Duration(seconds: 2));
+        await f.scrollTo(sw, maxDrags: 4);
+      }
+      await f.waitFor(sw, seconds: 10, what: 'Hey Assisto switch');
       await f.tester.ensureVisible(sw);
       await f.pumpFor(const Duration(milliseconds: 800));
       _mark('settings');
@@ -163,6 +168,11 @@ void main() {
     await _recorded(f, 'a', () async {
     await f.step('Safe Journey form: made-up place + watcher', () async {
       await f.openRoute('journey');
+      // Safe Journey hub -> "My Trip"
+      final trip = find.byKey(const ValueKey('sjl_btn_trip'));
+      await f.waitFor(trip, seconds: 20, what: 'My Trip button');
+      await f.pumpFor(const Duration(seconds: 1));
+      await f.tap(trip, settleSeconds: 2);
       final dest = find.byKey(const ValueKey('j100_dest'));
       await f.waitFor(dest, seconds: 25, what: 'destination field');
       await f.tester.enterText(dest, 'Demo Park');
