@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪১ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -378,7 +378,7 @@
 - ⬜ — `screens/nearby_screen.dart`
 - ⬜ — `screens/nominee_screen.dart`
 - ⬜ — `screens/notes_todos_screen.dart`
-- ⬜ — `screens/notification_centre_screen.dart`
+- ✅ batch 5 (জীবন্ত কার্ড, না-পড়া = নীলচে + ডট, এক সারির ফিল্টার চিপ) — `screens/notification_centre_screen.dart`
 - ⬜ — `screens/offline_status_screen.dart`
 - ⬜ — `screens/onboarding_screen.dart`
 - ⬜ — `screens/otp/email_verify_screen.dart`
