@@ -1,0 +1,2318 @@
+{
+ "format": "assisto.lp.bundle/1",
+ "bundle_id": "ielts-gt-003",
+ "exam": "ielts",
+ "module": "general",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS General Training Practice Test 3",
+  "bn": "IELTS জেনারেল ট্রেনিং প্র্যাকটিস টেস্ট ৩"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "Original General Training mock 3 (blueprint ielts-gt-003); all names, places and data invented."
+ },
+ "listening": {
+  "minutes": 30,
+  "check_s": 30,
+  "parts": [
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
+    "intro": "You will hear a woman phoning an adult learning centre to ask about a language course.",
+    "speakers": {
+     "A": {
+      "name": "Tom",
+      "gender": "M",
+      "accent": "GB",
+      "role": "centre receptionist"
+     },
+     "B": {
+      "name": "Mrs Haverley",
+      "gender": "F",
+      "accent": "AU",
+      "role": "caller"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       1,
+       6
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, Northgate Adult Learning Centre, Tom speaking. How can I help?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hi there. I'm ringing about your language courses. I saw that the new term starts soon, and I wondered if there were still any places left."
+       },
+       {
+        "spk": "A",
+        "text": "There are on most of them, yes. Shall I take a few details first, and then I can tell you what's available at your level?"
+       },
+       {
+        "spk": "B",
+        "text": "Sure, that's fine."
+       },
+       {
+        "spk": "A",
+        "text": "Can I have your name, please?"
+       },
+       {
+        "spk": "B",
+        "text": "It's Margaret Haverley. That's Mrs."
+       },
+       {
+        "spk": "A",
+        "text": "And is that H-A-V-E-R-L-Y?"
+       },
+       {
+        "spk": "B",
+        "text": "Nearly. There's an E before the Y. So it's H-A-V-E-R-L-E-Y."
+       },
+       {
+        "spk": "A",
+        "text": "Got it, thanks. And which language are you interested in?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, I was originally thinking of Italian, because I went to Rome last spring and absolutely loved it. But actually, I've decided on Portuguese."
+       },
+       {
+        "spk": "A",
+        "text": "Portuguese, OK. Can I ask why you'd like to learn it? It just helps us put people in the right group."
+       },
+       {
+        "spk": "B",
+        "text": "Of course. My daughter married a man from Lisbon, and they've got two little boys now. They speak mostly Portuguese at home, and I'd really love to be able to chat with my grandchildren when I visit. At the moment I just smile and nod."
+       },
+       {
+        "spk": "A",
+        "text": "That's a lovely reason. Have you studied any Portuguese before?"
+       },
+       {
+        "spk": "B",
+        "text": "A little. I've been using one of those language apps on my phone. I'd say about six months... no, actually it's longer than that. I started in March, so it's closer to eight months now."
+       },
+       {
+        "spk": "A",
+        "text": "Eight months, that's useful. So you probably wouldn't want the complete beginners' group."
+       },
+       {
+        "spk": "B",
+        "text": "Probably not. I know quite a lot of words, but I can't really put a sentence together when someone actually speaks to me."
+       },
+       {
+        "spk": "A",
+        "text": "That's very common with apps. And do you have a preference for when you study? All our language classes are on weekday evenings."
+       },
+       {
+        "spk": "B",
+        "text": "Tuesday would have been ideal, but..."
+       },
+       {
+        "spk": "A",
+        "text": "I'm afraid the Tuesday group for Portuguese filled up last week. There's a Thursday group, though, and that still has three places."
+       },
+       {
+        "spk": "B",
+        "text": "Thursday's fine. I play tennis on Mondays and Wednesdays, so it suits me better anyway."
+       },
+       {
+        "spk": "A",
+        "text": "Great, I'll put you down for that. And just for our records, how did you find out about us? Was it through our website?"
+       },
+       {
+        "spk": "B",
+        "text": "I did look at the website afterwards, but the first thing I saw was a leaflet that someone had left in the waiting room at my doctor's surgery."
+       },
+       {
+        "spk": "A",
+        "text": "Oh good, those are new this term, so it's nice to know they're working."
+       }
+      ]
+     },
+     {
+      "questions": [
+       7,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Right, so let me tell you about the options for Portuguese at your level."
+       },
+       {
+        "spk": "B",
+        "text": "Yes, please."
+       },
+       {
+        "spk": "A",
+        "text": "The main one is the standard evening course. That runs for ten weeks, two hours every Thursday, from seven until nine."
+       },
+       {
+        "spk": "B",
+        "text": "And what does that cost?"
+       },
+       {
+        "spk": "A",
+        "text": "The fee is one hundred and eighty-five pounds. You might see two hundred and ten on the website, but that's the price if you also want us to order the course book for you."
+       },
+       {
+        "spk": "B",
+        "text": "I see. So the 185 is just for the lessons."
+       },
+       {
+        "spk": "A",
+        "text": "That's right. And something people really like is included in the fee: a conversation club. It meets once a month on a Saturday morning, and there's always a native speaker there, so you get some real practice."
+       },
+       {
+        "spk": "B",
+        "text": "That sounds like exactly what I need. What about the book, then? Do I have to order it through you?"
+       },
+       {
+        "spk": "A",
+        "text": "No, you don't. Lots of students buy it themselves. It isn't sold in ordinary bookshops, but you can get it from the college shop, on the ground floor next to the café, and it's a bit cheaper there than ordering it through us."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, good. And is there anything I need to bring to the first lesson?"
+       },
+       {
+        "spk": "A",
+        "text": "Just a passport photo. We use it for your student card, which gets you into the building in the evenings and gives you a small discount in the café."
+       },
+       {
+        "spk": "B",
+        "text": "Not a copy of my passport or anything like that?"
+       },
+       {
+        "spk": "A",
+        "text": "No, only the photo. Your enrolment form is enough for identification."
+       },
+       {
+        "spk": "B",
+        "text": "Lovely. Well, I think I'd like to book the Thursday group, then."
+       },
+       {
+        "spk": "A",
+        "text": "Wonderful. I'll email you the enrolment form this afternoon."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       6
+      ],
+      "type": "form_completion",
+      "title": "Northgate Adult Learning Centre - course enquiry",
+      "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Name: Mrs {gap}",
+        "answer": "Haverley",
+        "evidence": "It's Margaret Haverley",
+        "skill": "spelling",
+        "explain_en": "The caller corrects the spelling: there is an E before the Y.",
+        "explain_bn": "কলার বানান ঠিক করে দেন — Y-এর আগে একটা E আছে, তাই Haverley।"
+       },
+       {
+        "n": 2,
+        "prompt": "Language chosen: {gap}",
+        "answer": "Portuguese",
+        "evidence": "But actually, I've decided on Portuguese.",
+        "skill": "detail",
+        "explain_en": "Italian was only her first idea; she has decided on Portuguese.",
+        "explain_bn": "ইতালিয়ান ছিল প্রথম চিন্তা, শেষ সিদ্ধান্ত পর্তুগিজ।"
+       },
+       {
+        "n": 3,
+        "prompt": "Reason: wants to be able to chat with her {gap}",
+        "answer": "grandchildren",
+        "evidence": "I'd really love to be able to chat with my grandchildren when I visit",
+        "skill": "detail",
+        "explain_en": "She wants to talk to her daughter's two boys, her grandchildren.",
+        "explain_bn": "তিনি নাতিদের সঙ্গে কথা বলতে চান — উত্তর grandchildren।"
+       },
+       {
+        "n": 4,
+        "prompt": "Previous study: language app for {gap} months",
+        "answer": "8",
+        "evidence": "so it's closer to eight months now",
+        "skill": "number",
+        "explain_en": "She first says six, then corrects herself to eight months.",
+        "explain_bn": "প্রথমে ছয় বললেও পরে নিজেই ঠিক করে আট মাস বলেন।",
+        "accept": [
+         "eight"
+        ]
+       },
+       {
+        "n": 5,
+        "prompt": "Class day: {gap} evenings",
+        "answer": "Thursday",
+        "evidence": "There's a Thursday group, though, and that still has three places.",
+        "skill": "detail",
+        "explain_en": "Tuesday is full, so she joins the Thursday group.",
+        "explain_bn": "মঙ্গলবারের গ্রুপ ভরা, তাই বৃহস্পতিবার।"
+       },
+       {
+        "n": 6,
+        "prompt": "Found out about the centre from a {gap}",
+        "answer": "leaflet",
+        "evidence": "the first thing I saw was a leaflet",
+        "skill": "detail",
+        "explain_en": "She looked at the website only afterwards; she first saw a leaflet.",
+        "explain_bn": "ওয়েবসাইট পরে দেখেছেন; প্রথমে দেখেছেন একটি লিফলেট।"
+       }
+      ]
+     },
+     {
+      "range": [
+       7,
+       10
+      ],
+      "type": "table_completion",
+      "title": "Portuguese - next level",
+      "instructions": "Complete the table below. Write NO MORE THAN TWO WORDS AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 7,
+        "prompt": "Standard evening course - fee (lessons only): £{gap}",
+        "answer": "185",
+        "evidence": "So the 185 is just for the lessons.",
+        "skill": "number",
+        "explain_en": "£210 includes the course book; the lessons alone cost £185.",
+        "explain_bn": "২১০ পাউন্ডে বইসহ; শুধু ক্লাসের ফি ১৮৫ পাউন্ড।",
+        "accept": [
+         "£185"
+        ]
+       },
+       {
+        "n": 8,
+        "prompt": "Included in the fee: a monthly {gap} with a native speaker",
+        "answer": "conversation club",
+        "evidence": "included in the fee: a conversation club",
+        "skill": "paraphrase",
+        "explain_en": "The fee includes a monthly conversation club on Saturday mornings.",
+        "explain_bn": "ফি-র মধ্যেই মাসে একবার কনভারসেশন ক্লাব আছে।"
+       },
+       {
+        "n": 9,
+        "prompt": "Course book: cheapest from the {gap}",
+        "answer": "college shop",
+        "evidence": "you can get it from the college shop",
+        "skill": "detail",
+        "explain_en": "It is not sold in bookshops and is cheaper in the college shop than ordering it.",
+        "explain_bn": "বইটি সাধারণ দোকানে নেই; কলেজ শপে সস্তায় পাওয়া যায়।"
+       },
+       {
+        "n": 10,
+        "prompt": "First lesson: bring a {gap}",
+        "answer": "passport photo",
+        "evidence": "Just a passport photo.",
+        "skill": "detail",
+        "explain_en": "Only a photo is needed for the student card, not a copy of the passport.",
+        "explain_bn": "শুধু একটি পাসপোর্ট ছবি লাগবে, পাসপোর্টের কপি নয়।",
+        "accept": [
+         "passport photograph"
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
+    "intro": "You will hear a guide welcoming visitors to a science museum.",
+    "speakers": {
+     "A": {
+      "name": "Helen",
+      "gender": "F",
+      "accent": "GB",
+      "role": "museum guide"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       11,
+       14
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, everyone, and welcome to the Riverside Science Museum. I'm Helen, and I'll be looking after your group this morning. To start with, I'll tell you a little about the history of this building, and then I'll explain where everything is."
+       },
+       {
+        "spk": "A",
+        "text": "Now, a lot of visitors assume that this building used to be a railway station, probably because of the big clock tower above the entrance. In fact, it was built in 1902 as a power station, and for nearly sixty years it produced the electricity for the city's trams. The enormous space in the middle, which we call the Turbine Hall, is where the generators once stood."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "There are a couple of changes this year that you may have heard about. You might have read that we're opening an observatory on the roof. That is happening, but not until next spring, I'm afraid. And entry for children under sixteen has always been free here, so nothing has changed there. What is new is that on Fridays we now stay open late, until nine o'clock in the evening, with talks and live demonstrations for adults."
+       },
+       {
+        "spk": "A",
+        "text": "The most popular gallery by far is the Flight Gallery on the first floor. Most people head straight there when we open, so it's packed in the morning, and the school groups usually come back to it just before closing time. Your best chance of having it almost to yourself is straight after lunch, between about one and two. And if you're hoping to eat in the café, it gets very busy at midday, so you might like to have an early lunch first and then go up to the gallery."
+       },
+       {
+        "spk": "A",
+        "text": "A quick word about photography. You're very welcome to take photos and videos anywhere in the museum, including the special exhibitions. The only thing we ask is that you don't use flash, because the light gradually damages some of the older paper documents and photographs on display."
+       }
+      ]
+     },
+     {
+      "questions": [
+       15,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Right, if you look at the ground-floor plan in your leaflet, I'll point out some of the key places. We're at the main entrance now, which you'll find along the bottom edge of the plan, and directly ahead of you is the ticket desk."
+       },
+       {
+        "spk": "A",
+        "text": "If you have large bags or coats, the cloakroom is immediately to your left as you come in, so it's the room right next to the entrance on that side. Don't go into the room in the corner beyond it; that's the staff room."
+       },
+       {
+        "spk": "A",
+        "text": "On the other side of the entrance, there are two rooms. The first one, right beside the entrance, is our first-aid room. The gift shop is the one beyond it, in the corner of the building, so you'll pass it on your way out."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Now, walk past the ticket desk and you'll find yourselves in the Turbine Hall. Go all the way to the far end of the hall, and you'll see a wide doorway in the middle of the north wall. Go through that doorway and you're in the Planetarium. Shows start every half hour."
+       },
+       {
+        "spk": "A",
+        "text": "Families with young children usually love the Water Lab, where you can build dams and control a model river. To get there, take the door on the west side of the Turbine Hall, that's the left-hand side as you walk in, and the Water Lab is the large room directly in front of you. The smaller room above it, next to the toilets, is the education office, which isn't open to the public."
+       },
+       {
+        "spk": "A",
+        "text": "If you need to get up to the Flight Gallery and you'd rather not use the stairs, the lifts are on the east side of the Turbine Hall, exactly opposite the Water Lab."
+       },
+       {
+        "spk": "A",
+        "text": "And finally, the Robot Workshop. It's quite easy to miss. It's the small room tucked between the Planetarium and the café, in the top right-hand part of the building. You enter it from the café side."
+       },
+       {
+        "spk": "A",
+        "text": "OK, that's everything. Enjoy your visit, and do come and find me at the ticket desk if you have any questions."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       11,
+       14
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "The museum building was originally",
+        "answer": "B",
+        "evidence": "it was built in 1902 as a power station",
+        "skill": "detail",
+        "explain_en": "The clock tower makes people think of a railway station, but it was a power station for the trams.",
+        "explain_bn": "ঘড়ির টাওয়ারের জন্য রেলস্টেশন মনে হয়, কিন্তু আসলে ছিল বিদ্যুৎকেন্দ্র।",
+        "options": [
+         {
+          "key": "A",
+          "text": "a railway station."
+         },
+         {
+          "key": "B",
+          "text": "a power station."
+         },
+         {
+          "key": "C",
+          "text": "a tram depot."
+         }
+        ]
+       },
+       {
+        "n": 12,
+        "prompt": "What is new at the museum this year?",
+        "answer": "A",
+        "evidence": "What is new is that on Fridays we now stay open late",
+        "skill": "detail",
+        "explain_en": "The observatory opens next spring and child entry was always free; late Friday opening is new.",
+        "explain_bn": "অবজারভেটরি আগামী বসন্তে, শিশুদের প্রবেশ আগেও ফ্রি ছিল — নতুন হলো শুক্রবার রাত পর্যন্ত খোলা।",
+        "options": [
+         {
+          "key": "A",
+          "text": "late opening one day a week"
+         },
+         {
+          "key": "B",
+          "text": "free entry for children"
+         },
+         {
+          "key": "C",
+          "text": "an observatory on the roof"
+         }
+        ]
+       },
+       {
+        "n": 13,
+        "prompt": "When does Helen recommend visiting the Flight Gallery?",
+        "answer": "B",
+        "evidence": "Your best chance of having it almost to yourself is straight after lunch",
+        "skill": "detail",
+        "explain_en": "Mornings and the time before closing are busy; just after lunch is quiet.",
+        "explain_bn": "সকালে ও বন্ধের আগে ভিড় থাকে; দুপুরের খাবারের পরপরই ফাঁকা।",
+        "options": [
+         {
+          "key": "A",
+          "text": "early in the morning"
+         },
+         {
+          "key": "B",
+          "text": "in the early afternoon"
+         },
+         {
+          "key": "C",
+          "text": "shortly before the museum closes"
+         }
+        ]
+       },
+       {
+        "n": 14,
+        "prompt": "What does Helen say about photography?",
+        "answer": "C",
+        "evidence": "The only thing we ask is that you don't use flash",
+        "skill": "detail",
+        "explain_en": "Photos are allowed everywhere, including special exhibitions, but not with flash.",
+        "explain_bn": "সব জায়গায় ছবি তোলা যায়, শুধু ফ্ল্যাশ ব্যবহার করা যাবে না।",
+        "options": [
+         {
+          "key": "A",
+          "text": "It is not allowed in the special exhibitions."
+         },
+         {
+          "key": "B",
+          "text": "Visitors need to ask a guide first."
+         },
+         {
+          "key": "C",
+          "text": "Flash photography is not permitted."
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "range": [
+       15,
+       20
+      ],
+      "type": "map_labelling",
+      "visual": {
+       "kind": "map",
+       "title": "Riverside Science Museum - ground floor",
+       "width": 100,
+       "height": 70,
+       "compass": true,
+       "areas": [
+        {
+         "name": "Toilets",
+         "x": 4,
+         "y": 4,
+         "w": 20,
+         "h": 14
+        },
+        {
+         "name": "",
+         "x": 26,
+         "y": 4,
+         "w": 10,
+         "h": 16
+        },
+        {
+         "name": "",
+         "x": 38,
+         "y": 4,
+         "w": 22,
+         "h": 16
+        },
+        {
+         "name": "",
+         "x": 62,
+         "y": 4,
+         "w": 10,
+         "h": 16
+        },
+        {
+         "name": "Cafe",
+         "x": 74,
+         "y": 4,
+         "w": 22,
+         "h": 16
+        },
+        {
+         "name": "",
+         "x": 4,
+         "y": 28,
+         "w": 20,
+         "h": 20
+        },
+        {
+         "name": "Turbine Hall",
+         "x": 30,
+         "y": 24,
+         "w": 40,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 76,
+         "y": 28,
+         "w": 20,
+         "h": 20
+        },
+        {
+         "name": "",
+         "x": 4,
+         "y": 56,
+         "w": 18,
+         "h": 12
+        },
+        {
+         "name": "",
+         "x": 24,
+         "y": 56,
+         "w": 14,
+         "h": 12
+        },
+        {
+         "name": "Ticket desk",
+         "x": 42,
+         "y": 50,
+         "w": 16,
+         "h": 8
+        },
+        {
+         "name": "Main entrance",
+         "x": 42,
+         "y": 60,
+         "w": 16,
+         "h": 8
+        },
+        {
+         "name": "",
+         "x": 62,
+         "y": 56,
+         "w": 14,
+         "h": 12
+        },
+        {
+         "name": "",
+         "x": 78,
+         "y": 56,
+         "w": 18,
+         "h": 12
+        }
+       ],
+       "labels": [
+        {
+         "key": "A",
+         "x": 13,
+         "y": 62
+        },
+        {
+         "key": "B",
+         "x": 31,
+         "y": 62
+        },
+        {
+         "key": "C",
+         "x": 69,
+         "y": 62
+        },
+        {
+         "key": "D",
+         "x": 87,
+         "y": 62
+        },
+        {
+         "key": "E",
+         "x": 14,
+         "y": 38
+        },
+        {
+         "key": "F",
+         "x": 31,
+         "y": 12
+        },
+        {
+         "key": "G",
+         "x": 49,
+         "y": 12
+        },
+        {
+         "key": "H",
+         "x": 86,
+         "y": 38
+        },
+        {
+         "key": "I",
+         "x": 67,
+         "y": 12
+        }
+       ]
+      },
+      "instructions": "Label the plan below. Write the correct letter, A-I, next to Questions 15-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "A"
+       },
+       {
+        "key": "B",
+        "text": "B"
+       },
+       {
+        "key": "C",
+        "text": "C"
+       },
+       {
+        "key": "D",
+        "text": "D"
+       },
+       {
+        "key": "E",
+        "text": "E"
+       },
+       {
+        "key": "F",
+        "text": "F"
+       },
+       {
+        "key": "G",
+        "text": "G"
+       },
+       {
+        "key": "H",
+        "text": "H"
+       },
+       {
+        "key": "I",
+        "text": "I"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "Gift shop",
+        "answer": "D",
+        "evidence": "The gift shop is the one beyond it, in the corner of the building",
+        "skill": "map_direction",
+        "explain_en": "Right of the entrance, past the first-aid room, in the corner: D.",
+        "explain_bn": "প্রবেশপথের ডানে, ফার্স্ট-এইড রুম পেরিয়ে কোণার ঘর — D।"
+       },
+       {
+        "n": 16,
+        "prompt": "Cloakroom",
+        "answer": "B",
+        "evidence": "the cloakroom is immediately to your left as you come in",
+        "skill": "map_direction",
+        "explain_en": "The room right next to the entrance on the left is B; A is the staff room.",
+        "explain_bn": "ঢুকেই বাঁ দিকে প্রবেশপথের ঠিক পাশের ঘর B; কোণার A হলো স্টাফ রুম।"
+       },
+       {
+        "n": 17,
+        "prompt": "Planetarium",
+        "answer": "G",
+        "evidence": "a wide doorway in the middle of the north wall",
+        "skill": "map_direction",
+        "explain_en": "Through the middle of the north wall of the Turbine Hall: G.",
+        "explain_bn": "টারবাইন হলের উত্তর দেয়ালের মাঝখানের দরজা দিয়ে — G।"
+       },
+       {
+        "n": 18,
+        "prompt": "Water Lab",
+        "answer": "E",
+        "evidence": "the Water Lab is the large room directly in front of you",
+        "skill": "map_direction",
+        "explain_en": "West (left) door of the Turbine Hall leads to the large room E; F is the education office.",
+        "explain_bn": "টারবাইন হলের পশ্চিম দরজার সামনের বড় ঘর E; ছোট ঘর F অফিস।"
+       },
+       {
+        "n": 19,
+        "prompt": "Lifts",
+        "answer": "H",
+        "evidence": "the lifts are on the east side of the Turbine Hall, exactly opposite the Water Lab",
+        "skill": "map_direction",
+        "explain_en": "East side, opposite the Water Lab: H.",
+        "explain_bn": "পূর্ব দিকে, ওয়াটার ল্যাবের ঠিক উল্টো দিকে — H।"
+       },
+       {
+        "n": 20,
+        "prompt": "Robot Workshop",
+        "answer": "I",
+        "evidence": "the small room tucked between the Planetarium and the café",
+        "skill": "map_direction",
+        "explain_en": "Between the Planetarium and the café at the top right: I.",
+        "explain_bn": "প্ল্যানেটেরিয়াম আর ক্যাফের মাঝের ছোট ঘর — I।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two students, Chloe and Ryan, discussing their presentation on urban trees with their tutor.",
+    "speakers": {
+     "A": {
+      "name": "Dr Morrison",
+      "gender": "F",
+      "accent": "US",
+      "role": "tutor"
+     },
+     "B": {
+      "name": "Chloe",
+      "gender": "F",
+      "accent": "AU",
+      "role": "student"
+     },
+     "C": {
+      "name": "Ryan",
+      "gender": "M",
+      "accent": "GB",
+      "role": "student"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Come in, both of you. So, you wanted to talk through your presentation on urban trees before next week?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes, thanks for seeing us, Dr Morrison. We've got most of it drafted, but there are a few things we're not sure about."
+       },
+       {
+        "spk": "A",
+        "text": "Fine. Remind me first, why did you choose this topic? It wasn't one of the ones on my list."
+       },
+       {
+        "spk": "C",
+        "text": "No, it wasn't. We did look at your list, but none of them really grabbed us. Then last summer the council cut down all the old plane trees on my street because of some roadworks, and within a few weeks the whole road felt different. Hotter, noisier. So that's really where it started."
+       },
+       {
+        "spk": "B",
+        "text": "And we thought there'd be loads of research on it, but actually there's less than we expected, at least for cities like ours."
+       },
+       {
+        "spk": "A",
+        "text": "That's often the way. Now, you ran a survey of residents. How did that go?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, the number of replies was fine. We got about a hundred and forty, which is more than we needed. The trouble was one of the questions. We asked people how they felt about the tree canopy in their street, and it turned out lots of them thought canopy meant the awnings over the shops."
+       },
+       {
+        "spk": "A",
+        "text": "Ah. So some of those answers aren't really usable."
+       },
+       {
+        "spk": "C",
+        "text": "Exactly. We've had to leave that question out of the analysis. Everything else was quick to process, though."
+       },
+       {
+        "spk": "A",
+        "text": "OK. Let's talk about your temperature data. You're using readings from the council's street sensors?"
+       },
+       {
+        "spk": "C",
+        "text": "Yes. We wondered whether we should compare the streets with the park as well."
+       },
+       {
+        "spk": "A",
+        "text": "I wouldn't bother. The park isn't really the point, and the council sensors are perfectly reliable. What you're missing is the night. At the moment you've only got daytime readings, but streets with trees stay cooler after dark too, and that matters a lot for people's health, especially older people trying to sleep in a heatwave. You need to include those."
+       },
+       {
+        "spk": "B",
+        "text": "Right, that's easy enough. The sensors record all day and night."
+       },
+       {
+        "spk": "A",
+        "text": "And was there anything in the survey that surprised you?"
+       },
+       {
+        "spk": "C",
+        "text": "For me, it was the shopkeepers. I expected them to complain about falling leaves and trees hiding their signs, but most of them actually wanted more trees, not fewer."
+       },
+       {
+        "spk": "B",
+        "text": "What I'd expected, and what we found, was that older residents were the most positive. So that wasn't really a surprise."
+       },
+       {
+        "spk": "A",
+        "text": "And how are you going to finish?"
+       },
+       {
+        "spk": "B",
+        "text": "We'd thought about ending with a short video of the street before and after the trees came down."
+       },
+       {
+        "spk": "A",
+        "text": "You've only got fifteen minutes, remember."
+       },
+       {
+        "spk": "C",
+        "text": "That's what I said. And we don't want to just finish with questions; everyone does that. I think we should end with a short list of recommendations for the council."
+       },
+       {
+        "spk": "B",
+        "text": "Yes, OK, I agree. Recommendations it is."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Now, how many benefits of street trees are you going to cover? You can't do everything in fifteen minutes."
+       },
+       {
+        "spk": "B",
+        "text": "We'd listed five. Cooling, flooding, air quality, property values and noise."
+       },
+       {
+        "spk": "A",
+        "text": "Too many. Which do you have the best evidence for?"
+       },
+       {
+        "spk": "C",
+        "text": "Air quality, I thought, but when we read more, the studies really disagree. Some trees actually trap pollution at street level."
+       },
+       {
+        "spk": "B",
+        "text": "And we haven't got any figures on house prices, so property values would just be guesswork."
+       },
+       {
+        "spk": "C",
+        "text": "Noise is real, but the effect is quite small. So I'd say we focus on cooling and on flooding. The council's own reports say tree roots and soil soak up a lot of rainwater, and we've got the temperature data for cooling."
+       },
+       {
+        "spk": "A",
+        "text": "Good. Two strong points are much better than five weak ones. Now, let me give you some quick comments on the draft sections you sent me."
+       },
+       {
+        "spk": "B",
+        "text": "Please."
+       },
+       {
+        "spk": "A",
+        "text": "The introduction is far too long. You spend nearly four minutes on the history of street planting in Victorian times. It's interesting, but cut it to one minute at most."
+       },
+       {
+        "spk": "C",
+        "text": "Fair enough."
+       },
+       {
+        "spk": "A",
+        "text": "The survey results section is clear, but it's all in tables. Since you know which street each answer came from, why not show it as a map of the neighbourhood? People would see the pattern immediately."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, that's a nice idea. We could colour the streets."
+       },
+       {
+        "spk": "A",
+        "text": "Exactly. And then the cost comparison, the cost of planting versus the cost of air conditioning and flood repairs. The argument is strong, but some of your figures are from 2009. Prices have changed a lot since then, so look for something more up to date."
+       },
+       {
+        "spk": "C",
+        "text": "OK. I think the council published new figures last year."
+       },
+       {
+        "spk": "A",
+        "text": "Then use those. And your glossary of tree terms at the start, you could move that to the end as a handout. But overall, this is shaping up well."
+       },
+       {
+        "spk": "B",
+        "text": "Thanks, that's really helpful."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why did the students choose urban trees as their topic?",
+        "answer": "B",
+        "evidence": "the council cut down all the old plane trees on my street",
+        "skill": "detail",
+        "explain_en": "Ryan's street lost its trees; the tutor's list and the research were not the reason.",
+        "explain_bn": "রায়ানের রাস্তার গাছ কেটে ফেলাই আসল কারণ; টিউটরের তালিকা বা গবেষণা নয়।",
+        "options": [
+         {
+          "key": "A",
+          "text": "It was on their tutor's list."
+         },
+         {
+          "key": "B",
+          "text": "One of them had seen trees removed near his home."
+         },
+         {
+          "key": "C",
+          "text": "There was a lot of published research on it."
+         }
+        ]
+       },
+       {
+        "n": 22,
+        "prompt": "What problem did the students have with their survey?",
+        "answer": "B",
+        "evidence": "lots of them thought canopy meant the awnings over the shops",
+        "skill": "detail",
+        "explain_en": "They had enough replies and analysis was quick; one word was misunderstood.",
+        "explain_bn": "উত্তর যথেষ্ট ছিল, কিন্তু একটি শব্দ (canopy) মানুষ ভুল বুঝেছে।",
+        "options": [
+         {
+          "key": "A",
+          "text": "Not enough people replied."
+         },
+         {
+          "key": "B",
+          "text": "One question was misunderstood."
+         },
+         {
+          "key": "C",
+          "text": "The answers took too long to analyse."
+         }
+        ]
+       },
+       {
+        "n": 23,
+        "prompt": "What does the tutor say about the temperature data?",
+        "answer": "C",
+        "evidence": "What you're missing is the night.",
+        "skill": "opinion",
+        "explain_en": "The tutor says the park is not needed and the sensors are reliable; night readings are missing.",
+        "explain_bn": "পার্কের তুলনা লাগবে না, সেন্সর নির্ভরযোগ্য — রাতের রিডিং যোগ করতে হবে।",
+        "options": [
+         {
+          "key": "A",
+          "text": "It should be compared with data from a park."
+         },
+         {
+          "key": "B",
+          "text": "It comes from an unreliable source."
+         },
+         {
+          "key": "C",
+          "text": "It should include readings taken after dark."
+         }
+        ]
+       },
+       {
+        "n": 24,
+        "prompt": "What did Ryan find most surprising in the survey?",
+        "answer": "C",
+        "evidence": "most of them actually wanted more trees, not fewer",
+        "skill": "opinion",
+        "explain_en": "He expected shopkeepers to complain, but they wanted more trees; older residents were Chloe's expected result.",
+        "explain_bn": "দোকানিরা অভিযোগ করবে ভেবেছিলেন, অথচ তারা আরও গাছ চায় — এটাই অবাক করেছে।",
+        "options": [
+         {
+          "key": "A",
+          "text": "Residents cared more about shade than appearance."
+         },
+         {
+          "key": "B",
+          "text": "Older residents were the least positive."
+         },
+         {
+          "key": "C",
+          "text": "Shopkeepers supported having trees."
+         }
+        ]
+       },
+       {
+        "n": 25,
+        "prompt": "The students agree to end their presentation with",
+        "answer": "A",
+        "evidence": "I think we should end with a short list of recommendations for the council.",
+        "skill": "detail",
+        "explain_en": "The video is too long for 15 minutes and questions are too common; they choose recommendations.",
+        "explain_bn": "ভিডিওর সময় নেই, প্রশ্নোত্তর সবাই করে — তাই সুপারিশের তালিকা।",
+        "options": [
+         {
+          "key": "A",
+          "text": "suggestions for the local council."
+         },
+         {
+          "key": "B",
+          "text": "a short video."
+         },
+         {
+          "key": "C",
+          "text": "questions from the audience."
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       27
+      ],
+      "type": "mcq_multi",
+      "choose": 2,
+      "answers": [
+       "A",
+       "B"
+      ],
+      "prompt": "Which TWO benefits of street trees will the students focus on?",
+      "instructions": "Choose TWO letters, A-E.",
+      "options": [
+       {
+        "key": "A",
+        "text": "reducing flooding"
+       },
+       {
+        "key": "B",
+        "text": "keeping streets cooler"
+       },
+       {
+        "key": "C",
+        "text": "improving air quality"
+       },
+       {
+        "key": "D",
+        "text": "raising property values"
+       },
+       {
+        "key": "E",
+        "text": "reducing noise"
+       }
+      ],
+      "evidence": [
+       "So I'd say we focus on cooling and on flooding."
+      ],
+      "questions": [
+       {
+        "n": 26,
+        "prompt": "",
+        "skill": "detail",
+        "explain_en": "Air-quality studies disagree, there are no house-price figures and the noise effect is small; they keep cooling and flooding.",
+        "explain_bn": "বায়ুর মান নিয়ে গবেষণা দ্বিমত, দামের তথ্য নেই, শব্দের প্রভাব কম — তাই ঠান্ডা রাখা ও বন্যা কমানো।"
+       },
+       {
+        "n": 27,
+        "prompt": "",
+        "skill": "detail",
+        "explain_en": "The two chosen benefits are cooling (B) and flooding (A), in any order.",
+        "explain_bn": "বেছে নেওয়া দুটি সুবিধা: ঠান্ডা রাখা (B) ও বন্যা কমানো (A), যেকোনো ক্রমে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       28,
+       30
+      ],
+      "type": "matching",
+      "instructions": "What comment does the tutor make about each section of the presentation? Choose THREE answers from the box and write the correct letter, A-E, next to Questions 28-30.",
+      "options": [
+       {
+        "key": "A",
+        "text": "needs more recent figures"
+       },
+       {
+        "key": "B",
+        "text": "should be much shorter"
+       },
+       {
+        "key": "C",
+        "text": "could be presented as a map"
+       },
+       {
+        "key": "D",
+        "text": "is the strongest part"
+       },
+       {
+        "key": "E",
+        "text": "should be moved to the end"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "the introduction",
+        "answer": "B",
+        "evidence": "cut it to one minute at most",
+        "skill": "opinion",
+        "explain_en": "Four minutes of history must be cut to one minute.",
+        "explain_bn": "ভূমিকা চার মিনিট — এক মিনিটে নামাতে হবে, অর্থাৎ ছোট করতে হবে।"
+       },
+       {
+        "n": 29,
+        "prompt": "the survey results",
+        "answer": "C",
+        "evidence": "why not show it as a map of the neighbourhood",
+        "skill": "opinion",
+        "explain_en": "The results are in tables; the tutor suggests a map.",
+        "explain_bn": "ফলাফল টেবিলে আছে; টিউটর ম্যাপে দেখাতে বলেন।"
+       },
+       {
+        "n": 30,
+        "prompt": "the cost comparison",
+        "answer": "A",
+        "evidence": "look for something more up to date",
+        "skill": "opinion",
+        "explain_en": "Some figures are from 2009, so newer figures are needed. The glossary (not asked) goes to the end.",
+        "explain_bn": "কিছু তথ্য ২০০৯ সালের — নতুন তথ্য লাগবে। শেষে সরানোর কথা ছিল শব্দকোষের, এটির নয়।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
+    "intro": "You will hear part of a lecture about how marine mammals sleep.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "M",
+      "accent": "AU",
+      "role": "biology lecturer"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon. Today I want to look at a question that sounds simple but has puzzled biologists for a long time: how do mammals that live in the sea manage to sleep? For land mammals, sleep is fairly straightforward. You find a safe place, you lie down and you switch off. But whales, dolphins and seals have a problem that we don't. They live in water, but they must come to the surface to breathe. A dolphin that fell deeply asleep in the way that we do would simply drown."
+       },
+       {
+        "spk": "A",
+        "text": "Much of what we first learned came from studies of animals kept in aquariums, where researchers could attach sensors and watch them around the clock. More recently, small tracking devices have allowed us to follow animals in the open ocean, and some of those results have been genuinely surprising."
+       },
+       {
+        "pause": 1.5
+       },
+       {
+        "spk": "A",
+        "text": "Let's start with dolphins. As you may know, dolphins rest only one half of the brain at a time, while the other half stays alert, keeping the animal swimming and surfacing to breathe. You can actually see this from the outside, because a resting dolphin closes one eye, the one on the opposite side of the body to the sleeping half of the brain. Every so often the two halves swap over. One remarkable finding concerns newborn calves. For roughly the first month of life, both the calves and their mothers show almost no sign of sleep at all. One explanation is that constant movement helps the young calf to stay warm, but the more widely accepted view is that it protects calves from predators at the stage when they are most vulnerable."
+       },
+       {
+        "spk": "A",
+        "text": "Fur seals are interesting because they sleep in two quite different ways. On land, they sleep very much like land mammals, with both sides of the brain resting together. In the water, however, they switch to dolphin-style sleep, with one half of the brain awake and one front flipper paddling to keep the body in position. And in the water they lose almost all of their REM sleep, which is the stage associated with dreaming in humans. Now, in people, if you are deprived of REM sleep, you make up for it the following night. Researchers expected the seals to do the same when they returned to land. They didn't, and we still don't fully understand why."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Sperm whales provide one of the strangest pictures. In 2008, a research ship drifted by chance into the middle of a group of sperm whales that were completely motionless, hanging in a vertical position just below the surface, heads up. The whales didn't react at all until the ship actually touched one of them. It seems they take short naps of around ten to fifteen minutes in this upright position, and they may sleep less than any other mammal that has been studied."
+       },
+       {
+        "spk": "A",
+        "text": "Sea otters, which spend most of their lives floating on their backs, face a different risk: drifting away from their feeding grounds or out to sea while they rest. Their solution is to wrap themselves in kelp, the long seaweed that grows in coastal forests, which acts rather like an anchor. Groups of otters resting together are known as rafts, and they sometimes hold paws."
+       },
+       {
+        "spk": "A",
+        "text": "Walruses have yet another approach. They are able to sleep in the water by inflating two air sacs in their throat, which keep the head above the surface while the body hangs below, a little like a fishing float. But they are also capable of going without sleep for remarkably long periods. In one study, a walrus was recorded swimming continuously for more than three days without resting at all, and then making up for it with a long sleep on the ice. So rather than following a fixed daily pattern, walruses seem to sleep whenever conditions allow."
+       },
+       {
+        "spk": "A",
+        "text": "Finally, elephant seals. Until recently, nobody knew when these seals slept during their long months at sea. Tracking devices fitted to the seals in California showed that they actually sleep during deep dives, sometimes hundreds of metres below the surface, where they are safer from sharks and killer whales. Some of them turn upside down and spiral slowly downwards, rather like a falling leaf. Altogether, they seem to sleep only about two hours a day while at sea, compared with ten hours or more when they are resting on the beach."
+       },
+       {
+        "spk": "A",
+        "text": "What all of this tells us is that sleep is far more flexible than we once believed. For conservation, it means that protecting quiet resting places matters just as much as protecting feeding grounds. Next week, we'll look at sleep in birds."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "title": "Sleep in marine mammals",
+      "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 31,
+        "prompt": "Main problem: they must return to the surface to {gap}",
+        "answer": "breathe",
+        "evidence": "they must come to the surface to breathe",
+        "skill": "detail",
+        "explain_en": "Unlike land mammals, they must surface for air.",
+        "explain_bn": "সমুদ্রের স্তন্যপায়ীদের শ্বাস নিতে ওপরে আসতে হয়।"
+       },
+       {
+        "n": 32,
+        "prompt": "Early research: mostly on animals kept in {gap}",
+        "answer": "aquariums",
+        "evidence": "studies of animals kept in aquariums",
+        "skill": "detail",
+        "explain_en": "Early studies used captive animals in aquariums.",
+        "explain_bn": "প্রথম দিকের গবেষণা অ্যাকুরিয়ামে রাখা প্রাণীদের ওপর।",
+        "accept": [
+         "aquaria"
+        ]
+       },
+       {
+        "n": 33,
+        "prompt": "Dolphins: a resting dolphin keeps one {gap} shut",
+        "answer": "eye",
+        "evidence": "a resting dolphin closes one eye",
+        "skill": "paraphrase",
+        "explain_en": "One eye closes, on the side opposite the sleeping half of the brain.",
+        "explain_bn": "বিশ্রামরত ডলফিন একটি চোখ বন্ধ রাখে।"
+       },
+       {
+        "n": 34,
+        "prompt": "Newborn calves and mothers hardly sleep, probably to protect calves from {gap}",
+        "answer": "predators",
+        "evidence": "it protects calves from predators",
+        "skill": "detail",
+        "explain_en": "Keeping warm is one idea, but the accepted view is protection from predators.",
+        "explain_bn": "উষ্ণ থাকা একটি ধারণা, তবে প্রধান মত হলো শিকারি প্রাণী থেকে বাঁচানো।"
+       },
+       {
+        "n": 35,
+        "prompt": "Fur seals in water lose most of their {gap} sleep (linked to dreaming)",
+        "answer": "REM",
+        "evidence": "they lose almost all of their REM sleep",
+        "skill": "detail",
+        "explain_en": "In water they lose almost all REM sleep.",
+        "explain_bn": "পানিতে তারা প্রায় সব REM ঘুম হারায়।"
+       },
+       {
+        "n": 36,
+        "prompt": "Sperm whales: nap in a {gap} position just below the surface",
+        "answer": "vertical",
+        "evidence": "hanging in a vertical position just below the surface",
+        "skill": "detail",
+        "explain_en": "They hang upright, heads up.",
+        "explain_bn": "তারা খাড়া (vertical) অবস্থায় ঝুলে ঘুমায়।"
+       },
+       {
+        "n": 37,
+        "prompt": "Found by chance when a research {gap} drifted among them",
+        "answer": "ship",
+        "evidence": "a research ship drifted by chance into the middle of a group",
+        "skill": "detail",
+        "explain_en": "A research ship drifted into the group in 2008.",
+        "explain_bn": "একটি গবেষণা জাহাজ হঠাৎ তাদের মাঝে চলে যায়।"
+       },
+       {
+        "n": 38,
+        "prompt": "Sea otters: wrap themselves in {gap} so they do not drift away",
+        "answer": "kelp",
+        "evidence": "Their solution is to wrap themselves in kelp",
+        "skill": "detail",
+        "explain_en": "Kelp works like an anchor.",
+        "explain_bn": "কেল্প (সামুদ্রিক শৈবাল) নোঙরের মতো কাজ করে।"
+       },
+       {
+        "n": 39,
+        "prompt": "Elephant seals: sleep during deep {gap}",
+        "answer": "dives",
+        "evidence": "they actually sleep during deep dives",
+        "skill": "detail",
+        "explain_en": "Trackers showed sleep happens during deep dives, safe from sharks.",
+        "explain_bn": "ট্র্যাকার দেখিয়েছে তারা গভীর ডুবের সময় ঘুমায়।"
+       },
+       {
+        "n": 40,
+        "prompt": "At sea they sleep only about {gap} hours a day",
+        "answer": "two",
+        "evidence": "they seem to sleep only about two hours a day while at sea",
+        "skill": "number",
+        "explain_en": "About two hours at sea, compared with ten or more on the beach.",
+        "explain_bn": "সমুদ্রে দিনে মাত্র প্রায় দুই ঘণ্টা; সৈকতে দশ ঘণ্টা বা তার বেশি।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "Island Link Ferries: winter timetable and fares",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "From 1 November to 31 March, Island Link operates a reduced winter service between Porthaven on the mainland and Carrick Island. Crossings take approximately 50 minutes, although journeys may be slower in poor weather."
+       },
+       {
+        "label": "",
+        "text": "On weekdays, the first sailing leaves Porthaven at 7.15 and the last returns from Carrick at 18.30. At weekends there are four sailings in each direction, with the first departure from Porthaven at 9.00. Please note that there is no service on 25 December or 1 January."
+       },
+       {
+        "label": "",
+        "text": "A single adult foot passenger ticket costs £8.50 and a day return costs £14. Children under five travel free, and children aged five to fifteen pay half the adult fare. Island residents who hold a valid Resident Card receive a 40% discount on all tickets, including vehicle fares. Resident Cards are issued by the island council, not by Island Link."
+       },
+       {
+        "label": "",
+        "text": "Tickets can be bought online, through the Island Link app or from the ticket office at either terminal. Tickets bought online or through the app are £1 cheaper than those bought at the terminal. During the winter season, foot passengers do not normally need to book in advance, but all vehicles must be booked at least 24 hours before departure."
+       },
+       {
+        "label": "",
+        "text": "Regular travellers may prefer a ten-journey book, which can be shared between members of the same household and remains valid for twelve months from the date of purchase. Ten-journey books are sold only at the terminal ticket offices and cannot be refunded once any journey has been used. A monthly season ticket for commuters is also available on request."
+       }
+      ]
+     },
+     {
+      "title": "Travelling with Island Link: what you need to know",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "Luggage. Each passenger may bring up to two large items of luggage free of charge. These should be left in the luggage racks on the car deck before you go up to the passenger lounges. Smaller bags may be taken with you. Please do not leave luggage on the stairs or in the corridors, as these must be kept clear in case the ship has to be evacuated."
+       },
+       {
+        "label": "B",
+        "text": "Bicycles. Bicycles are carried free of charge, but space is limited to twelve bicycles per sailing, so arrive early in summer. Electric bicycles are welcome, but their batteries may not be charged on board for safety reasons."
+       },
+       {
+        "label": "C",
+        "text": "Pets. Dogs are welcome on all sailings but must stay on a lead at all times. They are allowed in the outdoor seating areas and in the rear lounge, which is marked with a paw symbol. Assistance dogs may accompany their owners anywhere on the ship. Other pets must travel in a secure carrier."
+       },
+       {
+        "label": "D",
+        "text": "Vehicles. Drivers should arrive at the terminal at least 30 minutes before departure, or their space may be given to another vehicle. Once the ship has left port, passengers may not return to the car deck until they are asked to do so shortly before arrival."
+       },
+       {
+        "label": "E",
+        "text": "Accessibility. Both of our ships have lifts between the car deck and the passenger lounges, and accessible toilets on every passenger deck. If you need help boarding, please tell staff at the ticket office when you check in, and a member of the crew will meet you."
+       },
+       {
+        "label": "F",
+        "text": "Delays and cancellations. In strong winds, sailings may be delayed or cancelled. Up-to-date information is posted on our website and app from 6 a.m. each day. If your sailing is cancelled, you may travel on the next available sailing at no extra cost or request a full refund."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this. (Questions 1-7 refer to 'Island Link Ferries: winter timetable and fares'.)",
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Bad weather can make the crossing take longer than usual.",
+        "answer": "TRUE",
+        "evidence": "journeys may be slower in poor weather",
+        "skill": "paraphrase",
+        "explain_en": "'Slower in poor weather' matches 'take longer'.",
+        "explain_bn": "খারাপ আবহাওয়ায় যাত্রা ধীর হতে পারে — তাই TRUE।"
+       },
+       {
+        "n": 2,
+        "prompt": "The first weekend sailing from Porthaven leaves earlier than the first weekday sailing.",
+        "answer": "FALSE",
+        "evidence": "the first departure from Porthaven at 9.00",
+        "skill": "detail",
+        "explain_en": "Weekends start at 9.00, weekdays at 7.15, so weekends start later.",
+        "explain_bn": "সাপ্তাহিক ছুটিতে ৯টায়, কর্মদিবসে ৭.১৫-এ — তাই কথাটি ভুল (FALSE)।"
+       },
+       {
+        "n": 3,
+        "prompt": "Children aged four do not need to pay for a ticket.",
+        "answer": "TRUE",
+        "evidence": "Children under five travel free",
+        "skill": "paraphrase",
+        "explain_en": "A four-year-old is under five, so travels free.",
+        "explain_bn": "চার বছরের শিশু পাঁচের কম — তাই ফ্রি (TRUE)।"
+       },
+       {
+        "n": 4,
+        "prompt": "Resident Cards can be obtained from the Island Link ticket office.",
+        "answer": "FALSE",
+        "evidence": "Resident Cards are issued by the island council, not by Island Link.",
+        "skill": "detail",
+        "explain_en": "The council issues them, not Island Link.",
+        "explain_bn": "কার্ড দেয় দ্বীপের কাউন্সিল, ফেরি কোম্পানি নয় — FALSE।"
+       },
+       {
+        "n": 5,
+        "prompt": "The resident discount does not apply to vehicle tickets.",
+        "answer": "FALSE",
+        "evidence": "receive a 40% discount on all tickets, including vehicle fares",
+        "skill": "detail",
+        "explain_en": "The discount includes vehicle fares.",
+        "explain_bn": "ছাড় গাড়ির টিকিটেও প্রযোজ্য — তাই FALSE।"
+       },
+       {
+        "n": 6,
+        "prompt": "Tickets bought through the app cost less than tickets bought at a terminal.",
+        "answer": "TRUE",
+        "evidence": "Tickets bought online or through the app are £1 cheaper than those bought at the terminal.",
+        "skill": "detail",
+        "explain_en": "App and online tickets are £1 cheaper.",
+        "explain_bn": "অ্যাপে কিনলে ১ পাউন্ড কম — TRUE।"
+       },
+       {
+        "n": 7,
+        "prompt": "Winter sailings are often fully booked by foot passengers.",
+        "answer": "NOT GIVEN",
+        "evidence": "",
+        "skill": "inference",
+        "explain_en": "The text says foot passengers need not book in winter, but says nothing about sailings being full.",
+        "explain_bn": "শীতে পায়ে হাঁটা যাত্রীদের বুকিং লাগে না বলা আছে, কিন্তু ফেরি ভরা থাকে কি না বলা নেই — NOT GIVEN।",
+        "rationale": "Booking rules are given, but nothing about how full winter sailings are."
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       14
+      ],
+      "type": "matching_information",
+      "instructions": "Look at the six sections, A-F, of 'Travelling with Island Link'. Which section contains the following information? Write the correct letter, A-F. NB You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "Section A"
+       },
+       {
+        "key": "B",
+        "text": "Section B"
+       },
+       {
+        "key": "C",
+        "text": "Section C"
+       },
+       {
+        "key": "D",
+        "text": "Section D"
+       },
+       {
+        "key": "E",
+        "text": "Section E"
+       },
+       {
+        "key": "F",
+        "text": "Section F"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "where to leave heavy bags during the crossing",
+        "answer": "A",
+        "evidence": "These should be left in the luggage racks on the car deck",
+        "skill": "matching_info",
+        "explain_en": "Section A tells you to leave large luggage in racks on the car deck.",
+        "explain_bn": "বড় লাগেজ কোথায় রাখবেন — সেকশন A।"
+       },
+       {
+        "n": 9,
+        "prompt": "a restriction on using electricity on board",
+        "answer": "B",
+        "evidence": "their batteries may not be charged on board for safety reasons",
+        "skill": "paraphrase",
+        "explain_en": "E-bike batteries cannot be charged on board (Section B).",
+        "explain_bn": "ই-বাইকের ব্যাটারি জাহাজে চার্জ করা যাবে না — সেকশন B।"
+       },
+       {
+        "n": 10,
+        "prompt": "how to arrange help getting onto the ship",
+        "answer": "E",
+        "evidence": "If you need help boarding, please tell staff at the ticket office",
+        "skill": "matching_info",
+        "explain_en": "Section E explains how to ask for boarding help.",
+        "explain_bn": "জাহাজে উঠতে সাহায্য চাওয়ার নিয়ম — সেকশন E।"
+       },
+       {
+        "n": 11,
+        "prompt": "what happens if you arrive late with a car",
+        "answer": "D",
+        "evidence": "or their space may be given to another vehicle",
+        "skill": "matching_info",
+        "explain_en": "Late drivers may lose their space (Section D).",
+        "explain_bn": "দেরিতে এলে গাড়ির জায়গা অন্যকে দেওয়া হতে পারে — D।"
+       },
+       {
+        "n": 12,
+        "prompt": "a part of the ship where animals are permitted",
+        "answer": "C",
+        "evidence": "They are allowed in the outdoor seating areas and in the rear lounge",
+        "skill": "matching_info",
+        "explain_en": "Section C names the areas where dogs may go.",
+        "explain_bn": "কুকুর কোথায় যেতে পারবে — সেকশন C।"
+       },
+       {
+        "n": 13,
+        "prompt": "your options if a sailing does not take place",
+        "answer": "F",
+        "evidence": "you may travel on the next available sailing at no extra cost or request a full refund",
+        "skill": "matching_info",
+        "explain_en": "Section F gives the choice of a later sailing or a refund.",
+        "explain_bn": "যাত্রা বাতিল হলে পরের ফেরি বা টাকা ফেরত — F।"
+       },
+       {
+        "n": 14,
+        "prompt": "a time when passengers are not allowed to go to their vehicles",
+        "answer": "D",
+        "evidence": "passengers may not return to the car deck until they are asked to do so",
+        "skill": "paraphrase",
+        "explain_en": "Section D says you cannot go back to the car deck during the crossing.",
+        "explain_bn": "যাত্রার সময় গাড়ির ডেকে ফেরা যাবে না — সেকশন D।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "First aid at Harbourside Logistics: what every employee needs to know",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Accidents can happen in any workplace, and a warehouse with moving vehicles, heavy loads and high shelving carries particular risks. This guide explains what to do if you or a colleague is injured or becomes ill at work. Please read it carefully during your first week, and ask your supervisor if anything is unclear."
+       },
+       {
+        "label": "",
+        "text": "Every shift has at least two trained first aiders on duty. Their names and photographs are displayed on the noticeboard beside the main clocking-in point, and first aiders also wear a green armband while they are working. If someone is hurt, contact a first aider immediately using the radio channel set aside for emergencies, which is channel 4. Do not try to treat anything more than a very minor injury yourself."
+       },
+       {
+        "label": "",
+        "text": "Not every situation involves an obvious injury. If you feel dizzy, faint or unusually unwell while working, stop what you are doing, move away from any machinery or vehicles and tell a colleague. The same applies if you notice that a colleague seems confused or unwell. It is always better to raise a concern that turns out to be unnecessary than to ignore a warning sign."
+       },
+       {
+        "label": "",
+        "text": "First aid kits are kept at the end of every aisle and in each delivery vehicle. They are checked every Monday by the duty first aider, but if you use anything from a kit, write it on the form inside the lid so that it can be replaced. Eye-wash stations are located next to the battery-charging area and in the chemical store, because these are the places where splashes are most likely."
+       },
+       {
+        "label": "",
+        "text": "If an injury is serious, a first aider or supervisor will call an ambulance. While waiting, someone should be sent to the main gate to direct the ambulance crew, as the site can be confusing for visitors. Do not move an injured person unless they are in immediate danger, for example from a vehicle or a fire."
+       },
+       {
+        "label": "",
+        "text": "Every accident, however small, must be recorded in the accident book, which is kept in the site office. This includes near misses, where nobody was hurt but someone could have been. Records help the health and safety team spot patterns. For example, a series of minor hand injuries last year led to new gloves being provided for all packing staff."
+       }
+      ]
+     },
+     {
+      "title": "Becoming a workplace first aider",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Harbourside Logistics is always looking for volunteers to train as first aiders, particularly on the night shift, where numbers are lowest. Any permanent employee who has completed their probation period may apply. You do not need any previous medical experience."
+       },
+       {
+        "label": "",
+        "text": "Training takes place over three days at an approved training centre during normal working hours, and you will be paid as usual while you attend. At the end of the course there is a practical assessment, and successful candidates receive a certificate that is valid for three years. Before it expires, you will need to attend a two-day refresher course to keep your qualification."
+       },
+       {
+        "label": "",
+        "text": "In recognition of the extra responsibility, first aiders receive an additional allowance of £25 per month, paid with their normal salary. They are also given priority when requesting their preferred shifts, as long as at least two first aiders remain on duty at all times."
+       },
+       {
+        "label": "",
+        "text": "First aiders are expected to keep their skills up to date. Every six months, the health and safety team organises a short practice session, usually based on a realistic accident scenario, such as a fall from a ladder. Attendance at these sessions is compulsory for all first aiders. Sessions are held at the start of a shift, so nobody needs to come in on a day off, and they rarely last longer than an hour."
+       },
+       {
+        "label": "",
+        "text": "If you are interested, speak to your line manager or complete the application form on the staff intranet. Places on each course are limited, and applications are considered in the order in which they are received."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       15,
+       21
+      ],
+      "type": "note_completion",
+      "title": "First aid at Harbourside Logistics",
+      "instructions": "Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "First aiders can be recognised by the {gap} they wear",
+        "answer": "green armband",
+        "evidence": "first aiders also wear a green armband while they are working",
+        "skill": "detail",
+        "explain_en": "They wear a green armband.",
+        "explain_bn": "ফার্স্ট এইডাররা সবুজ আর্মব্যান্ড পরেন।",
+        "accept": [
+         "armband"
+        ]
+       },
+       {
+        "n": 16,
+        "prompt": "To call a first aider, use radio channel {gap}",
+        "answer": "4",
+        "evidence": "which is channel 4",
+        "skill": "number",
+        "explain_en": "Channel 4 is reserved for emergencies.",
+        "explain_bn": "জরুরি অবস্থার জন্য রেডিও চ্যানেল ৪।",
+        "accept": [
+         "four"
+        ]
+       },
+       {
+        "n": 17,
+        "prompt": "Kits are checked every {gap}",
+        "answer": "Monday",
+        "evidence": "They are checked every Monday by the duty first aider",
+        "skill": "detail",
+        "explain_en": "Kits are checked weekly on Monday.",
+        "explain_bn": "প্রতি সোমবার কিট পরীক্ষা করা হয়।"
+       },
+       {
+        "n": 18,
+        "prompt": "Used items: write them on the {gap} inside the lid",
+        "answer": "form",
+        "evidence": "write it on the form inside the lid",
+        "skill": "detail",
+        "explain_en": "Used items are recorded on the form in the lid.",
+        "explain_bn": "কিট থেকে কিছু নিলে ঢাকনার ভেতরের ফর্মে লিখতে হয়।"
+       },
+       {
+        "n": 19,
+        "prompt": "Eye-wash stations: next to the battery-charging area and in the {gap}",
+        "answer": "chemical store",
+        "evidence": "next to the battery-charging area and in the chemical store",
+        "skill": "detail",
+        "explain_en": "The second location is the chemical store.",
+        "explain_bn": "দ্বিতীয় স্থানটি কেমিক্যাল স্টোর।"
+       },
+       {
+        "n": 20,
+        "prompt": "Serious injury: send someone to the {gap} to guide the ambulance",
+        "answer": "main gate",
+        "evidence": "someone should be sent to the main gate to direct the ambulance crew",
+        "skill": "paraphrase",
+        "explain_en": "Someone waits at the main gate to direct the crew.",
+        "explain_bn": "অ্যাম্বুলেন্সকে পথ দেখাতে মূল গেটে কাউকে পাঠাতে হয়।"
+       },
+       {
+        "n": 21,
+        "prompt": "Last year, hand injuries led to new {gap} for packing staff",
+        "answer": "gloves",
+        "evidence": "led to new gloves being provided for all packing staff",
+        "skill": "detail",
+        "explain_en": "Records of hand injuries led to new gloves.",
+        "explain_bn": "হাতের আঘাতের রেকর্ড থেকে নতুন গ্লাভস দেওয়া হয়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       22,
+       27
+      ],
+      "type": "sentence_completion",
+      "instructions": "Complete the sentences below. Choose NO MORE THAN THREE WORDS from the text for each answer.",
+      "word_limit": {
+       "max_words": 3,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 22,
+        "prompt": "The company especially needs more first aiders who work on the {gap}.",
+        "answer": "night shift",
+        "evidence": "particularly on the night shift, where numbers are lowest",
+        "skill": "detail",
+        "explain_en": "Numbers are lowest on the night shift.",
+        "explain_bn": "রাতের শিফটে ফার্স্ট এইডার সবচেয়ে কম।"
+       },
+       {
+        "n": 23,
+        "prompt": "Only permanent staff who have finished their {gap} can apply.",
+        "answer": "probation period",
+        "evidence": "Any permanent employee who has completed their probation period may apply.",
+        "skill": "paraphrase",
+        "explain_en": "Completing probation is required.",
+        "explain_bn": "প্রবেশন পিরিয়ড শেষ করলেই আবেদন করা যায়।",
+        "accept": [
+         "probation"
+        ]
+       },
+       {
+        "n": 24,
+        "prompt": "To pass the course, trainees must complete a {gap}.",
+        "answer": "practical assessment",
+        "evidence": "At the end of the course there is a practical assessment",
+        "skill": "detail",
+        "explain_en": "The course ends with a practical assessment.",
+        "explain_bn": "কোর্স শেষে একটি ব্যবহারিক মূল্যায়ন হয়।"
+       },
+       {
+        "n": 25,
+        "prompt": "To remain qualified, first aiders must take a {gap} before the certificate expires.",
+        "answer": "refresher course",
+        "evidence": "you will need to attend a two-day refresher course",
+        "skill": "detail",
+        "explain_en": "A two-day refresher course renews the qualification.",
+        "explain_bn": "সার্টিফিকেট মেয়াদ শেষের আগে রিফ্রেশার কোর্স করতে হয়।",
+        "accept": [
+         "two-day refresher course"
+        ]
+       },
+       {
+        "n": 26,
+        "prompt": "First aiders are given priority when choosing their {gap}.",
+        "answer": "preferred shifts",
+        "evidence": "They are also given priority when requesting their preferred shifts",
+        "skill": "detail",
+        "explain_en": "They get priority for preferred shifts.",
+        "explain_bn": "পছন্দের শিফট বেছে নিতে তারা অগ্রাধিকার পান।",
+        "accept": [
+         "shifts"
+        ]
+       },
+       {
+        "n": 27,
+        "prompt": "Practice sessions are often based on a situation such as a fall from a {gap}.",
+        "answer": "ladder",
+        "evidence": "such as a fall from a ladder",
+        "skill": "detail",
+        "explain_en": "The example scenario is a fall from a ladder.",
+        "explain_bn": "উদাহরণ: মই থেকে পড়ে যাওয়া।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "Lighthouses of the northern coast",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "For more than two centuries, the northern coast has been one of the most dangerous stretches of water in the region. Strong tides, sudden fog and hidden rocks claimed hundreds of ships, many of them small fishing boats and coastal traders carrying coal, timber and grain. The chain of lighthouses that now stands along the coast, from Selsey Point in the west to the Brannock Islands in the east, was built gradually over about a hundred years, and each tower tells part of the story of how engineers learned to tame the sea."
+       },
+       {
+        "label": "B",
+        "text": "The earliest lights were little more than fires burning in iron baskets on top of stone towers. They were expensive to run, as each one consumed several tonnes of coal every winter, and they were unreliable: in heavy rain the fire could go out, and in strong wind the smoke often hid the flame entirely. Sailors complained that it was sometimes impossible to tell a lighthouse fire from a cottage chimney. By the 1820s, coal fires had been replaced along most of the coast by oil lamps, which burned more steadily and could be placed behind glass. Even so, the early oil lamps had their own drawbacks, since the glass quickly became blackened with soot and had to be cleaned several times every night."
+       },
+       {
+        "label": "C",
+        "text": "Building the towers themselves was a formidable challenge. Many of the most dangerous rocks lay several kilometres offshore and were only fully above water for a few hours at low tide. At the Garron Rock, construction workers lived for three summers on a supply ship anchored nearby, rowing out whenever the tide allowed. They could sometimes work for only two hours a day. Each granite block was cut and shaped on the mainland, numbered, and then fitted into place on the rock, so that the stones locked together like the pieces of a puzzle. This technique, borrowed from earlier builders elsewhere, allowed the tower to withstand waves that would have destroyed a conventional structure. Even so, the work was dangerous: storms twice swept away the half-finished walls, and on one occasion the supply ship itself was driven onto the rocks, although all of the crew were rescued."
+       },
+       {
+        "label": "D",
+        "text": "Perhaps the most important advance, however, was not in the towers but in the lights. In the middle of the nineteenth century, a new type of lens made from rings of carefully shaped glass began to be installed along the coast. Instead of letting most of the light escape upwards or downwards, the lens gathered it into a powerful horizontal beam. A lamp that had once been visible from perhaps eight kilometres could now be seen from over thirty. For the first time, ships could pick up one light before losing sight of the previous one, and the coast became, in effect, a continuous line of signals. The lenses were costly and fragile, and each one had to be assembled with great precision by specialists who travelled from tower to tower, but the improvement in safety was so obvious that within twenty years almost every light on the coast had been fitted with one."
+       },
+       {
+        "label": "E",
+        "text": "Distance alone was not enough, though. A sailor needed to know not only that there was a lighthouse ahead but which lighthouse it was. The solution was to give each one its own character. Some showed a steady light, while others flashed in a particular pattern, for example two short flashes every ten seconds, or were fitted with coloured glass so that they appeared red when seen from a dangerous direction. These patterns were printed in tables that every ship's officer carried, and a navigator in fog or darkness could identify his position simply by counting. In fog, when even the strongest beam could not be seen, many towers also sounded a horn in a similar coded pattern, so that ships could recognise a lighthouse by ear as well as by eye."
+       },
+       {
+        "label": "F",
+        "text": "In the twentieth century, electricity, radio signals and eventually satellite navigation reduced the importance of the lights. Between the 1960s and the 1990s, every lighthouse on the coast was converted to automatic operation, controlled and monitored from a centre on the mainland. Some people predicted that the towers would soon be abandoned altogether. In practice, most remain in service, because small boats and yachts, whose electronic equipment can fail, still rely on them, and because a light that can be seen with the naked eye is a reassurance that no screen can quite replace."
+       },
+       {
+        "label": "G",
+        "text": "Today, the lighthouses are also finding new roles. Several of the former keepers' cottages have been turned into holiday accommodation, and the profits help to pay for maintenance. At Selsey Point, the old engine room is now a small museum, while the tower at Corran Head houses instruments that record wind speed and wave height for weather forecasters. Local groups argue that these uses are essential, since a building that people visit and value is far more likely to be protected. Whatever the future holds, the lighthouses remain a striking reminder of a time when human skill and determination were the only defence against a dangerous sea."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       28,
+       33
+      ],
+      "type": "matching_headings",
+      "instructions": "The text has seven paragraphs, A-G. Choose the correct heading for paragraphs B-G from the list of headings below. Write the correct number, i-ix.",
+      "options": [
+       {
+        "key": "i",
+        "text": "A system that let sailors know exactly where they were"
+       },
+       {
+        "key": "ii",
+        "text": "The disadvantages of the first lights"
+       },
+       {
+        "key": "iii",
+        "text": "Why the lighthouses have not disappeared"
+       },
+       {
+        "key": "iv",
+        "text": "A dispute over who should pay for the lights"
+       },
+       {
+        "key": "v",
+        "text": "Working in difficult conditions far from land"
+       },
+       {
+        "key": "vi",
+        "text": "A technical change that greatly increased range"
+       },
+       {
+        "key": "vii",
+        "text": "Finding new purposes for old buildings"
+       },
+       {
+        "key": "viii",
+        "text": "The daily routine of the lighthouse keepers"
+       },
+       {
+        "key": "ix",
+        "text": "How the coast became famous for shipwrecks"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "Paragraph B",
+        "answer": "ii",
+        "evidence": "They were expensive to run",
+        "skill": "main_idea",
+        "explain_en": "Paragraph B lists the problems of coal fires: cost, rain, wind and smoke.",
+        "explain_bn": "অনুচ্ছেদ B-তে কয়লার আগুনের সমস্যাগুলো বলা হয়েছে।"
+       },
+       {
+        "n": 29,
+        "prompt": "Paragraph C",
+        "answer": "v",
+        "evidence": "Many of the most dangerous rocks lay several kilometres offshore",
+        "skill": "main_idea",
+        "explain_en": "Workers lived on a ship and worked a few hours a day at low tide.",
+        "explain_bn": "শ্রমিকরা জাহাজে থেকে ভাটার সময় অল্প কয়েক ঘণ্টা কাজ করত — কঠিন পরিবেশে কাজ।"
+       },
+       {
+        "n": 30,
+        "prompt": "Paragraph D",
+        "answer": "vi",
+        "evidence": "could now be seen from over thirty",
+        "skill": "main_idea",
+        "explain_en": "The new lens increased visibility from about eight to over thirty kilometres.",
+        "explain_bn": "নতুন লেন্সে আলো ৮ কিমি থেকে ৩০ কিমির বেশি দূরে দেখা যায়।"
+       },
+       {
+        "n": 31,
+        "prompt": "Paragraph E",
+        "answer": "i",
+        "evidence": "a navigator in fog or darkness could identify his position simply by counting",
+        "skill": "main_idea",
+        "explain_en": "Each light's pattern told sailors which lighthouse it was, and so where they were.",
+        "explain_bn": "প্রতিটি বাতির নিজস্ব সংকেত থেকে নাবিক নিজের অবস্থান বুঝত।"
+       },
+       {
+        "n": 32,
+        "prompt": "Paragraph F",
+        "answer": "iii",
+        "evidence": "In practice, most remain in service",
+        "skill": "main_idea",
+        "explain_en": "Despite automation and satellites, most lights are still used.",
+        "explain_bn": "স্যাটেলাইট থাকলেও বেশিরভাগ বাতিঘর এখনো চালু — কেন হারিয়ে যায়নি।"
+       },
+       {
+        "n": 33,
+        "prompt": "Paragraph G",
+        "answer": "vii",
+        "evidence": "the lighthouses are also finding new roles",
+        "skill": "main_idea",
+        "explain_en": "Cottages, a museum and weather instruments are new uses.",
+        "explain_bn": "কটেজ, জাদুঘর, আবহাওয়া যন্ত্র — পুরোনো ভবনের নতুন ব্যবহার।"
+       }
+      ]
+     },
+     {
+      "range": [
+       34,
+       37
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 34,
+        "prompt": "According to paragraph B, sailors found the early coal fires",
+        "answer": "D",
+        "evidence": "it was sometimes impossible to tell a lighthouse fire from a cottage chimney",
+        "skill": "detail",
+        "explain_en": "Sailors could confuse a lighthouse fire with a cottage chimney.",
+        "explain_bn": "নাবিকরা বাতিঘরের আগুনকে বাড়ির চিমনির সঙ্গে গুলিয়ে ফেলত।",
+        "options": [
+         {
+          "key": "A",
+          "text": "too bright to look at directly."
+         },
+         {
+          "key": "B",
+          "text": "too far apart to be useful."
+         },
+         {
+          "key": "C",
+          "text": "impossible to see from the sea."
+         },
+         {
+          "key": "D",
+          "text": "easy to mistake for other lights."
+         }
+        ]
+       },
+       {
+        "n": 35,
+        "prompt": "What made the Garron Rock tower strong enough to resist the waves?",
+        "answer": "B",
+        "evidence": "so that the stones locked together like the pieces of a puzzle",
+        "skill": "detail",
+        "explain_en": "The interlocking granite blocks gave the tower its strength.",
+        "explain_bn": "গ্রানাইট পাথরগুলো ধাঁধার টুকরোর মতো একটার সঙ্গে আরেকটা আটকে থাকত।",
+        "options": [
+         {
+          "key": "A",
+          "text": "It was built only in summer."
+         },
+         {
+          "key": "B",
+          "text": "Its stones were shaped to fit into each other."
+         },
+         {
+          "key": "C",
+          "text": "It was made from a new type of stone."
+         },
+         {
+          "key": "D",
+          "text": "It was built on the highest part of the rock."
+         }
+        ]
+       },
+       {
+        "n": 36,
+        "prompt": "The writer says the new lenses changed the coast because",
+        "answer": "A",
+        "evidence": "ships could pick up one light before losing sight of the previous one",
+        "skill": "inference",
+        "explain_en": "Ships could always see at least one light, forming a continuous line of signals.",
+        "explain_bn": "এক বাতি হারানোর আগেই পরের বাতি দেখা যেত — একটানা সংকেতের রেখা।",
+        "options": [
+         {
+          "key": "A",
+          "text": "there were no longer gaps between the lights."
+         },
+         {
+          "key": "B",
+          "text": "fewer lighthouses were needed."
+         },
+         {
+          "key": "C",
+          "text": "lamps could use less fuel."
+         },
+         {
+          "key": "D",
+          "text": "ships no longer needed to sail at night."
+         }
+        ]
+       },
+       {
+        "n": 37,
+        "prompt": "Why, according to paragraph F, are most lighthouses still in use?",
+        "answer": "C",
+        "evidence": "because small boats and yachts, whose electronic equipment can fail, still rely on them",
+        "skill": "inference",
+        "explain_en": "Small boats rely on them when electronics fail.",
+        "explain_bn": "ছোট নৌকা ও ইয়টের ইলেকট্রনিক যন্ত্র বিকল হতে পারে, তাই তারা এখনো বাতিঘরের ওপর নির্ভর করে।",
+        "options": [
+         {
+          "key": "A",
+          "text": "Automatic systems proved too expensive."
+         },
+         {
+          "key": "B",
+          "text": "Satellite navigation is not yet available."
+         },
+         {
+          "key": "C",
+          "text": "Some vessels still depend on them."
+         },
+         {
+          "key": "D",
+          "text": "The public would not accept closing them."
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "range": [
+       38,
+       40
+      ],
+      "type": "summary_completion_box",
+      "title": "New uses for the lighthouses",
+      "instructions": "Complete the summary using the list of words, A-F, below. Write the correct letter, A-F.",
+      "options": [
+       {
+        "key": "A",
+        "text": "visitors"
+       },
+       {
+        "key": "B",
+        "text": "forecasting"
+       },
+       {
+        "key": "C",
+        "text": "repairs"
+       },
+       {
+        "key": "D",
+        "text": "fishing"
+       },
+       {
+        "key": "E",
+        "text": "keepers"
+       },
+       {
+        "key": "F",
+        "text": "shipping"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 38,
+        "prompt": "Money from holiday cottages helps to pay for {gap}.",
+        "answer": "C",
+        "evidence": "the profits help to pay for maintenance",
+        "skill": "paraphrase",
+        "explain_en": "'Maintenance' is paraphrased as 'repairs'.",
+        "explain_bn": "maintenance মানে রক্ষণাবেক্ষণ — অর্থাৎ repairs।"
+       },
+       {
+        "n": 39,
+        "prompt": "One tower collects data used in weather {gap}.",
+        "answer": "B",
+        "evidence": "record wind speed and wave height for weather forecasters",
+        "skill": "paraphrase",
+        "explain_en": "The Corran Head instruments help weather forecasting.",
+        "explain_bn": "করান হেডের যন্ত্র আবহাওয়ার পূর্বাভাসে তথ্য দেয়।"
+       },
+       {
+        "n": 40,
+        "prompt": "Local groups believe buildings are safer if they attract {gap}.",
+        "answer": "A",
+        "evidence": "a building that people visit and value is far more likely to be protected",
+        "skill": "inference",
+        "explain_en": "Buildings that people visit are more likely to be protected.",
+        "explain_bn": "মানুষ যে ভবনে বেড়াতে যায়, সেটি সুরক্ষিত থাকার সম্ভাবনা বেশি — visitors।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "letter",
+    "prompt": "You often shop at a large supermarket near your home. You have an idea that you think would improve the service for customers. Write a letter to the manager of the supermarket. In your letter, say how long you have been a customer, describe a problem that customers experience, and explain your idea and how it would help. Write at least 150 words. You do NOT need to write any addresses. Begin your letter as follows: Dear Sir or Madam,",
+    "letter": {
+     "tone": "formal",
+     "opening": "Dear Sir or Madam,",
+     "bullets": [
+      "say how long you have been a customer",
+      "describe a problem that customers experience",
+      "explain your idea and how it would help"
+     ]
+    },
+    "key_features": [
+     "formal tone throughout and 'Yours faithfully' to match 'Dear Sir or Madam'",
+     "clear statement of how long the writer has shopped there",
+     "a specific problem with concrete detail (time, example)",
+     "a practical suggestion and why it would help customers and the store",
+     "logical paragraphs, polite closing request"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "Dear Sir or Madam,\n\nI have shopped at your Hillcrest Road branch almost every week for the past six years, and I would like to make a suggestion that I believe would benefit many of your regular customers.\n\nAt the moment, the store opens at eight o'clock in the morning and closes at ten at night. However, the busiest period is clearly between five and seven in the evening, when people stop on their way home from work. At that time, there are often only two checkouts open, and the queues regularly stretch back into the aisles. Last Thursday, I waited almost twenty-five minutes simply to pay for a loaf of bread and some milk.\n\nMy suggestion is that you open at least two additional checkouts during this early-evening period, or alternatively install several self-service machines near the entrance for customers buying only a few items. I have noticed that a nearby pharmacy introduced self-service tills last year, and its queues have almost disappeared.\n\nI am sure this change would encourage loyal customers like me to keep shopping with you rather than going elsewhere. I would be grateful if you could let me know whether this is something you might consider.\n\nYours faithfully,\nSamira Chowdhury"
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "discussion",
+    "prompt": "Some people think that museums and art galleries should be free for everyone to visit. Others believe that visitors should pay an entrance fee. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "discusses BOTH views with developed reasons (running costs, user pays, funding exhibitions vs access, repeat visits, public ownership)",
+     "clear personal opinion stated in the introduction and conclusion",
+     "relevant examples supporting each side",
+     "well-organised paragraphs with linking",
+     "at least 250 words"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "Many museums and galleries charge visitors an entrance fee, while others are funded so that anyone can walk in without paying. Both approaches have serious arguments behind them, but I believe that, wherever possible, permanent collections should be free.\n\nThose who support charging point out that museums are expensive to run. Buildings must be heated, lit and secured, and fragile objects need constant expert care. If visitors pay, the cost falls mainly on the people who actually use the service rather than on every taxpayer, including those who never visit. A fee may also encourage people to value the experience more, and the income can fund new exhibitions, educational programmes and research that would otherwise be impossible.\n\nOn the other hand, free entry has powerful social benefits. A museum is one of the few places where a family on a low income can show their children dinosaur skeletons, ancient tools or great paintings, and even a modest charge can make that visit unaffordable for a family of five. Free entry also encourages short, repeated visits: someone who has paid may feel obliged to see everything at once, whereas someone who can walk in freely can return many times to explore one gallery in depth. Moreover, most national collections were built up with public money or donations intended for the whole nation, so it seems fair that the public should be able to see them.\n\nIn my view, the best solution is a mixed model. The permanent collection should be free, funded by government grants, while special temporary exhibitions, which are costly to borrow and insure, can reasonably charge a fee. In this way, museums can raise extra income without excluding anyone from their basic cultural heritage.\n\nIn conclusion, although charging can help museums cover their costs, the educational and social value of open access is greater, so core collections should remain free to all."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Work or studies",
+    "questions": [
+     "Do you work or are you a student?",
+     "What do you enjoy most about your work or studies?",
+     "Is there anything you find difficult about it?",
+     "What would you like to do in the future?"
+    ]
+   },
+   {
+    "topic": "Parks",
+    "questions": [
+     "Is there a park near where you live?",
+     "How often do you go to parks?",
+     "What do people usually do in parks in your country?",
+     "Did you spend much time in parks as a child?"
+    ]
+   },
+   {
+    "topic": "Photographs",
+    "questions": [
+     "Do you like taking photographs?",
+     "What kinds of things do you usually photograph?",
+     "Do you prefer to keep photos on your phone or print them?",
+     "Is there a photo that is special to you?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a building you find beautiful.",
+    "bullets": [
+     "where the building is",
+     "what it looks like",
+     "how often you see or visit it"
+    ],
+    "final": "and explain why you think it is beautiful."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do other people you know also like this building?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Buildings in cities",
+    "questions": [
+     "What makes a building pleasant to live or work in?",
+     "Should modern buildings match the style of older buildings around them?",
+     "Who should decide how new buildings in a city look: architects, the government or local people?"
+    ]
+   },
+   {
+    "theme": "Protecting old buildings",
+    "questions": [
+     "Why do some people think it is important to protect old buildings?",
+     "Is it better to keep an old building as it was, or to give it a new use?",
+     "How might cities change their buildings over the next fifty years?"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,2350 @@
+{
+ "format": "assisto.lp.bundle/1",
+ "bundle_id": "ielts-ac-003",
+ "exam": "ielts",
+ "module": "academic",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS Academic Practice Test 3",
+  "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ৩"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "Batch 2. Listening: choir enquiry, bus route radio report, case study tutorial, desert formation lecture. Reading: time zones, bat echolocation, seed banks."
+ },
+ "listening": {
+  "minutes": 30,
+  "check_s": 30,
+  "parts": [
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
+    "intro": "You will hear a man phoning the secretary of a community choir to ask about joining.",
+    "speakers": {
+     "A": {
+      "name": "Choir secretary",
+      "gender": "F",
+      "accent": "US",
+      "role": "secretary of the choir"
+     },
+     "B": {
+      "name": "Callum",
+      "gender": "M",
+      "accent": "AU",
+      "role": "caller who wants to join"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       1,
+       6
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good evening, Riverside Community Choir, this is Martha speaking."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hi. My name's Callum. I saw a poster in the post office saying you're looking for new singers, and I wondered if I could get a bit more information."
+       },
+       {
+        "spk": "A",
+        "text": "Of course. We're always happy to hear from new people, especially men, to be honest. We're a bit short of tenors and basses at the moment. Have you sung in a choir before?"
+       },
+       {
+        "spk": "B",
+        "text": "Only at school, and that was a long time ago. I sing in the car a lot, though."
+       },
+       {
+        "spk": "A",
+        "text": "Well, that's how most of us started. So, let me tell you how it works. We rehearse once a week. The poster probably says Tuesday, because that's what it was last year, but we've moved to Wednesday now, as the room wasn't available on Tuesdays any more."
+       },
+       {
+        "spk": "B",
+        "text": "Wednesday is actually better for me. What time do you start?"
+       },
+       {
+        "spk": "A",
+        "text": "We used to begin at half past seven, but people said they got home too late, so now we start at 7:15 and finish at a quarter past nine, with a short break in the middle for tea."
+       },
+       {
+        "spk": "B",
+        "text": "That sounds fine. And where are the rehearsals? Is it the church on Mill Street?"
+       },
+       {
+        "spk": "A",
+        "text": "No, we left the church a couple of years ago because it was so cold in winter. We meet at Hartfield Primary School now. Normally we'd use the main hall, but it's being repainted this term, so for the moment we're in the library, which is on the first floor. There's a lift if anyone needs it."
+       },
+       {
+        "spk": "B",
+        "text": "Great. Now, I imagine there's some kind of membership fee?"
+       },
+       {
+        "spk": "A",
+        "text": "There is. The full annual fee is £95, but for anyone joining for the first time it's reduced, so you'd pay £85 for your first year. That covers the hire of the room and the music, which we lend you."
+       },
+       {
+        "spk": "B",
+        "text": "So I don't need to buy any scores?"
+       },
+       {
+        "spk": "A",
+        "text": "No, we provide all the music. You just need to bring a pencil to every rehearsal, because the director is always asking us to mark things on the music, like where to breathe. Please don't use a pen, though, because the scores have to be returned at the end of the season."
+       },
+       {
+        "spk": "B",
+        "text": "Got it. Do I have to do an audition?"
+       },
+       {
+        "spk": "A",
+        "text": "Not really. You'll just have a short chat with our musical director, so he can find out whether you're a tenor or a bass. His name is Daniel Ferrow."
+       },
+       {
+        "spk": "B",
+        "text": "Is that F-A-R-R-O-W?"
+       },
+       {
+        "spk": "A",
+        "text": "Nearly. It's Ferrow, F-E-R-R-O-W. He's lovely, and very patient with beginners."
+       }
+      ]
+     },
+     {
+      "questions": [
+       7,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "B",
+        "text": "And what about performances? How many concerts do you give?"
+       },
+       {
+        "spk": "A",
+        "text": "Three main events a year. The first is our winter concert. For years we held it in the town hall, but this year we've been invited to sing at the museum, in the big gallery with the old steam engines. The sound in there is wonderful."
+       },
+       {
+        "spk": "B",
+        "text": "When is that?"
+       },
+       {
+        "spk": "A",
+        "text": "It was going to be on the seventh of December, but that clashed with the Christmas market, so it'll be on the fourteenth instead. It starts at seven."
+       },
+       {
+        "spk": "B",
+        "text": "And after that?"
+       },
+       {
+        "spk": "A",
+        "text": "In the spring we do something a bit different. We sing outdoors at the harbour, on the first weekend of May, as part of the town's boat festival. It's free for the public, and people bring picnics."
+       },
+       {
+        "spk": "B",
+        "text": "That sounds fun. Is there anything special I need to wear for the concerts?"
+       },
+       {
+        "spk": "A",
+        "text": "For the winter concert everyone wears black, which most people have already. But for the summer concert in July we all wear white shirts, so you might need to buy one. The ladies wear a coloured scarf as well, but you don't need to worry about that."
+       },
+       {
+        "spk": "B",
+        "text": "Fine. I've got a white shirt somewhere. So, can I just turn up next Wednesday?"
+       },
+       {
+        "spk": "A",
+        "text": "Yes, please do. Come about ten minutes early so I can give you your music folder. Can I take a phone number, just in case a rehearsal is cancelled?"
+       },
+       {
+        "spk": "B",
+        "text": "Sure, it's 0412 556 019."
+       },
+       {
+        "spk": "A",
+        "text": "Lovely. We'll see you on Wednesday, Callum."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       6
+      ],
+      "type": "note_completion",
+      "title": "Riverside Community Choir",
+      "instructions": "Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Rehearsals: every {gap}",
+        "answer": "Wednesday",
+        "accept": [
+         "Weds"
+        ],
+        "evidence": "we've moved to Wednesday now",
+        "skill": "detail",
+        "explain_en": "Tuesday was last year's day; rehearsals have moved to Wednesday.",
+        "explain_bn": "মঙ্গলবার ছিল গত বছরের দিন; এখন মহড়া বুধবার — Tuesday ফাঁদ।"
+       },
+       {
+        "n": 2,
+        "prompt": "Start time: {gap} pm",
+        "answer": "7.15",
+        "accept": [
+         "7:15"
+        ],
+        "evidence": "now we start at 7:15",
+        "skill": "number",
+        "explain_en": "Half past seven was the old time; now they start at 7:15.",
+        "explain_bn": "সাড়ে সাতটা ছিল আগের সময়; এখন শুরু ৭:১৫-তে।"
+       },
+       {
+        "n": 3,
+        "prompt": "Place: Hartfield Primary School - the {gap} (first floor)",
+        "answer": "library",
+        "evidence": "for the moment we're in the library",
+        "skill": "detail",
+        "explain_en": "The main hall is being repainted, so they use the library for now.",
+        "explain_bn": "মূল হল রং হচ্ছে, তাই আপাতত লাইব্রেরিতে মহড়া হয়।"
+       },
+       {
+        "n": 4,
+        "prompt": "Fee for first year: £{gap}",
+        "answer": "85",
+        "accept": [
+         "£85"
+        ],
+        "evidence": "you'd pay £85 for your first year",
+        "skill": "number",
+        "explain_en": "£95 is the full fee; new members pay £85 in the first year.",
+        "explain_bn": "পুরো ফি £৯৫, কিন্তু নতুন সদস্য প্রথম বছরে দেয় £৮৫।"
+       },
+       {
+        "n": 5,
+        "prompt": "Bring a {gap} to each rehearsal",
+        "answer": "pencil",
+        "evidence": "You just need to bring a pencil to every rehearsal",
+        "skill": "detail",
+        "explain_en": "A pencil is needed to mark the music; a pen is not allowed.",
+        "explain_bn": "স্বরলিপিতে দাগ দিতে পেনসিল লাগে; কলম চলবে না।"
+       },
+       {
+        "n": 6,
+        "prompt": "Musical director: Daniel {gap}",
+        "answer": "Ferrow",
+        "evidence": "It's Ferrow, F-E-R-R-O-W",
+        "skill": "spelling",
+        "explain_en": "The caller guesses F-A-R-R-O-W, but the correct spelling is F-E-R-R-O-W.",
+        "explain_bn": "কলার ভুল বানান বলেছিল; সঠিক বানান F-E-R-R-O-W।"
+       }
+      ]
+     },
+     {
+      "range": [
+       7,
+       10
+      ],
+      "type": "table_completion",
+      "title": "Concerts",
+      "instructions": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 7,
+        "prompt": "Winter concert - place: the {gap}",
+        "answer": "museum",
+        "evidence": "this year we've been invited to sing at the museum",
+        "skill": "detail",
+        "explain_en": "The town hall was the old venue; this year it is the museum.",
+        "explain_bn": "টাউন হল আগের জায়গা; এ বছর কনসার্ট জাদুঘরে।"
+       },
+       {
+        "n": 8,
+        "prompt": "Winter concert - date: December {gap}",
+        "answer": "14",
+        "accept": [
+         "14th",
+         "fourteenth"
+        ],
+        "evidence": "so it'll be on the fourteenth instead",
+        "skill": "number",
+        "explain_en": "The seventh clashed with the market, so the date is the fourteenth.",
+        "explain_bn": "৭ তারিখে বাজারের সঙ্গে সংঘর্ষ, তাই তারিখ ১৪ ডিসেম্বর।"
+       },
+       {
+        "n": 9,
+        "prompt": "Spring event - outdoors at the {gap}",
+        "answer": "harbour",
+        "accept": [
+         "harbor"
+        ],
+        "evidence": "We sing outdoors at the harbour",
+        "skill": "detail",
+        "explain_en": "The spring performance is outdoors at the harbour, during the boat festival.",
+        "explain_bn": "বসন্তের অনুষ্ঠান বন্দরে (harbour), নৌকা উৎসবের সময়।"
+       },
+       {
+        "n": 10,
+        "prompt": "Summer concert - men wear {gap} shirts",
+        "answer": "white",
+        "evidence": "for the summer concert in July we all wear white shirts",
+        "skill": "detail",
+        "explain_en": "Black is for winter; in summer everyone wears white shirts.",
+        "explain_bn": "কালো পোশাক শীতের কনসার্টে; গ্রীষ্মে সবাই সাদা শার্ট পরে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
+    "intro": "You will hear a local radio reporter talking about a new bus route in the town of Ashby.",
+    "speakers": {
+     "A": {
+      "name": "Reporter",
+      "gender": "M",
+      "accent": "US",
+      "role": "radio reporter"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       11,
+       15
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, and welcome to Ashby Today. Now, if you live on the east side of town, you'll know that getting to the hospital or the college by bus has meant changing at the central station, which can easily add half an hour to your journey. Well, from next month that changes, because the council is launching a brand-new service, the Number 9, which will link the east side directly with the west of town."
+       },
+       {
+        "spk": "A",
+        "text": "The idea for the route didn't actually come from the council or the bus company. It came from a survey organised by students at the college, who asked more than two thousand residents about their travel. What stood out was not that people wanted cheaper fares, or more buses at night, but that they wanted to cross town without changing. The council took the findings seriously, and here we are."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "Buses will run every twelve minutes during the day. Some people had hoped for every ten minutes, but the company says it simply doesn't have enough drivers yet. After eight in the evening the service drops to every twenty minutes, and the last bus leaves at about half past eleven."
+       },
+       {
+        "spk": "A",
+        "text": "All the buses on the route will be electric. Now, you might expect the main benefit of that to be cleaner air, and of course that's part of it, but what the drivers I spoke to were most excited about was how quiet the vehicles are. As one of them put it, for the first time in twenty years, he can actually hear what passengers are saying to him."
+       },
+       {
+        "spk": "A",
+        "text": "As for fares, there's no special price for the Number 9. Ordinary tickets and passes will all be accepted. However, for the first two weeks, anyone who travels on the new route can enter a free prize draw for a year's travel pass. You'll find the entry form on the back of the timetable, not online as some people had expected, because the company wants to encourage people to pick up a copy."
+       },
+       {
+        "spk": "A",
+        "text": "And one more thing: the route has been designed with wheelchair users in mind. Every stop on the line has a raised kerb, so the ramp isn't needed, and the buses have space for two wheelchairs rather than the usual one."
+       }
+      ]
+     },
+     {
+      "questions": [
+       16,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "So, let me take you through some of the stops on the new route, starting in the east."
+       },
+       {
+        "spk": "A",
+        "text": "The first stop is Kingsmead Park. Many people have asked whether there will be parking there for people who want to leave their car and take the bus into town, and I'm pleased to say there will. A free car park with eighty spaces is being built next to the stop."
+       },
+       {
+        "spk": "A",
+        "text": "Next is Ashby Market. The market is very busy on Saturdays, and to avoid delays the bus won't go into the square itself. Instead, the stop has been moved round the corner to Bridge Street, so please note that change."
+       },
+       {
+        "spk": "A",
+        "text": "Then we come to the Leisure Centre. People going for a swim or to the gym will be glad to hear that this stop will have a proper shelter with heating, which is the first of its kind in Ashby, and it's being tested here before the council decides whether to put them elsewhere."
+       },
+       {
+        "spk": "A",
+        "text": "After that there's the College. Students told the survey team that the existing timetable didn't match their lecture times, so the morning buses on the new route have been timed to arrive ten minutes before classes start. That's something the college has been asking for for years."
+       },
+       {
+        "spk": "A",
+        "text": "And finally, at the western end, there's the Hospital. Here the stop is right at the main entrance, and there's a screen inside the reception area that shows exactly when the next bus is coming, so patients don't have to wait outside in bad weather. A similar screen was planned for the market stop, but it won't be ready until next year."
+       },
+       {
+        "spk": "A",
+        "text": "The full timetable is available from the library and the central station from Friday. Now, let's move on to the weather."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       11,
+       11
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "What was the main problem with bus travel from the east side before?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Fares to the west of town were too high."
+         },
+         {
+          "key": "B",
+          "text": "Passengers had to change buses in the centre."
+         },
+         {
+          "key": "C",
+          "text": "There were no buses to the hospital in the evening."
+         }
+        ],
+        "answer": "B",
+        "evidence": "getting to the hospital or the college by bus has meant changing at the central station",
+        "skill": "detail",
+        "explain_en": "Passengers had to change at the central station, which added time.",
+        "explain_bn": "আগে কেন্দ্রীয় স্টেশনে বাস বদলাতে হতো — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       12,
+       12
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 12,
+        "prompt": "The idea for the new route came from",
+        "options": [
+         {
+          "key": "A",
+          "text": "research carried out by students."
+         },
+         {
+          "key": "B",
+          "text": "a proposal by the bus company."
+         },
+         {
+          "key": "C",
+          "text": "complaints made to the council."
+         }
+        ],
+        "answer": "A",
+        "evidence": "It came from a survey organised by students at the college",
+        "skill": "paraphrase",
+        "explain_en": "A survey by college students produced the idea; the council and company did not.",
+        "explain_bn": "কলেজের ছাত্রদের জরিপ থেকে ধারণা এসেছে, কাউন্সিল বা কোম্পানি থেকে নয়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       13,
+       13
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 13,
+        "prompt": "Why will buses not run every ten minutes?",
+        "options": [
+         {
+          "key": "A",
+          "text": "There is too much traffic in the daytime."
+         },
+         {
+          "key": "B",
+          "text": "There are not enough people to drive them."
+         },
+         {
+          "key": "C",
+          "text": "Not enough passengers are expected."
+         }
+        ],
+        "answer": "B",
+        "evidence": "it simply doesn't have enough drivers yet",
+        "skill": "paraphrase",
+        "explain_en": "The company lacks drivers, so buses run every twelve minutes.",
+        "explain_bn": "ড্রাইভার কম, তাই ১০ মিনিট পরপর নয় — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       14,
+       14
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 14,
+        "prompt": "What do drivers like most about the electric buses?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They improve the air in the town."
+         },
+         {
+          "key": "B",
+          "text": "They are easier to drive."
+         },
+         {
+          "key": "C",
+          "text": "They make very little noise."
+         }
+        ],
+        "answer": "C",
+        "evidence": "what the drivers I spoke to were most excited about was how quiet the vehicles are",
+        "skill": "opinion",
+        "explain_en": "Cleaner air is mentioned, but drivers are most excited about the quietness.",
+        "explain_bn": "পরিষ্কার বাতাসের কথা আছে, তবে ড্রাইভাররা সবচেয়ে খুশি বাস শান্ত (নিঃশব্দ) বলে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       15,
+       15
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "How can passengers enter the prize draw?",
+        "options": [
+         {
+          "key": "A",
+          "text": "by completing a form on the timetable"
+         },
+         {
+          "key": "B",
+          "text": "by registering on the bus company website"
+         },
+         {
+          "key": "C",
+          "text": "by buying a special ticket for the route"
+         }
+        ],
+        "answer": "A",
+        "evidence": "You'll find the entry form on the back of the timetable, not online",
+        "skill": "detail",
+        "explain_en": "The form is on the back of the timetable, not online.",
+        "explain_bn": "ফর্ম টাইমটেবিলের পেছনে, অনলাইনে নয় — A।"
+       }
+      ]
+     },
+     {
+      "range": [
+       16,
+       20
+      ],
+      "type": "matching",
+      "options_reusable": false,
+      "instructions": "What does the speaker say about each of the following stops? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "It has a new place to leave cars."
+       },
+       {
+        "key": "B",
+        "text": "Its location has changed."
+       },
+       {
+        "key": "C",
+        "text": "It is being used to try out a new facility."
+       },
+       {
+        "key": "D",
+        "text": "Bus times there have been changed to suit users."
+       },
+       {
+        "key": "E",
+        "text": "Passengers can see live bus information indoors."
+       },
+       {
+        "key": "F",
+        "text": "It will close on Saturdays."
+       },
+       {
+        "key": "G",
+        "text": "It will have a ticket machine."
+       }
+      ],
+      "questions": [
+       {
+        "n": 16,
+        "prompt": "Kingsmead Park",
+        "answer": "A",
+        "evidence": "A free car park with eighty spaces is being built next to the stop",
+        "skill": "paraphrase",
+        "explain_en": "A new free car park is being built next to the stop.",
+        "explain_bn": "স্টপের পাশে নতুন ফ্রি কার পার্ক হচ্ছে — A।"
+       },
+       {
+        "n": 17,
+        "prompt": "Ashby Market",
+        "answer": "B",
+        "evidence": "the stop has been moved round the corner to Bridge Street",
+        "skill": "paraphrase",
+        "explain_en": "The stop has moved to Bridge Street; it is not closed on Saturdays.",
+        "explain_bn": "স্টপ সরিয়ে ব্রিজ স্ট্রিটে নেওয়া হয়েছে; শনিবার বন্ধ নয় (F ফাঁদ)।"
+       },
+       {
+        "n": 18,
+        "prompt": "Leisure Centre",
+        "answer": "C",
+        "evidence": "it's being tested here before the council decides whether to put them elsewhere",
+        "skill": "paraphrase",
+        "explain_en": "The heated shelter is being tested here first.",
+        "explain_bn": "গরম শেল্টার এখানে প্রথমে পরীক্ষা করা হচ্ছে — C।"
+       },
+       {
+        "n": 19,
+        "prompt": "College",
+        "answer": "D",
+        "evidence": "the morning buses on the new route have been timed to arrive ten minutes before classes start",
+        "skill": "paraphrase",
+        "explain_en": "Morning buses were timed to fit lecture times.",
+        "explain_bn": "ক্লাসের সময়ের সঙ্গে মিলিয়ে সকালের বাসের সময় ঠিক করা হয়েছে — D।"
+       },
+       {
+        "n": 20,
+        "prompt": "Hospital",
+        "answer": "E",
+        "evidence": "there's a screen inside the reception area that shows exactly when the next bus is coming",
+        "skill": "paraphrase",
+        "explain_en": "A screen in reception shows live bus times; the market screen comes later.",
+        "explain_bn": "রিসেপশনের ভেতরের স্ক্রিনে পরের বাসের সময় দেখা যায় — E।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two business students, Josh and Megan, discussing their case study report with their tutor, Dr Hale.",
+    "speakers": {
+     "A": {
+      "name": "Dr Hale",
+      "gender": "M",
+      "accent": "GB",
+      "role": "tutor"
+     },
+     "B": {
+      "name": "Josh",
+      "gender": "M",
+      "accent": "AU",
+      "role": "student"
+     },
+     "C": {
+      "name": "Megan",
+      "gender": "F",
+      "accent": "US",
+      "role": "student"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Come in, both of you. So, I've read your case study on the bakery chain, Crumb and Co. Before I give you my comments, how did you feel the project went?"
+       },
+       {
+        "spk": "C",
+        "text": "Mostly well, I think. The hardest part was choosing the company. We started with a sportswear firm, but there was almost nothing published about it, so we switched."
+       },
+       {
+        "spk": "B",
+        "text": "And Crumb and Co. had that big expansion and then closed a third of its shops, so we thought there'd be a clear story to analyse."
+       },
+       {
+        "spk": "A",
+        "text": "It certainly is a clear story. Now, overall, I was impressed. What really stood out for me wasn't the research, though that was solid. It was the way you linked the theory from the lectures to what actually happened. A lot of groups just describe events, and then tack a theory on at the end. You used the models to explain the decisions."
+       },
+       {
+        "spk": "C",
+        "text": "That's good to hear. We were worried the theory section was too long."
+       },
+       {
+        "spk": "A",
+        "text": "It's slightly long, but it earns its place. Now, let's talk about the interviews. You spoke to two former store managers. How did you find them?"
+       },
+       {
+        "spk": "B",
+        "text": "Through a professional networking site. We sent messages to about fifteen people and two said yes."
+       },
+       {
+        "spk": "A",
+        "text": "That's a reasonable response rate, actually. My concern is different. Both managers had left the company on bad terms, hadn't they? So their views of head office are likely to be rather negative. I'm not saying ignore them, but you need to acknowledge that in the report."
+       },
+       {
+        "spk": "C",
+        "text": "We did think about that. Maybe we could add a sentence in the methods section?"
+       },
+       {
+        "spk": "A",
+        "text": "Yes, a short paragraph on the limitations would do it. Now, your financial analysis. You calculated the profit margins for each year, which is fine, but the figures for 2021 look odd."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, that's because the company changed the end of its financial year, so that year was only nine months long."
+       },
+       {
+        "spk": "A",
+        "text": "Right, and that's exactly the kind of thing a reader needs to be told. At the moment it looks like a dramatic fall in sales, when it's really just a shorter year. Put a note under the table."
+       },
+       {
+        "spk": "C",
+        "text": "Okay, we'll do that. What about the conclusion? We weren't sure whether to make recommendations."
+       },
+       {
+        "spk": "A",
+        "text": "The brief doesn't require them, but I'd encourage it. You clearly have views about what the company should have done differently, and recommendations would show you can apply your analysis. Keep them realistic, though. Two or three is plenty."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "So, let's think about why the expansion failed. In your view, what were the main causes?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, there are a lot of theories online. Some people blame rising flour prices, but every bakery faced those, and the independent bakeries mostly survived."
+       },
+       {
+        "spk": "C",
+        "text": "Right. We think the first real problem was location. They opened new shops in out-of-town retail parks, where people drive in, shop, and leave. Nobody buys a fresh pastry on the way to a furniture store."
+       },
+       {
+        "spk": "A",
+        "text": "That's convincing, and your footfall data supports it."
+       },
+       {
+        "spk": "B",
+        "text": "And the second was staff training. Because they opened so many shops at once, new staff were given one day of training instead of the usual two weeks, and the customer reviews show service got much worse."
+       },
+       {
+        "spk": "C",
+        "text": "People also say the brand was damaged by the new logo, but honestly we couldn't find any evidence that customers cared."
+       },
+       {
+        "spk": "A",
+        "text": "Good. It's important to reject explanations when the evidence doesn't support them. Now, some quick comments on the individual sections of the report. The introduction is fine, but it's very general. The first paragraph could be about any company. Start with Crumb and Co. itself."
+       },
+       {
+        "spk": "B",
+        "text": "Okay. And the literature review?"
+       },
+       {
+        "spk": "A",
+        "text": "That's the strongest part. Honestly, I wouldn't change a thing. The methods section is too brief, though. You need to explain how you selected your data, not just list what you used."
+       },
+       {
+        "spk": "C",
+        "text": "And the discussion?"
+       },
+       {
+        "spk": "A",
+        "text": "The ideas are good, but the order is confusing. You jump from staffing to location and back again. Group the points by cause and it'll read much more clearly."
+       },
+       {
+        "spk": "B",
+        "text": "Right. And the appendix? We weren't sure it was needed."
+       },
+       {
+        "spk": "A",
+        "text": "It is, but it's got far too much in it. You've included every customer review you found. Choose ten typical ones and refer to them. A reader shouldn't have to wade through two hundred."
+       },
+       {
+        "spk": "C",
+        "text": "That makes sense. Thanks, Dr Hale, this is really helpful."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       21
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why did the students change the company they were studying?",
+        "options": [
+         {
+          "key": "A",
+          "text": "The first company refused to take part."
+         },
+         {
+          "key": "B",
+          "text": "There was too little information available."
+         },
+         {
+          "key": "C",
+          "text": "The tutor suggested a better example."
+         }
+        ],
+        "answer": "B",
+        "evidence": "there was almost nothing published about it, so we switched",
+        "skill": "paraphrase",
+        "explain_en": "Almost nothing was published about the sportswear firm.",
+        "explain_bn": "স্পোর্টসওয়্যার কোম্পানি নিয়ে প্রায় কিছুই প্রকাশিত ছিল না — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       22,
+       22
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 22,
+        "prompt": "What did the tutor like most about the report?",
+        "options": [
+         {
+          "key": "A",
+          "text": "the quality of the research"
+         },
+         {
+          "key": "B",
+          "text": "the length of the theory section"
+         },
+         {
+          "key": "C",
+          "text": "the use of theory to explain events"
+         }
+        ],
+        "answer": "C",
+        "evidence": "You used the models to explain the decisions",
+        "skill": "opinion",
+        "explain_en": "The research was solid, but what stood out was linking theory to events.",
+        "explain_bn": "গবেষণা ভালো, তবে সবচেয়ে ভালো লেগেছে তত্ত্ব দিয়ে ঘটনা ব্যাখ্যা — C।"
+       }
+      ]
+     },
+     {
+      "range": [
+       23,
+       23
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 23,
+        "prompt": "What is the tutor's concern about the interviews?",
+        "options": [
+         {
+          "key": "A",
+          "text": "The interviewees may have been biased."
+         },
+         {
+          "key": "B",
+          "text": "Too few people were contacted."
+         },
+         {
+          "key": "C",
+          "text": "The questions were not clear enough."
+         }
+        ],
+        "answer": "A",
+        "evidence": "So their views of head office are likely to be rather negative",
+        "skill": "inference",
+        "explain_en": "Both managers left on bad terms, so their views may be one-sided.",
+        "explain_bn": "দুই ম্যানেজার খারাপভাবে চাকরি ছেড়েছেন, তাই মতামত পক্ষপাতদুষ্ট হতে পারে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       24,
+       24
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 24,
+        "prompt": "The figures for 2021 appear unusual because",
+        "options": [
+         {
+          "key": "A",
+          "text": "sales fell sharply that year."
+         },
+         {
+          "key": "B",
+          "text": "the period covered was shorter."
+         },
+         {
+          "key": "C",
+          "text": "the students made a calculation error."
+         }
+        ],
+        "answer": "B",
+        "evidence": "that year was only nine months long",
+        "skill": "detail",
+        "explain_en": "The financial year was only nine months, so it only looks like a fall.",
+        "explain_bn": "সে বছর মাত্র নয় মাসের ছিল — বিক্রি আসলে কমেনি।"
+       }
+      ]
+     },
+     {
+      "range": [
+       25,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 25,
+        "prompt": "What does the tutor say about recommendations?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They are required by the brief."
+         },
+         {
+          "key": "B",
+          "text": "They should be left out."
+         },
+         {
+          "key": "C",
+          "text": "A small number would improve the report."
+         }
+        ],
+        "answer": "C",
+        "evidence": "Two or three is plenty",
+        "skill": "opinion",
+        "explain_en": "They are not required, but two or three realistic ones are encouraged.",
+        "explain_bn": "বাধ্যতামূলক নয়, তবে দুই-তিনটি বাস্তবসম্মত সুপারিশ রিপোর্টকে ভালো করবে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       27
+      ],
+      "type": "mcq_multi",
+      "choose": 2,
+      "instructions": "Choose TWO letters, A-E.",
+      "prompt": "Which TWO causes of the failed expansion do the students accept?",
+      "options": [
+       {
+        "key": "A",
+        "text": "higher prices of ingredients"
+       },
+       {
+        "key": "B",
+        "text": "poorly chosen shop locations"
+       },
+       {
+        "key": "C",
+        "text": "inadequate preparation of staff"
+       },
+       {
+        "key": "D",
+        "text": "an unpopular change of logo"
+       },
+       {
+        "key": "E",
+        "text": "competition from independent bakeries"
+       }
+      ],
+      "answers": [
+       "B",
+       "C"
+      ],
+      "evidence": [
+       "We think the first real problem was location",
+       "new staff were given one day of training instead of the usual two weeks"
+      ],
+      "questions": [
+       {
+        "n": 26,
+        "skill": "opinion",
+        "explain_en": "Location and staff training are accepted; flour prices and the logo are rejected.",
+        "explain_bn": "দোকানের জায়গা আর কর্মীদের প্রশিক্ষণ — এই দুটি কারণ তারা মানে; ময়দার দাম ও লোগো বাতিল।"
+       },
+       {
+        "n": 27,
+        "skill": "opinion",
+        "explain_en": "Location and staff training are accepted; flour prices and the logo are rejected.",
+        "explain_bn": "দোকানের জায়গা আর কর্মীদের প্রশিক্ষণ — এই দুটি কারণ তারা মানে; ময়দার দাম ও লোগো বাতিল।"
+       }
+      ]
+     },
+     {
+      "range": [
+       28,
+       30
+      ],
+      "type": "matching",
+      "options_reusable": false,
+      "instructions": "What comment does the tutor make about each section of the report? Choose THREE answers from the box and write the correct letter, A-F, next to Questions 28-30.",
+      "options": [
+       {
+        "key": "A",
+        "text": "It needs no changes."
+       },
+       {
+        "key": "B",
+        "text": "It lacks detail."
+       },
+       {
+        "key": "C",
+        "text": "It is badly organised."
+       },
+       {
+        "key": "D",
+        "text": "It contains too much material."
+       },
+       {
+        "key": "E",
+        "text": "It is too general."
+       },
+       {
+        "key": "F",
+        "text": "It repeats other sections."
+       }
+      ],
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "methods",
+        "answer": "B",
+        "evidence": "The methods section is too brief, though",
+        "skill": "paraphrase",
+        "explain_en": "Too brief = lacks detail about how data was selected.",
+        "explain_bn": "মেথড অংশ খুব সংক্ষিপ্ত — বিস্তারিত নেই (B)।"
+       },
+       {
+        "n": 29,
+        "prompt": "discussion",
+        "answer": "C",
+        "evidence": "the order is confusing",
+        "skill": "paraphrase",
+        "explain_en": "The order is confusing, so it is badly organised.",
+        "explain_bn": "ক্রম এলোমেলো — অর্থাৎ সাজানো ভালো নয় (C)।"
+       },
+       {
+        "n": 30,
+        "prompt": "appendix",
+        "answer": "D",
+        "evidence": "it's got far too much in it",
+        "skill": "paraphrase",
+        "explain_en": "It includes every review; only ten are needed.",
+        "explain_bn": "সব রিভিউ রাখা হয়েছে, অতিরিক্ত উপাদান (D)।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
+    "intro": "You will hear part of a lecture in a physical geography course about how deserts form.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "F",
+      "accent": "US",
+      "role": "geography lecturer"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon. Today we're looking at deserts, and in particular at the question of why they form where they do. Let's start with a definition, because it's not as obvious as it seems. Most people think of deserts as hot and sandy, but geographers define a desert by its lack of moisture, not by its temperature. The usual threshold is less than about 250 millimetres of precipitation a year, although what really matters is that more water could evaporate than actually falls. By that definition, the largest desert on Earth is not the Sahara, but Antarctica."
+       },
+       {
+        "spk": "A",
+        "text": "So what causes this dryness? There are four main mechanisms, and many deserts are the result of more than one of them."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "The first, and by far the most important, is the global circulation of the atmosphere. Near the equator, intense heating makes air rise. As it rises, it cools, and its moisture falls as heavy rain, which is why we find rainforests there. The air, now dry, then spreads towards the poles and sinks at around thirty degrees north and south of the equator. Sinking air warms up and becomes even drier, so clouds rarely form. This band of high pressure explains the location of the Sahara, the Arabian Desert and the deserts of Australia. Geographers call these subtropical deserts. If you look at a world map, you'll notice how neatly many of the great hot deserts line up along these two latitudes, which is one of the clearest examples we have of climate controlling landscape."
+       },
+       {
+        "spk": "A",
+        "text": "The second mechanism involves mountains. When moist air from the ocean meets a mountain range, it is forced upwards, and it drops its rain on the windward slopes. By the time it crosses the summit and descends the other side, it has lost most of its moisture. The dry area on the far side is known as a rain shadow. Several deserts in western North America formed in exactly this way."
+       },
+       {
+        "spk": "A",
+        "text": "Third, there's simple distance from the sea. Air picks up moisture over oceans, and as it travels across a large continent, it gradually rains out. The interior of Asia, thousands of kilometres from any coast, is extremely dry for this reason. The Gobi is the classic example. These are sometimes called continental deserts, and because there's no ocean nearby to moderate temperatures, they have bitterly cold winters as well as hot summers."
+       },
+       {
+        "spk": "A",
+        "text": "The fourth mechanism is less intuitive. Along some western coastlines, cold currents flow from the polar regions towards the equator. The cold water chills the air above it, and cool air holds little moisture. What you get instead of rain is fog. In the coastal deserts of Chile and southern Africa, fog may be the only regular source of water for months, and some plants and insects have evolved to collect it directly. In parts of the Atacama, local communities even use large nets to harvest fog for drinking water."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Now, once a desert exists, what does its surface look like? Again, the popular image misleads us. Sand seas, or ergs, cover only about a fifth of the world's deserts. Much more common are rocky plateaus and plains covered in loose stones, sometimes called desert pavement. These stones are left behind when the wind removes the finer particles around them, a process known as deflation."
+       },
+       {
+        "spk": "A",
+        "text": "And although rain is rare, water is still the main force shaping many desert landscapes. When storms do occur, the ground is often too hard to absorb the water, and there's little vegetation to slow it down, so sudden floods carve deep channels. These dry riverbeds are a common feature, and they can fill within minutes, which makes them genuinely dangerous for travellers. In fact, more people in deserts are thought to drown than to die of thirst, which surprises most students when they first hear it. The channels are known by different local names in different regions, but the process that creates them is the same everywhere."
+       },
+       {
+        "spk": "A",
+        "text": "Finally, I want to mention desertification, which is not the same as the natural formation of deserts. Desertification refers to land in dry regions losing its productivity, usually because of human activity. Overgrazing by livestock is one of the major causes: when animals remove the plant cover, the soil is exposed and blown away. Poor irrigation can also cause damage, because as water evaporates from fields it leaves salt behind, and eventually crops can no longer grow. Next week we'll look at some of the projects trying to reverse this process, including the planting of tree belts along the southern edge of the Sahara."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "title": "How deserts form",
+      "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 31,
+        "prompt": "A desert is defined by low {gap}, not by heat.",
+        "answer": "moisture",
+        "evidence": "geographers define a desert by its lack of moisture, not by its temperature",
+        "skill": "paraphrase",
+        "explain_en": "Deserts are defined by lack of moisture, not temperature.",
+        "explain_bn": "মরুভূমি নির্ধারিত হয় আর্দ্রতার (moisture) অভাবে, তাপমাত্রায় নয়।"
+       },
+       {
+        "n": 32,
+        "prompt": "By this definition, the largest desert is {gap}.",
+        "answer": "Antarctica",
+        "evidence": "the largest desert on Earth is not the Sahara, but Antarctica",
+        "skill": "detail",
+        "explain_en": "The Sahara is the distractor; the largest is Antarctica.",
+        "explain_bn": "সাহারা ফাঁদ; সবচেয়ে বড় মরুভূমি অ্যান্টার্কটিকা।"
+       },
+       {
+        "n": 33,
+        "prompt": "Rising air near the equator produces heavy rain, which supports {gap}.",
+        "answer": "rainforests",
+        "accept": [
+         "rainforest"
+        ],
+        "evidence": "which is why we find rainforests there",
+        "skill": "detail",
+        "explain_en": "Heavy rain at the equator explains the rainforests.",
+        "explain_bn": "বিষুবরেখায় ভারী বৃষ্টির কারণে রেইনফরেস্ট হয়।"
+       },
+       {
+        "n": 34,
+        "prompt": "Dry air sinks at about 30 degrees, creating {gap} deserts such as the Sahara.",
+        "answer": "subtropical",
+        "evidence": "Geographers call these subtropical deserts",
+        "skill": "vocabulary",
+        "explain_en": "Deserts formed by sinking air at 30 degrees are called subtropical deserts.",
+        "explain_bn": "৩০ ডিগ্রিতে নামা শুষ্ক বাতাসে তৈরি মরুভূমিকে subtropical বলা হয়।"
+       },
+       {
+        "n": 35,
+        "prompt": "Mountains: the dry land behind the range lies in a rain {gap}.",
+        "answer": "shadow",
+        "evidence": "The dry area on the far side is known as a rain shadow",
+        "skill": "vocabulary",
+        "explain_en": "The dry side of a mountain range is a rain shadow.",
+        "explain_bn": "পাহাড়ের অপর পাশের শুষ্ক এলাকাকে rain shadow বলে।"
+       },
+       {
+        "n": 36,
+        "prompt": "Continental deserts, e.g. the {gap}, have very cold winters.",
+        "answer": "Gobi",
+        "evidence": "The Gobi is the classic example",
+        "skill": "detail",
+        "explain_en": "The Gobi is the example of a continental desert.",
+        "explain_bn": "মহাদেশীয় মরুভূমির উদাহরণ গোবি।"
+       },
+       {
+        "n": 37,
+        "prompt": "Cold ocean currents: instead of rain, coastal deserts receive {gap}.",
+        "answer": "fog",
+        "evidence": "What you get instead of rain is fog",
+        "skill": "detail",
+        "explain_en": "Cold currents produce fog rather than rain.",
+        "explain_bn": "ঠান্ডা স্রোতের কারণে বৃষ্টি নয়, কুয়াশা (fog) হয়।"
+       },
+       {
+        "n": 38,
+        "prompt": "Loose stones remain when wind removes fine particles: this is called {gap}.",
+        "answer": "deflation",
+        "evidence": "a process known as deflation",
+        "skill": "vocabulary",
+        "explain_en": "Wind removing fine particles is called deflation.",
+        "explain_bn": "বাতাস সূক্ষ্ম কণা সরিয়ে নেওয়ার প্রক্রিয়ার নাম deflation।"
+       },
+       {
+        "n": 39,
+        "prompt": "Sudden {gap} cut deep channels because the ground cannot absorb water.",
+        "answer": "floods",
+        "evidence": "sudden floods carve deep channels",
+        "skill": "paraphrase",
+        "explain_en": "Storm water causes sudden floods that carve channels.",
+        "explain_bn": "শক্ত মাটি পানি শোষে না, তাই হঠাৎ বন্যা গভীর খাল কেটে দেয়।"
+       },
+       {
+        "n": 40,
+        "prompt": "Poor irrigation leaves {gap} in the soil, so crops fail.",
+        "answer": "salt",
+        "evidence": "as water evaporates from fields it leaves salt behind",
+        "skill": "detail",
+        "explain_en": "Evaporating irrigation water leaves salt behind.",
+        "explain_bn": "সেচের পানি বাষ্প হয়ে মাটিতে লবণ রেখে যায়, ফলে ফসল হয় না।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "Keeping the same time: the history of standard time zones",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "For most of human history, time was a strictly local matter. Every town set its clocks by the position of the sun, so that noon was the moment when the sun stood highest in the local sky. Because the Earth rotates from west to east, this meant that a town only a short distance to the west of its neighbour would keep a slightly earlier time. In an age when travel by horse or on foot was slow, these small discrepancies caused almost no inconvenience. A traveller who arrived in a new town simply adjusted his watch, if he possessed one, to the clock on the church tower or the town hall."
+       },
+       {
+        "label": "",
+        "text": "The arrival of the railways in the nineteenth century transformed this situation. Trains covered in hours distances that had previously taken days, and they required timetables that passengers in different towns could understand. Initially, each railway company operated according to the local time of its headquarters, and stations along a line might display two clocks: one showing local time and another showing the company's time. Passengers frequently missed connections, and, more seriously, the confusion contributed to the risk of collisions on single-track lines, where the safe operation of trains depended on precise coordination."
+       },
+       {
+        "label": "",
+        "text": "Britain, a comparatively small country with a rapidly expanding network, was among the first to adopt a uniform solution. During the 1840s, railway companies progressively adopted the time kept at the Royal Observatory at Greenwich, which became known as 'railway time'. The electric telegraph made this practical, since time signals could be transmitted from the observatory to stations across the country almost instantaneously. Many towns soon abandoned their local time altogether, although some resisted for years, and legal recognition of a single national time did not arrive until several decades later."
+       },
+       {
+        "label": "",
+        "text": "In larger countries, a single national time was impractical. The continental United States spans roughly four hours of solar time, and imposing one time across it would have meant that noon in some regions occurred in what was effectively early morning or late afternoon. By the early 1880s, American railways were using dozens of different local times, and the system had become almost unworkable. In 1883 the railway companies, acting without any government legislation, introduced a system of time zones, each one hour apart. On the day of the changeover, clocks in many cities were adjusted by several minutes, and newspapers described it as 'the day of two noons'."
+       },
+       {
+        "label": "",
+        "text": "The railway companies' initiative raised an obvious question: from what point should the world's time zones be measured? In 1884 an international conference was held in Washington to resolve this. Delegates from more than twenty countries voted to adopt the meridian passing through Greenwich as the prime meridian, the line of zero longitude from which all others would be calculated. The choice was largely pragmatic. A majority of the world's shipping already used charts based on Greenwich, so the decision formalised existing practice rather than imposing something new. Not every nation was satisfied, however; France abstained from the vote and continued to use the Paris meridian for its own purposes for several more decades."
+       },
+       {
+        "label": "",
+        "text": "Even after the conference, the adoption of standard time zones around the world was gradual and uneven. Some countries chose offsets of half an hour or even a quarter of an hour from Greenwich, reflecting their geographical position or political preferences. Others, particularly large nations governed from a single capital, decided to apply one time zone across territories that might naturally span several. In such places, the sun may rise at a conventional hour in the capital but considerably later in distant regions, a compromise accepted for the sake of administrative simplicity."
+       },
+       {
+        "label": "",
+        "text": "Time zones have also proved surprisingly political. Governments have shifted their clocks to align more closely with important trading partners, to signal independence from former rulers, or to make better use of daylight. The introduction of daylight saving time, in which clocks are moved forward during the summer months, added another layer of complexity. Its supporters argued that it reduced the consumption of fuel for lighting, while its critics claimed that the twice-yearly change disrupted sleep and caused confusion. Research on its effects continues to produce mixed results, and a number of countries that once used daylight saving time have since abandoned it."
+       },
+       {
+        "label": "",
+        "text": "Today, the global system is coordinated using atomic clocks, which measure time with an accuracy far beyond the capacity of any astronomical observation. Coordinated Universal Time, the modern successor to Greenwich Mean Time, is calculated from the readings of hundreds of such clocks located in laboratories around the world. Yet the underlying logic remains that of the railway age: people in different places agree to share an artificial time, accepting a small departure from the sun in exchange for the enormous benefits of coordination."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Before the railways, differences in local time caused serious problems for travellers.",
+        "answer": "FALSE",
+        "evidence": "these small discrepancies caused almost no inconvenience",
+        "skill": "detail",
+        "explain_en": "The text says the differences caused almost no inconvenience.",
+        "explain_bn": "লেখায় বলা আছে স্থানীয় সময়ের পার্থক্যে প্রায় কোনো অসুবিধাই হতো না — তাই FALSE।"
+       },
+       {
+        "n": 2,
+        "prompt": "Some railway stations showed more than one time at once.",
+        "answer": "TRUE",
+        "evidence": "stations along a line might display two clocks",
+        "skill": "paraphrase",
+        "explain_en": "Stations might display two clocks, one local and one company time.",
+        "explain_bn": "স্টেশনে দুটি ঘড়ি থাকত — স্থানীয় সময় আর কোম্পানির সময়; তাই TRUE।"
+       },
+       {
+        "n": 3,
+        "prompt": "Confusion over time was responsible for several fatal train accidents in Britain.",
+        "answer": "NOT GIVEN",
+        "rationale": "The passage says confusion contributed to the risk of collisions, but it never mentions actual accidents, deaths or Britain in that context.",
+        "skill": "inference",
+        "explain_en": "Only an increased risk of collisions is mentioned, not real fatal accidents.",
+        "explain_bn": "শুধু সংঘর্ষের ঝুঁকির কথা আছে; বাস্তব প্রাণঘাতী দুর্ঘটনার কোনো তথ্য নেই — NOT GIVEN।"
+       },
+       {
+        "n": 4,
+        "prompt": "The telegraph allowed Greenwich time to be shared quickly with distant stations.",
+        "answer": "TRUE",
+        "evidence": "time signals could be transmitted from the observatory to stations across the country almost instantaneously",
+        "skill": "paraphrase",
+        "explain_en": "Telegraph signals reached stations almost instantly.",
+        "explain_bn": "টেলিগ্রাফে প্রায় সঙ্গে সঙ্গে সময়ের সংকেত পাঠানো যেত — TRUE।"
+       },
+       {
+        "n": 5,
+        "prompt": "American time zones were introduced by a law passed by the government.",
+        "answer": "FALSE",
+        "evidence": "acting without any government legislation",
+        "skill": "detail",
+        "explain_en": "The railway companies acted without government legislation.",
+        "explain_bn": "রেল কোম্পানিগুলো সরকারি আইন ছাড়াই টাইম জোন চালু করেছিল — FALSE।"
+       },
+       {
+        "n": 6,
+        "prompt": "Most delegates at the 1884 conference came from European countries.",
+        "answer": "NOT GIVEN",
+        "rationale": "The passage gives the number of countries (more than twenty) but not where the delegates came from.",
+        "skill": "detail",
+        "explain_en": "Only the number of countries is given, not their regions.",
+        "explain_bn": "কতগুলো দেশ ছিল বলা আছে, কিন্তু কোন মহাদেশের তা বলা নেই — NOT GIVEN।"
+       },
+       {
+        "n": 7,
+        "prompt": "Greenwich was chosen partly because many ships already used it as a reference.",
+        "answer": "TRUE",
+        "evidence": "A majority of the world's shipping already used charts based on Greenwich",
+        "skill": "paraphrase",
+        "explain_en": "Most shipping already used Greenwich-based charts.",
+        "explain_bn": "বেশিরভাগ জাহাজ আগে থেকেই গ্রিনিচভিত্তিক মানচিত্র ব্যবহার করত — TRUE।"
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       13
+      ],
+      "type": "note_completion",
+      "title": "Time zones after 1884",
+      "instructions": "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "France did not vote and kept using the meridian of {gap}.",
+        "answer": "Paris",
+        "evidence": "continued to use the Paris meridian for its own purposes",
+        "skill": "detail",
+        "explain_en": "France abstained and kept the Paris meridian.",
+        "explain_bn": "ফ্রান্স ভোট দেয়নি এবং প্যারিস মেরিডিয়ান ব্যবহার চালিয়ে গেছে।"
+       },
+       {
+        "n": 9,
+        "prompt": "Some large countries use one zone for reasons of administrative {gap}.",
+        "answer": "simplicity",
+        "evidence": "a compromise accepted for the sake of administrative simplicity",
+        "skill": "vocabulary",
+        "explain_en": "One zone is used for administrative simplicity.",
+        "explain_bn": "প্রশাসনিক সরলতার (simplicity) জন্য একটি টাইম জোন রাখা হয়।"
+       },
+       {
+        "n": 10,
+        "prompt": "Clocks may be changed to match important trading {gap}.",
+        "answer": "partners",
+        "evidence": "to align more closely with important trading partners",
+        "skill": "detail",
+        "explain_en": "Governments align clocks with trading partners.",
+        "explain_bn": "গুরুত্বপূর্ণ বাণিজ্য-সঙ্গীদের সঙ্গে মিল রাখতে সময় বদলানো হয়।"
+       },
+       {
+        "n": 11,
+        "prompt": "Supporters of daylight saving said it saved {gap} used for lighting.",
+        "answer": "fuel",
+        "evidence": "it reduced the consumption of fuel for lighting",
+        "skill": "paraphrase",
+        "explain_en": "Supporters claimed it reduced fuel used for lighting.",
+        "explain_bn": "সমর্থকদের মতে এতে আলো জ্বালানোর জ্বালানি (fuel) কম লাগে।"
+       },
+       {
+        "n": 12,
+        "prompt": "Opponents said the change in clocks disturbed people's {gap}.",
+        "answer": "sleep",
+        "evidence": "the twice-yearly change disrupted sleep",
+        "skill": "paraphrase",
+        "explain_en": "Critics said the change disrupted sleep.",
+        "explain_bn": "সমালোচকদের মতে বছরে দুবার ঘড়ি বদলানো ঘুমের ব্যাঘাত ঘটায়।"
+       },
+       {
+        "n": 13,
+        "prompt": "World time is now based on {gap} clocks in many laboratories.",
+        "answer": "atomic",
+        "evidence": "the global system is coordinated using atomic clocks",
+        "skill": "detail",
+        "explain_en": "Modern time is coordinated using atomic clocks.",
+        "explain_bn": "এখন বিশ্বের সময় পারমাণবিক (atomic) ঘড়ি দিয়ে সমন্বয় করা হয়।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "Seeing with sound: how bats navigate in darkness",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "In the late eighteenth century, naturalists conducted a series of curious experiments on bats. They found that blindfolded bats could fly through rooms strung with fine wires without touching them, whereas bats whose ears had been blocked collided repeatedly with obstacles. The conclusion that bats somehow 'saw' with their ears was widely ridiculed at the time, largely because nobody could detect any sound coming from the animals. The explanation had to wait until the twentieth century, when microphones sensitive to frequencies far above the range of human hearing revealed that bats were emitting a constant stream of high-pitched calls."
+       },
+       {
+        "label": "B",
+        "text": "The principle that the bats were using, now known as echolocation, is conceptually simple. The animal produces a sound and then listens for the echoes that return from objects in its surroundings. The delay between the call and the echo indicates how far away an object is, while differences between the echoes arriving at the left and right ears reveal its direction. By comparing successive echoes, a bat can calculate whether an insect is approaching or moving away, and even estimate its size and texture. The computational demands of this process are considerable, and the auditory regions of a bat's brain are correspondingly enlarged and highly specialised."
+       },
+       {
+        "label": "C",
+        "text": "Bats do not all call in the same way, and the differences reflect where and how they hunt. Species that pursue insects in open air tend to emit long, low-frequency calls, which travel considerable distances before fading. Those that forage among dense vegetation, by contrast, use short calls that sweep rapidly across a wide band of frequencies. Such calls carry less far, but they provide extremely detailed information about nearby surfaces, allowing the bat to separate an insect from the leaves on which it rests. A small number of species also exploit the Doppler effect, detecting the minute changes in pitch produced by the beating wings of their prey. The design of a call therefore represents a compromise between range and resolution, and field recordings allow specialists to identify many species purely from the acoustic signatures they leave on a detector, a technique now routinely employed in ecological surveys."
+       },
+       {
+        "label": "D",
+        "text": "As a bat closes in on its target, its calling pattern changes dramatically. During the search phase, it may produce around ten calls per second. Once an insect has been detected, the rate increases, and in the final moments before capture it can exceed two hundred calls per second, a burst that researchers describe as the 'terminal buzz'. Producing sound at this rate requires some of the fastest muscles known in any mammal. At the same time, the bat must avoid being deafened by its own calls, which can be extremely loud; a special muscle in the middle ear contracts at the moment each call is produced, briefly reducing the bat's sensitivity."
+       },
+       {
+        "label": "E",
+        "text": "Insects have not remained passive in the face of this threat. Many moths possess simple ears tuned to the frequencies of bat calls, and when they detect an approaching bat they perform sudden dives or erratic loops. Some species go further, producing clicks of their own. In certain cases these clicks appear to warn the bat that the moth is distasteful, while in others they seem to interfere with the bat's ability to process its echoes. Bats, in turn, have developed counter-strategies, including calls at frequencies that moths cannot easily hear, an example of the evolutionary contest between predator and prey."
+       },
+       {
+        "label": "F",
+        "text": "It would be a mistake, however, to assume that every bat relies on echolocation. Many large fruit bats navigate largely by sight and smell, and their eyes are well adapted to low light. A few fruit bat species do echolocate, but instead of producing sound in the larynx, they generate clicks with their tongues, a technique that is cruder but evidently adequate for finding their way into dark caves. Furthermore, even the most sophisticated echolocating bats use other senses. There is growing evidence that some species can detect the Earth's magnetic field, which may help them orient themselves during long-distance migration. Vision, too, appears more important than was once assumed: experiments indicate that many insect-eating species use their eyes to recognise landmarks at dusk, reserving echolocation for the precise manoeuvres that hunting demands."
+       },
+       {
+        "label": "G",
+        "text": "Echolocation research has also inspired practical applications. Engineers developing navigation aids for visually impaired people have studied how bats extract information from echoes, and some devices now convert ultrasonic reflections into audible tones. Of perhaps greater significance is the finding that some blind people teach themselves to echolocate by making clicking sounds with their mouths. Brain scans of these individuals suggest that they process echoes in regions normally associated with vision, indicating a remarkable degree of flexibility in the human brain. Bats, it seems, are not the only mammals capable of seeing with sound."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       14,
+       19
+      ],
+      "type": "matching_headings",
+      "instructions": "Reading Passage 2 has seven paragraphs, A-G. Choose the correct heading for paragraphs B-G from the list of headings below. Write the correct number, i-ix.",
+      "options": [
+       {
+        "key": "i",
+        "text": "How prey species defend themselves"
+       },
+       {
+        "key": "ii",
+        "text": "A sense found in humans as well"
+       },
+       {
+        "key": "iii",
+        "text": "The basic mechanism and its demands"
+       },
+       {
+        "key": "iv",
+        "text": "An early theory that was doubted"
+       },
+       {
+        "key": "v",
+        "text": "Why bats are losing their hearing"
+       },
+       {
+        "key": "vi",
+        "text": "Calling styles suited to different environments"
+       },
+       {
+        "key": "vii",
+        "text": "Bats that depend on other methods"
+       },
+       {
+        "key": "viii",
+        "text": "Changes during the final attack"
+       },
+       {
+        "key": "ix",
+        "text": "The cost of keeping bats in captivity"
+       }
+      ],
+      "questions": [
+       {
+        "n": 14,
+        "prompt": "Paragraph B",
+        "answer": "iii",
+        "evidence": "The principle that the bats were using, now known as echolocation, is conceptually simple",
+        "skill": "main_idea",
+        "explain_en": "B explains how echolocation works and how much brain processing it needs.",
+        "explain_bn": "B অনুচ্ছেদে প্রতিধ্বনি-নির্ণয়ের মূল কৌশল আর মস্তিষ্কের চাহিদা ব্যাখ্যা করা হয়েছে — iii।"
+       },
+       {
+        "n": 15,
+        "prompt": "Paragraph C",
+        "answer": "vi",
+        "evidence": "the differences reflect where and how they hunt",
+        "skill": "main_idea",
+        "explain_en": "C compares call types used in open air and in vegetation.",
+        "explain_bn": "C-তে খোলা আকাশ আর ঘন গাছপালার জন্য আলাদা ডাকের ধরন — vi।"
+       },
+       {
+        "n": 16,
+        "prompt": "Paragraph D",
+        "answer": "viii",
+        "evidence": "As a bat closes in on its target, its calling pattern changes dramatically",
+        "skill": "main_idea",
+        "explain_en": "D describes the terminal buzz just before capture.",
+        "explain_bn": "D-তে শিকার ধরার শেষ মুহূর্তের পরিবর্তন (terminal buzz) — viii।"
+       },
+       {
+        "n": 17,
+        "prompt": "Paragraph E",
+        "answer": "i",
+        "evidence": "Insects have not remained passive in the face of this threat",
+        "skill": "main_idea",
+        "explain_en": "E is about how moths escape or confuse bats.",
+        "explain_bn": "E-তে পতঙ্গরা কীভাবে বাদুড় থেকে নিজেদের রক্ষা করে — i।"
+       },
+       {
+        "n": 18,
+        "prompt": "Paragraph F",
+        "answer": "vii",
+        "evidence": "It would be a mistake, however, to assume that every bat relies on echolocation",
+        "skill": "main_idea",
+        "explain_en": "F describes bats that use sight, smell or tongue clicks.",
+        "explain_bn": "F-এ দৃষ্টি, ঘ্রাণ বা জিভের ক্লিকে চলা বাদুড়ের কথা — vii।"
+       },
+       {
+        "n": 19,
+        "prompt": "Paragraph G",
+        "answer": "ii",
+        "evidence": "some blind people teach themselves to echolocate",
+        "skill": "main_idea",
+        "explain_en": "G shows that some humans can also echolocate.",
+        "explain_bn": "G-তে কিছু অন্ধ মানুষও প্রতিধ্বনি দিয়ে পথ চেনে — ii। (iv হলো A-র শিরোনাম)"
+       }
+      ]
+     },
+     {
+      "range": [
+       20,
+       23
+      ],
+      "type": "summary_completion",
+      "title": "Avoiding self-deafening and moth defences",
+      "instructions": "Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 20,
+        "prompt": "Insect-hunting bats in open spaces use long calls with a low {gap}.",
+        "answer": "frequency",
+        "evidence": "emit long, low-frequency calls",
+        "skill": "paraphrase",
+        "explain_en": "Open-air hunters use long, low-frequency calls.",
+        "explain_bn": "খোলা জায়গায় শিকারি বাদুড় লম্বা, নিম্ন-কম্পাঙ্কের (frequency) ডাক দেয়।"
+       },
+       {
+        "n": 21,
+        "prompt": "To protect its hearing, a bat contracts a {gap} in the middle ear with each call.",
+        "answer": "muscle",
+        "evidence": "a special muscle in the middle ear contracts at the moment each call is produced",
+        "skill": "detail",
+        "explain_en": "A middle-ear muscle contracts to reduce sensitivity.",
+        "explain_bn": "নিজের ডাকে বধির না হতে মধ্যকর্ণের একটি পেশি (muscle) সংকুচিত হয়।"
+       },
+       {
+        "n": 22,
+        "prompt": "Many moths have {gap} that can detect bat calls.",
+        "answer": "ears",
+        "evidence": "Many moths possess simple ears tuned to the frequencies of bat calls",
+        "skill": "detail",
+        "explain_en": "Moths have simple ears tuned to bat calls.",
+        "explain_bn": "অনেক মথের সরল কান (ears) বাদুড়ের ডাক ধরতে পারে।"
+       },
+       {
+        "n": 23,
+        "prompt": "Some moths make clicks to show that they are {gap}.",
+        "answer": "distasteful",
+        "evidence": "these clicks appear to warn the bat that the moth is distasteful",
+        "skill": "vocabulary",
+        "explain_en": "Clicks may warn the bat that the moth tastes bad.",
+        "explain_bn": "ক্লিক দিয়ে কিছু মথ জানায় যে তারা খেতে বিস্বাদ (distasteful)।"
+       }
+      ]
+     },
+     {
+      "range": [
+       24,
+       24
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 24,
+        "prompt": "Why was the early conclusion about bats rejected at first?",
+        "options": [
+         {
+          "key": "A",
+          "text": "The experiments could not be repeated."
+         },
+         {
+          "key": "B",
+          "text": "The bats' calls could not be heard."
+         },
+         {
+          "key": "C",
+          "text": "Blindfolded bats often hit the wires."
+         },
+         {
+          "key": "D",
+          "text": "The naturalists used too few animals."
+         }
+        ],
+        "answer": "B",
+        "evidence": "largely because nobody could detect any sound coming from the animals",
+        "skill": "detail",
+        "explain_en": "People laughed at the idea because no sound could be detected.",
+        "explain_bn": "বাদুড়ের কোনো শব্দ শোনা যেত না বলে ধারণাটি উপহাস করা হয়েছিল — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       25,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 25,
+        "prompt": "What is said about fruit bats that echolocate?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They use a less refined method than other bats."
+         },
+         {
+          "key": "B",
+          "text": "They hunt insects inside caves."
+         },
+         {
+          "key": "C",
+          "text": "They have very poor eyesight."
+         },
+         {
+          "key": "D",
+          "text": "They rely on the Earth's magnetic field."
+         }
+        ],
+        "answer": "A",
+        "evidence": "a technique that is cruder but evidently adequate",
+        "skill": "paraphrase",
+        "explain_en": "Tongue clicking is described as cruder, i.e. less refined.",
+        "explain_bn": "জিভের ক্লিকের কৌশল 'cruder' অর্থাৎ কম উন্নত — A।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       26
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 26,
+        "prompt": "According to the writer, the most significant finding in paragraph G is that",
+        "options": [
+         {
+          "key": "A",
+          "text": "devices can turn ultrasound into audible tones."
+         },
+         {
+          "key": "B",
+          "text": "engineers have copied bat brains."
+         },
+         {
+          "key": "C",
+          "text": "the human brain can adapt to process echoes."
+         },
+         {
+          "key": "D",
+          "text": "blind people prefer clicking to using devices."
+         }
+        ],
+        "answer": "C",
+        "evidence": "indicating a remarkable degree of flexibility in the human brain",
+        "skill": "writer_view",
+        "explain_en": "The writer calls the self-taught human echolocation finding more significant, showing brain flexibility.",
+        "explain_bn": "লেখকের মতে বড় আবিষ্কার হলো মানুষের মস্তিষ্ক প্রতিধ্বনি বুঝতে মানিয়ে নিতে পারে — C।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "Insurance for the harvest? Seed banks and the future of crops",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Deep inside a mountain on a remote Arctic archipelago lies a facility that has been described, with some journalistic licence, as a doomsday vault. Its purpose is to store duplicate samples of seeds held by genebanks around the world, so that if a national collection is lost through war, natural disaster or simple mismanagement, the material can be recovered. The vault has attracted enormous public attention, and it is easy to see why: the image of humanity's agricultural heritage sealed safely in the permafrost is undeniably reassuring. Yet the vault is only the most visible element of a far larger and less glamorous network, and the reassurance it offers deserves closer scrutiny."
+       },
+       {
+        "label": "",
+        "text": "The rationale for conserving crop diversity is compelling. Over roughly ten thousand years, farmers selected and exchanged seeds, producing an extraordinary variety of locally adapted forms of every major crop. These traditional varieties, often called landraces, contain genetic traits that may prove indispensable as climates change and new diseases emerge: tolerance of drought or salinity, resistance to particular pests, or the ability to mature in a shorter season. During the twentieth century, however, the spread of high-yielding modern varieties led farmers in many regions to abandon their landraces, and with them, potentially irreplaceable genetic resources. Genebanks were established largely in response to this loss. International research centres began systematic collecting expeditions, and national governments created their own repositories, so that today several million samples are held in more than a thousand institutions worldwide, although a considerable proportion of these are duplicates of one another."
+       },
+       {
+        "label": "",
+        "text": "The basic technology of seed conservation is surprisingly straightforward. Most seeds of temperate crops can be preserved for decades if they are dried to a low moisture content and then stored at temperatures well below freezing. Under these conditions, metabolic processes slow almost to a halt. Nevertheless, seeds do not survive indefinitely, and their viability must be tested at intervals. When germination rates fall below an acceptable threshold, the sample has to be regenerated: planted, grown to maturity and harvested again. This is the most demanding and expensive aspect of genebank management, and it is here that many collections, particularly in poorer countries, have struggled. Inadequate electricity supplies, shortages of trained personnel and unpredictable funding have all contributed to the deterioration of samples that were originally stored with considerable care."
+       },
+       {
+        "label": "",
+        "text": "Moreover, not all crops are amenable to this approach. The seeds of many tropical species, including cocoa and several important fruits, are described as recalcitrant: they are killed by drying and cannot be frozen. Other crops, such as potatoes, cassava and bananas, are usually propagated vegetatively rather than from seed, so they must be maintained as living plants in field collections or as tissue cultures in laboratories. Both alternatives are costly and vulnerable to disease, and research into freezing plant tissue in liquid nitrogen, though promising, has not yet been applied on a wide scale. For a significant proportion of the world's food plants, then, the image of seeds safely asleep in a vault is simply inaccurate."
+       },
+       {
+        "label": "",
+        "text": "A more fundamental criticism concerns the nature of what is being preserved. A genebank conserves a snapshot of diversity as it existed at the moment of collection. In the field, by contrast, landraces continue to evolve, exposed to shifting climates and changing populations of pests and pathogens. Advocates of on-farm conservation argue that this ongoing adaptation is itself a resource of great value, and that freezing samples, while necessary, cannot substitute for supporting the farmers who still cultivate traditional varieties. In my view, this argument is persuasive. The two strategies should be regarded as complementary, yet funding has historically favoured the more tangible achievement of building and stocking storage facilities."
+       },
+       {
+        "label": "",
+        "text": "There are also questions of access and ownership. Many of the samples in international collections were gathered from farmers in developing countries, who received little or nothing in return. Subsequent international agreements have attempted to ensure that the benefits arising from the use of these resources, for example in commercial plant breeding, are shared fairly. How effectively these arrangements work in practice is disputed, and some farming communities remain wary of handing over seeds that represent generations of their own selection. It would be naive to dismiss such concerns as obstacles to scientific progress; trust is a prerequisite for the cooperation on which conservation depends."
+       },
+       {
+        "label": "",
+        "text": "None of this is to suggest that seed banks are unimportant. On the contrary, there are documented cases in which material held in genebanks has been used to restore crops to regions where local varieties had been lost, including after armed conflicts. Wild relatives of crops stored in collections have supplied genes for disease resistance that have protected harvests worth considerable sums. The danger lies rather in treating storage as a complete solution, an insurance policy that allows us to neglect the living systems from which diversity originally emerged. A vault in the Arctic is an admirable precaution, but the future of crops will be decided at least as much in farmers' fields."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       27,
+       32
+      ],
+      "type": "ynng",
+      "instructions": "Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "questions": [
+       {
+        "n": 27,
+        "prompt": "The public attention given to the Arctic vault may encourage too much confidence.",
+        "answer": "YES",
+        "evidence": "the reassurance it offers deserves closer scrutiny",
+        "skill": "writer_view",
+        "explain_en": "The writer says the reassurance deserves closer scrutiny, i.e. it may be excessive.",
+        "explain_bn": "লেখক বলছেন এই আশ্বাস খতিয়ে দেখা দরকার — অর্থাৎ অতিরিক্ত আস্থা হতে পারে; YES।"
+       },
+       {
+        "n": 28,
+        "prompt": "Modern crop varieties should be banned in regions where landraces still exist.",
+        "answer": "NOT GIVEN",
+        "rationale": "The writer describes how modern varieties replaced landraces but never says whether they should be banned.",
+        "skill": "writer_view",
+        "explain_en": "No opinion on banning modern varieties is given.",
+        "explain_bn": "আধুনিক জাত নিষিদ্ধ করা উচিত কি না — লেখক কিছু বলেননি; NOT GIVEN।"
+       },
+       {
+        "n": 29,
+        "prompt": "Regenerating seed samples is the costliest part of running a genebank.",
+        "answer": "YES",
+        "evidence": "This is the most demanding and expensive aspect of genebank management",
+        "skill": "detail",
+        "explain_en": "Regeneration is called the most demanding and expensive aspect.",
+        "explain_bn": "পুনরুৎপাদন (regeneration) জিনব্যাংকের সবচেয়ে ব্যয়বহুল কাজ — YES।"
+       },
+       {
+        "n": 30,
+        "prompt": "On-farm conservation is a better strategy than storing seeds.",
+        "answer": "NO",
+        "evidence": "The two strategies should be regarded as complementary",
+        "skill": "writer_view",
+        "explain_en": "The writer sees them as complementary, not one better than the other.",
+        "explain_bn": "লেখকের মতে দুটি কৌশল পরস্পরের পরিপূরক, একটি অন্যটির চেয়ে ভালো নয় — NO।"
+       },
+       {
+        "n": 31,
+        "prompt": "Farmers' doubts about sharing seeds are a reasonable response.",
+        "answer": "YES",
+        "evidence": "It would be naive to dismiss such concerns as obstacles to scientific progress",
+        "skill": "writer_view",
+        "explain_en": "The writer says dismissing their concerns would be naive.",
+        "explain_bn": "লেখক বলছেন কৃষকদের উদ্বেগ উড়িয়ে দেওয়া বোকামি — অর্থাৎ তা যুক্তিসংগত; YES।"
+       },
+       {
+        "n": 32,
+        "prompt": "Seed banks have rarely produced any practical benefit for agriculture.",
+        "answer": "NO",
+        "evidence": "there are documented cases in which material held in genebanks has been used to restore crops",
+        "skill": "writer_view",
+        "explain_en": "The writer gives documented examples of real benefits.",
+        "explain_bn": "লেখক বাস্তব উপকারের প্রমাণিত উদাহরণ দিয়েছেন — তাই NO।"
+       }
+      ]
+     },
+     {
+      "range": [
+       33,
+       33
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 33,
+        "prompt": "According to the passage, genebanks were originally set up mainly because",
+        "options": [
+         {
+          "key": "A",
+          "text": "national collections had been destroyed in wars."
+         },
+         {
+          "key": "B",
+          "text": "traditional crop varieties were disappearing."
+         },
+         {
+          "key": "C",
+          "text": "new diseases were spreading among crops."
+         },
+         {
+          "key": "D",
+          "text": "plant breeders wanted to patent landraces."
+         }
+        ],
+        "answer": "B",
+        "evidence": "Genebanks were established largely in response to this loss",
+        "skill": "paraphrase",
+        "explain_en": "They responded to the loss of landraces as farmers adopted modern varieties.",
+        "explain_bn": "আধুনিক জাতের কারণে ঐতিহ্যবাহী জাত হারিয়ে যাচ্ছিল, তাই জিনব্যাংক গড়া হয় — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       34,
+       34
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 34,
+        "prompt": "What is the problem with 'recalcitrant' seeds?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They germinate too quickly."
+         },
+         {
+          "key": "B",
+          "text": "They are expensive to collect."
+         },
+         {
+          "key": "C",
+          "text": "They do not survive drying."
+         },
+         {
+          "key": "D",
+          "text": "They are grown only from cuttings."
+         }
+        ],
+        "answer": "C",
+        "evidence": "they are killed by drying and cannot be frozen",
+        "skill": "detail",
+        "explain_en": "Recalcitrant seeds die when dried and cannot be frozen.",
+        "explain_bn": "এ ধরনের বীজ শুকালে মরে যায়, ফ্রিজও করা যায় না — C। (D হলো আলু/কলার বৈশিষ্ট্য)"
+       }
+      ]
+     },
+     {
+      "range": [
+       35,
+       35
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 35,
+        "prompt": "The writer describes a genebank sample as a 'snapshot' in order to emphasise that it",
+        "options": [
+         {
+          "key": "A",
+          "text": "is an accurate record of a crop's history."
+         },
+         {
+          "key": "B",
+          "text": "can be easily copied and shared."
+         },
+         {
+          "key": "C",
+          "text": "loses value if it is not tested."
+         },
+         {
+          "key": "D",
+          "text": "no longer changes in response to its environment."
+         }
+        ],
+        "answer": "D",
+        "evidence": "In the field, by contrast, landraces continue to evolve",
+        "skill": "inference",
+        "explain_en": "Stored seeds are fixed in time, unlike landraces that keep evolving in fields.",
+        "explain_bn": "সংরক্ষিত বীজ এক মুহূর্তে আটকে থাকে, মাঠের জাতের মতো পরিবেশের সঙ্গে বদলায় না — D।"
+       }
+      ]
+     },
+     {
+      "range": [
+       36,
+       36
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 36,
+        "prompt": "What is the writer's main point in the final paragraph?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Seed banks are too expensive to justify."
+         },
+         {
+          "key": "B",
+          "text": "Storage is valuable but not sufficient on its own."
+         },
+         {
+          "key": "C",
+          "text": "Wild relatives are more useful than landraces."
+         },
+         {
+          "key": "D",
+          "text": "The Arctic vault should be moved closer to farmers."
+         }
+        ],
+        "answer": "B",
+        "evidence": "The danger lies rather in treating storage as a complete solution",
+        "skill": "main_idea",
+        "explain_en": "Seed banks matter, but treating storage as a complete solution is the danger.",
+        "explain_bn": "বীজব্যাংক জরুরি, তবে শুধু সংরক্ষণকে পূর্ণ সমাধান ভাবা বিপজ্জনক — B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       37,
+       40
+      ],
+      "type": "summary_completion_box",
+      "title": "Storing seeds",
+      "instructions": "Complete the summary using the list of words, A-H, below. Write the correct letter, A-H.",
+      "options": [
+       {
+        "key": "A",
+        "text": "moisture"
+       },
+       {
+        "key": "B",
+        "text": "decades"
+       },
+       {
+        "key": "C",
+        "text": "germination"
+       },
+       {
+        "key": "D",
+        "text": "light"
+       },
+       {
+        "key": "E",
+        "text": "living plants"
+       },
+       {
+        "key": "F",
+        "text": "centuries"
+       },
+       {
+        "key": "G",
+        "text": "nitrogen"
+       },
+       {
+        "key": "H",
+        "text": "insects"
+       }
+      ],
+      "questions": [
+       {
+        "n": 37,
+        "prompt": "Temperate seeds can be kept for {gap} if they are dried and frozen.",
+        "answer": "B",
+        "evidence": "Most seeds of temperate crops can be preserved for decades",
+        "skill": "detail",
+        "explain_en": "The passage says decades, not centuries.",
+        "explain_bn": "লেখায় 'decades' (কয়েক দশক) বলা আছে, শতাব্দী নয় — B।"
+       },
+       {
+        "n": 38,
+        "prompt": "Samples are checked regularly, and when {gap} rates drop too low they must be grown again.",
+        "answer": "C",
+        "evidence": "When germination rates fall below an acceptable threshold",
+        "skill": "detail",
+        "explain_en": "Falling germination rates trigger regeneration.",
+        "explain_bn": "অঙ্কুরোদগমের (germination) হার কমে গেলে আবার চাষ করতে হয় — C।"
+       },
+       {
+        "n": 39,
+        "prompt": "Potatoes and bananas are usually kept as {gap} or tissue cultures.",
+        "answer": "E",
+        "evidence": "they must be maintained as living plants in field collections",
+        "skill": "detail",
+        "explain_en": "Vegetatively propagated crops are kept as living plants.",
+        "explain_bn": "আলু, কলা জীবন্ত গাছ (living plants) হিসেবে রাখা হয় — E।"
+       },
+       {
+        "n": 40,
+        "prompt": "Freezing plant tissue in liquid {gap} is not yet widely used.",
+        "answer": "G",
+        "evidence": "research into freezing plant tissue in liquid nitrogen, though promising, has not yet been applied on a wide scale",
+        "skill": "detail",
+        "explain_en": "Liquid nitrogen freezing is promising but not widespread.",
+        "explain_bn": "তরল নাইট্রোজেনে জমানো এখনো ব্যাপকভাবে ব্যবহৃত হয় না — G।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "chart",
+    "prompt": "The maps below show the village of Elmbrook in 2000 and at the present time. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.",
+    "visual": {
+     "kind": "map",
+     "title": "Elmbrook village, 2000 and today",
+     "maps": [
+      {
+       "label": "2000",
+       "width": 100,
+       "height": 70,
+       "compass": true,
+       "areas": [
+        {
+         "name": "Farmland",
+         "x": 5,
+         "y": 5,
+         "w": 40,
+         "h": 25
+        },
+        {
+         "name": "Woodland",
+         "x": 55,
+         "y": 5,
+         "w": 40,
+         "h": 25
+        },
+        {
+         "name": "Main road",
+         "x": 0,
+         "y": 33,
+         "w": 100,
+         "h": 4
+        },
+        {
+         "name": "Shop",
+         "x": 10,
+         "y": 42,
+         "w": 12,
+         "h": 10
+        },
+        {
+         "name": "Houses",
+         "x": 28,
+         "y": 42,
+         "w": 30,
+         "h": 18
+        },
+        {
+         "name": "Primary school",
+         "x": 65,
+         "y": 42,
+         "w": 18,
+         "h": 12
+        },
+        {
+         "name": "River",
+         "x": 0,
+         "y": 64,
+         "w": 100,
+         "h": 4
+        }
+       ]
+      },
+      {
+       "label": "Today",
+       "width": 100,
+       "height": 70,
+       "compass": true,
+       "areas": [
+        {
+         "name": "Housing estate",
+         "x": 5,
+         "y": 5,
+         "w": 40,
+         "h": 25
+        },
+        {
+         "name": "Woodland (smaller)",
+         "x": 70,
+         "y": 5,
+         "w": 25,
+         "h": 25
+        },
+        {
+         "name": "Car park",
+         "x": 50,
+         "y": 8,
+         "w": 16,
+         "h": 12
+        },
+        {
+         "name": "Main road",
+         "x": 0,
+         "y": 33,
+         "w": 100,
+         "h": 4
+        },
+        {
+         "name": "Supermarket",
+         "x": 8,
+         "y": 42,
+         "w": 16,
+         "h": 12
+        },
+        {
+         "name": "Houses",
+         "x": 28,
+         "y": 42,
+         "w": 30,
+         "h": 18
+        },
+        {
+         "name": "School (extended)",
+         "x": 62,
+         "y": 42,
+         "w": 26,
+         "h": 14
+        },
+        {
+         "name": "Footbridge",
+         "x": 44,
+         "y": 61,
+         "w": 6,
+         "h": 10
+        },
+        {
+         "name": "River",
+         "x": 0,
+         "y": 64,
+         "w": 100,
+         "h": 4
+        }
+       ]
+      }
+     ]
+    },
+    "key_features": [
+     "Overview: Elmbrook has become more built-up and residential, with farmland and part of the woodland replaced, while the road, river and older houses are unchanged.",
+     "The farmland north of the main road has been replaced by a housing estate.",
+     "The woodland has been reduced to make room for a car park.",
+     "The shop has become a larger supermarket, and the primary school has been extended.",
+     "A footbridge now crosses the river south of the houses."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "The maps illustrate how the village of Elmbrook has changed between 2000 and the present day.\n\nOverall, the village has become considerably more developed and residential. Much of the open land to the north of the main road has been built on, and several existing facilities have been enlarged, whereas the road, the river and the original houses have remained in place.\n\nIn 2000, the area north of the main road consisted of farmland on the western side and woodland on the eastern side. Today, the farmland has been entirely replaced by a housing estate. The woodland has also shrunk to roughly half its former size, and part of the cleared land is now occupied by a car park.\n\nSouth of the road, the small shop in the west has been converted into a supermarket, which covers a larger area. The block of houses in the centre of the village is unchanged, but the primary school to the east has been extended. Finally, a footbridge has been constructed across the river, giving residents direct access to the southern bank, which previously could not be reached from the village."
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "opinion",
+    "prompt": "Some people believe that unpaid community service, such as helping in hospitals or cleaning public parks, should be a compulsory part of every teenager's education. To what extent do you agree or disagree? Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "A clear position (agree, disagree or partly agree) stated in the introduction and kept throughout.",
+     "Benefits of community service for teenagers and for society, with specific examples.",
+     "Possible problems of making it compulsory (pressure on study time, lack of genuine motivation, supervision costs).",
+     "A reasoned conclusion that follows from the arguments, possibly suggesting how such a scheme could work well."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "In many countries, schools are under pressure to prepare young people not only for examinations but also for life as responsible citizens. One proposal is to make unpaid community work a required part of secondary education. In my view, this is a valuable idea, provided that it is organised flexibly and with genuine choice.\n\nThe strongest argument in favour is that community service exposes teenagers to people and problems they might otherwise never encounter. A sixteen-year-old who spends a few hours a week reading to elderly residents in a care home, for instance, is likely to develop patience and empathy that no classroom lesson can teach. Such experiences can also help young people discover interests that shape their future careers, whether in medicine, social work or environmental management. Furthermore, society benefits directly, since parks are cleaner and overstretched services receive practical help.\n\nCritics argue that compulsion undermines the very spirit of volunteering. If students are forced to participate, they may do the minimum required and gain little from the experience. There is also a legitimate concern that teenagers already face heavy academic workloads, and that additional obligations could increase stress, especially for those who have part-time jobs or care for family members.\n\nThese objections, however, are arguments for careful design rather than for abandoning the idea. If schools allowed students to choose from a wide range of projects, limited the commitment to a manageable number of hours, and recognised the work in their final records, most of the difficulties could be avoided.\n\nIn conclusion, I largely agree that community service should be part of every teenager's education, as long as it is flexible and meaningful rather than a box-ticking exercise."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Photographs",
+    "questions": [
+     "Do you like taking photographs? Why or why not?",
+     "What do you usually take photos of?",
+     "Do you prefer to keep photos on your phone or print them?",
+     "Is there a photo in your home that is special to you?"
+    ]
+   },
+   {
+    "topic": "Your studies or work",
+    "questions": [
+     "Do you work or are you a student?",
+     "What do you find most interesting about your studies or job?",
+     "Is there anything you would like to change about it?",
+     "What would you like to do in the future?"
+    ]
+   },
+   {
+    "topic": "Handwriting",
+    "questions": [
+     "Do you often write by hand nowadays?",
+     "Did you learn to write neatly at school?",
+     "Do you think handwriting will still be important in the future?",
+     "How do you feel when you receive a handwritten note?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a piece of advice you were given but decided not to follow.",
+    "bullets": [
+     "who gave you the advice",
+     "what the advice was",
+     "why you decided not to follow it"
+    ],
+    "final": "and explain whether you think your decision was right."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do you often ask other people for advice?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Giving and receiving advice",
+    "questions": [
+     "Why do some people find it difficult to accept advice?",
+     "Is advice from family members more useful than advice from friends?",
+     "Do you think young people today ask older people for advice less than in the past?"
+    ]
+   },
+   {
+    "theme": "Experts and information",
+    "questions": [
+     "When should people consult a professional rather than a friend?",
+     "How has the internet changed the way people look for advice?",
+     "Should online advice about health or money be regulated? Why?",
+     "Do you think people trust experts more or less than they used to?"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,2071 @@
+{
+ "format": "assisto.lp.bundle/1",
+ "bundle_id": "ielts-gt-002",
+ "exam": "ielts",
+ "module": "general",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS General Training Practice Test 2",
+  "bn": "IELTS জেনারেল ট্রেনিং প্র্যাকটিস টেস্ট ২"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "Original General Training mock (batch 2); all names, places and organisations invented."
+ },
+ "listening": {
+  "minutes": 30,
+  "check_s": 30,
+  "parts": [
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
+    "intro": "You will hear a woman phoning a water-sports centre to book kayak lessons.",
+    "speakers": {
+     "A": {
+      "name": "Marcus",
+      "gender": "M",
+      "accent": "US",
+      "role": "centre receptionist"
+     },
+     "B": {
+      "name": "Helen",
+      "gender": "F",
+      "accent": "GB",
+      "role": "caller"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       1,
+       6
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, Larch Bay Paddle Centre, Marcus speaking. How can I help you?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hello. I'm ringing about kayak lessons. I picked up one of your leaflets at the library, and I'd like to book something for myself, and possibly for my husband as well."
+       },
+       {
+        "spk": "A",
+        "text": "Of course. Have either of you done any kayaking before?"
+       },
+       {
+        "spk": "B",
+        "text": "Only once, on holiday, and that was years ago. So I'd say we're really complete beginners."
+       },
+       {
+        "spk": "A",
+        "text": "OK. Well, we run two courses for adults. There's the Intermediate course, but that's for people who can already get back into a boat on their own after a capsize, so I wouldn't recommend that one for you. For complete beginners it's the Starter course. That's four sessions, one a week."
+       },
+       {
+        "spk": "B",
+        "text": "The Starter course sounds right, then. Four weeks is fine for us."
+       },
+       {
+        "spk": "A",
+        "text": "Great. Let me take a few details. Can I have your name, please?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes, it's Helen Prothero."
+       },
+       {
+        "spk": "A",
+        "text": "Could you spell the surname for me?"
+       },
+       {
+        "spk": "B",
+        "text": "Sure. It's P-R-O-T-H-E-R-O."
+       },
+       {
+        "spk": "A",
+        "text": "Thank you. Now, the next Starter course... we have one beginning on Saturday the 7th of July, but I'm afraid that one's already full. The following one begins a week later, on Saturday the 14th."
+       },
+       {
+        "spk": "B",
+        "text": "The 14th is fine. We're away on the 7th anyway, visiting my sister."
+       },
+       {
+        "spk": "A",
+        "text": "Perfect. The sessions start at a quarter past nine... sorry, no, I'm reading last year's timetable. They've changed it for the summer. They start at 9.30 and finish at around half past eleven."
+       },
+       {
+        "spk": "B",
+        "text": "9.30. That's no problem."
+       },
+       {
+        "spk": "A",
+        "text": "When you arrive, please don't go to the main car park. People often park there and then have to walk all the way round the bay. Come straight to the boathouse, which is the green building next to the café."
+       },
+       {
+        "spk": "B",
+        "text": "The green building next to the café. Got it."
+       },
+       {
+        "spk": "A",
+        "text": "You'll need to bring a change of clothes, because you will get wet, I can promise you that. And bring a towel as well. You don't need to bring a buoyancy aid or a helmet; we provide all the safety equipment."
+       },
+       {
+        "spk": "B",
+        "text": "What about shoes? I don't have anything special."
+       },
+       {
+        "spk": "A",
+        "text": "Old trainers are fine. Just nothing that will come off easily in the water, so no sandals."
+       }
+      ]
+     },
+     {
+      "questions": [
+       7,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "B",
+        "text": "And could I ask about costs? The leaflet mentioned some extras."
+       },
+       {
+        "spk": "A",
+        "text": "Yes. The course itself is £96 per person, and that includes the boat and paddle. Then there are a few optional extras. Wetsuit hire used to be £5 a session, but it went up this year, so it's now £6 per session. Most people do hire one, especially early in the season when the water's still cold."
+       },
+       {
+        "spk": "B",
+        "text": "£6 a time. OK, I think we'd want that."
+       },
+       {
+        "spk": "A",
+        "text": "Then there's the photo package. One of our instructors takes pictures from the shore during the last session, and you get those plus a short video of you out on the water. People often buy it as a gift."
+       },
+       {
+        "spk": "B",
+        "text": "That sounds fun. Is there any kind of discount available? My husband asked me to check."
+       },
+       {
+        "spk": "A",
+        "text": "We don't offer group discounts, I'm afraid, not even for families. But there's ten per cent off for students, if you show a valid card on the first day."
+       },
+       {
+        "spk": "B",
+        "text": "Ah, neither of us is a student, unfortunately. And what happens if we need to cancel?"
+       },
+       {
+        "spk": "A",
+        "text": "If you cancel 48 hours or more before the first session, you get a full refund. If it's later than that, we can only offer you a place on a later course. I know some centres only ask for 24 hours' notice, but we need two days to offer the place to someone on our waiting list."
+       },
+       {
+        "spk": "B",
+        "text": "That seems fair. And if the weather's bad?"
+       },
+       {
+        "spk": "A",
+        "text": "If there's a strong wind warning, we'll text you by seven in the morning and move the session to the following week, so you won't lose anything."
+       },
+       {
+        "spk": "B",
+        "text": "Lovely. I'll talk to my husband tonight and call back to confirm both places."
+       },
+       {
+        "spk": "A",
+        "text": "No problem. I'll hold your place until Friday. Thanks for calling, Helen."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       6
+      ],
+      "type": "form_completion",
+      "title": "Larch Bay Paddle Centre - Booking form",
+      "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Name: Helen {gap}",
+        "answer": "Prothero",
+        "evidence": "Yes, it's Helen Prothero",
+        "skill": "spelling",
+        "explain_en": "The surname is spelled letter by letter: P-R-O-T-H-E-R-O.",
+        "explain_bn": "নামের বানান অক্ষর ধরে বলা হয়েছে: P-R-O-T-H-E-R-O — বানান ঠিক না হলে নম্বর নেই।"
+       },
+       {
+        "n": 2,
+        "prompt": "Course chosen: {gap} course (four sessions)",
+        "answer": "Starter",
+        "evidence": "For complete beginners it's the Starter course",
+        "skill": "detail",
+        "explain_en": "The Intermediate course is mentioned first but rejected; beginners take the Starter course.",
+        "explain_bn": "Intermediate কোর্সের কথা আগে এলেও সেটা বাদ — নতুনদের জন্য Starter কোর্স।"
+       },
+       {
+        "n": 3,
+        "prompt": "First session: Saturday {gap} July",
+        "answer": "14th",
+        "accept": [
+         "14",
+         "fourteenth"
+        ],
+        "evidence": "The following one begins a week later, on Saturday the 14th",
+        "skill": "number",
+        "explain_en": "The course on the 7th is full, so the first session is on the 14th.",
+        "explain_bn": "৭ তারিখের কোর্স পূর্ণ, তাই প্রথম সেশন ১৪ তারিখে — প্রথম শোনা তারিখটা ফাঁদ।"
+       },
+       {
+        "n": 4,
+        "prompt": "Start time: {gap}",
+        "answer": "9.30",
+        "accept": [
+         "9:30",
+         "9.30am",
+         "9:30am"
+        ],
+        "evidence": "They start at 9.30 and finish at around half past eleven",
+        "skill": "number",
+        "explain_en": "The speaker first reads last year's time (9.15) and corrects it to 9.30.",
+        "explain_bn": "প্রথমে পুরোনো সময় (৯টা ১৫) বলে, পরে ঠিক করে ৯.৩০ বলা হয়েছে।"
+       },
+       {
+        "n": 5,
+        "prompt": "Meeting point: the {gap} (green building next to the café)",
+        "answer": "boathouse",
+        "evidence": "Come straight to the boathouse",
+        "skill": "detail",
+        "explain_en": "Visitors should not go to the main car park; they meet at the boathouse.",
+        "explain_bn": "মেইন কার পার্কে না গিয়ে সরাসরি boathouse-এ যেতে হবে।"
+       },
+       {
+        "n": 6,
+        "prompt": "Bring: a change of clothes and a {gap}",
+        "answer": "towel",
+        "evidence": "And bring a towel as well",
+        "skill": "detail",
+        "explain_en": "Safety equipment is provided; learners bring clothes and a towel.",
+        "explain_bn": "নিরাপত্তা সরঞ্জাম সেন্টার দেয়; নিজেকে আনতে হবে কাপড় আর তোয়ালে (towel)।"
+       }
+      ]
+     },
+     {
+      "range": [
+       7,
+       10
+      ],
+      "type": "table_completion",
+      "title": "Costs and conditions",
+      "instructions": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 7,
+        "prompt": "Wetsuit hire: £{gap} per session",
+        "answer": "6",
+        "evidence": "so it's now £6 per session",
+        "skill": "number",
+        "explain_en": "The old price was £5; it is now £6.",
+        "explain_bn": "আগের দাম ছিল £৫, এখন £৬ — পুরোনো দামটা ফাঁদ।"
+       },
+       {
+        "n": 8,
+        "prompt": "Photo package: pictures plus a short {gap}",
+        "answer": "video",
+        "evidence": "you get those plus a short video of you out on the water",
+        "skill": "detail",
+        "explain_en": "The package includes photos and a short video.",
+        "explain_bn": "ছবি ছাড়াও একটা ছোট ভিডিও পাওয়া যায়।"
+       },
+       {
+        "n": 9,
+        "prompt": "Discount: 10% for {gap} (with a valid card)",
+        "answer": "students",
+        "accept": [
+         "student"
+        ],
+        "evidence": "there's ten per cent off for students",
+        "skill": "detail",
+        "explain_en": "There are no group or family discounts; only students get 10% off.",
+        "explain_bn": "গ্রুপ বা পরিবারের জন্য ছাড় নেই; শুধু ছাত্রছাত্রীরা ১০% ছাড় পায়।"
+       },
+       {
+        "n": 10,
+        "prompt": "Full refund if cancelled at least {gap} hours before",
+        "answer": "48",
+        "evidence": "If you cancel 48 hours or more before the first session",
+        "skill": "number",
+        "explain_en": "24 hours is what other centres ask; this centre needs 48 hours.",
+        "explain_bn": "অন্য সেন্টারে ২৪ ঘণ্টা, কিন্তু এখানে ৪৮ ঘণ্টা আগে বাতিল করতে হবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
+    "intro": "You will hear a volunteer guide giving an introductory talk to visitors at a botanic garden.",
+    "speakers": {
+     "A": {
+      "name": "Ruth",
+      "gender": "F",
+      "accent": "GB",
+      "role": "volunteer guide"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       11,
+       15
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon, everyone, and welcome to Hollins Vale Botanic Garden. My name's Ruth, and I'm one of the volunteer guides here. Before you head off to explore, I'd like to give you a short introduction to the garden and point out a few things you won't want to miss."
+       },
+       {
+        "spk": "A",
+        "text": "First, a little history. Many visitors assume the garden was started by wealthy collectors to show off exotic plants brought back from overseas. That did happen, but only much later. The garden was actually founded in 1824 by a group of local doctors, who needed a reliable supply of medicinal plants for the town hospital. A school for training gardeners was added about fifty years after that, and it still runs today."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "Now, what's new this year? You may have read that the café is moving to a bigger building by the lake. That is going to happen, but not until next spring. And some of you may remember that there were plans for a new main entrance on Mill Road; those were turned down by the council, so you'll still come in the way you did today. The big news is that the Palm House, our Victorian glasshouse, reopened in April after three years of repairs, and it's looking wonderful."
+       },
+       {
+        "spk": "A",
+        "text": "A word about how we'd like you to behave in the garden. Unlike a lot of gardens, we actually encourage you to walk on the lawns, so please do enjoy them. Feeding the ducks is fine too, as long as you use the seed sold at the kiosk rather than bread. But please don't touch anything in the medicinal beds near the entrance. Some of those plants can irritate the skin quite badly, and we've had a few unhappy visitors."
+       },
+       {
+        "spk": "A",
+        "text": "If you'd like to learn more, we used to run guided walks only at weekends, but now our volunteers lead a free walk around the whole garden every morning at eleven, starting from the sundial. There's also a bird-watching walk on the first Sunday of each month, but that one is run by a separate society and there's a small charge of three pounds."
+       },
+       {
+        "spk": "A",
+        "text": "And finally in this section, the Rock Garden. Most people will tell you that late spring is the best time to see it, when the alpine flowers are out, and it is lovely then. But my own advice is to go straight after rain. The wet stones change colour completely, and the whole place seems to glow. Early morning is pleasant too, but it's often closed for watering until ten."
+       }
+      ]
+     },
+     {
+      "questions": [
+       16,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Right, if you look at the plan of the garden in your leaflet, I'll tell you what you can find in each of the main areas."
+       },
+       {
+        "spk": "A",
+        "text": "Let's start with the Palm House, which I mentioned earlier. As well as the palms, of course, there's a humid corner at the far end with a collection of plants that trap and digest insects. Children love them. The cacti used to be in there too, but they didn't do well in the damp air, so they've been moved."
+       },
+       {
+        "spk": "A",
+        "text": "Next to it is the Walled Garden. It's sheltered and quiet, and we've put benches under the fruit trees with a box of books that anyone can borrow, so it's become a sort of outdoor reading area. Do take a book back to the bench when you've finished."
+       },
+       {
+        "spk": "A",
+        "text": "Down by the water there's the Lake Meadow. Some of you will be sad to hear that the garden's oldest tree, a huge oak that stood by the lake, came down in a storm last winter. But there's something new to see there: a beehive with a glass wall, so you can watch the bees working without any risk of being stung."
+       },
+       {
+        "spk": "A",
+        "text": "Then there's the Woodland Walk, which is the best place to take younger visitors. We've set up a trail with puzzles at ten points along the path, and if they solve them all, they can collect a small badge from the kiosk."
+       },
+       {
+        "spk": "A",
+        "text": "And lastly, the Old Nursery, where young plants used to be grown. That's where the cacti went, and they're much happier there in the dry, sunny glasshouse. There was also a little shop selling wildflower seeds in the nursery, but it closed last year; the seeds are now only sold online."
+       },
+       {
+        "spk": "A",
+        "text": "OK, that's all from me. Enjoy your afternoon, and do come and find me at the sundial if you have any questions."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       11,
+       15
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "The garden was originally created in order to",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "grow medicinal plants for a hospital."
+         },
+         {
+          "key": "B",
+          "text": "display plants collected abroad."
+         },
+         {
+          "key": "C",
+          "text": "provide training for gardeners."
+         }
+        ],
+        "evidence": "who needed a reliable supply of medicinal plants for the town hospital",
+        "skill": "detail",
+        "explain_en": "Exotic collections came much later and the gardeners' school about fifty years later; the founders were doctors needing medicinal plants.",
+        "explain_bn": "বিদেশি গাছ আর প্রশিক্ষণ স্কুল পরে এসেছে; শুরুতে ডাক্তাররা হাসপাতালের ওষুধি গাছের জন্য বাগানটা বানান।"
+       },
+       {
+        "n": 12,
+        "prompt": "What is new at the garden this year?",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "The café has moved to a larger building."
+         },
+         {
+          "key": "B",
+          "text": "There is a new main entrance."
+         },
+         {
+          "key": "C",
+          "text": "A glasshouse has reopened."
+         }
+        ],
+        "evidence": "The big news is that the Palm House, our Victorian glasshouse, reopened in April",
+        "skill": "detail",
+        "explain_en": "The café moves next spring and the new entrance was turned down; the glasshouse has reopened.",
+        "explain_bn": "ক্যাফে সরবে আগামী বসন্তে, নতুন গেট বাতিল — এ বছর নতুন হলো গ্লাসহাউস আবার খোলা।"
+       },
+       {
+        "n": 13,
+        "prompt": "Visitors are asked not to",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "feed the ducks."
+         },
+         {
+          "key": "B",
+          "text": "walk on the grass."
+         },
+         {
+          "key": "C",
+          "text": "touch plants in certain beds."
+         }
+        ],
+        "evidence": "But please don't touch anything in the medicinal beds near the entrance",
+        "skill": "detail",
+        "explain_en": "Walking on the lawns is encouraged and duck feeding is allowed with kiosk seed; touching the medicinal beds is not.",
+        "explain_bn": "ঘাসে হাঁটা আর হাঁসকে খাওয়ানো চলবে; কিন্তু ওষুধি গাছের বেডে হাত দেওয়া নিষেধ।"
+       },
+       {
+        "n": 14,
+        "prompt": "Free guided walks around the whole garden take place",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "every morning."
+         },
+         {
+          "key": "B",
+          "text": "at weekends only."
+         },
+         {
+          "key": "C",
+          "text": "on the first Sunday of each month."
+         }
+        ],
+        "evidence": "now our volunteers lead a free walk around the whole garden every morning at eleven",
+        "skill": "detail",
+        "explain_en": "Weekend-only walks were the old system; the monthly bird walk costs money, so it is not the free walk.",
+        "explain_bn": "শুধু সপ্তাহান্তে হাঁটা ছিল আগের নিয়ম; মাসিক পাখি দেখার হাঁটায় টাকা লাগে — ফ্রি হাঁটা প্রতিদিন সকালে।"
+       },
+       {
+        "n": 15,
+        "prompt": "The speaker's personal advice is to visit the Rock Garden",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "early in the morning."
+         },
+         {
+          "key": "B",
+          "text": "just after it has rained."
+         },
+         {
+          "key": "C",
+          "text": "in late spring."
+         }
+        ],
+        "evidence": "But my own advice is to go straight after rain",
+        "skill": "opinion",
+        "explain_en": "Late spring is what most people say; the speaker's own advice is after rain. Early morning it is often closed.",
+        "explain_bn": "বেশিরভাগ লোক বসন্তের কথা বলে, কিন্তু বক্তার নিজের পরামর্শ বৃষ্টির ঠিক পরে যাওয়া।"
+       }
+      ]
+     },
+     {
+      "range": [
+       16,
+       20
+      ],
+      "type": "matching",
+      "instructions": "What can visitors find in each area of the garden? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "plants that catch insects"
+       },
+       {
+        "key": "B",
+        "text": "a wildflower seed shop"
+       },
+       {
+        "key": "C",
+        "text": "an outdoor reading area"
+       },
+       {
+        "key": "D",
+        "text": "the oldest tree in the garden"
+       },
+       {
+        "key": "E",
+        "text": "a trail with puzzles for children"
+       },
+       {
+        "key": "F",
+        "text": "a display of cacti"
+       },
+       {
+        "key": "G",
+        "text": "a beehive with a glass wall"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 16,
+        "prompt": "The Palm House",
+        "answer": "A",
+        "evidence": "a collection of plants that trap and digest insects",
+        "skill": "matching_info",
+        "explain_en": "The cacti used to be in the Palm House but were moved; the insect-eating plants are there now.",
+        "explain_bn": "ক্যাকটাস আগে এখানে ছিল কিন্তু সরানো হয়েছে; এখন আছে পোকা ধরা গাছ।"
+       },
+       {
+        "n": 17,
+        "prompt": "The Walled Garden",
+        "answer": "C",
+        "evidence": "so it's become a sort of outdoor reading area",
+        "skill": "matching_info",
+        "explain_en": "Benches with a box of books make it an outdoor reading area.",
+        "explain_bn": "বেঞ্চ আর বইয়ের বাক্স — তাই এটা খোলা আকাশের নিচে পড়ার জায়গা।"
+       },
+       {
+        "n": 18,
+        "prompt": "The Lake Meadow",
+        "answer": "G",
+        "evidence": "a beehive with a glass wall, so you can watch the bees working",
+        "skill": "matching_info",
+        "explain_en": "The oldest tree fell in a storm, so D is wrong; the new feature is the glass-walled beehive.",
+        "explain_bn": "সবচেয়ে পুরোনো গাছটা ঝড়ে পড়ে গেছে, তাই D নয় — নতুন আছে কাঁচের দেয়ালওয়ালা মৌচাক।"
+       },
+       {
+        "n": 19,
+        "prompt": "The Woodland Walk",
+        "answer": "E",
+        "evidence": "We've set up a trail with puzzles at ten points along the path",
+        "skill": "matching_info",
+        "explain_en": "The Woodland Walk has a puzzle trail for younger visitors.",
+        "explain_bn": "ছোটদের জন্য ধাঁধার ট্রেইল আছে Woodland Walk-এ।"
+       },
+       {
+        "n": 20,
+        "prompt": "The Old Nursery",
+        "answer": "F",
+        "evidence": "That's where the cacti went, and they're much happier there",
+        "skill": "matching_info",
+        "explain_en": "The seed shop in the nursery closed, so B is wrong; the cacti are now here.",
+        "explain_bn": "নার্সারির বীজের দোকান বন্ধ, তাই B নয় — ক্যাকটাস এখন এখানে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two students, Chloe and Ryan, talking to their tutor about a survey project on student travel.",
+    "speakers": {
+     "A": {
+      "name": "Dr Keller",
+      "gender": "F",
+      "accent": "US",
+      "role": "tutor"
+     },
+     "B": {
+      "name": "Chloe",
+      "gender": "F",
+      "accent": "GB",
+      "role": "student"
+     },
+     "C": {
+      "name": "Ryan",
+      "gender": "M",
+      "accent": "US",
+      "role": "student"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Come in, both of you. So, you wanted to talk about your survey project for the research methods module?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes. We've decided to look at how students travel to campus, and how long their journeys take."
+       },
+       {
+        "spk": "A",
+        "text": "Commuting. OK. What made you choose that? Was it because the university's been asking for travel data?"
+       },
+       {
+        "spk": "C",
+        "text": "People keep saying that, but actually nobody asked us. It's really that we both spend over an hour on the bus every morning, and we wanted to know if that's normal or if we're just unlucky."
+       },
+       {
+        "spk": "A",
+        "text": "Well, a personal interest is a good starting point. And you'll certainly have plenty of people to ask."
+       },
+       {
+        "spk": "B",
+        "text": "That's true, though honestly that wasn't the reason. Anyway, we've brought our first draft of the questionnaire."
+       },
+       {
+        "spk": "A",
+        "text": "Let me have a look. Mm. The questions themselves are clear, and I don't think anything here is too personal; you're not asking for home addresses, which is good. My real concern is the length. You've got twenty-eight questions. People filling this in at eight in the morning will give up halfway through."
+       },
+       {
+        "spk": "C",
+        "text": "We did wonder about that. We could cut the questions about cost, maybe."
+       },
+       {
+        "spk": "A",
+        "text": "I'd aim for about twelve. Think about what you actually need to answer your research question, and cut everything else. If a question is only there because it might be interesting, it should go."
+       },
+       {
+        "spk": "B",
+        "text": "So the questions about which music people listen to on the bus would have to go, I suppose."
+       },
+       {
+        "spk": "A",
+        "text": "I'm afraid so, fun as they are. Now, how are you planning to collect responses?"
+       },
+       {
+        "spk": "C",
+        "text": "I suggested putting it online, through the course pages, because it's quick."
+       },
+       {
+        "spk": "A",
+        "text": "It's quick, but response rates for online surveys here are very low, often under five per cent. You'd also only reach students who check their course pages, which isn't everyone."
+       },
+       {
+        "spk": "B",
+        "text": "My idea was to sit in the library with a laptop, but then we'd mainly get people who stay on campus all day."
+       },
+       {
+        "spk": "C",
+        "text": "So in the end we agreed to stand at the three bus stops nearest the campus in the morning, with paper forms. That way we catch people actually arriving."
+       },
+       {
+        "spk": "A",
+        "text": "That makes sense, as long as you keep it short. Did you run a pilot?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes, with ten people from our seminar group. The main problem was that several of them read 'journey time' as door to door, including the walk to the stop, while others counted just the time on the bus. So the answers weren't comparable."
+       },
+       {
+        "spk": "A",
+        "text": "Then you'll need to define it on the form. Say clearly 'from leaving home to arriving at the campus gate'."
+       },
+       {
+        "spk": "C",
+        "text": "We were also thinking of comparing our results with something bigger, like the national travel figures."
+       },
+       {
+        "spk": "A",
+        "text": "The national statistics are about people travelling to work, not students, so they're not really comparable. And the bus company won't share its passenger data; others have tried. But last year's group did a smaller study on cycling to campus, and their raw data is in the department archive. You could compare your findings with theirs."
+       },
+       {
+        "spk": "B",
+        "text": "That's a great idea. I didn't know we could use previous projects."
+       },
+       {
+        "spk": "A",
+        "text": "You can, as long as you acknowledge them properly in your report. Their sample was quite small, so be careful about drawing strong conclusions from any differences you find."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Have you got any early results yet, from the pilot?"
+       },
+       {
+        "spk": "C",
+        "text": "A few. What surprised us was that price didn't come top. We expected everyone to complain about the cost of bus passes, but only two people mentioned it."
+       },
+       {
+        "spk": "B",
+        "text": "The two things people mentioned most were later buses in the evening, because the last bus leaves at half past eight, and secure places to leave bikes. Apparently bikes keep getting stolen from the racks behind the library."
+       },
+       {
+        "spk": "C",
+        "text": "A couple of people liked the idea of a car-sharing app, and one person wanted more parking, but that was a member of staff, so we'll have to leave that out."
+       },
+       {
+        "spk": "A",
+        "text": "Interesting. Right, so who's going to do what for the final report?"
+       },
+       {
+        "spk": "B",
+        "text": "I'm better with spreadsheets, so I'll design the charts."
+       },
+       {
+        "spk": "C",
+        "text": "And I'll write the introduction, because I've already read most of the background literature."
+       },
+       {
+        "spk": "A",
+        "text": "Good. One more thing. You'll need permission before standing at the bus stops with forms, because two of them are on university land. Leave that to me; I'll contact the transport office myself this week, as they tend to reply faster to staff."
+       },
+       {
+        "spk": "C",
+        "text": "Thank you, that's really helpful."
+       },
+       {
+        "spk": "A",
+        "text": "Not at all. Send me the shorter version of the questionnaire by Friday, and we'll meet again next week."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why did the students choose commuting as their topic?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "The university asked for travel data."
+         },
+         {
+          "key": "B",
+          "text": "They both have long journeys themselves."
+         },
+         {
+          "key": "C",
+          "text": "It is easy to find participants."
+         }
+        ],
+        "evidence": "It's really that we both spend over an hour on the bus every morning",
+        "skill": "detail",
+        "explain_en": "Nobody from the university asked them, and the number of participants 'wasn't the reason'; it was their own long journeys.",
+        "explain_bn": "বিশ্ববিদ্যালয় চায়নি, আর অংশগ্রহণকারী বেশি পাওয়াও কারণ নয় — নিজেদের লম্বা যাত্রাই আসল কারণ।"
+       },
+       {
+        "n": 22,
+        "prompt": "What does the tutor think about the first draft of the questionnaire?",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "It is too long."
+         },
+         {
+          "key": "B",
+          "text": "It is too personal."
+         },
+         {
+          "key": "C",
+          "text": "Its purpose is unclear."
+         }
+        ],
+        "evidence": "My real concern is the length",
+        "skill": "opinion",
+        "explain_en": "She says the questions are clear and not too personal; the problem is length (28 questions).",
+        "explain_bn": "প্রশ্নগুলো পরিষ্কার আর ব্যক্তিগত নয় বলেছেন; সমস্যা হলো দৈর্ঘ্য — ২৮টা প্রশ্ন।"
+       },
+       {
+        "n": 23,
+        "prompt": "How will the students collect responses?",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "in the library"
+         },
+         {
+          "key": "B",
+          "text": "online, through course pages"
+         },
+         {
+          "key": "C",
+          "text": "at bus stops"
+         }
+        ],
+        "evidence": "So in the end we agreed to stand at the three bus stops nearest the campus",
+        "skill": "detail",
+        "explain_en": "Online and library options were discussed and rejected; they chose the bus stops.",
+        "explain_bn": "অনলাইন আর লাইব্রেরির কথা বাদ গেছে; শেষে তারা বাস স্টপে দাঁড়াবে ঠিক করে।"
+       },
+       {
+        "n": 24,
+        "prompt": "What problem with the pilot study does Chloe mention?",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "Some participants misunderstood a question."
+         },
+         {
+          "key": "B",
+          "text": "The pilot group was too small."
+         },
+         {
+          "key": "C",
+          "text": "Some answers were lost."
+         }
+        ],
+        "evidence": "several of them read 'journey time' as door to door",
+        "skill": "detail",
+        "explain_en": "Participants understood 'journey time' in different ways, so a question was misunderstood.",
+        "explain_bn": "'journey time' কথাটা লোকে ভিন্নভাবে বুঝেছে — মানে একটা প্রশ্ন ভুল বোঝা হয়েছে।"
+       },
+       {
+        "n": 25,
+        "prompt": "The tutor suggests comparing their results with",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "national travel statistics."
+         },
+         {
+          "key": "B",
+          "text": "a previous student project."
+         },
+         {
+          "key": "C",
+          "text": "data from the bus company."
+         }
+        ],
+        "evidence": "But last year's group did a smaller study on cycling to campus",
+        "skill": "detail",
+        "explain_en": "National figures are about workers and the bus company won't share data; last year's project is available.",
+        "explain_bn": "জাতীয় পরিসংখ্যান কর্মজীবীদের নিয়ে, বাস কোম্পানি তথ্য দেয় না — তাই আগের বছরের প্রজেক্ট।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       27
+      ],
+      "type": "mcq_multi",
+      "choose": 2,
+      "answers": [
+       "B",
+       "C"
+      ],
+      "prompt": "Which TWO improvements did students in the pilot mention most often?",
+      "instructions": "Choose TWO letters, A-E.",
+      "options": [
+       {
+        "key": "A",
+        "text": "cheaper bus passes"
+       },
+       {
+        "key": "B",
+        "text": "more secure bike storage"
+       },
+       {
+        "key": "C",
+        "text": "later evening buses"
+       },
+       {
+        "key": "D",
+        "text": "a car-sharing app"
+       },
+       {
+        "key": "E",
+        "text": "more parking spaces"
+       }
+      ],
+      "evidence": [
+       "The two things people mentioned most were later buses in the evening",
+       "and secure places to leave bikes"
+      ],
+      "questions": [
+       {
+        "n": 26,
+        "skill": "detail",
+        "explain_en": "Price was mentioned by only two people; later buses and secure bike storage came top.",
+        "explain_bn": "দামের কথা বলেছে মাত্র দুজন; সবচেয়ে বেশি এসেছে রাতের বাস আর সাইকেল রাখার নিরাপদ জায়গা।"
+       },
+       {
+        "n": 27,
+        "skill": "detail",
+        "explain_en": "A car-sharing app was mentioned by a couple of people only, and parking by one staff member.",
+        "explain_bn": "কার-শেয়ারিং অ্যাপ অল্প কয়েকজন আর পার্কিং একজন স্টাফ বলেছে — তাই এগুলো নয়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       28,
+       30
+      ],
+      "type": "matching",
+      "instructions": "Who will do each task? Choose the correct letter, A, B or C. You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "Chloe"
+       },
+       {
+        "key": "B",
+        "text": "Ryan"
+       },
+       {
+        "key": "C",
+        "text": "the tutor"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "design the charts",
+        "answer": "A",
+        "evidence": "I'm better with spreadsheets, so I'll design the charts",
+        "skill": "detail",
+        "explain_en": "Chloe says she is better with spreadsheets and will design the charts.",
+        "explain_bn": "চার্ট বানাবে Chloe, কারণ সে স্প্রেডশিটে ভালো।"
+       },
+       {
+        "n": 29,
+        "prompt": "write the introduction",
+        "answer": "B",
+        "evidence": "And I'll write the introduction, because I've already read most of the background literature",
+        "skill": "detail",
+        "explain_en": "Ryan has read the background literature, so he writes the introduction.",
+        "explain_bn": "ভূমিকা লিখবে Ryan, কারণ সে আগেই পটভূমির লেখাগুলো পড়েছে।"
+       },
+       {
+        "n": 30,
+        "prompt": "contact the transport office",
+        "answer": "C",
+        "evidence": "I'll contact the transport office myself this week",
+        "skill": "detail",
+        "explain_en": "The tutor says 'leave that to me' because the office replies faster to staff.",
+        "explain_bn": "টিউটর নিজেই ট্রান্সপোর্ট অফিসে যোগাযোগ করবেন — স্টাফকে তারা দ্রুত উত্তর দেয়।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
+    "intro": "You will hear a lecture on the history of the magnetic compass.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "F",
+      "accent": "US",
+      "role": "history of science lecturer"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning. Today I want to look at an instrument so ordinary that we hardly think about it: the magnetic compass. It's easy to assume that it was invented by sailors, for sailors, but its history is rather more surprising than that."
+       },
+       {
+        "spk": "A",
+        "text": "The story begins with lodestone, a type of rock that is naturally magnetic. Writers in China described its power to attract iron more than two thousand years ago. But the earliest compass-like devices were not used to find the way at all. They were used for fortune-telling, or what historians call divination, and for deciding how buildings and tombs should be positioned. One early design was a spoon carved from lodestone. It was placed on a polished bronze plate, and when it stopped turning, its handle pointed south. It's worth noticing that south, not north, was the direction that mattered in this tradition, which is a useful reminder that the way we think about direction is partly a matter of culture."
+       },
+       {
+        "spk": "A",
+        "text": "So when did the compass go to sea? The key change was the discovery that an ordinary iron needle could be magnetised by rubbing it against lodestone. A magnetised needle was much lighter than a spoon, and it could be floated on a small piece of wood or straw in a bowl of water, where it would turn freely. The first clear written descriptions of compasses being used at sea date from around the eleventh century. They make it plain that the compass was not the sailors' main tool. Navigators relied on the sun and stars, and used the needle only when the sky was hidden by cloud."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "In Europe, the compass appears in writing about a century later, and here an important improvement was made: the so-called dry compass. Instead of floating in water, which splashed about on a moving ship, the needle was balanced on a pin, so that it could swing without any liquid at all. Before long, the needle was attached to a card marked with the directions. Interestingly, the earliest of these cards did not show north, south, east and west as we know them. They showed the names of the winds, because sailors in the Mediterranean thought of direction in terms of the winds that blew from each quarter. The decorated star pattern we call the compass rose comes from those cards."
+       },
+       {
+        "spk": "A",
+        "text": "However, the compass was never perfectly reliable, and two problems in particular troubled navigators for centuries. The first was that the iron on board the ship itself, in nails, cannons and later in the hull, pulled the needle away from magnetic north. This effect is known as deviation, and it became much more serious when ships began to be built entirely of iron in the nineteenth century. Engineers eventually corrected it by placing iron balls and small magnets around the compass. You can still see these iron balls, painted red and green, on either side of the compass on many older ships, and visitors often mistake them for decoration."
+       },
+       {
+        "spk": "A",
+        "text": "The second problem is called variation. Magnetic north is not in the same place as true north, the geographic pole, and the difference changes from one part of the world to another, and even from year to year. Navigators learned to measure variation and to record it on charts, so that later ships could adjust their readings. In fact, these records of variation are now valuable to scientists studying how the Earth's magnetic field has changed over time."
+       },
+       {
+        "spk": "A",
+        "text": "Later developments focused on making the compass easier to read in rough conditions. In the nineteenth century, makers began to fill the compass bowl with a mixture of water and alcohol, which does not freeze easily. The liquid slowed down the movement of the card when waves threw the ship around, so the helmsman could actually read it. At around the same time, compass makers began to produce smaller, cheaper models for use on land, by surveyors, soldiers and, eventually, ordinary travellers."
+       },
+       {
+        "spk": "A",
+        "text": "Today, of course, most ships and aircraft navigate using satellite systems. You might expect the magnetic compass to have disappeared, but it hasn't. International rules still require ships to carry one, because it needs no electricity and cannot be switched off by a technical fault. In other words, it survives as a backup for the moment when electronic systems fail. And many of the hill walkers who rely on their phones every weekend would do well to carry one too. Next week, we'll look at the history of measuring longitude."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "title": "The history of the magnetic compass",
+      "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 31,
+        "prompt": "Early devices were used for fortune-telling, also called {gap}",
+        "answer": "divination",
+        "evidence": "or what historians call divination",
+        "skill": "vocabulary",
+        "explain_en": "The lecturer gives the historians' term for fortune-telling: divination.",
+        "explain_bn": "ভাগ্য গণনার ইতিহাসবিদদের দেওয়া নাম divination।"
+       },
+       {
+        "n": 32,
+        "prompt": "A lodestone spoon turned on a polished bronze {gap}",
+        "answer": "plate",
+        "evidence": "It was placed on a polished bronze plate",
+        "skill": "detail",
+        "explain_en": "The spoon sat on a bronze plate and its handle pointed south.",
+        "explain_bn": "চামচটা পিতলের প্লেটের (plate) উপর রাখা হতো।"
+       },
+       {
+        "n": 33,
+        "prompt": "A magnetised needle could float in a bowl of {gap}",
+        "answer": "water",
+        "evidence": "in a bowl of water, where it would turn freely",
+        "skill": "detail",
+        "explain_en": "The needle floated on wood or straw in a bowl of water.",
+        "explain_bn": "চুম্বকিত সুই কাঠ বা খড়ে ভাসিয়ে পানির বাটিতে রাখা হতো।"
+       },
+       {
+        "n": 34,
+        "prompt": "At sea, the needle was used only when cloud hid the {gap}",
+        "answer": "sky",
+        "evidence": "used the needle only when the sky was hidden by cloud",
+        "skill": "paraphrase",
+        "explain_en": "Sailors used the sun and stars, and the compass only when the sky was cloudy.",
+        "explain_bn": "নাবিকরা সূর্য-তারা দেখত; আকাশ মেঘে ঢাকলে তবেই কম্পাস ব্যবহার করত।"
+       },
+       {
+        "n": 35,
+        "prompt": "Dry compass: the needle was balanced on a {gap}",
+        "answer": "pin",
+        "evidence": "the needle was balanced on a pin",
+        "skill": "detail",
+        "explain_en": "In the dry compass the needle was balanced on a pin instead of floating.",
+        "explain_bn": "ড্রাই কম্পাসে সুই পানিতে না ভেসে একটা পিনের উপর বসানো থাকত।"
+       },
+       {
+        "n": 36,
+        "prompt": "The earliest compass cards showed the names of the {gap}",
+        "answer": "winds",
+        "evidence": "They showed the names of the winds",
+        "skill": "detail",
+        "explain_en": "Early cards showed wind names, not north, south, east and west.",
+        "explain_bn": "প্রথম দিকের কার্ডে উত্তর-দক্ষিণ নয়, বাতাসের (winds) নাম লেখা থাকত।"
+       },
+       {
+        "n": 37,
+        "prompt": "Iron on the ship pulled the needle: an effect called {gap}",
+        "answer": "deviation",
+        "evidence": "This effect is known as deviation",
+        "skill": "vocabulary",
+        "explain_en": "The pull of the ship's own iron is called deviation (variation is the second problem).",
+        "explain_bn": "জাহাজের লোহার টানকে বলে deviation; variation আলাদা সমস্যা — গুলিয়ে ফেলবেন না।"
+       },
+       {
+        "n": 38,
+        "prompt": "Navigators measured variation and recorded it on {gap}",
+        "answer": "charts",
+        "evidence": "to record it on charts",
+        "skill": "detail",
+        "explain_en": "Variation was measured and written on charts for later ships.",
+        "explain_bn": "variation মেপে চার্টে (charts) লিখে রাখা হতো।"
+       },
+       {
+        "n": 39,
+        "prompt": "Liquid in the bowl reduced the {gap} of the card in rough seas",
+        "answer": "movement",
+        "evidence": "The liquid slowed down the movement of the card",
+        "skill": "paraphrase",
+        "explain_en": "'Slowed down the movement' is paraphrased as 'reduced the movement'.",
+        "explain_bn": "তরল পদার্থ কার্ডের নড়াচড়া (movement) কমিয়ে দিত — slowed down = reduced।"
+       },
+       {
+        "n": 40,
+        "prompt": "Today the compass is kept as a {gap} in case electronic systems fail",
+        "answer": "backup",
+        "accept": [
+         "back-up"
+        ],
+        "evidence": "it survives as a backup for the moment when electronic systems fail",
+        "skill": "main_idea",
+        "explain_en": "It needs no electricity, so it remains a backup.",
+        "explain_bn": "বিদ্যুৎ লাগে না বলে কম্পাস এখনো ব্যাকআপ হিসেবে রাখা হয়।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "Weekend courses at Riverside Adult Learning Centre",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "Bread Baking for Beginners. Spend a Saturday learning to make three kinds of loaf, from a simple white tin loaf to a rye sourdough. Your tutor, Dana Whitlow, runs a small bakery in the old market hall and has been teaching for over ten years. All ingredients and aprons are provided, and you will take home everything you bake. Saturday 10 am to 4 pm. £55."
+       },
+       {
+        "label": "B",
+        "text": "Furniture Restoration. Learn how to repair loose joints, strip old paint and bring a tired wooden surface back to life. We supply a selection of old chairs and drawers for you to practise on, so please do not bring your own pieces to the first session. Two Sundays, 10 am to 3 pm. £120, or £100 if you book before the end of this month."
+       },
+       {
+        "label": "C",
+        "text": "Introduction to Digital Photography. Find out what all those buttons on your camera actually do. The morning is spent in the classroom, and after lunch the group goes out along the river path to practise. Please bring your own camera (any type, including a phone with a good camera) and its charger. Saturday 9.30 am to 4.30 pm. £60."
+       },
+       {
+        "label": "D",
+        "text": "Conversational Spanish. A relaxed course for people who know a little Spanish and want to speak with more confidence before a holiday. Classes are run entirely in Spanish by a native speaker. Runs over two consecutive weekends, Saturday and Sunday mornings. Everyone who attends all four mornings receives a certificate of attendance. £85."
+       },
+       {
+        "label": "E",
+        "text": "Bicycle Maintenance. Fixing a puncture, adjusting brakes and gears, and keeping your chain in good condition. All tools are provided, though you are welcome to bring your own bike if you would like to work on it. Young people aged 12 to 15 may attend if accompanied by a paying adult. Sunday 10 am to 2 pm. £40."
+       },
+       {
+        "label": "F",
+        "text": "Garden Design. Whether you have a balcony or a large back garden, this course will help you plan a space that looks good all year. Our designer will look at photos of your garden and suggest planting ideas. The price includes a two-course lunch in the centre's café. Saturday 10 am to 3.30 pm. £75."
+       }
+      ]
+     },
+     {
+      "title": "Booking and course information",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Places on all weekend courses can be booked online, by phone or in person at the centre's reception, which is open from 9 am to 7 pm on weekdays. Payment must be made in full at the time of booking. Courses run with a minimum of six participants. If a course does not reach this number a week before it is due to start, it will be cancelled and you will be offered either a full refund or a place on another course."
+       },
+       {
+        "label": "",
+        "text": "If you need to cancel your place, please let us know at least ten days before the course begins and we will return your fee, minus a £10 administration charge. We are unable to give refunds for later cancellations, but you may send a friend or relative in your place at no extra cost, provided you tell reception their name in advance."
+       },
+       {
+        "label": "",
+        "text": "The centre has a small car park, but spaces cannot be reserved and it is often full on Saturdays because of the market. We recommend using the bus, as the number 14 stops directly outside. Tea and coffee are available free of charge throughout the day on all courses. Participants with particular access needs are asked to contact reception before the course, so that suitable arrangements can be made."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "matching",
+      "instructions": "Look at the six advertisements, A-F. For which course are the following statements true? Write the correct letter, A-F. You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "Bread Baking for Beginners"
+       },
+       {
+        "key": "B",
+        "text": "Furniture Restoration"
+       },
+       {
+        "key": "C",
+        "text": "Introduction to Digital Photography"
+       },
+       {
+        "key": "D",
+        "text": "Conversational Spanish"
+       },
+       {
+        "key": "E",
+        "text": "Bicycle Maintenance"
+       },
+       {
+        "key": "F",
+        "text": "Garden Design"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Participants must provide their own equipment.",
+        "answer": "C",
+        "evidence": "Please bring your own camera",
+        "skill": "matching_info",
+        "explain_en": "Only the photography course asks you to bring something you need; the bike course provides tools.",
+        "explain_bn": "শুধু ফটোগ্রাফি কোর্সে নিজের ক্যামেরা আনতে হবে; সাইকেল কোর্সে যন্ত্রপাতি দেওয়া হয়।"
+       },
+       {
+        "n": 2,
+        "prompt": "Some younger people can join if they come with an adult.",
+        "answer": "E",
+        "evidence": "Young people aged 12 to 15 may attend if accompanied by a paying adult",
+        "skill": "matching_info",
+        "explain_en": "The bicycle course accepts 12 to 15-year-olds with a paying adult.",
+        "explain_bn": "১২-১৫ বছর বয়সীরা একজন বড় মানুষের সঙ্গে সাইকেল কোর্সে যেতে পারে।"
+       },
+       {
+        "n": 3,
+        "prompt": "A meal is included in the price.",
+        "answer": "F",
+        "evidence": "The price includes a two-course lunch in the centre's café",
+        "skill": "matching_info",
+        "explain_en": "Only Garden Design includes lunch; free tea and coffee are for all courses, which is not a meal.",
+        "explain_bn": "শুধু গার্ডেন ডিজাইন কোর্সে দুপুরের খাবার দামের মধ্যে; চা-কফি সবার জন্য, সেটা খাবার নয়।"
+       },
+       {
+        "n": 4,
+        "prompt": "Part of the course takes place outdoors.",
+        "answer": "C",
+        "evidence": "after lunch the group goes out along the river path to practise",
+        "skill": "matching_info",
+        "explain_en": "The photography group goes out along the river path after lunch.",
+        "explain_bn": "ফটোগ্রাফির দল দুপুরের পর নদীর পাশের রাস্তায় বাইরে যায়।"
+       },
+       {
+        "n": 5,
+        "prompt": "Participants can receive a document at the end.",
+        "answer": "D",
+        "evidence": "receives a certificate of attendance",
+        "skill": "paraphrase",
+        "explain_en": "A certificate of attendance is a document given at the end of the Spanish course.",
+        "explain_bn": "স্প্যানিশ কোর্স শেষে উপস্থিতির সার্টিফিকেট দেওয়া হয় — এটাই 'document'।"
+       },
+       {
+        "n": 6,
+        "prompt": "It is cheaper for people who book early.",
+        "answer": "B",
+        "evidence": "£120, or £100 if you book before the end of this month",
+        "skill": "matching_info",
+        "explain_en": "Furniture Restoration costs less if booked before the end of the month.",
+        "explain_bn": "মাস শেষ হওয়ার আগে বুক করলে ফার্নিচার কোর্সে খরচ কম।"
+       },
+       {
+        "n": 7,
+        "prompt": "The teacher also runs a business.",
+        "answer": "A",
+        "evidence": "runs a small bakery in the old market hall",
+        "skill": "paraphrase",
+        "explain_en": "The baking tutor runs a bakery, which is a business.",
+        "explain_bn": "বেকিং শিক্ষক একটা বেকারি চালান — এটাই ব্যবসা।"
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       14
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information given in the text 'Booking and course information'? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "Reception is open at weekends.",
+        "answer": "NOT GIVEN",
+        "rationale": "The text gives weekday hours only and says nothing either way about weekends.",
+        "skill": "detail",
+        "explain_en": "Only weekday opening hours are given; weekends are not mentioned.",
+        "explain_bn": "শুধু সপ্তাহের দিনের সময় দেওয়া আছে; সপ্তাহান্তের কথা নেই — তাই NOT GIVEN।"
+       },
+       {
+        "n": 9,
+        "prompt": "It is possible to pay a deposit and the rest later.",
+        "answer": "FALSE",
+        "evidence": "Payment must be made in full at the time of booking",
+        "skill": "detail",
+        "explain_en": "Full payment is required when booking, so a deposit is not possible.",
+        "explain_bn": "বুকিংয়ের সময়ই পুরো টাকা দিতে হয়, তাই আংশিক টাকা দেওয়ার সুযোগ নেই — FALSE।"
+       },
+       {
+        "n": 10,
+        "prompt": "A course may be cancelled if too few people book.",
+        "answer": "TRUE",
+        "evidence": "Courses run with a minimum of six participants",
+        "skill": "paraphrase",
+        "explain_en": "Fewer than six bookings a week before means the course is cancelled.",
+        "explain_bn": "ছয়জনের কম হলে কোর্স বাতিল হতে পারে — TRUE।"
+       },
+       {
+        "n": 11,
+        "prompt": "People who cancel ten days before a course get all of their money back.",
+        "answer": "FALSE",
+        "evidence": "we will return your fee, minus a £10 administration charge",
+        "skill": "detail",
+        "explain_en": "A £10 charge is taken, so they do not get all of their money back.",
+        "explain_bn": "১০ পাউন্ড কেটে রাখা হয়, তাই পুরো টাকা ফেরত নয় — FALSE।"
+       },
+       {
+        "n": 12,
+        "prompt": "Another person can take your place if you cannot attend.",
+        "answer": "TRUE",
+        "evidence": "you may send a friend or relative in your place at no extra cost",
+        "skill": "paraphrase",
+        "explain_en": "A friend or relative may attend instead.",
+        "explain_bn": "নিজে যেতে না পারলে বন্ধু বা আত্মীয়কে পাঠানো যায় — TRUE।"
+       },
+       {
+        "n": 13,
+        "prompt": "Car parking spaces can be booked in advance.",
+        "answer": "FALSE",
+        "evidence": "spaces cannot be reserved",
+        "skill": "detail",
+        "explain_en": "The text says spaces cannot be reserved.",
+        "explain_bn": "পার্কিংয়ের জায়গা আগে থেকে বুক করা যায় না — FALSE।"
+       },
+       {
+        "n": 14,
+        "prompt": "The bus service runs every fifteen minutes on Saturdays.",
+        "answer": "NOT GIVEN",
+        "rationale": "Only the route number and the stop location are mentioned; no frequency is stated.",
+        "skill": "detail",
+        "explain_en": "The bus number and stop are given, but not how often it runs.",
+        "explain_bn": "বাস নম্বর আর স্টপ বলা আছে, কিন্তু কত ঘন ঘন চলে তা নেই — NOT GIVEN।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "Your first week at Hartwell Distribution",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Welcome to Hartwell Distribution. Your first week is designed to help you settle in safely and get to know the people you will work with. Please read this guide before your first day, and keep it somewhere safe, as you may want to refer to it again during your first few months with us."
+       },
+       {
+        "label": "",
+        "text": "On Monday, report to the main reception at 8.15 am, not to the warehouse entrance, even if your normal shifts will start there. You will be met by your induction leader, who will collect your photo pass from security and give you a short tour of the site. Please bring your bank details and proof of your right to work in the country, as the payroll team will need copies before you can be paid."
+       },
+       {
+        "label": "",
+        "text": "Most of Monday is taken up with health and safety training. This is compulsory for every new member of staff, including those who will work in the offices. You will learn about fire procedures, safe lifting and the rules for walking through areas where forklift trucks operate. At the end of the session there is a short written test. Anyone who does not pass will repeat the training on Tuesday morning before starting work."
+       },
+       {
+        "label": "",
+        "text": "From Tuesday to Thursday you will work alongside an experienced colleague, known as your buddy, who will show you the systems used in your department. Your buddy is not your manager, but they are the best person to ask about day-to-day questions, such as where to find equipment or how to book holidays. Most buddies have been with the company for at least two years and have volunteered for the role, so do not worry about taking up their time."
+       },
+       {
+        "label": "",
+        "text": "On Friday afternoon you will have a meeting with your line manager to review the week. This is a good opportunity to raise any concerns and to agree targets for your first three months, which is the length of the probation period for all new staff. At the end of this period your manager will confirm your position in writing, or, in a small number of cases, extend the probation period if more support is needed."
+       }
+      ]
+     },
+     {
+      "title": "Dress code and personal appearance",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Hartwell Distribution does not have a uniform for office staff, but we expect everyone to dress in a way that is clean, tidy and appropriate for a business setting. Jeans are acceptable on Fridays only. If you meet customers or visitors from outside the company, smart clothing should be worn on those days, whatever day of the week it is."
+       },
+       {
+        "label": "",
+        "text": "Warehouse staff are provided with two company polo shirts and a fleece jacket, which must be worn at all times on the warehouse floor. Replacements are free if items become damaged at work; lost items, however, are replaced at the employee's cost. High-visibility vests are kept at the warehouse entrance and must be put on before you go past the yellow line."
+       },
+       {
+        "label": "",
+        "text": "Safety boots with protective toe caps are required for everyone who works in or regularly visits the warehouse. The company will pay for one pair a year, up to a value of £60, from our approved supplier. You may choose a more expensive pair if you wish, but you will need to pay the difference yourself."
+       },
+       {
+        "label": "",
+        "text": "For safety reasons, jewellery should be kept to a minimum in the warehouse. Rings without stones and small earrings are acceptable, but long necklaces and bracelets must be removed, as they can become caught in machinery. Long hair must be tied back. Staff who wear head coverings for religious reasons should speak to their manager, who will arrange a version that meets safety standards."
+       },
+       {
+        "label": "",
+        "text": "If you are unsure whether something is suitable, please ask your line manager or the human resources team before your first shift. Staff who repeatedly ignore the dress code may be sent home to change, and the time taken will not be paid."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       15,
+       20
+      ],
+      "type": "sentence_completion",
+      "instructions": "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the text for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "On the first day, new staff should go to the {gap} at 8.15 am.",
+        "answer": "main reception",
+        "accept": [
+         "reception"
+        ],
+        "evidence": "report to the main reception at 8.15 am",
+        "skill": "detail",
+        "explain_en": "New staff report to the main reception, not the warehouse entrance.",
+        "explain_bn": "প্রথম দিনে ওয়্যারহাউস গেট নয়, main reception-এ যেতে হবে।"
+       },
+       {
+        "n": 16,
+        "prompt": "The payroll team needs bank details and proof of the {gap} to work in the country.",
+        "answer": "right",
+        "evidence": "proof of your right to work in the country",
+        "skill": "detail",
+        "explain_en": "Staff must show proof of their right to work.",
+        "explain_bn": "দেশে কাজ করার অধিকারের (right to work) প্রমাণ লাগবে।"
+       },
+       {
+        "n": 17,
+        "prompt": "Staff who fail the test after the safety training must do the training again on {gap}.",
+        "answer": "Tuesday morning",
+        "accept": [
+         "Tuesday"
+        ],
+        "evidence": "Anyone who does not pass will repeat the training on Tuesday morning",
+        "skill": "detail",
+        "explain_en": "Those who fail repeat the training on Tuesday morning.",
+        "explain_bn": "পরীক্ষায় ফেল করলে মঙ্গলবার সকালে আবার ট্রেনিং করতে হবে।"
+       },
+       {
+        "n": 18,
+        "prompt": "During the safety training, staff learn the rules for areas used by {gap}.",
+        "answer": "forklift trucks",
+        "accept": [
+         "forklifts"
+        ],
+        "evidence": "where forklift trucks operate",
+        "skill": "detail",
+        "explain_en": "The training covers walking through areas where forklift trucks operate.",
+        "explain_bn": "ফর্কলিফট ট্রাক চলে এমন জায়গায় হাঁটার নিয়ম শেখানো হয়।"
+       },
+       {
+        "n": 19,
+        "prompt": "Questions about everyday matters should be taken to your {gap}.",
+        "answer": "buddy",
+        "evidence": "Your buddy is not your manager, but they are the best person to ask about day-to-day questions",
+        "skill": "paraphrase",
+        "explain_en": "The buddy (not the manager) is best for day-to-day questions. The evidence refers back to 'your buddy'.",
+        "explain_bn": "দৈনন্দিন প্রশ্নের জন্য buddy সবচেয়ে ভালো — ম্যানেজার নয়।"
+       },
+       {
+        "n": 20,
+        "prompt": "New staff agree targets for the {gap}, which lasts three months.",
+        "answer": "probation period",
+        "accept": [
+         "probation"
+        ],
+        "evidence": "which is the length of the probation period for all new staff",
+        "skill": "vocabulary",
+        "explain_en": "The first three months are the probation period.",
+        "explain_bn": "প্রথম তিন মাস হলো probation period (পরীক্ষামূলক সময়)।"
+       }
+      ]
+     },
+     {
+      "range": [
+       21,
+       27
+      ],
+      "type": "summary_completion",
+      "instructions": "Complete the summary below. Choose ONE WORD ONLY from the text for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "title": "Dress code",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Office staff may wear jeans only on {gap}.",
+        "answer": "Fridays",
+        "accept": [
+         "Friday"
+        ],
+        "evidence": "Jeans are acceptable on Fridays only",
+        "skill": "detail",
+        "explain_en": "Jeans are allowed on Fridays only.",
+        "explain_bn": "অফিসে জিন্স শুধু শুক্রবার চলবে।"
+       },
+       {
+        "n": 22,
+        "prompt": "Smart clothes are needed on days when staff meet customers or {gap}.",
+        "answer": "visitors",
+        "evidence": "If you meet customers or visitors from outside the company",
+        "skill": "detail",
+        "explain_en": "Smart clothing is needed when meeting customers or visitors.",
+        "explain_bn": "গ্রাহক বা অতিথির সঙ্গে দেখা হলে স্মার্ট পোশাক পরতে হবে।"
+       },
+       {
+        "n": 23,
+        "prompt": "Warehouse workers receive two polo shirts and a {gap}.",
+        "answer": "fleece",
+        "evidence": "two company polo shirts and a fleece jacket",
+        "skill": "detail",
+        "explain_en": "Each warehouse worker gets two polo shirts and a fleece jacket.",
+        "explain_bn": "দুটো পোলো শার্ট আর একটা fleece জ্যাকেট দেওয়া হয়।"
+       },
+       {
+        "n": 24,
+        "prompt": "Workers must pay to replace clothing that is {gap}.",
+        "answer": "lost",
+        "evidence": "lost items, however, are replaced at the employee's cost",
+        "skill": "detail",
+        "explain_en": "Damaged items are replaced free, but lost items are paid for by the worker.",
+        "explain_bn": "নষ্ট হলে বিনা খরচে বদলে দেয়, কিন্তু হারালে (lost) কর্মীকে টাকা দিতে হবে।"
+       },
+       {
+        "n": 25,
+        "prompt": "The company pays for one pair of boots from an approved {gap} each year.",
+        "answer": "supplier",
+        "evidence": "from our approved supplier",
+        "skill": "detail",
+        "explain_en": "Boots must come from the approved supplier.",
+        "explain_bn": "কোম্পানির অনুমোদিত সরবরাহকারী (supplier) থেকে বছরে এক জোড়া বুট।"
+       },
+       {
+        "n": 26,
+        "prompt": "Necklaces and bracelets are not allowed because they may get caught in {gap}.",
+        "answer": "machinery",
+        "evidence": "as they can become caught in machinery",
+        "skill": "detail",
+        "explain_en": "Long jewellery can get caught in machinery.",
+        "explain_bn": "লম্বা গয়না মেশিনে (machinery) আটকে যেতে পারে।"
+       },
+       {
+        "n": 27,
+        "prompt": "Staff who wear religious head coverings will be given a safe version by their {gap}.",
+        "answer": "manager",
+        "evidence": "should speak to their manager, who will arrange a version that meets safety standards",
+        "skill": "detail",
+        "explain_en": "The manager arranges a version that meets safety standards.",
+        "explain_bn": "ধর্মীয় কারণে মাথা ঢাকলে ম্যানেজার নিরাপদ একটা সংস্করণের ব্যবস্থা করবেন।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "The story of the travelling library van",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "In the early years of the twentieth century, a reader who lived in a remote village had very few ways of getting hold of a book. Town libraries existed, but they might be a day's journey away, and most families could not afford to buy books of their own. The solution, which appeared in several countries at roughly the same time, was surprisingly simple: if people could not travel to the library, the library would travel to them. Over the following decades, the idea grew from a handful of experiments into a service that, at its peak, reached millions of readers who would otherwise have had almost no access to books."
+       },
+       {
+        "label": "B",
+        "text": "The earliest travelling libraries were not vans at all. In some districts, boxes of around fifty books were sent out by rail or by horse and cart to village schools, churches or shops, where a volunteer looked after them for a few months before they were collected and replaced with a fresh selection. Other schemes used horse-drawn wagons fitted with shelves, which visited farms on a regular route. These early services were often run by charities or by individual enthusiasts, rather than by local governments. The choice of books was usually made by a librarian in the nearest town, who had to guess what readers in a distant village might enjoy, and the results were not always popular. A box full of serious history might sit unopened for months, while a single popular novel was passed from house to house until it fell apart."
+       },
+       {
+        "label": "C",
+        "text": "The arrival of the motor vehicle changed everything. By the 1920s and 1930s, purpose-built library vans with shelves along both sides and a small desk at the back had begun to appear. They could carry far more books than a wagon and cover much greater distances in a day. Crucially, readers could now climb inside and choose for themselves, instead of accepting whatever titles a librarian had packed into a box. For many people, this freedom of choice was what made the service feel like a real library. Some vans also carried newspapers, maps and practical guides on farming and household management, and a few even had a small section of books in the languages spoken by recent immigrants to the area."
+       },
+       {
+        "label": "D",
+        "text": "Running a van was never an easy job. The librarian was often also the driver, and had to deal with narrow lanes, flooded roads and engines that refused to start on cold mornings. Timetables had to be planned so that the van arrived at each stop at the same time on the same day every two or three weeks, because readers organised their lives around its visits. Librarians who worked on the vans for many years have described how they came to know not just the reading tastes of their borrowers, but their family news, their health problems and even the names of their dogs. Children, in particular, often remembered the van's visits for the rest of their lives, and several well-known writers have said that their love of reading began on its narrow steps."
+       },
+       {
+        "label": "E",
+        "text": "This personal relationship turned out to be one of the service's greatest strengths. For elderly or isolated people, the van's visit was sometimes the only conversation they had all week. Librarians would recommend books, pass on messages and occasionally notice when something was wrong, such as a regular borrower who failed to appear at the stop. In this way, the travelling library performed a social function that was rarely written into anyone's job description, and which was difficult to measure in official reports."
+       },
+       {
+        "label": "F",
+        "text": "From the 1980s onwards, however, the number of mobile libraries in many countries began to fall. The vans were expensive to buy and maintain, and when local budgets were reduced, they were among the first services to be cut. Supporters argued that the savings were small compared with the value to rural communities, but the number of loans recorded by the vans was often lower than in town branches, and these figures were difficult to argue against. In some regions, the vans were replaced with a postal service, in which borrowers ordered books from a list and received them by mail. This was cheaper to run, but it removed both the pleasure of browsing and the personal contact that many borrowers had valued most."
+       },
+       {
+        "label": "G",
+        "text": "Yet the travelling library has not disappeared. In recent years, a number of new services have been launched, and many of them look rather different from the vans of the past. Some carry laptops and offer free internet access for people who need to complete official forms online. Others visit schools, care homes and new housing estates rather than villages. In a few countries, libraries have been set up on boats, on bicycles and even on the backs of donkeys, in order to reach communities that no road vehicle can easily get to. Several are now run by volunteers or community groups, much as the earliest schemes were. Whatever form it takes, the idea behind the service remains the same as it was a century ago: that access to books and information should not depend on where a person happens to live."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       28,
+       33
+      ],
+      "type": "matching_headings",
+      "instructions": "The text has seven paragraphs, A-G. Choose the correct heading for paragraphs B-G from the list of headings below. Write the correct number, i-ix.",
+      "options": [
+       {
+        "key": "i",
+        "text": "Choosing for themselves"
+       },
+       {
+        "key": "ii",
+        "text": "The hidden value of regular contact"
+       },
+       {
+        "key": "iii",
+        "text": "Books arrive by box and wagon"
+       },
+       {
+        "key": "iv",
+        "text": "A new generation of services"
+       },
+       {
+        "key": "v",
+        "text": "The cost of printing books"
+       },
+       {
+        "key": "vi",
+        "text": "The practical demands of the work"
+       },
+       {
+        "key": "vii",
+        "text": "A decline driven by money"
+       },
+       {
+        "key": "viii",
+        "text": "Training the first librarians"
+       },
+       {
+        "key": "ix",
+        "text": "Why readers preferred the postal service"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "Paragraph B",
+        "answer": "iii",
+        "evidence": "boxes of around fifty books were sent out by rail or by horse and cart",
+        "skill": "main_idea",
+        "explain_en": "Paragraph B describes boxes of books and horse-drawn wagons before vans.",
+        "explain_bn": "B অনুচ্ছেদে ভ্যানের আগের যুগ — বইয়ের বাক্স আর ঘোড়ার গাড়ির কথা।"
+       },
+       {
+        "n": 29,
+        "prompt": "Paragraph C",
+        "answer": "i",
+        "evidence": "readers could now climb inside and choose for themselves",
+        "skill": "main_idea",
+        "explain_en": "The key point of C is that readers could now choose books themselves.",
+        "explain_bn": "C-এর মূল কথা: পাঠকরা এখন নিজেরাই বই বেছে নিতে পারত।"
+       },
+       {
+        "n": 30,
+        "prompt": "Paragraph D",
+        "answer": "vi",
+        "evidence": "Running a van was never an easy job",
+        "skill": "main_idea",
+        "explain_en": "D is about driving, bad roads and timetables: the practical demands.",
+        "explain_bn": "D-তে গাড়ি চালানো, খারাপ রাস্তা, সময়সূচি — কাজের বাস্তব চাপ।"
+       },
+       {
+        "n": 31,
+        "prompt": "Paragraph E",
+        "answer": "ii",
+        "evidence": "This personal relationship turned out to be one of the service's greatest strengths",
+        "skill": "main_idea",
+        "explain_en": "E explains the social value of the librarian's regular visits, which official reports missed.",
+        "explain_bn": "E-তে নিয়মিত দেখা-সাক্ষাতের সামাজিক মূল্যের কথা, যা রিপোর্টে ধরা পড়ে না।"
+       },
+       {
+        "n": 32,
+        "prompt": "Paragraph F",
+        "answer": "vii",
+        "evidence": "when local budgets were reduced, they were among the first services to be cut",
+        "skill": "main_idea",
+        "explain_en": "F explains the decline because of costs and budget cuts. The postal service is mentioned, but readers did not prefer it (ix is wrong).",
+        "explain_bn": "F-এ বাজেট কমায় সেবা কমে যাওয়ার কথা; পাঠকরা ডাক সেবা বেশি পছন্দ করত এমন কিছু বলা নেই।"
+       },
+       {
+        "n": 33,
+        "prompt": "Paragraph G",
+        "answer": "iv",
+        "evidence": "a number of new services have been launched",
+        "skill": "main_idea",
+        "explain_en": "G describes new kinds of mobile library service.",
+        "explain_bn": "G-তে নতুন ধরনের ভ্রাম্যমাণ লাইব্রেরি সেবার কথা।"
+       }
+      ]
+     },
+     {
+      "range": [
+       34,
+       37
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 34,
+        "prompt": "According to paragraph B, the earliest travelling library schemes were often organised by",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "local governments."
+         },
+         {
+          "key": "B",
+          "text": "village schools."
+         },
+         {
+          "key": "C",
+          "text": "charities and private individuals."
+         },
+         {
+          "key": "D",
+          "text": "railway companies."
+         }
+        ],
+        "evidence": "These early services were often run by charities or by individual enthusiasts",
+        "skill": "detail",
+        "explain_en": "Charities and enthusiasts ran them, rather than local governments.",
+        "explain_bn": "সরকার নয়, দাতব্য সংস্থা আর উৎসাহী ব্যক্তিরা প্রথম দিকের সেবা চালাত।"
+       },
+       {
+        "n": 35,
+        "prompt": "Why did van timetables need to be regular?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "Roads were often closed in winter."
+         },
+         {
+          "key": "B",
+          "text": "Borrowers planned around the van's arrival."
+         },
+         {
+          "key": "C",
+          "text": "Librarians had other jobs to do."
+         },
+         {
+          "key": "D",
+          "text": "Books had to be returned to town branches."
+         }
+        ],
+        "evidence": "because readers organised their lives around its visits",
+        "skill": "inference",
+        "explain_en": "Readers planned their lives around the van's visits.",
+        "explain_bn": "পাঠকরা ভ্যানের আসার সময় মেনে জীবন সাজাত, তাই নিয়মিত সময় দরকার ছিল।"
+       },
+       {
+        "n": 36,
+        "prompt": "What does the writer say about the social role of the librarians?",
+        "answer": "D",
+        "options": [
+         {
+          "key": "A",
+          "text": "It was the main reason the service was created."
+         },
+         {
+          "key": "B",
+          "text": "It was described in their job descriptions."
+         },
+         {
+          "key": "C",
+          "text": "It caused problems with timetables."
+         },
+         {
+          "key": "D",
+          "text": "It did not appear clearly in official figures."
+         }
+        ],
+        "evidence": "which was difficult to measure in official reports",
+        "skill": "writer_view",
+        "explain_en": "The social role was rarely in job descriptions and hard to measure in reports.",
+        "explain_bn": "এই সামাজিক ভূমিকা কাজের বিবরণে ছিল না আর অফিসিয়াল রিপোর্টে মাপা কঠিন ছিল।"
+       },
+       {
+        "n": 37,
+        "prompt": "Supporters of the vans found it hard to defend them because",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "fewer books were borrowed from vans than from town libraries."
+         },
+         {
+          "key": "B",
+          "text": "the vans often broke down."
+         },
+         {
+          "key": "C",
+          "text": "rural populations were falling."
+         },
+         {
+          "key": "D",
+          "text": "the postal service was more popular."
+         }
+        ],
+        "evidence": "the number of loans recorded by the vans was often lower than in town branches",
+        "skill": "detail",
+        "explain_en": "Low loan figures compared with town branches were difficult to argue against.",
+        "explain_bn": "শহরের শাখার তুলনায় ভ্যানের বই ধার কম — এই সংখ্যা খণ্ডন করা কঠিন ছিল।"
+       }
+      ]
+     },
+     {
+      "range": [
+       38,
+       40
+      ],
+      "type": "sentence_completion",
+      "instructions": "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the text for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 38,
+        "prompt": "In some places, vans were replaced by a {gap}, with books sent by mail.",
+        "answer": "postal service",
+        "evidence": "the vans were replaced with a postal service",
+        "skill": "detail",
+        "explain_en": "Some regions replaced vans with a postal service.",
+        "explain_bn": "কিছু এলাকায় ভ্যানের বদলে ডাকযোগে বই পাঠানোর সেবা (postal service) চালু হয়।"
+       },
+       {
+        "n": 39,
+        "prompt": "Some modern services provide {gap} for people who must fill in official forms.",
+        "answer": "internet access",
+        "evidence": "offer free internet access for people who need to complete official forms online",
+        "skill": "detail",
+        "explain_en": "New services carry laptops and offer free internet access.",
+        "explain_bn": "নতুন সেবায় সরকারি ফর্ম পূরণের জন্য বিনামূল্যে ইন্টারনেট সুবিধা দেওয়া হয়।"
+       },
+       {
+        "n": 40,
+        "prompt": "Like the first schemes, several new services are run by volunteers or {gap}.",
+        "answer": "community groups",
+        "evidence": "Several are now run by volunteers or community groups",
+        "skill": "detail",
+        "explain_en": "Volunteers or community groups run several of them.",
+        "explain_bn": "স্বেচ্ছাসেবক বা কমিউনিটি গ্রুপ এখন অনেক সেবা চালায়।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "letter",
+    "prompt": "A friend let you stay in their flat while they were away on holiday. Write a letter to your friend. In your letter, thank your friend for letting you stay, describe something you enjoyed doing during your stay, and explain a problem that happened in the flat and what you did about it. Write at least 150 words. You do NOT need to write any addresses. Begin your letter as follows: Dear ......,",
+    "letter": {
+     "tone": "informal",
+     "bullets": [
+      "thank your friend for letting you stay",
+      "describe something you enjoyed doing during your stay",
+      "explain a problem that happened in the flat and what you did about it"
+     ],
+     "opening": "Dear ......,"
+    },
+    "key_features": [
+     "Warm, informal tone throughout (contractions, friendly opening and closing such as 'Best wishes')",
+     "Clear thanks for the stay in the opening paragraph",
+     "A specific enjoyable activity described with some detail",
+     "A problem in the flat explained, plus what the writer did to solve it",
+     "One paragraph per bullet point, with a friendly closing line"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "Dear Sam,\n\nI'm writing to say a huge thank you for letting me stay in your flat while you were away. It made my week in the city so much easier, and it was lovely to wake up to that view of the harbour every morning.\n\nThe highlight of my stay was the street market you told me about. I went on Saturday morning and ended up spending hours there, tasting food from about six different stalls. I even bought a small painting of the old lighthouse, which is now on my wall at home.\n\nI'm afraid I also need to tell you about a small problem. On my third evening the kitchen tap started leaking quite badly. I turned off the water under the sink and called the plumber whose number was on your fridge. He came the next morning and replaced a worn washer, and I've paid the bill, so please don't worry about it.\n\nThanks again for being so generous. Next time you visit my town, you must stay with me.\n\nBest wishes,\nMaya"
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "two_part",
+    "prompt": "In many towns and cities today, people do not know the neighbours who live around them. Why is this the case? Is this a positive or negative development? Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "Both questions answered: the causes AND a clear positive/negative judgement",
+     "At least two developed causes (for example work patterns, frequent moves, technology)",
+     "Position stated in the introduction and repeated in the conclusion",
+     "Some recognition of the other side (privacy) before the writer's own view",
+     "Clear paragraphing with linking words and specific examples"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "In many towns and cities, it is now common for people to live next door to someone for years without ever learning their name. In my view, this situation has several clear causes, and although it brings a degree of privacy, it is on balance a negative development.\n\nThe main reason is the way modern people live and work. Many adults commute long distances and work long hours, so they leave home early and return late, with little time to stop and talk in the street. In addition, people move house far more often than previous generations did, especially in cities where most residents rent. When neighbours change every year or two, there is little reason to invest in getting to know them. Technology also plays a part: people now keep in touch with friends and family online, so the street or apartment block is no longer the centre of their social life.\n\nSome would argue that this is not a problem. Living anonymously can mean more privacy and less pressure to take part in local gossip or obligations. For busy professionals, a polite nod in the corridor may be all they want.\n\nHowever, I believe the disadvantages are more serious. Neighbours who know each other can help in emergencies, for example by checking on an elderly resident during a heatwave or keeping an eye on a house when the owners are away. Communities where people are connected also tend to have lower crime rates, because residents notice and report unusual activity. Finally, loneliness is a growing health issue, and a friendly relationship with the people next door is one of the simplest ways to reduce it.\n\nIn conclusion, busy working lives, frequent moves and online social networks explain why many people do not know their neighbours. While this offers some privacy, I believe it weakens the support and safety that strong local communities provide, so it should be seen as a negative trend."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Your home",
+    "questions": [
+     "Do you live in a house or a flat?",
+     "Which room do you spend the most time in? Why?",
+     "Is there anything you would like to change about your home?",
+     "Would you like to live in the same place in ten years' time?"
+    ]
+   },
+   {
+    "topic": "Walking",
+    "questions": [
+     "Do you walk much in your daily life?",
+     "Where do people like to go for a walk in your area?",
+     "Did you walk more when you were a child?",
+     "Do you prefer walking alone or with other people?"
+    ]
+   },
+   {
+    "topic": "Photographs",
+    "questions": [
+     "Do you take a lot of photos? What of?",
+     "Do you prefer to keep photos on your phone or print them?",
+     "Is there a photo in your home that is special to you?",
+     "Do you like having your photo taken? Why or why not?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a journey that took much longer than you expected.",
+    "bullets": [
+     "where you were going",
+     "how you were travelling",
+     "why the journey took so long"
+    ],
+    "final": "and explain how you felt during the delay."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do you usually plan extra time for journeys?",
+    "Have you made that journey again since then?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Transport and delays",
+    "questions": [
+     "What are the most common causes of travel delays in your country?",
+     "Should transport companies pay passengers when services are late?",
+     "How could cities reduce traffic jams at rush hour?",
+     "Will people travel less in the future because of technology?"
+    ]
+   },
+   {
+    "theme": "Patience and planning",
+    "questions": [
+     "Do you think people today are less patient than in the past? Why?",
+     "Why do some people always arrive late?",
+     "Is it better to plan everything in advance or to be flexible?"
+    ]
+   }
+  ]
+ }
+}
