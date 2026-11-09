@@ -49,6 +49,67 @@ Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Conc
 
 ---
 
+## DAHUA DOLYNK NOW (৯ Nov ১৮:৩০, সর্বজনীন পাতা দেখে লেখা)
+
+**আগে সৎ কথা:** DoLynk-এর ইংরেজি ডক (Doc Center) **লগইন ছাড়া খোলে না** — সাইট নিজেই লগইন পাতায় পাঠায়।
+আমরা লগইন করি না। তাই নিচের অনেক ঘর "আপনি কনসোলে যা দেখবেন" ধরে লেখা। যেখানে নিশ্চিত নই, সেখানে ✋ চিহ্ন।
+
+### ১) উইজার্ডের চার ধাপ — কী বেছে নেবেন
+**ধাপ ১ — Create Product**
+- Product name: **Assisto CCTV**
+- Product type / category: **Video / Camera (IPC, NVR/DVR)** — "ভিডিও নজরদারি" ধরনের যেটি আছে সেটি। ✋ তালিকায় ঠিক কী নাম, আমাদের জানান।
+- Device type: যদি একটিই বাছতে হয় → **NVR/DVR** (দোকানে বেশিরভাগ এটাই); একাধিক বাছা গেলে **IPC + NVR/DVR** দুটোই।
+- Access mode বা Scenario চাইলে: **Open IoT** (ARC বা Access Control নয়)।
+
+**ধাপ ২ — Select Service Package**
+- বাছুন **Video Service Package** — এতে আছে লাইভ, প্লেব্যাক, লাইভ স্ট্রিম ও স্মার্ট ঘটনার সতর্কতা।
+- Device Maintenance, Video Intercom, Access Control প্যাকেজ এখন **লাগবে না** (বাছবেন না)।
+- ট্রায়াল: কনসোলে "Free / Trial" লেখা প্যাকেজটিই বেছে নিন। **টাকা লাগে এমন কিছু কিনবেন না, কার্ড দেবেন না।**
+
+**ধাপ ৩ — Develop (Develop Functions)**
+- চালু করুন: **Cloud Access** (ডিভাইস যুক্ত ও তালিকা), **Cloud Live** (লাইভ ও প্লেব্যাক), **Cloud Message** (সতর্কতা)।
+- Message push / Callback URL চাইলে লিখুন:
+  `https://api.lifeassisto.com/api/v1/cctv/dolynk/callback`
+  এই ঠিকানা **পরের বিল্ডে চালু হবে**; এখন "Verify" ব্যর্থ হলে ঘরটা ফাঁকা রেখে এগিয়ে যান, পরে বসাবেন।
+- মেসেজের ধরন বাছতে বললে: **Motion detection, Human/Vehicle (SMD/IVS), Tamper, Video loss, Disk error, Device offline**।
+
+**ধাপ ৪ — Debug**
+- নিজের একটি Dahua ক্যামেরা/NVR (যেটি DMSS-এ আছে) যোগ করুন → ডিভাইস **Online** দেখায় কিনা।
+- **Live** চালান → ছবি আসে কিনা। **Playback**-এ গতকালের ৫ মিনিট চালান।
+- ক্যামেরার সামনে হাত নাড়ুন → Debug-এ **Message** আসে কিনা।
+- চারটি সবুজ হলে আমাদের "DoLynk Debug সবুজ" লিখে জানান (চাবি নয়)।
+
+### ২) শেষে কী চাবি দেখাবে, কোথায় বসাবেন
+- সম্ভাব্য: **AppId / AppKey**, **AppSecret**, **Product ID / Product Key**, আর **API ঠিকানা (Region/Endpoint)**। ✋ ঠিক নামগুলো কনসোলে যেমন লেখা, তেমন আমাদের জানান (মান নয়, শুধু নাম)।
+- এগুলো **শুধু** Owner Admin → **Integrations → "Dahua DoLynk"** কার্ডে পেস্ট করবেন (কার্ডটি **পরের বিল্ডে** আসছে) → Save → Test connection।
+- **চ্যাটে, ফাইলে, স্ক্রিনশটে কখনো নয়।**
+
+### ৩) দোকানদার নিজের Dahua/DMSS ডিভাইস কীভাবে দেবেন
+- সর্বজনীনভাবে নিশ্চিত: DMSS-এ **শুধু ডিভাইসের মালিক** শেয়ার করতে পারেন — অ্যাকাউন্ট লিখে বা QR স্ক্যান করে; কোন অধিকার (Live, Alarm Push) দেবেন বাছা যায়; যেকোনো সময় বাতিল করা যায়।
+- ✋ Open IoT-এ ডিভাইস যোগের নিয়ম (সিরিয়াল + ডিভাইসের **Verification/Safety Code** দিয়ে বাঁধা, নাকি OAuth, নাকি DMSS share) ডকে লগইনের পিছনে। Doc Center-এ **"How to add devices"** পাতায় যা লেখা, তার শিরোনামগুলো আমাদের জানান।
+- আমাদের পরিকল্পনা (Imou-র মতো): অ্যাপে **সিরিয়াল + ডিভাইসের Safety Code** → আমাদের সার্ভার DoLynk-এ বাঁধে। দোকানদারকে কোনো চাবি দিতে হবে না।
+- এক ডিভাইস একসাথে দুই প্ল্যাটফর্মে বাঁধা যায় কিনা ✋ — ডকে দেখলে জানান।
+
+### ৪) ট্রায়ালে কী ফ্রি, পরে কত টাকা
+- আপনার কনসোলে লেখা: **৩০ দিনের ট্রায়াল**। কোম্পানি যাচাই (AXON Dynamic) করলে **production** খোলে (Dahua বলে ১–২ কর্মদিবস)।
+- সর্বজনীন দামের পাতা শুধু **চীনা সংস্করণের** (RMB, আন্তর্জাতিক দাম ✋ নিশ্চিত নয়) — শুধু ধারণার জন্য:
+  - ফ্রি সংস্করণ: **১০টি চ্যানেল**, ১–২ Mbps; API-ডাকের সীমা অ্যাকাউন্টে ২০/মিনিট, ডিভাইস-প্রতি ২০/মিনিট, ছবি তোলা ১০০০/দিন; মেসেজ "আংশিক"।
+  - পরের ধাপ: ৫০ চ্যানেল ≈ ¥১৬০/মাস, ১০০ চ্যানেল ≈ ¥২৬০/মাস, ৫০০ চ্যানেল ≈ ¥৭৮০/মাস।
+  - বাড়তি: ভিডিও ট্রাফিক ≈ ¥২.২/GB; বাড়তি ডিভাইস ≈ ¥১.৫/মাস।
+- মানে: **ট্রায়ালে ১০টির মতো চ্যানেল দিয়ে পুরো পরীক্ষা করা যাবে।** টাকা লাগবে দোকানদারের সংখ্যা বাড়লে — তখন ৪০% লাভের নিয়মে দাম ঠিক করব, আগে আপনাকে জিজ্ঞেস করব।
+
+### ৫) যা নিশ্চিত হতে পারিনি — কনসোল দেখে আমাদের শুধু নাম/হ্যাঁ-না জানান
+1. Create Product-এ **Product type** তালিকার ঠিক নাম।
+2. চাবির ঘরের নাম: **AppId / AppKey / AppSecret / Product ID / API Endpoint** কোনটা কোনটা আছে।
+3. Cloud Message-এ **Callback URL** ঘর আছে কিনা, নাকি MQTT/পোলিং।
+4. "How to add devices" পাতায় ডিভাইস যোগের পদ্ধতি (Safety Code / OAuth / DMSS share)।
+5. ট্রায়ালে চ্যানেল সংখ্যা ও ৩০ দিন পরে কী হয় (Billing / Package পাতায়)।
+
+সূত্র (সর্বজনীন):
+- https://open.dolynkcloud.com/ (Doc Center: /platform/develop/doccenter — লগইন লাগে; /package/iot/videoService; /price)
+- https://www.dahuasecurity.com/ph/products/software/dolynk-cloud/doylnk-product/eco
+- https://www.dahuasecurity.com/ph/products/software/dolynk-cloud/doylnk-product/dmss
+
 ## ১) EZVIZ Open Platform — অপেক্ষায়
 **এখনকার অবস্থা (৯ Nov):** সাইন-আপ পাতা ৪০৪ দিচ্ছে; আপনি open-team@ezviz.com-এ ইমেইল করেছেন। উত্তর এলে AppKey + Secret শুধু EZVIZ কার্ডে পেস্ট → Save → Test। ততদিন EZVIZ সংযোগ অ্যাপে দেখায় না (কোড তৈরি)।
 

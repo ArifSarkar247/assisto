@@ -154,6 +154,18 @@ class Command(BaseCommand):
             FF.invalidate()
         self.steps.append({"step": "allow-list A for budget_remittance", "method": "DB",
                            "path": "feature_flags", "status": 200, "ok": ff is not None})
+        # qbiz: the business features that are OFF by registry default but ON
+        # for launch (owner 2 Nov) — allow-list ONLY demo user A on this
+        # throw-away CI DB so the business reality flows can audit them.
+        for key in ("accounting_v2", "marketing_engine", "invoice_designs",
+                    "assisto_market", "retention_auto"):
+            row = FeatureFlag.objects.filter(key=key).first()
+            if row is not None and users["a"].id not in (row.allow_user_ids or []):
+                row.allow_user_ids = list(row.allow_user_ids or []) + [users["a"].id]
+                row.save(update_fields=["allow_user_ids", "updated_at"])
+            self.steps.append({"step": "allow-list A for %s" % key, "method": "DB",
+                               "path": "feature_flags", "status": 200, "ok": row is not None})
+        FF.invalidate()
 
         # --- family + emergency card
         fam = []

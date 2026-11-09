@@ -76,6 +76,9 @@ class ImouClient:
         # cctvconnect: signature function + which free quota a call counts against
         self.signer = sign
         self.quota_provider = "imou"
+        # cctvconnect: a same-family cloud (Dahua DoLynk) may name a method
+        # differently — {"ourName": "theirName"} from Owner Admin
+        self.method_map = {}
 
     @classmethod
     def from_integration(cls, http=None):
@@ -88,6 +91,7 @@ class ImouClient:
                    http=http)
 
     def call(self, method, params=None):
+        method = self.method_map.get(method, method)
         ts = int(self.now())
         nonce = uuid.uuid4().hex
         body = json.dumps({

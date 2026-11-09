@@ -8700,3 +8700,132 @@ class CctvVendorUsage(models.Model):
         constraints = [models.UniqueConstraint(fields=["provider", "month"],
                                                name="uniq_cctv_vendor_usage")]
 # ---- /cctvconnect ----
+
+# ---- citydata ----
+# citydata (owner 9 Nov 11:45, City Service): Assisto's own city transit data
+# (GitHub Actions builds it; the server imports the small result), user
+# corrections, live road reports (60-min expiry), crowd fares, night safety
+# ratings and consented, name-free trip learning.
+class CityDataset(models.Model):
+    """One row per city: the compact network (gzip JSON) + directory, the
+    owner's overrides (rates, hidden/edited stops & routes, approved user
+    facts), counts and the build report. `ov_version` bumps on every owner
+    edit so every phone's offline package refreshes."""
+    city = models.CharField(max_length=24, unique=True)
+    enabled = models.BooleanField(default=True)
+    version = models.CharField(max_length=40, blank=True, default="")
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    blob = models.BinaryField(blank=True, default=b"")
+    dir_blob = models.BinaryField(blank=True, default=b"")
+    counts = models.JSONField(default=dict, blank=True)
+    report = models.JSONField(default=dict, blank=True)
+    overrides = models.JSONField(default=dict, blank=True)
+    ov_version = models.PositiveIntegerField(default=1)
+    imported_at = models.DateTimeField(null=True, blank=True)
+    last_check_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=300, blank=True, default="")
+
+
+class CityCorrection(models.Model):
+    """One-tap 'Suggest a fix' from the app -> Owner Admin review."""
+    TARGETS = ("stop", "route", "gate", "station", "fare", "terminal", "ghat", "office", "other")
+    city = models.CharField(max_length=24, default="dhaka")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    target = models.CharField(max_length=12, default="other")
+    target_id = models.CharField(max_length=80, blank=True, default="")
+    kind = models.CharField(max_length=24, blank=True, default="")
+    text = models.CharField(max_length=500, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lon = models.FloatField(null=True, blank=True)
+    status = models.CharField(max_length=10, default="open")     # open | accepted | rejected
+    patch = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["status", "id"], name="core_cityfix_status_idx")]
+
+
+class CityLiveReport(models.Model):
+    """One tap: jam / road closed / waterlogging / bus not coming / crowded /
+    seats free. Shown with a count + minutes ago; gone after 60 minutes."""
+    KINDS = ("jam", "road_closed", "waterlogging", "bus_not_coming", "bus_crowded", "seats_free")
+    city = models.CharField(max_length=24, default="dhaka")
+    kind = models.CharField(max_length=16)
+    lat = models.FloatField()
+    lon = models.FloatField()
+    route_id = models.CharField(max_length=80, blank=True, default="")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    count = models.PositiveIntegerField(default=1)
+    voters = models.JSONField(default=list, blank=True)        # user ids (dedupe), never shown
+    flags = models.PositiveIntegerField(default=0)
+    hidden = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    last_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["city", "expires_at"], name="core_citylive_exp_idx")]
+
+
+class CityFareReport(models.Model):
+    """'What did you pay?' -> rickshaw / leguna fares become Reported by users."""
+    city = models.CharField(max_length=24, default="dhaka")
+    mode = models.CharField(max_length=12)
+    km = models.FloatField()
+    paid = models.PositiveIntegerField()
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [models.Index(fields=["city", "mode", "created_at"], name="core_cityfare_idx")]
+
+
+class CityNightRating(models.Model):
+    city = models.CharField(max_length=24, default="dhaka")
+    route_id = models.CharField(max_length=80)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    stars = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["route_id", "user"], name="core_citynight_uniq")]
+
+
+class CityTripConsent(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="+")
+    on = models.BooleanField(default=False)
+    changed_at = models.DateTimeField(default=timezone.now)
+
+
+class CityTrip(models.Model):
+    """A consented bus/leguna/water trip trace — NO user link: `anon` is a
+    keyed hash (counts distinct contributors, cannot be reversed to a name);
+    the first/last 300 m are cut off; raw points are deleted after
+    processing (<= 7 days). Never sold or shared."""
+    city = models.CharField(max_length=24, default="dhaka")
+    anon = models.CharField(max_length=24, db_index=True)
+    mode = models.CharField(max_length=12, default="bus")
+    points = models.JSONField(default=list, blank=True)       # [[t, lat, lon], ...]
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    processed = models.BooleanField(default=False)
+
+
+class CityLearned(models.Model):
+    """What trips taught us: a stop (dwell cluster), a stop-to-stop segment
+    time by hour, or a new route (stop sequence). Stays Reported until
+    `anons` distinct contributors confirm it."""
+    city = models.CharField(max_length=24, default="dhaka")
+    kind = models.CharField(max_length=10)          # stop | segment | route
+    key = models.CharField(max_length=120)
+    data = models.JSONField(default=dict, blank=True)
+    trips = models.PositiveIntegerField(default=0)
+    anons = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=10, default="reported")   # reported | confirmed | rejected
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["city", "kind", "key"], name="core_citylearn_uniq")]
+# ---- /citydata ----

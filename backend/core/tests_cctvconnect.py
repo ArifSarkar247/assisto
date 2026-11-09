@@ -132,42 +132,52 @@ class AdapterMockTests(SimpleTestCase):
     def ad(self, v):
         return CC.adapter(v, http=self.sim.http, cfg=self.sim.cfg(v))
 
-    def test_every_vendor_end_to_end(self):
-        for v in ("ezviz", "imou", "hikconnect", "dolynk"):
-            with self.subTest(vendor=v):
-                a, serial = self.ad(v), "SIM%sDVR1" % v[:2].upper()
-                self.assertTrue(a.configured())
-                with self.assertRaises(CC.ConnectError) as e:
-                    a.link_device(serial, "WRONG1")
-                self.assertEqual(e.exception.hint, "wrong_code")
-                g = a.link_device(serial, "ABC123")
-                self.assertEqual(g, {"mode": "device_code", "serials": [serial]})
-                devs = a.devices(g)
-                self.assertEqual([d["serial"] for d in devs], [serial])
-                self.assertEqual(len(devs[0]["channels"]), 4)
-                self.assertEqual(devs[0]["kind"], "nvr")
-                ch = devs[0]["channels"][1]["no"]
-                live = a.live(g, serial, ch)
-                self.assertTrue(live["url"].startswith("https://") and live["proto"] == "hls")
-                self.assertTrue(CC.base.host_allowed(live["url"], a.pic_hosts))
-                # the camera's own AI event (a person)
-                t0 = time.time() - 5
-                self.sim.push_alarm(v, serial, int(ch), "human")
-                evs = (a.account_events(t0) if a.events_scope == "account"
-                       else a.events(g, serial, t0, channels=[str(ch)]))
-                self.assertEqual(len(evs), 1, evs)
-                self.assertEqual((evs[0]["kind"], evs[0]["serial"]), ("person", serial))
-                self.assertTrue(evs[0]["picture"].startswith("https://"))
-                # disk failure shows in the cloud health report
-                self.sim.set_disk(v, serial, "error")
-                rep = DH.normalize_report(a.health(g, serial))
-                kinds = [p["kind"] for p in DH.evaluate(rep)["problems"]]
-                self.assertIn("hdd_fail", kinds)
-                # scope: another device of the same developer account is not ours
-                self.assertFalse(a.owns(g, "SIM%sOTHER" % v[:2].upper()))
-                # revoke releases the device at the vendor
-                a.unlink(g)
-                self.assertIsNone(self.sim.devs[v][serial].owner)
+    def run_vendor(self, v):
+        a, serial = self.ad(v), "SIM%sDVR1" % v[:2].upper()
+        self.assertTrue(a.configured(), v)
+        with self.assertRaises(CC.ConnectError) as e:
+            a.link_device(serial, "WRONG1")
+        self.assertEqual(e.exception.hint, "wrong_code")
+        g = a.link_device(serial, "ABC123")
+        self.assertEqual(g, {"mode": "device_code", "serials": [serial]})
+        devs = a.devices(g)
+        self.assertEqual([d["serial"] for d in devs], [serial])
+        self.assertEqual(len(devs[0]["channels"]), 4)
+        self.assertEqual(devs[0]["kind"], "nvr")
+        ch = devs[0]["channels"][1]["no"]
+        live = a.live(g, serial, ch)
+        self.assertTrue(live["url"].startswith("https://") and live["proto"] == "hls", live)
+        self.assertTrue(CC.base.host_allowed(live["url"], a.pic_hosts), live)
+        # the camera's own AI event (a person)
+        t0 = time.time() - 5
+        self.sim.push_alarm(v, serial, int(ch), "human")
+        evs = (a.account_events(t0) if a.events_scope == "account"
+               else a.events(g, serial, t0, channels=[str(ch)]))
+        self.assertEqual(len(evs), 1, evs)
+        self.assertEqual((evs[0]["kind"], evs[0]["serial"]), ("person", serial))
+        self.assertTrue(evs[0]["picture"].startswith("https://"), evs)
+        # disk failure shows in the cloud health report
+        self.sim.set_disk(v, serial, "error")
+        rep = DH.normalize_report(a.health(g, serial))
+        kinds = [p["kind"] for p in DH.evaluate(rep)["problems"]]
+        self.assertIn("hdd_fail", kinds)
+        # scope: another device of the same developer account is not ours
+        self.assertFalse(a.owns(g, "SIM%sOTHER" % v[:2].upper()))
+        # revoke releases the device at the vendor
+        a.unlink(g)
+        self.assertIsNone(self.sim.devs[v][serial].owner)
+
+    def test_ezviz(self):
+        self.run_vendor("ezviz")
+
+    def test_imou(self):
+        self.run_vendor("imou")
+
+    def test_hikconnect(self):
+        self.run_vendor("hikconnect")
+
+    def test_dolynk(self):
+        self.run_vendor("dolynk")
 
     def test_taken_and_offline_and_network(self):
         a = self.ad("ezviz")
@@ -206,6 +216,16 @@ class AdapterMockTests(SimpleTestCase):
                        cfg=dict(self.sim.cfg("hikconnect"), api_base="https://evil.test"))
         self.assertEqual(a._base(), "https://ieu.hik-connect.com")
 
+    def test_dolynk_sign_and_method_names_from_owner_admin(self):
+        from core.logic import imou as IM
+        a = CC.adapter("dolynk", http=self.sim.http,
+                       cfg=dict(self.sim.cfg("dolynk"), sign_mode="hmac",
+                                methods_json='{"bindDevice": "device.bind", "bad": "x;rm"}'))
+        c = a.client()
+        self.assertIs(c.signer, IM.sign_v2)
+        self.assertEqual(c.method_map, {"bindDevice": "device.bind"})
+        self.assertIs(CC.adapter("dolynk", cfg=self.sim.cfg("dolynk")).client().signer, IM.sign)
+
     def test_off_without_keys(self):
         self.assertFalse(CC.adapter("dolynk", cfg={"app_id": "x", "app_secret": "y"}).configured())
         with self.assertRaises(CC.ConnectError):
@@ -230,7 +250,9 @@ class SealTests(SimpleTestCase):
 def _enable(slug, cfg):
     from core.models import Integration
     Integration.objects.update_or_create(slug=slug, defaults={
-        "enc_blob": integrations._encrypt(cfg), "status": "working"})
+        "enc_blob": integrations._encrypt(cfg), "status": "working",
+        # DoLynk switches on only after a SIGNED sign-in passed the Test
+        "detail": CC.DOLYNK_OK + " (test)" if slug == "dolynk" else ""})
 
 
 class ConnectApiE2ETests(E2E._Base):
@@ -306,56 +328,68 @@ class ConnectApiE2ETests(E2E._Base):
         self.assertTrue(r.data["devices"][0]["channels"][0]["added"])
         return link, serial, ch, cam
 
-    def test_connect_list_import_event_stream_health_revoke_all_four(self):
+    def run_vendor(self, v):
         from core.models import CctvCloudLink, ShopCamera, ShopEvent
         from core import cctv_connect_views as V
-        for v in ("hikconnect", "dolynk", "ezviz", "imou"):
-            with self.subTest(vendor=v):
-                link, serial, ch, cam = self.connect(v)
-                row = CctvCloudLink.objects.get(pk=link["id"])
-                self.assertNotIn("ABC123", row.grant_blob + str(row.serials) + str(row.state))
-                self.assertEqual(CC.unseal(self.sid, row.grant_blob)["serials"], [serial])
-                # live + playback URL for the OWNER (the cctvplay hook)
-                r = self.client.post("/api/v1/cctv/connect/cameras/%d/stream" % cam["id"],
-                                     {"kind": "live"}, format="json")
-                self.assertEqual(r.status_code, 200, r.data)
-                self.assertTrue(r.data["url"].startswith("https://"))
-                # the camera's own AI event -> alert (Hik-Connect / DoLynk via
-                # our sync; EZVIZ / Imou keep their existing poll / callback)
-                if v in ("hikconnect", "dolynk"):
-                    before = ShopEvent.objects.count()
-                    self.sim.push_alarm(v, serial, int(ch), "human")
-                    tot = V.sync_all()
-                    self.assertEqual(tot["events"], 1, tot)
-                    ev = ShopEvent.objects.order_by("-id").first()
-                    self.assertEqual(ShopEvent.objects.count(), before + 1)
-                    self.assertEqual(ev.camera_id, cam["id"])
-                    self.assertTrue(ev.snapshot)
-                    self.assertTrue(self.shop_pushes())
-                    # the same vendor event again is never a second alert
-                    self.sim.hik_queue = []
-                    if v == "dolynk":
-                        V.sync_all()
-                        self.assertEqual(ShopEvent.objects.count(), before + 1)
-                else:
-                    c = ShopCamera.objects.get(pk=cam["id"])
-                    want = ("EZ:%s:%s" % (serial, ch)) if v == "ezviz" else "%s:%s" % (serial, ch)
-                    self.assertEqual(c.vendor_ref, want)
-                # cloud health: disk failed -> one camera_health alert
-                self.sim.set_disk(v, serial, "error")
-                lk = CctvCloudLink.objects.get(pk=link["id"])
-                lk.state = dict(lk.state or {}, health_at=0)      # health is due now
-                lk.save(update_fields=["state"])
+        link, serial, ch, cam = self.connect(v)
+        row = CctvCloudLink.objects.get(pk=link["id"])
+        self.assertNotIn("ABC123", row.grant_blob + str(row.serials) + str(row.state))
+        self.assertEqual(CC.unseal(self.sid, row.grant_blob)["serials"], [serial])
+        # live + playback URL for the OWNER (the cctvplay hook)
+        r = self.client.post("/api/v1/cctv/connect/cameras/%d/stream" % cam["id"],
+                             {"kind": "live"}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertTrue(r.data["url"].startswith("https://"), r.data)
+        # the camera's own AI event -> alert (Hik-Connect / DoLynk via
+        # our sync; EZVIZ / Imou keep their existing poll / callback)
+        if v in ("hikconnect", "dolynk"):
+            before = ShopEvent.objects.count()
+            self.sim.push_alarm(v, serial, int(ch), "human")
+            tot = V.sync_all()
+            self.assertEqual(tot["events"], 1, tot)
+            ev = ShopEvent.objects.order_by("-id").first()
+            self.assertEqual(ShopEvent.objects.count(), before + 1)
+            self.assertEqual(ev.camera_id, cam["id"])
+            self.assertTrue(ev.snapshot, "no snapshot stored for %s" % v)
+            self.assertTrue(self.shop_pushes(), "no push for %s: %r" % (v, self.pushes))
+            # the same vendor event again is never a second alert
+            self.sim.hik_queue = []
+            if v == "dolynk":
                 V.sync_all()
-                self.assertTrue(ShopEvent.objects.filter(type="camera_health",
-                                                         camera_id=cam["id"]).exists())
-                # revoke: grant wiped, device released, camera unlinked
-                r = self.client.delete("/api/v1/cctv/connect/links/%d" % link["id"])
-                self.assertEqual(r.status_code, 200, r.data)
-                row.refresh_from_db()
-                self.assertEqual((row.status, row.grant_blob, row.serials), ("revoked", "", []))
-                self.assertIsNone(self.sim.devs[v][serial].owner)
-                self.assertEqual(ShopCamera.objects.get(pk=cam["id"]).vendor_ref, "")
+                self.assertEqual(ShopEvent.objects.count(), before + 1)
+        else:
+            c = ShopCamera.objects.get(pk=cam["id"])
+            want = ("EZ:%s:%s" % (serial, ch)) if v == "ezviz" else "%s:%s" % (serial, ch)
+            self.assertEqual(c.vendor_ref, want)
+        # cloud health: disk failed -> one camera_health alert
+        self.sim.set_disk(v, serial, "error")
+        lk = CctvCloudLink.objects.get(pk=link["id"])
+        lk.state = dict(lk.state or {}, health_at=0)      # health is due now
+        lk.save(update_fields=["state"])
+        V.sync_all()
+        self.assertTrue(ShopEvent.objects.filter(type="camera_health",
+                                                 camera_id=cam["id"]).exists(),
+                        "no camera_health for %s: %r" % (v, list(ShopEvent.objects.values_list(
+                            "type", "camera_id"))))
+        # revoke: grant wiped, device released, camera unlinked
+        r = self.client.delete("/api/v1/cctv/connect/links/%d" % link["id"])
+        self.assertEqual(r.status_code, 200, r.data)
+        row.refresh_from_db()
+        self.assertEqual((row.status, row.grant_blob, row.serials), ("revoked", "", []))
+        self.assertIsNone(self.sim.devs[v][serial].owner)
+        self.assertEqual(ShopCamera.objects.get(pk=cam["id"]).vendor_ref, "")
+
+    def test_e2e_hikconnect(self):
+        self.run_vendor("hikconnect")
+
+    def test_e2e_dolynk(self):
+        self.run_vendor("dolynk")
+
+    def test_e2e_ezviz(self):
+        self.run_vendor("ezviz")
+
+    def test_e2e_imou(self):
+        self.run_vendor("imou")
 
     def test_stream_never_for_staff_or_viewer_without_live(self):
         from core.models import User
@@ -414,6 +448,50 @@ class ConnectApiE2ETests(E2E._Base):
         r = c.get("/api/v1/cctv/connect/providers?site=%d" % site.id)
         self.assertEqual([p["id"] for p in r.data["providers"]], ["ezviz"])
         self.assertIn("I own this camera", r.data["providers"][0]["consent_en"])
+
+    def test_dolynk_callback_token_safe_log_and_alarm(self):
+        from core import cctv_connect_views as V
+        from core.models import ShopEvent
+        link, serial, ch, cam = self.connect("dolynk")
+        url = V.dolynk_callback_url(self.sim.cfg("dolynk")["access_key"])
+        path = url[url.index("/api/v1/"):]
+        r = APIClient().post(path.rsplit("/", 1)[0] + "/wrong", "{}", content_type="application/json")
+        self.assertEqual(r.status_code, 404)
+        with self.assertLogs("assisto.shop", level="INFO") as logs:
+            r = APIClient().post(path, json.dumps({"hello": "secret-value", "msgType": "verify"}),
+                                 content_type="application/json")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("hello", "\n".join(logs.output))
+        self.assertNotIn("secret-value", "\n".join(logs.output))     # keys only, never values
+        alarm = {"msgType": "human", "deviceId": serial, "channelId": str(ch), "alarmId": "dl-9",
+                 "picurlArray": ["https://pic.dolynkcloud.com/a/9.jpg"]}
+        r = APIClient().post(path, json.dumps(alarm), content_type="application/json")
+        self.assertEqual(r.data["events"][0], {"result": "raised"}, r.data)
+        self.assertTrue(ShopEvent.objects.filter(camera_id=cam["id"]).exists())
+        rows = {x["slug"]: x for x in integrations.list_all("en")}
+        self.assertIn("/api/v1/cctv/dolynk/callback/", rows["dolynk"]["usage"])
+
+    def test_dolynk_on_only_after_signed_signin(self):
+        from core.models import Integration
+
+        class _R:
+            status_code = 404
+        get = mock.Mock()
+        get.get.return_value = _R()
+        Integration.objects.create(slug="dolynk", status="working",
+                                   enc_blob=integrations._encrypt(self.sim.cfg("dolynk")),
+                                   detail="DoLynk keys saved; server reachable (HTTP 404).")
+        self.assertNotIn("dolynk", self.providers())          # reachability alone: OFF
+        bad = dict(self.sim.cfg("dolynk"), secret_key="wrong")
+        ok, detail = integrations.test_dolynk(bad, http=get, signin_http=self.sim.http)
+        self.assertNotIn(CC.DOLYNK_OK, detail)
+        self.assertIn("SN1001", detail)                        # the raw code is shown
+        ok, detail = integrations.test_dolynk(self.sim.cfg("dolynk"), http=get,
+                                              signin_http=self.sim.http)
+        self.assertTrue(ok)
+        self.assertIn(CC.DOLYNK_OK, detail)
+        Integration.objects.filter(slug="dolynk").update(detail=detail)
+        self.assertIn("dolynk", self.providers())
 
     def test_import_respects_plan(self):
         _enable("imou", self.sim.cfg("imou"))

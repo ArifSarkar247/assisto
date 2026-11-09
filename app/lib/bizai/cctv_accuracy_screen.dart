@@ -155,8 +155,18 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(t.bizaiCamLiveHow),
             const SizedBox(height: Gap.sm),
-            if (site == null)
-              Text(t.bizaiCamPickSite)
+            if (site == null) ...[
+              Text(t.bizaiCamPickSite),
+              // qbiz: no dead end — the shop is added on the Shop Box screen
+              const SizedBox(height: Gap.sm),
+              FilledButton.icon(
+                key: const ValueKey('qbiz-cam-back'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(context).maybePop(),
+                icon: const Icon(Icons.storefront_rounded),
+                label: Text(t.qbizCamAddShop),
+              ),
+            ]
             else if (_testId == null)
               FilledButton.icon(
                 key: const ValueKey('bizai-cam-start'),

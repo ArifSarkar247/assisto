@@ -43,9 +43,37 @@ def enabled(pid):
         from ... import integrations as I
         if not I.is_enabled(cls.integration):
             return False
+        if pid == "dolynk" and not _dolynk_signed_in():
+            return False          # keys + reachability alone never switch it on
         return cls(I.get(cls.integration) or {}).configured()
     except Exception:
         return False
+
+
+DOLYNK_OK = "DoLynk sign-in OK"
+
+
+def _dolynk_signed_in():
+    from ...models import Integration
+    obj = Integration.objects.filter(slug="dolynk").first()
+    return bool(obj and DOLYNK_OK in (obj.detail or ""))
+
+
+def dolynk_signin(cfg, http=None):
+    """Owner Admin Test: a SIGNED sign-in with the Dahua-family accessToken
+    call. -> (ok, detail). Only ok switches the DoLynk camera link on."""
+    from .. import imou as IM
+    a = DolynkAdapter(cfg, http=http)
+    if not a.configured():
+        return False, "DoLynk: Access Key and Secret Access Key are both needed"
+    try:
+        d = a.client().call("accessToken")
+    except IM.ImouError as e:
+        return False, ("Sign-in answered %s %s — the camera link stays OFF until the DoLynk "
+                       "Doc Center pages confirm the sign-in call." % (e.code, e.msg)).strip()
+    if not (d or {}).get("accessToken"):
+        return False, "Sign-in answered without a token — the camera link stays OFF."
+    return True, DOLYNK_OK + " (signed token received)"
 
 
 def enabled_ids():
