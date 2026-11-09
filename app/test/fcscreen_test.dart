@@ -160,7 +160,7 @@ void main() {
     expect(api.posts, contains('/family/v3/invites/31/accept'));
 
     api.scene = 'mixed';
-    await _pump(t, const FamilyV3Screen(), api);
+    await _pump(t, const FamilyV3Screen(key: ValueKey('reload')), api);
     expect(find.byKey(const ValueKey('fc3-fam-11')), findsOneWidget);
   });
 
@@ -174,7 +174,7 @@ void main() {
     }
     expect(find.byKey(const ValueKey('fc3-more-probashi')), findsNothing);
 
-    await _pump(t, const FamilyV3Screen(), _Api(scene: 'abroad'));
+    await _pump(t, const FamilyV3Screen(key: ValueKey('abroad')), _Api(scene: 'abroad'));
     await _scrollTo(t, find.byKey(const ValueKey('fc3-more-probashi')));
     expect(find.byKey(const ValueKey('fc3-more-probashi')), findsOneWidget);
   });

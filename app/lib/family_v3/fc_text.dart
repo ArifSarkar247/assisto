@@ -62,9 +62,9 @@ Color fcInk(BuildContext context, String state) {
   final scheme = Theme.of(context).colorScheme;
   final dark = Theme.of(context).brightness == Brightness.dark;
   return switch (state) {
-    'ok' => dark ? const Color(0xFF5EE0A8) : const Color(0xFF1B7A50),
+    'ok' => dark ? Brand.green : Brand.successFill,
     'check' => Brand.warnInk(context),
-    'sos' => dark ? const Color(0xFFFF8A96) : const Color(0xFFB3261E),
+    'sos' => dark ? CallInk.failure : Brand.dangerFill,
     _ => scheme.onSurfaceVariant,
   };
 }
