@@ -111,7 +111,9 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
       final res = await api.listItems(kLpResults);
       res.sort((a, b) => ((b['at'] as num?) ?? 0).compareTo((a['at'] as num?) ?? 0));
       _weak = res.isEmpty ? const [] : lpStrs(res.first['weak']);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: weak-area tags only; the mock list above has its own error state
+    }
     if (mounted) setState(() => _loading = false);
   }
 

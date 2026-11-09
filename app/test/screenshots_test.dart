@@ -645,8 +645,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
     // lpapp: Language Partner V2 — the 4 owner-approved screens + hub, life list, vocab
     'lp2_start': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
-    'lp2_result': (build: (_) => LpMockResultScreen(
-        title: 'Academic mock 1',
+    'lp2_result': (build: (l) => LpMockResultScreen(
+        title: l == 'bn' ? 'অ্যাকাডেমিক মক ১' : 'Academic mock 1',
         sections: const ['listening', 'reading', 'writing', 'speaking'],
         bands: const {'listening': 7.0, 'reading': 6.5, 'writing': 6.0, 'speaking': 6.0},
         overall: 6.5,

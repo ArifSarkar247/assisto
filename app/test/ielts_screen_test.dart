@@ -76,8 +76,7 @@ void main() {
     FeatureFlags.instance.debugOverride = {'language_packs': false};
     await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    expect(find.text('Korea · EPS-TOPIK'), findsOneWidget);
-    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
+    await t.scrollUntilVisible(find.text('Korea · EPS-TOPIK'), 200, scrollable: find.byType(Scrollable).first);
     await t.tap(find.text('Korea · EPS-TOPIK'));
     await t.pumpAndSettle();
     // off: an honest "next stage" sheet with a way forward, never a dead chip
@@ -86,7 +85,7 @@ void main() {
     FeatureFlags.instance.debugOverride = {'language_packs': true};
     await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
+    await t.scrollUntilVisible(find.text('Korea · EPS-TOPIK'), 200, scrollable: find.byType(Scrollable).first);
     await t.tap(find.text('Korea · EPS-TOPIK'));
     await t.pumpAndSettle();
     expect(find.byType(LanguagePackScreen), findsOneWidget);

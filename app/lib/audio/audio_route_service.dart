@@ -188,6 +188,7 @@ class AudioRouteService extends ChangeNotifier {
     'lib/messaging/media/voice_player.dart': AudioUse.voiceNotePlay,
     'lib/messaging/media/video_player_impl.dart': AudioUse.media,
     'lib/screens/shop_live_rtc.dart': AudioUse.media,
+    'lib/screens/lp2/lp_mock.dart': AudioUse.media, // lpapp: IELTS listening audio
     'lib/voice/va_native.dart': AudioUse.assistantSpeak,
     'lib/widgets/voice_input.dart': AudioUse.assistantListen,
     'lib/widgets/voice_command_sheet.dart': AudioUse.assistantListen,
