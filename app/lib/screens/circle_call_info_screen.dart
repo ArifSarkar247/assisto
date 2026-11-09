@@ -4,6 +4,7 @@ import '../calls/call_avatar.dart';
 import '../l10n/app_localizations.dart';
 import '../messaging/date_separators.dart' show dateChipLabel, fmtTime, localDigits;
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_relation.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -63,11 +64,11 @@ class CircleCallInfoScreen extends StatelessWidget {
                   children: [
                     Text(name,
                         style: AType.titleMedium.copyWith(
-                            color: scheme.onSurface, fontWeight: FontWeight.w600)),
+                            color: DsTokens.of(context).text, fontWeight: FontWeight.w600)),
                     Text(
                         CircleRelation.labelFor(t, relation,
                             custom: call['custom_label'] as String?),
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                   ],
                 ),
               ),
@@ -121,7 +122,7 @@ class CircleCallInfoScreen extends StatelessWidget {
       String lang, Map<String, dynamic> e) {
     final info = callInfoOf(e);
     final at = _atOf(e);
-    final color = info.missed ? scheme.error : scheme.onSurfaceVariant;
+    final color = info.missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).muted;
     final dir = info.missed
         ? t.wa2CallMissed
         : info.outgoing
@@ -156,11 +157,11 @@ class CircleCallInfoScreen extends StatelessWidget {
               children: [
                 Text('$dir · $kind',
                     style: AType.bodyMedium.copyWith(
-                        color: info.missed ? scheme.error : scheme.onSurface)),
+                        color: info.missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).text)),
                 if (at != null)
                   Text(
                       '${dateChipLabel(t, at, lang: lang)}, ${fmtTime(at, lang)}',
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               ],
             ),
           ),
@@ -173,7 +174,7 @@ class CircleCallInfoScreen extends StatelessWidget {
               child: Text(right,
                   key: ValueKey('wa2-call-entry-right-${e['id']}'),
                   textAlign: TextAlign.end,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             ),
           ],
         ],
@@ -229,12 +230,12 @@ class _Action extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final on = onTap != null;
-    final fg = on ? scheme.primary : scheme.onSurface.withValues(alpha: 0.38);
+    final fg = on ? scheme.primary : DsTokens.of(context).text.withValues(alpha: 0.38);
     return Semantics(
       button: true,
       enabled: on,
       child: Material(
-        color: scheme.surfaceContainerHighest,
+        color: DsTokens.of(context).cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
         child: InkWell(
           borderRadius: BorderRadius.circular(Radii.md),
@@ -251,7 +252,7 @@ class _Action extends StatelessWidget {
                   Text(label,
                       textAlign: TextAlign.center,
                       style: AType.labelMedium.copyWith(
-                          color: on ? scheme.onSurface : fg, fontWeight: FontWeight.w600)),
+                          color: on ? DsTokens.of(context).text : fg, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

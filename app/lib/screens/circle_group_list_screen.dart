@@ -6,6 +6,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/circle_group_create_sheet.dart';
 import 'circle_group_chat_screen.dart';
@@ -137,7 +138,7 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
             Text(
               _backendReady ? _t.circleGroupsEmptyBody : _t.circleBackendPending,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+              style: TextStyle(color: DsTokens.of(context).muted, height: 1.4),
             ),
           ],
         ),
@@ -150,7 +151,7 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor:
-            Theme.of(context).colorScheme.primaryContainer,
+            DsTokens.of(context).primarySoft,
         child: const Icon(Icons.groups_rounded),
       ),
       title: Text(name),

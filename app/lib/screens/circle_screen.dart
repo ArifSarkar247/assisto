@@ -13,6 +13,7 @@ import '../l10n/app_localizations.dart';
 import '../messaging/connect_flow.dart'; // connect-flow
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_sharing.dart';
 import '../widgets/loading_gate.dart';
@@ -371,7 +372,7 @@ class _CircleScreenState extends State<CircleScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+                  ?.copyWith(color: DsTokens.of(context).muted),
             ),
             if (!_backendReady) ...[
               const SizedBox(height: Gap.md),
@@ -446,11 +447,11 @@ class _CircleScreenState extends State<CircleScreen> {
               Container(
                 padding: const EdgeInsets.all(Gap.sm),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: DsTokens.of(context).cardHighest,
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Text('"$note"',
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: DsTokens.of(context).muted)),
               ),
             ],
             const SizedBox(height: Gap.sm),

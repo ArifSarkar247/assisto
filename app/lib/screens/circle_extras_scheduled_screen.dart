@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 
 /// Scheduled messages (M2 item 9).
@@ -182,7 +183,7 @@ class _CircleExtrasScheduledScreenState
                       ? Center(
                           child: Text(t.circleExtrasNoScheduled,
                               style:
-                                  TextStyle(color: scheme.onSurfaceVariant)))
+                                  TextStyle(color: DsTokens.of(context).muted)))
                       : ListView.builder(
                           itemCount: pending.length,
                           itemBuilder: (_, i) {
@@ -222,7 +223,7 @@ class _CircleExtrasScheduledScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.circleExtrasScheduleHint,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 11, color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.xs),
             TextField(
               controller: _compose,

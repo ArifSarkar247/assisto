@@ -11,6 +11,7 @@ import '../screens/circle_call_screen.dart';
 import '../screens/journey_watch_screen.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart';
 import 'carecall_alarms.dart';
 import 'carecall_api.dart';
@@ -258,7 +259,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Text(
                 t.ccLimitLine(ccNum(context, lim['active_used'] ?? 0), ccNum(context, lim['active_per_setter'])),
-                style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+                style: tt.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
           ),
         for (final c in sent) _sentTile(t, c),
       ],
@@ -303,7 +304,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
           ),
         ),
         const SizedBox(height: Gap.md),
-        Text(t.ccEmptyHow, textAlign: TextAlign.center, style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
+        Text(t.ccEmptyHow, textAlign: TextAlign.center, style: tt.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }
@@ -362,7 +363,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
       margin: const EdgeInsets.only(bottom: Gap.md),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: missed ? BorderSide(color: amber, width: 2) : BorderSide(color: s.outlineVariant),
+        side: missed ? BorderSide(color: amber, width: 2) : BorderSide(color: DsTokens.of(context).border),
       ),
       color: missed ? Color.alphaBlend(amber.withValues(alpha: 0.08), s.surface) : null,
       child: Padding(
@@ -390,7 +391,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
                 ]),
                 if (text.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
-                  Text('“$text”', style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
+                  Text('“$text”', style: tt.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
                 ],
               ]),
             ),
@@ -455,7 +456,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
               Text('${c['other_name'] ?? ''}', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               Text(_when(c), style: tt.bodyMedium),
               if ('${c['text'] ?? ''}'.isNotEmpty)
-                Text('“${c['text']}”', style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+                Text('“${c['text']}”', style: tt.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
               const SizedBox(height: Gap.xs),
               Row(children: [
                 if (c['has_voice'] == true) ...[
@@ -507,7 +508,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
         title: Text(t.ccFrom('${c['other_name'] ?? ''}'), style: tt.titleMedium),
         subtitle: Text(
             '${_when(c)}${'${c['text'] ?? ''}'.isNotEmpty ? '\n“${c['text']}”' : ''}',
-            style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
+            style: tt.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
         isThreeLine: '${c['text'] ?? ''}'.isNotEmpty,
         trailing: c['has_voice'] == true ? Icon(Icons.mic_rounded, color: s.primary) : null,
       ),

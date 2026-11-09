@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_privacy_controls.dart';
 
 /// Connected Circle privacy & controls hub (M1 item 6).
@@ -191,12 +192,12 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.cloud_off_rounded,
-                            size: 48, color: scheme.outline),
+                            size: 48, color: DsTokens.of(context).border),
                         const SizedBox(height: Gap.md),
                         Text(
                           _t.circlePrivacyLoadFailed,
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: scheme.onSurfaceVariant),
+                          style: TextStyle(color: DsTokens.of(context).muted),
                         ),
                         const SizedBox(height: Gap.lg),
                         FilledButton.tonalIcon(
@@ -291,7 +292,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                           _t.circlePrivacyServerEnforcedNote,
                           style: TextStyle(
                               fontSize: 12,
-                              color: scheme.onSurfaceVariant,
+                              color: DsTokens.of(context).muted,
                               height: 1.3),
                         ),
                       ),

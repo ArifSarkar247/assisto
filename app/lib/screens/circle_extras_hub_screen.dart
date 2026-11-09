@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -210,7 +211,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                         child: Text(t.circleExtrasE2eNote,
                             style: TextStyle(
                                 fontSize: 12,
-                                color: scheme.onSurfaceVariant,
+                                color: DsTokens.of(context).muted,
                                 height: 1.3)),
                       ),
                     ],

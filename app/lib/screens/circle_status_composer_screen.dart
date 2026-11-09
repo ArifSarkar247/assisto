@@ -11,6 +11,7 @@ import '../p3/story_crypto.dart';
 import '../p3/story_privacy_sheet.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/local_counter.dart';
 
@@ -178,7 +179,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         ]),
         const SizedBox(height: Gap.xs),
         Text(_audienceN == 0 ? t.p3AudienceNone : t.p3AudienceN(n),
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+            style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.xs),
         _note(Icons.schedule_rounded, t.statusExpiresIn24h, scheme),
         const SizedBox(height: Gap.xs),
@@ -234,7 +235,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
                       color: kStoryBgs[i],
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: i == _bg ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
+                          color: i == _bg ? DsTokens.of(context).text : Colors.transparent,
                           width: 2.5),
                     ),
                   ),
@@ -260,7 +261,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
             child: p == null
                 ? Center(
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.add_photo_alternate_rounded, size: 56, color: scheme.outline),
+                      Icon(Icons.add_photo_alternate_rounded, size: 56, color: DsTokens.of(context).border),
                       const SizedBox(height: Gap.md),
                       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
                         FilledButton.tonalIcon(
@@ -307,7 +308,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         Icon(icon, size: 16, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
-          child: Text(text, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant, height: 1.3)),
+          child: Text(text, style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted, height: 1.3)),
         ),
       ]);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 
 /// Broadcast list (M2 item 9).
@@ -100,7 +101,7 @@ class _CircleExtrasBroadcastScreenState
                 Expanded(
                   child: Text(t.circleExtrasBroadcastHint,
                       style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant)),
+                          fontSize: 12, color: DsTokens.of(context).muted)),
                 ),
               ],
             ),
@@ -159,12 +160,12 @@ class _CircleExtrasBroadcastScreenState
                 Row(
                   children: [
                     Icon(Icons.lock_outline_rounded,
-                        size: 13, color: scheme.onSurfaceVariant),
+                        size: 13, color: DsTokens.of(context).muted),
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(t.circleExtrasBroadcastNotGroup,
                           style: TextStyle(
-                              fontSize: 11, color: scheme.onSurfaceVariant)),
+                              fontSize: 11, color: DsTokens.of(context).muted)),
                     ),
                   ],
                 ),

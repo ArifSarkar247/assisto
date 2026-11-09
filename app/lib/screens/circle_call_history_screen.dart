@@ -7,6 +7,7 @@ import '../calls/call_avatar.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_badges.dart';
 import '../crypto/identity_vault.dart';
@@ -152,7 +153,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             child: Text(_t.waCallsNoMissed,
                 key: const Key('call-log-no-missed'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
           );
         }
         return _callTile(rows[i - 1], scheme);
@@ -214,7 +215,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             const SizedBox(height: Gap.sm),
             Text(_t.circle2CallsEmptyBenefit,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
             const SizedBox(height: Gap.lg),
             Center(
               child: FilledButton.icon(
@@ -229,7 +230,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             const SizedBox(height: Gap.lg),
             Text(_t.circle2CallsEmptyHow,
                 textAlign: TextAlign.start,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.6)),
+                style: TextStyle(color: DsTokens.of(context).muted, height: 1.6)),
           ],
           const SizedBox(height: Gap.xl),
         ],
@@ -252,7 +253,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final atRaw = '${call['started_at'] ?? call['created_at'] ?? ''}';
     final at = DateTime.tryParse(atRaw)?.toLocal();
 
-    final dirColor = missed ? scheme.error : scheme.onSurfaceVariant;
+    final dirColor = missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).muted;
 
     return ListTile(
       key: ValueKey('call-log-row-${call['id']}'),
@@ -270,7 +271,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         key: Key('call-log-title-${call['id']}'),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: missed ? scheme.error : scheme.onSurface),
+        style: TextStyle(color: missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).text),
       ),
       subtitle: Row(
         children: [
@@ -304,7 +305,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             Text(
                 _digits(duration),
                 style:
-                    TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                    TextStyle(color: DsTokens.of(context).muted, fontSize: 12)),
           ],
         ],
       ),
@@ -313,7 +314,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         children: [
           if (at != null)
             Text(_relativeTime(at),
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 11, color: DsTokens.of(context).muted)),
           IconButton(
             tooltip: kind == 'video'
                 ? _t.circleCallBackVideo

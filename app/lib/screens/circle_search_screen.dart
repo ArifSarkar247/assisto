@@ -9,6 +9,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart';
 
 import '../messaging/chat_decor/chat_control.dart' show isControlText;
@@ -203,7 +204,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
               : results.isEmpty
                   ? (_loading
                       ? const Center(child: CircularProgressIndicator())
-                      : Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: scheme.onSurfaceVariant))))
+                      : Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: DsTokens.of(context).muted))))
                   : ListView.builder(
                       itemCount: results.length,
                       itemBuilder: (_, i) {
@@ -221,7 +222,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                           trailing: Text(
                               notifLocalizeDigits(context,
                                   DateFormat('d/M/yy').format(h.at)),
-                              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                              style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
                           onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (_) => CircleChatScreen(member: h.member, identity: widget.identity),
                           )),
@@ -242,7 +243,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
               const SizedBox(height: Gap.md),
               Text(_t.circleSearchHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
             ],
           ),
         ),
