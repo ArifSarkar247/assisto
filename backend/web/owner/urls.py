@@ -30,6 +30,7 @@ from . import views_agent as AGR     # agent-core
 from . import views_train as TRS     # flagprep: train timetable check
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
+from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
 from . import views_nearby as NBY    # nearby
 from . import views_site3 as WS3     # sitev3: website go-live switch
@@ -165,4 +166,6 @@ urlpatterns = [
     path("nearby/dataset", NBY.nearby_dataset),                    # nearby
     path("nearby/<int:pk>", NBY.nearby_place),                     # nearby
     path("nearby/report/<int:pk>", NBY.nearby_report),             # nearby
+    path("vision", BRD.vision),                                    # adminboards
+    path("quality", BRD.quality),                                  # adminboards
 ]
