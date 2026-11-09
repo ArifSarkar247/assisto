@@ -516,7 +516,14 @@ REGISTRY = {
                         _f("oauth_ak", "OAuth Project Access Key", "OAuth Project Access Key"),
                         _f("oauth_sk", "OAuth Project Secret Key", "OAuth Project Secret Key"),
                         _f("oauth_h5_url", "OAuth User Authorization H5 Page (লিংক)",
-                           "OAuth User Authorization H5 Page (link)", secret=False)],
+                           "OAuth User Authorization H5 Page (link)", secret=False),
+                        # owner 9 Nov 17:20: serial + Safety Code binds go to OUR
+                        # developer account — owner / admin test cameras only
+                        # unless this says "on"
+                        _f("devbind_customers",
+                           "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                           "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                           secret=False)],
              "test": "test_imou"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
@@ -1468,14 +1475,32 @@ def test_ezviz(cfg, http=None):
 
 
 # ---- cctvconnect ----
+# owner 9 Nov 17:15: the Imou OAuth project "Assisto Camera Link" waits for
+# Imou's permission (work ticket 483) — said on the card until keys exist
+IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের নিজের Imou অ্যাকাউন্ট): Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩) — "
+                      "অনুমোদন এলে তিনটি OAuth ঘর পূরণ করে Test চাপুন",
+                      "OAuth (customer's own Imou account in one tap): waiting for Imou approval "
+                      "(ticket 483) — when approved, fill the three OAuth fields and press Test")
+
+
 def _vendor_usage(slug, lang):
     if slug not in ("imou",):
         return ""
+    out = []
+    try:
+        cfg = get(slug) or {}
+        if not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
+            out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
+    except Exception:
+        pass
     try:
         from .logic.cctv_connect import quota as Q
-        return Q.text(slug, lang)
+        t = Q.text(slug, lang)
+        if t:
+            out.append(t)
     except Exception:
-        return ""
+        pass
+    return " · ".join(out)
 
 
 def test_hikconnect(cfg, http=None):

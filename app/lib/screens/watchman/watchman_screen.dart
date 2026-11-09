@@ -768,6 +768,17 @@ class _CameraRow extends StatelessWidget {
               const SizedBox(height: 4),
               WmPill(label: checkLabel, icon: checkIcon, color: checkColor),
             ],
+            // cctvconnect: bound to Assisto's Imou developer account for the
+            // owner's own test (owner 9 Nov 17:20) — always visible
+            if (wmMap(cam['compat'])['owner_test'] == true)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: WmPill(
+                    key: ValueKey('wm-owner-test-${cam['id']}'),
+                    label: t.ccnOwnerTest,
+                    icon: Icons.science_rounded,
+                    color: wmWarn()),
+              ),
           ]),
         ),
         // cctvphone: one-tap live view of a phone camera

@@ -25,6 +25,8 @@ class FakeCctvConnect implements CctvConnectSource {
           'modes': id == 'imou' ? ['device_code', 'oauth'] : ['device_code'],
           'code_label_bn': 'লেবেলের ৬ অক্ষরের Verification Code',
           'code_label_en': '6-letter Verification Code on the label',
+          'consent_bn': 'আমি এই ক্যামেরার মালিক এবং এটি Assisto-র অ্যাকাউন্টে যুক্ত করতে রাজি; যেকোনো সময় সরাতে পারব।',
+          'consent_en': "I own this camera and agree to link it to Assisto's account; I can unlink it any time.",
         };
     return {
       'providers': noProviders
@@ -48,8 +50,9 @@ class FakeCctvConnect implements CctvConnectSource {
   }
 
   @override
-  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code) async {
-    calls.add('link:$provider:$siteId:$serial:$code');
+  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code,
+      {bool consent = false}) async {
+    calls.add('link:$provider:$siteId:$serial:$code${consent ? ':consent' : ''}');
     final e = linkError;
     if (e != null) throw e;
     return {

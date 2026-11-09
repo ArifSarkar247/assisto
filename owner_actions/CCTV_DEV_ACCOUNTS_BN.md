@@ -2,13 +2,19 @@
 
 ## IMOU OAUTH NOW (৯ Nov, Imou-র সর্বজনীন ডক মিলিয়ে হালনাগাদ ১৭:৩০)
 
+**অবস্থা (১৭:১৫):** ফর্ম জমা হয়েছে — প্রজেক্টের নাম **"Assisto Camera Link"**, Callback
+`https://api.lifeassisto.com/api/v1/cctv/imou/oauth/callback`, Android-এ Play app-signing কী-র SHA1, iOS bundle `com.assisto.assisto`।
+Imou বলেছে "work ticket দিয়ে অনুমতি চান" — **টিকিট ৪৮৩ জমা হয়েছে, অনুমোদনের অপেক্ষা।** ততদিন Owner Admin-এর Imou কার্ডে লেখা থাকে
+"Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩)", অ্যাপে এক-ট্যাপ বোতাম দেখায় না; সিরিয়াল + Safety Code দিয়ে যুক্ত করা এখনই চলে।
+Callback লিংকটি চালু আছে (খুললে একটি পরিষ্কার পাতা দেখায়)। অনুমোদন এলে নিচের ধাপ মতো তিনটি মান পেস্ট করুন।
+
 Imou-র ডক (open.imoulife.com → API reference → Account → OAuth; Concepts → OAuth 2.0 authorization) অনুযায়ী
 কনসোলের OAuth মেনুতে **মাত্র তিনটি জিনিস** চায়, তারপর রিভিউ:
 
 | কনসোলের ঘর | যা দেবেন |
 |---|---|
 | Project logo | Assisto লোগো (রিপোর `logo/` ফোল্ডারের PNG) |
-| Project name | `Assisto CCTV` (ব্যবহারকারী অনুমতির পাতায় এই নামই দেখবেন) |
+| Project name | `Assisto Camera Link` (জমা দেওয়া নাম; ব্যবহারকারী অনুমতির পাতায় এটাই দেখবেন) |
 | Authorization success notification URL (Callback URL) | `https://api.lifeassisto.com/api/v1/cctv/imou/oauth/callback` (শেষে `/` ছাড়া, হুবহু) |
 
 - **Scope:** Imou-র ডকে একটিই scope — `all` (আলাদা টিক-বক্স নেই)। ফর্মে টিক-বক্স দেখালে আগের তালিকামতো দিন:
