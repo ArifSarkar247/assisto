@@ -236,6 +236,53 @@ class LadderE2E(Base):
         self.assertIsNone(SW.on_carecall_missed(self.ammu))
 
 
+class RetentionTests(Base):
+    def _alert(self, age_days):
+        r = PaCollectionItem.objects.create(user=self.ammu, collection="sw_alert",
+                                            data={"status": "resolved", "silent_min": 240})
+        PaCollectionItem.objects.filter(pk=r.pk).update(
+            created_at=timezone.now() - timedelta(days=age_days))
+        return r.pk
+
+    def test_old_alerts_deleted_recent_kept(self):
+        old, new = self._alert(91), self._alert(89)
+        out = SW.tick(timezone.now())
+        self.assertEqual(out["purged"]["old"], 1)
+        self.assertFalse(PaCollectionItem.objects.filter(pk=old).exists())
+        self.assertTrue(PaCollectionItem.objects.filter(pk=new).exists())
+
+    def test_turning_off_deletes_at_once(self):
+        self.setup_elder()
+        pk = self._alert(1)
+        data, err = SW.set_config(self.ammu, {"enabled": False})
+        self.assertIsNone(err)
+        self.assertFalse(PaCollectionItem.objects.filter(pk=pk).exists())
+        self.assertFalse(PaCollectionItem.objects.filter(
+            user=self.ammu, collection="sw_alert").exists())
+
+    def test_purge_removes_rows_of_disabled_watch(self):
+        self.setup_elder()
+        c = SW.cfg_row(self.ammu)
+        c.data = dict(c.data, enabled=False)
+        c.save()
+        pk = self._alert(1)
+        SW.purge(timezone.now())
+        self.assertFalse(PaCollectionItem.objects.filter(pk=pk).exists())
+
+    def test_setter_left_family_deletes(self):
+        self.setup_elder()
+        pk = self._alert(1)
+        with mock.patch.object(SW, "family_ids", return_value=[self.bina.pk]):
+            SW.purge(timezone.now())
+        self.assertFalse(PaCollectionItem.objects.filter(pk=pk).exists())
+
+    def test_active_watch_keeps_recent(self):
+        self.setup_elder()
+        pk = self._alert(1)
+        SW.purge(timezone.now())
+        self.assertTrue(PaCollectionItem.objects.filter(pk=pk).exists())
+
+
 class LandingTests(TestCase):
     def test_e_link_fallback_page(self):
         from rest_framework.test import APIClient

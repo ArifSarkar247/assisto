@@ -23,6 +23,8 @@ Storage: the generic PaCollectionItem rows (no migration):
     sw_pair  on the child   {code, elder_id, exp, plan{...}, used_at}
     sw_alert on the elder   {status asking|open|resolved, kind, step, due,
                              opened_at, notified[], silent_min, resolved_*}
+Retention: alert/ladder rows deleted after RETAIN_DAYS (90) and at once when
+the watch is turned off or the setter leaves the family (purge()).
 Always free, never ads (safety).
 """
 import hashlib
@@ -39,6 +41,7 @@ SOURCE = "fcelder"
 ASK_WAIT_MIN = 15        # server-side "Are you OK?" (Care Call path) before the ladder
 LADDER_MIN = 15          # setter -> all family -> nearby person
 PAIR_TTL_MIN = 15
+RETAIN_DAYS = 90         # privacy: alert/ladder records + signal summaries kept 90 days
 DEFAULT_HOURS = 4
 HOURS_RANGE = (2, 12)
 DEFAULT_DAY = ("07:00", "22:00")
@@ -276,6 +279,7 @@ def set_config(elder, data):
         r = open_alert(elder)
         if r is not None:
             resolve(elder, by="off")
+        purge_elder(elder)  # privacy: deleted at once when turned off
         setter = _user(new.get("setter_id"))
         if setter is not None:
             n = name_for(setter, elder)
@@ -563,11 +567,53 @@ def _advance(r, now):
     r.save(update_fields=["data", "updated_at"])
 
 
+def purge_elder(elder):
+    """Delete every alert/ladder record (with its signal summary) of this
+    elder, plus pairing rows that point at them. Returns rows deleted."""
+    from .models import PaCollectionItem
+    n = PaCollectionItem.objects.filter(user=elder, collection="sw_alert").delete()[0]
+    n += PaCollectionItem.objects.filter(collection="sw_pair",
+                                         data__elder_id=elder.pk).delete()[0]
+    return n
+
+
+def purge(now=None, check_family=True):
+    """Retention (privacy): alert/ladder records and pairing rows older than
+    RETAIN_DAYS go; so does everything of an elder whose Silent Watch is off
+    or whose setter has left the family. Idempotent; runs from tick()."""
+    from .models import PaCollectionItem
+    now = _now(now)
+    cutoff = now - timedelta(days=RETAIN_DAYS)
+    out = {"old": 0, "off": 0, "left": 0}
+    out["old"] = PaCollectionItem.objects.filter(
+        collection__in=("sw_alert", "sw_pair"), created_at__lt=cutoff).delete()[0]
+    if not check_family:
+        return out
+    for c in PaCollectionItem.objects.filter(collection="sw_cfg").select_related("user")[:2000]:
+        d = c.data or {}
+        elder = c.user
+        if not d.get("enabled"):
+            if PaCollectionItem.objects.filter(user=elder, collection="sw_alert").exists():
+                out["off"] += purge_elder(elder)
+            continue
+        sid = d.get("setter_id")
+        fam = family_ids(elder)
+        if sid and fam and int(sid) not in fam:  # setter left the family
+            if open_alert(elder) is not None:
+                resolve(elder, by="left", now=now)
+            out["left"] += purge_elder(elder)
+    return out
+
+
 def tick(now=None):
     """Called every minute (from the Care Call tick). Idempotent."""
     from .models import PaCollectionItem
     now = _now(now)
     out = {"asked_to_open": 0, "advanced": 0}
+    try:
+        out["purged"] = purge(now, check_family=(now.minute % 10 == 0))
+    except Exception:  # noqa: BLE001
+        log.warning("fcelder: retention purge failed", exc_info=True)
     for r in PaCollectionItem.objects.filter(collection="sw_alert").order_by("id")[:2000]:
         d = r.data or {}
         if d.get("status") not in ("asking", "open"):
