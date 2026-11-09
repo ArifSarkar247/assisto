@@ -24017,5 +24017,7 @@
   "ccnHealthDaysOpt": "{days} দিন",
   "ccnOauthButton": "আমার {brand} অ্যাকাউন্ট যুক্ত করুন (এক ট্যাপে)",
   "ccnOauthHint": "{brand}-এর নিজের পাতা খুলেছে — লগইন করে Allow চাপুন, তারপর Assisto-তে ফিরে আসুন।",
-  "ccnOauthDaysLeft": "অনুমতি: আর {days} দিন"
+  "ccnOauthDaysLeft": "অনুমতি: আর {days} দিন",
+  "ccnOwnerTest": "মালিকের পরীক্ষার ডিভাইস",
+  "ccnConsent": "আমি এই ক্যামেরার মালিক এবং এটি Assisto-র অ্যাকাউন্টে যুক্ত করতে রাজি; যেকোনো সময় সরাতে পারব।"
 }

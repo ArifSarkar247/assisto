@@ -45218,5 +45218,13 @@
         "type": "String"
       }
     }
+  },
+  "ccnOwnerTest": "Owner test device",
+  "@ccnOwnerTest": {
+    "description": "cctvconnect: developer-account bind consent / owner test badge"
+  },
+  "ccnConsent": "I own this camera and agree to link it to Assisto's account; I can unlink it any time.",
+  "@ccnConsent": {
+    "description": "cctvconnect: developer-account bind consent / owner test badge"
   }
 }
