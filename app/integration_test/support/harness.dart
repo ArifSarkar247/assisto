@@ -195,6 +195,15 @@ class Harness {
   /// Independent API client logged in as seeded user A (or B) — the
   /// round-trip assertions read the server through this, not through the UI.
   Future<ApiClient> backend({bool userB = false}) async {
+    // e2eproof: A = the phone under test. Reuse the APP's own session token
+    // instead of a second password sign-in: on servers that replace a
+    // session with the same X-Device-Id, that second sign-in logged the app
+    // out (nightly 42537131260 / run 42570716523: every flow after the first
+    // backend() call got 401 on /me).
+    final appTok = app?.api.token;
+    if (!userB && app != null && app!.loggedIn && appTok != null && appTok.isNotEmpty) {
+      return ApiClient.detached(appTok)..lang = 'en';
+    }
     if (!userB && _backendA != null) return _backendA!;
     if (userB && _backendB != null) return _backendB!;
     final c = ApiClient();
