@@ -634,6 +634,48 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     );
   }
 
+  /// qjourney (owner V2): the arrival window card — "Arrive between A and
+  /// B" from the ONE Routes answer (traffic) and, under it, "Earlier than C
+  /// is not possible" (straight-line distance at the mode's top speed — the
+  /// same rule the server uses to refuse an impossible "Arrived").
+  Widget? _window(BuildContext context, AppLocalizations t) {
+    final m = _etaMin;
+    final d = _dest;
+    if (m == null || d == null) return null;
+    final now = DateTime.now();
+    String hm(DateTime x) => jDigits(context, TimeOfDay.fromDateTime(x).format(context));
+    final a = now.add(Duration(minutes: m));
+    final b = now.add(Duration(minutes: (m * 1.4).round() + 10));
+    String? c;
+    final h = _here;
+    if (h != null) {
+      final km = (jDistanceM(h.lat, h.lng, (d['lat'] as num).toDouble(),
+                      (d['lng'] as num).toDouble()) -
+                  1000)
+              .clamp(0, double.infinity) /
+          1000;
+      final c0 = now.add(Duration(minutes: (km / qjTopKmh(_mode) * 60).floor()));
+      if (c0.isBefore(a)) c = hm(c0);
+    }
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      key: const ValueKey('qj_window'),
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(Radii.md)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t.qjWindow(hm(a), hm(b)),
+            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+        if (c != null)
+          Text(t.qjEarliest(c),
+              key: const ValueKey('qj_earliest'),
+              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      ]),
+    );
+  }
+
   Widget _h(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
@@ -891,6 +933,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 key: const ValueKey('js_eta_hint'),
                 style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
           ),
+        if (_window(context, t) case final w?) w,
         if (rough != null && _etaMin == null) ...[
           const SizedBox(height: Gap.xs),
           Text(t.j2Rough(jDigits(context, rough)),
@@ -1093,3 +1136,15 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     );
   }
 }
+
+/// qjourney: straight-line top speed (km/h) per travel mode — the mirror of
+/// backend core/logic/journey_arrival.py TOP_KMH (C is a true lower bound).
+double qjTopKmh(String? mode) => switch (mode) {
+      'walk' => 10,
+      'rickshaw' => 25,
+      'launch' => 45,
+      'cng' || 'local_bus' => 80,
+      'metro' => 100,
+      'bike' || 'bus' || 'long_bus' => 110,
+      _ => 130,
+    };
