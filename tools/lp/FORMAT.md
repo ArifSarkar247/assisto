@@ -213,3 +213,7 @@ mocks ielts-ac-001/002 + gt-001 (forks may have left partial ac-002/gt-001 draft
 rest interpolated = practice estimate), TTS in CI: Kokoro-82M 0.9.4 Apache-2.0 (GB bf_emma/bm_george…, US
 af_heart/am_michael…) + MeloTTS EN-AU (MIT, commit 209145371cff) for Australian (Piper vctk/libritts excluded:
 lessac non-commercial lineage, see .phaseB/MODEL_LICENSES.md), workflow `lp-content.yml`, unit tests.
+Partial: `content/ielts/ielts-ac-002.json` = Listening complete (Q1-40), reading/writing/speaking are placeholders.
+lpcheck fixes needed: `mcq_single` should accept per-question options without group options (ac-002 uses
+one-question groups as a workaround); exempt the standard Task 1/Task 2 instruction lines from the
+cross-bundle repeated-prompt check.
