@@ -291,6 +291,16 @@ void main() {
       }
     });
 
+    test('a saved My Business tile migrates in place, no empty slot', () {
+      final saved = ['family', 'business', 'money'];
+      final out = HomeV2Shortcuts.sanitize(saved);
+      expect(out.length, saved.length);
+      expect(out, isNot(contains('business')));
+      expect(out[0], 'family');
+      expect(out[2], 'money');
+      expect(HomeV2Shortcuts.byRoute(out[1]), isNotNull);
+    });
+
     test('Discover never repeats a tile or tab on the same home', () {
       final shown = {
         for (final r in HomeV2Shortcuts.defaults()) HomeQuickButtons.canon(r),

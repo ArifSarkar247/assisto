@@ -219,8 +219,13 @@ class HomeV2Shortcuts {
 
   /// svcclean (owner 10 Nov): routes the home's BOTTOM BAR already opens —
   /// never offered / defaulted as a shortcut tile too (one place only). A
-  /// user who pinned one earlier keeps it (nothing they chose disappears).
+  /// saved My Business tile is replaced in place ([removedTile]); a saved
+  /// Reminders tile is kept (the user chose it).
   static const bottomNavRoutes = {'reminders', 'business'};
+
+  /// svcclean (owner 10 Nov 01:48): the shortcut tile that LEFT the home
+  /// (My Business = bottom-bar tab). Saved sets migrate it (see [sanitize]).
+  static const removedTile = 'business';
 
   /// Everything pinnable in THIS build for THIS user (bottom-bar routes left
   /// out — see [bottomNavRoutes]).
@@ -305,11 +310,22 @@ class HomeV2Shortcuts {
   /// Circle (it is pinned), at most [max]. NOT topped up — the user's own set
   /// is exactly what they chose.
   static List<String> sanitize(List<String> saved) {
-    final cat = catalogWithNav; // svcclean: a saved bottom-bar route is kept
+    final cat = catalogWithNav; // svcclean: a saved Reminders tile is kept
     final out = <String>[];
+    final wanted = saved.map(HomeQuickButtons.canon).toSet();
     for (final r0 in saved) {
       // svcclean: a saved merged-away tile becomes the one new tile
-      final r = HomeQuickButtons.canon(r0);
+      var r = HomeQuickButtons.canon(r0);
+      // svcclean (owner 01:48): the My Business tile left Shortcuts (it is
+      // the bottom-bar tab). A saved one becomes the next owner-default tile
+      // the user does not have yet, in the same place — never an empty slot.
+      if (r == removedTile) {
+        r = [...defaults(), ...fillPool].firstWhere(
+            (x) => !wanted.contains(x) && !out.contains(x) && byRoute(x, cat) != null,
+            orElse: () => '');
+        if (r.isEmpty) continue;
+        wanted.add(r);
+      }
       if (out.length == max) break;
       if (!out.contains(r) &&
           !HomeQuickButtons.pinnedAliases.contains(r) &&

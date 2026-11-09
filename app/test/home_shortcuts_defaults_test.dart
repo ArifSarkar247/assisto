@@ -104,6 +104,11 @@ const _ownerOrder = [
 
 const _removed = ['jobs', 'lost_stolen', 'budget', 'contract'];
 
+/// svcclean (owner 10 Nov 01:48): a saved My Business tile (now only the
+/// bottom-bar tab) becomes the next owner-default tile the user lacks (City
+/// Service here), in the same place — never an empty slot.
+List<String> _mig(List<String> s) => [for (final r in s) r == 'business' ? 'city' : r];
+
 /// The screen each default must really open (no placeholder).
 const _screens = {
   'family': 'FamilyEntry', // fcscreen: v3 Family (old screen behind flag family_v3)
@@ -396,7 +401,7 @@ void main() {
         HomeV2Shortcuts.versionKey: '2',
         HomeV2Shortcuts.prefsKey: jsonEncode(mine),
       });
-      expect(await HomeV2Shortcuts.load(), mine);
+      expect(await HomeV2Shortcuts.load(), _mig(mine));
     });
 
     test('edited sets are kept exactly', () async {
@@ -512,7 +517,7 @@ void main() {
           HomeV2Shortcuts.versionKey: '3',
           HomeV2Shortcuts.prefsKey: jsonEncode(mine),
         });
-        expect(await HomeV2Shortcuts.load(), mine, reason: '$mine');
+        expect(await HomeV2Shortcuts.load(), _mig(mine), reason: '$mine');
         expect(await _get(HomeV2Shortcuts.prefsKey), jsonEncode(mine));
         expect(await _get(HomeV2Shortcuts.versionKey), '4');
       }
