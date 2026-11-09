@@ -1931,3 +1931,9 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- quranpron ---- rule-based Bangla pronunciation (no AI), under review
+from . import views_quranpron as qpron  # noqa: E402
+urlpatterns += [
+    path("quran/pron/<int:surah>", qpron.QuranPronView.as_view()),
+]
+# ---- /quranpron ----
