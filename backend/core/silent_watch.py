@@ -2,7 +2,7 @@
 
 PRIVACY FIRST: the elder's phone learns the elder's normal day ON THE PHONE
 (7 days) and decides on its own when a silence is unusual. It first rings the
-ELDER ("Are you OK?", 3 times over ~30 min). Only when nobody answers does the
+ELDER ("Are you OK?", 4 times over ~20 min). Only when nobody answers does the
 phone send ONE event here (``alert``). The server never receives a tracking
 stream — no unlock times, no app-use pings, no heartbeats. The only other
 server-side trigger is a Care Call the server already knows went unanswered

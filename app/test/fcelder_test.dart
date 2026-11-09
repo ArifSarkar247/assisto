@@ -159,8 +159,8 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily), lang: 'bn', scale: 2));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.byKey(const Key('fce-going-out')), 200,
-          scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(find.byKey(const Key('fce-going-out')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('fce-going-out')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
