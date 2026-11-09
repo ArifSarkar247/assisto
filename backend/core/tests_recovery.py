@@ -111,8 +111,18 @@ class SessionTests(Base):
         self.assertEqual(c3.get("/api/v1/account/security").status_code, 401)
         self.assertEqual(c1.get("/api/v1/account/security").status_code, 200)
 
-    def test_same_device_login_replaces_its_session(self):
+    def test_same_device_login_replaces_only_a_dead_session(self):
+        # qcircle: a second sign-in never signs out a LIVE session, even with
+        # the same (backup-restored) device id; a 30-day-idle one is replaced
+        c1, _ = self.login(dev_id="a")
         self.login(dev_id="a")
+        self.assertEqual(c1.get("/api/v1/account/security").status_code, 200)
+        self.assertEqual(DeviceSession.objects.filter(user=self.u, revoked_at__isnull=True)
+                         .count(), 2)
+        from datetime import timedelta
+        from django.utils import timezone
+        DeviceSession.objects.filter(user=self.u).update(
+            last_seen_at=timezone.now() - timedelta(days=31))
         self.login(dev_id="a")
         self.assertEqual(DeviceSession.objects.filter(user=self.u, revoked_at__isnull=True)
                          .count(), 1)

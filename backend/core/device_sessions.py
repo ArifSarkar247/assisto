@@ -28,6 +28,16 @@ from django.utils import timezone
 SESSION_HEADER = "HTTP_X_SESSION_MODE"
 TOUCH_EVERY = timedelta(minutes=5)     # last_seen write at most every 5 min
 MAX_ACTIVE = 20                        # oldest sessions beyond this are revoked
+# qcircle (9 Nov): a sign-in must NEVER sign out another live device. The
+# install id behind X-Device-Id lives in app storage, which Android Auto
+# Backup / phone-to-phone transfer copies to a NEW phone — so "same device
+# id" does not prove "same phone", and a second sign-in from the same id
+# (backup-restored phone, a test harness, a second account flow) used to
+# revoke the first one ("replaced" → 401, app logged out). Now an older
+# session with the same id is only cleaned up when it is clearly dead: same
+# phone name AND unused for REPLACE_IDLE. Only password change / reset,
+# "sign out others", sign-out of one device and logout revoke live sessions.
+REPLACE_IDLE = timedelta(days=30)
 
 
 def _sha(raw):
@@ -69,9 +79,12 @@ def create(user, request=None, reason="login"):
         app_version=_meta(request, "HTTP_X_APP_VERSION", 24) if request else "",
         ip=_client_ip(request) if request else "",
         created_at=now, last_seen_at=now)
-    # A device that signs in again replaces its own older session.
+    # qcircle: only a clearly DEAD older session of the same phone is
+    # replaced (see REPLACE_IDLE) — never a live one.
     if s.device_id:
         (DeviceSession.objects.filter(user=user, device_id=s.device_id,
+                                      device_name=s.device_name,
+                                      last_seen_at__lt=now - REPLACE_IDLE,
                                       revoked_at__isnull=True)
          .exclude(pk=s.pk).update(revoked_at=now, revoke_reason="replaced"))
     live = list(DeviceSession.objects.filter(user=user, revoked_at__isnull=True)
