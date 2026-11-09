@@ -41,6 +41,7 @@ const ds2Screens = <String>[
   'fc3_board', // batch 2: Family member cards
   'fc3_board_sos',
   'settings', // batch 2: grouped V2 cards
+  'money', // batch 3
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {

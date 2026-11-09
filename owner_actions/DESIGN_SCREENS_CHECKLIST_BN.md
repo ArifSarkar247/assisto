@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৬ / মোট ৪২০** (রক্তদাতা হাব, পরিবার সদস্য কার্ড, সেটিংস + হোমের ৩টি ফাইল শুধু রং)
+**স্ক্রিন শেষ: ৭ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -181,7 +181,7 @@
 - ⬜ — `screens/money_loan_detail_screen.dart`
 - ⬜ — `screens/money_networth_screen.dart`
 - ⬜ — `screens/money_report_screen.dart`
-- ⬜ — `screens/money_screen.dart`
+- ✅ batch 3 (হিসাব সারাংশ) — `screens/money_screen.dart`
 - ⬜ — `screens/money_tax_screen.dart`
 - ⬜ — `screens/money_trends_screen.dart`
 - ⬜ — `screens/money_voice_screen.dart`

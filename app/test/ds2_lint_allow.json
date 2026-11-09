@@ -318,7 +318,7 @@
   "lib/screens/money_loan_detail_screen.dart": 3,
   "lib/screens/money_networth_screen.dart": 3,
   "lib/screens/money_report_screen.dart": 3,
-  "lib/screens/money_screen.dart": 10,
+  "lib/screens/money_screen.dart": 8,
   "lib/screens/money_tax_screen.dart": 6,
   "lib/screens/money_trends_screen.dart": 1,
   "lib/screens/money_voice_screen.dart": 6,
