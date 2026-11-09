@@ -1,0 +1,139 @@
+{
+ "_comment": "mapapp (owner 10 Nov 00:35): City map + Google view + learn-from-trips card",
+ "en": {
+  "cityLearnCardTitle": "Which bus? What fare?",
+  "cityLearnCardSub": "One tap helps the next rider. No name is sent.",
+  "cityLearnWhichBus": "Which bus did you take?",
+  "cityLearnWhatFare": "What fare did you pay?",
+  "cityLearnOtherBus": "Another bus",
+  "cityLearnOtherFare": "Other amount",
+  "cityLearnSkip": "Skip",
+  "cityLearnThanks": "Thank you!",
+  "cityLearnVerified": "You verified {count} stops",
+  "@cityLearnVerified": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cityLearnDone": "Done",
+  "cityTripArrived": "I have arrived",
+  "cityMapTitle": "City map",
+  "cityMapTileSub": "Metro, bus routes, fares, waterlogging",
+  "cityMapSeeOnMap": "See on the map",
+  "cityMapAssisto": "Assisto map",
+  "cityMapGoogleView": "Google view",
+  "cityMap3d": "3D",
+  "cityMapSatellite": "Satellite",
+  "cityMapLayerMetro": "Metro",
+  "cityMapLayerBus": "Bus routes",
+  "cityMapLayerFares": "Fares",
+  "cityMapLayerWater": "Waterlogging",
+  "cityMapLayerWomen": "Women bus",
+  "cityMapWomenNone": "No women-only bus is confirmed yet. The metro has a women's coach.",
+  "cityMapWaterLabel": "Waterlogging · {count} reports",
+  "@cityMapWaterLabel": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapLight": "Day map",
+  "cityMapNight": "Night map",
+  "cityMapOffline": "Dhaka offline",
+  "cityMapOfflineTitle": "Save the Dhaka map",
+  "cityMapOfflineBody": "The map then opens without internet — streets, buildings and our routes.",
+  "cityMapOfflineSize": "Size: about {mb} MB",
+  "@cityMapOfflineSize": {
+   "placeholders": {
+    "mb": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapOfflineWifi": "Wi-Fi is better for this download.",
+  "cityMapOfflineDownload": "Download",
+  "cityMapOfflineReady": "Saved on this phone — the Dhaka map works without internet.",
+  "cityMapOfflineDelete": "Remove from phone",
+  "cityMapOfflineNotYet": "The offline Dhaka map is being prepared. Please try again later.",
+  "cityMapOfflineFailed": "Download stopped. Tap Download to continue from where it stopped.",
+  "cityMapHint": "Choose where to go in City Service to see your routes here.",
+  "cityMapRoutesTo": "Ways to {place}",
+  "@cityMapRoutesTo": {
+   "placeholders": {
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapAssistoVerified": "Assisto verified",
+  "cityMapOursNone": "Our data has no bus or metro route for this trip yet.",
+  "cityMapSeeGoogle": "See Google transit",
+  "cityMapNoFare": "Fare not known yet",
+  "cityMapGoogleTransit": "Google transit",
+  "cityMapMoreRoutes": "More routes",
+  "cityMapMoreRoutesSub": "Bus, metro and train routes from Google.",
+  "cityMapByGoogle": "Routes by Google",
+  "cityMapGoogleOpenNote": "The Google map opens in the Google Maps app. Google's transit routes are below.",
+  "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
+  "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
+  "cityMapRetry": "Try the map again",
+  "cityMapAssistoRoutes": "Assisto routes"
+ },
+ "bn": {
+  "cityLearnCardTitle": "কোন বাস? ভাড়া কত?",
+  "cityLearnCardSub": "এক ট্যাপে পরের যাত্রীর উপকার হয়। কোনো নাম পাঠানো হয় না।",
+  "cityLearnWhichBus": "কোন বাসে গেলেন?",
+  "cityLearnWhatFare": "ভাড়া কত দিলেন?",
+  "cityLearnOtherBus": "অন্য বাস",
+  "cityLearnOtherFare": "অন্য পরিমাণ",
+  "cityLearnSkip": "এখন না",
+  "cityLearnThanks": "ধন্যবাদ!",
+  "cityLearnVerified": "আপনি {count}টি স্টপ যাচাই করেছেন",
+  "cityLearnDone": "ঠিক আছে",
+  "cityTripArrived": "আমি পৌঁছে গেছি",
+  "cityMapTitle": "শহরের ম্যাপ",
+  "cityMapTileSub": "মেট্রো, বাস রুট, ভাড়া, জলাবদ্ধতা",
+  "cityMapSeeOnMap": "ম্যাপে দেখুন",
+  "cityMapAssisto": "Assisto ম্যাপ",
+  "cityMapGoogleView": "Google ভিউ",
+  "cityMap3d": "৩D",
+  "cityMapSatellite": "স্যাটেলাইট",
+  "cityMapLayerMetro": "মেট্রো",
+  "cityMapLayerBus": "বাস রুট",
+  "cityMapLayerFares": "ভাড়া",
+  "cityMapLayerWater": "জলাবদ্ধতা",
+  "cityMapLayerWomen": "নারী বাস",
+  "cityMapWomenNone": "এখনো কোনো নারী-বাস নিশ্চিত হয়নি। মেট্রোতে নারীদের আলাদা কোচ আছে।",
+  "cityMapWaterLabel": "জলাবদ্ধতা · {count}টি খবর",
+  "cityMapLight": "দিনের ম্যাপ",
+  "cityMapNight": "রাতের ম্যাপ",
+  "cityMapOffline": "অফলাইন ঢাকা",
+  "cityMapOfflineTitle": "ঢাকার ম্যাপ ফোনে রাখুন",
+  "cityMapOfflineBody": "তাহলে ইন্টারনেট ছাড়াও ম্যাপ খুলবে — রাস্তা, বিল্ডিং আর আমাদের রুট।",
+  "cityMapOfflineSize": "আকার: প্রায় {mb} MB",
+  "cityMapOfflineWifi": "এই ডাউনলোডের জন্য Wi-Fi ভালো।",
+  "cityMapOfflineDownload": "ডাউনলোড করুন",
+  "cityMapOfflineReady": "এই ফোনে রাখা আছে — ইন্টারনেট ছাড়াও ঢাকার ম্যাপ চলবে।",
+  "cityMapOfflineDelete": "ফোন থেকে মুছুন",
+  "cityMapOfflineNotYet": "অফলাইন ঢাকার ম্যাপ তৈরি হচ্ছে। একটু পরে আবার চেষ্টা করুন।",
+  "cityMapOfflineFailed": "ডাউনলোড থেমে গেছে। যেখানে থেমেছিল সেখান থেকে চালাতে ডাউনলোড চাপুন।",
+  "cityMapHint": "রুট দেখতে সিটি সার্ভিসে কোথায় যাবেন বেছে নিন।",
+  "cityMapRoutesTo": "{place} যাওয়ার উপায়",
+  "cityMapAssistoVerified": "Assisto যাচাই করা",
+  "cityMapOursNone": "এই যাত্রার বাস বা মেট্রো রুট আমাদের তথ্যে এখনো নেই।",
+  "cityMapSeeGoogle": "Google ট্রানজিট দেখুন",
+  "cityMapNoFare": "ভাড়া এখনো জানা নেই",
+  "cityMapGoogleTransit": "Google ট্রানজিট",
+  "cityMapMoreRoutes": "আরও রুট",
+  "cityMapMoreRoutesSub": "Google থেকে বাস, মেট্রো ও ট্রেনের রুট।",
+  "cityMapByGoogle": "রুট: Google",
+  "cityMapGoogleOpenNote": "Google ম্যাপ Google Maps অ্যাপে খুলবে। Google-এর ট্রানজিট রুট নিচে আছে।",
+  "cityMapListNote": "এই ফোনে ম্যাপ খোলা গেল না, তাই একই তথ্য তালিকায় দেখানো হলো।",
+  "cityMapListEmpty": "ওপরের একটা লেয়ার (মেট্রো, বাস রুট …) চালু করলে এখানে দেখা যাবে।",
+  "cityMapRetry": "আবার ম্যাপ চেষ্টা করুন",
+  "cityMapAssistoRoutes": "Assisto-র রুট"
+ }
+}

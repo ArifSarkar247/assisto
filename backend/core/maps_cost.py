@@ -491,6 +491,106 @@ def route_eta(user, o_lat, o_lng, d_lat, d_lng, mode=""):
     return dict(got, state="ok", gmaps_url=gm)
 
 
+# ------------------------------------------------------------------ transit (mapapp)
+# Owner order 10 Nov 00:35 (Google view): Routes TRANSIT (Dhaka bus, metro,
+# Bangladesh Railway) fetched LIVE per request and passed through to the
+# phone's Google view only. NOTHING is stored or cached (Google terms; our
+# own City Service data stays separate) — the only Google value the app may
+# keep is a place ID. Same "routes" daily caps; any refusal -> state "none"
+# and the app silently shows only our results (never a limit message).
+TRANSIT_MASK = ("routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,"
+                "routes.travelAdvisory.transitFare,routes.legs.steps.travelMode,"
+                "routes.legs.steps.staticDuration,routes.legs.steps.distanceMeters,"
+                "routes.legs.steps.transitDetails")
+TRANSIT_VEHICLES = {"BUS": "bus", "INTERCITY_BUS": "bus", "TROLLEYBUS": "bus", "SHARE_TAXI": "leguna",
+                    "SUBWAY": "metro", "METRO_RAIL": "metro", "LIGHT_RAIL": "metro", "MONORAIL": "metro",
+                    "HEAVY_RAIL": "train", "COMMUTER_TRAIN": "train", "HIGH_SPEED_TRAIN": "train",
+                    "LONG_DISTANCE_TRAIN": "train", "RAIL": "train", "TRAM": "metro", "FERRY": "water"}
+
+
+def _secs(v):
+    try:
+        return int(float(str(v or "0s").rstrip("s") or 0))
+    except ValueError:
+        return 0
+
+
+def _transit_step(st):
+    mode = str(st.get("travelMode") or "")
+    mins = max(1, int(round(_secs(st.get("staticDuration")) / 60.0)))
+    if mode != "TRANSIT":
+        return {"mode": "walk", "minutes": mins, "meters": int(st.get("distanceMeters") or 0)}
+    td = st.get("transitDetails") or {}
+    line = td.get("transitLine") or {}
+    veh = ((line.get("vehicle") or {}).get("type")) or ""
+    stops = td.get("stopDetails") or {}
+    ag = [a.get("name", "") for a in (line.get("agencies") or []) if isinstance(a, dict)]
+    return {"mode": TRANSIT_VEHICLES.get(veh, "bus"), "minutes": mins,
+            "meters": int(st.get("distanceMeters") or 0),
+            "line": str(line.get("nameShort") or line.get("name") or "")[:80],
+            "line_name": str(line.get("name") or "")[:120],
+            "color": str(line.get("color") or "")[:9],
+            "agency": (ag[0] if ag else "")[:80],
+            "headsign": str(td.get("headsign") or "")[:80],
+            "from": str(((stops.get("departureStop") or {}).get("name")) or "")[:80],
+            "to": str(((stops.get("arrivalStop") or {}).get("name")) or "")[:80],
+            "stops": int(td.get("stopCount") or 0)}
+
+
+def _transit_parse(r):
+    out = []
+    for rt in (r or {}).get("routes") or []:
+        steps = []
+        for leg in rt.get("legs") or []:
+            for st in leg.get("steps") or []:
+                s = _transit_step(st)
+                if s["mode"] == "walk" and steps and steps[-1]["mode"] == "walk":
+                    steps[-1]["minutes"] += s["minutes"]
+                    steps[-1]["meters"] += s["meters"]
+                else:
+                    steps.append(s)
+        if not any(s["mode"] != "walk" for s in steps):
+            continue
+        fare = ((rt.get("travelAdvisory") or {}).get("transitFare")) or {}
+        tk = None
+        if str(fare.get("currencyCode") or "") == "BDT":
+            try:
+                tk = int(fare.get("units") or 0) or None
+            except (TypeError, ValueError):
+                tk = None
+        out.append({"minutes": max(1, int(round(_secs(rt.get("duration")) / 60.0))),
+                    "distance_m": int(rt.get("distanceMeters") or 0),
+                    "fare_bdt": tk,
+                    "polyline": str(((rt.get("polyline") or {}).get("encodedPolyline")) or "")[:20000],
+                    "steps": steps[:20]})
+    return out[:5]
+
+
+def transit(user, o_lat, o_lng, d_lat, d_lng, lang="bn"):
+    """Live Google transit options for the Google view. -> {state, routes,
+    attribution, gmaps_url}. Never cached, never stored."""
+    o, d = _ok_coord(o_lat, o_lng), _ok_coord(d_lat, d_lng)
+    if not o or not d:
+        return {"state": "bad"}
+    gm = ("https://www.google.com/maps/dir/?api=1&origin=%.6f,%.6f&destination=%.6f,%.6f"
+          "&travelmode=transit" % (o[0], o[1], d[0], d[1]))
+    body = {"origin": {"location": {"latLng": {"latitude": o[0], "longitude": o[1]}}},
+            "destination": {"location": {"latLng": {"latitude": d[0], "longitude": d[1]}}},
+            "travelMode": "TRANSIT", "computeAlternativeRoutes": True,
+            "languageCode": "bn" if lang == "bn" else "en", "regionCode": "bd"}
+
+    def call(key):
+        return _transit_parse(HTTP("https://routes.googleapis.com/directions/v2:computeRoutes", body,
+                                   {"X-Goog-Api-Key": key, "X-Goog-FieldMask": TRANSIT_MASK}))
+
+    state, got = _paid("routes", user, call)
+    if state != "ok":
+        return {"state": state, "routes": [], "gmaps_url": gm}
+    if not got:
+        return {"state": "none", "routes": [], "gmaps_url": gm}
+    return {"state": "ok", "routes": got, "attribution": "Google", "gmaps_url": gm}
+
+
 # ------------------------------------------------------------------ owner card
 def cost_usd(month_calls, free_month, usd_per_1000):
     """Estimated bill for the month: only calls above the free monthly cap."""

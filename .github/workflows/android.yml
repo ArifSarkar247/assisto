@@ -1060,6 +1060,32 @@ jobs:
               json.dump({"android_key": True}, f)
           print("Maps SDK key added (value not printed)")
           PY
+      # ---- mapapp ---- MapLibre (City map, owner order 10 Nov 00:35): the
+      # plugin's unused offline-download Service + Activity are removed (no
+      # extra service in the Play manifest), and its GLES 3 uses-feature is
+      # required=false so Play never filters phones out (the app checks at
+      # runtime: crash guard + list view). No new permission.
+      - name: MapLibre manifest guards (mapapp)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools=' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if 'OfflineDownloadService' not in x:
+              x = x.replace('</application>',
+                  '\n        <service android:name="org.maplibre.android.plugins.offline.offline.OfflineDownloadService"'
+                  ' tools:node="remove"/>'
+                  '\n        <activity android:name="org.maplibre.android.plugins.offline.ui.OfflineActivity"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          if 'glEsVersion="0x00030000"' not in x:
+              x = x.replace('<application', '<uses-feature android:glEsVersion="0x00030000" android:required="false"'
+                            ' tools:replace="android:required"/>\n    <application', 1)
+          open(m, "w").write(x)
+          print("MapLibre: offline service/activity removed, GLES3 not required")
+          PY
+      # ---- /mapapp ----
 
       # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
       # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
@@ -1399,7 +1425,7 @@ jobs:
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
-          for C in GeolocatorLocationService; do
+          for C in GeolocatorLocationService OfflineDownloadService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
             fi
