@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৩৮ / মোট ৪২০**
+**স্ক্রিন শেষ: ৩৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -111,7 +111,7 @@
 - ⬜ — `screens/circle_call_screen.dart`
 - ⬜ — `screens/circle_chat_screen.dart`
 - ⬜ — `screens/circle_extras_broadcast_screen.dart`
-- ⬜ — `screens/circle_extras_hub_screen.dart`
+- ✅ batch 5 (দুই টুল এক কার্ডে, আইকন-ব্যাজ) — `screens/circle_extras_hub_screen.dart`
 - ⬜ — `screens/circle_extras_scheduled_screen.dart`
 - ⬜ — `screens/circle_group_chat_screen.dart`
 - ⬜ — `screens/circle_group_info_screen.dart`
