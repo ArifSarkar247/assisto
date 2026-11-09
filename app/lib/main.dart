@@ -68,6 +68,7 @@ import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'services/journey_habits.dart'; // sjstart2
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'family_v3/brain/fc_watch.dart'; // fcbrain
 import 'calls/kid_audio_child.dart'; // kidaudio
@@ -491,6 +492,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (state == AppLifecycleState.paused) {
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
+      JourneyHabits.onBackground(); // sjstart2: suggestions only while open
     }
     if (state == AppLifecycleState.resumed) {
       // feature-flags: pick up an owner switch (throttled, ETag, offline-safe).
@@ -526,6 +528,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // sjstart2: "Going to Office? Tell family?" — only while Assisto is
+      // open, location already allowed (never asks), habits on the phone.
+      JourneyHabits.onForeground(app);
       // cctvarm: a consenting member's "near Home?" for the camera guard
       // (flag + consent + permission already granted; 10 min; never throws).
       unawaited(HomePresenceSync.maybeSend(app.api));

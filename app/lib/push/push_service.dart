@@ -1,3 +1,5 @@
+import '../services/journey_habits.dart'; // sjstart2
+import '../screens/journey_start_screen.dart' show JourneyStartScreen; // sjstart2
 import '../audio/msg_open_tick.dart'; // circlebub
 import '../messaging/in_call_bubbles.dart' show InCallBubbles; // bubbles2
 import '../messaging/msg_push_done.dart'; // notifs
@@ -576,6 +578,18 @@ class PushService {
 
   void _onLocalResponse(NotificationResponse r) {
     AppEntry.mark('notification'); // p2-money: no app-open ad for this entry
+    // sjstart2: "Going to Office? Tell family?" -> Safe Journey filled in;
+    // the "Start" button starts it at once (watchers remembered).
+    if (JourneyHabits.isOurs(r)) {
+      final s = JourneyHabits.parse(r.payload);
+      final nav = (_nav ?? appNavigatorKey).currentState;
+      if (s != null && nav != null) {
+        unawaited(nav.push(MaterialPageRoute(
+            builder: (_) => JourneyStartScreen(
+                suggest: s, autoStart: r.actionId == JourneyHabits.actionGo))));
+      }
+      return;
+    }
     // remnotes: our own reminder alarm (payload 'remalarm:<key>'): Done /
     // Snooze apply at once; a plain tap opens the Reminders screen (it used
     // to open nothing — the payload is not a push JSON).
