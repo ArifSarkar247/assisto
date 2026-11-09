@@ -383,8 +383,8 @@ def run_phonecam_playback(owner, family, dev, hb, ev_id, ref):
               got == plain and len(fr) == 15, len(fr))
         CASH_METRICS["phonecam_alert_to_preview_s"] = round(time.monotonic() - t0, 2)
         lim = env.json().get("phonecam") or {}
-        check("cctvplay: honest limits shown (10 s clip, 24 h, budget, camera online)",
-              lim.get("clip_s") == 10 and lim.get("preview_keep_h") == 24 and
+        check("cctvplay: honest limits shown (10 s clip, 24 h free / 30 days paid, budget, online)",
+              lim.get("clip_s") == 10 and lim.get("preview_keep_h") in (24, 720) and
               "budget" in (lim.get("full") or {}) and
               (lim.get("full") or {}).get("camera_online") is True, lim)
     # the FULL video on demand
@@ -423,6 +423,63 @@ def run_phonecam_playback(owner, family, dev, hb, ev_id, ref):
         CASH_METRICS["phonecam_full_bytes"] = len(vct)
     fam_other = family.get(API + "/shop/events/%d/clip/full" % (ev_id + 100000), timeout=10)
     check("cctvplay: no one else's alert videos", fam_other.status_code == 404, fam_other.text)
+
+    # item 4: optional CONTINUOUS recording on the camera phone -> timeline ->
+    # the owner picks a minute -> the camera phone sends it the same sealed way
+    cam_id = ev.camera_id
+    r = owner.get(API + "/shop/phonecam/%d/recording" % cam_id, timeout=10)
+    check("cctvrec: continuous recording is OFF by default",
+          r.status_code == 200 and r.json()["settings"]["on"] is False, r.text[:200])
+    r = owner.patch(API + "/shop/phonecam/%d/recording" % cam_id,
+                    json={"on": True, "cap_mb": 2000}, timeout=10)
+    check("cctvrec: owner turns it on", r.status_code == 200 and
+          r.json()["settings"]["on"] is True, r.text[:200])
+    rec = (hb().json().get("phonecam") or {}).get("recording") or {}
+    check("cctvrec: camera phone sees the switch on its heartbeat", rec.get("on") is True, rec)
+    now = int(time.time())
+    seg_start = now - 120
+    r = dev.post(API + "/shop/phonecam/timeline", json={
+        "spans": [[seg_start, seg_start + 60], [seg_start + 61, now - 1]],
+        "alerts": [seg_start + 20], "used_mb": 12, "cap_mb": 2000,
+        "state": "recording"}, timeout=10)
+    check("cctvrec: camera phone publishes its timeline", r.status_code == 200, r.text)
+    tl = owner.get(API + "/shop/phonecam/%d/recording" % cam_id, timeout=10).json()["timeline"]
+    check("cctvrec: owner's timeline shows the recorded hours + the alert marker",
+          tl.get("spans") == [[seg_start, now - 1]] and seg_start + 20 in (tl.get("alerts") or []), tl)
+    t = seg_start + 20
+    t2 = time.monotonic()
+    r = owner.post(API + "/shop/phonecam/%d/recording/clip" % cam_id, json={"t": t}, timeout=10)
+    need("cctvrec: owner asks for the minute at the alert marker",
+         r.status_code == 202 and r.json().get("status") == "requested", r.text)
+    reqs = (hb().json().get("phonecam") or {}).get("video_requests") or []
+    check("cctvrec: camera phone gets the segment request",
+          {"key": "s%d" % t, "kind": "segment", "start": t} in reqs, reqs)
+    seg = _real_mp4(seconds=6) or (b"\x00\x00\x00\x18ftypmp42" + os.urandom(30000))
+    old = (EC.AAD, EC.FORMAT)
+    try:
+        EC.AAD, EC.FORMAT = b"assisto-phonecam-video-v1", "mp4"
+        sct, smeta = EC.seal(seg, clip_cfg.get("recipients") or [])
+    finally:
+        EC.AAD, EC.FORMAT = old
+    smeta.update(duration_s=60.0, start_ts=seg_start)
+    r = dev.post(API + "/shop/phonecam/video", data={"key": "s%d" % t, "meta": json.dumps(smeta)},
+                 files={"blob": ("video.bin", sct, "application/octet-stream")}, timeout=30)
+    need("cctvrec: camera phone uploads the sealed minute", r.status_code == 201, r.text)
+    st = owner.get(API + "/shop/phonecam/%d/recording/clip?key=s%d" % (cam_id, t),
+                   timeout=10).json()
+    ok = st.get("status") == "ready"
+    got = None
+    if ok:
+        blob = requests.get(st["url"], timeout=20).content
+        try:
+            got = EC.open_clip(blob, st["meta"], owner_uid,
+                               base64.b64decode(vec["recipient_private"]))
+        except Exception:
+            got = None
+    n = _mp4_frames(got) if got else 0
+    check("cctvrec: continuous-recording minute PLAYS remotely on the owner phone (%d frames)" % n,
+          ok and got == seg and (n > 0 or n == -1) and st["meta"].get("start_ts") == seg_start, st)
+    CASH_METRICS["phonecam_segment_request_to_ready_s"] = round(time.monotonic() - t2, 2)
 
 
 def run():

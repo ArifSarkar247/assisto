@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../phonecam/phonecam_timeline_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../billing/cctv_plan_screen.dart'; // cctvprice
 import '../../state.dart';
@@ -354,6 +355,13 @@ class _SiteCard extends StatelessWidget {
             builder: (_) => ShopLiveScreen(
                 cameraId: (cam['id'] as num).toInt(),
                 cameraName: (cam['name'] ?? '').toString())));
+      // cctvplay: the phone camera's recordings (timeline + on-demand minute)
+      case 'pcrec':
+        await nav.push(MaterialPageRoute(
+            builder: (_) => PhoneCamTimelineScreen(
+                cameraId: (cam['id'] as num).toInt(),
+                cameraName: (cam['name'] ?? '').toString(),
+                source: ApiPhoneCamRecSource(context.read<AppState>().api))));
       case 'viewers_live':
         // order I: OFF by default; turning it on says plainly who will see
         final turnOn = cam['viewers_live'] != true;
@@ -759,6 +767,14 @@ class _CameraRow extends StatelessWidget {
             tooltip: t.pcLive,
             icon: const Icon(Icons.live_tv_rounded),
             onPressed: () => onAction('live'),
+          ),
+        // cctvplay: recordings of a phone camera (same rule as live)
+        if (vendor == 'phone' && (owner || cam['viewers_live'] == true))
+          IconButton(
+            key: ValueKey('wm-pcrec-${cam['id']}'),
+            tooltip: t.pcrTimelineTitle,
+            icon: const Icon(Icons.video_library_outlined),
+            onPressed: () => onAction('pcrec'),
           ),
         // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera
         if (owner && (vendor == 'imou' || vendor == 'ezviz') && cam['cloud_alarms'] == true)

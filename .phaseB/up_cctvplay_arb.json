@@ -115,6 +115,154 @@
   "pcpPreviewsNoKey": "Previews start once the owner's phone has opened Assisto (it makes a secure key).",
   "@pcpPreviewsNoKey": {
    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcrTitle": "Continuous recording (optional)",
+  "@pcrTitle": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrBody": "Records all the time in 1-minute pieces, kept only on this phone: up to {cap} MB, oldest deleted first (now {used} MB). Pauses by itself when the phone is hot, low on battery or short of space. A minute leaves this phone only when the owner asks for it. Off by default.",
+  "@pcrBody": {
+   "description": "cctvplay item 4: continuous recording on the phone camera",
+   "placeholders": {
+    "cap": {
+     "type": "String"
+    },
+    "used": {
+     "type": "String"
+    }
+   }
+  },
+  "pcrDelete": "Delete continuous recordings",
+  "@pcrDelete": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOnLine": "Recording continuously · {used} MB of {cap} MB",
+  "@pcrOnLine": {
+   "description": "cctvplay item 4: continuous recording on the phone camera",
+   "placeholders": {
+    "used": {
+     "type": "String"
+    },
+    "cap": {
+     "type": "String"
+    }
+   }
+  },
+  "pcrPausedHot": "Continuous recording paused: the camera phone is too hot. Alerts still work.",
+  "@pcrPausedHot": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedBattery": "Continuous recording paused: the charger is out and the battery is low. Alerts still work.",
+  "@pcrPausedBattery": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedStorage": "Continuous recording paused: the camera phone is short of free space. Alerts still work.",
+  "@pcrPausedStorage": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedLive": "Continuous recording paused while someone watches live.",
+  "@pcrPausedLive": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrUnsupported": "This phone can't record and watch at the same time — continuous recording is off on it. Alerts and their 10-second videos still work.",
+  "@pcrUnsupported": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStarting": "Continuous recording starts in a moment…",
+  "@pcrStarting": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStateOff": "Continuous recording is off. Alerts still save a 10-second video each.",
+  "@pcrStateOff": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrWaitingPhone": "Turned on — waiting for the camera phone to start (it must be open on its camera screen).",
+  "@pcrWaitingPhone": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOnline": "Camera phone online — a minute you pick usually comes within a minute.",
+  "@pcrPhoneOnline": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOffline": "Camera phone offline — you can see what it recorded before; a minute comes when it is back online.",
+  "@pcrPhoneOffline": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOwnerBody": "Off by default. The camera phone records all the time and keeps it only on itself; it pauses when hot, low on battery or short of space. You (and family you allowed to watch live) can pick any recorded minute below; only that minute is sent, end-to-end encrypted, about 5 MB from this month's video budget.",
+  "@pcrOwnerBody": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrCapTitle": "Space on the camera phone",
+  "@pcrCapTitle": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrViewerNote": "Only the owner can turn continuous recording on or off.",
+  "@pcrViewerNote": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTimelineTitle": "Recordings",
+  "@pcrTimelineTitle": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTapHint": "Last 24 hours. Blue = recorded, red dot = alert. Tap a place on an hour to pick that minute.",
+  "@pcrTapHint": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPrevMinute": "Previous minute",
+  "@pcrPrevMinute": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrNextMinute": "Next minute",
+  "@pcrNextMinute": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrSelected": "Picked: {time}",
+  "@pcrSelected": {
+   "description": "cctvplay item 4: continuous recording on the phone camera",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "pcrMinuteTitle": "This minute from the camera phone",
+  "@pcrMinuteTitle": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyBenefit": "See what happened at any time, not only at alerts — the camera phone keeps a rolling recording.",
+  "@pcrEmptyBenefit": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTurnOn": "Turn on continuous recording",
+  "@pcrTurnOn": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyWaiting": "Nothing recorded yet. Keep the camera phone plugged in with Assisto open on its camera screen; the first minute shows up here within about a minute.",
+  "@pcrEmptyWaiting": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyHow": "How it works: turn it on here or on the camera phone; it records in 1-minute pieces on that phone only, and you fetch a minute when you need it.",
+  "@pcrEmptyHow": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrHourLabel": "{time}: {mins} minutes recorded, {alerts} alerts. Double tap to pick a minute.",
+  "@pcrHourLabel": {
+   "description": "cctvplay item 4: continuous recording on the phone camera",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    },
+    "mins": {
+     "type": "String"
+    },
+    "alerts": {
+     "type": "String"
+    }
+   }
+  },
+  "pcrNotRecorded": "Nothing was recorded at that minute.",
+  "@pcrNotRecorded": {
+   "description": "cctvplay item 4: continuous recording on the phone camera"
   }
  },
  "bn": {
@@ -138,6 +286,35 @@
   "pcpTrustBody": "শুধু মালিক ও তিনি যাঁদের অনুমতি দেন সেই পরিবারের সদস্যরা এই ক্যামেরা দেখতে পারেন। এখানে চালু না করলে শব্দ বন্ধ থাকে। ভিডিও এই ফোনেই থাকে; শুধু একটি ছোট এনক্রিপ্টেড প্রিভিউ, আর কেউ চাইলে পুরো ভিডিও পাঠানো হয় — এন্ড-টু-এন্ড এনক্রিপ্টেড। যেখানে মানুষের ছবি ওঠে সেখানে নোটিশ দিন, আর কেউ ব্যক্তিগতভাবে ব্যবহার করেন এমন ঘরের ভেতরে কখনো ভিডিও করবেন না।",
   "pcpPreviewsSent": "পরিবারকে প্রিভিউ পাঠানো: {n} · আজ আর {left}টি",
   "pcpPreviewsCapped": "আজকের প্রিভিউ সীমা শেষ — সতর্কতা ও ছবি ঠিকই যাবে।",
-  "pcpPreviewsNoKey": "মালিকের ফোনে Assisto খোলা হলে (নিরাপদ চাবি তৈরি হয়) প্রিভিউ শুরু হবে।"
+  "pcpPreviewsNoKey": "মালিকের ফোনে Assisto খোলা হলে (নিরাপদ চাবি তৈরি হয়) প্রিভিউ শুরু হবে।",
+  "pcrTitle": "একটানা রেকর্ডিং (ঐচ্ছিক)",
+  "pcrBody": "১ মিনিটের টুকরো করে সবসময় রেকর্ড করে, শুধু এই ফোনে থাকে: সর্বোচ্চ {cap} MB, সবচেয়ে পুরনোটি আগে মোছে (এখন {used} MB)। ফোন গরম হলে, চার্জ কম হলে বা জায়গা কম থাকলে নিজে থেমে যায়। মালিক চাইলে তবেই একটি মিনিট এই ফোন থেকে যায়। শুরুতে বন্ধ।",
+  "pcrDelete": "একটানা রেকর্ডিং মুছুন",
+  "pcrOnLine": "একটানা রেকর্ড হচ্ছে · {cap} MB-এর মধ্যে {used} MB",
+  "pcrPausedHot": "একটানা রেকর্ডিং থেমে আছে: ক্যামেরা-ফোন খুব গরম। সতর্কতা ঠিকই চলবে।",
+  "pcrPausedBattery": "একটানা রেকর্ডিং থেমে আছে: চার্জার খোলা, ব্যাটারি কম। সতর্কতা ঠিকই চলবে।",
+  "pcrPausedStorage": "একটানা রেকর্ডিং থেমে আছে: ক্যামেরা-ফোনে খালি জায়গা কম। সতর্কতা ঠিকই চলবে।",
+  "pcrPausedLive": "কেউ লাইভ দেখছেন, তাই একটানা রেকর্ডিং কিছুক্ষণ থেমে আছে।",
+  "pcrUnsupported": "এই ফোন একসাথে রেকর্ড আর পাহারা দিতে পারে না — তাই এতে একটানা রেকর্ডিং বন্ধ। সতর্কতা ও তার ১০ সেকেন্ডের ভিডিও ঠিকই চলবে।",
+  "pcrStarting": "একটু পরেই একটানা রেকর্ডিং শুরু হবে…",
+  "pcrStateOff": "একটানা রেকর্ডিং বন্ধ। প্রতি সতর্কতায় ১০ সেকেন্ডের ভিডিও ঠিকই থাকে।",
+  "pcrWaitingPhone": "চালু করা হয়েছে — ক্যামেরা-ফোন শুরু করার অপেক্ষা (ফোনে ক্যামেরা পাতাটি খোলা থাকতে হবে)।",
+  "pcrPhoneOnline": "ক্যামেরা-ফোন অনলাইনে — বেছে নেওয়া মিনিট সাধারণত এক মিনিটের মধ্যে আসে।",
+  "pcrPhoneOffline": "ক্যামেরা-ফোন অফলাইনে — আগে যা রেকর্ড হয়েছে দেখা যাবে; ফোন অনলাইনে এলে মিনিটটি আসবে।",
+  "pcrOwnerBody": "শুরুতে বন্ধ। ক্যামেরা-ফোন সবসময় রেকর্ড করে, শুধু নিজের ভেতরে রাখে; গরম হলে, চার্জ কম হলে বা জায়গা কম থাকলে থেমে যায়। আপনি (আর যাঁদের লাইভ দেখার অনুমতি দিয়েছেন) নিচে যেকোনো রেকর্ড করা মিনিট বেছে নিতে পারেন; শুধু সেই মিনিটটি পাঠানো হয়, এন্ড-টু-এন্ড এনক্রিপ্টেড, এই মাসের ভিডিও সীমা থেকে প্রায় ৫ MB।",
+  "pcrCapTitle": "ক্যামেরা-ফোনে জায়গা",
+  "pcrViewerNote": "শুধু মালিক একটানা রেকর্ডিং চালু বা বন্ধ করতে পারেন।",
+  "pcrTimelineTitle": "রেকর্ডিং",
+  "pcrTapHint": "গত ২৪ ঘণ্টা। নীল = রেকর্ড আছে, লাল বিন্দু = সতর্কতা। কোনো ঘণ্টার যেকোনো জায়গায় চাপ দিলে সেই মিনিট বেছে নেওয়া হয়।",
+  "pcrPrevMinute": "আগের মিনিট",
+  "pcrNextMinute": "পরের মিনিট",
+  "pcrSelected": "বেছে নেওয়া: {time}",
+  "pcrMinuteTitle": "ক্যামেরা-ফোন থেকে এই মিনিট",
+  "pcrEmptyBenefit": "শুধু সতর্কতার সময় নয়, যেকোনো সময়ে কী ঘটেছে দেখুন — ক্যামেরা-ফোন চলমান রেকর্ডিং রাখে।",
+  "pcrTurnOn": "একটানা রেকর্ডিং চালু করুন",
+  "pcrEmptyWaiting": "এখনো কিছু রেকর্ড হয়নি। ক্যামেরা-ফোন চার্জে রেখে Assisto-র ক্যামেরা পাতা খোলা রাখুন; প্রায় এক মিনিটের মধ্যে প্রথম মিনিটটি এখানে দেখাবে।",
+  "pcrEmptyHow": "যেভাবে চলে: এখানে বা ক্যামেরা-ফোনে চালু করুন; সেটি শুধু ওই ফোনেই ১ মিনিটের টুকরো করে রেকর্ড করে, দরকার হলে আপনি একটি মিনিট আনেন।",
+  "pcrHourLabel": "{time}: {mins} মিনিট রেকর্ড, {alerts}টি সতর্কতা। মিনিট বাছতে দুবার চাপুন।",
+  "pcrNotRecorded": "ওই মিনিটে কিছু রেকর্ড হয়নি।"
  }
 }

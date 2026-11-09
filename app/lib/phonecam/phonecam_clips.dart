@@ -233,6 +233,17 @@ class PhoneCamClipDevice {
     return _send(c.send(req).then(http.Response.fromStream), 120);
   }
 
+  /// item 4: POST shop/phonecam/timeline — what this phone has recorded
+  /// ({spans, used_mb, cap_mb, state, reason, set_on?}).
+  static Future<DeviceReply> timeline(ShopDeviceClient d, Map<String, dynamic> body,
+      {http.Client? client}) {
+    final c = client ?? http.Client();
+    return _send(
+        c.post(AppConfig.api('/shop/phonecam/timeline'),
+            headers: {..._h(d), 'Content-Type': 'application/json'}, body: jsonEncode(body)),
+        20);
+  }
+
   /// The clip is no longer on this phone (rolled over / never recorded).
   static Future<DeviceReply> videoMissing(ShopDeviceClient d, String key,
       {String reason = 'rolled_over', http.Client? client}) {

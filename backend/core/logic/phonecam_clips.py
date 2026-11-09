@@ -169,3 +169,95 @@ def budget_view(state, confirmed):
 def online(last_seen_ts, now_ts, window_s=60):
     """The camera phone answers within ~10 s when its heartbeat is fresh."""
     return last_seen_ts is not None and now_ts - last_seen_ts <= window_s
+
+
+# ---------------------------------------------------------------- H: keep days
+KEEP_DAYS_PAID = 30               # Premium / Business / CCTV plan (owner V3 H)
+KEEP_DAYS_FREE = 1
+STORE_CAP_MB = {"free": 200, "paid": 1024}   # per camera, cloud copies (cost cap)
+
+
+def keep_days(paid, addon_days=0):
+    """How long the cloud keeps a phone camera's preview / full video."""
+    return max(KEEP_DAYS_PAID if paid else KEEP_DAYS_FREE, int(addon_days or 0))
+
+
+def over_cap(items, cap_bytes):
+    """[(created_ts, size, id)] -> ids to delete, oldest first, so the total
+    fits `cap_bytes` (the newest one is always kept)."""
+    rows = sorted(items)
+    total = sum(r[1] for r in rows)
+    out = []
+    for r in rows[:-1]:
+        if total <= cap_bytes:
+            break
+        out.append(r[2])
+        total -= r[1]
+    return out
+
+
+# ---------------------------------------------------------------- item 4: continuous recording
+REC_CAP_CHOICES_MB = (1000, 2000, 4000, 8000)
+REC_CAP_DEFAULT_MB = 2000
+REC_SEGMENT_S = 60
+TIMELINE_KEEP_S = 7 * 86400
+MAX_SPANS = 600
+MAX_ALERTS = 400
+REC_STATES = ("recording", "paused", "off")
+REC_REASONS = ("", "hot", "battery", "storage", "live", "unsupported", "camera")
+
+
+def rec_settings(d):
+    r = (d or {}).get("rec") if isinstance(d, dict) else None
+    r = r if isinstance(r, dict) else {}
+    cap = r.get("cap_mb")
+    try:
+        cap = int(cap)
+    except (TypeError, ValueError):
+        cap = REC_CAP_DEFAULT_MB
+    if cap not in REC_CAP_CHOICES_MB:
+        cap = REC_CAP_DEFAULT_MB
+    return {"on": r.get("on") is True, "cap_mb": cap}
+
+
+def _int(v, default=0):
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return default
+
+
+def normalize_timeline(raw, now_ts):
+    """The camera phone's published index -> bounded, sorted, merged.
+    {spans: [[start, end]], alerts: [ts], used_mb, cap_mb, state, reason}."""
+    raw = raw if isinstance(raw, dict) else {}
+    lo = now_ts - TIMELINE_KEEP_S
+    hi = now_ts + 120
+    spans = []
+    for s in (raw.get("spans") or [])[:5000]:
+        if not isinstance(s, (list, tuple)) or len(s) < 2:
+            continue
+        a, b = _int(s[0]), _int(s[1])
+        a, b = max(a, int(lo)), min(b, int(hi))
+        if b > a:
+            spans.append([a, b])
+    spans.sort()
+    merged = []
+    for a, b in spans:
+        if merged and a <= merged[-1][1] + 3:       # a segment gap of <= 3 s
+            merged[-1][1] = max(merged[-1][1], b)
+        else:
+            merged.append([a, b])
+    alerts = sorted({_int(t) for t in (raw.get("alerts") or [])[:2000]
+                     if lo <= _int(t) <= hi})
+    state = raw.get("state") if raw.get("state") in REC_STATES else "off"
+    reason = raw.get("reason") if raw.get("reason") in REC_REASONS else ""
+    return {"spans": merged[-MAX_SPANS:], "alerts": alerts[-MAX_ALERTS:],
+            "used_mb": max(0, _int(raw.get("used_mb"))),
+            "cap_mb": max(0, _int(raw.get("cap_mb"))),
+            "state": state, "reason": reason, "at": int(now_ts)}
+
+
+def covered(spans, t):
+    """Is second `t` inside a recorded span?"""
+    return any(a <= t < b for a, b in (spans or []))

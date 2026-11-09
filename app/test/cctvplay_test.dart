@@ -18,9 +18,82 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_clips.dart';
 import 'package:assisto/phonecam/phonecam_full_video.dart';
+import 'package:assisto/phonecam/phonecam_rec_logic.dart';
+import 'package:assisto/phonecam/phonecam_timeline_screen.dart';
+import 'package:image/image.dart' as img;
 import 'package:assisto/theme.dart';
 
 import 'cctvguard_fakes.dart' show FakeNetCtl;
+
+Widget _screen(Widget home, {String lang = 'en', double scale = 1.0}) => MaterialApp(
+      key: UniqueKey(),
+      locale: Locale(lang),
+      theme: AssistoTheme.light,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      builder: (ctx, child) => MediaQuery(
+          data: MediaQuery.of(ctx).copyWith(textScaler: TextScaler.linear(scale)), child: child!),
+      home: home,
+    );
+
+class _Rec implements PhoneCamRecSource {
+  Map<String, dynamic> d;
+  final List<Map<String, dynamic>> sets = [];
+  final List<int> asked = [];
+  _Rec(this.d);
+  @override
+  Future<Map<String, dynamic>> recording(int cameraId) async => d;
+  @override
+  Future<Map<String, dynamic>> setRecording(int cameraId, Map<String, dynamic> body) async {
+    sets.add(body);
+    d = {...d, 'settings': {...(d['settings'] as Map), ...body}};
+    return d;
+  }
+
+  @override
+  Future<Map<String, dynamic>> clipState(int cameraId, String key) async => {'status': 'requested'};
+  @override
+  Future<Map<String, dynamic>> requestClip(int cameraId, int t) async {
+    asked.add(t);
+    return {'status': 'requested', 'camera_online': true};
+  }
+
+  @override
+  Future<Uint8List> download(String url) async => Uint8List(0);
+  @override
+  Future<List<IdentityKeyPair>> myKeys() async => const [];
+}
+
+Map<String, dynamic> _recData(int hs, {bool on = true, bool owner = true}) => {
+      'camera_id': 3,
+      'can_change': owner,
+      'settings': {'on': on, 'cap_mb': 2000},
+      'cap_choices_mb': [1000, 2000, 4000, 8000],
+      'timeline': on
+          ? {
+              'spans': [
+                [hs + 600, hs + 1800],
+                [hs - 3600, hs - 1800]
+              ],
+              'alerts': [hs + 900],
+              'used_mb': 120,
+              'cap_mb': 2000,
+              'state': 'recording',
+              'reason': ''
+            }
+          : {'spans': [], 'alerts': [], 'state': 'off', 'reason': ''},
+      'camera_online': true,
+      'segment_s': 60,
+      'est_mb': 5.0,
+      'keep_h': 720,
+      'budget': {'cap_mb': 300, 'left_mb': 180.0, 'used_mb': 120.0, 'paused': false},
+      'views': {},
+    };
 
 Widget _app(Widget home, {String lang = 'en', double scale = 1.0}) => MaterialApp(
       key: UniqueKey(),
@@ -228,6 +301,84 @@ void main() {
           maxChecks: 0)));
       await tester.pump();
       expect(find.textContaining('Still waiting'), findsOneWidget);
+    });
+  });
+
+  group('continuous recording (item 4)', () {
+    test('segments, spans, lookup, guards', () {
+      expect(segName(1762675200, 60), 'seg_1762675200_60.mp4');
+      expect(parseSeg('/d/seg_1762675200_60.mp4'), (1762675200, 60));
+      expect(parseSeg('/d/clip_abc.mp4'), isNull);
+      expect(spansOf([(100, 60), (161, 60), (400, 30)]), [
+        [100, 221],
+        [400, 430]
+      ]);
+      final paths = ['/d/seg_1762675200_60.mp4', '/d/seg_1762675261_60.mp4'];
+      expect(segFor(paths, 1762675230), paths[0]);
+      expect(segFor(paths, 1762675300), paths[1]);
+      expect(segFor(paths, 1762675500), isNull);
+      expect(recGuard(charging: true, level: 90, tempC: 33), '');
+      expect(recGuard(tempC: 46), 'hot');
+      expect(recGuard(charging: false, level: 20), 'battery');
+      expect(recGuard(charging: false, level: 80), '');
+      expect(recGuard(freeBytes: 10 * 1024 * 1024), 'storage');
+      expect(recGuard(inLive: true, tempC: 50), 'live');
+    });
+
+    test('a recording frame becomes an upright JPEG alert photo', () {
+      const w = 64, h = 48;
+      final y = Uint8List(w * h)..fillRange(0, w * h, 120);
+      final uv = Uint8List((w ~/ 2) * (h ~/ 2))..fillRange(0, (w ~/ 2) * (h ~/ 2), 128);
+      final j = yuvToJpeg({'w': w, 'h': h, 'y': y, 'u': uv, 'v': uv, 'yRow': w, 'uvRow': w ~/ 2, 'uvPix': 1, 'rot': 90})!;
+      final im = img.decodeJpg(j)!;
+      expect((im.width, im.height), (h, w)); // turned upright
+      expect(yuvToJpeg({'w': w}), isNull);
+    });
+
+    testWidgets('owner: switch, timeline hours with alert marks, pick a minute -> ask the phone', (tester) async {
+      final now = DateTime(2026, 11, 9, 15, 40);
+      final hs = now.millisecondsSinceEpoch ~/ 1000 ~/ 3600 * 3600;
+      final src = _Rec(_recData(hs));
+      await tester.pumpWidget(_screen(PhoneCamTimelineScreen(
+          cameraId: 3, cameraName: 'Front door', source: src, now: now)));
+      await tester.pump();
+      expect(find.textContaining('Recording continuously'), findsOneWidget);
+      expect(find.text('Continuous recording (optional)'), findsOneWidget);
+      // two hour rows with recordings; TalkBack reads a summary per hour
+      expect(find.bySemanticsLabel(RegExp('20 minutes recorded, 1 alerts')), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(RegExp('20 minutes recorded, 1 alerts')));
+      await tester.pump();
+      expect(find.textContaining('Picked:'), findsOneWidget);
+      expect(find.text('This minute from the camera phone'), findsOneWidget);
+      await tester.ensureVisible(find.text('Get the full video'));
+      await tester.tap(find.text('Get the full video'));
+      await tester.pump();
+      expect(src.asked.length, 1);
+      expect(src.asked.single, inInclusiveRange(hs + 600, hs + 1800)); // a recorded minute
+      await tester.tap(find.byKey(const Key('pcrSwitch')));
+      await tester.pump();
+      expect(src.sets.last, {'on': false});
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('off: benefit + one big button; viewer cannot switch (bn, 200%)', (tester) async {
+      final now = DateTime(2026, 11, 9, 15, 40);
+      final hs = now.millisecondsSinceEpoch ~/ 1000 ~/ 3600 * 3600;
+      final src = _Rec(_recData(hs, on: false));
+      await tester.pumpWidget(_screen(PhoneCamTimelineScreen(cameraId: 3, cameraName: '', source: src, now: now)));
+      await tester.pump();
+      await tester.tap(find.text('Turn on continuous recording'));
+      await tester.pump();
+      expect(src.sets.last, {'on': true});
+      await tester.pumpWidget(_screen(
+          PhoneCamTimelineScreen(
+              cameraId: 3, cameraName: '', source: _Rec(_recData(hs, owner: false)), now: now),
+          lang: 'bn',
+          scale: 2.0));
+      await tester.pump();
+      expect(find.byKey(const Key('pcrSwitch')), findsNothing);
+      expect(find.textContaining('শুধু মালিক'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }

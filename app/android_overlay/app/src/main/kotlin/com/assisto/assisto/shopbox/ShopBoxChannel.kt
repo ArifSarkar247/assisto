@@ -29,7 +29,7 @@ import io.flutter.plugin.common.MethodChannel
  *   dim({on: Bool})           -> Bool   cctvphone: window brightness to the
  *                                       minimum while the phone is a camera
  *                                       (restored to the system value on off)
- *   clipFrames({path, count, width, quality}) -> List<ByteArray>
+ *   clipFrames({path, count, width, quality, fromMs?, toMs?}) -> List<ByteArray>
  *                                       cctvplay: small JPEG frames evenly
  *                                       spread over a clip THIS app recorded
  *                                       (MediaMetadataRetriever, framework API,
@@ -132,11 +132,13 @@ object ShopBoxChannel {
                         val count = (call.argument<Int>("count") ?: 15).coerceIn(1, 40)
                         val width = (call.argument<Int>("width") ?: 320).coerceIn(96, 960)
                         val quality = (call.argument<Int>("quality") ?: 55).coerceIn(30, 90)
+                        val fromMs = (call.argument<Number>("fromMs")?.toLong() ?: 0L).coerceAtLeast(0L)
+                        val toMs = call.argument<Number>("toMs")?.toLong() ?: -1L
                         val main = Handler(Looper.getMainLooper())
                         try {
                             Thread {
                                 val out = try {
-                                    clipFrames(path, count, width, quality)
+                                    clipFrames(path, count, width, quality, fromMs, toMs)
                                 } catch (_: Throwable) {
                                     ArrayList<ByteArray>()
                                 }
@@ -166,7 +168,8 @@ object ShopBoxChannel {
 
     /** cctvplay: [count] JPEG frames spread evenly over the clip, each scaled
      *  to [width] px wide. One bitmap in memory at a time (old 2 GB phones). */
-    private fun clipFrames(path: String, count: Int, width: Int, quality: Int): ArrayList<ByteArray> {
+    private fun clipFrames(path: String, count: Int, width: Int, quality: Int,
+                           fromMs: Long = 0L, toMs: Long = -1L): ArrayList<ByteArray> {
         val out = ArrayList<ByteArray>()
         if (path.isEmpty()) return out
         val r = MediaMetadataRetriever()
@@ -175,8 +178,11 @@ object ShopBoxChannel {
             val durMs = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 ?.toLongOrNull() ?: 0L
             if (durMs <= 0L) return out
+            val a = fromMs.coerceAtMost(durMs)
+            val b = if (toMs in 1..durMs) toMs else durMs
+            val span = (b - a).coerceAtLeast(1L)
             for (i in 0 until count) {
-                val tUs = (durMs * 1000L * (2 * i + 1)) / (2L * count)
+                val tUs = (a * 1000L) + (span * 1000L * (2 * i + 1)) / (2L * count)
                 var bmp: Bitmap? = null
                 var scaled: Bitmap? = null
                 try {

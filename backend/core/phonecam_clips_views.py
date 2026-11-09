@@ -179,6 +179,74 @@ def count_bytes(cam, nbytes, now=None):
         log.exception("phonecam clip meter failed")
 
 
+# ---------------------------------------------------------------- H: keep + cap
+def is_paid(owner):
+    """Premium / Business, or an active CCTV plan (owner V3 H: 30 days)."""
+    try:
+        from . import entitlements_service as ES
+        if ES.tier(owner) != "free":
+            return True
+    except Exception:
+        pass
+    try:
+        from . import cctv_plan_service as CPS
+        return CPS.plan_cameras(owner) > 0
+    except Exception:
+        return False
+
+
+def keep_s(cam, now=None):
+    addon_days = 0
+    try:
+        from . import cctv_evidence as CE
+        from .logic import cctv_video_addon as VA
+        t = CE.addon_tier(cam, now)
+        addon_days = VA.clip_days(t) if t else 0
+    except Exception:
+        addon_days = 0
+    return P.keep_days(is_paid(cam.site.owner), addon_days) * 86400
+
+
+def store_cap_bytes(cam):
+    return P.STORE_CAP_MB["paid" if is_paid(cam.site.owner) else "free"] * 1024 * 1024
+
+
+def enforce_store(cam, now=None):
+    """Cost cap: this camera's cloud copies (previews + full videos) fit its
+    cap — the oldest are deleted first. Returns how many went."""
+    from .models import ShopEventClip
+    items = []
+    d = data_for(cam)
+    for k, r in (d.get("reqs") or {}).items():
+        if isinstance(r, dict) and r.get("status") == "ready":
+            items.append((float(r.get("done") or r.get("at") or 0),
+                          int(r.get("size") or 0), ("r", k)))
+    for c in ShopEventClip.objects.filter(event__camera=cam, status="ready").only(
+            "id", "size", "created"):
+        items.append((c.created.timestamp(), int(c.size or 0), ("c", c.id)))
+    drop = P.over_cap(items, store_cap_bytes(cam))
+    if not drop:
+        return 0
+    keys = [x[1] for x in drop if x[0] == "r"]
+    if keys:
+        def fn(dd):
+            reqs = dict(dd.get("reqs") or {})
+            for k in keys:
+                r = reqs.get(k) or {}
+                _drop_file(r.get("name"))
+                reqs[k] = {kk: vv for kk, vv in r.items() if kk not in ("name", "meta")}
+                reqs[k]["status"] = "expired"
+            dd["reqs"] = reqs
+            return dd
+        update(cam, fn)
+    ids = [x[1] for x in drop if x[0] == "c"]
+    if ids:
+        from . import cashguard_views as CGV
+        for c in ShopEventClip.objects.filter(pk__in=ids):
+            CGV._drop_blob(c, "expired")
+    return len(drop)
+
+
 # ---------------------------------------------------------------- heartbeat
 def heartbeat_block(site, cams, now=None):
     """What a camera PHONE needs on every heartbeat (None for other edges)."""
@@ -198,7 +266,10 @@ def heartbeat_block(site, cams, now=None):
                          "left_today": left, "scheme": CG.CLIP_SCHEME,
                          "full_aad": P.FULL_AAD,
                          "full_max_mb": P.FULL_MAX_BYTES // (1024 * 1024)},
-                "video_requests": P.pending_for_device(reqs, _now_ts(now))}
+                "video_requests": P.pending_for_device(reqs, _now_ts(now)),
+                # item 4: continuous recording (owner switch, OFF by default)
+                "recording": P.rec_settings(d),
+                "keep_days": keep_s(cam, now) // 86400}
     except Exception:
         log.exception("phonecam heartbeat block failed")
         return {"camera_id": cam.pk, "clip": {"enabled": False, "recipients": []},
@@ -212,13 +283,18 @@ def _camera_online(cam, now):
 
 
 def _state_body(request, ev, cam, req, now, count=True):
+    body = _video_body(request, cam, req, now, count)
+    body.update({"event_id": ev.id, "clip_s": P.CLIP_S, "est_mb": P.EST_FULL_MB,
+                 "has_ref": bool((ev.signals or {}).get("clip_ref"))})
+    return body
+
+
+def _video_body(request, cam, req, now, count=True):
     now_ts = _now_ts(now)
     st = P.request_state(req, now_ts)
-    body = {"event_id": ev.id, "status": st,
-            "camera_online": _camera_online(cam, now),
-            "clip_s": P.CLIP_S, "keep_h": P.FULL_TTL_S // 3600,
-            "est_mb": P.EST_FULL_MB, "budget": budget(cam.site.owner_id, now),
-            "has_ref": bool((ev.signals or {}).get("clip_ref"))}
+    body = {"status": st, "camera_online": _camera_online(cam, now),
+            "keep_h": keep_s(cam, now) // 3600,
+            "budget": budget(cam.site.owner_id, now)}
     if st == "missing":
         body["reason"] = (req or {}).get("reason") or "rolled_over"
     if st == "ready":
@@ -388,7 +464,7 @@ class PhoneCamVideoUploadView(APIView):
         name = vault_storage().save("shop/clip/pc%d_%s.bin" % (cam.pk, key),
                                     ContentFile(raw))
         meta = dict(raw_meta, sha256=digest)
-        expires = now_ts + P.FULL_TTL_S
+        expires = now_ts + keep_s(cam, now)
         old = {}
 
         def done(d):
@@ -406,8 +482,9 @@ class PhoneCamVideoUploadView(APIView):
             _drop_file(old["name"])
             return Response({"ok": True, "duplicate": True, "key": key})
         count_bytes(cam, len(raw), now)
+        enforce_store(cam, now)
         return Response({"ok": True, "key": key, "size": len(raw),
-                         "expires_at": SV._iso(now + timedelta(seconds=P.FULL_TTL_S))},
+                         "expires_at": SV._iso(now + timedelta(seconds=expires - now_ts))},
                         status=201)
 
 
@@ -421,5 +498,186 @@ def preview_envelope_extra(request, ev, now=None):
     body = _state_body(request, ev, cam, req, now, count=False)
     return {"full": {k: body[k] for k in ("status", "camera_online", "est_mb",
                                           "budget", "has_ref") if k in body},
-            "clip_s": P.CLIP_S, "preview_keep_h": P.PREVIEW_TTL_S // 3600,
-            "full_keep_h": P.FULL_TTL_S // 3600}
+            "clip_s": P.CLIP_S, "preview_keep_h": keep_s(cam, now) // 3600,
+            "full_keep_h": keep_s(cam, now) // 3600}
+
+
+# ---------------------------------------------------------------- item 4: recording
+def _viewer_cam(request, pk):
+    """(camera, role) for the owner — or a family viewer the owner allowed to
+    watch this phone camera live (recordings follow the live-view rule)."""
+    from .models import ShopCamera
+    from . import phonecam_views as PCV
+    cam = ShopCamera.objects.select_related("site").filter(pk=pk, vendor="phone").first()
+    if cam is None:
+        return None, None
+    site, role = SV._viewable_site(request, cam.site_id)
+    if site is None:
+        return None, None
+    if role != "owner" and not PCV.viewers_live(cam):
+        return None, "blocked"
+    return cam, role
+
+
+def _recording_body(cam, role, now):
+    d = data_for(cam)
+    tl = d.get("tl") if isinstance(d.get("tl"), dict) else {}
+    reqs = d.get("reqs") or {}
+    now_ts = _now_ts(now)
+    views = {k: P.request_state(r, now_ts) for k, r in reqs.items() if k.startswith("s")}
+    # alert markers: what the phone published + the camera's alerts we hold
+    try:
+        from .models import ShopEvent
+        since = now - timedelta(seconds=P.TIMELINE_KEEP_S)
+        evs = [int(c.timestamp()) for c in ShopEvent.objects.filter(
+            camera=cam, created__gte=since, pending=False).values_list("created", flat=True)[:400]]
+    except Exception:
+        evs = []
+    if tl or evs:
+        tl = dict(tl or {"spans": [], "state": "off", "reason": ""})
+        tl["alerts"] = sorted(set(tl.get("alerts") or []) | set(evs))[-P.MAX_ALERTS:]
+    return {"camera_id": cam.pk, "name": cam.name, "role": role,
+            "can_change": role == "owner", "settings": P.rec_settings(d),
+            "cap_choices_mb": list(P.REC_CAP_CHOICES_MB),
+            "timeline": tl or {"spans": [], "alerts": [], "state": "off", "reason": ""},
+            "camera_online": _camera_online(cam, now),
+            "segment_s": P.REC_SEGMENT_S, "est_mb": P.EST_SEGMENT_MB,
+            "keep_h": keep_s(cam, now) // 3600,
+            "budget": budget(cam.site.owner_id, now), "views": views}
+
+
+def _blocked(lang):
+    return _err(lang, "মালিক এই ক্যামেরার ভিডিও নিজের কাছে রেখেছেন।",
+                "The owner keeps this camera's video to themselves.",
+                status=403, code="viewers_blocked")
+
+
+class PhoneCamRecordingView(APIView):
+    """GET/PATCH shop/phonecam/<id>/recording — the continuous-recording
+    switch (owner), the camera phone's published timeline, budget."""
+
+    def get(self, request, pk):
+        lang = req_lang(request)
+        cam, role = _viewer_cam(request, pk)
+        if role == "blocked":
+            return _blocked(lang)
+        if cam is None:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response(_recording_body(cam, role, timezone.now()))
+
+    def patch(self, request, pk):
+        lang = req_lang(request)
+        cam, role = _viewer_cam(request, pk)
+        if cam is None or role != "owner":
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        body = request.data or {}
+
+        def fn(d):
+            r = P.rec_settings(d)
+            if "on" in body:
+                r["on"] = SV._coerce_bool(body.get("on"))
+            if "cap_mb" in body:
+                try:
+                    v = int(body.get("cap_mb"))
+                except (TypeError, ValueError):
+                    v = r["cap_mb"]
+                if v in P.REC_CAP_CHOICES_MB:
+                    r["cap_mb"] = v
+            r["by"], r["at"] = request.user.pk, _now_ts()
+            d["rec"] = r
+            return d
+        update(cam, fn)
+        return Response(_recording_body(cam, role, timezone.now()))
+
+
+class PhoneCamRecordingClipView(APIView):
+    """POST {t} / GET ?key= shop/phonecam/<id>/recording/clip — ask the camera
+    phone for the recorded minute around second `t`, then play it."""
+
+    def get(self, request, pk):
+        lang = req_lang(request)
+        cam, role = _viewer_cam(request, pk)
+        if role == "blocked":
+            return _blocked(lang)
+        if cam is None:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        key = P.clean_key(request.query_params.get("key"))
+        if not key.startswith("s"):
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        now = timezone.now()
+        d = data_for(cam)
+        reqs = dict(d.get("reqs") or {})
+        if _expire(reqs, _now_ts(now)):
+            update(cam, lambda x: dict(x, reqs=reqs))
+        body = _video_body(request, cam, reqs.get(key), now)
+        body.update({"key": key, "est_mb": P.EST_SEGMENT_MB,
+                     "t": int(key[1:])})
+        return Response(body)
+
+    def post(self, request, pk):
+        lang = req_lang(request)
+        cam, role = _viewer_cam(request, pk)
+        if role == "blocked":
+            return _blocked(lang)
+        if cam is None:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        try:
+            t = int(float(request.data.get("t")))
+        except (TypeError, ValueError):
+            t = 0
+        now = timezone.now()
+        now_ts = _now_ts(now)
+        tl = data_for(cam).get("tl") or {}
+        if not P.covered(tl.get("spans"), t):
+            return _err(lang, "এই সময়ে ক্যামেরা-ফোনে রেকর্ড নেই।",
+                        "The camera phone has no recording at this time.",
+                        status=404, code="not_recorded")
+        b = budget(cam.site.owner_id, now)
+        if b["paused"]:
+            return _err(lang,
+                        "এই মাসের ভিডিও/রিলে সীমা শেষ — রেকর্ড আনা যাবে না। লাইভ ও "
+                        "সতর্কতা আগের মতোই চলবে।",
+                        "This month's video/relay budget is used up — recordings "
+                        "can't be fetched. Live view and alerts still work.",
+                        status=402, code="budget_paused", budget=b)
+        key = "s%d" % t
+        cur = (data_for(cam).get("reqs") or {}).get(key)
+        if P.request_state(cur, now_ts) not in ("requested", "ready"):
+            def fn(d):
+                reqs = dict(d.get("reqs") or {})
+                reqs[key] = {"status": "requested", "at": now_ts, "by": request.user.pk}
+                d["reqs"] = P.prune(reqs, now_ts)
+                return d
+            update(cam, fn)
+        body = _video_body(request, cam, (data_for(cam).get("reqs") or {}).get(key), now)
+        body.update({"key": key, "est_mb": P.EST_SEGMENT_MB, "t": t})
+        return Response(body, status=202)
+
+
+class PhoneCamTimelineView(APIView):
+    """POST shop/phonecam/timeline (camera token) — the camera phone publishes
+    what it has recorded (spans, alert marks, storage, state); `set_on`
+    is the switch on the camera phone itself."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        lang = req_lang(request)
+        site, cam = SV._resolve_device_site(request)
+        if site is None or not is_phone(cam):
+            return _err(lang, "ডিভাইস টোকেন ভুল।", "Invalid device token.",
+                        status=401, code="bad_token")
+        data = request.data if isinstance(request.data, dict) else {}
+        tl = P.normalize_timeline(data, _now_ts())
+
+        def fn(d):
+            d["tl"] = tl
+            if "set_on" in data:
+                r = P.rec_settings(d)
+                r["on"] = SV._coerce_bool(data.get("set_on"))
+                r["by"], r["at"] = "device", _now_ts()
+                d["rec"] = r
+            return d
+        d = update(cam, fn)
+        return Response({"ok": True, "recording": P.rec_settings(d),
+                         "spans": len(tl["spans"])})

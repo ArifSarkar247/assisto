@@ -213,8 +213,9 @@ class PreviewTests(_Base):
         r, plain = self.preview(ref, block["clip"]["recipients"])
         self.assertEqual(r.status_code, 201, r.data)
         clip = ShopEventClip.objects.get(event_id=ev)
+        # owner V3 H: a paid owner (Business here) keeps it 30 days
         self.assertAlmostEqual((clip.expires_at - clip.created).total_seconds(),
-                               24 * 3600, delta=5)
+                               30 * 86400, delta=5)
         # the family viewer opens it with THEIR key — the server never could
         for who, uid, priv in ((self.as_viewer, self.viewer.id, self.viewer_priv),
                                (self.client, self.owner.id, self.owner_priv)):
@@ -310,8 +311,8 @@ class FullVideoTests(_Base):
                                            self.viewer_priv), mp4)
         # the preview envelope carries the same state
         self.assertEqual(self.client.get("/api/v1/shop/events/%d/clip" % ev).status_code, 200)
-        # 24 h later the bytes are gone (hourly purge) and the state says so
-        later = timezone.now() + timedelta(hours=25)
+        # 30 days later (paid owner) the bytes are gone (hourly purge)
+        later = timezone.now() + timedelta(days=31)
         from core import cashguard_views as CGV
         with mock.patch("django.utils.timezone.now", return_value=later):
             self.assertGreaterEqual(CGV.purge_clips(later), 1)
@@ -348,3 +349,108 @@ class FullVideoTests(_Base):
         self.assertTrue(PaCollectionItem.objects.filter(collection="phonecam_rec").exists())
         self.dev.post("/api/v1/shop/phonecam/unbind", {}, format="json")
         self.assertFalse(PaCollectionItem.objects.filter(collection="phonecam_rec").exists())
+
+
+class KeepAndCapTests(_Base):
+    def test_free_owner_keeps_24h_paid_30_days(self):
+        from core import phonecam_clips_views as PCV
+        self.assertEqual(PCV.keep_s(self.cam) // 86400, 30)
+        with mock.patch("core.phonecam_clips_views.is_paid", return_value=False):
+            self.assertEqual(PCV.keep_s(self.cam), 86400)
+            self.assertEqual(PCV.store_cap_bytes(self.cam), 200 * 1024 * 1024)
+        self.assertEqual(self.hb()["phonecam"]["keep_days"], 30)
+
+    def test_cloud_copies_fit_the_camera_cap_oldest_first(self):
+        from core.models import ShopEvent, ShopEventClip
+        recips = self.hb()["phonecam"]["clip"]["recipients"]
+        refs = ["%02d" % i * 16 for i in range(3)]
+        for ref in refs:
+            ShopEvent.objects.create(site=self.cam.site, camera=self.cam,
+                                     type="person_detected", confidence=0.8,
+                                     signals={"clip_ref": ref})
+        with mock.patch("core.phonecam_clips_views.store_cap_bytes", return_value=1):
+            for ref in refs:
+                r, _ = self.preview(ref, recips)
+                self.assertEqual(r.status_code, 201, r.data)
+        ready = ShopEventClip.objects.filter(event__camera=self.cam, status="ready")
+        self.assertEqual(ready.count(), 1)     # only the newest stays under the cap
+        self.assertEqual(ready.first().event.signals["clip_ref"], refs[-1])
+
+    def test_pure_over_cap(self):
+        self.assertEqual(P.over_cap([(1, 50, "a"), (2, 50, "b"), (3, 50, "c")], 100), ["a"])
+        self.assertEqual(P.over_cap([(1, 500, "a")], 10), [])      # newest always kept
+        self.assertEqual(P.keep_days(False), 1)
+        self.assertEqual(P.keep_days(False, 7), 7)
+        self.assertEqual(P.keep_days(True), 30)
+
+
+class RecordingTests(_Base):
+    def test_off_by_default_owner_turns_on_camera_phone_sees_it(self):
+        r = self.client.get("/api/v1/shop/phonecam/%d/recording" % self.cam.id)
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertFalse(r.data["settings"]["on"])
+        self.assertFalse(self.hb()["phonecam"]["recording"]["on"])
+        r = self.client.patch("/api/v1/shop/phonecam/%d/recording" % self.cam.id,
+                              {"on": True, "cap_mb": 4000}, format="json")
+        self.assertEqual(r.data["settings"], {"on": True, "cap_mb": 4000})
+        self.assertEqual(self.hb()["phonecam"]["recording"], {"on": True, "cap_mb": 4000})
+        # a family viewer can't change it, and can't see it until live is allowed
+        self.assertEqual(self.as_viewer.patch("/api/v1/shop/phonecam/%d/recording" % self.cam.id,
+                                              {"on": False}, format="json").status_code, 404)
+        self.assertEqual(self.as_viewer.get("/api/v1/shop/phonecam/%d/recording"
+                                            % self.cam.id).status_code, 403)
+        self.client.patch("/api/v1/shop/phonecam/%d" % self.cam.id, {"viewers_live": True},
+                          format="json")
+        self.assertEqual(self.as_viewer.get("/api/v1/shop/phonecam/%d/recording"
+                                            % self.cam.id).status_code, 200)
+
+    def test_timeline_then_on_demand_minute_via_the_same_video_path(self):
+        now = int(timezone.now().timestamp())
+        spans = [[now - 3600, now - 3540], [now - 3539, now - 3480], [now - 600, now - 60]]
+        r = self.dev.post("/api/v1/shop/phonecam/timeline",
+                          {"spans": spans, "alerts": [now - 3500, now - 10 ** 7],
+                           "used_mb": 120, "cap_mb": 2000, "state": "recording",
+                           "set_on": True}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertTrue(r.data["recording"]["on"])         # the camera phone's own switch
+        tl = self.client.get("/api/v1/shop/phonecam/%d/recording" % self.cam.id).data["timeline"]
+        self.assertEqual(tl["spans"], [[now - 3600, now - 3480], [now - 600, now - 60]])
+        self.assertEqual(tl["alerts"], [now - 3500])
+        miss = self.client.post("/api/v1/shop/phonecam/%d/recording/clip" % self.cam.id,
+                                {"t": now - 2000}, format="json")
+        self.assertEqual((miss.status_code, miss.data["code"]), (404, "not_recorded"))
+        t = now - 3500
+        r = self.client.post("/api/v1/shop/phonecam/%d/recording/clip" % self.cam.id,
+                             {"t": t}, format="json")
+        self.assertEqual((r.status_code, r.data["status"]), (202, "requested"))
+        reqs = self.hb()["phonecam"]["video_requests"]
+        self.assertEqual(reqs, [{"key": "s%d" % t, "kind": "segment", "start": t}])
+        seg = b"\x00\x00\x00\x18ftypmp42" + os.urandom(9000)
+        recips = self.hb()["phonecam"]["clip"]["recipients"]
+        ct, meta = self.seal(seg, recips, fmt="mp4", aad=P.FULL_AAD, duration_s=60.0,
+                             start_ts=now - 3540)
+        u = self.dev.post("/api/v1/shop/phonecam/video", {
+            "key": "s%d" % t, "meta": json.dumps(meta),
+            "blob": SimpleUploadedFile("v.bin", ct, "application/octet-stream")},
+            format="multipart")
+        self.assertEqual(u.status_code, 201, u.data)
+        g = self.client.get("/api/v1/shop/phonecam/%d/recording/clip?key=s%d" % (self.cam.id, t))
+        self.assertEqual(g.data["status"], "ready")
+        self.assertEqual(g.data["meta"]["start_ts"], now - 3540)
+        blob = self.client.get(g.data["url"].replace("http://testserver", ""))
+        body = b"".join(blob.streaming_content) if blob.streaming else blob.content
+        self.assertEqual(self.EC.open_clip(body, g.data["meta"], self.owner.id,
+                                           self.owner_priv), seg)
+        views = self.client.get("/api/v1/shop/phonecam/%d/recording" % self.cam.id).data["views"]
+        self.assertEqual(views, {"s%d" % t: "ready"})
+
+    def test_pure_timeline_normalize(self):
+        now = 2_000_000_000
+        tl = P.normalize_timeline({"spans": [[now - 100, now - 50], "x", [now - 49, now],
+                                             [5, 10]], "state": "weird",
+                                   "reason": "hot"}, now)
+        self.assertEqual(tl["spans"], [[now - 100, now]])
+        self.assertEqual((tl["state"], tl["reason"]), ("off", "hot"))
+        self.assertTrue(P.covered(tl["spans"], now - 10))
+        self.assertFalse(P.covered(tl["spans"], now + 10))
+        self.assertEqual(P.rec_settings({}), {"on": False, "cap_mb": P.REC_CAP_DEFAULT_MB})

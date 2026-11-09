@@ -30,6 +30,10 @@ class PhoneCamFullVideo extends StatefulWidget {
 
   /// Tests: where the opened video is written while it plays.
   final Future<Directory> Function()? tempDir;
+
+  /// item 4: a recorded minute instead of an alert's clip.
+  final String? title;
+  final int defaultSeconds;
   const PhoneCamFullVideo(
       {super.key,
       required this.source,
@@ -37,7 +41,9 @@ class PhoneCamFullVideo extends StatefulWidget {
       this.initial,
       this.every = const Duration(seconds: 4),
       this.maxChecks = 45,
-      this.tempDir});
+      this.tempDir,
+      this.title,
+      this.defaultSeconds = kPhoneClipSeconds});
 
   @override
   State<PhoneCamFullVideo> createState() => _PhoneCamFullVideoState();
@@ -175,6 +181,10 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
       }
       _ctl = c;
       setState(() => _st = _F.playing);
+      // item 4: a recorded segment starts at the second the viewer picked
+      final t = (_s['t'] as num?)?.toInt();
+      final s0 = (wmMap(_s['meta'])['start_ts'] as num?)?.toInt();
+      if (t != null && s0 != null && t > s0) await c.seekTo(Duration(seconds: t - s0 - 2 < 0 ? 0 : t - s0 - 2));
       await c.play();
     } catch (e) {
       _fail(e);
@@ -187,7 +197,7 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
     final lang = Localizations.localeOf(context).languageCode;
     final tt = Theme.of(context).textTheme;
     final b = wmMap(_s['budget']);
-    final secs = ((_s['clip_s'] as num?) ?? kPhoneClipSeconds).toInt();
+    final secs = ((_s['clip_s'] as num?) ?? widget.defaultSeconds).toInt();
     final mb = ((_s['est_mb'] as num?) ?? 1.5).toDouble();
     final keepH = ((_s['keep_h'] as num?) ?? 24).toInt();
     final online = _s['camera_online'] == true;
@@ -284,7 +294,7 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
     return Semantics(
       container: true,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(t.pcpFullTitle, style: tt.titleSmall),
+        Text(widget.title ?? t.pcpFullTitle, style: tt.titleSmall),
         const SizedBox(height: 4),
         ...limits,
         const SizedBox(height: 10),

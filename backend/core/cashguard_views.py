@@ -191,8 +191,9 @@ class ShopClipUploadView(APIView):
             return _err(lang, "ক্লিপটি পথে নষ্ট হয়েছে।", "The clip was damaged on the way.",
                         status=422, code="bad_digest")
         meta = dict(raw_meta, sha256=digest)
+        ttl = PCV.keep_s(ev.camera, now) if phone else _clip_ttl(ev, now)
         clip = ShopEventClip(event=ev, meta=meta, size=len(raw), sha256=digest,
-                             expires_at=now + timedelta(seconds=_clip_ttl(ev, now)))
+                             expires_at=now + timedelta(seconds=ttl))
         clip.blob.save("e%d_%s.bin" % (ev.id, ref[:12]), ContentFile(raw), save=False)
         try:
             clip.save()
@@ -205,6 +206,7 @@ class ShopClipUploadView(APIView):
             return Response({"ok": True, "duplicate": True, "event_id": ev.id})
         if phone:
             PCV.count_bytes(ev.camera, len(raw), now)
+            PCV.enforce_store(ev.camera, now)   # H: per-camera cloud cost cap
         return Response({"ok": True, "event_id": ev.id, "size": len(raw),
                          "expires_at": SV._iso(clip.expires_at)}, status=201)
 
