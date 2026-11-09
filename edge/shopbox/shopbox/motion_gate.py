@@ -190,7 +190,7 @@ def mask_from_polygon(poly) -> Optional[np.ndarray]:
 
 # ------------------------------------------------------------ cctvacc2
 # The phone's SECOND, pixel-level check — the phone port of the Shop Box's
-# pixel path (motion.py: background difference (box 25, phone 32), learn 0.05,
+# pixel path (motion.py: background difference (box 25, phone 40), learn 0.05,
 # scene change when >= 60 % of pixels change, minimum blob size), adapted to
 # the phone pipeline: an 80 x 60 plane sampled from the camera's Y plane
 # (3 x 3 points per pixel — about 43 k reads per frame, cheap on 2 GB
@@ -203,7 +203,7 @@ def mask_from_polygon(poly) -> Optional[np.ndarray]:
 PIX_W = 80
 PIX_H = 60
 PIX_SAMPLES = 3
-PIX_DIFF = 32.0          # phone (noisier sampled plane); CI sweep 42655119773
+PIX_DIFF = 40.0          # phone (noisier sampled plane); CI 42672672391 dev sweep
 PIX_BOX_DIFF = 25.0      # the Shop Box pixel path (motion.py diff_threshold)
 PIX_LEARN = 0.05
 PIX_SCENE_FRAC = 0.6

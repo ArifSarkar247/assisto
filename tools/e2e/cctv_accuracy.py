@@ -401,7 +401,7 @@ def _closed_ts():
     return datetime(2026, 10, 19, 23, 30, tzinfo=ZoneInfo("Asia/Dhaka")).timestamp()
 
 
-PIX_SWEEP = [(25.0, 6), (40.0, 6), (32.0, 12)]    # diagnostic only (production = JSON)
+PIX_SWEEP = [(25.0, 6), (32.0, 6), (48.0, 6)]    # diagnostic only (production = JSON)
 
 
 def run_methods(frames):
