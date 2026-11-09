@@ -45713,5 +45713,13 @@
   "fcsDndChannelDesc": "Family SOS alarms that ring even in Do Not Disturb (you allowed it).",
   "@fcsDndChannelDesc": {
     "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "wmPcDownloadHint": "No Shop Box program on the PC yet? Open this page on the PC to download it (Windows 10/11):",
+  "@wmPcDownloadHint": {
+    "description": "cctvtoday: pairing sheet line above the Shop Box PC download page link"
+  },
+  "wmPcDownloadShare": "Send the download link to the PC",
+  "@wmPcDownloadShare": {
+    "description": "cctvtoday: share the Shop Box PC download page link (to WhatsApp/email, to open on the PC)"
   }
 }
