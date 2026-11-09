@@ -235,9 +235,13 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
                   premium: premium,
                   offline: _offline.contains('${m['id']}'),
                   downloading: _downloading == '${m['id']}',
-                  onFull: () => premium || _offline.contains('${m['id']}')
-                      ? _open(LpMockRunner(mock: m, sections: kLpSections, full: true))
-                      : lpGateSheet(context, 'premium'),
+                  onFull: () {
+                    if (premium || _offline.contains('${m['id']}')) {
+                      _open(LpMockRunner(mock: m, sections: kLpSections, full: true));
+                    } else {
+                      lpGateSheet(context, 'premium');
+                    }
+                  },
                   onSection: (s) => _open(LpMockRunner(mock: m, sections: [s], full: false)),
                   onDownload: () => _download(m),
                 ),
