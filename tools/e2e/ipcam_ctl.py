@@ -189,6 +189,7 @@ def _arm_new_cameras():
 
 def _live_thread():
     cam_id = None
+    django_setup()  # before any core.* import in this thread
     for _ in range(1800):  # the APK build + emulator boot come first (up to 60 min)
         try:
             _arm_new_cameras()
@@ -196,8 +197,9 @@ def _live_thread():
             if evs and cams:
                 cam_id = cams[0]["id"]
                 break
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as e:  # noqa: BLE001
+            LIVE["loop_error"] = "%s: %s" % (type(e).__name__, str(e)[:200])
+            print("loop error", LIVE["loop_error"], flush=True)
         time.sleep(2)
     if cam_id is None:
         LIVE["error"] = "no alert, no live probe"
@@ -248,7 +250,9 @@ def check():
     if os.path.exists(p):
         with open(p) as f:
             live = json.load(f)
-    ours = [e for e in evs if e["source"] == "ip_camera_via_phone"]
+    # the server keeps only known signal keys; every event of this site comes
+    # from the one phone camera the Guard Box claimed
+    ours = [e for e in evs if any(c["id"] == e["camera"] for c in cams)]
     proof = {
         "phone_cameras": [{"id": c["id"], "caps": (c["device_info"] or {}).get("caps")} for c in cams],
         "events": evs,

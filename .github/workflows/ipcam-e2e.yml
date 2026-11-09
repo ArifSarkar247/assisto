@@ -115,7 +115,7 @@ jobs:
             python3 -c "import json;d=json.load(open('$E2E_DIR/ipcam_proof.json'));print('events:',[(e['type'],e['source'],e['detector'],e['snapshot']) for e in d['events']]);print('live:',d['live'])" 2>/dev/null || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-          python3 -c "import json,sys;d=json.load(open('$E2E_DIR/ipcam_proof.json'));sys.exit(0 if d['alert_with_photo'] else 1)"
+          python3 -c "import json,sys;d=json.load(open('$E2E_DIR/ipcam_proof.json'));sys.exit(0 if d['alert_with_photo'] and d['live_pictures_ok'] else 1)"
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
