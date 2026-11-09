@@ -65,6 +65,8 @@ import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import 'package:assisto/screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_share_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_child_school_screen.dart'; // sjlive
+import 'package:assisto/screens/safe_journey/kids_corner.dart'; // sjkids
+import 'fake_sjkids.dart'; // sjkids
 import 'package:assisto/screens/guardian_request_screen.dart'; // sjlive
 import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
@@ -875,6 +877,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'sjl_share': (build: (_) => const SjShareScreen(oem: _ShotOem()), mode: FakeMode.data, full: true),
     'sjl_school': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.data, full: true),
     'sjl_school_empty': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.empty, full: true),
+    // sjkids: Children Corner — the guardian question card, places list, add form
+    'sjkids_section': (build: (l) => Scaffold(appBar: AppBar(title: Text(l == 'bn' ? 'স্কুলে সন্তান' : 'Child School')), body: ListView(padding: const EdgeInsets.all(16), children: [Card(child: Padding(padding: const EdgeInsets.all(16), child: KidsCornerSection(plan: kcFakePlan(l), onChanged: () async {})))])), mode: FakeMode.data, full: true),
+    'sjkids_places': (build: (l) => KidsPlacesScreen(plan: kcFakePlan(l)), mode: FakeMode.data, full: true),
+    'sjkids_places_empty': (build: (l) => KidsPlacesScreen(plan: kcFakePlan(l, empty: true)), mode: FakeMode.data, full: true),
+    'sjkids_form': (build: (l) => Scaffold(body: SafeArea(child: KidsPlaceForm(place: kcFakePlaces(l)[1]))), mode: FakeMode.data, full: true),
     'sjl_request': (build: (l) => GuardianRequestScreen(locationOnly: true, people: [
           {'member_id': 3, 'name': l == 'bn' ? 'আম্মু' : 'Ammu'},
           {'member_id': 4, 'name': l == 'bn' ? 'রিনা' : 'Rina'},
