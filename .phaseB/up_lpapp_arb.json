@@ -1,0 +1,1437 @@
+{
+ "en": {
+  "lp2Listen": "Listen",
+  "@lp2Listen": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeLabel": "Practice score — not an official IELTS result.",
+  "@lp2PracticeLabel": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotScored": "Not scored",
+  "@lp2NotScored": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TimeLeft": "Time left {time}",
+  "@lp2TimeLeft": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2HoldHint": "Hold the button while you speak, then let go.",
+  "@lp2HoldHint": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NothingHeard": "The phone did not hear any words. Hold the button and speak a little louder.",
+  "@lp2NothingHeard": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2HoldToSpeak": "Hold to speak",
+  "@lp2HoldToSpeak": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Listening": "Listening… let go when you finish",
+  "@lp2Listening": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2FixTitle": "Better way to say it",
+  "@lp2FixTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PronPercent": "Pronunciation {percent}%",
+  "@lp2PronPercent": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "percent": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2MistakeSpelling": "Spelling",
+  "@lp2MistakeSpelling": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakePlural": "Plural / singular",
+  "@lp2MistakePlural": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeWordLimit": "Word limit",
+  "@lp2MistakeWordLimit": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeTfng": "True / False / Not Given",
+  "@lp2MistakeTfng": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeMap": "Map / plan",
+  "@lp2MistakeMap": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeMatching": "Matching",
+  "@lp2MistakeMatching": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeBlank": "Left blank",
+  "@lp2MistakeBlank": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeOther": "Other",
+  "@lp2MistakeOther": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipSpelling": "A wrong spelling gets zero. Write the 20 most common IELTS words (accommodation, government, environment…) daily.",
+  "@lp2TipSpelling": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipPlural": "Listen for the final s sound and check the word before the gap (a / many / several).",
+  "@lp2TipPlural": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipWordLimit": "Read the instruction: NO MORE THAN TWO WORDS means three words are wrong, even if the meaning is right.",
+  "@lp2TipWordLimit": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipTfng": "FALSE = the text says the opposite. NOT GIVEN = the text says nothing about it. Do not use your own knowledge.",
+  "@lp2TipTfng": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipMap": "Before the audio, find the start point and learn the words: opposite, next to, behind, at the end of.",
+  "@lp2TipMap": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipMatching": "Underline the key word in each option; the text uses other words with the same meaning.",
+  "@lp2TipMatching": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipBlank": "Never leave a blank — a guess can still be right. Watch the timer and move on.",
+  "@lp2TipBlank": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipOther": "Check the meaning again in the text or transcript and note why the key is right.",
+  "@lp2TipOther": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ProgressOffline": "Your progress could not load. You can still practise; it saves when you are back online.",
+  "@lp2ProgressOffline": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2IeltsTitle": "IELTS",
+  "@lp2IeltsTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2IeltsBody": "Full mock tests with the real timer, section practice, Writing and Speaking scoring with Bangla explanations, and a companion for your own book.",
+  "@lp2IeltsBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LastMock": "Last mock: band {band}",
+  "@lp2LastMock": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "band": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2MockTests": "Mock tests",
+  "@lp2MockTests": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookCompanion": "Book companion",
+  "@lp2BookCompanion": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeTitle": "Life English",
+  "@lp2LifeTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeBody": "Speak with confidence at the airport, embassy, market, hospital, bank and job interview — learnt from Bangla.",
+  "@lp2LifeBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeDone": "{count} of 10 situations practised",
+  "@lp2LifeDone": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2LifeStart": "Start",
+  "@lp2LifeStart": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadTitle": "Going abroad",
+  "@lp2AbroadTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadJapan": "Japan · JLPT / JFT",
+  "@lp2AbroadJapan": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadKorea": "Korea · EPS-TOPIK",
+  "@lp2AbroadKorea": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadGermany": "Germany · A1 visa",
+  "@lp2AbroadGermany": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadGulf": "Middle East · work Arabic",
+  "@lp2AbroadGulf": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OtherLangTitle": "Other languages",
+  "@lp2OtherLangTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangGerman": "German",
+  "@lp2LangGerman": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangFrench": "French",
+  "@lp2LangFrench": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangSpanish": "Spanish",
+  "@lp2LangSpanish": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangArabic": "Arabic",
+  "@lp2LangArabic": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangJapanese": "Japanese",
+  "@lp2LangJapanese": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangKorean": "Korean",
+  "@lp2LangKorean": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangChinese": "Chinese",
+  "@lp2LangChinese": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoalTitle": "Today's goal",
+  "@lp2GoalTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Streak": "{count}-day streak",
+  "@lp2Streak": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2StreakBest": "Best: {count} days",
+  "@lp2StreakBest": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2GoalDone": "Goal done for today — well done! Come back tomorrow to keep your streak.",
+  "@lp2GoalDone": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoalMin": "{done} of {goal} minutes today",
+  "@lp2GoalMin": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "goal": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2VocabOpen": "Today's words",
+  "@lp2VocabOpen": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NextStageTitle": "{language} opens in the next stage",
+  "@lp2NextStageTitle": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "language": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2NextStageBody": "We are building a full course taught from Bangla, level by level, with practice tests. Start with English today — the same daily habit carries over.",
+  "@lp2NextStageBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NextStageCta": "Practise Life English now",
+  "@lp2NextStageCta": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Close": "Close",
+  "@lp2Close": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabTitle": "Vocabulary",
+  "@lp2VocabTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ContentFail": "The lessons could not open. Please try again.",
+  "@lp2ContentFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabToday": "Today's review",
+  "@lp2VocabToday": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabAllDone": "All done for today. New words unlock tomorrow.",
+  "@lp2VocabAllDone": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDue": "{count} words are waiting: words to review and up to 10 new ones.",
+  "@lp2VocabDue": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2VocabLearned": "{learned} of {total} learned",
+  "@lp2VocabLearned": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "learned": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2VocabComeBack": "Come back tomorrow",
+  "@lp2VocabComeBack": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabStart": "Start review",
+  "@lp2VocabStart": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabIelts": "IELTS",
+  "@lp2VocabIelts": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabLife": "Life",
+  "@lp2VocabLife": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDoneTitle": "Session complete",
+  "@lp2VocabDoneTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDoneBody": "You knew {knew} of {total}. Words you missed come back sooner, so they stick.",
+  "@lp2VocabDoneBody": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "knew": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Done": "Done",
+  "@lp2Done": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ShowMeaning": "Show meaning",
+  "@lp2ShowMeaning": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotYet": "Not yet",
+  "@lp2NotYet": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2KnewIt": "I knew it",
+  "@lp2KnewIt": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabHow": "Say the meaning in your head first, then check. Words you know come back after 2, 4, 7 and 15 days.",
+  "@lp2VocabHow": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeIntro": "Pick a situation. Learn the key sentences with Bangla meaning, listen, then practise talking with the officer or seller.",
+  "@lp2LifeIntro": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeOffline": "Sentences, words and guided practice work without internet.",
+  "@lp2LifeOffline": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeRole": "You talk with: {role}",
+  "@lp2LifeRole": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "role": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2KeySentences": "Key sentences",
+  "@lp2KeySentences": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Words": "Words",
+  "@lp2Words": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Goals": "You will be able to",
+  "@lp2Goals": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SayIt": "Say it",
+  "@lp2SayIt": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2StartRolePlay": "Practise with the {role}",
+  "@lp2StartRolePlay": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "role": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2SayClearer": "Say these words more clearly: {words}",
+  "@lp2SayClearer": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "words": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2PronHow": "Your phone's own speech recognition checks which words it heard as you meant them. Free, and the microphone is on only while you hold the button.",
+  "@lp2PronHow": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiFail": "The AI could not answer right now. Nothing was charged. Please try again.",
+  "@lp2AiFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiNoCredits": "Today's free AI turns are used and you have no credits left. Guided practice is always free.",
+  "@lp2AiNoCredits": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiPremium": "AI scoring is part of Premium. Guided practice and vocabulary stay free.",
+  "@lp2AiPremium": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiNotConnected": "AI conversation is not switched on yet. Use guided practice — it works fully on your phone.",
+  "@lp2AiNotConnected": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiBusy": "The AI is busy right now. Nothing was charged. Try again in a minute, or use guided practice.",
+  "@lp2AiBusy": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2GuidedInstead": "Use guided practice",
+  "@lp2GuidedInstead": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SeePlans": "See plans",
+  "@lp2SeePlans": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SayItRight": "Say it right",
+  "@lp2SayItRight": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ModeAi": "AI conversation",
+  "@lp2ModeAi": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ModeGuided": "Guided practice",
+  "@lp2ModeGuided": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Thinking": "The {role} is answering…",
+  "@lp2Thinking": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "role": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2GuidedDone": "Well done — you answered every question. Try again to raise your pronunciation score, or talk freely with the AI.",
+  "@lp2GuidedDone": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Again": "Again",
+  "@lp2Again": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TypeAnswer": "Type your answer",
+  "@lp2TypeAnswer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Send": "Send",
+  "@lp2Send": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2You": "You",
+  "@lp2You": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoodEnglish": "Good English!",
+  "@lp2GoodEnglish": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritTA": "Task achievement",
+  "@lp2CritTA": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritTR": "Task response",
+  "@lp2CritTR": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritCC": "Coherence and cohesion",
+  "@lp2CritCC": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritLR": "Vocabulary (Lexical resource)",
+  "@lp2CritLR": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritGRA": "Grammar range and accuracy",
+  "@lp2CritGRA": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritFC": "Fluency and coherence",
+  "@lp2CritFC": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritP": "Pronunciation",
+  "@lp2CritP": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiCut": "The answer was too long to score in one go. Nothing was charged — shorten it a little and try again.",
+  "@lp2AiCut": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiUnreadable": "The answer could not be read as English. Nothing was charged — check it and try again.",
+  "@lp2AiUnreadable": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2BandIs": "Band {band}",
+  "@lp2BandIs": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "band": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Mistakes": "{count} mistakes to fix",
+  "@lp2Mistakes": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Corrected": "Corrected version",
+  "@lp2Corrected": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CreditsUsed": "{count} credits used",
+  "@lp2CreditsUsed": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2NeedPromptAnswer": "Type the question from your book and your answer first.",
+  "@lp2NeedPromptAnswer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TooShort": "Write at least 40 words so the score means something.",
+  "@lp2TooShort": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreWriting": "Score a Writing answer",
+  "@lp2ScoreWriting": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreSpeaking": "Score a Speaking answer",
+  "@lp2ScoreSpeaking": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TaskN": "Task {n}",
+  "@lp2TaskN": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2PartN": "Part {n}",
+  "@lp2PartN": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Academic": "Academic",
+  "@lp2Academic": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2General": "General Training",
+  "@lp2General": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PromptLabel": "Question from your book",
+  "@lp2PromptLabel": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PromptHelp": "Used only for this score; the app does not keep it.",
+  "@lp2PromptHelp": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2YourAnswer": "Your answer",
+  "@lp2YourAnswer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WhatPhoneHeard": "What the phone heard (you can fix it)",
+  "@lp2WhatPhoneHeard": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordCount": "{count} words",
+  "@lp2WordCount": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2BestLevel": "Best scoring",
+  "@lp2BestLevel": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2BestLevelSub": "More detailed feedback from our strongest AI; uses more credits.",
+  "@lp2BestLevelSub": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreMyAnswer": "Score my answer",
+  "@lp2ScoreMyAnswer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoContentLine": "Questions, audio and answers are not kept in the app. Use your own book.",
+  "@lp2NoContentLine": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeekUsed": "Your free mock section for this week is used. The next one is free from {date}. Premium opens every full mock now.",
+  "@lp2WeekUsed": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2FullIsPremium": "Full mock tests with the real timer and AI Writing and Speaking scoring are part of Premium. On the free plan you can practise one mock section a week.",
+  "@lp2FullIsPremium": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2FreeMeanwhile": "Practise vocabulary for free",
+  "@lp2FreeMeanwhile": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineRemoved": "Removed from this phone.",
+  "@lp2OfflineRemoved": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineSaved": "Saved on this phone. You can take this test without internet; scoring needs internet.",
+  "@lp2OfflineSaved": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2DownloadFail": "The download did not finish. Check the internet and try again.",
+  "@lp2DownloadFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakAreas": "Weak areas",
+  "@lp2WeakAreas": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2FreeLeft": "Free plan: {count} mock section left this week",
+  "@lp2FreeLeft": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2FreeLeftSub": "Premium opens full mocks and AI scoring. Tap to see plans.",
+  "@lp2FreeLeftSub": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MocksFail": "The mock tests could not load. Downloaded tests still work offline.",
+  "@lp2MocksFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoMocksTitle": "New mock tests are being prepared",
+  "@lp2NoMocksTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoMocksBody": "Each test is checked before it appears here. Meanwhile, practise with your own book in the book companion.",
+  "@lp2NoMocksBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MocksOriginal": "All mock tests are original Assisto practice material in the real exam format. Scores are practice scores, not official IELTS results.",
+  "@lp2MocksOriginal": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineRemove": "Remove download",
+  "@lp2OfflineRemove": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Download": "Download for offline",
+  "@lp2Download": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Beta": "Beta · under review",
+  "@lp2Beta": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Offline": "On this phone",
+  "@lp2Offline": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2FullMock": "Full mock · 2 h 45 min",
+  "@lp2FullMock": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeOne": "Or practise one section:",
+  "@lp2PracticeOne": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveTitle": "Leave the test?",
+  "@lp2LeaveTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveBody": "Your answers in this test will be lost.",
+  "@lp2LeaveBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeepGoing": "Keep going",
+  "@lp2KeepGoing": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveTest": "Leave",
+  "@lp2LeaveTest": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Marking": "Marking {section}…",
+  "@lp2Marking": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "section": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2OnlyOneTask": "Only one task was answered — the real exam needs both.",
+  "@lp2OnlyOneTask": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotAnswered": "Not answered",
+  "@lp2NotAnswered": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Summary": "Writing your summary…",
+  "@lp2Summary": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MarkFail": "Marking did not finish. Your answers are kept — check the internet and try again.",
+  "@lp2MarkFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoringWait": "This takes up to a minute. Please keep the app open.",
+  "@lp2ScoringWait": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2FullStep": "Full mock · section {step} of {total}",
+  "@lp2FullStep": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "step": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2PracticeMode": "Section practice",
+  "@lp2PracticeMode": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TimeUp": "Time is up. Your answers were submitted.",
+  "@lp2TimeUp": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Resume": "Resume",
+  "@lp2Resume": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Pause": "Pause",
+  "@lp2Pause": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Paused": "Paused",
+  "@lp2Paused": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SubmitFinish": "Submit and see my score",
+  "@lp2SubmitFinish": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SubmitNext": "Submit and go to the next section",
+  "@lp2SubmitNext": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MaxWords": "No more than {count} words",
+  "@lp2MaxWords": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Right": "Correct",
+  "@lp2Right": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ChooseMany": "Choose all the right answers.",
+  "@lp2ChooseMany": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SectionEmpty": "This section has no questions yet.",
+  "@lp2SectionEmpty": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Answered": "{done} of {total} answered",
+  "@lp2Answered": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "done": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2PassageN": "Passage {n}",
+  "@lp2PassageN": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Passage": "Passage",
+  "@lp2Passage": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Questions": "Questions",
+  "@lp2Questions": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioFail": "The audio could not play. Check the internet or download the test first.",
+  "@lp2AudioFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioMissing": "The audio for this part is not ready yet.",
+  "@lp2AudioMissing": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PlayAudio": "Play the recording",
+  "@lp2PlayAudio": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPlayedOnce": "Played — like the real exam, you hear it once",
+  "@lp2AudioPlayedOnce": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPlaying": "Playing…",
+  "@lp2AudioPlaying": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPractice": "Practice mode: you can replay.",
+  "@lp2AudioPractice": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioOnce": "Exam mode: the recording plays once.",
+  "@lp2AudioOnce": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WritingHint": "Spend about 20 minutes on Task 1 and 40 minutes on Task 2. Task 2 counts double.",
+  "@lp2WritingHint": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ImageFail": "The picture could not load.",
+  "@lp2ImageFail": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordsOfMin": "{count} words (at least {min})",
+  "@lp2WordsOfMin": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    },
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2StartPrep": "Start 1 minute of preparation",
+  "@lp2StartPrep": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Prep": "Prepare",
+  "@lp2Prep": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SkipPrep": "Start talking",
+  "@lp2SkipPrep": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TalkNow": "Talk now",
+  "@lp2TalkNow": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2QuestionOf": "Question {n} of {total}",
+  "@lp2QuestionOf": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2NextQuestion": "Next question",
+  "@lp2NextQuestion": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2SpeakingHow": "Hold the button and answer aloud like in the real test. The phone writes down what it hears; the AI scores fluency, vocabulary, grammar and pronunciation from it.",
+  "@lp2SpeakingHow": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CommentNone": "Finish a section to get your coach comment.",
+  "@lp2CommentNone": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2RuleComment": "Your weakest section is {section} (band {band}). Improving it by half a band raises your overall the fastest — start with the weak-area practice below.",
+  "@lp2RuleComment": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "section": {
+     "type": "String"
+    },
+    "band": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ResultTitle": "Your result",
+  "@lp2ResultTitle": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OverallNeedsAll": "The overall band needs all four sections.",
+  "@lp2OverallNeedsAll": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OverallBand": "Overall band {band}",
+  "@lp2OverallBand": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "band": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Overall": "Overall",
+  "@lp2Overall": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotTaken": "Not taken this time",
+  "@lp2NotTaken": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2CoachComment": "Coach comment",
+  "@lp2CoachComment": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeWeak": "Practise weak areas",
+  "@lp2PracticeWeak": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2ReviewAnswers": "Review {section} answers",
+  "@lp2ReviewAnswers": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "section": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ItemLine": "{n}. You: {your} · Answer: {key}",
+  "@lp2ItemLine": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "your": {
+     "type": "String"
+    },
+    "key": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2WeakEmpty": "No practice questions for this area yet",
+  "@lp2WeakEmpty": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakEmptyBody": "Take a mock section first — your mistakes decide what you practise here.",
+  "@lp2WeakEmptyBody": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakIntro": "These questions target the mistakes from your last test.",
+  "@lp2WeakIntro": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakScore": "{right} of {total} right",
+  "@lp2WeakScore": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "right": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2CheckAnswers": "Check answers",
+  "@lp2CheckAnswers": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MoreQuestions": "More questions",
+  "@lp2MoreQuestions": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeyNeeded": "Type the answer key from your book first.",
+  "@lp2KeyNeeded": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2Book": "Your IELTS book",
+  "@lp2Book": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookN": "Book {n}",
+  "@lp2BookN": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2Test": "Test",
+  "@lp2Test": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2TestN": "Test {n}",
+  "@lp2TestN": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ExamTimer": "Exam timer · {minutes} min",
+  "@lp2ExamTimer": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2StartTimer": "Start timer",
+  "@lp2StartTimer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepAnswer": "Step 1: start the timer, do the test from your book and fill in the answer sheet.",
+  "@lp2OmrStepAnswer": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepKey": "Step 2: copy the answer key from the back of your book. Use / for other accepted answers.",
+  "@lp2OmrStepKey": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepResult": "Step 3: see your band and the type of every mistake.",
+  "@lp2OmrStepResult": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordLimit": "Word limit:",
+  "@lp2WordLimit": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoLimit": "None",
+  "@lp2NoLimit": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MapRange": "Map / plan questions",
+  "@lp2MapRange": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2From": "from",
+  "@lp2From": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2To": "to",
+  "@lp2To": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2EnterKey": "I'm done — enter the key",
+  "@lp2EnterKey": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2MarkSheet": "Mark my sheet",
+  "@lp2MarkSheet": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2NewSheet": "New answer sheet",
+  "@lp2NewSheet": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookWS": "Writing and Speaking from your book",
+  "@lp2BookWS": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeyHint": "key",
+  "@lp2KeyHint": {
+   "description": "lpapp: Language Partner V2"
+  },
+  "lp2YouWrote": "You: {answer}",
+  "@lp2YouWrote": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "answer": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2KeyWas": "Key: {key}",
+  "@lp2KeyWas": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "key": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2RawScore": "{raw} of {total} correct",
+  "@lp2RawScore": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "raw": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ScaledNote": "Only {count} questions had a key, so the band is an estimate scaled to 40.",
+  "@lp2ScaledNote": {
+   "description": "lpapp: Language Partner V2",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2MistakeTypes": "Mistake types",
+  "@lp2MistakeTypes": {
+   "description": "lpapp: Language Partner V2"
+  }
+ },
+ "bn": {
+  "lp2Listen": "শুনুন",
+  "lp2PracticeLabel": "অনুশীলনের স্কোর — অফিসিয়াল IELTS ফল নয়।",
+  "lp2NotScored": "স্কোর হয়নি",
+  "lp2TimeLeft": "বাকি সময় {time}",
+  "lp2HoldHint": "কথা বলার সময় বোতামটি চেপে ধরে রাখুন, শেষ হলে ছেড়ে দিন।",
+  "lp2NothingHeard": "ফোন কোনো শব্দ শুনতে পায়নি। বোতাম চেপে ধরে একটু জোরে বলুন।",
+  "lp2HoldToSpeak": "চেপে ধরে বলুন",
+  "lp2Listening": "শুনছি… শেষ হলে ছেড়ে দিন",
+  "lp2FixTitle": "আরও ভালোভাবে বলুন",
+  "lp2PronPercent": "উচ্চারণ {percent}%",
+  "lp2MistakeSpelling": "বানান",
+  "lp2MistakePlural": "বহুবচন / একবচন",
+  "lp2MistakeWordLimit": "শব্দসীমা",
+  "lp2MistakeTfng": "True / False / Not Given গুলিয়ে ফেলা",
+  "lp2MistakeMap": "ম্যাপ / নকশা",
+  "lp2MistakeMatching": "মিলানো (ম্যাচিং)",
+  "lp2MistakeBlank": "খালি রাখা",
+  "lp2MistakeOther": "অন্যান্য",
+  "lp2TipSpelling": "ভুল বানানে নম্বর শূন্য। IELTS-এর সবচেয়ে বেশি আসা শব্দগুলো (accommodation, government, environment…) প্রতিদিন লিখে অনুশীলন করুন।",
+  "lp2TipPlural": "শেষের s ধ্বনি খেয়াল করুন, আর ফাঁকের আগের শব্দ (a / many / several) দেখে একবচন না বহুবচন বুঝুন।",
+  "lp2TipWordLimit": "নির্দেশনা পড়ুন: NO MORE THAN TWO WORDS মানে তিন শব্দ লিখলে অর্থ ঠিক হলেও ভুল।",
+  "lp2TipTfng": "FALSE = লেখায় উল্টো কথা আছে। NOT GIVEN = লেখায় এ নিয়ে কিছুই নেই। নিজের জানা তথ্য ব্যবহার করবেন না।",
+  "lp2TipMap": "অডিও শুরুর আগে শুরুর জায়গাটা খুঁজে নিন, আর opposite, next to, behind, at the end of — এই শব্দগুলো শিখে রাখুন।",
+  "lp2TipMatching": "প্রতিটি অপশনের মূল শব্দ দাগ দিন; লেখায় একই অর্থের অন্য শব্দ থাকে।",
+  "lp2TipBlank": "কখনো খালি রাখবেন না — আন্দাজেও ঠিক হতে পারে। টাইমার দেখে পরের প্রশ্নে যান।",
+  "lp2TipOther": "লেখা বা ট্রান্সক্রিপ্টে আবার অর্থটা দেখুন, আর কেন উত্তরটা ঠিক তা লিখে রাখুন।",
+  "lp2ProgressOffline": "আপনার অগ্রগতি লোড হয়নি। তবুও অনুশীলন করতে পারবেন; নেট ফিরলে সেভ হবে।",
+  "lp2IeltsTitle": "IELTS",
+  "lp2IeltsBody": "আসল টাইমারসহ পূর্ণ মক টেস্ট, সেকশন অনুশীলন, বাংলা ব্যাখ্যাসহ রাইটিং ও স্পিকিং স্কোর, আর আপনার নিজের বইয়ের সঙ্গী।",
+  "lp2LastMock": "শেষ মক: ব্যান্ড {band}",
+  "lp2MockTests": "মক টেস্ট",
+  "lp2BookCompanion": "বই সঙ্গী",
+  "lp2LifeTitle": "জীবনের ইংরেজি",
+  "lp2LifeBody": "এয়ারপোর্ট, দূতাবাস, বাজার, হাসপাতাল, ব্যাংক আর চাকরির ইন্টারভিউতে আত্মবিশ্বাসের সাথে কথা বলুন — বাংলা থেকে শিখে।",
+  "lp2LifeDone": "১০টির মধ্যে {count}টি পরিস্থিতি অনুশীলন হয়েছে",
+  "lp2LifeStart": "শুরু করুন",
+  "lp2AbroadTitle": "বিদেশে যাচ্ছেন",
+  "lp2AbroadJapan": "জাপান · JLPT / JFT",
+  "lp2AbroadKorea": "কোরিয়া · EPS-TOPIK",
+  "lp2AbroadGermany": "জার্মানি · A1 ভিসা",
+  "lp2AbroadGulf": "মধ্যপ্রাচ্য · কাজের আরবি",
+  "lp2OtherLangTitle": "অন্যান্য ভাষা",
+  "lp2LangGerman": "জার্মান",
+  "lp2LangFrench": "ফরাসি",
+  "lp2LangSpanish": "স্প্যানিশ",
+  "lp2LangArabic": "আরবি",
+  "lp2LangJapanese": "জাপানি",
+  "lp2LangKorean": "কোরিয়ান",
+  "lp2LangChinese": "চীনা",
+  "lp2GoalTitle": "আজকের লক্ষ্য",
+  "lp2Streak": "টানা {count} দিন",
+  "lp2StreakBest": "সেরা: {count} দিন",
+  "lp2GoalDone": "আজকের লক্ষ্য পূরণ — দারুণ! ধারা ধরে রাখতে কাল আবার আসুন।",
+  "lp2GoalMin": "আজ {goal} মিনিটের মধ্যে {done} মিনিট",
+  "lp2VocabOpen": "আজকের শব্দ",
+  "lp2NextStageTitle": "{language} পরের ধাপে চালু হবে",
+  "lp2NextStageBody": "বাংলা থেকে ধাপে ধাপে শেখানো পূর্ণ কোর্স ও অনুশীলন টেস্ট তৈরি হচ্ছে। আজ ইংরেজি দিয়ে শুরু করুন — প্রতিদিনের অভ্যাসটাই কাজে লাগবে।",
+  "lp2NextStageCta": "এখনই জীবনের ইংরেজি অনুশীলন করুন",
+  "lp2Close": "বন্ধ করুন",
+  "lp2VocabTitle": "শব্দভান্ডার",
+  "lp2ContentFail": "পাঠ খোলা যায়নি। আবার চেষ্টা করুন।",
+  "lp2VocabToday": "আজকের রিভিউ",
+  "lp2VocabAllDone": "আজকের সব শেষ। নতুন শব্দ কাল খুলবে।",
+  "lp2VocabDue": "{count}টি শব্দ অপেক্ষা করছে: রিভিউয়ের শব্দ আর সর্বোচ্চ ১০টি নতুন শব্দ।",
+  "lp2VocabLearned": "{total}টির মধ্যে {learned}টি শেখা হয়েছে",
+  "lp2VocabComeBack": "কাল আবার আসুন",
+  "lp2VocabStart": "রিভিউ শুরু করুন",
+  "lp2VocabIelts": "IELTS",
+  "lp2VocabLife": "দৈনন্দিন জীবন",
+  "lp2VocabDoneTitle": "সেশন শেষ",
+  "lp2VocabDoneBody": "{total}টির মধ্যে {knew}টি জানতেন। যেগুলো ভুল হয়েছে সেগুলো আগে ফিরে আসবে, যাতে মনে থাকে।",
+  "lp2Done": "শেষ",
+  "lp2ShowMeaning": "অর্থ দেখুন",
+  "lp2NotYet": "এখনো না",
+  "lp2KnewIt": "জানতাম",
+  "lp2VocabHow": "আগে মনে মনে অর্থ বলুন, তারপর মিলিয়ে দেখুন। জানা শব্দ ২, ৪, ৭ ও ১৫ দিন পর আবার আসবে।",
+  "lp2LifeIntro": "একটি পরিস্থিতি বেছে নিন। বাংলা অর্থসহ মূল বাক্য শিখুন, শুনুন, তারপর অফিসার বা বিক্রেতার সাথে কথা বলার অনুশীলন করুন।",
+  "lp2LifeOffline": "বাক্য, শব্দ আর গাইডেড অনুশীলন ইন্টারনেট ছাড়াই চলে।",
+  "lp2LifeRole": "আপনি কথা বলবেন: {role}",
+  "lp2KeySentences": "মূল বাক্য",
+  "lp2Words": "শব্দ",
+  "lp2Goals": "আপনি পারবেন",
+  "lp2SayIt": "বলে দেখুন",
+  "lp2StartRolePlay": "{role}-এর সাথে অনুশীলন",
+  "lp2SayClearer": "এই শব্দগুলো আরও পরিষ্কার করে বলুন: {words}",
+  "lp2PronHow": "আপনার ফোনের নিজের স্পিচ রিকগনিশন দেখে কোন শব্দগুলো ঠিকভাবে শুনেছে। বিনা খরচে, আর বোতাম চেপে ধরলেই শুধু মাইক্রোফোন চালু থাকে।",
+  "lp2AiFail": "এই মুহূর্তে AI উত্তর দিতে পারেনি। কোনো ক্রেডিট কাটা হয়নি। আবার চেষ্টা করুন।",
+  "lp2AiNoCredits": "আজকের ফ্রি AI সুযোগ শেষ, আর আপনার ক্রেডিটও নেই। গাইডেড অনুশীলন সবসময় ফ্রি।",
+  "lp2AiPremium": "AI স্কোরিং প্রিমিয়ামের অংশ। গাইডেড অনুশীলন আর শব্দভান্ডার ফ্রি থাকবে।",
+  "lp2AiNotConnected": "AI কথোপকথন এখনো চালু হয়নি। গাইডেড অনুশীলন ব্যবহার করুন — এটা পুরোপুরি ফোনেই চলে।",
+  "lp2AiBusy": "AI এখন ব্যস্ত। কোনো ক্রেডিট কাটা হয়নি। এক মিনিট পর আবার চেষ্টা করুন, বা গাইডেড অনুশীলন করুন।",
+  "lp2GuidedInstead": "গাইডেড অনুশীলন করুন",
+  "lp2SeePlans": "প্ল্যান দেখুন",
+  "lp2SayItRight": "ঠিকভাবে বলুন",
+  "lp2ModeAi": "AI কথোপকথন",
+  "lp2ModeGuided": "গাইডেড অনুশীলন",
+  "lp2Thinking": "{role} উত্তর দিচ্ছেন…",
+  "lp2GuidedDone": "দারুণ — সব প্রশ্নের উত্তর দিয়েছেন। উচ্চারণের স্কোর বাড়াতে আবার করুন, অথবা AI-এর সাথে মুক্তভাবে কথা বলুন।",
+  "lp2Again": "আবার",
+  "lp2TypeAnswer": "উত্তর লিখুন",
+  "lp2Send": "পাঠান",
+  "lp2You": "আপনি",
+  "lp2GoodEnglish": "সুন্দর ইংরেজি!",
+  "lp2CritTA": "টাস্ক পূরণ (Task achievement)",
+  "lp2CritTR": "প্রশ্নের উত্তর (Task response)",
+  "lp2CritCC": "গোছানো ও সংযোগ (Coherence and cohesion)",
+  "lp2CritLR": "শব্দভান্ডার (Lexical resource)",
+  "lp2CritGRA": "ব্যাকরণ: বৈচিত্র্য ও নির্ভুলতা",
+  "lp2CritFC": "সাবলীলতা ও গোছানো (Fluency and coherence)",
+  "lp2CritP": "উচ্চারণ (Pronunciation)",
+  "lp2AiCut": "উত্তরটা একবারে স্কোর করার জন্য বেশি লম্বা। কোনো ক্রেডিট কাটা হয়নি — একটু ছোট করে আবার চেষ্টা করুন।",
+  "lp2AiUnreadable": "উত্তরটা ইংরেজি হিসেবে পড়া যায়নি। কোনো ক্রেডিট কাটা হয়নি — দেখে আবার চেষ্টা করুন।",
+  "lp2BandIs": "ব্যান্ড {band}",
+  "lp2Mistakes": "{count}টি ভুল ঠিক করুন",
+  "lp2Corrected": "সংশোধিত লেখা",
+  "lp2CreditsUsed": "{count} ক্রেডিট খরচ হয়েছে",
+  "lp2NeedPromptAnswer": "আগে বইয়ের প্রশ্নটা আর আপনার উত্তর লিখুন।",
+  "lp2TooShort": "স্কোরের অর্থ থাকতে অন্তত ৪০ শব্দ লিখুন।",
+  "lp2ScoreWriting": "রাইটিং উত্তর স্কোর করুন",
+  "lp2ScoreSpeaking": "স্পিকিং উত্তর স্কোর করুন",
+  "lp2TaskN": "টাস্ক {n}",
+  "lp2PartN": "পার্ট {n}",
+  "lp2Academic": "অ্যাকাডেমিক",
+  "lp2General": "জেনারেল ট্রেনিং",
+  "lp2PromptLabel": "আপনার বইয়ের প্রশ্ন",
+  "lp2PromptHelp": "শুধু এই স্কোরের জন্য; অ্যাপ এটা রাখে না।",
+  "lp2YourAnswer": "আপনার উত্তর",
+  "lp2WhatPhoneHeard": "ফোন যা শুনেছে (ঠিক করে নিতে পারেন)",
+  "lp2WordCount": "{count} শব্দ",
+  "lp2BestLevel": "সেরা স্কোরিং",
+  "lp2BestLevelSub": "আমাদের সবচেয়ে শক্তিশালী AI থেকে আরও বিস্তারিত মতামত; বেশি ক্রেডিট লাগে।",
+  "lp2ScoreMyAnswer": "আমার উত্তর স্কোর করুন",
+  "lp2NoContentLine": "প্রশ্ন, অডিও আর উত্তর অ্যাপে রাখা হয় না। নিজের বই ব্যবহার করুন।",
+  "lp2WeekUsed": "এই সপ্তাহের ফ্রি মক সেকশন ব্যবহার হয়ে গেছে। পরেরটা {date} থেকে ফ্রি। প্রিমিয়ামে এখনই সব পূর্ণ মক খুলবে।",
+  "lp2FullIsPremium": "আসল টাইমারসহ পূর্ণ মক টেস্ট আর AI রাইটিং-স্পিকিং স্কোর প্রিমিয়ামের অংশ। ফ্রি প্ল্যানে সপ্তাহে একটি মক সেকশন অনুশীলন করা যায়।",
+  "lp2FreeMeanwhile": "ফ্রিতে শব্দভান্ডার অনুশীলন করুন",
+  "lp2OfflineRemoved": "এই ফোন থেকে মুছে ফেলা হয়েছে।",
+  "lp2OfflineSaved": "এই ফোনে সেভ হয়েছে। ইন্টারনেট ছাড়াই টেস্ট দিতে পারবেন; স্কোরের জন্য ইন্টারনেট লাগবে।",
+  "lp2DownloadFail": "ডাউনলোড শেষ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "lp2WeakAreas": "দুর্বল দিক",
+  "lp2FreeLeft": "ফ্রি প্ল্যান: এই সপ্তাহে আর {count}টি মক সেকশন বাকি",
+  "lp2FreeLeftSub": "প্রিমিয়ামে পূর্ণ মক আর AI স্কোর খোলে। প্ল্যান দেখতে চাপুন।",
+  "lp2MocksFail": "মক টেস্ট লোড হয়নি। ডাউনলোড করা টেস্ট অফলাইনে চলবে।",
+  "lp2NoMocksTitle": "নতুন মক টেস্ট তৈরি হচ্ছে",
+  "lp2NoMocksBody": "প্রতিটি টেস্ট এখানে আসার আগে যাচাই হয়। এর মধ্যে বই সঙ্গীতে নিজের বই দিয়ে অনুশীলন করুন।",
+  "lp2MocksOriginal": "সব মক টেস্ট আসল পরীক্ষার ফরম্যাটে Assisto-র নিজস্ব অনুশীলন উপকরণ। স্কোর অনুশীলনের, অফিসিয়াল IELTS ফল নয়।",
+  "lp2OfflineRemove": "ডাউনলোড মুছুন",
+  "lp2Download": "অফলাইনের জন্য ডাউনলোড",
+  "lp2Beta": "বেটা · যাচাই চলছে",
+  "lp2Offline": "এই ফোনে আছে",
+  "lp2FullMock": "পূর্ণ মক · ২ ঘণ্টা ৪৫ মিনিট",
+  "lp2PracticeOne": "অথবা একটি সেকশন অনুশীলন করুন:",
+  "lp2LeaveTitle": "টেস্ট ছেড়ে যাবেন?",
+  "lp2LeaveBody": "এই টেস্টের উত্তরগুলো মুছে যাবে।",
+  "lp2KeepGoing": "চালিয়ে যান",
+  "lp2LeaveTest": "ছেড়ে যান",
+  "lp2Marking": "{section} মূল্যায়ন হচ্ছে…",
+  "lp2OnlyOneTask": "শুধু একটি টাস্কের উত্তর দেওয়া হয়েছে — আসল পরীক্ষায় দুটোই লাগে।",
+  "lp2NotAnswered": "উত্তর দেওয়া হয়নি",
+  "lp2Summary": "আপনার সারাংশ তৈরি হচ্ছে…",
+  "lp2MarkFail": "মূল্যায়ন শেষ হয়নি। উত্তরগুলো রাখা আছে — ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "lp2ScoringWait": "এতে এক মিনিট পর্যন্ত লাগতে পারে। অ্যাপটি খোলা রাখুন।",
+  "lp2FullStep": "পূর্ণ মক · {total}টির মধ্যে {step} নম্বর সেকশন",
+  "lp2PracticeMode": "সেকশন অনুশীলন",
+  "lp2TimeUp": "সময় শেষ। আপনার উত্তর জমা হয়েছে।",
+  "lp2Resume": "আবার শুরু",
+  "lp2Pause": "বিরতি",
+  "lp2Paused": "বিরতিতে আছে",
+  "lp2SubmitFinish": "জমা দিন ও স্কোর দেখুন",
+  "lp2SubmitNext": "জমা দিয়ে পরের সেকশনে যান",
+  "lp2MaxWords": "{count} শব্দের বেশি নয়",
+  "lp2Right": "সঠিক",
+  "lp2ChooseMany": "সব সঠিক উত্তর বেছে নিন।",
+  "lp2SectionEmpty": "এই সেকশনে এখনো প্রশ্ন নেই।",
+  "lp2Answered": "{total}টির মধ্যে {done}টির উত্তর দেওয়া হয়েছে",
+  "lp2PassageN": "প্যাসেজ {n}",
+  "lp2Passage": "প্যাসেজ",
+  "lp2Questions": "প্রশ্ন",
+  "lp2AudioFail": "অডিও চালানো যায়নি। ইন্টারনেট দেখুন অথবা আগে টেস্টটি ডাউনলোড করুন।",
+  "lp2AudioMissing": "এই পার্টের অডিও এখনো তৈরি হয়নি।",
+  "lp2PlayAudio": "রেকর্ডিং চালান",
+  "lp2AudioPlayedOnce": "শোনা হয়েছে — আসল পরীক্ষার মতো একবারই শোনা যায়",
+  "lp2AudioPlaying": "চলছে…",
+  "lp2AudioPractice": "অনুশীলন মোড: আবার শুনতে পারবেন।",
+  "lp2AudioOnce": "পরীক্ষা মোড: রেকর্ডিং একবারই চলবে।",
+  "lp2WritingHint": "টাস্ক ১-এ প্রায় ২০ মিনিট আর টাস্ক ২-এ ৪০ মিনিট দিন। টাস্ক ২-এর নম্বর দ্বিগুণ।",
+  "lp2ImageFail": "ছবিটি লোড হয়নি।",
+  "lp2WordsOfMin": "{count} শব্দ (কমপক্ষে {min})",
+  "lp2StartPrep": "১ মিনিটের প্রস্তুতি শুরু করুন",
+  "lp2Prep": "প্রস্তুতি",
+  "lp2SkipPrep": "বলা শুরু করুন",
+  "lp2TalkNow": "এখন বলুন",
+  "lp2QuestionOf": "{total}টির মধ্যে {n} নম্বর প্রশ্ন",
+  "lp2NextQuestion": "পরের প্রশ্ন",
+  "lp2SpeakingHow": "আসল পরীক্ষার মতো বোতাম চেপে ধরে জোরে উত্তর দিন। ফোন যা শোনে তা লিখে নেয়; সেখান থেকে AI সাবলীলতা, শব্দভান্ডার, ব্যাকরণ ও উচ্চারণের স্কোর দেয়।",
+  "lp2CommentNone": "কোচের মন্তব্য পেতে একটি সেকশন শেষ করুন।",
+  "lp2RuleComment": "আপনার সবচেয়ে দুর্বল সেকশন {section} (ব্যান্ড {band})। এটা আধা ব্যান্ড বাড়ালেই ওভারঅল সবচেয়ে দ্রুত বাড়বে — নিচের দুর্বল দিকের অনুশীলন দিয়ে শুরু করুন।",
+  "lp2ResultTitle": "আপনার ফল",
+  "lp2OverallNeedsAll": "ওভারঅল ব্যান্ডের জন্য চারটি সেকশনই লাগবে।",
+  "lp2OverallBand": "ওভারঅল ব্যান্ড {band}",
+  "lp2Overall": "ওভারঅল",
+  "lp2NotTaken": "এবার দেওয়া হয়নি",
+  "lp2CoachComment": "কোচের মন্তব্য",
+  "lp2PracticeWeak": "দুর্বল দিক অনুশীলন করুন",
+  "lp2ReviewAnswers": "{section}-এর উত্তর দেখুন",
+  "lp2ItemLine": "{n}. আপনি: {your} · উত্তর: {key}",
+  "lp2WeakEmpty": "এই বিষয়ে এখনো অনুশীলনের প্রশ্ন নেই",
+  "lp2WeakEmptyBody": "আগে একটি মক সেকশন দিন — আপনার ভুল দেখেই এখানে অনুশীলন ঠিক হবে।",
+  "lp2WeakIntro": "এই প্রশ্নগুলো আপনার শেষ টেস্টের ভুলগুলো ধরে বানানো।",
+  "lp2WeakScore": "{total}টির মধ্যে {right}টি সঠিক",
+  "lp2CheckAnswers": "উত্তর মিলিয়ে দেখুন",
+  "lp2MoreQuestions": "আরও প্রশ্ন",
+  "lp2KeyNeeded": "আগে আপনার বই থেকে উত্তরগুলো লিখুন।",
+  "lp2Book": "আপনার IELTS বই",
+  "lp2BookN": "বই {n}",
+  "lp2Test": "টেস্ট",
+  "lp2TestN": "টেস্ট {n}",
+  "lp2ExamTimer": "পরীক্ষার টাইমার · {minutes} মিনিট",
+  "lp2StartTimer": "টাইমার শুরু",
+  "lp2OmrStepAnswer": "ধাপ ১: টাইমার চালু করুন, বই থেকে টেস্ট দিন আর উত্তরপত্র পূরণ করুন।",
+  "lp2OmrStepKey": "ধাপ ২: বইয়ের পেছনের উত্তরগুলো লিখুন। একাধিক সঠিক উত্তর হলে / দিয়ে আলাদা করুন।",
+  "lp2OmrStepResult": "ধাপ ৩: আপনার ব্যান্ড আর প্রতিটি ভুলের ধরন দেখুন।",
+  "lp2WordLimit": "শব্দসীমা:",
+  "lp2NoLimit": "নেই",
+  "lp2MapRange": "ম্যাপ / নকশার প্রশ্ন",
+  "lp2From": "থেকে",
+  "lp2To": "পর্যন্ত",
+  "lp2EnterKey": "শেষ — উত্তর মিলাই",
+  "lp2MarkSheet": "আমার উত্তরপত্র মূল্যায়ন করুন",
+  "lp2NewSheet": "নতুন উত্তরপত্র",
+  "lp2BookWS": "আপনার বইয়ের রাইটিং ও স্পিকিং",
+  "lp2KeyHint": "উত্তর",
+  "lp2YouWrote": "আপনি: {answer}",
+  "lp2KeyWas": "উত্তর: {key}",
+  "lp2RawScore": "{total}টির মধ্যে {raw}টি সঠিক",
+  "lp2ScaledNote": "শুধু {count}টি প্রশ্নের উত্তর দেওয়া হয়েছে, তাই ব্যান্ডটা ৪০-এর হিসাবে আনুমানিক।",
+  "lp2MistakeTypes": "ভুলের ধরন"
+ }
+}

@@ -75,6 +75,7 @@ const _launchPrefixes = <String>[
   'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   'food_cal', // p2food: food photo -> calories
   'ielts_', // p2lang: IELTS practice (Language Partner)
+  'lp2_', // lpapp: Language Partner V2 (start, result, role-play, book companion, hub)
   'vde2e_', // p3docs: Documents end-to-end lock + share link
   'lk_', // langkoja: Korea/Japan work-language paths + phone-voice listening
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
@@ -104,6 +105,9 @@ const Map<String, String> _allow = {
   // quranread: same Tanzil notice (Uthmani file) on the lessons' source page.
   'quran_learn_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   'quran_learn_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
+  // lpapp: exam / level names are written the same in Bangla (CEFR A1, IELTS).
+  'lp2_*|digit|A1': 'CEFR level name (Germany A1 visa), written the same in Bangla',
+  'lp2_*|english|"IELTS"': 'exam name, written the same in Bangla',
   // Paper size / device model trade names are written the same in Bangla.
   'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
   'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',

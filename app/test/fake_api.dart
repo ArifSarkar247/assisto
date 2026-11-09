@@ -34,6 +34,7 @@ import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
 import 'fake_ielts.dart'; // p2lang
+import 'fake_lp2.dart'; // lpapp
 import 'fake_langkoja.dart'; // langkoja
 import 'bizai_fakes.dart' show fakeBizaiGet; // bizai
 
@@ -318,6 +319,7 @@ class FakeApi extends ApiClient {
     if (path == 'food/log') return _maybe(fakeFoodLog(DateTime.now()));
     if (path == 'food/goal') return _maybe([{'id': 1, 'kcal': 1800}]);
     if (path == 'ielts/practice') return fakeIeltsPractice(empty: mode == FakeMode.empty); // p2lang
+    if (path.startsWith('lp/')) return _maybe(fakeLp2List(path)); // lpapp
     if (path == 'ielts/vocab') return const []; // p2lang: every word due
     final p3l = fakeP3LifeList(path, bn: _bn); // p3life
     if (p3l != null) return _maybe(p3l);
@@ -1038,6 +1040,7 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
     if (path.startsWith('crm/')) return {'id': 99, ...body};
+    if (path.startsWith('lp/')) return {'id': 700, ...body}; // lpapp
     if (path == 'jobs' || path.startsWith('career/')) return {'id': 77, ...body}; // p2career
     if (path.startsWith('food/')) { // p2food
       if (mode == FakeMode.fail) _fail();
@@ -1068,6 +1071,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final lp2G = fakeLp2Get(path, bn: _bn); // lpapp
+    if (lp2G != null) {
+      if (mode == FakeMode.fail) _fail();
+      return lp2G;
+    }
     final lkG = fakeLangkojaGet(path); // langkoja
     if (lkG != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2232,6 +2240,8 @@ class FakeApi extends ApiClient {
     if (p2p != null) return p2p;
     final lkP = fakeLangkojaPost(path, body); // langkoja
     if (lkP != null) return lkP;
+    final lp2P = fakeLp2Post(path, body); // lpapp
+    if (lp2P != null) return lp2P;
     final ieltsP = fakeIeltsPost(path, body); // p2lang
     if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels
@@ -2545,6 +2555,7 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return;
     }
+    if (path.startsWith('lp/')) return; // lpapp
     return super.updateItem(path, id, body);
   }
 
