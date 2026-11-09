@@ -1,0 +1,1089 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "fr",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "fr_a1"
+ ],
+ "title": {
+  "en": "Week 4: Money, shopping, plans and messages",
+  "bn": "সপ্তাহ ৪: টাকা, বাজার, পরিকল্পনা ও মেসেজ"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official DELF material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল DELF উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 descriptors + public DELF A1 exam description (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "fr-w04-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Numbers 70–1000 and prices",
+    "bn": "সংখ্যা ৭০–১০০০ ও দাম"
+   },
+   "goal_bn": "ফরাসির কঠিন সংখ্যা ৭০, ৮০, ৯০ আর শত-হাজার শিখবেন — ভাড়া, টিকিট আর বেতনের অঙ্ক বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "soixante-dix",
+     "bn": "সত্তর (৭০)",
+     "bn_pron": "সোয়াসঁত দিস",
+     "pos": "number",
+     "example": {
+      "target": "Le billet coûte soixante-dix euros.",
+      "bn": "টিকিটের দাম সত্তর ইউরো।"
+     }
+    },
+    {
+     "target": "quatre-vingts",
+     "bn": "আশি (৮০)",
+     "bn_pron": "কাত্র ভ্যাঁ",
+     "pos": "number",
+     "example": {
+      "target": "Mon grand-père a quatre-vingts ans.",
+      "bn": "আমার দাদার বয়স আশি।"
+     }
+    },
+    {
+     "target": "quatre-vingt-dix",
+     "bn": "নব্বই (৯০)",
+     "bn_pron": "কাত্র ভ্যাঁ দিস",
+     "pos": "number",
+     "example": {
+      "target": "Il y a quatre-vingt-dix places dans le bus.",
+      "bn": "বাসে নব্বইটা আসন আছে।"
+     }
+    },
+    {
+     "target": "cent",
+     "bn": "এক শ (১০০)",
+     "bn_pron": "সঁ",
+     "pos": "number",
+     "example": {
+      "target": "Cent euros, c'est beaucoup.",
+      "bn": "এক শ ইউরো অনেক টাকা।"
+     }
+    },
+    {
+     "target": "deux cents",
+     "bn": "দুই শ (২০০)",
+     "bn_pron": "দ্য সঁ",
+     "pos": "number",
+     "example": {
+      "target": "Le vélo coûte deux cents euros.",
+      "bn": "সাইকেলটার দাম দুই শ ইউরো।"
+     }
+    },
+    {
+     "target": "mille",
+     "bn": "এক হাজার (১০০০)",
+     "bn_pron": "মিল",
+     "pos": "number",
+     "example": {
+      "target": "Le billet d'avion coûte presque mille euros.",
+      "bn": "প্লেনের টিকিট প্রায় এক হাজার ইউরো।"
+     }
+    },
+    {
+     "target": "l'euro (m)",
+     "bn": "ইউরো (মুদ্রা)",
+     "bn_pron": "ল্যুরো",
+     "pos": "noun",
+     "example": {
+      "target": "Un euro, c'est environ cent trente takas.",
+      "bn": "এক ইউরো প্রায় একশ ত্রিশ টাকা।"
+     }
+    },
+    {
+     "target": "le prix",
+     "bn": "দাম",
+     "bn_pron": "ল্য প্রি",
+     "pos": "noun",
+     "example": {
+      "target": "Quel est le prix de cette valise ?",
+      "bn": "এই স্যুটকেসের দাম কত?"
+     }
+    },
+    {
+     "target": "cher / chère",
+     "bn": "দামি",
+     "bn_pron": "শের",
+     "pos": "adjective",
+     "example": {
+      "target": "Ce téléphone est trop cher.",
+      "bn": "এই ফোনটা খুব বেশি দামি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "৭০ = ৬০+১০, ৮০ = ৪×২০, ৯০ = ৪×২০+১০",
+     "explain_bn": "ফ্রান্সে ৭০-৯৯ পুরোনো ২০-ভিত্তিক গণনায় বলা হয়: ৭০ soixante-dix (৬০+১০), ৭৫ soixante-quinze (৬০+১৫), ৮০ quatre-vingts (৪×২০), ৮৫ quatre-vingt-cinq, ৯০ quatre-vingt-dix (৪×২০+১০), ৯৯ quatre-vingt-dix-neuf। বেলজিয়াম ও সুইজারল্যান্ডে ৭০ = septante, ৯০ = nonante — শুনলে অবাক হবেন না।",
+     "examples": [
+      {
+       "target": "J'ai soixante-quinze euros dans mon portefeuille.",
+       "bn": "আমার মানিব্যাগে পঁচাত্তর ইউরো আছে।"
+      },
+      {
+       "target": "Le numéro de la chambre est quatre-vingt-douze.",
+       "bn": "রুম নম্বর বিরানব্বই।"
+      }
+     ]
+    },
+    {
+     "pattern": "cent ও mille: কখন -s বসে",
+     "explain_bn": "২০০, ৩০০ ইত্যাদি গোল অঙ্কে cents-এ s বসে (deux cents), কিন্তু পরে আরেকটা সংখ্যা থাকলে s উঠে যায় (deux cent cinquante)। mille কখনো বদলায় না: deux mille। quatre-vingts-এর s-ও একই নিয়মে: quatre-vingt-trois।",
+     "examples": [
+      {
+       "target": "Le loyer est de trois cents euros.",
+       "bn": "ভাড়া তিন শ ইউরো।"
+      },
+      {
+       "target": "Le salaire est de mille deux cent cinquante euros.",
+       "bn": "বেতন এক হাজার দুই শ পঞ্চাশ ইউরো।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w04-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "shop assistant"
+        },
+        "B": {
+         "gender": "M",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "B",
+         "text": "Ce téléphone, c'est combien ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "Il coûte trois cent quatre-vingt-dix euros."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Oh, c'est cher !"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ফোনটির দাম কত?",
+      "options": [
+       "trois cent soixante-dix euros",
+       "quatre cent dix euros",
+       "trois cent quatre-vingts euros",
+       "trois cent quatre-vingt-dix euros"
+      ],
+      "answer": "D",
+      "explain_bn": "trois cent (৩০০) + quatre-vingt-dix (৯০) = ৩৯০ ইউরো।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w04-l1-r1",
+      "passage": "Agence Voyages Soleil – Billet d'avion Paris–Dhaka : neuf cent quatre-vingts euros. Valise supplémentaire : soixante-quinze euros.",
+      "prompt_bn": "অতিরিক্ত স্যুটকেসের দাম কত?",
+      "options": [
+       "৭৫ ইউরো",
+       "৯৮০ ইউরো",
+       "৬৫ ইউরো",
+       "৮৫ ইউরো"
+      ],
+      "answer": "A",
+      "explain_bn": "'soixante-quinze' = ৬০+১৫ = ৭৫। ৯৮০ ইউরো হলো প্লেনের টিকিটের দাম।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w04-l1-w1",
+      "prompt_bn": "এই দামগুলো ফরাসিতে অক্ষরে লিখুন: ৭৮ ইউরো, ৯৫ ইউরো, ৪০০ ইউরো।",
+      "model": {
+       "target": "soixante-dix-huit euros, quatre-vingt-quinze euros, quatre cents euros",
+       "bn": "আটাত্তর ইউরো, পঁচানব্বই ইউরো, চার শ ইউরো"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w04-l1-s1",
+      "prompt_bn": "জোরে বলুন: আপনার মাসিক বাসাভাড়া ৭৮০ ইউরো।",
+      "model": {
+       "target": "Mon loyer est de sept cent quatre-vingts euros par mois.",
+       "bn": "আমার বাসাভাড়া মাসে সাত শ আশি ইউরো।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w04-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Shopping: quantities and 'some'",
+    "bn": "বাজার: পরিমাণ ও 'কিছু'"
+   },
+   "goal_bn": "কেজি, বোতল, প্যাকেট দিয়ে বাজার করা আর du/de la/des (কিছু পরিমাণ) ঠিকভাবে বলা শিখবেন।",
+   "vocab": [
+    {
+     "target": "le kilo",
+     "bn": "কেজি",
+     "bn_pron": "ল্য কিলো",
+     "pos": "noun",
+     "example": {
+      "target": "Un kilo de pommes de terre, s'il vous plaît.",
+      "bn": "এক কেজি আলু, দয়া করে।"
+     }
+    },
+    {
+     "target": "la bouteille",
+     "bn": "বোতল",
+     "bn_pron": "লা বুতেই",
+     "pos": "noun",
+     "example": {
+      "target": "J'achète une bouteille de lait.",
+      "bn": "আমি এক বোতল দুধ কিনি।"
+     }
+    },
+    {
+     "target": "le paquet",
+     "bn": "প্যাকেট",
+     "bn_pron": "ল্য পাকে",
+     "pos": "noun",
+     "example": {
+      "target": "Un paquet de thé coûte trois euros.",
+      "bn": "এক প্যাকেট চায়ের দাম তিন ইউরো।"
+     }
+    },
+    {
+     "target": "le riz",
+     "bn": "চাল / ভাত",
+     "bn_pron": "ল্য রি",
+     "pos": "noun",
+     "example": {
+      "target": "Nous mangeons du riz tous les jours.",
+      "bn": "আমরা প্রতিদিন ভাত খাই।"
+     }
+    },
+    {
+     "target": "la viande",
+     "bn": "মাংস",
+     "bn_pron": "লা ভিয়ঁদ",
+     "pos": "noun",
+     "example": {
+      "target": "Je cherche de la viande halal.",
+      "bn": "আমি হালাল মাংস খুঁজছি।"
+     }
+    },
+    {
+     "target": "le poulet",
+     "bn": "মুরগি",
+     "bn_pron": "ল্য পুলে",
+     "pos": "noun",
+     "example": {
+      "target": "Le poulet est en promotion.",
+      "bn": "মুরগিতে ছাড় চলছে।"
+     }
+    },
+    {
+     "target": "les légumes (m)",
+     "bn": "শাকসবজি",
+     "bn_pron": "লে লেগ্যুম",
+     "pos": "noun",
+     "example": {
+      "target": "Les légumes du marché sont frais.",
+      "bn": "বাজারের সবজি তাজা।"
+     }
+    },
+    {
+     "target": "le lait",
+     "bn": "দুধ",
+     "bn_pron": "ল্য লে",
+     "pos": "noun",
+     "example": {
+      "target": "Il n'y a plus de lait.",
+      "bn": "দুধ আর নেই।"
+     }
+    },
+    {
+     "target": "un peu de",
+     "bn": "একটু / অল্প",
+     "bn_pron": "আঁ প্য দ্য",
+     "pos": "expression",
+     "example": {
+      "target": "Je voudrais un peu de sel.",
+      "bn": "আমি একটু লবণ চাই।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "du / de la / de l' / des — কিছু পরিমাণ (partitif)",
+     "explain_bn": "যে জিনিস গোনা যায় না বা অনির্দিষ্ট পরিমাণ: পুরুষ শব্দে du (du riz), নারী শব্দে de la (de la viande), স্বরবর্ণের আগে de l' (de l'eau), বহুবচনে des (des légumes)। বাংলায় শুধু 'চাল কিনি' বলি, ফরাসিতে কিন্তু du লাগবেই।",
+     "examples": [
+      {
+       "target": "J'achète du riz et de la viande.",
+       "bn": "আমি চাল আর মাংস কিনি।"
+      },
+      {
+       "target": "Tu veux de l'eau ?",
+       "bn": "তুমি কি পানি খাবে?"
+      }
+     ]
+    },
+    {
+     "pattern": "পরিমাণ + de; না-বাচকে pas de",
+     "explain_bn": "পরিমাণের শব্দের পরে শুধু de: un kilo de riz, une bouteille de lait, un peu de sel, beaucoup de légumes। না-বাচকেও শুধু de: Je n'achète pas de viande।",
+     "examples": [
+      {
+       "target": "Deux kilos de riz, s'il vous plaît.",
+       "bn": "দুই কেজি চাল, দয়া করে।"
+      },
+      {
+       "target": "Il n'y a pas de lait dans le frigo.",
+       "bn": "ফ্রিজে দুধ নেই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w04-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "grocer"
+        },
+        "B": {
+         "gender": "F",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Bonjour madame, vous désirez ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Deux kilos de riz, un poulet et une bouteille de lait, s'il vous plaît."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলা কত কেজি চাল নিলেন?",
+      "options": [
+       "২ কেজি",
+       "১ কেজি",
+       "৩ কেজি",
+       "আধা কেজি"
+      ],
+      "answer": "A",
+      "explain_bn": "'Deux kilos de riz' = দুই কেজি চাল।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w04-l2-r1",
+      "passage": "Liste de courses de Rumana : du riz, des oignons, de la viande et un paquet de thé. Pas de lait : il y a du lait dans le frigo.",
+      "prompt_bn": "রুমানার কোনটা কিনতে হবে না?",
+      "options": [
+       "le riz",
+       "la viande",
+       "le thé",
+       "le lait"
+      ],
+      "answer": "D",
+      "explain_bn": "'Pas de lait : il y a du lait dans le frigo' = দুধ লাগবে না, ফ্রিজে আছে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w04-l2-w1",
+      "prompt_bn": "আপনার এই সপ্তাহের বাজারের তালিকা এক বাক্যে লিখুন — du, de la, des ব্যবহার করুন।",
+      "model": {
+       "target": "J'achète du riz, de la viande, des légumes et une bouteille d'huile.",
+       "bn": "আমি চাল, মাংস, সবজি আর এক বোতল তেল কিনি।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w04-l2-s1",
+      "prompt_bn": "জোরে বলুন: দোকানে এক কেজি মুরগি আর এক প্যাকেট চাল চান।",
+      "model": {
+       "target": "Je voudrais un kilo de poulet et un paquet de riz, s'il vous plaît.",
+       "bn": "আমি এক কেজি মুরগি আর এক প্যাকেট চাল চাই, দয়া করে।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w04-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Plans and free time (near future)",
+    "bn": "পরিকল্পনা ও অবসর (নিকট ভবিষ্যৎ)"
+   },
+   "goal_bn": "aller + ক্রিয়া দিয়ে 'করব' বলা আর শখ-অবসর নিয়ে কথা বলা শিখবেন।",
+   "vocab": [
+    {
+     "target": "le week-end",
+     "bn": "সাপ্তাহিক ছুটি (শনি-রবি)",
+     "bn_pron": "ল্য উইকেন্দ",
+     "pos": "noun",
+     "example": {
+      "target": "Le week-end, je me repose.",
+      "bn": "সাপ্তাহিক ছুটিতে আমি বিশ্রাম নিই।"
+     }
+    },
+    {
+     "target": "le cricket",
+     "bn": "ক্রিকেট",
+     "bn_pron": "ল্য ক্রিকেত",
+     "pos": "noun",
+     "example": {
+      "target": "On joue au cricket dans le parc.",
+      "bn": "আমরা পার্কে ক্রিকেট খেলি।"
+     }
+    },
+    {
+     "target": "regarder",
+     "bn": "দেখা (টিভি/খেলা)",
+     "bn_pron": "রগারদে",
+     "pos": "verb",
+     "example": {
+      "target": "Je regarde les informations le soir.",
+      "bn": "সন্ধ্যায় আমি খবর দেখি।"
+     }
+    },
+    {
+     "target": "le cinéma",
+     "bn": "সিনেমা হল",
+     "bn_pron": "ল্য সিনেমা",
+     "pos": "noun",
+     "example": {
+      "target": "Le cinéma est à côté du centre commercial.",
+      "bn": "সিনেমা হল শপিং সেন্টারের পাশে।"
+     }
+    },
+    {
+     "target": "la musique",
+     "bn": "গান / সংগীত",
+     "bn_pron": "লা ম্যুজিক",
+     "pos": "noun",
+     "example": {
+      "target": "J'aime la musique de Rabindranath Tagore.",
+      "bn": "আমি রবীন্দ্রসংগীত ভালোবাসি।"
+     }
+    },
+    {
+     "target": "lire",
+     "bn": "পড়া",
+     "bn_pron": "লির",
+     "pos": "verb",
+     "example": {
+      "target": "Elle aime lire le soir.",
+      "bn": "সে সন্ধ্যায় পড়তে ভালোবাসে।"
+     }
+    },
+    {
+     "target": "cuisiner",
+     "bn": "রান্না করা",
+     "bn_pron": "কুইজিনে",
+     "pos": "verb",
+     "example": {
+      "target": "Mon frère cuisine très bien.",
+      "bn": "আমার ভাই খুব ভালো রান্না করে।"
+     }
+    },
+    {
+     "target": "le parc",
+     "bn": "পার্ক",
+     "bn_pron": "ল্য পার্ক",
+     "pos": "noun",
+     "example": {
+      "target": "Les enfants jouent au parc.",
+      "bn": "বাচ্চারা পার্কে খেলে।"
+     }
+    },
+    {
+     "target": "ce soir",
+     "bn": "আজ সন্ধ্যায় / আজ রাতে",
+     "bn_pron": "স্য সোয়ার",
+     "pos": "adverb",
+     "example": {
+      "target": "Ce soir, je reste à la maison.",
+      "bn": "আজ সন্ধ্যায় আমি বাসায় থাকছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "futur proche: aller + ক্রিয়ার মূল রূপ = করব / করতে যাচ্ছি",
+     "explain_bn": "কাছাকাছি ভবিষ্যৎ বলতে aller-এর রূপ + অপরিবর্তিত ক্রিয়া: Je vais regarder (আমি দেখব), Nous allons cuisiner (আমরা রান্না করব)। না-বাচকে ne … pas বসে aller-এর দুপাশে: Je ne vais pas travailler।",
+     "examples": [
+      {
+       "target": "Ce soir, je vais regarder un film.",
+       "bn": "আজ সন্ধ্যায় আমি একটা সিনেমা দেখব।"
+      },
+      {
+       "target": "Demain, nous allons visiter Lyon.",
+       "bn": "কাল আমরা লিয়োঁ ঘুরতে যাব।"
+      },
+      {
+       "target": "Je ne vais pas travailler dimanche.",
+       "bn": "রবিবার আমি কাজ করব না।"
+      }
+     ]
+    },
+    {
+     "pattern": "aimer + ক্রিয়া / বিশেষ্য — ভালো লাগা",
+     "explain_bn": "J'aime lire (পড়তে ভালো লাগে), J'aime le cricket (ক্রিকেট ভালো লাগে) — বিশেষ্যের আগে le/la লাগে। ভালো না লাগলে: Je n'aime pas…",
+     "examples": [
+      {
+       "target": "J'aime cuisiner pour mes amis.",
+       "bn": "বন্ধুদের জন্য রান্না করতে ভালো লাগে।"
+      },
+      {
+       "target": "Elle n'aime pas le froid.",
+       "bn": "তার ঠান্ডা ভালো লাগে না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w04-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend"
+        },
+        "B": {
+         "gender": "M",
+         "role": "friend"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Qu'est-ce que tu vas faire ce week-end ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Samedi, je vais jouer au cricket avec mes amis. Dimanche, je vais cuisiner pour ma famille."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রবিবার সে কী করবে?",
+      "options": [
+       "বন্ধুদের সাথে ক্রিকেট",
+       "সিনেমা দেখা",
+       "পরিবারের জন্য রান্না",
+       "পার্কে হাঁটা"
+      ],
+      "answer": "C",
+      "explain_bn": "'Dimanche, je vais cuisiner pour ma famille' = রবিবার পরিবারের জন্য রান্না করব। ক্রিকেট শনিবার।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w04-l3-r1",
+      "passage": "Association bangladaise de Lyon – Programme : samedi, pique-nique au parc de la Tête d'Or à midi. Dimanche soir, concert de musique bengalie à vingt heures. Entrée libre.",
+      "prompt_bn": "কনসার্ট কখন?",
+      "options": [
+       "samedi à midi",
+       "dimanche à vingt heures",
+       "dimanche à midi",
+       "samedi à vingt heures"
+      ],
+      "answer": "B",
+      "explain_bn": "'Dimanche soir … à vingt heures' = রবিবার রাত ৮টা। শনিবার দুপুর ১২টায় পিকনিক। 'Entrée libre' = প্রবেশ ফ্রি।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w04-l3-w1",
+      "prompt_bn": "আজ সন্ধ্যায় আর কাল আপনি কী করবেন, aller + ক্রিয়া দিয়ে লিখুন।",
+      "model": {
+       "target": "Ce soir, je vais lire un livre. Demain, je vais aller au cinéma avec Nadia.",
+       "bn": "আজ সন্ধ্যায় আমি একটা বই পড়ব। কাল নাদিয়ার সাথে সিনেমায় যাব।"
+      },
+      "check": "ai",
+      "min_words": 10,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w04-l3-s1",
+      "prompt_bn": "জোরে বলুন: কী খেলা ভালো লাগে আর এই সপ্তাহান্তে কী দেখবেন।",
+      "model": {
+       "target": "J'aime le cricket. Ce week-end, je vais regarder un match à la télé.",
+       "bn": "আমার ক্রিকেট ভালো লাগে। এই সপ্তাহান্তে টিভিতে একটা খেলা দেখব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w04-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "What I did: the past with avoir",
+    "bn": "কী করেছি: avoir দিয়ে অতীত"
+   },
+   "goal_bn": "passé composé-এর প্রথম ধাপ: avoir + -é রূপ দিয়ে গতকাল কী করেছেন বলা ও বোঝা।",
+   "vocab": [
+    {
+     "target": "hier",
+     "bn": "গতকাল",
+     "bn_pron": "ইয়ের",
+     "pos": "adverb",
+     "example": {
+      "target": "Hier, il a plu toute la journée.",
+      "bn": "গতকাল সারাদিন বৃষ্টি হয়েছে।"
+     }
+    },
+    {
+     "target": "la semaine dernière",
+     "bn": "গত সপ্তাহ",
+     "bn_pron": "লা স্ম্যেন দেরনিয়ের",
+     "pos": "expression",
+     "example": {
+      "target": "La semaine dernière, j'ai commencé un nouveau travail.",
+      "bn": "গত সপ্তাহে আমি নতুন চাকরি শুরু করেছি।"
+     }
+    },
+    {
+     "target": "manger",
+     "bn": "খাওয়া",
+     "bn_pron": "মঁজে",
+     "pos": "verb",
+     "example": {
+      "target": "Nous mangeons à treize heures.",
+      "bn": "আমরা দুপুর ১টায় খাই।"
+     }
+    },
+    {
+     "target": "acheter",
+     "bn": "কেনা",
+     "bn_pron": "আশ্তে",
+     "pos": "verb",
+     "example": {
+      "target": "Je vais acheter un cadeau pour ma mère.",
+      "bn": "মায়ের জন্য একটা উপহার কিনব।"
+     }
+    },
+    {
+     "target": "visiter",
+     "bn": "(জায়গা) ঘুরে দেখা",
+     "bn_pron": "ভিজিতে",
+     "pos": "verb",
+     "example": {
+      "target": "Les touristes visitent la tour Eiffel.",
+      "bn": "পর্যটকেরা আইফেল টাওয়ার ঘুরে দেখে।"
+     }
+    },
+    {
+     "target": "téléphoner",
+     "bn": "ফোন করা",
+     "bn_pron": "তেলেফোনে",
+     "pos": "verb",
+     "example": {
+      "target": "Je téléphone à ma famille le vendredi.",
+      "bn": "প্রতি শুক্রবার আমি পরিবারকে ফোন করি।"
+     }
+    },
+    {
+     "target": "déjà",
+     "bn": "আগেই / ইতিমধ্যে",
+     "bn_pron": "দেজা",
+     "pos": "adverb",
+     "example": {
+      "target": "Tu as déjà mangé ?",
+      "bn": "তুমি কি আগেই খেয়েছ?"
+     }
+    },
+    {
+     "target": "le matin",
+     "bn": "সকাল",
+     "bn_pron": "ল্য মাত্যাঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Le matin, je bois du thé.",
+      "bn": "সকালে আমি চা খাই।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "passé composé = avoir + অতীত রূপ (participe passé)",
+     "explain_bn": "অতীতে একবার শেষ হওয়া কাজ: avoir-এর বর্তমান রূপ + ক্রিয়ার অতীত রূপ। -er ক্রিয়ায় -er কেটে -é: manger → mangé, acheter → acheté। তাই: J'ai mangé (আমি খেয়েছি), Elle a acheté (সে কিনেছে)। কিছু অনিয়মিত: faire → fait, prendre → pris, avoir → eu।",
+     "examples": [
+      {
+       "target": "Hier, j'ai mangé avec mes collègues.",
+       "bn": "গতকাল আমি সহকর্মীদের সাথে খেয়েছি।"
+      },
+      {
+       "target": "Nous avons visité Marseille en août.",
+       "bn": "আগস্টে আমরা মার্সেই ঘুরেছি।"
+      },
+      {
+       "target": "Il a pris le train de nuit.",
+       "bn": "সে রাতের ট্রেন ধরেছে।"
+      }
+     ]
+    },
+    {
+     "pattern": "না-বাচক: ne … pas বসে avoir-এর দুপাশে",
+     "explain_bn": "Je n'ai pas mangé (আমি খাইনি) — ne আর pas মোড়ক দেয় avoir-কে, অতীত রূপ থাকে পরে। স্বরবর্ণের আগে ne → n'।",
+     "examples": [
+      {
+       "target": "Je n'ai pas téléphoné à mon frère.",
+       "bn": "আমি ভাইকে ফোন করিনি।"
+      },
+      {
+       "target": "Elle n'a pas acheté de pain.",
+       "bn": "সে রুটি কেনেনি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w04-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "brother"
+        },
+        "B": {
+         "gender": "F",
+         "role": "sister"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Tu as téléphoné à maman hier ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Oui, j'ai téléphoné à maman hier soir. Elle va bien."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মেয়েটি কখন মাকে ফোন করেছিল?",
+      "options": [
+       "আজ সকালে",
+       "গত সপ্তাহে",
+       "এখনো করেনি",
+       "গতকাল সন্ধ্যায়"
+      ],
+      "answer": "D",
+      "explain_bn": "'hier soir' = গতকাল সন্ধ্যায়। 'j'ai téléphoné' = আমি ফোন করেছি (অতীত)।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w04-l4-r1",
+      "passage": "Samedi dernier, Nusrat a visité le musée du Louvre avec sa cousine. À midi, elles ont mangé dans un petit restaurant. Après, Nusrat a acheté des cartes postales.",
+      "prompt_bn": "নুসরাত কী কিনেছে?",
+      "options": [
+       "des cartes postales",
+       "un livre",
+       "un sac",
+       "des fruits"
+      ],
+      "answer": "A",
+      "explain_bn": "'Nusrat a acheté des cartes postales' = নুসরাত পোস্টকার্ড কিনেছে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w04-l4-w1",
+      "prompt_bn": "গতকাল আপনি কী কী করেছেন, ২–৩টি বাক্যে লিখুন (j'ai + -é রূপ)।",
+      "model": {
+       "target": "Hier, j'ai travaillé jusqu'à dix-huit heures. Le soir, j'ai mangé du riz et j'ai téléphoné à mon frère.",
+       "bn": "গতকাল আমি সন্ধ্যা ৬টা পর্যন্ত কাজ করেছি। রাতে ভাত খেয়েছি আর ভাইকে ফোন করেছি।"
+      },
+      "check": "ai",
+      "min_words": 12,
+      "max_words": 40
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w04-l4-s1",
+      "prompt_bn": "জোরে বলুন: গত সপ্তাহে কী কিনেছেন আর কোথায় ঘুরেছেন।",
+      "model": {
+       "target": "La semaine dernière, j'ai acheté un ticket de bus et j'ai visité la vieille ville.",
+       "bn": "গত সপ্তাহে আমি একটা বাসের টিকিট কিনেছি আর পুরোনো শহর ঘুরে দেখেছি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w04-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Writing a message: invite, accept, refuse",
+    "bn": "মেসেজ লেখা: দাওয়াত, রাজি, অপারগতা"
+   },
+   "goal_bn": "বন্ধুকে দাওয়াত দেওয়া, দাওয়াতে রাজি হওয়া বা ভদ্রভাবে না বলা — DELF A1 লেখার অংশের মতো ৪০–৫০ শব্দের মেসেজ।",
+   "vocab": [
+    {
+     "target": "inviter",
+     "bn": "দাওয়াত দেওয়া",
+     "bn_pron": "অ্যাঁভিতে",
+     "pos": "verb",
+     "example": {
+      "target": "J'invite mes voisins à dîner.",
+      "bn": "আমি প্রতিবেশীদের রাতের খাবারে দাওয়াত দিই।"
+     }
+    },
+    {
+     "target": "accepter",
+     "bn": "গ্রহণ করা / রাজি হওয়া",
+     "bn_pron": "আক্সেপ্তে",
+     "pos": "verb",
+     "example": {
+      "target": "J'accepte ton invitation avec joie.",
+      "bn": "তোমার দাওয়াত আনন্দের সাথে গ্রহণ করছি।"
+     }
+    },
+    {
+     "target": "refuser",
+     "bn": "না বলা / প্রত্যাখ্যান করা",
+     "bn_pron": "রফ্যুজে",
+     "pos": "verb",
+     "example": {
+      "target": "Il refuse poliment.",
+      "bn": "সে ভদ্রভাবে না বলে।"
+     }
+    },
+    {
+     "target": "la fête",
+     "bn": "অনুষ্ঠান / পার্টি / উৎসব",
+     "bn_pron": "লা ফেত",
+     "pos": "noun",
+     "example": {
+      "target": "La fête commence à vingt heures.",
+      "bn": "পার্টি রাত ৮টায় শুরু।"
+     }
+    },
+    {
+     "target": "l'anniversaire (m)",
+     "bn": "জন্মদিন",
+     "bn_pron": "লানিভেরসের",
+     "pos": "noun",
+     "example": {
+      "target": "Bon anniversaire, Tania !",
+      "bn": "শুভ জন্মদিন, তানিয়া!"
+     }
+    },
+    {
+     "target": "libre",
+     "bn": "ফাঁকা / অবসর",
+     "bn_pron": "লিব্র",
+     "pos": "adjective",
+     "example": {
+      "target": "Tu es libre samedi soir ?",
+      "bn": "শনিবার সন্ধ্যায় তুমি ফাঁকা?"
+     }
+    },
+    {
+     "target": "désolé / désolée",
+     "bn": "দুঃখিত",
+     "bn_pron": "দেজোলে",
+     "pos": "adjective",
+     "example": {
+      "target": "Désolée, je ne peux pas venir.",
+      "bn": "দুঃখিত, আমি আসতে পারব না।"
+     }
+    },
+    {
+     "target": "avec plaisir",
+     "bn": "সানন্দে",
+     "bn_pron": "আভেক প্লেজির",
+     "pos": "expression",
+     "example": {
+      "target": "Un thé ? Oui, avec plaisir !",
+      "bn": "চা? হ্যাঁ, সানন্দে!"
+     }
+    },
+    {
+     "target": "à bientôt",
+     "bn": "শিগগিরই দেখা হবে",
+     "bn_pron": "আ বিয়েঁতো",
+     "pos": "expression",
+     "example": {
+      "target": "Merci pour tout et à bientôt !",
+      "bn": "সবকিছুর জন্য ধন্যবাদ, শিগগিরই দেখা হবে!"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "দাওয়াত ও উত্তর: Tu veux venir … ? / Avec plaisir ! / Désolé(e), je ne peux pas …",
+     "explain_bn": "দাওয়াত: 'Tu veux venir + কোথায় + কখন ?' রাজি: 'Oui, avec plaisir !' বা 'D'accord !' না: 'Désolé(e), je ne peux pas, parce que …' — না বলার সময় কারণ আর বিকল্প দিন, তাহলে ভদ্র শোনায়।",
+     "examples": [
+      {
+       "target": "Tu veux venir chez moi samedi ?",
+       "bn": "শনিবার আমার বাসায় আসবে?"
+      },
+      {
+       "target": "Désolé, je ne peux pas, parce que je travaille.",
+       "bn": "দুঃখিত, পারব না, কারণ আমার কাজ আছে।"
+      }
+     ]
+    },
+    {
+     "pattern": "মেসেজের কাঠামো (DELF A1 লেখা)",
+     "explain_bn": "১) সম্বোধন: Salut Julie, / Chère Julie, ২) মূল কথা: কী, কবে, কোথায়, কয়টায় ৩) একটা প্রশ্ন বা অনুরোধ ৪) বিদায়: Bises / À bientôt + নাম। প্রশ্নে যা যা জানতে চায় সব বিষয় লিখুন, আর শব্দসংখ্যা মানুন — না হলে নম্বর কাটে।",
+     "examples": [
+      {
+       "target": "Chère Julie, merci pour ton message !",
+       "bn": "প্রিয় জুলি, তোমার মেসেজের জন্য ধন্যবাদ!"
+      },
+      {
+       "target": "Réponds-moi avant jeudi. Bises, Nusrat",
+       "bn": "বৃহস্পতিবারের আগে উত্তর দিও। ভালোবাসা, নুসরাত"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w04-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend leaving a voice message"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Salut Rahim, c'est Claire. Samedi, c'est mon anniversaire. Tu veux venir chez moi à dix-neuf heures ? À bientôt !"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ক্লেয়ারের জন্মদিনের দাওয়াত কখন?",
+      "options": [
+       "শুক্রবার সন্ধ্যা ৭টায়",
+       "শনিবার সন্ধ্যা ৭টায়",
+       "শনিবার দুপুর ১২টায়",
+       "রবিবার রাত ৯টায়"
+      ],
+      "answer": "B",
+      "explain_bn": "'Samedi' = শনিবার; 'à dix-neuf heures' = ১৯টা = সন্ধ্যা ৭টা।",
+      "skill": "message"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w04-l5-r1",
+      "passage": "Chère Claire, merci pour l'invitation ! Je suis désolé, samedi je travaille jusqu'à vingt-deux heures. On peut prendre un café dimanche ? Rahim",
+      "prompt_bn": "রহিম কেন শনিবার যেতে পারবে না?",
+      "options": [
+       "সে অসুস্থ",
+       "সে দেশে যাচ্ছে",
+       "তার কাজ আছে",
+       "তার পরীক্ষা আছে"
+      ],
+      "answer": "C",
+      "explain_bn": "'samedi je travaille jusqu'à vingt-deux heures' = শনিবার রাত ১০টা পর্যন্ত কাজ। তাই সে রবিবার কফির প্রস্তাব দেয়।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w04-l5-w1",
+      "prompt_bn": "এক বন্ধুকে আপনার জন্মদিনের দাওয়াত দিয়ে ৪০–৬০ শব্দের মেসেজ লিখুন: কবে, কোথায় (ঠিকানা), কয়টায়, আর বন্ধু কী আনবে।",
+      "model": {
+       "target": "Salut Julie, samedi prochain, c'est mon anniversaire ! Je fais une petite fête chez moi, douze rue Victor Hugo, à dix-neuf heures. Il y a de la musique et je vais cuisiner un biryani. Tu peux apporter une boisson ? Réponds-moi vite. Bises, Nusrat",
+       "bn": "হাই জুলি, আগামী শনিবার আমার জন্মদিন! ১২ রু ভিক্তর উগোতে আমার বাসায় সন্ধ্যা ৭টায় ছোট পার্টি। গান থাকবে আর আমি বিরিয়ানি রাঁধব। তুমি একটা পানীয় আনতে পারবে? তাড়াতাড়ি জানিও। ভালোবাসা, নুসরাত"
+      },
+      "check": "ai",
+      "min_words": 40,
+      "max_words": 60
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w04-l5-s1",
+      "prompt_bn": "জোরে বলুন: বন্ধুর দাওয়াতে সানন্দে রাজি হোন আর বিদায় নিন।",
+      "model": {
+       "target": "Merci pour l'invitation ! Avec plaisir, je viens samedi. À bientôt !",
+       "bn": "দাওয়াতের জন্য ধন্যবাদ! সানন্দে, শনিবার আসছি। শিগগিরই দেখা হবে!"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

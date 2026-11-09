@@ -9,6 +9,8 @@ from . import views_f1 as F1
 from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_cctvtraffic as CCTVT   # cctvguard
+from . import views_imoudev as IMOUDEV   # cctvconnect
+from . import views_cctvpartners as CCTVP  # cctvroles
 from . import views_mapsusage as MAPSU   # mapscost
 from . import views_safeplans as SAFEP   # safeplans
 from . import views_plans as PLANSV      # plansprep: Plans & prices
@@ -33,6 +35,8 @@ from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
+from . import views_quranpron as QPR  # quranpron
+from . import views_lp as LPR        # lpcore
 from . import views_nearby as NBY    # nearby
 from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
@@ -113,6 +117,8 @@ urlpatterns = [
     path("payments/unverified", B2.unverified),  # billing-v2
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("cctv-traffic", CCTVT.cctv_traffic),   # cctvguard: CCTV live traffic
+    path("imou-devices", IMOUDEV.imou_devices),   # cctvconnect: owner's Imou test cameras
+    path("cctv-partners", CCTVP.cctv_partners),   # cctvroles: installer partners
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
     path("safe-plans", SAFEP.safe_plans),       # safeplans: Safety plans
     path("plans", PLANSV.plans),                # plansprep: Plans & prices
@@ -164,6 +170,8 @@ urlpatterns = [
     path("blood", BLD.blood),                                      # blood
     path("blood/<int:pk>/act", BLD.blood_action),                  # blood
     path("blood/slip/<int:pk>", BLD.blood_slip),                   # blood
+    path("quran-pron", QPR.quran_pron),                            # quranpron
+    path("quran-pron/act", QPR.quran_pron_act),                    # quranpron
     path("nearby", NBY.nearby),                                    # nearby
     path("nearby/add", NBY.nearby_add),                            # nearby
     path("nearby/dataset", NBY.nearby_dataset),                    # nearby
@@ -177,4 +185,6 @@ urlpatterns = [
     path("city/live/<int:pk>", CTY.city_live),                     # citydata
     path("city/dataset", CTY.city_dataset),                        # citydata
     path("city/learned/<int:pk>", CTY.city_learned),               # citydata
+    path("lp", LPR.lp_review),                                     # lpcore
+    path("lp/<int:pk>/act", LPR.lp_review_action),                 # lpcore
 ]

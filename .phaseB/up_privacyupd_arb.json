@@ -1,0 +1,2 @@
+{"en": {"clnSmsPaused": "Reading bank and wallet SMS notifications is paused for now. Notifications from the bKash, Nagad and other wallet apps still work.", "@clnSmsPaused": {"description": "privacyupd: money from notifications, shown when the server switch money_notif_sms is off"}},
+ "bn": {"clnSmsPaused": "ব্যাংক ও ওয়ালেটের SMS নোটিফিকেশন পড়া আপাতত বন্ধ আছে। বিকাশ, নগদ ও অন্য ওয়ালেট অ্যাপের নোটিফিকেশন আগের মতোই কাজ করবে।"}}

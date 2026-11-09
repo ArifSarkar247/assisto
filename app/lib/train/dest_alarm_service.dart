@@ -58,6 +58,12 @@ class DestPlan {
   /// sjalarm: My Circle members (circle ids) told "arrived" when the user
   /// confirms "I am awake" after the alarm rang. Empty = nobody (default).
   final List<int> notifyCircleIds;
+
+  /// sjtrain (Safe Journey V2): "ring N MINUTES before" instead of a
+  /// distance. null = distance mode. Rings when the time to arrive at the
+  /// current (smoothed GPS) speed is <= N minutes — OR the distance setting
+  /// is reached, whichever is first (never late when the bus stands still).
+  final int? etaMin;
   const DestPlan(
       {required this.mode,
       required this.target,
@@ -68,7 +74,8 @@ class DestPlan {
       this.metroFrom = 0,
       this.metroTo = 0,
       this.metroLeftAt,
-      this.notifyCircleIds = const []});
+      this.notifyCircleIds = const [],
+      this.etaMin});
 
   DestPlan withMetroFrom(int from, DateTime leftAt) => DestPlan(
       mode: mode,
@@ -79,7 +86,16 @@ class DestPlan {
       metroFrom: from,
       metroTo: metroTo,
       metroLeftAt: leftAt,
-      notifyCircleIds: notifyCircleIds);
+      notifyCircleIds: notifyCircleIds,
+      etaMin: etaMin);
+}
+
+/// sjtrain: shows / removes the full-screen "time to get off" notification
+/// (lock screen too — the same per-launch path as a Care Call ring). Set by
+/// the alarm screen; null in tests = nothing shown.
+abstract class DestRingNotice {
+  Future<void> show(DestPlan plan, DestAlarmTexts texts);
+  Future<void> cancel();
 }
 
 /// Sends the optional "arrived" notice (set by the screen: needs internet;
@@ -220,6 +236,9 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
   /// sjalarm: optional family "arrived" notice (the screen sets it).
   static DestArrivedFn? arrivedNotifier;
 
+  /// sjtrain: the full-screen ring notification (the screen sets it).
+  static DestRingNotice? ringNotice;
+
   /// Snooze length ("I am awake" stops for good).
   static const Duration kSnooze = Duration(minutes: 1);
   final DestBatteryFn _battery;
@@ -248,7 +267,13 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _trainSpeed = SpeedSmoother();
     _lowNext = false;
     final pv = plan.prevStation;
-    if (plan.mode == TransportMode.train && pv != null &&
+    final byMin = plan.etaMin != null && plan.etaMin! > 0 && plan.mode != TransportMode.metro;
+    if (byMin) {
+      // sjtrain: "N minutes before" — the speed rule with the user's minutes
+      _eng = DestEngine(plan.mode, plan.setM, plan.target.lat, plan.target.lng,
+          etaS: math.max(kEtaRingS, plan.etaMin! * 60));
+      _dw = _eng!.watch;
+    } else if (plan.mode == TransportMode.train && pv != null &&
         trainLegUsable(pv.lat, pv.lng, plan.target.lat, plan.target.lng)) {
       final p = pv;
       _tw = TrainLegWatch(haversineM(p.lat, p.lng, plan.target.lat, plan.target.lng),
@@ -423,7 +448,15 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     _snooze?.cancel();
     _snooze = null;
     _lastDist = dist;
+    final first = value.phase != DestAlarmPhase.ringing;
     value = value.copyWith(phase: DestAlarmPhase.ringing, clearSnooze: true);
+    if (first && _texts != null) {
+      // sjtrain: full screen, also over the lock screen (best-effort: the
+      // sound + vibration below never depend on it)
+      try {
+        await ringNotice?.show(p, _texts!);
+      } catch (_) {}
+    }
     await _sound.start(sound: p.alerts.sound, vibrate: p.alerts.vibrate);
     Future<void> say() async {
       if (!p.alerts.voice || value.phase != DestAlarmPhase.ringing) return;
@@ -482,7 +515,12 @@ class DestAlarmController extends ValueNotifier<DestAlarmState> {
     final wasRinging = value.phase == DestAlarmPhase.ringing;
     final plan = value.plan;
     value = const DestAlarmState();
-    if (wasRinging) await _sound.stop();
+    if (wasRinging) {
+      await _sound.stop();
+      try {
+        await ringNotice?.cancel(); // sjtrain
+      } catch (_) {}
+    }
     if (useService && plan != null) {
       await TrainFgs.I.release('alarm');
     }

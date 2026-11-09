@@ -65,6 +65,18 @@ Future<void> _pump(WidgetTester tester, Widget screen,
 Iterable<QlItem> _allItems() =>
     kQlStages.expand((s) => s.lessons).expand((l) => l.items);
 
+/// quranshikhi: bring [k] on screen whether it is built (ensureVisible) or
+/// was dropped above the lazily built list (scroll up to it).
+Future<void> _reveal(WidgetTester tester, Key k) async {
+  final f = find.byKey(k, skipOffstage: false);
+  if (f.evaluate().isNotEmpty) {
+    await tester.ensureVisible(f);
+  } else {
+    await tester.scrollUntilVisible(find.byKey(k), -300,
+        scrollable: find.byType(Scrollable).first);
+  }
+}
+
 final _bnDigitsOnly = RegExp(r'[0-9]');
 
 void main() {
@@ -102,7 +114,11 @@ void main() {
     });
 
     test('29 letters, each with its Arabic name and a makhraj note', () {
-      final letters = kQlStages[0].lessons.expand((l) => l.items).toList();
+      // quranshikhi: stage 1 also has the 'joining' drill lesson.
+      final letters = kQlStages[0].lessons
+          .where((l) => l.id.startsWith('letters'))
+          .expand((l) => l.items)
+          .toList();
       expect(letters.length, 29);
       for (final i in letters) {
         expect(i.check, isNotNull, reason: i.id);
@@ -329,7 +345,10 @@ void main() {
       await _pump(tester,
           QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: p));
       expect(find.byKey(const Key('ql-focus')), findsOneWidget);
-      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_ba'), skipOffstage: false));
+      // quranshikhi: the focus card is taller now (forms, both lines) - the
+      // lazily built grid is scrolled to.
+      await tester.scrollUntilVisible(find.byKey(const Key('ql-tile-l_ba')), 300,
+          scrollable: find.byType(Scrollable).first);
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_ba')));
       await tester.pump();
@@ -337,7 +356,7 @@ void main() {
       expect(focus.data, 'ب');
       expect(find.textContaining('lips'), findsWidgets); // makhraj note
       // Listen: no licensed audio -> explains, never a fake sound
-      await tester.ensureVisible(find.byKey(const Key('ql-listen-l_ba'), skipOffstage: false));
+      await _reveal(tester, const Key('ql-listen-l_ba'));
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-listen-l_ba')));
       await tester.pumpAndSettle();
@@ -345,7 +364,7 @@ void main() {
       await tester.tap(find.text('Got it'));
       await tester.pumpAndSettle();
       // mark learned -> progress + saved
-      await tester.ensureVisible(find.byKey(const Key('ql-learned-l_ba'), skipOffstage: false));
+      await _reveal(tester, const Key('ql-learned-l_ba'));
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-learned-l_ba')));
       await tester.pump();
@@ -353,7 +372,8 @@ void main() {
       await tester.pump();
       expect((await QlProgressStore.load()).learned, contains('l_ba'));
       // alif has no checkable letter: the check button is replaced by a note
-      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_alif'), skipOffstage: false));
+      await tester.scrollUntilVisible(find.byKey(const Key('ql-tile-l_alif')), 300,
+          scrollable: find.byType(Scrollable).first);
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_alif')));
       await tester.pump();
@@ -376,7 +396,7 @@ void main() {
           const Scaffold(
               body: ReciteSheet(
                   expected: 'قُلْ هُوَ ٱللَّهُ أَحَدٌ', initialHeard: 'قل هو الله')));
-      expect(find.text('Helper - not a replacement for a teacher'), findsOneWidget);
+      expect(find.text('Practice measure, not a replacement for a teacher'), findsOneWidget); // quranshikhi
       expect(find.byKey(const Key('ql-recite-result')), findsOneWidget);
       expect(find.textContaining('Letters matched'), findsOneWidget);
     });

@@ -105,7 +105,8 @@ class FareTests(SimpleTestCase):
         self.assertEqual((f["low"], f["high"], f["label"]), (10, 10, "official"))
         f = F.bus(10.0)
         self.assertEqual((f["low"], f["high"]), (25, 27))
-        self.assertIn("brta", f["source_url"])
+        self.assertIn("bdnews24", f["source_url"])      # gazette 22 Sep 2026 as reported
+        self.assertEqual((F.RATES["bus"]["per_km_high"], F.RATES["bus"]["effective"]), (2.70, "2026-09-22"))
 
     def test_cng_meter_official_with_overcharge_note(self):
         self.assertEqual(F.cng_meter(2.0), 40)
@@ -243,6 +244,9 @@ class PlanApiTests(ApiBase):
         self.assertIn("cheapest", d["options"])
         self.assertTrue(d["data_version"].startswith("20261109-test."))
         self.assertEqual(d["complaint"]["fallback"], "333")
+        # citydata2: 333 is labelled truthfully as the national helpline
+        self.assertEqual((d["complaint"]["kind"], d["complaint"]["dial"]), ("national_helpline", "333"))
+        self.assertNotIn("BRTA", d["complaint"]["label_en"])
         self.assertTrue(all(s["checked"] for s in d["fare_sources"]))
 
     def test_other_city_honest_no_data_with_google_maps(self):

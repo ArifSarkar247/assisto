@@ -179,9 +179,29 @@ class CrmSegmentsView(_RetOwner):
 
 
 class CrmLadderView(_RetOwner):
+    def initial(self, request, *args, **kwargs):
+        # bizai2 (emulator run: GET 402 → the whole Win-back screen showed an
+        # error): READING the ladder — who would get each stage, the drafts,
+        # past results — is free on every plan, like GET /retention.
+        # Switching it on / off (POST) still needs Business (402 + upgrade).
+        self.need_plan = request.method not in ("GET", "HEAD", "OPTIONS")
+        super().initial(request, *args, **kwargs)
+
     def get(self, request):
         from . import bizai_crm as C
-        return Response(C.ladder(self.biz, req_lang(request)))
+        from . import retention_service as RS
+        lang = req_lang(request)
+        out = C.ladder(self.biz, lang)
+        ok = RS.plan_ok(request.user)
+        out["plan_ok"] = ok
+        if not ok:
+            out["plan_required"] = "business"
+            out["plan_note"] = pick(
+                lang, "দেখা ফ্রি। চালু করতে বিজনেস প্ল্যান লাগবে — তখন এই মেসেজগুলো নিজে থেকে যাবে "
+                      "আর কতজন ফিরলেন, কত টাকার কেনা হলো এখানে দেখাবে।",
+                "Looking is free. Switching it on needs the Business plan — then these messages "
+                "go out by themselves and you see here how many came back and what they bought.")
+        return Response(out)
 
     def post(self, request):
         from . import bizai_crm as C
@@ -306,3 +326,40 @@ class CctvTestView(APIView):
         return Response({"id": r.pk, "started": d.get("started"), "stopped": d.get("stopped"),
                          "marks": len(d.get("truth") or []), "alerts": d.get("alerts"),
                          "result": d.get("result")})
+
+
+# ===================================================================== bizai2: daily summary
+class BizDailyView(APIView):
+    """GET bizai/daily — today's shop summary (sales, khata, who to chase,
+    stock-out forecast, measured outcomes, next step), computed live from the
+    shop's own records, + the on/off state of the 9 pm notification.
+    POST {on: bool} — switch the evening notification. Shop OWNER only (it
+    shows totals owed). Every plan; no AI, no credits."""
+
+    def _biz(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return None, bad
+        deny = _owner_only(request, role)
+        if deny:
+            return None, deny
+        return prof, None
+
+    def get(self, request):
+        prof, bad = self._biz(request)
+        if bad:
+            return bad
+        from . import bizai_daily as BD
+        return Response(BD.view_payload(prof, request.user, req_lang(request)))
+
+    def post(self, request):
+        prof, bad = self._biz(request)
+        if bad:
+            return bad
+        from . import bizai_daily as BD
+        on = request.data.get("on")
+        if not isinstance(on, bool):
+            return Response({"ok": False, "detail": pick(req_lang(request), "on: true/false দিন।",
+                                                         "Send on: true or false.")}, status=400)
+        BD.set_enabled(request.user, on)
+        return Response({"ok": True, "enabled": BD.enabled_for(request.user)})

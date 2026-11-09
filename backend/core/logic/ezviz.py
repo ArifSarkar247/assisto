@@ -90,6 +90,11 @@ class EzvizClient:
 
     def _post(self, base, path, form):
         import json
+        try:      # cctvconnect: every call counts toward the free trial's daily calls
+            from .cctv_connect import quota as _Q
+            _Q.bump("ezviz", api=1)
+        except Exception:  # noqa: BLE001
+            pass
         try:
             status, text = self.http(base + path, form, TIMEOUT_S)
         except Exception as e:  # noqa: BLE001

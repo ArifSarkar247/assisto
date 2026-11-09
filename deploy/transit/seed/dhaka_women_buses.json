@@ -1,0 +1,594 @@
+{
+ "_note": "citydata2 (9 Nov): BRTC women-only 'pink bus' routes in Dhaka, started 18 Aug 2026 (10 buses). Stops in order from The Report (18 Aug 2026); route list confirmed by Voice7 News the same day (both list the routes marked with 2 sources). Timings and fares were not published - ask BRTC. Women-only routes are never used for general route planning; the app shows them in Women options (and plans with them only when a woman asks for women-only buses).",
+ "routes": [
+  {
+   "company": "BRTC women-only (pink) bus: Notun Bazar - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): নতুন বাজার - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Notun Bazar",
+     ""
+    ],
+    [
+     "Coca-Cola",
+     ""
+    ],
+    [
+     "North Badda",
+     ""
+    ],
+    [
+     "Middle Badda",
+     ""
+    ],
+    [
+     "Merul Badda",
+     ""
+    ],
+    [
+     "Rampura",
+     ""
+    ],
+    [
+     "Abul Hotel",
+     ""
+    ],
+    [
+     "Malibagh",
+     ""
+    ],
+    [
+     "Kakrail",
+     ""
+    ],
+    [
+     "Paltan",
+     ""
+    ],
+    [
+     "Gulistan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Taltola - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): তালতলা - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Taltola",
+     ""
+    ],
+    [
+     "Khilgaon Railgate",
+     ""
+    ],
+    [
+     "Basabo",
+     ""
+    ],
+    [
+     "Buddhist Temple",
+     ""
+    ],
+    [
+     "Mugda",
+     ""
+    ],
+    [
+     "Kamalapur Railway Station",
+     ""
+    ],
+    [
+     "Arambagh",
+     ""
+    ],
+    [
+     "Shapla Chattar",
+     ""
+    ],
+    [
+     "Secretariat",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Demra Staff Quarter - GPO",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): ডেমরা স্টাফ কোয়ার্টার - জিপিও",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Demra Staff Quarter",
+     ""
+    ],
+    [
+     "Bansher Pul",
+     ""
+    ],
+    [
+     "Kajla",
+     ""
+    ],
+    [
+     "Jatrabari",
+     ""
+    ],
+    [
+     "Janapath Mor",
+     ""
+    ],
+    [
+     "Gulistan",
+     ""
+    ],
+    [
+     "Paltan",
+     ""
+    ],
+    [
+     "Secretariat",
+     ""
+    ],
+    [
+     "Matsya Bhaban",
+     ""
+    ],
+    [
+     "GPO",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Mirpur 10 - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): মিরপুর ১০ - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Mirpur 10",
+     ""
+    ],
+    [
+     "Technical",
+     ""
+    ],
+    [
+     "Kallyanpur",
+     ""
+    ],
+    [
+     "Shyamoli",
+     ""
+    ],
+    [
+     "Asad Gate",
+     ""
+    ],
+    [
+     "Kalabagan",
+     ""
+    ],
+    [
+     "Shahbag",
+     ""
+    ],
+    [
+     "Paltan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Mirpur 12 - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): মিরপুর ১২ - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Mirpur 12",
+     ""
+    ],
+    [
+     "Mirpur 10",
+     ""
+    ],
+    [
+     "Mirpur 1",
+     ""
+    ],
+    [
+     "Technical",
+     ""
+    ],
+    [
+     "Shyamoli",
+     ""
+    ],
+    [
+     "Farmgate",
+     ""
+    ],
+    [
+     "Shahbag",
+     ""
+    ],
+    [
+     "Gulistan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Mirpur 12 - Motijheel (via Kazipara)",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): মিরপুর ১২ - মতিঝিল (কাজীপাড়া হয়ে)",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Mirpur 12",
+     ""
+    ],
+    [
+     "Mirpur 11",
+     ""
+    ],
+    [
+     "Mirpur 10",
+     ""
+    ],
+    [
+     "Kazipara",
+     ""
+    ],
+    [
+     "Shewrapara",
+     ""
+    ],
+    [
+     "Farmgate",
+     ""
+    ],
+    [
+     "Shahbag",
+     ""
+    ],
+    [
+     "Press Club",
+     ""
+    ],
+    [
+     "Gulistan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Mohammadpur - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): মোহাম্মদপুর - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Mohammadpur",
+     ""
+    ],
+    [
+     "Shankar",
+     ""
+    ],
+    [
+     "Dhanmondi 15",
+     ""
+    ],
+    [
+     "City College",
+     ""
+    ],
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Elephant Road",
+     ""
+    ],
+    [
+     "Shahbag",
+     ""
+    ],
+    [
+     "Paltan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Abdullahpur - Motijheel",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): আব্দুল্লাহপুর - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Abdullahpur",
+     ""
+    ],
+    [
+     "Airport",
+     ""
+    ],
+    [
+     "Khilkhet",
+     ""
+    ],
+    [
+     "Kuril Bishwa Road",
+     ""
+    ],
+    [
+     "Kuril",
+     ""
+    ],
+    [
+     "Banani",
+     ""
+    ],
+    [
+     "Mohakhali",
+     ""
+    ],
+    [
+     "Farmgate",
+     ""
+    ],
+    [
+     "Shahbag",
+     ""
+    ],
+    [
+     "Press Club",
+     ""
+    ],
+    [
+     "Gulistan",
+     ""
+    ],
+    [
+     "Motijheel",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  },
+  {
+   "company": "BRTC women-only (pink) bus: Gazipur - Airport",
+   "company_bn": "বিআরটিসি মহিলা বাস (পিংক): গাজীপুর - এয়ারপোর্ট",
+   "op": "BRTC",
+   "ref": "",
+   "stops": [
+    [
+     "Shivbari",
+     ""
+    ],
+    [
+     "Gazipur Chourasta",
+     ""
+    ],
+    [
+     "Maleker Bari",
+     ""
+    ],
+    [
+     "Board Bazar",
+     ""
+    ],
+    [
+     "College Gate",
+     ""
+    ],
+    [
+     "Station Road",
+     ""
+    ],
+    [
+     "Abdullahpur",
+     ""
+    ],
+    [
+     "Ashpur",
+     ""
+    ],
+    [
+     "Airport",
+     ""
+    ]
+   ],
+   "source": "news",
+   "source_url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+   "fetched": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332",
+     "date": "2026-08-18"
+    },
+    {
+     "s": "news",
+     "url": "https://www.voice7news.tv/bangladesh/news/33590",
+     "date": "2026-08-18"
+    }
+   ],
+   "hw": 40,
+   "hours": "",
+   "note": "Started 18 Aug 2026; timings not published"
+  }
+ ]
+}

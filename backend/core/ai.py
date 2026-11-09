@@ -901,6 +901,10 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         if isinstance(out_meta, dict):
             out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded,
                              "truncated": truncated,
+                             # aiqual: what really answered (the AI exam
+                             # checks Claude-only while Gemini is off, and
+                             # the +web credits only when a search ran)
+                             "provider": name, "model": used, "web_ran": web_ran,
                              "spend_ref": spend_ref})   # aileft: Stop returns the same lots
         try:
             from . import billing

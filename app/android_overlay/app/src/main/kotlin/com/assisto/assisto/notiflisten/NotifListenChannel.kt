@@ -82,6 +82,7 @@ object NotifListenChannel {
                         "callnote" to NotifListenCore.callNoteOn(ctx),
                         "money" to NotifListenCore.moneyOn(ctx),
                         "moneyAuto" to NotifListenCore.prefs(ctx).getBoolean("money_auto", false),
+                        "moneySms" to NotifListenCore.moneySmsOn(ctx),
                     ))
                     "openAccessSettings" -> { openSettings(activity); result.success(true) }
                     "setConfig" -> {
@@ -113,6 +114,13 @@ object NotifListenChannel {
                         val ids = (call.argument<List<Any?>>("ids") ?: emptyList())
                             .mapNotNull { (it as? Number)?.toLong() }.toSet()
                         NotifListenCore.removeIds(ctx, ids)
+                        result.success(true)
+                    }
+                    "setMoneySms" -> {
+                        // smsswitch: the server switch money_notif_sms (default ON)
+                        val on = call.argument<Boolean>("on") != false
+                        NotifListenCore.prefs(ctx).edit().putBoolean("money_sms", on).apply()
+                        if (!on) NotifListenCore.dropKind(ctx, "sms") // waiting SMS items: never sent
                         result.success(true)
                     }
                     "takeLaunch" -> result.success(takeLaunch(activity))

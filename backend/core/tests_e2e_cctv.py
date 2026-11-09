@@ -127,6 +127,10 @@ class ImouCloudE2ETests(_Base):
         self.cam = self.add_camera("imou", "Gate (Imou)")
         self.calls = []
         self.bound = set()
+        # cctvconnect: developer-account binds = owner test cameras + consent
+        p = mock.patch("core.cctv_connect_views.devbind_allowed", return_value=True)
+        p.start()
+        self.addCleanup(p.stop)
 
     def imou_http(self, url, body, timeout):
         """The Imou Open API v1 as documented: every call is signed; answers
@@ -161,11 +165,14 @@ class ImouCloudE2ETests(_Base):
     def link(self, code="L2C3D4"):
         from core.logic import imou as IM
         client = IM.ImouClient(self.APP_ID, self.SECRET, http=self.imou_http)
+        # cctvconnect: developer-account binds = owner test cameras + consent
         with mock.patch("core.watchman_views.imou_cloud_on", return_value=True), \
+                mock.patch("core.cctv_connect_views.devbind_allowed", return_value=True), \
                 mock.patch("core.logic.imou.ImouClient.from_integration",
                            return_value=client):
             return self.client.post("/api/v1/shop/cameras/%d/imou" % self.cam["id"],
-                                    {"device_serial": "7j0a8b9c", "safety_code": code},
+                                    {"device_serial": "7j0a8b9c", "safety_code": code,
+                                     "consent": True},
                                     format="json")
 
     def callback(self, msg, pic=None):

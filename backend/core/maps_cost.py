@@ -181,13 +181,53 @@ def _plan_note(user):
         pass
 
 
-def allow(api, user, now=None):
+def _session_mark(session):
+    """sjp0: a search SESSION's marker row in MapsUsage (api 's:<hash>', 16
+    chars). DB-backed so every gunicorn worker sees the same session."""
+    import hashlib
+    session = str(session or "")
+    if not _TOKEN.match(session):
+        return None
+    return "s:" + hashlib.sha1(session.encode()).hexdigest()[:14]
+
+
+def allow(api, user, now=None, session=None):
     """(ok, reason) — reason '' | 'user_cap' | 'plan_cap' | 'global_cap'. Counts the call
-    when allowed, counts the refusal when not. Day = Bangladesh local date."""
+    when allowed, counts the refusal when not. Day = Bangladesh local date.
+
+    sjp0 (owner P0 9 Nov): with a search session token (autocomplete +
+    the Place Details that ends it) the WHOLE session counts once — one
+    search, never one keystroke — against the user, plan and global limits
+    and safe_plans.note_paid_maps. Later calls in an admitted session pass
+    (Details is still counted under its own API for the cost card); a refused
+    session stays refused without counting again."""
     from .models import MapsUsage
     day = timezone.localdate(now or timezone.now())
-    c = config()["apis"][api]
     uid = _uid(user)
+    mark = _session_mark(session) if api in ("autocomplete", "place_details") else None
+    if mark:
+        row = MapsUsage.objects.filter(day=day, api=mark, user_id=uid) \
+            .values_list("count", "capped").first()
+        if row is not None:
+            if row[0]:
+                if api != "autocomplete":
+                    _bump(day, api, uid, "count")
+                return True, ""
+            return False, "user_cap"
+    ok, why = _allow_once(api, user, uid, day)
+    if mark:
+        try:
+            with transaction.atomic():
+                MapsUsage.objects.create(day=day, api=mark, user_id=uid,
+                                         count=1 if ok else 0, capped=0 if ok else 1)
+        except IntegrityError:
+            pass
+    return ok, why
+
+
+def _allow_once(api, user, uid, day):
+    from .models import MapsUsage
+    c = config()["apis"][api]
     if uid:
         mine = MapsUsage.objects.filter(day=day, api=api, user_id=uid) \
             .values_list("count", flat=True).first() or 0
@@ -243,12 +283,12 @@ def _http_json(url, body=None, headers=None):
 HTTP = _http_json      # tests replace this — CI never makes a real call
 
 
-def _paid(api, user, fn):
+def _paid(api, user, fn, session=None):
     """Run fn(key) under the limits. -> (state, result) with state in
     ok | off | user_cap | global_cap | failed."""
     if not ready():
         return "off", None
-    ok, why = allow(api, user)
+    ok, why = allow(api, user, session=session)
     if not ok:
         return why, None
     try:
@@ -365,7 +405,7 @@ def autocomplete(user, q, session, lat=None, lng=None, lang="bn"):
                 out.append(row)
         return out
 
-    state, rows = _paid("autocomplete", user, call)
+    state, rows = _paid("autocomplete", user, call, session=session)
     if state != "ok":
         return {"state": state, "results": []}
     return {"state": "ok" if rows else "none", "results": rows}
@@ -396,7 +436,7 @@ def place_details(user, place_id, session, lang="bn"):
         return {"lat": round(float(loc["latitude"]), 6), "lng": round(float(loc["longitude"]), 6),
                 "address": str(d.get("formattedAddress") or "")[:300]}
 
-    state, got = _paid("place_details", user, call)
+    state, got = _paid("place_details", user, call, session=session)
     if state != "ok":
         return {"state": state}
     if not got:

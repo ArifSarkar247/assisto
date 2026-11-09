@@ -192,7 +192,9 @@ void main() {
       expect(picked?.lat, 23.7509);
     });
 
-    testWidgets('capped -> honest message, nothing invented', (tester) async {
+    // qjourney (owner V2, 9 Nov): NEVER a limit message — a capped Google
+    // answer reads like any empty search (our own list / saved / recent first)
+    testWidgets('capped -> no limit message, nothing invented', (tester) async {
       final api = _Api()..acState = 'global_cap';
       await tester.pumpWidget(_host(Builder(
           builder: (ctx) => TextButton(
@@ -203,7 +205,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump();
       final t = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(t.mapscSearchCapped), findsOneWidget);
+      expect(find.text(t.mapscSearchCapped), findsNothing);
+      expect(find.text(t.j2SearchNone), findsOneWidget);
       expect(find.byType(ListTile), findsNothing);
     });
   });

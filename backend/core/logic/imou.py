@@ -46,6 +46,19 @@ def sign(ts, nonce, app_secret):
     return hashlib.md5(raw.encode("utf-8")).hexdigest()
 
 
+def sign_v2(ts, nonce, app_secret):
+    """cctvconnect: the current Open API signature (open.imoulife.com
+    book/05-api/01.conventions/02.sign): password = hex(SHA-256(secret)),
+    sign = Base64(HMAC-SHA256(key=password, "time:..,nonce:..,appSecret:..")).
+    Used for OAuth-project calls; the app keeps the md5 form that works."""
+    import base64
+    import hmac
+    raw = "time:%d,nonce:%s,appSecret:%s" % (int(ts), nonce, app_secret)
+    pw = hashlib.sha256(app_secret.encode("utf-8")).hexdigest().lower()
+    return base64.b64encode(hmac.new(pw.encode("utf-8"), raw.encode("utf-8"),
+                                     hashlib.sha256).digest()).decode("ascii")
+
+
 def _default_http(url, body, timeout):
     import requests
     r = requests.post(url, data=body, timeout=timeout,
@@ -60,6 +73,12 @@ class ImouClient:
         self.api_base = (api_base or DEFAULT_API_BASE).rstrip("/")
         self.http = http or _default_http
         self.now = now or time.time
+        # cctvconnect: signature function + which free quota a call counts against
+        self.signer = sign
+        self.quota_provider = "imou"
+        # cctvconnect: a same-family cloud (Dahua DoLynk) may name a method
+        # differently — {"ourName": "theirName"} from Owner Admin
+        self.method_map = {}
 
     @classmethod
     def from_integration(cls, http=None):
@@ -72,12 +91,18 @@ class ImouClient:
                    http=http)
 
     def call(self, method, params=None):
+        method = self.method_map.get(method, method)
         ts = int(self.now())
         nonce = uuid.uuid4().hex
         body = json.dumps({
             "system": {"ver": "1.0", "appId": self.app_id, "time": ts,
-                       "nonce": nonce, "sign": sign(ts, nonce, self.app_secret)},
+                       "nonce": nonce, "sign": self.signer(ts, nonce, self.app_secret)},
             "params": params or {}, "id": uuid.uuid4().hex})
+        try:      # cctvconnect: every call counts toward the free monthly quota
+            from .cctv_connect import quota as _Q
+            _Q.bump(self.quota_provider, api=1)
+        except Exception:  # noqa: BLE001
+            pass
         try:
             status, text = self.http("%s/%s" % (self.api_base, method), body,
                                      TIMEOUT_S)
@@ -123,9 +148,9 @@ class ImouClient:
         return self.call("deviceOnline", {"token": self.token(),
                                           "deviceId": device_id})
 
-    def set_callback(self, url):
+    def set_callback(self, url, flags="alarm,deviceStatus"):
         return self.call("setMessageCallback", {
-            "token": self.token(), "callbackFlag": "alarm,deviceStatus",
+            "token": self.token(), "callbackFlag": flags,
             "callbackUrl": url, "status": "on"})
 
     def alarms(self, device_id, channel_id="0", since_minutes=10, count=20):

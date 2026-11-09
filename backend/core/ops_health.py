@@ -214,6 +214,9 @@ JOBS = (
     # ISO week) — both ride minute_jobs (owner: no new cron lines)
     Job("market_pool_sweep", MIN, "* * * * *", via="minute_jobs"),
     Job("bizai_weekly", MIN, "* * * * *", via="minute_jobs"),
+    # cctvconnect: brand-cloud events + cloud DVR health + the daily CCTV
+    # green check; idle (no key / no link / not 09:00) = two cheap reads
+    Job("cctv_connect_tick", MIN, "* * * * *", via="minute_jobs"),
     # nearby: pulls the monthly OSM emergency files (GitHub release assets);
     # idle = one DB read, manifest every 6 h, one country per run
     Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
@@ -247,6 +250,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                # bizai: gated, so idle minutes are one indexed stamp read
                ("market_pool_sweep", {"tick": True}),
                ("bizai_weekly", {"tick": True}),
+               # cctvconnect: idle = one indexed read (no active link / key)
+               ("cctv_connect_tick", {"quiet": True}),
                # nearby: after the safety jobs; idle = one DB read, a monthly
                # import is one country per run
                ("nearby_import", {"quiet": True}),

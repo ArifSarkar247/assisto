@@ -13,6 +13,9 @@
 </section>
 <section class="card" id="ail-exam"><h2>{{ L.exam }}</h2>
 <p>{{ exam.cases }} cases · {% if exam.last.day %}{{ exam.last.day }}: pass <b>{{ exam.last.pass_rate }}</b> · win/tie <b>{{ exam.last.win_rate|default:"—" }}</b> · ${{ exam.last.cost_usd }} · {{ exam.last.graded }}/{{ exam.last.total }}{% else %}—{% endif %} · gate: {% if exam.gate_ok %}<span class="pill ok">OK</span>{% else %}<span class="pill off">{{ exam.gate_why }}</span>{% endif %}</p>
+{% if exam.last.day %}<p class="small">{% if exam.last.stopped %}stopped: <b>{{ exam.last.stopped }}</b> · {% endif %}judged {{ exam.last.judged|default:"0" }} · web {{ exam.last.web_runs|default:"0" }} · cut→Continue {{ exam.last.cuts|default:"0" }}{% for k, v in exam.last.models.items %} · <code>{{ k }}</code> {{ v }}{% endfor %}</p>{% endif %}
+{% if exam.last.by_level %}<p class="small">{% for k, v in exam.last.by_level.items %}<b>{{ k }}</b> {{ v.ok }}/{{ v.n }} · {% endfor %}</p>{% endif %}
+{% if exam.last.reasons %}<p class="small">{% for k, v in exam.last.reasons.items %}<code>{{ k }}</code> ×{{ v }} · {% endfor %}</p>{% endif %}
 {% if exam.last.by_cat %}<div class="tbl"><table><tbody>{% for k, v in exam.last.by_cat.items %}<tr><td><code>{{ k }}</code></td><td>{{ v.ok }}/{{ v.n }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
 </section>
 <section class="card" id="ail-edit">

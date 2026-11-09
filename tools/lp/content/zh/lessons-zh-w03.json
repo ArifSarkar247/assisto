@@ -1,0 +1,1448 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "zh",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "hsk1"
+ ],
+ "title": {
+  "en": "Week 3: Places, travel, work and weather",
+  "bn": "সপ্তাহ ৩: জায়গা, যাতায়াত, কাজ আর আবহাওয়া"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official HSK material and not an official result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল HSK উপকরণ বা অফিসিয়াল ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "Chinese Testing International public HSK 1 description + HSK 1 public word list (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "zh-w03-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Where is it?",
+    "bn": "কোথায়?"
+   },
+   "goal_bn": "দোকান, হাসপাতাল, স্কুল, রেস্তোরাঁ, স্টেশন — 在 দিয়ে কে-কী কোথায় আছে বলবেন ও জিজ্ঞেস করবেন।",
+   "vocab": [
+    {
+     "target": "在",
+     "roman": "zài",
+     "tones": [
+      4
+     ],
+     "bn": "আছে (কোনো জায়গায়) / -এ",
+     "pos": "verb",
+     "example": {
+      "target": "我在家。",
+      "roman": "Wǒ zài jiā.",
+      "bn": "আমি বাড়িতে আছি।"
+     }
+    },
+    {
+     "target": "商店",
+     "roman": "shāngdiàn",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "দোকান",
+     "pos": "noun",
+     "example": {
+      "target": "商店在哪儿？",
+      "roman": "Shāngdiàn zài nǎr?",
+      "bn": "দোকান কোথায়?"
+     }
+    },
+    {
+     "target": "医院",
+     "roman": "yīyuàn",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "হাসপাতাল",
+     "pos": "noun",
+     "example": {
+      "target": "我妈妈在医院。",
+      "roman": "Wǒ māma zài yīyuàn.",
+      "bn": "আমার মা হাসপাতালে আছেন।"
+     }
+    },
+    {
+     "target": "学校",
+     "roman": "xuéxiào",
+     "tones": [
+      2,
+      4
+     ],
+     "bn": "স্কুল",
+     "pos": "noun",
+     "example": {
+      "target": "我的学校很大。",
+      "roman": "Wǒ de xuéxiào hěn dà.",
+      "bn": "আমার স্কুলটা অনেক বড়।"
+     }
+    },
+    {
+     "target": "饭店",
+     "roman": "fàndiàn",
+     "tones": [
+      4,
+      4
+     ],
+     "bn": "রেস্তোরাঁ / হোটেল",
+     "pos": "noun",
+     "example": {
+      "target": "我们去饭店吃饭吧。",
+      "roman": "Wǒmen qù fàndiàn chī fàn ba.",
+      "bn": "চলো রেস্তোরাঁয় খেতে যাই।"
+     }
+    },
+    {
+     "target": "火车站",
+     "roman": "huǒchēzhàn",
+     "tones": [
+      3,
+      1,
+      4
+     ],
+     "bn": "রেলস্টেশন",
+     "pos": "noun",
+     "example": {
+      "target": "火车站在哪儿？",
+      "roman": "Huǒchēzhàn zài nǎr?",
+      "bn": "রেলস্টেশন কোথায়?"
+     }
+    },
+    {
+     "target": "这儿",
+     "roman": "zhèr",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "এখানে",
+     "pos": "pronoun",
+     "example": {
+      "target": "我在这儿。",
+      "roman": "Wǒ zài zhèr.",
+      "bn": "আমি এখানে।"
+     }
+    },
+    {
+     "target": "那儿",
+     "roman": "nàr",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "ওখানে",
+     "pos": "pronoun",
+     "example": {
+      "target": "厕所在那儿。",
+      "roman": "Cèsuǒ zài nàr.",
+      "bn": "টয়লেট ওখানে।"
+     }
+    },
+    {
+     "target": "前面",
+     "roman": "qiánmiàn",
+     "tones": [
+      2,
+      4
+     ],
+     "bn": "সামনে",
+     "pos": "noun",
+     "example": {
+      "target": "商店在医院前面。",
+      "roman": "Shāngdiàn zài yīyuàn qiánmiàn.",
+      "bn": "দোকানটা হাসপাতালের সামনে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "A 在 জায়গা (A কোথায় আছে)",
+     "explain_bn": "কেউ বা কিছু কোথায় আছে বলতে: কে/কী + 在 + জায়গা। প্রশ্ন: …在哪儿？ এখানে 是 লাগে না।",
+     "examples": [
+      {
+       "target": "我在商店。",
+       "roman": "Wǒ zài shāngdiàn.",
+       "bn": "আমি দোকানে আছি।"
+      },
+      {
+       "target": "医院在哪儿？",
+       "roman": "Yīyuàn zài nǎr?",
+       "bn": "হাসপাতাল কোথায়?"
+      }
+     ]
+    },
+    {
+     "pattern": "在 + জায়গা + কাজ (কোথায় কাজটা হয়)",
+     "explain_bn": "কাজটা কোথায় হচ্ছে, সেটা ক্রিয়ার আগে 在 + জায়গা দিয়ে বলুন। বাংলার 'রেস্তোরাঁয় খাই'-এর মতো।",
+     "examples": [
+      {
+       "target": "我在饭店吃饭。",
+       "roman": "Wǒ zài fàndiàn chī fàn.",
+       "bn": "আমি রেস্তোরাঁয় খাই।"
+      },
+      {
+       "target": "她在医院工作。",
+       "roman": "Tā zài yīyuàn gōngzuò.",
+       "bn": "সে হাসপাতালে কাজ করে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w03-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "visitor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "local man"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "请问，医院在哪儿？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "医院在火车站前面。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "হাসপাতাল কোথায়?",
+      "options": [
+       "স্কুলের পেছনে",
+       "রেলস্টেশনের সামনে",
+       "দোকানের ভেতরে",
+       "রেস্তোরাঁর পাশে"
+      ],
+      "answer": "B",
+      "explain_bn": "火车站前面 — রেলস্টেশনের সামনে।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w03-l1-r1",
+      "passage": "拉希德在饭店工作。他妈妈在医院工作。他儿子在学校。",
+      "passage_roman": "Lāxīdé zài fàndiàn gōngzuò. Tā māma zài yīyuàn gōngzuò. Tā érzi zài xuéxiào.",
+      "prompt_bn": "রাশিদের মা কোথায় কাজ করেন?",
+      "options": [
+       "饭店",
+       "学校",
+       "商店",
+       "医院"
+      ],
+      "options_roman": [
+       "fàndiàn",
+       "xuéxiào",
+       "shāngdiàn",
+       "yīyuàn"
+      ],
+      "answer": "D",
+      "explain_bn": "他妈妈在医院工作 — তার মা হাসপাতালে কাজ করেন। রেস্তোরাঁয় কাজ করে রাশিদ নিজে।",
+      "skill": "place"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w03-l1-w1",
+      "prompt_bn": "বন্ধুকে মেসেজ লিখুন: আপনি দোকানে আছেন, সে কোথায়?",
+      "model": {
+       "target": "我在商店。你在哪儿？",
+       "roman": "Wǒ zài shāngdiàn. Nǐ zài nǎr?",
+       "bn": "আমি দোকানে। তুমি কোথায়?"
+      },
+      "check": "ai",
+      "max_chars": 8
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w03-l1-s1",
+      "prompt_bn": "জোরে বলুন: রাস্তায় কাউকে রেলস্টেশন কোথায় জিজ্ঞেস করুন।",
+      "model": {
+       "target": "请问，火车站在哪儿？",
+       "roman": "Qǐngwèn, huǒchēzhàn zài nǎr?",
+       "bn": "একটু বলবেন, রেলস্টেশন কোথায়?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w03-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Getting around",
+    "bn": "যাতায়াত"
+   },
+   "goal_bn": "ট্যাক্সি, বাস, ট্রেন, বিমানে কোথায় যাবেন বলবেন; ড্রাইভারকে গন্তব্য বলবেন।",
+   "vocab": [
+    {
+     "target": "去",
+     "roman": "qù",
+     "tones": [
+      4
+     ],
+     "bn": "যাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "我明天去北京。",
+      "roman": "Wǒ míngtiān qù Běijīng.",
+      "bn": "আমি কাল বেইজিং যাব।"
+     }
+    },
+    {
+     "target": "来",
+     "roman": "lái",
+     "tones": [
+      2
+     ],
+     "bn": "আসা",
+     "pos": "verb",
+     "example": {
+      "target": "你什么时候来中国？",
+      "roman": "Nǐ shénme shíhou lái Zhōngguó?",
+      "bn": "তুমি কখন চীনে আসবে?"
+     }
+    },
+    {
+     "target": "坐",
+     "roman": "zuò",
+     "tones": [
+      4
+     ],
+     "bn": "বসা / (যানবাহনে) চড়া",
+     "pos": "verb",
+     "example": {
+      "target": "我坐出租车去医院。",
+      "roman": "Wǒ zuò chūzūchē qù yīyuàn.",
+      "bn": "আমি ট্যাক্সিতে হাসপাতালে যাই।"
+     }
+    },
+    {
+     "target": "出租车",
+     "roman": "chūzūchē",
+     "tones": [
+      1,
+      1,
+      1
+     ],
+     "bn": "ট্যাক্সি",
+     "pos": "noun",
+     "example": {
+      "target": "出租车来了。",
+      "roman": "Chūzūchē lái le.",
+      "bn": "ট্যাক্সি এসে গেছে।"
+     }
+    },
+    {
+     "target": "飞机",
+     "roman": "fēijī",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "বিমান / উড়োজাহাজ",
+     "pos": "noun",
+     "example": {
+      "target": "我坐飞机去中国。",
+      "roman": "Wǒ zuò fēijī qù Zhōngguó.",
+      "bn": "আমি বিমানে চীনে যাব।"
+     }
+    },
+    {
+     "target": "机场",
+     "roman": "jīchǎng",
+     "tones": [
+      1,
+      3
+     ],
+     "bn": "বিমানবন্দর",
+     "pos": "noun",
+     "example": {
+      "target": "去机场多少钱？",
+      "roman": "Qù jīchǎng duōshao qián?",
+      "bn": "বিমানবন্দরে যেতে কত লাগবে?"
+     }
+    },
+    {
+     "target": "公共汽车",
+     "roman": "gōnggòng qìchē",
+     "tones": [
+      1,
+      4,
+      4,
+      1
+     ],
+     "bn": "বাস",
+     "pos": "noun",
+     "example": {
+      "target": "我每天坐公共汽车。",
+      "roman": "Wǒ měitiān zuò gōnggòng qìchē.",
+      "bn": "আমি প্রতিদিন বাসে চড়ি।"
+     }
+    },
+    {
+     "target": "回",
+     "roman": "huí",
+     "tones": [
+      2
+     ],
+     "bn": "ফেরা",
+     "pos": "verb",
+     "example": {
+      "target": "我想回家。",
+      "roman": "Wǒ xiǎng huí jiā.",
+      "bn": "আমি বাড়ি ফিরতে চাই।"
+     }
+    },
+    {
+     "target": "北京",
+     "roman": "Běijīng",
+     "tones": [
+      3,
+      1
+     ],
+     "bn": "বেইজিং",
+     "pos": "noun",
+     "example": {
+      "target": "北京很大。",
+      "roman": "Běijīng hěn dà.",
+      "bn": "বেইজিং অনেক বড়।"
+     }
+    },
+    {
+     "target": "开车",
+     "roman": "kāichē",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "গাড়ি চালানো",
+     "pos": "verb",
+     "example": {
+      "target": "我爸爸会开车。",
+      "roman": "Wǒ bàba huì kāichē.",
+      "bn": "আমার বাবা গাড়ি চালাতে পারেন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "坐 + যানবাহন + 去 + জায়গা",
+     "explain_bn": "কীসে চড়ে কোথায় যাচ্ছেন: 坐 + যানবাহন + 去 + জায়গা। যানবাহন আগে, গন্তব্য পরে।",
+     "examples": [
+      {
+       "target": "我坐飞机去北京。",
+       "roman": "Wǒ zuò fēijī qù Běijīng.",
+       "bn": "আমি বিমানে বেইজিং যাই।"
+      },
+      {
+       "target": "他坐出租车去火车站。",
+       "roman": "Tā zuò chūzūchē qù huǒchēzhàn.",
+       "bn": "সে ট্যাক্সিতে রেলস্টেশনে যায়।"
+      }
+     ]
+    },
+    {
+     "pattern": "去 / 来 / 回",
+     "explain_bn": "去 = বক্তার থেকে দূরে যাওয়া, 来 = বক্তার দিকে আসা, 回 = নিজের জায়গায় ফেরা (বাড়ি, দেশ)।",
+     "examples": [
+      {
+       "target": "我回孟加拉国。",
+       "roman": "Wǒ huí Mèngjiālāguó.",
+       "bn": "আমি বাংলাদেশে ফিরব।"
+      },
+      {
+       "target": "你来我家吧。",
+       "roman": "Nǐ lái wǒ jiā ba.",
+       "bn": "আমার বাড়িতে এসো।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w03-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "taxi driver"
+        },
+        "B": {
+         "gender": "F",
+         "role": "passenger"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你好，你去哪儿？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我去机场。多少钱？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "一百二十块。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "যাত্রী কোথায় যাবে?",
+      "options": [
+       "医院",
+       "学校",
+       "机场",
+       "火车站"
+      ],
+      "options_roman": [
+       "yīyuàn",
+       "xuéxiào",
+       "jīchǎng",
+       "huǒchēzhàn"
+      ],
+      "answer": "C",
+      "explain_bn": "যাত্রী বলেছে 我去机场 — বিমানবন্দরে যাব। ভাড়া ১২০ ইউয়ান।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w03-l2-r1",
+      "passage": "法蒂玛明天去上海。她不坐飞机，她坐火车去。",
+      "passage_roman": "Fǎdìmǎ míngtiān qù Shànghǎi. Tā bú zuò fēijī, tā zuò huǒchē qù.",
+      "prompt_bn": "ফাতিমা কীসে করে যাবে?",
+      "options": [
+       "বিমানে",
+       "ট্রেনে",
+       "বাসে",
+       "ট্যাক্সিতে"
+      ],
+      "answer": "B",
+      "explain_bn": "她不坐飞机，她坐火车去 — বিমানে না, ট্রেনে যাবে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w03-l2-w1",
+      "prompt_bn": "লিখুন: আপনি ট্যাক্সিতে বিমানবন্দরে যাবেন।",
+      "model": {
+       "target": "我坐出租车去机场。",
+       "roman": "Wǒ zuò chūzūchē qù jīchǎng.",
+       "bn": "আমি ট্যাক্সিতে বিমানবন্দরে যাব।"
+      },
+      "check": "ai",
+      "max_chars": 10
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w03-l2-s1",
+      "prompt_bn": "জোরে বলুন: ট্যাক্সি ড্রাইভারকে বলুন রেলস্টেশনে যাবেন (চীনে ড্রাইভারকে ভদ্রভাবে 师傅 বলে ডাকা হয়)।",
+      "model": {
+       "target": "师傅，我去火车站。",
+       "roman": "Shīfu, wǒ qù huǒchēzhàn.",
+       "bn": "ড্রাইভার ভাই, আমি রেলস্টেশনে যাব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w03-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Jobs and work",
+    "bn": "পেশা আর কাজ"
+   },
+   "goal_bn": "পেশার নাম বলবেন, কে কোথায় কাজ করে বলবেন, আর 也/都 দিয়ে 'ও/সবাই' বলবেন।",
+   "vocab": [
+    {
+     "target": "工作",
+     "roman": "gōngzuò",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "কাজ / কাজ করা",
+     "pos": "noun",
+     "example": {
+      "target": "你做什么工作？",
+      "roman": "Nǐ zuò shénme gōngzuò?",
+      "bn": "তুমি কী কাজ করো?"
+     }
+    },
+    {
+     "target": "医生",
+     "roman": "yīshēng",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "ডাক্তার",
+     "pos": "noun",
+     "example": {
+      "target": "他是医生。",
+      "roman": "Tā shì yīshēng.",
+      "bn": "তিনি ডাক্তার।"
+     }
+    },
+    {
+     "target": "老师",
+     "roman": "lǎoshī",
+     "tones": [
+      3,
+      1
+     ],
+     "bn": "শিক্ষক",
+     "pos": "noun",
+     "example": {
+      "target": "我的汉语老师是中国人。",
+      "roman": "Wǒ de Hànyǔ lǎoshī shì Zhōngguó rén.",
+      "bn": "আমার চাইনিজ শিক্ষক চীনা।"
+     }
+    },
+    {
+     "target": "学生",
+     "roman": "xuésheng",
+     "tones": [
+      2,
+      0
+     ],
+     "bn": "ছাত্র / ছাত্রী",
+     "pos": "noun",
+     "example": {
+      "target": "我儿子是学生。",
+      "roman": "Wǒ érzi shì xuésheng.",
+      "bn": "আমার ছেলে ছাত্র।"
+     }
+    },
+    {
+     "target": "做",
+     "roman": "zuò",
+     "tones": [
+      4
+     ],
+     "bn": "করা",
+     "pos": "verb",
+     "example": {
+      "target": "你在做什么？",
+      "roman": "Nǐ zài zuò shénme?",
+      "bn": "তুমি কী করছ?"
+     }
+    },
+    {
+     "target": "公司",
+     "roman": "gōngsī",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "কোম্পানি",
+     "pos": "noun",
+     "example": {
+      "target": "我在中国公司工作。",
+      "roman": "Wǒ zài Zhōngguó gōngsī gōngzuò.",
+      "bn": "আমি একটা চীনা কোম্পানিতে কাজ করি।"
+     }
+    },
+    {
+     "target": "工人",
+     "roman": "gōngrén",
+     "tones": [
+      1,
+      2
+     ],
+     "bn": "শ্রমিক",
+     "pos": "noun",
+     "example": {
+      "target": "他在工厂工作，他是工人。",
+      "roman": "Tā zài gōngchǎng gōngzuò, tā shì gōngrén.",
+      "bn": "সে কারখানায় কাজ করে, সে শ্রমিক।"
+     }
+    },
+    {
+     "target": "司机",
+     "roman": "sījī",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "ড্রাইভার",
+     "pos": "noun",
+     "example": {
+      "target": "我爸爸是出租车司机。",
+      "roman": "Wǒ bàba shì chūzūchē sījī.",
+      "bn": "আমার বাবা ট্যাক্সি ড্রাইভার।"
+     }
+    },
+    {
+     "target": "同事",
+     "roman": "tóngshì",
+     "tones": [
+      2,
+      4
+     ],
+     "bn": "সহকর্মী",
+     "pos": "noun",
+     "example": {
+      "target": "这是我的同事。",
+      "roman": "Zhè shì wǒ de tóngshì.",
+      "bn": "ইনি আমার সহকর্মী।"
+     }
+    },
+    {
+     "target": "忙",
+     "roman": "máng",
+     "tones": [
+      2
+     ],
+     "bn": "ব্যস্ত",
+     "pos": "adjective",
+     "example": {
+      "target": "我今天很忙。",
+      "roman": "Wǒ jīntiān hěn máng.",
+      "bn": "আমি আজ খুব ব্যস্ত।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "你做什么工作？ (কী কাজ করেন?)",
+     "explain_bn": "পেশা জিজ্ঞেস করতে 你做什么工作？, উত্তর 我是 + পেশা। কোথায় করেন: 我在 + জায়গা + 工作।",
+     "examples": [
+      {
+       "target": "你做什么工作？",
+       "roman": "Nǐ zuò shénme gōngzuò?",
+       "bn": "আপনি কী কাজ করেন?"
+      },
+      {
+       "target": "我是司机。",
+       "roman": "Wǒ shì sījī.",
+       "bn": "আমি ড্রাইভার।"
+      }
+     ]
+    },
+    {
+     "pattern": "也 (ও) আর 都 (সবাই)",
+     "explain_bn": "也 আর 都 সবসময় ক্রিয়ার ঠিক আগে বসে, কর্তার আগে নয়। 也 = ও/-ও, 都 = সবাই/সবকিছু।",
+     "examples": [
+      {
+       "target": "我是工人，他也是工人。",
+       "roman": "Wǒ shì gōngrén, tā yě shì gōngrén.",
+       "bn": "আমি শ্রমিক, সে-ও শ্রমিক।"
+      },
+      {
+       "target": "我们都是学生。",
+       "roman": "Wǒmen dōu shì xuésheng.",
+       "bn": "আমরা সবাই ছাত্র।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w03-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "interviewer"
+        },
+        "B": {
+         "gender": "M",
+         "role": "job seeker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你做什么工作？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我是司机，我在一家公司工作。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটির পেশা কী?",
+      "options": [
+       "医生",
+       "老师",
+       "司机",
+       "工人"
+      ],
+      "options_roman": [
+       "yīshēng",
+       "lǎoshī",
+       "sījī",
+       "gōngrén"
+      ],
+      "answer": "C",
+      "explain_bn": "সে বলেছে 我是司机 — আমি ড্রাইভার।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w03-l3-r1",
+      "passage": "我叫王丽，我是医生。我爸爸是老师，我妈妈也是老师。",
+      "passage_roman": "Wǒ jiào Wáng Lì, wǒ shì yīshēng. Wǒ bàba shì lǎoshī, wǒ māma yě shì lǎoshī.",
+      "prompt_bn": "ওয়াং লি-র মা কী করেন?",
+      "options": [
+       "ডাক্তার",
+       "শিক্ষক",
+       "ড্রাইভার",
+       "ছাত্রী"
+      ],
+      "answer": "B",
+      "explain_bn": "我妈妈也是老师 — মা-ও শিক্ষক। ডাক্তার হলেন ওয়াং লি নিজে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w03-l3-w1",
+      "prompt_bn": "আপনার পেশা আর কোথায় কাজ করেন — চাইনিজে লিখুন।",
+      "model": {
+       "target": "我是工人，我在公司工作。",
+       "roman": "Wǒ shì gōngrén, wǒ zài gōngsī gōngzuò.",
+       "bn": "আমি শ্রমিক, আমি একটা কোম্পানিতে কাজ করি।"
+      },
+      "check": "ai",
+      "max_chars": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w03-l3-s1",
+      "prompt_bn": "জোরে বলুন: আপনার কাজ নিয়ে দুই বাক্য — পেশা, ব্যস্ততা আর কাজ পছন্দ কি না।",
+      "model": {
+       "target": "我是工人。我很忙，我喜欢我的工作。",
+       "roman": "Wǒ shì gōngrén. Wǒ hěn máng, wǒ xǐhuan wǒ de gōngzuò.",
+       "bn": "আমি শ্রমিক। আমি খুব ব্যস্ত, আমার কাজটা আমি পছন্দ করি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w03-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Weather",
+    "bn": "আবহাওয়া"
+   },
+   "goal_bn": "গরম, ঠান্ডা, বৃষ্টি, তুষার — আবহাওয়া বলবেন; 太…了 আর 很 + বিশেষণ শিখবেন।",
+   "vocab": [
+    {
+     "target": "天气",
+     "roman": "tiānqì",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "আবহাওয়া",
+     "pos": "noun",
+     "example": {
+      "target": "今天天气怎么样？",
+      "roman": "Jīntiān tiānqì zěnmeyàng?",
+      "bn": "আজ আবহাওয়া কেমন?"
+     }
+    },
+    {
+     "target": "热",
+     "roman": "rè",
+     "tones": [
+      4
+     ],
+     "bn": "গরম",
+     "pos": "adjective",
+     "example": {
+      "target": "达卡很热。",
+      "roman": "Dákǎ hěn rè.",
+      "bn": "ঢাকায় খুব গরম।"
+     }
+    },
+    {
+     "target": "冷",
+     "roman": "lěng",
+     "tones": [
+      3
+     ],
+     "bn": "ঠান্ডা",
+     "pos": "adjective",
+     "example": {
+      "target": "北京冬天很冷。",
+      "roman": "Běijīng dōngtiān hěn lěng.",
+      "bn": "বেইজিংয়ে শীতকালে খুব ঠান্ডা।"
+     }
+    },
+    {
+     "target": "下雨",
+     "roman": "xià yǔ",
+     "tones": [
+      4,
+      3
+     ],
+     "bn": "বৃষ্টি হওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "明天会下雨。",
+      "roman": "Míngtiān huì xià yǔ.",
+      "bn": "কাল বৃষ্টি হবে।"
+     }
+    },
+    {
+     "target": "太",
+     "roman": "tài",
+     "tones": [
+      4
+     ],
+     "bn": "অতিরিক্ত / খুব বেশি",
+     "pos": "adverb",
+     "example": {
+      "target": "太热了！",
+      "roman": "Tài rè le!",
+      "bn": "খুব বেশি গরম!"
+     }
+    },
+    {
+     "target": "下雪",
+     "roman": "xià xuě",
+     "tones": [
+      4,
+      3
+     ],
+     "bn": "তুষার পড়া",
+     "pos": "verb",
+     "example": {
+      "target": "北京下雪了。",
+      "roman": "Běijīng xià xuě le.",
+      "bn": "বেইজিংয়ে তুষার পড়ছে।"
+     }
+    },
+    {
+     "target": "冬天",
+     "roman": "dōngtiān",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "শীতকাল",
+     "pos": "noun",
+     "example": {
+      "target": "我不喜欢冬天。",
+      "roman": "Wǒ bù xǐhuan dōngtiān.",
+      "bn": "আমি শীতকাল পছন্দ করি না।"
+     }
+    },
+    {
+     "target": "夏天",
+     "roman": "xiàtiān",
+     "tones": [
+      4,
+      1
+     ],
+     "bn": "গ্রীষ্মকাল",
+     "pos": "noun",
+     "example": {
+      "target": "孟加拉国的夏天很热。",
+      "roman": "Mèngjiālāguó de xiàtiān hěn rè.",
+      "bn": "বাংলাদেশের গ্রীষ্মকাল খুব গরম।"
+     }
+    },
+    {
+     "target": "多",
+     "roman": "duō",
+     "tones": [
+      1
+     ],
+     "bn": "অনেক",
+     "pos": "adjective",
+     "example": {
+      "target": "这儿的人很多。",
+      "roman": "Zhèr de rén hěn duō.",
+      "bn": "এখানে অনেক মানুষ।"
+     }
+    },
+    {
+     "target": "少",
+     "roman": "shǎo",
+     "tones": [
+      3
+     ],
+     "bn": "কম",
+     "pos": "adjective",
+     "example": {
+      "target": "今天人很少。",
+      "roman": "Jīntiān rén hěn shǎo.",
+      "bn": "আজ লোক খুব কম।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "太 + বিশেষণ + 了 (খুব বেশি …!)",
+     "explain_bn": "কিছু অতিরিক্ত হলে বা অবাক হলে: 太 + বিশেষণ + 了। শেষের 了 সাধারণত লাগে।",
+     "examples": [
+      {
+       "target": "太热了！",
+       "roman": "Tài rè le!",
+       "bn": "খুব বেশি গরম!"
+      },
+      {
+       "target": "太冷了！",
+       "roman": "Tài lěng le!",
+       "bn": "খুব বেশি ঠান্ডা!"
+      }
+     ]
+    },
+    {
+     "pattern": "很 + বিশেষণ (是 লাগে না)",
+     "explain_bn": "'আজ ঠান্ডা' বলতে 今天是冷 বলা ভুল। বিশেষণের আগে 很 বসান: 今天很冷। এখানে 很-এর মানে প্রায়ই হালকা — শুধু 'ঠান্ডা'।",
+     "examples": [
+      {
+       "target": "今天很冷。",
+       "roman": "Jīntiān hěn lěng.",
+       "bn": "আজ ঠান্ডা।"
+      },
+      {
+       "target": "北京很大。",
+       "roman": "Běijīng hěn dà.",
+       "bn": "বেইজিং বড় শহর।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w03-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "wife in Dhaka"
+        },
+        "B": {
+         "gender": "M",
+         "role": "husband in Beijing"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "喂，北京天气怎么样？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "今天很冷，下雪了。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "বেইজিংয়ের আবহাওয়া কেমন?",
+      "options": [
+       "খুব গরম",
+       "বৃষ্টি হচ্ছে",
+       "সুন্দর রোদ",
+       "ঠান্ডা, তুষার পড়ছে"
+      ],
+      "answer": "D",
+      "explain_bn": "很冷 = ঠান্ডা, 下雪了 = তুষার পড়ছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w03-l4-r1",
+      "passage": "达卡的夏天太热了，常常下雨。",
+      "passage_roman": "Dákǎ de xiàtiān tài rè le, chángcháng xià yǔ.",
+      "prompt_bn": "ঢাকার গ্রীষ্মকাল কেমন?",
+      "options": [
+       "很冷",
+       "太热了",
+       "常常下雪",
+       "不下雨"
+      ],
+      "options_roman": [
+       "hěn lěng",
+       "tài rè le",
+       "chángcháng xià xuě",
+       "bú xià yǔ"
+      ],
+      "answer": "B",
+      "explain_bn": "লেখায় আছে 太热了 (খুব বেশি গরম) আর 常常下雨 (প্রায়ই বৃষ্টি)।",
+      "skill": "gist"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w03-l4-w1",
+      "prompt_bn": "চাইনিজে লিখুন: আজ খুব বেশি গরম!",
+      "model": {
+       "target": "今天太热了！",
+       "roman": "Jīntiān tài rè le!",
+       "bn": "আজ খুব বেশি গরম!"
+      },
+      "check": "self",
+      "max_chars": 6
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w03-l4-s1",
+      "prompt_bn": "জোরে বলুন: আজকের আবহাওয়া ভালো — ঠান্ডাও না, গরমও না।",
+      "model": {
+       "target": "今天天气很好，不冷也不热。",
+       "roman": "Jīntiān tiānqì hěn hǎo, bù lěng yě bú rè.",
+       "bn": "আজ আবহাওয়া ভালো, ঠান্ডাও না গরমও না।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w03-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "On the phone",
+    "bn": "ফোনে কথা"
+   },
+   "goal_bn": "ফোন ধরা, কে বলছেন জিজ্ঞেস করা, 'ধীরে বলুন / একটু অপেক্ষা করুন' বলা; 会 আর 能-এর পার্থক্য।",
+   "vocab": [
+    {
+     "target": "打电话",
+     "roman": "dǎ diànhuà",
+     "tones": [
+      3,
+      4,
+      4
+     ],
+     "bn": "ফোন করা",
+     "pos": "verb",
+     "example": {
+      "target": "我给妈妈打电话。",
+      "roman": "Wǒ gěi māma dǎ diànhuà.",
+      "bn": "আমি মাকে ফোন করি।"
+     }
+    },
+    {
+     "target": "喂",
+     "roman": "wéi",
+     "tones": [
+      2
+     ],
+     "bn": "হ্যালো (ফোনে)",
+     "pos": "expression",
+     "example": {
+      "target": "喂，你好！",
+      "roman": "Wéi, nǐ hǎo!",
+      "bn": "হ্যালো, শুভেচ্ছা!"
+     }
+    },
+    {
+     "target": "能",
+     "roman": "néng",
+     "tones": [
+      2
+     ],
+     "bn": "পারা (সুযোগ/অনুমতি আছে)",
+     "pos": "verb",
+     "example": {
+      "target": "你能来吗？",
+      "roman": "Nǐ néng lái ma?",
+      "bn": "তুমি কি আসতে পারবে?"
+     }
+    },
+    {
+     "target": "会",
+     "roman": "huì",
+     "tones": [
+      4
+     ],
+     "bn": "পারা (শেখা দক্ষতা) / হবে",
+     "pos": "verb",
+     "example": {
+      "target": "她会做中国菜。",
+      "roman": "Tā huì zuò Zhōngguó cài.",
+      "bn": "সে চীনা খাবার রাঁধতে পারে।"
+     }
+    },
+    {
+     "target": "听",
+     "roman": "tīng",
+     "tones": [
+      1
+     ],
+     "bn": "শোনা",
+     "pos": "verb",
+     "example": {
+      "target": "我听不懂。",
+      "roman": "Wǒ tīng bu dǒng.",
+      "bn": "আমি শুনে বুঝতে পারছি না।"
+     }
+    },
+    {
+     "target": "说",
+     "roman": "shuō",
+     "tones": [
+      1
+     ],
+     "bn": "বলা",
+     "pos": "verb",
+     "example": {
+      "target": "请再说一遍。",
+      "roman": "Qǐng zài shuō yí biàn.",
+      "bn": "আরেকবার বলুন, প্লিজ।"
+     }
+    },
+    {
+     "target": "慢",
+     "roman": "màn",
+     "tones": [
+      4
+     ],
+     "bn": "ধীর / ধীরে",
+     "pos": "adjective",
+     "example": {
+      "target": "请说慢一点儿。",
+      "roman": "Qǐng shuō màn yìdiǎnr.",
+      "bn": "একটু ধীরে বলুন, প্লিজ।"
+     }
+    },
+    {
+     "target": "等",
+     "roman": "děng",
+     "tones": [
+      3
+     ],
+     "bn": "অপেক্ষা করা",
+     "pos": "verb",
+     "example": {
+      "target": "请等一下。",
+      "roman": "Qǐng děng yíxià.",
+      "bn": "একটু অপেক্ষা করুন।"
+     }
+    },
+    {
+     "target": "给",
+     "roman": "gěi",
+     "tones": [
+      3
+     ],
+     "bn": "দেওয়া / -কে (কারও জন্য)",
+     "pos": "verb",
+     "example": {
+      "target": "请给我打电话。",
+      "roman": "Qǐng gěi wǒ dǎ diànhuà.",
+      "bn": "আমাকে ফোন করবেন।"
+     }
+    },
+    {
+     "target": "号码",
+     "roman": "hàomǎ",
+     "tones": [
+      4,
+      3
+     ],
+     "bn": "নম্বর",
+     "pos": "noun",
+     "example": {
+      "target": "你的电话号码是多少？",
+      "roman": "Nǐ de diànhuà hàomǎ shì duōshao?",
+      "bn": "তোমার ফোন নম্বর কত?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "会 আর 能 — দুটোই 'পারা'",
+     "explain_bn": "会 = শিখে পারা (ভাষা, গাড়ি চালানো, রান্না)। 能 = পরিস্থিতি বা অনুমতির কারণে পারা/না পারা (আজ আসতে পারব না)।",
+     "examples": [
+      {
+       "target": "我会说一点儿汉语。",
+       "roman": "Wǒ huì shuō yìdiǎnr Hànyǔ.",
+       "bn": "আমি একটু চাইনিজ বলতে পারি।"
+      },
+      {
+       "target": "明天我不能来。",
+       "roman": "Míngtiān wǒ bù néng lái.",
+       "bn": "কাল আমি আসতে পারব না।"
+      }
+     ]
+    },
+    {
+     "pattern": "请 + ক্রিয়া + 一下 / 一点儿",
+     "explain_bn": "অনুরোধ নরম করতে ক্রিয়ার পরে 一下 (একটু) বা বিশেষণের পরে 一点儿 বসান। ফোনে না বুঝলে এগুলোই সবচেয়ে কাজের।",
+     "examples": [
+      {
+       "target": "请等一下。",
+       "roman": "Qǐng děng yíxià.",
+       "bn": "একটু অপেক্ষা করুন।"
+      },
+      {
+       "target": "请说慢一点儿。",
+       "roman": "Qǐng shuō màn yìdiǎnr.",
+       "bn": "একটু ধীরে বলুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w03-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "manager Wang Ming"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker Rashid"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "喂，是拉希德吗？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "是，我是。你是谁？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "我是王明。明天上午你能来公司吗？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "能，我九点来。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রাশিদ কাল কখন অফিসে যাবে?",
+      "options": [
+       "九点",
+       "十点",
+       "下午",
+       "不能来"
+      ],
+      "options_roman": [
+       "jiǔ diǎn",
+       "shí diǎn",
+       "xiàwǔ",
+       "bù néng lái"
+      ],
+      "answer": "A",
+      "explain_bn": "রাশিদ বলেছে 能，我九点来 — হ্যাঁ, নয়টায় আসব।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w03-l5-r1",
+      "passage": "短信：法蒂玛，我今天很忙，不能给你打电话。明天晚上打，好吗？",
+      "passage_roman": "Duǎnxìn: Fǎdìmǎ, wǒ jīntiān hěn máng, bù néng gěi nǐ dǎ diànhuà. Míngtiān wǎnshang dǎ, hǎo ma?",
+      "prompt_bn": "কখন ফোন করবে?",
+      "options": [
+       "আজ সকালে",
+       "আজ রাতে",
+       "কাল সন্ধ্যায়",
+       "কাল সকালে"
+      ],
+      "answer": "C",
+      "explain_bn": "明天晚上打 — কাল সন্ধ্যায় (রাতে) ফোন করবে; আজ সে ব্যস্ত।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w03-l5-w1",
+      "prompt_bn": "বসকে মেসেজ লিখুন: দুঃখিত, আজ আসতে পারবেন না।",
+      "model": {
+       "target": "对不起，我今天不能来。",
+       "roman": "Duìbuqǐ, wǒ jīntiān bù néng lái.",
+       "bn": "দুঃখিত, আমি আজ আসতে পারব না।"
+      },
+      "check": "ai",
+      "max_chars": 10
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w03-l5-s1",
+      "prompt_bn": "জোরে বলুন: ফোন ধরে শুভেচ্ছা দিন আর একটু ধীরে বলতে বলুন।",
+      "model": {
+       "target": "喂，你好！请说慢一点儿，谢谢。",
+       "roman": "Wéi, nǐ hǎo! Qǐng shuō màn yìdiǎnr, xièxie.",
+       "bn": "হ্যালো! একটু ধীরে বলবেন, ধন্যবাদ।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

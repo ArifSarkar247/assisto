@@ -203,12 +203,18 @@ class AudioRouteService extends ChangeNotifier {
     'lib/screens/kids_watch/kw_recorder.dart': AudioUse.kidsWatchRecord,
     // train: destination alarm (STREAM_ALARM tone + on-device Bangla TTS)
     'lib/train/dest_alarm_sound.dart': AudioUse.destAlarm,
+    // cctvbox: the owner's Siren / Warning on a Guard Box or phone camera (same
+    // siren-style exception: STREAM_ALARM via the train alarm channel)
+    'lib/ipcam/box_siren.dart': AudioUse.destAlarm,
     'lib/train/dest_voice_recorder.dart': AudioUse.destVoiceRecord,
     'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
     // carecall: the setter's own-voice Care Call recording
     'lib/carecall/cc_recorder.dart': AudioUse.voiceNoteRecord,
     // fcsos: the 30 s SOS sound clip (MicRouteHold, headset mic when present)
     'lib/family_sos/sos_recorder.dart': AudioUse.voiceNoteRecord,
+    // sjduring: the quiet 30 s clip after a danger PIN (the SOS exception:
+    // never moves audio, never asks for the mic)
+    'lib/screens/safe_journey/sj_danger_audio.dart': AudioUse.sos,
   };
 
 

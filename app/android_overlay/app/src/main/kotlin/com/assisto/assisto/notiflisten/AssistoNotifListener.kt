@@ -85,6 +85,8 @@ class AssistoNotifListener : NotificationListenerService() {
         }
         if (NotifListenCore.moneyOn(ctx)) {
             val kind = NotifAllow.moneyPackageKind(pkg, defaultSms(ctx)) ?: return
+            // smsswitch: server switch OFF -> SMS-app notifications are ignored unread
+            if (kind == "sms" && !NotifListenCore.moneySmsOn(ctx)) return
             readMoney(ctx, sbn, pkg, kind)
         }
         // every other notification: ignored, its content never read

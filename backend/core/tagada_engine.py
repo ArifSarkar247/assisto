@@ -402,9 +402,13 @@ def send(prof, party, *, channel, owner, preset="polite", pay_hint=None, lang="b
         return 200, {**base, "free": True, "pushed": bool(pushed)}
 
     if channel in ("whatsapp", "own_sms"):
-        url = khata.wa_link(party.phone, text) if channel == "whatsapp" \
-            else khata.sms_uri(party.phone, text)
-        return 200, {**base, "free": True, "url": url}
+        # bizai2: the free channels carry the customer's due link
+        from . import khata_duelink as KD
+        linked = KD.with_link(text, party, text_lang)
+        url = khata.wa_link(party.phone, linked) if channel == "whatsapp" \
+            else khata.sms_uri(party.phone, linked)
+        return 200, {**base, "message": linked, "free": True, "url": url,
+                     "due_link": linked != text}
 
     # gateway_sms — paid in SMS parts, never without balance
     ref = "tagada:%d:%s" % (party.pk, row.day.isoformat())

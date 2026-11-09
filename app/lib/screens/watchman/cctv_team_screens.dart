@@ -102,6 +102,7 @@ class _CctvRoleSheetState extends State<CctvRoleSheet> {
       'family': t.ctmRoleFamilyHelp,
       'manager': t.ctmRoleManagerHelp,
       'guard': t.ctmRoleGuardHelp,
+      'staff': t.ctrRoleStaffHelp, // cctvroles (V3 I): view only, never deletes
     };
     final pickCams = _role == 'guard' || !_all;
     return SingleChildScrollView(
@@ -111,6 +112,15 @@ class _CctvRoleSheetState extends State<CctvRoleSheet> {
             style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 4),
         Text(t.ctmRoleServerNote, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
+        // cctvroles (V3 I): only the owner deletes / downloads / shares / changes
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.verified_user_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 6),
+          Expanded(
+              child: Text(t.ctrOwnerOnlyNote,
+                  key: const ValueKey('ctr-owner-only'), style: Theme.of(context).textTheme.bodySmall)),
+        ]),
         for (final e in roles.entries)
           RadioListTile<String>(
             key: ValueKey('ctm-role-${e.key}'),
@@ -513,6 +523,7 @@ class _CctvAccessLogScreenState extends State<CctvAccessLogScreen> {
   String? _error;
   List<Map<String, dynamic>> _rows = const [];
   String _note = '';
+  String _filter = 'all'; // cctvroles: all | change | view
 
   @override
   void initState() {
@@ -544,16 +555,36 @@ class _CctvAccessLogScreenState extends State<CctvAccessLogScreen> {
           'alert' => t.ctmLogAlert,
           'live' => t.ctmLogLive,
           'link' => t.ctmLogLink,
+          // cctvroles (V3 I): exports / shares / changes / deletes / roles
+          'export' => t.ctrLogExport,
+          'share' => t.ctrLogShare,
+          'change' => t.ctrLogChange,
+          'delete' => t.ctrLogDelete,
+          'role' => t.ctrLogRole,
+          'installer' => t.ctrLogInstaller,
           _ => t.ctmLogStill,
         };
     IconData icon(String a) => switch (a) {
           'live' => Icons.live_tv_rounded,
           'link' => Icons.link_rounded,
           'still' => Icons.photo_camera_outlined,
+          'export' => Icons.file_download_outlined,
+          'share' => Icons.share_outlined,
+          'change' => Icons.edit_outlined,
+          'delete' => Icons.delete_outline_rounded,
+          'role' => Icons.manage_accounts_outlined,
+          'installer' => Icons.handyman_outlined,
           _ => Icons.notifications_none_rounded,
         };
+    bool isChange(Map<String, dynamic> r) =>
+        (r['kind'] ?? '').toString() == 'change' ||
+        const {'export', 'share', 'change', 'delete', 'role', 'installer'}
+            .contains((r['action'] ?? '').toString());
+    final shown = _rows
+        .where((r) => _filter == 'all' || (_filter == 'change') == isChange(r))
+        .toList();
     return Scaffold(
-      appBar: AppBar(title: Text(t.ctmLogTitle)),
+      appBar: AppBar(title: Text(t.ctrLogTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -563,6 +594,21 @@ class _CctvAccessLogScreenState extends State<CctvAccessLogScreen> {
                 children: [
                   if (_note.isNotEmpty) Text(_note),
                   const SizedBox(height: 8),
+                  // cctvroles: all / changes and downloads / views
+                  if (_rows.isNotEmpty)
+                    Wrap(spacing: 8, runSpacing: 4, children: [
+                      for (final f in [
+                        ('all', t.ctrLogAll),
+                        ('change', t.ctrLogChanges),
+                        ('view', t.ctrLogViews),
+                      ])
+                        ChoiceChip(
+                          key: ValueKey('ctr-log-${f.$1}'),
+                          label: Text(f.$2),
+                          selected: _filter == f.$1,
+                          onSelected: (_) => setState(() => _filter = f.$1),
+                        ),
+                    ]),
                   if (_error != null) Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
                   if (_error == null && _rows.isEmpty)
                     CvEmptyBlock(
@@ -575,18 +621,22 @@ class _CctvAccessLogScreenState extends State<CctvAccessLogScreen> {
                       onPrimary: _load,
                       steps: [t.ctmLogStep1, t.ctmLogStep2],
                     ),
-                  for (final r in _rows)
+                  for (final r in shown)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: CircleAvatar(child: Icon(icon((r['action'] ?? '').toString()))),
-                      title: Text(r['link_id'] != null
-                          ? t.ctmLogByLink((r['link_label'] ?? '').toString().isEmpty
-                              ? t.ctmLinkNoLabel
-                              : r['link_label'].toString())
-                          : ((r['name'] ?? '').toString().isEmpty ? t.wmFamilyNoName : r['name'].toString())),
+                      title: Text(r['is_owner'] == true
+                          ? t.ctrLogYou
+                          : r['link_id'] != null
+                              ? t.ctmLogByLink((r['link_label'] ?? '').toString().isEmpty
+                                  ? t.ctmLinkNoLabel
+                                  : r['link_label'].toString())
+                              : ((r['name'] ?? '').toString().isEmpty ? t.wmFamilyNoName : r['name'].toString())),
                       subtitle: Text([
                         what(r),
                         if ((r['camera_name'] ?? '').toString().isNotEmpty) r['camera_name'].toString(),
+                        // server-made, already in the reader's language + digits
+                        if ((r['detail'] ?? '').toString().isNotEmpty) r['detail'].toString(),
                         ctmTime(lang, r['at']?.toString()),
                       ].join(' · ')),
                     ),

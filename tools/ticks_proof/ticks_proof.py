@@ -42,6 +42,16 @@ import time
 import urllib.error
 import urllib.request
 
+
+def _refuse_owner_phone(phone):
+    """sjp0 (owner 9 Nov): proofs run on dedicated test accounts only — never
+    the owner's phone (ASSISTO_OWNER_PHONES on the server, never in the repo)."""
+    d = "".join(ch for ch in str(phone or "") if ch.isdigit())[-10:]
+    own = {"".join(ch for ch in p if ch.isdigit())[-10:]
+           for p in os.environ.get("ASSISTO_OWNER_PHONES", "").split(",") if p.strip()}
+    if d and d in own:
+        raise SystemExit("refused: %s is the owner's account — use a test account" % phone)
+
 SCHEME = "x25519-xchacha-fallback-v1"
 DELIVERED_TARGET_S = 2.0
 READ_TARGET_S = 1.0
@@ -167,6 +177,7 @@ class Client:
                 return e.code, {"raw": raw[:200].decode("utf-8", "replace")}
 
     def login(self, phone, password):
+        _refuse_owner_phone(phone)
         st, j = self.req("POST", "/auth/login",
                          {"identifier": phone, "password": password})
         if st != 200 or "token" not in j:

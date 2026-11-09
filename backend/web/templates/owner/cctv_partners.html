@@ -1,0 +1,20 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+<div class="card" id="cctv-partner-rules"><b>{{ L.rules }}</b>{% if not approved %} <span class="pill warn">PROPOSAL</span>{% endif %}<p class="small">{{ rules_line }}</p></div>
+<h3>{{ L.partners }}</h3>
+{% if rows %}
+<div class="card tbl"><table id="cctv-partners"><thead><tr><th>{{ L.name }}</th><th>{{ L.area }}</th><th>{{ L.status }}</th><th>{{ L.sites }}</th><th>{{ L.proposed }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a> {{ r.name }}</td><td>{{ r.area }}</td><td>{{ r.status_label }}</td>
+<td>{% for s in r.sites %}<div class="small">#{{ s.id }} · {{ s.online }}/{{ s.cameras }} · {% if s.done %}{{ L.setup_done }}{% else %}{{ L.setup_todo }}{% endif %} · {{ L.paying }}: {% if s.paying %}{{ L.yes }}{% else %}{{ L.no }}{% endif %}</div>{% empty %}—{% endfor %}</td>
+<td>{{ r.proposed }}</td>
+<td><form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="partner" value="{{ r.id }}"><input name="reason" placeholder="{{ L.reason }}" maxlength="200" required size="14">
+{% if r.status != 'approved' %}<button class="btn" name="action" value="approve">{{ L.approve }}</button>{% endif %}
+{% if r.status != 'suspended' %}<button class="btn ghost" name="action" value="suspend">{{ L.suspend }}</button>{% endif %}</form></td></tr>{% endfor %}
+</tbody></table></div>
+<p class="small">{{ L.total }}: <b>{{ total }}</b></p>
+{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+<h3>{{ L.payouts }}</h3>
+<p class="small" id="cctv-payouts">{{ L.payouts_none }}</p>
+{% endblock %}

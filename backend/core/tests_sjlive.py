@@ -97,6 +97,9 @@ class ShareForAWhileTests(Base):
         self.assertEqual(j.status, "active")
 
 
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class AccuracyAndBufferTests(Base):
     def test_accuracy_stored_shown_and_rough_fix_never_arrives(self):
         j, _ = self.start()

@@ -1,0 +1,1436 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "zh",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "hsk1"
+ ],
+ "title": {
+  "en": "Week 4: Likes, counting, past days and health",
+  "bn": "সপ্তাহ ৪: পছন্দ, গোনা, গতকাল-আগামীকাল আর স্বাস্থ্য"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official HSK material and not an official result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল HSK উপকরণ বা অফিসিয়াল ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "Chinese Testing International public HSK 1 description + HSK 1 public word list (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "zh-w04-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "What do you like?",
+    "bn": "কী পছন্দ করেন?"
+   },
+   "goal_bn": "喜欢 দিয়ে পছন্দ-অপছন্দ বলবেন, আর 吧 দিয়ে 'চলো … করি' প্রস্তাব দেবেন।",
+   "vocab": [
+    {
+     "target": "喜欢",
+     "roman": "xǐhuan",
+     "tones": [
+      3,
+      0
+     ],
+     "bn": "পছন্দ করা / ভালোবাসা",
+     "pos": "verb",
+     "example": {
+      "target": "我喜欢看书。",
+      "roman": "Wǒ xǐhuan kàn shū.",
+      "bn": "আমি বই পড়তে ভালোবাসি।"
+     }
+    },
+    {
+     "target": "看",
+     "roman": "kàn",
+     "tones": [
+      4
+     ],
+     "bn": "দেখা / পড়া",
+     "pos": "verb",
+     "example": {
+      "target": "你看，下雨了。",
+      "roman": "Nǐ kàn, xià yǔ le.",
+      "bn": "দেখো, বৃষ্টি শুরু হয়েছে।"
+     }
+    },
+    {
+     "target": "电影",
+     "roman": "diànyǐng",
+     "tones": [
+      4,
+      3
+     ],
+     "bn": "সিনেমা",
+     "pos": "noun",
+     "example": {
+      "target": "我们去看电影吧。",
+      "roman": "Wǒmen qù kàn diànyǐng ba.",
+      "bn": "চলো সিনেমা দেখতে যাই।"
+     }
+    },
+    {
+     "target": "电视",
+     "roman": "diànshì",
+     "tones": [
+      4,
+      4
+     ],
+     "bn": "টেলিভিশন",
+     "pos": "noun",
+     "example": {
+      "target": "我爸爸晚上看电视。",
+      "roman": "Wǒ bàba wǎnshang kàn diànshì.",
+      "bn": "আমার বাবা সন্ধ্যায় টিভি দেখেন।"
+     }
+    },
+    {
+     "target": "书",
+     "roman": "shū",
+     "tones": [
+      1
+     ],
+     "bn": "বই",
+     "pos": "noun",
+     "example": {
+      "target": "他每天看书。",
+      "roman": "Tā měitiān kàn shū.",
+      "bn": "সে প্রতিদিন বই পড়ে।"
+     }
+    },
+    {
+     "target": "唱歌",
+     "roman": "chànggē",
+     "tones": [
+      4,
+      1
+     ],
+     "bn": "গান গাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "她很喜欢唱歌。",
+      "roman": "Tā hěn xǐhuan chànggē.",
+      "bn": "সে গান গাইতে খুব ভালোবাসে।"
+     }
+    },
+    {
+     "target": "跑步",
+     "roman": "pǎobù",
+     "tones": [
+      3,
+      4
+     ],
+     "bn": "দৌড়ানো",
+     "pos": "verb",
+     "example": {
+      "target": "我早上跑步。",
+      "roman": "Wǒ zǎoshang pǎobù.",
+      "bn": "আমি সকালে দৌড়াই।"
+     }
+    },
+    {
+     "target": "爱",
+     "roman": "ài",
+     "tones": [
+      4
+     ],
+     "bn": "ভালোবাসা",
+     "pos": "verb",
+     "example": {
+      "target": "我爱我的家。",
+      "roman": "Wǒ ài wǒ de jiā.",
+      "bn": "আমি আমার পরিবারকে ভালোবাসি।"
+     }
+    },
+    {
+     "target": "狗",
+     "roman": "gǒu",
+     "tones": [
+      3
+     ],
+     "bn": "কুকুর",
+     "pos": "noun",
+     "example": {
+      "target": "我不喜欢狗。",
+      "roman": "Wǒ bù xǐhuan gǒu.",
+      "bn": "আমি কুকুর পছন্দ করি না।"
+     }
+    },
+    {
+     "target": "猫",
+     "roman": "māo",
+     "tones": [
+      1
+     ],
+     "bn": "বিড়াল",
+     "pos": "noun",
+     "example": {
+      "target": "我家有一只猫。",
+      "roman": "Wǒ jiā yǒu yì zhī māo.",
+      "bn": "আমাদের বাড়িতে একটা বিড়াল আছে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "喜欢 + জিনিস / কাজ",
+     "explain_bn": "喜欢-এর পরে জিনিস (喜欢猫) বা কাজ (喜欢看电影) দুটোই বসে। অপছন্দ: 不喜欢। জিজ্ঞেস: 你喜欢…吗？",
+     "examples": [
+      {
+       "target": "我喜欢喝茶。",
+       "roman": "Wǒ xǐhuan hē chá.",
+       "bn": "আমি চা খেতে পছন্দ করি।"
+      },
+      {
+       "target": "你喜欢看电影吗？",
+       "roman": "Nǐ xǐhuan kàn diànyǐng ma?",
+       "bn": "তুমি কি সিনেমা দেখতে পছন্দ করো?"
+      }
+     ]
+    },
+    {
+     "pattern": "…吧！ (চলো …করি)",
+     "explain_bn": "বাক্যের শেষে 吧 বসালে প্রস্তাব বা নরম অনুরোধ হয়: 我们去吧 = চলো যাই। সহকর্মী বা বন্ধুকে কিছু করতে ডাকতে কাজে লাগে।",
+     "examples": [
+      {
+       "target": "我们去看电影吧！",
+       "roman": "Wǒmen qù kàn diànyǐng ba!",
+       "bn": "চলো সিনেমা দেখতে যাই!"
+      },
+      {
+       "target": "我们一起吃饭吧！",
+       "roman": "Wǒmen yìqǐ chī fàn ba!",
+       "bn": "চলো একসাথে খাই!"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w04-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend"
+        },
+        "B": {
+         "gender": "M",
+         "role": "friend"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "星期六你想做什么？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我想去看电影。你也去吧！"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শনিবার লোকটি কী করতে চায়?",
+      "options": [
+       "সিনেমা দেখতে",
+       "বই পড়তে",
+       "দৌড়াতে",
+       "টিভি দেখতে"
+      ],
+      "answer": "A",
+      "explain_bn": "সে বলেছে 我想去看电影 — সিনেমা দেখতে যেতে চায়।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w04-l1-r1",
+      "passage": "我叫阿明。我喜欢跑步，不喜欢看电视。我也喜欢猫。",
+      "passage_roman": "Wǒ jiào Āmíng. Wǒ xǐhuan pǎobù, bù xǐhuan kàn diànshì. Wǒ yě xǐhuan māo.",
+      "prompt_bn": "লেখায় আমিন কোনটা অপছন্দ করে বলেছে?",
+      "options": [
+       "跑步",
+       "猫",
+       "看电视",
+       "唱歌"
+      ],
+      "options_roman": [
+       "pǎobù",
+       "māo",
+       "kàn diànshì",
+       "chànggē"
+      ],
+      "answer": "C",
+      "explain_bn": "不喜欢看电视 — টিভি দেখা পছন্দ করে না। দৌড় আর বিড়াল তার পছন্দ; গান নিয়ে কিছু বলেনি।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w04-l1-w1",
+      "prompt_bn": "আপনি কী কী পছন্দ করেন — দুটো জিনিস চাইনিজে লিখুন (也 ব্যবহার করুন)।",
+      "model": {
+       "target": "我喜欢看电影，也喜欢唱歌。",
+       "roman": "Wǒ xǐhuan kàn diànyǐng, yě xǐhuan chànggē.",
+       "bn": "আমি সিনেমা দেখতে ভালোবাসি, গান গাইতেও ভালোবাসি।"
+      },
+      "check": "ai",
+      "max_chars": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w04-l1-s1",
+      "prompt_bn": "জোরে বলুন: রবিবার আপনি বাড়িতে কী করতে পছন্দ করেন।",
+      "model": {
+       "target": "星期天我喜欢在家看电视。",
+       "roman": "Xīngqītiān wǒ xǐhuan zài jiā kàn diànshì.",
+       "bn": "রবিবার আমি বাড়িতে টিভি দেখতে পছন্দ করি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w04-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "This, that and counting things",
+    "bn": "এটা, ওটা আর জিনিস গোনা"
+   },
+   "goal_bn": "这/那 দিয়ে দেখিয়ে বলবেন, আর 个/本/杯/件/口 — মাপের শব্দ দিয়ে জিনিস গুনবেন।",
+   "vocab": [
+    {
+     "target": "个",
+     "roman": "gè",
+     "tones": [
+      4
+     ],
+     "bn": "টা / জন (সাধারণ মাপের শব্দ)",
+     "pos": "measure",
+     "example": {
+      "target": "那个人是谁？",
+      "roman": "Nàge rén shì shéi?",
+      "bn": "ওই লোকটা কে?"
+     }
+    },
+    {
+     "target": "两",
+     "roman": "liǎng",
+     "tones": [
+      3
+     ],
+     "bn": "দুই (মাপের শব্দের আগে)",
+     "pos": "number",
+     "example": {
+      "target": "我要两个苹果。",
+      "roman": "Wǒ yào liǎng ge píngguǒ.",
+      "bn": "আমার দুটো আপেল লাগবে।"
+     }
+    },
+    {
+     "target": "本",
+     "roman": "běn",
+     "tones": [
+      3
+     ],
+     "bn": "খানা (বইয়ের মাপ)",
+     "pos": "measure",
+     "example": {
+      "target": "我想买一本书。",
+      "roman": "Wǒ xiǎng mǎi yì běn shū.",
+      "bn": "আমি একটা বই কিনতে চাই।"
+     }
+    },
+    {
+     "target": "口",
+     "roman": "kǒu",
+     "tones": [
+      3
+     ],
+     "bn": "জন (পরিবারের সদস্য গুনতে)",
+     "pos": "measure",
+     "example": {
+      "target": "我家有四口人。",
+      "roman": "Wǒ jiā yǒu sì kǒu rén.",
+      "bn": "আমার পরিবারে চারজন।"
+     }
+    },
+    {
+     "target": "这",
+     "roman": "zhè",
+     "tones": [
+      4
+     ],
+     "bn": "এই / এটা",
+     "pos": "pronoun",
+     "example": {
+      "target": "这是我的手机。",
+      "roman": "Zhè shì wǒ de shǒujī.",
+      "bn": "এটা আমার মোবাইল।"
+     }
+    },
+    {
+     "target": "那",
+     "roman": "nà",
+     "tones": [
+      4
+     ],
+     "bn": "ওই / ওটা",
+     "pos": "pronoun",
+     "example": {
+      "target": "那是我的同事。",
+      "roman": "Nà shì wǒ de tóngshì.",
+      "bn": "উনি আমার সহকর্মী।"
+     }
+    },
+    {
+     "target": "这个",
+     "roman": "zhège",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "এইটা",
+     "pos": "pronoun",
+     "example": {
+      "target": "这个多少钱？",
+      "roman": "Zhège duōshao qián?",
+      "bn": "এইটার দাম কত?"
+     }
+    },
+    {
+     "target": "那个",
+     "roman": "nàge",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "ওইটা",
+     "pos": "pronoun",
+     "example": {
+      "target": "我不要这个，我要那个。",
+      "roman": "Wǒ bú yào zhège, wǒ yào nàge.",
+      "bn": "এটা না, আমার ওইটা চাই।"
+     }
+    },
+    {
+     "target": "件",
+     "roman": "jiàn",
+     "tones": [
+      4
+     ],
+     "bn": "টা (জামা / কাজের মাপ)",
+     "pos": "measure",
+     "example": {
+      "target": "这件衣服很好看。",
+      "roman": "Zhè jiàn yīfu hěn hǎokàn.",
+      "bn": "এই জামাটা দেখতে সুন্দর।"
+     }
+    },
+    {
+     "target": "杯",
+     "roman": "bēi",
+     "tones": [
+      1
+     ],
+     "bn": "কাপ / গ্লাস (মাপ)",
+     "pos": "measure",
+     "example": {
+      "target": "请给我一杯茶。",
+      "roman": "Qǐng gěi wǒ yì bēi chá.",
+      "bn": "আমাকে এক কাপ চা দিন।"
+     }
+    },
+    {
+     "target": "要",
+     "roman": "yào",
+     "tones": [
+      4
+     ],
+     "bn": "চাওয়া / লাগা",
+     "pos": "verb",
+     "example": {
+      "target": "你要什么？",
+      "roman": "Nǐ yào shénme?",
+      "bn": "আপনার কী লাগবে?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "সংখ্যা + মাপের শব্দ + জিনিস",
+     "explain_bn": "চাইনিজে সংখ্যা আর জিনিসের মাঝে মাপের শব্দ লাগবেই — বাংলার 'দুটো', 'তিনখানা'-র মতো। বেশিরভাগে 个; বইয়ে 本, কাপে 杯, জামায় 件।",
+     "examples": [
+      {
+       "target": "三本书",
+       "roman": "sān běn shū",
+       "bn": "তিনটি বই"
+      },
+      {
+       "target": "两杯茶",
+       "roman": "liǎng bēi chá",
+       "bn": "দুই কাপ চা"
+      },
+      {
+       "target": "一个朋友",
+       "roman": "yí ge péngyou",
+       "bn": "একজন বন্ধু"
+      }
+     ]
+    },
+    {
+     "pattern": "二 না 两?",
+     "explain_bn": "গোনার সময় বা নম্বরে 二 (一、二、三; 十二)। কিন্তু মাপের শব্দের আগে 'দুটো' বোঝাতে 两: 两个人, 两杯水। 二个人 বলা ভুল।",
+     "examples": [
+      {
+       "target": "两个人",
+       "roman": "liǎng ge rén",
+       "bn": "দুজন মানুষ"
+      },
+      {
+       "target": "十二个人",
+       "roman": "shí'èr ge rén",
+       "bn": "বারোজন মানুষ"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w04-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "café seller"
+        },
+        "B": {
+         "gender": "M",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你要什么？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我要两杯茶，一个蛋糕。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটি কয় কাপ চা চাইল?",
+      "options": [
+       "一杯",
+       "两杯",
+       "三杯",
+       "四杯"
+      ],
+      "options_roman": [
+       "yì bēi",
+       "liǎng bēi",
+       "sān bēi",
+       "sì bēi"
+      ],
+      "answer": "B",
+      "explain_bn": "两杯茶 — দুই কাপ চা। 一个蛋糕 হলো একটা কেক।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w04-l2-r1",
+      "passage": "我家有五口人。我有两个儿子，一个女儿。",
+      "passage_roman": "Wǒ jiā yǒu wǔ kǒu rén. Wǒ yǒu liǎng ge érzi, yí ge nǚ'ér.",
+      "prompt_bn": "লেখকের কয়টি সন্তান?",
+      "options": [
+       "৫টি",
+       "২টি",
+       "১টি",
+       "৩টি"
+      ],
+      "answer": "D",
+      "explain_bn": "两个儿子 (২ ছেলে) + 一个女儿 (১ মেয়ে) = ৩ সন্তান। ৫ হলো পরিবারের মোট সদস্য।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w04-l2-w1",
+      "prompt_bn": "ঠিক মাপের শব্দসহ লিখুন: একটা বই, দুই গ্লাস পানি, তিনজন মানুষ।",
+      "model": {
+       "target": "一本书、两杯水、三个人",
+       "roman": "yì běn shū, liǎng bēi shuǐ, sān ge rén",
+       "bn": "একটা বই, দুই গ্লাস পানি, তিনজন মানুষ"
+      },
+      "check": "self",
+      "max_chars": 9
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w04-l2-s1",
+      "prompt_bn": "জোরে বলুন: দোকানে আঙুল দিয়ে দেখিয়ে বলুন — এটা চাই, ওটা চাই না।",
+      "model": {
+       "target": "我要这个，不要那个。",
+       "roman": "Wǒ yào zhège, bú yào nàge.",
+       "bn": "আমার এটা চাই, ওটা চাই না।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w04-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Yesterday, today, tomorrow",
+    "bn": "গতকাল, আজ, আগামীকাল"
+   },
+   "goal_bn": "দিন আর বছরের শব্দ শিখবেন, আর 了 দিয়ে 'করেছি', 没 দিয়ে 'করিনি' বলবেন।",
+   "vocab": [
+    {
+     "target": "今天",
+     "roman": "jīntiān",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "আজ",
+     "pos": "noun",
+     "example": {
+      "target": "今天是星期五。",
+      "roman": "Jīntiān shì xīngqīwǔ.",
+      "bn": "আজ শুক্রবার।"
+     }
+    },
+    {
+     "target": "明天",
+     "roman": "míngtiān",
+     "tones": [
+      2,
+      1
+     ],
+     "bn": "আগামীকাল",
+     "pos": "noun",
+     "example": {
+      "target": "明天见！",
+      "roman": "Míngtiān jiàn!",
+      "bn": "কাল দেখা হবে!"
+     }
+    },
+    {
+     "target": "昨天",
+     "roman": "zuótiān",
+     "tones": [
+      2,
+      1
+     ],
+     "bn": "গতকাল",
+     "pos": "noun",
+     "example": {
+      "target": "昨天我很忙。",
+      "roman": "Zuótiān wǒ hěn máng.",
+      "bn": "গতকাল আমি খুব ব্যস্ত ছিলাম।"
+     }
+    },
+    {
+     "target": "了",
+     "roman": "le",
+     "tones": [
+      0
+     ],
+     "bn": "(কাজ হয়ে গেছে বোঝায়)",
+     "pos": "particle",
+     "example": {
+      "target": "我吃饭了。",
+      "roman": "Wǒ chī fàn le.",
+      "bn": "আমি খেয়েছি।"
+     }
+    },
+    {
+     "target": "去年",
+     "roman": "qùnián",
+     "tones": [
+      4,
+      2
+     ],
+     "bn": "গত বছর",
+     "pos": "noun",
+     "example": {
+      "target": "我去年来中国。",
+      "roman": "Wǒ qùnián lái Zhōngguó.",
+      "bn": "আমি গত বছর চীনে এসেছি।"
+     }
+    },
+    {
+     "target": "明年",
+     "roman": "míngnián",
+     "tones": [
+      2,
+      2
+     ],
+     "bn": "আগামী বছর",
+     "pos": "noun",
+     "example": {
+      "target": "明年我回孟加拉国。",
+      "roman": "Míngnián wǒ huí Mèngjiālāguó.",
+      "bn": "আগামী বছর আমি বাংলাদেশে ফিরব।"
+     }
+    },
+    {
+     "target": "已经",
+     "roman": "yǐjīng",
+     "tones": [
+      3,
+      1
+     ],
+     "bn": "ইতিমধ্যে / আগেই",
+     "pos": "adverb",
+     "example": {
+      "target": "他已经走了。",
+      "roman": "Tā yǐjīng zǒu le.",
+      "bn": "সে আগেই চলে গেছে।"
+     }
+    },
+    {
+     "target": "后天",
+     "roman": "hòutiān",
+     "tones": [
+      4,
+      1
+     ],
+     "bn": "পরশু (আগামী)",
+     "pos": "noun",
+     "example": {
+      "target": "后天是我的生日。",
+      "roman": "Hòutiān shì wǒ de shēngrì.",
+      "bn": "পরশু আমার জন্মদিন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ক্রিয়া + 了 = করেছি; 没 + ক্রিয়া = করিনি",
+     "explain_bn": "কাজ শেষ হয়ে গেছে বোঝাতে ক্রিয়ার পরে বা বাক্যের শেষে 了। না-বোধকে 没 (বা 没有) + ক্রিয়া, তখন 了 থাকবে না: 我没去 (আমি যাইনি)। 不了 নয়।",
+     "examples": [
+      {
+       "target": "我昨天去了医院。",
+       "roman": "Wǒ zuótiān qù le yīyuàn.",
+       "bn": "আমি গতকাল হাসপাতালে গিয়েছিলাম।"
+      },
+      {
+       "target": "我没去。",
+       "roman": "Wǒ méi qù.",
+       "bn": "আমি যাইনি।"
+      }
+     ]
+    },
+    {
+     "pattern": "সময়ের শব্দ: শুরুতে বা কর্তার পরে",
+     "explain_bn": "今天/明天/昨天 বাক্যের শুরুতে বা কর্তার ঠিক পরে বসে — দুটোই ঠিক। ক্রিয়ার পরে বসে না। চাইনিজ ক্রিয়ার রূপ বদলায় না; সময়ের শব্দ আর 了 দিয়েই অতীত-ভবিষ্যৎ বোঝা যায়।",
+     "examples": [
+      {
+       "target": "明天我去北京。",
+       "roman": "Míngtiān wǒ qù Běijīng.",
+       "bn": "কাল আমি বেইজিং যাব।"
+      },
+      {
+       "target": "我明天去北京。",
+       "roman": "Wǒ míngtiān qù Běijīng.",
+       "bn": "আমি কাল বেইজিং যাব।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w04-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "Fatima"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "法蒂玛，你昨天去哪儿了？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我去商店了，买了一些水果。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ফাতিমা গতকাল কী কিনেছে?",
+      "options": [
+       "বই",
+       "জামা",
+       "ফল",
+       "মোবাইল"
+      ],
+      "answer": "C",
+      "explain_bn": "买了一些水果 — কিছু ফল কিনেছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w04-l3-r1",
+      "passage": "今天是十号。昨天是我的生日，我妈妈给我打电话了。",
+      "passage_roman": "Jīntiān shì shí hào. Zuótiān shì wǒ de shēngrì, wǒ māma gěi wǒ dǎ diànhuà le.",
+      "prompt_bn": "লেখকের জন্মদিন কত তারিখে?",
+      "options": [
+       "八号",
+       "九号",
+       "十号",
+       "十一号"
+      ],
+      "options_roman": [
+       "bā hào",
+       "jiǔ hào",
+       "shí hào",
+       "shíyī hào"
+      ],
+      "answer": "B",
+      "explain_bn": "আজ ১০ তারিখ, জন্মদিন ছিল গতকাল (昨天) — তাই ৯ তারিখ।",
+      "skill": "time"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w04-l3-w1",
+      "prompt_bn": "লিখুন: আপনি গতকাল হাসপাতালে গিয়েছিলেন।",
+      "model": {
+       "target": "我昨天去了医院。",
+       "roman": "Wǒ zuótiān qù le yīyuàn.",
+       "bn": "আমি গতকাল হাসপাতালে গিয়েছিলাম।"
+      },
+      "check": "ai",
+      "max_chars": 8
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w04-l3-s1",
+      "prompt_bn": "জোরে বলুন: গতকাল ব্যস্ত ছিলেন, আজ নন, আর কাল দোকানে যাবেন।",
+      "model": {
+       "target": "昨天我很忙，今天不忙。明天我去商店。",
+       "roman": "Zuótiān wǒ hěn máng, jīntiān bù máng. Míngtiān wǒ qù shāngdiàn.",
+       "bn": "গতকাল আমি খুব ব্যস্ত ছিলাম, আজ ব্যস্ত নই। কাল আমি দোকানে যাব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w04-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "At the doctor",
+    "bn": "ডাক্তারের কাছে"
+   },
+   "goal_bn": "শরীর খারাপ, মাথাব্যথা, জ্বর বলবেন; ডাক্তারের সহজ নির্দেশ (ওষুধ, বিশ্রাম) বুঝবেন।",
+   "vocab": [
+    {
+     "target": "睡觉",
+     "roman": "shuìjiào",
+     "tones": [
+      4,
+      4
+     ],
+     "bn": "ঘুমানো",
+     "pos": "verb",
+     "example": {
+      "target": "我晚上十一点睡觉。",
+      "roman": "Wǒ wǎnshang shíyī diǎn shuìjiào.",
+      "bn": "আমি রাত এগারোটায় ঘুমাই।"
+     }
+    },
+    {
+     "target": "生病",
+     "roman": "shēngbìng",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "অসুস্থ হওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "我生病了。",
+      "roman": "Wǒ shēngbìng le.",
+      "bn": "আমি অসুস্থ হয়ে পড়েছি।"
+     }
+    },
+    {
+     "target": "头",
+     "roman": "tóu",
+     "tones": [
+      2
+     ],
+     "bn": "মাথা",
+     "pos": "noun",
+     "example": {
+      "target": "我头疼。",
+      "roman": "Wǒ tóu téng.",
+      "bn": "আমার মাথা ব্যথা করছে।"
+     }
+    },
+    {
+     "target": "疼",
+     "roman": "téng",
+     "tones": [
+      2
+     ],
+     "bn": "ব্যথা করা",
+     "pos": "verb",
+     "example": {
+      "target": "这儿很疼。",
+      "roman": "Zhèr hěn téng.",
+      "bn": "এখানে খুব ব্যথা।"
+     }
+    },
+    {
+     "target": "药",
+     "roman": "yào",
+     "tones": [
+      4
+     ],
+     "bn": "ওষুধ",
+     "pos": "noun",
+     "example": {
+      "target": "一天吃三次药。",
+      "roman": "Yì tiān chī sān cì yào.",
+      "bn": "দিনে তিনবার ওষুধ খাবেন।"
+     }
+    },
+    {
+     "target": "身体",
+     "roman": "shēntǐ",
+     "tones": [
+      1,
+      3
+     ],
+     "bn": "শরীর / স্বাস্থ্য",
+     "pos": "noun",
+     "example": {
+      "target": "你身体怎么样？",
+      "roman": "Nǐ shēntǐ zěnmeyàng?",
+      "bn": "তোমার শরীর কেমন?"
+     }
+    },
+    {
+     "target": "休息",
+     "roman": "xiūxi",
+     "tones": [
+      1,
+      0
+     ],
+     "bn": "বিশ্রাম নেওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "你要多休息。",
+      "roman": "Nǐ yào duō xiūxi.",
+      "bn": "তোমাকে বেশি বিশ্রাম নিতে হবে।"
+     }
+    },
+    {
+     "target": "不舒服",
+     "roman": "bù shūfu",
+     "tones": [
+      4,
+      1,
+      0
+     ],
+     "bn": "অস্বস্তি / শরীর খারাপ",
+     "pos": "adjective",
+     "example": {
+      "target": "我今天不舒服。",
+      "roman": "Wǒ jīntiān bù shūfu.",
+      "bn": "আজ আমার শরীরটা ভালো লাগছে না।"
+     }
+    },
+    {
+     "target": "发烧",
+     "roman": "fāshāo",
+     "tones": [
+      1,
+      1
+     ],
+     "bn": "জ্বর আসা",
+     "pos": "verb",
+     "example": {
+      "target": "我发烧了。",
+      "roman": "Wǒ fāshāo le.",
+      "bn": "আমার জ্বর এসেছে।"
+     }
+    },
+    {
+     "target": "看病",
+     "roman": "kànbìng",
+     "tones": [
+      4,
+      4
+     ],
+     "bn": "ডাক্তার দেখানো",
+     "pos": "verb",
+     "example": {
+      "target": "我去医院看病。",
+      "roman": "Wǒ qù yīyuàn kànbìng.",
+      "bn": "আমি হাসপাতালে ডাক্তার দেখাতে যাচ্ছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "哪儿不舒服？ / শরীরের অংশ + 疼",
+     "explain_bn": "ডাক্তার জিজ্ঞেস করবেন 你哪儿不舒服？ (কোথায় সমস্যা?)। উত্তর: শরীরের অংশ + 疼 — 头疼 (মাথাব্যথা), 肚子疼 (পেটব্যথা)। আঙুল দিয়ে দেখিয়ে 这儿疼 বললেও চলে।",
+     "examples": [
+      {
+       "target": "你哪儿不舒服？",
+       "roman": "Nǐ nǎr bù shūfu?",
+       "bn": "আপনার কোথায় সমস্যা?"
+      },
+      {
+       "target": "我头疼。",
+       "roman": "Wǒ tóu téng.",
+       "bn": "আমার মাথা ব্যথা।"
+      }
+     ]
+    },
+    {
+     "pattern": "要 + ক্রিয়া = করতে হবে",
+     "explain_bn": "ডাক্তারের নির্দেশে 要 মানে 'করতে হবে'। 多 + ক্রিয়া = বেশি করে করুন।",
+     "examples": [
+      {
+       "target": "你要多喝水。",
+       "roman": "Nǐ yào duō hē shuǐ.",
+       "bn": "আপনাকে বেশি পানি খেতে হবে।"
+      },
+      {
+       "target": "你要好好休息。",
+       "roman": "Nǐ yào hǎohǎo xiūxi.",
+       "bn": "আপনাকে ভালোমতো বিশ্রাম নিতে হবে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w04-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "doctor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你哪儿不舒服？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我头疼，也发烧了。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "你要吃药，多喝水，好好休息。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রোগীর সমস্যা কী?",
+      "options": [
+       "মাথাব্যথা আর জ্বর",
+       "পেটব্যথা",
+       "পায়ে ব্যথা",
+       "কাশি"
+      ],
+      "answer": "A",
+      "explain_bn": "头疼 = মাথাব্যথা, 发烧了 = জ্বর এসেছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w04-l4-r1",
+      "passage": "医生说：这个药一天吃三次，饭后吃。",
+      "passage_roman": "Yīshēng shuō: zhège yào yì tiān chī sān cì, fàn hòu chī.",
+      "prompt_bn": "ওষুধ দিনে কতবার খেতে হবে?",
+      "options": [
+       "一次",
+       "两次",
+       "三次",
+       "四次"
+      ],
+      "options_roman": [
+       "yí cì",
+       "liǎng cì",
+       "sān cì",
+       "sì cì"
+      ],
+      "answer": "C",
+      "explain_bn": "一天吃三次 — দিনে তিনবার, খাওয়ার পরে (饭后)।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w04-l4-w1",
+      "prompt_bn": "বসকে মেসেজ লিখুন: মাথাব্যথা, আজ কাজ করতে পারবেন না।",
+      "model": {
+       "target": "我头疼，今天不能工作。",
+       "roman": "Wǒ tóu téng, jīntiān bù néng gōngzuò.",
+       "bn": "আমার মাথা ব্যথা, আজ কাজ করতে পারব না।"
+      },
+      "check": "ai",
+      "max_chars": 10
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w04-l4-s1",
+      "prompt_bn": "জোরে বলুন: ডাক্তারকে বলুন পেট ব্যথা করছে আর গতরাতে জ্বর এসেছিল।",
+      "model": {
+       "target": "医生，我肚子疼，昨天晚上发烧了。",
+       "roman": "Yīshēng, wǒ dùzi téng, zuótiān wǎnshang fāshāo le.",
+       "bn": "ডাক্তার সাহেব, আমার পেট ব্যথা করছে, গতরাতে জ্বর এসেছিল।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w04-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Review: I speak a little Chinese",
+    "bn": "রিভিশন: আমি একটু চাইনিজ বলতে পারি"
+   },
+   "goal_bn": "ভাষার নাম, পড়া-লেখা-বোঝা বলবেন; ৪ সপ্তাহের সব শেখা দিয়ে পুরো নিজের পরিচয় দেবেন।",
+   "vocab": [
+    {
+     "target": "汉语",
+     "roman": "Hànyǔ",
+     "tones": [
+      4,
+      3
+     ],
+     "bn": "চাইনিজ ভাষা (মান্দারিন)",
+     "pos": "noun",
+     "example": {
+      "target": "我会说一点儿汉语。",
+      "roman": "Wǒ huì shuō yìdiǎnr Hànyǔ.",
+      "bn": "আমি একটু চাইনিজ বলতে পারি।"
+     }
+    },
+    {
+     "target": "中文",
+     "roman": "Zhōngwén",
+     "tones": [
+      1,
+      2
+     ],
+     "bn": "চাইনিজ (ভাষা / লেখা)",
+     "pos": "noun",
+     "example": {
+      "target": "这是中文书。",
+      "roman": "Zhè shì Zhōngwén shū.",
+      "bn": "এটা চাইনিজ বই।"
+     }
+    },
+    {
+     "target": "学习",
+     "roman": "xuéxí",
+     "tones": [
+      2,
+      2
+     ],
+     "bn": "পড়াশোনা করা / শেখা",
+     "pos": "verb",
+     "example": {
+      "target": "我每天学习汉语。",
+      "roman": "Wǒ měitiān xuéxí Hànyǔ.",
+      "bn": "আমি প্রতিদিন চাইনিজ শিখি।"
+     }
+    },
+    {
+     "target": "字",
+     "roman": "zì",
+     "tones": [
+      4
+     ],
+     "bn": "অক্ষর",
+     "pos": "noun",
+     "example": {
+      "target": "这个字怎么写？",
+      "roman": "Zhège zì zěnme xiě?",
+      "bn": "এই অক্ষরটা কীভাবে লেখে?"
+     }
+    },
+    {
+     "target": "写",
+     "roman": "xiě",
+     "tones": [
+      3
+     ],
+     "bn": "লেখা",
+     "pos": "verb",
+     "example": {
+      "target": "请写你的名字。",
+      "roman": "Qǐng xiě nǐ de míngzi.",
+      "bn": "আপনার নাম লিখুন।"
+     }
+    },
+    {
+     "target": "读",
+     "roman": "dú",
+     "tones": [
+      2
+     ],
+     "bn": "পড়া (জোরে)",
+     "pos": "verb",
+     "example": {
+      "target": "请读一下。",
+      "roman": "Qǐng dú yíxià.",
+      "bn": "একটু পড়ুন তো।"
+     }
+    },
+    {
+     "target": "懂",
+     "roman": "dǒng",
+     "tones": [
+      3
+     ],
+     "bn": "বোঝা",
+     "pos": "verb",
+     "example": {
+      "target": "我懂了。",
+      "roman": "Wǒ dǒng le.",
+      "bn": "আমি বুঝেছি।"
+     }
+    },
+    {
+     "target": "一点儿",
+     "roman": "yìdiǎnr",
+     "tones": [
+      4,
+      3,
+      0
+     ],
+     "bn": "একটু",
+     "pos": "adverb",
+     "example": {
+      "target": "我只会说一点儿。",
+      "roman": "Wǒ zhǐ huì shuō yìdiǎnr.",
+      "bn": "আমি শুধু একটু বলতে পারি।"
+     }
+    },
+    {
+     "target": "英语",
+     "roman": "Yīngyǔ",
+     "tones": [
+      1,
+      3
+     ],
+     "bn": "ইংরেজি",
+     "pos": "noun",
+     "example": {
+      "target": "他会说英语。",
+      "roman": "Tā huì shuō Yīngyǔ.",
+      "bn": "সে ইংরেজি বলতে পারে।"
+     }
+    },
+    {
+     "target": "孟加拉语",
+     "roman": "Mèngjiālāyǔ",
+     "tones": [
+      4,
+      1,
+      1,
+      3
+     ],
+     "bn": "বাংলা ভাষা",
+     "pos": "noun",
+     "example": {
+      "target": "我会说孟加拉语和英语。",
+      "roman": "Wǒ huì shuō Mèngjiālāyǔ hé Yīngyǔ.",
+      "bn": "আমি বাংলা আর ইংরেজি বলতে পারি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "会说 + ভাষা",
+     "explain_bn": "কোন ভাষা পারেন বলতে 会说 + ভাষা। একটু পারলে 会说一点儿। জিজ্ঞেস: 你会说汉语吗？",
+     "examples": [
+      {
+       "target": "你会说汉语吗？",
+       "roman": "Nǐ huì shuō Hànyǔ ma?",
+       "bn": "তুমি কি চাইনিজ বলতে পারো?"
+      },
+      {
+       "target": "会说一点儿。",
+       "roman": "Huì shuō yìdiǎnr.",
+       "bn": "একটু পারি।"
+      }
+     ]
+    },
+    {
+     "pattern": "怎么 + ক্রিয়া (কীভাবে …?)",
+     "explain_bn": "কোনো শব্দ না জানলে বা পড়তে না পারলে 怎么 + ক্রিয়া দিয়ে জিজ্ঞেস করুন। এটা শেখার সবচেয়ে কাজের প্রশ্ন।",
+     "examples": [
+      {
+       "target": "这个字怎么读？",
+       "roman": "Zhège zì zěnme dú?",
+       "bn": "এই অক্ষরটা কীভাবে পড়ে?"
+      },
+      {
+       "target": "用汉语怎么说？",
+       "roman": "Yòng Hànyǔ zěnme shuō?",
+       "bn": "চাইনিজে এটা কীভাবে বলে?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w04-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "Chinese colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "Bangladeshi worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你会说汉语吗？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "会说一点儿。我会说孟加拉语和英语。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলা চাইনিজ কতটা পারেন?",
+      "options": [
+       "খুব ভালো",
+       "একটু",
+       "একদম না",
+       "শুধু লিখতে পারেন"
+      ],
+      "answer": "B",
+      "explain_bn": "会说一点儿 — একটু বলতে পারেন। বাংলা আর ইংরেজি তার ভালো ভাষা।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w04-l5-r1",
+      "passage": "我叫拉希德。我在中国公司工作。我每天学习汉语，现在会说一点儿，可是不会写汉字。",
+      "passage_roman": "Wǒ jiào Lāxīdé. Wǒ zài Zhōngguó gōngsī gōngzuò. Wǒ měitiān xuéxí Hànyǔ, xiànzài huì shuō yìdiǎnr, kěshì bú huì xiě Hànzì.",
+      "prompt_bn": "রাশিদ কী পারে না?",
+      "options": [
+       "说汉语",
+       "工作",
+       "学习",
+       "写汉字"
+      ],
+      "options_roman": [
+       "shuō Hànyǔ",
+       "gōngzuò",
+       "xuéxí",
+       "xiě Hànzì"
+      ],
+      "answer": "D",
+      "explain_bn": "可是不会写汉字 — কিন্তু চাইনিজ অক্ষর লিখতে পারে না। একটু বলতে পারে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w04-l5-w1",
+      "prompt_bn": "নিজের সম্পর্কে তিন বাক্য লিখুন: নাম ও দেশ, পেশা, আর কতটা চাইনিজ পারেন।",
+      "model": {
+       "target": "我叫法蒂玛，是孟加拉国人。我是工人，我会说一点儿汉语。",
+       "roman": "Wǒ jiào Fǎdìmǎ, shì Mèngjiālāguó rén. Wǒ shì gōngrén, wǒ huì shuō yìdiǎnr Hànyǔ.",
+       "bn": "আমার নাম ফাতিমা, আমি বাংলাদেশি। আমি শ্রমিক, একটু চাইনিজ বলতে পারি।"
+      },
+      "check": "ai",
+      "max_chars": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w04-l5-s1",
+      "prompt_bn": "জোরে বলুন: পুরো পরিচয় — শুভেচ্ছা, নাম, দেশ, পরিবার, কাজ, ভাষা।",
+      "model": {
+       "target": "你好！我叫拉希德，我是孟加拉国人。我家有四口人。我在中国工作，我会说一点儿汉语。认识你很高兴！",
+       "roman": "Nǐ hǎo! Wǒ jiào Lāxīdé, wǒ shì Mèngjiālāguó rén. Wǒ jiā yǒu sì kǒu rén. Wǒ zài Zhōngguó gōngzuò, wǒ huì shuō yìdiǎnr Hànyǔ. Rènshi nǐ hěn gāoxìng!",
+       "bn": "হ্যালো! আমার নাম রাশিদ, আমি বাংলাদেশি। আমার পরিবারে চারজন। আমি চীনে কাজ করি, একটু চাইনিজ বলতে পারি। পরিচিত হয়ে খুশি হলাম!"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -16,8 +16,9 @@ import 'home_v2_tokens.dart';
 /// home_v2 shortcuts: My Circle (pinned, always first) + up to 11 of the
 /// user's choice = 12 tiles in a 4-column grid (3 columns at large font).
 ///
-/// Owner default order (28 Oct, real-phone test): Family Care, Safe Journey,
-/// Digital Ledger, CRM, Business (accounts + finance hub), AI Sales
+/// Owner default order (28 Oct, real-phone test; homeshort 9 Nov: Digital
+/// Ledger left home for the FIRST tile inside My Business, City Service took
+/// its slot): Family Care, Safe Journey, City Service, CRM, My Business, AI Sales
 /// Assistant, CCTV Cameras, Vehicle Tracking, Prepaid Meter, then two picks:
 /// Emergency SOS and Account & Finance. Job Hunter, Phone Security, Budget and
 /// Contract Scanner left the default set but stay in Edit shortcuts. Each
@@ -38,6 +39,9 @@ import 'home_v2_tokens.dart';
 /// ownerfix: the screen the home "Emergency SOS" tile opens (same as the
 /// Discover SOS card, `kDiscoverSosRoute`).
 const String kHomeSosRoute = 'emergency_hub';
+
+/// homeshort (owner 9 Nov): the ChatNav route of the City Service screen.
+const String kCityServiceRoute = 'city';
 
 class HomeV2Shortcuts {
   HomeV2Shortcuts._();
@@ -67,7 +71,12 @@ class HomeV2Shortcuts {
   static const ownerOrder = [
     'family',
     'journey',
-    'khata',
+    // homeshort (owner 9 Nov 11:25): City Service in Digital Ledger's old
+    // slot, with a small "New" badge. Its screen (ChatNav route
+    // [kCityServiceRoute]) belongs to the City Service build; until that
+    // route exists and its flag is ON for this user the tile is skipped like
+    // any flag-off tile (no placeholder screen: no showpieces).
+    kCityServiceRoute,
     'crm',
     'business',
     'sales_agent',
@@ -78,6 +87,23 @@ class HomeV2Shortcuts {
     'emergency',
     // homeorder (owner order 2 Nov): Blood donor right next to SOS; shown
     // only while flag blood_donors is ON (skipped otherwise, like any tile).
+    'blood_panel',
+    'money',
+  ];
+
+  /// The 2 Nov default (builds up to 316) — used ONLY to recognise a saved
+  /// set that is exactly that default (with Digital Ledger). Never shown.
+  static const v3OwnerOrder = [
+    'family',
+    'journey',
+    'khata',
+    'crm',
+    'business',
+    'sales_agent',
+    'watchman',
+    'vehicle_tracking',
+    'prepaid_meter',
+    'emergency',
     'blood_panel',
     'money',
   ];
@@ -129,8 +155,9 @@ class HomeV2Shortcuts {
   ];
 
   /// Bumped whenever [ownerOrder] changes; [migrateDefaults] runs once per
-  /// version. 2 = the 28 Oct set, 3 = + Blood donor next to SOS (2 Nov).
-  static const defaultsVersion = 3;
+  /// version. 2 = the 28 Oct set, 3 = + Blood donor next to SOS (2 Nov),
+  /// 4 = Digital Ledger -> inside My Business, City Service on home (9 Nov).
+  static const defaultsVersion = 4;
   static const versionKey = 'home_quick_v2_defaults_ver';
 
   /// Next real features, in order, for a skipped default slot.
@@ -154,10 +181,12 @@ class HomeV2Shortcuts {
     QuickShortcut('family', Icons.house_outlined, (t) => t.hv2TileFamily),
     QuickShortcut(
         'journey', Icons.location_on_outlined, (t) => t.journeyHubTitle),
-    QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
+    QuickShortcut(kCityServiceRoute, Icons.directions_transit_outlined,
+        (t) => t.hv2TileCityService),
     QuickShortcut('crm', Icons.handshake_outlined, (t) => t.crmTitle),
+    // homeshort (owner 9 Nov): "Business Accounts" is now "My Business"
     QuickShortcut(
-        'business', Icons.storefront_outlined, (t) => t.hv2TileBizAccounts),
+        'business', Icons.storefront_outlined, (t) => t.myBusinessTitle),
     QuickShortcut(
         'sales_agent', Icons.show_chart_rounded, (t) => t.hv2TileSales),
     QuickShortcut('watchman', Icons.videocam_outlined, (t) => t.hv2TileCctv),
@@ -171,6 +200,9 @@ class HomeV2Shortcuts {
         'blood_panel', Icons.bloodtype_outlined, (t) => t.hv2TileBloodDonor),
     QuickShortcut('money', Icons.account_balance_wallet_outlined,
         (t) => t.moduleMoney),
+    // homeshort: out of the default (now the first tile inside My Business)
+    // but still pinnable from Edit shortcuts; a user who kept it keeps it.
+    QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
     QuickShortcut('jobs', Icons.work_outline_rounded, (t) => t.hv2TileJobs),
     QuickShortcut('lost_stolen', Icons.phonelink_lock_outlined,
         (t) => t.hv2TilePhoneSecurity),
@@ -300,9 +332,12 @@ class HomeV2Shortcuts {
   ///
   /// homeorder: the 28 Oct default ([v2OwnerOrder] + [fillPool]) counts as an
   /// old default too, so those users get Blood donor next to SOS.
+  /// homeshort: so does the 2 Nov default ([v3OwnerOrder]), so those users
+  /// get City Service where Digital Ledger was.
   static bool isLegacyDefault(List<String> s) =>
       _isDefaultOf(s, legacyOwnerOrder, legacyFillPool) ||
-      _isDefaultOf(s, v2OwnerOrder, fillPool);
+      _isDefaultOf(s, v2OwnerOrder, fillPool) ||
+      _isDefaultOf(s, v3OwnerOrder, fillPool);
 
   static bool _isDefaultOf(
       List<String> s, List<String> order, List<String> pool) {
@@ -329,7 +364,14 @@ class HomeV2Shortcuts {
 
   /// Defaults migration — runs once per [defaultsVersion]. A user who never
   /// edited (no saved set, or a saved set that is exactly an old default)
-  /// gets the new [ownerOrder]; every edited set is left untouched. Never
+  /// gets the new [ownerOrder]; every edited set is left untouched.
+  ///
+  /// homeshort (v4, 9 Nov): an EDITED set that holds Digital Ledger keeps it
+  /// exactly where the user put it — they chose it, and a shopkeeper's daily
+  /// khata silently turning into City Service would be the bigger surprise.
+  /// City Service is one tap away in Edit shortcuts for them. Never-edited
+  /// users (incl. the 2 Nov default saved unchanged) get City Service in the
+  /// ledger's slot and find the ledger as the first tile in My Business. Never
   /// throws: on any storage trouble home just shows what [load] reads.
   static Future<void> migrateDefaults() async {
     try {
@@ -375,6 +417,24 @@ class HomeV2Shortcuts {
 
   static Future<void> save(List<String> routes) =>
       Settings.setString(prefsKey, jsonEncode(sanitize(routes)));
+
+  /// homeshort: tiles that carry a small "New" badge until the user opens
+  /// them once (then it never comes back on this install).
+  static const newTiles = {kCityServiceRoute};
+  static const newSeenKey = 'home_new_seen_v1';
+
+  static Future<Set<String>> newSeen() async =>
+      (await _read(newSeenKey))?.toSet() ?? <String>{};
+
+  static Future<void> markNewSeen(String route) async {
+    if (!newTiles.contains(route)) return;
+    try {
+      final seen = await newSeen();
+      if (seen.add(route)) {
+        await Settings.setString(newSeenKey, jsonEncode(seen.toList()));
+      }
+    } catch (_) {}
+  }
 }
 
 /// The SHORTCUTS section: title + ONE Edit button, then the grid.
@@ -393,6 +453,9 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
       ? HomeV2Shortcuts.sanitize(widget.debugRoutes!)
       : HomeV2Shortcuts.defaults();
 
+  /// homeshort: "New" tiles the user has already opened (badge gone).
+  Set<String> _newSeen = {};
+
   @override
   void initState() {
     super.initState();
@@ -401,7 +464,22 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
 
   Future<void> _load() async {
     final r = await HomeV2Shortcuts.load();
-    if (mounted) setState(() => _routes = r);
+    final seen = await HomeV2Shortcuts.newSeen();
+    if (mounted) {
+      setState(() {
+        _routes = r;
+        _newSeen = seen;
+      });
+    }
+  }
+
+  void _open(String route) {
+    if (HomeV2Shortcuts.newTiles.contains(route) &&
+        !_newSeen.contains(route)) {
+      setState(() => _newSeen = {..._newSeen, route});
+      HomeV2Shortcuts.markNewSeen(route);
+    }
+    ChatNav.push(context, HomeV2Shortcuts.openRoute(route));
   }
 
   Future<void> _edit() async {
@@ -504,8 +582,9 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
               route: s.route,
               icon: s.icon,
               label: s.label(t),
-              onTap: () =>
-                  ChatNav.push(context, HomeV2Shortcuts.openRoute(s.route)),
+              isNew: HomeV2Shortcuts.newTiles.contains(s.route) &&
+                  !_newSeen.contains(s.route),
+              onTap: () => _open(s.route),
               onLongPress: _edit,
             ),
         ],
@@ -633,6 +712,9 @@ class HomeV2Tile extends StatelessWidget {
   final bool pinned;
   final int unread;
   final bool missed;
+
+  /// homeshort: a small "New" pill at the top corner (City Service).
+  final bool isNew;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
   const HomeV2Tile({
@@ -647,6 +729,7 @@ class HomeV2Tile extends StatelessWidget {
     this.pinned = false,
     this.unread = 0,
     this.missed = false,
+    this.isNew = false,
   });
 
   @override
@@ -661,6 +744,7 @@ class HomeV2Tile extends StatelessWidget {
       semanticsLabel ?? label,
       if (unread > 0) t.hcUnread(count),
       if (missed) t.hcMissed,
+      if (isNew) t.hv2NewBadge,
     ].join('. ');
     final squircle = Container(
       width: HV2.squircle,
@@ -802,6 +886,32 @@ class HomeV2Tile extends StatelessWidget {
                           style: const TextStyle(
                               color: HomeV2Palette.onColor,
                               fontSize: 11,
+                              height: 1.1,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                ),
+              if (isNew && unread == 0)
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: Container(
+                    key: const ValueKey('hv2_new_badge'),
+                    constraints:
+                        const BoxConstraints(minHeight: HV2.countPillH),
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    decoration: BoxDecoration(
+                      color: HomeV2Palette.countPill,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: MediaQuery.withClampedTextScaling(
+                      maxScaleFactor: 1.3,
+                      child: Text(t.hv2NewBadge,
+                          maxLines: 1,
+                          style: const TextStyle(
+                              color: HomeV2Palette.onColor,
+                              fontSize: 10,
                               height: 1.1,
                               fontWeight: FontWeight.w700)),
                     ),

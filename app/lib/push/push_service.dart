@@ -4,6 +4,9 @@ import '../messaging/msg_push_done.dart'; // notifs
 import '../carecall/carecall_alarms.dart' show CareCallActions, CareCallAlarms; // carecall
 import '../carecall/carecall_api.dart' show HttpCareCallApi; // carecall
 import '../carecall/carecall_ring_screen.dart'; // carecall
+import '../screens/train/dest_alarm_screen.dart' show DestAlarmScreen; // sjtrain
+import '../train/dest_alarm_fullscreen.dart' show DestAlarmFullScreen; // sjtrain
+import '../train/dest_alarm_service.dart' show DestAlarmController; // sjtrain
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
@@ -598,6 +601,17 @@ class PushService {
         unawaited(CareCallActions.answer(
             d, r.actionId == CareCallAlarms.actionDone ? 'done' : 'snooze',
             api: app != null && app.loggedIn ? HttpCareCallApi(app.api) : null));
+      }
+      return;
+    }
+    // sjtrain: the destination alarm's full-screen ring (tap / lock screen /
+    // its "I am awake" button) -> the alarm screen, never a chat
+    if (DestAlarmFullScreen.isOurs(r)) {
+      if (r.actionId == DestAlarmFullScreen.actionAwake) {
+        unawaited(DestAlarmController.I.confirmAwake());
+      } else if (DestAlarmController.I.on) {
+        unawaited(_nav?.currentState?.push(MaterialPageRoute<void>(
+            fullscreenDialog: true, builder: (_) => const DestAlarmScreen())));
       }
       return;
     }
