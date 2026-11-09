@@ -34,25 +34,42 @@ void registerSafeJourneyFlows() {
     });
     await f.step('open Safe Journey -> fill the form -> Start', () async {
       await f.openRoute('journey');
+      // qjourney: 'journey' opens the three-card hub (sjlive, 3 Nov); the
+      // start form is behind its "Trip" button
+      final trip = find.byKey(const ValueKey('sjl_btn_trip'));
+      if (await f.appears(trip, seconds: 8)) {
+        await f.tester.ensureVisible(trip);
+        await f.tap(trip, settleSeconds: 3);
+      }
       await f.waitFor(find.byKey(const ValueKey('j100_dest')), what: 'destination field');
       // qjourney (owner V2): a typed name alone has no coordinates and no
       // longer starts a trip — pin a real place (Gazipur) through a Maps link
       await f.tester.enterText(find.byKey(const ValueKey('j100_dest')), place);
       FocusManager.instance.primaryFocus?.unfocus(); // close the suggestions
       await f.pumpFor(const Duration(milliseconds: 800));
+      // the form is a lazy list: drag the Start button into view first
+      await f.scrollTo(find.byKey(const ValueKey('j100_start')));
       await f.tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
       await f.tap(find.byKey(const ValueKey('j100_start')), settleSeconds: 2);
       await f.waitFor(find.text(f.t.qjDestNeedsPlace), seconds: 5,
           what: '"pick the place" message for a name without coordinates');
       f.note('a typed name without a pin is refused (no start)');
       final paste = find.byKey(const ValueKey('j2_paste_link'));
+      // back UP the lazy form (the Start tap scrolled down past it)
+      for (var i = 0; i < 25 && paste.evaluate().isEmpty; i++) {
+        await f.tester.drag(find.byType(Scrollable).hitTestable().first,
+            const Offset(0, 300), warnIfMissed: false);
+        await f.pumpFor(const Duration(milliseconds: 350));
+      }
       await f.tester.ensureVisible(paste);
       await f.tap(paste, settleSeconds: 2);
       await f.tester.enterText(find.byKey(const ValueKey('j2_link_field')),
           'https://maps.google.com/?q=$_gzLat,$_gzLng');
       await f.tap(find.byKey(const ValueKey('j2_link_use')), settleSeconds: 4);
+      await f.scrollTo(find.byKey(const ValueKey('j2_pinned')));
       await f.waitFor(find.byKey(const ValueKey('j2_pinned')), what: 'pinned destination');
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      await f.scrollTo(b);
       if (!await f.appears(b, seconds: 6)) {
         throw TestFailure('watcher ${Seed.nameB} not listed (seed edge A->B missing)');
       }
@@ -60,6 +77,7 @@ void registerSafeJourneyFlows() {
       await f.tap(b);
       await f.shot('form');
       final start = find.byKey(const ValueKey('j100_start'));
+      await f.scrollTo(start);
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 3);
       // no road time on CI (no Routes key) -> the arrival time is asked once
