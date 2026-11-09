@@ -765,6 +765,8 @@ class SiteHealthView(APIView):
             r.save(update_fields=["evaluation"])
         return Response(site_card(site, lang))
 
+    post = put        # the app's client has no PUT helper
+
 
 def daily_checks(now=None, push=None):
     """Cron (cctv_health_daily, hourly): at DAILY_HOUR Dhaka time each site

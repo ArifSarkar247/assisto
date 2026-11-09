@@ -349,6 +349,7 @@ import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
+import 'cctvconnect_shots.dart'; // cctvconnect brand clouds + DVR health
 import 'booking1_shots.dart'; // booking1 booking bot
 import 'budrem_shots.dart'; // budrem Budget and Remittance
 import 'remhbar_shots.dart'; // remhbar Reminders & Notes launch bar
@@ -1156,6 +1157,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
+    for (final e in cctvconnectShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvconnect
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
     for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in bizopsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizops
