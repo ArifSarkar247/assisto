@@ -581,7 +581,9 @@ class _KidsPlaceFormState extends State<KidsPlaceForm> {
             pos = await Geolocator.getCurrentPosition().timeout(const Duration(seconds: 10));
           }
         }
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: pos stays null and the form shows "location unavailable"
+      }
       if (!mounted) return;
       setState(() {
         if (pos == null) {
