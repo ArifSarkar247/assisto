@@ -12,7 +12,7 @@ import 'sos_sms.dart';
 
 /// fcsos: the SOS surfaces' red. Darker than Brand.danger so white body text
 /// on it passes WCAG AA (7.0:1); Brand.danger stays for icons / accents.
-const kSosRed = Color(0xFFB71C1C);
+const kSosRed = Brand.sosRed;
 
 /// One honest status block (icon + title + optional body / action).
 class SosBanner extends StatelessWidget {
