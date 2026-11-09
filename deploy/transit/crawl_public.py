@@ -12,7 +12,7 @@ Sources (each is optional; a failing source is reported, never fatal):
                            table, English + Bangla names, counters).
   * Wikipedia            — MRT Line 6 article (raw wikitext) to cross-check
                            station names; Bangla Wikipedia bus terminals.
-  * dmtc.org.bd          — DMTCL home page text (station names, notices).
+  * dmtcl.gov.bd         — DMTCL home page text (station names, notices).
 Output: <out>/public_<city>.json
 """
 import argparse
@@ -191,13 +191,13 @@ def main():
            "texts": {}, "errors": errors}
     if a.city == "dhaka":
         res["bus_routes"] = crawl_dhakabusservice(errors)
-        wiki = crawl_text("https://en.wikipedia.org/w/index.php?title="
-                          "MRT_Line_6_(Dhaka_Metro_Rail)&action=raw", errors)
+        wiki = crawl_text("https://en.wikipedia.org/wiki/"
+                          "MRT_Line_6_(Dhaka_Metro_Rail)", errors)
         res["texts"]["wikipedia_mrt6"] = {
             "url": "https://en.wikipedia.org/wiki/MRT_Line_6_(Dhaka_Metro_Rail)",
             "licence": "CC BY-SA 4.0", "text": wiki[:400000]}
-        dm = crawl_text("https://dmtc.org.bd/", errors)
-        res["texts"]["dmtcl_home"] = {"url": "https://dmtc.org.bd/",
+        dm = crawl_text("https://dmtcl.gov.bd/", errors)
+        res["texts"]["dmtcl_home"] = {"url": "https://dmtcl.gov.bd/",
                                       "text": re.sub(r"<[^>]+>", " ", dm)[:200000]}
     with open("%s/public_%s.json" % (a.out, a.city), "w") as fh:
         json.dump(res, fh, ensure_ascii=False)

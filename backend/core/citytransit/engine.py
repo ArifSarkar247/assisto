@@ -26,7 +26,7 @@ from . import fares as F
 WALK_SPEED = 1.2          # m/s (Dhaka footpaths)
 DETOUR = 1.3              # straight line -> street distance
 WALK_MAX = 1200           # m, access/egress on foot
-RICK_MIN, RICK_MAX = 700, 3500
+RICK_MIN, RICK_MAX = 700, 2500
 RICK_KMH, CNG_KMH, CAR_KMH, BIKE_KMH = 9.0, 16.0, 15.0, 20.0
 XFER_M = 450
 MAX_ROUNDS = 4            # vehicle legs
@@ -393,6 +393,17 @@ class Network:
                     "km": round(r["km"][apos] - r["km"][bpos], 1), "fare": f,
                     "headway_min": r["hw"], "women_only": bool(r.get("women_only")),
                 })
+        # one walk leg, not "walk, walk" (transfer walk + last walk)
+        merged = []
+        for lg in legs:
+            if merged and lg["mode"] == "walk" and merged[-1]["mode"] == "walk":
+                m = merged[-1]
+                m["meters"] += lg["meters"]
+                m["minutes"] = max(1, int(round(m["meters"] / WALK_SPEED / 60.0)))
+                m["to"] = lg["to"]
+            else:
+                merged.append(lg)
+        legs = merged
         # which exit gate after a metro ride
         for idx, lg in enumerate(legs):
             if lg["mode"] == "metro":

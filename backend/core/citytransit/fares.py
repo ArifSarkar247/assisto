@@ -25,7 +25,7 @@ RATES = {
         "card_discount_pct": 10,    # MRT / Rapid Pass smart card
         "checked": CHECKED,
         "source": "DTCA metro fare chart (Tk 5/km, min Tk 20, max Tk 100)",
-        "source_url": "https://dmtc.org.bd/",
+        "source_url": "https://dmtcl.gov.bd/",
         "news_url": "https://www.thedailystar.net/news/bangladesh/news/no-decision-yet-3002476",
     },
     "bus": {

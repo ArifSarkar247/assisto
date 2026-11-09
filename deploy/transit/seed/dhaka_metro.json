@@ -3,7 +3,7 @@
   "line": {"id": "mrt6", "name": "MRT Line 6", "name_bn": "এমআরটি লাইন ৬",
            "operator": "Dhaka Mass Transit Company Limited (DMTCL)",
            "km_total": 20.1,
-           "sources": [{"url": "https://dmtc.org.bd/", "date": "2026-11-09"},
+           "sources": [{"url": "https://dmtcl.gov.bd/", "date": "2026-11-09"},
                        {"url": "https://en.wikipedia.org/wiki/MRT_Line_6_(Dhaka_Metro_Rail)", "date": "2026-11-09"}]},
   "stations": [
     ["UTN", "Uttara North", "উত্তরা উত্তর"],
@@ -48,6 +48,6 @@
     "status": "reported",
     "text_en": "MRT Pass / Rapid Pass: buy and top up at the ticket office or the vending machines inside every station (cash).",
     "text_bn": "এমআরটি পাস / র‍্যাপিড পাস: প্রতিটি স্টেশনের টিকিট অফিস বা ভেন্ডিং মেশিনে কেনা ও রিচার্জ করা যায় (নগদ)।",
-    "sources": [{"url": "https://dmtc.org.bd/", "date": "2026-11-09"}]
+    "sources": [{"url": "https://dmtcl.gov.bd/", "date": "2026-11-09"}]
   }
 }

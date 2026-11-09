@@ -12,7 +12,7 @@ URL="https://download.geofabrik.de/asia/bangladesh-latest.osm.pbf"
 curl -fL --retry 3 --retry-delay 30 -A "$UA" -o "$WORK/bd.osm.pbf" "$URL"
 TS="$(osmium fileinfo -g header.option.osmosis_replication_timestamp "$WORK/bd.osm.pbf" 2>/dev/null || true)"
 echo "osm timestamp: $TS"
-declare -A BOX=( [dhaka]="90.30,23.66,90.52,23.95" [chattogram]="91.70,22.20,91.95,22.45" )
+declare -A BOX=( [dhaka]="90.18,23.58,90.62,24.06" [chattogram]="91.70,22.20,91.95,22.45" )
 for city in dhaka chattogram; do
   osmium extract --overwrite -s smart -b "${BOX[$city]}" -o "$WORK/$city.osm.pbf" "$WORK/bd.osm.pbf"
   ls -la "$WORK/$city.osm.pbf"

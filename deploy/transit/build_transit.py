@@ -36,7 +36,7 @@ from citytransit import engine as E  # noqa: E402
 
 ATTRIBUTION = "© OpenStreetMap contributors (ODbL 1.0)"
 CITIES = {
-    "dhaka": {"bbox": [23.66, 90.30, 23.95, 90.52], "core": [23.69, 90.33, 23.90, 90.46]},
+    "dhaka": {"bbox": [23.58, 90.18, 24.06, 90.62], "core": [23.69, 90.33, 23.90, 90.46]},
     "chattogram": {"bbox": [22.20, 91.70, 22.45, 91.95], "core": [22.28, 91.76, 22.42, 91.88]},
 }
 MODE_OF = {"bus": "bus", "minibus": "bus", "trolleybus": "bus", "share_taxi": "leguna",
@@ -346,54 +346,108 @@ class Builder:
 
     # ------------------------------------------------------ public lists
     def gazetteer(self):
+        """Name -> candidate points: OSM bus stops (best), metro stations,
+        named places/junctions, then named POIs (markets, colleges, cinema
+        halls...), plus the curated alias list (public spelling -> OSM)."""
         g, gb = defaultdict(list), defaultdict(list)
+
+        def add(prio, lat, lon, sid, names, name_en, name_bn):
+            c = (prio, lat, lon, sid, name_en, name_bn)
+            for nm in set(n for n in names if n):
+                g[norm(nm)].append(c)
+            if name_bn:
+                gb[norm_bn(name_bn)].append(c)
+
         for nid, s in self.osm["stopn"].items():
-            for nm in {s["name"], s.get("name_en", "")}:
-                if nm:
-                    g[norm(nm)].append((0, s["lat"], s["lon"], "n%d" % nid, s["name_en"] or s["name"], s["name_bn"]))
-            if s["name_bn"]:
-                gb[norm_bn(s["name_bn"])].append((0, s["lat"], s["lon"], "n%d" % nid, s["name_en"] or s["name"], s["name_bn"]))
+            add(0, s["lat"], s["lon"], "n%d" % nid, (s["name"], s.get("name_en")),
+                s["name_en"] or s["name"], s["name_bn"])
+        for s in self.stops:
+            if s["kind"] == "metro":
+                add(1, s["lat"], s["lon"], s["id"], (s["name"],), s["name"], s["name_bn"])
         for p in self.osm["places"]:
-            for nm in {p["name"], p.get("name_en", "")}:
-                if nm:
-                    g[norm(nm)].append((2, p["lat"], p["lon"], "p%d" % p["id"], p["name_en"] or p["name"], p["name_bn"]))
-            if p["name_bn"]:
-                gb[norm_bn(p["name_bn"])].append((2, p["lat"], p["lon"], "p%d" % p["id"], p["name_en"] or p["name"], p["name_bn"]))
+            add(2, p["lat"], p["lon"], "p%d" % p["id"], (p["name"], p.get("name_en")),
+                p["name_en"] or p["name"], p["name_bn"])
+        for lat, lon, name, name_bn, _cat in self.osm["poi"]:
+            add(3, lat, lon, "q%.5f,%.5f" % (lat, lon), (name,), name, name_bn)
         bb = self.cfg["bbox"]
         inb = lambda c: bb[0] <= c[1] <= bb[2] and bb[1] <= c[2] <= bb[3]
         self.gz = {k: [c for c in v if inb(c)] for k, v in g.items()}
         self.gzb = {k: [c for c in v if inb(c)] for k, v in gb.items()}
+        self.gz = {k: v for k, v in self.gz.items() if v}
+        self.gkeys = sorted(self.gz)
+        self.alias = {norm(k): [norm(x) for x in v]
+                      for k, v in (self.seeds.get("aliases") or {}).items() if not k.startswith("_")}
 
-    def match(self, en, bn, prev):
-        cands = list(self.gz.get(norm(en), [])) + list(self.gzb.get(norm_bn(bn), []))
-        if not cands and en:
-            n = norm(en)
-            for k in (n.split(" ")[0] + " " + " ".join(n.split(" ")[1:2])).strip(), n.replace(" ", ""):
-                cands = list(self.gz.get(k, []))
-                if cands:
+    def candidates(self, en, bn):
+        import bisect
+        n = norm(en)
+        out = list(self.gz.get(n, [])) + list(self.gzb.get(norm_bn(bn), []))
+        for a in self.alias.get(n, []):
+            out += self.gz.get(a, [])
+        if not out and n:
+            i = bisect.bisect_left(self.gkeys, n + " ")
+            for k in self.gkeys[i:i + 12]:
+                if not k.startswith(n + " "):
                     break
-        if not cands:
-            return None
-        if prev:
-            cands = [c for c in cands if hav(prev[0], prev[1], c[1], c[2]) < 9000] or []
-            if not cands:
-                return None
-            return min(cands, key=lambda c: (hav(prev[0], prev[1], c[1], c[2]) + c[0] * 150))
-        return min(cands, key=lambda c: c[0])
+                out += self.gz[k]
+            if not out:
+                out = list(self.gz.get(n.replace(" ", ""), []))
+        # best few per priority, dedup by id
+        seen, res = set(), []
+        for c in sorted(out, key=lambda c: c[0]):
+            if c[3] not in seen:
+                seen.add(c[3])
+                res.append(c)
+        return res[:15]
+
+    def match_sequence(self, stops):
+        """Viterbi over each listed stop's candidates: the chain with the
+        least travel (km) + 2.5 km per skipped stop + a small penalty for
+        weaker name sources. Fixes wrong homonyms far away."""
+        SKIP, MAXD = 2.5, 9000.0
+        states = []          # per stop: list of (cost, cand, back)
+        for i, (en, bn) in enumerate(stops):
+            row = []
+            for c in self.candidates(en, bn):
+                best = (i * SKIP + c[0] * 0.3, None)
+                for j in range(max(0, i - 4), i):
+                    for k, (cost, d, _b) in enumerate(states[j]):
+                        dist = hav(d[1], d[2], c[1], c[2])
+                        if dist > MAXD or d[3] == c[3]:
+                            continue
+                        v = cost + dist / 1000.0 + (i - j - 1) * SKIP + c[0] * 0.3
+                        if v < best[0]:
+                            best = (v, (j, k))
+                row.append((best[0], c, best[1]))
+            states.append(row)
+        end, n = None, len(stops)
+        for i, row in enumerate(states):
+            for k, (cost, c, b) in enumerate(row):
+                v = cost + (n - 1 - i) * SKIP
+                if end is None or v < end[0]:
+                    end = (v, (i, k))
+        if end is None:
+            return [], [en or bn for en, bn in stops]
+        path, cur = [], end[1]
+        while cur is not None:
+            i, k = cur
+            path.append((i, states[i][k][1]))
+            cur = states[i][k][2]
+        path.reverse()
+        got = {i for i, _c in path}
+        miss = [(stops[i][0] or stops[i][1]) for i in range(n) if i not in got]
+        return path, miss
 
     def public_routes(self):
         self.gazetteer()
         for pr in self.public.get("bus_routes", []):
-            pts, prev, miss = [], None, []
-            for en, bn in pr["stops"]:
-                m = self.match(en, bn, prev)
-                if not m:
-                    miss.append(en or bn)
-                    continue
+            path, miss = self.match_sequence(pr["stops"])
+            pts = []
+            for i, m in path:
+                en, bn = pr["stops"][i]
                 if pts and pts[-1][3] == m[3]:
                     continue
                 pts.append((m[1], m[2], en or m[4], m[3], bn or m[5]))
-                prev = (m[1], m[2])
             if len(pts) < 3 or len(pts) < 0.5 * len(pr["stops"]):
                 self.gaps["public_route_unmatched"].append(
                     {"company": pr["company"], "url": pr["source_url"], "missing": miss[:12],
@@ -405,9 +459,11 @@ class Builder:
             for i in range(1, len(pts)):
                 acc += hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]) * 1.25 / 1000.0
                 km.append(acc)
-            base = re.sub(r"[^a-z0-9]+", "-", pr["company"].lower()).strip("-")[:40]
+            base = re.sub(r"[^a-z0-9]+", "-", pr["company"].lower()).strip("-")[:32] + "-" + \
+                hashlib.sha1(pr["source_url"].encode()).hexdigest()[:6]
             for direction, seq, kk in (("a", pts, km), ("b", pts[::-1], [km[-1] - x for x in km[::-1]])):
-                idx = [self.stop(p[3], p[2], p[4], p[0], p[1], "bus", "public") for p in seq]
+                idx = [self.stop(p[3] if p[3][0] in "nm" else "s" + hashlib.sha1(p[3].encode()).hexdigest()[:10],
+                                 p[2], p[4], p[0], p[1], "bus", "public") for p in seq]
                 for i, p in zip(idx, seq):
                     if p[3].startswith("n"):          # an OSM bus-stop node: 2nd source
                         self.stops[i]["src"].add("osm")
@@ -583,7 +639,7 @@ class Builder:
                             "url": "https://dhakabusservice.com/dhaka-local-bus-routes/"},
                            {"s": "wikipedia", "licence": "CC BY-SA 4.0",
                             "url": "https://en.wikipedia.org/wiki/MRT_Line_6_(Dhaka_Metro_Rail)"},
-                           {"s": "dmtcl", "url": "https://dmtc.org.bd/"}],
+                           {"s": "dmtcl", "url": "https://dmtcl.gov.bd/"}],
                "stops": {"cols": ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code"], "rows": rows},
                "routes": routes, "gates": gates}
         if self.seeds.get("metro") and self.city == "dhaka":
@@ -705,6 +761,7 @@ def main():
     sd = os.path.join(HERE, "seed")
     if a.city == "dhaka":
         seeds["metro"] = json.load(open(os.path.join(sd, "dhaka_metro.json")))
+        seeds["aliases"] = json.load(open(os.path.join(sd, "dhaka_aliases.json")))
     public = json.load(open(a.public)) if a.public and os.path.exists(a.public) else {}
     t0 = time.time()
     osm = read_osm(a.pbf)

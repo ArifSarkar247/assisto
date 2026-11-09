@@ -41,7 +41,7 @@ DHAKA_TZ = ZoneInfo("Asia/Dhaka")
 # cities we plan to cover; a city without an imported dataset gets the
 # honest "no data yet" answer (+ Google Maps link)
 CITIES = {
-    "dhaka": {"bbox": [23.66, 90.30, 23.95, 90.52], "name": "Dhaka", "name_bn": "ঢাকা"},
+    "dhaka": {"bbox": [23.58, 90.18, 24.06, 90.62], "name": "Dhaka", "name_bn": "ঢাকা"},
     "chattogram": {"bbox": [22.20, 91.70, 22.45, 91.95], "name": "Chattogram", "name_bn": "চট্টগ্রাম"},
 }
 LIVE_KINDS = ("jam", "road_closed", "waterlogging", "bus_not_coming", "bus_crowded", "seats_free")
