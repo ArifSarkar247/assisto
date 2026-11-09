@@ -206,6 +206,8 @@ class AudioRouteService extends ChangeNotifier {
     'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
     // carecall: the setter's own-voice Care Call recording
     'lib/carecall/cc_recorder.dart': AudioUse.voiceNoteRecord,
+    // fcsos: the 30 s SOS sound clip (MicRouteHold, headset mic when present)
+    'lib/family_sos/sos_recorder.dart': AudioUse.voiceNoteRecord,
   };
 
 

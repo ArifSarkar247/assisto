@@ -13,6 +13,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/chatnav.dart';
 import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
+import '../family_sos/sos_setup_card.dart'; // fcsos
 import 'emergency_screen.dart';
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
@@ -368,6 +369,11 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
             onCall: _dial,
           ),
           ...later,
+          // fcsos: get SOS ready (SMS people, info share, DND, full screen)
+          const Padding(
+            padding: EdgeInsets.only(top: Gap.md),
+            child: SosSetupCard(),
+          ),
           const SizedBox(height: Gap.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.offline_bolt_rounded, size: 18, color: scheme.onSurfaceVariant),

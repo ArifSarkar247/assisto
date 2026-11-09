@@ -1,0 +1,47 @@
+name: Family SOS e2e (fcsos)
+
+# The 10-second target: SOS from one account to 3 family accounts through the
+# real Django backend + the real FCM v1 push code against a local mock FCM
+# (time-stamped). 20 rounds; p50 / p95 / max in the job summary. No secrets.
+on:
+  push:
+    paths:
+      - "tools/e2e/sos_e2e.sh"
+      - "tools/e2e/sos_e2e_driver.py"
+      - "tools/e2e/mock_fcm.py"
+      - "backend/core/family_alerts.py"
+      - "backend/core/family_sos_v3.py"
+      - "backend/core/views_fcsos.py"
+      - "backend/core/views_family100.py"
+      - "backend/core/guardian_links.py"
+      - ".github/workflows/sos-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sos:
+    name: SOS to 3 family phones (Django + mock FCM, timed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/assisto-e2e
+          key: e2e-sos-${{ hashFiles('backend/*/migrations/*.py') }}
+          restore-keys: e2e-sos-
+      - name: Run SOS harness
+        env:
+          PY: python
+        run: bash tools/e2e/sos_e2e.sh

@@ -13,6 +13,7 @@ import argparse
 import base64
 import json
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs
 
@@ -93,6 +94,7 @@ class H(BaseHTTPRequestHandler):
             if self.headers.get("Authorization") != "Bearer " + State.token:
                 return self._send(401, {"error": {"status": "UNAUTHENTICATED"}})
             msg = json.loads(body.decode())["message"]
+            msg["_t"] = time.time()  # fcsos: arrival time (SOS latency bar)
             with State.lock:
                 State.calls.append(msg)
                 n = len(State.calls)

@@ -348,6 +348,7 @@ import 'cctvprice_shots.dart'; // cctvprice CCTV plan
 import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'fcbrain_shots.dart'; // fcbrain
+import 'fcsos_shots.dart'; // fcsos Family Care v3 SOS sender / receiver
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
 import 'booking1_shots.dart'; // booking1 booking bot
@@ -1156,6 +1157,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in fcbrainShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcbrain
+    for (final e in fcsosShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcsos
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1

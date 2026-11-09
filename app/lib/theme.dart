@@ -42,6 +42,8 @@ class Brand {
   static const success = Color(0xFF2E9E6B);
   static const warning = Color(0xFFE0A500);
   static const danger = Color(0xFFE0485A);
+  // fcsos: SOS surfaces with white body text (7.0:1, WCAG AA); danger stays for icons
+  static const sosRed = Color(0xFFB71C1C);
   static const info = Color(0xFF2F7BE5);
 
   /// Fill for destructive FILLED buttons/snackbars: white text on it is 5.6:1
