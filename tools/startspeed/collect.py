@@ -24,7 +24,7 @@ STEPS = ["dart_main", "init_begin", "init_prefs", "init_flags", "init_token",
          "init_db", "init_auth", "first_frame", "language_frame", "login_frame",
          "home_frame", "post_frame_begin", "notifications_ready",
          "home_widget_ready", "push_begin", "push_ready", "ao_open_circle",
-         "circle_list_frame", "circle_list_failed"]
+         "circle_list_frame", "circle_list_fresh", "circle_list_failed"]
 LINE = re.compile(r"^\s*(\d+\.\d+)\s+\d+\s+\d+\s+([VDIWEF])\s+(\S+?)\s*:\s?(.*)$")
 
 
@@ -83,6 +83,9 @@ def parse(out):
         a, b = row.get("ao_open_circle_ms"), row.get("circle_list_frame_ms")
         if a is not None and b is not None:
             row["circle_open_ms"] = b - a
+        f = row.get("circle_list_fresh_ms")
+        if a is not None and f is not None:
+            row["circle_fresh_ms"] = f - a
         if row.get("circle_list_failed_ms") is not None:
             row["circle_failed"] = True
         rows.append(row)
@@ -107,6 +110,7 @@ def summarize(rows):
              "am_total_ms": med(rows, lb, "am_total_ms"),
              "launch_state": sorted({r["launch_state"] or "?" for r in rs}),
              "circle_open_ms": med(rows, lb, "circle_open_ms"),
+             "circle_fresh_ms": med(rows, lb, "circle_fresh_ms"),
              "circle_failed_runs": sum(1 for r in rs if r.get("circle_failed"))}
         for st in STEPS:
             d[st + "_ms"] = med(rows, lb, st + "_ms")
@@ -150,7 +154,8 @@ def render_md(r):
     o += ["", "## Every run kind (median ms from the Android START line)", ""]
     cols = ["am_total_ms", "dart_main_ms", "init_prefs_ms", "init_flags_ms", "init_token_ms",
             "init_db_ms", "init_auth_ms", "first_frame_ms", "home_frame_ms", "login_frame_ms",
-            "language_frame_ms", "notifications_ready_ms", "push_ready_ms", "circle_open_ms"]
+            "language_frame_ms", "notifications_ready_ms", "push_ready_ms", "circle_open_ms",
+            "circle_fresh_ms"]
     o.append("| run | n | state | screen | " + " | ".join(c[:-3] for c in cols) + " |")
     o.append("|" + "---|" * (len(cols) + 4))
     for lb, d in s.items():

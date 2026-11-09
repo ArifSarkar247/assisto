@@ -330,10 +330,10 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _lists = [];
     }
     if (mounted) setState(() => _loading = false);
-    // faststart: My Circle chat list on screen (CI profile APK only)
+    // faststart: the network refresh finished (CI profile APK only)
     if (PerfMarks.enabled) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => PerfMarks.mark(
-          _loadFailed ? 'circle_list_failed' : 'circle_list_frame'));
+      WidgetsBinding.instance.addPostFrameCallback((_) => PerfMarks.once(
+          _loadFailed ? 'circle_list_failed' : 'circle_list_fresh'));
     }
   }
 
@@ -1067,6 +1067,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
+    // faststart: the chat list is VISIBLE (cached or fresh; CI profile only)
+    if (PerfMarks.enabled && (_chats.isNotEmpty || !_loadFailed)) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => PerfMarks.once('circle_list_frame'));
+    }
     if (_loadFailed && _chats.isEmpty) {
       return Column(children: [
         if (widget.header != null) widget.header!,
