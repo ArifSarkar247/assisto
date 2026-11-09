@@ -141,7 +141,9 @@ void main() {
       up = true;
       NetStatus.instance.reportAnswer();
       await _until(() => app.user!.name == 'Rahim New');
-      expect(app.online, isTrue);
+      // (app.online is also set by the memory sync, which has no sqflite in
+      // unit tests — the network signal itself is NetStatus)
+      expect(NetStatus.instance.online.value, isTrue);
       expect(app.user!.name, 'Rahim New');
       expect(app.sessionFromCache, isFalse);
     });
