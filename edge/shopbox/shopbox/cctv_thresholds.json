@@ -39,5 +39,26 @@
     "learn": 0.05,
     "scene_frac": 0.6,
     "min_area": 6
+  },
+  "_doc_detect": "cctvdet: zone detections (shopbox/detect_rules.py = app/lib/cctv/detect_rules.dart): person at gate, loitering, post empty, gate open, tamper. 'measured' = precision/recall per detection from the cctv-accuracy CI job (tools/e2e/cctv_accuracy.py --detections); the alert shows that measured precision as its honest confidence.",
+  "detect": {
+    "zone_hit_points": 2,
+    "gate_confirm": 2,
+    "presence_gap_s": 10.0,
+    "dwell_s_default": 120,
+    "absent_min_default": 5,
+    "open_min_default": 10,
+    "post_check_s": 30.0,
+    "presence_check_s": 2.0,
+    "patch_w": 16,
+    "patch_h": 12,
+    "gate_closed_sim": 0.6,
+    "tamper_every_s": 30.0,
+    "bad_persist_s": 60,
+    "moved_min_gap_s": 120
+  },
+  "measured": {
+    "_run": "",
+    "_set": ""
   }
 }

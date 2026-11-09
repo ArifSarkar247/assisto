@@ -484,7 +484,7 @@ def describe_due(now=None, limit=DESC_PER_TICK):
             return out
         from .models import ShopEvent
         qs = (ShopEvent.objects.filter(created__gte=now - timedelta(hours=DESC_MAX_AGE_H),
-                                       pending=False, type__in=CB.VISITOR_TYPES)
+                                       pending=False, type__in=CB.DESCRIBE_TYPES)
               .exclude(snapshot="").exclude(snapshot__isnull=True)
               .select_related("site", "site__owner", "camera").order_by("-created")[:40])
         for ev in qs:

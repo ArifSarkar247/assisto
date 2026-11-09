@@ -132,7 +132,27 @@ def box_centroid(box) -> Point:
     return ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
 
 
-ZONE_TYPES = ("restricted", "cash", "entry_line")
+ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post")   # cctvdet: + gate, post
+# cctvdet: per-zone options the box understands (numbers clamped like the
+# server's core/logic/watchman.py; anything else is dropped)
+ZONE_OPTS = {"dwell_s": (0, 3600), "absent_min": (1, 240), "open_min": (1, 720),
+             "closed_at": (0, 4102444800)}
+
+
+def _zone_opts(raw) -> dict:
+    out: dict = {}
+    if not isinstance(raw, dict):
+        return out
+    for k, (lo, hi) in ZONE_OPTS.items():
+        try:
+            v = float(raw[k])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if np.isfinite(v):
+            out[k] = min(max(v, lo), hi)
+    if raw.get("watch_open") is True:
+        out["watch_open"] = True
+    return out
 SENSITIVITY_MULT = {"low": 1.5, "medium": 1.0, "high": 0.7}
 
 
@@ -156,8 +176,16 @@ def normalize_zones_v2(d) -> Optional[dict]:
         pts = normalize_line(z.get("points")) if z["type"] == "entry_line" \
             else normalize_polygon(z.get("points"))
         if pts:
-            zones.append({"id": zid, "type": z["type"],
-                          "points": [list(p) for p in pts]})
+            zz = {"id": zid, "type": z["type"], "points": [list(p) for p in pts]}
+            # cctvdet: label, the zone's own schedule, options
+            if z.get("label"):
+                zz["label"] = str(z["label"])[:40]
+            if isinstance(z.get("schedule"), dict):
+                zz["schedule"] = z["schedule"]
+            opts = _zone_opts(z.get("opts"))
+            if opts:
+                zz["opts"] = opts
+            zones.append(zz)
     sens = d.get("sensitivity") if d.get("sensitivity") in SENSITIVITY_MULT \
         else "medium"
     sched = d.get("schedule") if isinstance(d.get("schedule"), dict) else None

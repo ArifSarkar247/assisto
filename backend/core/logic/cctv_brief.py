@@ -49,6 +49,9 @@ PERSON_TYPES = ("person_detected", "zone_intrusion", "line_crossing", "loitering
                 "hand_in_cash_zone", "pose_possible")
 # the visitor log: alerts that are about a person being there
 VISITOR_TYPES = PERSON_TYPES + ("motion", "camera_alarm", "after_hours")
+# cctvdet: alerts that get the Bangla AI description of their photo (the
+# visitor log above + the zone detections: gate, empty post, open gate)
+DESCRIBE_TYPES = VISITOR_TYPES + ("gate_person", "post_empty", "gate_open")
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 _EN = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
@@ -342,12 +345,18 @@ _KIND_BN = {"person_detected": "একজন মানুষ দেখা গে
             "line_crossing": "কেউ প্রবেশ-রেখা পার হয়েছে", "loitering": "কেউ অনেকক্ষণ দাঁড়িয়ে/ঘোরাঘুরি করছে",
             "motion": "নড়াচড়া দেখা গেছে", "camera_alarm": "ক্যামেরার নিজের সতর্কতা",
             "after_hours": "বন্ধের সময়ে নড়াচড়া", "hand_in_cash_zone": "ক্যাশের জায়গায় হাত",
-            "pose_possible": "সম্ভবত কেউ ঝুঁকে আছে", "drawer_open": "ক্যাশ ড্রয়ার খোলা"}
+            "pose_possible": "সম্ভবত কেউ ঝুঁকে আছে", "drawer_open": "ক্যাশ ড্রয়ার খোলা",
+            # cctvdet
+            "gate_person": "শাটার / গেটের সামনে কেউ আছেন", "post_empty": "কাউন্টার / পোস্ট ফাঁকা",
+            "gate_open": "গেট / শাটার খোলা রয়ে গেছে", "camera_health": "ক্যামেরা ঢাকা বা সরানো মনে হচ্ছে"}
 _KIND_EN = {"person_detected": "A person was seen", "zone_intrusion": "Someone entered a restricted zone",
             "line_crossing": "Someone crossed the entry line", "loitering": "Someone stayed / loitered for a while",
             "motion": "Movement was seen", "camera_alarm": "The camera's own alert",
             "after_hours": "Movement after closing time", "hand_in_cash_zone": "A hand in the cash zone",
-            "pose_possible": "Possibly someone bending", "drawer_open": "Cash drawer open"}
+            "pose_possible": "Possibly someone bending", "drawer_open": "Cash drawer open",
+            # cctvdet
+            "gate_person": "Someone is at the shutter / gate", "post_empty": "The counter / post is empty",
+            "gate_open": "The gate / shutter is left open", "camera_health": "The camera seems covered or moved"}
 _OBJ = {"vehicle": ("একটি গাড়ি", "A vehicle"), "animal": ("একটি প্রাণী", "An animal")}
 
 
@@ -360,7 +369,7 @@ def template_desc(etype, sig, cam_name, local_dt, count=1):
     else:
         what_bn = _KIND_BN.get(etype, "ক্যামেরায় কিছু দেখা গেছে")
         what_en = _KIND_EN.get(etype, "Something was seen on the camera")
-    zone = str(sig.get("zone") or "")[:40]
+    zone = str(sig.get("zone_label") or sig.get("zone") or "")[:40]
     where_bn = (" — %s" % cam_name) if cam_name else ""
     where_en = (" — %s" % cam_name) if cam_name else ""
     if zone:
