@@ -9,6 +9,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:assisto/ads/ad_banner_slot.dart';
+import 'package:assisto/ads/ad_rules.dart' show AdConfig;
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
@@ -62,6 +64,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     debugLpAsset = (a) async => File(a).readAsString();
     debugLpPlay = (_) async {};
+    LpOffline.debugDisabled = true;
+    AdBannerSlot.debugLoadConfig = () async => AdConfig.fromJson({'plan': 'premium', 'paid': true, 'ads_enabled': false});
     LpContent.debugReset();
     lp2Posts.clear();
   });
@@ -163,7 +167,7 @@ void main() {
       expect(find.byKey(const Key('lp2-ielts')), findsOneWidget);
       expect(find.byKey(const Key('lp2-life')), findsOneWidget);
       expect(find.text('2 of 10 situations practised'), findsOneWidget);
-      await t.ensureVisible(find.text('Going abroad'));
+      await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Japan · JLPT / JFT'), findsOneWidget);
       expect(find.text('Other languages'), findsOneWidget);
       expect(find.text('French'), findsOneWidget);

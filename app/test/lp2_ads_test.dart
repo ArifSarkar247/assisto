@@ -20,6 +20,7 @@ import 'package:assisto/screens/lp2/lp_companion.dart';
 import 'package:assisto/screens/lp2/lp_data.dart';
 import 'package:assisto/screens/lp2/lp_life.dart';
 import 'package:assisto/screens/lp2/lp_mock.dart';
+import 'package:assisto/screens/lp2/lp_ui.dart' show LpAdExit;
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -73,6 +74,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     debugLpAsset = (a) async => File(a).readAsString();
     debugLpPlay = (_) async {};
+    LpOffline.debugDisabled = true;
     LpContent.debugReset();
     lp2Posts.clear();
   });
