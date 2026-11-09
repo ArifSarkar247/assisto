@@ -208,4 +208,16 @@ void main() {
           contains('onLongPressItem:'));
     });
   });
+
+  test('every sign-in path sends X-Session-Mode: device (per-device session)', () {
+    final api = File('lib/api.dart').readAsStringSync();
+    expect(api, contains("'X-Session-Mode': 'device'"));
+    // password + register use the shared headers; OTP / invite / recovery
+    // sign-ins go through postJsonRaw, which uses the same headers
+    expect(RegExp(r"postJsonRaw\([^)]*\)\s*async\s*\{\s*final r = await _c\.post\(AppConfig\.api\(path\),\s*headers: _headers\(\)")
+        .hasMatch(api), isTrue);
+    expect(File('lib/otp_api.dart').readAsStringSync(), contains('api.postJsonRaw('));
+    expect(File('lib/invite/invite_api.dart').readAsStringSync(),
+        contains("api.postJsonRaw('/invite/signup'"));
+  });
 }

@@ -93,3 +93,74 @@ class SystemDrawnChannelTests(m1.PushEnforcementTests):
         push.push_to_user(self.b, "call", "কল", "Call", data={"call_id": "1"})
         m = self._sent("call")[0]
         self.assertNotIn("notification", m)
+
+
+# ---------------------------------------------------------------------------
+# qcircle (lead, 9 Nov): a sign-in on another device must NEVER sign out the
+# devices already signed in. Only password change / reset, "sign out others",
+# remote sign-out of one device and logout may revoke a live session.
+from rest_framework.authtoken.models import Token          # noqa: E402
+from rest_framework.test import APIClient                  # noqa: E402
+
+from core.models import DeviceSession                      # noqa: E402
+from core import tests_recovery as R                       # noqa: E402
+
+
+class TwoDevicesStaySignedInTests(R.Base):
+    def _ok(self, c):
+        return c.get("/api/v1/account/security").status_code == 200
+
+    def test_two_phones_password_login_both_stay(self):
+        a, _ = self.login(dev_id="phone-a", name="Realme 9i")
+        b, _ = self.login(dev_id="phone-b", name="Samsung A15")
+        self.assertTrue(self._ok(a))
+        self.assertTrue(self._ok(b))
+
+    def test_backup_restored_new_phone_same_install_id(self):
+        # Android Auto Backup copies the install id to the new phone
+        a, _ = self.login(dev_id="same", name="Realme 9i")
+        b, _ = self.login(dev_id="same", name="Redmi Note 13")
+        self.assertTrue(self._ok(a))
+        self.assertTrue(self._ok(b))
+
+    def test_same_phone_second_login_keeps_first(self):
+        # e2e harness: app + an API client on the SAME emulator
+        a, _ = self.login(dev_id="emu", name="sdk_gphone64")
+        b, _ = self.login(dev_id="emu", name="sdk_gphone64")
+        self.assertTrue(self._ok(a))
+        self.assertTrue(self._ok(b))
+
+    def test_password_then_otp_login_both_stay(self):
+        a, _ = self.login(dev_id="phone-a")
+        raw = R.make_proof("+8801711000001", "login")
+        r = APIClient().post("/api/v1/auth/otp/login",
+                             {"phone": "01711000001", "otp_proof": raw},
+                             format="json", HTTP_X_SESSION_MODE="device",
+                             HTTP_X_DEVICE_ID="phone-b")
+        self.assertEqual(r.status_code, 200, r.data)
+        b = APIClient()
+        b.credentials(HTTP_AUTHORIZATION="Token " + r.data["token"])
+        self.assertTrue(self._ok(a))
+        self.assertTrue(self._ok(b))
+
+    def test_old_builds_share_the_legacy_token_without_rotation(self):
+        a, ka = self.login(device=False, dev_id="")
+        b, kb = self.login(device=False, dev_id="")
+        self.assertEqual(ka, kb)
+        self.assertTrue(self._ok(a))
+        self.assertTrue(Token.objects.filter(key=ka).exists())
+
+    def test_new_build_login_does_not_touch_old_build_token(self):
+        old, _ = self.login(device=False, dev_id="")
+        self.login(dev_id="phone-b")
+        self.assertTrue(self._ok(old))
+
+    def test_sign_out_others_still_signs_out_others(self):
+        a, _ = self.login(dev_id="phone-a")
+        b, _ = self.login(dev_id="phone-b")
+        self.assertEqual(
+            a.post("/api/v1/account/security/devices/signout-others").status_code, 200)
+        self.assertTrue(self._ok(a))
+        self.assertFalse(self._ok(b))
+        self.assertEqual(DeviceSession.objects.filter(
+            user=self.u, revoked_at__isnull=True).count(), 1)
