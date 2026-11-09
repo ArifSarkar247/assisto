@@ -1,3 +1,4 @@
+import '../family_v3/family_entry.dart'; // fcscreen
 import 'package:flutter/material.dart';
 import '../account_mode.dart'; // acctmode
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
@@ -68,7 +69,6 @@ import '../screens/proactive_ai_screen.dart';
 import '../screens/area_community_screen.dart';
 import '../screens/doctor_serial_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
-import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
 import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/emergency_screen.dart';
@@ -393,7 +393,7 @@ class SidebarSections {
         (t) => t.sidebarFamilySafety, [
       SidebarItem(Icons.diversity_1_rounded, (t) => t.moduleFamily,
           feature: 'family',
-          (_) => const FamilyScreen(),
+          (_) => const FamilyEntry(), // fcscreen
           synonyms: ['family', 'care', 'medicine schedule', 'elderly']),
       // carecall (flag care_call): a family care reminder call in your own voice
       SidebarItem(Icons.phone_callback_rounded, (t) => t.ccTitle,

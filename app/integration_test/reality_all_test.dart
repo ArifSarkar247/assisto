@@ -19,6 +19,7 @@ import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
+import 'flows/family_v3_flow.dart'; // fcscreen
 import 'flows/home_flow.dart';
 import 'flows/my_circle_add_flow.dart';
 import 'flows/invite_join_flow.dart'; // invite-join
@@ -43,6 +44,7 @@ void main() {
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100
+  if (on('family')) registerFamilyV3Flows(); // fcscreen
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.

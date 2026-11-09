@@ -18,11 +18,13 @@ void registerFamilyCircleFlows() {
     await f.step('open Family', () async {
       await f.openFeature(f.t.moduleFamily, 'family');
       await f.shot('family');
+      // fcscreen (Family Care v3): one Family screen; the old members list
+      // is the More row "Members and reminders".
+      f.expectHttp('GET', '/family/v3/families');
+      final row = find.byKey(const ValueKey('fc3-more-members'));
+      await f.scrollTo(row);
+      await f.tap(row, settleSeconds: 3);
       f.expectHttp('GET', '/family');
-      // Current UI (rt1): Family Care opens on "Today's medicines"; the
-      // members list is its "Family" tab.
-      await f.tap(find.descendant(of: find.byType(TabBar), matching: find.text(f.t.moduleFamily)),
-          settleSeconds: 2);
       await f.shot('members-tab');
       await f.waitFor(find.textContaining('Ammu'), what: 'seeded member "Ammu"');
     });

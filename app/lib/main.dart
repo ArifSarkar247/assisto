@@ -1,3 +1,4 @@
+import 'family_v3/family_entry.dart'; // fcscreen
 import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
@@ -415,6 +416,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
             builder: (_) => v == 'fall_check'
                 ? const FallDetectScreen()
                 : const FamilyAlertsScreen()));
+        return;
+      }
+      // fcscreen: a tap on the Family home-screen widget opens Family.
+      if (v == 'family') {
+        appNavigatorKey.currentState?.push(
+            MaterialPageRoute<void>(builder: (_) => const FamilyEntry()));
         return;
       }
       if (v != 'antitheft_off') return;
