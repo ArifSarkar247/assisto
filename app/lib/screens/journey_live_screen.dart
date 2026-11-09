@@ -17,6 +17,7 @@ import '../services/action_feedback.dart'; // db1
 import '../services/journey_tracker.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/adaptive_button_pair.dart';
 import '../widgets/journey_api.dart';
 import '../maps/road_eta_button.dart'; // mapscost
@@ -251,7 +252,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           ]),
           const SizedBox(height: Gap.xs),
           if (empty)
-            Text(t.j2RideEmpty, style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant))
+            Text(t.j2RideEmpty, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
           else ...[
             if (line.isNotEmpty) Text(line, style: AType.bodyMedium),
             if (driver.isNotEmpty) Text(t.j2Driver(driver), style: AType.bodyMedium),
@@ -724,7 +725,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       body = t.j100LastSent(TimeOfDay.fromDateTime(s.lastSentAt!).format(context));
     } else {
       icon = Icons.gps_not_fixed_rounded;
-      color = cs.onSurfaceVariant;
+      color = DsTokens.of(context).muted;
       title = t.j100Locating;
     }
     final dest = (_journey['destination'] as Map?)?['name']?.toString();
@@ -784,11 +785,11 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.j100Late,
                   style: AType.bodyMedium.copyWith(
-                      color: cs.error, fontWeight: FontWeight.w700)),
+                      color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w700)),
             ),
           const SizedBox(height: Gap.xs),
           Text(s.serviceOn ? t.j100BackgroundOn : t.j100KeepOpen,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           if (action != null) ...[
             const SizedBox(height: Gap.sm),
             action,
@@ -902,7 +903,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         const SizedBox(height: 20),
         Text(t.j100Footer,
             style: AType.bodySmall
-                .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                .copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }
