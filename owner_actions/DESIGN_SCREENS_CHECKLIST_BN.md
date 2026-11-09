@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ২২ / মোট ৪২০**
+**স্ক্রিন শেষ: ২৩ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -37,7 +37,7 @@
 - ⬜ — `family_sos/sos_sender_screen.dart`
 - ⬜ — `family_v3/brain/fc_brain_settings_screen.dart`
 - ✅ batch 2 (সদস্য কার্ড) — `family_v3/family_v3_screen.dart`
-- ⬜ — `screens/family_alerts_screen.dart`
+- ✅ batch 4 (সক্রিয় SOS = লাল কার্ড, স্কেলেটন, DS বোতাম) — `screens/family_alerts_screen.dart`
 - ⬜ — `screens/family_screen.dart`
 - ⬜ — `screens/health_timeline_screen.dart`
 - ⬜ — `screens/health_tips_screen.dart`
