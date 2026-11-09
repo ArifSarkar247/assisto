@@ -280,9 +280,7 @@ class DsTile extends StatelessWidget {
               child: Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 2,
-                softWrap: true,
-                overflow: TextOverflow.visible,
+                softWrap: true, // grows at 200% font — never cut
                 style: tx.labelLarge?.copyWith(color: t.text),
               ),
             ),

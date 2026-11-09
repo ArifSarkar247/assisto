@@ -187,7 +187,7 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
                 maxLength: 120,
                 buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.bpHospital, helperText: t.bpHospitalHelp,
-                    helperMaxLines: 2),
+                    helperMaxLines: 4),
               ),
               err('hospital', t.bpErrHospital),
               const SizedBox(height: Gap.sm),
@@ -278,7 +278,7 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
                 minLines: 2,
                 maxLines: 4,
                 decoration: InputDecoration(labelText: t.bpNote, helperText: t.bpNoteHelp,
-                    helperMaxLines: 2),
+                    helperMaxLines: 4),
               ),
               CheckboxListTile(
                 key: const ValueKey('bp-req-real'),

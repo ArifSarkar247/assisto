@@ -1057,9 +1057,11 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _welcome() {
     final scheme = Theme.of(context).colorScheme;
-    return ListView(
+    // designv2: a short page — build it all (the no-key note under the
+    // starting points stays in the tree for TalkBack / tests)
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.md),
-      children: [
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Center(
           child: Container(
             width: 76,
@@ -1119,7 +1121,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           const SizedBox(height: Gap.md),
           _noKeyCard(scheme),
         ],
-      ],
+      ]),
     );
   }
 

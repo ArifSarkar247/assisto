@@ -25,7 +25,7 @@ class Brand {
   static Color warnInk(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFFFFD666)
-          : const Color(0xFF8A6D00);
+          : const Color(0xFF735A00); // designv2: AA 5.4 on the V2 background
 
   Brand._();
 
@@ -420,8 +420,10 @@ class AssistoTheme {
       secondaryContainer: v.primarySoft,
       onSecondaryContainer: v.text,
       tertiary: v.successInk,
-      error: v.dangerFill,
-      onError: v.onDangerFill,
+      // dark: the danger fill (#F0525A) is 4.1:1 as text on a card — the
+      // error role is also text, so dark uses the danger ink (buttons use dangerFill)
+      error: isDark ? v.dangerInk : v.dangerFill,
+      onError: isDark ? v.card : v.onDangerFill,
       errorContainer: v.dangerBg,
       onErrorContainer: v.dangerInk,
       surface: v.bg,
@@ -1081,7 +1083,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
     card: Color(0xFFFFFFFF), // owner
     cardAlt: Color(0xFFF2F7FF), // owner (hero gradient end)
     cardHigh: Color(0xFFEAF1FF),
-    cardHighest: Color(0xFFD3E1FB),
+    cardHighest: Color(0xFFE8F0FE), // AA: muted 5.0, primary ink 4.8 on it
     inputFill: Color(0xFFF2F7FF),
     text: Color(0xFF0F1A2E), // owner
     muted: Color(0xFF576780), // AA (owner #5B6B85: 4.46:1 on the background)
@@ -1131,7 +1133,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
     card: Color(0xFF1C2A47), // owner
     cardAlt: Color(0xFF18243F),
     cardHigh: Color(0xFF22314F),
-    cardHighest: Color(0xFF2A3B61),
+    cardHighest: Color(0xFF21304E), // AA: muted 5.2, primary ink 5.1 on it
     inputFill: Color(0xFF16223B),
     text: Color(0xFFEEF3FF), // owner
     muted: Color(0xFF93A3C0), // owner

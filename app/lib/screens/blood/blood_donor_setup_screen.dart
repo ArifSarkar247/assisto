@@ -223,7 +223,7 @@ class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
                 maxLength: 60,
                 buildCounter: localCounter,
                 decoration: InputDecoration(
-                    labelText: t.bpAreaLabel, helperText: t.bpAreaHelp, helperMaxLines: 3),
+                    labelText: t.bpAreaLabel, helperText: t.bpAreaHelp, helperMaxLines: 5),
               ),
               err('area_text', t.bpErrAreaText),
               Align(

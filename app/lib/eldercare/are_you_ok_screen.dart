@@ -109,12 +109,15 @@ class _AreYouOkScreenState extends State<AreYouOkScreen> {
                 },
               ),
               const SizedBox(height: Gap.lg),
-              DsButton.secondary(
-                key: const Key('fce-ask-listen'),
-                expand: true,
-                onPressed: () => unawaited(_speak()),
-                icon: Icons.volume_up_rounded,
-                label: t.fceListenAgain,
+              // the key sits on the button itself (dead-button sweep allowlist)
+              SizedBox(
+                height: 56,
+                child: TextButton.icon(
+                  key: const Key('fce-ask-listen'),
+                  onPressed: _speak,
+                  icon: const Icon(Icons.volume_up_rounded, size: 28),
+                  label: Text(t.fceListenAgain, style: AType.titleLarge.copyWith(color: ds.primaryInk)),
+                ),
               ),
             ],
           ],

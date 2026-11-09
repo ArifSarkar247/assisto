@@ -698,8 +698,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(Radii.md),
+        // designv2: tint over the card (not the page) — muted text stays AA
+        color: Color.alphaBlend(tint.withValues(alpha: 0.08), scheme.ds.card),
+        borderRadius: BorderRadius.circular(DsRadius.card),
         border: Border.all(color: tint.withValues(alpha: 0.35)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
