@@ -50343,5 +50343,23 @@
   "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
   "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
   "cityMapRetry": "Try the map again",
-  "cityMapAssistoRoutes": "Assisto routes"
+  "cityMapAssistoRoutes": "Assisto routes",
+  "aimAdsPerAnswer": "Watch {n} ads for 1 AI answer",
+  "@aimAdsPerAnswer": {
+    "description": "Rewarded-ad sheet: how many ads buy one AI answer today (n is already formatted).",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aimAdsOutRow": "Free: watch {n} short ads = 1 Normal answer (daily limit applies)",
+  "@aimAdsOutRow": {
+    "description": "Credits-finished sheet: the free option; n = today's ads per answer from the server (already formatted).",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  }
 }

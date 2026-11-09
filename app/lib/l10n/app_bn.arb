@@ -25409,5 +25409,7 @@
   "cityMapListNote": "এই ফোনে ম্যাপ খোলা গেল না, তাই একই তথ্য তালিকায় দেখানো হলো।",
   "cityMapListEmpty": "ওপরের একটা লেয়ার (মেট্রো, বাস রুট …) চালু করলে এখানে দেখা যাবে।",
   "cityMapRetry": "আবার ম্যাপ চেষ্টা করুন",
-  "cityMapAssistoRoutes": "Assisto-র রুট"
+  "cityMapAssistoRoutes": "Assisto-র রুট",
+  "aimAdsPerAnswer": "১টি AI উত্তরের জন্য {n}টি বিজ্ঞাপন দেখুন",
+  "aimAdsOutRow": "ফ্রি: {n}টি ছোট বিজ্ঞাপন দেখলে ১টি নরমাল উত্তর (দিনে সীমিত)"
 }
