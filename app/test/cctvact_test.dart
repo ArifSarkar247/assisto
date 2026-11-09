@@ -237,7 +237,7 @@ void main() {
       await tester.tap(find.text('Shop siren').first);
       await tester.pumpAndSettle();
       expect(act.calls.any((c) => c.startsWith('rules:')), isTrue);
-      await tester.scrollUntilVisible(find.text('Test'), 200,
+      await tester.scrollUntilVisible(find.text('Test').first, 200,
           scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('Test').first);
       await tester.pumpAndSettle();
