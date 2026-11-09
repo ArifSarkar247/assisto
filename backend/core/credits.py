@@ -79,6 +79,12 @@ def plan_credits(plan, months=1):
         return max(0, int(pp["pool_credits"]))
     row = c["plans"].get(plan) or c["plans"]["premium"]
     n = max(0, int(row["credits"]))
+    if int(months or 1) >= 12 and (c.get("pricing_v2") or {}).get("on"):
+        # plansprep: a yearly plan's credits come from its yearly price by
+        # the same formula, granted as 12 monthly slices (no rollover)
+        from .logic import plan_book as BOOK, pricing as P
+        pid = plan if plan in c["plans"] else "premium"
+        return BOOK.annual_credits_total(P.annual_price(pid, c), pid) // 12
     cm = c.get("credit_model") or {}
     if int(months or 1) >= 12 and cm.get("enabled"):
         n = (n * int(cm.get("annual_credit_months") or 12)) // 12
@@ -155,6 +161,13 @@ def grant(user, bucket, amount, *, reason="grant", note="", source_type="",
     now = now or timezone.now()
     if amount <= 0 or bucket not in BUCKETS:
         return None
+
+    if bucket == PACK and expires_at is None:
+        # plansprep (owner 9 Nov item 6): bought packs expire after N months
+        # once pricing_v2 is on (0 = never, the shipped rule B)
+        months = int(bcfg().get("pack_expiry_months") or 0)
+        if months > 0:
+            expires_at = add_months(starts_at or now, months)
 
     def _do(u):
         if key and CreditLot.objects.filter(grant_key=key).exists():
@@ -259,8 +272,14 @@ def _settle(u, now):
     # base (non-payment) plan time: owner grant, founder, reviewer
     if plan_on:
         out["base_granted"] = _base_allowance(u, now)
-    # staged unlock
-    for lot in _active(u).filter(locked__gt=0, unlocks_at__lte=now):
+    # staged unlock (plansprep: with the drip off — pricing_v2 — every locked
+    # credit opens now, not at its old unlock time)
+    k = bcfg()
+    drip_off = int(k["unlock_pct"]) >= 100 or int(k["unlock_hours"]) <= 0
+    locked_q = _active(u).filter(locked__gt=0)
+    if not drip_off:
+        locked_q = locked_q.filter(unlocks_at__lte=now)
+    for lot in locked_q:
         n = lot.locked
         lot.remaining += n
         lot.locked = 0
@@ -271,6 +290,9 @@ def _settle(u, now):
     # plan allowance past its paid period
     out["expired"] += _expire_plan(u, now, "period_end", lots=_active(u).filter(
         bucket=PLAN, expires_at__lte=now))
+    # plansprep: a bought pack past its 12-month validity
+    out["expired"] += _expire_plan(u, now, "pack_expired", lots=_active(u).filter(
+        bucket=PACK, expires_at__lte=now))
     return out
 
 
@@ -345,7 +367,9 @@ def _expire_plan(u, now, why, lots):
         if lot.remaining > 0:
             take = lot.remaining
             lot.remaining = 0
-            _write(u, -take, "expire", lot.bucket, "unused plan allowance (%s)" % why,
+            _write(u, -take, "expire", lot.bucket,
+                   ("unused pack credits (%s)" if lot.bucket == PACK else
+                    "unused plan allowance (%s)") % why,
                    lot, lot.source_type, lot.source_id)
             n += take
         _close(lot, why, now)
@@ -694,7 +718,61 @@ def state(user, now=None):
         "debt": max(0, -int(buckets(user, now).get(DEBT) or 0)),
         "action_costs": action_costs(),
         "withdrawable": False,
+        # plansprep (owner 9 Nov items 6 + low credit): the soonest bought-pack
+        # expiry, the 7-day warning, and the low-credit warning
+        **pack_expiry(user, now),
+        "low_credit": low_credit(user, bal),
+        "pricing_v2": _v2_on(),
     }
+
+
+def _v2_on():
+    try:
+        from . import billing
+        return bool(billing.cfg()["pricing_v2"]["on"])
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def pack_expiry(user, now=None):
+    """{pack_expires_at, pack_expiring, pack_expiring_credits}: the soonest
+    expiry of a bought pack that still holds credits, and whether it falls in
+    the next PACK_EXPIRY_WARN_DAYS days (the wallet's warning)."""
+    from .models import CreditLot
+    from .logic import plan_book as BOOK
+    now = now or timezone.now()
+    lot = (CreditLot.objects.filter(user=user, status="active", bucket=PACK,
+                                    remaining__gt=0, expires_at__isnull=False)
+           .order_by("expires_at").first())
+    if lot is None or lot.expires_at.year >= 9999:
+        return {"pack_expires_at": None, "pack_expiring": False, "pack_expiring_credits": 0}
+    soon = lot.expires_at <= now + timedelta(days=BOOK.PACK_EXPIRY_WARN_DAYS)
+    n = 0
+    if soon:
+        n = int(CreditLot.objects.filter(
+            user=user, status="active", bucket=PACK, remaining__gt=0,
+            expires_at__lte=now + timedelta(days=BOOK.PACK_EXPIRY_WARN_DAYS))
+            .aggregate(s=Sum("remaining"))["s"] or 0)
+    return {"pack_expires_at": lot.expires_at.isoformat(), "pack_expiring": soon,
+            "pack_expiring_credits": n}
+
+
+def low_credit(user, balance):
+    """The low-credit warning for the app (plan_book.low_credit)."""
+    from .logic import plan_book as BOOK
+    try:
+        from . import billing
+        pool = billing.monthly_pool_credits(user)
+    except Exception:  # noqa: BLE001
+        pool = 0
+    try:
+        from . import ai_levels_service as ALS
+        cheapest = ALS.credits("normal") if ALS.enabled() else 1
+    except Exception:  # noqa: BLE001
+        cheapest = 1
+    out = BOOK.low_credit(balance, pool, cheapest)
+    out["monthly_pool"] = int(pool or 0)
+    return out
 
 
 def bucket_detail(user, now=None):

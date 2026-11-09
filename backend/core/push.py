@@ -166,6 +166,38 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "community_join": "messages", "market": "alerts",
             "carecall": "calls", "carecall_invite": "alerts",
             "carecall_status": "alerts"}
+# qcircle: build 302 (circlebub) replaced the phone-side 'messages' channel
+# with 'chat_msg_v2' (Assisto pop, user's mute/vibrate carried over) and
+# DELETED 'messages'. A NOTIFICATION push (message_request, channel_post,
+# community_join) drawn by Android while the app is closed that still names
+# 'messages' fell back to the 'alerts' channel (wrong sound, ignores the
+# user's message mute). The payload keeps channel='messages' (the app maps
+# it); only the Android channel id of the system-drawn notification moves.
+MSG_CHANNEL_V2 = "chat_msg_v2"
+MSG_CHANNEL_V2_BUILD = 302
+
+
+def build_name_num(version):
+    """302 from "1.0.302+10302" / "1.0.302" (0 when unknown)."""
+    try:
+        head = str(version or "").split("+", 1)[0].strip()
+        last = head.rsplit(".", 1)[-1]
+        return int(last) if last.isdigit() else 0
+    except Exception:
+        return 0
+
+
+def android_channel_for(kind, app_version=""):
+    """The Android channel id for `kind` on a phone running `app_version`.
+    Unknown version -> the current channel (every Play build is >= 302)."""
+    ch = CHANNELS.get(kind, "alerts")
+    if ch == "messages":
+        n = build_name_num(app_version)
+        if n == 0 or n >= MSG_CHANNEL_V2_BUILD:
+            return MSG_CHANNEL_V2
+    return ch
+
+
 # FCM rejects these data keys.
 _RESERVED_DATA_KEYS = ("from", "notification", "message_type", "collapse_key")
 
@@ -508,9 +540,13 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
         from .models import Device
         # calls95: newest phone first — it is the one most likely alive, and
         # a dead older token (dropped below) must never delay its ring.
-        tokens = list(Device.objects.filter(user=user).exclude(push_token="")
-                      .order_by("-last_seen", "-id")
-                      .values_list("push_token", flat=True))
+        rows = list(Device.objects.filter(user=user).exclude(push_token="")
+                    .order_by("-last_seen", "-id")
+                    .values_list("push_token", "app_version"))
+        tokens = [r[0] for r in rows]
+        tok_ver = {}
+        for tk, ver in rows:
+            tok_ver.setdefault(tk, ver or "")   # newest row wins
         if not tokens:
             if kind in TRACE_KINDS:
                 trace.info("push.trace kind=%s user=%s dev=none (no push token)",
@@ -552,7 +588,8 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             if send_to_token(tok, payload, notification,
                              priority="high" if high_priority else "normal",
                              ttl_s=TTL_S.get(kind, 3600), collapse_key=collapse,
-                             android_channel=CHANNELS[kind], result=res):
+                             android_channel=android_channel_for(
+                                 kind, tok_ver.get(tok, "")), result=res):
                 sent += 1
                 if res.get("name"):
                     msg_ids.append(res["name"])

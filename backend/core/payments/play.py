@@ -556,6 +556,8 @@ def sub_status(user, now=None):
         return {"status": st, "sku": pp.sku, "product_id": pp.product_id,
                 "base_plan": pp.base_plan_id, "package": pkg,
                 "auto_renew": bool(pp.auto_renewing),
+                # plansprep: Google's own recurring price for the next renewal
+                "price": float(pp.price_bdt or 0),
                 "expires_at": pp.expires_at.isoformat() if pp.expires_at else None}
     return None
 
@@ -571,6 +573,9 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     from .. import safe_plans as _SPS          # safeplans: prepaid request packs
     if _SPS.is_safe_product(product_id):
         return _SPS.sync_pack(token, product_id, user=user, now=now, c=c)
+    from .. import cctv_cap as _CC              # plansprep: CCTV extra packs in Taka
+    if _CC.kind_for_play_product(product_id):
+        return _sync_cctv_extra(token, product_id, user=user, now=now, c=c)
     sku = catalog.sku_for_play(product_id)
     smspack = catalog.is_smspack(sku)       # tagada2: SMS parts, not credits
     if not (sku.startswith("pack_") or smspack):
@@ -639,6 +644,62 @@ def sync_pack(token, product_id, user=None, now=None, c=None):
     return {"ok": True, "state": "granted", "sku": sku, "granted": granted,
             "consumed": bool(pp.consumed), **out_sms,
             "credits": int(owner.ai_credits or 0), "user": owner}
+
+
+def _sync_cctv_extra(token, product_id, user=None, now=None, c=None):
+    """plansprep (owner 9 Nov item 11): verify + grant + consume one CCTV
+    extra-pack Play product (relay +1 GB ৳150 / AI +100 checks ৳80) for THIS
+    month. Same token binding, order, revenue and consume path as a credit
+    pack; nothing is granted twice for one token."""
+    from ..models import PlayPurchase
+    from .. import cctv_cap as CC
+    from . import orders as O
+    kind = CC.kind_for_play_product(product_id)
+    sku = "cctvx_%s" % kind
+    js = get_product(product_id, token, c)
+    owner = _owner_for(token, js.get("obfuscatedExternalAccountId", ""), user)
+    ps = int(js.get("purchaseState", -1) if js.get("purchaseState") is not None else -1)
+    th = token_hash(token)
+    pp, _ = PlayPurchase.objects.get_or_create(
+        token_hash=th, defaults={"user": owner, "purchase_token": token, "kind": "pack",
+                                 "product_id": product_id, "sku": sku,
+                                 "owner_ref": account_id(owner)})
+    pp.order_id = str(js.get("orderId") or pp.order_id)[:64]
+    pp.state = {0: "PURCHASED", 1: "CANCELED", 2: "PENDING"}.get(ps, "UNKNOWN")
+    ptype = js.get("purchaseType")
+    pp.is_test = ptype is not None and int(ptype) == 0
+    pp.save()
+    if ps == 2:
+        return {"ok": False, "state": "pending", "sku": sku}
+    if ps != 0 or pp.revoked:
+        return {"ok": False, "state": "canceled", "sku": sku}
+    info = {}
+    if not pp.granted:
+        oid = pp.order_id or ("tok:" + th[:40])
+        price = CC.CP.packs(CC.plan_cfg())[kind]["price_bdt"]
+        rp, rc, src = _real_price(pp.order_id, (Decimal(price), "BDT", "catalog"), c)
+        O.record(channel="play", order_id=oid, user=owner, sku=sku, kind="pack",
+                 price=rp, currency=rc, price_source=src, is_test=pp.is_test,
+                 purchased_at=now, token_hash=th, owner_ref=pp.owner_ref,
+                 credits_planned=0, raw={"purchaseType": ptype, "cctv_extra": kind})
+        info = CC.grant_play_pack(owner, kind, "play:%s" % oid, now=now)
+        pp.granted = True
+        pp.price_bdt = Decimal(price)
+        pp.save(update_fields=["granted", "price_bdt", "updated_at"])
+        if ptype is None and pp.order_id:
+            _charge_once(owner, pp.order_id, sku, Decimal(price), "packs")
+    if not pp.consumed and int(js.get("consumptionState", 0) or 0) == 0:
+        try:
+            consume_product(product_id, token, c)
+            pp.consumed = True
+        except PlayError as e:
+            log.warning("play: consume failed %s", e.reason)
+    elif int(js.get("consumptionState", 0) or 0) == 1:
+        pp.consumed = True
+    pp.save(update_fields=["consumed", "updated_at"])
+    return {"ok": True, "state": "granted", "sku": sku, "granted": 0, "cctv_extra": info,
+            "consumed": bool(pp.consumed), "credits": int(owner.ai_credits or 0),
+            "user": owner}
 
 
 # ----------------------------------------------------------------- refunds / voided

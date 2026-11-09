@@ -52,7 +52,8 @@ _CODE = {"not_found": status.HTTP_404_NOT_FOUND, "off": status.HTTP_404_NOT_FOUN
 def refuse(request, reason):
     from .family_alerts import bn_num
     bn, en = _MSG.get(reason, _MSG["not_found"])
-    lim = CC.limits()
+    lim = CC.limits(getattr(request, "user", None)
+                    if getattr(getattr(request, "user", None), "is_authenticated", False) else None)
     n = {"limit_active": lim["carecall_active_per_setter"],
          "text_too_long": lim["carecall_text_max_chars"],
          "voice_too_long": lim["carecall_voice_max_seconds"]}.get(reason)

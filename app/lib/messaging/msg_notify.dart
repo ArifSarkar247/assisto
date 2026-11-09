@@ -493,6 +493,8 @@ class FlnMsgSink implements MsgNotifSink {
         return;
       }
       final ch = await _ensureChannel(t);
+      // qcircle: quiet hours → shown, but no sound / vibration
+      if (!silent && await MsgPrefs.quietNow()) silent = true;
       final last = m.lines.last;
       String? icon;
       if (!m.hidden && m.photo.isNotEmpty) {

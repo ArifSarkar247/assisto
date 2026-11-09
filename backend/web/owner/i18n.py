@@ -2249,3 +2249,38 @@ BN.update({
     "rec_none": "এখানে কোনো অনুরোধ নেই।",
 })
 # ---- /recovery ----
+
+
+# ---- adminboards ---- owner panel: Vision checklist + Quality board (read from owner_actions/*.md)
+EN.update({
+    "nav_vision": "Vision checklist", "nav_quality": "Quality board",
+    "bd_vision_intro": "Everything you asked for, one row each: status, what is missing, the plan, and what is needed from you. Read live from the checklist file — no copy is kept.",
+    "bd_quality_intro": "Each launch feature scored /10 (total = the weakest of six parts). Ready means 9 or more. Read live from the board file.",
+    "bd_no_file": "The file is not on this server yet:",
+    "bd_ready_head": "Features at 9 or more", "bd_below9": "Below 9", "bd_ready": "9 or more",
+    "bd_below9_hint": "what is missing, weakest first", "bd_below9_title": "Below 9 — what is missing (weakest first)",
+    "bd_total": "Total", "bd_search": "Search", "bd_view": "View",
+    "bd_st_done": "Works", "bd_st_partial": "Partial", "bd_st_missing": "Not built", "bd_st_unknown": "No status",
+    "bd_importance": "Launch importance", "bd_imp1": "1 · launch-critical", "bd_imp2": "2 · at launch", "bd_imp3": "3 · after launch",
+    "bd_owner_only": "Needs something from me", "bd_feature": "Feature", "bd_missing": "What is missing",
+    "bd_plan": "Plan", "bd_world": "World class on 8 Nov?", "bd_owner_items": "Needed from you",
+    "bd_s1": "Real phone", "bd_s2": "Speed", "bd_s3": "Design", "bd_s4": "Bangla", "bd_s5": "Reliability", "bd_s6": "Privacy",
+    "bd_total_score": "Total", "bd_none": "Nothing matches this search or filter.",
+    "bd_source": "Source:", "bd_live_note": "a change to the file shows on the next page load",
+})
+BN.update({
+    "nav_vision": "ভিশন চেকলিস্ট", "nav_quality": "কোয়ালিটি বোর্ড",
+    "bd_vision_intro": "আপনি যা যা চেয়েছেন, প্রতিটি এক সারিতে: অবস্থা, কী বাকি, পরিকল্পনা, আর আপনার কাছ থেকে কী লাগবে। চেকলিস্ট ফাইল থেকে সরাসরি পড়া — কোনো কপি রাখা হয় না।",
+    "bd_quality_intro": "প্রতিটি লঞ্চ-ফিচার /১০ (সর্বমোট = ছয় অংশের সবচেয়ে কম)। ৯ বা তার বেশি মানে তৈরি। বোর্ড ফাইল থেকে সরাসরি পড়া।",
+    "bd_no_file": "ফাইলটি এখনো এই সার্ভারে নেই:",
+    "bd_ready_head": "৯ বা তার বেশি পাওয়া ফিচার", "bd_below9": "৯-এর নিচে", "bd_ready": "৯ বা তার বেশি",
+    "bd_below9_hint": "কী বাকি, সবচেয়ে দুর্বল আগে", "bd_below9_title": "৯-এর নিচে — কী বাকি (সবচেয়ে দুর্বল আগে)",
+    "bd_total": "মোট", "bd_search": "খুঁজুন", "bd_view": "দেখার ধরন",
+    "bd_st_done": "কাজ করে", "bd_st_partial": "আংশিক", "bd_st_missing": "তৈরি হয়নি", "bd_st_unknown": "অবস্থা লেখা নেই",
+    "bd_importance": "লঞ্চ-গুরুত্ব", "bd_imp1": "১ · লঞ্চ-জরুরি", "bd_imp2": "২ · লঞ্চে চাই", "bd_imp3": "৩ · লঞ্চের পরে",
+    "bd_owner_only": "আমার কাছ থেকে কিছু লাগবে", "bd_feature": "ফিচার", "bd_missing": "কী বাকি",
+    "bd_plan": "পরিকল্পনা", "bd_world": "৮ Nov-এ ওয়ার্ল্ড ক্লাস?", "bd_owner_items": "আপনার কাছ থেকে লাগবে",
+    "bd_s1": "আসল ফোন", "bd_s2": "গতি", "bd_s3": "ডিজাইন", "bd_s4": "বাংলা", "bd_s5": "নির্ভরযোগ্যতা", "bd_s6": "গোপনীয়তা",
+    "bd_total_score": "সর্বমোট", "bd_none": "এই খোঁজ বা ফিল্টারে কিছু মেলেনি।",
+    "bd_source": "উৎস:", "bd_live_note": "ফাইলে বদল হলে পরের বার পাতা খুললেই দেখা যাবে",
+})

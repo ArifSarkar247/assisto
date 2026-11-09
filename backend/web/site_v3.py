@@ -407,8 +407,12 @@ FEATURES = {
 
 # The owner's planned CCTV prices (CCTV order H, 3 Nov). No live CCTV plan
 # exists in code yet → always rendered under "Coming soon", never as a buy.
-CCTV_PLAN = {"base": 500, "base_cams": 2, "extra": 250, "max_cams": 10,
-             "clip7": 100, "clip30": 150, "trial_days": 7}
+# plansprep: read from the ONE source (core.logic.cctv_plan), never retyped
+from core.logic import cctv_plan as _CP  # noqa: E402
+CCTV_PLAN = {"base": _CP.BASE_PRICE_BDT, "base_cams": _CP.BASE_CAMERAS,
+             "extra": _CP.EXTRA_CAMERA_BDT, "max_cams": _CP.MAX_CAMERAS,
+             "clip7": _CP.ADDON_PRICE_BDT[7], "clip30": _CP.ADDON_PRICE_BDT[30],
+             "trial_days": _CP.TRIAL_DAYS}
 
 # ------------------------------------------------------------------ copy
 COPY = {

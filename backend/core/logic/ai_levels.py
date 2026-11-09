@@ -38,20 +38,33 @@ DEFAULT_LEVELS = {
     # geminifix 4 Nov: gemini-2.5-flash -> its official replacement
     "normal": {"provider": "gemini", "model": "gemini-3.5-flash-lite",
                "in_cap": 5000, "out_cap": 1500, "max_chars": 2000, "history_turns": 12,
-               "credits": 0, "per_day": 60},
+               "credits": 0, "per_day": 60, "fallback_out_cap": 0},
     "better": {"provider": "anthropic", "model": "claude-haiku-5-5",
                "in_cap": 8000, "out_cap": 1800, "max_chars": 3000, "history_turns": 16,
-               "credits": 0, "per_day": 40},
+               "credits": 0, "per_day": 40, "fallback_out_cap": 0},
     "best": {"provider": "anthropic", "model": "claude-sonnet-5-5",
              "in_cap": 12000, "out_cap": 2500, "max_chars": 4000, "history_turns": 20,
-             "credits": 0, "per_day": 20},
+             "credits": 0, "per_day": 20, "fallback_out_cap": 0},
 }
 # credits 0 = use the computed worst-case minimum
 BOUNDS = {"in_cap": (500, 16000), "out_cap": (100, 4000), "max_chars": (200, 20000),
-          "history_turns": (0, 20), "credits": (0, 500), "per_day": (0, 1000)}
+          "history_turns": (0, 20), "credits": (0, 500), "per_day": (0, 1000),
+          # plansprep (owner 9 Nov item 13): the output cap used when this
+          # level runs on its FALLBACK model (Better on Haiku: a longer
+          # answer budget). 0 = the level's own out_cap.
+          "fallback_out_cap": (0, 4000)}
+# plansprep: every level's input cap stays far below Haiku's 90k-token price
+# step (owner: above 100k the price is 5x) — pinned by a CI test.
+assert BOUNDS["in_cap"][1] < 90000
 # PART 4 (owner-editable): welcome credits ONCE per verified phone + device,
 # Normal answers one rewarded ad buys (adults only)
-TOP_BOUNDS = {"welcome_credits": (0, 200), "ad_answers_per_ad": (0, 10)}
+TOP_BOUNDS = {"welcome_credits": (0, 200), "ad_answers_per_ad": (0, 10),
+              # plansprep (owner 9 Nov item 8): verified rewarded ads needed
+              # for ad_answers_per_ad Normal answers (2 ads = 1 answer)
+              "ads_per_answer": (1, 10),
+              # item 9: free Gemini grounding prompts a day before web search
+              # moves to Claude web search
+              "web_free_per_day": (0, 100000)}
 FLASH_LITE_PRICE = {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write": 0.0}
 
 
@@ -65,6 +78,7 @@ def defaults():
             # PART 4: free + rewarded-ad credits pay ONLY for these levels
             "free_credit_levels": ["normal"],
             "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2,
+            "ads_per_answer": 1, "web_free_per_day": 1500,
             # PART 5: action buttons under AI answers (fixed allow-list)
             "actions_on": False,
             # round 3 item 7: the nightly AI exam (core/ai_exam.py)
