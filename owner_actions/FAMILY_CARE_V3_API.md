@@ -9,7 +9,7 @@ Users of it: **fcsos**, **fcelder**, **fcbrain**. Change requests → message fc
 | Model | Fields |
 |---|---|
 | `FcFamily` | `name` (≤60), `created_by` → User, `created_at` |
-| `FcMembership` | `family` → FcFamily, `user` → User, `role` admin\|adult\|child\|elder, `state` invited\|active\|declined\|left, `label` (how the family calls them, e.g. "আম্মু", ≤40), `invited_by` → User, `abroad_tz` (IANA tz, "" = at home; Probashi row shows only when someone has it), `joined_at`, `left_at`, `created_at`; unique (family, user) |
+| `FcMembership` | `family` → FcFamily, `user` → User, `role` admin\|adult\|child\|elder, `state` invited\|active\|declined\|left, `label` (how the family calls them, e.g. "আম্মু", ≤40), `relation` (son\|daughter\|mother\|father\|spouse\|brother\|sister\|grandparent\|other), `alert` JSON `{state:'amber', reason, source, at, until}` (set via `set_member_status`, same on all the user's memberships), `invited_by` → User, `abroad_tz` (IANA tz, "" = at home; Probashi row shows only when someone has it), `joined_at`, `left_at`, `created_at`; unique (family, user) |
 | `FcTask` | `family`, `title` (≤120), `kind` medicine\|doctor\|bill\|other, `due_date` (nullable), `created_by`, `taken_by` (nullable) + `taken_at`, `done_by` + `done_at`, `created_at` |
 
 Member *status* (heartbeat, battery, place label, pause) is **not** a table here:
@@ -31,7 +31,14 @@ membership(user, family_id) -> FcMembership | None    # active only
 role_of(user, family_id) -> str | None
 leave(user, family_id) -> bool                        # fcbrain's POST /family/brain/leave should call this
 someone_abroad(family_id) -> bool
+members_of(user) -> list[dict]                        # UNION over all the user's families, excl. user, deduped:
+    # {user_id, name, phone, relation, label, role, family_ids:[...]}  (fcsos: _sos_recipients)
+family_ids_of(user) -> list[int]                      # elder ladder: setter -> all family -> nearby person
+set_member_status(user, state, reason, source, ttl_s=None)  # state 'amber' (only); reason e.g. 'watch',
+    # 'carecall_missed', 'journey_overdue'; source = your branch ('fcelder'); ttl None = until cleared
+clear_member_status(user, source)                     # e.g. after "I am OK"
 ```
+All helpers never raise on a missing table (return [] / False) so branches merge in any order.
 
 ## 3. Pure status rules — `core/logic/family_status.py` (+ Dart mirror `app/lib/family_v3/fc_status.dart`)
 
@@ -68,7 +75,7 @@ someone_abroad(family_id) -> bool
 
 `flags` for the board come from (each optional, guarded with try/except ImportError so branches merge in any order):
 * fcsos: `core.family_sos_v3.active_sos_user_ids(family_id) -> set[int]` (until then: unresolved `FamilyAlert` kind sos)
-* fcelder: `core.silent_watch.amber_user_ids(family_id) -> set[int]`
+* fcelder / anyone: call `family_v3.set_member_status(user,'amber',reason,source)` — no import needed on my side.
 * fcbrain: `core.family_brain.member_brain_state(viewer, member)` and `member_timeline(viewer, member, day) -> list[{at,kind,text}]` (optional), `core.notif_budget.allow(...)`.
 
 ## 5. Flutter hooks — `app/lib/family_v3/fc_slots.dart` (fcscreen creates it; others only ASSIGN)
