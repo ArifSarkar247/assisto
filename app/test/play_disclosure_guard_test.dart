@@ -48,13 +48,14 @@ const _lookBack = 45; // lines
 /// file -> why an ask there has no disclosure right above it.
 const _allowed = <String, String>{
   'lib/widgets/permission_reason.dart': 'the helper itself',
-  'lib/widgets/emergency_sos_panel.dart':
+  // qjourney: the Emergency SOS panel and the journey SOS now share this
+  // bounded read (prompt capped at 10 s so an SOS is never stuck on it)
+  'lib/widgets/sos_location.dart':
       'SOS moment: never an extra screen during an emergency; the SOS button says location is sent',
   'lib/widgets/voice_sos_service.dart':
       'SOS moment (spoken phrase); Voice SOS asked mic+location with permVoiceSos when armed',
   'lib/p3/assisto_sheet.dart':
       'SOS moment, right after the user confirmed "Send SOS"',
-  'lib/screens/journey_sos_screen.dart': 'SOS moment inside a Safe Journey',
   'lib/screens/smartwatch_screen.dart':
       'the Connect Health Connect card (swConnectBody) is the disclosure; HC shows its own rationale',
   'lib/screens/vehicle_obd_screen.dart':

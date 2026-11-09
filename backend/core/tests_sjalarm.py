@@ -81,7 +81,10 @@ class ScheduleVerifiedTests(TestCase):
         self.assertTrue(SJ.schedule_verified())
         r = _client(self.u).get(V + "/train/search?q=701").json()
         self.assertTrue(all(t["approved"] is True for t in r["trains"]))
-        live = _client(self.u).get(V + "/train/701/live?date=2026-11-03").json()
+        # qjourney: was a fixed 2026-11-03 — the server only accepts
+        # yesterday..tomorrow, so this test broke on 5 Nov (time bomb)
+        from core import train_service as TS
+        live = _client(self.u).get(V + "/train/701/live?date=%s" % TS.today().isoformat()).json()
         self.assertTrue(live["train"]["approved"])
         if live.get("estimate"):
             self.assertTrue(live["estimate"]["approved"])
