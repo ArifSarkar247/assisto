@@ -60,7 +60,7 @@ recharge[]}` — `lat/lon` = the user's destination → `which_gate` (geofence s
 `GET city/route/<id>` → full ordered stop list, company, ref, fare rule, status, sources.
 `GET city/stops/near?lat=&lon=` → nearest stops with their routes.
 `GET city/terminals`, `city/ghats`, `city/offices` → directory items
-`{id,kind,name,name_bn,lat,lon,address,hours,papers[],routes[],status,sources:[{url,date}]}`.
+`{id,kind,name,name_bn,lat,lon,address,hours,papers[],routes[],routes_bn[] (same order/length as routes),status,sources:[{url,date}]}`.
 
 ## 6. Live reports (60-minute expiry, moderated)
 `GET city/reports?lat=&lon=[&km=3]` → `[{id,kind,lat,lon,count,minutes_ago,route_id}]`

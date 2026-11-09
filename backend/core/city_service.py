@@ -378,7 +378,13 @@ def directory(city, kind=None):
     items = hit[1]
     if kind:
         items = [i for i in items if i.get("kind") == kind]
-    return [dict(i, status={"v": "verified"}.get(i.get("status"), "reported")) for i in items]
+    out = []
+    for i in items:
+        i = dict(i, status={"v": "verified"}.get(i.get("status"), "reported"))
+        if i.get("routes") and len(i.get("routes_bn") or []) != len(i["routes"]):
+            i["routes_bn"] = list(i["routes"])     # same length always (cityapp contract)
+        out.append(i)
+    return out
 
 
 # ------------------------------------------------------------------ import
