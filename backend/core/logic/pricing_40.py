@@ -294,7 +294,10 @@ def bdt_per_credit_rows(cfg, annual_credit_months=None):
                 annual = 0.0
         if annual > 0:
             rows.append((pid + "_annual", annual / (cr * annual_credit_months)))
+    off = set(((cfg.get("pricing_v2") or {}).get("packs_off")) or [])
     for p in cfg.get("topup_packs") or []:
+        if p.get("id") in off:          # plansprep: no longer sold
+            continue
         price, cr = float(p.get("price") or 0), float(p.get("credits") or 0)
         if price > 0 and cr > 0:
             rows.append((str(p.get("id")), price / cr))
@@ -304,6 +307,11 @@ def bdt_per_credit_rows(cfg, annual_credit_months=None):
 def safe_bdt_per_credit(cfg, budget_pct=None):
     """The highest AI cost (৳) one consumed credit may carry and still keep
     the 40 % rule on the CHEAPEST credit we sell: min(৳/credit) x budget."""
+    if ((cfg.get("pricing_v2") or {}).get("on")) and budget_pct is None:
+        # plansprep: every product sells a credit at >= ৳2.80 by the formula,
+        # so the per-credit AI cap is fixed (core.logic.plan_book)
+        from . import plan_book as _BOOK
+        return _BOOK.CREDIT_AI_CAP_BDT
     rows = bdt_per_credit_rows(cfg)
     if not rows:
         return 0.0

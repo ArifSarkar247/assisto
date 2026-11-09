@@ -28,6 +28,9 @@ def _economics(c):
     from .logic import pricing_40 as P40
     prices = R.cfg()["prices"]
     rate = float(c.get("usd_bdt") or 120.0)
+    if (c.get("pricing_v2") or {}).get("on"):
+        from .logic import plan_book as _BOOK
+        rate = max(rate, _BOOK.SAFETY_USD_BDT)     # plansprep: costs at >= ৳125/USD
     safe = P40.safe_bdt_per_credit(c)
     rows = P40.bdt_per_credit_rows(c)
     cheapest = min(r[1] for r in rows) if rows else 0.0
@@ -197,6 +200,18 @@ def ad_credits(c=None):
     if not lv["enabled"]:
         return None
     return int(lv["ad_answers_per_ad"]) * credits("normal", c)
+
+
+def ad_paisa(c=None):
+    """plansprep (owner 9 Nov item 8): paisa of credit ONE verified rewarded
+    ad adds to the ad wallet while levels are on: ad_answers_per_ad Normal
+    answers per ads_per_answer ads (2 ads = 1 Normal answer = 50 paisa an ad;
+    the wallet moves whole credits only). None = levels off."""
+    lv, c = cfg(c)
+    if not lv["enabled"]:
+        return None
+    per = max(1, int(lv.get("ads_per_answer") or 1))
+    return int(int(lv["ad_answers_per_ad"]) * credits("normal", c) * 100 // per)
 
 
 def over_daily_limit(user, lid, now=None):

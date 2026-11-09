@@ -39,6 +39,7 @@ from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 from . import cctv_plan as _CCTV     # cctvprice: CCTV plan (Play), cost guards
 from . import ai_levels as _AIL     # aifinal PART 3
 from . import safe_plans as _SAFE    # safeplans: Child / Safe Family / School Safe
+from . import plan_book as _BOOK     # plansprep: the one source of plan numbers
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -772,6 +773,10 @@ def DEFAULTS():
         "ai_levels": _AIL.defaults(),            # aifinal PART 3
         # probashi-plan (owner 27 Oct): seats, shared pool, caps, cooldown
         "probashi_plan": _PB.defaults(),
+        # plansprep (owner 9 Nov 10:20): ON = every plan / pack / action
+        # credit number is DERIVED by core.logic.plan_book (never typed), no
+        # drip, 12-month packs, legacy packs off sale. OFF (default) = as before.
+        "pricing_v2": _BOOK.block_defaults(),
     }
 
 
@@ -868,7 +873,7 @@ def normalize(data):
         costs["sms"]["credits"] = max(costs["sms"]["credits"], _SMSM.credits_per_part(
             _cost, _SMSM.cheapest_bdt_per_credit(plans, packs, annual_disc)))
 
-    return {
+    out = {
         "plans": plans,
         "topup_packs": packs,
         "annual_discount_pct": annual_disc,
@@ -918,7 +923,22 @@ def normalize(data):
         "credit_model": _P40.normalize_credit_model(d.get("credit_model")),
         "ai_levels": _AIL.normalize(d.get("ai_levels")),   # aifinal PART 3
         "probashi_plan": _PB.normalize(d.get("probashi_plan")),
+        "pricing_v2": _BOOK.normalize_block(d.get("pricing_v2")),
     }
+    if out["pricing_v2"]["on"]:
+        _BOOK.derive(out, _legacy_floor)
+    return out
+
+
+def _legacy_floor(aid, row, cfg):
+    """The shipped NET-floor credits of one action row (pure; for plan_book)."""
+    if row.get("provider_cost", 0) <= 0:
+        return 0
+    cost = row["provider_cost"] * cfg["usd_bdt"]
+    if aid == "sms":       # the real per-part SMS cost the owner set, if higher
+        cost = max(cost, float((cfg.get("sms") or {}).get("default_cost_per_segment_bdt") or 0))
+    need = cost / cfg["guarantees"]["margin_net_floor"]
+    return max(1, int(math.ceil(need / cfg["credit_bdt"])))
 
 
 def _norm_vehicle(raw, base):

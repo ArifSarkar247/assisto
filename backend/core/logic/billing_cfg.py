@@ -20,6 +20,9 @@ edits in Owner Admin -> Pricing & plans -> "billing" (owner order 27 Oct).
 """
 
 BOUNDS = {"unlock_pct": (0, 100), "unlock_hours": (0, 168),
+          # plansprep (owner 9 Nov item 6): bought packs expire after N months
+          # (0 = never, the shipped rule B); pricing_v2 sets 12
+          "pack_expiry_months": (0, 36),
           "profit_guard_min_bdt": (0, 100000),
           "cost_alert_budget_pct": (10, 40), "cost_alert_min_credits": (0, 100000),
           "cost_alert_safe_paisa": (0, 1000)}
@@ -29,6 +32,7 @@ WINDOWS = (24, 48)
 
 def defaults():
     return {"unlock_pct": 20, "unlock_hours": 48, "refund_window_hours": 48,
+            "pack_expiry_months": 0,
             "profit_guard_min_bdt": 20, "profit_guard_push": False,
             "cost_alert_enabled": True, "cost_alert_budget_pct": 24,
             "cost_alert_min_credits": 100, "cost_alert_safe_paisa": 0}
