@@ -45985,5 +45985,16 @@
   "pcrNotRecorded": "Nothing was recorded at that minute.",
   "@pcrNotRecorded": {
     "description": "cctvplay item 4: continuous recording on the phone camera"
-  }
+  },
+  "bizai2DailyTitle": "Today's shop summary",
+  "bizai2DailyHubSub": "Sales, dues, who to chase, what will run out — every evening",
+  "bizai2DailyEmptyHow": "Ring up sales in Quick sell and write credit in the khata — then today's full picture shows here, and comes as one notification at 9 pm.",
+  "bizai2OpenKhata": "Open khata",
+  "bizai2ChaseTitle": "Remind tomorrow",
+  "bizai2ChaseHint": "In the khata, tap the customer → Send reminder. The message carries their due link and how to pay.",
+  "bizai2StockTitle": "Will run out soon",
+  "bizai2StockHow": "From how fast each item sold in the last 14 days.",
+  "bizai2OutcomesTitle": "What really came back this week",
+  "bizai2DailySwitch": "Send this summary at 9 pm",
+  "bizai2SeeBusinessPlan": "See the Business plan"
 }
