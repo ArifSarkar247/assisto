@@ -179,9 +179,29 @@ class CrmSegmentsView(_RetOwner):
 
 
 class CrmLadderView(_RetOwner):
+    def initial(self, request, *args, **kwargs):
+        # bizai2 (emulator run: GET 402 → the whole Win-back screen showed an
+        # error): READING the ladder — who would get each stage, the drafts,
+        # past results — is free on every plan, like GET /retention.
+        # Switching it on / off (POST) still needs Business (402 + upgrade).
+        self.need_plan = request.method not in ("GET", "HEAD", "OPTIONS")
+        super().initial(request, *args, **kwargs)
+
     def get(self, request):
         from . import bizai_crm as C
-        return Response(C.ladder(self.biz, req_lang(request)))
+        from . import retention_service as RS
+        lang = req_lang(request)
+        out = C.ladder(self.biz, lang)
+        ok = RS.plan_ok(request.user)
+        out["plan_ok"] = ok
+        if not ok:
+            out["plan_required"] = "business"
+            out["plan_note"] = pick(
+                lang, "দেখা ফ্রি। চালু করতে বিজনেস প্ল্যান লাগবে — তখন এই মেসেজগুলো নিজে থেকে যাবে "
+                      "আর কতজন ফিরলেন, কত টাকার কেনা হলো এখানে দেখাবে।",
+                "Looking is free. Switching it on needs the Business plan — then these messages "
+                "go out by themselves and you see here how many came back and what they bought.")
+        return Response(out)
 
     def post(self, request):
         from . import bizai_crm as C
