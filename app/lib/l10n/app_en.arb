@@ -44891,5 +44891,17 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
+  },
+  "myBusinessTitle": "My Business",
+  "@myBusinessTitle": {
+    "description": "homeshort (owner 9 Nov): the business hub's name everywhere (home tile, All Services, bottom-bar tab, hub title). Replaces 'Business Accounts' / 'Business'."
+  },
+  "hv2TileCityService": "City Service",
+  "@hv2TileCityService": {
+    "description": "homeshort: home shortcut tile for City Service (Dhaka bus/metro routes, fares, around me)."
+  },
+  "hv2NewBadge": "New",
+  "@hv2NewBadge": {
+    "description": "homeshort: small badge on a new home shortcut tile until the user opens it once; also read by TalkBack."
   }
 }
