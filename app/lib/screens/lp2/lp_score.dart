@@ -15,6 +15,7 @@ import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/local_counter.dart';
 import '../../widgets/local_digits.dart';
 import '../plans_screen.dart' show PlansScreen;
+import '../../widgets/rewarded_ad_sheet.dart';
 import 'lp_engine.dart';
 import 'lp_life.dart' show lpVoice;
 import 'lp_ui.dart';
@@ -72,14 +73,21 @@ class LpScoreView extends StatelessWidget {
             const SizedBox(height: Gap.xs),
             Text(why, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
             if (st == 'credits' || st == 'premium')
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton(
+              Wrap(spacing: Gap.sm, children: [
+                if (st == 'credits')
+                  TextButton.icon(
+                    key: const Key('lp2-rewarded-score'),
+                    style: TextButton.styleFrom(minimumSize: const Size(kMinTap, kMinTap)),
+                    onPressed: () => RewardedAdSheet.show(context),
+                    icon: const Icon(Icons.ondemand_video_rounded),
+                    label: Text(tr.lp2WatchAdCredits),
+                  ),
+                TextButton(
                   style: TextButton.styleFrom(minimumSize: const Size(kMinTap, kMinTap)),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlansScreen())),
                   child: Text(tr.lp2SeePlans),
                 ),
-              ),
+              ]),
           ]),
         ),
       );

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ads/ad_banner_slot.dart';
 import '../feature_flags.dart' show FeatureFlags;
 import '../l10n/app_localizations.dart';
 import '../services/error_kind.dart' show honestFailText;
@@ -71,6 +72,8 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       return Scaffold(appBar: AppBar(title: Text(tr.lpTitle)), body: const SkeletonList());
     }
     return Scaffold(
+      // owner 10 Nov PART B: Free users only, allowlisted, no space without a fill
+      bottomNavigationBar: const AdBannerSlot(screen: 'lp_home'),
       appBar: AppBar(title: Text(tr.lpTitle)),
       body: RefreshIndicator(
         onRefresh: _load,
