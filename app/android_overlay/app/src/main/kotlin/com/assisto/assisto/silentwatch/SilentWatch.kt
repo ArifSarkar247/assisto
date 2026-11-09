@@ -10,6 +10,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.Sensor
+import android.hardware.SensorManager
+import android.hardware.TriggerEvent
+import android.hardware.TriggerEventListener
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.BatteryManager
@@ -42,6 +46,14 @@ import java.util.Calendar
  *   ESCALATE after the 4th unanswered ring: ONE POST to the server
  *           (family/silent-watch/alert {token}) — the only thing that ever
  *           leaves the phone. Retried every 5 min (max 12) while offline.
+ *   MOTION  TYPE_SIGNIFICANT_MOTION (one-shot, wake-up, needs NO permission
+ *           on any API level — unlike the step sensors, which need
+ *           ACTIVITY_RECOGNITION on API 29+; owner rule 9 Nov: no new
+ *           sensitive permission). Re-armed at every check; a trigger = a
+ *           sign of life. LIMIT: since Android 9 one-shot sensors deliver
+ *           nothing to an app in the background, so it only helps on
+ *           Android 8 or while Assisto runs (app open / anti-theft
+ *           foreground service). Missing sensor / any error = skipped.
  *   OK      the button / Easy Home / the app: stop ringing; if the family was
  *           already told, POST family/silent-watch/ok {token}.
  *
@@ -123,6 +135,14 @@ object SilentWatch {
             p(ctx).edit().putBoolean("enabled", false).putInt("stage", 0).apply()
             for (a in listOf(ACTION_PROBE, ACTION_RING, ACTION_ESCALATE)) cancelAlarm(ctx, a)
             cancelNotif(ctx)
+            try {
+                val sm = ctx.applicationContext.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+                val sensor = sm?.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION)
+                val l = motionListener
+                if (sm != null && sensor != null && l != null) sm.cancelTriggerSensor(l, sensor)
+            } catch (_: Throwable) {
+            }
+            motionListener = null
             true
         } catch (_: Throwable) {
             false
@@ -278,6 +298,32 @@ object SilentWatch {
         return found
     }
 
+    // ------------------------------------------------------------ motion
+    @Volatile private var motionListener: TriggerEventListener? = null
+
+    /** (Re)arm the one-shot significant-motion trigger. Lazy, guarded. */
+    fun armMotion(ctx: Context) {
+        try {
+            if (!p(ctx).getBoolean("enabled", false)) return
+            val sm = ctx.applicationContext.getSystemService(Context.SENSOR_SERVICE) as? SensorManager ?: return
+            val sensor = sm.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) ?: return
+            motionListener?.let { try { sm.cancelTriggerSensor(it, sensor) } catch (_: Throwable) {} }
+            val app = ctx.applicationContext
+            val l = object : TriggerEventListener() {
+                override fun onTrigger(event: TriggerEvent?) {
+                    try {
+                        motionListener = null
+                        record(app, System.currentTimeMillis(), false)
+                        armMotion(app) // one-shot: ask for the next one
+                    } catch (_: Throwable) {
+                    }
+                }
+            }
+            if (sm.requestTriggerSensor(l, sensor)) motionListener = l
+        } catch (_: Throwable) {
+        }
+    }
+
     // ------------------------------------------------------------ timing
     private fun table(ctx: Context): IntArray? = try {
         val t = (p(ctx).getString("table", "") ?: "").split(",").mapNotNull { it.toIntOrNull() }
@@ -336,6 +382,7 @@ object SilentWatch {
             val de = s.getInt("day_end", 1320)
             val now = System.currentTimeMillis()
             setAlarm(ctx, ACTION_PROBE, nextProbe(now, ds, de), false, 0)
+            if (motionListener == null) armMotion(ctx)
             if (s.getInt("stage", 0) == 0) {
                 var at = ringAt(s.getLong("last_ms", now), tb, ds, de)
                 val away = s.getLong("away_until_ms", 0L)
