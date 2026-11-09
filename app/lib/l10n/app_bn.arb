@@ -23961,5 +23961,10 @@
   "ppLowCredit": "মাত্র {credits} ক্রেডিট বাকি। উত্তর যেন না থামে — প্যাক নিন বা প্ল্যান বেছে নিন।",
   "ppCreditsEmpty": "আপনার কোনো ক্রেডিট বাকি নেই। নিরাপত্তা সবসময় ফ্রি। প্যাক নিন, প্ল্যান বেছে নিন বা বিজ্ঞাপন দেখুন।",
   "ppRenewsOnFor": "{date} তারিখে Google Play থেকে ৳{price}-এ নবায়ন হবে।",
-  "ppCapPackPlay": "Google Play-তে ৳{price} দিন"
+  "ppCapPackPlay": "Google Play-তে ৳{price} দিন",
+  "qcQuietTitle": "নীরব সময়",
+  "qcQuietSub": "মেসেজ আসবে, কিন্তু শব্দ বা কম্পন হবে না। কল ও SOS সবসময় বাজবে।",
+  "qcQuietWindow": "নীরব থাকার সময়",
+  "qcQuietFrom": "নীরব শুরু",
+  "qcQuietUntil": "নীরব শেষ"
 }
