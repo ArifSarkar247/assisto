@@ -30,9 +30,35 @@ LATER_TYPES = ("crowd", "vehicle_in_out", "parking_overstay", "wrong_parking",
 # precision / recall per detection, measured by the cctv-accuracy CI job
 # (tools/e2e/cctv_accuracy.py --detections). Empty = not measured yet: the
 # alert then says so instead of showing a made-up number.
-MEASURED = {}
-MEASURED_RUN = ""
-MEASURED_SET = ""
+MEASURED = {
+    "camera_health": {
+        "n": 330,
+        "p": 0.9907,
+        "r": 0.7067
+    },
+    "gate_open": {
+        "n": 240,
+        "p": 1.0,
+        "r": 0.9556
+    },
+    "gate_person": {
+        "n": 180,
+        "p": 0.9388,
+        "r": 0.7667
+    },
+    "loitering": {
+        "n": 180,
+        "p": 0.8913,
+        "r": 0.6833
+    },
+    "post_empty": {
+        "n": 120,
+        "p": 0.72,
+        "r": 0.6
+    },
+}
+MEASURED_RUN = "42664700860"
+MEASURED_SET = 'COCO val2017 licensed images, synthetic CCTV scenarios (tools/e2e/cctv_detect_accuracy.py, n=30/kind)'
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
