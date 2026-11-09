@@ -38,6 +38,7 @@ import 'package:assisto/widgets/a11y_prefs.dart';
 import 'package:assisto/widgets/chatnav.dart';
 import 'package:assisto/widgets/feature_unavailable.dart';
 import 'package:assisto/widgets/home_quick_buttons.dart';
+import 'package:assisto/widgets/home_suggestions.dart';
 import 'package:assisto/widgets/sidebar_sections.dart';
 
 import 'app_fonts.dart';
@@ -264,6 +265,73 @@ void main() {
         for (final old in [l.nominee, l.fallDetectTitle, l.mlpTitle, l.securityTitle,
             l.upSellTitle, l.emhTitle]) {
           expect(SidebarSections.filter(l, old), isNotEmpty, reason: '$lang $old');
+        }
+      }
+    });
+  });
+
+  // Lead (10 Nov, b312 home shot): "জরুরি SOS" twice (Discover card + tile),
+  // "আমার ব্যবসা" twice (tile + bottom tab), SOS card text cut.
+  group('(a) Home: one job = one place (carousel + tiles + bottom bar)', () {
+    test('no shortcut tile repeats a bottom-bar tab; tiles unique', () {
+      for (final on in [false, true]) {
+        if (on) {
+          _allOn();
+        } else {
+          ff.resetForTest();
+        }
+        final d = HomeV2Shortcuts.defaults();
+        final canon = d.map(HomeQuickButtons.canon).toList();
+        expect(canon.toSet().length, canon.length, reason: '$d');
+        for (final r in HomeV2Shortcuts.bottomNavRoutes) {
+          expect(d, isNot(contains(r)), reason: r);
+          expect(HomeV2Shortcuts.catalog.map((s) => s.route), isNot(contains(r)),
+              reason: r);
+        }
+      }
+    });
+
+    test('Discover never repeats a tile or tab on the same home', () {
+      final shown = {
+        for (final r in HomeV2Shortcuts.defaults()) HomeQuickButtons.canon(r),
+        ...HomeV2Shortcuts.bottomNavRoutes,
+      };
+      final cards = withoutHomeTiles(renderableDiscover(kDiscoverFallback), shown);
+      for (final c in cards) {
+        if (c.route.isEmpty) continue;
+        expect(shown, isNot(contains(HomeQuickButtons.canon(c.route))),
+            reason: c.key);
+      }
+      // the SOS card is the Emergency tile's job: not shown twice
+      expect(cards.map((c) => c.key), isNot(contains('sos')));
+      // a home WITHOUT the Emergency tile still gets the SOS card
+      expect(
+          withoutHomeTiles(renderableDiscover(kDiscoverFallback), {'family'})
+              .map((c) => c.key),
+          contains('sos'));
+    });
+
+    testWidgets('SOS card text fits whole at 360 dp (bn + en)', (t) async {
+      for (final lang in ['en', 'bn']) {
+        final l = await _l(lang);
+        // 360 dp card text column (see HV2 discover tokens): ~158 dp
+        for (final x in [
+          (l.emergencySosBigButton, HV2.discoverTitle, 1),
+          (l.svcSosCardDesc, HV2.discoverDesc, 2),
+        ]) {
+          await t.pumpWidget(_app(
+              Center(
+                child: SizedBox(
+                  width: 158,
+                  child: Text(x.$1,
+                      maxLines: x.$3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: x.$2, height: 1.4)),
+                ),
+              ),
+              lang: lang));
+          final r = t.renderObject<RenderParagraph>(find.text(x.$1));
+          expect(r.didExceedMaxLines, isFalse, reason: '$lang: ${x.$1}');
         }
       }
     });

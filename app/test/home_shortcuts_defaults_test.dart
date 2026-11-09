@@ -37,18 +37,21 @@ import 'app_fonts.dart';
 import 'fake_api.dart';
 import 'h1_home_fakes.dart';
 
+// svcclean (owner 10 Nov, one place only): My Business is the bottom-bar
+// tab, so it left the tiles; Reminders (also a tab) never fills a slot —
+// Notes fills the 11th.
 const _newDefault = [
   'family',
   'journey',
   'city', // homeshort: City Service in Digital Ledger's old slot
   'crm',
-  'business',
   'sales_agent',
   'watchman',
   'vehicle_tracking',
   'prepaid_meter',
   'emergency',
   'money',
+  'notes',
 ];
 
 /// City Service switched OFF (flag city_service): the next real feature
@@ -57,14 +60,14 @@ const _cityOffDefault = [
   'family',
   'journey',
   'crm',
-  'business',
   'sales_agent',
   'watchman',
   'vehicle_tracking',
   'prepaid_meter',
   'emergency',
   'money',
-  'reminders',
+  'notes',
+  'documents',
 ];
 
 /// The 2 Nov (v3) default as builds up to 316 showed it — with Digital Ledger.
@@ -90,7 +93,6 @@ const _ownerOrder = [
   'journey',
   'city',
   'crm',
-  'business',
   'sales_agent',
   'watchman',
   'vehicle_tracking',
@@ -115,6 +117,8 @@ const _screens = {
   'emergency': 'EmergencyHubScreen', // ownerfix: SOS tile -> Emergency hub
   'money': 'MoneyScreen',
   'city': 'CityServiceScreen',
+  'notes': 'NotesTodosScreen', // svcclean: fills the slot My Business left
+  'documents': 'VaultScreen',
 };
 
 Future<void> _prefs(Map<String, Object> v) async {
@@ -280,7 +284,10 @@ void main() {
         expect(cat, contains(r), reason: r);
       }
       // the owner's defaults lead the Edit list, in order
-      expect(cat.take(11).toList(), _newDefault);
+      expect(cat.take(10).toList(), _newDefault.take(10).toList());
+      // svcclean: bottom-bar tabs are never offered as tiles too
+      expect(cat, isNot(contains('business')));
+      expect(cat, isNot(contains('reminders')));
     });
 
     test('flag OFF for this user -> skipped honestly, next real one fills',
@@ -289,14 +296,14 @@ void main() {
       var d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('crm')));
       expect(d.length, 11);
-      expect(d.last, 'reminders');
+      expect(d.last, 'documents');
       expect(HomeV2Shortcuts.skippedDefaults(), ['crm', 'blood_panel']);
       // business off -> its slot filled too
       FeatureFlags.instance.debugOverride = {'business': false};
       d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('khata')));
       expect(d, isNot(contains('business')));
-      expect(d.sublist(9), ['money', 'reminders']);
+      expect(d.sublist(9), ['money', 'notes']);
       for (final r in d) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
       }
@@ -309,8 +316,8 @@ void main() {
       expect(HomeV2Shortcuts.defaults(), isNot(contains('sales_agent')));
       // the fill also skips a flag-off pool entry (reminders hidden)
       FeatureFlags.instance.resetForTest();
-      FeatureFlags.instance.debugOverride = {'crm': false, 'reminders': false};
-      expect(HomeV2Shortcuts.defaults().last, 'notes');
+      FeatureFlags.instance.debugOverride = {'crm': false, 'notes': false};
+      expect(HomeV2Shortcuts.defaults().last, 'scam');
     });
   });
 

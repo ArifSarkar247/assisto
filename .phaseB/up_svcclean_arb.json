@@ -227,6 +227,10 @@
   "svcFamNomineeSub": "Who can reach your things if something happens to you",
   "@svcFamNomineeSub": {
    "description": "svcclean: Family page row under Nominee access"
+  },
+  "svcSosCardDesc": "One press sends help and your location to family.",
+  "@svcSosCardDesc": {
+   "description": "svcclean: SOS Discover card line; fits 2 lines at 360 dp in bn + en (the longer server text was cut)"
   }
  },
  "bn": {
@@ -286,6 +290,7 @@
   "svcEmContactsSub": "SOS কারা পাবেন ও আপনার জরুরি কার্ড",
   "svcEmFallOn": "চালু: পড়ে গেলে পরিবার খবর পাবে",
   "svcEmFallOff": "বন্ধ: চালু করতে চাপুন",
-  "svcFamNomineeSub": "আপনার কিছু হলে কে আপনার জিনিস দেখতে পারবেন"
+  "svcFamNomineeSub": "আপনার কিছু হলে কে আপনার জিনিস দেখতে পারবেন",
+  "svcSosCardDesc": "এক চাপে পরিবার পায় বিপদের খবর ও লোকেশন।"
  }
 }
