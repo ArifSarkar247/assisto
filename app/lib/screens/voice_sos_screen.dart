@@ -244,7 +244,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.hearing_disabled_rounded,
-                size: 56, color: cs.onSurfaceVariant),
+                size: 56, color: cs.ds.muted),
             const SizedBox(height: Gap.md),
             Text(
               t.iosAndroidOnlyTitle,
@@ -261,7 +261,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: cs.onSurfaceVariant, height: 1.4),
+                  ?.copyWith(color: cs.ds.muted, height: 1.4),
             ),
           ],
         ),
@@ -285,7 +285,7 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.vsosIntro,
-          style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+          style: TextStyle(color: cs.ds.muted, height: 1.4)),
     ]);
   }
 

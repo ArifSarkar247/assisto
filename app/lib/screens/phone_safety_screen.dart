@@ -281,15 +281,15 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         if (Settings.degraded) ...[
           Card(
             key: const Key('phonesafe-degraded'),
-            color: scheme.errorContainer,
+            color: scheme.ds.dangerBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.save_rounded, color: scheme.onErrorContainer, size: 20),
+                Icon(Icons.save_rounded, color: scheme.ds.dangerInk, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.m3StorageDegraded,
-                      style: AType.bodyMedium.copyWith(color: scheme.onErrorContainer)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
                 ),
               ]),
             ),
@@ -298,15 +298,15 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         ],
         // Honesty banner — Assisto never reads or enforces these settings.
         Card(
-          color: scheme.tertiaryContainer,
+          color: scheme.ds.successBg,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
-              Icon(Icons.info_outline_rounded, color: scheme.onTertiaryContainer, size: 20),
+              Icon(Icons.info_outline_rounded, color: scheme.ds.successInk, size: 20),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.phoneSafeHonestNote,
-                    style: AType.bodyMedium.copyWith(color: scheme.onTertiaryContainer)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.successInk)),
               ),
             ]),
           ),
@@ -314,7 +314,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         const SizedBox(height: Gap.md),
         // Honest reality explainer — what software can and cannot do.
         Card(
-          color: scheme.secondaryContainer,
+          color: scheme.ds.primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(
@@ -322,11 +322,11 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
               children: [
                 Row(children: [
                   Icon(Icons.shield_rounded,
-                      color: scheme.onSecondaryContainer, size: 20),
+                      color: scheme.ds.primaryInk, size: 20),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.phoneSafeRealityTitle,
-                        style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
@@ -337,7 +337,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
                     .indexed) ...[
                   if (i > 0) const SizedBox(height: Gap.sm),
                   Text(para.trim(),
-                      style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.45)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
                 ],
               ],
             ),
@@ -385,7 +385,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
         ),
         const SizedBox(height: Gap.lg),
         Text(t.phoneSafeFooterNote,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -425,12 +425,12 @@ class _ScoreCard extends StatelessWidget {
                 child: CircularProgressIndicator(
                   value: score / 100,
                   strokeWidth: 7,
-                  backgroundColor: scheme.surfaceContainerHighest,
+                  backgroundColor: scheme.ds.cardHighest,
                   valueColor: AlwaysStoppedAnimation<Color>(ring),
                 ),
               ),
               Text(fmtInt(context, score),
-                  style: AType.headlineSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: scheme.onSurface)),
+                  style: AType.headlineSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: scheme.ds.text)),
             ]),
           ),
           const SizedBox(width: Gap.lg),
@@ -444,7 +444,7 @@ class _ScoreCard extends StatelessWidget {
                 Text(
                   t.phoneSafeScoreSubtitle(
                       fmtInt(context, confirmed), fmtInt(context, total)),
-                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                 ),
               ],
             ),
@@ -482,12 +482,12 @@ class _StepCard extends StatelessWidget {
           collapsedShape: const Border(),
           leading: Icon(
             confirmed ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-            color: confirmed ? Brand.success : scheme.onSurfaceVariant,
+            color: confirmed ? Brand.success : scheme.ds.muted,
           ),
           title: Text(step.title(t),
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(step.why(t),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           children: [
@@ -504,11 +504,11 @@ class _StepCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs, bottom: Gap.sm),
                 child: Row(children: [
-                  Icon(Icons.schedule_rounded, size: 15, color: scheme.onSurfaceVariant),
+                  Icon(Icons.schedule_rounded, size: 15, color: scheme.ds.muted),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                     child: Text(step.availability!(t),
-                        style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
                   ),
                 ]),
               ),

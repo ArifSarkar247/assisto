@@ -81,7 +81,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
                 label: '$v',
                 onChanged: (x) => setD(() => v = x.round()),
               ),
-              Text(t.safetySosCountdownNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Text(t.safetySosCountdownNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             ]),
             actions: [
               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
@@ -202,7 +202,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
               ]),
               const SizedBox(height: 6),
               Text(t.journeyHubDesc,
-                  style: AType.bodyMedium.copyWith(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(height: 1.4, color: Theme.of(context).colorScheme.ds.muted)),
               const SizedBox(height: Gap.md),
               SizedBox(
                 width: double.infinity,
@@ -272,7 +272,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
               builder: (_) => const SosTriggersScreen())),
         ),
         const SizedBox(height: 20),
-        Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       ]),
     );
   }

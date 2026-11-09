@@ -130,7 +130,7 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
                     key: const ValueKey('sosat-needs-protection'),
                     padding: const EdgeInsets.all(Gap.lg),
                     decoration: BoxDecoration(
-                      color: scheme.primaryContainer.withValues(alpha: 0.5),
+                      color: scheme.ds.primarySoft.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(Radii.md),
                     ),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -185,7 +185,7 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
                   ),
                 const SizedBox(height: Gap.md),
                 Text(t.saHonestFooter,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 if (_running) ...[
                   const SizedBox(height: Gap.lg),
                   OutlinedButton.icon(
