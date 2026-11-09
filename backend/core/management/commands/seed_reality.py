@@ -154,6 +154,17 @@ class Command(BaseCommand):
             FF.invalidate()
         self.steps.append({"step": "allow-list A for budget_remittance", "method": "DB",
                            "path": "feature_flags", "status": 200, "ok": ff is not None})
+        # qjourney: same allow-list for the Safe Journey cards 2 + 3 (default
+        # OFF in a fresh DB) so flow 16c can open them as user A.
+        for key in ("dest_alarm", "train_tracker"):
+            ff = FeatureFlag.objects.filter(key=key).first()
+            if ff is not None:
+                ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]
+                ff.allow_user_ids = ids
+                ff.save(update_fields=["allow_user_ids", "updated_at"])
+            self.steps.append({"step": f"allow-list A for {key}", "method": "DB",
+                               "path": "feature_flags", "status": 200, "ok": ff is not None})
+        FF.invalidate()
 
         # --- family + emergency card
         fam = []

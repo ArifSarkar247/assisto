@@ -42,8 +42,11 @@ void registerOnboardingFlows() {
       await f.tap(find.widgetWithText(FilledButton, f.t.login), settleSeconds: 3);
       await f.shot('wrong-password');
       expect(f.app.loggedIn, isFalse);
-      expect(find.byWidgetPredicate((w) => w is Text && (w.style?.color == Colors.red)),
-          findsWidgets, reason: 'an error line must be visible');
+      // qjourney: the error line is themed (colorScheme.error, not
+      // Colors.red) since framebar — find it by its key. This stale check
+      // failed 02_login every night, so no later flow ever reached home.
+      expect(find.byKey(const Key('login-error')), findsOneWidget,
+          reason: 'an error line must be visible');
     });
     await f.step('correct password logs in (POST /auth/login 200)', () async {
       if (f.app.loggedIn) return;

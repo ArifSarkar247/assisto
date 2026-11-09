@@ -33,6 +33,13 @@ void registerSafeJourneyFlows() {
     });
     await f.step('open Safe Journey -> fill the form -> Start', () async {
       await f.openRoute('journey');
+      // qjourney: 'journey' opens the three-card hub (sjlive, 3 Nov); the
+      // start form is behind its "Trip" button
+      final trip = find.byKey(const ValueKey('sjl_btn_trip'));
+      if (await f.appears(trip, seconds: 8)) {
+        await f.tester.ensureVisible(trip);
+        await f.tap(trip, settleSeconds: 3);
+      }
       await f.waitFor(find.byKey(const ValueKey('j100_dest')), what: 'destination field');
       await f.tester.enterText(find.byKey(const ValueKey('j100_dest')), place);
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
