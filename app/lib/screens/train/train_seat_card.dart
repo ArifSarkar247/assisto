@@ -144,7 +144,7 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
       isScrollControlled: true,
       showDragHandle: true,
       builder: (ctx) => StatefulBuilder(builder: (ctx, set) {
-        Widget group(String q, List<(String, String)> opts, String cur, void Function(String) on) =>
+        Widget group(String q, List<(String, String)> opts, String cur, void Function(String) pick) =>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -155,7 +155,7 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
                     ChoiceChip(
                       label: Text(o.$2),
                       selected: cur == o.$1,
-                      onSelected: (_) => set(() => on(cur == o.$1 ? '' : o.$1)),
+                      onSelected: (_) => set(() => pick(cur == o.$1 ? '' : o.$1)),
                     ),
                 ]),
               ]),
