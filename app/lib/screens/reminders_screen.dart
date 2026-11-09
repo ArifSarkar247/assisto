@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../services/bangla_calendar.dart' show BanglaDate; // remhbar
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../notifications.dart';
 import '../services/home_widget_service.dart';
@@ -451,13 +452,13 @@ class _ReminderCard extends StatelessWidget {
     final rule = ruleFromData(d);
     final link = d['link'] is Map ? d['link'] as Map : null;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    // designv2: alive DS card; a missed (overdue) reminder is the danger card
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+      child: DsSurface(
+        tone: group == 'overdue' && !done ? DsTone.danger : DsTone.normal,
         onTap: () => editReminder(context, item: item),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
+        padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -587,7 +588,6 @@ class _ReminderCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
       ),
     );
   }

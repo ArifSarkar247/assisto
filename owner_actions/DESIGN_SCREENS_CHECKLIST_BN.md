@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৩ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪৪ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -423,7 +423,7 @@
 - ⬜ — `screens/ramadan_screen.dart`
 - ⬜ — `screens/recovery_screen.dart`
 - ⬜ — `screens/referral_screen.dart`
-- ⬜ — `screens/reminders_screen.dart`
+- ✅ batch 5 (জীবন্ত কার্ড, মিস হওয়া = লাল কার্ড) — `screens/reminders_screen.dart`
 - ⬜ — `screens/report_stolen_screen.dart`
 - ⬜ — `screens/retention/retention_screen.dart`
 - ⬜ — `screens/ride_food_screen.dart`
