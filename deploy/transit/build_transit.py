@@ -88,6 +88,8 @@ def publishers(srcs):
     """citycov: distinct publishers (web sites) among a route's sources."""
     out = set()
     for x in srcs or ():
+        if x.get("snippet"):
+            continue          # seen only in a search snippet: not counted
         host = re.sub(r"^https?://(www\.|m\.|en\.|bn\.)?", "", str(x.get("url") or "")).split("/")[0].lower()
         if host:
             out.add(host)
