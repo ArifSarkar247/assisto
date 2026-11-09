@@ -2,7 +2,8 @@
  "_doc": "designv2 lint allow-list: raw TextStyle( / Color( per file. Counts may only go DOWN. New files: 0. Migrated files are listed in 'migrated' and must stay 0.",
  "migrated": [
   "lib/screens/blood/blood_hub_screen.dart",
-  "lib/screens/blood/bp_common.dart"
+  "lib/screens/blood/bp_common.dart",
+  "lib/family_v3/fc_member_card.dart"
  ],
  "textStyle": {
   "lib/ads/ad_banner_slot.dart": 2,
@@ -35,7 +36,6 @@
   "lib/family_v3/family_v3_screen.dart": 10,
   "lib/family_v3/fc_add_member.dart": 1,
   "lib/family_v3/fc_fix_guide.dart": 5,
-  "lib/family_v3/fc_member_card.dart": 5,
   "lib/family_v3/fc_member_page.dart": 1,
   "lib/feedback/feedback_sheet.dart": 1,
   "lib/growth/branded_share.dart": 5,

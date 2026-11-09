@@ -38,6 +38,8 @@ const ds2Screens = <String>[
   'blood_hub_empty',
   'blood_requests',
   'blood_me',
+  'fc3_board', // batch 2: Family member cards
+  'fc3_board_sos',
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
@@ -105,7 +107,7 @@ void main() {
     for (final b in Brightness.values) {
       for (final lang in ['bn', 'en']) {
         testWidgets('ds2 $name $lang ${b.name}', (tester) async {
-          DsPerf.debugLite = true; // a still frame (no pulse)
+          DsPerf.debugLite = false; // the full V2 look (fixed pumps, no settle)
           addTearDown(() => DsPerf.debugLite = null);
           debugDisableShadows = false;
           final spec = specs[name]!;
@@ -124,7 +126,7 @@ void main() {
 
   for (final b in Brightness.values) {
     testWidgets('ds2 component gallery ${b.name}', (tester) async {
-      DsPerf.debugLite = true;
+      DsPerf.debugLite = false;
       addTearDown(() => DsPerf.debugLite = null);
       debugDisableShadows = false;
       await tester.binding.setSurfaceSize(const Size(360, 2600));

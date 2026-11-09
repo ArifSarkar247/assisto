@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 
 import 'perf/low_ram.dart';
@@ -985,8 +987,19 @@ class DsPerf {
 
   static bool get lite =>
       debugLite ??
-      (LowRamTuning.lowRam ||
+      (_underTest ||
+          LowRamTuning.lowRam ||
           (LowRamTuning.ramMb > 0 && LowRamTuning.ramMb <= 3328));
+
+  /// Widget tests run still (no endless pulse → pumpAndSettle settles);
+  /// a test that checks the motion sets [debugLite] = false.
+  static final bool _underTest = () {
+    try {
+      return Platform.environment['FLUTTER_TEST'] == 'true';
+    } catch (_) {
+      return false;
+    }
+  }();
 
   static bool liteOf(BuildContext context) =>
       lite || (MediaQuery.maybeDisableAnimationsOf(context) ?? false);

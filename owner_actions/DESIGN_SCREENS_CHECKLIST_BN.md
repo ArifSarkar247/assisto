@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪ / মোট ৪২০** (রক্তদাতা হাব নতুন লেআউট + হোমের ৩টি ফাইল শুধু রং)
+**স্ক্রিন শেষ: ৫ / মোট ৪২০** (রক্তদাতা হাব, পরিবার সদস্য কার্ড + হোমের ৩টি ফাইল শুধু রং)
 
 ## ১. হোম (শুধু রং)
 
@@ -36,7 +36,7 @@
 - ⬜ — `family_sos/sos_alarm_screen.dart`
 - ⬜ — `family_sos/sos_sender_screen.dart`
 - ⬜ — `family_v3/brain/fc_brain_settings_screen.dart`
-- ⬜ — `family_v3/family_v3_screen.dart`
+- ✅ batch 2 (সদস্য কার্ড) — `family_v3/family_v3_screen.dart`
 - ⬜ — `screens/family_alerts_screen.dart`
 - ⬜ — `screens/family_screen.dart`
 - ⬜ — `screens/health_timeline_screen.dart`
