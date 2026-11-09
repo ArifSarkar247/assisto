@@ -554,6 +554,11 @@ def push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
             if kind == "call":
                 _call_push_event((data or {}).get("call_id"), "no_device", user)
             return 0
+        # fcbrain: the ONE notification budget gate (<= 3 non-safety
+        # notifications per user per day; safety always passes).
+        from . import notif_budget
+        if not notif_budget.allow(user, kind):
+            return 0
         lang = user_lang(user)
         title = title_en if lang == "en" else title_bn
         body = body_en if lang == "en" else body_bn

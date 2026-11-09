@@ -204,6 +204,7 @@ JOBS = (
     Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
     # carecall: Care Call ring ladder (ring, retry after 10 min, tell setter)
     Job("carecall_tick", MIN, "* * * * *", via="minute_jobs"),
+    Job("family_brain_tick", MIN, "* * * * *", via="minute_jobs"),  # fcbrain
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
     Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
     # bizai: Market group-buy expiry (gated inside: every 30 min) and the
@@ -230,6 +231,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("view_once_purge", {"quiet": True}),
                # carecall: a scheduled ring is safety-adjacent -> before nearby
                ("carecall_tick", {"quiet": True}),
+               # fcbrain: night news at each member's time + monthly
+               # "who can see you" card; one indexed scan, cheap
+               ("family_brain_tick", {"quiet": True}),
                # aifinal: AI usage log retention (90 days), bounded batch
                ("ai_usage_purge", {"quiet": True}),
                # aifinal: nightly AI exam — idle unless the owner switched it on

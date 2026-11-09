@@ -48,6 +48,8 @@ const _lookBack = 45; // lines
 /// file -> why an ask there has no disclosure right above it.
 const _allowed = <String, String>{
   'lib/widgets/permission_reason.dart': 'the helper itself',
+  'lib/family_v3/brain/fc_watch.dart': // fcbrain
+      'enable() runs only after FcBrainSettingsScreen shows its own prominent disclosure (fcbDiscloseBody)',
   'lib/widgets/emergency_sos_panel.dart':
       'SOS moment: never an extra screen during an emergency; the SOS button says location is sent',
   'lib/widgets/voice_sos_service.dart':

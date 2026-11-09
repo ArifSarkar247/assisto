@@ -237,6 +237,9 @@ FREE_EXEMPT = {
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
+    # fcbrain (owner 9 Nov): Family Care is safety — never charged
+    "brain.night_news": "Family Care night news card from structured facts, once per member per night",
+    "brain.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
 }
 
 
