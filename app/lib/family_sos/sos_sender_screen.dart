@@ -454,8 +454,8 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Colors.white, fontSize: 16, height: 1.35)),
                   const SizedBox(height: Gap.xl),
-                  SizedBox(
-                    height: 64,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 64),
                     child: FilledButton.icon(
                       key: const ValueKey('fcs-send-now'),
                       style: FilledButton.styleFrom(
@@ -468,8 +468,8 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                     ),
                   ),
                   const SizedBox(height: Gap.md),
-                  SizedBox(
-                    height: 64,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 64),
                     child: OutlinedButton.icon(
                       key: const ValueKey('fcs-cancel'),
                       style: OutlinedButton.styleFrom(
@@ -531,7 +531,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
           SosBigButton(
             key: const ValueKey('fcs-call-emergency'),
             icon: Icons.local_police_rounded,
-            label: t.fcsCallEmergency(em.primary.number),
+            label: _d(t.fcsCallEmergency(em.primary.number)),
             color: s.surfaceContainerHighest,
             fg: s.onSurface,
             onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
@@ -648,7 +648,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
           SosBigButton(
             key: const ValueKey('fcs-call-emergency'),
             icon: Icons.local_police_rounded,
-            label: t.fcsCallEmergency(em.primary.number),
+            label: _d(t.fcsCallEmergency(em.primary.number)),
             color: s.surfaceContainerHighest,
             fg: s.onSurface,
             onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),

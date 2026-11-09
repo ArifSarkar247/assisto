@@ -268,7 +268,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                   _half(SosBigButton(
                     key: const ValueKey('fcs-call-emergency'),
                     icon: Icons.local_police_rounded,
-                    label: t.fcsCallEmergency(em.primary.number),
+                    label: _dg(t.fcsCallEmergency(em.primary.number)),
                     color: s.surfaceContainerHighest,
                     fg: s.onSurface,
                     onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),

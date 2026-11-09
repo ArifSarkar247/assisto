@@ -216,8 +216,8 @@ class _SosSetupCardState extends State<SosSetupCard> with WidgetsBindingObserver
           if (action != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: SizedBox(
-                height: 48,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
                 child: OutlinedButton(
                   key: ValueKey('$key-btn'),
                   onPressed: onTap,

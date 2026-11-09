@@ -309,8 +309,8 @@ class _SmsPickerState extends State<_SmsPicker> {
               ),
             ),
             const SizedBox(width: Gap.sm),
-            SizedBox(
-              height: 48,
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
               child: OutlinedButton(
                 key: const ValueKey('fcs-sms-add'),
                 onPressed: () {
@@ -322,8 +322,8 @@ class _SmsPickerState extends State<_SmsPicker> {
             ),
           ]),
           const SizedBox(height: Gap.lg),
-          SizedBox(
-            height: 52,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
             child: FilledButton(
               key: const ValueKey('fcs-sms-save'),
               onPressed: _sel.isEmpty ? null : _save,

@@ -36,6 +36,7 @@ import 'screenshots_test.dart' as gallery;
 /// Gallery spec name prefixes of the 2 Nov launch features.
 const _launchPrefixes = <String>[
   'emergency_hub', // emergency hub
+  'fcs_', // fcsos: Family Care v3 SOS sender / receiver / setup
   'p3g_', // p3guides: service guide card, Probashi Help, Student timer/official
   'blood_', // blood donor list / profile / request / share
   'missing_', // missing alert
