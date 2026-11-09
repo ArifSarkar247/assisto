@@ -280,10 +280,12 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
     PerfMarks.once('init_token'); // faststart
     try {
-      memory = await db.allMemory();
-      for (final r in _repos) {
-        await r.load();
-      }
+      // faststart: the 9 local reads run together (one wait, not nine
+      // platform round trips in a row — ~100-150 ms on a 2 GB phone)
+      await Future.wait<void>([
+        db.allMemory().then((m) => memory = m),
+        for (final r in _repos) r.load(),
+      ]);
     } catch (_) {}
     PerfMarks.once('init_db'); // faststart
     if (t != null) {

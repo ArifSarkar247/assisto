@@ -35,6 +35,10 @@ class DiskImageCache {
   static Future<Directory>? _dir;
   static int _writes = 0;
 
+  /// The latest background save (tests await it).
+  @visibleForTesting
+  static Future<void>? lastSave;
+
   static Future<Directory> _defaultDir() async {
     final base = await getTemporaryDirectory();
     final d = Directory('${base.path}/img_cache');
@@ -68,7 +72,7 @@ class DiskImageCache {
     }
     final b = await fetch(url);
     if (b == null || b.isEmpty) throw StateError('picture unavailable');
-    unawaited(_save(dir, f, b));
+    unawaited(lastSave = _save(dir, f, b));
     return b;
   }
 

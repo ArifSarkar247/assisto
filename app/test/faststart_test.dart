@@ -105,7 +105,7 @@ void main() {
       final a = await DiskImageCache.bytes(url);
       expect(fetches, 1);
       // let the background save finish
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await DiskImageCache.lastSave;
       DiskImageCache.fetch = (_) async => throw const SocketException('offline');
       final b = await DiskImageCache.bytes(url);
       expect(b, a);
