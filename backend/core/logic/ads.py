@@ -109,6 +109,9 @@ BLOCKED_TOKENS = (
     "money", "prepaid", "khata", "business", "sales", "invoice", "crm",
     "quran", "ramadan", "calorie", "food", "health", "medicine", "reminder",
     "note", "todo", "task", "school", "child",
+    # cctvroles (CCTV Guard V3 L): NO ad on any CCTV screen, whatever its key
+    "watchman", "shop_box", "shop_camera", "shop_eod", "installer", "camera",
+    "phonecam",
 )
 BANNER_MIN_REFRESH_SEC = 60
 

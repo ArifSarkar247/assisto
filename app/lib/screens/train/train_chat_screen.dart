@@ -43,6 +43,10 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
   Timer? _poll;
   List<String> _bnWords = const [];
 
+  /// sjtrain: {"open", "opens_at", "closes_at"} — the chat runs only while
+  /// the train runs (server-enforced; null = old server, treated as open).
+  Map<String, dynamic>? _window;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +82,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
       if (!mounted) return;
       setState(() {
         _me = r['me'] is Map ? Map<String, dynamic>.from(r['me'] as Map) : null;
+        _window = r['chat'] is Map ? Map<String, dynamic>.from(r['chat'] as Map) : null;
         if (full) _msgs.clear();
         final seen = {for (final m in _msgs) m['id']};
         for (final m in (r['messages'] as List? ?? const [])) {
@@ -103,6 +108,8 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
     if (s.contains('rate_limited')) return t.trChatSlowDown;
     if (s.contains('nickname')) return t.trNickRule;
     if (s.contains('trip_over')) return t.trChatOver;
+    if (s.contains('not_running')) return t.sjtChatNotRunning; // sjtrain
+    if (s.contains('not_allowed')) return t.sjtChatNotAllowed; // sjtrain
     return t.trLoadFailed;
   }
 
@@ -326,6 +333,9 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
                 itemBuilder: (_, i) => _bubble(t, _msgs[i]),
               ),
       ),
+      if (_window != null && _window!['open'] != true)
+        _closedBar(t)
+      else
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.md),
         child: Row(children: [
@@ -349,6 +359,36 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
         ]),
       ),
     ]);
+  }
+
+  /// sjtrain: outside the train's running time the chat is read-only, and
+  /// says when it opens (or that it closed); everything is deleted within 24 h.
+  Widget _closedBar(AppLocalizations t) {
+    final cs = Theme.of(context).colorScheme;
+    final opens = DateTime.tryParse('${_window?['opens_at'] ?? ''}');
+    final before = opens != null && DateTime.now().isBefore(opens);
+    String hm(DateTime d) {
+      final l = d.toLocal();
+      return notifLocalizeDigits(
+          context, '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}');
+    }
+
+    return Container(
+      key: const ValueKey('sjt_chat_closed'),
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.md),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
+      child: Row(children: [
+        Icon(Icons.lock_clock_rounded, color: cs.onSurfaceVariant),
+        const SizedBox(width: Gap.sm),
+        Expanded(
+          child: Text(before ? t.sjtChatOpensAt(hm(opens)) : t.sjtChatClosed,
+              style: AType.bodyMedium),
+        ),
+      ]),
+    );
   }
 
   Widget _bubble(AppLocalizations t, Map<String, dynamic> m) {

@@ -266,3 +266,18 @@ accepts. Not legal advice — have it reviewed before launch.
 Build tools (CI only, nothing shipped): TensorFlow-CPU 2.15 / tf-keras / tensorflow-hub,
 tf2onnx, onnx (Apache-2.0); onnxruntime (MIT); numpy / scipy / soundfile / PyTorch (BSD-3;
 libsndfile LGPL-2.1 dynamically linked).
+
+## Language Partner stage 3 TTS voices (lpstage3, 9 Nov) — listening audio for Chinese / French / Arabic
+
+Rule: open-source voices with permissive licences only; no voice cloning; nothing ships in git (audio made in CI).
+Machine-readable list: `tools/lp/tts/VOICES_TRACKS.json` (a job with no cleared voice is marked `blocked`).
+
+| Voice | Licence | Commercial OK? | Used? |
+|---|---|---|---|
+| Kokoro-82M v1.0 Mandarin `zf_xiaoxiao`, `zf_xiaoyi`, `zm_yunjian`, `zm_yunxi` (+ misaki[zh]: jieba MIT, pypinyin MIT, cn2an MIT) | Apache-2.0 | **Yes** | Yes — Chinese (HSK 1) listening |
+| Kokoro-82M v1.0 French `ff_siwis` (SIWIS corpus) | Apache-2.0 weights; credit the SIWIS database in open-source credits | **Yes** (attribution) | Yes — French female; male = same voice pitch-lowered (effect, not cloning) |
+| MeloTTS ZH / FR (myshell-ai) | MIT | **Yes** | Fallback only |
+| Piper `fr_FR-upmc-medium`, `ar_JO-kareem-*` | data licence / lessac lineage not confirmed | **UNCERTAIN → not used** | No (same rule as the Piper rows above) |
+| Meta MMS-TTS Arabic | CC BY-NC 4.0 | **NO** | Never |
+| Coqui XTTS-v2 (any language) | Coqui Public Model Licence (non-commercial); cloning model | **NO** | Never |
+| eSpeak NG Arabic | GPL-3.0 program, output is ours | Yes | Not for exam audio (robotic) — Arabic jobs stay **blocked**; app uses the phone's own TTS voice |

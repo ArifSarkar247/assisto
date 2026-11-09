@@ -149,7 +149,12 @@ def weekly_report(business, lang="bn", now=None):
     from .models import SaleLine
     now = now or timezone.now()
     since = now - timedelta(days=7)
-    sales = RS._sales(business).filter(created_at__gte=since)
+    # bizai2: EVERY sale of the week (walk-in cash sales have no customer —
+    # RS._sales() is the retention audience and left them out, so the
+    # weekly "sales" line undercounted a typical shop)
+    from .models import Sale
+    sales = Sale.objects.filter(RS._cust_q(business), voided_at__isnull=True,
+                                created_at__gte=since)
     n_sales = sales.count()
     v_sales = BA._taka(sales.aggregate(s=Sum("total"))["s"])
     top = SaleLine.objects.filter(sale__in=sales).values("product_name").annotate(

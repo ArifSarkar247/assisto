@@ -245,7 +245,9 @@ void main() {
     testWidgets('Discover restyle: same server data, impressions + clicks',
         (tester) async {
       final api = _TrackApi('en');
-      await _pump(tester, _home(), api: api);
+      // svcclean: Discover never repeats a home tile, so this home has no
+      // Emergency tile (with one, the SOS card is not shown — guard test)
+      await _pump(tester, _home(routes: const ['family', 'money']), api: api);
       expect(find.byType(DiscoverCardV2), findsWidgets);
       // homeorder (owner 2 Nov): SOS is the server's first default card
       expect(find.byKey(const ValueKey('discover_v2_sos')), findsOneWidget);
@@ -319,7 +321,7 @@ void main() {
           final a = tester.getTopLeft(
               find.byKey(const ValueKey('hv2_tile_circle')));
           final d = tester.getTopLeft(
-              find.byKey(const ValueKey('hv2_tile_khata')));
+              find.byKey(const ValueKey('hv2_tile_city'))); // homeshort: 4th tile
           expect(d.dy, greaterThan(a.dy)); // 4th tile starts row 2
           expect(d.dx, a.dx);
           await _unmount(tester);
@@ -365,7 +367,7 @@ void main() {
     testWidgets('normal font: 4 columns', (tester) async {
       await _pump(tester, _home());
       final a = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_circle')));
-      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_khata')));
+      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_city'))); // homeshort: 4th tile
       expect(d.dy, a.dy);
       await _unmount(tester);
     });
@@ -377,8 +379,15 @@ void main() {
       // the owner's 11 exactly, nothing skipped
       // (homeorder: Blood donor sits next to SOS in the owner order but its
       // flag is OFF by default -> skipped honestly)
+      // homeshort (9 Nov): City Service (flag city_service ON) sits in
+      // Digital Ledger's old slot
+      // svcclean: My Business left the tiles (it is the bottom-bar tab);
+      // Notes fills the 11th slot (Reminders is a bottom-bar tab too)
       expect(HomeV2Shortcuts.defaults(),
-          [...HomeV2Shortcuts.ownerOrder]..remove('blood_panel'));
+          [...HomeV2Shortcuts.ownerOrder]
+            ..remove('blood_panel')
+            ..add('notes'));
+      expect(HomeV2Shortcuts.defaults()[2], kCityServiceRoute);
       expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
       for (final r in HomeV2Shortcuts.defaults()) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
@@ -392,12 +401,12 @@ void main() {
       expect(d, isNot(contains('vehicle_tracking')));
       expect(d, isNot(contains('lost_stolen')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.sublist(8), ['emergency', 'money', 'reminders']);
+      expect(d.sublist(8), ['money', 'notes', 'documents']);
       // CCTV switched OFF by the owner -> skipped, the next real one fills
       FeatureFlags.instance.debugOverride = {'home_watchman': false};
       expect(HomeV2Shortcuts.defaults(), isNot(contains('watchman')));
       expect(HomeV2Shortcuts.skippedDefaults(), ['watchman', 'blood_panel']);
-      expect(HomeV2Shortcuts.defaults().last, 'reminders');
+      expect(HomeV2Shortcuts.defaults().last, 'documents');
     });
 
     test('a saved set is kept exactly (no top-up, no My Circle)', () {
@@ -480,15 +489,17 @@ void main() {
     test('fresh install: default set has CCTV (slot 7) + vehicle tracking',
         () async {
       final d = await HomeV2Shortcuts.load();
-      expect(d[6], 'watchman');
-      expect(d[7], 'vehicle_tracking');
+      // homeshort: City Service took Digital Ledger's slot -> same places
+      // svcclean: My Business left the tiles (bottom-bar tab) -> one slot up
+      expect(d[5], 'watchman');
+      expect(d[6], 'vehicle_tracking');
       expect(d.length, HomeV2Shortcuts.max);
       // same once the server answers ON for everyone (no preview)
       FeatureFlags.instance.applyForTest({
         'features': launchOn,
         'preview': <String>[],
       });
-      expect((await HomeV2Shortcuts.load())[6], 'watchman');
+      expect((await HomeV2Shortcuts.load())[5], 'watchman');
     });
 
     test('a saved custom set is untouched (v2 and old-home six)', () async {
@@ -617,7 +628,7 @@ void main() {
           await _settle(tester);
           await tester.enterText(find.byKey(const ValueKey('all_search')), 'cctv');
           await _settle(tester);
-          expect(find.text(t.wmTitle), findsWidgets);
+          expect(find.text(t.svcCctvWatch), findsWidgets); // svcclean: tile name
           expect(find.text(t.ffPreviewTag), findsNothing);
           await tester.enterText(
               find.byKey(const ValueKey('all_search')), t.jobHunter);
@@ -704,7 +715,7 @@ void main() {
       final d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('watchman')));
       expect(d.length, HomeV2Shortcuts.max);
-      expect(d.last, 'reminders'); // the next real feature fills the slot
+      expect(d.last, 'documents'); // the next real feature fills the slot
       expect(HomeV2Shortcuts.skippedDefaults(), contains('watchman'));
       // a user-picked set drops it too
       expect(HomeV2Shortcuts.sanitize(['watchman', 'notes']), ['notes']);
@@ -716,7 +727,7 @@ void main() {
         'features': {'home_watchman': true, 'scam_check': true},
         'preview': <String>[],
       });
-      expect(HomeV2Shortcuts.defaults()[6], 'watchman');
+      expect(HomeV2Shortcuts.defaults()[5], 'watchman'); // svcclean: no business tile
       expect(HomeQuickButtons.sanitize(['scam', 'money']).first, 'scam');
     });
 
@@ -733,7 +744,7 @@ void main() {
       final t = _t(tester);
       await tester.enterText(find.byKey(const ValueKey('all_search')), 'cctv');
       await _settle(tester);
-      expect(find.text(t.wmTitle), findsWidgets);
+      expect(find.text(t.svcCctvWatch), findsWidgets); // svcclean: tile name
       expect(find.text(t.ffPreviewTag), findsWidgets);
       await _unmount(tester);
     });

@@ -62,12 +62,93 @@ _HISTORY_TURNS = 20
 CHAT_TASK = (
     "তুমি Assisto, একজন বাংলা-প্রথম সহকারী। উত্তর সবসময় বাংলায় (বাংলা "
     "হরফে) দাও — প্রশ্নের উত্তর প্রথম বাক্যেই, সত্যভাবে ও সম্পূর্ণভাবে। "
+    "ব্যবহারকারী অন্য ভাষায় (ইংরেজি, আরবি, হিন্দি…) কিছু লিখে দিতে বা অনুবাদ "
+    "করতে বললে শুধু সেই লেখাটি সেই ভাষায় দেবে, বাকি কথা বাংলায়। "
     "'আমার কাছে আপনার তথ্য নেই' দিয়ে কখনো শুরু করবে না। প্রশ্ন তার "
     "নিজের রেকর্ড নিয়ে হলে তবেই নিচের DATA দেখবে; কোনো সংখ্যা বা তথ্য বানাবে না।",
     "You are Assisto, a Bangla-first assistant. Reply in English — answer "
-    "the question in the first sentence, completely and truthfully. Never open "
+    "the question in the first sentence, completely and truthfully. When the "
+    "user asks you to write or translate something into another language, "
+    "write that text in that language. Never open "
     "by saying you don't have the user's data. Use the DATA below only when "
     "the question is about their own records; never invent numbers or facts.")
+
+# aiqual (owner 9 Nov, AI answer quality rule): how a chat answer is laid out
+# so it reads well in the app's small markdown renderer (no tables) and in
+# Bangla (Bangla digits), and finishes inside the level's output limit.
+CHAT_FORMAT_RULE = (
+    "Format: the app shows light Markdown — a short **bold** heading line or a "
+    "'## ' heading per section, numbered steps (in Bangla: ১. ২. ৩.) and '- ' "
+    "bullets. NEVER a table (the app cannot show tables — give a short list per "
+    "option instead); no HTML; no code blocks unless asked. In a Bangla answer "
+    "write numbers with Bangla digits (৳৫০০, ৯৯৯, সকাল ৯টা) except inside links, "
+    "codes and product names. Use the current date and time given with the "
+    "message for 'today', 'tomorrow' (kal), weekdays and reminder times.")
+LENGTH_NOTE = (
+    "Length budget: this answer has a hard limit of about {tok} output tokens "
+    "(roughly {bn} Bangla words or {en} English words). Plan it to FINISH inside "
+    "that limit: the summary and the most useful points first, each point tight; "
+    "if the topic is too big for one answer, give the complete core plan and end "
+    "by offering the remaining parts in the next answer.")
+WEB_NOTE = (
+    "Web search is on for this question (recent or changing facts). Use it for "
+    "the latest figure, then say in one short line where it comes from and its "
+    "date (site name + date). If the search finds nothing reliable, say so "
+    "plainly and give the usual range as an estimate — never invent today's "
+    "figure.")
+
+
+def length_note(out_cap):
+    tok = int(out_cap or 0)
+    if tok <= 0:
+        return ""
+    return LENGTH_NOTE.format(tok=tok, bn=max(60, tok // 5 // 10 * 10),
+                              en=max(80, tok * 7 // 10 // 10 * 10))
+
+
+def chat_task_text(lang, user=None, *, minor=None, tools=None, follow="", photo=False,
+                   out_cap=0, web=False):
+    """aiqual: the chat instruction block (system side) for one turn — shared
+    by the live chat (_produce_reply) and the AI exam so the exam always
+    tests the product prompt. `minor`/`tools` default from the user."""
+    from . import ai_compliance as AC
+    from . import ai_tools as AT
+    t = pick(lang, *CHAT_TASK)
+    if minor is None:
+        t += "\n" + AC.system_rules(user)
+    else:
+        t += "\n" + AC.GENERAL_RULE + ("\n" + AC.SAFE_MODE_RULE if minor else "")
+    if (user is not None) if tools is None else tools:
+        t += "\n" + AT.TOOL_RULE
+    t += "\n" + CHAT_FORMAT_RULE
+    if out_cap:
+        t += "\n" + length_note(out_cap)
+    if web:
+        t += "\n" + WEB_NOTE
+    if follow == "continue":
+        t += "\n" + pick(lang, *CONTINUE_NOTE)
+    elif follow == "more":
+        t += "\n" + pick(lang, *MORE_NOTE)
+    if photo:
+        t += "\n" + pick(lang, *PHOTO_NOTE)
+    return t
+
+
+_WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+def now_line(now=None):
+    """aiqual: the model never knew today's date, so "kal sokal 9 tay" became
+    a reminder on a guessed date. Minute precision, Bangladesh time."""
+    d = timezone.localtime(now or timezone.now())
+    return "%s (%s) %s, Bangladesh time" % (d.strftime("%Y-%m-%d"), _WEEKDAYS[d.weekday()],
+                                           d.strftime("%H:%M"))
+
+
+def chat_data(text, summary, now=None):
+    return "Now: " + now_line(now) + "\n" + CHAT_DATA.format(text=text, summary=summary)
+
+
 CHAT_DATA = "User's latest message: {text}\n\nTheir data summary:\n{summary}"
 
 
@@ -242,26 +323,131 @@ _INCOMPLETE = re.compile(
 _SENT_END = re.compile(r"(?<![0-9\u09e6-\u09ef])[.!?।](?:\s|$)|\n")
 
 CONTINUE_NOTE = (
-    "তোমার আগের উত্তরটি মাঝপথে কেটে গিয়েছিল। ঠিক যেখানে থেমেছিল সেখান থেকে চালিয়ে যাও — "
-    "আগে যা লেখা হয়েছে তা একটুও আবার লিখবে না; পরের শব্দ থেকে শুরু করো।",
-    "Your previous answer was cut off. Continue EXACTLY from where it stopped — do not "
-    "repeat anything already written; start with the next words.")
+    "তোমার আগের উত্তরটি দৈর্ঘ্যের সীমায় কেটে গিয়েছিল; ব্যবহারকারী শেষ পূর্ণ বাক্য পর্যন্ত দেখেছেন। "
+    "ঠিক সেখান থেকে চালিয়ে যাও — শুভেচ্ছা বা সারাংশ আবার নয়, আগের কোনো শিরোনাম, ধাপ বা বাক্য "
+    "আবার লিখবে না; ক্রমিক নম্বর আগের মতোই চলবে (শেষ ধাপ ৪ হলে ৫ থেকে শুরু); একই ভাষায় "
+    "উত্তরটি শেষ করো এবং শেষে একটি পরিষ্কার পরের ধাপ দাও।",
+    "Your previous answer stopped at its length limit; the user saw it up to its last full "
+    "sentence. Continue EXACTLY from that point — no greeting, no summary again; do not repeat "
+    "anything already written (no heading, step or sentence again); keep the numbering going (if the last step "
+    "was 4, start at 5); same language; finish the whole answer and end with one clear next step.")
 MORE_NOTE = (
     "আগের উত্তরটি আরও গভীরভাবে বাড়াও: শুধু নতুন তথ্য, উদাহরণ ও ধাপ যোগ করো; আগে যা বলা হয়েছে "
     "তা আবার বলবে না।",
     "Expand the previous answer in more depth: add only NEW details, examples and steps; "
     "do not repeat what was already said.")
 
+# a line that only introduces what follows ("## খরচ", "**ধাপগুলো**", "Steps:")
+_DANGLING = re.compile(r"^\s*(?:#{1,6}\s+.*|\*\*[^*]+\*\*\s*:?|[-*•]\s*|[0-9\u09e6-\u09ef]{1,3}[.)]\s*|.*[:：])\s*$")
+
 
 def end_at_sentence(text):
-    """aifinal round 3: a cut answer ends at its last full sentence (never
-    mid-word); returns the text unchanged when no sentence end is found."""
+    """aifinal round 3: a cut answer ends at its last full sentence (or a
+    complete list line), never mid-word. aiqual: the old 30 % rule returned
+    the text UNCHANGED (mid-word) when the last full sentence was early, and
+    a dangling heading ("## খরচ") could end the answer — both fixed. The
+    continuation starts from what the user saw, so nothing is lost."""
     t = (text or "").rstrip()
     ends = [m.end() for m in _SENT_END.finditer(t)]
-    if not ends:
+    if ends and t[:ends[-1]].strip():
+        out = t[:ends[-1]].rstrip()
+    else:
+        sp = max(t.rfind(" "), t.rfind("\n"))
+        out = (t[:sp].rstrip() + " …") if sp > 0 else t
+    lines = out.split("\n")
+    while len(lines) > 1 and (not lines[-1].strip() or _DANGLING.match(lines[-1])):
+        lines.pop()
+    return "\n".join(lines).rstrip()
+
+
+_TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
+_TABLE_SEP = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
+
+
+def _cells(line):
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def tables_to_lists(text):
+    """aiqual: the app's markdown cannot show tables (raw pipes on a phone);
+    Claude still writes them for comparisons. Each row becomes one bullet:
+    "- **row name** — header: value; header: value"."""
+    lines = (text or "").split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        if (_TABLE_ROW.match(lines[i]) and i + 1 < len(lines) and _TABLE_SEP.match(lines[i + 1])):
+            head = _cells(lines[i])
+            i += 2
+            while i < len(lines) and _TABLE_ROW.match(lines[i]):
+                row = _cells(lines[i])
+                name = row[0] if row else ""
+                rest = ["%s: %s" % (h, v) if h else v
+                        for h, v in zip(head[1:], row[1:]) if v]
+                out.append("- **%s** — %s" % (name, "; ".join(rest)) if name else
+                           "- " + "; ".join(rest))
+                i += 1
+            continue
+        out.append(lines[i])
+        i += 1
+    return "\n".join(out)
+
+
+_BN_DIGIT = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+_LATIN = re.compile(r"[A-Za-z]")
+_BN_CH = re.compile(r"[\u0980-\u09ff]")
+_URLISH = re.compile(r"https?://|www\.|@|\.com|\.bd\b|[0-9]{6,}|\+[0-9]", re.I)
+
+
+def bangla_digits(text):
+    """aiqual (Bangla quality): a Bangla answer shows Bangla digits (৳৫০০,
+    ৯৯৯). Only tokens with no Latin letter and no link are converted, and
+    never a number right after a Latin word (product names: "iPhone 15",
+    "Windows 11"), never a phone / account / NID number (6+ digits in a row:
+    it must still paste into a dialer or bKash). Mostly-English text (a
+    translation) is left alone."""
+    t = text or ""
+    letters = len(_BN_CH.findall(t)) + len(_LATIN.findall(t))
+    if not letters or len(_BN_CH.findall(t)) < letters * 0.5:
         return t
-    cut = ends[-1]
-    return t[:cut].rstrip() if cut >= len(t) * 0.3 else t
+    out = []
+    prev_latin = False
+    for tok in re.split(r"(\s+)", t):
+        if not tok or tok.isspace():
+            out.append(tok)
+            continue
+        if not _LATIN.search(tok) and not _URLISH.search(tok) and not prev_latin:
+            tok = tok.translate(_BN_DIGIT)
+        prev_latin = bool(_LATIN.search(tok)) and not _BN_CH.search(tok)
+        out.append(tok)
+    return "".join(out)
+
+
+def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=None,
+                 strict=False):
+    """aiqual: the product post-processing of one model answer, shared by the
+    live chat and the AI exam -> (reply, proposal, cut, n_money).
+    Guards (no fake "sent/called", no cure/dose), money grounding, the ACTION
+    line -> confirm proposal, internal words, tables -> lists, a cut answer
+    ends at a full sentence, Bangla digits in a Bangla answer."""
+    from . import ai_guard
+    from . import ai_tools as AT
+    n_money = 0
+    try:
+        reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
+        reply, n_money = ai_guard.scrub_ungrounded_money(
+            reply, text, data_reply, [h.get("content", "") for h in (history or [])],
+            lang=lang, strict=strict)
+    except Exception:  # noqa: BLE001 — a guard bug never costs the answer
+        log.exception("chat: answer guard failed")
+    reply, proposal = AT.extract(reply)
+    reply = scrub_internal(reply)
+    reply = tables_to_lists(reply)
+    cut = bool(truncated)
+    if cut:
+        reply = end_at_sentence(reply)
+    if lang == "bn":
+        reply = bangla_digits(reply)
+    return reply, proposal, cut, n_money
 
 
 def follow_kind(request, text, session):
@@ -395,30 +581,31 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             ai_text, _cut = G.cap_text(text, limit)
             if ctx.get("level") == "L4":
                 summary = "-"
-            task_text = pick(lang, *CHAT_TASK)
-            # aifinal PART 6: general information only + safe mode for minors
+            # aiqual: ONE builder for the chat instruction (shared with the
+            # AI exam): task + general-info / safe-mode rules + actions (only
+            # with a user) + format + the level's length budget + web note +
+            # Continue / More + photo note
             from . import ai_compliance as AC
-            safe_mode = AC.is_minor(user)
-            task_text += "\n" + AC.system_rules(user)
-            # rebuild 01:02 / 01:05: actions only via the model (confirm card)
-            # + the minimal profile (first name, language, city, plan)
             from . import ai_tools as AT
+            safe_mode = AC.is_minor(user)
+            use_web = False
+            out_cap = 0
+            if level:
+                from . import ai_levels_service as _ALS
+                use_web = _ALS.wants_web(text, level)
+                out_cap = int((_ALS.spec(level) or {}).get("out_cap") or 0)
+            task_text = chat_task_text(lang, user, follow=follow, photo=bool(photo),
+                                       out_cap=out_cap, web=use_web)
             if user is not None:
-                task_text += "\n" + AT.TOOL_RULE
                 prof = AT.profile_line(user)
                 if prof:
                     summary = prof + "\n" + summary
-            if follow == "continue":
-                task_text += "\n" + pick(lang, *CONTINUE_NOTE)
-            elif follow == "more":
-                task_text += "\n" + pick(lang, *MORE_NOTE)
             # a continuation of a CUT answer is free (the cut answer was paid
             # as one answer); it is logged as chat.continue (FREE_EXEMPT)
             payer = None if follow_free else user
             if photo:
                 summary = ("[Photo attached earlier in this chat — what Assisto saw]\n"
                            + photo + "\n\n" + summary)
-                task_text += "\n" + pick(lang, *PHOTO_NOTE)
             if not mode:
                 # legacy path (no pricing-40 caps): bound the context too
                 history = G.cap_history(history)
@@ -432,11 +619,9 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
             if level:
-                from . import ai_levels_service as _ALS
-                use_web = _ALS.wants_web(text, level)
                 reply, cost = ai.generate(
                     task="", extra_system=task_text,
-                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    data=chat_data(ai_text, summary),
                     tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
                     user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
                     web=use_web)
@@ -450,43 +635,28 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 from .logic import pricing_40 as P40
                 reply, cost = ai.generate(
                     task="", extra_system=task_text,
-                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
                     user=payer, history=history, mode=mode, out_meta=meta_out,
                     upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault)
             else:
                 reply, cost = ai.generate(
                     task=task_text,
-                    data=CHAT_DATA.format(text=ai_text, summary=summary),
+                    data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat", max_tokens=1500,
                     user=payer, history=history, pii=vault, out_meta=meta_out)
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
-            from . import ai_guard
-            n_money = 0
-            try:
-                reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
-                # aibar: no invented taka amounts — a money figure that is not in
-                # the user's text, their data summary or the earlier turns is cut
-                # (own-data question) or marked as an estimate (general question).
-                reply, n_money = ai_guard.scrub_ungrounded_money(
-                    reply, text, ctx["reply"], [h.get("content", "") for h in (history or [])],
-                    lang=lang, strict=ctx.get("level") == "L1")
-            except Exception:  # noqa: BLE001 — a guard bug never costs the answer
-                log.exception("chat: answer guard failed")
-            reply, proposal = AT.extract(reply)
+            # aibar: no invented taka amounts (cut on an own-data question,
+            # marked as an estimate on a general one). aiqual: shared
+            # post-processing (finish_reply) — the AI exam runs the same.
+            reply, proposal, cut, n_money = finish_reply(
+                reply, text, lang, truncated=bool(meta_out.get("truncated")),
+                data_reply=ctx["reply"], history=history, strict=ctx.get("level") == "L1")
             confirm_cards = []
             if proposal is not None and user is not None:
                 confirm_cards.append(AT.propose(user, proposal, lang))
-            reply = scrub_internal(reply)
-            if meta_out.get("truncated"):
-                # aifinal round 3: never mid-word — end at the last sentence;
-                # the app shows "Continue" (free, from the cut point)
-                reply = end_at_sentence(reply)
-                cut = True
-            else:
-                cut = False
             if _failed_task(reply, photo):
                 # aifinal round 2 item 6: the answer itself says the AI could
                 # not do the task ("the screenshot never reached me", "I can't

@@ -62,6 +62,17 @@ class PureLogicTests(SimpleTestCase):
         self.assertEqual(PC.active_conditions(
             PC.clean_health({"level": 5, "charging": True})), set())
 
+    def test_cctvbox_cam_lost_warning(self):
+        h = PC.clean_health({"level": 80, "charging": True, "cam_lost": True})
+        self.assertTrue(h["cam_lost"])
+        self.assertEqual(PC.active_conditions(h), {"cam_lost"})
+        kinds, _ = PC.health_warnings(h, {}, 1000)
+        self.assertEqual(kinds, ["cam_lost"])
+        self.assertNotIn("cam_lost", PC.clean_health({"cam_lost": "yes"}))
+        tbn, ten, bbn, ben = PC.warning_text("cam_lost", "Gate", h)
+        self.assertIn("Gate", ben)
+        self.assertIn("Gate", bbn)
+
     def test_warning_texts_bn_en_no_accusation(self):
         for k in PC.WARN_KINDS:
             parts = PC.warning_text(k, "Gate", {"temp_c": 48})
@@ -390,3 +401,30 @@ class DaytimeAlertTests(_Base):
         self.assertEqual(r.status_code, 201, r.data)
         self.assertTrue(r.data["raised"])
         self.assertTrue(r.data["possible"])
+class CctvboxPlayTaskTests(_Base):
+    """cctvbox: a siren / warning task for a phone camera (Guard Box) is
+    handed out once in that camera's heartbeat; other cameras never see it."""
+
+    def test_play_task_in_heartbeat_once(self):
+        from core.models import ShopCamera, ShopGatewayTask
+        d = self.code()
+        r = self.claim(d["code"])
+        self.assertEqual(r.status_code, 201, r.data)
+        tok = r.data["camera_token"]
+        cam = ShopCamera.objects.get(pk=r.data["camera"]["id"])
+        other = ShopCamera.objects.create(site=self.site, name="Other", vendor="phone",
+                                          kind="shopbox")
+        ShopGatewayTask.objects.create(site=self.site, camera=cam, action="play",
+                                       request={"sound": "warn", "seconds": 999,
+                                                "warn_url": "/api/v1/shop/device/warn-clip"})
+        ShopGatewayTask.objects.create(site=self.site, camera=other, action="play",
+                                       request={"sound": "siren"})
+        c = APIClient()
+        hb = c.post("/api/v1/shop/heartbeat", {"camera_token": tok, "caps": ["live", "ipcam"]},
+                    format="json")
+        self.assertEqual(hb.status_code, 200, hb.data)
+        self.assertEqual([(p["sound"], p["seconds"]) for p in hb.data["play"]], [("warn", 60)])
+        self.assertEqual(hb.data["play"][0]["warn_url"], "/api/v1/shop/device/warn-clip")
+        hb2 = c.post("/api/v1/shop/heartbeat", {"camera_token": tok}, format="json")
+        self.assertEqual(hb2.data["play"], [])
+        self.assertEqual(ShopGatewayTask.objects.filter(camera=other, status="pending").count(), 1)

@@ -8,6 +8,14 @@ few guards that matter in real shops:
     reset the background and report NO motion for that frame, instead of firing
     an after-hours alert for what is really a lighting change;
   * warm-up: the first frames only build the background.
+
+cctvacc: every frame also goes through the shared motion GATE
+(motion_gate.py — the same algorithm and constants as the phone app):
+exposure-compensated, per-cell noise learning (trees, rain, IR noise),
+still-change absorption (a lamp switched on), small-blob filter and an
+optional owner-drawn motion area. `motion` is True only when the pixel blobs
+AND the gate agree; the analyzer then confirms it over confirm_frames (3)
+frames in a row.
 """
 from __future__ import annotations
 
@@ -15,6 +23,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 import numpy as np
+
+from .motion_gate import MotionGate, grid_from_gray, mask_from_polygon
 
 Box = Tuple[float, float, float, float]   # normalised x1, y1, x2, y2
 
@@ -27,12 +37,14 @@ class MotionResult:
     zone_frac: float = 0.0           # fraction of the ZONE pixels that changed
     scene_change: bool = False       # global change: background was reset
     warming_up: bool = False
+    gate_candidate: bool = False     # cctvacc: the shared gate saw fresh motion
 
 
 class MotionDetector:
     def __init__(self, work_width: int = 320, min_area_frac: float = 0.002,
                  diff_threshold: int = 25, learn_rate: float = 0.05,
-                 scene_change_frac: float = 0.6, warmup_frames: int = 2):
+                 scene_change_frac: float = 0.6, warmup_frames: int = 2,
+                 gate: bool = True):
         self.work_width = int(work_width)
         self.min_area_frac = float(min_area_frac)
         self.diff_threshold = int(diff_threshold)
@@ -42,10 +54,19 @@ class MotionDetector:
         self._bg: Optional[np.ndarray] = None
         self._seen = 0
         self._zone_cache = None      # (poly tuple, shape) -> mask
+        # confirm_frames=1: persistence is the analyzer's confirm_frames
+        self.gate = MotionGate(confirm_frames=1) if gate else None
+
+    def set_area(self, poly) -> None:
+        """Optional owner-drawn motion area (normalised polygon); None = all."""
+        if self.gate is not None:
+            self.gate.set_mask(mask_from_polygon(poly))
 
     def reset(self) -> None:
         self._bg = None
         self._seen = 0
+        if getattr(self, "gate", None) is not None:
+            self.gate.reset()
 
     def _prep(self, frame_bgr):
         import cv2
@@ -72,6 +93,11 @@ class MotionDetector:
         import cv2
 
         gray = self._prep(frame_bgr)
+        gr = self.gate.feed(grid_from_gray(gray)) if self.gate is not None else None
+        if gr is not None and gr.scene_change and self._bg is not None:
+            # lights / IR switch / exposure jump: adopt the new scene
+            self._bg = gray.astype(np.float32)
+            return MotionResult(False, scene_change=True)
         if self._bg is None or self._bg.shape != gray.shape:
             self._bg = gray.astype(np.float32)
             self._seen = 1
@@ -109,5 +135,6 @@ class MotionDetector:
             zpx = int(np.count_nonzero(zm))
             if zpx:
                 zone_frac = float(np.count_nonzero(cv2.bitwise_and(mask, zm))) / zpx
-        return MotionResult(bool(boxes), boxes=boxes, changed_frac=changed,
-                            zone_frac=zone_frac)
+        cand = True if gr is None else gr.candidate
+        return MotionResult(bool(boxes) and cand, boxes=boxes, changed_frac=changed,
+                            zone_frac=zone_frac, gate_candidate=bool(gr and gr.candidate))

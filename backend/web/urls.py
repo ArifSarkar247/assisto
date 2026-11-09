@@ -2,6 +2,7 @@ from django.urls import include, path
 from . import views
 from .owner.urls import site_robots
 from . import views_legal
+from . import views_eldersetup   # fcelder
 from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
 from . import views_journey   # journey100
@@ -73,6 +74,7 @@ urlpatterns = [
 
     # ---- l1-launch: Play/AdMob legal pages, app-ads.txt, sitemap ----
     path("privacy", views_legal.privacy),
+    path("preview/privacy", views_legal.privacy_preview),   # privacyupd: owner review, noindex
     path("terms", views_legal.terms),
     path("refund-policy", views_legal.refund_policy),   # billing-v2
     path("delete-account", views_legal.delete_account),
@@ -116,6 +118,8 @@ urlpatterns = [
     path("v/<str:token>", views_vehicle_share.share_page),
     # cctvphone: phone-camera pairing QR fallback (App Link opens the app)
     path("pc/<str:code>", views_phonecam.pair_landing),
+    # fcelder: elder-setup QR fallback (App Link opens the app's consent screen)
+    path("e/<str:code>", views_eldersetup.setup_landing),
     # bizai: a shop's chat link (App Link opens the shop chat in the app)
     path("shop/<str:code>", views_shoplink.shop_landing),
     # cctvteam: view-only, time-limited CCTV share link (stills, no audio)

@@ -724,6 +724,12 @@ def tick(now=None):
             CACT.tick_site(site, now)
         except Exception:
             log.exception("activity tick failed for site %s", site.pk)
+        # cctvact (V3 E + D): closing report push; Tuya switch-offs
+        try:
+            from . import cctv_act_views as ACTV
+            ACTV.tick_site(site, now)
+        except Exception:
+            log.exception("cctvact tick failed for site %s", site.pk)
     # cctvevidence (W7): due 10-s SD-card clip fetches (video add-on)
     try:
         from . import cctv_evidence as CE
@@ -874,7 +880,19 @@ def actions_for(ev, role):
             "share_clip": role == "owner" and clip in ("ready", "viewed"),
             "evidence": role == "owner",
             # cctvescalate C4-C6: the 999 card, the deterrence table
-            **_escalate_actions(ev, role)}
+            **_escalate_actions(ev, role),
+            # cctvact (V3 D): live path, local thana, wrong-alert learning,
+            # box / phone-camera play targets, automations that ran
+            **_act_actions(ev, role)}
+
+
+def _act_actions(ev, role):
+    try:
+        from . import cctv_act_views as ACTV
+        return ACTV.act_actions(ev, role)
+    except Exception:
+        log.exception("cctvact actions failed")
+        return {}
 
 
 def _escalate_actions(ev, role):
@@ -1338,6 +1356,9 @@ class ClipShareView(_OwnerBase):
         clip.meta = meta
         clip.save(update_fields=fields)
         if fresh:
+            # cctvroles (V3 I): every clip share is in the owner's audit list
+            from . import cctv_team_views as CTV
+            CTV.audit(ev.site, "share", request.user, CTV.CT.pack(clip=ev.id), camera_id=ev.camera_id)
             from .models import User
             u = User.objects.filter(pk=uid).first()
             if u is not None:
@@ -1422,5 +1443,9 @@ class EventEvidenceView(_OwnerBase):
         sig["evidence"] = (list(sig.get("evidence") or []) +
                            [{"at": timezone.now().isoformat(), "sha256": h, "files": n}])[-5:]
         type(ev).objects.filter(pk=ev.pk).update(signals=sig)
+        # cctvroles (V3 I + K): export is owner-only and always audited
+        from . import cctv_team_views as CTV
+        CTV.audit(ev.site, "export", request.user, CTV.CT.pack(ev=ev.id, h=h[:12]),
+                  camera_id=ev.camera_id)
         return Response({"gd_draft": CX.gd_draft(lang, f), "manifest_sha256": h,
                          "recorded": True})

@@ -1,3 +1,4 @@
+import 'family_v3/family_entry.dart'; // fcscreen
 import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
@@ -46,7 +47,10 @@ import 'diag/crash_reporter.dart';
 import 'screens/home_v2/home_v2_screen.dart'; // home_v2
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
-import 'screens/elderly_home_screen.dart';
+import 'eldercare/elder_easy_home.dart'; // fcelder
+import 'eldercare/elder_join_screen.dart'; // fcelder
+import 'eldercare/silent_watch_api.dart'; // fcelder
+import 'eldercare/silent_watch_client.dart'; // fcelder
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
 import 'widgets/bn_day_periods.dart';
@@ -69,6 +73,7 @@ import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'services/journey_habits.dart'; // sjstart2
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'family_v3/brain/fc_watch.dart'; // fcbrain
 import 'calls/kid_audio_child.dart'; // kidaudio
@@ -322,6 +327,7 @@ class AssistoApp extends StatelessWidget {
               CareCallRingScreen.onGenerateRoute(s) ?? // carecall: cold-start ring
               SosAlarmScreen.onGenerateRoute(s) ?? // fcsos: cold-start SOS alarm
               InviteRouter.route(s) ??
+              ElderJoinScreen.route(s) ?? // fcelder: /e/<code> elder-setup QR
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
               ShopChatLink.route(s) ?? // bizai: /shop/<code> shop chat
@@ -368,6 +374,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       unawaited(NotifListenService.maybeOpen(context));
       // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
       InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
+      // fcelder: cold-start elder-setup QR link (/e/<code>)
+      unawaited(ElderJoinScreen.maybeOpenColdStart(
+          context, PlatformDispatcher.instance.defaultRouteName,
+          loggedIn: context.read<AppState>().loggedIn));
       // cctvphone: cold-start phone-camera pairing link (/pc/<code>)
       PhoneCamLink.maybeOpenColdStart(
           context, PlatformDispatcher.instance.defaultRouteName);
@@ -415,6 +425,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
             builder: (_) => v == 'fall_check'
                 ? const FallDetectScreen()
                 : const FamilyAlertsScreen()));
+        return;
+      }
+      // fcscreen: a tap on the Family home-screen widget opens Family.
+      if (v == 'family') {
+        appNavigatorKey.currentState?.push(
+            MaterialPageRoute<void>(builder: (_) => const FamilyEntry()));
         return;
       }
       if (v != 'antitheft_off') return;
@@ -493,6 +509,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (state == AppLifecycleState.paused) {
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
+      JourneyHabits.onBackground(); // sjstart2: suggestions only while open
     }
     if (state == AppLifecycleState.resumed) {
       // feature-flags: pick up an owner switch (throttled, ETag, offline-safe).
@@ -528,6 +545,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // sjstart2: "Going to Office? Tell family?" — only while Assisto is
+      // open, location already allowed (never asks), habits on the phone.
+      JourneyHabits.onForeground(app);
       // cctvarm: a consenting member's "near Home?" for the camera guard
       // (flag + consent + permission already granted; 10 min; never throws).
       unawaited(HomePresenceSync.maybeSend(app.api));
@@ -546,6 +566,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // carecall: flush the offline answer queue + keep this phone's own
       // Care Call alarms in step (flag + throttled 2 min; never throws).
       unawaited(careCallResume(app, enabled: FeatureFlags.instance.isOn('care_call')));
+      // fcelder: Silent Watch (opted-in elder only): a sign of life on the
+      // phone, an "Are you OK?" waiting, the daily re-learn; a pending
+      // elder-setup code from before sign-in. Never throws.
+      unawaited(SilentWatchClient.onResume(HttpSilentWatchApi(app.api),
+          context: context, lang: app.locale?.languageCode == 'en' ? 'en' : 'bn'));
+      unawaited(ElderJoinScreen.maybeOpenPending(context));
     }
     _resumeProtection();
   }
@@ -704,7 +730,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (_elderly) {
       AdsService.instance.rootScreen = 'elderly_home';
-      return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
+      // fcelder: Family Care V3 Screen 4 — Elder Easy Home
+      return ElderEasyHome(onExit: () => setState(() => _elderly = false));
     }
     AdsService.instance.rootScreen = 'home';
     // home_v2 (owner 26 Oct): the new home behind its flag, read from the

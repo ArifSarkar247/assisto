@@ -138,9 +138,40 @@ def _open_live_count(owner_id, now, except_cam=None):
     return n
 
 
+# camflows: brands whose camera may come through a brand-cloud link
+CLOUD_LIVE_VENDORS = ("imou", "ezviz", "dahua", "hikvision")
+
+
+def _linked_stream(cam, hd):
+    """camflows: a camera imported through a brand-cloud link (cctvconnect)
+    plays through THAT link's own grant — an Imou OAuth user's token, a
+    DoLynk / Hik-Connect link — never through the developer-account client
+    (which cannot see an OAuth user's devices). -> (url, ref) or None when
+    the camera has no active link (the older paths below stay)."""
+    try:
+        from . import cctv_connect_views as CCV
+        link, _serial, _ch = CCV.link_of_camera(cam)
+    except Exception:  # noqa: BLE001 - no cctvconnect link table / bad ref
+        return None
+    if link is None:
+        return None
+    out = CCV.stream_for(cam, "live", hd)     # ConnectError -> the caller's 502
+    url = str(out.get("url") or "")
+    if not url:
+        raise LookupError("no_stream")
+    # the Imou developer-account live token can be released on stop; an
+    # OAuth user's token is not ours to release
+    ref = str(out.get("token") or "") if (cam.vendor == "imou" and link.mode == "device_code") else ""
+    return url, ref
+
+
 def _vendor_url(cam, hd):
     """-> (url, ref) or raises. Imou vendor_ref "<deviceId>:<channelId>",
-    EZVIZ "EZ:<serial>:<channel>"."""
+    EZVIZ "EZ:<serial>:<channel>"; a brand-cloud-linked camera (any of
+    CLOUD_LIVE_VENDORS) through its link first."""
+    linked = _linked_stream(cam, hd)
+    if linked is not None:
+        return linked
     if cam.vendor == "imou":
         from .logic import imou as IM
         from .watchman_views import imou_cloud_on
@@ -183,7 +214,8 @@ class VendorLiveStartView(_OwnerBase):
         cam = _camera_for(request.user, pk)
         if cam is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
-        if cam.vendor not in ("imou", "ezviz"):
+        if cam.vendor not in CLOUD_LIVE_VENDORS or (
+                cam.vendor not in ("imou", "ezviz") and not cam.vendor_ref):
             return _err(lang, "এই ক্যামেরার ক্লাউড লাইভ নেই।",
                         "This camera has no cloud live view.", status=409,
                         code="not_vendor")

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -22,6 +24,19 @@ class LivePeer {
   final bool sender;
 
   RelayCandidateHold? _hold; // cctvguard
+
+  // cctvbox: an IP camera watched by an old phone (Guard Box) has no camera
+  // track to send — it sends JPEG pictures over this data channel instead
+  // (stop-and-wait: the viewer acks each picture, so a slow relay never
+  // piles up). The viewer always offers the channel; senders that do not
+  // use it (phone camera, Shop Box PC) simply leave it idle.
+  static const kFrameLabel = 'ipcam-jpeg';
+  RTCDataChannel? _frameCh;
+  final ValueNotifier<Uint8List?> _frame = ValueNotifier<Uint8List?>(null);
+  bool _frameAcked = true;
+  DateTime _frameSentAt = DateTime.fromMillisecondsSinceEpoch(0);
+  void Function()? _onFirstFrame;
+  int framesIn = 0, framesOut = 0;
 
   LivePeer._(this._pc, this._renderer, this.sender);
 
@@ -51,6 +66,32 @@ class LivePeer {
       await renderer.initialize();
     }
     final peer = LivePeer._(pc, renderer, sender);
+    // cctvbox: picture channel (viewer creates it so it is in the offer)
+    try {
+      if (!sender) {
+        peer._onFirstFrame = onRemoteVideo;
+        final ch = await pc.createDataChannel(kFrameLabel, RTCDataChannelInit()..ordered = true);
+        peer._frameCh = ch;
+        ch.onMessage = (RTCDataChannelMessage m) {
+          if (!m.isBinary) return;
+          final first = peer._frame.value == null;
+          peer._frame.value = m.binary;
+          peer.framesIn++;
+          try {
+            ch.send(RTCDataChannelMessage('ack'));
+          } catch (_) {}
+          if (first) peer._onFirstFrame?.call();
+        };
+      } else {
+        pc.onDataChannel = (RTCDataChannel ch) {
+          if (ch.label != kFrameLabel) return;
+          peer._frameCh = ch;
+          ch.onMessage = (RTCDataChannelMessage m) {
+            if (!m.isBinary && m.text == 'ack') peer._frameAcked = true;
+          };
+        };
+      }
+    } catch (_) {} // no channel: video tracks still work
     final hold = RelayCandidateHold(send: onCandidate, hold: relayHold);
     peer._hold = hold;
     pc.onIceCandidate = (RTCIceCandidate c) {
@@ -209,14 +250,51 @@ class LivePeer {
   }
 
   /// The remote video (owner side). Contain-fit so nothing is cropped.
+  /// cctvbox: pictures from a Guard Box replace the (empty) video view.
   Widget view() {
     final r = _renderer;
     if (r == null) return const SizedBox.shrink();
-    return RTCVideoView(r, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain);
+    return ValueListenableBuilder<Uint8List?>(
+      valueListenable: _frame,
+      builder: (_, jpeg, __) => jpeg == null
+          ? RTCVideoView(r, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain)
+          : Image.memory(jpeg, gaplessPlayback: true, fit: BoxFit.contain),
+    );
+  }
+
+  // ---- cctvbox: Guard Box (IP camera via an old phone) sender side
+  /// Answer an offer WITHOUT opening this phone's camera or microphone:
+  /// pictures go over the data channel ([sendFrame]).
+  Future<Map<String, dynamic>> answerFrames(Map<String, dynamic> offer) async {
+    await _pc.setRemoteDescription(
+        RTCSessionDescription(offer['sdp'] as String?, offer['type'] as String?));
+    final ans = await _pc.createAnswer({});
+    await _pc.setLocalDescription(ans);
+    return {'type': ans.type, 'sdp': ans.sdp};
+  }
+
+  bool get frameChannelOpen => _frameCh?.state == RTCDataChannelState.RTCDataChannelOpen;
+
+  /// Send one JPEG if the viewer took the previous one (or 3 s passed).
+  /// False = skipped (not open yet / viewer still busy / too big).
+  Future<bool> sendFrame(Uint8List jpeg) async {
+    final ch = _frameCh;
+    if (ch == null || !frameChannelOpen || jpeg.length > 240 * 1024) return false;
+    final now = DateTime.now();
+    if (!_frameAcked && now.difference(_frameSentAt) < const Duration(seconds: 3)) return false;
+    _frameAcked = false;
+    _frameSentAt = now;
+    await ch.send(RTCDataChannelMessage.fromBinary(jpeg));
+    framesOut++;
+    return true;
   }
 
   Future<void> dispose() async {
     _hold?.dispose();
+    try {
+      await _frameCh?.close();
+    } catch (_) {}
+    _frameCh = null;
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();

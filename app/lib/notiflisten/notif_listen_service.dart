@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../feature_flags.dart';
+import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_service.dart' show appNavigatorKey;
 import '../state.dart';
@@ -117,6 +120,79 @@ class NotifListenService {
     return (callNote: cn, money: mo, auto: au);
   }
 
+  // ------------------------------------------------------------ smsswitch
+  // Owner Play decision 5 (9 Nov): wallet-APP notifications always stay; the
+  // part that reads SMS-app notifications (bank / wallet sender ids) follows
+  // the SERVER switch money_notif_sms (Owner Admin -> Features, default ON).
+  // OFF = the native listener ignores them unread, waiting ones are dropped
+  // on the phone and never saved / sent. Re-read on open / resume (main.dart
+  // refresh + [maybeOpen]) and every [smsRecheck] while the app runs.
+  static const smsFlag = 'money_notif_sms';
+  static const smsRecheck = Duration(hours: 3);
+
+  /// Real Android only: the periodic re-check and the network re-read before
+  /// SMS items are used (a widget test never leaves a timer or socket behind).
+  @visibleForTesting
+  static bool liveDevice = !kIsWeb && Platform.isAndroid;
+  static bool? _smsPushed;
+  static bool _smsListening = false;
+  static Timer? _smsTimer;
+
+  /// ON only when it is on for EVERYONE: an owner / staff "preview" of an
+  /// OFF switch counts as OFF, so the owner's own phone obeys the switch too.
+  static bool smsAllowed() {
+    final f = FeatureFlags.instance;
+    return f.isOn(smsFlag) && !f.isPreview(smsFlag);
+  }
+
+  /// Pushes the switch to the native listener when it changed (first call: always).
+  static Future<void> syncSmsSwitch() async {
+    final on = smsAllowed();
+    if (_smsPushed == on) return;
+    _smsPushed = on;
+    await bridge.setMoneySms(on);
+  }
+
+  @visibleForTesting
+  static void resetSmsSwitchForTest() {
+    _smsPushed = null;
+    _smsTimer?.cancel();
+    _smsTimer = null;
+  }
+
+  static void _startSmsWatch(ApiClient api) {
+    if (!_smsListening) {
+      _smsListening = true;
+      FeatureFlags.instance.addListener(() => unawaited(syncSmsSwitch().catchError((_) {})));
+    }
+    if (liveDevice) {
+      _smsTimer ??= Timer.periodic(smsRecheck, (_) async {
+        try {
+          await FeatureFlags.instance.refreshWith(api, force: true);
+          await syncSmsSwitch();
+        } catch (_) {} // best-effort: offline keeps the last known switch
+      });
+    }
+  }
+
+  /// The waiting queue with the SMS rule applied: when the switch is OFF every
+  /// SMS-app item is dropped on the phone (never parsed, saved or sent). When
+  /// SMS items wait, the switch is re-read from the server first.
+  static Future<List<MoneyQueueItem>> takeQueue({ApiClient? api}) async {
+    final q = await bridge.takeMoneyQueue();
+    if (!q.any((x) => x.kind == 'sms')) return q;
+    if (api != null && liveDevice) {
+      try {
+        await FeatureFlags.instance.refreshWith(api);
+      } catch (_) {} // offline: the last known switch decides
+    }
+    await syncSmsSwitch();
+    if (smsAllowed()) return q;
+    final drop = [for (final x in q) if (x.kind == 'sms') x.id];
+    await bridge.moneyDone(drop);
+    return [for (final x in q) if (x.kind != 'sms') x];
+  }
+
   // ------------------------------------------------------------ money
   static String _day(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -203,7 +279,7 @@ class NotifListenService {
     if (!s.money || !s.auto || !app.loggedIn) return 0;
     var n = 0;
     final drop = <int>[];
-    for (final q in await bridge.takeMoneyQueue()) {
+    for (final q in await takeQueue(api: app.api)) {
       final p = MoneyNotifParser.parse(q.text, wallet: q.wallet, postedAt: q.at);
       if (!p.ok) {
         if (p.reason == 'otp' || p.reason == 'promo' || p.reason == 'no_proof') drop.add(q.id);
@@ -259,6 +335,8 @@ class NotifListenService {
     try {
       final app = context.read<AppState>();
       final t = AppLocalizations.of(context);
+      _startSmsWatch(app.api); // smsswitch
+      await syncSmsSwitch();
       final l = await bridge.takeLaunch();
       final nav = appNavigatorKey.currentContext;
       if (l != null && nav != null && nav.mounted) {

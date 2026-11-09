@@ -165,7 +165,8 @@ class FakeWatchman implements WatchmanSource {
       throw ApiException('No picture yet — run the camera check first.', 404);
 
   @override
-  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code) async {
+  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code,
+      {bool consent = false}) async {
     calls.add('imou:$serial');
     return {'ok': true};
   }

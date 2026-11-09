@@ -349,9 +349,11 @@ void main() {
       expect(got?.name, 'Chandra Mor');
       expect(got?.lat, 24.0469);
       expect(got?.address, contains('Gazipur'));
-      // the second pick came from the place cache on the server side; the
-      // phone still made exactly one Details call per pick
-      expect(api.hits('/maps/place').length, 2);
+      // qjourney (owner V2): the second time "Chandra Mor" is already a
+      // recent place at the top of the one merged list — picked with NO
+      // second paid Details call
+      expect(find.byKey(const ValueKey('ps_mine_0')), findsNothing); // list closed
+      expect(api.hits('/maps/place').length, 1);
       // ... and it is now a recent place
       expect((await PlaceRecents.load()).first.name, 'Chandra Mor');
     });

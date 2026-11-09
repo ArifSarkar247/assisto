@@ -1,0 +1,60 @@
+# sjstart2 (owner Safe Journey V2): build Assisto's free Bangladesh place list
+# (backend/core/data/bd_places.json) in GitHub Actions — never on the server.
+#   * OpenStreetMap via Overpass (ODbL): divisions, districts, upazilas, city
+#     areas, stations, terminals, ghats, airports, universities, metro; the
+#     heavy layers (admin 7-10 unions, villages, hospitals) split BY DIVISION
+#     so no query times out (tools/places/fetch_osm.sh);
+#   * the official BBS / a2i union list (4,540 unions, Bangla + English;
+#     tools/places/fetch_bbs.sh), each union placed inside its upazila or left
+#     out (tools/places/build_bd_places.py).
+# The result is a workflow artifact (bd-places); an agent reviews the counts
+# and commits the file. Read-only token: this workflow never pushes.
+name: bd-places
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['ci/sjstart2-arb', 'ci/bdplaces']
+    paths: ['.github/workflows/bd_places.yml', 'tools/places/**']
+
+concurrency:
+  group: bd-places
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Official union list (BBS)
+        run: bash tools/places/fetch_bbs.sh "$RUNNER_TEMP/raw"
+      - name: OpenStreetMap layers (Overpass, split by division)
+        run: bash tools/places/fetch_osm.sh "$RUNNER_TEMP/raw"
+      - name: Build bd_places.json
+        run: |
+          mkdir -p out
+          python3 -I tools/places/build_bd_places.py "$RUNNER_TEMP/raw" out/bd_places.json backend/core/data/bd_places.json | tee out/stats.txt
+          ls -la out
+          python3 -I - <<'PY'
+          import json
+          d = json.load(open("out/bd_places.json", encoding="utf-8"))
+          by = {}
+          for r in d["rows"]:
+              by[r[0]] = by.get(r[0], 0) + 1
+          # never ship a list that lost a core layer
+          for k, n in (("division", 8), ("district", 64), ("upazila", 400), ("station", 300), ("ghat", 100), ("metro", 10), ("hospital", 500)):
+              assert by.get(k, 0) >= n, (k, by.get(k, 0))
+          print("ok", by)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bd-places
+          path: out/
+          retention-days: 14

@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import maps_cost as MC
+from . import place_suggest as PS
 from .i18n import req_lang
 
 DEBOUNCE_MS = 300
@@ -24,31 +25,71 @@ def _q(request, k):
 
 class MapsStatusView(APIView):
     def get(self, request):
+        from . import bd_places as BP
         return Response({"ready": MC.ready(), "min_chars": MC.MIN_CHARS,
-                         "debounce_ms": DEBOUNCE_MS})
+                         "debounce_ms": DEBOUNCE_MS,
+                         # qjourney: our free place list answers /maps/search
+                         # even with no Google key
+                         "places": BP.available()})
 
 
 class MapsReverseView(APIView):
     def get(self, request):
-        return Response(MC.reverse(request.user, _q(request, "lat"), _q(request, "lng"),
-                                   lang=req_lang(request)))
+        # sjp0: never a limit state to the phone (caps -> "none" + free coords)
+        return Response(PS.public(MC.reverse(request.user, _q(request, "lat"), _q(request, "lng"),
+                                             lang=req_lang(request))))
 
 
 class MapsAutocompleteView(APIView):
+    """sjp0 (owner P0 9 Nov): the SAME merged list as /maps/search — saved +
+    recent + our BD list first, Google on top only when allowed. Old V1 apps
+    in the field call this endpoint and show any non-ok state as 'limit
+    reached', so the answer is always ok / none / short."""
     def get(self, request):
-        return Response(MC.autocomplete(request.user, _q(request, "q"), _q(request, "session"),
-                                        lat=_q(request, "lat"), lng=_q(request, "lng"),
-                                        lang=req_lang(request)))
+        return Response(PS.suggest(request.user, _q(request, "q"), _q(request, "session"),
+                                   lat=_q(request, "lat"), lng=_q(request, "lng"),
+                                   lang=req_lang(request)))
 
 
 class MapsPlaceView(APIView):
     def get(self, request):
-        return Response(MC.place_details(request.user, _q(request, "id"),
-                                         _q(request, "session"), lang=req_lang(request)))
+        lang = req_lang(request)
+        mine = PS.local_details(request.user, _q(request, "id"), lang=lang)
+        if mine is not None:
+            return Response(mine)
+        return Response(PS.public(MC.place_details(request.user, _q(request, "id"),
+                                                   _q(request, "session"), lang=lang)))
 
 
 class MapsEtaView(APIView):
     def get(self, request):
-        return Response(MC.route_eta(request.user, _q(request, "olat"), _q(request, "olng"),
-                                     _q(request, "dlat"), _q(request, "dlng"),
-                                     mode=_q(request, "mode") or ""))
+        return Response(PS.public(MC.route_eta(request.user, _q(request, "olat"), _q(request, "olng"),
+                                               _q(request, "dlat"), _q(request, "dlng"),
+                                               mode=_q(request, "mode") or "")))
+
+
+class MapsSearchView(APIView):
+    """qjourney (owner Safe Journey V2, 9 Nov) — GET /maps/search?q&session&lat&lng
+
+    ONE merged destination list from the 2nd letter (core/place_suggest.py):
+    saved + recent, our own free Bangladesh place list, Google Places
+    Autocomplete (session token) ONLY when fewer than 5 good local matches
+    and the budget allows. Never a limit message ("none" only when nothing
+    matches — the phone then tries its own Geocoder). Local rows carry
+    lat/lng, so picking one needs no paid Place Details.
+    """
+    def get(self, request):
+        return Response(PS.suggest(request.user, _q(request, "q"), _q(request, "session"),
+                                   lat=_q(request, "lat"), lng=_q(request, "lng"),
+                                   lang=req_lang(request)))
+
+
+class MapsAreaView(APIView):
+    """sjstart2 — GET /maps/area?lat&lng: the nearest area name from our own
+    free Bangladesh list ("From: My current location · Badda"). Never a paid
+    call; {"area": null} when nothing is near (the phone then shows only
+    "My current location")."""
+    def get(self, request):
+        from . import bd_places as BP
+        return Response({"area": BP.nearest_area(_q(request, "lat"), _q(request, "lng"),
+                                                 lang=req_lang(request))})

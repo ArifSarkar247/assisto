@@ -141,3 +141,33 @@ class CrmTests(_Base):
         row = {r["key"]: r for r in out["rows"]}["customers_back"]
         self.assertEqual((row["count"], row["bdt"]), (1, "1200"))
         self.assertTrue(RetentionSend.objects.filter(purchase_sale=s).exists())
+
+
+class LadderPlanTests(_Base):
+    """bizai2: the emulator run saw GET bizai/crm/ladder → 402 on a non-Business
+    owner, so the whole Win-back screen was an error. Reading is free; only
+    switching it on needs Business (402 upgrade_required, nothing created)."""
+
+    def test_free_owner_reads_ladder_but_cannot_switch_it_on(self):
+        from rest_framework.test import APIClient
+        from core.models import BusinessProfile, User
+        free = User.objects.create_user(name="F", phone="01710000077", password="pw-123456")
+        BusinessProfile.objects.create(user=free, shop_name="Free Shop")
+        fc = APIClient()
+        fc.force_authenticate(free)
+        r = fc.get(API + "bizai/crm/ladder", HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertFalse(r.data["plan_ok"])
+        self.assertEqual(r.data["plan_required"], "business")
+        self.assertIn("বিজনেস প্ল্যান", r.data["plan_note"])
+        self.assertEqual([s["stage"] for s in r.data["stages"]], ["wb30", "wb60", "wb90"])
+        r = fc.post(API + "bizai/crm/ladder", {"channel": "in_app"}, format="json")
+        self.assertEqual(r.status_code, 402)
+        self.assertEqual(r.data["error"], "upgrade_required")
+        self.assertFalse(RetentionAutomation.objects.filter(business__user=free).exists())
+
+    def test_business_owner_sees_plan_ok(self):
+        r = self.oc.get(API + "bizai/crm/ladder")
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data["plan_ok"])
+        self.assertNotIn("plan_note", r.data)

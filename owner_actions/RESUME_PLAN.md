@@ -6,12 +6,12 @@ Old history (3–9 Nov): owner_actions/archive/RESUME_PLAN_until_9nov.md and arc
 The 3 Nov STOP ORDER pause is OVER (owner resumed 4 Nov 02:25 and 9 Nov 10:05) — nothing here is paused.
 
 ## 1. Owner phone-test bugs (always first)
-- Place search "limit reached" / V1 screen (P0 19:40) — root cause found; fix **IN PROGRESS (build next build after 324 = integration 309, in CI tonight)**.
+- Place search "limit reached" / V1 screen (P0 19:40) — root cause found; fix **IN PROGRESS (build DONE (326))**.
 - Owner phone tests pending → see the short list at the bottom.
 
 ## 2. Safe Journey V2 (owner_actions/SAFE_JOURNEY_V2_SPEC_BN.md)
 - False "Arrived" fix (distance + earliest time + PIN) — **DONE (324)**.
-- Start screen, merged search (own BD list), arrival window card, private traveler prompt, alert ladder, PINs, watcher board, web arrival window — **IN PROGRESS (next build after 324, CI tonight)**.
+- Start screen, merged search (own BD list), arrival window card, private traveler prompt, alert ladder, PINs, watcher board, web arrival window — **IN PROGRESS (326)**.
 - "From = my current location" row, Bike + Walk modes, watcher chips, plate photo on start, "Going to Office?" suggestion, all unions + hospitals in place list — **IN PROGRESS (agent sjstart2)**.
 - Children corner — **DONE in code, waiting for integration (b310 queue)**.
 - Train screen + destination alarm — **DONE in code, waiting for integration (b310 queue)**.
@@ -56,6 +56,8 @@ The 3 Nov STOP ORDER pause is OVER (owner resumed 4 Nov 02:25 and 9 Nov 10:05) �
 9. Language Partner V2 (owner_actions/OWNER_LANGUAGE_PARTNER_V2_9NOV_2145.md) — **IN PROGRESS again (owner 22:05 MAX PARALLEL: lanes 11–13)** (was parked 21:55) (spec allowed now; 3 agents finished their current small step and stopped; code committed locally on agent/lpcore, agent/lpcontent, agent/lpapp).
 10. Quran bilingual + Quran Shikhi (owner_actions/OWNER_QURAN_BILINGUAL_9NOV_2155.md) — **IN PROGRESS (owner 22:05: lanes 14–16)**; first step = owner_actions/QURAN_BILINGUAL_SPEC_BN.md with each tafsir licence confirmed in writing.
 
+11. Discover carousel as ads + updates slot, managed from Owner Admin (owner_actions/OWNER_DISCOVER_CMS_10NOV_0150.md, replaced by the 01:53 version) — **QUEUED (low priority)**: starts after the All Services cleanup merges, because both touch Home Discover.
+
 ## Also done today (9 Nov)
 Care Call (314) · account recovery (314) · plans overhaul + pricing v2 (applied 9 Nov) · My Circle quiet hours + second-phone sign-in (318) · deep links fixed (assetlinks, verified by Google) · Play production access applied (14:23, waiting for Google) · disk 66% → 49%.
 
@@ -68,5 +70,5 @@ Play prices + Play Console list · Premium AI / trial / commission decision · C
 | 318 | Two phones signed in at once; My Circle quiet hours; message sound with app closed |
 | 320 | Khata "send due link" opens in another phone's browser; Family Care arrive news while app open |
 | 324 | CCTV two-phone test (CCTV_TEST_TODAY_BN.md); SOS v3 on two phones; Imou test camera |
-| next (tonight) | Type "Gaibandha" → suggestions, no limit message; start a journey → watcher board on the other phone |
+| 326 | Type "Gaibandha" → suggestions, no limit message; start a journey → watcher board on the other phone |
 | 302/304 | My Circle bubbles, albums, view once (still not tested) |

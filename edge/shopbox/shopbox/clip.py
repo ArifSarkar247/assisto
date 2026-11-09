@@ -259,9 +259,10 @@ class ClipJob:
 
 
 def build_clip(frames, fps: float, recipients, max_bytes: int,
-               min_s: float = 3.0, max_s: float = 5.5):
+               min_s: float = 3.0, max_s: float = 5.5, max_frames: int = 0):
     """-> (ciphertext, meta) or None (too short / nobody to seal for / too big
-    even at the smallest quality). Shrinks by dropping every other frame."""
+    even at the smallest quality). Shrinks by dropping every other frame.
+    max_frames (cctvdet, the 10 s clip): thin evenly to at most that many."""
     frames = sorted(frames)
     if not recipients or len(frames) < 3:
         return None
@@ -271,6 +272,10 @@ def build_clip(frames, fps: float, recipients, max_bytes: int,
     if duration_of(frames, fps) < min_s:
         return None
     eff_fps = fps
+    if max_frames and len(frames) > max_frames:
+        step = -(-len(frames) // max_frames)
+        frames = frames[::step]
+        eff_fps = fps / step
     for _ in range(4):
         plain = encode_container(frames, eff_fps)
         if len(plain) + 64 <= max_bytes:
@@ -286,6 +291,11 @@ def build_clip(frames, fps: float, recipients, max_bytes: int,
         frames = frames[::2]
         eff_fps = eff_fps / 2.0
     return None
+
+
+DET_CLIP_S = 10.0          # cctvdet: owner order — a 10 second clip per detection
+DET_CLIP_PRE_S = 4.0       # ... 4 s before the moment, 6 s after
+DET_CLIP_MAX_FRAMES = 40   # the server's ACG1 preview envelope (2-12.5 s, <= 40)
 
 
 class ClipRecorder:
@@ -328,8 +338,8 @@ class ClipRecorder:
             return
         ring = self.rings.get(cam_id)
         if ring is None:
-            ring = self.rings[cam_id] = FrameRing(self.cfg["pre_s"] + 1.0,
-                                                  self.cfg["fps"])
+            ring = self.rings[cam_id] = FrameRing(
+                max(self.cfg["pre_s"], DET_CLIP_PRE_S) + 1.0, self.cfg["fps"])
         ring.add(ts, jpeg)
         ready = []
         with self._lock:
@@ -340,17 +350,19 @@ class ClipRecorder:
         for j in ready:
             self.on_ready(j.cam_id, j.clip_ref, j.frames)
 
-    def start(self, cam_id: str, clip_ref: str, now: Optional[float] = None) -> bool:
+    def start(self, cam_id: str, clip_ref: str, now: Optional[float] = None,
+              seconds: Optional[float] = None, pre_s: Optional[float] = None) -> bool:
         if not self.enabled:
             return False
         now = self.clock() if now is None else now
+        seconds = float(seconds or self.cfg["seconds"])
+        pre_s = float(pre_s if pre_s is not None else self.cfg["pre_s"])
         ring = self.rings.get(cam_id)
-        pre = ring.since(now - self.cfg["pre_s"]) if ring else []
+        pre = ring.since(now - pre_s) if ring else []
         # a short pre-roll (the ring only just started, a stalled stream) is
         # made up by a longer post-roll, so the clip is still ~`seconds` long
         pre_dur = (now - pre[0][0]) if pre else 0.0
-        post = max(self.cfg["seconds"] - self.cfg["pre_s"],
-                   self.cfg["seconds"] - pre_dur)
+        post = max(seconds - pre_s, seconds - pre_dur)
         with self._lock:
             if len(self.jobs) >= 8:
                 return False             # bounded: never pile up

@@ -1,0 +1,1083 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "fr",
+ "week": 1,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "fr_a1"
+ ],
+ "title": {
+  "en": "Week 1: Hello — who are you?",
+  "bn": "সপ্তাহ ১: শুভেচ্ছা ও পরিচয়"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official DELF material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল DELF উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 descriptors + public DELF A1 exam description (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "fr-w01-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Hello and goodbye: first French sounds",
+    "bn": "শুভেচ্ছা ও বিদায়: ফরাসির প্রথম উচ্চারণ"
+   },
+   "goal_bn": "দিনের সময় অনুযায়ী শুভেচ্ছা, ধন্যবাদ, দুঃখপ্রকাশ আর বিদায় বলা শিখবেন; সাথে ফরাসি উচ্চারণের দুটি সহজ নিয়ম।",
+   "vocab": [
+    {
+     "target": "bonjour",
+     "bn": "শুভ দিন / হ্যালো (সকাল থেকে বিকেল)",
+     "bn_pron": "বোঁজুর",
+     "pos": "interjection",
+     "example": {
+      "target": "Bonjour madame !",
+      "bn": "শুভ দিন, ম্যাডাম!"
+     }
+    },
+    {
+     "target": "bonsoir",
+     "bn": "শুভ সন্ধ্যা",
+     "bn_pron": "বোঁসোয়ার",
+     "pos": "interjection",
+     "example": {
+      "target": "Bonsoir monsieur.",
+      "bn": "শুভ সন্ধ্যা, স্যার।"
+     }
+    },
+    {
+     "target": "salut",
+     "bn": "হাই / বাই (শুধু বন্ধুদের সাথে)",
+     "bn_pron": "সালু",
+     "pos": "interjection",
+     "example": {
+      "target": "Salut Rahim, ça va ?",
+      "bn": "হাই রহিম, কেমন আছ?"
+     }
+    },
+    {
+     "target": "au revoir",
+     "bn": "বিদায় (আবার দেখা হবে)",
+     "bn_pron": "ও রভোয়ার",
+     "pos": "expression",
+     "example": {
+      "target": "Merci et au revoir !",
+      "bn": "ধন্যবাদ, বিদায়!"
+     }
+    },
+    {
+     "target": "merci",
+     "bn": "ধন্যবাদ",
+     "bn_pron": "মেরসি",
+     "pos": "interjection",
+     "example": {
+      "target": "Merci beaucoup, madame.",
+      "bn": "অনেক ধন্যবাদ, ম্যাডাম।"
+     }
+    },
+    {
+     "target": "s'il vous plaît",
+     "bn": "দয়া করে (ভদ্র রূপ)",
+     "bn_pron": "সিল ভু প্লে",
+     "pos": "expression",
+     "example": {
+      "target": "Un café, s'il vous plaît.",
+      "bn": "একটা কফি, দয়া করে।"
+     }
+    },
+    {
+     "target": "pardon",
+     "bn": "মাফ করবেন / শুনছেন?",
+     "bn_pron": "পারদোঁ",
+     "pos": "interjection",
+     "example": {
+      "target": "Pardon, monsieur !",
+      "bn": "মাফ করবেন, স্যার!"
+     }
+    },
+    {
+     "target": "madame",
+     "bn": "ম্যাডাম / মিসেস",
+     "bn_pron": "মাদাম",
+     "pos": "noun",
+     "example": {
+      "target": "Au revoir, madame Martin.",
+      "bn": "বিদায়, মিসেস মারত্যাঁ।"
+     }
+    },
+    {
+     "target": "monsieur",
+     "bn": "স্যার / জনাব / মিস্টার",
+     "bn_pron": "ম্যসিয়্য",
+     "pos": "noun",
+     "example": {
+      "target": "Bonjour, monsieur Dupont.",
+      "bn": "শুভ দিন, মিস্টার দ্যুপোঁ।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "tu / vous — বন্ধু বনাম ভদ্র সম্বোধন",
+     "explain_bn": "ফরাসিতে 'তুমি' দুই রকম: বন্ধু, পরিবার বা সমবয়সীদের 'tu' (তু); অচেনা মানুষ, অফিস, দোকান, শিক্ষক বা বড়দের 'vous' (ভু)। দূতাবাস বা কাজের জায়গায় সবসময় vous বলবেন — বাংলায় 'তুমি' আর 'আপনি'-র মতো।",
+     "examples": [
+      {
+       "target": "Bonjour madame, comment allez-vous ?",
+       "bn": "শুভ দিন ম্যাডাম, আপনি কেমন আছেন?"
+      },
+      {
+       "target": "Salut Nusrat, comment vas-tu ?",
+       "bn": "হাই নুসরাত, তুমি কেমন আছ?"
+      }
+     ]
+    },
+    {
+     "pattern": "শব্দের শেষ ব্যঞ্জন সাধারণত চুপ থাকে",
+     "explain_bn": "ফরাসি শব্দের শেষের d, t, s, x, z আর বেশিরভাগ সময় p উচ্চারণ হয় না: 'grand' = গ্রঁ, 'petit' = প্তি, 'Paris' = পারি। শব্দের শেষে e-ও প্রায় চুপ থাকে। 'on', 'an', 'in' নাক দিয়ে বলা হয় — বাংলার চন্দ্রবিন্দুর মতো (বোঁজুর)।",
+     "examples": [
+      {
+       "target": "Il est grand.",
+       "bn": "সে লম্বা। (grand-এর d চুপ: গ্রঁ)"
+      },
+      {
+       "target": "Nous sommes à Paris.",
+       "bn": "আমরা প্যারিসে আছি। (Paris = পারি, s চুপ)"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w01-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "receptionist at a language school"
+        },
+        "B": {
+         "gender": "M",
+         "role": "new student"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Bonsoir monsieur. Vous êtes Rahim ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Oui, bonsoir madame. Je suis Rahim. Merci !"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "এই কথোপকথন দিনের কোন সময়ে হচ্ছে?",
+      "options": [
+       "সকালে",
+       "সন্ধ্যায়",
+       "দুপুরে",
+       "মাঝরাতে"
+      ],
+      "answer": "B",
+      "explain_bn": "দুজনেই 'Bonsoir' বলছে — এটা সন্ধ্যার শুভেচ্ছা। সকালে-দুপুরে বলা হয় 'Bonjour'।",
+      "skill": "expression"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w01-l1-r1",
+      "passage": "Nusrat entre dans une boulangerie à Lyon. Elle dit : « Bonjour madame ! » Elle achète du pain. Après, elle dit : « Merci, au revoir ! »",
+      "prompt_bn": "দোকান থেকে বের হওয়ার সময় নুসরাত কী বলে?",
+      "options": [
+       "Bonjour madame",
+       "Bonsoir monsieur",
+       "Merci, au revoir",
+       "Pardon"
+      ],
+      "answer": "C",
+      "explain_bn": "শেষে (Après) সে বলে 'Merci, au revoir' — ধন্যবাদ, বিদায়। 'Bonjour madame' সে ঢোকার সময় বলেছিল।",
+      "skill": "expression"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w01-l1-w1",
+      "prompt_bn": "ফরাসিতে লিখুন: সন্ধ্যায় শিক্ষিকাকে ভদ্রভাবে শুভেচ্ছা দিন, তারপর অনেক ধন্যবাদ জানান।",
+      "model": {
+       "target": "Bonsoir madame. Merci beaucoup !",
+       "bn": "শুভ সন্ধ্যা ম্যাডাম। অনেক ধন্যবাদ!"
+      },
+      "check": "self",
+      "min_words": 3,
+      "max_words": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w01-l1-s1",
+      "prompt_bn": "জোরে বলুন: রাস্তায় একজন অচেনা লোককে ডাকুন, শুভেচ্ছা দিন, তারপর ধন্যবাদ দিয়ে বিদায় নিন।",
+      "model": {
+       "target": "Pardon monsieur, bonjour ! Merci, au revoir.",
+       "bn": "মাফ করবেন স্যার, শুভ দিন! ধন্যবাদ, বিদায়।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w01-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Introducing yourself",
+    "bn": "নিজের পরিচয় দেওয়া"
+   },
+   "goal_bn": "নিজের নাম, দেশ আর কোথা থেকে এসেছেন বলতে পারবেন; être ক্রিয়া আর জাতীয়তার পুরুষ/স্ত্রী রূপ শিখবেন।",
+   "vocab": [
+    {
+     "target": "je m'appelle",
+     "bn": "আমার নাম …",
+     "bn_pron": "জ্য মাপেল",
+     "pos": "expression",
+     "example": {
+      "target": "Je m'appelle Rahim Uddin.",
+      "bn": "আমার নাম রহিম উদ্দিন।"
+     }
+    },
+    {
+     "target": "le prénom",
+     "bn": "নামের প্রথম অংশ (ডাকনাম নয়, given name)",
+     "bn_pron": "ল্য প্রেনোঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Mon prénom, c'est Nusrat.",
+      "bn": "আমার প্রথম নাম নুসরাত।"
+     }
+    },
+    {
+     "target": "le nom",
+     "bn": "পদবি / পারিবারিক নাম",
+     "bn_pron": "ল্য নোঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Mon nom, c'est Jahan.",
+      "bn": "আমার পদবি জাহান।"
+     }
+    },
+    {
+     "target": "bangladais / bangladaise",
+     "bn": "বাংলাদেশি (পুরুষ / নারী)",
+     "bn_pron": "বাংলাদে / বাংলাদেজ",
+     "pos": "adjective",
+     "example": {
+      "target": "Je suis bangladaise.",
+      "bn": "আমি বাংলাদেশি (নারী)।"
+     }
+    },
+    {
+     "target": "le Bangladesh",
+     "bn": "বাংলাদেশ",
+     "bn_pron": "ল্য বাংলাদেশ",
+     "pos": "noun",
+     "example": {
+      "target": "J'habite au Bangladesh.",
+      "bn": "আমি বাংলাদেশে থাকি।"
+     }
+    },
+    {
+     "target": "français / française",
+     "bn": "ফরাসি (পুরুষ / নারী)",
+     "bn_pron": "ফ্রঁসে / ফ্রঁসেজ",
+     "pos": "adjective",
+     "example": {
+      "target": "Mon professeur est française.",
+      "bn": "আমার শিক্ষিকা ফরাসি।"
+     }
+    },
+    {
+     "target": "l'étudiant / l'étudiante",
+     "bn": "ছাত্র / ছাত্রী",
+     "bn_pron": "লেতুদিয়ঁ / লেতুদিয়ঁত",
+     "pos": "noun",
+     "example": {
+      "target": "Je suis étudiant à Lille.",
+      "bn": "আমি লিলে পড়ি (ছাত্র)।"
+     }
+    },
+    {
+     "target": "enchanté / enchantée",
+     "bn": "পরিচিত হয়ে খুশি হলাম",
+     "bn_pron": "অঁশঁতে",
+     "pos": "adjective",
+     "example": {
+      "target": "Enchantée, monsieur Martin.",
+      "bn": "পরিচিত হয়ে খুশি হলাম, মিস্টার মারত্যাঁ।"
+     }
+    },
+    {
+     "target": "je viens de",
+     "bn": "আমি … থেকে এসেছি",
+     "bn_pron": "জ্য ভিয়েঁ দ্য",
+     "pos": "expression",
+     "example": {
+      "target": "Je viens de Sylhet.",
+      "bn": "আমি সিলেট থেকে এসেছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "être (হওয়া): je suis, tu es, il/elle est, nous sommes, vous êtes, ils/elles sont",
+     "explain_bn": "être মানে 'হওয়া'। পরিচয়, জাতীয়তা আর পেশা বলতে লাগে। বাংলায় 'আমি ছাত্র' বললে ক্রিয়া লাগে না, কিন্তু ফরাসিতে লাগবেই: Je suis étudiant (আমি হই ছাত্র)।",
+     "examples": [
+      {
+       "target": "Je suis bangladais.",
+       "bn": "আমি বাংলাদেশি।"
+      },
+      {
+       "target": "Vous êtes française ?",
+       "bn": "আপনি কি ফরাসি?"
+      },
+      {
+       "target": "Nous sommes étudiants.",
+       "bn": "আমরা ছাত্র।"
+      }
+     ]
+    },
+    {
+     "pattern": "জাতীয়তা: পুরুষ → নারী = শেষে -e",
+     "explain_bn": "নারীর বেলায় জাতীয়তার শেষে e যোগ হয়, আর চুপ থাকা s তখন 'জ' উচ্চারণ হয়: bangladais (বাংলাদে) → bangladaise (বাংলাদেজ); français (ফ্রঁসে) → française (ফ্রঁসেজ)।",
+     "examples": [
+      {
+       "target": "Rahim est bangladais.",
+       "bn": "রহিম বাংলাদেশি (পুরুষ)।"
+      },
+      {
+       "target": "Nusrat est bangladaise.",
+       "bn": "নুসরাত বাংলাদেশি (নারী)।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w01-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "university reception officer"
+        },
+        "B": {
+         "gender": "F",
+         "role": "student"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Bonjour. Comment vous appelez-vous ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Je m'appelle Nusrat Jahan. Je suis bangladaise, je viens de Dhaka."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নুসরাত কোন শহর থেকে এসেছে?",
+      "options": [
+       "de Paris",
+       "de Sylhet",
+       "de Dhaka",
+       "de Lyon"
+      ],
+      "answer": "C",
+      "explain_bn": "সে বলে 'je viens de Dhaka' — আমি ঢাকা থেকে এসেছি।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w01-l2-r1",
+      "passage": "Bonjour ! Je m'appelle Karim Hossain. Je suis bangladais. Je suis étudiant à Lille. Mon amie Sophie est française.",
+      "prompt_bn": "সোফি কোন দেশের মানুষ?",
+      "options": [
+       "ফরাসি",
+       "বাংলাদেশি",
+       "ইতালীয়",
+       "স্প্যানিশ"
+      ],
+      "answer": "A",
+      "explain_bn": "'Sophie est française' — সোফি ফরাসি। বাংলাদেশি হলো করিম নিজে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w01-l2-w1",
+      "prompt_bn": "নিজের পরিচয় ৩টি বাক্যে লিখুন: নাম, জাতীয়তা আর কোন শহর থেকে এসেছেন।",
+      "model": {
+       "target": "Je m'appelle Rahim Uddin. Je suis bangladais. Je viens de Chattogram.",
+       "bn": "আমার নাম রহিম উদ্দিন। আমি বাংলাদেশি। আমি চট্টগ্রাম থেকে এসেছি।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w01-l2-s1",
+      "prompt_bn": "জোরে বলুন: নতুন ক্লাসে নিজের নাম আর পেশা বলুন, তারপর 'পরিচিত হয়ে খুশি হলাম' বলুন (নারী হলে enchantée)।",
+      "model": {
+       "target": "Bonjour, je m'appelle Nusrat. Je suis étudiante. Enchantée !",
+       "bn": "শুভ দিন, আমার নাম নুসরাত। আমি ছাত্রী। পরিচিত হয়ে খুশি হলাম!"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w01-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Numbers 0–69 and your age",
+    "bn": "সংখ্যা ০–৬৯ ও বয়স"
+   },
+   "goal_bn": "০ থেকে ৬৯ পর্যন্ত গুনতে পারবেন আর avoir দিয়ে নিজের বয়স বলতে পারবেন — ফর্ম, ফোন নম্বর আর দামের জন্য জরুরি।",
+   "vocab": [
+    {
+     "target": "zéro",
+     "bn": "শূন্য (০)",
+     "bn_pron": "জেরো",
+     "pos": "number",
+     "example": {
+      "target": "Mon numéro commence par zéro six.",
+      "bn": "আমার নম্বর শূন্য ছয় দিয়ে শুরু।"
+     }
+    },
+    {
+     "target": "cinq",
+     "bn": "পাঁচ (৫)",
+     "bn_pron": "স্যাঁক",
+     "pos": "number",
+     "example": {
+      "target": "J'ai cinq cousins.",
+      "bn": "আমার পাঁচজন কাজিন আছে।"
+     }
+    },
+    {
+     "target": "dix",
+     "bn": "দশ (১০)",
+     "bn_pron": "দিস",
+     "pos": "number",
+     "example": {
+      "target": "Le cours dure dix minutes.",
+      "bn": "ক্লাসটা দশ মিনিটের।"
+     }
+    },
+    {
+     "target": "quinze",
+     "bn": "পনেরো (১৫)",
+     "bn_pron": "ক্যাঁজ",
+     "pos": "number",
+     "example": {
+      "target": "Il y a quinze étudiants.",
+      "bn": "পনেরো জন ছাত্র আছে।"
+     }
+    },
+    {
+     "target": "vingt",
+     "bn": "বিশ (২০)",
+     "bn_pron": "ভ্যাঁ",
+     "pos": "number",
+     "example": {
+      "target": "Elle a vingt ans.",
+      "bn": "তার বয়স বিশ বছর।"
+     }
+    },
+    {
+     "target": "vingt et un",
+     "bn": "একুশ (২১)",
+     "bn_pron": "ভ্যাঁতে আঁ",
+     "pos": "number",
+     "example": {
+      "target": "Mon frère a vingt et un ans.",
+      "bn": "আমার ভাইয়ের বয়স একুশ।"
+     }
+    },
+    {
+     "target": "trente",
+     "bn": "ত্রিশ (৩০)",
+     "bn_pron": "ত্রঁত",
+     "pos": "number",
+     "example": {
+      "target": "Le mois a trente jours.",
+      "bn": "মাসটা ত্রিশ দিনের।"
+     }
+    },
+    {
+     "target": "soixante",
+     "bn": "ষাট (৬০)",
+     "bn_pron": "সোয়াসঁত",
+     "pos": "number",
+     "example": {
+      "target": "Mon père a soixante ans.",
+      "bn": "আমার বাবার বয়স ষাট।"
+     }
+    },
+    {
+     "target": "l'an (m) / les ans",
+     "bn": "বছর (বয়সে)",
+     "bn_pron": "লঁ / লেজঁ",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai trente-deux ans.",
+      "bn": "আমার বয়স বত্রিশ বছর।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "avoir (থাকা): j'ai, tu as, il/elle a, nous avons, vous avez, ils/elles ont",
+     "explain_bn": "ফরাসিতে বয়স 'হওয়া' দিয়ে নয়, 'থাকা' (avoir) দিয়ে বলে: J'ai 25 ans = আমার ২৫ বছর আছে। 'Je suis 25' বলা ভুল — বাংলাভাষীদের খুব সাধারণ ভুল। প্রশ্ন: Quel âge avez-vous ? (আপনার বয়স কত?)",
+     "examples": [
+      {
+       "target": "J'ai vingt-cinq ans.",
+       "bn": "আমার বয়স পঁচিশ।"
+      },
+      {
+       "target": "Quel âge avez-vous ?",
+       "bn": "আপনার বয়স কত?"
+      },
+      {
+       "target": "Ma sœur a dix-sept ans.",
+       "bn": "আমার বোনের বয়স সতেরো।"
+      }
+     ]
+    },
+    {
+     "pattern": "২১–৬৯ গঠন: দশক + হাইফেন + একক; ২১, ৩১ … ৬১-তে 'et un'",
+     "explain_bn": "২২ = vingt-deux, ৩৫ = trente-cinq, ৪৮ = quarante-huit, ৫৯ = cinquante-neuf। কিন্তু ২১, ৩১, ৪১, ৫১, ৬১-তে মাঝে 'et' বসে: vingt et un, trente et un। ১৭–১৯ = dix-sept, dix-huit, dix-neuf (দশ+সাত…)।",
+     "examples": [
+      {
+       "target": "Il a quarante-trois ans.",
+       "bn": "তার বয়স তেতাল্লিশ।"
+      },
+      {
+       "target": "Nous sommes trente et un dans la classe.",
+       "bn": "ক্লাসে আমরা একত্রিশ জন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w01-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "clerk at the prefecture"
+        },
+        "B": {
+         "gender": "M",
+         "role": "visa applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Quel âge avez-vous, monsieur ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "J'ai trente-quatre ans."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটির বয়স কত?",
+      "options": [
+       "trente-quatre ans",
+       "vingt-quatre ans",
+       "quarante-quatre ans",
+       "trente-cinq ans"
+      ],
+      "answer": "A",
+      "explain_bn": "'trente-quatre' = ত্রিশ + চার = ৩৪। vingt = ২০, quarante = ৪০।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w01-l3-r1",
+      "passage": "Voici la famille Ahmed. Monsieur Ahmed a quarante-huit ans. Sa fille Mira a dix-neuf ans. Elle est étudiante à Paris.",
+      "prompt_bn": "মীরার বয়স কত?",
+      "options": [
+       "৪৮",
+       "৯",
+       "১৮",
+       "১৯"
+      ],
+      "answer": "D",
+      "explain_bn": "'dix-neuf' = দশ + নয় = ১৯। ৪৮ (quarante-huit) হলো বাবার বয়স।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w01-l3-w1",
+      "prompt_bn": "আপনার বয়স আর এক বন্ধুর বয়স ফরাসিতে লিখুন (সংখ্যা অক্ষরে লিখবেন)।",
+      "model": {
+       "target": "J'ai vingt-six ans. Mon ami Tanvir a vingt-neuf ans.",
+       "bn": "আমার বয়স ছাব্বিশ। আমার বন্ধু তানভীরের বয়স ঊনত্রিশ।"
+      },
+      "check": "ai",
+      "min_words": 6,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w01-l3-s1",
+      "prompt_bn": "জোরে বলুন: নিজের বয়স আর ছোট ভাইয়ের বয়স বলুন।",
+      "model": {
+       "target": "J'ai vingt-huit ans. Mon petit frère a seize ans.",
+       "bn": "আমার বয়স আটাশ। আমার ছোট ভাইয়ের বয়স ষোলো।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w01-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Family and my/your/his/her",
+    "bn": "পরিবার ও 'আমার/তোমার/তার'"
+   },
+   "goal_bn": "পরিবারের সদস্যদের নাম আর mon/ma/mes দিয়ে 'আমার' বলা শিখবেন — ফ্যামিলি রিইউনিয়ন বা ভিসা সাক্ষাৎকারে কাজে লাগে।",
+   "vocab": [
+    {
+     "target": "la famille",
+     "bn": "পরিবার",
+     "bn_pron": "লা ফামিই",
+     "pos": "noun",
+     "example": {
+      "target": "Ma famille habite à Rajshahi.",
+      "bn": "আমার পরিবার রাজশাহীতে থাকে।"
+     }
+    },
+    {
+     "target": "le père",
+     "bn": "বাবা",
+     "bn_pron": "ল্য পের",
+     "pos": "noun",
+     "example": {
+      "target": "Mon père est commerçant.",
+      "bn": "আমার বাবা ব্যবসায়ী।"
+     }
+    },
+    {
+     "target": "la mère",
+     "bn": "মা",
+     "bn_pron": "লা মের",
+     "pos": "noun",
+     "example": {
+      "target": "Ma mère s'appelle Rokeya.",
+      "bn": "আমার মায়ের নাম রোকেয়া।"
+     }
+    },
+    {
+     "target": "le frère",
+     "bn": "ভাই",
+     "bn_pron": "ল্য ফ্রের",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai un frère.",
+      "bn": "আমার একজন ভাই আছে।"
+     }
+    },
+    {
+     "target": "la sœur",
+     "bn": "বোন",
+     "bn_pron": "লা স্যর",
+     "pos": "noun",
+     "example": {
+      "target": "Ma sœur est infirmière.",
+      "bn": "আমার বোন নার্স।"
+     }
+    },
+    {
+     "target": "le mari",
+     "bn": "স্বামী",
+     "bn_pron": "ল্য মারি",
+     "pos": "noun",
+     "example": {
+      "target": "Mon mari travaille à Paris.",
+      "bn": "আমার স্বামী প্যারিসে কাজ করেন।"
+     }
+    },
+    {
+     "target": "la femme",
+     "bn": "স্ত্রী / নারী",
+     "bn_pron": "লা ফাম",
+     "pos": "noun",
+     "example": {
+      "target": "Sa femme est bangladaise.",
+      "bn": "তার স্ত্রী বাংলাদেশি।"
+     }
+    },
+    {
+     "target": "l'enfant (m/f)",
+     "bn": "সন্তান / শিশু",
+     "bn_pron": "লঁফঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Ils ont deux enfants.",
+      "bn": "তাদের দুটি সন্তান।"
+     }
+    },
+    {
+     "target": "les parents (m)",
+     "bn": "বাবা-মা",
+     "bn_pron": "লে পারঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Mes parents sont à Dhaka.",
+      "bn": "আমার বাবা-মা ঢাকায় আছেন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "mon / ma / mes — আমার; ton / ta / tes — তোমার; son / sa / ses — তার",
+     "explain_bn": "'আমার' শব্দটা পরের বিশেষ্যের লিঙ্গ আর বচন দেখে বদলায় (মালিক কে, তা দেখে নয়!): পুরুষ শব্দ → mon père, নারী শব্দ → ma mère, বহুবচন → mes parents। স্বরবর্ণ দিয়ে শুরু নারী শব্দেও mon বসে: mon amie।",
+     "examples": [
+      {
+       "target": "Mon frère et ma sœur habitent à Khulna.",
+       "bn": "আমার ভাই আর আমার বোন খুলনায় থাকে।"
+      },
+      {
+       "target": "Ses enfants sont petits.",
+       "bn": "তার সন্তানেরা ছোট।"
+      },
+      {
+       "target": "Ton amie est française ?",
+       "bn": "তোমার বান্ধবী কি ফরাসি?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w01-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "colleague"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Tu as des frères et sœurs ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Oui, j'ai deux frères et une sœur. Ma sœur habite à Dhaka."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মেয়েটির কয়জন ভাই?",
+      "options": [
+       "১ জন",
+       "৩ জন",
+       "কোনো ভাই নেই",
+       "২ জন"
+      ],
+      "answer": "D",
+      "explain_bn": "'deux frères' = দুই ভাই; 'une sœur' = এক বোন।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w01-l4-r1",
+      "passage": "Je m'appelle Salma. Mon mari s'appelle Jamal. Nous avons une fille et un fils. Mes parents habitent à Sylhet.",
+      "prompt_bn": "সালমার বাবা-মা কোথায় থাকেন?",
+      "options": [
+       "à Dhaka",
+       "à Sylhet",
+       "à Paris",
+       "à Khulna"
+      ],
+      "answer": "B",
+      "explain_bn": "'Mes parents habitent à Sylhet' — আমার বাবা-মা সিলেটে থাকেন।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w01-l4-w1",
+      "prompt_bn": "আপনার পরিবার নিয়ে ৩টি বাক্য লিখুন — mon, ma, mes তিনটিই ব্যবহার করুন।",
+      "model": {
+       "target": "Ma famille habite à Rajshahi. Mon père a cinquante-cinq ans. Mes deux sœurs sont étudiantes.",
+       "bn": "আমার পরিবার রাজশাহীতে থাকে। আমার বাবার বয়স পঞ্চান্ন। আমার দুই বোন ছাত্রী।"
+      },
+      "check": "ai",
+      "min_words": 10,
+      "max_words": 35
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w01-l4-s1",
+      "prompt_bn": "জোরে বলুন: একটা পারিবারিক ছবি দেখিয়ে সবার পরিচয় দিন।",
+      "model": {
+       "target": "Voici ma famille : mon père, ma mère et mon frère Sakib.",
+       "bn": "এই আমার পরিবার: আমার বাবা, আমার মা আর আমার ভাই সাকিব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w01-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Spelling, phone numbers and a simple form",
+    "bn": "বানান, ফোন নম্বর ও সহজ ফর্ম"
+   },
+   "goal_bn": "নিজের নাম বানান করে বলা, ফোন নম্বর জোড়ায় জোড়ায় বলা আর অফিসের সহজ ফর্ম পূরণ করা শিখবেন।",
+   "vocab": [
+    {
+     "target": "l'adresse (f)",
+     "bn": "ঠিকানা",
+     "bn_pron": "লাদ্রেস",
+     "pos": "noun",
+     "example": {
+      "target": "Quelle est votre adresse ?",
+      "bn": "আপনার ঠিকানা কী?"
+     }
+    },
+    {
+     "target": "le numéro de téléphone",
+     "bn": "ফোন নম্বর",
+     "bn_pron": "ল্য নুমেরো দ্য তেলেফোন",
+     "pos": "noun",
+     "example": {
+      "target": "Mon numéro de téléphone est sur le formulaire.",
+      "bn": "আমার ফোন নম্বর ফর্মে আছে।"
+     }
+    },
+    {
+     "target": "l'adresse e-mail (f)",
+     "bn": "ইমেইল ঠিকানা",
+     "bn_pron": "লাদ্রেস ইমেল",
+     "pos": "noun",
+     "example": {
+      "target": "Écrivez votre adresse e-mail ici.",
+      "bn": "এখানে আপনার ইমেইল ঠিকানা লিখুন।"
+     }
+    },
+    {
+     "target": "la date de naissance",
+     "bn": "জন্মতারিখ",
+     "bn_pron": "লা দাত দ্য নেসঁস",
+     "pos": "noun",
+     "example": {
+      "target": "Votre date de naissance, s'il vous plaît ?",
+      "bn": "আপনার জন্মতারিখ, দয়া করে?"
+     }
+    },
+    {
+     "target": "la ville",
+     "bn": "শহর",
+     "bn_pron": "লা ভিল",
+     "pos": "noun",
+     "example": {
+      "target": "Ma ville, c'est Bogura.",
+      "bn": "আমার শহর বগুড়া।"
+     }
+    },
+    {
+     "target": "le pays",
+     "bn": "দেশ",
+     "bn_pron": "ল্য পেই",
+     "pos": "noun",
+     "example": {
+      "target": "Mon pays, c'est le Bangladesh.",
+      "bn": "আমার দেশ বাংলাদেশ।"
+     }
+    },
+    {
+     "target": "épeler",
+     "bn": "বানান করা",
+     "bn_pron": "এপ্লে",
+     "pos": "verb",
+     "example": {
+      "target": "Vous pouvez épeler, s'il vous plaît ?",
+      "bn": "দয়া করে বানানটা বলবেন?"
+     }
+    },
+    {
+     "target": "la signature",
+     "bn": "স্বাক্ষর",
+     "bn_pron": "লা সিনিয়াত্যুর",
+     "pos": "noun",
+     "example": {
+      "target": "La signature est en bas.",
+      "bn": "স্বাক্ষর নিচে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Comment ça s'écrit ? — বানান জিজ্ঞেস ও বলা",
+     "explain_bn": "নাম লিখতে গেলে অফিসে প্রায়ই জিজ্ঞেস করে 'Vous pouvez épeler ?' বা 'Comment ça s'écrit ?' (কীভাবে লেখা হয়?)। অক্ষর একটা একটা বলুন; একই অক্ষর দুবার থাকলে 'deux' বলুন: Hossain = H, O, deux S, A, I, N। মনে রাখুন: E = 'এ্য', I = 'ই', U = 'উ্য', J = 'জি', G = 'জে'।",
+     "examples": [
+      {
+       "target": "Comment ça s'écrit ?",
+       "bn": "এটা কীভাবে লেখা হয়?"
+      },
+      {
+       "target": "Hossain, ça s'écrit H, O, deux S, A, I, N.",
+       "bn": "Hossain লেখা হয় H, O, দুটো S, A, I, N।"
+      }
+     ]
+    },
+    {
+     "pattern": "ফোন নম্বর: দুই অঙ্ক করে জোড়ায় বলা",
+     "explain_bn": "ফ্রান্সে ১০ অঙ্কের নম্বর দুই-দুই করে বলা হয়: 06 12 45 30 78 = zéro six, douze, quarante-cinq, trente, soixante-dix-huit। প্রথমে ধীরে ধীরে zéro + অঙ্ক বলুন।",
+     "examples": [
+      {
+       "target": "Mon numéro, c'est le zéro six, douze, quarante-cinq, trente, vingt.",
+       "bn": "আমার নম্বর শূন্য ছয়, বারো, পঁয়তাল্লিশ, ত্রিশ, বিশ।"
+      },
+      {
+       "target": "Vous pouvez répéter, s'il vous plaît ?",
+       "bn": "দয়া করে আবার বলবেন?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w01-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "receptionist at a town hall"
+        },
+        "B": {
+         "gender": "M",
+         "role": "visitor"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Vous pouvez épeler votre nom, s'il vous plaît ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Oui. M, I, A, H. Miah."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটির পদবির সঠিক বানান কোনটি?",
+      "options": [
+       "Mia",
+       "Meah",
+       "Miah",
+       "Myah"
+      ],
+      "answer": "C",
+      "explain_bn": "সে অক্ষরগুলো বলেছে M, I, A, H — তাই Miah। ফরাসিতে I-এর উচ্চারণ 'ই', E-এর নয়।",
+      "skill": "spelling"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w01-l5-r1",
+      "passage": "Nom : RAHMAN – Prénom : Farida – Ville : Lille – Pays de naissance : Bangladesh – Téléphone : zéro six, vingt, quinze, trente, dix.",
+      "prompt_bn": "ফর্মে ফারিদার প্রথম নাম (prénom) কোনটি?",
+      "options": [
+       "Farida",
+       "Rahman",
+       "Lille",
+       "Bangladesh"
+      ],
+      "answer": "A",
+      "explain_bn": "Prénom = প্রথম নাম = Farida। Nom (পদবি) হলো RAHMAN — ফ্রান্সের ফর্মে পদবি প্রায়ই বড় হাতের অক্ষরে লেখা হয়।",
+      "skill": "form"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w01-l5-w1",
+      "prompt_bn": "এই ফর্মটি নিজের তথ্যে পূরণ করুন: Nom, Prénom, Ville, Pays।",
+      "model": {
+       "target": "Nom : HOSSAIN – Prénom : Arif – Ville : Dhaka – Pays : Bangladesh",
+       "bn": "পদবি: হোসেন – প্রথম নাম: আরিফ – শহর: ঢাকা – দেশ: বাংলাদেশ"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w01-l5-s1",
+      "prompt_bn": "জোরে বলুন: নিজের পূর্ণ নাম বলুন আর পদবিটা অক্ষর ধরে বানান করুন।",
+      "model": {
+       "target": "Je m'appelle Arif Hossain. Hossain, ça s'écrit H, O, deux S, A, I, N.",
+       "bn": "আমার নাম আরিফ হোসেন। Hossain লেখা হয় H, O, দুটো S, A, I, N।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

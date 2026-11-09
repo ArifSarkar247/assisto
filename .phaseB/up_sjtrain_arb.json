@@ -1,0 +1,537 @@
+{
+ "en": {
+  "sjtNowPassing": "Now: passing {name}",
+  "@sjtNowPassing": {
+   "description": "sjtrain: Train screen: the train is at / passing this station",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtNextAt": "Next: {name} · {time}",
+  "@sjtNextAt": {
+   "description": "sjtrain: Train screen: next station and its estimated time",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtPassedCount": "{n} stations passed",
+  "@sjtPassedCount": {
+   "description": "sjtrain: Station line: hidden passed stations above",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtMoreAhead": "{n} more stations ahead",
+  "@sjtMoreAhead": {
+   "description": "sjtrain: Station line: hidden stations below",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtShowLess": "Show fewer stations",
+  "@sjtShowLess": {
+   "description": "sjtrain: Station line toggle"
+  },
+  "sjtShowAll": "Show all {n} stations",
+  "@sjtShowAll": {
+   "description": "sjtrain: Station line toggle",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtHere": "train is here",
+  "@sjtHere": {
+   "description": "sjtrain: TalkBack state of a station"
+  },
+  "sjtPassed": "passed",
+  "@sjtPassed": {
+   "description": "sjtrain: TalkBack state of a station"
+  },
+  "sjtAhead": "ahead",
+  "@sjtAhead": {
+   "description": "sjtrain: TalkBack state of a station"
+  },
+  "sjtStationA11y": "{name}, {state}, {time}",
+  "@sjtStationA11y": {
+   "description": "sjtrain: TalkBack label of a station row",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "state": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtBetweenA11y": "The train is after {name}",
+  "@sjtBetweenA11y": {
+   "description": "sjtrain: TalkBack: train between two stations",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtBetween": "Train has left {name}",
+  "@sjtBetween": {
+   "description": "sjtrain: Station line: train between stations",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtLateChip": "{min} min late",
+  "@sjtLateChip": {
+   "description": "sjtrain: Header delay chip (live)",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtOnTimeChip": "On time",
+  "@sjtOnTimeChip": {
+   "description": "sjtrain: Header delay chip (live)"
+  },
+  "sjtSharingOne": "1 passenger is sharing live",
+  "@sjtSharingOne": {
+   "description": "sjtrain: Header: live from one passenger"
+  },
+  "sjtSharingMany": "{n} passengers sharing live",
+  "@sjtSharingMany": {
+   "description": "sjtrain: Header: live from N passengers",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtEstimated": "Estimated from timetable",
+  "@sjtEstimated": {
+   "description": "sjtrain: Header when nobody shares"
+  },
+  "sjtEstimatedWhy": "Nobody on this train is sharing right now. If you are on it, tap \"I am on this train\" to help everyone.",
+  "@sjtEstimatedWhy": {
+   "description": "sjtrain: Header: why it is an estimate"
+  },
+  "sjtShareOffline": "No internet — {n} positions saved on this phone, they are sent when you are online",
+  "@sjtShareOffline": {
+   "description": "sjtrain: Sharing while the train has no internet",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtChatClosedShort": "Chat (closed)",
+  "@sjtChatClosedShort": {
+   "description": "sjtrain: Button when the train chat is closed"
+  },
+  "sjtGetOffAlarm": "Get off alarm",
+  "@sjtGetOffAlarm": {
+   "description": "sjtrain: Button to the destination alarm"
+  },
+  "sjtLineTitle": "Stations",
+  "@sjtLineTitle": {
+   "description": "sjtrain: Station line title"
+  },
+  "sjtLineTapHint": "Tap a station ahead to set the get off alarm there.",
+  "@sjtLineTapHint": {
+   "description": "sjtrain: Station line hint"
+  },
+  "sjtLineSource": "Stations on the line: © OpenStreetMap contributors (ODbL). Times between stops are estimates.",
+  "@sjtLineSource": {
+   "description": "sjtrain: Data source line"
+  },
+  "sjtSeatTitle": "Seat card",
+  "@sjtSeatTitle": {
+   "description": "sjtrain: Seat card title"
+  },
+  "sjtSeatBenefit": "Know before you board: does your seat face forward, window or aisle, which side gets the sun, and where your coach stops.",
+  "@sjtSeatBenefit": {
+   "description": "sjtrain: Seat card empty state benefit"
+  },
+  "sjtSeatAdd": "Add my seat",
+  "@sjtSeatAdd": {
+   "description": "sjtrain: Seat card empty state button"
+  },
+  "sjtSeatHowTo": "1. Type the coach and seat from your ticket. 2. See what other passengers said. 3. After the trip, answer 4 one-tap questions.",
+  "@sjtSeatHowTo": {
+   "description": "sjtrain: Seat card how-to"
+  },
+  "sjtSeatAddTitle": "Your seat",
+  "@sjtSeatAddTitle": {
+   "description": "sjtrain: Seat sheet title"
+  },
+  "sjtSeatAddHelp": "As printed on your ticket, for example coach ঝ, seat 32.",
+  "@sjtSeatAddHelp": {
+   "description": "sjtrain: Seat sheet help"
+  },
+  "sjtCoach": "Coach",
+  "@sjtCoach": {
+   "description": "sjtrain: Field label"
+  },
+  "sjtSeatNo": "Seat number",
+  "@sjtSeatNo": {
+   "description": "sjtrain: Field label"
+  },
+  "sjtSeatSave": "Show my seat",
+  "@sjtSeatSave": {
+   "description": "sjtrain: Seat sheet button"
+  },
+  "sjtSeatChange": "Change seat",
+  "@sjtSeatChange": {
+   "description": "sjtrain: Seat card button"
+  },
+  "sjtSeatLine": "Coach {coach} · Seat {seat}",
+  "@sjtSeatLine": {
+   "description": "sjtrain: Seat card heading",
+   "placeholders": {
+    "coach": {
+     "type": "String"
+    },
+    "seat": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtCoachPicA11y": "Top view of the coach. Your seat: {side}, {place}.",
+  "@sjtCoachPicA11y": {
+   "description": "sjtrain: TalkBack: coach picture",
+   "placeholders": {
+    "side": {
+     "type": "String"
+    },
+    "place": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtCoachPicNote": "Arrow = direction of travel (engine side). The place along the coach is approximate, from the seat number.",
+  "@sjtCoachPicNote": {
+   "description": "sjtrain: Coach picture note"
+  },
+  "sjtNotKnown": "not known yet",
+  "@sjtNotKnown": {
+   "description": "sjtrain: Seat fact not answered yet"
+  },
+  "sjtVerified": "Verified · {k} passengers agree",
+  "@sjtVerified": {
+   "description": "sjtrain: Seat fact verified",
+   "placeholders": {
+    "k": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtUnverified": "Unverified · {k} of {n} passengers said this",
+  "@sjtUnverified": {
+   "description": "sjtrain: Seat fact unverified",
+   "placeholders": {
+    "k": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtFacingQ": "Facing forward or backward?",
+  "@sjtFacingQ": {
+   "description": "sjtrain: Seat fact unknown"
+  },
+  "sjtFacingForward": "Faces forward",
+  "@sjtFacingForward": {
+   "description": "sjtrain: Seat fact"
+  },
+  "sjtFacingBackward": "Faces backward",
+  "@sjtFacingBackward": {
+   "description": "sjtrain: Seat fact"
+  },
+  "sjtPlaceQ": "Window or aisle?",
+  "@sjtPlaceQ": {
+   "description": "sjtrain: Seat fact unknown"
+  },
+  "sjtPlaceWindow": "Window",
+  "@sjtPlaceWindow": {
+   "description": "sjtrain: Seat fact"
+  },
+  "sjtPlaceAisle": "Aisle",
+  "@sjtPlaceAisle": {
+   "description": "sjtrain: Seat fact"
+  },
+  "sjtPlaceMiddle": "Middle",
+  "@sjtPlaceMiddle": {
+   "description": "sjtrain: Seat fact"
+  },
+  "sjtSideQ": "Which side of the coach?",
+  "@sjtSideQ": {
+   "description": "sjtrain: Seat fact unknown"
+  },
+  "sjtSideIs": "{side} side (facing the engine)",
+  "@sjtSideIs": {
+   "description": "sjtrain: Seat fact",
+   "placeholders": {
+    "side": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtSideLeft": "Left",
+  "@sjtSideLeft": {
+   "description": "sjtrain: Side"
+  },
+  "sjtSideRight": "Right",
+  "@sjtSideRight": {
+   "description": "sjtrain: Side"
+  },
+  "sjtSunMostly": "Sun mostly on the {side} side ({pct}% of the trip)",
+  "@sjtSunMostly": {
+   "description": "sjtrain: Sun side, calculated",
+   "placeholders": {
+    "side": {
+     "type": "String"
+    },
+    "pct": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtSunLittle": "Little direct sun on this trip",
+  "@sjtSunLittle": {
+   "description": "sjtrain: Sun side, calculated"
+  },
+  "sjtSunOnSeat": "Your side gets sun about {pct}% of the trip",
+  "@sjtSunOnSeat": {
+   "description": "sjtrain: Sun on the seat's side",
+   "placeholders": {
+    "pct": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtCalculated": "Calculated from the rail line and timetable",
+  "@sjtCalculated": {
+   "description": "sjtrain: Sun fact source"
+  },
+  "sjtCoachPosQ": "Where does the coach stop on the platform?",
+  "@sjtCoachPosQ": {
+   "description": "sjtrain: Coach position unknown"
+  },
+  "sjtCoachPos": "Coach number {n} from the engine",
+  "@sjtCoachPos": {
+   "description": "sjtrain: Coach position fact",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtAskAfterTrip": "Your trip is over — help the next passengers:",
+  "@sjtAskAfterTrip": {
+   "description": "sjtrain: Seat card after the trip"
+  },
+  "sjtAskButton": "Answer 4 quick questions",
+  "@sjtAskButton": {
+   "description": "sjtrain: Seat card button"
+  },
+  "sjtAskTitle": "About your seat",
+  "@sjtAskTitle": {
+   "description": "sjtrain: Questions sheet title"
+  },
+  "sjtAskHelp": "Tap what you saw. Skip anything you are not sure about. No name is shown.",
+  "@sjtAskHelp": {
+   "description": "sjtrain: Questions sheet help"
+  },
+  "sjtQFacing": "Your seat faced…",
+  "@sjtQFacing": {
+   "description": "sjtrain: Question"
+  },
+  "sjtQPlace": "Your seat was by the…",
+  "@sjtQPlace": {
+   "description": "sjtrain: Question"
+  },
+  "sjtQSide": "Looking toward the engine, your seat was on the…",
+  "@sjtQSide": {
+   "description": "sjtrain: Question"
+  },
+  "sjtQCoachPos": "Your coach was number … from the engine",
+  "@sjtQCoachPos": {
+   "description": "sjtrain: Question"
+  },
+  "sjtAskSend": "Send",
+  "@sjtAskSend": {
+   "description": "sjtrain: Questions sheet button"
+  },
+  "sjtAskThanks": "Thank you — this helps the next passengers",
+  "@sjtAskThanks": {
+   "description": "sjtrain: Snackbar"
+  },
+  "sjtAskNotTrip": "You can answer during or within 12 hours after this train's trip",
+  "@sjtAskNotTrip": {
+   "description": "sjtrain: Snackbar"
+  },
+  "sjtAskEmpty": "Tap at least one answer",
+  "@sjtAskEmpty": {
+   "description": "sjtrain: Snackbar"
+  },
+  "sjtSeatSource": "No official seat data exists: these are passengers' answers, marked unverified until {n} people agree.",
+  "@sjtSeatSource": {
+   "description": "sjtrain: Seat card source line",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtChatNotRunning": "The train chat is open only while the train runs",
+  "@sjtChatNotRunning": {
+   "description": "sjtrain: Chat error"
+  },
+  "sjtChatNotAllowed": "This message breaks the chat rules and was not sent",
+  "@sjtChatNotAllowed": {
+   "description": "sjtrain: Chat error"
+  },
+  "sjtChatOpensAt": "The chat opens at {time}, 30 minutes before departure",
+  "@sjtChatOpensAt": {
+   "description": "sjtrain: Chat closed bar",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtChatClosed": "This trip's chat is closed. Everything is deleted within 24 hours.",
+  "@sjtChatClosed": {
+   "description": "sjtrain: Chat closed bar"
+  },
+  "sjtHowEarly": "Ring how early?",
+  "@sjtHowEarly": {
+   "description": "sjtrain: Alarm setting title"
+  },
+  "sjtByDistance": "By distance",
+  "@sjtByDistance": {
+   "description": "sjtrain: Alarm setting"
+  },
+  "sjtByMinutes": "By minutes",
+  "@sjtByMinutes": {
+   "description": "sjtrain: Alarm setting"
+  },
+  "sjtMinutesBefore": "{n} min before",
+  "@sjtMinutesBefore": {
+   "description": "sjtrain: Alarm setting chip",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "sjtMinutesNote": "Uses your speed on the phone (no internet needed). It also rings at {dist} if the vehicle stands still.",
+  "@sjtMinutesNote": {
+   "description": "sjtrain: Alarm minutes note",
+   "placeholders": {
+    "dist": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "sjtNowPassing": "এখন: {name} পার হচ্ছে",
+  "sjtNextAt": "পরের স্টেশন: {name} · {time}",
+  "sjtPassedCount": "{n}টি স্টেশন পার হয়েছে",
+  "sjtMoreAhead": "সামনে আরও {n}টি স্টেশন",
+  "sjtShowLess": "কম স্টেশন দেখান",
+  "sjtShowAll": "সব {n}টি স্টেশন দেখান",
+  "sjtHere": "ট্রেন এখানে",
+  "sjtPassed": "পার হয়েছে",
+  "sjtAhead": "সামনে",
+  "sjtStationA11y": "{name}, {state}, {time}",
+  "sjtBetweenA11y": "ট্রেন {name}-এর পরে আছে",
+  "sjtBetween": "ট্রেন {name} ছেড়ে এসেছে",
+  "sjtLateChip": "{min} মিনিট দেরি",
+  "sjtOnTimeChip": "সময়মতো",
+  "sjtSharingOne": "১ জন যাত্রী লাইভ শেয়ার করছেন",
+  "sjtSharingMany": "{n} জন যাত্রী লাইভ শেয়ার করছেন",
+  "sjtEstimated": "সময়সূচি থেকে আনুমানিক",
+  "sjtEstimatedWhy": "এই ট্রেনে এখন কেউ লাইভ শেয়ার করছেন না। আপনি ট্রেনে থাকলে \"আমি এই ট্রেনে আছি\" চাপুন — সবাই উপকার পাবেন।",
+  "sjtShareOffline": "নেট নেই — {n}টি অবস্থান ফোনে জমা আছে, নেট এলে পাঠানো হবে",
+  "sjtChatClosedShort": "চ্যাট (বন্ধ)",
+  "sjtGetOffAlarm": "নামার অ্যালার্ম",
+  "sjtLineTitle": "স্টেশনগুলো",
+  "sjtLineTapHint": "সামনের কোনো স্টেশনে চাপ দিলে সেখানে নামার অ্যালার্ম দেওয়া যাবে।",
+  "sjtLineSource": "লাইনের স্টেশন: © OpenStreetMap contributors (ODbL)। দুই স্টেশনের মাঝের সময় আনুমানিক।",
+  "sjtSeatTitle": "সিট কার্ড",
+  "sjtSeatBenefit": "ওঠার আগেই জানুন: সিট সামনের দিকে মুখ করা কিনা, জানালা না আইল, রোদ কোন পাশে, আর আপনার কোচ প্ল্যাটফর্মে কোথায় থামে।",
+  "sjtSeatAdd": "আমার সিট দিন",
+  "sjtSeatHowTo": "১. টিকিট দেখে কোচ ও সিট নম্বর লিখুন। ২. অন্য যাত্রীরা কী বলেছেন দেখুন। ৩. যাত্রা শেষে ৪টি এক-ট্যাপ প্রশ্নের উত্তর দিন।",
+  "sjtSeatAddTitle": "আপনার সিট",
+  "sjtSeatAddHelp": "টিকিটে যেমন লেখা, যেমন কোচ ঝ, সিট ৩২।",
+  "sjtCoach": "কোচ",
+  "sjtSeatNo": "সিট নম্বর",
+  "sjtSeatSave": "আমার সিট দেখান",
+  "sjtSeatChange": "সিট বদলান",
+  "sjtSeatLine": "কোচ {coach} · সিট {seat}",
+  "sjtCoachPicA11y": "কোচের উপর থেকে ছবি। আপনার সিট: {side}, {place}।",
+  "sjtCoachPicNote": "তীর = ট্রেন যেদিকে যাচ্ছে (ইঞ্জিনের দিক)। কোচের ভেতরে সিটের জায়গা আনুমানিক, সিট নম্বর থেকে।",
+  "sjtNotKnown": "এখনো জানা নেই",
+  "sjtVerified": "যাচাই করা · {k} জন যাত্রী একমত",
+  "sjtUnverified": "যাচাই হয়নি · {n} জনের মধ্যে {k} জন এটা বলেছেন",
+  "sjtFacingQ": "সামনে না পেছনে মুখ করা?",
+  "sjtFacingForward": "সামনের দিকে মুখ করা",
+  "sjtFacingBackward": "পেছনের দিকে মুখ করা",
+  "sjtPlaceQ": "জানালা না আইল?",
+  "sjtPlaceWindow": "জানালার পাশে",
+  "sjtPlaceAisle": "আইলের পাশে",
+  "sjtPlaceMiddle": "মাঝখানে",
+  "sjtSideQ": "কোচের কোন পাশে?",
+  "sjtSideIs": "{side} পাশে (ইঞ্জিনের দিকে তাকিয়ে)",
+  "sjtSideLeft": "বাম",
+  "sjtSideRight": "ডান",
+  "sjtSunMostly": "রোদ বেশি {side} পাশে (যাত্রার {pct}% সময়)",
+  "sjtSunLittle": "এই যাত্রায় সরাসরি রোদ কম",
+  "sjtSunOnSeat": "আপনার পাশে যাত্রার প্রায় {pct}% সময় রোদ পড়বে",
+  "sjtCalculated": "রেললাইন ও সময়সূচি থেকে হিসাব করা",
+  "sjtCoachPosQ": "প্ল্যাটফর্মে কোচটি কোথায় থামে?",
+  "sjtCoachPos": "ইঞ্জিন থেকে {n} নম্বর কোচ",
+  "sjtAskAfterTrip": "আপনার যাত্রা শেষ — পরের যাত্রীদের সাহায্য করুন:",
+  "sjtAskButton": "৪টি ছোট প্রশ্নের উত্তর দিন",
+  "sjtAskTitle": "আপনার সিট সম্পর্কে",
+  "sjtAskHelp": "যা দেখেছেন তাতে চাপ দিন। নিশ্চিত না হলে বাদ দিন। কারো নাম দেখানো হয় না।",
+  "sjtQFacing": "আপনার সিট মুখ করা ছিল…",
+  "sjtQPlace": "আপনার সিট ছিল…",
+  "sjtQSide": "ইঞ্জিনের দিকে তাকালে আপনার সিট ছিল…",
+  "sjtQCoachPos": "ইঞ্জিন থেকে আপনার কোচ ছিল … নম্বর",
+  "sjtAskSend": "পাঠান",
+  "sjtAskThanks": "ধন্যবাদ — এতে পরের যাত্রীদের সুবিধা হবে",
+  "sjtAskNotTrip": "এই ট্রেনের যাত্রার সময় বা শেষ হওয়ার ১২ ঘণ্টার মধ্যে উত্তর দেওয়া যায়",
+  "sjtAskEmpty": "অন্তত একটি উত্তরে চাপ দিন",
+  "sjtSeatSource": "সিটের কোনো অফিসিয়াল তথ্য নেই: এগুলো যাত্রীদের উত্তর, {n} জন একমত না হওয়া পর্যন্ত \"যাচাই হয়নি\" লেখা থাকে।",
+  "sjtChatNotRunning": "ট্রেন চ্যাট শুধু ট্রেন চলার সময় খোলা থাকে",
+  "sjtChatNotAllowed": "এই মেসেজ চ্যাটের নিয়ম ভাঙে, তাই পাঠানো হয়নি",
+  "sjtChatOpensAt": "চ্যাট খুলবে {time}-এ, ছাড়ার ৩০ মিনিট আগে",
+  "sjtChatClosed": "এই যাত্রার চ্যাট বন্ধ। সব মেসেজ ২৪ ঘণ্টার মধ্যে মুছে যায়।",
+  "sjtHowEarly": "কতটা আগে বাজবে?",
+  "sjtByDistance": "দূরত্ব দিয়ে",
+  "sjtByMinutes": "মিনিট দিয়ে",
+  "sjtMinutesBefore": "{n} মিনিট আগে",
+  "sjtMinutesNote": "ফোনের GPS-এ আপনার গতি দেখে হিসাব (নেট লাগে না)। গাড়ি থেমে থাকলেও {dist} দূরে এলে বাজবে।"
+ }
+}

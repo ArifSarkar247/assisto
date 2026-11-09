@@ -272,10 +272,16 @@ FREE_EXEMPT = {
     "w1_cv": "public website CV tips, per-IP rate limited, no account",
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
+    # lpcore: Language Partner Writing/Speaking scores are charged BEFORE the call by
+    # lp_service.run_score (exact worst-case credits) and refunded on fail / cut
+    "lp.score": "Language Partner score: credits taken first by lp_service.run_score, refunded on failure",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
     # fcbrain (owner 9 Nov): Family Care is safety — never charged
     "brain.night_news": "Family Care night news card from structured facts, once per member per night",
     "brain.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
+    # sjtrain: safety is never paywalled; one cheap call per train-chat message
+    # (already rate-limited per user: train_chat.PER_MIN / PER_DAY)
+    "train.chat_mod": "train chat safety moderation (one cheap check per message, rate-limited)",
 }
 
 
@@ -300,10 +306,28 @@ def ad_table(c=None):
 
 # ---------------------------------------------------------------- web search
 import re as _re
-RECENT = _re.compile(
-    r"\b(today|latest|news|current(?:ly)?|right now|this week|price (?:now|today)|score|"
-    r"weather|exchange rate|dollar rate|20[2-3]\d)\b|আজ|আজকের|সর্বশেষ|খবর|এখন(?:কার)? দাম|"
-    r"আবহাওয়া|ডলারের রেট|ajker|aj ke|latest", _re.I)
+# aiqual (exam): a time word alone ("আজ মনটা খুব খারাপ", "What should I cook
+# today?", "remind me today at 5") opened Claude web search (+3 credits when
+# it ran). A search now needs a time word AND a changing fact, or a phrase
+# that is a changing fact on its own (news, weather, exchange rate, score).
+_WEB_STRONG = _re.compile(
+    r"\b(news|headlines?|weather|forecast|exchange rate|dollar rate|live score|breaking)\b|"
+    r"খবর|সংবাদ|আবহাওয়া|ডলারের (?:রেট|দাম)|লাইভ স্কোর|ম্যাচের স্কোর|\bmatch score|khobor|abohawa|"
+    r"dollar(?:er)? rate", _re.I)
+_WEB_WHEN = _re.compile(
+    r"\b(today|tonight|now|right now|latest|current(?:ly)?|this (?:week|month)|recent(?:ly)?|"
+    r"20[2-3]\d|ajke|ajker|aj|ekhon|ekhonkar)\b|আজ|এখন|সর্বশেষ|চলতি|এই সপ্তাহ|এ বছর", _re.I)
+_WEB_FACT = _re.compile(
+    r"\b(price|prices|rate|rates|score|match|result|results|election|update|traffic|flight|"
+    r"train|schedule|stock|share|gold|dollar|petrol|fuel|won|winner|world cup|release|launch|"
+    r"dam|daam|rate|khela|match|result|fol|sona|tel|news)\b|দাম|রেট|স্কোর|খেলা|ম্যাচ|ফলাফল|"
+    r"ফল প্রকাশ|নির্বাচন|যানজট|ট্রেনের সময়|ফ্লাইট|সোনা|ডলার|শেয়ার|জ্বালানি|তেলের|জিতেছে|"
+    r"চ্যাম্পিয়ন|বাজারদর", _re.I)
+
+
+def needs_web(text):
+    t = text or ""
+    return bool(_WEB_STRONG.search(t) or (_WEB_WHEN.search(t) and _WEB_FACT.search(t)))
 
 
 def web_credits(c=None):
@@ -322,7 +346,7 @@ def wants_web(text, lid, c=None):
     the free daily Gemini grounding quota is used first (web_route), then
     Claude web search; the user pays web_credits() only when a search ran."""
     lv, _ = cfg(c)
-    if not lv.get("web_on") or not RECENT.search(text or ""):
+    if not lv.get("web_on") or not needs_web(text):
         return False
     return lid in lv["levels"]
 

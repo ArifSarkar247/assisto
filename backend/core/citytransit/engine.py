@@ -14,6 +14,11 @@ Model
     and a parent pointer; per stop we keep a small Pareto set (time, fare,
     legs) so one search yields Fastest, Cheapest and Fewest changes.
   * Access / egress: walk (<= WALK_MAX m) or rickshaw (RICK_MIN..RICK_MAX m).
+    citydata2: a rickshaw leg is offered only beyond a normal walk (RICK_MIN
+    = 900 m straight, ~1.2 km on the street), and "Fastest" prefers metro /
+    bus + walking whenever that is within max(10 min, 20 %) of the quickest
+    (FAST_SLACK) — the rickshaw stays only where it is the real last mile.
+  * Women-only routes (BRTC pink buses) are used only when asked ("women").
     Transfers: walking footpaths between stops <= XFER_M apart.
   * Direct ways (CNG, ride share bike / car, rickshaw, walk) are priced from
     fares.py; ride share is only an estimate range — we never call their APIs.
@@ -26,7 +31,9 @@ from . import fares as F
 WALK_SPEED = 1.2          # m/s (Dhaka footpaths)
 DETOUR = 1.3              # straight line -> street distance
 WALK_MAX = 1200           # m, access/egress on foot
-RICK_MIN, RICK_MAX = 700, 2500
+RICK_MIN, RICK_MAX = 900, 2500
+FAST_SLACK = (600, 0.20)  # s, share: "Fastest" may be this much slower to avoid a rickshaw
+FARE_S = 12.0             # s per taka when ranking options inside that slack
 RICK_KMH, CNG_KMH, CAR_KMH, BIKE_KMH = 9.0, 16.0, 15.0, 20.0
 XFER_M = 450
 MAX_ROUNDS = 4            # vehicle legs
@@ -36,6 +43,9 @@ MODES = ("metro", "bus", "leguna", "water")
 DEFAULTS = {"metro": (8, 38.0, 30), "bus": (10, 12.0, 25), "leguna": (10, 14.0, 20),
             "water": (30, 12.0, 60)}
 STATUS = {"v": "verified", "r": "reported"}
+# gate fields the API returns (citydata2: + lift, escalator, wheelchair, basis, src)
+GATE_KEYS = ("ref", "name", "name_bn", "side", "lat", "lon", "near", "status", "lift",
+             "escalator", "wheelchair", "basis", "src")
 
 
 def hav(a, b, c, d):
@@ -56,6 +66,115 @@ def bearing_side(lat0, lon0, lat1, lon1):
     if abs(dy) >= abs(dx):
         return "N" if dy >= 0 else "S"
     return "E" if dx >= 0 else "W"
+
+
+# citycov: city coverage — the SAME definition the data build has used since
+# citydata (a ~1 km cell of the city core counts when its centre is within
+# 700 m of a stop that a known route serves). `corridor` is a SECOND, clearly
+# separate measure (a stop OR the line of a bus / leguna route between two
+# of its stops <= 2.5 km apart passes within 700 m: Dhaka buses also pick up
+# between stops); the headline stays the stop measure.
+COVER_STEP = (0.009, 0.0098)      # ~1 km
+COVER_R = 700
+CORRIDOR_SEG_MAX = 2500
+CORRIDOR_SAMPLE = 100
+
+
+def corridor_points(segs):
+    """Points every ~100 m along (lat0, lon0, lat1, lon1) segments that are
+    <= CORRIDOR_SEG_MAX long (longer straight jumps may not follow a road)."""
+    out = []
+    for a, b, c, d in segs:
+        m = hav(a, b, c, d)
+        if m > CORRIDOR_SEG_MAX:
+            continue
+        n = max(1, int(m // CORRIDOR_SAMPLE))
+        for k in range(n + 1):
+            f = k / float(n)
+            out.append((a + (c - a) * f, b + (d - b) * f))
+    return out
+
+
+def coverage(core, stop_pts, path_pts=(), cells=None):
+    """-> {"stops_pct", "corridor_pct", "cells", "hit_stops", "hit_corridor",
+    "empty": [(a, b, lat, lon)]}. `cells` (a set of (a, b) indices) limits
+    the count to those cells (the built-up measure)."""
+    def bucket(pts):
+        g = {}
+        for la, lo in pts:
+            g.setdefault((int(la // 0.01), int(lo // 0.01)), []).append((la, lo))
+        return g
+
+    def near(g, la, lo):
+        a, b = int(la // 0.01), int(lo // 0.01)
+        for x in (a - 1, a, a + 1):
+            for y in (b - 1, b, b + 1):
+                for p in g.get((x, y), ()):
+                    if hav(la, lo, p[0], p[1]) <= COVER_R:
+                        return True
+        return False
+
+    gs, gp = bucket(stop_pts), bucket(path_pts)
+    sl, so = COVER_STEP
+    ny = int(round((core[2] - core[0]) / sl))
+    nx = int(round((core[3] - core[1]) / so))
+    tot = hs = hc = 0
+    empty = []
+    for a in range(ny):
+        for b in range(nx):
+            if cells is not None and (a, b) not in cells:
+                continue
+            la, lo = core[0] + (a + 0.5) * sl, core[1] + (b + 0.5) * so
+            tot += 1
+            s_ok = near(gs, la, lo)
+            c_ok = s_ok or near(gp, la, lo)
+            hs += s_ok
+            hc += c_ok
+            if not s_ok:
+                empty.append((a, b, round(la, 4), round(lo, 4)))
+    pct = lambda h: round(100.0 * h / max(1, tot), 1)  # noqa: E731
+    return {"stops_pct": pct(hs), "corridor_pct": pct(hc), "cells": tot, "hit_stops": hs,
+            "hit_corridor": hc, "empty": empty}
+
+
+INSERT_MAX_DETOUR_M = 400
+
+
+def stop_origin(sid):
+    """Where a stop record comes from when the data has no `src` column:
+    OSM nodes ("n123") / mapped metro stations are OpenStreetMap (ODbL)."""
+    sid = str(sid or "")
+    if sid.startswith("u-"):
+        return "users"
+    if sid[:1] == "n" and sid[1:].isdigit():
+        return "osm"
+    return "public"
+
+
+def insert_stops(r, new_idx, stops, max_detour=INSERT_MAX_DETOUR_M):
+    """citycov: put extra stops into a route between the two consecutive
+    stops where the detour is smallest; a stop more than `max_detour` metres
+    off every segment (or already on the route) is left out. km grows
+    proportionally inside the segment, so fares and times stay consistent."""
+    seq, km = list(r["stops"]), [float(x) for x in r["km"]]
+    for si in new_idx:
+        if si in seq or len(seq) < 2:
+            continue
+        s = stops[si]
+        best = None
+        for k in range(len(seq) - 1):
+            a, b = stops[seq[k]], stops[seq[k + 1]]
+            da = hav(a["lat"], a["lon"], s["lat"], s["lon"])
+            db = hav(s["lat"], s["lon"], b["lat"], b["lon"])
+            det = da + db - hav(a["lat"], a["lon"], b["lat"], b["lon"])
+            if best is None or det < best[0]:
+                best = (det, k, da / max(1.0, da + db))
+        if best is None or best[0] > max_detour:
+            continue
+        _d, k, frac = best
+        seq.insert(k + 1, si)
+        km.insert(k + 1, round(km[k] + (km[k + 1] - km[k]) * frac, 3))
+    return dict(r, stops=seq, km=km)
 
 
 def peak_factor(minute):
@@ -83,7 +202,9 @@ class Network:
             s = {"id": row[ix["id"]], "name": row[ix["name"]] or "",
                  "name_bn": row[ix["name_bn"]] or "", "lat": row[ix["lat"]],
                  "lon": row[ix["lon"]], "kind": row[ix["kind"]], "st": row[ix["st"]],
-                 "code": row[ix["code"]] if "code" in ix else ""}
+                 "code": row[ix["code"]] if "code" in ix else "",
+                 # citycov licence rule: origin of the record (osm = ODbL)
+                 "src": (row[ix["src"]] if "src" in ix else "") or stop_origin(row[ix["id"]])}
             e = stop_edit.get(s["id"])
             if e:
                 for k in ("name", "name_bn", "lat", "lon", "st"):
@@ -97,7 +218,8 @@ class Network:
                 self.stops.append({"id": row["id"], "name": row.get("name", ""),
                                    "name_bn": row.get("name_bn", ""), "lat": float(row["lat"]),
                                    "lon": float(row["lon"]), "kind": row.get("kind", "bus"),
-                                   "st": row.get("st", "r"), "code": "", "hidden": False})
+                                   "st": row.get("st", "r"), "code": "", "hidden": False,
+                                   "src": row.get("src") or "users"})
         self.by_id = {s["id"]: i for i, s in enumerate(self.stops)}
         extra = []
         for r in ov.get("add_routes") or ():
@@ -107,6 +229,13 @@ class Network:
                 continue
             if len(idx) >= 2:
                 extra.append(dict({k: v for k, v in r.items() if k != "stop_ids"}, stops=idx))
+        # citycov: users' stops (field reports / trip learning, confirmed by 3)
+        # put into the routes that serve them: {"route": id, "stop": stop id}
+        ins = {}
+        for x in ov.get("ins_stops") or ():
+            si = self.by_id.get(x.get("stop")) if isinstance(x, dict) else None
+            if si is not None and x.get("route"):
+                ins.setdefault(str(x["route"]), []).append(si)
         hidden_r = set(ov.get("hide_routes") or ())
         route_edit = ov.get("routes") or {}
         speeds = ov.get("route_speed") or {}
@@ -120,6 +249,8 @@ class Network:
                     acc += hav(sa["lat"], sa["lon"], sb["lat"], sb["lon"]) * 1.25 / 1000.0
                     km.append(round(acc, 3))
                 r["km"] = km
+            if r["id"] in ins:
+                r = insert_stops(r, ins[r["id"]], self.stops)
             r["learned_kmh"] = {int(h): float(v) for h, v in (speeds.get(r["id"]) or {}).items()}
             e = route_edit.get(r["id"])
             if e:
@@ -146,6 +277,20 @@ class Network:
             if isinstance(g, dict) and g.get("st") in range(len(self.stops)):
                 self.gates.setdefault(g["st"], []).append(g)
         self._index()
+
+    def coverage(self, core, cells=None):
+        """citycov: coverage of the live network (incl. owner / users' stops)."""
+        pts, segs = [], []
+        for i, s in enumerate(self.stops):
+            if not s["hidden"] and self.stop_routes[i]:
+                pts.append((s["lat"], s["lon"]))
+        for r in self.routes:
+            if r["hidden"] or r["mode"] in ("metro", "rail") or r.get("women_only"):
+                continue
+            for a, b in zip(r["stops"], r["stops"][1:]):
+                sa, sb = self.stops[a], self.stops[b]
+                segs.append((sa["lat"], sa["lon"], sb["lat"], sb["lon"]))
+        return coverage(core, pts, corridor_points(segs), cells)
 
     # ---------------------------------------------------------------- index
     def _index(self):
@@ -192,7 +337,9 @@ class Network:
         """[(stop, seconds, fare_lo, fare_hi, leg)] reachable from a point."""
         out = []
         for i, d in self.near(lat, lon, RICK_MAX):
-            if not any(self.routes[ri]["mode"] in modes for ri, _ in self.stop_routes[i]):
+            if not any(self.routes[ri]["mode"] in modes and (not self.routes[ri].get("women_only")
+                                                            or "women" in modes)
+                       for ri, _ in self.stop_routes[i]):
                 continue
             street = d * DETOUR
             if d <= WALK_MAX:
@@ -232,7 +379,7 @@ class Network:
             for si in marked:
                 for ri, pos in self.stop_routes[si]:
                     r = self.routes[ri]
-                    if r["mode"] not in modes:
+                    if r["mode"] not in modes or (r.get("women_only") and "women" not in modes):
                         continue
                     if pos < len(r["stops"]) - 1 and queue.get(ri, 1 << 30) > pos:
                         queue[ri] = pos
@@ -339,8 +486,7 @@ class Network:
         if not gs:
             return None
         g = min(gs, key=lambda g: hav(g["lat"], g["lon"], lat, lon))
-        return {k: g.get(k) for k in ("ref", "name", "name_bn", "side", "lat", "lon", "near",
-                                      "status")}
+        return {k: g.get(k) for k in GATE_KEYS}
 
     def _legs(self, res, olat, olon, dlat, dlon):
         chain = []
@@ -469,6 +615,15 @@ class Network:
             "legs": legs,
         }
 
+    @staticmethod
+    def _ricks(res):
+        n, lab = 0, res
+        while lab is not None:
+            if lab[5][0] in ("access", "egress") and lab[5][1] == "rickshaw":
+                n += 1
+            lab = lab[4]
+        return n
+
     def _night_cost(self, o):
         cost = o["minutes"] + o["walk_m"] / 40.0
         for l in o["legs"]:
@@ -486,8 +641,13 @@ class Network:
         res = [r for r in results if r[0] > 0]
         options = {}
         if res:
-            fastest = min(res, key=lambda r: (r[0], r[2]))
-            cap = fastest[0] * 1.6 + 20 * 60
+            quick = min(res, key=lambda r: (r[0], r[2]))
+            # realistic fastest: within a few minutes of the quickest, take
+            # the one with the fewest rickshaw legs, then the lower fare
+            slack = quick[0] + max(FAST_SLACK[0], quick[0] * FAST_SLACK[1])
+            fastest = min((r for r in res if r[0] <= slack),
+                          key=lambda r: (self._ricks(r), r[0] + r[2] * FARE_S))
+            cap = quick[0] * 1.6 + 20 * 60
             ok = [r for r in res if r[0] <= cap]
             cheapest = min(ok, key=lambda r: (r[2], r[1], r[0]))
             fewest = min(ok, key=lambda r: (r[3], r[0], r[2]))
@@ -501,8 +661,8 @@ class Network:
         direct = self._direct(crow, minute, pf)
         warn = []
         if any(l["mode"] == "metro" for o in options.values() for l in o["legs"]):
-            h = minute // 60
-            if h < 7 or h >= 21:
+            # first train 06:30 (Uttara North), last 21:50 / 22:30 (DMTCL, Oct 2026)
+            if minute < 6 * 60 + 30 or minute >= 21 * 60 + 50:
                 warn.append("metro_hours")
         return {"ok": bool(options), "options": options, "other_ways": direct,
                 "crow_km": round(crow / 1000.0, 2), "warnings": warn, "ms": ms,
@@ -534,13 +694,12 @@ class Network:
         s["code"] = self.stops[si]["code"]
         gates = []
         for g in self.gates.get(si) or ():
-            gg = {k: g.get(k) for k in ("ref", "name", "name_bn", "side", "lat", "lon", "near",
-                                        "status")}
+            gg = {k: g.get(k) for k in GATE_KEYS}
             gg["stands"] = [self._pt(x) for x in g.get("stands") or ()]
             gg["buses"] = sorted({(self.routes[x].get("name") or self.routes[x].get("ref") or "")
                                   for x in g.get("routes") or () if not self.routes[x]["hidden"]})
             gates.append(gg)
-        gates.sort(key=lambda g: str(g.get("ref") or ""))
+        gates.sort(key=lambda g: (str(g.get("ref") or "~"), str(g.get("name") or "")))
         best = self.best_gate(si, lat, lon) if lat is not None and lon is not None else None
         # connecting buses near the station even when gates are not mapped
         buses = set()

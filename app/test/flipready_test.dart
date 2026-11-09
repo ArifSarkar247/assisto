@@ -51,10 +51,12 @@ void _only(String? on) {
 List<String> _routesOf(String flag) =>
     [for (final e in kRouteFeature.entries) if (e.value == flag) e.key];
 
+// svcclean: a feature that is a SECTION inside one tile (e.g. fall
+// detection inside Emergency) counts as in the menu while its flag is on.
 Set<String> _sidebarFeatures() => {
       for (final s in SidebarSections.allModes)
         for (final i in s.items)
-          if (i.feature != null && i.visible) i.feature!,
+          if (i.visible) ...i.features,
     };
 
 bool _benign(Object e) =>

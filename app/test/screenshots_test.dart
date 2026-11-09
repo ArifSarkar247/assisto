@@ -43,6 +43,7 @@ import 'guardian2_shots.dart'; // guardian2
 import 'bubbles_shots.dart'; // bubbles
 import 'bubbles2_shots.dart'; // bubbles2
 import 'at100_shots.dart'; // at100
+import 'city_shots.dart'; // cityapp
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'callsbar_shots.dart'; // callsbar
@@ -65,6 +66,8 @@ import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
 import 'package:assisto/screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_share_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_child_school_screen.dart'; // sjlive
+import 'package:assisto/screens/safe_journey/kids_corner.dart'; // sjkids
+import 'fake_sjkids.dart'; // sjkids
 import 'package:assisto/screens/guardian_request_screen.dart'; // sjlive
 import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
@@ -232,9 +235,16 @@ import 'package:assisto/vault/vault_lock.dart' show MemoryKv, VaultLock; // p3do
 import 'package:assisto/vault/vault_share_sheet.dart' show VaultShareSheet; // p3docs
 import 'p3docs_fakes.dart'; // p3docs
 import 'package:assisto/screens/family_screen.dart';
+import 'package:assisto/family_v3/family_v3_screen.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_member_page.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_fix_guide.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_add_member.dart'; // fcscreen
+import 'fake_fcscreen.dart'; // fcscreen
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/emergency_hub_screen.dart';
+import 'package:assisto/screens/merged/phone_tiles.dart'; // svcclean
+import 'package:assisto/screens/home_v2/all_services_screen.dart' show AllServicesScreen; // svcclean
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
@@ -314,6 +324,9 @@ import 'package:assisto/screens/circle_privacy_screen.dart';
 import 'package:assisto/screens/circle_search_screen.dart';
 import 'package:assisto/screens/referral_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
+import 'package:assisto/services/journey_habits.dart' show JourneySuggestion; // sjstart2
+import 'package:assisto/widgets/journey_plate_photo.dart' show JourneyPlatePhotoTile, sj2PickPlatePhoto; // sjstart2
+import 'package:assisto/widgets/journey_watcher_chips.dart' show JourneyWatcherChips; // sjstart2
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_sos_screen.dart';
 import 'package:assisto/screens/journey_settings_screen.dart';
@@ -338,6 +351,7 @@ import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
+import 'cctvdet_shots.dart'; // cctvdet CCTV zone detections
 import 'cctvalerts_shots.dart'; // cctvalerts W3 alert types
 import 'cctvaicheck_shots.dart'; // cctvaicheck W4 AI check of the alert photo
 import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
@@ -345,16 +359,21 @@ import 'cctvcap_shots.dart'; // cctvcap: CCTV caps + extra pack
 import 'cctvactivity_shots.dart'; // cctvactivity W10 activity brain
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'phonecam_shots.dart'; // cctvphone old phone as a camera
+import 'ipcam_shots.dart'; // cctvbox IP camera + old phone (no PC)
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
+import 'cctvact_shots.dart'; // cctvact CCTV V3 D/E/F/G
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
 import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'fcbrain_shots.dart'; // fcbrain
 import 'fcsos_shots.dart'; // fcsos Family Care v3 SOS sender / receiver
+import 'fcelder_shots.dart'; // fcelder Elder easy home / setup / Silent Watch
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
+import 'cctvconnect_shots.dart'; // cctvconnect brand clouds + DVR health
+import 'cctvroles_shots.dart'; // cctvroles V3 I+J audit / staff / installer partners
 import 'booking1_shots.dart'; // booking1 booking bot
 import 'budrem_shots.dart'; // budrem Budget and Remittance
 import 'remhbar_shots.dart'; // remhbar Reminders & Notes launch bar
@@ -362,6 +381,7 @@ import 'remhbud_shots.dart'; // remhbud Budget module + empty remittance month
 import 'retention1_shots.dart'; // retention1 Retention automation
 import 'mktengine_shots.dart'; // mktengine Marketing Engine
 import 'bizai_shots.dart'; // bizai
+import 'bizai2_shots.dart'; // bizai2
 import 'p4_world_shots.dart'; // p4-world
 import 'p3farm_shots.dart'; // p3farm
 import 'c2_calls_shots.dart'; // c2-calls
@@ -570,6 +590,8 @@ void galleryPrime(String name) {
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
     admobumpPrime(name); // admobump: UMP state per shot
+    FcFake.scene = name.endsWith('_ok') ? 'ok' : name.endsWith('_sos') ? 'sos'
+        : name.endsWith('_abroad') ? 'abroad' : 'mixed'; // fcscreen
 }
 
 Map<String, GallerySpec> gallerySpecs() {
@@ -864,6 +886,25 @@ Map<String, GallerySpec> gallerySpecs() {
     'famcare_card': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.data, full: true),
     'famcare_card_empty': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.empty, full: false),
     'famcare_error': (build: (_) => const FamilyScreen(), mode: FakeMode.fail, full: false),
+    // fcscreen (Family Care v3, 9 Nov): every state, bn/en, light/dark
+    'fc3_board': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_lower': (build: (_) => const FamilyV3Screen(debugScrollOffset: 1400), mode: FakeMode.data, full: true),
+    'fc3_board_more': (build: (_) => const FamilyV3Screen(debugScrollOffset: 2600), mode: FakeMode.data, full: true),
+    'fc3_board_ok': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_sos': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_abroad': (build: (_) => const FamilyV3Screen(debugScrollOffset: 2600), mode: FakeMode.data, full: false),
+    'fc3_board_empty': (build: (_) => const FamilyV3Screen(), mode: FakeMode.empty, full: true),
+    'fc3_board_error': (build: (_) => const FamilyV3Screen(), mode: FakeMode.fail, full: true),
+    'fc3_member': (build: (l) => FcMemberPage(familyId: 10, userId: 2, seed: fcFakeMembers(bn: l == 'bn')[2]), mode: FakeMode.data, full: true),
+    'fc3_member_stale': (build: (l) => FcMemberPage(familyId: 10, userId: 4, seed: fcFakeMembers(bn: l == 'bn')[0]), mode: FakeMode.data, full: true),
+    'fc3_fix': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u0986\u09ac\u09cd\u09ac\u09c1' : 'Abbu', reason: 'battery_off', brain: const {'battery': 4, 'brand': 'Realme'}))), mode: FakeMode.data, full: true),
+    'fc3_fix_bg': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u09b8\u09be\u0995\u09bf\u09ac' : 'Sakib', reason: 'background_killed', brain: const {'brand': 'Xiaomi'}))), mode: FakeMode.data, full: true),
+    'fc3_add': (build: (_) => const Scaffold(body: SafeArea(child: FcAddMemberSheet(familyId: 10, inFamily: {}))), mode: FakeMode.data, full: true),
+    // fcrest: Probashi both clocks (top of the board), member page settings
+    // (Where I live / name / remove), area + 15 % battery last place
+    'fcr_board_top_abroad': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true), // fcrest
+    'fcr_member_me': (build: (l) => FcMemberPage(familyId: 10, userId: 1, seed: fcFakeMembers(bn: l == 'bn').last, myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
+    'fcr_member_admin': (build: (l) => FcMemberPage(familyId: 10, userId: 5, seed: fcFakeMembers(bn: l == 'bn')[1], myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
     // train: tracker list / empty / error, live, estimate, chat, join, alarm setup
     'train_list': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),
@@ -874,6 +915,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'train_chat': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.data, full: true),
     'train_chat_join': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.empty, full: false),
     'dest_alarm': (build: (_) => const DestAlarmScreen(), mode: FakeMode.data, full: true),
+    // sjtrain (Safe Journey V2): train screen with a saved seat (seat card
+    // filled), chat closed before departure, alarm "by minutes"
+    'sjt_train_seat': (build: (_) { SharedPreferences.setMockInitialValues({'sjt_seat_701': '{"coach":"ঝ","seat":"32"}'}); return const TrainLiveScreen(no: '701', date: '2026-11-03'); }, mode: FakeMode.data, full: true),
+    'sjt_alarm_minutes': (build: (_) { SharedPreferences.setMockInitialValues({'dest_alarm_by_min_v1': '{"by":true,"min":10}'}); return const DestAlarmScreen(); }, mode: FakeMode.data, full: true),
     // sjlive (owner 3 Nov): Safe Journey three cards (Live Location default),
     // card 1's four buttons, Who is where now, real life; the four screens
     'sjl_hub': (build: (_) => const _SjFlags(child: SafeJourneyHubScreen(oem: _ShotOem())), mode: FakeMode.data, full: true),
@@ -881,6 +926,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'sjl_share': (build: (_) => const SjShareScreen(oem: _ShotOem()), mode: FakeMode.data, full: true),
     'sjl_school': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.data, full: true),
     'sjl_school_empty': (build: (_) => const SjChildSchoolScreen(), mode: FakeMode.empty, full: true),
+    // sjkids: Children Corner — the guardian question card, places list, add form
+    'sjkids_section': (build: (l) => Scaffold(appBar: AppBar(title: Text(l == 'bn' ? 'স্কুলে সন্তান' : 'Child School')), body: ListView(padding: const EdgeInsets.all(16), children: [Card(child: Padding(padding: const EdgeInsets.all(16), child: KidsCornerSection(plan: kcFakePlan(l), onChanged: () async {})))])), mode: FakeMode.data, full: true),
+    'sjkids_places': (build: (l) => KidsPlacesScreen(plan: kcFakePlan(l)), mode: FakeMode.data, full: true),
+    'sjkids_places_empty': (build: (l) => KidsPlacesScreen(plan: kcFakePlan(l, empty: true)), mode: FakeMode.data, full: true),
+    'sjkids_form': (build: (l) => Scaffold(body: SafeArea(child: KidsPlaceForm(place: kcFakePlaces(l)[1]))), mode: FakeMode.data, full: true),
     'sjl_request': (build: (l) => GuardianRequestScreen(locationOnly: true, people: [
           {'member_id': 3, 'name': l == 'bn' ? 'আম্মু' : 'Ammu'},
           {'member_id': 4, 'name': l == 'bn' ? 'রিনা' : 'Rina'},
@@ -1006,6 +1056,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     // emhub: the Emergency hub (SOS first, 999, then the rest by urgency)
     'emergency_hub': (build: (_) => const EmergencyHubScreen(), mode: FakeMode.data, full: true),
+    // svcclean (owner 10 Nov): All Services after the cleanup + the merged tiles
+    'svc_all_services': (build: (_) => const AllServicesScreen(), mode: FakeMode.data, full: true),
+    'svc_lost_phone': (build: (_) => const LostPhoneTileScreen(), mode: FakeMode.data, full: true),
+    'svc_phone_safety': (build: (_) => const PhoneSafetyTileScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
     // remmeter: delivery check + recharge paths (sheets shown as pages)
     'rem_check': (build: (_) {
@@ -1104,6 +1158,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'qv_ayah_qf_pending': (build: (_) { SharedPreferences.setMockInitialValues({}); QuranBilingualApi.clearForTest(); return AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: QuranBilingualApi((p) async => fakeQuranViewGet(p, qfOn: false)!)); }, mode: FakeMode.data, full: true),
     'qv_tafsir_shan': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 80, aya: 1))); }, mode: FakeMode.data, full: true),
     'qv_tafsir_none': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 1, aya: 1))); }, mode: FakeMode.data, full: true),
+    // quranshikhi: the owner-approved letter lesson (bn + en lines, four forms,
+    // makhraj, under review, streak), joining letters, a new short sura.
+    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba'), mode: FakeMode.data, full: true),
+    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress()), mode: FakeMode.data, full: true),
+    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
@@ -1152,6 +1211,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
+    for (final e in cctvdetShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvdet
     for (final e in cctvalertsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvalerts
     for (final e in cctvaicheckShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvaicheck
     for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
@@ -1159,16 +1219,21 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvactivityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvactivity
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in phonecamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvphone
+    for (final e in ipcamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvbox
     for (final e in cctvxShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvx
     for (final e in cctvevidenceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvevidence
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
+    for (final e in cctvactShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvact
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in fcbrainShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcbrain
     for (final e in fcsosShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcsos
+    for (final e in fcelderShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcelder
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
+    for (final e in cctvconnectShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvconnect
+    for (final e in cctvrolesShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvroles
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
     for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in bizopsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizops
@@ -1178,6 +1243,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     for (final e in mktengineShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // mktengine
     for (final e in bizaiShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizai
+    for (final e in bizai2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizai2
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent
@@ -1194,6 +1260,20 @@ Map<String, GallerySpec> gallerySpecs() {
     'nearby_general': (build: (_) => const NearbyScreen(placeType: 'atm', debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
     'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
+    // sjstart2: "Who watches" chips (family first, more than one) + plate photo; usual-trip suggestion
+    'sjstart2_watchers': (build: (l) { var sel = <int>{1, 2}; return StatefulBuilder(builder: (c, set) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).journeyWhoKnows)), body: ListView(padding: const EdgeInsets.all(16), children: [
+          JourneyWatcherChips(rows: [
+            {'id': 1, 'name': l == 'bn' ? 'আম্মু' : 'Mum', 'relation': 'mother'},
+            {'id': 2, 'name': l == 'bn' ? 'আব্বু' : 'Dad', 'relation': 'father'},
+            {'id': 3, 'name': l == 'bn' ? 'রিনা (বোন)' : 'Rina (sister)', 'relation': 'sister'},
+            {'id': 4, 'name': l == 'bn' ? 'রাফি (অফিস)' : 'Rafi (office)', 'relation': 'colleague'},
+          ], selected: sel, onChanged: (v) => set(() => sel = v)),
+          const SizedBox(height: 8),
+          Text(AppLocalizations.of(c).sj2WatchCount(l == 'bn' ? const ['০', '১', '২', '৩', '৪'][sel.length] : '${sel.length}')),
+          const SizedBox(height: 16),
+          JourneyPlatePhotoTile(bytes: null, onPick: () => sj2PickPlatePhoto(c), onRemove: () {}),
+        ]))); }, mode: FakeMode.data, full: true),
+    'sjstart2_suggest': (build: (l) => JourneyStartScreen(suggest: JourneySuggestion(oLat: 23.78, oLng: 90.426, dLat: 23.7925, dLng: 90.4078, name: l == 'bn' ? 'অফিস' : 'Office', kind: 'office', mode: 'cng', usualMin: 510, times: 4)), mode: FakeMode.data, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
     'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),
@@ -1373,6 +1453,9 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in bubbles2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // at100: remote switches (owner / offline / trusted), watched phones, intruder consent
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // cityapp: City Service (route options, steps, metro guide, around me, live, women, offices)
+    for (final e in cityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in cityEmptyShots.entries) e.key: (build: e.value, mode: FakeMode.empty, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again

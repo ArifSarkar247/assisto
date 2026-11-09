@@ -1,0 +1,42 @@
+{
+  "_doc": "fcscreen: one case table for core/logic/family_status.py AND app/lib/family_v3/fc_status.dart (zero false green). now is the same for every case.",
+  "now": "2026-11-09T10:00:00Z",
+  "cases": [
+    {"id": "never_reported", "brain": {}, "flags": {}, "state": "stale", "reason": "never"},
+    {"id": "garbage_last_seen", "brain": {"last_seen": "yesterday-ish"}, "flags": {}, "state": "stale", "reason": "never"},
+    {"id": "fresh_ok", "brain": {"last_seen": "2026-11-09T09:30:00Z", "battery": 80}, "flags": {}, "state": "ok", "reason": "ok", "fresh_until": "2026-11-09T12:30:00Z"},
+    {"id": "exactly_at_interval_is_ok", "brain": {"last_seen": "2026-11-09T07:00:00Z", "battery": 60}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "one_second_past_interval_gray", "brain": {"last_seen": "2026-11-09T06:59:59Z", "battery": 60}, "flags": {}, "state": "stale", "reason": "background_killed"},
+    {"id": "stale_dead_battery", "brain": {"last_seen": "2026-11-09T04:00:00Z", "battery": 4}, "flags": {}, "state": "stale", "reason": "battery_off"},
+    {"id": "stale_dead_battery_but_charging", "brain": {"last_seen": "2026-11-09T04:00:00Z", "battery": 4, "charging": true, "net": "none"}, "flags": {}, "state": "stale", "reason": "no_internet"},
+    {"id": "stale_no_internet", "brain": {"last_seen": "2026-11-09T04:00:00Z", "battery": 70, "net": "none"}, "flags": {}, "state": "stale", "reason": "no_internet"},
+    {"id": "stale_bg_restricted", "brain": {"last_seen": "2026-11-09T04:00:00Z", "battery": 70, "net": "wifi", "bg_restricted": true}, "flags": {}, "state": "stale", "reason": "background_killed"},
+    {"id": "short_interval_stale", "brain": {"last_seen": "2026-11-09T09:30:00Z", "interval_s": 900, "battery": 90}, "flags": {}, "state": "stale", "reason": "background_killed"},
+    {"id": "interval_clamped_up_to_15min", "brain": {"last_seen": "2026-11-09T09:50:00Z", "interval_s": 60}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "interval_clamped_down_to_24h", "brain": {"last_seen": "2026-11-07T09:00:00Z", "interval_s": 999999}, "flags": {}, "state": "stale", "reason": "background_killed"},
+    {"id": "future_timestamp_never_green", "brain": {"last_seen": "2026-11-09T11:00:00Z", "battery": 90}, "flags": {}, "state": "stale", "reason": "clock"},
+    {"id": "small_future_skew_ok", "brain": {"last_seen": "2026-11-09T10:03:00Z", "battery": 90}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "low_battery_amber", "brain": {"last_seen": "2026-11-09T09:55:00Z", "battery": 12}, "flags": {}, "state": "check", "reason": "battery_low"},
+    {"id": "low_battery_charging_ok", "brain": {"last_seen": "2026-11-09T09:55:00Z", "battery": 12, "charging": true}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "watch_amber", "brain": {"last_seen": "2026-11-09T09:55:00Z", "battery": 90}, "flags": {"watch": true}, "state": "check", "reason": "watch"},
+    {"id": "carecall_missed_amber", "brain": {"last_seen": "2026-11-09T09:55:00Z", "battery": 90}, "flags": {"carecall_missed": true}, "state": "check", "reason": "carecall_missed"},
+    {"id": "custom_amber_reason", "brain": {"last_seen": "2026-11-09T09:55:00Z"}, "flags": {"amber_reason": "no_unlock"}, "state": "check", "reason": "no_unlock"},
+    {"id": "stale_beats_amber", "brain": {"last_seen": "2026-11-08T09:55:00Z", "battery": 50}, "flags": {"watch": true}, "state": "stale", "reason": "background_killed"},
+    {"id": "sos_beats_everything", "brain": {}, "flags": {"sos": true, "watch": true}, "state": "sos", "reason": "sos"},
+    {"id": "paused_not_green", "brain": {"last_seen": "2026-11-09T09:55:00Z", "paused_until": "2026-11-09T11:00:00Z"}, "flags": {}, "state": "paused", "reason": "paused"},
+    {"id": "pause_over_back_to_rules", "brain": {"last_seen": "2026-11-09T09:55:00Z", "paused_until": "2026-11-09T09:00:00Z", "battery": 70}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "sos_while_paused_still_red", "brain": {"paused_until": "2026-11-09T11:00:00Z"}, "flags": {"sos": true}, "state": "sos", "reason": "sos"},
+    {"id": "epoch_seconds_last_seen", "brain": {"last_seen": 1794216600, "battery": 50}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "naive_iso_is_utc", "brain": {"last_seen": "2026-11-09T09:40:00", "battery": 50}, "flags": {}, "state": "ok", "reason": "ok"},
+    {"id": "battery_string_ok", "brain": {"last_seen": "2026-11-09T09:40:00Z", "battery": "10"}, "flags": {}, "state": "check", "reason": "battery_low"}
+  ],
+  "lines": [
+    {"id": "empty", "rows": [], "state": "empty"},
+    {"id": "all_ok", "rows": [{"user_id": 1, "name": "A", "state": "ok"}, {"user_id": 2, "name": "B", "state": "ok"}], "state": "ok"},
+    {"id": "one_stale", "rows": [{"user_id": 1, "name": "A", "state": "ok"}, {"user_id": 2, "name": "B", "state": "stale", "reason": "battery_off"}], "state": "stale", "name": "B"},
+    {"id": "amber_beats_gray", "rows": [{"user_id": 2, "name": "B", "state": "stale"}, {"user_id": 3, "name": "C", "state": "check", "reason": "watch"}], "state": "check", "name": "C"},
+    {"id": "sos_beats_all", "rows": [{"user_id": 3, "name": "C", "state": "check"}, {"user_id": 4, "name": "D", "state": "sos"}], "state": "sos", "name": "D"},
+    {"id": "paused_is_not_all_ok", "rows": [{"user_id": 1, "name": "A", "state": "ok"}, {"user_id": 5, "name": "E", "state": "paused"}], "state": "stale", "name": "E"},
+    {"id": "unknown_state_never_green", "rows": [{"user_id": 1, "name": "A", "state": "ok"}, {"user_id": 6, "name": "F", "state": "weird"}], "state": "stale", "name": "F"}
+  ]
+}

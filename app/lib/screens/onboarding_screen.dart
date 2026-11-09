@@ -1,3 +1,4 @@
+import '../family_v3/family_entry.dart'; // fcscreen
 import '../voice/va_onboarding_step.dart';
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
@@ -262,7 +263,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 OnbFirstWin(role: _role, onPick: _openWin),
                 OnbLinkParent(
                   ivrEnabled: widget.ivrEnabled,
-                  onOpenFamily: () => _open(const FamilyScreen()),
+                  onOpenFamily: () => _open(const FamilyEntry()), // fcscreen
                   onSkip: _finish,
                 ),
               ],

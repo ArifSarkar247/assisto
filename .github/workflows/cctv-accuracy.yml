@@ -8,7 +8,20 @@ on:
     paths:
       - "tools/e2e/cctv_accuracy.py"
       - ".github/workflows/cctv-accuracy.yml"
+      - "edge/shopbox/shopbox/motion.py"
+      - "edge/shopbox/shopbox/motion_gate.py"
+      - "edge/shopbox/shopbox/night.py"
+      - "edge/shopbox/shopbox/analyzer.py"
+      - "edge/shopbox/shopbox/cctv_thresholds.json"
   workflow_dispatch:
+    inputs:
+      night_cam_hours:
+        description: "Simulated night camera-hours for the false-alert estimate"
+        default: "252"
+      use_owner_clips:
+        description: "Also score the owner's private clips (secret CCTV_OWNER_CLIPS_URL)"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -16,7 +29,7 @@ permissions:
 jobs:
   accuracy:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 130
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,14 +45,40 @@ jobs:
         run: python -m shopbox.model_fetch models/yolox_nano.onnx
       - name: COCO val2017 annotations (CC BY 4.0)
         run: |
-          curl -sSfL -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
           unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+      # cctvacc: OWNER CLIPS (optional, private). The owner's labeled clips
+      # live ONLY in a private bucket; the Actions secret CCTV_OWNER_CLIPS_URL
+      # holds a time-limited signed link to a zip with labels.csv
+      # (file,label[,night]; label = person | no_person) + the images / mp4s.
+      # They are downloaded to the runner's temp dir, scored, and deleted;
+      # only aggregate numbers reach the artifact. Never commit real clips.
+      - name: Owner clips (private, optional)
+        id: owner
+        if: github.event_name == 'workflow_dispatch' && inputs.use_owner_clips
+        env:
+          CLIPS_URL: ${{ secrets.CCTV_OWNER_CLIPS_URL }}
+        run: |
+          if [ -z "$CLIPS_URL" ]; then echo "no owner clips secret set - skipped"; exit 0; fi
+          mkdir -p "$RUNNER_TEMP/owner_clips"
+          curl -sSfL -o "$RUNNER_TEMP/owner.zip" "$CLIPS_URL"
+          unzip -q "$RUNNER_TEMP/owner.zip" -d "$RUNNER_TEMP/owner_clips"
+          rm -f "$RUNNER_TEMP/owner.zip"
+          test -f "$RUNNER_TEMP/owner_clips/labels.csv"
+          echo "dir=$RUNNER_TEMP/owner_clips" >> "$GITHUB_OUTPUT"
       - name: Evaluate
+        env:
+          NIGHT_HOURS: ${{ inputs.night_cam_hours || '252' }}
+          OWNER_DIR: ${{ steps.owner.outputs.dir }}
         run: |
           set -o pipefail
           python tools/e2e/cctv_accuracy.py --ann /tmp/ann/instances_val2017.json \
-            --model edge/shopbox/models/yolox_nano.onnx --out cctv_accuracy.json --n 300 \
+            --model edge/shopbox/models/yolox_nano.onnx --out cctv_accuracy.json --n 400 \
+            --night-cam-hours "$NIGHT_HOURS" --owner-clips "${OWNER_DIR:-}" \
             | tee cctv_accuracy.txt
+      - name: Delete owner clips from the runner
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/owner_clips" "$RUNNER_TEMP/owner.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: cctv-accuracy

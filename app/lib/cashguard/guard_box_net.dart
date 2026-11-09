@@ -121,6 +121,24 @@ String? mediaXAddr(String capsXml) {
 String? firstProfileToken(String profilesXml) =>
     RegExp(r'<(?:[A-Za-z0-9]+:)?Profiles[^>]*\btoken="([^"]+)"').firstMatch(profilesXml)?.group(1);
 
+/// cctvbox: one authenticated ONVIF SOAP call; the body XML or null (never
+/// throws). Used for GetStreamUri (lib/ipcam/ipcam_presets.dart).
+Future<String?> onvifCall(String url, String body, String user, String pass, {http.Client? client}) async {
+  final cl = client ?? http.Client();
+  try {
+    final r = await cl
+        .post(Uri.parse(url),
+            headers: {'Content-Type': 'application/soap+xml; charset=utf-8'},
+            body: _soap(body, user, pass))
+        .timeout(const Duration(seconds: 6));
+    return r.statusCode == 200 ? r.body : null;
+  } catch (_) {
+    return null;
+  } finally {
+    if (client == null) cl.close();
+  }
+}
+
 /// ONVIF snapshot URL of a camera, or null (ONVIF off / no snapshot support).
 Future<String?> onvifSnapshotUri(String xaddr, String user, String pass, {http.Client? client}) async {
   final cl = client ?? http.Client();

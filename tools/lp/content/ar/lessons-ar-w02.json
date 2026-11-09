@@ -1,0 +1,1319 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ar",
+ "week": 2,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "ar_work"
+ ],
+ "title": {
+  "en": "Week 2: Arabic at work",
+  "bn": "সপ্তাহ ২: কাজের জায়গায় আরবি"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official course, exam material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল কোর্স, পরীক্ষার উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 global-scale descriptors; Gulf workplace usage (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook text."
+ },
+ "lessons": [
+  {
+   "id": "ar-w02-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "People at work and saying what you want",
+    "bn": "কাজের জায়গার মানুষ আর 'আমি চাই' বলা"
+   },
+   "goal_bn": "ম্যানেজার, সুপারভাইজার, কফিল আর সহকর্মী — কে কে, তা চিনবেন; 'আবি' (কথ্য) আর 'উরিদ' (শুদ্ধ) দিয়ে নিজের দরকার বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "الْمُدِير",
+     "roman": "al-mudeer",
+     "bn_pron": "আল-মুদীর",
+     "register": "both",
+     "bn": "ম্যানেজার / পরিচালক",
+     "pos": "noun",
+     "example": {
+      "target": "المدير في المكتب.",
+      "roman": "al-mudeer fil-maktab.",
+      "bn": "ম্যানেজার অফিসে আছেন।"
+     }
+    },
+    {
+     "target": "الْمُشْرِف",
+     "roman": "al-mushrif",
+     "bn_pron": "আল-মুশরিফ",
+     "register": "both",
+     "bn": "সুপারভাইজার",
+     "pos": "noun",
+     "example": {
+      "target": "المشرف يعطينا الشغل.",
+      "roman": "al-mushrif ya'teena ash-shughul.",
+      "bn": "সুপারভাইজার আমাদের কাজ দেন।"
+     }
+    },
+    {
+     "target": "الْكَفِيل",
+     "roman": "al-kafeel",
+     "bn_pron": "আল-কাফীল",
+     "register": "both",
+     "bn": "কফিল / স্পনসর (নিয়োগকর্তা)",
+     "pos": "noun",
+     "example": {
+      "target": "الكفيل صاحب الشركة.",
+      "roman": "al-kafeel saahib ash-sharika.",
+      "bn": "কফিল কোম্পানির মালিক।"
+     }
+    },
+    {
+     "target": "زَمِيل",
+     "roman": "zameel",
+     "bn_pron": "যামীল",
+     "register": "both",
+     "bn": "সহকর্মী (পুরুষ; নারী: যামীলা)",
+     "pos": "noun",
+     "example": {
+      "target": "هذا زميلي من الهند.",
+      "roman": "haadha zameeli min al-hind.",
+      "bn": "ইনি ভারত থেকে আসা আমার সহকর্মী।"
+     }
+    },
+    {
+     "target": "أَبِي",
+     "roman": "abi",
+     "bn_pron": "আবি",
+     "register": "gulf",
+     "bn": "আমি চাই (কথ্য)",
+     "pos": "verb",
+     "example": {
+      "target": "أبي أكلم المشرف.",
+      "roman": "abi akallim al-mushrif.",
+      "bn": "আমি সুপারভাইজারের সাথে কথা বলতে চাই।"
+     }
+    },
+    {
+     "target": "أُرِيد",
+     "roman": "ureed",
+     "bn_pron": "উরীদ",
+     "register": "msa",
+     "bn": "আমি চাই (শুদ্ধ/অফিসের ভাষা)",
+     "pos": "verb",
+     "example": {
+      "target": "أريد مقابلة المدير.",
+      "roman": "ureed muqaabalat al-mudeer.",
+      "bn": "আমি ম্যানেজারের সাথে দেখা করতে চাই।"
+     }
+    },
+    {
+     "target": "شُغْل",
+     "roman": "shughul",
+     "bn_pron": "শুগুল",
+     "register": "gulf",
+     "bn": "কাজ (কথ্য; শুদ্ধ: আমাল عمل)",
+     "pos": "noun",
+     "example": {
+      "target": "الشغل اليوم كثير.",
+      "roman": "ash-shughul al-yom katheer.",
+      "bn": "আজ কাজ অনেক।"
+     }
+    },
+    {
+     "target": "شَرِكَة",
+     "roman": "sharika",
+     "bn_pron": "শারিকা",
+     "register": "both",
+     "bn": "কোম্পানি",
+     "pos": "noun",
+     "example": {
+      "target": "أشتغل في شركة تنظيف.",
+      "roman": "ashtaghil fi sharikat tanzeef.",
+      "bn": "আমি একটা ক্লিনিং কোম্পানিতে কাজ করি।"
+     }
+    },
+    {
+     "target": "وَيْن",
+     "roman": "wein",
+     "bn_pron": "ওয়েন",
+     "register": "gulf",
+     "bn": "কোথায়? (কথ্য; শুদ্ধ: আইনা أين)",
+     "pos": "question",
+     "example": {
+      "target": "وين المشرف؟",
+      "roman": "wein al-mushrif?",
+      "bn": "সুপারভাইজার কোথায়?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "أبي (কথ্য) = أريد (শুদ্ধ) + বিশেষ্য/ক্রিয়া",
+     "explain_bn": "উপসাগরীয় দেশে মুখে 'আবি' বলা হয় (সৌদিতে কেউ কেউ 'আবগা' বলে); অফিস, ফর্ম আর লেখায় 'উরীদ'। পরে বিশেষ্য বা ক্রিয়া বসে: أبي ماي (পানি চাই), أبي أروح (যেতে চাই)। 'চাই না' = ما أبي।",
+     "examples": [
+      {
+       "target": "أبي إجازة.",
+       "roman": "abi ijaaza.",
+       "bn": "আমি ছুটি চাই।"
+      },
+      {
+       "target": "ما أبي شاي، شكرا.",
+       "roman": "ma abi chaay, shukran.",
+       "bn": "চা চাই না, ধন্যবাদ।"
+      },
+      {
+       "target": "أريد تجديد الإقامة.",
+       "roman": "ureed tajdeed al-iqaama.",
+       "bn": "আমি ইকামা নবায়ন করতে চাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "ـي = আমার (زميلي، مديري)",
+     "explain_bn": "বিশেষ্যের শেষে ـي যোগ করলে 'আমার': زميل → زميلي (আমার সহকর্মী)। শব্দ ة দিয়ে শেষ হলে ة → ت হয়: شركة → شركتي (আমার কোম্পানি)।",
+     "examples": [
+      {
+       "target": "مديري زين.",
+       "roman": "mudeeri zein.",
+       "bn": "আমার ম্যানেজার ভালো মানুষ।"
+      },
+      {
+       "target": "شركتي في الرياض.",
+       "roman": "sharikti fir-riyaadh.",
+       "bn": "আমার কোম্পানি রিয়াদে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w02-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "colleague"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "وين المشرف؟ أبي أكلمه."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "المشرف في المخزن، تعال معي."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সুপারভাইজার কোথায়?",
+      "options": [
+       "في المكتب",
+       "في المطعم",
+       "في المخزن",
+       "في السيارة"
+      ],
+      "answer": "C",
+      "explain_bn": "সহকর্মী বলেছে 'في المخزن' — গুদামে।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w02-l1-r1",
+      "passage": "إلى جميع العمال: المدير الجديد يزور الموقع يوم الأحد.",
+      "prompt_bn": "নোটিশে কে আসবেন?",
+      "options": [
+       "নতুন ম্যানেজার",
+       "কফিল",
+       "নতুন শ্রমিক",
+       "ডাক্তার"
+      ],
+      "answer": "A",
+      "explain_bn": "'المدير الجديد' = নতুন ম্যানেজার; তিনি রবিবার সাইটে আসবেন। নোটিশ শুদ্ধ (MSA) ভাষায় লেখা।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w02-l1-w1",
+      "prompt_bn": "আরবিতে লিখুন: 'আমি সুপারভাইজারের সাথে কথা বলতে চাই।' (কথ্য রূপে)",
+      "model": {
+       "target": "أبي أكلم المشرف.",
+       "roman": "abi akallim al-mushrif.",
+       "bn": "আমি সুপারভাইজারের সাথে কথা বলতে চাই।"
+      },
+      "check": "ai",
+      "min_words": 2,
+      "max_words": 6
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w02-l1-s1",
+      "prompt_bn": "জোরে বলুন: নতুন সহকর্মীকে নিজের ম্যানেজার আর কোম্পানির নাম বলুন।",
+      "model": {
+       "target": "مديري اسمه خالد، وشركتي شركة بناء.",
+       "roman": "mudeeri ismuh khaalid, w-sharikti sharikat binaa'.",
+       "bn": "আমার ম্যানেজারের নাম খালেদ, আমার কোম্পানি একটা নির্মাণ কোম্পানি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w02-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Time and shifts",
+    "bn": "সময় আর ডিউটি-শিফট"
+   },
+   "goal_bn": "'কয়টা বাজে', ডিউটি কখন শুরু-শেষ, সকাল-সন্ধ্যা শিফট — কাজের সময় আরবিতে জিজ্ঞেস করতে ও বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "كَمِ السَّاعَة",
+     "roman": "kam as-saa'a",
+     "bn_pron": "কাম আস-সাআ",
+     "register": "both",
+     "bn": "কয়টা বাজে?",
+     "pos": "question",
+     "example": {
+      "target": "لو سمحت، كم الساعة؟",
+      "roman": "law samaht, kam as-saa'a?",
+      "bn": "একটু বলবেন, কয়টা বাজে?"
+     }
+    },
+    {
+     "target": "دَوَام",
+     "roman": "dawaam",
+     "bn_pron": "দাওয়াম",
+     "register": "both",
+     "bn": "ডিউটি / কাজের সময়",
+     "pos": "noun",
+     "example": {
+      "target": "الدوام من سبعة إلى أربعة.",
+      "roman": "ad-dawaam min sab'a ila arba'a.",
+      "bn": "ডিউটি সাতটা থেকে চারটা।"
+     }
+    },
+    {
+     "target": "الصُّبْح",
+     "roman": "as-subh",
+     "bn_pron": "আস-সুবহ",
+     "register": "gulf",
+     "bn": "সকাল (কথ্য)",
+     "pos": "noun",
+     "example": {
+      "target": "أجي الساعة ستة الصبح.",
+      "roman": "aji as-saa'a sitta as-subh.",
+      "bn": "আমি সকাল ছয়টায় আসি।"
+     }
+    },
+    {
+     "target": "الْمَسَاء",
+     "roman": "al-masaa'",
+     "bn_pron": "আল-মাসা",
+     "register": "both",
+     "bn": "সন্ধ্যা",
+     "pos": "noun",
+     "example": {
+      "target": "دوامي في المساء.",
+      "roman": "dawaami fil-masaa'.",
+      "bn": "আমার ডিউটি সন্ধ্যায়।"
+     }
+    },
+    {
+     "target": "نُصّ",
+     "roman": "nuss",
+     "bn_pron": "নুস",
+     "register": "gulf",
+     "bn": "আধা / সাড়ে (শুদ্ধ: নিসফ نصف)",
+     "pos": "noun",
+     "example": {
+      "target": "الساعة ثلاث ونص.",
+      "roman": "as-saa'a thalaath w-nuss.",
+      "bn": "সাড়ে তিনটা।"
+     }
+    },
+    {
+     "target": "رُبْع",
+     "roman": "rub'",
+     "bn_pron": "রুব",
+     "register": "both",
+     "bn": "চতুর্থাংশ / সোয়া (১৫ মিনিট)",
+     "pos": "noun",
+     "example": {
+      "target": "الساعة خمسة وربع.",
+      "roman": "as-saa'a khamsa w-rub'.",
+      "bn": "সোয়া পাঁচটা।"
+     }
+    },
+    {
+     "target": "بَدْرِي",
+     "roman": "badri",
+     "bn_pron": "বাদরি",
+     "register": "gulf",
+     "bn": "তাড়াতাড়ি / আগে",
+     "pos": "adverb",
+     "example": {
+      "target": "بكرة تعال بدري.",
+      "roman": "bukra ta'aal badri.",
+      "bn": "কাল তাড়াতাড়ি এসো।"
+     }
+    },
+    {
+     "target": "مُتَأَخِّر",
+     "roman": "mit'akhkhir",
+     "bn_pron": "মিতআখখির",
+     "register": "both",
+     "bn": "দেরি করা / দেরিতে",
+     "pos": "adjective",
+     "example": {
+      "target": "الباص متأخر اليوم.",
+      "roman": "al-baas mit'akhkhir al-yom.",
+      "bn": "আজ বাস দেরিতে।"
+     }
+    },
+    {
+     "target": "اسْتِرَاحَة",
+     "roman": "istiraaha",
+     "bn_pron": "ইস্তিরাহা",
+     "register": "both",
+     "bn": "বিরতি / ব্রেক",
+     "pos": "noun",
+     "example": {
+      "target": "الاستراحة ساعة واحدة.",
+      "roman": "al-istiraaha saa'a waahda.",
+      "bn": "বিরতি এক ঘণ্টা।"
+     }
+    },
+    {
+     "target": "الْحِين",
+     "roman": "al-heen",
+     "bn_pron": "আল-হীন",
+     "register": "gulf",
+     "bn": "এখন (শুদ্ধ: আল-আন الآن)",
+     "pos": "adverb",
+     "example": {
+      "target": "تعال الحين.",
+      "roman": "ta'aal al-heen.",
+      "bn": "এখনই এসো।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "الساعة + সংখ্যা (+ و نص / و ربع / إلا ربع)",
+     "explain_bn": "সময় বলতে: الساعة + সংখ্যা। সাড়ে = و نص, সোয়া = و ربع, পৌনে = إلا ربع (… থেকে ১৫ মিনিট কম)। সকাল-বিকেল বোঝাতে শেষে الصبح বা العصر/المساء যোগ করুন।",
+     "examples": [
+      {
+       "target": "الساعة سبعة ونص الصبح.",
+       "roman": "as-saa'a sab'a w-nuss as-subh.",
+       "bn": "সকাল সাড়ে সাতটা।"
+      },
+      {
+       "target": "الساعة أربعة إلا ربع.",
+       "roman": "as-saa'a arba'a illa rub'.",
+       "bn": "পৌনে চারটা।"
+      }
+     ]
+    },
+    {
+     "pattern": "من … إلى … (… থেকে … পর্যন্ত)",
+     "explain_bn": "শিফট বা ডিউটি বলতে من (থেকে) আর إلى (পর্যন্ত) — কথ্য ভাষায় إلى-এর বদলে لين (লেইন)-ও শুনবেন।",
+     "examples": [
+      {
+       "target": "الدوام من ستة لين ثلاثة.",
+       "roman": "ad-dawaam min sitta leen thalaatha.",
+       "bn": "ডিউটি ছয়টা থেকে তিনটা।"
+      },
+      {
+       "target": "الاستراحة من ١٢ إلى ١.",
+       "roman": "al-istiraaha min ithna'sh ila waahid.",
+       "bn": "বিরতি ১২টা থেকে ১টা।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w02-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "supervisor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "بكرة الدوام يبدأ الساعة ستة ونص، لا تتأخر."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "زين، إن شاء الله أجي بدري."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কাল ডিউটি কয়টায় শুরু?",
+      "options": [
+       "৬টা",
+       "সাড়ে ৬টা",
+       "৭টা",
+       "সাড়ে ৭টা"
+      ],
+      "answer": "B",
+      "explain_bn": "'ستة ونص' = সাড়ে ছয়টা।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w02-l2-r1",
+      "passage": "جدول الدوام: الصباح ٦ - ٢. المساء ٢ - ١٠. الجمعة: إجازة.",
+      "prompt_bn": "সন্ধ্যার শিফট কখন?",
+      "options": [
+       "২ থেকে ১০",
+       "٦ থেকে ২",
+       "১০ থেকে ৬",
+       "শুক্রবার সারাদিন"
+      ],
+      "answer": "A",
+      "explain_bn": "'المساء ٢ - ١٠' — সন্ধ্যার শিফট দুপুর ২টা থেকে রাত ১০টা। আরবিতে সংখ্যা বাম থেকে ডানে পড়ুন।",
+      "skill": "time"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w02-l2-w1",
+      "prompt_bn": "আরবিতে লিখুন: আপনার ডিউটি কখন থেকে কখন পর্যন্ত।",
+      "model": {
+       "target": "دوامي من سبعة الصبح إلى أربعة.",
+       "roman": "dawaami min sab'a as-subh ila arba'a.",
+       "bn": "আমার ডিউটি সকাল সাতটা থেকে চারটা।"
+      },
+      "check": "ai",
+      "min_words": 4,
+      "max_words": 10
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w02-l2-s1",
+      "prompt_bn": "জোরে বলুন: সহকর্মীকে জিজ্ঞেস করুন কয়টা বাজে আর বিরতি কখন।",
+      "model": {
+       "target": "لو سمحت، كم الساعة؟ ومتى الاستراحة؟",
+       "roman": "law samaht, kam as-saa'a? w-mata al-istiraaha?",
+       "bn": "একটু বলবেন, কয়টা বাজে? আর বিরতি কখন?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w02-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Tools and instructions",
+    "bn": "যন্ত্রপাতি আর কাজের নির্দেশ"
+   },
+   "goal_bn": "সুপারভাইজারের ছোট আদেশ — আনো, নাও, তোলো, রাখো, পরিষ্কার করো — বুঝবেন আর সাধারণ যন্ত্রের নাম জানবেন।",
+   "vocab": [
+    {
+     "target": "هَات",
+     "roman": "haat",
+     "bn_pron": "হাত",
+     "register": "gulf",
+     "bn": "আনো / দাও (আদেশ)",
+     "pos": "verb",
+     "example": {
+      "target": "هات المفتاح.",
+      "roman": "haat al-miftaah.",
+      "bn": "চাবিটা আনো।"
+     }
+    },
+    {
+     "target": "خُذ",
+     "roman": "khudh",
+     "bn_pron": "খুয",
+     "register": "both",
+     "bn": "নাও (আদেশ)",
+     "pos": "verb",
+     "example": {
+      "target": "خذ هذا الكرتون.",
+      "roman": "khudh haadha al-kartoon.",
+      "bn": "এই কার্টনটা নাও।"
+     }
+    },
+    {
+     "target": "شِيل",
+     "roman": "sheel",
+     "bn_pron": "শীল",
+     "register": "gulf",
+     "bn": "তোলো / সরাও",
+     "pos": "verb",
+     "example": {
+      "target": "شيل الطوب من هنا.",
+      "roman": "sheel at-toob min hina.",
+      "bn": "এখান থেকে ইট সরাও।"
+     }
+    },
+    {
+     "target": "حُطّ",
+     "roman": "hutt",
+     "bn_pron": "হুত্ত",
+     "register": "gulf",
+     "bn": "রাখো",
+     "pos": "verb",
+     "example": {
+      "target": "حط الكرسي هناك.",
+      "roman": "hutt al-kursi hinaak.",
+      "bn": "চেয়ারটা ওখানে রাখো।"
+     }
+    },
+    {
+     "target": "نَظِّف",
+     "roman": "nazzif",
+     "bn_pron": "নাযযিফ",
+     "register": "both",
+     "bn": "পরিষ্কার করো",
+     "pos": "verb",
+     "example": {
+      "target": "نظف الأرض زين.",
+      "roman": "nazzif al-ardh zein.",
+      "bn": "মেঝেটা ভালো করে পরিষ্কার করো।"
+     }
+    },
+    {
+     "target": "مِفْتَاح",
+     "roman": "miftaah",
+     "bn_pron": "মিফতাহ",
+     "register": "both",
+     "bn": "চাবি / রেঞ্চ",
+     "pos": "noun",
+     "example": {
+      "target": "المفتاح في الصندوق.",
+      "roman": "al-miftaah fis-sanduq.",
+      "bn": "রেঞ্চটা বাক্সে।"
+     }
+    },
+    {
+     "target": "سُلَّم",
+     "roman": "sullam",
+     "bn_pron": "সুল্লাম",
+     "register": "both",
+     "bn": "মই",
+     "pos": "noun",
+     "example": {
+      "target": "السلم مكسور، لا تستخدمه.",
+      "roman": "as-sullam maksoor, la tistakhdimuh.",
+      "bn": "মইটা ভাঙা, ব্যবহার কোরো না।"
+     }
+    },
+    {
+     "target": "مَكِينَة",
+     "roman": "makeena",
+     "bn_pron": "মাকীনা",
+     "register": "gulf",
+     "bn": "মেশিন",
+     "pos": "noun",
+     "example": {
+      "target": "طفي المكينة.",
+      "roman": "taffi al-makeena.",
+      "bn": "মেশিনটা বন্ধ করো।"
+     }
+    },
+    {
+     "target": "شْوَيّ",
+     "roman": "shwayy",
+     "bn_pron": "শ্‌ওয়াই",
+     "register": "gulf",
+     "bn": "একটু / আস্তে",
+     "pos": "adverb",
+     "example": {
+      "target": "شوي شوي، لا تستعجل.",
+      "roman": "shwayy shwayy, la tista'jil.",
+      "bn": "আস্তে আস্তে, তাড়াহুড়া কোরো না।"
+     }
+    },
+    {
+     "target": "يَالله",
+     "roman": "yalla",
+     "bn_pron": "ইয়াল্লা",
+     "register": "gulf",
+     "bn": "চলো / তাড়াতাড়ি করো",
+     "pos": "expression",
+     "example": {
+      "target": "يالله نبدأ الشغل.",
+      "roman": "yalla nibda ash-shughul.",
+      "bn": "চলো কাজ শুরু করি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "আদেশ (Imperative): পুরুষ / নারী / অনেকে",
+     "explain_bn": "আদেশে পুরুষকে এক রূপ, নারীকে শেষে ـي, দলকে শেষে ـوا: نظف (পুরুষ) → نظفي (নারী) → نظفوا (সবাই)। সুপারভাইজার দলকে বললে প্রায়ই ـوا রূপ শুনবেন।",
+     "examples": [
+      {
+       "target": "نظفي المطبخ لو سمحتي.",
+       "roman": "nazzifi al-matbakh law samahti.",
+       "bn": "দয়া করে রান্নাঘরটা পরিষ্কার করো (নারীকে)।"
+      },
+      {
+       "target": "شيلوا الكراتين.",
+       "roman": "sheeloo al-karaateen.",
+       "bn": "সবাই কার্টনগুলো তোলো।"
+      }
+     ]
+    },
+    {
+     "pattern": "لا + ক্রিয়া = কোরো না",
+     "explain_bn": "নিষেধ বলতে لا + ক্রিয়ার 'তুমি' রূপ: لا تلمس (ছুঁয়ো না), لا تستعجل (তাড়াহুড়া কোরো না)। নিরাপত্তার নির্দেশে খুব বেশি শুনবেন — না বুঝলে আবার জিজ্ঞেস করুন।",
+     "examples": [
+      {
+       "target": "لا تلمس المكينة.",
+       "roman": "la tilmis al-makeena.",
+       "bn": "মেশিন ছুঁয়ো না।"
+      },
+      {
+       "target": "لا تطلع السلم بدون حزام.",
+       "roman": "la tutla' as-sullam bidoon hizaam.",
+       "bn": "বেল্ট ছাড়া মইয়ে উঠো না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w02-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "supervisor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "يا أنور، هات السلم وحطه جنب الباب."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "حاضر، الحين."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "আনোয়ারকে কী আনতে বলা হলো?",
+      "options": [
+       "চাবি",
+       "মই",
+       "কার্টন",
+       "চেয়ার"
+      ],
+      "answer": "B",
+      "explain_bn": "'هات السلم' — মইটা আনো, তারপর দরজার পাশে রাখো।",
+      "skill": "workplace"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w02-l3-r1",
+      "passage": "ملاحظة: نظف الممر وشيل الكراتين قبل الساعة ٥.",
+      "prompt_bn": "নোটে কোন দুটি কাজ বলা হয়েছে?",
+      "options": [
+       "রান্না আর ধোয়া",
+       "মেশিন চালানো আর মই আনা",
+       "করিডর পরিষ্কার আর কার্টন সরানো",
+       "গাড়ি চালানো আর বাজার"
+      ],
+      "answer": "C",
+      "explain_bn": "'نظف الممر' = করিডর পরিষ্কার করো; 'شيل الكراتين' = কার্টন সরাও — ৫টার আগে।",
+      "skill": "workplace"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w02-l3-w1",
+      "prompt_bn": "আরবিতে লিখুন: সহকর্মীকে চাবিটা আনতে আর টেবিলে রাখতে বলুন।",
+      "model": {
+       "target": "هات المفتاح وحطه على الطاولة.",
+       "roman": "haat al-miftaah w-huttuh 'ala at-taawla.",
+       "bn": "চাবিটা আনো আর টেবিলে রাখো।"
+      },
+      "check": "ai",
+      "min_words": 3,
+      "max_words": 8
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w02-l3-s1",
+      "prompt_bn": "জোরে বলুন: সুপারভাইজারকে জানান — 'ঠিক আছে, এখনই করছি' আর জিজ্ঞেস করুন মইটা কোথায়।",
+      "model": {
+       "target": "حاضر، الحين أسوي. وين السلم؟",
+       "roman": "haadir, al-heen asawwi. wein as-sullam?",
+       "bn": "ঠিক আছে, এখনই করছি। মইটা কোথায়?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w02-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Salary and money",
+    "bn": "বেতন আর টাকা-পয়সা"
+   },
+   "goal_bn": "বেতন কবে, কত, ওভারটাইম আর টাকা পাঠানো নিয়ে ভদ্রভাবে আরবিতে জিজ্ঞেস করতে পারবেন।",
+   "vocab": [
+    {
+     "target": "رَاتِب",
+     "roman": "raatib",
+     "bn_pron": "রাতিব",
+     "register": "both",
+     "bn": "বেতন",
+     "pos": "noun",
+     "example": {
+      "target": "الراتب ألف وخمسمية ريال.",
+      "roman": "ar-raatib alf w-khamsmiya riyaal.",
+      "bn": "বেতন এক হাজার পাঁচশো রিয়াল।"
+     }
+    },
+    {
+     "target": "رِيَال",
+     "roman": "riyaal",
+     "bn_pron": "রিয়াল",
+     "register": "both",
+     "bn": "রিয়াল (সৌদি/কাতার/ওমানের মুদ্রা)",
+     "pos": "noun",
+     "example": {
+      "target": "الشاي بريال واحد.",
+      "roman": "ach-chaay b-riyaal waahid.",
+      "bn": "চায়ের দাম এক রিয়াল।"
+     }
+    },
+    {
+     "target": "دِرْهَم",
+     "roman": "dirham",
+     "bn_pron": "দিরহাম",
+     "register": "both",
+     "bn": "দিরহাম (আমিরাতের মুদ্রা)",
+     "pos": "noun",
+     "example": {
+      "target": "التاكسي بعشرين درهم.",
+      "roman": "at-taksi b-'ishreen dirham.",
+      "bn": "ট্যাক্সি ভাড়া বিশ দিরহাম।"
+     }
+    },
+    {
+     "target": "مَتَى",
+     "roman": "mata",
+     "bn_pron": "মাতা",
+     "register": "both",
+     "bn": "কখন / কবে",
+     "pos": "question",
+     "example": {
+      "target": "متى الراتب؟",
+      "roman": "mata ar-raatib?",
+      "bn": "বেতন কবে?"
+     }
+    },
+    {
+     "target": "كَم",
+     "roman": "kam",
+     "bn_pron": "কাম",
+     "register": "both",
+     "bn": "কত",
+     "pos": "question",
+     "example": {
+      "target": "كم الراتب؟",
+      "roman": "kam ar-raatib?",
+      "bn": "বেতন কত?"
+     }
+    },
+    {
+     "target": "فُلُوس",
+     "roman": "fuloos",
+     "bn_pron": "ফুলুস",
+     "register": "gulf",
+     "bn": "টাকা-পয়সা (কথ্য)",
+     "pos": "noun",
+     "example": {
+      "target": "ما عندي فلوس الحين.",
+      "roman": "ma 'indi fuloos al-heen.",
+      "bn": "এখন আমার কাছে টাকা নেই।"
+     }
+    },
+    {
+     "target": "حِسَاب",
+     "roman": "hisaab",
+     "bn_pron": "হিসাব",
+     "register": "both",
+     "bn": "ব্যাংক অ্যাকাউন্ট / হিসাব",
+     "pos": "noun",
+     "example": {
+      "target": "الراتب ينزل في الحساب.",
+      "roman": "ar-raatib yinzil fil-hisaab.",
+      "bn": "বেতন অ্যাকাউন্টে জমা হয়।"
+     }
+    },
+    {
+     "target": "تَحْوِيل",
+     "roman": "tahweel",
+     "bn_pron": "তাহওয়ীল",
+     "register": "both",
+     "bn": "টাকা পাঠানো (রেমিট্যান্স)",
+     "pos": "noun",
+     "example": {
+      "target": "أبي أسوي تحويل لأهلي.",
+      "roman": "abi asawwi tahweel l-ahli.",
+      "bn": "আমি পরিবারকে টাকা পাঠাতে চাই।"
+     }
+    },
+    {
+     "target": "شَهْر",
+     "roman": "shahar",
+     "bn_pron": "শাহার",
+     "register": "both",
+     "bn": "মাস",
+     "pos": "noun",
+     "example": {
+      "target": "الراتب كل شهر.",
+      "roman": "ar-raatib kull shahar.",
+      "bn": "বেতন প্রতি মাসে।"
+     }
+    },
+    {
+     "target": "خَصْم",
+     "roman": "khasm",
+     "bn_pron": "খাসম",
+     "register": "both",
+     "bn": "কাটা / কর্তন (বেতন থেকে)",
+     "pos": "noun",
+     "example": {
+      "target": "ليش في خصم من الراتب؟",
+      "roman": "leish fi khasm min ar-raatib?",
+      "bn": "বেতন থেকে কাটা কেন?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "প্রশ্নবোধক শব্দ: كم، متى، ليش",
+     "explain_bn": "كم = কত, متى = কবে, ليش (কথ্য; শুদ্ধ لماذا) = কেন। প্রশ্নশব্দ বাক্যের শুরুতে বসে। বেতন নিয়ে প্রশ্ন ভদ্রভাবে করুন: শুরুতে 'لو سمحت'।",
+     "examples": [
+      {
+       "target": "لو سمحت، متى ينزل الراتب؟",
+       "roman": "law samaht, mata yinzil ar-raatib?",
+       "bn": "একটু বলবেন, বেতন কবে জমা হবে?"
+      },
+      {
+       "target": "ليش الراتب ناقص؟",
+       "roman": "leish ar-raatib naaqis?",
+       "bn": "বেতন কম কেন?"
+      }
+     ]
+    },
+    {
+     "pattern": "বড় সংখ্যা: مية، ألف",
+     "explain_bn": "১০০ = مية (শুদ্ধ: مئة), ১০০০ = ألف। ২০০ = ميتين, ৫০০ = خمسمية, ২০০০ = ألفين। দাম ও বেতন বোঝার জন্য এগুলো খুব কাজে লাগে।",
+     "examples": [
+      {
+       "target": "ألفين ريال.",
+       "roman": "alfayn riyaal.",
+       "bn": "দুই হাজার রিয়াল।"
+      },
+      {
+       "target": "خمسمية درهم.",
+       "roman": "khamsmiya dirham.",
+       "bn": "পাঁচশো দিরহাম।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w02-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "company accountant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "لو سمحتي، متى ينزل الراتب؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "الراتب ينزل يوم خمسة وعشرين في الحساب."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "বেতন কবে জমা হবে?",
+      "options": [
+       "৫ তারিখে",
+       "১৫ তারিখে",
+       "২৫ তারিখে",
+       "৩০ তারিখে"
+      ],
+      "answer": "C",
+      "explain_bn": "'خمسة وعشرين' = পঁচিশ (আরবিতে আগে একক, পরে দশক বলা হয়: পাঁচ আর বিশ)।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w02-l4-r1",
+      "passage": "كشف الراتب: الراتب الأساسي ١٢٠٠ ريال. ساعات إضافية ٣٠٠ ريال. المجموع ١٥٠٠ ريال.",
+      "prompt_bn": "ওভারটাইমের জন্য কত?",
+      "options": [
+       "১২০০ রিয়াল",
+       "১৫০০ রিয়াল",
+       "৩০০ রিয়াল",
+       "১০০ রিয়াল"
+      ],
+      "answer": "C",
+      "explain_bn": "'ساعات إضافية' = ওভারটাইম, তার পাশে ৩০০ রিয়াল।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w02-l4-w1",
+      "prompt_bn": "আরবিতে লিখুন: হিসাবরক্ষককে ভদ্রভাবে জিজ্ঞেস করুন বেতন কবে আর কেন কাটা হয়েছে।",
+      "model": {
+       "target": "لو سمحت، متى الراتب؟ وليش في خصم؟",
+       "roman": "law samaht, mata ar-raatib? w-leish fi khasm?",
+       "bn": "একটু বলবেন, বেতন কবে? আর কাটা কেন?"
+      },
+      "check": "ai",
+      "min_words": 4,
+      "max_words": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w02-l4-s1",
+      "prompt_bn": "জোরে বলুন: দোকানে বলুন আপনি পরিবারকে টাকা পাঠাতে চান।",
+      "model": {
+       "target": "السلام عليكم، أبي أسوي تحويل لبنغلاديش.",
+       "roman": "as-salaamu 'alaykum, abi asawwi tahweel l-banglaadesh.",
+       "bn": "আসসালামু আলাইকুম, আমি বাংলাদেশে টাকা পাঠাতে চাই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w02-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Days, leave and holidays",
+    "bn": "দিন, ছুটি আর হলিডে"
+   },
+   "goal_bn": "সপ্তাহের দিনের নাম, শুক্রবারের ছুটি আর ছুটির আবেদন — আরবিতে বলতে ও পড়তে পারবেন।",
+   "vocab": [
+    {
+     "target": "إِجَازَة",
+     "roman": "ijaaza",
+     "bn_pron": "ইজাযা",
+     "register": "both",
+     "bn": "ছুটি",
+     "pos": "noun",
+     "example": {
+      "target": "عندي إجازة بكرة.",
+      "roman": "'indi ijaaza bukra.",
+      "bn": "কাল আমার ছুটি।"
+     }
+    },
+    {
+     "target": "يَوْم الْجُمْعَة",
+     "roman": "yom al-jum'a",
+     "bn_pron": "ইয়াওম আল-জুমআ",
+     "register": "both",
+     "bn": "শুক্রবার",
+     "pos": "noun",
+     "example": {
+      "target": "يوم الجمعة ما في دوام.",
+      "roman": "yom al-jum'a ma fi dawaam.",
+      "bn": "শুক্রবার ডিউটি নেই।"
+     }
+    },
+    {
+     "target": "يَوْم السَّبْت",
+     "roman": "yom as-sabt",
+     "bn_pron": "ইয়াওম আস-সাবত",
+     "register": "both",
+     "bn": "শনিবার",
+     "pos": "noun",
+     "example": {
+      "target": "نرجع الشغل يوم السبت.",
+      "roman": "nirja' ash-shughul yom as-sabt.",
+      "bn": "শনিবার আমরা কাজে ফিরব।"
+     }
+    },
+    {
+     "target": "يَوْم الْأَحَد",
+     "roman": "yom al-ahad",
+     "bn_pron": "ইয়াওম আল-আহাদ",
+     "register": "both",
+     "bn": "রবিবার",
+     "pos": "noun",
+     "example": {
+      "target": "الاجتماع يوم الأحد.",
+      "roman": "al-ijtimaa' yom al-ahad.",
+      "bn": "মিটিং রবিবার।"
+     }
+    },
+    {
+     "target": "يَوْم الْخَمِيس",
+     "roman": "yom al-khamees",
+     "bn_pron": "ইয়াওম আল-খামীস",
+     "register": "both",
+     "bn": "বৃহস্পতিবার",
+     "pos": "noun",
+     "example": {
+      "target": "يوم الخميس نخلص بدري.",
+      "roman": "yom al-khamees nikhallis badri.",
+      "bn": "বৃহস্পতিবার আমরা তাড়াতাড়ি শেষ করি।"
+     }
+    },
+    {
+     "target": "بُكْرَة",
+     "roman": "bukra",
+     "bn_pron": "বুকরা",
+     "register": "gulf",
+     "bn": "আগামীকাল (শুদ্ধ: গাদান غدا)",
+     "pos": "adverb",
+     "example": {
+      "target": "بكرة عندي موعد.",
+      "roman": "bukra 'indi maw'id.",
+      "bn": "কাল আমার অ্যাপয়েন্টমেন্ট আছে।"
+     }
+    },
+    {
+     "target": "أَمْس",
+     "roman": "ams",
+     "bn_pron": "আমস",
+     "register": "both",
+     "bn": "গতকাল",
+     "pos": "adverb",
+     "example": {
+      "target": "أمس كنت مريض.",
+      "roman": "ams kunt mareedh.",
+      "bn": "গতকাল আমি অসুস্থ ছিলাম।"
+     }
+    },
+    {
+     "target": "أُسْبُوع",
+     "roman": "usboo'",
+     "bn_pron": "উসবূ",
+     "register": "both",
+     "bn": "সপ্তাহ",
+     "pos": "noun",
+     "example": {
+      "target": "الإجازة أسبوع واحد.",
+      "roman": "al-ijaaza usboo' waahid.",
+      "bn": "ছুটি এক সপ্তাহ।"
+     }
+    },
+    {
+     "target": "عِيد",
+     "roman": "'eid",
+     "bn_pron": "ঈদ",
+     "register": "both",
+     "bn": "ঈদ / উৎসব",
+     "pos": "noun",
+     "example": {
+      "target": "عيد مبارك يا جماعة.",
+      "roman": "'eid mubaarak ya jamaa'a.",
+      "bn": "সবাইকে ঈদ মোবারক।"
+     }
+    },
+    {
+     "target": "سَنَة",
+     "roman": "sana",
+     "bn_pron": "সানা",
+     "register": "both",
+     "bn": "বছর",
+     "pos": "noun",
+     "example": {
+      "target": "الإجازة السنوية شهر كل سنة.",
+      "roman": "al-ijaaza as-sanawiyya shahar kull sana.",
+      "bn": "বার্ষিক ছুটি প্রতি বছর এক মাস।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "يوم + দিনের নাম",
+     "explain_bn": "দিনের নামের আগে يوم (দিন) বসে: يوم الجمعة। উপসাগরীয় দেশে সাপ্তাহিক ছুটি সাধারণত শুক্রবার (কিছু অফিসে শুক্র-শনি; আমিরাতে সরকারি অফিস শনি-রবি)। সপ্তাহ: الأحد রবি، الاثنين সোম، الثلاثاء মঙ্গল، الأربعاء বুধ، الخميس বৃহস্পতি، الجمعة শুক্র، السبت শনি।",
+     "examples": [
+      {
+       "target": "يوم الاثنين عندي دوام.",
+       "roman": "yom al-ithnayn 'indi dawaam.",
+       "bn": "সোমবার আমার ডিউটি আছে।"
+      },
+      {
+       "target": "يوم الثلاثاء إجازة.",
+       "roman": "yom ath-thalaathaa' ijaaza.",
+       "bn": "মঙ্গলবার ছুটি।"
+      }
+     ]
+    },
+    {
+     "pattern": "عندي = আমার আছে / ما عندي = আমার নেই",
+     "explain_bn": "'আছে' বোঝাতে عندي (আমার কাছে আছে)। না বোঝাতে ما عندي। ছুটি চাইতে: أبي إجازة + দিন।",
+     "examples": [
+      {
+       "target": "عندي موعد في السفارة.",
+       "roman": "'indi maw'id fis-safaara.",
+       "bn": "দূতাবাসে আমার অ্যাপয়েন্টমেন্ট আছে।"
+      },
+      {
+       "target": "أبي إجازة يوم الأحد.",
+       "roman": "abi ijaaza yom al-ahad.",
+       "bn": "আমি রবিবার ছুটি চাই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w02-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "supervisor"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "لو سمحت، أبي إجازة يوم الأربعاء، عندي موعد في السفارة."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "زين، ما في مشكلة. ارجع يوم الخميس."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শ্রমিক কেন ছুটি চাইছে?",
+      "options": [
+       "সে অসুস্থ",
+       "দেশে যাবে",
+       "ঈদের জন্য",
+       "দূতাবাসে অ্যাপয়েন্টমেন্ট"
+      ],
+      "answer": "D",
+      "explain_bn": "'عندي موعد في السفارة' — দূতাবাসে অ্যাপয়েন্টমেন্ট আছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w02-l5-r1",
+      "passage": "إعلان: إجازة عيد الفطر من يوم الأحد إلى يوم الأربعاء. الدوام يرجع يوم الخميس.",
+      "prompt_bn": "কাজ কবে আবার শুরু?",
+      "options": [
+       "রবিবার",
+       "বুধবার",
+       "শুক্রবার",
+       "বৃহস্পতিবার"
+      ],
+      "answer": "D",
+      "explain_bn": "'الدوام يرجع يوم الخميس' — বৃহস্পতিবার কাজ শুরু।",
+      "skill": "time"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w02-l5-w1",
+      "prompt_bn": "আরবিতে ছোট বার্তা লিখুন: আপনি সোমবার ছুটি চান কারণ ডাক্তারের অ্যাপয়েন্টমেন্ট আছে।",
+      "model": {
+       "target": "لو سمحت، أبي إجازة يوم الاثنين، عندي موعد عند الدكتور.",
+       "roman": "law samaht, abi ijaaza yom al-ithnayn, 'indi maw'id 'ind ad-diktoor.",
+       "bn": "দয়া করে, আমি সোমবার ছুটি চাই, ডাক্তারের অ্যাপয়েন্টমেন্ট আছে।"
+      },
+      "check": "ai",
+      "min_words": 6,
+      "max_words": 15
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w02-l5-s1",
+      "prompt_bn": "জোরে বলুন: সহকর্মীকে ঈদের শুভেচ্ছা দিন আর বলুন আপনার ছুটি এক সপ্তাহ।",
+      "model": {
+       "target": "عيد مبارك! إجازتي أسبوع واحد.",
+       "roman": "'eid mubaarak! ijaazti usboo' waahid.",
+       "bn": "ঈদ মোবারক! আমার ছুটি এক সপ্তাহ।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

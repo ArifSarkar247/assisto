@@ -71,11 +71,14 @@ KINDS = {
     "auto_left":       {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
     "battery_low_loc": {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
     "night_news":      {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    # sjtrain (Safe Journey V2): the destination alarm RANG — "time to get off"
+    # (optional, only the people the traveller picked; never "arrived")
+    "dest_get_off":    {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
 }
 _CO_GUARDIAN_KINDS = ("sos", "sos_resolved", "fall", "checkin_overdue", "wellness_alert")
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
             "wellness_alert": "high", "scam_report": "high", "crisis_support": "high",
-            "fall": "high", "dest_arrived": "info",
+            "fall": "high", "dest_arrived": "info", "dest_get_off": "info",
             "auto_arrived": "info", "auto_left": "info", "battery_low_loc": "high",
             "night_news": "info"}  # fcbrain
 

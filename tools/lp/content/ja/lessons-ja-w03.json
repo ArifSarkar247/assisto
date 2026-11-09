@@ -1,0 +1,1162 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ja",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "jlpt_n5",
+  "jft_basic"
+ ],
+ "title": {
+  "en": "Week 3: Verbs, routine and the workplace",
+  "bn": "সপ্তাহ ৩: ক্রিয়া, রুটিন ও কর্মস্থল"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official JLPT/JFT material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল JLPT/JFT উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "jlpt.jp public test-section summary; Japan Foundation JFT-Basic public overview",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "ja-w03-l1",
+   "day": 1,
+   "minutes": 25,
+   "title": {
+    "en": "My daily routine (ます verbs)",
+    "bn": "আমার দৈনন্দিন রুটিন (ます ক্রিয়া)"
+   },
+   "goal_bn": "ます-রূপের ক্রিয়া দিয়ে রোজকার কাজ — ওঠা, খাওয়া, কাজ করা, ঘুমানো — বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "起きます",
+     "kana": "おきます",
+     "roman": "okimasu",
+     "bn": "ঘুম থেকে উঠি",
+     "pos": "verb",
+     "example": {
+      "target": "まいあさ ごじはんに おきます。",
+      "roman": "maiasa gojihan ni okimasu.",
+      "bn": "প্রতিদিন সকাল সাড়ে ৫টায় উঠি।"
+     }
+    },
+    {
+     "target": "寝ます",
+     "kana": "ねます",
+     "roman": "nemasu",
+     "bn": "ঘুমাই",
+     "pos": "verb",
+     "example": {
+      "target": "よる じゅういちじに ねます。",
+      "roman": "yoru jūichiji ni nemasu.",
+      "bn": "রাত ১১টায় ঘুমাই।"
+     }
+    },
+    {
+     "target": "食べます",
+     "kana": "たべます",
+     "roman": "tabemasu",
+     "bn": "খাই",
+     "pos": "verb",
+     "example": {
+      "target": "ひるごはんは しょくどうで たべます。",
+      "roman": "hirugohan wa shokudō de tabemasu.",
+      "bn": "দুপুরের খাবার ক্যান্টিনে খাই।"
+     }
+    },
+    {
+     "target": "飲みます",
+     "kana": "のみます",
+     "roman": "nomimasu",
+     "bn": "পান করি",
+     "pos": "verb",
+     "example": {
+      "target": "やすみに みずを たくさん のみます。",
+      "roman": "yasumi ni mizu o takusan nomimasu.",
+      "bn": "বিরতিতে অনেক পানি খাই।"
+     }
+    },
+    {
+     "target": "働きます",
+     "kana": "はたらきます",
+     "roman": "hatarakimasu",
+     "bn": "কাজ করি",
+     "pos": "verb",
+     "example": {
+      "target": "いちにち はちじかん はたらきます。",
+      "roman": "ichinichi hachijikan hatarakimasu.",
+      "bn": "দিনে ৮ ঘণ্টা কাজ করি।"
+     }
+    },
+    {
+     "target": "朝ご飯",
+     "kana": "あさごはん",
+     "roman": "asagohan",
+     "bn": "সকালের নাস্তা",
+     "pos": "noun",
+     "example": {
+      "target": "あさごはんに ごはんと みそしるを たべます。",
+      "roman": "asagohan ni gohan to misoshiru o tabemasu.",
+      "bn": "নাস্তায় ভাত আর মিসো স্যুপ খাই।"
+     }
+    },
+    {
+     "target": "晩ご飯",
+     "kana": "ばんごはん",
+     "roman": "bangohan",
+     "bn": "রাতের খাবার",
+     "pos": "noun",
+     "example": {
+      "target": "ばんごはんは じぶんで つくります。",
+      "roman": "bangohan wa jibun de tsukurimasu.",
+      "bn": "রাতের খাবার নিজে রান্না করি।"
+     }
+    },
+    {
+     "target": "シャワーを浴びます",
+     "kana": "シャワーをあびます",
+     "roman": "shawā o abimasu",
+     "bn": "গোসল করি (শাওয়ারে)",
+     "pos": "verb",
+     "example": {
+      "target": "しごとの あと シャワーを あびます。",
+      "roman": "shigoto no ato shawā o abimasu.",
+      "bn": "কাজের পর গোসল করি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-ます / V-ません",
+     "explain_bn": "ভদ্র বর্তমান/ভবিষ্যৎ: ক্রিয়ার ます-রূপ। না-বোধক: ます → ません। 'たべます' = খাই/খাব, 'たべません' = খাই না/খাব না। জাপানিতে বর্তমান আর ভবিষ্যৎ একই রূপ।",
+     "examples": [
+      {
+       "target": "ぶたにくは たべません。",
+       "roman": "butaniku wa tabemasen.",
+       "bn": "শুকরের মাংস খাই না।"
+      },
+      {
+       "target": "にちようびは はたらきません。",
+       "roman": "nichiyōbi wa hatarakimasen.",
+       "bn": "রবিবার কাজ করি না।"
+      }
+     ]
+    },
+    {
+     "pattern": "時間 に V-ます",
+     "explain_bn": "নির্দিষ্ট সময়ে কিছু করলে সময়ের পরে に: 'ろくじに おきます'। কিন্তু きょう, あした, まいにち-এর পরে に বসে না।",
+     "examples": [
+      {
+       "target": "くじに ねます。",
+       "roman": "kuji ni nemasu.",
+       "bn": "৯টায় ঘুমাই।"
+      },
+      {
+       "target": "あした はたらきます。",
+       "roman": "ashita hatarakimasu.",
+       "bn": "কাল কাজ করব।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w03-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "caregiver trainer"
+        },
+        "B": {
+         "gender": "M",
+         "role": "trainee"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "アリフさんは まいあさ なんじに おきますか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "ごじに おきます。それから おいのりを して、ろくじに あさごはんを たべます。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "আরিফ কয়টায় নাস্তা খায়?",
+      "options": [
+       "৫টা",
+       "৬টা",
+       "৭টা",
+       "সাড়ে ৫টা"
+      ],
+      "answer": "B",
+      "explain_bn": "৫টায় ওঠে, নামাজের পর 'ろくじに あさごはん' — ৬টায় নাস্তা।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w03-l1-r1",
+      "passage": "サラさんの いちにち：６じ おきます。７じ かいしゃへ いきます。８じから ５じまで はたらきます。１０じ ねます。",
+      "prompt_bn": "সারা কত ঘণ্টা কাজ করে?",
+      "options": [
+       "৭ ঘণ্টা",
+       "১০ ঘণ্টা",
+       "৮ ঘণ্টা",
+       "৯ ঘণ্টা"
+      ],
+      "answer": "D",
+      "explain_bn": "৮টা থেকে ৫টা = ৯ ঘণ্টা।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w03-l1-w1",
+      "prompt_bn": "নিজের রুটিন তিন বাক্যে লিখুন: কখন ওঠেন, কখন কাজ করেন, কখন ঘুমান।",
+      "model": {
+       "target": "わたしは ろくじに おきます。はちじから ごじまで はたらきます。じゅうじに ねます。",
+       "roman": "watashi wa rokuji ni okimasu. hachiji kara goji made hatarakimasu. jūji ni nemasu.",
+       "bn": "আমি ৬টায় উঠি। ৮টা থেকে ৫টা পর্যন্ত কাজ করি। ১০টায় ঘুমাই।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w03-l1-s1",
+      "prompt_bn": "খাবার নিয়ে প্রশ্নের উত্তর দিন: 'ぶたにくを たべますか' — না বলুন, আর বলুন মুরগি খান।",
+      "model": {
+       "target": "いいえ、ぶたにくは たべません。とりにくを たべます。",
+       "roman": "iie, butaniku wa tabemasen. toriniku o tabemasu.",
+       "bn": "না, শুকরের মাংস খাই না। মুরগির মাংস খাই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w03-l2",
+   "day": 2,
+   "minutes": 25,
+   "title": {
+    "en": "What I did yesterday (past)",
+    "bn": "গতকাল কী করেছি (অতীত)"
+   },
+   "goal_bn": "ました / ませんでした দিয়ে অতীতের কাজ বলতে পারবেন — রিপোর্ট দিতে কাজে লাগবে।",
+   "vocab": [
+    {
+     "target": "見ます",
+     "kana": "みます",
+     "roman": "mimasu",
+     "bn": "দেখি",
+     "pos": "verb",
+     "example": {
+      "target": "きのう ニュースを みました。",
+      "roman": "kinō nyūsu o mimashita.",
+      "bn": "গতকাল খবর দেখেছি।"
+     }
+    },
+    {
+     "target": "買います",
+     "kana": "かいます",
+     "roman": "kaimasu",
+     "bn": "কিনি",
+     "pos": "verb",
+     "example": {
+      "target": "せんしゅう くつを かいました。",
+      "roman": "senshū kutsu o kaimashita.",
+      "bn": "গত সপ্তাহে জুতা কিনেছি।"
+     }
+    },
+    {
+     "target": "読みます",
+     "kana": "よみます",
+     "roman": "yomimasu",
+     "bn": "পড়ি",
+     "pos": "verb",
+     "example": {
+      "target": "でんしゃで ほんを よみました。",
+      "roman": "densha de hon o yomimashita.",
+      "bn": "ট্রেনে বই পড়েছি।"
+     }
+    },
+    {
+     "target": "します",
+     "kana": "します",
+     "roman": "shimasu",
+     "bn": "করি",
+     "pos": "verb",
+     "example": {
+      "target": "どようびに せんたくを しました。",
+      "roman": "doyōbi ni sentaku o shimashita.",
+      "bn": "শনিবার কাপড় ধুয়েছি।"
+     }
+    },
+    {
+     "target": "掃除",
+     "kana": "そうじ",
+     "roman": "sōji",
+     "bn": "পরিষ্কার করা",
+     "pos": "noun",
+     "example": {
+      "target": "あさ トイレの そうじを しました。",
+      "roman": "asa toire no sōji o shimashita.",
+      "bn": "সকালে টয়লেট পরিষ্কার করেছি।"
+     }
+    },
+    {
+     "target": "勉強",
+     "kana": "べんきょう",
+     "roman": "benkyō",
+     "bn": "পড়াশোনা",
+     "pos": "noun",
+     "example": {
+      "target": "よる いちじかん べんきょうしました。",
+      "roman": "yoru ichijikan benkyō shimashita.",
+      "bn": "রাতে এক ঘণ্টা পড়েছি।"
+     }
+    },
+    {
+     "target": "先週",
+     "kana": "せんしゅう",
+     "roman": "senshū",
+     "bn": "গত সপ্তাহ",
+     "pos": "noun",
+     "example": {
+      "target": "せんしゅうは とても いそがしかったです。",
+      "roman": "senshū wa totemo isogashikatta desu.",
+      "bn": "গত সপ্তাহ খুব ব্যস্ত ছিল।"
+     }
+    },
+    {
+     "target": "何も",
+     "kana": "なにも",
+     "roman": "nanimo",
+     "bn": "কিছুই (না-বোধকের সাথে)",
+     "pos": "adverb",
+     "example": {
+      "target": "けさは なにも たべませんでした。",
+      "roman": "kesa wa nanimo tabemasen deshita.",
+      "bn": "আজ সকালে কিছুই খাইনি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-ました / V-ませんでした",
+     "explain_bn": "অতীত: ます → ました (করেছি), ません → ませんでした (করিনি)। 'かいます' → 'かいました' (কিনেছি) → 'かいませんでした' (কিনিনি)।",
+     "examples": [
+      {
+       "target": "きのう にもつを はこびました。",
+       "roman": "kinō nimotsu o hakobimashita.",
+       "bn": "গতকাল মালপত্র বহন করেছি।"
+      },
+      {
+       "target": "せんしゅう ざんぎょうは しませんでした。",
+       "roman": "senshū zangyō wa shimasen deshita.",
+       "bn": "গত সপ্তাহে ওভারটাইম করিনি।"
+      }
+     ]
+    },
+    {
+     "pattern": "N を V (কর্ম চিহ্ন を)",
+     "explain_bn": "যার ওপর কাজ হয় তার পরে を (উচ্চারণ 'ও'): 'パンを たべます' = রুটি খাই। する-ক্রিয়ায়: 'そうじを します' (পরিষ্কার করি)।",
+     "examples": [
+      {
+       "target": "てがみを よみました。",
+       "roman": "tegami o yomimashita.",
+       "bn": "চিঠি পড়েছি।"
+      },
+      {
+       "target": "にほんごの べんきょうを します。",
+       "roman": "nihongo no benkyō o shimasu.",
+       "bn": "জাপানি পড়াশোনা করি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w03-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "supervisor"
+        },
+        "B": {
+         "gender": "F",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "ファテマさん、きのうの ごご なにを しましたか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "そうこの そうじを しました。それから にもつの かずを かぞえました。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ফাতেমা গতকাল বিকেলে প্রথমে কী করেছে?",
+      "options": [
+       "মাল গুনেছে",
+       "গুদাম পরিষ্কার করেছে",
+       "বই পড়েছে",
+       "কেনাকাটা করেছে"
+      ],
+      "answer": "B",
+      "explain_bn": "প্রথমে 'そうこの そうじ' (গুদাম পরিষ্কার), তারপর মাল গুনেছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w03-l2-r1",
+      "passage": "きのうは やすみでした。あさ せんたくを しました。ひるは スーパーで やさいを かいました。よるは なにも しませんでした。",
+      "prompt_bn": "লেখক রাতে কী করেছে?",
+      "options": [
+       "কাপড় ধুয়েছে",
+       "সবজি কিনেছে",
+       "কিছুই করেনি",
+       "কাজ করেছে"
+      ],
+      "answer": "C",
+      "explain_bn": "'よるは なにも しませんでした' = রাতে কিছুই করেনি।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w03-l2-w1",
+      "prompt_bn": "গতকাল আপনি কী কী করেছেন, দুই বাক্যে লিখুন।",
+      "model": {
+       "target": "きのう にほんごを べんきょうしました。それから へやの そうじを しました。",
+       "roman": "kinō nihongo o benkyō shimashita. sorekara heya no sōji o shimashita.",
+       "bn": "গতকাল জাপানি পড়েছি। তারপর রুম পরিষ্কার করেছি।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w03-l2-s1",
+      "prompt_bn": "সুপারভাইজারকে আজ সকালের কাজের ছোট রিপোর্ট দিন: কী করেছেন, কী করেননি।",
+      "model": {
+       "target": "けさ にもつを はこびました。でも、そうじは まだ しませんでした。",
+       "roman": "kesa nimotsu o hakobimashita. demo, sōji wa mada shimasen deshita.",
+       "bn": "আজ সকালে মালপত্র বহন করেছি। কিন্তু পরিষ্কারের কাজ এখনো করিনি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w03-l3",
+   "day": 3,
+   "minutes": 25,
+   "title": {
+    "en": "At work: people and basic words",
+    "bn": "কর্মস্থল: মানুষ ও মূল শব্দ"
+   },
+   "goal_bn": "কাজের জায়গার মানুষ ও কাজের শব্দ চিনবেন; 'বুঝেছি / বুঝিনি' পরিষ্কার বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "工場",
+     "kana": "こうじょう",
+     "roman": "kōjō",
+     "bn": "কারখানা",
+     "pos": "noun",
+     "example": {
+      "target": "この こうじょうで じどうしゃの ぶひんを つくります。",
+      "roman": "kono kōjō de jidōsha no buhin o tsukurimasu.",
+      "bn": "এই কারখানায় গাড়ির যন্ত্রাংশ বানানো হয়।"
+     }
+    },
+    {
+     "target": "上司",
+     "kana": "じょうし",
+     "roman": "jōshi",
+     "bn": "ঊর্ধ্বতন কর্মকর্তা / বস",
+     "pos": "noun",
+     "example": {
+      "target": "じょうしに ほうこくします。",
+      "roman": "jōshi ni hōkoku shimasu.",
+      "bn": "বসকে রিপোর্ট করি।"
+     }
+    },
+    {
+     "target": "先輩",
+     "kana": "せんぱい",
+     "roman": "senpai",
+     "bn": "সিনিয়র সহকর্মী",
+     "pos": "noun",
+     "example": {
+      "target": "せんぱいが きかいの つかいかたを おしえました。",
+      "roman": "senpai ga kikai no tsukaikata o oshiemashita.",
+      "bn": "সিনিয়র মেশিন চালানো শিখিয়েছেন।"
+     }
+    },
+    {
+     "target": "教えます",
+     "kana": "おしえます",
+     "roman": "oshiemasu",
+     "bn": "শেখাই / জানাই",
+     "pos": "verb",
+     "example": {
+      "target": "やりかたを おしえて ください。",
+      "roman": "yarikata o oshiete kudasai.",
+      "bn": "করার নিয়মটা শিখিয়ে দিন।"
+     }
+    },
+    {
+     "target": "分かります",
+     "kana": "わかります",
+     "roman": "wakarimasu",
+     "bn": "বুঝি",
+     "pos": "verb",
+     "example": {
+      "target": "すこし わかります。",
+      "roman": "sukoshi wakarimasu.",
+      "bn": "একটু বুঝি।"
+     }
+    },
+    {
+     "target": "遅刻",
+     "kana": "ちこく",
+     "roman": "chikoku",
+     "bn": "দেরিতে আসা",
+     "pos": "noun",
+     "example": {
+      "target": "ちこくの ときは すぐ でんわして ください。",
+      "roman": "chikoku no toki wa sugu denwa shite kudasai.",
+      "bn": "দেরি হলে সাথে সাথে ফোন করুন।"
+     }
+    },
+    {
+     "target": "連絡",
+     "kana": "れんらく",
+     "roman": "renraku",
+     "bn": "যোগাযোগ / খবর দেওয়া",
+     "pos": "noun",
+     "example": {
+      "target": "やすむ ときは まえの ひに れんらくします。",
+      "roman": "yasumu toki wa mae no hi ni renraku shimasu.",
+      "bn": "ছুটি নিলে আগের দিন জানাই।"
+     }
+    },
+    {
+     "target": "手伝います",
+     "kana": "てつだいます",
+     "roman": "tetsudaimasu",
+     "bn": "সাহায্য করি",
+     "pos": "verb",
+     "example": {
+      "target": "にもつを てつだいましょうか。",
+      "roman": "nimotsu o tetsudaimashō ka.",
+      "bn": "মালপত্রে সাহায্য করব?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N が わかります",
+     "explain_bn": "'বুঝি' বলতে বস্তুর পরে が (を নয়): 'にほんごが わかります'। না বুঝলে লুকাবেন না — 'すみません、わかりません' বলুন। কাজের জায়গায় এটাই নিরাপদ।",
+     "examples": [
+      {
+       "target": "この ことばが わかりません。",
+       "roman": "kono kotoba ga wakarimasen.",
+       "bn": "এই শব্দটা বুঝি না।"
+      },
+      {
+       "target": "せつめいが よく わかりました。",
+       "roman": "setsumei ga yoku wakarimashita.",
+       "bn": "ব্যাখ্যাটা ভালো বুঝেছি।"
+      }
+     ]
+    },
+    {
+     "pattern": "ほうれんそう: রিপোর্ট–জানানো–পরামর্শ",
+     "explain_bn": "জাপানি কর্মস্থলের নিয়ম: ほうこく (রিপোর্ট), れんらく (খবর দেওয়া), そうだん (পরামর্শ)। ভুল হলে বা দেরি হলে আগে জানান — চুপ থাকা সবচেয়ে বড় ভুল।",
+     "examples": [
+      {
+       "target": "じょうしに れんらくしました。",
+       "roman": "jōshi ni renraku shimashita.",
+       "bn": "বসকে জানিয়েছি।"
+      },
+      {
+       "target": "せんぱいに そうだんします。",
+       "roman": "senpai ni sōdan shimasu.",
+       "bn": "সিনিয়রের সাথে পরামর্শ করব।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w03-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "team leader"
+        },
+        "B": {
+         "gender": "M",
+         "role": "new worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "この ボタンは きけんですから、さわらないで ください。わかりましたか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "すみません、もう いちど おねがいします。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "この あかい ボタンは さわらないで ください。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "টিম লিডার কী করতে মানা করছে?",
+      "options": [
+       "লাল বোতামে হাত দিতে",
+       "মেশিন বন্ধ করতে",
+       "দেরি করতে",
+       "ফোন ব্যবহার করতে"
+      ],
+      "answer": "A",
+      "explain_bn": "'あかい ボタンは さわらないで ください' = লাল বোতামে হাত দেবেন না।",
+      "skill": "safety"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w03-l3-r1",
+      "passage": "ちこくや やすみの れんらくは、しごとが はじまる まえに リーダーへ でんわして ください。メールだけでは いけません。",
+      "prompt_bn": "দেরি হলে কী করতে হবে?",
+      "options": [
+       "শুধু ইমেইল পাঠাতে হবে",
+       "কাজ শুরুর আগে লিডারকে ফোন করতে হবে",
+       "পরের দিন জানাতে হবে",
+       "সিনিয়রকে মেসেজ দিতে হবে"
+      ],
+      "answer": "B",
+      "explain_bn": "কাজ শুরুর আগে লিডারকে ফোন করতে বলা হয়েছে; 'メールだけでは いけません' = শুধু ইমেইল চলবে না।",
+      "skill": "workplace"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w03-l3-w1",
+      "prompt_bn": "লিডারকে লেখা ছোট মেসেজ: আজ ১৫ মিনিট দেরি হবে, দুঃখিত।",
+      "model": {
+       "target": "おはようございます。すみません、きょうは じゅうごふん ちこくします。",
+       "roman": "ohayō gozaimasu. sumimasen, kyō wa jūgofun chikoku shimasu.",
+       "bn": "শুভ সকাল। দুঃখিত, আজ ১৫ মিনিট দেরি হবে।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w03-l3-s1",
+      "prompt_bn": "সিনিয়র কিছু বোঝালেন কিন্তু আপনি বোঝেননি। ভদ্রভাবে আবার বলতে বলুন।",
+      "model": {
+       "target": "すみません、よく わかりませんでした。もう いちど おしえて ください。",
+       "roman": "sumimasen, yoku wakarimasen deshita. mō ichido oshiete kudasai.",
+       "bn": "দুঃখিত, ভালো বুঝিনি। আরেকবার শিখিয়ে দিন।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w03-l4",
+   "day": 4,
+   "minutes": 30,
+   "title": {
+    "en": "Polite requests: て-form + ください",
+    "bn": "ভদ্র অনুরোধ: て-রূপ + ください"
+   },
+   "goal_bn": "'…করুন' বলার て-রূপ শিখবেন; কাজের নির্দেশ বুঝবেন আর নিজেও অনুরোধ করতে পারবেন।",
+   "vocab": [
+    {
+     "target": "待ちます",
+     "kana": "まちます",
+     "roman": "machimasu",
+     "bn": "অপেক্ষা করি",
+     "pos": "verb",
+     "example": {
+      "target": "ここで まって ください。",
+      "roman": "koko de matte kudasai.",
+      "bn": "এখানে অপেক্ষা করুন।"
+     }
+    },
+    {
+     "target": "言います",
+     "kana": "いいます",
+     "roman": "iimasu",
+     "bn": "বলি",
+     "pos": "verb",
+     "example": {
+      "target": "もう いちど いって ください。",
+      "roman": "mō ichido itte kudasai.",
+      "bn": "আরেকবার বলুন।"
+     }
+    },
+    {
+     "target": "話します",
+     "kana": "はなします",
+     "roman": "hanashimasu",
+     "bn": "কথা বলি",
+     "pos": "verb",
+     "example": {
+      "target": "ゆっくり はなして ください。",
+      "roman": "yukkuri hanashite kudasai.",
+      "bn": "আস্তে কথা বলুন।"
+     }
+    },
+    {
+     "target": "見せます",
+     "kana": "みせます",
+     "roman": "misemasu",
+     "bn": "দেখাই",
+     "pos": "verb",
+     "example": {
+      "target": "ざいりゅうカードを みせて ください。",
+      "roman": "zairyū kādo o misete kudasai.",
+      "bn": "রেসিডেন্স কার্ড দেখান।"
+     }
+    },
+    {
+     "target": "書きます",
+     "kana": "かきます",
+     "roman": "kakimasu",
+     "bn": "লিখি",
+     "pos": "verb",
+     "example": {
+      "target": "じゅうしょを ひらがなで かいて ください。",
+      "roman": "jūsho o hiragana de kaite kudasai.",
+      "bn": "ঠিকানা হিরাগানায় লিখুন।"
+     }
+    },
+    {
+     "target": "持ちます",
+     "kana": "もちます",
+     "roman": "mochimasu",
+     "bn": "ধরি / বহন করি",
+     "pos": "verb",
+     "example": {
+      "target": "はこを りょうてで もって ください。",
+      "roman": "hako o ryōte de motte kudasai.",
+      "bn": "বাক্সটা দুই হাতে ধরুন।"
+     }
+    },
+    {
+     "target": "ゆっくり",
+     "kana": "ゆっくり",
+     "roman": "yukkuri",
+     "bn": "আস্তে / ধীরে",
+     "pos": "adverb",
+     "example": {
+      "target": "かいだんは ゆっくり おりて ください。",
+      "roman": "kaidan wa yukkuri orite kudasai.",
+      "bn": "সিঁড়ি দিয়ে আস্তে নামুন।"
+     }
+    },
+    {
+     "target": "もう一度",
+     "kana": "もういちど",
+     "roman": "mō ichido",
+     "bn": "আরেকবার",
+     "pos": "adverb",
+     "example": {
+      "target": "もう いちど チェックします。",
+      "roman": "mō ichido chekku shimasu.",
+      "bn": "আরেকবার চেক করব।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-て ください",
+     "explain_bn": "অনুরোধ/নির্দেশ: ক্রিয়ার て-রূপ + ください। て-রূপ বানানো: ます-এর আগে い/ち/り → って (まちます→まって), み/び/に → んで (よみます→よんで), き → いて (かきます→かいて), し → して; একক 'え/い' ধ্বনির ক্রিয়া (たべます, みせます) → ます বাদ দিয়ে て (たべて, みせて)। ব্যতিক্রম: いきます → いって।",
+     "examples": [
+      {
+       "target": "ここに すわって ください。",
+       "roman": "koko ni suwatte kudasai.",
+       "bn": "এখানে বসুন।"
+      },
+      {
+       "target": "この しょるいを よんで ください。",
+       "roman": "kono shorui o yonde kudasai.",
+       "bn": "এই কাগজটা পড়ুন।"
+      }
+     ]
+    },
+    {
+     "pattern": "না বুঝলে বলার তিন বাক্য",
+     "explain_bn": "কাজের নির্দেশ না বুঝলে: 'もう いちど いって ください' (আরেকবার বলুন), 'ゆっくり はなして ください' (আস্তে বলুন), 'かいて ください' (লিখে দিন)। এগুলো মুখস্থ রাখুন।",
+     "examples": [
+      {
+       "target": "すみません、ゆっくり おねがいします。",
+       "roman": "sumimasen, yukkuri onegai shimasu.",
+       "bn": "মাফ করবেন, আস্তে বলুন।"
+      },
+      {
+       "target": "かみに かいて くださいませんか。",
+       "roman": "kami ni kaite kudasaimasen ka.",
+       "bn": "কাগজে লিখে দেবেন কি?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w03-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "city office clerk"
+        },
+        "B": {
+         "gender": "M",
+         "role": "foreign resident"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "じゃ、この かみに じゅうしょと でんわばんごうを かいて ください。それから ざいりゅうカードを みせて ください。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "はい。カードは これです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কর্মচারী প্রথমে কী করতে বলেছে?",
+      "options": [
+       "কার্ড দেখাতে",
+       "অপেক্ষা করতে",
+       "ফোন করতে",
+       "ঠিকানা আর ফোন নম্বর লিখতে"
+      ],
+      "answer": "D",
+      "explain_bn": "প্রথমে 'じゅうしょと でんわばんごうを かいて', তারপর কার্ড দেখাতে বলেছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w03-l4-r1",
+      "passage": "【ごみの だしかた】もえる ごみは かようびと きんようびに だして ください。あさ ８じまでに だして ください。",
+      "prompt_bn": "পোড়ানো যায় এমন ময়লা কখন ফেলতে হবে?",
+      "options": [
+       "মঙ্গল ও শুক্রবার সকাল ৮টার মধ্যে",
+       "প্রতিদিন রাতে",
+       "শনিবার সকালে",
+       "মঙ্গলবার রাত ৮টায়"
+      ],
+      "answer": "A",
+      "explain_bn": "かようび (মঙ্গল) と きんようび (শুক্র), あさ ８じまでに = সকাল ৮টার মধ্যে।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w03-l4-w1",
+      "prompt_bn": "নির্দেশ লিখুন: 'এখানে নাম লিখুন। তারপর একটু অপেক্ষা করুন।'",
+      "model": {
+       "target": "ここに なまえを かいて ください。それから すこし まって ください。",
+       "roman": "koko ni namae o kaite kudasai. sorekara sukoshi matte kudasai.",
+       "bn": "এখানে নাম লিখুন। তারপর একটু অপেক্ষা করুন।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w03-l4-s1",
+      "prompt_bn": "জাপানি সহকর্মী খুব দ্রুত কথা বলছেন। আস্তে আর আরেকবার বলতে অনুরোধ করুন।",
+      "model": {
+       "target": "すみません、もう いちど ゆっくり はなして ください。",
+       "roman": "sumimasen, mō ichido yukkuri hanashite kudasai.",
+       "bn": "মাফ করবেন, আরেকবার আস্তে বলুন।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w03-l5",
+   "day": 5,
+   "minutes": 25,
+   "title": {
+    "en": "Inviting and making plans",
+    "bn": "দাওয়াত ও পরিকল্পনা"
+   },
+   "goal_bn": "সহকর্মীকে কিছু করতে ডাকতে, রাজি হতে বা ভদ্রভাবে না বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "一緒に",
+     "kana": "いっしょに",
+     "roman": "issho ni",
+     "bn": "একসাথে",
+     "pos": "adverb",
+     "example": {
+      "target": "いっしょに かえりましょう。",
+      "roman": "issho ni kaerimashō.",
+      "bn": "চলুন একসাথে ফিরি।"
+     }
+    },
+    {
+     "target": "昼ご飯",
+     "kana": "ひるごはん",
+     "roman": "hirugohan",
+     "bn": "দুপুরের খাবার",
+     "pos": "noun",
+     "example": {
+      "target": "ひるごはんは なにに しますか。",
+      "roman": "hirugohan wa nani ni shimasu ka.",
+      "bn": "দুপুরে কী খাবেন?"
+     }
+    },
+    {
+     "target": "今度",
+     "kana": "こんど",
+     "roman": "kondo",
+     "bn": "পরের বার / শিগগির",
+     "pos": "noun",
+     "example": {
+      "target": "こんど うちに きて ください。",
+      "roman": "kondo uchi ni kite kudasai.",
+      "bn": "পরে একদিন আমার বাসায় আসুন।"
+     }
+    },
+    {
+     "target": "いいですね",
+     "kana": "いいですね",
+     "roman": "ii desu ne",
+     "bn": "ভালো তো! (রাজি হওয়া)",
+     "pos": "expression",
+     "example": {
+      "target": "こうえんですか。いいですね。",
+      "roman": "kōen desu ka. ii desu ne.",
+      "bn": "পার্কে? ভালো তো!"
+     }
+    },
+    {
+     "target": "残業",
+     "kana": "ざんぎょう",
+     "roman": "zangyō",
+     "bn": "ওভারটাইম",
+     "pos": "noun",
+     "example": {
+      "target": "きょうは ざんぎょうが あります。",
+      "roman": "kyō wa zangyō ga arimasu.",
+      "bn": "আজ ওভারটাইম আছে।"
+     }
+    },
+    {
+     "target": "ちょっと",
+     "kana": "ちょっと",
+     "roman": "chotto",
+     "bn": "একটু (ভদ্রভাবে না বলার সময়ও)",
+     "pos": "adverb",
+     "example": {
+      "target": "きょうは ちょっと……。",
+      "roman": "kyō wa chotto…….",
+      "bn": "আজ একটু (অসুবিধা)…।"
+     }
+    },
+    {
+     "target": "映画",
+     "kana": "えいが",
+     "roman": "eiga",
+     "bn": "সিনেমা",
+     "pos": "noun",
+     "example": {
+      "target": "にちようびに えいがを みませんか。",
+      "roman": "nichiyōbi ni eiga o mimasen ka.",
+      "bn": "রবিবার সিনেমা দেখবেন?"
+     }
+    },
+    {
+     "target": "公園",
+     "kana": "こうえん",
+     "roman": "kōen",
+     "bn": "পার্ক",
+     "pos": "noun",
+     "example": {
+      "target": "こうえんで クリケットを しました。",
+      "roman": "kōen de kuriketto o shimashita.",
+      "bn": "পার্কে ক্রিকেট খেলেছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-ませんか (দাওয়াত)",
+     "explain_bn": "কাউকে কিছু করতে ডাকতে 'V-ませんか' — শাব্দিক অর্থ 'করবেন না?', আসলে ভদ্র দাওয়াত: 'いっしょに たべませんか' = একসাথে খাবেন?",
+     "examples": [
+      {
+       "target": "いっしょに ひるごはんを たべませんか。",
+       "roman": "issho ni hirugohan o tabemasen ka.",
+       "bn": "একসাথে দুপুরের খাবার খাবেন?"
+      },
+      {
+       "target": "どようびに こうえんへ いきませんか。",
+       "roman": "doyōbi ni kōen e ikimasen ka.",
+       "bn": "শনিবার পার্কে যাবেন?"
+      }
+     ]
+    },
+    {
+     "pattern": "V-ましょう / ちょっと……",
+     "explain_bn": "রাজি হলে: 'ええ、V-ましょう' (হ্যাঁ, চলুন করি)। না বলতে জাপানিরা সরাসরি 'না' কম বলে: 'すみません、その ひは ちょっと……' — বাক্য শেষ না করলেই বোঝা যায়।",
+     "examples": [
+      {
+       "target": "ええ、いきましょう。",
+       "roman": "ee, ikimashō.",
+       "bn": "হ্যাঁ, চলুন যাই।"
+      },
+      {
+       "target": "すみません、こんばんは ちょっと……。",
+       "roman": "sumimasen, konban wa chotto…….",
+       "bn": "দুঃখিত, আজ রাতে একটু (সমস্যা)…।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w03-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "Japanese coworker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "シャヒンさん、どようびに みんなで バーベキューを しませんか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "いいですね。でも、どようびは しごとが あります。にちようびは どうですか。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "にちようびですね。いいですよ。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শেষে বারবিকিউ কবে ঠিক হলো?",
+      "options": [
+       "শনিবার",
+       "শুক্রবার",
+       "রবিবার",
+       "আজ রাতে"
+      ],
+      "answer": "C",
+      "explain_bn": "শনিবার শাহীনের কাজ আছে; রবিবার প্রস্তাব করলে সহকর্মী 'いいですよ' বলেছে।",
+      "skill": "gist"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w03-l5-r1",
+      "passage": "リナさんへ\nあした しごとの あと、えきまえの カレーの みせへ いきませんか。６じはんに かいしゃの いりぐちで まって います。　マヤ",
+      "prompt_bn": "মায়া কোথায় অপেক্ষা করবে?",
+      "options": [
+       "কারির দোকানে",
+       "স্টেশনের সামনে",
+       "রিনার বাসায়",
+       "কোম্পানির প্রবেশপথে"
+      ],
+      "answer": "D",
+      "explain_bn": "'かいしゃの いりぐちで まって います' = কোম্পানির প্রবেশপথে অপেক্ষা করবে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w03-l5-w1",
+      "prompt_bn": "সহকর্মীকে মেসেজ লিখুন: রবিবার একসাথে সিনেমা দেখতে চান কিনা।",
+      "model": {
+       "target": "にちようびに いっしょに えいがを みませんか。",
+       "roman": "nichiyōbi ni issho ni eiga o mimasen ka.",
+       "bn": "রবিবার একসাথে সিনেমা দেখবেন?"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w03-l5-s1",
+      "prompt_bn": "আজ রাতে খেতে যাওয়ার দাওয়াত পেয়েছেন, কিন্তু ওভারটাইম আছে। ভদ্রভাবে না বলুন আর পরের বার যেতে চান বলুন।",
+      "model": {
+       "target": "すみません、きょうは ざんぎょうが あります。また こんど おねがいします。",
+       "roman": "sumimasen, kyō wa zangyō ga arimasu. mata kondo onegai shimasu.",
+       "bn": "দুঃখিত, আজ ওভারটাইম আছে। পরের বার অবশ্যই যাব।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -67,6 +67,11 @@ class Command(BaseCommand):
         u = User.objects.filter(pk=o["user"]).first()
         if u is None:
             raise CommandError("no such user")
+        from core.test_accounts import RealAccountRefused, refuse_real_account
+        try:
+            refuse_real_account(u, tool="ai_live_e2e")   # sjp0: never the owner's account
+        except RealAccountRefused as e:
+            raise CommandError(str(e))
         t0 = timezone.now()
         shown = 0
         # 1. voice

@@ -1,0 +1,1048 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ko",
+ "week": 1,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "eps_topik"
+ ],
+ "title": {
+  "en": "Korean for EPS-TOPIK — Week 1: Hangul, greetings, introductions",
+  "bn": "EPS-TOPIK কোরিয়ান — সপ্তাহ ১: হাঙ্গুল, সালাম, পরিচয়"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official EPS-TOPIK material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল EPS-TOPIK বই, প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "HRD Korea EPS-TOPIK public test overview"
+ },
+ "lessons": [
+  {
+   "id": "ko-w01-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Hangul vowels and first words",
+    "bn": "হাঙ্গুল স্বরবর্ণ ও প্রথম শব্দ"
+   },
+   "goal_bn": "হাঙ্গুলের মূল স্বর (ㅏ ㅓ ㅗ ㅜ ㅡ ㅣ ㅑ ㅕ ㅛ ㅠ) চিনে ছোট শব্দ পড়তে পারা।",
+   "vocab": [
+    {
+     "target": "아이",
+     "roman": "ai",
+     "bn": "শিশু, বাচ্চা",
+     "pos": "noun",
+     "example": {
+      "target": "아이가 자요.",
+      "roman": "aiga jayo.",
+      "bn": "বাচ্চা ঘুমাচ্ছে।"
+     }
+    },
+    {
+     "target": "오이",
+     "roman": "oi",
+     "bn": "শসা",
+     "pos": "noun",
+     "example": {
+      "target": "오이가 싸요.",
+      "roman": "oiga ssayo.",
+      "bn": "শসা সস্তা।"
+     }
+    },
+    {
+     "target": "우유",
+     "roman": "uyu",
+     "bn": "দুধ",
+     "pos": "noun",
+     "example": {
+      "target": "우유 하나 주세요.",
+      "roman": "uyu hana juseyo.",
+      "bn": "একটা দুধ দিন।"
+     }
+    },
+    {
+     "target": "이유",
+     "roman": "iyu",
+     "bn": "কারণ",
+     "pos": "noun",
+     "example": {
+      "target": "이유가 뭐예요?",
+      "roman": "iyuga mwoyeyo?",
+      "bn": "কারণ কী?"
+     }
+    },
+    {
+     "target": "여유",
+     "roman": "yeoyu",
+     "bn": "অবসর, হাতে সময়/জায়গা থাকা",
+     "pos": "noun",
+     "example": {
+      "target": "오늘은 여유가 있어요.",
+      "roman": "oneureun yeoyuga isseoyo.",
+      "bn": "আজ হাতে সময় আছে।"
+     }
+    },
+    {
+     "target": "아야",
+     "roman": "aya",
+     "bn": "উহ্! (ব্যথা পেলে বলে)",
+     "pos": "interjection",
+     "example": {
+      "target": "아야! 손이 아파요.",
+      "roman": "aya! soni apayo.",
+      "bn": "উহ্! হাতে ব্যথা।"
+     }
+    },
+    {
+     "target": "여기",
+     "roman": "yeogi",
+     "bn": "এখানে",
+     "pos": "pronoun",
+     "example": {
+      "target": "여기 앉으세요.",
+      "roman": "yeogi anjeuseyo.",
+      "bn": "এখানে বসুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ㅇ + 모음 = 글자",
+     "explain_bn": "স্বর একা লিখতে সামনে নীরব ㅇ বসে; এটা কোনো শব্দ করে না। খাড়া স্বর (ㅏ ㅓ ㅣ ㅑ ㅕ) ডানে বসে, শোয়া স্বর (ㅗ ㅜ ㅡ ㅛ ㅠ) নিচে বসে।",
+     "examples": [
+      {
+       "target": "아 어 이",
+       "roman": "a eo i",
+       "bn": "আ, অ(ও-ঘেঁষা), ই — খাড়া স্বর, ㅇ-এর ডানে।"
+      },
+      {
+       "target": "오 우 으",
+       "roman": "o u eu",
+       "bn": "ও, উ, উ(ঠোঁট টানা) — শোয়া স্বর, ㅇ-এর নিচে।"
+      }
+     ]
+    },
+    {
+     "pattern": "ㅑ ㅕ ㅛ ㅠ (য-ফলা স্বর)",
+     "explain_bn": "স্বরে একটা বাড়তি দাগ মানে সামনে 'য়' শব্দ: ㅏ আ → ㅑ ইয়া, ㅓ অ → ㅕ ইয়ো, ㅗ ও → ㅛ ইয়ো (গোল), ㅜ উ → ㅠ ইউ।",
+     "examples": [
+      {
+       "target": "야 여 요 유",
+       "roman": "ya yeo yo yu",
+       "bn": "ইয়া, ইয়অ, ইয়ো, ইউ।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "শিক্ষক"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "우유."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কোন শব্দটা শুনলেন?",
+      "options": [
+       "우유",
+       "오이",
+       "아이",
+       "여유"
+      ],
+      "answer": "A",
+      "explain_bn": "শোনা শব্দ 우유 (উইউ) — দুধ। 오이 হলো শসা, শুরুতে ও শব্দ।",
+      "skill": "spelling",
+      "id": "ko-w01-l1-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "아이가 우유를 마셔요.",
+      "prompt_bn": "বাচ্চা কী খাচ্ছে/পান করছে?",
+      "options": [
+       "শসা",
+       "দুধ",
+       "পানি",
+       "ভাত"
+      ],
+      "answer": "B",
+      "explain_bn": "우유 = দুধ। 마셔요 = পান করে।",
+      "skill": "vocab",
+      "id": "ko-w01-l1-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "হাঙ্গুলে লিখুন: 'শিশু' আর 'শসা' (দুটো শব্দ, মাঝে কমা)।",
+      "model": {
+       "target": "아이, 오이",
+       "roman": "ai, oi",
+       "bn": "শিশু, শসা"
+      },
+      "check": "self",
+      "id": "ko-w01-l1-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "জোরে পড়ুন এবং রেকর্ড করুন: '여기 우유가 있어요.'",
+      "model": {
+       "target": "여기 우유가 있어요.",
+       "roman": "yeogi uyuga isseoyo.",
+       "bn": "এখানে দুধ আছে।"
+      },
+      "id": "ko-w01-l1-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w01-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Consonants and everyday things",
+    "bn": "ব্যঞ্জনবর্ণ ও রোজকার জিনিস"
+   },
+   "goal_bn": "মূল ব্যঞ্জন (ㄱ ㄴ ㄷ ㄹ ㅁ ㅂ ㅅ ㅈ ㅎ) আর স্বর মিলিয়ে শব্দ পড়া।",
+   "vocab": [
+    {
+     "target": "가방",
+     "roman": "gabang",
+     "bn": "ব্যাগ",
+     "pos": "noun",
+     "example": {
+      "target": "가방이 무거워요.",
+      "roman": "gabangi mugeowoyo.",
+      "bn": "ব্যাগটা ভারী।"
+     }
+    },
+    {
+     "target": "나무",
+     "roman": "namu",
+     "bn": "গাছ; কাঠ",
+     "pos": "noun",
+     "example": {
+      "target": "공장 앞에 나무가 있어요.",
+      "roman": "gongjang ape namuga isseoyo.",
+      "bn": "কারখানার সামনে গাছ আছে।"
+     }
+    },
+    {
+     "target": "다리",
+     "roman": "dari",
+     "bn": "পা (হাঁটু থেকে নিচ); সেতু",
+     "pos": "noun",
+     "example": {
+      "target": "다리가 아파요.",
+      "roman": "dariga apayo.",
+      "bn": "পায়ে ব্যথা।"
+     }
+    },
+    {
+     "target": "바지",
+     "roman": "baji",
+     "bn": "প্যান্ট",
+     "pos": "noun",
+     "example": {
+      "target": "작업 바지를 입어요.",
+      "roman": "jageop bajireul ibeoyo.",
+      "bn": "কাজের প্যান্ট পরি।"
+     }
+    },
+    {
+     "target": "모자",
+     "roman": "moja",
+     "bn": "টুপি",
+     "pos": "noun",
+     "example": {
+      "target": "모자를 쓰세요.",
+      "roman": "mojareul sseuseyo.",
+      "bn": "টুপি পরুন।"
+     }
+    },
+    {
+     "target": "고기",
+     "roman": "gogi",
+     "bn": "মাংস",
+     "pos": "noun",
+     "example": {
+      "target": "저는 고기를 좋아해요.",
+      "roman": "jeoneun gogireul joahaeyo.",
+      "bn": "আমি মাংস পছন্দ করি।"
+     }
+    },
+    {
+     "target": "시계",
+     "roman": "sigye",
+     "bn": "ঘড়ি",
+     "pos": "noun",
+     "example": {
+      "target": "시계가 어디에 있어요?",
+      "roman": "sigyega eodie isseoyo?",
+      "bn": "ঘড়িটা কোথায়?"
+     }
+    },
+    {
+     "target": "하루",
+     "roman": "haru",
+     "bn": "এক দিন",
+     "pos": "noun",
+     "example": {
+      "target": "하루에 여덟 시간 일해요.",
+      "roman": "harue yeodeol sigan ilhaeyo.",
+      "bn": "দিনে আট ঘণ্টা কাজ করি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "자음 + 모음",
+     "explain_bn": "ব্যঞ্জন + স্বর মিলে একটা অক্ষর-ব্লক: ㄱ + ㅏ = 가, ㅁ + ㅗ = 모। ㄱ শব্দের শুরুতে প্রায় 'ক', মাঝে 'গ'; ㄷ তেমনি 'ত/দ', ㅂ 'প/ব'। ㄹ শুরুতে/মাঝে 'র', শেষে 'ল'।",
+     "examples": [
+      {
+       "target": "가 나 다 라 마",
+       "roman": "ga na da ra ma",
+       "bn": "গা না দা রা মা।"
+      },
+      {
+       "target": "바 사 자 하",
+       "roman": "ba sa ja ha",
+       "bn": "বা সা জা হা।"
+      }
+     ]
+    },
+    {
+     "pattern": "받침 (নিচের ব্যঞ্জন)",
+     "explain_bn": "অক্ষরের নিচে বসা ব্যঞ্জনকে 받침 বলে; এটা শেষ শব্দ: 방 = বাং, 밥 = বাপ। পরের অক্ষর স্বর দিয়ে শুরু হলে 받침 সেখানে গড়িয়ে যায়: 가방이 → গাবাংই।",
+     "examples": [
+      {
+       "target": "밥이 있어요.",
+       "roman": "babi isseoyo.",
+       "bn": "ভাত আছে — 밥이 পড়া হয় 'বাবি'।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "সহকর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "모자 어디에 있어요?"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটা কী খুঁজছে?",
+      "options": [
+       "가방",
+       "바지",
+       "모자",
+       "시계"
+      ],
+      "answer": "C",
+      "explain_bn": "모자 = টুপি। '어디에 있어요?' মানে কোথায়?",
+      "skill": "vocab",
+      "id": "ko-w01-l2-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "가방 안에 바지가 있어요. 시계는 없어요.",
+      "prompt_bn": "ব্যাগের ভিতরে কী আছে?",
+      "options": [
+       "ঘড়ি",
+       "টুপি",
+       "মাংস",
+       "প্যান্ট"
+      ],
+      "answer": "D",
+      "explain_bn": "바지가 있어요 = প্যান্ট আছে। 시계는 없어요 = ঘড়ি নেই।",
+      "skill": "detail",
+      "id": "ko-w01-l2-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "হাঙ্গুলে লিখুন: ব্যাগ, টুপি, ঘড়ি।",
+      "model": {
+       "target": "가방, 모자, 시계",
+       "roman": "gabang, moja, sigye",
+       "bn": "ব্যাগ, টুপি, ঘড়ি"
+      },
+      "check": "self",
+      "id": "ko-w01-l2-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "ছবির মতো ভাবুন: আপনার ব্যাগে কী আছে বলুন — '가방에 ___이/가 있어요.'",
+      "model": {
+       "target": "가방에 바지가 있어요.",
+       "roman": "gabange bajiga isseoyo.",
+       "bn": "ব্যাগে প্যান্ট আছে।"
+      },
+      "id": "ko-w01-l2-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w01-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Greetings and polite words",
+    "bn": "সালাম-শুভেচ্ছা ও ভদ্র কথা"
+   },
+   "goal_bn": "কারখানায় প্রথম দিন বস ও সহকর্মীকে ভদ্রভাবে সালাম, ধন্যবাদ ও দুঃখ প্রকাশ করতে পারা।",
+   "vocab": [
+    {
+     "target": "안녕하세요",
+     "roman": "annyeonghaseyo",
+     "bn": "আসসালামু আলাইকুম / হ্যালো (সব সময় চলে)",
+     "pos": "phrase",
+     "example": {
+      "target": "사장님, 안녕하세요?",
+      "roman": "sajangnim, annyeonghaseyo?",
+      "bn": "স্যার, আসসালামু আলাইকুম।"
+     }
+    },
+    {
+     "target": "감사합니다",
+     "roman": "gamsahamnida",
+     "bn": "ধন্যবাদ (খুব ভদ্র)",
+     "pos": "phrase",
+     "example": {
+      "target": "도와줘서 감사합니다.",
+      "roman": "dowajwoseo gamsahamnida.",
+      "bn": "সাহায্য করার জন্য ধন্যবাদ।"
+     }
+    },
+    {
+     "target": "죄송합니다",
+     "roman": "joesonghamnida",
+     "bn": "দুঃখিত / মাফ করবেন (ভুল করলে)",
+     "pos": "phrase",
+     "example": {
+      "target": "늦어서 죄송합니다.",
+      "roman": "neujeoseo joesonghamnida.",
+      "bn": "দেরি হওয়ার জন্য দুঃখিত।"
+     }
+    },
+    {
+     "target": "괜찮아요",
+     "roman": "gwaenchanayo",
+     "bn": "ঠিক আছে / সমস্যা নেই",
+     "pos": "phrase",
+     "example": {
+      "target": "저는 괜찮아요.",
+      "roman": "jeoneun gwaenchanayo.",
+      "bn": "আমি ঠিক আছি।"
+     }
+    },
+    {
+     "target": "안녕히 가세요",
+     "roman": "annyeonghi gaseyo",
+     "bn": "ভালোভাবে যান (যে চলে যাচ্ছে তাকে)",
+     "pos": "phrase",
+     "example": {
+      "target": "반장님, 안녕히 가세요.",
+      "roman": "banjangnim, annyeonghi gaseyo.",
+      "bn": "লিডার সাহেব, ভালোভাবে যান।"
+     }
+    },
+    {
+     "target": "안녕히 계세요",
+     "roman": "annyeonghi gyeseyo",
+     "bn": "ভালো থাকুন (যে থেকে যাচ্ছে তাকে)",
+     "pos": "phrase",
+     "example": {
+      "target": "내일 봐요. 안녕히 계세요.",
+      "roman": "naeil bwayo. annyeonghi gyeseyo.",
+      "bn": "কাল দেখা হবে। ভালো থাকুন।"
+     }
+    },
+    {
+     "target": "반갑습니다",
+     "roman": "bangapseumnida",
+     "bn": "পরিচিত হয়ে খুশি হলাম",
+     "pos": "phrase",
+     "example": {
+      "target": "처음 뵙겠습니다. 반갑습니다.",
+      "roman": "cheoeum boepgetseumnida. bangapseumnida.",
+      "bn": "প্রথম দেখা হলো। পরিচিত হয়ে খুশি হলাম।"
+     }
+    },
+    {
+     "target": "수고하셨습니다",
+     "roman": "sugohasyeotseumnida",
+     "bn": "অনেক খাটলেন / ভালো কাজ করলেন (কাজ শেষে বলা হয়)",
+     "pos": "phrase",
+     "example": {
+      "target": "오늘도 수고하셨습니다.",
+      "roman": "oneuldo sugohasyeotseumnida.",
+      "bn": "আজও অনেক খাটলেন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "-습니다 / -아요·어요 (ভদ্রতার দুই ধাপ)",
+     "explain_bn": "-습니다/-ㅂ니다 সবচেয়ে আনুষ্ঠানিক — বস, অফিস, পরীক্ষায়। -아요/어요 ভদ্র কিন্তু নরম — সহকর্মী, দোকানে। নতুন কর্মী হিসেবে বসের সাথে -습니다 নিরাপদ।",
+     "examples": [
+      {
+       "target": "감사합니다. / 고마워요.",
+       "roman": "gamsahamnida. / gomawoyo.",
+       "bn": "দুটোই ধন্যবাদ; প্রথমটা বেশি আনুষ্ঠানিক।"
+      }
+     ]
+    },
+    {
+     "pattern": "가세요 vs 계세요",
+     "explain_bn": "বিদায়ের সময়: যিনি চলে যাচ্ছেন তাকে '안녕히 가세요', আর আপনি চলে গেলে যিনি থাকছেন তাকে '안녕히 계세요'।",
+     "examples": [
+      {
+       "target": "먼저 갈게요. 안녕히 계세요.",
+       "roman": "meonjeo galgeyo. annyeonghi gyeseyo.",
+       "bn": "আমি আগে যাচ্ছি। ভালো থাকুন। — আপনি যাচ্ছেন, বস থাকছেন, তাই 계세요।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "কর্মী"
+        },
+        "B": {
+         "gender": "F",
+         "role": "লাইন লিডার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "늦어서 죄송합니다."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "괜찮아요. 빨리 오세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কর্মী কেন দুঃখ প্রকাশ করল?",
+      "options": [
+       "দেরি করেছে",
+       "কাজ ভুল হয়েছে",
+       "যন্ত্র ভেঙেছে",
+       "অসুস্থ"
+      ],
+      "answer": "A",
+      "explain_bn": "늦어서 = দেরি হওয়ায়। লিডার বললেন 괜찮아요 — সমস্যা নেই।",
+      "skill": "expression",
+      "id": "ko-w01-l3-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "퇴근 시간이에요. 민수 씨는 집에 가요. 반장님은 공장에 있어요.",
+      "prompt_bn": "মিনসু চলে যাওয়ার সময় লিডারকে কী বলবে?",
+      "options": [
+       "안녕히 가세요",
+       "안녕히 계세요",
+       "반갑습니다",
+       "죄송합니다"
+      ],
+      "answer": "B",
+      "explain_bn": "মিনসু যাচ্ছে, লিডার কারখানায় থাকছেন — তাই '안녕히 계세요'।",
+      "skill": "expression",
+      "id": "ko-w01-l3-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "বসকে কাজ শেষে কী বলবেন হাঙ্গুলে লিখুন: 'ধন্যবাদ। ভালো থাকুন।'",
+      "model": {
+       "target": "감사합니다. 안녕히 계세요.",
+       "roman": "gamsahamnida. annyeonghi gyeseyo.",
+       "bn": "ধন্যবাদ। ভালো থাকুন।"
+      },
+      "check": "ai",
+      "id": "ko-w01-l3-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "প্রথম দিন বসকে সালাম দিন আর বলুন পরিচিত হয়ে খুশি হলাম।",
+      "model": {
+       "target": "안녕하세요? 반갑습니다.",
+       "roman": "annyeonghaseyo? bangapseumnida.",
+       "bn": "আসসালামু আলাইকুম। পরিচিত হয়ে খুশি হলাম।"
+      },
+      "id": "ko-w01-l3-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w01-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Introducing yourself: 이에요/예요",
+    "bn": "নিজের পরিচয়: 이에요/예요"
+   },
+   "goal_bn": "নাম, দেশ ও পেশা বলে ৩ বাক্যে নিজের পরিচয় দিতে পারা।",
+   "vocab": [
+    {
+     "target": "저",
+     "roman": "jeo",
+     "bn": "আমি (ভদ্র)",
+     "pos": "pronoun",
+     "example": {
+      "target": "저는 라힘이에요.",
+      "roman": "jeoneun rahimieyo.",
+      "bn": "আমি রহিম।"
+     }
+    },
+    {
+     "target": "이름",
+     "roman": "ireum",
+     "bn": "নাম",
+     "pos": "noun",
+     "example": {
+      "target": "이름이 뭐예요?",
+      "roman": "ireumi mwoyeyo?",
+      "bn": "আপনার নাম কী?"
+     }
+    },
+    {
+     "target": "방글라데시",
+     "roman": "banggeulladesi",
+     "bn": "বাংলাদেশ",
+     "pos": "noun",
+     "example": {
+      "target": "저는 방글라데시에서 왔어요.",
+      "roman": "jeoneun banggeulladesieseo wasseoyo.",
+      "bn": "আমি বাংলাদেশ থেকে এসেছি।"
+     }
+    },
+    {
+     "target": "사람",
+     "roman": "saram",
+     "bn": "মানুষ, লোক",
+     "pos": "noun",
+     "example": {
+      "target": "방글라데시 사람이에요.",
+      "roman": "banggeulladesi saramieyo.",
+      "bn": "(আমি) বাংলাদেশি।"
+     }
+    },
+    {
+     "target": "근로자",
+     "roman": "geulloja",
+     "bn": "শ্রমিক, কর্মী",
+     "pos": "noun",
+     "example": {
+      "target": "저는 외국인 근로자예요.",
+      "roman": "jeoneun oegugin geullojayeyo.",
+      "bn": "আমি বিদেশি কর্মী।"
+     }
+    },
+    {
+     "target": "한국",
+     "roman": "hanguk",
+     "bn": "কোরিয়া (দক্ষিণ)",
+     "pos": "noun",
+     "example": {
+      "target": "한국은 처음이에요.",
+      "roman": "hangugeun cheoeumieyo.",
+      "bn": "কোরিয়ায় এই প্রথম।"
+     }
+    },
+    {
+     "target": "나이",
+     "roman": "nai",
+     "bn": "বয়স",
+     "pos": "noun",
+     "example": {
+      "target": "나이가 어떻게 되세요?",
+      "roman": "naiga eotteoke doeseyo?",
+      "bn": "আপনার বয়স কত? (ভদ্রভাবে)"
+     }
+    },
+    {
+     "target": "뭐",
+     "roman": "mwo",
+     "bn": "কী",
+     "pos": "pronoun",
+     "example": {
+      "target": "이게 뭐예요?",
+      "roman": "ige mwoyeyo?",
+      "bn": "এটা কী?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N이에요 / N예요",
+     "explain_bn": "'N হই/হয়' বলতে: শব্দের শেষ অক্ষরে 받침 থাকলে 이에요 (사람이에요), না থাকলে 예요 (근로자예요)। প্রশ্ন করতে শেষে সুর তুলুন: 학생이에요?",
+     "examples": [
+      {
+       "target": "저는 카림이에요.",
+       "roman": "jeoneun karimieyo.",
+       "bn": "আমি করিম। (림-এ ㅁ 받침 → 이에요)"
+      },
+      {
+       "target": "제 친구는 요리사예요.",
+       "roman": "je chinguneun yorisayeyo.",
+       "bn": "আমার বন্ধু রাঁধুনি। (사-তে 받침 নেই → 예요)"
+      }
+     ]
+    },
+    {
+     "pattern": "저는 … / 제 …",
+     "explain_bn": "'আমি' = 저, 'আমার' = 제। 저는 = আমি (বিষয় হিসেবে)। 제 이름은 … = আমার নাম …।",
+     "examples": [
+      {
+       "target": "제 이름은 하산이에요.",
+       "roman": "je ireumeun hasanieyo.",
+       "bn": "আমার নাম হাসান।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "অফিস কর্মী"
+        },
+        "B": {
+         "gender": "M",
+         "role": "নতুন কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "이름이 뭐예요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "제 이름은 나임이에요. 방글라데시 사람이에요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নতুন কর্মী কোন দেশের?",
+      "options": [
+       "নেপাল",
+       "ভিয়েতনাম",
+       "বাংলাদেশ",
+       "কোরিয়া"
+      ],
+      "answer": "C",
+      "explain_bn": "방글라데시 사람이에요 = আমি বাংলাদেশি।",
+      "skill": "detail",
+      "id": "ko-w01-l4-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "안녕하세요. 제 이름은 사키브예요. 스물다섯 살이에요. 저는 농장 근로자예요.",
+      "prompt_bn": "সাকিব কোথায় কাজ করে?",
+      "options": [
+       "কারখানা",
+       "রেস্তোরাঁ",
+       "নির্মাণ সাইট",
+       "খামার"
+      ],
+      "answer": "D",
+      "explain_bn": "농장 = খামার। 스물다섯 살 = ২৫ বছর।",
+      "skill": "detail",
+      "id": "ko-w01-l4-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "নিজের পরিচয় ২ বাক্যে লিখুন: নাম আর দেশ।",
+      "model": {
+       "target": "제 이름은 라힘이에요. 방글라데시 사람이에요.",
+       "roman": "je ireumeun rahimieyo. banggeulladesi saramieyo.",
+       "bn": "আমার নাম রহিম। আমি বাংলাদেশি।"
+      },
+      "check": "ai",
+      "id": "ko-w01-l4-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "ইন্টারভিউয়ের মতো নিজের নাম, দেশ ও পেশা বলুন (৩ বাক্য)।",
+      "model": {
+       "target": "안녕하세요. 저는 라힘이에요. 방글라데시 사람이에요. 저는 근로자예요.",
+       "roman": "annyeonghaseyo. jeoneun rahimieyo. banggeulladesi saramieyo. jeoneun geullojayeyo.",
+       "bn": "আসসালামু আলাইকুম। আমি রহিম। বাংলাদেশি। আমি একজন শ্রমিক।"
+      },
+      "id": "ko-w01-l4-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w01-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Workplace people: 은/는 and 이/가 아니에요",
+    "bn": "কর্মস্থলের মানুষ: 은/는 আর 이/가 아니에요"
+   },
+   "goal_bn": "কে কী করে বলা, আর 'না, আমি … নই' বলে ভুল শুধরানো।",
+   "vocab": [
+    {
+     "target": "회사",
+     "roman": "hoesa",
+     "bn": "কোম্পানি, অফিস",
+     "pos": "noun",
+     "example": {
+      "target": "회사가 커요.",
+      "roman": "hoesaga keoyo.",
+      "bn": "কোম্পানিটা বড়।"
+     }
+    },
+    {
+     "target": "공장",
+     "roman": "gongjang",
+     "bn": "কারখানা",
+     "pos": "noun",
+     "example": {
+      "target": "공장은 김해에 있어요.",
+      "roman": "gongjangeun gimhae-e isseoyo.",
+      "bn": "কারখানাটা গিমহেতে।"
+     }
+    },
+    {
+     "target": "농장",
+     "roman": "nongjang",
+     "bn": "খামার",
+     "pos": "noun",
+     "example": {
+      "target": "농장 일은 힘들어요.",
+      "roman": "nongjang ireun himdeureoyo.",
+      "bn": "খামারের কাজ কষ্টের।"
+     }
+    },
+    {
+     "target": "친구",
+     "roman": "chingu",
+     "bn": "বন্ধু",
+     "pos": "noun",
+     "example": {
+      "target": "제 친구는 공장에서 일해요.",
+      "roman": "je chinguneun gongjangeseo ilhaeyo.",
+      "bn": "আমার বন্ধু কারখানায় কাজ করে।"
+     }
+    },
+    {
+     "target": "동료",
+     "roman": "dongnyo",
+     "bn": "সহকর্মী",
+     "pos": "noun",
+     "example": {
+      "target": "동료가 친절해요.",
+      "roman": "dongnyoga chinjeolhaeyo.",
+      "bn": "সহকর্মীরা ভদ্র।"
+     }
+    },
+    {
+     "target": "사장님",
+     "roman": "sajangnim",
+     "bn": "মালিক / বস (সম্মান করে)",
+     "pos": "noun",
+     "example": {
+      "target": "사장님은 사무실에 계세요.",
+      "roman": "sajangnimeun samusire gyeseyo.",
+      "bn": "মালিক অফিসে আছেন।"
+     }
+    },
+    {
+     "target": "반장님",
+     "roman": "banjangnim",
+     "bn": "লাইন/টিম লিডার",
+     "pos": "noun",
+     "example": {
+      "target": "반장님이 일을 가르쳐 줘요.",
+      "roman": "banjangnimi ireul gareuchyeo jwoyo.",
+      "bn": "লিডার কাজ শেখান।"
+     }
+    },
+    {
+     "target": "직업",
+     "roman": "jigeop",
+     "bn": "পেশা",
+     "pos": "noun",
+     "example": {
+      "target": "직업이 뭐예요?",
+      "roman": "jigeobi mwoyeyo?",
+      "bn": "আপনার পেশা কী?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N은/는",
+     "explain_bn": "বাক্যের বিষয় (topic) চিহ্ন: 받침 থাকলে 은, না থাকলে 는। 'আর … হলো' তুলনা বোঝাতেও: 저는 근로자예요. 친구는 학생이에요.",
+     "examples": [
+      {
+       "target": "공장은 커요.",
+       "roman": "gongjangeun keoyo.",
+       "bn": "কারখানাটা বড়।"
+      },
+      {
+       "target": "저는 용접공이에요.",
+       "roman": "jeoneun yongjeopgongieyo.",
+       "bn": "আমি ওয়েল্ডার।"
+      }
+     ]
+    },
+    {
+     "pattern": "N이/가 아니에요",
+     "explain_bn": "'N নই/নয়': 받침 থাকলে 이 아니에요, না থাকলে 가 아니에요। উত্তরে আগে 아니요 বলুন।",
+     "examples": [
+      {
+       "target": "아니요, 저는 학생이 아니에요.",
+       "roman": "aniyo, jeoneun haksaengi anieyo.",
+       "bn": "না, আমি ছাত্র নই।"
+      },
+      {
+       "target": "이건 제 가방이 아니에요.",
+       "roman": "igeon je gabangi anieyo.",
+       "bn": "এটা আমার ব্যাগ নয়।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "সহকর্মী"
+        },
+        "B": {
+         "gender": "F",
+         "role": "অতিথি"
+        }
+       },
+       "turns": [
+        {
+         "spk": "B",
+         "text": "저분이 사장님이에요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "아니요, 사장님이 아니에요. 반장님이에요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ওই লোকটা কে?",
+      "options": [
+       "টিম লিডার",
+       "মালিক",
+       "অতিথি",
+       "নতুন কর্মী"
+      ],
+      "answer": "A",
+      "explain_bn": "'사장님이 아니에요. 반장님이에요.' — মালিক নন, টিম লিডার।",
+      "skill": "detail",
+      "id": "ko-w01-l5-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "저는 공장 근로자예요. 제 동생은 근로자가 아니에요. 동생은 학생이에요.",
+      "prompt_bn": "লেখকের ছোট ভাই কী করে?",
+      "options": [
+       "কারখানায় কাজ",
+       "পড়াশোনা",
+       "খামারে কাজ",
+       "দোকান চালায়"
+      ],
+      "answer": "B",
+      "explain_bn": "동생은 학생이에요 = ছোট ভাই/বোন ছাত্র।",
+      "skill": "detail",
+      "id": "ko-w01-l5-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'আমি ছাত্র নই। আমি শ্রমিক।'",
+      "model": {
+       "target": "저는 학생이 아니에요. 저는 근로자예요.",
+       "roman": "jeoneun haksaengi anieyo. jeoneun geullojayeyo.",
+       "bn": "আমি ছাত্র নই। আমি শ্রমিক।"
+      },
+      "check": "ai",
+      "id": "ko-w01-l5-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "কেউ ভুল করে জিজ্ঞেস করল '중국 사람이에요?' — না বলে আপনার দেশ বলুন।",
+      "model": {
+       "target": "아니요, 중국 사람이 아니에요. 방글라데시 사람이에요.",
+       "roman": "aniyo, jungguk sarami anieyo. banggeulladesi saramieyo.",
+       "bn": "না, আমি চীনা নই। আমি বাংলাদেশি।"
+      },
+      "id": "ko-w01-l5-s1"
+     }
+    ]
+   }
+  }
+ ]
+}

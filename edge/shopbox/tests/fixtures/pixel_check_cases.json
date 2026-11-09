@@ -1,0 +1,284 @@
+{
+ "_doc": "cctvacc2: shared cases for the phone's pixel-level motion check. Plane 80x60; pixel = base*gain, rect [x,y,w,h,v] pixels = v*gain; gate_moved [x,y,w,h] = moved cells of the 32x24 gate grid (absent = no gate). Run by edge/shopbox/tests/test_motion_gate.py AND app/test/cctv_gate_parity_test.dart.",
+ "cases": [
+  {
+   "name": "static scene never moves",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    }
+   ],
+   "expect": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "a walker is seen and followed",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       10,
+       10,
+       4,
+       6,
+       160
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       14,
+       10,
+       4,
+       6,
+       160
+      ]
+     ]
+    }
+   ],
+   "expect": [
+    false,
+    true,
+    true
+   ]
+  },
+  {
+   "name": "a 2x2 speck (rain drop, noise) is too small",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       30,
+       30,
+       2,
+       2,
+       200
+      ]
+     ]
+    }
+   ],
+   "expect": [
+    false,
+    false
+   ]
+  },
+  {
+   "name": "auto exposure: the whole frame 30% brighter is not motion",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "gain": 1.3
+    },
+    {
+     "base": 60,
+     "gain": 1.3
+    }
+   ],
+   "expect": [
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "lights switched on everywhere is not motion",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 200
+    }
+   ],
+   "expect": [
+    false,
+    false
+   ]
+  },
+  {
+   "name": "70% of pixels change at once: scene adopted, then a walker is seen",
+   "frames": [
+    {
+     "base": 140
+    },
+    {
+     "base": 140,
+     "rects": [
+      [
+       0,
+       0,
+       80,
+       24,
+       220
+      ],
+      [
+       0,
+       24,
+       80,
+       18,
+       20
+      ],
+      [
+       0,
+       42,
+       80,
+       18,
+       140
+      ]
+     ]
+    },
+    {
+     "base": 140,
+     "rects": [
+      [
+       0,
+       0,
+       80,
+       24,
+       220
+      ],
+      [
+       0,
+       24,
+       80,
+       18,
+       20
+      ],
+      [
+       0,
+       42,
+       80,
+       18,
+       140
+      ]
+     ]
+    },
+    {
+     "base": 140,
+     "rects": [
+      [
+       0,
+       0,
+       80,
+       24,
+       220
+      ],
+      [
+       0,
+       24,
+       80,
+       18,
+       20
+      ],
+      [
+       0,
+       42,
+       80,
+       18,
+       140
+      ],
+      [
+       5,
+       45,
+       4,
+       6,
+       240
+      ]
+     ]
+    }
+   ],
+   "expect": [
+    false,
+    false,
+    false,
+    true
+   ]
+  },
+  {
+   "name": "a pixel blob far from any gate-moved cell does not count",
+   "gate_moved": [
+    20,
+    20,
+    2,
+    2
+   ],
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       10,
+       10,
+       4,
+       6,
+       160
+      ]
+     ]
+    }
+   ],
+   "expect": [
+    false,
+    false
+   ]
+  },
+  {
+   "name": "a pixel blob touching a gate-moved cell counts",
+   "gate_moved": [
+    4,
+    4,
+    1,
+    1
+   ],
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       10,
+       10,
+       4,
+       6,
+       160
+      ]
+     ]
+    }
+   ],
+   "expect": [
+    false,
+    true
+   ]
+  }
+ ]
+}

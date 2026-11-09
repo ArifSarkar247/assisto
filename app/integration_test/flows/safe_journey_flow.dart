@@ -68,13 +68,14 @@ void registerSafeJourneyFlows() {
       await f.tap(find.byKey(const ValueKey('j2_link_use')), settleSeconds: 4);
       await f.scrollTo(find.byKey(const ValueKey('j2_pinned')));
       await f.waitFor(find.byKey(const ValueKey('j2_pinned')), what: 'pinned destination');
-      final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      final b = find.widgetWithText(FilterChip, Seed.nameB); // sjstart2: watcher chips
       await f.scrollTo(b);
       if (!await f.appears(b, seconds: 6)) {
         throw TestFailure('watcher ${Seed.nameB} not listed (seed edge A->B missing)');
       }
       await f.tester.ensureVisible(b);
-      await f.tap(b);
+      // sjstart2: last trip's watchers come back preselected — never untick
+      if (!f.tester.widget<FilterChip>(b).selected) await f.tap(b);
       await f.shot('form');
       final start = find.byKey(const ValueKey('j100_start'));
       await f.scrollTo(start);
@@ -143,7 +144,9 @@ void registerSafeJourneyFlows() {
     await f.step('I\'ve arrived -> journey over; B sees "arrived"; no location on the page', () async {
       final btn = find.byKey(const ValueKey('j100_arrived'));
       await f.tester.ensureVisible(btn);
-      await f.tap(btn, settleSeconds: 3);
+      await f.tap(btn, settleSeconds: 0.5);
+      // qjourney: the honest line is a snackbar — catch it before it fades
+      final unusual = await f.appears(find.text(f.t.qjArrivedUnusual), seconds: 4);
       await f.shot('arrived');
       f.expectHttp('POST', '/journey/$jid/arrived');
       // qjourney (owner V2): the emulator is nowhere near Gazipur and the
@@ -151,12 +154,10 @@ void registerSafeJourneyFlows() {
       if (find.text(f.t.journeyArrivedSafely).evaluate().isNotEmpty) {
         throw TestFailure('impossible arrival shown as "arrived safely"');
       }
-      final pin = find.byKey(const ValueKey('j100_pin_field'));
-      if (await f.appears(pin, seconds: 2)) {
+      if (find.byKey(const ValueKey('j100_pin_field')).evaluate().isNotEmpty) {
         throw TestFailure('seeded A has no safety PIN; PIN asked unexpectedly');
       }
-      await f.waitFor(find.text(f.t.qjArrivedUnusual), seconds: 6,
-          what: '"unusual arrival" message');
+      if (!unusual) throw TestFailure('no "unusual arrival" message after an impossible arrival');
       await f.eventually('A has no active journey', () async =>
           (await api.getJson('/journey/active'))['id'] == null);
       await f.eventually('B sees arrived', () async {

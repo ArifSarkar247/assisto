@@ -34,8 +34,14 @@ fast unit tests.
 """
 from datetime import time as dtime
 
+from . import cctv_detect as CD
+
 SCHEMA_V = 2
-ZONE_TYPES = ("restricted", "cash", "entry_line")
+# cctvdet (Guard V3 part C): + "gate" (person at the shutter / gate, gate
+# left open) and "post" (counter / post left empty); every zone may carry its
+# own "schedule" and "opts" (dwell_s, absent_min, open_min, watch_open,
+# closed_at) — see core/logic/cctv_detect.py
+ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post")
 SENSITIVITY = ("low", "medium", "high")
 MAX_ZONES = 8
 MAX_POINTS = 16
@@ -97,6 +103,33 @@ def _window(v, code):
     return {"start": s.strftime("%H:%M"), "end": e.strftime("%H:%M")}
 
 
+def _schedule(sched, allow_all_day=False):
+    """{"days", "start", "end"} or None; raises ZoneError("bad_schedule").
+    allow_all_day (a zone's own schedule): start == end = all day."""
+    if sched in (None, "", {}):
+        return None
+    if not isinstance(sched, dict):
+        raise ZoneError("bad_schedule")
+    days = sched.get("days")
+    if not isinstance(days, list) or not days:
+        raise ZoneError("bad_schedule")
+    try:
+        days = sorted({int(d) for d in days})
+    except (TypeError, ValueError):
+        raise ZoneError("bad_schedule")
+    if any(d < 0 or d > 6 for d in days):
+        raise ZoneError("bad_schedule")
+    if allow_all_day:
+        s, e = parse_hhmm(sched.get("start")), parse_hhmm(sched.get("end"))
+        if s is None or e is None:
+            raise ZoneError("bad_schedule")
+        return {"days": days, "start": s.strftime("%H:%M"), "end": e.strftime("%H:%M")}
+    win = _window(sched, "bad_schedule")
+    if win is None:
+        raise ZoneError("bad_schedule")
+    return {"days": days, **win}
+
+
 def normalize_zone_config(raw, legacy=None):
     """Validate a v2 zone config from the app. Raises ZoneError(code) on bad
     input; returns the clean dict (legacy keys from `legacy` kept)."""
@@ -126,27 +159,20 @@ def normalize_zone_config(raw, legacy=None):
             zid = "z%d" % (i + 1)
         seen.add(zid)
         label = str(z.get("label") or "")[:40]
-        zones.append({"id": zid, "type": ztype, "points": pts,
-                      **({"label": label} if label else {})})
+        zz = {"id": zid, "type": ztype, "points": pts,
+              **({"label": label} if label else {})}
+        # cctvdet: the zone's own schedule + options
+        zsched = _schedule(z.get("schedule"), allow_all_day=True)
+        if ztype == "post" and zsched is None:
+            zsched = dict(CD.POST_DEFAULT_SCHEDULE)
+        if zsched is not None and ztype != "entry_line":
+            zz["schedule"] = zsched
+        opts = CD.clean_opts(z.get("opts"), ztype)
+        if opts:
+            zz["opts"] = opts
+        zones.append(zz)
 
-    sched = raw.get("schedule")
-    schedule = None
-    if sched not in (None, "", {}):
-        if not isinstance(sched, dict):
-            raise ZoneError("bad_schedule")
-        days = sched.get("days")
-        if not isinstance(days, list) or not days:
-            raise ZoneError("bad_schedule")
-        try:
-            days = sorted({int(d) for d in days})
-        except (TypeError, ValueError):
-            raise ZoneError("bad_schedule")
-        if any(d < 0 or d > 6 for d in days):
-            raise ZoneError("bad_schedule")
-        win = _window(sched, "bad_schedule")
-        if win is None:
-            raise ZoneError("bad_schedule")
-        schedule = {"days": days, **win}
+    schedule = _schedule(raw.get("schedule"))
 
     sens = raw.get("sensitivity") or "medium"
     if sens not in SENSITIVITY:
@@ -191,6 +217,8 @@ def is_armed(schedule, local_dt):
         return True
     t = local_dt.time().replace(second=0, microsecond=0)
     wd = local_dt.weekday()
+    if s == e:                      # cctvdet: a zone's "all day" schedule
+        return wd in days
     if s < e:
         return wd in days and s <= t < e
     # overnight: the evening part belongs to today, the morning part to yesterday

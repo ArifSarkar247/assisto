@@ -80,7 +80,7 @@ class HomeV2BottomBar extends StatelessWidget {
                 _Item(
                     key: const ValueKey('hv2_nav_business'),
                     icon: Icons.storefront_outlined,
-                    label: t.sidebarBusiness,
+                    label: t.myBusinessTitle,
                     onTap: onBusiness),
               ],
             ),

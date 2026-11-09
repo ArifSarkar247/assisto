@@ -153,7 +153,11 @@ class ShopClipUploadView(APIView):
                 raw_meta = json.loads(raw_meta)
             except ValueError:
                 raw_meta = None
-        probs = PCL.preview_meta_problems(raw_meta) if phone else \
+        # cctvdet: a Shop Box detection alert carries the 10 s clip (the same
+        # ACG1 preview envelope as the phone's: 2-12.5 s, <= 40 frames)
+        from .logic import cctv_detect as CD
+        long_clip = ev.type in CD.LONG_CLIP_TYPES
+        probs = PCL.preview_meta_problems(raw_meta) if (phone or long_clip) else \
             CG.clip_meta_problems(raw_meta)
         if probs:
             return _err(lang, "ক্লিপের তথ্য ঠিক নেই।", "The clip envelope is not valid.",
@@ -530,6 +534,22 @@ def _fetch_ezviz_pic(url, getter=None):
         return None
 
 
+# camflows (owner 9 Nov): EZVIZ's real-time "Message Service" is PAID, so
+# alarms stay POLLED. The free trial allows 10 000 API calls a DAY: one
+# alarm-list call per camera per poll, ~9 000 a day kept for polling (the rest:
+# token, SD checks, live, linking). 1-6 cameras: every minute; more cameras:
+# every few minutes (each poll looks back far enough, nothing is missed);
+# 3x slower from 80 % of the monthly counter, none at 100 % (owner warned).
+EZVIZ_POLL_CALLS_PER_DAY = 9000
+EZVIZ_POLL_MAX_EVERY_MIN = 30
+
+
+def ezviz_poll_every_min(n_cams, saving=False):
+    import math
+    every = max(1, math.ceil(max(1, int(n_cams)) * 1440 / EZVIZ_POLL_CALLS_PER_DAY))
+    return min(EZVIZ_POLL_MAX_EVERY_MIN, every * (3 if saving else 1))
+
+
 def poll_ezviz(client=None, now=None, getter=None):
     """One polling pass over every linked EZVIZ camera (command
     ezviz_poll_alarms, every minute). New alarms -> the same guard as every
@@ -539,23 +559,36 @@ def poll_ezviz(client=None, now=None, getter=None):
     from .logic import cctv_rules as CR
     from . import cctv_alerts as CA
     from .models import ShopCamera
+    now = now or timezone.now()
+    cams = ShopCamera.objects.filter(vendor="ezviz", enabled=True,
+                                     vendor_ref__startswith="EZ:").select_related("site")
+    every = 1
     if client is None:
         if not ezviz_on():
+            return 0
+        # camflows: stay inside the free daily API calls (see above)
+        try:
+            from .logic.cctv_connect import quota as Q
+            if Q.stop("ezviz"):
+                return 0
+            every = ezviz_poll_every_min(cams.count(), Q.saving("ezviz"))
+        except Exception:  # noqa: BLE001 - counting never stops alerts
+            every = 1
+        if int(now.timestamp() // 60) % every:
             return 0
         client = EZ.EzvizClient.from_integration()
         if client is None:
             return 0
-    now = now or timezone.now()
     now_ms = int(now.timestamp() * 1000)
+    back_ms = max(10, every + 2) * 60_000          # never miss an alarm between polls
     n = 0
-    for cam in ShopCamera.objects.filter(vendor="ezviz", enabled=True,
-                                         vendor_ref__startswith="EZ:").select_related("site"):
+    for cam in cams:
         try:
             _, serial, ch = cam.vendor_ref.split(":")
         except ValueError:
             continue
-        last = int((cam.compat or {}).get("cloud_last_alarm_ms") or (now_ms - 10 * 60_000))
-        last = max(last, now_ms - 10 * 60_000)        # never more than 10 min back
+        last = int((cam.compat or {}).get("cloud_last_alarm_ms") or (now_ms - back_ms))
+        last = max(last, now_ms - back_ms)        # never more than one poll gap back
         try:
             rows = client.alarms(serial, last + 1, now_ms)
         except EZ.EzvizError:
