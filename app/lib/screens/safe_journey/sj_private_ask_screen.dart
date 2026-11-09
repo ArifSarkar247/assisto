@@ -101,7 +101,7 @@ class _SjPrivateAskScreenState extends State<SjPrivateAskScreen> {
           .read<AppState>()
           .api
           .sjAnswer(widget.journeyId, 'danger')
-          .then((_) {}, onError: (_) {}));
+          .then((_) {}, onError: (_) {})); // best-effort: the SOS screen is the real action
       nav.pop('danger');
       return;
     }

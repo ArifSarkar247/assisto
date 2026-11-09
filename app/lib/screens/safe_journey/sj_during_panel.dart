@@ -236,9 +236,8 @@ class _SjDuringPanelState extends State<SjDuringPanel> with WidgetsBindingObserv
               Expanded(
                   child: Text(look.label,
                       style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
-              if (dist != null)
-                Text(t.j2ToGo(jKm(context, dist)), style: AType.bodyMedium),
             ]),
+            if (dist != null) Text(t.j2ToGo(jKm(context, dist)), style: AType.bodyMedium),
             if (why.isNotEmpty) Text(why, style: AType.bodyMedium),
             if (_d['near_note'] == true)
               Text(t.sjdNearNote, style: AType.bodyMedium.copyWith(color: Brand.successFill)),
@@ -306,10 +305,10 @@ class _SjDuringPanelState extends State<SjDuringPanel> with WidgetsBindingObserv
             minTileHeight: 48,
             leading: Icon(sjModeIcon('${o['mode'] ?? ''}'), color: cs.primary),
             title: Text('${o['name'] ?? ''}'),
-            subtitle: Text(sjStateLook(context, t, o).label),
-            trailing: o['distance_m'] is num
-                ? Text(t.j2ToGo(jKm(context, o['distance_m'] as num)))
-                : null,
+            subtitle: Text([
+              sjStateLook(context, t, o).label,
+              if (o['distance_m'] is num) t.j2ToGo(jKm(context, o['distance_m'] as num)),
+            ].join(' · ')),
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const JourneyWatchScreen())),
           ),
