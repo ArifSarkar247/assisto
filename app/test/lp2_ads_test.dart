@@ -72,7 +72,7 @@ AdConfig _cfg({bool paid = false}) => AdConfig.fromJson({
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    debugLpAsset = (a) async => File(a).readAsString();
+    debugLpAsset = (a) async => File(a).readAsStringSync();
     debugLpPlay = (_) async {};
     LpOffline.debugDisabled = true;
     LpContent.debugReset();

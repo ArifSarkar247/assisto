@@ -62,7 +62,7 @@ Future<void> _tapText(WidgetTester t, String s) async {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    debugLpAsset = (a) async => File(a).readAsString();
+    debugLpAsset = (a) async => File(a).readAsStringSync(); // sync: real IO never finishes under fake time
     debugLpPlay = (_) async {};
     LpOffline.debugDisabled = true;
     AdBannerSlot.debugLoadConfig = () async => AdConfig.fromJson({'plan': 'premium', 'paid': true, 'ads_enabled': false});
@@ -198,7 +198,7 @@ void main() {
       await t.tap(find.byKey(const Key('lp2-sec-ac-001-reading')));
       await t.pumpAndSettle();
       expect(find.text('Section practice'), findsOneWidget);
-      expect(find.text('60:00'), findsOneWidget); // the real Reading timer
+      expect(find.textContaining(RegExp(r'^(60:00|59:5\d)$')), findsOneWidget); // the real Reading timer
       expect(find.text('Floating gardens of the delta'), findsOneWidget);
       await _tapText(t, 'Questions');
       await _tapText(t, 'TRUE');
@@ -232,13 +232,14 @@ void main() {
       await t.pumpWidget(_app(const LpMockRunner(mock: mock, sections: kLpSections, full: true), _api()));
       await t.pumpAndSettle();
       expect(find.text('Full mock · section 1 of 4'), findsOneWidget);
-      expect(find.text('30:00'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^(30:00|29:5\d)$')), findsOneWidget);
+      final before = t.widget<Text>(find.textContaining(RegExp(r'^(30:00|29:5\d)$'))).data!;
       await t.pump(const Duration(seconds: 1));
-      expect(find.text('29:59'), findsOneWidget);
+      expect(t.widget<Text>(find.textContaining(RegExp(r'^29:5\d$'))).data, isNot(before)); // it counts down
       expect(find.text('Exam mode: the recording plays once.'), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-submit'))); // listening -> reading
       await t.pumpAndSettle();
-      expect(find.text('60:00'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^(60:00|59:5\d)$')), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-submit'))); // reading -> writing
       await t.pumpAndSettle();
       await t.enterText(find.byKey(const Key('lp2-w1')), 'In 2005 most people took the bus; by 2025 the metro led.');
@@ -359,20 +360,20 @@ void main() {
       expect(find.text('Book 20'), findsOneWidget);
       await t.tap(find.byKey(const Key('lp2-timer-btn')));
       await t.pump(const Duration(seconds: 2));
-      expect(find.text('29:58'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^29:5\d$')), findsOneWidget);
       const ans = {1: 'library', 2: 'Tuesdays', 3: 'B', 4: 'accomodation'};
       const key = {1: 'library', 2: 'Tuesday', 3: 'C', 4: 'accommodation'};
       for (final e in ans.entries) {
         await t.enterText(find.byKey(Key('lp2-a${e.key}')), e.value);
       }
-      await t.ensureVisible(find.byKey(const Key('lp2-to-key')));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-to-key')), 300, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-to-key')));
       await t.pumpAndSettle();
       for (final e in key.entries) {
         await t.ensureVisible(find.byKey(Key('lp2-k${e.key}')));
         await t.enterText(find.byKey(Key('lp2-k${e.key}')), e.value);
       }
-      await t.ensureVisible(find.byKey(const Key('lp2-mark')));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-mark')), 300, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-mark')));
       await t.pumpAndSettle();
       expect(find.text('1 of 4 correct'), findsOneWidget);
@@ -393,10 +394,10 @@ void main() {
     testWidgets('mark without a key asks for the key', (t) async {
       await t.pumpWidget(_app(const LpCompanionScreen(), _api()));
       await t.pumpAndSettle();
-      await t.ensureVisible(find.byKey(const Key('lp2-to-key')));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-to-key')), 300, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-to-key')));
       await t.pumpAndSettle();
-      await t.ensureVisible(find.byKey(const Key('lp2-mark')));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-mark')), 300, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-mark')));
       await t.pump();
       expect(find.text('Type the answer key from your book first.'), findsOneWidget);

@@ -49,7 +49,8 @@ Future<bool> lpGateSheet(BuildContext context, String reason, {String? nextFreeA
   await showAppSheet<void>(
     context: context,
     showDragHandle: true,
-    builder: (ctx) => Padding(
+    isScrollControlled: true,
+    builder: (ctx) => SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(text, style: const TextStyle(height: 1.4)),
