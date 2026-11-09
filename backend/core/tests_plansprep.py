@@ -232,6 +232,8 @@ class SwitchEffectTests(TestCase):
         st = CC.status(_user())
         got = {p["kind"]: p["credits"] for p in st["packs"]}
         self.assertEqual(got, {"relay": 54, "ai": 29})
+        self.assertTrue(all(p["pay_play"] for p in st["packs"]))
+        self.assertTrue(st["play_account_id"])
 
     def test_care_call_schedules_by_safety_plan(self):
         from core import carecall as CC, safe_plans as SP

@@ -54,6 +54,22 @@ def credit_bdt():
         return 1.0
 
 
+def _v2_on():
+    try:
+        from . import billing
+        return bool(billing.cfg()["pricing_v2"]["on"])
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _play_account(owner):
+    try:
+        from .payments import play
+        return play.account_id(owner) if hasattr(owner, "pk") else ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def kind_for_play_product(product_id):
     """'relay' / 'ai' for a CCTV extra-pack Play product id, else ''."""
     for k, pid in CP.PACK_PLAY_PRODUCTS.items():
@@ -216,8 +232,11 @@ def status(owner, now=None, lang="bn"):
     ex = C.extra(doc)
     cb = credit_bdt()
     packs = []
+    v2 = _v2_on()
     for k, p in CP.packs(c).items():
-        packs.append(dict(p, credits=C.credits_for(p["price_bdt"], cb)))
+        # plansprep (owner 9 Nov item 11): with pricing_v2 the pack is ALSO a
+        # Taka Google Play product (the app shows both ways to pay)
+        packs.append(dict(p, credits=C.credits_for(p["price_bdt"], cb), pay_play=v2))
     return {
         "month": doc.get("month"),
         "enforced": rs["enforced"],
@@ -228,6 +247,7 @@ def status(owner, now=None, lang="bn"):
                "left": ai["left"], "extra": ex["ai"],
                "message": C.ai_message(ai["level"], ai["pct"], lang)},
         "packs": packs,
+        "play_account_id": _play_account(owner) if v2 else "",
         "balance": int(getattr(owner, "ai_credits", 0) or 0) if hasattr(owner, "pk") else None,
         "safety_note": ("SOS, সতর্কতা, ছবি ও প্রমাণ কখনো থামে না।" if lang == "bn" else
                         "SOS, alerts, photos and evidence never stop."),
