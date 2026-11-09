@@ -56,6 +56,10 @@ SEAM_ALLOW = {
 # files that talk to an AI provider's API themselves -> what they send and why
 PROVIDER_FILES = {
     "core/ai.py": "the AI router itself (masking happens in generate(pii=...))",
+    # geminioff
+    "core/gemini_breaker.py": (
+        "the daily Gemini breaker check: ONE fixed prompt ('ok', 1 output token) "
+        "and no user data at all, once a day while Gemini is off"),
     "core/vision_providers.py": (
         "image in chat / sales-agent photo: the IMAGE cannot be masked; the "
         "text that rides with it is masked by chat_vision_service (question + "

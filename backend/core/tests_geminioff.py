@@ -176,7 +176,8 @@ class CallerTests(TestCase):
     def test_vision_gemini_not_resolved_and_seam_has_no_http(self):
         from core import chat_vision_service as CVS
         self.assertEqual(CVS._resolve("vision_gemini"), (False, {}))
-        with mock.patch.object(VP, "_http", self.http):
+        rq = SimpleNamespace(post=self.http)
+        with mock.patch.object(VP, "_http", return_value=rq):
             with self.assertRaises(VP.VisionError):
                 VP.ask("vision_gemini", {"api_key": "k"}, image_bytes=b"\xff\xd8\xff1")
         self.http.assert_not_called()

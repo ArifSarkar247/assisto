@@ -4,7 +4,7 @@
 // server's honest "use your keyboard mic" message instead of recording.
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/photo_studio/ps_controller.dart';
-import 'package:assisto/photo_studio/ps_identity.dart';
+import 'package:assisto/photo_studio/ps_engines.dart';
 import 'package:assisto/photo_studio/ps_models.dart';
 import 'package:assisto/photo_studio/ps_native.dart';
 import 'package:assisto/screens/photo_studio_screen.dart';
