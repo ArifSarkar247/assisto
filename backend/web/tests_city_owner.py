@@ -33,7 +33,8 @@ class CityOwnerTests(OwnerBase):
         self.assertContains(r, "brta.gov.bd")
         self.assertContains(r, "333")
         r = self.c.get("/owner/city?tab=coverage&lang=en")
-        self.assertContains(r, "Motijheel")
+        self.assertContains(r, "Empty areas:")
+        self.assertContains(r, "openstreetmap.org/#map=15/")
 
     def test_review_correction_changes_data(self):
         c, _ = CS.correction(self.user, "dhaka", {"target": "route", "target_id": "busB-a",
