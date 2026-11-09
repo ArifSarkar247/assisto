@@ -124,13 +124,13 @@ class DsIllustration extends StatelessWidget {
           Container(
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: c.withValues(alpha: t.dark ? 0.10 : 0.07))),
+                  color: c.withValues(alpha: t.isDark ? 0.10 : 0.07))),
           Container(
               width: size * 0.72,
               height: size * 0.72,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: c.withValues(alpha: t.dark ? 0.18 : 0.12))),
+                  color: c.withValues(alpha: t.isDark ? 0.18 : 0.12))),
           Container(
             width: size * 0.48,
             height: size * 0.48,
@@ -227,7 +227,7 @@ void showDsToast(BuildContext context, String message,
   final (Color bg, Color fg, IconData icon) = switch (tone) {
     DsToastTone.success => (t.successBg, t.successInk, Icons.check_circle_rounded),
     DsToastTone.danger => (t.dangerBg, t.dangerInk, Icons.error_rounded),
-    DsToastTone.info => (t.dark ? t.cardHigh : t.text, t.dark ? t.text : t.card, Icons.info_rounded),
+    DsToastTone.info => (t.isDark ? t.cardHigh : t.text, t.isDark ? t.text : t.card, Icons.info_rounded),
   };
   ScaffoldMessenger.maybeOf(context)
     ?..hideCurrentSnackBar()

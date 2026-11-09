@@ -290,7 +290,7 @@ class _OverviewTab extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: ds.dark ? 0.2 : 0.1),
+              color: color.withValues(alpha: ds.isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.circular(DsRadius.button),
             ),
             child: Icon(icon, size: 20, color: color),

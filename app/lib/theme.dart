@@ -1019,7 +1019,7 @@ class DsMotion {
 @immutable
 class DsTokens extends ThemeExtension<DsTokens> {
   const DsTokens({
-    required this.dark,
+    required this.isDark,
     required this.bg,
     required this.card,
     required this.cardAlt,
@@ -1056,7 +1056,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
     required this.dangerGlow,
   });
 
-  final bool dark;
+  final bool isDark;
   final Color bg, card, cardAlt, cardHigh, cardHighest, inputFill;
   final Color text, muted, border;
   final Color primary, primaryInk, onPrimary, primarySoft;
@@ -1070,7 +1070,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
   final List<BoxShadow> primaryGlow, dangerGlow;
 
   static const light = DsTokens(
-    dark: false,
+    isDark: false,
     bg: Color(0xFFDFEAFE), // owner
     card: Color(0xFFFFFFFF), // owner
     cardAlt: Color(0xFFF2F7FF), // owner (hero gradient end)
@@ -1120,7 +1120,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
   );
 
   static const dark = DsTokens(
-    dark: true,
+    isDark: true,
     bg: Color(0xFF111A2E), // owner
     card: Color(0xFF1C2A47), // owner
     cardAlt: Color(0xFF18243F),

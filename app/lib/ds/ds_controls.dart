@@ -150,7 +150,7 @@ class DsIconAction extends StatelessWidget {
       onPressed: onPressed,
       constraints: const BoxConstraints(minWidth: kMinTap, minHeight: kMinTap),
       style: IconButton.styleFrom(
-        backgroundColor: c.withValues(alpha: t.dark ? 0.2 : 0.1),
+        backgroundColor: c.withValues(alpha: t.isDark ? 0.2 : 0.1),
         foregroundColor: c,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(DsRadius.button)),
@@ -323,7 +323,7 @@ class DsAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: c.withValues(alpha: t.dark ? 0.24 : 0.12),
+        color: c.withValues(alpha: t.isDark ? 0.24 : 0.12),
         shape: BoxShape.circle,
         border: Border.all(color: c.withValues(alpha: 0.3)),
       ),

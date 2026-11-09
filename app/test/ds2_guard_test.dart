@@ -196,7 +196,7 @@ void main() {
 
   test('contrast: V2 text roles meet WCAG AA', () {
     for (final t in [DsTokens.light, DsTokens.dark]) {
-      final m = t.dark ? 'dark' : 'light';
+      final m = t.isDark ? 'dark' : 'light';
       for (final bg in [t.bg, t.card, t.cardAlt, t.cardHigh, t.inputFill]) {
         expect(contrast(t.text, bg), greaterThanOrEqualTo(4.5), reason: '$m text');
         expect(contrast(t.muted, bg), greaterThanOrEqualTo(4.5), reason: '$m muted on $bg');

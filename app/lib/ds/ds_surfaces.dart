@@ -63,7 +63,7 @@ class _DsSurfaceState extends State<DsSurface> {
     final (Color fill, Color border) = switch (widget.tone) {
       DsTone.danger => (t.dangerBg, t.dangerBorder),
       DsTone.success => (t.successBg, t.success.withValues(alpha: 0.35)),
-      DsTone.normal => (t.card, t.dark ? t.border : t.border.withValues(alpha: 0.7)),
+      DsTone.normal => (t.card, t.isDark ? t.border : t.border.withValues(alpha: 0.7)),
     };
     final shadows = widget.flat
         ? const <BoxShadow>[]
@@ -268,7 +268,7 @@ class DsTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: a.withValues(alpha: t.dark ? 0.22 : 0.12),
+                  color: a.withValues(alpha: t.isDark ? 0.22 : 0.12),
                   borderRadius: BorderRadius.circular(DsRadius.card),
                 ),
                 child: Icon(icon, color: a, size: 24),

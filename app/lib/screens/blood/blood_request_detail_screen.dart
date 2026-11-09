@@ -388,7 +388,7 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
             key: const ValueKey('bp-found'),
             style: FilledButton.styleFrom(
                 backgroundColor: DsTokens.of(context).successInk,
-                foregroundColor: DsTokens.of(context).dark ? DsTokens.of(context).bg : Colors.white),
+                foregroundColor: DsTokens.of(context).isDark ? DsTokens.of(context).bg : Colors.white),
             onPressed: _busy ? null : _found,
             icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.bpFound),
