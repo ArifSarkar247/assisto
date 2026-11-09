@@ -173,10 +173,23 @@ async def _live_probe(cam_id):
     await pc.close()
 
 
+def _arm_new_cameras():
+    """The owner's "Zones & schedule" step: a v2 zone config with no schedule
+    = always guarding (a person is only an alert while the camera is armed)."""
+    from core.logic import watchman as WM
+    from core.models import ShopCamera
+    for c in ShopCamera.objects.filter(site_id=_seed()["site"], vendor="phone"):
+        if WM.zone_v2(c.zone_config) is None:
+            c.zone_config = {"v": WM.SCHEMA_V}
+            c.save(update_fields=["zone_config"])
+            LIVE["armed_camera"] = c.id
+
+
 def _live_thread():
     cam_id = None
     for _ in range(1800):  # the APK build + emulator boot come first (up to 60 min)
         try:
+            _arm_new_cameras()
             cams, evs = _events()
             if evs and cams:
                 cam_id = cams[0]["id"]
