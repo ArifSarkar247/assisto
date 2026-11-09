@@ -401,7 +401,7 @@ def _closed_ts():
     return datetime(2026, 10, 19, 23, 30, tzinfo=ZoneInfo("Asia/Dhaka")).timestamp()
 
 
-PIX_SWEEP = [(18.0, 6), (25.0, 12), (32.0, 6)]    # diagnostic only (production = JSON)
+PIX_SWEEP = [(25.0, 6), (40.0, 6), (32.0, 12)]    # diagnostic only (production = JSON)
 
 
 def run_methods(frames):
@@ -682,6 +682,13 @@ def main():
         motion[kind] = eval_motion(pos_imgs, neg_imgs, random.Random(SEED + len(kind)),
                                    a.motion_n, kind)
         print("motion %s %.0fs" % (kind, time.time() - t), flush=True)
+    # cctvacc2: HELD-OUT sequences (new walk / nuisance draws, seed never
+    # used to pick the phone's pixel threshold)
+    for kind in ("basic", "hard", "night"):
+        t = time.time()
+        motion["heldout_" + kind] = eval_motion(
+            pos_imgs, neg_imgs, random.Random(SEED + 5000 + len(kind)), a.motion_n, kind)
+        print("motion heldout_%s %.0fs" % (kind, time.time() - t), flush=True)
     t = time.time()
     false_night = sim_false_night(neg_imgs, det, a.night_cam_hours, random.Random(SEED + 99))
     print("night sim %.0fs" % (time.time() - t), flush=True)
@@ -724,7 +731,7 @@ def main():
         print("  grid %-14s calib %s | held %s | ir2 %s" % (
             k, pr_(g["calibration"]), pr_(g["held_out"]), pr_(g["night_ir2"])))
     for kind, by in motion.items():
-        print("MOTION %-5s " % kind + " | ".join(
+        print("MOTION %-13s " % kind + " | ".join(
             "%s P=%.3f R=%.3f" % (m, r["precision"], r["recall"]) for m, r in by.items()))
     fn = false_night
     print("FALSE NIGHT ALERTS per camera-week (%.1f cam-weeks): " % fn["camera_weeks"] +
