@@ -107,6 +107,20 @@ void main() {
             'same-line comment why it is best-effort):\n${bad.join('\n')}');
   });
 
+  test('no poisha parser that crashes on whole amounts', () {
+    // owner bug 10 Nov: ('' + '00').substring(0, 3) threw a RangeError for
+    // every whole amount ("15000") inside the Save tap -> Save did nothing.
+    final bad = <String>[];
+    final pat = RegExp(r"(\+ '00'\)|\}00'\.substring\(0, 3\))");
+    for (final f in _dartFiles()) {
+      final s = f.readAsStringSync();
+      for (final m in pat.allMatches(s)) {
+        bad.add('${f.path}:${_line(s, m.start)}');
+      }
+    }
+    expect(bad, isEmpty, reason: 'pad the fraction to 3 digits:\n${bad.join('\n')}');
+  });
+
   test('showAppSheet builders run below AppSheetInsets', () {
     final s = File('lib/widgets/app_sheet.dart').readAsStringSync();
     expect(s.contains('AppSheetInsets(child: Builder(builder: builder))'), isTrue,
