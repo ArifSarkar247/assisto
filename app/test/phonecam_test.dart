@@ -202,6 +202,8 @@ void main() {
       expect(find.byKey(const Key('pcStart')), findsOneWidget);
       final sw = tester.widget<SwitchListTile>(find.byKey(const Key('pcAudio')));
       expect(sw.value, isFalse);
+      // cctvplay: the continuous-recording switch sits above it now
+      await tester.scrollUntilVisible(find.byKey(const Key('pcUnbind')), 200);
       expect(find.byKey(const Key('pcUnbind')), findsOneWidget);
     });
 

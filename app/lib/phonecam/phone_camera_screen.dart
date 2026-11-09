@@ -27,6 +27,8 @@ import '../widgets/permission_reason.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../screens/shop_live_rtc.dart' deferred as rtc;
 import 'phonecam_api.dart';
+import 'phonecam_clips.dart';
+import 'phonecam_rec_logic.dart';
 import 'phonecam_logic.dart';
 
 /// cctvphone — THIS phone becomes an Assisto camera (owner CCTV order 3 Nov,
@@ -40,8 +42,9 @@ import 'phonecam_logic.dart';
 ///   * a clear "this phone is a camera — recording" banner on the screen and
 ///     an ongoing notification while it runs;
 ///   * sound is OFF unless the consent switch on THIS phone is on;
-///   * clips stay on this phone (rolling, size-capped); only an alert photo
-///     and a live view the owner opens leave the phone.
+///   * clips stay on this phone (rolling, size-capped); an alert photo, a
+///     small SEALED preview of the clip (cctvplay), the full clip only when a
+///     viewer asks for it, and a live view the owner opens leave the phone.
 class PhoneCameraScreen extends StatefulWidget {
   /// From the QR App Link (https://lifeassisto.com/pc/<code>): pre-filled.
   final String? initialCode;
@@ -55,6 +58,8 @@ class PhoneCameraScreen extends StatefulWidget {
 }
 
 class PhoneCamPreview {
+  /// cctvplay item 4: '' (off) | 'recording' | a pause reason
+  final String rec;
   final bool paired;
   final bool running;
   final String camera;
@@ -76,6 +81,7 @@ class PhoneCamPreview {
     this.audio = false,
     this.model = true,
     this.warnings = const [],
+    this.rec = '',
   });
 }
 
@@ -133,6 +139,24 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   int _clipCount = 0;
   int _clipBytes = 0;
 
+  // cctvplay: who previews / full videos are sealed for + pending requests
+  PhoneClipCfg _clipCfg = const PhoneClipCfg();
+  bool _videoBusy = false;
+  int _previewsSent = 0;
+
+  // cctvplay item 4: optional continuous recording (OFF by default)
+  bool _recOn = false;
+  int _recCapMb = kRecCapDefaultMb;
+  String _recReason = '';
+  bool _recUnsupported = false;
+  bool _segRec = false;
+  int _segStartS = 0;
+  Timer? _segTimer;
+  int _recBytes = 0;
+  bool _recBusy = false;
+  final Map<String, int> _refTimes = {}; // alert clip ref -> second (continuous mode)
+  final List<(int, String)> _pendingPreviews = [];
+
   ShopDeviceClient? get _dev =>
       _token == null ? null : ShopDeviceClient(_token!, cameraId: _cameraId);
 
@@ -185,6 +209,10 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       _modelTried = true;
       _warnings = p.warnings;
       _online = true;
+      _recOn = p.rec.isNotEmpty;
+      _segRec = p.rec == 'recording';
+      _recReason = p.rec == 'recording' ? '' : p.rec;
+      _recBytes = p.rec.isEmpty ? 0 : 412 * 1024 * 1024;
     } else {
       try {
         _token = await _secure.read(key: _kTok);
@@ -198,6 +226,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         reportNonFatal('phonecam.restore', e);
       }
       await _refreshClips();
+      await _refreshRec();
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -379,8 +408,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     await _refreshClips();
   }
 
-  /// ~10 s clip of what happened, kept ONLY on this phone.
-  Future<void> _recordClip(CameraController c) async {
+  /// ~10 s clip of what happened, kept on this phone as clip_<ref>.mp4 —
+  /// cctvplay: a small sealed preview of it goes to the owner + family.
+  Future<void> _recordClip(CameraController c, String ref) async {
     try {
       await c.startVideoRecording();
       await Future.delayed(_clipLength);
@@ -390,7 +420,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       await _enforceCap(incoming: size);
       final d = await _clipDir();
       if (d == null) return;
-      final name = 'clip_${DateTime.now().millisecondsSinceEpoch}.mp4';
+      final name = clipFileName(ref);
       try {
         await src.rename('${d.path}/$name');
       } catch (_) {
@@ -398,12 +428,315 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         await src.delete();
       }
       await _refreshClips();
+      if (_clipCfg.enabled) unawaited(_sendPreview('${d.path}/$name', ref));
     } catch (e) {
       reportNonFatal('phonecam.clip', e);
       try {
         if (c.value.isRecordingVideo) await c.stopVideoRecording();
       } catch (_) {}
     }
+  }
+
+  /// cctvplay: a few small frames of the clip (native, background thread) ->
+  /// ACG1 -> sealed off the UI thread -> shop/clips. Never blocks guarding;
+  /// any failure just means "photo only" for this alert.
+  Future<void> _sendPreview(String path, String ref, {int? fromMs, int? toMs}) async {
+    final dev = _dev;
+    final cfg = _clipCfg;
+    if (dev == null || !cfg.enabled) return;
+    try {
+      final raw = await _channel.invokeListMethod<Object?>('clipFrames', {
+        'path': path,
+        'count': (cfg.fps * kPhoneClipSeconds).round().clamp(4, 30),
+        'width': cfg.width,
+        'quality': 55,
+        if (fromMs != null) 'fromMs': fromMs < 0 ? 0 : fromMs,
+        if (toMs != null) 'toMs': toMs,
+      });
+      final frames = [for (final f in raw ?? const []) if (f is Uint8List) f];
+      if (frames.length < 2) return;
+      final sealed = await compute(_previewJob, <String, Object>{
+        'frames': frames,
+        'recipients': cfg.recipients,
+        'max_kb': cfg.maxKb,
+      });
+      if (sealed == null) return;
+      for (var attempt = 0; attempt < 3; attempt++) {
+        final r = await dev.uploadClip(ref, sealed.meta, sealed.ct);
+        if (r.status == 201 || r.status == 200) {
+          if (mounted) setState(() => _previewsSent++);
+          return;
+        }
+        if (r.status != 0 && r.status < 500) return; // cap / window / refused: photo only
+        await Future<void>.delayed(Duration(seconds: 2 * (attempt + 1)));
+      }
+    } catch (e) {
+      reportNonFatal('phonecam.preview', e); // older build without clipFrames: photo only
+    }
+  }
+
+  /// cctvplay: a viewer asked for a FULL video (heartbeat) — seal the clip
+  /// that is still on this phone and upload it, or say honestly it is gone.
+  Future<void> _answerVideos(List<VideoRequest> reqs) async {
+    final dev = _dev;
+    if (dev == null || _videoBusy || _inLive || reqs.isEmpty) return;
+    _videoBusy = true;
+    try {
+      for (final q in reqs) {
+        if (!mounted || _inLive) break;
+        if (q.kind != 'event' || q.ref.isEmpty) {
+          if (!await _answerSegment(dev, q)) {
+            await PhoneCamClipDevice.videoMissing(dev, q.key, reason: 'no_recording');
+          }
+          continue;
+        }
+        final d = await _clipDir();
+        final f = d == null ? null : File('${d.path}/${clipFileName(q.ref)}');
+        if (f == null || !await f.exists()) {
+          // item 4: in continuous mode the alert lives inside a segment
+          final ts = _refTimes[q.ref];
+          if (ts != null) {
+            if (_segRec && ts >= _segStartS) continue; // still recording
+            final p = segFor([for (final x in await _listRec()) x.path], ts);
+            if (p != null && await _uploadSegment(dev, q.key, p)) continue;
+          }
+          await PhoneCamClipDevice.videoMissing(dev, q.key);
+          continue;
+        }
+        final len = await f.length();
+        if (len > kVideoMaxBytes) {
+          await PhoneCamClipDevice.videoMissing(dev, q.key, reason: 'too_large');
+          continue;
+        }
+        if (!_clipCfg.canSeal) break; // nobody has a key yet: retry next heartbeat
+        final bytes = await f.readAsBytes();
+        final sealed = await compute(_videoJob, <String, Object>{
+          'mp4': bytes,
+          'recipients': _clipCfg.recipients,
+          'seconds': kPhoneClipSeconds.toDouble(),
+        });
+        await PhoneCamClipDevice.uploadVideo(dev, q.key, sealed.meta, sealed.ct);
+      }
+    } catch (e) {
+      reportNonFatal('phonecam.video', e);
+    } finally {
+      _videoBusy = false;
+    }
+  }
+
+  /// item 4: a viewer picked a second on the timeline — send the segment
+  /// holding it. true = sent or deferred (still being recorded), false =
+  /// not on this phone (the caller says so honestly).
+  Future<bool> _answerSegment(ShopDeviceClient dev, VideoRequest q) async {
+    final t = q.start;
+    if (_segRec && t >= _segStartS) return true; // still recording: next heartbeat
+    final p = segFor([for (final f in await _listRec()) f.path], t);
+    if (p == null) return false;
+    return _uploadSegment(dev, q.key, p);
+  }
+
+  Future<bool> _uploadSegment(ShopDeviceClient dev, String key, String path) async {
+    final seg = parseSeg(path);
+    final f = File(path);
+    if (seg == null || !await f.exists()) return false;
+    if (await f.length() > kVideoMaxBytes) {
+      await PhoneCamClipDevice.videoMissing(dev, key, reason: 'too_large');
+      return true;
+    }
+    if (!_clipCfg.canSeal) return true; // nobody has a key yet: retry later
+    final bytes = await f.readAsBytes();
+    final sealed = await compute(_videoJob, <String, Object>{
+      'mp4': bytes,
+      'recipients': _clipCfg.recipients,
+      'seconds': seg.$2.toDouble(),
+    });
+    sealed.meta['start_ts'] = seg.$1;
+    await PhoneCamClipDevice.uploadVideo(dev, key, sealed.meta, sealed.ct);
+    return true;
+  }
+
+  // ------------------------------------------------------------------ continuous recording
+  Future<Directory?> _recDir() async {
+    try {
+      final d = Directory('${(await getApplicationDocumentsDirectory()).path}/phonecam_rec');
+      if (!await d.exists()) await d.create(recursive: true);
+      return d;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<List<ClipFile>> _listRec() async {
+    final d = await _recDir();
+    if (d == null) return const [];
+    final out = <ClipFile>[];
+    try {
+      await for (final e in d.list()) {
+        if (e is File && parseSeg(e.path) != null) {
+          final st = await e.stat();
+          out.add(ClipFile(e.path, st.size, st.modified));
+        }
+      }
+    } catch (_) {}
+    return out;
+  }
+
+  Future<void> _refreshRec() async {
+    final l = await _listRec();
+    if (mounted) setState(() => _recBytes = clipsTotalBytes(l));
+  }
+
+  Future<void> _deleteAllRec() async {
+    for (final c in await _listRec()) {
+      try {
+        await File(c.path).delete();
+      } catch (_) {} // best-effort: the size line below shows what is left
+    }
+    await _refreshRec();
+    unawaited(_publishTimeline());
+  }
+
+  /// Start or stop recording so it matches the switch and the guards.
+  Future<void> _syncRecording() async {
+    if (_recBusy || widget.preview != null) return;
+    final want = _recOn && _running && _cam != null && !_inLive && !_busy &&
+        !_recUnsupported && _recReason.isEmpty;
+    if (want == _segRec) return;
+    _recBusy = true;
+    try {
+      if (want) {
+        await _startSegment();
+      } else {
+        await _stopSegment(restartStream: true);
+      }
+    } finally {
+      _recBusy = false;
+    }
+    unawaited(_publishTimeline());
+  }
+
+  Future<void> _startSegment() async {
+    final c = _cam;
+    if (c == null) return;
+    try {
+      if (c.value.isStreamingImages) await c.stopImageStream();
+      // the frames keep feeding motion + person checks while it records
+      await c.startVideoRecording(onAvailable: _onFrame);
+      _segRec = true;
+      _segStartS = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      _segTimer?.cancel();
+      _segTimer = Timer(const Duration(seconds: kRecSegmentS), _rollSegment);
+    } catch (e) {
+      // honest: this phone cannot record and watch at the same time
+      reportNonFatal('phonecam.rec', e);
+      _recUnsupported = true;
+      _segRec = false;
+      try {
+        if (!c.value.isStreamingImages && _cam == c) await c.startImageStream(_onFrame);
+      } catch (_) {}
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _rollSegment() async {
+    if (_recBusy || !_segRec) return;
+    _recBusy = true;
+    try {
+      await _stopSegment(restartStream: false);
+      final keep = _recOn && _running && _cam != null && !_inLive && _recReason.isEmpty;
+      if (keep) {
+        await _startSegment();
+      } else {
+        final c = _cam;
+        if (c != null && !_inLive && !c.value.isStreamingImages) await c.startImageStream(_onFrame);
+      }
+    } catch (_) {
+    } finally {
+      _recBusy = false;
+    }
+    unawaited(_publishTimeline());
+  }
+
+  /// Close the open segment and keep it as seg_<start>_<len>.mp4 (oldest
+  /// segments deleted first at the cap); previews of alerts inside it go now.
+  Future<void> _stopSegment({required bool restartStream}) async {
+    _segTimer?.cancel();
+    _segTimer = null;
+    final c = _cam;
+    if (!_segRec) return;
+    _segRec = false;
+    if (c == null) return;
+    try {
+      if (!c.value.isRecordingVideo) return;
+      final f = await c.stopVideoRecording();
+      final start = _segStartS;
+      final dur = (DateTime.now().millisecondsSinceEpoch ~/ 1000 - start).clamp(1, 600);
+      final src = File(f.path);
+      final size = await src.length();
+      final d = await _recDir();
+      if (d != null) {
+        for (final old in clipsToDelete(await _listRec(), _recCapMb * 1024 * 1024, incomingBytes: size)) {
+          try {
+            await File(old.path).delete();
+          } catch (_) {}
+        }
+        final path = '${d.path}/${segName(start, dur)}';
+        try {
+          await src.rename(path);
+        } catch (_) {
+          await src.copy(path);
+          await src.delete();
+        }
+        await _refreshRec();
+        // alert previews that fall inside this segment
+        final mine = _pendingPreviews.where((x) => x.$1 >= start && x.$1 < start + dur).toList();
+        _pendingPreviews.removeWhere((x) => x.$1 < start + dur);
+        for (final (ts, ref) in mine) {
+          unawaited(_sendPreview(path, ref, fromMs: (ts - start - 1) * 1000, toMs: (ts - start + 9) * 1000));
+        }
+      }
+    } catch (e) {
+      reportNonFatal('phonecam.rec.stop', e);
+    } finally {
+      if (restartStream) {
+        try {
+          if (_cam == c && !_inLive && !c.value.isStreamingImages) await c.startImageStream(_onFrame);
+        } catch (_) {}
+      }
+    }
+  }
+
+  /// What this phone has recorded -> the owner's timeline (spans + state).
+  Future<void> _publishTimeline({bool? setOn}) async {
+    final dev = _dev;
+    if (dev == null || widget.preview != null) return;
+    final segs = <(int, int)>[
+      for (final f in await _listRec())
+        if (parseSeg(f.path) case final s?) s
+    ];
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if (_segRec) segs.add((_segStartS, now - _segStartS));
+    final r = await PhoneCamClipDevice.timeline(dev, {
+      'spans': spansOf(segs),
+      'used_mb': _recBytes ~/ (1024 * 1024),
+      'cap_mb': _recCapMb,
+      'state': _segRec ? 'recording' : (_recOn ? 'paused' : 'off'),
+      'reason': _recUnsupported ? 'unsupported' : _recReason,
+      if (setOn != null) 'set_on': setOn,
+    });
+    final rec = r.body['recording'];
+    if (r.ok && rec is Map && mounted) {
+      setState(() {
+        _recOn = rec['on'] == true;
+        _recCapMb = ((rec['cap_mb'] as num?) ?? _recCapMb).toInt();
+      });
+    }
+  }
+
+  Future<void> _setRecLocal(bool on) async {
+    setState(() => _recOn = on);
+    await _publishTimeline(setOn: on);
+    unawaited(_syncRecording());
   }
 
   // ------------------------------------------------------------------ running
@@ -435,6 +768,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   Future<void> _stop({bool silent = false}) async {
     _hb?.cancel();
     _hb = null;
+    _segTimer?.cancel();
     await _closeCamera();
     if (widget.preview == null) {
       try {
@@ -487,8 +821,10 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       }
       final back = cams.firstWhere((c) => c.lensDirection == CameraLensDirection.back,
           orElse: () => cams.first);
+      // cctvplay: ~0.8 Mbps keeps a 10 s clip near 1 MB (more clips in the
+      // cap, a cheap full video for the family)
       final c = CameraController(back, ResolutionPreset.medium,
-          enableAudio: _audio, imageFormatGroup: ImageFormatGroup.yuv420);
+          enableAudio: _audio, videoBitrate: 800000, imageFormatGroup: ImageFormatGroup.yuv420);
       await c.initialize();
       _cam = c;
       _motion.reset();
@@ -502,6 +838,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   }
 
   Future<void> _closeCamera() async {
+    if (_segRec) await _stopSegment(restartStream: false); // item 4: keep it
     final c = _cam;
     _cam = null;
     if (c == null) return;
@@ -538,7 +875,12 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       if (_lastCheck != null && now.difference(_lastCheck!).inSeconds < 5) return;
       _lastCheck = now;
       _busy = true;
-      unawaited(_onMotion().whenComplete(() => _busy = false));
+      if (_segRec) {
+        // item 4: the camera is recording — check THIS frame (no still)
+        unawaited(_onMotionRec(img).whenComplete(() => _busy = false));
+      } else {
+        unawaited(_onMotion().whenComplete(() => _busy = false));
+      }
     } catch (_) {} // a malformed frame is skipped, never fatal
   }
 
@@ -565,6 +907,12 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       final alert = phoneAlert(modelAvailable: detect != null, boxes: boxes);
       if (alert != null) {
         _lastAlert = DateTime.now();
+        // cctvplay: the clip starts at once (not after the upload) and the
+        // alert names it, so a viewer can later ask for exactly this video
+        final ref = newClipRef();
+        final recording = (_cam == c && _running && !_inLive)
+            ? _recordClip(c, ref)
+            : Future<void>.value();
         // cctvtoday: a big still is shrunk (off the UI thread), never dropped
         final raw = jpeg;
         final snap = raw == null
@@ -572,9 +920,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
             : raw.length <= _maxSnapshotBytes
                 ? raw
                 : await compute(shrinkAlertJpeg, raw);
-        final r = await dev.ingest(alert.type, alert.signals, snapshot: snap);
+        final r = await dev.ingest(alert.type, alert.signals, snapshot: snap, clipRef: ref);
         if (mounted && r.ok) setState(() => _alerts++);
-        if (_cam == c && _running && !_inLive) await _recordClip(c);
+        await recording;
       }
     } finally {
       try {
@@ -586,6 +934,39 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     }
   }
 
+  /// item 4: motion while continuously recording -> this frame as the
+  /// photo -> person check -> alert. The video is already being recorded.
+  Future<void> _onMotionRec(CameraImage frame) async {
+    final dev = _dev;
+    final c = _cam;
+    if (dev == null || c == null || frame.planes.length < 3) return;
+    final y = frame.planes[0], u = frame.planes[1], v = frame.planes[2];
+    final jpeg = await compute(_yuvJob, <String, Object>{
+      'w': frame.width,
+      'h': frame.height,
+      'y': Uint8List.fromList(y.bytes),
+      'u': Uint8List.fromList(u.bytes),
+      'v': Uint8List.fromList(v.bytes),
+      'yRow': y.bytesPerRow,
+      'uvRow': u.bytesPerRow,
+      'uvPix': u.bytesPerPixel ?? 1,
+      'rot': c.description.sensorOrientation,
+    });
+    final detect = _detect;
+    List<List<double>>? boxes;
+    if (detect != null && jpeg != null) boxes = await detect(jpeg);
+    final alert = phoneAlert(modelAvailable: detect != null, boxes: boxes);
+    if (alert == null) return;
+    _lastAlert = DateTime.now();
+    final ref = newClipRef();
+    final ts = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    _refTimes[ref] = ts;
+    if (_refTimes.length > 500) _refTimes.remove(_refTimes.keys.first);
+    if (_clipCfg.enabled) _pendingPreviews.add((ts, ref));
+    final r = await dev.ingest(alert.type, alert.signals, snapshot: jpeg, clipRef: ref);
+    if (mounted && r.ok) setState(() => _alerts++);
+  }
+
   Future<void> _heartbeat() async {
     final dev = _dev;
     if (dev == null || widget.preview != null) return;
@@ -594,6 +975,10 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       batt = await _channel.invokeMapMethod<String, dynamic>('battery');
     } catch (_) {}
     final health = healthReport(batt, dark: _dark.dark);
+    int? free;
+    try {
+      free = await _channel.invokeMethod<int>('freeBytes');
+    } catch (_) {} // older build: no storage guard (the size cap still holds)
     final r = await dev.heartbeat(caps: const ['live', 'phone'], health: health);
     if (!mounted) return;
     if (r.unauthorized || r.status == 404) {
@@ -603,11 +988,35 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       if (mounted) _snack(AppLocalizations.of(context).pcRemovedByOwner);
       return;
     }
+    final pc = r.body['phonecam'];
     setState(() {
       _online = r.ok;
       _warnings = localWarnings(health);
+      if (pc is Map) _clipCfg = PhoneClipCfg.fromJson(pc['clip']);
     });
     if (!r.ok) return;
+    if (pc is Map) {
+      final reqs = VideoRequest.listFrom(pc['video_requests']);
+      if (reqs.isNotEmpty) unawaited(_answerVideos(reqs));
+      final rec = pc['recording'];
+      if (rec is Map) {
+        final on = rec['on'] == true;
+        final reason = recGuard(
+            charging: health['charging'] as bool?,
+            level: health['level'] as int?,
+            tempC: (health['temp_c'] as num?)?.toDouble(),
+            freeBytes: free,
+            inLive: _inLive);
+        final changed = on != _recOn || reason != _recReason;
+        setState(() {
+          _recOn = on;
+          _recCapMb = ((rec['cap_mb'] as num?) ?? _recCapMb).toInt();
+          _recReason = reason;
+        });
+        await _syncRecording();
+        if (changed && !_segRec) unawaited(_publishTimeline());
+      }
+    }
     final pending = ((r.body['live_pending'] ?? const []) as List).whereType<Map>().toList();
     if (pending.isNotEmpty && !_inLive && _running) {
       unawaited(_answerLive(pending.first.cast<String, dynamic>()));
@@ -713,6 +1122,19 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         _ => t.pcWarnDark,
       };
 
+  String _recLine(AppLocalizations t) {
+    if (_segRec) return t.pcrOnLine(_mb(_recBytes), fmtInt(context, _recCapMb));
+    final r = _recUnsupported ? 'unsupported' : _recReason;
+    return switch (r) {
+      'hot' => t.pcrPausedHot,
+      'battery' => t.pcrPausedBattery,
+      'storage' => t.pcrPausedStorage,
+      'live' => t.pcrPausedLive,
+      'unsupported' => t.pcrUnsupported,
+      _ => t.pcrStarting,
+    };
+  }
+
   String _mb(int bytes) => fmtInt(context, (bytes / (1024 * 1024)).round());
 
   @override
@@ -791,7 +1213,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
           label: Text(t.pcClaim),
         ),
         const SizedBox(height: 16),
-        _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcTrustBody),
+        _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcpTrustBody),
       ];
 
   List<Widget> _readyView(AppLocalizations t) {
@@ -848,11 +1270,31 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
             label: Text(t.pcClipsDelete),
           ),
         ),
-      Text(t.pcClipsHelp, style: Theme.of(context).textTheme.bodySmall),
+      Text(t.pcpClipsHelp, style: Theme.of(context).textTheme.bodySmall),
+      const SizedBox(height: 8),
+      // cctvplay item 4: optional continuous recording, OFF by default
+      SwitchListTile(
+        key: const Key('pcRec'),
+        contentPadding: EdgeInsets.zero,
+        value: _recOn,
+        onChanged: _setRecLocal,
+        title: Text(t.pcrTitle),
+        subtitle: Text(t.pcrBody(fmtInt(context, _recCapMb), fmtInt(context, _recBytes ~/ (1024 * 1024)))),
+      ),
+      if (_recBytes > 0)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _deleteAllRec,
+            icon: const Icon(Icons.delete_outline_rounded),
+            label: Text(t.pcrDelete),
+          ),
+        ),
       const SizedBox(height: 12),
       _card(Icons.tips_and_updates_rounded, t.pcGuideTitle, t.pcGuideBody),
       const SizedBox(height: 8),
-      _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcTrustBody),
+      _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcpTrustBody),
       const SizedBox(height: 8),
       OutlinedButton.icon(
         key: const Key('pcUnbind'),
@@ -921,6 +1363,17 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                       textAlign: TextAlign.center, style: const TextStyle(color: dim)),
                   Text(t.pcClipsLine(fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb)),
                       textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                  if (_recOn)
+                    Text(_recLine(t), textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                  // cctvplay: honest — does the family get a preview?
+                  Text(
+                      _clipCfg.enabled
+                          ? t.pcpPreviewsSent(fmtInt(context, _previewsSent), fmtInt(context, _clipCfg.leftToday))
+                          : _clipCfg.canSeal
+                              ? t.pcpPreviewsCapped
+                              : t.pcpPreviewsNoKey,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: dim)),
                   for (final w in _warnings)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
@@ -953,4 +1406,19 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       ),
     );
   }
+}
+
+// cctvplay: off the UI thread (compute) — pure Dart sealing.
+({Uint8List ct, Map<String, dynamic> meta})? _previewJob(Map<String, Object> a) => buildPreview(
+    (a['frames'] as List).cast<Uint8List>(),
+    (a['recipients'] as List).cast<Map<String, dynamic>>(),
+    clipSeconds: kPhoneClipSeconds.toDouble(),
+    maxKb: a['max_kb'] as int);
+
+({Uint8List ct, Map<String, dynamic> meta}) _videoJob(Map<String, Object> a) => sealVideo(
+    a['mp4'] as Uint8List, (a['recipients'] as List).cast<Map<String, dynamic>>(), a['seconds'] as double);
+
+Uint8List? _yuvJob(Map<String, Object> f) {
+  final j = yuvToJpeg(f);
+  return j;
 }

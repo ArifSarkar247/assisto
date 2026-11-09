@@ -113,6 +113,19 @@ def add_live(doc, cam_id, sid, total_bytes, seconds, path):
     return doc, add_r, add_d
 
 
+def add_clip(doc, cam_id, nbytes):
+    """cctvplay: a phone-camera preview / full video moved through our server
+    (upload or a viewer's download) — counted in the camera's relay budget."""
+    doc = dict(doc or {})
+    cams = dict(doc.get("cams") or {})
+    key = str(cam_id)
+    c = dict(empty_cam(), **(cams.get(key) or {}))
+    c["clip_bytes"] = _int(c.get("clip_bytes")) + max(0, _int(nbytes))
+    cams[key] = c
+    doc["cams"] = cams
+    return doc
+
+
 def add_vendor(doc, cam_id, seconds, hd=False):
     doc = dict(doc or {})
     cams = dict(doc.get("cams") or {})
@@ -171,7 +184,9 @@ def account_relay_bytes(doc):
     cams = (doc or {}).get("cams") or {}
     client = sum(_int((c or {}).get("relay_bytes")) for c in cams.values())
     vendor = sum(_int((c or {}).get("vendor_est_bytes")) for c in cams.values())
-    return max(client, _int((doc or {}).get("turn_bytes"))) + vendor
+    # cctvplay: phone-camera clip uploads + downloads go through our server
+    clips = sum(_int((c or {}).get("clip_bytes")) for c in cams.values())
+    return max(client, _int((doc or {}).get("turn_bytes"))) + vendor + clips
 
 
 BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")

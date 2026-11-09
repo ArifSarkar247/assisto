@@ -227,6 +227,11 @@ class PhoneCamUnbindView(APIView):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         _notify(site, cam, "unbound")
         cid = cam.id
+        try:  # cctvplay: its stored videos + timeline go with it
+            from . import phonecam_clips_views as PCCV
+            PCCV.forget_camera(site.owner_id, cid)
+        except Exception:
+            log.exception("phonecam forget failed")
         cam.delete()
         return Response({"ok": True, "deleted": cid})
 
