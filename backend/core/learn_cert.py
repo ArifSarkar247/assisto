@@ -199,7 +199,7 @@ def normalize_code(raw):
     """'alc-abcd efgh-wxyz' -> 'ALC-ABCD-EFGH-WXYZ' when the HMAC matches,
     else None (no DB lookup for a guessed / mistyped code)."""
     s = re.sub(r"[^A-Za-z]", "", str(raw or "")).upper()
-    if s.startswith("ALC"):
+    if len(s) == 15 and s.startswith("ALC"):   # only the prefix: a body may start with ALC too
         s = s[3:]
     if len(s) != 12 or any(ch not in _ALPHA for ch in s):
         return None
