@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
+
 /// cctvphone — an old Android phone as an Assisto camera. PURE rules (no
 /// Flutter, no plugins, no I/O) so every decision is unit-tested:
 ///   * pairing-code parsing (mirrors backend core/logic/phonecam.py),
@@ -179,4 +181,31 @@ List<String> localWarnings(Map<String, dynamic> h) {
   if (t is num && t >= 45) out.add('hot');
   if (h['dark'] == true) out.add('dark');
   return out;
+}
+
+/// cctvtoday: the alert photo must ride along even when the phone's still
+/// capture ignores the preview size (many phones save a 2–4 MB, 12 MP JPEG).
+/// Small JPEGs pass unchanged; a big one is turned upright and shrunk to
+/// [maxSide] px on the long side. Null when it cannot be decoded (the alert
+/// still goes, honestly without a photo). Pure Dart — run it off the UI
+/// thread (compute) on the camera phone.
+Uint8List? shrinkAlertJpeg(Uint8List jpeg, {int maxBytes = 200 * 1024, int maxSide = 960}) {
+  if (jpeg.length <= maxBytes) return jpeg;
+  try {
+    var im = img.decodeJpg(jpeg);
+    if (im == null) return null;
+    im = img.bakeOrientation(im);
+    if (im.width > maxSide || im.height > maxSide) {
+      im = im.width >= im.height
+          ? img.copyResize(im, width: maxSide)
+          : img.copyResize(im, height: maxSide);
+    }
+    for (final q in const [80, 65, 50]) {
+      final out = img.encodeJpg(im, quality: q);
+      if (out.length <= maxBytes) return out;
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
 }

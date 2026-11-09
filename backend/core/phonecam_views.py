@@ -198,7 +198,10 @@ class PhoneCamClaimView(APIView):
         from datetime import timedelta
         cam = ShopCamera.objects.create(
             site=site, name=name, kind="shopbox", vendor="phone",
-            zone_config=WM.default_zone_config(site.kind),
+            # cctvtoday: a phone camera guards whenever its own "Start camera"
+            # switch is on — the owner starts/stops it on that phone. A shop's
+            # 21:00-09:00 default made a daytime test silently send nothing.
+            zone_config=WM.default_zone_config("home"),
             source={"pair_sha": sha, "viewers_live": False, "model": model,
                     "paired_at": now.isoformat()},
             billed_until=(now + timedelta(days=SV.BILLING_PERIOD_DAYS)

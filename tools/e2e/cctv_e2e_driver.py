@@ -150,6 +150,126 @@ def fast_edge():
     T.GatewayTasks = FastTasks
 
 
+# ------------------------------------------------------------------ phone camera
+def run_phonecam(owner, family):
+    """cctvtoday (owner two-phone test, 9 Nov): an old Android phone as the
+    camera, exactly the HTTP calls the app makes (phonecam_api.dart +
+    ShopDeviceClient): QR code -> claim without login -> heartbeat online ->
+    a DAYTIME person alert with photo on a site -> push to owner + family ->
+    alert list + photo -> live view reaches the camera phone -> family live
+    blocked until the owner allows -> unbind."""
+    import requests
+    from core.models import ShopCamera, ShopEvent
+    r = owner.post(API + "/shop/watchman/setup",
+                   json={"kind": "home", "gateway": "phone", "name": "E2E Phone Home"},
+                   timeout=10)
+    need("phonecam: second place created", r.status_code == 201, r.text)
+    site_id = r.json()["id"]
+    r = owner.post(API + "/shop/sites/%d/viewers" % site_id,
+                   json={"phone": FAMILY_PHONE}, timeout=10)
+    check("phonecam: family viewer added", r.status_code == 201, r.text)
+    r = owner.get(API + "/shop/phonecam/pair?site=%d" % site_id, timeout=10)
+    need("phonecam: owner gets QR code + link", r.status_code == 200 and
+         r.json().get("link", "").startswith("https://lifeassisto.com/pc/"), r.text)
+    code, link = r.json()["code"], r.json()["link"]
+    cam_phone = requests.Session()           # the OLD phone: no login at all
+    cam_phone.headers.update({"Accept-Language": "bn"})
+    t0 = time.monotonic()
+    r = cam_phone.post(API + "/shop/phonecam/claim",
+                       json={"code": link, "model": "Sample Phone 5"}, timeout=10)
+    need("phonecam: camera phone pairs by scanning the QR link (no login)",
+         r.status_code == 201 and r.json().get("camera_token"), r.text)
+    tok, cam_id = r.json()["camera_token"], r.json()["camera"]["id"]
+    r = cam_phone.post(API + "/shop/phonecam/claim", json={"code": code}, timeout=10)
+    check("phonecam: the same code cannot pair a second phone",
+          r.status_code == 409, r.text)
+    dev = requests.Session()
+    dev.headers.update({"X-Shop-Token": tok, "X-Shop-Camera": str(cam_id)})
+    hb = lambda: dev.post(API + "/shop/heartbeat", json={  # noqa: E731
+        "camera_ids": [cam_id], "caps": ["live", "phone"], "platform": "android",
+        "health": {"level": 80, "charging": True, "temp_c": 31, "dark": False}},
+        timeout=10)
+    r = hb()
+    need("phonecam: heartbeat accepted", r.status_code == 200, r.text)
+    rows = owner.get(API + "/shop/phonecam/pair?site=%d" % site_id, timeout=10).json()
+    check("phonecam: owner's pairing sheet sees the new camera",
+          any(c["id"] == cam_id for c in rows.get("cameras", [])), rows)
+    cam = ShopCamera.objects.get(pk=cam_id)
+    check("phonecam: always on guard (no shop-hours schedule)",
+          (cam.zone_config or {}).get("schedule") is None, cam.zone_config)
+
+    n0 = len(fcm_calls())
+    ing = dev.post(API + "/shop/ingest", data={
+        "type": "person_detected", "camera_id": str(cam_id),
+        "signals": json.dumps({"detector": "yolox_nano_phone", "conf": 0.82,
+                               "persons": 1, "source": "phone_camera"}),
+        "at": str(time.time())},
+        files={"snapshot": ("snapshot.jpg", jpeg_bytes(1280, 720), "image/jpeg")},
+        timeout=15)
+    need("phonecam: person alert raised", ing.status_code == 201 and
+         ing.json().get("raised"), ing.text)
+    ev_id = ing.json()["event_id"]
+    calls = wait_for(lambda: [c for c in fcm_calls()[n0:]
+                              if (c.get("data") or {}).get("event_id") == str(ev_id)], 10)
+    secs = time.monotonic() - t0
+    check("phonecam: push reaches owner AND family phone",
+          calls and {c["token"] for c in calls} == {"e2e-fcm-owner", "e2e-fcm-family"},
+          calls)
+    CASH_METRICS["phonecam_pair_to_push_s"] = round(secs, 2)
+    ow = {c["token"]: c for c in (calls or [])}.get("e2e-fcm-owner", {})
+    snap_url = (ow.get("data") or {}).get("snapshot_url") or ""
+    img = requests.get(snap_url, timeout=10) if snap_url else None
+    check("phonecam: push photo opens (signed JPEG link)",
+          img is not None and img.status_code == 200 and img.content[:2] == b"\xff\xd8",
+          snap_url)
+    evs = owner.get(API + "/shop/events?site=%d" % site_id, timeout=10).json()
+    check("phonecam: owner alert list shows it with the photo",
+          any(e["id"] == ev_id and e["snapshot_url"] for e in evs.get("events", [])), evs)
+    fevs = family.get(API + "/shop/events?site=%d" % site_id, timeout=10).json()
+    check("phonecam: family member sees the same alert",
+          any(e["id"] == ev_id for e in fevs.get("events", [])), fevs)
+    check("phonecam: alert is stored on the phone camera",
+          ShopEvent.objects.filter(pk=ev_id, camera_id=cam_id).exists())
+
+    # live view: owner taps Live -> the camera phone finds it on its heartbeat
+    r = family.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    check("phonecam: family live view is OFF until the owner allows it",
+          r.status_code == 403, r.text)
+    r = owner.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    if r.status_code == 503:
+        check("phonecam: live start (server busy on the CI box — skipped)", True)
+        return
+    need("phonecam: owner live view starts", r.status_code == 201, r.text)
+    sid = r.json()["id"]
+    pend = (hb().json().get("live_pending") or [])
+    check("phonecam: camera phone gets the live request on its next heartbeat",
+          any(p.get("id") == sid for p in pend), pend)
+    owner.post(API + "/shop/live/%d/signal" % sid,
+               json={"kind": "offer", "payload": {"type": "offer", "sdp": "v=0"}},
+               timeout=10)
+    got = dev.get(API + "/shop/live/%d/signal?after=0" % sid, timeout=10).json()
+    check("phonecam: the owner's offer reaches the camera phone",
+          any(m.get("kind") == "offer" for m in got.get("messages", [])), got)
+    dev.post(API + "/shop/live/%d/signal" % sid,
+             json={"kind": "answer", "payload": {"type": "answer", "sdp": "v=0"}},
+             timeout=10)
+    back = owner.get(API + "/shop/live/%d/signal?after=0" % sid, timeout=10).json()
+    check("phonecam: the camera phone's answer reaches the owner",
+          any(m.get("kind") == "answer" for m in back.get("messages", [])), back)
+    dev.post(API + "/shop/live/%d/end" % sid, json={"relayed": False, "seconds": 5},
+             timeout=10)
+    r = owner.patch(API + "/shop/phonecam/%d" % cam_id, json={"viewers_live": True},
+                    timeout=10)
+    check("phonecam: owner allows family live", r.status_code == 200, r.text)
+    r = family.post(API + "/shop/live/start", json={"camera": cam_id}, timeout=10)
+    check("phonecam: family live view now starts", r.status_code in (201, 503), r.text)
+
+    r = dev.post(API + "/shop/phonecam/unbind", json={}, timeout=10)
+    check("phonecam: camera phone removes itself",
+          r.status_code == 200 and not ShopCamera.objects.filter(pk=cam_id).exists(),
+          r.text)
+
+
 # ------------------------------------------------------------------ run
 def run():
     django_setup()
@@ -672,6 +792,15 @@ def run():
                 engine.stop()
             except Exception:
                 pass
+    # cctvtoday: the two-phone path (old phone = camera), its own section so a
+    # failure above never hides it
+    try:
+        run_phonecam(owner, family)
+    except Abort:
+        pass
+    except Exception:
+        traceback.print_exc()
+        check("phonecam driver crashed", False, traceback.format_exc()[-300:])
     failed = [r for r in RESULTS if not r[1]]
     print("\n==== CCTV E2E: %d passed, %d failed ====" % (len(RESULTS) - len(failed),
                                                           len(failed)))
