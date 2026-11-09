@@ -94,7 +94,7 @@ class FakeCctvTeam extends CctvTeamSource {
         {'id': 5, 'name': _bn ? 'গেট' : 'Gate'},
         {'id': 6, 'name': _bn ? 'ক্যাশ কাউন্টার' : 'Cash counter'},
       ],
-      'roles': ['family', 'manager', 'guard'],
+      'roles': ['family', 'manager', 'guard', 'staff'],
     };
   }
 
@@ -111,6 +111,30 @@ class FakeCctvTeam extends CctvTeamSource {
         ? 'শুধু আপনি এই তালিকা দেখেন। Assisto-র কোনো কর্মী বা মালিক আপনার ক্যামেরা দেখতে পারেন না।'
         : 'Only you see this list. No Assisto staff member or owner can see your cameras.';
     if (mode == 'empty') return {'rows': [], 'keep_days': 30, 'note': note};
+    // cctvroles: the audit list (exports / shares / changes, the owner's own too)
+    if (mode == 'audit') {
+      Map<String, dynamic> a(int id, String action, String who, bool owner, String detail,
+              {String cam = ''}) =>
+          {'id': id, 'at': _ago, 'action': action, 'user_id': owner ? 1 : 14, 'name': who,
+           'is_owner': owner, 'detail': detail, 'kind': 'change', 'link_id': null,
+           'link_label': '', 'camera': null, 'camera_name': cam};
+      return {
+        'rows': [
+          a(9, 'export', 'Rahim', true, _bn ? 'সতর্কতা #২১২-এর প্রমাণ' : 'evidence of alert #212'),
+          a(8, 'change', _bn ? 'সুমন (ম্যানেজার)' : 'Sumon (manager)', false,
+              _bn ? 'সতর্কতা #২১১: ঠিক আছে' : 'alert #211: checked',
+              cam: _bn ? 'ক্যাশ কাউন্টার' : 'Cash counter'),
+          a(7, 'role', 'Rahim', true, _bn ? 'জামাল → কর্মী' : 'Jamal → staff'),
+          a(6, 'installer', _bn ? 'রানা সিসিটিভি' : 'Rana CCTV', false,
+              _bn ? 'যুক্ত হয়েছেন: রানা সিসিটিভি' : 'joined: Rana CCTV'),
+          a(5, 'delete', 'Rahim', true, _bn ? 'ক্যামেরা: পুরনো গেট' : 'camera: Old gate'),
+          {'id': 3, 'at': _ago, 'action': 'still', 'user_id': 12, 'name': _bn ? 'জামাল (গার্ড)' : 'Jamal (guard)',
+           'is_owner': false, 'detail': '', 'kind': 'view',
+           'link_id': null, 'link_label': '', 'camera': 5, 'camera_name': _bn ? 'গেট' : 'Gate'},
+        ],
+        'keep_days': 30, 'audit_keep_days': 180, 'note': note,
+      };
+    }
     return {
       'rows': [
         {'id': 3, 'at': _ago, 'action': 'still', 'user_id': 12, 'name': _bn ? 'জামাল (গার্ড)' : 'Jamal (guard)',
@@ -202,4 +226,86 @@ class FakeCctvTeam extends CctvTeamSource {
 
   @override
   Future<void> watchBlock(int userId) async {}
+
+  // ---- cctvroles: installer partners (modes: data | empty | pending | fail)
+  final List<int> ended = [];
+  final List<String> joined = [];
+
+  @override
+  Future<Map<String, dynamic>> installers(int siteId) async {
+    _maybeFail();
+    final note = _bn
+        ? 'ইনস্টলার শুধু সেটআপের অবস্থা দেখেন (ক্যামেরা অনলাইন কিনা) — কখনো ভিডিও, ছবি বা সতর্কতা নয়। যেকোনো সময় বন্ধ করতে পারেন।'
+        : 'An installer sees only the setup status (are the cameras online) — never video, photos or alerts. You can end it any time.';
+    if (mode == 'empty') return {'site': siteId, 'links': [], 'invite_hours': 48, 'note': note};
+    return {
+      'site': siteId,
+      'links': [
+        {'id': 21, 'status': 'active', 'partner': {'name': _bn ? 'রানা সিসিটিভি' : 'Rana CCTV', 'area': _bn ? 'মিরপুর ১০' : 'Mirpur 10'},
+         'created': _ago, 'expires_at': null, 'accepted_at': _ago},
+        {'id': 22, 'status': 'invited', 'partner': null, 'created': _ago, 'expires_at': _later, 'accepted_at': null},
+      ],
+      'invite_hours': 48, 'note': note,
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> makeInstallerCode(int siteId) async {
+    _maybeFail();
+    return {'id': 23, 'status': 'invited', 'partner': null, 'created': _ago, 'expires_at': _later,
+            'accepted_at': null, 'code': 'K7MPQ2XR', 'qr': 'https://lifeassisto.com/install/K7MPQ2XR'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> endInstaller(int linkId) async {
+    ended.add(linkId);
+    return {'id': linkId, 'status': 'ended'};
+  }
+
+  @override
+  Future<Map<String, dynamic>> partnerMe() async {
+    _maybeFail();
+    final note = _bn ? 'আপনি শুধু সেটআপের অবস্থা দেখেন — কোনো ভিডিও, ছবি বা সতর্কতা কখনো নয়।'
+        : 'You see only the setup status — never any video, photo or alert.';
+    if (mode == 'empty') return {'partner': null, 'sites': [], 'note': note};
+    final p = {'status': mode == 'pending' ? 'pending' : 'approved',
+               'name': _bn ? 'রানা সিসিটিভি' : 'Rana CCTV', 'area': _bn ? 'মিরপুর ১০' : 'Mirpur 10', 'since': _ago};
+    if (mode == 'pending') return {'partner': p, 'sites': [], 'note': note};
+    Map<String, dynamic> step(String k, bool ok) => {'key': k, 'ok': ok};
+    return {
+      'partner': p,
+      'sites': [
+        {'link_id': 21, 'site': 1, 'name': _bn ? 'রহিম স্টোর' : 'Rahim Store', 'kind': 'shop', 'since': _ago,
+         'paying': true, 'cameras': 4, 'online': 3, 'gateway_age_min': 2, 'done': false,
+         'camera_rows': [
+           {'name': _bn ? 'গেট' : 'Gate', 'online': true, 'zone': true},
+           {'name': _bn ? 'ক্যাশ কাউন্টার' : 'Cash counter', 'online': true, 'zone': true},
+           {'name': _bn ? 'গুদাম' : 'Store room', 'online': true, 'zone': false},
+           {'name': _bn ? 'পেছনের দরজা' : 'Back door', 'online': false, 'zone': false},
+         ],
+         'steps': [step('cameras_added', true), step('cameras_online', false), step('gateway_connected', true),
+                   step('hours_set', true), step('zones_set', false)]},
+        {'link_id': 24, 'site': 3, 'name': _bn ? 'করিম ফার্মেসি' : 'Karim Pharmacy', 'kind': 'shop', 'since': _ago,
+         'paying': false, 'cameras': 2, 'online': 2, 'gateway_age_min': 1, 'done': true,
+         'camera_rows': [
+           {'name': _bn ? 'কাউন্টার' : 'Counter', 'online': true, 'zone': true},
+           {'name': _bn ? 'দরজা' : 'Door', 'online': true, 'zone': true},
+         ],
+         'steps': [step('cameras_added', true), step('cameras_online', true), step('gateway_connected', true),
+                   step('hours_set', true), step('zones_set', true)]},
+      ],
+      'commission': {'status': 'proposal', 'approved': false},
+      'note': note,
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> partnerApply(String name, String area) async =>
+      {'status': 'pending', 'name': name, 'area': area, 'since': _ago};
+
+  @override
+  Future<Map<String, dynamic>> partnerJoin(String code) async {
+    joined.add(code);
+    return {'ok': true, 'site': 1};
+  }
 }

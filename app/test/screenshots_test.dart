@@ -352,6 +352,7 @@ import 'fcsos_shots.dart'; // fcsos Family Care v3 SOS sender / receiver
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
 import 'cctvconnect_shots.dart'; // cctvconnect brand clouds + DVR health
+import 'cctvroles_shots.dart'; // cctvroles V3 I+J audit / staff / installer partners
 import 'booking1_shots.dart'; // booking1 booking bot
 import 'budrem_shots.dart'; // budrem Budget and Remittance
 import 'remhbar_shots.dart'; // remhbar Reminders & Notes launch bar
@@ -1162,6 +1163,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
     for (final e in cctvconnectShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvconnect
+    for (final e in cctvrolesShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvroles
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
     for (final e in agentCoreShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // agent-core WP-APP
     for (final e in bizopsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizops

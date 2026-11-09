@@ -761,7 +761,13 @@ class SiteViewerDeleteView(APIView):
         if not (qs.filter(site__owner=request.user).exists() or
                 (int(uid) == request.user.pk and qs.exists())):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        # cctvroles (V3 I): removing a person / a person leaving is audited
+        v = qs.select_related("site", "user").first()
         qs.delete()
+        if v is not None:
+            from . import cctv_team_views as CTV
+            CTV.audit(v.site, "change", request.user,
+                      CTV.CT.pack(removed=getattr(v.user, "name", "") or "#%s" % v.user_id))
         return Response({"ok": True})
 
 

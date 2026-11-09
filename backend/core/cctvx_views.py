@@ -1338,6 +1338,9 @@ class ClipShareView(_OwnerBase):
         clip.meta = meta
         clip.save(update_fields=fields)
         if fresh:
+            # cctvroles (V3 I): every clip share is in the owner's audit list
+            from . import cctv_team_views as CTV
+            CTV.audit(ev.site, "share", request.user, CTV.CT.pack(clip=ev.id), camera_id=ev.camera_id)
             from .models import User
             u = User.objects.filter(pk=uid).first()
             if u is not None:
@@ -1422,5 +1425,9 @@ class EventEvidenceView(_OwnerBase):
         sig["evidence"] = (list(sig.get("evidence") or []) +
                            [{"at": timezone.now().isoformat(), "sha256": h, "files": n}])[-5:]
         type(ev).objects.filter(pk=ev.pk).update(signals=sig)
+        # cctvroles (V3 I + K): export is owner-only and always audited
+        from . import cctv_team_views as CTV
+        CTV.audit(ev.site, "export", request.user, CTV.CT.pack(ev=ev.id, h=h[:12]),
+                  camera_id=ev.camera_id)
         return Response({"gd_draft": CX.gd_draft(lang, f), "manifest_sha256": h,
                          "recorded": True})
