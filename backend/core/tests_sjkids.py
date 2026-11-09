@@ -349,3 +349,35 @@ class CornerServiceTests(_Base):
         late = [c for c in self.spy.to(self.mom) if c["data"].get("event") == "late_school"]
         self.assertEqual(len(late), 1)
         self.assertTrue(SchoolPlan.objects.get(pk=p["id"]).day["alerts"].get("late_school"))
+
+
+try:                                  # fcbrain (Family Care v3) — merged by integration
+    from core import family_brain as _FB
+except Exception:  # noqa: BLE001
+    _FB = None
+
+
+@__import__("unittest").skipUnless(_FB is not None and hasattr(_FB, "ping"),
+                                   "fcbrain not merged on this branch")
+class FcbrainPingSeamTests(_Base):
+    """fcbrain's ping() with a corner WATCH fence: guardians get the entry,
+    the family gets no arrive/leave fan-out. The hook must run even when the
+    child has no Family v3 group yet (before ping's 'no_family' return)."""
+
+    def test_watch_fence_through_ping(self):
+        r = self.c.post(V + "/school-mode/plans",
+                        dict(CFG, kc_places=PLACES, watcher_ids=[self.mom.id],
+                             child_user_id=self.child.id), format="json")
+        pid = r.data["plan"]["id"]
+        cl(self.child).post(V + "/school-mode/plans/%d/accept" % pid)
+        self.spy.calls.clear()
+        at = L(6, 15, 9).astimezone(dtz.utc)
+        _FB.ping(self.child, {"events": [{
+            "id": "kc-river-1", "kind": "arrive", "at": at.isoformat(),
+            "place_id": KC.fence_id(pid, 3), "place_kind": "place",
+            "place_label": "নদী"}]}, now=at)
+        for u in (self.owner, self.mom):
+            self.assertTrue(any(c["data"].get("event") == "kc_watch_enter"
+                                for c in self.spy.to(u)), u.name)
+        self.assertFalse(any(c["data"].get("event") in ("auto_arrived", "auto_left")
+                             for c in self.spy.calls))
