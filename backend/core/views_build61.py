@@ -1103,6 +1103,14 @@ def _journey_pure(j):
     }
 
 
+def JDUR_calm(j, state):
+    """sjduring: under the V2 rules lateness never asks or alarms by
+    itself — the app gets 'late_calm' instead of grace/ask/alert (the
+    private ladder in core/journey_during.py does the asking)."""
+    from . import journey_during as JDUR
+    return JDUR.calm_overdue(j, state)
+
+
 def _pin_configured(user):
     dp = DuressPin.objects.filter(user=user).first()
     return bool(dp and dp.salt and dp.normal_hash)
@@ -1118,6 +1126,7 @@ def _photo_url(j):
 def _journey_dict(j, lang="bn", traveller=True):
     now = timezone.now()
     state, mins = JW.overdue(j, now)
+    state = JDUR_calm(j, state)   # sjduring: late is not an alarm
     out = {
         "id": j.id, "status": j.status, "mode": j.mode,
         "destination": j.destination, "eta": j.eta.isoformat() if j.eta else None,
@@ -1260,6 +1269,8 @@ class JourneyActiveView(APIView):
     def get(self, request):
         j = Journey.objects.filter(traveller=request.user,
                                    status="active").first()
+        if j is not None and (j.during or {}).get("cover"):
+            j = None   # sjduring: after a danger PIN this phone shows Arrived
         return Response(_journey_dict(j, req_lang(request)) if j else {})
 
 
@@ -1335,7 +1346,13 @@ class JourneyLocationView(APIView):
                 newest_acc = acc
         j.last_activity_at = now
         arrived = False
-        if (newest_known is not None and fixes and
+        from . import journey_during as JDUR   # sjduring
+        if JDUR.enabled(j):
+            # sjduring: radius by place type + 2-minute dwell; an abnormal
+            # arrival (too early / off route / long stop) asks the PIN first
+            if newest_known is not None and fixes:
+                arrived = JDUR.auto_arrival(j, now, newest_acc) == "arrived"
+        elif (newest_known is not None and fixes and
                 SL.acc_ok_for_arrival(newest_acc, j.arrival_radius_m)):
             arrived, _dist = SJ.arrival_check(_journey_pure(j), newest_known[0], newest_known[1])
         j.lost_alerted_at = None if fixes else j.lost_alerted_at
@@ -1347,6 +1364,7 @@ class JourneyLocationView(APIView):
         if fixes:
             SL.feed_school(request.user, fixes, now)   # sjlive: Child School from the phone
         state, mins = JW.overdue(j, now)
+        state = JDUR_calm(j, state)   # sjduring: late is not an alarm
         b = fixes[-1][3] if fixes else None
         return Response({"ok": True, "status": j.status, "arrived": bool(arrived),
                          "accepted": len(fixes),
@@ -1822,6 +1840,7 @@ class JourneyWatchingView(APIView):
             live = j.status == "active" or j.sos_active
             fx = JW.fix_of(j) if live else None
             st, mins = JW.overdue(j, now)
+            st = JDUR_calm(j, st)   # sjduring: late is not an alarm
             out.append({
                 "id": j.id, "name": PUSH.seen_name(request.user, j.traveller),
                 "status": j.status, "sos": j.sos_active,

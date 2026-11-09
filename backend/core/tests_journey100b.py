@@ -10,6 +10,7 @@ Patches return plain values only (no bare MagicMock gets JSON-encoded)."""
 from datetime import timedelta
 from unittest import mock
 
+from django.test import override_settings  # sjduring
 from django.utils import timezone
 
 from core import guardian_journey as GJ
@@ -172,6 +173,9 @@ class ClearUrgentScopeTests(GBase):
 
 
 # ------------------------------------------------- 2. honest "no location"
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class LostReasonTests(GBase):
     """When fixes stop, watchers get the LIKELY reason, never a guess
     dressed as fact: flat battery, the phone killed Assisto in the
@@ -274,6 +278,9 @@ def _trace(per_leg=6):
     return out
 
 
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class DhakaReplayTests(GBase):
     """A real road from Mirpur 10 to Motijheel (bends via Farmgate and
     Shahbag), a fix every 30 s, swept after every fix like the minute cron.
@@ -379,6 +386,9 @@ def _path(points, step_m=250):
     return out
 
 
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class TrafficJamTests(GBase):
     """Recorded-shape traces: a bus stuck in a jam on the highway vs a stop
     at an unknown place off the route vs a stop after walking."""
