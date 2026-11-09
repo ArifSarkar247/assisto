@@ -719,8 +719,20 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     charged = 0
     spend_ref = ""
     web_extra = 0
+    ad_fund = False
     if user is not None and lvl is not None:
         from . import billing
+        # aimoney (owner 10 Nov, part G): an answer paid with rewarded-ad
+        # credits runs at Normal with the shorter output, no web search
+        try:
+            from . import ad_money_service as AMS
+            lvl, ad_fund = AMS.ad_level(user, lvl)
+        except Exception:  # noqa: BLE001 — never breaks the answer
+            ad_fund = False
+        if ad_fund:
+            web = False
+            if isinstance(out_meta, dict):
+                out_meta["ad_funded"] = True
         if web:
             # plansprep: the search is paid AFTER the answer and only when a
             # search really ran; no search for a balance that cannot pay it
@@ -895,7 +907,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             user=user, feature=(feature or "")[:40], model=used[:40],
             input_tokens=itok, output_tokens=otok, cost_usd=cost,
             provider=name, tier=tier, task_class=klass, latency_ms=latency,
-            ok=True, hops=hops, attempts="|".join(attempts)[:240],
+            ok=True, hops=hops,
+            attempts="|".join(attempts + (["adfund"] if ad_fund else []))[:240],
             cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged,
             level=(level or "")[:10])
         if isinstance(out_meta, dict):

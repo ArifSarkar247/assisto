@@ -3036,6 +3036,22 @@ class AdPlacementStat(models.Model):
         indexes = [models.Index(fields=["date", "placement"])]
 
 
+class AdMoneyDay(models.Model):
+    """aimoney (owner 10 Nov, part G): the DAILY ads-per-AI-answer number and
+    the inputs it came from (core/ad_money_service.recompute, inside
+    minute_jobs). One row per local date; the newest row is what the app
+    shows ("Watch N ads for 1 answer") and what one rewarded ad credits.
+    data = {real_cost_bdt, cost_samples, cost_source, income_bdt, ad_events,
+    income_source, worst_bdt, profit_pct}. Aggregates only, no user id."""
+    date = models.DateField(unique=True)
+    ads_per_answer = models.PositiveSmallIntegerField(default=2)
+    data = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date"]
+
+
 class AdEventSeen(models.Model):
     """ads check 28 Oct: server-side dedupe of the AdMob tuning log. One row
     per COUNTED (user, placement, kind, ad instance id) — or, for old builds

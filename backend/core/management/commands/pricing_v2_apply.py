@@ -9,9 +9,9 @@ switch (every plan / pack / level / action credit number is then DERIVED by
 the formula — never typed), the AI levels (Normal = Claude Haiku 5.5, Better =
 Gemini Flash with the Haiku fallback — or, while Gemini is off (geminioff
 breaker / active 402 / --gemini-off), Claude Haiku 5.5 with the larger
-budget, Best = Claude Sonnet 5.5), welcome
-credits 30 once for Normal + Better, rewarded ads 2 = 1 Normal answer (max 5
-a day), web search ON. It changes NO price (owner item 12) and no Play
+budget, Best = Claude Sonnet 5.5), NO welcome
+credits (aimoney, owner 10 Nov: switched off for new users), rewarded ads
+>= 2 = 1 Normal answer (daily dynamic number, max 5 ads a day), web search ON. It changes NO price (owner item 12) and no Play
 product. The LEAD runs it after deploy, with a DB backup first; a second
 --apply finds nothing to change and writes nothing. Afterwards the owner does
 owner_actions/PLAY_CONSOLE_CHANGES_BN.md.

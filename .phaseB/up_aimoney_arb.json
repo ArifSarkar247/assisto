@@ -1,0 +1,10 @@
+{
+  "_comment": "aimoney (owner 10 Nov 03:45, part G): honest ads-per-answer line in the rewarded-ad sheet",
+  "en": {
+    "aimAdsPerAnswer": "Watch {n} ads for 1 AI answer",
+    "@aimAdsPerAnswer": {"description": "Rewarded-ad sheet: how many ads buy one AI answer today (n is already formatted).", "placeholders": {"n": {"type": "String"}}}
+  },
+  "bn": {
+    "aimAdsPerAnswer": "১টি AI উত্তরের জন্য {n}টি বিজ্ঞাপন দেখুন"
+  }
+}

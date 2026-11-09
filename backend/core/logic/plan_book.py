@@ -209,14 +209,25 @@ def v2_settings_patch(gemini_off=False):
             "enabled": True,
             "levels": v2_levels(gemini_off),
             "free_credit_levels": ["normal", "better"],
-            "welcome_on": True, "welcome_credits": 30,
+            # aimoney (owner 10 Nov 03:45, part G): NO free welcome AI
+            # credits for new users from now on (balances already granted
+            # stay); live row: `manage.py pricing_welcome_off --apply`
+            "welcome_on": False, "welcome_credits": 30,
+            # ads per answer: the floor 2; the DAILY number is computed by
+            # core/ad_money_service.py (ad_dynamic) from real cost + income
             "ad_answers_per_ad": 1, "ads_per_answer": 2,
+            "ad_dynamic": True, "ad_out_cap": 900,
             # web search ON: free Gemini grounding quota first, then Claude
             # web search; +credits (formula: 3) only when a search really ran
             "web_on": True, "web_usd_per_prompt": 0.015, "web_free_per_day": 1500,
         },
         "ad_rewards": {"rewarded_daily_cap": 5},
     }
+
+
+# aimoney: what `pricing_welcome_off --apply` merges into the live row
+WELCOME_OFF_PATCH = {"ai_levels": {"welcome_on": False, "ad_dynamic": True,
+                                   "ad_out_cap": 900}}
 
 
 def deep_merge(base, patch):
