@@ -18,6 +18,8 @@ import 'package:assisto/screens/lp2/lp_engine.dart';
 import 'package:assisto/screens/lp2/lp_life.dart';
 import 'package:assisto/screens/lp2/lp_mock.dart';
 import 'package:assisto/screens/lp2/lp_score.dart';
+import 'package:assisto/screens/lp2/lp_ui.dart' show lpIcon;
+import 'dart:convert';
 import 'package:assisto/screens/lp2/lp_vocab.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -127,6 +129,26 @@ void main() {
       expect(clock(1800), '30:00');
       expect(clock(3725), '1:02:05');
     });
+  });
+
+  test('every scenario / topic icon name has an icon (bundled + lpcontent extra content)', () {
+    final names = <String>{
+      for (final f in ['assets/lp/life_en_v1.json', 'assets/lp/vocab_v1.json'])
+        for (final i in [
+          ...((jsonDecode(File(f).readAsStringSync()) as Map)['scenarios'] as List? ?? const []),
+          ...((jsonDecode(File(f).readAsStringSync()) as Map)['topics'] as List? ?? const []),
+        ])
+          '${(i as Map)['icon']}',
+      // lpcontent (ci/lpcontent): 20 more scenarios + 16 more topics
+      'apartment', 'business_center', 'call', 'construction', 'currency_exchange', 'emergency',
+      'engineering', 'groups', 'hotel', 'local_police', 'local_shipping', 'local_taxi',
+      'medical_services', 'medication', 'receipt_long', 'restaurant', 'school', 'shopping_cart',
+      'sim_card', 'train', 'account_tree', 'bolt', 'edit_note', 'family_restroom', 'forum', 'gavel',
+      'home', 'location_city', 'luggage', 'newspaper', 'room_service', 'science', 'theater_comedy',
+      'trending_up',
+    };
+    final missing = names.where((n) => lpIcon(n, Icons.help_rounded) == Icons.help_rounded).toList();
+    expect(missing, isEmpty);
   });
 
   group('start (screen 1)', () {

@@ -32,19 +32,7 @@ import '../ielts_engine.dart' show alignWords, AlignResult;
 import 'lp_data.dart';
 import 'lp_ui.dart';
 
-IconData lpScenarioIcon(String? name) => switch (name) {
-      'flight' => Icons.flight_rounded,
-      'assignment_ind' => Icons.assignment_ind_rounded,
-      'storefront' => Icons.storefront_rounded,
-      'subway' => Icons.subway_rounded,
-      'directions_bus' => Icons.directions_bus_rounded,
-      'signpost' => Icons.directions_rounded,
-      'electric_rickshaw' => Icons.local_taxi_rounded,
-      'local_hospital' => Icons.local_hospital_rounded,
-      'account_balance' => Icons.account_balance_rounded,
-      'work' => Icons.work_rounded,
-      _ => Icons.chat_rounded,
-    };
+IconData lpScenarioIcon(String? name) => lpIcon(name, Icons.chat_rounded);
 
 /// Tests: a fixed "heard" text instead of the microphone.
 @visibleForTesting

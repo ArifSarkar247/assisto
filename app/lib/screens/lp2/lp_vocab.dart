@@ -142,7 +142,7 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                   minVerticalPadding: Gap.md,
                   leading: CircleAvatar(
                     backgroundColor: scheme.secondaryContainer,
-                    child: Icon(Icons.style_rounded, color: scheme.onSecondaryContainer),
+                    child: Icon(lpIcon('${t['icon']}', Icons.style_rounded), color: scheme.onSecondaryContainer),
                   ),
                   title: Text(lpLoc(context, t, 'title')),
                   subtitle: Text(tr.lp2VocabLearned(ld(context, learned), ld(context, words.length))),
