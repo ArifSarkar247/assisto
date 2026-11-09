@@ -23,6 +23,7 @@ import 'package:image_picker_platform_interface/image_picker_platform_interface.
 import 'package:path_provider/path_provider.dart';
 
 import 'package:assisto/api.dart';
+import 'package:assisto/carecall/carecall_ring_screen.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/messaging/media/multi_pick.dart' as mp;
 import 'package:assisto/notifications.dart';
@@ -397,6 +398,30 @@ void registerE2eProofFlows() {
       final start = find.byKey(const ValueKey('j100_start'));
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 3);
+      // no road time (the emulator has no GPS fix): Start asks for the
+      // arrival time like it asks a user -> type now + 1 h, OK, Start again
+      if (await f.appears(find.byType(TimePickerDialog), seconds: 3)) {
+        await f.shot('arrival-time');
+        final ml = MaterialLocalizations.of(f.tester.element(find.byType(TimePickerDialog)));
+        final kb = find.byTooltip(ml.inputTimeModeButtonLabel);
+        if (kb.evaluate().isNotEmpty) await f.tap(kb, settleSeconds: 1);
+        final now = DateTime.now();
+        final at = now.add(const Duration(hours: 1));
+        final h12 = at.hour % 12 == 0 ? 12 : at.hour % 12;
+        final fields = find.descendant(of: find.byType(TimePickerDialog), matching: find.byType(TextField));
+        await f.tester.enterText(fields.at(0), '$h12');
+        await f.tester.enterText(fields.at(1), at.minute.toString().padLeft(2, '0'));
+        if ((at.hour >= 12) != (now.hour >= 12)) {
+          await f.tap(find.descendant(of: find.byType(TimePickerDialog),
+              matching: find.text(at.hour >= 12 ? ml.postMeridiemAbbreviation : ml.anteMeridiemAbbreviation)));
+        }
+        await f.pumpFor(const Duration(milliseconds: 500));
+        await f.tap(find.text(ml.okButtonLabel).last, settleSeconds: 2);
+        if (find.byType(JourneyLiveScreen).evaluate().isEmpty && start.evaluate().isNotEmpty) {
+          await f.tester.ensureVisible(start);
+          await f.tap(start, settleSeconds: 3);
+        }
+      }
       final skip = find.byKey(const ValueKey('j100b_bg_skip'));
       if (await f.appears(skip, seconds: 3)) await f.tap(skip, settleSeconds: 3);
       final notNow = find.text(f.t.notNow);
@@ -626,7 +651,8 @@ void registerE2eProofFlows() {
       });
     });
     await f.step('the ring screen opens (as from the push) -> A taps Done', () async {
-      appNavigatorKey.currentState!.pushNamed('/carecall_ring?p=${Uri.encodeQueryComponent(jsonEncode(ring))}');
+      // exactly what the push tap does (push_service -> openOnce)
+      CareCallRingScreen.openOnce(appNavigatorKey.currentState, ring);
       await f.waitFor(find.text('Done'), seconds: 15, what: 'ring screen Done');
       await f.shot('ringing');
       await f.tap(find.text('Done'), settleSeconds: 4);

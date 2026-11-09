@@ -158,6 +158,8 @@ def fake_maps_http(url, body=None, headers=None):
                 return {"location": {"latitude": p["lat"], "longitude": p["lng"]},
                         "formattedAddress": p["address"]}
         return {}
+    if "directions/v2:computeRoutes" in url:
+        return {"routes": [{"duration": "2700s", "distanceMeters": 38000}]}   # ~45 min road
     raise RuntimeError("ci_e2e: no fake for %s" % url[:80])
 
 
