@@ -44961,5 +44961,277 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
+  },
+  "wmPcDownloadHint": "No Shop Box program on the PC yet? Open this page on the PC to download it (Windows 10/11):",
+  "@wmPcDownloadHint": {
+    "description": "cctvtoday: pairing sheet line above the Shop Box PC download page link"
+  },
+  "wmPcDownloadShare": "Send the download link to the PC",
+  "@wmPcDownloadShare": {
+    "description": "cctvtoday: share the Shop Box PC download page link (to WhatsApp/email, to open on the PC)"
+  },
+  "pcpWatchVideo": "Watch the video",
+  "@pcpWatchVideo": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpNoPreview": "No short preview for this alert (today's limit was used up, or a secure key was not ready on the viewer's phone). You can still get the full video from the camera phone below.",
+  "@pcpNoPreview": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewNote": "Short preview: a few frames from the 10-second clip. Kept {hours} hours for you and your family, end-to-end encrypted — even Assisto cannot open it.",
+  "@pcpPreviewNote": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpFullTitle": "Full video from the camera phone",
+  "@pcpFullTitle": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFullLimits": "About {secs} seconds, about {mb} MB. It comes straight from the camera phone, is kept {hours} hours and is end-to-end encrypted.",
+  "@pcpFullLimits": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "secs": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpBudgetLeft": "This month's camera video budget: {left} MB left of {cap} MB.",
+  "@pcpBudgetLeft": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpCamOnline": "The camera phone is online — the video usually comes within 30 seconds.",
+  "@pcpCamOnline": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpCamOffline": "The camera phone is offline now. Your request waits up to 24 hours; the video comes when it is back online.",
+  "@pcpCamOffline": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpGetFull": "Get the full video",
+  "@pcpGetFull": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPlayFull": "Play the full video",
+  "@pcpPlayFull": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaiting": "Asking the camera phone…",
+  "@pcpWaiting": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaitingLong": "Still waiting. The camera phone may be offline or busy with a live view. The request stays for 24 hours — open this alert again later.",
+  "@pcpWaitingLong": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpOpening": "Opening the video on this phone…",
+  "@pcpOpening": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpMissing": "This video is no longer on the camera phone: when its storage limit is full, the oldest videos are deleted first. The photo stays.",
+  "@pcpMissing": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpExpired": "This request or video is older than 24 hours and was deleted. Ask again — it works while the video is still on the camera phone.",
+  "@pcpExpired": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFailed": "Couldn't open the video. Check the internet and try again.",
+  "@pcpFailed": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpClipsHelp": "Each alert keeps a 10-second video here; when the space is full, the oldest is deleted first. A small preview (a few frames, end-to-end encrypted) goes to you and your family; the full video leaves this phone only when one of you asks for it.",
+  "@pcpClipsHelp": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpTrustBody": "Only the owner and the family members they allow can see this camera. Sound is off unless you switch it on here. Videos stay on this phone; only a small encrypted preview, and a full video someone asks for, are sent — end-to-end encrypted. Put a notice where people are filmed, and never film inside a room someone uses privately.",
+  "@pcpTrustBody": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsSent": "Previews sent to family: {n} · {left} left today",
+  "@pcpPreviewsSent": {
+    "description": "cctvplay: phone-camera remote playback",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "pcpPreviewsCapped": "Today's preview limit is used up — alerts and photos still go.",
+  "@pcpPreviewsCapped": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsNoKey": "Previews start once the owner's phone has opened Assisto (it makes a secure key).",
+  "@pcpPreviewsNoKey": {
+    "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcrTitle": "Continuous recording (optional)",
+  "@pcrTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrBody": "Records all the time in 1-minute pieces, kept only on this phone: up to {cap} MB, oldest deleted first (now {used} MB). Pauses by itself when the phone is hot, low on battery or short of space. A minute leaves this phone only when the owner asks for it. Off by default.",
+  "@pcrBody": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrDelete": "Delete continuous recordings",
+  "@pcrDelete": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOnLine": "Recording continuously · {used} MB of {cap} MB",
+  "@pcrOnLine": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrPausedHot": "Continuous recording paused: the camera phone is too hot. Alerts still work.",
+  "@pcrPausedHot": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedBattery": "Continuous recording paused: the charger is out and the battery is low. Alerts still work.",
+  "@pcrPausedBattery": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedStorage": "Continuous recording paused: the camera phone is short of free space. Alerts still work.",
+  "@pcrPausedStorage": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPausedLive": "Continuous recording paused while someone watches live.",
+  "@pcrPausedLive": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrUnsupported": "This phone can't record and watch at the same time — continuous recording is off on it. Alerts and their 10-second videos still work.",
+  "@pcrUnsupported": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStarting": "Continuous recording starts in a moment…",
+  "@pcrStarting": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrStateOff": "Continuous recording is off. Alerts still save a 10-second video each.",
+  "@pcrStateOff": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrWaitingPhone": "Turned on — waiting for the camera phone to start (it must be open on its camera screen).",
+  "@pcrWaitingPhone": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOnline": "Camera phone online — a minute you pick usually comes within a minute.",
+  "@pcrPhoneOnline": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPhoneOffline": "Camera phone offline — you can see what it recorded before; a minute comes when it is back online.",
+  "@pcrPhoneOffline": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrOwnerBody": "Off by default. The camera phone records all the time and keeps it only on itself; it pauses when hot, low on battery or short of space. You (and family you allowed to watch live) can pick any recorded minute below; only that minute is sent, end-to-end encrypted, about 5 MB from this month's video budget.",
+  "@pcrOwnerBody": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrCapTitle": "Space on the camera phone",
+  "@pcrCapTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrViewerNote": "Only the owner can turn continuous recording on or off.",
+  "@pcrViewerNote": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTimelineTitle": "Recordings",
+  "@pcrTimelineTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTapHint": "Last 24 hours. Blue = recorded, red dot = alert. Tap a place on an hour to pick that minute.",
+  "@pcrTapHint": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrPrevMinute": "Previous minute",
+  "@pcrPrevMinute": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrNextMinute": "Next minute",
+  "@pcrNextMinute": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrSelected": "Picked: {time}",
+  "@pcrSelected": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrMinuteTitle": "This minute from the camera phone",
+  "@pcrMinuteTitle": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyBenefit": "See what happened at any time, not only at alerts — the camera phone keeps a rolling recording.",
+  "@pcrEmptyBenefit": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrTurnOn": "Turn on continuous recording",
+  "@pcrTurnOn": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyWaiting": "Nothing recorded yet. Keep the camera phone plugged in with Assisto open on its camera screen; the first minute shows up here within about a minute.",
+  "@pcrEmptyWaiting": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrEmptyHow": "How it works: turn it on here or on the camera phone; it records in 1-minute pieces on that phone only, and you fetch a minute when you need it.",
+  "@pcrEmptyHow": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
+  },
+  "pcrHourLabel": "{time}: {mins} minutes recorded, {alerts} alerts. Double tap to pick a minute.",
+  "@pcrHourLabel": {
+    "description": "cctvplay item 4: continuous recording on the phone camera",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "mins": {
+        "type": "String"
+      },
+      "alerts": {
+        "type": "String"
+      }
+    }
+  },
+  "pcrNotRecorded": "Nothing was recorded at that minute.",
+  "@pcrNotRecorded": {
+    "description": "cctvplay item 4: continuous recording on the phone camera"
   }
 }
