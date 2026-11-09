@@ -54,7 +54,11 @@ Iterable<File> _dart(String root) => Directory(root)
     .whereType<File>()
     .where((f) => f.path.endsWith('.dart'));
 
-String _rel(File f) => f.path.replaceAll('\\', '/').split('/lib/').last;
+String _rel(File f) {
+  final p = f.path.replaceAll('\\', '/');
+  final i = p.indexOf('lib/');
+  return i < 0 ? p : p.substring(i + 4);
+}
 
 void main() {
   test('every paid feature has an in-place buy entry in its own screen', () {

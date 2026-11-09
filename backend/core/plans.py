@@ -380,12 +380,12 @@ def start_trial_button(user, device_id=""):
         u = User.objects.select_for_update().get(pk=user.pk)
         if u.trial_until:
             return False, "trial_used"
-        if not trial_available(u):
-            return False, "not_eligible"
         # buyinside: once per person AND once per shop (trial_guard)
         from . import trial_guard
         if trial_guard.shop_claimed("trial", u):
             return False, "trial_used_shop"
+        if not trial_available(u):
+            return False, "not_eligible"
         keys = trial_guard.keys_for(u, device_id)
         if antifarm.claimed("trial", keys):
             return False, "trial_used_person"
