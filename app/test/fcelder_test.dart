@@ -220,6 +220,21 @@ void main() {
       expect(find.text('Add your parent to your family first'), findsOneWidget);
     });
 
+    testWidgets('consent: the big Yes is on screen without scrolling (phone size, Bangla, 200 %)', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const ElderJoinScreen(debugPreview: {
+        'child_name': 'Arif', 'hours': 4,
+        'plan': {'easy_home': true, 'carecall': true, 'silent_watch': true},
+      }), lang: 'bn', scale: 2));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final yes = tester.getRect(find.byKey(const Key('fce-consent-yes')));
+      expect(yes.bottom, lessThanOrEqualTo(800));
+      expect(yes.top, greaterThanOrEqualTo(0));
+    });
+
     testWidgets('elder: spoken consent, ONE big Yes -> everything armed + battery guide', (tester) async {
       _tall(tester);
       await tester.pumpWidget(_app(const ElderJoinScreen(debugPreview: {

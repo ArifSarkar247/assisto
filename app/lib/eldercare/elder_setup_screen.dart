@@ -275,8 +275,9 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
     final code = '${p['code'] ?? ''}';
     final made = (p['made_at'] as int?) ?? clock.now().millisecondsSinceEpoch;
     final ttl = (p['ttl_s'] as num?)?.toInt() ?? 900;
-    final left = (ttl - (clock.now().millisecondsSinceEpoch - made) ~/ 1000) ~/ 60;
-    final expired = left < 0;
+    final remainS = ttl - (clock.now().millisecondsSinceEpoch - made) ~/ 1000;
+    final expired = remainS <= 0;
+    final left = (remainS + 59) ~/ 60; // whole minutes, rounded up: 900 s -> 15
     final scheme = Theme.of(context).colorScheme;
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
@@ -301,7 +302,7 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
               style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w800, letterSpacing: 4)),
         ),
         Center(
-          child: Text(expired ? t.fceSetupExpired : t.fceSetupExpires(elderDigits(left + 1, bn)),
+          child: Text(expired ? t.fceSetupExpired : t.fceSetupExpires(elderDigits(left, bn)),
               style: AType.titleMedium.copyWith(color: expired ? scheme.error : scheme.onSurfaceVariant)),
         ),
         const SizedBox(height: Gap.lg),

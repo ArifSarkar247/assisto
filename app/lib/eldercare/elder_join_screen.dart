@@ -225,6 +225,25 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
           _Step.done => _batteryStep(t),
         },
       ),
+      // The big YES is always on screen (owner screenshot review: under a
+      // long consent text it sat below the fold — an elder may never scroll).
+      bottomNavigationBar: _step == _Step.consent
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md),
+                child: ElderBigButton(
+                  key: const Key('fce-consent-yes'),
+                  icon: Icons.check_circle_rounded,
+                  label: t.fceJoinYes,
+                  sublabel: t.fceJoinConsentAsk,
+                  color: ElderColors.ok,
+                  minHeight: 112,
+                  onTap: _busy ? () {} : _yes,
+                ),
+              ),
+            )
+          : null,
     );
   }
 
@@ -277,16 +296,6 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
           icon: const Icon(Icons.volume_up_rounded, size: 28),
           label: Text(t.fceListenAgain, style: AType.titleLarge),
         ),
-      ),
-      const SizedBox(height: Gap.xl),
-      ElderBigButton(
-        key: const Key('fce-consent-yes'),
-        icon: Icons.check_circle_rounded,
-        label: t.fceJoinYes,
-        sublabel: t.fceJoinConsentAsk,
-        color: ElderColors.ok,
-        minHeight: 140,
-        onTap: _busy ? () {} : _yes,
       ),
       const SizedBox(height: Gap.md),
       SizedBox(
