@@ -50247,5 +50247,13 @@
   "biWatchTwoAds": "Free: watch 2 short ads = 1 Normal answer (daily limit applies)",
   "@biWatchTwoAds": {
     "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "ssAmountInvalid": "Enter an amount above 0. Bangla or English digits both work.",
+  "@ssAmountInvalid": {
+    "description": "Shown under an amount field when Save is tapped with no valid amount"
+  },
+  "ssNameRequired": "Type a name, or pick someone from My Circle.",
+  "@ssNameRequired": {
+    "description": "Shown when Save is tapped on an empty name field"
   }
 }
