@@ -13,6 +13,7 @@ Then on the server: manage.py lp_import <out>.
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import os
 import shutil
@@ -167,6 +168,14 @@ def main(argv=None):
             continue
         b = json.load(open(os.path.join(ROOT, e["file"]), encoding="utf-8"))
         items += mock_items(b, audio_man)
+    for lp in sorted(glob.glob(os.path.join(HERE, "content", "life", "*.json"))):
+        for sc in json.load(open(lp, encoding="utf-8")).get("scenarios", []):
+            items.append({"kind": "scenario", "key": f"life-{sc['id']}", "track": "life",
+                          "level": "A2", "data": sc})
+    for vp in sorted(glob.glob(os.path.join(HERE, "content", "vocab", "*.json"))):
+        for tp in json.load(open(vp, encoding="utf-8")).get("topics", []):
+            items.append({"kind": "vocab", "key": f"vocab-{tp['id']}", "track": "vocab",
+                          "level": "B1" if tp.get("group") == "ielts" else "A2", "data": tp})
     bundle = {"schema": 1, "bundle": a.bundle_id, "source": "ai",
               "source_note": "Original items authored by Claude for Assisto (no paid API in CI); "
                              "status ai-checked by tools/lp/lpcheck.py; human review pending in Owner Admin.",
@@ -187,7 +196,10 @@ def main(argv=None):
                     if not os.path.exists(os.path.join(a.out, p["audio"])):
                         missing.append(p["audio"])
     n_m = sum(1 for i in items if i["kind"] == "mock")
-    print(f"exported {n_m} mocks, {len(items) - n_m} question items; skipped (failed checks): {skipped}")
+    kinds = {}
+    for it in items:
+        kinds[it["kind"]] = kinds.get(it["kind"], 0) + 1
+    print(f"exported {kinds}; skipped (failed checks): {skipped}")
     if missing:
         print("missing audio:", missing, file=sys.stderr)
         sys.exit(1)

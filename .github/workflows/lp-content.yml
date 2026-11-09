@@ -39,6 +39,9 @@ jobs:
         run: python -m unittest discover -s tools/lp/tests -v
       - name: Content checks (draft -> ai-checked)
         run: python tools/lp/lpcheck.py --out out
+      - name: Life English + vocabulary checks
+        if: always()
+        run: python tools/lp/lifecheck.py
       - name: Visuals + lpcore export (no audio)
         if: always()
         run: |

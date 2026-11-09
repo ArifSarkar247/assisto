@@ -1,0 +1,2301 @@
+{
+ "format": "assisto.lp.bundle/1",
+ "bundle_id": "ielts-ac-001",
+ "exam": "ielts",
+ "module": "academic",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS Academic Practice Test 1",
+  "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ১"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "All scripts, passages, data and questions are original. Chart data and place names are invented."
+ },
+ "listening": {
+  "minutes": 30,
+  "check_s": 30,
+  "parts": [
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
+    "intro": "You will hear a woman phoning a leisure centre to book swimming lessons for her son.",
+    "speakers": {
+     "A": {
+      "name": "Martin",
+      "gender": "M",
+      "accent": "GB",
+      "role": "leisure centre receptionist"
+     },
+     "B": {
+      "name": "Danielle Tremaine",
+      "gender": "F",
+      "accent": "AU",
+      "role": "parent calling"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       1,
+       6
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon, Harbourside Leisure Centre, Martin speaking. How can I help?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hi. I'm ringing about swimming lessons for my son. I saw a poster at his school, and I wondered if there were still places this term."
+       },
+       {
+        "spk": "A",
+        "text": "There are, yes, although some of the classes are filling up quite quickly. Can I take a few details first, and then we'll see what's available?"
+       },
+       {
+        "spk": "B",
+        "text": "Sure, go ahead."
+       },
+       {
+        "spk": "A",
+        "text": "Right. Could I have your name, please?"
+       },
+       {
+        "spk": "B",
+        "text": "It's Danielle Tremaine."
+       },
+       {
+        "spk": "A",
+        "text": "Is that T-R-E-M-A-I-N?"
+       },
+       {
+        "spk": "B",
+        "text": "Nearly. There's an E on the end. So it's T-R-E-M-A-I-N-E."
+       },
+       {
+        "spk": "A",
+        "text": "Lovely, thank you. And your son's name?"
+       },
+       {
+        "spk": "B",
+        "text": "Jacob. Same surname."
+       },
+       {
+        "spk": "A",
+        "text": "And how old is Jacob?"
+       },
+       {
+        "spk": "B",
+        "text": "He's seven. Well, he'll be eight in March, so I'm not sure if that changes which group he'd go in."
+       },
+       {
+        "spk": "A",
+        "text": "No, we go by the child's age at the start of term, so he'd be with the seven-year-olds. Has he had lessons before?"
+       },
+       {
+        "spk": "B",
+        "text": "A few, when we were living in Perth, but that was a couple of years ago now. He's quite confident in the water, though."
+       },
+       {
+        "spk": "A",
+        "text": "Do you know roughly how far he can swim on his own?"
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "B",
+        "text": "Hmm. I'd love to tell you twenty-five metres, but to be honest, I think it's more like fifteen metres before he needs to grab the side."
+       },
+       {
+        "spk": "A",
+        "text": "That's absolutely fine. Fifteen metres would put him in our Stage Two group. Now, is there anything medical the instructor should know about? Allergies, that kind of thing?"
+       },
+       {
+        "spk": "B",
+        "text": "He doesn't have any allergies, but he does have asthma. It's very mild, though. He hardly ever needs his inhaler."
+       },
+       {
+        "spk": "A",
+        "text": "OK, I'll note that on the form. It's worth leaving an inhaler with the instructor, just in case."
+       },
+       {
+        "spk": "B",
+        "text": "Will do."
+       },
+       {
+        "spk": "A",
+        "text": "Now, Stage Two runs on three days: Tuesday, Thursday and Saturday."
+       },
+       {
+        "spk": "B",
+        "text": "Saturday would be easiest for me, if possible."
+       },
+       {
+        "spk": "A",
+        "text": "I'm afraid Saturday is completely full this term. I could put Jacob on the waiting list for it, but I can't promise anything."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, that's a shame. Tuesday's no good either, because he's got football after school. So I suppose it'll have to be Thursday."
+       },
+       {
+        "spk": "A",
+        "text": "Thursday it is. There are two Thursday classes, one at 4:15 and one at 4:45."
+       },
+       {
+        "spk": "B",
+        "text": "Four fifteen would be a terrible rush. I don't finish work until four."
+       },
+       {
+        "spk": "A",
+        "text": "Then the 4:45 class is probably the better choice."
+       },
+       {
+        "spk": "B",
+        "text": "Yes, let's go for that one."
+       }
+      ]
+     },
+     {
+      "questions": [
+       7,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Now, about the fees. Are you a member of the centre?"
+       },
+       {
+        "spk": "B",
+        "text": "No, we're not."
+       },
+       {
+        "spk": "A",
+        "text": "OK. For members, a term of lessons costs eighty-four pounds, but for non-members it's ninety-six pounds."
+       },
+       {
+        "spk": "B",
+        "text": "Ninety-six. And that's for the whole term?"
+       },
+       {
+        "spk": "A",
+        "text": "That's right, ten lessons altogether. You can pay by card at reception or over the phone."
+       },
+       {
+        "spk": "B",
+        "text": "Fine. Does he need any special equipment?"
+       },
+       {
+        "spk": "A",
+        "text": "Goggles are optional. A lot of children like them, but they're not compulsory. What every child must wear, though, is a cap. That's a pool rule for everyone under sixteen."
+       },
+       {
+        "spk": "B",
+        "text": "No problem, he's got one somewhere. What about parking? The last time I came to the centre, the car park was packed."
+       },
+       {
+        "spk": "A",
+        "text": "Yes, the main car park on Quay Street gets very busy in the late afternoon. We suggest that parents use the overflow car park on Wexley Road instead. It's free after four o'clock."
+       },
+       {
+        "spk": "B",
+        "text": "Sorry, which road was that?"
+       },
+       {
+        "spk": "A",
+        "text": "Wexley. W-E-X-L-E-Y. It's just behind the library."
+       },
+       {
+        "spk": "B",
+        "text": "Got it. And is there anything else I should know before the first lesson?"
+       },
+       {
+        "spk": "A",
+        "text": "Just a couple of things. Children should use the toilet before the lesson starts, and please arrive ten minutes before the start time, not five, as some parents seem to think. That gives the instructor time to check everyone in."
+       },
+       {
+        "spk": "B",
+        "text": "Ten minutes early. OK."
+       },
+       {
+        "spk": "A",
+        "text": "And the first lesson is on Thursday the fourteenth, so we'll see you both then."
+       },
+       {
+        "spk": "B",
+        "text": "Great. Thanks so much for your help."
+       },
+       {
+        "spk": "A",
+        "text": "You're welcome. Goodbye."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       6
+      ],
+      "type": "form_completion",
+      "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "title": "Harbourside Leisure Centre: swimming lessons enrolment",
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Parent's surname: {gap}",
+        "answer": "Tremaine",
+        "evidence": "It's Danielle Tremaine.",
+        "skill": "spelling",
+        "explain_en": "The caller spells her surname T-R-E-M-A-I-N-E; the receptionist first misses the final E.",
+        "explain_bn": "প্রথমে রিসেপশনিস্ট শেষের E বাদ দেন; সঠিক বানান Tremaine — বানান হুবহু লিখতে হবে।"
+       },
+       {
+        "n": 2,
+        "prompt": "Child's age: {gap}",
+        "answer": "7",
+        "accept": [
+         "seven"
+        ],
+        "evidence": "He's seven.",
+        "skill": "number",
+        "explain_en": "Jacob is seven now; 'eight in March' is a distractor, and the centre uses age at the start of term.",
+        "explain_bn": "'মার্চে আট হবে' একটি ফাঁদ; এখন তার বয়স সাত, আর সেন্টার টার্ম শুরুর বয়স ধরে।"
+       },
+       {
+        "n": 3,
+        "prompt": "Can swim about {gap} metres without help",
+        "answer": "15",
+        "accept": [
+         "fifteen"
+        ],
+        "evidence": "I think it's more like fifteen metres before he needs to grab the side",
+        "skill": "number",
+        "explain_en": "She first says twenty-five metres, then corrects herself to fifteen.",
+        "explain_bn": "মা প্রথমে পঁচিশ মিটার বলেন, পরে নিজেকে শুধরে পনেরো মিটার বলেন — শেষ তথ্যটিই উত্তর।"
+       },
+       {
+        "n": 4,
+        "prompt": "Medical condition: {gap} (mild)",
+        "answer": "asthma",
+        "evidence": "but he does have asthma",
+        "skill": "detail",
+        "explain_en": "He has no allergies, but he does have mild asthma.",
+        "explain_bn": "অ্যালার্জি নেই বলা হয়েছে; তার আছে হালকা অ্যাজমা (asthma)।"
+       },
+       {
+        "n": 5,
+        "prompt": "Day of class: {gap}",
+        "answer": "Thursday",
+        "evidence": "So I suppose it'll have to be Thursday.",
+        "skill": "detail",
+        "explain_en": "Saturday is full and Tuesday clashes with football, so Thursday is chosen.",
+        "explain_bn": "শনিবার পূর্ণ আর মঙ্গলবার ফুটবল আছে, তাই বৃহস্পতিবার (Thursday) বেছে নেওয়া হয়।"
+       },
+       {
+        "n": 6,
+        "prompt": "Time of class: {gap} pm",
+        "answer": "4:45",
+        "accept": [
+         "4.45",
+         "4:45pm",
+         "4.45pm"
+        ],
+        "evidence": "Then the 4:45 class is probably the better choice.",
+        "skill": "number",
+        "explain_en": "The 4:15 class is too early for her, so she chooses the 4:45 class.",
+        "explain_bn": "৪:১৫-র ক্লাসে পৌঁছানো কঠিন, তাই ৪:৪৫-এর ক্লাস বেছে নেওয়া হয়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       7,
+       10
+      ],
+      "type": "note_completion",
+      "instructions": "Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "title": "Before the first lesson",
+      "questions": [
+       {
+        "n": 7,
+        "prompt": "Cost per term for non-members: £{gap}",
+        "answer": "96",
+        "accept": [
+         "ninety-six",
+         "£96"
+        ],
+        "evidence": "for non-members it's ninety-six pounds",
+        "skill": "number",
+        "explain_en": "Eighty-four pounds is the members' price; she is not a member, so she pays ninety-six pounds.",
+        "explain_bn": "চুরাশি পাউন্ড সদস্যদের দাম; তিনি সদস্য নন, তাই ছিয়ানব্বই পাউন্ড।"
+       },
+       {
+        "n": 8,
+        "prompt": "Every child must wear a {gap} in the pool",
+        "answer": "cap",
+        "evidence": "What every child must wear, though, is a cap.",
+        "skill": "detail",
+        "explain_en": "Goggles are optional; a cap is compulsory for everyone under sixteen.",
+        "explain_bn": "গগলস ঐচ্ছিক; ষোলো বছরের কম সবার জন্য cap পরা বাধ্যতামূলক।"
+       },
+       {
+        "n": 9,
+        "prompt": "Park in the overflow car park on {gap} Road",
+        "answer": "Wexley",
+        "evidence": "use the overflow car park on Wexley Road instead",
+        "skill": "spelling",
+        "explain_en": "Quay Street is the busy main car park; parents should use Wexley Road, spelled W-E-X-L-E-Y.",
+        "explain_bn": "Quay Street-এর পার্কিং ভিড় থাকে; উত্তর Wexley — বানান বলে দেওয়া হয়েছে।"
+       },
+       {
+        "n": 10,
+        "prompt": "Arrive {gap} minutes before the lesson starts",
+        "answer": "10",
+        "accept": [
+         "ten"
+        ],
+        "evidence": "please arrive ten minutes before the start time",
+        "skill": "number",
+        "explain_en": "He says ten minutes, not five as some parents think.",
+        "explain_bn": "পাঁচ মিনিট নয়, দশ মিনিট আগে আসতে বলা হয়েছে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
+    "intro": "You will hear a volunteer guide talking to a group of visitors at a restored water mill.",
+    "speakers": {
+     "A": {
+      "name": "Helen",
+      "gender": "F",
+      "accent": "GB",
+      "role": "volunteer guide"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       11,
+       14
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, everyone, and welcome to Ferrybridge Mill. My name's Helen, and I'm one of the volunteer guides here. Before you go off and explore, I'd like to give you a little background, and then explain how the site is laid out."
+       },
+       {
+        "spk": "A",
+        "text": "There has been a mill on this bend of the river for over three hundred years, although the building you can see today isn't the original one. The first mill was made of timber, and it burnt down in 1790. Its replacement was built of local stone, and that's the building that has survived. It ground wheat into flour for the surrounding villages until 1952, when it finally closed. People often assume that the machinery had worn out, but in fact it was still in good working order. The real reason was that large factory mills in the cities could produce flour far more cheaply."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "For nearly fifty years after that, the building was used as a storehouse by a farm supply company, and by the 1990s it was in a very poor state. Most of the roof had gone, and the water wheel had rotted away completely. The restoration finally began in 2004. Now, some of you may have read that it was paid for by a lottery grant, but that's not quite right. The work on the mill was mainly paid for by thousands of small donations from people in the area. The lottery grant came later, and it only covered the new visitor centre."
+       },
+       {
+        "spk": "A",
+        "text": "One question we're often asked is whether the mill still works. The answer is yes. The wheel turns most days, and on the first Sunday of every month we grind flour, which you can buy in the shop. What we can't do, I'm afraid, is let visitors operate the machinery themselves, for safety reasons. But our miller is always happy to answer questions."
+       },
+       {
+        "spk": "A",
+        "text": "The restoration team also made one decision that surprised a lot of people at the time. There was pressure to make the building look brand new, and to replace every damaged stone. Instead, they kept the old repairs and patches in the stonework visible. The idea was to show visitors that the mill had been changed and mended many times over the centuries, so the building tells its whole story, not just one moment of it."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Right. Let me turn now to the map you've all been given, so that you can find your way around. We're standing at the main entrance, at the bottom of the map, beside the visitors' car park."
+       }
+      ]
+     },
+     {
+      "questions": [
+       15,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "If you look straight ahead, along the main path, the large building in the middle of the site is the mill itself. The water wheel is on the far side of the mill, facing the river, so you'll need to walk round to the north side of the building to see it turning."
+       },
+       {
+        "spk": "A",
+        "text": "The visitor centre, where you'll find the shop and the café, is the first building on your left as you walk up the main path from the entrance. You can't miss it, because it has a glass front."
+       },
+       {
+        "spk": "A",
+        "text": "If you'd like to see some wildlife, the bird hide is a short walk away. Go past the mill to the river, then turn right and follow the riverbank path east. The hide is at the very end of that path, right beside the water, just before you reach the footbridge."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "The picnic area is next to the mill pond. To find it, take the path to the left of the mill, that's the west side, and you'll see the pond in front of you. The picnic tables are on the far side of the pond, between the pond and the river. Please don't feed the ducks bread, by the way. There's proper duck food for sale in the shop."
+       },
+       {
+        "spk": "A",
+        "text": "There are toilets in the visitor centre, of course, but there's another block which is usually much quieter. It's in the corner of the site to the right of the entrance, next to the staff car park."
+       },
+       {
+        "spk": "A",
+        "text": "And finally, the education room, where children can try grinding grain by hand, is in the old cart shed. That's the long, narrow building just to the east of the mill, between the mill and the orchard."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "A",
+        "text": "The wheel will start turning at eleven o'clock, so you've got about twenty minutes to look around first. Enjoy your visit."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       11,
+       14
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "What happened to the first mill on the site?",
+        "options": [
+         {
+          "key": "A",
+          "text": "It was destroyed by fire."
+         },
+         {
+          "key": "B",
+          "text": "It was rebuilt in timber in 1790."
+         },
+         {
+          "key": "C",
+          "text": "It produced flour until 1952."
+         }
+        ],
+        "answer": "A",
+        "evidence": "The first mill was made of timber, and it burnt down in 1790.",
+        "skill": "detail",
+        "explain_en": "The first, timber mill burnt down in 1790; the stone mill that replaced it ground flour until 1952.",
+        "explain_bn": "প্রথম কাঠের মিলটি ১৭৯০ সালে আগুনে পুড়ে যায়; ১৯৫২ পর্যন্ত চলেছিল পরের পাথরের মিল।"
+       },
+       {
+        "n": 12,
+        "prompt": "Why did the mill close in 1952?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Its machinery had worn out."
+         },
+         {
+          "key": "B",
+          "text": "It could not compete on price."
+         },
+         {
+          "key": "C",
+          "text": "Local farmers stopped growing wheat."
+         }
+        ],
+        "answer": "B",
+        "evidence": "large factory mills in the cities could produce flour far more cheaply",
+        "skill": "paraphrase",
+        "explain_en": "The guide rejects the idea that the machinery was worn out: city factory mills were cheaper.",
+        "explain_bn": "যন্ত্র নষ্ট হয়নি; শহরের বড় কারখানা অনেক সস্তায় আটা বানাত — তাই মিল বন্ধ হয়।"
+       },
+       {
+        "n": 13,
+        "prompt": "The restoration of the mill building was mainly funded by",
+        "options": [
+         {
+          "key": "A",
+          "text": "a lottery grant."
+         },
+         {
+          "key": "B",
+          "text": "a farm supply company."
+         },
+         {
+          "key": "C",
+          "text": "local people."
+         }
+        ],
+        "answer": "C",
+        "evidence": "The work on the mill was mainly paid for by thousands of small donations from people in the area.",
+        "skill": "paraphrase",
+        "explain_en": "The lottery grant only paid for the visitor centre; the mill itself was funded by local donations.",
+        "explain_bn": "লটারির টাকা শুধু ভিজিটর সেন্টারের জন্য; মিলের কাজ হয়েছে এলাকার মানুষের ছোট ছোট দানে।"
+       },
+       {
+        "n": 14,
+        "prompt": "What did the restoration team decide to do?",
+        "options": [
+         {
+          "key": "A",
+          "text": "replace all the damaged stones"
+         },
+         {
+          "key": "B",
+          "text": "leave evidence of earlier repairs"
+         },
+         {
+          "key": "C",
+          "text": "let visitors operate the machinery"
+         }
+        ],
+        "answer": "B",
+        "evidence": "they kept the old repairs and patches in the stonework visible",
+        "skill": "paraphrase",
+        "explain_en": "Instead of making it look new, they left earlier repairs visible to show the building's history.",
+        "explain_bn": "ভবনটিকে নতুন দেখানোর বদলে পুরোনো মেরামতের দাগ দৃশ্যমান রাখা হয়েছে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       15,
+       20
+      ],
+      "type": "map_labelling",
+      "instructions": "Label the map below. Write the correct letter, A-I, next to Questions 15-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "A"
+       },
+       {
+        "key": "B",
+        "text": "B"
+       },
+       {
+        "key": "C",
+        "text": "C"
+       },
+       {
+        "key": "D",
+        "text": "D"
+       },
+       {
+        "key": "E",
+        "text": "E"
+       },
+       {
+        "key": "F",
+        "text": "F"
+       },
+       {
+        "key": "G",
+        "text": "G"
+       },
+       {
+        "key": "H",
+        "text": "H"
+       },
+       {
+        "key": "I",
+        "text": "I"
+       }
+      ],
+      "options_reusable": false,
+      "visual": {
+       "kind": "map",
+       "title": "Ferrybridge Mill site",
+       "width": 100,
+       "height": 70,
+       "compass": true,
+       "areas": [
+        {
+         "name": "River",
+         "x": 0,
+         "y": 0,
+         "w": 100,
+         "h": 9
+        },
+        {
+         "name": "Footbridge",
+         "x": 90,
+         "y": 0,
+         "w": 6,
+         "h": 12
+        },
+        {
+         "name": "Mill",
+         "x": 40,
+         "y": 21,
+         "w": 20,
+         "h": 16
+        },
+        {
+         "name": "Mill pond",
+         "x": 8,
+         "y": 20,
+         "w": 22,
+         "h": 14
+        },
+        {
+         "name": "Orchard",
+         "x": 78,
+         "y": 22,
+         "w": 18,
+         "h": 22
+        },
+        {
+         "name": "Main path",
+         "x": 48,
+         "y": 37,
+         "w": 4,
+         "h": 27
+        },
+        {
+         "name": "Visitors' car park",
+         "x": 4,
+         "y": 54,
+         "w": 26,
+         "h": 14
+        },
+        {
+         "name": "Staff car park",
+         "x": 82,
+         "y": 55,
+         "w": 16,
+         "h": 13
+        },
+        {
+         "name": "Main entrance",
+         "x": 44,
+         "y": 64,
+         "w": 12,
+         "h": 6
+        }
+       ],
+       "labels": [
+        {
+         "key": "A",
+         "x": 68,
+         "y": 48
+        },
+        {
+         "key": "B",
+         "x": 50,
+         "y": 16
+        },
+        {
+         "key": "C",
+         "x": 18,
+         "y": 14
+        },
+        {
+         "key": "D",
+         "x": 36,
+         "y": 50
+        },
+        {
+         "key": "E",
+         "x": 86,
+         "y": 13
+        },
+        {
+         "key": "F",
+         "x": 20,
+         "y": 41
+        },
+        {
+         "key": "G",
+         "x": 76,
+         "y": 63
+        },
+        {
+         "key": "H",
+         "x": 68,
+         "y": 29
+        },
+        {
+         "key": "I",
+         "x": 64,
+         "y": 12
+        }
+       ]
+      },
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "water wheel",
+        "answer": "B",
+        "evidence": "The water wheel is on the far side of the mill, facing the river",
+        "skill": "map_direction",
+        "explain_en": "From the entrance, the far (north) side of the mill faces the river: B.",
+        "explain_bn": "প্রবেশপথ থেকে মিলের অপর পাশে, নদীর দিকে (উত্তরে) চাকা — তাই B।"
+       },
+       {
+        "n": 16,
+        "prompt": "visitor centre",
+        "answer": "D",
+        "evidence": "is the first building on your left as you walk up the main path from the entrance",
+        "skill": "map_direction",
+        "explain_en": "Walking up the main path from the entrance, the first building on the left is D.",
+        "explain_bn": "প্রবেশপথ থেকে মূল পথ ধরে হাঁটলে বাঁ দিকের প্রথম ভবন D।"
+       },
+       {
+        "n": 17,
+        "prompt": "bird hide",
+        "answer": "E",
+        "evidence": "The hide is at the very end of that path, right beside the water, just before you reach the footbridge.",
+        "skill": "map_direction",
+        "explain_en": "Follow the river path east to its end, just before the footbridge: E (I is only part-way along).",
+        "explain_bn": "নদীর পাড়ের পথ ধরে পূর্বে একেবারে শেষে, সেতুর ঠিক আগে — E; I পথের মাঝখানে, ফাঁদ।"
+       },
+       {
+        "n": 18,
+        "prompt": "picnic area",
+        "answer": "C",
+        "evidence": "The picnic tables are on the far side of the pond, between the pond and the river.",
+        "skill": "map_direction",
+        "explain_en": "The tables are on the far side of the pond, between it and the river: C, not F (the near side).",
+        "explain_bn": "পুকুরের অপর পাশে, পুকুর আর নদীর মাঝে — C; F পুকুরের এই পাশে।"
+       },
+       {
+        "n": 19,
+        "prompt": "toilets (quieter block)",
+        "answer": "G",
+        "evidence": "It's in the corner of the site to the right of the entrance, next to the staff car park.",
+        "skill": "map_direction",
+        "explain_en": "To the right of the entrance, next to the staff car park: G.",
+        "explain_bn": "প্রবেশপথের ডানে, স্টাফ কার পার্কের পাশে — G।"
+       },
+       {
+        "n": 20,
+        "prompt": "education room",
+        "answer": "H",
+        "evidence": "That's the long, narrow building just to the east of the mill, between the mill and the orchard.",
+        "skill": "map_direction",
+        "explain_en": "Just east of the mill, between the mill and the orchard: H.",
+        "explain_bn": "মিলের ঠিক পূর্বে, মিল আর বাগানের মাঝে — H।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two students, Ethan and Grace, talking to their tutor about their research project on urban beekeeping.",
+    "speakers": {
+     "A": {
+      "name": "Ethan",
+      "gender": "M",
+      "accent": "US",
+      "role": "student"
+     },
+     "B": {
+      "name": "Grace",
+      "gender": "F",
+      "accent": "GB",
+      "role": "student"
+     },
+     "C": {
+      "name": "Dr Morales",
+      "gender": "F",
+      "accent": "US",
+      "role": "tutor"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "C",
+        "text": "Come in, both of you, and grab a seat. So, you wanted to talk through your project on urban beekeeping. How's it going?"
+       },
+       {
+        "spk": "B",
+        "text": "Quite well, I think. We've finished the literature review, and we've visited three of the rooftop hives in the city centre."
+       },
+       {
+        "spk": "A",
+        "text": "Although it took a lot longer than we'd planned. Getting permission to go up on the roofs was a real headache."
+       },
+       {
+        "spk": "C",
+        "text": "I can imagine. Remind me what your main research question is now. I know it changed after our last meeting."
+       },
+       {
+        "spk": "B",
+        "text": "Yes, it did. Originally we wanted to compare how much honey city hives produce with hives in the countryside. But the figures we got from the beekeepers were so inconsistent that we couldn't really use them, so we dropped that idea. Now we're looking at whether the growth in city hives is putting pressure on wild bees."
+       },
+       {
+        "spk": "C",
+        "text": "That's a much more interesting question, and a more original one, I'd say. What made you think of it?"
+       },
+       {
+        "spk": "A",
+        "text": "It was something one of the beekeepers said, actually. He told us that his bees seemed to be flying further every year to find flowers, and that got us wondering who else was competing for the same flowers."
+       },
+       {
+        "spk": "C",
+        "text": "Good. So how are you planning to investigate it?"
+       },
+       {
+        "spk": "B",
+        "text": "We want to count wild bees at flower beds at different distances from the hives. Ethan wanted to use traps, but..."
+       },
+       {
+        "spk": "A",
+        "text": "I've changed my mind about that. It's not really the cost, they're quite cheap. But traps kill the insects, and it seemed wrong to kill wild bees in a study that's supposed to help protect them. So we'll do timed observations instead, ten minutes at each flower bed, counting every visit."
+       },
+       {
+        "spk": "C",
+        "text": "I'm glad to hear it. Although you should be aware that observations are only as reliable as your identification. Can you tell the species apart?"
+       },
+       {
+        "spk": "B",
+        "text": "That's our biggest worry, honestly. Finding enough flower beds is easy, the parks are full of them, but some of the small solitary bees look almost identical. We're going to photograph each one and check the photos afterwards against the guide from the natural history society."
+       },
+       {
+        "spk": "C",
+        "text": "Sensible. And what about timing? When will you collect the data?"
+       },
+       {
+        "spk": "A",
+        "text": "Well, we were going to do it all in the summer holidays, but most of the flowers in the parks have finished by late August. So we'll start in May instead, and go out every two weeks until the end of July."
+       },
+       {
+        "spk": "C",
+        "text": "That makes sense."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "C",
+        "text": "Now, in your draft you list several benefits that people claim for city beekeeping. Which of them did you find the evidence actually supports?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, quite a few of the claims didn't really stand up. People say that keeping hives in cities helps to save bees from extinction, but honeybees aren't endangered at all. It's the wild species that are in trouble."
+       },
+       {
+        "spk": "A",
+        "text": "And the idea that eating local honey cures hay fever? We couldn't find a single proper study that showed that."
+       },
+       {
+        "spk": "B",
+        "text": "But two things did seem well supported. One is education. Schools that keep hives report that children become much more interested in nature. And the other is pollination. There were some good studies showing bigger harvests from allotments near hives, so food gardens really do seem to benefit."
+       },
+       {
+        "spk": "C",
+        "text": "Good, so concentrate on those two. Let's talk about your sources. You've cited quite a mixture. What did you make of the city council report?"
+       },
+       {
+        "spk": "A",
+        "text": "It was useful for the numbers, how many registered hives there are and where they are. But it doesn't say anything about wild bees, so it's limited for our question."
+       },
+       {
+        "spk": "C",
+        "text": "Fair enough. And the article by the beekeepers' association?"
+       },
+       {
+        "spk": "B",
+        "text": "Very enthusiastic about beekeeping, which you'd expect. We felt it was rather one-sided, though. It hardly mentions any problems at all."
+       },
+       {
+        "spk": "C",
+        "text": "And the study from the Northfield research group?"
+       },
+       {
+        "spk": "A",
+        "text": "That was the most relevant source by far. It actually compared wild bee numbers in a park before and after hives were introduced. The only issue is that it's quite old now. It was published nearly twenty years ago, before the boom in city beekeeping."
+       },
+       {
+        "spk": "C",
+        "text": "Yes, so you'll need to discuss whether its findings still apply. And finally, the online survey?"
+       },
+       {
+        "spk": "B",
+        "text": "That was interesting, but only about forty people answered it, so we can't draw firm conclusions from it."
+       },
+       {
+        "pause": 0.8
+       },
+       {
+        "spk": "C",
+        "text": "Good. Well, I think you're on the right track. Send me the methods section by Friday, and we'll meet again next week."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why did the students change their research question?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They were refused permission to visit the hives."
+         },
+         {
+          "key": "B",
+          "text": "The data they collected was unreliable."
+         },
+         {
+          "key": "C",
+          "text": "Another study had already answered it."
+         }
+        ],
+        "answer": "B",
+        "evidence": "the figures we got from the beekeepers were so inconsistent that we couldn't really use them",
+        "skill": "paraphrase",
+        "explain_en": "The honey figures were too inconsistent to use. Permission problems only slowed them down.",
+        "explain_bn": "মৌচাষিদের মধুর হিসাব এত অসামঞ্জস্যপূর্ণ ছিল যে ব্যবহার করা যায়নি; অনুমতির ঝামেলা শুধু দেরি করিয়েছে।"
+       },
+       {
+        "n": 22,
+        "prompt": "Where did the idea for the new question come from?",
+        "options": [
+         {
+          "key": "A",
+          "text": "a comment by a beekeeper"
+         },
+         {
+          "key": "B",
+          "text": "an article in the literature review"
+         },
+         {
+          "key": "C",
+          "text": "a suggestion from their tutor"
+         }
+        ],
+        "answer": "A",
+        "evidence": "It was something one of the beekeepers said, actually.",
+        "skill": "detail",
+        "explain_en": "A beekeeper's remark about his bees flying further gave them the idea.",
+        "explain_bn": "একজন মৌচাষির মন্তব্য থেকেই নতুন প্রশ্নের ধারণা এসেছে।"
+       },
+       {
+        "n": 23,
+        "prompt": "Why has Ethan decided not to use traps?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They are too expensive."
+         },
+         {
+          "key": "B",
+          "text": "They need special permission."
+         },
+         {
+          "key": "C",
+          "text": "They harm the insects being studied."
+         }
+        ],
+        "answer": "C",
+        "evidence": "traps kill the insects, and it seemed wrong to kill wild bees in a study that's supposed to help protect them",
+        "skill": "opinion",
+        "explain_en": "He says cost is not the issue; traps would kill the bees the study aims to protect.",
+        "explain_bn": "খরচ সমস্যা নয়; ফাঁদ মৌমাছি মেরে ফেলে, অথচ গবেষণাটি তাদের রক্ষার জন্য।"
+       },
+       {
+        "n": 24,
+        "prompt": "What is the students' main concern about their method?",
+        "options": [
+         {
+          "key": "A",
+          "text": "finding enough flower beds"
+         },
+         {
+          "key": "B",
+          "text": "the cost of camera equipment"
+         },
+         {
+          "key": "C",
+          "text": "telling some species apart"
+         }
+        ],
+        "answer": "C",
+        "evidence": "That's our biggest worry, honestly.",
+        "skill": "detail",
+        "explain_en": "Their biggest worry is identifying similar-looking bee species; flower beds are easy to find.",
+        "explain_bn": "সবচেয়ে বড় চিন্তা দেখতে একই রকম মৌমাছির প্রজাতি চেনা; ফুলের বেড পাওয়া সহজ।"
+       },
+       {
+        "n": 25,
+        "prompt": "When will the students collect their data?",
+        "options": [
+         {
+          "key": "A",
+          "text": "during the summer holidays"
+         },
+         {
+          "key": "B",
+          "text": "from May until the end of July"
+         },
+         {
+          "key": "C",
+          "text": "every week until late August"
+         }
+        ],
+        "answer": "B",
+        "evidence": "So we'll start in May instead, and go out every two weeks until the end of July.",
+        "skill": "detail",
+        "explain_en": "They rejected the summer holidays because flowers finish by late August; they will go from May to July.",
+        "explain_bn": "গ্রীষ্মের ছুটির পরিকল্পনা বাদ; মে থেকে জুলাই পর্যন্ত দুই সপ্তাহ পরপর তথ্য নেবে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       27
+      ],
+      "type": "mcq_multi",
+      "choose": 2,
+      "instructions": "Choose TWO letters, A-E.",
+      "prompt": "Which TWO benefits of city beekeeping do the students say are supported by evidence?",
+      "options": [
+       {
+        "key": "A",
+        "text": "protecting bees from extinction"
+       },
+       {
+        "key": "B",
+        "text": "reducing hay fever"
+       },
+       {
+        "key": "C",
+        "text": "increasing children's interest in nature"
+       },
+       {
+        "key": "D",
+        "text": "producing honey more cheaply"
+       },
+       {
+        "key": "E",
+        "text": "improving harvests from food gardens"
+       }
+      ],
+      "answers": [
+       "C",
+       "E"
+      ],
+      "evidence": [
+       "Schools that keep hives report that children become much more interested in nature.",
+       "There were some good studies showing bigger harvests from allotments near hives"
+      ],
+      "questions": [
+       {
+        "n": 26,
+        "skill": "paraphrase",
+        "explain_en": "Education (children's interest in nature) and pollination of food gardens are the two supported benefits; extinction and hay fever claims were rejected.",
+        "explain_bn": "শিশুদের প্রকৃতির প্রতি আগ্রহ আর খাদ্য-বাগানের ফলন বাড়া — এই দুটির প্রমাণ আছে; বাকিগুলো খারিজ।"
+       },
+       {
+        "n": 27,
+        "skill": "paraphrase",
+        "explain_en": "Either order is accepted: C and E. Honeybees are not endangered, and no study supports the hay fever claim.",
+        "explain_bn": "C ও E যেকোনো ক্রমে সঠিক; মধুমাছি বিপন্ন নয়, আর হে-ফিভারের দাবির কোনো গবেষণা নেই।"
+       }
+      ]
+     },
+     {
+      "range": [
+       28,
+       30
+      ],
+      "type": "matching",
+      "instructions": "What do the students say about each source? Choose THREE answers from the box and write the correct letter, A-E, next to Questions 28-30.",
+      "options": [
+       {
+        "key": "A",
+        "text": "It is out of date."
+       },
+       {
+        "key": "B",
+        "text": "It presents only one side."
+       },
+       {
+        "key": "C",
+        "text": "It is based on too few people."
+       },
+       {
+        "key": "D",
+        "text": "It does not deal with their main question."
+       },
+       {
+        "key": "E",
+        "text": "It is difficult to obtain."
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "the city council report",
+        "answer": "D",
+        "evidence": "it doesn't say anything about wild bees, so it's limited for our question",
+        "skill": "opinion",
+        "explain_en": "It has useful numbers but says nothing about wild bees, their research focus.",
+        "explain_bn": "সংখ্যাগুলো কাজের, কিন্তু বুনো মৌমাছি নিয়ে কিছু নেই — তাদের মূল প্রশ্নের সঙ্গে মেলে না।"
+       },
+       {
+        "n": 29,
+        "prompt": "the beekeepers' association article",
+        "answer": "B",
+        "evidence": "We felt it was rather one-sided, though.",
+        "skill": "opinion",
+        "explain_en": "'One-sided' and 'hardly mentions any problems' mean it presents only one side.",
+        "explain_bn": "'one-sided' — অর্থাৎ শুধু এক পক্ষের কথা বলে, সমস্যার উল্লেখ প্রায় নেই।"
+       },
+       {
+        "n": 30,
+        "prompt": "the Northfield research group study",
+        "answer": "A",
+        "evidence": "The only issue is that it's quite old now.",
+        "skill": "opinion",
+        "explain_en": "It is the most relevant source, but it is nearly twenty years old. Option C describes the online survey instead.",
+        "explain_bn": "সবচেয়ে প্রাসঙ্গিক হলেও প্রায় বিশ বছরের পুরোনো; C আসলে অনলাইন জরিপের কথা।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
+    "intro": "You will hear part of a lecture about salt marshes.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "M",
+      "accent": "GB",
+      "role": "university lecturer"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning. Today I want to look at salt marshes, the flat, grassy areas you find along sheltered coasts and estuaries, which are flooded by the sea at high tide. For centuries they were regarded as little more than wasteland. Many were drained for agriculture, or filled in to build ports and housing. But over the last few decades, scientists and engineers have come to see them very differently, and I want to explain why by focusing on two of their roles: defending the coast, and storing carbon."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Let's begin with how a salt marsh forms. Marshes develop where waves are weak enough for fine particles, mostly mud, carried in by the tide, to settle on the shore rather than being washed away again. Once the surface has built up enough to be exposed for part of each day, specialised plants can colonise it. The first to arrive are pioneer species such as glasswort, which can survive being covered by seawater twice a day, something that would kill most land plants. These pioneers slow the moving water even further, so more material settles around their stems, and gradually the marsh builds upwards. Higher up, where flooding is less frequent, grasses take over, and eventually the marsh becomes a dense carpet of vegetation, cut through by a network of winding channels known as creeks. These carry the tide in and out of the marsh."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "So why have engineers become so interested in marshes? The answer is waves. When a wave travels across a marsh, it has to push through the stems and leaves of the plants, and in doing so it loses energy. By the time it reaches the land behind, it is considerably smaller. This matters because it changes the economics of sea defences. A concrete sea wall that faces the open sea has to be built very high and very strong. But if the same wall has a wide marsh in front of it, it can be built lower, which makes it much cheaper, both to construct and to maintain."
+       },
+       {
+        "spk": "A",
+        "text": "There's a second advantage, and it may turn out to be the more important one. A concrete wall is fixed. As sea levels rise, it has to be raised again and again at great expense. A healthy marsh, on the other hand, can often keep pace with rising water by itself, because every tide brings in fresh sediment that settles among the plants and raises the surface a little more. In other words, it's a defence that maintains itself, as long as enough material is available and the marsh has space."
+       },
+       {
+        "pause": 1.2
+       },
+       {
+        "spk": "A",
+        "text": "Now let's turn to carbon. Like all plants, marsh vegetation absorbs carbon dioxide as it grows. But what makes marshes unusual is where the carbon ends up. Very little of it stays in the plants themselves. Most of it is stored in the soil, as dead roots and leaves are buried under layers of mud. In a forest on dry land, dead plant material is broken down fairly quickly by bacteria and fungi, and much of the carbon returns to the atmosphere. In a marsh, the soil is waterlogged for much of the time, so there's very little oxygen, and decay happens extremely slowly. As a result, carbon can stay locked away for hundreds or even thousands of years. Measured per hectare, many marshes bury carbon faster than most forests do, even though they cover only a tiny fraction of the earth's surface."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Of course, this only works if the marsh stays intact. When a marsh is drained or dug up, that stored carbon is exposed to the air and released. And marshes face a particular threat known as coastal squeeze. As the sea rises, a marsh would naturally move inland, but if there's a wall or a road behind it, it has nowhere to go, and it's slowly drowned."
+       },
+       {
+        "spk": "A",
+        "text": "This has led to a strategy called managed realignment. Instead of maintaining an old sea wall indefinitely, engineers deliberately breach it and build a new defence further inland. The sea is allowed to flood the former farmland in between, and within a few years, new marsh begins to form there. It's a controversial approach, as you can imagine, particularly for the landowners concerned, and in the second half of the lecture I'll look at two schemes where it has been tried, and at what the monitoring has shown."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "title": "Salt marshes",
+      "questions": [
+       {
+        "n": 31,
+        "prompt": "Formation: develop where waves are weak, so fine particles (mainly {gap}) settle on the shore",
+        "answer": "mud",
+        "evidence": "mostly mud, carried in by the tide",
+        "skill": "detail",
+        "explain_en": "The fine particles are 'mostly mud', carried in by the tide.",
+        "explain_bn": "জোয়ারে আসা সূক্ষ্ম কণা মূলত কাদা (mud), যা তীরে জমে।"
+       },
+       {
+        "n": 32,
+        "prompt": "Pioneer plants such as glasswort survive being covered by {gap} twice a day",
+        "answer": "seawater",
+        "accept": [
+         "sea-water"
+        ],
+        "evidence": "which can survive being covered by seawater twice a day",
+        "skill": "detail",
+        "explain_en": "Glasswort tolerates being covered by seawater twice a day.",
+        "explain_bn": "গ্লাসওয়ার্ট দিনে দুবার সমুদ্রের পানিতে (seawater) ডুবে থেকেও বাঁচে।"
+       },
+       {
+        "n": 33,
+        "prompt": "Mature marsh is crossed by winding channels called {gap}",
+        "answer": "creeks",
+        "evidence": "cut through by a network of winding channels known as creeks",
+        "skill": "vocabulary",
+        "explain_en": "The winding channels are known as creeks.",
+        "explain_bn": "আঁকাবাঁকা নালাগুলোর নাম creeks।"
+       },
+       {
+        "n": 34,
+        "prompt": "Coastal defence: waves lose {gap} as they pass through plants",
+        "answer": "energy",
+        "evidence": "and in doing so it loses energy",
+        "skill": "detail",
+        "explain_en": "Pushing through stems and leaves makes waves lose energy.",
+        "explain_bn": "গাছের ভেতর দিয়ে যেতে গিয়ে ঢেউ শক্তি (energy) হারায়।"
+       },
+       {
+        "n": 35,
+        "prompt": "A sea wall with a marsh in front can be lower and therefore {gap}",
+        "answer": "cheaper",
+        "evidence": "it can be built lower, which makes it much cheaper",
+        "skill": "paraphrase",
+        "explain_en": "A lower wall is much cheaper to build and maintain.",
+        "explain_bn": "সামনে জলাভূমি থাকলে দেয়াল নিচু হয়, তাই খরচ কম (cheaper)।"
+       },
+       {
+        "n": 36,
+        "prompt": "Marsh can keep pace with sea-level rise because each tide brings fresh {gap}",
+        "answer": "sediment",
+        "evidence": "every tide brings in fresh sediment that settles among the plants",
+        "skill": "detail",
+        "explain_en": "Fresh sediment arriving with each tide raises the marsh surface.",
+        "explain_bn": "প্রতিটি জোয়ার নতুন পলি (sediment) আনে, তাই জলাভূমি উঁচু হয়।"
+       },
+       {
+        "n": 37,
+        "prompt": "Carbon storage: most carbon is stored in the {gap}, not in the plants",
+        "answer": "soil",
+        "evidence": "Most of it is stored in the soil",
+        "skill": "detail",
+        "explain_en": "Very little stays in the plants; most is stored in the soil.",
+        "explain_bn": "কার্বনের সামান্যই গাছে থাকে; বেশিরভাগ জমা হয় মাটিতে (soil)।"
+       },
+       {
+        "n": 38,
+        "prompt": "Waterlogged ground means little {gap}, so decay is very slow",
+        "answer": "oxygen",
+        "evidence": "so there's very little oxygen, and decay happens extremely slowly",
+        "skill": "detail",
+        "explain_en": "Waterlogged soil has very little oxygen, which slows decay.",
+        "explain_bn": "পানিতে ভেজা মাটিতে অক্সিজেন (oxygen) কম, তাই পচন খুব ধীর।"
+       },
+       {
+        "n": 39,
+        "prompt": "Per hectare, many marshes bury carbon faster than most {gap}",
+        "answer": "forests",
+        "evidence": "many marshes bury carbon faster than most forests do",
+        "skill": "detail",
+        "explain_en": "Measured per hectare, marshes bury carbon faster than most forests.",
+        "explain_bn": "প্রতি হেক্টরে অনেক জলাভূমি বেশিরভাগ বনের (forests) চেয়ে দ্রুত কার্বন জমায়।"
+       },
+       {
+        "n": 40,
+        "prompt": "Managed realignment: an old wall is breached and the sea floods former {gap}",
+        "answer": "farmland",
+        "evidence": "The sea is allowed to flood the former farmland in between",
+        "skill": "detail",
+        "explain_en": "After the old wall is breached, the sea floods the former farmland.",
+        "explain_bn": "পুরোনো বাঁধ ভেঙে দিলে সমুদ্র আগের কৃষিজমি (farmland) প্লাবিত করে।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "Farming upwards",
+      "subtitle": "The promise and limits of vertical farms",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "In a converted warehouse on the edge of a large city, lettuces grow in stacked trays that rise almost to the ceiling. No soil is visible, and there are no windows: the plants receive light from rows of purple-tinted LEDs, while their roots hang in a thin film of nutrient-rich water. Sensors monitor temperature, humidity and carbon dioxide levels around the clock, and the entire crop is harvested, packed and dispatched to nearby supermarkets within hours. Supporters describe such vertical farms as the future of agriculture. Critics regard them as an expensive way of growing salad. The truth, as is often the case, appears to lie somewhere between these positions."
+       },
+       {
+        "label": "",
+        "text": "The basic idea is not new. Proposals for multi-storey farms were published by architects and biologists throughout the twentieth century, but they remained largely theoretical because artificial lighting was too inefficient to replace the sun economically. What transformed the situation was the light-emitting diode. Modern LEDs convert electricity into light far more efficiently than earlier lamps, generate comparatively little heat, and can be tuned to emit precisely the red and blue wavelengths that plants use most intensively for photosynthesis. Combined with declining sensor prices and increasingly sophisticated software for climate control, this made commercial indoor cultivation feasible for the first time."
+       },
+       {
+        "label": "",
+        "text": "The advantages claimed for vertical farming are considerable. Because crops are cultivated in a sealed environment, they are protected from drought, flooding and frost, and production can continue regardless of the season. Pests are largely excluded, so chemical pesticides are rarely necessary. Water consumption is dramatically lower than in conventional agriculture, since the water that plants do not absorb is captured, filtered and recirculated rather than draining away into the ground. And because farms can be located inside or close to cities, produce travels a short distance to consumers, arriving fresher and, at least in principle, with lower transport emissions."
+       },
+       {
+        "label": "",
+        "text": "Proponents also emphasise the potential for automation. Because every tray is identical and every variable is recorded, many routine tasks, from sowing seeds to moving trays between growth stages, can be performed by robots, and some operators claim that a facility occupying the floor area of a single supermarket can match the annual output of a field many times larger. Such comparisons, however, depend heavily on the number of growing layers and on the crop selected, and independent researchers caution that the figures published by companies are not always directly comparable with official agricultural statistics."
+       },
+       {
+        "label": "",
+        "text": "The difficulties, however, are equally substantial, and the most fundamental of them concerns energy. Sunlight is free; electric light is not. Even with efficient LEDs, lighting typically accounts for the largest share of a vertical farm's operating costs, followed by the cooling and ventilation required to remove the heat generated by the lamps and the plants themselves. Where that electricity is produced from fossil fuels, the carbon footprint of an indoor lettuce may exceed that of one grown in a field and transported by lorry, eliminating one of the environmental benefits that advocates emphasise. Several prominent companies in the sector have closed or sought new investors in recent years, partly because rising electricity prices made their business models unviable."
+       },
+       {
+        "label": "",
+        "text": "A second limitation concerns the range of crops that can be grown profitably. Leafy vegetables and herbs are well suited to indoor production: they grow quickly, are harvested whole, and command relatively high prices per kilogram. Staple crops are another matter. Wheat, rice and maize require large quantities of light to produce grain, occupy the growing space for months, and sell for low prices, so cultivating them under artificial illumination makes little economic sense. Researchers have estimated that supplying a single country's entire bread consumption from vertical farms would require more electricity than that country currently generates. For the foreseeable future, therefore, vertical farms are likely to complement conventional agriculture rather than replace it."
+       },
+       {
+        "label": "",
+        "text": "Nevertheless, some specialists believe that the sector's prospects may improve. Gains in LED efficiency are continuing, albeit more slowly than before, and plant breeders have begun developing varieties specifically adapted to indoor conditions, such as compact strawberry plants and dwarf fruit trees. Locating farms beside sources of waste heat or surplus renewable electricity could reduce running costs significantly. In regions where farmland is scarce or the climate is extreme, such as desert states that currently import most of their fresh vegetables, the economics already appear considerably more favourable than in temperate countries with abundant fertile land."
+       },
+       {
+        "label": "",
+        "text": "What seems clear is that vertical farming is neither a miracle nor a mistake. It is a technology with particular strengths, suited to particular crops and particular locations, and its long-term contribution will depend less on enthusiasm than on the price and origin of electricity."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "In the warehouse farm described, the plants' roots are not in soil.",
+        "answer": "TRUE",
+        "evidence": "their roots hang in a thin film of nutrient-rich water",
+        "skill": "detail",
+        "explain_en": "No soil is visible and the roots hang in nutrient-rich water.",
+        "explain_bn": "মাটি নেই; শিকড় পুষ্টিসমৃদ্ধ পানিতে ঝুলে থাকে — তাই TRUE।"
+       },
+       {
+        "n": 2,
+        "prompt": "The first designs for multi-storey farms appeared in the twenty-first century.",
+        "answer": "FALSE",
+        "evidence": "Proposals for multi-storey farms were published by architects and biologists throughout the twentieth century",
+        "skill": "detail",
+        "explain_en": "Proposals were published throughout the twentieth century, so the statement contradicts the text.",
+        "explain_bn": "বিশ শতক জুড়েই এমন প্রস্তাব প্রকাশিত হয়েছিল, একুশ শতকে নয় — তাই FALSE।"
+       },
+       {
+        "n": 3,
+        "prompt": "Older types of artificial light were too costly to use instead of sunlight.",
+        "answer": "TRUE",
+        "evidence": "artificial lighting was too inefficient to replace the sun economically",
+        "skill": "paraphrase",
+        "explain_en": "'Too inefficient to replace the sun economically' means too costly to use instead of sunlight.",
+        "explain_bn": "'economically' মানে খরচের দিক থেকে — পুরোনো বাতি দিয়ে সূর্যের বদলে চালানো ব্যয়বহুল ছিল।"
+       },
+       {
+        "n": 4,
+        "prompt": "Vertical farms use more water than conventional farms.",
+        "answer": "FALSE",
+        "evidence": "Water consumption is dramatically lower than in conventional agriculture",
+        "skill": "paraphrase",
+        "explain_en": "Water use is dramatically lower, not higher.",
+        "explain_bn": "পানির ব্যবহার অনেক কম, বেশি নয় — তাই FALSE।"
+       },
+       {
+        "n": 5,
+        "prompt": "Most shoppers are prepared to pay more for vegetables from vertical farms.",
+        "answer": "NOT GIVEN",
+        "rationale": "Consumers' willingness to pay is never discussed; only crop prices per kilogram are mentioned.",
+        "skill": "inference",
+        "explain_en": "The passage mentions supermarkets and prices per kilogram but says nothing about shoppers' willingness to pay more.",
+        "explain_bn": "ক্রেতারা বেশি দাম দিতে রাজি কি না — লেখায় কোথাও বলা নেই; তাই NOT GIVEN।"
+       },
+       {
+        "n": 6,
+        "prompt": "Lighting is usually the greatest operating expense for a vertical farm.",
+        "answer": "TRUE",
+        "evidence": "lighting typically accounts for the largest share of a vertical farm's operating costs",
+        "skill": "paraphrase",
+        "explain_en": "'Largest share of operating costs' = greatest operating expense.",
+        "explain_bn": "'largest share of operating costs' মানেই সবচেয়ে বড় খরচ — TRUE।"
+       },
+       {
+        "n": 7,
+        "prompt": "Governments have given financial help to struggling vertical farming companies.",
+        "answer": "NOT GIVEN",
+        "rationale": "The text mentions new investors and closures only; no government funding is referred to.",
+        "skill": "inference",
+        "explain_en": "Companies 'sought new investors', but government support is never mentioned.",
+        "explain_bn": "কোম্পানিগুলো নতুন বিনিয়োগকারী খুঁজেছে, কিন্তু সরকারি সাহায্যের কথা নেই — NOT GIVEN।"
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       13
+      ],
+      "type": "note_completion",
+      "instructions": "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "title": "Limits and prospects of vertical farming",
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "After lighting, major costs come from cooling and {gap} to remove heat",
+        "answer": "ventilation",
+        "evidence": "followed by the cooling and ventilation required to remove the heat",
+        "skill": "detail",
+        "explain_en": "Cooling and ventilation are needed to remove heat from the lamps and plants.",
+        "explain_bn": "আলোর পরে বড় খরচ কুলিং আর ventilation — তাপ বের করার জন্য।"
+       },
+       {
+        "n": 9,
+        "prompt": "Grain crops need a great deal of {gap}",
+        "answer": "light",
+        "evidence": "require large quantities of light to produce grain",
+        "skill": "detail",
+        "explain_en": "Wheat, rice and maize require large quantities of light.",
+        "explain_bn": "গম, ধান, ভুট্টার দানা তৈরিতে প্রচুর আলো (light) লাগে।"
+       },
+       {
+        "n": 10,
+        "prompt": "Grain crops also fetch low {gap}",
+        "answer": "prices",
+        "evidence": "and sell for low prices",
+        "skill": "paraphrase",
+        "explain_en": "'Sell for low prices' = fetch low prices.",
+        "explain_bn": "এসব ফসল কম দামে (prices) বিক্রি হয়, তাই লাভ হয় না।"
+       },
+       {
+        "n": 11,
+        "prompt": "Breeders are developing compact {gap} plants for indoor use",
+        "answer": "strawberry",
+        "accept": [
+         "strawberries"
+        ],
+        "evidence": "such as compact strawberry plants and dwarf fruit trees",
+        "skill": "detail",
+        "explain_en": "Compact strawberry plants are given as an example of indoor varieties.",
+        "explain_bn": "ঘরের ভেতরের উপযোগী জাতের উদাহরণ — ছোট স্ট্রবেরি (strawberry) গাছ।"
+       },
+       {
+        "n": 12,
+        "prompt": "Costs could fall if farms are built next to sources of waste {gap}",
+        "answer": "heat",
+        "evidence": "Locating farms beside sources of waste heat",
+        "skill": "detail",
+        "explain_en": "Waste heat or surplus renewable electricity could cut running costs.",
+        "explain_bn": "বর্জ্য তাপের (heat) উৎসের পাশে খামার বসালে খরচ কমতে পারে।"
+       },
+       {
+        "n": 13,
+        "prompt": "Prospects are better where the climate is extreme or {gap} is scarce",
+        "answer": "farmland",
+        "evidence": "In regions where farmland is scarce or the climate is extreme",
+        "skill": "detail",
+        "explain_en": "Economics are more favourable where farmland is scarce or the climate extreme.",
+        "explain_bn": "যেখানে কৃষিজমি (farmland) কম বা আবহাওয়া চরম, সেখানে লাভের সম্ভাবনা বেশি।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "Half asleep",
+      "subtitle": "How some animals rest one side of the brain at a time",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "Sleep presents biologists with a puzzle. For several hours each day, a sleeping animal is largely unaware of its surroundings, unable to search for food and highly vulnerable to predators. Yet sleep is found in virtually every animal species that has been carefully studied, from fruit flies to elephants, which strongly suggests that it performs functions too important to abandon. Evolution, it seems, has not eliminated sleep; instead, it has produced a variety of ways of reducing its risks. One of the most remarkable of these is the capacity to sleep with only one half of the brain at a time."
+       },
+       {
+        "label": "B",
+        "text": "The phenomenon, known as unihemispheric slow-wave sleep, was identified by recording the electrical activity of the brain through electrodes placed on or within the skull. During ordinary deep sleep, both hemispheres produce large, slow waves of activity. In animals capable of sleeping unihemispherically, however, these slow waves may appear in one hemisphere while the other displays the rapid, irregular pattern characteristic of wakefulness. Researchers can often confirm what is happening simply by observing the eyes, because each eye is connected mainly to the opposite side of the brain: the eye that remains open is the one linked to the hemisphere that is awake."
+       },
+       {
+        "label": "C",
+        "text": "The ability is best documented in marine mammals, and dolphins provide the clearest example. Unlike humans, dolphins cannot breathe automatically while unconscious; for a dolphin, breathing is a voluntary action that requires the animal to swim to the surface and open its blowhole. Complete loss of consciousness would therefore risk drowning. By resting one hemisphere while the other remains alert, a dolphin can continue to surface, keep track of other members of its group and watch for sharks. The two hemispheres take turns, so that each receives a comparable amount of rest over a twenty-four-hour period. Remarkably, observations of captive animals have indicated that mothers and newborn calves remain almost continuously active for several weeks after birth, apparently without suffering any obvious harm."
+       },
+       {
+        "label": "D",
+        "text": "Fur seals demonstrate that the capacity can be used flexibly. When they are on land, these animals sleep much as terrestrial mammals do, with both hemispheres showing slow-wave activity and with regular periods of rapid eye movement sleep, the stage associated with dreaming in humans. When they are at sea, however, they switch predominantly to unihemispheric sleep, floating on one side while one flipper continues paddling to maintain their position and keep the nostrils above the water. Rapid eye movement sleep almost disappears during these periods, only to return once the animals are back on shore, a pattern that has prompted considerable debate about what that stage of sleep actually accomplishes."
+       },
+       {
+        "label": "E",
+        "text": "Birds, too, sleep unihemispherically, and experiments with ducks have shown that they can regulate this behaviour according to the level of danger. When ducks were filmed sleeping in a row, the individuals at each end, which were most exposed to approaching predators, spent considerably more time with one eye open than those in the protected central positions. Furthermore, the open eye was usually the one facing away from the rest of the group, towards the direction from which an attack would be most likely to come. The birds were, in effect, posting their own sentries, and the decision about which eye to keep open was clearly not random."
+       },
+       {
+        "label": "F",
+        "text": "The most extreme case may be that of frigatebirds, large seabirds that remain airborne over the ocean for weeks at a time while searching for food. For many years it was assumed, but never demonstrated, that such birds must sleep in flight. When researchers eventually attached small recording devices to frigatebirds, they found that the birds did indeed sleep while flying, mostly with one hemisphere at a time and in episodes lasting only a few seconds. Strikingly, however, the total amount of sleep was tiny: less than an hour per day, compared with more than twelve hours when the same birds were on land. This suggests that, whatever sleep accomplishes, some animals can postpone much of it when circumstances require."
+       },
+       {
+        "label": "G",
+        "text": "Humans cannot sleep with one half of the brain in the way that dolphins can, but there may be a faint trace of the same strategy in our own species. Many people sleep poorly during their first night in an unfamiliar place, a phenomenon long familiar to sleep laboratories. Recent studies have found that on such nights, one hemisphere remains more vigilant than the other during deep sleep, and responds more strongly to unusual sounds, which is more likely to wake the sleeper. What seems like an irritating inability to settle in a hotel room may therefore be an inherited form of night watch, a modest echo of the strategy that allows a dolphin to sleep and swim at the same time."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       14,
+       20
+      ],
+      "type": "matching_headings",
+      "instructions": "Reading Passage 2 has seven paragraphs, A-G. Choose the correct heading for each paragraph from the list of headings below. Write the correct number, i-x.",
+      "options": [
+       {
+        "key": "i",
+        "text": "An ability that depends on location"
+       },
+       {
+        "key": "ii",
+        "text": "A possible trace of the strategy in humans"
+       },
+       {
+        "key": "iii",
+        "text": "Why being asleep is a risk worth taking"
+       },
+       {
+        "key": "iv",
+        "text": "Detecting which side of the brain is resting"
+       },
+       {
+        "key": "v",
+        "text": "Sleeping while travelling through the air"
+       },
+       {
+        "key": "vi",
+        "text": "Combining rest with the need to breathe"
+       },
+       {
+        "key": "vii",
+        "text": "Adjusting alertness to a position in a group"
+       },
+       {
+        "key": "viii",
+        "text": "Animals that have no need for sleep"
+       },
+       {
+        "key": "ix",
+        "text": "How sleep evolved in the earliest mammals"
+       },
+       {
+        "key": "x",
+        "text": "Ways of improving sleep in unfamiliar places"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 14,
+        "prompt": "Paragraph A",
+        "answer": "iii",
+        "evidence": "Evolution, it seems, has not eliminated sleep; instead, it has produced a variety of ways of reducing its risks.",
+        "skill": "main_idea",
+        "explain_en": "The paragraph explains that sleep is dangerous yet universal, so its benefits must outweigh the risk.",
+        "explain_bn": "ঘুম বিপজ্জনক হলেও প্রায় সব প্রাণী ঘুমায় — অর্থাৎ ঝুঁকি নেওয়ার মতো গুরুত্বপূর্ণ; তাই iii।"
+       },
+       {
+        "n": 15,
+        "prompt": "Paragraph B",
+        "answer": "iv",
+        "evidence": "these slow waves may appear in one hemisphere while the other displays the rapid, irregular pattern characteristic of wakefulness",
+        "skill": "main_idea",
+        "explain_en": "It describes how brain recordings and open eyes show which hemisphere is asleep.",
+        "explain_bn": "মস্তিষ্কের তরঙ্গ ও খোলা চোখ দেখে কোন অর্ধেক ঘুমাচ্ছে তা বোঝার পদ্ধতি — iv।"
+       },
+       {
+        "n": 16,
+        "prompt": "Paragraph C",
+        "answer": "vi",
+        "evidence": "for a dolphin, breathing is a voluntary action that requires the animal to swim to the surface",
+        "skill": "main_idea",
+        "explain_en": "Dolphins must consciously surface to breathe, so they rest one hemisphere at a time.",
+        "explain_bn": "ডলফিনকে সচেতনভাবে শ্বাস নিতে উঠতে হয়, তাই অর্ধেক মস্তিষ্ক জেগে থাকে — vi।"
+       },
+       {
+        "n": 17,
+        "prompt": "Paragraph D",
+        "answer": "i",
+        "evidence": "When they are on land, these animals sleep much as terrestrial mammals do",
+        "skill": "main_idea",
+        "explain_en": "Fur seals sleep with both hemispheres on land but one hemisphere at sea: the ability depends on location.",
+        "explain_bn": "ডাঙায় পুরো মস্তিষ্কে, সাগরে অর্ধেকে ঘুম — জায়গার উপর নির্ভরশীল, তাই i।"
+       },
+       {
+        "n": 18,
+        "prompt": "Paragraph E",
+        "answer": "vii",
+        "evidence": "the individuals at each end, which were most exposed to approaching predators, spent considerably more time with one eye open",
+        "skill": "main_idea",
+        "explain_en": "Ducks at the ends of the row keep an eye open more: alertness depends on group position.",
+        "explain_bn": "সারির দুই প্রান্তের হাঁস বেশি সময় এক চোখ খোলা রাখে — দলে অবস্থান অনুযায়ী সতর্কতা, vii।"
+       },
+       {
+        "n": 19,
+        "prompt": "Paragraph F",
+        "answer": "v",
+        "evidence": "they found that the birds did indeed sleep while flying",
+        "skill": "main_idea",
+        "explain_en": "Frigatebirds sleep in flight over the ocean.",
+        "explain_bn": "ফ্রিগেটবার্ড উড়তে উড়তেই ঘুমায় — v।"
+       },
+       {
+        "n": 20,
+        "prompt": "Paragraph G",
+        "answer": "ii",
+        "evidence": "there may be a faint trace of the same strategy in our own species",
+        "skill": "main_idea",
+        "explain_en": "The first-night effect suggests a weak human version. Heading x is a trap: no ways to improve sleep are given.",
+        "explain_bn": "মানুষের প্রথম রাতের অস্থির ঘুম একই কৌশলের ক্ষীণ চিহ্ন — ii; x ফাঁদ, ঘুম ভালো করার উপায় বলা হয়নি।"
+       }
+      ]
+     },
+     {
+      "range": [
+       21,
+       24
+      ],
+      "type": "matching",
+      "instructions": "Look at the following statements (Questions 21-24) and the list of animals below. Match each statement with the correct animal, A-D. NB You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "dolphins"
+       },
+       {
+        "key": "B",
+        "text": "fur seals"
+       },
+       {
+        "key": "C",
+        "text": "ducks"
+       },
+       {
+        "key": "D",
+        "text": "frigatebirds"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "They sleep with both halves of the brain in one setting but not in another.",
+        "answer": "B",
+        "evidence": "they switch predominantly to unihemispheric sleep",
+        "skill": "matching_info",
+        "explain_en": "Fur seals sleep bilaterally on land and unihemispherically at sea.",
+        "explain_bn": "ফার সিল ডাঙায় দুই অর্ধেকে আর সাগরে এক অর্ধেকে ঘুমায় — B।"
+       },
+       {
+        "n": 22,
+        "prompt": "They sleep far less during long journeys than when they are on land.",
+        "answer": "D",
+        "evidence": "less than an hour per day, compared with more than twelve hours when the same birds were on land",
+        "skill": "matching_info",
+        "explain_en": "Frigatebirds sleep under an hour a day in flight versus over twelve hours on land.",
+        "explain_bn": "ফ্রিগেটবার্ড উড়ার সময় দিনে এক ঘণ্টারও কম, ডাঙায় বারো ঘণ্টার বেশি ঘুমায় — D।"
+       },
+       {
+        "n": 23,
+        "prompt": "Young animals and their mothers stay active for weeks after birth.",
+        "answer": "A",
+        "evidence": "mothers and newborn calves remain almost continuously active for several weeks after birth",
+        "skill": "matching_info",
+        "explain_en": "This is reported for captive dolphin mothers and calves.",
+        "explain_bn": "মা ডলফিন ও শাবক জন্মের পর কয়েক সপ্তাহ প্রায় সারাক্ষণ সক্রিয় থাকে — A।"
+       },
+       {
+        "n": 24,
+        "prompt": "They choose which eye to keep open according to where danger may come from.",
+        "answer": "C",
+        "evidence": "the open eye was usually the one facing away from the rest of the group",
+        "skill": "matching_info",
+        "explain_en": "Ducks keep open the eye facing away from the group, towards likely attackers.",
+        "explain_bn": "হাঁস দলের বাইরের দিকের চোখ খোলা রাখে, যেদিক থেকে বিপদ আসতে পারে — C।"
+       }
+      ]
+     },
+     {
+      "range": [
+       25,
+       26
+      ],
+      "type": "sentence_completion",
+      "instructions": "Complete the sentences below. Choose ONE WORD ONLY from the passage for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 25,
+        "prompt": "Dolphins cannot lose consciousness completely, because for them breathing is a {gap} action.",
+        "answer": "voluntary",
+        "evidence": "for a dolphin, breathing is a voluntary action",
+        "skill": "vocabulary",
+        "explain_en": "Dolphin breathing is voluntary, not automatic.",
+        "explain_bn": "ডলফিনের শ্বাস নেওয়া স্বয়ংক্রিয় নয়, ইচ্ছাকৃত (voluntary)।"
+       },
+       {
+        "n": 26,
+        "prompt": "On a first night in a new place, one hemisphere reacts more strongly to unusual {gap}.",
+        "answer": "sounds",
+        "evidence": "and responds more strongly to unusual sounds",
+        "skill": "detail",
+        "explain_en": "The more vigilant hemisphere responds more strongly to unusual sounds.",
+        "explain_bn": "নতুন জায়গায় প্রথম রাতে এক অর্ধেক মস্তিষ্ক অস্বাভাবিক শব্দে (sounds) বেশি সাড়া দেয়।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "Do words shape what we see?",
+      "subtitle": "A long-running debate about language and colour perception has become more productive, if less dramatic",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Few questions in the study of the mind have proved as durable as whether the language we speak influences the way we perceive the world. The idea, usually termed linguistic relativity, has been championed, ridiculed and revived several times over the past century. In its strongest formulation, it holds that language determines thought, so that speakers of different languages effectively inhabit incompatible perceptual worlds. Almost no contemporary researcher defends this version, and rightly so: people routinely notice distinctions for which their language provides no convenient word, and translation, although imperfect, is evidently possible. The more interesting question is whether a weaker claim survives scrutiny, namely that language nudges perception and memory in measurable, if modest, ways."
+       },
+       {
+        "label": "",
+        "text": "Colour has long been the preferred battleground for this controversy, and for good reason. The physical spectrum is continuous, yet languages partition it into named categories in strikingly different ways. Some languages possess only a handful of basic colour terms; others have a dozen or more. Certain languages employ a single word for the range that English speakers divide into green and blue, while others separate English 'blue' into two distinct basic terms, one for lighter and one for darker shades. Because the stimulus can be specified precisely in physical terms, colour offers an unusually clean opportunity to investigate whether such linguistic differences correspond to differences in perception."
+       },
+       {
+        "label": "",
+        "text": "For several decades, the evidence appeared to favour the universalists. An influential cross-linguistic survey published in the late 1960s argued that, beneath considerable surface variation, colour vocabularies develop in a predictable sequence: languages with only two terms distinguish dark from light, a third term almost invariably denotes red, and terms for green and yellow emerge before those for blue and brown. Subsequent investigations suggested that speakers of languages with very few colour words could nonetheless remember and match colours much as English speakers did. To many observers, this seemed to confirm that colour perception is rooted in the physiology of the eye and brain, and that language merely attaches labels to categories that biology has already supplied."
+       },
+       {
+        "label": "",
+        "text": "The picture began to change when researchers shifted their attention from what people are capable of perceiving to how rapidly and reliably they make distinctions. In a typical experiment, participants view three colour patches and must indicate, as quickly as possible, which of two lower patches matches the upper one. When the two candidates fall on opposite sides of a boundary in the participant's language, for instance the boundary between the two 'blue' terms in a language that possesses them, responses tend to be faster than when both fall within a single category, even though the physical difference is identical. Speakers of languages lacking that boundary show no comparable advantage. This phenomenon, known as categorical perception, indicates that linguistic categories affect at least the speed of visual discrimination."
+       },
+       {
+        "label": "",
+        "text": "What makes these findings particularly persuasive is the manner in which the effect can be eliminated. If participants are simultaneously required to perform a verbal task, such as silently rehearsing a sequence of digits, the advantage for cross-category pairs disappears, whereas a spatial task of equivalent difficulty leaves it intact. This implies that language is not permanently altering the visual system; rather, words are being recruited during the task itself to support the judgement. Further experiments have reported that the effect is more pronounced when colours are presented in the right visual field, which projects to the left hemisphere of the brain, where language processing is concentrated in most individuals."
+       },
+       {
+        "label": "",
+        "text": "It would be easy to overstate the significance of these results, and some commentators have done so. The differences involved are typically a few tens of milliseconds. Nobody seriously claims that a speaker of one language is unable to see a colour difference that is obvious to a speaker of another. Moreover, the direction of influence is not always clear. A community whose livelihood depends on cattle may develop fine-grained terms for the shades of animal hides precisely because those distinctions matter in daily life; in that case, both vocabulary and attention may reflect the environment, rather than language shaping perception."
+       },
+       {
+        "label": "",
+        "text": "Nevertheless, I would argue that the current evidence represents genuine progress. The debate has moved from sweeping assertions about incommensurable worldviews to precise, testable hypotheses about when and how language interacts with perception. The answer that is emerging, that language influences perception chiefly when it is actively engaged, and in proportion to the demands of the task, is less exciting than either extreme position, but it is considerably more useful. It also opens the way to investigating comparable effects in other domains, such as spatial orientation and the perception of time, where languages likewise differ markedly."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       27,
+       31
+      ],
+      "type": "ynng",
+      "instructions": "Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "questions": [
+       {
+        "n": 27,
+        "prompt": "The strongest version of linguistic relativity is rightly rejected by researchers.",
+        "answer": "YES",
+        "evidence": "Almost no contemporary researcher defends this version, and rightly so",
+        "skill": "writer_view",
+        "explain_en": "'And rightly so' shows the writer agrees with rejecting the strong version.",
+        "explain_bn": "'and rightly so' — লেখক একমত যে শক্তিশালী সংস্করণটি বাদ দেওয়াই ঠিক; তাই YES।"
+       },
+       {
+        "n": 28,
+        "prompt": "Colour is an unsuitable area in which to test linguistic relativity.",
+        "answer": "NO",
+        "evidence": "Colour has long been the preferred battleground for this controversy, and for good reason.",
+        "skill": "writer_view",
+        "explain_en": "The writer says colour is used 'for good reason' and offers an 'unusually clean opportunity'.",
+        "explain_bn": "লেখক বলেছেন রং বেছে নেওয়ার যুক্তিসংগত কারণ আছে — তাই NO।"
+       },
+       {
+        "n": 29,
+        "prompt": "The survey published in the late 1960s was based on unreliable methods.",
+        "answer": "NOT GIVEN",
+        "rationale": "The survey's conclusions are summarised; its methodology is not assessed anywhere.",
+        "skill": "writer_view",
+        "explain_en": "The writer reports the survey's claims but never evaluates its methods.",
+        "explain_bn": "লেখক জরিপের দাবি বলেছেন, কিন্তু পদ্ধতি নির্ভরযোগ্য কি না মত দেননি — NOT GIVEN।"
+       },
+       {
+        "n": 30,
+        "prompt": "Some people have exaggerated the importance of the recent experimental findings.",
+        "answer": "YES",
+        "evidence": "It would be easy to overstate the significance of these results, and some commentators have done so.",
+        "skill": "writer_view",
+        "explain_en": "'Overstate the significance ... some commentators have done so' = some have exaggerated.",
+        "explain_bn": "'overstate' মানে বাড়িয়ে বলা — লেখক বলেন কেউ কেউ তা করেছেন; YES।"
+       },
+       {
+        "n": 31,
+        "prompt": "The conclusion now emerging is more exciting than the extreme positions.",
+        "answer": "NO",
+        "evidence": "is less exciting than either extreme position, but it is considerably more useful",
+        "skill": "writer_view",
+        "explain_en": "The writer says it is less exciting, though more useful.",
+        "explain_bn": "লেখক বলেছেন এটি কম রোমাঞ্চকর, তবে বেশি কাজের — তাই NO।"
+       }
+      ]
+     },
+     {
+      "range": [
+       32,
+       35
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 32,
+        "prompt": "According to the third paragraph, the survey from the late 1960s claimed that",
+        "options": [
+         {
+          "key": "A",
+          "text": "colour terms are added to languages in a fixed order."
+         },
+         {
+          "key": "B",
+          "text": "all languages contain the same basic colour terms."
+         },
+         {
+          "key": "C",
+          "text": "languages with two terms have no word for dark."
+         },
+         {
+          "key": "D",
+          "text": "blue is usually the first colour to be named."
+         }
+        ],
+        "answer": "A",
+        "evidence": "colour vocabularies develop in a predictable sequence",
+        "skill": "detail",
+        "explain_en": "The survey argued that colour terms appear in a predictable order.",
+        "explain_bn": "জরিপের দাবি: রঙের শব্দ একটি নির্দিষ্ট ক্রমে তৈরি হয় — A।"
+       },
+       {
+        "n": 33,
+        "prompt": "In the experiments described in the fourth paragraph, responses were faster when",
+        "options": [
+         {
+          "key": "A",
+          "text": "the colour patches were physically very different."
+         },
+         {
+          "key": "B",
+          "text": "participants spoke a language with few colour terms."
+         },
+         {
+          "key": "C",
+          "text": "the patches were shown for a longer time."
+         },
+         {
+          "key": "D",
+          "text": "the two choices had different names in the speaker's language."
+         }
+        ],
+        "answer": "D",
+        "evidence": "When the two candidates fall on opposite sides of a boundary in the participant's language",
+        "skill": "detail",
+        "explain_en": "Speed increased when the two patches belonged to different named categories, with the physical difference kept equal.",
+        "explain_bn": "দুটি রং ভাষার ভিন্ন নামের শ্রেণিতে পড়লে উত্তর দ্রুত হয়; শারীরিক পার্থক্য একই রাখা হয়েছিল — D।"
+       },
+       {
+        "n": 34,
+        "prompt": "What does the writer conclude from the experiments involving a verbal task?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Language permanently changes the visual system."
+         },
+         {
+          "key": "B",
+          "text": "Spatial tasks are more demanding than verbal ones."
+         },
+         {
+          "key": "C",
+          "text": "Language is used actively while the decision is being made."
+         },
+         {
+          "key": "D",
+          "text": "The effect occurs only in the left visual field."
+         }
+        ],
+        "answer": "C",
+        "evidence": "words are being recruited during the task itself to support the judgement",
+        "skill": "inference",
+        "explain_en": "Because a verbal task removes the effect, words must be used during the judgement, not permanently change vision.",
+        "explain_bn": "মৌখিক কাজ দিলে প্রভাব মুছে যায়, তাই শব্দ বিচার করার মুহূর্তেই ব্যবহৃত হয় — C।"
+       },
+       {
+        "n": 35,
+        "prompt": "The example of the cattle-herding community is used to show that",
+        "options": [
+         {
+          "key": "A",
+          "text": "some languages have richer vocabularies than others."
+         },
+         {
+          "key": "B",
+          "text": "language may not be the cause of differences in perception."
+         },
+         {
+          "key": "C",
+          "text": "new colour terms take a long time to develop."
+         },
+         {
+          "key": "D",
+          "text": "physical differences between colours are hard to measure."
+         }
+        ],
+        "answer": "B",
+        "evidence": "both vocabulary and attention may reflect the environment, rather than language shaping perception",
+        "skill": "inference",
+        "explain_en": "The example shows that the environment, not language, may cause both the words and the perceptual skill.",
+        "explain_bn": "পরিবেশই হয়তো শব্দ ও মনোযোগ দুটোরই কারণ — ভাষা নয়; তাই B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       36,
+       40
+      ],
+      "type": "summary_completion_box",
+      "instructions": "Complete the summary using the list of words and phrases, A-H, below. Write the correct letter, A-H.",
+      "options": [
+       {
+        "key": "A",
+        "text": "surroundings"
+       },
+       {
+        "key": "B",
+        "text": "practical"
+       },
+       {
+        "key": "C",
+        "text": "vanishes"
+       },
+       {
+        "key": "D",
+        "text": "permanently"
+       },
+       {
+        "key": "E",
+        "text": "exciting"
+       },
+       {
+        "key": "F",
+        "text": "in real time"
+       },
+       {
+        "key": "G",
+        "text": "increases"
+       },
+       {
+        "key": "H",
+        "text": "very brief intervals"
+       }
+      ],
+      "options_reusable": false,
+      "title": "Interpreting the evidence",
+      "questions": [
+       {
+        "n": 36,
+        "prompt": "When people perform a verbal task at the same time, the speed advantage for colours from different categories {gap}.",
+        "answer": "C",
+        "evidence": "the advantage for cross-category pairs disappears",
+        "skill": "paraphrase",
+        "explain_en": "'Disappears' = vanishes. 'Increases' is the opposite.",
+        "explain_bn": "'disappears' মানে vanishes — সুবিধাটি মুছে যায়; C।"
+       },
+       {
+        "n": 37,
+        "prompt": "This suggests that words are drawn on {gap} rather than altering vision for good.",
+        "answer": "F",
+        "evidence": "words are being recruited during the task itself",
+        "skill": "paraphrase",
+        "explain_en": "'During the task itself' = in real time. D (permanently) is what the writer rejects.",
+        "explain_bn": "'during the task itself' মানে কাজ চলার সময়ই (in real time); D ফাঁদ।"
+       },
+       {
+        "n": 38,
+        "prompt": "The differences that have been measured amount only to {gap}.",
+        "answer": "H",
+        "evidence": "The differences involved are typically a few tens of milliseconds.",
+        "skill": "paraphrase",
+        "explain_en": "A few tens of milliseconds are very brief intervals.",
+        "explain_bn": "কয়েক দশ মিলিসেকেন্ড মানে খুবই সংক্ষিপ্ত সময় — H।"
+       },
+       {
+        "n": 39,
+        "prompt": "Both a community's vocabulary and what it pays attention to may be shaped by its {gap}.",
+        "answer": "A",
+        "evidence": "both vocabulary and attention may reflect the environment",
+        "skill": "paraphrase",
+        "explain_en": "'Environment' = surroundings.",
+        "explain_bn": "'environment' মানে পারিপার্শ্বিকতা (surroundings) — A।"
+       },
+       {
+        "n": 40,
+        "prompt": "Although less dramatic than earlier views, the emerging answer is more {gap}.",
+        "answer": "B",
+        "evidence": "but it is considerably more useful",
+        "skill": "paraphrase",
+        "explain_en": "'More useful' = more practical. E (exciting) contradicts the writer.",
+        "explain_bn": "'more useful' মানে বেশি কার্যকর (practical); 'exciting' উল্টো কথা।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "chart",
+    "prompt": "The graph below shows the average number of bicycle trips made per day in three cities between 2010 and 2020, with projections to 2030. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.",
+    "visual": {
+     "kind": "line",
+     "title": "Average daily bicycle trips in three cities, 2010-2030 (2025 and 2030 projected)",
+     "x_label": "Year",
+     "y_label": "Trips per day (thousands)",
+     "unit": "thousand trips per day",
+     "categories": [
+      "2010",
+      "2015",
+      "2020",
+      "2025*",
+      "2030*"
+     ],
+     "series": [
+      {
+       "name": "Northport",
+       "values": [
+        12,
+        15,
+        22,
+        30,
+        38
+       ]
+      },
+      {
+       "name": "Eastvale",
+       "values": [
+        25,
+        24,
+        20,
+        19,
+        18
+       ]
+      },
+      {
+       "name": "Southmere",
+       "values": [
+        8,
+        9,
+        15,
+        26,
+        40
+       ]
+      }
+     ],
+     "note": "* projected figures"
+    },
+    "key_features": [
+     "overview: Northport and Southmere rise (and are forecast to keep rising); Eastvale declines",
+     "Eastvale highest in 2010 (25,000) but overtaken by Northport by 2020",
+     "Southmere lowest at first (8,000) but projected highest by 2030 (40,000)",
+     "Northport rises steadily from 12,000 to a projected 38,000",
+     "uses future/prediction language for 2025-2030 (is expected/predicted/projected to)",
+     "accurate figures with comparisons, no personal opinion"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "The line graph compares the average number of bicycle trips made each day in three cities, Northport, Eastvale and Southmere, between 2010 and 2020, and projects the figures forward to 2030.\n\nOverall, cycling grew in Northport and Southmere and is expected to keep rising, whereas Eastvale, which had the highest figure at the start of the period, experienced a gradual decline that is forecast to continue. By 2030, Southmere is predicted to have overtaken both of the other cities.\n\nIn 2010, Eastvale recorded around 25,000 trips per day, roughly double the figure for Northport (12,000) and about three times that for Southmere (8,000). Over the following decade, however, Eastvale's total slipped to 20,000, while Northport's rose steadily to 22,000, making it the leading city by 2020. Southmere's figure almost doubled over the same period, to 15,000.\n\nThe projections suggest that these trends will continue. Northport is expected to reach 38,000 trips a day by 2030, more than three times its 2010 level. The most dramatic growth, though, is forecast for Southmere, where cycling is predicted to climb sharply after 2020 to 40,000 daily trips, the highest of the three. Eastvale, by contrast, is projected to fall further, to just 18,000."
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "opinion",
+    "prompt": "Some people think that public libraries are no longer needed because information is now available online. To what extent do you agree or disagree? Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "clear position stated in the introduction and kept throughout",
+     "acknowledges the opposing view (online access, cost savings) before rebutting it",
+     "develops at least two main reasons with specific examples (unequal internet access, public space, information literacy)",
+     "logical paragraphing with clear topic sentences and cohesive devices",
+     "conclusion that restates the position without new ideas"
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "It is often argued that, now that almost any fact can be found online in seconds, public libraries have become an expensive relic. While I accept that the internet has changed how people look for information, I strongly disagree that libraries are no longer needed, because their value has never depended on information alone.\n\nAdmittedly, the case against libraries has some force. Encyclopaedias, academic journals and even entire novels are now available on a phone, often free of charge, and many people no longer need to visit a building to check a date or read the news. For a local council facing tight budgets, closing a little-used branch can therefore look like a sensible saving.\n\nHowever, this argument assumes that everyone has equal access to the internet and the skills to use it well, which is far from true. Elderly people, low-income families and recent migrants frequently lack a reliable connection or a computer at home. For them, the library is where they apply for jobs, complete government forms and receive help from trained staff. Closing it would widen the very digital divide that online information is supposed to remove.\n\nMoreover, libraries offer something the internet cannot: a quiet, free and safe public space. Students who share crowded homes rely on them as places to concentrate, while parents attend reading sessions with young children that encourage a lifelong habit of reading. Librarians also teach people to judge whether online sources are reliable, a skill that matters more than ever in an age of misinformation.\n\nIn conclusion, although the internet has made information easier to obtain, public libraries remain essential. Rather than closing them, governments should invest in modernising them so that they continue to serve the people who need them most."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Your hometown",
+    "questions": [
+     "Where is your hometown, and what is it like?",
+     "What do you like most about living there?",
+     "Has your hometown changed much since you were a child?",
+     "Would you like to live there in the future? Why or why not?"
+    ]
+   },
+   {
+    "topic": "Music",
+    "questions": [
+     "What kind of music do you usually listen to?",
+     "When do you most often listen to music during the day?",
+     "Did you learn to play a musical instrument when you were younger?",
+     "Do you think music is more popular now than it was in the past?"
+    ]
+   },
+   {
+    "topic": "Mornings",
+    "questions": [
+     "Are you a morning person?",
+     "What is the first thing you usually do in the morning?",
+     "Is your morning routine different at the weekend?",
+     "Do you think it is important to eat breakfast? Why?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a useful skill that an older person taught you.",
+    "bullets": [
+     "what the skill is",
+     "who taught it to you",
+     "how they taught you"
+    ],
+    "final": "and explain why this skill has been useful to you."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do you still use this skill often?",
+    "Would you like to teach it to someone else?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Learning from older generations",
+    "questions": [
+     "What kinds of things do young people usually learn from their grandparents?",
+     "Do you think older people's knowledge is valued less today than in the past? Why?",
+     "How could communities make it easier for different generations to learn from each other?",
+     "Are there any skills that older people could learn from young people?"
+    ]
+   },
+   {
+    "theme": "Skills in a changing workplace",
+    "questions": [
+     "Which skills do you think will be most important for workers in the next twenty years?",
+     "Should employers or employees be responsible for paying for training?",
+     "Why do some people find it difficult to learn new skills later in life?",
+     "Do you think practical skills are taught enough in schools today?"
+    ]
+   }
+  ]
+ }
+}

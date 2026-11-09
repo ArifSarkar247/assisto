@@ -159,7 +159,7 @@ def bundle_texts(b: dict) -> list[tuple[str, str]]:
     for p in b.get("reading", {}).get("parts", []):
         res.append((f"reading part {p.get('part')}", reading_text(p)))
     for t in b.get("writing", {}).get("tasks", []):
-        res.append((f"writing task {t.get('task')} prompt", t.get("prompt", "")))
+        res.append((f"writing task {t.get('task')} prompt", strip_boilerplate(t.get("prompt", ""))))
         res.append((f"writing task {t.get('task')} model", t.get("model_answer", {}).get("text", "")))
     return res
 
@@ -702,6 +702,14 @@ WRITING_BOILERPLATE = [
     r"you do not need to write any addresses\.?", r"begin your letter as follows:?", r"dear sir or madam,?",
     r"to what extent do you agree or disagree\??", r"discuss both these views and give your own opinion\.?",
     r"in your letter,?"]
+
+
+def strip_boilerplate(prompt: str) -> str:
+    """Remove the standard exam instruction lines (identical in every mock by design)."""
+    s = prompt
+    for pat in WRITING_BOILERPLATE:
+        s = re.sub(pat, " ", s, flags=re.I)
+    return s
 
 
 def writing_topic_key(prompt: str) -> str:
