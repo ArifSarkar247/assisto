@@ -2,7 +2,7 @@
 // = scripted E2E tests of main flows on emulators and Firebase Test Lab").
 //
 // Runs ONLY in .github/workflows/e2e.yml (REALITY_ONLY=e2e) against the
-// throw-away Django with settings_e2e: real server code, with the network
+// throw-away Django with settings_e2eproof: real server code, with the network
 // seams faked by backend/ci_e2e (AI + photo answers, SMS OTP, Google Places,
 // push outbox, fake-clock tick). It never reaches the live server.
 //

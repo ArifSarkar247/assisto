@@ -1,4 +1,4 @@
-"""CI-only app for the e2e proof run (settings_e2e). See fakes.py."""
+"""CI-only app for the e2e proof run (settings_e2eproof). See fakes.py."""
 import os
 
 from django.apps import AppConfig

@@ -1,4 +1,4 @@
-"""settings_e2e ROOT_URLCONF: the normal URLs + the CI-only outbox / tick."""
+"""settings_e2eproof ROOT_URLCONF: the normal URLs + the CI-only outbox / tick."""
 from django.urls import path
 
 from assisto_backend.urls import urlpatterns as _base

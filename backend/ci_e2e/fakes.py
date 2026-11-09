@@ -1,4 +1,4 @@
-"""CI-ONLY deterministic fakes for the e2e proof run (settings_e2e).
+"""CI-ONLY deterministic fakes for the e2e proof run (settings_e2eproof).
 
 Only the NETWORK seams are replaced (the same seams the unit tests patch);
 everything between the app and the seam is the real server code: the chat

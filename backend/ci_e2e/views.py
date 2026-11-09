@@ -1,4 +1,4 @@
-"""CI-only endpoints (mounted by ci_e2e.urls under settings_e2e ONLY).
+"""CI-only endpoints (mounted by ci_e2e.urls under settings_e2eproof ONLY).
 
 GET  /api/v1/ci-e2e/outbox?since=<ts>&kind=push|sms|ai|vision|maps&user=me|<id>
      -> {now, rows:[...]}   what the fakes "sent" (proof of delivery)

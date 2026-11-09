@@ -49,7 +49,7 @@ SEAM_ALLOW = {
         "prompts (no user data) sent to each provider for side-by-side review"),
     # e2eproof
     "ci_e2e/fakes.py": (
-        "CI-only e2e proof run (settings_e2e): REPLACES the provider seam with a "
+        "CI-only e2e proof run (settings_e2eproof): REPLACES the provider seam with a "
         "deterministic offline fake — nothing is ever sent to a provider"),
 }
 

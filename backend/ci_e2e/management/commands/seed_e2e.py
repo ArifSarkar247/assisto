@@ -1,6 +1,6 @@
 """seed_e2e — the reality seed + the CI fakes switched on, then a self-check.
 
-    python manage.py seed_e2e --settings=assisto_backend.settings_e2e --out seed_e2e.json
+    python manage.py seed_e2e --settings=assisto_backend.settings_e2eproof --out seed_e2e.json
 
 1. runs seed_reality (demo users A/B/C, accepted My Circle edge, data);
 2. saves FAKE "anthropic" and "google_places" integrations (status working)
