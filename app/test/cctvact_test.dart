@@ -221,6 +221,10 @@ void main() {
     });
 
     testWidgets('automations: empty -> link; rule toggles save; test a plug', (tester) async {
+      // a tall screen: the whole list is built (no lazy off-screen rows)
+      tester.view.physicalSize = const Size(800, 3200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
       final act = FakeCctvAct();
       await tester.pumpWidget(_app(CctvAutomationsScreen(
           source: act, siteId: 1, preview: fakeAuto(linked: false))));
@@ -237,8 +241,6 @@ void main() {
       await tester.tap(find.text('Shop siren').first);
       await tester.pumpAndSettle();
       expect(act.calls.any((c) => c.startsWith('rules:')), isTrue);
-      await tester.scrollUntilVisible(find.text('Test').first, 200,
-          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('Test').first);
       await tester.pumpAndSettle();
       expect(act.calls, contains('test:plug1'));
