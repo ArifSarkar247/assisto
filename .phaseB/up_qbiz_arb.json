@@ -1,0 +1,12 @@
+{
+  "_comment": "qbiz (quality push 9 Nov): khata customer due link. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_qbiz_arb.json",
+  "en": {
+    "qbizDueLinkButton": "Send due link (web page)",
+    "@qbizDueLinkButton": {"description": "Khata statement: share a read-only web page of this customer's own due"},
+    "qbizDueLinkHint": "The customer sees their own due and entries in any browser — no app needed. The link works for 30 days and never shows your notes."
+  },
+  "bn": {
+    "qbizDueLinkButton": "বাকি-দেখার লিংক পাঠান",
+    "qbizDueLinkHint": "গ্রাহক যেকোনো ব্রাউজারে নিজের বাকি ও লেনদেন দেখবেন — অ্যাপ লাগবে না। লিংক ৩০ দিন চালু থাকে, আপনার নোট কখনো দেখায় না।"
+  }
+}
