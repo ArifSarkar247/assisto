@@ -55,7 +55,7 @@ All helpers never raise on a missing table (return [] / False) so branches merge
   (last net = none), `background_killed` (bg_restricted reported, or nothing else explains it),
   `clock` (timestamp in the future). amber reasons: `watch`, `carecall_missed`, `journey_overdue`, `battery_low`.
 * `family_line(statuses)` → one line for the top: red SOS > amber "Check on NAME" > gray "No news from NAME" > green "All OK" (green only when ≥1 other member and every one is green).
-* Same case table drives both test suites: `backend/core/tests/fixtures/fc_status_cases.json`.
+* Same case table drives both test suites: `backend/core/logic/fc_status_cases.json`.
 
 ## 4. HTTP API (all under `/api/`, token auth, `family/v3/...` routes registered before the `family` router)
 
@@ -68,6 +68,7 @@ All helpers never raise on a missing table (return [] / False) so branches merge
 | POST `family/v3/invites/<membership_id>/accept` / `.../decline` | invitee only |
 | POST `family/v3/families/<id>/leave` | anyone, any time |
 | POST `family/v3/families/<id>/remove/<user_id>` | admin only (not themselves) |
+| POST `family/v3/families/<id>/members/<user_id>` | `{label?, relation?, abroad_tz? (self only), role? (admin)}` |
 | GET `family/v3/families/<id>/board` | `{family, me:{role}, line:{state,reason,name,member_id}, members:[{user_id,name,label,role,phone,photo,abroad_tz,brain:{…},status:{state,reason,fresh_until},chip}], tasks:[…], today:{carecalls:{done,missed,pending},bills_due,birthdays:[…],bazar_open}, someone_abroad, server_now}` — members sorted alerts first |
 | GET `family/v3/members/<user_id>?family=<id>` | member page: `{member, status, timeline:[{at,kind,text}], seen_by:[{user_id,name,family_name}]}` |
 | GET/POST `family/v3/families/<id>/tasks` | list / `{title,kind,due_date?}` |
