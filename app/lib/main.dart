@@ -24,6 +24,7 @@ import 'screens/family_alerts_screen.dart'; // sosat
 import 'media/photo_picker_setup.dart'; // play-perm
 import 'play_update.dart'; // ota1
 import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
+import 'family_sos/sos_alarm_screen.dart'; // fcsos
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
@@ -318,6 +319,7 @@ class AssistoApp extends StatelessWidget {
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
               CareCallRingScreen.onGenerateRoute(s) ?? // carecall: cold-start ring
+              SosAlarmScreen.onGenerateRoute(s) ?? // fcsos: cold-start SOS alarm
               InviteRouter.route(s) ??
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link

@@ -509,6 +509,12 @@ jobs:
                   '\n    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>'
                   '\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n',
                   s, count=1)
+          # fcsos: SOS alarm through Do Not Disturb, only after the user grants
+          # "Do Not Disturb access" (NORMAL permission: no prompt, no Play form).
+          if 'ACCESS_NOTIFICATION_POLICY' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>\n',
+                  s, count=1)
           # NO android:showWhenLocked / turnScreenOn on MainActivity: that would
           # show the whole app (chats, vault) on a locked phone. MainActivity
           # grants it per launch, only for a ringing call (see MainActivity.kt).

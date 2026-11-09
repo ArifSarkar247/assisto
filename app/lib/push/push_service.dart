@@ -50,6 +50,7 @@ import '../messaging/receipt_ack.dart';
 import '../messaging/receipt_bus.dart';
 import '../realtime/realtime_channel.dart';
 import '../family_alerts_api.dart'; // family100
+import '../family_sos/sos_alarm_screen.dart'; // fcsos
 import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 
@@ -570,6 +571,12 @@ class PushService {
       return;
     }
     AgentCorePush.onForegroundPush(p); // agent-core: refresh an open inbox
+    // fcsos: an SOS / fall alarm while Assisto is open -> the alarm page at
+    // once (it sounds the alarm itself); no second, insistent notification.
+    if (p.isSos &&
+        SosAlarmScreen.openOnce(_nav?.currentState, Map<String, String>.from(p.data))) {
+      return;
+    }
     // Foreground: draw it ourselves (FCM shows nothing while we're open).
     unawaited(PushNotifier.show(p));
   }
@@ -667,6 +674,12 @@ class PushService {
       if (CallLaunchRouter.instance.openWarm(l, nav: _nav?.currentState)) {
         return;
       }
+    }
+    // fcsos: an SOS / fall alarm tap / full-screen launch -> the receiver
+    // alarm page (once per delivery; the cold-start route may already show it)
+    if (p.isSos && action == null &&
+        SosAlarmScreen.openOnce(_nav?.currentState, Map<String, String>.from(p.data))) {
+      return; // the page marks it seen
     }
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) {
