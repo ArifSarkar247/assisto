@@ -105,7 +105,7 @@ def criteria_band(values):
 
 # ---------------------------------------------------------------- matching
 _SPACE = re.compile(r"\s+")
-_EDGE = re.compile(r"^[\s.,;:!?\"'“”‘’]+|[\s.,;:!?\"'“”‘’]+$")
+_EDGE = re.compile(r"^[\s.,;:!?()\"'“”‘’]+|[\s.,;:!?()\"'“”‘’]+$")
 
 
 def norm(s):

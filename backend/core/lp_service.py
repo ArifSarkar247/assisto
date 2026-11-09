@@ -400,7 +400,7 @@ def import_app_assets(folder):
         with open(os.path.join(folder, fn), encoding="utf-8") as fh:
             j = json.load(fh)
         rows = j if isinstance(j, list) else (j.get("items") or j.get("scenarios")
-                                              or j.get("lists") or [])
+                                              or j.get("topics") or j.get("lists") or [])
         for r in rows:
             if isinstance(r, dict) and r.get("id"):
                 _, created = upsert(kind, "%s-%s" % (kind, r["id"]), r,
@@ -469,7 +469,7 @@ def weak_items(tags, n=10):
     out = []
     for it in live_qs("question").filter(tag__in=[str(t)[:40] for t in tags][:10]).order_by("?")[:n]:
         q = public_question((it.data or {}).get("q") or {})
-        q.update({"qid": it.key, "tag": it.tag, "section": (it.data or {}).get("section"),
+        q.update({"id": it.key, "qid": it.key, "tag": it.tag, "section": (it.data or {}).get("section"),
                   "beta": it.status != "human_approved", "answer_hidden": True})
         if (it.data or {}).get("passage"):
             q["passage"] = it.data["passage"]

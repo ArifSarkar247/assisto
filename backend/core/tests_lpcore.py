@@ -120,6 +120,9 @@ class BandTableTests(SimpleTestCase):
         self.assertEqual(B.classify("map", "C", "D"), (False, "map"))
         self.assertEqual(B.classify("matching", "iv", "ii"), (False, "matching"))
         self.assertEqual(B.classify("mcq_multi", "C, A", ["A", "C"]), (True, None))
+        self.assertEqual(B.classify("matching", "iv)", "iv"), (True, None))     # app sends "iv)"
+        self.assertEqual(B.classify("mcq", "B.", "B"), (True, None))
+        self.assertEqual(B.classify("mcq_multi", "A,C", ["A", "C"]), (True, None))
         self.assertEqual(B.classify("gap", "fifteen", "15/fifteen", 1), (True, None))
 
     def test_mark_collects_weak_tags(self):
