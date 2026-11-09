@@ -175,8 +175,20 @@ class ReportTests(SimpleTestCase):
 
 class PackTests(SimpleTestCase):
     def test_49_tk_pack_is_15_credits_within_the_40_percent_rule(self):
-        self.assertEqual(BOOK.credits_for_price(49), 15)
+        # an explicit owner exception: the formula alone gives 10
+        self.assertEqual(BOOK.credits_for_price(49), 10)
+        self.assertEqual(BOOK.PACK_CREDIT_OVERRIDES["c15"], 15)
         self.assertIn({"id": "c15", "price": 49, "valid_months": 12}, BOOK.V2_PACKS)
+        out = {"pricing_v2": {"on": True}, "plans": {},
+               "topup_packs": [dict(p, credits=0) for p in BOOK.V2_PACKS],
+               "billing": {}, "action_costs": {}}
+        try:
+            BOOK.derive(out)
+        except KeyError:
+            pass   # unrelated blocks missing in this minimal dict
+        packs = {p["id"]: p["credits"] for p in out["topup_packs"]}
+        self.assertEqual(packs["c15"], 15)
+        self.assertEqual(packs["c50"], 60)
         # every credit still within the per-credit AI cap at the dearest answer
         self.assertLessEqual(15 * BOOK.MIN_BDT_PER_CREDIT, 49)
         # the big products are unchanged (round to 10)

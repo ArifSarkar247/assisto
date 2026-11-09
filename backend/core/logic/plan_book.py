@@ -35,7 +35,6 @@ AI_BUDGET = round(NET_PCT - OVERHEAD_PCT - PROFIT_PCT, 4)          # 0.239
 CREDIT_AI_CAP_BDT = round(MIN_BDT_PER_CREDIT * AI_BUDGET, 4)       # 0.6692
 SAFETY_USD_BDT = 125.0             # costs are always counted at >= ৳125/USD
 ROUND_TO = 10
-ROUND_TO_SMALL = 5
 
 LEGACY_PACKS = ("p20", "p50", "p100", "p200")
 # the three packs the owner approved (prices unchanged; credits by formula)
@@ -55,7 +54,11 @@ PAID_PLANS = ("plus", "premium", "premium_pro", "business")
 # the formula reproduces them at the proposal prices; never read at runtime
 APPROVED = {"plus": (199, 70), "premium": (449, 160), "premium_pro": (999, 350),
             "business": (1299, 440), "c50": (179, 60), "c120": (399, 140),
-            "c300": (949, 330), "c15": (49, 15)}
+            "c300": (949, 330)}
+# adcontrol (owner 10 Nov 03:45 part F): the owner's EXPLICIT exception —
+# ৳49 = 15 credits (the formula's round-to-10 would give 10). 15 x ৳2.80 =
+# ৳42 <= ৳49, so it stays inside the per-credit cap (40 % rule; aimoney CI).
+PACK_CREDIT_OVERRIDES = {"c15": 15}
 APPROVED_PROBASHI = (4.99, 120.0, 210)
 APPROVED_LEVEL_CREDITS = {"normal": 1, "better": 1, "best": 11}
 HAIKU_PROMPT_MAX_TOKENS = 90000     # owner: above 100k Haiku costs 5x
@@ -76,10 +79,6 @@ def is_on(cfg):
 
 def _floor_to(n, step=ROUND_TO):
     n = int(math.floor(n))
-    # adcontrol: a SMALL product (< 50 credits, e.g. the ৳49 pack) rounds down
-    # to 5 instead of 10 — still never above the per-credit cap
-    if n < 50:
-        step = ROUND_TO_SMALL
     return max(0, n - n % step) if n >= step else max(0, n)
 
 
@@ -141,6 +140,9 @@ def derive(out, legacy_floor_fn=None):
             out["topup_packs"].append(dict(p, credits=0))
     for p in out["topup_packs"]:
         p["credits"] = credits_for_price(p["price"])
+        o = PACK_CREDIT_OVERRIDES.get(p["id"])
+        if o and o * MIN_BDT_PER_CREDIT <= float(p["price"] or 0):
+            p["credits"] = o
         p["valid_months"] = PACK_EXPIRY_MONTHS
     out["pricing_v2"]["packs_off"] = [p["id"] for p in out["topup_packs"]
                                       if p["id"] in LEGACY_PACKS]
