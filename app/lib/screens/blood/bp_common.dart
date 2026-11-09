@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -134,7 +135,11 @@ class BpGroupBadge extends StatelessWidget {
         height: size,
         alignment: Alignment.center,
         padding: const EdgeInsets.all(Gap.xs),
-        decoration: BoxDecoration(color: s.errorContainer, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: s.errorContainer,
+          shape: BoxShape.circle,
+          border: Border.all(color: DsTokens.of(context).dangerBorder),
+        ),
         // fixed size (ListTile leading needs it); the text scales down at 200%
         child: FittedBox(
           fit: BoxFit.scaleDown,
@@ -159,12 +164,12 @@ class BpEligibility extends StatelessWidget {
     final s = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(eligible ? Icons.check_circle_rounded : Icons.schedule_rounded,
-          size: 18, color: eligible ? Brand.successFill : s.onSurfaceVariant),
+          size: 18, color: eligible ? DsTokens.of(context).successInk : s.onSurfaceVariant),
       const SizedBox(width: Gap.xs),
       Flexible(
         child: Text(
           eligible ? t.bpCanNow : t.bpAgainOn(bpDate(context, nextDate)),
-          style: TextStyle(color: eligible ? null : s.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: eligible ? null : s.onSurfaceVariant),
         ),
       ),
     ]);
@@ -193,7 +198,7 @@ class BpDonorStatus extends StatelessWidget {
       case 'available':
         label = t.bpCanNow;
         icon = Icons.check_circle_rounded;
-        color = Brand.successFill;
+        color = DsTokens.of(context).successInk;
       case 'paused':
         label = t.bpStPaused;
         icon = Icons.pause_circle_outline_rounded;
@@ -209,7 +214,7 @@ class BpDonorStatus extends StatelessWidget {
       Flexible(
         child: Text(bpD(context, label),
             key: ValueKey('bp-status-${donor['id']}'),
-            style: TextStyle(color: color == null ? s.onSurfaceVariant : null,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: color == null ? s.onSurfaceVariant : null,
                 fontWeight: st == 'available' ? FontWeight.w600 : null)),
       ),
     ]);
@@ -227,7 +232,7 @@ class BpVerifiedChip extends StatelessWidget {
       const SizedBox(width: Gap.xs),
       Flexible(
         child: Text(AppLocalizations.of(context).bpVerified,
-            style: TextStyle(color: s.primary, fontWeight: FontWeight.w600)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: s.primary, fontWeight: FontWeight.w600)),
       ),
     ]);
   }
@@ -274,33 +279,30 @@ class BpEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
+    // designv2: illustration + benefit line + big button + how-to steps.
+    final ds = DsTokens.of(context);
     final text = Theme.of(context).textTheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Icon(icon, size: 40, color: s.error),
-          const SizedBox(height: Gap.sm),
-          Text(title, style: text.titleMedium, textAlign: TextAlign.center),
-          const SizedBox(height: Gap.md),
-          for (var i = 0; i < steps.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Gap.xs),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(bpD(context, '${i + 1}.'), style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(width: Gap.sm),
-                Expanded(child: Text(steps[i])),
-              ]),
-            ),
-          const SizedBox(height: Gap.md),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
-            child: FilledButton(key: ctaKey, onPressed: onCta, child: Text(cta)),
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Center(child: DsIllustration(icon: icon, color: ds.danger, size: 84)),
+        const SizedBox(height: Gap.md),
+        Text(title,
+            style: text.titleMedium?.copyWith(color: ds.text, fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center),
+        const SizedBox(height: Gap.md),
+        for (var i = 0; i < steps.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.xs),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              DsStepNumber(i + 1),
+              const SizedBox(width: Gap.sm),
+              Expanded(child: Text(steps[i], style: text.bodyMedium?.copyWith(color: ds.text))),
+            ]),
           ),
-        ]),
-      ),
+        const SizedBox(height: Gap.md),
+        DsButton(key: ctaKey, onPressed: onCta, label: cta, expand: true),
+      ]),
     );
   }
 }
@@ -312,22 +314,24 @@ class BpPrivacyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: s.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Icon(Icons.lock_outline_rounded, color: s.primary),
-            const SizedBox(width: Gap.sm),
-            Expanded(child: Text(t.bpPrivacyTitle, style: Theme.of(context).textTheme.titleSmall)),
-          ]),
-          const SizedBox(height: Gap.sm),
-          Text(t.bpPrivacyBody),
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    // designv2: a calm, flat note (no shadow) — information, not an action.
+    return DsSurface(
+      flat: true,
+      color: ds.cardAlt,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(Icons.lock_outline_rounded, color: ds.primaryInk, size: 20),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(t.bpPrivacyTitle,
+                  style: text.titleSmall?.copyWith(color: ds.text))),
         ]),
-      ),
+        const SizedBox(height: Gap.sm),
+        Text(t.bpPrivacyBody, style: text.bodyMedium?.copyWith(color: ds.muted)),
+      ]),
     );
   }
 }
