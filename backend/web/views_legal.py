@@ -41,9 +41,9 @@ def _page(request, key, extra=None, status=200):
 
 
 # privacyupd (owner Play decision 7, 9 Nov): the updated policy goes live only
-# when the owner flips AdminFlagState "privacy_v2_live" (Owner Admin → Website);
+# when the owner turns AdminFlagState "privacy_classic" OFF (Owner Admin → Website);
 # until then it is served only at /preview/privacy (noindex, never in the sitemap).
-PRIVACY_V2_FLAG = "privacy_v2_live"
+PRIVACY_V2_FLAG = "privacy_classic"   # ON = classic text; OFF = v2 live
 PRIVACY_PREVIEW = "/preview/privacy"
 
 
@@ -52,7 +52,7 @@ def privacy_v2_live():
     try:
         from core.models import AdminFlagState
         row = AdminFlagState.objects.filter(key="global").first()
-        return bool(row and (row.state or {}).get(PRIVACY_V2_FLAG) is True)
+        return bool(row and (row.state or {}).get(PRIVACY_V2_FLAG) is False)
     except Exception:  # noqa: BLE001 — DB trouble keeps the current policy
         return False
 
@@ -73,7 +73,7 @@ def privacy_flip(actor_id, value):
     from core.views_build61 import flags_flip
     reason = ("privacy policy v2 go-live (owner, Owner Admin → Website)" if value else
               "privacy policy v2 rollback to the previous text (owner, Owner Admin → Website)")
-    return flags_flip(actor_id, PRIVACY_V2_FLAG, bool(value), reason)
+    return flags_flip(actor_id, PRIVACY_V2_FLAG, not bool(value), reason)
 
 
 def terms(request):

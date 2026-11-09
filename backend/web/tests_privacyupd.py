@@ -142,4 +142,4 @@ class PrivacyGoLiveTests(OwnerBase):
         self.assertFalse(VL.privacy_v2_live())
         self.assertIn(OLD_AI, Client().get("/privacy?lang=en").content.decode())
         self.assertEqual(OwnerAudit.objects.filter(action="flag.flip",
-                                                   target="flag:privacy_v2_live").count(), 2)
+                                                   target="flag:privacy_classic").count(), 2)

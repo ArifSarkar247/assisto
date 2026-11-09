@@ -772,7 +772,7 @@ REFUND = [
 # ------------------------------------------------------- privacy v2 (preview)
 # privacyupd (owner Play decision 7, 9 Nov): the NEXT privacy policy. It is
 # served ONLY at /preview/privacy (noindex) until the owner says OK and flips
-# the AdminFlagState switch "privacy_v2_live" (Owner Admin → Website); then
+# the AdminFlagState switch "privacy_classic" OFF (Owner Admin → Website); then
 # /privacy serves it. Built FROM the live PRIVACY above, so the live text stays
 # byte-for-byte unchanged. Facts checked against the code (see
 # owner_actions/PRIVACY_POLICY_PREVIEW_BN.md for sources and open questions).
@@ -1025,7 +1025,7 @@ PAGES = {
                 "title": ("গোপনীয়তা নীতি", "Privacy Policy"),
                 "desc": ("Assisto কী তথ্য রাখে, কেন, কার সাথে শেয়ার হয়, প্রতিটি অ্যাপ অনুমতির কারণ, বিজ্ঞাপন, সংরক্ষণকাল ও মোছার উপায়।",
                          "What Assisto stores, why, who it is shared with, the reason for every app permission, ads, retention and how to delete.")},
-    # privacyupd: preview-only until the owner flips privacy_v2_live
+    # privacyupd: preview-only until the owner turns privacy_classic OFF
     "privacy_v2": {"path": "/privacy", "sections": PRIVACY_V2, "updated": LAST_UPDATED_V2,
                    "title": ("গোপনীয়তা নীতি", "Privacy Policy"),
                    "desc": ("Assisto কী তথ্য রাখে, কেন, কার সাথে শেয়ার হয়, প্রতিটি অ্যাপ অনুমতির কারণ, বিজ্ঞাপন, সংরক্ষণকাল ও মোছার উপায়।",

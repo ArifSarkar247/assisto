@@ -81,19 +81,17 @@ void main() {
   test('auto-save with the switch OFF never saves an SMS item', () async {
     SharedPreferences.setMockInitialValues(
         {'cm_consent_money_v1': 'x', 'cm_money_on': true, 'cm_money_auto': true});
-    final fake = FakeNotifBridge(queue: fakeMoneyQueue());
+    // only the two SMS items wait: with the switch OFF nothing may be saved
+    final fake = FakeNotifBridge(queue: fakeMoneyQueue().where((x) => x.kind == 'sms').toList());
     NotifListenChannel.instance = fake;
     await _server(on: false);
     final app = gallery.galleryStub(lang: 'en');
     final t = lookupAppLocalizations(const Locale('en'));
-    await NotifListenService.autoSave(app, t);
-    final saved = [
-      for (final x in app.txns.items)
-        if ((x['data'] as Map?)?['source'] == 'notification') '${(x['data'] as Map)['ref']}'
-    ];
-    expect(saved, isNot(contains('71NG3K2PQ'))); // the Nagad SMS
-    expect(saved, isNot(contains('88POS1902'))); // the bank SMS
-    if (app.loggedIn) expect(fake.queue.where((x) => x.kind == 'sms'), isEmpty);
+    expect(await NotifListenService.autoSave(app, t), 0);
+    if (app.loggedIn) {
+      expect(fake.queue, isEmpty); // dropped on the phone
+      expect(fake.done, containsAll([2, 3]));
+    }
   });
 
   test('an owner/staff "preview" of an OFF switch counts as OFF', () async {

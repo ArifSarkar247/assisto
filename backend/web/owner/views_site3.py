@@ -36,7 +36,7 @@ def website(request):
             ok, payload = VL.privacy_flip(request.owner.id, value)
             if ok:
                 S.audit(request, request.owner, "flag.flip", "flag:%s" % VL.PRIVACY_V2_FLAG,
-                        before={VL.PRIVACY_V2_FLAG: before}, after={VL.PRIVACY_V2_FLAG: value})
+                        before={VL.PRIVACY_V2_FLAG: not before}, after={VL.PRIVACY_V2_FLAG: not value})
                 return done("/owner/website", "saved")
             problems = payload.get("problems") or []
             status = 400

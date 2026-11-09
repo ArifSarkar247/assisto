@@ -1,10 +1,10 @@
 # গোপনীয়তা নীতি — হালনাগাদ প্রিভিউ (৯ নভেম্বর, Play সিদ্ধান্ত ৭)
 
 **অবস্থা: শুধু প্রিভিউ। লাইভ হয়নি।** lifeassisto.com/privacy এখনো আগের লেখাই দেখায়।
-আপনি "ঠিক আছে" বললে Owner Admin → Website → "গোপনীয়তা নীতি — হালনাগাদ লেখা" → **"হালনাগাদ নীতি প্রকাশ করুন"** (এক চাপ; ফেরত যেতে "আগের নীতিতে ফিরে যান")।
+আপনি "ঠিক আছে" বললে Owner Admin → Website → "গোপনীয়তা নীতি — হালনাগাদ লেখা" → **"হালনাগাদ নীতি প্রকাশ করুন"** (এক চাপ; ফেরত যেতে "আগের নীতিতে ফিরে যান"; ভেতরের সুইচ `privacy_classic` — চালু = আগের লেখা)।
 
 - প্রিভিউ (Google-এ আসে না): `/preview/privacy` (বাংলা) · `/preview/privacy?lang=en` (ইংরেজি) — ডিপ্লয়ের পরে Owner Admin → Website থেকেও লিংক।
-- স্ক্রিনশট (CI, লাইভ সার্ভার নয়): website workflow-এর artifact **website-v3-preview** → `bn_desktop_privacy_preview.png`, `bn_mobile390_privacy_preview.png`, `en_desktop_privacy_preview.png`, `en_mobile390_privacy_preview.png` (তুলনার জন্য একই নামে `_privacy_live` = এখনকার নীতি)। রান আইডি নিচে।
+- স্ক্রিনশট (CI, লাইভ সার্ভার নয়): website workflow রান 42586900343, artifact **website-v3-preview** → `bn_desktop_privacy_preview.png`, `bn_mobile390_privacy_preview.png`, `en_desktop_privacy_preview.png`, `en_mobile390_privacy_preview.png` (তুলনার জন্য একই নামে `_privacy_live` = এখনকার নীতি)। এক পাতায় সব অংশ ঠিকমতো দেখা যায় (যাচাই করা)।
 
 ## কী বদলাল (আগের লেখা হুবহু রেখে, নতুন সংস্করণ আলাদা)
 1. **সংক্ষেপে**: নতুন একটি লাইন — Assisto কখনো SMS-এর অনুমতি চায় না; টাকার হিসাব আপনি চালু করলে তবেই, ফোনেই বোঝে, সেভ না করা পর্যন্ত কিছু পাঠায় না।
