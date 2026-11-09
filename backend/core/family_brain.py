@@ -341,6 +341,16 @@ def ping(user, data, now=None):
     if _row(user, create=False) is None and not peer_ids(user):
         # nobody can see this member yet: keep no row (the per-minute tick
         # only walks members of a family)
+        # sjkids seam (integration): a child with Circle guardians but no
+        # Family group still gets Children Corner fence events to the guardians
+        try:
+            from . import kids_corner as KCS
+            for raw in (d.get("events") if isinstance(d.get("events"), list) else [])[:20]:
+                e = _clean_event(raw, now)
+                if e is not None and e["kind"] in ("arrive", "leave"):
+                    KCS.on_brain_event(user, e, now)
+        except Exception:  # noqa: BLE001 — never break the ping
+            pass
         out["skipped"] = "no_family"
         return out
     with transaction.atomic():
