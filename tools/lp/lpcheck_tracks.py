@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Automatic checks for Language Partner stage-2 track content (FORMAT.md §10).
+"""Automatic checks for Language Partner track content (FORMAT.md §10 stage 2, §11 stage 3).
 
-Japanese (JLPT N5, JFT-Basic), Korean (EPS-TOPIK), German (A1 visa level), taught from Bangla.
+Stage 2: Japanese (JLPT N5, JFT-Basic), Korean (EPS-TOPIK), German (A1 visa level).
+Stage 3: Chinese (HSK 1), French (A1, DELF-A1-style), Arabic for Middle East work (A1). All taught from Bangla.
 Stdlib only; runs in CI (lp-content.yml), never needs an AI API.
 
-    python3 tools/lp/lpcheck_tracks.py              # check every file under tools/lp/content/{ja,ko,de}
+    python3 tools/lp/lpcheck_tracks.py              # check every file under tools/lp/content/{ja,ko,de,zh,fr,ar}
     python3 tools/lp/lpcheck_tracks.py --out out/   # + out/tracks_index.json and out/tracks_report.md
 
 Exit 1 when any file has an error. Files with no errors get status "ai-checked" in the index (git keeps
@@ -25,18 +26,21 @@ from collections import Counter
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 CONTENT_DIR = os.path.join(HERE, "content")
-LANGS = ("ja", "ko", "de")
+LANGS = ("ja", "ko", "de", "zh", "fr", "ar")
 FINGERPRINTS = os.path.join(HERE, "fingerprints", "known_hashes.json")
 LANGPACKS = os.path.join(REPO, "backend", "core", "data", "langpacks")
 
-TRACKS = {"jlpt_n5": "ja", "jft_basic": "ja", "eps_topik": "ko", "de_a1": "de"}
-TEST_PREFIX = {"jlpt_n5": "jlpt-n5", "jft_basic": "jft-basic", "eps_topik": "eps-topik", "de_a1": "de-a1"}
-LEVELS = {"jlpt_n5": "N5", "jft_basic": "A2", "eps_topik": "EPS", "de_a1": "A1"}
-COUNTRIES = {"JP", "KR", "DE", "ME"}
+TRACKS = {"jlpt_n5": "ja", "jft_basic": "ja", "eps_topik": "ko", "de_a1": "de",
+          "hsk1": "zh", "fr_a1": "fr", "ar_work": "ar"}
+TEST_PREFIX = {"jlpt_n5": "jlpt-n5", "jft_basic": "jft-basic", "eps_topik": "eps-topik", "de_a1": "de-a1",
+               "hsk1": "hsk1", "fr_a1": "fr-a1", "ar_work": "ar-work"}
+LEVELS = {"jlpt_n5": "N5", "jft_basic": "A2", "eps_topik": "EPS", "de_a1": "A1",
+          "hsk1": "HSK1", "fr_a1": "A1", "ar_work": "A1"}
+COUNTRIES = {"JP", "KR", "DE", "ME", "CN", "FR"}
 SKILLS = {"vocab", "kanji", "grammar", "expression", "detail", "gist", "info_search", "response",
           "number", "time", "place", "safety", "workplace", "culture", "spelling", "form", "message",
           "speaking"}
-LETTERS = "ABCD"
+LETTERS = "ABCDEF"  # A–F: HSK 1 / DELF A1 matching parts use a shared bank of 6
 
 # Public exam-format descriptions (structure only; no exam content):
 #  JLPT N5 — jlpt.jp "Test Sections and Number of Questions" (N5: 20 + 40 + 30 min).
@@ -81,13 +85,49 @@ BLUEPRINTS = {
             ("teil1", 5, 2, None), ("teil2", 5, 2, None), ("teil3", 5, 2, None)]},
         {"id": "schreiben", "kind": "writing", "minutes": 20, "tasks": 2},
         {"id": "sprechen", "kind": "speaking", "minutes": 15, "tasks": 3}]},
+    # Stage 3 (FORMAT.md §11):
+    #  HSK 1 — Chinese Testing International public HSK 1 description: listening 20 items (4 parts x 5,
+    #          each recording played twice, about 15 min), reading 20 items (4 parts x 5, 17 min);
+    #          200 points, 120 to pass; pinyin printed with the characters. Pictures become text options.
+    #  French A1 — France Education international public DELF A1 description: oral comprehension
+    #          ~20 min (recordings heard twice), written comprehension 30 min, written production 30 min
+    #          (form + short message), oral production 3 parts (10 min preparation + 5-7 min); 4 x 25 points.
+    #  Arabic for work (A1) — no single official exam: Assisto's own 4-skill A1 test built on the public
+    #          CEFR A1 global scale; Gulf spoken + MSA workplace language; scripts heard twice.
+    "hsk1": {"total_minutes": 32, "sections": [
+        {"id": "listening", "kind": "listening", "minutes": 15, "parts": [
+            ("picture_judge", 5, 2, 2), ("picture_choice", 5, 3, 2),
+            ("dialogue_picture", 5, 6, 2), ("short_question", 5, 3, 2)]},
+        {"id": "reading", "kind": "reading", "minutes": 17, "parts": [
+            ("picture_judge", 5, 2, None), ("picture_match", 5, 6, None),
+            ("qa_match", 5, 6, None), ("word_bank", 5, 6, None)]}]},
+    "fr_a1": {"total_minutes": 97, "sections": [
+        {"id": "oral", "kind": "listening", "minutes": 20, "parts": [
+            ("ex1", 4, 3, 2), ("ex2", 4, 3, 2), ("ex3", 4, 3, 2), ("ex4", 5, 6, 2)]},
+        {"id": "ecrit", "kind": "reading", "minutes": 30, "parts": [
+            ("ex1", 4, 3, None), ("ex2", 4, 3, None), ("ex3", 4, 3, None), ("ex4", 5, 3, None)]},
+        {"id": "production_ecrite", "kind": "writing", "minutes": 30, "tasks": 2},
+        {"id": "production_orale", "kind": "speaking", "minutes": 17, "tasks": 3}]},
+    "ar_work": {"total_minutes": 70, "sections": [
+        {"id": "listening", "kind": "listening", "minutes": 20, "parts": [
+            ("phrase", 6, 4, 2), ("dialogue", 8, 4, 2), ("instruction", 6, 4, 2)]},
+        {"id": "reading", "kind": "reading", "minutes": 25, "parts": [
+            ("letters", 6, 4, None), ("signs", 6, 4, None), ("messages", 8, 4, None)]},
+        {"id": "writing", "kind": "writing", "minutes": 15, "tasks": 2},
+        {"id": "speaking", "kind": "speaking", "minutes": 10, "tasks": 3}]},
 }
+# Free-text writing tasks must state a word limit (min_words/max_words; zh: max_chars) for these tracks.
+WORD_LIMIT_TRACKS = {"fr_a1", "ar_work"}
 
 BANNED = ["©", "all rights reserved", "past paper", "past question", "reproduced with permission",
           "過去問", "기출", "minna no nihongo", "みんなの日本語", "marugoto", "irodori",
           "sejong hakdang", "세종학당", "표준교재", "standard textbook",
           "menschen a1", "schritte international", "studio d", "goethe-institut",
           "goethe institut", "japan foundation", "国際交流基金", "hrd korea", "한국산업인력공단",
+          "hsk标准教程", "标准教程", "hsk standard course", "汉语教程", "chinese testing international",
+          "汉考国际", "真题", "france education international", "cnous", "alter ego", "édito a1", "edito a1",
+          "cosmopolite", "écho a1", "al-kitaab", "al kitaab", "الكتاب في تعلم", "madinah arabic",
+          "دروس اللغة العربية لغير الناطقين",
           "日本語能力試験公式", "official question", "অফিসিয়াল প্রশ্ন"]
 
 # ~100 common N5 kanji (public lists vary slightly; used only for a WARNING on the N5 test).
@@ -97,11 +137,142 @@ N5_KANJI = set("一二三四五六七八九十百千万円日月火水木金土�
 
 SCRIPT_RE = {"ja": re.compile(r"[぀-ヿ一-鿿]"),
              "ko": re.compile(r"[가-힣]"),
-             "de": re.compile(r"[A-Za-zÄÖÜäöüß]")}
+             "de": re.compile(r"[A-Za-zÄÖÜäöüß]"),
+             "zh": re.compile(r"[一-鿿]"),
+             "fr": re.compile(r"[A-Za-zÀ-ÿŒœ]"),
+             "ar": re.compile(r"[ء-ي]")}
 FOREIGN_RE = {"ja": re.compile(r"[가-힣]"), "ko": re.compile(r"[぀-ヿ]"),
-              "de": re.compile(r"[぀-ヿ一-鿿가-힣]")}
-# slow learner-exam speech: characters (ja/ko) or words (de) per second
-SPEECH_RATE = {"ja": 6.0, "ko": 4.5, "de": 2.0}
+              "de": re.compile(r"[぀-ヿ一-鿿가-힣]"),
+              "zh": re.compile(r"[぀-ヿ가-힣؀-ۿA-Za-z]"),  # pinyin goes in `roman`, never in `target`
+              "fr": re.compile(r"[぀-ヿ一-鿿가-힣؀-ۿ]"),
+              "ar": re.compile(r"[A-Za-z぀-ヿ一-鿿가-힣]")}  # transliteration goes in `roman`
+# slow learner-exam speech: characters (ja/ko/zh) or words (de/fr/ar) per second
+SPEECH_RATE = {"ja": 6.0, "ko": 4.5, "de": 2.0, "zh": 4.0, "fr": 2.2, "ar": 1.8}
+WORD_LANGS = {"de", "fr", "ar"}
+
+# --- stage 3 language rules -------------------------------------------------------------------
+# Hanyu Pinyin with tone marks (citation tones; 一/不 may be written with their tone change).
+TONE_MARKS = {}
+for _tone, _chars in ((1, "āēīōūǖĀĒĪŌŪǕ"), (2, "áéíóúǘÁÉÍÓÚǗńŃ"), (3, "ǎěǐǒǔǚǍĚǏǑǓǙňŇ"), (4, "àèìòùǜÀÈÌÒÙǛǹǸ")):
+    for _c in _chars:
+        TONE_MARKS[_c] = _tone
+PINYIN_OK = re.compile(r"[a-zA-ZüÜ" + "".join(TONE_MARKS) + r"\s0-9,.;:?!'’\-·…，。？！、“”\"()]+")
+# characters that are usually toneless (neutral) — used only to soften the syllable-count check
+NEUTRAL_HANZI = set("的了吗呢吧们子么个啊呀哦嘛儿头得着过地")
+# common TRADITIONAL-only forms; Assisto teaches mainland simplified characters (HSK)
+TRADITIONAL = set("們這說個來時會對學國東車門見長書買賣錢飯開關電話謝氣醫號點幾歲兒媽認識讀寫聽頭現邊誰師習"
+                  "興歡鐘熱涼雞魚飛機場離遠還進廳業員樓禮銀問題愛覺嗎麼")
+AR_REGISTERS = {"gulf", "msa", "both"}
+
+
+def hanzi_count(s) -> int:
+    return len(re.findall(r"[一-鿿]", str(s or "")))
+
+
+def pinyin_tones(s) -> list[int]:
+    return [TONE_MARKS[c] for c in unicodedata.normalize("NFC", str(s or "")) if c in TONE_MARKS]
+
+
+def word_count(s) -> int:
+    return len([w for w in str(s or "").split() if re.search(r"\w", w)])
+
+
+def check_roman(r, lang: str, where: str, obj: dict, required: bool = True):
+    """zh: pinyin with tone marks; ar: Latin transliteration. Checks `roman` against `target`."""
+    if lang not in ("zh", "ar") or not isinstance(obj, dict):
+        return
+    tgt, rom = obj.get("target"), obj.get("roman")
+    if not rom:
+        if required:
+            r.err("format", f"{where}: roman ({'pinyin' if lang == 'zh' else 'transliteration'}) required")
+        return
+    rom = unicodedata.normalize("NFC", str(rom))
+    if lang == "ar":
+        if re.search(r"[؀-ۿ]", rom) or has_bangla(rom):
+            r.err("script", f"{where}: roman must be Latin transliteration")
+        return
+    if not PINYIN_OK.fullmatch(rom):
+        bad = "".join(sorted({c for c in rom if not PINYIN_OK.fullmatch(c)}))
+        r.err("tones", f"{where}: pinyin has characters that are not pinyin: {bad!r}")
+        return
+    n, marks = hanzi_count(tgt), len(pinyin_tones(rom))
+    if re.search(r"[0-9]", str(tgt or "")):
+        return  # Arabic digits read as one or more syllables
+    if marks > n:
+        r.err("tones", f"{where}: {marks} tone marks for {n} characters")
+    neutral = sum(1 for c in str(tgt or "") if c in NEUTRAL_HANZI)
+    if n and marks == 0 and neutral < n:
+        r.err("tones", f"{where}: pinyin {rom[:30]!r} has no tone marks")
+    elif marks < n - neutral - 2:
+        r.warn("tones", f"{where}: only {marks} tone marks for {n} characters — check missing tones")
+
+
+def check_lang_item(r, lang: str, where: str, obj: dict, vocab: bool = False):
+    """Stage-3 per-item rules: pinyin/tones (zh), transliteration + Bangla pronunciation + register (ar)."""
+    if lang == "zh":
+        check_roman(r, lang, where, obj)
+        trad = {c for c in str((obj or {}).get("target", "")) if c in TRADITIONAL}
+        if trad:
+            r.err("script", f"{where}: traditional characters {''.join(sorted(trad))} — use simplified")
+        if vocab:
+            tones = obj.get("tones")
+            tgt = str(obj.get("target", ""))
+            if not isinstance(tones, list) or any(t not in (0, 1, 2, 3, 4) for t in tones):
+                r.err("tones", f"{where}: tones must be a list of 0–4 (0 = neutral), one per character")
+            elif len(tones) != hanzi_count(tgt):
+                r.err("tones", f"{where}: {len(tones)} tones for {hanzi_count(tgt)} characters")
+            elif [t for t in tones if t] != pinyin_tones(obj.get("roman")):
+                r.err("tones", f"{where}: tones {tones} do not match pinyin {obj.get('roman')!r}")
+    elif lang == "ar":
+        check_roman(r, lang, where, obj)
+        if vocab:
+            if not has_bangla(obj.get("bn_pron")):
+                r.err("format", f"{where}: bn_pron (Bangla-script pronunciation) required")
+            if obj.get("register") not in AR_REGISTERS:
+                r.err("format", f"{where}: register must be one of {sorted(AR_REGISTERS)}")
+
+
+def check_aux_roman(r, lang: str, where: str, q: dict):
+    """zh: HSK 1–2 print pinyin with the characters, so Chinese prompts/passages/options carry
+    `prompt_roman` / `passage_roman` / `options_roman` (pinyin). ar: optional, checked when present."""
+    if lang not in ("zh", "ar"):
+        return
+    need = lang == "zh"
+    for k in ("prompt", "passage"):
+        v = q.get(k)
+        if isinstance(v, str) and SCRIPT_RE[lang].search(v):
+            check_roman(r, lang, f"{where} {k}", {"target": v, "roman": q.get(k + "_roman")},
+                        required=need)
+    opts = q.get("options") or []
+    target_opts = [i for i, o in enumerate(opts) if not has_bangla(o)]
+    orom = q.get("options_roman")
+    if not target_opts or (orom is None and not need):
+        return
+    if not isinstance(orom, list) or len(orom) != len(opts):
+        r.err("format", f"{where}: options_roman must list one entry per option")
+        return
+    for i in target_opts:
+        check_roman(r, lang, f"{where} option {LETTERS[i]}", {"target": opts[i], "roman": orom[i]})
+
+
+def check_word_limit(r, lang: str, where: str, item: dict, text, required: bool):
+    """Writing word limits: min_words/max_words (word languages) or max_chars (zh) bound the model answer."""
+    lo, hi, mc = item.get("min_words"), item.get("max_words"), item.get("max_chars")
+    if lang == "zh":
+        if mc is not None and hanzi_count(text) > int(mc):
+            r.err("word_limit", f"{where}: model has {hanzi_count(text)} characters > max_chars {mc}")
+        return
+    if lo is None and hi is None:
+        if required:
+            r.err("word_limit", f"{where}: free-text writing needs min_words/max_words")
+        return
+    n = word_count(text)
+    if lo is not None and hi is not None and int(lo) > int(hi):
+        r.err("word_limit", f"{where}: min_words > max_words")
+    if lo is not None and n < int(lo):
+        r.err("word_limit", f"{where}: model has {n} words < min_words {lo}")
+    if hi is not None and n > int(hi):
+        r.err("word_limit", f"{where}: model has {n} words > max_words {hi}")
 
 
 def has_bangla(s) -> bool:
@@ -130,7 +301,7 @@ def script_len(lang: str, script: dict) -> float:
     for t in script.get("turns", []):
         if "pause" in t:
             secs += float(t.get("pause") or 0)
-        elif lang == "de":
+        elif lang in WORD_LANGS:
             secs += len(str(t.get("text", "")).split()) / SPEECH_RATE[lang] + 0.6
         else:
             secs += len(norm(t.get("text", ""))) / SPEECH_RATE[lang] + 0.6
@@ -329,6 +500,7 @@ def check_test(d: dict, r: Result, lang: str, fname: str):
                 check_target(r, lang, f"{sid}/{ptype} instructions.target", ins["target"])
             if p.get("passage"):
                 check_target(r, lang, f"{sid}/{ptype} passage", p["passage"])
+                check_aux_roman(r, lang, f"{sid}/{ptype}", p)
             qs = p.get("questions") or []
             if len(qs) != count:
                 r.err("format", f"{sid}/{ptype}: {len(qs)} questions, format needs {count}")
@@ -347,7 +519,8 @@ def check_test(d: dict, r: Result, lang: str, fname: str):
                     check_target(r, lang, f"{where} passage", q["passage"])
                 for i, o in enumerate(q.get("options") or []):
                     if not has_bangla(o):
-                        check_target(r, lang, f"{where} option {LETTERS[i] if i < 4 else i}", o)
+                        check_target(r, lang, f"{where} option {LETTERS[i] if i < len(LETTERS) else i}", o)
+                check_aux_roman(r, lang, where, q)
                 if sb["kind"] == "listening":
                     check_script(r, lang, where, q.get("script"), rep)
                     if isinstance(q.get("script"), dict):
@@ -396,6 +569,10 @@ def check_tasks(d, r: Result, lang: str, s: dict, sb: dict):
         m = t.get("model") or {}
         check_target(r, lang, f"{where} model.target", m.get("target"))
         check_bn(r, f"{where} model.bn", m.get("bn"))
+        check_lang_item(r, lang, f"{where} model", m)
+        if s.get("kind") == "writing":
+            check_word_limit(r, lang, where, t, m.get("target"),
+                             required=d.get("track") in WORD_LIMIT_TRACKS and not t.get("fields"))
         for j, f in enumerate(t.get("fields") or []):
             if not f.get("label") or not str(f.get("answer", "")).strip():
                 r.err("answer", f"{where} field {j + 1}: label + answer required")
@@ -437,6 +614,7 @@ def check_lessons(d: dict, r: Result, lang: str, fname: str, lesson_ids: dict):
             check_bn(r, f"{w}.bn", v.get("bn"))
             if lang in ("ja", "ko") and not v.get("roman"):
                 r.err("format", f"{w}: roman required")
+            check_lang_item(r, lang, w, v, vocab=True)
             if lang == "ja" and not re.fullmatch(r"[぀-ヿー・\s〜～。、！？]+", str(v.get("kana", ""))):
                 r.err("format", f"{w}: kana reading (hiragana/katakana only) required")
             ex = v.get("example") or {}
@@ -444,6 +622,7 @@ def check_lessons(d: dict, r: Result, lang: str, fname: str, lesson_ids: dict):
             check_bn(r, f"{w} example.bn", ex.get("bn"))
             if lang in ("ja", "ko") and not ex.get("roman"):
                 r.err("format", f"{w} example: roman required")
+            check_lang_item(r, lang, f"{w} example", ex)
             k = norm(v.get("target"))
             if k in seen:
                 r.warn("duplicates", f"{w}: {v.get('target')!r} already taught in {seen[k]}")
@@ -463,6 +642,7 @@ def check_lessons(d: dict, r: Result, lang: str, fname: str, lesson_ids: dict):
             for e in exs:
                 check_target(r, lang, f"{w} example", e.get("target"))
                 check_bn(r, f"{w} example.bn", e.get("bn"))
+                check_lang_item(r, lang, f"{w} example", e)
         ng += len(gr)
         pr = l.get("practice") or {}
         for skill in ("listening", "reading", "writing", "speaking"):
@@ -484,10 +664,14 @@ def check_lessons(d: dict, r: Result, lang: str, fname: str, lesson_ids: dict):
                         check_script(r, lang, w, it.get("script"))
                     else:
                         check_target(r, lang, f"{w} passage", it.get("passage"))
+                    check_aux_roman(r, lang, w, it)
                 else:
                     m = it.get("model") or {}
                     check_target(r, lang, f"{w} model", m.get("target"))
                     check_bn(r, f"{w} model.bn", m.get("bn"))
+                    check_lang_item(r, lang, f"{w} model", m)
+                    if skill == "writing":
+                        check_word_limit(r, lang, w, it, m.get("target"), required=False)
                     if skill == "writing" and it.get("check") not in ("ai", "self"):
                         r.err("format", f"{w}: check must be ai|self")
     r.stats.update({"lessons": len(ls), "vocab": nv, "grammar": ng, "practice_items": npr})
@@ -638,7 +822,7 @@ def classify(fname: str) -> str | None:
         return "syllabus"
     if fname.startswith("lessons-"):
         return "lessons"
-    if re.fullmatch(r"(jlpt-n5|jft-basic|eps-topik|de-a1)-\d{3}\.json", fname):
+    if re.fullmatch(r"(jlpt-n5|jft-basic|eps-topik|de-a1|hsk1|fr-a1|ar-work)-\d{3}\.json", fname):
         return "test"
     return None
 
@@ -659,7 +843,7 @@ def run(paths: list[str]) -> tuple[dict, dict]:
         lang = os.path.basename(os.path.dirname(p))
         kind = classify(os.path.basename(p))
         if lang not in LANGS or kind is None:
-            r.err("format", "unknown file (expected syllabus-/lessons-/<test-id>.json under ja|ko|de)")
+            r.err("format", "unknown file (expected syllabus-/lessons-/<test-id>.json under ja|ko|de|zh|fr|ar)")
             continue
         try:
             with open(p, encoding="utf-8") as f:
@@ -695,7 +879,7 @@ def main(argv=None) -> int:
     paths = collect()
     results, docs = run(paths)
     index = {"format": "assisto.lp.tracks_index/1", "files": []}
-    lines = ["# Language Partner stage-2 track check", ""]
+    lines = ["# Language Partner track check (stage 2 + stage 3)", ""]
     bad = 0
     for p, r in sorted(results.items()):
         kind, lang, d = docs.get(p, (None, None, {}))

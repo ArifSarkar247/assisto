@@ -26,7 +26,7 @@ jobs:
           python-version: '3.12'
       - name: Unit tests (validators)
         run: python -m unittest discover -s tools/lp -p 'test_*.py' -v
-      - name: Stage-2 tracks (ja / ko / de)
+      - name: Tracks stage 2+3 (ja ko de zh fr ar)
         run: python tools/lp/lpcheck_tracks.py --out out
       - name: IELTS bundles
         if: always()

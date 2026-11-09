@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn stage-2 listening scripts (FORMAT.md §10.2) into a TTS job list. No synthesis here.
+"""Turn stage-2/3 listening scripts (FORMAT.md §10.2) into a TTS job list. No synthesis here.
 
     python3 tools/lp/tts/plan_tracks.py <out_dir>   # writes <out_dir>/tts_jobs_tracks.json
 
@@ -62,7 +62,7 @@ def main(argv):
     out = argv[0] if argv else "out/tts"
     voices, rates = load_voices()
     jobs = []
-    for lang in ("ja", "ko", "de"):
+    for lang in ("ja", "ko", "de", "zh", "fr", "ar"):
         for p in sorted(glob.glob(os.path.join(CONTENT, lang, "*.json"))):
             with open(p, encoding="utf-8") as f:
                 d = json.load(f)
