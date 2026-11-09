@@ -159,8 +159,15 @@ void registerBizQualityFlows() {
       await f.pushScreen(AcctHomeScreen(businessId: (biz['id'] as num).toInt()),
           settleSeconds: 5);
       await f.shot('acct-home');
-      if (!await f.appears(find.byKey(const ValueKey('acct-fab')), seconds: 10)) {
-        throw TestFailure('no add-entry button on the accounting home');
+      // the FAB shows once there are entries; an empty book shows the
+      // first-entry tiles (acct-home-<kind>) instead (run 42572618756)
+      final add = find.byWidgetPredicate((w) {
+        final k = w.key;
+        return k is ValueKey<String> &&
+            (k.value == 'acct-fab' || k.value.startsWith('acct-home-'));
+      });
+      if (!await f.appears(add, seconds: 10)) {
+        throw TestFailure('no way to add an entry on the accounting home');
       }
       f.expectNoServerErrors(since: mark);
     });
