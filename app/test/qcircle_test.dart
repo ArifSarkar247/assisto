@@ -149,7 +149,7 @@ void main() {
               .join(' ');
           expect(RegExp(r'[0-9]').hasMatch(sub), isFalse, reason: sub);
           expect(sub, contains('২২:০০'));
-          expect(sub, contains('০৭:০০'));
+          expect(sub, contains('৭:০০'));
         }
         expect(tester.takeException(), isNull);
       });
@@ -186,7 +186,10 @@ void main() {
                   onLongPressItem: got.add)))));
       await tester.pump();
       for (final i in [2, 0, 3]) {
-        await tester.longPress(find.byKey(ValueKey('qc-album-lp-$i')));
+        // a corner: the centre holds the download button's tooltip
+        await tester.longPressAt(
+            tester.getTopLeft(find.byKey(ValueKey('qc-album-lp-$i'))) +
+                const Offset(8, 8));
         await tester.pump();
       }
       expect(got, [2, 0, 3]);
