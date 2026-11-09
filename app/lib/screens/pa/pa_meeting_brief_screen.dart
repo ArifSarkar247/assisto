@@ -207,7 +207,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
           _SectionLabel(text: t.paReminderHeading),
           const SizedBox(height: Gap.sm),
           Text(t.paReminderHint,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
           const SizedBox(height: Gap.md),
           Wrap(
             spacing: Gap.sm,
@@ -244,7 +244,7 @@ class _DeterministicMarker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.5),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
@@ -267,12 +267,12 @@ class _IncompleteCore extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: Gap.xl),
       child: Column(children: [
         Icon(Icons.event_busy_rounded,
-            size: 44, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            size: 44, color: Theme.of(context).colorScheme.ds.muted),
         const SizedBox(height: Gap.md),
         Text(text,
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.ds.muted,
                 height: 1.4)),
       ]),
     );
@@ -299,7 +299,7 @@ class _CompletenessMeter extends StatelessWidget {
         child: LinearProgressIndicator(
           value: pct / 100.0,
           minHeight: 8,
-          backgroundColor: scheme.surfaceContainerHighest,
+          backgroundColor: scheme.ds.cardHighest,
           valueColor: AlwaysStoppedAnimation(
               pct >= 100 ? Brand.success : Brand.blue),
         ),
@@ -328,7 +328,7 @@ class _BriefPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surface,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       padding: const EdgeInsets.all(Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -364,19 +364,19 @@ class _BriefPreview extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 16, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         SizedBox(
           width: 70,
           child: Text(label,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w600)),
         ),
         Expanded(
           child: Text(
             showValue ? value : (t?.paBriefMissing ?? ''),
             style: AType.bodyMedium.copyWith(height: 1.35, fontStyle: showValue ? null : FontStyle.italic, color: showValue
                     ? null
-                    : scheme.onSurfaceVariant.withValues(alpha: 0.7)),
+                    : scheme.ds.muted.withValues(alpha: 0.7)),
           ),
         ),
       ]),
@@ -393,7 +393,7 @@ class _BriefPreview extends StatelessWidget {
       const SizedBox(height: Gap.xs),
       if (empty)
         Text(t.paBriefSectionEmpty,
-            style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant.withValues(alpha: 0.7)))
+            style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted.withValues(alpha: 0.7)))
       else
         ...items.map((x) => Padding(
               padding: const EdgeInsets.only(top: Gap.xxs, bottom: Gap.xxs),
@@ -427,7 +427,7 @@ class _ReminderStatus extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     if (!hasCore) {
       return Text(t.paReminderNoTime,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontStyle: FontStyle.italic));
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted, fontStyle: FontStyle.italic));
     }
     if (summary.allPast) {
       return Row(children: [
@@ -441,7 +441,7 @@ class _ReminderStatus extends StatelessWidget {
     }
     if (summary.count == 0) {
       return Text(t.paReminderNone,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant));
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted));
     }
     final loc = Localizations.localeOf(context).toString();
     final nextStr = summary.next == null
@@ -470,18 +470,18 @@ class _AiSeamCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Row(children: [
         Icon(Icons.auto_awesome_rounded,
-            size: 20, color: scheme.onSurfaceVariant),
+            size: 20, color: scheme.ds.muted),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(text,
-                style: AType.bodySmall.copyWith(height: 1.3, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.3, color: scheme.ds.muted)),
             const SizedBox(height: Gap.xs),
             // Honest: disabled — key-gated seam, not built in this batch.
             TextButton.icon(

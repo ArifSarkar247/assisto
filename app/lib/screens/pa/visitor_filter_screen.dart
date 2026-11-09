@@ -251,7 +251,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
             style: danger
-                ? FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError)
+                ? FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill)
                 : null,
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(confirmLabel),
@@ -297,7 +297,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVisLoadError),
                   action: FilledButton.tonalIcon(
@@ -360,7 +360,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         child: Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            color: scheme.ds.cardHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
@@ -371,7 +371,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                 tr.paVisSummary(/* (expired, needs, pending) */
                     '${_countFor(_stExpired)}', '$_needsAttention',
                     '${_countFor(_stPending)}'),
-                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.3),
               ),
             ),
           ]),
@@ -438,7 +438,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
       case _stApproved:
         return Brand.success;
       case _stDeclined:
-        return scheme.error;
+        return scheme.ds.dangerInk;
       case _stExpired:
         return Brand.warning;
       case _stSuggested:
@@ -479,7 +479,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           if ((r['reason'] ?? '').toString().trim().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text((r['reason']).toString(),
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3),
+                style: TextStyle(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -520,7 +520,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                   onPressed: () => _triage(r, 'decline', tr),
                   icon: const Icon(Icons.close_rounded, size: 18),
                   label: Text(tr.paVisDecline, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
+                  style: OutlinedButton.styleFrom(foregroundColor: scheme.ds.dangerInk),
                 ),
               ),
               const SizedBox(width: Gap.sm),
@@ -561,9 +561,9 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
   Widget _meta(IconData icon, String text, ColorScheme scheme) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 15, color: scheme.ds.muted),
           const SizedBox(width: Gap.xs),
-          Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(text, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       );
 

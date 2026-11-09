@@ -474,31 +474,31 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               ? t.shopLiveCostNote(fmtInt(context, _relayPerMin))
               : t.shopLiveNoRelayNote,
           textAlign: TextAlign.center,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35),
         ),
         if (active && _idle < _maxSeconds)
           Text(t.pcLiveIdleNote(fmtInt(context, (_idle / 60).round())),
               key: const Key('shopLiveIdleNote'),
               textAlign: TextAlign.center,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         if (_trafficMsg.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(_trafficMsg,
                 key: const Key('shopLiveTraffic'),
                 textAlign: TextAlign.center,
-                style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.35)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.35)),
           ),
         Text(t.shopLiveNoRecording,
             textAlign: TextAlign.center,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (active)
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: scheme.error,
-                  foregroundColor: scheme.onError),
+              style: FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk,
+                  foregroundColor: scheme.ds.onDangerFill),
               onPressed: () => _end(),
               icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.shopLiveStop),

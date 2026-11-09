@@ -354,7 +354,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
           padding: const EdgeInsets.only(bottom: 4),
           child: Row(children: [
             Icon(r['ok'] == true ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-                size: 20, color: r['ok'] == true ? AssistoTokens.of(context).success : scheme.error),
+                size: 20, color: r['ok'] == true ? AssistoTokens.of(context).success : scheme.ds.dangerInk),
             const SizedBox(width: 8),
             Expanded(
               child: Text('${r['label'] ?? ''}: ${r['ok'] == true ? t.crrSrcOk(ld(context, r['count'] ?? 0)) : r['error'] == 'not_connected' ? t.crrSrcNotConnected : t.crrSrcFailed}'),
@@ -397,7 +397,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
       );
 
   Widget _note(BuildContext context, IconData icon, String s) => Card(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: Theme.of(context).colorScheme.ds.cardHighest,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -528,7 +528,7 @@ class _AddSourceSheetState extends State<_AddSourceSheet> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(_result!,
-                  style: TextStyle(color: _ok ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error)),
+                  style: TextStyle(color: _ok ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.ds.dangerInk)),
             ),
         ],
       ),

@@ -1,6 +1,6 @@
 # designv2: mechanical colour pass for one screen file (style only).
 # Maps ColorScheme roles that read as text / ink / surfaces to the V2 tokens
-# (DsTokens.of(context).<token>) and adds the ds import. Prints every raw
+# (<scheme>.ds.<token>, extension DsSchemeTokens — no BuildContext needed) and adds the ds import. Prints every raw
 # TextStyle( / Color( left so they can be moved to the theme scale by hand.
 # usage: python3 owner_actions/design/ds2_tokenize.py app/lib/<file>.dart
 import re, sys, os
@@ -14,7 +14,7 @@ MAP = {
     'surfaceContainerLow': 'card',
     'surfaceContainerLowest': 'card',
     'outlineVariant': 'border',
-    'outline': 'border',
+    'outline': 'muted',  # often used for hint text / icons — muted passes AA
     'error': 'dangerInk',
     'onError': 'onDangerFill',
     'errorContainer': 'dangerBg',
@@ -30,15 +30,17 @@ MAP = {
 path = sys.argv[1]
 s = open(path).read()
 orig = s
-vars_ = set(re.findall(r'final (\w+) = Theme\.of\(context\)\.colorScheme;', s))
+vars_ = set(re.findall(r'final (\w+) = Theme\.of\(\w+\)\.colorScheme;', s))
 vars_ |= set(re.findall(r'ColorScheme (\w+)[,)]', s))
 n = 0
-for v in sorted(vars_) + ['Theme.of(context).colorScheme']:
+for v in sorted(vars_) + ['Theme.of(context).colorScheme', 'Theme.of(ctx).colorScheme']:
     for role in sorted(MAP, key=len, reverse=True):
-        pat = re.escape(v) + r'\.' + role + r'\b'
-        s, k = re.subn(pat, 'DsTokens.of(context).' + MAP[role], s)
+        pat = r'(?<![\w.])' + re.escape(v) + r'\.' + role + r'\b'
+        # context-free: works in any scope where the ColorScheme is
+        s, k = re.subn(pat, v + '.ds.' + MAP[role], s)
         n += k
-if s != orig and 'ds/ds.dart' not in s:
+theme_plain = re.search(r"^import '[^']*/theme\.dart';$|^import 'package:assisto/theme\.dart';$|^import 'theme\.dart';$", s, re.M)
+if s != orig and 'ds/ds.dart' not in s and not theme_plain:
     rel = os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), '../../app/lib/ds/ds.dart'),
                           os.path.dirname(os.path.abspath(path)))
     m = re.search(r"^import '[^']*theme\.dart';\n", s, re.M) or re.search(r"^import 'package:flutter/material\.dart';\n", s, re.M)

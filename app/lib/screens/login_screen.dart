@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../api.dart' show ApiException; // framebar
@@ -213,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(_error!,
                           key: const Key('login-error'),
                           style: TextStyle(
-                              color: Theme.of(context).colorScheme.error)),
+                              color: Theme.of(context).colorScheme.ds.dangerInk)),
                     ),
                   ],
                   const SizedBox(height: 20),

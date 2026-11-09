@@ -92,7 +92,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.error, foregroundColor: scheme.onError),
+                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -194,7 +194,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paDeptLoadError),
                   action: FilledButton.tonalIcon(
@@ -237,9 +237,9 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.primaryContainer.withValues(alpha: 0.35),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -269,11 +269,11 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         ]),
         const SizedBox(height: Gap.sm),
         Row(children: [
-          Icon(Icons.info_outline_rounded, size: 14, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 14, color: scheme.ds.muted),
           const SizedBox(width: 4),
           Expanded(
             child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 12)),
           ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -308,7 +308,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
 
   Widget _chip(ColorScheme scheme, IconData icon, String label,
       {bool danger = false}) {
-    final c = danger ? scheme.error : scheme.primary;
+    final c = danger ? scheme.ds.dangerInk : scheme.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 6),
       decoration: BoxDecoration(
@@ -353,7 +353,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                     if (lead.isNotEmpty)
                       Text(lead,
                           style: TextStyle(
-                              color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                              color: scheme.ds.muted, fontSize: 12.5)),
                   ]),
             ),
             if (b.isNotEmpty)
@@ -361,12 +361,12 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
                 decoration: BoxDecoration(
-                  color: scheme.error.withValues(alpha: 0.12),
+                  color: scheme.ds.dangerInk.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Text(tr.paDeptBlockedBadge,
                     style: TextStyle(
-                        color: scheme.error,
+                        color: scheme.ds.dangerInk,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700)),
               ),
@@ -387,13 +387,13 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           ],
           if (b.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
-            _bulletBlock(scheme, tr.paDeptSecBlockers, b, scheme.error),
+            _bulletBlock(scheme, tr.paDeptSecBlockers, b, scheme.ds.dangerInk),
           ],
           if (metrics.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paDeptSecMetrics,
                 style: TextStyle(
-                    color: scheme.onSurfaceVariant,
+                    color: scheme.ds.muted,
                     fontSize: 12,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 2),
@@ -413,7 +413,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
           style: TextStyle(
-              color: scheme.onSurfaceVariant,
+              color: scheme.ds.muted,
               fontSize: 12,
               fontWeight: FontWeight.w700)),
       for (final x in items)
@@ -438,9 +438,9 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 5),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Text(value.isNotEmpty ? '$label: $value' : label,
           style: const TextStyle(fontSize: 12.5)),
@@ -454,7 +454,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         decoration: BoxDecoration(
           color: scheme.surface,
           borderRadius: BorderRadius.circular(Radii.sm),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -468,7 +468,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
               const SizedBox(height: 2),
               Text(tr.paDeptAiSeamBody,
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant,
+                      color: scheme.ds.muted,
                       fontSize: 12.5,
                       height: 1.4)),
             ]),
@@ -608,7 +608,7 @@ class _DeptEditorState extends State<_DeptEditor> {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Radii.md),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: scheme.ds.border),
             ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -627,7 +627,7 @@ class _DeptEditorState extends State<_DeptEditor> {
               const SizedBox(height: 2),
               Text(tr.paDeptMetricHelp,
                   style:
-                      TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                      TextStyle(color: scheme.ds.muted, fontSize: 12)),
               for (var i = 0; i < _metrics.length; i++) ...[
                 const SizedBox(height: Gap.sm),
                 Row(children: [
@@ -656,7 +656,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                   ),
                   IconButton(
                     icon:
-                        Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
+                        Icon(Icons.remove_circle_outline_rounded, color: scheme.ds.dangerInk),
                     onPressed: () => setState(() => _metrics.removeAt(i)),
                   ),
                 ]),
@@ -675,12 +675,12 @@ class _DeptEditorState extends State<_DeptEditor> {
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
-            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.ds.muted),
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.paDeptMetricReportedNote,
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                      color: scheme.ds.muted, fontSize: 12.5)),
             ),
           ]),
           const SizedBox(height: Gap.lg),
@@ -696,7 +696,7 @@ class _DeptEditorState extends State<_DeptEditor> {
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paDeptNeedName,
-                style: TextStyle(color: scheme.error, fontSize: 12.5)),
+                style: TextStyle(color: scheme.ds.dangerInk, fontSize: 12.5)),
           ],
         ],
       ),

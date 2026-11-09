@@ -170,7 +170,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
         appBar: AppBar(title: Text(tr.priceTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.priceLoadError),
           action: FilledButton.tonalIcon(
@@ -229,7 +229,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -237,7 +237,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.priceManualNote,
-                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -277,7 +277,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Text(tr.priceOneLogOnly,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -293,19 +293,19 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
             Text(mbOfficialLine(context, o),
                 key: ValueKey('mb-official-match-${item.item}'),
                 style: AType.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
+                    fontWeight: FontWeight.w600, color: scheme.ds.muted)),
           ],
           if (item.mixedUnits) ...[
             const SizedBox(height: Gap.sm),
             Text(tr.priceMixedUnitsWarn,
-                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.error)),
+                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.dangerInk)),
           ],
           const Divider(height: Gap.lg),
           ...item.logs.map((l) => ListTile(
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.schedule_rounded,
-                    size: 18, color: scheme.onSurfaceVariant),
+                    size: 18, color: scheme.ds.muted),
                 title: Text(l.priceDisplay,
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text(_logSubtitle(context, tr, l)),
@@ -328,7 +328,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
   Widget _trendPill(BuildContext context, _RItem item) {
     final scheme = Theme.of(context).colorScheme;
     final up = item.up == true;
-    final color = up ? scheme.error : scheme.primary;
+    final color = up ? scheme.ds.dangerInk : scheme.primary;
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.xs),
       child: Container(
@@ -353,12 +353,12 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(label,
-            style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
         Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
       ]),
     );

@@ -171,7 +171,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.spendLoadError),
           action: FilledButton.tonalIcon(
@@ -238,7 +238,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                 if (ledger) ...[
                   Text(tr.mbSpendLedgerNote,
                       style: AType.bodySmall.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          color: Theme.of(context).colorScheme.ds.muted)),
                   const SizedBox(height: Gap.sm),
                 ],
                 // ALWAYS-ON honest disclaimer
@@ -291,16 +291,16 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
   Widget _disclaimerCard(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.tertiaryContainer,
+      color: scheme.ds.successBg,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(Icons.verified_user_rounded,
-              size: 20, color: scheme.onTertiaryContainer),
+              size: 20, color: scheme.ds.successInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.spendDisclaimer,
-                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onTertiaryContainer)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.successInk)),
           ),
         ]),
       ),
@@ -317,7 +317,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.spendTotalSpent,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
             const SizedBox(height: Gap.xxs),
             Text(notifLocalizeDigits(context, r.totalSpentDisplay),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -332,13 +332,13 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                             ? Icons.trending_down_rounded
                             : Icons.trending_flat_rounded),
                     size: 18,
-                    color: r.totalUp == true ? scheme.error : scheme.primary),
+                    color: r.totalUp == true ? scheme.ds.dangerInk : scheme.primary),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
                     notifLocalizeDigits(context, tr.spendVsPrevious(
                         r.totalDeltaDisplay!, r.totalDeltaPct.abs())),
-                    style: TextStyle(color: scheme.onSurfaceVariant),
+                    style: TextStyle(color: scheme.ds.muted),
                   ),
                 ),
               ]),
@@ -358,7 +358,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(over ? Icons.warning_amber_rounded : Icons.lightbulb_outline_rounded,
-              size: 20, color: over ? scheme.error : scheme.primary),
+              size: 20, color: over ? scheme.ds.dangerInk : scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(notifLocalizeDigits(context, _obsText(tr, o)),
@@ -403,8 +403,8 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             child: LinearProgressIndicator(
               value: (c.sharePct / 100).clamp(0.0, 1.0),
               minHeight: 8,
-              backgroundColor: scheme.surfaceContainerHighest,
-              color: c.overBudget ? scheme.error : scheme.primary,
+              backgroundColor: scheme.ds.cardHighest,
+              color: c.overBudget ? scheme.ds.dangerInk : scheme.primary,
             ),
           ),
           const SizedBox(height: 6),
@@ -416,12 +416,12 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                   c.overBudget
                       ? tr.spendOverBudgetChip(c.overByDisplay ?? '')
                       : tr.spendBudgetChip(c.budgetDisplay!),
-                  c.overBudget ? scheme.error : scheme.onSurfaceVariant),
+                  c.overBudget ? scheme.ds.dangerInk : scheme.ds.muted),
             if (c.deltaDisplay != null)
               _chip(
                   context,
                   tr.spendChangeChip(c.deltaDisplay!, c.deltaPct.abs()),
-                  c.up == true ? scheme.error : scheme.primary),
+                  c.up == true ? scheme.ds.dangerInk : scheme.primary),
           ]),
         ]),
       ),
@@ -456,7 +456,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -470,7 +470,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.spendAiSeamBody,
-              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
       ),
     );
@@ -596,7 +596,7 @@ Future<Map<String, dynamic>?> _entrySheet(
           const SizedBox(height: Gap.sm),
           Text(tr.spendEntryNote,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           SizedBox(
             width: double.infinity,

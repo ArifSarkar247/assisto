@@ -198,7 +198,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
       child: Material(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.lg),
         child: InkWell(
           key: const Key('chx-search-entry'),
@@ -210,11 +210,11 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: Gap.lg, vertical: Gap.sm),
               child: Row(children: [
-                Icon(Icons.search_rounded, color: scheme.onSurfaceVariant),
+                Icon(Icons.search_rounded, color: scheme.ds.muted),
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Text(t.chxSearchHint,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
                 ),
               ]),
             ),
@@ -290,7 +290,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                   ch['is_public'] == true
                       ? Icons.public_rounded
                       : Icons.lock_rounded,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.ds.muted,
                 ),
               ),
             ),
@@ -325,7 +325,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             child: Text(
               t.channelSuggestedSourceNote,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  color: Theme.of(context).colorScheme.ds.muted),
             ),
           ),
         ],

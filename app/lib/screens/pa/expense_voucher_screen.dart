@@ -216,7 +216,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
         appBar: AppBar(title: Text(t.paVoucherTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paVoucherLoadError),
           action: FilledButton.tonalIcon(
@@ -300,7 +300,7 @@ class _OcrSeamCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -315,7 +315,7 @@ class _OcrSeamCard extends StatelessWidget {
               Text(t.paVoucherOcrSeamBody,
                   style: TextStyle(
                       fontSize: 12,
-                      color: scheme.onSurfaceVariant,
+                      color: scheme.ds.muted,
                       height: 1.35)),
             ]),
           ),
@@ -527,7 +527,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.md),
                     child: Text(t.paVoucherNoLines,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                        style: TextStyle(color: scheme.ds.muted)),
                   )
                 else
                   for (final l in _lines)

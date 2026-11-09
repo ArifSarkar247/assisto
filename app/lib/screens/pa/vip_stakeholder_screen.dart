@@ -178,7 +178,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.error, foregroundColor: scheme.onError),
+                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -249,7 +249,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVipLoadError),
                   action: FilledButton.tonalIcon(
@@ -280,11 +280,11 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                             const SizedBox(height: Gap.md),
                           Row(children: [
                             Icon(Icons.lock_outline_rounded,
-                                size: 14, color: scheme.onSurfaceVariant),
+                                size: 14, color: scheme.ds.muted),
                             const SizedBox(width: Gap.xs),
                             Expanded(
                               child: Text(tr.paVipPrivacyNote,
-                                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                             ),
                           ]),
                           const SizedBox(height: Gap.sm),
@@ -303,7 +303,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: (overdue > 0 ? scheme.error : scheme.primary)
+        color: (overdue > 0 ? scheme.ds.dangerInk : scheme.primary)
             .withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
@@ -312,7 +312,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
             overdue > 0
                 ? Icons.notification_important_rounded
                 : Icons.schedule_rounded,
-            color: overdue > 0 ? scheme.error : scheme.primary),
+            color: overdue > 0 ? scheme.ds.dangerInk : scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -322,7 +322,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
             ].join('  ·  '),
             style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: overdue > 0 ? scheme.error : scheme.primary),
+                color: overdue > 0 ? scheme.ds.dangerInk : scheme.primary),
           ),
         ),
       ]),
@@ -336,10 +336,10 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
     final org = _clean(r['org']?.toString());
     final tier = _normTier(r['tier']?.toString());
     final (Color, String) badge = switch (a.status) {
-      _stOverdue => (scheme.error, _statusLabel(tr, a)),
+      _stOverdue => (scheme.ds.dangerInk, _statusLabel(tr, a)),
       _stDueSoon => (scheme.tertiary, _statusLabel(tr, a)),
       _stOnTrack => (scheme.primary, _statusLabel(tr, a)),
-      _ => (scheme.onSurfaceVariant, _statusLabel(tr, a)),
+      _ => (scheme.ds.muted, _statusLabel(tr, a)),
     };
     return Card(
       margin: EdgeInsets.zero,
@@ -371,7 +371,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                           ].join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ]),
               ),
               PopupMenuButton<String>(
@@ -404,7 +404,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
 
   Widget _tierDot(ColorScheme scheme, String tier) {
     final c = switch (tier) {
-      _tierStrategic => scheme.error,
+      _tierStrategic => scheme.ds.dangerInk,
       _tierKey => scheme.tertiary,
       _ => scheme.primary,
     };
@@ -641,7 +641,7 @@ class _VipEditorState extends State<_VipEditor> {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Radii.md),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: scheme.ds.border),
             ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -686,7 +686,7 @@ class _VipEditorState extends State<_VipEditor> {
                   IconButton(
                     tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                     icon:
-                        Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
+                        Icon(Icons.remove_circle_outline_rounded, color: scheme.ds.dangerInk),
                     onPressed: () => setState(() => _log.removeAt(i)),
                   ),
                 ]),
@@ -705,11 +705,11 @@ class _VipEditorState extends State<_VipEditor> {
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
-            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.paVipPrivacyNote,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           ]),
           const SizedBox(height: Gap.lg),
@@ -725,7 +725,7 @@ class _VipEditorState extends State<_VipEditor> {
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paVipNeedName,
-                style: AType.bodySmall.copyWith(color: scheme.error)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
           ],
         ],
       ),

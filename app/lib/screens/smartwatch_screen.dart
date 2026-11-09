@@ -238,7 +238,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         _Phase.needsPermission => _needsPermission(tr),
         _Phase.error => StateMessage(
             icon: Icons.cloud_off_rounded,
-            tint: scheme.error,
+            tint: scheme.ds.dangerInk,
             title: tr.swErrorTitle,
             message: tr.swErrorBody,
             action: FilledButton.tonalIcon(
@@ -423,7 +423,7 @@ class _Metric extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
           Text(label,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
         ]),
@@ -469,7 +469,7 @@ class _StepsWeekCard extends StatelessWidget {
                 : tr.swStepsWeekSummary(
                     ld(context, _fmtInt(summary.weekStepsTotal)),
                     ld(context, _fmtInt(summary.weekStepsAvg))),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -496,7 +496,7 @@ class _StepsWeekCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: d.steps > 0
                                         ? Brand.blue
-                                        : scheme.outlineVariant
+                                        : scheme.ds.border
                                             .withValues(alpha: 0.4),
                                     borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(Radii.xs)),
@@ -510,7 +510,7 @@ class _StepsWeekCard extends StatelessWidget {
                           if (series.length <= 7) ...[
                             const SizedBox(height: Gap.xs),
                             Text(_dayLetter(context, d.date),
-                                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                                style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                           ],
                         ],
                       ),
@@ -577,7 +577,7 @@ class _SurfaceLinks extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer.withValues(alpha: 0.35),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.35),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -591,7 +591,7 @@ class _SurfaceLinks extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.swSurfaceBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
         ]),
@@ -608,16 +608,16 @@ class _PrivacyNote extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.lock_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.swPrivacyNote,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),

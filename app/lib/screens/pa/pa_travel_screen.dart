@@ -162,7 +162,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
         appBar: AppBar(title: Text(t.paTravelTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paTravelLoadError),
           action: FilledButton.tonalIcon(
@@ -247,8 +247,8 @@ class _TripCard extends StatelessWidget {
       child: ListTile(
         onTap: onOpen,
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.card_travel_rounded, color: scheme.onPrimaryContainer),
+          backgroundColor: scheme.ds.primarySoft,
+          child: Icon(Icons.card_travel_rounded, color: scheme.ds.primaryInk),
         ),
         title: Text('${trip['title'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -456,7 +456,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                                 value: pct / 100,
                                 minHeight: 8,
                                 backgroundColor:
-                                    scheme.surfaceContainerHighest),
+                                    scheme.ds.cardHighest),
                           ),
                         ),
                         const SizedBox(width: Gap.sm),
@@ -585,7 +585,7 @@ class _BookingSeamCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -598,7 +598,7 @@ class _BookingSeamCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(t.paTravelBookingSeamBody,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
             ]),
           ),
         ]),
@@ -639,7 +639,7 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       );
 }
 
@@ -1120,7 +1120,7 @@ class _ItinerarySummarySheet extends StatelessWidget {
           if (kShowKeySeams) ...[ // truth: no key dead end
             const SizedBox(height: Gap.md),
             Text(t.paTravelBookingSeamBody,
-                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           ],
         ],
       ),

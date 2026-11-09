@@ -279,16 +279,16 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
           children: [
             if (_done != null) ...[
               Card(
-                color: scheme.secondaryContainer,
+                color: scheme.ds.primarySoft,
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(children: [
                     Icon(Icons.check_circle_outline_rounded,
-                        color: scheme.onSecondaryContainer),
+                        color: scheme.ds.primaryInk),
                     const SizedBox(width: 10),
                     Expanded(
                         child: Text(_done!,
-                            style: TextStyle(color: scheme.onSecondaryContainer))),
+                            style: TextStyle(color: scheme.ds.primaryInk))),
                   ]),
                 ),
               ),

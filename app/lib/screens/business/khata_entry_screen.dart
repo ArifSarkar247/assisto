@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -82,7 +83,7 @@ class _KhataEntryScreenState extends State<KhataEntryScreen> {
       body: _error
           ? StateMessage(
               icon: Icons.cloud_off_rounded,
-              tint: scheme.error,
+              tint: scheme.ds.dangerInk,
               title: t.loadFailed,
               message: honestFailText(t, _cause),
               action: FilledButton.tonalIcon(

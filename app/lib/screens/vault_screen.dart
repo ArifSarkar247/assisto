@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -446,7 +447,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: Theme.of(ctx).colorScheme.ds.cardHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -620,7 +621,7 @@ class _VaultScreenState extends State<VaultScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: Theme.of(ctx).colorScheme.ds.cardHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -916,23 +917,23 @@ class _VaultScreenState extends State<VaultScreen> {
 
   Widget _nudge(AppLocalizations t) => Card(
         key: const Key('vault_recovery_nudge'),
-        color: Theme.of(context).colorScheme.secondaryContainer,
+        color: Theme.of(context).colorScheme.ds.primarySoft,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(Icons.key_rounded, color: Theme.of(context).colorScheme.onSecondaryContainer),
+              Icon(Icons.key_rounded, color: Theme.of(context).colorScheme.ds.primaryInk),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.vaultNudgeTitle,
                       style: AType.titleSmall.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSecondaryContainer))),
+                          color: Theme.of(context).colorScheme.ds.primaryInk))),
             ]),
             const SizedBox(height: Gap.xs),
             Text(t.vaultNudgeBody,
                 style: AType.bodyMedium
-                    .copyWith(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                    .copyWith(color: Theme.of(context).colorScheme.ds.primaryInk)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, children: [
               FilledButton(
@@ -1001,7 +1002,7 @@ class _VaultScreenState extends State<VaultScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.error,
+                  tint: Theme.of(context).colorScheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
                   action: FilledButton.tonalIcon(

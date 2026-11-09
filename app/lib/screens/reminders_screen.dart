@@ -256,10 +256,10 @@ class _RemindersScreenState extends State<RemindersScreen>
     today.sort(byNext);
     upcoming.sort(byNext);
     return [
-      _Group('overdue', overdue, Theme.of(context).colorScheme.error),
+      _Group('overdue', overdue, Theme.of(context).colorScheme.ds.dangerInk),
       _Group('today', today, Brand.blue),
       _Group('upcoming', upcoming, Brand.purple),
-      _Group('nodate', noDate, Theme.of(context).colorScheme.onSurfaceVariant),
+      _Group('nodate', noDate, Theme.of(context).colorScheme.ds.muted),
       _Group('done', done, AssistoTokens.of(context).success),
     ];
   }
@@ -489,7 +489,7 @@ class _ReminderCard extends StatelessWidget {
                           ? Theme.of(context).textTheme.bodyLarge?.copyWith(
                               decoration: TextDecoration.lineThrough,
                               // remnotes: readable (AA), not disabled grey
-                              color: Theme.of(context).colorScheme.onSurfaceVariant)
+                              color: Theme.of(context).colorScheme.ds.muted)
                           : Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: Gap.xxs),
@@ -503,8 +503,8 @@ class _ReminderCard extends StatelessWidget {
                             icon: Icons.schedule_rounded,
                             label: _whenLabel(context, next, d),
                             tint: group == 'overdue'
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                ? Theme.of(context).colorScheme.ds.dangerInk
+                                : Theme.of(context).colorScheme.ds.muted,
                           ),
                         if (rule != null)
                           _MetaChip(
@@ -795,14 +795,14 @@ class _NotifPermBanner extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
         decoration: BoxDecoration(
-          color: scheme.errorContainer,
+          color: scheme.ds.dangerBg,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.notifications_off_rounded,
-                size: 18, color: scheme.onErrorContainer),
+                size: 18, color: scheme.ds.dangerInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
@@ -811,10 +811,10 @@ class _NotifPermBanner extends StatelessWidget {
                   const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerTitle,
                       style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
-                          color: scheme.onErrorContainer)),
+                          color: scheme.ds.dangerInk)),
                   const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onErrorContainer)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
                   const SizedBox(height: Gap.xs),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -836,7 +836,7 @@ class _NotifPermBanner extends StatelessWidget {
               tooltip: t.close,
               visualDensity: VisualDensity.compact,
               iconSize: 18,
-              color: scheme.onErrorContainer,
+              color: scheme.ds.dangerInk,
               onPressed: onDismiss,
               icon: const Icon(Icons.close_rounded),
             ),

@@ -271,10 +271,10 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
             Text(_reasonText(tr, s.reason),
                 style: TextStyle(
                     height: 1.45,
-                    color: Theme.of(ctx).colorScheme.onSurface)),
+                    color: Theme.of(ctx).colorScheme.ds.text)),
             const SizedBox(height: Gap.md),
             Text(tr.proWhyRuleNote,
-                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: Theme.of(ctx).colorScheme.ds.muted)),
           ],
         ),
       ),
@@ -295,7 +295,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
         appBar: AppBar(title: Text(tr.proTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.proLoadError),
           action: FilledButton.tonalIcon(
@@ -350,7 +350,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
                   horizontal: Gap.xs, vertical: Gap.xs),
               child: Text(tr.proIntro,
                   style:
-                      AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                      AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
             const SizedBox(height: Gap.sm),
             for (final u in _urgencies)
@@ -371,7 +371,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),
                 child: Text(tr.proHiddenCount(fmtInt(context, digest.dismissedCount)),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ),
             const SizedBox(height: Gap.sm),
             const _HonestNote(),
@@ -455,11 +455,11 @@ class _NudgeCard extends StatelessWidget {
                     if (sug.text.isNotEmpty) ...[
                       const SizedBox(height: Gap.xxs),
                       Text(sug.text,
-                          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ],
                     const SizedBox(height: Gap.xs),
                     Text(_whenText(context, tr, sug.daysUntil),
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
             IconButton(
@@ -474,7 +474,7 @@ class _NudgeCard extends StatelessWidget {
               icon: const Icon(Icons.help_outline_rounded, size: 16),
               label: Text(tr.proWhy),
               style: TextButton.styleFrom(
-                  foregroundColor: scheme.onSurfaceVariant), // a11y1: 48 dp
+                  foregroundColor: scheme.ds.muted), // a11y1: 48 dp
             ),
             const Spacer(),
             if (onOpen != null)
@@ -507,16 +507,16 @@ class _HonestNote extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.proHonestNote,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),

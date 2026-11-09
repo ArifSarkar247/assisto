@@ -166,7 +166,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
             child: custom.isEmpty
                 ? Text(t.crmNoCustomFields,
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+                        color: Theme.of(context).colorScheme.ds.muted))
                 : Column(
                     children: [
                       for (final e in custom.entries)
@@ -236,14 +236,14 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                       ),
                       if ((a['body'] ?? '').toString().isNotEmpty)
                         Text(a['body'].toString(),
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                       Text(
                         [
                           if ((a['actor_name'] ?? '').toString().isNotEmpty)
                             a['actor_name'].toString(),
                           _date(a['created_at']?.toString()),
                         ].where((s) => s.isNotEmpty).join(' · '),
-                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
+                        style: AType.labelSmall.copyWith(color: scheme.ds.muted),
                       ),
                     ]),
               ),
@@ -253,7 +253,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(t.crmCompanyTimelineClientNote,
               style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
-                  color: scheme.onSurfaceVariant)),
+                  color: scheme.ds.muted)),
         ),
       ]),
     );
@@ -278,7 +278,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           final tint = state == 'won'
               ? AssistoTokens.of(context).success
               : state == 'lost'
-                  ? Theme.of(context).colorScheme.error
+                  ? Theme.of(context).colorScheme.ds.dangerInk
                   : scheme.primary;
           return Card(
             margin: EdgeInsets.zero,
@@ -288,7 +288,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
                   '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               trailing: Text(bdt(context, d['value'] as num?),
                   style: const TextStyle(fontWeight: FontWeight.w800)),
             ),
@@ -316,7 +316,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     }
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       Text(t.crmDocumentsClientNote,
-          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       for (final a in withDocs)
         Card(
@@ -408,9 +408,9 @@ class _ContactTile extends StatelessWidget {
           Row(children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: scheme.secondaryContainer,
+              backgroundColor: scheme.ds.primarySoft,
               child: Icon(Icons.person_outline_rounded,
-                  size: 18, color: scheme.onSecondaryContainer),
+                  size: 18, color: scheme.ds.primaryInk),
             ),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -425,7 +425,7 @@ class _ContactTile extends StatelessWidget {
                       Text(contact['title'].toString(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
             if (isPrimary) const PrimaryContactBadge(),

@@ -128,7 +128,7 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
         appBar: AppBar(title: Text(tr.qurbaniTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.qurbaniLoadError),
           action: FilledButton.tonalIcon(
@@ -447,7 +447,7 @@ class _AnimalTab extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: total == 0 ? 0 : taken / total,
                       minHeight: 10,
-                      backgroundColor: scheme.surfaceContainerHighest,
+                      backgroundColor: scheme.ds.cardHighest,
                     ),
                   ),
                   const SizedBox(height: Gap.sm),
@@ -455,7 +455,7 @@ class _AnimalTab extends StatelessWidget {
                     free > 0
                         ? tr.qurbaniSharesFree(ld(context, free))
                         : tr.qurbaniAllSharesTaken,
-                    style: TextStyle(color: scheme.onSurfaceVariant),
+                    style: TextStyle(color: scheme.ds.muted),
                   ),
                 ],
               ),
@@ -486,10 +486,10 @@ class _AnimalTab extends StatelessWidget {
             ...summary.participants.map((p) => Card(
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: scheme.primaryContainer,
+                      backgroundColor: scheme.ds.primarySoft,
                       child: Text(ld(context, p.shares),
                           style: TextStyle(
-                              color: scheme.onPrimaryContainer,
+                              color: scheme.ds.primaryInk,
                               fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
                     ),
                     title: Text(p.name),
@@ -526,7 +526,7 @@ class _AnimalTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-              child: Text(k, style: TextStyle(color: scheme.onSurfaceVariant))),
+              child: Text(k, style: TextStyle(color: scheme.ds.muted))),
           const SizedBox(width: Gap.sm),
           Flexible(
             child: Text(ld(context, v),
@@ -556,7 +556,7 @@ class _MeatTab extends StatelessWidget {
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Row(children: [
@@ -660,7 +660,7 @@ class _ChecklistTab extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: pct / 100,
                     minHeight: 10,
-                    backgroundColor: scheme.surfaceContainerHighest,
+                    backgroundColor: scheme.ds.cardHighest,
                   ),
                 ),
               ],
@@ -986,7 +986,7 @@ Future<Map<String, dynamic>?> _planSheet(
               else
                 Text(tr.qurbaniSingleShareNote,
                     style: TextStyle(
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                        color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               SizedBox(
                 width: double.infinity,
@@ -1068,7 +1068,7 @@ Future<Map<String, dynamic>?> _participantSheet(
             ]),
             Text(tr.qurbaniSharesFree(ld(context, free)),
                 style: TextStyle(
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(ctx).colorScheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,
@@ -1135,7 +1135,7 @@ Future<Map<String, dynamic>?> _meatSheet(
               Text(tr.qurbaniMeatNeutralNote,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               TextField(
                 controller: kgC,

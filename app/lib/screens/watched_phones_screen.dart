@@ -100,7 +100,7 @@ class _WatchedPhonesScreenState extends State<WatchedPhonesScreen> {
                         const SizedBox(height: Gap.xxl),
                         Icon(Icons.shield_outlined,
                             size: 56,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            color: Theme.of(context).colorScheme.ds.muted),
                         const SizedBox(height: Gap.md),
                         Text(tr.at100WatchEmpty,
                             key: const Key('at100-watch-empty'),

@@ -163,7 +163,7 @@ class _LearnCertClaimSheetState extends State<LearnCertClaimSheet> {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(_error!,
-                  style: AType.bodyMedium.copyWith(color: scheme.error)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
             ),
           _Disclaimer(text: t.lcDisclaimer),
           const SizedBox(height: Gap.lg),
@@ -197,17 +197,17 @@ class _Disclaimer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer,
+        color: scheme.ds.successBg,
         borderRadius: BorderRadius.circular(10),
         border: Border(left: BorderSide(color: scheme.tertiary, width: 4)),
       ),
       child: Row(children: [
-        Icon(Icons.info_outline_rounded, color: scheme.onTertiaryContainer),
+        Icon(Icons.info_outline_rounded, color: scheme.ds.successInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
               style: AType.bodyMedium.copyWith(
-                  color: scheme.onTertiaryContainer, fontWeight: FontWeight.w600)),
+                  color: scheme.ds.successInk, fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -235,7 +235,7 @@ class LearnCertCard extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: Gap.sm,
             children: [
-              Text('$label:', style: AType.bodyLarge.copyWith(color: scheme.onSurfaceVariant)),
+              Text('$label:', style: AType.bodyLarge.copyWith(color: scheme.ds.muted)),
               Text(value,
                   textAlign: TextAlign.center,
                   style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
@@ -273,7 +273,7 @@ class LearnCertCard extends StatelessWidget {
                 const SizedBox(height: Gap.md),
                 Text(s('awarded'),
                     textAlign: TextAlign.center,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.xs),
                 Text(s('name'),
                     textAlign: TextAlign.center,
@@ -282,7 +282,7 @@ class LearnCertCard extends StatelessWidget {
                 const SizedBox(height: Gap.xs),
                 Text(s('completed'),
                     textAlign: TextAlign.center,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.xs),
                 Text(s('course'),
                     textAlign: TextAlign.center,
@@ -303,7 +303,7 @@ class LearnCertCard extends StatelessWidget {
                 const SizedBox(height: Gap.xs),
                 Text(t.lcScanHint,
                     textAlign: TextAlign.center,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.xs),
                 Wrap(
                   alignment: WrapAlignment.center,
@@ -430,10 +430,10 @@ class _LearnCertDetailScreenState extends State<LearnCertDetailScreen> {
               margin: const EdgeInsets.only(bottom: Gap.md),
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                  color: scheme.errorContainer, borderRadius: BorderRadius.circular(10)),
+                  color: scheme.ds.dangerBg, borderRadius: BorderRadius.circular(10)),
               child: Text(t.lcRevokedBanner,
                   style: AType.bodyLarge.copyWith(
-                      color: scheme.onErrorContainer, fontWeight: FontWeight.w700)),
+                      color: scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
             ),
           LearnCertCard(cert: _cert),
           const SizedBox(height: Gap.lg),
@@ -461,7 +461,7 @@ class _LearnCertDetailScreenState extends State<LearnCertDetailScreen> {
             const SizedBox(height: Gap.lg),
             TextButton.icon(
               style: TextButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48), foregroundColor: scheme.error),
+                  minimumSize: const Size.fromHeight(48), foregroundColor: scheme.ds.dangerInk),
               onPressed: _busy ? null : _revoke,
               icon: const Icon(Icons.block_rounded),
               label: Text(t.lcRevoke),
@@ -576,7 +576,7 @@ class _LearnCertScreenState extends State<LearnCertScreen> {
         minVerticalPadding: Gap.md,
         leading: Icon(
             c['kind'] == 'quran' ? Icons.menu_book_rounded : Icons.workspace_premium_rounded,
-            size: 36, color: valid ? Brand.purple : scheme.outline),
+            size: 36, color: valid ? Brand.purple : scheme.ds.muted),
         title: Text('${l['course'] ?? ''}',
             style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text('${l['level'] ?? ''}\n${l['date'] ?? ''}'),
@@ -584,7 +584,7 @@ class _LearnCertScreenState extends State<LearnCertScreen> {
         trailing: Text(valid ? t.lcValid : t.lcRevoked,
             style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: valid ? AssistoTokens.of(context).success : scheme.error)),
+                color: valid ? AssistoTokens.of(context).success : scheme.ds.dangerInk)),
         onTap: () => _open(c),
       ),
     );

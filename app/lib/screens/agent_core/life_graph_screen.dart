@@ -161,8 +161,8 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
           FilledButton(
               key: const ValueKey('lg_delete_all_confirm'),
               style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.error,
-                  foregroundColor: Theme.of(ctx).colorScheme.onError,
+                  backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk,
+                  foregroundColor: Theme.of(ctx).colorScheme.ds.onDangerFill,
                   minimumSize: const Size(48, 48)),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.lgDeleteAllConfirm)),
@@ -223,7 +223,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
                     key: const ValueKey('lg_delete_all'),
                     value: 'delete_all',
                     child: Text(t.lgDeleteAll,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                        style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk))),
               ],
             ),
         ],
@@ -279,7 +279,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
                   style: Theme.of(context).textTheme.titleMedium),
             ),
             const SizedBox(height: Gap.xs),
-            Text(t.lgSuggestionsHint, style: TextStyle(color: s.onSurfaceVariant)),
+            Text(t.lgSuggestionsHint, style: TextStyle(color: s.ds.muted)),
             const SizedBox(height: Gap.sm),
             for (final f in _suggestions)
               _SuggestionCard(
@@ -327,7 +327,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
           OutlinedButton.icon(
             key: const ValueKey('lg_delete_all_button'),
             style: OutlinedButton.styleFrom(
-                foregroundColor: s.error, minimumSize: const Size(48, 48)),
+                foregroundColor: s.ds.dangerInk, minimumSize: const Size(48, 48)),
             onPressed: _deleteAll,
             icon: const Icon(Icons.delete_forever_rounded),
             label: Text(t.lgDeleteAll),
@@ -349,12 +349,12 @@ class _PrivacyNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: s.secondaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+          color: s.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lock_rounded, size: 20, color: s.onSecondaryContainer),
+        Icon(Icons.lock_rounded, size: 20, color: s.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(text, style: TextStyle(color: s.onSecondaryContainer, height: 1.4))),
+            child: Text(text, style: TextStyle(color: s.ds.primaryInk, height: 1.4))),
       ]),
     );
   }
@@ -432,7 +432,7 @@ class _FactTile extends StatelessWidget {
                       Text(sub),
                     ],
                     const SizedBox(height: Gap.xs),
-                    Text(meta, style: TextStyle(color: s.onSurfaceVariant, fontSize: 12.5)),
+                    Text(meta, style: TextStyle(color: s.ds.muted, fontSize: 12.5)),
                   ]),
                 ),
                 Semantics(
@@ -450,14 +450,14 @@ class _FactTile extends StatelessWidget {
                       _Badge(
                           icon: Icons.shield_outlined,
                           text: t.lgSensitive,
-                          bg: s.tertiaryContainer,
-                          fg: s.onTertiaryContainer),
+                          bg: s.ds.successBg,
+                          fg: s.ds.successInk),
                     if (!f.sensitive && !f.useInAi)
                       _Badge(
                           icon: Icons.block_rounded,
                           text: t.lgNotForAi,
-                          bg: s.surfaceContainerHighest,
-                          fg: s.onSurfaceVariant),
+                          bg: s.ds.cardHighest,
+                          fg: s.ds.muted),
                   ]),
                 ),
               if (f.stillRight) ...[
@@ -513,7 +513,7 @@ class _SuggestionCard extends StatelessWidget {
     final title = f.relation.isEmpty ? f.label : '${f.label} (${f.relation})';
     return Card(
       key: ValueKey('lg_sugg_${f.id}'),
-      color: s.surfaceContainerHigh,
+      color: s.ds.cardHigh,
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -529,7 +529,7 @@ class _SuggestionCard extends StatelessWidget {
           ],
           const SizedBox(height: Gap.xs),
           Text('${lgTypeLabel(t, f.type)} · ${lgOriginLabel(t, f.origin)}',
-              style: TextStyle(color: s.onSurfaceVariant, fontSize: 12.5)),
+              style: TextStyle(color: s.ds.muted, fontSize: 12.5)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton(
@@ -591,7 +591,7 @@ class _LearningCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
-            child: Text(t.lgRetentionHint, style: TextStyle(color: s.onSurfaceVariant)),
+            child: Text(t.lgRetentionHint, style: TextStyle(color: s.ds.muted)),
           ),
         ]),
       ),
@@ -668,7 +668,7 @@ class _FactEditorState extends State<_FactEditor> {
                   lgOriginLabel(t, f.origin),
                   if (f.createdAt != null) acTime(context, f.createdAt),
                 ].join(' · '),
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
           ],
           const SizedBox(height: Gap.md),
           DropdownButtonFormField<String>(
@@ -735,7 +735,7 @@ class _FactEditorState extends State<_FactEditor> {
             TextButton.icon(
                 key: const ValueKey('lg_delete_one'),
                 style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.ds.dangerInk,
                     minimumSize: const Size(48, 48)),
                 onPressed: () =>
                     Navigator.pop(context, const _EditResult({}, delete: true)),

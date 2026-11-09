@@ -56,7 +56,7 @@ class AccessibilityModeScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.lg),
             child: Text(t.a11yIntro,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant, height: 1.45)),
+                    color: cs.ds.muted, height: 1.45)),
           ),
 
           // ---- Large text ----
@@ -70,7 +70,7 @@ class AccessibilityModeScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
+                color: cs.ds.cardHighest,
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Column(
@@ -78,7 +78,7 @@ class AccessibilityModeScreen extends StatelessWidget {
                 children: [
                   Text(t.a11yPreviewLabel,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: cs.onSurfaceVariant)),
+                          color: cs.ds.muted)),
                   const SizedBox(height: Gap.xs),
                   Text(t.a11yPreviewSample,
                       style: Theme.of(context).textTheme.bodyLarge),
@@ -145,7 +145,7 @@ class AccessibilityModeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(Gap.lg),
             child: Text(t.a11yHonestFooter,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant, height: 1.45)),
+                    color: cs.ds.muted, height: 1.45)),
           ),
         ],
       ),

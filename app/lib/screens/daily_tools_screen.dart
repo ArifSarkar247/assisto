@@ -238,8 +238,8 @@ class _DailyToolsScreenState extends State<DailyToolsScreen> {
       child: ListTile(
         minVerticalPadding: Gap.md,
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.ds.primarySoft,
+          foregroundColor: Theme.of(context).colorScheme.ds.primaryInk,
           child: Icon(dailyToolIcon(id)),
         ),
         title: Text(dailyToolTitle(t, id),

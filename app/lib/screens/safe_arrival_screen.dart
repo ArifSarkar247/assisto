@@ -306,7 +306,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
               ]),
             ),
           Text(AppLocalizations.of(context).aSubtitle,
-              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: 10),
           ArrivalTargetCard(
             place: _place,
@@ -340,7 +340,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
               const Icon(Icons.lock_outline_rounded, size: 16, color: Colors.grey),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aDuressHint,
-                  style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                  style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted))),
             ]),
           ],
           const Divider(height: 28),
@@ -356,11 +356,11 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
             ),
           ]),
           Text(AppLocalizations.of(context).j100RoutineDesc,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: 6),
           if (_routines.isEmpty)
             Text(AppLocalizations.of(context).aRoutineNone,
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted))
           else
             ..._routines.map(_routineTile),
           const Divider(height: 28),
@@ -371,7 +371,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
           const SizedBox(height: Gap.xs),
           if (_history.isEmpty)
             Text(AppLocalizations.of(context).aHistoryNone,
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted))
           else
             ..._history.map((h) => ArrivalHistoryTile(
                   place: (h['place'] ?? '').toString(),

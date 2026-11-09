@@ -225,7 +225,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
       children: [
         Text(t.studioTemplatesIntro,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.ds.muted,
                 height: 1.4)),
         const SizedBox(height: Gap.lg),
         for (final tpl in tpls) ...[
@@ -310,7 +310,7 @@ class _DetailSheetState extends State<_DetailSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-                color: scheme.outlineVariant,
+                color: scheme.ds.border,
                 borderRadius: BorderRadius.circular(2))),
         Padding(
           padding: const EdgeInsets.all(Gap.lg),
@@ -366,7 +366,7 @@ class _DetailSheetState extends State<_DetailSheet> {
               if (a.history.isEmpty)
                 Text(t.studioHistoryEmpty,
                     style: TextStyle(
-                        color: scheme.onSurfaceVariant, height: 1.4))
+                        color: scheme.ds.muted, height: 1.4))
               else
                 for (final e in a.history) RunHistoryTile(e: e),
               const SizedBox(height: Gap.xl),

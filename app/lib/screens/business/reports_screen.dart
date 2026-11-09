@@ -128,7 +128,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (_error != null) {
       return StateMessage(
         icon: Icons.cloud_off_rounded,
-        tint: scheme.error,
+        tint: scheme.ds.dangerInk,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
@@ -195,7 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         SellCard(
           child: MoneyRow(t.biz_report_net_profit, net,
               strong: true,
-              valueColor: net >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error),
+              valueColor: net >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.ds.dangerInk),
         ),
       ],
     ]);
@@ -205,7 +205,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return SellCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xs),
         Text(value,
             style: AType.titleLarge.copyWith(color: Brand.onTint(context, tint), fontWeight: FontWeight.w800)),
@@ -258,7 +258,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Row(children: [
         CircleAvatar(
           radius: 13,
-          backgroundColor: scheme.surfaceContainerHighest,
+          backgroundColor: scheme.ds.cardHighest,
           child: Text(fmtInt(context, rank),
               style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
@@ -271,7 +271,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Padding(
             padding: const EdgeInsets.only(right: Gap.sm),
             child: Text('×${fmtInt(context, (count as num).toInt())}',
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         Text(amount.takaIn(context),
             style: const TextStyle(fontWeight: FontWeight.w700)),

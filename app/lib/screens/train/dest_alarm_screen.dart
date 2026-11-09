@@ -579,8 +579,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           FilledButton.icon(
             style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(120),
-                backgroundColor: cs.error,
-                foregroundColor: cs.onError,
+                backgroundColor: cs.ds.dangerInk,
+                foregroundColor: cs.ds.onDangerFill,
                 textStyle: AType.headlineSmall),
             icon: const Icon(Icons.check_circle_rounded, size: 36),
             label: Text(t.trImAwake),
@@ -633,7 +633,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           Text(_d(t.sjaSpeedNow((s.speedMps * 3.6).round().toString())), style: AType.bodyMedium),
         if (!metro) Text(t.sjaGpsNote, style: AType.bodySmall),
         if (!metro && s.locationOff)
-          Text(t.trAlarmLocationOff, style: AType.bodyMedium.copyWith(color: cs.error)),
+          Text(t.trAlarmLocationOff, style: AType.bodyMedium.copyWith(color: cs.ds.dangerInk)),
         if (!metro) Text(_d(t.trAlarmInterval('${s.interval.inSeconds}')), style: AType.bodySmall),
         if (!s.serviceOn)
           Text(t.trAlarmKeepOpen, style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
@@ -641,8 +641,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         FilledButton.icon(
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(56),
-              backgroundColor: cs.error,
-              foregroundColor: cs.onError),
+              backgroundColor: cs.ds.dangerInk,
+              foregroundColor: cs.ds.onDangerFill),
           icon: const Icon(Icons.alarm_off_rounded),
           label: Text(t.trAlarmStop),
           onPressed: () => _c.stop(),
@@ -703,8 +703,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         if (sent != null)
           Card(
             color: sent
-                ? Theme.of(context).colorScheme.secondaryContainer
-                : Theme.of(context).colorScheme.errorContainer,
+                ? Theme.of(context).colorScheme.ds.primarySoft
+                : Theme.of(context).colorScheme.ds.dangerBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Semantics(
@@ -712,8 +712,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                 child: Text(sent ? t.sjaArrivedSent : t.sjaArrivedFailed,
                     style: AType.bodyMedium.copyWith(
                         color: sent
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : Theme.of(context).colorScheme.onErrorContainer)),
+                            ? Theme.of(context).colorScheme.ds.primaryInk
+                            : Theme.of(context).colorScheme.ds.dangerInk)),
               ),
             ),
           ),
@@ -901,7 +901,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       const SizedBox(height: Gap.sm),
       dd(t.trMetroTo, _metroTo, (x) => _metroTo = x),
       if (_metroFrom == _metroTo)
-        Text(t.trMetroSame, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
+        Text(t.trMetroSame, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
     ];
   }
 

@@ -139,16 +139,16 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
   Widget _noteFooter() {
     final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_t.msgrBroadcastNote,
                 style: TextStyle(
-                    fontSize: 12, color: scheme.onSurfaceVariant, height: 1.3)),
+                    fontSize: 12, color: scheme.ds.muted, height: 1.3)),
           ),
         ]),
       ),
@@ -192,7 +192,7 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
             Text(body,
                 textAlign: TextAlign.center,
                 style:
-                    TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    TextStyle(color: scheme.ds.muted, height: 1.4)),
           ],
         ]),
       ),

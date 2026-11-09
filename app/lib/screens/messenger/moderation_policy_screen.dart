@@ -105,13 +105,13 @@ class ModerationPolicyScreen extends StatelessWidget {
 
           Text(
             c.intro,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.5),
+            style: TextStyle(color: scheme.ds.muted, height: 1.5),
           ),
           const SizedBox(height: Gap.lg),
 
           Text(
             t.msgrModPolicyPlaceholderBody,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.5),
+            style: TextStyle(color: scheme.ds.muted, height: 1.5),
           ),
         ],
       ),

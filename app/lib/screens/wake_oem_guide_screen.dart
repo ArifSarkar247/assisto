@@ -100,7 +100,7 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl),
         children: [
-          Text(t.vaOemIntro, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.vaOemIntro, style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           if (_maker.isNotEmpty)
             Padding(
@@ -110,7 +110,7 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
             ),
           Card(
             elevation: 0,
-            color: scheme.surfaceContainerHigh,
+            color: scheme.ds.cardHigh,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(Radii.lg)),
             child: Padding(
@@ -155,11 +155,11 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),
               child: Text(steps[f]!,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: TextStyle(color: scheme.ds.muted, height: 1.4)),
             ),
           const SizedBox(height: Gap.sm),
           Text(t.vaOemHonest,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+              style: TextStyle(color: scheme.ds.muted, fontSize: 13)),
         ],
       ),
     );

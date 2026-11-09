@@ -194,8 +194,8 @@ class _TripRecorderScreenState extends State<TripRecorderScreen> {
             FilledButton.icon(
               style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
-                  backgroundColor: cs.error,
-                  foregroundColor: cs.onError),
+                  backgroundColor: cs.ds.dangerInk,
+                  foregroundColor: cs.ds.onDangerFill),
               icon: const Icon(Icons.stop_rounded),
               label: Text(t.sjaRecStop),
               onPressed: _stop,

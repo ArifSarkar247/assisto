@@ -213,14 +213,14 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.errorContainer,
+        color: scheme.ds.dangerBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer, size: 18),
+        Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 18),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(msg, style: TextStyle(color: scheme.onErrorContainer))),
+            child: Text(msg, style: TextStyle(color: scheme.ds.dangerInk))),
       ]),
     );
   }
@@ -274,12 +274,12 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                             _error = null;
                             _confirming = true;
                           }),
-                  icon: Icon(Icons.delete_forever_rounded, color: scheme.error),
+                  icon: Icon(Icons.delete_forever_rounded, color: scheme.ds.dangerInk),
                   label: Text(t.dlGraceFresh,
-                      style: TextStyle(color: scheme.error)),
+                      style: TextStyle(color: scheme.ds.dangerInk)),
                   style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
-                      side: BorderSide(color: scheme.error)),
+                      side: BorderSide(color: scheme.ds.dangerInk)),
                 ),
               ],
             ),
@@ -305,13 +305,13 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
       key: const Key('dl-grace-confirm'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(Icons.delete_forever_rounded, scheme.error, t.dlGraceFreshTitle,
+        _header(Icons.delete_forever_rounded, scheme.ds.dangerInk, t.dlGraceFreshTitle,
             t.dlGraceFreshBody),
         const SizedBox(height: Gap.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.sms_rounded, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.sms_rounded, size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
@@ -353,8 +353,8 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
         FilledButton(
           key: const Key('dl-grace-fresh-go'),
           style: FilledButton.styleFrom(
-              backgroundColor: scheme.error,
-              foregroundColor: scheme.onError,
+              backgroundColor: scheme.ds.dangerInk,
+              foregroundColor: scheme.ds.onDangerFill,
               minimumSize: const Size.fromHeight(52)),
           onPressed: _busy || !_canDelete ? null : _startFresh,
           child: _busy
@@ -362,7 +362,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: scheme.onError))
+                      strokeWidth: 2, color: scheme.ds.onDangerFill))
               : Text(t.dlGraceFreshButton, textAlign: TextAlign.center),
         ),
         const SizedBox(height: Gap.sm),

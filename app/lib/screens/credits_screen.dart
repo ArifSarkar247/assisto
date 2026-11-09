@@ -222,7 +222,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -286,7 +286,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           padding: const EdgeInsets.only(top: Gap.xs),
           child: Text(t.billUpdatedAt(billDateTime(context, _updatedAt!)),
               textAlign: TextAlign.end,
-              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
         ),
       const SizedBox(height: Gap.lg),
       if (st.locked > 0) ...[
@@ -552,14 +552,14 @@ class _CreditsScreenState extends State<CreditsScreen> {
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(bucketIcon(b.bucket),
-            size: 22, color: debt ? scheme.error : scheme.primary),
+            size: 22, color: debt ? scheme.ds.dangerInk : scheme.primary),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(bucketLabel(t, b.bucket),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             for (final s in subs)
-              Text(s, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              Text(s, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ]),
         ),
         const SizedBox(width: Gap.sm),
@@ -567,7 +567,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
             style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontFeatures: AFonts.tabular,
-                color: debt ? scheme.error : scheme.onSurface)),
+                color: debt ? scheme.ds.dangerInk : scheme.ds.text)),
       ]),
     );
   }
@@ -576,11 +576,11 @@ class _CreditsScreenState extends State<CreditsScreen> {
         key: const Key('credits-no-cash'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 16, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.credoutNoCash,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
         ],
       );
 
@@ -610,7 +610,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
         ),
       const Divider(height: Gap.md),
       Text(t.billCostsNote,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
     ]);
   }
 
@@ -673,13 +673,13 @@ class _CreditsScreenState extends State<CreditsScreen> {
         child: Row(children: [
           Icon(credit ? Icons.add_circle_outline_rounded : Icons.remove_circle_outline_rounded,
               size: 20,
-              color: credit ? Brand.onTint(context, Brand.success) : scheme.onSurfaceVariant),
+              color: credit ? Brand.onTint(context, Brand.success) : scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label),
               if (sub.isNotEmpty)
-                Text(sub, style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                Text(sub, style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
           ),
           const SizedBox(width: Gap.sm),
@@ -687,7 +687,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontFeatures: AFonts.tabular,
-                  color: credit ? Brand.onTint(context, Brand.success) : scheme.onSurface)),
+                  color: credit ? Brand.onTint(context, Brand.success) : scheme.ds.text)),
         ]),
       ),
     );
@@ -716,7 +716,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
                     ? t.creditsPoolUsedUpBody
                     : t.creditsNothingUnlimitedBody(fmtInt(context, pool)),
                 style: AType.bodySmall
-                    .copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                    .copyWith(color: scheme.ds.muted, height: 1.35)),
           ]),
         ),
       ]),
@@ -740,9 +740,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Container(
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: scheme.ds.card,
           borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -763,7 +763,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
               // billing v2 + truth: bought pack credits NEVER expire (core/credits.py
               // rule B); the admin `valid_months` field is not enforced, so not shown.
               Text(t.truthPackNeverExpires,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ]),
           ),
           const SizedBox(width: Gap.sm),
@@ -800,7 +800,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           child: LinearProgressIndicator(
             value: max > 0 ? _int(r['credits']) / max : 0,
             minHeight: 6,
-            backgroundColor: scheme.surfaceContainerHighest,
+            backgroundColor: scheme.ds.cardHighest,
             valueColor: AlwaysStoppedAnimation(scheme.primary),
           ),
         ),
@@ -819,9 +819,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
   Widget _card(ColorScheme scheme, List<Widget> children) => Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: scheme.ds.card,
           borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
       );
@@ -842,12 +842,12 @@ class _CreditsScreenState extends State<CreditsScreen> {
         key: key,
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: scheme.ds.card,
           borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Row(children: [
-          Icon(icon, color: scheme.onSurfaceVariant),
+          Icon(icon, color: scheme.ds.muted),
           const SizedBox(width: Gap.md),
           Expanded(child: Text(text)),
         ]),
@@ -857,19 +857,19 @@ class _CreditsScreenState extends State<CreditsScreen> {
         key: key,
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.errorContainer,
+          color: scheme.ds.dangerBg,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+          Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
                   style: TextStyle(
-                      fontWeight: FontWeight.w700, color: scheme.onErrorContainer)),
+                      fontWeight: FontWeight.w700, color: scheme.ds.dangerInk)),
               const SizedBox(height: Gap.xxs),
-              Text(body, style: TextStyle(color: scheme.onErrorContainer, height: 1.35)),
+              Text(body, style: TextStyle(color: scheme.ds.dangerInk, height: 1.35)),
             ]),
           ),
         ]),

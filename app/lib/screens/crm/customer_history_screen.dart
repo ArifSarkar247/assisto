@@ -277,13 +277,13 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(Radii.lg)),
+          color: scheme.ds.cardHighest, borderRadius: BorderRadius.circular(Radii.lg)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         CircleAvatar(
           radius: 26,
-          backgroundColor: scheme.primaryContainer,
+          backgroundColor: scheme.ds.primarySoft,
           child: Text(_name.isEmpty ? '#' : _name.characters.first.toUpperCase(),
-              style: AType.titleLarge.copyWith(color: scheme.onPrimaryContainer)),
+              style: AType.titleLarge.copyWith(color: scheme.ds.primaryInk)),
         ),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -291,7 +291,7 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
             Text(_name.isEmpty ? t.c100NoName : _name,
                 style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
             if (_phone.isNotEmpty)
-              Text(_d(_phone), style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              Text(_d(_phone), style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
               for (final src in sources)
@@ -426,14 +426,14 @@ class _Stat extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 140, maxWidth: 220),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          border: Border.all(color: warn ? scheme.error : scheme.outlineVariant),
+          border: Border.all(color: warn ? scheme.ds.dangerInk : scheme.ds.border),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xxs),
         Text(value,
             style: AType.titleMedium.copyWith(
-                fontWeight: FontWeight.w800, color: warn ? scheme.error : scheme.onSurface)),
+                fontWeight: FontWeight.w800, color: warn ? scheme.ds.dangerInk : scheme.ds.text)),
       ]),
     );
   }
@@ -450,11 +450,11 @@ class _Banner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+          color: scheme.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(children: [
-        Icon(icon, size: 20, color: scheme.onSecondaryContainer),
+        Icon(icon, size: 20, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(text, style: TextStyle(color: scheme.onSecondaryContainer))),
+        Expanded(child: Text(text, style: TextStyle(color: scheme.ds.primaryInk))),
       ]),
     );
   }
@@ -487,10 +487,10 @@ class _TimelineTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-                color: v.bad ? scheme.errorContainer : scheme.primaryContainer,
+                color: v.bad ? scheme.ds.dangerBg : scheme.ds.primarySoft,
                 shape: BoxShape.circle),
             child: Icon(v.icon,
-                size: 20, color: v.bad ? scheme.onErrorContainer : scheme.onPrimaryContainer),
+                size: 20, color: v.bad ? scheme.ds.dangerInk : scheme.ds.primaryInk),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -498,16 +498,16 @@ class _TimelineTile extends StatelessWidget {
               Text(v.title, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
               if (v.subtitle.isNotEmpty)
                 Text(v.subtitle,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               if (when.isNotEmpty)
-                Text(when, style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                Text(when, style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
           ),
           if (v.amount.isNotEmpty) ...[
             const SizedBox(width: Gap.sm),
             Text(v.amount,
                 style: AType.titleSmall.copyWith(
-                    fontWeight: FontWeight.w800, color: v.bad ? scheme.error : scheme.onSurface)),
+                    fontWeight: FontWeight.w800, color: v.bad ? scheme.ds.dangerInk : scheme.ds.text)),
           ],
         ]),
       ),

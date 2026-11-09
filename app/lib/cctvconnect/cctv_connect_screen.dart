@@ -479,7 +479,7 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
                   child: Text(_msg,
                       key: const Key('ccnMsg'),
                       style: TextStyle(
-                          color: _info ? null : Theme.of(context).colorScheme.error)),
+                          color: _info ? null : Theme.of(context).colorScheme.ds.dangerInk)),
                 ),
               const SizedBox(height: Gap.sm),
               Text(t.ccnPrivacy, style: Theme.of(context).textTheme.bodySmall),

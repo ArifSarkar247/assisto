@@ -496,7 +496,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         decoration: BoxDecoration(
-          color: s.surfaceContainerHigh,
+          color: s.ds.cardHigh,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Text(maStateLabel(t, _state, safeSaid: _a['safe_said'] == true),
@@ -514,7 +514,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       if (_a['is_child'] == true)
         Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
-          child: Text(t.maChildBadge, style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+          child: Text(t.maChildBadge, style: TextStyle(color: s.ds.dangerInk, fontWeight: FontWeight.w600)),
         ),
       const SizedBox(height: Gap.sm),
       _row(context, Icons.schedule_rounded, t.maLastSeen(maWhen(context, _a['last_seen_at'] as String?))),
@@ -536,13 +536,13 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
                   maWhen(context, gd['date'] as String?).split(',').first))),
               const SizedBox(height: Gap.xs),
               Text(t.maGdUnverifiedV2, key: const ValueKey('ma-gd-unverified'),
-                  style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+                  style: TextStyle(color: s.ds.dangerInk, fontWeight: FontWeight.w600)),
             ]),
           ),
         ),
       ] else if (live && _a['is_child'] != true) ...[
         const SizedBox(height: Gap.md),
-        Text(t.maGdUnverifiedV2, style: TextStyle(color: s.error)),
+        Text(t.maGdUnverifiedV2, style: TextStyle(color: s.ds.dangerInk)),
       ],
       const SizedBox(height: Gap.lg),
       ..._actions(context, live),
@@ -552,7 +552,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
   Widget _row(BuildContext context, IconData icon, String text) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(text)),
         ]),

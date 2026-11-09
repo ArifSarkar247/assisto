@@ -195,7 +195,7 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
         appBar: AppBar(title: Text(t.paBizTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paBizLoadError),
           action: FilledButton.tonalIcon(
@@ -283,8 +283,8 @@ class _EventCard extends StatelessWidget {
       child: ListTile(
         onTap: onOpen,
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.event_available_rounded, color: scheme.onPrimaryContainer),
+          backgroundColor: scheme.ds.primarySoft,
+          child: Icon(Icons.event_available_rounded, color: scheme.ds.primaryInk),
         ),
         title: Text('${event['name'] ?? ''}',
             maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -605,7 +605,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                     child: Text(t.paBizBudgetDisclaimer,
                         style: TextStyle(
                             fontSize: 11.5,
-                            color: scheme.onSurfaceVariant,
+                            color: scheme.ds.muted,
                             height: 1.35)),
                   ),
                   const SizedBox(height: Gap.lg),
@@ -626,7 +626,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                                 value: chkPct / 100,
                                 minHeight: 8,
                                 backgroundColor:
-                                    scheme.surfaceContainerHighest),
+                                    scheme.ds.cardHighest),
                           ),
                         ),
                         const SizedBox(width: Gap.sm),
@@ -746,7 +746,7 @@ class _BookingSeamCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -762,7 +762,7 @@ class _BookingSeamCard extends StatelessWidget {
               Text(t.paBizBookingSeamBody,
                   style: TextStyle(
                       fontSize: 12,
-                      color: scheme.onSurfaceVariant,
+                      color: scheme.ds.muted,
                       height: 1.35)),
             ]),
           ),
@@ -835,7 +835,7 @@ class _EmptyLine extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.ds.muted,
                 fontSize: 13)),
       );
 }
@@ -898,7 +898,7 @@ class _AttendeeTile extends StatelessWidget {
         sc = Brand.success;
         break;
       case 'cancelled':
-        sc = scheme.error;
+        sc = scheme.ds.dangerInk;
         break;
       case 'booked':
         sc = Brand.blue;
@@ -994,11 +994,11 @@ class _BudgetTotals extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final varColor = overBudget ? scheme.error : Brand.success;
+    final varColor = overBudget ? scheme.ds.dangerInk : Brand.success;
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         _row(context, t.paBizTotalEstimated, estimated, null),
@@ -1025,7 +1025,7 @@ class _BudgetTotals extends StatelessWidget {
           Text(value,
               style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: color ?? Theme.of(context).colorScheme.onSurface)),
+                  color: color ?? Theme.of(context).colorScheme.ds.text)),
         ]),
       );
 }
@@ -1540,12 +1540,12 @@ class _EventSummarySheet extends StatelessWidget {
           Text(t.paBizBudgetDisclaimer,
               style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Text(t.paBizBookingSeamBody,
               style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ),
     );

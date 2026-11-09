@@ -2,6 +2,7 @@
 // methods (recovery code on this phone + what the account can verify with),
 // PIN change, fingerprint, and the offline copies' storage use.
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
@@ -169,7 +170,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
 
   Widget _check(bool ok, String label, String? hint) => ListTile(
         leading: Icon(ok ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-            color: ok ? Colors.green.shade700 : Theme.of(context).colorScheme.outline),
+            color: ok ? Colors.green.shade700 : Theme.of(context).colorScheme.ds.muted),
         title: Text(label),
         subtitle: hint == null ? null : Text(hint),
       );
@@ -189,12 +190,12 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
                   margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
                   padding: const EdgeInsets.all(Gap.md),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.errorContainer,
+                    color: Theme.of(context).colorScheme.ds.dangerBg,
                     borderRadius: BorderRadius.circular(Radii.sm),
                   ),
                   child: Text(t.vaultNoRecoveryWarn,
                       style: AType.bodyMedium
-                          .copyWith(color: Theme.of(context).colorScheme.onErrorContainer)),
+                          .copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
                 ),
               _section(t.vaultHowTitle),
               Padding(

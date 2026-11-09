@@ -227,7 +227,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.shootLoadError),
                   action: FilledButton.tonalIcon(
@@ -292,7 +292,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, 0, Gap.xxs),
                   child: Text(_checkKindLabel(tr, kind),
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
                 ),
                 for (final c in checks.where((c) => (c['check_kind'] ?? 'equipment').toString() == kind))
                   _checkTile(c, tr, scheme),
@@ -376,9 +376,9 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
 
   Widget _meta(IconData icon, String text, ColorScheme scheme) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 15, color: scheme.ds.muted),
         const SizedBox(width: 3),
-        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]);
 
   Widget _sectionHeader(String title, IconData icon, VoidCallback onAdd, ColorScheme scheme) =>
@@ -404,7 +404,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   Widget _empty(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.sm, horizontal: Gap.xs),
         child: Text(text,
-            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
 
   Widget _blockTile(Map<String, dynamic> b, AppLocalizations tr, ColorScheme scheme) {
@@ -452,7 +452,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
         title: Text(label,
             style: TextStyle(
                 decoration: checked ? TextDecoration.lineThrough : null,
-                color: checked ? scheme.onSurfaceVariant : scheme.onSurface),
+                color: checked ? scheme.ds.muted : scheme.ds.text),
             maxLines: 1, overflow: TextOverflow.ellipsis),
         secondary: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,

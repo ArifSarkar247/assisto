@@ -209,7 +209,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
             onPressed: () => Navigator.pop(ctx, ctl.text.trim()),
             child: Text(t.invCancelConfirm),
           ),
@@ -267,7 +267,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   children: [
                     if (!d.consistent)
                       _Banner(icon: Icons.warning_amber_rounded, text: t.invInconsistent,
-                          color: scheme.errorContainer, onColor: scheme.onErrorContainer),
+                          color: scheme.ds.dangerBg, onColor: scheme.ds.dangerInk),
                     Text(t.invPaperLabel, style: Theme.of(context).textTheme.titleSmall),
                     const SizedBox(height: Gap.xs),
                     SegmentedButton<InvoicePaper>(

@@ -334,7 +334,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         ),
         if (_history.isEmpty) ...[
           const SizedBox(height: Gap.xl),
-          Icon(Icons.menu_book_rounded, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(Icons.menu_book_rounded, size: 48, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(height: Gap.sm),
           Text(t.dictionaryIntroTitle,
               textAlign: TextAlign.center,
@@ -342,7 +342,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           const SizedBox(height: Gap.xs),
           Text(t.dictionaryIntroBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ],
     );
@@ -354,17 +354,17 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
         decoration: BoxDecoration(
-          color: cs.secondaryContainer,
+          color: cs.ds.primarySoft,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(sample ? t.dictSampleBadge : t.dictOpenLicenceBadge,
-            style: AType.labelSmall.copyWith(color: cs.onSecondaryContainer)),
+            style: AType.labelSmall.copyWith(color: cs.ds.primaryInk)),
       ),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(
           sample ? t.dictionarySampleNote : t.dictionarySourceNote(source),
-          style: AType.labelSmall.copyWith(color: cs.onSurfaceVariant),
+          style: AType.labelSmall.copyWith(color: cs.ds.muted),
         ),
       ),
     ]);
@@ -395,7 +395,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(t.dictSavedCount(saved.length),
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             ),
             for (final e in saved)
               DictEntryCard(

@@ -132,7 +132,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                     style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.nomineeScopeHint,
-                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
                 const SizedBox(height: Gap.sm),
                 NomineeScopePicker(
                   selected: scopes,
@@ -143,7 +143,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
                     style: Theme.of(ctx).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.nomineeTriggerHint,
-                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
                 const SizedBox(height: Gap.sm),
                 RadioListTile<String>(
                   contentPadding: EdgeInsets.zero,
@@ -310,7 +310,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.checkInternetRetry),
                   action: FilledButton.tonalIcon(
@@ -374,16 +374,16 @@ class _SafetyHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.5),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
         Icon(Icons.verified_user_rounded,
-            color: scheme.onSecondaryContainer, size: 22),
+            color: scheme.ds.primaryInk, size: 22),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(tr.nomineeAccessNeverSilent,
-              style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.onSecondaryContainer)),
+              style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.ds.primaryInk)),
         ),
       ]),
     );
@@ -423,7 +423,7 @@ class _StepperField extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [

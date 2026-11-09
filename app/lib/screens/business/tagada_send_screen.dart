@@ -522,7 +522,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           const SizedBox(height: Gap.xs),
           Text(t.ldgNeverAuto,
               style: AType.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _tones(t),
           const SizedBox(height: Gap.md),
@@ -539,7 +539,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
               _tally(t.ldgCountSent(_d(sent)), AssistoTokens.of(context).success),
               _tally(t.ldgCountSkipped(_d(skipped)), null),
               _tally(t.ldgCountFailed(_d(failed)),
-                  Theme.of(context).colorScheme.error),
+                  Theme.of(context).colorScheme.ds.dangerInk),
               _tally(t.ldgCountWaiting(_d(waiting)), null),
             ]),
           ),
@@ -571,7 +571,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 20),
@@ -712,9 +712,9 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     final smsOn = _sms['available'] == true;
     final enough = _balance >= row.credits;
     final statusColor = switch (row.st) {
-      _St.failed => scheme.error,
-      _St.skipped => scheme.onSurfaceVariant,
-      _St.waiting => scheme.onSurfaceVariant,
+      _St.failed => scheme.ds.dangerInk,
+      _St.skipped => scheme.ds.muted,
+      _St.waiting => scheme.ds.muted,
       _ => AssistoTokens.of(context).success,
     };
     return Card(
@@ -741,7 +741,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(Gap.sm),
             decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
+                color: scheme.ds.cardHighest,
                 borderRadius: BorderRadius.circular(Radii.sm)),
             child: Text(msg, style: AType.bodySmall),
           ),
@@ -808,7 +808,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           if (wa.isEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.ldgNoPhone,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ]),
       ),
@@ -824,7 +824,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     if (!row.reachable) {
       return Text(t.tg2NotReachable,
           key: ValueKey('tg2-unreach-${row.partyId}'),
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant));
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted));
     }
     final blocked = row.sentToday || row.st == _St.sentAssisto ||
         row.st == _St.sentWa || row.st == _St.sentSms;
@@ -833,7 +833,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     final free = row.assistoUser;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(free ? t.tg2RouteAssistoNote('${row.r['name'] ?? ''}') : t.tg2RouteShareNote,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         if (free)

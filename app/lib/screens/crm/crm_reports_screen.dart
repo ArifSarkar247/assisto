@@ -89,7 +89,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         Text(t.crmReportsSubtitle,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
 
         // ---- KPI strip ----
@@ -142,11 +142,11 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                       // (the server text is English and uses a Σ glyph the
                       // Bengali font lacks)
                       Text('${t.crmMethodLabel}: ${t.shopQaForecastMethod}',
-                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.xs),
                       Text(t.crmForecastEstimateNote,
                           style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
-                              color: scheme.onSurfaceVariant)),
+                              color: scheme.ds.muted)),
                     ],
                   )
                 : _notEnough(lang, forecast),
@@ -182,7 +182,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                     })(),
                   ])
                 : Text(t.crmNotEnoughData,
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -249,7 +249,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         const SizedBox(width: Gap.xs),
         Text(t.crmReportForecastEstimate,
             style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
-                color: scheme.onSurface)),
+                color: scheme.ds.text)),
       ]),
     );
   }
@@ -258,7 +258,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
-      Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant, size: 18),
+      Icon(Icons.info_outline_rounded, color: scheme.ds.muted, size: 18),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(lang == 'bn'
@@ -275,11 +275,11 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(Icons.cloud_queue_rounded,
-              size: 18, color: scheme.onSurfaceVariant),
+              size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(message,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
         ]),
       ),
     );
@@ -295,7 +295,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
       );
     }
@@ -328,7 +328,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
       );
     }
@@ -354,7 +354,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
             : Text(t.crmNotEnoughData,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
       ),
     );
   }
@@ -367,7 +367,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
       );
     }
@@ -400,7 +400,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         const SizedBox(height: Gap.xxs),
         Text(
           '${t.crmOpen} ${r['open'] ?? 0} · ${t.crmWon} ${r['won'] ?? 0} · ${t.crmLost} ${r['lost'] ?? 0}',
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted),
         ),
         if (attain != null) ...[
           const SizedBox(height: 6),
@@ -411,7 +411,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 child: LinearProgressIndicator(
                   value: (attain / 100).clamp(0.0, 1.0),
                   minHeight: 8,
-                  backgroundColor: scheme.surfaceContainerHighest,
+                  backgroundColor: scheme.ds.cardHighest,
                   valueColor: AlwaysStoppedAnimation(
                       attain >= 100 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.primary),
                 ),
@@ -425,7 +425,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xxs),
             child: Text(t.crmNoTarget,
-                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
           ),
       ]),
     );

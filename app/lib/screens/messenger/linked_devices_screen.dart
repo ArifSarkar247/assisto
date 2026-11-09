@@ -99,23 +99,23 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
               Container(
                 padding: const EdgeInsets.all(Gap.lg),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
                 child: Icon(Icons.qr_code_2_rounded,
-                    size: 160, color: scheme.onSurface),
+                    size: 160, color: scheme.ds.text),
               ),
               const SizedBox(height: Gap.md),
               if (token.isNotEmpty)
                 SelectableText(token,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 13, color: scheme.onSurfaceVariant)),
+                        fontSize: 13, color: scheme.ds.muted)),
               const SizedBox(height: Gap.md),
               Text(t.msgrLinkScanHint,
                   textAlign: TextAlign.center,
                   style:
-                      TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
+                      TextStyle(color: scheme.ds.muted, height: 1.3)),
             ]),
           ),
         );
@@ -137,7 +137,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
               child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.msgrLinkedLogout),
           ),
@@ -257,7 +257,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
             const SizedBox(height: Gap.sm),
             Text(body,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           ],
         ]),
       ),

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -377,7 +378,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         borderRadius: BorderRadius.circular(4),
         child: Container(
           height: 8,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.ds.cardHighest,
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(widthFactor: frac.clamp(0.0, 1.0), child: Container(color: c)),
         ),
@@ -845,7 +846,7 @@ class _VisitorLogState extends State<_VisitorLog> with AutomaticKeepAliveClientM
             aspectRatio: 4 / 3,
             child: snap.isEmpty
                 ? Container(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.ds.cardHighest,
                     child: const Icon(Icons.no_photography_rounded))
                 : Semantics(
                     label: t.wmSnapshotLabel,
@@ -853,7 +854,7 @@ class _VisitorLogState extends State<_VisitorLog> with AutomaticKeepAliveClientM
                     child: Image.network(snap,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context).colorScheme.ds.cardHighest,
                               alignment: Alignment.center,
                               child: const Icon(Icons.broken_image_rounded),
                             )),

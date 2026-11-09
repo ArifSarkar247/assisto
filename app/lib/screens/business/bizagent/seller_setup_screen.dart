@@ -670,7 +670,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
           ),
           if (_err != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(bd(context, _err!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(bd(context, _err!), style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(

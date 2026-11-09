@@ -254,7 +254,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                 ),
                 const SizedBox(height: Gap.sm),
                 Text(t.flagAuditedNote,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ],
             ),
             actions: [
@@ -396,7 +396,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
     // Honest state pill: a cost switch that is ON is "spending"; a feature
     // that is OFF is "disabled for everyone".
     final pillColor = isCost
-        ? (value ? Brand.warning : scheme.onSurfaceVariant)
+        ? (value ? Brand.warning : scheme.ds.muted)
         : (value ? Brand.success : Brand.danger);
     final pillText = isCost
         ? (value ? t.flagPillSpending : t.flagPillOff)
@@ -408,7 +408,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         side: BorderSide(
           color: isCost
               ? Brand.warning.withValues(alpha: 0.35)
-              : scheme.outlineVariant,
+              : scheme.ds.border,
         ),
       ),
       child: Padding(
@@ -439,7 +439,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                   if (isCost) ...[
                     const SizedBox(width: Gap.sm),
                     Text(t.flagCostTag,
-                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                   ],
                 ]),
               ],
@@ -479,13 +479,13 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
       ]),
       const SizedBox(height: Gap.xs),
       Text(t.flagAuditAppendOnly,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       if (_audit.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.lg),
           child: Text(t.flagAuditEmpty,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         )
       else
         for (int i = 0; i < _audit.length; i++)

@@ -165,9 +165,9 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                   l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
                   maxLines: 2, // long Bangla names were cut at 360 px
                   overflow: TextOverflow.ellipsis)),
-          Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(width: 6),
-          Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
         ]),
         subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
         trailing: _inlineActions(t, l),
@@ -221,15 +221,15 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final hot = score >= 90;
     final warm = score >= 60;
     final bg = hot
-        ? Theme.of(context).colorScheme.error
+        ? Theme.of(context).colorScheme.ds.dangerInk
         : warm
             ? AssistoTokens.of(context).warning
-            : scheme.primaryContainer;
+            : scheme.ds.primarySoft;
     final fg = hot
-        ? scheme.onError
+        ? scheme.ds.onDangerFill
         : warm
             ? AssistoTokens.of(context).onWarning
-            : scheme.onPrimaryContainer;
+            : scheme.ds.primaryInk;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),

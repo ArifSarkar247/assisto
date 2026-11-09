@@ -193,26 +193,26 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             ]),
             const SizedBox(height: Gap.md),
             Text(tr.socialInboxConnectBody,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
             const SizedBox(height: Gap.md),
             Container(
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(Radii.sm),
-                border: Border.all(color: scheme.outlineVariant),
+                border: Border.all(color: scheme.ds.border),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.shield_rounded, size: 18, color: scheme.primary),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.socialInboxConnectKeys,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
                 ),
               ]),
             ),
             const SizedBox(height: Gap.md),
             Text(tr.socialInboxNeverFabricate,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
             const SizedBox(height: Gap.md),
             SizedBox(
               width: double.infinity,
@@ -253,7 +253,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.socialInboxLoadError),
                   action: FilledButton.tonalIcon(
@@ -288,7 +288,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             Text(tr.lbWPaSocialManual,
                 textAlign: TextAlign.center,
                 style: AType.bodySmall.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
         ],
       );
 
@@ -296,7 +296,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Radii.sm),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -307,7 +307,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: Gap.xxs),
               Text(tr.socialInboxConnectBody,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ]),
@@ -322,7 +322,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           _stat(Icons.mark_email_unread_rounded, tr.socialInboxStatOpen(ld(context, _openCount)), scheme),
           const SizedBox(width: Gap.sm),
           _stat(Icons.priority_high_rounded, tr.socialInboxStatUrgent(ld(context, _urgentCount)),
-              scheme, tint: _urgentCount > 0 ? scheme.error : null),
+              scheme, tint: _urgentCount > 0 ? scheme.ds.dangerInk : null),
         ]),
       ),
       Padding(
@@ -360,16 +360,16 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 16, color: tint ?? scheme.onSurfaceVariant),
+            Icon(icon, size: 16, color: tint ?? scheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(text,
                   maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: AType.bodySmall.copyWith(color: tint ?? scheme.onSurface)),
+                  style: AType.bodySmall.copyWith(color: tint ?? scheme.ds.text)),
             ),
           ]),
         ),
@@ -378,9 +378,9 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
   Color _priorityColor(String p, ColorScheme scheme) {
     switch (p) {
       case _prUrgent:
-        return scheme.error;
+        return scheme.ds.dangerInk;
       case _prLow:
-        return scheme.onSurfaceVariant;
+        return scheme.ds.muted;
       default:
         return scheme.primary;
     }
@@ -444,22 +444,22 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(_platformIcon(platform), size: 18, color: scheme.onSurfaceVariant),
+            Icon(_platformIcon(platform), size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(from.isEmpty ? _platformLabel(tr, platform) : from,
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: handled ? scheme.onSurfaceVariant : scheme.onSurface),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: handled ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             _pill(_priorityLabel(tr, priority), _priorityColor(priority, scheme)),
           ]),
           const SizedBox(height: Gap.xxs),
           Text(_platformLabel(tr, platform),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (message.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(message,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.35),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.35),
                 maxLines: 4, overflow: TextOverflow.ellipsis),
           ],
           const Divider(height: Gap.xl),
@@ -477,7 +477,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
               Expanded(
                 child: Text(
                     status == _stReplied ? tr.socialInboxStatusReplied : tr.socialInboxStatusArchived,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert_rounded),

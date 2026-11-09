@@ -162,7 +162,7 @@ class _StaffScreenState extends State<StaffScreen> {
         children: [
           Text(t.bbStaffBenefit, style: AType.bodyLarge),
           const SizedBox(height: Gap.sm),
-          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           addButtons(),
           const SizedBox(height: Gap.lg),
@@ -171,7 +171,7 @@ class _StaffScreenState extends State<StaffScreen> {
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(t.bbStaffNone,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             )
           else
             for (final m in _rows)
@@ -182,7 +182,7 @@ class _StaffScreenState extends State<StaffScreen> {
                   subtitle: Text('${m['phone_masked'] ?? ''}'),
                   trailing: IconButton(
                     tooltip: t.bbStaffRemove,
-                    icon: Icon(Icons.person_remove_rounded, color: scheme.error),
+                    icon: Icon(Icons.person_remove_rounded, color: scheme.ds.dangerInk),
                     onPressed: () => _remove(m),
                   ),
                 ),

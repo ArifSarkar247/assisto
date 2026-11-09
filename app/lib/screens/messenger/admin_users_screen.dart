@@ -537,7 +537,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(t.msgrModUserPublicHint,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 12)),
             const SizedBox(height: Gap.sm),
             if (_publicLoading)
               const SkeletonList(count: 3)
@@ -545,14 +545,14 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
               Row(children: [
                 Expanded(
                   child: Text(t.msgrModErrorBody,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
                 ),
                 TextButton(
                     onPressed: _loadPublic, child: Text(t.msgrModRetry)),
               ])
             else if (_channels.isEmpty && _communities.isEmpty)
               Text(t.msgrModUserNoPublic,
-                  style: TextStyle(color: scheme.onSurfaceVariant))
+                  style: TextStyle(color: scheme.ds.muted))
             else ...[
               for (final c in _channels)
                 _PublicRow(
@@ -638,12 +638,12 @@ class _UserCard extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(
           color: reports > 0 && dense
               ? Brand.warning.withValues(alpha: 0.4)
-              : scheme.outlineVariant,
+              : scheme.ds.border,
         ),
       ),
       child: Column(
@@ -653,13 +653,13 @@ class _UserCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: scheme.primaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 backgroundImage: photo.isNotEmpty ? NetworkImage(photo) : null,
                 child: photo.isEmpty
                     ? Text(
                         name.isNotEmpty ? name.characters.first : '?',
                         style: TextStyle(
-                            color: scheme.onPrimaryContainer,
+                            color: scheme.ds.primaryInk,
                             fontWeight: FontWeight.w800),
                       )
                     : null,
@@ -678,7 +678,7 @@ class _UserCard extends StatelessWidget {
                     ),
                     if (phone.isNotEmpty)
                       Text(_digits(phone, loc),
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                   ],
                 ),
               ),
@@ -686,7 +686,7 @@ class _UserCard extends StatelessWidget {
                   label: pill.label, color: pill.color, icon: pill.icon),
               if (onTap != null) ...[
                 const SizedBox(width: 4),
-                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+                Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
               ],
             ],
           ),
@@ -732,10 +732,10 @@ class _UserCard extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 4),
         Text(text,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+            style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
       ],
     );
   }

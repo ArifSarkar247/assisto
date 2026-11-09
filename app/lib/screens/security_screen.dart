@@ -191,7 +191,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     padding: const EdgeInsets.only(top: Gap.xs),
                     child: Text(error!,
                         style:
-                            TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                            TextStyle(color: Theme.of(ctx).colorScheme.ds.dangerInk)),
                   ),
               ],
             ),
@@ -382,7 +382,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   const SizedBox(height: Gap.xxs),
                   Text(
                     tr.securityFrozenUntil(_fmtDate(_frozenUntil!)),
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.3),
                   ),
                   const SizedBox(height: Gap.sm),
                   FalseAlarmButton(onCleared: _load),
@@ -421,7 +421,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         style: AType.titleMedium.copyWith(color: fg, fontWeight: FontWeight.w700),
                       ),
                       Text(_statusLabel(tr),
-                          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ],
                   ),
                 ),
@@ -583,7 +583,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(tr.securityArmCardBody,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             SizedBox(
               width: double.infinity,
@@ -625,7 +625,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(tr.securityPendingCardBody,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             for (final p in _pending) _pendingRow(tr, p),
           ],
@@ -725,7 +725,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
             const SizedBox(height: Gap.xs),
             Text(tr.securityApproverBody,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             if (cands.isEmpty)
               Text(tr.securityApproverNone,
@@ -764,7 +764,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
   Widget _honestCard(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer,
+      color: scheme.ds.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
@@ -773,17 +773,17 @@ class _SecurityScreenState extends State<SecurityScreen> {
             Row(
               children: [
                 Icon(Icons.info_outline_rounded,
-                    color: scheme.onSecondaryContainer, size: 20),
+                    color: scheme.ds.primaryInk, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.securityHonestTitle,
-                      style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
             const SizedBox(height: Gap.sm),
             Text(tr.securityHonestBody,
-                style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.35)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.35)),
           ],
         ),
       ),

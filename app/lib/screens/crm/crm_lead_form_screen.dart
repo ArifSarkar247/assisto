@@ -140,7 +140,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
         title: Text(t.crmPasteTitle),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.crmPasteHint, style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+            Text(t.crmPasteHint, style: TextStyle(color: Theme.of(ctx).colorScheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             TextField(controller: box, maxLines: 6, decoration: const InputDecoration(border: OutlineInputBorder())),
           ]),

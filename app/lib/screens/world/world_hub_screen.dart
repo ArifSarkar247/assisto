@@ -90,7 +90,7 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge
-                    ?.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                    ?.copyWith(color: scheme.ds.muted, height: 1.4)),
             const SizedBox(height: Gap.md),
             for (final tile in tiles)
               Padding(
@@ -102,8 +102,8 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: Gap.lg, vertical: Gap.xs),
                     leading: CircleAvatar(
-                      backgroundColor: scheme.primaryContainer,
-                      foregroundColor: scheme.onPrimaryContainer,
+                      backgroundColor: scheme.ds.primarySoft,
+                      foregroundColor: scheme.ds.primaryInk,
                       child: Icon(tile.icon),
                     ),
                     title: Text(tile.title,
@@ -117,11 +117,11 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
             const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.mic_none_rounded,
-                  size: 18, color: scheme.onSurfaceVariant),
+                  size: 18, color: scheme.ds.muted),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.uwVoiceHint,
-                      style: TextStyle(color: scheme.onSurfaceVariant))),
+                      style: TextStyle(color: scheme.ds.muted))),
             ]),
           ],
         ),

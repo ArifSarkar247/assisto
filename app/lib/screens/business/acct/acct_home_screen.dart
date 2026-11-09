@@ -446,7 +446,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             if ((e['vat'] as num? ?? 0) > 0) Text(t.acuVatLine(acctMoney(ctx, e['vat']))),
             const SizedBox(height: Gap.lg),
             if (voided)
-              Text(t.acuVoidedNote, style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant))
+              Text(t.acuVoidedNote, style: TextStyle(color: Theme.of(ctx).colorScheme.ds.muted))
             else ...[
               Text(t.acuVoidExplain, style: const TextStyle(height: 1.4)),
               const SizedBox(height: Gap.sm),

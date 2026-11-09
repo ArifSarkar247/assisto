@@ -103,7 +103,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                   style: TextStyle(
                       color: tb['balanced'] == true
                           ? Theme.of(ctx).colorScheme.primary
-                          : Theme.of(ctx).colorScheme.error,
+                          : Theme.of(ctx).colorScheme.ds.dangerInk,
                       fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.md),
             Text(t.acuCloseExplain(acctDay(ctx, acctIso(end))), style: const TextStyle(height: 1.5)),

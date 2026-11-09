@@ -193,7 +193,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 const SizedBox(height: Gap.lg),
                 Text(t.dsType,
                     style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                        color: Theme.of(ctx).colorScheme.ds.muted)),
                 const SizedBox(height: Gap.sm),
                 Wrap(
                   spacing: Gap.sm,
@@ -242,7 +242,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                   ),
                   const SizedBox(height: Gap.xs),
                   Text(t.lbDDocPhotoThisPhone,
-                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
                 ],
                 const SizedBox(height: Gap.lg),
                 // honest key-gated OCR seam
@@ -338,7 +338,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.dsLoadError),
                   action: FilledButton.tonalIcon(
@@ -486,9 +486,9 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 ),
               )
             : CircleAvatar(
-                backgroundColor: scheme.secondaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 child: Icon(_typeIcon(type),
-                    size: 20, color: scheme.onSecondaryContainer),
+                    size: 20, color: scheme.ds.primaryInk),
               ),
         title: Text((d['title'] ?? '').toString(),
             maxLines: 1,
@@ -499,18 +499,18 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
             children: [
               Row(children: [
                 Text(_typeLabel(t, type),
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
                 if (hasImage) ...[
                   const SizedBox(width: Gap.sm),
                   Icon(Icons.image_rounded,
-                      size: 14, color: scheme.onSurfaceVariant),
+                      size: 14, color: scheme.ds.muted),
                 ],
               ]),
               if (notes.isNotEmpty)
                 Text(notes,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ]),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline_rounded),
@@ -682,7 +682,7 @@ class _OcrSeamCard extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(ready ? Icons.auto_fix_high_rounded : Icons.lock_outline_rounded,
@@ -695,7 +695,7 @@ class _OcrSeamCard extends StatelessWidget {
                     const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(ready ? t.dsOcrReadyBody : t.dsOcrLockedBody,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                     height: 1.4)),
           ]),
         ),
@@ -737,17 +737,17 @@ class DocScanPhoto extends StatelessWidget {
       fit: fit,
       cacheWidth: small ? 144 : null,
       errorBuilder: (ctx, _, __) => Container(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         alignment: Alignment.center,
         padding: const EdgeInsets.all(Gap.xs),
         child: small
-            ? Icon(Icons.hide_image_outlined, color: scheme.onSurfaceVariant)
+            ? Icon(Icons.hide_image_outlined, color: scheme.ds.muted)
             : Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.hide_image_outlined, color: scheme.onSurfaceVariant),
+                Icon(Icons.hide_image_outlined, color: scheme.ds.muted),
                 const SizedBox(height: Gap.xs),
                 Text(AppLocalizations.of(ctx).lbDDocPhotoMissing,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
               ]),
       ),
     );

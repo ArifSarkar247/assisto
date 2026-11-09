@@ -134,7 +134,7 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
         appBar: AppBar(title: Text(tr.kidTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.kidLoadError),
           action: FilledButton.tonalIcon(
@@ -227,17 +227,17 @@ class _OverdueBanner extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.errorContainer,
+      color: scheme.ds.dangerBg,
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+          Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.kidOverdueBanner(count),
                 style: TextStyle(
-                    color: scheme.onErrorContainer,
+                    color: scheme.ds.dangerInk,
                     fontWeight: FontWeight.w600)),
           ),
         ]),
@@ -284,13 +284,13 @@ class _ChildCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis),
                       if (klass.isNotEmpty)
                         Text(klass,
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                     ]),
               ),
               if (overdue > 0)
-                _pill(context, tr.kidOverdueShort(overdue), scheme.error)
+                _pill(context, tr.kidOverdueShort(overdue), scheme.ds.dangerInk)
               else if (open > 0)
                 _pill(context, tr.kidOpenShort(open), scheme.primary),
             ]),
@@ -300,14 +300,14 @@ class _ChildCard extends StatelessWidget {
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Icon(_typeIcon(next['type'] as String?),
-                    size: 16, color: scheme.onSurfaceVariant),
+                    size: 16, color: scheme.ds.muted),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(
                       (next['title'] ?? '').toString().isEmpty
                           ? _typeLabel(tr, next['type'] as String?)
                           : (next['title']).toString(),
-                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                 ),
@@ -315,7 +315,7 @@ class _ChildCard extends StatelessWidget {
                 Text(_dueLabel(tr, next),
                     style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
                         color: (next['state'] == 'overdue')
-                            ? scheme.error
+                            ? scheme.ds.dangerInk
                             : scheme.primary)),
               ]),
             ],
@@ -409,7 +409,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
               children: [
                 if (klass.isNotEmpty)
                   Text(klass,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.xl),
                 StateMessage(
                   icon: Icons.sticky_note_2_rounded,
@@ -528,8 +528,8 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.onError),
+                backgroundColor: scheme.ds.dangerInk,
+                foregroundColor: scheme.ds.onDangerFill),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -570,14 +570,14 @@ class _NoticeCard extends StatelessWidget {
     final title = (status['title'] ?? '').toString();
     final amount = status['amount'];
     final c = state == 'overdue'
-        ? scheme.error
-        : (state == 'due_today' ? scheme.primary : scheme.onSurfaceVariant);
+        ? scheme.ds.dangerInk
+        : (state == 'due_today' ? scheme.primary : scheme.ds.muted);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(_typeIcon(type), color: done ? scheme.outline : Brand.blue),
+          Icon(_typeIcon(type), color: done ? scheme.ds.muted : Brand.blue),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -587,21 +587,21 @@ class _NoticeCard extends StatelessWidget {
                       style: TextStyle(
                           fontWeight: FontWeight.w600,
                           decoration: done ? TextDecoration.lineThrough : null,
-                          color: done ? scheme.outline : scheme.onSurface),
+                          color: done ? scheme.ds.muted : scheme.ds.text),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: Gap.xxs),
                   Row(children: [
                     Text(_typeLabel(tr, type),
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     if (type == 'fee' &&
                         amount != null &&
                         amount.toString().trim().isNotEmpty) ...[
                       Text('  ·  ',
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                       Text('৳${amount.toString()}',
                           style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
-                              color: scheme.onSurface)),
+                              color: scheme.ds.text)),
                     ],
                   ]),
                   if (!done && state != 'no_date') ...[
@@ -612,7 +612,7 @@ class _NoticeCard extends StatelessWidget {
                   ],
                   if (state == 'no_date')
                     Text(tr.kidNoDate,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
           Column(children: [
@@ -620,7 +620,7 @@ class _NoticeCard extends StatelessWidget {
               tooltip: done ? tr.kidMarkUndone : tr.kidMarkDone,
               icon: Icon(
                   done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                  color: done ? Brand.success : scheme.outline),
+                  color: done ? Brand.success : scheme.ds.muted),
               onPressed: onToggleDone,
             ),
             IconButton(
@@ -669,7 +669,7 @@ class _ChildFormState extends State<_ChildForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.kidPrivacyNote,
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               TextField(
                 controller: _name,
@@ -767,7 +767,7 @@ class _NoticeFormState extends State<_NoticeForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.kidNoticeHelp,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               TextField(
                 controller: _title,
@@ -879,16 +879,16 @@ Widget _reminderSeamNote(BuildContext context, String text) =>
 Widget _infoNote(BuildContext context, IconData icon, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     ),

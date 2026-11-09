@@ -197,7 +197,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.bolt_rounded,
-                color: active ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant, size: 20),
+                color: active ? AssistoTokens.of(context).warning : scheme.ds.muted, size: 20),
             const SizedBox(width: Gap.xs),
             Expanded(
                 child: Text(r['name']?.toString() ?? t.crmRule,
@@ -214,8 +214,8 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
                 label: Text(t.edit)),
             TextButton.icon(
                 onPressed: () => _delete(r),
-                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.error),
-                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.ds.dangerInk),
+                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk))),
           ]),
         ]),
       ),
@@ -236,6 +236,6 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
       '${t.crmThen} ${CrmRuleBuilder.actionLabel(t, action['kind']?.toString())}',
     ];
     return Text(parts.join(' · '),
-        style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4));
+        style: TextStyle(color: scheme.ds.muted, height: 1.4));
   }
 }

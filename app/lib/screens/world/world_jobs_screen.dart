@@ -107,7 +107,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -212,14 +212,14 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
           Text(
               t.uwReviewedOn(
                   uwWhen(context, '${d['reviewed'] ?? ''}', time: false)),
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
         ],
       ),
     );

@@ -357,7 +357,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         appBar: AppBar(title: Text(t.cvTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.cvLoadError),
           action: FilledButton.tonalIcon(
@@ -617,7 +617,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         const _AiPolishCard(),
         const SizedBox(height: Gap.lg),
         Text(t.cvPrivacyNote,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
       ],
     );
   }
@@ -644,7 +644,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Text(msg,
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
     );
   }
 
@@ -658,7 +658,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Material(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
         child: InkWell(
           onTap: onEdit,
@@ -681,7 +681,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                         Text(subtitle,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                       ],
                     ]),
               ),
@@ -1083,7 +1083,7 @@ class _PreviewSheet extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(Gap.md),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
                 child: SingleChildScrollView(
@@ -1143,7 +1143,7 @@ class _AiPolishCard extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -1157,7 +1157,7 @@ class _AiPolishCard extends StatelessWidget {
                         fontWeight: FontWeight.w700, height: 1.4)),
                 const SizedBox(height: Gap.xxs),
                 Text(t.cvAiPolishBody,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                         height: 1.4)),
               ]),
         ),

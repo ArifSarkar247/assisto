@@ -254,7 +254,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -287,10 +287,10 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(children: [
               Icon(Icons.place_rounded,
-                  size: 18, color: scheme.onSurfaceVariant),
+                  size: 18, color: scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Text('${city['name']}',
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ]),
           ),
         if (shown.isEmpty)
@@ -344,7 +344,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   children: [
                     Row(children: [
                       Icon(Icons.hourglass_top_rounded,
-                          color: scheme.onSurfaceVariant),
+                          color: scheme.ds.muted),
                       const SizedBox(width: Gap.sm),
                       Expanded(
                           child: Text(t.uwNotConnectedTitle,
@@ -361,13 +361,13 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(_cardIcon(id),
-                                  size: 20, color: scheme.onSurfaceVariant),
+                                  size: 20, color: scheme.ds.muted),
                               const SizedBox(width: Gap.sm),
                               Expanded(
                                   child: Text(
                                       '${_cardTitle(t, id)} — ${_hiddenReason(t, '${hidden[id]}')}',
                                       style: TextStyle(
-                                          color: scheme.onSurfaceVariant,
+                                          color: scheme.ds.muted,
                                           height: 1.35))),
                             ]),
                       ),
@@ -414,7 +414,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
         ]);
       case 'weather':
         final next = worldList(c['next']);
@@ -450,7 +450,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         final small = Theme.of(context)
             .textTheme
             .bodySmall
-            ?.copyWith(color: scheme.onSurfaceVariant);
+            ?.copyWith(color: scheme.ds.muted);
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (off.isNotEmpty) ...[
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -479,7 +479,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xxs),
                 child: Text(t.uwFxOfficialStale,
-                    style: small?.copyWith(color: scheme.error)),
+                    style: small?.copyWith(color: scheme.ds.dangerInk)),
               ),
             UwSourceLine(
                 source: '${off['source']}', url: '${off['source_url'] ?? ''}'),
@@ -533,7 +533,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
         ]);
       case 'gold':
       case 'fuel':
@@ -547,7 +547,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
           UwSourceLine(
               source: '${c['source']}', url: '${c['source_url'] ?? ''}'),
         ]);
@@ -570,7 +570,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                           padding: const EdgeInsets.only(top: Gap.xxs),
                           child: Text('${it['snippet']}',
                               style: TextStyle(
-                                  color: scheme.onSurfaceVariant,
+                                  color: scheme.ds.muted,
                                   height: 1.35)),
                         ),
                       const SizedBox(height: Gap.xxs),
@@ -592,7 +592,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
         ]);
       default:
         final m = worldList(c['matches']);

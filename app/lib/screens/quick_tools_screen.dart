@@ -387,7 +387,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(Gap.lg),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
                 child: SelectableText(
@@ -398,7 +398,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
               if (_result!.action == 'translate' && _result!.phraseHit) ...[
                 const SizedBox(height: Gap.sm),
                 Text(t.qtPhraseFallbackNote,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ],
               const SizedBox(height: Gap.lg),
               Row(children: [
@@ -441,19 +441,19 @@ class _AiMarker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer,
+        color: scheme.ds.successBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.rule_rounded, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.rule_rounded, size: 18, color: scheme.ds.successInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk, fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(note,
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk, height: 1.4)),
           ]),
         ),
       ]),

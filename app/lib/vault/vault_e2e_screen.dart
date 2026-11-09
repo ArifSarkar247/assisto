@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart';
 
 import '../billing/billing_format.dart' show uiDigits;
@@ -380,15 +381,15 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: strong ? cs.errorContainer : cs.surfaceContainerHighest,
+        color: strong ? cs.ds.dangerBg : cs.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, color: strong ? cs.onErrorContainer : cs.onSurfaceVariant),
+        Icon(icon, color: strong ? cs.ds.dangerInk : cs.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodyMedium.copyWith(color: strong ? cs.onErrorContainer : cs.onSurfaceVariant))),
+                style: AType.bodyMedium.copyWith(color: strong ? cs.ds.dangerInk : cs.ds.muted))),
       ]),
     );
   }
@@ -527,7 +528,7 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
         children.add(ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(_hasServerRecovery ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-              color: _hasServerRecovery ? Colors.green.shade700 : Theme.of(context).colorScheme.error),
+              color: _hasServerRecovery ? Colors.green.shade700 : Theme.of(context).colorScheme.ds.dangerInk),
           title: Text(_hasServerRecovery ? t.vaultE2eRecoveryOnServer : t.vaultE2eRecoveryMissing),
         ));
         children.add(_bigButton(const Key('e2e_new_code'), Icons.key_rounded, t.vaultE2eNewCode,

@@ -379,7 +379,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
         title: Text(it.title,
             maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Text(time == null ? kindLabel : '$kindLabel · $time',
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ),
     );
   }
@@ -403,7 +403,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
         child: LinearProgressIndicator(
           value: pct / 100.0,
           minHeight: 8,
-          backgroundColor: scheme.surfaceContainerHighest,
+          backgroundColor: scheme.ds.cardHighest,
           color: Brand.success,
         ),
       ),
@@ -453,7 +453,7 @@ class _Header extends StatelessWidget {
               .headlineSmall
               ?.copyWith(fontWeight: FontWeight.w800)),
       const SizedBox(height: Gap.xxs),
-      Text(subtitle, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(subtitle, style: TextStyle(color: scheme.ds.muted)),
     ]);
   }
 }
@@ -470,15 +470,15 @@ class _KeyGatedChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
         ),
       ]),
     );

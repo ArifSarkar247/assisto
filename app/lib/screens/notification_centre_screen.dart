@@ -180,8 +180,8 @@ class _TabLabel extends StatelessWidget {
             const SizedBox(width: Gap.xs),
             Badge(
               key: const ValueKey('notifTabBadge'),
-              backgroundColor: scheme.error,
-              textColor: scheme.onError,
+              backgroundColor: scheme.ds.dangerInk,
+              textColor: scheme.ds.onDangerFill,
               label: Text(n > 99
                   ? '${99}${String.fromCharCode(0x2B)}'
                   : '$n'),
@@ -214,7 +214,7 @@ class _OfflineNote extends StatelessWidget {
           Expanded(
             child: Text(
               t.notifOfflineNote,
-              style: TextStyle(color: scheme.onSurface, height: 1.3),
+              style: TextStyle(color: scheme.ds.text, height: 1.3),
             ),
           ),
         ],
@@ -470,7 +470,7 @@ class _Section extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: overdue ? scheme.error : scheme.onSurface, // a11y1: AA red
+                  color: overdue ? scheme.ds.dangerInk : scheme.ds.text, // a11y1: AA red
                 ),
           ),
         ),

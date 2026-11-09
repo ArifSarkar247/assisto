@@ -176,7 +176,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
       Text(t.c100BulkIntro(_d(widget.customers.length)), style: AType.bodyMedium),
       const SizedBox(height: Gap.xs),
       Text(t.c100NeverAuto,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _text,
@@ -198,7 +198,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               failKindOf(_fail!) == FailKind.network
                   ? t.c100Offline
                   : honestFailText(t, _fail, otherwise: t.c100PreviewFailed),
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
         ),
       FilledButton.icon(
         onPressed: _busy ? null : _build,
@@ -257,11 +257,11 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
             const SizedBox(height: Gap.xs),
             Text(k.detail,
                 style: AType.bodySmall
-                    .copyWith(color: k.st == _St.failed ? scheme.error : scheme.primary)),
+                    .copyWith(color: k.st == _St.failed ? scheme.ds.dangerInk : scheme.primary)),
           ],
           if (!phoneOk) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.error)),
+            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [

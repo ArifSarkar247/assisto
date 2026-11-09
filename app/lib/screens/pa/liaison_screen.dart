@@ -229,7 +229,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError),
+            style: FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -295,7 +295,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLiaLoadError),
                   action: FilledButton.tonalIcon(
@@ -364,7 +364,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.paLiaOverdueBanner('$_overdueCount'),
-                style: TextStyle(color: scheme.onSurface, fontSize: 13, height: 1.3)),
+                style: TextStyle(color: scheme.ds.text, fontSize: 13, height: 1.3)),
           ),
           TextButton(
             onPressed: () => setState(() {
@@ -438,7 +438,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
   Color _urgencyColor(String u, ColorScheme scheme) {
     switch (u) {
       case 'overdue':
-        return scheme.error;
+        return scheme.ds.dangerInk;
       case 'due_soon':
         return Brand.warning;
       case 'done':
@@ -483,7 +483,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                       decoration: status == _stDone ? TextDecoration.lineThrough : null,
-                      color: status == _stDone ? scheme.onSurfaceVariant : scheme.onSurface),
+                      color: status == _stDone ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ),
@@ -491,23 +491,23 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           ]),
           const SizedBox(height: 4),
           Text(tr.paLiaWith((r['counterpart'] ?? '').toString()),
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+              style: TextStyle(color: scheme.ds.muted, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.md, runSpacing: 4, children: [
             if (dueText != null)
               _meta(overdue ? Icons.event_busy_rounded : Icons.event_rounded, dueText,
-                  overdue ? scheme.error : scheme.onSurfaceVariant),
+                  overdue ? scheme.ds.dangerInk : scheme.ds.muted),
             if (nudge != 'off' && nxt != null)
               _meta(Icons.notifications_active_rounded,
                   tr.paLiaNextNudge(DateFormat('d MMM', tr.localeName).format(nxt.toLocal())),
-                  scheme.onSurfaceVariant),
+                  scheme.ds.muted),
             if (nudge == 'off')
-              _meta(Icons.notifications_off_rounded, tr.paLiaNudgeOff, scheme.onSurfaceVariant),
+              _meta(Icons.notifications_off_rounded, tr.paLiaNudgeOff, scheme.ds.muted),
             if (hasContact)
               _meta(Icons.contact_phone_rounded,
-                  tr.paLiaContactHidden(_maskContact(raw)), scheme.onSurfaceVariant),
+                  tr.paLiaContactHidden(_maskContact(raw)), scheme.ds.muted),
           ]),
           const Divider(height: Gap.xl),
           Row(children: [

@@ -379,8 +379,8 @@ class _ConnectBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = connected ? scheme.secondaryContainer : scheme.tertiaryContainer;
-    final onColor = connected ? scheme.onSecondaryContainer : scheme.onTertiaryContainer;
+    final color = connected ? scheme.ds.primarySoft : scheme.ds.successBg;
+    final onColor = connected ? scheme.ds.primaryInk : scheme.ds.successInk;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
@@ -447,7 +447,7 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(filtered ? Icons.filter_alt_off_rounded : Icons.inbox_rounded,
-              size: 56, color: scheme.onSurfaceVariant),
+              size: 56, color: scheme.ds.muted),
           const SizedBox(height: Gap.md),
           Text(filtered ? tr.inboxNoneInFilter
               : (connected ? tr.inboxAllClear : tr.realityInboxNotConnectedTitle),
@@ -459,7 +459,7 @@ class _EmptyState extends StatelessWidget {
                   ? tr.inboxAllClearHint
                   : (kShowKeySeams ? tr.realityInboxNotConnectedHint : tr.lbWInboxNotLive)),
               textAlign: TextAlign.center,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]),
       ),
     );
@@ -479,7 +479,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.error),
+          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.ds.dangerInk),
           const SizedBox(height: Gap.md),
           Text(tr.inboxLoadFailed,
               textAlign: TextAlign.center,
@@ -487,7 +487,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(honestFailText(tr, error, otherwise: tr.checkInternetRetry),
               textAlign: TextAlign.center,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             icon: const Icon(Icons.refresh_rounded),

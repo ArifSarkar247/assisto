@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_sheet.dart';
@@ -120,7 +121,7 @@ class _PrivacyNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: Theme.of(context).colorScheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -479,7 +480,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
             onChanged: (v) => setState(() => _confirm = v ?? false),
           ),
           if (_error != null && _error!.isNotEmpty)
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
           const SizedBox(height: 8),
           FilledButton.icon(
             key: const ValueKey('ctm-watch-send'),

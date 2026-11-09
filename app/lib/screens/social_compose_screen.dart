@@ -312,14 +312,14 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           const SizedBox(height: Gap.md),
 
           Text(t.socialHashtags,
-              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           HashtagChips(tags: _hashtags, onTap: _insert),
 
           if (_emoji.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Text(t.socialEmoji,
-                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.muted)),
             const SizedBox(height: Gap.xs),
             EmojiChips(emoji: _emoji, onTap: _insert),
           ],

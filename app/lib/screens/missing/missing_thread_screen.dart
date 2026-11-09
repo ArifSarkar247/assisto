@@ -132,13 +132,13 @@ class _MissingThreadScreenState extends State<MissingThreadScreen> {
               margin: const EdgeInsets.only(bottom: Gap.sm),
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: (m['by_family'] == true) == _family ? s.primaryContainer : s.surfaceContainerHigh,
+                color: (m['by_family'] == true) == _family ? s.ds.primarySoft : s.ds.cardHigh,
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('${m['text'] ?? ''}',
                     style: TextStyle(
-                        color: (m['by_family'] == true) == _family ? s.onPrimaryContainer : s.onSurface)),
+                        color: (m['by_family'] == true) == _family ? s.ds.primaryInk : s.ds.text)),
                 if (m['point'] is Map)
                   Text(t.maThreadPoint, style: Theme.of(context).textTheme.bodySmall),
                 Text(maAgo(context, m['at'] as String?), style: Theme.of(context).textTheme.bodySmall),

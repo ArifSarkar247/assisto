@@ -137,7 +137,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       children: [
         const SizedBox(height: Gap.xxl),
         Icon(Icons.cloud_off_rounded,
-            size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            size: 48, color: Theme.of(context).colorScheme.ds.muted),
         const SizedBox(height: Gap.md),
         Text(honestFailText(t, _failCause, otherwise: t.mlpLoadFailed),
             textAlign: TextAlign.center),
@@ -312,7 +312,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       child: Container(
         padding: const EdgeInsets.all(Gap.sm),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(
@@ -478,7 +478,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
             Row(
               children: [
                 Icon(Icons.sim_card_rounded,
-                    color: has ? Brand.warning : scheme.onSurfaceVariant),
+                    color: has ? Brand.warning : scheme.ds.muted),
                 const SizedBox(width: Gap.xs),
                 Text(t.mlpSimTitle,
                     style: Theme.of(context).textTheme.titleMedium),
@@ -561,7 +561,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
 
   Widget _honestNote(AppLocalizations t, ColorScheme scheme) {
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(
@@ -740,7 +740,7 @@ class _IntruderPhotoState extends State<_IntruderPhoto> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(Radii.sm),
       child: Container(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         child: AspectRatio(aspectRatio: 1, child: child),
       ),
     );

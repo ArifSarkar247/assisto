@@ -333,7 +333,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               tr.parcelTracking(
                   _courierName((_order['courier'] ?? '').toString()),
                   (_order['tracking']).toString()),
-              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted),
             ),
           ],
           if (_order['courier_live'] == false && _status == 'shipped') ...[
@@ -400,7 +400,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         if (isTerminal)
           Text(tr.bizOrderClosed,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       ]),
     );
   }

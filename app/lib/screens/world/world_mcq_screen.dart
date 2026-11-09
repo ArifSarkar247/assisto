@@ -107,7 +107,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -152,7 +152,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant)),
+                            ?.copyWith(color: scheme.ds.muted)),
                   ],
                 ),
     );
@@ -198,15 +198,15 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                     side: BorderSide(
                         color: _choice[id] == k
                             ? scheme.primary
-                            : scheme.outlineVariant)),
-                tileColor: _choice[id] == k ? scheme.primaryContainer : null,
+                            : scheme.ds.border)),
+                tileColor: _choice[id] == k ? scheme.ds.primarySoft : null,
                 leading: Icon(
                     _choice[id] == k
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
                     color: _choice[id] == k
                         ? scheme.primary
-                        : scheme.onSurfaceVariant),
+                        : scheme.ds.muted),
                 title: Text(opts[k]),
                 onTap: () => setState(() => _choice[id] = k),
               ),
@@ -238,12 +238,12 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
     return [
       Card(
         margin: EdgeInsets.zero,
-        color: scheme.primaryContainer,
+        color: scheme.ds.primarySoft,
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: Row(children: [
             Icon(Icons.emoji_events_rounded,
-                color: scheme.onPrimaryContainer, size: 36),
+                color: scheme.ds.primaryInk, size: 36),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(
@@ -252,7 +252,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
-                      ?.copyWith(color: scheme.onPrimaryContainer)),
+                      ?.copyWith(color: scheme.ds.primaryInk)),
             ),
           ]),
         ),
@@ -269,7 +269,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                 Icon(x['correct'] == true ? Icons.check_circle_rounded : Icons.cancel_rounded,
                     color: x['correct'] == true
                         ? Colors.green.shade600
-                        : scheme.error),
+                        : scheme.ds.dangerInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text('${x['q']}',
@@ -281,7 +281,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
               const SizedBox(height: Gap.xxs),
               Text('${x['why'] ?? ''}',
                   style:
-                      TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                      TextStyle(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ),

@@ -159,7 +159,7 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
         appBar: AppBar(title: Text(tr.doctorSerialTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.doctorLoadError),
           action: FilledButton.tonalIcon(
@@ -267,17 +267,17 @@ class _UpcomingTab extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.primaryContainer,
+        color: scheme.ds.primarySoft,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
         Icon(Icons.notifications_active_rounded,
-            color: scheme.onPrimaryContainer),
+            color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(tr.doctorReminderDue('$n'),
               style: TextStyle(
-                  color: scheme.onPrimaryContainer,
+                  color: scheme.ds.primaryInk,
                   fontWeight: FontWeight.w600)),
         ),
       ]),
@@ -348,9 +348,9 @@ class _ApptCard extends StatelessWidget {
           children: [
             Row(children: [
               CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 child: Icon(Icons.medical_services_rounded,
-                    color: scheme.onPrimaryContainer, size: 20),
+                    color: scheme.ds.primaryInk, size: 20),
               ),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -361,7 +361,7 @@ class _ApptCard extends StatelessWidget {
                         style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                     if (appt.specialty.isNotEmpty)
                       Text(_specialtyLabel(tr, appt.specialty),
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ],
                 ),
               ),
@@ -408,7 +408,7 @@ class _ApptCard extends StatelessWidget {
               const SizedBox(height: Gap.sm),
               Text(appt.notes,
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant, height: 1.3)),
+                      color: scheme.ds.muted, height: 1.3)),
             ],
           ],
         ),
@@ -444,11 +444,11 @@ class _ApptCard extends StatelessWidget {
   Widget _meta(BuildContext context, IconData icon, String text) {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+      Icon(icon, size: 14, color: scheme.ds.muted),
       const SizedBox(width: Gap.xs),
       Flexible(
         child: Text(text,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ),
     ]);
   }
@@ -458,7 +458,7 @@ class _ApptCard extends StatelessWidget {
 Widget _trackerNote(BuildContext context, AppLocalizations tr) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
@@ -467,7 +467,7 @@ Widget _trackerNote(BuildContext context, AppLocalizations tr) {
         Expanded(
           child: Text(tr.doctorTrackerNote,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     ),
@@ -482,7 +482,7 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.link_off_rounded, color: scheme.onSurfaceVariant),
+        Icon(Icons.link_off_rounded, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(
@@ -492,7 +492,7 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(tr.doctorBookingSeamBody,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ),
         ),
@@ -521,9 +521,9 @@ Color _statusColor(BuildContext context, String status) {
     case 'done':
       return scheme.primary;
     case 'cancelled':
-      return scheme.onSurfaceVariant;
+      return scheme.ds.muted;
     case 'missed':
-      return scheme.error;
+      return scheme.ds.dangerInk;
     default:
       return scheme.secondary;
   }

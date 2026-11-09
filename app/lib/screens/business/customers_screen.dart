@@ -111,7 +111,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     if (_error != null) {
       return StateMessage(
         icon: Icons.cloud_off_rounded,
-        tint: scheme.error,
+        tint: scheme.ds.dangerInk,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
@@ -148,9 +148,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
               child: Row(children: [
                 CircleAvatar(
                   backgroundColor:
-                      vip ? AssistoTokens.of(context).warning.withValues(alpha: 0.2) : scheme.surfaceContainerHighest,
+                      vip ? AssistoTokens.of(context).warning.withValues(alpha: 0.2) : scheme.ds.cardHighest,
                   child: Icon(vip ? Icons.star_rounded : Icons.person_outline_rounded,
-                      color: vip ? AssistoTokens.of(context).warning : scheme.onSurfaceVariant),
+                      color: vip ? AssistoTokens.of(context).warning : scheme.ds.muted),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -174,19 +174,19 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         ]),
                         if ((c['phone'] ?? '').toString().isNotEmpty)
                           Text(c['phone'].toString(),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                         if ((c['area'] ?? '').toString().isNotEmpty)
                           Text(c['area'].toString(),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                       ]),
                 ),
                 if (dues > 0)
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                     Text(t.biz_customer_dues,
-                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                     Text(dues.takaIn(context),
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w800)),
+                            color: Theme.of(context).colorScheme.ds.dangerInk, fontWeight: FontWeight.w800)),
                   ]),
                 IconButton(
                   tooltip: AppLocalizations.of(context).edit,
@@ -411,12 +411,12 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
               .toString(),
               style: Theme.of(context).textTheme.titleLarge),
           Text(t.biz_purchase_history,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           if (dues > 0)
             SellCard(
               child: MoneyRow(t.biz_customer_dues, dues,
-                  strong: true, valueColor: Theme.of(context).colorScheme.error),
+                  strong: true, valueColor: Theme.of(context).colorScheme.ds.dangerInk),
             ),
           const SizedBox(height: Gap.md),
           if (_loading)
@@ -424,7 +424,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
           else if (_error != null)
             StateMessage(
                 icon: Icons.cloud_off_rounded,
-                tint: scheme.error,
+                tint: scheme.ds.dangerInk,
                 title: t.loadFailed)
           else if (sales.isEmpty)
             StateMessage(

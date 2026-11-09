@@ -319,7 +319,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
       key: const Key('m3-add-list'),
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        Text(t.m3AddLead, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(t.m3AddLead, style: TextStyle(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.md),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
@@ -411,7 +411,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         ),
         const SizedBox(height: Gap.sm),
         Text(t.m3ScanLater,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xl),
       ],
     );
@@ -430,15 +430,15 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         return [
           Card(
             key: const Key('m3-error'),
-            color: scheme.errorContainer,
+            color: scheme.ds.dangerBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer),
+                Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_error ?? t.c1SearchFailed,
-                        style: TextStyle(color: scheme.onErrorContainer))),
+                        style: TextStyle(color: scheme.ds.dangerInk))),
                 TextButton(onPressed: _find, child: Text(t.retry)),
               ]),
             ),
@@ -471,7 +471,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 ]),
                 const SizedBox(height: Gap.xs),
                 Text(t.m3NotOnAssistoBody,
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    style: TextStyle(color: scheme.ds.muted, height: 1.4)),
                 const SizedBox(height: Gap.sm),
                 Text(t.m3InviteThem, style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: Gap.xs),
@@ -504,7 +504,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                           style: AType.titleMedium
                               .copyWith(fontWeight: FontWeight.w700)),
                       Text(t.m3OnAssistoNumber(local),
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                     ]),
                   ),
                 ]),
@@ -519,7 +519,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 ] else if (st == 'pending') ...[
                   Text(t.m3AlreadyRequested,
                       key: const Key('m3-pending'),
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
                   const SizedBox(height: Gap.sm),
                   _messageButton(u),
                 ] else if (st == 'incoming') ...[
@@ -538,7 +538,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                   const SizedBox(height: Gap.xs),
                   Text(t.mr1MessageNowHint,
                       style: AType.bodySmall
-                          .copyWith(color: scheme.onSurfaceVariant)),
+                          .copyWith(color: scheme.ds.muted)),
                   const SizedBox(height: Gap.md),
                   Text(t.mr1OrAddToCircle,
                       style: Theme.of(context).textTheme.titleSmall),
@@ -548,7 +548,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(t.msgrRelationRequired,
-                          style: AType.bodySmall.copyWith(color: scheme.error)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
                     ),
                   const SizedBox(height: Gap.md),
                   FilledButton.icon(
@@ -567,7 +567,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(_error!,
                           key: const Key('m3-send-error'),
-                          style: TextStyle(color: scheme.error)),
+                          style: TextStyle(color: scheme.ds.dangerInk)),
                     ),
                 ],
               ]),
@@ -648,7 +648,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
           const SizedBox(height: Gap.sm),
           Text(_accepted ? t.c1Accepted : t.m3RequestSentBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.lg),
           FilledButton(
             key: const Key('m3-done'),

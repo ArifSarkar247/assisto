@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_sheet.dart';
@@ -323,8 +324,8 @@ class CctvStill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ph = ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Center(child: Icon(Icons.videocam_outlined, size: 36, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      color: Theme.of(context).colorScheme.ds.cardHighest,
+      child: Center(child: Icon(Icons.videocam_outlined, size: 36, color: Theme.of(context).colorScheme.ds.muted)),
     );
     if (inlineJpeg != null && inlineJpeg!.isNotEmpty) {
       try {

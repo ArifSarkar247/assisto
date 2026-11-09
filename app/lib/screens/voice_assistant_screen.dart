@@ -356,7 +356,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         if (!didPop) _close();
       },
       child: Scaffold(
-      backgroundColor: dark ? scheme.surface : scheme.surfaceContainerLowest,
+      backgroundColor: dark ? scheme.surface : scheme.ds.card,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -406,11 +406,11 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
               child: Row(children: [
-                Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+                Icon(Icons.lock_outline_rounded, size: 16, color: scheme.ds.muted),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(t.vaLockedNote,
-                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
               ]),
             ),
           _bottom(scheme, listening),
@@ -451,7 +451,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
-                ?.copyWith(color: scheme.onSurfaceVariant)),
+                ?.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xl),
         Wrap(
           spacing: Gap.sm,
@@ -549,7 +549,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
         Text(status,
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: listening ? scheme.primary : scheme.onSurfaceVariant,
+                color: listening ? scheme.primary : scheme.ds.muted,
                 fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.md),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -558,7 +558,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             iconSize: 26,
             onPressed: () => setState(() => _typing = !_typing),
             icon: Icon(_typing ? Icons.keyboard_hide_rounded : Icons.keyboard_rounded,
-                color: scheme.onSurfaceVariant),
+                color: scheme.ds.muted),
           ),
           const SizedBox(width: Gap.xl),
           _MicOrb(
@@ -580,7 +580,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             iconSize: 26,
             onPressed: () => VaNative.stopSpeaking(),
             icon: Icon(Icons.volume_off_rounded,
-                color: scheme.onSurfaceVariant),
+                color: scheme.ds.muted),
           ),
         ]),
       ]),
@@ -709,7 +709,7 @@ class _ResultCardState extends State<_ResultCard> {
     final scheme = Theme.of(context).colorScheme;
     final accent = o.danger
         ? Brand.danger
-        : (o.ok ? scheme.primary : scheme.onSurfaceVariant);
+        : (o.ok ? scheme.primary : scheme.ds.muted);
     // qa2: the spoken reply usually already names the title and time
     // ("Reminder set: Call Ammu — today, 5:00 PM"); repeating them as a
     // second block read as a stutter. Show the details only when they add
@@ -719,7 +719,7 @@ class _ResultCardState extends State<_ResultCard> {
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       elevation: 0,
-      color: scheme.surfaceContainerHigh,
+      color: scheme.ds.cardHigh,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.lg)),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md + 2),
@@ -749,7 +749,7 @@ class _ResultCardState extends State<_ResultCard> {
                               style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                         if (o.subtitle != null)
                           Text(o.subtitle!,
-                              style: TextStyle(color: scheme.onSurfaceVariant)),
+                              style: TextStyle(color: scheme.ds.muted)),
                       ],
                     ]),
               ),

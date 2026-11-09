@@ -234,7 +234,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                               _GroupHeader(
                                 icon: Icons.flag_rounded,
                                 color:
-                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                    Theme.of(context).colorScheme.ds.muted,
                                 label: t.msgrModGroupOther,
                               ),
                               const SizedBox(height: Gap.sm),
@@ -496,16 +496,16 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(width: Gap.sm),
                     Icon(Icons.lock_clock_rounded,
-                        size: 16, color: scheme.onSurfaceVariant),
+                        size: 16, color: scheme.ds.muted),
                   ]),
                   const SizedBox(height: Gap.xs),
                   Text(t.msgrModAuditAppendOnlyNote,
                       style: TextStyle(
-                          color: scheme.onSurfaceVariant, fontSize: 12)),
+                          color: scheme.ds.muted, fontSize: 12)),
                   const SizedBox(height: Gap.sm),
                   if (_audit.isEmpty)
                     Text(t.msgrModAuditEmpty,
-                        style: TextStyle(color: scheme.onSurfaceVariant))
+                        style: TextStyle(color: scheme.ds.muted))
                   else
                     for (int i = 0; i < _audit.length; i++)
                       _AuditTimeline(
@@ -546,7 +546,7 @@ class _AppealBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer.withValues(alpha: 0.6),
+        color: scheme.ds.successBg.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: scheme.tertiary.withValues(alpha: 0.4)),
       ),
@@ -562,7 +562,7 @@ class _AppealBanner extends StatelessWidget {
               const SizedBox(height: 2),
               Text(t.msgrModAppealOpenBody,
                   style: TextStyle(
-                      color: scheme.onSurface, fontSize: 12.5, height: 1.35)),
+                      color: scheme.ds.text, fontSize: 12.5, height: 1.35)),
             ],
           ),
         ),
@@ -650,12 +650,12 @@ class _QueueCard extends StatelessWidget {
     final card = Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(
           color: severe
               ? Brand.danger.withValues(alpha: 0.5)
-              : scheme.outlineVariant,
+              : scheme.ds.border,
           width: severe ? 1.5 : 1,
         ),
       ),
@@ -680,7 +680,7 @@ class _QueueCard extends StatelessWidget {
                 ),
               ),
               if (onTap != null)
-                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+                Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
             ],
           ),
           const SizedBox(height: Gap.sm),
@@ -703,7 +703,7 @@ class _QueueCard extends StatelessWidget {
                     icon: Icons.account_balance_rounded),
               MsgrModStatusPill(
                 label: t.msgrModReportsCount(_digits(reports.toString(), loc)),
-                color: scheme.onSurfaceVariant,
+                color: scheme.ds.muted,
                 icon: Icons.flag_rounded,
               ),
             ],
@@ -713,7 +713,7 @@ class _QueueCard extends StatelessWidget {
             categories.isEmpty
                 ? t.msgrModNoReason
                 : categories.map((c) => _reasonLabel(t, c)).join('  •  '),
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35),
+            style: TextStyle(color: scheme.ds.muted, height: 1.35),
             maxLines: dense ? 2 : 10,
             overflow: dense ? TextOverflow.ellipsis : TextOverflow.visible,
           ),
@@ -722,7 +722,7 @@ class _QueueCard extends StatelessWidget {
             Text(
               t.msgrModLastDecision(item['decision'].toString()),
               style: TextStyle(
-                  color: scheme.onSurfaceVariant,
+                  color: scheme.ds.muted,
                   fontStyle: FontStyle.italic,
                   fontSize: 13),
             ),
@@ -790,7 +790,7 @@ class _AuditTimeline extends StatelessWidget {
       case 'reopen':
         return (icon: Icons.refresh_rounded, color: scheme.primary);
       case 'report':
-        return (icon: Icons.flag_rounded, color: scheme.onSurfaceVariant);
+        return (icon: Icons.flag_rounded, color: scheme.ds.muted);
       default:
         return (icon: Icons.circle_rounded, color: scheme.primary);
     }

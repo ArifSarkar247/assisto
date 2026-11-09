@@ -438,18 +438,18 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
     IconData chipIcon;
     if (live == null) {
       chipText = t.trModeEstimate;
-      chipBg = cs.tertiaryContainer;
-      chipFg = cs.onTertiaryContainer;
+      chipBg = cs.ds.successBg;
+      chipFg = cs.ds.successInk;
       chipIcon = Icons.schedule_rounded;
     } else if (delay != null && delay > 2) {
       chipText = _d(t.sjtLateChip('$delay'));
-      chipBg = cs.errorContainer;
-      chipFg = cs.onErrorContainer;
+      chipBg = cs.ds.dangerBg;
+      chipFg = cs.ds.dangerInk;
       chipIcon = Icons.timer_outlined;
     } else {
       chipText = t.sjtOnTimeChip;
-      chipBg = cs.primaryContainer;
-      chipFg = cs.onPrimaryContainer;
+      chipBg = cs.ds.primarySoft;
+      chipFg = cs.ds.primaryInk;
       chipIcon = Icons.check_circle_rounded;
     }
     final share = TrainShareController.I.value;
@@ -464,7 +464,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         ),
         const SizedBox(height: Gap.xxs),
         Text('${trainStation(tr['from'] as Map?, bn)} → ${trainStation(tr['to'] as Map?, bn)}',
-            style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           Semantics(
@@ -472,7 +472,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
               excludeSemantics: true,
               child: _chip(chipText, chipBg, chipFg, chipIcon)),
           if (v['runs'] == false)
-            _chip(t.trOffDay, cs.errorContainer, cs.onErrorContainer, Icons.event_busy_rounded),
+            _chip(t.trOffDay, cs.ds.dangerBg, cs.ds.dangerInk, Icons.event_busy_rounded),
         ]),
         const SizedBox(height: Gap.sm),
         Semantics(
@@ -482,13 +482,13 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             key: const ValueKey('sjt_mode_card'),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: live != null ? cs.primaryContainer : cs.tertiaryContainer,
+              color: live != null ? cs.ds.primarySoft : cs.ds.successBg,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Icon(live != null ? Icons.sensors_rounded : Icons.schedule_rounded,
-                    color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer),
+                    color: live != null ? cs.ds.primaryInk : cs.ds.successInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(
@@ -496,7 +496,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
                           ? _d(sharers == 1 ? t.sjtSharingOne : t.sjtSharingMany('$sharers'))
                           : t.sjtEstimated,
                       style: AType.titleSmall.copyWith(
-                          color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer,
+                          color: live != null ? cs.ds.primaryInk : cs.ds.successInk,
                           fontWeight: FontWeight.w700)),
                 ),
               ]),
@@ -505,17 +505,17 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
                 Text(_d(now),
                     key: const ValueKey('sjt_now'),
                     style: AType.titleMedium.copyWith(
-                        color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer)),
+                        color: live != null ? cs.ds.primaryInk : cs.ds.successInk)),
               ] else if (live == null) ...[
                 const SizedBox(height: Gap.xs),
                 Text(
                     estState == 'not_started'
                         ? t.trEstNotStarted
                         : (estState == 'arrived' ? t.trEstArrived : t.trEstRunning),
-                    style: AType.bodyMedium.copyWith(color: cs.onTertiaryContainer)),
+                    style: AType.bodyMedium.copyWith(color: cs.ds.successInk)),
               ],
               if (live == null)
-                Text(t.sjtEstimatedWhy, style: AType.bodySmall.copyWith(color: cs.onTertiaryContainer)),
+                Text(t.sjtEstimatedWhy, style: AType.bodySmall.copyWith(color: cs.ds.successInk)),
             ]),
           ),
         ),
@@ -524,8 +524,8 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         FilledButton.icon(
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
-              backgroundColor: _sharingThis ? cs.error : null,
-              foregroundColor: _sharingThis ? cs.onError : null),
+              backgroundColor: _sharingThis ? cs.ds.dangerInk : null,
+              foregroundColor: _sharingThis ? cs.ds.onDangerFill : null),
           icon: Icon(_sharingThis ? Icons.stop_circle_rounded : Icons.my_location_rounded),
           label: Text(_sharingThis ? t.trShareStop : t.trImOnTrain),
           onPressed: _share,
@@ -588,7 +588,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
             style: FilledButton.styleFrom(
-                minimumSize: const Size(48, 48), backgroundColor: cs.error, foregroundColor: cs.onError),
+                minimumSize: const Size(48, 48), backgroundColor: cs.ds.dangerInk, foregroundColor: cs.ds.onDangerFill),
             icon: const Icon(Icons.call_rounded),
             label: Text(_d(t.trCall999)),
             onPressed: () => launchUrl(trainTelUri('999')),
@@ -604,7 +604,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         // ---- the metro-style line
         Text(t.sjtLineTitle, style: AType.titleMedium),
         if (alarmOn)
-          Text(t.sjtLineTapHint, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+          Text(t.sjtLineTapHint, style: AType.bodySmall.copyWith(color: cs.ds.muted)),
         const SizedBox(height: Gap.xs),
         if (line != null && (line['stations'] as List? ?? const []).isNotEmpty)
           TrainLineView(

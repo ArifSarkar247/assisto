@@ -182,7 +182,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           : _error != null
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
@@ -262,7 +262,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     width: double.infinity,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHighest,
+                      color: scheme.ds.cardHighest,
                       borderRadius: BorderRadius.circular(Radii.sm),
                     ),
                     child: (p['photo'] ?? '').toString().startsWith('http')
@@ -270,9 +270,9 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Icon(
                                 Icons.image_rounded,
-                                color: scheme.onSurfaceVariant))
+                                color: scheme.ds.muted))
                         : Icon(Icons.inventory_2_rounded,
-                            color: scheme.onSurfaceVariant),
+                            color: scheme.ds.muted),
                   ),
                 ),
                 const SizedBox(height: Gap.sm),
@@ -283,7 +283,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 const SizedBox(height: Gap.xxs),
                 Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
                     style: TextStyle(fontFeatures: AFonts.tabular,
-                        color: oos ? scheme.error : scheme.primary,
+                        color: oos ? scheme.ds.dangerInk : scheme.primary,
                         fontWeight: FontWeight.w800)),
               ]),
         ),
@@ -299,7 +299,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     return SafeArea(
       top: false,
       child: Material(
-        color: scheme.surfaceContainerHigh,
+        color: scheme.ds.cardHigh,
         child: InkWell(
           onTap: () => _openCartSheet(t),
           child: Padding(
@@ -359,7 +359,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     poishaOf(_cart['subtotal'] ?? _cart['total'])),
                 if (poishaOf(_cart['discount']) > 0)
                   MoneyRow(t.biz_discount, poishaOf(_cart['discount']),
-                      valueColor: Theme.of(context).colorScheme.error),
+                      valueColor: Theme.of(context).colorScheme.ds.dangerInk),
                 const Divider(),
                 MoneyRow(t.biz_total, poishaOf(_cart['total']), strong: true),
                 const SizedBox(height: Gap.lg),
@@ -395,7 +395,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -407,12 +407,12 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                   Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
                   if (variant.isNotEmpty)
                     Text(variant,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).delete,
-            icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
+            icon: Icon(Icons.delete_outline_rounded, color: scheme.ds.dangerInk),
             onPressed: () async {
               await _removeLine(line);
               after();
@@ -543,7 +543,7 @@ class _PriceDialogState extends State<_PriceDialog> {
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
           Text(_err!,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
         ],
       ]),
       actions: [
@@ -721,7 +721,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.block_rounded, color: Theme.of(ctx).colorScheme.error),
+            leading: Icon(Icons.block_rounded, color: Theme.of(ctx).colorScheme.ds.dangerInk),
             title: Text(t.shopVoidTitle),
             onTap: () {
               Navigator.pop(ctx);
@@ -820,7 +820,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.bbPaidEmptyIsExact,
                     style: AType.bodySmall
-                        .copyWith(color: scheme.onSurfaceVariant)),
+                        .copyWith(color: scheme.ds.muted)),
               ),
             if (_method == 'due') ...[
               // bizbar: a due sale goes to THIS customer's khata page
@@ -854,7 +854,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 if (_method != 'due')
                   MoneyRow(t.biz_change, _change, valueColor: AssistoTokens.of(context).success),
                 if (_method == 'due' || _due > 0)
-                  MoneyRow(t.biz_due, _due, valueColor: Theme.of(context).colorScheme.error),
+                  MoneyRow(t.biz_due, _due, valueColor: Theme.of(context).colorScheme.ds.dangerInk),
               ]),
             ),
             const SizedBox(height: Gap.xl),

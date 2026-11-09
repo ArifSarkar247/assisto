@@ -269,7 +269,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.cloud_off_rounded,
-                size: 40, color: scheme.onSurfaceVariant),
+                size: 40, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(honestFailText(t, _failCause, otherwise: t.aichatLoadFailed), textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),
@@ -291,7 +291,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(searching ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
-                size: 40, color: scheme.onSurfaceVariant),
+                size: 40, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(searching ? t.aichatNoSearchResults : t.aichatNoChats,
                 textAlign: TextAlign.center,
@@ -300,7 +300,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
               const SizedBox(height: Gap.xs),
               Text(t.aichatNoChatsBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ],
           ]),
         ),
@@ -334,7 +334,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
             overflow: TextOverflow.ellipsis,
             style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
-                color: scheme.onSurfaceVariant)),
+                color: scheme.ds.muted)),
       );
 
   Widget _row(AppLocalizations t, ColorScheme scheme, Map<String, dynamic> r) {
@@ -351,11 +351,11 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
       leading: CircleAvatar(
         radius: 18,
         backgroundColor:
-            home ? scheme.secondaryContainer : scheme.primaryContainer,
+            home ? scheme.ds.primarySoft : scheme.ds.primarySoft,
         child: Icon(home ? Icons.chat_bubble_outline_rounded : Icons.auto_awesome_rounded,
             size: 18,
             color:
-                home ? scheme.onSecondaryContainer : scheme.onPrimaryContainer),
+                home ? scheme.ds.primaryInk : scheme.ds.primaryInk),
       ),
       title: Text(title.isEmpty ? t.aichatUntitled : title,
           maxLines: 1,
@@ -368,7 +368,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         PopupMenuButton<String>(
           key: ValueKey('chat_menu_${r['id']}'),
           tooltip: t.aichatHistory,
-          icon: Icon(Icons.more_vert_rounded, color: scheme.onSurfaceVariant),
+          icon: Icon(Icons.more_vert_rounded, color: scheme.ds.muted),
           onSelected: (v) {
             if (v == 'rename') _rename(r);
             if (v == 'pin') _pin(r);

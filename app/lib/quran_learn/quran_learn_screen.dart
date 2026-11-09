@@ -183,7 +183,7 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
                 child: CircularProgressIndicator(
                   value: (done / p.goal).clamp(0.0, 1.0).toDouble(),
                   strokeWidth: 6,
-                  backgroundColor: cs.surfaceContainerHighest,
+                  backgroundColor: cs.ds.cardHighest,
                 ),
               ),
               if (done >= p.goal)
@@ -329,8 +329,8 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         leading: CircleAvatar(
-          backgroundColor: done ? AssistoTokens.of(context).success : cs.primaryContainer,
-          foregroundColor: done ? Colors.white : cs.onPrimaryContainer,
+          backgroundColor: done ? AssistoTokens.of(context).success : cs.ds.primarySoft,
+          foregroundColor: done ? Colors.white : cs.ds.primaryInk,
           child: done
               ? const Icon(Icons.check_rounded)
               : Text(ld(context, s.n), style: AType.titleMedium),
@@ -624,7 +624,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
                 constraints: const BoxConstraints(minWidth: 72, minHeight: 72),
                 padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
                 decoration: BoxDecoration(
-                  color: k == _sel ? cs.primaryContainer : cs.surfaceContainerHighest,
+                  color: k == _sel ? cs.ds.primarySoft : cs.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                   border: Border.all(
                       color: k == _sel ? cs.primary : Colors.transparent, width: 2),
@@ -634,7 +634,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
                     child: Text(_text(l.items[k]),
                         textDirection: TextDirection.rtl,
                         style: qlArabic(36,
-                            color: k == _sel ? cs.onPrimaryContainer : cs.onSurface)),
+                            color: k == _sel ? cs.ds.primaryInk : cs.ds.text)),
                   ),
                   if (p.learned.contains(l.items[k].id))
                     PositionedDirectional(
@@ -721,7 +721,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
                   child: Text(_text(i),
                       key: const Key('ql-focus-text'),
                       textDirection: TextDirection.rtl,
-                      style: qlArabic(96, color: cs.onSurface)),
+                      style: qlArabic(96, color: cs.ds.text)),
                 ),
               ),
             ),
@@ -788,7 +788,7 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
           Text(_text(i),
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
-              style: qlArabic(32, color: cs.onSurface)),
+              style: qlArabic(32, color: cs.ds.text)),
           if (i.ref != null)
             Text(t.qlQuranRef(ld(context, i.ref!.label())), style: AType.bodySmall),
           if (i.say != null) ...[

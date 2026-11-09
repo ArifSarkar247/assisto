@@ -217,7 +217,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
   List<Widget> _brandSection(AppLocalizations t, TextTheme tt, ColorScheme scheme) => [
         Text(t.ivdBrandTitle, style: tt.titleMedium),
         const SizedBox(height: Gap.xs),
-        Text(t.ivdLogoHelp, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        Text(t.ivdLogoHelp, style: tt.bodySmall?.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.md, runSpacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
           if (_logoBytes != null)
@@ -228,7 +228,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
               decoration: BoxDecoration(
                 color: PrintInk.paper,
                 borderRadius: BorderRadius.circular(Radii.sm),
-                border: Border.all(color: scheme.outlineVariant),
+                border: Border.all(color: scheme.ds.border),
               ),
               child: Image.memory(_logoBytes!, fit: BoxFit.contain, semanticLabel: t.ivdLogoAlt,
                   errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
@@ -275,7 +275,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                       color: PrintInk.accent(k),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: _accent == k ? scheme.onSurface : scheme.outlineVariant,
+                          color: _accent == k ? scheme.ds.text : scheme.ds.border,
                           width: _accent == k ? 3 : 1),
                     ),
                     child: _accent == k
@@ -287,7 +287,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
             ),
         ]),
         const SizedBox(height: Gap.xs),
-        Text(t.ivdAccentHelp, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+        Text(t.ivdAccentHelp, style: tt.bodySmall?.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.lg),
       ];
 
@@ -335,7 +335,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                     if (!_canEdit)
                       Padding(
                         padding: const EdgeInsets.only(bottom: Gap.md),
-                        child: Text(t.invSetStaffNote, style: tt.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                        child: Text(t.invSetStaffNote, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
                       ),
                     Text(t.invSetBusinessType, style: tt.titleMedium),
                     const SizedBox(height: Gap.sm),
@@ -348,7 +348,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(t.ivdSuggested(templateLabel(t, _suggested!)), style: tt.bodyLarge),
                             const SizedBox(height: Gap.xs),
-                            Text(t.ivdSuggestedWhy, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                            Text(t.ivdSuggestedWhy, style: tt.bodySmall?.copyWith(color: scheme.ds.muted)),
                             if (_canEdit) ...[
                               const SizedBox(height: Gap.sm),
                               FilledButton.tonal(
@@ -410,9 +410,9 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                           errorKey: 'vat_bp'),
                       _field(_sd, t.invSetSd,
                           kb: const TextInputType.numberWithOptions(decimal: true), errorKey: 'sd_bp'),
-                      Text(t.invSetPosNote, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                      Text(t.invSetPosNote, style: tt.bodySmall?.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.xs),
-                      Text(t.invSetNotEfd, style: tt.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                      Text(t.invSetNotEfd, style: tt.bodySmall?.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.md),
                     ],
                     if (foodTemplates.contains(_template))

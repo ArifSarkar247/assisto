@@ -201,7 +201,7 @@ class _GuideScreenState extends State<GuideScreen> {
           : (_error || _data == null)
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: _needNet ? tr.lifebarGuideNeedNetTitle : tr.loadFailed,
                   message: _needNet ? tr.lifebarGuideNeedNetBody : tr.guideErrorBody,
                   action: FilledButton.tonalIcon(
@@ -383,7 +383,7 @@ class _GuideScreenState extends State<GuideScreen> {
             ? null
             : Icon(icon,
                 size: 17,
-                color: selected ? scheme.onSecondaryContainer : scheme.onSurfaceVariant),
+                color: selected ? scheme.ds.primaryInk : scheme.ds.muted),
         label: Text(label),
       ),
     );
@@ -418,7 +418,7 @@ class _Banner extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.3)),
         ),
         if (action != null)
           TextButton(onPressed: onAction, child: Text(action!)),
@@ -440,7 +440,7 @@ class _DisclaimerStrip extends StatelessWidget {
         child: Text(text,
             style: AType.bodySmall.copyWith(height: 1.35,
                 fontStyle: FontStyle.italic,
-                color: scheme.onSurfaceVariant)),
+                color: scheme.ds.muted)),
       ),
     ]);
   }

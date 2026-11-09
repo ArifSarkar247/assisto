@@ -290,7 +290,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.error,
+                  tint: Theme.of(context).colorScheme.ds.dangerInk,
                   title: t.plLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.plLoadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -369,7 +369,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: Theme.of(context).colorScheme.outline)),
+                ?.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       ],
     );
   }
@@ -387,11 +387,11 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: Gap.lg),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer,
+            color: Theme.of(context).colorScheme.ds.dangerBg,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Icon(Icons.delete_outline_rounded,
-              color: Theme.of(context).colorScheme.onErrorContainer),
+              color: Theme.of(context).colorScheme.ds.dangerInk),
         ),
         confirmDismiss: (_) async {
           await _delete(row);
@@ -429,7 +429,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
                   ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(dueRelative(context, t, row['due_date']),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.md),
           for (final s in steps) LadderStepRow(step: s),
           const SizedBox(height: Gap.md),
@@ -450,7 +450,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.outline)),
+                  ?.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ),
     );
@@ -466,15 +466,15 @@ class _OfflineBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(
-        color: cs.tertiaryContainer,
+        color: cs.ds.successBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.cloud_off_rounded, size: 18, color: cs.onTertiaryContainer),
+        Icon(Icons.cloud_off_rounded, size: 18, color: cs.ds.successInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: AType.bodyMedium.copyWith(color: cs.onTertiaryContainer)),
+              style: AType.bodyMedium.copyWith(color: cs.ds.successInk)),
         ),
       ]),
     );
@@ -499,7 +499,7 @@ class _SharePreview extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Text(message, style: const TextStyle(height: 1.4)),
@@ -510,7 +510,7 @@ class _SharePreview extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: Theme.of(context).colorScheme.outline)),
+                ?.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           // NOTE: the actual url_launcher hand-off (wa.me / sms:) is wired by the

@@ -244,7 +244,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                                     fallback: zero),
                                 valueColor: ln['kind'] == 'in'
                                     ? AssistoTokens.of(context).success
-                                    : Theme.of(context).colorScheme.error),
+                                    : Theme.of(context).colorScheme.ds.dangerInk),
                           ],
                           const Divider(height: 1),
                           _Line(
@@ -259,7 +259,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               sign: '−',
                               value: pair(context, s['manual_out_display'],
                                   fallback: zero),
-                              valueColor: Theme.of(context).colorScheme.error),
+                              valueColor: Theme.of(context).colorScheme.ds.dangerInk),
                         ]),
                       ),
                       if (duesCollected)
@@ -267,7 +267,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           padding: const EdgeInsets.only(top: Gap.sm),
                           child: Text(t.bbCbDuesHint,
                               style: AType.bodySmall
-                                  .copyWith(color: scheme.onSurfaceVariant)),
+                                  .copyWith(color: scheme.ds.muted)),
                         ),
                       const SizedBox(height: Gap.md),
 
@@ -329,7 +329,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               child: Center(
                                 child: Text(t.cashboxNoEntries,
                                     style: TextStyle(
-                                        color: scheme.onSurfaceVariant)),
+                                        color: scheme.ds.muted)),
                               ),
                             )
                           ];
@@ -378,7 +378,7 @@ class _Line extends StatelessWidget {
             if (sub != null)
               Text(sub!,
                   style: AType.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
         const SizedBox(width: Gap.sm),
@@ -400,7 +400,7 @@ class _ReconciledCard extends StatelessWidget {
     final variancePoisha = (summary['variance_poisha'] as num?)?.toInt() ?? 0;
     final color = variancePoisha == 0
         ? AssistoTokens.of(context).success
-        : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.error);
+        : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.ds.dangerInk);
     final icon = variancePoisha == 0
         ? Icons.check_circle_outline_rounded
         : (variancePoisha > 0
@@ -451,7 +451,7 @@ class _MiniRow extends StatelessWidget {
         Expanded(
             child: Text(label,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                    color: Theme.of(context).colorScheme.ds.muted))),
         Text(value,
             style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
       ]),
@@ -471,7 +471,7 @@ class _CashEntryTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
         leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
-            color: isIn ? AssistoTokens.of(context).success : scheme.error),
+            color: isIn ? AssistoTokens.of(context).success : scheme.ds.dangerInk),
         title: Text(note.isEmpty
             ? (isIn
                 ? AppLocalizations.of(context).cashboxCashIn
@@ -483,7 +483,7 @@ class _CashEntryTile extends StatelessWidget {
         trailing: Text(pair(context, entry['amount_display']),
             style: TextStyle(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
-                color: isIn ? AssistoTokens.of(context).success : scheme.error)),
+                color: isIn ? AssistoTokens.of(context).success : scheme.ds.dangerInk)),
       ),
     );
   }

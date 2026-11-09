@@ -208,7 +208,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
         appBar: AppBar(title: Text(tr.miTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.miLoadError),
           action: FilledButton.tonalIcon(
@@ -317,20 +317,20 @@ class _CategoryPicker extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(tr.miWelcomeBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.xl),
         ],
         // p2career: role-based practice with voice + feedback (flag career_plus)
         if (FeatureFlags.instance.isOn('career_plus')) ...[
           Card(
-            color: scheme.primaryContainer,
+            color: scheme.ds.primarySoft,
             margin: const EdgeInsets.only(bottom: Gap.lg),
             child: ListTile(
-              leading: Icon(Icons.badge_rounded, color: scheme.onPrimaryContainer),
+              leading: Icon(Icons.badge_rounded, color: scheme.ds.primaryInk),
               title: Text(tr.crrRoleEntry,
-                  style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
-              subtitle: Text(tr.crrRoleEntrySub, style: TextStyle(color: scheme.onPrimaryContainer)),
-              trailing: Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
+                  style: TextStyle(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
+              subtitle: Text(tr.crrRoleEntrySub, style: TextStyle(color: scheme.ds.primaryInk)),
+              trailing: Icon(Icons.chevron_right_rounded, color: scheme.ds.primaryInk),
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => const InterviewRoleScreen())),
             ),
@@ -344,8 +344,8 @@ class _CategoryPicker extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: Gap.sm),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(_catIcon(c), color: scheme.onPrimaryContainer),
+                backgroundColor: scheme.ds.primarySoft,
+                child: Icon(_catIcon(c), color: scheme.ds.primaryInk),
               ),
               title: Text(_catLabel(tr, c)),
               trailing: const Icon(Icons.chevron_right_rounded),
@@ -396,7 +396,7 @@ class _ProgressHeader extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.miProgressLabel(ld(context, p.done), ld(context, p.total)),
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
           const SizedBox(width: Gap.sm),
@@ -492,11 +492,11 @@ class _FeedbackCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           // honest marker: rule-based, not an AI grade
           Row(children: [
-            Icon(Icons.info_outline_rounded, size: 14, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 14, color: scheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.miFbMarker,
-                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
             ),
           ]),
           const SizedBox(height: Gap.md),
@@ -518,7 +518,7 @@ class _FeedbackCard extends StatelessWidget {
           if (feedback.missing.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.miMissingLabel,
-                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.ds.muted)),
             const SizedBox(height: Gap.xs),
             Wrap(spacing: 6, runSpacing: 6, children: [
               for (final k in feedback.missing)
@@ -532,7 +532,7 @@ class _FeedbackCard extends StatelessWidget {
           ],
           const SizedBox(height: Gap.md),
           Text(tr.miSelfScore,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -616,9 +616,9 @@ Color _levelColor(String level) {
 Widget _stat(BuildContext context, IconData icon, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Row(mainAxisSize: MainAxisSize.min, children: [
-    Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+    Icon(icon, size: 16, color: scheme.ds.muted),
     const SizedBox(width: Gap.xs),
-    Text(text, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+    Text(text, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
   ]);
 }
 
@@ -657,7 +657,7 @@ class _OutlineSection extends StatelessWidget {
                       style: const TextStyle(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   Text(tr.miOutlineNote,
-                      style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
                 ]),
           ),
       ]),
@@ -675,7 +675,7 @@ class _LiveSeamCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -689,7 +689,7 @@ class _LiveSeamCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.miLiveSeamBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
                 ]),
           ),
         ]),
@@ -717,7 +717,7 @@ class _HistorySection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           child: Text(tr.miNoHistory,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
       for (final s in sorted.take(20))
         Card(

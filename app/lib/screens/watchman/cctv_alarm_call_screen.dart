@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../calls/call_runtime.dart';
 import '../../l10n/app_localizations.dart';
@@ -72,14 +73,14 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 16)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
-              Icon(Icons.videocam_rounded, color: scheme.error),
+              Icon(Icons.videocam_rounded, color: scheme.ds.dangerInk),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(t.cescCallKicker,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
-                        ?.copyWith(color: scheme.error, fontWeight: FontWeight.w700)),
+                        ?.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
               ),
             ]),
             const SizedBox(height: 8),
@@ -95,7 +96,7 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   alignment: Alignment.center,
                   child: photo.isEmpty
                       ? Padding(

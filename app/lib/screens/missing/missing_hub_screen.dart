@@ -202,19 +202,19 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
     final child = a['is_child'] == true;
     return Card(
       key: ValueKey('ma-about-${a['id']}'),
-      color: s.errorContainer,
+      color: s.ds.dangerBg,
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(child ? t.maAboutMeTitleChild : t.maAboutMeTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: s.onErrorContainer)),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: s.ds.dangerInk)),
           const SizedBox(height: Gap.sm),
           Text(child ? t.maAboutMeBodyChild : t.maAboutMeBody,
-              style: TextStyle(color: s.onErrorContainer)),
+              style: TextStyle(color: s.ds.dangerInk)),
           if (a['safe_said'] == true) ...[
             const SizedBox(height: Gap.sm),
-            Text(t.maSafeAlreadySaid, style: TextStyle(color: s.onErrorContainer, fontWeight: FontWeight.w600)),
+            Text(t.maSafeAlreadySaid, style: TextStyle(color: s.ds.dangerInk, fontWeight: FontWeight.w600)),
           ],
           const SizedBox(height: Gap.md),
           ConstrainedBox(constraints: const BoxConstraints(minHeight: 56),

@@ -228,7 +228,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
             if (msg.isNotEmpty) ...[
               const SizedBox(height: Gap.xxs),
               Text(msg,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
         ),
@@ -251,7 +251,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text((a['message'] ?? '').toString(),
-                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text))),
       ]),
     );
   }
@@ -309,9 +309,9 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(children: [
         SizedBox(
@@ -386,11 +386,11 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.45),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.flag_rounded, color: scheme.onSecondaryContainer),
+        Icon(Icons.flag_rounded, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -402,7 +402,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
                   ? t.pnlBreakEvenReached
                   : t.pnlBreakEvenBody( // (adrev, users) per signature
                       taka(context, adRev), fmtInt(context, users)),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                   height: 1.35),
             ),
           ]),
@@ -427,9 +427,9 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
       child: Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: scheme.ds.card,
           borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -447,13 +447,13 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
                   fontFeatures: AFonts.tabular,
                   color: positive
                       ? AssistoTokens.of(context).success
-                      : Theme.of(context).colorScheme.error),
+                      : Theme.of(context).colorScheme.ds.dangerInk),
             ),
           ]),
           const SizedBox(height: Gap.xs),
           Text(
             t.pnlRevCost(taka(context, cost), taka(context, rev)), // (cost, rev)
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ]),
       ),
@@ -483,7 +483,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         const <Map<String, dynamic>>[];
     if (feats.isEmpty) {
       return [
-        Text(t.psOwnerEmpty, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.psOwnerEmpty, style: TextStyle(color: scheme.ds.muted)),
       ];
     }
     return [

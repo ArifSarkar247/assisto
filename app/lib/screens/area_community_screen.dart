@@ -164,7 +164,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
         appBar: AppBar(title: Text(tr.areaCommunityTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.areaLoadError),
           action: FilledButton.tonalIcon(
@@ -259,7 +259,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
   Widget _privacyNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -267,7 +267,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.areaPrivacyNote,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -287,10 +287,10 @@ class _AreaBar extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
-      color: scheme.primaryContainer,
+      color: scheme.ds.primarySoft,
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.sm, Gap.sm),
       child: Row(children: [
-        Icon(Icons.place_rounded, size: 18, color: scheme.onPrimaryContainer),
+        Icon(Icons.place_rounded, size: 18, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(
@@ -298,14 +298,14 @@ class _AreaBar extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                color: scheme.onPrimaryContainer,
+                color: scheme.ds.primaryInk,
                 fontWeight: FontWeight.w700),
           ),
         ),
         TextButton(
             onPressed: onChange,
             // a11y1: on primaryContainer, the container's own ink is AA.
-            style: TextButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
+            style: TextButton.styleFrom(foregroundColor: scheme.ds.primaryInk),
             child: Text(tr.areaChangeArea)),
       ]),
     );
@@ -398,7 +398,7 @@ class _PostCard extends StatelessWidget {
               const SizedBox(height: Gap.xs),
               Text(post.body,
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant, height: 1.35)),
+                      color: scheme.ds.muted, height: 1.35)),
             ],
             const SizedBox(height: Gap.sm),
             Wrap(
@@ -423,10 +423,10 @@ class _PostCard extends StatelessWidget {
   Widget _meta(BuildContext context, IconData icon, String text) {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+      Icon(icon, size: 14, color: scheme.ds.muted),
       const SizedBox(width: Gap.xs),
       Text(text,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
     ]);
   }
 }
@@ -494,7 +494,7 @@ Color _categoryColor(BuildContext context, String cat) {
   final scheme = Theme.of(context).colorScheme;
   switch (cat) {
     case 'alert':
-      return scheme.error;
+      return scheme.ds.dangerInk;
     case 'lost_found':
       return Brand.warning;
     case 'event':

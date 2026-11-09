@@ -388,7 +388,7 @@ class _BookWithBusinessScreenState extends State<BookWithBusinessScreen> {
       if (_err != null)
         Padding(
           padding: const EdgeInsets.only(top: Gap.md),
-          child: Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          child: Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
         ),
     ];
   }

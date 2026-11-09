@@ -117,16 +117,16 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           // ---- success (neutral, anti-enumeration) ----
           if (_neutralMessage != null) ...[
             Card(
-              color: scheme.secondaryContainer,
+              color: scheme.ds.primarySoft,
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
                   Icon(Icons.mark_email_read_rounded,
-                      color: scheme.onSecondaryContainer),
+                      color: scheme.ds.primaryInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(_neutralMessage!,
-                        style: TextStyle(color: scheme.onSecondaryContainer)),
+                        style: TextStyle(color: scheme.ds.primaryInk)),
                   ),
                 ]),
               ),
@@ -213,7 +213,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
           const SizedBox(height: 20),
           Text(t.resetSecurityNote,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       ),
     );

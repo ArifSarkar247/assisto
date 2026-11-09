@@ -127,7 +127,7 @@ class _ScamScreenState extends State<ScamScreen> {
         Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
@@ -167,7 +167,7 @@ class _ScamScreenState extends State<ScamScreen> {
         const SizedBox(height: Gap.lg),
         if (_error)
           Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
         if (_result != null && !_error) ...[
           ScamResultCard(result: _result!),
           const SizedBox(height: 14),

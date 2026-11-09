@@ -175,7 +175,7 @@ class _Card extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -191,7 +191,7 @@ class _Card extends StatelessWidget {
             const SizedBox(height: Gap.xs),
             Text(body,
                 style:
-                    TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    TextStyle(color: scheme.ds.muted, height: 1.4)),
             if (action != null) ...[
               const SizedBox(height: Gap.md),
               Align(alignment: AlignmentDirectional.centerStart, child: action!),

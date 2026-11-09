@@ -157,7 +157,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
         appBar: AppBar(title: Text(tr.demandTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: scheme.ds.dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.demandLoadError),
           action: FilledButton.tonalIcon(
@@ -213,7 +213,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                     padding: const EdgeInsets.all(Gap.lg),
                     child: Text(tr.demandGridNeedsBoth,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                        style: TextStyle(color: scheme.ds.muted)),
                   ),
                 const SizedBox(height: Gap.lg),
                 _signalsList(context, tr),
@@ -238,7 +238,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -246,7 +246,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.demandManualNote,
-                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -286,7 +286,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           const Divider(height: Gap.xl),
           Text(
             tr.demandSignalSummary(h.signalCount, h.productCount, h.areaCount),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ]),
       ),
@@ -300,7 +300,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
         Icon(ic, size: 15, color: scheme.primary),
         const SizedBox(width: Gap.xs),
         Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
       const SizedBox(height: Gap.xxs),
       Text(value,
@@ -342,7 +342,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             child: LinearProgressIndicator(
               value: fill,
               minHeight: 8,
-              backgroundColor: scheme.surfaceContainerHighest,
+              backgroundColor: scheme.ds.cardHighest,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -363,7 +363,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
       Text('$label ',
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
     ]);
   }
@@ -419,7 +419,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -433,7 +433,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.demandTradeSeamBody,
-              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
       ),
     );

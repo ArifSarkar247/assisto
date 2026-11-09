@@ -153,7 +153,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
         content: Text(t.referralRedeemedDays(fmtInt(context, days)),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: TextStyle(color: scheme.ds.muted)),
         actions: [
           FilledButton(
               onPressed: () => Navigator.pop(ctx), child: Text(t.close)),
@@ -184,7 +184,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             : _error
                 ? StateMessage(
                     icon: Icons.cloud_off_rounded,
-                    tint: scheme.error,
+                    tint: scheme.ds.dangerInk,
                     title: t.loadFailed,
                     message: serverFailText(t, _failCause),
                     action: FilledButton.tonalIcon(
@@ -258,7 +258,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         _howItWorks(t, scheme),
         const SizedBox(height: Gap.md),
         Text(t.referralRateReviewNote,
-            style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -293,11 +293,11 @@ class _ReferralScreenState extends State<ReferralScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.xl),
             child: Column(children: [
-              Icon(Icons.history_rounded, size: 48, color: scheme.onSurfaceVariant),
+              Icon(Icons.history_rounded, size: 48, color: scheme.ds.muted),
               const SizedBox(height: Gap.sm),
               Text(t.referralHistoryEmpty,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ]),
           )
         else
@@ -316,9 +316,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.referralHowTitle,
@@ -369,7 +369,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Text(t.referralRedeemPickDays,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             Text(t.referralRedeemDaysChosen(fmtInt(context, _days)),
                 style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -382,7 +382,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
               onChanged: (v) => setState(() => _days = v.round()),
             ),
             Text(t.referralRedeemCost(fmtInt(context, cost)),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,

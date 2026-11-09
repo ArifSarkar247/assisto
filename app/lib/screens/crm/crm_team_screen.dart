@@ -93,9 +93,9 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
             Card(
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
+                  backgroundColor: scheme.ds.primarySoft,
                   child: Text(((m['user_name'] ?? '?').toString().isNotEmpty ? m['user_name'][0] : '?').toUpperCase(),
-                      style: TextStyle(color: scheme.onPrimaryContainer)),
+                      style: TextStyle(color: scheme.ds.primaryInk)),
                 ),
                 title: Text(m['user_name'] ?? ''),
                 subtitle: Text(_roleLabel(t, m['role'])),

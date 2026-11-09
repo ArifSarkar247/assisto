@@ -123,7 +123,7 @@ class PaHubScreen extends StatelessWidget {
             );
           }
           return Material(
-            color: cs.surfaceContainerHighest,
+            color: cs.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
             child: InkWell(
               borderRadius: BorderRadius.circular(Radii.md),
@@ -138,10 +138,10 @@ class PaHubScreen extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: cs.primaryContainer,
+                        color: cs.ds.primarySoft,
                         borderRadius: BorderRadius.circular(Radii.sm),
                       ),
-                      child: Icon(tool.icon, color: cs.onPrimaryContainer),
+                      child: Icon(tool.icon, color: cs.ds.primaryInk),
                     ),
                     const SizedBox(width: Gap.md),
                     Expanded(
@@ -151,7 +151,7 @@ class PaHubScreen extends StatelessWidget {
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600)),
                     ),
-                    Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                    Icon(Icons.chevron_right_rounded, color: cs.ds.muted),
                   ],
                 ),
               ),

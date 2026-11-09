@@ -1017,6 +1017,12 @@ class DsMotion {
 /// The owner's V2 palette. Exact owner values are marked "owner"; text roles
 /// adjusted for WCAG AA are marked "AA".
 @immutable
+/// designv2: the V2 tokens from any ColorScheme (no BuildContext needed) —
+/// `scheme.ds.muted`. Same light/dark sets DsTokens.of falls back to.
+extension DsSchemeTokens on ColorScheme {
+  DsTokens get ds => brightness == Brightness.dark ? DsTokens.dark : DsTokens.light;
+}
+
 class DsTokens extends ThemeExtension<DsTokens> {
   const DsTokens({
     required this.isDark,

@@ -251,13 +251,13 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.lock_outline_rounded,
-                            size: 15, color: scheme.onSurfaceVariant),
+                            size: 15, color: scheme.ds.muted),
                         const SizedBox(width: Gap.xs),
                         Expanded(
                           child: Text(_t.communityPhonePrivacyNote,
                               style: TextStyle(
                                   fontSize: 12,
-                                  color: scheme.onSurfaceVariant)),
+                                  color: scheme.ds.muted)),
                         ),
                       ],
                     ),
@@ -270,7 +270,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                             ? _t.communityNoMembers
                             : _t.communityBackendPending,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.onSurfaceVariant),
+                        style: TextStyle(color: scheme.ds.muted),
                       ),
                     ),
                   for (final m in _members) _tile(m),
@@ -290,7 +290,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.onSurfaceVariant),
+                      size: 56, color: scheme.ds.muted),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
                       textAlign: TextAlign.center,

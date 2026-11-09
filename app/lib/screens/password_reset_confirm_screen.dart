@@ -114,12 +114,12 @@ class _PasswordResetConfirmScreenState
           if (_done) ...[
             // ---- success ----
             Card(
-              color: scheme.secondaryContainer,
+              color: scheme.ds.primarySoft,
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
                   Icon(Icons.check_circle_outline_rounded,
-                      color: scheme.onSecondaryContainer),
+                      color: scheme.ds.primaryInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -127,7 +127,7 @@ class _PasswordResetConfirmScreenState
                           ? t.resetDoneSignedOut
                           : t.resetDoneMessage,
                       style:
-                          TextStyle(color: scheme.onSecondaryContainer),
+                          TextStyle(color: scheme.ds.primaryInk),
                     ),
                   ),
                 ]),
@@ -145,17 +145,17 @@ class _PasswordResetConfirmScreenState
           ] else if (_expired) ...[
             // ---- expired / invalid / used (collapsed) ----
             Card(
-              color: scheme.errorContainer,
+              color: scheme.ds.dangerBg,
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(children: [
                   Icon(Icons.link_off_rounded,
-                      color: scheme.onErrorContainer),
+                      color: scheme.ds.dangerInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(t.resetLinkInvalid,
                         style:
-                            TextStyle(color: scheme.onErrorContainer)),
+                            TextStyle(color: scheme.ds.dangerInk)),
                   ),
                 ]),
               ),
@@ -231,7 +231,7 @@ class _PasswordResetConfirmScreenState
             ),
             if (_fieldError != null) ...[
               const SizedBox(height: 10),
-              Text(_fieldError!, style: TextStyle(color: scheme.error)),
+              Text(_fieldError!, style: TextStyle(color: scheme.ds.dangerInk)),
             ],
             const SizedBox(height: Gap.lg),
             SizedBox(

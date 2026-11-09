@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -274,14 +275,14 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final bn = _lang() != 'en';
     final hold = _status['status'] == 'hold';
     return Card(
-      color: scheme.errorContainer,
+      color: scheme.ds.dangerBg,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('${bn ? n['title_bn'] : n['title_en']}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.onErrorContainer)),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.ds.dangerInk)),
           const SizedBox(height: 6),
-          Text('${bn ? n['bn'] : n['en']}', style: TextStyle(color: scheme.onErrorContainer)),
+          Text('${bn ? n['bn'] : n['en']}', style: TextStyle(color: scheme.ds.dangerInk)),
           if (hold && _store) ...[
             const SizedBox(height: 10),
             FilledButton(
@@ -334,7 +335,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           Text(t.cplUsed(wmDigits(_lang(), used), wmDigits(_lang(), n))),
           if (over > 0) ...[
             const SizedBox(height: 6),
-            Text(t.cplOverBy(wmDigits(_lang(), over)), style: TextStyle(color: scheme.error)),
+            Text(t.cplOverBy(wmDigits(_lang(), over)), style: TextStyle(color: scheme.ds.dangerInk)),
           ],
           if (_store)
             TextButton.icon(
@@ -433,15 +434,15 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
   Widget _trialBadge(AppLocalizations t, ColorScheme scheme) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: scheme.tertiaryContainer,
+          color: scheme.ds.successBg,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.card_giftcard_rounded, size: 18, color: scheme.onTertiaryContainer),
+          Icon(Icons.card_giftcard_rounded, size: 18, color: scheme.ds.successInk),
           const SizedBox(width: 6),
           Flexible(
               child: Text(t.cplTrialBadge,
-                  style: TextStyle(color: scheme.onTertiaryContainer, fontWeight: FontWeight.w600))),
+                  style: TextStyle(color: scheme.ds.successInk, fontWeight: FontWeight.w600))),
         ]),
       );
 
@@ -483,7 +484,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
   Widget _info(String s) => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(children: [

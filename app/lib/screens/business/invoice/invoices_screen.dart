@@ -119,7 +119,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
           children: [
-            Text(t.invHubBenefit, style: tt.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+            Text(t.invHubBenefit, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             if (!_saved && _canEdit)
               Card(
@@ -147,7 +147,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
             if (_manual.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                child: Text(t.invHubManualEmpty, style: tt.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                child: Text(t.invHubManualEmpty, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
               ),
             for (final m in _manual)
               ListTile(
@@ -169,7 +169,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
             if (_sales.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                child: Text(t.invHubEmptySales, style: tt.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                child: Text(t.invHubEmptySales, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
               ),
             for (final s in _sales)
               ListTile(

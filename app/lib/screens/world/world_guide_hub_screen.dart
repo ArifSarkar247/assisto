@@ -157,7 +157,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: scheme.ds.dangerInk,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -210,7 +210,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: scheme.onSurfaceVariant)),
+                ?.copyWith(color: scheme.ds.muted)),
       ],
     );
   }
@@ -258,19 +258,19 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
       padding: const EdgeInsets.only(top: Gap.md),
       child: Card(
         margin: EdgeInsets.zero,
-        color: scheme.secondaryContainer,
+        color: scheme.ds.primarySoft,
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(crop ? Icons.eco_rounded : Icons.receipt_long_rounded,
-                  color: scheme.onSecondaryContainer),
+                  color: scheme.ds.primaryInk),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(crop ? t.uwCropTitle : t.uwRxTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: scheme.onSecondaryContainer,
+                        color: scheme.ds.primaryInk,
                         fontWeight: FontWeight.w700)),
               ),
               ChatPhotoAttachButton(
@@ -283,7 +283,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
             const SizedBox(height: Gap.xs),
             Text(crop ? t.uwCropBody : t.uwRxBody,
                 style:
-                    TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+                    TextStyle(color: scheme.ds.primaryInk, height: 1.4)),
             for (final p in _photos)
               ChatPhotoTurn(
                 key: ObjectKey(p),
@@ -304,7 +304,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       UwHeader(forms ? t.uwFormHelpTitle : t.uwAiHelpTitle),
       Text(forms ? t.uwFormHelpBody : t.uwAiHelpBody,
-          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: TextStyle(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.sm),
       Row(children: [
         VoiceMicButton(voice: _voice, input: _q),
@@ -342,7 +342,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           style: Theme.of(context)
               .textTheme
               .bodySmall
-              ?.copyWith(color: scheme.onSurfaceVariant)),
+              ?.copyWith(color: scheme.ds.muted)),
       if (r != null)
         Card(
           margin: const EdgeInsets.only(top: Gap.md),
@@ -440,7 +440,7 @@ class _ItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.check_box_outline_blank_rounded,
-                          size: 18, color: scheme.onSurfaceVariant),
+                          size: 18, color: scheme.ds.muted),
                       const SizedBox(width: Gap.sm),
                       Expanded(child: Text(x)),
                     ]),
@@ -452,7 +452,7 @@ class _ItemCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md)),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,7 +474,7 @@ class _ItemCard extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant)),
+                            ?.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
           ],

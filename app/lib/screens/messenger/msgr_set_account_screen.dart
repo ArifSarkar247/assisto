@@ -79,7 +79,7 @@ class MsgrSetAccountScreen extends StatelessWidget {
               child: Text(t.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error),
+                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.msgrSetDeleteConfirm),
           ),
@@ -128,7 +128,7 @@ class MsgrSetAccountScreen extends StatelessWidget {
             icon: Icons.delete_forever_rounded,
             title: t.msgrSetDeleteTitle,
             subtitle: t.msgrSetDeleteRowSub,
-            color: scheme.error,
+            color: scheme.ds.dangerInk,
             onTap: () => _deleteAccount(context),
           ),
         ],

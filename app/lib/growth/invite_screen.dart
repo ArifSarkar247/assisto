@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -232,7 +233,7 @@ class _InviteScreenState extends State<InviteScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(_claimMsg!,
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
               ),
           ]),
         ],
@@ -318,7 +319,7 @@ class _InviteScreenState extends State<InviteScreen> {
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+                  ?.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
           const SizedBox(height: 10),
           ...children,
         ]),
@@ -341,13 +342,13 @@ class _InviteScreenState extends State<InviteScreen> {
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(value,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-        Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(label, style: TextStyle(color: scheme.ds.muted)),
       ]),
     );
   }

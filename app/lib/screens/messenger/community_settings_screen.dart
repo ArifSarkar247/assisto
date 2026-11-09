@@ -121,7 +121,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                           _t.communitySettingsServerNote,
                           style: TextStyle(
                               fontSize: 12,
-                              color: scheme.onSurfaceVariant,
+                              color: scheme.ds.muted,
                               height: 1.3),
                         ),
                       ),
