@@ -69,6 +69,49 @@ class MsgPrefs {
   static Future<void> clearBubbleOffChats() async =>
       (await _p())?.setString(kBubbleOffChats, '');
 
+  // qcircle: QUIET HOURS for My Circle messages (device-level). Inside the
+  // window a message still arrives and shows in the shade, but with no sound
+  // and no vibration. Calls, SOS and family alerts are never affected.
+  static const kQuietOn = 'qc_quiet_on';
+  static const kQuietStart = 'qc_quiet_start_min'; // minutes after midnight
+  static const kQuietEnd = 'qc_quiet_end_min';
+  static const quietStartDefault = 22 * 60; // 22:00
+  static const quietEndDefault = 7 * 60; // 07:00
+
+  static Future<bool> quietOn() async =>
+      (await _p())?.getBool(kQuietOn) ?? false;
+  static Future<void> setQuietOn(bool v) async =>
+      (await _p())?.setBool(kQuietOn, v);
+  static Future<int> quietStart() async =>
+      (await _p())?.getInt(kQuietStart) ?? quietStartDefault;
+  static Future<int> quietEnd() async =>
+      (await _p())?.getInt(kQuietEnd) ?? quietEndDefault;
+  static Future<void> setQuietWindow(int start, int end) async {
+    final p = await _p();
+    if (p == null) return;
+    await p.setInt(kQuietStart, start.clamp(0, 1439));
+    await p.setInt(kQuietEnd, end.clamp(0, 1439));
+  }
+
+  /// PURE: is [now] inside the quiet window [start, end) (minutes after
+  /// midnight)? Wraps past midnight (22:00 → 07:00). start == end = never.
+  static bool inQuietWindow(DateTime now, int start, int end) {
+    if (start == end) return false;
+    final m = now.hour * 60 + now.minute;
+    return start < end ? (m >= start && m < end) : (m >= start || m < end);
+  }
+
+  /// Should a My Circle message drawn now be silent? Never throws.
+  static Future<bool> quietNow([DateTime? now]) async {
+    try {
+      if (!await quietOn()) return false;
+      return inQuietWindow(
+          now ?? DateTime.now(), await quietStart(), await quietEnd());
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// null = phone default, '' = silent, else the picked uri.
   static Future<String?> soundUri() async => (await _p())?.getString(kSoundUri);
   static Future<String> soundTitle() async =>

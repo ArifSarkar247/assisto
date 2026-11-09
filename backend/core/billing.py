@@ -1027,9 +1027,11 @@ def ad_event(user, kind, device_id="", ad_id="", now=None, verified=False):
     # buys N Normal answers (owner ratio, default 2) instead of the eCPM share
     try:
         from . import ai_levels_service as ALS
-        n_ad = ALS.ad_credits()
+        n_ad = ALS.ad_paisa()
         if n_ad is not None:
-            paisa = int(n_ad) * 100        # the wallet moves whole credits (100 paisa each)
+            # the wallet moves whole credits (100 paisa each); plansprep:
+            # 2 ads = 1 Normal answer -> 50 paisa an ad
+            paisa = int(n_ad)
     except Exception:  # noqa: BLE001
         pass
     moved = 0

@@ -76,7 +76,12 @@ class PhotoAlbumView extends StatelessWidget {
   final List<AlbumItem> items;
   final Size size;
   final void Function(int index, File file)? onOpen;
-  const PhotoAlbumView({super.key, required this.items, required this.size, this.onOpen});
+  /// qcircle: long-press ONE picture of an album → that item's actions
+  /// (delete / forward / react / info act on it, not on the first photo).
+  /// null (or a single picture) → the bubble's own long-press handles it.
+  final void Function(int index)? onLongPressItem;
+  const PhotoAlbumView(
+      {super.key, required this.items, required this.size, this.onOpen, this.onLongPressItem});
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +99,29 @@ class PhotoAlbumView extends StatelessWidget {
         height: size.height,
         child: Stack(children: [
           for (var i = 0; i < lay.tiles.length && i < items.length; i++)
-            _place(lay, i, w,
+            _place(lay, i, w, _longPressable(i,
               AlbumTile(
                 key: ValueKey('cm-tile-${items[i].key}'),
                 item: items[i],
                 index: i,
                 overflow: i == lay.tiles.length - 1 ? lay.overflow : 0,
                 onOpen: onOpen,
-              )),
+              ))),
         ]),
       ),
+    );
+  }
+}
+
+extension on PhotoAlbumView {
+  Widget _longPressable(int i, Widget tile) {
+    final cb = onLongPressItem;
+    if (cb == null || items.length < 2) return tile;
+    return GestureDetector(
+      key: ValueKey('qc-album-lp-$i'),
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => cb(i),
+      child: tile,
     );
   }
 }
@@ -413,6 +431,7 @@ class PhotoBubbleShell extends StatelessWidget {
   final Widget? caption;
   final Widget meta;
   final void Function(int index, File file)? onOpen;
+  final void Function(int index)? onLongPressItem; // qcircle
   final BorderRadius? radius;
   const PhotoBubbleShell({
     super.key,
@@ -423,6 +442,7 @@ class PhotoBubbleShell extends StatelessWidget {
     this.header,
     this.caption,
     this.onOpen,
+    this.onLongPressItem,
     this.radius,
   });
 
@@ -449,7 +469,9 @@ class PhotoBubbleShell extends StatelessWidget {
             ),
           // edge to edge: the bubble's own rounded corners clip the picture
           Stack(children: [
-            PhotoAlbumView(items: items, size: size, onOpen: onOpen),
+            PhotoAlbumView(
+                items: items, size: size, onOpen: onOpen,
+                onLongPressItem: onLongPressItem),
             Positioned(right: 6, bottom: 6, child: meta),
           ]),
           if (caption != null)

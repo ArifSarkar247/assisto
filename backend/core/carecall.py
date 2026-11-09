@@ -70,17 +70,47 @@ def bn_num(v):
     return str(v).translate(_BN)
 
 
-def limits():
+def limits(setter=None):
     out = dict(LIMIT_DEFAULTS)
+    out["carecall_rings_per_setter_month"] = 0          # 0 = no monthly cap
     try:
         from . import billing
-        lim = billing.cfg()["limits"]
-        for k in out:
+        c = billing.cfg()
+        lim = c["limits"]
+        for k in LIMIT_DEFAULTS:
             if k in lim:
                 out[k] = int(lim[k])
+        if setter is not None and (c.get("pricing_v2") or {}).get("on"):
+            # plansprep (owner 9 Nov item 10): schedules by the setter's
+            # safety plan — Free 3 (max 90 rings a month), Child Plan 5,
+            # Safe Family 20. Never ads, never switched off: a schedule that
+            # is already on stays on (only NEW ones count against the limit).
+            from . import safe_plans as SP
+            from .logic import plan_book as BOOK
+            plan = SP.current_plan(setter)[0]
+            row = BOOK.V2_CARECALL.get(plan) or BOOK.V2_CARECALL["free"]
+            out["carecall_active_per_setter"] = int(row["schedules"])
+            out["carecall_rings_per_setter_month"] = int(row["rings_month"])
     except Exception:  # noqa: BLE001 — a config glitch never blocks a Care Call
         pass
     return out
+
+
+def _month_ok(cc, now):
+    """plansprep: the setter's monthly ring cap (Free: 90) — 0 = no cap."""
+    try:
+        cap = limits(cc.setter)["carecall_rings_per_setter_month"]
+    except Exception:  # noqa: BLE001
+        return True
+    return cap <= 0 or _rings_this_month(cc.setter_id, now) < cap
+
+
+def _rings_this_month(setter_id, now):
+    from .models import CareCallRing
+    start = timezone.localtime(now, TZ).replace(day=1, hour=0, minute=0, second=0,
+                                                microsecond=0)
+    return CareCallRing.objects.filter(care_call__setter_id=setter_id,
+                                       scheduled_at__gte=start).count()
 
 
 # ------------------------------------------------------------------ time
@@ -378,7 +408,7 @@ def create(setter, data):
     """(care_call, link, error)."""
     from django.contrib.auth import get_user_model
     from .models import CareCall, CareCallLink
-    lim = limits()
+    lim = limits(setter)
     try:
         rid = int((data or {}).get("receiver_id"))
     except (TypeError, ValueError):
@@ -428,7 +458,7 @@ def update(setter, cc_id, data):
     cc = CareCall.objects.filter(pk=cc_id, setter=setter).first()
     if cc is None:
         return None, "not_found"
-    lim = limits()
+    lim = limits(setter)
     fields, err = _clean(dict(data or {}, keep_voice=bool(cc.voice) and not (data or {}).get("delete_voice")), lim)
     if err:
         return None, err
@@ -557,7 +587,8 @@ def tick(now=None):
         sched = cc.next_at
         ok = (link is not None and link.status == "accepted"
               and now - sched <= timedelta(minutes=STALE_MIN)
-              and _rings_today(cc.receiver, now) < lim["carecall_rings_per_receiver_day"])
+              and _rings_today(cc.receiver, now) < lim["carecall_rings_per_receiver_day"]
+              and _month_ok(cc, now))
         if ok:
             _, made = CareCallRing.objects.get_or_create(
                 care_call=cc, slot=slot_of(sched),
@@ -700,7 +731,7 @@ def mine(user):
         links.append({"setter_id": ln.setter_id, "name": name, "initial": initial(name),
                       "status": ln.status})
     q = CareCallLink.objects.filter(receiver=user).order_by("-id").first()
-    lim = limits()
+    lim = limits(user)
     return {
         "sent": sent, "received": received, "links": links,
         "invites": [x for x in links if x["status"] == "pending"],

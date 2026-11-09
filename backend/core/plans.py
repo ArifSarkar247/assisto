@@ -29,9 +29,9 @@ PLANS = {
     # (core.logic.pricing); these literals are the DEFAULT/fallback only.
     "premium":  {"name_bn": "প্রিমিয়াম", "name_en": "Premium", "price": 199, "cur": "BDT", "period": "mo",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
-                 "desc_bn": "প্রতি মাসে ৯০ AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "90 AI credits a month, no ads — care for your family together.",
-                 "benefits_bn": ["প্রতি মাসে ৯০ AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট দৈনিক ব্রিফিং"],
-                 "benefits_en": ["90 AI credits / month (scans & assistant)", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart daily briefings"]},
+                 "desc_bn": "প্রতি মাসে AI ক্রেডিট, বিজ্ঞাপন নেই — পরিবারের যত্ন একসাথে।", "desc_en": "Monthly AI credits, no ads — care for your family together.",
+                 "benefits_bn": ["প্রতি মাসে AI ক্রেডিট (স্ক্যান ও সহকারী)", "বিজ্ঞাপন নেই", "৫ জন পর্যন্ত কানেক্টেড সার্কেল ও কেয়ারগিভার ড্যাশবোর্ড", "স্মার্ট দৈনিক ব্রিফিং"],
+                 "benefits_en": ["Monthly AI credits (scans & assistant)", "No ads", "Up to 5-member Circle & caregiver dashboard", "Smart daily briefings"]},
     "probashi": {"name_bn": "প্রবাসী", "name_en": "Probashi", "price": 4.99, "cur": "USD", "period": "mo",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "বিদেশ থেকে দেশের পরিবারের যত্ন।", "desc_en": "Care for your family back home, from abroad.",
@@ -40,8 +40,8 @@ PLANS = {
     "business": {"name_bn": "বিজনেস", "name_en": "Business", "price": 999, "cur": "BDT", "period": "mo",
                  "credits": 240, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "ছোট ব্যবসা ও বিক্রয় দলের জন্য।", "desc_en": "For small businesses and sales teams.",
-                 "benefits_bn": ["প্রতি মাসে ২৪০ AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)"],
-                 "benefits_en": ["240 AI credits / month", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)"]},
+                 "benefits_bn": ["প্রতি মাসে AI ক্রেডিট", "বিজনেস মোড: ক্যাটালগ ও অর্ডার", "AI CRM (Axon Dynamics)"],
+                 "benefits_en": ["Monthly AI credits", "Business mode: catalog & orders", "AI CRM (Axon Dynamics)"]},
     "annual":   {"name_bn": "বার্ষিক (প্রিমিয়াম)", "name_en": "Annual (Premium)", "price": 1199, "cur": "BDT", "period": "yr",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 0,
                  "desc_bn": "প্রিমিয়াম — বছরে, ২ মাস সাশ্রয়।", "desc_en": "Premium — yearly, save ~2 months.",
@@ -63,8 +63,8 @@ PLANS = {
     "founder":  {"name_bn": "ফাউন্ডার", "name_en": "Founder", "price": 0, "cur": "BDT", "period": "life",
                  "credits": 90, "unlimited_ai": False, "ads": False, "family": 5,
                  "desc_bn": "আজীবন — শুরুর সমর্থকদের জন্য।", "desc_en": "Lifetime — for early supporters.",
-                 "benefits_bn": ["আজীবন প্রিমিয়াম — প্রতি মাসে ৯০ AI ক্রেডিট", "প্রিমিয়ামের সব সুবিধা"],
-                 "benefits_en": ["Lifetime Premium — 90 AI credits every month", "Everything in Premium"]},
+                 "benefits_bn": ["আজীবন প্রিমিয়াম — প্রতি মাসে AI ক্রেডিট", "প্রিমিয়ামের সব সুবিধা"],
+                 "benefits_en": ["Lifetime Premium — monthly AI credits", "Everything in Premium"]},
 }
 
 # credit top-up packs (৳20–30 range, like mobile recharge)
@@ -204,12 +204,16 @@ def _config_plan(pid):
 
 def _benefits(pid, lang, spec):
     """Config-derived benefit lines for free/premium/business (numbers come
-    from the live PricingConfig); literal lines for the other plans."""
+    from the live PricingConfig); founder / annual = Premium's lines (the
+    Premium pool, plansprep: never a typed "90"); literal lines otherwise."""
     try:
         from .logic import pricing
         c = _cfg()
         if c is not None and pid in c["plans"]:
             return pricing.plan_benefits(pid, lang, c)
+        if c is not None and pid in ("founder", "annual"):
+            head = spec["benefits_" + lang][:1]
+            return head + pricing.plan_benefits("premium", lang, c)
     except Exception:
         pass
     return spec["benefits_" + lang]
@@ -304,7 +308,8 @@ def plans_public(lang="bn"):
             "desc": pick(lang, s["desc_bn"], s["desc_en"]),
             "benefits": s["benefits_" + lang], "unlimited_ai": False,
             "ads": s["ads"], "family": s["family"],
-            "credits": (c["plans"]["premium"]["credits"] if c else s["credits"]),
+            # plansprep: the family's shared pool (never Premium's number)
+            "credits": (c["probashi_plan"]["pool_credits"] if c else s["credits"]),
         })
     return out
 

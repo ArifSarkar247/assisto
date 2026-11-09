@@ -81,7 +81,9 @@ class ScheduleVerifiedTests(TestCase):
         self.assertTrue(SJ.schedule_verified())
         r = _client(self.u).get(V + "/train/search?q=701").json()
         self.assertTrue(all(t["approved"] is True for t in r["trains"]))
-        live = _client(self.u).get(V + "/train/701/live?date=2026-11-03").json()
+        # e2eproof: today, not a fixed date (2026-11-03 went stale -> KeyError 'train')
+        from django.utils import timezone
+        live = _client(self.u).get(V + "/train/701/live?date=%s" % timezone.localdate().isoformat()).json()
         self.assertTrue(live["train"]["approved"])
         if live.get("estimate"):
             self.assertTrue(live["estimate"]["approved"])

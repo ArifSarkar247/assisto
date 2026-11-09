@@ -1,0 +1,32 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_vision }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.bd_vision_intro }}</p>
+{% if data is None %}<p class="empty">{{ T.bd_no_file }} owner_actions/OWNER_VISION_CHECKLIST_BN.md</p>{% else %}
+<div class="tiles">
+  {% if quality %}<a class="tile" href="/owner/quality?view=below9"><span>{{ T.bd_ready_head }}</span><b>{{ quality.passed }} / {{ quality.total }}</b><small>{{ T.bd_below9 }}: {{ quality.below }}</small></a>{% endif %}
+  <a class="tile{% if st == 'done' %} on{% endif %}" href="?status=done"><span>✅ {{ T.bd_st_done }}</span><b>{{ data.counts.done }}</b></a>
+  <a class="tile{% if st == 'partial' %} on{% endif %}" href="?status=partial"><span>🟡 {{ T.bd_st_partial }}</span><b>{{ data.counts.partial }}</b></a>
+  <a class="tile{% if st == 'missing' %} on{% endif %}" href="?status=missing"><span>❌ {{ T.bd_st_missing }}</span><b>{{ data.counts.missing }}</b></a>
+  <a class="tile{% if st == 'all' %} on{% endif %}" href="?status=all"><span>{{ T.bd_total }}</span><b>{{ data.total }}</b><small>{{ data.date }}</small></a>
+</div>
+<form method="get" class="inline card">
+  <label>{{ T.bd_search }}<input type="search" name="q" value="{{ q }}" maxlength="80"></label>
+  <label>{{ T.status }}<select name="status">{% for f in statuses %}<option value="{{ f }}" {% if f == st %}selected{% endif %}>{% if f == 'done' %}✅ {{ T.bd_st_done }}{% elif f == 'partial' %}🟡 {{ T.bd_st_partial }}{% elif f == 'missing' %}❌ {{ T.bd_st_missing }}{% elif f == 'unknown' %}{{ T.bd_st_unknown }}{% else %}{{ T.all }}{% endif %}</option>{% endfor %}</select></label>
+  <label>{{ T.bd_importance }}<select name="imp">{% for f in imps %}<option value="{{ f }}" {% if f == imp %}selected{% endif %}>{% if f == '1' %}{{ T.bd_imp1 }}{% elif f == '2' %}{{ T.bd_imp2 }}{% elif f == '3' %}{{ T.bd_imp3 }}{% else %}{{ T.all }}{% endif %}</option>{% endfor %}</select></label>
+  <label><input type="checkbox" name="owner" value="1" {% if owner_only %}checked{% endif %}> {{ T.bd_owner_only }}</label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <span class="mut small">{{ shown }} / {{ data.total }}</span>
+</form>
+{% if items %}
+<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.bd_feature }}</th><th>{{ T.status }}</th><th>{{ T.bd_importance }}</th><th>{{ T.bd_missing }}</th><th>{{ T.bd_plan }}</th><th>{{ T.bd_world }}</th><th>{{ T.bd_owner_items }}</th></tr></thead><tbody>
+{% for it in items %}<tr class="{% if it.status == 'missing' %}bad{% endif %}"><td>{{ it.n }}</td>
+<td><details><summary><b>{{ it.title|truncatechars:90 }}</b></summary><p class="pre small">{{ it.feature }}</p></details></td>
+<td><span class="pill {% if it.status == 'done' %}ok{% elif it.status == 'missing' %}bad{% elif it.status == 'partial' %}spons{% endif %}">{% if it.status == 'done' %}{{ T.bd_st_done }}{% elif it.status == 'partial' %}{{ T.bd_st_partial }}{% elif it.status == 'missing' %}{{ T.bd_st_missing }}{% else %}{{ T.bd_st_unknown }}{% endif %}</span><div class="small mut">{{ it.status_text }}</div></td>
+<td>{% if it.importance == 1 %}<span class="pill bad">{{ T.bd_imp1 }}</span>{% elif it.importance == 2 %}{{ T.bd_imp2 }}{% elif it.importance == 3 %}{{ T.bd_imp3 }}{% endif %}</td>
+<td class="small">{{ it.missing }}</td><td class="small">{{ it.plan }}</td><td class="small">{{ it.world_class }}</td><td class="small"><b>{{ it.owner_items }}</b></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.bd_none }}</p>{% endif %}
+<p class="mut small">{{ T.bd_source }} owner_actions/{{ data.file }} · {{ T.bd_live_note }}</p>
+{% endif %}
+{% endblock %}

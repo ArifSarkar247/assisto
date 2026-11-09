@@ -39,6 +39,7 @@ from . import pricing_40 as _P40      # pricing-40: chat modes (default OFF)
 from . import cctv_plan as _CCTV     # cctvprice: CCTV plan (Play), cost guards
 from . import ai_levels as _AIL     # aifinal PART 3
 from . import safe_plans as _SAFE    # safeplans: Child / Safe Family / School Safe
+from . import plan_book as _BOOK     # plansprep: the one source of plan numbers
 
 # --------------------------------------------------------------- currency basis
 # Prices are stored in whole TAKA (BDT), matching core/plans.py `price` (e.g. 199).
@@ -772,6 +773,10 @@ def DEFAULTS():
         "ai_levels": _AIL.defaults(),            # aifinal PART 3
         # probashi-plan (owner 27 Oct): seats, shared pool, caps, cooldown
         "probashi_plan": _PB.defaults(),
+        # plansprep (owner 9 Nov 10:20): ON = every plan / pack / action
+        # credit number is DERIVED by core.logic.plan_book (never typed), no
+        # drip, 12-month packs, legacy packs off sale. OFF (default) = as before.
+        "pricing_v2": _BOOK.block_defaults(),
     }
 
 
@@ -868,7 +873,7 @@ def normalize(data):
         costs["sms"]["credits"] = max(costs["sms"]["credits"], _SMSM.credits_per_part(
             _cost, _SMSM.cheapest_bdt_per_credit(plans, packs, annual_disc)))
 
-    return {
+    out = {
         "plans": plans,
         "topup_packs": packs,
         "annual_discount_pct": annual_disc,
@@ -918,7 +923,22 @@ def normalize(data):
         "credit_model": _P40.normalize_credit_model(d.get("credit_model")),
         "ai_levels": _AIL.normalize(d.get("ai_levels")),   # aifinal PART 3
         "probashi_plan": _PB.normalize(d.get("probashi_plan")),
+        "pricing_v2": _BOOK.normalize_block(d.get("pricing_v2")),
     }
+    if out["pricing_v2"]["on"]:
+        _BOOK.derive(out, _legacy_floor)
+    return out
+
+
+def _legacy_floor(aid, row, cfg):
+    """The shipped NET-floor credits of one action row (pure; for plan_book)."""
+    if row.get("provider_cost", 0) <= 0:
+        return 0
+    cost = row["provider_cost"] * cfg["usd_bdt"]
+    if aid == "sms":       # the real per-part SMS cost the owner set, if higher
+        cost = max(cost, float((cfg.get("sms") or {}).get("default_cost_per_segment_bdt") or 0))
+    need = cost / cfg["guarantees"]["margin_net_floor"]
+    return max(1, int(math.ceil(need / cfg["credit_bdt"])))
 
 
 def _norm_vehicle(raw, base):
@@ -1599,6 +1619,14 @@ def plan_benefits(pid, lang, cfg):
             dup = "ফ্রি দ্রুত উত্তর" if bn else "free quick replies"
             if dup in msg:
                 lines = [lines[0]] + [x for x in lines[1:] if dup not in x]
+        if _BOOK.is_on(cfg):
+            # plansprep: 1 credit = 1 Normal or Better answer, Best = 11
+            best = n // max(1, _BOOK.level_credit_table(cfg).get("best", 11))
+            lines[0] = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট — {_bn_num(n)}টি Normal/Better "
+                        f"বা {_bn_num(best)}টি Best উত্তর" if bn else
+                        f"{n} AI credits a month — {n} Normal/Better or {best} Best answers")
+            lines = [lines[0]] + [x for x in lines[1:]
+                                  if ("ফ্রি দ্রুত উত্তর" if bn else "free quick replies") not in x]
     if pid == "premium":
         fam = s["family"]
         if fam > 0:
@@ -1614,6 +1642,11 @@ def _annual_benefits(lang, cfg):
     """Premium's lines; with the credit model on, the message line counts the
     YEAR's credits (10x monthly), never the monthly plan's number."""
     lines = plan_benefits("premium", lang, cfg)
+    if _BOOK.is_on(cfg):
+        yearly = _BOOK.annual_credits_total(annual_price("premium", cfg), "premium")
+        lines[0] = (f"বছরে {_bn_num(yearly)} AI ক্রেডিট (প্রতি মাসে ভাগ করে)" if lang == "bn"
+                    else f"{yearly} AI credits a year (given monthly)")
+        return lines
     cm = cfg["credit_model"]
     if cm["enabled"]:
         yearly = cfg["plans"]["premium"]["credits"] * cm["annual_credit_months"]
@@ -1659,7 +1692,8 @@ def plan_public(lang, cfg):
         "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],
         # the monthly pool every month (pricing-40 enabled: x annual_credit_months/12)
-        "credits": (prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12
+        "credits": (_BOOK.annual_credits_total(yearly, "premium") // 12 if _BOOK.is_on(cfg)
+                    else prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12
                     if cfg["credit_model"]["enabled"] else prem["credits"]),
         "discount_pct": disc,
         "monthly_equiv": round(yearly / 12.0, 2),
