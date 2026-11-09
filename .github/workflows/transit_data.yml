@@ -17,7 +17,7 @@ on:
     - cron: '41 3 5 * *'      # monthly, the 5th, 03:41 UTC
   workflow_dispatch: {}
   push:
-    branches: ['ci/citydata', 'ci/citydata-data']
+    branches: ['ci/citydata']
     paths: ['deploy/transit/**', 'backend/core/citytransit/**', '.github/workflows/transit_data.yml']
 
 concurrency:
@@ -50,7 +50,6 @@ jobs:
           path: transit_work/out/
           retention-days: 35
       - name: Publish release assets (manifest last)
-        if: github.event_name != 'push' || github.ref == 'refs/heads/ci/citydata-data'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
