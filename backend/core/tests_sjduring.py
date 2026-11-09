@@ -467,7 +467,7 @@ class TwoJourneysTests(Sim):
         kid = mk("01711000009", "Kid")
         ba = edge(self.b, self.a)
         a_kid, b_kid = edge(self.a, kid), edge(self.b, kid)
-        t0 = timezone.now() - timedelta(minutes=30)
+        t0 = timezone.now() - timedelta(minutes=10, seconds=30)
         ja = self.mkj(traveller=self.a, member=self.ab, start=t0)
         JourneyWatcher.objects.create(journey=ja, member=a_kid)
         jb = self.mkj(traveller=self.b, member=ba, start=t0,
