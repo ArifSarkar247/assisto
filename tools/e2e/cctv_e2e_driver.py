@@ -181,8 +181,9 @@ def run_phonecam(owner, family):
          r.status_code == 201 and r.json().get("camera_token"), r.text)
     tok, cam_id = r.json()["camera_token"], r.json()["camera"]["id"]
     r = cam_phone.post(API + "/shop/phonecam/claim", json={"code": code}, timeout=10)
+    # spent: 409 code_used, or 400 once the next code is already in force
     check("phonecam: the same code cannot pair a second phone",
-          r.status_code == 409, r.text)
+          r.status_code in (400, 409) and not r.json().get("camera_token"), r.text)
     dev = requests.Session()
     dev.headers.update({"X-Shop-Token": tok, "X-Shop-Camera": str(cam_id)})
     hb = lambda: dev.post(API + "/shop/heartbeat", json={  # noqa: E731
@@ -516,8 +517,12 @@ def run():
         check("cashguard: the alert names its clip (clip_ref, not evidence)",
               len((cev.signals or {}).get("clip_ref") or "") == 32 and
               "clip_ref" not in (cev.signals.get("inputs") or {}), cev.signals)
-        ccalls = wait_for(lambda: [c for c in fcm_calls()[n_push:]
-                                   if (c.get("data") or {}).get("event_id") == str(cev.id)], 15)
+        # cctvtoday: wait for the OWNER's push too (the family push can land first)
+        def _cash_calls():
+            got = [c for c in fcm_calls()[n_push:]
+                   if (c.get("data") or {}).get("event_id") == str(cev.id)]
+            return got if any(c.get("token") == "e2e-fcm-owner" for c in got) else None
+        ccalls = wait_for(_cash_calls, 15)
         cown = [c for c in (ccalls or []) if c.get("token") == "e2e-fcm-owner"]
         check("cashguard: push says 'Possible cash removal — watch the clip and decide'",
               bool(cown) and "Possible cash removal" in json.dumps(cown) and
