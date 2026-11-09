@@ -200,7 +200,6 @@ def v2_settings_patch():
             "web_on": True, "web_usd_per_prompt": 0.015, "web_free_per_day": 1500,
         },
         "ad_rewards": {"rewarded_daily_cap": 5},
-        "limits": {"carecall_active_per_setter": V2_CARECALL["free"]["schedules"]},
     }
 
 
