@@ -331,8 +331,13 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
   Widget _pronBlock(AppLocalizations t) {
     final it = qvItem(_pron, _aya);
     final bn = (it?['bn'] as String?) ?? '';
-    final approved = it?['review'] == 'approved';
+    final review = '${it?['review'] ?? ''}';
+    final approved = review == 'approved';
+    final note = (it?['note_bn'] as String?) ?? '';
+    final legend = (_pron?['legend_bn'] as String?) ?? '';
     final bism = (_pron?['bismillah_bn'] as String?) ?? '';
+    // lane 15: a rejected line is never shown, only its fixed note.
+    final hideText = review == 'rejected';
     Widget child;
     if (_pronLoading) {
       child = _loading();
@@ -347,7 +352,25 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
             child: Text(bism, style: AType.bodyMedium),
           ),
         const SizedBox(height: Gap.xs),
-        Text(bn, key: const Key('qv-pron-text'), style: AType.bodyLarge),
+        // bn keeps its ZWNJ (U+200C) marks as sent — never stripped.
+        if (!hideText)
+          Text(bn, key: const Key('qv-pron-text'), style: AType.bodyLarge),
+        if (note.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(note,
+                key: const Key('qv-pron-note'),
+                style: AType.bodySmall
+                    .copyWith(color: Theme.of(context).colorScheme.error)),
+          ),
+        if (legend.isNotEmpty && !hideText)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(legend,
+                key: const Key('qv-pron-legend'),
+                style: AType.bodySmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
       ]);
     }
     return _Block(

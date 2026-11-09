@@ -144,6 +144,26 @@ void main() {
       expect(find.byKey(const Key('qv-pron-pending')), findsOneWidget);
     });
 
+    testWidgets('pronunciation: rejected line hidden, only the fixed note shown',
+        (tester) async {
+      final api = QuranBilingualApi((p) async {
+        if (p.startsWith('/quran/pron')) {
+          return {
+            'ok': true, 'surah': 1, 'label': 'under_review',
+            'legend_bn': 'চিহ্ন: - = ২ মাত্রা',
+            'items': [
+              {'ayah': 1, 'bn': 'পরীক্ষা\u200cলাইন', 'review': 'rejected', 'note_bn': 'সংশোধন চলছে'},
+            ],
+          };
+        }
+        return fakeQuranViewGet(p)!;
+      });
+      await _pump(tester, AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: api));
+      expect(find.byKey(const Key('qv-pron-text')), findsNothing);
+      expect(find.text('সংশোধন চলছে'), findsOneWidget);
+      expect(find.byKey(const Key('qv-under-review')), findsOneWidget);
+    });
+
     testWidgets('audio: repeat 3 plays the ayah three times, then stops', (tester) async {
       final pl = _FakePlayer();
       await _pump(tester,
