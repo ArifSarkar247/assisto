@@ -1253,6 +1253,8 @@ class JourneyActiveView(APIView):
     def get(self, request):
         j = Journey.objects.filter(traveller=request.user,
                                    status="active").first()
+        if j is not None and (j.during or {}).get("cover"):
+            j = None   # sjduring: after a danger PIN this phone shows Arrived
         return Response(_journey_dict(j, req_lang(request)) if j else {})
 
 
@@ -1328,7 +1330,13 @@ class JourneyLocationView(APIView):
                 newest_acc = acc
         j.last_activity_at = now
         arrived = False
-        if (newest_known is not None and fixes and
+        from . import journey_during as JDUR   # sjduring
+        if JDUR.enabled(j):
+            # sjduring: radius by place type + 2-minute dwell; an abnormal
+            # arrival (too early / off route / long stop) asks the PIN first
+            if newest_known is not None and fixes:
+                arrived = JDUR.auto_arrival(j, now, newest_acc) == "arrived"
+        elif (newest_known is not None and fixes and
                 SL.acc_ok_for_arrival(newest_acc, j.arrival_radius_m)):
             arrived, _dist = SJ.arrival_check(_journey_pure(j), newest_known[0], newest_known[1])
         j.lost_alerted_at = None if fixes else j.lost_alerted_at
