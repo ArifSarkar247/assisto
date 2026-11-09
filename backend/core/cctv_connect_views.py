@@ -555,7 +555,9 @@ def sync_link(link, now=None, account_events=None):
         _note_error(link, e)
         return out
     st = dict(link.state or {})
-    since = max(float(st.get("since") or 0), now.timestamp() - EVENT_LOOKBACK_S)
+    # 2 min of slack (vendor clocks / whole-second times); repeats are
+    # dropped by the seen-id list, never alerted twice
+    since = max(float(st.get("since") or 0), now.timestamp() - EVENT_LOOKBACK_S) - 120
     evs = []
     try:
         if account_events is not None:

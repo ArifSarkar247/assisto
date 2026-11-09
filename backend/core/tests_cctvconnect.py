@@ -334,7 +334,9 @@ class ConnectApiE2ETests(E2E._Base):
                     self.assertEqual(c.vendor_ref, want)
                 # cloud health: disk failed -> one camera_health alert
                 self.sim.set_disk(v, serial, "error")
-                CctvCloudLink.objects.filter(pk=link["id"]).update(state={"since": time.time()})
+                lk = CctvCloudLink.objects.get(pk=link["id"])
+                lk.state = dict(lk.state or {}, health_at=0)      # health is due now
+                lk.save(update_fields=["state"])
                 V.sync_all()
                 self.assertTrue(ShopEvent.objects.filter(type="camera_health",
                                                          camera_id=cam["id"]).exists())
