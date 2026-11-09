@@ -63,6 +63,11 @@ abstract class GateUi {
   /// buy-credits sheet; true when credits really landed (verified purchase
   /// or reward) so the caller retries the same step ONCE.
   Future<bool> outOfCredits() async => false;
+
+  /// buyinside: the step needs Premium (Ultra HD). Open the in-place
+  /// Premium buy screen; true when Premium is now active (the caller reloads
+  /// the config and runs the same step ONCE).
+  Future<bool> needsPremium() async => false;
 }
 
 class GateGrant {

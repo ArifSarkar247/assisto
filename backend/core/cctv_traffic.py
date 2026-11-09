@@ -41,8 +41,13 @@ def cfg():
         mb = int(raw.get("relay_mb_per_camera", DEFAULT_RELAY_MB))
     except (TypeError, ValueError):
         mb = DEFAULT_RELAY_MB
+    try:
+        tmb = int(raw.get("trial_relay_mb_per_camera", 100))
+    except (TypeError, ValueError):
+        tmb = 100
     return {"confirmed": raw.get("limits_owner_confirmed") is True,
-            "relay_mb": max(0, min(5000, mb))}
+            "relay_mb": max(0, min(5000, mb)),
+            "trial_relay_mb": max(0, min(5000, tmb))}
 
 
 def feature_on(user):
@@ -98,7 +103,15 @@ def extra_relay_mb(doc):
 def account_state(owner_id, now=None, doc=None, c=None):
     c = c or cfg()
     doc = doc if doc is not None else month_doc(owner_id, now)
-    cap = T.pool_mb(c["relay_mb"], n_cameras(owner_id)) + extra_relay_mb(doc)
+    mb = c["relay_mb"]
+    # buyinside: lower relay guard while the 7-day free trial runs
+    try:
+        from . import cctv_plan_service as CPS
+        if CPS.in_trial_owner(owner_id, now):
+            mb = min(mb, int(c.get("trial_relay_mb", mb)))
+    except Exception:
+        pass
+    cap = T.pool_mb(mb, n_cameras(owner_id)) + extra_relay_mb(doc)
     st = T.cap_state(T.account_relay_bytes(doc), cap, c["confirmed"])
     st["cap_mb"] = cap
     return st

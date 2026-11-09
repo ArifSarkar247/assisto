@@ -140,6 +140,22 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
                 "trial": bool(raw.get("trial")) or offer_id == cc["trial_offer_id"]
                 or phase == "freeTrial", "in_trial": in_trial,
                 "latestSuccessfulOrderId": line.get("latestSuccessfulOrderId")})
+    # buyinside: ONE CCTV trial per shop and per person / Google purchase
+    # chain. Play's "new customers" eligibility already blocks a second trial
+    # on the same Google account; this blocks a second trial on another
+    # Google account for the same shop / phone / device. A duplicate trial
+    # gets no CCTV service while it is free (the paid period works normally).
+    if in_trial and not raw.get("trial_claimed") and not raw.get("trial_dup"):
+        from . import trial_guard as TG
+        kw = {"play_account": aid,
+              "linked_token_hash": pp.linked_token_hash}
+        if TG.claimed("cctv_trial", owner, **kw):
+            raw["trial_dup"] = True
+        else:
+            TG.claim("cctv_trial", owner, **kw)
+            raw["trial_claimed"] = True
+    if raw.get("trial_dup") and in_trial:
+        entitled = False
     pp.raw = raw
     price, cur = P._money((line.get("autoRenewingPlan") or {}).get("recurringPrice"))
     if is_addon:
@@ -150,6 +166,7 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
     pp.price_bdt = amount
     pp.save()
     cache.delete(_ckey(owner))
+    cache.delete("cctvplan:intrial:%s" % getattr(owner, "pk", owner))
     if pp.revoked:
         return {"ok": False, "state": "revoked", "sku": sku, "plan": "cctv",
                 "entitled": False, "expires_at": expiry.isoformat()}
@@ -194,6 +211,9 @@ def _current(user, product_id, now):
         return None, "none"
     live = [r for r in rows if r.token_hash not in gone and not r.revoked]
     for r in live:
+        rr = r.raw or {}
+        if rr.get("trial_dup") and rr.get("in_trial"):
+            continue  # buyinside: a second free trial of the same shop/person
         if r.state in ENTITLED and r.expires_at and r.expires_at > now:
             return r, "active"
     for r in live:
@@ -208,7 +228,27 @@ def trial_used(user):
     own offer eligibility is the other, per-Google-account half)."""
     from .models import PlayPurchase
     c = cfg()
-    return PlayPurchase.objects.filter(user=user, product_id=c["product_id"]).exists()
+    if PlayPurchase.objects.filter(user=user, product_id=c["product_id"]).exists():
+        return True
+    from . import trial_guard as TG  # buyinside: once per shop / person
+    return TG.claimed("cctv_trial", user)
+
+
+def in_trial_owner(owner_id, now=None):
+    """True while the owner's CCTV plan is in its free-trial days (the
+    trial's lower relay / AI guards apply). Cached 5 min; never raises."""
+    key = "cctvplan:intrial:%s" % owner_id
+    try:
+        v = cache.get(key)
+        if v is not None:
+            return bool(v)
+        from .models import User
+        u = User.objects.filter(pk=int(owner_id)).first()
+        v = bool(u and status(u, now).get("in_trial"))
+        cache.set(key, v, 300)
+        return v
+    except Exception:
+        return False
 
 
 def status(user, now=None):

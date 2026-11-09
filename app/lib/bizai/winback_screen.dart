@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/business/business_plans_screen.dart' show BusinessPlansScreen; // bizai2
+import '../plans_v2/buy_inside.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText, bd;
 import '../state.dart';
 import '../theme.dart';
@@ -116,6 +117,9 @@ class _WinbackScreenState extends State<WinbackScreen> {
             SnackBar(content: Text(on ? t.bizaiLadderOnDone : t.bizaiLadderOffDone)));
       }
     } catch (e) {
+      // buyinside: out of AI credits -> the credits sheet right here (the
+      // drafts stay as typed)
+      if (mounted && await BuyInside.handle(context, e, 'bizai_winback')) return;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(baErrorText(t, e))));
       }

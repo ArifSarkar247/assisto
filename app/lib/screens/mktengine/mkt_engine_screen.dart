@@ -10,6 +10,7 @@ import '../../widgets/local_counter.dart';
 import '../../widgets/local_digits.dart';
 import 'mkt_questionnaire.dart';
 import 'mkt_source.dart';
+import '../../plans_v2/buy_inside.dart';
 import '../../bizai/bizai_source.dart' show bizaiTrackedText; // bizai
 
 /// mktengine — ASSISTO MARKETING ENGINE v1 (owner P3-D; flag
@@ -472,6 +473,24 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
           icon: const Icon(Icons.send_rounded),
           label: Text(t.mktFollowActivate),
         );
+      } else if (follow['flag'] == true && follow['plan_ok'] != true) {
+        // buyinside: the plan is the only thing missing — buy it right here
+        extra = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _note(Icons.info_outline_rounded, t.mktFollowNeedsPlan, cs.onSurfaceVariant),
+          const SizedBox(height: 8),
+          FilledButton.tonalIcon(
+            key: const Key('bi-mkt-buy'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: busy
+                ? null
+                : () async {
+                    final ok = await BuyInside.open(context, 'mkt_followup');
+                    if (ok && mounted) await _load();
+                  },
+            icon: const Icon(Icons.workspace_premium_rounded),
+            label: Text(t.biGetBusinessHere, textAlign: TextAlign.center),
+          ),
+        ]);
       } else {
         extra = _note(Icons.info_outline_rounded,
             follow['flag'] != true ? t.mktFollowNeedsRetention : t.mktFollowNeedsPlan, cs.onSurfaceVariant);

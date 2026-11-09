@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../phonecam/phonecam_timeline_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../billing/cctv_plan_screen.dart'; // cctvprice
+import '../../billing/cctv_plan_source.dart' show ApiCctvPlanApi;
+import '../../plans_v2/buy_inside.dart';
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
@@ -107,6 +109,28 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
       final p = await SharedPreferences.getInstance();
       await p.setBool(_kGuideSeen, true);
     } catch (_) {}
+  }
+
+  /// buyinside: no active CCTV plan -> the locked CCTV screen (7 days free /
+  /// 500 Tk for 2 cameras) right here, then back on this screen, unlocked;
+  /// an active plan -> the full plan screen (cameras, yearly, manage).
+  Future<void> _openPlan() async {
+    var active = false;
+    try {
+      final d = await ApiCctvPlanApi(context.read<AppState>().api).load();
+      final st = d['status'];
+      active = st is Map && st['status'] == 'active';
+    } catch (_) {
+      active = true; // offline: the plan screen shows its own honest state
+    }
+    if (!mounted) return;
+    if (active) {
+      await Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen()));
+      return;
+    }
+    final ok = await BuyInside.open(context, 'cctv');
+    if (ok && mounted) await _load();
   }
 
   Future<void> _load() async {
@@ -244,8 +268,7 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
                 title: Text(t.cplEntryTitle),
                 subtitle: Text(t.cplEntrySub),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen())),
+                onTap: _openPlan,
               ),
             ),
           ),

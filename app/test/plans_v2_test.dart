@@ -251,7 +251,7 @@ void main() {
           calls++;
           return {'ok': true, 'trial_plan': 'business', 'trial_until': '2026-11-03T10:00:00Z'};
         });
-    expect(find.text('Start the free 7-day Business trial'), findsOneWidget);
+    expect(find.text('Start 7 days free'), findsOneWidget); // buyinside: owner-approved copy
     expect(find.textContaining('no card needed'), findsOneWidget);
     expect(find.textContaining('nothing is charged'), findsOneWidget);
     await tester.tap(find.byKey(const Key('pv2-trial')));

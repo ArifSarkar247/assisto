@@ -7,7 +7,7 @@ import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/ai_report.dart'; // ai-report
 import '../../widgets/skeleton.dart';
-import '../plans_screen.dart';
+import '../../plans_v2/buy_inside.dart';
 
 /// launch (AI-key-off honesty): true when the server built this draft WITHOUT
 /// an AI provider (no key, budget pause, or out of credits) — `mock: true`
@@ -65,9 +65,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  void _openPlans() {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const PlansScreen()));
+  /// buyinside: buy Business right here; back on this screen, unlocked.
+  Future<void> _openPlans() async {
+    final ok = await BuyInside.open(context, 'business_ai_reply');
+    if (ok && mounted) await _load();
   }
 
   bool get _anyChannelConnected {
@@ -282,6 +283,15 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
       _disclosure = await api.aiDisclosure();
       await _draftReply();
     } catch (e) {
+      // buyinside: out of credits / plan needed -> the buy sheet in place
+      if (mounted &&
+          await BuyInside.handle(context, e, 'business_ai_reply',
+              then: (ok) {
+            if (ok && mounted) _load();
+          })) {
+        if (mounted) setState(() => _loading = false);
+        return;
+      }
       _error = e.toString();
     }
     if (mounted) setState(() => _loading = false);
@@ -320,7 +330,9 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
       _dirty = true;
       await _draftReply();
     } catch (e) {
-      _snack(e.toString());
+      if (!mounted || !await BuyInside.handle(context, e, 'business_ai_reply')) {
+        _snack(e.toString());
+      }
     }
     if (mounted) setState(() => _busy = false);
   }
@@ -343,7 +355,17 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
       }
       await _load();
     } catch (e) {
-      _snack(e.toString());
+      // buyinside: the typed reply stays in the box; after a purchase it is
+      // sent again once
+      var bought = false;
+      final handled = mounted &&
+          await BuyInside.handle(context, e, 'business_ai_reply',
+              then: (ok) => bought = ok);
+      if (!handled) _snack(e.toString());
+      if (bought && mounted) {
+        setState(() => _busy = false);
+        return _send();
+      }
     }
     if (mounted) setState(() => _busy = false);
   }

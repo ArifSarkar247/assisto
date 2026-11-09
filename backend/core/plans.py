@@ -358,6 +358,12 @@ def trial_available(user):
         return False
     if user.is_founder or plan_active(user):
         return False
+    try:
+        from . import trial_guard  # buyinside: once per shop too
+        if trial_guard.shop_claimed("trial", user):
+            return False
+    except Exception:
+        pass
     return trial_days(user) > 0
 
 
@@ -376,7 +382,11 @@ def start_trial_button(user, device_id=""):
             return False, "trial_used"
         if not trial_available(u):
             return False, "not_eligible"
-        keys = antifarm.keys_for(u, device_id)
+        # buyinside: once per person AND once per shop (trial_guard)
+        from . import trial_guard
+        if trial_guard.shop_claimed("trial", u):
+            return False, "trial_used_shop"
+        keys = trial_guard.keys_for(u, device_id)
         if antifarm.claimed("trial", keys):
             return False, "trial_used_person"
         start_trial(u, device_id=device_id)
@@ -396,7 +406,8 @@ def start_trial(user, device_id=""):
         now = timezone.now()
         user.trial_until = now + timedelta(days=days)
         user.save(update_fields=["trial_until"])
-        keys = antifarm.keys_for(user, device_id)
+        from . import trial_guard
+        keys = trial_guard.keys_for(user, device_id)
         fresh = antifarm.claim("trial", keys)
         n = trial_credits()
         if n > 0 and fresh:
