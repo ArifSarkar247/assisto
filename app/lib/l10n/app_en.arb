@@ -44961,5 +44961,21 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
+  },
+  "qjArrivedUnusual": "Arrival saved. It looked unusual (far from the destination or sooner than possible), so your family is asked to check on you.",
+  "@qjArrivedUnusual": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjArrivedNeedsPin": "This arrival looks unusual. Open Safe Journey and tap “I've arrived safely” to confirm with your safety PIN.",
+  "@qjArrivedNeedsPin": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjDestNeedsPlace": "Choose the destination from the suggestions or pin it on the map, so we can tell when you really arrive.",
+  "@qjDestNeedsPlace": {
+    "description": "qjourney: start blocked, destination has no map position"
+  },
+  "qjDestIsHere": "You are already at this place. Choose where you are going.",
+  "@qjDestIsHere": {
+    "description": "qjourney: start blocked, destination is within 300 m of the phone"
   }
 }
