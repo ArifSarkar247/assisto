@@ -453,7 +453,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
           contentPadding: EdgeInsets.zero,
           minVerticalPadding: 4,
           leading: Icon(c['ok'] == true ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-              color: c['ok'] == true ? AssistoTokens.of(context).success : scheme.ds.dangerInk),
+              color: c['ok'] == true ? AssistoTokens.of(context).success : scheme.error),
           title: Text(_atsLabel('${c['id']}')),
         ),
     ]);

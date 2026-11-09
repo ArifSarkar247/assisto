@@ -1002,7 +1002,7 @@ class _VaultScreenState extends State<VaultScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.ds.dangerInk,
+                  tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
                   action: FilledButton.tonalIcon(

@@ -239,7 +239,7 @@ class _KhataChatScreenState extends State<KhataChatScreen> {
             child: Semantics(
               liveRegion: true,
               child: Text(_sendError,
-                  style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
+                  style: AType.bodySmall.copyWith(color: scheme.error)),
             ),
           ),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [

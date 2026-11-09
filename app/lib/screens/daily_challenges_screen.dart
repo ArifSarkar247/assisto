@@ -106,7 +106,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
         appBar: AppBar(title: Text(tr.chalTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.chalLoadError),
           action: FilledButton.tonalIcon(
@@ -377,8 +377,8 @@ class _TodayCardState extends State<_TodayCard> {
                 border = Brand.success;
                 bg = Brand.success.withValues(alpha: 0.12);
               } else if (isWrongPick) {
-                border = scheme.ds.dangerInk;
-                bg = scheme.ds.dangerInk.withValues(alpha: 0.10);
+                border = scheme.error;
+                bg = scheme.error.withValues(alpha: 0.10);
               }
             } else if (_selected == i) {
               border = scheme.primary;
@@ -411,7 +411,7 @@ class _TodayCardState extends State<_TodayCard> {
                     color: isCorrect
                         ? Brand.success
                         : (isWrongPick
-                            ? scheme.ds.dangerInk
+                            ? scheme.error
                             : (_selected == i && !done
                                 ? scheme.primary
                                 : scheme.ds.muted)),
@@ -525,7 +525,7 @@ class _HistoryScreen extends StatelessWidget {
                                   : Icons.cancel_rounded),
                           color: kind == 'task'
                               ? scheme.primary
-                              : (correct ? Brand.success : scheme.ds.dangerInk),
+                              : (correct ? Brand.success : scheme.error),
                         ),
                         title: Text(
                             item?.question ?? (r['item_id'] ?? '').toString(),

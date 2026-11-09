@@ -295,7 +295,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
           ],
           if (sos) ...[
             const SizedBox(height: 8),
-            Text(t.carmSosActive, style: TextStyle(color: scheme.ds.dangerInk, fontWeight: FontWeight.w600)),
+            Text(t.carmSosActive, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
           ],
         ]),
       ),

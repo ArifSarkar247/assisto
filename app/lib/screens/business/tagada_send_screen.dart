@@ -539,7 +539,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
               _tally(t.ldgCountSent(_d(sent)), AssistoTokens.of(context).success),
               _tally(t.ldgCountSkipped(_d(skipped)), null),
               _tally(t.ldgCountFailed(_d(failed)),
-                  Theme.of(context).colorScheme.ds.dangerInk),
+                  Theme.of(context).colorScheme.error),
               _tally(t.ldgCountWaiting(_d(waiting)), null),
             ]),
           ),
@@ -712,7 +712,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     final smsOn = _sms['available'] == true;
     final enough = _balance >= row.credits;
     final statusColor = switch (row.st) {
-      _St.failed => scheme.ds.dangerInk,
+      _St.failed => scheme.error,
       _St.skipped => scheme.ds.muted,
       _St.waiting => scheme.ds.muted,
       _ => AssistoTokens.of(context).success,

@@ -157,7 +157,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
         appBar: AppBar(title: Text(tr.demandTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.demandLoadError),
           action: FilledButton.tonalIcon(

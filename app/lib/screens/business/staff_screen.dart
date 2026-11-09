@@ -182,7 +182,7 @@ class _StaffScreenState extends State<StaffScreen> {
                   subtitle: Text('${m['phone_masked'] ?? ''}'),
                   trailing: IconButton(
                     tooltip: t.bbStaffRemove,
-                    icon: Icon(Icons.person_remove_rounded, color: scheme.ds.dangerInk),
+                    icon: Icon(Icons.person_remove_rounded, color: scheme.error),
                     onPressed: () => _remove(m),
                   ),
                 ),

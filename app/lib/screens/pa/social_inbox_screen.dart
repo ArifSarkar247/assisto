@@ -253,7 +253,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.socialInboxLoadError),
                   action: FilledButton.tonalIcon(
@@ -322,7 +322,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           _stat(Icons.mark_email_unread_rounded, tr.socialInboxStatOpen(ld(context, _openCount)), scheme),
           const SizedBox(width: Gap.sm),
           _stat(Icons.priority_high_rounded, tr.socialInboxStatUrgent(ld(context, _urgentCount)),
-              scheme, tint: _urgentCount > 0 ? scheme.ds.dangerInk : null),
+              scheme, tint: _urgentCount > 0 ? scheme.error : null),
         ]),
       ),
       Padding(
@@ -378,7 +378,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
   Color _priorityColor(String p, ColorScheme scheme) {
     switch (p) {
       case _prUrgent:
-        return scheme.ds.dangerInk;
+        return scheme.error;
       case _prLow:
         return scheme.ds.muted;
       default:

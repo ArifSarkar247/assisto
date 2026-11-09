@@ -306,7 +306,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 ),
                 if (_btMsg != null) ...[
                   const SizedBox(height: Gap.sm),
-                  Text(_btMsg!, style: TextStyle(color: scheme.ds.dangerInk)),
+                  Text(_btMsg!, style: TextStyle(color: scheme.error)),
                 ],
                 if (bt != null) ...[
                   const SizedBox(height: Gap.sm),

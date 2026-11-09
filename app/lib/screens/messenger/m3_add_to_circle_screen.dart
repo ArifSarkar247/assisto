@@ -548,7 +548,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(t.msgrRelationRequired,
-                          style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
+                          style: AType.bodySmall.copyWith(color: scheme.error)),
                     ),
                   const SizedBox(height: Gap.md),
                   FilledButton.icon(
@@ -567,7 +567,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(_error!,
                           key: const Key('m3-send-error'),
-                          style: TextStyle(color: scheme.ds.dangerInk)),
+                          style: TextStyle(color: scheme.error)),
                     ),
                 ],
               ]),

@@ -470,7 +470,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
           if (_sendError != null) ...[
             const SizedBox(height: Gap.sm),
             Text(_sendError!,
-                key: const ValueKey('ac_send_error'), style: TextStyle(color: s.ds.dangerInk)),
+                key: const ValueKey('ac_send_error'), style: TextStyle(color: s.error)),
           ],
           const SizedBox(height: Gap.lg),
           Wrap(alignment: WrapAlignment.end, spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -498,9 +498,9 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 20, color: danger ? s.ds.dangerInk : s.ds.muted),
+        Icon(icon, size: 20, color: danger ? s.error : s.ds.muted),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(text, style: TextStyle(color: danger ? s.ds.dangerInk : null, height: 1.35))),
+        Expanded(child: Text(text, style: TextStyle(color: danger ? s.error : null, height: 1.35))),
       ]),
     );
   }

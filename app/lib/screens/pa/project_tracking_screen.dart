@@ -195,7 +195,7 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
         appBar: AppBar(title: Text(t.paProjTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paProjLoadError),
           action: FilledButton.tonalIcon(
@@ -358,7 +358,7 @@ class _PortfolioCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Wrap(spacing: 6, runSpacing: 6, children: [
             if (overdue > 0)
-              _stat(t.paProjStatOverdue(overdue), scheme.ds.dangerInk),
+              _stat(t.paProjStatOverdue(overdue), scheme.error),
             if (atRisk > 0) _stat(t.paProjStatAtRisk(atRisk), Brand.warning),
             _stat(t.paProjStatOnTrack(onTrack), Brand.success),
             if (done > 0) _stat(t.paProjStatDone(done), scheme.secondary),
@@ -452,7 +452,7 @@ class _ProjectCard extends StatelessWidget {
     String hLabel;
     switch (health) {
       case 'overdue':
-        hc = scheme.ds.dangerInk;
+        hc = scheme.error;
         hLabel = t.paProjHealthOverdue;
         break;
       case 'at_risk':
@@ -820,7 +820,7 @@ class _MilestoneTile extends StatelessWidget {
         icon = Icons.check_circle_outline_rounded;
         break;
       case 'missed':
-        sc = scheme.ds.dangerInk;
+        sc = scheme.error;
         icon = Icons.cancel_rounded;
         break;
       default:
@@ -866,7 +866,7 @@ class _RiskTile extends StatelessWidget {
     Color sc;
     switch (sev) {
       case 'high':
-        sc = scheme.ds.dangerInk;
+        sc = scheme.error;
         break;
       case 'low':
         sc = scheme.secondary;

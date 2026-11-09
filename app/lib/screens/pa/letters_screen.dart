@@ -118,7 +118,7 @@ class _LettersScreenState extends State<LettersScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -171,7 +171,7 @@ class _LettersScreenState extends State<LettersScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLetLoadError),
                   action: FilledButton.tonalIcon(
@@ -587,7 +587,7 @@ class _LetterEditorState extends State<_LetterEditor> {
               problems.contains('empty_subject')
                   ? tr.paLetNeedSubject
                   : tr.paLetNeedRecipient,
-              style: TextStyle(color: scheme.ds.dangerInk, fontSize: 12.5),
+              style: TextStyle(color: scheme.error, fontSize: 12.5),
             ),
           ],
         ],

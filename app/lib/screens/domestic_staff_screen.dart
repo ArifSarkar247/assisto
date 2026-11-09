@@ -135,7 +135,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
         appBar: AppBar(title: Text(tr.staffTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.staffLoadError),
           action: FilledButton.tonalIcon(
@@ -212,7 +212,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
     final scheme = Theme.of(context).colorScheme;
     final Color c = s.state == 'owed'
         ? Brand.purple
-        : (s.state == 'advance_due' ? scheme.ds.dangerInk : Brand.success);
+        : (s.state == 'advance_due' ? scheme.error : Brand.success);
     final String badge = s.state == 'owed'
         ? tr.staffStateOwed
         : (s.state == 'advance_due' ? tr.staffStateAdvanceDue : tr.staffStateSettled);
@@ -361,7 +361,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
     final s = _StaffMath.personSummary(widget.person, _payments, _nowMonth());
     final Color c = s.state == 'owed'
         ? Brand.purple
-        : (s.state == 'advance_due' ? scheme.ds.dangerInk : Brand.success);
+        : (s.state == 'advance_due' ? scheme.error : Brand.success);
     final String stateLabel = s.state == 'owed'
         ? tr.staffStateOwed
         : (s.state == 'advance_due'
@@ -578,8 +578,8 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk,
-                foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),

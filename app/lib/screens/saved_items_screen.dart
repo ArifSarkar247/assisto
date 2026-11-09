@@ -99,7 +99,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
         appBar: AppBar(title: Text(tr.savedTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.savedLoadError),
           action: FilledButton.tonalIcon(
@@ -297,8 +297,8 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk,
-                foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),

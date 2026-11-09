@@ -231,7 +231,7 @@ class _PasswordResetConfirmScreenState
             ),
             if (_fieldError != null) ...[
               const SizedBox(height: 10),
-              Text(_fieldError!, style: TextStyle(color: scheme.ds.dangerInk)),
+              Text(_fieldError!, style: TextStyle(color: scheme.error)),
             ],
             const SizedBox(height: Gap.lg),
             SizedBox(

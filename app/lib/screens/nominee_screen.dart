@@ -310,7 +310,7 @@ class _NomineeScreenState extends State<NomineeScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.checkInternetRetry),
                   action: FilledButton.tonalIcon(

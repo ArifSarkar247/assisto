@@ -121,10 +121,10 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
             const Divider(height: 1),
             ListTile(
               leading: Icon(Icons.block_rounded,
-                  color: Theme.of(ctx).colorScheme.ds.dangerInk),
+                  color: Theme.of(ctx).colorScheme.error),
               title: Text(t.msgrBlock,
                   style:
-                      TextStyle(color: Theme.of(ctx).colorScheme.ds.dangerInk)),
+                      TextStyle(color: Theme.of(ctx).colorScheme.error)),
               onTap: () => Navigator.pop(ctx, ('block', 'block')),
             ),
           ]),

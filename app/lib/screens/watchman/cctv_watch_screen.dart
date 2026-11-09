@@ -480,7 +480,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
             onChanged: (v) => setState(() => _confirm = v ?? false),
           ),
           if (_error != null && _error!.isNotEmpty)
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           const SizedBox(height: 8),
           FilledButton.icon(
             key: const ValueKey('ctm-watch-send'),

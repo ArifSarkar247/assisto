@@ -53,7 +53,7 @@ class TrustPageScreen extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     // honest accent colours (AA on both themes)
     final good = AssistoTokens.of(context).success;
-    final never = scheme.ds.dangerInk;
+    final never = scheme.error;
     return Scaffold(
       appBar: AppBar(
         title: FittedBox(

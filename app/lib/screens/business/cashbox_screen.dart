@@ -244,7 +244,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                                     fallback: zero),
                                 valueColor: ln['kind'] == 'in'
                                     ? AssistoTokens.of(context).success
-                                    : Theme.of(context).colorScheme.ds.dangerInk),
+                                    : Theme.of(context).colorScheme.error),
                           ],
                           const Divider(height: 1),
                           _Line(
@@ -259,7 +259,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               sign: '−',
                               value: pair(context, s['manual_out_display'],
                                   fallback: zero),
-                              valueColor: Theme.of(context).colorScheme.ds.dangerInk),
+                              valueColor: Theme.of(context).colorScheme.error),
                         ]),
                       ),
                       if (duesCollected)
@@ -400,7 +400,7 @@ class _ReconciledCard extends StatelessWidget {
     final variancePoisha = (summary['variance_poisha'] as num?)?.toInt() ?? 0;
     final color = variancePoisha == 0
         ? AssistoTokens.of(context).success
-        : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.ds.dangerInk);
+        : (variancePoisha > 0 ? AssistoTokens.of(context).warning : Theme.of(context).colorScheme.error);
     final icon = variancePoisha == 0
         ? Icons.check_circle_outline_rounded
         : (variancePoisha > 0
@@ -471,7 +471,7 @@ class _CashEntryTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
         leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
-            color: isIn ? AssistoTokens.of(context).success : scheme.ds.dangerInk),
+            color: isIn ? AssistoTokens.of(context).success : scheme.error),
         title: Text(note.isEmpty
             ? (isIn
                 ? AppLocalizations.of(context).cashboxCashIn
@@ -483,7 +483,7 @@ class _CashEntryTile extends StatelessWidget {
         trailing: Text(pair(context, entry['amount_display']),
             style: TextStyle(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
-                color: isIn ? AssistoTokens.of(context).success : scheme.ds.dangerInk)),
+                color: isIn ? AssistoTokens.of(context).success : scheme.error)),
       ),
     );
   }

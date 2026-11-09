@@ -172,7 +172,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.lifestyleLoadError),
                   action: FilledButton.tonalIcon(

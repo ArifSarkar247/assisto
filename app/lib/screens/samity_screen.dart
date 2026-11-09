@@ -125,7 +125,7 @@ class _SamityScreenState extends State<SamityScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.ds.dangerInk,
+                  tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -453,7 +453,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.ds.dangerInk,
+                  tint: Theme.of(context).colorScheme.error,
                   title: t.samityLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(

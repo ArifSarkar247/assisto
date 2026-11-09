@@ -243,12 +243,12 @@ class _BooksScreenState extends State<BooksScreen> {
       liveRegion: true,
       child: Row(children: [
         Icon(ok ? Icons.verified_rounded : Icons.error_outline_rounded,
-            size: 20, color: ok ? scheme.primary : scheme.ds.dangerInk),
+            size: 20, color: ok ? scheme.primary : scheme.error),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(ok ? t.lgrBalanced : t.lgrNotBalanced,
               style: TextStyle(
-                  fontWeight: FontWeight.w600, color: ok ? scheme.primary : scheme.ds.dangerInk)),
+                  fontWeight: FontWeight.w600, color: ok ? scheme.primary : scheme.error)),
         ),
       ]),
     );

@@ -167,7 +167,7 @@ class _ScamScreenState extends State<ScamScreen> {
         const SizedBox(height: Gap.lg),
         if (_error)
           Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
         if (_result != null && !_error) ...[
           ScamResultCard(result: _result!),
           const SizedBox(height: 14),

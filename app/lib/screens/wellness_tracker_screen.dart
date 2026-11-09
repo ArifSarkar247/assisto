@@ -100,7 +100,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.wellLoadError),
           action: FilledButton.tonalIcon(

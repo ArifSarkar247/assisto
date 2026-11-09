@@ -170,7 +170,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
         appBar: AppBar(title: Text(tr.priceTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.priceLoadError),
           action: FilledButton.tonalIcon(
@@ -298,7 +298,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
           if (item.mixedUnits) ...[
             const SizedBox(height: Gap.sm),
             Text(tr.priceMixedUnitsWarn,
-                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.dangerInk)),
+                style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.error)),
           ],
           const Divider(height: Gap.lg),
           ...item.logs.map((l) => ListTile(
@@ -328,7 +328,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
   Widget _trendPill(BuildContext context, _RItem item) {
     final scheme = Theme.of(context).colorScheme;
     final up = item.up == true;
-    final color = up ? scheme.ds.dangerInk : scheme.primary;
+    final color = up ? scheme.error : scheme.primary;
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.xs),
       child: Container(

@@ -312,13 +312,13 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
                         ? Icons.warning_amber_rounded
                         : Icons.circle_outlined),
                 size: 16,
-                color: late || l['clash'] == true ? cs.ds.dangerInk : cs.ds.muted),
+                color: late || l['clash'] == true ? cs.error : cs.ds.muted),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_line(l),
                 style: TextStyle(
-                    color: late ? cs.ds.dangerInk : cs.ds.text,
+                    color: late ? cs.error : cs.ds.text,
                     fontWeight: late ? FontWeight.w600 : FontWeight.normal)),
           ),
         ]),

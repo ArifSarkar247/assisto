@@ -470,7 +470,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.watchErrorTitle,
                   message: honestFailText(t, _failCause, otherwise: t.watchErrorBody),
                   action: FilledButton.tonalIcon(

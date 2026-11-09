@@ -356,7 +356,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         if (_msg.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 12),
-            child: Text(_msg, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+            child: Text(_msg, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
       ]);
     }
@@ -513,7 +513,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
       if (_running && _charging == false)
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text(t.gbPlugIn, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+          child: Text(t.gbPlugIn, style: TextStyle(color: Theme.of(context).colorScheme.error)),
         ),
       const SizedBox(height: 8),
       if (_running || widget.preview != null) ...[

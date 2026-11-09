@@ -271,7 +271,7 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
               child: Text(_actError!,
-                  key: const ValueKey('bo_act_error'), style: TextStyle(color: s.ds.dangerInk)),
+                  key: const ValueKey('bo_act_error'), style: TextStyle(color: s.error)),
             ),
           if (c.questions.isNotEmpty) ...[
             const SizedBox(height: Gap.lg),

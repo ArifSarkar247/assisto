@@ -164,7 +164,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
         appBar: AppBar(title: Text(tr.areaCommunityTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.areaLoadError),
           action: FilledButton.tonalIcon(
@@ -494,7 +494,7 @@ Color _categoryColor(BuildContext context, String cat) {
   final scheme = Theme.of(context).colorScheme;
   switch (cat) {
     case 'alert':
-      return scheme.ds.dangerInk;
+      return scheme.error;
     case 'lost_found':
       return Brand.warning;
     case 'event':

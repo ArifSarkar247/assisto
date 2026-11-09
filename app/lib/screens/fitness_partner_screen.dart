@@ -192,7 +192,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
         appBar: AppBar(title: Text(tr.fitTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.fitLoadError),
           action: FilledButton.tonalIcon(
@@ -767,7 +767,7 @@ Color _statusColor(BuildContext context, String status) {
     case 'reached':
       return Brand.success;
     case 'behind':
-      return scheme.ds.dangerInk;
+      return scheme.error;
     case 'not_started':
       return scheme.ds.muted;
     default:

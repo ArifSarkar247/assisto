@@ -227,7 +227,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.shootLoadError),
                   action: FilledButton.tonalIcon(

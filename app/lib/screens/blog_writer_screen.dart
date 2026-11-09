@@ -354,7 +354,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
     if (_error) {
       return StateMessage(
         icon: Icons.cloud_off_rounded,
-        tint: scheme.ds.dangerInk,
+        tint: scheme.error,
         title: t.loadFailed,
         message: honestFailText(t, _failCause, otherwise: t.bwLoadError),
         action: FilledButton.tonalIcon(

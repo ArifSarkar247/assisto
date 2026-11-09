@@ -222,7 +222,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -552,7 +552,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(bucketIcon(b.bucket),
-            size: 22, color: debt ? scheme.ds.dangerInk : scheme.primary),
+            size: 22, color: debt ? scheme.error : scheme.primary),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -567,7 +567,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
             style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontFeatures: AFonts.tabular,
-                color: debt ? scheme.ds.dangerInk : scheme.ds.text)),
+                color: debt ? scheme.error : scheme.ds.text)),
       ]),
     );
   }

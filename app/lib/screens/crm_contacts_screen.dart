@@ -224,8 +224,8 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.ds.dangerInk,
-                  foregroundColor: Theme.of(context).colorScheme.ds.onDangerFill), // qa1
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError), // qa1
               child: Text(tr.delete)),
         ],
       ),
@@ -375,7 +375,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: serverFailText(tr, _failCause),
                   action: FilledButton.tonalIcon(

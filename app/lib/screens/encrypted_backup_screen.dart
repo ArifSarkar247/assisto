@@ -390,12 +390,12 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
       decoration: BoxDecoration(
         color: cs.ds.dangerBg.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: cs.ds.dangerInk.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.error.withValues(alpha: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.warning_amber_rounded, color: cs.ds.dangerInk),
+          Icon(Icons.warning_amber_rounded, color: cs.error),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -773,10 +773,10 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.error_outline_rounded, color: cs.ds.dangerInk, size: 20),
+        Icon(Icons.error_outline_rounded, color: cs.error, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(msg, style: TextStyle(color: cs.ds.dangerInk))),
+            child: Text(msg, style: TextStyle(color: cs.error))),
       ],
     );
   }

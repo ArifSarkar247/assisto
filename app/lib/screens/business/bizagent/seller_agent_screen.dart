@@ -247,7 +247,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
                     label: bd(context, '${baChannelLabel(t, '${c['kind']}')} · ${c['display_name'] ?? ''}'),
                     color: c['status'] == 'connected' && c['enabled'] == true
                         ? AssistoTokens.of(context).success
-                        : (c['status'] == 'error' ? Theme.of(context).colorScheme.ds.dangerInk : AssistoTokens.of(context).warning),
+                        : (c['status'] == 'error' ? Theme.of(context).colorScheme.error : AssistoTokens.of(context).warning),
                   ),
               ]),
             if (meta['secret'] != true) ...[

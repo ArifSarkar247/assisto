@@ -238,7 +238,7 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         _Phase.needsPermission => _needsPermission(tr),
         _Phase.error => StateMessage(
             icon: Icons.cloud_off_rounded,
-            tint: scheme.ds.dangerInk,
+            tint: scheme.error,
             title: tr.swErrorTitle,
             message: tr.swErrorBody,
             action: FilledButton.tonalIcon(

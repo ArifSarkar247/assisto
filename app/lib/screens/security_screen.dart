@@ -191,7 +191,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     padding: const EdgeInsets.only(top: Gap.xs),
                     child: Text(error!,
                         style:
-                            TextStyle(color: Theme.of(ctx).colorScheme.ds.dangerInk)),
+                            TextStyle(color: Theme.of(ctx).colorScheme.error)),
                   ),
               ],
             ),

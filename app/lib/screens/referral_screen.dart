@@ -184,7 +184,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             : _error
                 ? StateMessage(
                     icon: Icons.cloud_off_rounded,
-                    tint: scheme.ds.dangerInk,
+                    tint: scheme.error,
                     title: t.loadFailed,
                     message: serverFailText(t, _failCause),
                     action: FilledButton.tonalIcon(

@@ -447,7 +447,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
                   fontFeatures: AFonts.tabular,
                   color: positive
                       ? AssistoTokens.of(context).success
-                      : Theme.of(context).colorScheme.ds.dangerInk),
+                      : Theme.of(context).colorScheme.error),
             ),
           ]),
           const SizedBox(height: Gap.xs),

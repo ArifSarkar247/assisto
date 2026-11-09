@@ -628,7 +628,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             icon: Icons.contacts_rounded,
             title: cmLabel(context, 'cmDeniedTitle'),
             body: cmLabel(context, 'cmDeniedBody'),
-            tone: Theme.of(context).colorScheme.ds.dangerInk,
+            tone: Theme.of(context).colorScheme.error,
             primaryLabel: cmLabel(context, 'cmOpenSettings'),
             onPrimary: () async {
               try {
@@ -642,7 +642,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             icon: Icons.wifi_off_rounded,
             title: cmLabel(context, 'cmOfflineTitle'),
             body: cmLabel(context, 'cmOfflineBody'),
-            tone: Theme.of(context).colorScheme.ds.dangerInk,
+            tone: Theme.of(context).colorScheme.error,
             primaryLabel: cmLabel(context, 'cmRetry'),
             onPrimary: _sync,
             secondaryLabel: t.c1SearchInstead,

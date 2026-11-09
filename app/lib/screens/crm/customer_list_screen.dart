@@ -275,7 +275,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: due > 0
           ? Text(bdt(context, due / 100),
-              style: AType.titleSmall.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w800))
+              style: AType.titleSmall.copyWith(color: scheme.error, fontWeight: FontWeight.w800))
           : const Icon(Icons.chevron_right_rounded),
       onTap: () => _open(r),
       onLongPress: () => _togglePick(r),

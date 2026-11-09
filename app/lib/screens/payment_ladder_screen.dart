@@ -290,7 +290,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.ds.dangerInk,
+                  tint: Theme.of(context).colorScheme.error,
                   title: t.plLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.plLoadFailedBody),
                   action: FilledButton.tonalIcon(

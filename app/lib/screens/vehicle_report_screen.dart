@@ -187,7 +187,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
           else if (_error)
             StateMessage(
               icon: Icons.cloud_off_rounded,
-              tint: scheme.ds.dangerInk,
+              tint: scheme.error,
               title: tr.loadFailed,
               message: tr.vehLoadError,
               action: FilledButton.tonalIcon(
@@ -293,7 +293,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                       ? Brand.success
                       : (band == 'ok'
                           ? Brand.warning
-                          : (band == 'improve' ? scheme.ds.dangerInk : scheme.ds.muted)),
+                          : (band == 'improve' ? scheme.error : scheme.ds.muted)),
                 ),
                 child: Text(score == null ? '-' : vehNumStr(context, score),
                     style: const TextStyle(

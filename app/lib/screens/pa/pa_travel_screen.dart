@@ -162,7 +162,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
         appBar: AppBar(title: Text(t.paTravelTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paTravelLoadError),
           action: FilledButton.tonalIcon(

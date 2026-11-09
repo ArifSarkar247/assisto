@@ -209,7 +209,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
-                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
+                backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, ctl.text.trim()),
             child: Text(t.invCancelConfirm),
           ),

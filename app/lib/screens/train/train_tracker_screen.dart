@@ -524,8 +524,8 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         FilledButton.icon(
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
-              backgroundColor: _sharingThis ? cs.ds.dangerInk : null,
-              foregroundColor: _sharingThis ? cs.ds.onDangerFill : null),
+              backgroundColor: _sharingThis ? cs.error : null,
+              foregroundColor: _sharingThis ? cs.onError : null),
           icon: Icon(_sharingThis ? Icons.stop_circle_rounded : Icons.my_location_rounded),
           label: Text(_sharingThis ? t.trShareStop : t.trImOnTrain),
           onPressed: _share,
@@ -588,7 +588,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
             style: FilledButton.styleFrom(
-                minimumSize: const Size(48, 48), backgroundColor: cs.ds.dangerInk, foregroundColor: cs.ds.onDangerFill),
+                minimumSize: const Size(48, 48), backgroundColor: cs.error, foregroundColor: cs.onError),
             icon: const Icon(Icons.call_rounded),
             label: Text(_d(t.trCall999)),
             onPressed: () => launchUrl(trainTelUri('999')),

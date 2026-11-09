@@ -206,7 +206,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -243,7 +243,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.starDealsLoadError),
                   action: FilledButton.tonalIcon(
@@ -306,11 +306,11 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             if (_overdueCount > 0) ...[
               const SizedBox(height: Gap.xs),
               Row(children: [
-                Icon(Icons.error_outline_rounded, size: 16, color: scheme.ds.dangerInk),
+                Icon(Icons.error_outline_rounded, size: 16, color: scheme.error),
                 const SizedBox(width: Gap.xs),
                 Flexible(
                   child: Text(tr.starDealsOverdue('$_overdueCount'),
-                      style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
                 ),
               ]),
             ],
@@ -403,12 +403,12 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.event_rounded,
-                  size: 15, color: overdue ? scheme.ds.dangerInk : scheme.ds.muted),
+                  size: 15, color: overdue ? scheme.error : scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Flexible(
                 child: Text(
                     overdue ? tr.starDealsDeadlineOverdue(deadline) : tr.starDealsDeadline(deadline),
-                    style: AType.bodySmall.copyWith(color: overdue ? scheme.ds.dangerInk : scheme.ds.muted, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
+                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.ds.muted, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ]),

@@ -99,7 +99,7 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
         appBar: AppBar(title: Text(tr.meterTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.meterLoadError),
           action: FilledButton.tonalIcon(
@@ -199,7 +199,7 @@ class _PrepaidMeterScreenState extends State<PrepaidMeterScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -281,7 +281,7 @@ class _MeterCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (Color stateColor, IconData stateIcon, String stateLabel) =
         switch (row.state) {
-      'empty' => (scheme.ds.dangerInk, Icons.error_outline_rounded, tr.meterStateEmpty),
+      'empty' => (scheme.error, Icons.error_outline_rounded, tr.meterStateEmpty),
       'low' => (Brand.warning, Icons.warning_amber_rounded, tr.meterStateLow),
       'ok' => (Brand.success, Icons.check_circle_outline_rounded, tr.meterStateOk),
       _ => (

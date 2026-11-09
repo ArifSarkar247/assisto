@@ -857,7 +857,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                     ? scheme.ds.primarySoft
                     : scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
-            border: failed ? Border.all(color: Theme.of(context).colorScheme.ds.dangerInk) : null,
+            border: failed ? Border.all(color: Theme.of(context).colorScheme.error) : null,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (!out && (kind == 'image' || kind == 'voice'))

@@ -185,7 +185,7 @@ class _PrPressScreenState extends State<PrPressScreen>
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.prPressLoadError),
                   action: FilledButton.tonalIcon(
@@ -244,14 +244,14 @@ class _PrPressScreenState extends State<PrPressScreen>
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               _chip(tr.prPressSentPositive('${_countSent('positive')}'), Brand.success),
               _chip(tr.prPressSentNeutral('${_countSent('neutral')}'), scheme.ds.muted),
-              _chip(tr.prPressSentNegative('${_countSent('negative')}'), scheme.ds.dangerInk),
+              _chip(tr.prPressSentNegative('${_countSent('negative')}'), scheme.error),
             ]),
             const SizedBox(height: Gap.sm),
             Text(
                 _netSentiment >= 0
                     ? tr.prPressNetPositive('$_netSentiment')
                     : tr.prPressNetNegative('${-_netSentiment}'),
-                style: AType.bodyMedium.copyWith(color: _netSentiment >= 0 ? Brand.success : scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(color: _netSentiment >= 0 ? Brand.success : scheme.error, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               for (final t in _types)
@@ -488,7 +488,7 @@ class _PrPressScreenState extends State<PrPressScreen>
       case 'positive':
         return Brand.success;
       case 'negative':
-        return scheme.ds.dangerInk;
+        return scheme.error;
       default:
         return scheme.ds.muted;
     }

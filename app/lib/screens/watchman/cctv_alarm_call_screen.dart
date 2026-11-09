@@ -73,14 +73,14 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 16)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
-              Icon(Icons.videocam_rounded, color: scheme.ds.dangerInk),
+              Icon(Icons.videocam_rounded, color: scheme.error),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(t.cescCallKicker,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
-                        ?.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
+                        ?.copyWith(color: scheme.error, fontWeight: FontWeight.w700)),
               ),
             ]),
             const SizedBox(height: 8),

@@ -75,7 +75,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         if (high.isNotEmpty) ...[
-          _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.ds.dangerInk),
+          _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.error),
           for (final l in high)
             Card(
               child: ListTile(
@@ -123,7 +123,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (overdue.isNotEmpty) ...[
-          _header(t.crmTodayOverdueSteps, Icons.warning_amber_rounded, Theme.of(context).colorScheme.ds.dangerInk),
+          _header(t.crmTodayOverdueSteps, Icons.warning_amber_rounded, Theme.of(context).colorScheme.error),
           for (final s in overdue)
             Card(
               child: ListTile(

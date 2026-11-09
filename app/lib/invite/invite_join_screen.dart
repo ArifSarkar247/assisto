@@ -480,7 +480,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         child: Text(e,
             key: const Key('ij-error'),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+            style: TextStyle(color: Theme.of(context).colorScheme.error)),
       ),
     );
   }

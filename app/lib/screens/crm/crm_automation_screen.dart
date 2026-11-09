@@ -214,8 +214,8 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
                 label: Text(t.edit)),
             TextButton.icon(
                 onPressed: () => _delete(r),
-                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.ds.dangerInk),
-                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk))),
+                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.error),
+                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.error))),
           ]),
         ]),
       ),

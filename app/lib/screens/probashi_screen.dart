@@ -148,7 +148,7 @@ class _ProbashiScreenState extends State<ProbashiScreen> {
         appBar: AppBar(title: Text(tr.probashiTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.probashiLoadError),
           action: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -624,7 +624,7 @@ class _DocsTab extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _count(context, tr.probashiStatExpired,
-                            overview.expired, scheme.ds.dangerInk),
+                            overview.expired, scheme.error),
                         _count(context, tr.probashiStatExpiring,
                             overview.expiring, Brand.warning),
                         _count(context, tr.probashiStatValid, overview.valid,
@@ -693,7 +693,7 @@ class _DocsTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     switch (status) {
       case 'expired':
-        return scheme.ds.dangerInk;
+        return scheme.error;
       case 'expiring':
         return Brand.warning;
       case 'valid':

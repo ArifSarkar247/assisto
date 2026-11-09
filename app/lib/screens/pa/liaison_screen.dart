@@ -229,7 +229,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+            style: FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -295,7 +295,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLiaLoadError),
                   action: FilledButton.tonalIcon(
@@ -438,7 +438,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
   Color _urgencyColor(String u, ColorScheme scheme) {
     switch (u) {
       case 'overdue':
-        return scheme.ds.dangerInk;
+        return scheme.error;
       case 'due_soon':
         return Brand.warning;
       case 'done':
@@ -498,7 +498,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           Wrap(spacing: Gap.md, runSpacing: 4, children: [
             if (dueText != null)
               _meta(overdue ? Icons.event_busy_rounded : Icons.event_rounded, dueText,
-                  overdue ? scheme.ds.dangerInk : scheme.ds.muted),
+                  overdue ? scheme.error : scheme.ds.muted),
             if (nudge != 'off' && nxt != null)
               _meta(Icons.notifications_active_rounded,
                   tr.paLiaNextNudge(DateFormat('d MMM', tr.localeName).format(nxt.toLocal())),

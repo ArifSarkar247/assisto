@@ -208,7 +208,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
         appBar: AppBar(title: Text(tr.miTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.miLoadError),
           action: FilledButton.tonalIcon(

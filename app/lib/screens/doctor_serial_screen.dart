@@ -159,7 +159,7 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
         appBar: AppBar(title: Text(tr.doctorSerialTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.doctorLoadError),
           action: FilledButton.tonalIcon(
@@ -523,7 +523,7 @@ Color _statusColor(BuildContext context, String status) {
     case 'cancelled':
       return scheme.ds.muted;
     case 'missed':
-      return scheme.ds.dangerInk;
+      return scheme.error;
     default:
       return scheme.secondary;
   }

@@ -233,7 +233,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
             style: FilledButton.styleFrom(
-                minimumSize: const Size(48, 48), backgroundColor: cs.ds.dangerInk, foregroundColor: cs.ds.onDangerFill),
+                minimumSize: const Size(48, 48), backgroundColor: cs.error, foregroundColor: cs.onError),
             icon: const Icon(Icons.call_rounded),
             label: Text(notifLocalizeDigits(context, t.trCall999)),
             onPressed: () => launchUrl(trainTelUri('999')),

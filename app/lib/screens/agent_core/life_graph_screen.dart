@@ -161,8 +161,8 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
           FilledButton(
               key: const ValueKey('lg_delete_all_confirm'),
               style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk,
-                  foregroundColor: Theme.of(ctx).colorScheme.ds.onDangerFill,
+                  backgroundColor: Theme.of(ctx).colorScheme.error,
+                  foregroundColor: Theme.of(ctx).colorScheme.onError,
                   minimumSize: const Size(48, 48)),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.lgDeleteAllConfirm)),
@@ -223,7 +223,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
                     key: const ValueKey('lg_delete_all'),
                     value: 'delete_all',
                     child: Text(t.lgDeleteAll,
-                        style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk))),
+                        style: TextStyle(color: Theme.of(context).colorScheme.error))),
               ],
             ),
         ],
@@ -327,7 +327,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
           OutlinedButton.icon(
             key: const ValueKey('lg_delete_all_button'),
             style: OutlinedButton.styleFrom(
-                foregroundColor: s.ds.dangerInk, minimumSize: const Size(48, 48)),
+                foregroundColor: s.error, minimumSize: const Size(48, 48)),
             onPressed: _deleteAll,
             icon: const Icon(Icons.delete_forever_rounded),
             label: Text(t.lgDeleteAll),
@@ -735,7 +735,7 @@ class _FactEditorState extends State<_FactEditor> {
             TextButton.icon(
                 key: const ValueKey('lg_delete_one'),
                 style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.ds.dangerInk,
+                    foregroundColor: Theme.of(context).colorScheme.error,
                     minimumSize: const Size(48, 48)),
                 onPressed: () =>
                     Navigator.pop(context, const _EditResult({}, delete: true)),

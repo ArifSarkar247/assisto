@@ -221,12 +221,12 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final hot = score >= 90;
     final warm = score >= 60;
     final bg = hot
-        ? Theme.of(context).colorScheme.ds.dangerInk
+        ? Theme.of(context).colorScheme.error
         : warm
             ? AssistoTokens.of(context).warning
             : scheme.ds.primarySoft;
     final fg = hot
-        ? scheme.ds.onDangerFill
+        ? scheme.onError
         : warm
             ? AssistoTokens.of(context).onWarning
             : scheme.ds.primaryInk;

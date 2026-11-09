@@ -426,14 +426,14 @@ class _Stat extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 140, maxWidth: 220),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          border: Border.all(color: warn ? scheme.ds.dangerInk : scheme.ds.border),
+          border: Border.all(color: warn ? scheme.error : scheme.ds.border),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xxs),
         Text(value,
             style: AType.titleMedium.copyWith(
-                fontWeight: FontWeight.w800, color: warn ? scheme.ds.dangerInk : scheme.ds.text)),
+                fontWeight: FontWeight.w800, color: warn ? scheme.error : scheme.ds.text)),
       ]),
     );
   }
@@ -507,7 +507,7 @@ class _TimelineTile extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Text(v.amount,
                 style: AType.titleSmall.copyWith(
-                    fontWeight: FontWeight.w800, color: v.bad ? scheme.ds.dangerInk : scheme.ds.text)),
+                    fontWeight: FontWeight.w800, color: v.bad ? scheme.error : scheme.ds.text)),
           ],
         ]),
       ),

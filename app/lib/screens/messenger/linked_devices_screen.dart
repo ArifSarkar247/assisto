@@ -137,7 +137,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
               child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
+                backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.msgrLinkedLogout),
           ),

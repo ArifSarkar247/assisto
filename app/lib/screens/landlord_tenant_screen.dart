@@ -205,7 +205,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.ds.dangerInk,
+                  tint: Theme.of(context).colorScheme.error,
                   title: t.rentLoadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -351,7 +351,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                 style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w800,
                     fontFeatures: AFonts.tabular,
                     color: grand > 0
-                        ? Theme.of(context).colorScheme.ds.dangerInk
+                        ? Theme.of(context).colorScheme.error
                         : AssistoTokens.of(context).success)),
           ]),
         ),
@@ -403,7 +403,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                       style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontFeatures: AFonts.tabular,
-                          color: Theme.of(context).colorScheme.ds.dangerInk)),
+                          color: Theme.of(context).colorScheme.error)),
                 ]),
               ),
             ),

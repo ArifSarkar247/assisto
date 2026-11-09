@@ -639,12 +639,12 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             if (_status.isNotEmpty)
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(_statusIsError ? Icons.error_outline_rounded : Icons.radio_button_checked_rounded,
-                    size: 18, color: _statusIsError ? scheme.ds.dangerInk : AssistoTokens.of(context).success),
+                    size: 18, color: _statusIsError ? scheme.error : AssistoTokens.of(context).success),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_status,
                         style: TextStyle(
-                            color: _statusIsError ? scheme.ds.dangerInk : null, height: 1.35))),
+                            color: _statusIsError ? scheme.error : null, height: 1.35))),
               ]),
             if (_running) ...[
               const SizedBox(height: Gap.sm),
@@ -711,7 +711,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       _infoCard(Icons.privacy_tip_rounded, t.shopModePrivacyTitle, t.shopModePrivacyBody),
       const SizedBox(height: Gap.md),
       TextButton.icon(
-        style: TextButton.styleFrom(foregroundColor: scheme.ds.dangerInk),
+        style: TextButton.styleFrom(foregroundColor: scheme.error),
         onPressed: _unpair,
         icon: const Icon(Icons.logout_rounded),
         label: Text(t.shopModeUnpair),

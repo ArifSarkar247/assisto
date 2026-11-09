@@ -195,7 +195,7 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
         appBar: AppBar(title: Text(t.paBizTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paBizLoadError),
           action: FilledButton.tonalIcon(
@@ -898,7 +898,7 @@ class _AttendeeTile extends StatelessWidget {
         sc = Brand.success;
         break;
       case 'cancelled':
-        sc = scheme.ds.dangerInk;
+        sc = scheme.error;
         break;
       case 'booked':
         sc = Brand.blue;
@@ -994,7 +994,7 @@ class _BudgetTotals extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final varColor = overBudget ? scheme.ds.dangerInk : Brand.success;
+    final varColor = overBudget ? scheme.error : Brand.success;
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(

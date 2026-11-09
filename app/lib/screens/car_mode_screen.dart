@@ -309,7 +309,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
         key: const ValueKey('car-trip'),
         icon: _logging ? Icons.stop_circle_rounded : Icons.route_rounded,
         label: _logging ? tr.vehCarStopTrip : tr.vehCarStartTrip,
-        color: _logging ? scheme.ds.dangerInk : Brand.success,
+        color: _logging ? scheme.error : Brand.success,
         busy: _saving,
         onTap: _saving ? null : (_logging ? _stopTrip : _startTrip),
       ),
@@ -343,7 +343,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Row(children: [
-                    Icon(Icons.fiber_manual_record_rounded, color: scheme.ds.dangerInk),
+                    Icon(Icons.fiber_manual_record_rounded, color: scheme.error),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
@@ -454,7 +454,7 @@ extension on _CarModeScreenState {
                     style: AType.headlineMedium.copyWith(
                         fontWeight: FontWeight.w800,
                         fontFeatures: AFonts.tabular,
-                        color: over ? scheme.ds.dangerInk : scheme.ds.text)),
+                        color: over ? scheme.error : scheme.ds.text)),
               ),
               Chip(
                 key: const ValueKey('car-state'),

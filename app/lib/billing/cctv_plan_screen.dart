@@ -335,7 +335,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           Text(t.cplUsed(wmDigits(_lang(), used), wmDigits(_lang(), n))),
           if (over > 0) ...[
             const SizedBox(height: 6),
-            Text(t.cplOverBy(wmDigits(_lang(), over)), style: TextStyle(color: scheme.ds.dangerInk)),
+            Text(t.cplOverBy(wmDigits(_lang(), over)), style: TextStyle(color: scheme.error)),
           ],
           if (_store)
             TextButton.icon(

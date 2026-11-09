@@ -150,7 +150,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: tr.vehLoadError,
                   action: FilledButton.tonalIcon(
@@ -224,7 +224,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
         leading: Icon(Icons.badge_rounded,
-            color: (days != null && days <= 30) ? scheme.ds.dangerInk : scheme.primary),
+            color: (days != null && days <= 30) ? scheme.error : scheme.primary),
         title: Text('${d['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: sub.isEmpty ? null : Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
         onTap: () => _report(d),
@@ -395,7 +395,7 @@ class _DriverMonthSheetState extends State<_DriverMonthSheet> {
         Text(tr.v100DriverMonth, style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         if (_error)
-          Text(tr.vehLoadError, style: TextStyle(color: scheme.ds.dangerInk))
+          Text(tr.vehLoadError, style: TextStyle(color: scheme.error))
         else if (r == null)
           const Center(child: CircularProgressIndicator())
         else if ((vehNum(tot['km']) ?? 0) <= 0)

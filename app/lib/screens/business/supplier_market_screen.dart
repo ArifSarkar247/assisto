@@ -185,7 +185,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
         appBar: AppBar(title: Text(tr.supTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.supLoadError),
           action: FilledButton.tonalIcon(
@@ -497,7 +497,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                       tooltip: AppLocalizations.of(context).delete,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(Icons.delete_outline_rounded,
-                          size: 18, color: scheme.ds.dangerInk),
+                          size: 18, color: scheme.error),
                       onPressed: () => _delete(s.raw),
                     ),
                   ]),

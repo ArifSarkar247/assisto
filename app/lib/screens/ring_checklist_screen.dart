@@ -205,7 +205,7 @@ class _RowCard extends StatelessWidget {
     final note = AType.bodySmall.copyWith(color: scheme.ds.muted);
     final (IconData icon, Color color, String label) = switch (row.state) {
       RingCheckState.ok => (Icons.check_circle_rounded, scheme.primary, t.ringCheckStatusOk),
-      RingCheckState.missing => (Icons.error_rounded, scheme.ds.dangerInk, t.ringCheckStatusMissing),
+      RingCheckState.missing => (Icons.error_rounded, scheme.error, t.ringCheckStatusMissing),
       RingCheckState.check => (Icons.help_rounded, scheme.tertiary, t.ringCheckStatusCheck),
     };
     // a confirmed by-hand step keeps its "Not done" undo

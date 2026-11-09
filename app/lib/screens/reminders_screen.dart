@@ -256,7 +256,7 @@ class _RemindersScreenState extends State<RemindersScreen>
     today.sort(byNext);
     upcoming.sort(byNext);
     return [
-      _Group('overdue', overdue, Theme.of(context).colorScheme.ds.dangerInk),
+      _Group('overdue', overdue, Theme.of(context).colorScheme.error),
       _Group('today', today, Brand.blue),
       _Group('upcoming', upcoming, Brand.purple),
       _Group('nodate', noDate, Theme.of(context).colorScheme.ds.muted),
@@ -503,7 +503,7 @@ class _ReminderCard extends StatelessWidget {
                             icon: Icons.schedule_rounded,
                             label: _whenLabel(context, next, d),
                             tint: group == 'overdue'
-                                ? Theme.of(context).colorScheme.ds.dangerInk
+                                ? Theme.of(context).colorScheme.error
                                 : Theme.of(context).colorScheme.ds.muted,
                           ),
                         if (rule != null)

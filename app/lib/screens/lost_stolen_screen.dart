@@ -342,7 +342,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(error!,
-                      style: TextStyle(color: Theme.of(ctx).colorScheme.ds.dangerInk)),
+                      style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
                 ),
             ],
           ),

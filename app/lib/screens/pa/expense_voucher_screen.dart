@@ -216,7 +216,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
         appBar: AppBar(title: Text(t.paVoucherTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paVoucherLoadError),
           action: FilledButton.tonalIcon(

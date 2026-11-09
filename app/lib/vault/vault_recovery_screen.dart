@@ -316,7 +316,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
                   liveRegion: true,
                   child: Text(_error!,
                       style: AType.bodyMedium
-                          .copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
+                          .copyWith(color: Theme.of(context).colorScheme.error)),
                 ),
               ],
               if (_busy) ...[

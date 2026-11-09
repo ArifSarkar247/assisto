@@ -528,7 +528,7 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
         children.add(ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(_hasServerRecovery ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-              color: _hasServerRecovery ? Colors.green.shade700 : Theme.of(context).colorScheme.ds.dangerInk),
+              color: _hasServerRecovery ? Colors.green.shade700 : Theme.of(context).colorScheme.error),
           title: Text(_hasServerRecovery ? t.vaultE2eRecoveryOnServer : t.vaultE2eRecoveryMissing),
         ));
         children.add(_bigButton(const Key('e2e_new_code'), Icons.key_rounded, t.vaultE2eNewCode,

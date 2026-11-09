@@ -274,12 +274,12 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                             _error = null;
                             _confirming = true;
                           }),
-                  icon: Icon(Icons.delete_forever_rounded, color: scheme.ds.dangerInk),
+                  icon: Icon(Icons.delete_forever_rounded, color: scheme.error),
                   label: Text(t.dlGraceFresh,
-                      style: TextStyle(color: scheme.ds.dangerInk)),
+                      style: TextStyle(color: scheme.error)),
                   style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
-                      side: BorderSide(color: scheme.ds.dangerInk)),
+                      side: BorderSide(color: scheme.error)),
                 ),
               ],
             ),
@@ -305,7 +305,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
       key: const Key('dl-grace-confirm'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(Icons.delete_forever_rounded, scheme.ds.dangerInk, t.dlGraceFreshTitle,
+        _header(Icons.delete_forever_rounded, scheme.error, t.dlGraceFreshTitle,
             t.dlGraceFreshBody),
         const SizedBox(height: Gap.lg),
         Row(
@@ -353,8 +353,8 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
         FilledButton(
           key: const Key('dl-grace-fresh-go'),
           style: FilledButton.styleFrom(
-              backgroundColor: scheme.ds.dangerInk,
-              foregroundColor: scheme.ds.onDangerFill,
+              backgroundColor: scheme.error,
+              foregroundColor: scheme.onError,
               minimumSize: const Size.fromHeight(52)),
           onPressed: _busy || !_canDelete ? null : _startFresh,
           child: _busy
@@ -362,7 +362,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                   height: 18,
                   width: 18,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: scheme.ds.onDangerFill))
+                      strokeWidth: 2, color: scheme.onError))
               : Text(t.dlGraceFreshButton, textAlign: TextAlign.center),
         ),
         const SizedBox(height: Gap.sm),

@@ -126,7 +126,7 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -165,7 +165,7 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paBoardLoadError),
                   action: FilledButton.tonalIcon(
@@ -700,7 +700,7 @@ class _PackEditorState extends State<_PackEditor> {
               problems.contains('empty_title')
                   ? tr.paBoardNeedTitle
                   : tr.paBoardNeedAgenda,
-              style: TextStyle(color: scheme.ds.dangerInk, fontSize: 12.5),
+              style: TextStyle(color: scheme.error, fontSize: 12.5),
             ),
           ],
         ],
@@ -785,7 +785,7 @@ class _SectionEditor extends StatelessWidget {
             Expanded(child: builder(rows[i], onChanged)),
             IconButton(
               tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-              icon: Icon(Icons.remove_circle_outline_rounded, color: scheme.ds.dangerInk),
+              icon: Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
               onPressed: () {
                 rows.removeAt(i);
                 onChanged();

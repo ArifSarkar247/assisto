@@ -182,7 +182,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           : _error != null
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.loadFailed,
                   action: FilledButton.tonalIcon(
                       onPressed: _load,
@@ -283,7 +283,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 const SizedBox(height: Gap.xxs),
                 Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
                     style: TextStyle(fontFeatures: AFonts.tabular,
-                        color: oos ? scheme.ds.dangerInk : scheme.primary,
+                        color: oos ? scheme.error : scheme.primary,
                         fontWeight: FontWeight.w800)),
               ]),
         ),
@@ -359,7 +359,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     poishaOf(_cart['subtotal'] ?? _cart['total'])),
                 if (poishaOf(_cart['discount']) > 0)
                   MoneyRow(t.biz_discount, poishaOf(_cart['discount']),
-                      valueColor: Theme.of(context).colorScheme.ds.dangerInk),
+                      valueColor: Theme.of(context).colorScheme.error),
                 const Divider(),
                 MoneyRow(t.biz_total, poishaOf(_cart['total']), strong: true),
                 const SizedBox(height: Gap.lg),
@@ -412,7 +412,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).delete,
-            icon: Icon(Icons.delete_outline_rounded, color: scheme.ds.dangerInk),
+            icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
             onPressed: () async {
               await _removeLine(line);
               after();
@@ -543,7 +543,7 @@ class _PriceDialogState extends State<_PriceDialog> {
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
           Text(_err!,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
         ],
       ]),
       actions: [
@@ -721,7 +721,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.block_rounded, color: Theme.of(ctx).colorScheme.ds.dangerInk),
+            leading: Icon(Icons.block_rounded, color: Theme.of(ctx).colorScheme.error),
             title: Text(t.shopVoidTitle),
             onTap: () {
               Navigator.pop(ctx);
@@ -854,7 +854,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 if (_method != 'due')
                   MoneyRow(t.biz_change, _change, valueColor: AssistoTokens.of(context).success),
                 if (_method == 'due' || _due > 0)
-                  MoneyRow(t.biz_due, _due, valueColor: Theme.of(context).colorScheme.ds.dangerInk),
+                  MoneyRow(t.biz_due, _due, valueColor: Theme.of(context).colorScheme.error),
               ]),
             ),
             const SizedBox(height: Gap.xl),

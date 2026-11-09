@@ -357,7 +357,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         appBar: AppBar(title: Text(t.cvTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.cvLoadError),
           action: FilledButton.tonalIcon(

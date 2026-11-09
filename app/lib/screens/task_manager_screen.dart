@@ -364,7 +364,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk),
+                backgroundColor: Theme.of(ctx).colorScheme.error),
             child: Text(tmStr(ctx, 'tmDelete')),
           ),
         ],
@@ -1768,7 +1768,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(_repeatError!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
             ),
           const SizedBox(height: Gap.md),
           // p2plan: time needed (the daily planner uses it)

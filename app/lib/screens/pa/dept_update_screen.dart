@@ -92,7 +92,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -194,7 +194,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paDeptLoadError),
                   action: FilledButton.tonalIcon(
@@ -308,7 +308,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
 
   Widget _chip(ColorScheme scheme, IconData icon, String label,
       {bool danger = false}) {
-    final c = danger ? scheme.ds.dangerInk : scheme.primary;
+    final c = danger ? scheme.error : scheme.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 6),
       decoration: BoxDecoration(
@@ -361,12 +361,12 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
                 decoration: BoxDecoration(
-                  color: scheme.ds.dangerInk.withValues(alpha: 0.12),
+                  color: scheme.error.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Text(tr.paDeptBlockedBadge,
                     style: TextStyle(
-                        color: scheme.ds.dangerInk,
+                        color: scheme.error,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700)),
               ),
@@ -387,7 +387,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           ],
           if (b.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
-            _bulletBlock(scheme, tr.paDeptSecBlockers, b, scheme.ds.dangerInk),
+            _bulletBlock(scheme, tr.paDeptSecBlockers, b, scheme.error),
           ],
           if (metrics.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -656,7 +656,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                   ),
                   IconButton(
                     icon:
-                        Icon(Icons.remove_circle_outline_rounded, color: scheme.ds.dangerInk),
+                        Icon(Icons.remove_circle_outline_rounded, color: scheme.error),
                     onPressed: () => setState(() => _metrics.removeAt(i)),
                   ),
                 ]),
@@ -696,7 +696,7 @@ class _DeptEditorState extends State<_DeptEditor> {
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paDeptNeedName,
-                style: TextStyle(color: scheme.ds.dangerInk, fontSize: 12.5)),
+                style: TextStyle(color: scheme.error, fontSize: 12.5)),
           ],
         ],
       ),

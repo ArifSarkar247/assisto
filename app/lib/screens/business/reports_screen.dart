@@ -128,7 +128,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (_error != null) {
       return StateMessage(
         icon: Icons.cloud_off_rounded,
-        tint: scheme.ds.dangerInk,
+        tint: scheme.error,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
@@ -195,7 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         SellCard(
           child: MoneyRow(t.biz_report_net_profit, net,
               strong: true,
-              valueColor: net >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.ds.dangerInk),
+              valueColor: net >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error),
         ),
       ],
     ]);

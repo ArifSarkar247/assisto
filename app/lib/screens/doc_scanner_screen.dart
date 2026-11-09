@@ -338,7 +338,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.dsLoadError),
                   action: FilledButton.tonalIcon(

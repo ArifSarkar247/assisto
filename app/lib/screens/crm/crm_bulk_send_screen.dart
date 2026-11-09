@@ -198,7 +198,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               failKindOf(_fail!) == FailKind.network
                   ? t.c100Offline
                   : honestFailText(t, _fail, otherwise: t.c100PreviewFailed),
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.dangerInk)),
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
         ),
       FilledButton.icon(
         onPressed: _busy ? null : _build,
@@ -257,11 +257,11 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
             const SizedBox(height: Gap.xs),
             Text(k.detail,
                 style: AType.bodySmall
-                    .copyWith(color: k.st == _St.failed ? scheme.ds.dangerInk : scheme.primary)),
+                    .copyWith(color: k.st == _St.failed ? scheme.error : scheme.primary)),
           ],
           if (!phoneOk) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
+            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.error)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [

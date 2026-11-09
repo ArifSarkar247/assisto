@@ -288,12 +288,12 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.error_outline_rounded,
-                              size: 18, color: scheme.ds.dangerInk),
+                              size: 18, color: scheme.error),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(_error!,
                                 key: const Key('email-error'),
-                                style: TextStyle(color: scheme.ds.dangerInk)),
+                                style: TextStyle(color: scheme.error)),
                           ),
                         ],
                       ),

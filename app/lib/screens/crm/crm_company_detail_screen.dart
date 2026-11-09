@@ -278,7 +278,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           final tint = state == 'won'
               ? AssistoTokens.of(context).success
               : state == 'lost'
-                  ? Theme.of(context).colorScheme.ds.dangerInk
+                  ? Theme.of(context).colorScheme.error
                   : scheme.primary;
           return Card(
             margin: EdgeInsets.zero,

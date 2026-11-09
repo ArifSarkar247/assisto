@@ -335,7 +335,7 @@ class _LoadErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.ds.dangerInk),
+          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
           const SizedBox(height: Gap.md),
           Text(AppLocalizations.of(context).pfLoadError,
               textAlign: TextAlign.center,

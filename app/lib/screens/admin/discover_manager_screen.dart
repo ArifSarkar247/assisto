@@ -816,7 +816,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Text(_error!, style: TextStyle(color: scheme.ds.dangerInk)),
+                child: Text(_error!, style: TextStyle(color: scheme.error)),
               ),
             FilledButton.icon(
               onPressed: _saving ? null : _save,

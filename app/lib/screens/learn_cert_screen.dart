@@ -163,7 +163,7 @@ class _LearnCertClaimSheetState extends State<LearnCertClaimSheet> {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(_error!,
-                  style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
+                  style: AType.bodyMedium.copyWith(color: scheme.error)),
             ),
           _Disclaimer(text: t.lcDisclaimer),
           const SizedBox(height: Gap.lg),
@@ -461,7 +461,7 @@ class _LearnCertDetailScreenState extends State<LearnCertDetailScreen> {
             const SizedBox(height: Gap.lg),
             TextButton.icon(
               style: TextButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48), foregroundColor: scheme.ds.dangerInk),
+                  minimumSize: const Size.fromHeight(48), foregroundColor: scheme.error),
               onPressed: _busy ? null : _revoke,
               icon: const Icon(Icons.block_rounded),
               label: Text(t.lcRevoke),
@@ -584,7 +584,7 @@ class _LearnCertScreenState extends State<LearnCertScreen> {
         trailing: Text(valid ? t.lcValid : t.lcRevoked,
             style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: valid ? AssistoTokens.of(context).success : scheme.ds.dangerInk)),
+                color: valid ? AssistoTokens.of(context).success : scheme.error)),
         onTap: () => _open(c),
       ),
     );

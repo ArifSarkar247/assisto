@@ -5,6 +5,7 @@
 # usage: python3 owner_actions/design/ds2_tokenize.py app/lib/<file>.dart
 import re, sys, os
 
+# error / onError stay theme roles (fill or text — the theme picks AA-safe values)
 MAP = {
     'onSurfaceVariant': 'muted',
     'onSurface': 'text',
@@ -15,8 +16,6 @@ MAP = {
     'surfaceContainerLowest': 'card',
     'outlineVariant': 'border',
     'outline': 'muted',  # often used for hint text / icons — muted passes AA
-    'error': 'dangerInk',
-    'onError': 'onDangerFill',
     'errorContainer': 'dangerBg',
     'onErrorContainer': 'dangerInk',
     'primaryContainer': 'primarySoft',

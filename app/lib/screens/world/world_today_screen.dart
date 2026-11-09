@@ -254,7 +254,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -479,7 +479,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xxs),
                 child: Text(t.uwFxOfficialStale,
-                    style: small?.copyWith(color: scheme.ds.dangerInk)),
+                    style: small?.copyWith(color: scheme.error)),
               ),
             UwSourceLine(
                 source: '${off['source']}', url: '${off['source_url'] ?? ''}'),

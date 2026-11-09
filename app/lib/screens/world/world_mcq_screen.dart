@@ -107,7 +107,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
                   action: FilledButton.tonalIcon(
@@ -269,7 +269,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                 Icon(x['correct'] == true ? Icons.check_circle_rounded : Icons.cancel_rounded,
                     color: x['correct'] == true
                         ? Colors.green.shade600
-                        : scheme.ds.dangerInk),
+                        : scheme.error),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text('${x['q']}',

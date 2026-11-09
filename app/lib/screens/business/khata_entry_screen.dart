@@ -83,7 +83,7 @@ class _KhataEntryScreenState extends State<KhataEntryScreen> {
       body: _error
           ? StateMessage(
               icon: Icons.cloud_off_rounded,
-              tint: scheme.ds.dangerInk,
+              tint: scheme.error,
               title: t.loadFailed,
               message: honestFailText(t, _cause),
               action: FilledButton.tonalIcon(

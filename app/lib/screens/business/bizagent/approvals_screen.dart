@@ -224,7 +224,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
           BizNote(
             text: bd(context, t.baNumbersNotInCatalog(problems.map((p) => '${p['value']}').join(', '))),
             icon: Icons.error_outline_rounded,
-            tint: Theme.of(context).colorScheme.ds.dangerInk,
+            tint: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: Gap.md),
         ],

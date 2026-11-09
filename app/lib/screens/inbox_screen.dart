@@ -479,7 +479,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.ds.dangerInk),
+          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.error),
           const SizedBox(height: Gap.md),
           Text(tr.inboxLoadFailed,
               textAlign: TextAlign.center,

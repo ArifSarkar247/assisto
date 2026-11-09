@@ -171,7 +171,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         appBar: AppBar(title: Text(tr.truthSpendTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.spendLoadError),
           action: FilledButton.tonalIcon(
@@ -332,7 +332,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                             ? Icons.trending_down_rounded
                             : Icons.trending_flat_rounded),
                     size: 18,
-                    color: r.totalUp == true ? scheme.ds.dangerInk : scheme.primary),
+                    color: r.totalUp == true ? scheme.error : scheme.primary),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -358,7 +358,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(over ? Icons.warning_amber_rounded : Icons.lightbulb_outline_rounded,
-              size: 20, color: over ? scheme.ds.dangerInk : scheme.primary),
+              size: 20, color: over ? scheme.error : scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(notifLocalizeDigits(context, _obsText(tr, o)),
@@ -404,7 +404,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
               value: (c.sharePct / 100).clamp(0.0, 1.0),
               minHeight: 8,
               backgroundColor: scheme.ds.cardHighest,
-              color: c.overBudget ? scheme.ds.dangerInk : scheme.primary,
+              color: c.overBudget ? scheme.error : scheme.primary,
             ),
           ),
           const SizedBox(height: 6),
@@ -416,12 +416,12 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                   c.overBudget
                       ? tr.spendOverBudgetChip(c.overByDisplay ?? '')
                       : tr.spendBudgetChip(c.budgetDisplay!),
-                  c.overBudget ? scheme.ds.dangerInk : scheme.ds.muted),
+                  c.overBudget ? scheme.error : scheme.ds.muted),
             if (c.deltaDisplay != null)
               _chip(
                   context,
                   tr.spendChangeChip(c.deltaDisplay!, c.deltaPct.abs()),
-                  c.up == true ? scheme.ds.dangerInk : scheme.primary),
+                  c.up == true ? scheme.error : scheme.primary),
           ]),
         ]),
       ),

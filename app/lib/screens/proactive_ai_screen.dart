@@ -295,7 +295,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
         appBar: AppBar(title: Text(tr.proTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.proLoadError),
           action: FilledButton.tonalIcon(

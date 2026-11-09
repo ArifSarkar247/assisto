@@ -497,8 +497,8 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk,
-                  foregroundColor: scheme.ds.onDangerFill),
+              style: FilledButton.styleFrom(backgroundColor: scheme.error,
+                  foregroundColor: scheme.onError),
               onPressed: () => _end(),
               icon: const Icon(Icons.stop_circle_rounded),
               label: Text(t.shopLiveStop),

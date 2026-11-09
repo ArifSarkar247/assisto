@@ -178,7 +178,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 20),
+        Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

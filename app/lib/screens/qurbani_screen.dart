@@ -128,7 +128,7 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
         appBar: AppBar(title: Text(tr.qurbaniTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.qurbaniLoadError),
           action: FilledButton.tonalIcon(

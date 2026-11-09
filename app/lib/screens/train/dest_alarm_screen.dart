@@ -579,8 +579,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           FilledButton.icon(
             style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(120),
-                backgroundColor: cs.ds.dangerInk,
-                foregroundColor: cs.ds.onDangerFill,
+                backgroundColor: cs.error,
+                foregroundColor: cs.onError,
                 textStyle: AType.headlineSmall),
             icon: const Icon(Icons.check_circle_rounded, size: 36),
             label: Text(t.trImAwake),
@@ -633,7 +633,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           Text(_d(t.sjaSpeedNow((s.speedMps * 3.6).round().toString())), style: AType.bodyMedium),
         if (!metro) Text(t.sjaGpsNote, style: AType.bodySmall),
         if (!metro && s.locationOff)
-          Text(t.trAlarmLocationOff, style: AType.bodyMedium.copyWith(color: cs.ds.dangerInk)),
+          Text(t.trAlarmLocationOff, style: AType.bodyMedium.copyWith(color: cs.error)),
         if (!metro) Text(_d(t.trAlarmInterval('${s.interval.inSeconds}')), style: AType.bodySmall),
         if (!s.serviceOn)
           Text(t.trAlarmKeepOpen, style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
@@ -641,8 +641,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         FilledButton.icon(
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(56),
-              backgroundColor: cs.ds.dangerInk,
-              foregroundColor: cs.ds.onDangerFill),
+              backgroundColor: cs.error,
+              foregroundColor: cs.onError),
           icon: const Icon(Icons.alarm_off_rounded),
           label: Text(t.trAlarmStop),
           onPressed: () => _c.stop(),
@@ -901,7 +901,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       const SizedBox(height: Gap.sm),
       dd(t.trMetroTo, _metroTo, (x) => _metroTo = x),
       if (_metroFrom == _metroTo)
-        Text(t.trMetroSame, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
+        Text(t.trMetroSame, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.error)),
     ];
   }
 

@@ -351,15 +351,15 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
 
                 // Block / Report
                 ListTile(
-                  leading: Icon(Icons.block_rounded, color: scheme.ds.dangerInk),
+                  leading: Icon(Icons.block_rounded, color: scheme.error),
                   title: Text(_blocked ? _t.circleUnblock : _t.circleBlock,
-                      style: TextStyle(color: scheme.ds.dangerInk)),
+                      style: TextStyle(color: scheme.error)),
                   onTap: _toggleBlock,
                 ),
                 ListTile(
-                  leading: Icon(Icons.flag_rounded, color: scheme.ds.dangerInk),
+                  leading: Icon(Icons.flag_rounded, color: scheme.error),
                   title: Text(_t.circleReport,
-                      style: TextStyle(color: scheme.ds.dangerInk)),
+                      style: TextStyle(color: scheme.error)),
                   onTap: _report,
                 ),
                 const SizedBox(height: Gap.xl),

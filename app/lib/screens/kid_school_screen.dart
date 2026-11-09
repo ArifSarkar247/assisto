@@ -134,7 +134,7 @@ class _KidSchoolScreenState extends State<KidSchoolScreen> {
         appBar: AppBar(title: Text(tr.kidTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.ds.dangerInk,
+          tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.kidLoadError),
           action: FilledButton.tonalIcon(
@@ -290,7 +290,7 @@ class _ChildCard extends StatelessWidget {
                     ]),
               ),
               if (overdue > 0)
-                _pill(context, tr.kidOverdueShort(overdue), scheme.ds.dangerInk)
+                _pill(context, tr.kidOverdueShort(overdue), scheme.error)
               else if (open > 0)
                 _pill(context, tr.kidOpenShort(open), scheme.primary),
             ]),
@@ -315,7 +315,7 @@ class _ChildCard extends StatelessWidget {
                 Text(_dueLabel(tr, next),
                     style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
                         color: (next['state'] == 'overdue')
-                            ? scheme.ds.dangerInk
+                            ? scheme.error
                             : scheme.primary)),
               ]),
             ],
@@ -528,8 +528,8 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
               child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk,
-                foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -570,7 +570,7 @@ class _NoticeCard extends StatelessWidget {
     final title = (status['title'] ?? '').toString();
     final amount = status['amount'];
     final c = state == 'overdue'
-        ? scheme.ds.dangerInk
+        ? scheme.error
         : (state == 'due_today' ? scheme.primary : scheme.ds.muted);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),

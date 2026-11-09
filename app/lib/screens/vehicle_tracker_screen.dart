@@ -234,8 +234,8 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           FilledButton(
             style: cut
                 ? FilledButton.styleFrom(
-                    backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk,
-                    foregroundColor: Theme.of(ctx).colorScheme.ds.onDangerFill)
+                    backgroundColor: Theme.of(ctx).colorScheme.error,
+                    foregroundColor: Theme.of(ctx).colorScheme.onError)
                 : null,
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(cut ? tr.vehCutCta : tr.vehRestoreCta),
@@ -371,7 +371,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: tr.vehLoadError,
                   action: FilledButton.tonalIcon(
@@ -754,7 +754,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           child: Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             chip(Brand.blue, tr.v100LegendCalm),
             chip(Brand.warning, tr.v100LegendNear),
-            chip(scheme.ds.dangerInk, tr.v100LegendOver(vehNumStr(context, lim))),
+            chip(scheme.error, tr.v100LegendOver(vehNumStr(context, lim))),
           ]),
         ),
       ),
@@ -816,7 +816,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            Icon(Icons.power_settings_new_rounded, color: cut ? scheme.ds.dangerInk : scheme.primary),
+            Icon(Icons.power_settings_new_rounded, color: cut ? scheme.error : scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.vehEngineTitle, style: Theme.of(context).textTheme.titleMedium),
@@ -828,7 +828,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 ? tr.vehRelayUnknown
                 : (cut ? tr.vehRelayCut : tr.vehRelayNormal),
             style: TextStyle(
-                fontWeight: FontWeight.w600, color: cut ? scheme.ds.dangerInk : Brand.success),
+                fontWeight: FontWeight.w600, color: cut ? scheme.error : Brand.success),
           ),
           const SizedBox(height: Gap.xs),
           Text(tr.vehEngineRules,
@@ -852,8 +852,8 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 key: const ValueKey('veh-cut'),
                 style: FilledButton.styleFrom(
                     minimumSize: const Size(48, 48),
-                    backgroundColor: scheme.ds.dangerInk,
-                    foregroundColor: scheme.ds.onDangerFill),
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError),
                 onPressed: (_sending || pending) ? null : () => _command('engine_cut'),
                 icon: const Icon(Icons.block_rounded),
                 label: Text(tr.vehCutCta),
@@ -882,7 +882,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       : ('${c['state']}' == 'failed' ? Icons.error_outline_rounded : Icons.schedule_rounded),
                   color: '${c['state']}' == 'acked'
                       ? Brand.success
-                      : ('${c['state']}' == 'failed' ? scheme.ds.dangerInk : Brand.warning),
+                      : ('${c['state']}' == 'failed' ? scheme.error : Brand.warning),
                 ),
                 title: Text(
                   '${'${c['kind']}' == 'engine_cut' ? tr.vehCutCta : tr.vehRestoreCta} · ${_cmdState(tr, c)}',
@@ -990,7 +990,7 @@ class _CutFinalDialogState extends State<_CutFinalDialog> {
     final tr = widget.tr;
     final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
-      icon: Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
+      icon: Icon(Icons.warning_amber_rounded, color: scheme.error),
       title: Text(tr.v100CutFinalTitle),
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
@@ -1013,8 +1013,8 @@ class _CutFinalDialogState extends State<_CutFinalDialog> {
           key: const ValueKey('veh-cut-final'),
           style: FilledButton.styleFrom(
               minimumSize: const Size(48, 48),
-              backgroundColor: scheme.ds.dangerInk,
-              foregroundColor: scheme.ds.onDangerFill),
+              backgroundColor: scheme.error,
+              foregroundColor: scheme.onError),
           onPressed: () => Navigator.pop(context, true),
           child: Text(tr.v100CutFinalCta),
         ),

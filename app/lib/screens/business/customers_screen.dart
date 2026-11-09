@@ -111,7 +111,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     if (_error != null) {
       return StateMessage(
         icon: Icons.cloud_off_rounded,
-        tint: scheme.ds.dangerInk,
+        tint: scheme.error,
         title: t.loadFailed,
         message: _error is ApiException ? (_error as ApiException).message : null,
         action: FilledButton.tonalIcon(
@@ -186,7 +186,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                     Text(dues.takaIn(context),
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.ds.dangerInk, fontWeight: FontWeight.w800)),
+                            color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w800)),
                   ]),
                 IconButton(
                   tooltip: AppLocalizations.of(context).edit,
@@ -416,7 +416,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
           if (dues > 0)
             SellCard(
               child: MoneyRow(t.biz_customer_dues, dues,
-                  strong: true, valueColor: Theme.of(context).colorScheme.ds.dangerInk),
+                  strong: true, valueColor: Theme.of(context).colorScheme.error),
             ),
           const SizedBox(height: Gap.md),
           if (_loading)
@@ -424,7 +424,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
           else if (_error != null)
             StateMessage(
                 icon: Icons.cloud_off_rounded,
-                tint: scheme.ds.dangerInk,
+                tint: scheme.error,
                 title: t.loadFailed)
           else if (sales.isEmpty)
             StateMessage(

@@ -111,8 +111,8 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             key: const Key('cga-remove-confirm'),
             style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
-                backgroundColor: Theme.of(ctx).colorScheme.ds.dangerInk,
-                foregroundColor: Theme.of(ctx).colorScheme.ds.onDangerFill),
+                backgroundColor: Theme.of(ctx).colorScheme.error,
+                foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.cgaRemoveYes),
           ),
@@ -342,7 +342,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
               child: OutlinedButton.icon(
                 key: ValueKey('cga-remove-$uid'),
                 style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(48, 48), foregroundColor: scheme.ds.dangerInk),
+                    minimumSize: const Size(48, 48), foregroundColor: scheme.error),
                 onPressed: _busy != null || uid == null ? null : () => _remove(g),
                 icon: _busy == uid
                     ? const SizedBox(

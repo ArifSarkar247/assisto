@@ -251,7 +251,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
             style: danger
-                ? FilledButton.styleFrom(backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill)
+                ? FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError)
                 : null,
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(confirmLabel),
@@ -297,7 +297,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVisLoadError),
                   action: FilledButton.tonalIcon(
@@ -438,7 +438,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
       case _stApproved:
         return Brand.success;
       case _stDeclined:
-        return scheme.ds.dangerInk;
+        return scheme.error;
       case _stExpired:
         return Brand.warning;
       case _stSuggested:
@@ -520,7 +520,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                   onPressed: () => _triage(r, 'decline', tr),
                   icon: const Icon(Icons.close_rounded, size: 18),
                   label: Text(tr.paVisDecline, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  style: OutlinedButton.styleFrom(foregroundColor: scheme.ds.dangerInk),
+                  style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
                 ),
               ),
               const SizedBox(width: Gap.sm),

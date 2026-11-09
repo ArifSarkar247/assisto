@@ -201,7 +201,7 @@ class _GuideScreenState extends State<GuideScreen> {
           : (_error || _data == null)
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: _needNet ? tr.lifebarGuideNeedNetTitle : tr.loadFailed,
                   message: _needNet ? tr.lifebarGuideNeedNetBody : tr.guideErrorBody,
                   action: FilledButton.tonalIcon(

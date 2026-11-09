@@ -183,7 +183,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
-                backgroundColor: scheme.ds.dangerInk, foregroundColor: scheme.ds.onDangerFill),
+                backgroundColor: scheme.error, foregroundColor: scheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(tr.delete),
           ),
@@ -257,7 +257,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           : _error
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.ds.dangerInk,
+                  tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paCeLoadError),
                   action: FilledButton.tonalIcon(
@@ -376,7 +376,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   Color _priorityColor(String p, ColorScheme scheme) {
     switch (p) {
       case _prHigh:
-        return scheme.ds.dangerInk;
+        return scheme.error;
       case _prLow:
         return scheme.ds.muted;
       default:
