@@ -179,3 +179,27 @@ def suggested_refund(order, now=None):
     u["credits_share"] = float(round(cshare, 4))
     u["days_share"] = float(round(dshare, 4))
     return amt, u
+
+
+def receipt(order, lang="bn"):
+    """plansprep: the receipt the app shows for one order — every number from
+    the order itself (what was charged and granted at that time) and the one
+    plan book for names; never a retyped price or credit count."""
+    from ..i18n import pick
+    from ..logic import pricing as P
+    from ..models import CreditLot
+    meta = P._PLAN_META.get(order.plan or "") or {}
+    if order.kind == "sub" and meta:
+        title = pick(lang, meta["name_bn"], meta["name_en"])
+    elif order.sku.startswith("cctvx_"):
+        title = pick(lang, "CCTV বাড়তি প্যাক", "CCTV extra pack")
+    else:
+        title = pick(lang, "ক্রেডিট প্যাক", "Credit pack")
+    lot = (CreditLot.objects.filter(order=order).exclude(expires_at__isnull=True)
+           .order_by("-expires_at").first())
+    valid = lot.expires_at.isoformat() if lot and lot.expires_at and lot.expires_at.year < 9999 else None
+    return {"title": title, "price": str(order.price), "currency": order.currency,
+            "credits": int(order.credits_planned or 0), "months": int(order.months or 0),
+            "period_end": order.period_end.isoformat() if order.period_end else None,
+            "credits_valid_until": valid, "status": order.status,
+            "refunded": str(order.refunded_amount or 0)}
