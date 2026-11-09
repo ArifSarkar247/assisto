@@ -337,6 +337,9 @@ def near_pois(grid, lat, lon, r, keep=None, limit=8):
     for d, p in grid.near(lat, lon, r):
         if p[4] in NEAR_SKIP or not p[2] or p[2].lower() in seen:
             continue
+        low = p[2].lower()
+        if "metro station" in low or "metro rail" in low or "মেট্রো" in p[2]:
+            continue                      # the station itself is not "near the exit"
         if keep and not keep(p[0], p[1]):
             continue
         seen.add(p[2].lower())
