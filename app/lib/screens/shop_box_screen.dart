@@ -13,6 +13,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/cv_empty.dart';
 import '../cctvx/cctv_evidence_source.dart';
 import 'credits_screen.dart';
+import '../plans_v2/buy_inside.dart';
 import 'watchman/cctv_recording_screen.dart';
 import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
@@ -900,6 +901,10 @@ class _CamerasTabState extends State<_CamerasTab> {
     final detail = (r['detail'] ?? '').toString();
     final needed = (r['credits_needed'] ?? 0) is int ? r['credits_needed'] as int : 0;
     final balance = (r['balance'] ?? 0) is int ? r['balance'] as int : 0;
+    // buyinside: more cameras come with the CCTV plan — buy it right here
+    // (never for "more than 10", which is "contact us")
+    final planOffer = '${r['code'] ?? ''}' != 'cctv_contact_us';
+    var wantPlan = false;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -920,6 +925,15 @@ class _CamerasTabState extends State<_CamerasTab> {
           TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(t.close)),
+          if (planOffer)
+            TextButton(
+              key: const Key('bi-shopbox-plan'),
+              onPressed: () {
+                wantPlan = true;
+                Navigator.pop(ctx);
+              },
+              child: Text(t.biGetCctvPlan),
+            ),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -931,6 +945,10 @@ class _CamerasTabState extends State<_CamerasTab> {
         ],
       ),
     );
+    if (wantPlan && mounted) {
+      final ok = await BuyInside.open(context, 'cctv_camera_cap');
+      if (ok && mounted) await _load();
+    }
   }
 
   @override

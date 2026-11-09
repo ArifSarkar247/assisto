@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
@@ -788,6 +789,22 @@ class _ScenarioChatPageState extends State<ScenarioChatPage> {
         'message': msg,
       });
       if (!mounted) return;
+      if ('${r['ai_state']}' == 'credits') {
+        // buyinside: out of credits — keep the message (back in the box),
+        // open the credits sheet here, and send it again once after buying
+        setState(() {
+          _turns.removeLast();
+          _input.text = msg;
+          _state = 'credits';
+          _busy = false;
+        });
+        if (await BuyInside.open(context, 'learn_roleplay', draftKept: true) &&
+            mounted) {
+          setState(() => _state = null);
+          await _send();
+        }
+        return;
+      }
       setState(() {
         final st = '${r['ai_state']}';
         _state = st == 'used' ? null : st;

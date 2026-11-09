@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
+import '../../plans_v2/buy_inside.dart';
 import 'crm_common.dart';
 
 /// Proposal screen (CRM_SPEC): build from requirement sheet + the configured
@@ -61,14 +63,24 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     );
     if (go != true) return;
     try {
-      final r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
+      var r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
       if (!mounted) return;
+      // buyinside: out of credits -> the credits sheet here; the typed
+      // requirements are kept and the draft is made once after buying
+      if (r['ok'] != true &&
+          isOutOfCreditsBody(r) &&
+          await BuyInside.open(context, 'crm_proposal', draftKept: true) &&
+          mounted) {
+        r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
+        if (!mounted) return;
+      }
       if (r['ok'] != true) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((r['message'] ?? t.crmAiLocked).toString())));
       } else {
         _load();
       }
     } catch (e) {
+      if (mounted && await BuyInside.handle(context, e, 'crm_proposal')) return;
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }

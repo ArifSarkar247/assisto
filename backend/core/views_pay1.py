@@ -62,6 +62,8 @@ class PaymentsCheckoutView(APIView):
                            flavour=_flavour(d.get("flavour")), ip=_ip(request), lang=lang)
         except S.PayError as e:
             return _err(e.reason, lang, e.status)
+        from . import buy_origin  # buyinside: where the purchase started
+        buy_origin.record(d.get("origin"), sku, "started")
         return Response({"ok": True, "order": _order_json(o)}, status=status.HTTP_201_CREATED)
 
 
@@ -86,6 +88,8 @@ class PlayPrecheckView(APIView):
         from .models import PlanPeriod
         lang = req_lang(request)
         sku = str((request.data or {}).get("sku", ""))[:32]
+        from . import buy_origin  # buyinside: where the purchase started
+        buy_origin.record((request.data or {}).get("origin"), sku, "started")
         d = catalog.describe(sku)
         pc = catalog.pay_cfg()
         if not d:
@@ -132,6 +136,9 @@ class PlayVerifyView(APIView):
             log.info("play verify refused: %s", e.reason)
             return _err(e.reason, lang, e.status if e.status in (400, 403, 409, 503) else 502)
         r.pop("user", None)
+        if r.get("ok") and (r.get("entitled") or r.get("state") == "granted"):
+            from . import buy_origin  # buyinside: where the purchase started
+            buy_origin.record(d.get("origin"), r.get("sku") or product_id, "completed")
         return Response({"ok": bool(r.get("ok")), **r, "entitlement": E.summary(request.user)})
 
 

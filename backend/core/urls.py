@@ -2050,3 +2050,10 @@ urlpatterns += [
     path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
 ]
 # ---- /lpcore ----
+
+# ---- buyinside ---- plan recommendation from real usage + purchase origins
+from . import views_buyinside as buyv  # noqa: E402
+urlpatterns += [
+    path("plans/recommend", buyv.PlanRecommendView.as_view()),
+    path("owner/buy-origins", buyv.BuyOriginsView.as_view()),
+]

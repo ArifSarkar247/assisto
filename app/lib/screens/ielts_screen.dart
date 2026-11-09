@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
@@ -506,6 +507,16 @@ class IeltsFeedback extends StatelessWidget {
         Card(
           color: scheme.surfaceContainerHighest,
           child: Padding(padding: const EdgeInsets.all(Gap.md), child: Text(aiMsg)),
+        ),
+      // buyinside: out of credits -> the credits sheet right here (the
+      // answer stays in the box; send it again after buying)
+      if (state == 'credits')
+        TextButton.icon(
+          key: const Key('bi-ielts-credits'),
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => BuyInside.open(context, 'ielts', draftKept: true),
+          icon: const Icon(Icons.bolt_rounded),
+          label: Text(tr.biGetCredits),
         ),
       if (ai != null) ...[
         const SizedBox(height: Gap.md),
