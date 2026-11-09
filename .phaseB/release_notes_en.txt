@@ -1,1 +1,1 @@
-Build 314: Care Call (family reminder call in your own voice), account & security (devices list, email verify, recovery), after-call note and money from bKash/Nagad notifications (with your consent), home chat streaming with Stop, Photo Studio send to My Circle and catalog, Gemini fallback, Business AI shop chat, outcome card and more.
+Build 316: "Hey Assisto" hands-free wake word (on-device, opt-in, visible listening notice) with confirmed actions: call, My Circle message, WhatsApp prefilled, alarm, reminder, Care Call, Safe Journey, navigation.
