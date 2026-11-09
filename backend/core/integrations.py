@@ -494,6 +494,25 @@ REGISTRY = {
                    "guide_en": ["Tuya/Google Home developer → credentials → paste → Save"],
                    "fields": [_f("provider", "Provider", "Provider", secret=False), _f("access_id", "Access ID", "Access ID"), _f("access_secret", "Access Secret", "Access Secret")],
                    "test": None},
+    # cctvact: Tuya / Smart Life plugs, lights, sirens, locks for CCTV
+    # automations (night intrusion -> lights + siren + warning; locks only
+    # after the owner confirms). Steps: owner_actions/CCTV_TUYA_SETUP_BN.md
+    "tuya": {"name": "Tuya / Smart Life (CCTV automations)", "category": "Smart home",
+             "unlocks_bn": "রাতে কেউ ঢুকলে Smart Life-এর আলো, প্লাগ, সাইরেন নিজে চালু; লক শুধু মালিকের হ্যাঁ-তে।",
+             "unlocks_en": "Night intrusion turns on Smart Life lights, plugs and sirens; locks only after the owner says yes.",
+             "guide_bn": ["iot.tuya.com-এ অ্যাকাউন্ট → Cloud → Create Cloud Project (Smart Home)",
+                          "Overview থেকে Access ID ও Access Secret কপি করুন, Data Center মনে রাখুন",
+                          "নিচে পেস্ট → Save → Test (সবুজ হলে চালু)",
+                          "বিস্তারিত: owner_actions/CCTV_TUYA_SETUP_BN.md"],
+             "guide_en": ["Account at iot.tuya.com → Cloud → Create Cloud Project (Smart Home)",
+                          "Copy Access ID and Access Secret from Overview; note the Data Center",
+                          "Paste below → Save → Test (green = on)",
+                          "Details: owner_actions/CCTV_TUYA_SETUP_BN.md"],
+             "fields": [_f("access_id", "Access ID", "Access ID", secret=False),
+                        _f("access_secret", "Access Secret", "Access Secret"),
+                        _f("region", "ডেটা সেন্টার (in/eu/us/weu/eus/cn)",
+                           "Data center (in/eu/us/weu/eus/cn)", secret=False)],
+             "test": "test_tuya"},
     # cctv1: Imou cameras' OWN alarms (motion / human) + snapshot -> watchman
     # alerts. Without it Imou cameras still work through the local gateway
     # (RTSP with the safety code); only the cloud alarms stay off.
@@ -1414,6 +1433,18 @@ def test_imou(cfg, http=None):
     except ImouError as e:
         return False, "Imou: %s %s" % (e.code, e.msg)
     return True, "Imou access token OK"
+
+
+def test_tuya(cfg, http=None):
+    """cctvact: a project token proves Access ID + Secret + data centre."""
+    from .logic.tuya import TuyaClient, TuyaError
+    c = TuyaClient(cfg.get("access_id"), cfg.get("access_secret"),
+                   (cfg.get("region") or "in").strip().lower(), http=http)
+    try:
+        c.access_token()
+    except TuyaError as e:
+        return False, "Tuya: %s %s" % (e.code, e.msg)
+    return True, "Tuya token OK (%s)" % c.region
 
 
 def test_ezviz(cfg, http=None):
