@@ -9,6 +9,9 @@ import '../../widgets/sidebar_sections.dart';
 import 'home_v2_shortcuts.dart' show HV2Grid, HomeV2Tile;
 import 'home_v2_tokens.dart';
 
+/// svcclean: above this text scale All Services shows 3 columns.
+const double kAllServicesFourColMaxScale = 1.05;
+
 /// ALL SERVICES (home_v2 bottom bar): the full feature catalogue, built from
 /// the SAME source as the sidebar ([SidebarSections]) so it is complete and
 /// flag-aware (a hidden feature is in neither), plus My Circle and Assisto AI
@@ -57,7 +60,9 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
           widget.onOpenChat ?? () => ChatNav.push(context, 'ai_chat')),
     ].where((c) => q.isEmpty || c.$3.toLowerCase().contains(q)).toList();
     final scale = MediaQuery.textScalerOf(context).scale(1);
-    final cols = scale > HV2.threeColumnScale ? 3 : 4;
+    // svcclean (owner 10 Nov): any larger-than-default font -> 3 columns, so
+    // every name fits whole (svcclean_guard_test checks 360 dp, bn + en).
+    final cols = scale > kAllServicesFourColMaxScale ? 3 : 4;
 
     Widget header(String text) => Padding(
           padding: const EdgeInsets.fromLTRB(0, Gap.lg, 0, Gap.sm),
@@ -95,13 +100,13 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
             for (var i = 0; i < s.items.length; i++)
               HomeV2Tile(
                 key: ValueKey('all_${s.id}_$i'),
-                route: '${s.id}_$i',
+                route: s.items[i].route ?? '${s.id}_$i',
                 icon: s.items[i].icon,
-                label: s.items[i].label(t),
+                label: s.items[i].tileLabel(t), // svcclean: short name
                 // owner feedback 27 Oct: seen only as owner / tester preview
                 subtitle: s.items[i].preview ? t.ffPreviewTag : null,
                 semanticsLabel: s.items[i].preview
-                    ? '${s.items[i].label(t)}, ${t.ffPreviewTag}'
+                    ? '${s.items[i].tileLabel(t)}, ${t.ffPreviewTag}'
                     : null,
                 onTap: () => Navigator.push(
                     context, MaterialPageRoute(builder: s.items[i].builder)),

@@ -47,7 +47,8 @@ class HomeQuickButtons {
   /// from saved sets — the next default fills the slot.
   static List<QuickShortcut> get catalog => [
         for (final s in _catalog)
-          if ((kMedicalFeaturesAllowed || !kMedicalRoutes.contains(s.route)) &&
+          if (!mergedAliases.containsKey(s.route) && // svcclean
+              (kMedicalFeaturesAllowed || !kMedicalRoutes.contains(s.route)) &&
               // owner feedback 27 Oct: preview-only (owner / tester) = off
               FeatureFlags.instance.homeTileAllowed(s.route))
             s
@@ -62,7 +63,7 @@ class HomeQuickButtons {
     QuickShortcut('family', Icons.diversity_1_outlined, (t) => t.moduleFamily),
     QuickShortcut('documents', Icons.lock_outline, (t) => t.moduleVault),
     QuickShortcut(
-        'emergency', Icons.emergency_outlined, (t) => t.moduleEmergency),
+        'emergency', Icons.emergency_outlined, (t) => t.svcEmergency), // svcclean
     QuickShortcut('safety', Icons.shield_outlined, (t) => t.safetyTitle),
     QuickShortcut('budget', Icons.pie_chart_outline, (t) => t.budgetTitle),
     QuickShortcut('money_voice', Icons.mic_none_outlined, (t) => t.mvoiceTitle),
@@ -79,10 +80,11 @@ class HomeQuickButtons {
     QuickShortcut('nearby', Icons.place_outlined, (t) => t.sidebarNearby),
     QuickShortcut('journey', Icons.route_outlined, (t) => t.journeyHubTitle),
     QuickShortcut('scam', Icons.gpp_maybe_outlined, (t) => t.scamTitle),
+    // svcclean: My lost phone + Lost or Stolen Pro = ONE Lost phone tile
     QuickShortcut(
-        'my_lost_phone', Icons.travel_explore_outlined, (t) => t.mlpTitle),
+        'lost_stolen', Icons.travel_explore_outlined, (t) => t.svcLostPhone),
     QuickShortcut('phone_safety', Icons.phonelink_lock_outlined,
-        (t) => t.phoneSafetyTitle),
+        (t) => t.svcPhoneSafety), // svcclean: one name everywhere
     QuickShortcut(
         'vehicles', Icons.directions_car_outlined, (t) => t.vehiclesTitle),
     QuickShortcut('subscriptions', Icons.autorenew, (t) => t.subscriptions),
@@ -112,11 +114,32 @@ class HomeQuickButtons {
   static const pinnedRoute = 'circle';
   static const pinnedAliases = {'circle', 'messages', 'my_circle'};
 
+  /// svcclean (owner 10 Nov): tiles that were MERGED into one tile. A saved
+  /// shortcut to an old one becomes the new tile (migration on read, so the
+  /// user's home keeps a working tile in the same place). Never offered
+  /// again as a separate tile in Edit shortcuts.
+  static const mergedAliases = <String, String>{
+    'my_lost_phone': 'lost_stolen', // Lost phone
+    'security': 'phone_safety', // Phone safety
+    'sell_phone': 'phone_safety',
+    'used_phone_check': 'phone_safety',
+    'emergency_hub': 'emergency', // Emergency
+    'fall_detect': 'emergency',
+    'safety': 'emergency',
+    'nominee': 'family', // sections of Family
+    'guardians': 'family',
+    'probashi_plan': 'family',
+  };
+
+  /// The tile a saved route means now (svcclean).
+  static String canon(String r) => mergedAliases[r] ?? r;
+
   /// Saved choice, cleaned: only known routes, no duplicates, exactly 6
   /// (topped up from the defaults if the saved list is short or stale).
   static List<String> sanitize(List<String> saved) {
     final out = <String>[];
-    for (final r in [...saved, ...defaults]) {
+    for (final r0 in [...saved, ...defaults]) {
+      final r = canon(r0); // svcclean: merged tiles -> the one new tile
       if (out.length == count) break;
       if (!out.contains(r) &&
           !pinnedAliases.contains(r) &&

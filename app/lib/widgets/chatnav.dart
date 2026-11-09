@@ -14,7 +14,8 @@ import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/family_alerts_screen.dart'; // family100
-import '../screens/emergency_screen.dart';
+import '../screens/merged/phone_tiles.dart'; // svcclean
+import '../screens/merged/service_sections_screen.dart' show LandThenOpen; // svcclean
 import '../screens/emergency_hub_screen.dart'; // emhub
 import '../screens/reminders_screen.dart';
 import '../screens/plans_screen.dart';
@@ -39,15 +40,9 @@ import '../screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
 import '../screens/kid_audio/kid_audio_screen.dart'; // kidaudio
-import '../screens/fall_detect_screen.dart';
-import '../screens/lost_stolen_screen.dart';
-import '../screens/my_lost_phone_screen.dart';
 import '../screens/watched_phones_screen.dart'; // at100
 import '../screens/recovery_screen.dart';
-import '../screens/phone_safety_screen.dart';
-import '../screens/security_screen.dart';
 import '../screens/delete_account_screen.dart';
-import '../screens/sell_my_phone_screen.dart';
 import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/watchman/cctvx_inbox.dart'; // cctvx
@@ -59,7 +54,6 @@ import '../screens/probashi/probashi_plan_screen.dart'; // probashi-plan
 import '../screens/retention/retention_inbox.dart'; // retention1
 import '../screens/retention/retention_screen.dart'; // retention1
 import '../screens/mktengine/mkt_engine_screen.dart'; // mktengine
-import '../screens/used_phone_check_screen.dart';
 import '../screens/owner_analytics_screen.dart';
 import '../screens/name_about_screen.dart';
 import '../screens/ramadan_screen.dart';
@@ -216,7 +210,9 @@ class ChatNav {
     // removed personal registry opens the same panel.
     'blood_donor': (_) => const BloodHubScreen(),
     'kid_audio': (_) => const KidAudioScreen(), // kidaudio (flag child_emergency_audio)
-    'emergency': (_) => const EmergencyScreen(),
+    // svcclean (owner 10 Nov): ONE Emergency — the old Emergency card route
+    // opens the Emergency screen (contacts / card is a section inside).
+    'emergency': (_) => const EmergencyHubScreen(),
     // emhub (owner 2 Nov): the one Emergency hub — SOS, 999, nearby help,
     // family card, blood, missing, crisis help, lost phone, fake call.
     'emergency_hub': (_) => const EmergencyHubScreen(),
@@ -233,24 +229,27 @@ class ChatNav {
     'meetings': (_) => const MeetingsScreen(),
     'dictionary': (_) => const DictionaryScreen(),
     'ride_food': (_) => const RideFoodScreen(),
-    'fall_detect': (_) => const FallDetectScreen(),
-    'lost_stolen': (_) => const LostStolenScreen(),
+    // svcclean: accident & fall detection lives inside Emergency now
+    'fall_detect': (_) => const EmergencyHubScreen(open: 'fall_detect'),
+    // svcclean: ONE Lost phone tile (Lost or Stolen Pro + My lost phone)
+    'lost_stolen': (_) => const LostPhoneTileScreen(),
     // Anti-theft Batch 5: "My lost phone" (server view + lost-mode) and the
     // Recovery help toolkit (GD draft / SP letter / evidence / stations).
     // Recovery is also reachable from inside My lost phone and Lost/Stolen.
-    'my_lost_phone': (_) => const MyLostPhoneScreen(),
+    'my_lost_phone': (_) => const LostPhoneTileScreen(open: 'my_lost_phone'), // svcclean
     // at100: the trusted contact's side — phones whose owner chose me
     // (status, last location, alert history, remote switches). A trusted
     // contact's anti-theft push opens here (route security/watch-phone).
     'watched_phones': (_) => const WatchedPhonesScreen(),
     'recovery': (_) => const RecoveryScreen(),
-    'phone_safety': (_) => const PhoneSafetyScreen(),
+    // svcclean: ONE Phone safety tile (check-up, ownership, sell, used check)
+    'phone_safety': (_) => const PhoneSafetyTileScreen(),
     // Section 8: Stolen-while-unlocked protection hub.
-    'security': (_) => const SecurityScreen(),
+    'security': (_) => const PhoneSafetyTileScreen(open: 'security'), // svcclean
     // Anti-theft Batch 4: used-phone registry check + sell/transfer flow.
     // (Report-stolen lives inside both screens, so it needs no route of its own.)
-    'used_phone_check': (_) => const UsedPhoneCheckScreen(),
-    'sell_phone': (_) => const SellMyPhoneScreen(),
+    'used_phone_check': (_) => const PhoneSafetyTileScreen(open: 'used_phone_check'), // svcclean
+    'sell_phone': (_) => const PhoneSafetyTileScreen(open: 'sell_phone'), // svcclean
     // Part 4: Shop Box / CCTV loss-prevention (Business tier, signals-only).
     'shop_box': (_) => const ShopBoxScreen(),
     // cctv1: Home & shop watchman (flag cctv_watchman — register the route
@@ -308,7 +307,9 @@ class ChatNav {
     'payment_ladder': (_) => const PaymentLadderScreen(),
     'notes': (_) => const NotesTodosScreen(),
     'memory': (_) => const MemoryScreen(),
-    'nominee': (_) => const NomineeScreen(),
+    // svcclean: Nominee access is a section of Family now
+    'nominee': (_) => LandThenOpen(
+        home: const FamilyEntry(), open: (_) => const NomineeScreen(), name: 'nominee'),
     'contacts': (_) => const CrmContactsScreen(),
     // f6: hidden until automations really run (feature_gates.dart).
     if (kAgentStudioRunsAutomations)
@@ -342,7 +343,11 @@ class ChatNav {
     'journey_settings': (_) => const JourneySettingsScreen(),
     'journey_requests': (_) => const GuardianJourneyScreen(),
     // guardian2: who can see me / approve a second guardian (push + chat)
-    'guardians': (_) => const CircleGuardiansScreen(),
+    // svcclean: Guardians & who sees me is a section of Family now
+    'guardians': (_) => LandThenOpen(
+        home: const FamilyEntry(),
+        open: (_) => const CircleGuardiansScreen(),
+        name: 'guardians'),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),
@@ -359,7 +364,11 @@ class ChatNav {
     // budget-remittance (flag budget_remittance): money from abroad + family budget.
     'remittance': (_) => const RemittanceScreen(),
     // probashi-plan (flag probashi_plan): expat family plan, seats, pool, reports.
-    'probashi_plan': (_) => const ProbashiPlanScreen(),
+    // svcclean: Probashi family plan is a section of Family now
+    'probashi_plan': (_) => LandThenOpen(
+        home: const FamilyEntry(),
+        open: (_) => const ProbashiPlanScreen(),
+        name: 'probashi_plan'),
     // amarket (flag assisto_market): post a need, sealed offers, group-buy, COD deals.
     'market': (_) => const MarketScreen(),
     'safe_plans': (_) => const SafePlansScreen(), // safeplans

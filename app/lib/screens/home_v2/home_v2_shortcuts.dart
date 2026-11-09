@@ -205,7 +205,7 @@ class HomeV2Shortcuts {
     QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
     QuickShortcut('jobs', Icons.work_outline_rounded, (t) => t.hv2TileJobs),
     QuickShortcut('lost_stolen', Icons.phonelink_lock_outlined,
-        (t) => t.hv2TilePhoneSecurity),
+        (t) => t.svcLostPhone), // svcclean: one name everywhere
     // budget-remittance (owner 26 Oct): "Budget" opening the existing budget
     // while the flag is OFF; "Budget and Remittance" opening the new feature
     // once `budget_remittance` is ON (see [openRoute]).
@@ -223,6 +223,8 @@ class HomeV2Shortcuts {
     final seen = <String>{};
     for (final s in [..._owner, ...HomeQuickButtons.catalog]) {
       if (seen.contains(s.route) ||
+          // svcclean: a merged-away tile is never offered on its own
+          HomeQuickButtons.mergedAliases.containsKey(s.route) ||
           HomeQuickButtons.pinnedAliases.contains(s.route) ||
           !routes.containsKey(s.route) ||
           // owner feedback 27 Oct: a feature the owner / testers see only as
@@ -290,7 +292,9 @@ class HomeV2Shortcuts {
   static List<String> sanitize(List<String> saved) {
     final cat = catalog;
     final out = <String>[];
-    for (final r in saved) {
+    for (final r0 in saved) {
+      // svcclean: a saved merged-away tile becomes the one new tile
+      final r = HomeQuickButtons.canon(r0);
       if (out.length == max) break;
       if (!out.contains(r) &&
           !HomeQuickButtons.pinnedAliases.contains(r) &&
