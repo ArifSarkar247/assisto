@@ -355,7 +355,9 @@ class PosWebhookApiTests(_X):
     def test_csv_import_dedupes_and_sales_match_review_only(self):
         from core.models import ShopPosEvent
         now = timezone.localtime(timezone.now())
-        t1 = (now - timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M")
+        # stay inside today's local day (the match reads today only; CI may run just after midnight)
+        back = max(1, min(30, now.hour * 60 + now.minute - 1))
+        t1 = (now - timedelta(minutes=back)).strftime("%Y-%m-%d %H:%M")
         csv = "time,type,amount,id\n%s,cash_drawer,0,D1\n%s,sale,200,S1\n" % (t1, t1)
         r = self.client.post("/api/v1/shop/sites/%d/pos-csv" % self.site["id"], {"csv": csv},
                              format="json")

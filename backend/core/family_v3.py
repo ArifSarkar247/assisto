@@ -534,25 +534,27 @@ def _brain(viewer, member, now):
 
 
 def _sos_ids(viewer, family_id, ids, now):
+    out = set()
     try:
         from . import family_sos_v3   # fcsos
-        return set(family_sos_v3.active_sos_user_ids(family_id))
+        out |= set(family_sos_v3.active_sos_user_ids(family_id))
     except ImportError:
         pass
     except Exception:  # noqa: BLE001
         pass
+    # integration: the viewer's own unresolved SOS alerts count too (a
+    # legacy / Circle SOS that never went through the fcsos delivery table)
     try:
         from .models import FamilyAlert
-        out = set()
         for p in (FamilyAlert.objects.filter(user=viewer, kind="sos", dismissed=False,
                                               created_at__gte=now - timedelta(hours=24))
                   .values_list("payload", flat=True)):
             uid = (p or {}).get("from_user_id")
             if uid in ids:
                 out.add(uid)
-        return out
     except Exception:  # noqa: BLE001
-        return set()
+        pass
+    return out
 
 
 def _local_day(now):
