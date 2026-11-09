@@ -1,4 +1,5 @@
 import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
+import '../ads/ad_banner_slot.dart'; // adcontrol
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -188,6 +189,9 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
       );
     }
     return Scaffold(
+      // adcontrol (owner 10 Nov): Language Partner — one bottom banner (Free
+      // only); never during a timed test, listening audio or speaking
+      bottomNavigationBar: const AdBannerSlot(screen: 'lp_home'),
       appBar: AppBar(title: Text(_deckLabel(tr, _deck)), actions: [
         IconButton(
           tooltip: tr.lpChangeDeck,

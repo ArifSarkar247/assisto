@@ -7,6 +7,9 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_moment.dart'; // adcontrol
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement; // adcontrol
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -64,6 +67,9 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       // closing the share sheet is not an export.
       if (r.status == ShareResultStatus.success) {
         messenger.showSnackBar(SnackBar(content: Text(t.moneyReportExported)));
+        // adcontrol (owner 10 Nov): one interstitial after a PDF export /
+        // share (Free only; all caps apply) — never before or during it
+        AdExit.transition(AdExitPlacement.financeAfterExport);
       }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(t.exportFailed(e))));
@@ -94,7 +100,10 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
                   action: FilledButton(onPressed: _load, child: Text(t.retry)),
                 )
-              : _body(context, t),
+              // adcontrol: the month's full report -> one interstitial
+              : AdMomentOnShow(
+                  placement: AdExitPlacement.financeMonthReport,
+                  child: _body(context, t)),
     );
   }
 
@@ -176,6 +185,8 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
                         : AssistoTokens.of(context).success),
           ),
       ],
+      // adcontrol: reports — one native card at the bottom (Free only)
+      const AdSpotCard(placement: 'finance_reports', padding: EdgeInsets.only(top: Gap.lg)),
     ]);
   }
 }

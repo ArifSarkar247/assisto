@@ -35,10 +35,15 @@ AI_BUDGET = round(NET_PCT - OVERHEAD_PCT - PROFIT_PCT, 4)          # 0.239
 CREDIT_AI_CAP_BDT = round(MIN_BDT_PER_CREDIT * AI_BUDGET, 4)       # 0.6692
 SAFETY_USD_BDT = 125.0             # costs are always counted at >= ৳125/USD
 ROUND_TO = 10
+ROUND_TO_SMALL = 5
 
 LEGACY_PACKS = ("p20", "p50", "p100", "p200")
 # the three packs the owner approved (prices unchanged; credits by formula)
-V2_PACKS = ({"id": "c50", "price": 179, "valid_months": 12},
+# adcontrol (owner 10 Nov 03:45 part F): a small pack ৳49 = 15 credits
+# (Play product credits_c15; not sold until the owner creates it in Play
+# Console and the server's PlaySkuCheck sees it ACTIVE).
+V2_PACKS = ({"id": "c15", "price": 49, "valid_months": 12},
+            {"id": "c50", "price": 179, "valid_months": 12},
             {"id": "c120", "price": 399, "valid_months": 12},
             {"id": "c300", "price": 949, "valid_months": 12})
 PACK_EXPIRY_MONTHS = 12
@@ -50,7 +55,7 @@ PAID_PLANS = ("plus", "premium", "premium_pro", "business")
 # the formula reproduces them at the proposal prices; never read at runtime
 APPROVED = {"plus": (199, 70), "premium": (449, 160), "premium_pro": (999, 350),
             "business": (1299, 440), "c50": (179, 60), "c120": (399, 140),
-            "c300": (949, 330)}
+            "c300": (949, 330), "c15": (49, 15)}
 APPROVED_PROBASHI = (4.99, 120.0, 210)
 APPROVED_LEVEL_CREDITS = {"normal": 1, "better": 1, "best": 11}
 HAIKU_PROMPT_MAX_TOKENS = 90000     # owner: above 100k Haiku costs 5x
@@ -71,6 +76,10 @@ def is_on(cfg):
 
 def _floor_to(n, step=ROUND_TO):
     n = int(math.floor(n))
+    # adcontrol: a SMALL product (< 50 credits, e.g. the ৳49 pack) rounds down
+    # to 5 instead of 10 — still never above the per-credit cap
+    if n < 50:
+        step = ROUND_TO_SMALL
     return max(0, n - n % step) if n >= step else max(0, n)
 
 

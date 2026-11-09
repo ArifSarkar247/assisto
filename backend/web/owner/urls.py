@@ -31,6 +31,7 @@ from . import views_ai as AIRT       # ai-router
 from . import views_ops as OPS       # ops-watch
 from . import views_agent as AGR     # agent-core
 from . import views_train as TRS     # flagprep: train timetable check
+from . import views_adcontrol as ADC  # adcontrol: per-placement ad control
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
@@ -157,6 +158,8 @@ urlpatterns = [
     path("agent-runs/thresholds", AGR.agent_obs_save),           # af-8
     path("agent-runs/brief-rollout", AGR.agent_brief_rollout_save),  # flagprep
     path("train-schedule", TRS.train_schedule),                  # flagprep
+    path("ad-control", ADC.ad_control),                          # adcontrol
+    path("ad-control/<slug:key>", ADC.ad_control_detail),        # adcontrol
     path("buy-links", BUY.buy_links),                            # chipbuy2
     path("agent-runs/feedback", AGR.agent_feedback_queue),       # af-12
     path("agent-runs/feedback/<int:pk>", AGR.agent_feedback_decide),  # af-12

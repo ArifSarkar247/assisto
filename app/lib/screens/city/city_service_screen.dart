@@ -13,6 +13,8 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ads/ad_banner_slot.dart'; // adcontrol
+import '../../ads/ad_spot_card.dart'; // adcontrol
 import '../../api.dart';
 import '../../city/city_api.dart';
 import '../../city/city_models.dart';
@@ -281,6 +283,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           icon: const Icon(Icons.mic_rounded),
         ),
       ]),
+      // adcontrol (owner 10 Nov): City Service search & results — one banner
+      // (Free only); never on the journey / navigation screen or the
+      // destination alarm (those are other screens without a slot)
+      bottomNavigationBar: const AdBannerSlot(screen: 'city_search'),
       body: ListView(
         key: const ValueKey('city_list'),
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl)),
@@ -290,6 +296,8 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           _fromTo(t),
           _simpleSwitch(t),
           ..._results(t),
+          // adcontrol: one native card under real results (Free only)
+          if (_plan?.ok == true && !_planning) const AdSpotCard(placement: 'city_results'),
           CitySection(t.cityExplore, icon: Icons.explore_rounded),
           _exploreGrid(t),
           if (_learnOn != null)

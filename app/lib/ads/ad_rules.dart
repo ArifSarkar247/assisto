@@ -15,6 +15,8 @@
 ///    server only after the owner turns `admob_real_ids` on — no app update.
 library;
 
+import 'ad_control.dart';
+
 enum AdKind { appOpen, rewarded, banner, interstitial, native }
 
 class AdIds {
@@ -85,6 +87,7 @@ class AdConfig {
     this.appOpenSkipAfterS = 5,
     this.sponsorsEnabled = true,
     this.bannerRefresh = AdRules.minBannerRefresh,
+    this.control = AdControlState.none,
   });
 
   /// REAL unit ids are being served (owner switch `admob_real_ids`).
@@ -132,6 +135,10 @@ class AdConfig {
   /// be replaced. Never below [AdRules.minBannerRefresh] (60 s), whatever
   /// the server sends.
   final Duration bannerRefresh;
+
+  /// adcontrol (owner 10 Nov): the per-placement registry state (Owner
+  /// Admin -> Ad control). Not loaded (old server) -> legacy rules.
+  final AdControlState control;
 
   static const none = AdConfig();
 
@@ -190,6 +197,7 @@ class AdConfig {
       bannerRefresh: Duration(
           seconds: i(j['banner_refresh_sec'])
               .clamp(AdRules.minBannerRefresh.inSeconds, 3600)),
+      control: AdControlState.fromJson(j['control']),
     );
   }
 
@@ -235,11 +243,13 @@ class AdRules {
   /// The floor for the app-open gap (owner-editable 1 h .. 24 h).
   static const minAppOpenGap = Duration(hours: 3); // owner 26 Oct
 
-  /// The floor for the interstitial gap (OWNER ADS FINAL 2 Nov: >= 800 s).
-  static const minInterstitialGap = Duration(seconds: 800);
+  /// The floor for the interstitial gap. adcontrol (owner 10 Nov 03:45,
+  /// replaces the 2 Nov 800 s): max ONE interstitial per 3 minutes.
+  static const minInterstitialGap = Duration(seconds: 180);
 
-  /// OWNER ADS FINAL (2 Nov): never more than 4 interstitials a day.
-  static const maxInterstitialsPerDay = 4;
+  /// adcontrol (owner 10 Nov): the daily cap is owner-editable (Owner Admin
+  /// -> Ad control, default 6); this is the hard ceiling.
+  static const maxInterstitialsPerDay = 12;
 
   /// banners-everywhere (owner 26 Oct): a banner is refreshed no faster
   /// than once a minute (Google's own floor is 30 s). The AdMob console
@@ -304,7 +314,13 @@ class AdRules {
   }) {
     if (!loggedIn) return const AdDecision(false, 'logged_out');
     if (checkoutInProgress) return const AdDecision(false, 'checkout');
-    if (isBlockedScreen(screen, config.blockedScreens)) {
+    // adcontrol (owner 10 Nov): a REGISTERED rewarded spot is decided by the
+    // owner's per-placement switch (Owner Admin -> Ad control), not the old
+    // token fence; everything else keeps the fence.
+    final registry = kind == AdKind.rewarded &&
+        config.control.loaded &&
+        AdControl.isRegistered(screen);
+    if (!registry && isBlockedScreen(screen, config.blockedScreens)) {
       return const AdDecision(false, 'blocked_screen');
     }
     // owner 25 Oct: Premium / Business see zero ads of any kind
@@ -313,6 +329,10 @@ class AdRules {
     switch (kind) {
       case AdKind.appOpen:
         if (!config.appOpenEnabled) return const AdDecision(false, 'disabled');
+        if (config.control.loaded &&
+            AdControl.kindFor('app_open', config, loggedIn: loggedIn) != AdKind.appOpen) {
+          return const AdDecision(false, 'server_off');
+        }
         if (!appOpenScreens.contains(s)) {
           return const AdDecision(false, 'screen_not_allowed');
         }
@@ -329,7 +349,11 @@ class AdRules {
         return AdDecision.ok;
       case AdKind.rewarded:
         if (!config.rewardedEnabled) return const AdDecision(false, 'disabled');
-        if (!rewardedScreens.contains(s)) {
+        if (registry) {
+          if (AdControl.kindFor(s, config, loggedIn: loggedIn) != AdKind.rewarded) {
+            return const AdDecision(false, 'server_off');
+          }
+        } else if (!rewardedScreens.contains(s)) {
           return const AdDecision(false, 'screen_not_allowed');
         }
         // Rewarded is ALWAYS user-initiated.

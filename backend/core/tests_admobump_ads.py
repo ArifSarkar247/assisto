@@ -30,30 +30,34 @@ def _cfg(**caps):
 
 
 class ExitConfigTests(SimpleTestCase):
-    def test_eleven_registered_exit_placements(self):
-        self.assertEqual(len(A.INTERSTITIAL_MOMENTS), 11)
+    def test_registered_exit_placements(self):
+        # 11 exit placements (2 Nov) + 4 owner transition moments (10 Nov)
+        self.assertEqual(len(A.INTERSTITIAL_MOMENTS), 15)
         self.assertIn("photo_after_save", A.INTERSTITIAL_MOMENTS)
-        self.assertIn("quick_tool_exit", A.INTERSTITIAL_MOMENTS)
+        self.assertIn("exam_after_submit", A.INTERSTITIAL_MOMENTS)
         for pid in A.INTERSTITIAL_MOMENTS:
             self.assertFalse(A.is_blocked_screen(pid), pid)
 
-    def test_caps_clamped_whatever_is_stored(self):
+    def test_caps_come_from_ad_control_clamped(self):
+        # adcontrol (owner 10 Nov): the old ad_rewards fields no longer decide
         c = _cfg(interstitial_daily_cap=20, interstitial_min_gap_sec=300)
-        self.assertEqual(c["interstitial_daily_cap"], 4)
-        self.assertEqual(c["interstitial_min_gap_sec"], 800)
-        d = P.DEFAULTS()["ad_rewards"]
-        self.assertEqual((d["interstitial_daily_cap"], d["interstitial_min_gap_sec"]), (4, 800))
-        self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"interstitial_daily_cap": 5}}))
-        self.assertIn("bad_ad_cap", P.validate_edit({"ad_rewards": {"interstitial_min_gap_sec": 799}}))
+        self.assertEqual((c["interstitial_daily_cap"], c["interstitial_min_gap_sec"]), (6, 180))
+        c = A.client_config(plan="free", paid=False, admob_cfg={}, admob_working=False,
+                            flag_rewarded=True, flag_app_open=True,
+                            ad_caps=P.DEFAULTS()["ad_rewards"],
+                            ad_control={"caps": {"interstitial_daily_cap": 99,
+                                                 "interstitial_min_gap_sec": 10}})
+        self.assertEqual((c["interstitial_daily_cap"], c["interstitial_min_gap_sec"]), (12, 180))
 
-    def test_legacy_stored_list_maps_to_the_new_defaults(self):
+    def test_moments_follow_the_registry_switches(self):
         c = _cfg(interstitial_moments="photo_saved,task_done")
-        self.assertEqual(c["interstitial_moments"], list(A.INTERSTITIAL_MOMENTS))
-        n = P.normalize({"ad_rewards": {"interstitial_moments": "photo_saved,task_done"}})
-        self.assertEqual(n["ad_rewards"]["interstitial_moments"], ",".join(A.INTERSTITIAL_MOMENTS))
-        # a real narrowing is kept; unknown / never-list ids dropped
-        c = _cfg(interstitial_moments="plan_after_save,task_done,sos")
-        self.assertEqual(c["interstitial_moments"], ["plan_after_save"])
+        self.assertEqual(sorted(c["interstitial_moments"]), sorted(A.INTERSTITIAL_MOMENTS))
+        off = {"placements": {"plan_after_save": {"on": False}}}
+        c = A.client_config(plan="free", paid=False, admob_cfg={}, admob_working=False,
+                            flag_rewarded=True, flag_app_open=True,
+                            ad_caps=P.DEFAULTS()["ad_rewards"], ad_control=off)
+        self.assertNotIn("plan_after_save", c["interstitial_moments"])
+        self.assertFalse(c["control"]["placements"]["plan_after_save"]["on"])
 
     def test_never_list_screens_carry_no_banner(self):
         for s in ("money", "budget", "reminders", "notes_todos", "health_tips",

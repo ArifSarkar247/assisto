@@ -1,6 +1,8 @@
 import '../family_v3/family_entry.dart'; // fcscreen
 import '../eldercare/elder_watch_screen.dart'; // fcelder
 import 'package:flutter/material.dart';
+import '../ads/ad_reward_gate.dart'; // adcontrol
+import '../l10n/app_localizations.dart'; // adcontrol
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'feature_unavailable.dart'; // feature-flags
@@ -646,10 +648,30 @@ class ChatNav {
           route: ScreenTracker.instance.current ?? 'home');
       return true;
     }
+    // adcontrol (owner 10 Nov 03:45): Security features (theft protection,
+    // phone safety, scam protection, sell my phone) — ONE rewarded ad to
+    // switch the feature on the first time a Free user opens it, then free
+    // forever. Never blocks (no ad / Premium / Plus -> it just opens); alerts,
+    // deep links and the lost phone (lost mode) never pass through here.
+    if (adUnlockRoutes.contains(route)) {
+      AdRewardGate.run(context,
+          placement: 'security_unlock',
+          grant: AdGateGrant.once,
+          unlockId: route!,
+          what: AppLocalizations.of(context).adGateWhatSecurity,
+          action: () => Navigator.push(context,
+              MaterialPageRoute(builder: b, settings: RouteSettings(name: route))));
+      return true;
+    }
     // The route key doubles as RouteSettings.name so a feedback report can
     // say which screen it came from (ScreenTracker).
     Navigator.push(context,
         MaterialPageRoute(builder: b, settings: RouteSettings(name: route)));
     return true;
   }
+
+  /// adcontrol: the security features opened behind a once-only rewarded ad.
+  static const Set<String> adUnlockRoutes = {
+    'security', 'phone_safety', 'scam', 'sell_phone',
+  };
 }

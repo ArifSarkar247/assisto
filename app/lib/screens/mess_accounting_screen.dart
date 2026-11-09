@@ -5,6 +5,10 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_banner_slot.dart'; // adcontrol
+import '../ads/ad_moment.dart'; // adcontrol
+import '../ads/ad_placements.dart' show AdExitPlacement; // adcontrol
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/finance_common.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -149,6 +153,8 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        // adcontrol (owner 10 Nov): Mess — one bottom banner (Free only)
+        bottomNavigationBar: const AdBannerSlot(screen: 'mess_home'),
         appBar: AppBar(
           title: Text(tr.messTitle),
           bottom: TabBar(tabs: [
@@ -172,12 +178,16 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             nameOf: _nameOf,
             onChanged: _load,
           ),
-          _SummaryTab(
-            members: _members,
-            meals: _meals,
-            bazar: _bazar,
-            deposits: _deposits,
-            charges: _charges,
+          // adcontrol: the month's full report -> one interstitial (rules apply)
+          AdMomentOnShow(
+            placement: AdExitPlacement.messMonthReport,
+            child: _SummaryTab(
+              members: _members,
+              meals: _meals,
+              bazar: _bazar,
+              deposits: _deposits,
+              charges: _charges,
+            ),
           ),
         ]),
       ),
@@ -635,6 +645,8 @@ class _SummaryTab extends StatelessWidget {
             ]),
           ),
         ),
+        // adcontrol: one native card at the end of the list (Free only)
+        const AdSpotCard(placement: 'mess_list', padding: EdgeInsets.only(top: Gap.md)),
       ],
     );
   }

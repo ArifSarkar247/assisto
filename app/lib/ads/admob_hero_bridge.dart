@@ -21,7 +21,12 @@ import 'hero_ad.dart';
 /// * Every SDK call is wrapped: a failure is null (= the normal logo block),
 ///   never a crash.
 class AdmobHeroAdBridge implements HeroAdBridge {
+  AdmobHeroAdBridge({this.telemetryPlacement = placement});
+
   static const placement = 'home_native';
+
+  /// adcontrol: an in-page native card elsewhere reports as `native_<key>`.
+  final String telemetryPlacement;
 
   @override
   bool get linked => true;
@@ -37,7 +42,7 @@ class AdmobHeroAdBridge implements HeroAdBridge {
     final done = Completer<HeroAdHandle?>();
     NativeAd? ad;
     // one tracker per NativeAd object: 1 impression, <=1 click, 1 paid
-    final tr = AdTelemetry.track(placement, 'native');
+    final tr = AdTelemetry.track(telemetryPlacement, 'native');
     try {
       ad = NativeAd(
         adUnitId: unitId,

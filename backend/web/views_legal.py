@@ -127,6 +127,32 @@ def admob_publisher_id():
     return ""
 
 
+_APP_ADS_RE = None
+
+
+def app_ads_extra_lines():
+    """Valid app-ads.txt records from the admob integration's
+    `app_ads_extra` (max 20): `domain, account id, DIRECT|RESELLER[, cert]`.
+    Anything else (comments, junk, Google's own test publisher) is dropped."""
+    import re
+    global _APP_ADS_RE
+    if _APP_ADS_RE is None:
+        _APP_ADS_RE = re.compile(
+            r"^[a-z0-9.-]+\.[a-z]{2,}\s*,\s*[A-Za-z0-9._-]{3,64}\s*,\s*(DIRECT|RESELLER)"
+            r"(\s*,\s*[A-Za-z0-9]{6,32})?$", re.I)
+    try:
+        from core import integrations
+        raw = str((integrations.get("admob") or {}).get("app_ads_extra") or "")
+    except Exception:
+        return []
+    out = []
+    for line in re.split(r"[\r\n;]+", raw):
+        line = line.strip()
+        if _APP_ADS_RE.match(line) and "3940256099942544" not in line and line not in out:
+            out.append(line)
+    return out[:20]
+
+
 def app_ads_txt(request):
     """lifeassisto.com/app-ads.txt (nginx proxies every path to Django).
     text/plain, short cache. No publisher id stored -> 404 (not an empty
@@ -139,6 +165,11 @@ def app_ads_txt(request):
         return resp
     body = ("# app-ads.txt for lifeassisto.com (Assisto)\n"
             + APP_ADS_LINE.format(pub=pub) + "\n")
+    # adcontrol (owner 10 Nov part F): the mediation partners' lines the
+    # owner pasted (Owner Admin -> Integrations -> Google AdMob)
+    extra = app_ads_extra_lines()
+    if extra:
+        body += "# mediation partners (AdMob bidding)\n" + "\n".join(extra) + "\n"
     resp = HttpResponse(body, content_type="text/plain; charset=utf-8")
     # short: a publisher id changed in Owner Admin shows within 10 minutes
     resp["Cache-Control"] = "public, max-age=600"

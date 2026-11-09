@@ -149,3 +149,18 @@ def placement_stats(days=7):
                       paid_events=Sum("paid_events"),
                       revenue_micros=Sum("revenue_micros")))
     return A.placement_report([dict(r, format=r["fmt"]) for r in rows])
+
+
+def placement_on(key):
+    """adcontrol (owner 10 Nov): is the owner's Ad control switch for the
+    registered placement `key` on right now? (server-side gate for rewarded
+    tickets issued outside /ads/config — Photo Studio, Language Partner).
+    Unknown key -> False; a config read failure -> the registry default."""
+    from .logic import ad_control as AC
+    if key not in AC.BY_KEY:
+        return False
+    try:
+        from . import billing
+        return bool(AC.normalize(billing.cfg().get("ad_control"))["placements"][key]["on"])
+    except Exception:
+        return AC.BY_KEY[key]["on"]

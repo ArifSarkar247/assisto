@@ -1121,6 +1121,55 @@ jobs:
               print("MlKitInitProvider removed (lazy MlKit.initialize in PhotoFaces.kt)")
           PY
       # ---- /p2-photo ----
+      # ---- adcontrol ---- (owner order 10 Nov 03:45 part F) AdMob MEDIATION:
+      # Meta Audience Network + AppLovin through AdMob BIDDING — max 2 extra
+      # SDKs. Adapters pinned to builds made for play-services-ads 25.4.0 (the
+      # google_mobile_ads 9.1.0 pin). NO startup ContentProvider: both SDKs'
+      # init providers are REMOVED (the AdMob adapters initialise them from
+      # MobileAds.initialize, which Dart already runs lazily, Free users
+      # only, after consent). No new sensitive permission: AppLovin's
+      # CHECK_LICENSE is removed; INTERNET / ACCESS_NETWORK_STATE / AD_ID are
+      # already in the app; ACCESS_WIFI_STATE + VIBRATE are normal ones.
+      # The owner turns mediation on in the AdMob console
+      # (owner_actions/AD_MEDIATION_SETUP_BN.md) — until then they serve nothing.
+      - name: AdMob mediation adapters (adcontrol)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          deps = []
+          if "com.google.ads.mediation:facebook" not in s:
+              deps.append("com.google.ads.mediation:facebook:6.22.0.1")
+          if "com.google.ads.mediation:applovin" not in s:
+              deps.append("com.google.ads.mediation:applovin:13.6.4.2")
+          if deps:
+              body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
+                             for d in deps)
+              s += "\n\ndependencies {\n" + body + "}\n"
+              open(p, "w").write(s)
+          print("mediation deps:", deps or "already present", "in", p)
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if "AudienceNetworkContentProvider" not in x:
+              x = x.replace('</application>',
+                  '\n        <provider android:name="com.facebook.ads.AudienceNetworkContentProvider"'
+                  ' android:authorities="${applicationId}.AudienceNetworkContentProvider"'
+                  ' tools:node="remove"/>'
+                  '\n        <provider android:name="com.applovin.sdk.AppLovinInitProvider"'
+                  ' android:authorities="${applicationId}.applovininitprovider"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          if "com.android.vending.CHECK_LICENSE" not in x:
+              x = x.replace('</manifest>',
+                  '    <uses-permission android:name="com.android.vending.CHECK_LICENSE" tools:node="remove"/>\n</manifest>', 1)
+          open(m, "w").write(x)
+          print("mediation: AudienceNetwork + AppLovin init providers removed, CHECK_LICENSE removed")
+          PY
+      # ---- /adcontrol ----
       # ---- pay1 ---- the website APK never uses Google Play Billing: drop the
       # BILLING permission the in_app_purchase plugin merges in (the Play AAB
       # step below puts it back). Nothing calls Play Billing on this build

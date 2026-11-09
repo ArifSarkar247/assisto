@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_banner_slot.dart'; // adcontrol
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/skeleton.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/rem_notes.dart';
@@ -31,7 +33,9 @@ class NotesTodosScreen extends StatelessWidget {
       length: 2,
       initialIndex: initialIndex.clamp(0, 1),
       child: Scaffold(
-        // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+        // adcontrol (owner 10 Nov): Notes & tasks — one bottom banner (Free
+        // only) + a native card in the lists every 15-20 rows
+        bottomNavigationBar: const AdBannerSlot(screen: 'notes_home'),
         appBar: AppBar(
           title: Text(t.notesTitle),
           bottom: TabBar(tabs: [
@@ -201,7 +205,8 @@ class _NotesTabState extends State<_NotesTab> {
                       padding:
                           const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
                       itemCount: items.length,
-                      itemBuilder: (_, i) => _NoteCard(item: items[i]),
+                      itemBuilder: (_, i) => AdSpotCard.afterRow(
+                          i, items.length, 'notes_list', _NoteCard(item: items[i])),
                     ),
         ),
       ]),
@@ -492,7 +497,8 @@ class _TodosTab extends StatelessWidget {
                     padding:
                         const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96),
                     itemCount: items.length,
-                    itemBuilder: (_, i) => _TodoTile(item: items[i]),
+                    itemBuilder: (_, i) => AdSpotCard.afterRow(
+                        i, items.length, 'notes_list', _TodoTile(item: items[i])),
                   ),
                 ),
               ],
