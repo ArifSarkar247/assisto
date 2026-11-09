@@ -1,1 +1,1 @@
-Build 316: "Hey Assisto" hands-free wake word (on-device, opt-in, visible listening notice) with confirmed actions: call, My Circle message, WhatsApp prefilled, alarm, reminder, Care Call, Safe Journey, navigation.
+Build 317: My Circle quiet hours and correct message sounds when the app is closed; signing in on a second phone no longer signs out the first; one source of plan numbers with Owner Admin "Plans & prices"; Owner Admin quality and vision boards; end-to-end proof tests.
