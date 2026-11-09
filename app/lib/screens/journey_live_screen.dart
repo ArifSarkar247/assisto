@@ -28,6 +28,7 @@ import '../widgets/password_field.dart';
 import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
 import 'safe_journey/sj_where_now.dart' show sjAccText;
+import 'safe_journey/sj_during_panel.dart'; // sjduring
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -68,6 +69,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
   OemInfo? _oemInfo;
 
   ApiClient get _api => context.read<AppState>().api;
+
+  /// sjduring: the injected test tracker = no 30 s poll timer left behind.
+  bool get _underTestPoll => widget.tracker != null;
 
   @override
   void initState() {
@@ -791,6 +795,20 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           const SizedBox(height: Gap.md),
         ],
         _statusCard(t, s),
+        // sjduring: state (Moving / Slow in traffic / ...), the PRIVATE ask,
+        // the PIN on an abnormal arrival, "also watching"
+        if (!_share)
+          SjDuringPanel(
+            journeyId: widget.journeyId,
+            poll: !_underTestPoll,
+            onDanger: _openSos,
+            onArrived: (keep) async {
+              // danger PIN: the same Arrived here; the location service goes
+              // on for the watchers until the server ends it
+              if (!keep) await _tr.finished('arrived');
+              if (mounted) _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+            },
+          ),
         // journeymode: the alarm this trip armed + where the train is
         JourneyAlarmStatus(journeyId: widget.journeyId, link: JourneyAlarmLink.I),
         if (_journey['train'] case final Map tr) ...[
