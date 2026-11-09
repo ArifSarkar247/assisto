@@ -539,7 +539,6 @@ void main() {
         testWidgets('New badge renders + is announced ($lang dark=$dark)',
             (tester) async {
           final sh = tester.ensureSemantics();
-          addTearDown(sh.dispose);
           await tester.binding.setSurfaceSize(const Size(360, 400));
           addTearDown(() => tester.binding.setSurfaceSize(null));
           await tester.pumpWidget(MaterialApp(
@@ -576,6 +575,7 @@ void main() {
                   : r'City Service.*New')),
               findsOneWidget);
           expect(tester.takeException(), isNull);
+          sh.dispose();
         });
       }
     }

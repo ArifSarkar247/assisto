@@ -319,7 +319,7 @@ void main() {
           final a = tester.getTopLeft(
               find.byKey(const ValueKey('hv2_tile_circle')));
           final d = tester.getTopLeft(
-              find.byKey(const ValueKey('hv2_tile_khata')));
+              find.byKey(const ValueKey('hv2_tile_crm'))); // homeshort: 4th tile
           expect(d.dy, greaterThan(a.dy)); // 4th tile starts row 2
           expect(d.dx, a.dx);
           await _unmount(tester);
@@ -365,7 +365,7 @@ void main() {
     testWidgets('normal font: 4 columns', (tester) async {
       await _pump(tester, _home());
       final a = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_circle')));
-      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_khata')));
+      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_crm'))); // homeshort: 4th tile
       expect(d.dy, a.dy);
       await _unmount(tester);
     });
@@ -487,15 +487,16 @@ void main() {
     test('fresh install: default set has CCTV (slot 7) + vehicle tracking',
         () async {
       final d = await HomeV2Shortcuts.load();
-      expect(d[6], 'watchman');
-      expect(d[7], 'vehicle_tracking');
+      // homeshort: Digital Ledger left home -> one slot earlier
+      expect(d[5], 'watchman');
+      expect(d[6], 'vehicle_tracking');
       expect(d.length, HomeV2Shortcuts.max);
       // same once the server answers ON for everyone (no preview)
       FeatureFlags.instance.applyForTest({
         'features': launchOn,
         'preview': <String>[],
       });
-      expect((await HomeV2Shortcuts.load())[6], 'watchman');
+      expect((await HomeV2Shortcuts.load())[5], 'watchman');
     });
 
     test('a saved custom set is untouched (v2 and old-home six)', () async {
