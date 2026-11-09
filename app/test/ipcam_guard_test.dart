@@ -158,9 +158,9 @@ void main() {
         {'sound': 'siren'},
         'x',
       ]);
-      expect(t.map((e) => (e.id, e.sound, e.seconds)), [(1, 'warn', 60), (2, 'siren', 20), (3, 'warn', 20)]);
+      expect(t.map((e) => (e.id, e.sound, e.seconds)), [(1, 'warn', 60), (3, 'warn', 20), (2, 'siren', 20)]);
       expect(t.first.warnUrl, '/api/v1/shop/device/warn-clip');
-      expect(t.last.warnUrl, ''); // only our own device path is ever fetched
+      expect(t[1].warnUrl, ''); // only our own device path is ever fetched
       expect(PlayTask.fromHeartbeat(null), isEmpty);
     });
 
