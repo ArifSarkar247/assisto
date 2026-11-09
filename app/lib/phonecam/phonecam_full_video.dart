@@ -153,7 +153,10 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
 
   Future<void> _open() async {
     final url = (_s['url'] ?? '').toString();
-    if (url.isEmpty) return;
+    if (url.isEmpty) {
+      setState(() => _st = _F.failed);
+      return;
+    }
     if (_s['sealed_for_you'] == false) {
       setState(() => _st = _F.notSealed);
       return;
@@ -169,6 +172,7 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
         if (mounted) setState(() => _st = e.code == 'no_key' ? _F.notSealed : _F.failed);
         return;
       }
+      if (!mounted) return;
       final dir = await (widget.tempDir ?? getTemporaryDirectory)();
       final f = File('${dir.path}/pcfull_${widget.eventId}_${DateTime.now().millisecondsSinceEpoch}.mp4');
       await f.writeAsBytes(mp4, flush: true);
@@ -177,6 +181,9 @@ class _PhoneCamFullVideoState extends State<PhoneCamFullVideo> {
       await c.init();
       if (!mounted) {
         await c.dispose();
+        try {
+          await f.delete();
+        } catch (_) {}
         return;
       }
       _ctl = c;
