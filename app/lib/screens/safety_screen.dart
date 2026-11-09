@@ -13,6 +13,7 @@ import 'journey_settings_screen.dart';
 import 'sos_triggers_screen.dart'; // sosat
 import '../widgets/journey_api.dart';
 import '../widgets/subs_common.dart' show fmtInt;
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -172,9 +173,14 @@ class _SafetyScreenState extends State<SafetyScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+          body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        for (var i = 0; i < 3; i++)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSkeleton.card(lines: 3)),
+      ]));
     }
     final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.safetyTitle), actions: [
         IconButton(
@@ -183,42 +189,9 @@ class _SafetyScreenState extends State<SafetyScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const JourneySettingsScreen()))),
       ]),
+      // designv2 page rule: SOS (the urgent action) first, then Safe Journey,
+      // the check-in and the other ways; DS cards, no long lines.
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        // ---- Safe Journey (top-priority feature) ----
-        Text(t.journeySection,
-            style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: Gap.sm),
-        Card(
-          color: Brand.info.withOpacity(0.06),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Icon(Icons.navigation_rounded, color: AssistoTokens.of(context).info),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: Text(t.journeyHubTitle,
-                        style: const TextStyle(fontWeight: FontWeight.w700))),
-              ]),
-              const SizedBox(height: 6),
-              Text(t.journeyHubDesc,
-                  style: AType.bodyMedium.copyWith(height: 1.4, color: Theme.of(context).colorScheme.ds.muted)),
-              const SizedBox(height: Gap.md),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14)),
-                  onPressed: _openJourney,
-                  icon: const Icon(Icons.navigation_rounded),
-                  label: Text(t.journeyStartButton),
-                ),
-              ),
-            ]),
-          ),
-        ),
-        const Divider(height: 28),
-
         // ---- discreet SOS (full flow: nearest help + helplines + duress) ----
         SosButton(
           label: t.emergencySosButton,
@@ -226,53 +199,69 @@ class _SafetyScreenState extends State<SafetyScreen> {
               builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
         ),
         const SizedBox(height: Gap.sm),
-        const SizedBox(height: 6),
-        ListTile(
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.timer_rounded),
-          title: Text(t.safetySosCountdownValue(fmtInt(context, _sosCountdown))), // qa1
-          trailing: TextButton(onPressed: _setCountdown, child: Text(t.edit)),
+        DsGroup(margin: EdgeInsets.zero, children: [
+          DsListRow(
+            leading: DsAvatar(child: Icon(Icons.timer_rounded, color: ds.primaryInk)),
+            title: t.safetySosCountdownValue(fmtInt(context, _sosCountdown)), // qa1
+            trailing: TextButton(onPressed: _setCountdown, child: Text(t.edit)),
+          ),
+          // Hands-free Voice SOS (feature #79) — opt-in, OFF by default.
+          DsListRow(
+            leading: DsAvatar(child: Icon(Icons.record_voice_over_rounded, color: ds.primaryInk)),
+            title: t.vsosTitle,
+            subtitle: t.vsosTileSubtitle,
+            trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const VoiceSosScreen())),
+          ),
+          // sosat: lock-screen SOS, power button x5 and the EXPERIMENTAL fall
+          // detection live on one screen (each says honestly when it works:
+          // only while Always-on protection runs).
+          DsListRow(
+            key: const ValueKey('sosat-more-ways'),
+            leading: DsAvatar(child: Icon(Icons.touch_app_rounded, color: ds.primaryInk)),
+            title: t.saMoreWaysTitle,
+            subtitle: t.saMoreWaysSub,
+            trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const SosTriggersScreen())),
+          ),
+        ]),
+
+        // ---- Safe Journey (top-priority feature) ----
+        DsSectionHeader(t.journeySection),
+        DsHeroCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(children: [
+              DsAvatar(child: Icon(Icons.navigation_rounded, color: ds.primaryInk)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                  child: Text(t.journeyHubTitle,
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: ds.text))),
+            ]),
+            const SizedBox(height: Gap.sm),
+            Text(t.journeyHubDesc,
+                style: AType.bodyMedium.copyWith(height: 1.4, color: ds.muted)),
+            const SizedBox(height: Gap.md),
+            DsButton(
+              expand: true,
+              onPressed: _openJourney,
+              icon: Icons.navigation_rounded,
+              label: t.journeyStartButton,
+            ),
+          ]),
         ),
-        // Hands-free Voice SOS (feature #79) — opt-in, OFF by default.
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.record_voice_over_rounded),
-          title: Text(t.vsosTitle),
-          subtitle: Text(t.vsosTileSubtitle,
-              style: AType.bodySmall),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const VoiceSosScreen())),
-        ),
-        const Divider(height: 28),
 
         // Safe-arrival check-in
-        Text(t.safetyCheckinSection, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: Gap.sm),
+        DsSectionHeader(t.safetyCheckinSection),
         SafetyCheckinCard(
           place: _checkinPlace,
           eta: _checkinEta,
           onSet: _setCheckin,
           onArrived: _markArrived,
         ),
-        const Divider(height: 28),
-
-        // sosat: lock-screen SOS, power button x5 and the EXPERIMENTAL fall
-        // detection live on one screen (each says honestly when it works:
-        // only while Always-on protection runs).
-        ListTile(
-          key: const ValueKey('sosat-more-ways'),
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.touch_app_rounded),
-          title: Text(t.saMoreWaysTitle),
-          subtitle: Text(t.saMoreWaysSub, style: AType.bodySmall),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const SosTriggersScreen())),
-        ),
-        const SizedBox(height: 20),
-        Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+        const SizedBox(height: Gap.lg),
+        Text(t.safetyFooterNote, style: AType.bodySmall.copyWith(color: ds.muted)),
       ]),
     );
   }
