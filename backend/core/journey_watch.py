@@ -60,8 +60,11 @@ WATCHER_HOURLY_CAP = 30       # info pushes per watcher per hour
 DELIVERY_ATTEMPTS = 5
 TRAIL_MAX_DAYS = int(getattr(settings, "JOURNEY_TRAIL_MAX_DAYS", 7))
 URGENT = ("overdue_alert", "duress", "low_battery", "off_route", "long_stop",
-          "signal_lost")
-NEVER_CAPPED = ("overdue_alert", "duress")
+          "signal_lost",
+          "check_on", "check_red", "danger_pin", "fast_pin")   # sjduring
+NEVER_CAPPED = ("overdue_alert", "duress",
+                "check_on", "check_red", "danger_pin", "danger_audio",
+                "fast_pin", "pin_ok")   # sjduring
 
 
 # ----------------------------------------------------------------- helpers
@@ -319,6 +322,11 @@ def event_text(kind, j, name, lang, p, links=True):
     text — the push carries them as data and the app shows "Open map" /
     "Live view" buttons instead."""
     pick = SJ.pick
+    # sjduring: ladder / PIN events (check_on, check_red, stop_place, ...)
+    from . import journey_during as JDUR
+    t = JDUR.watcher_text(kind, j, name, lang, p)
+    if t is not None:
+        return t
     loc = ({"lat": p.get("lat"), "lng": p.get("lng")}
            if (links and p.get("lat") is not None) else None)
     url = (p.get("url") or "") if links else ""
@@ -533,9 +541,15 @@ def deliver(ev):
             "url": p.get("url") or web_url(j),
             "lat": "" if p.get("lat") is None else p.get("lat"),
             "lng": "" if p.get("lng") is None else p.get("lng")}
+    if p.get("level"):
+        data["level"] = p["level"]        # sjduring: amber | red
     urgent = ev.kind in URGENT
     if ev.kind == "signal_lost" or (ev.kind == "long_stop" and (p.get("jam") or p.get("dwell"))):
         urgent = False   # owner real trip 2 Nov: calm notice, not an alarm
+    if ev.kind == "low_battery" and not p.get("level"):
+        from . import journey_during as JDUR
+        if JDUR.enabled(j):
+            urgent = False   # sjduring: low battery is information, never an alarm
     n = 0
     people = watcher_users(j)
     if p.get("circle"):
@@ -654,6 +668,12 @@ def _sweep_journey(j, now, stats):
     from . import sj_live as SL
     if SL.end_share(j, now):
         stats["share_ended"] += 1
+        return
+    # sjduring: signals -> private ask -> amber -> red (journey_during.py);
+    # the old direct-to-watchers stop / route / late / lost alerts are off
+    from . import journey_during as JDUR
+    if JDUR.enabled(j):
+        JDUR.sweep_journey(j, now, stats)
         return
     state, mins = overdue(j, now)
     if state == "ask" and j.ask_sent_at is None:
@@ -798,6 +818,8 @@ def expire(j):
         j.status = "expired"
     j.save(update_fields=["last_location", "anchor", "planned_route", "status",
                           "vehicle_photo"])
+    from . import journey_during as JDUR
+    JDUR.purge(j)    # sjduring: the danger audio goes with the locations
     clear_urgent(j)
 
 
@@ -1043,7 +1065,8 @@ def arrival_plausible(j, now=None, here=None, acc=None):
         origin = (first.lat, first.lng) if first else None
     out = JA.assess(dest=JA.point(j.destination or {}), now=now, start_at=j.created_at,
                     origin=origin, here=here, here_at=here_at, mode=j.mode,
-                    radius_m=j.arrival_radius_m)
+                    radius_m=j.arrival_radius_m,
+                    near_m=JA.near_for_kind((j.destination or {}).get("kind")))
     planned = None
     for src in (j.destination or {}, j.vehicle or {}):
         planned = planned or SJ.parse_dt((src or {}).get("earliest_at"))

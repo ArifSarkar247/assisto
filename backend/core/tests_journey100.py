@@ -102,6 +102,9 @@ class Base(TestCase):
         return list(q.filter(kind=kind) if kind else q)
 
 
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class StartArriveTests(Base):
     def test_start_pushes_watcher_with_live_link(self):
         j, body = self.start(vehicle={"plate": "DHA-11-2233", "mode": "cng"})
@@ -195,6 +198,9 @@ class StartArriveTests(Base):
         self.assertTrue(FamilyAlert.objects.filter(user=self.b, kind="journey").exists())
 
 
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class SweeperTests(Base):
     def test_overdue_ask_then_escalate_idempotent_and_capped(self):
         j, _ = self.start(eta_min=-1)

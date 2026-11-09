@@ -1511,6 +1511,9 @@ class Journey(models.Model):
     vehicle_photo = models.FileField(upload_to="journey/", blank=True, default="")
     # journey2: watcher-link generation; bumping it turns every shared link off
     web_gen = models.IntegerField(default=0)
+    # sjduring: the DURING-the-trip state + private alert ladder
+    # (core/journey_during.py): ask / amber / red, abnormal flags, PIN outcome
+    during = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -1639,6 +1642,8 @@ class DuressPin(models.Model):
     normal_hash = models.CharField(max_length=128, blank=True, default="")
     duress_hash = models.CharField(max_length=128, blank=True, default="")
     salt = models.CharField(max_length=64, blank=True, default="")
+    # sjduring: ask the PIN on EVERY arrival (else only abnormal ones)
+    arrive_always = models.BooleanField(default=False)
 
 
 # ===========================================================================

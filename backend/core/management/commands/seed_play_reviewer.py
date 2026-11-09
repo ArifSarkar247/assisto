@@ -40,6 +40,11 @@ class Command(BaseCommand):
                                "PLAY_REVIEWER_PASSWORD (12+ chars) in the server .env")
 
         user = otp.find_user_by_phone(canon) or User.objects.filter(phone=phone).first()
+        from core.test_accounts import RealAccountRefused, refuse_real_account
+        try:
+            refuse_real_account(user, phone=phone, tool="seed_play_reviewer")   # sjp0
+        except RealAccountRefused as e:
+            raise CommandError(str(e))
         if user is None:
             user = User.objects.create_user(name=NAME, phone=phone, password=password)
             created = True

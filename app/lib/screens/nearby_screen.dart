@@ -585,6 +585,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
         icon: Icons.star_border_rounded,
         title: t.nearbyNoFavourites,
         message: t.nearbyNoFavouritesHint,
+        // qjourney: an empty state always has a way forward (no dead end)
+        action: FilledButton.tonalIcon(
+          key: const ValueKey('qj_nearby_fav_browse'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => setState(() => _showFav = false),
+          icon: const Icon(Icons.place_rounded),
+          label: Text(t.qjNearbyFavBrowse),
+        ),
       );
     }
     return ListView(
