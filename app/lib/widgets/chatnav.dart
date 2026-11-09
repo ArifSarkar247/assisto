@@ -1,3 +1,4 @@
+import '../eldercare/elder_watch_screen.dart'; // fcelder
 import 'package:flutter/material.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
@@ -199,6 +200,7 @@ class ChatNav {
     'family': (_) => const FamilyScreen(),
     'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
     'carecall': (_) => const CareCallScreen(), // carecall (flag care_call, push)
+    'elder_watch': (_) => const ElderWatchScreen(), // fcelder: Silent Watch (family; push)
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle

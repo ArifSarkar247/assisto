@@ -1445,6 +1445,11 @@ class AntiTheftService : Service(), SensorEventListener {
             Intent.ACTION_USER_PRESENT -> {
                 unlockedNow = true
                 lastUnlockAt = System.currentTimeMillis()
+                // fcelder: an unlock is a sign of life for an opted-in Silent
+                // Watch (kept on this phone only; no-op when not opted in)
+                try {
+                    com.assisto.assisto.silentwatch.SilentWatch.record(this, lastUnlockAt, true)
+                } catch (_: Throwable) {}
             }
             Intent.ACTION_POWER_CONNECTED -> { chargingNow = true; criticalSent = false }
             Intent.ACTION_POWER_DISCONNECTED -> chargingNow = false
