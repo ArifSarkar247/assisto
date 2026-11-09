@@ -12,10 +12,22 @@
 // a long night's sleep is never "silence".
 //
 // LEARNING (7 days, on the phone): for every half hour of the day the brain
-// remembers the longest quiet stretch the elder normally has starting around
-// then (an after-lunch nap, Friday prayers, a long TV evening). After 7 days
-// it rings only when today's silence is LONGER than normal (x1.2 + 30 min),
-// and never earlier than the family's chosen N hours. Until then: N hours.
+// looks at the quiet stretches the elder had starting within 2 hours of it
+// (an after-lunch nap, Friday prayers, a long TV evening) and takes the 4th
+// longest of the week — one odd day (a long outing) does not count as
+// "normal". After 7 days it rings when today's silence is LONGER than that
+// (x1.2 + 30 min): never sooner than 90 min, never later than 2 x N hours.
+// So at a busy time of day the first "Are you OK?" comes much sooner than N
+// hours; at a normally quiet time it waits. Until day 7: exactly N hours.
+//
+// FALSE-ALARM GUARD: if the family was told in the last 14 days (and the
+// elder then turned out fine — else nobody is re-learning), the brain goes
+// back to the cautious table (single longest stretch, never sooner than N
+// hours) for that elder. "I am going out" (Easy Home) pauses the asking
+// until the chosen time + 30 min; any later sign of life ends the pause.
+//
+// The ladder on the phone: 4 rings 5 min apart (rings only ever happen in
+// the day window), then the family — 20 min instead of 30.
 //
 // The output is a 48-entry table: for a last sign of life in half-hour slot
 // s, ring "Are you OK?" table[s] wall-clock minutes later. The native alarm
@@ -76,8 +88,22 @@ class SilentWatchBrain {
   static const learnDays = 7;
 
   /// Rings before the family is told, and the gap between them.
-  static const rings = 3;
-  static const ringGapMin = 10;
+  static const rings = 4;
+  static const ringGapMin = 5;
+
+  /// After learning: the k-th longest quiet stretch within [nearSlots]
+  /// half-hours (either side) is "normal" for that time of day.
+  static const rankK = 4;
+  static const nearSlots = 4;
+
+  /// Never ask sooner than this after learning (minutes of in-day silence).
+  static const minAllowanceMin = 90;
+
+  /// A family alert within this many days -> the cautious table.
+  static const guardDays = 14;
+
+  /// "I am going out": ask again only this long after the chosen time.
+  static const awayGraceMin = 30;
 
   static int slotOf(DateTime t) => (t.hour * 60 + t.minute) ~/ slotMin;
 
@@ -121,9 +147,15 @@ class SilentWatchBrain {
   static int floorMin(SwConfig c) => c.hours * 60;
   static int capMin(SwConfig c) => math.max(floorMin(c), math.min(2 * floorMin(c), 12 * 60));
 
+  /// True when the family was told within [guardDays] before [now].
+  static bool cautious(List<DateTime> told, DateTime now) =>
+      told.any((t) => !t.isAfter(now) && now.difference(t).inMinutes < guardDays * 24 * 60);
+
   /// Learns the elder's normal day from the activity log (any order, may
-  /// hold duplicates). Only the last [learnDays] days are used.
-  static SwLearned learn(List<DateTime> log, DateTime now, SwConfig c) {
+  /// hold duplicates). Only the last [learnDays] days are used. [told] =
+  /// when the family was told (the false-alarm guard).
+  static SwLearned learn(List<DateTime> log, DateTime now, SwConfig c,
+      {List<DateTime> told = const []}) {
     final acts = log.where((t) => !t.isAfter(now)).toList()..sort();
     final floor = floorMin(c), cap = capMin(c);
     var days = 0;
@@ -134,18 +166,28 @@ class SilentWatchBrain {
     if (days >= learnDays) {
       final from = now.subtract(const Duration(days: learnDays));
       final recent = acts.where((t) => t.isAfter(from)).toList();
-      final longest = List<int>.filled(slots, 0);
+      final careful = cautious(told, now);
+      final near = careful ? 1 : nearSlots;
+      final gaps = List<List<int>>.generate(slots, (_) => <int>[]);
       for (var i = 0; i + 1 < recent.length; i++) {
         final g = windowMinutesBetween(recent[i], recent[i + 1], c);
         if (g <= 0) continue;
         final s = slotOf(recent[i]);
-        for (var k = s - 1; k <= s + 1; k++) {
-          if (k >= 0 && k < slots && g > longest[k]) longest[k] = g;
+        for (var k = s - near; k <= s + near; k++) {
+          if (k >= 0 && k < slots) gaps[k].add(g);
         }
       }
       for (var s = 0; s < slots; s++) {
-        final want = (longest[s] * 1.2).round() + 30;
-        allowance[s] = want.clamp(floor, cap);
+        final v = gaps[s]..sort((a, b) => b.compareTo(a));
+        final int normal;
+        if (careful) {
+          normal = v.isEmpty ? 0 : v.first;
+        } else {
+          // Too few stretches to know this time of day: stay at N hours.
+          normal = v.length >= rankK ? v[rankK - 1] : floor;
+        }
+        final want = (normal * 1.2).round() + 30;
+        allowance[s] = want.clamp(careful ? floor : math.min(floor, minAllowanceMin), cap);
       }
     }
     final table = List<int>.generate(slots, (s) {
@@ -164,6 +206,19 @@ class SilentWatchBrain {
     final m = t.hour * 60 + t.minute;
     if (m >= c.dayStartMin && m < c.dayEndMin) return t;
     final day = m >= c.dayEndMin ? _day(t, 1) : _day(t, 0);
+    return day.add(Duration(minutes: c.dayStartMin + 30));
+  }
+
+  /// [ringAt] when the elder tapped "I am going out" at [tapped] until
+  /// [awayUntil] (no later sign of life): never before awayUntil + 30 min.
+  /// Mirrored 1:1 in SilentWatch.kt schedule.
+  static DateTime ringAtAway(DateTime last, List<int> table, SwConfig c, DateTime awayUntil) {
+    final r = ringAt(last, table, c);
+    final a = awayUntil.add(const Duration(minutes: awayGraceMin));
+    if (!a.isAfter(r)) return r;
+    final m = a.hour * 60 + a.minute;
+    if (m >= c.dayStartMin && m < c.dayEndMin) return a;
+    final day = m >= c.dayEndMin ? _day(a, 1) : _day(a, 0);
     return day.add(Duration(minutes: c.dayStartMin + 30));
   }
 

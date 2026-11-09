@@ -81,6 +81,9 @@ class FakeSwNative implements SilentWatchNative {
   int okCount = 0, notes = 0, disarms = 0;
   int stage = 0;
   List<int> log = const [];
+  List<int> told = const [];
+  final away = <int>[];
+  int awayUntilMs = 0;
 
   @override
   Future<bool> arm(Map<String, dynamic> args) async {
@@ -108,8 +111,21 @@ class FakeSwNative implements SilentWatchNative {
   }
 
   @override
-  Future<Map<String, dynamic>?> state() async =>
-      {'enabled': armed.isNotEmpty, 'stage': stage, 'told': false, 'log': log};
+  Future<bool> goingOut(int minutes) async {
+    away.add(minutes);
+    awayUntilMs = DateTime.now().add(Duration(minutes: minutes)).millisecondsSinceEpoch;
+    return true;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> state() async => {
+        'enabled': armed.isNotEmpty,
+        'stage': stage,
+        'told': false,
+        'log': log,
+        'told_log': told,
+        'away_until_ms': awayUntilMs,
+      };
 }
 
 class SpokenRecorder implements DestAlarmSound {

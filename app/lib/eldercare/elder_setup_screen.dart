@@ -180,7 +180,7 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
               subtitle: Text(t.fceSetupWatchSub)),
           if (_watch) ...[
             const SizedBox(height: Gap.sm),
-            Text(t.fceSetupHours, style: AType.titleMedium),
+            Text(t.fceSetupHours2, style: AType.titleMedium),
             Wrap(spacing: Gap.sm, children: [
               for (final h in const [3, 4, 6, 8])
                 ChoiceChip(

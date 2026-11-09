@@ -36,9 +36,10 @@ import java.util.Calendar
  *           life, kept ONLY on this phone (8-day log for the 7-day learning).
  *   RING n  at deadline = last sign of life + table[slot] (the table is
  *           computed by the Dart brain from the learned day): an "Are you
- *           OK?" alarm notification with a big I AM OK button; n = 1..3,
- *           10 minutes apart.
- *   ESCALATE after the 3rd unanswered ring: ONE POST to the server
+ *           OK?" alarm notification with a big I AM OK button; n = 1..4,
+ *           5 minutes apart. After "I am going out" (away_until_ms) the
+ *           first ring waits until away_until + 30 min (ringAtAway).
+ *   ESCALATE after the 4th unanswered ring: ONE POST to the server
  *           (family/silent-watch/alert {token}) — the only thing that ever
  *           leaves the phone. Retried every 5 min (max 12) while offline.
  *   OK      the button / Easy Home / the app: stop ringing; if the family was
@@ -58,11 +59,14 @@ object SilentWatch {
     const val ACTION_ESCALATE = "com.assisto.assisto.silentwatch.ESCALATE"
     const val ACTION_OK = "com.assisto.assisto.silentwatch.OK"
     private const val PROBE_MS = 15 * 60 * 1000L
-    private const val RING_GAP_MS = 10 * 60 * 1000L
+    private const val RING_GAP_MS = 5 * 60 * 1000L
+    private const val AWAY_GRACE_MS = 30 * 60 * 1000L
+    private const val AWAY_MAX_MS = 6 * 3600 * 1000L
+    private const val TOLD_KEEP_MS = 30L * 24 * 3600 * 1000L
     private const val RETRY_MS = 5 * 60 * 1000L
     private const val LOG_KEEP_MS = 8 * 24 * 3600 * 1000L
     private const val LOG_MAX = 3000
-    private const val RINGS = 3
+    private const val RINGS = 4
 
     private fun p(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -80,6 +84,7 @@ object SilentWatch {
                     "disarm" -> result.success(disarm(app))
                     "noteActivity" -> { record(app, System.currentTimeMillis(), true); result.success(true) }
                     "ok" -> result.success(ok(app))
+                    "goingOut" -> result.success(goingOut(app, (call.arguments as? Number)?.toInt() ?: 0))
                     "state" -> result.success(state(app))
                     else -> result.notImplemented()
                 }
@@ -133,7 +138,31 @@ object SilentWatch {
             "last_ms" to s.getLong("last_ms", 0L),
             "ring_at_ms" to s.getLong("ring_at_ms", 0L),
             "log" to readLog(ctx).map { it / 60000L },
+            "told_log" to readTold(ctx).map { it / 60000L },
+            "away_until_ms" to s.getLong("away_until_ms", 0L),
         )
+    }
+
+    private fun readTold(ctx: Context): List<Long> = try {
+        (p(ctx).getString("told_log", "") ?: "").split(",").mapNotNull { it.toLongOrNull() }
+    } catch (_: Throwable) {
+        emptyList()
+    }
+
+    /** "I am going out" for [minutes] (phone left at home): a sign of life
+     *  now, and no "Are you OK?" until then + 30 min. Any later sign of
+     *  life (record) ends the pause. */
+    fun goingOut(ctx: Context, minutes: Int): Boolean {
+        return try {
+            val now = System.currentTimeMillis()
+            val ms = (minutes.toLong() * 60000L).coerceIn(0L, AWAY_MAX_MS)
+            record(ctx, now, true)
+            p(ctx).edit().putLong("away_until_ms", now + ms).putLong("away_set_ms", now).apply()
+            schedule(ctx)
+            true
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     /** "I am OK" from anywhere: a sign of life + stop the ringing. */
@@ -175,6 +204,8 @@ object SilentWatch {
             val keep = if (log.size > LOG_MAX) log.subList(log.size - LOG_MAX, log.size) else log
             val e = s.edit().putString("log", keep.joinToString(","))
             if (t > s.getLong("last_ms", 0L)) e.putLong("last_ms", t)
+            // back home (or took the phone along): the going-out pause ends
+            if (t > s.getLong("away_set_ms", 0L) + 60000L) e.putLong("away_until_ms", 0L)
             if (s.getInt("stage", 0) > 0 && explicit) {
                 e.putInt("stage", 0)
                 if (s.getBoolean("told", false)) e.putBoolean("ok_pending", true).putBoolean("told", false)
@@ -279,6 +310,15 @@ object SilentWatch {
         return dayStartMs(t, if (m >= dayEnd) 1 else 0, dayStart + 30)
     }
 
+    /** Mirror of SilentWatchBrain.ringAtAway ([ring] = ringAt(last)). */
+    fun ringAtAway(ring: Long, awayUntil: Long, dayStart: Int, dayEnd: Int): Long {
+        val a = awayUntil + AWAY_GRACE_MS
+        if (a <= ring) return ring
+        val m = minuteOfDay(a)
+        if (m in dayStart until dayEnd) return a
+        return dayStartMs(a, if (m >= dayEnd) 1 else 0, dayStart + 30)
+    }
+
     private fun nextProbe(now: Long, dayStart: Int, dayEnd: Int): Long {
         val next = now + PROBE_MS
         val m = minuteOfDay(next)
@@ -298,6 +338,8 @@ object SilentWatch {
             setAlarm(ctx, ACTION_PROBE, nextProbe(now, ds, de), false, 0)
             if (s.getInt("stage", 0) == 0) {
                 var at = ringAt(s.getLong("last_ms", now), tb, ds, de)
+                val away = s.getLong("away_until_ms", 0L)
+                if (away > 0L) at = ringAtAway(at, away, ds, de)
                 if (at < now + 60000L) at = now + 60000L
                 s.edit().putLong("ring_at_ms", at).apply()
                 setAlarm(ctx, ACTION_RING, at, true, 1)
@@ -374,7 +416,9 @@ object SilentWatch {
         val body = JSONObject().put("kind", "inactivity").put("silent_min", silentMin)
         postAsync(ctx, "family/silent-watch/alert", body) { ok ->
             if (ok) {
-                p(ctx).edit().putBoolean("told", true).apply()
+                val now = System.currentTimeMillis()
+                val told = (readTold(ctx).filter { it > now - TOLD_KEEP_MS } + now).takeLast(50)
+                p(ctx).edit().putBoolean("told", true).putString("told_log", told.joinToString(",")).apply()
                 showTold(ctx)
             } else if (attempt < 12) {
                 setAlarm(ctx, ACTION_ESCALATE, System.currentTimeMillis() + RETRY_MS, true, attempt + 1)

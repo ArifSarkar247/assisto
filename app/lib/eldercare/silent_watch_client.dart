@@ -81,8 +81,8 @@ class SilentWatchClient {
     };
   }
 
-  static List<DateTime> _log(Map<String, dynamic>? st) {
-    final raw = st?['log'];
+  static List<DateTime> _log(Map<String, dynamic>? st, [String key = 'log']) {
+    final raw = st?[key];
     if (raw is! List) return const [];
     return [
       for (final m in raw)
@@ -95,7 +95,7 @@ class SilentWatchClient {
   static Future<bool> arm({required SwConfig cfg, String? token, String lang = 'bn'}) async {
     final now = clock.now();
     final st = await native.state();
-    final learned = SilentWatchBrain.learn(_log(st), now, cfg);
+    final learned = SilentWatchBrain.learn(_log(st), now, cfg, told: _log(st, 'told_log'));
     final ok = await native.arm({
       'enabled': true,
       'table': learned.tableMin,
@@ -156,6 +156,31 @@ class SilentWatchClient {
       } catch (_) {
         // offline: the native side retries with its token on the next check
       }
+    }
+  }
+
+  /// "I am going out" from Easy Home: no "Are you OK?" for [hours] (+30
+  /// min). Returns when the asking starts again, or null if it failed.
+  static Future<DateTime?> goingOut(int hours) async {
+    try {
+      if (!await isOn()) return null;
+      final ok = await native.goingOut(hours * 60);
+      if (!ok) return null;
+      return clock.now().add(Duration(minutes: hours * 60 + SilentWatchBrain.awayGraceMin));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// When an active "I am going out" pause ends, else null.
+  static Future<DateTime?> awayUntil() async {
+    try {
+      final v = (await native.state())?['away_until_ms'];
+      if (v is! num || v <= 0) return null;
+      final t = DateTime.fromMillisecondsSinceEpoch(v.toInt());
+      return t.isAfter(clock.now()) ? t : null;
+    } catch (_) {
+      return null;
     }
   }
 

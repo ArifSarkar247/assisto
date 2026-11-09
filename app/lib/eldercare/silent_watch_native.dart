@@ -9,8 +9,13 @@ abstract class SilentWatchNative {
   Future<bool> noteActivity();
   Future<bool> ok();
 
+  /// "I am going out" (phone left at home) for [minutes]: no "Are you OK?"
+  /// until then + 30 min; any later sign of life ends the pause.
+  Future<bool> goingOut(int minutes);
+
   /// {enabled, stage (0 = quiet, 1..3 = ringing), told, last_ms,
-  ///  ring_at_ms, log: [epoch minutes]} or null.
+  ///  ring_at_ms, log: [epoch minutes], told_log: [epoch minutes],
+  ///  away_until_ms} or null.
   Future<Map<String, dynamic>?> state();
 }
 
@@ -36,6 +41,9 @@ class ChannelSilentWatchNative implements SilentWatchNative {
 
   @override
   Future<bool> ok() async => await _call<bool>('ok') ?? false;
+
+  @override
+  Future<bool> goingOut(int minutes) async => await _call<bool>('goingOut', minutes) ?? false;
 
   @override
   Future<Map<String, dynamic>?> state() async {

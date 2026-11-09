@@ -97,7 +97,7 @@ class _SilentWatchSettingsSheetState extends State<SilentWatchSettingsSheet> {
               const Padding(
                   padding: EdgeInsets.all(Gap.lg), child: Center(child: CircularProgressIndicator()))
             else if (c != null) ...[
-              _row(Icons.timer_outlined, t.fceWatchHours(elderDigits(cfg.hours, bn))),
+              _row(Icons.timer_outlined, t.fceWatchHours2(elderDigits(cfg.hours, bn))),
               _row(Icons.wb_sunny_outlined,
                   t.fceWatchDay(elderHhmm(cfg.dayStartMin, bn), elderHhmm(cfg.dayEndMin, bn))),
               _row(Icons.groups_rounded,

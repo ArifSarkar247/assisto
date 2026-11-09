@@ -545,6 +545,75 @@
      "type": "String"
     }
    }
+  },
+  "fceWatchHours2": "Asks sooner when the quiet is unusual for that time of day — at most after {hours} quiet hours (later only if your normal day is that quiet)",
+  "@fceWatchHours2": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)",
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "fceJoinConsentWatch2": "If your phone stays quiet in the day for longer than is normal for you at that time (about {hours} hours at first), Assisto will first ask you “Are you OK?”. If you do not answer, it tells your family. Going out without the phone? Tap “I am going out”.",
+  "@fceJoinConsentWatch2": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)",
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "fceSetupHours2": "Longest quiet time before asking (hours)",
+  "@fceSetupHours2": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOut": "I am going out",
+  "@fceGoingOut": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutSub": "Leaving the phone at home? Tap, so no one worries",
+  "@fceGoingOutSub": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutActive": "Out — Assisto will not ask until {time}",
+  "@fceGoingOutActive": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fceGoingOutAsk": "For how long?",
+  "@fceGoingOutAsk": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutWhy": "Assisto will not ask “Are you OK?” until you are back. When you use the phone again, it starts watching again.",
+  "@fceGoingOutWhy": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutHours": "{n} hours",
+  "@fceGoingOutHours": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "fceGoingOutDone": "Have a good trip. Assisto will not ask until {time}.",
+  "@fceGoingOutDone": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fceGoingOutFailed": "Could not pause. Silent Watch keeps watching as usual.",
+  "@fceGoingOutFailed": {
+   "description": "fcelder (Elder easy home / setup / Silent Watch)"
   }
  },
  "bn": {
@@ -647,6 +716,17 @@
   "fceWatchIChecking": "আমি খোঁজ নিচ্ছি",
   "fceWatchAckDone": "ধন্যবাদ। পরিবার জানল আপনি {name}-এর খোঁজ নিচ্ছেন।",
   "fceWatchTest": "এখন টেস্ট করুন",
-  "fceWatchTestSent": "টেস্ট পাঠানো হয়েছে। {name}-এর ফোন জিজ্ঞেস করবে “আপনি ঠিক আছেন?”।"
+  "fceWatchTestSent": "টেস্ট পাঠানো হয়েছে। {name}-এর ফোন জিজ্ঞেস করবে “আপনি ঠিক আছেন?”।",
+  "fceWatchHours2": "দিনের ওই সময়ের তুলনায় অস্বাভাবিক চুপ থাকলে আগেই জিজ্ঞেস করে — সাধারণত {hours} ঘণ্টার মধ্যে (আপনার স্বাভাবিক দিন অত চুপচাপ হলে তবেই পরে)",
+  "fceJoinConsentWatch2": "দিনের বেলা ওই সময়ে আপনার স্বাভাবিকের চেয়ে বেশিক্ষণ ফোন চুপ থাকলে (শুরুতে প্রায় {hours} ঘণ্টা) Assisto আগে আপনাকে জিজ্ঞেস করবে “আপনি ঠিক আছেন?”। উত্তর না দিলে পরিবারকে জানাবে। ফোন রেখে বাইরে যাচ্ছেন? “আমি বাইরে যাচ্ছি” চাপুন।",
+  "fceSetupHours2": "সবচেয়ে বেশি কত ঘণ্টা চুপ থাকলে জিজ্ঞেস করবে?",
+  "fceGoingOut": "আমি বাইরে যাচ্ছি",
+  "fceGoingOutSub": "ফোন বাসায় রেখে যাচ্ছেন? চাপুন, কেউ দুশ্চিন্তা করবে না",
+  "fceGoingOutActive": "বাইরে — {time} পর্যন্ত Assisto জিজ্ঞেস করবে না",
+  "fceGoingOutAsk": "কতক্ষণের জন্য?",
+  "fceGoingOutWhy": "আপনি ফেরা পর্যন্ত Assisto “আপনি ঠিক আছেন?” জিজ্ঞেস করবে না। আবার ফোন ব্যবহার করলেই আবার খেয়াল রাখা শুরু করবে।",
+  "fceGoingOutHours": "{n} ঘণ্টা",
+  "fceGoingOutDone": "ভালোভাবে ঘুরে আসুন। {time} পর্যন্ত Assisto জিজ্ঞেস করবে না।",
+  "fceGoingOutFailed": "থামানো গেল না। নীরব পাহারা আগের মতোই খেয়াল রাখছে।"
  }
 }

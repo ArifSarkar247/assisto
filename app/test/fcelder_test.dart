@@ -134,6 +134,39 @@ void main() {
       expect(find.byKey(const Key('fce-call-1')), findsNothing);
     });
 
+    testWidgets('"I am going out": pick hours -> no asking until then, said + shown', (tester) async {
+      _tall(tester);
+      await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily)));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('fce-going-out')));
+      await tester.tap(find.byKey(const Key('fce-going-out')));
+      await tester.pumpAndSettle();
+      expect(voice.said, contains('I am going out'));
+      expect(find.text('For how long?'), findsOneWidget);
+      for (final h in [1, 2, 3, 4]) {
+        expect(tester.getSize(find.byKey(Key('fce-away-$h'))).height, greaterThanOrEqualTo(72));
+      }
+      await tester.tap(find.byKey(const Key('fce-away-2')));
+      await tester.pumpAndSettle();
+      expect(native.away, [120]);
+      expect(find.textContaining('will not ask until'), findsWidgets);
+      expect(voice.said.any((s) => s.contains('will not ask until')), isTrue);
+    });
+
+    testWidgets('Bangla going-out sheet: Bangla digits, 200 % font, no overflow', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily), lang: 'bn', scale: 2));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byKey(const Key('fce-going-out')), 200,
+          scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.byKey(const Key('fce-going-out')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('৩ ঘণ্টা'), findsOneWidget);
+    });
+
     test('son / daughter picked by relation (also typed in Bangla)', () {
       const all = [
         ElderContact(5, 'Nabil', '017', 'other'),

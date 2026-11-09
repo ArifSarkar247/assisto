@@ -45,6 +45,7 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
   List<ElderContact> _family = const [];
   bool _watchOn = false;
   int _daysLearned = 0;
+  DateTime? _awayUntil;
   Timer? _tick;
   DateTime _now = clock.now();
 
@@ -93,10 +94,12 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
     }
     final on = await SilentWatchClient.isOn();
     final days = await SilentWatchClient.daysLearned();
+    final away = on ? await SilentWatchClient.awayUntil() : null;
     if (mounted) {
       setState(() {
         _watchOn = on;
         _daysLearned = days;
+        _awayUntil = away;
       });
     }
   }
@@ -211,6 +214,57 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
     widget.onExit?.call();
   }
 
+  /// "I am going out" (phone left at home): Silent Watch does not ask
+  /// "Are you OK?" until the chosen time + 30 min — so an outing to the
+  /// market or the mosque never worries the family. Back home: any use of
+  /// the phone ends the pause.
+  Future<void> _goingOut() async {
+    final t = _t;
+    unawaited(_pressed(t.fceGoingOut));
+    final hours = await showAppSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(t.fceGoingOutAsk, style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(height: Gap.xs),
+              Text(t.fceGoingOutWhy, style: AType.titleMedium),
+              const SizedBox(height: Gap.md),
+              for (final h in const [1, 2, 3, 4]) ...[
+                ElderBigButton(
+                  key: Key('fce-away-$h'),
+                  icon: Icons.schedule_rounded,
+                  label: t.fceGoingOutHours(elderDigits(h, _bn)),
+                  color: ElderColors.callA,
+                  minHeight: 72,
+                  onTap: () => Navigator.pop(ctx, h),
+                ),
+                const SizedBox(height: Gap.sm),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+    if (hours == null || !mounted) return;
+    final until = await SilentWatchClient.goingOut(hours);
+    if (!mounted) return;
+    setState(() => _awayUntil = until);
+    final msg = until == null ? t.fceGoingOutFailed : t.fceGoingOutDone(elderClock(until, _bn));
+    unawaited(ElderHooks.say(context, msg));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(msg, style: AType.titleLarge.copyWith(color: Colors.white)),
+        backgroundColor: until == null ? ElderColors.danger : ElderColors.callA));
+  }
+
   void _watchSettings() {
     showAppSheet<void>(
       context: context,
@@ -312,6 +366,24 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
             onTap: _danger,
           ),
           const SizedBox(height: Gap.xl),
+          if (_watchOn) ...[
+            Card(
+              child: ListTile(
+                key: const Key('fce-going-out'),
+                minVerticalPadding: Gap.md,
+                leading: Icon(Icons.directions_walk_rounded, color: scheme.primary, size: 32),
+                title: Text(t.fceGoingOut, style: AType.titleLarge),
+                subtitle: Text(
+                    _awayUntil == null
+                        ? t.fceGoingOutSub
+                        : t.fceGoingOutActive(elderClock(_awayUntil!, _bn)),
+                    style: AType.titleMedium),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _goingOut,
+              ),
+            ),
+            const SizedBox(height: Gap.sm),
+          ],
           if (_watchOn)
             Card(
               child: ListTile(

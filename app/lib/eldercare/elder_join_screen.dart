@@ -170,7 +170,7 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
     if (plan['easy_home'] == true) parts.add(t.fceJoinConsentEasy);
     if (plan['carecall'] == true) parts.add(t.fceJoinConsentCare(child));
     if (plan['silent_watch'] == true) {
-      parts.add(t.fceJoinConsentWatch(elderDigits(p['hours'] ?? 4, bn)));
+      parts.add(t.fceJoinConsentWatch2(elderDigits(p['hours'] ?? 4, bn)));
       parts.add(t.fceWatchPrivacy);
     }
     parts.add(t.fceJoinConsentStop);
