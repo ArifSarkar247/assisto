@@ -80,6 +80,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   bool _offlineReady = false;
   DateTime? _rememberedAt;
   List<CityReport> _reports = const [];
+  bool? _learnOn; // trip learning consent (null = unknown / offline)
 
   CityStore get _store => widget.store ?? CityStore.I;
   ApiClient get _api => context.read<AppState>().api;
@@ -110,6 +111,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     }
     if (!mounted) return;
     setState(() => _locating = false);
+    unawaited(_loadConsent());
     await _loadWhere();
     if (_to != null) unawaited(_planNow());
   }
@@ -139,6 +141,26 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           _offlineReady = ok;
         });
       }
+    }
+  }
+
+  Future<void> _loadConsent() async {
+    try {
+      final on = (await _api.cityTripConsent())['on'] == true;
+      if (mounted) setState(() => _learnOn = on);
+    } catch (_) {} // best-effort: the switch stays hidden offline
+  }
+
+  Future<void> _setLearn(bool on) async {
+    if (on && !(await showCityLearnConsent(context) ?? false)) return;
+    if (!mounted) return;
+    final msg = ScaffoldMessenger.of(context);
+    final t = AppLocalizations.of(context);
+    try {
+      final r = await _api.cityTripConsentSet(on);
+      if (mounted) setState(() => _learnOn = r['on'] == true);
+    } catch (_) {
+      msg.showSnackBar(SnackBar(content: Text(t.citySendFailed)));
     }
   }
 
@@ -270,6 +292,16 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           ..._results(t),
           CitySection(t.cityExplore, icon: Icons.explore_rounded),
           _exploreGrid(t),
+          if (_learnOn != null)
+            SwitchListTile(
+              key: const ValueKey('city_learn'),
+              contentPadding: EdgeInsets.zero,
+              value: _learnOn!,
+              onChanged: _setLearn,
+              secondary: const Icon(Icons.volunteer_activism_rounded),
+              title: Text(t.cityLearnTitle),
+              subtitle: Text(t.cityLearnSub),
+            ),
           const SizedBox(height: Gap.lg),
           Text(_plan?.attribution.isNotEmpty == true ? _plan!.attribution : t.cityAttribution,
               style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -805,4 +837,62 @@ Future<void> showCityCorrection(BuildContext context,
   } catch (_) {
     msg.showSnackBar(SnackBar(content: Text(t.citySendFailed)));
   }
+}
+
+/// Trip learning consent (B13; owner decision 9 Nov 14:20): says plainly
+/// that points are collected only while a journey started here is running
+/// (Safe Journey's foreground notification), never in the background, and
+/// that no new permission is asked. true = agreed.
+Future<bool?> showCityLearnConsent(BuildContext context) {
+  final t = AppLocalizations.of(context);
+  final lines = [
+    (Icons.directions_bus_rounded, t.cityLearnWhen),
+    (Icons.do_not_disturb_on_rounded, t.cityLearnNever),
+    (Icons.person_off_rounded, t.cityLearnNoNames),
+    (Icons.delete_sweep_rounded, t.cityLearnDelete),
+    (Icons.toggle_off_rounded, t.cityLearnOff),
+  ];
+  return showAppSheet<bool>(
+    context: context,
+    isScrollControlled: true,
+    builder: (ctx) => SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.cityLearnTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: Gap.xs),
+          Text(t.cityLearnWhy),
+          const SizedBox(height: Gap.sm),
+          for (final l in lines)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(l.$1, size: 22),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: Text(cityD(ctx, l.$2))),
+              ]),
+            ),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              key: const ValueKey('city_learn_agree'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.cityLearnAgree),
+            ),
+          ),
+          const SizedBox(height: Gap.xs),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              key: const ValueKey('city_learn_no'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t.cityLearnNo),
+            ),
+          ),
+        ]),
+      ),
+    ),
+  );
 }

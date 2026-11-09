@@ -12,6 +12,8 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
+import '../../api.dart';
+import '../../city/city_api.dart';
 import '../../city/city_models.dart';
 import '../../city/city_widgets.dart';
 import '../../l10n/app_localizations.dart';
@@ -35,6 +37,10 @@ String cityJourneyMode(CityOption o) => switch (o.lastRide?.mode) {
       'water' => 'launch',
       _ => 'local_bus',
     };
+
+/// Trip learning: one point every 15 s, at most 2 000 per trip, sent only
+/// when the trip has at least 10.
+const int kCityTraceEveryS = 15, kCityTraceMax = 2000, kCityTraceMinPoints = 10;
 
 /// Metres from the get-off stop at which the alarm rings (city bus / metro).
 const int kCityAlarmM = 400;
@@ -95,7 +101,11 @@ Future<void> startCityJourney(BuildContext context,
         msg.showSnackBar(SnackBar(content: Text(t.cityAlarmFailed)));
       }
     }
-    await nav.push(MaterialPageRoute(builder: (_) => CityTripScreen(option: option, journeyId: id)));
+    var learn = false;
+    try {
+      learn = (await api.cityTripConsent())['on'] == true;
+    } catch (_) {} // offline: no learning this trip
+    await nav.push(MaterialPageRoute(builder: (_) => CityTripScreen(option: option, journeyId: id, learn: learn)));
   } catch (_) {
     msg.showSnackBar(SnackBar(content: Text(t.cityStartFailed)));
   }
@@ -197,7 +207,13 @@ class CityTripScreen extends StatefulWidget {
   /// Test: a position stream instead of GPS.
   @visibleForTesting
   final Stream<({double lat, double lon})>? debugPositions;
-  const CityTripScreen({super.key, required this.option, this.journeyId = 0, this.debugPositions});
+  @visibleForTesting
+  final DateTime Function()? debugClock;
+
+  /// The user agreed to trip learning (city/trips/consent).
+  final bool learn;
+  const CityTripScreen(
+      {super.key, required this.option, this.journeyId = 0, this.debugPositions, this.debugClock, this.learn = false});
   @override
   State<CityTripScreen> createState() => _CityTripScreenState();
 }
@@ -205,12 +221,21 @@ class CityTripScreen extends StatefulWidget {
 class _CityTripScreenState extends State<CityTripScreen> {
   StreamSubscription<({double lat, double lon})>? _sub;
   bool _atStation = false;
+  final List<List<num>> _trace = []; // [unix_s, lat, lon] — trip learning only
+  int _lastS = 0;
+  ApiClient? _api;
+
+  /// Trip learning (B13, owner decision 9 Nov 14:20): only with consent,
+  /// only on a bus / leguna ride, only while this journey screen runs in
+  /// the foreground — never in the background, no new permission.
+  bool get _learn => widget.learn && widget.journeyId > 0 && widget.option.legs.any((l) => l.mode == 'bus' || l.mode == 'leguna');
 
   @override
   void initState() {
     super.initState();
     final exit = cityMetroExit(widget.option);
-    if (exit == null) return;
+    if (exit == null && !_learn) return;
+    if (_learn) _api = context.read<AppState>().api;
     final Stream<({double lat, double lon})> s;
     if (widget.debugPositions != null) {
       s = widget.debugPositions!;
@@ -224,6 +249,8 @@ class _CityTripScreenState extends State<CityTripScreen> {
       }
     }
     _sub = s.listen((p) {
+      if (_learn) _keep(p.lat, p.lon);
+      if (exit == null) return;
       final inside = cityAtStation(exit.station, p.lat, p.lon);
       if (inside && !_atStation) {
         HapticFeedback.heavyImpact();
@@ -232,9 +259,22 @@ class _CityTripScreenState extends State<CityTripScreen> {
     }, onError: (_) {}); // best-effort: GPS off -> the steps still show the gate
   }
 
+  void _keep(double lat, double lon) {
+    final now = (widget.debugClock?.call() ?? DateTime.now()).millisecondsSinceEpoch ~/ 1000;
+    if (now - _lastS < kCityTraceEveryS || _trace.length >= kCityTraceMax) return;
+    _lastS = now;
+    _trace.add([now, double.parse(lat.toStringAsFixed(6)), double.parse(lon.toStringAsFixed(6))]);
+  }
+
   @override
   void dispose() {
     _sub?.cancel();
+    final api = _api;
+    if (api != null && _trace.length >= kCityTraceMinPoints) {
+      // fire-and-forget: the server trims the first/last 300 m, keeps no
+      // names and deletes raw points within 7 days
+      unawaited(api.cityTripUpload(List.of(_trace)).then((_) {}, onError: (_) {}));
+    }
     super.dispose();
   }
 

@@ -337,12 +337,14 @@ Map<String, dynamic>? fakeCityGet(String path, {bool empty = false}) {
   }
   if (p == '/city/women') return fakeCityWomen();
   if (p == '/city/reports') return fakeCityReports(empty: empty);
+  if (p == '/city/trips/consent') return {'on': false, 'keep_days': 7, 'trim_m': 300};
   return {'ok': true};
 }
 
 /// POST handler: every City Service write succeeds like the server.
-Map<String, dynamic>? fakeCityPost(String path) {
+Map<String, dynamic>? fakeCityPost(String path, [Map<String, dynamic> body = const {}]) {
   if (!path.startsWith('/city/')) return null;
+  if (path == '/city/trips/consent') return {'on': body['on'] == true, 'keep_days': 7, 'trim_m': 300};
   if (path == '/city/reports') return {'ok': true, 'id': 99, 'count': 1};
   return {'ok': true, 'id': 1};
 }

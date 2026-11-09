@@ -601,7 +601,17 @@
   "cityBusesTo": "Buses to",
   "cityLaunchesTo": "Launches to",
   "cityServices": "Services",
-  "cityPapers": "Papers to bring"
+  "cityPapers": "Papers to bring",
+  "cityLearnTitle": "Help map the city's buses",
+  "cityLearnSub": "Your bus trips teach Assisto new routes and real travel times. No names.",
+  "cityLearnWhy": "Many Dhaka buses are on no map. Your trips, with no name attached, show where they really go and how long they take at each hour.",
+  "cityLearnWhen": "Only while a journey you started here is running, with the Safe Journey notification showing.",
+  "cityLearnNever": "Never in the background, never when no journey is running. No new permission is asked.",
+  "cityLearnNoNames": "No name or phone number is sent. The first and last 300 m of every trip are cut off.",
+  "cityLearnDelete": "Raw points are deleted within 7 days. Never sold or shared with anyone.",
+  "cityLearnOff": "Turn it off here any time.",
+  "cityLearnAgree": "I agree",
+  "cityLearnNo": "No thanks"
  },
  "bn": {
   "cityTitle": "সিটি সার্ভিস",
@@ -832,6 +842,16 @@
   "cityBusesTo": "যেসব জায়গায় বাস যায়",
   "cityLaunchesTo": "যেসব জায়গায় লঞ্চ যায়",
   "cityServices": "সেবা",
-  "cityPapers": "যে কাগজ লাগবে"
+  "cityPapers": "যে কাগজ লাগবে",
+  "cityLearnTitle": "শহরের বাসের ম্যাপ বানাতে সাহায্য করুন",
+  "cityLearnSub": "আপনার বাসযাত্রা থেকে Assisto নতুন রুট আর আসল সময় শেখে। কোনো নাম নয়।",
+  "cityLearnWhy": "ঢাকার অনেক বাস কোনো ম্যাপে নেই। নামহীনভাবে আপনার যাত্রা দেখায় বাসগুলো আসলে কোথায় যায়, কোন সময়ে কত সময় লাগে।",
+  "cityLearnWhen": "শুধু এখান থেকে শুরু করা যাত্রা চলার সময়, যখন Safe Journey-র নোটিফিকেশন দেখা যায়।",
+  "cityLearnNever": "ব্যাকগ্রাউন্ডে কখনো নয়, যাত্রা না চললে কখনো নয়। নতুন কোনো অনুমতি চাওয়া হয় না।",
+  "cityLearnNoNames": "কোনো নাম বা ফোন নম্বর পাঠানো হয় না। প্রতিটি যাত্রার শুরু আর শেষের ৩০০ মিটার বাদ দেওয়া হয়।",
+  "cityLearnDelete": "কাঁচা তথ্য ৭ দিনের মধ্যে মুছে ফেলা হয়। কখনো বিক্রি বা কারও সঙ্গে শেয়ার করা হয় না।",
+  "cityLearnOff": "যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন।",
+  "cityLearnAgree": "আমি রাজি",
+  "cityLearnNo": "না, ধন্যবাদ"
  }
 }

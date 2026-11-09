@@ -82,4 +82,11 @@ extension CityApi on ApiClient {
       });
   Future<Map<String, dynamic>> cityNightRating(String routeId, int stars, {String city = 'dhaka'}) =>
       postJson('/city/night-rating', {'city': city, 'route_id': routeId, 'stars': stars});
+
+  /// §8 trip learning (consent, no names). Points are sent only for a trip
+  /// the user ran in City Service with consent on.
+  Future<Map<String, dynamic>> cityTripConsent() => getJson('/city/trips/consent');
+  Future<Map<String, dynamic>> cityTripConsentSet(bool on) => postJson('/city/trips/consent', {'on': on});
+  Future<Map<String, dynamic>> cityTripUpload(List<List<num>> points, {String mode = 'bus'}) =>
+      postJson('/city/trips', {'mode': mode, 'points': points});
 }

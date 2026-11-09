@@ -324,4 +324,64 @@ void main() {
       expect(find.text(t.cityLiftHere), findsOneWidget);
     });
   });
+
+  group('trip learning (owner decision 9 Nov 14:20)', () {
+    testWidgets('consent sheet says: only during a running journey, never background, no new permission',
+        (tester) async {
+      final api = _CityApi();
+      final t = await _pump(
+          tester, CityServiceScreen(debugHere: _here, debugSimple: false, store: CityStore(files: MemoryCityFiles())),
+          api);
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('city_learn')), 300, scrollable: _list());
+      await tester.tap(find.byKey(const ValueKey('city_learn')));
+      await tester.pumpAndSettle();
+      expect(find.text(t.cityLearnWhen), findsOneWidget);
+      expect(find.text(t.cityLearnNever), findsOneWidget);
+      expect(api.posts.where((p) => p.$1 == '/city/trips/consent'), isEmpty); // nothing before agreeing
+      await tester.tap(find.byKey(const ValueKey('city_learn_agree')));
+      await tester.pumpAndSettle();
+      expect(api.posts.last.$1, '/city/trips/consent');
+      expect(api.posts.last.$2, {'on': true});
+      expect(tester.widget<SwitchListTile>(find.byKey(const ValueKey('city_learn'))).value, isTrue);
+    });
+
+    Future<_CityApi> trip(WidgetTester tester, {required bool learn, int journeyId = 1}) async {
+      final api = _CityApi();
+      final o = CityPlan.from(fakeCityPlan()).options[CityPick.cheapest]!; // a bus ride
+      var clock = DateTime(2026, 11, 9, 8);
+      await _pump(
+          tester,
+          CityTripScreen(
+              option: o,
+              journeyId: journeyId,
+              learn: learn,
+              debugClock: () => clock = clock.add(const Duration(seconds: 20)),
+              debugPositions: Stream.fromIterable([
+                for (var i = 0; i < 12; i++) (lat: 23.80 - i * 0.004, lon: 90.37 + i * 0.003),
+              ])),
+          api);
+      await tester.pumpWidget(const SizedBox()); // trip screen closed
+      await tester.pump();
+      return api;
+    }
+
+    testWidgets('with consent + a running journey: the bus trace is sent once, no names', (tester) async {
+      final api = await trip(tester, learn: true);
+      final up = api.posts.where((p) => p.$1 == '/city/trips').toList();
+      expect(up, hasLength(1));
+      expect(up.single.$2['mode'], 'bus');
+      expect((up.single.$2['points'] as List).length, 12);
+      expect(up.single.$2.keys.toSet(), {'mode', 'points'});
+    });
+
+    testWidgets('no consent -> nothing collected', (tester) async {
+      final api = await trip(tester, learn: false);
+      expect(api.posts.where((p) => p.$1 == '/city/trips'), isEmpty);
+    });
+
+    testWidgets('no running journey -> nothing collected', (tester) async {
+      final api = await trip(tester, learn: true, journeyId: 0);
+      expect(api.posts.where((p) => p.$1 == '/city/trips'), isEmpty);
+    });
+  });
 }

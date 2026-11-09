@@ -2213,7 +2213,7 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
-    final cityP = fakeCityPost(path); // cityapp
+    final cityP = fakeCityPost(path, body); // cityapp
     if (cityP != null) return cityP;
     if (path.endsWith('learn/quran/complete')) { // learnwire
       final c = '${body['course']}';
