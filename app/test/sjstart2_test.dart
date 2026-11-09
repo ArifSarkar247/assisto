@@ -16,6 +16,7 @@ import 'package:assisto/widgets/journey_plate_photo.dart';
 import 'package:assisto/widgets/journey_watcher_chips.dart';
 import 'package:assisto/train/journey_transit.dart' show kTravelModes;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -174,7 +175,16 @@ void main() {
     en = await AppLocalizations.delegate.load(const Locale('en'));
     bn = await AppLocalizations.delegate.load(const Locale('bn'));
   });
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    // plugin channels never answer in the test VM: location already allowed
+    // (the start would wait forever on checkPermission otherwise)
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('flutter.baseflow.com/geolocator'),
+        (call) async => call.method == 'checkPermission' ? 2 : null);
+  });
+  tearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel('flutter.baseflow.com/geolocator'), null));
 
   group('usual trips (learned on the phone)', () {
     // Sun 1 Nov 2026 .. Thu: BD working days
