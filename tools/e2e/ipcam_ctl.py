@@ -63,7 +63,7 @@ def seed():
     u.ai_credits = 1000
     u.save()
     site = ShopSite.objects.filter(owner=u).first() or ShopSite.objects.create(
-        owner=u, name="Sample shop", kind="shop")
+        owner=u, name="Sample home", kind="home")
     out = {"token": Token.objects.get_or_create(user=u)[0].key, "site": site.id}
     with open(SEED, "w") as f:
         json.dump(out, f)
@@ -174,13 +174,15 @@ async def _live_probe(cam_id):
 
 
 def _arm_new_cameras():
-    """The owner's "Zones & schedule" step: a v2 zone config with no schedule
-    = always guarding (a person is only an alert while the camera is armed)."""
+    """The owner's "Zones & schedule" step: no schedule = always guarding (a
+    person is only an alert while the camera is armed; a shop's default is
+    21:00-09:00, the CI clock may be outside it)."""
     from core.logic import watchman as WM
     from core.models import ShopCamera
     for c in ShopCamera.objects.filter(site_id=_seed()["site"], vendor="phone"):
-        if WM.zone_v2(c.zone_config) is None:
-            c.zone_config = {"v": WM.SCHEMA_V}
+        zc = WM.zone_v2(c.zone_config)
+        if zc is None or zc.get("schedule"):
+            c.zone_config = dict(zc or WM.default_zone_config("home"), schedule=None)
             c.save(update_fields=["zone_config"])
             LIVE["armed_camera"] = c.id
 
