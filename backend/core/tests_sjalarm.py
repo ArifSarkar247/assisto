@@ -70,6 +70,13 @@ class ScheduleVerifiedTests(TestCase):
 
     @mock.patch("core.train_views.flag_on", return_value=True)
     def test_off_until_owner_switches_on_for_all(self, _):
+        # frozen clock (sjtrain): the fixed service date below is only valid
+        # near "today" (/train/<no>/live refuses far past dates -> KeyError)
+        from datetime import datetime, timezone as dt_tz
+        p = mock.patch("django.utils.timezone.now",
+                       return_value=datetime(2026, 11, 3, 2, 0, tzinfo=dt_tz.utc))
+        p.start()
+        self.addCleanup(p.stop)
         r = _client(self.u).get(V + "/train/search?q=701").json()
         self.assertTrue(r["trains"])
         self.assertTrue(all(t["approved"] is False for t in r["trains"]))

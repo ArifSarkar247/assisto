@@ -357,7 +357,7 @@ class SeatCardTests(TestCase):
     def test_only_around_the_trip(self, _):
         a = _user(61)
         with mock.patch("django.utils.timezone.now",
-                        return_value=datetime(2026, 12, 1, 4, 0, tzinfo=dt_timezone.utc)):
+                        return_value=datetime(2026, 11, 11, 6, 0, tzinfo=dt_timezone.utc)):
             r = self._answer(a, facing="forward")
         self.assertEqual(r.json()["reason"], "not_this_trip")
 
