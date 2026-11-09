@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -96,7 +97,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyLiabilities, tkFmt(liabilities),
-                Theme.of(context).colorScheme.error, Icons.call_made_rounded)),
+                DsTokens.of(context).dangerInk, Icons.call_made_rounded)),
       ]),
       const SizedBox(height: Gap.xl),
       Text(t.moneyNetWorthOverTime,
@@ -105,7 +106,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
       if (series.isEmpty)
         Text(t.moneyNoTransactionsHint,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant))
+                color: DsTokens.of(context).muted))
       else
         Card(
           child: Padding(

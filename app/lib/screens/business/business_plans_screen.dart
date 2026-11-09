@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/business_ui.dart';
 import '../plans_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -44,7 +45,7 @@ class BusinessPlansScreen extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Text(tr.ldgFreePaidSms,
             style: AType.bodySmall.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.lg),
         _planCard(
           context,
@@ -86,9 +87,9 @@ class BusinessPlansScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: highlighted ? Brand.gradient : null,
-        color: highlighted ? null : scheme.surfaceContainerLow,
+        color: highlighted ? null : DsTokens.of(context).card,
         borderRadius: BorderRadius.circular(Radii.lg),
-        border: highlighted ? null : Border.all(color: scheme.outlineVariant),
+        border: highlighted ? null : Border.all(color: DsTokens.of(context).border),
       ),
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -99,13 +100,13 @@ class BusinessPlansScreen extends StatelessWidget {
           Text(title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: highlighted ? Colors.white : scheme.onSurface)),
+                  color: highlighted ? Colors.white : DsTokens.of(context).text)),
         ]),
         const SizedBox(height: Gap.xs),
         Text(subtitle,
             style: TextStyle(
                 height: 1.4,
-                color: highlighted ? Colors.white : scheme.onSurfaceVariant)),
+                color: highlighted ? Colors.white : DsTokens.of(context).muted)),
         const SizedBox(height: Gap.lg),
         for (final b in benefits)
           Padding(
@@ -118,7 +119,7 @@ class BusinessPlansScreen extends StatelessWidget {
                 child: Text(b,
                     style: TextStyle(
                         height: 1.4,
-                        color: highlighted ? Colors.white : scheme.onSurface)),
+                        color: highlighted ? Colors.white : DsTokens.of(context).text)),
               ),
             ]),
           ),
@@ -126,7 +127,7 @@ class BusinessPlansScreen extends StatelessWidget {
         Text(priceLine,
             style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: highlighted ? Colors.white : scheme.onSurface)),
+                color: highlighted ? Colors.white : DsTokens.of(context).text)),
         if (cta != null) ...[
           const SizedBox(height: Gap.lg),
           SizedBox(width: double.infinity, child: cta),

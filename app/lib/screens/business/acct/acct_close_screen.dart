@@ -9,6 +9,7 @@ import '../../../messaging/date_separators.dart' show fmtDate;
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
@@ -225,13 +226,13 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
-          color: lock == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
+          color: lock == null ? DsTokens.of(context).cardHighest : DsTokens.of(context).primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 Icon(lock == null ? Icons.lock_open_rounded : Icons.lock_rounded,
-                    color: lock == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer),
+                    color: lock == null ? DsTokens.of(context).muted : DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(
@@ -240,7 +241,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                           : t.acuClosedUpTo(acctDay(context, acctIso(lock))),
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: lock == null ? null : scheme.onPrimaryContainer)),
+                          color: lock == null ? null : DsTokens.of(context).primaryInk)),
                 ),
               ]),
               if (lock != null) ...[
@@ -251,8 +252,8 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                     // on the primaryContainer card: onPrimaryContainer keeps
                     // >= 4.5:1 (the default primary was 3.62:1 in dark)
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: scheme.onPrimaryContainer,
-                        side: BorderSide(color: scheme.onPrimaryContainer)),
+                        foregroundColor: DsTokens.of(context).primaryInk,
+                        side: BorderSide(color: DsTokens.of(context).primaryInk)),
                     key: const ValueKey('acct-reopen'),
                     onPressed: _busy ? null : _reopen,
                     icon: const Icon(Icons.lock_open_rounded),
@@ -267,7 +268,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
         Text(t.acuCloseWhy, style: const TextStyle(height: 1.5)),
         const SizedBox(height: Gap.lg),
         if (months.isEmpty)
-          Text(t.acuCloseNothing, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4))
+          Text(t.acuCloseNothing, style: TextStyle(color: DsTokens.of(context).muted, height: 1.4))
         else ...[
           Semantics(
             header: true,

@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../messaging/date_separators.dart' show localDigits;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../business_common.dart' show pair;
 import 'acct_common.dart';
@@ -266,7 +267,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
           ]),
           const SizedBox(height: Gap.sm),
           Text(acctKindHint(t, _kind),
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
           _label(t.acuAmount),
           TextField(
             key: const ValueKey('acct-amount'),
@@ -347,14 +348,14 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
             child: Container(
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                  color: scheme.secondaryContainer,
+                  color: DsTokens.of(context).primarySoft,
                   borderRadius: BorderRadius.circular(Radii.md)),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.lightbulb_outline_rounded, color: scheme.onSecondaryContainer),
+                Icon(Icons.lightbulb_outline_rounded, color: DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_effect(t),
-                        style: TextStyle(color: scheme.onSecondaryContainer, height: 1.4))),
+                        style: TextStyle(color: DsTokens.of(context).primaryInk, height: 1.4))),
               ]),
             ),
           ),
@@ -446,7 +447,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Text(_error!,
                     key: const ValueKey('acct-error'),
-                    style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+                    style: TextStyle(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
               ),
             ),
           const SizedBox(height: Gap.lg),

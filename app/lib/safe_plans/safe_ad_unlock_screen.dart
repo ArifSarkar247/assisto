@@ -7,6 +7,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'safe_plans_api.dart';
@@ -145,7 +146,7 @@ class _SafeAdUnlockScreenState extends State<SafeAdUnlockScreen> {
     String n(dynamic v) => fmtInt(context, spInt(v));
     if (ads['eligible'] != true) {
       return [
-        Icon(Icons.block, size: 48, color: Theme.of(context).colorScheme.outline),
+        Icon(Icons.block, size: 48, color: DsTokens.of(context).border),
         const SizedBox(height: Gap.md),
         Text(switch ('${ads['why']}') {
           'child_account' => t.spAdChild,

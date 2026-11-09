@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -115,13 +116,13 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyMonthExpense,
-                tkFmt(d['expense']), Theme.of(context).colorScheme.error, Icons.north_east_rounded)),
+                tkFmt(d['expense']), DsTokens.of(context).dangerInk, Icons.north_east_rounded)),
       ]),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthNet, tkFmt(d['net']),
-                dbl(d['net']) >= 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.error,
+                dbl(d['net']) >= 0 ? Theme.of(context).colorScheme.primary : DsTokens.of(context).dangerInk,
                 Icons.savings_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
@@ -170,7 +171,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
                         ? Icons.warning_amber_rounded
                         : Icons.check_circle_outline_rounded,
                 color: b['state'] == 'over'
-                    ? Theme.of(context).colorScheme.error
+                    ? DsTokens.of(context).dangerInk
                     : b['state'] == 'near'
                         ? AssistoTokens.of(context).warning
                         : AssistoTokens.of(context).success),

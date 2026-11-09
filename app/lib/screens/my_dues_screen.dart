@@ -11,6 +11,7 @@ import '../services/error_kind.dart' show FailKind, failKindOf, honestFailText;
 import '../services/error_report.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'business/business_common.dart' show pair;
 import 'my_dues_shop_screen.dart';
@@ -160,7 +161,7 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
               key: const ValueKey('tg2-dues-saved'),
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: DsTokens.of(context).cardHighest,
                   borderRadius: BorderRadius.circular(Radii.md)),
               child: Row(children: [
                 const Icon(Icons.cloud_off_rounded, size: 20),
@@ -171,7 +172,7 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
             const SizedBox(height: Gap.md),
           ],
           Text(t.tg2DuesIntro(_d('${d['phone_masked'] ?? ''}')),
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.md),
           if (shops.isEmpty)
             Padding(
@@ -242,8 +243,8 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
       child: ListTile(
         minVerticalPadding: Gap.md,
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer,
-          child: Icon(Icons.storefront_rounded, color: scheme.onPrimaryContainer),
+          backgroundColor: DsTokens.of(context).primarySoft,
+          child: Icon(Icons.storefront_rounded, color: DsTokens.of(context).primaryInk),
         ),
         title: Text('${s['shop_name'] ?? ''}',
             maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -263,7 +264,7 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
             style: TextStyle(
                 fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
-                color: owes ? scheme.error : AssistoTokens.of(context).success)),
+                color: owes ? DsTokens.of(context).dangerInk : AssistoTokens.of(context).success)),
         onTap: () => _open(s),
       ),
     );

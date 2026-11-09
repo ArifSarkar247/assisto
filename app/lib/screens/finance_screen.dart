@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/finance_common.dart';
 import '../widgets/finance_calc.dart' as calc;
 import '../widgets/tax_widgets.dart' show openExternal; // moneybar
@@ -196,7 +197,7 @@ class _Picker extends StatelessWidget {
             child: Text(g.$1,
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: scheme.onSurfaceVariant)),
+                    color: DsTokens.of(context).muted)),
           ),
           ...g.$2.map((m) => Card(
                 margin: const EdgeInsets.only(bottom: Gap.sm),
@@ -204,8 +205,8 @@ class _Picker extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(Radii.md)),
                   leading: CircleAvatar(
-                    backgroundColor: scheme.secondaryContainer,
-                    foregroundColor: scheme.onSecondaryContainer,
+                    backgroundColor: DsTokens.of(context).primarySoft,
+                    foregroundColor: DsTokens.of(context).primaryInk,
                     child: Icon(m.icon, size: 20),
                   ),
                   title: Text(_title(t, m.tool),
@@ -421,7 +422,7 @@ class _ScheduleTable extends StatelessWidget {
         dataRowMaxHeight: 40,
         columnSpacing: Gap.lg,
         headingTextStyle: TextStyle(
-            fontWeight: FontWeight.w700, color: scheme.onSecondaryContainer),
+            fontWeight: FontWeight.w700, color: DsTokens.of(context).primaryInk),
         columns: [
           DataColumn(label: Text(t.financeSchMonth)),
           DataColumn(label: Text(t.financeSchPayment)),
@@ -1296,7 +1297,7 @@ class _NetWorthTabState extends State<_NetWorthTab> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.wifi_off_rounded,
-                size: 40, color: Theme.of(context).colorScheme.outline),
+                size: 40, color: DsTokens.of(context).border),
             const SizedBox(height: Gap.md),
             FilledButton(onPressed: _load, child: Text(t.financeCalculate)),
           ],

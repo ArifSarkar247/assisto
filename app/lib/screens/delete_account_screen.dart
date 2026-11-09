@@ -11,6 +11,7 @@ import '../services/error_kind.dart' show isServerFailure;
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/password_field.dart';
 import '../otp_api.dart';
@@ -459,7 +460,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         Text(t.fbDeleteWebLine,
             key: const Key('del-acct-web-line'),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.xl),
         _problemGuidance(t),
         const SizedBox(height: Gap.xl),
@@ -526,7 +527,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.sms_rounded,
-                size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                size: 18, color: DsTokens.of(context).muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.otpDelSmsNote,
@@ -682,7 +683,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       key: const Key('del-acct-guidance'),
-      color: scheme.secondaryContainer,
+      color: DsTokens.of(context).primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(
@@ -692,7 +693,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.support_agent_rounded,
-                    color: scheme.onSecondaryContainer),
+                    color: DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Column(
@@ -704,10 +705,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                               .titleMedium
                               ?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: scheme.onSecondaryContainer)),
+                                  color: DsTokens.of(context).primaryInk)),
                       const SizedBox(height: Gap.xs),
                       Text(t.delAcctGuidanceBody,
-                          style: TextStyle(color: scheme.onSecondaryContainer)),
+                          style: TextStyle(color: DsTokens.of(context).primaryInk)),
                     ],
                   ),
                 ),
@@ -722,7 +723,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   key: const Key('del-acct-feedback'),
                   // a11y1: AA on secondaryContainer.
                   style: OutlinedButton.styleFrom(
-                      foregroundColor: scheme.onSecondaryContainer),
+                      foregroundColor: DsTokens.of(context).primaryInk),
                   onPressed: () =>
                       FeedbackSheet.open(context, route: 'account_delete'),
                   icon: const Icon(Icons.feedback_rounded),
@@ -731,7 +732,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 OutlinedButton.icon(
                   key: const Key('del-acct-support'),
                   style: OutlinedButton.styleFrom(
-                      foregroundColor: scheme.onSecondaryContainer),
+                      foregroundColor: DsTokens.of(context).primaryInk),
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
