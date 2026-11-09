@@ -12,7 +12,7 @@ def _id():
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0157_sjduring'),
+        ('core', '0163_lpcore'),
     ]
 
     operations = [
