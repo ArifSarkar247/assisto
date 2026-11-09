@@ -119,11 +119,17 @@ void main() {
       await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily), lang: 'bn', scale: 2, dark: true));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('ছেলেকে কল'), findsOneWidget);
-      expect(find.text('বিপদ'), findsOneWidget);
-      // the time in Bangla digits
-      final time = tester.widget<Text>(find.byKey(const Key('fce-time'))).data!;
-      expect(RegExp(r'[0-9]').hasMatch(time), isFalse, reason: time);
+      // the time in Bangla digits (top of the page)
+      final top = tester.widget<Text>(find.byKey(const Key('fce-time'))).data!;
+      expect(RegExp(r'[0-9]').hasMatch(top), isFalse, reason: top);
+      // 200 %: the list is lazy, so scroll each big button into view
+      final list = find.byType(Scrollable).first;
+      for (final label in ['ছেলেকে কল', 'বিপদ', 'আমি বাইরে যাচ্ছি']) {
+        await tester.scrollUntilVisible(find.text(label), 200, scrollable: list);
+        await tester.pumpAndSettle();
+        expect(find.text(label), findsOneWidget, reason: label);
+        expect(tester.takeException(), isNull, reason: label);
+      }
     });
 
     testWidgets('no family number yet -> a big "Add a family number", never a dead button', (tester) async {
@@ -159,6 +165,8 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(const ElderEasyHome(debugFamily: fceFamily), lang: 'bn', scale: 2));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byKey(const Key('fce-going-out')), 200,
+          scrollable: find.byType(Scrollable).first);
       await tester.ensureVisible(find.byKey(const Key('fce-going-out')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('fce-going-out')));

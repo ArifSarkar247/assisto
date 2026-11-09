@@ -12,7 +12,7 @@
 // a long night's sleep is never "silence".
 //
 // LEARNING (7 days, on the phone): for every half hour of the day the brain
-// looks at the quiet stretches the elder had starting within 2 hours of it
+// looks at the quiet stretches the elder had starting within 2.5 hours of it
 // (an after-lunch nap, Friday prayers, a long TV evening) and takes the 4th
 // longest of the week — one odd day (a long outing) does not count as
 // "normal". After 7 days it rings when today's silence is LONGER than that
@@ -20,7 +20,7 @@
 // So at a busy time of day the first "Are you OK?" comes much sooner than N
 // hours; at a normally quiet time it waits. Until day 7: exactly N hours.
 //
-// FALSE-ALARM GUARD: if the family was told in the last 14 days (and the
+// FALSE-ALARM GUARD: if the family was told in the last 21 days (and the
 // elder then turned out fine — else nobody is re-learning), the brain goes
 // back to the cautious table (single longest stretch, never sooner than N
 // hours) for that elder. "I am going out" (Easy Home) pauses the asking
@@ -94,13 +94,13 @@ class SilentWatchBrain {
   /// After learning: the k-th longest quiet stretch within [nearSlots]
   /// half-hours (either side) is "normal" for that time of day.
   static const rankK = 4;
-  static const nearSlots = 4;
+  static const nearSlots = 5;
 
   /// Never ask sooner than this after learning (minutes of in-day silence).
   static const minAllowanceMin = 90;
 
   /// A family alert within this many days -> the cautious table.
-  static const guardDays = 14;
+  static const guardDays = 21;
 
   /// "I am going out": ask again only this long after the chosen time.
   static const awayGraceMin = 30;

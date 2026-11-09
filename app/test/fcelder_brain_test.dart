@@ -10,7 +10,7 @@
 // ladder as the phone: 4 rings 5 min apart, then the family. An outing
 // without the phone is announced with "I am going out" on [announce] of
 // the days (an ASSUMPTION — 0.5 and 0.0 are both measured), and a family
-// alert puts that elder on the cautious table for 14 days (the guard).
+// alert puts that elder on the cautious table for 21 days (the guard).
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -272,11 +272,11 @@ void main() {
       expect(l.allowanceMin[SilentWatchBrain.slotOf(_d(0, 10 * 60))], 90);
     });
 
-    test('guard: a family alert in the last 14 days -> cautious (>= N hours)', () {
+    test('guard: a family alert in the last 21 days -> cautious (>= N hours)', () {
       final told = [_d(6, 11 * 60)];
       final l = SilentWatchBrain.learn(busyWeek(), _d(8, 0), _cfg, told: told);
       expect(l.allowanceMin.every((a) => a >= 240), isTrue);
-      final later = SilentWatchBrain.learn(busyWeek(), _d(8, 0), _cfg, told: [_d(-7, 11 * 60)]);
+      final later = SilentWatchBrain.learn(busyWeek(), _d(8, 0), _cfg, told: [_d(-14, 11 * 60)]);
       expect(later.allowanceMin[SilentWatchBrain.slotOf(_d(0, 9 * 60))], 90);
     });
 
@@ -306,7 +306,7 @@ void main() {
             '${perMonth.toStringAsFixed(3)} (${r.familyAlerts} in ${r.familyDays} family-days); '
             '"Are you OK?" ring runs per family-month = ${ringsPerMonth.toStringAsFixed(2)}');
         // the guard keeps it under 1 even if no elder ever taps "going out"
-        expect(perMonth, lessThan(announce > 0 ? 1.0 : 1.15));
+        expect(perMonth, lessThan(1.0));
       });
     }
 
