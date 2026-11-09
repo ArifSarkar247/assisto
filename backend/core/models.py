@@ -3645,6 +3645,19 @@ class ShopEvent(models.Model):
         # ---- cctvalerts (W3) ----
         ("loitering", "loitering at night"),
         ("camera_health", "camera covered / moved / dark / SD"),
+        # ---- cctvdet (Guard V3 part C) ----
+        ("gate_person", "person at the shutter / gate"),
+        ("post_empty", "counter / post left empty"),
+        ("gate_open", "gate / shutter left open"),
+        ("crowd", "crowd / queue"),
+        ("vehicle_in_out", "vehicle in / out"),
+        ("parking_overstay", "parking overstay"),
+        ("wrong_parking", "wrong parking"),
+        ("smoke_fire", "smoke / fire (possible)"),
+        ("fight", "scuffle (possible)"),
+        ("fall", "fall (possible)"),
+        ("weapon_review", "weapon-like object (review only)"),
+        ("loud_sound", "loudness level (opt-in)"),
     ]
     STATUS = [("open", "open"), ("checked", "checked"),
               ("false_alarm", "false alarm")]

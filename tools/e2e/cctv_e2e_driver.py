@@ -541,6 +541,7 @@ def run():
               getattr(engine.detector, "name", "") == "yolox_nano",
               getattr(engine.detector, "name", ""))
         engine.start()
+        engine_started_at = time.time()          # cctvacc: alert latency
         ov = wait_for(lambda: owner.get(API + "/shop/watchman", timeout=10).json()
                       ["sites"][0]["gateway_state"]["online"], 20)
         check("owner app: gateway shows online after heartbeat", ov)
@@ -634,6 +635,23 @@ def run():
         check("FCM v1 push dispatched to both phones (JWT verified by mock)",
               calls and len(calls) == 2 and
               {c["token"] for c in calls} == {"e2e-fcm-owner", "e2e-fcm-family"}, calls)
+        # cctvacc: ALERT LATENCY = the person walking into the RTSP picture
+        # (the publisher logs that wall-clock moment every cycle) -> the
+        # first push reaching mock FCM. If the person was already in the
+        # picture when the box started, the clock starts at box start.
+        ev_path = os.environ.get("E2E_PERSON_EVENTS", "")
+        if calls and ev_path and os.path.exists(ev_path):
+            push_t = min(float(c.get("_t") or 0) for c in calls)
+            entries = [float(x) for x in open(ev_path).read().split() if x.strip()]
+            before = [e for e in entries if e <= push_t]
+            if before:
+                start = max(before[-1], engine_started_at)
+                lat = round(push_t - start, 2)
+                CASH_METRICS["alert_latency_event_to_push_s"] = lat
+                CASH_METRICS["alert_latency_clock"] = (
+                    "person_entered" if before[-1] >= engine_started_at else "box_started")
+                check("alert latency: person in picture -> push < 15 s (%.1f s)" % lat,
+                      0 <= lat < 15.0, lat)
         if calls:
             byt = {c["token"]: c for c in calls}
             ow = byt.get("e2e-fcm-owner", {})
