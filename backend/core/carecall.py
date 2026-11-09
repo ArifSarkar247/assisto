@@ -601,6 +601,11 @@ def tick(now=None):
             ring.save(update_fields=["misses", "status", "escalated_at", "due_at"])
             _status_push(ring, "missed")
             out["escalated"] += 1
+            try:  # fcelder: Silent Watch asks the elder first, then the ladder
+                from .silent_watch import on_carecall_missed
+                on_carecall_missed(cc_receiver(ring), now)
+            except Exception:  # noqa: BLE001
+                pass
             continue
         link = CareCallLink.objects.filter(setter_id=ring.care_call.setter_id,
                                            receiver_id=ring.care_call.receiver_id).first()
@@ -609,7 +614,16 @@ def tick(now=None):
             nxt = after_quiet(nxt, link.quiet_start, link.quiet_end)
         ring.status, ring.due_at = "pending", nxt
         ring.save(update_fields=["misses", "status", "due_at"])
+    try:  # fcelder: Silent Watch ladder steps (setter -> family -> nearby)
+        from .silent_watch import tick as sw_tick
+        out["silent_watch"] = sw_tick(now)
+    except Exception:  # noqa: BLE001
+        pass
     return out
+
+
+def cc_receiver(ring):
+    return ring.care_call.receiver
 
 
 # --------------------------------------------------------------- views data
