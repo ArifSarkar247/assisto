@@ -27,6 +27,7 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
+from . import views_family_brain as fcb  # fcbrain
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
@@ -397,6 +398,15 @@ urlpatterns = [
     path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
     path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
+    # fcbrain (Family Care v3 BRAIN 2-7, MUST precede router.urls)
+    path("family/brain/ping", fcb.BrainPingView.as_view()),
+    path("family/brain/prefs", fcb.BrainPrefsView.as_view()),
+    path("family/brain/pause", fcb.BrainPauseView.as_view()),
+    path("family/brain/visibility", fcb.BrainVisibilityView.as_view()),
+    path("family/brain/leave", fcb.BrainLeaveView.as_view()),
+    path("family/brain/night-news", fcb.BrainNightNewsView.as_view()),
+    path("family/brain/ask", fcb.BrainAskView.as_view()),
+    path("family/brain/member/<int:uid>", fcb.BrainMemberView.as_view()),
     path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
     path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
