@@ -1,1 +1,1 @@
-Build 319: customer due link for the khata; Family Care arrive and leave news (background watch off until approved); City Service Dhaka transit data and route engine; Imou OAuth callback; emulator test fixes.
+Build 325: Safe Journey V2 — new start screen with one search (our own Bangladesh place list first, never a limit message), arrival window with the earliest possible time, private check-in for the traveler, alert ladder with safe and danger PIN, family watcher board, live page with the arrival window.

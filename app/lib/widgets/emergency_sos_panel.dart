@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../family_alerts_api.dart'; // family100
 import '../state.dart';
@@ -10,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'safety_sos_countdown.dart';
 import 'sos_ladder_card.dart'; // sosat
+import 'sos_location.dart'; // qjourney
 
 /// Emergency-screen SOS (sosat: hold-to-send + escalation ladder).
 ///
@@ -105,22 +105,9 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
 
   Future<(double, double)?> _maybePosition() async {
     if (widget.locate != null) return widget.locate!();
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return null;
-      }
-      final p = await Geolocator.getCurrentPosition()
-          .timeout(const Duration(seconds: 8));
-      return (p.latitude, p.longitude);
-    } catch (_) {
-      return null;
-    }
+    // qjourney: bounded — an SOS never waits on a GPS fix or a prompt
+    final p = await sosQuickPosition();
+    return p == null ? null : (p.lat, p.lng);
   }
 
   /// family100: the SERVER alerts every consenting family member at once

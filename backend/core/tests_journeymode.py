@@ -17,6 +17,7 @@ Patches return plain values only (no bare MagicMock gets JSON-encoded)."""
 from datetime import timedelta
 from unittest import mock
 
+from django.test import override_settings  # sjduring
 from django.utils import timezone
 
 from core import journey_mode as JM
@@ -130,6 +131,9 @@ class WatcherTrainViewTests(TrainJourneyBase):
 
 
 # ------------------------------------------------------------ 3/4. stop rules
+# sjduring: the journey100 (pre-V2) rules, kept as the one-line rollback
+# (settings.SJ_DURING_V2 = False); V2 is tested in core/tests_sjduring.py
+@override_settings(SJ_DURING_V2=False)
 class ModeAwareStopTests(TrainJourneyBase):
     def stand(self, j, lat, lng, minutes):
         """Arrive at (lat, lng) `minutes` ago and stand there; sweep now."""

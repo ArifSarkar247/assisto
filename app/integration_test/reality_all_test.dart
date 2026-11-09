@@ -27,6 +27,8 @@ import 'flows/onboarding_flow.dart';
 import 'flows/personal_flow.dart';
 import 'flows/remmeter_flow.dart';
 import 'flows/safe_journey_flow.dart';
+import 'flows/sos_journey_flow.dart'; // qjourney
+import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sweep_flow.dart';
 import 'support/harness.dart';
 
@@ -43,6 +45,8 @@ void main() {
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100
+  if (on('family')) registerSosJourneyFlows(); // qjourney
+  if (on('family')) registerJourneyV2Flows(); // qjourney
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.

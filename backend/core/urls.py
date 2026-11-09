@@ -7,6 +7,7 @@ from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_sjduring as sjd  # sjduring
 from . import views_maps as vmaps   # mapscost
 from . import views_guardian as vg
 from . import views_m2 as m2
@@ -615,6 +616,7 @@ urlpatterns = [
     path("maps/status", vmaps.MapsStatusView.as_view()),
     path("maps/reverse", vmaps.MapsReverseView.as_view()),
     path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
+    path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
@@ -636,6 +638,13 @@ urlpatterns = [
     path("journey/watching", b61.JourneyWatchingView.as_view()),
     path("journey/where-now", b61.JourneyWhereNowView.as_view()),  # sjlive
     path("journey/routines/<int:pk>", b61.JourneyRoutineDetailView.as_view()),
+    # sjduring: DURING the trip — private ask, PIN arrival, watcher board
+    path("journey/<int:pk>/during", sjd.DuringView.as_view()),
+    path("journey/<int:pk>/answer", sjd.AnswerView.as_view()),
+    path("journey/<int:pk>/arrive-pin", sjd.ArrivePinView.as_view()),
+    path("journey/<int:pk>/danger-audio", sjd.DangerAudioView.as_view()),
+    path("journey/arrive-pin-pref", sjd.ArrivePinPrefView.as_view()),
+    path("journey/watch-board", sjd.WatchBoardView.as_view()),
 
     # ===== Messenger STEP 3 =====
     # 1. Contacts & invites + personal connection request (msg_contacts)

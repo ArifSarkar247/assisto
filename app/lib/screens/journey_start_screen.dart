@@ -89,6 +89,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   int? _etaMin; // the Routes answer behind _eta ("about 1 h 20 min by car")
   bool _etaEdited = false; // the user picked the time: never overwrite it
   String _destAddress = '';
+  // qjourney: the picked row's kind (district, airport, ...) -> the server's
+  // arrival ring; set only by a pick from the search list
+  String? _destKind, _pendingKind;
   String? _mode;
   String? _app;
   final _plate = TextEditingController();
@@ -219,6 +222,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     setState(() {
       if (name.isNotEmpty) _destName.text = name;
       _dest = {'name': _destName.text.trim(), 'lat': lat, 'lng': lng};
+      _destKind = _pendingKind;
+      _pendingKind = null;
       _destAddress = address;
       if (!_etaEdited) {
         _eta = null;
@@ -230,6 +235,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   void _unpin() => setState(() {
         _dest = null;
+        _destKind = null;
         _destAddress = '';
         if (!_etaEdited) {
           _eta = null;
@@ -546,6 +552,13 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       'name': name.isEmpty ? (_dest?['name'] ?? '') : name,
       if (_dest?['lat'] != null) 'lat': _dest!['lat'],
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
+      if (_destKind != null && _destKind!.isNotEmpty) 'kind': _destKind,
+      // sjp0: the arrival window travels with the trip (watchers + web page)
+      if (_windowTimes() case final w?) ...{
+        'window_from': w.a.toUtc().toIso8601String(),
+        'window_to': w.b.toUtc().toIso8601String(),
+        if (w.c != null) 'earliest_at': w.c!.toUtc().toIso8601String(),
+      },
     };
     final train = _mode == 'train' && jmTrainOn ? _jm.train?.toLink() : null;
     final ride = <String, dynamic>{
@@ -627,6 +640,63 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     );
   }
 
+  /// qjourney (owner V2): the arrival window card — "Arrive between A and
+  /// B" from the ONE Routes answer (traffic) and, under it, "Earlier than C
+  /// is not possible" (straight-line distance at the mode's top speed — the
+  /// same rule the server uses to refuse an impossible "Arrived").
+  /// sjp0: the window's three instants (A, B, C) — from the Routes answer
+  /// or, when there is none (no budget / offline), from the distance at a
+  /// typical speed for the mode, so the card and the watchers ALWAYS get a
+  /// window. Sent with the trip (destination.window_from / window_to /
+  /// earliest_at) so "Trips I am following" and the live web page show it.
+  ({DateTime a, DateTime b, DateTime? c})? _windowTimes() {
+    final d = _dest;
+    if (d == null || d['lat'] is! num || d['lng'] is! num) return null;
+    final dm = _distM;
+    final m = _etaMin ?? (dm == null ? null : jRoughMinutes(dm, _mode));
+    if (m == null) return null;
+    final now = DateTime.now();
+    final a = now.add(Duration(minutes: m));
+    final b = now.add(Duration(minutes: (m * 1.4).round() + 10));
+    DateTime? c;
+    final h = _here;
+    if (h != null) {
+      final km = (jDistanceM(h.lat, h.lng, (d['lat'] as num).toDouble(),
+                      (d['lng'] as num).toDouble()) -
+                  1000)
+              .clamp(0, double.infinity) /
+          1000;
+      final c0 = now.add(Duration(minutes: (km / qjTopKmh(_mode) * 60).floor()));
+      if (c0.isBefore(a)) c = c0;
+    }
+    return (a: a, b: b, c: c);
+  }
+
+  Widget? _window(BuildContext context, AppLocalizations t) {
+    final w = _windowTimes();
+    if (w == null) return null;
+    String hm(DateTime x) => jDigits(context, TimeOfDay.fromDateTime(x).format(context));
+    final a = w.a, b = w.b;
+    final c = w.c == null ? null : hm(w.c!);
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      key: const ValueKey('qj_window'),
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(Radii.md)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t.qjWindow(hm(a), hm(b)),
+            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+        if (c != null)
+          Text(t.qjEarliest(c),
+              key: const ValueKey('qj_earliest'),
+              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      ]),
+    );
+  }
+
   Widget _h(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
@@ -693,16 +763,19 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       );
     }
     if (_destName.text.trim().isEmpty) return const SizedBox.shrink();
+    // sjp0 (owner P0 9 Nov): no scary "No pin yet" warning — the honest V2
+    // rule, calmly: pick the place from the list or the map (a trip never
+    // starts without coordinates).
     return Container(
       key: const ValueKey('j2_no_pin'),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: Brand.warnInk(context).withValues(alpha: 0.10),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline_rounded, color: Brand.warnInk(context)),
+        Icon(Icons.place_outlined, color: cs.primary),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(t.j2NoPin, style: AType.bodyMedium)),
+        Expanded(child: Text(t.qjDestNeedsPlace, style: AType.bodyMedium)),
       ]),
     );
   }
@@ -823,6 +896,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             },
             // qjourney: no "use my location" button on the DESTINATION field
             // (a trip to where you already are "arrives" at once)
+            onRow: (r) => _pendingKind = '${r['kind'] ?? ''}',
             onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -883,6 +957,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 key: const ValueKey('js_eta_hint'),
                 style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
           ),
+        if (_window(context, t) case final w?) w,
         if (rough != null && _etaMin == null) ...[
           const SizedBox(height: Gap.xs),
           Text(t.j2Rough(jDigits(context, rough)),
@@ -1085,3 +1160,15 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     );
   }
 }
+
+/// qjourney: straight-line top speed (km/h) per travel mode — the mirror of
+/// backend core/logic/journey_arrival.py TOP_KMH (C is a true lower bound).
+double qjTopKmh(String? mode) => switch (mode) {
+      'walk' => 10,
+      'rickshaw' => 25,
+      'launch' => 45,
+      'cng' || 'local_bus' => 80,
+      'metro' => 100,
+      'bike' || 'bus' || 'long_bus' => 110,
+      _ => 130,
+    };

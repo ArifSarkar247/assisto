@@ -234,6 +234,13 @@ extension JourneyApi on ApiClient {
   Future<Map<String, dynamic>> setSavedPlaceTheftSafe(int id, bool on) =>
       patchJson('/journey/places/$id', {'theft_safe': on});
 
+  /// qjourney (owner V2): rename a saved place / change its kind (icon).
+  Future<Map<String, dynamic>> updateSavedPlace(int id, {String? name, String? kind}) =>
+      patchJson('/journey/places/$id', {
+        if (name != null) 'name': name,
+        if (kind != null) 'kind': kind,
+      });
+
   // ---- journey2: destination picker, ride details, link off -------------
 
   /// Coordinates from a pasted Google Maps link (long or maps.app.goo.gl),
