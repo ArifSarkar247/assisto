@@ -63,6 +63,19 @@ extension JourneyApi on ApiClient {
   Future<void> journeyArrived(int id) =>
       postJson('/journey/$id/arrived', const {});
 
+  /// qjourney (owner V2): "I've arrived" with the phone's fresh fix. The
+  /// server checks it (distance + earliest possible time): an unusual
+  /// arrival answers {arrival: 'unusual'} or 400 {pin: 'required'} when a
+  /// safety PIN is set — never "arrived safely".
+  Future<Map<String, dynamic>> journeyArrivedChecked(int id,
+          {double? lat, double? lng, double? acc, String? pin}) =>
+      postJson('/journey/$id/arrived', {
+        if (lat != null && lng != null) 'lat': lat,
+        if (lat != null && lng != null) 'lng': lng,
+        if (acc != null) 'acc': acc,
+        if (pin != null) 'pin': pin,
+      });
+
   /// Stop a journey early (not at destination). Starts the privacy
   /// auto-delete clock. POST /journey/<id>/stop {pin?} — pin is validated
   /// server-side for the duress flow (see [journeyStopWithPin]).
@@ -220,6 +233,13 @@ extension JourneyApi on ApiClient {
   /// -> the saved row. Journey destinations are not affected.
   Future<Map<String, dynamic>> setSavedPlaceTheftSafe(int id, bool on) =>
       patchJson('/journey/places/$id', {'theft_safe': on});
+
+  /// qjourney (owner V2): rename a saved place / change its kind (icon).
+  Future<Map<String, dynamic>> updateSavedPlace(int id, {String? name, String? kind}) =>
+      patchJson('/journey/places/$id', {
+        if (name != null) 'name': name,
+        if (kind != null) 'kind': kind,
+      });
 
   // ---- journey2: destination picker, ride details, link off -------------
 

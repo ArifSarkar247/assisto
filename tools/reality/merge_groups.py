@@ -25,6 +25,12 @@ FILE_GROUP = {
     "business_flow": "business", "docs_voice_settings_flow": "docs",
     "sweep_flow": "sweep",
     "safe_journey_flow": "family",   # journey100b: registered under the family group
+    # qjourney: every flow file registered under a group whose name differs
+    # from its file (results were dropped as class D "not selected")
+    "family_alerts_flow": "family", "antitheft_snatch_flow": "family",
+    "sos_journey_flow": "family", "journey_v2_flow": "family",
+    "remmeter_flow": "personal", "budget_remittance_flow": "personal",
+    "billing_flow": "personal", "crm100_flow": "business",
 }
 
 

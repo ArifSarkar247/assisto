@@ -607,6 +607,7 @@ urlpatterns = [
     path("maps/status", vmaps.MapsStatusView.as_view()),
     path("maps/reverse", vmaps.MapsReverseView.as_view()),
     path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
+    path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),

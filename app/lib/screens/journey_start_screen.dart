@@ -89,6 +89,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   int? _etaMin; // the Routes answer behind _eta ("about 1 h 20 min by car")
   bool _etaEdited = false; // the user picked the time: never overwrite it
   String _destAddress = '';
+  // qjourney: the picked row's kind (district, airport, ...) -> the server's
+  // arrival ring; set only by a pick from the search list
+  String? _destKind, _pendingKind;
   String? _mode;
   String? _app;
   final _plate = TextEditingController();
@@ -219,6 +222,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     setState(() {
       if (name.isNotEmpty) _destName.text = name;
       _dest = {'name': _destName.text.trim(), 'lat': lat, 'lng': lng};
+      _destKind = _pendingKind;
+      _pendingKind = null;
       _destAddress = address;
       if (!_etaEdited) {
         _eta = null;
@@ -230,6 +235,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   void _unpin() => setState(() {
         _dest = null;
+        _destKind = null;
         _destAddress = '';
         if (!_etaEdited) {
           _eta = null;
@@ -285,32 +291,6 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   /// "1 h 20 min" (Bangla words + digits in Bangla).
   String _dur(AppLocalizations t, int min) => jDigits(
       context, min >= 60 ? t.psDurHM(min ~/ 60, min % 60) : t.psDurM(min));
-
-  Future<void> _useCurrentAsDest() async {
-    final t = AppLocalizations.of(context);
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) {
-        if (mounted) _snack(t.j100LocOffBody);
-        return;
-      }
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        if (mounted && !await showPermissionReason(context, PermKind.location)) {
-          return;
-        }
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) return;
-      final pos = await Geolocator.getCurrentPosition();
-      if (!mounted) return;
-      _here = (lat: pos.latitude, lng: pos.longitude);
-      _setDest(_destName.text.trim().isEmpty ? t.journeyDestPinned : '', pos.latitude,
-          pos.longitude);
-    } catch (e) {
-      if (mounted) showActionFailed(context, 'journey.currentLocation', e); // db1
-    }
-  }
 
   Future<void> _pasteLink() async {
     final got = await showJourneyLinkSheet(context, context.read<AppState>().api);
@@ -532,6 +512,21 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedDest)));
       return;
     }
+    // qjourney (owner V2 root cause): a typed name alone has no coordinates,
+    // so arrival could never be checked — pick it from the list or the map
+    if (_dest?['lat'] == null || _dest?['lng'] == null) {
+      messenger.showSnackBar(SnackBar(content: Text(t.qjDestNeedsPlace)));
+      return;
+    }
+    // qjourney: a destination where you already are would "arrive" at once
+    final h = _here;
+    if (h != null &&
+        jDistanceM(h.lat, h.lng, (_dest!['lat'] as num).toDouble(),
+                (_dest!['lng'] as num).toDouble()) <
+            300) {
+      messenger.showSnackBar(SnackBar(content: Text(t.qjDestIsHere)));
+      return;
+    }
     if (_selectedWatchers.isEmpty) {
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedWatcher)));
       return;
@@ -557,6 +552,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       'name': name.isEmpty ? (_dest?['name'] ?? '') : name,
       if (_dest?['lat'] != null) 'lat': _dest!['lat'],
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
+      if (_destKind != null && _destKind!.isNotEmpty) 'kind': _destKind,
     };
     final train = _mode == 'train' && jmTrainOn ? _jm.train?.toLink() : null;
     final ride = <String, dynamic>{
@@ -635,6 +631,48 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         unawaited(_fetchEta()); // same road call is cached on the server
       },
       onPickTrain: _pickTrain,
+    );
+  }
+
+  /// qjourney (owner V2): the arrival window card — "Arrive between A and
+  /// B" from the ONE Routes answer (traffic) and, under it, "Earlier than C
+  /// is not possible" (straight-line distance at the mode's top speed — the
+  /// same rule the server uses to refuse an impossible "Arrived").
+  Widget? _window(BuildContext context, AppLocalizations t) {
+    final m = _etaMin;
+    final d = _dest;
+    if (m == null || d == null) return null;
+    final now = DateTime.now();
+    String hm(DateTime x) => jDigits(context, TimeOfDay.fromDateTime(x).format(context));
+    final a = now.add(Duration(minutes: m));
+    final b = now.add(Duration(minutes: (m * 1.4).round() + 10));
+    String? c;
+    final h = _here;
+    if (h != null) {
+      final km = (jDistanceM(h.lat, h.lng, (d['lat'] as num).toDouble(),
+                      (d['lng'] as num).toDouble()) -
+                  1000)
+              .clamp(0, double.infinity) /
+          1000;
+      final c0 = now.add(Duration(minutes: (km / qjTopKmh(_mode) * 60).floor()));
+      if (c0.isBefore(a)) c = hm(c0);
+    }
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      key: const ValueKey('qj_window'),
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(Radii.md)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t.qjWindow(hm(a), hm(b)),
+            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+        if (c != null)
+          Text(t.qjEarliest(c),
+              key: const ValueKey('qj_earliest'),
+              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      ]),
     );
   }
 
@@ -822,12 +860,20 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               return p;
             },
             onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null,
-            onTyped: (_) => setState(() {}),
-            onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address),
-            suffixIcon: IconButton(
-                icon: const Icon(Icons.my_location_rounded),
-                tooltip: t.journeyUseCurrent,
-                onPressed: _useCurrentAsDest)),
+            // qjourney (owner V2 root cause): typing a NEW name after a pick
+            // kept the OLD pin's coordinates (e.g. "Gazipur" pinned in Badda
+            // -> "arrived" minutes after leaving) — a changed name drops the pin
+            onTyped: (txt) {
+              if (_dest != null && txt.trim() != '${_dest!['name'] ?? ''}'.trim()) {
+                _unpin();
+              } else {
+                setState(() {});
+              }
+            },
+            // qjourney: no "use my location" button on the DESTINATION field
+            // (a trip to where you already are "arrives" at once)
+            onRow: (r) => _pendingKind = '${r['kind'] ?? ''}',
+            onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           OutlinedButton.icon(
@@ -887,6 +933,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 key: const ValueKey('js_eta_hint'),
                 style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
           ),
+        if (_window(context, t) case final w?) w,
         if (rough != null && _etaMin == null) ...[
           const SizedBox(height: Gap.xs),
           Text(t.j2Rough(jDigits(context, rough)),
@@ -1089,3 +1136,15 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     );
   }
 }
+
+/// qjourney: straight-line top speed (km/h) per travel mode — the mirror of
+/// backend core/logic/journey_arrival.py TOP_KMH (C is a true lower bound).
+double qjTopKmh(String? mode) => switch (mode) {
+      'walk' => 10,
+      'rickshaw' => 25,
+      'launch' => 45,
+      'cng' || 'local_bus' => 80,
+      'metro' => 100,
+      'bike' || 'bus' || 'long_bus' => 110,
+      _ => 130,
+    };
