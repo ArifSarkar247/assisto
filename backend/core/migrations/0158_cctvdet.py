@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0156_citydata'),
+        ('core', '0157_sjduring'),
     ]
 
     operations = [
