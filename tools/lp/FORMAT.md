@@ -307,3 +307,45 @@ each test → `{"kind":"mock","key":<bundle_id>,"track":<track>,"level":<level>,
 scoring, sections}}` (questions keep `answer` + `explain_bn`; lpcore strips them before sending to the phone,
 same rule as IELTS). `status` comes from the CI index. **lpcore TODO**: accept kinds `syllabus`/`lesson` and
 tracks `jlpt_n5|jft_basic|eps_topik|de_a1`; mock marking = letter compare; sections without `questions` are AI/self scored.
+
+## 11. Stage 3 — Chinese, French, Arabic (`assisto.lp.track/1`, same files as §10) — owner: **lpstage3**
+
+> বাংলায়: চাইনিজ (HSK ১), ফরাসি (A1, DELF-A1 ধাঁচ), মধ্যপ্রাচ্যে কাজের আরবি (A1) — বাংলা থেকে শেখানো।
+> সব Assisto-র নিজের লেখা; প্রতিটি স্কোর "প্র্যাকটিস স্কোর", অফিসিয়াল ফল নয়। আইটেম স্ট্যাটাস draft → ai-checked, বেটা লেবেল।
+
+Same file kinds, fields and export as §10 (§10.1–10.6). Differences:
+
+| lang | track | level | test id | sections (blueprint in `lpcheck_tracks.py`) |
+|---|---|---|---|---|
+| `zh` | `hsk1` | `HSK1` | `hsk1-NNN` | `listening` 15 min (picture_judge 5×2 opt, picture_choice 5×3, dialogue_picture 5×6, short_question 5×3; heard twice) · `reading` 17 min (picture_judge 5×2, picture_match 5×6, qa_match 5×6, word_bank 5×6) — 40 items, 200 points (5 each), 120 = pass hint |
+| `fr` | `fr_a1` | `A1` | `fr-a1-NNN` | `oral` 20 min (ex1–ex3 4×3 opt, ex4 5×6; heard twice) · `ecrit` 30 min (ex1–ex3 4×3, ex4 5×3) · `production_ecrite` 30 min (2 tasks: form + message) · `production_orale` 17 min (3 tasks: 10 min prep + 5–7 min) — 4×25 = 100 |
+| `ar` | `ar_work` | `A1` | `ar-work-NNN` | `listening` 20 min (phrase 6×4, dialogue 8×4, instruction 6×4; heard twice) · `reading` 25 min (letters 6×4, signs 6×4, messages 8×4) · `writing` 15 min (2 tasks) · `speaking` 10 min (3 tasks) — listening 30 + reading 30 + writing 20 + speaking 20 = 100 |
+
+* **Options A–F**: `LETTERS` is now `ABCDEF`. Matching parts (HSK dialogue_picture / picture_match / qa_match /
+  word_bank, DELF ex4 oral) give every question the SAME shared bank of 6 options; each answer letter is used
+  at most once per part (one bank entry is an unused distractor). Pictures of the real exam are written as
+  Bangla picture descriptions (`"ছবি: …"`) or as target-language words.
+* **Chinese (`zh`)** — simplified characters only (traditional forms are an error). `target` = hanzi only (no Latin).
+  `roman` = Hanyu Pinyin with tone marks (ā á ǎ à; neutral tone unmarked; citation tones, 一/不 may show
+  their tone change) on every vocab, vocab example, grammar example and writing/speaking model.
+  Vocab also has `tones`: list of 0–4 per character (0 = neutral) that must equal the pinyin's tone marks.
+  Tests (HSK 1 prints pinyin): every Chinese `prompt` / `passage` has `prompt_roman` / `passage_roman`, and
+  questions with Chinese options have `options_roman` (one per option, Bangla options → `""`).
+  Lessons: same `_roman` keys on reading practice. Listening `script` text is hanzi only.
+* **French (`fr`)** — `target` in French; no `roman`. Optional `bn_pron` (Bangla-script pronunciation help).
+  Free-text writing tasks in tests carry `min_words`/`max_words` (DELF A1 message: about 40–50 words) and the
+  `model` answer must fit them; form tasks use `fields`.
+* **Arabic (`ar`)** — `target` in Arabic script (harakat welcome on new words), right-to-left, no Latin inside.
+  `roman` = simple Latin transliteration (required where §10 asks `roman` for ja/ko, plus grammar examples
+  and models). Vocab also has `bn_pron` (Bangla-script pronunciation, e.g. "শুকরান") and `register` ∈
+  `gulf` (spoken Gulf: Saudi/UAE/Qatar/Kuwait/Oman/Bahrain), `msa` (written/formal: signs, forms, contracts)
+  or `both`. Writing tasks carry `min_words`/`max_words`. Probashi: `country: "ME"`, `work_path_lang: null`
+  (Probashi's "Learn for work" tile opens Arabic for Gulf time zones; no langpack `work_path` yet).
+* Word limits (any lang): a writing item may carry `min_words`/`max_words` (`max_chars` for zh); the model must fit.
+* `probashi.country` may also be `CN` or `FR` (no Probashi work path: `work_path_lang: null`, honest note).
+* TTS: `tools/lp/tts/VOICES_TRACKS.json` — zh 4 Kokoro voices; fr Kokoro ff_siwis (+ pitch-lowered male);
+  ar **blocked** (no licence-cleared natural voice; app uses the phone's own TTS). Licence rows:
+  `.phaseB/MODEL_LICENSES.md` "Language Partner stage 3 TTS voices".
+* **lpcore**: accept tracks `hsk1|fr_a1|ar_work`, levels `HSK1|A1`, answer letters A–F, and the extra keys
+  `prompt_roman`, `passage_roman`, `options_roman`, `tones`, `bn_pron`, `register`, `min_words`, `max_words`,
+  `max_chars` (display only; strip `answer`/`explain_bn` before sending to the phone as for §10).

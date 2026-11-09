@@ -1,0 +1,1348 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ar",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "ar_work"
+ ],
+ "title": {
+  "en": "Week 4: Safety, rights and formal Arabic",
+  "bn": "সপ্তাহ ৪: নিরাপত্তা, অধিকার আর শুদ্ধ আরবি"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official course, exam material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল কোর্স, পরীক্ষার উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 global-scale descriptors; Gulf workplace usage (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook text."
+ },
+ "lessons": [
+  {
+   "id": "ar-w04-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Safety signs (formal Arabic)",
+    "bn": "নিরাপত্তার সাইনবোর্ড (শুদ্ধ আরবি)"
+   },
+   "goal_bn": "সাইটের সাইনবোর্ড শুদ্ধ আরবিতে (MSA) লেখা থাকে — বিপদ, ধূমপান নিষেধ, জরুরি বের হওয়ার পথ, হেলমেট পরুন — পড়ে বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "خَطَر",
+     "roman": "khatar",
+     "bn_pron": "খাতার",
+     "register": "msa",
+     "bn": "বিপদ",
+     "pos": "noun",
+     "example": {
+      "target": "خطر! كهرباء عالية.",
+      "roman": "khatar! kahraba' 'aalya.",
+      "bn": "বিপদ! উচ্চ ভোল্টেজ।"
+     }
+    },
+    {
+     "target": "مَمْنُوع التَّدْخِين",
+     "roman": "mamnoo' at-tadkheen",
+     "bn_pron": "মামনূ আত-তাদখীন",
+     "register": "msa",
+     "bn": "ধূমপান নিষেধ",
+     "pos": "expression",
+     "example": {
+      "target": "ممنوع التدخين في المخزن.",
+      "roman": "mamnoo' at-tadkheen fil-makhzan.",
+      "bn": "গুদামে ধূমপান নিষেধ।"
+     }
+    },
+    {
+     "target": "مَخْرَج طَوَارِئ",
+     "roman": "makhraj tawaari'",
+     "bn_pron": "মাখরাজ তাওয়ারি",
+     "register": "msa",
+     "bn": "জরুরি বের হওয়ার পথ (ইমার্জেন্সি এক্সিট)",
+     "pos": "noun",
+     "example": {
+      "target": "مخرج الطوارئ على اليمين.",
+      "roman": "makhraj at-tawaari' 'ala al-yameen.",
+      "bn": "ইমার্জেন্সি এক্সিট ডান দিকে।"
+     }
+    },
+    {
+     "target": "خُوذَة",
+     "roman": "khooza",
+     "bn_pron": "খূযা",
+     "register": "both",
+     "bn": "হেলমেট (নিরাপত্তা টুপি)",
+     "pos": "noun",
+     "example": {
+      "target": "البس الخوذة في الموقع.",
+      "roman": "ilbas al-khooza fil-mawqi'.",
+      "bn": "সাইটে হেলমেট পরো।"
+     }
+    },
+    {
+     "target": "مَمْنُوع الدُّخُول",
+     "roman": "mamnoo' ad-dukhool",
+     "bn_pron": "মামনূ আদ-দুখূল",
+     "register": "msa",
+     "bn": "প্রবেশ নিষেধ",
+     "pos": "expression",
+     "example": {
+      "target": "ممنوع الدخول لغير الموظفين.",
+      "roman": "mamnoo' ad-dukhool li-ghayr al-muwazzafeen.",
+      "bn": "কর্মী ছাড়া অন্যদের প্রবেশ নিষেধ।"
+     }
+    },
+    {
+     "target": "اِحْذَر",
+     "roman": "ihdhar",
+     "bn_pron": "ইহযার",
+     "register": "msa",
+     "bn": "সাবধান",
+     "pos": "verb",
+     "example": {
+      "target": "احذر: أرضية مبللة.",
+      "roman": "ihdhar: ardiyya muballala.",
+      "bn": "সাবধান: মেঝে ভেজা।"
+     }
+    },
+    {
+     "target": "قُفَّازَات",
+     "roman": "quffaazaat",
+     "bn_pron": "কুফফাযাত",
+     "register": "msa",
+     "bn": "হাতমোজা (গ্লাভস)",
+     "pos": "noun",
+     "example": {
+      "target": "استخدم القفازات مع المواد الكيميائية.",
+      "roman": "istakhdim al-quffaazaat ma'a al-mawaadd al-keemyaa'iyya.",
+      "bn": "রাসায়নিকের সাথে গ্লাভস ব্যবহার করুন।"
+     }
+    },
+    {
+     "target": "حِزَام الْأَمَان",
+     "roman": "hizaam al-amaan",
+     "bn_pron": "হিযাম আল-আমান",
+     "register": "both",
+     "bn": "সেফটি বেল্ট / সিট বেল্ট",
+     "pos": "noun",
+     "example": {
+      "target": "اربط حزام الأمان.",
+      "roman": "irbit hizaam al-amaan.",
+      "bn": "সেফটি বেল্ট বাঁধুন।"
+     }
+    },
+    {
+     "target": "حَرِيق",
+     "roman": "hareeq",
+     "bn_pron": "হারীক",
+     "register": "both",
+     "bn": "আগুন (অগ্নিকাণ্ড)",
+     "pos": "noun",
+     "example": {
+      "target": "في حالة الحريق استخدم الدرج.",
+      "roman": "fi haalat al-hareeq istakhdim ad-daraj.",
+      "bn": "আগুন লাগলে সিঁড়ি ব্যবহার করুন।"
+     }
+    },
+    {
+     "target": "طَفَّايَة",
+     "roman": "taffaaya",
+     "bn_pron": "তাফফায়া",
+     "register": "both",
+     "bn": "অগ্নিনির্বাপক যন্ত্র",
+     "pos": "noun",
+     "example": {
+      "target": "الطفاية جنب الباب.",
+      "roman": "at-taffaaya jamb al-baab.",
+      "bn": "অগ্নিনির্বাপক যন্ত্রটা দরজার পাশে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ممنوع + মাসদার (ক্রিয়াবাচক বিশেষ্য) = … নিষেধ",
+     "explain_bn": "সাইনবোর্ডে ممنوع (নিষেধ) + কাজের নাম: ممنوع التدخين (ধূমপান), ممنوع الدخول (প্রবেশ), ممنوع الوقوف (দাঁড়ানো/পার্কিং)। এগুলো শুদ্ধ আরবি (MSA) — কথ্য ভাষায় কেউ বলবে: لا تدخن هني।",
+     "examples": [
+      {
+       "target": "ممنوع الوقوف.",
+       "roman": "mamnoo' al-wuqoof.",
+       "bn": "পার্কিং/দাঁড়ানো নিষেধ।"
+      },
+      {
+       "target": "ممنوع استخدام المصعد.",
+       "roman": "mamnoo' istikhdaam al-mis'ad.",
+       "bn": "লিফট ব্যবহার নিষেধ।"
+      }
+     ]
+    },
+    {
+     "pattern": "শুদ্ধ আদেশ: البس، استخدم، اربط",
+     "explain_bn": "নিরাপত্তা নির্দেশ লিখিত আদেশ রূপে থাকে: البس (পরুন), استخدم (ব্যবহার করুন), اربط (বাঁধুন), احذر (সাবধান)। না বুঝলে কাজ শুরু করবেন না — সুপারভাইজারকে জিজ্ঞেস করুন।",
+     "examples": [
+      {
+       "target": "البس النظارة الواقية.",
+       "roman": "ilbas an-nazzaara al-waaqiya.",
+       "bn": "সুরক্ষা চশমা পরুন।"
+      },
+      {
+       "target": "استخدم الدرج، لا تستخدم المصعد.",
+       "roman": "istakhdim ad-daraj, la tastakhdim al-mis'ad.",
+       "bn": "সিঁড়ি ব্যবহার করুন, লিফট নয়।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w04-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "safety officer"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "قبل ما تدخل الموقع، البس الخوذة والقفازات."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "حاضر، وين القفازات؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "في الصندوق الأحمر."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সাইটে ঢোকার আগে কী পরতে হবে?",
+      "options": [
+       "হেলমেট আর গ্লাভস",
+       "শুধু জুতা",
+       "চশমা আর বেল্ট",
+       "ইউনিফর্ম"
+      ],
+      "answer": "A",
+      "explain_bn": "'البس الخوذة والقفازات' — হেলমেট আর গ্লাভস।",
+      "skill": "safety"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w04-l1-r1",
+      "passage": "خطر — منطقة عمل. ممنوع الدخول بدون خوذة.",
+      "prompt_bn": "এই সাইনবোর্ড কী বলছে?",
+      "options": [
+       "এখানে ধূমপান করুন",
+       "হেলমেট ছাড়া ঢোকা নিষেধ",
+       "জরুরি বের হওয়ার পথ",
+       "পার্কিং এখানে"
+      ],
+      "answer": "B",
+      "explain_bn": "'ممنوع الدخول بدون خوذة' — হেলমেট ছাড়া প্রবেশ নিষেধ।",
+      "skill": "safety"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w04-l1-w1",
+      "prompt_bn": "সাইনবোর্ডটি আরবিতে লিখুন: 'ধূমপান নিষেধ'।",
+      "model": {
+       "target": "ممنوع التدخين",
+       "roman": "mamnoo' at-tadkheen",
+       "bn": "ধূমপান নিষেধ"
+      },
+      "check": "self",
+      "min_words": 2,
+      "max_words": 3
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w04-l1-s1",
+      "prompt_bn": "জোরে বলুন: নতুন সহকর্মীকে সাবধান করুন — হেলমেট পরো, আগুন লাগলে সিঁড়ি দিয়ে নামো।",
+      "model": {
+       "target": "البس الخوذة، وفي حالة الحريق استخدم الدرج.",
+       "roman": "ilbas al-khooza, w-fi haalat al-hareeq istakhdim ad-daraj.",
+       "bn": "হেলমেট পরো, আর আগুন লাগলে সিঁড়ি ব্যবহার করো।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w04-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Contract, overtime and your rights — said politely",
+    "bn": "চুক্তি, ওভারটাইম আর আপনার অধিকার — ভদ্রভাবে বলা"
+   },
+   "goal_bn": "চুক্তি, ওভারটাইম, পাসপোর্ট নিজের কাছে রাখা — এসব নিয়ে ভদ্র কিন্তু পরিষ্কার আরবিতে কথা বলতে পারবেন। মনে রাখুন: পাসপোর্ট নিজের কাছে রাখুন, যে কাগজ পড়তে পারেন না তাতে সই করবেন না, সমস্যা হলে বাংলাদেশ দূতাবাসের শ্রম শাখায় যোগাযোগ করুন।",
+   "vocab": [
+    {
+     "target": "عَقْد",
+     "roman": "'aqd",
+     "bn_pron": "আকদ",
+     "register": "both",
+     "bn": "চুক্তি (কাজের চুক্তিপত্র)",
+     "pos": "noun",
+     "example": {
+      "target": "أبي نسخة من العقد.",
+      "roman": "abi nuskha min al-'aqd.",
+      "bn": "আমি চুক্তির একটা কপি চাই।"
+     }
+    },
+    {
+     "target": "سَاعَات إِضَافِيَّة",
+     "roman": "saa'aat idaafiyya",
+     "bn_pron": "সাআত ইদাফিয়্যা",
+     "register": "both",
+     "bn": "ওভারটাইম (অতিরিক্ত ঘণ্টা)",
+     "pos": "noun",
+     "example": {
+      "target": "الساعات الإضافية مدفوعة؟",
+      "roman": "as-saa'aat al-idaafiyya madfoo'a?",
+      "bn": "ওভারটাইমের টাকা দেওয়া হয়?"
+     }
+    },
+    {
+     "target": "تَوْقِيع",
+     "roman": "tawqee'",
+     "bn_pron": "তাওকী",
+     "register": "msa",
+     "bn": "সই / স্বাক্ষর",
+     "pos": "noun",
+     "example": {
+      "target": "التوقيع هنا تحت.",
+      "roman": "at-tawqee' hina taht.",
+      "bn": "সই এখানে নিচে।"
+     }
+    },
+    {
+     "target": "أَفْهَم",
+     "roman": "afham",
+     "bn_pron": "আফহাম",
+     "register": "both",
+     "bn": "আমি বুঝি",
+     "pos": "verb",
+     "example": {
+      "target": "ما أفهم هذا الورق.",
+      "roman": "ma afham haadha al-waraq.",
+      "bn": "আমি এই কাগজ বুঝি না।"
+     }
+    },
+    {
+     "target": "تَرْجَمَة",
+     "roman": "tarjama",
+     "bn_pron": "তারজামা",
+     "register": "both",
+     "bn": "অনুবাদ",
+     "pos": "noun",
+     "example": {
+      "target": "أبي ترجمة بالإنجليزي أو البنغالي.",
+      "roman": "abi tarjama bil-ingleezi aw al-bangaali.",
+      "bn": "ইংরেজি বা বাংলায় অনুবাদ চাই।"
+     }
+    },
+    {
+     "target": "حَقِّي",
+     "roman": "haqqi",
+     "bn_pron": "হাক্কি",
+     "register": "both",
+     "bn": "আমার অধিকার / আমার পাওনা",
+     "pos": "noun",
+     "example": {
+      "target": "هذا حقي حسب العقد.",
+      "roman": "haadha haqqi hasab al-'aqd.",
+      "bn": "চুক্তি অনুযায়ী এটা আমার অধিকার।"
+     }
+    },
+    {
+     "target": "سِفَارَة",
+     "roman": "sifaara",
+     "bn_pron": "সিফারা",
+     "register": "both",
+     "bn": "দূতাবাস",
+     "pos": "noun",
+     "example": {
+      "target": "أبي أكلم السفارة البنغلاديشية.",
+      "roman": "abi akallim as-sifaara al-banglaadeeshiyya.",
+      "bn": "আমি বাংলাদেশ দূতাবাসের সাথে কথা বলতে চাই।"
+     }
+    },
+    {
+     "target": "شَكْوَى",
+     "roman": "shakwa",
+     "bn_pron": "শাকওয়া",
+     "register": "msa",
+     "bn": "অভিযোগ",
+     "pos": "noun",
+     "example": {
+      "target": "أبي أقدم شكوى.",
+      "roman": "abi agaddim shakwa.",
+      "bn": "আমি অভিযোগ দিতে চাই।"
+     }
+    },
+    {
+     "target": "مُتَأَخِّر الرَّاتِب",
+     "roman": "mit'akhkhir ar-raatib",
+     "bn_pron": "মিতআখখির আর-রাতিব",
+     "register": "gulf",
+     "bn": "বেতন বাকি / দেরিতে",
+     "pos": "expression",
+     "example": {
+      "target": "الراتب متأخر شهرين.",
+      "roman": "ar-raatib mit'akhkhir shahrayn.",
+      "bn": "দুই মাসের বেতন বাকি।"
+     }
+    },
+    {
+     "target": "مِنْ فَضْلِك",
+     "roman": "min fadlak",
+     "bn_pron": "মিন ফাদলাক",
+     "register": "msa",
+     "bn": "অনুগ্রহ করে (শুদ্ধ, ভদ্র)",
+     "pos": "expression",
+     "example": {
+      "target": "من فضلك، أعطني جوازي.",
+      "roman": "min fadlak, a'tini jawaazi.",
+      "bn": "অনুগ্রহ করে আমার পাসপোর্টটা দিন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ভদ্র অনুরোধ: من فضلك / لو سمحت + أبي/أريد",
+     "explain_bn": "অধিকার নিয়ে কথা বলার সময় রাগ নয়, ভদ্র আর পরিষ্কার থাকুন: لو سمحت (কথ্য) বা من فضلك (শুদ্ধ) + أبي/أريد + জিনিস। প্রমাণ রাখুন: চুক্তি, বেতনের স্লিপ আর মেসেজের কপি নিজের কাছে রাখুন।",
+     "examples": [
+      {
+       "target": "من فضلك، أريد نسخة من عقدي.",
+       "roman": "min fadlak, ureed nuskha min 'aqdi.",
+       "bn": "অনুগ্রহ করে, আমার চুক্তির একটা কপি চাই।"
+      },
+      {
+       "target": "لو سمحت، أبي جوازي عندي.",
+       "roman": "law samaht, abi jawaazi 'indi.",
+       "bn": "দয়া করে, আমার পাসপোর্ট আমার কাছে রাখতে চাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "ما + ক্রিয়া = না (বর্তমান)",
+     "explain_bn": "বর্তমান কালের ক্রিয়ার আগে ما বসালে না-বাচক: أفهم (বুঝি) → ما أفهم (বুঝি না), أوقع (সই করি) → ما أوقع (সই করি না)। যে কাগজ পড়তে পারেন না, তাতে বলুন: ما أوقع قبل ما أفهم.",
+     "examples": [
+      {
+       "target": "ما أوقع قبل ما أفهم.",
+       "roman": "ma awaqqi' gabl ma afham.",
+       "bn": "না বুঝে আমি সই করব না।"
+      },
+      {
+       "target": "ما أعرف أقرأ هذا.",
+       "roman": "ma a'arf agra haadha.",
+       "bn": "আমি এটা পড়তে পারি না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w04-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "company clerk"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "وقع هنا لو سمحت."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "آسف، ما أفهم هذا الورق. أبي ترجمة أول."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শ্রমিক কেন এখনই সই করছে না?",
+      "options": [
+       "সে কাগজ বুঝতে পারছে না, আগে অনুবাদ চায়",
+       "কলম নেই",
+       "সে ছুটিতে যাবে",
+       "সে নাম লিখতে জানে না"
+      ],
+      "answer": "A",
+      "explain_bn": "'ما أفهم هذا الورق، أبي ترجمة أول' — কাগজ বুঝি না, আগে অনুবাদ চাই। না বুঝে সই না করা ঠিক কাজ।",
+      "skill": "workplace"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w04-l2-r1",
+      "passage": "حسب العقد: الدوام ٨ ساعات في اليوم. الساعات الإضافية مدفوعة. الإجازة السنوية ٢١ يوم.",
+      "prompt_bn": "চুক্তি অনুযায়ী প্রতিদিন কত ঘণ্টা ডিউটি?",
+      "options": [
+       "৬ ঘণ্টা",
+       "১০ ঘণ্টা",
+       "১২ ঘণ্টা",
+       "৮ ঘণ্টা"
+      ],
+      "answer": "D",
+      "explain_bn": "'الدوام ٨ ساعات في اليوم' — দিনে ৮ ঘণ্টা; এর বেশি হলে ওভারটাইম (ساعات إضافية), যার টাকা দেওয়ার কথা।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w04-l2-w1",
+      "prompt_bn": "আরবিতে ভদ্রভাবে লিখুন: আপনি চুক্তির একটা কপি চান আর পাসপোর্ট নিজের কাছে রাখতে চান।",
+      "model": {
+       "target": "من فضلك، أريد نسخة من العقد، وأريد جوازي عندي.",
+       "roman": "min fadlak, ureed nuskha min al-'aqd, w-ureed jawaazi 'indi.",
+       "bn": "অনুগ্রহ করে, চুক্তির একটা কপি চাই, আর আমার পাসপোর্ট আমার কাছে রাখতে চাই।"
+      },
+      "check": "ai",
+      "min_words": 6,
+      "max_words": 20
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w04-l2-s1",
+      "prompt_bn": "জোরে বলুন: ভদ্রভাবে বলুন দুই মাসের বেতন বাকি, আপনি অভিযোগ দিতে চান।",
+      "model": {
+       "target": "لو سمحت، الراتب متأخر شهرين، وأبي أقدم شكوى.",
+       "roman": "law samaht, ar-raatib mit'akhkhir shahrayn, w-abi agaddim shakwa.",
+       "bn": "দয়া করে শুনুন, দুই মাসের বেতন বাকি, আমি অভিযোগ দিতে চাই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w04-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Household, hospitality and driving phrases",
+    "bn": "গৃহকর্ম, হোটেল-রেস্টুরেন্ট আর ড্রাইভারের কথা"
+   },
+   "goal_bn": "বাসার কাজ, রেস্টুরেন্টে অর্ডার নেওয়া আর গাড়ি চালানোর সময়ের দরকারি কথা — আরবিতে বুঝবেন ও বলবেন।",
+   "vocab": [
+    {
+     "target": "غَسِّل",
+     "roman": "ghassil",
+     "bn_pron": "গাস্সিল",
+     "register": "gulf",
+     "bn": "ধোও",
+     "pos": "verb",
+     "example": {
+      "target": "غسل الصحون بعد العشا.",
+      "roman": "ghassil as-suhoon ba'd al-'asha.",
+      "bn": "রাতের খাবারের পরে থালা-বাসন ধোও।"
+     }
+    },
+    {
+     "target": "كَوِي",
+     "roman": "kawi",
+     "bn_pron": "কাওয়ি",
+     "register": "both",
+     "bn": "ইস্ত্রি",
+     "pos": "noun",
+     "example": {
+      "target": "الملابس تحتاج كوي.",
+      "roman": "al-malaabis tihtaaj kawi.",
+      "bn": "কাপড়গুলো ইস্ত্রি করতে হবে।"
+     }
+    },
+    {
+     "target": "طَبِخ",
+     "roman": "tabkh",
+     "bn_pron": "তাবখ",
+     "register": "both",
+     "bn": "রান্না",
+     "pos": "noun",
+     "example": {
+      "target": "الطبخ الساعة ستة.",
+      "roman": "at-tabkh as-saa'a sitta.",
+      "bn": "রান্না ছয়টায়।"
+     }
+    },
+    {
+     "target": "طَلَب",
+     "roman": "talab",
+     "bn_pron": "তালাব",
+     "register": "both",
+     "bn": "অর্ডার",
+     "pos": "noun",
+     "example": {
+      "target": "طلبك جاهز.",
+      "roman": "talabak jaahiz.",
+      "bn": "আপনার অর্ডার তৈরি।"
+     }
+    },
+    {
+     "target": "تَفَضَّل",
+     "roman": "tafaddal",
+     "bn_pron": "তাফাদ্দাল",
+     "register": "both",
+     "bn": "আসুন / এই নিন (নারীকে: তাফাদ্দালি)",
+     "pos": "expression",
+     "example": {
+      "target": "تفضل، هذي القهوة.",
+      "roman": "tafaddal, haadhi al-gahwa.",
+      "bn": "এই নিন, আপনার কফি।"
+     }
+    },
+    {
+     "target": "فَاتُورَة",
+     "roman": "faatoora",
+     "bn_pron": "ফাতূরা",
+     "register": "both",
+     "bn": "বিল / রসিদ",
+     "pos": "noun",
+     "example": {
+      "target": "الفاتورة لو سمحت.",
+      "roman": "al-faatoora law samaht.",
+      "bn": "বিলটা দিন, প্লিজ।"
+     }
+    },
+    {
+     "target": "سَيَّارَة",
+     "roman": "sayyaara",
+     "bn_pron": "সাইয়্যারা",
+     "register": "both",
+     "bn": "গাড়ি",
+     "pos": "noun",
+     "example": {
+      "target": "السيارة جاهزة عند الباب.",
+      "roman": "as-sayyaara jaahza 'ind al-baab.",
+      "bn": "গাড়ি দরজার সামনে তৈরি।"
+     }
+    },
+    {
+     "target": "بَنْزِين",
+     "roman": "banzeen",
+     "bn_pron": "বানযীন",
+     "register": "both",
+     "bn": "পেট্রোল",
+     "pos": "noun",
+     "example": {
+      "target": "البنزين قليل، لازم نعبي.",
+      "roman": "al-banzeen galeel, laazim n'abbi.",
+      "bn": "পেট্রোল কম, ভরতে হবে।"
+     }
+    },
+    {
+     "target": "زَحْمَة",
+     "roman": "zahma",
+     "bn_pron": "যাহমা",
+     "register": "both",
+     "bn": "যানজট / ভিড়",
+     "pos": "noun",
+     "example": {
+      "target": "في زحمة في الطريق.",
+      "roman": "fi zahma fit-tareeg.",
+      "bn": "রাস্তায় যানজট আছে।"
+     }
+    },
+    {
+     "target": "لَازِم",
+     "roman": "laazim",
+     "bn_pron": "লাযিম",
+     "register": "gulf",
+     "bn": "অবশ্যই / করতেই হবে",
+     "pos": "adverb",
+     "example": {
+      "target": "لازم نوصل قبل الساعة ثمانية.",
+      "roman": "laazim noosal gabl as-saa'a thamaanya.",
+      "bn": "আটটার আগে পৌঁছাতেই হবে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "لازم + ক্রিয়া = করতেই হবে",
+     "explain_bn": "বাধ্যবাধকতা বোঝাতে لازم + ক্রিয়া: لازم أروح (যেতেই হবে)। না-বাচক: مو لازم (দরকার নেই)। শুদ্ধ ভাষায়: يجب أن।",
+     "examples": [
+      {
+       "target": "لازم أوصل الأولاد المدرسة الساعة سبعة.",
+       "roman": "laazim awassil al-awlaad al-madrasa as-saa'a sab'a.",
+       "bn": "সাতটায় বাচ্চাদের স্কুলে পৌঁছে দিতেই হবে।"
+      },
+      {
+       "target": "مو لازم تطبخ اليوم.",
+       "roman": "mu laazim tutbukh al-yom.",
+       "bn": "আজ রান্না করার দরকার নেই।"
+      }
+     ]
+    },
+    {
+     "pattern": "তুমি/আপনি রূপ: পুরুষ ـك (ak) / নারী ـك (ik)",
+     "explain_bn": "'তোমার' বোঝাতে শেষে ـك: পুরুষকে বলা হয় 'আক' (طلبك = তালাবাক), নারীকে 'ইক' (طلبك = তালাবিক)। লেখায় একই রকম দেখায়, উচ্চারণে আলাদা। গৃহকর্মীরা প্রায়ই নারী নিয়োগকর্তা (মাদাম)-এর সাথে কথা বলেন — 'ইক' রূপ মনে রাখুন।",
+     "examples": [
+      {
+       "target": "تفضلي مدام، هذا طلبك.",
+       "roman": "tafaddali madaam, haadha talabik.",
+       "bn": "এই নিন ম্যাডাম, আপনার অর্ডার।"
+      },
+      {
+       "target": "سيارتك جاهزة يا أستاذ.",
+       "roman": "sayyaartak jaahza ya ustaadh.",
+       "bn": "স্যার, আপনার গাড়ি তৈরি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w04-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "employer (madam)"
+        },
+        "B": {
+         "gender": "F",
+         "role": "house worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "اليوم غسلي الملابس، وبعدين الكوي. الطبخ الساعة ستة."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "حاضر مدام."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রান্না কয়টায়?",
+      "options": [
+       "৫টায়",
+       "৬টায়",
+       "৭টায়",
+       "৮টায়"
+      ],
+      "answer": "B",
+      "explain_bn": "'الطبخ الساعة ستة' — রান্না ছয়টায়।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w04-l3-r1",
+      "passage": "رسالة من الكفيل: بكرة لازم توصلني المطار الساعة ٥ الصبح. عبي البنزين اليوم.",
+      "prompt_bn": "আজ চালককে কী করতে হবে?",
+      "options": [
+       "বিমানবন্দরে যেতে হবে",
+       "গাড়ি ধুতে হবে",
+       "পেট্রোল ভরতে হবে",
+       "বাচ্চাদের স্কুলে নিতে হবে"
+      ],
+      "answer": "C",
+      "explain_bn": "'عبي البنزين اليوم' — আজ পেট্রোল ভরো; বিমানবন্দরে যাওয়া কাল ভোর ৫টায়।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w04-l3-w1",
+      "prompt_bn": "আরবিতে লিখুন: গ্রাহককে বলুন তাঁর অর্ডার তৈরি আর বিল দিন।",
+      "model": {
+       "target": "تفضل، طلبك جاهز، وهذه الفاتورة.",
+       "roman": "tafaddal, talabak jaahiz, w-haadhihi al-faatoora.",
+       "bn": "এই নিন, আপনার অর্ডার তৈরি, আর এই যে বিল।"
+      },
+      "check": "ai",
+      "min_words": 4,
+      "max_words": 10
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w04-l3-s1",
+      "prompt_bn": "জোরে বলুন (ড্রাইভার): মালিককে জানান রাস্তায় যানজট, ১০ মিনিট দেরি হবে।",
+      "model": {
+       "target": "آسف أستاذ، في زحمة في الطريق، نتأخر عشر دقايق.",
+       "roman": "aasif ustaadh, fi zahma fit-tareeg, nit'akhkhar 'ashr dagaayig.",
+       "bn": "দুঃখিত স্যার, রাস্তায় যানজট, ১০ মিনিট দেরি হবে।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w04-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Government offices and forms (formal Arabic)",
+    "bn": "সরকারি অফিস আর ফর্ম (শুদ্ধ আরবি)"
+   },
+   "goal_bn": "শ্রম অফিস, জাওয়াযাত (পাসপোর্ট অফিস) আর ফর্মের শুদ্ধ আরবি শব্দ — নাম, জাতীয়তা, সিল, সই — চিনবেন ও পূরণ করতে পারবেন।",
+   "vocab": [
+    {
+     "target": "مَكْتَب الْعَمَل",
+     "roman": "maktab al-'amal",
+     "bn_pron": "মাকতাব আল-আমাল",
+     "register": "msa",
+     "bn": "শ্রম অফিস",
+     "pos": "noun",
+     "example": {
+      "target": "راجع مكتب العمل يوم الأحد.",
+      "roman": "raaji' maktab al-'amal yom al-ahad.",
+      "bn": "রবিবার শ্রম অফিসে যান।"
+     }
+    },
+    {
+     "target": "خَتْم",
+     "roman": "khatm",
+     "bn_pron": "খাতম",
+     "register": "msa",
+     "bn": "সিল / স্ট্যাম্প",
+     "pos": "noun",
+     "example": {
+      "target": "الورقة تحتاج ختم الشركة.",
+      "roman": "al-waraqa tahtaaj khatm ash-sharika.",
+      "bn": "কাগজটায় কোম্পানির সিল লাগবে।"
+     }
+    },
+    {
+     "target": "اِسْتِمَارَة",
+     "roman": "istimaara",
+     "bn_pron": "ইস্তিমারা",
+     "register": "msa",
+     "bn": "ফর্ম",
+     "pos": "noun",
+     "example": {
+      "target": "املأ الاستمارة بالقلم الأزرق.",
+      "roman": "imla' al-istimaara bil-qalam al-azraq.",
+      "bn": "নীল কলম দিয়ে ফর্ম পূরণ করুন।"
+     }
+    },
+    {
+     "target": "الِاسْم الْكَامِل",
+     "roman": "al-ism al-kaamil",
+     "bn_pron": "আল-ইসম আল-কামিল",
+     "register": "msa",
+     "bn": "পূর্ণ নাম",
+     "pos": "noun",
+     "example": {
+      "target": "اكتب الاسم الكامل كما في الجواز.",
+      "roman": "uktub al-ism al-kaamil kama fil-jawaaz.",
+      "bn": "পাসপোর্টে যেমন আছে তেমন পূর্ণ নাম লিখুন।"
+     }
+    },
+    {
+     "target": "الْجِنْسِيَّة",
+     "roman": "al-jinsiyya",
+     "bn_pron": "আল-জিনসিয়্যা",
+     "register": "msa",
+     "bn": "জাতীয়তা",
+     "pos": "noun",
+     "example": {
+      "target": "الجنسية: بنغلاديشي.",
+      "roman": "al-jinsiyya: banglaadeeshi.",
+      "bn": "জাতীয়তা: বাংলাদেশি।"
+     }
+    },
+    {
+     "target": "تَارِيخ الْمِيلَاد",
+     "roman": "taareekh al-meelaad",
+     "bn_pron": "তারীখ আল-মীলাদ",
+     "register": "msa",
+     "bn": "জন্মতারিখ",
+     "pos": "noun",
+     "example": {
+      "target": "تاريخ الميلاد: ١٥ / ٣ / ١٩٩٥.",
+      "roman": "taareekh al-meelaad: khamsata 'ashar, thalaatha, alf w-tis'imiya w-khamsa w-tis'een.",
+      "bn": "জন্মতারিখ: ১৫/৩/১৯৯৫।"
+     }
+    },
+    {
+     "target": "المِهْنَة",
+     "roman": "al-mihna",
+     "bn_pron": "আল-মিহনা",
+     "register": "msa",
+     "bn": "পেশা",
+     "pos": "noun",
+     "example": {
+      "target": "المهنة: عامل بناء.",
+      "roman": "al-mihna: 'aamil binaa'.",
+      "bn": "পেশা: নির্মাণ শ্রমিক।"
+     }
+    },
+    {
+     "target": "مَوْعِد",
+     "roman": "maw'id",
+     "bn_pron": "মাওইদ",
+     "register": "both",
+     "bn": "অ্যাপয়েন্টমেন্ট",
+     "pos": "noun",
+     "example": {
+      "target": "الموعد الساعة عشرة صباحا.",
+      "roman": "al-maw'id as-saa'a 'ashara sabaahan.",
+      "bn": "অ্যাপয়েন্টমেন্ট সকাল দশটায়।"
+     }
+    },
+    {
+     "target": "تَجْدِيد",
+     "roman": "tajdeed",
+     "bn_pron": "তাজদীদ",
+     "register": "msa",
+     "bn": "নবায়ন",
+     "pos": "noun",
+     "example": {
+      "target": "تجديد الإقامة كل سنة.",
+      "roman": "tajdeed al-iqaama kull sana.",
+      "bn": "ইকামা প্রতি বছর নবায়ন।"
+     }
+    },
+    {
+     "target": "دَوْر",
+     "roman": "door",
+     "bn_pron": "দাওর",
+     "register": "gulf",
+     "bn": "সিরিয়াল / লাইনে পালা",
+     "pos": "noun",
+     "example": {
+      "target": "انتظر دورك لو سمحت.",
+      "roman": "intazir doorak law samaht.",
+      "bn": "দয়া করে নিজের পালার জন্য অপেক্ষা করুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ফর্মের শব্দ: الاسم، الجنسية، المهنة، التوقيع",
+     "explain_bn": "ফর্মে লেবেলগুলো শুদ্ধ আরবিতে (MSA) লেখা: الاسم الكامل (পূর্ণ নাম), الجنسية (জাতীয়তা), تاريخ الميلاد (জন্মতারিখ), رقم الجواز (পাসপোর্ট নম্বর), المهنة (পেশা), التوقيع (সই)। নাম ঠিক পাসপোর্টের মতো লিখুন — এক অক্ষর আলাদা হলেও সমস্যা হতে পারে।",
+     "examples": [
+      {
+       "target": "رقم الجواز: أ ١٢٣٤٥٦٧.",
+       "roman": "raqm al-jawaaz: alif waahid ithnayn thalaatha arba'a khamsa sitta sab'a.",
+       "bn": "পাসপোর্ট নম্বর: A১২৩৪৫৬৭ (নমুনা)।"
+      },
+      {
+       "target": "المهنة: سائق خاص.",
+       "roman": "al-mihna: saa'iq khaas.",
+       "bn": "পেশা: ব্যক্তিগত ড্রাইভার।"
+      }
+     ]
+    },
+    {
+     "pattern": "শুদ্ধ নির্দেশ: املأ، اكتب، راجع",
+     "explain_bn": "অফিসের নির্দেশ শুদ্ধ আদেশ রূপে: املأ (পূরণ করুন), اكتب (লিখুন), راجع (… অফিসে যোগাযোগ করুন/যান), أحضر (আনুন)। কথ্য ভাষায় একই কথা: عبي، اكتب، روح، جيب।",
+     "examples": [
+      {
+       "target": "أحضر صورة الجواز.",
+       "roman": "ahdir soorat al-jawaaz.",
+       "bn": "পাসপোর্টের কপি আনুন।"
+      },
+      {
+       "target": "راجع الشباك رقم ٣.",
+       "roman": "raaji' ash-shubbaak raqam thalaatha.",
+       "bn": "৩ নম্বর কাউন্টারে যান।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w04-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "office employee"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "املأ الاستمارة، وأحضر صورة الجواز والإقامة، وراجع الشباك رقم ٤."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "شكرا، الشباك رقم أربعة."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কোন কাউন্টারে যেতে হবে?",
+      "options": [
+       "২ নম্বর",
+       "৩ নম্বর",
+       "৫ নম্বর",
+       "৪ নম্বর"
+      ],
+      "answer": "D",
+      "explain_bn": "'الشباك رقم ٤' — ৪ নম্বর কাউন্টার।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w04-l4-r1",
+      "passage": "استمارة: الاسم الكامل: ـــ. الجنسية: ـــ. المهنة: ـــ. التوقيع: ـــ.",
+      "prompt_bn": "'الجنسية' ঘরে কী লিখবেন?",
+      "options": [
+       "আপনার পেশা",
+       "আপনার জন্মতারিখ",
+       "আপনার সই",
+       "আপনার জাতীয়তা (বাংলাদেশি)"
+      ],
+      "answer": "D",
+      "explain_bn": "'الجنسية' = জাতীয়তা — লিখবেন بنغلاديشي।",
+      "skill": "form"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w04-l4-w1",
+      "prompt_bn": "ফর্মের মতো আরবিতে লিখুন: জাতীয়তা বাংলাদেশি, পেশা ড্রাইভার।",
+      "model": {
+       "target": "الجنسية: بنغلاديشي. المهنة: سائق.",
+       "roman": "al-jinsiyya: banglaadeeshi. al-mihna: saa'iq.",
+       "bn": "জাতীয়তা: বাংলাদেশি। পেশা: ড্রাইভার।"
+      },
+      "check": "self",
+      "min_words": 4,
+      "max_words": 6
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w04-l4-s1",
+      "prompt_bn": "জোরে বলুন: অফিসে বলুন আপনি ইকামা নবায়ন করতে চান, আপনার সকাল দশটায় অ্যাপয়েন্টমেন্ট।",
+      "model": {
+       "target": "السلام عليكم، أريد تجديد الإقامة، عندي موعد الساعة عشرة.",
+       "roman": "as-salaamu 'alaykum, ureed tajdeed al-iqaama, 'indi maw'id as-saa'a 'ashara.",
+       "bn": "আসসালামু আলাইকুম, আমি ইকামা নবায়ন করতে চাই, দশটায় আমার অ্যাপয়েন্টমেন্ট।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w04-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Review: your first day at work",
+    "bn": "পুনরাবৃত্তি: কাজের প্রথম দিন"
+   },
+   "goal_bn": "চার সপ্তাহের শেখা একসাথে: কাজের প্রথম দিনে সালাম, পরিচয়, সময়, নির্দেশ, নিরাপত্তা আর প্রশ্ন — একটা পুরো কথোপকথন চালাতে পারবেন।",
+   "vocab": [
+    {
+     "target": "أَوَّل يَوْم",
+     "roman": "awwal yom",
+     "bn_pron": "আওয়াল ইয়াওম",
+     "register": "both",
+     "bn": "প্রথম দিন",
+     "pos": "noun",
+     "example": {
+      "target": "اليوم أول يوم لي في الشغل.",
+      "roman": "al-yom awwal yom li fish-shughul.",
+      "bn": "আজ কাজে আমার প্রথম দিন।"
+     }
+    },
+    {
+     "target": "مَوْقِع",
+     "roman": "mawqi'",
+     "bn_pron": "মাওকি",
+     "register": "both",
+     "bn": "সাইট / কাজের জায়গা",
+     "pos": "noun",
+     "example": {
+      "target": "الموقع قريب من البحر.",
+      "roman": "al-mawqi' gareeb min al-bahar.",
+      "bn": "সাইটটা সমুদ্রের কাছে।"
+     }
+    },
+    {
+     "target": "زِيّ",
+     "roman": "ziyy",
+     "bn_pron": "যিয়্যি",
+     "register": "both",
+     "bn": "ইউনিফর্ম / পোশাক",
+     "pos": "noun",
+     "example": {
+      "target": "الزي الأزرق للعمال.",
+      "roman": "az-ziyy al-azrag lil-'ummaal.",
+      "bn": "নীল ইউনিফর্ম শ্রমিকদের জন্য।"
+     }
+    },
+    {
+     "target": "فَرِيق",
+     "roman": "fareeg",
+     "bn_pron": "ফারীগ",
+     "register": "both",
+     "bn": "দল / টিম",
+     "pos": "noun",
+     "example": {
+      "target": "أنت في فريق أحمد.",
+      "roman": "inta fi fareeg ahmad.",
+      "bn": "তুমি আহমেদের টিমে।"
+     }
+    },
+    {
+     "target": "سُؤَال",
+     "roman": "su'aal",
+     "bn_pron": "সুআল",
+     "register": "both",
+     "bn": "প্রশ্ন",
+     "pos": "noun",
+     "example": {
+      "target": "عندي سؤال لو سمحت.",
+      "roman": "'indi su'aal law samaht.",
+      "bn": "আমার একটা প্রশ্ন আছে।"
+     }
+    },
+    {
+     "target": "فَاهِم",
+     "roman": "faahim",
+     "bn_pron": "ফাহিম",
+     "register": "gulf",
+     "bn": "বুঝেছি / বোঝো? (নারী: ফাহমা)",
+     "pos": "adjective",
+     "example": {
+      "target": "فاهم؟ — إي، فاهم.",
+      "roman": "faahim? — ee, faahim.",
+      "bn": "বুঝেছ? — হ্যাঁ, বুঝেছি।"
+     }
+    },
+    {
+     "target": "إِي",
+     "roman": "ee",
+     "bn_pron": "ঈ",
+     "register": "gulf",
+     "bn": "হ্যাঁ (কথ্য; শুদ্ধ: নাআম نعم)",
+     "pos": "expression",
+     "example": {
+      "target": "إي، أنا جاهز.",
+      "roman": "ee, ana jaahiz.",
+      "bn": "হ্যাঁ, আমি তৈরি।"
+     }
+    },
+    {
+     "target": "لَا",
+     "roman": "la",
+     "bn_pron": "লা",
+     "register": "both",
+     "bn": "না",
+     "pos": "expression",
+     "example": {
+      "target": "لا، ما خلصت بعد.",
+      "roman": "la, ma khallast ba'd.",
+      "bn": "না, এখনো শেষ করিনি।"
+     }
+    },
+    {
+     "target": "خَلَاص",
+     "roman": "khalaas",
+     "bn_pron": "খালাস",
+     "register": "gulf",
+     "bn": "শেষ / হয়ে গেছে / যথেষ্ট",
+     "pos": "expression",
+     "example": {
+      "target": "خلاص، الشغل خلص.",
+      "roman": "khalaas, ash-shughul khilis.",
+      "bn": "ব্যাস, কাজ শেষ।"
+     }
+    },
+    {
+     "target": "جَاهِز",
+     "roman": "jaahiz",
+     "bn_pron": "জাহিয",
+     "register": "both",
+     "bn": "তৈরি / রেডি",
+     "pos": "adjective",
+     "example": {
+      "target": "الباص جاهز؟",
+      "roman": "al-baas jaahiz?",
+      "bn": "বাস কি রেডি?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "প্রশ্ন বানানো: শুধু গলার সুর বদলান",
+     "explain_bn": "হ্যাঁ/না প্রশ্নে শব্দ বদলাতে হয় না, শুধু শেষে সুর উঁচু করুন: أنت جاهز. (তুমি তৈরি।) → أنت جاهز؟ (তুমি তৈরি?)। শুদ্ধ লেখায় শুরুতে هل বসে: هل أنت جاهز؟",
+     "examples": [
+      {
+       "target": "الباص هنا؟",
+       "roman": "al-baas hina?",
+       "bn": "বাস কি এখানে?"
+      },
+      {
+       "target": "هل العقد جاهز؟",
+       "roman": "hal al-'aqd jaahiz?",
+       "bn": "চুক্তিপত্র কি তৈরি? (শুদ্ধ)"
+      }
+     ]
+    },
+    {
+     "pattern": "ক্রিয়ার অতীত: خلصت، فهمت، وصلت",
+     "explain_bn": "অতীত কাল 'আমি' রূপে শেষে ـت: خلصت (শেষ করেছি), فهمت (বুঝেছি), وصلت (পৌঁছেছি)। না-বাচক: ما + অতীত: ما فهمت (বুঝিনি)।",
+     "examples": [
+      {
+       "target": "وصلت الموقع الساعة سبعة.",
+       "roman": "wasalt al-mawqi' as-saa'a sab'a.",
+       "bn": "আমি সাতটায় সাইটে পৌঁছেছি।"
+      },
+      {
+       "target": "ما فهمت، عيد لو سمحت.",
+       "roman": "ma fihimt, 'eed law samaht.",
+       "bn": "বুঝিনি, দয়া করে আবার বলুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w04-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "foreman"
+        },
+        "B": {
+         "gender": "M",
+         "role": "new worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "أهلا، أنت الجديد؟ شو اسمك؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "إي، اسمي سوجن، من بنغلاديش."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "زين، أنت في فريق أحمد. البس الزي والخوذة، والدوام لين الساعة أربعة. فاهم؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "إي، فاهم. شكرا."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সুজনের ডিউটি কয়টা পর্যন্ত?",
+      "options": [
+       "২টা",
+       "৩টা",
+       "৪টা",
+       "৫টা"
+      ],
+      "answer": "C",
+      "explain_bn": "'الدوام لين الساعة أربعة' — চারটা পর্যন্ত।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w04-l5-r1",
+      "passage": "أول يوم: الساعة ٦:٣٠ الباص. الساعة ٧ الموقع: البس الخوذة. الساعة ١٢ استراحة. الساعة ٤ نخلص.",
+      "prompt_bn": "দুপুর ১২টায় কী হয়?",
+      "options": [
+       "বাস আসে",
+       "বিরতি",
+       "কাজ শেষ",
+       "হেলমেট পরা"
+      ],
+      "answer": "B",
+      "explain_bn": "'الساعة ١٢ استراحة' — ১২টায় বিরতি।",
+      "skill": "time"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w04-l5-w1",
+      "prompt_bn": "আরবিতে ৩–৪ বাক্যে প্রথম দিনের ছোট বর্ণনা লিখুন: কখন পৌঁছালেন, কার টিমে, কী পরলেন।",
+      "model": {
+       "target": "وصلت الموقع الساعة سبعة. أنا في فريق أحمد. لبست الزي والخوذة.",
+       "roman": "wasalt al-mawqi' as-saa'a sab'a. ana fi fareeg ahmad. libast az-ziyy wal-khooza.",
+       "bn": "আমি সাতটায় সাইটে পৌঁছেছি। আমি আহমেদের টিমে। ইউনিফর্ম আর হেলমেট পরেছি।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w04-l5-s1",
+      "prompt_bn": "জোরে বলুন (রোল-প্লে): ফোরম্যানকে সালাম দিন, নাম-দেশ বলুন, আর জিজ্ঞেস করুন ডিউটি কখন শেষ।",
+      "model": {
+       "target": "السلام عليكم، اسمي سوجن، من بنغلاديش. لو سمحت، الدوام لين متى؟",
+       "roman": "as-salaamu 'alaykum, ismi sujan, min banglaadesh. law samaht, ad-dawaam leen mata?",
+       "bn": "আসসালামু আলাইকুম, আমার নাম সুজন, বাংলাদেশ থেকে। একটু বলবেন, ডিউটি কখন পর্যন্ত?"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,1076 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "fr",
+ "week": 2,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "fr_a1"
+ ],
+ "title": {
+  "en": "Week 2: Everyday basics",
+  "bn": "সপ্তাহ ২: প্রতিদিনের মৌলিক ফরাসি"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official DELF material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল DELF উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 descriptors + public DELF A1 exam description (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "fr-w02-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "a/an and the: everyday objects",
+    "bn": "un/une ও le/la: দৈনন্দিন জিনিস"
+   },
+   "goal_bn": "পুরুষ আর নারী বিশেষ্য চিনবেন, un/une আর le/la/les ঠিকভাবে বসাবেন, আর ঘরের জিনিসের নাম বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "le livre",
+     "bn": "বই",
+     "bn_pron": "ল্য লিভ্র",
+     "pos": "noun",
+     "example": {
+      "target": "C'est un livre de français.",
+      "bn": "এটা একটা ফরাসি বই।"
+     }
+    },
+    {
+     "target": "la table",
+     "bn": "টেবিল",
+     "bn_pron": "লা তাব্ল",
+     "pos": "noun",
+     "example": {
+      "target": "Le livre est sur la table.",
+      "bn": "বইটা টেবিলের উপর।"
+     }
+    },
+    {
+     "target": "le stylo",
+     "bn": "কলম",
+     "bn_pron": "ল্য স্তিলো",
+     "pos": "noun",
+     "example": {
+      "target": "Tu as un stylo ?",
+      "bn": "তোমার কাছে কলম আছে?"
+     }
+    },
+    {
+     "target": "le sac",
+     "bn": "ব্যাগ",
+     "bn_pron": "ল্য সাক",
+     "pos": "noun",
+     "example": {
+      "target": "Mon sac est noir.",
+      "bn": "আমার ব্যাগ কালো।"
+     }
+    },
+    {
+     "target": "la clé",
+     "bn": "চাবি",
+     "bn_pron": "লা ক্লে",
+     "pos": "noun",
+     "example": {
+      "target": "Où est la clé de la chambre ?",
+      "bn": "রুমের চাবি কোথায়?"
+     }
+    },
+    {
+     "target": "le téléphone portable",
+     "bn": "মোবাইল ফোন",
+     "bn_pron": "ল্য তেলেফোন পরতাব্ল",
+     "pos": "noun",
+     "example": {
+      "target": "Mon téléphone portable est dans le sac.",
+      "bn": "আমার মোবাইল ব্যাগের ভেতরে।"
+     }
+    },
+    {
+     "target": "l'ordinateur (m)",
+     "bn": "কম্পিউটার",
+     "bn_pron": "লরদিনাত্যর",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai un ordinateur pour mes cours.",
+      "bn": "ক্লাসের জন্য আমার একটা কম্পিউটার আছে।"
+     }
+    },
+    {
+     "target": "la chaise",
+     "bn": "চেয়ার",
+     "bn_pron": "লা শেজ",
+     "pos": "noun",
+     "example": {
+      "target": "Il y a trois chaises dans la salle.",
+      "bn": "রুমে তিনটা চেয়ার আছে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "un / une / des — কোনো একটা (অনির্দিষ্ট)",
+     "explain_bn": "ফরাসিতে প্রতিটি বিশেষ্য পুরুষ বা নারী লিঙ্গের — জিনিসেরও! পুরুষ: un livre, নারী: une table, বহুবচন: des livres। লিঙ্গটা শব্দের সাথে মুখস্থ করুন; এজন্য শব্দতালিকায় সবসময় le/la সহ দেওয়া হয়েছে।",
+     "examples": [
+      {
+       "target": "C'est un stylo.",
+       "bn": "এটা একটা কলম।"
+      },
+      {
+       "target": "C'est une chaise.",
+       "bn": "এটা একটা চেয়ার।"
+      },
+      {
+       "target": "Ce sont des clés.",
+       "bn": "এগুলো (কয়েকটা) চাবি।"
+      }
+     ]
+    },
+    {
+     "pattern": "le / la / l' / les — নির্দিষ্ট জিনিস",
+     "explain_bn": "যে জিনিসটা দুজনেই চিনি, তার আগে le (পুরুষ), la (নারী), স্বরবর্ণের আগে l', বহুবচনে les। Un sac = কোনো একটা ব্যাগ; le sac = ওই নির্দিষ্ট ব্যাগটা।",
+     "examples": [
+      {
+       "target": "Le sac de Nusrat est sur la chaise.",
+       "bn": "নুসরাতের ব্যাগটা চেয়ারের উপর।"
+      },
+      {
+       "target": "L'ordinateur est à côté des livres.",
+       "bn": "কম্পিউটারটা বইগুলোর পাশে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w02-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "flatmate"
+        },
+        "B": {
+         "gender": "M",
+         "role": "flatmate"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Où est mon sac ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Ton sac est sur la chaise, à côté de la table."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ব্যাগটা কোথায়?",
+      "options": [
+       "চেয়ারের উপর",
+       "টেবিলের নিচে",
+       "দরজার পাশে",
+       "বিছানার উপর"
+      ],
+      "answer": "A",
+      "explain_bn": "'sur la chaise' = চেয়ারের উপর। 'à côté de la table' মানে চেয়ারটা টেবিলের পাশে।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w02-l1-r1",
+      "passage": "Dans mon sac, il y a un livre, deux stylos, une clé et un ordinateur. Il n'y a pas de téléphone : il est à la maison.",
+      "prompt_bn": "ব্যাগে কোনটা নেই?",
+      "options": [
+       "une clé",
+       "un livre",
+       "un ordinateur",
+       "un téléphone"
+      ],
+      "answer": "D",
+      "explain_bn": "'Il n'y a pas de téléphone' = ফোন নেই; ফোনটা বাসায় (à la maison)।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w02-l1-w1",
+      "prompt_bn": "আপনার টেবিলে কী কী আছে লিখুন — un আর une দুটোই ব্যবহার করুন।",
+      "model": {
+       "target": "Sur ma table, il y a un ordinateur, un livre et une clé.",
+       "bn": "আমার টেবিলে একটা কম্পিউটার, একটা বই আর একটা চাবি আছে।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w02-l1-s1",
+      "prompt_bn": "জোরে বলুন: হাতের জিনিস দেখিয়ে বলুন এটা কী (একটা পুরুষ, একটা নারী, একটা বহুবচন)।",
+      "model": {
+       "target": "C'est un stylo. C'est une chaise. Ce sont des livres.",
+       "bn": "এটা একটা কলম। এটা একটা চেয়ার। এগুলো বই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w02-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "-er verbs and jobs",
+    "bn": "-er ক্রিয়া ও পেশা"
+   },
+   "goal_bn": "habiter, travailler, parler — সবচেয়ে কাজের -er ক্রিয়াগুলোর রূপ আর বিভিন্ন পেশার নাম শিখবেন।",
+   "vocab": [
+    {
+     "target": "habiter",
+     "bn": "বাস করা / থাকা",
+     "bn_pron": "আবিতে",
+     "pos": "verb",
+     "example": {
+      "target": "J'habite à Marseille.",
+      "bn": "আমি মার্সেইতে থাকি।"
+     }
+    },
+    {
+     "target": "travailler",
+     "bn": "কাজ করা",
+     "bn_pron": "ত্রাভাইয়ে",
+     "pos": "verb",
+     "example": {
+      "target": "Elle travaille dans un hôpital.",
+      "bn": "সে একটা হাসপাতালে কাজ করে।"
+     }
+    },
+    {
+     "target": "parler",
+     "bn": "কথা বলা",
+     "bn_pron": "পারলে",
+     "pos": "verb",
+     "example": {
+      "target": "Vous parlez anglais ?",
+      "bn": "আপনি কি ইংরেজি বলেন?"
+     }
+    },
+    {
+     "target": "l'infirmier / l'infirmière",
+     "bn": "নার্স (পুরুষ / নারী)",
+     "bn_pron": "ল্যাঁফিরমিয়ে / ল্যাঁফিরমিয়ের",
+     "pos": "noun",
+     "example": {
+      "target": "Ma cousine est infirmière.",
+      "bn": "আমার কাজিন নার্স।"
+     }
+    },
+    {
+     "target": "l'ingénieur / l'ingénieure",
+     "bn": "প্রকৌশলী",
+     "bn_pron": "ল্যাঁজেনিয়্যর",
+     "pos": "noun",
+     "example": {
+      "target": "Mon mari est ingénieur.",
+      "bn": "আমার স্বামী প্রকৌশলী।"
+     }
+    },
+    {
+     "target": "le cuisinier / la cuisinière",
+     "bn": "রাঁধুনি / বাবুর্চি",
+     "bn_pron": "ল্য কুইজিনিয়ে / লা কুইজিনিয়ের",
+     "pos": "noun",
+     "example": {
+      "target": "Il est cuisinier dans un restaurant.",
+      "bn": "সে একটা রেস্টুরেন্টের রাঁধুনি।"
+     }
+    },
+    {
+     "target": "le chauffeur",
+     "bn": "চালক / ড্রাইভার",
+     "bn_pron": "ল্য শোফ্যর",
+     "pos": "noun",
+     "example": {
+      "target": "Le chauffeur parle bengali.",
+      "bn": "ড্রাইভার বাংলা বলে।"
+     }
+    },
+    {
+     "target": "le vendeur / la vendeuse",
+     "bn": "বিক্রেতা / সেলসম্যান",
+     "bn_pron": "ল্য ভঁদ্যর / লা ভঁদ্যজ",
+     "pos": "noun",
+     "example": {
+      "target": "La vendeuse est très gentille.",
+      "bn": "বিক্রেতা মেয়েটি খুব ভালো।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "-er ক্রিয়া: parler → je parle, tu parles, il/elle parle, nous parlons, vous parlez, ils/elles parlent",
+     "explain_bn": "-er দিয়ে শেষ ক্রিয়া (ফরাসির বেশিরভাগ ক্রিয়া) একই নিয়মে চলে: -er কেটে -e, -es, -e, -ons, -ez, -ent যোগ করুন। মজার কথা: parle, parles, parlent — তিনটাই একই রকম উচ্চারণ 'পার্ল'।",
+     "examples": [
+      {
+       "target": "Nous parlons bengali à la maison.",
+       "bn": "আমরা বাসায় বাংলা বলি।"
+      },
+      {
+       "target": "Ils travaillent à Paris.",
+       "bn": "তারা প্যারিসে কাজ করে।"
+      },
+      {
+       "target": "Tu habites où ?",
+       "bn": "তুমি কোথায় থাকো?"
+      }
+     ]
+    },
+    {
+     "pattern": "Je suis + পেশা (মাঝে un/une নেই)",
+     "explain_bn": "পেশা বলার সময় ফরাসিতে 'একজন' বসে না: Je suis infirmière (আমি নার্স), 'Je suis une infirmière' নয়। নারী হলে পেশার নারী রূপ: vendeur → vendeuse, cuisinier → cuisinière।",
+     "examples": [
+      {
+       "target": "Je suis chauffeur.",
+       "bn": "আমি ড্রাইভার।"
+      },
+      {
+       "target": "Elle est vendeuse.",
+       "bn": "সে বিক্রেতা।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w02-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "neighbour"
+        },
+        "B": {
+         "gender": "F",
+         "role": "nurse"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Vous travaillez où ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Je suis infirmière. Je travaille à l'hôpital Saint-Louis, à Paris."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলার পেশা কী?",
+      "options": [
+       "প্রকৌশলী",
+       "বিক্রেতা",
+       "রাঁধুনি",
+       "নার্স"
+      ],
+      "answer": "D",
+      "explain_bn": "'Je suis infirmière' = আমি নার্স। তিনি হাসপাতালে (hôpital) কাজ করেন।",
+      "skill": "workplace"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w02-l2-r1",
+      "passage": "Rafiq habite à Marseille. Il est cuisinier dans un restaurant indien. Il parle bengali, anglais et un peu français.",
+      "prompt_bn": "রফিক কোন ভাষা অল্প (একটু) বলে?",
+      "options": [
+       "bengali",
+       "français",
+       "anglais",
+       "arabe"
+      ],
+      "answer": "B",
+      "explain_bn": "'un peu français' = একটু ফরাসি। বাংলা আর ইংরেজি সে ভালোভাবে বলে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w02-l2-w1",
+      "prompt_bn": "৩টি বাক্যে লিখুন: কোথায় থাকেন, পেশা কী, কোন কোন ভাষা বলেন।",
+      "model": {
+       "target": "J'habite à Dhaka. Je suis ingénieur. Je parle bengali et anglais.",
+       "bn": "আমি ঢাকায় থাকি। আমি প্রকৌশলী। আমি বাংলা আর ইংরেজি বলি।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w02-l2-s1",
+      "prompt_bn": "জোরে বলুন: নিজের নাম, পেশা আর কোন শহরে থাকেন।",
+      "model": {
+       "target": "Je m'appelle Liton. Je suis chauffeur et j'habite à Toulouse.",
+       "bn": "আমার নাম লিটন। আমি ড্রাইভার আর তুলুজে থাকি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w02-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Telling the time and days of the week",
+    "bn": "সময় ও সপ্তাহের দিন"
+   },
+   "goal_bn": "ঘড়ির সময় বলা ও বোঝা আর সপ্তাহের দিন শিখবেন — অ্যাপয়েন্টমেন্ট, ক্লাস আর অফিসের সময়ের জন্য।",
+   "vocab": [
+    {
+     "target": "l'heure (f)",
+     "bn": "ঘণ্টা / সময়",
+     "bn_pron": "ল্যর",
+     "pos": "noun",
+     "example": {
+      "target": "Quelle heure est-il ?",
+      "bn": "কয়টা বাজে?"
+     }
+    },
+    {
+     "target": "midi",
+     "bn": "দুপুর ১২টা",
+     "bn_pron": "মিদি",
+     "pos": "noun",
+     "example": {
+      "target": "On mange à midi.",
+      "bn": "আমরা দুপুর ১২টায় খাই।"
+     }
+    },
+    {
+     "target": "minuit",
+     "bn": "রাত ১২টা",
+     "bn_pron": "মিনুই",
+     "pos": "noun",
+     "example": {
+      "target": "Le magasin ferme à minuit.",
+      "bn": "দোকান রাত ১২টায় বন্ধ হয়।"
+     }
+    },
+    {
+     "target": "lundi",
+     "bn": "সোমবার",
+     "bn_pron": "ল্যাঁদি",
+     "pos": "noun",
+     "example": {
+      "target": "Le cours commence lundi.",
+      "bn": "ক্লাস সোমবার শুরু।"
+     }
+    },
+    {
+     "target": "mercredi",
+     "bn": "বুধবার",
+     "bn_pron": "মেরক্রদি",
+     "pos": "noun",
+     "example": {
+      "target": "Mercredi, je travaille.",
+      "bn": "বুধবার আমি কাজ করি।"
+     }
+    },
+    {
+     "target": "vendredi",
+     "bn": "শুক্রবার",
+     "bn_pron": "ভঁদ্রদি",
+     "pos": "noun",
+     "example": {
+      "target": "Vendredi, je vais à la mosquée.",
+      "bn": "শুক্রবার আমি মসজিদে যাই।"
+     }
+    },
+    {
+     "target": "dimanche",
+     "bn": "রবিবার",
+     "bn_pron": "দিমঁশ",
+     "pos": "noun",
+     "example": {
+      "target": "Le dimanche, la poste est fermée.",
+      "bn": "রবিবারে পোস্ট অফিস বন্ধ।"
+     }
+    },
+    {
+     "target": "aujourd'hui",
+     "bn": "আজ",
+     "bn_pron": "ওজুরদুই",
+     "pos": "adverb",
+     "example": {
+      "target": "Aujourd'hui, c'est mardi.",
+      "bn": "আজ মঙ্গলবার।"
+     }
+    },
+    {
+     "target": "demain",
+     "bn": "আগামীকাল",
+     "bn_pron": "দ্যম্যাঁ",
+     "pos": "adverb",
+     "example": {
+      "target": "À demain !",
+      "bn": "কাল দেখা হবে!"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Il est … heure(s): et quart, et demie, moins le quart",
+     "explain_bn": "সময় বলতে 'Il est' + সংখ্যা + heures: Il est huit heures (৮টা)। সোয়া = et quart, সাড়ে = et demie, পৌনে = moins le quart (পরের ঘণ্টা থেকে বিয়োগ): Il est neuf heures moins le quart = ৮:৪৫। অফিস আর স্টেশনে ২৪ ঘণ্টার ঘড়ি চলে: dix-huit heures = সন্ধ্যা ৬টা।",
+     "examples": [
+      {
+       "target": "Il est dix heures et demie.",
+       "bn": "সাড়ে দশটা বাজে।"
+      },
+      {
+       "target": "Le train part à dix-huit heures quinze.",
+       "bn": "ট্রেন ছাড়ে সন্ধ্যা ৬:১৫-তে।"
+      }
+     ]
+    },
+    {
+     "pattern": "lundi বনাম le lundi",
+     "explain_bn": "শুধু 'lundi' = এই (আসছে) সোমবার একবার; 'le lundi' = প্রতি সোমবার (অভ্যাস)। সপ্তাহের দিন ছোট হাতের অক্ষরে শুরু হয়।",
+     "examples": [
+      {
+       "target": "Lundi, j'ai un rendez-vous.",
+       "bn": "এই সোমবার আমার একটা অ্যাপয়েন্টমেন্ট আছে।"
+      },
+      {
+       "target": "Le lundi, je travaille au marché.",
+       "bn": "প্রতি সোমবার আমি বাজারে কাজ করি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w02-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "doctor's secretary"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Votre rendez-vous est mardi à dix heures et demie."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Mardi, dix heures et demie. D'accord, merci !"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "অ্যাপয়েন্টমেন্ট কখন?",
+      "options": [
+       "মঙ্গলবার সকাল ১০:১৫",
+       "মঙ্গলবার সকাল ১০:৩০",
+       "বৃহস্পতিবার সকাল ১০:৩০",
+       "সোমবার সকাল ১১:৩০"
+      ],
+      "answer": "B",
+      "explain_bn": "mardi = মঙ্গলবার; dix heures et demie = সাড়ে দশটা (১০:৩০)। et quart হলে ১০:১৫ হতো।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w02-l3-r1",
+      "passage": "Bibliothèque municipale – Horaires : du lundi au vendredi, de neuf heures à dix-huit heures. Le samedi, de dix heures à midi. Fermée le dimanche.",
+      "prompt_bn": "লাইব্রেরি কোন দিন বন্ধ?",
+      "options": [
+       "le samedi",
+       "le lundi",
+       "le dimanche",
+       "le vendredi"
+      ],
+      "answer": "C",
+      "explain_bn": "'Fermée le dimanche' = রবিবার বন্ধ। শনিবারে খোলা, তবে শুধু ১০টা থেকে দুপুর ১২টা।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w02-l3-w1",
+      "prompt_bn": "আপনার ফরাসি ক্লাস কোন কোন দিন আর কয়টায়, এক বাক্যে লিখুন।",
+      "model": {
+       "target": "J'ai cours de français le lundi et le mercredi à dix-huit heures.",
+       "bn": "প্রতি সোমবার আর বুধবার সন্ধ্যা ৬টায় আমার ফরাসি ক্লাস।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w02-l3-s1",
+      "prompt_bn": "জোরে বলুন: আজ কী বার আর এখন কয়টা বাজে (দুপুর ১২:১৫)।",
+      "model": {
+       "target": "Aujourd'hui, c'est vendredi. Il est midi et quart.",
+       "bn": "আজ শুক্রবার। এখন দুপুর ১২টা ১৫।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w02-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "At the café: ordering and asking the price",
+    "bn": "ক্যাফেতে: অর্ডার ও দাম জানা"
+   },
+   "goal_bn": "ক্যাফে বা খাবারের দোকানে ভদ্রভাবে অর্ডার দেওয়া, দাম জিজ্ঞেস করা আর বিল চাওয়া শিখবেন।",
+   "vocab": [
+    {
+     "target": "le café",
+     "bn": "কফি / ক্যাফে",
+     "bn_pron": "ল্য কাফে",
+     "pos": "noun",
+     "example": {
+      "target": "Un café noir, s'il vous plaît.",
+      "bn": "একটা কালো কফি, দয়া করে।"
+     }
+    },
+    {
+     "target": "le thé",
+     "bn": "চা",
+     "bn_pron": "ল্য তে",
+     "pos": "noun",
+     "example": {
+      "target": "Je bois du thé avec du lait.",
+      "bn": "আমি দুধ-চা খাই।"
+     }
+    },
+    {
+     "target": "l'eau (f)",
+     "bn": "পানি",
+     "bn_pron": "লো",
+     "pos": "noun",
+     "example": {
+      "target": "Une bouteille d'eau, s'il vous plaît.",
+      "bn": "এক বোতল পানি, দয়া করে।"
+     }
+    },
+    {
+     "target": "le croissant",
+     "bn": "ক্রোয়াসঁ (মাখনের রুটি)",
+     "bn_pron": "ল্য ক্রোয়াসঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Le matin, je mange un croissant.",
+      "bn": "সকালে আমি একটা ক্রোয়াসঁ খাই।"
+     }
+    },
+    {
+     "target": "le sandwich",
+     "bn": "স্যান্ডউইচ",
+     "bn_pron": "ল্য সঁদউইচ",
+     "pos": "noun",
+     "example": {
+      "target": "Un sandwich au thon, s'il vous plaît.",
+      "bn": "একটা টুনা স্যান্ডউইচ, দয়া করে।"
+     }
+    },
+    {
+     "target": "le jus d'orange",
+     "bn": "কমলার জুস",
+     "bn_pron": "ল্য জু দরঁজ",
+     "pos": "noun",
+     "example": {
+      "target": "Mon fils voudrait un jus d'orange.",
+      "bn": "আমার ছেলে একটা কমলার জুস চায়।"
+     }
+    },
+    {
+     "target": "l'addition (f)",
+     "bn": "বিল (রেস্টুরেন্টের)",
+     "bn_pron": "লাদিসিয়োঁ",
+     "pos": "noun",
+     "example": {
+      "target": "L'addition, s'il vous plaît !",
+      "bn": "বিলটা দিন, প্লিজ!"
+     }
+    },
+    {
+     "target": "combien",
+     "bn": "কত",
+     "bn_pron": "কোঁবিয়েঁ",
+     "pos": "adverb",
+     "example": {
+      "target": "C'est combien ?",
+      "bn": "এটার দাম কত?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Je voudrais + জিনিস — ভদ্রভাবে চাওয়া",
+     "explain_bn": "'Je veux' (আমি চাই) একটু রূঢ় শোনায়; দোকানে সবসময় 'Je voudrais' (আমি চাইতাম / নিতে চাই) বলুন, শেষে 's'il vous plaît'। এটাই সবচেয়ে নিরাপদ বাক্য।",
+     "examples": [
+      {
+       "target": "Je voudrais un thé, s'il vous plaît.",
+       "bn": "আমি একটা চা নিতে চাই, দয়া করে।"
+      },
+      {
+       "target": "Nous voudrions deux sandwichs.",
+       "bn": "আমরা দুটো স্যান্ডউইচ নিতে চাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "C'est combien ? / Ça fait combien ? — দাম জিজ্ঞেস",
+     "explain_bn": "একটা জিনিসের দাম: 'C'est combien ?' সব মিলিয়ে কত হলো: 'Ça fait combien ?' উত্তর: 'Ça fait six euros cinquante' (৬.৫০ ইউরো) — ইউরো আর সেন্টের মাঝে 'euros' বলা হয়, সেন্ট শব্দটা বাদ যায়।",
+     "examples": [
+      {
+       "target": "Ça fait combien, s'il vous plaît ?",
+       "bn": "সব মিলিয়ে কত হলো?"
+      },
+      {
+       "target": "Ça fait quatre euros vingt.",
+       "bn": "চার ইউরো বিশ সেন্ট হয়েছে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w02-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "waiter"
+        },
+        "B": {
+         "gender": "F",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Bonjour madame, vous désirez ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Je voudrais un thé et un croissant, s'il vous plaît."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "Très bien. Ça fait quatre euros cinquante."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলা কী অর্ডার করলেন?",
+      "options": [
+       "un thé et un croissant",
+       "un café et un sandwich",
+       "un thé et un sandwich",
+       "un jus d'orange et un croissant"
+      ],
+      "answer": "A",
+      "explain_bn": "তিনি বললেন 'un thé et un croissant' — একটা চা আর একটা ক্রোয়াসঁ। দাম ৪.৫০ ইউরো।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w02-l4-r1",
+      "passage": "Menu du café – Café : deux euros. Thé : deux euros cinquante. Croissant : un euro vingt. Sandwich au poulet : cinq euros.",
+      "prompt_bn": "মেনুতে সবচেয়ে দামি জিনিস কোনটি?",
+      "options": [
+       "le thé",
+       "le café",
+       "le croissant",
+       "le sandwich au poulet"
+      ],
+      "answer": "D",
+      "explain_bn": "মুরগির স্যান্ডউইচ ৫ ইউরো — বাকিগুলো ১.২০ থেকে ২.৫০ ইউরো।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w02-l4-w1",
+      "prompt_bn": "ক্যাফেতে একটা কফি আর একটা স্যান্ডউইচ অর্ডার করুন, তারপর দাম জিজ্ঞেস করুন।",
+      "model": {
+       "target": "Bonjour, je voudrais un café et un sandwich, s'il vous plaît. C'est combien ?",
+       "bn": "শুভ দিন, আমি একটা কফি আর একটা স্যান্ডউইচ নিতে চাই। দাম কত?"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w02-l4-s1",
+      "prompt_bn": "জোরে বলুন: দোকানে এক বোতল পানি চান আর ধন্যবাদ দিন।",
+      "model": {
+       "target": "Je voudrais une bouteille d'eau, s'il vous plaît. Merci !",
+       "bn": "আমি এক বোতল পানি নিতে চাই, দয়া করে। ধন্যবাদ!"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w02-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Asking questions",
+    "bn": "প্রশ্ন করা"
+   },
+   "goal_bn": "তিনভাবে প্রশ্ন করা আর প্রশ্নবোধক শব্দ (কোথায়, কখন, কী, কে, কেন) শিখবেন — অফিস, রাস্তা আর সাক্ষাৎকারে কাজে লাগে।",
+   "vocab": [
+    {
+     "target": "où",
+     "bn": "কোথায়",
+     "bn_pron": "উ",
+     "pos": "adverb",
+     "example": {
+      "target": "Où est la sortie ?",
+      "bn": "বের হওয়ার পথ কোথায়?"
+     }
+    },
+    {
+     "target": "quand",
+     "bn": "কখন",
+     "bn_pron": "কঁ",
+     "pos": "adverb",
+     "example": {
+      "target": "Quand est-ce que le bureau ouvre ?",
+      "bn": "অফিস কখন খোলে?"
+     }
+    },
+    {
+     "target": "qu'est-ce que",
+     "bn": "কী (প্রশ্নে)",
+     "bn_pron": "কেস্ক",
+     "pos": "expression",
+     "example": {
+      "target": "Qu'est-ce que vous faites ?",
+      "bn": "আপনি কী করেন?"
+     }
+    },
+    {
+     "target": "est-ce que",
+     "bn": "কি (হ্যাঁ/না প্রশ্নের শুরুতে)",
+     "bn_pron": "এস্ক",
+     "pos": "expression",
+     "example": {
+      "target": "Est-ce que vous parlez anglais ?",
+      "bn": "আপনি কি ইংরেজি বলেন?"
+     }
+    },
+    {
+     "target": "comment",
+     "bn": "কীভাবে / কেমন",
+     "bn_pron": "কোমঁ",
+     "pos": "adverb",
+     "example": {
+      "target": "Comment allez-vous ?",
+      "bn": "আপনি কেমন আছেন?"
+     }
+    },
+    {
+     "target": "pourquoi",
+     "bn": "কেন",
+     "bn_pron": "পুরকোয়া",
+     "pos": "adverb",
+     "example": {
+      "target": "Pourquoi vous apprenez le français ?",
+      "bn": "আপনি ফরাসি কেন শিখছেন?"
+     }
+    },
+    {
+     "target": "parce que",
+     "bn": "কারণ",
+     "bn_pron": "পার্স্ক",
+     "pos": "conjunction",
+     "example": {
+      "target": "Parce que je veux étudier en France.",
+      "bn": "কারণ আমি ফ্রান্সে পড়তে চাই।"
+     }
+    },
+    {
+     "target": "qui",
+     "bn": "কে",
+     "bn_pron": "কি",
+     "pos": "pronoun",
+     "example": {
+      "target": "Qui est votre professeur ?",
+      "bn": "আপনার শিক্ষক কে?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "প্রশ্নের ৩ উপায়: সুর, est-ce que, উল্টো ক্রম",
+     "explain_bn": "(১) কথার শেষে গলা উঁচু করুন: Tu viens ? (২) শুরুতে Est-ce que বসান: Est-ce que tu viens ? — সবচেয়ে সহজ ও নিরাপদ। (৩) ক্রিয়া আর কর্তা উল্টে দিন (আনুষ্ঠানিক, দূতাবাসে শুনবেন): Venez-vous ? তিনটার অর্থ একই: তুমি/আপনি কি আসছেন?",
+     "examples": [
+      {
+       "target": "Vous êtes étudiant ?",
+       "bn": "আপনি কি ছাত্র?"
+      },
+      {
+       "target": "Est-ce que vous êtes étudiant ?",
+       "bn": "আপনি কি ছাত্র?"
+      },
+      {
+       "target": "Êtes-vous étudiant ?",
+       "bn": "আপনি কি ছাত্র? (আনুষ্ঠানিক)"
+      }
+     ]
+    },
+    {
+     "pattern": "প্রশ্নশব্দ + est-ce que",
+     "explain_bn": "প্রশ্নশব্দ সামনে, তারপর est-ce que, তারপর সাধারণ বাক্য: Où est-ce que tu habites ? (কোথায় থাকো?), Quand est-ce que tu arrives ? (কবে পৌঁছাবে?)। 'Pourquoi ?'-এর উত্তর শুরু হয় 'Parce que…' দিয়ে।",
+     "examples": [
+      {
+       "target": "Où est-ce que tu travailles ?",
+       "bn": "তুমি কোথায় কাজ করো?"
+      },
+      {
+       "target": "Pourquoi tu es en retard ? Parce que le bus est en retard.",
+       "bn": "দেরি কেন? কারণ বাস দেরিতে এসেছে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w02-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "classmate"
+        },
+        "B": {
+         "gender": "M",
+         "role": "classmate"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Est-ce que tu viens au cours demain ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Non, je ne viens pas, parce que je travaille."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ছেলেটি কেন কাল ক্লাসে আসবে না?",
+      "options": [
+       "কারণ সে অসুস্থ",
+       "কারণ সে বাড়ি যাচ্ছে",
+       "কারণ তার কাজ আছে",
+       "কারণ ক্লাস বন্ধ"
+      ],
+      "answer": "C",
+      "explain_bn": "'parce que je travaille' = কারণ আমি কাজ করি (কাজ আছে)।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w02-l5-r1",
+      "passage": "Salut Karim ! Où est-ce que tu habites maintenant ? Et quand est-ce que tu viens à Lyon ? Bises, Mitu",
+      "prompt_bn": "মিতু করিমকে কোন দুটি জিনিস জিজ্ঞেস করছে?",
+      "options": [
+       "সে কী কাজ করে আর বয়স কত",
+       "সে এখন কোথায় থাকে আর কবে লিয়োঁ আসবে",
+       "সে কেন লিয়োঁ যাবে",
+       "সে কার সাথে থাকে আর কেমন আছে"
+      ],
+      "answer": "B",
+      "explain_bn": "'Où … tu habites' = কোথায় থাকো; 'quand … tu viens à Lyon' = কবে লিয়োঁ আসবে।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w02-l5-w1",
+      "prompt_bn": "নতুন সহপাঠীকে ৩টি প্রশ্ন লিখুন: নাম, কোথায় থাকে, কী করে।",
+      "model": {
+       "target": "Comment tu t'appelles ? Où est-ce que tu habites ? Qu'est-ce que tu fais ?",
+       "bn": "তোমার নাম কী? তুমি কোথায় থাকো? তুমি কী করো?"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 25
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w02-l5-s1",
+      "prompt_bn": "জোরে বলুন: রাস্তায় ভদ্রভাবে স্টেশনের পথ জিজ্ঞেস করুন।",
+      "model": {
+       "target": "Pardon madame, où est la gare, s'il vous plaît ?",
+       "bn": "মাফ করবেন ম্যাডাম, স্টেশন কোথায়, দয়া করে?"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

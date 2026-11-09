@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export stage-2 track content to lpcore's import bundle (LANGUAGE_PARTNER_API.md §6; FORMAT.md §10.6).
+"""Export stage-2/3 track content to lpcore's import bundle (LANGUAGE_PARTNER_API.md §6; FORMAT.md §10.6).
 
     python3 tools/lp/export_tracks.py <out_dir> [--index out/tracks_index.json]
 
@@ -21,7 +21,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 CONTENT = os.path.join(HERE, "content")
-LEVELS = {"jlpt_n5": "N5", "jft_basic": "A2", "eps_topik": "EPS", "de_a1": "A1"}
+LEVELS = {"jlpt_n5": "N5", "jft_basic": "A2", "eps_topik": "EPS", "de_a1": "A1",
+          "hsk1": "HSK1", "fr_a1": "A1", "ar_work": "A1"}
 
 
 def main(argv=None) -> int:
@@ -35,7 +36,7 @@ def main(argv=None) -> int:
             for e in json.load(f).get("files", []):
                 status[e["file"]] = e["status"]
     items = []
-    for lang in ("ja", "ko", "de"):
+    for lang in ("ja", "ko", "de", "zh", "fr", "ar"):
         for p in sorted(glob.glob(os.path.join(CONTENT, lang, "*.json"))):
             rel = os.path.relpath(p, REPO)
             st = status.get(rel, "draft")

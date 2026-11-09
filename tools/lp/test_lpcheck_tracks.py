@@ -40,7 +40,8 @@ class TrackCheckTests(unittest.TestCase):
             return os.path.basename(p), json.load(f)
 
     def test_repo_tests_pass_in_isolation(self):
-        for lang, prefix in (("ja", "jlpt-n5-"), ("ja", "jft-basic-"), ("ko", "eps-topik-"), ("de", "de-a1-")):
+        for lang, prefix in (("ja", "jlpt-n5-"), ("ja", "jft-basic-"), ("ko", "eps-topik-"), ("de", "de-a1-"),
+                             ("zh", "hsk1-"), ("fr", "fr-a1-"), ("ar", "ar-work-")):
             name, d = self._test_doc(lang, prefix)
             r = self._run(lang, name, d)
             self.assertEqual(r.errors, [], f"{name}: {r.errors[:5]}")
@@ -123,6 +124,77 @@ class TrackCheckTests(unittest.TestCase):
         r = self._run("ja", os.path.basename(p), d)
         self.assertTrue(any("need >= 6" in e for e in r.errors))
         self.assertTrue(any("practice.speaking" in e for e in r.errors))
+
+
+    # ---- stage 3 (lpstage3): pinyin/tones, simplified only, Arabic transliteration/register, word limits
+    def _lessons(self, lang):
+        p = _first(lang, "lessons-")
+        if not p:
+            self.skipTest(f"no {lang} lessons yet")
+        with open(p, encoding="utf-8") as f:
+            return os.path.basename(p), json.load(f)
+
+    def test_zh_tones_must_match_pinyin(self):
+        name, d = self._lessons("zh")
+        v = d["lessons"][0]["vocab"][0]
+        v["tones"] = [(t % 4) + 1 for t in v["tones"]]
+        r = self._run("zh", name, d)
+        self.assertTrue(any("[tones]" in e for e in r.errors), r.errors[:3])
+
+    def test_zh_pinyin_required_and_simplified_only(self):
+        name, d = self._lessons("zh")
+        v = d["lessons"][0]["vocab"][0]
+        v["example"].pop("roman", None)
+        v["target"] = "謝謝"
+        r = self._run("zh", name, d)
+        self.assertTrue(any("roman (pinyin) required" in e for e in r.errors))
+        self.assertTrue(any("traditional" in e for e in r.errors))
+
+    def test_zh_test_options_need_pinyin(self):
+        name, d = self._test_doc("zh", "hsk1-")
+        for s in d["sections"]:
+            for p in s["parts"]:
+                for q in p["questions"]:
+                    q.pop("options_roman", None)
+        r = self._run("zh", name, d)
+        self.assertTrue(any("options_roman" in e for e in r.errors))
+
+    def test_ar_vocab_needs_register_and_bn_pron(self):
+        name, d = self._lessons("ar")
+        v = d["lessons"][0]["vocab"][0]
+        v.pop("register", None)
+        v["bn_pron"] = "shukran"
+        v["target"] = v["target"] + " ok"
+        r = self._run("ar", name, d)
+        self.assertTrue(any("register" in e for e in r.errors))
+        self.assertTrue(any("bn_pron" in e for e in r.errors))
+        self.assertTrue(any("wrong-language script" in e for e in r.errors))
+
+    def test_fr_word_limit(self):
+        name, d = self._test_doc("fr", "fr-a1-")
+        w = [s for s in d["sections"] if s["kind"] == "writing"][0]
+        free = [t for t in w["tasks"] if not t.get("fields")][0]
+        free["max_words"] = 3
+        r = self._run("fr", name, d)
+        self.assertTrue(any("[word_limit]" in e for e in r.errors))
+        free.pop("max_words")
+        free.pop("min_words", None)
+        r = self._run("fr", name, d)
+        self.assertTrue(any("needs min_words" in e for e in r.errors))
+
+    def test_banned_marker_word_end(self):
+        r = lt.Result("x")
+        lt.check_copyright({"t": "Un studio de 20 m² près de la gare."}, r, set())
+        self.assertEqual(r.errors, [])
+        lt.check_copyright({"t": "Lektion aus Studio d A1"}, r, set())
+        self.assertTrue(any("studio d" in e for e in r.errors))
+
+    def test_six_option_bank_letters(self):
+        name, d = self._test_doc("zh", "hsk1-")
+        q = d["sections"][1]["parts"][3]["questions"][0]
+        q["answer"] = "G"
+        r = self._run("zh", name, d)
+        self.assertTrue(any("A..F" in e for e in r.errors))
 
 
 if __name__ == "__main__":
