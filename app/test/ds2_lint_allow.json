@@ -171,7 +171,7 @@
   "lib/screens/circle_group_info_screen.dart": 4,
   "lib/screens/circle_privacy_screen.dart": 1,
   "lib/screens/circle_screen.dart": 1,
-  "lib/screens/circle_search_screen.dart": 3,
+  "lib/screens/circle_search_screen.dart": 2,
   "lib/screens/circle_status_composer_screen.dart": 5,
   "lib/screens/circle_status_screen.dart": 8,
   "lib/screens/circle_status_viewer_screen.dart": 8,

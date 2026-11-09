@@ -214,8 +214,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                             'member:${h.member['id']}', '${h.member['name'] ?? ''}');
                         return ListTile(
                           key: Key('e-msg-hit-$i'),
-                          leading: CircleAvatar(
-                              child: Text(name.isEmpty ? '?' : name.characters.first.toUpperCase())),
+                          leading: DsAvatar(name: name.isEmpty ? '?' : name),
                           title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
                           subtitle: Text(cardFallback(h.text),
                               maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -239,11 +238,12 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search_rounded, size: 48, color: scheme.primary.withValues(alpha: 0.6)),
+              const DsIllustration(icon: Icons.search_rounded),
               const SizedBox(height: Gap.md),
               Text(_t.circleSearchHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: DsTokens.of(context).muted, height: 1.4)),
             ],
           ),
         ),
