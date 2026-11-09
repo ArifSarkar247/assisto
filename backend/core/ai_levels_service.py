@@ -278,9 +278,36 @@ def web_credits(c=None):
 
 
 def wants_web(text, lid, c=None):
-    """Use web grounding for this turn? Only for recent / changing facts, only
-    while the owner switch is on, only when the level runs on Gemini."""
+    """Use web search for this turn? Only for recent / changing facts and only
+    while the owner switch is on. plansprep (owner 9 Nov item 9): any level —
+    the free daily Gemini grounding quota is used first (web_route), then
+    Claude web search; the user pays web_credits() only when a search ran."""
     lv, _ = cfg(c)
     if not lv.get("web_on") or not RECENT.search(text or ""):
         return False
-    return lv["levels"].get(lid, {}).get("provider") == "gemini"
+    return lid in lv["levels"]
+
+
+def gemini_web_model(c=None):
+    """The Gemini model a grounded turn runs on: the first Gemini level's
+    model, else the configured Gemini text model."""
+    lv, _ = cfg(c)
+    for lid in AL.LEVEL_IDS:
+        row = lv["levels"][lid]
+        if row["provider"] == "gemini":
+            return row["model"]
+    return (lv.get("gemini_models") or {}).get("text") or "gemini-3.5-flash-lite"
+
+
+def gemini_web_left(now=None, c=None):
+    """Free Gemini grounding prompts left today (web_free_per_day minus the
+    grounded answers already given today)."""
+    from . import ai_router as R
+    from .models import AIUsage
+    lv, _ = cfg(c)
+    cap = int(lv.get("web_free_per_day") or 0)
+    if cap <= 0:
+        return 0
+    used = AIUsage.objects.filter(created_at__gte=R.day_start(now), provider="gemini",
+                                  attempts__contains="gemini:ok:web").count()
+    return max(0, cap - used)

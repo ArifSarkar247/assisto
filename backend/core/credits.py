@@ -79,6 +79,12 @@ def plan_credits(plan, months=1):
         return max(0, int(pp["pool_credits"]))
     row = c["plans"].get(plan) or c["plans"]["premium"]
     n = max(0, int(row["credits"]))
+    if int(months or 1) >= 12 and (c.get("pricing_v2") or {}).get("on"):
+        # plansprep: a yearly plan's credits come from its yearly price by
+        # the same formula, granted as 12 monthly slices (no rollover)
+        from .logic import plan_book as BOOK, pricing as P
+        pid = plan if plan in c["plans"] else "premium"
+        return BOOK.annual_credits_total(P.annual_price(pid, c), pid) // 12
     cm = c.get("credit_model") or {}
     if int(months or 1) >= 12 and cm.get("enabled"):
         n = (n * int(cm.get("annual_credit_months") or 12)) // 12

@@ -90,6 +90,18 @@ def level_credits(worst_cost_usd, usd_bdt=SAFETY_USD_BDT):
     return max(1, int(math.ceil(round(bdt / CREDIT_AI_CAP_BDT, 6))))
 
 
+def level_credit_table(cfg):
+    """{level: credits} from the config's own levels + router prices (pure)."""
+    from . import ai_levels as AL
+    lv = (cfg or {}).get("ai_levels") or AL.defaults()
+    prices = ((cfg or {}).get("ai_router") or {}).get("prices") or {}
+    out = {}
+    for lid, row in (lv.get("levels") or {}).items():
+        out[lid] = max(level_credits(AL.worst_cost_usd(row, prices), (cfg or {}).get("usd_bdt")),
+                       int(row.get("credits") or 0))
+    return out
+
+
 def action_credits(provider_cost_usd, legacy_floor):
     """An action's credits: the strict per-credit cap or the legacy NET floor,
     whichever is HIGHER (never cheaper than the rule shipped before)."""

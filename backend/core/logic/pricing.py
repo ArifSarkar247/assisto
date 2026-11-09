@@ -1619,6 +1619,14 @@ def plan_benefits(pid, lang, cfg):
             dup = "ফ্রি দ্রুত উত্তর" if bn else "free quick replies"
             if dup in msg:
                 lines = [lines[0]] + [x for x in lines[1:] if dup not in x]
+        if _BOOK.is_on(cfg):
+            # plansprep: 1 credit = 1 Normal or Better answer, Best = 11
+            best = n // max(1, _BOOK.level_credit_table(cfg).get("best", 11))
+            lines[0] = (f"প্রতি মাসে {_bn_num(n)} AI ক্রেডিট — {_bn_num(n)}টি Normal/Better "
+                        f"বা {_bn_num(best)}টি Best উত্তর" if bn else
+                        f"{n} AI credits a month — {n} Normal/Better or {best} Best answers")
+            lines = [lines[0]] + [x for x in lines[1:]
+                                  if ("ফ্রি দ্রুত উত্তর" if bn else "free quick replies") not in x]
     if pid == "premium":
         fam = s["family"]
         if fam > 0:
@@ -1634,6 +1642,11 @@ def _annual_benefits(lang, cfg):
     """Premium's lines; with the credit model on, the message line counts the
     YEAR's credits (10x monthly), never the monthly plan's number."""
     lines = plan_benefits("premium", lang, cfg)
+    if _BOOK.is_on(cfg):
+        yearly = _BOOK.annual_credits_total(annual_price("premium", cfg), "premium")
+        lines[0] = (f"বছরে {_bn_num(yearly)} AI ক্রেডিট (প্রতি মাসে ভাগ করে)" if lang == "bn"
+                    else f"{yearly} AI credits a year (given monthly)")
+        return lines
     cm = cfg["credit_model"]
     if cm["enabled"]:
         yearly = cfg["plans"]["premium"]["credits"] * cm["annual_credit_months"]
@@ -1679,7 +1692,8 @@ def plan_public(lang, cfg):
         "benefits": _annual_benefits(lang, cfg),
         "unlimited_ai": False, "ads": False, "family": prem["family"],
         # the monthly pool every month (pricing-40 enabled: x annual_credit_months/12)
-        "credits": (prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12
+        "credits": (_BOOK.annual_credits_total(yearly, "premium") // 12 if _BOOK.is_on(cfg)
+                    else prem["credits"] * cfg["credit_model"]["annual_credit_months"] // 12
                     if cfg["credit_model"]["enabled"] else prem["credits"]),
         "discount_pct": disc,
         "monthly_equiv": round(yearly / 12.0, 2),
