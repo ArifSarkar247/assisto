@@ -244,7 +244,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
     final night = _night(context);
     final d = widget.to;
     return Scaffold(
-      appBar: AppBar(title: Text(t.cityMapTitle), actions: [
+      appBar: AppBar(title: Text(t.cityMapScreenTitle), actions: [
         if (_view == CityMapView.assisto) ...[
           IconButton(
             key: const ValueKey('city_map_night'),

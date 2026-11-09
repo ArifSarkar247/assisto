@@ -108,7 +108,7 @@ void main() {
     expect(find.byKey(const ValueKey('city_map_canvas')), findsOneWidget);
     expect(find.byKey(const ValueKey('city_map_credits')), findsOneWidget);
     expect(find.textContaining('OpenStreetMap'), findsOneWidget);
-    expect(find.text(t.cityMapTitle), findsOneWidget);
+    expect(find.text(t.cityMapScreenTitle), findsOneWidget);
     expect(find.text('মিরপুর ১০'), findsWidgets); // metro label in Bangla (a widget, not a GL symbol)
     expect(find.text(t.cityMapHint), findsOneWidget); // no destination yet: how-to, not a dead end
     expect(api.gets.where((g) => g.startsWith('/maps/')), isEmpty); // Assisto view never asks Google

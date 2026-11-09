@@ -682,7 +682,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final tiles = <(Key, IconData, Color, String, String, VoidCallback)>[
       // mapapp: the City map (our map + layers; Google view switch)
       if (o != null)
-        (const ValueKey('city_tile_map'), Icons.map_rounded, Brand.purple, t.cityMapTitle, t.cityMapTileSub,
+        (const ValueKey('city_tile_map'), Icons.map_rounded, Brand.purple, t.cityMapScreenTitle, t.cityMapTileSub,
             () => _openMap()),
       (const ValueKey('city_tile_metro'), Icons.subway_rounded, Brand.success, t.cityMetroGuide,
           t.cityMetroGuideSub, () => _open(CityMetroScreen(city: city, store: _store, dest: _to))),

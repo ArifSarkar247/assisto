@@ -50263,5 +50263,85 @@
   "fsLowDataSub": "Home and sponsor pictures show only if already saved on this phone (no new downloads), and calls use less data.",
   "@fsLowDataSub": {
     "description": "faststart: subtitle of the Low-data mode switch"
-  }
+  },
+  "cityLearnCardTitle": "Which bus? What fare?",
+  "cityLearnCardSub": "One tap helps the next rider. No name is sent.",
+  "cityLearnWhichBus": "Which bus did you take?",
+  "cityLearnWhatFare": "What fare did you pay?",
+  "cityLearnOtherBus": "Another bus",
+  "cityLearnOtherFare": "Other amount",
+  "cityLearnSkip": "Skip",
+  "cityLearnThanks": "Thank you!",
+  "cityLearnVerified": "You verified {count} stops",
+  "@cityLearnVerified": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityLearnDone": "Done",
+  "cityTripArrived": "I have arrived",
+  "cityMapScreenTitle": "City map",
+  "cityMapTileSub": "Metro, bus routes, fares, waterlogging",
+  "cityMapSeeOnMap": "See on the map",
+  "cityMapAssisto": "Assisto map",
+  "cityMapGoogleView": "Google view",
+  "cityMap3d": "3D",
+  "cityMapSatellite": "Satellite",
+  "cityMapLayerMetro": "Metro",
+  "cityMapLayerBus": "Bus routes",
+  "cityMapLayerFares": "Fares",
+  "cityMapLayerWater": "Waterlogging",
+  "cityMapLayerWomen": "Women bus",
+  "cityMapWomenNone": "No women-only bus is confirmed yet. The metro has a women's coach.",
+  "cityMapWaterLabel": "Waterlogging · {count} reports",
+  "@cityMapWaterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapLight": "Day map",
+  "cityMapNight": "Night map",
+  "cityMapOffline": "Dhaka offline",
+  "cityMapOfflineTitle": "Save the Dhaka map",
+  "cityMapOfflineBody": "The map then opens without internet — streets, buildings and our routes.",
+  "cityMapOfflineSize": "Size: about {mb} MB",
+  "@cityMapOfflineSize": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapOfflineWifi": "Wi-Fi is better for this download.",
+  "cityMapOfflineDownload": "Download",
+  "cityMapOfflineReady": "Saved on this phone — the Dhaka map works without internet.",
+  "cityMapOfflineDelete": "Remove from phone",
+  "cityMapOfflineNotYet": "The offline Dhaka map is being prepared. Please try again later.",
+  "cityMapOfflineFailed": "Download stopped. Tap Download to continue from where it stopped.",
+  "cityMapHint": "Choose where to go in City Service to see your routes here.",
+  "cityMapRoutesTo": "Ways to {place}",
+  "@cityMapRoutesTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapAssistoVerified": "Assisto verified",
+  "cityMapOursNone": "Our data has no bus or metro route for this trip yet.",
+  "cityMapSeeGoogle": "See Google transit",
+  "cityMapNoFare": "Fare not known yet",
+  "cityMapGoogleTransit": "Google transit",
+  "cityMapMoreRoutes": "More routes",
+  "cityMapMoreRoutesSub": "Bus, metro and train routes from Google.",
+  "cityMapByGoogle": "Routes by Google",
+  "cityMapGoogleOpenNote": "The Google map opens in the Google Maps app. Google's transit routes are below.",
+  "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
+  "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
+  "cityMapRetry": "Try the map again",
+  "cityMapAssistoRoutes": "Assisto routes"
 }
