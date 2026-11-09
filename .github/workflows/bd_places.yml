@@ -40,7 +40,7 @@ jobs:
       - name: Build bd_places.json
         run: |
           mkdir -p out
-          python3 -I tools/places/build_bd_places.py "$RUNNER_TEMP/raw" out/bd_places.json | tee out/stats.txt
+          python3 -I tools/places/build_bd_places.py "$RUNNER_TEMP/raw" out/bd_places.json backend/core/data/bd_places.json | tee out/stats.txt
           ls -la out
           python3 -I - <<'PY'
           import json
@@ -49,7 +49,7 @@ jobs:
           for r in d["rows"]:
               by[r[0]] = by.get(r[0], 0) + 1
           # never ship a list that lost a core layer
-          for k, n in (("division", 8), ("district", 64), ("upazila", 400), ("station", 300)):
+          for k, n in (("division", 8), ("district", 64), ("upazila", 400), ("station", 300), ("ghat", 100), ("metro", 10), ("hospital", 500)):
               assert by.get(k, 0) >= n, (k, by.get(k, 0))
           print("ok", by)
           PY

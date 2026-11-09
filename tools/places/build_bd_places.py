@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """qjourney: build Assisto's free Bangladesh place list from OpenStreetMap.
 
-usage: python3 -I tools/places/build_bd_places.py <raw-dir> <out.json>
+usage: python3 -I tools/places/build_bd_places.py <raw-dir> <out.json> [previous.json]
 
 sjstart2: + every official union (BBS list, fetch_bbs.sh: 4,540 unions with
 Bangla + English names) placed on OpenStreetMap INSIDE its own upazila
@@ -201,6 +201,8 @@ def bbs_unions(raw, upazila_rows, stats):
         add(e, 0)
     for e in _elements(raw, "admin8.json"):
         add(e, 0)
+    for e in _elements(raw, "upoffice_*.json"):
+        add(e, 0)
     for e in _elements(raw, "villages_*.json"):
         add(e, 1)
     # OSM upazila centres by key, to anchor each BBS upazila
@@ -321,6 +323,18 @@ def main():
         best = min(dists, key=lambda d: (d[1] - r[4]) ** 2 + (d[2] - r[5]) ** 2)
         r.append(best[0])
     rows += bbs_rows
+    # a layer Overpass answered EMPTY (busy mirror) never wipes what the
+    # last good build had: keep the previous rows of that kind
+    if len(sys.argv) > 3 and Path(sys.argv[3]).exists():
+        prev = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8")).get("rows") or []
+        now = {r[0] for r in rows}
+        kept = {}
+        for r in prev:
+            if r[0] not in now and r[0] != "union":
+                rows.append(r)
+                kept[r[0]] = kept.get(r[0], 0) + 1
+        if kept:
+            print("kept from the previous list (empty layer now):", kept)
     rows.sort(key=lambda r: (r[0], r[1] or r[2]))
     out.write_text(json.dumps({
         "source": "OpenStreetMap contributors (ODbL 1.0), Overpass snapshot %s; "

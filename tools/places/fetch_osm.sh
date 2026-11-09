@@ -59,6 +59,8 @@ echo "divisions: $DIVS"
 for a in $DIVS; do
   q "unions_$a" "$a" 'rel(area.a)["boundary"="administrative"]["admin_level"~"^(7|8|9|10)$"];'
   q "villages_$a" "$a" 'node(area.a)["place"~"^(village|hamlet|locality)$"]["name"];'
+  # union parishad offices: the best arrival point for a union
+  q "upoffice_$a" "$a" 'nwr(area.a)["name"~"union parishad|union council|ইউনিয়ন পরিষদ",i];nwr(area.a)["name:bn"~"ইউনিয়ন পরিষদ"];nwr(area.a)["name:en"~"union parishad",i];'
   q "hosp_$a" "$a" 'nwr(area.a)["amenity"="hospital"]["name"];nwr(area.a)["healthcare"="hospital"]["name"];'
 done
 ls -la "$OUT"
