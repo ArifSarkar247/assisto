@@ -49583,5 +49583,190 @@
   "icgLowPower": "Old-phone mode: checking the camera's key pictures only (about one every 2–4 seconds).",
   "icgHonest": "Honest limits: keep this phone plugged in, on this screen, on the same Wi-Fi as the camera. The camera's address and password stay only on this phone. Live view from an IP camera is a fast picture stream (about 4 a second, no sound). Alerts carry a photo; video clips are not kept on this phone yet.",
   "icgPlayedSiren": "Siren played here (the owner asked)",
-  "icgPlayedWarn": "The owner's warning played here"
+  "icgPlayedWarn": "The owner's warning played here",
+  "biBestValue": "Best value",
+  "@biBestValue": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCareCallExtra": "More Care Calls with the Safe Family plan",
+  "@biCareCallExtra": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvAllPlans": "All CCTV plans (more cameras, yearly)",
+  "@biCctvAllPlans": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB1": "Watch 2 cameras live from anywhere — phone cameras count too",
+  "@biCctvB1": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB2": "Smart alerts when someone comes in after closing",
+  "@biCctvB2": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB3": "Evidence clips you can share with the police or insurance",
+  "@biCctvB3": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvName": "CCTV for your shop",
+  "@biCctvName": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvNoStore": "The CCTV plan ({price} a month for 2 cameras) is bought through Google Play. Open the CCTV plans to see how.",
+  "@biCctvNoStore": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biCctvPlanLine": "From ৳500 a month for 2 cameras · 7 days free",
+  "@biCctvPlanLine": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvPlanTitle": "CCTV plan",
+  "@biCctvPlanTitle": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvPrice": "{price} a month for 2 cameras",
+  "@biCctvPrice": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biCctvTrialNote": "7 days free — once per shop and per Google account. Cancel in Google Play before day 7 and you pay nothing.",
+  "@biCctvTrialNote": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biContinue": "Continue",
+  "@biContinue": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatAdFree": "Assisto without ads",
+  "@biFeatAdFree": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatBizAiReply": "AI replies for your customers",
+  "@biFeatBizAiReply": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatBody": "{feature} is part of {plan}. Start it here — you come back to this screen and can continue at once.",
+  "@biFeatBody": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "biFeatCallLink": "Call links and scheduled calls",
+  "@biFeatCallLink": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatChatThemes": "Chat themes",
+  "@biFeatChatThemes": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatMktFollowup": "Automatic marketing follow-ups",
+  "@biFeatMktFollowup": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatPhotoUltra": "Ultra HD photo",
+  "@biFeatPhotoUltra": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatShopCctv": "Shop CCTV",
+  "@biFeatShopCctv": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatShopQuote": "Quotes for customers",
+  "@biFeatShopQuote": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatStorage": "More storage",
+  "@biFeatStorage": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatVideoCall": "Video calls",
+  "@biFeatVideoCall": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetBusinessHere": "Get Business here",
+  "@biGetBusinessHere": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetCctvPlan": "Get the CCTV plan",
+  "@biGetCctvPlan": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetCredits": "Get credits here",
+  "@biGetCredits": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biManageCancel": "Manage or cancel subscription (Google Play)",
+  "@biManageCancel": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biPlanPrice": "{plan} — {price} a month",
+  "@biPlanPrice": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biRecommendSwitch": "Switch and save",
+  "@biRecommendSwitch": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biRecommendTitle": "A cheaper plan for how you really use Assisto",
+  "@biRecommendTitle": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biStartTrialDays": "Start {days} days free",
+  "@biStartTrialDays": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "biThenApk": "Then {price} a month · cancel any time",
+  "@biThenApk": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biThenPlay": "Then {price} a month · cancel any time · paid with Google Play",
+  "@biThenPlay": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biUnlocked": "Unlocked — you can continue now.",
+  "@biUnlocked": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biWatchTwoAds": "Free: watch 2 short ads = 1 Normal answer (daily limit applies)",
+  "@biWatchTwoAds": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  }
 }
