@@ -1,0 +1,1162 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ja",
+ "week": 1,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "jlpt_n5",
+  "jft_basic"
+ ],
+ "title": {
+  "en": "Week 1: First words in Japan",
+  "bn": "সপ্তাহ ১: জাপানে প্রথম কথা"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official JLPT/JFT material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল JLPT/JFT উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "jlpt.jp public test-section summary; Japan Foundation JFT-Basic public overview",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "ja-w01-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Greetings for every time of day",
+    "bn": "সারাদিনের শুভেচ্ছা"
+   },
+   "goal_bn": "সকাল, দুপুর ও সন্ধ্যার শুভেচ্ছা, ধন্যবাদ আর দুঃখিত বলা শিখবেন — জাপানে প্রথম দিন থেকেই লাগবে।",
+   "vocab": [
+    {
+     "target": "おはようございます",
+     "kana": "おはようございます",
+     "roman": "ohayō gozaimasu",
+     "bn": "শুভ সকাল (ভদ্র রূপ)",
+     "pos": "expression",
+     "example": {
+      "target": "てんちょう、おはようございます。",
+      "roman": "tenchō, ohayō gozaimasu.",
+      "bn": "স্টোর ম্যানেজার, শুভ সকাল।"
+     }
+    },
+    {
+     "target": "こんにちは",
+     "kana": "こんにちは",
+     "roman": "konnichiwa",
+     "bn": "শুভ দুপুর / হ্যালো (দিনের বেলা)",
+     "pos": "expression",
+     "example": {
+      "target": "こんにちは。いい てんきですね。",
+      "roman": "konnichiwa. ii tenki desu ne.",
+      "bn": "হ্যালো। আজ আবহাওয়া ভালো, তাই না?"
+     }
+    },
+    {
+     "target": "こんばんは",
+     "kana": "こんばんは",
+     "roman": "konbanwa",
+     "bn": "শুভ সন্ধ্যা",
+     "pos": "expression",
+     "example": {
+      "target": "こんばんは。おしごと おつかれさまです。",
+      "roman": "konbanwa. oshigoto otsukaresama desu.",
+      "bn": "শুভ সন্ধ্যা। কাজের জন্য ধন্যবাদ, ক্লান্ত হয়েছেন।"
+     }
+    },
+    {
+     "target": "ありがとうございます",
+     "kana": "ありがとうございます",
+     "roman": "arigatō gozaimasu",
+     "bn": "অনেক ধন্যবাদ (ভদ্র রূপ)",
+     "pos": "expression",
+     "example": {
+      "target": "てつだって くれて、ありがとうございます。",
+      "roman": "tetsudatte kurete, arigatō gozaimasu.",
+      "bn": "সাহায্য করার জন্য অনেক ধন্যবাদ।"
+     }
+    },
+    {
+     "target": "すみません",
+     "kana": "すみません",
+     "roman": "sumimasen",
+     "bn": "দুঃখিত / শুনছেন? (কাউকে ডাকতে)",
+     "pos": "expression",
+     "example": {
+      "target": "すみません、ちょっと いいですか。",
+      "roman": "sumimasen, chotto ii desu ka.",
+      "bn": "মাফ করবেন, একটু সময় হবে?"
+     }
+    },
+    {
+     "target": "はい",
+     "kana": "はい",
+     "roman": "hai",
+     "bn": "হ্যাঁ / জি",
+     "pos": "expression",
+     "example": {
+      "target": "はい、わかりました。",
+      "roman": "hai, wakarimashita.",
+      "bn": "জি, বুঝেছি।"
+     }
+    },
+    {
+     "target": "いいえ",
+     "kana": "いいえ",
+     "roman": "iie",
+     "bn": "না",
+     "pos": "expression",
+     "example": {
+      "target": "いいえ、だいじょうぶです。",
+      "roman": "iie, daijōbu desu.",
+      "bn": "না, সমস্যা নেই।"
+     }
+    },
+    {
+     "target": "おつかれさまです",
+     "kana": "おつかれさまです",
+     "roman": "otsukaresama desu",
+     "bn": "কাজ শেষে সহকর্মীকে শুভেচ্ছা (আপনার পরিশ্রমের জন্য ধন্যবাদ)",
+     "pos": "expression",
+     "example": {
+      "target": "やまださん、きょうも おつかれさまです。",
+      "roman": "Yamada-san, kyō mo otsukaresama desu.",
+      "bn": "ইয়ামাদা সাহেব, আজও পরিশ্রমের জন্য ধন্যবাদ।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "〜ございます (ভদ্র শেষাংশ)",
+     "explain_bn": "জাপানি ভাষায় একই কথা সাধারণ আর ভদ্র দুই রূপে বলা যায়। কাজের জায়গায়, বড়দের বা অচেনা মানুষের সাথে সবসময় ভদ্র রূপ বলবেন: 'ありがとう' (বন্ধুদের সাথে) → 'ありがとうございます' (বস/গ্রাহকের সাথে)।",
+     "examples": [
+      {
+       "target": "おはよう。",
+       "roman": "ohayō.",
+       "bn": "সকাল! (বন্ধুকে)"
+      },
+      {
+       "target": "しゃちょう、おはようございます。",
+       "roman": "shachō, ohayō gozaimasu.",
+       "bn": "স্যার (কোম্পানির প্রধান), শুভ সকাল।"
+      }
+     ]
+    },
+    {
+     "pattern": "すみません — দুই কাজে",
+     "explain_bn": "'すみません' দিয়ে (১) ছোট ভুলের জন্য দুঃখ প্রকাশ, (২) কাউকে ডেকে কথা শুরু — দুটোই হয়। দোকানে বা রাস্তায় প্রশ্ন করার আগে প্রথমে 'すみません' বলুন।",
+     "examples": [
+      {
+       "target": "すみません、えきは どこですか。",
+       "roman": "sumimasen, eki wa doko desu ka.",
+       "bn": "মাফ করবেন, স্টেশন কোথায়?"
+      },
+      {
+       "target": "おそく なって、すみません。",
+       "roman": "osoku natte, sumimasen.",
+       "bn": "দেরি হয়ে গেল, দুঃখিত।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w01-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "factory supervisor"
+        },
+        "B": {
+         "gender": "F",
+         "role": "new worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "おはようございます。きょうから よろしく おねがいします。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "おはようございます。こちらこそ、よろしく おねがいします。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "দুজন মানুষ দিনের কোন সময়ে কথা বলছে?",
+      "options": [
+       "あさ",
+       "ひる",
+       "よる",
+       "しゅうまつ"
+      ],
+      "answer": "A",
+      "explain_bn": "'おはようございます' শুধু সকালে বলা হয়, তাই উত্তর あさ (সকাল)।",
+      "skill": "expression"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w01-l1-r1",
+      "passage": "よる 7じです。マリアさんは しごとが おわりました。せんぱいに あいさつを します。",
+      "prompt_bn": "মারিয়া সিনিয়রকে কী বলবে?",
+      "options": [
+       "おはようございます",
+       "おつかれさまです",
+       "いただきます",
+       "はじめまして"
+      ],
+      "answer": "B",
+      "explain_bn": "কাজ শেষে সহকর্মী বা সিনিয়রকে 'おつかれさまです' বলা হয়।",
+      "skill": "expression"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w01-l1-w1",
+      "prompt_bn": "হিরাগানায় লিখুন: সন্ধ্যায় বসকে শুভেচ্ছা আর ধন্যবাদ জানান।",
+      "model": {
+       "target": "こんばんは。きょうも ありがとうございました。",
+       "roman": "konbanwa. kyō mo arigatō gozaimashita.",
+       "bn": "শুভ সন্ধ্যা। আজকেও ধন্যবাদ।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w01-l1-s1",
+      "prompt_bn": "জোরে বলুন: সকালে কাজে ঢুকে সুপারভাইজারকে শুভেচ্ছা দিন।",
+      "model": {
+       "target": "おはようございます。きょうも がんばります。",
+       "roman": "ohayō gozaimasu. kyō mo ganbarimasu.",
+       "bn": "শুভ সকাল। আজও মন দিয়ে কাজ করব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w01-l2",
+   "day": 2,
+   "minutes": 25,
+   "title": {
+    "en": "Introducing yourself",
+    "bn": "নিজের পরিচয় দেওয়া"
+   },
+   "goal_bn": "নাম, দেশ আর কাজ বলে নিজের পরিচয় দিতে পারবেন — ইন্টারভিউ আর প্রথম কর্মদিবসের প্রথম বাক্য।",
+   "vocab": [
+    {
+     "target": "わたし",
+     "kana": "わたし",
+     "roman": "watashi",
+     "bn": "আমি",
+     "pos": "pronoun",
+     "example": {
+      "target": "わたしは カリムです。",
+      "roman": "watashi wa Karimu desu.",
+      "bn": "আমি করিম।"
+     }
+    },
+    {
+     "target": "名前",
+     "kana": "なまえ",
+     "roman": "namae",
+     "bn": "নাম",
+     "pos": "noun",
+     "example": {
+      "target": "おなまえは なんですか。",
+      "roman": "onamae wa nan desu ka.",
+      "bn": "আপনার নাম কী?"
+     }
+    },
+    {
+     "target": "バングラデシュ",
+     "kana": "バングラデシュ",
+     "roman": "Banguradeshu",
+     "bn": "বাংলাদেশ",
+     "pos": "noun",
+     "example": {
+      "target": "バングラデシュから きました。",
+      "roman": "Banguradeshu kara kimashita.",
+      "bn": "বাংলাদেশ থেকে এসেছি।"
+     }
+    },
+    {
+     "target": "〜人",
+     "kana": "〜じん",
+     "roman": "-jin",
+     "bn": "…দেশের মানুষ (জাতীয়তা)",
+     "pos": "suffix",
+     "example": {
+      "target": "わたしは バングラデシュじんです。",
+      "roman": "watashi wa Banguradeshu-jin desu.",
+      "bn": "আমি বাংলাদেশি।"
+     }
+    },
+    {
+     "target": "仕事",
+     "kana": "しごと",
+     "roman": "shigoto",
+     "bn": "কাজ / চাকরি",
+     "pos": "noun",
+     "example": {
+      "target": "しごとは かいごです。",
+      "roman": "shigoto wa kaigo desu.",
+      "bn": "আমার কাজ বয়স্কসেবা (কেয়ারগিভিং)।"
+     }
+    },
+    {
+     "target": "はじめまして",
+     "kana": "はじめまして",
+     "roman": "hajimemashite",
+     "bn": "প্রথম দেখায় বলা: আপনার সাথে পরিচিত হয়ে ভালো লাগল",
+     "pos": "expression",
+     "example": {
+      "target": "はじめまして。ラヒムと もうします。",
+      "roman": "hajimemashite. Rahimu to mōshimasu.",
+      "bn": "প্রথম পরিচয়ে শুভেচ্ছা। আমার নাম রহিম।"
+     }
+    },
+    {
+     "target": "よろしくおねがいします",
+     "kana": "よろしくおねがいします",
+     "roman": "yoroshiku onegai shimasu",
+     "bn": "সহযোগিতা চাইছি / আমার খেয়াল রাখবেন (পরিচয়ের শেষে)",
+     "pos": "expression",
+     "example": {
+      "target": "これから どうぞ よろしく おねがいします。",
+      "roman": "korekara dōzo yoroshiku onegai shimasu.",
+      "bn": "এখন থেকে আপনাদের সহযোগিতা চাই।"
+     }
+    },
+    {
+     "target": "〜歳",
+     "kana": "〜さい",
+     "roman": "-sai",
+     "bn": "…বছর বয়স",
+     "pos": "suffix",
+     "example": {
+      "target": "わたしは にじゅうよんさいです。",
+      "roman": "watashi wa nijūyon-sai desu.",
+      "bn": "আমার বয়স ২৪ বছর।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N1 は N2 です",
+     "explain_bn": "'N1 হলো N2' — জাপানি বাক্যের সবচেয়ে মৌলিক কাঠামো। は (উচ্চারণ 'ওয়া') বিষয় দেখায়, です বাক্যকে ভদ্রভাবে শেষ করে। ক্রিয়া সবসময় বাক্যের শেষে বসে, বাংলার মতোই।",
+     "examples": [
+      {
+       "target": "わたしは アミナです。",
+       "roman": "watashi wa Amina desu.",
+       "bn": "আমি আমিনা।"
+      },
+      {
+       "target": "ラナさんは かんごしです。",
+       "roman": "Rana-san wa kangoshi desu.",
+       "bn": "রানা সাহেব নার্স।"
+      }
+     ]
+    },
+    {
+     "pattern": "N1 の N2",
+     "explain_bn": "の দুটি নামকে যোগ করে, বাংলার '-এর' মতো: 'わたしの なまえ' = আমার নাম। প্রশ্ন বানাতে বাক্যের শেষে か যোগ করুন: 'ですか' = কি …?",
+     "examples": [
+      {
+       "target": "わたしの しごとは のうぎょうです。",
+       "roman": "watashi no shigoto wa nōgyō desu.",
+       "bn": "আমার কাজ কৃষি।"
+      },
+      {
+       "target": "あなたは がくせいですか。",
+       "roman": "anata wa gakusei desu ka.",
+       "bn": "আপনি কি ছাত্র?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w01-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "interviewer"
+        },
+        "B": {
+         "gender": "M",
+         "role": "job applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "おなまえと おくにを おしえて ください。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "はい。ジャミルです。バングラデシュから きました。しごとは けんせつです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "আবেদনকারীর কাজ কী?",
+      "options": [
+       "のうぎょう",
+       "かいご",
+       "けんせつ",
+       "レストラン"
+      ],
+      "answer": "C",
+      "explain_bn": "সে বলেছে 'しごとは けんせつです' — অর্থাৎ নির্মাণকাজ।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w01-l2-r1",
+      "passage": "はじめまして。わたしは ナスリンです。バングラデシュじんです。にじゅうにさいです。しごとは かいごです。どうぞ よろしく おねがいします。",
+      "prompt_bn": "নাসরিনের বয়স কত?",
+      "options": [
+       "১২ বছর",
+       "২০ বছর",
+       "২২ বছর",
+       "২৪ বছর"
+      ],
+      "answer": "C",
+      "explain_bn": "'にじゅうに' = ২২, তার সাথে 'さい' মানে বছর বয়স।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w01-l2-w1",
+      "prompt_bn": "নিজের নাম, দেশ ও কাজ দিয়ে তিন বাক্যে জাপানিতে পরিচয় লিখুন।",
+      "model": {
+       "target": "はじめまして。わたしは サイフルです。バングラデシュじんです。しごとは のうぎょうです。よろしく おねがいします。",
+       "roman": "hajimemashite. watashi wa Saifuru desu. Banguradeshu-jin desu. shigoto wa nōgyō desu. yoroshiku onegai shimasu.",
+       "bn": "পরিচিত হয়ে ভালো লাগল। আমি সাইফুল। বাংলাদেশি। আমার কাজ কৃষি। সহযোগিতা চাই।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w01-l2-s1",
+      "prompt_bn": "ইন্টারভিউয়ের মতো জোরে বলুন: নাম, বয়স, দেশ — ২০ সেকেন্ডে।",
+      "model": {
+       "target": "はじめまして。ハサンです。にじゅうごさいです。バングラデシュから きました。よろしく おねがいします。",
+       "roman": "hajimemashite. Hasan desu. nijūgo-sai desu. Banguradeshu kara kimashita. yoroshiku onegai shimasu.",
+       "bn": "পরিচিত হয়ে ভালো লাগল। আমি হাসান। বয়স ২৫। বাংলাদেশ থেকে এসেছি। সহযোগিতা চাই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w01-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Numbers 0–100 and phone numbers",
+    "bn": "সংখ্যা ০–১০০ ও ফোন নম্বর"
+   },
+   "goal_bn": "০ থেকে ১০০ পর্যন্ত গুনতে, ফোন নম্বর বলতে ও শুনে লিখতে পারবেন।",
+   "vocab": [
+    {
+     "target": "ゼロ",
+     "kana": "ゼロ",
+     "roman": "zero",
+     "bn": "শূন্য (০)",
+     "pos": "number",
+     "example": {
+      "target": "ゼロ はち ゼロ の ばんごうです。",
+      "roman": "zero hachi zero no bangō desu.",
+      "bn": "০৮০ দিয়ে শুরু নম্বর।"
+     }
+    },
+    {
+     "target": "一",
+     "kana": "いち",
+     "roman": "ichi",
+     "bn": "এক (১)",
+     "pos": "number",
+     "example": {
+      "target": "りんごを いっこ かいました。",
+      "roman": "ringo o ikko kaimashita.",
+      "bn": "একটা আপেল কিনেছি।"
+     }
+    },
+    {
+     "target": "四",
+     "kana": "よん",
+     "roman": "yon",
+     "bn": "চার (৪) — 'し'-ও বলা হয়",
+     "pos": "number",
+     "example": {
+      "target": "へやは よんかいです。",
+      "roman": "heya wa yonkai desu.",
+      "bn": "রুমটা চারতলায়।"
+     }
+    },
+    {
+     "target": "七",
+     "kana": "なな",
+     "roman": "nana",
+     "bn": "সাত (৭) — 'しち'-ও বলা হয়",
+     "pos": "number",
+     "example": {
+      "target": "ななにん います。",
+      "roman": "nananin imasu.",
+      "bn": "সাতজন আছে।"
+     }
+    },
+    {
+     "target": "九",
+     "kana": "きゅう",
+     "roman": "kyū",
+     "bn": "নয় (৯) — 'く'-ও বলা হয়",
+     "pos": "number",
+     "example": {
+      "target": "バスは きゅうばんです。",
+      "roman": "basu wa kyūban desu.",
+      "bn": "বাসটা ৯ নম্বর।"
+     }
+    },
+    {
+     "target": "十",
+     "kana": "じゅう",
+     "roman": "jū",
+     "bn": "দশ (১০)",
+     "pos": "number",
+     "example": {
+      "target": "じゅうご ふん まって ください。",
+      "roman": "jūgo fun matte kudasai.",
+      "bn": "১৫ মিনিট অপেক্ষা করুন।"
+     }
+    },
+    {
+     "target": "百",
+     "kana": "ひゃく",
+     "roman": "hyaku",
+     "bn": "একশো (১০০)",
+     "pos": "number",
+     "example": {
+      "target": "ひゃくえんの ペンです。",
+      "roman": "hyaku-en no pen desu.",
+      "bn": "১০০ ইয়েনের কলম।"
+     }
+    },
+    {
+     "target": "電話番号",
+     "kana": "でんわばんごう",
+     "roman": "denwa bangō",
+     "bn": "ফোন নম্বর",
+     "pos": "noun",
+     "example": {
+      "target": "でんわばんごうを おしえて ください。",
+      "roman": "denwa bangō o oshiete kudasai.",
+      "bn": "ফোন নম্বরটা বলুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "সংখ্যা গঠন: じゅう・にじゅう",
+     "explain_bn": "১১ = じゅういち (১০+১), ২০ = にじゅう (২×১০), ৩৫ = さんじゅうご (৩×১০+৫)। ৪, ৭, ৯-এর দুই রকম উচ্চারণ আছে; ফোন নম্বর আর সময়ে よん, なな, きゅう বেশি নিরাপদ। ফোন নম্বরে ড্যাশ (-) পড়া হয় 'の'।",
+     "examples": [
+      {
+       "target": "さんじゅうはち",
+       "roman": "sanjūhachi",
+       "bn": "৩৮"
+      },
+      {
+       "target": "ゼロきゅうゼロの いちにさんよんの ごろくななはち",
+       "roman": "zero kyū zero no ichi ni san yon no go roku nana hachi",
+       "bn": "০৯০-১২৩৪-৫৬৭৮"
+      }
+     ]
+    },
+    {
+     "pattern": "N は なんばん ですか",
+     "explain_bn": "'なんばん' = কত নম্বর? ফোন, বাস, রুম নম্বর জানতে এটা ব্যবহার করুন।",
+     "examples": [
+      {
+       "target": "でんわばんごうは なんばんですか。",
+       "roman": "denwa bangō wa nanban desu ka.",
+       "bn": "ফোন নম্বর কত?"
+      },
+      {
+       "target": "へやは なんばんですか。",
+       "roman": "heya wa nanban desu ka.",
+       "bn": "রুম নম্বর কত?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w01-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "office clerk"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "でんわばんごうは なんばんですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "ゼロはちゼロの ろくよんにいちの きゅうさんななゼロです。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "ゼロはちゼロの ろくよんにいちの きゅうさんななゼロですね。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটির ফোন নম্বর কোনটি?",
+      "options": [
+       "০৮০-৬৪২১-৯৩৭০",
+       "০৯০-৬৪২১-৯৩৭০",
+       "০৮০-৬১২৪-৯৩৭০",
+       "০৮০-৬৪২১-৭৩৯০"
+      ],
+      "answer": "A",
+      "explain_bn": "ゼロはちゼロ = ০৮০, ろくよんにいち = ৬৪২১, きゅうさんななゼロ = ৯৩৭০।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w01-l3-r1",
+      "passage": "りょうの へやは 305ごうしつです。ルームメイトは ふたり います。",
+      "prompt_bn": "ডরমের রুম নম্বর জাপানিতে কীভাবে পড়বেন?",
+      "options": [
+       "さんびゃくごごうしつ",
+       "さんひゃくごごうしつ",
+       "さんじゅうごごうしつ",
+       "さんぜろごごうしつ"
+      ],
+      "answer": "A",
+      "explain_bn": "৩০০ = さんびゃく (ひ → び হয়), তারপর ৫ = ご; ごうしつ = রুম নম্বর।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w01-l3-w1",
+      "prompt_bn": "হিরাগানায় লিখুন: 'আমার ফোন নম্বর ০৯০-২৮১৬-৪৫০৩'।",
+      "model": {
+       "target": "わたしの でんわばんごうは ゼロきゅうゼロの にはちいちろくの よんごゼロさんです。",
+       "roman": "watashi no denwa bangō wa zero kyū zero no ni hachi ichi roku no yon go zero san desu.",
+       "bn": "আমার ফোন নম্বর ০৯০-২৮১৬-৪৫০৩।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w01-l3-s1",
+      "prompt_bn": "১ থেকে ২০ পর্যন্ত জোরে গুনুন, তারপর নিজের (কাল্পনিক) ফোন নম্বর বলুন।",
+      "model": {
+       "target": "いち、に、さん、よん、ご … じゅうきゅう、にじゅう。",
+       "roman": "ichi, ni, san, yon, go … jūkyū, nijū.",
+       "bn": "এক, দুই, তিন, চার, পাঁচ … উনিশ, বিশ।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w01-l4",
+   "day": 4,
+   "minutes": 25,
+   "title": {
+    "en": "Telling the time",
+    "bn": "সময় বলা"
+   },
+   "goal_bn": "ঘড়ির সময় জিজ্ঞেস করতে ও বলতে পারবেন, কাজ শুরু–শেষের সময় বুঝবেন।",
+   "vocab": [
+    {
+     "target": "今",
+     "kana": "いま",
+     "roman": "ima",
+     "bn": "এখন",
+     "pos": "noun",
+     "example": {
+      "target": "いま ごご にじです。",
+      "roman": "ima gogo niji desu.",
+      "bn": "এখন দুপুর ২টা।"
+     }
+    },
+    {
+     "target": "何時",
+     "kana": "なんじ",
+     "roman": "nanji",
+     "bn": "কয়টা (সময়)",
+     "pos": "question",
+     "example": {
+      "target": "しごとは なんじからですか。",
+      "roman": "shigoto wa nanji kara desu ka.",
+      "bn": "কাজ কয়টা থেকে?"
+     }
+    },
+    {
+     "target": "〜時",
+     "kana": "〜じ",
+     "roman": "-ji",
+     "bn": "…টা (ঘণ্টা)",
+     "pos": "suffix",
+     "example": {
+      "target": "あさ ろくじに おきます。",
+      "roman": "asa rokuji ni okimasu.",
+      "bn": "সকাল ৬টায় উঠি।"
+     }
+    },
+    {
+     "target": "〜分",
+     "kana": "〜ふん・〜ぷん",
+     "roman": "-fun / -pun",
+     "bn": "…মিনিট",
+     "pos": "suffix",
+     "example": {
+      "target": "バスは じゅっぷん おくれました。",
+      "roman": "basu wa juppun okuremashita.",
+      "bn": "বাস ১০ মিনিট দেরি করল।"
+     }
+    },
+    {
+     "target": "半",
+     "kana": "はん",
+     "roman": "han",
+     "bn": "সাড়ে (৩০ মিনিট)",
+     "pos": "noun",
+     "example": {
+      "target": "よじはんに あいましょう。",
+      "roman": "yoji han ni aimashō.",
+      "bn": "সাড়ে ৪টায় দেখা করি।"
+     }
+    },
+    {
+     "target": "午前",
+     "kana": "ごぜん",
+     "roman": "gozen",
+     "bn": "সকাল (AM)",
+     "pos": "noun",
+     "example": {
+      "target": "ごぜん くじに あきます。",
+      "roman": "gozen kuji ni akimasu.",
+      "bn": "সকাল ৯টায় খোলে।"
+     }
+    },
+    {
+     "target": "午後",
+     "kana": "ごご",
+     "roman": "gogo",
+     "bn": "দুপুর/বিকেল (PM)",
+     "pos": "noun",
+     "example": {
+      "target": "ごご さんじに やすみます。",
+      "roman": "gogo sanji ni yasumimasu.",
+      "bn": "বিকেল ৩টায় বিরতি নিই।"
+     }
+    },
+    {
+     "target": "〜から〜まで",
+     "kana": "〜から〜まで",
+     "roman": "-kara -made",
+     "bn": "…থেকে …পর্যন্ত",
+     "pos": "particle",
+     "example": {
+      "target": "しごとは はちじから ごじまでです。",
+      "roman": "shigoto wa hachiji kara goji made desu.",
+      "bn": "কাজ ৮টা থেকে ৫টা পর্যন্ত।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "いま なんじですか",
+     "explain_bn": "সময় জিজ্ঞেস: 'いま なんじですか' (এখন কয়টা?)। উত্তর: সংখ্যা + じ + সংখ্যা + ふん/ぷん। সাবধান: ৪টা = よじ, ৭টা = しちじ, ৯টা = くじ। মিনিটে ১, ৩, ৪, ৬, ৮, ১০ এর পরে ぷん: いっぷん, さんぷん, よんぷん, ろっぷん, はっぷん, じゅっぷん।",
+     "examples": [
+      {
+       "target": "いま くじ じゅうごふんです。",
+       "roman": "ima kuji jūgo fun desu.",
+       "bn": "এখন ৯টা ১৫।"
+      },
+      {
+       "target": "いま しちじ さんぷんです。",
+       "roman": "ima shichiji sanpun desu.",
+       "bn": "এখন ৭টা ৩ মিনিট।"
+      }
+     ]
+    },
+    {
+     "pattern": "N は 〜から 〜までです",
+     "explain_bn": "শুরু আর শেষের সময় একসাথে বলতে から (থেকে) আর まで (পর্যন্ত)। কাজের সময়, দোকান খোলার সময়, বিরতির সময় সবখানে লাগে।",
+     "examples": [
+      {
+       "target": "ひるやすみは じゅうにじから いちじまでです。",
+       "roman": "hiruyasumi wa jūniji kara ichiji made desu.",
+       "bn": "দুপুরের বিরতি ১২টা থেকে ১টা।"
+      },
+      {
+       "target": "びょういんは ごぜん はちじはんからです。",
+       "roman": "byōin wa gozen hachiji han kara desu.",
+       "bn": "হাসপাতাল সকাল সাড়ে ৮টা থেকে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w01-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "new worker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "team leader"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、あしたの しごとは なんじからですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "あしたは しちじはんからです。ろくじには こないで くださいね。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "しちじはんですね。わかりました。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "আগামীকাল কাজ কয়টায় শুরু?",
+      "options": [
+       "৬টা",
+       "৭টা",
+       "সাড়ে ৭টা",
+       "৮টা"
+      ],
+      "answer": "C",
+      "explain_bn": "'しちじはん' = সাড়ে ৭টা। ৬টা (ろくじ)-য় আসতে মানা করেছে।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w01-l4-r1",
+      "passage": "コンビニの アルバイト\nげつようび〜きんようび：ごご ごじ〜ごご じゅうじ\nどようび：ごぜん くじ〜ごご さんじ",
+      "prompt_bn": "শনিবার কাজ কখন শেষ হয়?",
+      "options": [
+       "বিকেল ৩টা",
+       "বিকেল ৫টা",
+       "রাত ১০টা",
+       "সকাল ৯টা"
+      ],
+      "answer": "A",
+      "explain_bn": "どようび (শনিবার)-এর সারিতে 〜ごご さんじ = বিকেল ৩টা পর্যন্ত।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w01-l4-w1",
+      "prompt_bn": "নিজের কাজের সময় এক বাক্যে লিখুন (… থেকে … পর্যন্ত)।",
+      "model": {
+       "target": "わたしの しごとは ごぜん はちじから ごご ごじまでです。",
+       "roman": "watashi no shigoto wa gozen hachiji kara gogo goji made desu.",
+       "bn": "আমার কাজ সকাল ৮টা থেকে বিকেল ৫টা পর্যন্ত।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w01-l4-s1",
+      "prompt_bn": "সহকর্মী জিজ্ঞেস করছে 'いま なんじですか'। ঘড়ি দেখে উত্তর দিন (উদাহরণ: ১০টা ২০)।",
+      "model": {
+       "target": "いま じゅうじ にじゅっぷんです。",
+       "roman": "ima jūji nijuppun desu.",
+       "bn": "এখন ১০টা ২০ মিনিট।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w01-l5",
+   "day": 5,
+   "minutes": 25,
+   "title": {
+    "en": "Days of the week and days off",
+    "bn": "সপ্তাহের দিন ও ছুটি"
+   },
+   "goal_bn": "সপ্তাহের দিন, আজ–কাল–গতকাল আর ছুটির দিন বলতে পারবেন; না-বোধক বাক্য বানাতে শিখবেন।",
+   "vocab": [
+    {
+     "target": "今日",
+     "kana": "きょう",
+     "roman": "kyō",
+     "bn": "আজ",
+     "pos": "noun",
+     "example": {
+      "target": "きょうは すいようびです。",
+      "roman": "kyō wa suiyōbi desu.",
+      "bn": "আজ বুধবার।"
+     }
+    },
+    {
+     "target": "明日",
+     "kana": "あした",
+     "roman": "ashita",
+     "bn": "আগামীকাল",
+     "pos": "noun",
+     "example": {
+      "target": "あしたは やすみです。",
+      "roman": "ashita wa yasumi desu.",
+      "bn": "কাল ছুটি।"
+     }
+    },
+    {
+     "target": "昨日",
+     "kana": "きのう",
+     "roman": "kinō",
+     "bn": "গতকাল",
+     "pos": "noun",
+     "example": {
+      "target": "きのうは あめでした。",
+      "roman": "kinō wa ame deshita.",
+      "bn": "গতকাল বৃষ্টি ছিল।"
+     }
+    },
+    {
+     "target": "月曜日",
+     "kana": "げつようび",
+     "roman": "getsuyōbi",
+     "bn": "সোমবার",
+     "pos": "noun",
+     "example": {
+      "target": "げつようびの あさは いそがしいです。",
+      "roman": "getsuyōbi no asa wa isogashii desu.",
+      "bn": "সোমবার সকালে ব্যস্ততা বেশি।"
+     }
+    },
+    {
+     "target": "金曜日",
+     "kana": "きんようび",
+     "roman": "kin'yōbi",
+     "bn": "শুক্রবার",
+     "pos": "noun",
+     "example": {
+      "target": "きんようびに モスクへ いきます。",
+      "roman": "kin'yōbi ni mosuku e ikimasu.",
+      "bn": "শুক্রবার মসজিদে যাই।"
+     }
+    },
+    {
+     "target": "日曜日",
+     "kana": "にちようび",
+     "roman": "nichiyōbi",
+     "bn": "রবিবার",
+     "pos": "noun",
+     "example": {
+      "target": "にちようびは かぞくに でんわします。",
+      "roman": "nichiyōbi wa kazoku ni denwa shimasu.",
+      "bn": "রবিবার পরিবারকে ফোন করি।"
+     }
+    },
+    {
+     "target": "休み",
+     "kana": "やすみ",
+     "roman": "yasumi",
+     "bn": "ছুটি / বিরতি",
+     "pos": "noun",
+     "example": {
+      "target": "やすみは なんようびですか。",
+      "roman": "yasumi wa nan'yōbi desu ka.",
+      "bn": "ছুটি কোন বার?"
+     }
+    },
+    {
+     "target": "毎日",
+     "kana": "まいにち",
+     "roman": "mainichi",
+     "bn": "প্রতিদিন",
+     "pos": "noun",
+     "example": {
+      "target": "まいにち にほんごを べんきょうします。",
+      "roman": "mainichi nihongo o benkyō shimasu.",
+      "bn": "প্রতিদিন জাপানি পড়ি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N じゃありません (না-বোধক)",
+     "explain_bn": "'N です' এর না-বোধক রূপ 'N じゃありません' (বা লিখিত ভদ্র রূপ 'ではありません')। মানে '…নয়'।",
+     "examples": [
+      {
+       "target": "あしたは やすみじゃありません。",
+       "roman": "ashita wa yasumi ja arimasen.",
+       "bn": "কাল ছুটি নয়।"
+      },
+      {
+       "target": "わたしは がくせいでは ありません。",
+       "roman": "watashi wa gakusei de wa arimasen.",
+       "bn": "আমি ছাত্র নই।"
+      }
+     ]
+    },
+    {
+     "pattern": "なんようび ですか",
+     "explain_bn": "'なんようび' = কোন বার? সাতটি বার: げつ(সোম) か(মঙ্গল) すい(বুধ) もく(বৃহস্পতি) きん(শুক্র) ど(শনি) にち(রবি) + ようび।",
+     "examples": [
+      {
+       "target": "きょうは なんようびですか。",
+       "roman": "kyō wa nan'yōbi desu ka.",
+       "bn": "আজ কী বার?"
+      },
+      {
+       "target": "もくようびです。",
+       "roman": "mokuyōbi desu.",
+       "bn": "বৃহস্পতিবার।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w01-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "coworker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "ナイムさん、やすみは どようびですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "いいえ、どようびじゃありません。かようびと きんようびです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নাঈমের ছুটি কোন কোন দিন?",
+      "options": [
+       "শনিবার ও রবিবার",
+       "মঙ্গলবার ও শুক্রবার",
+       "সোমবার ও শুক্রবার",
+       "শুধু শনিবার"
+      ],
+      "answer": "B",
+      "explain_bn": "সে শনিবার নয় বলেছে; かようび = মঙ্গলবার, きんようび = শুক্রবার।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w01-l5-r1",
+      "passage": "こんしゅうの シフト\nげつ：あさ　か：あさ　すい：やすみ　もく：よる　きん：よる　ど：やすみ　にち：あさ",
+      "prompt_bn": "এই সপ্তাহে ছুটি কোন দিন?",
+      "options": [
+       "সোমবার ও মঙ্গলবার",
+       "বৃহস্পতিবার ও শুক্রবার",
+       "রবিবার",
+       "বুধবার ও শনিবার"
+      ],
+      "answer": "D",
+      "explain_bn": "すい (বুধ) আর ど (শনি)-এর পাশে やすみ লেখা।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w01-l5-w1",
+      "prompt_bn": "লিখুন: 'আজ বৃহস্পতিবার। কাল ছুটি নয়।'",
+      "model": {
+       "target": "きょうは もくようびです。あしたは やすみじゃありません。",
+       "roman": "kyō wa mokuyōbi desu. ashita wa yasumi ja arimasen.",
+       "bn": "আজ বৃহস্পতিবার। কাল ছুটি নয়।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w01-l5-s1",
+      "prompt_bn": "সহকর্মীকে জিজ্ঞেস করুন তাঁর ছুটি কোন বার, তারপর নিজের ছুটির দিন বলুন।",
+      "model": {
+       "target": "やすみは なんようびですか。わたしの やすみは にちようびです。",
+       "roman": "yasumi wa nan'yōbi desu ka. watashi no yasumi wa nichiyōbi desu.",
+       "bn": "আপনার ছুটি কোন বার? আমার ছুটি রবিবার।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

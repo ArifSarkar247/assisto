@@ -1,0 +1,1138 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ko",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "eps_topik"
+ ],
+ "title": {
+  "en": "Korean for EPS-TOPIK — Week 4: safety, past tense, help, dorm, hospital",
+  "bn": "EPS-TOPIK কোরিয়ান — সপ্তাহ ৪: নিরাপত্তা, অতীত, সাহায্য, ডরম, হাসপাতাল"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official EPS-TOPIK material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল EPS-TOPIK বই, প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "HRD Korea EPS-TOPIK public test overview"
+ },
+ "lessons": [
+  {
+   "id": "ko-w04-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Safety signs: 금지, 위험, 주의",
+    "bn": "নিরাপত্তা সাইন: 금지, 위험, 주의"
+   },
+   "goal_bn": "কারখানা ও সাইটের সাইনবোর্ড পড়ে বিপদ এড়ানো — EPS-TOPIK রিডিংয়ে খুব আসে।",
+   "vocab": [
+    {
+     "target": "금지",
+     "roman": "geumji",
+     "bn": "নিষেধ",
+     "pos": "noun",
+     "example": {
+      "target": "여기는 출입 금지예요.",
+      "roman": "yeogineun churip geumjiyeyo.",
+      "bn": "এখানে প্রবেশ নিষেধ।"
+     }
+    },
+    {
+     "target": "위험",
+     "roman": "wiheom",
+     "bn": "বিপদ",
+     "pos": "noun",
+     "example": {
+      "target": "고압 전기 위험!",
+      "roman": "goap jeongi wiheom!",
+      "bn": "উচ্চ ভোল্টেজ — বিপদ!"
+     }
+    },
+    {
+     "target": "주의",
+     "roman": "juui",
+     "bn": "সতর্কতা, সাবধান",
+     "pos": "noun",
+     "example": {
+      "target": "미끄럼 주의.",
+      "roman": "mikkeureom juui.",
+      "bn": "পিছলে পড়া থেকে সাবধান।"
+     }
+    },
+    {
+     "target": "안전모",
+     "roman": "anjeonmo",
+     "bn": "সেফটি হেলমেট",
+     "pos": "noun",
+     "example": {
+      "target": "현장에서는 안전모를 쓰세요.",
+      "roman": "hyeonjangeseoneun anjeonmoreul sseuseyo.",
+      "bn": "সাইটে হেলমেট পরুন।"
+     }
+    },
+    {
+     "target": "안전화",
+     "roman": "anjeonhwa",
+     "bn": "সেফটি জুতা",
+     "pos": "noun",
+     "example": {
+      "target": "안전화를 꼭 신으세요.",
+      "roman": "anjeonhwareul kkok sineuseyo.",
+      "bn": "অবশ্যই সেফটি জুতা পরুন।"
+     }
+    },
+    {
+     "target": "출입",
+     "roman": "churip",
+     "bn": "প্রবেশ ও বের হওয়া",
+     "pos": "noun",
+     "example": {
+      "target": "관계자 외 출입 금지.",
+      "roman": "gwangyeja oe churip geumji.",
+      "bn": "সংশ্লিষ্ট ব্যক্তি ছাড়া প্রবেশ নিষেধ।"
+     }
+    },
+    {
+     "target": "흡연",
+     "roman": "heubyeon",
+     "bn": "ধূমপান",
+     "pos": "noun",
+     "example": {
+      "target": "흡연은 흡연실에서만 하세요.",
+      "roman": "heubyeoneun heubyeonsireseoman haseyo.",
+      "bn": "ধূমপান শুধু স্মোকিং রুমে।"
+     }
+    },
+    {
+     "target": "비상구",
+     "roman": "bisanggu",
+     "bn": "জরুরি বের হওয়ার পথ",
+     "pos": "noun",
+     "example": {
+      "target": "비상구 앞에 물건을 두지 마세요.",
+      "roman": "bisanggu ape mulgeoneul duji maseyo.",
+      "bn": "জরুরি দরজার সামনে মাল রাখবেন না।"
+     }
+    },
+    {
+     "target": "소화기",
+     "roman": "sohwagi",
+     "bn": "অগ্নিনির্বাপক যন্ত্র",
+     "pos": "noun",
+     "example": {
+      "target": "소화기는 계단 옆에 있어요.",
+      "roman": "sohwagineun gyedan yeope isseoyo.",
+      "bn": "ফায়ার এক্সটিংগুইশার সিঁড়ির পাশে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N 금지 / N 주의 (সাইনবোর্ডের ভাষা)",
+     "explain_bn": "সাইনে ক্রিয়া থাকে না, শুধু শব্দ: 출입 금지 = প্রবেশ নিষেধ, 흡연 금지 = ধূমপান নিষেধ, 화기 엄금 = আগুন একদম নিষেধ, 머리 조심 = মাথা সাবধান, 추락 주의 = পড়ে যাওয়া থেকে সাবধান।",
+     "examples": [
+      {
+       "target": "화기 엄금",
+       "roman": "hwagi eomgeum",
+       "bn": "আগুন/দাহ্য জিনিস কঠোরভাবে নিষেধ।"
+      },
+      {
+       "target": "추락 주의",
+       "roman": "churak juui",
+       "bn": "উঁচু থেকে পড়ে যাওয়া থেকে সাবধান।"
+      }
+     ]
+    },
+    {
+     "pattern": "V-(으)면 안 돼요",
+     "explain_bn": "'… করলে চলবে না' = মূল + (으)면 안 돼요। 받침 থাকলে 으면: 먹으면 안 돼요।",
+     "examples": [
+      {
+       "target": "여기서 사진을 찍으면 안 돼요.",
+       "roman": "yeogiseo sajineul jjigeumyeon an dwaeyo.",
+       "bn": "এখানে ছবি তোলা যাবে না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "সেফটি অফিসার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "이 구역은 위험해요. 안전모와 안전화 없이 들어가면 안 돼요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "এই জায়গায় ঢুকতে কী লাগবে?",
+      "options": [
+       "গ্লাভস আর মাস্ক",
+       "অনুমতিপত্র",
+       "হেলমেট আর সেফটি জুতা",
+       "চশমা"
+      ],
+      "answer": "C",
+      "explain_bn": "안전모와 안전화 없이 들어가면 안 돼요 = হেলমেট আর সেফটি জুতা ছাড়া ঢোকা যাবে না।",
+      "skill": "safety",
+      "id": "ko-w04-l1-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[안내] 창고 안 흡연 금지. 담배는 정문 밖 흡연 구역에서 피우세요.",
+      "prompt_bn": "কোথায় ধূমপান করা যাবে?",
+      "options": [
+       "গুদামের ভিতরে",
+       "ডরমের রুমে",
+       "কোথাও না",
+       "মূল গেটের বাইরে নির্দিষ্ট জায়গায়"
+      ],
+      "answer": "D",
+      "explain_bn": "정문 밖 흡연 구역 = মূল গেটের বাইরে ধূমপানের জায়গা।",
+      "skill": "safety",
+      "id": "ko-w04-l1-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "সাইনবোর্ড লিখুন: 'প্রবেশ নিষেধ' আর 'পিছলে পড়া থেকে সাবধান'।",
+      "model": {
+       "target": "출입 금지, 미끄럼 주의",
+       "roman": "churip geumji, mikkeureom juui",
+       "bn": "প্রবেশ নিষেধ, পিছলে পড়া থেকে সাবধান"
+      },
+      "check": "self",
+      "id": "ko-w04-l1-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "নতুন সহকর্মীকে সাবধান করুন: 'এখানে ঢুকবেন না। বিপদ।'",
+      "model": {
+       "target": "여기 들어가면 안 돼요. 위험해요.",
+       "roman": "yeogi deureogamyeon an dwaeyo. wiheomhaeyo.",
+       "bn": "এখানে ঢোকা যাবে না। বিপজ্জনক।"
+      },
+      "id": "ko-w04-l1-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w04-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Talking about the past: -았어요/-었어요",
+    "bn": "অতীত কাল: -았어요/-었어요"
+   },
+   "goal_bn": "গতকাল কী হয়েছিল বলা — দুর্ঘটনা, দেরি, টাকা পাওয়া-পাঠানো।",
+   "vocab": [
+    {
+     "target": "어제",
+     "roman": "eoje",
+     "bn": "গতকাল",
+     "pos": "noun",
+     "example": {
+      "target": "어제 야근했어요.",
+      "roman": "eoje yageunhaesseoyo.",
+      "bn": "গতকাল ওভারটাইম করেছি।"
+     }
+    },
+    {
+     "target": "지난주",
+     "roman": "jinanju",
+     "bn": "গত সপ্তাহ",
+     "pos": "noun",
+     "example": {
+      "target": "지난주에 월급을 받았어요.",
+      "roman": "jinanjue wolgeubeul badasseoyo.",
+      "bn": "গত সপ্তাহে বেতন পেয়েছি।"
+     }
+    },
+    {
+     "target": "끝나다",
+     "roman": "kkeunnada",
+     "bn": "শেষ হওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "작업이 다 끝났어요.",
+      "roman": "jageobi da kkeunnasseoyo.",
+      "bn": "কাজ সব শেষ।"
+     }
+    },
+    {
+     "target": "다치다",
+     "roman": "dachida",
+     "bn": "আঘাত পাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "동료가 손을 다쳤어요.",
+      "roman": "dongnyoga soneul dachyeosseoyo.",
+      "bn": "সহকর্মী হাতে আঘাত পেয়েছে।"
+     }
+    },
+    {
+     "target": "잃어버리다",
+     "roman": "ireobeorida",
+     "bn": "হারিয়ে ফেলা",
+     "pos": "verb",
+     "example": {
+      "target": "외국인등록증을 잃어버렸어요.",
+      "roman": "oegugindeungnokjeungeul ireobeoryeosseoyo.",
+      "bn": "এলিয়েন রেজিস্ট্রেশন কার্ড হারিয়ে ফেলেছি।"
+     }
+    },
+    {
+     "target": "늦다",
+     "roman": "neutda",
+     "bn": "দেরি হওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "버스 때문에 늦었어요.",
+      "roman": "beoseu ttaemune neujeosseoyo.",
+      "bn": "বাসের জন্য দেরি হয়েছে।"
+     }
+    },
+    {
+     "target": "받다",
+     "roman": "batda",
+     "bn": "পাওয়া, গ্রহণ করা",
+     "pos": "verb",
+     "example": {
+      "target": "문자를 받았어요?",
+      "roman": "munjareul badasseoyo?",
+      "bn": "মেসেজ পেয়েছেন?"
+     }
+    },
+    {
+     "target": "보내다",
+     "roman": "bonaeda",
+     "bn": "পাঠানো",
+     "pos": "verb",
+     "example": {
+      "target": "가족에게 돈을 보냈어요.",
+      "roman": "gajogege doneul bonaesseoyo.",
+      "bn": "পরিবারকে টাকা পাঠিয়েছি।"
+     }
+    },
+    {
+     "target": "월급",
+     "roman": "wolgeup",
+     "bn": "মাসিক বেতন",
+     "pos": "noun",
+     "example": {
+      "target": "월급날이 언제예요?",
+      "roman": "wolgeumnari eonjeyeyo?",
+      "bn": "বেতনের দিন কবে?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-았어요 / V-었어요 / 했어요",
+     "explain_bn": "অতীত: বর্তমানের 아요/어요 নিয়মই — ㅏ/ㅗ হলে 았어요 (받았어요, 왔어요), অন্য হলে 었어요 (먹었어요, 늦었어요), 하다 → 했어요।",
+     "examples": [
+      {
+       "target": "일이 끝났어요.",
+       "roman": "iri kkeunnasseoyo.",
+       "bn": "কাজ শেষ হয়েছে।"
+      },
+      {
+       "target": "어제 많이 일했어요.",
+       "roman": "eoje mani ilhaesseoyo.",
+       "bn": "গতকাল অনেক কাজ করেছি।"
+      }
+     ]
+    },
+    {
+     "pattern": "N 때문에",
+     "explain_bn": "কারণ বলতে: N + 때문에 = '… এর কারণে'।",
+     "examples": [
+      {
+       "target": "눈 때문에 길이 막혔어요.",
+       "roman": "nun ttaemune giri makyeosseoyo.",
+       "bn": "তুষারের কারণে রাস্তা জ্যাম।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "অফিস ম্যানেজার"
+        },
+        "B": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "오늘 왜 늦었어요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "죄송합니다. 버스를 놓쳤어요. 그래서 택시를 탔어요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কর্মী কেন দেরি করেছে?",
+      "options": [
+       "বাস মিস করেছে",
+       "অসুস্থ ছিল",
+       "ঘুমিয়ে ছিল",
+       "রাস্তা হারিয়েছে"
+      ],
+      "answer": "A",
+      "explain_bn": "버스를 놓쳤어요 = বাস মিস করেছি; তারপর ট্যাক্সি নিয়েছে।",
+      "skill": "detail",
+      "id": "ko-w04-l2-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "어제 공장에서 작은 사고가 있었어요. 카림 씨가 상자를 옮기다가 발을 다쳤어요. 지금은 병원에 있어요.",
+      "prompt_bn": "করিম এখন কোথায়?",
+      "options": [
+       "কারখানায়",
+       "হাসপাতালে",
+       "ডরমে",
+       "বাড়িতে, বাংলাদেশে"
+      ],
+      "answer": "B",
+      "explain_bn": "지금은 병원에 있어요 = এখন হাসপাতালে। 발을 다쳤어요 = পায়ে আঘাত পেয়েছে।",
+      "skill": "detail",
+      "id": "ko-w04-l2-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "গতকাল কী করেছেন ৩ বাক্যে লিখুন (অতীত কাল)।",
+      "model": {
+       "target": "어제 여덟 시간 일했어요. 저녁에 밥을 먹었어요. 가족하고 통화했어요.",
+       "roman": "eoje yeodeol sigan ilhaesseoyo. jeonyeoge babeul meogeosseoyo. gajokhago tonghwahaesseoyo.",
+       "bn": "গতকাল আট ঘণ্টা কাজ করেছি। সন্ধ্যায় খেয়েছি। পরিবারের সাথে ফোনে কথা বলেছি।"
+      },
+      "check": "ai",
+      "id": "ko-w04-l2-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "বসকে জানান: আপনি কার্ড হারিয়ে ফেলেছেন, কী করবেন জিজ্ঞেস করুন।",
+      "model": {
+       "target": "사장님, 외국인등록증을 잃어버렸어요. 어떻게 해요?",
+       "roman": "sajangnim, oegugindeungnokjeungeul ireobeoryeosseoyo. eotteoke haeyo?",
+       "bn": "স্যার, আমার রেজিস্ট্রেশন কার্ড হারিয়ে ফেলেছি। কী করব?"
+      },
+      "id": "ko-w04-l2-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w04-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Asking for help and checking you understood",
+    "bn": "সাহায্য চাওয়া ও বুঝেছি কি না নিশ্চিত করা"
+   },
+   "goal_bn": "না বুঝলে ভদ্রভাবে আবার জিজ্ঞেস করা, সাহায্য চাওয়া, দোভাষী চাওয়া।",
+   "vocab": [
+    {
+     "target": "도와주다",
+     "roman": "dowajuda",
+     "bn": "সাহায্য করা",
+     "pos": "verb",
+     "example": {
+      "target": "이것 좀 도와주세요.",
+      "roman": "igeot jom dowajuseyo.",
+      "bn": "এটায় একটু সাহায্য করুন।"
+     }
+    },
+    {
+     "target": "모르다",
+     "roman": "moreuda",
+     "bn": "না জানা",
+     "pos": "verb",
+     "example": {
+      "target": "이 단어를 몰라요.",
+      "roman": "i daneoreul mollayo.",
+      "bn": "এই শব্দটা জানি না।"
+     }
+    },
+    {
+     "target": "알다",
+     "roman": "alda",
+     "bn": "জানা",
+     "pos": "verb",
+     "example": {
+      "target": "네, 알아요.",
+      "roman": "ne, arayo.",
+      "bn": "হ্যাঁ, জানি।"
+     }
+    },
+    {
+     "target": "다시",
+     "roman": "dasi",
+     "bn": "আবার",
+     "pos": "adverb",
+     "example": {
+      "target": "다시 한번 보여 주세요.",
+      "roman": "dasi hanbeon boyeo juseyo.",
+      "bn": "আরেকবার দেখান।"
+     }
+    },
+    {
+     "target": "질문",
+     "roman": "jilmun",
+     "bn": "প্রশ্ন",
+     "pos": "noun",
+     "example": {
+      "target": "질문이 있어요.",
+      "roman": "jilmuni isseoyo.",
+      "bn": "আমার একটা প্রশ্ন আছে।"
+     }
+    },
+    {
+     "target": "통역",
+     "roman": "tongyeok",
+     "bn": "দোভাষী সেবা, অনুবাদ (মুখে)",
+     "pos": "noun",
+     "example": {
+      "target": "통역이 필요해요.",
+      "roman": "tongyeogi piryohaeyo.",
+      "bn": "দোভাষী লাগবে।"
+     }
+    },
+    {
+     "target": "이해하다",
+     "roman": "ihaehada",
+     "bn": "বোঝা",
+     "pos": "verb",
+     "example": {
+      "target": "잘 이해했어요.",
+      "roman": "jal ihaehaesseoyo.",
+      "bn": "ভালো বুঝেছি।"
+     }
+    },
+    {
+     "target": "뜻",
+     "roman": "tteut",
+     "bn": "অর্থ",
+     "pos": "noun",
+     "example": {
+      "target": "이게 무슨 뜻이에요?",
+      "roman": "ige museun tteusieyo?",
+      "bn": "এর মানে কী?"
+     }
+    },
+    {
+     "target": "알겠습니다",
+     "roman": "algetseumnida",
+     "bn": "বুঝেছি / ঠিক আছে (বসকে)",
+     "pos": "phrase",
+     "example": {
+      "target": "네, 알겠습니다. 바로 할게요.",
+      "roman": "ne, algetseumnida. baro halgeyo.",
+      "bn": "জি, বুঝেছি। এখনই করছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-아/어 주세요",
+     "explain_bn": "'আমার জন্য … করে দিন' — অনুরোধ: 도와주세요, 말해 주세요, 보여 주세요। -(으)세요-এর চেয়ে বেশি নরম অনুরোধ।",
+     "examples": [
+      {
+       "target": "천천히 설명해 주세요.",
+       "roman": "cheoncheonhi seolmyeonghae juseyo.",
+       "bn": "ধীরে বুঝিয়ে দিন।"
+      },
+      {
+       "target": "써 주세요.",
+       "roman": "sseo juseyo.",
+       "bn": "লিখে দিন।"
+      }
+     ]
+    },
+    {
+     "pattern": "잘 모르겠어요 / 알겠습니다",
+     "explain_bn": "না বুঝলে চুপ থাকবেন না: '잘 모르겠어요' (ঠিক বুঝলাম না)। বুঝলে '알겠습니다'। নিরাপত্তা নির্দেশ না বুঝে কাজ শুরু করবেন না।",
+     "examples": [
+      {
+       "target": "죄송하지만 잘 모르겠어요.",
+       "roman": "joesonghajiman jal moreugesseoyo.",
+       "bn": "দুঃখিত, ঠিক বুঝলাম না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "সুপারভাইজার"
+        },
+        "B": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "이 버튼을 누르고 삼 초 기다리세요."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "죄송하지만 잘 모르겠어요. 다시 한번 보여 주세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কর্মী কী চাইল?",
+      "options": [
+       "ছুটি",
+       "দোভাষী",
+       "আবার দেখিয়ে দিতে",
+       "নতুন মেশিন"
+      ],
+      "answer": "C",
+      "explain_bn": "다시 한번 보여 주세요 = আরেকবার দেখিয়ে দিন।",
+      "skill": "expression",
+      "id": "ko-w04-l3-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[회사 안내] 말이 안 통하면 2층 상담실에 가세요. 벵골어 통역 직원도 있어요.",
+      "prompt_bn": "এই নোটিশ অনুযায়ী কোন ভাষায় দোভাষী পাওয়া যায়?",
+      "options": [
+       "ইংরেজি শুধু",
+       "চীনা শুধু",
+       "কোনো দোভাষী নেই",
+       "বাংলা"
+      ],
+      "answer": "D",
+      "explain_bn": "벵골어 = বাংলা ভাষা। 통역 직원도 있어요 = দোভাষী কর্মীও আছে। 상담실 = পরামর্শ কক্ষ (দোতলায়)।",
+      "skill": "info_search",
+      "id": "ko-w04-l3-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'দুঃখিত, বুঝলাম না। লিখে দিন।'",
+      "model": {
+       "target": "죄송하지만 모르겠어요. 써 주세요.",
+       "roman": "joesonghajiman moreugesseoyo. sseo juseyo.",
+       "bn": "দুঃখিত, বুঝলাম না। লিখে দিন।"
+      },
+      "check": "ai",
+      "id": "ko-w04-l3-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "সুপারভাইজারকে বলুন একটা শব্দের মানে জানতে চান আর ধীরে বলতে।",
+      "model": {
+       "target": "이 단어는 무슨 뜻이에요? 천천히 말해 주세요.",
+       "roman": "i daneoneun museun tteusieyo? cheoncheonhi malhae juseyo.",
+       "bn": "এই শব্দের মানে কী? ধীরে বলুন।"
+      },
+      "id": "ko-w04-l3-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w04-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Dormitory life and problems",
+    "bn": "ডরমের জীবন ও সমস্যা"
+   },
+   "goal_bn": "ডরমে কিছু নষ্ট হলে জানানো, নিয়ম বোঝা, যা চান তা বলা (-고 싶어요)।",
+   "vocab": [
+    {
+     "target": "세탁기",
+     "roman": "setakgi",
+     "bn": "ওয়াশিং মেশিন",
+     "pos": "noun",
+     "example": {
+      "target": "세탁기가 고장 났어요.",
+      "roman": "setakgiga gojang nasseoyo.",
+      "bn": "ওয়াশিং মেশিন নষ্ট হয়ে গেছে।"
+     }
+    },
+    {
+     "target": "고장",
+     "roman": "gojang",
+     "bn": "বিকল, নষ্ট",
+     "pos": "noun",
+     "example": {
+      "target": "보일러가 고장이에요.",
+      "roman": "boilleoga gojangieyo.",
+      "bn": "বয়লার (গরম পানির যন্ত্র) নষ্ট।"
+     }
+    },
+    {
+     "target": "난방",
+     "roman": "nanbang",
+     "bn": "ঘর গরম রাখার ব্যবস্থা",
+     "pos": "noun",
+     "example": {
+      "target": "겨울에는 난방을 켜요.",
+      "roman": "gyeoureneun nanbangeul kyeoyo.",
+      "bn": "শীতে হিটার চালাই।"
+     }
+    },
+    {
+     "target": "이불",
+     "roman": "ibul",
+     "bn": "লেপ, কম্বল",
+     "pos": "noun",
+     "example": {
+      "target": "이불이 더 필요해요.",
+      "roman": "ibuli deo piryohaeyo.",
+      "bn": "আরেকটা কম্বল লাগবে।"
+     }
+    },
+    {
+     "target": "열쇠",
+     "roman": "yeolsoe",
+     "bn": "চাবি",
+     "pos": "noun",
+     "example": {
+      "target": "방 열쇠를 잃어버렸어요.",
+      "roman": "bang yeolsoereul ireobeoryeosseoyo.",
+      "bn": "রুমের চাবি হারিয়েছি।"
+     }
+    },
+    {
+     "target": "룸메이트",
+     "roman": "rummeiteu",
+     "bn": "রুমমেট",
+     "pos": "noun",
+     "example": {
+      "target": "룸메이트는 네팔 사람이에요.",
+      "roman": "rummeiteuneun nepal saramieyo.",
+      "bn": "আমার রুমমেট নেপালি।"
+     }
+    },
+    {
+     "target": "쓰레기",
+     "roman": "sseuregi",
+     "bn": "ময়লা, আবর্জনা",
+     "pos": "noun",
+     "example": {
+      "target": "쓰레기는 월요일에 버려요.",
+      "roman": "sseuregineun woryoire beoryeoyo.",
+      "bn": "ময়লা সোমবার ফেলি।"
+     }
+    },
+    {
+     "target": "분리수거",
+     "roman": "bullisugeo",
+     "bn": "ময়লা আলাদা করে ফেলা (রিসাইকেল)",
+     "pos": "noun",
+     "example": {
+      "target": "분리수거를 꼭 해야 돼요.",
+      "roman": "bullisugeoreul kkok haeya dwaeyo.",
+      "bn": "ময়লা অবশ্যই আলাদা করতে হবে।"
+     }
+    },
+    {
+     "target": "고치다",
+     "roman": "gochida",
+     "bn": "মেরামত করা",
+     "pos": "verb",
+     "example": {
+      "target": "언제 고쳐 줄 수 있어요?",
+      "roman": "eonje gochyeo jul su isseoyo?",
+      "bn": "কবে ঠিক করে দিতে পারবেন?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N이/가 고장 났어요",
+     "explain_bn": "কিছু নষ্ট হলে: জিনিস + 이/가 고장 났어요। সাথে জিজ্ঞেস করুন: 고쳐 주세요 (ঠিক করে দিন)।",
+     "examples": [
+      {
+       "target": "에어컨이 고장 났어요. 고쳐 주세요.",
+       "roman": "eeokeoni gojang nasseoyo. gochyeo juseyo.",
+       "bn": "এসি নষ্ট। ঠিক করে দিন।"
+      }
+     ]
+    },
+    {
+     "pattern": "V-고 싶어요",
+     "explain_bn": "'… করতে চাই' = মূল + 고 싶어요: 쉬고 싶어요 (বিশ্রাম নিতে চাই), 방을 바꾸고 싶어요 (রুম বদলাতে চাই)।",
+     "examples": [
+      {
+       "target": "한국어를 더 잘하고 싶어요.",
+       "roman": "hangugeoreul deo jalhago sipeoyo.",
+       "bn": "কোরিয়ান আরও ভালো বলতে চাই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "কর্মী"
+        },
+        "B": {
+         "gender": "F",
+         "role": "ডরম ম্যানেজার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "방에 뜨거운 물이 안 나와요. 보일러가 고장 났어요."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "알겠어요. 내일 오전에 기사님이 가서 고칠 거예요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কবে মেরামত হবে?",
+      "options": [
+       "কাল সকালে",
+       "আজ রাতে",
+       "কাল বিকেলে",
+       "পরের সপ্তাহে"
+      ],
+      "answer": "A",
+      "explain_bn": "내일 오전에 = কাল সকালে; 기사님 = মিস্ত্রি।",
+      "skill": "time",
+      "id": "ko-w04-l4-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[기숙사 규칙] 밤 11시 이후 조용히 하세요. 방에서 요리 금지. 쓰레기는 분리수거하세요.",
+      "prompt_bn": "ডরমের নিয়মে কী নিষেধ?",
+      "options": [
+       "রাতে ঘুমানো",
+       "রুমে রান্না করা",
+       "ময়লা ফেলা",
+       "অতিথি আনা"
+      ],
+      "answer": "B",
+      "explain_bn": "방에서 요리 금지 = রুমে রান্না নিষেধ। অতিথির কথা নোটিশে নেই।",
+      "skill": "info_search",
+      "id": "ko-w04-l4-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "ডরম ম্যানেজারকে মেসেজ লিখুন: ওয়াশিং মেশিন নষ্ট, ঠিক করে দিন।",
+      "model": {
+       "target": "안녕하세요. 세탁기가 고장 났어요. 고쳐 주세요.",
+       "roman": "annyeonghaseyo. setakgiga gojang nasseoyo. gochyeo juseyo.",
+       "bn": "আসসালামু আলাইকুম। ওয়াশিং মেশিন নষ্ট। ঠিক করে দিন।"
+      },
+      "check": "ai",
+      "id": "ko-w04-l4-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "ম্যানেজারকে বলুন রুম ঠান্ডা, আরেকটা কম্বল চান।",
+      "model": {
+       "target": "방이 너무 추워요. 이불을 하나 더 받고 싶어요.",
+       "roman": "bangi neomu chuwoyo. ibureul hana deo batgo sipeoyo.",
+       "bn": "রুম খুব ঠান্ডা। আরেকটা কম্বল চাই।"
+      },
+      "id": "ko-w04-l4-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w04-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "At the hospital and pharmacy",
+    "bn": "হাসপাতাল ও ফার্মেসিতে"
+   },
+   "goal_bn": "অসুখ-ব্যথা বলা, হাসপাতালে রিসেপশনে কথা বলা, ওষুধ নেওয়া।",
+   "vocab": [
+    {
+     "target": "병원",
+     "roman": "byeongwon",
+     "bn": "হাসপাতাল, ক্লিনিক",
+     "pos": "noun",
+     "example": {
+      "target": "병원에 가고 싶어요.",
+      "roman": "byeongwone gago sipeoyo.",
+      "bn": "হাসপাতালে যেতে চাই।"
+     }
+    },
+    {
+     "target": "약",
+     "roman": "yak",
+     "bn": "ওষুধ",
+     "pos": "noun",
+     "example": {
+      "target": "하루에 세 번 약을 드세요.",
+      "roman": "harue se beon yageul deuseyo.",
+      "bn": "দিনে তিনবার ওষুধ খান।"
+     }
+    },
+    {
+     "target": "아프다",
+     "roman": "apeuda",
+     "bn": "ব্যথা করা, অসুস্থ হওয়া",
+     "pos": "adjective",
+     "example": {
+      "target": "허리가 아파요.",
+      "roman": "heoriga apayo.",
+      "bn": "কোমরে ব্যথা।"
+     }
+    },
+    {
+     "target": "머리",
+     "roman": "meori",
+     "bn": "মাথা",
+     "pos": "noun",
+     "example": {
+      "target": "머리가 너무 아파요.",
+      "roman": "meoriga neomu apayo.",
+      "bn": "মাথা খুব ব্যথা।"
+     }
+    },
+    {
+     "target": "배",
+     "roman": "bae",
+     "bn": "পেট",
+     "pos": "noun",
+     "example": {
+      "target": "배가 아파서 못 먹어요.",
+      "roman": "baega apaseo mot meogeoyo.",
+      "bn": "পেট ব্যথায় খেতে পারছি না।"
+     }
+    },
+    {
+     "target": "기침",
+     "roman": "gichim",
+     "bn": "কাশি",
+     "pos": "noun",
+     "example": {
+      "target": "기침이 나요.",
+      "roman": "gichimi nayo.",
+      "bn": "কাশি হচ্ছে।"
+     }
+    },
+    {
+     "target": "감기",
+     "roman": "gamgi",
+     "bn": "সর্দি-জ্বর",
+     "pos": "noun",
+     "example": {
+      "target": "감기에 걸렸어요.",
+      "roman": "gamgie geollyeosseoyo.",
+      "bn": "সর্দি লেগেছে।"
+     }
+    },
+    {
+     "target": "의사",
+     "roman": "uisa",
+     "bn": "ডাক্তার",
+     "pos": "noun",
+     "example": {
+      "target": "의사 선생님, 감사합니다.",
+      "roman": "uisa seonsaengnim, gamsahamnida.",
+      "bn": "ডাক্তার সাহেব, ধন্যবাদ।"
+     }
+    },
+    {
+     "target": "보험",
+     "roman": "boheom",
+     "bn": "বিমা (স্বাস্থ্য)",
+     "pos": "noun",
+     "example": {
+      "target": "건강보험 카드 있어요?",
+      "roman": "geongangboheom kadeu isseoyo?",
+      "bn": "স্বাস্থ্য বিমা কার্ড আছে?"
+     }
+    },
+    {
+     "target": "접수",
+     "roman": "jeopsu",
+     "bn": "রিসেপশন / নাম লেখানো",
+     "pos": "noun",
+     "example": {
+      "target": "먼저 접수하세요.",
+      "roman": "meonjeo jeopsuhaseyo.",
+      "bn": "আগে রিসেপশনে নাম লেখান।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N이/가 아파요",
+     "explain_bn": "কোথায় ব্যথা: শরীরের অংশ + 이/가 아파요। 'কবে থেকে?' = 언제부터? উত্তর: 어제부터 (গতকাল থেকে)।",
+     "examples": [
+      {
+       "target": "이가 아파요.",
+       "roman": "iga apayo.",
+       "bn": "দাঁতে ব্যথা।"
+      },
+      {
+       "target": "사흘 전부터 열이 나요.",
+       "roman": "saheul jeonbuteo yeori nayo.",
+       "bn": "তিন দিন আগে থেকে জ্বর।"
+      }
+     ]
+    },
+    {
+     "pattern": "V-아서/어서 (কারণ)",
+     "explain_bn": "কারণ জুড়তে: মূল + 아서/어서: 아파서 못 가요 = অসুস্থ বলে যেতে পারছি না। (আগের নিয়মে ㅏ/ㅗ → 아서)।",
+     "examples": [
+      {
+       "target": "감기에 걸려서 오늘 쉬고 싶어요.",
+       "roman": "gamgie geollyeoseo oneul swigo sipeoyo.",
+       "bn": "সর্দি লেগেছে, তাই আজ বিশ্রাম নিতে চাই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "ডাক্তার"
+        },
+        "B": {
+         "gender": "M",
+         "role": "রোগী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "어디가 아파요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "어제부터 배가 아프고 열이 나요."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "이 약을 식후에 드세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রোগীর কী সমস্যা?",
+      "options": [
+       "মাথাব্যথা আর কাশি",
+       "পায়ে আঘাত",
+       "পেটব্যথা আর জ্বর",
+       "দাঁতে ব্যথা"
+      ],
+      "answer": "C",
+      "explain_bn": "배가 아프고 열이 나요 = পেট ব্যথা আর জ্বর। 식후에 = খাওয়ার পরে।",
+      "skill": "detail",
+      "id": "ko-w04-l5-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[약 봉투] 하루 2번, 아침과 저녁 식사 후 30분에 드세요. 술을 마시지 마세요.",
+      "prompt_bn": "ওষুধ কখন খেতে হবে?",
+      "options": [
+       "খালি পেটে দিনে তিনবার",
+       "শুধু রাতে ঘুমের আগে",
+       "দুপুরের খাবারের আগে",
+       "সকাল ও রাতের খাবারের ৩০ মিনিট পরে"
+      ],
+      "answer": "D",
+      "explain_bn": "아침과 저녁 식사 후 30분 = সকাল ও রাতের খাবারের ৩০ মিনিট পরে; দিনে ২ বার।",
+      "skill": "info_search",
+      "id": "ko-w04-l5-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "বসকে মেসেজ লিখুন: 'জ্বর হয়েছে বলে আজ হাসপাতালে যেতে চাই।'",
+      "model": {
+       "target": "사장님, 열이 나서 오늘 병원에 가고 싶어요.",
+       "roman": "sajangnim, yeori naseo oneul byeongwone gago sipeoyo.",
+       "bn": "স্যার, জ্বর হয়েছে বলে আজ হাসপাতালে যেতে চাই।"
+      },
+      "check": "ai",
+      "id": "ko-w04-l5-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "ডাক্তারকে বলুন কোথায় ব্যথা আর কবে থেকে।",
+      "model": {
+       "target": "머리가 아파요. 그저께부터 기침도 나요.",
+       "roman": "meoriga apayo. geujeokkebuteo gichimdo nayo.",
+       "bn": "মাথা ব্যথা। পরশু থেকে কাশিও হচ্ছে।"
+      },
+      "id": "ko-w04-l5-s1"
+     }
+    ]
+   }
+  }
+ ]
+}
