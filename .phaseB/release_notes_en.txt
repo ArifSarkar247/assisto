@@ -1,1 +1,1 @@
-Build 319: customer due link for the khata; Family Care arrive and leave news (background watch off until approved); City Service Dhaka transit data and route engine; Imou OAuth callback; emulator test fixes.
+Build 321: CCTV phone camera fixes (daytime alerts, large photos, faster live view), remote alert video and optional continuous recording, Family SOS v3, impossible arrivals no longer show Arrived safely, AI runs on Claude while Gemini is off, Dahua DoLynk and Imou setup, Shop Box PC download.
