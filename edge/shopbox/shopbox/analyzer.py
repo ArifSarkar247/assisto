@@ -51,6 +51,7 @@ from . import payload
 from .config import CameraConfig, DetectionConfig
 from .hours import Hours, Schedule
 from .motion import MotionDetector, MotionResult
+from .night import is_night
 from .zone import (SENSITIVITY_MULT, box_centroid, box_zone_overlap,
                    normalize_polygon, point_in_polygon, segments_cross, zone_mask)
 
@@ -98,6 +99,7 @@ class CameraAnalyzer:
         self._prev_pts: List[Tuple[float, float]] = []
         self._prev_age = 0
         self.last_people = 0             # for the UI "test" view
+        self.last_night = False          # cctvacc: last person check used night mode
         self.last_motion_at: Optional[float] = None   # cctvx (heartbeat)
         self.reconfigure()
 
@@ -126,6 +128,8 @@ class CameraAnalyzer:
         self.motion.min_area_frac = self.cfg.motion_min_area_frac * mult
         self.zone_motion_frac = self.cfg.zone_motion_frac * mult
         self.person_conf = tuning.get("person_conf")
+        # cctvacc: optional owner-drawn motion area (normalised polygon)
+        self.motion.set_area(tuning.get("motion_area"))
         self.cooldown_s = tuning.get("cooldown_s")
         self._restricted_hits = {zid: self._restricted_hits.get(zid, 0)
                                  for zid, _ in self.restricted}
@@ -148,13 +152,16 @@ class CameraAnalyzer:
     def _detect(self, frame):
         thr = self.person_conf
         if thr is None:
+            # cctvacc: IR / grey / dark frame -> the night threshold (same
+            # rule and values as the phone app; measured in CI)
+            self.last_night = is_night(frame)
+            thr = (self.cfg.person_score_night if self.last_night
+                   else self.cfg.person_score)
+        try:
+            dets = self.detector.detect(frame, score_thr=thr)
+        except TypeError:                # a detector without the override
             dets = self.detector.detect(frame)
-        else:
-            try:
-                dets = self.detector.detect(frame, score_thr=thr)
-            except TypeError:            # a detector without the override
-                dets = self.detector.detect(frame)
-            dets = [d for d in dets if d.score >= thr]
+        dets = [d for d in dets if d.score >= thr]
         self.last_people = len(dets)
         return dets
 

@@ -14,6 +14,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
+import '../shop_motion.dart'
+    show kNightLumaMax, kNightSpreadMax, kPersonScoreDay, kPersonScoreNight;
 import 'guard_box_engine.dart' show PersonDetect;
 
 const kGuardModelUrl =
@@ -45,8 +47,17 @@ Future<String?> ensureGuardModel({http.Client? client}) async {
   }
 }
 
+/// cctvacc: night mode for the person check, applied natively on the photo
+/// (grey / IR or dark -> [kPersonScoreNight]); the same rule and values as the
+/// Shop Box (edge/shopbox/shopbox/night.py; asserted in cctv_gate_parity_test).
+const kGuardNightArgs = <String, double>{
+  'thrNight': kPersonScoreNight,
+  'nightSpread': kNightSpreadMax,
+  'nightLuma': kNightLumaMax,
+};
+
 /// A [PersonDetect] backed by the native channel, or null (motion only).
-Future<PersonDetect?> guardPersonDetector({double threshold = 0.45}) async {
+Future<PersonDetect?> guardPersonDetector({double threshold = kPersonScoreDay}) async {
   try {
     final ok = await _channel.invokeMethod<bool>('available');
     if (ok != true) return null;
@@ -58,7 +69,7 @@ Future<PersonDetect?> guardPersonDetector({double threshold = 0.45}) async {
   return (Uint8List jpeg) async {
     try {
       final r = await _channel.invokeMapMethod<String, dynamic>(
-          'detect', {'model': path, 'jpeg': jpeg, 'thr': threshold});
+          'detect', {'model': path, 'jpeg': jpeg, 'thr': threshold, ...kGuardNightArgs});
       if (r == null || r['ok'] != true) return null;
       return [
         for (final b in (r['boxes'] as List? ?? const []))

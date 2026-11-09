@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 /// Shop Box mode (an old Android phone as the shop camera) — PURE on-device
@@ -11,6 +12,9 @@ import 'dart:typed_data';
 ///   * a frame-wide change above [globalResetFrac] (lights switched, auto
 ///     exposure jump) resets the background and reports NO motion;
 ///   * motion must persist for [confirmFrames] consecutive samples.
+///   * cctvacc: all of this now runs through [MotionGate] — the SAME rules
+///     and constants as the Shop Box (exposure compensation, per-cell noise,
+///     still-change absorption, blob + freshness filter, 3-frame persistence).
 ///
 /// The optional cash zone is a normalised rectangle (0..1). Detection results
 /// are SIGNALS only — the server's combined-signal rule decides on an alert,
@@ -46,36 +50,220 @@ class ZoneRect {
   }
 }
 
-class MotionDetector {
-  final int gridW;
-  final int gridH;
-  final double cellThreshold; // luminance delta (0..255) for a cell to count
-  final double minChangedFrac; // share of cells for "motion" anywhere
-  final double zoneChangedFrac; // share of ZONE cells for "in zone"
-  final double globalResetFrac;
+// ------------------------------------------------------------- cctvacc gate
+/// The motion GATE shared with the Shop Box (edge/shopbox/shopbox/
+/// motion_gate.py): the same algorithm and the same constants (both test
+/// suites assert them equal to edge/shopbox/shopbox/cctv_thresholds.json and
+/// run the same fixture cases), so the phone and the box decide alike.
+///   1. exposure compensated (median ratio): auto exposure / flicker ignored;
+///   2. a big global jump or >= [kGateGlobalFrac] of cells changing = scene
+///      change (lights, IR switch): adopt it for [kGateHoldFrames] frames;
+///   3. a cell moved when |cell - bg*ratio| > max(cellThr, kSigma*noise) —
+///      swaying trees, rain and IR noise raise their own noise;
+///   4. a still change (a lamp in one corner) is absorbed after
+///      [kGateStableFrames] frames;
+///   5. only 8-connected blobs >= [kGateMinBlob] cells holding >=
+///      [kGateMinFresh] cells that changed since the last frame count;
+///   6. confirmed after [kGateConfirmFrames] candidate frames in a row.
+const kGateGridW = 32;
+const kGateGridH = 24;
+const kGateCellThr = 14.0;
+const kGateKSigma = 3.0;
+const kGateSigma0 = 4.0;
+const kGateVarLearn = 0.1;
+const kGateVarCap = 3600.0;
+const kGateBgLearn = 0.08;
+const kGateRatioMin = 0.6;
+const kGateRatioMax = 1.6667;
+const kGateGlobalFrac = 0.35;
+const kGateMinBlob = 3;
+const kGateMinFresh = 2;
+const kGateFreshDiff = 7.0;
+const kGateStableFrames = 2;
+const kGateHoldFrames = 2;
+const kGateConfirmFrames = 3;
+
+/// Person-check thresholds (the native channel applies the night one when
+/// the photo is grey / IR or dark — same rule as the Shop Box night.py).
+const kPersonScoreDay = 0.45;
+const kPersonScoreNight = 0.30;
+const kNightSpreadMax = 10.0;
+const kNightLumaMax = 40.0;
+
+class GateResult {
+  final bool candidate;
+  final bool confirmed;
+  final bool sceneChange;
+  final bool warmingUp;
+  final double frac;
+  final List<bool>? moved;
+  const GateResult(
+      {this.candidate = false,
+      this.confirmed = false,
+      this.sceneChange = false,
+      this.warmingUp = false,
+      this.frac = 0,
+      this.moved});
+}
+
+double _median(Float64List v) {
+  final s = Float64List.fromList(v)..sort();
+  final n = s.length;
+  if (n == 0) return 0;
+  return n.isOdd ? s[n ~/ 2] : (s[n ~/ 2 - 1] + s[n ~/ 2]) / 2;
+}
+
+class MotionGate {
   final int confirmFrames;
-  final double learnRate;
+  List<bool>? mask; // cells that count (null = all)
+  Float64List? _bg, _var, _prev;
+  List<int>? _stable;
+  int _hold = 0;
+  int streak = 0;
 
-  ZoneRect? zone;
-  Float64List? _bg;
-  int _streakAny = 0;
-  int _streakZone = 0;
-
-  MotionDetector({
-    this.gridW = 32,
-    this.gridH = 24,
-    this.cellThreshold = 18,
-    this.minChangedFrac = 0.01,
-    this.zoneChangedFrac = 0.06,
-    this.globalResetFrac = 0.6,
-    this.confirmFrames = 2,
-    this.learnRate = 0.08,
-    this.zone,
-  });
+  MotionGate({this.mask, this.confirmFrames = kGateConfirmFrames});
 
   void reset() {
     _bg = null;
-    _streakAny = 0;
+    _var = null;
+    _prev = null;
+    _stable = null;
+    _hold = 0;
+    streak = 0;
+  }
+
+  void _adopt(Float64List g) {
+    _bg = Float64List.fromList(g);
+    _prev = Float64List.fromList(g);
+    _stable = List<int>.filled(g.length, 0);
+    streak = 0;
+  }
+
+  static bool anyBlob(List<bool> moved, List<bool> fresh,
+      {int w = kGateGridW, int h = kGateGridH}) {
+    final seen = List<bool>.filled(moved.length, false);
+    for (var s = 0; s < moved.length; s++) {
+      if (!moved[s] || seen[s]) continue;
+      var size = 0, nFresh = 0;
+      final stack = <int>[s];
+      seen[s] = true;
+      while (stack.isNotEmpty) {
+        final i = stack.removeLast();
+        size++;
+        if (fresh[i]) nFresh++;
+        final y = i ~/ w, x = i % w;
+        for (var dy = -1; dy <= 1; dy++) {
+          final ny = y + dy;
+          if (ny < 0 || ny >= h) continue;
+          for (var dx = -1; dx <= 1; dx++) {
+            final nx = x + dx;
+            if ((dx == 0 && dy == 0) || nx < 0 || nx >= w) continue;
+            final j = ny * w + nx;
+            if (moved[j] && !seen[j]) {
+              seen[j] = true;
+              stack.add(j);
+            }
+          }
+        }
+      }
+      if (size >= kGateMinBlob && nFresh >= kGateMinFresh) return true;
+    }
+    return false;
+  }
+
+  GateResult feed(Float64List g) {
+    final bg0 = _bg;
+    if (bg0 == null || bg0.length != g.length) {
+      _adopt(g);
+      _var = Float64List(g.length)..fillRange(0, g.length, kGateSigma0 * kGateSigma0);
+      _hold = 0;
+      return const GateResult(warmingUp: true);
+    }
+    if (_hold > 0) {
+      _hold--;
+      _adopt(g);
+      return const GateResult(sceneChange: true);
+    }
+    final mg = _median(g);
+    final ratio = (mg + 1) / (_median(bg0) + 1);
+    if (ratio < kGateRatioMin || ratio > kGateRatioMax) {
+      _adopt(g);
+      _hold = kGateHoldFrames;
+      return const GateResult(sceneChange: true);
+    }
+    final n = g.length;
+    final v = _var!;
+    final pred = Float64List(n);
+    final d = Float64List(n);
+    final moved = List<bool>.filled(n, false);
+    var nMoved = 0;
+    for (var i = 0; i < n; i++) {
+      pred[i] = bg0[i] * ratio;
+      d[i] = g[i] - pred[i];
+      final sd = kGateKSigma * math.sqrt(v[i]);
+      final thr = sd > kGateCellThr ? sd : kGateCellThr;
+      if (d[i].abs() > thr) {
+        moved[i] = true;
+        nMoved++;
+      }
+    }
+    if (nMoved / n >= kGateGlobalFrac) {
+      _adopt(g);
+      _hold = kGateHoldFrames;
+      return GateResult(sceneChange: true, frac: nMoved / n);
+    }
+    final prev = _prev!;
+    final pr = (mg + 1) / (_median(prev) + 1);
+    final st = _stable!;
+    final fresh = List<bool>.filled(n, false);
+    final absorb = List<bool>.filled(n, false);
+    final m = mask;
+    var nEff = 0;
+    for (var i = 0; i < n; i++) {
+      fresh[i] = (g[i] - prev[i] * pr).abs() > kGateFreshDiff;
+      st[i] = (moved[i] && !fresh[i]) ? st[i] + 1 : 0;
+      absorb[i] = st[i] >= kGateStableFrames;
+      if (absorb[i]) moved[i] = false;
+      if (m != null && m.length == n && !m[i]) moved[i] = false;
+      if (moved[i]) nEff++;
+    }
+    final candidate = anyBlob(moved, fresh);
+    for (var i = 0; i < n; i++) {
+      final dd = d[i] * d[i];
+      v[i] = (1 - kGateVarLearn) * v[i] + kGateVarLearn * (dd < kGateVarCap ? dd : kGateVarCap);
+      bg0[i] = absorb[i] ? g[i] : (1 - kGateBgLearn) * pred[i] + kGateBgLearn * g[i];
+      if (absorb[i]) st[i] = 0;
+      prev[i] = g[i];
+    }
+    streak = candidate ? streak + 1 : 0;
+    return GateResult(
+        candidate: candidate,
+        confirmed: streak >= confirmFrames,
+        frac: nEff / n,
+        moved: moved);
+  }
+}
+
+class MotionDetector {
+  final int gridW;
+  final int gridH;
+  final double zoneChangedFrac; // share of ZONE cells for "in zone"
+  final int confirmFrames;
+
+  ZoneRect? zone;
+  final MotionGate _gate;
+  int _streakZone = 0;
+
+  MotionDetector({
+    this.gridW = kGateGridW,
+    this.gridH = kGateGridH,
+    this.zoneChangedFrac = 0.06,
+    this.confirmFrames = kGateConfirmFrames,
+    this.zone,
+  }) : _gate = MotionGate(confirmFrames: confirmFrames);
+
+  void reset() {
+    _gate.reset();
     _streakZone = 0;
   }
 
@@ -112,43 +300,32 @@ class MotionDetector {
   }
 
   MotionResult feedGrid(Float64List g) {
-    final bg = _bg;
-    if (bg == null || bg.length != g.length) {
-      _bg = Float64List.fromList(g);
-      return const MotionResult(motion: false, inZone: false, changedFrac: 0);
+    final r = _gate.feed(g);
+    if (r.sceneChange || r.warmingUp) {
+      _streakZone = 0;
+      return MotionResult(
+          motion: false, inZone: false, changedFrac: r.frac, reset: r.sceneChange);
     }
-    var changed = 0, zoneCells = 0, zoneChanged = 0;
+    var zoneNow = false;
     final z = zone;
-    for (var i = 0; i < g.length; i++) {
-      final moved = (g[i] - bg[i]).abs() > cellThreshold;
-      if (moved) changed++;
-      if (z != null) {
+    final moved = r.moved;
+    if (r.candidate && z != null && moved != null) {
+      var zoneCells = 0, zoneChanged = 0;
+      for (var i = 0; i < g.length; i++) {
         final cx = ((i % gridW) + 0.5) / gridW;
         final cy = ((i ~/ gridW) + 0.5) / gridH;
         if (cx >= z.left && cx <= z.right && cy >= z.top && cy <= z.bottom) {
           zoneCells++;
-          if (moved) zoneChanged++;
+          if (moved[i]) zoneChanged++;
         }
       }
+      zoneNow = zoneCells > 0 && zoneChanged / zoneCells >= zoneChangedFrac;
     }
-    final frac = changed / g.length;
-    if (frac >= globalResetFrac) {
-      _bg = Float64List.fromList(g);
-      _streakAny = 0;
-      _streakZone = 0;
-      return MotionResult(motion: false, inZone: false, changedFrac: frac, reset: true);
-    }
-    for (var i = 0; i < g.length; i++) {
-      bg[i] = bg[i] * (1 - learnRate) + g[i] * learnRate;
-    }
-    final anyNow = frac >= minChangedFrac;
-    final zoneNow = zoneCells > 0 && zoneChanged / zoneCells >= zoneChangedFrac;
-    _streakAny = anyNow ? _streakAny + 1 : 0;
     _streakZone = zoneNow ? _streakZone + 1 : 0;
     return MotionResult(
-        motion: _streakAny >= confirmFrames,
+        motion: r.confirmed,
         inZone: _streakZone >= confirmFrames,
-        changedFrac: frac);
+        changedFrac: r.frac);
   }
 }
 

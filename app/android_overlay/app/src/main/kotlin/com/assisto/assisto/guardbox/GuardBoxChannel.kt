@@ -23,7 +23,11 @@ import java.util.concurrent.Executors
  * onnxruntime-android AAR already in the app (Photo Studio).
  *
  *   available()                       -> Bool  (ORT classes present)
- *   detect({model, jpeg, thr})        -> {ok, boxes:[[x1,y1,x2,y2,score]], ms}
+ *   detect({model, jpeg, thr})        -> {ok, boxes:[[x1,y1,x2,y2,score]], ms, night}
+ *     cctvacc: optional thrNight / nightSpread / nightLuma — a grey (IR) or
+ *     dark photo uses thrNight; the same rule + values as the Shop Box
+ *     (edge/shopbox/shopbox/night.py), measured on the bitmap scaled for
+ *     the model. Without them (older Dart) only `thr` is used.
  *                                        normalised 0..1, COCO class 0 only
  *   close()                           -> frees the session
  *
@@ -58,10 +62,14 @@ object GuardBoxChannel {
                     val model = call.argument<String>("model") ?: ""
                     val jpeg = call.argument<ByteArray>("jpeg")
                     val thr = (call.argument<Double>("thr") ?: 0.45).toFloat()
+                    val night = NightRule(
+                        call.argument<Double>("thrNight")?.toFloat(),
+                        (call.argument<Double>("nightSpread") ?: 10.0).toFloat(),
+                        (call.argument<Double>("nightLuma") ?: 40.0).toFloat())
                     worker.execute {
                         val out: Map<String, Any?> = try {
                             if (jpeg == null || model.isEmpty()) mapOf("ok" to false, "error" to "args")
-                            else detect(model, jpeg, thr)
+                            else detect(model, jpeg, thr, night)
                         } catch (t: Throwable) {
                             mapOf("ok" to false, "error" to t.javaClass.simpleName)
                         }
@@ -111,7 +119,26 @@ object GuardBoxChannel {
         strides = st.toFloatArray()
     }
 
-    private fun detect(model: String, jpeg: ByteArray, thr: Float): Map<String, Any?> {
+    class NightRule(val thrNight: Float?, val spreadMax: Float, val lumaMax: Float)
+
+    /** Grey (IR) or dark: mean max-min channel spread / mean luma (night.py). */
+    private fun isNight(px: IntArray, rule: NightRule): Boolean {
+        if (px.isEmpty()) return false
+        var spread = 0.0
+        var luma = 0.0
+        for (c in px) {
+            val b = c and 0xff
+            val g = (c shr 8) and 0xff
+            val r = (c shr 16) and 0xff
+            spread += (maxOf(r, maxOf(g, b)) - minOf(r, minOf(g, b)))
+            luma += 0.114 * b + 0.587 * g + 0.299 * r
+        }
+        spread /= px.size
+        luma /= px.size
+        return spread < rule.spreadMax || luma < rule.lumaMax
+    }
+
+    private fun detect(model: String, jpeg: ByteArray, thrDay: Float, rule: NightRule): Map<String, Any?> {
         val t0 = SystemClock.elapsedRealtime()
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size, bounds)
@@ -131,6 +158,8 @@ object GuardBoxChannel {
         val px = IntArray(nw * nh)
         scaled.getPixels(px, 0, nw, 0, 0, nw, nh)
         scaled.recycle()
+        val night = rule.thrNight != null && isNight(px, rule)
+        val thr = if (night) rule.thrNight!! else thrDay
         val plane = SIDE * SIDE
         val chw = FloatArray(3 * plane) { 114f }
         for (y in 0 until nh) for (x in 0 until nw) {
@@ -173,7 +202,8 @@ object GuardBoxChannel {
                 (b[2] / w).toDouble().coerceIn(0.0, 1.0), (b[3] / h).toDouble().coerceIn(0.0, 1.0),
                 b[4].toDouble())
         }
-        return mapOf("ok" to true, "boxes" to list, "ms" to (SystemClock.elapsedRealtime() - t0))
+        return mapOf("ok" to true, "boxes" to list, "ms" to (SystemClock.elapsedRealtime() - t0),
+            "night" to night)
     }
 
     private fun nms(b: List<FloatArray>, thr: Float): List<FloatArray> {

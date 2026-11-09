@@ -1,0 +1,27 @@
+{
+  "_doc": "cctvacc: ONE set of CCTV detection thresholds for the phone app (app/lib/shop_motion.dart + guard_box_model.dart -> GuardBoxChannel.kt) and the Shop Box (shopbox/motion_gate.py, shopbox/night.py). Both test suites assert their constants equal this file. Measured by tools/e2e/cctv_accuracy.py (CI).",
+  "person_score_day": 0.45,
+  "person_score_night": 0.30,
+  "night_side": 416,
+  "night_spread_max": 10.0,
+  "night_luma_max": 40.0,
+  "motion": {
+    "grid_w": 32,
+    "grid_h": 24,
+    "cell_thr": 14.0,
+    "k_sigma": 3.0,
+    "sigma0": 4.0,
+    "var_learn": 0.1,
+    "var_cap": 3600.0,
+    "bg_learn": 0.08,
+    "ratio_min": 0.6,
+    "ratio_max": 1.6667,
+    "global_frac": 0.35,
+    "min_blob": 3,
+    "min_fresh": 2,
+    "fresh_diff": 7.0,
+    "stable_frames": 2,
+    "hold_frames": 2,
+    "confirm_frames": 3
+  }
+}

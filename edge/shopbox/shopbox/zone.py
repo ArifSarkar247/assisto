@@ -179,4 +179,8 @@ def normalize_tuning(d) -> Optional[dict]:
             continue
         if np.isfinite(v):
             out[key] = min(max(v, lo), hi)
+    # cctvacc: optional owner-drawn motion area (only motion inside counts)
+    area = normalize_polygon(d.get("motion_area")) if d.get("motion_area") else []
+    if len(area) >= 3:
+        out["motion_area"] = area
     return out or None
